@@ -1,0 +1,11 @@
+﻿namespace SJP.Schema.SqlServer.Query
+{
+    public class CheckConstraintData
+    {
+        public string ConstraintName { get; set; }
+
+        public string Definition { get; set; }
+
+        public string DependentColumnName { get; set; }
+    }
+}

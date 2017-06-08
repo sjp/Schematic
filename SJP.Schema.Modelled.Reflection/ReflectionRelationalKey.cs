@@ -1,0 +1,32 @@
+﻿using System;
+using SJP.Schema.Core;
+
+namespace SJP.Schema.Modelled.Reflection
+{
+    public class ReflectionRelationalKey : IDatabaseRelationalKey
+    {
+        public ReflectionRelationalKey(IDatabaseKey childKey, IDatabaseKey parentKey)
+        {
+            ChildKey = childKey ?? throw new ArgumentNullException(nameof(childKey));
+            ParentKey = parentKey ?? throw new ArgumentNullException(nameof(parentKey));
+
+            ValidateColumnSetsCompatible(childKey, parentKey);
+        }
+
+        public IDatabaseKey ChildKey { get; }
+
+        public IDatabaseKey ParentKey { get; }
+
+
+        // TODO: implement
+        private static void ValidateColumnSetsCompatible(IDatabaseKey childKey, IDatabaseKey parentKey)
+        {
+
+        }
+
+        private static bool ColumnTypesCompatible(IDatabaseColumn a, IDatabaseColumn b)
+        {
+            return true;
+        }
+    }
+}

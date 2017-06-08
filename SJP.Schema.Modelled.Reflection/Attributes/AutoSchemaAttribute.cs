@@ -1,0 +1,47 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
+using SJP.Schema.Core;
+
+namespace SJP.Schema.Modelled.Reflection
+{
+
+    [AttributeUsage(AttributeTargets.Class | AttributeTargets.Property, AllowMultiple = true, Inherited = true)]
+    public abstract class AutoSchemaAttribute : Attribute
+    {
+        protected AutoSchemaAttribute(IEnumerable<Type> dialects)
+        {
+            if (dialects == null)
+                throw new ArgumentNullException(nameof(dialects));
+            // make sure that we only pass in dialect types
+            var incorrectTypes = dialects
+                .Where(d => d != Dialect.All && !_dialectInterface.GetTypeInfo().IsAssignableFrom(d))
+                .ToList();
+            if (incorrectTypes.Count > 0)
+            {
+                var message = incorrectTypes.Count > 1
+                    ? "A non-dialect type was provided. Type: "
+                    : "Non dialect types were provided. Types: ";
+                throw new ArgumentException(message + incorrectTypes.Select(t => t.FullName).Join(", "), nameof(dialects));
+            }
+
+            // if we encounter Dialect.All then must affect everything
+            if (dialects.Any(d => d == Dialect.All))
+            {
+                dialects = Enumerable.Empty<Type>();
+                AffectsAllDialects = true;
+            }
+
+            Dialects = dialects;
+        }
+
+        public IEnumerable<Type> Dialects { get; }
+
+        public bool SupportsDialect(Type dialect) => AffectsAllDialects || Dialects.Any(d => d.GetTypeInfo().IsAssignableFrom(dialect));
+
+        private bool AffectsAllDialects { get; }
+
+        private static readonly Type _dialectInterface = typeof(IDatabaseDialect);
+    }
+}
