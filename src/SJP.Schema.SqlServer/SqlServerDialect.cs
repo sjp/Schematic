@@ -12,7 +12,13 @@ namespace SJP.Schema.SqlServer
 
         public static IDatabaseDialect Instance { get; } = new SqlServerDialect();
 
-        public override IDbConnection CreateConnection(string connectionString) => new SqlConnection(connectionString);
+        public override IDbConnection CreateConnection(string connectionString, bool openConnection = true)
+        {
+            var connection = new SqlConnection(connectionString);
+            if (openConnection)
+                connection.Open();
+            return connection;
+        }
 
         public override string GetTypeName(DataType dataType)
         {

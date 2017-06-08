@@ -25,14 +25,14 @@ namespace SJP.Schema.SQLite
             _viewLookup = new LazyDictionaryCache<Identifier, IRelationalDatabaseView>(viewName => ViewAsync(viewName).Result);
             _triggerLookup = new LazyDictionaryCache<Identifier, IDatabaseTrigger>(triggerName => TriggerAsync(triggerName).Result);
 
-            _metadata = new Lazy<DatabaseMetadata>(LoadDatabaseMetadata);
+            Metadata = new DatabaseMetadata { DatabaseName = connection.Database };
         }
 
         public string DatabaseName => Metadata.DatabaseName;
 
         public string DefaultSchema => Metadata.DefaultSchema;
 
-        protected DatabaseMetadata Metadata => _metadata.Value;
+        protected DatabaseMetadata Metadata { get; }
 
         #region Tables
 
@@ -82,7 +82,13 @@ namespace SJP.Schema.SQLite
             ) != 0;
         }
 
-        public Task<IRelationalDatabaseTable> TableAsync(Identifier tableName) => _tableCache.GetValue(tableName);
+        public Task<IRelationalDatabaseTable> TableAsync(Identifier tableName)
+        {
+            if (tableName == null)
+                throw new ArgumentNullException(nameof(tableName));
+
+            return _tableCache.GetValue(tableName);
+        }
 
         public IObservable<IRelationalDatabaseTable> TablesAsync()
         {
@@ -119,6 +125,9 @@ namespace SJP.Schema.SQLite
 
         public bool ViewExists(Identifier viewName)
         {
+            if (viewName == null)
+                throw new ArgumentNullException(nameof(viewName));
+
             const string sql = "select count(*) from sqlite_master where type = 'view' and name = @ViewName";
             return Connection.ExecuteScalar<int>(
                 sql,
@@ -142,6 +151,9 @@ namespace SJP.Schema.SQLite
 
         public async Task<bool> ViewExistsAsync(Identifier viewName)
         {
+            if (viewName == null)
+                throw new ArgumentNullException(nameof(viewName));
+
             const string sql = "select count(*) from sqlite_master where type = 'view' and name = @ViewName";
             return await Connection.ExecuteScalarAsync<int>(
                 sql,
@@ -149,7 +161,13 @@ namespace SJP.Schema.SQLite
             ) != 0;
         }
 
-        public Task<IRelationalDatabaseView> ViewAsync(Identifier viewName) => _viewCache.GetValue(viewName);
+        public Task<IRelationalDatabaseView> ViewAsync(Identifier viewName)
+        {
+            if (viewName == null)
+                throw new ArgumentNullException(nameof(viewName));
+
+            return _viewCache.GetValue(viewName);
+        }
 
         public IObservable<IRelationalDatabaseView> ViewsAsync()
         {
@@ -287,14 +305,7 @@ namespace SJP.Schema.SQLite
 
         #endregion Triggers
 
-        private DatabaseMetadata LoadDatabaseMetadata()
-        {
-            return Connection.QuerySingle<DatabaseMetadata>(@"select db_name() as DatabaseName, schema_name() as DefaultSchema");
-        }
-
         protected static ISet<string> BuiltInTables { get; } = new HashSet<string>(new[] { "sqlite_master", "sqlite_sequence" }, StringComparer.OrdinalIgnoreCase);
-
-        private readonly Lazy<DatabaseMetadata> _metadata;
 
         private readonly AsyncCache<Identifier, IRelationalDatabaseTable> _tableCache;
         private readonly AsyncCache<Identifier, IRelationalDatabaseView> _viewCache;

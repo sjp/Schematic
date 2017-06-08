@@ -19,7 +19,7 @@ namespace SJP.Schema.Core
         // i.e. table, view, sequence, etc
         bool IsValidObjectName(Identifier name);
 
-        IDbConnection CreateConnection(string connectionString);
+        IDbConnection CreateConnection(string connectionString, bool openConnection = true);
 
         // TODO: get a type name?
         string GetTypeName(DataType dataType);

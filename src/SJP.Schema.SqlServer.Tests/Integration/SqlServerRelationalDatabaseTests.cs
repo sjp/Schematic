@@ -6,22 +6,10 @@ using SJP.Schema.Core;
 
 namespace SJP.Schema.SqlServer.Tests.Integration
 {
-    [TestFixture, DatabaseDependent]
+    [TestFixture]
     internal class SqlServerRelationalDatabaseTests : SqlServerTest
     {
         private IRelationalDatabase Database => new SqlServerRelationalDatabase(SqlServerDialect.Instance, Connection);
-
-        [Test]
-        public void MissingDialectThrowsException()
-        {
-            Assert.Throws<ArgumentNullException>(() => new SqlServerRelationalDatabase(null, Connection));
-        }
-
-        [Test]
-        public void MissingConnectionThrowsException()
-        {
-            Assert.Throws<ArgumentNullException>(() => new SqlServerRelationalDatabase(SqlServerDialect.Instance, null));
-        }
 
         [Test]
         public void DatabaseNameMatches()
@@ -35,7 +23,7 @@ namespace SJP.Schema.SqlServer.Tests.Integration
             Assert.AreEqual(Database.DefaultSchema, "dbo");
         }
 
-        [TestFixture, DatabaseDependent]
+        [TestFixture]
         internal class ViewTests : SqlServerTest
         {
             [OneTimeSetUp]

@@ -4,7 +4,7 @@ using NUnit.Framework;
 namespace SJP.Schema.SqlServer.Tests
 {
     [TestFixture]
-    public class SqlServerDialectTests
+    internal class SqlServerDialectTests
     {
         [Test]
         public void QuotingIdentifierThrowsOnNullInput()

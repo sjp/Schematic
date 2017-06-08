@@ -24,6 +24,7 @@ namespace SJP.Schema.SQLite.Tests.Integration
         }
     }
 
+    [DatabaseDependent]
     internal abstract class SQLiteTest
     {
         protected IDbConnection Connection { get; } = Config.Connection;

@@ -13,7 +13,7 @@ namespace SJP.Schema.Core
 
         //protected static readonly ILog Log = LogManager.GetLogger(typeof(IDialectProvider));
 
-        public abstract IDbConnection CreateConnection(string connectionString);
+        public abstract IDbConnection CreateConnection(string connectionString, bool openConnection = true);
 
         public virtual string QuoteName(Identifier name)
         {

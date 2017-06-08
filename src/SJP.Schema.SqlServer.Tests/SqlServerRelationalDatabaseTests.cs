@@ -1,6 +1,7 @@
 ﻿using System;
 using NUnit.Framework;
 using System.Data.SqlClient;
+using System.Data;
 
 namespace SJP.Schema.SqlServer.Tests
 {
@@ -10,8 +11,8 @@ namespace SJP.Schema.SqlServer.Tests
         [Test]
         public void MissingDialectThrowsException()
         {
-            using (var connection = new SqlConnection())
-                Assert.Throws<ArgumentNullException>(() => new SqlServerRelationalDatabase(null, connection));
+            var connection = Moq.Mock.Of<IDbConnection>();
+            Assert.Throws<ArgumentNullException>(() => new SqlServerRelationalDatabase(null, connection));
         }
 
         [Test]

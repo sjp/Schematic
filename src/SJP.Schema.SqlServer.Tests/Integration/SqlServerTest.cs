@@ -24,6 +24,7 @@ namespace SJP.Schema.SqlServer.Tests.Integration
         }
     }
 
+    [DatabaseDependent]
     internal abstract class SqlServerTest
     {
         protected IDbConnection Connection { get; } = Config.Connection;

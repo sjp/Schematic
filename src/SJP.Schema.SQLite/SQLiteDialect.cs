@@ -11,7 +11,13 @@ namespace SJP.Schema.SQLite
 
         public static IDatabaseDialect Instance { get; } = new SQLiteDialect();
 
-        public override IDbConnection CreateConnection(string connectionString) => new SqliteConnection(connectionString);
+        public override IDbConnection CreateConnection(string connectionString, bool openConnection = true)
+        {
+            var connection = new SqliteConnection(connectionString);
+            if (openConnection)
+                connection.Open();
+            return connection;
+        }
 
         public override string GetTypeName(DataType dataType)
         {

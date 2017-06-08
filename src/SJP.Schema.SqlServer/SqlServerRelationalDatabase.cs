@@ -50,6 +50,9 @@ namespace SJP.Schema.SqlServer
 
         public bool TableExists(Identifier tableName)
         {
+            if (tableName == null)
+                throw new ArgumentNullException(nameof(tableName));
+
             if (tableName.Schema.IsNullOrWhiteSpace())
                 tableName = new Identifier(DefaultSchema, tableName.LocalName);
 
@@ -77,6 +80,9 @@ namespace SJP.Schema.SqlServer
 
         public async Task<bool> TableExistsAsync(Identifier tableName)
         {
+            if (tableName == null)
+                throw new ArgumentNullException(nameof(tableName));
+
             if (tableName.Schema.IsNullOrWhiteSpace())
                 tableName = new Identifier(DefaultSchema, tableName.LocalName);
 
@@ -87,7 +93,13 @@ namespace SJP.Schema.SqlServer
             ) != 0;
         }
 
-        public Task<IRelationalDatabaseTable> TableAsync(Identifier tableName) => _tableCache.GetValue(tableName);
+        public Task<IRelationalDatabaseTable> TableAsync(Identifier tableName)
+        {
+            if (tableName == null)
+                throw new ArgumentNullException(nameof(tableName));
+
+            return _tableCache.GetValue(tableName);
+        }
 
         public IObservable<IRelationalDatabaseTable> TablesAsync()
         {
@@ -124,6 +136,9 @@ namespace SJP.Schema.SqlServer
 
         public bool ViewExists(Identifier viewName)
         {
+            if (viewName == null)
+                throw new ArgumentNullException(nameof(viewName));
+
             if (viewName.Schema.IsNullOrWhiteSpace())
                 viewName = new Identifier(DefaultSchema, viewName.LocalName);
 
@@ -150,6 +165,9 @@ namespace SJP.Schema.SqlServer
 
         public async Task<bool> ViewExistsAsync(Identifier viewName)
         {
+            if (viewName == null)
+                throw new ArgumentNullException(nameof(viewName));
+
             if (viewName.Schema.IsNullOrWhiteSpace())
                 viewName = new Identifier(DefaultSchema, viewName.LocalName);
 
@@ -159,7 +177,13 @@ namespace SJP.Schema.SqlServer
             ) != 0;
         }
 
-        public Task<IRelationalDatabaseView> ViewAsync(Identifier viewName) => _viewCache.GetValue(viewName);
+        public Task<IRelationalDatabaseView> ViewAsync(Identifier viewName)
+        {
+            if (viewName == null)
+                throw new ArgumentNullException(nameof(viewName));
+
+            return _viewCache.GetValue(viewName);
+        }
 
         public IObservable<IRelationalDatabaseView> ViewsAsync()
         {
@@ -196,6 +220,9 @@ namespace SJP.Schema.SqlServer
 
         public bool SequenceExists(Identifier sequenceName)
         {
+            if (sequenceName == null)
+                throw new ArgumentNullException(nameof(sequenceName));
+
             if (sequenceName.Schema.IsNullOrWhiteSpace())
                 sequenceName = new Identifier(DefaultSchema, sequenceName.LocalName);
 
@@ -223,6 +250,9 @@ namespace SJP.Schema.SqlServer
 
         public async Task<bool> SequenceExistsAsync(Identifier sequenceName)
         {
+            if (sequenceName == null)
+                throw new ArgumentNullException(nameof(sequenceName));
+
             if (sequenceName.Schema.IsNullOrWhiteSpace())
                 sequenceName = new Identifier(DefaultSchema, sequenceName.LocalName);
 
@@ -233,7 +263,13 @@ namespace SJP.Schema.SqlServer
             ) != 0;
         }
 
-        public Task<IDatabaseSequence> SequenceAsync(Identifier sequenceName) => _sequenceCache.GetValue(sequenceName);
+        public Task<IDatabaseSequence> SequenceAsync(Identifier sequenceName)
+        {
+            if (sequenceName == null)
+                throw new ArgumentNullException(nameof(sequenceName));
+
+            return _sequenceCache.GetValue(sequenceName);
+        }
 
         public IObservable<IDatabaseSequence> SequencesAsync()
         {
@@ -255,6 +291,9 @@ namespace SJP.Schema.SqlServer
 
         protected virtual async Task<IDatabaseSequence> LoadSequenceAsync(Identifier sequenceName)
         {
+            if (sequenceName == null)
+                throw new ArgumentNullException(nameof(sequenceName));
+
             if (sequenceName.Schema.IsNullOrWhiteSpace())
                 sequenceName = new Identifier(DefaultSchema, sequenceName.LocalName);
 
@@ -270,6 +309,9 @@ namespace SJP.Schema.SqlServer
 
         public bool SynonymExists(Identifier synonymName)
         {
+            if (synonymName == null)
+                throw new ArgumentNullException(nameof(synonymName));
+
             if (synonymName.Schema.IsNullOrWhiteSpace())
                 synonymName = new Identifier(DefaultSchema, synonymName.LocalName);
 
@@ -297,6 +339,9 @@ namespace SJP.Schema.SqlServer
 
         public async Task<bool> SynonymExistsAsync(Identifier synonymName)
         {
+            if (synonymName == null)
+                throw new ArgumentNullException(nameof(synonymName));
+
             if (synonymName.Schema.IsNullOrWhiteSpace())
                 synonymName = new Identifier(DefaultSchema, synonymName.LocalName);
 
@@ -307,7 +352,13 @@ namespace SJP.Schema.SqlServer
             ) != 0;
         }
 
-        public Task<IDatabaseSynonym> SynonymAsync(Identifier synonymName) => _synonymCache.GetValue(synonymName);
+        public Task<IDatabaseSynonym> SynonymAsync(Identifier synonymName)
+        {
+            if (synonymName == null)
+                throw new ArgumentNullException(nameof(synonymName));
+
+            return _synonymCache.GetValue(synonymName);
+        }
 
         public IObservable<IDatabaseSynonym> SynonymsAsync()
         {
@@ -369,6 +420,9 @@ where schema_id = schema_id(@SchemaName) and name = @SynonymName
         //  THESE QUERIES NEED TO BE SCOPED SO THAT THEY ARE JUST DB SCOPED
         public bool TriggerExists(Identifier triggerName)
         {
+            if (triggerName == null)
+                throw new ArgumentNullException(nameof(triggerName));
+
             if (triggerName.Schema.IsNullOrWhiteSpace())
                 triggerName = new Identifier(DefaultSchema, triggerName.LocalName);
 
@@ -396,6 +450,9 @@ where schema_id = schema_id(@SchemaName) and name = @SynonymName
 
         public async Task<bool> TriggerExistsAsync(Identifier triggerName)
         {
+            if (triggerName == null)
+                throw new ArgumentNullException(nameof(triggerName));
+
             if (triggerName.Schema.IsNullOrWhiteSpace())
                 triggerName = new Identifier(DefaultSchema, triggerName.LocalName);
 
@@ -406,7 +463,13 @@ where schema_id = schema_id(@SchemaName) and name = @SynonymName
             ) != 0;
         }
 
-        public Task<IDatabaseTrigger> TriggerAsync(Identifier triggerName) => _triggerCache.GetValue(triggerName);
+        public Task<IDatabaseTrigger> TriggerAsync(Identifier triggerName)
+        {
+            if (triggerName == null)
+                throw new ArgumentNullException(nameof(triggerName));
+
+            return _triggerCache.GetValue(triggerName);
+        }
 
         public IObservable<IDatabaseTrigger> TriggersAsync()
         {
