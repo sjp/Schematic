@@ -2,7 +2,7 @@
 
 [![License (MIT)](https://img.shields.io/badge/license-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 
-![Project icon](https://cdn.rawgit.com/sjp/SJP.Schema/master/database.svg)
+![Project icon](database.png)
 
 This is a work in progress.
 
