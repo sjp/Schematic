@@ -7,7 +7,7 @@ using System.Collections.Immutable;
 using System.Linq;
 using SJP.Schema.Core;
 
-namespace SJP.Schema.SQLite
+namespace SJP.Schema.SQLite.Parsing
 {
     public class SQLiteTableParser
     {

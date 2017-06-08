@@ -3,7 +3,7 @@ using System;
 using System.Collections.Generic;
 using SJP.Schema.Core;
 
-namespace SJP.Schema.SQLite
+namespace SJP.Schema.SQLite.Parsing
 {
     public class SQLiteTriggerParser
     {

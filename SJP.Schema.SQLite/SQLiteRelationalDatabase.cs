@@ -8,15 +8,15 @@ using Dapper;
 using SJP.Schema.Core.Utilities;
 using SJP.Schema.SQLite.Query;
 using SJP.Schema.Core;
+using SJP.Schema.SQLite.Parsing;
 
 namespace SJP.Schema.SQLite
 {
     public class SQLiteRelationalDatabase : RelationalDatabase, IRelationalDatabase
     {
-        public SQLiteRelationalDatabase(IDatabaseDialect dialect, IDbConnection connection) : base(connection)
+        public SQLiteRelationalDatabase(IDatabaseDialect dialect, IDbConnection connection)
+            : base(dialect, connection)
         {
-            Dialect = dialect ?? throw new ArgumentNullException(nameof(dialect));
-
             _tableCache = new AsyncCache<Identifier, IRelationalDatabaseTable>(LoadTableAsync);
             _viewCache = new AsyncCache<Identifier, IRelationalDatabaseView>(LoadViewAsync);
             _triggerCache = new AsyncCache<Identifier, IDatabaseTrigger>(LoadTriggerAsync);
@@ -27,8 +27,6 @@ namespace SJP.Schema.SQLite
 
             _metadata = new Lazy<DatabaseMetadata>(LoadDatabaseMetadata);
         }
-
-        public IDatabaseDialect Dialect { get; }
 
         public string DatabaseName => Metadata.DatabaseName;
 

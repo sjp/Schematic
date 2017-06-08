@@ -1,8 +1,9 @@
-﻿using System;
+﻿using SJP.Schema.Core;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace SJP.Schema.Core
+namespace SJP.Schema.Modelled
 {
     public class RelationalDatabaseBuilder : IRelationalDatabaseBuilder
     {
@@ -12,6 +13,16 @@ namespace SJP.Schema.Core
                 throw new ArgumentNullException(nameof(database));
 
             _databases.Add(database);
+        }
+
+        protected RelationalDatabaseBuilder(IList<IDependentRelationalDatabase> databases)
+        {
+            if (databases == null)
+                throw new ArgumentNullException(nameof(databases));
+            if (databases.Count == 0)
+                throw new ArgumentException("At least one database must be provided.", nameof(databases));
+
+            _databases = databases;
         }
 
         public RelationalDatabaseBuilder(Func<IDependentRelationalDatabase> databaseFactory)
@@ -29,8 +40,7 @@ namespace SJP.Schema.Core
                 throw new ArgumentNullException(nameof(database));
 
             _databases.Add(database);
-
-            return this;
+            return new RelationalDatabaseBuilder(_databases);
         }
 
         public IRelationalDatabaseBuilder OverrideWith(Func<IDependentRelationalDatabase> databaseFactory)
@@ -41,7 +51,7 @@ namespace SJP.Schema.Core
             var result = databaseFactory.Invoke();
             _databases.Add(result);
 
-            return this;
+            return new RelationalDatabaseBuilder(_databases);
         }
 
         public IRelationalDatabase Build() => new OrderedRelationalDatabase(_databases.Reverse());

@@ -10,6 +10,7 @@ using System.Reactive.Linq;
 using SJP.Schema.Core.Utilities;
 using SJP.Schema.Core;
 using SJP.Schema.SQLite.Query;
+using SJP.Schema.SQLite.Parsing;
 
 namespace SJP.Schema.SQLite
 {

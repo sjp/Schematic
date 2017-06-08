@@ -1,12 +1,13 @@
-﻿using System;
+﻿using SJP.Schema.Core;
+using SJP.Schema.Core.Utilities;
+using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using System.Reactive.Linq;
 using System.Threading.Tasks;
-using SJP.Schema.Core.Utilities;
 
-namespace SJP.Schema.Core
+namespace SJP.Schema.Modelled
 {
     public class OrderedRelationalDatabase : IRelationalDatabase
     {

@@ -13,10 +13,9 @@ namespace SJP.Schema.SqlServer
 {
     public class SqlServerRelationalDatabase : RelationalDatabase, IRelationalDatabase, IDependentRelationalDatabase
     {
-        public SqlServerRelationalDatabase(IDatabaseDialect dialect, IDbConnection connection) : base(connection)
+        public SqlServerRelationalDatabase(IDatabaseDialect dialect, IDbConnection connection)
+            : base(dialect, connection)
         {
-            Dialect = dialect ?? throw new ArgumentNullException(nameof(dialect));
-
             _tableCache = new AsyncCache<Identifier, IRelationalDatabaseTable>(LoadTableAsync);
             _viewCache = new AsyncCache<Identifier, IRelationalDatabaseView>(LoadViewAsync);
             _sequenceCache = new AsyncCache<Identifier, IDatabaseSequence>(LoadSequenceAsync);
@@ -32,8 +31,6 @@ namespace SJP.Schema.SqlServer
             _metadata = new Lazy<DatabaseMetadata>(LoadDatabaseMetadata);
             _parentDb = this;
         }
-
-        public IDatabaseDialect Dialect { get; }
 
         public IRelationalDatabase Parent
         {
