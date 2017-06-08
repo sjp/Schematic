@@ -25,6 +25,8 @@ namespace SJP.Schema.Modelled.Reflection
             IsNumericType = _numericTypes.Contains(Type);
             IsStringType = _stringTypes.Contains(Type);
             _typeAttribute = attr;
+            _columnType = columnType;
+            _dialect = dialect;
         }
 
         public DataType Type { get; }

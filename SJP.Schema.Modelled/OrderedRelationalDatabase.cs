@@ -151,7 +151,7 @@ namespace SJP.Schema.Modelled
 
             var views = Databases.Select(d => d.ViewAsync(viewName)).ToArray();
             var viewsTask = await Task.WhenAll(views);
-            return viewsTask.FirstOrDefault(t => t != null);
+            return Array.Find(viewsTask, t => t != null);
         }
 
         public IObservable<IRelationalDatabaseView> ViewsAsync()
@@ -178,7 +178,7 @@ namespace SJP.Schema.Modelled
 
             var sequences = Databases.Select(d => d.SequenceAsync(sequenceName)).ToArray();
             var sequencesTask = await Task.WhenAll(sequences);
-            return sequencesTask.FirstOrDefault(t => t != null);
+            return Array.Find(sequencesTask, t => t != null);
         }
 
         public IObservable<IDatabaseSequence> SequencesAsync()
@@ -208,7 +208,7 @@ namespace SJP.Schema.Modelled
 
             var synonyms = Databases.Select(d => d.SynonymAsync(synonymName)).ToArray();
             var synonymsTask = await Task.WhenAll(synonyms);
-            return synonymsTask.FirstOrDefault(t => t != null);
+            return Array.Find(synonymsTask, t => t != null);
         }
 
         public IObservable<IDatabaseSynonym> SynonymsAsync()
@@ -223,7 +223,7 @@ namespace SJP.Schema.Modelled
 
             var synonymExists = Databases.Select(d => d.TriggerExistsAsync(triggerName)).ToArray();
             var synonymPresence = await Task.WhenAll(synonymExists);
-            return synonymPresence.Any();
+            return synonymPresence.Length > 0;
         }
 
         public Task<IDatabaseTrigger> TriggerAsync(Identifier triggerName) => _triggerCache.GetValue(triggerName);
@@ -235,7 +235,7 @@ namespace SJP.Schema.Modelled
 
             var triggers = Databases.Select(d => d.TriggerAsync(triggerName)).ToArray();
             var triggersTask = await Task.WhenAll(triggers);
-            return triggersTask.FirstOrDefault(t => t != null);
+            return Array.Find(triggersTask, t => t != null);
         }
 
         public IObservable<IDatabaseTrigger> TriggersAsync()
