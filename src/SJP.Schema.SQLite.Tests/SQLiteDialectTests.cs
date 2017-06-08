@@ -4,7 +4,7 @@ using NUnit.Framework;
 namespace SJP.Schema.SQLite.Tests
 {
     [TestFixture]
-    public class SqlServerDialectTests
+    public class SQLiteDialectTests
     {
         [Test]
         public void QuotingIdentifierThrowsOnNullInput()

@@ -1,17 +1,18 @@
 ﻿using System;
 using NUnit.Framework;
-using System.Data.SqlClient;
+using Moq;
+using System.Data;
 
 namespace SJP.Schema.SQLite.Tests
 {
     [TestFixture]
-    internal class SqlServerRelationalDatabaseTests
+    internal class SQLiteRelationalDatabaseTests
     {
         [Test]
         public void MissingDialectThrowsException()
         {
-            using (var connection = new SqlConnection())
-                Assert.Throws<ArgumentNullException>(() => new SQLiteRelationalDatabase(null, connection));
+            var connection = Mock.Of<IDbConnection>();
+            Assert.Throws<ArgumentNullException>(() => new SQLiteRelationalDatabase(null, connection));
         }
 
         [Test]
