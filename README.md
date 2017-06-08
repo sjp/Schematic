@@ -1,5 +1,7 @@
 # SJP.Schema
 
+[![License (3-Clause BSD)](https://img.shields.io/badge/license-BSD%203--Clause-blue.svg)](https://opensource.org/licenses/BSD-3-Clause)
+
 ![Project icon](https://cdn.rawgit.com/sjp/SJP.Schema/master/database.svg)
 
 This is a work in progress.
