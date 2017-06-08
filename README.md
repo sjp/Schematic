@@ -1,5 +1,7 @@
 # SJP.Schema
 
+![Project Icon](database.svg)
+
 This is a work in progress.
 
 The aim of this project is to create an easier way to declare and manage schemas of medium-level complexity.
@@ -17,3 +19,5 @@ Non-goals:
 
 * User administration/management. Access and permissions are not in scope.
 * Advanced database features such as partitioning, file storage, advanced index configuration.
+
+Original icon made by [Madebyoliver](https://dribbble.com/olivers) from [www.flaticon.com](http://www.flaticon.com). Modifications created by myself.
