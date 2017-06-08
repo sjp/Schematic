@@ -41,3 +41,6 @@
 
 * Full-text indexes? Not sure how generic they are or whether they need to be treated any
   differently in the declarations. Maybe just an attribute stating that it's a full-text index?
+
+* Add support for Oracle, Postgres and Mysql. These are probably sufficient, and cover the most
+  widely used databases, especially in .NET.
