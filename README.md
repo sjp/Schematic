@@ -1,6 +1,6 @@
 # SJP.Schema
 
-![Project Icon](https://cdn.rawgit.com/sjp/SJP.Schema/master/database.svg)
+![Project icon](https://cdn.rawgit.com/sjp/SJP.Schema/master/database.svg)
 
 This is a work in progress.
 
