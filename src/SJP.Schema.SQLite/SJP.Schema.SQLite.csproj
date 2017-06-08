@@ -7,6 +7,16 @@
   <PropertyGroup>
     <TreatWarningsAsErrors>True</TreatWarningsAsErrors>
     <TreatSpecificWarningsAsErrors />
+    <Authors>Simon Potter</Authors>
+    <Company />
+    <Product />
+    <Description>SQLite database metadata and migration provider for SJP.Schema</Description>
+    <Copyright>Copyright © Simon Potter 2017</Copyright>
+    <PackageLicenseUrl>https://raw.github.com/sjp/SJP.Schema/master/LICENSE.md</PackageLicenseUrl>
+    <PackageProjectUrl>https://github.com/sjp/SJP.Schema</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/sjp/SJP.Schema</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageIconUrl>https://raw.github.com/sjp/SJP.Schema/master/database.svg</PackageIconUrl>
   </PropertyGroup>
 
   <ItemGroup>

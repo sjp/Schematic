@@ -7,6 +7,17 @@
   <PropertyGroup>
     <TreatWarningsAsErrors>True</TreatWarningsAsErrors>
     <TreatSpecificWarningsAsErrors />
+    <Description>Core components for database modelling and migrations in .NET</Description>
+    <Copyright>Copyright © Simon Potter 2017</Copyright>
+    <RepositoryUrl>https://github.com/sjp/SJP.Schema</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <NeutralLanguage>en-US</NeutralLanguage>
+    <PackageLicenseUrl>https://raw.github.com/sjp/SJP.Schema/master/LICENSE.md</PackageLicenseUrl>
+    <Authors>Simon Potter</Authors>
+    <Company></Company>
+    <Product />
+    <PackageProjectUrl>https://github.com/sjp/SJP.Schema</PackageProjectUrl>
+    <PackageIconUrl>https://raw.github.com/sjp/SJP.Schema/master/database.svg</PackageIconUrl>
   </PropertyGroup>
 
   <ItemGroup>
