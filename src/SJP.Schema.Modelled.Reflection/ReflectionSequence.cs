@@ -3,17 +3,27 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using SJP.Schema.Core;
+using System.Reflection;
 
 namespace SJP.Schema.Modelled.Reflection
 {
-    public class ReflectionSequence<T> : IDatabaseSequence where T : ISequence, new()
+    public class ReflectionSequence : IDatabaseSequence
     {
-        public ReflectionSequence(IRelationalDatabase database)
+        public ReflectionSequence(IRelationalDatabase database, Type sequenceType)
         {
             if (database == null)
                 throw new ArgumentNullException(nameof(database));
+            if (sequenceType == null)
+                throw new ArgumentNullException(nameof(sequenceType));
 
-            var instance = new T();
+            SequenceType = sequenceType.GetTypeInfo();
+            if (!_iSequenceType.IsAssignableFrom(SequenceType))
+                throw new ArgumentException($"The sequence type { SequenceType.FullName } must implement the { _iSequenceType.FullName } interface.", nameof(sequenceType));
+            var ctor = sequenceType.GetDefaultConstructor();
+            if (ctor == null)
+                throw new ArgumentException($"The sequence type { SequenceType.FullName } does not contain a default constructor.", nameof(sequenceType));
+
+            var instance = ctor.Invoke(new object[0]) as ISequence;
             Cache = instance.Cache;
             Cycle = instance.Cycle;
             Increment = instance.Increment;
@@ -22,7 +32,7 @@ namespace SJP.Schema.Modelled.Reflection
             Start = instance.Start;
 
             var dialect = database.Dialect;
-            Name = dialect.GetQualifiedNameOverrideOrDefault(database, SequenceType);
+            Name = dialect.GetQualifiedNameOverrideOrDefault(database, sequenceType);
         }
 
         public int Cache { get; }
@@ -57,6 +67,8 @@ namespace SJP.Schema.Modelled.Reflection
 
         public Task<IEnumerable<Identifier>> DependentsAsync() => Task.FromResult(Dependents);
 
-        protected Type SequenceType { get; } = typeof(T);
+        protected TypeInfo SequenceType { get; }
+
+        private static TypeInfo _iSequenceType = typeof(ISequence).GetTypeInfo();
     }
 }

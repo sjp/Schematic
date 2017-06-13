@@ -2,12 +2,13 @@
 using System.Linq;
 using System.Reflection;
 using SJP.Schema.Core;
+using SJP.Schema.Modelled.Reflection.Model;
 
 namespace SJP.Schema.Modelled.Reflection
 {
     public class ReflectionSynonym : IDatabaseSynonym
     {
-        public ReflectionSynonym(Type synonymType, IRelationalDatabase database)
+        public ReflectionSynonym(IRelationalDatabase database, Type synonymType)
         {
             if (database == null)
                 throw new ArgumentException(nameof(database));

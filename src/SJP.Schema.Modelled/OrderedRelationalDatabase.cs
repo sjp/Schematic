@@ -117,7 +117,7 @@ namespace SJP.Schema.Modelled
 
         public Task<IRelationalDatabaseTable> TableAsync(Identifier tableName) => _tableCache.GetValue(tableName);
 
-        public async Task<IRelationalDatabaseTable> LoadTableAsync(Identifier tableName)
+        protected async Task<IRelationalDatabaseTable> LoadTableAsync(Identifier tableName)
         {
             if (tableName == null)
                 throw new ArgumentNullException(nameof(tableName));
@@ -144,7 +144,7 @@ namespace SJP.Schema.Modelled
 
         public Task<IRelationalDatabaseView> ViewAsync(Identifier viewName) => _viewCache.GetValue(viewName);
 
-        public async Task<IRelationalDatabaseView> LoadViewAsync(Identifier viewName)
+        protected async Task<IRelationalDatabaseView> LoadViewAsync(Identifier viewName)
         {
             if (viewName == null)
                 throw new ArgumentNullException(nameof(viewName));
@@ -171,7 +171,7 @@ namespace SJP.Schema.Modelled
 
         public Task<IDatabaseSequence> SequenceAsync(Identifier sequenceName) => _sequenceCache.GetValue(sequenceName);
 
-        public async Task<IDatabaseSequence> LoadSequenceAsync(Identifier sequenceName)
+        protected async Task<IDatabaseSequence> LoadSequenceAsync(Identifier sequenceName)
         {
             if (sequenceName == null)
                 throw new ArgumentNullException(nameof(sequenceName));
@@ -201,7 +201,7 @@ namespace SJP.Schema.Modelled
 
         public Task<IDatabaseSynonym> SynonymAsync(Identifier synonymName) => _synonymCache.GetValue(synonymName);
 
-        public async Task<IDatabaseSynonym> LoadSynonymAsync(Identifier synonymName)
+        protected async Task<IDatabaseSynonym> LoadSynonymAsync(Identifier synonymName)
         {
             if (synonymName == null)
                 throw new ArgumentNullException(nameof(synonymName));
@@ -228,7 +228,7 @@ namespace SJP.Schema.Modelled
 
         public Task<IDatabaseTrigger> TriggerAsync(Identifier triggerName) => _triggerCache.GetValue(triggerName);
 
-        public async Task<IDatabaseTrigger> LoadTriggerAsync(Identifier triggerName)
+        protected async Task<IDatabaseTrigger> LoadTriggerAsync(Identifier triggerName)
         {
             if (triggerName == null)
                 throw new ArgumentNullException(nameof(triggerName));

@@ -5,7 +5,7 @@ using System.Linq;
 
 namespace SJP.Schema.Core
 {
-    public static class AutoSchemaCharExtensions
+    public static class CharExtensions
     {
         public static UnicodeCategory GetUnicodeCategory(this char c) => CharUnicodeInfo.GetUnicodeCategory(c);
 
@@ -20,7 +20,7 @@ namespace SJP.Schema.Core
         public static char ToUpperInvariant(this char c) => char.ToUpperInvariant(c);
     }
 
-    public static class AutoSchemaStringExtensions
+    public static class StringExtensions
     {
         public static bool IsNullOrEmpty(this string input) => string.IsNullOrEmpty(input);
 
@@ -40,7 +40,7 @@ namespace SJP.Schema.Core
         }
     }
 
-    public static class AutoSchemaEnumerableExtensions
+    public static class EnumerableExtensions
     {
         public static bool Empty<T>(this IEnumerable<T> source) => !source.Any();
 

@@ -2,10 +2,11 @@
 using System.Linq;
 using System.Reflection;
 using SJP.Schema.Core;
+using SJP.Schema.Modelled.Reflection.Model;
 
 namespace SJP.Schema.Modelled.Reflection
 {
-    public static class AutoSchemaReflectionExtensions
+    public static class ReflectionExtensions
     {
         public static FieldInfo GetAutoBackingField(this PropertyInfo property, BindingFlags bindingFlags = BindingFlags.Instance | BindingFlags.NonPublic)
         {
@@ -16,7 +17,16 @@ namespace SJP.Schema.Modelled.Reflection
             return property.DeclaringType.GetTypeInfo().GetField(backingFieldName, bindingFlags);
         }
 
-        public static T GetDialectAttribute<T>(this IDatabaseDialect dialect, PropertyInfo property) where T : AutoSchemaAttribute
+        public static ConstructorInfo GetDefaultConstructor(this Type type)
+        {
+            if (type == null)
+                throw new ArgumentNullException(nameof(type));
+
+            var typeInfo = type.GetTypeInfo();
+            return typeInfo.GetConstructor(Type.EmptyTypes);
+        }
+
+        public static T GetDialectAttribute<T>(this IDatabaseDialect dialect, PropertyInfo property) where T : ModelledSchemaAttribute
         {
             if (dialect == null)
                 throw new ArgumentNullException(nameof(dialect));
@@ -34,7 +44,7 @@ namespace SJP.Schema.Modelled.Reflection
             return attrs.SingleOrDefault();
         }
 
-        public static T GetDialectAttribute<T>(this IDatabaseDialect dialect, Type type) where T : AutoSchemaAttribute
+        public static T GetDialectAttribute<T>(this IDatabaseDialect dialect, Type type) where T : ModelledSchemaAttribute
         {
             if (dialect == null)
                 throw new ArgumentNullException(nameof(dialect));

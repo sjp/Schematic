@@ -8,7 +8,6 @@ namespace SJP.Schema.Modelled.Reflection
     {
         public DbType()
         {
-
         }
 
         public DataType DataType => throw new NotImplementedException();

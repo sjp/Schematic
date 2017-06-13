@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Reflection;
 using SJP.Schema.Core;
+using SJP.Schema.Modelled.Reflection.Model;
 
 namespace SJP.Schema.Modelled.Reflection
 {

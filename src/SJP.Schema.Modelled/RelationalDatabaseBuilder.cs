@@ -1,6 +1,7 @@
 ﻿using SJP.Schema.Core;
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Linq;
 
 namespace SJP.Schema.Modelled
@@ -56,6 +57,6 @@ namespace SJP.Schema.Modelled
 
         public IRelationalDatabase Build() => new OrderedRelationalDatabase(_databases.Reverse());
 
-        private readonly IList<IDependentRelationalDatabase> _databases = new List<IDependentRelationalDatabase>();
+        private readonly IList<IDependentRelationalDatabase> _databases = ImmutableList.Create<IDependentRelationalDatabase>();
     }
 }

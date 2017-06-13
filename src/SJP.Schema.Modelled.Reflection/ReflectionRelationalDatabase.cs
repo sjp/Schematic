@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using System.Reactive.Linq;
 using SJP.Schema.Core;
 using SJP.Schema.Core.Utilities;
+using SJP.Schema.Modelled.Reflection.Model;
 
 namespace SJP.Schema.Modelled.Reflection
 {

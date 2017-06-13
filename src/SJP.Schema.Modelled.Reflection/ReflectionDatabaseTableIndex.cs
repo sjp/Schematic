@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using SJP.Schema.Core;
+using SJP.Schema.Modelled.Reflection.Model;
 
 namespace SJP.Schema.Modelled.Reflection
 {

@@ -34,9 +34,6 @@
   additionally rules can be configurable. Want to be able to detect things like missing
   indexes on FKs and also potentially missing foreign keys (if column names match certain patterns).
 
-* Move reflection-based declarations into a 'Model' namespace. Ensures that we can easily
-  section off anything that is used only for declaration purposes.
-
 * Computed columns. Not widely supported, perhaps just Oracle and SQL Server only?
 
 * Full-text indexes? Not sure how generic they are or whether they need to be treated any
