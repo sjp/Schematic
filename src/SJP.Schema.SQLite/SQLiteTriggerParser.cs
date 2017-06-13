@@ -3,11 +3,11 @@ using System;
 using System.Collections.Generic;
 using SJP.Schema.Core;
 
-namespace SJP.Schema.SQLite.Parsing
+namespace SJP.Schema.Sqlite.Parsing
 {
-    public class SQLiteTriggerParser
+    public class SqliteTriggerParser
     {
-        public SQLiteTriggerParser(TokenList<SqlToken> tokens)
+        public SqliteTriggerParser(TokenList<SqlToken> tokens)
         {
             if (tokens == default(TokenList<SqlToken>) || tokens.Empty())
                 throw new ArgumentNullException(nameof(tokens));

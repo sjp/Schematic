@@ -3,11 +3,11 @@ using NUnit.Framework;
 using SJP.Schema.Core;
 using Microsoft.Extensions.Configuration;
 
-namespace SJP.Schema.SQLite.Tests.Integration
+namespace SJP.Schema.Sqlite.Tests.Integration
 {
     internal static class Config
     {
-        public static IDbConnection Connection => SQLiteDialect.Instance.CreateConnection(ConnectionString);
+        public static IDbConnection Connection => SqliteDialect.Instance.CreateConnection(ConnectionString);
 
         private static string ConnectionString => Configuration.GetConnectionString("TestDb");
 
@@ -25,10 +25,10 @@ namespace SJP.Schema.SQLite.Tests.Integration
     }
 
     [DatabaseDependent]
-    internal abstract class SQLiteTest
+    internal abstract class SqliteTest
     {
         protected IDbConnection Connection { get; } = Config.Connection;
 
-        protected IDatabaseDialect Dialect { get; } = SQLiteDialect.Instance;
+        protected IDatabaseDialect Dialect { get; } = SqliteDialect.Instance;
     }
 }

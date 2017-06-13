@@ -4,11 +4,11 @@ using System.Collections.Immutable;
 using System.Linq;
 using SJP.Schema.Core;
 
-namespace SJP.Schema.SQLite
+namespace SJP.Schema.Sqlite
 {
-    public class SQLiteDatabaseTableIndex : SQLiteDatabaseIndex<IRelationalDatabaseTable>, IDatabaseTableIndex
+    public class SqliteDatabaseTableIndex : SqliteDatabaseIndex<IRelationalDatabaseTable>, IDatabaseTableIndex
     {
-        public SQLiteDatabaseTableIndex(IRelationalDatabaseTable table, Identifier name, bool isUnique, IEnumerable<IDatabaseIndexColumn> columns, IEnumerable<IDatabaseColumn> includedColumns)
+        public SqliteDatabaseTableIndex(IRelationalDatabaseTable table, Identifier name, bool isUnique, IEnumerable<IDatabaseIndexColumn> columns, IEnumerable<IDatabaseColumn> includedColumns)
             : base(table, name, isUnique, columns, includedColumns)
         {
             if (table == null)
@@ -20,21 +20,17 @@ namespace SJP.Schema.SQLite
         public IRelationalDatabaseTable Table { get; }
     }
 
-    public abstract class SQLiteDatabaseIndex<T> : IDatabaseIndex<T> where T : class, IDatabaseQueryable
+    public abstract class SqliteDatabaseIndex<T> : IDatabaseIndex<T> where T : class, IDatabaseQueryable
     {
-        protected SQLiteDatabaseIndex(T parent, Identifier name, bool isUnique, IEnumerable<IDatabaseIndexColumn> columns, IEnumerable<IDatabaseColumn> includedColumns)
+        protected SqliteDatabaseIndex(T parent, Identifier name, bool isUnique, IEnumerable<IDatabaseIndexColumn> columns, IEnumerable<IDatabaseColumn> includedColumns)
         {
-            if (parent == null)
-                throw new ArgumentNullException(nameof(parent));
-            if (name == null)
-                throw new ArgumentNullException(nameof(name));
             if (columns == null || columns.Empty() || columns.AnyNull())
                 throw new ArgumentNullException(nameof(columns));
             if (includedColumns != null && includedColumns.AnyNull())
                 throw new ArgumentNullException(nameof(includedColumns));
 
-            Parent = parent;
-            Name = name;
+            Parent = parent ?? throw new ArgumentNullException(nameof(parent));
+            Name = name ?? throw new ArgumentNullException(nameof(name));
             IsUnique = isUnique;
             Columns = columns.ToImmutableList();
             IncludedColumns = includedColumns.ToImmutableList() ?? Enumerable.Empty<IDatabaseColumn>();

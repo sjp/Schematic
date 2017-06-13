@@ -3,13 +3,13 @@ using System.Data;
 using Microsoft.Data.Sqlite;
 using SJP.Schema.Core;
 
-namespace SJP.Schema.SQLite
+namespace SJP.Schema.Sqlite
 {
-    public class SQLiteDialect : DatabaseDialect<SQLiteDialect>
+    public class SqliteDialect : DatabaseDialect<SqliteDialect>
     {
-        private SQLiteDialect() { } // hide ctor
+        private SqliteDialect() { } // hide ctor
 
-        public static IDatabaseDialect Instance { get; } = new SQLiteDialect();
+        public static IDatabaseDialect Instance { get; } = new SqliteDialect();
 
         public override IDbConnection CreateConnection(string connectionString, bool openConnection = true)
         {

@@ -3,19 +3,17 @@ using System.Collections.Generic;
 using System.Linq;
 using SJP.Schema.Core;
 
-namespace SJP.Schema.SQLite
+namespace SJP.Schema.Sqlite
 {
-    public class SQLiteCheckConstraint : IDatabaseCheckConstraint
+    public class SqliteCheckConstraint : IDatabaseCheckConstraint
     {
-        public SQLiteCheckConstraint(IRelationalDatabaseTable table, Identifier checkName, string definition)
+        public SqliteCheckConstraint(IRelationalDatabaseTable table, Identifier checkName, string definition)
         {
-            if (table == null)
-                throw new ArgumentNullException(nameof(table));
             if (definition.IsNullOrWhiteSpace())
                 throw new ArgumentNullException(nameof(definition));
 
-            Table = table;
-            Name = checkName;
+            Table = table ?? throw new ArgumentNullException(nameof(table));
+            Name = checkName ?? throw new ArgumentNullException(nameof(checkName));
             Expression = null; // TODO: // new ModelledSqlExpression();
         }
 

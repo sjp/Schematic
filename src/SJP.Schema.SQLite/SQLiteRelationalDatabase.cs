@@ -6,15 +6,15 @@ using System.Reactive.Linq;
 using System.Threading.Tasks;
 using Dapper;
 using SJP.Schema.Core.Utilities;
-using SJP.Schema.SQLite.Query;
 using SJP.Schema.Core;
-using SJP.Schema.SQLite.Parsing;
+using SJP.Schema.Sqlite.Query;
+using SJP.Schema.Sqlite.Parsing;
 
-namespace SJP.Schema.SQLite
+namespace SJP.Schema.Sqlite
 {
-    public class SQLiteRelationalDatabase : RelationalDatabase, IRelationalDatabase
+    public class SqliteRelationalDatabase : RelationalDatabase, IRelationalDatabase
     {
-        public SQLiteRelationalDatabase(IDatabaseDialect dialect, IDbConnection connection)
+        public SqliteRelationalDatabase(IDatabaseDialect dialect, IDbConnection connection)
             : base(dialect, connection)
         {
             _tableCache = new AsyncCache<Identifier, IRelationalDatabaseTable>(LoadTableAsync);
@@ -115,7 +115,7 @@ namespace SJP.Schema.SQLite
         {
             var exists = await TableExistsAsync(tableName);
             return exists
-                ? new SQLiteRelationalDatabaseTable(Connection, this, tableName)
+                ? new SqliteRelationalDatabaseTable(Connection, this, tableName)
                 : null;
         }
 
@@ -296,11 +296,11 @@ namespace SJP.Schema.SQLite
             if (queryResult == null)
                 return null;
 
-            var tokenizer = new SQLiteTokenizer();
+            var tokenizer = new SqliteTokenizer();
             var tokens = tokenizer.Tokenize(queryResult);
-            var triggerParser = new SQLiteTriggerParser(tokens);
+            var triggerParser = new SqliteTriggerParser(tokens);
 
-            return new SQLiteDatabaseTrigger(null, triggerName.LocalName, queryResult, triggerParser.Timing, triggerParser.Event);
+            return new SqliteDatabaseTrigger(null, triggerName.LocalName, queryResult, triggerParser.Timing, triggerParser.Event);
         }
 
         #endregion Triggers

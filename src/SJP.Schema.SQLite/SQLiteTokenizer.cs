@@ -6,9 +6,9 @@ using System.Collections.Generic;
 using System.Linq;
 using SJP.Schema.Core;
 
-namespace SJP.Schema.SQLite.Parsing
+namespace SJP.Schema.Sqlite.Parsing
 {
-    public class SQLiteTokenizer : Tokenizer<SqlToken>
+    public class SqliteTokenizer : Tokenizer<SqlToken>
     {
         protected override IEnumerable<Result<SqlToken>> Tokenize(TextSpan span)
         {

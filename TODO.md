@@ -42,7 +42,5 @@
 * Add support for Oracle, Postgres and Mysql. These are probably sufficient, and cover the most
   widely used databases, especially in .NET.
 
-* Change case of SQLite to Sqlite? Makes it more consistent with other vendors.
-
 * Add or implement logging. Create providers for common implementations, e.g.
   log4net, serilog, etc. Create a common interface and set statically.

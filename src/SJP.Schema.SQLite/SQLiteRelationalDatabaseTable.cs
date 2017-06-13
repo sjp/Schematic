@@ -9,20 +9,20 @@ using System.Threading.Tasks;
 using System.Reactive.Linq;
 using SJP.Schema.Core.Utilities;
 using SJP.Schema.Core;
-using SJP.Schema.SQLite.Query;
-using SJP.Schema.SQLite.Parsing;
+using SJP.Schema.Sqlite.Query;
+using SJP.Schema.Sqlite.Parsing;
 
-namespace SJP.Schema.SQLite
+namespace SJP.Schema.Sqlite
 {
-    public class SQLiteRelationalDatabaseTable : IRelationalDatabaseTable, IRelationalDatabaseTableAsync
+    public class SqliteRelationalDatabaseTable : IRelationalDatabaseTable, IRelationalDatabaseTableAsync
     {
-        public SQLiteRelationalDatabaseTable(IDbConnection connection, IRelationalDatabase database, Identifier tableName)
+        public SqliteRelationalDatabaseTable(IDbConnection connection, IRelationalDatabase database, Identifier tableName)
         {
             Connection = connection ?? throw new ArgumentNullException(nameof(connection));
             Database = database ?? throw new ArgumentNullException(nameof(database));
             Name = tableName ?? throw new ArgumentNullException(nameof(tableName));
 
-            _parser = new AsyncLazy<SQLiteTableParser>(LoadTableParserAsync);
+            _parser = new AsyncLazy<SqliteTableParser>(LoadTableParserAsync);
 
             _dependencies = new AsyncLazy<IEnumerable<Identifier>>(LoadDependenciesAsync);
             _dependents = new AsyncLazy<IEnumerable<Identifier>>(LoadDependentsAsync);
@@ -169,11 +169,11 @@ namespace SJP.Schema.SQLite
             var pkConstraint = parser.Columns
                 .SelectMany(col => col.Constraints)
                 .Concat(parser.Constraints)
-                .FirstOrDefault(c => c.Type == SQLiteTableParser.ConstraintType.Primary);
+                .FirstOrDefault(c => c.Type == SqliteTableParser.ConstraintType.Primary);
 
             var pkStringName = pkConstraint?.Name;
             var primaryKeyName = !pkStringName.IsNullOrWhiteSpace() ? new LocalIdentifier(pkStringName) : null;
-            return new SQLiteDatabaseKey(this, primaryKeyName, DatabaseKeyType.Primary, columns);
+            return new SqliteDatabaseKey(this, primaryKeyName, DatabaseKeyType.Primary, columns);
         }
 
         private async Task<IReadOnlyDictionary<string, IDatabaseTableIndex>> LoadIndexLookupAsync()
@@ -209,7 +209,7 @@ namespace SJP.Schema.SQLite
                 var indexColumns = indexInfo
                     .Where(i => i.key)
                     .OrderBy(i => i.cid)
-                    .Select(i => new SQLiteDatabaseIndexColumn(Column[i.name], i.desc ? IndexColumnOrder.Descending : IndexColumnOrder.Ascending))
+                    .Select(i => new SqliteDatabaseIndexColumn(Column[i.name], i.desc ? IndexColumnOrder.Descending : IndexColumnOrder.Ascending))
                     .ToImmutableList();
 
                 var includedColumns = indexInfo
@@ -218,7 +218,7 @@ namespace SJP.Schema.SQLite
                     .Select(i => Column[i.name])
                     .ToImmutableList();
 
-                var index = new SQLiteDatabaseTableIndex(this, indexList.name, indexList.unique, indexColumns, includedColumns);
+                var index = new SqliteDatabaseTableIndex(this, indexList.name, indexList.unique, indexColumns, includedColumns);
                 result.Add(index);
             }
 
@@ -257,7 +257,7 @@ namespace SJP.Schema.SQLite
             var parsedUniqueConstraints = parser.Columns
                 .SelectMany(col => col.Constraints)
                 .Concat(parser.Constraints)
-                .Where(c => c.Type == SQLiteTableParser.ConstraintType.Unique);
+                .Where(c => c.Type == SqliteTableParser.ConstraintType.Unique);
 
             var tableColumn = await ColumnAsync();
             foreach (var ukIndexList in ukIndexLists)
@@ -274,7 +274,7 @@ namespace SJP.Schema.SQLite
                 var stringConstraintName = uniqueConstraint?.Name;
 
                 var keyName = !stringConstraintName.IsNullOrWhiteSpace() ? new LocalIdentifier(stringConstraintName) : null;
-                var uniqueKey = new SQLiteDatabaseKey(this, keyName, DatabaseKeyType.Unique, columns);
+                var uniqueKey = new SqliteDatabaseKey(this, keyName, DatabaseKeyType.Unique, columns);
                 result.Add(uniqueKey);
             }
 
@@ -326,7 +326,7 @@ namespace SJP.Schema.SQLite
             foreach (var ck in checkConstraints)
             {
                 var definition = ck.Tokens.Select(token => token.ToStringValue()).Join(" ");
-                var check = new SQLiteCheckConstraint(this, ck.Name, definition);
+                var check = new SqliteCheckConstraint(this, ck.Name, definition);
                 result.Add(check);
             }
 
@@ -358,7 +358,7 @@ namespace SJP.Schema.SQLite
             var fkConstraints = parser.Columns
                 .SelectMany(col => col.Constraints)
                 .Concat(parser.Constraints)
-                .Where(c => c.Type == SQLiteTableParser.ConstraintType.Foreign)
+                .Where(c => c.Type == SqliteTableParser.ConstraintType.Foreign)
                 .ToList();
 
             var result = new List<IDatabaseRelationalKey>();
@@ -392,7 +392,7 @@ namespace SJP.Schema.SQLite
                             .SequenceEqual(parentColumns.Select(pc => pc.Name)));
                 }
 
-                var parentKey = new SQLiteDatabaseKey(this, parentConstraint.Name, parentKeyType, parentColumns);
+                var parentKey = new SqliteDatabaseKey(this, parentConstraint.Name, parentKeyType, parentColumns);
 
                 var parsedConstraint = fkConstraints
                     .Where(fkc => string.Equals(fkc.ForeignKeyTableName, fkey.Key.ParentTableName, StringComparison.OrdinalIgnoreCase))
@@ -403,9 +403,9 @@ namespace SJP.Schema.SQLite
                 var childKeyColumnLookup = await ColumnAsync();
                 var childKeyColumns = rows.Select(row => childKeyColumnLookup[row.from]);
 
-                var childKey = new SQLiteDatabaseKey(this, childKeyName, DatabaseKeyType.Foreign, childKeyColumns);
+                var childKey = new SqliteDatabaseKey(this, childKeyName, DatabaseKeyType.Foreign, childKeyColumns);
 
-                var relationalKey = new SQLiteRelationalKey(childKey, parentConstraint);
+                var relationalKey = new SqliteRelationalKey(childKey, parentConstraint);
                 result.Add(relationalKey);
             }
 
@@ -458,17 +458,17 @@ namespace SJP.Schema.SQLite
 
 
                 IDbType dbType;
-                var columnType = new SQLiteColumnDataType(columnTypeName);
+                var columnType = new SqliteColumnDataType(columnTypeName);
                 if (columnType.IsNumericType)
-                    dbType = new SQLiteNumericColumnDataType(columnTypeName, SQLiteColumnDataType.UnknownLength);
+                    dbType = new SqliteNumericColumnDataType(columnTypeName, SqliteColumnDataType.UnknownLength);
                 else if (columnType.IsStringType)
-                    dbType = new SQLiteStringColumnDataType(columnTypeName, SQLiteColumnDataType.UnknownLength, parsedColumnInfo.Collation.ToString());
+                    dbType = new SqliteStringColumnDataType(columnTypeName, SqliteColumnDataType.UnknownLength, parsedColumnInfo.Collation.ToString());
                 else
                     dbType = columnType;
 
                 var isAutoIncrement = parsedColumnInfo.IsAutoIncrement;
 
-                var column = new SQLiteDatabaseTableColumn(this, tableInfo.name, columnType, !tableInfo.notnull, tableInfo.dflt_value, isAutoIncrement);
+                var column = new SqliteDatabaseTableColumn(this, tableInfo.name, columnType, !tableInfo.notnull, tableInfo.dflt_value, isAutoIncrement);
                 result.Add(column);
             }
 
@@ -496,32 +496,32 @@ namespace SJP.Schema.SQLite
 
             foreach (var triggerInfo in triggerInfos)
             {
-                var tokenizer = new SQLiteTokenizer();
+                var tokenizer = new SqliteTokenizer();
                 var tokens = tokenizer.Tokenize(triggerInfo.sql);
-                var parser = new SQLiteTriggerParser(tokens);
+                var parser = new SqliteTriggerParser(tokens);
 
-                var trigger = new SQLiteDatabaseTrigger(this, triggerInfo.name, triggerInfo.sql, parser.Timing, parser.Event);
+                var trigger = new SqliteDatabaseTrigger(this, triggerInfo.name, triggerInfo.sql, parser.Timing, parser.Event);
                 result.Add(trigger);
             }
 
             return result.ToImmutableList();
         }
 
-        protected SQLiteTableParser ParsedDefinition => _parser.Task.Result;
+        protected SqliteTableParser ParsedDefinition => _parser.Task.Result;
 
-        protected Task<SQLiteTableParser> ParsedDefinitionAsync() => _parser.Task;
+        protected Task<SqliteTableParser> ParsedDefinitionAsync() => _parser.Task;
 
-        protected async Task<SQLiteTableParser> LoadTableParserAsync()
+        protected async Task<SqliteTableParser> LoadTableParserAsync()
         {
             const string sql = "select sql from sqlite_master where type = 'table' and name = @TableName";
             var tableSql = await Connection.ExecuteScalarAsync<string>(sql, new { TableName = Name.LocalName });
 
-            var tokenizer = new SQLiteTokenizer();
+            var tokenizer = new SqliteTokenizer();
             var tokens = tokenizer.Tokenize(tableSql);
-            return new SQLiteTableParser(tokens);
+            return new SqliteTableParser(tokens);
         }
 
-        private readonly AsyncLazy<SQLiteTableParser> _parser;
+        private readonly AsyncLazy<SqliteTableParser> _parser;
 
         private readonly AsyncLazy<IEnumerable<Identifier>> _dependencies;
         private readonly AsyncLazy<IEnumerable<Identifier>> _dependents;

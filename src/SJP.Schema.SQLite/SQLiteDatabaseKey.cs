@@ -2,11 +2,11 @@
 using System.Collections.Generic;
 using SJP.Schema.Core;
 
-namespace SJP.Schema.SQLite
+namespace SJP.Schema.Sqlite
 {
-    public class SQLiteDatabaseKey : IDatabaseKey
+    public class SqliteDatabaseKey : IDatabaseKey
     {
-        public SQLiteDatabaseKey(IRelationalDatabaseTable table, Identifier name, DatabaseKeyType keyType, IEnumerable<IDatabaseColumn> columns)
+        public SqliteDatabaseKey(IRelationalDatabaseTable table, Identifier name, DatabaseKeyType keyType, IEnumerable<IDatabaseColumn> columns)
         {
             if (columns == null || columns.Empty() || columns.AnyNull())
                 throw new ArgumentNullException(nameof(columns));

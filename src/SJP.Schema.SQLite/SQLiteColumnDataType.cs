@@ -1,18 +1,17 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Data;
 using SJP.Schema.Core;
 
-namespace SJP.Schema.SQLite
+namespace SJP.Schema.Sqlite
 {
-    public class SQLiteColumnDataType : IDbType
+    public class SqliteColumnDataType : IDbType
     {
-        public SQLiteColumnDataType(Identifier typeName)
+        public SqliteColumnDataType(Identifier typeName)
             : this(typeName, UnknownLength)
         {
         }
 
-        public SQLiteColumnDataType(Identifier typeName, int length)
+        public SqliteColumnDataType(Identifier typeName, int length)
         {
             if (typeName == null)
                 throw new ArgumentNullException(nameof(typeName));
@@ -129,16 +128,16 @@ namespace SJP.Schema.SQLite
         private readonly static ISet<DataType> _stringTypes = new HashSet<DataType> { DataType.String, DataType.Text, DataType.Unicode, DataType.UnicodeText };
     }
 
-    public class SQLiteNumericColumnDataType : SQLiteColumnDataType, IDbNumericType
+    public class SqliteNumericColumnDataType : SqliteColumnDataType, IDbNumericType
     {
-        public SQLiteNumericColumnDataType(Identifier typeName)
+        public SqliteNumericColumnDataType(Identifier typeName)
             : base(typeName, UnknownLength)
         {
             Precision = UnknownLength;
             Scale = UnknownLength;
         }
 
-        public SQLiteNumericColumnDataType(Identifier typeName, int precision, int scale = 0)
+        public SqliteNumericColumnDataType(Identifier typeName, int precision, int scale = 0)
             : base(typeName, precision)
         {
             Precision = precision;
@@ -150,9 +149,9 @@ namespace SJP.Schema.SQLite
         public int Scale { get; }
     }
 
-    public class SQLiteStringColumnDataType : SQLiteColumnDataType, IDbStringType
+    public class SqliteStringColumnDataType : SqliteColumnDataType, IDbStringType
     {
-        public SQLiteStringColumnDataType(Identifier typeName, int length, string collationName = null)
+        public SqliteStringColumnDataType(Identifier typeName, int length, string collationName = null)
             : base(typeName, length)
         {
             IsUnicode = _unicodeTypes.Contains(Type);

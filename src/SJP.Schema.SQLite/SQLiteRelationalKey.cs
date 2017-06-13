@@ -1,11 +1,11 @@
 ﻿using System;
 using SJP.Schema.Core;
 
-namespace SJP.Schema.SQLite
+namespace SJP.Schema.Sqlite
 {
-    public class SQLiteRelationalKey : IDatabaseRelationalKey
+    public class SqliteRelationalKey : IDatabaseRelationalKey
     {
-        public SQLiteRelationalKey(IDatabaseKey childKey, IDatabaseKey parentKey)
+        public SqliteRelationalKey(IDatabaseKey childKey, IDatabaseKey parentKey)
         {
             ChildKey = childKey ?? throw new ArgumentNullException(nameof(childKey));
             ParentKey = parentKey ?? throw new ArgumentNullException(nameof(parentKey));

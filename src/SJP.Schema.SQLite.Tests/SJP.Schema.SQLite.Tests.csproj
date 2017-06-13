@@ -26,7 +26,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\SJP.Schema.Core\SJP.Schema.Core.csproj" />
-    <ProjectReference Include="..\SJP.Schema.SQLite\SJP.Schema.SQLite.csproj" />
+    <ProjectReference Include="..\SJP.Schema.SQLite\SJP.Schema.Sqlite.csproj" />
   </ItemGroup>
 
   <ItemGroup>

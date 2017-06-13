@@ -2,11 +2,11 @@
 using System.Collections.Generic;
 using SJP.Schema.Core;
 
-namespace SJP.Schema.SQLite
+namespace SJP.Schema.Sqlite
 {
-    public class SQLiteDatabaseTrigger : IDatabaseTrigger
+    public class SqliteDatabaseTrigger : IDatabaseTrigger
     {
-        public SQLiteDatabaseTrigger(IRelationalDatabaseTable table, Identifier name, string definition, TriggerQueryTiming queryTiming, TriggerEvent events)
+        public SqliteDatabaseTrigger(IRelationalDatabaseTable table, Identifier name, string definition, TriggerQueryTiming queryTiming, TriggerEvent events)
         {
             if (table == null)
                 throw new ArgumentNullException(nameof(table));

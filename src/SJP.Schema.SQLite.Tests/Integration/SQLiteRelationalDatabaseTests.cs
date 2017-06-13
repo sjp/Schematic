@@ -4,12 +4,12 @@ using NUnit.Framework;
 using Dapper;
 using SJP.Schema.Core;
 
-namespace SJP.Schema.SQLite.Tests.Integration
+namespace SJP.Schema.Sqlite.Tests.Integration
 {
     [TestFixture]
-    internal class SQLiteRelationalDatabaseTests : SQLiteTest
+    internal class SqliteRelationalDatabaseTests : SqliteTest
     {
-        private IRelationalDatabase Database => new SQLiteRelationalDatabase(SQLiteDialect.Instance, Connection);
+        private IRelationalDatabase Database => new SqliteRelationalDatabase(SqliteDialect.Instance, Connection);
 
         [Test]
         public void DatabaseNameMatches()
@@ -24,7 +24,7 @@ namespace SJP.Schema.SQLite.Tests.Integration
         }
 
         [TestFixture]
-        internal class TableTests : SQLiteTest
+        internal class TableTests : SqliteTest
         {
             [OneTimeSetUp]
             public async Task Init()
@@ -38,7 +38,7 @@ namespace SJP.Schema.SQLite.Tests.Integration
                 await Connection.ExecuteAsync("drop table db_test_table_presence");
             }
 
-            private IRelationalDatabase Database => new SQLiteRelationalDatabase(SQLiteDialect.Instance, Connection);
+            private IRelationalDatabase Database => new SqliteRelationalDatabase(SqliteDialect.Instance, Connection);
 
             [Test]
             public void TableExistsThrowsExceptionOnMissingName()
@@ -84,7 +84,7 @@ namespace SJP.Schema.SQLite.Tests.Integration
         }
 
         [TestFixture]
-        internal class ViewTests : SQLiteTest
+        internal class ViewTests : SqliteTest
         {
             [OneTimeSetUp]
             public async Task Init()
@@ -98,7 +98,7 @@ namespace SJP.Schema.SQLite.Tests.Integration
                 await Connection.ExecuteAsync("drop view db_test_view_presence");
             }
 
-            private IRelationalDatabase Database => new SQLiteRelationalDatabase(SQLiteDialect.Instance, Connection);
+            private IRelationalDatabase Database => new SqliteRelationalDatabase(SqliteDialect.Instance, Connection);
 
             [Test]
             public void ViewExistsThrowsExceptionOnMissingName()

@@ -7,11 +7,11 @@ using System.Collections.Immutable;
 using System.Linq;
 using SJP.Schema.Core;
 
-namespace SJP.Schema.SQLite.Parsing
+namespace SJP.Schema.Sqlite.Parsing
 {
-    public class SQLiteTableParser
+    public class SqliteTableParser
     {
-        public SQLiteTableParser(TokenList<SqlToken> tokens)
+        public SqliteTableParser(TokenList<SqlToken> tokens)
         {
             if (tokens == default(TokenList<SqlToken>) || tokens.Empty())
                 throw new ArgumentNullException(nameof(tokens));
@@ -91,7 +91,7 @@ namespace SJP.Schema.SQLite.Parsing
             var startToken = tokens.ConsumeToken();
             var columnName = UnwrapIdentifier(startToken.Value.ToStringValue());
             string typeName = null;
-            var collation = SQLiteCollation.None;
+            var collation = SqliteCollation.None;
             bool isAutoIncrement = false;
             string foreignKeyTableName = null;
             string constraintName = null;
@@ -195,7 +195,7 @@ namespace SJP.Schema.SQLite.Parsing
                 if (collateName.HasValue)
                 {
                     if (!Enum.TryParse(collateName.Value, out collation))
-                        collation = SQLiteCollation.None;
+                        collation = SqliteCollation.None;
 
                     next = collateName.Remainder.ConsumeToken();
                     constraintName = null;
@@ -485,7 +485,7 @@ namespace SJP.Schema.SQLite.Parsing
                 .Try()
                 .IgnoreThen(Token.EqualTo(SqlToken.Literal).Select(_ => _.ToStringValue()));
 
-        public enum SQLiteCollation
+        public enum SqliteCollation
         {
             None,
             Binary,
@@ -495,7 +495,7 @@ namespace SJP.Schema.SQLite.Parsing
 
         public class Column
         {
-            public Column(string name, string typeName, SQLiteCollation collation, bool isAutoIncrement, IEnumerable<Constraint> constraints)
+            public Column(string name, string typeName, SqliteCollation collation, bool isAutoIncrement, IEnumerable<Constraint> constraints)
             {
                 if (constraints == null)
                     throw new ArgumentNullException(nameof(constraints));
@@ -511,7 +511,7 @@ namespace SJP.Schema.SQLite.Parsing
 
             public string TypeName { get; }
 
-            public SQLiteCollation Collation { get; }
+            public SqliteCollation Collation { get; }
 
             public bool IsAutoIncrement { get; }
 

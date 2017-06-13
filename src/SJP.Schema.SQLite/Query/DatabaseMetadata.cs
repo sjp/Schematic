@@ -1,4 +1,4 @@
-﻿namespace SJP.Schema.SQLite.Query
+﻿namespace SJP.Schema.Sqlite.Query
 {
     public class DatabaseMetadata
     {

@@ -3,22 +3,22 @@ using NUnit.Framework;
 using Moq;
 using System.Data;
 
-namespace SJP.Schema.SQLite.Tests
+namespace SJP.Schema.Sqlite.Tests
 {
     [TestFixture]
-    internal class SQLiteRelationalDatabaseTests
+    internal class SqliteRelationalDatabaseTests
     {
         [Test]
         public void MissingDialectThrowsException()
         {
             var connection = Mock.Of<IDbConnection>();
-            Assert.Throws<ArgumentNullException>(() => new SQLiteRelationalDatabase(null, connection));
+            Assert.Throws<ArgumentNullException>(() => new SqliteRelationalDatabase(null, connection));
         }
 
         [Test]
         public void MissingConnectionThrowsException()
         {
-            Assert.Throws<ArgumentNullException>(() => new SQLiteRelationalDatabase(SQLiteDialect.Instance, null));
+            Assert.Throws<ArgumentNullException>(() => new SqliteRelationalDatabase(SqliteDialect.Instance, null));
         }
     }
 }

@@ -1,19 +1,14 @@
 ﻿using System;
 using SJP.Schema.Core;
 
-namespace SJP.Schema.SQLite
+namespace SJP.Schema.Sqlite
 {
-    public abstract class SQLiteDatabaseColumn : IDatabaseColumn
+    public abstract class SqliteDatabaseColumn : IDatabaseColumn
     {
-        protected SQLiteDatabaseColumn(Identifier columnName, IDbType type, bool isNullable, string defaultValue, bool isAutoIncrement)
+        protected SqliteDatabaseColumn(Identifier columnName, IDbType type, bool isNullable, string defaultValue, bool isAutoIncrement)
         {
-            if (columnName == null)
-                throw new ArgumentNullException(nameof(columnName));
-            if (type == null)
-                throw new ArgumentNullException(nameof(type));
-
-            Name = columnName;
-            Type = type;
+            Name = columnName ?? throw new ArgumentNullException(nameof(columnName));
+            Type = type ?? throw new ArgumentNullException(nameof(type));
             IsNullable = isNullable;
             DefaultValue = defaultValue;
             IsAutoIncrement = isAutoIncrement;
@@ -21,7 +16,7 @@ namespace SJP.Schema.SQLite
 
         public string DefaultValue { get; }
 
-        public virtual bool IsCalculated { get; } = false;
+        public virtual bool IsCalculated { get; }
 
         public Identifier Name { get; }
 
@@ -32,9 +27,9 @@ namespace SJP.Schema.SQLite
         public bool IsAutoIncrement { get; }
     }
 
-    public class SQLiteDatabaseTableColumn : SQLiteDatabaseColumn, IDatabaseTableColumn
+    public class SqliteDatabaseTableColumn : SqliteDatabaseColumn, IDatabaseTableColumn
     {
-        public SQLiteDatabaseTableColumn(IRelationalDatabaseTable table, Identifier columnName, IDbType type, bool isNullable, string defaultValue, bool isAutoIncrement)
+        public SqliteDatabaseTableColumn(IRelationalDatabaseTable table, Identifier columnName, IDbType type, bool isNullable, string defaultValue, bool isAutoIncrement)
             : base(columnName, type, isNullable, defaultValue, isAutoIncrement)
         {
             Table = table ?? throw new ArgumentNullException(nameof(table));
@@ -43,9 +38,9 @@ namespace SJP.Schema.SQLite
         public IRelationalDatabaseTable Table { get; }
     }
 
-    public class SQLiteDatabaseViewColumn : SQLiteDatabaseColumn, IDatabaseViewColumn
+    public class SqliteDatabaseViewColumn : SqliteDatabaseColumn, IDatabaseViewColumn
     {
-        public SQLiteDatabaseViewColumn(IRelationalDatabaseView view, Identifier columnName, IDbType type, bool isNullable, string defaultValue, bool isAutoIncrement)
+        public SqliteDatabaseViewColumn(IRelationalDatabaseView view, Identifier columnName, IDbType type, bool isNullable, string defaultValue, bool isAutoIncrement)
             : base(columnName, type, isNullable, defaultValue, isAutoIncrement)
         {
             View = view ?? throw new ArgumentNullException(nameof(view));

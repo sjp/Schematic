@@ -4,11 +4,11 @@ using System.Collections.Immutable;
 using System.Linq;
 using SJP.Schema.Core;
 
-namespace SJP.Schema.SQLite
+namespace SJP.Schema.Sqlite
 {
-    public class SQLiteDatabaseIndexColumn : IDatabaseIndexColumn
+    public class SqliteDatabaseIndexColumn : IDatabaseIndexColumn
     {
-        public SQLiteDatabaseIndexColumn(IDatabaseColumn column, IndexColumnOrder order)
+        public SqliteDatabaseIndexColumn(IDatabaseColumn column, IndexColumnOrder order)
         {
             if (column == null)
                 throw new ArgumentNullException(nameof(column));
