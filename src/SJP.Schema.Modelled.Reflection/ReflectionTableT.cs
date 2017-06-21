@@ -162,12 +162,26 @@ namespace SJP.Schema.Modelled.Reflection
                 //       maybe change interface of Synonym<T> to be something like Synonym<Table<T>> or Synonym<Synonym<T>> -- could unwrap at runtime?
                 var childKey = new ReflectionForeignKey(this, parentKey, fk.Property, fkColumns);
 
+                var deleteAttr = dialect.GetDialectAttribute<OnDeleteActionAttribute>(fk.Property);
+                var deleteAction = deleteAttr != null ? _updateActionMapping[deleteAttr.Action] : RelationalKeyUpdateAction.NoAction;
+
+                var updateAttr = dialect.GetDialectAttribute<OnDeleteActionAttribute>(fk.Property);
+                var updateAction = updateAttr != null ? _updateActionMapping[updateAttr.Action] : RelationalKeyUpdateAction.NoAction;
+
                 // TODO: check that column lists are type compatible...
-                result[childKey.Name.LocalName] = new ReflectionRelationalKey(childKey, parentKey);
+                result[childKey.Name.LocalName] = new ReflectionRelationalKey(childKey, parentKey, deleteAction, updateAction);
             }
 
             return result.ToImmutableDictionary();
         }
+
+        private readonly static IReadOnlyDictionary<ForeignKeyAction, RelationalKeyUpdateAction> _updateActionMapping = new Dictionary<ForeignKeyAction, RelationalKeyUpdateAction>
+        {
+            [ForeignKeyAction.NoAction] = RelationalKeyUpdateAction.NoAction,
+            [ForeignKeyAction.Cascade] = RelationalKeyUpdateAction.Cascade,
+            [ForeignKeyAction.SetNull] = RelationalKeyUpdateAction.SetNull,
+            [ForeignKeyAction.SetDefault] = RelationalKeyUpdateAction.SetDefault
+        };
 
         public T TableInstance { get; }
 

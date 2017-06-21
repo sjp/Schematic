@@ -5,10 +5,12 @@ namespace SJP.Schema.Modelled.Reflection
 {
     public class ReflectionRelationalKey : IDatabaseRelationalKey
     {
-        public ReflectionRelationalKey(IDatabaseKey childKey, IDatabaseKey parentKey)
+        public ReflectionRelationalKey(IDatabaseKey childKey, IDatabaseKey parentKey, RelationalKeyUpdateAction deleteAction, RelationalKeyUpdateAction updateAction)
         {
             ChildKey = childKey ?? throw new ArgumentNullException(nameof(childKey));
             ParentKey = parentKey ?? throw new ArgumentNullException(nameof(parentKey));
+            DeleteAction = deleteAction;
+            UpdateAction = updateAction;
 
             ValidateColumnSetsCompatible(childKey, parentKey);
         }
@@ -17,6 +19,9 @@ namespace SJP.Schema.Modelled.Reflection
 
         public IDatabaseKey ParentKey { get; }
 
+        public RelationalKeyUpdateAction DeleteAction { get; }
+
+        public RelationalKeyUpdateAction UpdateAction { get; }
 
         // TODO: implement
         private static void ValidateColumnSetsCompatible(IDatabaseKey childKey, IDatabaseKey parentKey)

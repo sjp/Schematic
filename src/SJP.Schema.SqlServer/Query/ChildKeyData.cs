@@ -15,5 +15,9 @@
         public string ParentKeyName { get; set; }
 
         public string ParentKeyType { get; set; }
+
+        public int DeleteAction { get; set; }
+
+        public int UpdateAction { get; set; }
     }
 }

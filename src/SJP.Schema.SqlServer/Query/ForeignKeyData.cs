@@ -15,5 +15,9 @@
         public int ConstraintColumnId { get; set; }
 
         public string KeyType { get; set; }
+
+        public int DeleteAction { get; set; }
+
+        public int UpdateAction { get; set; }
     }
 }

@@ -405,7 +405,7 @@ namespace SJP.Schema.Sqlite
 
                 var childKey = new SqliteDatabaseKey(this, childKeyName, DatabaseKeyType.Foreign, childKeyColumns);
 
-                var relationalKey = new SqliteRelationalKey(childKey, parentConstraint);
+                var relationalKey = new SqliteRelationalKey(childKey, parentConstraint, parsedConstraint.DeleteAction, parsedConstraint.UpdateAction);
                 result.Add(relationalKey);
             }
 

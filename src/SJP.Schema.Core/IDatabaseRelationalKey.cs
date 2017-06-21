@@ -1,13 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace SJP.Schema.Core
+﻿namespace SJP.Schema.Core
 {
     public interface IDatabaseRelationalKey
     {
         IDatabaseKey ParentKey { get; }
 
         IDatabaseKey ChildKey { get; }
+
+        RelationalKeyUpdateAction UpdateAction { get; }
+
+        RelationalKeyUpdateAction DeleteAction { get; }
     }
 }

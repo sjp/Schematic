@@ -315,7 +315,7 @@ order by ic.column_id";
         private async Task<IEnumerable<IDatabaseRelationalKey>> LoadChildKeysAsync()
         {
             const string sql = @"
-select schema_name(child_t.schema_id) as ChildTableSchema, child_t.name as ChildTableName, fk.name as ChildKeyName, c.name as ColumnName, fkc.constraint_column_id as ConstraintColumnId, kc.name as ParentKeyName, kc.type as ParentKeyType 
+select schema_name(child_t.schema_id) as ChildTableSchema, child_t.name as ChildTableName, fk.name as ChildKeyName, c.name as ColumnName, fkc.constraint_column_id as ConstraintColumnId, kc.name as ParentKeyName, kc.type as ParentKeyType, fk.delete_referential_action as DeleteAction, fk.update_referential_action as UpdateAction
 from sys.tables parent_t
 inner join sys.foreign_keys fk on parent_t.object_id = fk.referenced_object_id
 inner join sys.tables child_t on fk.parent_object_id = child_t.object_id
@@ -335,7 +335,9 @@ where schema_name(parent_t.schema_id) = @SchemaName and parent_t.name = @TableNa
                 ChildTableName = row.ChildTableName,
                 ChildKeyName = row.ChildKeyName,
                 ParentKeyName = row.ParentKeyName,
-                ParentKeyType = row.ParentKeyType
+                ParentKeyType = row.ParentKeyType,
+                DeleteAction = row.DeleteAction,
+                UpdateAction = row.UpdateAction
             });
 
             var result = new List<IDatabaseRelationalKey>();
@@ -362,7 +364,9 @@ where schema_name(parent_t.schema_id) = @SchemaName and parent_t.name = @TableNa
                     parentKey = uniqueKeyLookup[groupedChildKey.Key.ParentKeyName];
                 }
 
-                var relationalKey = new SqlServerRelationalKey(childKey, parentKey);
+                var deleteAction = RelationalActionMapping[groupedChildKey.Key.DeleteAction];
+                var updateAction = RelationalActionMapping[groupedChildKey.Key.UpdateAction];
+                var relationalKey = new SqlServerRelationalKey(childKey, parentKey, deleteAction, updateAction);
 
                 result.Add(relationalKey);
             }
@@ -426,7 +430,7 @@ where schema_name(t.schema_id) = @SchemaName and t.name = @TableName";
         private async Task<IEnumerable<IDatabaseRelationalKey>> LoadParentKeysAsync()
         {
             const string sql = @"
-select schema_name(t.schema_id) as ParentTableSchema, t.name as ParentTableName, fk.name as ForeignKeyName, c.name as ColumnName, fkc.constraint_column_id as ConstraintColumnId, kc.name as ParentKeyName, kc.type as KeyType
+select schema_name(t.schema_id) as ParentTableSchema, t.name as ParentTableName, fk.name as ForeignKeyName, c.name as ColumnName, fkc.constraint_column_id as ConstraintColumnId, kc.name as ParentKeyName, kc.type as KeyType, fk.delete_referential_action as DeleteAction, fk.update_referential_action as UpdateAction
 from sys.tables t
 inner join sys.foreign_keys fk on t.object_id = fk.parent_object_id
 inner join sys.foreign_key_columns fkc on fk.object_id = fkc.constraint_object_id
@@ -444,7 +448,9 @@ where t.name = @TableName and schema_name(t.schema_id) = @SchemaName";
                 ParentTableSchema = row.ParentTableSchema,
                 ParentTableName = row.ParentTableName,
                 ParentKeyName = row.ParentKeyName,
-                KeyType = row.KeyType
+                KeyType = row.KeyType,
+                DeleteAction = row.DeleteAction,
+                UpdateAction = row.UpdateAction
             });
 
             var result = new List<IDatabaseRelationalKey>();
@@ -483,7 +489,10 @@ where t.name = @TableName and schema_name(t.schema_id) = @SchemaName";
 
                 var childKey = new SqlServerDatabaseKey(this, childKeyName, DatabaseKeyType.Foreign, childKeyColumns);
 
-                var relationalKey = new SqlServerRelationalKey(childKey, parentKey);
+                var deleteAction = RelationalActionMapping[fkey.Key.DeleteAction];
+                var updateAction = RelationalActionMapping[fkey.Key.UpdateAction];
+
+                var relationalKey = new SqlServerRelationalKey(childKey, parentKey, deleteAction, updateAction);
                 result.Add(relationalKey);
             }
 
@@ -610,6 +619,14 @@ where schema_name(t.schema_id) = @SchemaName and t.name = @TableName";
 
             return result.ToImmutableList();
         }
+
+        protected IReadOnlyDictionary<int, RelationalKeyUpdateAction> RelationalActionMapping { get; } = new Dictionary<int, RelationalKeyUpdateAction>
+        {
+            [0] = RelationalKeyUpdateAction.NoAction,
+            [1] = RelationalKeyUpdateAction.Cascade,
+            [2] = RelationalKeyUpdateAction.SetNull,
+            [3] = RelationalKeyUpdateAction.SetDefault
+        };
 
         private readonly AsyncLazy<IEnumerable<Identifier>> _dependencies;
         private readonly AsyncLazy<IEnumerable<Identifier>> _dependents;
