@@ -1,0 +1,20 @@
+version: 1.0.{build}
+image: Visual Studio 2017
+
+install:
+  - cmd: dotnet restore src
+
+test: off
+
+services: mssql2016
+
+build:
+  verbosity: minimal
+  
+notifications:
+- provider: Email
+  to:
+    - simon@sjp.co.nz
+  on_build_success: false
+  on_build_failure: true
+  on_build_status_changed: true
