@@ -215,24 +215,8 @@ namespace SJP.Schema.Sqlite.Parsing
                         foreignKeyColumns = fkColumns.Value.Select(UnwrapIdentifier);
 
                     next = fkColumns.Remainder.ConsumeToken();
-                    RelationalKeyUpdateAction deleteAction = RelationalKeyUpdateAction.NoAction;
-                    RelationalKeyUpdateAction updateAction = RelationalKeyUpdateAction.NoAction;
 
-                    var parsedDeleteAction = ForeignKeyDeleteClause(next.Remainder);
-                    if (parsedDeleteAction.HasValue)
-                    {
-                        deleteAction = GetForeignKeyUpdateAction(parsedDeleteAction.Value);
-                        next = parsedDeleteAction.Remainder.ConsumeToken();
-                    }
-
-                    var parsedUpdateAction = ForeignKeyUpdateClause(next.Remainder);
-                    if (parsedUpdateAction.HasValue)
-                    {
-                        updateAction = GetForeignKeyUpdateAction(parsedUpdateAction.Value);
-                        next = parsedUpdateAction.Remainder.ConsumeToken();
-                    }
-
-                    var fkConstraint = new Constraint(constraintName, ConstraintType.Foreign, new[] { columnName }, foreignKeyTableName, foreignKeyColumns, deleteAction: deleteAction, updateAction: updateAction);
+                    var fkConstraint = new Constraint(constraintName, ConstraintType.Foreign, new[] { columnName }, foreignKeyTableName, foreignKeyColumns);
                     columnConstraints.Add(fkConstraint);
                     constraintName = null;
                     continue;
@@ -481,43 +465,6 @@ namespace SJP.Schema.Sqlite.Parsing
                         .Or(Token.EqualToValueIgnoreCase(SqlToken.Keyword, "REPLACE").Select(_ => _.ToStringValue()))
                 );
 
-        private static TokenListParser<SqlToken, string> ForeignKeyDeleteClause =>
-            Token.EqualToValueIgnoreCase(SqlToken.Keyword, "ON")
-                .IgnoreThen(Token.EqualToValueIgnoreCase(SqlToken.Keyword, "DELETE"))
-                .IgnoreThen(
-                    Token.EqualToValueIgnoreCase(SqlToken.Keyword, "NO").Then(_ => Token.EqualToValueIgnoreCase(SqlToken.Keyword, "ACTION"))
-                        .Or(Token.EqualToValueIgnoreCase(SqlToken.Keyword, "SET").Then(_ => Token.EqualToValueIgnoreCase(SqlToken.Keyword, "NULL").Or(Token.EqualToValueIgnoreCase(SqlToken.Keyword, "DEFAULT"))))
-                        .Or(Token.EqualToValueIgnoreCase(SqlToken.Keyword, "CASCADE"))
-                        .Or(Token.EqualToValueIgnoreCase(SqlToken.Keyword, "RESTRICT"))
-                ).Select(_ => _.ToStringValue());
-
-        private static TokenListParser<SqlToken, string> ForeignKeyUpdateClause =>
-            Token.EqualToValueIgnoreCase(SqlToken.Keyword, "ON")
-                .IgnoreThen(Token.EqualToValueIgnoreCase(SqlToken.Keyword, "UPDATE"))
-                .IgnoreThen(
-                    Token.EqualToValueIgnoreCase(SqlToken.Keyword, "NO").Then(_ => Token.EqualToValueIgnoreCase(SqlToken.Keyword, "ACTION"))
-                        .Or(Token.EqualToValueIgnoreCase(SqlToken.Keyword, "SET").Then(_ => Token.EqualToValueIgnoreCase(SqlToken.Keyword, "NULL").Or(Token.EqualToValueIgnoreCase(SqlToken.Keyword, "DEFAULT"))))
-                        .Or(Token.EqualToValueIgnoreCase(SqlToken.Keyword, "CASCADE"))
-                        .Or(Token.EqualToValueIgnoreCase(SqlToken.Keyword, "RESTRICT"))
-                ).Select(_ => _.ToStringValue());
-
-        private static RelationalKeyUpdateAction GetForeignKeyUpdateAction(string action)
-        {
-            var result = new Dictionary<string, RelationalKeyUpdateAction>(StringComparer.OrdinalIgnoreCase)
-            {
-                ["RESTRICT"] = RelationalKeyUpdateAction.NoAction,
-                ["ACTION"] = RelationalKeyUpdateAction.NoAction,    // for *no* action
-                ["NULL"] = RelationalKeyUpdateAction.SetNull,       // for *set* null
-                ["DEFAULT"] = RelationalKeyUpdateAction.SetDefault, // for *set* default
-                ["CASCADE"] = RelationalKeyUpdateAction.Cascade
-            };
-
-            if (!result.ContainsKey(action))
-                throw new ArgumentOutOfRangeException(nameof(action), $"Could not find a relational update action for the action named '{ action }'.");
-
-            return result[action];
-        }
-
         private static TokenListParser<SqlToken, string> ConstraintName =>
             Token.EqualToValueIgnoreCase(SqlToken.Keyword, "CONSTRAINT")
                 .IgnoreThen(Token.EqualTo(SqlToken.Identifier).Select(ident => ident.ToStringValue()));
@@ -584,8 +531,7 @@ namespace SJP.Schema.Sqlite.Parsing
         public class Constraint
         {
             public Constraint(string name, ConstraintType type, IEnumerable<string> columns,
-                string foreignKeyTableName = null, IEnumerable<string> foreignKeyColumns = null, IEnumerable<Token<SqlToken>> tokens = null,
-                RelationalKeyUpdateAction deleteAction = RelationalKeyUpdateAction.NoAction, RelationalKeyUpdateAction updateAction = RelationalKeyUpdateAction.NoAction)
+                string foreignKeyTableName = null, IEnumerable<string> foreignKeyColumns = null, IEnumerable<Token<SqlToken>> tokens = null)
             {
                 if (columns == null || columns.Empty())
                     throw new ArgumentNullException(nameof(columns));
@@ -598,8 +544,6 @@ namespace SJP.Schema.Sqlite.Parsing
                 ForeignKeyColumns = foreignKeyColumns.ToImmutableList();
                 tokens = tokens ?? Enumerable.Empty<Token<SqlToken>>();
                 Tokens = tokens.ToImmutableList();
-                DeleteAction = deleteAction;
-                UpdateAction = updateAction;
             }
 
             public string Name { get; }
@@ -613,10 +557,6 @@ namespace SJP.Schema.Sqlite.Parsing
             public IEnumerable<string> ForeignKeyColumns { get; }
 
             public IEnumerable<Token<SqlToken>> Tokens { get; }
-
-            public RelationalKeyUpdateAction DeleteAction { get; }
-
-            public RelationalKeyUpdateAction UpdateAction { get; }
         }
     }
 }

@@ -353,7 +353,7 @@ namespace SJP.Schema.Sqlite
             if (queryResult.Empty())
                 return Enumerable.Empty<IDatabaseRelationalKey>();
 
-            var foreignKeys = queryResult.GroupBy(row => new { ForeignKeyId = row.id, ParentTableName = row.table });
+            var foreignKeys = queryResult.GroupBy(row => new { ForeignKeyId = row.id, ParentTableName = row.table, OnDelete = row.on_delete, OnUpdate = row.on_update });
             var parser = await ParsedDefinitionAsync();
             var fkConstraints = parser.Columns
                 .SelectMany(col => col.Constraints)
@@ -405,7 +405,10 @@ namespace SJP.Schema.Sqlite
 
                 var childKey = new SqliteDatabaseKey(this, childKeyName, DatabaseKeyType.Foreign, childKeyColumns);
 
-                var relationalKey = new SqliteRelationalKey(childKey, parentConstraint, parsedConstraint.DeleteAction, parsedConstraint.UpdateAction);
+                var deleteAction = GetRelationalUpdateAction(fkey.Key.OnDelete);
+                var updateAction = GetRelationalUpdateAction(fkey.Key.OnUpdate);
+
+                var relationalKey = new SqliteRelationalKey(childKey, parentConstraint, deleteAction, updateAction);
                 result.Add(relationalKey);
             }
 
@@ -520,6 +523,25 @@ namespace SJP.Schema.Sqlite
             var tokens = tokenizer.Tokenize(tableSql);
             return new SqliteTableParser(tokens);
         }
+
+        protected static RelationalKeyUpdateAction GetRelationalUpdateAction(string pragmaUpdateAction)
+        {
+            if (pragmaUpdateAction.IsNullOrWhiteSpace())
+                throw new ArgumentNullException(nameof(pragmaUpdateAction));
+
+            return _relationalUpdateMapping.ContainsKey(pragmaUpdateAction)
+                ? _relationalUpdateMapping[pragmaUpdateAction]
+                : RelationalKeyUpdateAction.NoAction;
+        }
+
+        private static readonly IReadOnlyDictionary<string, RelationalKeyUpdateAction> _relationalUpdateMapping = new Dictionary<String, RelationalKeyUpdateAction>(StringComparer.OrdinalIgnoreCase)
+        {
+            ["NO ACTION"] = RelationalKeyUpdateAction.NoAction,
+            ["RESTRICT"] = RelationalKeyUpdateAction.NoAction,
+            ["SET NULL"] = RelationalKeyUpdateAction.SetNull,
+            ["SET DEFAULT"] = RelationalKeyUpdateAction.SetDefault,
+            ["CASCADE"] = RelationalKeyUpdateAction.Cascade
+        };
 
         private readonly AsyncLazy<SqliteTableParser> _parser;
 
