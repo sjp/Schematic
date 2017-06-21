@@ -9,13 +9,13 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SJP.Schema.Core.Tests", "SJ
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SJP.Schema.SqlServer.Tests", "SJP.Schema.SqlServer.Tests\SJP.Schema.SqlServer.Tests.csproj", "{8C3D7B3D-B2DC-418B-9BB5-E9F39A11857C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SJP.Schema.Sqlite.Tests", "SJP.Schema.SQLite.Tests\SJP.Schema.Sqlite.Tests.csproj", "{366A0989-DFB8-4497-8998-C07984A69322}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SJP.Schema.Sqlite.Tests", "SJP.Schema.Sqlite.Tests\SJP.Schema.Sqlite.Tests.csproj", "{366A0989-DFB8-4497-8998-C07984A69322}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SJP.Schema.Modelled", "SJP.Schema.Modelled\SJP.Schema.Modelled.csproj", "{76CF8690-5435-4080-BF55-3AC4243104E8}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SJP.Schema.Modelled.Reflection", "SJP.Schema.Modelled.Reflection\SJP.Schema.Modelled.Reflection.csproj", "{2063EAD2-F554-40B8-B836-C61927C1FFB5}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SJP.Schema.Sqlite", "SJP.Schema.SQLite\SJP.Schema.Sqlite.csproj", "{81A631CE-36FE-4F24-9F91-F859B1DE375B}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SJP.Schema.Sqlite", "SJP.Schema.Sqlite\SJP.Schema.Sqlite.csproj", "{81A631CE-36FE-4F24-9F91-F859B1DE375B}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SJP.Schema.SqlServer", "SJP.Schema.SqlServer\SJP.Schema.SqlServer.csproj", "{513C86D6-09A3-40A3-BA3F-B5DB92680F37}"
 EndProject
