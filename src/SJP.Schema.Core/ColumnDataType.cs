@@ -24,6 +24,6 @@ namespace SJP.Schema.Core
 
         public virtual int Scale => UnknownLength;
 
-        protected const int UnknownLength = -1;
+        protected static int UnknownLength = -1;
     }
 }

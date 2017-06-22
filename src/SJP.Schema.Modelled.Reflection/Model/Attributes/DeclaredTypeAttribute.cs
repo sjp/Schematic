@@ -78,6 +78,6 @@ namespace SJP.Schema.Modelled.Reflection.Model
 
         public virtual bool IsFixedLength { get; }
 
-        protected const int UnknownLength = -1;
+        protected static int UnknownLength = -1;
     }
 }

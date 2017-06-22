@@ -463,9 +463,9 @@ namespace SJP.Schema.Sqlite
                 IDbType dbType;
                 var columnType = new SqliteColumnDataType(columnTypeName);
                 if (columnType.IsNumericType)
-                    dbType = new SqliteNumericColumnDataType(columnTypeName, SqliteColumnDataType.UnknownLength);
+                    dbType = new SqliteNumericColumnDataType(columnTypeName);
                 else if (columnType.IsStringType)
-                    dbType = new SqliteStringColumnDataType(columnTypeName, SqliteColumnDataType.UnknownLength, parsedColumnInfo.Collation.ToString());
+                    dbType = new SqliteStringColumnDataType(columnTypeName, parsedColumnInfo.Collation.ToString());
                 else
                     dbType = columnType;
 

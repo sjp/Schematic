@@ -39,7 +39,7 @@ namespace SJP.Schema.SqlServer
 
         public bool IsStringType { get; }
 
-        protected const int UnknownLength = -1;
+        protected static int UnknownLength = -1;
 
         private static DataType GetDataTypeFromName(string typeName)
         {

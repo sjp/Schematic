@@ -7,11 +7,6 @@ namespace SJP.Schema.Sqlite
     public class SqliteColumnDataType : IDbType
     {
         public SqliteColumnDataType(Identifier typeName)
-            : this(typeName, UnknownLength)
-        {
-        }
-
-        public SqliteColumnDataType(Identifier typeName, int length)
         {
             if (typeName == null)
                 throw new ArgumentNullException(nameof(typeName));
@@ -19,7 +14,6 @@ namespace SJP.Schema.Sqlite
             PhysicalTypeName = typeName.LocalName.ToLowerInvariant();
             Type = GetDataTypeFromName(PhysicalTypeName);
             ClrType = GetClrTypeFromTypeName(PhysicalTypeName);
-            Length = length;
 
             IsNumericType = _numericTypes.Contains(Type);
             IsStringType = _stringTypes.Contains(Type);
@@ -31,7 +25,7 @@ namespace SJP.Schema.Sqlite
 
         public bool IsFixedLength { get; }
 
-        public int Length { get; }
+        public int Length { get; } = UnknownLength;
 
         public Type ClrType { get; }
 
@@ -39,7 +33,7 @@ namespace SJP.Schema.Sqlite
 
         public bool IsStringType { get; }
 
-        public const int UnknownLength = -1;
+        protected static int UnknownLength = -1;
 
         private static DataType GetDataTypeFromName(string typeName)
         {
@@ -131,17 +125,10 @@ namespace SJP.Schema.Sqlite
     public class SqliteNumericColumnDataType : SqliteColumnDataType, IDbNumericType
     {
         public SqliteNumericColumnDataType(Identifier typeName)
-            : base(typeName, UnknownLength)
+            : base(typeName)
         {
             Precision = UnknownLength;
             Scale = UnknownLength;
-        }
-
-        public SqliteNumericColumnDataType(Identifier typeName, int precision, int scale = 0)
-            : base(typeName, precision)
-        {
-            Precision = precision;
-            Scale = scale;
         }
 
         public int Precision { get; }
@@ -151,8 +138,8 @@ namespace SJP.Schema.Sqlite
 
     public class SqliteStringColumnDataType : SqliteColumnDataType, IDbStringType
     {
-        public SqliteStringColumnDataType(Identifier typeName, int length, string collationName = null)
-            : base(typeName, length)
+        public SqliteStringColumnDataType(Identifier typeName, string collationName = null)
+            : base(typeName)
         {
             IsUnicode = _unicodeTypes.Contains(Type);
             Collation = collationName;
