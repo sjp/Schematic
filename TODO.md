@@ -1,3 +1,7 @@
+* Get unit and integration tests working on AppVeyor once we can run the new
+  `dotnet test` tooling on it. Should be able to run every DB vendor through
+  AppVeyor except for Oracle (no surprises there...).
+
 * Use Sigil for reflection? Is it worthwhile or perhaps just use Fasterflect
   if it's beneficial.
 
