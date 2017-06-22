@@ -13,6 +13,7 @@ namespace SJP.Schema.SqlServer.Tests.Integration
 
         private static IConfigurationRoot Configuration => new ConfigurationBuilder()
             .AddJsonFile("sqlserver-test.json.config")
+            .AddJsonFile("sqlserver-test.json.config.local", optional: true)
             .Build();
     }
 

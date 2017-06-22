@@ -13,6 +13,7 @@ namespace SJP.Schema.Sqlite.Tests.Integration
 
         private static IConfigurationRoot Configuration => new ConfigurationBuilder()
             .AddJsonFile("sqlite-test.json.config")
+            .AddJsonFile("sqlite-test.json.config.local", optional: true)
             .Build();
     }
 
