@@ -1,3 +1,5 @@
+# TODO
+
 * Get unit and integration tests working on AppVeyor once we can run the new
   `dotnet test` tooling on it. Should be able to run every DB vendor through
   AppVeyor except for Oracle (no surprises there...).
@@ -48,3 +50,17 @@
 
 * Add or implement logging. Create providers for common implementations, e.g.
   log4net, serilog, etc. Create a common interface and set statically.
+
+* Because of Oracle's case sensitivity behaviour, quote only when necessary, makes
+  working with the database much easier as a user rather than having to match the
+  case all of the time.
+
+* Rather than introducing caching into the relational database layer, add it on top.
+  This means that a cached relational database should be something like:
+
+  ```csharp
+  var db = new SqlServerRelationalDatabase(...);
+  var cachedDb = db.WithCache<IRelationalDatabaseCache>();
+  // or
+  var cachedDb = new InMemoryDatabaseCache(db);
+  ```
