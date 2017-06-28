@@ -61,7 +61,6 @@ namespace SJP.Schema.Sqlite
             var result = await Task.FromResult(Enumerable.Empty<Identifier>());
             return result;
 
-
             //return results.ToImmutableList();
         }
 

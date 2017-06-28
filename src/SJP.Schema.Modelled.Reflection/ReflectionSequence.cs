@@ -69,6 +69,6 @@ namespace SJP.Schema.Modelled.Reflection
 
         protected TypeInfo SequenceType { get; }
 
-        private static TypeInfo _iSequenceType = typeof(ISequence).GetTypeInfo();
+        private readonly static TypeInfo _iSequenceType = typeof(ISequence).GetTypeInfo();
     }
 }

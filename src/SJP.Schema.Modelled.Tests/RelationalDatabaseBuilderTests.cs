@@ -5,6 +5,7 @@ using System.Text;
 
 namespace SJP.Schema.Modelled.Tests
 {
+    // TODO, need to create some databases to build with
     [TestFixture]
     public class RelationalDatabaseBuilderTests
     {

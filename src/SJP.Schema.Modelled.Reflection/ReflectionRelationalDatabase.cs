@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
-using System.Data;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
@@ -13,20 +12,21 @@ using SJP.Schema.Modelled.Reflection.Model;
 namespace SJP.Schema.Modelled.Reflection
 {
     // TODO: uncomment interface when ready
-    public class ReflectionRelationalDatabase<T> : IRelationalDatabase, IReflectionRelationalDatabase //, IDependentRelationalDatabase
+    public class ReflectionRelationalDatabase<T> : IRelationalDatabase //, IDependentRelationalDatabase
     {
-        public ReflectionRelationalDatabase(IDatabaseDialect dialect)
+        public ReflectionRelationalDatabase(IDatabaseDialect dialect, string databaseName = null, string defaultSchema = null)
         {
             Dialect = dialect ?? throw new ArgumentNullException(nameof(dialect));
 
+            if (databaseName.IsNullOrWhiteSpace())
+                databaseName = null;
+            DatabaseName = databaseName;
+
+            if (defaultSchema.IsNullOrWhiteSpace())
+                defaultSchema = null;
+            DefaultSchema = defaultSchema;
+
             EnsureUniqueTypes(DatabaseDefinitionType);
-
-            var tableInstances = LoadAllGenericTypes(DatabaseDefinitionType, TableGenericType);
-            TableInstances = InitializeTables(tableInstances);
-
-            ViewInstances = LoadAllGenericTypes(DatabaseDefinitionType, ViewGenericType);
-            SequenceInstances = LoadAllGenericTypes(DatabaseDefinitionType, SequenceGenericType);
-            SynonymInstances = LoadAllGenericTypes(DatabaseDefinitionType, SynonymGenericType);
 
             _parentDb = this; // TODO replace other uses of 'this' with 'Database' because means we can override
 
@@ -44,43 +44,11 @@ namespace SJP.Schema.Modelled.Reflection
 
         protected IRelationalDatabase Database => Parent;
 
-        private static IReadOnlyDictionary<Type, object> LoadAllGenericTypes(Type databaseType, Type genericDefinition)
-        {
-            var result = new Dictionary<Type, object>();
-
-            var typeArgs = databaseType.GetTypeInfo().DeclaredProperties
-                .Where(pi => pi.PropertyType.GetGenericTypeDefinition().GetTypeInfo().IsAssignableFrom(genericDefinition.GetTypeInfo()))
-                .Select(pi => UnwrapGenericParameter(pi.PropertyType));
-
-            foreach (var typeArg in typeArgs)
-            {
-                var instance = Activator.CreateInstance(typeArg);
-                result[typeArg] = instance;
-            }
-
-            return result.ToImmutableDictionary();
-        }
-
-        private IReadOnlyDictionary<Type, object> InitializeTables(IEnumerable<KeyValuePair<Type, object>> tables)
-        {
-            var genericType = typeof(ReflectionTable<>);
-            foreach (var table in tables)
-            {
-                var specificType = genericType.MakeGenericType(table.Key);
-                var populateMethod = specificType.GetTypeInfo().GetMethod(nameof(ReflectionTable<object>.PopulateProperties), BindingFlags.Public | BindingFlags.Static | BindingFlags.FlattenHierarchy);
-                populateMethod.Invoke(null, new[] { table.Value });
-            }
-
-            return tables.ToImmutableDictionary();
-        }
-
         public IDatabaseDialect Dialect { get; }
 
-        // TODO: maybe pull metadata from dialect?
-        //       dialect can have a connection
-        public string DatabaseName => string.Empty;
+        public string DatabaseName { get; }
 
-        public string DefaultSchema => "dbo"; // TODO this is definitely wrong
+        public string DefaultSchema { get; }
 
         protected Type DatabaseDefinitionType { get; } = typeof(T);
 
@@ -88,9 +56,7 @@ namespace SJP.Schema.Modelled.Reflection
 
         public bool TableExists(Identifier tableName)
         {
-            if (tableName.Schema.IsNullOrWhiteSpace())
-                tableName = new Identifier(DefaultSchema, tableName.LocalName);
-
+            tableName = CreateQualifiedIdentifier(tableName);
             return Table.ContainsKey(tableName);
         }
 
@@ -100,8 +66,7 @@ namespace SJP.Schema.Modelled.Reflection
         {
             var result = new Dictionary<Identifier, IRelationalDatabaseTable>();
 
-            var tables = TableInstances
-                .Keys
+            var tables = GetUnwrappedPropertyTypes(TableGenericType)
                 .Select(LoadTable)
                 .ToList();
 
@@ -129,8 +94,7 @@ namespace SJP.Schema.Modelled.Reflection
         {
             var result = new Dictionary<Identifier, IRelationalDatabaseView>();
 
-            var views = ViewInstances
-                .Keys
+            var views = GetUnwrappedPropertyTypes(ViewGenericType)
                 .Select(LoadView)
                 .ToList();
 
@@ -158,7 +122,7 @@ namespace SJP.Schema.Modelled.Reflection
         {
             var result = new Dictionary<Identifier, IDatabaseSequence>();
 
-            var sequences = SequenceInstances.Keys
+            var sequences = GetUnwrappedPropertyTypes(SequenceGenericType)
                 .Select(LoadSequence)
                 .ToList();
 
@@ -186,7 +150,7 @@ namespace SJP.Schema.Modelled.Reflection
         {
             var result = new Dictionary<Identifier, IDatabaseSynonym>();
 
-            var synonyms = SynonymInstances.Keys
+            var synonyms = GetUnwrappedPropertyTypes(SynonymGenericType)
                 .Select(LoadSynonym)
                 .ToList();
 
@@ -214,8 +178,7 @@ namespace SJP.Schema.Modelled.Reflection
 
         public Task<bool> TableExistsAsync(Identifier tableName)
         {
-            if (tableName.Schema.IsNullOrWhiteSpace())
-                tableName = new Identifier(DefaultSchema, tableName.LocalName);
+            tableName = CreateQualifiedIdentifier(tableName);
 
             var lookupContains = Table.ContainsKey(tableName);
             return Task.FromResult(lookupContains);
@@ -223,8 +186,7 @@ namespace SJP.Schema.Modelled.Reflection
 
         public Task<IRelationalDatabaseTable> TableAsync(Identifier tableName)
         {
-            if (tableName.Schema.IsNullOrWhiteSpace())
-                tableName = new Identifier(DefaultSchema, tableName.LocalName);
+            tableName = CreateQualifiedIdentifier(tableName);
 
             var lookupResult = Table.ContainsKey(tableName) ? Table[tableName] : null;
             return Task.FromResult(lookupResult);
@@ -234,40 +196,27 @@ namespace SJP.Schema.Modelled.Reflection
 
         protected virtual IRelationalDatabaseTable LoadTable(Type tableType)
         {
-            var reflectionTableType = typeof(ReflectionTable<>);
-            var specificType = reflectionTableType.MakeGenericType(tableType);
-
-            return (IRelationalDatabaseTable)Activator.CreateInstance(specificType, this);
+            return new ReflectionTable(this, tableType);
         }
 
         protected virtual IRelationalDatabaseView LoadView(Type viewType)
         {
-            var reflectionViewType = typeof(ReflectionView<>);
-            var specificType = reflectionViewType.MakeGenericType(viewType);
-
-            return (IRelationalDatabaseView)Activator.CreateInstance(specificType, this);
+            return new ReflectionView(this, viewType);
         }
 
         protected virtual IDatabaseSequence LoadSequence(Type sequenceType)
         {
-            var reflectionSequenceType = typeof(ReflectionSequence<>);
-            var specificType = reflectionSequenceType.MakeGenericType(sequenceType);
-
-            return (IDatabaseSequence)Activator.CreateInstance(specificType, this);
+            return new ReflectionSequence(this, sequenceType);
         }
 
         protected virtual IDatabaseSynonym LoadSynonym(Type synonymType)
         {
-            var reflectionSynonymType = typeof(ReflectionSynonym<>);
-            var specificType = reflectionSynonymType.MakeGenericType(synonymType);
-
-            return (IDatabaseSynonym)Activator.CreateInstance(specificType, this);
+            return new ReflectionSynonym(this, synonymType);
         }
 
         protected virtual Task<IRelationalDatabaseTable> LoadTableAsync(Identifier tableName)
         {
-            if (tableName.Schema.IsNullOrWhiteSpace())
-                tableName = new Identifier(DefaultSchema, tableName.LocalName);
+            tableName = CreateQualifiedIdentifier(tableName);
 
             var table = Table[tableName];
             return Task.FromResult(table);
@@ -279,9 +228,7 @@ namespace SJP.Schema.Modelled.Reflection
 
         public bool ViewExists(Identifier viewName)
         {
-            if (viewName.Schema.IsNullOrWhiteSpace())
-                viewName = new Identifier(DefaultSchema, viewName.LocalName);
-
+            viewName = CreateQualifiedIdentifier(viewName);
             return View.ContainsKey(viewName);
         }
 
@@ -291,8 +238,7 @@ namespace SJP.Schema.Modelled.Reflection
 
         public Task<bool> ViewExistsAsync(Identifier viewName)
         {
-            if (viewName.Schema.IsNullOrWhiteSpace())
-                viewName = new Identifier(DefaultSchema, viewName.LocalName);
+            viewName = CreateQualifiedIdentifier(viewName);
 
             var lookupContains = View.ContainsKey(viewName);
             return Task.FromResult(lookupContains);
@@ -300,8 +246,7 @@ namespace SJP.Schema.Modelled.Reflection
 
         public Task<IRelationalDatabaseView> ViewAsync(Identifier viewName)
         {
-            if (viewName.Schema.IsNullOrWhiteSpace())
-                viewName = new Identifier(DefaultSchema, viewName.LocalName);
+            viewName = CreateQualifiedIdentifier(viewName);
 
             var view = View[viewName];
             return Task.FromResult(view);
@@ -311,8 +256,7 @@ namespace SJP.Schema.Modelled.Reflection
 
         protected virtual Task<IRelationalDatabaseView> LoadViewAsync(Identifier viewName)
         {
-            if (viewName.Schema.IsNullOrWhiteSpace())
-                viewName = new Identifier(DefaultSchema, viewName.LocalName);
+            viewName = CreateQualifiedIdentifier(viewName);
 
             var view = View[viewName];
             return Task.FromResult(view);
@@ -324,8 +268,7 @@ namespace SJP.Schema.Modelled.Reflection
 
         public bool SequenceExists(Identifier sequenceName)
         {
-            if (sequenceName.Schema.IsNullOrWhiteSpace())
-                sequenceName = new Identifier(DefaultSchema, sequenceName.LocalName);
+            sequenceName = CreateQualifiedIdentifier(sequenceName);
 
             return Sequence.ContainsKey(sequenceName);
         }
@@ -336,8 +279,7 @@ namespace SJP.Schema.Modelled.Reflection
 
         public Task<bool> SequenceExistsAsync(Identifier sequenceName)
         {
-            if (sequenceName.Schema.IsNullOrWhiteSpace())
-                sequenceName = new Identifier(DefaultSchema, sequenceName.LocalName);
+            sequenceName = CreateQualifiedIdentifier(sequenceName);
 
             var lookupContains = Sequence.ContainsKey(sequenceName);
             return Task.FromResult(lookupContains);
@@ -345,8 +287,7 @@ namespace SJP.Schema.Modelled.Reflection
 
         public Task<IDatabaseSequence> SequenceAsync(Identifier sequenceName)
         {
-            if (sequenceName.Schema.IsNullOrWhiteSpace())
-                sequenceName = new Identifier(DefaultSchema, sequenceName.LocalName);
+            sequenceName = CreateQualifiedIdentifier(sequenceName);
 
             var sequence = Sequence[sequenceName];
             return Task.FromResult(sequence);
@@ -356,8 +297,7 @@ namespace SJP.Schema.Modelled.Reflection
 
         protected virtual Task<IDatabaseSequence> LoadSequenceAsync(Identifier sequenceName)
         {
-            if (sequenceName.Schema.IsNullOrWhiteSpace())
-                sequenceName = new Identifier(DefaultSchema, sequenceName.LocalName);
+            sequenceName = CreateQualifiedIdentifier(sequenceName);
 
             var sequence = Sequence[sequenceName];
             return Task.FromResult(sequence);
@@ -369,9 +309,7 @@ namespace SJP.Schema.Modelled.Reflection
 
         public bool SynonymExists(Identifier synonymName)
         {
-            if (synonymName.Schema.IsNullOrWhiteSpace())
-                synonymName = new Identifier(DefaultSchema, synonymName.LocalName);
-
+            synonymName = CreateQualifiedIdentifier(synonymName);
             return Synonym.ContainsKey(synonymName);
         }
 
@@ -381,8 +319,7 @@ namespace SJP.Schema.Modelled.Reflection
 
         public Task<bool> SynonymExistsAsync(Identifier synonymName)
         {
-            if (synonymName.Schema.IsNullOrWhiteSpace())
-                synonymName = new Identifier(DefaultSchema, synonymName.LocalName);
+            synonymName = CreateQualifiedIdentifier(synonymName);
 
             var lookupContains = Synonym.ContainsKey(synonymName);
             return Task.FromResult(lookupContains);
@@ -390,8 +327,7 @@ namespace SJP.Schema.Modelled.Reflection
 
         public Task<IDatabaseSynonym> SynonymAsync(Identifier synonymName)
         {
-            if (synonymName.Schema.IsNullOrWhiteSpace())
-                synonymName = new Identifier(DefaultSchema, synonymName.LocalName);
+            synonymName = CreateQualifiedIdentifier(synonymName);
 
             var synonym = Synonym[synonymName];
             return Task.FromResult(synonym);
@@ -401,8 +337,7 @@ namespace SJP.Schema.Modelled.Reflection
 
         protected virtual Task<IDatabaseSynonym> LoadSynonymAsync(Identifier synonymName)
         {
-            if (synonymName.Schema.IsNullOrWhiteSpace())
-                synonymName = new Identifier(DefaultSchema, synonymName.LocalName);
+            synonymName = CreateQualifiedIdentifier(synonymName);
 
             var synonym = Synonym[synonymName];
             return Task.FromResult(synonym);
@@ -410,15 +345,13 @@ namespace SJP.Schema.Modelled.Reflection
 
         #endregion Synonyms
 
-        private static Type TableGenericType { get; } = typeof(Table<>);
-        private static Type ViewGenericType { get; } = typeof(View<>);
-        private static Type SequenceGenericType { get; } = typeof(Sequence<>);
-        private static Type SynonymGenericType { get; } = typeof(Synonym<>);
+        protected static Type TableGenericType { get; } = typeof(Table<>);
 
-        public IReadOnlyDictionary<Type, object> TableInstances { get; }
-        public IReadOnlyDictionary<Type, object> ViewInstances { get; }
-        public IReadOnlyDictionary<Type, object> SequenceInstances { get; }
-        public IReadOnlyDictionary<Type, object> SynonymInstances { get; }
+        protected static Type ViewGenericType { get; } = typeof(View<>);
+
+        protected static Type SequenceGenericType { get; } = typeof(Sequence<>);
+
+        protected static Type SynonymGenericType { get; } = typeof(Synonym<>);
 
         public IReadOnlyDictionary<Identifier, IDatabaseTrigger> Trigger
         {
@@ -442,16 +375,15 @@ namespace SJP.Schema.Modelled.Reflection
             var foundTypes = new HashSet<Type>();
             var duplicateTypes = new HashSet<Type>();
 
-            var validWrappers = new[] { TableGenericType, ViewGenericType, SequenceGenericType };
-            var unwrappedTypes = definitionType.GetTypeInfo().DeclaredProperties
+            var validWrappers = new[] { TableGenericType, ViewGenericType, SequenceGenericType, SynonymGenericType };
+            var unwrappedTypes = definitionType.GetTypeInfo().GetProperties()
                 .Where(pi => validWrappers.Any(wrapperType => pi.PropertyType.GetGenericTypeDefinition().GetTypeInfo().IsAssignableFrom(wrapperType.GetTypeInfo())))
-                .Select(pi => UnwrapGenericParameter(pi.PropertyType))
-                .ToList();
+                .Select(pi => UnwrapGenericParameter(pi.PropertyType));
 
-            foreach (var unwrapped in unwrappedTypes)
+            foreach (var unwrappedType in unwrappedTypes)
             {
-                if (!foundTypes.Add(unwrapped))
-                    duplicateTypes.Add(unwrapped);
+                if (!foundTypes.Add(unwrappedType))
+                    duplicateTypes.Add(unwrappedType);
             }
 
             if (duplicateTypes.Count > 0)
@@ -486,6 +418,27 @@ namespace SJP.Schema.Modelled.Reflection
         public IObservable<IDatabaseTrigger> TriggersAsync() => Triggers.ToObservable();
 
         #endregion Triggers
+
+        protected IEnumerable<Type> GetUnwrappedPropertyTypes(Type objectType)
+        {
+            if (objectType == null)
+                throw new ArgumentNullException(nameof(objectType));
+
+            return DatabaseDefinitionType.GetTypeInfo().GetProperties()
+                .Where(pi => pi.PropertyType.GetGenericTypeDefinition().GetTypeInfo().IsAssignableFrom(objectType.GetTypeInfo()))
+                .Select(pi => UnwrapGenericParameter(pi.PropertyType))
+                .ToList();
+        }
+
+        protected Identifier CreateQualifiedIdentifier(Identifier identifier)
+        {
+            if (identifier == null)
+                throw new ArgumentNullException(nameof(identifier));
+
+            return identifier.Schema.IsNullOrWhiteSpace() && !DefaultSchema.IsNullOrWhiteSpace()
+                ? new Identifier(DefaultSchema, identifier.LocalName)
+                : identifier;
+        }
 
         private IRelationalDatabase _parentDb;
 

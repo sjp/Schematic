@@ -7,10 +7,10 @@ namespace SJP.Schema.Modelled.Reflection
 {
     public class ReflectionView : IRelationalDatabaseView
     {
-        public ReflectionView(Type viewType, IRelationalDatabase database)
+        public ReflectionView(IRelationalDatabase database, Type viewType)
         {
-            ViewType = viewType ?? throw new ArgumentNullException(nameof(viewType));
             Database = database ?? throw new ArgumentNullException(nameof(database));
+            ViewType = viewType ?? throw new ArgumentNullException(nameof(viewType));
             Name = Database.Dialect.GetQualifiedNameOverrideOrDefault(Database, ViewType);
         }
 
