@@ -11,14 +11,12 @@ namespace SJP.Schema.Modelled.Reflection.Model
         {
         }
 
-        private static IDbType GetDbTypeArg(Type typeArg)
+        private static Type GetDbTypeArg(Type typeArg)
         {
             ValidateTypeArg(typeArg);
 
             var nullableType = Nullable.GetUnderlyingType(typeArg);
-            var resolvedType = nullableType ?? typeArg;
-
-            return (IDbType)Activator.CreateInstance(resolvedType);
+            return nullableType ?? typeArg;
         }
 
         private static bool IsNullableTypeArg(Type typeArg)
@@ -31,14 +29,6 @@ namespace SJP.Schema.Modelled.Reflection.Model
         {
             if (!typeArg.GetTypeInfo().IsValueType)
                 throw new ArgumentException("The type argument given to the column must be a value type. Type: " + typeArg.FullName);
-
-            var nullableType = Nullable.GetUnderlyingType(typeArg);
-            var resolvedType = nullableType ?? typeArg;
-
-            if (!DbTypeArg.IsAssignableFrom(resolvedType))
-                throw new ArgumentException($"The type argument given to the column must implement the { DbTypeArg.FullName } interface. Type: { typeArg.FullName }");
         }
-
-        private static TypeInfo DbTypeArg { get; } = typeof(IDbType).GetTypeInfo();
     }
 }

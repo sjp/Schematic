@@ -12,11 +12,12 @@ using SJP.Schema.Modelled.Reflection.Model;
 namespace SJP.Schema.Modelled.Reflection
 {
     // TODO: uncomment interface when ready
-    public class ReflectionRelationalDatabase<T> : IRelationalDatabase //, IDependentRelationalDatabase
+    public class ReflectionRelationalDatabase : IRelationalDatabase //, IDependentRelationalDatabase
     {
-        public ReflectionRelationalDatabase(IDatabaseDialect dialect, string databaseName = null, string defaultSchema = null)
+        public ReflectionRelationalDatabase(IDatabaseDialect dialect, Type databaseDefinitionType, string databaseName = null, string defaultSchema = null)
         {
             Dialect = dialect ?? throw new ArgumentNullException(nameof(dialect));
+            DatabaseDefinitionType = databaseDefinitionType ?? throw new ArgumentNullException(nameof(databaseDefinitionType));
 
             if (databaseName.IsNullOrWhiteSpace())
                 databaseName = null;
@@ -50,7 +51,7 @@ namespace SJP.Schema.Modelled.Reflection
 
         public string DefaultSchema { get; }
 
-        protected Type DatabaseDefinitionType { get; } = typeof(T);
+        protected Type DatabaseDefinitionType { get; }
 
         #region Tables
 

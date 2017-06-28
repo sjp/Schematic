@@ -7,12 +7,12 @@ namespace SJP.Schema.Modelled.Reflection
 {
     public class ReflectionColumnDataType : IDbType
     {
-        public ReflectionColumnDataType(Type columnType, Type clrType, IDatabaseDialect dialect)
+        public ReflectionColumnDataType(IDatabaseDialect dialect, Type columnType, Type clrType)
         {
-            if (columnType == null)
-                throw new ArgumentNullException(nameof(columnType));
             if (dialect == null)
                 throw new ArgumentNullException(nameof(dialect));
+            if (columnType == null)
+                throw new ArgumentNullException(nameof(columnType));
 
             var attr = dialect.GetDialectAttribute<DeclaredTypeAttribute>(columnType);
             if (attr == null)

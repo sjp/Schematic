@@ -1,4 +1,5 @@
-﻿using System.Reflection;
+﻿using System;
+using System.Reflection;
 using SJP.Schema.Core;
 
 namespace SJP.Schema.Modelled.Reflection.Model
@@ -9,6 +10,6 @@ namespace SJP.Schema.Modelled.Reflection.Model
 
         bool IsNullable { get; }
 
-        IDbType DbType { get; }
+        Type DeclaredDbType { get; }
     }
 }

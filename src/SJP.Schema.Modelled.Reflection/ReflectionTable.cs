@@ -359,7 +359,7 @@ namespace SJP.Schema.Modelled.Reflection
                 throw new ArgumentException($"The property { InstanceType.FullName }.{ propInfo.Name } must be a column property (i.e. declared as Column<T>. Instead is declared as { propInfo.DeclaringType.FullName }", nameof(propInfo));
 
             var modelledColumn = propInfo.GetValue(TableInstance) as IModelledColumn;
-            var column = new ReflectionTableColumn(this, modelledColumn.Property, modelledColumn.DbType, modelledColumn.IsNullable);
+            var column = new ReflectionTableColumn(Dialect, this, modelledColumn.Property, modelledColumn.DeclaredDbType, modelledColumn.IsNullable);
             PropertyColumnCache[propInfo] = column; // add to cache
             return column;
         }
