@@ -31,7 +31,7 @@ namespace SJP.Schema.Modelled.Reflection
             _primaryKey = new Lazy<IDatabaseKey>(LoadPrimaryKey);
 
             Dialect = Database.Dialect;
-            Name = Dialect.GetQualifiedNameOverrideOrDefault(database, InstanceType);
+            Name = Dialect.GetQualifiedNameOrDefault(database, InstanceType);
         }
 
         protected IDatabaseDialect Dialect { get; }
@@ -153,7 +153,7 @@ namespace SJP.Schema.Modelled.Reflection
                 var parentTable = new ReflectionTable(Database, fk.TargetType);
                 var parentInstance = parentTable.TableInstance;
                 var keyObject = fk.KeySelector(parentInstance);
-                var parentKeyName = Dialect.GetNameOverrideOrDefault(keyObject.Property);
+                var parentKeyName = Dialect.GetAliasOrDefault(keyObject.Property);
 
                 IDatabaseKey parentKey;
                 if (keyObject.KeyType == DatabaseKeyType.Primary)
@@ -240,7 +240,7 @@ namespace SJP.Schema.Modelled.Reflection
             var dialect = Database.Dialect;
             var primaryKey = primaryKeys.Single();
             var pkColumns = primaryKey.Columns
-                .Select(c => dialect.GetNameOverrideOrDefault(c.Property))
+                .Select(c => dialect.GetAliasOrDefault(c.Property))
                 .Where(name => Column.ContainsKey(name))
                 .Select(name => Column[name]);
 
@@ -324,7 +324,7 @@ namespace SJP.Schema.Modelled.Reflection
                     .Select(name => Column[name.LocalName]);
 
                 // TODO: check name
-                var checkName = dialect.GetNameOverrideOrDefault(checkProperty);
+                var checkName = dialect.GetAliasOrDefault(checkProperty);
                 var check = new ReflectionCheckConstraint(this, checkName, modelledCheck.Expression, columns);
                 result[check.Name.LocalName] = check;
             }

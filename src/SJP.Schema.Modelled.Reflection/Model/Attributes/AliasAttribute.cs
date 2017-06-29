@@ -3,27 +3,27 @@ using SJP.Schema.Core;
 
 namespace SJP.Schema.Modelled.Reflection.Model
 {
-    public sealed class NameAttribute : ModelledSchemaAttribute
+    public sealed class AliasAttribute : ModelledSchemaAttribute
     {
-        public NameAttribute(string name)
+        public AliasAttribute(string name)
             : base(new[] { Dialect.All })
         {
             if (name.IsNullOrWhiteSpace())
                 throw new ArgumentNullException(nameof(name));
 
-            Name = name;
+            Alias = name;
         }
 
-        public NameAttribute(string name, params Type[] dialects)
+        public AliasAttribute(string name, params Type[] dialects)
             : base(dialects)
         {
             if (name.IsNullOrWhiteSpace())
                 throw new ArgumentNullException(nameof(name));
 
-            Name = name;
+            Alias = name;
         }
 
-        public string Name { get; }
+        public string Alias { get; }
     }
 
 }

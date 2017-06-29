@@ -8,7 +8,7 @@ namespace SJP.Schema.Modelled.Reflection
 {
     public static class ReflectionExtensions
     {
-        public static FieldInfo GetAutoBackingField(this PropertyInfo property, BindingFlags bindingFlags = BindingFlags.Instance | BindingFlags.NonPublic)
+        public static FieldInfo GetAutoBackingField(this PropertyInfo property, BindingFlags bindingFlags = BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.FlattenHierarchy)
         {
             if (property == null)
                 throw new ArgumentNullException(nameof(property));
@@ -62,26 +62,26 @@ namespace SJP.Schema.Modelled.Reflection
             return attrs.SingleOrDefault();
         }
 
-        public static string GetNameOverrideOrDefault(this IDatabaseDialect dialect, PropertyInfo property)
+        public static string GetAliasOrDefault(this IDatabaseDialect dialect, PropertyInfo property)
         {
             if (dialect == null)
                 throw new ArgumentNullException(nameof(dialect));
             if (property == null)
                 throw new ArgumentNullException(nameof(property));
 
-            var nameAttr = dialect.GetDialectAttribute<NameAttribute>(property);
-            return nameAttr?.Name ?? property.Name;
+            var aliasAttr = dialect.GetDialectAttribute<AliasAttribute>(property);
+            return aliasAttr?.Alias ?? property.Name;
         }
 
-        public static string GetNameOverrideOrDefault(this IDatabaseDialect dialect, Type type)
+        public static string GetAliasOrDefault(this IDatabaseDialect dialect, Type type)
         {
             if (dialect == null)
                 throw new ArgumentNullException(nameof(dialect));
             if (type == null)
                 throw new ArgumentNullException(nameof(type));
 
-            var nameAttr = dialect.GetDialectAttribute<NameAttribute>(type);
-            return nameAttr?.Name ?? type.Name;
+            var aliasAttr = dialect.GetDialectAttribute<AliasAttribute>(type);
+            return aliasAttr?.Alias ?? type.Name;
         }
 
         public static string GetSchemaOverride(this IDatabaseDialect dialect, Type type)
@@ -95,7 +95,7 @@ namespace SJP.Schema.Modelled.Reflection
             return nameAttr?.Schema;
         }
 
-        public static Identifier GetQualifiedNameOverrideOrDefault(this IDatabaseDialect dialect, IRelationalDatabase database, Type type)
+        public static Identifier GetQualifiedNameOrDefault(this IDatabaseDialect dialect, IRelationalDatabase database, Type type)
         {
             if (dialect == null)
                 throw new ArgumentNullException(nameof(dialect));
@@ -108,7 +108,7 @@ namespace SJP.Schema.Modelled.Reflection
             if (schemaName.IsNullOrWhiteSpace())
                 schemaName = database.DefaultSchema;
 
-            var localName = dialect.GetNameOverrideOrDefault(type);
+            var localName = dialect.GetAliasOrDefault(type);
             return schemaName.IsNullOrWhiteSpace()
                 ? new LocalIdentifier(localName)
                 : new Identifier(schemaName, localName);

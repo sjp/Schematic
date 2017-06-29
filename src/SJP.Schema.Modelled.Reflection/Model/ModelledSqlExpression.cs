@@ -135,7 +135,7 @@ namespace SJP.Schema.Modelled.Reflection.Model
                         if (columnObject != null)
                         {
                             // also get name properly anyway...
-                            var columnName = dialect.GetNameOverrideOrDefault(columnObject.Property);
+                            var columnName = dialect.GetAliasOrDefault(columnObject.Property);
                             yield return dialect.QuoteName(columnName);
                         }
                         else if (stringVal != null)

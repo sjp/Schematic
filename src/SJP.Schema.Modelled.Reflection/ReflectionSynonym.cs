@@ -15,10 +15,10 @@ namespace SJP.Schema.Modelled.Reflection
 
             SynonymType = synonymType ?? throw new ArgumentNullException(nameof(synonymType));
             var dialect = database.Dialect;
-            Name = dialect.GetQualifiedNameOverrideOrDefault(database, SynonymType);
+            Name = dialect.GetQualifiedNameOrDefault(database, SynonymType);
 
             var targetType = GetBaseGenericTypeArg();
-            Target = dialect.GetQualifiedNameOverrideOrDefault(database, targetType);
+            Target = dialect.GetQualifiedNameOrDefault(database, targetType);
         }
 
         public Identifier Name { get; }

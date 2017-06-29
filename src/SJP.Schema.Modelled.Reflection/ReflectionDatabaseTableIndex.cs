@@ -18,7 +18,7 @@ namespace SJP.Schema.Modelled.Reflection
             IsUnique = index.IsUnique;
 
             var dialect = table.Database.Dialect;
-            Name = dialect.GetNameOverrideOrDefault(index.Property);
+            Name = dialect.GetAliasOrDefault(index.Property);
 
             // TODO:
             // fix column lookup to work on property infos instead of string names, probably easier to map
@@ -51,7 +51,7 @@ namespace SJP.Schema.Modelled.Reflection
 
             foreach (var includedColumn in index.IncludedColumns)
             {
-                var includedColumnName = dialect.GetNameOverrideOrDefault(includedColumn.Property);
+                var includedColumnName = dialect.GetAliasOrDefault(includedColumn.Property);
                 var column = table.Column[includedColumnName];
                 includedColumns.Add(column);
             }

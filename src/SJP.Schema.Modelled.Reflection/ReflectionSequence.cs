@@ -32,7 +32,7 @@ namespace SJP.Schema.Modelled.Reflection
             Start = instance.Start;
 
             var dialect = database.Dialect;
-            Name = dialect.GetQualifiedNameOverrideOrDefault(database, sequenceType);
+            Name = dialect.GetQualifiedNameOrDefault(database, sequenceType);
         }
 
         public int Cache { get; }

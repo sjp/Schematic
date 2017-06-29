@@ -11,7 +11,7 @@ namespace SJP.Schema.Modelled.Reflection
         {
             Database = database ?? throw new ArgumentNullException(nameof(database));
             ViewType = viewType ?? throw new ArgumentNullException(nameof(viewType));
-            Name = Database.Dialect.GetQualifiedNameOverrideOrDefault(Database, ViewType);
+            Name = Database.Dialect.GetQualifiedNameOrDefault(Database, ViewType);
         }
 
         protected Type ViewType { get; }
