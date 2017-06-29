@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Collections.Immutable;
 using System.Linq;
 using SJP.Schema.Core;
 
@@ -69,12 +68,11 @@ namespace SJP.Schema.SqlServer
             if (column == null)
                 throw new ArgumentNullException(nameof(column));
 
-            var columns = new[] { column };
-            DependentColumns = columns.ToImmutableList();
+            DependentColumns = new List<IDatabaseColumn> { column }.AsReadOnly();
             Order = order;
         }
 
-        public IList<IDatabaseColumn> DependentColumns { get; }
+        public IReadOnlyList<IDatabaseColumn> DependentColumns { get; }
 
         public IndexColumnOrder Order { get; }
 

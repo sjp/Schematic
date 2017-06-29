@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Collections.Immutable;
+using System.Linq;
 using SJP.Schema.Core;
 
 namespace SJP.Schema.Modelled.Reflection
@@ -13,11 +13,11 @@ namespace SJP.Schema.Modelled.Reflection
                 throw new ArgumentNullException(nameof(columns));
 
             Expression = expression ?? throw new ArgumentNullException(nameof(expression));
-            DependentColumns = columns.ToImmutableList();
+            DependentColumns = columns.ToList().AsReadOnly();
             Order = order;
         }
 
-        public IList<IDatabaseColumn> DependentColumns { get; }
+        public IReadOnlyList<IDatabaseColumn> DependentColumns { get; }
 
         public IndexColumnOrder Order { get; }
 

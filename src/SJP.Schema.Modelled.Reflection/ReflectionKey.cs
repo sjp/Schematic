@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Collections.Immutable;
+using System.Linq;
 using System.Reflection;
 using SJP.Schema.Core;
 
@@ -8,17 +8,19 @@ namespace SJP.Schema.Modelled.Reflection
 {
     public class ReflectionKey : IDatabaseKey
     {
-        public ReflectionKey(IRelationalDatabaseTable table, PropertyInfo prop, IEnumerable<IDatabaseColumn> columns, DatabaseKeyType keyType)
+        public ReflectionKey(IDatabaseDialect dialect, IRelationalDatabaseTable table, PropertyInfo prop, IEnumerable<IDatabaseColumn> columns, DatabaseKeyType keyType)
         {
+            if (dialect == null)
+                throw new ArgumentNullException(nameof(dialect));
             if (columns == null || columns.Empty() || columns.AnyNull())
                 throw new ArgumentNullException(nameof(columns));
 
             _prop = prop ?? throw new ArgumentNullException(nameof(prop));
             Table = table ?? throw new ArgumentNullException(nameof(table));
-            Columns = columns.ToImmutableList();
+            Columns = columns.ToList();
             KeyType = keyType;
 
-            Name = prop.Name; // TODO: FIX THIS!
+            Name = dialect.GetAliasOrDefault(prop);
         }
 
         public IEnumerable<IDatabaseColumn> Columns { get; }

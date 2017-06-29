@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Collections.Immutable;
 using System.Globalization;
 using System.Linq;
 using System.Reflection;
@@ -25,7 +24,7 @@ namespace SJP.Schema.Modelled.Reflection.Model
             ExpressionText = expression;
 
             var parser = new ExpressionParser();
-            Tokens = parser.Tokenize(expression).ToImmutableList();
+            Tokens = parser.Tokenize(expression).ToList();
             var lookup = ObjectToDictionary(param);
 
             // TODO: check unbound names -- definitely an error
@@ -94,7 +93,7 @@ namespace SJP.Schema.Modelled.Reflection.Model
 
             var firstInfo = tokenInfo[0];
             if (firstInfo.Start > 0)
-                builder.Append(ExpressionText.Substring(0, firstInfo.Start));
+                builder.Append(ExpressionText, 0, firstInfo.Start);
 
             var prevEnd = -1;
             foreach (var info in tokenInfo)
@@ -155,7 +154,7 @@ namespace SJP.Schema.Modelled.Reflection.Model
             }
         }
 
-        private static IReadOnlyDictionary<string, object> EmptyLookup { get; } = new Dictionary<string, object>().ToImmutableDictionary();
+        private static IReadOnlyDictionary<string, object> EmptyLookup { get; } = new Dictionary<string, object>().ToReadOnlyDictionary();
 
         private static IReadOnlyDictionary<string, object> ObjectToDictionary(object param)
         {
@@ -173,7 +172,7 @@ namespace SJP.Schema.Modelled.Reflection.Model
                 result[propName] = propValue ?? throw new ArgumentException($"The property { propName } on the given parameter object is null. A value must be set", nameof(param));
             }
 
-            return result.ToImmutableDictionary();
+            return result.ToReadOnlyDictionary();
         }
 
         protected static string UnwrapTokenValue(Token<ExpressionToken> token)

@@ -48,10 +48,17 @@ namespace SJP.Schema.Core.Tests
         }
 
         [Test]
-        public void NullIdentifierReturnsZero()
+        public void NullIdentifierReturnsZeroHashCode()
         {
             var comparer = new IdentifierComparer();
-            Assert.AreEqual(comparer.GetHashCode(null), 0);
+            Assert.Zero(comparer.GetHashCode(null));
+        }
+
+        [Test]
+        public void NotNullIdentifierReturnsNonZeroHashCode()
+        {
+            var comparer = new IdentifierComparer();
+            Assert.NotZero(comparer.GetHashCode("abc"));
         }
 
         [Test]
@@ -92,6 +99,56 @@ namespace SJP.Schema.Core.Tests
             var identifier = new Identifier("abc");
             var otherIdentifier = new Identifier("ABC");
             var comparer = IdentifierComparer.OrdinalIgnoreCase;
+
+            Assert.IsTrue(comparer.Equals(identifier, otherIdentifier));
+        }
+
+        [Test]
+        public void DefaultSchemaComparesEqualWithNullSchema()
+        {
+            var identifier = new Identifier("abc");
+            var otherIdentifier = new Identifier("dbo", "abc");
+            var comparer = new IdentifierComparer(StringComparison.CurrentCulture, "dbo");
+
+            Assert.IsTrue(comparer.Equals(identifier, otherIdentifier));
+        }
+
+        [Test]
+        public void DefaultSchemaComparesNotEqualWithNullAndNonDefaultSchema()
+        {
+            var identifier = new Identifier("abc");
+            var otherIdentifier = new Identifier("other", "abc");
+            var comparer = new IdentifierComparer(StringComparison.CurrentCulture, "dbo");
+
+            Assert.IsFalse(comparer.Equals(identifier, otherIdentifier));
+        }
+
+        [Test]
+        public void DefaultSchemaComparesNotEqualWithDefaultAndNonDefaultSchema()
+        {
+            var identifier = new Identifier("other", "abc");
+            var otherIdentifier = new Identifier("dbo", "abc");
+            var comparer = new IdentifierComparer(StringComparison.CurrentCulture, "dbo");
+
+            Assert.IsFalse(comparer.Equals(identifier, otherIdentifier));
+        }
+
+        [Test]
+        public void SchemaComparesNotEqualWithDifferentSchema()
+        {
+            var identifier = new Identifier("other", "abc");
+            var otherIdentifier = new Identifier("dbo", "abc");
+            var comparer = new IdentifierComparer(StringComparison.CurrentCulture);
+
+            Assert.IsFalse(comparer.Equals(identifier, otherIdentifier));
+        }
+
+        [Test]
+        public void SchemaComparesEqualWithSameSchema()
+        {
+            var identifier = new Identifier("dbo", "abc");
+            var otherIdentifier = new Identifier("dbo", "abc");
+            var comparer = new IdentifierComparer(StringComparison.CurrentCulture);
 
             Assert.IsTrue(comparer.Equals(identifier, otherIdentifier));
         }

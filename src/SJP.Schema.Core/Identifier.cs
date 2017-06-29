@@ -72,25 +72,45 @@ namespace SJP.Schema.Core
 
         public string LocalName => _localName;
 
+        public IdentifierComparer Comparer
+        {
+            get => _comparer;
+            set => _comparer = value ?? throw new ArgumentNullException(nameof(Comparer));
+        }
+
         public override string ToString()
         {
             // not intended to be used for anything except debugging
             return DebuggerDisplay;
         }
 
-        public static bool operator ==(Identifier a, Identifier b) => IdentifierComparer.CurrentCulture.Equals(a, b);
-
-        public static bool operator !=(Identifier a, Identifier b) => !IdentifierComparer.CurrentCulture.Equals(a, b);
-
-        public static bool operator >(Identifier a, Identifier b) => IdentifierComparer.CurrentCulture.Compare(a, b) > 0;
-
-        public static bool operator <(Identifier a, Identifier b) => IdentifierComparer.CurrentCulture.Compare(a, b) < 0;
-
-        public bool Equals(Identifier other)
+        public static bool operator ==(Identifier a, Identifier b)
         {
-            var comparer = IdentifierComparer.CurrentCulture;
-            return comparer.Equals(this, other);
+            if (ReferenceEquals(a, b))
+                return true;
+            if (ReferenceEquals(a, null) ^ ReferenceEquals(b, null))
+                return false;
+
+            var comparer = a.Comparer;
+            return comparer.Equals(a, b);
         }
+
+        public static bool operator !=(Identifier a, Identifier b)
+        {
+            if (ReferenceEquals(a, b))
+                return false;
+            if (ReferenceEquals(a, null) ^ ReferenceEquals(b, null))
+                return true;
+
+            var comparer = a.Comparer;
+            return !comparer.Equals(a, b);
+        }
+
+        //public static bool operator >(Identifier a, Identifier b) => IdentifierComparer.CurrentCulture.Compare(a, b) > 0;
+
+        //public static bool operator <(Identifier a, Identifier b) => IdentifierComparer.CurrentCulture.Compare(a, b) < 0;
+
+        public bool Equals(Identifier other) => Comparer.Equals(this, other);
 
         public override bool Equals(object obj)
         {
@@ -104,11 +124,7 @@ namespace SJP.Schema.Core
             return Equals(other);
         }
 
-        public override int GetHashCode()
-        {
-            var comparer = IdentifierComparer.CurrentCulture;
-            return comparer.GetHashCode(this);
-        }
+        public override int GetHashCode() => Comparer.GetHashCode(this);
 
         public int CompareTo(Identifier other)
         {
@@ -118,8 +134,7 @@ namespace SJP.Schema.Core
             if (other == null)
                 return 1;
 
-            var comparer = IdentifierComparer.CurrentCulture;
-            return comparer.Compare(this, other);
+            return Comparer.Compare(this, other);
         }
 
         private string DebuggerDisplay
@@ -145,6 +160,8 @@ namespace SJP.Schema.Core
         protected string _databaseName;
         protected string _schemaName;
         protected string _localName;
+
+        protected IdentifierComparer _comparer = IdentifierComparer.CurrentCulture;
     }
 
     public class ServerIdentifier : Identifier

@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Collections.Immutable;
 using System.Linq;
 using SJP.Schema.Core;
 using SJP.Schema.Modelled.Reflection.Model;
@@ -58,8 +57,8 @@ namespace SJP.Schema.Modelled.Reflection
 
             IsFunctionBased = isFunctionBasedIndex;
 
-            Columns = columns.ToImmutableList();
-            IncludedColumns = includedColumns.ToImmutableList();
+            Columns = columns.ToList();
+            IncludedColumns = includedColumns.ToList();
         }
 
         public IRelationalDatabaseTable Table { get; }

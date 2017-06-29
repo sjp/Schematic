@@ -8,7 +8,7 @@ namespace SJP.Schema.Core
     {
         IndexColumnOrder Order { get; }
 
-        IList<IDatabaseColumn> DependentColumns { get; }
+        IReadOnlyList<IDatabaseColumn> DependentColumns { get; }
 
         string GetExpression(IDatabaseDialect dialect);
     }

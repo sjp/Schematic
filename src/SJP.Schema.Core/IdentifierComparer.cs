@@ -3,46 +3,21 @@ using System.Collections.Generic;
 
 namespace SJP.Schema.Core
 {
-
-    //
-    //
-    //
-    //
-    //
-    //
-    //
-    /*
-     *
-     *
-     IDEA FOR QUOTING:
-        If a dialect provider can have a static method for quoting, then pass that in to a method or derive from Name
-        i.e.
-
-    ToString()
-    {
-        DialectProvider.QuotingMethod("a", "b", "c")
-    }
-
-
-    that way we can get a generic instance always and a specific instance always too.
-    Just means we need to derive from Name. Not bad...
- *
-     *
-     */
-
     public class IdentifierComparer : IEqualityComparer<Identifier>, IComparer<Identifier>
     {
-        public IdentifierComparer(StringComparison comparison = StringComparison.OrdinalIgnoreCase)
+        public IdentifierComparer(StringComparison comparison = StringComparison.OrdinalIgnoreCase, string defaultSchema = null)
         {
             if (!Enum.IsDefined(_strComparisonType, comparison))
                 throw new InvalidOperationException($"The { nameof(StringComparison) } value is not defined.");
 
             _comparer = GetStringComparer(comparison);
+            _defaultSchema = defaultSchema.IsNullOrWhiteSpace() ? null : defaultSchema;
         }
 
-        public IdentifierComparer(StringComparer comparer) // can't use IComparer or IEqualityComparer because we need both
+        public IdentifierComparer(StringComparer comparer, string defaultSchema = null) // can't use IComparer or IEqualityComparer because we need both
         {
             _comparer = comparer ?? throw new ArgumentNullException(nameof(comparer));
+            _defaultSchema = defaultSchema.IsNullOrWhiteSpace() ? null : defaultSchema;
         }
 
         public bool Equals(Identifier x, Identifier y)
@@ -56,7 +31,7 @@ namespace SJP.Schema.Core
             // both must be not null at this point
             return _comparer.Equals(x.Server, y.Server)
                 && _comparer.Equals(x.Database, y.Database)
-                && _comparer.Equals(x.Schema, y.Schema)
+                && _comparer.Equals(x.Schema ?? _defaultSchema, y.Schema ?? _defaultSchema)
                 && _comparer.Equals(x.LocalName, y.LocalName);
         }
 
@@ -70,7 +45,7 @@ namespace SJP.Schema.Core
                 var hash = 17;
                 hash = (hash * 23) + (obj.Server != null ? _comparer.GetHashCode(obj.Server) : 0);
                 hash = (hash * 23) + (obj.Database != null ? _comparer.GetHashCode(obj.Database) : 0);
-                hash = (hash * 23) + (obj.Schema != null ? _comparer.GetHashCode(obj.Schema) : 0);
+                hash = (hash * 23) + (obj.Schema != null ? _comparer.GetHashCode(obj.Schema) : _defaultSchema != null ? _comparer.GetHashCode(_defaultSchema) : 0);
                 hash = (hash * 23) + (obj.LocalName != null ? _comparer.GetHashCode(obj.LocalName) : 0);
                 return hash;
             }
@@ -93,7 +68,7 @@ namespace SJP.Schema.Core
             if (result != 0)
                 return result;
 
-            result = _comparer.Compare(x.Schema, y.Schema);
+            result = _comparer.Compare(x.Schema ?? _defaultSchema, y.Schema ?? _defaultSchema);
             if (result != 0)
                 return result;
 
@@ -125,8 +100,8 @@ namespace SJP.Schema.Core
             }
         }
 
+        private readonly string _defaultSchema;
         private readonly StringComparer _comparer;
-
         private static readonly Type _strComparisonType = typeof(StringComparison);
     }
 }

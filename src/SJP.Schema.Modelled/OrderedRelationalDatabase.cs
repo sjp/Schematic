@@ -2,7 +2,6 @@
 using SJP.Schema.Core.Utilities;
 using System;
 using System.Collections.Generic;
-using System.Collections.Immutable;
 using System.Linq;
 using System.Reactive.Linq;
 using System.Threading.Tasks;
@@ -19,7 +18,7 @@ namespace SJP.Schema.Modelled
             if (databases.Empty())
                 throw new ArgumentException("At least one database must be present in the collection of databases", nameof(databases));
 
-            Databases = databases.Select(d => SetParent(this, d)).ToImmutableList();
+            Databases = databases.Select(d => SetParent(this, d)).ToList();
             BaseDatabase = Databases.Last();
 
             _tableCache = new AsyncCache<Identifier, IRelationalDatabaseTable>(LoadTableAsync);

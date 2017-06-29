@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Globalization;
 using System.Linq;
 
@@ -45,5 +46,16 @@ namespace SJP.Schema.Core
         public static bool Empty<T>(this IEnumerable<T> source) => !source.Any();
 
         public static bool AnyNull<T>(this IEnumerable<T> source) where T : class => source.Any(x => x == null);
+    }
+
+    public static class ReadOnlyExtensions
+    {
+        public static IReadOnlyDictionary<TKey, TValue> ToReadOnlyDictionary<TKey, TValue>(this IDictionary<TKey, TValue> source)
+        {
+            if (source == null)
+                throw new ArgumentNullException(nameof(source));
+
+            return new ReadOnlyDictionary<TKey, TValue>(source);
+        }
     }
 }

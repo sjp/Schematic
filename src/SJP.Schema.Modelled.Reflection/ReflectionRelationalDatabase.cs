@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Collections.Immutable;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
@@ -14,7 +13,7 @@ namespace SJP.Schema.Modelled.Reflection
     // TODO: uncomment interface when ready
     public class ReflectionRelationalDatabase : IRelationalDatabase //, IDependentRelationalDatabase
     {
-        public ReflectionRelationalDatabase(IDatabaseDialect dialect, Type databaseDefinitionType, string databaseName = null, string defaultSchema = null)
+        public ReflectionRelationalDatabase(IDatabaseDialect dialect, Type databaseDefinitionType, string databaseName = null, string defaultSchema = null, IdentifierComparer comparer = null)
         {
             Dialect = dialect ?? throw new ArgumentNullException(nameof(dialect));
             DatabaseDefinitionType = databaseDefinitionType ?? throw new ArgumentNullException(nameof(databaseDefinitionType));
@@ -27,10 +26,11 @@ namespace SJP.Schema.Modelled.Reflection
                 defaultSchema = null;
             DefaultSchema = defaultSchema;
 
+            Comparer = comparer ?? new IdentifierComparer(StringComparer.OrdinalIgnoreCase, defaultSchema);
+
             EnsureUniqueTypes(DatabaseDefinitionType);
 
-            _parentDb = this; // TODO replace other uses of 'this' with 'Database' because means we can override
-
+            _parentDb = this;
             _tableLookup = new Lazy<IReadOnlyDictionary<Identifier, IRelationalDatabaseTable>>(LoadTableLookup);
             _viewLookup = new Lazy<IReadOnlyDictionary<Identifier, IRelationalDatabaseView>>(LoadViewLookup);
             _sequenceLookup = new Lazy<IReadOnlyDictionary<Identifier, IDatabaseSequence>>(LoadSequenceLookup);
@@ -51,6 +51,8 @@ namespace SJP.Schema.Modelled.Reflection
 
         public string DefaultSchema { get; }
 
+        protected IdentifierComparer Comparer { get; }
+
         protected Type DatabaseDefinitionType { get; }
 
         #region Tables
@@ -58,6 +60,7 @@ namespace SJP.Schema.Modelled.Reflection
         public bool TableExists(Identifier tableName)
         {
             tableName = CreateQualifiedIdentifier(tableName);
+            tableName.Comparer = Comparer;
             return Table.ContainsKey(tableName);
         }
 
@@ -65,7 +68,7 @@ namespace SJP.Schema.Modelled.Reflection
 
         private IReadOnlyDictionary<Identifier, IRelationalDatabaseTable> LoadTableLookup()
         {
-            var result = new Dictionary<Identifier, IRelationalDatabaseTable>();
+            var result = new Dictionary<Identifier, IRelationalDatabaseTable>(Comparer);
 
             var tables = GetUnwrappedPropertyTypes(TableGenericType)
                 .Select(LoadTable)
@@ -88,7 +91,7 @@ namespace SJP.Schema.Modelled.Reflection
                 throw new Exception(message);
             }
 
-            return new IdentifierLookup<IRelationalDatabaseTable>(DefaultSchema, result.ToImmutableDictionary());
+            return result.ToReadOnlyDictionary();
         }
 
         private IReadOnlyDictionary<Identifier, IRelationalDatabaseView> LoadViewLookup()
@@ -116,7 +119,7 @@ namespace SJP.Schema.Modelled.Reflection
                 throw new Exception(message);
             }
 
-            return result.ToImmutableDictionary();
+            return result.ToReadOnlyDictionary();
         }
 
         private IReadOnlyDictionary<Identifier, IDatabaseSequence> LoadSequenceLookup()
@@ -144,7 +147,7 @@ namespace SJP.Schema.Modelled.Reflection
                 throw new Exception(message);
             }
 
-            return result.ToImmutableDictionary();
+            return result.ToReadOnlyDictionary();
         }
 
         private IReadOnlyDictionary<Identifier, IDatabaseSynonym> LoadSynonymLookup()
@@ -172,7 +175,7 @@ namespace SJP.Schema.Modelled.Reflection
                 throw new Exception(message);
             }
 
-            return result.ToImmutableDictionary();
+            return result.ToReadOnlyDictionary();
         }
 
         public IEnumerable<IRelationalDatabaseTable> Tables => Table.Values;
@@ -197,22 +200,22 @@ namespace SJP.Schema.Modelled.Reflection
 
         protected virtual IRelationalDatabaseTable LoadTable(Type tableType)
         {
-            return new ReflectionTable(this, tableType);
+            return new ReflectionTable(Database, tableType);
         }
 
         protected virtual IRelationalDatabaseView LoadView(Type viewType)
         {
-            return new ReflectionView(this, viewType);
+            return new ReflectionView(Database, viewType);
         }
 
         protected virtual IDatabaseSequence LoadSequence(Type sequenceType)
         {
-            return new ReflectionSequence(this, sequenceType);
+            return new ReflectionSequence(Database, sequenceType);
         }
 
         protected virtual IDatabaseSynonym LoadSynonym(Type synonymType)
         {
-            return new ReflectionSynonym(this, synonymType);
+            return new ReflectionSynonym(Database, synonymType);
         }
 
         protected virtual Task<IRelationalDatabaseTable> LoadTableAsync(Identifier tableName)

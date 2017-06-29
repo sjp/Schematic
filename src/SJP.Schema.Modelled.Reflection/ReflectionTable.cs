@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Collections.Immutable;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
@@ -16,7 +15,7 @@ namespace SJP.Schema.Modelled.Reflection
             Database = database ?? throw new ArgumentNullException(nameof(database));
             InstanceType = tableType ?? throw new ArgumentNullException(nameof(tableType));
             TableInstance = CreateTableInstance(InstanceType);
-            InstanceProperties = InstanceType.GetTypeInfo().GetProperties().ToImmutableHashSet();
+            InstanceProperties = new HashSet<PropertyInfo>(InstanceType.GetTypeInfo().GetProperties());
 
             _dependencies = new Lazy<IEnumerable<Identifier>>(LoadDependencies);
             _dependents = new Lazy<IEnumerable<Identifier>>(LoadDependents);
@@ -40,38 +39,30 @@ namespace SJP.Schema.Modelled.Reflection
         //       maybe this would require a connection to the database?
         private IEnumerable<Identifier> LoadDependents()
         {
-            var childTables = ChildKeys
+            return ChildKeys
                 .Select(fk => fk.ChildKey.Table.Name)
                 .Where(name => name != Name)
                 .Distinct()
                 .ToList();
-
-            return childTables.ToImmutableList();
         }
 
         // TODO: handle situation where the table has a foreign key to a view? would this happen in sql server??
         //       maybe this would require a connection to the database?
         private IEnumerable<Identifier> LoadDependencies()
         {
-            var parentTables = ParentKeys
+            return ParentKeys
                 .Select(fk => fk.ParentKey.Table.Name)
                 .Where(name => name != Name)
                 .Distinct()
                 .ToList();
-
-            return parentTables.ToImmutableList();
         }
 
         private IEnumerable<IDatabaseRelationalKey> LoadChildKeys()
         {
-            var result = new List<IDatabaseRelationalKey>();
-
-            var relationalKeys = Database.Tables
+            return Database.Tables
                 .SelectMany(t => t.ParentKeys)
-                .Where(fk => fk.ParentKey.Table.Name == Name);
-            result.AddRange(relationalKeys);
-
-            return result.ToImmutableList();
+                .Where(fk => fk.ParentKey.Table.Name == Name)
+                .ToList();
         }
 
         protected static object CreateTableInstance(Type tableType)
@@ -84,9 +75,7 @@ namespace SJP.Schema.Modelled.Reflection
                 throw new ArgumentException($"The provided table type '{ tableType.FullName }' does not contain a default constructor.", nameof(tableType));
 
             var tableInstance = Activator.CreateInstance(tableType);
-            var populatedInstance = PopulateColumnProperties(tableType, tableInstance);
-
-            return populatedInstance;
+            return PopulateColumnProperties(tableType, tableInstance);
         }
 
         protected static object PopulateColumnProperties(Type tableType, object tableInstance)
@@ -177,7 +166,7 @@ namespace SJP.Schema.Modelled.Reflection
                 // check that columns match up with parent key -- otherwise will fail
                 // TODO: don't assume that the FK is to a table -- could be to a synonym
                 //       maybe change interface of Synonym<T> to be something like Synonym<Table<T>> or Synonym<Synonym<T>> -- could unwrap at runtime?
-                var childKey = new ReflectionForeignKey(this, parentKey, fk.Property, fkColumns);
+                var childKey = new ReflectionForeignKey(Dialect, this, parentKey, fk.Property, fkColumns);
 
                 var deleteAttr = Dialect.GetDialectAttribute<OnDeleteActionAttribute>(fk.Property);
                 var deleteAction = deleteAttr != null ? _updateActionMapping[deleteAttr.Action] : RelationalKeyUpdateAction.NoAction;
@@ -189,7 +178,7 @@ namespace SJP.Schema.Modelled.Reflection
                 result[childKey.Name.LocalName] = new ReflectionRelationalKey(childKey, parentKey, deleteAction, updateAction);
             }
 
-            return result.ToImmutableDictionary();
+            return result.ToReadOnlyDictionary();
         }
 
         private readonly static IReadOnlyDictionary<ForeignKeyAction, RelationalKeyUpdateAction> _updateActionMapping = new Dictionary<ForeignKeyAction, RelationalKeyUpdateAction>
@@ -207,7 +196,8 @@ namespace SJP.Schema.Modelled.Reflection
             return InstanceProperties
                 .Where(IsColumnProperty)
                 .Select(GetColumnFromProperty)
-                .ToImmutableList();
+                .ToList()
+                .AsReadOnly();
         }
 
         protected Type InstanceType { get; }
@@ -244,7 +234,7 @@ namespace SJP.Schema.Modelled.Reflection
                 .Where(name => Column.ContainsKey(name))
                 .Select(name => Column[name]);
 
-            return new ReflectionKey(this, primaryKey.Property, pkColumns, primaryKey.KeyType);
+            return new ReflectionKey(Dialect, this, primaryKey.Property, pkColumns, primaryKey.KeyType);
         }
 
         private IReadOnlyDictionary<string, IDatabaseTableIndex> LoadIndexes()
@@ -266,7 +256,7 @@ namespace SJP.Schema.Modelled.Reflection
                 result[refIndex.Name.LocalName] = refIndex;
             }
 
-            return result.ToImmutableDictionary();
+            return result.ToReadOnlyDictionary();
         }
 
         private IReadOnlyDictionary<string, IDatabaseKey> LoadUniqueKeys()
@@ -298,13 +288,13 @@ namespace SJP.Schema.Modelled.Reflection
                     .Where(IsColumnProperty)
                     .Select(GetColumnFromProperty);
 
-                var uk = new ReflectionKey(this, uniqueKey.Property, ukColumns, uniqueKey.KeyType);
+                var uk = new ReflectionKey(Dialect, this, uniqueKey.Property, ukColumns, uniqueKey.KeyType);
                 result[uk.Name.LocalName] = uk;
             }
 
             // TODO add check to ensure that column lists do not match primary key
 
-            return result.ToImmutableDictionary();
+            return result.ToReadOnlyDictionary();
         }
 
         private IReadOnlyDictionary<string, IDatabaseCheckConstraint> LoadChecks()
@@ -329,7 +319,7 @@ namespace SJP.Schema.Modelled.Reflection
                 result[check.Name.LocalName] = check;
             }
 
-            return result.ToImmutableDictionary();
+            return result.ToReadOnlyDictionary();
         }
 
         private IReadOnlyDictionary<string, IDatabaseTableColumn> LoadColumns()
@@ -343,7 +333,7 @@ namespace SJP.Schema.Modelled.Reflection
                 result[column.Name.LocalName] = column;
             }
 
-            return result.ToImmutableDictionary();
+            return result.ToReadOnlyDictionary();
         }
 
         protected virtual IDatabaseTableColumn GetColumnFromProperty(PropertyInfo propInfo)

@@ -1,7 +1,6 @@
 ﻿using Dapper;
 using System;
 using System.Collections.Generic;
-using System.Collections.Immutable;
 using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
@@ -68,11 +67,9 @@ where o2.schema_id = schema_id(@SchemaName) and o2.name = @TableName
             if (dependents.Empty())
                 return null;
 
-            var results = dependents
+            return dependents
                 .Select(d => new Identifier(d.ReferencingSchemaName, d.ReferencingObjectName))
                 .ToList();
-
-            return results.ToImmutableList();
         }
 
         private async Task<IEnumerable<Identifier>> LoadDependenciesAsync()
@@ -98,11 +95,9 @@ where o1.schema_id = schema_id(@SchemaName) and o1.name = @TableName
             if (dependencies.Empty())
                 return null;
 
-            var results = dependencies
+            return dependencies
                 .Select(d => new Identifier(d.ReferencedSchemaName, d.ReferencedObjectName))
                 .ToList();
-
-            return results.ToImmutableList();
         }
 
         public Identifier Name { get; }
@@ -215,7 +210,7 @@ order by ic.column_id";
             foreach (var index in indexes)
                 result[index.Name.LocalName] = index;
 
-            return result.ToImmutableDictionary();
+            return result.ToReadOnlyDictionary();
         }
 
         private async Task<IEnumerable<IDatabaseTableIndex>> LoadIndexesAsync()
@@ -261,7 +256,7 @@ where schema_name(t.schema_id) = @SchemaName and t.name = @TableName
                 result.Add(index);
             }
 
-            return result.ToImmutableList();
+            return result;
         }
 
         private async Task<IReadOnlyDictionary<string, IDatabaseKey>> LoadUniqueKeyLookupAsync()
@@ -272,7 +267,7 @@ where schema_name(t.schema_id) = @SchemaName and t.name = @TableName
             foreach (var uk in uniqueKeys)
                 result[uk.Name.LocalName] = uk;
 
-            return result.ToImmutableDictionary();
+            return result.ToReadOnlyDictionary();
         }
 
         private async Task<IEnumerable<IDatabaseKey>> LoadUniqueKeysAsync()
@@ -309,7 +304,7 @@ order by ic.column_id";
                 var uniqueKey = new SqlServerDatabaseKey(this, ukName, DatabaseKeyType.Unique, ukColumns);
                 result.Add(uniqueKey);
             }
-            return result.ToImmutableList();
+            return result.ToList();
         }
 
         private async Task<IEnumerable<IDatabaseRelationalKey>> LoadChildKeysAsync()
@@ -371,7 +366,7 @@ where schema_name(parent_t.schema_id) = @SchemaName and parent_t.name = @TableNa
                 result.Add(relationalKey);
             }
 
-            return result.ToImmutableList();
+            return result;
         }
 
         private async Task<IReadOnlyDictionary<string, IDatabaseCheckConstraint>> LoadCheckConstraintLookupAsync()
@@ -382,7 +377,7 @@ where schema_name(parent_t.schema_id) = @SchemaName and parent_t.name = @TableNa
             foreach (var check in checks)
                 result[check.Name.LocalName] = check;
 
-            return result.ToImmutableDictionary();
+            return result.ToReadOnlyDictionary();
         }
 
         private async Task<IEnumerable<IDatabaseCheckConstraint>> LoadCheckConstraintsAsync()
@@ -413,7 +408,7 @@ where schema_name(t.schema_id) = @SchemaName and t.name = @TableName";
                 result.Add(checkConstraint);
             }
 
-            return result.ToImmutableList();
+            return result;
         }
 
         private async Task<IReadOnlyDictionary<string, IDatabaseRelationalKey>> LoadParentKeyLookupAsync()
@@ -424,7 +419,7 @@ where schema_name(t.schema_id) = @SchemaName and t.name = @TableName";
             foreach (var parentKey in parentKeys)
                 result[parentKey.ChildKey.Name.LocalName] = parentKey;
 
-            return result.ToImmutableDictionary();
+            return result.ToReadOnlyDictionary();
         }
 
         private async Task<IEnumerable<IDatabaseRelationalKey>> LoadParentKeysAsync()
@@ -496,7 +491,7 @@ where t.name = @TableName and schema_name(t.schema_id) = @SchemaName";
                 result.Add(relationalKey);
             }
 
-            return result.ToImmutableList();
+            return result;
         }
 
         private async Task<IReadOnlyDictionary<string, IDatabaseTableColumn>> LoadColumnLookupAsync()
@@ -508,7 +503,7 @@ where t.name = @TableName and schema_name(t.schema_id) = @SchemaName";
             foreach (var column in columns)
                 result[column.Name.LocalName] = column;
 
-            return result.ToImmutableDictionary();
+            return result.ToReadOnlyDictionary();
         }
 
         private async Task<IList<IDatabaseTableColumn>> LoadColumnsAsync()
@@ -564,7 +559,7 @@ where schema_name(t.schema_id) = @SchemaName
                 result.Add(column);
             }
 
-            return result.ToImmutableList();
+            return result;
         }
 
         private async Task<IReadOnlyDictionary<string, IDatabaseTrigger>> LoadTriggerLookupAsync()
@@ -575,7 +570,7 @@ where schema_name(t.schema_id) = @SchemaName
             foreach (var trigger in triggers)
                 result[trigger.Name.LocalName] = trigger;
 
-            return result.ToImmutableDictionary();
+            return result.ToReadOnlyDictionary();
         }
 
         private async Task<IEnumerable<IDatabaseTrigger>> LoadTriggersAsync()
@@ -617,7 +612,7 @@ where schema_name(t.schema_id) = @SchemaName and t.name = @TableName";
                 result.Add(trigger);
             }
 
-            return result.ToImmutableList();
+            return result;
         }
 
         protected IReadOnlyDictionary<int, RelationalKeyUpdateAction> RelationalActionMapping { get; } = new Dictionary<int, RelationalKeyUpdateAction>

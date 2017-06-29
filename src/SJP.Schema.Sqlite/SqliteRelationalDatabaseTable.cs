@@ -2,7 +2,6 @@
 using Superpower;
 using System;
 using System.Collections.Generic;
-using System.Collections.Immutable;
 using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
@@ -61,7 +60,7 @@ namespace SJP.Schema.Sqlite
             var result = await Task.FromResult(Enumerable.Empty<Identifier>());
             return result;
 
-            //return results.ToImmutableList();
+            //return results;
         }
 
         private async Task<IEnumerable<Identifier>> LoadDependenciesAsync()
@@ -74,7 +73,7 @@ namespace SJP.Schema.Sqlite
             var result = await Task.FromResult(Enumerable.Empty<Identifier>());
             return result;
 
-            //return results.ToImmutableList();
+            //return results;
         }
 
         public Identifier Name { get; }
@@ -162,7 +161,7 @@ namespace SJP.Schema.Sqlite
                 return null;
 
             var tableColumn = await ColumnAsync();
-            var columns = pkColumns.Select(c => tableColumn[c.name]).ToImmutableList();
+            var columns = pkColumns.Select(c => tableColumn[c.name]).ToList();
 
             var parser = await ParsedDefinitionAsync();
             var pkConstraint = parser.Columns
@@ -185,7 +184,7 @@ namespace SJP.Schema.Sqlite
             foreach (var index in namedIndexes)
                 result[index.Name.LocalName] = index;
 
-            return result.ToImmutableDictionary();
+            return result.ToReadOnlyDictionary();
         }
 
         private async Task<IEnumerable<IDatabaseTableIndex>> LoadIndexesAsync()
@@ -209,19 +208,19 @@ namespace SJP.Schema.Sqlite
                     .Where(i => i.key)
                     .OrderBy(i => i.cid)
                     .Select(i => new SqliteDatabaseIndexColumn(Column[i.name], i.desc ? IndexColumnOrder.Descending : IndexColumnOrder.Ascending))
-                    .ToImmutableList();
+                    .ToList();
 
                 var includedColumns = indexInfo
                     .Where(i => !i.key)
                     .OrderBy(i => i.name)
                     .Select(i => Column[i.name])
-                    .ToImmutableList();
+                    .ToList();
 
                 var index = new SqliteDatabaseTableIndex(this, indexList.name, indexList.unique, indexColumns, includedColumns);
                 result.Add(index);
             }
 
-            return result.ToImmutableList();
+            return result;
         }
 
         private async Task<IReadOnlyDictionary<string, IDatabaseKey>> LoadUniqueKeyLookupAsync()
@@ -234,7 +233,7 @@ namespace SJP.Schema.Sqlite
             foreach (var uk in namedUniqueKeys)
                 result[uk.Name.LocalName] = uk;
 
-            return result.ToImmutableDictionary();
+            return result.ToReadOnlyDictionary();
         }
 
         private async Task<IEnumerable<IDatabaseKey>> LoadUniqueKeysAsync()
@@ -267,7 +266,7 @@ namespace SJP.Schema.Sqlite
                     .Where(i => i.cid > 0 && i.key)
                     .OrderBy(i => i.seqno);
                 var columnNames = orderedColumns.Select(i => i.name).ToList();
-                var columns = orderedColumns.Select(i => tableColumn[i.name]).ToImmutableList();
+                var columns = orderedColumns.Select(i => tableColumn[i.name]).ToList();
 
                 var uniqueConstraint = parsedUniqueConstraints.FirstOrDefault(constraint => constraint.Columns.SequenceEqual(columnNames));
                 var stringConstraintName = uniqueConstraint?.Name;
@@ -277,7 +276,7 @@ namespace SJP.Schema.Sqlite
                 result.Add(uniqueKey);
             }
 
-            return result.ToImmutableList();
+            return result;
         }
 
         private Task<IEnumerable<IDatabaseRelationalKey>> LoadChildKeysAsync()
@@ -295,7 +294,7 @@ namespace SJP.Schema.Sqlite
                     var parentTableName = fk.ParentKey.Table.Name.LocalName;
                     return string.Equals(parentTableName, Name.LocalName, StringComparison.OrdinalIgnoreCase);
                 })
-                .ToImmutableList();
+                .ToList();
 
             return Task.FromResult(childKeys);
         }
@@ -310,7 +309,7 @@ namespace SJP.Schema.Sqlite
             foreach (var check in namedChecks)
                 result[check.Name.LocalName] = check;
 
-            return result.ToImmutableDictionary();
+            return result.ToReadOnlyDictionary();
         }
 
         private async Task<IEnumerable<IDatabaseCheckConstraint>> LoadCheckConstraintsAsync()
@@ -329,7 +328,7 @@ namespace SJP.Schema.Sqlite
                 result.Add(check);
             }
 
-            return result.ToImmutableList();
+            return result;
         }
 
         private async Task<IReadOnlyDictionary<string, IDatabaseRelationalKey>> LoadParentKeyLookupAsync()
@@ -342,7 +341,7 @@ namespace SJP.Schema.Sqlite
             foreach (var parentKey in namedParentKeys)
                 result[parentKey.ChildKey.Name.LocalName] = parentKey;
 
-            return result.ToImmutableDictionary();
+            return result.ToReadOnlyDictionary();
         }
 
         private async Task<IEnumerable<IDatabaseRelationalKey>> LoadParentKeysAsync()
@@ -411,7 +410,7 @@ namespace SJP.Schema.Sqlite
                 result.Add(relationalKey);
             }
 
-            return result.ToImmutableList();
+            return result;
         }
 
         private async Task<IReadOnlyDictionary<string, IDatabaseTableColumn>> LoadColumnLookupAsync()
@@ -424,7 +423,7 @@ namespace SJP.Schema.Sqlite
             foreach (var column in namedColumns)
                 result[column.Name.LocalName] = column;
 
-            return result.ToImmutableDictionary();
+            return result.ToReadOnlyDictionary();
         }
 
         private async Task<IList<IDatabaseTableColumn>> LoadColumnsAsync()
@@ -446,18 +445,6 @@ namespace SJP.Schema.Sqlite
                 // TODO: Change sqlite types so that they're unconstrained
                 //       This is how the database implements it anyway. Perhaps map some of the builtin type names and affinities
                 var columnTypeName = tableInfo.type;
-                //IDbType columnType;
-                //if (SQLiteDatabaseNumericColumnType.IsNumericType(columnTypeName))
-                //    columnType = new SQLiteDatabaseNumericColumnType(columnTypeName);
-                //else if (SQLiteDatabaseIntegerColumnType.IsIntegerType(columnTypeName))
-                //    columnType = new SQLiteDatabaseIntegerColumnType(columnTypeName);
-                //else if (SQLiteDatabaseRealColumnType.IsRealType(columnTypeName))
-                //    columnType = new SQLiteDatabaseRealColumnType(columnTypeName);
-                //else if (SQLiteDatabaseStringColumnType.IsStringType(columnTypeName))
-                //    columnType = new SQLiteDatabaseStringColumnType(columnTypeName, parsedColumnInfo.Collation.ToString());
-                //else
-                //    columnType = new SQLiteColumnDataType(columnTypeName, DbType.Binary, typeof(byte[]));
-
 
                 IDbType dbType;
                 var columnType = new SqliteColumnDataType(columnTypeName);
@@ -474,7 +461,7 @@ namespace SJP.Schema.Sqlite
                 result.Add(column);
             }
 
-            return result.ToImmutableList();
+            return result;
         }
 
         private async Task<IReadOnlyDictionary<string, IDatabaseTrigger>> LoadTriggerLookupAsync()
@@ -486,7 +473,7 @@ namespace SJP.Schema.Sqlite
             foreach (var trigger in triggers)
                 result[trigger.Name.LocalName] = trigger;
 
-            return result.ToImmutableDictionary();
+            return result.ToReadOnlyDictionary();
         }
 
         private async Task<IEnumerable<IDatabaseTrigger>> LoadTriggersAsync()
@@ -506,7 +493,7 @@ namespace SJP.Schema.Sqlite
                 result.Add(trigger);
             }
 
-            return result.ToImmutableList();
+            return result;
         }
 
         protected SqliteTableParser ParsedDefinition => _parser.Task.Result;

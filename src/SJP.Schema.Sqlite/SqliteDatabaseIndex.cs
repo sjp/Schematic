@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Collections.Immutable;
 using System.Linq;
 using SJP.Schema.Core;
 
@@ -11,10 +10,7 @@ namespace SJP.Schema.Sqlite
         public SqliteDatabaseTableIndex(IRelationalDatabaseTable table, Identifier name, bool isUnique, IEnumerable<IDatabaseIndexColumn> columns, IEnumerable<IDatabaseColumn> includedColumns)
             : base(table, name, isUnique, columns, includedColumns)
         {
-            if (table == null)
-                throw new ArgumentNullException(nameof(table));
-
-            Table = table;
+            Table = table ?? throw new ArgumentNullException(nameof(table));
         }
 
         public IRelationalDatabaseTable Table { get; }
@@ -32,8 +28,8 @@ namespace SJP.Schema.Sqlite
             Parent = parent ?? throw new ArgumentNullException(nameof(parent));
             Name = name ?? throw new ArgumentNullException(nameof(name));
             IsUnique = isUnique;
-            Columns = columns.ToImmutableList();
-            IncludedColumns = includedColumns.ToImmutableList() ?? Enumerable.Empty<IDatabaseColumn>();
+            Columns = columns.ToList();
+            IncludedColumns = includedColumns != null ? includedColumns.ToList() : Enumerable.Empty<IDatabaseColumn>();
         }
 
         public T Parent { get; }

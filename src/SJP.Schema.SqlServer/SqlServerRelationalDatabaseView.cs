@@ -1,7 +1,6 @@
 ﻿using Dapper;
 using System;
 using System.Collections.Generic;
-using System.Collections.Immutable;
 using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
@@ -44,11 +43,9 @@ where o2.schema_id = schema_id(@SchemaName) and o2.name = @ViewName
             if (dependents.Empty())
                 return null;
 
-            var results = dependents
+            return dependents
                 .Select(d => new Identifier(d.ReferencingSchemaName, d.ReferencingObjectName))
                 .ToList();
-
-            return results.ToImmutableList();
         }
 
         private async Task<IEnumerable<Identifier>> LoadDependenciesAsync()
@@ -66,11 +63,9 @@ where o1.schema_id = schema_id(@SchemaName) and o1.name = @TableName
             if (dependencies.Empty())
                 return null;
 
-            var results = dependencies
+            return dependencies
                 .Select(d => new Identifier(d.ReferencedSchemaName, d.ReferencedObjectName))
                 .ToList();
-
-            return results.ToImmutableList();
         }
 
         public Identifier Name { get; }
@@ -162,7 +157,7 @@ where schema_name(v.schema_id) = @SchemaName and v.name = @ViewName
                 result.Add(index);
             }
 
-            return result.ToImmutableList();
+            return result;
         }
 
         private async Task<IReadOnlyDictionary<string, IDatabaseViewIndex>> LoadIndexLookupAsync()
@@ -173,7 +168,7 @@ where schema_name(v.schema_id) = @SchemaName and v.name = @ViewName
             foreach (var index in indexes)
                 result[index.Name.LocalName] = index;
 
-            return result.ToImmutableDictionary();
+            return result.ToReadOnlyDictionary();
         }
 
         public Task<IReadOnlyDictionary<string, IDatabaseViewColumn>> ColumnAsync() => _columnLookup.Task;
@@ -186,7 +181,7 @@ where schema_name(v.schema_id) = @SchemaName and v.name = @ViewName
             foreach (var column in columns.Where(c => c.Name != null))
                 result[column.Name.LocalName] = column;
 
-            return result.ToImmutableDictionary();
+            return result.ToReadOnlyDictionary();
         }
 
         private async Task<IList<IDatabaseViewColumn>> LoadColumnsAsync()
@@ -240,7 +235,7 @@ where schema_name(v.schema_id) = @SchemaName
                 result.Add(column);
             }
 
-            return result.ToImmutableList();
+            return result;
         }
 
         public Task<IEnumerable<Identifier>> DependenciesAsync() => _dependencies.Task;

@@ -1,7 +1,6 @@
 ﻿using SJP.Schema.Core;
 using System;
 using System.Collections.Generic;
-using System.Collections.Immutable;
 using System.Linq;
 
 namespace SJP.Schema.Modelled
@@ -13,17 +12,7 @@ namespace SJP.Schema.Modelled
             if (database == null)
                 throw new ArgumentNullException(nameof(database));
 
-            _databases.Add(database);
-        }
-
-        protected RelationalDatabaseBuilder(IList<IDependentRelationalDatabase> databases)
-        {
-            if (databases == null)
-                throw new ArgumentNullException(nameof(databases));
-            if (databases.Count == 0)
-                throw new ArgumentException("At least one database must be provided.", nameof(databases));
-
-            _databases = databases;
+            _databases = new List<IDependentRelationalDatabase> { database };
         }
 
         public RelationalDatabaseBuilder(Func<IDependentRelationalDatabase> databaseFactory)
@@ -32,7 +21,17 @@ namespace SJP.Schema.Modelled
                 throw new ArgumentNullException(nameof(databaseFactory));
 
             var result = databaseFactory.Invoke();
-            _databases.Add(result);
+            _databases = new List<IDependentRelationalDatabase> { result };
+        }
+
+        protected RelationalDatabaseBuilder(IEnumerable<IDependentRelationalDatabase> databases)
+        {
+            if (databases == null)
+                throw new ArgumentNullException(nameof(databases));
+            if (databases.Empty())
+                throw new ArgumentException("At least one database must be provided.", nameof(databases));
+
+            _databases = databases.ToList();
         }
 
         public IRelationalDatabaseBuilder OverrideWith(IDependentRelationalDatabase database)
@@ -40,7 +39,7 @@ namespace SJP.Schema.Modelled
             if (database == null)
                 throw new ArgumentNullException(nameof(database));
 
-            _databases.Add(database);
+            var appendedDatabases = new List<IDependentRelationalDatabase>(_databases) { database };
             return new RelationalDatabaseBuilder(_databases);
         }
 
@@ -50,13 +49,12 @@ namespace SJP.Schema.Modelled
                 throw new ArgumentNullException(nameof(databaseFactory));
 
             var result = databaseFactory.Invoke();
-            _databases.Add(result);
-
-            return new RelationalDatabaseBuilder(_databases);
+            var appendedDatabases = new List<IDependentRelationalDatabase>(_databases) { result };
+            return new RelationalDatabaseBuilder(appendedDatabases);
         }
 
         public IRelationalDatabase Build() => new OrderedRelationalDatabase(_databases.Reverse());
 
-        private readonly IList<IDependentRelationalDatabase> _databases = ImmutableList.Create<IDependentRelationalDatabase>();
+        private readonly IList<IDependentRelationalDatabase> _databases;
     }
 }

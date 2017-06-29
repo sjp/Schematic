@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Collections.Immutable;
 using System.Linq;
 using System.Reflection;
 using SJP.Schema.Core;
@@ -20,7 +19,7 @@ namespace SJP.Schema.Modelled.Reflection.Model
             if (indexColumns == null || indexColumns.Empty() || indexColumns.AnyNull())
                 throw new ArgumentNullException(nameof(indexColumns));
 
-            Columns = indexColumns.ToImmutableList();
+            Columns = indexColumns.ToList();
             IncludedColumns = Enumerable.Empty<IModelledColumn>();
         }
 
@@ -36,7 +35,7 @@ namespace SJP.Schema.Modelled.Reflection.Model
             Property = index.Property;
             Columns = index.Columns;
             IsUnique = index.IsUnique;
-            IncludedColumns = includedColumns.ToImmutableList();
+            IncludedColumns = includedColumns.ToList();
         }
 
         public Index Include(params IModelledColumn[] includedColumns) => Include(includedColumns as IEnumerable<IModelledColumn>);

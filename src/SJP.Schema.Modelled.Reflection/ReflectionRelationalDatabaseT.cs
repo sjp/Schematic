@@ -1,13 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Collections.Immutable;
-using System.Linq;
-using System.Reflection;
-using System.Threading.Tasks;
-using System.Reactive.Linq;
-using SJP.Schema.Core;
-using SJP.Schema.Core.Utilities;
-using SJP.Schema.Modelled.Reflection.Model;
+﻿using SJP.Schema.Core;
 
 namespace SJP.Schema.Modelled.Reflection
 {

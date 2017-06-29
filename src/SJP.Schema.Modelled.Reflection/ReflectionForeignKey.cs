@@ -10,8 +10,8 @@ namespace SJP.Schema.Modelled.Reflection
     // TODO: fix this so that we can point to synonyms
     public class ReflectionForeignKey : ReflectionKey
     {
-        public ReflectionForeignKey(IRelationalDatabaseTable table, IDatabaseKey targetKey, PropertyInfo property, IEnumerable<IDatabaseColumn> columns)
-            : base(table, property, columns, DatabaseKeyType.Foreign)
+        public ReflectionForeignKey(IDatabaseDialect dialect, IRelationalDatabaseTable table, IDatabaseKey targetKey, PropertyInfo property, IEnumerable<IDatabaseColumn> columns)
+            : base(dialect, table, property, columns, DatabaseKeyType.Foreign)
         {
             if (targetKey == null)
                 throw new ArgumentNullException(nameof(targetKey));

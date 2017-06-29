@@ -6,6 +6,7 @@ using NUnit.Framework;
 using SJP.Schema.Modelled.Reflection.Model;
 using SJP.Schema.Modelled.Reflection.Tests.Fakes;
 using SJP.Schema.Modelled.Reflection.Tests.Fakes.ColumnTypes;
+using SJP.Schema.Core;
 
 namespace SJP.Schema.Modelled.Reflection.Tests
 {
@@ -32,6 +33,22 @@ namespace SJP.Schema.Modelled.Reflection.Tests
         {
             var db = new ReflectionRelationalDatabase<SampleDatabase>(FakeDialect.Instance);
             var tableExists = db.TableExists("TestTable1");
+            Assert.IsTrue(tableExists);
+        }
+
+        [Test]
+        public void ReflectionDatabaseTestTableExistsWithCaseInsensitiveName()
+        {
+            var db = new ReflectionRelationalDatabase<SampleDatabase>(FakeDialect.Instance);
+            var tableExists = db.TableExists("testtable1");
+            Assert.IsTrue(tableExists);
+        }
+
+        [Test]
+        public void ReflectionDatabaseTestTableExistsWithCaseInsensitiveNameAndDefaultSchemaSet()
+        {
+            var db = new ReflectionRelationalDatabase<SampleDatabase>(FakeDialect.Instance);
+            var tableExists = db.TableExists(new Core.Identifier("testtable1"));
             Assert.IsTrue(tableExists);
         }
 

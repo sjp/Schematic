@@ -3,7 +3,6 @@ using Superpower.Model;
 using Superpower.Parsers;
 using System;
 using System.Collections.Generic;
-using System.Collections.Immutable;
 using System.Linq;
 using SJP.Schema.Core;
 
@@ -17,11 +16,11 @@ namespace SJP.Schema.Sqlite.Parsing
                 throw new ArgumentNullException(nameof(tokens));
 
             var parseResult = ParseTokens(tokens);
-            Columns = parseResult.Columns.ToImmutableList();
+            Columns = parseResult.Columns.ToList();
             Constraints = Columns
                 .SelectMany(col => col.Constraints)
                 .Concat(parseResult.Constraints)
-                .ToImmutableList();
+                .ToList();
         }
 
         public IEnumerable<Column> Columns { get; set; }
@@ -75,8 +74,8 @@ namespace SJP.Schema.Sqlite.Parsing
                 if (constraints == null)
                     throw new ArgumentNullException(nameof(constraints));
 
-                Columns = columns.ToImmutableList();
-                Constraints = constraints.ToImmutableList();
+                Columns = columns.ToList();
+                Constraints = constraints.ToList();
             }
 
             public IEnumerable<Column> Columns { get; }
@@ -505,7 +504,7 @@ namespace SJP.Schema.Sqlite.Parsing
                 TypeName = typeName ?? throw new ArgumentNullException(nameof(typeName)); // no validation as can be null (i.e untyped)
                 Collation = collation;
                 IsAutoIncrement = isAutoIncrement;
-                Constraints = constraints.ToImmutableList();
+                Constraints = constraints.ToList();
             }
 
             public string Name { get; }
@@ -538,12 +537,11 @@ namespace SJP.Schema.Sqlite.Parsing
 
                 Name = name;
                 Type = type;
-                Columns = columns.ToImmutableList();
+                Columns = columns.ToList();
                 ForeignKeyTableName = foreignKeyTableName;
                 foreignKeyColumns = foreignKeyColumns ?? Enumerable.Empty<string>();
-                ForeignKeyColumns = foreignKeyColumns.ToImmutableList();
-                tokens = tokens ?? Enumerable.Empty<Token<SqlToken>>();
-                Tokens = tokens.ToImmutableList();
+                ForeignKeyColumns = foreignKeyColumns.ToList();
+                Tokens = tokens != null ? tokens.ToList() : Enumerable.Empty<Token<SqlToken>>();
             }
 
             public string Name { get; }
