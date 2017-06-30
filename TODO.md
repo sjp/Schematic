@@ -1,5 +1,12 @@
 # TODO
 
+* Ensure that the LocalName property on Identifiers is not null for all lookups.
+  This is required because it could be the case that someone passes in a
+  SchemaIdentifier only, i.e. only Schema property set. This would mean a LocalName
+  property is null, which is going to break a few things. This is unlikely and would
+  probably require a user to deliberately do something bad, but should be guarded against
+  regardless.
+
 * Get unit and integration tests working on AppVeyor once we can run the new
   `dotnet test` tooling on it. Should be able to run every DB vendor through
   AppVeyor except for Oracle (no surprises there...).
@@ -64,3 +71,7 @@
   // or
   var cachedDb = new InMemoryDatabaseCache(db);
   ```
+  Caching has been removed from the non-static relational databases. It remains only in the
+  reflection relational database. For this to be incorrect after initial load someone would
+  have to be generating types via type builder. This is definitely not supported as we want
+  compile-time safety, *not* runtime safety.

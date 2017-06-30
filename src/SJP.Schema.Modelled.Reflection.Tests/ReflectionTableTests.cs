@@ -56,7 +56,7 @@ namespace SJP.Schema.Modelled.Reflection.Tests
         public void ReflectionDatabaseReturnsTestTable()
         {
             var db = new ReflectionRelationalDatabase<SampleDatabase>(FakeDialect.Instance);
-            var table = db.Table["TestTable1"];
+            var table = db.GetTable("TestTable1");
             Assert.NotNull(table);
         }
 
@@ -72,7 +72,7 @@ namespace SJP.Schema.Modelled.Reflection.Tests
         public async Task ReflectionDatabaseReturnsTestTableAsync()
         {
             var db = new ReflectionRelationalDatabase<SampleDatabase>(FakeDialect.Instance);
-            var table = await db.TableAsync("TestTable1");
+            var table = await db.GetTableAsync("TestTable1");
             Assert.NotNull(table);
         }
 

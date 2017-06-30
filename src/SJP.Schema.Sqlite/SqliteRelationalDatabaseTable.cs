@@ -365,7 +365,7 @@ namespace SJP.Schema.Sqlite
                 var rows = fkey.OrderBy(row => row.seq);
 
                 var parentTableName = new Identifier(fkey.Key.ParentTableName);
-                var parentTable = await Database.TableAsync(parentTableName);
+                var parentTable = await Database.GetTableAsync(parentTableName);
 
                 var parentColumns = await parentTable.ColumnsAsync();
                 parentColumns = rows.Select(row => parentTable.Column[row.to]).ToList();

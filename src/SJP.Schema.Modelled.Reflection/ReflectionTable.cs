@@ -137,7 +137,7 @@ namespace SJP.Schema.Modelled.Reflection
 
                 // fixing naming so that we can override, incl by dialect
                 var parentName = fk.TargetType.Name;
-                var parent = Database.Table[parentName];
+                var parent = Database.GetTable(parentName);
 
                 var parentTable = new ReflectionTable(Database, fk.TargetType);
                 var parentInstance = parentTable.TableInstance;

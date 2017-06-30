@@ -5,7 +5,6 @@ using System.Linq;
 using System.Reactive.Linq;
 using System.Threading.Tasks;
 using Dapper;
-using SJP.Schema.Core.Utilities;
 using SJP.Schema.Core;
 using SJP.Schema.Sqlite.Query;
 using SJP.Schema.Sqlite.Parsing;
@@ -17,14 +16,6 @@ namespace SJP.Schema.Sqlite
         public SqliteRelationalDatabase(IDatabaseDialect dialect, IDbConnection connection)
             : base(dialect, connection)
         {
-            _tableCache = new AsyncCache<Identifier, IRelationalDatabaseTable>(LoadTableAsync);
-            _viewCache = new AsyncCache<Identifier, IRelationalDatabaseView>(LoadViewAsync);
-            _triggerCache = new AsyncCache<Identifier, IDatabaseTrigger>(LoadTriggerAsync);
-
-            _tableLookup = new LazyDictionaryCache<Identifier, IRelationalDatabaseTable>(tableName => TableAsync(tableName).Result);
-            _viewLookup = new LazyDictionaryCache<Identifier, IRelationalDatabaseView>(viewName => ViewAsync(viewName).Result);
-            _triggerLookup = new LazyDictionaryCache<Identifier, IDatabaseTrigger>(triggerName => TriggerAsync(triggerName).Result);
-
             Metadata = new DatabaseMetadata { DatabaseName = connection.Database };
         }
 
@@ -38,7 +29,7 @@ namespace SJP.Schema.Sqlite
 
         public bool TableExists(Identifier tableName)
         {
-            if (tableName == null)
+            if (tableName == null || tableName.LocalName.IsNullOrWhiteSpace())
                 throw new ArgumentNullException(nameof(tableName));
 
             if (BuiltInTables.Contains(tableName.LocalName))
@@ -51,7 +42,42 @@ namespace SJP.Schema.Sqlite
             ) != 0;
         }
 
-        public IReadOnlyDictionary<Identifier, IRelationalDatabaseTable> Table => _tableLookup;
+        public async Task<bool> TableExistsAsync(Identifier tableName)
+        {
+            if (tableName == null || tableName.LocalName.IsNullOrWhiteSpace())
+                throw new ArgumentNullException(nameof(tableName));
+
+            if (BuiltInTables.Contains(tableName.LocalName))
+                return false;
+
+            const string sql = "select count(*) from sqlite_master where type = 'table' and name = @TableName";
+            return await Connection.ExecuteScalarAsync<int>(
+                sql,
+                new { TableName = tableName.LocalName }
+            ) != 0;
+        }
+
+        public IRelationalDatabaseTable GetTable(Identifier tableName)
+        {
+            if (tableName == null || tableName.LocalName.IsNullOrWhiteSpace())
+                throw new ArgumentNullException(nameof(tableName));
+
+            if (BuiltInTables.Contains(tableName.LocalName))
+                return null;
+
+            return LoadTableSync(tableName.LocalName);
+        }
+
+        public Task<IRelationalDatabaseTable> GetTableAsync(Identifier tableName)
+        {
+            if (tableName == null || tableName.LocalName.IsNullOrWhiteSpace())
+                throw new ArgumentNullException(nameof(tableName));
+
+            if (BuiltInTables.Contains(tableName.LocalName))
+                return null;
+
+            return LoadTableAsync(tableName.LocalName);
+        }
 
         public IEnumerable<IRelationalDatabaseTable> Tables
         {
@@ -63,31 +89,8 @@ namespace SJP.Schema.Sqlite
                     .Select(name => new LocalIdentifier(name));
 
                 foreach (var tableName in tableNames)
-                    yield return _tableCache.GetValue(tableName).Result;
+                    yield return LoadTableSync(tableName);
             }
-        }
-
-        public async Task<bool> TableExistsAsync(Identifier tableName)
-        {
-            if (tableName == null)
-                throw new ArgumentNullException(nameof(tableName));
-
-            if (BuiltInTables.Contains(tableName.LocalName))
-                return false;
-
-            const string sql = "select count(*) from sqlite_master where type = 'table' and name = @TableName";
-            return await Connection.ExecuteScalarAsync<int>(
-                sql,
-                new { TableName = tableName.LocalName }
-            ) != 0;
-        }
-
-        public Task<IRelationalDatabaseTable> TableAsync(Identifier tableName)
-        {
-            if (tableName == null)
-                throw new ArgumentNullException(nameof(tableName));
-
-            return _tableCache.GetValue(tableName);
         }
 
         public IObservable<IRelationalDatabaseTable> TablesAsync()
@@ -99,11 +102,11 @@ namespace SJP.Schema.Sqlite
 
                 var tableNames = queryResults
                     .Where(name => !BuiltInTables.Contains(name))
-                    .Select(name => new Identifier(name));
+                    .Select(name => new LocalIdentifier(name));
 
                 foreach (var tableName in tableNames)
                 {
-                    var table = await _tableCache.GetValue(tableName);
+                    var table = await LoadTableAsync(tableName);
                     observer.OnNext(table);
                 }
 
@@ -111,11 +114,24 @@ namespace SJP.Schema.Sqlite
             });
         }
 
+        protected virtual IRelationalDatabaseTable LoadTableSync(Identifier tableName)
+        {
+            if (tableName == null || tableName.LocalName.IsNullOrWhiteSpace())
+                throw new ArgumentNullException(nameof(tableName));
+
+            return TableExists(tableName.LocalName)
+                ? new SqliteRelationalDatabaseTable(Connection, this, tableName.LocalName)
+                : null;
+        }
+
         protected virtual async Task<IRelationalDatabaseTable> LoadTableAsync(Identifier tableName)
         {
-            var exists = await TableExistsAsync(tableName);
+            if (tableName == null || tableName.LocalName.IsNullOrWhiteSpace())
+                throw new ArgumentNullException(nameof(tableName));
+
+            var exists = await TableExistsAsync(tableName.LocalName);
             return exists
-                ? new SqliteRelationalDatabaseTable(Connection, this, tableName)
+                ? new SqliteRelationalDatabaseTable(Connection, this, tableName.LocalName)
                 : null;
         }
 
@@ -125,7 +141,7 @@ namespace SJP.Schema.Sqlite
 
         public bool ViewExists(Identifier viewName)
         {
-            if (viewName == null)
+            if (viewName == null || viewName.LocalName.IsNullOrWhiteSpace())
                 throw new ArgumentNullException(nameof(viewName));
 
             const string sql = "select count(*) from sqlite_master where type = 'view' and name = @ViewName";
@@ -135,23 +151,9 @@ namespace SJP.Schema.Sqlite
             ) != 0;
         }
 
-        public IReadOnlyDictionary<Identifier, IRelationalDatabaseView> View => _viewLookup;
-
-        public IEnumerable<IRelationalDatabaseView> Views
-        {
-            get
-            {
-                const string sql = "select name from sqlite_master where type = 'view' order by name";
-                var viewNames = Connection.Query<string>(sql).Select(name => new LocalIdentifier(name));
-
-                foreach (var viewName in viewNames)
-                    yield return _viewCache.GetValue(viewName).Result;
-            }
-        }
-
         public async Task<bool> ViewExistsAsync(Identifier viewName)
         {
-            if (viewName == null)
+            if (viewName == null || viewName.LocalName.IsNullOrWhiteSpace())
                 throw new ArgumentNullException(nameof(viewName));
 
             const string sql = "select count(*) from sqlite_master where type = 'view' and name = @ViewName";
@@ -161,12 +163,32 @@ namespace SJP.Schema.Sqlite
             ) != 0;
         }
 
-        public Task<IRelationalDatabaseView> ViewAsync(Identifier viewName)
+        public IRelationalDatabaseView GetView(Identifier viewName)
         {
-            if (viewName == null)
+            if (viewName == null || viewName.LocalName.IsNullOrWhiteSpace())
                 throw new ArgumentNullException(nameof(viewName));
 
-            return _viewCache.GetValue(viewName);
+            return LoadViewSync(viewName.LocalName);
+        }
+
+        public Task<IRelationalDatabaseView> GetViewAsync(Identifier viewName)
+        {
+            if (viewName == null || viewName.LocalName.IsNullOrWhiteSpace())
+                throw new ArgumentNullException(nameof(viewName));
+
+            return LoadViewAsync(viewName.LocalName);
+        }
+
+        public IEnumerable<IRelationalDatabaseView> Views
+        {
+            get
+            {
+                const string sql = "select name from sqlite_master where type = 'view' order by name";
+                var viewNames = Connection.Query<string>(sql).Select(name => new LocalIdentifier(name));
+
+                foreach (var viewName in viewNames)
+                    yield return LoadViewSync(viewName);
+            }
         }
 
         public IObservable<IRelationalDatabaseView> ViewsAsync()
@@ -179,7 +201,7 @@ namespace SJP.Schema.Sqlite
 
                 foreach (var viewName in viewNames)
                 {
-                    var view = await _viewCache.GetValue(viewName);
+                    var view = await LoadViewAsync(viewName);
                     observer.OnNext(view);
                 }
 
@@ -187,8 +209,24 @@ namespace SJP.Schema.Sqlite
             });
         }
 
+        protected virtual IRelationalDatabaseView LoadViewSync(Identifier viewName)
+        {
+            if (viewName == null || viewName.LocalName.IsNullOrWhiteSpace())
+                throw new ArgumentNullException(nameof(viewName));
+
+            var exists = ViewExists(viewName.LocalName);
+            return null;
+            // TODO:
+            //return exists
+            //    ? new SQLiteRelationalDatabaseView(Connection, this, viewName)
+            //    : null;
+        }
+
         protected virtual async Task<IRelationalDatabaseView> LoadViewAsync(Identifier viewName)
         {
+            if (viewName == null || viewName.LocalName.IsNullOrWhiteSpace())
+                throw new ArgumentNullException(nameof(viewName));
+
             var exists = await ViewExistsAsync(viewName);
             return null;
             // TODO:
@@ -203,13 +241,13 @@ namespace SJP.Schema.Sqlite
 
         public bool SequenceExists(Identifier sequenceName) => throw new NotSupportedException();
 
-        public IReadOnlyDictionary<Identifier, IDatabaseSequence> Sequence => throw new NotSupportedException();
+        public IDatabaseSequence GetSequence(Identifier sequenceName) => throw new NotSupportedException();
 
         public IEnumerable<IDatabaseSequence> Sequences => throw new NotSupportedException();
 
         public Task<bool> SequenceExistsAsync(Identifier sequenceName) => throw new NotSupportedException();
 
-        public Task<IDatabaseSequence> SequenceAsync(Identifier sequenceName) => throw new NotSupportedException();
+        public Task<IDatabaseSequence> GetSequenceAsync(Identifier sequenceName) => throw new NotSupportedException();
 
         public IObservable<IDatabaseSequence> SequencesAsync() => throw new NotSupportedException();
 
@@ -219,13 +257,13 @@ namespace SJP.Schema.Sqlite
 
         public bool SynonymExists(Identifier synonymName) => throw new NotSupportedException();
 
-        public IReadOnlyDictionary<Identifier, IDatabaseSynonym> Synonym => throw new NotSupportedException();
+        public IDatabaseSynonym GetSynonym(Identifier synonymName) => throw new NotSupportedException();
 
         public IEnumerable<IDatabaseSynonym> Synonyms => throw new NotSupportedException();
 
         public Task<bool> SynonymExistsAsync(Identifier synonymName) => throw new NotSupportedException();
 
-        public Task<IDatabaseSynonym> SynonymAsync(Identifier synonymName) => throw new NotSupportedException();
+        public Task<IDatabaseSynonym> GetSynonymAsync(Identifier synonymName) => throw new NotSupportedException();
 
         public IObservable<IDatabaseSynonym> SynonymsAsync() => throw new NotSupportedException();
 
@@ -239,13 +277,42 @@ namespace SJP.Schema.Sqlite
         //  THESE QUERIES NEED TO BE SCOPED SO THAT THEY ARE JUST DB SCOPED
         public bool TriggerExists(Identifier triggerName)
         {
+            if (triggerName == null || triggerName.LocalName.IsNullOrWhiteSpace())
+                throw new ArgumentNullException(nameof(triggerName));
+
             return Connection.ExecuteScalar<int>(
                 "select count(*) from sqlite_master where type = 'trigger' and name = @TriggerName",
                 new { TriggerName = triggerName.LocalName }
             ) != 0;
         }
 
-        public IReadOnlyDictionary<Identifier, IDatabaseTrigger> Trigger => _triggerLookup;
+        public async Task<bool> TriggerExistsAsync(Identifier triggerName)
+        {
+            if (triggerName == null || triggerName.LocalName.IsNullOrWhiteSpace())
+                throw new ArgumentNullException(nameof(triggerName));
+
+            const string sql = "select count(*) from sqlite_master where type = 'trigger' and name = @TriggerName";
+            return await Connection.ExecuteScalarAsync<int>(
+                sql,
+                new { TriggerName = triggerName.LocalName }
+            ) != 0;
+        }
+
+        public IDatabaseTrigger GetTrigger(Identifier triggerName)
+        {
+            if (triggerName == null || triggerName.LocalName.IsNullOrWhiteSpace())
+                throw new ArgumentNullException(nameof(triggerName));
+
+            return LoadTriggerSync(triggerName.LocalName);
+        }
+
+        public Task<IDatabaseTrigger> GetTriggerAsync(Identifier triggerName)
+        {
+            if (triggerName == null || triggerName.LocalName.IsNullOrWhiteSpace())
+                throw new ArgumentNullException(nameof(triggerName));
+
+            return LoadTriggerAsync(triggerName.LocalName);
+        }
 
         public IEnumerable<IDatabaseTrigger> Triggers
         {
@@ -255,20 +322,9 @@ namespace SJP.Schema.Sqlite
                 var triggers = Connection.Query<string>(sql).Select(name => new LocalIdentifier(name));
 
                 foreach (var trigger in triggers)
-                    yield return _triggerCache.GetValue(trigger).Result;
+                    yield return LoadTriggerSync(trigger);
             }
         }
-
-        public async Task<bool> TriggerExistsAsync(Identifier triggerName)
-        {
-            const string sql = "select count(*) from sqlite_master where type = 'trigger' and name = @TriggerName";
-            return await Connection.ExecuteScalarAsync<int>(
-                sql,
-                new { TriggerName = triggerName.LocalName }
-            ) != 0;
-        }
-
-        public Task<IDatabaseTrigger> TriggerAsync(Identifier triggerName) => _triggerCache.GetValue(triggerName);
 
         public IObservable<IDatabaseTrigger> TriggersAsync()
         {
@@ -280,7 +336,7 @@ namespace SJP.Schema.Sqlite
 
                 foreach (var triggerName in triggerNames)
                 {
-                    var trigger = await _triggerCache.GetValue(triggerName);
+                    var trigger = await LoadTriggerAsync(triggerName);
                     observer.OnNext(trigger);
                 }
 
@@ -288,10 +344,29 @@ namespace SJP.Schema.Sqlite
             });
         }
 
-        // TODO: need to parse this from create trigger statement in sqlite_master
+        protected virtual IDatabaseTrigger LoadTriggerSync(Identifier triggerName)
+        {
+            if (triggerName == null || triggerName.LocalName.IsNullOrWhiteSpace())
+                throw new ArgumentNullException(nameof(triggerName));
+
+            const string sql = "select sql from sqlite_master where type = 'trigger' and name = @TriggerName";
+            var queryResult = Connection.QuerySingle<string>(sql, new { TriggerName = triggerName.LocalName });
+            if (queryResult == null)
+                return null;
+
+            var tokenizer = new SqliteTokenizer();
+            var tokens = tokenizer.Tokenize(queryResult);
+            var triggerParser = new SqliteTriggerParser(tokens);
+
+            return new SqliteDatabaseTrigger(null, triggerName.LocalName, queryResult, triggerParser.Timing, triggerParser.Event);
+        }
+
         protected virtual async Task<IDatabaseTrigger> LoadTriggerAsync(Identifier triggerName)
         {
-            const string sql = @"select sql from sqlite_master where type = 'trigger' and name = @TriggerName";
+            if (triggerName == null || triggerName.LocalName.IsNullOrWhiteSpace())
+                throw new ArgumentNullException(nameof(triggerName));
+
+            const string sql = "select sql from sqlite_master where type = 'trigger' and name = @TriggerName";
             var queryResult = await Connection.QuerySingleAsync<string>(sql, new { TriggerName = triggerName.LocalName });
             if (queryResult == null)
                 return null;
@@ -306,13 +381,5 @@ namespace SJP.Schema.Sqlite
         #endregion Triggers
 
         protected static ISet<string> BuiltInTables { get; } = new HashSet<string>(new[] { "sqlite_master", "sqlite_sequence" }, StringComparer.OrdinalIgnoreCase);
-
-        private readonly AsyncCache<Identifier, IRelationalDatabaseTable> _tableCache;
-        private readonly AsyncCache<Identifier, IRelationalDatabaseView> _viewCache;
-        private readonly AsyncCache<Identifier, IDatabaseTrigger> _triggerCache;
-
-        private readonly IReadOnlyDictionary<Identifier, IRelationalDatabaseTable> _tableLookup;
-        private readonly IReadOnlyDictionary<Identifier, IRelationalDatabaseView> _viewLookup;
-        private readonly IReadOnlyDictionary<Identifier, IDatabaseTrigger> _triggerLookup;
     }
 }

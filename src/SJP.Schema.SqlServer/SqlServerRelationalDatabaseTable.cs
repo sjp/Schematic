@@ -342,7 +342,7 @@ where schema_name(parent_t.schema_id) = @SchemaName and parent_t.name = @TableNa
                 var childKeyName = new LocalIdentifier(groupedChildKey.Key.ChildKeyName);
 
                 var childTableName = new Identifier(groupedChildKey.Key.ChildTableSchema, groupedChildKey.Key.ChildTableName);
-                var childTable = await Database.TableAsync(childTableName);
+                var childTable = await Database.GetTableAsync(childTableName);
                 var parentKeyLookup = await childTable.ParentKeyAsync();
 
                 var childKey = parentKeyLookup[childKeyName.LocalName].ChildKey;
@@ -455,7 +455,7 @@ where t.name = @TableName and schema_name(t.schema_id) = @SchemaName";
                 var name = new LocalIdentifier(fkey.Key.ForeignKeyName);
 
                 var parentTableName = new Identifier(fkey.Key.ParentTableSchema, fkey.Key.ParentTableName);
-                var parentTable = await Database.TableAsync(parentTableName);
+                var parentTable = await Database.GetTableAsync(parentTableName);
                 var parentKeyName = new LocalIdentifier(fkey.Key.ParentKeyName);
 
                 IEnumerable<IDatabaseColumn> parentColumns = await parentTable.ColumnsAsync(); // triggering column load async if not cached

@@ -20,18 +20,6 @@ namespace SJP.Schema.Modelled
 
             Databases = databases.Select(d => SetParent(this, d)).ToList();
             BaseDatabase = Databases.Last();
-
-            _tableCache = new AsyncCache<Identifier, IRelationalDatabaseTable>(LoadTableAsync);
-            _viewCache = new AsyncCache<Identifier, IRelationalDatabaseView>(LoadViewAsync);
-            _sequenceCache = new AsyncCache<Identifier, IDatabaseSequence>(LoadSequenceAsync);
-            _synonymCache = new AsyncCache<Identifier, IDatabaseSynonym>(LoadSynonymAsync);
-            _triggerCache = new AsyncCache<Identifier, IDatabaseTrigger>(LoadTriggerAsync);
-
-            Table = new LazyDictionaryCache<Identifier, IRelationalDatabaseTable>(tableName => TableAsync(tableName).Result);
-            View = new LazyDictionaryCache<Identifier, IRelationalDatabaseView>(viewName => ViewAsync(viewName).Result);
-            Sequence = new LazyDictionaryCache<Identifier, IDatabaseSequence>(sequenceName => SequenceAsync(sequenceName).Result);
-            Synonym = new LazyDictionaryCache<Identifier, IDatabaseSynonym>(synonymName => SynonymAsync(synonymName).Result);
-            Trigger = new LazyDictionaryCache<Identifier, IDatabaseTrigger>(triggerName => TriggerAsync(triggerName).Result);
         }
 
         public IDatabaseDialect Dialect => BaseDatabase.Dialect;
@@ -44,41 +32,153 @@ namespace SJP.Schema.Modelled
 
         public string DatabaseName => BaseDatabase.DatabaseName;
 
-        public IReadOnlyDictionary<Identifier, IRelationalDatabaseTable> Table { get; }
-
-        public IEnumerable<IRelationalDatabaseTable> Tables => TablesAsync().ToList().Wait();
-
-        public IReadOnlyDictionary<Identifier, IRelationalDatabaseView> View { get; }
-
-        public IEnumerable<IRelationalDatabaseView> Views => ViewsAsync().ToList().Wait();
-
-        public IReadOnlyDictionary<Identifier, IDatabaseSequence> Sequence { get; }
-
-        public IEnumerable<IDatabaseSequence> Sequences => SequencesAsync().ToList().Wait();
-
-        public IReadOnlyDictionary<Identifier, IDatabaseSynonym> Synonym { get; }
-
-        public IEnumerable<IDatabaseSynonym> Synonyms => SynonymsAsync().ToList().Wait();
-
-        public IReadOnlyDictionary<Identifier, IDatabaseTrigger> Trigger { get; }
-
-        public IEnumerable<IDatabaseTrigger> Triggers => TriggersAsync().ToList().Wait();
+        #region Tables
 
         public bool TableExists(Identifier tableName)
         {
-            if (tableName == null)
+            if (tableName == null || tableName.LocalName.IsNullOrWhiteSpace())
                 throw new ArgumentNullException(nameof(tableName));
 
             return Databases.Any(d => d.TableExists(tableName));
         }
 
+        public async Task<bool> TableExistsAsync(Identifier tableName)
+        {
+            if (tableName == null || tableName.LocalName.IsNullOrWhiteSpace())
+                throw new ArgumentNullException(nameof(tableName));
+
+            var tableExists = Databases.Select(d => d.TableExistsAsync(tableName)).ToArray();
+            var tablePresence = await Task.WhenAll(tableExists);
+            return tablePresence.Length > 0;
+        }
+
+        public IRelationalDatabaseTable GetTable(Identifier tableName)
+        {
+            if (tableName == null || tableName.LocalName.IsNullOrWhiteSpace())
+                throw new ArgumentNullException(nameof(tableName));
+
+            return LoadTableSync(tableName);
+        }
+
+        public Task<IRelationalDatabaseTable> GetTableAsync(Identifier tableName)
+        {
+            if (tableName == null || tableName.LocalName.IsNullOrWhiteSpace())
+                throw new ArgumentNullException(nameof(tableName));
+
+            return LoadTableAsync(tableName);
+        }
+
+        public IEnumerable<IRelationalDatabaseTable> Tables
+        {
+            get
+            {
+                return Databases.SelectMany(d => d.Tables).DistinctBy(t => t.Name);
+            }
+        }
+
+        public IObservable<IRelationalDatabaseTable> TablesAsync()
+        {
+            return Databases.Select(d => d.TablesAsync()).Concat().Distinct(t => t.Name);
+        }
+
+        protected virtual IRelationalDatabaseTable LoadTableSync(Identifier tableName)
+        {
+            if (tableName == null || tableName.LocalName.IsNullOrWhiteSpace())
+                throw new ArgumentNullException(nameof(tableName));
+
+            var db = Databases.FirstOrDefault(d => d.TableExists(tableName));
+            if (db == null)
+                return null;
+
+            return db.GetTable(tableName);
+        }
+
+        protected virtual async Task<IRelationalDatabaseTable> LoadTableAsync(Identifier tableName)
+        {
+            if (tableName == null || tableName.LocalName.IsNullOrWhiteSpace())
+                throw new ArgumentNullException(nameof(tableName));
+
+            var tables = Databases.Select(d => d.GetTableAsync(tableName)).ToArray();
+            var tablesTask = await Task.WhenAll(tables);
+            return tablesTask.FirstOrDefault(t => t != null);
+        }
+
+        #endregion Tables
+
+        #region Views
+
         public bool ViewExists(Identifier viewName)
         {
-            if (viewName == null)
+            if (viewName == null || viewName.LocalName.IsNullOrWhiteSpace())
                 throw new ArgumentNullException(nameof(viewName));
 
             return Databases.Any(d => d.ViewExists(viewName));
         }
+
+        public async Task<bool> ViewExistsAsync(Identifier viewName)
+        {
+            if (viewName == null || viewName.LocalName.IsNullOrWhiteSpace())
+                throw new ArgumentNullException(nameof(viewName));
+
+            var viewExists = Databases.Select(d => d.ViewExistsAsync(viewName)).ToArray();
+            var viewPresence = await Task.WhenAll(viewExists);
+            return viewPresence.Length > 0;
+        }
+
+        public IRelationalDatabaseView GetView(Identifier viewName)
+        {
+            if (viewName == null || viewName.LocalName.IsNullOrWhiteSpace())
+                throw new ArgumentNullException(nameof(viewName));
+
+            return LoadViewSync(viewName);
+        }
+
+        public Task<IRelationalDatabaseView> GetViewAsync(Identifier viewName)
+        {
+            if (viewName == null || viewName.LocalName.IsNullOrWhiteSpace())
+                throw new ArgumentNullException(nameof(viewName));
+
+            return LoadViewAsync(viewName);
+        }
+
+        public IEnumerable<IRelationalDatabaseView> Views
+        {
+            get
+            {
+                return Databases.SelectMany(d => d.Views).DistinctBy(t => t.Name);
+            }
+        }
+
+        public IObservable<IRelationalDatabaseView> ViewsAsync()
+        {
+            return Databases.Select(d => d.ViewsAsync()).Concat().Distinct(t => t.Name);
+        }
+
+        protected virtual IRelationalDatabaseView LoadViewSync(Identifier viewName)
+        {
+            if (viewName == null || viewName.LocalName.IsNullOrWhiteSpace())
+                throw new ArgumentNullException(nameof(viewName));
+
+            var db = Databases.FirstOrDefault(d => d.ViewExists(viewName));
+            if (db == null)
+                return null;
+
+            return db.GetView(viewName);
+        }
+
+        protected virtual async Task<IRelationalDatabaseView> LoadViewAsync(Identifier viewName)
+        {
+            if (viewName == null || viewName.LocalName.IsNullOrWhiteSpace())
+                throw new ArgumentNullException(nameof(viewName));
+
+            var views = Databases.Select(d => d.GetViewAsync(viewName)).ToArray();
+            var viewsTask = await Task.WhenAll(views);
+            return Array.Find(viewsTask, t => t != null);
+        }
+
+        #endregion Views
+
+        #region Sequences
 
         public bool SequenceExists(Identifier sequenceName)
         {
@@ -88,79 +188,9 @@ namespace SJP.Schema.Modelled
             return Databases.Any(d => d.SequenceExists(sequenceName));
         }
 
-        public bool SynonymExists(Identifier synonymName)
-        {
-            if (synonymName == null)
-                throw new ArgumentNullException(nameof(synonymName));
-
-            return Databases.Any(d => d.SynonymExists(synonymName));
-        }
-
-        public bool TriggerExists(Identifier triggerName)
-        {
-            if (triggerName == null)
-                throw new ArgumentNullException(nameof(triggerName));
-
-            return Databases.Any(d => d.TriggerExists(triggerName));
-        }
-
-        public async Task<bool> TableExistsAsync(Identifier tableName)
-        {
-            if (tableName == null)
-                throw new ArgumentNullException(nameof(tableName));
-
-            var tableExists = Databases.Select(d => d.TableExistsAsync(tableName)).ToArray();
-            var tablePresence = await Task.WhenAll(tableExists);
-            return tablePresence.Length > 0;
-        }
-
-        public Task<IRelationalDatabaseTable> TableAsync(Identifier tableName) => _tableCache.GetValue(tableName);
-
-        protected async Task<IRelationalDatabaseTable> LoadTableAsync(Identifier tableName)
-        {
-            if (tableName == null)
-                throw new ArgumentNullException(nameof(tableName));
-
-            var tables = Databases.Select(d => d.TableAsync(tableName)).ToArray();
-            var tablesTask = await Task.WhenAll(tables);
-            return tablesTask.FirstOrDefault(t => t != null);
-        }
-
-        public IObservable<IRelationalDatabaseTable> TablesAsync()
-        {
-            return Databases.Select(d => d.TablesAsync()).Concat().Distinct(t => t.Name);
-        }
-
-        public async Task<bool> ViewExistsAsync(Identifier viewName)
-        {
-            if (viewName == null)
-                throw new ArgumentNullException(nameof(viewName));
-
-            var viewExists = Databases.Select(d => d.ViewExistsAsync(viewName)).ToArray();
-            var viewPresence = await Task.WhenAll(viewExists);
-            return viewPresence.Length > 0;
-        }
-
-        public Task<IRelationalDatabaseView> ViewAsync(Identifier viewName) => _viewCache.GetValue(viewName);
-
-        protected async Task<IRelationalDatabaseView> LoadViewAsync(Identifier viewName)
-        {
-            if (viewName == null)
-                throw new ArgumentNullException(nameof(viewName));
-
-            var views = Databases.Select(d => d.ViewAsync(viewName)).ToArray();
-            var viewsTask = await Task.WhenAll(views);
-            return Array.Find(viewsTask, t => t != null);
-        }
-
-        public IObservable<IRelationalDatabaseView> ViewsAsync()
-        {
-            return Databases.Select(d => d.ViewsAsync()).Concat().Distinct(t => t.Name);
-        }
-
         public async Task<bool> SequenceExistsAsync(Identifier sequenceName)
         {
-            if (sequenceName == null)
+            if (sequenceName == null || sequenceName.LocalName.IsNullOrWhiteSpace())
                 throw new ArgumentNullException(nameof(sequenceName));
 
             var sequenceExists = Databases.Select(d => d.SequenceExistsAsync(sequenceName)).ToArray();
@@ -168,16 +198,28 @@ namespace SJP.Schema.Modelled
             return sequencePresence.Length > 0;
         }
 
-        public Task<IDatabaseSequence> SequenceAsync(Identifier sequenceName) => _sequenceCache.GetValue(sequenceName);
-
-        protected async Task<IDatabaseSequence> LoadSequenceAsync(Identifier sequenceName)
+        public IDatabaseSequence GetSequence(Identifier sequenceName)
         {
-            if (sequenceName == null)
+            if (sequenceName == null || sequenceName.LocalName.IsNullOrWhiteSpace())
                 throw new ArgumentNullException(nameof(sequenceName));
 
-            var sequences = Databases.Select(d => d.SequenceAsync(sequenceName)).ToArray();
-            var sequencesTask = await Task.WhenAll(sequences);
-            return Array.Find(sequencesTask, t => t != null);
+            return LoadSequenceSync(sequenceName);
+        }
+
+        public Task<IDatabaseSequence> GetSequenceAsync(Identifier sequenceName)
+        {
+            if (sequenceName == null || sequenceName.LocalName.IsNullOrWhiteSpace())
+                throw new ArgumentNullException(nameof(sequenceName));
+
+            return LoadSequenceAsync(sequenceName);
+        }
+
+        public IEnumerable<IDatabaseSequence> Sequences
+        {
+            get
+            {
+                return Databases.SelectMany(d => d.Sequences).DistinctBy(t => t.Name);
+            }
         }
 
         public IObservable<IDatabaseSequence> SequencesAsync()
@@ -188,9 +230,43 @@ namespace SJP.Schema.Modelled
                 .Distinct(t => t.Name);
         }
 
+        protected virtual IDatabaseSequence LoadSequenceSync(Identifier sequenceName)
+        {
+            if (sequenceName == null || sequenceName.LocalName.IsNullOrWhiteSpace())
+                throw new ArgumentNullException(nameof(sequenceName));
+
+            var db = Databases.FirstOrDefault(d => d.SequenceExists(sequenceName));
+            if (db == null)
+                return null;
+
+            return db.GetSequence(sequenceName);
+        }
+
+        protected virtual async Task<IDatabaseSequence> LoadSequenceAsync(Identifier sequenceName)
+        {
+            if (sequenceName == null || sequenceName.LocalName.IsNullOrWhiteSpace())
+                throw new ArgumentNullException(nameof(sequenceName));
+
+            var sequences = Databases.Select(d => d.GetSequenceAsync(sequenceName)).ToArray();
+            var sequencesTask = await Task.WhenAll(sequences);
+            return Array.Find(sequencesTask, t => t != null);
+        }
+
+        #endregion Sequences
+
+        #region Synonyms
+
+        public bool SynonymExists(Identifier synonymName)
+        {
+            if (synonymName == null || synonymName.LocalName.IsNullOrWhiteSpace())
+                throw new ArgumentNullException(nameof(synonymName));
+
+            return Databases.Any(d => d.SynonymExists(synonymName));
+        }
+
         public async Task<bool> SynonymExistsAsync(Identifier synonymName)
         {
-            if (synonymName == null)
+            if (synonymName == null || synonymName.LocalName.IsNullOrWhiteSpace())
                 throw new ArgumentNullException(nameof(synonymName));
 
             var synonymExists = Databases.Select(d => d.SynonymExistsAsync(synonymName)).ToArray();
@@ -198,16 +274,28 @@ namespace SJP.Schema.Modelled
             return synonymPresence.Length > 0;
         }
 
-        public Task<IDatabaseSynonym> SynonymAsync(Identifier synonymName) => _synonymCache.GetValue(synonymName);
-
-        protected async Task<IDatabaseSynonym> LoadSynonymAsync(Identifier synonymName)
+        public IDatabaseSynonym GetSynonym(Identifier synonymName)
         {
-            if (synonymName == null)
+            if (synonymName == null || synonymName.LocalName.IsNullOrWhiteSpace())
                 throw new ArgumentNullException(nameof(synonymName));
 
-            var synonyms = Databases.Select(d => d.SynonymAsync(synonymName)).ToArray();
-            var synonymsTask = await Task.WhenAll(synonyms);
-            return Array.Find(synonymsTask, t => t != null);
+            return LoadSynonymSync(synonymName);
+        }
+
+        public Task<IDatabaseSynonym> GetSynonymAsync(Identifier synonymName)
+        {
+            if (synonymName == null || synonymName.LocalName.IsNullOrWhiteSpace())
+                throw new ArgumentNullException(nameof(synonymName));
+
+            return LoadSynonymAsync(synonymName);
+        }
+
+        public IEnumerable<IDatabaseSynonym> Synonyms
+        {
+            get
+            {
+                return Databases.SelectMany(d => d.Synonyms).DistinctBy(t => t.Name);
+            }
         }
 
         public IObservable<IDatabaseSynonym> SynonymsAsync()
@@ -215,9 +303,43 @@ namespace SJP.Schema.Modelled
             return Databases.Select(d => d.SynonymsAsync()).Concat().Distinct(t => t.Name);
         }
 
+        protected virtual IDatabaseSynonym LoadSynonymSync(Identifier synonymName)
+        {
+            if (synonymName == null || synonymName.LocalName.IsNullOrWhiteSpace())
+                throw new ArgumentNullException(nameof(synonymName));
+
+            var db = Databases.FirstOrDefault(d => d.SynonymExists(synonymName));
+            if (db == null)
+                return null;
+
+            return db.GetSynonym(synonymName);
+        }
+
+        protected virtual async Task<IDatabaseSynonym> LoadSynonymAsync(Identifier synonymName)
+        {
+            if (synonymName == null || synonymName.LocalName.IsNullOrWhiteSpace())
+                throw new ArgumentNullException(nameof(synonymName));
+
+            var synonyms = Databases.Select(d => d.GetSynonymAsync(synonymName)).ToArray();
+            var synonymsTask = await Task.WhenAll(synonyms);
+            return Array.Find(synonymsTask, t => t != null);
+        }
+
+        #endregion Synonyms
+
+        #region Triggers
+
+        public bool TriggerExists(Identifier triggerName)
+        {
+            if (triggerName == null || triggerName.LocalName.IsNullOrWhiteSpace())
+                throw new ArgumentNullException(nameof(triggerName));
+
+            return Databases.Any(d => d.TriggerExists(triggerName));
+        }
+
         public async Task<bool> TriggerExistsAsync(Identifier triggerName)
         {
-            if (triggerName == null)
+            if (triggerName == null || triggerName.LocalName.IsNullOrWhiteSpace())
                 throw new ArgumentNullException(nameof(triggerName));
 
             var synonymExists = Databases.Select(d => d.TriggerExistsAsync(triggerName)).ToArray();
@@ -225,16 +347,28 @@ namespace SJP.Schema.Modelled
             return synonymPresence.Length > 0;
         }
 
-        public Task<IDatabaseTrigger> TriggerAsync(Identifier triggerName) => _triggerCache.GetValue(triggerName);
-
-        protected async Task<IDatabaseTrigger> LoadTriggerAsync(Identifier triggerName)
+        public IDatabaseTrigger GetTrigger(Identifier triggerName)
         {
-            if (triggerName == null)
+            if (triggerName == null || triggerName.LocalName.IsNullOrWhiteSpace())
                 throw new ArgumentNullException(nameof(triggerName));
 
-            var triggers = Databases.Select(d => d.TriggerAsync(triggerName)).ToArray();
-            var triggersTask = await Task.WhenAll(triggers);
-            return Array.Find(triggersTask, t => t != null);
+            return LoadTriggerSync(triggerName);
+        }
+
+        public Task<IDatabaseTrigger> GetTriggerAsync(Identifier triggerName)
+        {
+            if (triggerName == null || triggerName.LocalName.IsNullOrWhiteSpace())
+                throw new ArgumentNullException(nameof(triggerName));
+
+            return LoadTriggerAsync(triggerName);
+        }
+
+        public IEnumerable<IDatabaseTrigger> Triggers
+        {
+            get
+            {
+                return Databases.SelectMany(d => d.Triggers).DistinctBy(t => t.Name);
+            }
         }
 
         public IObservable<IDatabaseTrigger> TriggersAsync()
@@ -242,19 +376,37 @@ namespace SJP.Schema.Modelled
             return Databases.Select(d => d.TriggersAsync()).Concat().Distinct(t => t.Name);
         }
 
-        private static IDependentRelationalDatabase SetParent(IRelationalDatabase parent, IDependentRelationalDatabase child)
+        protected virtual IDatabaseTrigger LoadTriggerSync(Identifier triggerName)
+        {
+            if (triggerName == null || triggerName.LocalName.IsNullOrWhiteSpace())
+                throw new ArgumentNullException(nameof(triggerName));
+
+            var db = Databases.FirstOrDefault(d => d.TriggerExists(triggerName));
+            if (db == null)
+                return null;
+
+            return db.GetTrigger(triggerName);
+        }
+
+        protected virtual async Task<IDatabaseTrigger> LoadTriggerAsync(Identifier triggerName)
+        {
+            if (triggerName == null || triggerName.LocalName.IsNullOrWhiteSpace())
+                throw new ArgumentNullException(nameof(triggerName));
+
+            var triggers = Databases.Select(d => d.GetTriggerAsync(triggerName)).ToArray();
+            var triggersTask = await Task.WhenAll(triggers);
+            return Array.Find(triggersTask, t => t != null);
+        }
+
+        #endregion Triggers
+
+        protected static IDependentRelationalDatabase SetParent(IRelationalDatabase parent, IDependentRelationalDatabase child)
         {
             if (child == null)
                 throw new ArgumentNullException(nameof(child));
 
-            child.Parent = parent;
+            child.Parent = parent ?? throw new ArgumentNullException(nameof(parent));
             return child;
         }
-
-        private readonly AsyncCache<Identifier, IRelationalDatabaseTable> _tableCache;
-        private readonly AsyncCache<Identifier, IRelationalDatabaseView> _viewCache;
-        private readonly AsyncCache<Identifier, IDatabaseSequence> _sequenceCache;
-        private readonly AsyncCache<Identifier, IDatabaseSynonym> _synonymCache;
-        private readonly AsyncCache<Identifier, IDatabaseTrigger> _triggerCache;
     }
 }

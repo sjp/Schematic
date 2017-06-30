@@ -19,31 +19,31 @@ namespace SJP.Schema.Core
 
         Task<bool> TableExistsAsync(Identifier tableName);
 
-        Task<IRelationalDatabaseTable> TableAsync(Identifier tableName);
+        Task<IRelationalDatabaseTable> GetTableAsync(Identifier tableName);
 
         IObservable<IRelationalDatabaseTable> TablesAsync();
 
         Task<bool> ViewExistsAsync(Identifier viewName);
 
-        Task<IRelationalDatabaseView> ViewAsync(Identifier viewName);
+        Task<IRelationalDatabaseView> GetViewAsync(Identifier viewName);
 
         IObservable<IRelationalDatabaseView> ViewsAsync();
 
         Task<bool> SequenceExistsAsync(Identifier sequenceName);
 
-        Task<IDatabaseSequence> SequenceAsync(Identifier sequenceName);
+        Task<IDatabaseSequence> GetSequenceAsync(Identifier sequenceName);
 
         IObservable<IDatabaseSequence> SequencesAsync();
 
         Task<bool> SynonymExistsAsync(Identifier synonymName);
 
-        Task<IDatabaseSynonym> SynonymAsync(Identifier synonymName);
+        Task<IDatabaseSynonym> GetSynonymAsync(Identifier synonymName);
 
         IObservable<IDatabaseSynonym> SynonymsAsync();
 
         Task<bool> TriggerExistsAsync(Identifier triggerName);
 
-        Task<IDatabaseTrigger> TriggerAsync(Identifier triggerName);
+        Task<IDatabaseTrigger> GetTriggerAsync(Identifier triggerName);
 
         IObservable<IDatabaseTrigger> TriggersAsync();
     }

@@ -31,10 +31,10 @@ namespace SJP.Schema.Modelled.Reflection
             EnsureUniqueTypes(DatabaseDefinitionType);
 
             _parentDb = this;
-            _tableLookup = new Lazy<IReadOnlyDictionary<Identifier, IRelationalDatabaseTable>>(LoadTableLookup);
-            _viewLookup = new Lazy<IReadOnlyDictionary<Identifier, IRelationalDatabaseView>>(LoadViewLookup);
-            _sequenceLookup = new Lazy<IReadOnlyDictionary<Identifier, IDatabaseSequence>>(LoadSequenceLookup);
-            _synonymLookup = new Lazy<IReadOnlyDictionary<Identifier, IDatabaseSynonym>>(LoadSynonymLookup);
+            _tableLookup = new Lazy<IReadOnlyDictionary<Identifier, IRelationalDatabaseTable>>(LoadTables);
+            _viewLookup = new Lazy<IReadOnlyDictionary<Identifier, IRelationalDatabaseView>>(LoadViews);
+            _sequenceLookup = new Lazy<IReadOnlyDictionary<Identifier, IDatabaseSequence>>(LoadSequences);
+            _synonymLookup = new Lazy<IReadOnlyDictionary<Identifier, IDatabaseSynonym>>(LoadSynonyms);
         }
 
         public IRelationalDatabase Parent
@@ -59,19 +59,71 @@ namespace SJP.Schema.Modelled.Reflection
 
         public bool TableExists(Identifier tableName)
         {
+            if (tableName == null)
+                throw new ArgumentNullException(nameof(tableName));
+
             tableName = CreateQualifiedIdentifier(tableName);
-            tableName.Comparer = Comparer;
             return Table.ContainsKey(tableName);
         }
 
-        public IReadOnlyDictionary<Identifier, IRelationalDatabaseTable> Table => _tableLookup.Value;
+        public Task<bool> TableExistsAsync(Identifier tableName)
+        {
+            if (tableName == null)
+                throw new ArgumentNullException(nameof(tableName));
 
-        private IReadOnlyDictionary<Identifier, IRelationalDatabaseTable> LoadTableLookup()
+            tableName = CreateQualifiedIdentifier(tableName);
+            var lookupContains = Table.ContainsKey(tableName);
+            return Task.FromResult(lookupContains);
+        }
+
+        public IRelationalDatabaseTable GetTable(Identifier tableName)
+        {
+            if (tableName == null)
+                throw new ArgumentNullException(nameof(tableName));
+
+            tableName = CreateQualifiedIdentifier(tableName);
+            return Table.ContainsKey(tableName) ? Table[tableName] : null;
+        }
+
+        public Task<IRelationalDatabaseTable> GetTableAsync(Identifier tableName)
+        {
+            if (tableName == null)
+                throw new ArgumentNullException(nameof(tableName));
+
+            tableName = CreateQualifiedIdentifier(tableName);
+            var lookupResult = Table.ContainsKey(tableName) ? Table[tableName] : null;
+            return Task.FromResult(lookupResult);
+        }
+
+        public IEnumerable<IRelationalDatabaseTable> Tables => Table.Values;
+
+        public IObservable<IRelationalDatabaseTable> TablesAsync() => Tables.ToObservable();
+
+        protected IReadOnlyDictionary<Identifier, IRelationalDatabaseTable> Table => _tableLookup.Value;
+
+        protected virtual IRelationalDatabaseTable LoadTableSync(Type tableType)
+        {
+            if (tableType == null)
+                throw new ArgumentNullException(nameof(tableType));
+
+            return new ReflectionTable(Database, tableType);
+        }
+
+        protected virtual Task<IRelationalDatabaseTable> LoadTableAsync(Type tableType)
+        {
+            if (tableType == null)
+                throw new ArgumentNullException(nameof(tableType));
+
+            var table = new ReflectionTable(Database, tableType);
+            return Task.FromResult<IRelationalDatabaseTable>(table);
+        }
+
+        protected virtual IReadOnlyDictionary<Identifier, IRelationalDatabaseTable> LoadTables()
         {
             var result = new Dictionary<Identifier, IRelationalDatabaseTable>(Comparer);
 
             var tables = GetUnwrappedPropertyTypes(TableGenericType)
-                .Select(LoadTable)
+                .Select(LoadTableSync)
                 .ToList();
 
             var duplicateNames = new HashSet<Identifier>();
@@ -94,12 +146,77 @@ namespace SJP.Schema.Modelled.Reflection
             return result.ToReadOnlyDictionary();
         }
 
-        private IReadOnlyDictionary<Identifier, IRelationalDatabaseView> LoadViewLookup()
+        #endregion Tables
+
+        #region Views
+
+        public bool ViewExists(Identifier viewName)
+        {
+            if (viewName == null)
+                throw new ArgumentNullException(nameof(viewName));
+
+            viewName = CreateQualifiedIdentifier(viewName);
+            return View.ContainsKey(viewName);
+        }
+
+        public Task<bool> ViewExistsAsync(Identifier viewName)
+        {
+            if (viewName == null)
+                throw new ArgumentNullException(nameof(viewName));
+
+            viewName = CreateQualifiedIdentifier(viewName);
+            var lookupContains = View.ContainsKey(viewName);
+            return Task.FromResult(lookupContains);
+        }
+
+        public IRelationalDatabaseView GetView(Identifier viewName)
+        {
+            if (viewName == null)
+                throw new ArgumentNullException(nameof(viewName));
+
+            viewName = CreateQualifiedIdentifier(viewName);
+            return View.ContainsKey(viewName) ? View[viewName] : null;
+        }
+
+        public Task<IRelationalDatabaseView> GetViewAsync(Identifier viewName)
+        {
+            if (viewName == null)
+                throw new ArgumentNullException(nameof(viewName));
+
+            viewName = CreateQualifiedIdentifier(viewName);
+            var view = View.ContainsKey(viewName) ? View[viewName] : null;
+            return Task.FromResult(view);
+        }
+
+        public IEnumerable<IRelationalDatabaseView> Views => View.Values;
+
+        public IObservable<IRelationalDatabaseView> ViewsAsync() => Views.ToObservable();
+
+        protected IReadOnlyDictionary<Identifier, IRelationalDatabaseView> View => _viewLookup.Value;
+
+        protected virtual IRelationalDatabaseView LoadViewSync(Type viewType)
+        {
+            if (viewType == null)
+                throw new ArgumentNullException(nameof(viewType));
+
+            return new ReflectionView(Database, viewType);
+        }
+
+        protected virtual Task<IRelationalDatabaseView> LoadViewAsync(Type viewType)
+        {
+            if (viewType == null)
+                throw new ArgumentNullException(nameof(viewType));
+
+            var view = new ReflectionView(Database, viewType);
+            return Task.FromResult<IRelationalDatabaseView>(view);
+        }
+
+        protected virtual IReadOnlyDictionary<Identifier, IRelationalDatabaseView> LoadViews()
         {
             var result = new Dictionary<Identifier, IRelationalDatabaseView>();
 
             var views = GetUnwrappedPropertyTypes(ViewGenericType)
-                .Select(LoadView)
+                .Select(LoadViewSync)
                 .ToList();
 
             var duplicateNames = new HashSet<Identifier>();
@@ -122,12 +239,77 @@ namespace SJP.Schema.Modelled.Reflection
             return result.ToReadOnlyDictionary();
         }
 
-        private IReadOnlyDictionary<Identifier, IDatabaseSequence> LoadSequenceLookup()
+        #endregion Views
+
+        #region Sequences
+
+        public bool SequenceExists(Identifier sequenceName)
+        {
+            if (sequenceName == null)
+                throw new ArgumentNullException(nameof(sequenceName));
+
+            sequenceName = CreateQualifiedIdentifier(sequenceName);
+            return Sequence.ContainsKey(sequenceName);
+        }
+
+        public Task<bool> SequenceExistsAsync(Identifier sequenceName)
+        {
+            if (sequenceName == null)
+                throw new ArgumentNullException(nameof(sequenceName));
+
+            sequenceName = CreateQualifiedIdentifier(sequenceName);
+            var lookupContains = Sequence.ContainsKey(sequenceName);
+            return Task.FromResult(lookupContains);
+        }
+
+        public IDatabaseSequence GetSequence(Identifier sequenceName)
+        {
+            if (sequenceName == null)
+                throw new ArgumentNullException(nameof(sequenceName));
+
+            sequenceName = CreateQualifiedIdentifier(sequenceName);
+            return Sequence.ContainsKey(sequenceName) ? Sequence[sequenceName] : null;
+        }
+
+        public Task<IDatabaseSequence> GetSequenceAsync(Identifier sequenceName)
+        {
+            if (sequenceName == null)
+                throw new ArgumentNullException(nameof(sequenceName));
+
+            sequenceName = CreateQualifiedIdentifier(sequenceName);
+            var sequence = Sequence.ContainsKey(sequenceName) ? Sequence[sequenceName] : null;
+            return Task.FromResult(sequence);
+        }
+
+        public IEnumerable<IDatabaseSequence> Sequences => Sequence.Values;
+
+        public IObservable<IDatabaseSequence> SequencesAsync() => Sequences.ToObservable();
+
+        protected IReadOnlyDictionary<Identifier, IDatabaseSequence> Sequence => _sequenceLookup.Value;
+
+        protected virtual IDatabaseSequence LoadSequenceSync(Type sequenceType)
+        {
+            if (sequenceType == null)
+                throw new ArgumentNullException(nameof(sequenceType));
+
+            return new ReflectionSequence(Database, sequenceType);
+        }
+
+        protected virtual Task<IDatabaseSequence> LoadSequenceAsync(Type sequenceType)
+        {
+            if (sequenceType == null)
+                throw new ArgumentNullException(nameof(sequenceType));
+
+            var sequence = new ReflectionSequence(Database, sequenceType);
+            return Task.FromResult<IDatabaseSequence>(sequence);
+        }
+
+        protected virtual IReadOnlyDictionary<Identifier, IDatabaseSequence> LoadSequences()
         {
             var result = new Dictionary<Identifier, IDatabaseSequence>();
 
             var sequences = GetUnwrappedPropertyTypes(SequenceGenericType)
-                .Select(LoadSequence)
+                .Select(LoadSequenceSync)
                 .ToList();
 
             var duplicateNames = new HashSet<Identifier>();
@@ -150,12 +332,77 @@ namespace SJP.Schema.Modelled.Reflection
             return result.ToReadOnlyDictionary();
         }
 
-        private IReadOnlyDictionary<Identifier, IDatabaseSynonym> LoadSynonymLookup()
+        #endregion Sequences
+
+        #region Synonyms
+
+        public bool SynonymExists(Identifier synonymName)
+        {
+            if (synonymName == null)
+                throw new ArgumentNullException(nameof(synonymName));
+
+            synonymName = CreateQualifiedIdentifier(synonymName);
+            return Synonym.ContainsKey(synonymName);
+        }
+
+        public Task<bool> SynonymExistsAsync(Identifier synonymName)
+        {
+            if (synonymName == null)
+                throw new ArgumentNullException(nameof(synonymName));
+
+            synonymName = CreateQualifiedIdentifier(synonymName);
+            var lookupContains = Synonym.ContainsKey(synonymName);
+            return Task.FromResult(lookupContains);
+        }
+
+        public IDatabaseSynonym GetSynonym(Identifier synonymName)
+        {
+            if (synonymName == null)
+                throw new ArgumentNullException(nameof(synonymName));
+
+            synonymName = CreateQualifiedIdentifier(synonymName);
+            return Synonym.ContainsKey(synonymName) ? Synonym[synonymName] : null;
+        }
+
+        public Task<IDatabaseSynonym> GetSynonymAsync(Identifier synonymName)
+        {
+            if (synonymName == null)
+                throw new ArgumentNullException(nameof(synonymName));
+
+            synonymName = CreateQualifiedIdentifier(synonymName);
+            var synonym = Synonym.ContainsKey(synonymName) ? Synonym[synonymName] : null;
+            return Task.FromResult(synonym);
+        }
+
+        public IEnumerable<IDatabaseSynonym> Synonyms => Synonym.Values;
+
+        public IObservable<IDatabaseSynonym> SynonymsAsync() => Synonyms.ToObservable();
+
+        protected IReadOnlyDictionary<Identifier, IDatabaseSynonym> Synonym => _synonymLookup.Value;
+
+        protected virtual IDatabaseSynonym LoadSynonymSync(Type synonymType)
+        {
+            if (synonymType == null)
+                throw new ArgumentNullException(nameof(synonymType));
+
+            return new ReflectionSynonym(Database, synonymType);
+        }
+
+        protected virtual Task<IDatabaseSynonym> LoadSynonymAsync(Type synonymType)
+        {
+            if (synonymType == null)
+                throw new ArgumentNullException(nameof(synonymType));
+
+            var synonym = new ReflectionSynonym(Database, synonymType);
+            return Task.FromResult<IDatabaseSynonym>(synonym);
+        }
+
+        protected virtual IReadOnlyDictionary<Identifier, IDatabaseSynonym> LoadSynonyms()
         {
             var result = new Dictionary<Identifier, IDatabaseSynonym>();
 
             var synonyms = GetUnwrappedPropertyTypes(SynonymGenericType)
-                .Select(LoadSynonym)
+                .Select(LoadSynonymSync)
                 .ToList();
 
             var duplicateNames = new HashSet<Identifier>();
@@ -178,227 +425,7 @@ namespace SJP.Schema.Modelled.Reflection
             return result.ToReadOnlyDictionary();
         }
 
-        public IEnumerable<IRelationalDatabaseTable> Tables => Table.Values;
-
-        public Task<bool> TableExistsAsync(Identifier tableName)
-        {
-            tableName = CreateQualifiedIdentifier(tableName);
-
-            var lookupContains = Table.ContainsKey(tableName);
-            return Task.FromResult(lookupContains);
-        }
-
-        public Task<IRelationalDatabaseTable> TableAsync(Identifier tableName)
-        {
-            tableName = CreateQualifiedIdentifier(tableName);
-
-            var lookupResult = Table.ContainsKey(tableName) ? Table[tableName] : null;
-            return Task.FromResult(lookupResult);
-        }
-
-        public IObservable<IRelationalDatabaseTable> TablesAsync() => Tables.ToObservable();
-
-        protected virtual IRelationalDatabaseTable LoadTable(Type tableType)
-        {
-            return new ReflectionTable(Database, tableType);
-        }
-
-        protected virtual IRelationalDatabaseView LoadView(Type viewType)
-        {
-            return new ReflectionView(Database, viewType);
-        }
-
-        protected virtual IDatabaseSequence LoadSequence(Type sequenceType)
-        {
-            return new ReflectionSequence(Database, sequenceType);
-        }
-
-        protected virtual IDatabaseSynonym LoadSynonym(Type synonymType)
-        {
-            return new ReflectionSynonym(Database, synonymType);
-        }
-
-        protected virtual Task<IRelationalDatabaseTable> LoadTableAsync(Identifier tableName)
-        {
-            tableName = CreateQualifiedIdentifier(tableName);
-
-            var table = Table[tableName];
-            return Task.FromResult(table);
-        }
-
-        #endregion Tables
-
-        #region Views
-
-        public bool ViewExists(Identifier viewName)
-        {
-            viewName = CreateQualifiedIdentifier(viewName);
-            return View.ContainsKey(viewName);
-        }
-
-        public IReadOnlyDictionary<Identifier, IRelationalDatabaseView> View => _viewLookup.Value;
-
-        public IEnumerable<IRelationalDatabaseView> Views => View.Values;
-
-        public Task<bool> ViewExistsAsync(Identifier viewName)
-        {
-            viewName = CreateQualifiedIdentifier(viewName);
-
-            var lookupContains = View.ContainsKey(viewName);
-            return Task.FromResult(lookupContains);
-        }
-
-        public Task<IRelationalDatabaseView> ViewAsync(Identifier viewName)
-        {
-            viewName = CreateQualifiedIdentifier(viewName);
-
-            var view = View[viewName];
-            return Task.FromResult(view);
-        }
-
-        public IObservable<IRelationalDatabaseView> ViewsAsync() => Views.ToObservable();
-
-        protected virtual Task<IRelationalDatabaseView> LoadViewAsync(Identifier viewName)
-        {
-            viewName = CreateQualifiedIdentifier(viewName);
-
-            var view = View[viewName];
-            return Task.FromResult(view);
-        }
-
-        #endregion Views
-
-        #region Sequences
-
-        public bool SequenceExists(Identifier sequenceName)
-        {
-            sequenceName = CreateQualifiedIdentifier(sequenceName);
-
-            return Sequence.ContainsKey(sequenceName);
-        }
-
-        public IReadOnlyDictionary<Identifier, IDatabaseSequence> Sequence => _sequenceLookup.Value;
-
-        public IEnumerable<IDatabaseSequence> Sequences => Sequence.Values;
-
-        public Task<bool> SequenceExistsAsync(Identifier sequenceName)
-        {
-            sequenceName = CreateQualifiedIdentifier(sequenceName);
-
-            var lookupContains = Sequence.ContainsKey(sequenceName);
-            return Task.FromResult(lookupContains);
-        }
-
-        public Task<IDatabaseSequence> SequenceAsync(Identifier sequenceName)
-        {
-            sequenceName = CreateQualifiedIdentifier(sequenceName);
-
-            var sequence = Sequence[sequenceName];
-            return Task.FromResult(sequence);
-        }
-
-        public IObservable<IDatabaseSequence> SequencesAsync() => Sequences.ToObservable();
-
-        protected virtual Task<IDatabaseSequence> LoadSequenceAsync(Identifier sequenceName)
-        {
-            sequenceName = CreateQualifiedIdentifier(sequenceName);
-
-            var sequence = Sequence[sequenceName];
-            return Task.FromResult(sequence);
-        }
-
-        #endregion Sequences
-
-        #region Synonyms
-
-        public bool SynonymExists(Identifier synonymName)
-        {
-            synonymName = CreateQualifiedIdentifier(synonymName);
-            return Synonym.ContainsKey(synonymName);
-        }
-
-        public IReadOnlyDictionary<Identifier, IDatabaseSynonym> Synonym => _synonymLookup.Value;
-
-        public IEnumerable<IDatabaseSynonym> Synonyms => Synonym.Values;
-
-        public Task<bool> SynonymExistsAsync(Identifier synonymName)
-        {
-            synonymName = CreateQualifiedIdentifier(synonymName);
-
-            var lookupContains = Synonym.ContainsKey(synonymName);
-            return Task.FromResult(lookupContains);
-        }
-
-        public Task<IDatabaseSynonym> SynonymAsync(Identifier synonymName)
-        {
-            synonymName = CreateQualifiedIdentifier(synonymName);
-
-            var synonym = Synonym[synonymName];
-            return Task.FromResult(synonym);
-        }
-
-        public IObservable<IDatabaseSynonym> SynonymsAsync() => Synonyms.ToObservable();
-
-        protected virtual Task<IDatabaseSynonym> LoadSynonymAsync(Identifier synonymName)
-        {
-            synonymName = CreateQualifiedIdentifier(synonymName);
-
-            var synonym = Synonym[synonymName];
-            return Task.FromResult(synonym);
-        }
-
         #endregion Synonyms
-
-        protected static Type TableGenericType { get; } = typeof(Table<>);
-
-        protected static Type ViewGenericType { get; } = typeof(View<>);
-
-        protected static Type SequenceGenericType { get; } = typeof(Sequence<>);
-
-        protected static Type SynonymGenericType { get; } = typeof(Synonym<>);
-
-        public IReadOnlyDictionary<Identifier, IDatabaseTrigger> Trigger
-        {
-            get
-            {
-                throw new NotImplementedException();
-            }
-        }
-
-        public IEnumerable<IDatabaseTrigger> Triggers
-        {
-            get
-            {
-                throw new NotImplementedException();
-            }
-        }
-
-        // makes no sense to have duplicate types
-        private static void EnsureUniqueTypes(Type definitionType)
-        {
-            var foundTypes = new HashSet<Type>();
-            var duplicateTypes = new HashSet<Type>();
-
-            var validWrappers = new[] { TableGenericType, ViewGenericType, SequenceGenericType, SynonymGenericType };
-            var unwrappedTypes = definitionType.GetTypeInfo().GetProperties()
-                .Where(pi => validWrappers.Any(wrapperType => pi.PropertyType.GetGenericTypeDefinition().GetTypeInfo().IsAssignableFrom(wrapperType.GetTypeInfo())))
-                .Select(pi => UnwrapGenericParameter(pi.PropertyType));
-
-            foreach (var unwrappedType in unwrappedTypes)
-            {
-                if (!foundTypes.Add(unwrappedType))
-                    duplicateTypes.Add(unwrappedType);
-            }
-
-            if (duplicateTypes.Count > 0)
-            {
-                var typeNames = duplicateTypes.Select(t => t.FullName).Join(", ");
-                var message = "There were duplicate types provided to the modelled database. The following types have more than one declaration: " + typeNames;
-                throw new Exception(message);
-            }
-        }
-
-        private static Type UnwrapGenericParameter(Type inputType) => inputType.GetTypeInfo().GetGenericArguments().Single();
 
         // TODO: Implement triggers
         //       Pull from embedded resource preferred but not required
@@ -406,18 +433,37 @@ namespace SJP.Schema.Modelled.Reflection
 
         public bool TriggerExists(Identifier triggerName)
         {
+            if (triggerName == null)
+                throw new ArgumentNullException(nameof(triggerName));
+
             throw new NotImplementedException();
         }
 
         public Task<bool> TriggerExistsAsync(Identifier triggerName)
         {
+            if (triggerName == null)
+                throw new ArgumentNullException(nameof(triggerName));
+
             throw new NotImplementedException();
         }
 
-        public Task<IDatabaseTrigger> TriggerAsync(Identifier triggerName)
+        public IDatabaseTrigger GetTrigger(Identifier triggerName)
         {
+            if (triggerName == null)
+                throw new ArgumentNullException(nameof(triggerName));
+
             throw new NotImplementedException();
         }
+
+        public Task<IDatabaseTrigger> GetTriggerAsync(Identifier triggerName)
+        {
+            if (triggerName == null)
+                throw new ArgumentNullException(nameof(triggerName));
+
+            throw new NotImplementedException();
+        }
+
+        public IEnumerable<IDatabaseTrigger> Triggers => throw new NotImplementedException();
 
         public IObservable<IDatabaseTrigger> TriggersAsync() => Triggers.ToObservable();
 
@@ -439,9 +485,46 @@ namespace SJP.Schema.Modelled.Reflection
             if (identifier == null)
                 throw new ArgumentNullException(nameof(identifier));
 
-            return identifier.Schema.IsNullOrWhiteSpace() && !DefaultSchema.IsNullOrWhiteSpace()
+            identifier = identifier.Schema.IsNullOrWhiteSpace() && !DefaultSchema.IsNullOrWhiteSpace()
                 ? new Identifier(DefaultSchema, identifier.LocalName)
                 : identifier;
+            identifier.Comparer = Comparer;
+            return identifier;
+        }
+
+        protected static Type TableGenericType { get; } = typeof(Table<>);
+
+        protected static Type ViewGenericType { get; } = typeof(View<>);
+
+        protected static Type SequenceGenericType { get; } = typeof(Sequence<>);
+
+        protected static Type SynonymGenericType { get; } = typeof(Synonym<>);
+
+        protected static Type UnwrapGenericParameter(Type inputType) => inputType.GetTypeInfo().GetGenericArguments().Single();
+
+        // makes no sense to have duplicate types
+        private static void EnsureUniqueTypes(Type definitionType)
+        {
+            var foundTypes = new HashSet<Type>();
+            var duplicateTypes = new HashSet<Type>();
+
+            var validWrappers = new[] { TableGenericType, ViewGenericType, SequenceGenericType, SynonymGenericType };
+            var unwrappedTypes = definitionType.GetTypeInfo().GetProperties()
+                .Where(pi => validWrappers.Any(wrapperType => pi.PropertyType.GetGenericTypeDefinition().GetTypeInfo().IsAssignableFrom(wrapperType.GetTypeInfo())))
+                .Select(pi => UnwrapGenericParameter(pi.PropertyType));
+
+            foreach (var unwrappedType in unwrappedTypes)
+            {
+                if (!foundTypes.Add(unwrappedType))
+                    duplicateTypes.Add(unwrappedType);
+            }
+
+            if (duplicateTypes.Count > 0)
+            {
+                var typeNames = duplicateTypes.Select(t => t.FullName).Join(", ");
+                var message = $"There were duplicate types provided to the { definitionType.FullName } database. The following types have more than one declaration: " + typeNames;
+                throw new Exception(message);
+            }
         }
 
         private IRelationalDatabase _parentDb;
