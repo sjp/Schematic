@@ -6,7 +6,7 @@ install:
 
 test: off
 
-services: mssql2016
+#services: mssql2016
 
 build:
   verbosity: minimal
