@@ -59,7 +59,7 @@ namespace SJP.Schema.Modelled.Reflection
 
         public bool TableExists(Identifier tableName)
         {
-            if (tableName == null)
+            if (tableName == null || tableName.LocalName.IsNullOrWhiteSpace())
                 throw new ArgumentNullException(nameof(tableName));
 
             tableName = CreateQualifiedIdentifier(tableName);
@@ -68,7 +68,7 @@ namespace SJP.Schema.Modelled.Reflection
 
         public Task<bool> TableExistsAsync(Identifier tableName)
         {
-            if (tableName == null)
+            if (tableName == null || tableName.LocalName.IsNullOrWhiteSpace())
                 throw new ArgumentNullException(nameof(tableName));
 
             tableName = CreateQualifiedIdentifier(tableName);
@@ -78,7 +78,7 @@ namespace SJP.Schema.Modelled.Reflection
 
         public IRelationalDatabaseTable GetTable(Identifier tableName)
         {
-            if (tableName == null)
+            if (tableName == null || tableName.LocalName.IsNullOrWhiteSpace())
                 throw new ArgumentNullException(nameof(tableName));
 
             tableName = CreateQualifiedIdentifier(tableName);
@@ -87,7 +87,7 @@ namespace SJP.Schema.Modelled.Reflection
 
         public Task<IRelationalDatabaseTable> GetTableAsync(Identifier tableName)
         {
-            if (tableName == null)
+            if (tableName == null || tableName.LocalName.IsNullOrWhiteSpace())
                 throw new ArgumentNullException(nameof(tableName));
 
             tableName = CreateQualifiedIdentifier(tableName);
@@ -152,7 +152,7 @@ namespace SJP.Schema.Modelled.Reflection
 
         public bool ViewExists(Identifier viewName)
         {
-            if (viewName == null)
+            if (viewName == null || viewName.LocalName.IsNullOrWhiteSpace())
                 throw new ArgumentNullException(nameof(viewName));
 
             viewName = CreateQualifiedIdentifier(viewName);
@@ -161,7 +161,7 @@ namespace SJP.Schema.Modelled.Reflection
 
         public Task<bool> ViewExistsAsync(Identifier viewName)
         {
-            if (viewName == null)
+            if (viewName == null || viewName.LocalName.IsNullOrWhiteSpace())
                 throw new ArgumentNullException(nameof(viewName));
 
             viewName = CreateQualifiedIdentifier(viewName);
@@ -171,7 +171,7 @@ namespace SJP.Schema.Modelled.Reflection
 
         public IRelationalDatabaseView GetView(Identifier viewName)
         {
-            if (viewName == null)
+            if (viewName == null || viewName.LocalName.IsNullOrWhiteSpace())
                 throw new ArgumentNullException(nameof(viewName));
 
             viewName = CreateQualifiedIdentifier(viewName);
@@ -180,7 +180,7 @@ namespace SJP.Schema.Modelled.Reflection
 
         public Task<IRelationalDatabaseView> GetViewAsync(Identifier viewName)
         {
-            if (viewName == null)
+            if (viewName == null || viewName.LocalName.IsNullOrWhiteSpace())
                 throw new ArgumentNullException(nameof(viewName));
 
             viewName = CreateQualifiedIdentifier(viewName);
@@ -245,7 +245,7 @@ namespace SJP.Schema.Modelled.Reflection
 
         public bool SequenceExists(Identifier sequenceName)
         {
-            if (sequenceName == null)
+            if (sequenceName == null || sequenceName.LocalName.IsNullOrWhiteSpace())
                 throw new ArgumentNullException(nameof(sequenceName));
 
             sequenceName = CreateQualifiedIdentifier(sequenceName);
@@ -254,7 +254,7 @@ namespace SJP.Schema.Modelled.Reflection
 
         public Task<bool> SequenceExistsAsync(Identifier sequenceName)
         {
-            if (sequenceName == null)
+            if (sequenceName == null || sequenceName.LocalName.IsNullOrWhiteSpace())
                 throw new ArgumentNullException(nameof(sequenceName));
 
             sequenceName = CreateQualifiedIdentifier(sequenceName);
@@ -264,7 +264,7 @@ namespace SJP.Schema.Modelled.Reflection
 
         public IDatabaseSequence GetSequence(Identifier sequenceName)
         {
-            if (sequenceName == null)
+            if (sequenceName == null || sequenceName.LocalName.IsNullOrWhiteSpace())
                 throw new ArgumentNullException(nameof(sequenceName));
 
             sequenceName = CreateQualifiedIdentifier(sequenceName);
@@ -273,7 +273,7 @@ namespace SJP.Schema.Modelled.Reflection
 
         public Task<IDatabaseSequence> GetSequenceAsync(Identifier sequenceName)
         {
-            if (sequenceName == null)
+            if (sequenceName == null || sequenceName.LocalName.IsNullOrWhiteSpace())
                 throw new ArgumentNullException(nameof(sequenceName));
 
             sequenceName = CreateQualifiedIdentifier(sequenceName);
@@ -338,7 +338,7 @@ namespace SJP.Schema.Modelled.Reflection
 
         public bool SynonymExists(Identifier synonymName)
         {
-            if (synonymName == null)
+            if (synonymName == null || synonymName.LocalName.IsNullOrWhiteSpace())
                 throw new ArgumentNullException(nameof(synonymName));
 
             synonymName = CreateQualifiedIdentifier(synonymName);
@@ -347,7 +347,7 @@ namespace SJP.Schema.Modelled.Reflection
 
         public Task<bool> SynonymExistsAsync(Identifier synonymName)
         {
-            if (synonymName == null)
+            if (synonymName == null || synonymName.LocalName.IsNullOrWhiteSpace())
                 throw new ArgumentNullException(nameof(synonymName));
 
             synonymName = CreateQualifiedIdentifier(synonymName);
@@ -357,7 +357,7 @@ namespace SJP.Schema.Modelled.Reflection
 
         public IDatabaseSynonym GetSynonym(Identifier synonymName)
         {
-            if (synonymName == null)
+            if (synonymName == null || synonymName.LocalName.IsNullOrWhiteSpace())
                 throw new ArgumentNullException(nameof(synonymName));
 
             synonymName = CreateQualifiedIdentifier(synonymName);
@@ -366,7 +366,7 @@ namespace SJP.Schema.Modelled.Reflection
 
         public Task<IDatabaseSynonym> GetSynonymAsync(Identifier synonymName)
         {
-            if (synonymName == null)
+            if (synonymName == null || synonymName.LocalName.IsNullOrWhiteSpace())
                 throw new ArgumentNullException(nameof(synonymName));
 
             synonymName = CreateQualifiedIdentifier(synonymName);
@@ -433,7 +433,7 @@ namespace SJP.Schema.Modelled.Reflection
 
         public bool TriggerExists(Identifier triggerName)
         {
-            if (triggerName == null)
+            if (triggerName == null || triggerName.LocalName.IsNullOrWhiteSpace())
                 throw new ArgumentNullException(nameof(triggerName));
 
             throw new NotImplementedException();
@@ -441,7 +441,7 @@ namespace SJP.Schema.Modelled.Reflection
 
         public Task<bool> TriggerExistsAsync(Identifier triggerName)
         {
-            if (triggerName == null)
+            if (triggerName == null || triggerName.LocalName.IsNullOrWhiteSpace())
                 throw new ArgumentNullException(nameof(triggerName));
 
             throw new NotImplementedException();
@@ -449,7 +449,7 @@ namespace SJP.Schema.Modelled.Reflection
 
         public IDatabaseTrigger GetTrigger(Identifier triggerName)
         {
-            if (triggerName == null)
+            if (triggerName == null || triggerName.LocalName.IsNullOrWhiteSpace())
                 throw new ArgumentNullException(nameof(triggerName));
 
             throw new NotImplementedException();
@@ -457,7 +457,7 @@ namespace SJP.Schema.Modelled.Reflection
 
         public Task<IDatabaseTrigger> GetTriggerAsync(Identifier triggerName)
         {
-            if (triggerName == null)
+            if (triggerName == null || triggerName.LocalName.IsNullOrWhiteSpace())
                 throw new ArgumentNullException(nameof(triggerName));
 
             throw new NotImplementedException();
@@ -482,7 +482,7 @@ namespace SJP.Schema.Modelled.Reflection
 
         protected Identifier CreateQualifiedIdentifier(Identifier identifier)
         {
-            if (identifier == null)
+            if (identifier == null || identifier.LocalName.IsNullOrWhiteSpace())
                 throw new ArgumentNullException(nameof(identifier));
 
             identifier = identifier.Schema.IsNullOrWhiteSpace() && !DefaultSchema.IsNullOrWhiteSpace()

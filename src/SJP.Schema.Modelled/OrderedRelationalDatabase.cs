@@ -1,5 +1,4 @@
 ﻿using SJP.Schema.Core;
-using SJP.Schema.Core.Utilities;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -87,10 +86,7 @@ namespace SJP.Schema.Modelled
                 throw new ArgumentNullException(nameof(tableName));
 
             var db = Databases.FirstOrDefault(d => d.TableExists(tableName));
-            if (db == null)
-                return null;
-
-            return db.GetTable(tableName);
+            return db?.GetTable(tableName);
         }
 
         protected virtual async Task<IRelationalDatabaseTable> LoadTableAsync(Identifier tableName)
@@ -100,7 +96,7 @@ namespace SJP.Schema.Modelled
 
             var tables = Databases.Select(d => d.GetTableAsync(tableName)).ToArray();
             var tablesTask = await Task.WhenAll(tables);
-            return tablesTask.FirstOrDefault(t => t != null);
+            return Array.Find(tablesTask, t => t != null);
         }
 
         #endregion Tables
@@ -160,10 +156,7 @@ namespace SJP.Schema.Modelled
                 throw new ArgumentNullException(nameof(viewName));
 
             var db = Databases.FirstOrDefault(d => d.ViewExists(viewName));
-            if (db == null)
-                return null;
-
-            return db.GetView(viewName);
+            return db?.GetView(viewName);
         }
 
         protected virtual async Task<IRelationalDatabaseView> LoadViewAsync(Identifier viewName)
@@ -236,10 +229,7 @@ namespace SJP.Schema.Modelled
                 throw new ArgumentNullException(nameof(sequenceName));
 
             var db = Databases.FirstOrDefault(d => d.SequenceExists(sequenceName));
-            if (db == null)
-                return null;
-
-            return db.GetSequence(sequenceName);
+            return db?.GetSequence(sequenceName);
         }
 
         protected virtual async Task<IDatabaseSequence> LoadSequenceAsync(Identifier sequenceName)
@@ -309,10 +299,7 @@ namespace SJP.Schema.Modelled
                 throw new ArgumentNullException(nameof(synonymName));
 
             var db = Databases.FirstOrDefault(d => d.SynonymExists(synonymName));
-            if (db == null)
-                return null;
-
-            return db.GetSynonym(synonymName);
+            return db?.GetSynonym(synonymName);
         }
 
         protected virtual async Task<IDatabaseSynonym> LoadSynonymAsync(Identifier synonymName)
@@ -382,10 +369,7 @@ namespace SJP.Schema.Modelled
                 throw new ArgumentNullException(nameof(triggerName));
 
             var db = Databases.FirstOrDefault(d => d.TriggerExists(triggerName));
-            if (db == null)
-                return null;
-
-            return db.GetTrigger(triggerName);
+            return db?.GetTrigger(triggerName);
         }
 
         protected virtual async Task<IDatabaseTrigger> LoadTriggerAsync(Identifier triggerName)
