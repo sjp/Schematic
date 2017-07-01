@@ -4,5 +4,7 @@ using System.Text;
 
 namespace SJP.Schema.Core
 {
-    public interface IRelationalDatabaseTable : IDatabaseQueryable, IRelationalDatabaseTableSync, IRelationalDatabaseTableAsync { }
+    public interface IRelationalDatabaseTable : IDatabaseQueryable, IRelationalDatabaseTableSync, IRelationalDatabaseTableAsync
+    {
+    }
 }

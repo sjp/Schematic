@@ -52,27 +52,18 @@ namespace SJP.Schema.Sqlite
         private async Task<IEnumerable<Identifier>> LoadDependentsAsync()
         {
             //var results = new List<Identifier>();
-
-
             // TODO: use views and child keys somehow..
-
-
             var result = await Task.FromResult(Enumerable.Empty<Identifier>());
             return result;
-
             //return results;
         }
 
         private async Task<IEnumerable<Identifier>> LoadDependenciesAsync()
         {
             //var results = new List<Identifier>();
-
             // TODO: use foreign keys and maybe parse check constraints...?
-
-
             var result = await Task.FromResult(Enumerable.Empty<Identifier>());
             return result;
-
             //return results;
         }
 
