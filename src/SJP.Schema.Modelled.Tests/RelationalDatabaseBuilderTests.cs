@@ -9,5 +9,11 @@ namespace SJP.Schema.Modelled.Tests
     [TestFixture]
     public class RelationalDatabaseBuilderTests
     {
+        [Test]
+        public void ThrowsErrorOnMissingCtorArgs()
+        {
+            Assert.Throws<ArgumentNullException>(() => new RelationalDatabaseBuilder((IDependentRelationalDatabase)null));
+            Assert.Throws<ArgumentNullException>(() => new RelationalDatabaseBuilder((Func<IDependentRelationalDatabase>)null));
+        }
     }
 }

@@ -4,13 +4,29 @@ image: Visual Studio 2017
 install:
   - cmd: dotnet restore src
 
-test: off
+# build platform, i.e. x86, x64, Any CPU. This setting is optional.
+platform: Any CPU
 
-#services: mssql2016
+# build Configuration, i.e. Debug, Release, etc.
+configuration: Release
+
+services: mssql2016
 
 build:
   verbosity: minimal
-  
+
+test_script:
+  - dotnet test src/SJP.Schema.Core.Tests/SJP.Schema.Core.Tests.csproj --configuration Release --logger:trx;LogFileName=SJP.Schema.Core.Tests.results.xml
+  - ps: build/uploadtests.ps1 "src/SJP.Schema.Core.Tests/TestResults/SJP.Schema.Core.Tests.results.xml"
+  - dotnet test src/SJP.Schema.Modelled.Tests/SJP.Schema.Modelled.Tests.csproj --configuration Release --logger:trx;LogFileName=SJP.Schema.Modelled.Tests.results.xml
+  - ps: build/uploadtests.ps1 "src/SJP.Schema.Modelled.Tests/TestResults/SJP.Schema.Modelled.Tests.results.xml"
+  - dotnet test src/SJP.Schema.Modelled.Reflection.Tests/SJP.Schema.Modelled.Reflection.Tests.csproj --configuration Release --logger:trx;LogFileName=SJP.Schema.Modelled.Reflection.Tests.results.xml
+  - ps: build/uploadtests.ps1 "src/SJP.Schema.Modelled.Reflection.Tests/TestResults/SJP.Schema.Modelled.Reflection.Tests.results.xml"
+  - dotnet test src/SJP.Schema.Sqlite.Tests/SJP.Schema.Sqlite.Tests.csproj --configuration Release --logger:trx;LogFileName=SJP.Schema.Sqlite.Tests.results.xml
+  - ps: build/uploadtests.ps1 "src/SJP.Schema.Sqlite.Tests/TestResults/SJP.Schema.Sqlite.Tests.results.xml"
+  - dotnet test src/SJP.Schema.SqlServer.Tests/SJP.Schema.SqlServer.Tests.csproj --configuration Release --logger:trx;LogFileName=SJP.Schema.SqlServer.Tests.results.xml
+  - ps: build/uploadtests.ps1 "src/SJP.Schema.SqlServer.Tests/TestResults/SJP.Schema.SqlServer.Tests.results.xml"
+
 notifications:
 - provider: Email
   to:
