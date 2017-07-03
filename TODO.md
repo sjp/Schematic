@@ -1,8 +1,12 @@
 # TODO
 
-* Get unit and integration tests working on AppVeyor once we can run the new
-  `dotnet test` tooling on it. Should be able to run every DB vendor through
-  AppVeyor except for Oracle (no surprises there...).
+* Get code coverage working on codecov.io. Requires improvements to OpenCover
+  in order to support .NET Core test projects.
+
+* Test data generator based on schema that we already have available. This
+  should have knowledge of nullability and data length in order to assist with
+  data generation. We should be able to generate things like names, credit cards,
+  etc for realistic data.
 
 * Use Sigil for reflection? Is it worthwhile or perhaps just use Fasterflect
   if it's beneficial.
