@@ -54,17 +54,3 @@
 * Because of Oracle's case sensitivity behaviour, quote only when necessary, makes
   working with the database much easier as a user rather than having to match the
   case all of the time.
-
-* Rather than introducing caching into the relational database layer, add it on top.
-  This means that a cached relational database should be something like:
-
-  ```csharp
-  var db = new SqlServerRelationalDatabase(...);
-  var cachedDb = db.WithCache<IRelationalDatabaseCache>();
-  // or
-  var cachedDb = new InMemoryDatabaseCache(db);
-  ```
-  Caching has been removed from the non-static relational databases. It remains only in the
-  reflection relational database. For this to be incorrect after initial load someone would
-  have to be generating types via type builder. This is definitely not supported as we want
-  compile-time safety, *not* runtime safety.

@@ -77,4 +77,18 @@ namespace SJP.Schema.Core
             return new ReadOnlyDictionary<TKey, TValue>(source);
         }
     }
+
+    public static class CachingExtensions
+    {
+        public static IRelationalDatabase AsCachedDatabase(this IRelationalDatabase database)
+        {
+            if (database == null)
+                throw new ArgumentNullException(nameof(database));
+
+            var cachedDb = database as CachedRelationalDatabase;
+            return cachedDb != null
+                ? cachedDb
+                : new CachedRelationalDatabase(database);
+        }
+    }
 }
