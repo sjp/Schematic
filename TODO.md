@@ -12,7 +12,8 @@
 * Create dummy output for databases so that scripts can be generated (perhaps
   a dry-run option?)
 
-* Use string resources for translation -- primarily exception messages are affected.
+* Use string resources for translation. Leave as-is for exception messages, but
+  for any user-facing applications, ensure that all visible messages are translated.
 
 * Simplify type declarations and descriptions as much as possible. Want it to be
   painless and easy.
