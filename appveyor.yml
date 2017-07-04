@@ -2,6 +2,7 @@ version: 1.0.{build}
 image: Visual Studio 2017
 
 install:
+  - cmd: dotnet --info
   - cmd: dotnet restore src
 
 # build platform, i.e. x86, x64, Any CPU. This setting is optional.
