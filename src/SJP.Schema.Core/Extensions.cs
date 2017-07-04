@@ -69,7 +69,7 @@ namespace SJP.Schema.Core
 
     public static class ReadOnlyExtensions
     {
-        public static IReadOnlyDictionary<TKey, TValue> ToReadOnlyDictionary<TKey, TValue>(this IDictionary<TKey, TValue> source)
+        public static IReadOnlyDictionary<TKey, TValue> AsReadOnlyDictionary<TKey, TValue>(this IDictionary<TKey, TValue> source)
         {
             if (source == null)
                 throw new ArgumentNullException(nameof(source));
@@ -86,9 +86,7 @@ namespace SJP.Schema.Core
                 throw new ArgumentNullException(nameof(database));
 
             var cachedDb = database as CachedRelationalDatabase;
-            return cachedDb != null
-                ? cachedDb
-                : new CachedRelationalDatabase(database);
+            return cachedDb ?? new CachedRelationalDatabase(database);
         }
     }
 }

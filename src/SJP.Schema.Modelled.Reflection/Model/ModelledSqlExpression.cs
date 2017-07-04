@@ -154,7 +154,7 @@ namespace SJP.Schema.Modelled.Reflection.Model
             }
         }
 
-        private static IReadOnlyDictionary<string, object> EmptyLookup { get; } = new Dictionary<string, object>().ToReadOnlyDictionary();
+        private static IReadOnlyDictionary<string, object> EmptyLookup { get; } = new Dictionary<string, object>().AsReadOnlyDictionary();
 
         private static IReadOnlyDictionary<string, object> ObjectToDictionary(object param)
         {
@@ -172,7 +172,7 @@ namespace SJP.Schema.Modelled.Reflection.Model
                 result[propName] = propValue ?? throw new ArgumentException($"The property { propName } on the given parameter object is null. A value must be set", nameof(param));
             }
 
-            return result.ToReadOnlyDictionary();
+            return result.AsReadOnlyDictionary();
         }
 
         protected static string UnwrapTokenValue(Token<ExpressionToken> token)

@@ -143,7 +143,7 @@ namespace SJP.Schema.Modelled.Reflection
                 throw new Exception(message);
             }
 
-            return result.ToReadOnlyDictionary();
+            return result.AsReadOnlyDictionary();
         }
 
         #endregion Tables
@@ -236,7 +236,7 @@ namespace SJP.Schema.Modelled.Reflection
                 throw new Exception(message);
             }
 
-            return result.ToReadOnlyDictionary();
+            return result.AsReadOnlyDictionary();
         }
 
         #endregion Views
@@ -329,7 +329,7 @@ namespace SJP.Schema.Modelled.Reflection
                 throw new Exception(message);
             }
 
-            return result.ToReadOnlyDictionary();
+            return result.AsReadOnlyDictionary();
         }
 
         #endregion Sequences
@@ -422,7 +422,7 @@ namespace SJP.Schema.Modelled.Reflection
                 throw new Exception(message);
             }
 
-            return result.ToReadOnlyDictionary();
+            return result.AsReadOnlyDictionary();
         }
 
         #endregion Synonyms

@@ -59,3 +59,7 @@
 * Because of Oracle's case sensitivity behaviour, quote only when necessary, makes
   working with the database much easier as a user rather than having to match the
   case all of the time.
+
+* Improve caching on all dependent objects. Needs to be able to handle tables, views, etc.
+  Probably need to add an interface to know whether results are cached and that we can get
+  better extension methods for it.

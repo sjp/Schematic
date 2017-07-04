@@ -178,7 +178,7 @@ namespace SJP.Schema.Modelled.Reflection
                 result[childKey.Name.LocalName] = new ReflectionRelationalKey(childKey, parentKey, deleteAction, updateAction);
             }
 
-            return result.ToReadOnlyDictionary();
+            return result.AsReadOnlyDictionary();
         }
 
         private readonly static IReadOnlyDictionary<ForeignKeyAction, RelationalKeyUpdateAction> _updateActionMapping = new Dictionary<ForeignKeyAction, RelationalKeyUpdateAction>
@@ -256,7 +256,7 @@ namespace SJP.Schema.Modelled.Reflection
                 result[refIndex.Name.LocalName] = refIndex;
             }
 
-            return result.ToReadOnlyDictionary();
+            return result.AsReadOnlyDictionary();
         }
 
         private IReadOnlyDictionary<string, IDatabaseKey> LoadUniqueKeys()
@@ -294,7 +294,7 @@ namespace SJP.Schema.Modelled.Reflection
 
             // TODO add check to ensure that column lists do not match primary key
 
-            return result.ToReadOnlyDictionary();
+            return result.AsReadOnlyDictionary();
         }
 
         private IReadOnlyDictionary<string, IDatabaseCheckConstraint> LoadChecks()
@@ -319,7 +319,7 @@ namespace SJP.Schema.Modelled.Reflection
                 result[check.Name.LocalName] = check;
             }
 
-            return result.ToReadOnlyDictionary();
+            return result.AsReadOnlyDictionary();
         }
 
         private IReadOnlyDictionary<string, IDatabaseTableColumn> LoadColumns()
@@ -333,7 +333,7 @@ namespace SJP.Schema.Modelled.Reflection
                 result[column.Name.LocalName] = column;
             }
 
-            return result.ToReadOnlyDictionary();
+            return result.AsReadOnlyDictionary();
         }
 
         protected virtual IDatabaseTableColumn GetColumnFromProperty(PropertyInfo propInfo)
