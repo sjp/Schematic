@@ -7,10 +7,6 @@ namespace SJP.Schema.Sqlite
 {
     public class SqliteDialect : DatabaseDialect<SqliteDialect>
     {
-        private SqliteDialect() { } // hide ctor
-
-        public static IDatabaseDialect Instance { get; } = new SqliteDialect();
-
         public override IDbConnection CreateConnection(string connectionString, bool openConnection = true)
         {
             var connection = new SqliteConnection(connectionString);

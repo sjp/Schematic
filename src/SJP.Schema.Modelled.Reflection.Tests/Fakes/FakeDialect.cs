@@ -8,10 +8,6 @@ namespace SJP.Schema.Modelled.Reflection.Tests.Fakes
 {
     public class FakeDialect : DatabaseDialect<FakeDialect>
     {
-        private FakeDialect() { }
-
-        public static IDatabaseDialect Instance { get; } = new FakeDialect();
-
         public override IDbConnection CreateConnection(string connectionString, bool openConnection = true) => null;
 
         public override string GetTypeName(DataType dataType) => "int";

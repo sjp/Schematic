@@ -18,7 +18,7 @@ namespace SJP.Schema.Sqlite.Tests
         [Test]
         public void MissingConnectionThrowsException()
         {
-            Assert.Throws<ArgumentNullException>(() => new SqliteRelationalDatabase(SqliteDialect.Instance, null));
+            Assert.Throws<ArgumentNullException>(() => new SqliteRelationalDatabase(new SqliteDialect(), null));
         }
     }
 }

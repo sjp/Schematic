@@ -8,10 +8,6 @@ namespace SJP.Schema.SqlServer
 {
     public class SqlServerDialect : DatabaseDialect<SqlServerDialect>
     {
-        private SqlServerDialect() { }
-
-        public static IDatabaseDialect Instance { get; } = new SqlServerDialect();
-
         public override IDbConnection CreateConnection(string connectionString, bool openConnection = true)
         {
             var connection = new SqlConnection(connectionString);

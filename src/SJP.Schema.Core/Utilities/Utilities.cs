@@ -8,7 +8,7 @@ namespace SJP.Schema.Core.Utilities
 {
     public class IdentifierLookup<TValue> : IReadOnlyDictionary<Identifier, TValue>
     {
-        public IdentifierLookup(string defaultSchema, IReadOnlyDictionary<Identifier, TValue> store)
+        public IdentifierLookup(IReadOnlyDictionary<Identifier, TValue> store, string defaultSchema = null)
         {
             if (defaultSchema.IsNullOrWhiteSpace())
                 _defaultSchema = null;
@@ -57,7 +57,7 @@ namespace SJP.Schema.Core.Utilities
 
         IEnumerator IEnumerable.GetEnumerator() => _store.GetEnumerator();
 
-        private Identifier CreateQualifiedName(Identifier source)
+        protected virtual Identifier CreateQualifiedName(Identifier source)
         {
             var localName = source.LocalName;
             var schemaName = source.Schema;

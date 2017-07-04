@@ -7,7 +7,7 @@ namespace SJP.Schema.SqlServer.Tests.Integration
 {
     internal static class Config
     {
-        public static IDbConnection Connection => SqlServerDialect.Instance.CreateConnection(ConnectionString);
+        public static IDbConnection Connection => new SqlServerDialect().CreateConnection(ConnectionString);
 
         private static string ConnectionString => Configuration.GetConnectionString("TestDb");
 
@@ -30,6 +30,6 @@ namespace SJP.Schema.SqlServer.Tests.Integration
     {
         protected IDbConnection Connection { get; } = Config.Connection;
 
-        protected IDatabaseDialect Dialect { get; } = SqlServerDialect.Instance;
+        protected IDatabaseDialect Dialect { get; } = new SqlServerDialect();
     }
 }

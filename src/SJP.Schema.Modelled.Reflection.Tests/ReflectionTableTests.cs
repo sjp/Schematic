@@ -22,7 +22,7 @@ namespace SJP.Schema.Modelled.Reflection.Tests
         [Test]
         public void ReflectionDatabaseThrowsArgumentExceptions()
         {
-            var dialect = FakeDialect.Instance;
+            var dialect = new FakeDialect();
             var dbType = typeof(SampleDatabase);
             Assert.Throws<ArgumentNullException>(() => new ReflectionRelationalDatabase(null, dbType));
             Assert.Throws<ArgumentNullException>(() => new ReflectionRelationalDatabase(dialect, null));
@@ -31,7 +31,7 @@ namespace SJP.Schema.Modelled.Reflection.Tests
         [Test]
         public void ReflectionDatabaseTestTableExists()
         {
-            var db = new ReflectionRelationalDatabase<SampleDatabase>(FakeDialect.Instance);
+            var db = new ReflectionRelationalDatabase<SampleDatabase>(new FakeDialect());
             var tableExists = db.TableExists("TestTable1");
             Assert.IsTrue(tableExists);
         }
@@ -39,7 +39,7 @@ namespace SJP.Schema.Modelled.Reflection.Tests
         [Test]
         public void ReflectionDatabaseTestTableExistsWithCaseInsensitiveName()
         {
-            var db = new ReflectionRelationalDatabase<SampleDatabase>(FakeDialect.Instance);
+            var db = new ReflectionRelationalDatabase<SampleDatabase>(new FakeDialect());
             var tableExists = db.TableExists("testtable1");
             Assert.IsTrue(tableExists);
         }
@@ -47,7 +47,7 @@ namespace SJP.Schema.Modelled.Reflection.Tests
         [Test]
         public void ReflectionDatabaseTestTableExistsWithCaseInsensitiveNameAndDefaultSchemaSet()
         {
-            var db = new ReflectionRelationalDatabase<SampleDatabase>(FakeDialect.Instance);
+            var db = new ReflectionRelationalDatabase<SampleDatabase>(new FakeDialect());
             var tableExists = db.TableExists(new Core.Identifier("testtable1"));
             Assert.IsTrue(tableExists);
         }
@@ -55,7 +55,7 @@ namespace SJP.Schema.Modelled.Reflection.Tests
         [Test]
         public void ReflectionDatabaseReturnsTestTable()
         {
-            var db = new ReflectionRelationalDatabase<SampleDatabase>(FakeDialect.Instance);
+            var db = new ReflectionRelationalDatabase<SampleDatabase>(new FakeDialect());
             var table = db.GetTable("TestTable1");
             Assert.NotNull(table);
         }
@@ -63,7 +63,7 @@ namespace SJP.Schema.Modelled.Reflection.Tests
         [Test]
         public async Task ReflectionDatabaseTestTableExistsAsync()
         {
-            var db = new ReflectionRelationalDatabase<SampleDatabase>(FakeDialect.Instance);
+            var db = new ReflectionRelationalDatabase<SampleDatabase>(new FakeDialect());
             var tableExists = await db.TableExistsAsync("TestTable1");
             Assert.IsTrue(tableExists);
         }
@@ -71,7 +71,7 @@ namespace SJP.Schema.Modelled.Reflection.Tests
         [Test]
         public async Task ReflectionDatabaseReturnsTestTableAsync()
         {
-            var db = new ReflectionRelationalDatabase<SampleDatabase>(FakeDialect.Instance);
+            var db = new ReflectionRelationalDatabase<SampleDatabase>(new FakeDialect());
             var table = await db.GetTableAsync("TestTable1");
             Assert.NotNull(table);
         }

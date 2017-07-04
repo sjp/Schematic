@@ -9,42 +9,42 @@ namespace SJP.Schema.SqlServer.Tests
         [Test]
         public void QuotingIdentifierThrowsOnNullInput()
         {
-            var dialect = SqlServerDialect.Instance;
+            var dialect = new SqlServerDialect();
             Assert.Throws<ArgumentNullException>(() => dialect.QuoteIdentifier(null));
         }
 
         [Test]
         public void QuotingIdentifierThrowsOnEmptyInput()
         {
-            var dialect = SqlServerDialect.Instance;
+            var dialect = new SqlServerDialect();
             Assert.Throws<ArgumentNullException>(() => dialect.QuoteIdentifier(string.Empty));
         }
 
         [Test]
         public void QuotingIdentifierThrowsOnWhiteSpaceInput()
         {
-            var dialect = SqlServerDialect.Instance;
+            var dialect = new SqlServerDialect();
             Assert.Throws<ArgumentNullException>(() => dialect.QuoteIdentifier("    "));
         }
 
         [Test]
         public void QuotingNameThrowsOnNullInput()
         {
-            var dialect = SqlServerDialect.Instance;
+            var dialect = new SqlServerDialect();
             Assert.Throws<ArgumentNullException>(() => dialect.QuoteName(null));
         }
 
         [Test]
         public void QuotingNameThrowsOnEmptyInput()
         {
-            var dialect = SqlServerDialect.Instance;
+            var dialect = new SqlServerDialect();
             Assert.Throws<ArgumentNullException>(() => dialect.QuoteName(string.Empty));
         }
 
         [Test]
         public void QuotingNameThrowsOnWhiteSpaceInput()
         {
-            var dialect = SqlServerDialect.Instance;
+            var dialect = new SqlServerDialect();
             Assert.Throws<ArgumentNullException>(() => dialect.QuoteName("    "));
         }
     }

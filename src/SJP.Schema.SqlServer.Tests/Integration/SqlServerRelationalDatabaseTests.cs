@@ -9,7 +9,7 @@ namespace SJP.Schema.SqlServer.Tests.Integration
     [TestFixture]
     internal class SqlServerRelationalDatabaseTests : SqlServerTest
     {
-        private IRelationalDatabase Database => new SqlServerRelationalDatabase(SqlServerDialect.Instance, Connection);
+        private IRelationalDatabase Database => new SqlServerRelationalDatabase(new SqlServerDialect(), Connection);
 
         [Test]
         public void DatabaseNameMatches()
@@ -38,7 +38,7 @@ namespace SJP.Schema.SqlServer.Tests.Integration
                 await Connection.ExecuteAsync("drop view db_test_view_1");
             }
 
-            private IRelationalDatabase Database => new SqlServerRelationalDatabase(SqlServerDialect.Instance, Connection);
+            private IRelationalDatabase Database => new SqlServerRelationalDatabase(new SqlServerDialect(), Connection);
 
             [Test]
             public void TestPresenceOfPresentViewSync()

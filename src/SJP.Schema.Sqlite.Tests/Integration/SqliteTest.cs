@@ -7,7 +7,7 @@ namespace SJP.Schema.Sqlite.Tests.Integration
 {
     internal static class Config
     {
-        public static IDbConnection Connection => SqliteDialect.Instance.CreateConnection(ConnectionString);
+        public static IDbConnection Connection => new SqliteDialect().CreateConnection(ConnectionString);
 
         private static string ConnectionString => Configuration.GetConnectionString("TestDb");
 
@@ -30,6 +30,6 @@ namespace SJP.Schema.Sqlite.Tests.Integration
     {
         protected IDbConnection Connection { get; } = Config.Connection;
 
-        protected IDatabaseDialect Dialect { get; } = SqliteDialect.Instance;
+        protected IDatabaseDialect Dialect { get; } = new SqliteDialect();
     }
 }

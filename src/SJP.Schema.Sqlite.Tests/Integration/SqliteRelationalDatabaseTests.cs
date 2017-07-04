@@ -9,7 +9,7 @@ namespace SJP.Schema.Sqlite.Tests.Integration
     [TestFixture]
     internal class SqliteRelationalDatabaseTests : SqliteTest
     {
-        private IRelationalDatabase Database => new SqliteRelationalDatabase(SqliteDialect.Instance, Connection);
+        private IRelationalDatabase Database => new SqliteRelationalDatabase(new SqliteDialect(), Connection);
 
         [Test]
         public void DatabaseNameMatches()
@@ -38,7 +38,7 @@ namespace SJP.Schema.Sqlite.Tests.Integration
                 await Connection.ExecuteAsync("drop table db_test_table_presence");
             }
 
-            private IRelationalDatabase Database => new SqliteRelationalDatabase(SqliteDialect.Instance, Connection);
+            private IRelationalDatabase Database => new SqliteRelationalDatabase(new SqliteDialect(), Connection);
 
             [Test]
             public void TableExistsThrowsExceptionOnMissingName()
@@ -98,7 +98,7 @@ namespace SJP.Schema.Sqlite.Tests.Integration
                 await Connection.ExecuteAsync("drop view db_test_view_presence");
             }
 
-            private IRelationalDatabase Database => new SqliteRelationalDatabase(SqliteDialect.Instance, Connection);
+            private IRelationalDatabase Database => new SqliteRelationalDatabase(new SqliteDialect(), Connection);
 
             [Test]
             public void ViewExistsThrowsExceptionOnMissingName()

@@ -18,7 +18,7 @@ namespace SJP.Schema.SqlServer.Tests
         [Test]
         public void MissingConnectionThrowsException()
         {
-            Assert.Throws<ArgumentNullException>(() => new SqlServerRelationalDatabase(SqlServerDialect.Instance, null));
+            Assert.Throws<ArgumentNullException>(() => new SqlServerRelationalDatabase(new SqlServerDialect(), null));
         }
     }
 }
