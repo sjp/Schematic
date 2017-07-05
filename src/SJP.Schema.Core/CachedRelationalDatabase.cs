@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reactive.Linq;
-using System.Reactive.Threading.Tasks;
 using System.Threading.Tasks;
 using SJP.Schema.Core.Utilities;
 
@@ -10,15 +9,16 @@ namespace SJP.Schema.Core
 {
     public class CachedRelationalDatabase : IRelationalDatabase
     {
-        public CachedRelationalDatabase(IRelationalDatabase database)
+        public CachedRelationalDatabase(IRelationalDatabase database, IdentifierComparer comparer = null)
         {
             Database = database ?? throw new ArgumentNullException(nameof(database));
+            comparer = comparer ?? new IdentifierComparer(StringComparer.Ordinal, database.DefaultSchema);
 
-            Table = new AsyncCache<Identifier, IRelationalDatabaseTable>(LoadTableAsync);
-            View = new AsyncCache<Identifier, IRelationalDatabaseView>(LoadViewAsync);
-            Sequence = new AsyncCache<Identifier, IDatabaseSequence>(LoadSequenceAsync);
-            Synonym = new AsyncCache<Identifier, IDatabaseSynonym>(LoadSynonymAsync);
-            Trigger = new AsyncCache<Identifier, IDatabaseTrigger>(LoadTriggerAsync);
+            Table = new IdentifierLookup<IRelationalDatabaseTable>(LoadTableSync, comparer);
+            View = new IdentifierLookup<IRelationalDatabaseView>(LoadViewSync, comparer);
+            Sequence = new IdentifierLookup<IDatabaseSequence>(LoadSequenceSync, comparer);
+            Synonym = new IdentifierLookup<IDatabaseSynonym>(LoadSynonymSync, comparer);
+            Trigger = new IdentifierLookup<IDatabaseTrigger>(LoadTriggerSync, comparer);
         }
 
         public IDatabaseDialect Dialect => Database.Dialect;
@@ -31,14 +31,14 @@ namespace SJP.Schema.Core
 
         #region Tables
 
-        protected AsyncCache<Identifier, IRelationalDatabaseTable> Table { get; }
+        protected IReadOnlyDictionary<Identifier, IRelationalDatabaseTable> Table { get; }
 
         public bool TableExists(Identifier tableName)
         {
             if (tableName == null || tableName.LocalName.IsNullOrWhiteSpace())
                 throw new ArgumentNullException(nameof(tableName));
 
-            return Database.TableExists(tableName);
+            return Table.ContainsKey(tableName);
         }
 
         public Task<bool> TableExistsAsync(Identifier tableName)
@@ -46,7 +46,7 @@ namespace SJP.Schema.Core
             if (tableName == null || tableName.LocalName.IsNullOrWhiteSpace())
                 throw new ArgumentNullException(nameof(tableName));
 
-            return Database.TableExistsAsync(tableName);
+            return Task.FromResult(Table.ContainsKey(tableName));
         }
 
         public IRelationalDatabaseTable GetTable(Identifier tableName)
@@ -54,7 +54,8 @@ namespace SJP.Schema.Core
             if (tableName == null || tableName.LocalName.IsNullOrWhiteSpace())
                 throw new ArgumentNullException(nameof(tableName));
 
-            return LoadTableSync(tableName);
+            Table.TryGetValue(tableName, out var table);
+            return table;
         }
 
         public Task<IRelationalDatabaseTable> GetTableAsync(Identifier tableName)
@@ -62,7 +63,8 @@ namespace SJP.Schema.Core
             if (tableName == null || tableName.LocalName.IsNullOrWhiteSpace())
                 throw new ArgumentNullException(nameof(tableName));
 
-            return LoadTableAsync(tableName);
+            Table.TryGetValue(tableName, out var table);
+            return Task.FromResult(table);
         }
 
         public IEnumerable<IRelationalDatabaseTable> Tables
@@ -70,7 +72,7 @@ namespace SJP.Schema.Core
             get
             {
                 return Database.Tables
-                    .Select(t => Table[t.Name].Result)
+                    .Select(t => Table[t.Name])
                     .Where(t => t != null);
             }
         }
@@ -78,7 +80,7 @@ namespace SJP.Schema.Core
         public IObservable<IRelationalDatabaseTable> TablesAsync()
         {
             return Database.TablesAsync()
-                .SelectMany(t => Table[t.Name].ToObservable())
+                .Select(t => Table[t.Name])
                 .Where(t => t != null);
         }
 
@@ -87,7 +89,8 @@ namespace SJP.Schema.Core
             if (tableName == null || tableName.LocalName.IsNullOrWhiteSpace())
                 throw new ArgumentNullException(nameof(tableName));
 
-            return Table[tableName].Result;
+            tableName = CreateQualifiedIdentifier(tableName);
+            return Database.GetTable(tableName);
         }
 
         protected virtual Task<IRelationalDatabaseTable> LoadTableAsync(Identifier tableName)
@@ -103,14 +106,14 @@ namespace SJP.Schema.Core
 
         #region Views
 
-        protected AsyncCache<Identifier, IRelationalDatabaseView> View { get; }
+        protected IReadOnlyDictionary<Identifier, IRelationalDatabaseView> View { get; }
 
         public bool ViewExists(Identifier viewName)
         {
             if (viewName == null || viewName.LocalName.IsNullOrWhiteSpace())
                 throw new ArgumentNullException(nameof(viewName));
 
-            return Database.ViewExists(viewName);
+            return View.ContainsKey(viewName);
         }
 
         public Task<bool> ViewExistsAsync(Identifier viewName)
@@ -118,7 +121,7 @@ namespace SJP.Schema.Core
             if (viewName == null || viewName.LocalName.IsNullOrWhiteSpace())
                 throw new ArgumentNullException(nameof(viewName));
 
-            return Database.ViewExistsAsync(viewName);
+            return Task.FromResult(View.ContainsKey(viewName));
         }
 
         public IRelationalDatabaseView GetView(Identifier viewName)
@@ -126,7 +129,8 @@ namespace SJP.Schema.Core
             if (viewName == null || viewName.LocalName.IsNullOrWhiteSpace())
                 throw new ArgumentNullException(nameof(viewName));
 
-            return LoadViewSync(viewName);
+            View.TryGetValue(viewName, out var view);
+            return view;
         }
 
         public Task<IRelationalDatabaseView> GetViewAsync(Identifier viewName)
@@ -134,7 +138,8 @@ namespace SJP.Schema.Core
             if (viewName == null || viewName.LocalName.IsNullOrWhiteSpace())
                 throw new ArgumentNullException(nameof(viewName));
 
-            return LoadViewAsync(viewName);
+            View.TryGetValue(viewName, out var view);
+            return Task.FromResult(view);
         }
 
         public IEnumerable<IRelationalDatabaseView> Views
@@ -142,7 +147,7 @@ namespace SJP.Schema.Core
             get
             {
                 return Database.Views
-                    .Select(v => View[v.Name].Result)
+                    .Select(v => View[v.Name])
                     .Where(v => v != null);
             }
         }
@@ -150,7 +155,7 @@ namespace SJP.Schema.Core
         public IObservable<IRelationalDatabaseView> ViewsAsync()
         {
             return Database.ViewsAsync()
-                .SelectMany(v => View[v.Name].ToObservable())
+                .Select(v => View[v.Name])
                 .Where(v => v != null);
         }
 
@@ -159,7 +164,8 @@ namespace SJP.Schema.Core
             if (viewName == null || viewName.LocalName.IsNullOrWhiteSpace())
                 throw new ArgumentNullException(nameof(viewName));
 
-            return LoadViewAsync(viewName).Result;
+            viewName = CreateQualifiedIdentifier(viewName);
+            return Database.GetView(viewName);
         }
 
         protected virtual Task<IRelationalDatabaseView> LoadViewAsync(Identifier viewName)
@@ -175,14 +181,14 @@ namespace SJP.Schema.Core
 
         #region Sequences
 
-        protected AsyncCache<Identifier, IDatabaseSequence> Sequence { get; }
+        protected IReadOnlyDictionary<Identifier, IDatabaseSequence> Sequence { get; }
 
         public bool SequenceExists(Identifier sequenceName)
         {
             if (sequenceName == null)
                 throw new ArgumentNullException(nameof(sequenceName));
 
-            return Database.SequenceExists(sequenceName);
+            return Sequence.ContainsKey(sequenceName);
         }
 
         public Task<bool> SequenceExistsAsync(Identifier sequenceName)
@@ -190,7 +196,7 @@ namespace SJP.Schema.Core
             if (sequenceName == null || sequenceName.LocalName.IsNullOrWhiteSpace())
                 throw new ArgumentNullException(nameof(sequenceName));
 
-            return Database.SequenceExistsAsync(sequenceName);
+            return Task.FromResult(Sequence.ContainsKey(sequenceName));
         }
 
         public IDatabaseSequence GetSequence(Identifier sequenceName)
@@ -198,7 +204,8 @@ namespace SJP.Schema.Core
             if (sequenceName == null || sequenceName.LocalName.IsNullOrWhiteSpace())
                 throw new ArgumentNullException(nameof(sequenceName));
 
-            return LoadSequenceSync(sequenceName);
+            Sequence.TryGetValue(sequenceName, out var sequence);
+            return sequence;
         }
 
         public Task<IDatabaseSequence> GetSequenceAsync(Identifier sequenceName)
@@ -206,7 +213,8 @@ namespace SJP.Schema.Core
             if (sequenceName == null || sequenceName.LocalName.IsNullOrWhiteSpace())
                 throw new ArgumentNullException(nameof(sequenceName));
 
-            return LoadSequenceAsync(sequenceName);
+            Sequence.TryGetValue(sequenceName, out var sequence);
+            return Task.FromResult(sequence);
         }
 
         public IEnumerable<IDatabaseSequence> Sequences
@@ -214,7 +222,7 @@ namespace SJP.Schema.Core
             get
             {
                 return Database.Sequences
-                    .Select(s => Sequence[s.Name].Result)
+                    .Select(s => Sequence[s.Name])
                     .Where(s => s != null);
             }
         }
@@ -222,7 +230,7 @@ namespace SJP.Schema.Core
         public IObservable<IDatabaseSequence> SequencesAsync()
         {
             return Database.SequencesAsync()
-                .SelectMany(s => Sequence[s.Name].ToObservable())
+                .Select(s => Sequence[s.Name])
                 .Where(s => s != null);
         }
 
@@ -231,7 +239,8 @@ namespace SJP.Schema.Core
             if (sequenceName == null || sequenceName.LocalName.IsNullOrWhiteSpace())
                 throw new ArgumentNullException(nameof(sequenceName));
 
-            return LoadSequenceAsync(sequenceName).Result;
+            sequenceName = CreateQualifiedIdentifier(sequenceName);
+            return Database.GetSequence(sequenceName);
         }
 
         protected virtual Task<IDatabaseSequence> LoadSequenceAsync(Identifier sequenceName)
@@ -247,14 +256,14 @@ namespace SJP.Schema.Core
 
         #region Synonyms
 
-        protected AsyncCache<Identifier, IDatabaseSynonym> Synonym { get; }
+        protected IReadOnlyDictionary<Identifier, IDatabaseSynonym> Synonym { get; }
 
         public bool SynonymExists(Identifier synonymName)
         {
             if (synonymName == null || synonymName.LocalName.IsNullOrWhiteSpace())
                 throw new ArgumentNullException(nameof(synonymName));
 
-            return Database.SynonymExists(synonymName);
+            return Synonym.ContainsKey(synonymName);
         }
 
         public Task<bool> SynonymExistsAsync(Identifier synonymName)
@@ -262,7 +271,7 @@ namespace SJP.Schema.Core
             if (synonymName == null || synonymName.LocalName.IsNullOrWhiteSpace())
                 throw new ArgumentNullException(nameof(synonymName));
 
-            return Database.SynonymExistsAsync(synonymName);
+            return Task.FromResult(Synonym.ContainsKey(synonymName));
         }
 
         public IDatabaseSynonym GetSynonym(Identifier synonymName)
@@ -270,7 +279,8 @@ namespace SJP.Schema.Core
             if (synonymName == null || synonymName.LocalName.IsNullOrWhiteSpace())
                 throw new ArgumentNullException(nameof(synonymName));
 
-            return LoadSynonymSync(synonymName);
+            Synonym.TryGetValue(synonymName, out var synonym);
+            return synonym;
         }
 
         public Task<IDatabaseSynonym> GetSynonymAsync(Identifier synonymName)
@@ -278,7 +288,8 @@ namespace SJP.Schema.Core
             if (synonymName == null || synonymName.LocalName.IsNullOrWhiteSpace())
                 throw new ArgumentNullException(nameof(synonymName));
 
-            return LoadSynonymAsync(synonymName);
+            Synonym.TryGetValue(synonymName, out var synonym);
+            return Task.FromResult(synonym);
         }
 
         public IEnumerable<IDatabaseSynonym> Synonyms
@@ -286,7 +297,7 @@ namespace SJP.Schema.Core
             get
             {
                 return Database.Synonyms
-                    .Select(s => Synonym[s.Name].Result)
+                    .Select(s => Synonym[s.Name])
                     .Where(s => s != null);
             }
         }
@@ -294,7 +305,7 @@ namespace SJP.Schema.Core
         public IObservable<IDatabaseSynonym> SynonymsAsync()
         {
             return Database.SynonymsAsync()
-                .SelectMany(s => Synonym[s.Name].ToObservable())
+                .Select(s => Synonym[s.Name])
                 .Where(s => s != null);
         }
 
@@ -303,7 +314,8 @@ namespace SJP.Schema.Core
             if (synonymName == null || synonymName.LocalName.IsNullOrWhiteSpace())
                 throw new ArgumentNullException(nameof(synonymName));
 
-            return LoadSynonymAsync(synonymName).Result;
+            synonymName = CreateQualifiedIdentifier(synonymName);
+            return Database.GetSynonym(synonymName);
         }
 
         protected virtual Task<IDatabaseSynonym> LoadSynonymAsync(Identifier synonymName)
@@ -319,14 +331,14 @@ namespace SJP.Schema.Core
 
         #region Triggers
 
-        protected AsyncCache<Identifier, IDatabaseTrigger> Trigger { get; }
+        protected IReadOnlyDictionary<Identifier, IDatabaseTrigger> Trigger { get; }
 
         public bool TriggerExists(Identifier triggerName)
         {
             if (triggerName == null || triggerName.LocalName.IsNullOrWhiteSpace())
                 throw new ArgumentNullException(nameof(triggerName));
 
-            return Database.TriggerExists(triggerName);
+            return Trigger.ContainsKey(triggerName);
         }
 
         public Task<bool> TriggerExistsAsync(Identifier triggerName)
@@ -334,7 +346,7 @@ namespace SJP.Schema.Core
             if (triggerName == null || triggerName.LocalName.IsNullOrWhiteSpace())
                 throw new ArgumentNullException(nameof(triggerName));
 
-            return Database.TriggerExistsAsync(triggerName);
+            return Task.FromResult(Trigger.ContainsKey(triggerName));
         }
 
         public IDatabaseTrigger GetTrigger(Identifier triggerName)
@@ -342,7 +354,8 @@ namespace SJP.Schema.Core
             if (triggerName == null || triggerName.LocalName.IsNullOrWhiteSpace())
                 throw new ArgumentNullException(nameof(triggerName));
 
-            return LoadTriggerSync(triggerName);
+            Trigger.TryGetValue(triggerName, out var trigger);
+            return trigger;
         }
 
         public Task<IDatabaseTrigger> GetTriggerAsync(Identifier triggerName)
@@ -350,7 +363,8 @@ namespace SJP.Schema.Core
             if (triggerName == null || triggerName.LocalName.IsNullOrWhiteSpace())
                 throw new ArgumentNullException(nameof(triggerName));
 
-            return LoadTriggerAsync(triggerName);
+            Trigger.TryGetValue(triggerName, out var trigger);
+            return Task.FromResult(trigger);
         }
 
         public IEnumerable<IDatabaseTrigger> Triggers
@@ -358,7 +372,7 @@ namespace SJP.Schema.Core
             get
             {
                 return Database.Triggers
-                    .Select(t => Trigger[t.Name].Result)
+                    .Select(t => Trigger[t.Name])
                     .Where(t => t != null);
             }
         }
@@ -366,7 +380,7 @@ namespace SJP.Schema.Core
         public IObservable<IDatabaseTrigger> TriggersAsync()
         {
             return Database.TriggersAsync()
-                .SelectMany(t => Trigger[t.Name].ToObservable())
+                .Select(t => Trigger[t.Name])
                 .Where(t => t != null);
         }
 
@@ -375,7 +389,8 @@ namespace SJP.Schema.Core
             if (triggerName == null || triggerName.LocalName.IsNullOrWhiteSpace())
                 throw new ArgumentNullException(nameof(triggerName));
 
-            return LoadTriggerAsync(triggerName).Result;
+            triggerName = CreateQualifiedIdentifier(triggerName);
+            return Database.GetTrigger(triggerName);
         }
 
         protected virtual Task<IDatabaseTrigger> LoadTriggerAsync(Identifier triggerName)

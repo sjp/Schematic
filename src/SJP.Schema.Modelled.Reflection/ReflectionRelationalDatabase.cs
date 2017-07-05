@@ -485,11 +485,9 @@ namespace SJP.Schema.Modelled.Reflection
             if (identifier == null || identifier.LocalName.IsNullOrWhiteSpace())
                 throw new ArgumentNullException(nameof(identifier));
 
-            identifier = identifier.Schema.IsNullOrWhiteSpace() && !DefaultSchema.IsNullOrWhiteSpace()
+            return identifier.Schema.IsNullOrWhiteSpace() && !DefaultSchema.IsNullOrWhiteSpace()
                 ? new Identifier(DefaultSchema, identifier.LocalName)
                 : identifier;
-            identifier.Comparer = Comparer;
-            return identifier;
         }
 
         protected static Type TableGenericType { get; } = typeof(Table<>);

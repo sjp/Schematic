@@ -8,13 +8,16 @@ namespace SJP.Schema.Core.Utilities
 {
     public class IdentifierLookup<TValue> : IReadOnlyDictionary<Identifier, TValue>
     {
-        public IdentifierLookup(IReadOnlyDictionary<Identifier, TValue> store, string defaultSchema = null)
+        public IdentifierLookup(Func<Identifier, TValue> valueFactory, IdentifierComparer comparer = null, string defaultSchema = null)
         {
+            if (comparer == null)
+                comparer = IdentifierComparer.Ordinal;
             if (defaultSchema.IsNullOrWhiteSpace())
                 _defaultSchema = null;
 
+            _valueFactory = valueFactory ?? throw new ArgumentNullException(nameof(valueFactory));
             _defaultSchema = defaultSchema;
-            _store = store ?? throw new ArgumentNullException(nameof(store));
+            _store = new ConcurrentDictionary<Identifier, TValue>(comparer);
         }
 
         public IEnumerable<Identifier> Keys => _store.Keys;
@@ -31,7 +34,9 @@ namespace SJP.Schema.Core.Utilities
                     throw new ArgumentNullException(nameof(key));
 
                 key = CreateQualifiedName(key);
-                return _store[key];
+                TryGetValue(key, out var value);
+
+                return value;
             }
         }
 
@@ -41,6 +46,8 @@ namespace SJP.Schema.Core.Utilities
                 throw new ArgumentNullException(nameof(key));
 
             key = CreateQualifiedName(key);
+            EnsureValue(key);
+
             return _store.ContainsKey(key);
         }
 
@@ -50,12 +57,26 @@ namespace SJP.Schema.Core.Utilities
                 throw new ArgumentNullException(nameof(key));
 
             key = CreateQualifiedName(key);
+            EnsureValue(key);
+
             return _store.TryGetValue(key, out value);
         }
 
         public IEnumerator<KeyValuePair<Identifier, TValue>> GetEnumerator() => _store.GetEnumerator();
 
         IEnumerator IEnumerable.GetEnumerator() => _store.GetEnumerator();
+
+        protected virtual void EnsureValue(Identifier key)
+        {
+            if (key == null)
+                throw new ArgumentNullException(nameof(key));
+
+            if (_store.ContainsKey(key))
+                return;
+
+            var value = _valueFactory.Invoke(key);
+            _store.TryAdd(key, value);
+        }
 
         protected virtual Identifier CreateQualifiedName(Identifier source)
         {
@@ -70,7 +91,8 @@ namespace SJP.Schema.Core.Utilities
         }
 
         private readonly string _defaultSchema;
-        private readonly IReadOnlyDictionary<Identifier, TValue> _store;
+        private readonly ConcurrentDictionary<Identifier, TValue> _store;
+        private readonly Func<Identifier, TValue> _valueFactory;
     }
 
     public class LazyDictionaryCache<TKey, TValue> : IReadOnlyDictionary<TKey, TValue>, IDisposable
