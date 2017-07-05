@@ -22,3 +22,7 @@
 * Improve caching on all dependent objects. Needs to be able to handle tables, views, etc.
   Probably need to add an interface to know whether results are cached and that we can get
   better extension methods for it.
+
+  This is in progress and caching can now be performed using IdentifierLookup<T>.
+  What is remaining is a nice wrapper for some improved caching. For example to avoid
+  any duplication of queries within a table for example.
