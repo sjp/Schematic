@@ -27,14 +27,9 @@ namespace SJP.Schema.Core.Utilities
         /// Gets the value that is associated with the specified key.
         /// </summary>
         /// <param name="key">The key to locate.</param>
-        /// <param name="value">When this method returns, the value associated with the specified key, if the key is found; otherwise, the default value for the type of the value parameter. This parameter is passed uninitialized.</param>
-        /// <returns><b>true</b> if the object that implements the <see cref="IReadOnlyDictionaryAsync{TKey, TValue}"/> interface contains an element that has the specified key; otherwise, <b>false</b>.</returns>
+        /// <returns>When this method returns, the value associated with the specified key, if the key is found; otherwise, the default value for the type of the value parameter.</returns>
         /// <exception cref="ArgumentNullException"><paramref name="key"/> is <b>null</b>.</exception>
-        /// <remarks>
-        /// This method combines the functionality of the <see cref="ContainsKeyAsync(TKey)"/> method and the <see cref="Item"/>property.
-        ///
-        /// If the key is not found, the <paramref name="value"/> parameter gets the appropriate default value for the type <paramref name="TValue"/>: for example, 0 (zero) for integer types, <b>false</b> for Boolean types, and <b>null</b> for reference types.
-        /// </remarks>
-        Task<IResult<TValue>> TryGetValueAsync(TKey key);
+        /// <remarks>If the key is not found, the return value is assigned the appropriate default value for the type <paramref name="TValue"/>: for example, 0 (zero) for integer types, <b>false</b> for Boolean types, and <b>null</b> for reference types.</remarks>
+        Task<TValue> GetValueAsync(TKey key);
     }
 }

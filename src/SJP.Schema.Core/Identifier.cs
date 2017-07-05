@@ -152,8 +152,6 @@ namespace SJP.Schema.Core
         protected string _databaseName;
         protected string _schemaName;
         protected string _localName;
-
-        protected IdentifierComparer _comparer = IdentifierComparer.CurrentCulture;
     }
 
     public class ServerIdentifier : Identifier

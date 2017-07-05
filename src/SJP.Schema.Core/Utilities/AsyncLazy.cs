@@ -53,11 +53,6 @@ namespace SJP.Schema.Core.Utilities
         }
 
         /// <summary>
-        /// Gets a semi-unique identifier for this asynchronous lazy instance.
-        /// </summary>
-        public int Id => IdManager<AsyncLazy<object>>.GetId(ref _id);
-
-        /// <summary>
         /// Starts the asynchronous initialization, if it has not already started.
         /// </summary>
         public void Start()
@@ -131,28 +126,19 @@ namespace SJP.Schema.Core.Utilities
                 catch
                 {
                     lock (_mutex)
-                    {
                         _instance = new Lazy<Task<T>>(_factory);
-                    }
+
                     throw;
                 }
             };
         }
 
-        private Func<Task<T>> RunOnThreadPool(Func<Task<T>> factory)
-        {
-            return () => System.Threading.Tasks.Task.Run(factory);
-        }
+        private Func<Task<T>> RunOnThreadPool(Func<Task<T>> factory) => () => System.Threading.Tasks.Task.Run(factory);
 
         /// <summary>
         /// The underlying lazy task.
         /// </summary>
         private Lazy<Task<T>> _instance;
-
-        /// <summary>
-        /// The semi-unique identifier for this instance. This is 0 if the id has not yet been created.
-        /// </summary>
-        private int _id;
 
         /// <summary>
         /// The synchronization object protecting <c>_instance</c>.

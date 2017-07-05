@@ -2,11 +2,12 @@
 using System.Collections;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace SJP.Schema.Core.Utilities
 {
-    public class IdentifierLookup<TValue> : IReadOnlyDictionaryAsync<Identifier, TValue>
+    public class IdentifierLookup<TValue> : IReadOnlyDictionaryAsync<Identifier, TValue> where TValue : class
     {
         public IdentifierLookup(Func<Identifier, Task<TValue>> valueFactory, IdentifierComparer comparer = null, string defaultSchema = null)
         {
@@ -17,14 +18,14 @@ namespace SJP.Schema.Core.Utilities
 
             _valueFactory = valueFactory ?? throw new ArgumentNullException(nameof(valueFactory));
             _defaultSchema = defaultSchema;
-            _store = new ConcurrentDictionary<Identifier, TValue>(comparer);
+            _store = new ConcurrentDictionary<Identifier, AsyncLazy<TValue>>(comparer);
         }
 
-        public IEnumerable<Identifier> Keys => _store.Keys;
+        public IEnumerable<Identifier> Keys => NotNullValues.Select(kv => kv.Key);
 
-        public IEnumerable<TValue> Values => _store.Values;
+        public IEnumerable<TValue> Values => NotNullValues.Select(kv => kv.Value);
 
-        public int Count => _store.Count;
+        public int Count => NotNullValues.Count();
 
         public TValue this[Identifier key]
         {
@@ -47,8 +48,7 @@ namespace SJP.Schema.Core.Utilities
 
             key = CreateQualifiedName(key);
             var tmp = EnsureValue(key).Result;
-
-            return _store.ContainsKey(key);
+            return tmp != null;
         }
 
         public async Task<bool> ContainsKeyAsync(Identifier key)
@@ -57,9 +57,8 @@ namespace SJP.Schema.Core.Utilities
                 throw new ArgumentNullException(nameof(key));
 
             key = CreateQualifiedName(key);
-            var tmp = await EnsureValue(key);
-
-            return _store.ContainsKey(key);
+            var tmp = await GetValueAsync(key);
+            return tmp != null;
         }
 
         public bool TryGetValue(Identifier key, out TValue value)
@@ -68,38 +67,40 @@ namespace SJP.Schema.Core.Utilities
                 throw new ArgumentNullException(nameof(key));
 
             key = CreateQualifiedName(key);
-            var tmp = EnsureValue(key).Result;
+            var tmp = EnsureValue(key);
 
-            return _store.TryGetValue(key, out value);
+            _store.TryGetValue(key, out var lazy);
+            value = lazy.Task.Result;
+            return value != null;
         }
 
-        public async Task<IResult<TValue>> TryGetValueAsync(Identifier key)
+        public Task<TValue> GetValueAsync(Identifier key)
         {
             if (key == null)
                 throw new ArgumentNullException(nameof(key));
 
             key = CreateQualifiedName(key);
-            var tmp = await EnsureValue(key);
+            var tmp = EnsureValue(key);
 
-            var success = _store.TryGetValue(key, out var value);
-            return new Result<TValue>(success, value);
+            _store.TryGetValue(key, out var lazy);
+            return lazy.Task;
         }
 
-        public IEnumerator<KeyValuePair<Identifier, TValue>> GetEnumerator() => _store.GetEnumerator();
+        public IEnumerator<KeyValuePair<Identifier, TValue>> GetEnumerator() => NotNullValues.GetEnumerator();
 
-        IEnumerator IEnumerable.GetEnumerator() => _store.GetEnumerator();
+        IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
-        protected virtual async Task<TValue> EnsureValue(Identifier key)
+        protected virtual Task<TValue> EnsureValue(Identifier key)
         {
             if (key == null)
                 throw new ArgumentNullException(nameof(key));
 
             if (_store.ContainsKey(key))
-                return _store[key];
+                return _store[key].Task;
 
-            var value = await _valueFactory.Invoke(key);
-            _store.TryAdd(key, value);
-            return value;
+            var lazy = new AsyncLazy<TValue>(() => _valueFactory.Invoke(key));
+            _store.TryAdd(key, lazy);
+            return _store[key].Task;
         }
 
         protected virtual Identifier CreateQualifiedName(Identifier source)
@@ -114,16 +115,12 @@ namespace SJP.Schema.Core.Utilities
                 : new Identifier(schemaName, localName);
         }
 
-        private static Func<Identifier, Task<TValue>> WrapFactoryAsAsync(Func<Identifier, TValue> valueFactory)
-        {
-            if (valueFactory == null)
-                return null;
-
-            return identifier => Task.FromResult(valueFactory.Invoke(identifier));
-        }
+        protected IEnumerable<KeyValuePair<Identifier, TValue>> NotNullValues => _store
+            .Select(kv => new KeyValuePair<Identifier, TValue>(kv.Key, kv.Value.Task.Result))
+            .Where(kv => kv.Value != null);
 
         private readonly string _defaultSchema;
-        private readonly ConcurrentDictionary<Identifier, TValue> _store;
+        private readonly ConcurrentDictionary<Identifier, AsyncLazy<TValue>> _store;
         private readonly Func<Identifier, Task<TValue>> _valueFactory;
     }
 }

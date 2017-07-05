@@ -87,6 +87,7 @@ where o2.schema_id = schema_id(@SchemaName) and o2.name = @TableName
                 .Select(d => new Identifier(d.ReferencingSchemaName, d.ReferencingObjectName))
                 .ToList();
         }
+
         protected virtual IEnumerable<Identifier> LoadDependenciesSync()
         {
             const string sql = @"

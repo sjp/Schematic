@@ -58,13 +58,12 @@ namespace SJP.Schema.Core
             return table;
         }
 
-        public async Task<IRelationalDatabaseTable> GetTableAsync(Identifier tableName)
+        public Task<IRelationalDatabaseTable> GetTableAsync(Identifier tableName)
         {
             if (tableName == null || tableName.LocalName.IsNullOrWhiteSpace())
                 throw new ArgumentNullException(nameof(tableName));
 
-            var result = await Table.TryGetValueAsync(tableName);
-            return result.Value;
+            return Table.GetValueAsync(tableName);
         }
 
         public IEnumerable<IRelationalDatabaseTable> Tables
@@ -133,13 +132,12 @@ namespace SJP.Schema.Core
             return view;
         }
 
-        public async Task<IRelationalDatabaseView> GetViewAsync(Identifier viewName)
+        public Task<IRelationalDatabaseView> GetViewAsync(Identifier viewName)
         {
             if (viewName == null || viewName.LocalName.IsNullOrWhiteSpace())
                 throw new ArgumentNullException(nameof(viewName));
 
-            var result = await View.TryGetValueAsync(viewName);
-            return result.Value;
+            return View.GetValueAsync(viewName);
         }
 
         public IEnumerable<IRelationalDatabaseView> Views
@@ -208,13 +206,12 @@ namespace SJP.Schema.Core
             return sequence;
         }
 
-        public async Task<IDatabaseSequence> GetSequenceAsync(Identifier sequenceName)
+        public Task<IDatabaseSequence> GetSequenceAsync(Identifier sequenceName)
         {
             if (sequenceName == null || sequenceName.LocalName.IsNullOrWhiteSpace())
                 throw new ArgumentNullException(nameof(sequenceName));
 
-            var result = await Sequence.TryGetValueAsync(sequenceName);
-            return result.Value;
+            return Sequence.GetValueAsync(sequenceName);
         }
 
         public IEnumerable<IDatabaseSequence> Sequences
@@ -283,13 +280,12 @@ namespace SJP.Schema.Core
             return synonym;
         }
 
-        public async Task<IDatabaseSynonym> GetSynonymAsync(Identifier synonymName)
+        public Task<IDatabaseSynonym> GetSynonymAsync(Identifier synonymName)
         {
             if (synonymName == null || synonymName.LocalName.IsNullOrWhiteSpace())
                 throw new ArgumentNullException(nameof(synonymName));
 
-            var result = await Synonym.TryGetValueAsync(synonymName);
-            return result.Value;
+            return Synonym.GetValueAsync(synonymName);
         }
 
         public IEnumerable<IDatabaseSynonym> Synonyms
@@ -358,13 +354,12 @@ namespace SJP.Schema.Core
             return trigger;
         }
 
-        public async Task<IDatabaseTrigger> GetTriggerAsync(Identifier triggerName)
+        public Task<IDatabaseTrigger> GetTriggerAsync(Identifier triggerName)
         {
             if (triggerName == null || triggerName.LocalName.IsNullOrWhiteSpace())
                 throw new ArgumentNullException(nameof(triggerName));
 
-            var result = await Trigger.TryGetValueAsync(triggerName);
-            return result.Value;
+            return Trigger.GetValueAsync(triggerName);
         }
 
         public IEnumerable<IDatabaseTrigger> Triggers
