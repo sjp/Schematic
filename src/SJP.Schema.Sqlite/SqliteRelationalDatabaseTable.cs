@@ -671,9 +671,6 @@ namespace SJP.Schema.Sqlite
             foreach (var tableInfo in tableInfos)
             {
                 var parsedColumnInfo = parsedColumns.FirstOrDefault(col => string.Equals(col.Name, tableInfo.name, StringComparison.OrdinalIgnoreCase));
-
-                // TODO: Change sqlite types so that they're unconstrained
-                //       This is how the database implements it anyway. Perhaps map some of the builtin type names and affinities
                 var columnTypeName = tableInfo.type;
 
                 IDbType dbType;
@@ -709,9 +706,6 @@ namespace SJP.Schema.Sqlite
             foreach (var tableInfo in tableInfos)
             {
                 var parsedColumnInfo = parsedColumns.FirstOrDefault(col => string.Equals(col.Name, tableInfo.name, StringComparison.OrdinalIgnoreCase));
-
-                // TODO: Change sqlite types so that they're unconstrained
-                //       This is how the database implements it anyway. Perhaps map some of the builtin type names and affinities
                 var columnTypeName = tableInfo.type;
 
                 IDbType dbType;

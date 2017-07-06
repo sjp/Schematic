@@ -15,8 +15,6 @@ namespace SJP.Schema.Core
     // async analogues of every synchronous property/method
     public interface IRelationalDatabaseAsync
     {
-        // TODO: make sure that this takes a dialect provider so that we can do quoting per vendor && version
-
         Task<bool> TableExistsAsync(Identifier tableName);
 
         Task<IRelationalDatabaseTable> GetTableAsync(Identifier tableName);

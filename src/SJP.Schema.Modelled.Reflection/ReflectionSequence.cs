@@ -39,12 +39,8 @@ namespace SJP.Schema.Modelled.Reflection
 
         public bool Cycle { get; }
 
-        // sequences can't depend on anything
         public IEnumerable<Identifier> Dependencies { get; } = Enumerable.Empty<Identifier>();
 
-        // TODO:
-        // this one is tricky...
-        // would need to run through every check/default to make sure they're found
         public IEnumerable<Identifier> Dependents
         {
             get

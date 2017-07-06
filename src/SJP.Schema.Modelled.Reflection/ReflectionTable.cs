@@ -118,8 +118,7 @@ namespace SJP.Schema.Modelled.Reflection
             {
                 var keyValue = keyProperty.GetValue(TableInstance) as Key.ForeignKey;
                 if (keyValue == null)
-                    continue;
-                //throw new InvalidCastException($"Expected to find a key type that implements { typeof(IModelledKey).FullName } on { InstanceType.FullName }.{ keyProperty.Name }.");
+                    throw new InvalidCastException($"Expected to find a key type { typeof(Key.ForeignKey).FullName } on { InstanceType.FullName }.{ keyProperty.Name }.");
 
                 keyValue.Property = keyProperty;
                 if (keyValue.KeyType == DatabaseKeyType.Foreign)
@@ -133,10 +132,9 @@ namespace SJP.Schema.Modelled.Reflection
             {
                 var fkColumns = fk.Columns
                     .Select(c => c.Property)
-                    .Select(GetColumnFromProperty);
+                    .Select(GetAnyColumnFromProperty);
 
-                // fixing naming so that we can override, incl by dialect
-                var parentName = fk.TargetType.Name;
+                var parentName = Dialect.GetQualifiedNameOrDefault(Database, fk.TargetType);
                 var parent = Database.GetTable(parentName);
 
                 var parentTable = new ReflectionTable(Database, fk.TargetType);
@@ -174,7 +172,6 @@ namespace SJP.Schema.Modelled.Reflection
                 var updateAttr = Dialect.GetDialectAttribute<OnUpdateActionAttribute>(fk.Property);
                 var updateAction = updateAttr != null ? _updateActionMapping[updateAttr.Action] : RelationalKeyUpdateAction.NoAction;
 
-                // TODO: check that column lists are type compatible...
                 result[childKey.Name.LocalName] = new ReflectionRelationalKey(childKey, parentKey, deleteAction, updateAction);
             }
 
@@ -213,8 +210,6 @@ namespace SJP.Schema.Modelled.Reflection
 
         private IDatabaseKey LoadPrimaryKey()
         {
-            var tableColumns = Column; // trigger column load
-
             var keyProperties = InstanceProperties.Where(IsKeyProperty);
 
             var primaryKeys = new List<IModelledKey>();
@@ -237,9 +232,8 @@ namespace SJP.Schema.Modelled.Reflection
             var dialect = Database.Dialect;
             var primaryKey = primaryKeys.Single();
             var pkColumns = primaryKey.Columns
-                .Select(c => dialect.GetAliasOrDefault(c.Property))
-                .Where(name => Column.ContainsKey(name))
-                .Select(name => Column[name]);
+                .Select(c => c.Property)
+                .Select(GetAnyColumnFromProperty);
 
             return new ReflectionKey(Dialect, this, primaryKey.Property, pkColumns, primaryKey.KeyType);
         }
@@ -292,14 +286,11 @@ namespace SJP.Schema.Modelled.Reflection
             {
                 var ukColumns = uniqueKey.Columns
                     .Select(c => c.Property)
-                    .Where(IsColumnProperty)
-                    .Select(GetColumnFromProperty);
+                    .Select(GetAnyColumnFromProperty);
 
                 var uk = new ReflectionKey(Dialect, this, uniqueKey.Property, ukColumns, uniqueKey.KeyType);
                 result[uk.Name.LocalName] = uk;
             }
-
-            // TODO add check to ensure that column lists do not match primary key
 
             return result.AsReadOnlyDictionary();
         }
@@ -310,6 +301,9 @@ namespace SJP.Schema.Modelled.Reflection
 
             var dialect = Database.Dialect;
             var checkProperties = InstanceProperties.Where(IsCheckProperty);
+            var columnPropertyNames = PropertyColumnCache.Keys
+                .Select(prop => new KeyValuePair<string, PropertyInfo>(prop.Name, prop))
+                .ToDictionary();
 
             foreach (var checkProperty in checkProperties)
             {
@@ -317,10 +311,10 @@ namespace SJP.Schema.Modelled.Reflection
                 modelledCheck.Property = checkProperty;
 
                 var columns = modelledCheck.Expression.DependentNames
-                    .Where(name => Column.ContainsKey(name.LocalName))
-                    .Select(name => Column[name.LocalName]);
+                    .Where(name => columnPropertyNames.ContainsKey(name.LocalName))
+                    .Select(name => dialect.GetAliasOrDefault(columnPropertyNames[name.LocalName]))
+                    .Select(name => Column[name]);
 
-                // TODO: check name
                 var checkName = dialect.GetAliasOrDefault(checkProperty);
                 var check = new ReflectionCheckConstraint(this, checkName, modelledCheck.Expression, columns);
                 result[check.Name.LocalName] = check;
@@ -348,6 +342,19 @@ namespace SJP.Schema.Modelled.Reflection
             }
 
             return result.AsReadOnlyDictionary();
+        }
+
+        protected virtual IDatabaseTableColumn GetAnyColumnFromProperty(PropertyInfo propInfo)
+        {
+            if (propInfo == null)
+                throw new ArgumentNullException(nameof(propInfo));
+
+            if (IsColumnProperty(propInfo))
+                return GetColumnFromProperty(propInfo);
+            if (IsComputedColumnProperty(propInfo))
+                return GetComputedColumnFromProperty(propInfo);
+
+            return null;
         }
 
         protected virtual IDatabaseTableColumn GetColumnFromProperty(PropertyInfo propInfo)
@@ -491,26 +498,6 @@ namespace SJP.Schema.Modelled.Reflection
         public IEnumerable<Identifier> Dependencies => _dependencies.Value;
 
         public IEnumerable<Identifier> Dependents => _dependents.Value;
-
-        public void PopulateProperties(object tableInstance) => PopulateColumnProperties(tableInstance);
-
-        private void PopulateColumnProperties(object tableInstance)
-        {
-            var columnProps = InstanceProperties.Where(IsColumnProperty);
-
-            foreach (var prop in columnProps)
-            {
-                var field = prop.GetAutoBackingField();
-                if (field == null)
-                    throw new ArgumentException($"The column property { InstanceType.FullName }.{ prop.Name } must be an auto-implemented property. For example: Column<T> { prop.Name } {{ get; }}");
-
-                var columnDbType = field.FieldType;
-                var columnPropertyProp = columnDbType.GetTypeInfo().GetProperty(nameof(IModelledColumn.Property), BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.FlattenHierarchy);
-                var columnInstance = Activator.CreateInstance(columnDbType);
-                columnPropertyProp.SetValue(columnInstance, prop);
-                field.SetValue(tableInstance, columnInstance);
-            }
-        }
 
         private readonly Lazy<IEnumerable<Identifier>> _dependencies;
         private readonly Lazy<IEnumerable<Identifier>> _dependents;

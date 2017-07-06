@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using SJP.Schema.Core;
 using SJP.Schema.Modelled.Reflection.Model;
 
@@ -19,9 +20,10 @@ namespace SJP.Schema.Modelled.Reflection
             var dialect = table.Database.Dialect;
             Name = dialect.GetAliasOrDefault(index.Property);
 
-            // TODO:
-            // fix column lookup to work on property infos instead of string names, probably easier to map
-            // and gives us dialect info later
+            var tableType = index.Property.DeclaringType.GetType().GetTypeInfo();
+            var propertyLookup = tableType.GetProperties()
+                .Select(p => new KeyValuePair<string, PropertyInfo>(p.Name, p))
+                .ToDictionary();
 
             var columns = new List<IDatabaseIndexColumn>();
             var includedColumns = new List<IDatabaseTableColumn>();
@@ -32,7 +34,9 @@ namespace SJP.Schema.Modelled.Reflection
             {
                 if (indexColumn.Expression.IsIdentity)
                 {
-                    var tableColumns = new List<IDatabaseColumn> { Parent.Column[indexColumn.Expression.DependentNames.Single().LocalName] };
+                    var expressionName = indexColumn.Expression.DependentNames.Single().LocalName;
+                    var columnName = dialect.GetAliasOrDefault(propertyLookup[expressionName]);
+                    var tableColumns = new List<IDatabaseColumn> { Parent.Column[columnName] };
                     var column = new ReflectionIndexColumn(indexColumn.Expression, tableColumns, indexColumn.Order);
                     columns.Add(column);
                 }
@@ -40,8 +44,10 @@ namespace SJP.Schema.Modelled.Reflection
                 {
                     isFunctionBasedIndex = true;
                     var tableColumns = indexColumn.Expression.DependentNames
-                        .Where(name => Parent.Column.ContainsKey(name.LocalName))
-                        .Select(name => table.Column[name.LocalName] as IDatabaseColumn)
+                        .Select(name => propertyLookup.ContainsKey(name.LocalName) ? propertyLookup[name.LocalName] : null)
+                        .Where(prop => prop != null)
+                        .Select(prop => dialect.GetAliasOrDefault(prop))
+                        .Select(name => table.Column[name] as IDatabaseColumn)
                         .ToList();
                     var column = new ReflectionIndexColumn(indexColumn.Expression, tableColumns, indexColumn.Order);
                     columns.Add(column);
@@ -61,7 +67,7 @@ namespace SJP.Schema.Modelled.Reflection
             IncludedColumns = includedColumns.ToList();
         }
 
-        public IRelationalDatabaseTable Table { get; }
+        public IRelationalDatabaseTable Table => Parent;
 
         public IRelationalDatabaseTable Parent { get; }
 

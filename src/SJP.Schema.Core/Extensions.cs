@@ -6,6 +6,18 @@ using System.Linq;
 
 namespace SJP.Schema.Core
 {
+    public static class CachingExtensions
+    {
+        public static IRelationalDatabase AsCachedDatabase(this IRelationalDatabase database)
+        {
+            if (database == null)
+                throw new ArgumentNullException(nameof(database));
+
+            var cachedDb = database as CachedRelationalDatabase;
+            return cachedDb ?? new CachedRelationalDatabase(database);
+        }
+    }
+
     public static class CharExtensions
     {
         public static UnicodeCategory GetUnicodeCategory(this char c) => CharUnicodeInfo.GetUnicodeCategory(c);
@@ -21,23 +33,14 @@ namespace SJP.Schema.Core
         public static char ToUpperInvariant(this char c) => char.ToUpperInvariant(c);
     }
 
-    public static class StringExtensions
+    public static class DictionaryExtensions
     {
-        public static bool IsNullOrEmpty(this string input) => string.IsNullOrEmpty(input);
-
-        public static bool IsNullOrWhiteSpace(this string input) => string.IsNullOrWhiteSpace(input);
-
-        public static string Join(this IEnumerable<string> values, string separator) => string.Join(separator, values);
-
-        public static bool Contains(this string input, string value, StringComparison comparisonType)
+        public static IDictionary<TKey, TValue> ToDictionary<TKey, TValue>(this IEnumerable<KeyValuePair<TKey, TValue>> source)
         {
-            if (value == null)
-                throw new ArgumentNullException(nameof(value));
+            if (source == null)
+                throw new ArgumentNullException(nameof(source));
 
-            if (!Enum.IsDefined(typeof(StringComparison), comparisonType))
-                throw new ArgumentException($"The { nameof(comparisonType) } argument given is not a member of { typeof(StringComparison).FullName }", nameof(comparisonType));
-
-            return input.IndexOf(value, comparisonType) >= 0;
+            return source.ToDictionary(kv => kv.Key, kv => kv.Value);
         }
     }
 
@@ -78,15 +81,23 @@ namespace SJP.Schema.Core
         }
     }
 
-    public static class CachingExtensions
+    public static class StringExtensions
     {
-        public static IRelationalDatabase AsCachedDatabase(this IRelationalDatabase database)
-        {
-            if (database == null)
-                throw new ArgumentNullException(nameof(database));
+        public static bool IsNullOrEmpty(this string input) => string.IsNullOrEmpty(input);
 
-            var cachedDb = database as CachedRelationalDatabase;
-            return cachedDb ?? new CachedRelationalDatabase(database);
+        public static bool IsNullOrWhiteSpace(this string input) => string.IsNullOrWhiteSpace(input);
+
+        public static string Join(this IEnumerable<string> values, string separator) => string.Join(separator, values);
+
+        public static bool Contains(this string input, string value, StringComparison comparisonType)
+        {
+            if (value == null)
+                throw new ArgumentNullException(nameof(value));
+
+            if (!Enum.IsDefined(typeof(StringComparison), comparisonType))
+                throw new ArgumentException($"The { nameof(comparisonType) } argument given is not a member of { typeof(StringComparison).FullName }", nameof(comparisonType));
+
+            return input.IndexOf(value, comparisonType) >= 0;
         }
     }
 }

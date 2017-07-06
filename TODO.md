@@ -26,3 +26,7 @@
   This is in progress and caching can now be performed using IdentifierLookup<T>.
   What is remaining is a nice wrapper for some improved caching. For example to avoid
   any duplication of queries within a table for example.
+
+* Think about dependencies/dependents. Seems clumsy doing this in the user interface.
+  Most of the time we can determine this anyway, for example we can order based on
+  foreign keys for table dependencies.

@@ -896,7 +896,7 @@ where schema_name(t.schema_id) = @SchemaName
                 IDbType dbType;
                 var columnType = new SqlServerColumnDataType(columnTypeName);
                 if (columnType.IsNumericType)
-                    dbType = new SqlServerNumericColumnDataType(columnTypeName, row.Precision, row.Scale); // new SqlServerDatabaseNumericColumnType(columnTypeName, row.MaxLength, row.Precision, row.Scale);
+                    dbType = new SqlServerNumericColumnDataType(columnTypeName, row.Precision, row.Scale);
                 else if (columnType.IsStringType)
                     dbType = new SqlServerStringColumnDataType(columnTypeName, row.MaxLength, row.Collation);
                 else

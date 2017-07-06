@@ -24,27 +24,12 @@ namespace SJP.Schema.Modelled.Reflection.Model
             Tokens = parser.Tokenize(expression).ToList();
             var lookup = ObjectToDictionary(param);
 
-            // TODO: check unbound names -- definitely an error
-            //       also check that there are extra names in the object
-
             var tokenVarNames = new HashSet<string>(Tokens.Select(UnwrapTokenValue));
             var lookupNames = new HashSet<string>(lookup.Keys);
 
             var unboundVariables = tokenVarNames.Where(v => !lookupNames.Contains(v));
             if (unboundVariables.Any())
                 throw new ArgumentException("The expression contains references to the following variables which are not present in the parameter object: " + unboundVariables.Join(", "), nameof(expression));
-
-            // TODO: maybe allow this?
-            //       would allow sloppy coding though, not sure if we ever want this to occur
-            var extraParams = lookupNames.Where(name => !tokenVarNames.Contains(name));
-            if (extraParams.Any())
-                throw new ArgumentException("The parameter object contains extra variables that are not present in the expression.", nameof(param));
-
-            // TODO: need to implement dependency support -- maybe have a separate bind for variables or types
-            //       e.g. :Column for dependency binding, can use types (if present in DB)
-            //            @Value for values that need to be quoted
-            //            {=Value} for values that don't need to be quoted (already handled in expression)
-            // to think about...
         }
 
         protected string ExpressionText { get; }
@@ -124,13 +109,10 @@ namespace SJP.Schema.Modelled.Reflection.Model
                     case ExpressionToken.Variable:
                         var variableValue = Parameters[UnwrapTokenValue(token)];
                         var columnObject = variableValue as IModelledColumn;
-                        // TODO: get rid of the modelled column from here
-                        //       derive if we need to
-                        //       should be common to sqlserver, sqlite, reflection, json, etc
+
                         var stringVal = variableValue as string;
                         if (columnObject != null)
                         {
-                            // also get name properly anyway...
                             var columnName = dialect.GetAliasOrDefault(columnObject.Property);
                             yield return dialect.QuoteName(columnName);
                         }

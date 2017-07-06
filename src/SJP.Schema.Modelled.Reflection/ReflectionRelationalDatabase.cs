@@ -135,10 +135,9 @@ namespace SJP.Schema.Modelled.Reflection
                 result[table.Name] = table;
             }
 
-            // TODO! quote the names
             if (duplicateNames.Count > 0)
             {
-                var dupes = duplicateNames.Select(n => n.ToString());
+                var dupes = duplicateNames.Select(n => Dialect.QuoteName(n.ToString()));
                 var message = "Duplicates found for the following tables: " + dupes.Join(", ");
                 throw new Exception(message);
             }
@@ -228,10 +227,9 @@ namespace SJP.Schema.Modelled.Reflection
                 result[view.Name] = view;
             }
 
-            // TODO! quote the names
             if (duplicateNames.Count > 0)
             {
-                var dupes = duplicateNames.Select(n => n.ToString());
+                var dupes = duplicateNames.Select(n => Dialect.QuoteName(n.ToString()));
                 var message = "Duplicates found for the following views: " + dupes.Join(", ");
                 throw new Exception(message);
             }
@@ -321,10 +319,9 @@ namespace SJP.Schema.Modelled.Reflection
                 result[sequence.Name] = sequence;
             }
 
-            // TODO! quote the names
             if (duplicateNames.Count > 0)
             {
-                var dupes = duplicateNames.Select(n => n.ToString());
+                var dupes = duplicateNames.Select(n => Dialect.QuoteName(n.ToString()));
                 var message = "Duplicates found for the following sequences: " + dupes.Join(", ");
                 throw new Exception(message);
             }
@@ -414,10 +411,9 @@ namespace SJP.Schema.Modelled.Reflection
                 result[synonym.Name] = synonym;
             }
 
-            // TODO! quote the names
             if (duplicateNames.Count > 0)
             {
-                var dupes = duplicateNames.Select(n => n.ToString());
+                var dupes = duplicateNames.Select(n => Dialect.QuoteName(n.ToString()));
                 var message = "Duplicates found for the following synonyms: " + dupes.Join(", ");
                 throw new Exception(message);
             }
