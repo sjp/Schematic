@@ -190,18 +190,24 @@ namespace SJP.Schema.Modelled.Reflection
 
         private IList<IDatabaseTableColumn> LoadColumnList()
         {
-            var phyiscalColumns = InstanceProperties
-                .Where(IsColumnProperty)
-                .Select(GetColumnFromProperty);
+            var result = new List<IDatabaseTableColumn>();
 
-            var computedColumns = InstanceProperties
-                .Where(IsComputedColumnProperty)
-                .Select(GetComputedColumnFromProperty);
+            foreach (var prop in InstanceProperties)
+            {
+                if (IsColumnProperty(prop))
+                {
+                    var column = GetColumnFromProperty(prop);
+                    result.Add(column);
+                }
 
-            return phyiscalColumns
-                .Concat(computedColumns)
-                .ToList()
-                .AsReadOnly();
+                if (IsComputedColumnProperty(prop))
+                {
+                    var computedColumn = GetComputedColumnFromProperty(prop);
+                    result.Add(computedColumn);
+                }
+            }
+
+            return result.AsReadOnly();
         }
 
         protected Type InstanceType { get; }
@@ -327,18 +333,19 @@ namespace SJP.Schema.Modelled.Reflection
         {
             var result = new Dictionary<string, IDatabaseTableColumn>();
 
-            var columnProps = InstanceProperties.Where(IsColumnProperty);
-            foreach (var prop in columnProps)
+            foreach (var prop in InstanceProperties)
             {
-                var column = GetColumnFromProperty(prop);
-                result[column.Name.LocalName] = column;
-            }
+                if (IsColumnProperty(prop))
+                {
+                    var column = GetColumnFromProperty(prop);
+                    result[column.Name.LocalName] = column;
+                }
 
-            var computedColumnProps = InstanceProperties.Where(IsComputedColumnProperty);
-            foreach (var prop in computedColumnProps)
-            {
-                var column = GetComputedColumnFromProperty(prop);
-                result[column.Name.LocalName] = column;
+                if (IsComputedColumnProperty(prop))
+                {
+                    var computedColumn = GetComputedColumnFromProperty(prop);
+                    result[computedColumn.Name.LocalName] = computedColumn;
+                }
             }
 
             return result.AsReadOnlyDictionary();
