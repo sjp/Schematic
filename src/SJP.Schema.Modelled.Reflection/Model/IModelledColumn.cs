@@ -6,10 +6,12 @@ namespace SJP.Schema.Modelled.Reflection.Model
 {
     public interface IModelledColumn
     {
-        PropertyInfo Property { get; }
+        Type DeclaredDbType { get; }
+
+        bool IsComputed { get; }
 
         bool IsNullable { get; }
 
-        Type DeclaredDbType { get; }
+        PropertyInfo Property { get; }
     }
 }

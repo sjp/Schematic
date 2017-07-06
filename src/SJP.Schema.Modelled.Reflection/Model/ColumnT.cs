@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Reflection;
-using SJP.Schema.Core;
 
 namespace SJP.Schema.Modelled.Reflection.Model
 {

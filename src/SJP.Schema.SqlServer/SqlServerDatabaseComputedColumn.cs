@@ -29,6 +29,6 @@ namespace SJP.Schema.SqlServer
             }
         }
 
-        public override bool IsCalculated { get; } = true;
+        public override bool IsComputed { get; } = true;
     }
 }

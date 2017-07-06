@@ -87,6 +87,8 @@ namespace SJP.Schema.Modelled.Reflection.Tests
                 public Column<Varchar200> TEST_STRING { get; }
 
                 public Key PK_TEST_TABLE => new Key.Primary(TEST_TABLE_ID);
+
+                public ComputedColumn TEST_COMPUTED => new ComputedColumn("@TestString + @TestString", new { TestString = TEST_STRING });
             }
         }
     }

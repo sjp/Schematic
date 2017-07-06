@@ -11,9 +11,6 @@ using Superpower.Parsers;
 
 namespace SJP.Schema.Modelled.Reflection.Model
 {
-    // TODO:
-    // need to scope this to the reflection namespace
-    // because we want something like sql server expressions...
     public class ModelledSqlExpression : ISqlExpression
     {
         public ModelledSqlExpression(string expression, object param)
@@ -153,8 +150,6 @@ namespace SJP.Schema.Modelled.Reflection.Model
                 }
             }
         }
-
-        private static IReadOnlyDictionary<string, object> EmptyLookup { get; } = new Dictionary<string, object>().AsReadOnlyDictionary();
 
         private static IReadOnlyDictionary<string, object> ObjectToDictionary(object param)
         {

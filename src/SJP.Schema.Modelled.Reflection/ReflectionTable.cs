@@ -193,9 +193,16 @@ namespace SJP.Schema.Modelled.Reflection
 
         private IList<IDatabaseTableColumn> LoadColumnList()
         {
-            return InstanceProperties
+            var phyiscalColumns = InstanceProperties
                 .Where(IsColumnProperty)
-                .Select(GetColumnFromProperty)
+                .Select(GetColumnFromProperty);
+
+            var computedColumns = InstanceProperties
+                .Where(IsComputedColumnProperty)
+                .Select(GetComputedColumnFromProperty);
+
+            return phyiscalColumns
+                .Concat(computedColumns)
                 .ToList()
                 .AsReadOnly();
         }
@@ -333,6 +340,13 @@ namespace SJP.Schema.Modelled.Reflection
                 result[column.Name.LocalName] = column;
             }
 
+            var computedColumnProps = InstanceProperties.Where(IsComputedColumnProperty);
+            foreach (var prop in computedColumnProps)
+            {
+                var column = GetComputedColumnFromProperty(prop);
+                result[column.Name.LocalName] = column;
+            }
+
             return result.AsReadOnlyDictionary();
         }
 
@@ -346,7 +360,7 @@ namespace SJP.Schema.Modelled.Reflection
             if (!propInfo.DeclaringType.GetTypeInfo().IsAssignableFrom(InstanceType.GetTypeInfo()))
                 throw new ArgumentException($"The property { propInfo.Name } must be a member of { InstanceType.FullName }, instead is a member of { propInfo.DeclaringType.FullName }", nameof(propInfo));
             if (!IsColumnProperty(propInfo))
-                throw new ArgumentException($"The property { InstanceType.FullName }.{ propInfo.Name } must be a column property (i.e. declared as Column<T>. Instead is declared as { propInfo.DeclaringType.FullName }", nameof(propInfo));
+                throw new ArgumentException($"The property { InstanceType.FullName }.{ propInfo.Name } must be a column property (i.e. declared as Column<T>). Instead it is declared as { propInfo.DeclaringType.FullName }", nameof(propInfo));
 
             var modelledColumn = propInfo.GetValue(TableInstance) as IModelledColumn;
             var column = new ReflectionTableColumn(Dialect, this, modelledColumn.Property, modelledColumn.DeclaredDbType, modelledColumn.IsNullable);
@@ -354,9 +368,28 @@ namespace SJP.Schema.Modelled.Reflection
             return column;
         }
 
+        protected virtual IDatabaseTableColumn GetComputedColumnFromProperty(PropertyInfo propInfo)
+        {
+            if (propInfo == null)
+                throw new ArgumentNullException(nameof(propInfo));
+            if (PropertyColumnCache.ContainsKey(propInfo))
+                return PropertyColumnCache[propInfo];
+
+            if (!IsComputedColumnProperty(propInfo))
+                throw new ArgumentException($"The property { InstanceType.FullName }.{ propInfo.Name } must be a computed column property (i.e. declared as ComputedColumn). Instead it is declared as { propInfo.DeclaringType.FullName }", nameof(propInfo));
+
+            var modelledColumn = propInfo.GetValue(TableInstance) as IModelledColumn;
+            var column = new ReflectionTableComputedColumn(Dialect, this, propInfo);
+            PropertyColumnCache[propInfo] = column; // add to cache
+            return column;
+        }
+
         private static bool IsColumnProperty(PropertyInfo prop) =>
             prop.PropertyType.GetTypeInfo().IsGenericType
             && prop.PropertyType.GetGenericTypeDefinition().GetTypeInfo().IsAssignableFrom(ColumnType.GetTypeInfo());
+
+        private static bool IsComputedColumnProperty(PropertyInfo prop) =>
+            prop.PropertyType.GetTypeInfo().IsAssignableFrom(ComputedColumnType.GetTypeInfo());
 
         private static bool IsIndexProperty(PropertyInfo prop) =>
             prop.PropertyType.GetTypeInfo().IsAssignableFrom(IndexType.GetTypeInfo());
@@ -368,6 +401,8 @@ namespace SJP.Schema.Modelled.Reflection
             prop.PropertyType.GetTypeInfo().IsAssignableFrom(CheckType.GetTypeInfo());
 
         private static Type ColumnType { get; } = typeof(Column<>);
+
+        private static Type ComputedColumnType { get; } = typeof(ComputedColumn);
 
         private static Type KeyType { get; } = typeof(Key);
 

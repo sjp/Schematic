@@ -16,7 +16,7 @@ namespace SJP.Schema.Sqlite
 
         public string DefaultValue { get; }
 
-        public virtual bool IsCalculated { get; }
+        public virtual bool IsComputed { get; }
 
         public Identifier Name { get; }
 

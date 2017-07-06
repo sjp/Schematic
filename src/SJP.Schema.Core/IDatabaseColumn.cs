@@ -13,7 +13,7 @@ namespace SJP.Schema.Core
 
         bool IsNullable { get; }
 
-        bool IsCalculated { get; }
+        bool IsComputed { get; }
 
         // retrieved from default constraint
         string DefaultValue { get; }

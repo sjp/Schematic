@@ -22,15 +22,15 @@ namespace SJP.Schema.Modelled.Reflection
                 throw new ArgumentNullException($"The declared column type does not implement IDbType<T>. Check { prop.DeclaringType.FullName }.{ prop.Name } and ensure that the column type { declaredColumnType.FullName } implements this interface.", nameof(declaredColumnType));
 
             var columnType = new ReflectionColumnDataType(dialect, declaredColumnType, clrType);
-
-            if (ValidAutoIncrementTypes.Contains(columnType.Type))
-            {
-                IsAutoIncrement = dialect.GetDialectAttribute<AutoIncrementAttribute>(declaredColumnType) != null
+            var isDeclaredAutoIncrement = dialect.GetDialectAttribute<AutoIncrementAttribute>(declaredColumnType) != null
                    || dialect.GetDialectAttribute<AutoIncrementAttribute>(prop) != null;
-            }
-            else
+
+            if (isDeclaredAutoIncrement)
             {
-                throw new ArgumentNullException($"The column { prop.DeclaringType.FullName }.{ prop.Name } is declared as being auto incrementing, which is not supported on a '{ columnType.Type.ToString() }' data type.", nameof(declaredColumnType));
+                if (ValidAutoIncrementTypes.Contains(columnType.Type))
+                    IsAutoIncrement = true;
+                else
+                    throw new ArgumentNullException($"The column { prop.DeclaringType.FullName }.{ prop.Name } is declared as being auto incrementing, which is not supported on a '{ columnType.Type.ToString() }' data type.", nameof(declaredColumnType));
             }
 
             Table = table ?? throw new ArgumentNullException(nameof(table));
@@ -48,10 +48,9 @@ namespace SJP.Schema.Modelled.Reflection
 
         public string DefaultValue { get; }
 
-        // TODO: get from property
         public bool IsAutoIncrement { get; }
 
-        public bool IsCalculated { get; }
+        public bool IsComputed { get; }
 
         protected IDatabaseDialect Dialect { get; }
 
@@ -62,7 +61,10 @@ namespace SJP.Schema.Modelled.Reflection
             if (columnType == null)
                 throw new ArgumentNullException(nameof(columnType));
 
-            var dbTypeInterface = columnType.GetTypeInfo().GetInterfaces().SingleOrDefault(iface => ModelledTypeInterface.GetTypeInfo().GetGenericTypeDefinition().GetTypeInfo().IsAssignableFrom(iface));
+            var dbTypeInterface = columnType.GetTypeInfo().GetInterfaces()
+                .SingleOrDefault(iface =>
+                    ModelledTypeInterface.GetTypeInfo().GetGenericTypeDefinition().GetTypeInfo()
+                        .IsAssignableFrom(iface.GetTypeInfo().GetGenericTypeDefinition().GetTypeInfo()));
             if (dbTypeInterface == null)
                 return null;
 

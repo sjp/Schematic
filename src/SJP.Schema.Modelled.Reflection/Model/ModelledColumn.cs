@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Reflection;
-using SJP.Schema.Core;
 
 namespace SJP.Schema.Modelled.Reflection.Model
 {
@@ -12,10 +11,12 @@ namespace SJP.Schema.Modelled.Reflection.Model
             IsNullable = isNullable;
         }
 
-        public PropertyInfo Property { get; internal set; }
-
         public virtual Type DeclaredDbType { get; }
 
+        public virtual bool IsComputed { get; }
+
         public virtual bool IsNullable { get; }
+
+        public PropertyInfo Property { get; internal set; }
     }
 }

@@ -16,7 +16,7 @@ namespace SJP.Schema.SqlServer
 
         public string DefaultValue { get; }
 
-        public virtual bool IsCalculated { get; } = false;
+        public virtual bool IsComputed { get; } = false;
 
         public Identifier Name { get; }
 
