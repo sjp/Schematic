@@ -443,7 +443,7 @@ order by ic.column_id";
         protected virtual IEnumerable<IDatabaseRelationalKey> LoadChildKeysSync()
         {
             const string sql = @"
-select schema_name(child_t.schema_id) as ChildTableSchema, child_t.name as ChildTableName, fk.name as ChildKeyName, c.name as ColumnName, fkc.constraint_column_id as ConstraintColumnId, kc.name as ParentKeyName, kc.type as ParentKeyType, fk.delete_referential_action as DeleteAction, fk.update_referential_action as UpdateAction
+select schema_name(child_t.schema_id) as ChildTableSchema, child_t.name as ChildTableName, fk.name as ChildKeyName, kc.name as ParentKeyName, kc.type as ParentKeyType, fk.delete_referential_action as DeleteAction, fk.update_referential_action as UpdateAction
 from sys.tables parent_t
 inner join sys.foreign_keys fk on parent_t.object_id = fk.referenced_object_id
 inner join sys.tables child_t on fk.parent_object_id = child_t.object_id
@@ -471,7 +471,6 @@ where schema_name(parent_t.schema_id) = @SchemaName and parent_t.name = @TableNa
             var result = new List<IDatabaseRelationalKey>();
             foreach (var groupedChildKey in groupedChildKeys)
             {
-                var rows = groupedChildKey.OrderBy(row => row.ConstraintColumnId);
                 var childKeyName = new LocalIdentifier(groupedChildKey.Key.ChildKeyName);
 
                 var childTableName = new Identifier(groupedChildKey.Key.ChildTableSchema, groupedChildKey.Key.ChildTableName);
@@ -480,7 +479,6 @@ where schema_name(parent_t.schema_id) = @SchemaName and parent_t.name = @TableNa
 
                 var childKey = parentKeyLookup[childKeyName.LocalName].ChildKey;
 
-                var tmpColumns = Column;
                 IDatabaseKey parentKey;
                 if (groupedChildKey.Key.ParentKeyType == "PK")
                 {
@@ -505,7 +503,7 @@ where schema_name(parent_t.schema_id) = @SchemaName and parent_t.name = @TableNa
         protected virtual async Task<IEnumerable<IDatabaseRelationalKey>> LoadChildKeysAsync()
         {
             const string sql = @"
-select schema_name(child_t.schema_id) as ChildTableSchema, child_t.name as ChildTableName, fk.name as ChildKeyName, c.name as ColumnName, fkc.constraint_column_id as ConstraintColumnId, kc.name as ParentKeyName, kc.type as ParentKeyType, fk.delete_referential_action as DeleteAction, fk.update_referential_action as UpdateAction
+select schema_name(child_t.schema_id) as ChildTableSchema, child_t.name as ChildTableName, fk.name as ChildKeyName, kc.name as ParentKeyName, kc.type as ParentKeyType, fk.delete_referential_action as DeleteAction, fk.update_referential_action as UpdateAction
 from sys.tables parent_t
 inner join sys.foreign_keys fk on parent_t.object_id = fk.referenced_object_id
 inner join sys.tables child_t on fk.parent_object_id = child_t.object_id
@@ -533,7 +531,6 @@ where schema_name(parent_t.schema_id) = @SchemaName and parent_t.name = @TableNa
             var result = new List<IDatabaseRelationalKey>();
             foreach (var groupedChildKey in groupedChildKeys)
             {
-                var rows = groupedChildKey.OrderBy(row => row.ConstraintColumnId);
                 var childKeyName = new LocalIdentifier(groupedChildKey.Key.ChildKeyName);
 
                 var childTableName = new Identifier(groupedChildKey.Key.ChildTableSchema, groupedChildKey.Key.ChildTableName);
@@ -542,7 +539,6 @@ where schema_name(parent_t.schema_id) = @SchemaName and parent_t.name = @TableNa
 
                 var childKey = parentKeyLookup[childKeyName.LocalName].ChildKey;
 
-                var tmpColumns = await ColumnAsync(); // trigger column cache
                 IDatabaseKey parentKey;
                 if (groupedChildKey.Key.ParentKeyType == "PK")
                 {
@@ -687,13 +683,14 @@ where schema_name(t.schema_id) = @SchemaName and t.name = @TableName";
         protected virtual IEnumerable<IDatabaseRelationalKey> LoadParentKeysSync()
         {
             const string sql = @"
-select schema_name(t.schema_id) as ParentTableSchema, t.name as ParentTableName, fk.name as ForeignKeyName, c.name as ColumnName, fkc.constraint_column_id as ConstraintColumnId, kc.name as ParentKeyName, kc.type as KeyType, fk.delete_referential_action as DeleteAction, fk.update_referential_action as UpdateAction
-from sys.tables t
-inner join sys.foreign_keys fk on t.object_id = fk.parent_object_id
+select schema_name(parent_t.schema_id) as ParentTableSchema, parent_t.name as ParentTableName, fk.name as ChildKeyName, c.name as ColumnName, fkc.constraint_column_id as ConstraintColumnId, kc.name as ParentKeyName, kc.type as ParentKeyType, fk.delete_referential_action as DeleteAction, fk.update_referential_action as UpdateAction
+from sys.tables parent_t
+inner join sys.foreign_keys fk on parent_t.object_id = fk.referenced_object_id
+inner join sys.tables child_t on fk.parent_object_id = child_t.object_id
 inner join sys.foreign_key_columns fkc on fk.object_id = fkc.constraint_object_id
 inner join sys.columns c on fkc.parent_column_id = c.column_id and c.object_id = fkc.parent_object_id
 inner join sys.key_constraints kc on kc.unique_index_id = fk.key_index_id and kc.parent_object_id = fk.referenced_object_id
-where t.name = @TableName and schema_name(t.schema_id) = @SchemaName";
+where schema_name(child_t.schema_id) = @SchemaName and child_t.name = @TableName";
 
             var queryResult = Connection.Query<ForeignKeyData>(sql, new { SchemaName = Name.Schema, TableName = Name.LocalName });
             if (queryResult.Empty())
@@ -701,11 +698,11 @@ where t.name = @TableName and schema_name(t.schema_id) = @SchemaName";
 
             var foreignKeys = queryResult.GroupBy(row => new
             {
-                ForeignKeyName = row.ForeignKeyName,
+                ChildKeyName = row.ChildKeyName,
                 ParentTableSchema = row.ParentTableSchema,
                 ParentTableName = row.ParentTableName,
-                ParentKeyName = row.ParentKeyName,
-                KeyType = row.KeyType,
+                ParentKeyName = row.ParentKeyType,
+                KeyType = row.ParentKeyType,
                 DeleteAction = row.DeleteAction,
                 UpdateAction = row.UpdateAction
             });
@@ -714,35 +711,28 @@ where t.name = @TableName and schema_name(t.schema_id) = @SchemaName";
             foreach (var fkey in foreignKeys)
             {
                 var rows = fkey.OrderBy(row => row.ConstraintColumnId);
-                var name = new LocalIdentifier(fkey.Key.ForeignKeyName);
 
                 var parentTableName = new Identifier(fkey.Key.ParentTableSchema, fkey.Key.ParentTableName);
                 var parentTable = Database.GetTable(parentTableName);
                 var parentKeyName = new LocalIdentifier(fkey.Key.ParentKeyName);
 
-                IEnumerable<IDatabaseColumn> parentColumns = parentTable.Columns.ToList();
-                DatabaseKeyType parentKeyType;
+                IDatabaseKey parentKey;
                 if (fkey.Key.KeyType == "PK")
                 {
-                    parentKeyType = DatabaseKeyType.Primary;
-                    var parentPk = parentTable.PrimaryKey;
-                    parentColumns = parentPk.Columns;
+                    parentKey = parentTable.PrimaryKey;
                 }
                 else
                 {
-                    parentKeyType = DatabaseKeyType.Unique;
                     var uniqueKeys = parentTable.UniqueKey;
-                    var uk = uniqueKeys[parentKeyName.LocalName];
-                    parentColumns = uk.Columns;
+                    parentKey = uniqueKeys[parentKeyName.LocalName];
                 }
 
-                var parentKey = new SqlServerDatabaseKey(this, parentKeyName, parentKeyType, parentColumns);
-
-                var childKeyName = new LocalIdentifier(fkey.Key.ForeignKeyName);
+                var childKeyName = new LocalIdentifier(fkey.Key.ChildKeyName);
                 var childKeyColumnLookup = Column;
                 var childKeyColumns = fkey
                     .OrderBy(row => row.ConstraintColumnId)
-                    .Select(row => childKeyColumnLookup[row.ColumnName]);
+                    .Select(row => childKeyColumnLookup[row.ColumnName])
+                    .ToList();
 
                 var childKey = new SqlServerDatabaseKey(this, childKeyName, DatabaseKeyType.Foreign, childKeyColumns);
 
@@ -759,13 +749,14 @@ where t.name = @TableName and schema_name(t.schema_id) = @SchemaName";
         protected virtual async Task<IEnumerable<IDatabaseRelationalKey>> LoadParentKeysAsync()
         {
             const string sql = @"
-select schema_name(t.schema_id) as ParentTableSchema, t.name as ParentTableName, fk.name as ForeignKeyName, c.name as ColumnName, fkc.constraint_column_id as ConstraintColumnId, kc.name as ParentKeyName, kc.type as KeyType, fk.delete_referential_action as DeleteAction, fk.update_referential_action as UpdateAction
-from sys.tables t
-inner join sys.foreign_keys fk on t.object_id = fk.parent_object_id
+select schema_name(parent_t.schema_id) as ParentTableSchema, parent_t.name as ParentTableName, fk.name as ChildKeyName, c.name as ColumnName, fkc.constraint_column_id as ConstraintColumnId, kc.name as ParentKeyName, kc.type as ParentKeyType, fk.delete_referential_action as DeleteAction, fk.update_referential_action as UpdateAction
+from sys.tables parent_t
+inner join sys.foreign_keys fk on parent_t.object_id = fk.referenced_object_id
+inner join sys.tables child_t on fk.parent_object_id = child_t.object_id
 inner join sys.foreign_key_columns fkc on fk.object_id = fkc.constraint_object_id
 inner join sys.columns c on fkc.parent_column_id = c.column_id and c.object_id = fkc.parent_object_id
 inner join sys.key_constraints kc on kc.unique_index_id = fk.key_index_id and kc.parent_object_id = fk.referenced_object_id
-where t.name = @TableName and schema_name(t.schema_id) = @SchemaName";
+where schema_name(child_t.schema_id) = @SchemaName and child_t.name = @TableName";
 
             var queryResult = await Connection.QueryAsync<ForeignKeyData>(sql, new { SchemaName = Name.Schema, TableName = Name.LocalName });
             if (queryResult.Empty())
@@ -773,11 +764,11 @@ where t.name = @TableName and schema_name(t.schema_id) = @SchemaName";
 
             var foreignKeys = queryResult.GroupBy(row => new
             {
-                ForeignKeyName = row.ForeignKeyName,
+                ChildKeyName = row.ChildKeyName,
                 ParentTableSchema = row.ParentTableSchema,
                 ParentTableName = row.ParentTableName,
-                ParentKeyName = row.ParentKeyName,
-                KeyType = row.KeyType,
+                ParentKeyName = row.ParentKeyType,
+                KeyType = row.ParentKeyType,
                 DeleteAction = row.DeleteAction,
                 UpdateAction = row.UpdateAction
             });
@@ -786,35 +777,28 @@ where t.name = @TableName and schema_name(t.schema_id) = @SchemaName";
             foreach (var fkey in foreignKeys)
             {
                 var rows = fkey.OrderBy(row => row.ConstraintColumnId);
-                var name = new LocalIdentifier(fkey.Key.ForeignKeyName);
 
                 var parentTableName = new Identifier(fkey.Key.ParentTableSchema, fkey.Key.ParentTableName);
                 var parentTable = await Database.GetTableAsync(parentTableName);
                 var parentKeyName = new LocalIdentifier(fkey.Key.ParentKeyName);
 
-                IEnumerable<IDatabaseColumn> parentColumns = await parentTable.ColumnsAsync(); // triggering column load async if not cached
-                DatabaseKeyType parentKeyType;
+                IDatabaseKey parentKey;
                 if (fkey.Key.KeyType == "PK")
                 {
-                    parentKeyType = DatabaseKeyType.Primary;
-                    var parentPk = await parentTable.PrimaryKeyAsync();
-                    parentColumns = parentPk.Columns;
+                    parentKey = parentTable.PrimaryKey;
                 }
                 else
                 {
-                    parentKeyType = DatabaseKeyType.Unique;
                     var uniqueKeys = await parentTable.UniqueKeyAsync();
-                    var uk = uniqueKeys[parentKeyName.LocalName];
-                    parentColumns = uk.Columns;
+                    parentKey = uniqueKeys[parentKeyName.LocalName];
                 }
 
-                var parentKey = new SqlServerDatabaseKey(this, parentKeyName, parentKeyType, parentColumns);
-
-                var childKeyName = new LocalIdentifier(fkey.Key.ForeignKeyName);
-                var childKeyColumnLookup = await ColumnAsync(); // trigger Column load if not already cached
+                var childKeyName = new LocalIdentifier(fkey.Key.ChildKeyName);
+                var childKeyColumnLookup = await ColumnAsync();
                 var childKeyColumns = fkey
                     .OrderBy(row => row.ConstraintColumnId)
-                    .Select(row => childKeyColumnLookup[row.ColumnName]);
+                    .Select(row => childKeyColumnLookup[row.ColumnName])
+                    .ToList();
 
                 var childKey = new SqlServerDatabaseKey(this, childKeyName, DatabaseKeyType.Foreign, childKeyColumns);
 
