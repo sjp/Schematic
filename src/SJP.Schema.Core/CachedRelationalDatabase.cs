@@ -12,18 +12,20 @@ namespace SJP.Schema.Core
         public CachedRelationalDatabase(IRelationalDatabase database, IdentifierComparer comparer = null)
         {
             Database = database ?? throw new ArgumentNullException(nameof(database));
-            comparer = comparer ?? new IdentifierComparer(StringComparer.Ordinal, database.DefaultSchema);
+            Comparer = comparer ?? new IdentifierComparer(StringComparer.Ordinal, database.DefaultSchema);
 
-            Table = new IdentifierKeyedCache<IRelationalDatabaseTable>(LoadTableAsync, comparer);
-            View = new IdentifierKeyedCache<IRelationalDatabaseView>(LoadViewAsync, comparer);
-            Sequence = new IdentifierKeyedCache<IDatabaseSequence>(LoadSequenceAsync, comparer);
-            Synonym = new IdentifierKeyedCache<IDatabaseSynonym>(LoadSynonymAsync, comparer);
-            Trigger = new IdentifierKeyedCache<IDatabaseTrigger>(LoadTriggerAsync, comparer);
+            Table = new IdentifierKeyedCache<IRelationalDatabaseTable>(LoadTableAsync, Comparer);
+            View = new IdentifierKeyedCache<IRelationalDatabaseView>(LoadViewAsync, Comparer);
+            Sequence = new IdentifierKeyedCache<IDatabaseSequence>(LoadSequenceAsync, Comparer);
+            Synonym = new IdentifierKeyedCache<IDatabaseSynonym>(LoadSynonymAsync, Comparer);
+            Trigger = new IdentifierKeyedCache<IDatabaseTrigger>(LoadTriggerAsync, Comparer);
         }
 
         public IDatabaseDialect Dialect => Database.Dialect;
 
         protected IRelationalDatabase Database { get; }
+
+        protected IdentifierComparer Comparer { get; }
 
         public string DefaultSchema => Database.DefaultSchema;
 
@@ -88,16 +90,20 @@ namespace SJP.Schema.Core
                 throw new ArgumentNullException(nameof(tableName));
 
             tableName = CreateQualifiedIdentifier(tableName);
-            return Database.GetTable(tableName);
+            var table = Database.GetTable(tableName);
+
+            return new CachedRelationalDatabaseTable(Database, table, Comparer);
         }
 
-        protected virtual Task<IRelationalDatabaseTable> LoadTableAsync(Identifier tableName)
+        protected virtual async Task<IRelationalDatabaseTable> LoadTableAsync(Identifier tableName)
         {
             if (tableName == null || tableName.LocalName.IsNullOrWhiteSpace())
                 throw new ArgumentNullException(nameof(tableName));
 
             tableName = CreateQualifiedIdentifier(tableName);
-            return Database.GetTableAsync(tableName);
+            var table = await Database.GetTableAsync(tableName);
+
+            return new CachedRelationalDatabaseTable(Database, table, Comparer);
         }
 
         #endregion Tables
