@@ -5,7 +5,6 @@ using System.Reflection;
 using System.Threading.Tasks;
 using System.Reactive.Linq;
 using SJP.Schema.Core;
-using SJP.Schema.Core.Utilities;
 using SJP.Schema.Modelled.Reflection.Model;
 
 namespace SJP.Schema.Modelled.Reflection
@@ -13,7 +12,7 @@ namespace SJP.Schema.Modelled.Reflection
     // TODO: uncomment interface when ready
     public class ReflectionRelationalDatabase : IRelationalDatabase //, IDependentRelationalDatabase
     {
-        public ReflectionRelationalDatabase(IDatabaseDialect dialect, Type databaseDefinitionType, string databaseName = null, string defaultSchema = null, IdentifierComparer comparer = null)
+        public ReflectionRelationalDatabase(IDatabaseDialect dialect, Type databaseDefinitionType, string databaseName = null, string defaultSchema = null, IEqualityComparer<Identifier> comparer = null)
         {
             Dialect = dialect ?? throw new ArgumentNullException(nameof(dialect));
             DatabaseDefinitionType = databaseDefinitionType ?? throw new ArgumentNullException(nameof(databaseDefinitionType));
@@ -51,7 +50,7 @@ namespace SJP.Schema.Modelled.Reflection
 
         public string DefaultSchema { get; }
 
-        protected IdentifierComparer Comparer { get; }
+        protected IEqualityComparer<Identifier> Comparer { get; }
 
         protected Type DatabaseDefinitionType { get; }
 

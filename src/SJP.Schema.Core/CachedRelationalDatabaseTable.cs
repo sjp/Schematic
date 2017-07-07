@@ -7,7 +7,7 @@ namespace SJP.Schema.Core
 {
     public class CachedRelationalDatabaseTable : IRelationalDatabaseTable
     {
-        public CachedRelationalDatabaseTable(IRelationalDatabase database, IRelationalDatabaseTable table, IdentifierComparer comparer)
+        public CachedRelationalDatabaseTable(IRelationalDatabase database, IRelationalDatabaseTable table, IEqualityComparer<Identifier> comparer)
         {
             Database = database ?? throw new ArgumentNullException(nameof(database));
             Table = table ?? throw new ArgumentNullException(nameof(table));

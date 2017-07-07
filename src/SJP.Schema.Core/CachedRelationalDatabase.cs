@@ -9,7 +9,7 @@ namespace SJP.Schema.Core
 {
     public class CachedRelationalDatabase : IRelationalDatabase
     {
-        public CachedRelationalDatabase(IRelationalDatabase database, IdentifierComparer comparer = null)
+        public CachedRelationalDatabase(IRelationalDatabase database, IEqualityComparer<Identifier> comparer = null)
         {
             Database = database ?? throw new ArgumentNullException(nameof(database));
             Comparer = comparer ?? new IdentifierComparer(StringComparer.Ordinal, database.DefaultSchema);
@@ -25,7 +25,7 @@ namespace SJP.Schema.Core
 
         protected IRelationalDatabase Database { get; }
 
-        protected IdentifierComparer Comparer { get; }
+        protected IEqualityComparer<Identifier> Comparer { get; }
 
         public string DefaultSchema => Database.DefaultSchema;
 
