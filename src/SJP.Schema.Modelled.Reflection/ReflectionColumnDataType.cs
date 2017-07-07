@@ -45,7 +45,7 @@ namespace SJP.Schema.Modelled.Reflection
         public IDbNumericType AsNumericType()
         {
             if (!IsNumericType)
-                throw new InvalidOperationException($"This column type is not a numeric type. It is a '{ Type }' type.");
+                throw new InvalidOperationException($"This column type is not a numeric type. It is a '{ Type.ToString() }' type.");
 
             return new ReflectionNumericColumnDataType(_typeAttribute, ClrType);
         }
@@ -53,7 +53,7 @@ namespace SJP.Schema.Modelled.Reflection
         public IDbStringType AsStringType()
         {
             if (!IsStringType)
-                throw new InvalidOperationException($"This column type is not a string type. It is a '{ Type }' type.");
+                throw new InvalidOperationException($"This column type is not a string type. It is a '{ Type.ToString() }' type.");
 
             var collationAttr = _dialect.GetDialectAttribute<CollationAttribute>(_columnType);
             return new ReflectionStringColumnDataType(_typeAttribute, ClrType, collationAttr?.CollationName);

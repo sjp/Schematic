@@ -31,8 +31,6 @@ namespace SJP.Schema.SqlServer
         private static ISqlExpression ParseExpression(string definition)
         {
             // TODO use sprache and/or superpower
-
-
             return null;
         }
     }

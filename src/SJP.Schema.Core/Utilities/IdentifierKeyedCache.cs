@@ -7,9 +7,9 @@ using System.Threading.Tasks;
 
 namespace SJP.Schema.Core.Utilities
 {
-    public class IdentifierLookup<TValue> : IReadOnlyDictionaryAsync<Identifier, TValue> where TValue : class
+    public class IdentifierKeyedCache<TValue> : ICache<Identifier, TValue> where TValue : class
     {
-        public IdentifierLookup(Func<Identifier, Task<TValue>> valueFactory, IdentifierComparer comparer = null, string defaultSchema = null)
+        public IdentifierKeyedCache(Func<Identifier, Task<TValue>> valueFactory, IEqualityComparer<Identifier> comparer = null, string defaultSchema = null)
         {
             if (comparer == null)
                 comparer = IdentifierComparer.Ordinal;
@@ -24,22 +24,6 @@ namespace SJP.Schema.Core.Utilities
         public IEnumerable<Identifier> Keys => NotNullValues.Select(kv => kv.Key);
 
         public IEnumerable<TValue> Values => NotNullValues.Select(kv => kv.Value);
-
-        public int Count => NotNullValues.Count();
-
-        public TValue this[Identifier key]
-        {
-            get
-            {
-                if (key == null)
-                    throw new ArgumentNullException(nameof(key));
-
-                key = CreateQualifiedName(key);
-                TryGetValue(key, out var value);
-
-                return value;
-            }
-        }
 
         public bool ContainsKey(Identifier key)
         {
@@ -61,7 +45,7 @@ namespace SJP.Schema.Core.Utilities
             return tmp != null;
         }
 
-        public bool TryGetValue(Identifier key, out TValue value)
+        public TValue GetValue(Identifier key)
         {
             if (key == null)
                 throw new ArgumentNullException(nameof(key));
@@ -70,8 +54,7 @@ namespace SJP.Schema.Core.Utilities
             var tmp = EnsureValue(key);
 
             _store.TryGetValue(key, out var lazy);
-            value = lazy.Task.Result;
-            return value != null;
+            return lazy.Task.Result;
         }
 
         public Task<TValue> GetValueAsync(Identifier key)
@@ -85,10 +68,6 @@ namespace SJP.Schema.Core.Utilities
             _store.TryGetValue(key, out var lazy);
             return lazy.Task;
         }
-
-        public IEnumerator<KeyValuePair<Identifier, TValue>> GetEnumerator() => NotNullValues.GetEnumerator();
-
-        IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
         protected virtual Task<TValue> EnsureValue(Identifier key)
         {
@@ -105,6 +84,9 @@ namespace SJP.Schema.Core.Utilities
 
         protected virtual Identifier CreateQualifiedName(Identifier source)
         {
+            if (source == null)
+                throw new ArgumentNullException(nameof(source));
+
             var localName = source.LocalName;
             var schemaName = source.Schema;
             if (_defaultSchema != null && schemaName.IsNullOrWhiteSpace())
@@ -114,6 +96,20 @@ namespace SJP.Schema.Core.Utilities
                 ? new LocalIdentifier(localName)
                 : new Identifier(schemaName, localName);
         }
+
+        public void Remove(Identifier key)
+        {
+            if (key == null)
+                throw new ArgumentNullException(nameof(key));
+
+            _store.TryRemove(key, out var value);
+        }
+
+        public void Clear() => _store.Clear();
+
+        public IEnumerator<KeyValuePair<Identifier, TValue>> GetEnumerator() => NotNullValues.GetEnumerator();
+
+        IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
         protected IEnumerable<KeyValuePair<Identifier, TValue>> NotNullValues => _store
             .Select(kv => new KeyValuePair<Identifier, TValue>(kv.Key, kv.Value.Task.Result))
