@@ -1,19 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using SJP.Schema.Core;
 
 namespace SJP.Schema.Modelled.Reflection
 {
     public class ReflectionIndexColumn : IDatabaseIndexColumn
     {
-        public ReflectionIndexColumn(ISqlExpression expression, IList<IDatabaseColumn> columns, IndexColumnOrder order)
+        public ReflectionIndexColumn(ISqlExpression expression, IReadOnlyList<IDatabaseColumn> columns, IndexColumnOrder order)
         {
-            if (columns == null)
-                throw new ArgumentNullException(nameof(columns));
-
             Expression = expression ?? throw new ArgumentNullException(nameof(expression));
-            DependentColumns = columns.ToList().AsReadOnly();
+            DependentColumns = columns ?? throw new ArgumentNullException(nameof(columns));
             Order = order;
         }
 

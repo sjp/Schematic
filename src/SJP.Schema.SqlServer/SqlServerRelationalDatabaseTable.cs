@@ -955,7 +955,7 @@ where schema_name(t.schema_id) = @SchemaName
                 result.Add(column);
             }
 
-            return result.AsReadOnlyList();
+            return result.AsReadOnly();
         }
 
         public IReadOnlyDictionary<Identifier, IDatabaseTrigger> Trigger => LoadTriggerLookupSync();

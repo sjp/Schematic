@@ -468,8 +468,8 @@ namespace SJP.Schema.Modelled.Reflection
 
         public Task<IReadOnlyList<IDatabaseTableColumn>> ColumnsAsync()
         {
-            var result = _columnLookup.Value.Values.ToList().AsReadOnlyList();
-            return Task.FromResult(result);
+            var result = _columnLookup.Value.Values.ToList().AsReadOnly();
+            return Task.FromResult<IReadOnlyList<IDatabaseTableColumn>>(result);
         }
 
         public Task<IReadOnlyDictionary<Identifier, IDatabaseTableIndex>> IndexAsync() => Task.FromResult(_indexLookup.Value);
