@@ -92,7 +92,7 @@ namespace SJP.Schema.Core
             tableName = CreateQualifiedIdentifier(tableName);
             var table = Database.GetTable(tableName);
 
-            return new CachedRelationalDatabaseTable(Database, table, Comparer);
+            return new CachedRelationalDatabaseTable(Database, table);
         }
 
         protected virtual async Task<IRelationalDatabaseTable> LoadTableAsync(Identifier tableName)
@@ -103,7 +103,7 @@ namespace SJP.Schema.Core
             tableName = CreateQualifiedIdentifier(tableName);
             var table = await Database.GetTableAsync(tableName);
 
-            return new CachedRelationalDatabaseTable(Database, table, Comparer);
+            return new CachedRelationalDatabaseTable(Database, table);
         }
 
         #endregion Tables

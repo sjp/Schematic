@@ -15,7 +15,7 @@ namespace SJP.Schema.SqlServer
         public SqlServerRelationalDatabase(IDatabaseDialect dialect, IDbConnection connection, IEqualityComparer<Identifier> comparer = null)
             : base(dialect, connection)
         {
-            Comparer = comparer ?? IdentifierComparer.Ordinal;
+            Comparer = comparer ?? IdentifierComparer.OrdinalIgnoreCase;
             _metadata = new Lazy<DatabaseMetadata>(LoadDatabaseMetadata);
             _parentDb = this;
         }
