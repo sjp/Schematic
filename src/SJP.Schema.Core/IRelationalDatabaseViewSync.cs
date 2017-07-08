@@ -8,11 +8,11 @@ namespace SJP.Schema.Core
     {
         IRelationalDatabase Database { get; }
 
-        IReadOnlyDictionary<string, IDatabaseViewColumn> Column { get; }
+        IReadOnlyDictionary<Identifier, IDatabaseViewColumn> Column { get; }
 
-        IList<IDatabaseViewColumn> Columns { get; }
+        IReadOnlyList<IDatabaseViewColumn> Columns { get; }
 
-        IReadOnlyDictionary<string, IDatabaseViewIndex> Index { get; }
+        IReadOnlyDictionary<Identifier, IDatabaseViewIndex> Index { get; }
 
         IEnumerable<IDatabaseViewIndex> Indexes { get; }
     }

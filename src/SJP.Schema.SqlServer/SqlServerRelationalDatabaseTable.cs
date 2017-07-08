@@ -11,11 +11,12 @@ namespace SJP.Schema.SqlServer
 {
     public class SqlServerRelationalDatabaseTable : IRelationalDatabaseTable, IRelationalDatabaseTableAsync
     {
-        public SqlServerRelationalDatabaseTable(IDbConnection connection, IRelationalDatabase database, Identifier tableName)
+        public SqlServerRelationalDatabaseTable(IDbConnection connection, IRelationalDatabase database, Identifier tableName, IEqualityComparer<Identifier> comparer = null)
         {
             Connection = connection ?? throw new ArgumentNullException(nameof(connection));
             Name = tableName ?? throw new ArgumentNullException(nameof(tableName));
             Database = database ?? throw new ArgumentNullException(nameof(database));
+            Comparer = comparer ?? IdentifierComparer.Ordinal;
         }
 
         public Identifier Name { get; }
@@ -23,6 +24,8 @@ namespace SJP.Schema.SqlServer
         public IRelationalDatabase Database { get; }
 
         protected IDbConnection Connection { get; }
+
+        protected IEqualityComparer<Identifier> Comparer { get; }
 
         public IEnumerable<Identifier> Dependencies => LoadDependenciesSync();
 
@@ -212,17 +215,17 @@ order by ic.column_id";
             return new SqlServerDatabaseKey(this, pkName, DatabaseKeyType.Primary, columns);
         }
 
-        public IReadOnlyDictionary<string, IDatabaseTableIndex> Index => LoadIndexLookupSync();
+        public IReadOnlyDictionary<Identifier, IDatabaseTableIndex> Index => LoadIndexLookupSync();
 
-        public Task<IReadOnlyDictionary<string, IDatabaseTableIndex>> IndexAsync() => LoadIndexLookupAsync();
+        public Task<IReadOnlyDictionary<Identifier, IDatabaseTableIndex>> IndexAsync() => LoadIndexLookupAsync();
 
         public IEnumerable<IDatabaseTableIndex> Indexes => LoadIndexesSync();
 
         public Task<IEnumerable<IDatabaseTableIndex>> IndexesAsync() => LoadIndexesAsync();
 
-        protected virtual IReadOnlyDictionary<string, IDatabaseTableIndex> LoadIndexLookupSync()
+        protected virtual IReadOnlyDictionary<Identifier, IDatabaseTableIndex> LoadIndexLookupSync()
         {
-            var result = new Dictionary<string, IDatabaseTableIndex>();
+            var result = new Dictionary<Identifier, IDatabaseTableIndex>(Comparer);
 
             foreach (var index in Indexes)
                 result[index.Name.LocalName] = index;
@@ -230,9 +233,9 @@ order by ic.column_id";
             return result.AsReadOnlyDictionary();
         }
 
-        protected virtual async Task<IReadOnlyDictionary<string, IDatabaseTableIndex>> LoadIndexLookupAsync()
+        protected virtual async Task<IReadOnlyDictionary<Identifier, IDatabaseTableIndex>> LoadIndexLookupAsync()
         {
-            var result = new Dictionary<string, IDatabaseTableIndex>();
+            var result = new Dictionary<Identifier, IDatabaseTableIndex>(Comparer);
 
             var indexes = await IndexesAsync();
             foreach (var index in indexes)
@@ -333,17 +336,17 @@ where schema_name(t.schema_id) = @SchemaName and t.name = @TableName
             return result;
         }
 
-        public IReadOnlyDictionary<string, IDatabaseKey> UniqueKey => LoadUniqueKeyLookupSync();
+        public IReadOnlyDictionary<Identifier, IDatabaseKey> UniqueKey => LoadUniqueKeyLookupSync();
 
-        public Task<IReadOnlyDictionary<string, IDatabaseKey>> UniqueKeyAsync() => LoadUniqueKeyLookupAsync();
+        public Task<IReadOnlyDictionary<Identifier, IDatabaseKey>> UniqueKeyAsync() => LoadUniqueKeyLookupAsync();
 
         public IEnumerable<IDatabaseKey> UniqueKeys => LoadUniqueKeysSync();
 
         public Task<IEnumerable<IDatabaseKey>> UniqueKeysAsync() => LoadUniqueKeysAsync();
 
-        protected virtual IReadOnlyDictionary<string, IDatabaseKey> LoadUniqueKeyLookupSync()
+        protected virtual IReadOnlyDictionary<Identifier, IDatabaseKey> LoadUniqueKeyLookupSync()
         {
-            var result = new Dictionary<string, IDatabaseKey>();
+            var result = new Dictionary<Identifier, IDatabaseKey>(Comparer);
 
             foreach (var uk in UniqueKeys)
                 result[uk.Name.LocalName] = uk;
@@ -351,9 +354,9 @@ where schema_name(t.schema_id) = @SchemaName and t.name = @TableName
             return result.AsReadOnlyDictionary();
         }
 
-        protected virtual async Task<IReadOnlyDictionary<string, IDatabaseKey>> LoadUniqueKeyLookupAsync()
+        protected virtual async Task<IReadOnlyDictionary<Identifier, IDatabaseKey>> LoadUniqueKeyLookupAsync()
         {
-            var result = new Dictionary<string, IDatabaseKey>();
+            var result = new Dictionary<Identifier, IDatabaseKey>(Comparer);
 
             var uniqueKeys = await UniqueKeysAsync();
             foreach (var uk in uniqueKeys)
@@ -560,17 +563,17 @@ where schema_name(parent_t.schema_id) = @SchemaName and parent_t.name = @TableNa
             return result;
         }
 
-        public IReadOnlyDictionary<string, IDatabaseCheckConstraint> CheckConstraint => LoadCheckConstraintLookupSync();
+        public IReadOnlyDictionary<Identifier, IDatabaseCheckConstraint> CheckConstraint => LoadCheckConstraintLookupSync();
 
-        public Task<IReadOnlyDictionary<string, IDatabaseCheckConstraint>> CheckConstraintAsync() => LoadCheckConstraintLookupAsync();
+        public Task<IReadOnlyDictionary<Identifier, IDatabaseCheckConstraint>> CheckConstraintAsync() => LoadCheckConstraintLookupAsync();
 
         public IEnumerable<IDatabaseCheckConstraint> CheckConstraints => LoadCheckConstraintsSync();
 
         public Task<IEnumerable<IDatabaseCheckConstraint>> CheckConstraintsAsync() => LoadCheckConstraintsAsync();
 
-        protected virtual IReadOnlyDictionary<string, IDatabaseCheckConstraint> LoadCheckConstraintLookupSync()
+        protected virtual IReadOnlyDictionary<Identifier, IDatabaseCheckConstraint> LoadCheckConstraintLookupSync()
         {
-            var result = new Dictionary<string, IDatabaseCheckConstraint>();
+            var result = new Dictionary<Identifier, IDatabaseCheckConstraint>(Comparer);
 
             foreach (var check in CheckConstraints)
                 result[check.Name.LocalName] = check;
@@ -578,9 +581,9 @@ where schema_name(parent_t.schema_id) = @SchemaName and parent_t.name = @TableNa
             return result.AsReadOnlyDictionary();
         }
 
-        protected virtual async Task<IReadOnlyDictionary<string, IDatabaseCheckConstraint>> LoadCheckConstraintLookupAsync()
+        protected virtual async Task<IReadOnlyDictionary<Identifier, IDatabaseCheckConstraint>> LoadCheckConstraintLookupAsync()
         {
-            var result = new Dictionary<string, IDatabaseCheckConstraint>();
+            var result = new Dictionary<Identifier, IDatabaseCheckConstraint>(Comparer);
 
             var checks = await CheckConstraintsAsync();
             foreach (var check in checks)
@@ -651,17 +654,17 @@ where schema_name(t.schema_id) = @SchemaName and t.name = @TableName";
             return result;
         }
 
-        public IReadOnlyDictionary<string, IDatabaseRelationalKey> ParentKey => LoadParentKeyLookupSync();
+        public IReadOnlyDictionary<Identifier, IDatabaseRelationalKey> ParentKey => LoadParentKeyLookupSync();
 
-        public Task<IReadOnlyDictionary<string, IDatabaseRelationalKey>> ParentKeyAsync() => LoadParentKeyLookupAsync();
+        public Task<IReadOnlyDictionary<Identifier, IDatabaseRelationalKey>> ParentKeyAsync() => LoadParentKeyLookupAsync();
 
         public IEnumerable<IDatabaseRelationalKey> ParentKeys => LoadParentKeysSync();
 
         public Task<IEnumerable<IDatabaseRelationalKey>> ParentKeysAsync() => LoadParentKeysAsync();
 
-        protected virtual IReadOnlyDictionary<string, IDatabaseRelationalKey> LoadParentKeyLookupSync()
+        protected virtual IReadOnlyDictionary<Identifier, IDatabaseRelationalKey> LoadParentKeyLookupSync()
         {
-            var result = new Dictionary<string, IDatabaseRelationalKey>();
+            var result = new Dictionary<Identifier, IDatabaseRelationalKey>(Comparer);
 
             foreach (var parentKey in ParentKeys)
                 result[parentKey.ChildKey.Name.LocalName] = parentKey;
@@ -669,9 +672,9 @@ where schema_name(t.schema_id) = @SchemaName and t.name = @TableName";
             return result.AsReadOnlyDictionary();
         }
 
-        protected virtual async Task<IReadOnlyDictionary<string, IDatabaseRelationalKey>> LoadParentKeyLookupAsync()
+        protected virtual async Task<IReadOnlyDictionary<Identifier, IDatabaseRelationalKey>> LoadParentKeyLookupAsync()
         {
-            var result = new Dictionary<string, IDatabaseRelationalKey>();
+            var result = new Dictionary<Identifier, IDatabaseRelationalKey>(Comparer);
 
             var parentKeys = await ParentKeysAsync();
             foreach (var parentKey in parentKeys)
@@ -812,17 +815,17 @@ where schema_name(child_t.schema_id) = @SchemaName and child_t.name = @TableName
             return result;
         }
 
-        public IList<IDatabaseTableColumn> Columns => LoadColumnsSync();
+        public IReadOnlyList<IDatabaseTableColumn> Columns => LoadColumnsSync();
 
-        public Task<IList<IDatabaseTableColumn>> ColumnsAsync() => LoadColumnsAsync();
+        public Task<IReadOnlyList<IDatabaseTableColumn>> ColumnsAsync() => LoadColumnsAsync();
 
-        public IReadOnlyDictionary<string, IDatabaseTableColumn> Column => LoadColumnLookupSync();
+        public IReadOnlyDictionary<Identifier, IDatabaseTableColumn> Column => LoadColumnLookupSync();
 
-        public Task<IReadOnlyDictionary<string, IDatabaseTableColumn>> ColumnAsync() => LoadColumnLookupAsync();
+        public Task<IReadOnlyDictionary<Identifier, IDatabaseTableColumn>> ColumnAsync() => LoadColumnLookupAsync();
 
-        protected virtual IReadOnlyDictionary<string, IDatabaseTableColumn> LoadColumnLookupSync()
+        protected virtual IReadOnlyDictionary<Identifier, IDatabaseTableColumn> LoadColumnLookupSync()
         {
-            var result = new Dictionary<string, IDatabaseTableColumn>();
+            var result = new Dictionary<Identifier, IDatabaseTableColumn>(Comparer);
 
             var columns = Columns.Where(c => c.Name != null);
             foreach (var column in columns)
@@ -831,9 +834,9 @@ where schema_name(child_t.schema_id) = @SchemaName and child_t.name = @TableName
             return result.AsReadOnlyDictionary();
         }
 
-        protected virtual async Task<IReadOnlyDictionary<string, IDatabaseTableColumn>> LoadColumnLookupAsync()
+        protected virtual async Task<IReadOnlyDictionary<Identifier, IDatabaseTableColumn>> LoadColumnLookupAsync()
         {
-            var result = new Dictionary<string, IDatabaseTableColumn>();
+            var result = new Dictionary<Identifier, IDatabaseTableColumn>(Comparer);
 
             var allColumns = await ColumnsAsync();
             var columns = allColumns.Where(c => c.Name != null);
@@ -843,7 +846,7 @@ where schema_name(child_t.schema_id) = @SchemaName and child_t.name = @TableName
             return result.AsReadOnlyDictionary();
         }
 
-        protected virtual IList<IDatabaseTableColumn> LoadColumnsSync()
+        protected virtual IReadOnlyList<IDatabaseTableColumn> LoadColumnsSync()
         {
             const string sql = @"
 select
@@ -896,10 +899,10 @@ where schema_name(t.schema_id) = @SchemaName
                 result.Add(column);
             }
 
-            return result;
+            return result.AsReadOnly();
         }
 
-        protected virtual async Task<IList<IDatabaseTableColumn>> LoadColumnsAsync()
+        protected virtual async Task<IReadOnlyList<IDatabaseTableColumn>> LoadColumnsAsync()
         {
             const string sql = @"
 select
@@ -952,20 +955,20 @@ where schema_name(t.schema_id) = @SchemaName
                 result.Add(column);
             }
 
-            return result;
+            return result.AsReadOnlyList();
         }
 
-        public IReadOnlyDictionary<string, IDatabaseTrigger> Trigger => LoadTriggerLookupSync();
+        public IReadOnlyDictionary<Identifier, IDatabaseTrigger> Trigger => LoadTriggerLookupSync();
 
         public IEnumerable<IDatabaseTrigger> Triggers => LoadTriggersSync();
 
-        public Task<IReadOnlyDictionary<string, IDatabaseTrigger>> TriggerAsync() => LoadTriggerLookupAsync();
+        public Task<IReadOnlyDictionary<Identifier, IDatabaseTrigger>> TriggerAsync() => LoadTriggerLookupAsync();
 
         public Task<IEnumerable<IDatabaseTrigger>> TriggersAsync() => LoadTriggersAsync();
 
-        protected virtual IReadOnlyDictionary<string, IDatabaseTrigger> LoadTriggerLookupSync()
+        protected virtual IReadOnlyDictionary<Identifier, IDatabaseTrigger> LoadTriggerLookupSync()
         {
-            var result = new Dictionary<string, IDatabaseTrigger>();
+            var result = new Dictionary<Identifier, IDatabaseTrigger>(Comparer);
 
             foreach (var trigger in Triggers)
                 result[trigger.Name.LocalName] = trigger;
@@ -973,9 +976,9 @@ where schema_name(t.schema_id) = @SchemaName
             return result.AsReadOnlyDictionary();
         }
 
-        protected virtual async Task<IReadOnlyDictionary<string, IDatabaseTrigger>> LoadTriggerLookupAsync()
+        protected virtual async Task<IReadOnlyDictionary<Identifier, IDatabaseTrigger>> LoadTriggerLookupAsync()
         {
-            var result = new Dictionary<string, IDatabaseTrigger>();
+            var result = new Dictionary<Identifier, IDatabaseTrigger>(Comparer);
 
             var triggers = await TriggersAsync();
             foreach (var trigger in triggers)

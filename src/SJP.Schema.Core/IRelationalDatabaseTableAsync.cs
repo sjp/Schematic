@@ -8,25 +8,25 @@ namespace SJP.Schema.Core
     {
         Task<IDatabaseKey> PrimaryKeyAsync();
 
-        Task<IReadOnlyDictionary<string, IDatabaseTableColumn>> ColumnAsync();
-        Task<IList<IDatabaseTableColumn>> ColumnsAsync();
+        Task<IReadOnlyDictionary<Identifier, IDatabaseTableColumn>> ColumnAsync();
+        Task<IReadOnlyList<IDatabaseTableColumn>> ColumnsAsync();
 
-        Task<IReadOnlyDictionary<string, IDatabaseCheckConstraint>> CheckConstraintAsync();
+        Task<IReadOnlyDictionary<Identifier, IDatabaseCheckConstraint>> CheckConstraintAsync();
         Task<IEnumerable<IDatabaseCheckConstraint>> CheckConstraintsAsync();
 
-        Task<IReadOnlyDictionary<string, IDatabaseTableIndex>> IndexAsync();
+        Task<IReadOnlyDictionary<Identifier, IDatabaseTableIndex>> IndexAsync();
         Task<IEnumerable<IDatabaseTableIndex>> IndexesAsync();
 
-        Task<IReadOnlyDictionary<string, IDatabaseKey>> UniqueKeyAsync();
+        Task<IReadOnlyDictionary<Identifier, IDatabaseKey>> UniqueKeyAsync();
         Task<IEnumerable<IDatabaseKey>> UniqueKeysAsync();
 
-        Task<IReadOnlyDictionary<string, IDatabaseRelationalKey>> ParentKeyAsync();
+        Task<IReadOnlyDictionary<Identifier, IDatabaseRelationalKey>> ParentKeyAsync();
         Task<IEnumerable<IDatabaseRelationalKey>> ParentKeysAsync();
 
         Task<IEnumerable<IDatabaseRelationalKey>> ChildKeysAsync();
 
         // TRIGGER ON TABLE or DATABASE OR BOTH?
-        Task<IReadOnlyDictionary<string, IDatabaseTrigger>> TriggerAsync();
+        Task<IReadOnlyDictionary<Identifier, IDatabaseTrigger>> TriggerAsync();
         Task<IEnumerable<IDatabaseTrigger>> TriggersAsync();
     }
 }

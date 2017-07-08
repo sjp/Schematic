@@ -20,12 +20,12 @@ namespace SJP.Schema.Modelled.Reflection
             _dependencies = new Lazy<IEnumerable<Identifier>>(LoadDependencies);
             _dependents = new Lazy<IEnumerable<Identifier>>(LoadDependents);
 
-            _columns = new Lazy<IList<IDatabaseTableColumn>>(LoadColumnList);
-            _columnLookup = new Lazy<IReadOnlyDictionary<string, IDatabaseTableColumn>>(LoadColumns);
-            _checkLookup = new Lazy<IReadOnlyDictionary<string, IDatabaseCheckConstraint>>(LoadChecks);
-            _uniqueKeyLookup = new Lazy<IReadOnlyDictionary<string, IDatabaseKey>>(LoadUniqueKeys);
-            _indexLookup = new Lazy<IReadOnlyDictionary<string, IDatabaseTableIndex>>(LoadIndexes);
-            _parentKeyLookup = new Lazy<IReadOnlyDictionary<string, IDatabaseRelationalKey>>(LoadParentKeys);
+            _columns = new Lazy<IReadOnlyList<IDatabaseTableColumn>>(LoadColumnList);
+            _columnLookup = new Lazy<IReadOnlyDictionary<Identifier, IDatabaseTableColumn>>(LoadColumns);
+            _checkLookup = new Lazy<IReadOnlyDictionary<Identifier, IDatabaseCheckConstraint>>(LoadChecks);
+            _uniqueKeyLookup = new Lazy<IReadOnlyDictionary<Identifier, IDatabaseKey>>(LoadUniqueKeys);
+            _indexLookup = new Lazy<IReadOnlyDictionary<Identifier, IDatabaseTableIndex>>(LoadIndexes);
+            _parentKeyLookup = new Lazy<IReadOnlyDictionary<Identifier, IDatabaseRelationalKey>>(LoadParentKeys);
             _childKeys = new Lazy<IEnumerable<IDatabaseRelationalKey>>(LoadChildKeys);
             _primaryKey = new Lazy<IDatabaseKey>(LoadPrimaryKey);
 
@@ -106,9 +106,9 @@ namespace SJP.Schema.Modelled.Reflection
 
         // TODO: see if it's possible to create a foreign key to a synonym in sql server
         //       this should be possible in oracle but not sure
-        private IReadOnlyDictionary<string, IDatabaseRelationalKey> LoadParentKeys()
+        private IReadOnlyDictionary<Identifier, IDatabaseRelationalKey> LoadParentKeys()
         {
-            var result = new Dictionary<string, IDatabaseRelationalKey>();
+            var result = new Dictionary<Identifier, IDatabaseRelationalKey>();
             var tableColumns = Column; // trigger load
 
             var keyProperties = InstanceProperties.Where(IsKeyProperty);
@@ -188,7 +188,7 @@ namespace SJP.Schema.Modelled.Reflection
 
         public object TableInstance { get; }
 
-        private IList<IDatabaseTableColumn> LoadColumnList()
+        private IReadOnlyList<IDatabaseTableColumn> LoadColumnList()
         {
             var result = new List<IDatabaseTableColumn>();
 
@@ -244,9 +244,9 @@ namespace SJP.Schema.Modelled.Reflection
             return new ReflectionKey(Dialect, this, primaryKey.Property, pkColumns, primaryKey.KeyType);
         }
 
-        private IReadOnlyDictionary<string, IDatabaseTableIndex> LoadIndexes()
+        private IReadOnlyDictionary<Identifier, IDatabaseTableIndex> LoadIndexes()
         {
-            var result = new Dictionary<string, IDatabaseTableIndex>();
+            var result = new Dictionary<Identifier, IDatabaseTableIndex>();
 
             var indexes = InstanceProperties
                 .Where(IsIndexProperty)
@@ -266,9 +266,9 @@ namespace SJP.Schema.Modelled.Reflection
             return result.AsReadOnlyDictionary();
         }
 
-        private IReadOnlyDictionary<string, IDatabaseKey> LoadUniqueKeys()
+        private IReadOnlyDictionary<Identifier, IDatabaseKey> LoadUniqueKeys()
         {
-            var result = new Dictionary<string, IDatabaseKey>();
+            var result = new Dictionary<Identifier, IDatabaseKey>();
             var tableColumns = Column; // trigger load
 
             var keyProperties = InstanceProperties.Where(IsKeyProperty);
@@ -301,9 +301,9 @@ namespace SJP.Schema.Modelled.Reflection
             return result.AsReadOnlyDictionary();
         }
 
-        private IReadOnlyDictionary<string, IDatabaseCheckConstraint> LoadChecks()
+        private IReadOnlyDictionary<Identifier, IDatabaseCheckConstraint> LoadChecks()
         {
-            var result = new Dictionary<string, IDatabaseCheckConstraint>();
+            var result = new Dictionary<Identifier, IDatabaseCheckConstraint>();
 
             var dialect = Database.Dialect;
             var checkProperties = InstanceProperties.Where(IsCheckProperty);
@@ -329,9 +329,9 @@ namespace SJP.Schema.Modelled.Reflection
             return result.AsReadOnlyDictionary();
         }
 
-        private IReadOnlyDictionary<string, IDatabaseTableColumn> LoadColumns()
+        private IReadOnlyDictionary<Identifier, IDatabaseTableColumn> LoadColumns()
         {
-            var result = new Dictionary<string, IDatabaseTableColumn>();
+            var result = new Dictionary<Identifier, IDatabaseTableColumn>();
 
             foreach (var prop in InstanceProperties)
             {
@@ -426,63 +426,63 @@ namespace SJP.Schema.Modelled.Reflection
 
         private static Type DbTypeArg { get; } = typeof(IDbType);
 
-        public IReadOnlyDictionary<string, IDatabaseCheckConstraint> CheckConstraint => _checkLookup.Value;
+        public IReadOnlyDictionary<Identifier, IDatabaseCheckConstraint> CheckConstraint => _checkLookup.Value;
 
         public IEnumerable<IDatabaseCheckConstraint> CheckConstraints => _checkLookup.Value.Values;
 
         public IEnumerable<IDatabaseRelationalKey> ChildKeys => _childKeys.Value;
 
-        public IReadOnlyDictionary<string, IDatabaseTableColumn> Column => _columnLookup.Value;
+        public IReadOnlyDictionary<Identifier, IDatabaseTableColumn> Column => _columnLookup.Value;
 
-        public IList<IDatabaseTableColumn> Columns => _columns.Value;
+        public IReadOnlyList<IDatabaseTableColumn> Columns => _columns.Value;
 
         public IRelationalDatabase Database { get; }
 
-        public IReadOnlyDictionary<string, IDatabaseTableIndex> Index => _indexLookup.Value;
+        public IReadOnlyDictionary<Identifier, IDatabaseTableIndex> Index => _indexLookup.Value;
 
         public IEnumerable<IDatabaseTableIndex> Indexes => _indexLookup.Value.Values;
 
         public Identifier Name { get; }
 
-        public IReadOnlyDictionary<string, IDatabaseRelationalKey> ParentKey => _parentKeyLookup.Value;
+        public IReadOnlyDictionary<Identifier, IDatabaseRelationalKey> ParentKey => _parentKeyLookup.Value;
 
         public IEnumerable<IDatabaseRelationalKey> ParentKeys => _parentKeyLookup.Value.Values;
 
         public IDatabaseKey PrimaryKey => _primaryKey.Value;
 
-        public IReadOnlyDictionary<string, IDatabaseTrigger> Trigger { get; }
+        public IReadOnlyDictionary<Identifier, IDatabaseTrigger> Trigger { get; }
 
         public IEnumerable<IDatabaseTrigger> Triggers { get; }
 
-        public IReadOnlyDictionary<string, IDatabaseKey> UniqueKey => _uniqueKeyLookup.Value;
+        public IReadOnlyDictionary<Identifier, IDatabaseKey> UniqueKey => _uniqueKeyLookup.Value;
 
         public IEnumerable<IDatabaseKey> UniqueKeys => _uniqueKeyLookup.Value.Values;
 
-        public Task<IReadOnlyDictionary<string, IDatabaseCheckConstraint>> CheckConstraintAsync() => Task.FromResult(_checkLookup.Value);
+        public Task<IReadOnlyDictionary<Identifier, IDatabaseCheckConstraint>> CheckConstraintAsync() => Task.FromResult(_checkLookup.Value);
 
         public Task<IEnumerable<IDatabaseCheckConstraint>> CheckConstraintsAsync() => Task.FromResult(_checkLookup.Value.Values);
 
         public Task<IEnumerable<IDatabaseRelationalKey>> ChildKeysAsync() => Task.FromResult(_childKeys.Value);
 
-        public Task<IReadOnlyDictionary<string, IDatabaseTableColumn>> ColumnAsync() => Task.FromResult(_columnLookup.Value);
+        public Task<IReadOnlyDictionary<Identifier, IDatabaseTableColumn>> ColumnAsync() => Task.FromResult(_columnLookup.Value);
 
-        public Task<IList<IDatabaseTableColumn>> ColumnsAsync()
+        public Task<IReadOnlyList<IDatabaseTableColumn>> ColumnsAsync()
         {
-            IList<IDatabaseTableColumn> result = _columnLookup.Value.Values.ToList();
+            var result = _columnLookup.Value.Values.ToList().AsReadOnlyList();
             return Task.FromResult(result);
         }
 
-        public Task<IReadOnlyDictionary<string, IDatabaseTableIndex>> IndexAsync() => Task.FromResult(_indexLookup.Value);
+        public Task<IReadOnlyDictionary<Identifier, IDatabaseTableIndex>> IndexAsync() => Task.FromResult(_indexLookup.Value);
 
         public Task<IEnumerable<IDatabaseTableIndex>> IndexesAsync() => Task.FromResult(_indexLookup.Value.Values);
 
-        public Task<IReadOnlyDictionary<string, IDatabaseRelationalKey>> ParentKeyAsync() => Task.FromResult(_parentKeyLookup.Value);
+        public Task<IReadOnlyDictionary<Identifier, IDatabaseRelationalKey>> ParentKeyAsync() => Task.FromResult(_parentKeyLookup.Value);
 
         public Task<IEnumerable<IDatabaseRelationalKey>> ParentKeysAsync() => Task.FromResult(_parentKeyLookup.Value.Values);
 
         public Task<IDatabaseKey> PrimaryKeyAsync() => Task.FromResult(_primaryKey.Value);
 
-        public Task<IReadOnlyDictionary<string, IDatabaseTrigger>> TriggerAsync()
+        public Task<IReadOnlyDictionary<Identifier, IDatabaseTrigger>> TriggerAsync()
         {
             throw new NotImplementedException();
         }
@@ -492,7 +492,7 @@ namespace SJP.Schema.Modelled.Reflection
             throw new NotImplementedException();
         }
 
-        public Task<IReadOnlyDictionary<string, IDatabaseKey>> UniqueKeyAsync() => Task.FromResult(_uniqueKeyLookup.Value);
+        public Task<IReadOnlyDictionary<Identifier, IDatabaseKey>> UniqueKeyAsync() => Task.FromResult(_uniqueKeyLookup.Value);
 
         public Task<IEnumerable<IDatabaseKey>> UniqueKeysAsync() => Task.FromResult(_uniqueKeyLookup.Value.Values);
 
@@ -509,14 +509,14 @@ namespace SJP.Schema.Modelled.Reflection
         private readonly Lazy<IEnumerable<Identifier>> _dependencies;
         private readonly Lazy<IEnumerable<Identifier>> _dependents;
 
-        private readonly Lazy<IList<IDatabaseTableColumn>> _columns;
-        private readonly Lazy<IReadOnlyDictionary<string, IDatabaseTableColumn>> _columnLookup;
+        private readonly Lazy<IReadOnlyList<IDatabaseTableColumn>> _columns;
+        private readonly Lazy<IReadOnlyDictionary<Identifier, IDatabaseTableColumn>> _columnLookup;
         // TODO: implement triggers
         //private readonly Lazy<IReadOnlyDictionary<string, IDatabaseTrigger>> _triggerLookup;
-        private readonly Lazy<IReadOnlyDictionary<string, IDatabaseKey>> _uniqueKeyLookup;
-        private readonly Lazy<IReadOnlyDictionary<string, IDatabaseCheckConstraint>> _checkLookup;
-        private readonly Lazy<IReadOnlyDictionary<string, IDatabaseTableIndex>> _indexLookup;
-        private readonly Lazy<IReadOnlyDictionary<string, IDatabaseRelationalKey>> _parentKeyLookup;
+        private readonly Lazy<IReadOnlyDictionary<Identifier, IDatabaseKey>> _uniqueKeyLookup;
+        private readonly Lazy<IReadOnlyDictionary<Identifier, IDatabaseCheckConstraint>> _checkLookup;
+        private readonly Lazy<IReadOnlyDictionary<Identifier, IDatabaseTableIndex>> _indexLookup;
+        private readonly Lazy<IReadOnlyDictionary<Identifier, IDatabaseRelationalKey>> _parentKeyLookup;
         private readonly Lazy<IEnumerable<IDatabaseRelationalKey>> _childKeys;
         private readonly Lazy<IDatabaseKey> _primaryKey;
     }

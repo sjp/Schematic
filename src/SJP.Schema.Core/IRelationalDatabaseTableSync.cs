@@ -10,30 +10,30 @@ namespace SJP.Schema.Core
 
         IDatabaseKey PrimaryKey { get; }
 
-        IReadOnlyDictionary<string, IDatabaseTableColumn> Column { get; }
+        IReadOnlyDictionary<Identifier, IDatabaseTableColumn> Column { get; }
 
-        IList<IDatabaseTableColumn> Columns { get; }
+        IReadOnlyList<IDatabaseTableColumn> Columns { get; }
 
-        IReadOnlyDictionary<string, IDatabaseCheckConstraint> CheckConstraint { get; }
+        IReadOnlyDictionary<Identifier, IDatabaseCheckConstraint> CheckConstraint { get; }
 
         IEnumerable<IDatabaseCheckConstraint> CheckConstraints { get; }
 
-        IReadOnlyDictionary<string, IDatabaseTableIndex> Index { get; }
+        IReadOnlyDictionary<Identifier, IDatabaseTableIndex> Index { get; }
 
         IEnumerable<IDatabaseTableIndex> Indexes { get; }
 
-        IReadOnlyDictionary<string, IDatabaseKey> UniqueKey { get; }
+        IReadOnlyDictionary<Identifier, IDatabaseKey> UniqueKey { get; }
 
         IEnumerable<IDatabaseKey> UniqueKeys { get; }
 
-        IReadOnlyDictionary<string, IDatabaseRelationalKey> ParentKey { get; }
+        IReadOnlyDictionary<Identifier, IDatabaseRelationalKey> ParentKey { get; }
 
         IEnumerable<IDatabaseRelationalKey> ParentKeys { get; }
 
         IEnumerable<IDatabaseRelationalKey> ChildKeys { get; }
 
         // TRIGGER ON TABLE or DATABASE OR BOTH?
-        IReadOnlyDictionary<string, IDatabaseTrigger> Trigger { get; }
+        IReadOnlyDictionary<Identifier, IDatabaseTrigger> Trigger { get; }
 
         IEnumerable<IDatabaseTrigger> Triggers { get; }
     }

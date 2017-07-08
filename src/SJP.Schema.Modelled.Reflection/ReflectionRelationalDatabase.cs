@@ -211,7 +211,7 @@ namespace SJP.Schema.Modelled.Reflection
 
         protected virtual IReadOnlyDictionary<Identifier, IRelationalDatabaseView> LoadViews()
         {
-            var result = new Dictionary<Identifier, IRelationalDatabaseView>();
+            var result = new Dictionary<Identifier, IRelationalDatabaseView>(Comparer);
 
             var views = GetUnwrappedPropertyTypes(ViewGenericType)
                 .Select(LoadViewSync)
@@ -303,7 +303,7 @@ namespace SJP.Schema.Modelled.Reflection
 
         protected virtual IReadOnlyDictionary<Identifier, IDatabaseSequence> LoadSequences()
         {
-            var result = new Dictionary<Identifier, IDatabaseSequence>();
+            var result = new Dictionary<Identifier, IDatabaseSequence>(Comparer);
 
             var sequences = GetUnwrappedPropertyTypes(SequenceGenericType)
                 .Select(LoadSequenceSync)
@@ -395,7 +395,7 @@ namespace SJP.Schema.Modelled.Reflection
 
         protected virtual IReadOnlyDictionary<Identifier, IDatabaseSynonym> LoadSynonyms()
         {
-            var result = new Dictionary<Identifier, IDatabaseSynonym>();
+            var result = new Dictionary<Identifier, IDatabaseSynonym>(Comparer);
 
             var synonyms = GetUnwrappedPropertyTypes(SynonymGenericType)
                 .Select(LoadSynonymSync)
@@ -461,6 +461,54 @@ namespace SJP.Schema.Modelled.Reflection
         public IEnumerable<IDatabaseTrigger> Triggers => throw new NotImplementedException();
 
         public IObservable<IDatabaseTrigger> TriggersAsync() => Triggers.ToObservable();
+
+        // TODO IMPLEMENT
+        protected IReadOnlyDictionary<Identifier, IDatabaseTrigger> Trigger => null; //_triggerLookup.Value;
+
+        protected virtual IDatabaseTrigger LoadTriggerSync(Type synonymType)
+        {
+            if (synonymType == null)
+                throw new ArgumentNullException(nameof(synonymType));
+
+            return null;// new ReflectionSynonym(Database, synonymType);
+        }
+
+        protected virtual Task<IDatabaseTrigger> LoadTriggerAsync(Type synonymType)
+        {
+            if (synonymType == null)
+                throw new ArgumentNullException(nameof(synonymType));
+
+            //var synonym = new ReflectionSynonym(Database, synonymType);
+            return Task.FromResult<IDatabaseTrigger>(null);
+        }
+
+        protected virtual IReadOnlyDictionary<Identifier, IDatabaseTrigger> LoadTriggers()
+        {
+            var result = new Dictionary<Identifier, IDatabaseTrigger>(Comparer);
+
+            // TODO! this needs to be changed away from synonyms
+            var triggers = GetUnwrappedPropertyTypes(SynonymGenericType)
+                .Select(LoadTriggerSync)
+                .ToList();
+
+            var duplicateNames = new HashSet<Identifier>();
+            foreach (var trigger in triggers)
+            {
+                if (result.ContainsKey(trigger.Name))
+                    duplicateNames.Add(trigger.Name);
+
+                result[trigger.Name] = trigger;
+            }
+
+            if (duplicateNames.Count > 0)
+            {
+                var dupes = duplicateNames.Select(n => Dialect.QuoteName(n.ToString()));
+                var message = "Duplicates found for the following triggers: " + dupes.Join(", ");
+                throw new Exception(message);
+            }
+
+            return result.AsReadOnlyDictionary();
+        }
 
         #endregion Triggers
 

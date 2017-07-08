@@ -16,7 +16,7 @@ namespace SJP.Schema.Modelled.Reflection
 
         protected Type ViewType { get; }
 
-        public IReadOnlyDictionary<string, IDatabaseViewColumn> Column
+        public IReadOnlyDictionary<Identifier, IDatabaseViewColumn> Column
         {
             get
             {
@@ -24,7 +24,7 @@ namespace SJP.Schema.Modelled.Reflection
             }
         }
 
-        public IList<IDatabaseViewColumn> Columns
+        public IReadOnlyList<IDatabaseViewColumn> Columns
         {
             get
             {
@@ -50,7 +50,7 @@ namespace SJP.Schema.Modelled.Reflection
             }
         }
 
-        public IReadOnlyDictionary<string, IDatabaseViewIndex> Index
+        public IReadOnlyDictionary<Identifier, IDatabaseViewIndex> Index
         {
             get
             {
@@ -76,12 +76,12 @@ namespace SJP.Schema.Modelled.Reflection
 
         public Identifier Name { get; }
 
-        public Task<IReadOnlyDictionary<string, IDatabaseViewColumn>> ColumnAsync()
+        public Task<IReadOnlyDictionary<Identifier, IDatabaseViewColumn>> ColumnAsync()
         {
             throw new NotImplementedException();
         }
 
-        public Task<IList<IDatabaseViewColumn>> ColumnsAsync()
+        public Task<IReadOnlyList<IDatabaseViewColumn>> ColumnsAsync()
         {
             throw new NotImplementedException();
         }
@@ -96,7 +96,7 @@ namespace SJP.Schema.Modelled.Reflection
             throw new NotImplementedException();
         }
 
-        public Task<IReadOnlyDictionary<string, IDatabaseViewIndex>> IndexAsync()
+        public Task<IReadOnlyDictionary<Identifier, IDatabaseViewIndex>> IndexAsync()
         {
             throw new NotImplementedException();
         }

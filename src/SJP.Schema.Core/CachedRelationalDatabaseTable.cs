@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Threading.Tasks;
 using SJP.Schema.Core.Utilities;
 
@@ -11,19 +12,18 @@ namespace SJP.Schema.Core
         {
             Database = database ?? throw new ArgumentNullException(nameof(database));
             Table = table ?? throw new ArgumentNullException(nameof(table));
-            comparer = comparer ?? throw new ArgumentNullException(nameof(comparer));
-
+            Comparer = comparer ?? throw new ArgumentNullException(nameof(comparer));
             Name = Table.Name;
 
             _primaryKey = new AsyncLazy<IDatabaseKey>(Table.PrimaryKeyAsync);
-            _columnLookup = new AsyncLazy<IReadOnlyDictionary<string, IDatabaseTableColumn>>(Table.ColumnAsync);
-            _columns = new AsyncLazy<IList<IDatabaseTableColumn>>(Table.ColumnsAsync);
-            _uniqueKeys = new AsyncLazy<IReadOnlyDictionary<string, IDatabaseKey>>(Table.UniqueKeyAsync);
-            _indexes = new AsyncLazy<IReadOnlyDictionary<string, IDatabaseTableIndex>>(Table.IndexAsync);
-            _parentKeys = new AsyncLazy<IReadOnlyDictionary<string, IDatabaseRelationalKey>>(Table.ParentKeyAsync);
+            _columnLookup = new AsyncLazy<IReadOnlyDictionary<Identifier, IDatabaseTableColumn>>(WrapWithNewComparer(Table.ColumnAsync));
+            _columns = new AsyncLazy<IReadOnlyList<IDatabaseTableColumn>>(Table.ColumnsAsync);
+            _uniqueKeys = new AsyncLazy<IReadOnlyDictionary<Identifier, IDatabaseKey>>(WrapWithNewComparer(Table.UniqueKeyAsync));
+            _indexes = new AsyncLazy<IReadOnlyDictionary<Identifier, IDatabaseTableIndex>>(WrapWithNewComparer(Table.IndexAsync));
+            _parentKeys = new AsyncLazy<IReadOnlyDictionary<Identifier, IDatabaseRelationalKey>>(WrapWithNewComparer(Table.ParentKeyAsync));
             _childKeys = new AsyncLazy<IEnumerable<IDatabaseRelationalKey>>(Table.ChildKeysAsync);
-            _checks = new AsyncLazy<IReadOnlyDictionary<string, IDatabaseCheckConstraint>>(Table.CheckConstraintAsync);
-            _triggers = new AsyncLazy<IReadOnlyDictionary<string, IDatabaseTrigger>>(Table.TriggerAsync);
+            _checks = new AsyncLazy<IReadOnlyDictionary<Identifier, IDatabaseCheckConstraint>>(WrapWithNewComparer(Table.CheckConstraintAsync));
+            _triggers = new AsyncLazy<IReadOnlyDictionary<Identifier, IDatabaseTrigger>>(WrapWithNewComparer(Table.TriggerAsync));
         }
 
         public IRelationalDatabase Database { get; }
@@ -32,35 +32,37 @@ namespace SJP.Schema.Core
 
         public Identifier Name { get; }
 
+        protected IEqualityComparer<Identifier> Comparer { get; }
+
         public IDatabaseKey PrimaryKey => _primaryKey.Task.Result;
 
-        public IReadOnlyDictionary<string, IDatabaseTableColumn> Column => _columnLookup.Task.Result;
+        public IReadOnlyDictionary<Identifier, IDatabaseTableColumn> Column => _columnLookup.Task.Result;
 
-        public IList<IDatabaseTableColumn> Columns => _columns.Task.Result;
+        public IReadOnlyList<IDatabaseTableColumn> Columns => _columns.Task.Result;
 
-        public IReadOnlyDictionary<string, IDatabaseCheckConstraint> CheckConstraint => _checks.Task.Result;
+        public IReadOnlyDictionary<Identifier, IDatabaseCheckConstraint> CheckConstraint => _checks.Task.Result;
 
         public IEnumerable<IDatabaseCheckConstraint> CheckConstraints => _checks.Task.Result.Values;
 
-        public IReadOnlyDictionary<string, IDatabaseTableIndex> Index => _indexes.Task.Result;
+        public IReadOnlyDictionary<Identifier, IDatabaseTableIndex> Index => _indexes.Task.Result;
 
         public IEnumerable<IDatabaseTableIndex> Indexes => _indexes.Task.Result.Values;
 
-        public IReadOnlyDictionary<string, IDatabaseKey> UniqueKey => _uniqueKeys.Task.Result;
+        public IReadOnlyDictionary<Identifier, IDatabaseKey> UniqueKey => _uniqueKeys.Task.Result;
 
         public IEnumerable<IDatabaseKey> UniqueKeys => _uniqueKeys.Task.Result.Values;
 
-        public IReadOnlyDictionary<string, IDatabaseRelationalKey> ParentKey => _parentKeys.Task.Result;
+        public IReadOnlyDictionary<Identifier, IDatabaseRelationalKey> ParentKey => _parentKeys.Task.Result;
 
         public IEnumerable<IDatabaseRelationalKey> ParentKeys => _parentKeys.Task.Result.Values;
 
         public IEnumerable<IDatabaseRelationalKey> ChildKeys => _childKeys.Task.Result;
 
-        public IReadOnlyDictionary<string, IDatabaseTrigger> Trigger => _triggers.Task.Result;
+        public IReadOnlyDictionary<Identifier, IDatabaseTrigger> Trigger => _triggers.Task.Result;
 
         public IEnumerable<IDatabaseTrigger> Triggers => _triggers.Task.Result.Values;
 
-        public Task<IReadOnlyDictionary<string, IDatabaseCheckConstraint>> CheckConstraintAsync() => _checks.Task;
+        public Task<IReadOnlyDictionary<Identifier, IDatabaseCheckConstraint>> CheckConstraintAsync() => _checks.Task;
 
         public async Task<IEnumerable<IDatabaseCheckConstraint>> CheckConstraintsAsync()
         {
@@ -70,11 +72,11 @@ namespace SJP.Schema.Core
 
         public Task<IEnumerable<IDatabaseRelationalKey>> ChildKeysAsync() => _childKeys.Task;
 
-        public Task<IReadOnlyDictionary<string, IDatabaseTableColumn>> ColumnAsync() => _columnLookup.Task;
+        public Task<IReadOnlyDictionary<Identifier, IDatabaseTableColumn>> ColumnAsync() => _columnLookup.Task;
 
-        public Task<IList<IDatabaseTableColumn>> ColumnsAsync() => _columns.Task;
+        public Task<IReadOnlyList<IDatabaseTableColumn>> ColumnsAsync() => _columns.Task;
 
-        public Task<IReadOnlyDictionary<string, IDatabaseTableIndex>> IndexAsync() => _indexes.Task;
+        public Task<IReadOnlyDictionary<Identifier, IDatabaseTableIndex>> IndexAsync() => _indexes.Task;
 
         public async Task<IEnumerable<IDatabaseTableIndex>> IndexesAsync()
         {
@@ -82,7 +84,7 @@ namespace SJP.Schema.Core
             return indexes.Values;
         }
 
-        public Task<IReadOnlyDictionary<string, IDatabaseRelationalKey>> ParentKeyAsync() => _parentKeys.Task;
+        public Task<IReadOnlyDictionary<Identifier, IDatabaseRelationalKey>> ParentKeyAsync() => _parentKeys.Task;
 
         public async Task<IEnumerable<IDatabaseRelationalKey>> ParentKeysAsync()
         {
@@ -92,7 +94,7 @@ namespace SJP.Schema.Core
 
         public Task<IDatabaseKey> PrimaryKeyAsync() => _primaryKey.Task;
 
-        public Task<IReadOnlyDictionary<string, IDatabaseTrigger>> TriggerAsync() => _triggers.Task;
+        public Task<IReadOnlyDictionary<Identifier, IDatabaseTrigger>> TriggerAsync() => _triggers.Task;
 
         public async Task<IEnumerable<IDatabaseTrigger>> TriggersAsync()
         {
@@ -100,7 +102,7 @@ namespace SJP.Schema.Core
             return triggers.Values;
         }
 
-        public Task<IReadOnlyDictionary<string, IDatabaseKey>> UniqueKeyAsync() => _uniqueKeys.Task;
+        public Task<IReadOnlyDictionary<Identifier, IDatabaseKey>> UniqueKeyAsync() => _uniqueKeys.Task;
 
         public async Task<IEnumerable<IDatabaseKey>> UniqueKeysAsync()
         {
@@ -108,14 +110,31 @@ namespace SJP.Schema.Core
             return uniqueKeys.Values;
         }
 
+        // rewraps so we get the comparer from the cached dictionary, not the one from the source
+        // which may be different
+        protected virtual Func<Task<IReadOnlyDictionary<Identifier, TValue>>> WrapWithNewComparer<TValue>(Func<Task<IReadOnlyDictionary<Identifier, TValue>>> valueFactory)
+        {
+            if (valueFactory == null)
+                throw new ArgumentNullException(nameof(valueFactory));
+
+            return async () =>
+            {
+                var task = valueFactory.Invoke();
+                var lookup = await task;
+
+                var result = new Dictionary<Identifier, TValue>(lookup.ToDictionary(), Comparer);
+                return result.AsReadOnlyDictionary();
+            };
+        }
+
         private readonly AsyncLazy<IDatabaseKey> _primaryKey;
-        private readonly AsyncLazy<IList<IDatabaseTableColumn>> _columns;
+        private readonly AsyncLazy<IReadOnlyList<IDatabaseTableColumn>> _columns;
         private readonly AsyncLazy<IEnumerable<IDatabaseRelationalKey>> _childKeys;
-        private readonly AsyncLazy<IReadOnlyDictionary<string, IDatabaseTableColumn>> _columnLookup;
-        private readonly AsyncLazy<IReadOnlyDictionary<string, IDatabaseKey>> _uniqueKeys;
-        private readonly AsyncLazy<IReadOnlyDictionary<string, IDatabaseTableIndex>> _indexes;
-        private readonly AsyncLazy<IReadOnlyDictionary<string, IDatabaseRelationalKey>> _parentKeys;
-        private readonly AsyncLazy<IReadOnlyDictionary<string, IDatabaseCheckConstraint>> _checks;
-        private readonly AsyncLazy<IReadOnlyDictionary<string, IDatabaseTrigger>> _triggers;
+        private readonly AsyncLazy<IReadOnlyDictionary<Identifier, IDatabaseTableColumn>> _columnLookup;
+        private readonly AsyncLazy<IReadOnlyDictionary<Identifier, IDatabaseKey>> _uniqueKeys;
+        private readonly AsyncLazy<IReadOnlyDictionary<Identifier, IDatabaseTableIndex>> _indexes;
+        private readonly AsyncLazy<IReadOnlyDictionary<Identifier, IDatabaseRelationalKey>> _parentKeys;
+        private readonly AsyncLazy<IReadOnlyDictionary<Identifier, IDatabaseCheckConstraint>> _checks;
+        private readonly AsyncLazy<IReadOnlyDictionary<Identifier, IDatabaseTrigger>> _triggers;
     }
 }

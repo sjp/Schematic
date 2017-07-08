@@ -12,11 +12,12 @@ namespace SJP.Schema.SqlServer
 {
     public class SqlServerRelationalDatabaseView : IRelationalDatabaseView
     {
-        public SqlServerRelationalDatabaseView(IDbConnection connection, IRelationalDatabase database, Identifier viewName)
+        public SqlServerRelationalDatabaseView(IDbConnection connection, IRelationalDatabase database, Identifier viewName, IEqualityComparer<Identifier> comparer = null)
         {
             Connection = connection ?? throw new ArgumentNullException(nameof(connection));
             Database = database ?? throw new ArgumentNullException(nameof(database));
             Name = viewName ?? throw new ArgumentNullException(nameof(viewName));
+            Comparer = comparer ?? IdentifierComparer.Ordinal;
         }
 
         public Identifier Name { get; }
@@ -24,6 +25,8 @@ namespace SJP.Schema.SqlServer
         public IRelationalDatabase Database { get; }
 
         protected IDbConnection Connection { get; }
+
+        protected IEqualityComparer<Identifier> Comparer { get; }
 
         public bool IsIndexed => Indexes.Any();
 
@@ -115,9 +118,9 @@ where o1.schema_id = schema_id(@SchemaName) and o1.name = @TableName
                 .ToList();
         }
 
-        public IReadOnlyDictionary<string, IDatabaseViewIndex> Index => LoadIndexLookupSync();
+        public IReadOnlyDictionary<Identifier, IDatabaseViewIndex> Index => LoadIndexLookupSync();
 
-        public Task<IReadOnlyDictionary<string, IDatabaseViewIndex>> IndexAsync() => LoadIndexLookupAsync();
+        public Task<IReadOnlyDictionary<Identifier, IDatabaseViewIndex>> IndexAsync() => LoadIndexLookupAsync();
 
         public IEnumerable<IDatabaseViewIndex> Indexes => LoadIndexesSync();
 
@@ -219,9 +222,9 @@ where schema_name(v.schema_id) = @SchemaName and v.name = @ViewName
             return result;
         }
 
-        protected virtual IReadOnlyDictionary<string, IDatabaseViewIndex> LoadIndexLookupSync()
+        protected virtual IReadOnlyDictionary<Identifier, IDatabaseViewIndex> LoadIndexLookupSync()
         {
-            var result = new Dictionary<string, IDatabaseViewIndex>();
+            var result = new Dictionary<Identifier, IDatabaseViewIndex>(Comparer);
 
             foreach (var index in Indexes)
                 result[index.Name.LocalName] = index;
@@ -229,9 +232,9 @@ where schema_name(v.schema_id) = @SchemaName and v.name = @ViewName
             return result.AsReadOnlyDictionary();
         }
 
-        protected virtual async Task<IReadOnlyDictionary<string, IDatabaseViewIndex>> LoadIndexLookupAsync()
+        protected virtual async Task<IReadOnlyDictionary<Identifier, IDatabaseViewIndex>> LoadIndexLookupAsync()
         {
-            var result = new Dictionary<string, IDatabaseViewIndex>();
+            var result = new Dictionary<Identifier, IDatabaseViewIndex>(Comparer);
 
             var indexes = await IndexesAsync();
             foreach (var index in indexes)
@@ -240,17 +243,17 @@ where schema_name(v.schema_id) = @SchemaName and v.name = @ViewName
             return result.AsReadOnlyDictionary();
         }
 
-        public IReadOnlyDictionary<string, IDatabaseViewColumn> Column => LoadColumnLookupSync();
+        public IReadOnlyDictionary<Identifier, IDatabaseViewColumn> Column => LoadColumnLookupSync();
 
-        public Task<IReadOnlyDictionary<string, IDatabaseViewColumn>> ColumnAsync() => LoadColumnLookupAsync();
+        public Task<IReadOnlyDictionary<Identifier, IDatabaseViewColumn>> ColumnAsync() => LoadColumnLookupAsync();
 
-        public IList<IDatabaseViewColumn> Columns => LoadColumnsSync();
+        public IReadOnlyList<IDatabaseViewColumn> Columns => LoadColumnsSync();
 
-        public Task<IList<IDatabaseViewColumn>> ColumnsAsync() => LoadColumnsAsync();
+        public Task<IReadOnlyList<IDatabaseViewColumn>> ColumnsAsync() => LoadColumnsAsync();
 
-        protected virtual IReadOnlyDictionary<string, IDatabaseViewColumn> LoadColumnLookupSync()
+        protected virtual IReadOnlyDictionary<Identifier, IDatabaseViewColumn> LoadColumnLookupSync()
         {
-            var result = new Dictionary<string, IDatabaseViewColumn>();
+            var result = new Dictionary<Identifier, IDatabaseViewColumn>(Comparer);
 
             foreach (var column in Columns.Where(c => c.Name != null))
                 result[column.Name.LocalName] = column;
@@ -258,9 +261,9 @@ where schema_name(v.schema_id) = @SchemaName and v.name = @ViewName
             return result.AsReadOnlyDictionary();
         }
 
-        protected virtual async Task<IReadOnlyDictionary<string, IDatabaseViewColumn>> LoadColumnLookupAsync()
+        protected virtual async Task<IReadOnlyDictionary<Identifier, IDatabaseViewColumn>> LoadColumnLookupAsync()
         {
-            var result = new Dictionary<string, IDatabaseViewColumn>();
+            var result = new Dictionary<Identifier, IDatabaseViewColumn>(Comparer);
 
             var columns = await ColumnsAsync();
             foreach (var column in columns.Where(c => c.Name != null))
@@ -269,7 +272,7 @@ where schema_name(v.schema_id) = @SchemaName and v.name = @ViewName
             return result.AsReadOnlyDictionary();
         }
 
-        protected virtual IList<IDatabaseViewColumn> LoadColumnsSync()
+        protected virtual IReadOnlyList<IDatabaseViewColumn> LoadColumnsSync()
         {
             const string sql = @"
 select
@@ -320,10 +323,10 @@ where schema_name(v.schema_id) = @SchemaName
                 result.Add(column);
             }
 
-            return result;
+            return result.AsReadOnly();
         }
 
-        protected virtual async Task<IList<IDatabaseViewColumn>> LoadColumnsAsync()
+        protected virtual async Task<IReadOnlyList<IDatabaseViewColumn>> LoadColumnsAsync()
         {
             const string sql = @"
 select
@@ -374,7 +377,7 @@ where schema_name(v.schema_id) = @SchemaName
                 result.Add(column);
             }
 
-            return result;
+            return result.AsReadOnly();
         }
     }
 }

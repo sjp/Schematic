@@ -12,9 +12,10 @@ namespace SJP.Schema.SqlServer
 {
     public class SqlServerRelationalDatabase : RelationalDatabase, IRelationalDatabase, IDependentRelationalDatabase
     {
-        public SqlServerRelationalDatabase(IDatabaseDialect dialect, IDbConnection connection)
+        public SqlServerRelationalDatabase(IDatabaseDialect dialect, IDbConnection connection, IEqualityComparer<Identifier> comparer = null)
             : base(dialect, connection)
         {
+            Comparer = comparer ?? IdentifierComparer.Ordinal;
             _metadata = new Lazy<DatabaseMetadata>(LoadDatabaseMetadata);
             _parentDb = this;
         }
@@ -24,6 +25,8 @@ namespace SJP.Schema.SqlServer
             get => _parentDb;
             set => _parentDb = value ?? throw new ArgumentNullException(nameof(Parent));
         }
+
+        protected IEqualityComparer<Identifier> Comparer { get; }
 
         protected IRelationalDatabase Database => Parent;
 
@@ -119,7 +122,7 @@ namespace SJP.Schema.SqlServer
 
             tableName = CreateQualifiedIdentifier(tableName);
             return TableExists(tableName)
-                ? new SqlServerRelationalDatabaseTable(Connection, Database, tableName)
+                ? new SqlServerRelationalDatabaseTable(Connection, Database, tableName, Comparer)
                 : null;
         }
 
@@ -131,7 +134,7 @@ namespace SJP.Schema.SqlServer
             tableName = CreateQualifiedIdentifier(tableName);
             var exists = await TableExistsAsync(tableName);
             return exists
-                ? new SqlServerRelationalDatabaseTable(Connection, Database, tableName)
+                ? new SqlServerRelationalDatabaseTable(Connection, Database, tableName, Comparer)
                 : null;
         }
 
@@ -221,7 +224,7 @@ namespace SJP.Schema.SqlServer
 
             viewName = CreateQualifiedIdentifier(viewName);
             return ViewExists(viewName)
-                ? new SqlServerRelationalDatabaseView(Connection, Database, viewName)
+                ? new SqlServerRelationalDatabaseView(Connection, Database, viewName, Comparer)
                 : null;
         }
 
@@ -233,7 +236,7 @@ namespace SJP.Schema.SqlServer
             viewName = CreateQualifiedIdentifier(viewName);
             var exists = await ViewExistsAsync(viewName);
             return exists
-                ? new SqlServerRelationalDatabaseView(Connection, Database, viewName)
+                ? new SqlServerRelationalDatabaseView(Connection, Database, viewName, Comparer)
                 : null;
         }
 

@@ -40,7 +40,6 @@ namespace SJP.Schema.Sqlite.Tests.Integration
 
             private IRelationalDatabase Database => new SqliteRelationalDatabase(new SqliteDialect(), Connection);
 
-
             [Test]
             public void TableExists_GivenNullName_ThrowsArgumentNullException()
             {

@@ -7,11 +7,11 @@ namespace SJP.Schema.Core
 {
     public interface IRelationalDatabaseViewAsync : IDatabaseEntity
     {
-        Task<IReadOnlyDictionary<string, IDatabaseViewColumn>> ColumnAsync();
+        Task<IReadOnlyDictionary<Identifier, IDatabaseViewColumn>> ColumnAsync();
 
-        Task<IList<IDatabaseViewColumn>> ColumnsAsync();
+        Task<IReadOnlyList<IDatabaseViewColumn>> ColumnsAsync();
 
-        Task<IReadOnlyDictionary<string, IDatabaseViewIndex>> IndexAsync();
+        Task<IReadOnlyDictionary<Identifier, IDatabaseViewIndex>> IndexAsync();
 
         Task<IEnumerable<IDatabaseViewIndex>> IndexesAsync();
     }
