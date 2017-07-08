@@ -12,13 +12,13 @@ namespace SJP.Schema.Sqlite.Tests.Integration
         private IRelationalDatabase Database => new SqliteRelationalDatabase(new SqliteDialect(), Connection);
 
         [Test]
-        public void DatabaseNameMatches()
+        public void Database_PropertyGet_ShouldMatchConnectionDatabase()
         {
             Assert.AreEqual(Database.DatabaseName, Connection.Database);
         }
 
         [Test]
-        public void CorrectSchemaName()
+        public void DefaultSchema_PropertyGet_ShouldEqualConnectionDefaultSchema()
         {
             Assert.AreEqual(Database.DefaultSchema, null);
         }
@@ -40,46 +40,99 @@ namespace SJP.Schema.Sqlite.Tests.Integration
 
             private IRelationalDatabase Database => new SqliteRelationalDatabase(new SqliteDialect(), Connection);
 
+
             [Test]
-            public void TableExistsThrowsExceptionOnMissingName()
+            public void TableExists_GivenNullName_ThrowsArgumentNullException()
             {
                 Assert.Throws<ArgumentNullException>(() => Database.TableExists(null));
-                Assert.Throws<ArgumentNullException>(() => Database.TableExists(string.Empty));
             }
 
             [Test]
-            public void TableExistsAsyncThrowsExceptionOnMissingName()
+            public void TableExists_WhenTablePresent_ReturnsTrue()
             {
-                Assert.ThrowsAsync<ArgumentNullException>(() => Database.TableExistsAsync(null));
-                Assert.ThrowsAsync<ArgumentNullException>(() => Database.TableExistsAsync(string.Empty));
+                var tableExists = Database.TableExists("db_test_table_presence");
+                Assert.IsTrue(tableExists);
             }
 
             [Test]
-            public void TestPresenceOfPresentTableSync()
+            public void TableExists_WhenTableMissing_ReturnsFalse()
             {
-                var hasTable = Database.TableExists("db_test_table_presence");
-                Assert.IsTrue(hasTable);
+                var tableExists = Database.TableExists("table_that_doesnt_exist");
+                Assert.IsFalse(tableExists);
             }
 
             [Test]
-            public async Task TestPresenceOfPresentTableAsync()
+            public void TableExists_WhenTablePresentWithDifferentCase_ReturnsTable()
             {
-                var hasTable = await Database.TableExistsAsync("db_test_table_presence");
-                Assert.IsTrue(hasTable);
+                var tableExists = Database.TableExists("DB_TEST_table_presence");
+                Assert.IsTrue(tableExists);
             }
 
             [Test]
-            public void TestPresenceOfMissingTableSync()
+            public void GetTable_GivenNullName_ThrowsArgumentNullException()
             {
-                var hasTable = Database.TableExists("missing_table");
-                Assert.IsFalse(hasTable);
+                Assert.Throws<ArgumentNullException>(() => Database.GetTable(null));
             }
 
             [Test]
-            public async Task TestPresenceOfMissingTableAsync()
+            public void GetTable_WhenTablePresent_ReturnsTable()
             {
-                var hasTable = await Database.TableExistsAsync("missing_table");
-                Assert.IsFalse(hasTable);
+                var table = Database.GetTable("db_test_table_presence");
+                Assert.NotNull(table);
+            }
+
+            [Test]
+            public void GetTable_WhenTableMissing_ReturnsNull()
+            {
+                var table = Database.GetTable("table_that_doesnt_exist");
+                Assert.IsNull(table);
+            }
+
+            [Test]
+            public void TableExistsAsync_GivenNullName_ThrowsArgumentNullException()
+            {
+                Assert.ThrowsAsync<ArgumentNullException>(async () => await Database.TableExistsAsync(null));
+            }
+
+            [Test]
+            public async Task TableExistsAsync_WhenTablePresent_ReturnsTrue()
+            {
+                var tableExists = await Database.TableExistsAsync("db_test_table_presence");
+                Assert.IsTrue(tableExists);
+            }
+
+            [Test]
+            public async Task TableExistsAsync_WhenTableMissing_ReturnsFalse()
+            {
+                var tableExists = await Database.TableExistsAsync("table_that_doesnt_exist");
+                Assert.IsFalse(tableExists);
+            }
+
+            [Test]
+            public async Task TableExistsAsync_WhenTablePresentWithDifferentCase_ReturnsTrue()
+            {
+                var tableExists = await Database.TableExistsAsync("DB_TEST_table_presence");
+                Assert.IsTrue(tableExists);
+            }
+
+            [Test]
+            public void GetTableAsync_GivenNullName_ThrowsArgumentNullException()
+            {
+                Assert.ThrowsAsync<ArgumentNullException>(async () => await Database.GetTableAsync(null));
+            }
+
+            [Test]
+            public async Task GetTableAsync_WhenTablePresent_ReturnsTable()
+            {
+                var table = await Database.GetTableAsync("db_test_table_presence");
+                Assert.NotNull(table);
+            }
+
+            [Test]
+            public async Task GetTableAsync_WhenTableMissing_ReturnsNull()
+            {
+                var table = await Database.GetTableAsync("table_that_doesnt_exist");
+                Assert.IsNull(table);
             }
         }
 
@@ -101,45 +154,99 @@ namespace SJP.Schema.Sqlite.Tests.Integration
             private IRelationalDatabase Database => new SqliteRelationalDatabase(new SqliteDialect(), Connection);
 
             [Test]
-            public void ViewExistsThrowsExceptionOnMissingName()
+            public void ViewExists_GivenNullName_ThrowsArgumentNullException()
             {
                 Assert.Throws<ArgumentNullException>(() => Database.ViewExists(null));
-                Assert.Throws<ArgumentNullException>(() => Database.ViewExists(string.Empty));
             }
 
             [Test]
-            public void ViewExistsAsyncThrowsExceptionOnMissingName()
+            public void ViewExists_WhenViewPresent_ReturnsTrue()
             {
-                Assert.ThrowsAsync<ArgumentNullException>(() => Database.ViewExistsAsync(null));
-                Assert.ThrowsAsync<ArgumentNullException>(() => Database.ViewExistsAsync(string.Empty));
+                var viewExists = Database.ViewExists("db_test_view_presence");
+                Assert.IsTrue(viewExists);
             }
 
             [Test]
-            public void TestPresenceOfPresentViewSync()
+            public void ViewExists_WhenViewMissing_ReturnsFalse()
             {
-                var hasView = Database.ViewExists("db_test_view_presence");
-                Assert.IsTrue(hasView);
+                var viewExists = Database.ViewExists("view_that_doesnt_exist");
+                Assert.IsFalse(viewExists);
             }
 
             [Test]
-            public async Task TestPresenceOfPresentViewAsync()
+            public void ViewExists_WhenViewPresentWithDifferentCase_ReturnsTrue()
             {
-                var hasView = await Database.ViewExistsAsync("db_test_view_presence");
-                Assert.IsTrue(hasView);
+                var viewExists = Database.ViewExists("DB_TEST_view_presence");
+                Assert.IsTrue(viewExists);
             }
 
             [Test]
-            public void TestPresenceOfMissingViewSync()
+            public void GetView_GivenNullName_ThrowsArgumentNullException()
             {
-                var hasView = Database.ViewExists("missing_view");
-                Assert.IsFalse(hasView);
+                Assert.Throws<ArgumentNullException>(() => Database.GetView(null));
+            }
+
+            // TODO: uncomment when views are implemented
+            //[Test]
+            //public void GetView_WhenViewPresent_ReturnsView()
+            //{
+            //    var view = Database.GetView("db_test_view_presence");
+            //    Assert.NotNull(view);
+            //}
+
+            [Test]
+            public void GetView_WhenViewMissing_ReturnsNull()
+            {
+                var view = Database.GetView("view_that_doesnt_exist");
+                Assert.IsNull(view);
             }
 
             [Test]
-            public async Task TestPresenceOfMissingViewAsync()
+            public void ViewExistsAsync_GivenNullName_ThrowsArgumentNullException()
             {
-                var hasView = await Database.ViewExistsAsync("missing_view");
-                Assert.IsFalse(hasView);
+                Assert.ThrowsAsync<ArgumentNullException>(async () => await Database.ViewExistsAsync(null));
+            }
+
+            [Test]
+            public async Task ViewExistsAsync_WhenViewPresent_ReturnsTrue()
+            {
+                var viewExists = await Database.ViewExistsAsync("db_test_view_presence");
+                Assert.IsTrue(viewExists);
+            }
+
+            [Test]
+            public async Task ViewExistsAsync_WhenViewMissing_ReturnsFalse()
+            {
+                var viewExists = await Database.ViewExistsAsync("view_that_doesnt_exist");
+                Assert.IsFalse(viewExists);
+            }
+
+            [Test]
+            public async Task ViewExistsAsync_WhenViewPresentWithDifferentCase_ReturnsTrue()
+            {
+                var viewExists = await Database.ViewExistsAsync("DB_TEST_view_presence");
+                Assert.IsTrue(viewExists);
+            }
+
+            [Test]
+            public void GetViewAsync_GivenNullName_ThrowsArgumentNullException()
+            {
+                Assert.ThrowsAsync<ArgumentNullException>(async () => await Database.GetViewAsync(null));
+            }
+
+            // TODO: uncomment when views are implemented
+            //[Test]
+            //public async Task GetViewAsync_WhenViewPresent_ReturnsView()
+            //{
+            //    var view = await Database.GetViewAsync("db_test_view_presence");
+            //    Assert.NotNull(view);
+            //}
+
+            [Test]
+            public async Task GetViewAsync_WhenViewMissing_ReturnsNull()
+            {
+                var view = await Database.GetViewAsync("view_that_doesnt_exist");
+                Assert.IsNull(view);
             }
         }
     }

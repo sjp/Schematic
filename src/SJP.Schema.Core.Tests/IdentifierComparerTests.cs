@@ -7,20 +7,20 @@ namespace SJP.Schema.Core.Tests
     public class IdentifierComparerTests
     {
         [Test]
-        public void ComparerThrowsOnUndefinedComparison()
+        public void Ctor_GivenInvalidStringComparison_ThrowsInvalidOperationException()
         {
             var badStringComparison = (StringComparison)55;
             Assert.Throws<InvalidOperationException>(() => new IdentifierComparer(badStringComparison));
         }
 
         [Test]
-        public void ComparerThrowsOnNullStringComparer()
+        public void Ctor_GivenNullComparer_ThrowsArgumentNullException()
         {
             Assert.Throws<ArgumentNullException>(() => new IdentifierComparer(null));
         }
 
         [Test]
-        public void SameNameEquivalent()
+        public void Equals_GivenEqualValues_ReturnsTrue()
         {
             const string name = "abc";
             var comparer = new IdentifierComparer();
@@ -33,7 +33,7 @@ namespace SJP.Schema.Core.Tests
         }
 
         [Test]
-        public void IdentifiersNotEquivalent()
+        public void Equals_GivenDifferentValues_ReturnsFalse()
         {
             const string name = "abc";
             const string otherName = "def";
@@ -48,14 +48,14 @@ namespace SJP.Schema.Core.Tests
         }
 
         [Test]
-        public void NullIdentifierReturnsZeroHashCode()
+        public void GetHashCode_GivenNullArgument_ReturnsZero()
         {
             var comparer = new IdentifierComparer();
             Assert.Zero(comparer.GetHashCode(null));
         }
 
         [Test]
-        public void NotNullIdentifierReturnsNonZeroHashCode()
+        public void GetHashCode_GivenNonNullArgument_ReturnsNonZeroValue()
         {
             var comparer = new IdentifierComparer();
             Assert.NotZero(comparer.GetHashCode("abc"));
@@ -63,7 +63,7 @@ namespace SJP.Schema.Core.Tests
 
         [Test]
         //[SetCulture("en-US")] // uncomment when supported .NET Standard
-        public void CurrentCultureIsCaseSensitive()
+        public void Equals_GivenCurrentCultureWithDifferentCasesOnly_ReturnsFalse()
         {
             var identifier = new Identifier("abc");
             var otherIdentifier = new Identifier("ABC");
@@ -74,7 +74,7 @@ namespace SJP.Schema.Core.Tests
 
         [Test]
         //[SetCulture("en-US")] // uncomment when supported in .NET Standard
-        public void CurrentCultureIgnoreCaseIsNotCaseSensitive()
+        public void Equals_GivenCurrentCultureIgnoreCaseWithDifferentCasesOnly_ReturnsTrue()
         {
             var identifier = new Identifier("abc");
             var otherIdentifier = new Identifier("ABC");
@@ -84,7 +84,7 @@ namespace SJP.Schema.Core.Tests
         }
 
         [Test]
-        public void OrdinalIsCaseSensitive()
+        public void Equals_GivenOrdinalWithDifferentCasesOnly_ReturnsFalse()
         {
             var identifier = new Identifier("abc");
             var otherIdentifier = new Identifier("ABC");
@@ -94,7 +94,7 @@ namespace SJP.Schema.Core.Tests
         }
 
         [Test]
-        public void OrdinalIgnoreCaseIsNotCaseSensitive()
+        public void Equals_GivenOrdinalIgnoreCaseWithDifferentCasesOnly_ReturnsTrue()
         {
             var identifier = new Identifier("abc");
             var otherIdentifier = new Identifier("ABC");
@@ -104,7 +104,7 @@ namespace SJP.Schema.Core.Tests
         }
 
         [Test]
-        public void DefaultSchemaComparesEqualWithNullSchema()
+        public void Equals_WhenDefaultSchemaSetAndGivenIdentifierWithNullSchema_ReturnsTrue()
         {
             var identifier = new Identifier("abc");
             var otherIdentifier = new Identifier("dbo", "abc");
@@ -114,7 +114,7 @@ namespace SJP.Schema.Core.Tests
         }
 
         [Test]
-        public void DefaultSchemaComparesNotEqualWithNullAndNonDefaultSchema()
+        public void Equals_WhenDefaultSchemaSetAndGivenIdentifiersWithDifferentSchema_ReturnsFalse()
         {
             var identifier = new Identifier("abc");
             var otherIdentifier = new Identifier("other", "abc");
@@ -124,7 +124,7 @@ namespace SJP.Schema.Core.Tests
         }
 
         [Test]
-        public void DefaultSchemaComparesNotEqualWithDefaultAndNonDefaultSchema()
+        public void Equals_WhenDefaultSchemaSetAndGivenIdentifiersWithDifferentSchemasSet_ReturnsFalse()
         {
             var identifier = new Identifier("other", "abc");
             var otherIdentifier = new Identifier("dbo", "abc");
@@ -134,7 +134,7 @@ namespace SJP.Schema.Core.Tests
         }
 
         [Test]
-        public void SchemaComparesNotEqualWithDifferentSchema()
+        public void Equals_GivenIdentifiersWithDifferentSchemasSetAndExplicitComparer_ReturnsFalse()
         {
             var identifier = new Identifier("other", "abc");
             var otherIdentifier = new Identifier("dbo", "abc");
@@ -144,7 +144,7 @@ namespace SJP.Schema.Core.Tests
         }
 
         [Test]
-        public void SchemaComparesEqualWithSameSchema()
+        public void Equals_GivenIdentifiersWithSameSchemasSetAndExplicitComparer_ReturnsTrue()
         {
             var identifier = new Identifier("dbo", "abc");
             var otherIdentifier = new Identifier("dbo", "abc");

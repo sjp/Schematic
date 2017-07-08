@@ -7,7 +7,7 @@ namespace SJP.Schema.Core.Tests
     public class IdentifierTests
     {
         [Test]
-        public void IdentifierThrowsOnNullOrWhiteSpaceLocalName()
+        public void Ctor_GivenNullOrWhiteSpaceLocalName_ThrowsArgumentNullException()
         {
             Assert.Throws<ArgumentNullException>(() => new Identifier(null));
             Assert.Throws<ArgumentNullException>(() => new Identifier(string.Empty));
@@ -15,7 +15,7 @@ namespace SJP.Schema.Core.Tests
         }
 
         [Test]
-        public void SingleArgumentMatchesLocalName()
+        public void LocalName_PropertyGet_EqualsCtorArgument()
         {
             var name = "abc";
             var identifier = new Identifier(name);
@@ -23,7 +23,7 @@ namespace SJP.Schema.Core.Tests
         }
 
         [Test]
-        public void IdentifierThrowsOnNullOrWhiteSpaceLocalNameAndSchema()
+        public void Ctor_GivenNullWhiteSpaceSchemaAndLocalNames_ThrowsArgumentNullException()
         {
             Assert.Throws<ArgumentNullException>(() => new Identifier("a", null));
             Assert.Throws<ArgumentNullException>(() => new Identifier("a", string.Empty));
@@ -35,7 +35,7 @@ namespace SJP.Schema.Core.Tests
         }
 
         [Test]
-        public void TwoArgumentsMatchesNames()
+        public void SchemaAndLocalName_PropertyGets_MatchCtorArguments()
         {
             var localName = "abc";
             var schema = "def";
@@ -45,7 +45,7 @@ namespace SJP.Schema.Core.Tests
         }
 
         [Test]
-        public void IdentifierThrowsOnNullOrWhiteSpaceLocalNameSchemaOrDatabase()
+        public void Ctor_GivenNullWhiteSpaceDatabaseAndSchemaAndLocalNames_ThrowsArgumentNullException()
         {
             Assert.Throws<ArgumentNullException>(() => new Identifier("a", "a", null));
             Assert.Throws<ArgumentNullException>(() => new Identifier("a", "a", string.Empty));
@@ -61,7 +61,7 @@ namespace SJP.Schema.Core.Tests
         }
 
         [Test]
-        public void ThreeArgumentsMatchesNames()
+        public void DatabaseAndSchemaAndLocalName_PropertyGets_MatchCtorArguments()
         {
             var localName = "abc";
             var schema = "def";
@@ -73,7 +73,7 @@ namespace SJP.Schema.Core.Tests
         }
 
         [Test]
-        public void IdentifierThrowsOnNullOrWhiteSpaceLocalNameSchemaDatabaseOrServer()
+        public void Ctor_GivenNullWhiteSpaceServerAndDatabaseAndSchemaAndLocalNames_ThrowsArgumentNullException()
         {
             Assert.Throws<ArgumentNullException>(() => new Identifier("a", "a", "a", null));
             Assert.Throws<ArgumentNullException>(() => new Identifier("a", "a", "a", string.Empty));
@@ -93,7 +93,7 @@ namespace SJP.Schema.Core.Tests
         }
 
         [Test]
-        public void FourArgumentsMatchesNames()
+        public void ServerAndDatabaseAndSchemaAndLocalName_PropertyGets_MatchCtorArguments()
         {
             var localName = "abc";
             var schema = "def";
@@ -107,7 +107,7 @@ namespace SJP.Schema.Core.Tests
         }
 
         [Test]
-        public void LocalIdentifierThrowsOnNullOrWhiteSpaceIdentifier()
+        public void LocalIdentifierCtor_GivenNullWhiteSpaceLocalName_ThrowsArgumentNullException()
         {
             Assert.Throws<ArgumentNullException>(() => new LocalIdentifier(null));
             Assert.Throws<ArgumentNullException>(() => new LocalIdentifier(string.Empty));
@@ -115,7 +115,7 @@ namespace SJP.Schema.Core.Tests
         }
 
         [Test]
-        public void IdentifierEqualsAnotherIdentifier()
+        public void Equals_GivenEqualIdentifiers_ReturnsTrue()
         {
             var name = "abc";
             var identifier = new Identifier(name, name);
@@ -124,7 +124,7 @@ namespace SJP.Schema.Core.Tests
         }
 
         [Test]
-        public void IdentifierNotEqualsAnotherIdentifier()
+        public void Equals_GivenDifferentIdentifiers_ReturnsFalse()
         {
             var name = "abc";
             var otherName = "def";
@@ -134,7 +134,7 @@ namespace SJP.Schema.Core.Tests
         }
 
         [Test]
-        public void IdentifierEqualsAnotherIdentifierViaOperator()
+        public void EqualsOp_GivenEqualIdentifiers_ReturnsTrue()
         {
             var name = "abc";
             var identifier = new Identifier(name, name);
@@ -144,7 +144,7 @@ namespace SJP.Schema.Core.Tests
         }
 
         [Test]
-        public void IdentifierNotEqualsAnotherIdentifierViaOperator()
+        public void EqualsOp_GivenDifferentIdentifiers_ReturnsFalse()
         {
             var name = "abc";
             var otherName = "def";
@@ -155,7 +155,7 @@ namespace SJP.Schema.Core.Tests
         }
 
         [Test]
-        public void IdentifierObjectEquals()
+        public void ObjectsEquals_GivenEqualIdentifiers_ReturnsTrue()
         {
             var name = "abc";
             object identifier = new Identifier(name, name);
@@ -166,7 +166,7 @@ namespace SJP.Schema.Core.Tests
         }
 
         [Test]
-        public void IdentifierObjectNotEquals()
+        public void ObjectsEquals_GivenDifferentObjects_ReturnsFalse()
         {
             var name = "abc";
             var otherName = "def";
@@ -180,7 +180,7 @@ namespace SJP.Schema.Core.Tests
         }
 
         [Test]
-        public void LocalIdentifierOnlyContainsLocalName()
+        public void Identifier_WhenOnlyLocalNameProvided_OnlyHasLocalNamePropertySet()
         {
             var identifier = new LocalIdentifier("abc");
             Assert.IsNull(identifier.Server);
@@ -190,7 +190,7 @@ namespace SJP.Schema.Core.Tests
         }
 
         [Test]
-        public void LocalIdentifierEqualsLocalName()
+        public void LocalIdentifierEquals_GivenSameStringIdentifier_ReturnsTrue()
         {
             var name = "abc";
             var identifier = new LocalIdentifier(name);
@@ -198,7 +198,7 @@ namespace SJP.Schema.Core.Tests
         }
 
         [Test]
-        public void LocalIdentifierNotEqualsLocalName()
+        public void LocalIdentifierEquals_GivenDifferentStringIdentifier_ReturnsFalse()
         {
             var name = "abc";
             var identifier = new LocalIdentifier("def");
@@ -206,7 +206,7 @@ namespace SJP.Schema.Core.Tests
         }
 
         [Test]
-        public void LocalIdentifierEqualsAnotherLocalIdentifier()
+        public void LocalIdentifierEquals_GivenEqualLocalIdentifiers_ReturnsTrue()
         {
             var name = "abc";
             var identifier = new LocalIdentifier(name);
@@ -216,7 +216,7 @@ namespace SJP.Schema.Core.Tests
         }
 
         [Test]
-        public void LocalIdentifierNotEqualsAnotherLocalIdentifier()
+        public void LocalIdentifierEquals_GivenDifferentLocalIdentifiers_ReturnsFalse()
         {
             var identifier = new LocalIdentifier("abc");
             var otherIdentifier = new LocalIdentifier("def");
@@ -226,7 +226,7 @@ namespace SJP.Schema.Core.Tests
         }
 
         [Test]
-        public void LocalIdentifierHashEqualsAnotherLocalIdentifier()
+        public void LocalIdentifierGetHashCode_GivenEqualLocalIdentifier_ReturnsTrue()
         {
             var name = "abc";
             var identifier = new LocalIdentifier(name);
@@ -235,7 +235,7 @@ namespace SJP.Schema.Core.Tests
         }
 
         [Test]
-        public void LocalIdentifierHashNotEqualsAnotherLocalIdentifier()
+        public void LocalIdentifierGetHashCode_GivenDifferentLocalIdentifier_ReturnsFalse()
         {
             var identifier = new LocalIdentifier("abc");
             var otherIdentifier = new LocalIdentifier("def");
@@ -243,7 +243,7 @@ namespace SJP.Schema.Core.Tests
         }
 
         [Test]
-        public void SchemaIdentifierThrowsOnNullOrWhiteSpaceIdentifier()
+        public void SchemaIdentifierCtor_GivenNullWhiteSpaceLocalName_ThrowsArgumentNullException()
         {
             Assert.Throws<ArgumentNullException>(() => new SchemaIdentifier(null));
             Assert.Throws<ArgumentNullException>(() => new SchemaIdentifier(string.Empty));
@@ -251,7 +251,7 @@ namespace SJP.Schema.Core.Tests
         }
 
         [Test]
-        public void SchemaIdentifierOnlyContainsSchemaName()
+        public void Identifier_WhenOnlySchemaProvided_OnlyHasSchemaPropertySet()
         {
             var identifier = new SchemaIdentifier("abc");
             Assert.IsNull(identifier.Server);
@@ -261,7 +261,7 @@ namespace SJP.Schema.Core.Tests
         }
 
         [Test]
-        public void SchemaIdentifierEqualsSchemaName()
+        public void SchemaIdentifierEquals_GivenSameStringIdentifier_ReturnsTrue()
         {
             var name = "abc";
             var identifier = new SchemaIdentifier(name);
@@ -269,7 +269,7 @@ namespace SJP.Schema.Core.Tests
         }
 
         [Test]
-        public void SchemaIdentifierNotEqualsSchema()
+        public void SchemaIdentifierEquals_GivenDifferentStringIdentifier_ReturnsFalse()
         {
             var name = "abc";
             var identifier = new SchemaIdentifier("def");
@@ -277,7 +277,7 @@ namespace SJP.Schema.Core.Tests
         }
 
         [Test]
-        public void SchemaIdentifierEqualsAnotherSchemaIdentifier()
+        public void SchemaIdentifierEquals_GivenEqualSchemaIdentifiers_ReturnsTrue()
         {
             var name = "abc";
             var identifier = new SchemaIdentifier(name);
@@ -287,7 +287,7 @@ namespace SJP.Schema.Core.Tests
         }
 
         [Test]
-        public void SchemaIdentifierNotEqualsAnotherSchemaIdentifier()
+        public void SchemaIdentifierEquals_GivenDifferentSchemaIdentifiers_ReturnsFalse()
         {
             var identifier = new SchemaIdentifier("abc");
             var otherIdentifier = new SchemaIdentifier("def");
@@ -297,7 +297,7 @@ namespace SJP.Schema.Core.Tests
         }
 
         [Test]
-        public void SchemaIdentifierHashEqualsAnotherSchemaIdentifier()
+        public void SchemaIdentifierGetHashCode_GivenEqualSchemaIdentifier_ReturnsTrue()
         {
             var name = "abc";
             var identifier = new SchemaIdentifier(name);
@@ -306,7 +306,7 @@ namespace SJP.Schema.Core.Tests
         }
 
         [Test]
-        public void SchemaIdentifierHashNotEqualsAnotherSchenaIdentifier()
+        public void SchemaIdentifierGetHashCode_GivenDifferentSchemaIdentifier_ReturnsFalse()
         {
             var identifier = new SchemaIdentifier("abc");
             var otherIdentifier = new SchemaIdentifier("def");
@@ -314,7 +314,7 @@ namespace SJP.Schema.Core.Tests
         }
 
         [Test]
-        public void DatabaseIdentifierThrowsOnNullOrWhiteSpaceIdentifier()
+        public void DatabaseIdentifierCtor_GivenNullWhiteSpaceLocalName_ThrowsArgumentNullException()
         {
             Assert.Throws<ArgumentNullException>(() => new DatabaseIdentifier(null));
             Assert.Throws<ArgumentNullException>(() => new DatabaseIdentifier(string.Empty));
@@ -322,7 +322,7 @@ namespace SJP.Schema.Core.Tests
         }
 
         [Test]
-        public void DatabaseIdentifierOnlyContainsDatabaseName()
+        public void Identifier_WhenOnlyDatabaseProvided_OnlyHasDatabasePropertySet()
         {
             var identifier = new DatabaseIdentifier("abc");
             Assert.IsNull(identifier.Server);
@@ -332,7 +332,7 @@ namespace SJP.Schema.Core.Tests
         }
 
         [Test]
-        public void DatabaseIdentifierEqualsDatabaseName()
+        public void DatabaseIdentifierEquals_GivenSameStringIdentifier_ReturnsTrue()
         {
             var name = "abc";
             var identifier = new DatabaseIdentifier(name);
@@ -340,7 +340,7 @@ namespace SJP.Schema.Core.Tests
         }
 
         [Test]
-        public void DatabaseIdentifierNotEqualsDatabaseName()
+        public void DatabaseIdentifierEquals_GivenDifferentStringIdentifier_ReturnsFalse()
         {
             var name = "abc";
             var identifier = new DatabaseIdentifier("def");
@@ -348,7 +348,7 @@ namespace SJP.Schema.Core.Tests
         }
 
         [Test]
-        public void DatabaseIdentifierEqualsAnotherDatabaseIdentifier()
+        public void DatabaseIdentifierEquals_GivenEqualDatabaseIdentifiers_ReturnsTrue()
         {
             var name = "abc";
             var identifier = new DatabaseIdentifier(name);
@@ -358,7 +358,7 @@ namespace SJP.Schema.Core.Tests
         }
 
         [Test]
-        public void DatabaseIdentifierNotEqualsAnotherDatabaseIdentifier()
+        public void DatabaseIdentifierEquals_GivenDifferentDatabaseIdentifiers_ReturnsFalse()
         {
             var identifier = new DatabaseIdentifier("abc");
             var otherIdentifier = new DatabaseIdentifier("def");
@@ -368,7 +368,7 @@ namespace SJP.Schema.Core.Tests
         }
 
         [Test]
-        public void DatabaseIdentifierHashEqualsAnotherDatabaseIdentifier()
+        public void DatabaseIdentifierGetHashCode_GivenEqualDatabaseIdentifier_ReturnsTrue()
         {
             var name = "abc";
             var identifier = new DatabaseIdentifier(name);
@@ -377,7 +377,7 @@ namespace SJP.Schema.Core.Tests
         }
 
         [Test]
-        public void DatabaseIdentifierHashNotEqualsAnotherDatabaseIdentifier()
+        public void DatabaseIdentifierGetHashCode_GivenDifferentDatabaseIdentifier_ReturnsFalse()
         {
             var identifier = new DatabaseIdentifier("abc");
             var otherIdentifier = new DatabaseIdentifier("def");
@@ -385,7 +385,7 @@ namespace SJP.Schema.Core.Tests
         }
 
         [Test]
-        public void ServerIdentifierThrowsOnNullOrWhiteSpaceIdentifier()
+        public void ServerIdentifierCtor_GivenNullWhiteSpaceLocalName_ThrowsArgumentNullException()
         {
             Assert.Throws<ArgumentNullException>(() => new ServerIdentifier(null));
             Assert.Throws<ArgumentNullException>(() => new ServerIdentifier(string.Empty));
@@ -393,7 +393,7 @@ namespace SJP.Schema.Core.Tests
         }
 
         [Test]
-        public void ServerIdentifierOnlyContainsServerName()
+        public void Identifier_WhenOnlyServerProvided_OnlyHasServerPropertySet()
         {
             var identifier = new ServerIdentifier("abc");
             Assert.NotNull(identifier.Server);
@@ -403,7 +403,7 @@ namespace SJP.Schema.Core.Tests
         }
 
         [Test]
-        public void ServerIdentifierEqualsServerName()
+        public void ServerIdentifierEquals_GivenSameStringIdentifier_ReturnsTrue()
         {
             var name = "abc";
             var identifier = new ServerIdentifier(name);
@@ -411,7 +411,7 @@ namespace SJP.Schema.Core.Tests
         }
 
         [Test]
-        public void ServerIdentifierNotEqualsServerName()
+        public void ServerIdentifierEquals_GivenDifferentStringIdentifier_ReturnsFalse()
         {
             var name = "abc";
             var identifier = new ServerIdentifier("def");
@@ -419,7 +419,7 @@ namespace SJP.Schema.Core.Tests
         }
 
         [Test]
-        public void ServerIdentifierEqualsAnotherServerIdentifier()
+        public void ServerIdentifierEquals_GivenEqualServerIdentifiers_ReturnsTrue()
         {
             var name = "abc";
             var identifier = new ServerIdentifier(name);
@@ -429,7 +429,7 @@ namespace SJP.Schema.Core.Tests
         }
 
         [Test]
-        public void ServerIdentifierNotEqualsAnotherServerIdentifier()
+        public void ServerIdentifierEquals_GivenDifferentServerIdentifiers_ReturnsFalse()
         {
             var identifier = new ServerIdentifier("abc");
             var otherIdentifier = new ServerIdentifier("def");
@@ -439,7 +439,7 @@ namespace SJP.Schema.Core.Tests
         }
 
         [Test]
-        public void ServerIdentifierHashEqualsAnotherServerIdentifier()
+        public void ServerIdentifierGetHashCode_GivenEqualServerIdentifier_ReturnsTrue()
         {
             var name = "abc";
             var identifier = new ServerIdentifier(name);
@@ -448,7 +448,7 @@ namespace SJP.Schema.Core.Tests
         }
 
         [Test]
-        public void ServerIdentifierHashNotEqualsAnotherServerIdentifier()
+        public void ServerIdentifierGetHashCode_GivenDifferentServerIdentifier_ReturnsFalse()
         {
             var identifier = new ServerIdentifier("abc");
             var otherIdentifier = new ServerIdentifier("def");

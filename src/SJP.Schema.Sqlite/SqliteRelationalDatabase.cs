@@ -35,7 +35,7 @@ namespace SJP.Schema.Sqlite
             if (BuiltInTables.Contains(tableName.LocalName))
                 return false;
 
-            const string sql = "select count(*) from sqlite_master where type = 'table' and name = @TableName";
+            const string sql = "select count(*) from sqlite_master where type = 'table' and lower(name) = lower(@TableName)";
             return Connection.ExecuteScalar<int>(
                 sql,
                 new { TableName = tableName.LocalName }
@@ -50,7 +50,7 @@ namespace SJP.Schema.Sqlite
             if (BuiltInTables.Contains(tableName.LocalName))
                 return false;
 
-            const string sql = "select count(*) from sqlite_master where type = 'table' and name = @TableName";
+            const string sql = "select count(*) from sqlite_master where type = 'table' and lower(name) = lower(@TableName)";
             return await Connection.ExecuteScalarAsync<int>(
                 sql,
                 new { TableName = tableName.LocalName }
@@ -144,7 +144,7 @@ namespace SJP.Schema.Sqlite
             if (viewName == null || viewName.LocalName.IsNullOrWhiteSpace())
                 throw new ArgumentNullException(nameof(viewName));
 
-            const string sql = "select count(*) from sqlite_master where type = 'view' and name = @ViewName";
+            const string sql = "select count(*) from sqlite_master where type = 'view' and lower(name) = lower(@ViewName)";
             return Connection.ExecuteScalar<int>(
                 sql,
                 new { ViewName = viewName.LocalName }
@@ -156,7 +156,7 @@ namespace SJP.Schema.Sqlite
             if (viewName == null || viewName.LocalName.IsNullOrWhiteSpace())
                 throw new ArgumentNullException(nameof(viewName));
 
-            const string sql = "select count(*) from sqlite_master where type = 'view' and name = @ViewName";
+            const string sql = "select count(*) from sqlite_master where type = 'view' and lower(name) = lower(@ViewName)";
             return await Connection.ExecuteScalarAsync<int>(
                 sql,
                 new { ViewName = viewName.LocalName }
@@ -281,7 +281,7 @@ namespace SJP.Schema.Sqlite
                 throw new ArgumentNullException(nameof(triggerName));
 
             return Connection.ExecuteScalar<int>(
-                "select count(*) from sqlite_master where type = 'trigger' and name = @TriggerName",
+                "select count(*) from sqlite_master where type = 'trigger' and lower(name) = lower(@TriggerName)",
                 new { TriggerName = triggerName.LocalName }
             ) != 0;
         }
@@ -291,7 +291,7 @@ namespace SJP.Schema.Sqlite
             if (triggerName == null || triggerName.LocalName.IsNullOrWhiteSpace())
                 throw new ArgumentNullException(nameof(triggerName));
 
-            const string sql = "select count(*) from sqlite_master where type = 'trigger' and name = @TriggerName";
+            const string sql = "select count(*) from sqlite_master where type = 'trigger' and lower(name) = lower(@TriggerName)";
             return await Connection.ExecuteScalarAsync<int>(
                 sql,
                 new { TriggerName = triggerName.LocalName }
@@ -349,7 +349,7 @@ namespace SJP.Schema.Sqlite
             if (triggerName == null || triggerName.LocalName.IsNullOrWhiteSpace())
                 throw new ArgumentNullException(nameof(triggerName));
 
-            const string sql = "select sql from sqlite_master where type = 'trigger' and name = @TriggerName";
+            const string sql = "select sql from sqlite_master where type = 'trigger' and lower(name) = lower(@TriggerName)";
             var queryResult = Connection.QuerySingle<string>(sql, new { TriggerName = triggerName.LocalName });
             if (queryResult == null)
                 return null;
@@ -366,7 +366,7 @@ namespace SJP.Schema.Sqlite
             if (triggerName == null || triggerName.LocalName.IsNullOrWhiteSpace())
                 throw new ArgumentNullException(nameof(triggerName));
 
-            const string sql = "select sql from sqlite_master where type = 'trigger' and name = @TriggerName";
+            const string sql = "select sql from sqlite_master where type = 'trigger' and lower(name) = lower(@TriggerName)";
             var queryResult = await Connection.QuerySingleAsync<string>(sql, new { TriggerName = triggerName.LocalName });
             if (queryResult == null)
                 return null;

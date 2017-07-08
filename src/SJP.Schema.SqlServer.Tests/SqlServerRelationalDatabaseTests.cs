@@ -9,14 +9,14 @@ namespace SJP.Schema.SqlServer.Tests
     internal class SqlServerRelationalDatabaseTests
     {
         [Test]
-        public void MissingDialectThrowsException()
+        public void Ctor_GivenNullDialect_ThrowsArgumentNullException()
         {
             var connection = Mock.Of<IDbConnection>();
             Assert.Throws<ArgumentNullException>(() => new SqlServerRelationalDatabase(null, connection));
         }
 
         [Test]
-        public void MissingConnectionThrowsException()
+        public void Ctor_GivenNullConnection_ThrowsArgumentNullException()
         {
             Assert.Throws<ArgumentNullException>(() => new SqlServerRelationalDatabase(new SqlServerDialect(), null));
         }

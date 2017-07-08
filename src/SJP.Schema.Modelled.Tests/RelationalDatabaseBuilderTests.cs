@@ -10,7 +10,7 @@ namespace SJP.Schema.Modelled.Tests
     public class RelationalDatabaseBuilderTests
     {
         [Test]
-        public void ThrowsErrorOnMissingCtorArgs()
+        public void Ctor_GivenNullArguments_ThrowsArgumentNullException()
         {
             Assert.Throws<ArgumentNullException>(() => new RelationalDatabaseBuilder((IDependentRelationalDatabase)null));
             Assert.Throws<ArgumentNullException>(() => new RelationalDatabaseBuilder((Func<IDependentRelationalDatabase>)null));
