@@ -24,6 +24,7 @@ namespace SJP.Schema.Sqlite
         public Identifier Name { get; }
 
         public IRelationalDatabaseTable Table { get; }
-    }
 
+        public bool IsEnabled { get; } = true;
+    }
 }

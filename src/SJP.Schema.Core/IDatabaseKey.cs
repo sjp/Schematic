@@ -4,7 +4,7 @@ using System.Text;
 
 namespace SJP.Schema.Core
 {
-    public interface IDatabaseKey
+    public interface IDatabaseKey : IDatabaseOptional
     {
         IRelationalDatabaseTable Table { get; }
 

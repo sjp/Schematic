@@ -34,6 +34,8 @@ namespace SJP.Schema.Sqlite
 
         public IRelationalDatabaseTable Table { get; }
 
+        public bool IsEnabled { get; } = true;
+
         public IEnumerable<Identifier> Dependencies
         {
             get

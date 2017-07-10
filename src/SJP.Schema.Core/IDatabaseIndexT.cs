@@ -1,10 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using System.Collections.Generic;
 
 namespace SJP.Schema.Core
 {
-    public interface IDatabaseIndex<T> where T : IDatabaseQueryable
+    public interface IDatabaseIndex<T> : IDatabaseOptional where T : IDatabaseQueryable
     {
         T Parent { get; }
 

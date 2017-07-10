@@ -15,5 +15,7 @@
         public bool IsDescending { get; set; }
 
         public string ColumnName { get; set; }
+
+        public bool IsDisabled { get; set; }
     }
 }

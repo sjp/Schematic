@@ -129,7 +129,7 @@ where o1.schema_id = schema_id(@SchemaName) and o1.name = @TableName
         protected virtual IEnumerable<IDatabaseViewIndex> LoadIndexesSync()
         {
             const string sql = @"
-select i.name as IndexName, i.is_unique as IsUnique, ic.key_ordinal as KeyOrdinal, ic.index_column_id as IndexColumnId, ic.is_included_column as IsIncludedColumn, ic.is_descending_key as IsDescending, c.name as ColumnName
+select i.name as IndexName, i.is_unique as IsUnique, ic.key_ordinal as KeyOrdinal, ic.index_column_id as IndexColumnId, ic.is_included_column as IsIncludedColumn, ic.is_descending_key as IsDescending, c.name as ColumnName, i.is_disabled as IsDisabled
 from sys.views v
 inner join sys.indexes i on v.object_id = i.object_id
 inner join sys.index_columns ic on i.object_id = ic.object_id and i.index_id = ic.index_id
@@ -142,7 +142,7 @@ where schema_name(v.schema_id) = @SchemaName and v.name = @ViewName
             if (queryResult.Empty())
                 return Enumerable.Empty<IDatabaseViewIndex>();
 
-            var indexColumns = queryResult.GroupBy(row => new { IndexName = row.IndexName, IsUnique = row.IsUnique });
+            var indexColumns = queryResult.GroupBy(row => new { IndexName = row.IndexName, IsUnique = row.IsUnique, IsDisabled = row.IsDisabled });
 
             var viewColumns = Column;
             var result = new List<IDatabaseViewIndex>();
@@ -150,6 +150,8 @@ where schema_name(v.schema_id) = @SchemaName and v.name = @ViewName
             {
                 var isUnique = indexInfo.Key.IsUnique;
                 var indexName = new LocalIdentifier(indexInfo.Key.IndexName);
+                var isEnabled = !indexInfo.Key.IsDisabled;
+
                 var indexCols = indexInfo
                     .Where(row => !row.IsIncludedColumn)
                     .OrderBy(row => row.KeyOrdinal)
@@ -167,7 +169,7 @@ where schema_name(v.schema_id) = @SchemaName and v.name = @ViewName
 
                 // TODO: Merge index definitions so that views and tables can be shared (but typed)
                 //       Use generics for Parent<T> ?
-                var index = new SqlServerDatabaseViewIndex(null, indexName, isUnique, indexCols, includedCols);
+                var index = new SqlServerDatabaseViewIndex(null, indexName, isUnique, indexCols, includedCols, isEnabled);
                 result.Add(index);
             }
 
@@ -177,7 +179,7 @@ where schema_name(v.schema_id) = @SchemaName and v.name = @ViewName
         protected virtual async Task<IEnumerable<IDatabaseViewIndex>> LoadIndexesAsync()
         {
             const string sql = @"
-select i.name as IndexName, i.is_unique as IsUnique, ic.key_ordinal as KeyOrdinal, ic.index_column_id as IndexColumnId, ic.is_included_column as IsIncludedColumn, ic.is_descending_key as IsDescending, c.name as ColumnName
+select i.name as IndexName, i.is_unique as IsUnique, ic.key_ordinal as KeyOrdinal, ic.index_column_id as IndexColumnId, ic.is_included_column as IsIncludedColumn, ic.is_descending_key as IsDescending, c.name as ColumnName, i.is_disabled as IsDisabled
 from sys.views v
 inner join sys.indexes i on v.object_id = i.object_id
 inner join sys.index_columns ic on i.object_id = ic.object_id and i.index_id = ic.index_id
@@ -190,7 +192,7 @@ where schema_name(v.schema_id) = @SchemaName and v.name = @ViewName
             if (queryResult.Empty())
                 return Enumerable.Empty<IDatabaseViewIndex>();
 
-            var indexColumns = queryResult.GroupBy(row => new { IndexName = row.IndexName, IsUnique = row.IsUnique });
+            var indexColumns = queryResult.GroupBy(row => new { IndexName = row.IndexName, IsUnique = row.IsUnique, IsDisabled = row.IsDisabled });
 
             var viewColumns = await ColumnAsync();
             var result = new List<IDatabaseViewIndex>();
@@ -198,6 +200,8 @@ where schema_name(v.schema_id) = @SchemaName and v.name = @ViewName
             {
                 var isUnique = indexInfo.Key.IsUnique;
                 var indexName = new LocalIdentifier(indexInfo.Key.IndexName);
+                var isEnabled = !indexInfo.Key.IsDisabled;
+
                 var indexCols = indexInfo
                     .Where(row => !row.IsIncludedColumn)
                     .OrderBy(row => row.KeyOrdinal)
@@ -215,7 +219,7 @@ where schema_name(v.schema_id) = @SchemaName and v.name = @ViewName
 
                 // TODO: Merge index definitions so that views and tables can be shared (but typed)
                 //       Use generics for Parent<T> ?
-                var index = new SqlServerDatabaseViewIndex(null, indexName, isUnique, indexCols, includedCols);
+                var index = new SqlServerDatabaseViewIndex(null, indexName, isUnique, indexCols, includedCols, isEnabled);
                 result.Add(index);
             }
 

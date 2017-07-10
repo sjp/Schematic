@@ -6,7 +6,7 @@ namespace SJP.Schema.SqlServer
 {
     public class SqlServerCheckConstraint : IDatabaseCheckConstraint
     {
-        public SqlServerCheckConstraint(IRelationalDatabaseTable table, Identifier checkName, string definition, IEnumerable<IDatabaseColumn> columns)
+        public SqlServerCheckConstraint(IRelationalDatabaseTable table, Identifier checkName, string definition, IEnumerable<IDatabaseColumn> columns, bool isEnabled)
         {
             if (definition.IsNullOrWhiteSpace())
                 throw new ArgumentNullException(nameof(definition));
@@ -17,6 +17,7 @@ namespace SJP.Schema.SqlServer
             Name = checkName ?? throw new ArgumentNullException(nameof(checkName));
             Expression = ParseExpression(definition);
             DependentColumns = columns;
+            IsEnabled = isEnabled;
         }
 
         public IEnumerable<IDatabaseColumn> DependentColumns { get; }
@@ -26,6 +27,8 @@ namespace SJP.Schema.SqlServer
         public Identifier Name { get; }
 
         public IRelationalDatabaseTable Table { get; }
+
+        public bool IsEnabled { get; }
 
         // TODO: implement so that check constraint expressions are easy!
         private static ISqlExpression ParseExpression(string definition)

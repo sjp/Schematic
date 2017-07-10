@@ -19,5 +19,7 @@
         public int DeleteAction { get; set; }
 
         public int UpdateAction { get; set; }
+
+        public bool IsDisabled { get; set; }
     }
 }

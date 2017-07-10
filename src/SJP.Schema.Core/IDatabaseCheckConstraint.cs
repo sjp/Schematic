@@ -4,7 +4,7 @@ using System.Text;
 
 namespace SJP.Schema.Core
 {
-    public interface IDatabaseCheckConstraint
+    public interface IDatabaseCheckConstraint : IDatabaseOptional
     {
         Identifier Name { get; }
 

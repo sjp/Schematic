@@ -41,5 +41,7 @@ namespace SJP.Schema.Sqlite
         public IEnumerable<IDatabaseIndexColumn> Columns { get; }
 
         public IEnumerable<IDatabaseColumn> IncludedColumns { get; }
+
+        public bool IsEnabled { get; } = true;
     }
 }

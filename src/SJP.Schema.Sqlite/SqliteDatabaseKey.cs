@@ -24,5 +24,7 @@ namespace SJP.Schema.Sqlite
         public DatabaseKeyType KeyType { get; }
 
         public IEnumerable<IDatabaseColumn> Columns { get; }
+
+        public bool IsEnabled { get; } = true;
     }
 }

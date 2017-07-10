@@ -1,10 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace SJP.Schema.Core
+﻿namespace SJP.Schema.Core
 {
-    public interface IDatabaseTrigger : IDatabaseEntity
+    public interface IDatabaseTrigger : IDatabaseEntity, IDatabaseOptional
     {
         IRelationalDatabaseTable Table { get; }
 

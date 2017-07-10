@@ -7,5 +7,7 @@
         public string Definition { get; set; }
 
         public string DependentColumnName { get; set; }
+
+        public bool IsDisabled { get; set; }
     }
 }

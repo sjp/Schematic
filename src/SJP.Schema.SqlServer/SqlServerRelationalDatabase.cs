@@ -582,7 +582,7 @@ where schema_id = schema_id(@SchemaName) and name = @SynonymName
 
             triggerName = CreateQualifiedIdentifier(triggerName);
             const string sql = @"
-select st.name as TriggerName, sm.definition as Definition, st.is_instead_of_trigger as IsInsteadOfTrigger, te.type_desc as TriggerEvent
+select st.name as TriggerName, sm.definition as Definition, st.is_instead_of_trigger as IsInsteadOfTrigger, te.type_desc as TriggerEvent, st.is_disabled as IsDisabled
 from sys.tables t
 inner join sys.triggers st on t.object_id = st.parent_id
 inner join sys.sql_modules sm on st.object_id = sm.object_id
@@ -594,11 +594,19 @@ where schema_name(t.schema_id) = @SchemaName and st.name = @TriggerName";
                 return null;
 
             var triggerResult = queryResult
-                .GroupBy(row => new { TriggerName = row.TriggerName, Definition = row.Definition, IsInsteadOfTrigger = row.IsInsteadOfTrigger })
+                .GroupBy(row => new
+                {
+                    TriggerName = row.TriggerName,
+                    Definition = row.Definition,
+                    IsInsteadOfTrigger = row.IsInsteadOfTrigger,
+                    IsDisabled = row.IsDisabled
+                })
                 .Single();
 
             var queryTiming = triggerResult.Key.IsInsteadOfTrigger ? TriggerQueryTiming.Before : TriggerQueryTiming.After;
             var definition = triggerResult.Key.Definition;
+            var isEnabled = !triggerResult.Key.IsDisabled;
+
             var events = TriggerEvent.None;
             foreach (var trigEvent in triggerResult)
             {
@@ -614,7 +622,7 @@ where schema_name(t.schema_id) = @SchemaName and st.name = @TriggerName";
 
             // TODO: this will throw an exception because it needs a table
             //       maybe refactor if we want to support DDL triggers, i.e. schema change triggers
-            return new SqlServerDatabaseTrigger(null, triggerName, definition, queryTiming, events);
+            return new SqlServerDatabaseTrigger(null, triggerName, definition, queryTiming, events, isEnabled);
         }
 
         protected virtual async Task<IDatabaseTrigger> LoadTriggerAsync(Identifier triggerName)
@@ -624,7 +632,7 @@ where schema_name(t.schema_id) = @SchemaName and st.name = @TriggerName";
 
             triggerName = CreateQualifiedIdentifier(triggerName);
             const string sql = @"
-select st.name as TriggerName, sm.definition as Definition, st.is_instead_of_trigger as IsInsteadOfTrigger, te.type_desc as TriggerEvent
+select st.name as TriggerName, sm.definition as Definition, st.is_instead_of_trigger as IsInsteadOfTrigger, te.type_desc as TriggerEvent, st.is_disabled as IsDisabled
 from sys.tables t
 inner join sys.triggers st on t.object_id = st.parent_id
 inner join sys.sql_modules sm on st.object_id = sm.object_id
@@ -636,11 +644,19 @@ where schema_name(t.schema_id) = @SchemaName and st.name = @TriggerName";
                 return null;
 
             var triggerResult = queryResult
-                .GroupBy(row => new { TriggerName = row.TriggerName, Definition = row.Definition, IsInsteadOfTrigger = row.IsInsteadOfTrigger })
+                .GroupBy(row => new
+                {
+                    TriggerName = row.TriggerName,
+                    Definition = row.Definition,
+                    IsInsteadOfTrigger = row.IsInsteadOfTrigger,
+                    IsDisabled = row.IsDisabled
+                })
                 .Single();
 
             var queryTiming = triggerResult.Key.IsInsteadOfTrigger ? TriggerQueryTiming.Before : TriggerQueryTiming.After;
             var definition = triggerResult.Key.Definition;
+            var isEnabled = !triggerResult.Key.IsDisabled;
+
             var events = TriggerEvent.None;
             foreach (var trigEvent in triggerResult)
             {
@@ -656,7 +672,7 @@ where schema_name(t.schema_id) = @SchemaName and st.name = @TriggerName";
 
             // TODO: this will throw an exception because it needs a table
             //       maybe refactor if we want to support DDL triggers, i.e. schema change triggers
-            return new SqlServerDatabaseTrigger(null, triggerName, definition, queryTiming, events);
+            return new SqlServerDatabaseTrigger(null, triggerName, definition, queryTiming, events, isEnabled);
         }
 
         #endregion Triggers

@@ -154,7 +154,7 @@ where o1.schema_id = schema_id(@SchemaName) and o1.name = @TableName
         protected virtual IDatabaseKey LoadPrimaryKeySync()
         {
             const string sql = @"
-select kc.name as ConstraintName, c.name as ColumnName
+select kc.name as ConstraintName, c.name as ColumnName, i.is_disabled as IsDisabled
 from sys.tables t
 inner join sys.key_constraints kc on t.object_id = kc.parent_object_id
 inner join sys.indexes i on kc.parent_object_id = i.object_id and kc.unique_index_id = i.index_id
@@ -171,22 +171,24 @@ order by ic.column_id";
             if (primaryKeyColumns.Empty())
                 return null;
 
-            var groupedByName = primaryKeyColumns.GroupBy(row => row.ConstraintName);
-            var firstName = groupedByName.First().Key;
+            var groupedByName = primaryKeyColumns.GroupBy(row => new { ConstraintName = row.ConstraintName, IsDisabled = row.IsDisabled } );
+            var firstRow = groupedByName.First();
+            var constraintName = firstRow.Key.ConstraintName;
+            var isEnabled = !firstRow.Key.IsDisabled;
+
             var tableColumns = Column;
             var columns = groupedByName
-                .Where(row => row.Key == firstName)
+                .Where(row => row.Key.ConstraintName == constraintName)
                 .SelectMany(g => g.Select(row => tableColumns[row.ColumnName]))
                 .ToList();
 
-            var pkName = new LocalIdentifier(firstName);
-            return new SqlServerDatabaseKey(this, pkName, DatabaseKeyType.Primary, columns);
+            return new SqlServerDatabaseKey(this, constraintName, DatabaseKeyType.Primary, columns, isEnabled);
         }
 
         protected virtual async Task<IDatabaseKey> LoadPrimaryKeyAsync()
         {
             const string sql = @"
-select kc.name as ConstraintName, c.name as ColumnName
+select kc.name as ConstraintName, c.name as ColumnName, i.is_disabled as IsDisabled
 from sys.tables t
 inner join sys.key_constraints kc on t.object_id = kc.parent_object_id
 inner join sys.indexes i on kc.parent_object_id = i.object_id and kc.unique_index_id = i.index_id
@@ -203,16 +205,18 @@ order by ic.column_id";
             if (primaryKeyColumns.Empty())
                 return null;
 
-            var groupedByName = primaryKeyColumns.GroupBy(row => row.ConstraintName);
-            var firstName = groupedByName.First().Key;
-            var tableColumns = await ColumnAsync();
+            var groupedByName = primaryKeyColumns.GroupBy(row => new { ConstraintName = row.ConstraintName, IsDisabled = row.IsDisabled });
+            var firstRow = groupedByName.First();
+            var constraintName = firstRow.Key.ConstraintName;
+            var isEnabled = !firstRow.Key.IsDisabled;
+
+            var tableColumns = Column;
             var columns = groupedByName
-                .Where(row => row.Key == firstName)
+                .Where(row => row.Key.ConstraintName == constraintName)
                 .SelectMany(g => g.Select(row => tableColumns[row.ColumnName]))
                 .ToList();
 
-            var pkName = new LocalIdentifier(firstName);
-            return new SqlServerDatabaseKey(this, pkName, DatabaseKeyType.Primary, columns);
+            return new SqlServerDatabaseKey(this, constraintName, DatabaseKeyType.Primary, columns, isEnabled);
         }
 
         public IReadOnlyDictionary<Identifier, IDatabaseTableIndex> Index => LoadIndexLookupSync();
@@ -247,7 +251,7 @@ order by ic.column_id";
         protected virtual IEnumerable<IDatabaseTableIndex> LoadIndexesSync()
         {
             const string sql = @"
-select i.name as IndexName, i.is_unique as IsUnique, ic.key_ordinal as KeyOrdinal, ic.index_column_id as IndexColumnId, ic.is_included_column as IsIncludedColumn, ic.is_descending_key as IsDescending, c.name as ColumnName
+select i.name as IndexName, i.is_unique as IsUnique, ic.key_ordinal as KeyOrdinal, ic.index_column_id as IndexColumnId, ic.is_included_column as IsIncludedColumn, ic.is_descending_key as IsDescending, c.name as ColumnName, i.is_disabled as IsDisabled
 from sys.tables t
 inner join sys.indexes i on t.object_id = i.object_id
 inner join sys.index_columns ic on i.object_id = ic.object_id and i.index_id = ic.index_id
@@ -260,7 +264,7 @@ where schema_name(t.schema_id) = @SchemaName and t.name = @TableName
             if (queryResult.Empty())
                 return Enumerable.Empty<IDatabaseTableIndex>();
 
-            var indexColumns = queryResult.GroupBy(row => new { IndexName = row.IndexName, IsUnique = row.IsUnique });
+            var indexColumns = queryResult.GroupBy(row => new { IndexName = row.IndexName, IsUnique = row.IsUnique, IsDisabled = row.IsDisabled });
 
             var tableColumns = Column;
             var result = new List<IDatabaseTableIndex>();
@@ -268,6 +272,8 @@ where schema_name(t.schema_id) = @SchemaName and t.name = @TableName
             {
                 var isUnique = indexInfo.Key.IsUnique;
                 var indexName = new LocalIdentifier(indexInfo.Key.IndexName);
+                var isEnabled = !indexInfo.Key.IsDisabled;
+
                 var indexCols = indexInfo
                     .Where(row => !row.IsIncludedColumn)
                     .OrderBy(row => row.KeyOrdinal)
@@ -283,7 +289,7 @@ where schema_name(t.schema_id) = @SchemaName and t.name = @TableName
                     .Select(row => tableColumns[row.ColumnName])
                     .ToList();
 
-                var index = new SqlServerDatabaseTableIndex(this, indexName, isUnique, indexCols, includedCols);
+                var index = new SqlServerDatabaseTableIndex(this, indexName, isUnique, indexCols, includedCols, isEnabled);
                 result.Add(index);
             }
 
@@ -293,7 +299,7 @@ where schema_name(t.schema_id) = @SchemaName and t.name = @TableName
         protected virtual async Task<IEnumerable<IDatabaseTableIndex>> LoadIndexesAsync()
         {
             const string sql = @"
-select i.name as IndexName, i.is_unique as IsUnique, ic.key_ordinal as KeyOrdinal, ic.index_column_id as IndexColumnId, ic.is_included_column as IsIncludedColumn, ic.is_descending_key as IsDescending, c.name as ColumnName
+select i.name as IndexName, i.is_unique as IsUnique, ic.key_ordinal as KeyOrdinal, ic.index_column_id as IndexColumnId, ic.is_included_column as IsIncludedColumn, ic.is_descending_key as IsDescending, c.name as ColumnName, i.is_disabled as IsDisabled
 from sys.tables t
 inner join sys.indexes i on t.object_id = i.object_id
 inner join sys.index_columns ic on i.object_id = ic.object_id and i.index_id = ic.index_id
@@ -306,7 +312,7 @@ where schema_name(t.schema_id) = @SchemaName and t.name = @TableName
             if (queryResult.Empty())
                 return Enumerable.Empty<IDatabaseTableIndex>();
 
-            var indexColumns = queryResult.GroupBy(row => new { IndexName = row.IndexName, IsUnique = row.IsUnique });
+            var indexColumns = queryResult.GroupBy(row => new { IndexName = row.IndexName, IsUnique = row.IsUnique, IsDisabled = row.IsDisabled });
 
             var tableColumns = await ColumnAsync();
             var result = new List<IDatabaseTableIndex>();
@@ -314,6 +320,8 @@ where schema_name(t.schema_id) = @SchemaName and t.name = @TableName
             {
                 var isUnique = indexInfo.Key.IsUnique;
                 var indexName = new LocalIdentifier(indexInfo.Key.IndexName);
+                var isEnabled = !indexInfo.Key.IsDisabled;
+
                 var indexCols = indexInfo
                     .Where(row => !row.IsIncludedColumn)
                     .OrderBy(row => row.KeyOrdinal)
@@ -329,7 +337,7 @@ where schema_name(t.schema_id) = @SchemaName and t.name = @TableName
                     .Select(row => tableColumns[row.ColumnName])
                     .ToList();
 
-                var index = new SqlServerDatabaseTableIndex(this, indexName, isUnique, indexCols, includedCols);
+                var index = new SqlServerDatabaseTableIndex(this, indexName, isUnique, indexCols, includedCols, isEnabled);
                 result.Add(index);
             }
 
@@ -368,7 +376,7 @@ where schema_name(t.schema_id) = @SchemaName and t.name = @TableName
         protected virtual IEnumerable<IDatabaseKey> LoadUniqueKeysSync()
         {
             const string sql = @"
-select kc.name as ConstraintName, c.name as ColumnName
+select kc.name as ConstraintName, c.name as ColumnName, i.is_disabled as IsDisabled
 from sys.tables t
 inner join sys.key_constraints kc on t.object_id = kc.parent_object_id
 inner join sys.indexes i on kc.parent_object_id = i.object_id and kc.unique_index_id = i.index_id
@@ -385,18 +393,21 @@ order by ic.column_id";
             if (uniqueKeyColumns.Empty())
                 return Enumerable.Empty<IDatabaseKey>();
 
-            var groupedByName = uniqueKeyColumns.GroupBy(row => row.ConstraintName);
+            var groupedByName = uniqueKeyColumns.GroupBy(row => new { ConstraintName = row.ConstraintName, IsDisabled = row.IsDisabled });
             var tableColumns = Column;
             var constraintColumns = groupedByName
-                .Select(g => new { ConstraintName = g.Key, Columns = g.Select(row => tableColumns[row.ColumnName]) })
+                .Select(g => new
+                {
+                    ConstraintName = g.Key.ConstraintName,
+                    Columns = g.Select(row => tableColumns[row.ColumnName]),
+                    IsEnabled = !g.Key.IsDisabled
+                })
                 .ToList();
 
             var result = new List<IDatabaseKey>();
             foreach (var uk in constraintColumns)
             {
-                var ukName = new LocalIdentifier(uk.ConstraintName);
-                var ukColumns = uk.Columns;
-                var uniqueKey = new SqlServerDatabaseKey(this, ukName, DatabaseKeyType.Unique, ukColumns);
+                var uniqueKey = new SqlServerDatabaseKey(this, uk.ConstraintName, DatabaseKeyType.Unique, uk.Columns, uk.IsEnabled);
                 result.Add(uniqueKey);
             }
             return result.ToList();
@@ -405,7 +416,7 @@ order by ic.column_id";
         protected virtual async Task<IEnumerable<IDatabaseKey>> LoadUniqueKeysAsync()
         {
             const string sql = @"
-select kc.name as ConstraintName, c.name as ColumnName
+select kc.name as ConstraintName, c.name as ColumnName, i.is_disabled as IsDisabled
 from sys.tables t
 inner join sys.key_constraints kc on t.object_id = kc.parent_object_id
 inner join sys.indexes i on kc.parent_object_id = i.object_id and kc.unique_index_id = i.index_id
@@ -422,18 +433,21 @@ order by ic.column_id";
             if (uniqueKeyColumns.Empty())
                 return Enumerable.Empty<IDatabaseKey>();
 
-            var groupedByName = uniqueKeyColumns.GroupBy(row => row.ConstraintName);
-            var tableColumns = await ColumnAsync();
+            var groupedByName = uniqueKeyColumns.GroupBy(row => new { ConstraintName = row.ConstraintName, IsDisabled = row.IsDisabled });
+            var tableColumns = Column;
             var constraintColumns = groupedByName
-                .Select(g => new { ConstraintName = g.Key, Columns = g.Select(row => tableColumns[row.ColumnName]) })
+                .Select(g => new
+                {
+                    ConstraintName = g.Key.ConstraintName,
+                    Columns = g.Select(row => tableColumns[row.ColumnName]),
+                    IsEnabled = !g.Key.IsDisabled
+                })
                 .ToList();
 
             var result = new List<IDatabaseKey>();
             foreach (var uk in constraintColumns)
             {
-                var ukName = new LocalIdentifier(uk.ConstraintName);
-                var ukColumns = uk.Columns;
-                var uniqueKey = new SqlServerDatabaseKey(this, ukName, DatabaseKeyType.Unique, ukColumns);
+                var uniqueKey = new SqlServerDatabaseKey(this, uk.ConstraintName, DatabaseKeyType.Unique, uk.Columns, uk.IsEnabled);
                 result.Add(uniqueKey);
             }
             return result.ToList();
@@ -495,8 +509,8 @@ where schema_name(parent_t.schema_id) = @SchemaName and parent_t.name = @TableNa
 
                 var deleteAction = RelationalActionMapping[groupedChildKey.Key.DeleteAction];
                 var updateAction = RelationalActionMapping[groupedChildKey.Key.UpdateAction];
-                var relationalKey = new SqlServerRelationalKey(childKey, parentKey, deleteAction, updateAction);
 
+                var relationalKey = new SqlServerRelationalKey(childKey, parentKey, deleteAction, updateAction);
                 result.Add(relationalKey);
             }
 
@@ -595,7 +609,7 @@ where schema_name(parent_t.schema_id) = @SchemaName and parent_t.name = @TableNa
         protected virtual IEnumerable<IDatabaseCheckConstraint> LoadCheckConstraintsSync()
         {
             const string sql = @"
-select cc.name as ConstraintName, cc.definition as Definition, c.name as DependentColumnName
+select cc.name as ConstraintName, cc.definition as Definition, c.name as DependentColumnName, cc.is_disabled as IsDisabled
 from sys.tables t
 inner join sys.check_constraints cc on t.object_id = cc.parent_object_id
 inner join sys.sql_expression_dependencies sed on sed.referencing_id = cc.object_id
@@ -606,7 +620,12 @@ where schema_name(t.schema_id) = @SchemaName and t.name = @TableName";
             if (queryResult.Empty())
                 return Enumerable.Empty<IDatabaseCheckConstraint>();
 
-            var checkConstraints = queryResult.GroupBy(row => new { ConstraintName = row.ConstraintName, Definition = row.Definition });
+            var checkConstraints = queryResult.GroupBy(row => new
+            {
+                ConstraintName = row.ConstraintName,
+                Definition = row.Definition,
+                IsDisabled = row.IsDisabled
+            });
 
             var result = new List<IDatabaseCheckConstraint>();
             var tableColumns = Column;
@@ -614,9 +633,10 @@ where schema_name(t.schema_id) = @SchemaName and t.name = @TableName";
             {
                 var constraintName = new LocalIdentifier(checkRow.Key.ConstraintName);
                 var definition = checkRow.Key.Definition;
+                var isEnabled = !checkRow.Key.IsDisabled;
                 var columns = checkRow.Select(row => tableColumns[row.DependentColumnName]).ToList();
 
-                var checkConstraint = new SqlServerCheckConstraint(this, constraintName, definition, columns);
+                var checkConstraint = new SqlServerCheckConstraint(this, constraintName, definition, columns, isEnabled);
                 result.Add(checkConstraint);
             }
 
@@ -626,7 +646,7 @@ where schema_name(t.schema_id) = @SchemaName and t.name = @TableName";
         protected virtual async Task<IEnumerable<IDatabaseCheckConstraint>> LoadCheckConstraintsAsync()
         {
             const string sql = @"
-select cc.name as ConstraintName, cc.definition as Definition, c.name as DependentColumnName
+select cc.name as ConstraintName, cc.definition as Definition, c.name as DependentColumnName, cc.is_disabled as IsDisabled
 from sys.tables t
 inner join sys.check_constraints cc on t.object_id = cc.parent_object_id
 inner join sys.sql_expression_dependencies sed on sed.referencing_id = cc.object_id
@@ -637,7 +657,12 @@ where schema_name(t.schema_id) = @SchemaName and t.name = @TableName";
             if (queryResult.Empty())
                 return Enumerable.Empty<IDatabaseCheckConstraint>();
 
-            var checkConstraints = queryResult.GroupBy(row => new { ConstraintName = row.ConstraintName, Definition = row.Definition });
+            var checkConstraints = queryResult.GroupBy(row => new
+            {
+                ConstraintName = row.ConstraintName,
+                Definition = row.Definition,
+                IsDisabled = row.IsDisabled
+            });
 
             var result = new List<IDatabaseCheckConstraint>();
             var tableColumns = await ColumnAsync();
@@ -645,9 +670,10 @@ where schema_name(t.schema_id) = @SchemaName and t.name = @TableName";
             {
                 var constraintName = new LocalIdentifier(checkRow.Key.ConstraintName);
                 var definition = checkRow.Key.Definition;
+                var isEnabled = !checkRow.Key.IsDisabled;
                 var columns = checkRow.Select(row => tableColumns[row.DependentColumnName]).ToList();
 
-                var checkConstraint = new SqlServerCheckConstraint(this, constraintName, definition, columns);
+                var checkConstraint = new SqlServerCheckConstraint(this, constraintName, definition, columns, isEnabled);
                 result.Add(checkConstraint);
             }
 
@@ -686,7 +712,7 @@ where schema_name(t.schema_id) = @SchemaName and t.name = @TableName";
         protected virtual IEnumerable<IDatabaseRelationalKey> LoadParentKeysSync()
         {
             const string sql = @"
-select schema_name(parent_t.schema_id) as ParentTableSchema, parent_t.name as ParentTableName, fk.name as ChildKeyName, c.name as ColumnName, fkc.constraint_column_id as ConstraintColumnId, kc.name as ParentKeyName, kc.type as ParentKeyType, fk.delete_referential_action as DeleteAction, fk.update_referential_action as UpdateAction
+select schema_name(parent_t.schema_id) as ParentTableSchema, parent_t.name as ParentTableName, fk.name as ChildKeyName, c.name as ColumnName, fkc.constraint_column_id as ConstraintColumnId, kc.name as ParentKeyName, kc.type as ParentKeyType, fk.delete_referential_action as DeleteAction, fk.update_referential_action as UpdateAction, fk.is_disabled as IsDisabled
 from sys.tables parent_t
 inner join sys.foreign_keys fk on parent_t.object_id = fk.referenced_object_id
 inner join sys.tables child_t on fk.parent_object_id = child_t.object_id
@@ -707,7 +733,8 @@ where schema_name(child_t.schema_id) = @SchemaName and child_t.name = @TableName
                 ParentKeyName = row.ParentKeyType,
                 KeyType = row.ParentKeyType,
                 DeleteAction = row.DeleteAction,
-                UpdateAction = row.UpdateAction
+                UpdateAction = row.UpdateAction,
+                IsDisabled = row.IsDisabled
             });
 
             var result = new List<IDatabaseRelationalKey>();
@@ -737,7 +764,8 @@ where schema_name(child_t.schema_id) = @SchemaName and child_t.name = @TableName
                     .Select(row => childKeyColumnLookup[row.ColumnName])
                     .ToList();
 
-                var childKey = new SqlServerDatabaseKey(this, childKeyName, DatabaseKeyType.Foreign, childKeyColumns);
+                var isEnabled = !fkey.Key.IsDisabled;
+                var childKey = new SqlServerDatabaseKey(this, childKeyName, DatabaseKeyType.Foreign, childKeyColumns, isEnabled);
 
                 var deleteAction = RelationalActionMapping[fkey.Key.DeleteAction];
                 var updateAction = RelationalActionMapping[fkey.Key.UpdateAction];
@@ -752,7 +780,7 @@ where schema_name(child_t.schema_id) = @SchemaName and child_t.name = @TableName
         protected virtual async Task<IEnumerable<IDatabaseRelationalKey>> LoadParentKeysAsync()
         {
             const string sql = @"
-select schema_name(parent_t.schema_id) as ParentTableSchema, parent_t.name as ParentTableName, fk.name as ChildKeyName, c.name as ColumnName, fkc.constraint_column_id as ConstraintColumnId, kc.name as ParentKeyName, kc.type as ParentKeyType, fk.delete_referential_action as DeleteAction, fk.update_referential_action as UpdateAction
+select schema_name(parent_t.schema_id) as ParentTableSchema, parent_t.name as ParentTableName, fk.name as ChildKeyName, c.name as ColumnName, fkc.constraint_column_id as ConstraintColumnId, kc.name as ParentKeyName, kc.type as ParentKeyType, fk.delete_referential_action as DeleteAction, fk.update_referential_action as UpdateAction, fk.is_disabled as IsDisabled
 from sys.tables parent_t
 inner join sys.foreign_keys fk on parent_t.object_id = fk.referenced_object_id
 inner join sys.tables child_t on fk.parent_object_id = child_t.object_id
@@ -773,7 +801,8 @@ where schema_name(child_t.schema_id) = @SchemaName and child_t.name = @TableName
                 ParentKeyName = row.ParentKeyType,
                 KeyType = row.ParentKeyType,
                 DeleteAction = row.DeleteAction,
-                UpdateAction = row.UpdateAction
+                UpdateAction = row.UpdateAction,
+                IsDisabled = row.IsDisabled
             });
 
             var result = new List<IDatabaseRelationalKey>();
@@ -803,7 +832,8 @@ where schema_name(child_t.schema_id) = @SchemaName and child_t.name = @TableName
                     .Select(row => childKeyColumnLookup[row.ColumnName])
                     .ToList();
 
-                var childKey = new SqlServerDatabaseKey(this, childKeyName, DatabaseKeyType.Foreign, childKeyColumns);
+                var isEnabled = !fkey.Key.IsDisabled;
+                var childKey = new SqlServerDatabaseKey(this, childKeyName, DatabaseKeyType.Foreign, childKeyColumns, isEnabled);
 
                 var deleteAction = RelationalActionMapping[fkey.Key.DeleteAction];
                 var updateAction = RelationalActionMapping[fkey.Key.UpdateAction];
@@ -990,7 +1020,7 @@ where schema_name(t.schema_id) = @SchemaName
         protected virtual IEnumerable<IDatabaseTrigger> LoadTriggersSync()
         {
             const string sql = @"
-select st.name as TriggerName, sm.definition as Definition, st.is_instead_of_trigger as IsInsteadOfTrigger, te.type_desc as TriggerEvent
+select st.name as TriggerName, sm.definition as Definition, st.is_instead_of_trigger as IsInsteadOfTrigger, te.type_desc as TriggerEvent, st.is_disabled as IsDisabled
 from sys.tables t
 inner join sys.triggers st on t.object_id = st.parent_id
 inner join sys.sql_modules sm on st.object_id = sm.object_id
@@ -1001,7 +1031,13 @@ where schema_name(t.schema_id) = @SchemaName and t.name = @TableName";
             if (queryResult.Empty())
                 return Enumerable.Empty<IDatabaseTrigger>();
 
-            var triggers = queryResult.GroupBy(row => new { TriggerName = row.TriggerName, Definition = row.Definition, IsInsteadOfTrigger = row.IsInsteadOfTrigger });
+            var triggers = queryResult.GroupBy(row => new
+            {
+                TriggerName = row.TriggerName,
+                Definition = row.Definition,
+                IsInsteadOfTrigger = row.IsInsteadOfTrigger,
+                IsDisabled = row.IsDisabled
+            });
 
             var result = new List<IDatabaseTrigger>();
             foreach (var trig in triggers)
@@ -1009,6 +1045,8 @@ where schema_name(t.schema_id) = @SchemaName and t.name = @TableName";
                 var triggerName = new LocalIdentifier(trig.Key.TriggerName);
                 var queryTiming = trig.Key.IsInsteadOfTrigger ? TriggerQueryTiming.Before : TriggerQueryTiming.After;
                 var definition = trig.Key.Definition;
+                var isEnabled = !trig.Key.IsDisabled;
+
                 var events = TriggerEvent.None;
                 foreach (var trigEvent in trig)
                 {
@@ -1022,7 +1060,7 @@ where schema_name(t.schema_id) = @SchemaName and t.name = @TableName";
                         throw new Exception("Found an unsupported trigger event name. Expected one of INSERT, UPDATE, DELETE, got: " + trigEvent.TriggerEvent);
                 }
 
-                var trigger = new SqlServerDatabaseTrigger(this, triggerName, definition, queryTiming, events);
+                var trigger = new SqlServerDatabaseTrigger(this, triggerName, definition, queryTiming, events, isEnabled);
                 result.Add(trigger);
             }
 
@@ -1032,7 +1070,7 @@ where schema_name(t.schema_id) = @SchemaName and t.name = @TableName";
         protected virtual async Task<IEnumerable<IDatabaseTrigger>> LoadTriggersAsync()
         {
             const string sql = @"
-select st.name as TriggerName, sm.definition as Definition, st.is_instead_of_trigger as IsInsteadOfTrigger, te.type_desc as TriggerEvent
+select st.name as TriggerName, sm.definition as Definition, st.is_instead_of_trigger as IsInsteadOfTrigger, te.type_desc as TriggerEvent, st.is_disabled as IsDisabled
 from sys.tables t
 inner join sys.triggers st on t.object_id = st.parent_id
 inner join sys.sql_modules sm on st.object_id = sm.object_id
@@ -1043,7 +1081,13 @@ where schema_name(t.schema_id) = @SchemaName and t.name = @TableName";
             if (queryResult.Empty())
                 return Enumerable.Empty<IDatabaseTrigger>();
 
-            var triggers = queryResult.GroupBy(row => new { TriggerName = row.TriggerName, Definition = row.Definition, IsInsteadOfTrigger = row.IsInsteadOfTrigger });
+            var triggers = queryResult.GroupBy(row => new
+            {
+                TriggerName = row.TriggerName,
+                Definition = row.Definition,
+                IsInsteadOfTrigger = row.IsInsteadOfTrigger,
+                IsDisabled = row.IsDisabled
+            });
 
             var result = new List<IDatabaseTrigger>();
             foreach (var trig in triggers)
@@ -1051,6 +1095,8 @@ where schema_name(t.schema_id) = @SchemaName and t.name = @TableName";
                 var triggerName = new LocalIdentifier(trig.Key.TriggerName);
                 var queryTiming = trig.Key.IsInsteadOfTrigger ? TriggerQueryTiming.Before : TriggerQueryTiming.After;
                 var definition = trig.Key.Definition;
+                var isEnabled = !trig.Key.IsDisabled;
+
                 var events = TriggerEvent.None;
                 foreach (var trigEvent in trig)
                 {
@@ -1064,7 +1110,7 @@ where schema_name(t.schema_id) = @SchemaName and t.name = @TableName";
                         throw new Exception("Found an unsupported trigger event name. Expected one of INSERT, UPDATE, DELETE, got: " + trigEvent.TriggerEvent);
                 }
 
-                var trigger = new SqlServerDatabaseTrigger(this, triggerName, definition, queryTiming, events);
+                var trigger = new SqlServerDatabaseTrigger(this, triggerName, definition, queryTiming, events, isEnabled);
                 result.Add(trigger);
             }
 

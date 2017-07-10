@@ -6,22 +6,17 @@ namespace SJP.Schema.SqlServer
 {
     public class SqlServerDatabaseTrigger : IDatabaseTrigger
     {
-        public SqlServerDatabaseTrigger(IRelationalDatabaseTable table, Identifier name, string definition, TriggerQueryTiming queryTiming, TriggerEvent events)
+        public SqlServerDatabaseTrigger(IRelationalDatabaseTable table, Identifier name, string definition, TriggerQueryTiming queryTiming, TriggerEvent events, bool isEnabled)
         {
-            if (table == null)
-                throw new ArgumentNullException(nameof(table));
-            if (name == null)
-                throw new ArgumentNullException(nameof(name));
-            if (definition == null)
-                throw new ArgumentNullException(nameof(definition));
             if (events == TriggerEvent.None)
                 throw new ArgumentException("Invalid trigger event flags given. Must include at least one event, e.g. INSERT, DELETE, UPDATE.", nameof(events));
 
-            Table = table;
-            Name = name;
-            Definition = definition;
+            Table = table ?? throw new ArgumentNullException(nameof(table));
+            Name = name ?? throw new ArgumentNullException(nameof(name));
+            Definition = definition ?? throw new ArgumentNullException(nameof(definition));
             QueryTiming = queryTiming;
             TriggerEvent = events;
+            IsEnabled = isEnabled;
         }
 
         public string Definition { get; }
@@ -33,6 +28,8 @@ namespace SJP.Schema.SqlServer
         public TriggerEvent TriggerEvent { get; }
 
         public IRelationalDatabaseTable Table { get; }
+
+        public bool IsEnabled { get; }
 
         public IEnumerable<Identifier> Dependencies
         {

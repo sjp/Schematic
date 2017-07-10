@@ -6,19 +6,16 @@ namespace SJP.Schema.SqlServer
 {
     public class SqlServerDatabaseKey : IDatabaseKey
     {
-        public SqlServerDatabaseKey(IRelationalDatabaseTable table, Identifier name, DatabaseKeyType keyType, IEnumerable<IDatabaseColumn> columns)
+        public SqlServerDatabaseKey(IRelationalDatabaseTable table, Identifier name, DatabaseKeyType keyType, IEnumerable<IDatabaseColumn> columns, bool isEnabled)
         {
-            if (table == null)
-                throw new ArgumentNullException(nameof(table));
-            if (name == null)
-                throw new ArgumentNullException(nameof(name));
             if (columns == null || columns.Empty() || columns.AnyNull())
                 throw new ArgumentNullException(nameof(columns));
 
-            Table = table;
-            Name = name;
+            Table = table ?? throw new ArgumentNullException(nameof(table));
+            Name = name ?? throw new ArgumentNullException(nameof(name));
             KeyType = keyType;
             Columns = columns;
+            IsEnabled = isEnabled;
         }
 
         public IRelationalDatabaseTable Table { get; }
@@ -28,5 +25,7 @@ namespace SJP.Schema.SqlServer
         public DatabaseKeyType KeyType { get; }
 
         public IEnumerable<IDatabaseColumn> Columns { get; }
+
+        public bool IsEnabled { get; }
     }
 }

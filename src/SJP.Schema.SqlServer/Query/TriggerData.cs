@@ -9,5 +9,7 @@
         public bool IsInsteadOfTrigger { get; set; }
 
         public string TriggerEvent { get; set; }
+
+        public bool IsDisabled { get; set; }
     }
 }

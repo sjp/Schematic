@@ -24,5 +24,9 @@ namespace SJP.Schema.Modelled.Reflection
         public Identifier Name { get; }
 
         public IRelationalDatabaseTable Table { get; }
+
+        // this should always be true
+        // is there a situation where would not want it to be true?
+        public bool IsEnabled { get; } = true;
     }
 }

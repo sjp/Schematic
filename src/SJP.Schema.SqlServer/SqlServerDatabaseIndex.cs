@@ -7,8 +7,8 @@ namespace SJP.Schema.SqlServer
 {
     public class SqlServerDatabaseViewIndex : SqlServerDatabaseIndex<IRelationalDatabaseView>, IDatabaseViewIndex
     {
-        public SqlServerDatabaseViewIndex(IRelationalDatabaseView view, Identifier name, bool isUnique, IEnumerable<IDatabaseIndexColumn> columns, IEnumerable<IDatabaseViewColumn> includedColumns)
-            : base(view, name, isUnique, columns, includedColumns)
+        public SqlServerDatabaseViewIndex(IRelationalDatabaseView view, Identifier name, bool isUnique, IEnumerable<IDatabaseIndexColumn> columns, IEnumerable<IDatabaseViewColumn> includedColumns, bool isEnabled)
+            : base(view, name, isUnique, columns, includedColumns, isEnabled)
         {
             View = view ?? throw new ArgumentNullException(nameof(view));
         }
@@ -18,8 +18,8 @@ namespace SJP.Schema.SqlServer
 
     public class SqlServerDatabaseTableIndex : SqlServerDatabaseIndex<IRelationalDatabaseTable>, IDatabaseTableIndex
     {
-        public SqlServerDatabaseTableIndex(IRelationalDatabaseTable table, Identifier name, bool isUnique, IEnumerable<IDatabaseIndexColumn> columns, IEnumerable<IDatabaseTableColumn> includedColumns)
-            : base(table, name, isUnique, columns, includedColumns)
+        public SqlServerDatabaseTableIndex(IRelationalDatabaseTable table, Identifier name, bool isUnique, IEnumerable<IDatabaseIndexColumn> columns, IEnumerable<IDatabaseTableColumn> includedColumns, bool isEnabled)
+            : base(table, name, isUnique, columns, includedColumns, isEnabled)
         {
             Table = table ?? throw new ArgumentNullException(nameof(table));
         }
@@ -29,7 +29,7 @@ namespace SJP.Schema.SqlServer
 
     public abstract class SqlServerDatabaseIndex<T> : IDatabaseIndex<T> where T : class, IDatabaseQueryable
     {
-        protected SqlServerDatabaseIndex(T parent, Identifier name, bool isUnique, IEnumerable<IDatabaseIndexColumn> columns, IEnumerable<IDatabaseColumn> includedColumns)
+        protected SqlServerDatabaseIndex(T parent, Identifier name, bool isUnique, IEnumerable<IDatabaseIndexColumn> columns, IEnumerable<IDatabaseColumn> includedColumns, bool isEnabled)
         {
             if (columns == null || columns.Empty() || columns.AnyNull())
                 throw new ArgumentNullException(nameof(columns));
@@ -44,6 +44,7 @@ namespace SJP.Schema.SqlServer
             IsUnique = isUnique;
             Columns = columns;
             IncludedColumns = includedColumns;
+            IsEnabled = isEnabled;
         }
 
         public T Parent { get; }
@@ -55,6 +56,8 @@ namespace SJP.Schema.SqlServer
         public IEnumerable<IDatabaseIndexColumn> Columns { get; }
 
         public IEnumerable<IDatabaseColumn> IncludedColumns { get; }
+
+        public bool IsEnabled { get; }
     }
 
     public class SqlServerDatabaseIndexColumn : IDatabaseIndexColumn
