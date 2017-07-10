@@ -6,8 +6,6 @@
 * Fix generic types for queryables and indexes? Do we want them to be dependent
   on a type such as table/view or generic?
 
-* Add an IsEnabled property for constraints and triggers?
-
 * Split into multiple assemblies. This is mostly done but perhaps split further for
   migrations assemblies.
 
@@ -27,15 +25,16 @@
   What is remaining is a nice wrapper for some improved caching. For example to avoid
   any duplication of queries within a table for example.
 
+  IDEA: This can be achieved by querying the database for all related information.
+  For example, a primary key needs to know about columns, so it could get cached
+  column information by getting it from the table's database property. Something like
+  `Database.GetTable(...).Column`. This would only work for the caching behaviour
+  and would otherwise cause another couple of queries to be run. Not ideal. Leave it
+  for now.
+
 * Think about dependencies/dependents. Seems clumsy doing this in the user interface.
   Most of the time we can determine this anyway, for example we can order based on
   foreign keys for table dependencies.
-
-* Remove IDatabaseKeyAsync. Probably doesn't provide any value considering the
-  implementations will be asynchronously created and probably be complete once created.
-
-  The only thing that might be worthwhile is the column set but this is unlikely to
-  be used in practice.
 
 * IDatabaseKey and IDatabaseIndex are insufficient at the moment for being able to
   handle indexes on things like functions, as found in Oracle for example.
