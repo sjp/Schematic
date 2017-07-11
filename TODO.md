@@ -12,8 +12,6 @@
 * Once types and API are settled, minimise API surface by making objects sealed or
   internal as much as possible.
 
-* Computed columns. Not widely supported, perhaps just Oracle and SQL Server only?
-
 * Full-text indexes? Not sure how generic they are or whether they need to be treated any
   differently in the declarations. Maybe just an attribute stating that it's a full-text index?
 
