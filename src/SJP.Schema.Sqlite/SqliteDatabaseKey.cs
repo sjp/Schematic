@@ -11,7 +11,7 @@ namespace SJP.Schema.Sqlite
             if (columns == null || columns.Empty() || columns.AnyNull())
                 throw new ArgumentNullException(nameof(columns));
 
-            Name = name; // can be null!
+            Name = name?.LocalName; // can be null!
             Table = table ?? throw new ArgumentNullException(nameof(table));
             KeyType = keyType;
             Columns = columns;

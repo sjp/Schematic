@@ -7,8 +7,11 @@ namespace SJP.Schema.SqlServer
     {
         public SqlServerDatabaseSynonym(IRelationalDatabase database, Identifier name, Identifier targetName)
         {
+            if (name == null || name.LocalName == null)
+                throw new ArgumentNullException(nameof(name));
+
             Database = database ?? throw new ArgumentNullException(nameof(database));
-            Name = name ?? throw new ArgumentNullException(nameof(name));
+            Name = name.LocalName;
             Target = targetName; // don't check for validity of target, could be a broken synonym
         }
 

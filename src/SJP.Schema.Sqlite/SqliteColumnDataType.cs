@@ -8,7 +8,7 @@ namespace SJP.Schema.Sqlite
     {
         public SqliteColumnDataType(Identifier typeName)
         {
-            if (typeName == null)
+            if (typeName == null || typeName.LocalName == null)
                 throw new ArgumentNullException(nameof(typeName));
 
             PhysicalTypeName = typeName.LocalName.ToLowerInvariant();

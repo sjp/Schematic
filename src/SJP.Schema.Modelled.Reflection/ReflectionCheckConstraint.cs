@@ -8,11 +8,13 @@ namespace SJP.Schema.Modelled.Reflection
     {
         public ReflectionCheckConstraint(IRelationalDatabaseTable table, Identifier name, string definition)
         {
+            if (name == null || name.LocalName == null)
+                throw new ArgumentNullException(nameof(name));
             if (definition.IsNullOrWhiteSpace())
                 throw new ArgumentNullException(nameof(definition));
 
             Table = table ?? throw new ArgumentNullException(nameof(table));
-            Name = name ?? throw new ArgumentNullException(nameof(name));
+            Name = name.LocalName;
             Definition = definition;
         }
 
@@ -22,8 +24,6 @@ namespace SJP.Schema.Modelled.Reflection
 
         public IRelationalDatabaseTable Table { get; }
 
-        // this should always be true
-        // is there a situation where would not want it to be true?
         public bool IsEnabled { get; } = true;
     }
 }

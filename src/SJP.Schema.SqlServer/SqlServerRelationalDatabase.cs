@@ -40,7 +40,7 @@ namespace SJP.Schema.SqlServer
 
         public bool TableExists(Identifier tableName)
         {
-            if (tableName == null || tableName.LocalName.IsNullOrWhiteSpace())
+            if (tableName == null || tableName.LocalName == null)
                 throw new ArgumentNullException(nameof(tableName));
 
             tableName = CreateQualifiedIdentifier(tableName);
@@ -54,7 +54,7 @@ namespace SJP.Schema.SqlServer
 
         public async Task<bool> TableExistsAsync(Identifier tableName)
         {
-            if (tableName == null || tableName.LocalName.IsNullOrWhiteSpace())
+            if (tableName == null || tableName.LocalName == null)
                 throw new ArgumentNullException(nameof(tableName));
 
             tableName = CreateQualifiedIdentifier(tableName);
@@ -68,7 +68,7 @@ namespace SJP.Schema.SqlServer
 
         public IRelationalDatabaseTable GetTable(Identifier tableName)
         {
-            if (tableName == null || tableName.LocalName.IsNullOrWhiteSpace())
+            if (tableName == null || tableName.LocalName == null)
                 throw new ArgumentNullException(nameof(tableName));
 
             tableName = CreateQualifiedIdentifier(tableName);
@@ -77,7 +77,7 @@ namespace SJP.Schema.SqlServer
 
         public Task<IRelationalDatabaseTable> GetTableAsync(Identifier tableName)
         {
-            if (tableName == null || tableName.LocalName.IsNullOrWhiteSpace())
+            if (tableName == null || tableName.LocalName == null)
                 throw new ArgumentNullException(nameof(tableName));
 
             tableName = CreateQualifiedIdentifier(tableName);
@@ -117,7 +117,7 @@ namespace SJP.Schema.SqlServer
 
         protected virtual IRelationalDatabaseTable LoadTableSync(Identifier tableName)
         {
-            if (tableName == null || tableName.LocalName.IsNullOrWhiteSpace())
+            if (tableName == null || tableName.LocalName == null)
                 throw new ArgumentNullException(nameof(tableName));
 
             tableName = CreateQualifiedIdentifier(tableName);
@@ -128,7 +128,7 @@ namespace SJP.Schema.SqlServer
 
         protected virtual async Task<IRelationalDatabaseTable> LoadTableAsync(Identifier tableName)
         {
-            if (tableName == null || tableName.LocalName.IsNullOrWhiteSpace())
+            if (tableName == null || tableName.LocalName == null)
                 throw new ArgumentNullException(nameof(tableName));
 
             tableName = CreateQualifiedIdentifier(tableName);
@@ -144,7 +144,7 @@ namespace SJP.Schema.SqlServer
 
         public bool ViewExists(Identifier viewName)
         {
-            if (viewName == null || viewName.LocalName.IsNullOrWhiteSpace())
+            if (viewName == null || viewName.LocalName == null)
                 throw new ArgumentNullException(nameof(viewName));
 
             viewName = CreateQualifiedIdentifier(viewName);
@@ -157,7 +157,7 @@ namespace SJP.Schema.SqlServer
 
         public async Task<bool> ViewExistsAsync(Identifier viewName)
         {
-            if (viewName == null || viewName.LocalName.IsNullOrWhiteSpace())
+            if (viewName == null || viewName.LocalName == null)
                 throw new ArgumentNullException(nameof(viewName));
 
             viewName = CreateQualifiedIdentifier(viewName);
@@ -170,7 +170,7 @@ namespace SJP.Schema.SqlServer
 
         public IRelationalDatabaseView GetView(Identifier viewName)
         {
-            if (viewName == null || viewName.LocalName.IsNullOrWhiteSpace())
+            if (viewName == null || viewName.LocalName == null)
                 throw new ArgumentNullException(nameof(viewName));
 
             viewName = CreateQualifiedIdentifier(viewName);
@@ -179,7 +179,7 @@ namespace SJP.Schema.SqlServer
 
         public Task<IRelationalDatabaseView> GetViewAsync(Identifier viewName)
         {
-            if (viewName == null || viewName.LocalName.IsNullOrWhiteSpace())
+            if (viewName == null || viewName.LocalName == null)
                 throw new ArgumentNullException(nameof(viewName));
 
             viewName = CreateQualifiedIdentifier(viewName);
@@ -219,7 +219,7 @@ namespace SJP.Schema.SqlServer
 
         protected virtual IRelationalDatabaseView LoadViewSync(Identifier viewName)
         {
-            if (viewName == null || viewName.LocalName.IsNullOrWhiteSpace())
+            if (viewName == null || viewName.LocalName == null)
                 throw new ArgumentNullException(nameof(viewName));
 
             viewName = CreateQualifiedIdentifier(viewName);
@@ -230,7 +230,7 @@ namespace SJP.Schema.SqlServer
 
         protected virtual async Task<IRelationalDatabaseView> LoadViewAsync(Identifier viewName)
         {
-            if (viewName == null || viewName.LocalName.IsNullOrWhiteSpace())
+            if (viewName == null || viewName.LocalName == null)
                 throw new ArgumentNullException(nameof(viewName));
 
             viewName = CreateQualifiedIdentifier(viewName);
@@ -246,7 +246,7 @@ namespace SJP.Schema.SqlServer
 
         public bool SequenceExists(Identifier sequenceName)
         {
-            if (sequenceName == null || sequenceName.LocalName.IsNullOrWhiteSpace())
+            if (sequenceName == null || sequenceName.LocalName == null)
                 throw new ArgumentNullException(nameof(sequenceName));
 
             sequenceName = CreateQualifiedIdentifier(sequenceName);
@@ -260,7 +260,7 @@ namespace SJP.Schema.SqlServer
 
         public async Task<bool> SequenceExistsAsync(Identifier sequenceName)
         {
-            if (sequenceName == null || sequenceName.LocalName.IsNullOrWhiteSpace())
+            if (sequenceName == null || sequenceName.LocalName == null)
                 throw new ArgumentNullException(nameof(sequenceName));
 
             sequenceName = CreateQualifiedIdentifier(sequenceName);
@@ -274,7 +274,7 @@ namespace SJP.Schema.SqlServer
 
         public IDatabaseSequence GetSequence(Identifier sequenceName)
         {
-            if (sequenceName == null || sequenceName.LocalName.IsNullOrWhiteSpace())
+            if (sequenceName == null || sequenceName.LocalName == null)
                 throw new ArgumentNullException(nameof(sequenceName));
 
             sequenceName = CreateQualifiedIdentifier(sequenceName);
@@ -283,7 +283,7 @@ namespace SJP.Schema.SqlServer
 
         public Task<IDatabaseSequence> GetSequenceAsync(Identifier sequenceName)
         {
-            if (sequenceName == null || sequenceName.LocalName.IsNullOrWhiteSpace())
+            if (sequenceName == null || sequenceName.LocalName == null)
                 throw new ArgumentNullException(nameof(sequenceName));
 
             sequenceName = CreateQualifiedIdentifier(sequenceName);
@@ -323,7 +323,7 @@ namespace SJP.Schema.SqlServer
 
         protected virtual IDatabaseSequence LoadSequenceSync(Identifier sequenceName)
         {
-            if (sequenceName == null || sequenceName.LocalName.IsNullOrWhiteSpace())
+            if (sequenceName == null || sequenceName.LocalName == null)
                 throw new ArgumentNullException(nameof(sequenceName));
 
             sequenceName = CreateQualifiedIdentifier(sequenceName);
@@ -334,7 +334,7 @@ namespace SJP.Schema.SqlServer
 
         protected virtual async Task<IDatabaseSequence> LoadSequenceAsync(Identifier sequenceName)
         {
-            if (sequenceName == null || sequenceName.LocalName.IsNullOrWhiteSpace())
+            if (sequenceName == null || sequenceName.LocalName == null)
                 throw new ArgumentNullException(nameof(sequenceName));
 
             sequenceName = CreateQualifiedIdentifier(sequenceName);
@@ -350,7 +350,7 @@ namespace SJP.Schema.SqlServer
 
         public bool SynonymExists(Identifier synonymName)
         {
-            if (synonymName == null || synonymName.LocalName.IsNullOrWhiteSpace())
+            if (synonymName == null || synonymName.LocalName == null)
                 throw new ArgumentNullException(nameof(synonymName));
 
             synonymName = CreateQualifiedIdentifier(synonymName);
@@ -364,7 +364,7 @@ namespace SJP.Schema.SqlServer
 
         public async Task<bool> SynonymExistsAsync(Identifier synonymName)
         {
-            if (synonymName == null || synonymName.LocalName.IsNullOrWhiteSpace())
+            if (synonymName == null || synonymName.LocalName == null)
                 throw new ArgumentNullException(nameof(synonymName));
 
             synonymName = CreateQualifiedIdentifier(synonymName);
@@ -378,7 +378,7 @@ namespace SJP.Schema.SqlServer
 
         public IDatabaseSynonym GetSynonym(Identifier synonymName)
         {
-            if (synonymName == null || synonymName.LocalName.IsNullOrWhiteSpace())
+            if (synonymName == null || synonymName.LocalName == null)
                 throw new ArgumentNullException(nameof(synonymName));
 
             synonymName = CreateQualifiedIdentifier(synonymName);
@@ -387,7 +387,7 @@ namespace SJP.Schema.SqlServer
 
         public Task<IDatabaseSynonym> GetSynonymAsync(Identifier synonymName)
         {
-            if (synonymName == null || synonymName.LocalName.IsNullOrWhiteSpace())
+            if (synonymName == null || synonymName.LocalName == null)
                 throw new ArgumentNullException(nameof(synonymName));
 
             synonymName = CreateQualifiedIdentifier(synonymName);
@@ -427,7 +427,7 @@ namespace SJP.Schema.SqlServer
 
         protected virtual IDatabaseSynonym LoadSynonymSync(Identifier synonymName)
         {
-            if (synonymName == null || synonymName.LocalName.IsNullOrWhiteSpace())
+            if (synonymName == null || synonymName.LocalName == null)
                 throw new ArgumentNullException(nameof(synonymName));
 
             synonymName = CreateQualifiedIdentifier(synonymName);
@@ -459,7 +459,7 @@ where schema_id = schema_id(@SchemaName) and name = @SynonymName
 
         protected virtual async Task<IDatabaseSynonym> LoadSynonymAsync(Identifier synonymName)
         {
-            if (synonymName == null || synonymName.LocalName.IsNullOrWhiteSpace())
+            if (synonymName == null || synonymName.LocalName == null)
                 throw new ArgumentNullException(nameof(synonymName));
 
             synonymName = CreateQualifiedIdentifier(synonymName);
@@ -500,7 +500,7 @@ where schema_id = schema_id(@SchemaName) and name = @SynonymName
         //  THESE QUERIES NEED TO BE SCOPED SO THAT THEY ARE JUST DB SCOPED
         public bool TriggerExists(Identifier triggerName)
         {
-            if (triggerName == null || triggerName.LocalName.IsNullOrWhiteSpace())
+            if (triggerName == null || triggerName.LocalName == null)
                 throw new ArgumentNullException(nameof(triggerName));
 
             triggerName = CreateQualifiedIdentifier(triggerName);
@@ -514,7 +514,7 @@ where schema_id = schema_id(@SchemaName) and name = @SynonymName
 
         public async Task<bool> TriggerExistsAsync(Identifier triggerName)
         {
-            if (triggerName == null || triggerName.LocalName.IsNullOrWhiteSpace())
+            if (triggerName == null || triggerName.LocalName == null)
                 throw new ArgumentNullException(nameof(triggerName));
 
             triggerName = CreateQualifiedIdentifier(triggerName);
@@ -528,7 +528,7 @@ where schema_id = schema_id(@SchemaName) and name = @SynonymName
 
         public IDatabaseTrigger GetTrigger(Identifier triggerName)
         {
-            if (triggerName == null || triggerName.LocalName.IsNullOrWhiteSpace())
+            if (triggerName == null || triggerName.LocalName == null)
                 throw new ArgumentNullException(nameof(triggerName));
 
             triggerName = CreateQualifiedIdentifier(triggerName);
@@ -537,7 +537,7 @@ where schema_id = schema_id(@SchemaName) and name = @SynonymName
 
         public Task<IDatabaseTrigger> GetTriggerAsync(Identifier triggerName)
         {
-            if (triggerName == null || triggerName.LocalName.IsNullOrWhiteSpace())
+            if (triggerName == null || triggerName.LocalName == null)
                 throw new ArgumentNullException(nameof(triggerName));
 
             triggerName = CreateQualifiedIdentifier(triggerName);
@@ -577,7 +577,7 @@ where schema_id = schema_id(@SchemaName) and name = @SynonymName
 
         protected virtual IDatabaseTrigger LoadTriggerSync(Identifier triggerName)
         {
-            if (triggerName == null || triggerName.LocalName.IsNullOrWhiteSpace())
+            if (triggerName == null || triggerName.LocalName == null)
                 throw new ArgumentNullException(nameof(triggerName));
 
             triggerName = CreateQualifiedIdentifier(triggerName);
@@ -627,7 +627,7 @@ where schema_name(t.schema_id) = @SchemaName and st.name = @TriggerName";
 
         protected virtual async Task<IDatabaseTrigger> LoadTriggerAsync(Identifier triggerName)
         {
-            if (triggerName == null || triggerName.LocalName.IsNullOrWhiteSpace())
+            if (triggerName == null || triggerName.LocalName == null)
                 throw new ArgumentNullException(nameof(triggerName));
 
             triggerName = CreateQualifiedIdentifier(triggerName);
@@ -685,7 +685,7 @@ where schema_name(t.schema_id) = @SchemaName and st.name = @TriggerName";
 
         protected Identifier CreateQualifiedIdentifier(Identifier identifier)
         {
-            if (identifier == null || identifier.LocalName.IsNullOrWhiteSpace())
+            if (identifier == null || identifier.LocalName == null)
                 throw new ArgumentNullException(nameof(identifier));
 
             return identifier.Schema.IsNullOrWhiteSpace() && !DefaultSchema.IsNullOrWhiteSpace()

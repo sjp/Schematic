@@ -29,7 +29,7 @@ namespace SJP.Schema.Sqlite
 
         public bool TableExists(Identifier tableName)
         {
-            if (tableName == null || tableName.LocalName.IsNullOrWhiteSpace())
+            if (tableName == null || tableName.LocalName == null)
                 throw new ArgumentNullException(nameof(tableName));
 
             if (BuiltInTables.Contains(tableName.LocalName))
@@ -44,7 +44,7 @@ namespace SJP.Schema.Sqlite
 
         public async Task<bool> TableExistsAsync(Identifier tableName)
         {
-            if (tableName == null || tableName.LocalName.IsNullOrWhiteSpace())
+            if (tableName == null || tableName.LocalName == null)
                 throw new ArgumentNullException(nameof(tableName));
 
             if (BuiltInTables.Contains(tableName.LocalName))
@@ -59,7 +59,7 @@ namespace SJP.Schema.Sqlite
 
         public IRelationalDatabaseTable GetTable(Identifier tableName)
         {
-            if (tableName == null || tableName.LocalName.IsNullOrWhiteSpace())
+            if (tableName == null || tableName.LocalName == null)
                 throw new ArgumentNullException(nameof(tableName));
 
             if (BuiltInTables.Contains(tableName.LocalName))
@@ -70,7 +70,7 @@ namespace SJP.Schema.Sqlite
 
         public Task<IRelationalDatabaseTable> GetTableAsync(Identifier tableName)
         {
-            if (tableName == null || tableName.LocalName.IsNullOrWhiteSpace())
+            if (tableName == null || tableName.LocalName == null)
                 throw new ArgumentNullException(nameof(tableName));
 
             if (BuiltInTables.Contains(tableName.LocalName))
@@ -116,7 +116,7 @@ namespace SJP.Schema.Sqlite
 
         protected virtual IRelationalDatabaseTable LoadTableSync(Identifier tableName)
         {
-            if (tableName == null || tableName.LocalName.IsNullOrWhiteSpace())
+            if (tableName == null || tableName.LocalName == null)
                 throw new ArgumentNullException(nameof(tableName));
 
             return TableExists(tableName.LocalName)
@@ -126,7 +126,7 @@ namespace SJP.Schema.Sqlite
 
         protected virtual async Task<IRelationalDatabaseTable> LoadTableAsync(Identifier tableName)
         {
-            if (tableName == null || tableName.LocalName.IsNullOrWhiteSpace())
+            if (tableName == null || tableName.LocalName == null)
                 throw new ArgumentNullException(nameof(tableName));
 
             var exists = await TableExistsAsync(tableName.LocalName);
@@ -141,7 +141,7 @@ namespace SJP.Schema.Sqlite
 
         public bool ViewExists(Identifier viewName)
         {
-            if (viewName == null || viewName.LocalName.IsNullOrWhiteSpace())
+            if (viewName == null || viewName.LocalName == null)
                 throw new ArgumentNullException(nameof(viewName));
 
             const string sql = "select count(*) from sqlite_master where type = 'view' and lower(name) = lower(@ViewName)";
@@ -153,7 +153,7 @@ namespace SJP.Schema.Sqlite
 
         public async Task<bool> ViewExistsAsync(Identifier viewName)
         {
-            if (viewName == null || viewName.LocalName.IsNullOrWhiteSpace())
+            if (viewName == null || viewName.LocalName == null)
                 throw new ArgumentNullException(nameof(viewName));
 
             const string sql = "select count(*) from sqlite_master where type = 'view' and lower(name) = lower(@ViewName)";
@@ -165,7 +165,7 @@ namespace SJP.Schema.Sqlite
 
         public IRelationalDatabaseView GetView(Identifier viewName)
         {
-            if (viewName == null || viewName.LocalName.IsNullOrWhiteSpace())
+            if (viewName == null || viewName.LocalName == null)
                 throw new ArgumentNullException(nameof(viewName));
 
             return LoadViewSync(viewName.LocalName);
@@ -173,7 +173,7 @@ namespace SJP.Schema.Sqlite
 
         public Task<IRelationalDatabaseView> GetViewAsync(Identifier viewName)
         {
-            if (viewName == null || viewName.LocalName.IsNullOrWhiteSpace())
+            if (viewName == null || viewName.LocalName == null)
                 throw new ArgumentNullException(nameof(viewName));
 
             return LoadViewAsync(viewName.LocalName);
@@ -211,7 +211,7 @@ namespace SJP.Schema.Sqlite
 
         protected virtual IRelationalDatabaseView LoadViewSync(Identifier viewName)
         {
-            if (viewName == null || viewName.LocalName.IsNullOrWhiteSpace())
+            if (viewName == null || viewName.LocalName == null)
                 throw new ArgumentNullException(nameof(viewName));
 
             var exists = ViewExists(viewName.LocalName);
@@ -224,7 +224,7 @@ namespace SJP.Schema.Sqlite
 
         protected virtual async Task<IRelationalDatabaseView> LoadViewAsync(Identifier viewName)
         {
-            if (viewName == null || viewName.LocalName.IsNullOrWhiteSpace())
+            if (viewName == null || viewName.LocalName == null)
                 throw new ArgumentNullException(nameof(viewName));
 
             var exists = await ViewExistsAsync(viewName);
@@ -277,7 +277,7 @@ namespace SJP.Schema.Sqlite
         //  THESE QUERIES NEED TO BE SCOPED SO THAT THEY ARE JUST DB SCOPED
         public bool TriggerExists(Identifier triggerName)
         {
-            if (triggerName == null || triggerName.LocalName.IsNullOrWhiteSpace())
+            if (triggerName == null || triggerName.LocalName == null)
                 throw new ArgumentNullException(nameof(triggerName));
 
             return Connection.ExecuteScalar<int>(
@@ -288,7 +288,7 @@ namespace SJP.Schema.Sqlite
 
         public async Task<bool> TriggerExistsAsync(Identifier triggerName)
         {
-            if (triggerName == null || triggerName.LocalName.IsNullOrWhiteSpace())
+            if (triggerName == null || triggerName.LocalName == null)
                 throw new ArgumentNullException(nameof(triggerName));
 
             const string sql = "select count(*) from sqlite_master where type = 'trigger' and lower(name) = lower(@TriggerName)";
@@ -300,7 +300,7 @@ namespace SJP.Schema.Sqlite
 
         public IDatabaseTrigger GetTrigger(Identifier triggerName)
         {
-            if (triggerName == null || triggerName.LocalName.IsNullOrWhiteSpace())
+            if (triggerName == null || triggerName.LocalName == null)
                 throw new ArgumentNullException(nameof(triggerName));
 
             return LoadTriggerSync(triggerName.LocalName);
@@ -308,7 +308,7 @@ namespace SJP.Schema.Sqlite
 
         public Task<IDatabaseTrigger> GetTriggerAsync(Identifier triggerName)
         {
-            if (triggerName == null || triggerName.LocalName.IsNullOrWhiteSpace())
+            if (triggerName == null || triggerName.LocalName == null)
                 throw new ArgumentNullException(nameof(triggerName));
 
             return LoadTriggerAsync(triggerName.LocalName);
@@ -346,7 +346,7 @@ namespace SJP.Schema.Sqlite
 
         protected virtual IDatabaseTrigger LoadTriggerSync(Identifier triggerName)
         {
-            if (triggerName == null || triggerName.LocalName.IsNullOrWhiteSpace())
+            if (triggerName == null || triggerName.LocalName == null)
                 throw new ArgumentNullException(nameof(triggerName));
 
             const string sql = "select sql from sqlite_master where type = 'trigger' and lower(name) = lower(@TriggerName)";
@@ -363,7 +363,7 @@ namespace SJP.Schema.Sqlite
 
         protected virtual async Task<IDatabaseTrigger> LoadTriggerAsync(Identifier triggerName)
         {
-            if (triggerName == null || triggerName.LocalName.IsNullOrWhiteSpace())
+            if (triggerName == null || triggerName.LocalName == null)
                 throw new ArgumentNullException(nameof(triggerName));
 
             const string sql = "select sql from sqlite_master where type = 'trigger' and lower(name) = lower(@TriggerName)";

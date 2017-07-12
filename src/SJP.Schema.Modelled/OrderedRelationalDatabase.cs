@@ -35,7 +35,7 @@ namespace SJP.Schema.Modelled
 
         public bool TableExists(Identifier tableName)
         {
-            if (tableName == null || tableName.LocalName.IsNullOrWhiteSpace())
+            if (tableName == null || tableName.LocalName == null)
                 throw new ArgumentNullException(nameof(tableName));
 
             return Databases.Any(d => d.TableExists(tableName));
@@ -43,7 +43,7 @@ namespace SJP.Schema.Modelled
 
         public async Task<bool> TableExistsAsync(Identifier tableName)
         {
-            if (tableName == null || tableName.LocalName.IsNullOrWhiteSpace())
+            if (tableName == null || tableName.LocalName == null)
                 throw new ArgumentNullException(nameof(tableName));
 
             var tableExists = Databases.Select(d => d.TableExistsAsync(tableName)).ToArray();
@@ -53,7 +53,7 @@ namespace SJP.Schema.Modelled
 
         public IRelationalDatabaseTable GetTable(Identifier tableName)
         {
-            if (tableName == null || tableName.LocalName.IsNullOrWhiteSpace())
+            if (tableName == null || tableName.LocalName == null)
                 throw new ArgumentNullException(nameof(tableName));
 
             return LoadTableSync(tableName);
@@ -61,7 +61,7 @@ namespace SJP.Schema.Modelled
 
         public Task<IRelationalDatabaseTable> GetTableAsync(Identifier tableName)
         {
-            if (tableName == null || tableName.LocalName.IsNullOrWhiteSpace())
+            if (tableName == null || tableName.LocalName == null)
                 throw new ArgumentNullException(nameof(tableName));
 
             return LoadTableAsync(tableName);
@@ -82,7 +82,7 @@ namespace SJP.Schema.Modelled
 
         protected virtual IRelationalDatabaseTable LoadTableSync(Identifier tableName)
         {
-            if (tableName == null || tableName.LocalName.IsNullOrWhiteSpace())
+            if (tableName == null || tableName.LocalName == null)
                 throw new ArgumentNullException(nameof(tableName));
 
             var db = Databases.FirstOrDefault(d => d.TableExists(tableName));
@@ -91,7 +91,7 @@ namespace SJP.Schema.Modelled
 
         protected virtual async Task<IRelationalDatabaseTable> LoadTableAsync(Identifier tableName)
         {
-            if (tableName == null || tableName.LocalName.IsNullOrWhiteSpace())
+            if (tableName == null || tableName.LocalName == null)
                 throw new ArgumentNullException(nameof(tableName));
 
             var tables = Databases.Select(d => d.GetTableAsync(tableName)).ToArray();
@@ -105,7 +105,7 @@ namespace SJP.Schema.Modelled
 
         public bool ViewExists(Identifier viewName)
         {
-            if (viewName == null || viewName.LocalName.IsNullOrWhiteSpace())
+            if (viewName == null || viewName.LocalName == null)
                 throw new ArgumentNullException(nameof(viewName));
 
             return Databases.Any(d => d.ViewExists(viewName));
@@ -113,7 +113,7 @@ namespace SJP.Schema.Modelled
 
         public async Task<bool> ViewExistsAsync(Identifier viewName)
         {
-            if (viewName == null || viewName.LocalName.IsNullOrWhiteSpace())
+            if (viewName == null || viewName.LocalName == null)
                 throw new ArgumentNullException(nameof(viewName));
 
             var viewExists = Databases.Select(d => d.ViewExistsAsync(viewName)).ToArray();
@@ -123,7 +123,7 @@ namespace SJP.Schema.Modelled
 
         public IRelationalDatabaseView GetView(Identifier viewName)
         {
-            if (viewName == null || viewName.LocalName.IsNullOrWhiteSpace())
+            if (viewName == null || viewName.LocalName == null)
                 throw new ArgumentNullException(nameof(viewName));
 
             return LoadViewSync(viewName);
@@ -131,7 +131,7 @@ namespace SJP.Schema.Modelled
 
         public Task<IRelationalDatabaseView> GetViewAsync(Identifier viewName)
         {
-            if (viewName == null || viewName.LocalName.IsNullOrWhiteSpace())
+            if (viewName == null || viewName.LocalName == null)
                 throw new ArgumentNullException(nameof(viewName));
 
             return LoadViewAsync(viewName);
@@ -152,7 +152,7 @@ namespace SJP.Schema.Modelled
 
         protected virtual IRelationalDatabaseView LoadViewSync(Identifier viewName)
         {
-            if (viewName == null || viewName.LocalName.IsNullOrWhiteSpace())
+            if (viewName == null || viewName.LocalName == null)
                 throw new ArgumentNullException(nameof(viewName));
 
             var db = Databases.FirstOrDefault(d => d.ViewExists(viewName));
@@ -161,7 +161,7 @@ namespace SJP.Schema.Modelled
 
         protected virtual async Task<IRelationalDatabaseView> LoadViewAsync(Identifier viewName)
         {
-            if (viewName == null || viewName.LocalName.IsNullOrWhiteSpace())
+            if (viewName == null || viewName.LocalName == null)
                 throw new ArgumentNullException(nameof(viewName));
 
             var views = Databases.Select(d => d.GetViewAsync(viewName)).ToArray();
@@ -183,7 +183,7 @@ namespace SJP.Schema.Modelled
 
         public async Task<bool> SequenceExistsAsync(Identifier sequenceName)
         {
-            if (sequenceName == null || sequenceName.LocalName.IsNullOrWhiteSpace())
+            if (sequenceName == null || sequenceName.LocalName == null)
                 throw new ArgumentNullException(nameof(sequenceName));
 
             var sequenceExists = Databases.Select(d => d.SequenceExistsAsync(sequenceName)).ToArray();
@@ -193,7 +193,7 @@ namespace SJP.Schema.Modelled
 
         public IDatabaseSequence GetSequence(Identifier sequenceName)
         {
-            if (sequenceName == null || sequenceName.LocalName.IsNullOrWhiteSpace())
+            if (sequenceName == null || sequenceName.LocalName == null)
                 throw new ArgumentNullException(nameof(sequenceName));
 
             return LoadSequenceSync(sequenceName);
@@ -201,7 +201,7 @@ namespace SJP.Schema.Modelled
 
         public Task<IDatabaseSequence> GetSequenceAsync(Identifier sequenceName)
         {
-            if (sequenceName == null || sequenceName.LocalName.IsNullOrWhiteSpace())
+            if (sequenceName == null || sequenceName.LocalName == null)
                 throw new ArgumentNullException(nameof(sequenceName));
 
             return LoadSequenceAsync(sequenceName);
@@ -225,7 +225,7 @@ namespace SJP.Schema.Modelled
 
         protected virtual IDatabaseSequence LoadSequenceSync(Identifier sequenceName)
         {
-            if (sequenceName == null || sequenceName.LocalName.IsNullOrWhiteSpace())
+            if (sequenceName == null || sequenceName.LocalName == null)
                 throw new ArgumentNullException(nameof(sequenceName));
 
             var db = Databases.FirstOrDefault(d => d.SequenceExists(sequenceName));
@@ -234,7 +234,7 @@ namespace SJP.Schema.Modelled
 
         protected virtual async Task<IDatabaseSequence> LoadSequenceAsync(Identifier sequenceName)
         {
-            if (sequenceName == null || sequenceName.LocalName.IsNullOrWhiteSpace())
+            if (sequenceName == null || sequenceName.LocalName == null)
                 throw new ArgumentNullException(nameof(sequenceName));
 
             var sequences = Databases.Select(d => d.GetSequenceAsync(sequenceName)).ToArray();
@@ -248,7 +248,7 @@ namespace SJP.Schema.Modelled
 
         public bool SynonymExists(Identifier synonymName)
         {
-            if (synonymName == null || synonymName.LocalName.IsNullOrWhiteSpace())
+            if (synonymName == null || synonymName.LocalName == null)
                 throw new ArgumentNullException(nameof(synonymName));
 
             return Databases.Any(d => d.SynonymExists(synonymName));
@@ -256,7 +256,7 @@ namespace SJP.Schema.Modelled
 
         public async Task<bool> SynonymExistsAsync(Identifier synonymName)
         {
-            if (synonymName == null || synonymName.LocalName.IsNullOrWhiteSpace())
+            if (synonymName == null || synonymName.LocalName == null)
                 throw new ArgumentNullException(nameof(synonymName));
 
             var synonymExists = Databases.Select(d => d.SynonymExistsAsync(synonymName)).ToArray();
@@ -266,7 +266,7 @@ namespace SJP.Schema.Modelled
 
         public IDatabaseSynonym GetSynonym(Identifier synonymName)
         {
-            if (synonymName == null || synonymName.LocalName.IsNullOrWhiteSpace())
+            if (synonymName == null || synonymName.LocalName == null)
                 throw new ArgumentNullException(nameof(synonymName));
 
             return LoadSynonymSync(synonymName);
@@ -274,7 +274,7 @@ namespace SJP.Schema.Modelled
 
         public Task<IDatabaseSynonym> GetSynonymAsync(Identifier synonymName)
         {
-            if (synonymName == null || synonymName.LocalName.IsNullOrWhiteSpace())
+            if (synonymName == null || synonymName.LocalName == null)
                 throw new ArgumentNullException(nameof(synonymName));
 
             return LoadSynonymAsync(synonymName);
@@ -295,7 +295,7 @@ namespace SJP.Schema.Modelled
 
         protected virtual IDatabaseSynonym LoadSynonymSync(Identifier synonymName)
         {
-            if (synonymName == null || synonymName.LocalName.IsNullOrWhiteSpace())
+            if (synonymName == null || synonymName.LocalName == null)
                 throw new ArgumentNullException(nameof(synonymName));
 
             var db = Databases.FirstOrDefault(d => d.SynonymExists(synonymName));
@@ -304,7 +304,7 @@ namespace SJP.Schema.Modelled
 
         protected virtual async Task<IDatabaseSynonym> LoadSynonymAsync(Identifier synonymName)
         {
-            if (synonymName == null || synonymName.LocalName.IsNullOrWhiteSpace())
+            if (synonymName == null || synonymName.LocalName == null)
                 throw new ArgumentNullException(nameof(synonymName));
 
             var synonyms = Databases.Select(d => d.GetSynonymAsync(synonymName)).ToArray();
@@ -318,7 +318,7 @@ namespace SJP.Schema.Modelled
 
         public bool TriggerExists(Identifier triggerName)
         {
-            if (triggerName == null || triggerName.LocalName.IsNullOrWhiteSpace())
+            if (triggerName == null || triggerName.LocalName == null)
                 throw new ArgumentNullException(nameof(triggerName));
 
             return Databases.Any(d => d.TriggerExists(triggerName));
@@ -326,7 +326,7 @@ namespace SJP.Schema.Modelled
 
         public async Task<bool> TriggerExistsAsync(Identifier triggerName)
         {
-            if (triggerName == null || triggerName.LocalName.IsNullOrWhiteSpace())
+            if (triggerName == null || triggerName.LocalName == null)
                 throw new ArgumentNullException(nameof(triggerName));
 
             var synonymExists = Databases.Select(d => d.TriggerExistsAsync(triggerName)).ToArray();
@@ -336,7 +336,7 @@ namespace SJP.Schema.Modelled
 
         public IDatabaseTrigger GetTrigger(Identifier triggerName)
         {
-            if (triggerName == null || triggerName.LocalName.IsNullOrWhiteSpace())
+            if (triggerName == null || triggerName.LocalName == null)
                 throw new ArgumentNullException(nameof(triggerName));
 
             return LoadTriggerSync(triggerName);
@@ -344,7 +344,7 @@ namespace SJP.Schema.Modelled
 
         public Task<IDatabaseTrigger> GetTriggerAsync(Identifier triggerName)
         {
-            if (triggerName == null || triggerName.LocalName.IsNullOrWhiteSpace())
+            if (triggerName == null || triggerName.LocalName == null)
                 throw new ArgumentNullException(nameof(triggerName));
 
             return LoadTriggerAsync(triggerName);
@@ -365,7 +365,7 @@ namespace SJP.Schema.Modelled
 
         protected virtual IDatabaseTrigger LoadTriggerSync(Identifier triggerName)
         {
-            if (triggerName == null || triggerName.LocalName.IsNullOrWhiteSpace())
+            if (triggerName == null || triggerName.LocalName == null)
                 throw new ArgumentNullException(nameof(triggerName));
 
             var db = Databases.FirstOrDefault(d => d.TriggerExists(triggerName));
@@ -374,7 +374,7 @@ namespace SJP.Schema.Modelled
 
         protected virtual async Task<IDatabaseTrigger> LoadTriggerAsync(Identifier triggerName)
         {
-            if (triggerName == null || triggerName.LocalName.IsNullOrWhiteSpace())
+            if (triggerName == null || triggerName.LocalName == null)
                 throw new ArgumentNullException(nameof(triggerName));
 
             var triggers = Databases.Select(d => d.GetTriggerAsync(triggerName)).ToArray();

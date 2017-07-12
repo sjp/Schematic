@@ -7,7 +7,10 @@ namespace SJP.Schema.Sqlite
     {
         protected SqliteDatabaseColumn(Identifier columnName, IDbType type, bool isNullable, string defaultValue, bool isAutoIncrement)
         {
-            Name = columnName ?? throw new ArgumentNullException(nameof(columnName));
+            if (columnName == null || columnName.LocalName == null)
+                throw new ArgumentNullException(nameof(columnName));
+
+            Name = columnName.LocalName;
             Type = type ?? throw new ArgumentNullException(nameof(type));
             IsNullable = isNullable;
             DefaultValue = defaultValue;

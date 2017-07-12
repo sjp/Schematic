@@ -31,6 +31,8 @@ namespace SJP.Schema.SqlServer
     {
         protected SqlServerDatabaseIndex(T parent, Identifier name, bool isUnique, IEnumerable<IDatabaseIndexColumn> columns, IEnumerable<IDatabaseColumn> includedColumns, bool isEnabled)
         {
+            if (name == null || name.LocalName == null)
+                throw new ArgumentNullException(nameof(name));
             if (columns == null || columns.Empty() || columns.AnyNull())
                 throw new ArgumentNullException(nameof(columns));
             if (includedColumns != null && includedColumns.AnyNull())
@@ -40,7 +42,7 @@ namespace SJP.Schema.SqlServer
                 includedColumns = Enumerable.Empty<IDatabaseColumn>();
 
             Parent = parent ?? throw new ArgumentNullException(nameof(parent));
-            Name = name ?? throw new ArgumentNullException(nameof(name));
+            Name = name.LocalName;
             IsUnique = isUnique;
             Columns = columns;
             IncludedColumns = includedColumns;

@@ -13,8 +13,11 @@ namespace SJP.Schema.SqlServer
     {
         public SqlServerRelationalDatabaseTable(IDbConnection connection, IRelationalDatabase database, Identifier tableName, IEqualityComparer<Identifier> comparer = null)
         {
+            if (tableName == null || tableName.LocalName == null)
+                throw new ArgumentNullException(nameof(tableName));
+
             Connection = connection ?? throw new ArgumentNullException(nameof(connection));
-            Name = tableName ?? throw new ArgumentNullException(nameof(tableName));
+            Name = tableName.LocalName;
             Database = database ?? throw new ArgumentNullException(nameof(database));
             Comparer = comparer ?? new IdentifierComparer(StringComparer.Ordinal, database.DefaultSchema);
         }

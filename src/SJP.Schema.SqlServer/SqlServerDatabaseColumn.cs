@@ -7,7 +7,10 @@ namespace SJP.Schema.SqlServer
     {
         protected SqlServerDatabaseColumn(Identifier columnName, IDbType type, bool isNullable, string defaultValue, bool isAutoIncrement)
         {
-            Name = columnName ?? throw new ArgumentNullException(nameof(columnName));
+            if (columnName == null || columnName.LocalName == null)
+                throw new ArgumentNullException(nameof(columnName));
+
+            Name = columnName.LocalName;
             Type = type ?? throw new ArgumentNullException(nameof(type));
             IsNullable = isNullable;
             DefaultValue = defaultValue;
@@ -16,7 +19,7 @@ namespace SJP.Schema.SqlServer
 
         public string DefaultValue { get; }
 
-        public virtual bool IsComputed { get; } = false;
+        public virtual bool IsComputed { get; }
 
         public Identifier Name { get; }
 

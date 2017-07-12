@@ -20,13 +20,15 @@ namespace SJP.Schema.Sqlite
     {
         protected SqliteDatabaseIndex(T parent, Identifier name, bool isUnique, IEnumerable<IDatabaseIndexColumn> columns, IEnumerable<IDatabaseColumn> includedColumns)
         {
+            if (name == null || name.LocalName == null)
+                throw new ArgumentNullException(nameof(name));
             if (columns == null || columns.Empty() || columns.AnyNull())
                 throw new ArgumentNullException(nameof(columns));
             if (includedColumns != null && includedColumns.AnyNull())
                 throw new ArgumentNullException(nameof(includedColumns));
 
             Parent = parent ?? throw new ArgumentNullException(nameof(parent));
-            Name = name ?? throw new ArgumentNullException(nameof(name));
+            Name = name.LocalName;
             IsUnique = isUnique;
             Columns = columns.ToList();
             IncludedColumns = includedColumns != null ? includedColumns.ToList() : Enumerable.Empty<IDatabaseColumn>();

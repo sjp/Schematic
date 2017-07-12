@@ -13,7 +13,7 @@ namespace SJP.Schema.SqlServer
 
         public SqlServerColumnDataType(Identifier typeName, int length)
         {
-            if (typeName == null)
+            if (typeName == null || typeName.LocalName == null)
                 throw new ArgumentNullException(nameof(typeName));
 
             PhysicalTypeName = typeName.LocalName.ToLowerInvariant();

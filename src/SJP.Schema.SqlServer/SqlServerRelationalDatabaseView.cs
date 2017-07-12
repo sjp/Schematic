@@ -14,9 +14,12 @@ namespace SJP.Schema.SqlServer
     {
         public SqlServerRelationalDatabaseView(IDbConnection connection, IRelationalDatabase database, Identifier viewName, IEqualityComparer<Identifier> comparer = null)
         {
+            if (viewName == null || viewName.LocalName == null)
+                throw new ArgumentNullException(nameof(viewName));
+
             Connection = connection ?? throw new ArgumentNullException(nameof(connection));
             Database = database ?? throw new ArgumentNullException(nameof(database));
-            Name = viewName ?? throw new ArgumentNullException(nameof(viewName));
+            Name = viewName.LocalName;
             Comparer = comparer ?? new IdentifierComparer(StringComparer.Ordinal, database.DefaultSchema);
         }
 

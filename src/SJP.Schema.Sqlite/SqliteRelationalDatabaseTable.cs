@@ -17,9 +17,12 @@ namespace SJP.Schema.Sqlite
     {
         public SqliteRelationalDatabaseTable(IDbConnection connection, IRelationalDatabase database, Identifier tableName)
         {
+            if (tableName == null || tableName.LocalName == null)
+                throw new ArgumentNullException(nameof(tableName));
+
             Connection = connection ?? throw new ArgumentNullException(nameof(connection));
             Database = database ?? throw new ArgumentNullException(nameof(database));
-            Name = tableName ?? throw new ArgumentNullException(nameof(tableName));
+            Name = tableName.LocalName;
             Comparer = new IdentifierComparer(StringComparer.OrdinalIgnoreCase, Database.DefaultSchema);
         }
 

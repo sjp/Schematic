@@ -10,8 +10,11 @@ namespace SJP.Schema.SqlServer
     {
         public SqlServerDatabaseSequence(IRelationalDatabase database, IDbConnection connection, Identifier sequenceName)
         {
+            if (sequenceName == null || sequenceName.LocalName == null)
+                throw new ArgumentNullException(nameof(sequenceName));
+
             Database = database ?? throw new ArgumentNullException(nameof(database));
-            Name = sequenceName ?? throw new ArgumentNullException(nameof(sequenceName));
+            Name = sequenceName.LocalName;
             Connection = connection ?? throw new ArgumentNullException(nameof(connection));
 
             _dataLoader = new Lazy<SequenceData>(LoadSequenceData);

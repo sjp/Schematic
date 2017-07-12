@@ -8,11 +8,13 @@ namespace SJP.Schema.SqlServer
     {
         public SqlServerCheckConstraint(IRelationalDatabaseTable table, Identifier checkName, string definition, bool isEnabled)
         {
+            if (checkName == null || checkName.LocalName == null)
+                throw new ArgumentNullException(nameof(checkName));
             if (definition.IsNullOrWhiteSpace())
                 throw new ArgumentNullException(nameof(definition));
 
             Table = table ?? throw new ArgumentNullException(nameof(table));
-            Name = checkName ?? throw new ArgumentNullException(nameof(checkName));
+            Name = checkName.LocalName;
             Definition = definition;
             IsEnabled = isEnabled;
         }

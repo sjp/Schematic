@@ -9,9 +9,11 @@ namespace SJP.Schema.Sqlite
         {
             if (definition.IsNullOrWhiteSpace())
                 throw new ArgumentNullException(nameof(definition));
+            if (checkName == null || checkName.LocalName == null)
+                throw new ArgumentNullException(nameof(checkName));
 
             Table = table ?? throw new ArgumentNullException(nameof(table));
-            Name = checkName ?? throw new ArgumentNullException(nameof(checkName));
+            Name = checkName.LocalName;
             Definition = definition;
         }
 
