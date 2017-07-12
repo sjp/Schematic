@@ -6,20 +6,17 @@ namespace SJP.Schema.Modelled.Reflection
 {
     public class ReflectionCheckConstraint : IDatabaseCheckConstraint
     {
-        public ReflectionCheckConstraint(IRelationalDatabaseTable table, Identifier name, ISqlExpression expression, IEnumerable<IDatabaseColumn> columns)
+        public ReflectionCheckConstraint(IRelationalDatabaseTable table, Identifier name, string definition)
         {
-            if (columns == null || columns.Empty() || columns.AnyNull())
-                throw new ArgumentNullException(nameof(columns));
+            if (definition.IsNullOrWhiteSpace())
+                throw new ArgumentNullException(nameof(definition));
 
             Table = table ?? throw new ArgumentNullException(nameof(table));
             Name = name ?? throw new ArgumentNullException(nameof(name));
-            Expression = expression ?? throw new ArgumentNullException(nameof(expression));
-            DependentColumns = columns;
+            Definition = definition;
         }
 
-        public IEnumerable<IDatabaseColumn> DependentColumns { get; }
-
-        public ISqlExpression Expression { get; }
+        public string Definition { get; }
 
         public Identifier Name { get; }
 

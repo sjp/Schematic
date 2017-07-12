@@ -5,7 +5,7 @@ namespace SJP.Schema.Modelled.Reflection.Model
 {
     public class ExpressionColumn
     {
-        public ExpressionColumn(ISqlExpression expression)
+        public ExpressionColumn(IModelledSqlExpression expression)
         {
             Expression = expression ?? throw new ArgumentNullException(nameof(expression));
         }
@@ -22,6 +22,6 @@ namespace SJP.Schema.Modelled.Reflection.Model
 
         public IndexColumnOrder Order { get; }
 
-        public ISqlExpression Expression { get; }
+        public IModelledSqlExpression Expression { get; }
     }
 }

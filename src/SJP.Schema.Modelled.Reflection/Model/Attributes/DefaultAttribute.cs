@@ -1,9 +1,9 @@
 ﻿using System;
+using System.Globalization;
 using SJP.Schema.Core;
 
 namespace SJP.Schema.Modelled.Reflection.Model
 {
-
     public sealed class DefaultAttribute : ModelledSchemaAttribute
     {
         public DefaultAttribute(string defaultValue)
@@ -24,11 +24,76 @@ namespace SJP.Schema.Modelled.Reflection.Model
             DefaultValue = defaultValue;
         }
 
-        // maybe this should be an expression?
-        // thinking at the moment not to but to parse it as one via the dialect?
-        // would give us access to expressions that can be parsed correctly
-        // this would be consistent with how other attributes and properties are declared
+        public DefaultAttribute(byte defaultValue)
+            : this(defaultValue.ToString(CultureInfo.InvariantCulture))
+        {
+        }
+
+        public DefaultAttribute(byte defaultValue, params Type[] dialects)
+            : this(defaultValue.ToString(CultureInfo.InvariantCulture), dialects)
+        {
+        }
+
+        public DefaultAttribute(char defaultValue)
+            : this(defaultValue.ToString())
+        {
+        }
+
+        public DefaultAttribute(char defaultValue, params Type[] dialects)
+            : this(defaultValue.ToString(), dialects)
+        {
+        }
+
+        public DefaultAttribute(double defaultValue)
+            : this(defaultValue.ToString(CultureInfo.InvariantCulture))
+        {
+        }
+
+        public DefaultAttribute(double defaultValue, params Type[] dialects)
+            : this(defaultValue.ToString(CultureInfo.InvariantCulture), dialects)
+        {
+        }
+
+        public DefaultAttribute(short defaultValue)
+            : this(defaultValue.ToString(CultureInfo.InvariantCulture))
+        {
+        }
+
+        public DefaultAttribute(short defaultValue, params Type[] dialects)
+            : this(defaultValue.ToString(CultureInfo.InvariantCulture), dialects)
+        {
+        }
+
+        public DefaultAttribute(int defaultValue)
+            : this(defaultValue.ToString(CultureInfo.InvariantCulture))
+        {
+        }
+
+        public DefaultAttribute(int defaultValue, params Type[] dialects)
+            : this(defaultValue.ToString(CultureInfo.InvariantCulture), dialects)
+        {
+        }
+
+        public DefaultAttribute(long defaultValue)
+            : this(defaultValue.ToString(CultureInfo.InvariantCulture))
+        {
+        }
+
+        public DefaultAttribute(long defaultValue, params Type[] dialects)
+            : this(defaultValue.ToString(CultureInfo.InvariantCulture), dialects)
+        {
+        }
+
+        public DefaultAttribute(float defaultValue)
+            : this(defaultValue.ToString(CultureInfo.InvariantCulture))
+        {
+        }
+
+        public DefaultAttribute(float defaultValue, params Type[] dialects)
+            : this(defaultValue.ToString(CultureInfo.InvariantCulture), dialects)
+        {
+        }
+
         public string DefaultValue { get; }
     }
-
 }

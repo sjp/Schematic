@@ -39,16 +39,6 @@ namespace SJP.Schema.Modelled.Reflection
 
         public bool Cycle { get; }
 
-        public IEnumerable<Identifier> Dependencies { get; } = Enumerable.Empty<Identifier>();
-
-        public IEnumerable<Identifier> Dependents
-        {
-            get
-            {
-                throw new NotImplementedException();
-            }
-        }
-
         public decimal Increment { get; }
 
         public decimal? MaxValue { get; }
@@ -58,10 +48,6 @@ namespace SJP.Schema.Modelled.Reflection
         public Identifier Name { get; }
 
         public decimal Start { get; }
-
-        public Task<IEnumerable<Identifier>> DependenciesAsync() => Task.FromResult(Dependencies);
-
-        public Task<IEnumerable<Identifier>> DependentsAsync() => Task.FromResult(Dependents);
 
         protected TypeInfo SequenceType { get; }
 

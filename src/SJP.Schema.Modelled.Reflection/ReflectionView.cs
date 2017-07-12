@@ -34,22 +34,6 @@ namespace SJP.Schema.Modelled.Reflection
 
         public IRelationalDatabase Database { get; }
 
-        public IEnumerable<Identifier> Dependencies
-        {
-            get
-            {
-                throw new NotImplementedException();
-            }
-        }
-
-        public IEnumerable<Identifier> Dependents
-        {
-            get
-            {
-                throw new NotImplementedException();
-            }
-        }
-
         public IReadOnlyDictionary<Identifier, IDatabaseViewIndex> Index
         {
             get
@@ -82,16 +66,6 @@ namespace SJP.Schema.Modelled.Reflection
         }
 
         public Task<IReadOnlyList<IDatabaseViewColumn>> ColumnsAsync()
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task<IEnumerable<Identifier>> DependenciesAsync()
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task<IEnumerable<Identifier>> DependentsAsync()
         {
             throw new NotImplementedException();
         }

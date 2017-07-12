@@ -16,7 +16,7 @@ namespace SJP.Schema.Modelled.Reflection.Model
             Expression = new ModelledSqlExpression(expression, param);
         }
 
-        public ISqlExpression Expression { get; }
+        public IModelledSqlExpression Expression { get; }
 
         public PropertyInfo Property { get; set; }
     }

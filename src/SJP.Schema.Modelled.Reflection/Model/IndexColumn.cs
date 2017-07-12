@@ -14,7 +14,7 @@ namespace SJP.Schema.Modelled.Reflection.Model
             Order = order;
         }
 
-        public IndexColumn(ISqlExpression expression, IndexColumnOrder order = IndexColumnOrder.Ascending)
+        public IndexColumn(IModelledSqlExpression expression, IndexColumnOrder order = IndexColumnOrder.Ascending)
         {
             Expression = expression ?? throw new ArgumentNullException(nameof(expression));
             Order = order;
@@ -38,6 +38,6 @@ namespace SJP.Schema.Modelled.Reflection.Model
 
         public IndexColumnOrder Order { get; }
 
-        public ISqlExpression Expression { get; }
+        public IModelledSqlExpression Expression { get; }
     }
 }

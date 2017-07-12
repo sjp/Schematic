@@ -20,57 +20,16 @@ namespace SJP.Schema.Sqlite
             Connection = connection ?? throw new ArgumentNullException(nameof(connection));
             Database = database ?? throw new ArgumentNullException(nameof(database));
             Name = tableName ?? throw new ArgumentNullException(nameof(tableName));
+            Comparer = new IdentifierComparer(StringComparer.OrdinalIgnoreCase, Database.DefaultSchema);
         }
-
-        protected IEqualityComparer<Identifier> Comparer { get; }
-
-        public IEnumerable<Identifier> Dependencies => LoadDependenciesSync();
-
-        public Task<IEnumerable<Identifier>> DependenciesAsync() => LoadDependenciesAsync();
-
-        public IEnumerable<Identifier> Dependents => LoadDependentsSync();
-
-        public Task<IEnumerable<Identifier>> DependentsAsync() => LoadDependentsAsync();
-
-        protected virtual IEnumerable<Identifier> LoadDependentsSync()
-        {
-            //var results = new List<Identifier>();
-            // TODO: use views and child keys somehow..
-            return Enumerable.Empty<Identifier>();
-            //return results;
-        }
-
-        protected virtual async Task<IEnumerable<Identifier>> LoadDependentsAsync()
-        {
-            //var results = new List<Identifier>();
-            // TODO: use views and child keys somehow..
-            var result = await Task.FromResult(Enumerable.Empty<Identifier>());
-            return result;
-            //return results;
-        }
-
-        protected virtual IEnumerable<Identifier> LoadDependenciesSync()
-        {
-            //var results = new List<Identifier>();
-            // TODO: use foreign keys and maybe parse check constraints...?
-            return Enumerable.Empty<Identifier>();
-            //return results;
-        }
-
-        protected virtual async Task<IEnumerable<Identifier>> LoadDependenciesAsync()
-        {
-            //var results = new List<Identifier>();
-            // TODO: use foreign keys and maybe parse check constraints...?
-            var result = await Task.FromResult(Enumerable.Empty<Identifier>());
-            return result;
-            //return results;
-        }
-
-        public Identifier Name { get; }
 
         public IRelationalDatabase Database { get; }
 
         protected IDbConnection Connection { get; }
+
+        protected IEqualityComparer<Identifier> Comparer { get; }
+
+        public Identifier Name { get; }
 
         public IDatabaseKey PrimaryKey => LoadPrimaryKeySync();
 

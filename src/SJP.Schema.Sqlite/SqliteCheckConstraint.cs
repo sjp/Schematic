@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using SJP.Schema.Core;
 
 namespace SJP.Schema.Sqlite
@@ -14,16 +12,14 @@ namespace SJP.Schema.Sqlite
 
             Table = table ?? throw new ArgumentNullException(nameof(table));
             Name = checkName ?? throw new ArgumentNullException(nameof(checkName));
-            Expression = null; // TODO: // new ModelledSqlExpression();
+            Definition = definition;
         }
 
-        public IEnumerable<IDatabaseColumn> DependentColumns { get; } = Enumerable.Empty<IDatabaseColumn>();
-
-        public ISqlExpression Expression { get; }
+        public IRelationalDatabaseTable Table { get; }
 
         public Identifier Name { get; }
 
-        public IRelationalDatabaseTable Table { get; }
+        public string Definition { get; }
 
         public bool IsEnabled { get; } = true;
     }

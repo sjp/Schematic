@@ -4,10 +4,8 @@ using System.Text;
 
 namespace SJP.Schema.Core
 {
-    public interface IDatabaseComputedColumn : IDatabaseColumn
+    public interface IDatabaseComputedColumn : IDatabaseTableColumn
     {
-        ISqlExpression Expression { get; }
-
-        IEnumerable<IDatabaseColumn> DependentColumns { get; }
+        string Definition { get; }
     }
 }

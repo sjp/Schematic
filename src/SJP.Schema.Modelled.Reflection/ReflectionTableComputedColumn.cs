@@ -1,16 +1,20 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Reflection;
 using SJP.Schema.Core;
 
 namespace SJP.Schema.Modelled.Reflection
 {
-    public class ReflectionTableComputedColumn : IDatabaseTableColumn
+    public class ReflectionTableComputedColumn : IDatabaseComputedColumn
     {
-        public ReflectionTableComputedColumn(IDatabaseDialect dialect, IRelationalDatabaseTable table, PropertyInfo prop)
+        public ReflectionTableComputedColumn(IDatabaseDialect dialect, IRelationalDatabaseTable table, PropertyInfo prop, string definition)
         {
+            if (definition.IsNullOrWhiteSpace())
+                throw new ArgumentNullException(nameof(definition));
+
+            Definition = definition;
             Property = prop ?? throw new ArgumentNullException(nameof(prop));
             Dialect = dialect ?? throw new ArgumentNullException(nameof(dialect));
-
             Name = dialect.GetAliasOrDefault(prop);
             Table = table ?? throw new ArgumentNullException(nameof(table));
             Type = new ReflectionComputedColumnDataType();
@@ -30,6 +34,8 @@ namespace SJP.Schema.Modelled.Reflection
         public bool IsAutoIncrement { get; }
 
         public bool IsComputed { get; } = true;
+
+        public string Definition { get; }
 
         protected IDatabaseDialect Dialect { get; }
 

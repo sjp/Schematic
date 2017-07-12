@@ -4,7 +4,7 @@ using SJP.Schema.Core;
 
 namespace SJP.Schema.Modelled.Reflection.Model
 {
-    public class ComputedColumn : IModelledColumn
+    public class ComputedColumn : IModelledComputedColumn
     {
         public ComputedColumn(string expression, object param)
         {
@@ -18,7 +18,7 @@ namespace SJP.Schema.Modelled.Reflection.Model
 
         public virtual Type DeclaredDbType { get; }
 
-        public ISqlExpression Expression { get; }
+        public IModelledSqlExpression Expression { get; }
 
         public virtual bool IsComputed { get; } = true;
 

@@ -11,7 +11,7 @@ using Superpower.Parsers;
 
 namespace SJP.Schema.Modelled.Reflection.Model
 {
-    public class ModelledSqlExpression : ISqlExpression
+    public class ModelledSqlExpression : IModelledSqlExpression
     {
         public ModelledSqlExpression(string expression, object param)
         {
@@ -38,13 +38,7 @@ namespace SJP.Schema.Modelled.Reflection.Model
 
         protected IReadOnlyDictionary<string, object> Parameters { get; }
 
-        public IEnumerable<Identifier> DependentNames
-        {
-            get
-            {
-                throw new NotImplementedException();
-            }
-        }
+        public IEnumerable<Identifier> DependentNames { get; } = Enumerable.Empty<Identifier>();
 
         public bool IsIdentity
         {
@@ -260,9 +254,6 @@ namespace SJP.Schema.Modelled.Reflection.Model
         }
     }
 
-    // TODO make this take a column?
-    // means we can retrieve the column later and ensure any names are overridden
-    // maybe just replace with a new expression in the table/view layer as it will know the column
     public static class Sql
     {
         public static ModelledSqlExpression Identity(ModelledColumn column) => new ModelledSqlExpression(IdentityFormat, ToParamObject(column));

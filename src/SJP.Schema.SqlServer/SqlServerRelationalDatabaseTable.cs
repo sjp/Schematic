@@ -16,7 +16,7 @@ namespace SJP.Schema.SqlServer
             Connection = connection ?? throw new ArgumentNullException(nameof(connection));
             Name = tableName ?? throw new ArgumentNullException(nameof(tableName));
             Database = database ?? throw new ArgumentNullException(nameof(database));
-            Comparer = comparer ?? IdentifierComparer.Ordinal;
+            Comparer = comparer ?? new IdentifierComparer(StringComparer.Ordinal, database.DefaultSchema);
         }
 
         public Identifier Name { get; }
@@ -26,126 +26,6 @@ namespace SJP.Schema.SqlServer
         protected IDbConnection Connection { get; }
 
         protected IEqualityComparer<Identifier> Comparer { get; }
-
-        public IEnumerable<Identifier> Dependencies => LoadDependenciesSync();
-
-        public Task<IEnumerable<Identifier>> DependenciesAsync() => LoadDependenciesAsync();
-
-        public IEnumerable<Identifier> Dependents => LoadDependentsSync();
-
-        public Task<IEnumerable<Identifier>> DependentsAsync() => LoadDependentsAsync();
-
-        protected virtual IEnumerable<Identifier> LoadDependentsSync()
-        {
-            const string sql = @"
-select schema_name(o1.schema_id) as ReferencingSchemaName, o1.name as ReferencingObjectName, o1.type_desc as ReferencingObjectType,
-    schema_name(o2.schema_id) as ReferencedSchemaName, o2.name as ReferencedObjectName, o2.type_desc as ReferencedObjectType
-from sys.sql_expression_dependencies sed
-inner join sys.objects o1 on sed.referencing_id = o1.object_id
-inner join sys.objects o2 on sed.referenced_id = o2.object_id
-where o2.schema_id = schema_id(@SchemaName) and o2.name = @TableName
-    and o2.type = 'U' and sed.referenced_minor_id = 0
-UNION
-select schema_name(o1.schema_id) as ReferencingSchemaName, o1.name as ReferencingObjectName, o1.type_desc as ReferencingObjectType,
-    schema_name(o2.schema_id) as ReferencedSchemaName, o2.name as ReferencedObjectName, o2.type_desc as ReferencedObjectType
-from sys.foreign_keys fk
-inner join sys.objects o1 on fk.parent_object_id = o1.object_id
-inner join sys.objects o2 on fk.referenced_object_id = o2.object_id
-where o2.schema_id = schema_id(@SchemaName) and o2.name = @TableName
-    and o2.type = 'U'";
-
-            var dependents = Connection.Query<DependencyData>(sql, new { SchemaName = Name.Schema, TableName = Name.LocalName });
-            if (dependents.Empty())
-                return null;
-
-            return dependents
-                .Select(d => new Identifier(d.ReferencingSchemaName, d.ReferencingObjectName))
-                .ToList();
-        }
-
-        protected virtual async Task<IEnumerable<Identifier>> LoadDependentsAsync()
-        {
-            const string sql = @"
-select schema_name(o1.schema_id) as ReferencingSchemaName, o1.name as ReferencingObjectName, o1.type_desc as ReferencingObjectType,
-    schema_name(o2.schema_id) as ReferencedSchemaName, o2.name as ReferencedObjectName, o2.type_desc as ReferencedObjectType
-from sys.sql_expression_dependencies sed
-inner join sys.objects o1 on sed.referencing_id = o1.object_id
-inner join sys.objects o2 on sed.referenced_id = o2.object_id
-where o2.schema_id = schema_id(@SchemaName) and o2.name = @TableName
-    and o2.type = 'U' and sed.referenced_minor_id = 0
-UNION
-select schema_name(o1.schema_id) as ReferencingSchemaName, o1.name as ReferencingObjectName, o1.type_desc as ReferencingObjectType,
-    schema_name(o2.schema_id) as ReferencedSchemaName, o2.name as ReferencedObjectName, o2.type_desc as ReferencedObjectType
-from sys.foreign_keys fk
-inner join sys.objects o1 on fk.parent_object_id = o1.object_id
-inner join sys.objects o2 on fk.referenced_object_id = o2.object_id
-where o2.schema_id = schema_id(@SchemaName) and o2.name = @TableName
-    and o2.type = 'U'";
-
-            var dependents = await Connection.QueryAsync<DependencyData>(sql, new { SchemaName = Name.Schema, TableName = Name.LocalName });
-            if (dependents.Empty())
-                return null;
-
-            return dependents
-                .Select(d => new Identifier(d.ReferencingSchemaName, d.ReferencingObjectName))
-                .ToList();
-        }
-
-        protected virtual IEnumerable<Identifier> LoadDependenciesSync()
-        {
-            const string sql = @"
-select schema_name(o1.schema_id) as ReferencingSchemaName, o1.name as ReferencingObjectName, o1.type_desc as ReferencingObjectType,
-    schema_name(o2.schema_id) as ReferencedSchemaName, o2.name as ReferencedObjectName, o2.type_desc as ReferencedObjectType
-from sys.sql_expression_dependencies sed
-inner join sys.objects o1 on sed.referencing_id = o1.object_id
-inner join sys.objects o2 on sed.referenced_id = o2.object_id
-where o1.schema_id = schema_id(@SchemaName) and o1.name = @TableName
-    and o1.type = 'U' and sed.referencing_minor_id = 0
-UNION
-select schema_name(o1.schema_id) as ReferencingSchemaName, o1.name as ReferencingObjectName, o1.type_desc as ReferencingObjectType,
-    schema_name(o2.schema_id) as ReferencedSchemaName, o2.name as ReferencedObjectName, o2.type_desc as ReferencedObjectType
-from sys.foreign_keys fk
-inner join sys.objects o1 on fk.parent_object_id = o1.object_id
-inner join sys.objects o2 on fk.referenced_object_id = o2.object_id
-where o1.schema_id = schema_id(@SchemaName) and o1.name = @TableName
-    and o1.type = 'U'";
-
-            var dependencies = Connection.Query<DependencyData>(sql, new { SchemaName = Name.Schema, TableName = Name.LocalName });
-            if (dependencies.Empty())
-                return null;
-
-            return dependencies
-                .Select(d => new Identifier(d.ReferencedSchemaName, d.ReferencedObjectName))
-                .ToList();
-        }
-
-        protected virtual async Task<IEnumerable<Identifier>> LoadDependenciesAsync()
-        {
-            const string sql = @"
-select schema_name(o1.schema_id) as ReferencingSchemaName, o1.name as ReferencingObjectName, o1.type_desc as ReferencingObjectType,
-    schema_name(o2.schema_id) as ReferencedSchemaName, o2.name as ReferencedObjectName, o2.type_desc as ReferencedObjectType
-from sys.sql_expression_dependencies sed
-inner join sys.objects o1 on sed.referencing_id = o1.object_id
-inner join sys.objects o2 on sed.referenced_id = o2.object_id
-where o1.schema_id = schema_id(@SchemaName) and o1.name = @TableName
-    and o1.type = 'U' and sed.referencing_minor_id = 0
-UNION
-select schema_name(o1.schema_id) as ReferencingSchemaName, o1.name as ReferencingObjectName, o1.type_desc as ReferencingObjectType,
-    schema_name(o2.schema_id) as ReferencedSchemaName, o2.name as ReferencedObjectName, o2.type_desc as ReferencedObjectType
-from sys.foreign_keys fk
-inner join sys.objects o1 on fk.parent_object_id = o1.object_id
-inner join sys.objects o2 on fk.referenced_object_id = o2.object_id
-where o1.schema_id = schema_id(@SchemaName) and o1.name = @TableName
-    and o1.type = 'U'";
-
-            var dependencies = await Connection.QueryAsync<DependencyData>(sql, new { SchemaName = Name.Schema, TableName = Name.LocalName });
-            if (dependencies.Empty())
-                return null;
-
-            return dependencies
-                .Select(d => new Identifier(d.ReferencedSchemaName, d.ReferencedObjectName))
-                .ToList();
-        }
 
         public IDatabaseKey PrimaryKey => LoadPrimaryKeySync();
 
@@ -609,34 +489,24 @@ where schema_name(parent_t.schema_id) = @SchemaName and parent_t.name = @TableNa
         protected virtual IEnumerable<IDatabaseCheckConstraint> LoadCheckConstraintsSync()
         {
             const string sql = @"
-select cc.name as ConstraintName, cc.definition as Definition, c.name as DependentColumnName, cc.is_disabled as IsDisabled
+select cc.name as ConstraintName, cc.definition as Definition, cc.is_disabled as IsDisabled
 from sys.tables t
 inner join sys.check_constraints cc on t.object_id = cc.parent_object_id
-inner join sys.sql_expression_dependencies sed on sed.referencing_id = cc.object_id
-left join sys.columns c on t.object_id = c.object_id and sed.referenced_minor_id = c.column_id
 where schema_name(t.schema_id) = @SchemaName and t.name = @TableName";
 
-            var queryResult = Connection.Query<CheckConstraintData>(sql, new { SchemaName = Name.Schema, TableName = Name.LocalName });
-            if (queryResult.Empty())
+            var checkConstraints = Connection.Query<CheckConstraintData>(sql, new { SchemaName = Name.Schema, TableName = Name.LocalName });
+            if (checkConstraints.Empty())
                 return Enumerable.Empty<IDatabaseCheckConstraint>();
-
-            var checkConstraints = queryResult.GroupBy(row => new
-            {
-                ConstraintName = row.ConstraintName,
-                Definition = row.Definition,
-                IsDisabled = row.IsDisabled
-            });
 
             var result = new List<IDatabaseCheckConstraint>();
             var tableColumns = Column;
             foreach (var checkRow in checkConstraints)
             {
-                var constraintName = new LocalIdentifier(checkRow.Key.ConstraintName);
-                var definition = checkRow.Key.Definition;
-                var isEnabled = !checkRow.Key.IsDisabled;
-                var columns = checkRow.Select(row => tableColumns[row.DependentColumnName]).ToList();
+                var constraintName = new LocalIdentifier(checkRow.ConstraintName);
+                var definition = checkRow.Definition;
+                var isEnabled = !checkRow.IsDisabled;
 
-                var checkConstraint = new SqlServerCheckConstraint(this, constraintName, definition, columns, isEnabled);
+                var checkConstraint = new SqlServerCheckConstraint(this, constraintName, definition, isEnabled);
                 result.Add(checkConstraint);
             }
 
@@ -646,34 +516,24 @@ where schema_name(t.schema_id) = @SchemaName and t.name = @TableName";
         protected virtual async Task<IEnumerable<IDatabaseCheckConstraint>> LoadCheckConstraintsAsync()
         {
             const string sql = @"
-select cc.name as ConstraintName, cc.definition as Definition, c.name as DependentColumnName, cc.is_disabled as IsDisabled
+select cc.name as ConstraintName, cc.definition as Definition, cc.is_disabled as IsDisabled
 from sys.tables t
 inner join sys.check_constraints cc on t.object_id = cc.parent_object_id
-inner join sys.sql_expression_dependencies sed on sed.referencing_id = cc.object_id
-left join sys.columns c on t.object_id = c.object_id and sed.referenced_minor_id = c.column_id
 where schema_name(t.schema_id) = @SchemaName and t.name = @TableName";
 
-            var queryResult = await Connection.QueryAsync<CheckConstraintData>(sql, new { SchemaName = Name.Schema, TableName = Name.LocalName });
-            if (queryResult.Empty())
+            var checkConstraints = await Connection.QueryAsync<CheckConstraintData>(sql, new { SchemaName = Name.Schema, TableName = Name.LocalName });
+            if (checkConstraints.Empty())
                 return Enumerable.Empty<IDatabaseCheckConstraint>();
-
-            var checkConstraints = queryResult.GroupBy(row => new
-            {
-                ConstraintName = row.ConstraintName,
-                Definition = row.Definition,
-                IsDisabled = row.IsDisabled
-            });
 
             var result = new List<IDatabaseCheckConstraint>();
             var tableColumns = await ColumnAsync();
             foreach (var checkRow in checkConstraints)
             {
-                var constraintName = new LocalIdentifier(checkRow.Key.ConstraintName);
-                var definition = checkRow.Key.Definition;
-                var isEnabled = !checkRow.Key.IsDisabled;
-                var columns = checkRow.Select(row => tableColumns[row.DependentColumnName]).ToList();
+                var constraintName = new LocalIdentifier(checkRow.ConstraintName);
+                var definition = checkRow.Definition;
+                var isEnabled = !checkRow.IsDisabled;
 
-                var checkConstraint = new SqlServerCheckConstraint(this, constraintName, definition, columns, isEnabled);
+                var checkConstraint = new SqlServerCheckConstraint(this, constraintName, definition, isEnabled);
                 result.Add(checkConstraint);
             }
 
@@ -923,7 +783,7 @@ where schema_name(t.schema_id) = @SchemaName
                 var isAutoIncrement = row.IdentitySeed.HasValue && row.IdentityIncrement.HasValue;
 
                 var column = row.IsComputed
-                    ? new SqlServerDatabaseComputedTableColumn(this, columnName, columnType, row.IsNullable, row.DefaultValue)
+                    ? new SqlServerDatabaseComputedTableColumn(this, columnName, columnType, row.IsNullable, row.DefaultValue, row.ComputedColumnDefinition)
                     : new SqlServerDatabaseTableColumn(this, columnName, columnType, row.IsNullable, row.DefaultValue, isAutoIncrement);
 
                 result.Add(column);
@@ -969,7 +829,7 @@ where schema_name(t.schema_id) = @SchemaName
                 IDbType dbType;
                 var columnType = new SqlServerColumnDataType(columnTypeName);
                 if (columnType.IsNumericType)
-                    dbType = new SqlServerNumericColumnDataType(columnTypeName, row.Precision, row.Scale); // new SqlServerDatabaseNumericColumnType(columnTypeName, row.MaxLength, row.Precision, row.Scale);
+                    dbType = new SqlServerNumericColumnDataType(columnTypeName, row.Precision, row.Scale);
                 else if (columnType.IsStringType)
                     dbType = new SqlServerStringColumnDataType(columnTypeName, row.MaxLength, row.Collation);
                 else
@@ -979,7 +839,7 @@ where schema_name(t.schema_id) = @SchemaName
                 var isAutoIncrement = row.IdentitySeed.HasValue && row.IdentityIncrement.HasValue;
 
                 var column = row.IsComputed
-                    ? new SqlServerDatabaseComputedTableColumn(this, columnName, columnType, row.IsNullable, row.DefaultValue)
+                    ? new SqlServerDatabaseComputedTableColumn(this, columnName, columnType, row.IsNullable, row.DefaultValue, row.ComputedColumnDefinition)
                     : new SqlServerDatabaseTableColumn(this, columnName, columnType, row.IsNullable, row.DefaultValue, isAutoIncrement);
 
                 result.Add(column);

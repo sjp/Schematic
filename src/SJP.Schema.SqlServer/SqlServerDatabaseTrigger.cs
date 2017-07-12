@@ -30,21 +30,5 @@ namespace SJP.Schema.SqlServer
         public IRelationalDatabaseTable Table { get; }
 
         public bool IsEnabled { get; }
-
-        public IEnumerable<Identifier> Dependencies
-        {
-            get
-            {
-                throw new NotImplementedException();
-            }
-        }
-
-        public IEnumerable<Identifier> Dependents
-        {
-            get
-            {
-                throw new NotImplementedException();
-            }
-        }
     }
 }

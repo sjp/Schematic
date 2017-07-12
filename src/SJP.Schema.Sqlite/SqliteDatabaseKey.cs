@@ -12,7 +12,7 @@ namespace SJP.Schema.Sqlite
                 throw new ArgumentNullException(nameof(columns));
 
             Name = name; // can be null!
-            Table = table ?? throw new ArgumentNullException(nameof(table)); ;
+            Table = table ?? throw new ArgumentNullException(nameof(table));
             KeyType = keyType;
             Columns = columns;
         }

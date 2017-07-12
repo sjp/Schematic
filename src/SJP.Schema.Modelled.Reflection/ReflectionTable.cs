@@ -17,9 +17,6 @@ namespace SJP.Schema.Modelled.Reflection
             TableInstance = CreateTableInstance(InstanceType);
             InstanceProperties = new HashSet<PropertyInfo>(InstanceType.GetTypeInfo().GetProperties());
 
-            _dependencies = new Lazy<IEnumerable<Identifier>>(LoadDependencies);
-            _dependents = new Lazy<IEnumerable<Identifier>>(LoadDependents);
-
             _columns = new Lazy<IReadOnlyList<IDatabaseTableColumn>>(LoadColumnList);
             _columnLookup = new Lazy<IReadOnlyDictionary<Identifier, IDatabaseTableColumn>>(LoadColumns);
             _checkLookup = new Lazy<IReadOnlyDictionary<Identifier, IDatabaseCheckConstraint>>(LoadChecks);
@@ -34,28 +31,6 @@ namespace SJP.Schema.Modelled.Reflection
         }
 
         protected IDatabaseDialect Dialect { get; }
-
-        // TODO: handle situation where a view depends on this table
-        //       maybe this would require a connection to the database?
-        private IEnumerable<Identifier> LoadDependents()
-        {
-            return ChildKeys
-                .Select(fk => fk.ChildKey.Table.Name)
-                .Where(name => name != Name)
-                .Distinct()
-                .ToList();
-        }
-
-        // TODO: handle situation where the table has a foreign key to a view? would this happen in sql server??
-        //       maybe this would require a connection to the database?
-        private IEnumerable<Identifier> LoadDependencies()
-        {
-            return ParentKeys
-                .Select(fk => fk.ParentKey.Table.Name)
-                .Where(name => name != Name)
-                .Distinct()
-                .ToList();
-        }
 
         private IEnumerable<IDatabaseRelationalKey> LoadChildKeys()
         {
@@ -315,14 +290,10 @@ namespace SJP.Schema.Modelled.Reflection
             {
                 var modelledCheck = checkProperty.GetValue(TableInstance) as IModelledCheckConstraint;
                 modelledCheck.Property = checkProperty;
-
-                var columns = modelledCheck.Expression.DependentNames
-                    .Where(name => columnPropertyNames.ContainsKey(name.LocalName))
-                    .Select(name => dialect.GetAliasOrDefault(columnPropertyNames[name.LocalName]))
-                    .Select(name => Column[name]);
+                var definition = modelledCheck.Expression.ToSql(dialect);
 
                 var checkName = dialect.GetAliasOrDefault(checkProperty);
-                var check = new ReflectionCheckConstraint(this, checkName, modelledCheck.Expression, columns);
+                var check = new ReflectionCheckConstraint(this, checkName, definition);
                 result[check.Name.LocalName] = check;
             }
 
@@ -392,8 +363,9 @@ namespace SJP.Schema.Modelled.Reflection
             if (!IsComputedColumnProperty(propInfo))
                 throw new ArgumentException($"The property { InstanceType.FullName }.{ propInfo.Name } must be a computed column property (i.e. declared as ComputedColumn). Instead it is declared as { propInfo.DeclaringType.FullName }", nameof(propInfo));
 
-            var modelledColumn = propInfo.GetValue(TableInstance) as IModelledColumn;
-            var column = new ReflectionTableComputedColumn(Dialect, this, propInfo);
+            var modelledColumn = propInfo.GetValue(TableInstance) as IModelledComputedColumn;
+            var definition = modelledColumn.Expression.ToSql(Dialect);
+            var column = new ReflectionTableComputedColumn(Dialect, this, propInfo, definition);
             PropertyColumnCache[propInfo] = column; // add to cache
             return column;
         }
@@ -496,27 +468,16 @@ namespace SJP.Schema.Modelled.Reflection
 
         public Task<IEnumerable<IDatabaseKey>> UniqueKeysAsync() => Task.FromResult(_uniqueKeyLookup.Value.Values);
 
-        public Task<IEnumerable<Identifier>> DependenciesAsync() => Task.FromResult(_dependencies.Value);
-
-        public Task<IEnumerable<Identifier>> DependentsAsync() => Task.FromResult(_dependents.Value);
-
         protected IDictionary<PropertyInfo, IDatabaseTableColumn> PropertyColumnCache { get; } = new Dictionary<PropertyInfo, IDatabaseTableColumn>();
-
-        public IEnumerable<Identifier> Dependencies => _dependencies.Value;
-
-        public IEnumerable<Identifier> Dependents => _dependents.Value;
-
-        private readonly Lazy<IEnumerable<Identifier>> _dependencies;
-        private readonly Lazy<IEnumerable<Identifier>> _dependents;
 
         private readonly Lazy<IReadOnlyList<IDatabaseTableColumn>> _columns;
         private readonly Lazy<IReadOnlyDictionary<Identifier, IDatabaseTableColumn>> _columnLookup;
-        // TODO: implement triggers
-        //private readonly Lazy<IReadOnlyDictionary<string, IDatabaseTrigger>> _triggerLookup;
         private readonly Lazy<IReadOnlyDictionary<Identifier, IDatabaseKey>> _uniqueKeyLookup;
         private readonly Lazy<IReadOnlyDictionary<Identifier, IDatabaseCheckConstraint>> _checkLookup;
         private readonly Lazy<IReadOnlyDictionary<Identifier, IDatabaseTableIndex>> _indexLookup;
         private readonly Lazy<IReadOnlyDictionary<Identifier, IDatabaseRelationalKey>> _parentKeyLookup;
+        // TODO: implement triggers
+        //private readonly Lazy<IReadOnlyDictionary<string, IDatabaseTrigger>> _triggerLookup;
         private readonly Lazy<IEnumerable<IDatabaseRelationalKey>> _childKeys;
         private readonly Lazy<IDatabaseKey> _primaryKey;
     }

@@ -3,10 +3,8 @@ using SJP.Schema.Core;
 
 namespace SJP.Schema.Modelled.Reflection.Model
 {
-    public interface IModelledCheckConstraint
+    public interface IModelledComputedColumn : IModelledColumn
     {
-        PropertyInfo Property { get; set; }
-
         IModelledSqlExpression Expression { get; }
     }
 }

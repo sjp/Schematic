@@ -17,7 +17,7 @@ namespace SJP.Schema.SqlServer
             Connection = connection ?? throw new ArgumentNullException(nameof(connection));
             Database = database ?? throw new ArgumentNullException(nameof(database));
             Name = viewName ?? throw new ArgumentNullException(nameof(viewName));
-            Comparer = comparer ?? IdentifierComparer.Ordinal;
+            Comparer = comparer ?? new IdentifierComparer(StringComparer.Ordinal, database.DefaultSchema);
         }
 
         public Identifier Name { get; }
@@ -29,94 +29,6 @@ namespace SJP.Schema.SqlServer
         protected IEqualityComparer<Identifier> Comparer { get; }
 
         public bool IsIndexed => Indexes.Any();
-
-        public IEnumerable<Identifier> Dependencies => LoadDependenciesSync();
-
-        public Task<IEnumerable<Identifier>> DependenciesAsync() => LoadDependenciesAsync();
-
-        public IEnumerable<Identifier> Dependents => LoadDependentsSync();
-
-        public Task<IEnumerable<Identifier>> DependentsAsync() => LoadDependentsAsync();
-
-        protected virtual IEnumerable<Identifier> LoadDependentsSync()
-        {
-            const string sql = @"
-select schema_name(o1.schema_id) as ReferencingSchemaName, o1.name as ReferencingObjectName, o1.type_desc as ReferencingObjectType,
-    schema_name(o2.schema_id) as ReferencedSchemaName, o2.name as ReferencedObjectName, o2.type_desc as ReferencedObjectType
-from sys.sql_expression_dependencies sed
-inner join sys.objects o1 on sed.referencing_id = o1.object_id
-inner join sys.objects o2 on sed.referenced_id = o2.object_id
-where o2.schema_id = schema_id(@SchemaName) and o2.name = @ViewName
-    and o2.type = 'V' and sed.referenced_minor_id = 0";
-
-            var dependents = Connection.Query<DependencyData>(sql, new { SchemaName = Name.Schema, ViewName = Name.LocalName });
-            if (dependents.Empty())
-                return null;
-
-            return dependents
-                .Select(d => new Identifier(d.ReferencingSchemaName, d.ReferencingObjectName))
-                .ToList();
-        }
-
-        protected virtual async Task<IEnumerable<Identifier>> LoadDependentsAsync()
-        {
-            const string sql = @"
-select schema_name(o1.schema_id) as ReferencingSchemaName, o1.name as ReferencingObjectName, o1.type_desc as ReferencingObjectType,
-    schema_name(o2.schema_id) as ReferencedSchemaName, o2.name as ReferencedObjectName, o2.type_desc as ReferencedObjectType
-from sys.sql_expression_dependencies sed
-inner join sys.objects o1 on sed.referencing_id = o1.object_id
-inner join sys.objects o2 on sed.referenced_id = o2.object_id
-where o2.schema_id = schema_id(@SchemaName) and o2.name = @ViewName
-    and o2.type = 'V' and sed.referenced_minor_id = 0";
-
-            var dependents = await Connection.QueryAsync<DependencyData>(sql, new { SchemaName = Name.Schema, ViewName = Name.LocalName });
-            if (dependents.Empty())
-                return null;
-
-            return dependents
-                .Select(d => new Identifier(d.ReferencingSchemaName, d.ReferencingObjectName))
-                .ToList();
-        }
-
-        protected virtual IEnumerable<Identifier> LoadDependenciesSync()
-        {
-            const string sql = @"
-select schema_name(o1.schema_id) as ReferencingSchemaName, o1.name as ReferencingObjectName, o1.type_desc as ReferencingObjectType,
-    schema_name(o2.schema_id) as ReferencedSchemaName, o2.name as ReferencedObjectName, o2.type_desc as ReferencedObjectType
-from sys.sql_expression_dependencies sed
-inner join sys.objects o1 on sed.referencing_id = o1.object_id
-inner join sys.objects o2 on sed.referenced_id = o2.object_id
-where o1.schema_id = schema_id(@SchemaName) and o1.name = @TableName
-    and o1.type = 'V' and sed.referencing_minor_id = 0";
-
-            var dependencies = Connection.Query<DependencyData>(sql, new { SchemaName = Name.Schema, ViewName = Name.LocalName });
-            if (dependencies.Empty())
-                return null;
-
-            return dependencies
-                .Select(d => new Identifier(d.ReferencedSchemaName, d.ReferencedObjectName))
-                .ToList();
-        }
-
-        protected virtual async Task<IEnumerable<Identifier>> LoadDependenciesAsync()
-        {
-            const string sql = @"
-select schema_name(o1.schema_id) as ReferencingSchemaName, o1.name as ReferencingObjectName, o1.type_desc as ReferencingObjectType,
-    schema_name(o2.schema_id) as ReferencedSchemaName, o2.name as ReferencedObjectName, o2.type_desc as ReferencedObjectType
-from sys.sql_expression_dependencies sed
-inner join sys.objects o1 on sed.referencing_id = o1.object_id
-inner join sys.objects o2 on sed.referenced_id = o2.object_id
-where o1.schema_id = schema_id(@SchemaName) and o1.name = @TableName
-    and o1.type = 'V' and sed.referencing_minor_id = 0";
-
-            var dependencies = await Connection.QueryAsync<DependencyData>(sql, new { SchemaName = Name.Schema, ViewName = Name.LocalName });
-            if (dependencies.Empty())
-                return null;
-
-            return dependencies
-                .Select(d => new Identifier(d.ReferencedSchemaName, d.ReferencedObjectName))
-                .ToList();
-        }
 
         public IReadOnlyDictionary<Identifier, IDatabaseViewIndex> Index => LoadIndexLookupSync();
 

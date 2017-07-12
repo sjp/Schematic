@@ -1,10 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using System.Collections.Generic;
+using SJP.Schema.Core;
 
-namespace SJP.Schema.Core
+namespace SJP.Schema.Modelled.Reflection.Model
 {
-    public interface ISqlExpression
+    public interface IModelledSqlExpression
     {
         string ToSql(IDatabaseDialect dialect);
 

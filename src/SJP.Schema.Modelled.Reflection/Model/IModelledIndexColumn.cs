@@ -6,6 +6,6 @@ namespace SJP.Schema.Modelled.Reflection.Model
     {
         IndexColumnOrder Order { get; }
 
-        ISqlExpression Expression { get; }
+        IModelledSqlExpression Expression { get; }
     }
 }
