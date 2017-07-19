@@ -51,3 +51,6 @@
 
   In short, allow querying of information case-sensitively, but do not allow for the
   creation of a database where case-insensitiviy would break it.
+  
+* Minor optimisation, but preallocate lists and dictionaries where possible if we know
+  their sizes.
