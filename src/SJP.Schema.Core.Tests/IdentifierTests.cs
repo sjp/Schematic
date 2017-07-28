@@ -9,9 +9,12 @@ namespace SJP.Schema.Core.Tests
         [Test]
         public void Ctor_GivenNullOrWhiteSpaceLocalName_ThrowsArgumentNullException()
         {
-            Assert.Throws<ArgumentNullException>(() => new Identifier(null));
-            Assert.Throws<ArgumentNullException>(() => new Identifier(string.Empty));
-            Assert.Throws<ArgumentNullException>(() => new Identifier("   "));
+            Assert.Multiple(() =>
+            {
+                Assert.Throws<ArgumentNullException>(() => new Identifier(null));
+                Assert.Throws<ArgumentNullException>(() => new Identifier(string.Empty));
+                Assert.Throws<ArgumentNullException>(() => new Identifier("   "));
+            });
         }
 
         [Test]
@@ -25,13 +28,16 @@ namespace SJP.Schema.Core.Tests
         [Test]
         public void Ctor_GivenNullWhiteSpaceSchemaAndLocalNames_ThrowsArgumentNullException()
         {
-            Assert.Throws<ArgumentNullException>(() => new Identifier("a", null));
-            Assert.Throws<ArgumentNullException>(() => new Identifier("a", string.Empty));
-            Assert.Throws<ArgumentNullException>(() => new Identifier("a", "   "));
+            Assert.Multiple(() =>
+            {
+                Assert.Throws<ArgumentNullException>(() => new Identifier("a", null));
+                Assert.Throws<ArgumentNullException>(() => new Identifier("a", string.Empty));
+                Assert.Throws<ArgumentNullException>(() => new Identifier("a", "   "));
 
-            Assert.Throws<ArgumentNullException>(() => new Identifier(null, "a"));
-            Assert.Throws<ArgumentNullException>(() => new Identifier(string.Empty, "a"));
-            Assert.Throws<ArgumentNullException>(() => new Identifier("   ", "a"));
+                Assert.Throws<ArgumentNullException>(() => new Identifier(null, "a"));
+                Assert.Throws<ArgumentNullException>(() => new Identifier(string.Empty, "a"));
+                Assert.Throws<ArgumentNullException>(() => new Identifier("   ", "a"));
+            });
         }
 
         [Test]
@@ -40,24 +46,31 @@ namespace SJP.Schema.Core.Tests
             var localName = "abc";
             var schema = "def";
             var identifier = new Identifier(schema, localName);
-            Assert.AreEqual(identifier.LocalName, localName);
-            Assert.AreEqual(identifier.Schema, schema);
+
+            Assert.Multiple(() =>
+            {
+                Assert.AreEqual(identifier.LocalName, localName);
+                Assert.AreEqual(identifier.Schema, schema);
+            });
         }
 
         [Test]
         public void Ctor_GivenNullWhiteSpaceDatabaseAndSchemaAndLocalNames_ThrowsArgumentNullException()
         {
-            Assert.Throws<ArgumentNullException>(() => new Identifier("a", "a", null));
-            Assert.Throws<ArgumentNullException>(() => new Identifier("a", "a", string.Empty));
-            Assert.Throws<ArgumentNullException>(() => new Identifier("a", "a", "   "));
+            Assert.Multiple(() =>
+            {
+                Assert.Throws<ArgumentNullException>(() => new Identifier("a", "a", null));
+                Assert.Throws<ArgumentNullException>(() => new Identifier("a", "a", string.Empty));
+                Assert.Throws<ArgumentNullException>(() => new Identifier("a", "a", "   "));
 
-            Assert.Throws<ArgumentNullException>(() => new Identifier("a", null, "a"));
-            Assert.Throws<ArgumentNullException>(() => new Identifier("a", string.Empty, "a"));
-            Assert.Throws<ArgumentNullException>(() => new Identifier("a", "   ", "a"));
+                Assert.Throws<ArgumentNullException>(() => new Identifier("a", null, "a"));
+                Assert.Throws<ArgumentNullException>(() => new Identifier("a", string.Empty, "a"));
+                Assert.Throws<ArgumentNullException>(() => new Identifier("a", "   ", "a"));
 
-            Assert.Throws<ArgumentNullException>(() => new Identifier(null, "a", "a"));
-            Assert.Throws<ArgumentNullException>(() => new Identifier(string.Empty, "a", "a"));
-            Assert.Throws<ArgumentNullException>(() => new Identifier("   ", "a", "a"));
+                Assert.Throws<ArgumentNullException>(() => new Identifier(null, "a", "a"));
+                Assert.Throws<ArgumentNullException>(() => new Identifier(string.Empty, "a", "a"));
+                Assert.Throws<ArgumentNullException>(() => new Identifier("   ", "a", "a"));
+            });
         }
 
         [Test]
@@ -67,29 +80,36 @@ namespace SJP.Schema.Core.Tests
             var schema = "def";
             var database = "ghi";
             var identifier = new Identifier(database, schema, localName);
-            Assert.AreEqual(identifier.LocalName, localName);
-            Assert.AreEqual(identifier.Schema, schema);
-            Assert.AreEqual(identifier.Database, database);
+
+            Assert.Multiple(() =>
+            {
+                Assert.AreEqual(identifier.LocalName, localName);
+                Assert.AreEqual(identifier.Schema, schema);
+                Assert.AreEqual(identifier.Database, database);
+            });
         }
 
         [Test]
         public void Ctor_GivenNullWhiteSpaceServerAndDatabaseAndSchemaAndLocalNames_ThrowsArgumentNullException()
         {
-            Assert.Throws<ArgumentNullException>(() => new Identifier("a", "a", "a", null));
-            Assert.Throws<ArgumentNullException>(() => new Identifier("a", "a", "a", string.Empty));
-            Assert.Throws<ArgumentNullException>(() => new Identifier("a", "a", "a", "   "));
+            Assert.Multiple(() =>
+            {
+                Assert.Throws<ArgumentNullException>(() => new Identifier("a", "a", "a", null));
+                Assert.Throws<ArgumentNullException>(() => new Identifier("a", "a", "a", string.Empty));
+                Assert.Throws<ArgumentNullException>(() => new Identifier("a", "a", "a", "   "));
 
-            Assert.Throws<ArgumentNullException>(() => new Identifier("a", "a", null, "a"));
-            Assert.Throws<ArgumentNullException>(() => new Identifier("a", "a", string.Empty, "a"));
-            Assert.Throws<ArgumentNullException>(() => new Identifier("a", "a", "   ", "a"));
+                Assert.Throws<ArgumentNullException>(() => new Identifier("a", "a", null, "a"));
+                Assert.Throws<ArgumentNullException>(() => new Identifier("a", "a", string.Empty, "a"));
+                Assert.Throws<ArgumentNullException>(() => new Identifier("a", "a", "   ", "a"));
 
-            Assert.Throws<ArgumentNullException>(() => new Identifier("a", null, "a", "a"));
-            Assert.Throws<ArgumentNullException>(() => new Identifier("a", string.Empty, "a", "a"));
-            Assert.Throws<ArgumentNullException>(() => new Identifier("a", "   ", "a", "a"));
+                Assert.Throws<ArgumentNullException>(() => new Identifier("a", null, "a", "a"));
+                Assert.Throws<ArgumentNullException>(() => new Identifier("a", string.Empty, "a", "a"));
+                Assert.Throws<ArgumentNullException>(() => new Identifier("a", "   ", "a", "a"));
 
-            Assert.Throws<ArgumentNullException>(() => new Identifier(null, "a", "a", "a"));
-            Assert.Throws<ArgumentNullException>(() => new Identifier(string.Empty, "a", "a", "a"));
-            Assert.Throws<ArgumentNullException>(() => new Identifier("   ", "a", "a", "a"));
+                Assert.Throws<ArgumentNullException>(() => new Identifier(null, "a", "a", "a"));
+                Assert.Throws<ArgumentNullException>(() => new Identifier(string.Empty, "a", "a", "a"));
+                Assert.Throws<ArgumentNullException>(() => new Identifier("   ", "a", "a", "a"));
+            });
         }
 
         [Test]
@@ -100,18 +120,25 @@ namespace SJP.Schema.Core.Tests
             var database = "ghi";
             var server = "jkl";
             var identifier = new Identifier(server, database, schema, localName);
-            Assert.AreEqual(identifier.LocalName, localName);
-            Assert.AreEqual(identifier.Schema, schema);
-            Assert.AreEqual(identifier.Database, database);
-            Assert.AreEqual(identifier.Server, server);
+
+            Assert.Multiple(() =>
+            {
+                Assert.AreEqual(identifier.LocalName, localName);
+                Assert.AreEqual(identifier.Schema, schema);
+                Assert.AreEqual(identifier.Database, database);
+                Assert.AreEqual(identifier.Server, server);
+            });
         }
 
         [Test]
         public void LocalIdentifierCtor_GivenNullWhiteSpaceLocalName_ThrowsArgumentNullException()
         {
-            Assert.Throws<ArgumentNullException>(() => new LocalIdentifier(null));
-            Assert.Throws<ArgumentNullException>(() => new LocalIdentifier(string.Empty));
-            Assert.Throws<ArgumentNullException>(() => new LocalIdentifier("   "));
+            Assert.Multiple(() =>
+            {
+                Assert.Throws<ArgumentNullException>(() => new LocalIdentifier(null));
+                Assert.Throws<ArgumentNullException>(() => new LocalIdentifier(string.Empty));
+                Assert.Throws<ArgumentNullException>(() => new LocalIdentifier("   "));
+            });
         }
 
         [Test]
@@ -161,8 +188,11 @@ namespace SJP.Schema.Core.Tests
             object identifier = new Identifier(name, name);
             object otherIdentifier = new Identifier(name, name);
 
-            Assert.AreEqual(identifier, identifier);
-            Assert.AreEqual(identifier, otherIdentifier);
+            Assert.Multiple(() =>
+            {
+                Assert.AreEqual(identifier, identifier);
+                Assert.AreEqual(identifier, otherIdentifier);
+            });
         }
 
         [Test]
@@ -173,20 +203,27 @@ namespace SJP.Schema.Core.Tests
             object identifier = new Identifier(name, name);
             object otherIdentifier = new Identifier(otherName, name);
 
-            Assert.AreNotEqual(identifier, null);
-            Assert.AreNotEqual(null, identifier);
-            Assert.AreNotEqual(identifier, 1);
-            Assert.AreNotEqual(identifier, otherIdentifier);
+            Assert.Multiple(() =>
+            {
+                Assert.AreNotEqual(identifier, null);
+                Assert.AreNotEqual(null, identifier);
+                Assert.AreNotEqual(identifier, 1);
+                Assert.AreNotEqual(identifier, otherIdentifier);
+            });
         }
 
         [Test]
         public void Identifier_WhenOnlyLocalNameProvided_OnlyHasLocalNamePropertySet()
         {
             var identifier = new LocalIdentifier("abc");
-            Assert.IsNull(identifier.Server);
-            Assert.IsNull(identifier.Database);
-            Assert.IsNull(identifier.Schema);
-            Assert.NotNull(identifier.LocalName);
+
+            Assert.Multiple(() =>
+            {
+                Assert.IsNull(identifier.Server);
+                Assert.IsNull(identifier.Database);
+                Assert.IsNull(identifier.Schema);
+                Assert.NotNull(identifier.LocalName);
+            });
         }
 
         [Test]
@@ -211,8 +248,12 @@ namespace SJP.Schema.Core.Tests
             var name = "abc";
             var identifier = new LocalIdentifier(name);
             var otherIdentifier = new LocalIdentifier(name);
-            Assert.AreEqual(identifier, identifier);
-            Assert.AreEqual(identifier, otherIdentifier);
+
+            Assert.Multiple(() =>
+            {
+                Assert.AreEqual(identifier, identifier);
+                Assert.AreEqual(identifier, otherIdentifier);
+            });
         }
 
         [Test]
@@ -220,9 +261,13 @@ namespace SJP.Schema.Core.Tests
         {
             var identifier = new LocalIdentifier("abc");
             var otherIdentifier = new LocalIdentifier("def");
-            Assert.AreNotEqual(null, identifier);
-            Assert.AreNotEqual(identifier, null);
-            Assert.AreNotEqual(identifier, otherIdentifier);
+
+            Assert.Multiple(() =>
+            {
+                Assert.AreNotEqual(null, identifier);
+                Assert.AreNotEqual(identifier, null);
+                Assert.AreNotEqual(identifier, otherIdentifier);
+            });
         }
 
         [Test]
@@ -245,19 +290,26 @@ namespace SJP.Schema.Core.Tests
         [Test]
         public void SchemaIdentifierCtor_GivenNullWhiteSpaceLocalName_ThrowsArgumentNullException()
         {
-            Assert.Throws<ArgumentNullException>(() => new SchemaIdentifier(null));
-            Assert.Throws<ArgumentNullException>(() => new SchemaIdentifier(string.Empty));
-            Assert.Throws<ArgumentNullException>(() => new SchemaIdentifier("   "));
+            Assert.Multiple(() =>
+            {
+                Assert.Throws<ArgumentNullException>(() => new SchemaIdentifier(null));
+                Assert.Throws<ArgumentNullException>(() => new SchemaIdentifier(string.Empty));
+                Assert.Throws<ArgumentNullException>(() => new SchemaIdentifier("   "));
+            });
         }
 
         [Test]
         public void Identifier_WhenOnlySchemaProvided_OnlyHasSchemaPropertySet()
         {
             var identifier = new SchemaIdentifier("abc");
-            Assert.IsNull(identifier.Server);
-            Assert.IsNull(identifier.Database);
-            Assert.NotNull(identifier.Schema);
-            Assert.IsNull(identifier.LocalName);
+
+            Assert.Multiple(() =>
+            {
+                Assert.IsNull(identifier.Server);
+                Assert.IsNull(identifier.Database);
+                Assert.NotNull(identifier.Schema);
+                Assert.IsNull(identifier.LocalName);
+            });
         }
 
         [Test]
@@ -282,8 +334,12 @@ namespace SJP.Schema.Core.Tests
             var name = "abc";
             var identifier = new SchemaIdentifier(name);
             var otherIdentifier = new SchemaIdentifier(name);
-            Assert.AreEqual(identifier, identifier);
-            Assert.AreEqual(identifier, otherIdentifier);
+
+            Assert.Multiple(() =>
+            {
+                Assert.AreEqual(identifier, identifier);
+                Assert.AreEqual(identifier, otherIdentifier);
+            });
         }
 
         [Test]
@@ -291,9 +347,13 @@ namespace SJP.Schema.Core.Tests
         {
             var identifier = new SchemaIdentifier("abc");
             var otherIdentifier = new SchemaIdentifier("def");
-            Assert.AreNotEqual(null, identifier);
-            Assert.AreNotEqual(identifier, null);
-            Assert.AreNotEqual(identifier, otherIdentifier);
+
+            Assert.Multiple(() =>
+            {
+                Assert.AreNotEqual(null, identifier);
+                Assert.AreNotEqual(identifier, null);
+                Assert.AreNotEqual(identifier, otherIdentifier);
+            });
         }
 
         [Test]
@@ -316,19 +376,26 @@ namespace SJP.Schema.Core.Tests
         [Test]
         public void DatabaseIdentifierCtor_GivenNullWhiteSpaceLocalName_ThrowsArgumentNullException()
         {
-            Assert.Throws<ArgumentNullException>(() => new DatabaseIdentifier(null));
-            Assert.Throws<ArgumentNullException>(() => new DatabaseIdentifier(string.Empty));
-            Assert.Throws<ArgumentNullException>(() => new DatabaseIdentifier("   "));
+            Assert.Multiple(() =>
+            {
+                Assert.Throws<ArgumentNullException>(() => new DatabaseIdentifier(null));
+                Assert.Throws<ArgumentNullException>(() => new DatabaseIdentifier(string.Empty));
+                Assert.Throws<ArgumentNullException>(() => new DatabaseIdentifier("   "));
+            });
         }
 
         [Test]
         public void Identifier_WhenOnlyDatabaseProvided_OnlyHasDatabasePropertySet()
         {
             var identifier = new DatabaseIdentifier("abc");
-            Assert.IsNull(identifier.Server);
-            Assert.NotNull(identifier.Database);
-            Assert.IsNull(identifier.Schema);
-            Assert.IsNull(identifier.LocalName);
+
+            Assert.Multiple(() =>
+            {
+                Assert.IsNull(identifier.Server);
+                Assert.NotNull(identifier.Database);
+                Assert.IsNull(identifier.Schema);
+                Assert.IsNull(identifier.LocalName);
+            });
         }
 
         [Test]
@@ -353,8 +420,12 @@ namespace SJP.Schema.Core.Tests
             var name = "abc";
             var identifier = new DatabaseIdentifier(name);
             var otherIdentifier = new DatabaseIdentifier(name);
-            Assert.AreEqual(identifier, identifier);
-            Assert.AreEqual(identifier, otherIdentifier);
+
+            Assert.Multiple(() =>
+            {
+                Assert.AreEqual(identifier, identifier);
+                Assert.AreEqual(identifier, otherIdentifier);
+            });
         }
 
         [Test]
@@ -362,9 +433,13 @@ namespace SJP.Schema.Core.Tests
         {
             var identifier = new DatabaseIdentifier("abc");
             var otherIdentifier = new DatabaseIdentifier("def");
-            Assert.AreNotEqual(null, identifier);
-            Assert.AreNotEqual(identifier, null);
-            Assert.AreNotEqual(identifier, otherIdentifier);
+
+            Assert.Multiple(() =>
+            {
+                Assert.AreNotEqual(null, identifier);
+                Assert.AreNotEqual(identifier, null);
+                Assert.AreNotEqual(identifier, otherIdentifier);
+            });
         }
 
         [Test]
@@ -387,19 +462,26 @@ namespace SJP.Schema.Core.Tests
         [Test]
         public void ServerIdentifierCtor_GivenNullWhiteSpaceLocalName_ThrowsArgumentNullException()
         {
-            Assert.Throws<ArgumentNullException>(() => new ServerIdentifier(null));
-            Assert.Throws<ArgumentNullException>(() => new ServerIdentifier(string.Empty));
-            Assert.Throws<ArgumentNullException>(() => new ServerIdentifier("   "));
+            Assert.Multiple(() =>
+            {
+                Assert.Throws<ArgumentNullException>(() => new ServerIdentifier(null));
+                Assert.Throws<ArgumentNullException>(() => new ServerIdentifier(string.Empty));
+                Assert.Throws<ArgumentNullException>(() => new ServerIdentifier("   "));
+            });
         }
 
         [Test]
         public void Identifier_WhenOnlyServerProvided_OnlyHasServerPropertySet()
         {
             var identifier = new ServerIdentifier("abc");
-            Assert.NotNull(identifier.Server);
-            Assert.IsNull(identifier.Database);
-            Assert.IsNull(identifier.Schema);
-            Assert.IsNull(identifier.LocalName);
+
+            Assert.Multiple(() =>
+            {
+                Assert.NotNull(identifier.Server);
+                Assert.IsNull(identifier.Database);
+                Assert.IsNull(identifier.Schema);
+                Assert.IsNull(identifier.LocalName);
+            });
         }
 
         [Test]
@@ -424,8 +506,12 @@ namespace SJP.Schema.Core.Tests
             var name = "abc";
             var identifier = new ServerIdentifier(name);
             var otherIdentifier = new ServerIdentifier(name);
-            Assert.AreEqual(identifier, identifier);
-            Assert.AreEqual(identifier, otherIdentifier);
+
+            Assert.Multiple(() =>
+            {
+                Assert.AreEqual(identifier, identifier);
+                Assert.AreEqual(identifier, otherIdentifier);
+            });
         }
 
         [Test]
@@ -433,9 +519,13 @@ namespace SJP.Schema.Core.Tests
         {
             var identifier = new ServerIdentifier("abc");
             var otherIdentifier = new ServerIdentifier("def");
-            Assert.AreNotEqual(null, identifier);
-            Assert.AreNotEqual(identifier, null);
-            Assert.AreNotEqual(identifier, otherIdentifier);
+
+            Assert.Multiple(() =>
+            {
+                Assert.AreNotEqual(null, identifier);
+                Assert.AreNotEqual(identifier, null);
+                Assert.AreNotEqual(identifier, otherIdentifier);
+            });
         }
 
         [Test]

@@ -12,8 +12,11 @@ namespace SJP.Schema.Modelled.Tests
         [Test]
         public void Ctor_GivenNullArguments_ThrowsArgumentNullException()
         {
-            Assert.Throws<ArgumentNullException>(() => new RelationalDatabaseBuilder((IDependentRelationalDatabase)null));
-            Assert.Throws<ArgumentNullException>(() => new RelationalDatabaseBuilder((Func<IDependentRelationalDatabase>)null));
+            Assert.Multiple(() =>
+            {
+                Assert.Throws<ArgumentNullException>(() => new RelationalDatabaseBuilder((IDependentRelationalDatabase)null));
+                Assert.Throws<ArgumentNullException>(() => new RelationalDatabaseBuilder((Func<IDependentRelationalDatabase>)null));
+            });
         }
     }
 }

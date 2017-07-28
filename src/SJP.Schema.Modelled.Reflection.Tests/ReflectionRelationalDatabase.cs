@@ -23,8 +23,12 @@ namespace SJP.Schema.Modelled.Reflection.Tests
         {
             var dialect = new FakeDialect();
             var dbType = typeof(SampleDatabase);
-            Assert.Throws<ArgumentNullException>(() => new ReflectionRelationalDatabase(null, dbType));
-            Assert.Throws<ArgumentNullException>(() => new ReflectionRelationalDatabase(dialect, null));
+
+            Assert.Multiple(() =>
+            {
+                Assert.Throws<ArgumentNullException>(() => new ReflectionRelationalDatabase(null, dbType));
+                Assert.Throws<ArgumentNullException>(() => new ReflectionRelationalDatabase(dialect, null));
+            });
         }
 
         [Test]

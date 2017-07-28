@@ -28,8 +28,11 @@ namespace SJP.Schema.Core.Tests
             var identifier = new Identifier(name);
             var otherIdentifier = new Identifier(name);
 
-            Assert.IsTrue(comparer.Equals(null, null));
-            Assert.IsTrue(comparer.Equals(identifier, otherIdentifier));
+            Assert.Multiple(() =>
+            {
+                Assert.IsTrue(comparer.Equals(null, null));
+                Assert.IsTrue(comparer.Equals(identifier, otherIdentifier));
+            });
         }
 
         [Test]
@@ -42,9 +45,12 @@ namespace SJP.Schema.Core.Tests
             var identifier = new Identifier(name);
             var otherIdentifier = new Identifier(otherName);
 
-            Assert.IsFalse(comparer.Equals(identifier, null));
-            Assert.IsFalse(comparer.Equals(null, identifier));
-            Assert.IsFalse(comparer.Equals(identifier, otherIdentifier));
+            Assert.Multiple(() =>
+            {
+                Assert.IsFalse(comparer.Equals(identifier, null));
+                Assert.IsFalse(comparer.Equals(null, identifier));
+                Assert.IsFalse(comparer.Equals(identifier, otherIdentifier));
+            });
         }
 
         [Test]
