@@ -12,7 +12,7 @@
     <Product />
     <Description>Describe and model databases using code-first declarations in .NET</Description>
     <Copyright>Copyright © Simon Potter 2017</Copyright>
-    <PackageLicenseUrl>https://raw.github.com/sjp/SJP.Schema/master/LICENSE.md</PackageLicenseUrl>
+    <PackageLicenseUrl>https://raw.github.com/sjp/SJP.Schema/master/LICENSE</PackageLicenseUrl>
     <PackageProjectUrl>https://github.com/sjp/SJP.Schema</PackageProjectUrl>
     <RepositoryUrl>https://github.com/sjp/SJP.Schema</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
