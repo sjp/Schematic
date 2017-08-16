@@ -52,20 +52,28 @@ namespace SJP.Schema.Modelled.Reflection.Model
 
                 var sourceAsmDefinition = AssemblyCache[sourceAsm];
                 var sourceTypeDefinition = sourceAsmDefinition.MainModule.GetType(sourceType.FullName);
-                var sourceProperty = sourceTypeDefinition.Properties.Single(p => p.Name == Property.Name);
+                var sourceProperty = sourceTypeDefinition.Properties.SingleOrDefault(p => p.Name == Property.Name && !p.HasParameters);
+                if (sourceProperty == null)
+                    throw new ArgumentException(
+                        $"Could not find the source property { Property.DeclaringType.FullName }.{ Property.Name }. Check that assemblies are up to date.",
+                        $"{ Property.DeclaringType.FullName }.{ Property.Name }."
+                    );
+
                 var sourcePropInstructions = sourceProperty.GetMethod.Body.Instructions;
                 var fnInstruction = sourcePropInstructions.FirstOrDefault(i => i.OpCode.Code == Code.Ldftn);
                 if (fnInstruction == null)
                     throw new ArgumentException(
                         "Could not find function pointer instruction in the get method of the source property " +
                         $"{ Property.DeclaringType.FullName }.{ Property.Name }. " +
-                        "Is the key selector method a simple lambda expression?"
+                        "Is the key selector method a simple lambda expression?",
+                        $"{ Property.DeclaringType.FullName }.{ Property.Name }."
                     );
 
                 var fnOperand = fnInstruction.Operand as MethodDefinition;
                 if (fnOperand == null)
                     throw new ArgumentException(
                         "Expected to find a method definition associated with a function pointer instruction but could not find one for " +
+                        $"{ Property.DeclaringType.FullName }.{ Property.Name }.",
                         $"{ Property.DeclaringType.FullName }.{ Property.Name }."
                     );
 
@@ -75,7 +83,8 @@ namespace SJP.Schema.Modelled.Reflection.Model
                     throw new ArgumentException(
                         "Could not find call or virtual call instruction in the key selector function that was provided to " +
                         $"{ Property.DeclaringType.FullName }.{ Property.Name }. " +
-                        "Is the key selector method a simple lambda expression?"
+                        "Is the key selector method a simple lambda expression?",
+                        $"{ Property.DeclaringType.FullName }.{ Property.Name }."
                     );
 
                 var bodyMethodDef = bodyCallInstr.Operand as MethodDefinition;
@@ -83,9 +92,12 @@ namespace SJP.Schema.Modelled.Reflection.Model
                     throw new ArgumentException("Expected to find a method definition associated with the call or virtual call instruction but could not find one in the key selector.");
 
                 var targetPropertyName = bodyMethodDef.Name;
-                var targetProp = TargetType.GetTypeInfo().GetProperties().SingleOrDefault(p => p.GetGetMethod().Name == targetPropertyName);
+                var targetProp = TargetType.GetTypeInfo().GetProperties().SingleOrDefault(p => p.GetGetMethod().Name == targetPropertyName && p.GetIndexParameters().Length == 0);
                 if (targetProp == null)
-                    throw new ArgumentException($"Expected to find a property named { targetPropertyName } in { TargetType.FullName } but could not find one.");
+                    throw new ArgumentException(
+                        $"Expected to find a property named { targetPropertyName } in { TargetType.FullName } but could not find one."
+                        $"{ Property.DeclaringType.FullName }.{ Property.Name }."
+                    );
 
                 return targetProp;
             }
