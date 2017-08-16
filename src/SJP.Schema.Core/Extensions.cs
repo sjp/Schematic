@@ -171,5 +171,77 @@ namespace SJP.Schema.Core
 
             return input.IndexOf(value, comparisonType) >= 0;
         }
+
+        public static string TrimStart(this string input, string trimText)
+        {
+            if (input.IsNullOrEmpty())
+                throw new ArgumentNullException(nameof(input));
+            if (trimText.IsNullOrEmpty())
+                throw new ArgumentNullException(nameof(trimText));
+
+            return input.StartsWith(trimText)
+                ? input.Substring(trimText.Length)
+                : input;
+        }
+
+        public static string TrimStart(this string input, string trimText, StringComparison comparison)
+        {
+            if (input.IsNullOrEmpty())
+                throw new ArgumentNullException(nameof(input));
+            if (trimText.IsNullOrEmpty())
+                throw new ArgumentNullException(nameof(trimText));
+
+            return input.StartsWith(trimText, comparison)
+                ? input.Substring(trimText.Length)
+                : input;
+        }
+
+        public static string TrimStart(this string input, string trimText, bool ignoreCase, CultureInfo culture)
+        {
+            if (input.IsNullOrEmpty())
+                throw new ArgumentNullException(nameof(input));
+            if (trimText.IsNullOrEmpty())
+                throw new ArgumentNullException(nameof(trimText));
+
+            return input.StartsWith(trimText, ignoreCase, culture)
+                ? input.Substring(trimText.Length)
+                : input;
+        }
+
+        public static string TrimEnd(this string input, string trimText)
+        {
+            if (input.IsNullOrEmpty())
+                throw new ArgumentNullException(nameof(input));
+            if (trimText.IsNullOrEmpty())
+                throw new ArgumentNullException(nameof(trimText));
+
+            return input.EndsWith(trimText)
+                ? input.Substring(0, input.Length - trimText.Length)
+                : input;
+        }
+
+        public static string TrimEnd(this string input, string trimText, StringComparison comparison)
+        {
+            if (input.IsNullOrEmpty())
+                throw new ArgumentNullException(nameof(input));
+            if (trimText.IsNullOrEmpty())
+                throw new ArgumentNullException(nameof(trimText));
+
+            return input.EndsWith(trimText, comparison)
+                ? input.Substring(0, input.Length - trimText.Length)
+                : input;
+        }
+
+        public static string TrimEnd(this string input, string trimText, bool ignoreCase, CultureInfo culture)
+        {
+            if (input.IsNullOrEmpty())
+                throw new ArgumentNullException(nameof(input));
+            if (trimText.IsNullOrEmpty())
+                throw new ArgumentNullException(nameof(trimText));
+
+            return input.EndsWith(trimText, ignoreCase, culture)
+                ? input.Substring(0, input.Length - trimText.Length)
+                : input;
+        }
     }
 }
