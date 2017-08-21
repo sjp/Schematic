@@ -95,7 +95,7 @@ namespace SJP.Schema.Modelled.Reflection.Model
                 var targetProp = TargetType.GetTypeInfo().GetProperties().SingleOrDefault(p => p.GetGetMethod().Name == targetPropertyName && p.GetIndexParameters().Length == 0);
                 if (targetProp == null)
                     throw new ArgumentException(
-                        $"Expected to find a property named { targetPropertyName } in { TargetType.FullName } but could not find one."
+                        $"Expected to find a property named { targetPropertyName } in { TargetType.FullName } but could not find one.",
                         $"{ Property.DeclaringType.FullName }.{ Property.Name }."
                     );
 
