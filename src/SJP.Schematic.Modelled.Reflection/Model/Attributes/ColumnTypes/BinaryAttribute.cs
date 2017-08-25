@@ -5,6 +5,7 @@ namespace SJP.Schematic.Modelled.Reflection.Model
 {
     public static partial class ColumnType
     {
+        [AttributeUsage(AttributeTargets.Struct, AllowMultiple = true, Inherited = true)]
         public sealed class BinaryAttribute : DeclaredTypeAttribute
         {
             public BinaryAttribute(int length, bool isFixedLength = false)

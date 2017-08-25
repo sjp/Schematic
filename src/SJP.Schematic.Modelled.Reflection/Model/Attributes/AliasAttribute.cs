@@ -3,6 +3,7 @@ using SJP.Schematic.Core;
 
 namespace SJP.Schematic.Modelled.Reflection.Model
 {
+    [AttributeUsage(AttributeTargets.Class | AttributeTargets.Struct | AttributeTargets.Property, AllowMultiple = true, Inherited = true)]
     public sealed class AliasAttribute : ModelledSchemaAttribute
     {
         public AliasAttribute(string name)
@@ -25,5 +26,4 @@ namespace SJP.Schematic.Modelled.Reflection.Model
 
         public string Alias { get; }
     }
-
 }

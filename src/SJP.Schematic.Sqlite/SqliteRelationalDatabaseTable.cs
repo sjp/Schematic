@@ -69,7 +69,7 @@ namespace SJP.Schematic.Sqlite
         protected virtual async Task<IDatabaseKey> LoadPrimaryKeyAsync()
         {
             var sql = $"pragma table_info({ Database.Dialect.QuoteName(Name.LocalName) })";
-            var tableInfos = await Connection.QueryAsync<TableInfo>(sql);
+            var tableInfos = await Connection.QueryAsync<TableInfo>(sql).ConfigureAwait(false);
             if (tableInfos.Empty())
                 return null;
 
@@ -80,10 +80,10 @@ namespace SJP.Schematic.Sqlite
             if (pkColumns.Count == 0)
                 return null;
 
-            var tableColumn = await ColumnAsync();
+            var tableColumn = await ColumnAsync().ConfigureAwait(false);
             var columns = pkColumns.Select(c => tableColumn[c.name]).ToList();
 
-            var parser = await ParsedDefinitionAsync();
+            var parser = await ParsedDefinitionAsync().ConfigureAwait(false);
             var pkConstraint = parser.Columns
                 .SelectMany(col => col.Constraints)
                 .Concat(parser.Constraints)
@@ -117,7 +117,7 @@ namespace SJP.Schematic.Sqlite
         {
             var result = new Dictionary<Identifier, IDatabaseTableIndex>(Comparer);
 
-            var indexes = await IndexesAsync();
+            var indexes = await IndexesAsync().ConfigureAwait(false);
             var namedIndexes = indexes.Where(i => i.Name != null);
 
             foreach (var index in namedIndexes)
@@ -165,7 +165,7 @@ namespace SJP.Schematic.Sqlite
         protected virtual async Task<IEnumerable<IDatabaseTableIndex>> LoadIndexesAsync()
         {
             var listSql = $"pragma index_list({ Database.Dialect.QuoteName(Name.LocalName) })";
-            var indexLists = await Connection.QueryAsync<IndexList>(listSql);
+            var indexLists = await Connection.QueryAsync<IndexList>(listSql).ConfigureAwait(false);
             if (indexLists.Empty())
                 return Enumerable.Empty<IDatabaseTableIndex>();
 
@@ -178,7 +178,7 @@ namespace SJP.Schematic.Sqlite
             foreach (var indexList in nonConstraintIndexLists)
             {
                 var infoSql = $"pragma index_xinfo({ Database.Dialect.QuoteName(indexList.name) })";
-                var indexInfo = await Connection.QueryAsync<IndexXInfo>(infoSql);
+                var indexInfo = await Connection.QueryAsync<IndexXInfo>(infoSql).ConfigureAwait(false);
                 var indexColumns = indexInfo
                     .Where(i => i.key)
                     .OrderBy(i => i.cid)
@@ -221,7 +221,7 @@ namespace SJP.Schematic.Sqlite
         {
             var result = new Dictionary<Identifier, IDatabaseKey>(Comparer);
 
-            var uniqueKeys = await UniqueKeysAsync();
+            var uniqueKeys = await UniqueKeysAsync().ConfigureAwait(false);
             var namedUniqueKeys = uniqueKeys.Where(uk => uk.Name != null);
 
             foreach (var uk in namedUniqueKeys)
@@ -276,7 +276,7 @@ namespace SJP.Schematic.Sqlite
         protected virtual async Task<IEnumerable<IDatabaseKey>> LoadUniqueKeysAsync()
         {
             var sql = $"pragma index_list({ Database.Dialect.QuoteName(Name.LocalName) })";
-            var indexLists = await Connection.QueryAsync<IndexList>(sql);
+            var indexLists = await Connection.QueryAsync<IndexList>(sql).ConfigureAwait(false);
             if (indexLists.Empty())
                 return Enumerable.Empty<IDatabaseKey>();
 
@@ -288,17 +288,17 @@ namespace SJP.Schematic.Sqlite
 
             var result = new List<IDatabaseKey>();
 
-            var parser = await ParsedDefinitionAsync();
+            var parser = await ParsedDefinitionAsync().ConfigureAwait(false);
             var parsedUniqueConstraints = parser.Columns
                 .SelectMany(col => col.Constraints)
                 .Concat(parser.Constraints)
                 .Where(c => c.Type == SqliteTableParser.ConstraintType.Unique);
 
-            var tableColumn = await ColumnAsync();
+            var tableColumn = await ColumnAsync().ConfigureAwait(false);
             foreach (var ukIndexList in ukIndexLists)
             {
                 var indexSql = $"pragma index_xinfo({ Database.Dialect.QuoteName(ukIndexList.name) })";
-                var indexXInfos = await Connection.QueryAsync<IndexXInfo>(indexSql);
+                var indexXInfos = await Connection.QueryAsync<IndexXInfo>(indexSql).ConfigureAwait(false);
                 var orderedColumns = indexXInfos
                     .Where(i => i.cid > 0 && i.key)
                     .OrderBy(i => i.seqno);
@@ -371,7 +371,7 @@ namespace SJP.Schematic.Sqlite
         {
             var result = new Dictionary<Identifier, IDatabaseCheckConstraint>(Comparer);
 
-            var checks = await CheckConstraintsAsync();
+            var checks = await CheckConstraintsAsync().ConfigureAwait(false);
             var namedChecks = checks.Where(c => c.Name != null);
 
             foreach (var check in namedChecks)
@@ -403,7 +403,7 @@ namespace SJP.Schematic.Sqlite
         {
             var result = new List<IDatabaseCheckConstraint>();
 
-            var parser = await ParsedDefinitionAsync();
+            var parser = await ParsedDefinitionAsync().ConfigureAwait(false);
             var checkConstraints = parser
                 .Columns.SelectMany(col => col.Constraints)
                 .Concat(parser.Constraints);
@@ -441,7 +441,7 @@ namespace SJP.Schematic.Sqlite
         {
             var result = new Dictionary<Identifier, IDatabaseRelationalKey>(Comparer);
 
-            var parentKeys = await ParentKeysAsync();
+            var parentKeys = await ParentKeysAsync().ConfigureAwait(false);
             var namedParentKeys = parentKeys.Where(fk => fk.ChildKey.Name != null);
 
             foreach (var parentKey in namedParentKeys)
@@ -522,12 +522,12 @@ namespace SJP.Schematic.Sqlite
         protected virtual async Task<IEnumerable<IDatabaseRelationalKey>> LoadParentKeysAsync()
         {
             const string sql = "pragma foreign_key_list(@TableName)";
-            var queryResult = await Connection.QueryAsync<ForeignKeyList>(sql, new { TableName = Name.LocalName });
+            var queryResult = await Connection.QueryAsync<ForeignKeyList>(sql, new { TableName = Name.LocalName }).ConfigureAwait(false);
             if (queryResult.Empty())
                 return Enumerable.Empty<IDatabaseRelationalKey>();
 
             var foreignKeys = queryResult.GroupBy(row => new { ForeignKeyId = row.id, ParentTableName = row.table, OnDelete = row.on_delete, OnUpdate = row.on_update });
-            var parser = await ParsedDefinitionAsync();
+            var parser = await ParsedDefinitionAsync().ConfigureAwait(false);
             var fkConstraints = parser.Columns
                 .SelectMany(col => col.Constraints)
                 .Concat(parser.Constraints)
@@ -540,12 +540,12 @@ namespace SJP.Schematic.Sqlite
                 var rows = fkey.OrderBy(row => row.seq);
 
                 var parentTableName = new Identifier(fkey.Key.ParentTableName);
-                var parentTable = await Database.GetTableAsync(parentTableName);
+                var parentTable = await Database.GetTableAsync(parentTableName).ConfigureAwait(false);
 
-                var parentColumns = await parentTable.ColumnsAsync();
+                var parentColumns = await parentTable.ColumnsAsync().ConfigureAwait(false);
                 parentColumns = rows.Select(row => parentTable.Column[row.to]).ToList();
 
-                var parentPrimaryKey = await parentTable.PrimaryKeyAsync();
+                var parentPrimaryKey = await parentTable.PrimaryKeyAsync().ConfigureAwait(false);
                 var pkColumnsEqual = parentPrimaryKey.Columns.Select(col => col.Name)
                     .SequenceEqual(parentColumns.Select(col => col.Name));
 
@@ -559,7 +559,7 @@ namespace SJP.Schematic.Sqlite
                 else
                 {
                     parentKeyType = DatabaseKeyType.Unique;
-                    var uniqueKeys = await parentTable.UniqueKeysAsync();
+                    var uniqueKeys = await parentTable.UniqueKeysAsync().ConfigureAwait(false);
                     parentConstraint = uniqueKeys.FirstOrDefault(uk =>
                         uk.Columns.Select(ukCol => ukCol.Name)
                             .SequenceEqual(parentColumns.Select(pc => pc.Name)));
@@ -573,7 +573,7 @@ namespace SJP.Schematic.Sqlite
                 var constraintStringName = parsedConstraint.Name;
 
                 var childKeyName = !constraintStringName.IsNullOrWhiteSpace() ? new LocalIdentifier(constraintStringName) : null;
-                var childKeyColumnLookup = await ColumnAsync();
+                var childKeyColumnLookup = await ColumnAsync().ConfigureAwait(false);
                 var childKeyColumns = rows.Select(row => childKeyColumnLookup[row.from]);
 
                 var childKey = new SqliteDatabaseKey(this, childKeyName, DatabaseKeyType.Foreign, childKeyColumns);
@@ -611,7 +611,7 @@ namespace SJP.Schematic.Sqlite
         {
             var result = new Dictionary<Identifier, IDatabaseTableColumn>(Comparer);
 
-            var columns = await ColumnsAsync();
+            var columns = await ColumnsAsync().ConfigureAwait(false);
             var namedColumns = columns.Where(c => c.Name != null);
 
             foreach (var column in namedColumns)
@@ -658,13 +658,13 @@ namespace SJP.Schematic.Sqlite
         protected virtual async Task<IReadOnlyList<IDatabaseTableColumn>> LoadColumnsAsync()
         {
             var sql = $"pragma table_info({ Database.Dialect.QuoteName(Name.LocalName) })";
-            var tableInfos = await Connection.QueryAsync<TableInfo>(sql);
+            var tableInfos = await Connection.QueryAsync<TableInfo>(sql).ConfigureAwait(false);
 
             var result = new List<IDatabaseTableColumn>();
             if (tableInfos.Empty())
                 return result;
 
-            var parser = await ParsedDefinitionAsync();
+            var parser = await ParsedDefinitionAsync().ConfigureAwait(false);
             var parsedColumns = parser.Columns;
 
             foreach (var tableInfo in tableInfos)
@@ -712,7 +712,7 @@ namespace SJP.Schematic.Sqlite
         {
             var result = new Dictionary<Identifier, IDatabaseTrigger>(Comparer);
 
-            var triggers = await TriggersAsync();
+            var triggers = await TriggersAsync().ConfigureAwait(false);
             foreach (var trigger in triggers)
                 result[trigger.Name.LocalName] = trigger;
 
@@ -742,7 +742,7 @@ namespace SJP.Schematic.Sqlite
         protected virtual async Task<IEnumerable<IDatabaseTrigger>> LoadTriggersAsync()
         {
             const string sql = "select * from sqlite_master where type = 'trigger' and tbl_name = @TableName";
-            var triggerInfos = await Connection.QueryAsync<SqliteMaster>(sql, new { TableName = Name.LocalName });
+            var triggerInfos = await Connection.QueryAsync<SqliteMaster>(sql, new { TableName = Name.LocalName }).ConfigureAwait(false);
 
             var result = new List<IDatabaseTrigger>();
 
@@ -803,7 +803,7 @@ namespace SJP.Schematic.Sqlite
             {
                 _rwLock.EnterReadLock();
                 const string sql = "select sql from sqlite_master where type = 'table' and name = @TableName";
-                tableSql = await Connection.ExecuteScalarAsync<string>(sql, new { TableName = Name.LocalName });
+                tableSql = await Connection.ExecuteScalarAsync<string>(sql, new { TableName = Name.LocalName }).ConfigureAwait(false);
                 if (tableSql == _createTableSql)
                     return _parser;
             }

@@ -3,6 +3,7 @@ using SJP.Schematic.Core;
 
 namespace SJP.Schematic.Modelled.Reflection.Model
 {
+    [AttributeUsage(AttributeTargets.Struct | AttributeTargets.Class, AllowMultiple = true, Inherited = true)]
     public sealed class SchemaAttribute : ModelledSchemaAttribute
     {
         public SchemaAttribute(string schema)

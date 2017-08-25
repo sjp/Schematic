@@ -29,13 +29,13 @@ namespace SJP.Schematic.SqlServer.Tests.Integration
             [OneTimeSetUp]
             public async Task Init()
             {
-                await Connection.ExecuteAsync("create view db_test_view_1 as select 1 as dummy");
+                await Connection.ExecuteAsync("create view db_test_view_1 as select 1 as dummy").ConfigureAwait(false);
             }
 
             [OneTimeTearDown]
             public async Task CleanUp()
             {
-                await Connection.ExecuteAsync("drop view db_test_view_1");
+                await Connection.ExecuteAsync("drop view db_test_view_1").ConfigureAwait(false);
             }
 
             private IRelationalDatabase Database => new SqlServerRelationalDatabase(new SqlServerDialect(), Connection);
@@ -92,20 +92,20 @@ namespace SJP.Schematic.SqlServer.Tests.Integration
             [Test]
             public void ViewExistsAsync_GivenNullName_ThrowsArgumentNullException()
             {
-                Assert.ThrowsAsync<ArgumentNullException>(async () => await Database.ViewExistsAsync(null));
+                Assert.ThrowsAsync<ArgumentNullException>(async () => await Database.ViewExistsAsync(null).ConfigureAwait(false));
             }
 
             [Test]
             public async Task ViewExistsAsync_WhenViewPresent_ReturnsTrue()
             {
-                var viewExists = await Database.ViewExistsAsync("db_test_view_1");
+                var viewExists = await Database.ViewExistsAsync("db_test_view_1").ConfigureAwait(false);
                 Assert.IsTrue(viewExists);
             }
 
             [Test]
             public async Task ViewExistsAsync_WhenViewMissing_ReturnsFalse()
             {
-                var viewExists = await Database.ViewExistsAsync("view_that_doesnt_exist");
+                var viewExists = await Database.ViewExistsAsync("view_that_doesnt_exist").ConfigureAwait(false);
                 Assert.IsFalse(viewExists);
             }
 
@@ -114,27 +114,27 @@ namespace SJP.Schematic.SqlServer.Tests.Integration
             [Test]
             public async Task ViewExistsAsync_WhenViewPresentWithDifferentCase_ReturnsTrue()
             {
-                var viewExists = await Database.ViewExistsAsync("DB_TEST_view_1");
+                var viewExists = await Database.ViewExistsAsync("DB_TEST_view_1").ConfigureAwait(false);
                 Assert.IsTrue(viewExists);
             }
 
             [Test]
             public void GetViewAsync_GivenNullName_ThrowsArgumentNullException()
             {
-                Assert.ThrowsAsync<ArgumentNullException>(async () => await Database.GetViewAsync(null));
+                Assert.ThrowsAsync<ArgumentNullException>(async () => await Database.GetViewAsync(null).ConfigureAwait(false));
             }
 
             [Test]
             public async Task GetViewAsync_WhenViewPresent_ReturnsView()
             {
-                var view = await Database.GetViewAsync("db_test_view_1");
+                var view = await Database.GetViewAsync("db_test_view_1").ConfigureAwait(false);
                 Assert.NotNull(view);
             }
 
             [Test]
             public async Task GetViewAsync_WhenViewMissing_ReturnsNull()
             {
-                var view = await Database.GetViewAsync("view_that_doesnt_exist");
+                var view = await Database.GetViewAsync("view_that_doesnt_exist").ConfigureAwait(false);
                 Assert.IsNull(view);
             }
         }

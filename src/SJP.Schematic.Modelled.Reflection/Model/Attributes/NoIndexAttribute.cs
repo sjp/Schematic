@@ -2,6 +2,7 @@
 
 namespace SJP.Schematic.Modelled.Reflection.Model
 {
+    [AttributeUsage(AttributeTargets.Property, AllowMultiple = true, Inherited = true)]
     public sealed class NoIndexAttribute : ModelledSchemaAttribute
     {
         public NoIndexAttribute()

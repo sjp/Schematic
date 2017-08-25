@@ -1,5 +1,4 @@
 ﻿using System.Reflection;
-using SJP.Schematic.Core;
 
 namespace SJP.Schematic.Modelled.Reflection.Model
 {

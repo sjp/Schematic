@@ -6,7 +6,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using SJP.Schematic.SqlServer.Query;
 using SJP.Schematic.Core;
-using SJP.Schematic.Core.Utilities;
 
 namespace SJP.Schematic.SqlServer
 {
@@ -103,13 +102,13 @@ where schema_name(v.schema_id) = @SchemaName and v.name = @ViewName
     and i.is_primary_key = 0 and i.is_unique_constraint = 0
     order by ic.index_id, ic.key_ordinal, ic.index_column_id";
 
-            var queryResult = await Connection.QueryAsync<IndexColumns>(sql, new { SchemaName = Name.Schema, ViewName = Name.LocalName });
+            var queryResult = await Connection.QueryAsync<IndexColumns>(sql, new { SchemaName = Name.Schema, ViewName = Name.LocalName }).ConfigureAwait(false);
             if (queryResult.Empty())
                 return Enumerable.Empty<IDatabaseViewIndex>();
 
             var indexColumns = queryResult.GroupBy(row => new { IndexName = row.IndexName, IsUnique = row.IsUnique, IsDisabled = row.IsDisabled });
 
-            var viewColumns = await ColumnAsync();
+            var viewColumns = await ColumnAsync().ConfigureAwait(false);
             var result = new List<IDatabaseViewIndex>();
             foreach (var indexInfo in indexColumns)
             {
@@ -155,7 +154,7 @@ where schema_name(v.schema_id) = @SchemaName and v.name = @ViewName
         {
             var result = new Dictionary<Identifier, IDatabaseViewIndex>(Comparer);
 
-            var indexes = await IndexesAsync();
+            var indexes = await IndexesAsync().ConfigureAwait(false);
             foreach (var index in indexes)
                 result[index.Name.LocalName] = index;
 
@@ -184,7 +183,7 @@ where schema_name(v.schema_id) = @SchemaName and v.name = @ViewName
         {
             var result = new Dictionary<Identifier, IDatabaseViewColumn>(Comparer);
 
-            var columns = await ColumnsAsync();
+            var columns = await ColumnsAsync().ConfigureAwait(false);
             foreach (var column in columns.Where(c => c.Name != null))
                 result[column.Name.LocalName] = column;
 
@@ -272,7 +271,7 @@ where schema_name(v.schema_id) = @SchemaName
     and v.name = @ViewName
     order by c.column_id";
 
-            var query = await Connection.QueryAsync<ColumnData>(sql, new { SchemaName = Name.Schema, ViewName = Name.LocalName });
+            var query = await Connection.QueryAsync<ColumnData>(sql, new { SchemaName = Name.Schema, ViewName = Name.LocalName }).ConfigureAwait(false);
             var result = new List<IDatabaseViewColumn>();
 
             foreach (var row in query)

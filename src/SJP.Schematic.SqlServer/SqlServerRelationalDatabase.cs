@@ -63,7 +63,7 @@ namespace SJP.Schematic.SqlServer
             return await Connection.ExecuteScalarAsync<int>(
                 sql,
                 new { SchemaName = tableName.Schema, TableName = tableName.LocalName }
-            ) != 0;
+            ).ConfigureAwait(false) != 0;
         }
 
         public IRelationalDatabaseTable GetTable(Identifier tableName)
@@ -102,12 +102,12 @@ namespace SJP.Schematic.SqlServer
             return Observable.Create<IRelationalDatabaseTable>(async observer =>
             {
                 const string sql = "select schema_name(schema_id) as SchemaName, name as ObjectName from sys.tables order by schema_name(schema_id), name";
-                var queryResults = await Connection.QueryAsync<QualifiedName>(sql);
+                var queryResults = await Connection.QueryAsync<QualifiedName>(sql).ConfigureAwait(false);
                 var tableNames = queryResults.Select(dto => new Identifier(dto.SchemaName, dto.ObjectName));
 
                 foreach (var tableName in tableNames)
                 {
-                    var table = await LoadTableAsync(tableName);
+                    var table = await LoadTableAsync(tableName).ConfigureAwait(false);
                     observer.OnNext(table);
                 }
 
@@ -132,7 +132,7 @@ namespace SJP.Schematic.SqlServer
                 throw new ArgumentNullException(nameof(tableName));
 
             tableName = CreateQualifiedIdentifier(tableName);
-            var exists = await TableExistsAsync(tableName);
+            var exists = await TableExistsAsync(tableName).ConfigureAwait(false);
             return exists
                 ? new SqlServerRelationalDatabaseTable(Connection, Database, tableName, Comparer)
                 : null;
@@ -165,7 +165,7 @@ namespace SJP.Schematic.SqlServer
             return await Connection.ExecuteScalarAsync<int>(
                 "select count(*) from sys.views where schema_id = schema_id(@SchemaName) and name = @ViewName",
                 new { SchemaName = viewName.Schema, ViewName = viewName.LocalName }
-            ) != 0;
+            ).ConfigureAwait(false) != 0;
         }
 
         public IRelationalDatabaseView GetView(Identifier viewName)
@@ -204,12 +204,12 @@ namespace SJP.Schematic.SqlServer
             return Observable.Create<IRelationalDatabaseView>(async observer =>
             {
                 const string sql = "select schema_name(schema_id) as SchemaName, name as ObjectName from sys.views order by schema_name(schema_id), name";
-                var queryResult = await Connection.QueryAsync<QualifiedName>(sql);
+                var queryResult = await Connection.QueryAsync<QualifiedName>(sql).ConfigureAwait(false);
                 var viewNames = queryResult.Select(dto => new Identifier(dto.SchemaName, dto.ObjectName));
 
                 foreach (var viewName in viewNames)
                 {
-                    var view = await LoadViewAsync(viewName);
+                    var view = await LoadViewAsync(viewName).ConfigureAwait(false);
                     observer.OnNext(view);
                 }
 
@@ -234,7 +234,7 @@ namespace SJP.Schematic.SqlServer
                 throw new ArgumentNullException(nameof(viewName));
 
             viewName = CreateQualifiedIdentifier(viewName);
-            var exists = await ViewExistsAsync(viewName);
+            var exists = await ViewExistsAsync(viewName).ConfigureAwait(false);
             return exists
                 ? new SqlServerRelationalDatabaseView(Connection, Database, viewName, Comparer)
                 : null;
@@ -269,7 +269,7 @@ namespace SJP.Schematic.SqlServer
             return await Connection.ExecuteScalarAsync<int>(
                 sql,
                 new { SchemaName = sequenceName.Schema, SequenceName = sequenceName.LocalName }
-            ) != 0;
+            ).ConfigureAwait(false) != 0;
         }
 
         public IDatabaseSequence GetSequence(Identifier sequenceName)
@@ -308,12 +308,12 @@ namespace SJP.Schematic.SqlServer
             return Observable.Create<IDatabaseSequence>(async observer =>
             {
                 var queryResult = await Connection.QueryAsync<QualifiedName>(
-                "select schema_name(schema_id) as SchemaName, name as ObjectName from sys.sequences order by schema_name(schema_id), name");
+                "select schema_name(schema_id) as SchemaName, name as ObjectName from sys.sequences order by schema_name(schema_id), name").ConfigureAwait(false);
                 var sequenceNames = queryResult.Select(dto => new Identifier(dto.SchemaName, dto.ObjectName));
 
                 foreach (var sequenceName in sequenceNames)
                 {
-                    var sequence = await LoadSequenceAsync(sequenceName);
+                    var sequence = await LoadSequenceAsync(sequenceName).ConfigureAwait(false);
                     observer.OnNext(sequence);
                 }
 
@@ -338,7 +338,7 @@ namespace SJP.Schematic.SqlServer
                 throw new ArgumentNullException(nameof(sequenceName));
 
             sequenceName = CreateQualifiedIdentifier(sequenceName);
-            var exists = await SequenceExistsAsync(sequenceName);
+            var exists = await SequenceExistsAsync(sequenceName).ConfigureAwait(false);
             return exists
                 ? new SqlServerDatabaseSequence(Database, Connection, sequenceName)
                 : null;
@@ -373,7 +373,7 @@ namespace SJP.Schematic.SqlServer
             return await Connection.ExecuteScalarAsync<int>(
                 sql,
                 new { SchemaName = synonymName.Schema, SynonymName = synonymName.LocalName }
-            ) != 0;
+            ).ConfigureAwait(false) != 0;
         }
 
         public IDatabaseSynonym GetSynonym(Identifier synonymName)
@@ -412,12 +412,12 @@ namespace SJP.Schematic.SqlServer
             return Observable.Create<IDatabaseSynonym>(async observer =>
             {
                 const string sql = "select schema_name(schema_id) as SchemaName, name as ObjectName from sys.synonyms order by schema_name(schema_id), name";
-                var queryResult = await Connection.QueryAsync<QualifiedName>(sql);
+                var queryResult = await Connection.QueryAsync<QualifiedName>(sql).ConfigureAwait(false);
                 var synonymNames = queryResult.Select(dto => new Identifier(dto.SchemaName, dto.ObjectName));
 
                 foreach (var synonymName in synonymNames)
                 {
-                    var synonym = await LoadSynonymAsync(synonymName);
+                    var synonym = await LoadSynonymAsync(synonymName).ConfigureAwait(false);
                     observer.OnNext(synonym);
                 }
 
@@ -463,7 +463,7 @@ where schema_id = schema_id(@SchemaName) and name = @SynonymName
                 throw new ArgumentNullException(nameof(synonymName));
 
             synonymName = CreateQualifiedIdentifier(synonymName);
-            var exists = await SynonymExistsAsync(synonymName);
+            var exists = await SynonymExistsAsync(synonymName).ConfigureAwait(false);
             if (!exists)
                 return null;
 
@@ -475,7 +475,7 @@ select
     PARSENAME(base_object_name, 1) as TargetObjectName
 from sys.synonyms
 where schema_id = schema_id(@SchemaName) and name = @SynonymName
-    ", new { SchemaName = synonymName.Schema, SynonymName = synonymName.LocalName });
+    ", new { SchemaName = synonymName.Schema, SynonymName = synonymName.LocalName }).ConfigureAwait(false);
 
             Identifier targetName;
             if (!queryResult.TargetServerName.IsNullOrWhiteSpace())
@@ -523,7 +523,7 @@ where schema_id = schema_id(@SchemaName) and name = @SynonymName
             return await Connection.ExecuteScalarAsync<int>(
                 sql,
                 new { SchemaName = triggerName.Schema, TriggerName = triggerName.LocalName }
-            ) != 0;
+            ).ConfigureAwait(false) != 0;
         }
 
         public IDatabaseTrigger GetTrigger(Identifier triggerName)
@@ -562,12 +562,12 @@ where schema_id = schema_id(@SchemaName) and name = @SynonymName
             return Observable.Create<IDatabaseTrigger>(async observer =>
             {
                 const string sql = "select schema_name(schema_id) as SchemaName, name as ObjectName from sys.triggers order by schema_name(schema_id), name";
-                var queryResult = await Connection.QueryAsync<QualifiedName>(sql);
+                var queryResult = await Connection.QueryAsync<QualifiedName>(sql).ConfigureAwait(false);
                 var triggerNames = queryResult.Select(dto => new Identifier(dto.SchemaName, dto.ObjectName));
 
                 foreach (var triggerName in triggerNames)
                 {
-                    var trigger = await LoadTriggerAsync(triggerName);
+                    var trigger = await LoadTriggerAsync(triggerName).ConfigureAwait(false);
                     observer.OnNext(trigger);
                 }
 
@@ -639,7 +639,7 @@ inner join sys.sql_modules sm on st.object_id = sm.object_id
 inner join sys.trigger_events te on st.object_id = te.object_id
 where schema_name(t.schema_id) = @SchemaName and st.name = @TriggerName";
 
-            var queryResult = await Connection.QueryAsync<TriggerData>(sql, new { SchemaName = triggerName.Schema, Trigger = triggerName.LocalName });
+            var queryResult = await Connection.QueryAsync<TriggerData>(sql, new { SchemaName = triggerName.Schema, Trigger = triggerName.LocalName }).ConfigureAwait(false);
             if (queryResult.Empty())
                 return null;
 

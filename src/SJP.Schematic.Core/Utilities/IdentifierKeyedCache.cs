@@ -41,7 +41,7 @@ namespace SJP.Schematic.Core.Utilities
                 throw new ArgumentNullException(nameof(key));
 
             key = CreateQualifiedName(key);
-            var tmp = await GetValueAsync(key);
+            var tmp = await GetValueAsync(key).ConfigureAwait(false);
             return tmp != null;
         }
 

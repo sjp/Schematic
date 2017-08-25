@@ -1,9 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
-using Mono.Cecil;
-using Mono.Cecil.Cil;
 using SJP.Schematic.Core;
 
 namespace SJP.Schematic.Modelled.Reflection.Model

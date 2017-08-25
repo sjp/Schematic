@@ -101,7 +101,7 @@ namespace SJP.Schematic.Core
                 throw new ArgumentNullException(nameof(tableName));
 
             tableName = CreateQualifiedIdentifier(tableName);
-            var table = await Database.GetTableAsync(tableName);
+            var table = await Database.GetTableAsync(tableName).ConfigureAwait(false);
 
             return new CachedRelationalDatabaseTable(Database, table);
         }

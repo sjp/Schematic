@@ -1,8 +1,4 @@
-﻿using System;
-using System.Linq;
-using System.Reflection;
-using SJP.Schematic.Core;
-using SJP.Schematic.Modelled.Reflection.Model;
+﻿using SJP.Schematic.Core;
 
 namespace SJP.Schematic.Modelled.Reflection
 {

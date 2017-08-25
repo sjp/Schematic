@@ -54,7 +54,7 @@ namespace SJP.Schematic.Sqlite
             return await Connection.ExecuteScalarAsync<int>(
                 sql,
                 new { TableName = tableName.LocalName }
-            ) != 0;
+            ).ConfigureAwait(false) != 0;
         }
 
         public IRelationalDatabaseTable GetTable(Identifier tableName)
@@ -98,7 +98,7 @@ namespace SJP.Schematic.Sqlite
             return Observable.Create<IRelationalDatabaseTable>(async observer =>
             {
                 const string sql = "select name from sqlite_master where type = 'table' order by name";
-                var queryResults = await Connection.QueryAsync<string>(sql);
+                var queryResults = await Connection.QueryAsync<string>(sql).ConfigureAwait(false);
 
                 var tableNames = queryResults
                     .Where(name => !BuiltInTables.Contains(name))
@@ -106,7 +106,7 @@ namespace SJP.Schematic.Sqlite
 
                 foreach (var tableName in tableNames)
                 {
-                    var table = await LoadTableAsync(tableName);
+                    var table = await LoadTableAsync(tableName).ConfigureAwait(false);
                     observer.OnNext(table);
                 }
 
@@ -129,7 +129,7 @@ namespace SJP.Schematic.Sqlite
             if (tableName == null || tableName.LocalName == null)
                 throw new ArgumentNullException(nameof(tableName));
 
-            var exists = await TableExistsAsync(tableName.LocalName);
+            var exists = await TableExistsAsync(tableName.LocalName).ConfigureAwait(false);
             return exists
                 ? new SqliteRelationalDatabaseTable(Connection, this, tableName.LocalName)
                 : null;
@@ -160,7 +160,7 @@ namespace SJP.Schematic.Sqlite
             return await Connection.ExecuteScalarAsync<int>(
                 sql,
                 new { ViewName = viewName.LocalName }
-            ) != 0;
+            ).ConfigureAwait(false) != 0;
         }
 
         public IRelationalDatabaseView GetView(Identifier viewName)
@@ -196,12 +196,12 @@ namespace SJP.Schematic.Sqlite
             return Observable.Create<IRelationalDatabaseView>(async observer =>
             {
                 const string sql = "select name from sqlite_master where type = 'view' order by name";
-                var queryResult = await Connection.QueryAsync<string>(sql);
+                var queryResult = await Connection.QueryAsync<string>(sql).ConfigureAwait(false);
                 var viewNames = queryResult.Select(name => new LocalIdentifier(name));
 
                 foreach (var viewName in viewNames)
                 {
-                    var view = await LoadViewAsync(viewName);
+                    var view = await LoadViewAsync(viewName).ConfigureAwait(false);
                     observer.OnNext(view);
                 }
 
@@ -227,7 +227,7 @@ namespace SJP.Schematic.Sqlite
             if (viewName == null || viewName.LocalName == null)
                 throw new ArgumentNullException(nameof(viewName));
 
-            var exists = await ViewExistsAsync(viewName);
+            var exists = await ViewExistsAsync(viewName).ConfigureAwait(false);
             return null;
             // TODO:
             //return exists
@@ -295,7 +295,7 @@ namespace SJP.Schematic.Sqlite
             return await Connection.ExecuteScalarAsync<int>(
                 sql,
                 new { TriggerName = triggerName.LocalName }
-            ) != 0;
+            ).ConfigureAwait(false) != 0;
         }
 
         public IDatabaseTrigger GetTrigger(Identifier triggerName)
@@ -331,12 +331,12 @@ namespace SJP.Schematic.Sqlite
             return Observable.Create<IDatabaseTrigger>(async observer =>
             {
                 const string sql = "select name from sqlite_master where type = 'trigger' order by name";
-                var queryResult = await Connection.QueryAsync<string>(sql);
+                var queryResult = await Connection.QueryAsync<string>(sql).ConfigureAwait(false);
                 var triggerNames = queryResult.Select(name => new LocalIdentifier(name));
 
                 foreach (var triggerName in triggerNames)
                 {
-                    var trigger = await LoadTriggerAsync(triggerName);
+                    var trigger = await LoadTriggerAsync(triggerName).ConfigureAwait(false);
                     observer.OnNext(trigger);
                 }
 
@@ -367,7 +367,7 @@ namespace SJP.Schematic.Sqlite
                 throw new ArgumentNullException(nameof(triggerName));
 
             const string sql = "select sql from sqlite_master where type = 'trigger' and lower(name) = lower(@TriggerName)";
-            var queryResult = await Connection.QuerySingleAsync<string>(sql, new { TriggerName = triggerName.LocalName });
+            var queryResult = await Connection.QuerySingleAsync<string>(sql, new { TriggerName = triggerName.LocalName }).ConfigureAwait(false);
             if (queryResult == null)
                 return null;
 

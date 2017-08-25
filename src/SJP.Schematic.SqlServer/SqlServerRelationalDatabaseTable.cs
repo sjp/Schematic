@@ -84,7 +84,7 @@ where
     and ic.is_included_column = 0
 order by ic.column_id";
 
-            var primaryKeyColumns = await Connection.QueryAsync<ConstraintColumnMapping>(sql, new { SchemaName = Name.Schema, TableName = Name.LocalName });
+            var primaryKeyColumns = await Connection.QueryAsync<ConstraintColumnMapping>(sql, new { SchemaName = Name.Schema, TableName = Name.LocalName }).ConfigureAwait(false);
             if (primaryKeyColumns.Empty())
                 return null;
 
@@ -124,7 +124,7 @@ order by ic.column_id";
         {
             var result = new Dictionary<Identifier, IDatabaseTableIndex>(Comparer);
 
-            var indexes = await IndexesAsync();
+            var indexes = await IndexesAsync().ConfigureAwait(false);
             foreach (var index in indexes)
                 result[index.Name.LocalName] = index;
 
@@ -191,13 +191,13 @@ where schema_name(t.schema_id) = @SchemaName and t.name = @TableName
     and i.is_primary_key = 0 and i.is_unique_constraint = 0
     order by ic.index_id, ic.key_ordinal, ic.index_column_id";
 
-            var queryResult = await Connection.QueryAsync<IndexColumns>(sql, new { SchemaName = Name.Schema, TableName = Name.LocalName });
+            var queryResult = await Connection.QueryAsync<IndexColumns>(sql, new { SchemaName = Name.Schema, TableName = Name.LocalName }).ConfigureAwait(false);
             if (queryResult.Empty())
                 return Enumerable.Empty<IDatabaseTableIndex>();
 
             var indexColumns = queryResult.GroupBy(row => new { IndexName = row.IndexName, IsUnique = row.IsUnique, IsDisabled = row.IsDisabled });
 
-            var tableColumns = await ColumnAsync();
+            var tableColumns = await ColumnAsync().ConfigureAwait(false);
             var result = new List<IDatabaseTableIndex>();
             foreach (var indexInfo in indexColumns)
             {
@@ -249,7 +249,7 @@ where schema_name(t.schema_id) = @SchemaName and t.name = @TableName
         {
             var result = new Dictionary<Identifier, IDatabaseKey>(Comparer);
 
-            var uniqueKeys = await UniqueKeysAsync();
+            var uniqueKeys = await UniqueKeysAsync().ConfigureAwait(false);
             foreach (var uk in uniqueKeys)
                 result[uk.Name.LocalName] = uk;
 
@@ -312,7 +312,7 @@ where
     and ic.is_included_column = 0
 order by ic.column_id";
 
-            var uniqueKeyColumns = await Connection.QueryAsync<ConstraintColumnMapping>(sql, new { SchemaName = Name.Schema, TableName = Name.LocalName });
+            var uniqueKeyColumns = await Connection.QueryAsync<ConstraintColumnMapping>(sql, new { SchemaName = Name.Schema, TableName = Name.LocalName }).ConfigureAwait(false);
             if (uniqueKeyColumns.Empty())
                 return Enumerable.Empty<IDatabaseKey>();
 
@@ -412,7 +412,7 @@ inner join sys.columns c on fkc.parent_column_id = c.column_id and c.object_id =
 inner join sys.key_constraints kc on kc.unique_index_id = fk.key_index_id and kc.parent_object_id = fk.referenced_object_id
 where schema_name(parent_t.schema_id) = @SchemaName and parent_t.name = @TableName";
 
-            var queryResult = await Connection.QueryAsync<ChildKeyData>(sql, new { SchemaName = Name.Schema, TableName = Name.LocalName });
+            var queryResult = await Connection.QueryAsync<ChildKeyData>(sql, new { SchemaName = Name.Schema, TableName = Name.LocalName }).ConfigureAwait(false);
             if (queryResult.Empty())
                 return Enumerable.Empty<IDatabaseRelationalKey>();
 
@@ -434,19 +434,19 @@ where schema_name(parent_t.schema_id) = @SchemaName and parent_t.name = @TableNa
                 var childKeyName = new LocalIdentifier(groupedChildKey.Key.ChildKeyName);
 
                 var childTableName = new Identifier(groupedChildKey.Key.ChildTableSchema, groupedChildKey.Key.ChildTableName);
-                var childTable = await Database.GetTableAsync(childTableName);
-                var parentKeyLookup = await childTable.ParentKeyAsync();
+                var childTable = await Database.GetTableAsync(childTableName).ConfigureAwait(false);
+                var parentKeyLookup = await childTable.ParentKeyAsync().ConfigureAwait(false);
 
                 var childKey = parentKeyLookup[childKeyName.LocalName].ChildKey;
 
                 IDatabaseKey parentKey;
                 if (groupedChildKey.Key.ParentKeyType == "PK")
                 {
-                    parentKey = await PrimaryKeyAsync();
+                    parentKey = await PrimaryKeyAsync().ConfigureAwait(false);
                 }
                 else
                 {
-                    var uniqueKeyLookup = await UniqueKeyAsync();
+                    var uniqueKeyLookup = await UniqueKeyAsync().ConfigureAwait(false);
                     parentKey = uniqueKeyLookup[groupedChildKey.Key.ParentKeyName];
                 }
 
@@ -482,7 +482,7 @@ where schema_name(parent_t.schema_id) = @SchemaName and parent_t.name = @TableNa
         {
             var result = new Dictionary<Identifier, IDatabaseCheckConstraint>(Comparer);
 
-            var checks = await CheckConstraintsAsync();
+            var checks = await CheckConstraintsAsync().ConfigureAwait(false);
             foreach (var check in checks)
                 result[check.Name.LocalName] = check;
 
@@ -524,12 +524,12 @@ from sys.tables t
 inner join sys.check_constraints cc on t.object_id = cc.parent_object_id
 where schema_name(t.schema_id) = @SchemaName and t.name = @TableName";
 
-            var checkConstraints = await Connection.QueryAsync<CheckConstraintData>(sql, new { SchemaName = Name.Schema, TableName = Name.LocalName });
+            var checkConstraints = await Connection.QueryAsync<CheckConstraintData>(sql, new { SchemaName = Name.Schema, TableName = Name.LocalName }).ConfigureAwait(false);
             if (checkConstraints.Empty())
                 return Enumerable.Empty<IDatabaseCheckConstraint>();
 
             var result = new List<IDatabaseCheckConstraint>();
-            var tableColumns = await ColumnAsync();
+            var tableColumns = await ColumnAsync().ConfigureAwait(false);
             foreach (var checkRow in checkConstraints)
             {
                 var constraintName = new LocalIdentifier(checkRow.ConstraintName);
@@ -565,7 +565,7 @@ where schema_name(t.schema_id) = @SchemaName and t.name = @TableName";
         {
             var result = new Dictionary<Identifier, IDatabaseRelationalKey>(Comparer);
 
-            var parentKeys = await ParentKeysAsync();
+            var parentKeys = await ParentKeysAsync().ConfigureAwait(false);
             foreach (var parentKey in parentKeys)
                 result[parentKey.ChildKey.Name.LocalName] = parentKey;
 
@@ -652,7 +652,7 @@ inner join sys.columns c on fkc.parent_column_id = c.column_id and c.object_id =
 inner join sys.key_constraints kc on kc.unique_index_id = fk.key_index_id and kc.parent_object_id = fk.referenced_object_id
 where schema_name(child_t.schema_id) = @SchemaName and child_t.name = @TableName";
 
-            var queryResult = await Connection.QueryAsync<ForeignKeyData>(sql, new { SchemaName = Name.Schema, TableName = Name.LocalName });
+            var queryResult = await Connection.QueryAsync<ForeignKeyData>(sql, new { SchemaName = Name.Schema, TableName = Name.LocalName }).ConfigureAwait(false);
             if (queryResult.Empty())
                 return Enumerable.Empty<IDatabaseRelationalKey>();
 
@@ -674,7 +674,7 @@ where schema_name(child_t.schema_id) = @SchemaName and child_t.name = @TableName
                 var rows = fkey.OrderBy(row => row.ConstraintColumnId);
 
                 var parentTableName = new Identifier(fkey.Key.ParentTableSchema, fkey.Key.ParentTableName);
-                var parentTable = await Database.GetTableAsync(parentTableName);
+                var parentTable = await Database.GetTableAsync(parentTableName).ConfigureAwait(false);
                 var parentKeyName = new LocalIdentifier(fkey.Key.ParentKeyName);
 
                 IDatabaseKey parentKey;
@@ -684,12 +684,12 @@ where schema_name(child_t.schema_id) = @SchemaName and child_t.name = @TableName
                 }
                 else
                 {
-                    var uniqueKeys = await parentTable.UniqueKeyAsync();
+                    var uniqueKeys = await parentTable.UniqueKeyAsync().ConfigureAwait(false);
                     parentKey = uniqueKeys[parentKeyName.LocalName];
                 }
 
                 var childKeyName = new LocalIdentifier(fkey.Key.ChildKeyName);
-                var childKeyColumnLookup = await ColumnAsync();
+                var childKeyColumnLookup = await ColumnAsync().ConfigureAwait(false);
                 var childKeyColumns = fkey
                     .OrderBy(row => row.ConstraintColumnId)
                     .Select(row => childKeyColumnLookup[row.ColumnName])
@@ -731,7 +731,7 @@ where schema_name(child_t.schema_id) = @SchemaName and child_t.name = @TableName
         {
             var result = new Dictionary<Identifier, IDatabaseTableColumn>(Comparer);
 
-            var allColumns = await ColumnsAsync();
+            var allColumns = await ColumnsAsync().ConfigureAwait(false);
             var columns = allColumns.Where(c => c.Name != null);
             foreach (var column in columns)
                 result[column.Name.LocalName] = column;
@@ -822,7 +822,7 @@ where schema_name(t.schema_id) = @SchemaName
     and t.name = @TableName
     order by c.column_id";
 
-            var query = await Connection.QueryAsync<ColumnData>(sql, new { SchemaName = Name.Schema, TableName = Name.LocalName });
+            var query = await Connection.QueryAsync<ColumnData>(sql, new { SchemaName = Name.Schema, TableName = Name.LocalName }).ConfigureAwait(false);
             var result = new List<IDatabaseTableColumn>();
 
             foreach (var row in query)
@@ -873,7 +873,7 @@ where schema_name(t.schema_id) = @SchemaName
         {
             var result = new Dictionary<Identifier, IDatabaseTrigger>(Comparer);
 
-            var triggers = await TriggersAsync();
+            var triggers = await TriggersAsync().ConfigureAwait(false);
             foreach (var trigger in triggers)
                 result[trigger.Name.LocalName] = trigger;
 
@@ -940,7 +940,7 @@ inner join sys.sql_modules sm on st.object_id = sm.object_id
 inner join sys.trigger_events te on st.object_id = te.object_id
 where schema_name(t.schema_id) = @SchemaName and t.name = @TableName";
 
-            var queryResult = await Connection.QueryAsync<TriggerData>(sql, new { SchemaName = Name.Schema, TableName = Name.LocalName });
+            var queryResult = await Connection.QueryAsync<TriggerData>(sql, new { SchemaName = Name.Schema, TableName = Name.LocalName }).ConfigureAwait(false);
             if (queryResult.Empty())
                 return Enumerable.Empty<IDatabaseTrigger>();
 

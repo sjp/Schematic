@@ -47,7 +47,7 @@ namespace SJP.Schematic.Modelled
                 throw new ArgumentNullException(nameof(tableName));
 
             var tableExists = Databases.Select(d => d.TableExistsAsync(tableName)).ToArray();
-            var tablePresence = await Task.WhenAll(tableExists);
+            var tablePresence = await Task.WhenAll(tableExists).ConfigureAwait(false);
             return tablePresence.Length > 0;
         }
 
@@ -95,7 +95,7 @@ namespace SJP.Schematic.Modelled
                 throw new ArgumentNullException(nameof(tableName));
 
             var tables = Databases.Select(d => d.GetTableAsync(tableName)).ToArray();
-            var tablesTask = await Task.WhenAll(tables);
+            var tablesTask = await Task.WhenAll(tables).ConfigureAwait(false);
             return Array.Find(tablesTask, t => t != null);
         }
 
@@ -117,7 +117,7 @@ namespace SJP.Schematic.Modelled
                 throw new ArgumentNullException(nameof(viewName));
 
             var viewExists = Databases.Select(d => d.ViewExistsAsync(viewName)).ToArray();
-            var viewPresence = await Task.WhenAll(viewExists);
+            var viewPresence = await Task.WhenAll(viewExists).ConfigureAwait(false);
             return viewPresence.Length > 0;
         }
 
@@ -165,7 +165,7 @@ namespace SJP.Schematic.Modelled
                 throw new ArgumentNullException(nameof(viewName));
 
             var views = Databases.Select(d => d.GetViewAsync(viewName)).ToArray();
-            var viewsTask = await Task.WhenAll(views);
+            var viewsTask = await Task.WhenAll(views).ConfigureAwait(false);
             return Array.Find(viewsTask, t => t != null);
         }
 
@@ -187,7 +187,7 @@ namespace SJP.Schematic.Modelled
                 throw new ArgumentNullException(nameof(sequenceName));
 
             var sequenceExists = Databases.Select(d => d.SequenceExistsAsync(sequenceName)).ToArray();
-            var sequencePresence = await Task.WhenAll(sequenceExists);
+            var sequencePresence = await Task.WhenAll(sequenceExists).ConfigureAwait(false);
             return sequencePresence.Length > 0;
         }
 
@@ -238,7 +238,7 @@ namespace SJP.Schematic.Modelled
                 throw new ArgumentNullException(nameof(sequenceName));
 
             var sequences = Databases.Select(d => d.GetSequenceAsync(sequenceName)).ToArray();
-            var sequencesTask = await Task.WhenAll(sequences);
+            var sequencesTask = await Task.WhenAll(sequences).ConfigureAwait(false);
             return Array.Find(sequencesTask, t => t != null);
         }
 
@@ -260,7 +260,7 @@ namespace SJP.Schematic.Modelled
                 throw new ArgumentNullException(nameof(synonymName));
 
             var synonymExists = Databases.Select(d => d.SynonymExistsAsync(synonymName)).ToArray();
-            var synonymPresence = await Task.WhenAll(synonymExists);
+            var synonymPresence = await Task.WhenAll(synonymExists).ConfigureAwait(false);
             return synonymPresence.Length > 0;
         }
 
@@ -308,7 +308,7 @@ namespace SJP.Schematic.Modelled
                 throw new ArgumentNullException(nameof(synonymName));
 
             var synonyms = Databases.Select(d => d.GetSynonymAsync(synonymName)).ToArray();
-            var synonymsTask = await Task.WhenAll(synonyms);
+            var synonymsTask = await Task.WhenAll(synonyms).ConfigureAwait(false);
             return Array.Find(synonymsTask, t => t != null);
         }
 
@@ -330,7 +330,7 @@ namespace SJP.Schematic.Modelled
                 throw new ArgumentNullException(nameof(triggerName));
 
             var synonymExists = Databases.Select(d => d.TriggerExistsAsync(triggerName)).ToArray();
-            var synonymPresence = await Task.WhenAll(synonymExists);
+            var synonymPresence = await Task.WhenAll(synonymExists).ConfigureAwait(false);
             return synonymPresence.Length > 0;
         }
 
@@ -378,7 +378,7 @@ namespace SJP.Schematic.Modelled
                 throw new ArgumentNullException(nameof(triggerName));
 
             var triggers = Databases.Select(d => d.GetTriggerAsync(triggerName)).ToArray();
-            var triggersTask = await Task.WhenAll(triggers);
+            var triggersTask = await Task.WhenAll(triggers).ConfigureAwait(false);
             return Array.Find(triggersTask, t => t != null);
         }
 

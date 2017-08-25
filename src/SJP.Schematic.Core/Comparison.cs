@@ -16,7 +16,6 @@ namespace SJP.Schematic.Core
     // etc...
     public interface IDatabaseComparisonOptions<T> where T : IDatabaseEntity
     {
-
     }
 
     public interface IDatabaseComparable<T> where T : IDatabaseEntity

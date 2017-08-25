@@ -1,14 +1,11 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using SJP.Schematic.Core;
 
 namespace SJP.Schematic.Modelled.Reflection.Model
 {
     public static partial class ColumnType
     {
+        [AttributeUsage(AttributeTargets.Struct, AllowMultiple = true, Inherited = true)]
         public sealed class NumericAttribute : DeclaredTypeAttribute
         {
             public NumericAttribute(int precision, int scale = 0)
