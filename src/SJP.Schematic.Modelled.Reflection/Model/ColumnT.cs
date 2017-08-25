@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Reflection;
 
-namespace SJP.Schema.Modelled.Reflection.Model
+namespace SJP.Schematic.Modelled.Reflection.Model
 {
     public class Column<T> : ModelledColumn
     {

@@ -1,4 +1,4 @@
-﻿namespace SJP.Schema.SqlServer.Query
+﻿namespace SJP.Schematic.SqlServer.Query
 {
     public class ColumnData
     {

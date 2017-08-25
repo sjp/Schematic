@@ -4,11 +4,11 @@ using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
-using SJP.Schema.SqlServer.Query;
-using SJP.Schema.Core;
-using SJP.Schema.Core.Utilities;
+using SJP.Schematic.SqlServer.Query;
+using SJP.Schematic.Core;
+using SJP.Schematic.Core.Utilities;
 
-namespace SJP.Schema.SqlServer
+namespace SJP.Schematic.SqlServer
 {
     public class SqlServerRelationalDatabaseView : IRelationalDatabaseView
     {

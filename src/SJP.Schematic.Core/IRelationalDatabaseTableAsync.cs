@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace SJP.Schema.Core
+namespace SJP.Schematic.Core
 {
     // async analogues of every synchronous property
     public interface IRelationalDatabaseTableAsync : IDatabaseEntity

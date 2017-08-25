@@ -1,10 +1,10 @@
 ﻿using Dapper;
 using System;
 using System.Data;
-using SJP.Schema.Core;
-using SJP.Schema.SqlServer.Query;
+using SJP.Schematic.Core;
+using SJP.Schematic.SqlServer.Query;
 
-namespace SJP.Schema.SqlServer
+namespace SJP.Schematic.SqlServer
 {
     public class SqlServerDatabaseSequence : IDatabaseSequence
     {

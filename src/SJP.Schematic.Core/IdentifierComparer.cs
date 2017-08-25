@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace SJP.Schema.Core
+namespace SJP.Schematic.Core
 {
     public class IdentifierComparer : IEqualityComparer<Identifier>, IComparer<Identifier>
     {

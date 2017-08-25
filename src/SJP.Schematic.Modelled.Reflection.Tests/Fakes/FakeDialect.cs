@@ -2,9 +2,9 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Text;
-using SJP.Schema.Core;
+using SJP.Schematic.Core;
 
-namespace SJP.Schema.Modelled.Reflection.Tests.Fakes
+namespace SJP.Schematic.Modelled.Reflection.Tests.Fakes
 {
     public class FakeDialect : DatabaseDialect<FakeDialect>
     {

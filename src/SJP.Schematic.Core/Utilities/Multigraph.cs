@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 
-namespace SJP.Schema.Core.Utilities
+namespace SJP.Schematic.Core.Utilities
 {
     /// <summary>
     ///     This API supports the Entity Framework Core infrastructure and is not intended to be used

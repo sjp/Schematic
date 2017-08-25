@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace SJP.Schema.Modelled.Reflection.Model
+namespace SJP.Schematic.Modelled.Reflection.Model
 {
     [AttributeUsage(AttributeTargets.Struct | AttributeTargets.Property, AllowMultiple = true, Inherited = true)]
     public sealed class AutoIncrementAttribute : ModelledSchemaAttribute

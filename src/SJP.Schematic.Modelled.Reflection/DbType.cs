@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using SJP.Schema.Core;
+using SJP.Schematic.Core;
 
-namespace SJP.Schema.Modelled.Reflection
+namespace SJP.Schematic.Modelled.Reflection
 {
     public class DbType<T> : IDbType<T>
     {

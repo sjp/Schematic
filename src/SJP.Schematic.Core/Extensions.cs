@@ -4,7 +4,7 @@ using System.Collections.ObjectModel;
 using System.Globalization;
 using System.Linq;
 
-namespace SJP.Schema.Core
+namespace SJP.Schematic.Core
 {
     public static class CachingExtensions
     {

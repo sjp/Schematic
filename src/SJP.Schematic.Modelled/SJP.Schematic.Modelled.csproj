@@ -2,9 +2,6 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
-  </PropertyGroup>
-
-  <PropertyGroup>
     <TreatWarningsAsErrors>True</TreatWarningsAsErrors>
     <TreatSpecificWarningsAsErrors />
     <Authors>Simon Potter</Authors>
@@ -12,10 +9,10 @@
     <Company />
     <Product />
     <Copyright>Copyright © Simon Potter 2017</Copyright>
-    <PackageLicenseUrl>https://raw.github.com/sjp/SJP.Schema/master/LICENSE</PackageLicenseUrl>
-    <PackageProjectUrl>https://github.com/sjp/SJP.Schema</PackageProjectUrl>
-    <PackageIconUrl>https://raw.github.com/sjp/SJP.Schema/master/database.svg</PackageIconUrl>
-    <RepositoryUrl>https://github.com/sjp/SJP.Schema</RepositoryUrl>
+    <PackageLicenseUrl>https://raw.github.com/sjp/Schematic/master/LICENSE</PackageLicenseUrl>
+    <PackageProjectUrl>https://github.com/sjp/Schematic</PackageProjectUrl>
+    <PackageIconUrl>https://raw.github.com/sjp/Schematic/master/database.svg</PackageIconUrl>
+    <RepositoryUrl>https://github.com/sjp/Schematic</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
   </PropertyGroup>
 
@@ -24,7 +21,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\SJP.Schema.Core\SJP.Schema.Core.csproj" />
+    <ProjectReference Include="..\SJP.Schematic.Core\SJP.Schematic.Core.csproj" />
   </ItemGroup>
 
 </Project>

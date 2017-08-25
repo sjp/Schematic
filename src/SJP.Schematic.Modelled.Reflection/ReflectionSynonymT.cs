@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Linq;
 using System.Reflection;
-using SJP.Schema.Core;
-using SJP.Schema.Modelled.Reflection.Model;
+using SJP.Schematic.Core;
+using SJP.Schematic.Modelled.Reflection.Model;
 
-namespace SJP.Schema.Modelled.Reflection
+namespace SJP.Schematic.Modelled.Reflection
 {
     public class ReflectionSynonym<T> : ReflectionSynonym where T : class, new()
     {

@@ -17,16 +17,16 @@ build:
   verbosity: minimal
 
 test_script:
-  - dotnet test src/SJP.Schema.Core.Tests/SJP.Schema.Core.Tests.csproj --configuration Release --logger:trx;LogFileName=SJP.Schema.Core.Tests.results.xml
-  - ps: build/uploadtests.ps1 "src/SJP.Schema.Core.Tests/TestResults/SJP.Schema.Core.Tests.results.xml"
-  - dotnet test src/SJP.Schema.Modelled.Tests/SJP.Schema.Modelled.Tests.csproj --configuration Release --logger:trx;LogFileName=SJP.Schema.Modelled.Tests.results.xml
-  - ps: build/uploadtests.ps1 "src/SJP.Schema.Modelled.Tests/TestResults/SJP.Schema.Modelled.Tests.results.xml"
-  - dotnet test src/SJP.Schema.Modelled.Reflection.Tests/SJP.Schema.Modelled.Reflection.Tests.csproj --configuration Release --logger:trx;LogFileName=SJP.Schema.Modelled.Reflection.Tests.results.xml
-  - ps: build/uploadtests.ps1 "src/SJP.Schema.Modelled.Reflection.Tests/TestResults/SJP.Schema.Modelled.Reflection.Tests.results.xml"
-  - dotnet test src/SJP.Schema.Sqlite.Tests/SJP.Schema.Sqlite.Tests.csproj --configuration Release --logger:trx;LogFileName=SJP.Schema.Sqlite.Tests.results.xml
-  - ps: build/uploadtests.ps1 "src/SJP.Schema.Sqlite.Tests/TestResults/SJP.Schema.Sqlite.Tests.results.xml"
-  - dotnet test src/SJP.Schema.SqlServer.Tests/SJP.Schema.SqlServer.Tests.csproj --configuration Release --logger:trx;LogFileName=SJP.Schema.SqlServer.Tests.results.xml
-  - ps: build/uploadtests.ps1 "src/SJP.Schema.SqlServer.Tests/TestResults/SJP.Schema.SqlServer.Tests.results.xml"
+  - dotnet test src/SJP.Schematic.Core.Tests/SJP.Schematic.Core.Tests.csproj --configuration Release --logger:trx;LogFileName=SJP.Schematic.Core.Tests.results.xml
+  - ps: build/uploadtests.ps1 "src/SJP.Schematic.Core.Tests/TestResults/SJP.Schematic.Core.Tests.results.xml"
+  - dotnet test src/SJP.Schematic.Modelled.Tests/SJP.Schematic.Modelled.Tests.csproj --configuration Release --logger:trx;LogFileName=SJP.Schematic.Modelled.Tests.results.xml
+  - ps: build/uploadtests.ps1 "src/SJP.Schematic.Modelled.Tests/TestResults/SJP.Schematic.Modelled.Tests.results.xml"
+  - dotnet test src/SJP.Schematic.Modelled.Reflection.Tests/SJP.Schematic.Modelled.Reflection.Tests.csproj --configuration Release --logger:trx;LogFileName=SJP.Schematic.Modelled.Reflection.Tests.results.xml
+  - ps: build/uploadtests.ps1 "src/SJP.Schematic.Modelled.Reflection.Tests/TestResults/SJP.Schematic.Modelled.Reflection.Tests.results.xml"
+  - dotnet test src/SJP.Schematic.Sqlite.Tests/SJP.Schematic.Sqlite.Tests.csproj --configuration Release --logger:trx;LogFileName=SJP.Schematic.Sqlite.Tests.results.xml
+  - ps: build/uploadtests.ps1 "src/SJP.Schematic.Sqlite.Tests/TestResults/SJP.Schematic.Sqlite.Tests.results.xml"
+  - dotnet test src/SJP.Schematic.SqlServer.Tests/SJP.Schematic.SqlServer.Tests.csproj --configuration Release --logger:trx;LogFileName=SJP.Schematic.SqlServer.Tests.results.xml
+  - ps: build/uploadtests.ps1 "src/SJP.Schematic.SqlServer.Tests/TestResults/SJP.Schematic.SqlServer.Tests.results.xml"
 
 notifications:
 - provider: Email

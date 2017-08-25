@@ -1,7 +1,7 @@
 ﻿using System;
-using SJP.Schema.Core;
+using SJP.Schematic.Core;
 
-namespace SJP.Schema.Modelled.Reflection.Model
+namespace SJP.Schematic.Modelled.Reflection.Model
 {
     [AttributeUsage(AttributeTargets.Struct, AllowMultiple = true, Inherited = true)]
     public abstract class DeclaredTypeAttribute : ModelledSchemaAttribute

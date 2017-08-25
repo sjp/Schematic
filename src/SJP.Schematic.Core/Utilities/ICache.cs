@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace SJP.Schema.Core.Utilities
+namespace SJP.Schematic.Core.Utilities
 {
     public interface ICache<TKey, TValue> : IEnumerable<KeyValuePair<TKey, TValue>>
     {

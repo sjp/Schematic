@@ -3,7 +3,7 @@ using NUnit.Framework;
 using Moq;
 using System.Data;
 
-namespace SJP.Schema.SqlServer.Tests
+namespace SJP.Schematic.SqlServer.Tests
 {
     [TestFixture]
     internal class SqlServerRelationalDatabaseTests

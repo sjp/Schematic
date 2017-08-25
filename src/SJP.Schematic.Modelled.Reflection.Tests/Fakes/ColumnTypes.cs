@@ -1,6 +1,6 @@
-﻿using SJP.Schema.Modelled.Reflection.Model;
+﻿using SJP.Schematic.Modelled.Reflection.Model;
 
-namespace SJP.Schema.Modelled.Reflection.Tests.Fakes.ColumnTypes
+namespace SJP.Schematic.Modelled.Reflection.Tests.Fakes.ColumnTypes
 {
     [ColumnType.BigInteger]
     public struct BigInteger : IDbType<decimal> { }

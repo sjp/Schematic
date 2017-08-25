@@ -4,12 +4,12 @@ using System.Globalization;
 using System.Linq;
 using System.Reflection;
 using System.Text;
-using SJP.Schema.Core;
+using SJP.Schematic.Core;
 using Superpower;
 using Superpower.Model;
 using Superpower.Parsers;
 
-namespace SJP.Schema.Modelled.Reflection.Model
+namespace SJP.Schematic.Modelled.Reflection.Model
 {
     public class ModelledSqlExpression : IModelledSqlExpression
     {

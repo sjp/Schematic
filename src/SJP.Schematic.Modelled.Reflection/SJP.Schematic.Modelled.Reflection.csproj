@@ -2,9 +2,6 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
-  </PropertyGroup>
-
-  <PropertyGroup>
     <TreatWarningsAsErrors>True</TreatWarningsAsErrors>
     <TreatSpecificWarningsAsErrors />
     <Authors>Simon Potter</Authors>
@@ -12,11 +9,11 @@
     <Product />
     <Description>Describe and model databases using code-first declarations in .NET</Description>
     <Copyright>Copyright © Simon Potter 2017</Copyright>
-    <PackageLicenseUrl>https://raw.github.com/sjp/SJP.Schema/master/LICENSE</PackageLicenseUrl>
-    <PackageProjectUrl>https://github.com/sjp/SJP.Schema</PackageProjectUrl>
-    <RepositoryUrl>https://github.com/sjp/SJP.Schema</RepositoryUrl>
+    <PackageLicenseUrl>https://raw.github.com/sjp/Schematic/master/LICENSE</PackageLicenseUrl>
+    <PackageProjectUrl>https://github.com/sjp/Schematic</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/sjp/Schematic</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
-    <PackageIconUrl>https://raw.github.com/sjp/SJP.Schema/master/database.svg</PackageIconUrl>
+    <PackageIconUrl>https://raw.github.com/sjp/Schematic/master/database.svg</PackageIconUrl>
   </PropertyGroup>
 
   <ItemGroup>
@@ -26,7 +23,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\SJP.Schema.Core\SJP.Schema.Core.csproj" />
+    <ProjectReference Include="..\SJP.Schematic.Core\SJP.Schematic.Core.csproj" />
   </ItemGroup>
 
 </Project>

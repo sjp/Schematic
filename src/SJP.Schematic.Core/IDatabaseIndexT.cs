@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace SJP.Schema.Core
+namespace SJP.Schematic.Core
 {
     public interface IDatabaseIndex<T> : IDatabaseOptional where T : IDatabaseQueryable
     {

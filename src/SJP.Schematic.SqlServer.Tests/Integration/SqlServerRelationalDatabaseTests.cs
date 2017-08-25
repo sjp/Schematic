@@ -2,9 +2,9 @@
 using System.Threading.Tasks;
 using NUnit.Framework;
 using Dapper;
-using SJP.Schema.Core;
+using SJP.Schematic.Core;
 
-namespace SJP.Schema.SqlServer.Tests.Integration
+namespace SJP.Schematic.SqlServer.Tests.Integration
 {
     [TestFixture]
     internal class SqlServerRelationalDatabaseTests : SqlServerTest

@@ -3,7 +3,7 @@ using NUnit.Framework;
 using Moq;
 using System.Data;
 
-namespace SJP.Schema.Sqlite.Tests
+namespace SJP.Schematic.Sqlite.Tests
 {
     [TestFixture]
     internal class SqliteRelationalDatabaseTests

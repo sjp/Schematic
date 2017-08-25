@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace SJP.Schema.Core
+namespace SJP.Schematic.Core
 {
     //TODO: suppport cancellation in every async method?
     // could be as simple as:

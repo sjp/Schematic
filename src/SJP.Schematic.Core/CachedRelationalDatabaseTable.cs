@@ -1,10 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Threading.Tasks;
-using SJP.Schema.Core.Utilities;
+using SJP.Schematic.Core.Utilities;
 
-namespace SJP.Schema.Core
+namespace SJP.Schematic.Core
 {
     public class CachedRelationalDatabaseTable : IRelationalDatabaseTable
     {

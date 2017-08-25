@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Data;
 using Microsoft.Data.Sqlite;
-using SJP.Schema.Core;
+using SJP.Schematic.Core;
 
-namespace SJP.Schema.Sqlite
+namespace SJP.Schematic.Sqlite
 {
     public class SqliteDialect : DatabaseDialect<SqliteDialect>
     {

@@ -1,6 +1,6 @@
-﻿using SJP.Schema.Core;
+﻿using SJP.Schematic.Core;
 
-namespace SJP.Schema.Modelled.Reflection
+namespace SJP.Schematic.Modelled.Reflection
 {
     public class ReflectionTable<T> : ReflectionTable where T : class, new()
     {

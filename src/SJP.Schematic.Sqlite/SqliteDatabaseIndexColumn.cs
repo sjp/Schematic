@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using SJP.Schema.Core;
+using SJP.Schematic.Core;
 
-namespace SJP.Schema.Sqlite
+namespace SJP.Schematic.Sqlite
 {
     public class SqliteDatabaseIndexColumn : IDatabaseIndexColumn
     {

@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace SJP.Schema.Core.Utilities
+namespace SJP.Schematic.Core.Utilities
 {
     public class IdentifierKeyedCache<TValue> : ICache<Identifier, TValue> where TValue : class
     {

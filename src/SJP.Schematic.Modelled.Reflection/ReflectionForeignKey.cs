@@ -2,9 +2,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using SJP.Schema.Core;
+using SJP.Schematic.Core;
 
-namespace SJP.Schema.Modelled.Reflection
+namespace SJP.Schematic.Modelled.Reflection
 {
     // TODO: fix this so that we can point to synonyms
     public class ReflectionForeignKey : ReflectionKey

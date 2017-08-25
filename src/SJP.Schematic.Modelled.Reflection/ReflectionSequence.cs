@@ -2,10 +2,10 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using SJP.Schema.Core;
+using SJP.Schematic.Core;
 using System.Reflection;
 
-namespace SJP.Schema.Modelled.Reflection
+namespace SJP.Schematic.Modelled.Reflection
 {
     public class ReflectionSequence : IDatabaseSequence
     {

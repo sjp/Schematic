@@ -1,9 +1,9 @@
 ﻿using System.Data;
 using NUnit.Framework;
-using SJP.Schema.Core;
+using SJP.Schematic.Core;
 using Microsoft.Extensions.Configuration;
 
-namespace SJP.Schema.SqlServer.Tests.Integration
+namespace SJP.Schematic.SqlServer.Tests.Integration
 {
     internal static class Config
     {

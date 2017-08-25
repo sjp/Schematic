@@ -1,7 +1,7 @@
-﻿using SJP.Schema.Core;
+﻿using SJP.Schematic.Core;
 using System;
 
-namespace SJP.Schema.Modelled
+namespace SJP.Schematic.Modelled
 {
     public interface IRelationalDatabaseBuilder
     {

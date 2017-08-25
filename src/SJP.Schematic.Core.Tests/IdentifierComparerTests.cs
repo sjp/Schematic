@@ -1,7 +1,7 @@
 ﻿using System;
 using NUnit.Framework;
 
-namespace SJP.Schema.Core.Tests
+namespace SJP.Schematic.Core.Tests
 {
     [TestFixture]
     public class IdentifierComparerTests

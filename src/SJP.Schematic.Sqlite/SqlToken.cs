@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace SJP.Schema.Sqlite.Parsing
+namespace SJP.Schematic.Sqlite.Parsing
 {
     public enum SqlToken
     {

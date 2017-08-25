@@ -5,10 +5,10 @@ using System.Data;
 using System.Linq;
 using System.Reactive.Linq;
 using System.Threading.Tasks;
-using SJP.Schema.Core;
-using SJP.Schema.SqlServer.Query;
+using SJP.Schematic.Core;
+using SJP.Schematic.SqlServer.Query;
 
-namespace SJP.Schema.SqlServer
+namespace SJP.Schematic.SqlServer
 {
     public class SqlServerRelationalDatabase : RelationalDatabase, IRelationalDatabase, IDependentRelationalDatabase
     {

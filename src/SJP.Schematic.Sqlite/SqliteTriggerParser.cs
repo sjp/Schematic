@@ -1,9 +1,9 @@
 ﻿using Superpower.Model;
 using System;
 using System.Collections.Generic;
-using SJP.Schema.Core;
+using SJP.Schematic.Core;
 
-namespace SJP.Schema.Sqlite.Parsing
+namespace SJP.Schematic.Sqlite.Parsing
 {
     public class SqliteTriggerParser
     {

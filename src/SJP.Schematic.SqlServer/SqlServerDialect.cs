@@ -2,9 +2,9 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
-using SJP.Schema.Core;
+using SJP.Schematic.Core;
 
-namespace SJP.Schema.SqlServer
+namespace SJP.Schematic.SqlServer
 {
     public class SqlServerDialect : DatabaseDialect<SqlServerDialect>
     {

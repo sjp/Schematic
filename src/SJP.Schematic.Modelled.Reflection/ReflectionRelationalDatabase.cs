@@ -4,10 +4,10 @@ using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 using System.Reactive.Linq;
-using SJP.Schema.Core;
-using SJP.Schema.Modelled.Reflection.Model;
+using SJP.Schematic.Core;
+using SJP.Schematic.Modelled.Reflection.Model;
 
-namespace SJP.Schema.Modelled.Reflection
+namespace SJP.Schematic.Modelled.Reflection
 {
     // TODO: uncomment interface when ready
     public class ReflectionRelationalDatabase : IRelationalDatabase //, IDependentRelationalDatabase

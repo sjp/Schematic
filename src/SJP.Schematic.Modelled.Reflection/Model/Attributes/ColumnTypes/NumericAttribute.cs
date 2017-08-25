@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using SJP.Schema.Core;
+using SJP.Schematic.Core;
 
-namespace SJP.Schema.Modelled.Reflection.Model
+namespace SJP.Schematic.Modelled.Reflection.Model
 {
     public static partial class ColumnType
     {

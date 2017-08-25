@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 
-namespace SJP.Schema.Core
+namespace SJP.Schematic.Core
 {
     [DebuggerDisplay("{DebuggerDisplay,nq}")]
     public class Identifier : IEquatable<Identifier>, IComparable<Identifier>

@@ -5,11 +5,11 @@ using System.Linq;
 using System.Reactive.Linq;
 using System.Threading.Tasks;
 using Dapper;
-using SJP.Schema.Core;
-using SJP.Schema.Sqlite.Query;
-using SJP.Schema.Sqlite.Parsing;
+using SJP.Schematic.Core;
+using SJP.Schematic.Sqlite.Query;
+using SJP.Schematic.Sqlite.Parsing;
 
-namespace SJP.Schema.Sqlite
+namespace SJP.Schematic.Sqlite
 {
     public class SqliteRelationalDatabase : RelationalDatabase, IRelationalDatabase
     {

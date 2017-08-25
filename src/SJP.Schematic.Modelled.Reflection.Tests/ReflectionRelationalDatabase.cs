@@ -3,11 +3,11 @@ using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
 using NUnit.Framework;
-using SJP.Schema.Modelled.Reflection.Model;
-using SJP.Schema.Modelled.Reflection.Tests.Fakes;
-using SJP.Schema.Modelled.Reflection.Tests.Fakes.ColumnTypes;
+using SJP.Schematic.Modelled.Reflection.Model;
+using SJP.Schematic.Modelled.Reflection.Tests.Fakes;
+using SJP.Schematic.Modelled.Reflection.Tests.Fakes.ColumnTypes;
 
-namespace SJP.Schema.Modelled.Reflection.Tests
+namespace SJP.Schematic.Modelled.Reflection.Tests
 {
     [TestFixture]
     public class ReflectionRelationalDatabaseTests

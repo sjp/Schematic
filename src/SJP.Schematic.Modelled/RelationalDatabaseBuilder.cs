@@ -1,9 +1,9 @@
-﻿using SJP.Schema.Core;
+﻿using SJP.Schematic.Core;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace SJP.Schema.Modelled
+namespace SJP.Schematic.Modelled
 {
     public class RelationalDatabaseBuilder : IRelationalDatabaseBuilder
     {

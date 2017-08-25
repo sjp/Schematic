@@ -1,4 +1,4 @@
-﻿namespace SJP.Schema.Sqlite.Query
+﻿namespace SJP.Schematic.Sqlite.Query
 {
     public class TableInfo
     {

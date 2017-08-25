@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using SJP.Schema.Core;
-using SJP.Schema.Modelled.Reflection.Model;
+using SJP.Schematic.Core;
+using SJP.Schematic.Modelled.Reflection.Model;
 
-namespace SJP.Schema.Modelled.Reflection
+namespace SJP.Schematic.Modelled.Reflection
 {
     public class ReflectionColumnDataType : IDbType
     {

@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Data;
 
-namespace SJP.Schema.Core
+namespace SJP.Schematic.Core
 {
     public abstract class RelationalDatabase
     {

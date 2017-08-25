@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace SJP.Schema.Core
+namespace SJP.Schematic.Core
 {
     public enum DatabaseKeyType
     {

@@ -1,4 +1,4 @@
-# SJP.Schema
+# Schematic
 
 [![License (MIT)](https://img.shields.io/badge/license-MIT-blue.svg)](https://opensource.org/licenses/MIT) [![Build status](https://ci.appveyor.com/api/projects/status/4tojgp8j8hp8vyd3?svg=true)](https://ci.appveyor.com/project/sjp/sjp-schema)
 

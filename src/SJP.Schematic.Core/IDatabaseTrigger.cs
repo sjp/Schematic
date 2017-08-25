@@ -1,4 +1,4 @@
-﻿namespace SJP.Schema.Core
+﻿namespace SJP.Schematic.Core
 {
     public interface IDatabaseTrigger : IDatabaseEntity, IDatabaseOptional
     {

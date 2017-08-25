@@ -1,6 +1,6 @@
-﻿using SJP.Schema.Core;
+﻿using SJP.Schematic.Core;
 
-namespace SJP.Schema.Modelled.Reflection
+namespace SJP.Schematic.Modelled.Reflection
 {
     // TODO: uncomment interface when ready
     public class ReflectionRelationalDatabase<T> : ReflectionRelationalDatabase //, IDependentRelationalDatabase

@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace SJP.Schema.Modelled.Reflection.Model
+namespace SJP.Schematic.Modelled.Reflection.Model
 {
     public sealed class NoIndexAttribute : ModelledSchemaAttribute
     {

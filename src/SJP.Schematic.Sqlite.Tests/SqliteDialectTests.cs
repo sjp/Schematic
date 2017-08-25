@@ -1,7 +1,7 @@
 ﻿using System;
 using NUnit.Framework;
 
-namespace SJP.Schema.Sqlite.Tests
+namespace SJP.Schematic.Sqlite.Tests
 {
     [TestFixture]
     public class SqliteDialectTests

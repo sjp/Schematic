@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Linq;
-using SJP.Schema.Core;
+using SJP.Schematic.Core;
 
-namespace SJP.Schema.Modelled.Reflection
+namespace SJP.Schematic.Modelled.Reflection
 {
     public class ReflectionRelationalKey : IDatabaseRelationalKey
     {

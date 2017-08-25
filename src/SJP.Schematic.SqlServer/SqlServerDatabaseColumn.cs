@@ -1,7 +1,7 @@
 ﻿using System;
-using SJP.Schema.Core;
+using SJP.Schematic.Core;
 
-namespace SJP.Schema.SqlServer
+namespace SJP.Schematic.SqlServer
 {
     public abstract class SqlServerDatabaseColumn : IDatabaseColumn
     {

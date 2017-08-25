@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace SJP.Schema.Modelled.Reflection
+namespace SJP.Schematic.Modelled.Reflection
 {
     public interface IView
     {

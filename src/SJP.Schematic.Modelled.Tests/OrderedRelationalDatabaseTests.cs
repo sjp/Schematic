@@ -3,7 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace SJP.Schema.Modelled.Tests
+namespace SJP.Schematic.Modelled.Tests
 {
     [TestFixture]
     public class OrderedRelationalDatabaseTests

@@ -6,12 +6,12 @@ using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Reactive.Linq;
-using SJP.Schema.Core;
-using SJP.Schema.Sqlite.Query;
-using SJP.Schema.Sqlite.Parsing;
+using SJP.Schematic.Core;
+using SJP.Schematic.Sqlite.Query;
+using SJP.Schematic.Sqlite.Parsing;
 using System.Threading;
 
-namespace SJP.Schema.Sqlite
+namespace SJP.Schematic.Sqlite
 {
     public class SqliteRelationalDatabaseTable : IRelationalDatabaseTable, IRelationalDatabaseTableAsync
     {

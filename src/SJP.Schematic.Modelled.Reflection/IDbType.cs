@@ -1,4 +1,4 @@
-﻿namespace SJP.Schema.Modelled.Reflection
+﻿namespace SJP.Schematic.Modelled.Reflection
 {
     public interface IDbType<T>
     {

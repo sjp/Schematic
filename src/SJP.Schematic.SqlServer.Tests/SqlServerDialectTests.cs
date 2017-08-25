@@ -1,7 +1,7 @@
 ﻿using System;
 using NUnit.Framework;
 
-namespace SJP.Schema.SqlServer.Tests
+namespace SJP.Schematic.SqlServer.Tests
 {
     [TestFixture]
     internal class SqlServerDialectTests

@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
-using SJP.Schema.Core;
+using SJP.Schematic.Core;
 
-namespace SJP.Schema.Modelled.Reflection.Model
+namespace SJP.Schematic.Modelled.Reflection.Model
 {
     public abstract partial class Key : IModelledKey
     {

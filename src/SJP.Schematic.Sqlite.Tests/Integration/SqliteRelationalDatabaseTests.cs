@@ -2,9 +2,9 @@
 using System.Threading.Tasks;
 using NUnit.Framework;
 using Dapper;
-using SJP.Schema.Core;
+using SJP.Schematic.Core;
 
-namespace SJP.Schema.Sqlite.Tests.Integration
+namespace SJP.Schematic.Sqlite.Tests.Integration
 {
     [TestFixture]
     internal class SqliteRelationalDatabaseTests : SqliteTest

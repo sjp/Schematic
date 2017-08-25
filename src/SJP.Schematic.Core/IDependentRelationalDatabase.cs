@@ -1,6 +1,6 @@
-﻿using SJP.Schema.Core;
+﻿using SJP.Schematic.Core;
 
-namespace SJP.Schema.Core
+namespace SJP.Schematic.Core
 {
     public interface IDependentRelationalDatabase : IRelationalDatabase
     {

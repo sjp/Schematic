@@ -4,7 +4,7 @@ using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 
-namespace SJP.Schema.Core.Utilities
+namespace SJP.Schematic.Core.Utilities
 {
     /// <summary>
     /// Flags controlling the behavior of <see cref="AsyncLazy{T}"/>.
