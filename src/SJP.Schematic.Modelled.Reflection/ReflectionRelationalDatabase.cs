@@ -124,6 +124,8 @@ namespace SJP.Schematic.Modelled.Reflection
             var tables = GetUnwrappedPropertyTypes(TableGenericType)
                 .Select(LoadTableSync)
                 .ToList();
+            if (tables.Count == 0)
+                return result;
 
             var duplicateNames = new HashSet<Identifier>();
             foreach (var table in tables)
@@ -216,6 +218,8 @@ namespace SJP.Schematic.Modelled.Reflection
             var views = GetUnwrappedPropertyTypes(ViewGenericType)
                 .Select(LoadViewSync)
                 .ToList();
+            if (views.Count == 0)
+                return result;
 
             var duplicateNames = new HashSet<Identifier>();
             foreach (var view in views)
@@ -308,6 +312,8 @@ namespace SJP.Schematic.Modelled.Reflection
             var sequences = GetUnwrappedPropertyTypes(SequenceGenericType)
                 .Select(LoadSequenceSync)
                 .ToList();
+            if (sequences.Count == 0)
+                return result;
 
             var duplicateNames = new HashSet<Identifier>();
             foreach (var sequence in sequences)
@@ -400,6 +406,8 @@ namespace SJP.Schematic.Modelled.Reflection
             var synonyms = GetUnwrappedPropertyTypes(SynonymGenericType)
                 .Select(LoadSynonymSync)
                 .ToList();
+            if (synonyms.Count == 0)
+                return result;
 
             var duplicateNames = new HashSet<Identifier>();
             foreach (var synonym in synonyms)
@@ -490,6 +498,8 @@ namespace SJP.Schematic.Modelled.Reflection
             var triggers = GetUnwrappedPropertyTypes(SynonymGenericType)
                 .Select(LoadTriggerSync)
                 .ToList();
+            if (triggers.Count == 0)
+                return result;
 
             var duplicateNames = new HashSet<Identifier>();
             foreach (var trigger in triggers)

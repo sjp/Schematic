@@ -56,10 +56,12 @@ where schema_name(v.schema_id) = @SchemaName and v.name = @ViewName
             if (queryResult.Empty())
                 return Enumerable.Empty<IDatabaseViewIndex>();
 
-            var indexColumns = queryResult.GroupBy(row => new { IndexName = row.IndexName, IsUnique = row.IsUnique, IsDisabled = row.IsDisabled });
+            var indexColumns = queryResult.GroupBy(row => new { IndexName = row.IndexName, IsUnique = row.IsUnique, IsDisabled = row.IsDisabled }).ToList();
+            if (indexColumns.Count == 0)
+                return Enumerable.Empty<IDatabaseViewIndex>();
 
             var viewColumns = Column;
-            var result = new List<IDatabaseViewIndex>();
+            var result = new List<IDatabaseViewIndex>(indexColumns.Count);
             foreach (var indexInfo in indexColumns)
             {
                 var isUnique = indexInfo.Key.IsUnique;
@@ -106,10 +108,12 @@ where schema_name(v.schema_id) = @SchemaName and v.name = @ViewName
             if (queryResult.Empty())
                 return Enumerable.Empty<IDatabaseViewIndex>();
 
-            var indexColumns = queryResult.GroupBy(row => new { IndexName = row.IndexName, IsUnique = row.IsUnique, IsDisabled = row.IsDisabled });
+            var indexColumns = queryResult.GroupBy(row => new { IndexName = row.IndexName, IsUnique = row.IsUnique, IsDisabled = row.IsDisabled }).ToList();
+            if (indexColumns.Count == 0)
+                return Enumerable.Empty<IDatabaseViewIndex>();
 
             var viewColumns = await ColumnAsync().ConfigureAwait(false);
-            var result = new List<IDatabaseViewIndex>();
+            var result = new List<IDatabaseViewIndex>(indexColumns.Count);
             foreach (var indexInfo in indexColumns)
             {
                 var isUnique = indexInfo.Key.IsUnique;

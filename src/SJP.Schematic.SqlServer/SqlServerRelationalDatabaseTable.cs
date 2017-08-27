@@ -147,10 +147,12 @@ where schema_name(t.schema_id) = @SchemaName and t.name = @TableName
             if (queryResult.Empty())
                 return Enumerable.Empty<IDatabaseTableIndex>();
 
-            var indexColumns = queryResult.GroupBy(row => new { IndexName = row.IndexName, IsUnique = row.IsUnique, IsDisabled = row.IsDisabled });
+            var indexColumns = queryResult.GroupBy(row => new { IndexName = row.IndexName, IsUnique = row.IsUnique, IsDisabled = row.IsDisabled }).ToList();
+            if (indexColumns.Count == 0)
+                return Enumerable.Empty<IDatabaseTableIndex>();
 
             var tableColumns = Column;
-            var result = new List<IDatabaseTableIndex>();
+            var result = new List<IDatabaseTableIndex>(indexColumns.Count);
             foreach (var indexInfo in indexColumns)
             {
                 var isUnique = indexInfo.Key.IsUnique;
@@ -195,10 +197,12 @@ where schema_name(t.schema_id) = @SchemaName and t.name = @TableName
             if (queryResult.Empty())
                 return Enumerable.Empty<IDatabaseTableIndex>();
 
-            var indexColumns = queryResult.GroupBy(row => new { IndexName = row.IndexName, IsUnique = row.IsUnique, IsDisabled = row.IsDisabled });
+            var indexColumns = queryResult.GroupBy(row => new { IndexName = row.IndexName, IsUnique = row.IsUnique, IsDisabled = row.IsDisabled }).ToList();
+            if (indexColumns.Count == 0)
+                return Enumerable.Empty<IDatabaseTableIndex>();
 
             var tableColumns = await ColumnAsync().ConfigureAwait(false);
-            var result = new List<IDatabaseTableIndex>();
+            var result = new List<IDatabaseTableIndex>(indexColumns.Count);
             foreach (var indexInfo in indexColumns)
             {
                 var isUnique = indexInfo.Key.IsUnique;
@@ -286,14 +290,16 @@ order by ic.column_id";
                     IsEnabled = !g.Key.IsDisabled
                 })
                 .ToList();
+            if (constraintColumns.Count == 0)
+                return Enumerable.Empty<IDatabaseKey>();
 
-            var result = new List<IDatabaseKey>();
+            var result = new List<IDatabaseKey>(constraintColumns.Count);
             foreach (var uk in constraintColumns)
             {
                 var uniqueKey = new SqlServerDatabaseKey(this, uk.ConstraintName, DatabaseKeyType.Unique, uk.Columns, uk.IsEnabled);
                 result.Add(uniqueKey);
             }
-            return result.ToList();
+            return result;
         }
 
         protected virtual async Task<IEnumerable<IDatabaseKey>> LoadUniqueKeysAsync()
@@ -326,14 +332,16 @@ order by ic.column_id";
                     IsEnabled = !g.Key.IsDisabled
                 })
                 .ToList();
+            if (constraintColumns.Count == 0)
+                return Enumerable.Empty<IDatabaseKey>();
 
-            var result = new List<IDatabaseKey>();
+            var result = new List<IDatabaseKey>(constraintColumns.Count);
             foreach (var uk in constraintColumns)
             {
                 var uniqueKey = new SqlServerDatabaseKey(this, uk.ConstraintName, DatabaseKeyType.Unique, uk.Columns, uk.IsEnabled);
                 result.Add(uniqueKey);
             }
-            return result.ToList();
+            return result;
         }
 
         public IEnumerable<IDatabaseRelationalKey> ChildKeys => LoadChildKeysSync();
@@ -366,9 +374,11 @@ where schema_name(parent_t.schema_id) = @SchemaName and parent_t.name = @TableNa
                 ParentKeyType = row.ParentKeyType,
                 DeleteAction = row.DeleteAction,
                 UpdateAction = row.UpdateAction
-            });
+            }).ToList();
+            if (groupedChildKeys.Count == 0)
+                return Enumerable.Empty<IDatabaseRelationalKey>();
 
-            var result = new List<IDatabaseRelationalKey>();
+            var result = new List<IDatabaseRelationalKey>(groupedChildKeys.Count);
             foreach (var groupedChildKey in groupedChildKeys)
             {
                 var childKeyName = new LocalIdentifier(groupedChildKey.Key.ChildKeyName);
@@ -426,9 +436,11 @@ where schema_name(parent_t.schema_id) = @SchemaName and parent_t.name = @TableNa
                 ParentKeyType = row.ParentKeyType,
                 DeleteAction = row.DeleteAction,
                 UpdateAction = row.UpdateAction
-            });
+            }).ToList();
+            if (groupedChildKeys.Count == 0)
+                return Enumerable.Empty<IDatabaseRelationalKey>();
 
-            var result = new List<IDatabaseRelationalKey>();
+            var result = new List<IDatabaseRelationalKey>(groupedChildKeys.Count);
             foreach (var groupedChildKey in groupedChildKeys)
             {
                 var childKeyName = new LocalIdentifier(groupedChildKey.Key.ChildKeyName);
@@ -598,9 +610,11 @@ where schema_name(child_t.schema_id) = @SchemaName and child_t.name = @TableName
                 DeleteAction = row.DeleteAction,
                 UpdateAction = row.UpdateAction,
                 IsDisabled = row.IsDisabled
-            });
+            }).ToList();
+            if (foreignKeys.Count == 0)
+                return Enumerable.Empty<IDatabaseRelationalKey>();
 
-            var result = new List<IDatabaseRelationalKey>();
+            var result = new List<IDatabaseRelationalKey>(foreignKeys.Count);
             foreach (var fkey in foreignKeys)
             {
                 var rows = fkey.OrderBy(row => row.ConstraintColumnId);
@@ -666,9 +680,11 @@ where schema_name(child_t.schema_id) = @SchemaName and child_t.name = @TableName
                 DeleteAction = row.DeleteAction,
                 UpdateAction = row.UpdateAction,
                 IsDisabled = row.IsDisabled
-            });
+            }).ToList();
+            if (foreignKeys.Count == 0)
+                return Enumerable.Empty<IDatabaseRelationalKey>();
 
-            var result = new List<IDatabaseRelationalKey>();
+            var result = new List<IDatabaseRelationalKey>(foreignKeys.Count);
             foreach (var fkey in foreignKeys)
             {
                 var rows = fkey.OrderBy(row => row.ConstraintColumnId);
@@ -900,9 +916,11 @@ where schema_name(t.schema_id) = @SchemaName and t.name = @TableName";
                 Definition = row.Definition,
                 IsInsteadOfTrigger = row.IsInsteadOfTrigger,
                 IsDisabled = row.IsDisabled
-            });
+            }).ToList();
+            if (triggers.Count == 0)
+                return Enumerable.Empty<IDatabaseTrigger>();
 
-            var result = new List<IDatabaseTrigger>();
+            var result = new List<IDatabaseTrigger>(triggers.Count);
             foreach (var trig in triggers)
             {
                 var triggerName = new LocalIdentifier(trig.Key.TriggerName);
@@ -950,9 +968,11 @@ where schema_name(t.schema_id) = @SchemaName and t.name = @TableName";
                 Definition = row.Definition,
                 IsInsteadOfTrigger = row.IsInsteadOfTrigger,
                 IsDisabled = row.IsDisabled
-            });
+            }).ToList();
+            if (triggers.Count == 0)
+                return Enumerable.Empty<IDatabaseTrigger>();
 
-            var result = new List<IDatabaseTrigger>();
+            var result = new List<IDatabaseTrigger>(triggers.Count);
             foreach (var trig in triggers)
             {
                 var triggerName = new LocalIdentifier(trig.Key.TriggerName);

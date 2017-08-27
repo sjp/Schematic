@@ -63,8 +63,8 @@ namespace SJP.Schematic.Modelled.Reflection
 
             IsFunctionBased = isFunctionBasedIndex;
 
-            Columns = columns.ToList();
-            IncludedColumns = includedColumns.ToList();
+            Columns = columns;
+            IncludedColumns = includedColumns;
         }
 
         public IRelationalDatabaseTable Table => Parent;

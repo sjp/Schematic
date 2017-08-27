@@ -133,11 +133,11 @@ namespace SJP.Schematic.Sqlite
             if (indexLists.Empty())
                 return Enumerable.Empty<IDatabaseTableIndex>();
 
-            var nonConstraintIndexLists = indexLists.Where(i => i.origin == "c");
-            if (nonConstraintIndexLists.Empty())
+            var nonConstraintIndexLists = indexLists.Where(i => i.origin == "c").ToList();
+            if (nonConstraintIndexLists.Count == 0)
                 return Enumerable.Empty<IDatabaseTableIndex>();
 
-            var result = new List<IDatabaseTableIndex>();
+            var result = new List<IDatabaseTableIndex>(nonConstraintIndexLists.Count);
 
             foreach (var indexList in nonConstraintIndexLists)
             {
@@ -169,11 +169,11 @@ namespace SJP.Schematic.Sqlite
             if (indexLists.Empty())
                 return Enumerable.Empty<IDatabaseTableIndex>();
 
-            var nonConstraintIndexLists = indexLists.Where(i => i.origin == "c");
-            if (nonConstraintIndexLists.Empty())
+            var nonConstraintIndexLists = indexLists.Where(i => i.origin == "c").ToList();
+            if (nonConstraintIndexLists.Count == 0)
                 return Enumerable.Empty<IDatabaseTableIndex>();
 
-            var result = new List<IDatabaseTableIndex>();
+            var result = new List<IDatabaseTableIndex>(nonConstraintIndexLists.Count);
 
             foreach (var indexList in nonConstraintIndexLists)
             {
@@ -240,10 +240,10 @@ namespace SJP.Schematic.Sqlite
             var ukIndexLists = indexLists
                 .Where(i => i.origin == "u" && i.unique)
                 .ToList();
-            if (ukIndexLists.Empty())
+            if (ukIndexLists.Count == 0)
                 return Enumerable.Empty<IDatabaseKey>();
 
-            var result = new List<IDatabaseKey>();
+            var result = new List<IDatabaseKey>(ukIndexLists.Count);
 
             var parser = ParsedDefinition;
             var parsedUniqueConstraints = parser.Columns
@@ -283,10 +283,10 @@ namespace SJP.Schematic.Sqlite
             var ukIndexLists = indexLists
                 .Where(i => i.origin == "u" && i.unique)
                 .ToList();
-            if (ukIndexLists.Empty())
+            if (ukIndexLists.Count == 0)
                 return Enumerable.Empty<IDatabaseKey>();
 
-            var result = new List<IDatabaseKey>();
+            var result = new List<IDatabaseKey>(ukIndexLists.Count);
 
             var parser = await ParsedDefinitionAsync().ConfigureAwait(false);
             var parsedUniqueConstraints = parser.Columns
@@ -382,12 +382,15 @@ namespace SJP.Schematic.Sqlite
 
         protected virtual IEnumerable<IDatabaseCheckConstraint> LoadCheckConstraintsSync()
         {
-            var result = new List<IDatabaseCheckConstraint>();
-
             var parser = ParsedDefinition;
             var checkConstraints = parser
                 .Columns.SelectMany(col => col.Constraints)
-                .Concat(parser.Constraints);
+                .Concat(parser.Constraints)
+                .ToList();
+            if (checkConstraints.Count == 0)
+                return Enumerable.Empty<IDatabaseCheckConstraint>();
+
+            var result = new List<IDatabaseCheckConstraint>(checkConstraints.Count);
 
             foreach (var ck in checkConstraints)
             {
@@ -401,12 +404,15 @@ namespace SJP.Schematic.Sqlite
 
         protected virtual async Task<IEnumerable<IDatabaseCheckConstraint>> LoadCheckConstraintsAsync()
         {
-            var result = new List<IDatabaseCheckConstraint>();
-
             var parser = await ParsedDefinitionAsync().ConfigureAwait(false);
             var checkConstraints = parser
                 .Columns.SelectMany(col => col.Constraints)
-                .Concat(parser.Constraints);
+                .Concat(parser.Constraints)
+                .ToList();
+            if (checkConstraints.Count == 0)
+                return Enumerable.Empty<IDatabaseCheckConstraint>();
+
+            var result = new List<IDatabaseCheckConstraint>(checkConstraints.Count);
 
             foreach (var ck in checkConstraints)
             {
@@ -457,7 +463,10 @@ namespace SJP.Schematic.Sqlite
             if (queryResult.Empty())
                 return Enumerable.Empty<IDatabaseRelationalKey>();
 
-            var foreignKeys = queryResult.GroupBy(row => new { ForeignKeyId = row.id, ParentTableName = row.table, OnDelete = row.on_delete, OnUpdate = row.on_update });
+            var foreignKeys = queryResult.GroupBy(row => new { ForeignKeyId = row.id, ParentTableName = row.table, OnDelete = row.on_delete, OnUpdate = row.on_update }).ToList();
+            if (foreignKeys.Count == 0)
+                return Enumerable.Empty<IDatabaseRelationalKey>();
+
             var parser = ParsedDefinition;
             var fkConstraints = parser.Columns
                 .SelectMany(col => col.Constraints)
@@ -465,7 +474,7 @@ namespace SJP.Schematic.Sqlite
                 .Where(c => c.Type == SqliteTableParser.ConstraintType.Foreign)
                 .ToList();
 
-            var result = new List<IDatabaseRelationalKey>();
+            var result = new List<IDatabaseRelationalKey>(foreignKeys.Count);
             foreach (var fkey in foreignKeys)
             {
                 var rows = fkey.OrderBy(row => row.seq);
@@ -526,7 +535,10 @@ namespace SJP.Schematic.Sqlite
             if (queryResult.Empty())
                 return Enumerable.Empty<IDatabaseRelationalKey>();
 
-            var foreignKeys = queryResult.GroupBy(row => new { ForeignKeyId = row.id, ParentTableName = row.table, OnDelete = row.on_delete, OnUpdate = row.on_update });
+            var foreignKeys = queryResult.GroupBy(row => new { ForeignKeyId = row.id, ParentTableName = row.table, OnDelete = row.on_delete, OnUpdate = row.on_update }).ToList();
+            if (foreignKeys.Count == 0)
+                return Enumerable.Empty<IDatabaseRelationalKey>();
+
             var parser = await ParsedDefinitionAsync().ConfigureAwait(false);
             var fkConstraints = parser.Columns
                 .SelectMany(col => col.Constraints)
@@ -534,7 +546,7 @@ namespace SJP.Schematic.Sqlite
                 .Where(c => c.Type == SqliteTableParser.ConstraintType.Foreign)
                 .ToList();
 
-            var result = new List<IDatabaseRelationalKey>();
+            var result = new List<IDatabaseRelationalKey>(foreignKeys.Count);
             foreach (var fkey in foreignKeys)
             {
                 var rows = fkey.OrderBy(row => row.seq);

@@ -86,7 +86,9 @@ namespace SJP.Schematic.Modelled.Reflection
             var result = new Dictionary<Identifier, IDatabaseRelationalKey>();
             var tableColumns = Column; // trigger load
 
-            var keyProperties = InstanceProperties.Where(IsKeyProperty);
+            var keyProperties = InstanceProperties.Where(IsKeyProperty).ToList();
+            if (keyProperties.Count == 0)
+                return result;
 
             var fks = new List<Key.ForeignKey>();
             foreach (var keyProperty in keyProperties)
@@ -191,7 +193,9 @@ namespace SJP.Schematic.Modelled.Reflection
 
         private IDatabaseKey LoadPrimaryKey()
         {
-            var keyProperties = InstanceProperties.Where(IsKeyProperty);
+            var keyProperties = InstanceProperties.Where(IsKeyProperty).ToList();
+            if (keyProperties.Count == 0)
+                return null;
 
             var primaryKeys = new List<IModelledKey>();
             foreach (var keyProperty in keyProperties)
@@ -246,7 +250,9 @@ namespace SJP.Schematic.Modelled.Reflection
             var result = new Dictionary<Identifier, IDatabaseKey>();
             var tableColumns = Column; // trigger load
 
-            var keyProperties = InstanceProperties.Where(IsKeyProperty);
+            var keyProperties = InstanceProperties.Where(IsKeyProperty).ToList();
+            if (keyProperties.Count == 0)
+                return result;
 
             var uniqueKeys = new List<IModelledKey>();
             foreach (var keyProperty in keyProperties)
