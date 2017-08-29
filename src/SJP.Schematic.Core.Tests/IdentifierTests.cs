@@ -20,7 +20,7 @@ namespace SJP.Schematic.Core.Tests
         [Test]
         public void LocalName_PropertyGet_EqualsCtorArgument()
         {
-            var name = "abc";
+            const string name = "abc";
             var identifier = new Identifier(name);
             Assert.AreEqual(identifier.LocalName, name);
         }
@@ -43,8 +43,8 @@ namespace SJP.Schematic.Core.Tests
         [Test]
         public void SchemaAndLocalName_PropertyGets_MatchCtorArguments()
         {
-            var localName = "abc";
-            var schema = "def";
+            const string localName = "abc";
+            const string schema = "def";
             var identifier = new Identifier(schema, localName);
 
             Assert.Multiple(() =>
@@ -76,9 +76,9 @@ namespace SJP.Schematic.Core.Tests
         [Test]
         public void DatabaseAndSchemaAndLocalName_PropertyGets_MatchCtorArguments()
         {
-            var localName = "abc";
-            var schema = "def";
-            var database = "ghi";
+            const string localName = "abc";
+            const string schema = "def";
+            const string database = "ghi";
             var identifier = new Identifier(database, schema, localName);
 
             Assert.Multiple(() =>
@@ -115,10 +115,10 @@ namespace SJP.Schematic.Core.Tests
         [Test]
         public void ServerAndDatabaseAndSchemaAndLocalName_PropertyGets_MatchCtorArguments()
         {
-            var localName = "abc";
-            var schema = "def";
-            var database = "ghi";
-            var server = "jkl";
+            const string localName = "abc";
+            const string schema = "def";
+            const string database = "ghi";
+            const string server = "jkl";
             var identifier = new Identifier(server, database, schema, localName);
 
             Assert.Multiple(() =>
@@ -144,7 +144,7 @@ namespace SJP.Schematic.Core.Tests
         [Test]
         public void Equals_GivenEqualIdentifiers_ReturnsTrue()
         {
-            var name = "abc";
+            const string name = "abc";
             var identifier = new Identifier(name, name);
             var otherIdentifier = new Identifier(name, name);
             Assert.AreEqual(identifier, otherIdentifier);
@@ -153,8 +153,8 @@ namespace SJP.Schematic.Core.Tests
         [Test]
         public void Equals_GivenDifferentIdentifiers_ReturnsFalse()
         {
-            var name = "abc";
-            var otherName = "def";
+            const string name = "abc";
+            const string otherName = "def";
             var identifier = new Identifier(name, name);
             var otherIdentifier = new Identifier(otherName, name);
             Assert.AreNotEqual(identifier, otherIdentifier);
@@ -163,7 +163,7 @@ namespace SJP.Schematic.Core.Tests
         [Test]
         public void EqualsOp_GivenEqualIdentifiers_ReturnsTrue()
         {
-            var name = "abc";
+            const string name = "abc";
             var identifier = new Identifier(name, name);
             var otherIdentifier = new Identifier(name, name);
             var isEqual = identifier == otherIdentifier;
@@ -173,8 +173,8 @@ namespace SJP.Schematic.Core.Tests
         [Test]
         public void EqualsOp_GivenDifferentIdentifiers_ReturnsFalse()
         {
-            var name = "abc";
-            var otherName = "def";
+            const string name = "abc";
+            const string otherName = "def";
             var identifier = new Identifier(name, name);
             var otherIdentifier = new Identifier(otherName, name);
             var isNotEqual = identifier != otherIdentifier;
@@ -184,7 +184,7 @@ namespace SJP.Schematic.Core.Tests
         [Test]
         public void ObjectsEquals_GivenEqualIdentifiers_ReturnsTrue()
         {
-            var name = "abc";
+            const string name = "abc";
             object identifier = new Identifier(name, name);
             object otherIdentifier = new Identifier(name, name);
 
@@ -198,8 +198,8 @@ namespace SJP.Schematic.Core.Tests
         [Test]
         public void ObjectsEquals_GivenDifferentObjects_ReturnsFalse()
         {
-            var name = "abc";
-            var otherName = "def";
+            const string name = "abc";
+            const string otherName = "def";
             object identifier = new Identifier(name, name);
             object otherIdentifier = new Identifier(otherName, name);
 
@@ -229,7 +229,7 @@ namespace SJP.Schematic.Core.Tests
         [Test]
         public void LocalIdentifierEquals_GivenSameStringIdentifier_ReturnsTrue()
         {
-            var name = "abc";
+            const string name = "abc";
             var identifier = new LocalIdentifier(name);
             Assert.AreEqual(identifier.LocalName, name);
         }
@@ -237,7 +237,7 @@ namespace SJP.Schematic.Core.Tests
         [Test]
         public void LocalIdentifierEquals_GivenDifferentStringIdentifier_ReturnsFalse()
         {
-            var name = "abc";
+            const string name = "abc";
             var identifier = new LocalIdentifier("def");
             Assert.AreNotEqual(identifier.LocalName, name);
         }
@@ -245,7 +245,7 @@ namespace SJP.Schematic.Core.Tests
         [Test]
         public void LocalIdentifierEquals_GivenEqualLocalIdentifiers_ReturnsTrue()
         {
-            var name = "abc";
+            const string name = "abc";
             var identifier = new LocalIdentifier(name);
             var otherIdentifier = new LocalIdentifier(name);
 
@@ -273,7 +273,7 @@ namespace SJP.Schematic.Core.Tests
         [Test]
         public void LocalIdentifierGetHashCode_GivenEqualLocalIdentifier_ReturnsTrue()
         {
-            var name = "abc";
+            const string name = "abc";
             var identifier = new LocalIdentifier(name);
             var otherIdentifier = new LocalIdentifier(name);
             Assert.AreEqual(identifier.GetHashCode(), otherIdentifier.GetHashCode());
@@ -315,7 +315,7 @@ namespace SJP.Schematic.Core.Tests
         [Test]
         public void SchemaIdentifierEquals_GivenSameStringIdentifier_ReturnsTrue()
         {
-            var name = "abc";
+            const string name = "abc";
             var identifier = new SchemaIdentifier(name);
             Assert.AreEqual(identifier.Schema, name);
         }
@@ -323,7 +323,7 @@ namespace SJP.Schematic.Core.Tests
         [Test]
         public void SchemaIdentifierEquals_GivenDifferentStringIdentifier_ReturnsFalse()
         {
-            var name = "abc";
+            const string name = "abc";
             var identifier = new SchemaIdentifier("def");
             Assert.AreNotEqual(identifier.Schema, name);
         }
@@ -331,7 +331,7 @@ namespace SJP.Schematic.Core.Tests
         [Test]
         public void SchemaIdentifierEquals_GivenEqualSchemaIdentifiers_ReturnsTrue()
         {
-            var name = "abc";
+            const string name = "abc";
             var identifier = new SchemaIdentifier(name);
             var otherIdentifier = new SchemaIdentifier(name);
 
@@ -359,7 +359,7 @@ namespace SJP.Schematic.Core.Tests
         [Test]
         public void SchemaIdentifierGetHashCode_GivenEqualSchemaIdentifier_ReturnsTrue()
         {
-            var name = "abc";
+            const string name = "abc";
             var identifier = new SchemaIdentifier(name);
             var otherIdentifier = new SchemaIdentifier(name);
             Assert.AreEqual(identifier.GetHashCode(), otherIdentifier.GetHashCode());
@@ -401,7 +401,7 @@ namespace SJP.Schematic.Core.Tests
         [Test]
         public void DatabaseIdentifierEquals_GivenSameStringIdentifier_ReturnsTrue()
         {
-            var name = "abc";
+            const string name = "abc";
             var identifier = new DatabaseIdentifier(name);
             Assert.AreEqual(identifier.Database, name);
         }
@@ -409,7 +409,7 @@ namespace SJP.Schematic.Core.Tests
         [Test]
         public void DatabaseIdentifierEquals_GivenDifferentStringIdentifier_ReturnsFalse()
         {
-            var name = "abc";
+            const string name = "abc";
             var identifier = new DatabaseIdentifier("def");
             Assert.AreNotEqual(identifier.Database, name);
         }
@@ -417,7 +417,7 @@ namespace SJP.Schematic.Core.Tests
         [Test]
         public void DatabaseIdentifierEquals_GivenEqualDatabaseIdentifiers_ReturnsTrue()
         {
-            var name = "abc";
+            const string name = "abc";
             var identifier = new DatabaseIdentifier(name);
             var otherIdentifier = new DatabaseIdentifier(name);
 
@@ -445,7 +445,7 @@ namespace SJP.Schematic.Core.Tests
         [Test]
         public void DatabaseIdentifierGetHashCode_GivenEqualDatabaseIdentifier_ReturnsTrue()
         {
-            var name = "abc";
+            const string name = "abc";
             var identifier = new DatabaseIdentifier(name);
             var otherIdentifier = new DatabaseIdentifier(name);
             Assert.AreEqual(identifier.GetHashCode(), otherIdentifier.GetHashCode());
@@ -487,7 +487,7 @@ namespace SJP.Schematic.Core.Tests
         [Test]
         public void ServerIdentifierEquals_GivenSameStringIdentifier_ReturnsTrue()
         {
-            var name = "abc";
+            const string name = "abc";
             var identifier = new ServerIdentifier(name);
             Assert.AreEqual(identifier.Server, name);
         }
@@ -495,7 +495,7 @@ namespace SJP.Schematic.Core.Tests
         [Test]
         public void ServerIdentifierEquals_GivenDifferentStringIdentifier_ReturnsFalse()
         {
-            var name = "abc";
+            const string name = "abc";
             var identifier = new ServerIdentifier("def");
             Assert.AreNotEqual(identifier.Server, name);
         }
@@ -503,7 +503,7 @@ namespace SJP.Schematic.Core.Tests
         [Test]
         public void ServerIdentifierEquals_GivenEqualServerIdentifiers_ReturnsTrue()
         {
-            var name = "abc";
+            const string name = "abc";
             var identifier = new ServerIdentifier(name);
             var otherIdentifier = new ServerIdentifier(name);
 
@@ -531,7 +531,7 @@ namespace SJP.Schematic.Core.Tests
         [Test]
         public void ServerIdentifierGetHashCode_GivenEqualServerIdentifier_ReturnsTrue()
         {
-            var name = "abc";
+            const string name = "abc";
             var identifier = new ServerIdentifier(name);
             var otherIdentifier = new ServerIdentifier(name);
             Assert.AreEqual(identifier.GetHashCode(), otherIdentifier.GetHashCode());
