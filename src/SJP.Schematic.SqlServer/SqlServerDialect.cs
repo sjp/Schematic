@@ -51,6 +51,8 @@ namespace SJP.Schematic.SqlServer
 
             var pieces = new List<string>();
 
+            if (name.Server != null)
+                pieces.Add(QuoteIdentifier(name.Server));
             if (name.Database != null)
                 pieces.Add(QuoteIdentifier(name.Database));
             if (name.Schema != null)

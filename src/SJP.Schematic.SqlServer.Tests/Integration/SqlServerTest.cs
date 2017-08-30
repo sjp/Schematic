@@ -1,4 +1,5 @@
-﻿using System.Data;
+﻿using System;
+using System.Data;
 using NUnit.Framework;
 using SJP.Schematic.Core;
 using Microsoft.Extensions.Configuration;
@@ -17,6 +18,7 @@ namespace SJP.Schematic.SqlServer.Tests.Integration
             .Build();
     }
 
+    [AttributeUsage(AttributeTargets.Class, AllowMultiple = false, Inherited = true)]
     internal sealed class DatabaseDependentAttribute : CategoryAttribute
     {
         public DatabaseDependentAttribute()

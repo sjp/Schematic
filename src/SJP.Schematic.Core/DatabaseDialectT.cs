@@ -10,8 +10,6 @@ namespace SJP.Schematic.Core
         {
         }
 
-        //protected static readonly ILog Log = LogManager.GetLogger(typeof(IDialectProvider));
-
         public abstract IDbConnection CreateConnection(string connectionString, bool openConnection = true);
 
         public virtual string QuoteName(Identifier name)
@@ -21,6 +19,8 @@ namespace SJP.Schematic.Core
 
             var pieces = new List<string>();
 
+            if (name.Server != null)
+                pieces.Add(QuoteIdentifier(name.Server));
             if (name.Database != null)
                 pieces.Add(QuoteIdentifier(name.Database));
             if (name.Schema != null)

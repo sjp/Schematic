@@ -239,33 +239,33 @@ namespace SJP.Schematic.Sqlite
 
         #region Sequences
 
-        public bool SequenceExists(Identifier sequenceName) => throw new NotSupportedException();
+        public bool SequenceExists(Identifier sequenceName) => throw new NotSupportedException(SequencesNotSupported);
 
-        public IDatabaseSequence GetSequence(Identifier sequenceName) => throw new NotSupportedException();
+        public IDatabaseSequence GetSequence(Identifier sequenceName) => throw new NotSupportedException(SequencesNotSupported);
 
-        public IEnumerable<IDatabaseSequence> Sequences => throw new NotSupportedException();
+        public IEnumerable<IDatabaseSequence> Sequences => throw new NotSupportedException(SequencesNotSupported);
 
-        public Task<bool> SequenceExistsAsync(Identifier sequenceName) => throw new NotSupportedException();
+        public Task<bool> SequenceExistsAsync(Identifier sequenceName) => throw new NotSupportedException(SequencesNotSupported);
 
-        public Task<IDatabaseSequence> GetSequenceAsync(Identifier sequenceName) => throw new NotSupportedException();
+        public Task<IDatabaseSequence> GetSequenceAsync(Identifier sequenceName) => throw new NotSupportedException(SequencesNotSupported);
 
-        public IObservable<IDatabaseSequence> SequencesAsync() => throw new NotSupportedException();
+        public IObservable<IDatabaseSequence> SequencesAsync() => throw new NotSupportedException(SequencesNotSupported);
 
         #endregion Sequences
 
         #region Synonyms
 
-        public bool SynonymExists(Identifier synonymName) => throw new NotSupportedException();
+        public bool SynonymExists(Identifier synonymName) => throw new NotSupportedException(SynonymsNotSupported);
 
-        public IDatabaseSynonym GetSynonym(Identifier synonymName) => throw new NotSupportedException();
+        public IDatabaseSynonym GetSynonym(Identifier synonymName) => throw new NotSupportedException(SynonymsNotSupported);
 
-        public IEnumerable<IDatabaseSynonym> Synonyms => throw new NotSupportedException();
+        public IEnumerable<IDatabaseSynonym> Synonyms => throw new NotSupportedException(SynonymsNotSupported);
 
-        public Task<bool> SynonymExistsAsync(Identifier synonymName) => throw new NotSupportedException();
+        public Task<bool> SynonymExistsAsync(Identifier synonymName) => throw new NotSupportedException(SynonymsNotSupported);
 
-        public Task<IDatabaseSynonym> GetSynonymAsync(Identifier synonymName) => throw new NotSupportedException();
+        public Task<IDatabaseSynonym> GetSynonymAsync(Identifier synonymName) => throw new NotSupportedException(SynonymsNotSupported);
 
-        public IObservable<IDatabaseSynonym> SynonymsAsync() => throw new NotSupportedException();
+        public IObservable<IDatabaseSynonym> SynonymsAsync() => throw new NotSupportedException(SynonymsNotSupported);
 
         #endregion Synonyms
 
@@ -381,5 +381,8 @@ namespace SJP.Schematic.Sqlite
         #endregion Triggers
 
         protected static ISet<string> BuiltInTables { get; } = new HashSet<string>(new[] { "sqlite_master", "sqlite_sequence" }, StringComparer.OrdinalIgnoreCase);
+
+        private const string SequencesNotSupported = "Sequences are not available in SQLite.";
+        private const string SynonymsNotSupported = "Synonyms are not available in SQLite.";
     }
 }

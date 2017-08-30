@@ -447,9 +447,9 @@ where schema_id = schema_id(@SchemaName) and name = @SynonymName
             Identifier targetName;
             if (!queryResult.TargetServerName.IsNullOrWhiteSpace())
                 targetName = new Identifier(queryResult.TargetServerName, queryResult.TargetDatabaseName, queryResult.TargetSchemaName, queryResult.TargetObjectName);
-            else if (queryResult.TargetDatabaseName.IsNullOrWhiteSpace())
+            else if (!queryResult.TargetDatabaseName.IsNullOrWhiteSpace())
                 targetName = new Identifier(queryResult.TargetDatabaseName, queryResult.TargetSchemaName, queryResult.TargetObjectName);
-            else if (queryResult.TargetSchemaName.IsNullOrWhiteSpace())
+            else if (!queryResult.TargetSchemaName.IsNullOrWhiteSpace())
                 targetName = new Identifier(queryResult.TargetSchemaName, queryResult.TargetObjectName);
             else
                 targetName = new Identifier(queryResult.TargetObjectName);
@@ -480,9 +480,9 @@ where schema_id = schema_id(@SchemaName) and name = @SynonymName
             Identifier targetName;
             if (!queryResult.TargetServerName.IsNullOrWhiteSpace())
                 targetName = new Identifier(queryResult.TargetServerName, queryResult.TargetDatabaseName, queryResult.TargetSchemaName, queryResult.TargetObjectName);
-            else if (queryResult.TargetDatabaseName.IsNullOrWhiteSpace())
+            else if (!queryResult.TargetDatabaseName.IsNullOrWhiteSpace())
                 targetName = new Identifier(queryResult.TargetDatabaseName, queryResult.TargetSchemaName, queryResult.TargetObjectName);
-            else if (queryResult.TargetSchemaName.IsNullOrWhiteSpace())
+            else if (!queryResult.TargetSchemaName.IsNullOrWhiteSpace())
                 targetName = new Identifier(queryResult.TargetSchemaName, queryResult.TargetObjectName);
             else
                 targetName = new Identifier(queryResult.TargetObjectName);

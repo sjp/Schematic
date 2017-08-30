@@ -62,7 +62,7 @@ namespace SJP.Schematic.Core
 
         public async Task<IEnumerable<IDatabaseCheckConstraint>> CheckConstraintsAsync()
         {
-            var checks = await _checks;
+            var checks = await _checks.ConfigureAwait(false);
             return checks.Values;
         }
 
@@ -76,7 +76,7 @@ namespace SJP.Schematic.Core
 
         public async Task<IEnumerable<IDatabaseTableIndex>> IndexesAsync()
         {
-            var indexes = await _indexes;
+            var indexes = await _indexes.ConfigureAwait(false);
             return indexes.Values;
         }
 
@@ -84,7 +84,7 @@ namespace SJP.Schematic.Core
 
         public async Task<IEnumerable<IDatabaseRelationalKey>> ParentKeysAsync()
         {
-            var parentKeys = await _parentKeys;
+            var parentKeys = await _parentKeys.ConfigureAwait(false);
             return parentKeys.Values;
         }
 
@@ -94,7 +94,7 @@ namespace SJP.Schematic.Core
 
         public async Task<IEnumerable<IDatabaseTrigger>> TriggersAsync()
         {
-            var triggers = await _triggers;
+            var triggers = await _triggers.ConfigureAwait(false);
             return triggers.Values;
         }
 
@@ -102,7 +102,7 @@ namespace SJP.Schematic.Core
 
         public async Task<IEnumerable<IDatabaseKey>> UniqueKeysAsync()
         {
-            var uniqueKeys = await _uniqueKeys;
+            var uniqueKeys = await _uniqueKeys.ConfigureAwait(false);
             return uniqueKeys.Values;
         }
 

@@ -1,7 +1,8 @@
-﻿using System.Data;
+﻿using System;
+using System.Data;
+using Microsoft.Extensions.Configuration;
 using NUnit.Framework;
 using SJP.Schematic.Core;
-using Microsoft.Extensions.Configuration;
 
 namespace SJP.Schematic.Sqlite.Tests.Integration
 {
@@ -17,6 +18,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
             .Build();
     }
 
+    [AttributeUsage(AttributeTargets.Class, AllowMultiple = false, Inherited = true)]
     internal sealed class DatabaseDependentAttribute : CategoryAttribute
     {
         public DatabaseDependentAttribute()
