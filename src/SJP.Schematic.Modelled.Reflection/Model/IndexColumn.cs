@@ -1,4 +1,5 @@
 ﻿using System;
+using EnumsNET;
 using SJP.Schematic.Core;
 
 namespace SJP.Schematic.Modelled.Reflection.Model
@@ -9,6 +10,8 @@ namespace SJP.Schematic.Modelled.Reflection.Model
         {
             if (column == null)
                 throw new ArgumentNullException(nameof(column));
+            if (!order.IsValid())
+                throw new ArgumentException($"The { nameof(IndexColumnOrder) } provided must be a valid enum.", nameof(order));
 
             Expression = column.Expression;
             Order = order;
@@ -16,6 +19,9 @@ namespace SJP.Schematic.Modelled.Reflection.Model
 
         public IndexColumn(IModelledSqlExpression expression, IndexColumnOrder order = IndexColumnOrder.Ascending)
         {
+            if (!order.IsValid())
+                throw new ArgumentException($"The { nameof(IndexColumnOrder) } provided must be a valid enum.", nameof(order));
+
             Expression = expression ?? throw new ArgumentNullException(nameof(expression));
             Order = order;
         }

@@ -1,4 +1,5 @@
 ﻿using System;
+using EnumsNET;
 using SJP.Schematic.Core;
 
 namespace SJP.Schematic.Sqlite
@@ -9,6 +10,10 @@ namespace SJP.Schematic.Sqlite
         {
             if (name == null || name.LocalName == null)
                 throw new ArgumentNullException(nameof(name));
+            if (!queryTiming.IsValid())
+                throw new ArgumentException($"The { nameof(TriggerQueryTiming) } provided must be a valid enum.", nameof(queryTiming));
+            if (!events.IsValid())
+                throw new ArgumentException($"The { nameof(TriggerEvent) } provided must be a valid enum.", nameof(events));
             if (events == TriggerEvent.None)
                 throw new ArgumentException("Invalid trigger event flags given. Must include at least one event, e.g. INSERT, DELETE, UPDATE.", nameof(events));
 

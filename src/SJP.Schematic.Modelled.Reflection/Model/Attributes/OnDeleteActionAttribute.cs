@@ -1,4 +1,5 @@
 ﻿using System;
+using EnumsNET;
 
 namespace SJP.Schematic.Modelled.Reflection.Model
 {
@@ -8,12 +9,18 @@ namespace SJP.Schematic.Modelled.Reflection.Model
         public OnDeleteActionAttribute(ForeignKeyAction action)
             : base(new[] { Dialect.All })
         {
+            if (!action.IsValid())
+                throw new ArgumentException($"The { nameof(ForeignKeyAction) } provided must be a valid enum.", nameof(action));
+
             Action = action;
         }
 
         public OnDeleteActionAttribute(ForeignKeyAction action, params Type[] dialects)
             : base(dialects)
         {
+            if (!action.IsValid())
+                throw new ArgumentException($"The { nameof(ForeignKeyAction) } provided must be a valid enum.", nameof(action));
+
             Action = action;
         }
 

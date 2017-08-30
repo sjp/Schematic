@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using EnumsNET;
 using SJP.Schematic.Core;
 
 namespace SJP.Schematic.SqlServer
@@ -12,6 +13,8 @@ namespace SJP.Schematic.SqlServer
                 throw new ArgumentNullException(nameof(name));
             if (columns == null || columns.Empty() || columns.AnyNull())
                 throw new ArgumentNullException(nameof(columns));
+            if (!keyType.IsValid())
+                throw new ArgumentException($"The { nameof(DatabaseKeyType) } provided must be a valid enum.", nameof(keyType));
 
             Table = table ?? throw new ArgumentNullException(nameof(table));
             Name = name.LocalName;

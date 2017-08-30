@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using EnumsNET;
 using SJP.Schematic.Core;
 
 namespace SJP.Schematic.Sqlite
@@ -10,6 +11,8 @@ namespace SJP.Schematic.Sqlite
         {
             if (columns == null || columns.Empty() || columns.AnyNull())
                 throw new ArgumentNullException(nameof(columns));
+            if (!keyType.IsValid())
+                throw new ArgumentException($"The { nameof(DatabaseKeyType) } provided must be a valid enum.", nameof(keyType));
 
             Name = name?.LocalName; // can be null!
             Table = table ?? throw new ArgumentNullException(nameof(table));

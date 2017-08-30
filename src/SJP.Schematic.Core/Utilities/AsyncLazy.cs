@@ -3,6 +3,7 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
+using EnumsNET;
 
 namespace SJP.Schematic.Core.Utilities
 {
@@ -44,6 +45,8 @@ namespace SJP.Schematic.Core.Utilities
         public AsyncLazy(Func<Task<T>> factory, AsyncLazyFlags flags = AsyncLazyFlags.None)
         {
             _factory = factory ?? throw new ArgumentNullException(nameof(factory));
+            if (!flags.IsValid())
+                throw new ArgumentException($"The { nameof(AsyncLazyFlags) } provided must be a valid enum.", nameof(flags));
             if ((flags & AsyncLazyFlags.RetryOnFailure) == AsyncLazyFlags.RetryOnFailure)
                 _factory = RetryOnFailure(_factory);
             if ((flags & AsyncLazyFlags.ExecuteOnCallingThread) != AsyncLazyFlags.ExecuteOnCallingThread)

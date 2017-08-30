@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using SJP.Schematic.Core;
+using EnumsNET;
 
 namespace SJP.Schematic.Sqlite.Parsing
 {
@@ -497,6 +498,8 @@ namespace SJP.Schematic.Sqlite.Parsing
         {
             public Column(string name, string typeName, SqliteCollation collation, bool isAutoIncrement, IEnumerable<Constraint> constraints)
             {
+                if (!collation.IsValid())
+                    throw new ArgumentException($"The { nameof(SqliteCollation) } provided must be a valid enum.", nameof(collation));
                 if (constraints == null)
                     throw new ArgumentNullException(nameof(constraints));
 
@@ -532,6 +535,8 @@ namespace SJP.Schematic.Sqlite.Parsing
             public Constraint(string name, ConstraintType type, IEnumerable<string> columns,
                 string foreignKeyTableName = null, IEnumerable<string> foreignKeyColumns = null, IEnumerable<Token<SqlToken>> tokens = null)
             {
+                if (!type.IsValid())
+                    throw new ArgumentException($"The { nameof(ConstraintType) } provided must be a valid enum.", nameof(type));
                 if (columns == null || columns.Empty())
                     throw new ArgumentNullException(nameof(columns));
 

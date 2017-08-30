@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using EnumsNET;
 using SJP.Schematic.Core;
 
 namespace SJP.Schematic.Modelled.Reflection
@@ -14,6 +15,8 @@ namespace SJP.Schematic.Modelled.Reflection
                 throw new ArgumentNullException(nameof(dialect));
             if (columns == null || columns.Empty() || columns.AnyNull())
                 throw new ArgumentNullException(nameof(columns));
+            if (!keyType.IsValid())
+                throw new ArgumentException($"The { nameof(DatabaseKeyType) } provided must be a valid enum.", nameof(keyType));
 
             _prop = prop ?? throw new ArgumentNullException(nameof(prop));
             Table = table ?? throw new ArgumentNullException(nameof(table));
