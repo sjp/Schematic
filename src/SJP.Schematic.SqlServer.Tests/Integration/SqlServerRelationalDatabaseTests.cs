@@ -141,6 +141,7 @@ namespace SJP.Schematic.SqlServer.Tests.Integration
                 var table = await Database.GetTableAsync("db_test_table_1").ConfigureAwait(false);
                 Assert.NotNull(table);
             }
+
             [Test]
             public async Task GetTableAsync_WhenTablePresent_ReturnsTableWithCorrectName()
             {

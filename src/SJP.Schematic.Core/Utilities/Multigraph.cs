@@ -5,70 +5,115 @@ using System.Linq;
 namespace SJP.Schematic.Core.Utilities
 {
     /// <summary>
-    ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-    ///     directly from your code. This API may change or be removed in future releases.
+    /// Internal. Not to be consumed externally. A generic vertex/edge graph class.
     /// </summary>
+    /// <typeparam name="TVertex">The type of the graph vertex.</typeparam>
+    /// <typeparam name="TEdge">The type of the graph edge.</typeparam>
     public class Multigraph<TVertex, TEdge> : Graph<TVertex>
     {
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        /// Internal. Not to be consumed externally.
         /// </summary>
-        protected virtual string ToString(TVertex vertex) => vertex.ToString();
+        /// <param name="vertex">A graph vertex.</param>
+        /// <returns>A string representation of the vertex.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="vertex"/> is <c>null</c>.</exception>
+        protected virtual string ToString(TVertex vertex)
+        {
+            if (IsVertexNull(vertex))
+                throw new ArgumentNullException(nameof(vertex));
+
+            return vertex.ToString();
+        }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        /// Internal. Not to be consumed externally.
         /// </summary>
         public virtual IEnumerable<TEdge> Edges => _successorMap.Values.SelectMany(s => s.Values).SelectMany(e => e).Distinct();
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        /// Internal. Not to be consumed externally.
         /// </summary>
+        /// <param name="from">A vertex to get the edges from.</param>
+        /// <param name="to">A vertex to get the edges going to.</param>
+        /// <exception cref="ArgumentNullException"><paramref name="from"/> or <paramref name="to"/> is <c>null</c>.</exception>
         public virtual IEnumerable<TEdge> GetEdges(TVertex from, TVertex to)
         {
+            if (IsVertexNull(from))
+                throw new ArgumentNullException(nameof(from));
+            if (IsVertexNull(to))
+                throw new ArgumentNullException(nameof(to));
+
             return _successorMap.TryGetValue(from, out var successorSet) && successorSet.TryGetValue(to, out var edgeList)
                 ? edgeList
                 : Enumerable.Empty<TEdge>();
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        /// Internal. Not to be consumed externally.
         /// </summary>
+        /// <param name="vertex">A vertex to add to the graph.</param>
+        /// <exception cref="ArgumentNullException"><paramref name="vertex"/> is <c>null</c>.</exception>
         public virtual void AddVertex(TVertex vertex)
-            => _vertices.Add(vertex);
+        {
+            if (IsVertexNull(vertex))
+                throw new ArgumentNullException(nameof(vertex));
+
+            _vertices.Add(vertex);
+        }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        /// Internal. Not to be consumed externally.
         /// </summary>
+        /// <param name="vertices">A collection of vertices to add to the graph.</param>
+        /// <exception cref="ArgumentNullException"><paramref name="vertices"/> is <c>null</c>.</exception>
         public virtual void AddVertices(IEnumerable<TVertex> vertices)
-            => _vertices.UnionWith(vertices);
+        {
+            if (vertices == null)
+                throw new ArgumentNullException(nameof(vertices));
+
+            _vertices.UnionWith(vertices);
+        }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        /// Internal. Not to be consumed externally.
         /// </summary>
+        /// <param name="from">A vertex to get the edges from.</param>
+        /// <param name="to">A vertex to get the edges going to.</param>
+        /// <param name="edge">An edge that goes from <paramref name="from"/> to <paramref name="to"/>.</param>
+        /// <exception cref="ArgumentNullException"><paramref name="from"/>, <paramref name="to"/> or <paramref name="edge"/> is <c>null</c>.</exception>
         public virtual void AddEdge(TVertex from, TVertex to, TEdge edge)
-            => AddEdges(from, to, new[] { edge });
+        {
+            if (IsVertexNull(from))
+                throw new ArgumentNullException(nameof(from));
+            if (IsVertexNull(to))
+                throw new ArgumentNullException(nameof(to));
+            if (IsEdgeNull(edge))
+                throw new ArgumentNullException(nameof(edge));
+
+            AddEdges(from, to, new[] { edge });
+        }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        /// Internal. Not to be consumed externally.
         /// </summary>
+        /// <param name="from">A vertex to get the edges from.</param>
+        /// <param name="to">A vertex to get the edges going to.</param>
+        /// <param name="edges">A collection of edges that go from <paramref name="from"/> to <paramref name="to"/>.</param>
+        /// <exception cref="ArgumentNullException"><paramref name="from"/>, <paramref name="to"/> or <paramref name="edges"/> is <c>null</c>.</exception>
         public virtual void AddEdges(TVertex from, TVertex to, IEnumerable<TEdge> edges)
         {
+            if (IsVertexNull(from))
+                throw new ArgumentNullException(nameof(from));
+            if (IsVertexNull(to))
+                throw new ArgumentNullException(nameof(to));
+            if (edges == null)
+                throw new ArgumentNullException(nameof(edges));
+
             if (!_vertices.Contains(from))
-            {
                 throw new InvalidOperationException($"The edge cannot be added because the graph does not contain vertex '{ from }'.");
-            }
 
             if (!_vertices.Contains(to))
-            {
                 throw new InvalidOperationException($"The edge cannot be added because the graph does not contain vertex '{ to }'.");
-            }
 
             if (!_successorMap.TryGetValue(from, out var successorSet))
             {
@@ -86,31 +131,43 @@ namespace SJP.Schematic.Core.Utilities
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        /// Internal. Not to be consumed externally.
         /// </summary>
         public virtual IReadOnlyList<TVertex> TopologicalSort() => TopologicalSort(null, null);
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        /// Internal. Not to be consumed externally.
         /// </summary>
+        /// <param name="canBreakEdge">A function that determines whether it is permitted to break the edge in order to sort the graph.</param>
+        /// <exception cref="ArgumentNullException"><paramref name="canBreakEdge"/> is <c>null</c>.</exception>
         public virtual IReadOnlyList<TVertex> TopologicalSort(
             Func<TVertex, TVertex, IEnumerable<TEdge>, bool> canBreakEdge)
-            => TopologicalSort(canBreakEdge, null);
+        {
+            if (canBreakEdge == null)
+                throw new ArgumentNullException(nameof(canBreakEdge));
+
+            return TopologicalSort(canBreakEdge, null);
+        }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        /// Internal. Not to be consumed externally.
         /// </summary>
+        /// <param name="formatCycle">A function which determines how to display a cycle.</param>
+        /// <exception cref="ArgumentNullException"><paramref name="formatCycle"/> is <c>null</c>.</exception>
         public virtual IReadOnlyList<TVertex> TopologicalSort(
             Func<IEnumerable<Tuple<TVertex, TVertex, IEnumerable<TEdge>>>, string> formatCycle)
-            => TopologicalSort(null, formatCycle);
+        {
+            if (formatCycle == null)
+                throw new ArgumentNullException(nameof(formatCycle));
+
+            return TopologicalSort(null, formatCycle);
+        }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        /// Internal. Not to be consumed externally.
         /// </summary>
+        /// <param name="canBreakEdge">A function that determines whether it is permitted to break the edge in order to sort the graph.</param>
+        /// <param name="formatCycle">A function which determines how to display a cycle.</param>
         public virtual IReadOnlyList<TVertex> TopologicalSort(
             Func<TVertex, TVertex, IEnumerable<TEdge>, bool> canBreakEdge,
             Func<IEnumerable<Tuple<TVertex, TVertex, IEnumerable<TEdge>>>, string> formatCycle)
@@ -244,16 +301,15 @@ namespace SJP.Schematic.Core.Utilities
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        /// Internal. Not to be consumed externally.
         /// </summary>
         public virtual IReadOnlyList<List<TVertex>> BatchingTopologicalSort()
             => BatchingTopologicalSort(null);
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        /// Internal. Not to be consumed externally.
         /// </summary>
+        /// <param name="formatCycle">A function which determines how to display a cycle.</param>
         public virtual IReadOnlyList<List<TVertex>> BatchingTopologicalSort(
             Func<IEnumerable<Tuple<TVertex, TVertex, IEnumerable<TEdge>>>, string> formatCycle)
         {
@@ -381,30 +437,43 @@ namespace SJP.Schematic.Core.Utilities
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        /// Internal. Not to be consumed externally.
         /// </summary>
         public override IEnumerable<TVertex> Vertices => _vertices;
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        /// Internal. Not to be consumed externally.
         /// </summary>
+        /// <param name="from">The vertex for which we are retrieving outgoing neighbours for.</param>
+        /// <exception cref="ArgumentNullException"><paramref name="from"/> is <c>null</c>.</exception>
         public override IEnumerable<TVertex> GetOutgoingNeighbours(TVertex from)
         {
+            if (IsVertexNull(from))
+                throw new ArgumentNullException(nameof(from));
+
             return _successorMap.TryGetValue(from, out var successorSet)
                 ? successorSet.Keys
                 : Enumerable.Empty<TVertex>();
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        /// Internal. Not to be consumed externally.
         /// </summary>
+        /// <param name="to">The vertex for which we are retrieving incoming neighbours for.</param>
+        /// <exception cref="ArgumentNullException"><paramref name="to"/> is <c>null</c>.</exception>
         public override IEnumerable<TVertex> GetIncomingNeighbours(TVertex to)
-            => _successorMap.Where(kvp => kvp.Value.ContainsKey(to)).Select(kvp => kvp.Key);
+        {
+            if (IsVertexNull(to))
+                throw new ArgumentNullException(nameof(to));
+
+            return _successorMap.Where(kvp => kvp.Value.ContainsKey(to)).Select(kvp => kvp.Key);
+        }
+
+        protected static bool IsEdgeNull(TEdge edge) => !_isEdgeValueType && EqualityComparer<TEdge>.Default.Equals(edge, default(TEdge));
 
         private readonly HashSet<TVertex> _vertices = new HashSet<TVertex>();
         private readonly Dictionary<TVertex, Dictionary<TVertex, List<TEdge>>> _successorMap = new Dictionary<TVertex, Dictionary<TVertex, List<TEdge>>>();
+
+        protected readonly static bool _isEdgeValueType = typeof(TEdge).IsValueType;
     }
 }
