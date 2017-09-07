@@ -10,7 +10,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
     [TestFixture]
     internal class SqliteRelationalDatabaseTests : SqliteTest
     {
-        private IRelationalDatabase Database => new SqliteRelationalDatabase(new SqliteDialect(), Connection);
+        private IRelationalDatabase Database => new SqliteRelationalDatabase(Dialect, Connection);
 
         [Test]
         public void Database_PropertyGet_ShouldMatchConnectionDatabase()
@@ -39,7 +39,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
                 await Connection.ExecuteAsync("drop table db_test_table_1").ConfigureAwait(false);
             }
 
-            private IRelationalDatabase Database => new SqliteRelationalDatabase(new SqliteDialect(), Connection);
+            private IRelationalDatabase Database => new SqliteRelationalDatabase(Dialect, Connection);
 
             [Test]
             public void TableExists_GivenNullName_ThrowsArgumentNullException()
@@ -253,7 +253,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
         [TestFixture]
         internal class SequenceTests : SqliteTest
         {
-            private IRelationalDatabase Database => new SqliteRelationalDatabase(new SqliteDialect(), Connection);
+            private IRelationalDatabase Database => new SqliteRelationalDatabase(Dialect, Connection);
 
             [Test]
             public void SequenceExists_WhenInvoked_ThrowsNotSupportedException()
@@ -295,7 +295,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
         [TestFixture]
         internal class SynonymTests : SqliteTest
         {
-            private IRelationalDatabase Database => new SqliteRelationalDatabase(new SqliteDialect(), Connection);
+            private IRelationalDatabase Database => new SqliteRelationalDatabase(Dialect, Connection);
 
             [Test]
             public void SynonymExists_WhenInvoked_ThrowsNotSupportedException()

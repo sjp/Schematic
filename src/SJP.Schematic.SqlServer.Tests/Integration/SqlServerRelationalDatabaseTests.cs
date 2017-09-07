@@ -11,7 +11,7 @@ namespace SJP.Schematic.SqlServer.Tests.Integration
     [TestFixture]
     internal class SqlServerRelationalDatabaseTests : SqlServerTest
     {
-        private IRelationalDatabase Database => new SqlServerRelationalDatabase(new SqlServerDialect(), Connection);
+        private IRelationalDatabase Database => new SqlServerRelationalDatabase(Dialect, Connection);
 
         [Test]
         public void Database_PropertyGet_ShouldMatchConnectionDatabase()
@@ -40,7 +40,7 @@ namespace SJP.Schematic.SqlServer.Tests.Integration
                 await Connection.ExecuteAsync("drop table db_test_table_1").ConfigureAwait(false);
             }
 
-            private IRelationalDatabase Database => new SqlServerRelationalDatabase(new SqlServerDialect(), Connection);
+            private IRelationalDatabase Database => new SqlServerRelationalDatabase(Dialect, Connection);
 
             [Test]
             public void TableExists_GivenNullName_ThrowsArgumentNullException()
@@ -207,7 +207,7 @@ namespace SJP.Schematic.SqlServer.Tests.Integration
                 await Connection.ExecuteAsync("drop view db_test_view_1").ConfigureAwait(false);
             }
 
-            private IRelationalDatabase Database => new SqlServerRelationalDatabase(new SqlServerDialect(), Connection);
+            private IRelationalDatabase Database => new SqlServerRelationalDatabase(Dialect, Connection);
 
             [Test]
             public void ViewExists_GivenNullName_ThrowsArgumentNullException()
@@ -374,7 +374,7 @@ namespace SJP.Schematic.SqlServer.Tests.Integration
                 await Connection.ExecuteAsync("drop sequence db_test_sequence_1").ConfigureAwait(false);
             }
 
-            private IRelationalDatabase Database => new SqlServerRelationalDatabase(new SqlServerDialect(), Connection);
+            private IRelationalDatabase Database => new SqlServerRelationalDatabase(Dialect, Connection);
 
             [Test]
             public void SequenceExists_GivenNullName_ThrowsArgumentNullException()
@@ -541,7 +541,7 @@ namespace SJP.Schematic.SqlServer.Tests.Integration
                 await Connection.ExecuteAsync("drop synonym db_test_synonym_1").ConfigureAwait(false);
             }
 
-            private IRelationalDatabase Database => new SqlServerRelationalDatabase(new SqlServerDialect(), Connection);
+            private IRelationalDatabase Database => new SqlServerRelationalDatabase(Dialect, Connection);
 
             [Test]
             public void SynonymExists_GivenNullName_ThrowsArgumentNullException()
