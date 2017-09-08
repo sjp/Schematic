@@ -688,7 +688,7 @@ where schema_name(t.schema_id) = @SchemaName and st.name = @TriggerName";
             if (identifier == null || identifier.LocalName == null)
                 throw new ArgumentNullException(nameof(identifier));
 
-            return identifier.Schema.IsNullOrWhiteSpace() && !DefaultSchema.IsNullOrWhiteSpace()
+            return identifier.Schema == null && DefaultSchema != null
                 ? new Identifier(DefaultSchema, identifier.LocalName)
                 : identifier;
         }

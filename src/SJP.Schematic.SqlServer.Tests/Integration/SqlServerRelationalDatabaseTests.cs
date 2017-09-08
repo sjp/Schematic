@@ -254,7 +254,7 @@ namespace SJP.Schematic.SqlServer.Tests.Integration
             [Test]
             public void GetView_WhenViewPresent_ReturnsViewWithCorrectName()
             {
-                Identifier viewName = "db_test_view_1";
+                var viewName = new Identifier(Database.DefaultSchema, "db_test_view_1");
                 var view = Database.GetView(viewName);
 
                 Assert.AreEqual(viewName, view.Name);
@@ -312,7 +312,7 @@ namespace SJP.Schematic.SqlServer.Tests.Integration
             [Test]
             public async Task GetViewAsync_WhenViewPresent_ReturnsViewWithCorrectName()
             {
-                Identifier viewName = "db_test_view_1";
+                var viewName = new Identifier(Database.DefaultSchema, "db_test_view_1");
                 var view = await Database.GetViewAsync(viewName).ConfigureAwait(false);
 
                 Assert.AreEqual(viewName, view.Name);
@@ -336,7 +336,8 @@ namespace SJP.Schematic.SqlServer.Tests.Integration
             [Test]
             public void Views_WhenEnumerated_ContainsTestView()
             {
-                var containsTestView = Database.Views.Any(v => v.Name == "db_test_view_1");
+                var viewName = new Identifier(Database.DefaultSchema, "db_test_view_1");
+                var containsTestView = Database.Views.Any(v => v.Name == viewName);
 
                 Assert.True(containsTestView);
             }
@@ -352,8 +353,9 @@ namespace SJP.Schematic.SqlServer.Tests.Integration
             [Test]
             public async Task ViewsAsync_WhenSubscribed_ContainsTestView()
             {
+                var viewName = new Identifier(Database.DefaultSchema, "db_test_view_1");
                 var views = await Database.ViewsAsync().ToList();
-                var containsTestView = views.Any(v => v.Name == "db_test_view_1");
+                var containsTestView = views.Any(v => v.Name == viewName);
 
                 Assert.True(containsTestView);
             }

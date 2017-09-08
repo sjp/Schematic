@@ -18,8 +18,12 @@ namespace SJP.Schematic.SqlServer
 
             Connection = connection ?? throw new ArgumentNullException(nameof(connection));
             Database = database ?? throw new ArgumentNullException(nameof(database));
-            Name = viewName.LocalName;
             Comparer = comparer ?? new IdentifierComparer(StringComparer.Ordinal, database.DefaultSchema);
+
+            if (viewName.Schema == null && database.DefaultSchema != null)
+                viewName = new Identifier(database.DefaultSchema, viewName.LocalName);
+
+            Name = viewName;
         }
 
         public Identifier Name { get; }
@@ -85,7 +89,7 @@ where schema_name(v.schema_id) = @SchemaName and v.name = @ViewName
 
                 // TODO: Merge index definitions so that views and tables can be shared (but typed)
                 //       Use generics for Parent<T> ?
-                var index = new SqlServerDatabaseViewIndex(null, indexName, isUnique, indexCols, includedCols, isEnabled);
+                var index = new SqlServerDatabaseViewIndex(this, indexName, isUnique, indexCols, includedCols, isEnabled);
                 result.Add(index);
             }
 
@@ -137,7 +141,7 @@ where schema_name(v.schema_id) = @SchemaName and v.name = @ViewName
 
                 // TODO: Merge index definitions so that views and tables can be shared (but typed)
                 //       Use generics for Parent<T> ?
-                var index = new SqlServerDatabaseViewIndex(null, indexName, isUnique, indexCols, includedCols, isEnabled);
+                var index = new SqlServerDatabaseViewIndex(this, indexName, isUnique, indexCols, includedCols, isEnabled);
                 result.Add(index);
             }
 

@@ -17,9 +17,13 @@ namespace SJP.Schematic.SqlServer
                 throw new ArgumentNullException(nameof(tableName));
 
             Connection = connection ?? throw new ArgumentNullException(nameof(connection));
-            Name = tableName.LocalName;
             Database = database ?? throw new ArgumentNullException(nameof(database));
             Comparer = comparer ?? new IdentifierComparer(StringComparer.Ordinal, database.DefaultSchema);
+
+            if (tableName.Schema == null && database.DefaultSchema != null)
+                tableName = new Identifier(database.DefaultSchema, tableName.LocalName);
+
+            Name = tableName.LocalName;
         }
 
         public Identifier Name { get; }

@@ -14,8 +14,11 @@ namespace SJP.Schematic.SqlServer
                 throw new ArgumentNullException(nameof(sequenceName));
 
             Database = database ?? throw new ArgumentNullException(nameof(database));
-            Name = sequenceName.LocalName;
             Connection = connection ?? throw new ArgumentNullException(nameof(connection));
+
+            if (sequenceName.Schema == null && database.DefaultSchema != null)
+                sequenceName = new Identifier(database.DefaultSchema, sequenceName.LocalName);
+            Name = sequenceName.LocalName;
 
             _dataLoader = new Lazy<SequenceData>(LoadSequenceData);
         }
