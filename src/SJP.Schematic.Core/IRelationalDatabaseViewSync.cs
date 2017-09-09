@@ -6,6 +6,8 @@ namespace SJP.Schematic.Core
     {
         IRelationalDatabase Database { get; }
 
+        string Definition { get; }
+
         IReadOnlyDictionary<Identifier, IDatabaseViewColumn> Column { get; }
 
         IReadOnlyList<IDatabaseViewColumn> Columns { get; }

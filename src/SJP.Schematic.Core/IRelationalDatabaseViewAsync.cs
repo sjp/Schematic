@@ -5,6 +5,8 @@ namespace SJP.Schematic.Core
 {
     public interface IRelationalDatabaseViewAsync : IDatabaseEntity
     {
+        Task<string> DefinitionAsync();
+
         Task<IReadOnlyDictionary<Identifier, IDatabaseViewColumn>> ColumnAsync();
 
         Task<IReadOnlyList<IDatabaseViewColumn>> ColumnsAsync();

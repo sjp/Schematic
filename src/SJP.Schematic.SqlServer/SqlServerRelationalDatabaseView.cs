@@ -34,6 +34,32 @@ namespace SJP.Schematic.SqlServer
 
         protected IEqualityComparer<Identifier> Comparer { get; }
 
+        public string Definition => LoadDefinitionSync();
+
+        public Task<string> DefinitionAsync() => LoadDefinitionAsync();
+
+        protected virtual string LoadDefinitionSync()
+        {
+            const string sql = @"
+select sm.definition
+from sys.sql_modules sm
+inner join sys.views v on sm.object_id = v.object_id
+where schema_name(v.schema_id) = @SchemaName and v.name = @ViewName";
+
+            return Connection.ExecuteScalar<string>(sql, new { SchemaName = Name.Schema, ViewName = Name.LocalName });
+        }
+
+        protected virtual Task<string> LoadDefinitionAsync()
+        {
+            const string sql = @"
+select sm.definition
+from sys.sql_modules sm
+inner join sys.views v on sm.object_id = v.object_id
+where schema_name(v.schema_id) = @SchemaName and v.name = @ViewName";
+
+            return Connection.ExecuteScalarAsync<string>(sql, new { SchemaName = Name.Schema, ViewName = Name.LocalName });
+        }
+
         public bool IsIndexed => Indexes.Any();
 
         public IReadOnlyDictionary<Identifier, IDatabaseViewIndex> Index => LoadIndexLookupSync();

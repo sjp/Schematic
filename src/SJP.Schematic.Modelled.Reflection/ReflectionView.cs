@@ -16,6 +16,10 @@ namespace SJP.Schematic.Modelled.Reflection
 
         protected Type ViewType { get; }
 
+        public string Definition => throw new NotImplementedException();
+
+        public Task<string> DefinitionAsync() => throw new NotImplementedException();
+
         public IReadOnlyDictionary<Identifier, IDatabaseViewColumn> Column
         {
             get

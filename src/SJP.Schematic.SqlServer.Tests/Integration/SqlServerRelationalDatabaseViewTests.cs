@@ -67,6 +67,30 @@ namespace SJP.Schematic.SqlServer.Tests.Integration
         }
 
         [Test]
+        public void Definition_PropertyGet_ReturnsCorrectDefinition()
+        {
+            var viewName = new Identifier(Database.DefaultSchema, "view_test_view_1");
+            var view = new SqlServerRelationalDatabaseView(Connection, Database, viewName);
+
+            var definition = view.Definition;
+            const string expected = "create view view_test_view_1 as select 1 as test";
+
+            Assert.AreEqual(expected, definition);
+        }
+
+        [Test]
+        public async Task DefinitionAsync_PropertyGet_ReturnsCorrectDefinition()
+        {
+            var viewName = new Identifier(Database.DefaultSchema, "view_test_view_1");
+            var view = new SqlServerRelationalDatabaseView(Connection, Database, viewName);
+
+            var definition = await view.DefinitionAsync();
+            const string expected = "create view view_test_view_1 as select 1 as test";
+
+            Assert.AreEqual(expected, definition);
+        }
+
+        [Test]
         public void IsIndexed_WhenViewIsNotIndexed_ReturnsFalse()
         {
             var view = new SqlServerRelationalDatabaseView(Connection, Database, "view_test_view_1");
