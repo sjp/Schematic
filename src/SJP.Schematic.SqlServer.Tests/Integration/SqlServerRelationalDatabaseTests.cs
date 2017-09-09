@@ -535,12 +535,24 @@ namespace SJP.Schematic.SqlServer.Tests.Integration
             public async Task Init()
             {
                 await Connection.ExecuteAsync("create synonym db_test_synonym_1 for sys.tables").ConfigureAwait(false);
+
+                await Connection.ExecuteAsync("create view synonym_test_view_1 as select 1 as test").ConfigureAwait(false);
+                await Connection.ExecuteAsync("create table synonym_test_table_1 (table_id int primary key not null)").ConfigureAwait(false);
+                await Connection.ExecuteAsync("create synonym synonym_test_synonym_1 for synonym_test_view_1").ConfigureAwait(false);
+                await Connection.ExecuteAsync("create synonym synonym_test_synonym_2 for synonym_test_table_1").ConfigureAwait(false);
+                await Connection.ExecuteAsync("create synonym synonym_test_synonym_3 for non_existent_target").ConfigureAwait(false);
             }
 
             [OneTimeTearDown]
             public async Task CleanUp()
             {
                 await Connection.ExecuteAsync("drop synonym db_test_synonym_1").ConfigureAwait(false);
+
+                await Connection.ExecuteAsync("drop view view_test_view_1").ConfigureAwait(false);
+                await Connection.ExecuteAsync("drop table view_test_table_1").ConfigureAwait(false);
+                await Connection.ExecuteAsync("drop synonym synonym_test_synonym_1").ConfigureAwait(false);
+                await Connection.ExecuteAsync("drop synonym synonym_test_synonym_2").ConfigureAwait(false);
+                await Connection.ExecuteAsync("drop synonym synonym_test_synonym_3").ConfigureAwait(false);
             }
 
             private IRelationalDatabase Database => new SqlServerRelationalDatabase(Dialect, Connection);
@@ -590,8 +602,9 @@ namespace SJP.Schematic.SqlServer.Tests.Integration
             [Test]
             public void GetSynonym_WhenSynonymPresent_ReturnsSynonymWithCorrectName()
             {
-                Identifier synonymName = "db_test_synonym_1";
-                var synonym = Database.GetSynonym(synonymName);
+                var database = Database;
+                var synonymName = new Identifier(database.DefaultSchema, "db_test_synonym_1");
+                var synonym = database.GetSynonym(synonymName);
 
                 Assert.AreEqual(synonymName, synonym.Name);
             }
@@ -648,8 +661,9 @@ namespace SJP.Schematic.SqlServer.Tests.Integration
             [Test]
             public async Task GetSynonymAsync_WhenSynonymPresent_ReturnsSynonymWithCorrectName()
             {
-                Identifier synonymName = "db_test_synonym_1";
-                var synonym = await Database.GetSynonymAsync(synonymName).ConfigureAwait(false);
+                var database = Database;
+                var synonymName = new Identifier(database.DefaultSchema, "db_test_synonym_1");
+                var synonym = await database.GetSynonymAsync(synonymName).ConfigureAwait(false);
 
                 Assert.AreEqual(synonymName, synonym.Name);
             }
@@ -672,7 +686,7 @@ namespace SJP.Schematic.SqlServer.Tests.Integration
             [Test]
             public void Synonyms_WhenEnumerated_ContainsTestSynonym()
             {
-                var containsTestSynonym = Database.Synonyms.Any(s => s.Name == "db_test_synonym_1");
+                var containsTestSynonym = Database.Synonyms.Any(s => s.Name.LocalName == "db_test_synonym_1");
 
                 Assert.True(containsTestSynonym);
             }
@@ -689,9 +703,69 @@ namespace SJP.Schematic.SqlServer.Tests.Integration
             public async Task SynonymsAsync_WhenSubscribed_ContainsTestSynonym()
             {
                 var synonyms = await Database.SynonymsAsync().ToList();
-                var containsTestSynonym = synonyms.Any(s => s.Name == "db_test_synonym_1");
+                var containsTestSynonym = synonyms.Any(s => s.Name.LocalName == "db_test_synonym_1");
 
                 Assert.True(containsTestSynonym);
+            }
+
+            [Test]
+            public void GetSynonym_ForSynonymToView_ReturnsSynonymWithCorrectTarget()
+            {
+                var database = Database;
+                var expectedTarget = new Identifier(database.DefaultSchema, "synonym_test_view_1");
+                var synonym = database.GetSynonym("synonym_test_synonym_1");
+
+                Assert.AreEqual(expectedTarget, synonym.Target);
+            }
+
+            [Test]
+            public void GetSynonym_ForSynonymToTable_ReturnsSynonymWithCorrectTarget()
+            {
+                var database = Database;
+                var expectedTarget = new Identifier(database.DefaultSchema, "synonym_test_table_1");
+                var synonym = database.GetSynonym("synonym_test_synonym_2");
+
+                Assert.AreEqual(expectedTarget, synonym.Target);
+            }
+
+            [Test]
+            public void GetSynonym_ForSynonymToMissingObject_ReturnsSynonymWithMissingTarget()
+            {
+                var database = Database;
+                var expectedTarget = new Identifier(database.DefaultSchema, "non_existent_target");
+                var synonym = database.GetSynonym("synonym_test_synonym_3");
+
+                Assert.AreEqual(expectedTarget, synonym.Target);
+            }
+
+            [Test]
+            public async Task GetSynonymAsync_ForSynonymToView_ReturnsSynonymWithCorrectTarget()
+            {
+                var database = Database;
+                var expectedTarget = new Identifier(database.DefaultSchema, "synonym_test_view_1");
+                var synonym = await database.GetSynonymAsync("synonym_test_synonym_1").ConfigureAwait(false);
+
+                Assert.AreEqual(expectedTarget, synonym.Target);
+            }
+
+            [Test]
+            public async Task GetSynonymAsync_ForSynonymToTable_ReturnsSynonymWithCorrectTarget()
+            {
+                var database = Database;
+                var expectedTarget = new Identifier(database.DefaultSchema, "synonym_test_table_1");
+                var synonym = await database.GetSynonymAsync("synonym_test_synonym_2").ConfigureAwait(false);
+
+                Assert.AreEqual(expectedTarget, synonym.Target);
+            }
+
+            [Test]
+            public async Task GetSynonymAsync_ForSynonymToMissingObject_ReturnsSynonymWithMissingTarget()
+            {
+                var database = Database;
+                var expectedTarget = new Identifier(database.DefaultSchema, "non_existent_target");
+                var synonym = await database.GetSynonymAsync("synonym_test_synonym_3").ConfigureAwait(false);
+
+                Assert.AreEqual(expectedTarget, synonym.Target);
             }
         }
     }

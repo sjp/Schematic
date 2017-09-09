@@ -31,19 +31,19 @@ namespace SJP.Schematic.SqlServer.Tests.Integration
         }
 
         [Test]
-        public void Ctor_GivenNullConnection_ThrowsArgNullConnection()
+        public void Ctor_GivenNullConnection_ThrowsArgNullException()
         {
             Assert.Throws<ArgumentNullException>(() => new SqlServerRelationalDatabaseView(null, Database, "test"));
         }
 
         [Test]
-        public void Ctor_GivenNullDatabase_ThrowsArgNullConnection()
+        public void Ctor_GivenNullDatabase_ThrowsArgNullException()
         {
             Assert.Throws<ArgumentNullException>(() => new SqlServerRelationalDatabaseView(Connection, null, "test"));
         }
 
         [Test]
-        public void Ctor_GivenNullName_ThrowsArgNullConnection()
+        public void Ctor_GivenNullName_ThrowsArgNullException()
         {
             Assert.Throws<ArgumentNullException>(() => new SqlServerRelationalDatabaseView(Connection, Database, null));
         }
@@ -60,8 +60,9 @@ namespace SJP.Schematic.SqlServer.Tests.Integration
         [Test]
         public void Name_PropertyGet_ShouldEqualCtorArg()
         {
-            var viewName = new Identifier(Database.DefaultSchema, "view_test_view_1");
-            var view = new SqlServerRelationalDatabaseView(Connection, Database, viewName);
+            var database = Database;
+            var viewName = new Identifier(database.DefaultSchema, "view_test_view_1");
+            var view = new SqlServerRelationalDatabaseView(Connection, database, viewName);
 
             Assert.AreEqual(viewName, view.Name);
         }
@@ -69,8 +70,9 @@ namespace SJP.Schematic.SqlServer.Tests.Integration
         [Test]
         public void Definition_PropertyGet_ReturnsCorrectDefinition()
         {
-            var viewName = new Identifier(Database.DefaultSchema, "view_test_view_1");
-            var view = new SqlServerRelationalDatabaseView(Connection, Database, viewName);
+            var database = Database;
+            var viewName = new Identifier(database.DefaultSchema, "view_test_view_1");
+            var view = new SqlServerRelationalDatabaseView(Connection, database, viewName);
 
             var definition = view.Definition;
             const string expected = "create view view_test_view_1 as select 1 as test";
@@ -81,10 +83,11 @@ namespace SJP.Schematic.SqlServer.Tests.Integration
         [Test]
         public async Task DefinitionAsync_PropertyGet_ReturnsCorrectDefinition()
         {
-            var viewName = new Identifier(Database.DefaultSchema, "view_test_view_1");
-            var view = new SqlServerRelationalDatabaseView(Connection, Database, viewName);
+            var database = Database;
+            var viewName = new Identifier(database.DefaultSchema, "view_test_view_1");
+            var view = new SqlServerRelationalDatabaseView(Connection, database, viewName);
 
-            var definition = await view.DefinitionAsync();
+            var definition = await view.DefinitionAsync().ConfigureAwait(false);
             const string expected = "create view view_test_view_1 as select 1 as test";
 
             Assert.AreEqual(expected, definition);
@@ -139,8 +142,9 @@ namespace SJP.Schematic.SqlServer.Tests.Integration
         [Test]
         public void Column_WhenViewContainsSingleColumn_ContainsOneValueOnly()
         {
-            var viewName = new Identifier(Database.DefaultSchema, "view_test_view_1");
-            var view = new SqlServerRelationalDatabaseView(Connection, Database, viewName);
+            var database = Database;
+            var viewName = new Identifier(database.DefaultSchema, "view_test_view_1");
+            var view = new SqlServerRelationalDatabaseView(Connection, database, viewName);
             var columnCount = view.Column.Count;
 
             Assert.AreEqual(1, columnCount);
@@ -168,8 +172,9 @@ namespace SJP.Schematic.SqlServer.Tests.Integration
         [Test]
         public void Columns_WhenViewContainsSingleColumn_ContainsColumnName()
         {
-            var viewName = new Identifier(Database.DefaultSchema, "view_test_view_1");
-            var view = new SqlServerRelationalDatabaseView(Connection, Database, viewName);
+            var database = Database;
+            var viewName = new Identifier(database.DefaultSchema, "view_test_view_1");
+            var view = new SqlServerRelationalDatabaseView(Connection, database, viewName);
             var containsColumn = view.Columns.Any(c => c.Name == "test");
 
             Assert.IsTrue(containsColumn);
@@ -178,8 +183,9 @@ namespace SJP.Schematic.SqlServer.Tests.Integration
         [Test]
         public async Task ColumnAsync_WhenViewContainsSingleColumn_ContainsOneValueOnly()
         {
-            var viewName = new Identifier(Database.DefaultSchema, "view_test_view_1");
-            var view = new SqlServerRelationalDatabaseView(Connection, Database, viewName);
+            var database = Database;
+            var viewName = new Identifier(database.DefaultSchema, "view_test_view_1");
+            var view = new SqlServerRelationalDatabaseView(Connection, database, viewName);
             var columns = await view.ColumnAsync().ConfigureAwait(false);
             var columnCount = columns.Count;
 
@@ -189,8 +195,9 @@ namespace SJP.Schematic.SqlServer.Tests.Integration
         [Test]
         public async Task ColumnAsync_WhenViewContainsSingleColumn_ContainsColumnName()
         {
-            var viewName = new Identifier(Database.DefaultSchema, "view_test_view_1");
-            var view = new SqlServerRelationalDatabaseView(Connection, Database, viewName);
+            var database = Database;
+            var viewName = new Identifier(database.DefaultSchema, "view_test_view_1");
+            var view = new SqlServerRelationalDatabaseView(Connection, database, viewName);
             var columns = await view.ColumnAsync().ConfigureAwait(false);
             var containsColumn = columns.ContainsKey("test");
 
@@ -200,8 +207,9 @@ namespace SJP.Schematic.SqlServer.Tests.Integration
         [Test]
         public async Task ColumnsAsync_WhenViewContainsSingleColumn_ContainsOneValueOnly()
         {
-            var viewName = new Identifier(Database.DefaultSchema, "view_test_view_1");
-            var view = new SqlServerRelationalDatabaseView(Connection, Database, viewName);
+            var database = Database;
+            var viewName = new Identifier(database.DefaultSchema, "view_test_view_1");
+            var view = new SqlServerRelationalDatabaseView(Connection, database, viewName);
             var columns = await view.ColumnsAsync().ConfigureAwait(false);
             var columnCount = columns.Count;
 
@@ -211,8 +219,9 @@ namespace SJP.Schematic.SqlServer.Tests.Integration
         [Test]
         public async Task ColumnsAsync_WhenViewContainsSingleColumn_ContainsColumnName()
         {
-            var viewName = new Identifier(Database.DefaultSchema, "view_test_view_1");
-            var view = new SqlServerRelationalDatabaseView(Connection, Database, viewName);
+            var database = Database;
+            var viewName = new Identifier(database.DefaultSchema, "view_test_view_1");
+            var view = new SqlServerRelationalDatabaseView(Connection, database, viewName);
             var columns = await view.ColumnsAsync().ConfigureAwait(false);
             var containsColumn = columns.Any(c => c.Name == "test");
 
