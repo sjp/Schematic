@@ -29,6 +29,8 @@ namespace SJP.Schematic.Modelled
 
         public string DefaultSchema => BaseDatabase.DefaultSchema;
 
+        public string ServerName => BaseDatabase.ServerName;
+
         public string DatabaseName => BaseDatabase.DatabaseName;
 
         #region Tables

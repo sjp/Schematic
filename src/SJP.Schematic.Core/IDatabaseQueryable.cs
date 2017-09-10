@@ -1,4 +1,6 @@
 ﻿namespace SJP.Schematic.Core
 {
-    public interface IDatabaseQueryable : IDatabaseEntity { }
+    public interface IDatabaseQueryable : IDatabaseEntity
+    {
+    }
 }

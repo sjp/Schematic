@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using SJP.Schematic.Core;
 
 namespace SJP.Schematic.SqlServer
@@ -14,13 +15,17 @@ namespace SJP.Schematic.SqlServer
 
             Database = database ?? throw new ArgumentNullException(nameof(database));
 
-            if (synonymName.Schema == null && database.DefaultSchema != null)
-                synonymName = new Identifier(database.DefaultSchema, synonymName.LocalName);
-            Name = synonymName;
+            var serverName = synonymName.Server ?? database.ServerName;
+            var databaseName = synonymName.Database ?? database.DatabaseName;
+            var schemaName = synonymName.Schema ?? database.DefaultSchema;
 
-            if (targetName.Schema == null && database.DefaultSchema != null)
-                targetName = new Identifier(database.DefaultSchema, targetName.LocalName);
-            Target = targetName; // don't check for validity of target, could be a broken synonym
+            Name = new Identifier(serverName, databaseName, schemaName, synonymName.LocalName);
+
+            var targetServerName = targetName.Server ?? database.ServerName;
+            var targetDatabaseName = targetName.Database ?? database.DatabaseName;
+            var targetSchemaName = targetName.Schema ?? database.DefaultSchema;
+
+            Target = new Identifier(targetServerName, targetDatabaseName, targetSchemaName, targetName.LocalName); // don't check for validity of target, could be a broken synonym
         }
 
         public IRelationalDatabase Database { get; }

@@ -114,7 +114,7 @@ namespace SJP.Schematic.Core.Tests
         {
             var identifier = new Identifier("abc");
             var otherIdentifier = new Identifier("dbo", "abc");
-            var comparer = new IdentifierComparer(StringComparison.CurrentCulture, "dbo");
+            var comparer = new IdentifierComparer(StringComparison.CurrentCulture, defaultSchema: "dbo");
 
             Assert.IsTrue(comparer.Equals(identifier, otherIdentifier));
         }
@@ -124,7 +124,7 @@ namespace SJP.Schematic.Core.Tests
         {
             var identifier = new Identifier("abc");
             var otherIdentifier = new Identifier("other", "abc");
-            var comparer = new IdentifierComparer(StringComparison.CurrentCulture, "dbo");
+            var comparer = new IdentifierComparer(StringComparison.CurrentCulture, defaultSchema: "dbo");
 
             Assert.IsFalse(comparer.Equals(identifier, otherIdentifier));
         }
@@ -134,7 +134,7 @@ namespace SJP.Schematic.Core.Tests
         {
             var identifier = new Identifier("other", "abc");
             var otherIdentifier = new Identifier("dbo", "abc");
-            var comparer = new IdentifierComparer(StringComparison.CurrentCulture, "dbo");
+            var comparer = new IdentifierComparer(StringComparison.CurrentCulture, defaultSchema: "dbo");
 
             Assert.IsFalse(comparer.Equals(identifier, otherIdentifier));
         }
@@ -154,6 +154,106 @@ namespace SJP.Schematic.Core.Tests
         {
             var identifier = new Identifier("dbo", "abc");
             var otherIdentifier = new Identifier("dbo", "abc");
+            var comparer = new IdentifierComparer(StringComparison.CurrentCulture);
+
+            Assert.IsTrue(comparer.Equals(identifier, otherIdentifier));
+        }
+
+        [Test]
+        public void Equals_WhenDefaultDatabaseSetAndGivenIdentifierWithNullDatabase_ReturnsTrue()
+        {
+            var identifier = new Identifier("dbo", "abc");
+            var otherIdentifier = new Identifier("dbo", "dbo", "abc");
+            var comparer = new IdentifierComparer(StringComparison.CurrentCulture, defaultDatabase: "dbo");
+
+            Assert.IsTrue(comparer.Equals(identifier, otherIdentifier));
+        }
+
+        [Test]
+        public void Equals_WhenDefaultDatabaseSetAndGivenIdentifiersWithDifferentDatabase_ReturnsFalse()
+        {
+            var identifier = new Identifier("dbo", "abc");
+            var otherIdentifier = new Identifier("other", "dbo", "abc");
+            var comparer = new IdentifierComparer(StringComparison.CurrentCulture, defaultDatabase: "dbo");
+
+            Assert.IsFalse(comparer.Equals(identifier, otherIdentifier));
+        }
+
+        [Test]
+        public void Equals_WhenDefaultDatabaseSetAndGivenIdentifiersWithDifferentDatabasesSet_ReturnsFalse()
+        {
+            var identifier = new Identifier("other", "dbo", "abc");
+            var otherIdentifier = new Identifier("dbo", "dbo", "abc");
+            var comparer = new IdentifierComparer(StringComparison.CurrentCulture, defaultDatabase: "dbo");
+
+            Assert.IsFalse(comparer.Equals(identifier, otherIdentifier));
+        }
+
+        [Test]
+        public void Equals_GivenIdentifiersWithDifferentDatabasesSetAndExplicitComparer_ReturnsFalse()
+        {
+            var identifier = new Identifier("other", "dbo", "abc");
+            var otherIdentifier = new Identifier("dbo", "dbo", "abc");
+            var comparer = new IdentifierComparer(StringComparison.CurrentCulture);
+
+            Assert.IsFalse(comparer.Equals(identifier, otherIdentifier));
+        }
+
+        [Test]
+        public void Equals_GivenIdentifiersWithSameDatabasesSetAndExplicitComparer_ReturnsTrue()
+        {
+            var identifier = new Identifier("dbo", "dbo", "abc");
+            var otherIdentifier = new Identifier("dbo", "dbo", "abc");
+            var comparer = new IdentifierComparer(StringComparison.CurrentCulture);
+
+            Assert.IsTrue(comparer.Equals(identifier, otherIdentifier));
+        }
+
+        [Test]
+        public void Equals_WhenServerSetAndGivenIdentifierWithNullServer_ReturnsTrue()
+        {
+            var identifier = new Identifier("abc");
+            var otherIdentifier = new Identifier("dbo", "dbo", "dbo", "abc");
+            var comparer = new IdentifierComparer(StringComparison.CurrentCulture, defaultServer: "dbo", defaultDatabase: "dbo", defaultSchema: "dbo");
+
+            Assert.IsTrue(comparer.Equals(identifier, otherIdentifier));
+        }
+
+        [Test]
+        public void Equals_WhenServerSetAndGivenIdentifiersWithDifferentServer_ReturnsFalse()
+        {
+            var identifier = new Identifier("abc");
+            var otherIdentifier = new Identifier("other", "dbo", "dbo", "abc");
+            var comparer = new IdentifierComparer(StringComparison.CurrentCulture, defaultServer: "dbo", defaultDatabase: "dbo", defaultSchema: "dbo");
+
+            Assert.IsFalse(comparer.Equals(identifier, otherIdentifier));
+        }
+
+        [Test]
+        public void Equals_WhenServerSetAndGivenIdentifiersWithDifferentServersSet_ReturnsFalse()
+        {
+            var identifier = new Identifier("other", "dbo", "dbo", "abc");
+            var otherIdentifier = new Identifier("dbo", "dbo", "dbo", "abc");
+            var comparer = new IdentifierComparer(StringComparison.CurrentCulture, defaultServer: "dbo", defaultDatabase: "dbo", defaultSchema: "dbo");
+
+            Assert.IsFalse(comparer.Equals(identifier, otherIdentifier));
+        }
+
+        [Test]
+        public void Equals_GivenIdentifiersWithDifferentServersSetAndExplicitComparer_ReturnsFalse()
+        {
+            var identifier = new Identifier("other", "dbo", "dbo", "abc");
+            var otherIdentifier = new Identifier("dbo", "dbo", "dbo", "abc");
+            var comparer = new IdentifierComparer(StringComparison.CurrentCulture);
+
+            Assert.IsFalse(comparer.Equals(identifier, otherIdentifier));
+        }
+
+        [Test]
+        public void Equals_GivenIdentifiersWithSameServersSetAndExplicitComparer_ReturnsTrue()
+        {
+            var identifier = new Identifier("dbo", "dbo", "dbo", "abc");
+            var otherIdentifier = new Identifier("dbo", "dbo", "dbo", "abc");
             var comparer = new IdentifierComparer(StringComparison.CurrentCulture);
 
             Assert.IsTrue(comparer.Equals(identifier, otherIdentifier));

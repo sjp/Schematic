@@ -18,12 +18,14 @@ namespace SJP.Schematic.SqlServer
 
             Connection = connection ?? throw new ArgumentNullException(nameof(connection));
             Database = database ?? throw new ArgumentNullException(nameof(database));
-            Comparer = comparer ?? new IdentifierComparer(StringComparer.Ordinal, database.DefaultSchema);
 
-            if (viewName.Schema == null && database.DefaultSchema != null)
-                viewName = new Identifier(database.DefaultSchema, viewName.LocalName);
+            var serverName = viewName.Server ?? database.ServerName;
+            var databaseName = viewName.Database ?? database.DatabaseName;
+            var schemaName = viewName.Schema ?? database.DefaultSchema;
 
-            Name = viewName;
+            Comparer = comparer ?? new IdentifierComparer(StringComparer.Ordinal, serverName, databaseName, schemaName);
+
+            Name = new Identifier(serverName, databaseName, schemaName, viewName.LocalName);
         }
 
         public Identifier Name { get; }

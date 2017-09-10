@@ -51,5 +51,4 @@ namespace SJP.Schematic.SqlServer
 
         public IRelationalDatabaseView View { get; }
     }
-
 }

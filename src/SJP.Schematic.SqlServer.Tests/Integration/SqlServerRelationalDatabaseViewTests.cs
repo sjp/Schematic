@@ -60,11 +60,10 @@ namespace SJP.Schematic.SqlServer.Tests.Integration
         [Test]
         public void Name_PropertyGet_ShouldEqualCtorArg()
         {
-            var database = Database;
-            var viewName = new Identifier(database.DefaultSchema, "view_test_view_1");
-            var view = new SqlServerRelationalDatabaseView(Connection, database, viewName);
+            const string viewName = "view_test_view_1";
+            var view = new SqlServerRelationalDatabaseView(Connection, Database, viewName);
 
-            Assert.AreEqual(viewName, view.Name);
+            Assert.AreEqual(viewName, view.Name.LocalName);
         }
 
         [Test]

@@ -29,6 +29,8 @@ namespace SJP.Schematic.Core
 
         public string DefaultSchema => Database.DefaultSchema;
 
+        public string ServerName => Database.ServerName;
+
         public string DatabaseName => Database.DatabaseName;
 
         #region Tables
@@ -405,9 +407,18 @@ namespace SJP.Schematic.Core
             if (identifier == null || identifier.LocalName == null)
                 throw new ArgumentNullException(nameof(identifier));
 
-            return identifier.Schema.IsNullOrWhiteSpace() && !DefaultSchema.IsNullOrWhiteSpace()
-                ? new Identifier(DefaultSchema, identifier.LocalName)
-                : identifier;
+            var serverName = identifier.Server ?? ServerName;
+            var databaseName = identifier.Database ?? DatabaseName;
+            var schema = identifier.Schema ?? DefaultSchema;
+
+            if (!serverName.IsNullOrWhiteSpace())
+                return new Identifier(serverName, databaseName, schema, identifier.LocalName);
+            if (!databaseName.IsNullOrWhiteSpace())
+                return new Identifier(databaseName, schema, identifier.LocalName);
+            if (!schema.IsNullOrWhiteSpace())
+                return new Identifier(schema, identifier.LocalName);
+
+            return identifier;
         }
 
         protected static IDependentRelationalDatabase SetParent(IRelationalDatabase parent, IDependentRelationalDatabase child)

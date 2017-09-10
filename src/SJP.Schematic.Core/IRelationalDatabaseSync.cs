@@ -4,6 +4,8 @@ namespace SJP.Schematic.Core
 {
     public interface IRelationalDatabaseSync
     {
+        string ServerName { get; }
+
         string DatabaseName { get; }
 
         string DefaultSchema { get; }

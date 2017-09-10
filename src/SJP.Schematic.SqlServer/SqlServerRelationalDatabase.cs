@@ -15,8 +15,8 @@ namespace SJP.Schematic.SqlServer
         public SqlServerRelationalDatabase(IDatabaseDialect dialect, IDbConnection connection, IEqualityComparer<Identifier> comparer = null)
             : base(dialect, connection)
         {
-            Comparer = comparer ?? IdentifierComparer.OrdinalIgnoreCase;
             _metadata = new Lazy<DatabaseMetadata>(LoadDatabaseMetadata);
+            Comparer = comparer ?? new IdentifierComparer(StringComparer.OrdinalIgnoreCase, ServerName, DatabaseName, DefaultSchema);
             _parentDb = this;
         }
 
@@ -29,6 +29,8 @@ namespace SJP.Schematic.SqlServer
         protected IEqualityComparer<Identifier> Comparer { get; }
 
         protected IRelationalDatabase Database => Parent;
+
+        public string ServerName => Metadata.ServerName;
 
         public string DatabaseName => Metadata.DatabaseName;
 
@@ -679,7 +681,7 @@ where schema_name(t.schema_id) = @SchemaName and st.name = @TriggerName";
 
         private DatabaseMetadata LoadDatabaseMetadata()
         {
-            const string sql = "select db_name() as DatabaseName, schema_name() as DefaultSchema";
+            const string sql = "select @@SERVERNAME as ServerName, db_name() as DatabaseName, schema_name() as DefaultSchema";
             return Connection.QuerySingle<DatabaseMetadata>(sql);
         }
 
@@ -688,9 +690,11 @@ where schema_name(t.schema_id) = @SchemaName and st.name = @TriggerName";
             if (identifier == null || identifier.LocalName == null)
                 throw new ArgumentNullException(nameof(identifier));
 
-            return identifier.Schema == null && DefaultSchema != null
-                ? new Identifier(DefaultSchema, identifier.LocalName)
-                : identifier;
+            var serverName = identifier.Server ?? ServerName;
+            var databaseName = identifier.Database ?? DatabaseName;
+            var schema = identifier.Schema ?? DefaultSchema;
+
+            return new Identifier(serverName, databaseName, schema, identifier.LocalName);
         }
 
         private IRelationalDatabase _parentDb;

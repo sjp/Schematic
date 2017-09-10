@@ -19,6 +19,8 @@ namespace SJP.Schematic.Sqlite
             Metadata = new DatabaseMetadata { DatabaseName = connection.Database };
         }
 
+        public string ServerName => null; // never not-null
+
         public string DatabaseName => Metadata.DatabaseName;
 
         public string DefaultSchema => Metadata.DefaultSchema;

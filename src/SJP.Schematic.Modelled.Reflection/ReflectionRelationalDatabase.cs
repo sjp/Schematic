@@ -12,10 +12,14 @@ namespace SJP.Schematic.Modelled.Reflection
     // TODO: uncomment interface when ready
     public class ReflectionRelationalDatabase : IRelationalDatabase //, IDependentRelationalDatabase
     {
-        public ReflectionRelationalDatabase(IDatabaseDialect dialect, Type databaseDefinitionType, string databaseName = null, string defaultSchema = null, IEqualityComparer<Identifier> comparer = null)
+        public ReflectionRelationalDatabase(IDatabaseDialect dialect, Type databaseDefinitionType, string serverName = null, string databaseName = null, string defaultSchema = null, IEqualityComparer<Identifier> comparer = null)
         {
             Dialect = dialect ?? throw new ArgumentNullException(nameof(dialect));
             DatabaseDefinitionType = databaseDefinitionType ?? throw new ArgumentNullException(nameof(databaseDefinitionType));
+
+            if (serverName.IsNullOrWhiteSpace())
+                serverName = null;
+            ServerName = serverName;
 
             if (databaseName.IsNullOrWhiteSpace())
                 databaseName = null;
@@ -25,7 +29,7 @@ namespace SJP.Schematic.Modelled.Reflection
                 defaultSchema = null;
             DefaultSchema = defaultSchema;
 
-            Comparer = comparer ?? new IdentifierComparer(StringComparer.OrdinalIgnoreCase, defaultSchema);
+            Comparer = comparer ?? new IdentifierComparer(StringComparer.OrdinalIgnoreCase, serverName, databaseName, defaultSchema);
 
             EnsureUniqueTypes(DatabaseDefinitionType);
 
@@ -45,6 +49,8 @@ namespace SJP.Schematic.Modelled.Reflection
         protected IRelationalDatabase Database => Parent;
 
         public IDatabaseDialect Dialect { get; }
+
+        public string ServerName { get; }
 
         public string DatabaseName { get; }
 
@@ -538,9 +544,18 @@ namespace SJP.Schematic.Modelled.Reflection
             if (identifier == null || identifier.LocalName == null)
                 throw new ArgumentNullException(nameof(identifier));
 
-            return identifier.Schema.IsNullOrWhiteSpace() && !DefaultSchema.IsNullOrWhiteSpace()
-                ? new Identifier(DefaultSchema, identifier.LocalName)
-                : identifier;
+            var serverName = identifier.Server ?? ServerName;
+            var databaseName = identifier.Database ?? DatabaseName;
+            var schema = identifier.Schema ?? DefaultSchema;
+
+            if (!serverName.IsNullOrWhiteSpace())
+                return new Identifier(serverName, databaseName, schema, identifier.LocalName);
+            if (!databaseName.IsNullOrWhiteSpace())
+                return new Identifier(databaseName, schema, identifier.LocalName);
+            if (!schema.IsNullOrWhiteSpace())
+                return new Identifier(schema, identifier.LocalName);
+
+            return identifier;
         }
 
         protected static Type TableGenericType { get; } = typeof(Table<>);
