@@ -330,7 +330,7 @@ namespace SJP.Schematic.SqlServer
 
             sequenceName = CreateQualifiedIdentifier(sequenceName);
             return SequenceExists(sequenceName)
-                ? new SqlServerDatabaseSequence(Database, Connection, sequenceName)
+                ? new SqlServerDatabaseSequence(Connection, Database, sequenceName)
                 : null;
         }
 
@@ -342,7 +342,7 @@ namespace SJP.Schematic.SqlServer
             sequenceName = CreateQualifiedIdentifier(sequenceName);
             var exists = await SequenceExistsAsync(sequenceName).ConfigureAwait(false);
             return exists
-                ? new SqlServerDatabaseSequence(Database, Connection, sequenceName)
+                ? new SqlServerDatabaseSequence(Connection, Database, sequenceName)
                 : null;
         }
 

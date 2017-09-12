@@ -67,6 +67,53 @@ namespace SJP.Schematic.SqlServer.Tests.Integration
         }
 
         [Test]
+        public void Name_GivenLocalNameOnlyInCtor_ShouldBeQualifiedCorrectly()
+        {
+            var database = Database;
+            var viewName = new LocalIdentifier("view_test_view_1");
+            var expectedViewName = new Identifier(database.ServerName, database.DatabaseName, database.DefaultSchema, "view_test_view_1");
+
+            var view = new SqlServerRelationalDatabaseView(Connection, database, viewName);
+
+            Assert.AreEqual(expectedViewName, view.Name);
+        }
+
+        [Test]
+        public void Name_GivenSchemaAndLocalNameOnlyInCtor_ShouldBeQualifiedCorrectly()
+        {
+            var database = Database;
+            var viewName = new Identifier("asd", "view_test_view_1");
+            var expectedViewName = new Identifier(database.ServerName, database.DatabaseName, "asd", "view_test_view_1");
+
+            var view = new SqlServerRelationalDatabaseView(Connection, database, viewName);
+
+            Assert.AreEqual(expectedViewName, view.Name);
+        }
+
+        [Test]
+        public void Name_GivenDatabaseAndSchemaAndLocalNameOnlyInCtor_ShouldBeQualifiedCorrectly()
+        {
+            var database = Database;
+            var viewName = new Identifier("qwe", "asd", "view_test_view_1");
+            var expectedViewName = new Identifier(database.ServerName, "qwe", "asd", "view_test_view_1");
+
+            var view = new SqlServerRelationalDatabaseView(Connection, database, viewName);
+
+            Assert.AreEqual(expectedViewName, view.Name);
+        }
+
+        [Test]
+        public void Name_GivenFullyQualifiedNameInCtor_ShouldBeQualifiedCorrectly()
+        {
+            var viewName = new Identifier("qwe", "asd", "zxc", "view_test_view_1");
+            var expectedViewName = new Identifier("qwe", "asd", "zxc", "view_test_view_1");
+
+            var view = new SqlServerRelationalDatabaseView(Connection, Database, viewName);
+
+            Assert.AreEqual(expectedViewName, view.Name);
+        }
+
+        [Test]
         public void Definition_PropertyGet_ReturnsCorrectDefinition()
         {
             var database = Database;

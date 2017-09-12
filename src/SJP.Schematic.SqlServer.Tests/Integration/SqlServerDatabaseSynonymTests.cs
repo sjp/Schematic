@@ -59,6 +59,58 @@ namespace SJP.Schematic.SqlServer.Tests.Integration
         }
 
         [Test]
+        public void Name_GivenLocalNameOnlyInCtor_ShouldBeQualifiedCorrectly()
+        {
+            var database = Database;
+            var synonymName = new LocalIdentifier("synonym_test_synonym_1");
+            var expectedSynonymName = new Identifier(database.ServerName, database.DatabaseName, database.DefaultSchema, "synonym_test_synonym_1");
+            const string targetName = "synonym_test_synonym_1";
+
+            var synonym = new SqlServerDatabaseSynonym(database, synonymName, targetName);
+
+            Assert.AreEqual(expectedSynonymName, synonym.Name);
+        }
+
+        [Test]
+        public void Name_GivenSchemaAndLocalNameOnlyInCtor_ShouldBeQualifiedCorrectly()
+        {
+            var database = Database;
+            var synonymName = new Identifier("asd", "synonym_test_synonym_1");
+            var expectedSynonymName = new Identifier(database.ServerName, database.DatabaseName, "asd", "synonym_test_synonym_1");
+            const string targetName = "synonym_test_synonym_1";
+
+            var synonym = new SqlServerDatabaseSynonym(database, synonymName, targetName);
+
+            Assert.AreEqual(expectedSynonymName, synonym.Name);
+        }
+
+        [Test]
+        public void Name_GivenDatabaseAndSchemaAndLocalNameOnlyInCtor_ShouldBeQualifiedCorrectly()
+        {
+            var database = Database;
+            var synonymName = new Identifier("qwe", "asd", "synonym_test_synonym_1");
+            var expectedSynonymName = new Identifier(database.ServerName, "qwe", "asd", "synonym_test_synonym_1");
+            const string targetName = "synonym_test_synonym_1";
+
+            var synonym = new SqlServerDatabaseSynonym(database, synonymName, targetName);
+
+            Assert.AreEqual(expectedSynonymName, synonym.Name);
+        }
+
+        [Test]
+        public void Name_GivenFullyQualifiedNameInCtor_ShouldBeQualifiedCorrectly()
+        {
+            var database = Database;
+            var synonymName = new Identifier("qwe", "asd", "zxc", "synonym_test_synonym_1");
+            var expectedSynonymName = new Identifier("qwe", "asd", "zxc", "synonym_test_synonym_1");
+            const string targetName = "synonym_test_synonym_1";
+
+            var synonym = new SqlServerDatabaseSynonym(database, synonymName, targetName);
+
+            Assert.AreEqual(expectedSynonymName, synonym.Name);
+        }
+
+        [Test]
         public void Target_GivenLocalNameOnlyInCtor_ShouldBeQualifiedCorrectly()
         {
             var database = Database;
