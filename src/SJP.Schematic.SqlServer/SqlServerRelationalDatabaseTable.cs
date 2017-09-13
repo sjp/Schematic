@@ -23,9 +23,8 @@ namespace SJP.Schematic.SqlServer
             var databaseName = tableName.Database ?? database.DatabaseName;
             var schemaName = tableName.Schema ?? database.DefaultSchema;
 
-            Comparer = comparer ?? new IdentifierComparer(StringComparer.Ordinal, serverName, databaseName, schemaName);
-
             Name = new Identifier(serverName, databaseName, schemaName, tableName.LocalName);
+            Comparer = comparer ?? new IdentifierComparer(StringComparer.Ordinal, serverName, databaseName, schemaName);
         }
 
         public Identifier Name { get; }
@@ -48,13 +47,12 @@ from sys.tables t
 inner join sys.key_constraints kc on t.object_id = kc.parent_object_id
 inner join sys.indexes i on kc.parent_object_id = i.object_id and kc.unique_index_id = i.index_id
 inner join sys.index_columns ic on i.object_id = ic.object_id and i.index_id = ic.index_id
-inner join sys.columns c on ic.object_id = c.object_id
-    and ic.column_id = c.column_id
+inner join sys.columns c on ic.object_id = c.object_id and ic.column_id = c.column_id
 where
-    SCHEMA_NAME(t.schema_id) = @SchemaName and t.name = @TableName
+    schema_name(t.schema_id) = @SchemaName and t.name = @TableName
     and kc.type = 'PK'
     and ic.is_included_column = 0
-order by ic.column_id";
+order by ic.key_ordinal";
 
             var primaryKeyColumns = Connection.Query<ConstraintColumnMapping>(sql, new { SchemaName = Name.Schema, TableName = Name.LocalName });
             if (primaryKeyColumns.Empty())
@@ -82,13 +80,12 @@ from sys.tables t
 inner join sys.key_constraints kc on t.object_id = kc.parent_object_id
 inner join sys.indexes i on kc.parent_object_id = i.object_id and kc.unique_index_id = i.index_id
 inner join sys.index_columns ic on i.object_id = ic.object_id and i.index_id = ic.index_id
-inner join sys.columns c on ic.object_id = c.object_id
-    and ic.column_id = c.column_id
+inner join sys.columns c on ic.object_id = c.object_id and ic.column_id = c.column_id
 where
-    SCHEMA_NAME(t.schema_id) = @SchemaName and t.name = @TableName
+    schema_name(t.schema_id) = @SchemaName and t.name = @TableName
     and kc.type = 'PK'
     and ic.is_included_column = 0
-order by ic.column_id";
+order by ic.key_ordinal";
 
             var primaryKeyColumns = await Connection.QueryAsync<ConstraintColumnMapping>(sql, new { SchemaName = Name.Schema, TableName = Name.LocalName }).ConfigureAwait(false);
             if (primaryKeyColumns.Empty())
@@ -280,7 +277,7 @@ where
     schema_name(t.schema_id) = @SchemaName and t.name = @TableName
     and kc.type = 'UQ'
     and ic.is_included_column = 0
-order by ic.column_id";
+order by ic.key_ordinal";
 
             var uniqueKeyColumns = Connection.Query<ConstraintColumnMapping>(sql, new { SchemaName = Name.Schema, TableName = Name.LocalName });
             if (uniqueKeyColumns.Empty())
@@ -322,7 +319,7 @@ where
     schema_name(t.schema_id) = @SchemaName and t.name = @TableName
     and kc.type = 'UQ'
     and ic.is_included_column = 0
-order by ic.column_id";
+order by ic.key_ordinal";
 
             var uniqueKeyColumns = await Connection.QueryAsync<ConstraintColumnMapping>(sql, new { SchemaName = Name.Schema, TableName = Name.LocalName }).ConfigureAwait(false);
             if (uniqueKeyColumns.Empty())
