@@ -55,6 +55,61 @@ create table table_test_table_9 (
     last_name nvarchar(50),
     index ix_test_table_9 (first_name, last_name, middle_name)
 )").ConfigureAwait(false);
+            await Connection.ExecuteAsync(@"
+create table table_test_table_10 (
+    test_column int,
+    test_column_2 int
+)").ConfigureAwait(false);
+            await Connection.ExecuteAsync("create index ix_test_table_10 on table_test_table_10 (test_column) include (test_column_2)").ConfigureAwait(false);
+            await Connection.ExecuteAsync(@"
+create table table_test_table_11 (
+    first_name nvarchar(50),
+    middle_name nvarchar(50),
+    last_name nvarchar(50)
+)").ConfigureAwait(false);
+            await Connection.ExecuteAsync("create index ix_test_table_11 on table_test_table_11 (first_name) include (last_name, middle_name)").ConfigureAwait(false);
+            await Connection.ExecuteAsync(@"
+create table table_test_table_12 (
+    first_name nvarchar(50),
+    middle_name nvarchar(50),
+    last_name nvarchar(50)
+)").ConfigureAwait(false);
+            await Connection.ExecuteAsync("create index ix_test_table_12 on table_test_table_12 (first_name) include (last_name, middle_name)").ConfigureAwait(false);
+            await Connection.ExecuteAsync("alter index ix_test_table_12 on table_test_table_12 disable").ConfigureAwait(false);
+            await Connection.ExecuteAsync(@"
+create table table_test_table_13 (
+    first_name nvarchar(50),
+    middle_name nvarchar(50),
+    last_name nvarchar(50)
+)").ConfigureAwait(false);
+            await Connection.ExecuteAsync("create unique index ix_test_table_13 on table_test_table_13 (first_name, last_name, middle_name)").ConfigureAwait(false);
+            await Connection.ExecuteAsync(@"
+create table table_test_table_14 (
+    test_column int not null,
+    constraint ck_test_table_14 check ([test_column]>(1))
+)").ConfigureAwait(false);
+            await Connection.ExecuteAsync(@"
+create table table_test_table_15 (
+    first_name_parent nvarchar(50),
+    middle_name_parent nvarchar(50),
+    last_name_parent nvarchar(50),
+    constraint pk_test_table_15 primary key (first_name_parent),
+    constraint uk_test_table_15 unique (last_name_parent, middle_name_parent)
+)").ConfigureAwait(false);
+            await Connection.ExecuteAsync(@"
+create table table_test_table_16 (
+    first_name_child nvarchar(50),
+    middle_name nvarchar(50),
+    last_name nvarchar(50),
+    constraint fk_test_table_16 foreign key (first_name_child) references table_test_table_15 (first_name_parent)
+)").ConfigureAwait(false);
+            await Connection.ExecuteAsync(@"
+create table table_test_table_17 (
+    first_name nvarchar(50),
+    middle_name_child nvarchar(50),
+    last_name_child nvarchar(50),
+    constraint fk_test_table_17 foreign key (last_name_child, middle_name_child) references table_test_table_15 (last_name_parent, middle_name_parent)
+)").ConfigureAwait(false);
         }
 
         [OneTimeTearDown]
@@ -69,6 +124,15 @@ create table table_test_table_9 (
             await Connection.ExecuteAsync("drop table table_test_table_7").ConfigureAwait(false);
             await Connection.ExecuteAsync("drop table table_test_table_8").ConfigureAwait(false);
             await Connection.ExecuteAsync("drop table table_test_table_9").ConfigureAwait(false);
+            await Connection.ExecuteAsync("drop table table_test_table_10").ConfigureAwait(false);
+            await Connection.ExecuteAsync("drop table table_test_table_11").ConfigureAwait(false);
+            await Connection.ExecuteAsync("drop table table_test_table_12").ConfigureAwait(false);
+            await Connection.ExecuteAsync("drop table table_test_table_13").ConfigureAwait(false);
+            await Connection.ExecuteAsync("drop table table_test_table_14").ConfigureAwait(false);
+            await Connection.ExecuteAsync("drop table table_test_table_16").ConfigureAwait(false);
+            await Connection.ExecuteAsync("drop table table_test_table_17").ConfigureAwait(false);
+            await Connection.ExecuteAsync("drop table table_test_table_15").ConfigureAwait(false);
+            //await Connection.ExecuteAsync("drop table table_test_table_18").ConfigureAwait(false);
         }
 
         [Test]
@@ -676,21 +740,6 @@ create table table_test_table_9 (
             Assert.AreEqual("uk_test_table_7", uk.Name.LocalName);
         }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
         [Test]
         public void Index_WhenGivenTableWithNoIndexes_ReturnsEmptyLookup()
         {
@@ -974,9 +1023,1132 @@ create table table_test_table_9 (
             Assert.AreEqual("ix_test_table_9", index.Name.LocalName);
         }
 
+        [Test]
+        public void Index_WhenGivenTableWithIndexContainingNoIncludedColumns_ReturnsIndexWithoutIncludedColumns()
+        {
+            var expectedColumnNames = new[] { "test_column" };
+            var expectedIncludedColumnNames = new[] { "test_column_2" };
+
+            var table = Database.GetTable("table_test_table_9");
+            var indexLookup = table.Index;
+            var index = indexLookup["ix_test_table_9"];
+            var includedColumns = index.IncludedColumns
+                .Select(c => c.Name.LocalName)
+                .ToList();
+
+            Assert.AreEqual(0, includedColumns.Count);
+        }
+
+        [Test]
+        public void Index_WhenGivenTableWithIndexContainingSingleIncludedColumn_ReturnsIndexWithIncludedColumn()
+        {
+            var expectedColumnNames = new[] { "test_column" };
+            var expectedIncludedColumnNames = new[] { "test_column_2" };
+
+            var table = Database.GetTable("table_test_table_10");
+            var indexLookup = table.Index;
+            var index = indexLookup["ix_test_table_10"];
+            var indexColumns = index.Columns
+                .Select(c => c.DependentColumns.Single())
+                .Select(c => c.Name.LocalName)
+                .ToList();
+            var includedColumns = index.IncludedColumns
+                .Select(c => c.Name.LocalName)
+                .ToList();
+
+            var columnsEqual = indexColumns.SequenceEqual(expectedColumnNames);
+            var includedColumnsEqual = includedColumns.SequenceEqual(expectedIncludedColumnNames);
+
+            Assert.Multiple(() =>
+            {
+                Assert.AreEqual(1, indexColumns.Count);
+                Assert.IsTrue(columnsEqual);
+                Assert.AreEqual(1, includedColumns.Count);
+                Assert.IsTrue(includedColumnsEqual);
+            });
+        }
+
+        [Test]
+        public void Index_WhenGivenTableWithIndexContainingMultipleIncludedColumns_ReturnsIndexWithAllColumnsInCorrectOrder()
+        {
+            var expectedColumnNames = new[] { "first_name" };
+            var expectedIncludedColumnNames = new[] { "last_name", "middle_name" };
+
+            var table = Database.GetTable("table_test_table_11");
+            var indexLookup = table.Index;
+            var index = indexLookup["ix_test_table_11"];
+            var indexColumns = index.Columns
+                .Select(c => c.DependentColumns.Single())
+                .Select(c => c.Name.LocalName)
+                .ToList();
+            var includedColumns = index.IncludedColumns
+                .Select(c => c.Name.LocalName)
+                .ToList();
+
+            var columnsEqual = indexColumns.SequenceEqual(expectedColumnNames);
+            var includedColumnsEqual = includedColumns.SequenceEqual(expectedIncludedColumnNames);
+
+            Assert.Multiple(() =>
+            {
+                Assert.AreEqual(1, indexColumns.Count);
+                Assert.IsTrue(columnsEqual);
+                Assert.AreEqual(2, includedColumns.Count);
+                Assert.IsTrue(includedColumnsEqual);
+            });
+        }
+
+        [Test]
+        public void Indexes_WhenGivenTableWithIndexContainingNoIncludedColumns_ReturnsIndexWithoutIncludedColumns()
+        {
+            var expectedColumnNames = new[] { "test_column" };
+            var expectedIncludedColumnNames = new[] { "test_column_2" };
+
+            var table = Database.GetTable("table_test_table_9");
+            var index = table.Indexes.Single();
+            var includedColumns = index.IncludedColumns
+                .Select(c => c.Name.LocalName)
+                .ToList();
+
+            Assert.AreEqual(0, includedColumns.Count);
+        }
+
+        [Test]
+        public void Indexes_WhenGivenTableWithIndexContainingSingleIncludedColumn_ReturnsIndexWithIncludedColumn()
+        {
+            var expectedColumnNames = new[] { "test_column" };
+            var expectedIncludedColumnNames = new[] { "test_column_2" };
+
+            var table = Database.GetTable("table_test_table_10");
+            var index = table.Indexes.Single();
+            var indexColumns = index.Columns
+                .Select(c => c.DependentColumns.Single())
+                .Select(c => c.Name.LocalName)
+                .ToList();
+            var includedColumns = index.IncludedColumns
+                .Select(c => c.Name.LocalName)
+                .ToList();
+
+            var columnsEqual = indexColumns.SequenceEqual(expectedColumnNames);
+            var includedColumnsEqual = includedColumns.SequenceEqual(expectedIncludedColumnNames);
+
+            Assert.Multiple(() =>
+            {
+                Assert.AreEqual(1, indexColumns.Count);
+                Assert.IsTrue(columnsEqual);
+                Assert.AreEqual(1, includedColumns.Count);
+                Assert.IsTrue(includedColumnsEqual);
+            });
+        }
+
+        [Test]
+        public void Indexes_WhenGivenTableWithIndexContainingMultipleIncludedColumns_ReturnsIndexWithAllColumnsInCorrectOrder()
+        {
+            var expectedColumnNames = new[] { "first_name" };
+            var expectedIncludedColumnNames = new[] { "last_name", "middle_name" };
+
+            var table = Database.GetTable("table_test_table_11");
+            var index = table.Indexes.Single();
+            var indexColumns = index.Columns
+                .Select(c => c.DependentColumns.Single())
+                .Select(c => c.Name.LocalName)
+                .ToList();
+            var includedColumns = index.IncludedColumns
+                .Select(c => c.Name.LocalName)
+                .ToList();
+
+            var columnsEqual = indexColumns.SequenceEqual(expectedColumnNames);
+            var includedColumnsEqual = includedColumns.SequenceEqual(expectedIncludedColumnNames);
+
+            Assert.Multiple(() =>
+            {
+                Assert.AreEqual(1, indexColumns.Count);
+                Assert.IsTrue(columnsEqual);
+                Assert.AreEqual(2, includedColumns.Count);
+                Assert.IsTrue(includedColumnsEqual);
+            });
+        }
+
+        [Test]
+        public async Task IndexAsync_WhenGivenTableWithIndexContainingNoIncludedColumns_ReturnsIndexWithoutIncludedColumns()
+        {
+            var expectedColumnNames = new[] { "test_column" };
+            var expectedIncludedColumnNames = new[] { "test_column_2" };
+
+            var table = await Database.GetTableAsync("table_test_table_9").ConfigureAwait(false);
+            var indexLookup = await table.IndexAsync().ConfigureAwait(false);
+            var index = indexLookup["ix_test_table_9"];
+            var includedColumns = index.IncludedColumns
+                .Select(c => c.Name.LocalName)
+                .ToList();
+
+            Assert.AreEqual(0, includedColumns.Count);
+        }
+
+        [Test]
+        public async Task IndexAsync_WhenGivenTableWithIndexContainingSingleIncludedColumn_ReturnsIndexWithIncludedColumn()
+        {
+            var expectedColumnNames = new[] { "test_column" };
+            var expectedIncludedColumnNames = new[] { "test_column_2" };
+
+            var table = await Database.GetTableAsync("table_test_table_10").ConfigureAwait(false);
+            var indexLookup = await table.IndexAsync().ConfigureAwait(false);
+            var index = indexLookup["ix_test_table_10"];
+            var indexColumns = index.Columns
+                .Select(c => c.DependentColumns.Single())
+                .Select(c => c.Name.LocalName)
+                .ToList();
+            var includedColumns = index.IncludedColumns
+                .Select(c => c.Name.LocalName)
+                .ToList();
+
+            var columnsEqual = indexColumns.SequenceEqual(expectedColumnNames);
+            var includedColumnsEqual = includedColumns.SequenceEqual(expectedIncludedColumnNames);
+
+            Assert.Multiple(() =>
+            {
+                Assert.AreEqual(1, indexColumns.Count);
+                Assert.IsTrue(columnsEqual);
+                Assert.AreEqual(1, includedColumns.Count);
+                Assert.IsTrue(includedColumnsEqual);
+            });
+        }
+
+        [Test]
+        public async Task IndexAsync_WhenGivenTableWithIndexContainingMultipleIncludedColumns_ReturnsIndexWithAllColumnsInCorrectOrder()
+        {
+            var expectedColumnNames = new[] { "first_name" };
+            var expectedIncludedColumnNames = new[] { "last_name", "middle_name" };
+
+            var table = await Database.GetTableAsync("table_test_table_11").ConfigureAwait(false);
+            var indexLookup = await table.IndexAsync().ConfigureAwait(false);
+            var index = indexLookup["ix_test_table_11"];
+            var indexColumns = index.Columns
+                .Select(c => c.DependentColumns.Single())
+                .Select(c => c.Name.LocalName)
+                .ToList();
+            var includedColumns = index.IncludedColumns
+                .Select(c => c.Name.LocalName)
+                .ToList();
+
+            var columnsEqual = indexColumns.SequenceEqual(expectedColumnNames);
+            var includedColumnsEqual = includedColumns.SequenceEqual(expectedIncludedColumnNames);
+
+            Assert.Multiple(() =>
+            {
+                Assert.AreEqual(1, indexColumns.Count);
+                Assert.IsTrue(columnsEqual);
+                Assert.AreEqual(2, includedColumns.Count);
+                Assert.IsTrue(includedColumnsEqual);
+            });
+        }
+
+        [Test]
+        public async Task IndexesAsync_WhenGivenTableWithIndexContainingNoIncludedColumns_ReturnsIndexWithoutIncludedColumns()
+        {
+            var expectedColumnNames = new[] { "test_column" };
+            var expectedIncludedColumnNames = new[] { "test_column_2" };
+
+            var table = await Database.GetTableAsync("table_test_table_9").ConfigureAwait(false);
+            var indexes = await table.IndexesAsync().ConfigureAwait(false);
+            var index = indexes.Single();
+            var includedColumns = index.IncludedColumns
+                .Select(c => c.Name.LocalName)
+                .ToList();
+
+            Assert.AreEqual(0, includedColumns.Count);
+        }
+
+        [Test]
+        public async Task IndexesAsync_WhenGivenTableWithIndexContainingSingleIncludedColumn_ReturnsIndexWithIncludedColumn()
+        {
+            var expectedColumnNames = new[] { "test_column" };
+            var expectedIncludedColumnNames = new[] { "test_column_2" };
+
+            var table = await Database.GetTableAsync("table_test_table_10").ConfigureAwait(false);
+            var indexes = await table.IndexesAsync().ConfigureAwait(false);
+            var index = indexes.Single();
+            var indexColumns = index.Columns
+                .Select(c => c.DependentColumns.Single())
+                .Select(c => c.Name.LocalName)
+                .ToList();
+            var includedColumns = index.IncludedColumns
+                .Select(c => c.Name.LocalName)
+                .ToList();
+
+            var columnsEqual = indexColumns.SequenceEqual(expectedColumnNames);
+            var includedColumnsEqual = includedColumns.SequenceEqual(expectedIncludedColumnNames);
+
+            Assert.Multiple(() =>
+            {
+                Assert.AreEqual(1, indexColumns.Count);
+                Assert.IsTrue(columnsEqual);
+                Assert.AreEqual(1, includedColumns.Count);
+                Assert.IsTrue(includedColumnsEqual);
+            });
+        }
+
+        [Test]
+        public async Task IndexesAsync_WhenGivenTableWithIndexContainingMultipleIncludedColumns_ReturnsIndexWithAllColumnsInCorrectOrder()
+        {
+            var expectedColumnNames = new[] { "first_name" };
+            var expectedIncludedColumnNames = new[] { "last_name", "middle_name" };
+
+            var table = await Database.GetTableAsync("table_test_table_11").ConfigureAwait(false);
+            var indexes = await table.IndexesAsync().ConfigureAwait(false);
+            var index = indexes.Single();
+            var indexColumns = index.Columns
+                .Select(c => c.DependentColumns.Single())
+                .Select(c => c.Name.LocalName)
+                .ToList();
+            var includedColumns = index.IncludedColumns
+                .Select(c => c.Name.LocalName)
+                .ToList();
+
+            var columnsEqual = indexColumns.SequenceEqual(expectedColumnNames);
+            var includedColumnsEqual = includedColumns.SequenceEqual(expectedIncludedColumnNames);
+
+            Assert.Multiple(() =>
+            {
+                Assert.AreEqual(1, indexColumns.Count);
+                Assert.IsTrue(columnsEqual);
+                Assert.AreEqual(2, includedColumns.Count);
+                Assert.IsTrue(includedColumnsEqual);
+            });
+        }
+
+        [Test]
+        public void Index_WhenGivenTableWithEnabledIndex_ReturnsIndexWithIsEnabledTrue()
+        {
+            var table = Database.GetTable("table_test_table_11");
+            var index = table.Index.Values.Single();
+
+            Assert.IsTrue(index.IsEnabled);
+        }
+
+        [Test]
+        public void Indexes_WhenGivenTableWithEnabledIndex_ReturnsIndexWithIsEnabledTrue()
+        {
+            var table = Database.GetTable("table_test_table_11");
+            var index = table.Indexes.Single();
+
+            Assert.IsTrue(index.IsEnabled);
+        }
+
+        [Test]
+        public async Task IndexAsync_WhenGivenTableWithEnabledIndex_ReturnsIndexWithIsEnabledTrue()
+        {
+            var table = await Database.GetTableAsync("table_test_table_11").ConfigureAwait(false);
+            var indexLookup = await table.IndexAsync().ConfigureAwait(false);
+            var index = indexLookup.Values.Single();
+
+            Assert.IsTrue(index.IsEnabled);
+        }
+
+        [Test]
+        public async Task IndexesAsync_WhenGivenTableWithEnabledIndex_ReturnsIndexWithIsEnabledTrue()
+        {
+            var table = await Database.GetTableAsync("table_test_table_11").ConfigureAwait(false);
+            var indexes = await table.IndexesAsync().ConfigureAwait(false);
+            var index = indexes.Single();
+
+            Assert.IsTrue(index.IsEnabled);
+        }
+
+        [Test]
+        public void Index_WhenGivenTableWithDisabledIndex_ReturnsIndexWithIsEnabledFalse()
+        {
+            var table = Database.GetTable("table_test_table_12");
+            var index = table.Index.Values.Single();
+
+            Assert.IsFalse(index.IsEnabled);
+        }
+
+        [Test]
+        public void Indexes_WhenGivenTableWithDisabledIndex_ReturnsIndexWithIsEnabledFalse()
+        {
+            var table = Database.GetTable("table_test_table_12");
+            var index = table.Indexes.Single();
+
+            Assert.IsFalse(index.IsEnabled);
+        }
+
+        [Test]
+        public async Task IndexAsync_WhenGivenTableWithDisabledIndex_ReturnsIndexWithIsEnabledFalse()
+        {
+            var table = await Database.GetTableAsync("table_test_table_12").ConfigureAwait(false);
+            var indexLookup = await table.IndexAsync().ConfigureAwait(false);
+            var index = indexLookup.Values.Single();
+
+            Assert.IsFalse(index.IsEnabled);
+        }
+
+        [Test]
+        public async Task IndexesAsync_WhenGivenTableWithDisabledIndex_ReturnsIndexWithIsEnabledFalse()
+        {
+            var table = await Database.GetTableAsync("table_test_table_12").ConfigureAwait(false);
+            var indexes = await table.IndexesAsync().ConfigureAwait(false);
+            var index = indexes.Single();
+
+            Assert.IsFalse(index.IsEnabled);
+        }
+
+        [Test]
+        public void Index_WhenGivenTableWithNonUniqueIndex_ReturnsIndexWithIsUniqueFalse()
+        {
+            var table = Database.GetTable("table_test_table_9");
+            var index = table.Index.Values.Single();
+
+            Assert.IsFalse(index.IsUnique);
+        }
+
+        [Test]
+        public void Indexes_WhenGivenTableWithNonUniqueIndex_ReturnsIndexWithIsUniqueFalse()
+        {
+            var table = Database.GetTable("table_test_table_9");
+            var index = table.Indexes.Single();
+
+            Assert.IsFalse(index.IsUnique);
+        }
+
+        [Test]
+        public async Task IndexAsync_WhenGivenTableWithNonUniqueIndex_ReturnsIndexWithIsUniqueFalse()
+        {
+            var table = await Database.GetTableAsync("table_test_table_9").ConfigureAwait(false);
+            var indexLookup = await table.IndexAsync().ConfigureAwait(false);
+            var index = indexLookup.Values.Single();
+
+            Assert.IsFalse(index.IsUnique);
+        }
+
+        [Test]
+        public async Task IndexesAsync_WhenGivenTableWithNonUniqueIndex_ReturnsIndexWithIsUniqueFalse()
+        {
+            var table = await Database.GetTableAsync("table_test_table_9").ConfigureAwait(false);
+            var indexes = await table.IndexesAsync().ConfigureAwait(false);
+            var index = indexes.Single();
+
+            Assert.IsFalse(index.IsUnique);
+        }
+
+        [Test]
+        public void Index_WhenGivenTableWithUniqueIndex_ReturnsIndexWithIsUniqueTrue()
+        {
+            var table = Database.GetTable("table_test_table_13");
+            var index = table.Index.Values.Single();
+
+            Assert.IsTrue(index.IsUnique);
+        }
+
+        [Test]
+        public void Indexes_WhenGivenTableWithUniqueIndex_ReturnsIndexWithIsUniqueTrue()
+        {
+            var table = Database.GetTable("table_test_table_13");
+            var index = table.Indexes.Single();
+
+            Assert.IsTrue(index.IsUnique);
+        }
+
+        [Test]
+        public async Task IndexAsync_WhenGivenTableWithUniqueIndex_ReturnsIndexWithIsUniqueTrue()
+        {
+            var table = await Database.GetTableAsync("table_test_table_13").ConfigureAwait(false);
+            var indexLookup = await table.IndexAsync().ConfigureAwait(false);
+            var index = indexLookup.Values.Single();
+
+            Assert.IsTrue(index.IsUnique);
+        }
+
+        [Test]
+        public async Task IndexesAsync_WhenGivenTableWithUniqueIndex_ReturnsIndexWithIsUniqueTrue()
+        {
+            var table = await Database.GetTableAsync("table_test_table_13").ConfigureAwait(false);
+            var indexes = await table.IndexesAsync().ConfigureAwait(false);
+            var index = indexes.Single();
+
+            Assert.IsTrue(index.IsUnique);
+        }
+
+        [Test]
+        public void CheckConstraint_WhenGivenTableWithNoChecks_ReturnsEmptyLookup()
+        {
+            var table = Database.GetTable("table_test_table_1");
+            var checkLookup = table.CheckConstraint;
+
+            Assert.AreEqual(0, checkLookup.Count);
+        }
+
+        [Test]
+        public void CheckConstraints_WhenGivenTableWithNoChecks_ReturnsEmptyCollection()
+        {
+            var table = Database.GetTable("table_test_table_1");
+            var count = table.CheckConstraints.Count();
+
+            Assert.AreEqual(0, count);
+        }
+
+        [Test]
+        public async Task CheckConstraintAsync_WhenGivenTableWithNoChecks_ReturnsEmptyLookup()
+        {
+            var table = await Database.GetTableAsync("table_test_table_1").ConfigureAwait(false);
+            var checkLookup = await table.CheckConstraintAsync().ConfigureAwait(false);
+
+            Assert.AreEqual(0, checkLookup.Count);
+        }
+
+        [Test]
+        public async Task CheckConstraintsAsync_WhenGivenTableWithNoChecks_ReturnsEmptyCollection()
+        {
+            var table = await Database.GetTableAsync("table_test_table_1").ConfigureAwait(false);
+            var checks = await table.CheckConstraintsAsync().ConfigureAwait(false);
+            var count = checks.Count();
+
+            Assert.AreEqual(0, count);
+        }
+
+        [Test]
+        public void CheckConstraint_WhenGivenTableWithCheck_ReturnsContraintWithCorrectName()
+        {
+            var table = Database.GetTable("table_test_table_14");
+            var check = table.CheckConstraint["ck_test_table_14"];
+
+            Assert.AreEqual("ck_test_table_14", check.Name.LocalName);
+        }
+
+        [Test]
+        public void CheckConstraints_WhenGivenTableWithCheck_ReturnsContraintWithCorrectName()
+        {
+            var table = Database.GetTable("table_test_table_14");
+            var check = table.CheckConstraints.Single();
+
+            Assert.AreEqual("ck_test_table_14", check.Name.LocalName);
+        }
+
+        [Test]
+        public async Task CheckConstraintAsync_WhenGivenTableWithCheck_ReturnsContraintWithCorrectName()
+        {
+            var table = await Database.GetTableAsync("table_test_table_14").ConfigureAwait(false);
+            var checkLookup = await table.CheckConstraintAsync().ConfigureAwait(false);
+            var check = checkLookup["ck_test_table_14"];
+
+            Assert.AreEqual("ck_test_table_14", check.Name.LocalName);
+        }
+
+        [Test]
+        public async Task CheckConstraintsAsync_WhenGivenTableWithCheck_ReturnsContraintWithCorrectName()
+        {
+            var table = await Database.GetTableAsync("table_test_table_14").ConfigureAwait(false);
+            var checks = await table.CheckConstraintsAsync().ConfigureAwait(false);
+            var check = checks.Single();
+
+            Assert.AreEqual("ck_test_table_14", check.Name.LocalName);
+        }
+
+        [Test]
+        public void CheckConstraint_WhenGivenTableWithCheck_ReturnsContraintWithDefinition()
+        {
+            var table = Database.GetTable("table_test_table_14");
+            var check = table.CheckConstraint["ck_test_table_14"];
+
+            Assert.AreEqual("([test_column]>(1))", check.Definition);
+        }
+
+        [Test]
+        public void CheckConstraints_WhenGivenTableWithCheck_ReturnsContraintWithDefinition()
+        {
+            var table = Database.GetTable("table_test_table_14");
+            var check = table.CheckConstraints.Single();
+
+            Assert.AreEqual("([test_column]>(1))", check.Definition);
+        }
+
+        [Test]
+        public async Task CheckConstraintAsync_WhenGivenTableWithCheck_ReturnsContraintWithDefinition()
+        {
+            var table = await Database.GetTableAsync("table_test_table_14").ConfigureAwait(false);
+            var checkLookup = await table.CheckConstraintAsync().ConfigureAwait(false);
+            var check = checkLookup["ck_test_table_14"];
+
+            Assert.AreEqual("([test_column]>(1))", check.Definition);
+        }
+
+        [Test]
+        public async Task CheckConstraintsAsync_WhenGivenTableWithCheck_ReturnsContraintWithDefinition()
+        {
+            var table = await Database.GetTableAsync("table_test_table_14").ConfigureAwait(false);
+            var checks = await table.CheckConstraintsAsync().ConfigureAwait(false);
+            var check = checks.Single();
+
+            Assert.AreEqual("([test_column]>(1))", check.Definition);
+        }
+
+        [Test]
+        public void ParentKey_WhenGivenTableWithNoForeignKeys_ReturnsEmptyLookup()
+        {
+            var table = Database.GetTable("table_test_table_15");
+            var parentKeyLookup = table.ParentKey;
+
+            Assert.AreEqual(0, parentKeyLookup.Count);
+        }
+
+        [Test]
+        public void ParentKeys_WhenGivenTableWithNoForeignKeys_ReturnsEmptyCollection()
+        {
+            var table = Database.GetTable("table_test_table_15");
+            var count = table.ParentKeys.Count();
+
+            Assert.AreEqual(0, count);
+        }
+
+        [Test]
+        public async Task ParentKeyAsync_WhenGivenTableWithNoForeignKeys_ReturnsEmptyLookup()
+        {
+            var table = await Database.GetTableAsync("table_test_table_15").ConfigureAwait(false);
+            var parentKeyLookup = await table.ParentKeyAsync().ConfigureAwait(false);
+
+            Assert.AreEqual(0, parentKeyLookup.Count);
+        }
+
+        [Test]
+        public async Task ParentKeysAsync_WhenGivenTableWithNoForeignKeys_ReturnsEmptyCollection()
+        {
+            var table = await Database.GetTableAsync("table_test_table_15").ConfigureAwait(false);
+            var parentKeys = await table.ParentKeysAsync().ConfigureAwait(false);
+            var count = parentKeys.Count();
+
+            Assert.AreEqual(0, count);
+        }
+
+        [Test]
+        public void ParentKey_WhenGivenTableWithForeignKeyToPrimaryKey_ReturnsConstraintWithCorrectNames()
+        {
+            var table = Database.GetTable("table_test_table_16");
+            var parentKeyLookup = table.ParentKey;
+            var foreignKey = parentKeyLookup["fk_test_table_16"];
+
+            Assert.Multiple(() =>
+            {
+                Assert.AreEqual("fk_test_table_16", foreignKey.ChildKey.Name.LocalName);
+                Assert.AreEqual("pk_test_table_15", foreignKey.ParentKey.Name.LocalName);
+            });
+        }
+
+        [Test]
+        public void ParentKeys_WhenGivenTableWithForeignKeyToPrimaryKey_ContainsConstraintWithCorrectNames()
+        {
+            var table = Database.GetTable("table_test_table_16");
+            var foreignKey = table.ParentKeys.Single();
+
+            Assert.Multiple(() =>
+            {
+                Assert.AreEqual("fk_test_table_16", foreignKey.ChildKey.Name.LocalName);
+                Assert.AreEqual("pk_test_table_15", foreignKey.ParentKey.Name.LocalName);
+            });
+        }
+
+        [Test]
+        public async Task ParentKeyAsync_WhenGivenTableWithForeignKeyToPrimaryKey_ReturnsConstraintWithCorrectNames()
+        {
+            var table = await Database.GetTableAsync("table_test_table_16").ConfigureAwait(false);
+            var parentKeyLookup = await table.ParentKeyAsync().ConfigureAwait(false);
+            var foreignKey = parentKeyLookup["fk_test_table_16"];
+
+            Assert.Multiple(() =>
+            {
+                Assert.AreEqual("fk_test_table_16", foreignKey.ChildKey.Name.LocalName);
+                Assert.AreEqual("pk_test_table_15", foreignKey.ParentKey.Name.LocalName);
+            });
+        }
+
+        [Test]
+        public async Task ParentKeysAsync_WhenGivenTableWithForeignKeyToPrimaryKey_ContainsConstraintWithCorrectNames()
+        {
+            var table = await Database.GetTableAsync("table_test_table_16").ConfigureAwait(false);
+            var parentKeys = await table.ParentKeysAsync().ConfigureAwait(false);
+            var foreignKey = parentKeys.Single();
+
+            Assert.Multiple(() =>
+            {
+                Assert.AreEqual("fk_test_table_16", foreignKey.ChildKey.Name.LocalName);
+                Assert.AreEqual("pk_test_table_15", foreignKey.ParentKey.Name.LocalName);
+            });
+        }
+
+        [Test]
+        public void ParentKey_WhenGivenTableWithForeignKeyToPrimaryKey_ReturnsConstraintWithCorrectKeyTypes()
+        {
+            var table = Database.GetTable("table_test_table_16");
+            var parentKeyLookup = table.ParentKey;
+            var foreignKey = parentKeyLookup["fk_test_table_16"];
+
+            Assert.Multiple(() =>
+            {
+                Assert.AreEqual(DatabaseKeyType.Foreign, foreignKey.ChildKey.KeyType);
+                Assert.AreEqual(DatabaseKeyType.Primary, foreignKey.ParentKey.KeyType);
+            });
+        }
+
+        [Test]
+        public void ParentKeys_WhenGivenTableWithForeignKeyToPrimaryKey_ContainsConstraintWithCorrectKeyTypes()
+        {
+            var table = Database.GetTable("table_test_table_16");
+            var foreignKey = table.ParentKeys.Single();
+
+            Assert.Multiple(() =>
+            {
+                Assert.AreEqual(DatabaseKeyType.Foreign, foreignKey.ChildKey.KeyType);
+                Assert.AreEqual(DatabaseKeyType.Primary, foreignKey.ParentKey.KeyType);
+            });
+        }
+
+        [Test]
+        public async Task ParentKeyAsync_WhenGivenTableWithForeignKeyToPrimaryKey_ReturnsConstraintWithCorrectKeyTypes()
+        {
+            var table = await Database.GetTableAsync("table_test_table_16").ConfigureAwait(false);
+            var parentKeyLookup = await table.ParentKeyAsync().ConfigureAwait(false);
+            var foreignKey = parentKeyLookup["fk_test_table_16"];
+
+            Assert.Multiple(() =>
+            {
+                Assert.AreEqual(DatabaseKeyType.Foreign, foreignKey.ChildKey.KeyType);
+                Assert.AreEqual(DatabaseKeyType.Primary, foreignKey.ParentKey.KeyType);
+            });
+        }
+
+        [Test]
+        public async Task ParentKeysAsync_WhenGivenTableWithForeignKeyToPrimaryKey_ContainsConstraintWithCorrectKeyTypes()
+        {
+            var table = await Database.GetTableAsync("table_test_table_16").ConfigureAwait(false);
+            var parentKeys = await table.ParentKeysAsync().ConfigureAwait(false);
+            var foreignKey = parentKeys.Single();
+
+            Assert.Multiple(() =>
+            {
+                Assert.AreEqual(DatabaseKeyType.Foreign, foreignKey.ChildKey.KeyType);
+                Assert.AreEqual(DatabaseKeyType.Primary, foreignKey.ParentKey.KeyType);
+            });
+        }
+
+        [Test]
+        public void ParentKey_WhenGivenTableWithForeignKeyToPrimaryKey_ReturnsConstraintWithCorrectTables()
+        {
+            var table = Database.GetTable("table_test_table_16");
+            var parentKeyLookup = table.ParentKey;
+            var foreignKey = parentKeyLookup["fk_test_table_16"];
+
+            Assert.Multiple(() =>
+            {
+                Assert.AreEqual("table_test_table_16", foreignKey.ChildKey.Table.Name.LocalName);
+                Assert.AreEqual("table_test_table_15", foreignKey.ParentKey.Table.Name.LocalName);
+            });
+        }
+
+        [Test]
+        public void ParentKeys_WhenGivenTableWithForeignKeyToPrimaryKey_ContainsConstraintWithCorrectTables()
+        {
+            var table = Database.GetTable("table_test_table_16");
+            var foreignKey = table.ParentKeys.Single();
+
+            Assert.Multiple(() =>
+            {
+                Assert.AreEqual("table_test_table_16", foreignKey.ChildKey.Table.Name.LocalName);
+                Assert.AreEqual("table_test_table_15", foreignKey.ParentKey.Table.Name.LocalName);
+            });
+        }
+
+        [Test]
+        public async Task ParentKeyAsync_WhenGivenTableWithForeignKeyToPrimaryKey_ReturnsConstraintWithCorrectTables()
+        {
+            var table = await Database.GetTableAsync("table_test_table_16").ConfigureAwait(false);
+            var parentKeyLookup = await table.ParentKeyAsync().ConfigureAwait(false);
+            var foreignKey = parentKeyLookup["fk_test_table_16"];
+
+            Assert.Multiple(() =>
+            {
+                Assert.AreEqual("table_test_table_16", foreignKey.ChildKey.Table.Name.LocalName);
+                Assert.AreEqual("table_test_table_15", foreignKey.ParentKey.Table.Name.LocalName);
+            });
+        }
+
+        [Test]
+        public async Task ParentKeysAsync_WhenGivenTableWithForeignKeyToPrimaryKey_ContainsConstraintWithCorrectTables()
+        {
+            var table = await Database.GetTableAsync("table_test_table_16").ConfigureAwait(false);
+            var parentKeys = await table.ParentKeysAsync().ConfigureAwait(false);
+            var foreignKey = parentKeys.Single();
+
+            Assert.Multiple(() =>
+            {
+                Assert.AreEqual("table_test_table_16", foreignKey.ChildKey.Table.Name.LocalName);
+                Assert.AreEqual("table_test_table_15", foreignKey.ParentKey.Table.Name.LocalName);
+            });
+        }
+
+        [Test]
+        public void ParentKey_WhenGivenTableWithForeignKeyToPrimaryKey_ReturnsConstraintWithCorrectColumns()
+        {
+            var table = Database.GetTable("table_test_table_16");
+            var parentKeyLookup = table.ParentKey;
+            var foreignKey = parentKeyLookup["fk_test_table_16"];
+
+            var childColumns = foreignKey.ChildKey.Columns.Select(c => c.Name.LocalName);
+            var parentColumns = foreignKey.ParentKey.Columns.Select(c => c.Name.LocalName);
+
+            var expectedChildColumns = new[] { "first_name_child" };
+            var expectedParentColumns = new[] { "first_name_parent" };
+
+            var childColumnsEqual = childColumns.SequenceEqual(expectedChildColumns);
+            var parentColumnsEqual = parentColumns.SequenceEqual(expectedParentColumns);
+
+            Assert.Multiple(() =>
+            {
+                Assert.IsTrue(childColumnsEqual);
+                Assert.IsTrue(parentColumnsEqual);
+            });
+        }
+
+        [Test]
+        public void ParentKeys_WhenGivenTableWithForeignKeyToPrimaryKey_ContainsConstraintWithCorrectColumns()
+        {
+            var table = Database.GetTable("table_test_table_16");
+            var foreignKey = table.ParentKeys.Single();
+
+            var childColumns = foreignKey.ChildKey.Columns.Select(c => c.Name.LocalName);
+            var parentColumns = foreignKey.ParentKey.Columns.Select(c => c.Name.LocalName);
+
+            var expectedChildColumns = new[] { "first_name_child" };
+            var expectedParentColumns = new[] { "first_name_parent" };
+
+            var childColumnsEqual = childColumns.SequenceEqual(expectedChildColumns);
+            var parentColumnsEqual = parentColumns.SequenceEqual(expectedParentColumns);
+
+            Assert.Multiple(() =>
+            {
+                Assert.IsTrue(childColumnsEqual);
+                Assert.IsTrue(parentColumnsEqual);
+            });
+        }
+
+        [Test]
+        public async Task ParentKeyAsync_WhenGivenTableWithForeignKeyToPrimaryKey_ReturnsConstraintWithCorrectColumns()
+        {
+            var table = await Database.GetTableAsync("table_test_table_16").ConfigureAwait(false);
+            var parentKeyLookup = await table.ParentKeyAsync().ConfigureAwait(false);
+            var foreignKey = parentKeyLookup["fk_test_table_16"];
+
+            var childColumns = foreignKey.ChildKey.Columns.Select(c => c.Name.LocalName);
+            var parentColumns = foreignKey.ParentKey.Columns.Select(c => c.Name.LocalName);
+
+            var expectedChildColumns = new[] { "first_name_child" };
+            var expectedParentColumns = new[] { "first_name_parent" };
+
+            var childColumnsEqual = childColumns.SequenceEqual(expectedChildColumns);
+            var parentColumnsEqual = parentColumns.SequenceEqual(expectedParentColumns);
+
+            Assert.Multiple(() =>
+            {
+                Assert.IsTrue(childColumnsEqual);
+                Assert.IsTrue(parentColumnsEqual);
+            });
+        }
+
+        [Test]
+        public async Task ParentKeysAsync_WhenGivenTableWithForeignKeyToPrimaryKey_ContainsConstraintWithCorrectColumns()
+        {
+            var table = await Database.GetTableAsync("table_test_table_16").ConfigureAwait(false);
+            var parentKeys = await table.ParentKeysAsync().ConfigureAwait(false);
+            var foreignKey = parentKeys.Single();
+
+            var childColumns = foreignKey.ChildKey.Columns.Select(c => c.Name.LocalName);
+            var parentColumns = foreignKey.ParentKey.Columns.Select(c => c.Name.LocalName);
+
+            var expectedChildColumns = new[] { "first_name_child" };
+            var expectedParentColumns = new[] { "first_name_parent" };
+
+            var childColumnsEqual = childColumns.SequenceEqual(expectedChildColumns);
+            var parentColumnsEqual = parentColumns.SequenceEqual(expectedParentColumns);
+
+            Assert.Multiple(() =>
+            {
+                Assert.IsTrue(childColumnsEqual);
+                Assert.IsTrue(parentColumnsEqual);
+            });
+        }
+
+
+
+
         // TODO
-        // - included columns
-        // - isenabled
-        // - unique/non-unique
+        // ParentKeys
+        // - Test for delete action changes
+        // - Test for update action changes
+        // - IsEnabled
+        // - Foreign keys to unique constraints
+
+
+
+        [Test]
+        public void ParentKey_WhenGivenTableWithForeignKeyToUniqueKey_ReturnsConstraintWithCorrectNames()
+        {
+            var table = Database.GetTable("table_test_table_17");
+            var parentKeyLookup = table.ParentKey;
+            var foreignKey = parentKeyLookup["fk_test_table_17"];
+
+            Assert.Multiple(() =>
+            {
+                Assert.AreEqual("fk_test_table_17", foreignKey.ChildKey.Name.LocalName);
+                Assert.AreEqual("uk_test_table_15", foreignKey.ParentKey.Name.LocalName);
+            });
+        }
+
+        [Test]
+        public void ParentKeys_WhenGivenTableWithForeignKeyToUniqueKey_ContainsConstraintWithCorrectNames()
+        {
+            var table = Database.GetTable("table_test_table_17");
+            var foreignKey = table.ParentKeys.Single();
+
+            Assert.Multiple(() =>
+            {
+                Assert.AreEqual("fk_test_table_17", foreignKey.ChildKey.Name.LocalName);
+                Assert.AreEqual("uk_test_table_15", foreignKey.ParentKey.Name.LocalName);
+            });
+        }
+
+        [Test]
+        public async Task ParentKeyAsync_WhenGivenTableWithForeignKeyToUniqueKey_ReturnsConstraintWithCorrectNames()
+        {
+            var table = await Database.GetTableAsync("table_test_table_17").ConfigureAwait(false);
+            var parentKeyLookup = await table.ParentKeyAsync().ConfigureAwait(false);
+            var foreignKey = parentKeyLookup["fk_test_table_17"];
+
+            Assert.Multiple(() =>
+            {
+                Assert.AreEqual("fk_test_table_17", foreignKey.ChildKey.Name.LocalName);
+                Assert.AreEqual("uk_test_table_15", foreignKey.ParentKey.Name.LocalName);
+            });
+        }
+
+        [Test]
+        public async Task ParentKeysAsync_WhenGivenTableWithForeignKeyToUniqueKey_ContainsConstraintWithCorrectNames()
+        {
+            var table = await Database.GetTableAsync("table_test_table_17").ConfigureAwait(false);
+            var parentKeys = await table.ParentKeysAsync().ConfigureAwait(false);
+            var foreignKey = parentKeys.Single();
+
+            Assert.Multiple(() =>
+            {
+                Assert.AreEqual("fk_test_table_17", foreignKey.ChildKey.Name.LocalName);
+                Assert.AreEqual("uk_test_table_15", foreignKey.ParentKey.Name.LocalName);
+            });
+        }
+
+        [Test]
+        public void ParentKey_WhenGivenTableWithForeignKeyToUniqueKey_ReturnsConstraintWithCorrectKeyTypes()
+        {
+            var table = Database.GetTable("table_test_table_17");
+            var parentKeyLookup = table.ParentKey;
+            var foreignKey = parentKeyLookup["fk_test_table_17"];
+
+            Assert.Multiple(() =>
+            {
+                Assert.AreEqual(DatabaseKeyType.Foreign, foreignKey.ChildKey.KeyType);
+                Assert.AreEqual(DatabaseKeyType.Unique, foreignKey.ParentKey.KeyType);
+            });
+        }
+
+        [Test]
+        public void ParentKeys_WhenGivenTableWithForeignKeyToUniqueKey_ContainsConstraintWithCorrectKeyTypes()
+        {
+            var table = Database.GetTable("table_test_table_17");
+            var foreignKey = table.ParentKeys.Single();
+
+            Assert.Multiple(() =>
+            {
+                Assert.AreEqual(DatabaseKeyType.Foreign, foreignKey.ChildKey.KeyType);
+                Assert.AreEqual(DatabaseKeyType.Unique, foreignKey.ParentKey.KeyType);
+            });
+        }
+
+        [Test]
+        public async Task ParentKeyAsync_WhenGivenTableWithForeignKeyToUniqueKey_ReturnsConstraintWithCorrectKeyTypes()
+        {
+            var table = await Database.GetTableAsync("table_test_table_17").ConfigureAwait(false);
+            var parentKeyLookup = await table.ParentKeyAsync().ConfigureAwait(false);
+            var foreignKey = parentKeyLookup["fk_test_table_17"];
+
+            Assert.Multiple(() =>
+            {
+                Assert.AreEqual(DatabaseKeyType.Foreign, foreignKey.ChildKey.KeyType);
+                Assert.AreEqual(DatabaseKeyType.Unique, foreignKey.ParentKey.KeyType);
+            });
+        }
+
+        [Test]
+        public async Task ParentKeysAsync_WhenGivenTableWithForeignKeyToUniqueKey_ContainsConstraintWithCorrectKeyTypes()
+        {
+            var table = await Database.GetTableAsync("table_test_table_17").ConfigureAwait(false);
+            var parentKeys = await table.ParentKeysAsync().ConfigureAwait(false);
+            var foreignKey = parentKeys.Single();
+
+            Assert.Multiple(() =>
+            {
+                Assert.AreEqual(DatabaseKeyType.Foreign, foreignKey.ChildKey.KeyType);
+                Assert.AreEqual(DatabaseKeyType.Unique, foreignKey.ParentKey.KeyType);
+            });
+        }
+
+        [Test]
+        public void ParentKey_WhenGivenTableWithForeignKeyToUniqueKey_ReturnsConstraintWithCorrectTables()
+        {
+            var table = Database.GetTable("table_test_table_17");
+            var parentKeyLookup = table.ParentKey;
+            var foreignKey = parentKeyLookup["fk_test_table_17"];
+
+            Assert.Multiple(() =>
+            {
+                Assert.AreEqual("table_test_table_17", foreignKey.ChildKey.Table.Name.LocalName);
+                Assert.AreEqual("table_test_table_15", foreignKey.ParentKey.Table.Name.LocalName);
+            });
+        }
+
+        [Test]
+        public void ParentKeys_WhenGivenTableWithForeignKeyToUniqueKey_ContainsConstraintWithCorrectTables()
+        {
+            var table = Database.GetTable("table_test_table_17");
+            var foreignKey = table.ParentKeys.Single();
+
+            Assert.Multiple(() =>
+            {
+                Assert.AreEqual("table_test_table_17", foreignKey.ChildKey.Table.Name.LocalName);
+                Assert.AreEqual("table_test_table_15", foreignKey.ParentKey.Table.Name.LocalName);
+            });
+        }
+
+        [Test]
+        public async Task ParentKeyAsync_WhenGivenTableWithForeignKeyToUniqueKey_ReturnsConstraintWithCorrectTables()
+        {
+            var table = await Database.GetTableAsync("table_test_table_17").ConfigureAwait(false);
+            var parentKeyLookup = await table.ParentKeyAsync().ConfigureAwait(false);
+            var foreignKey = parentKeyLookup["fk_test_table_17"];
+
+            Assert.Multiple(() =>
+            {
+                Assert.AreEqual("table_test_table_17", foreignKey.ChildKey.Table.Name.LocalName);
+                Assert.AreEqual("table_test_table_15", foreignKey.ParentKey.Table.Name.LocalName);
+            });
+        }
+
+        [Test]
+        public async Task ParentKeysAsync_WhenGivenTableWithForeignKeyToUniqueKey_ContainsConstraintWithCorrectTables()
+        {
+            var table = await Database.GetTableAsync("table_test_table_17").ConfigureAwait(false);
+            var parentKeys = await table.ParentKeysAsync().ConfigureAwait(false);
+            var foreignKey = parentKeys.Single();
+
+            Assert.Multiple(() =>
+            {
+                Assert.AreEqual("table_test_table_17", foreignKey.ChildKey.Table.Name.LocalName);
+                Assert.AreEqual("table_test_table_15", foreignKey.ParentKey.Table.Name.LocalName);
+            });
+        }
+
+        [Test]
+        public void ParentKey_WhenGivenTableWithForeignKeyToUniqueKey_ReturnsConstraintWithCorrectColumns()
+        {
+            var table = Database.GetTable("table_test_table_17");
+            var parentKeyLookup = table.ParentKey;
+            var foreignKey = parentKeyLookup["fk_test_table_17"];
+
+            var childColumns = foreignKey.ChildKey.Columns.Select(c => c.Name.LocalName);
+            var parentColumns = foreignKey.ParentKey.Columns.Select(c => c.Name.LocalName);
+
+            var expectedChildColumns = new[] { "last_name_child", "middle_name_child" };
+            var expectedParentColumns = new[] { "last_name_parent", "middle_name_parent" };
+
+            var childColumnsEqual = childColumns.SequenceEqual(expectedChildColumns);
+            var parentColumnsEqual = parentColumns.SequenceEqual(expectedParentColumns);
+
+            Assert.Multiple(() =>
+            {
+                Assert.IsTrue(childColumnsEqual);
+                Assert.IsTrue(parentColumnsEqual);
+            });
+        }
+
+        [Test]
+        public void ParentKeys_WhenGivenTableWithForeignKeyToUniqueKey_ContainsConstraintWithCorrectColumns()
+        {
+            var table = Database.GetTable("table_test_table_17");
+            var foreignKey = table.ParentKeys.Single();
+
+            var childColumns = foreignKey.ChildKey.Columns.Select(c => c.Name.LocalName);
+            var parentColumns = foreignKey.ParentKey.Columns.Select(c => c.Name.LocalName);
+
+            var expectedChildColumns = new[] { "last_name_child", "middle_name_child" };
+            var expectedParentColumns = new[] { "last_name_parent", "middle_name_parent" };
+
+            var childColumnsEqual = childColumns.SequenceEqual(expectedChildColumns);
+            var parentColumnsEqual = parentColumns.SequenceEqual(expectedParentColumns);
+
+            Assert.Multiple(() =>
+            {
+                Assert.IsTrue(childColumnsEqual);
+                Assert.IsTrue(parentColumnsEqual);
+            });
+        }
+
+        [Test]
+        public async Task ParentKeyAsync_WhenGivenTableWithForeignKeyToUniqueKey_ReturnsConstraintWithCorrectColumns()
+        {
+            var table = await Database.GetTableAsync("table_test_table_17").ConfigureAwait(false);
+            var parentKeyLookup = await table.ParentKeyAsync().ConfigureAwait(false);
+            var foreignKey = parentKeyLookup["fk_test_table_17"];
+
+            var childColumns = foreignKey.ChildKey.Columns.Select(c => c.Name.LocalName);
+            var parentColumns = foreignKey.ParentKey.Columns.Select(c => c.Name.LocalName);
+
+            var expectedChildColumns = new[] { "last_name_child", "middle_name_child" };
+            var expectedParentColumns = new[] { "last_name_parent", "middle_name_parent" };
+
+            var childColumnsEqual = childColumns.SequenceEqual(expectedChildColumns);
+            var parentColumnsEqual = parentColumns.SequenceEqual(expectedParentColumns);
+
+            Assert.Multiple(() =>
+            {
+                Assert.IsTrue(childColumnsEqual);
+                Assert.IsTrue(parentColumnsEqual);
+            });
+        }
+
+        [Test]
+        public async Task ParentKeysAsync_WhenGivenTableWithForeignKeyToUniqueKey_ContainsConstraintWithCorrectColumns()
+        {
+            var table = await Database.GetTableAsync("table_test_table_17").ConfigureAwait(false);
+            var parentKeys = await table.ParentKeysAsync().ConfigureAwait(false);
+            var foreignKey = parentKeys.Single();
+
+            var childColumns = foreignKey.ChildKey.Columns.Select(c => c.Name.LocalName);
+            var parentColumns = foreignKey.ParentKey.Columns.Select(c => c.Name.LocalName);
+
+            var expectedChildColumns = new[] { "last_name_child", "middle_name_child" };
+            var expectedParentColumns = new[] { "last_name_parent", "middle_name_parent" };
+
+            var childColumnsEqual = childColumns.SequenceEqual(expectedChildColumns);
+            var parentColumnsEqual = parentColumns.SequenceEqual(expectedParentColumns);
+
+            Assert.Multiple(() =>
+            {
+                Assert.IsTrue(childColumnsEqual);
+                Assert.IsTrue(parentColumnsEqual);
+            });
+        }
+
+
+
+        // TODO
+        // ParentKeys
+        // - Test for delete action changes
+        // - Test for update action changes
+        // - IsEnabled
+        // - Foreign keys to unique constraints
     }
 }
