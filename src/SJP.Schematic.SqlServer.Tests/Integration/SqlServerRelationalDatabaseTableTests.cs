@@ -110,6 +110,112 @@ create table table_test_table_17 (
     last_name_child nvarchar(50),
     constraint fk_test_table_17 foreign key (last_name_child, middle_name_child) references table_test_table_15 (last_name_parent, middle_name_parent)
 )").ConfigureAwait(false);
+            await Connection.ExecuteAsync(@"
+create table table_test_table_18 (
+    first_name_child nvarchar(50),
+    middle_name_child nvarchar(50),
+    last_name_child nvarchar(50),
+    constraint fk_test_table_18 foreign key (first_name_child) references table_test_table_15 (first_name_parent) on update cascade
+)").ConfigureAwait(false);
+            await Connection.ExecuteAsync(@"
+create table table_test_table_19 (
+    first_name_child nvarchar(50),
+    middle_name_child nvarchar(50),
+    last_name_child nvarchar(50),
+    constraint fk_test_table_19 foreign key (first_name_child) references table_test_table_15 (first_name_parent) on update set null
+)").ConfigureAwait(false);
+            await Connection.ExecuteAsync(@"
+create table table_test_table_20 (
+    first_name_child nvarchar(50),
+    middle_name_child nvarchar(50),
+    last_name_child nvarchar(50),
+    constraint fk_test_table_20 foreign key (first_name_child) references table_test_table_15 (first_name_parent) on update set default
+)").ConfigureAwait(false);
+            await Connection.ExecuteAsync(@"
+create table table_test_table_21 (
+    first_name_child nvarchar(50),
+    middle_name_child nvarchar(50),
+    last_name_child nvarchar(50),
+    constraint fk_test_table_21 foreign key (last_name_child, middle_name_child) references table_test_table_15 (last_name_parent, middle_name_parent) on update cascade
+)").ConfigureAwait(false);
+            await Connection.ExecuteAsync(@"
+create table table_test_table_22 (
+    first_name_child nvarchar(50),
+    middle_name_child nvarchar(50),
+    last_name_child nvarchar(50),
+    constraint fk_test_table_22 foreign key (last_name_child, middle_name_child) references table_test_table_15 (last_name_parent, middle_name_parent) on update set null
+)").ConfigureAwait(false);
+            await Connection.ExecuteAsync(@"
+create table table_test_table_23 (
+    first_name_child nvarchar(50),
+    middle_name_child nvarchar(50),
+    last_name_child nvarchar(50),
+    constraint fk_test_table_23 foreign key (last_name_child, middle_name_child) references table_test_table_15 (last_name_parent, middle_name_parent) on update set default
+)").ConfigureAwait(false);
+            await Connection.ExecuteAsync(@"
+create table table_test_table_24 (
+    first_name_child nvarchar(50),
+    middle_name_child nvarchar(50),
+    last_name_child nvarchar(50),
+    constraint fk_test_table_24 foreign key (first_name_child) references table_test_table_15 (first_name_parent) on delete cascade
+)").ConfigureAwait(false);
+            await Connection.ExecuteAsync(@"
+create table table_test_table_25 (
+    first_name_child nvarchar(50),
+    middle_name_child nvarchar(50),
+    last_name_child nvarchar(50),
+    constraint fk_test_table_25 foreign key (first_name_child) references table_test_table_15 (first_name_parent) on delete set null
+)").ConfigureAwait(false);
+            await Connection.ExecuteAsync(@"
+create table table_test_table_26 (
+    first_name_child nvarchar(50),
+    middle_name_child nvarchar(50),
+    last_name_child nvarchar(50),
+    constraint fk_test_table_26 foreign key (first_name_child) references table_test_table_15 (first_name_parent) on delete set default
+)").ConfigureAwait(false);
+            await Connection.ExecuteAsync(@"
+create table table_test_table_27 (
+    first_name_child nvarchar(50),
+    middle_name_child nvarchar(50),
+    last_name_child nvarchar(50),
+    constraint fk_test_table_27 foreign key (last_name_child, middle_name_child) references table_test_table_15 (last_name_parent, middle_name_parent) on delete cascade
+)").ConfigureAwait(false);
+            await Connection.ExecuteAsync(@"
+create table table_test_table_28 (
+    first_name_child nvarchar(50),
+    middle_name_child nvarchar(50),
+    last_name_child nvarchar(50),
+    constraint fk_test_table_28 foreign key (last_name_child, middle_name_child) references table_test_table_15 (last_name_parent, middle_name_parent) on delete set null
+)").ConfigureAwait(false);
+            await Connection.ExecuteAsync(@"
+create table table_test_table_29 (
+    first_name_child nvarchar(50),
+    middle_name_child nvarchar(50),
+    last_name_child nvarchar(50),
+    constraint fk_test_table_29 foreign key (last_name_child, middle_name_child) references table_test_table_15 (last_name_parent, middle_name_parent) on delete set default
+)").ConfigureAwait(false);
+            await Connection.ExecuteAsync(@"
+create table table_test_table_30 (
+    first_name_child nvarchar(50),
+    middle_name_child nvarchar(50),
+    last_name_child nvarchar(50),
+    constraint fk_test_table_30 foreign key (first_name_child) references table_test_table_15 (first_name_parent)
+)").ConfigureAwait(false);
+            await Connection.ExecuteAsync("alter table table_test_table_30 nocheck constraint fk_test_table_30").ConfigureAwait(false);
+            await Connection.ExecuteAsync(@"
+create table table_test_table_31 (
+    first_name_child nvarchar(50),
+    middle_name_child nvarchar(50),
+    last_name_child nvarchar(50),
+    constraint fk_test_table_31 foreign key (last_name_child, middle_name_child) references table_test_table_15 (last_name_parent, middle_name_parent)
+)").ConfigureAwait(false);
+            await Connection.ExecuteAsync("alter table table_test_table_31 nocheck constraint fk_test_table_31").ConfigureAwait(false);
+            await Connection.ExecuteAsync(@"
+create table table_test_table_32 (
+    test_column int not null,
+    constraint ck_test_table_32 check ([test_column]>(1))
+)").ConfigureAwait(false);
+            await Connection.ExecuteAsync("alter table table_test_table_32 nocheck constraint ck_test_table_32").ConfigureAwait(false);
         }
 
         [OneTimeTearDown]
@@ -131,8 +237,22 @@ create table table_test_table_17 (
             await Connection.ExecuteAsync("drop table table_test_table_14").ConfigureAwait(false);
             await Connection.ExecuteAsync("drop table table_test_table_16").ConfigureAwait(false);
             await Connection.ExecuteAsync("drop table table_test_table_17").ConfigureAwait(false);
+            await Connection.ExecuteAsync("drop table table_test_table_18").ConfigureAwait(false);
+            await Connection.ExecuteAsync("drop table table_test_table_19").ConfigureAwait(false);
+            await Connection.ExecuteAsync("drop table table_test_table_20").ConfigureAwait(false);
+            await Connection.ExecuteAsync("drop table table_test_table_21").ConfigureAwait(false);
+            await Connection.ExecuteAsync("drop table table_test_table_22").ConfigureAwait(false);
+            await Connection.ExecuteAsync("drop table table_test_table_23").ConfigureAwait(false);
+            await Connection.ExecuteAsync("drop table table_test_table_24").ConfigureAwait(false);
+            await Connection.ExecuteAsync("drop table table_test_table_25").ConfigureAwait(false);
+            await Connection.ExecuteAsync("drop table table_test_table_26").ConfigureAwait(false);
+            await Connection.ExecuteAsync("drop table table_test_table_27").ConfigureAwait(false);
+            await Connection.ExecuteAsync("drop table table_test_table_28").ConfigureAwait(false);
+            await Connection.ExecuteAsync("drop table table_test_table_29").ConfigureAwait(false);
+            await Connection.ExecuteAsync("drop table table_test_table_30").ConfigureAwait(false);
+            await Connection.ExecuteAsync("drop table table_test_table_31").ConfigureAwait(false);
             await Connection.ExecuteAsync("drop table table_test_table_15").ConfigureAwait(false);
-            //await Connection.ExecuteAsync("drop table table_test_table_18").ConfigureAwait(false);
+            await Connection.ExecuteAsync("drop table table_test_table_32").ConfigureAwait(false);
         }
 
         [Test]
@@ -1469,6 +1589,82 @@ create table table_test_table_17 (
         }
 
         [Test]
+        public void Index_WhenGivenTableWithEnabledIndex_ReturnsIsEnabledTrue()
+        {
+            var table = Database.GetTable("table_test_table_11");
+            var index = table.Index.Values.Single();
+
+            Assert.IsTrue(index.IsEnabled);
+        }
+
+        [Test]
+        public void Indexes_WhenGivenTableWithEnabledIndex_ReturnsIsEnabledTrue()
+        {
+            var table = Database.GetTable("table_test_table_11");
+            var index = table.Indexes.Single();
+
+            Assert.IsTrue(index.IsEnabled);
+        }
+
+        [Test]
+        public async Task IndexAsync_WhenGivenTableWithEnabledIndex_ReturnsIsEnabledTrue()
+        {
+            var table = await Database.GetTableAsync("table_test_table_11").ConfigureAwait(false);
+            var indexLookup = await table.IndexAsync().ConfigureAwait(false);
+            var index = indexLookup.Values.Single();
+
+            Assert.IsTrue(index.IsEnabled);
+        }
+
+        [Test]
+        public async Task IndexesAsync_WhenGivenTableWithEnabledIndex_ReturnsIsEnabledTrue()
+        {
+            var table = await Database.GetTableAsync("table_test_table_11").ConfigureAwait(false);
+            var indexes = await table.IndexesAsync().ConfigureAwait(false);
+            var index = indexes.Single();
+
+            Assert.IsTrue(index.IsEnabled);
+        }
+
+        [Test]
+        public void Index_WhenGivenTableWithDisabledIndex_ReturnsIsEnabledFalse()
+        {
+            var table = Database.GetTable("table_test_table_12");
+            var index = table.Index.Values.Single();
+
+            Assert.IsFalse(index.IsEnabled);
+        }
+
+        [Test]
+        public void Indexes_WhenGivenTableWithDisabledIndex_ReturnsIsEnabledFalse()
+        {
+            var table = Database.GetTable("table_test_table_12");
+            var index = table.Indexes.Single();
+
+            Assert.IsFalse(index.IsEnabled);
+        }
+
+        [Test]
+        public async Task IndexAsync_WhenGivenTableWithDisabledIndex_ReturnsIsEnabledFalse()
+        {
+            var table = await Database.GetTableAsync("table_test_table_12").ConfigureAwait(false);
+            var indexLookup = await table.IndexAsync().ConfigureAwait(false);
+            var index = indexLookup.Values.Single();
+
+            Assert.IsFalse(index.IsEnabled);
+        }
+
+        [Test]
+        public async Task IndexesAsync_WhenGivenTableWithDisabledIndex_ReturnsIsEnabledFalse()
+        {
+            var table = await Database.GetTableAsync("table_test_table_12").ConfigureAwait(false);
+            var indexes = await table.IndexesAsync().ConfigureAwait(false);
+            var index = indexes.Single();
+
+            Assert.IsFalse(index.IsEnabled);
+        }
+
+        [Test]
         public void CheckConstraint_WhenGivenTableWithNoChecks_ReturnsEmptyLookup()
         {
             var table = Database.GetTable("table_test_table_1");
@@ -1579,6 +1775,82 @@ create table table_test_table_17 (
             var check = checks.Single();
 
             Assert.AreEqual("([test_column]>(1))", check.Definition);
+        }
+
+        [Test]
+        public void CheckConstraint_WhenGivenTableWithEnabledCheck_ReturnsIsEnabledTrue()
+        {
+            var table = Database.GetTable("table_test_table_14");
+            var check = table.CheckConstraint["ck_test_table_14"];
+
+            Assert.IsTrue(check.IsEnabled);
+        }
+
+        [Test]
+        public void CheckConstraints_WhenGivenTableWithEnabledCheck_ReturnsIsEnabledTrue()
+        {
+            var table = Database.GetTable("table_test_table_14");
+            var check = table.CheckConstraints.Single();
+
+            Assert.IsTrue(check.IsEnabled);
+        }
+
+        [Test]
+        public async Task CheckConstraintAsync_WhenGivenTableWithEnabledCheck_ReturnsIsEnabledTrue()
+        {
+            var table = await Database.GetTableAsync("table_test_table_14").ConfigureAwait(false);
+            var checkLookup = await table.CheckConstraintAsync().ConfigureAwait(false);
+            var check = checkLookup["ck_test_table_14"];
+
+            Assert.IsTrue(check.IsEnabled);
+        }
+
+        [Test]
+        public async Task CheckConstraintsAsync_WhenGivenTableWithEnabledCheck_ReturnsIsEnabledTrue()
+        {
+            var table = await Database.GetTableAsync("table_test_table_14").ConfigureAwait(false);
+            var checks = await table.CheckConstraintsAsync().ConfigureAwait(false);
+            var check = checks.Single();
+
+            Assert.IsTrue(check.IsEnabled);
+        }
+
+        [Test]
+        public void CheckConstraint_WhenGivenTableWithDisabledCheck_ReturnsIsEnabledFalse()
+        {
+            var table = Database.GetTable("table_test_table_32");
+            var check = table.CheckConstraint["ck_test_table_32"];
+
+            Assert.IsFalse(check.IsEnabled);
+        }
+
+        [Test]
+        public void CheckConstraints_WhenGivenTableWithDisabledCheck_ReturnsIsEnabledFalse()
+        {
+            var table = Database.GetTable("table_test_table_32");
+            var check = table.CheckConstraints.Single();
+
+            Assert.IsFalse(check.IsEnabled);
+        }
+
+        [Test]
+        public async Task CheckConstraintAsync_WhenGivenTableWithDisabledCheck_ReturnsIsEnabledFalse()
+        {
+            var table = await Database.GetTableAsync("table_test_table_32").ConfigureAwait(false);
+            var checkLookup = await table.CheckConstraintAsync().ConfigureAwait(false);
+            var check = checkLookup["ck_test_table_32"];
+
+            Assert.IsFalse(check.IsEnabled);
+        }
+
+        [Test]
+        public async Task CheckConstraintsAsync_WhenGivenTableWithDisabledCheck_ReturnsIsEnabledFalse()
+        {
+            var table = await Database.GetTableAsync("table_test_table_32").ConfigureAwait(false);
+            var checks = await table.CheckConstraintsAsync().ConfigureAwait(false);
+            var check = checks.Single();
+
+            Assert.IsFalse(check.IsEnabled);
         }
 
         [Test]
@@ -1874,17 +2146,405 @@ create table table_test_table_17 (
             });
         }
 
+        [Test]
+        public void ParentKey_WhenGivenTableWithForeignKeyToPrimaryKeyWithDefaultUpdateRule_ReturnsUpdateRuleAsNoAction()
+        {
+            var table = Database.GetTable("table_test_table_16");
+            var parentKeyLookup = table.ParentKey;
+            var foreignKey = parentKeyLookup.Values.Single();
 
+            Assert.AreEqual(RelationalKeyUpdateAction.NoAction, foreignKey.UpdateAction);
+        }
 
+        [Test]
+        public void ParentKeys_WhenGivenTableWithForeignKeyToPrimaryKeyWithDefaultUpdateRule_ReturnsUpdateRuleAsNoAction()
+        {
+            var table = Database.GetTable("table_test_table_16");
+            var parentKeys = table.ParentKeys;
+            var foreignKey = parentKeys.Single();
 
-        // TODO
-        // ParentKeys
-        // - Test for delete action changes
-        // - Test for update action changes
-        // - IsEnabled
-        // - Foreign keys to unique constraints
+            Assert.AreEqual(RelationalKeyUpdateAction.NoAction, foreignKey.UpdateAction);
+        }
 
+        [Test]
+        public async Task ParentKeyAsync_WhenGivenTableWithForeignKeyToPrimaryKeyWithDefaultUpdateRule_ReturnsUpdateRuleAsNoAction()
+        {
+            var table = await Database.GetTableAsync("table_test_table_16").ConfigureAwait(false);
+            var parentKeyLookup = await table.ParentKeyAsync().ConfigureAwait(false);
+            var foreignKey = parentKeyLookup.Values.Single();
 
+            Assert.AreEqual(RelationalKeyUpdateAction.NoAction, foreignKey.UpdateAction);
+        }
+
+        [Test]
+        public async Task ParentKeysAsync_WhenGivenTableWithForeignKeyToPrimaryKeyWithDefaultUpdateRule_ReturnsUpdateRuleAsNoAction()
+        {
+            var table = await Database.GetTableAsync("table_test_table_16").ConfigureAwait(false);
+            var parentKeys = await table.ParentKeysAsync().ConfigureAwait(false);
+            var foreignKey = parentKeys.Single();
+
+            Assert.AreEqual(RelationalKeyUpdateAction.NoAction, foreignKey.UpdateAction);
+        }
+
+        [Test]
+        public void ParentKey_WhenGivenTableWithForeignKeyToPrimaryKeyWithCascadeUpdateRule_ReturnsUpdateRuleAsCascade()
+        {
+            var table = Database.GetTable("table_test_table_18");
+            var parentKeyLookup = table.ParentKey;
+            var foreignKey = parentKeyLookup.Values.Single();
+
+            Assert.AreEqual(RelationalKeyUpdateAction.Cascade, foreignKey.UpdateAction);
+        }
+
+        [Test]
+        public void ParentKeys_WhenGivenTableWithForeignKeyToPrimaryKeyWithCascadeUpdateRule_ReturnsUpdateRuleAsCascade()
+        {
+            var table = Database.GetTable("table_test_table_18");
+            var parentKeys = table.ParentKeys;
+            var foreignKey = parentKeys.Single();
+
+            Assert.AreEqual(RelationalKeyUpdateAction.Cascade, foreignKey.UpdateAction);
+        }
+
+        [Test]
+        public async Task ParentKeyAsync_WhenGivenTableWithForeignKeyToPrimaryKeyWithCascadeUpdateRule_ReturnsUpdateRuleAsCascade()
+        {
+            var table = await Database.GetTableAsync("table_test_table_18").ConfigureAwait(false);
+            var parentKeyLookup = await table.ParentKeyAsync().ConfigureAwait(false);
+            var foreignKey = parentKeyLookup.Values.Single();
+
+            Assert.AreEqual(RelationalKeyUpdateAction.Cascade, foreignKey.UpdateAction);
+        }
+
+        [Test]
+        public async Task ParentKeysAsync_WhenGivenTableWithForeignKeyToPrimaryKeyWithCascadeUpdateRule_ReturnsUpdateRuleAsCascade()
+        {
+            var table = await Database.GetTableAsync("table_test_table_18").ConfigureAwait(false);
+            var parentKeys = await table.ParentKeysAsync().ConfigureAwait(false);
+            var foreignKey = parentKeys.Single();
+
+            Assert.AreEqual(RelationalKeyUpdateAction.Cascade, foreignKey.UpdateAction);
+        }
+
+        [Test]
+        public void ParentKey_WhenGivenTableWithForeignKeyToPrimaryKeyWithSetNullUpdateRule_ReturnsUpdateRuleAsSetNull()
+        {
+            var table = Database.GetTable("table_test_table_19");
+            var parentKeyLookup = table.ParentKey;
+            var foreignKey = parentKeyLookup.Values.Single();
+
+            Assert.AreEqual(RelationalKeyUpdateAction.SetNull, foreignKey.UpdateAction);
+        }
+
+        [Test]
+        public void ParentKeys_WhenGivenTableWithForeignKeyToPrimaryKeyWithSetNullUpdateRule_ReturnsUpdateRuleAsSetNull()
+        {
+            var table = Database.GetTable("table_test_table_19");
+            var parentKeys = table.ParentKeys;
+            var foreignKey = parentKeys.Single();
+
+            Assert.AreEqual(RelationalKeyUpdateAction.SetNull, foreignKey.UpdateAction);
+        }
+
+        [Test]
+        public async Task ParentKeyAsync_WhenGivenTableWithForeignKeyToPrimaryKeyWithSetNullUpdateRule_ReturnsUpdateRuleAsSetNull()
+        {
+            var table = await Database.GetTableAsync("table_test_table_19").ConfigureAwait(false);
+            var parentKeyLookup = await table.ParentKeyAsync().ConfigureAwait(false);
+            var foreignKey = parentKeyLookup.Values.Single();
+
+            Assert.AreEqual(RelationalKeyUpdateAction.SetNull, foreignKey.UpdateAction);
+        }
+
+        [Test]
+        public async Task ParentKeysAsync_WhenGivenTableWithForeignKeyToPrimaryKeyWithSetDefaultUpdateRule_ReturnsUpdateRuleAsSetNull()
+        {
+            var table = await Database.GetTableAsync("table_test_table_19").ConfigureAwait(false);
+            var parentKeys = await table.ParentKeysAsync().ConfigureAwait(false);
+            var foreignKey = parentKeys.Single();
+
+            Assert.AreEqual(RelationalKeyUpdateAction.SetNull, foreignKey.UpdateAction);
+        }
+
+        [Test]
+        public void ParentKey_WhenGivenTableWithForeignKeyToPrimaryKeyWithSetDefaultUpdateRule_ReturnsUpdateRuleAsSetDefault()
+        {
+            var table = Database.GetTable("table_test_table_20");
+            var parentKeyLookup = table.ParentKey;
+            var foreignKey = parentKeyLookup.Values.Single();
+
+            Assert.AreEqual(RelationalKeyUpdateAction.SetDefault, foreignKey.UpdateAction);
+        }
+
+        [Test]
+        public void ParentKeys_WhenGivenTableWithForeignKeyToPrimaryKeyWithSetDefaultUpdateRule_ReturnsUpdateRuleAsSetDefault()
+        {
+            var table = Database.GetTable("table_test_table_20");
+            var parentKeys = table.ParentKeys;
+            var foreignKey = parentKeys.Single();
+
+            Assert.AreEqual(RelationalKeyUpdateAction.SetDefault, foreignKey.UpdateAction);
+        }
+
+        [Test]
+        public async Task ParentKeyAsync_WhenGivenTableWithForeignKeyToPrimaryKeyWithSetDefaultUpdateRule_ReturnsUpdateRuleAsSetDefault()
+        {
+            var table = await Database.GetTableAsync("table_test_table_20").ConfigureAwait(false);
+            var parentKeyLookup = await table.ParentKeyAsync().ConfigureAwait(false);
+            var foreignKey = parentKeyLookup.Values.Single();
+
+            Assert.AreEqual(RelationalKeyUpdateAction.SetDefault, foreignKey.UpdateAction);
+        }
+
+        [Test]
+        public async Task ParentKeysAsync_WhenGivenTableWithForeignKeyToPrimaryKeyWithSetDefaultUpdateRule_ReturnsUpdateRuleAsSetDefault()
+        {
+            var table = await Database.GetTableAsync("table_test_table_20").ConfigureAwait(false);
+            var parentKeys = await table.ParentKeysAsync().ConfigureAwait(false);
+            var foreignKey = parentKeys.Single();
+
+            Assert.AreEqual(RelationalKeyUpdateAction.SetDefault, foreignKey.UpdateAction);
+        }
+
+        [Test]
+        public void ParentKey_WhenGivenTableWithForeignKeyToPrimaryKeyWithDefaultDeleteRule_ReturnsDeleteRuleAsNoAction()
+        {
+            var table = Database.GetTable("table_test_table_16");
+            var parentKeyLookup = table.ParentKey;
+            var foreignKey = parentKeyLookup.Values.Single();
+
+            Assert.AreEqual(RelationalKeyUpdateAction.NoAction, foreignKey.DeleteAction);
+        }
+
+        [Test]
+        public void ParentKeys_WhenGivenTableWithForeignKeyToPrimaryKeyWithDefaultDeleteRule_ReturnsDeleteRuleAsNoAction()
+        {
+            var table = Database.GetTable("table_test_table_16");
+            var parentKeys = table.ParentKeys;
+            var foreignKey = parentKeys.Single();
+
+            Assert.AreEqual(RelationalKeyUpdateAction.NoAction, foreignKey.DeleteAction);
+        }
+
+        [Test]
+        public async Task ParentKeyAsync_WhenGivenTableWithForeignKeyToPrimaryKeyWithDefaultDeleteRule_ReturnsDeleteRuleAsNoAction()
+        {
+            var table = await Database.GetTableAsync("table_test_table_16").ConfigureAwait(false);
+            var parentKeyLookup = await table.ParentKeyAsync().ConfigureAwait(false);
+            var foreignKey = parentKeyLookup.Values.Single();
+
+            Assert.AreEqual(RelationalKeyUpdateAction.NoAction, foreignKey.DeleteAction);
+        }
+
+        [Test]
+        public async Task ParentKeysAsync_WhenGivenTableWithForeignKeyToPrimaryKeyWithDefaultDeleteRule_ReturnsDeleteRuleAsNoAction()
+        {
+            var table = await Database.GetTableAsync("table_test_table_16").ConfigureAwait(false);
+            var parentKeys = await table.ParentKeysAsync().ConfigureAwait(false);
+            var foreignKey = parentKeys.Single();
+
+            Assert.AreEqual(RelationalKeyUpdateAction.NoAction, foreignKey.DeleteAction);
+        }
+
+        [Test]
+        public void ParentKey_WhenGivenTableWithForeignKeyToPrimaryKeyWithCascadeDeleteRule_ReturnsDeleteRuleAsCascade()
+        {
+            var table = Database.GetTable("table_test_table_24");
+            var parentKeyLookup = table.ParentKey;
+            var foreignKey = parentKeyLookup.Values.Single();
+
+            Assert.AreEqual(RelationalKeyUpdateAction.Cascade, foreignKey.DeleteAction);
+        }
+
+        [Test]
+        public void ParentKeys_WhenGivenTableWithForeignKeyToPrimaryKeyWithCascadeDeleteRule_ReturnsDeleteRuleAsCascade()
+        {
+            var table = Database.GetTable("table_test_table_24");
+            var parentKeys = table.ParentKeys;
+            var foreignKey = parentKeys.Single();
+
+            Assert.AreEqual(RelationalKeyUpdateAction.Cascade, foreignKey.DeleteAction);
+        }
+
+        [Test]
+        public async Task ParentKeyAsync_WhenGivenTableWithForeignKeyToPrimaryKeyWithCascadeDeleteRule_ReturnsDeleteRuleAsCascade()
+        {
+            var table = await Database.GetTableAsync("table_test_table_24").ConfigureAwait(false);
+            var parentKeyLookup = await table.ParentKeyAsync().ConfigureAwait(false);
+            var foreignKey = parentKeyLookup.Values.Single();
+
+            Assert.AreEqual(RelationalKeyUpdateAction.Cascade, foreignKey.DeleteAction);
+        }
+
+        [Test]
+        public async Task ParentKeysAsync_WhenGivenTableWithForeignKeyToPrimaryKeyWithCascadeDeleteRule_ReturnsDeleteRuleAsCascade()
+        {
+            var table = await Database.GetTableAsync("table_test_table_24").ConfigureAwait(false);
+            var parentKeys = await table.ParentKeysAsync().ConfigureAwait(false);
+            var foreignKey = parentKeys.Single();
+
+            Assert.AreEqual(RelationalKeyUpdateAction.Cascade, foreignKey.DeleteAction);
+        }
+
+        [Test]
+        public void ParentKey_WhenGivenTableWithForeignKeyToPrimaryKeyWithSetNullDeleteRule_ReturnsDeleteRuleAsSetNull()
+        {
+            var table = Database.GetTable("table_test_table_25");
+            var parentKeyLookup = table.ParentKey;
+            var foreignKey = parentKeyLookup.Values.Single();
+
+            Assert.AreEqual(RelationalKeyUpdateAction.SetNull, foreignKey.DeleteAction);
+        }
+
+        [Test]
+        public void ParentKeys_WhenGivenTableWithForeignKeyToPrimaryKeyWithSetNullDeleteRule_ReturnsDeleteRuleAsSetNull()
+        {
+            var table = Database.GetTable("table_test_table_25");
+            var parentKeys = table.ParentKeys;
+            var foreignKey = parentKeys.Single();
+
+            Assert.AreEqual(RelationalKeyUpdateAction.SetNull, foreignKey.DeleteAction);
+        }
+
+        [Test]
+        public async Task ParentKeyAsync_WhenGivenTableWithForeignKeyToPrimaryKeyWithSetNullDeleteRule_ReturnsDeleteRuleAsSetNull()
+        {
+            var table = await Database.GetTableAsync("table_test_table_25").ConfigureAwait(false);
+            var parentKeyLookup = await table.ParentKeyAsync().ConfigureAwait(false);
+            var foreignKey = parentKeyLookup.Values.Single();
+
+            Assert.AreEqual(RelationalKeyUpdateAction.SetNull, foreignKey.DeleteAction);
+        }
+
+        [Test]
+        public async Task ParentKeysAsync_WhenGivenTableWithForeignKeyToPrimaryKeyWithSetDefaultDeleteRule_ReturnsDeleteRuleAsSetNull()
+        {
+            var table = await Database.GetTableAsync("table_test_table_25").ConfigureAwait(false);
+            var parentKeys = await table.ParentKeysAsync().ConfigureAwait(false);
+            var foreignKey = parentKeys.Single();
+
+            Assert.AreEqual(RelationalKeyUpdateAction.SetNull, foreignKey.DeleteAction);
+        }
+
+        [Test]
+        public void ParentKey_WhenGivenTableWithForeignKeyToPrimaryKeyWithSetDefaultDeleteRule_ReturnsDeleteRuleAsSetDefault()
+        {
+            var table = Database.GetTable("table_test_table_26");
+            var parentKeyLookup = table.ParentKey;
+            var foreignKey = parentKeyLookup.Values.Single();
+
+            Assert.AreEqual(RelationalKeyUpdateAction.SetDefault, foreignKey.DeleteAction);
+        }
+
+        [Test]
+        public void ParentKeys_WhenGivenTableWithForeignKeyToPrimaryKeyWithSetDefaultDeleteRule_ReturnsDeleteRuleAsSetDefault()
+        {
+            var table = Database.GetTable("table_test_table_26");
+            var parentKeys = table.ParentKeys;
+            var foreignKey = parentKeys.Single();
+
+            Assert.AreEqual(RelationalKeyUpdateAction.SetDefault, foreignKey.DeleteAction);
+        }
+
+        [Test]
+        public async Task ParentKeyAsync_WhenGivenTableWithForeignKeyToPrimaryKeyWithSetDefaultDeleteRule_ReturnsDeleteRuleAsSetDefault()
+        {
+            var table = await Database.GetTableAsync("table_test_table_26").ConfigureAwait(false);
+            var parentKeyLookup = await table.ParentKeyAsync().ConfigureAwait(false);
+            var foreignKey = parentKeyLookup.Values.Single();
+
+            Assert.AreEqual(RelationalKeyUpdateAction.SetDefault, foreignKey.DeleteAction);
+        }
+
+        [Test]
+        public async Task ParentKeysAsync_WhenGivenTableWithForeignKeyToPrimaryKeyWithSetDefaultDeleteRule_ReturnsDeleteRuleAsSetDefault()
+        {
+            var table = await Database.GetTableAsync("table_test_table_26").ConfigureAwait(false);
+            var parentKeys = await table.ParentKeysAsync().ConfigureAwait(false);
+            var foreignKey = parentKeys.Single();
+
+            Assert.AreEqual(RelationalKeyUpdateAction.SetDefault, foreignKey.DeleteAction);
+        }
+
+        [Test]
+        public void ParentKey_WhenGivenTableWithForeignKeyToPrimaryKey_ReturnsIsEnabledTrue()
+        {
+            var table = Database.GetTable("table_test_table_16");
+            var parentKeyLookup = table.ParentKey;
+            var foreignKey = parentKeyLookup.Values.Single();
+
+            Assert.IsTrue(foreignKey.ChildKey.IsEnabled);
+        }
+
+        [Test]
+        public void ParentKeys_WhenGivenTableWithForeignKeyToPrimaryKey_ReturnsIsEnabledTrue()
+        {
+            var table = Database.GetTable("table_test_table_16");
+            var parentKeys = table.ParentKeys;
+            var foreignKey = parentKeys.Single();
+
+            Assert.IsTrue(foreignKey.ChildKey.IsEnabled);
+        }
+
+        [Test]
+        public async Task ParentKeyAsync_WhenGivenTableWithForeignKeyToPrimaryKey_ReturnsIsEnabledTrue()
+        {
+            var table = await Database.GetTableAsync("table_test_table_16").ConfigureAwait(false);
+            var parentKeyLookup = await table.ParentKeyAsync().ConfigureAwait(false);
+            var foreignKey = parentKeyLookup.Values.Single();
+
+            Assert.IsTrue(foreignKey.ChildKey.IsEnabled);
+        }
+
+        [Test]
+        public async Task ParentKeysAsync_WhenGivenTableWithForeignKeyToPrimaryKey_ReturnsIsEnabledTrue()
+        {
+            var table = await Database.GetTableAsync("table_test_table_16").ConfigureAwait(false);
+            var parentKeys = await table.ParentKeysAsync().ConfigureAwait(false);
+            var foreignKey = parentKeys.Single();
+
+            Assert.IsTrue(foreignKey.ChildKey.IsEnabled);
+        }
+
+        [Test]
+        public void ParentKey_WhenGivenTableWithDisabledForeignKeyToPrimaryKey_ReturnsIsEnabledFalse()
+        {
+            var table = Database.GetTable("table_test_table_30");
+            var parentKeyLookup = table.ParentKey;
+            var foreignKey = parentKeyLookup.Values.Single();
+
+            Assert.IsFalse(foreignKey.ChildKey.IsEnabled);
+        }
+
+        [Test]
+        public void ParentKeys_WhenGivenTableWithDisabledForeignKeyToPrimaryKey_ReturnsIsEnabledFalse()
+        {
+            var table = Database.GetTable("table_test_table_30");
+            var parentKeys = table.ParentKeys;
+            var foreignKey = parentKeys.Single();
+
+            Assert.IsFalse(foreignKey.ChildKey.IsEnabled);
+        }
+
+        [Test]
+        public async Task ParentKeyAsync_WhenGivenTableWithDisabledForeignKeyToPrimaryKey_ReturnsIsEnabledFalse()
+        {
+            var table = await Database.GetTableAsync("table_test_table_30").ConfigureAwait(false);
+            var parentKeyLookup = await table.ParentKeyAsync().ConfigureAwait(false);
+            var foreignKey = parentKeyLookup.Values.Single();
+
+            Assert.IsFalse(foreignKey.ChildKey.IsEnabled);
+        }
+
+        [Test]
+        public async Task ParentKeysAsync_WhenGivenTableWithDisabledForeignKeyToPrimaryKey_ReturnsIsEnabledFalse()
+        {
+            var table = await Database.GetTableAsync("table_test_table_30").ConfigureAwait(false);
+            var parentKeys = await table.ParentKeysAsync().ConfigureAwait(false);
+            var foreignKey = parentKeys.Single();
+
+            Assert.IsFalse(foreignKey.ChildKey.IsEnabled);
+        }
 
         [Test]
         public void ParentKey_WhenGivenTableWithForeignKeyToUniqueKey_ReturnsConstraintWithCorrectNames()
@@ -2142,13 +2802,1076 @@ create table table_test_table_17 (
             });
         }
 
+        [Test]
+        public void ParentKey_WhenGivenTableWithForeignKeyToUniqueKeyWithDefaultUpdateRule_ReturnsUpdateRuleAsNoAction()
+        {
+            var table = Database.GetTable("table_test_table_17");
+            var parentKeyLookup = table.ParentKey;
+            var foreignKey = parentKeyLookup.Values.Single();
 
+            Assert.AreEqual(RelationalKeyUpdateAction.NoAction, foreignKey.UpdateAction);
+        }
 
-        // TODO
-        // ParentKeys
-        // - Test for delete action changes
-        // - Test for update action changes
-        // - IsEnabled
-        // - Foreign keys to unique constraints
+        [Test]
+        public void ParentKeys_WhenGivenTableWithForeignKeyToUniqueKeyWithDefaultUpdateRule_ReturnsUpdateRuleAsNoAction()
+        {
+            var table = Database.GetTable("table_test_table_17");
+            var parentKeys = table.ParentKeys;
+            var foreignKey = parentKeys.Single();
+
+            Assert.AreEqual(RelationalKeyUpdateAction.NoAction, foreignKey.UpdateAction);
+        }
+
+        [Test]
+        public async Task ParentKeyAsync_WhenGivenTableWithForeignKeyToUniqueKeyWithDefaultUpdateRule_ReturnsUpdateRuleAsNoAction()
+        {
+            var table = await Database.GetTableAsync("table_test_table_17").ConfigureAwait(false);
+            var parentKeyLookup = await table.ParentKeyAsync().ConfigureAwait(false);
+            var foreignKey = parentKeyLookup.Values.Single();
+
+            Assert.AreEqual(RelationalKeyUpdateAction.NoAction, foreignKey.UpdateAction);
+        }
+
+        [Test]
+        public async Task ParentKeysAsync_WhenGivenTableWithForeignKeyToUniqueKeyWithDefaultUpdateRule_ReturnsUpdateRuleAsNoAction()
+        {
+            var table = await Database.GetTableAsync("table_test_table_17").ConfigureAwait(false);
+            var parentKeys = await table.ParentKeysAsync().ConfigureAwait(false);
+            var foreignKey = parentKeys.Single();
+
+            Assert.AreEqual(RelationalKeyUpdateAction.NoAction, foreignKey.UpdateAction);
+        }
+
+        [Test]
+        public void ParentKey_WhenGivenTableWithForeignKeyToUniqueKeyWithCascadeUpdateRule_ReturnsUpdateRuleAsCascade()
+        {
+            var table = Database.GetTable("table_test_table_21");
+            var parentKeyLookup = table.ParentKey;
+            var foreignKey = parentKeyLookup.Values.Single();
+
+            Assert.AreEqual(RelationalKeyUpdateAction.Cascade, foreignKey.UpdateAction);
+        }
+
+        [Test]
+        public void ParentKeys_WhenGivenTableWithForeignKeyToUniqueKeyWithCascadeUpdateRule_ReturnsUpdateRuleAsCascade()
+        {
+            var table = Database.GetTable("table_test_table_21");
+            var parentKeys = table.ParentKeys;
+            var foreignKey = parentKeys.Single();
+
+            Assert.AreEqual(RelationalKeyUpdateAction.Cascade, foreignKey.UpdateAction);
+        }
+
+        [Test]
+        public async Task ParentKeyAsync_WhenGivenTableWithForeignKeyToUniqueKeyWithCascadeUpdateRule_ReturnsUpdateRuleAsCascade()
+        {
+            var table = await Database.GetTableAsync("table_test_table_21").ConfigureAwait(false);
+            var parentKeyLookup = await table.ParentKeyAsync().ConfigureAwait(false);
+            var foreignKey = parentKeyLookup.Values.Single();
+
+            Assert.AreEqual(RelationalKeyUpdateAction.Cascade, foreignKey.UpdateAction);
+        }
+
+        [Test]
+        public async Task ParentKeysAsync_WhenGivenTableWithForeignKeyToUniqueKeyWithCascadeUpdateRule_ReturnsUpdateRuleAsCascade()
+        {
+            var table = await Database.GetTableAsync("table_test_table_21").ConfigureAwait(false);
+            var parentKeys = await table.ParentKeysAsync().ConfigureAwait(false);
+            var foreignKey = parentKeys.Single();
+
+            Assert.AreEqual(RelationalKeyUpdateAction.Cascade, foreignKey.UpdateAction);
+        }
+
+        [Test]
+        public void ParentKey_WhenGivenTableWithForeignKeyToUniqueKeyWithSetNullUpdateRule_ReturnsUpdateRuleAsSetNull()
+        {
+            var table = Database.GetTable("table_test_table_22");
+            var parentKeyLookup = table.ParentKey;
+            var foreignKey = parentKeyLookup.Values.Single();
+
+            Assert.AreEqual(RelationalKeyUpdateAction.SetNull, foreignKey.UpdateAction);
+        }
+
+        [Test]
+        public void ParentKeys_WhenGivenTableWithForeignKeyToUniqueKeyWithSetNullUpdateRule_ReturnsUpdateRuleAsSetNull()
+        {
+            var table = Database.GetTable("table_test_table_22");
+            var parentKeys = table.ParentKeys;
+            var foreignKey = parentKeys.Single();
+
+            Assert.AreEqual(RelationalKeyUpdateAction.SetNull, foreignKey.UpdateAction);
+        }
+
+        [Test]
+        public async Task ParentKeyAsync_WhenGivenTableWithForeignKeyToUniqueKeyWithSetNullUpdateRule_ReturnsUpdateRuleAsSetNull()
+        {
+            var table = await Database.GetTableAsync("table_test_table_22").ConfigureAwait(false);
+            var parentKeyLookup = await table.ParentKeyAsync().ConfigureAwait(false);
+            var foreignKey = parentKeyLookup.Values.Single();
+
+            Assert.AreEqual(RelationalKeyUpdateAction.SetNull, foreignKey.UpdateAction);
+        }
+
+        [Test]
+        public async Task ParentKeysAsync_WhenGivenTableWithForeignKeyToUniqueKeyWithSetDefaultUpdateRule_ReturnsUpdateRuleAsSetNull()
+        {
+            var table = await Database.GetTableAsync("table_test_table_22").ConfigureAwait(false);
+            var parentKeys = await table.ParentKeysAsync().ConfigureAwait(false);
+            var foreignKey = parentKeys.Single();
+
+            Assert.AreEqual(RelationalKeyUpdateAction.SetNull, foreignKey.UpdateAction);
+        }
+
+        [Test]
+        public void ParentKey_WhenGivenTableWithForeignKeyToUniqueKeyWithSetDefaultUpdateRule_ReturnsUpdateRuleAsSetDefault()
+        {
+            var table = Database.GetTable("table_test_table_23");
+            var parentKeyLookup = table.ParentKey;
+            var foreignKey = parentKeyLookup.Values.Single();
+
+            Assert.AreEqual(RelationalKeyUpdateAction.SetDefault, foreignKey.UpdateAction);
+        }
+
+        [Test]
+        public void ParentKeys_WhenGivenTableWithForeignKeyToUniqueKeyWithSetDefaultUpdateRule_ReturnsUpdateRuleAsSetDefault()
+        {
+            var table = Database.GetTable("table_test_table_23");
+            var parentKeys = table.ParentKeys;
+            var foreignKey = parentKeys.Single();
+
+            Assert.AreEqual(RelationalKeyUpdateAction.SetDefault, foreignKey.UpdateAction);
+        }
+
+        [Test]
+        public async Task ParentKeyAsync_WhenGivenTableWithForeignKeyToUniqueKeyWithSetDefaultUpdateRule_ReturnsUpdateRuleAsSetDefault()
+        {
+            var table = await Database.GetTableAsync("table_test_table_23").ConfigureAwait(false);
+            var parentKeyLookup = await table.ParentKeyAsync().ConfigureAwait(false);
+            var foreignKey = parentKeyLookup.Values.Single();
+
+            Assert.AreEqual(RelationalKeyUpdateAction.SetDefault, foreignKey.UpdateAction);
+        }
+
+        [Test]
+        public async Task ParentKeysAsync_WhenGivenTableWithForeignKeyToUniqueKeyWithSetDefaultUpdateRule_ReturnsUpdateRuleAsSetDefault()
+        {
+            var table = await Database.GetTableAsync("table_test_table_23").ConfigureAwait(false);
+            var parentKeys = await table.ParentKeysAsync().ConfigureAwait(false);
+            var foreignKey = parentKeys.Single();
+
+            Assert.AreEqual(RelationalKeyUpdateAction.SetDefault, foreignKey.UpdateAction);
+        }
+
+        [Test]
+        public void ParentKey_WhenGivenTableWithForeignKeyToUniqueKeyWithDefaultDeleteRule_ReturnsDeleteRuleAsNoAction()
+        {
+            var table = Database.GetTable("table_test_table_17");
+            var parentKeyLookup = table.ParentKey;
+            var foreignKey = parentKeyLookup.Values.Single();
+
+            Assert.AreEqual(RelationalKeyUpdateAction.NoAction, foreignKey.DeleteAction);
+        }
+
+        [Test]
+        public void ParentKeys_WhenGivenTableWithForeignKeyToUniqueKeyWithDefaultDeleteRule_ReturnsDeleteRuleAsNoAction()
+        {
+            var table = Database.GetTable("table_test_table_17");
+            var parentKeys = table.ParentKeys;
+            var foreignKey = parentKeys.Single();
+
+            Assert.AreEqual(RelationalKeyUpdateAction.NoAction, foreignKey.DeleteAction);
+        }
+
+        [Test]
+        public async Task ParentKeyAsync_WhenGivenTableWithForeignKeyToUniqueKeyWithDefaultDeleteRule_ReturnsDeleteRuleAsNoAction()
+        {
+            var table = await Database.GetTableAsync("table_test_table_17").ConfigureAwait(false);
+            var parentKeyLookup = await table.ParentKeyAsync().ConfigureAwait(false);
+            var foreignKey = parentKeyLookup.Values.Single();
+
+            Assert.AreEqual(RelationalKeyUpdateAction.NoAction, foreignKey.DeleteAction);
+        }
+
+        [Test]
+        public async Task ParentKeysAsync_WhenGivenTableWithForeignKeyToUniqueKeyWithDefaultDeleteRule_ReturnsDeleteRuleAsNoAction()
+        {
+            var table = await Database.GetTableAsync("table_test_table_17").ConfigureAwait(false);
+            var parentKeys = await table.ParentKeysAsync().ConfigureAwait(false);
+            var foreignKey = parentKeys.Single();
+
+            Assert.AreEqual(RelationalKeyUpdateAction.NoAction, foreignKey.DeleteAction);
+        }
+
+        [Test]
+        public void ParentKey_WhenGivenTableWithForeignKeyToUniqueKeyWithCascadeDeleteRule_ReturnsDeleteRuleAsCascade()
+        {
+            var table = Database.GetTable("table_test_table_27");
+            var parentKeyLookup = table.ParentKey;
+            var foreignKey = parentKeyLookup.Values.Single();
+
+            Assert.AreEqual(RelationalKeyUpdateAction.Cascade, foreignKey.DeleteAction);
+        }
+
+        [Test]
+        public void ParentKeys_WhenGivenTableWithForeignKeyToUniqueKeyWithCascadeDeleteRule_ReturnsDeleteRuleAsCascade()
+        {
+            var table = Database.GetTable("table_test_table_27");
+            var parentKeys = table.ParentKeys;
+            var foreignKey = parentKeys.Single();
+
+            Assert.AreEqual(RelationalKeyUpdateAction.Cascade, foreignKey.DeleteAction);
+        }
+
+        [Test]
+        public async Task ParentKeyAsync_WhenGivenTableWithForeignKeyToUniqueKeyWithCascadeDeleteRule_ReturnsDeleteRuleAsCascade()
+        {
+            var table = await Database.GetTableAsync("table_test_table_27").ConfigureAwait(false);
+            var parentKeyLookup = await table.ParentKeyAsync().ConfigureAwait(false);
+            var foreignKey = parentKeyLookup.Values.Single();
+
+            Assert.AreEqual(RelationalKeyUpdateAction.Cascade, foreignKey.DeleteAction);
+        }
+
+        [Test]
+        public async Task ParentKeysAsync_WhenGivenTableWithForeignKeyToUniqueKeyWithCascadeDeleteRule_ReturnsDeleteRuleAsCascade()
+        {
+            var table = await Database.GetTableAsync("table_test_table_27").ConfigureAwait(false);
+            var parentKeys = await table.ParentKeysAsync().ConfigureAwait(false);
+            var foreignKey = parentKeys.Single();
+
+            Assert.AreEqual(RelationalKeyUpdateAction.Cascade, foreignKey.DeleteAction);
+        }
+
+        [Test]
+        public void ParentKey_WhenGivenTableWithForeignKeyToUniqueKeyWithSetNullDeleteRule_ReturnsDeleteRuleAsSetNull()
+        {
+            var table = Database.GetTable("table_test_table_28");
+            var parentKeyLookup = table.ParentKey;
+            var foreignKey = parentKeyLookup.Values.Single();
+
+            Assert.AreEqual(RelationalKeyUpdateAction.SetNull, foreignKey.DeleteAction);
+        }
+
+        [Test]
+        public void ParentKeys_WhenGivenTableWithForeignKeyToUniqueKeyWithSetNullDeleteRule_ReturnsDeleteRuleAsSetNull()
+        {
+            var table = Database.GetTable("table_test_table_28");
+            var parentKeys = table.ParentKeys;
+            var foreignKey = parentKeys.Single();
+
+            Assert.AreEqual(RelationalKeyUpdateAction.SetNull, foreignKey.DeleteAction);
+        }
+
+        [Test]
+        public async Task ParentKeyAsync_WhenGivenTableWithForeignKeyToUniqueKeyWithSetNullDeleteRule_ReturnsDeleteRuleAsSetNull()
+        {
+            var table = await Database.GetTableAsync("table_test_table_28").ConfigureAwait(false);
+            var parentKeyLookup = await table.ParentKeyAsync().ConfigureAwait(false);
+            var foreignKey = parentKeyLookup.Values.Single();
+
+            Assert.AreEqual(RelationalKeyUpdateAction.SetNull, foreignKey.DeleteAction);
+        }
+
+        [Test]
+        public async Task ParentKeysAsync_WhenGivenTableWithForeignKeyToUniqueKeyWithSetDefaultDeleteRule_ReturnsDeleteRuleAsSetNull()
+        {
+            var table = await Database.GetTableAsync("table_test_table_28").ConfigureAwait(false);
+            var parentKeys = await table.ParentKeysAsync().ConfigureAwait(false);
+            var foreignKey = parentKeys.Single();
+
+            Assert.AreEqual(RelationalKeyUpdateAction.SetNull, foreignKey.DeleteAction);
+        }
+
+        [Test]
+        public void ParentKey_WhenGivenTableWithForeignKeyToUniqueKeyWithSetDefaultDeleteRule_ReturnsDeleteRuleAsSetDefault()
+        {
+            var table = Database.GetTable("table_test_table_29");
+            var parentKeyLookup = table.ParentKey;
+            var foreignKey = parentKeyLookup.Values.Single();
+
+            Assert.AreEqual(RelationalKeyUpdateAction.SetDefault, foreignKey.DeleteAction);
+        }
+
+        [Test]
+        public void ParentKeys_WhenGivenTableWithForeignKeyToUniqueKeyWithSetDefaultDeleteRule_ReturnsDeleteRuleAsSetDefault()
+        {
+            var table = Database.GetTable("table_test_table_29");
+            var parentKeys = table.ParentKeys;
+            var foreignKey = parentKeys.Single();
+
+            Assert.AreEqual(RelationalKeyUpdateAction.SetDefault, foreignKey.DeleteAction);
+        }
+
+        [Test]
+        public async Task ParentKeyAsync_WhenGivenTableWithForeignKeyToUniqueKeyWithSetDefaultDeleteRule_ReturnsDeleteRuleAsSetDefault()
+        {
+            var table = await Database.GetTableAsync("table_test_table_29").ConfigureAwait(false);
+            var parentKeyLookup = await table.ParentKeyAsync().ConfigureAwait(false);
+            var foreignKey = parentKeyLookup.Values.Single();
+
+            Assert.AreEqual(RelationalKeyUpdateAction.SetDefault, foreignKey.DeleteAction);
+        }
+
+        [Test]
+        public async Task ParentKeysAsync_WhenGivenTableWithForeignKeyToUniqueKeyWithSetDefaultDeleteRule_ReturnsDeleteRuleAsSetDefault()
+        {
+            var table = await Database.GetTableAsync("table_test_table_29").ConfigureAwait(false);
+            var parentKeys = await table.ParentKeysAsync().ConfigureAwait(false);
+            var foreignKey = parentKeys.Single();
+
+            Assert.AreEqual(RelationalKeyUpdateAction.SetDefault, foreignKey.DeleteAction);
+        }
+
+        [Test]
+        public void ParentKey_WhenGivenTableWithForeignKeyToUniqueKey_ReturnsIsEnabledTrue()
+        {
+            var table = Database.GetTable("table_test_table_17");
+            var parentKeyLookup = table.ParentKey;
+            var foreignKey = parentKeyLookup.Values.Single();
+
+            Assert.IsTrue(foreignKey.ChildKey.IsEnabled);
+        }
+
+        [Test]
+        public void ParentKeys_WhenGivenTableWithForeignKeyToUniqueKey_ReturnsIsEnabledTrue()
+        {
+            var table = Database.GetTable("table_test_table_17");
+            var parentKeys = table.ParentKeys;
+            var foreignKey = parentKeys.Single();
+
+            Assert.IsTrue(foreignKey.ChildKey.IsEnabled);
+        }
+
+        [Test]
+        public async Task ParentKeyAsync_WhenGivenTableWithForeignKeyToUniqueKey_ReturnsIsEnabledTrue()
+        {
+            var table = await Database.GetTableAsync("table_test_table_17").ConfigureAwait(false);
+            var parentKeyLookup = await table.ParentKeyAsync().ConfigureAwait(false);
+            var foreignKey = parentKeyLookup.Values.Single();
+
+            Assert.IsTrue(foreignKey.ChildKey.IsEnabled);
+        }
+
+        [Test]
+        public async Task ParentKeysAsync_WhenGivenTableWithForeignKeyToUniqueKey_ReturnsIsEnabledTrue()
+        {
+            var table = await Database.GetTableAsync("table_test_table_17").ConfigureAwait(false);
+            var parentKeys = await table.ParentKeysAsync().ConfigureAwait(false);
+            var foreignKey = parentKeys.Single();
+
+            Assert.IsTrue(foreignKey.ChildKey.IsEnabled);
+        }
+
+        [Test]
+        public void ParentKey_WhenGivenTableWithDisabledForeignKeyToUniqueKey_ReturnsIsEnabledFalse()
+        {
+            var table = Database.GetTable("table_test_table_31");
+            var parentKeyLookup = table.ParentKey;
+            var foreignKey = parentKeyLookup.Values.Single();
+
+            Assert.IsFalse(foreignKey.ChildKey.IsEnabled);
+        }
+
+        [Test]
+        public void ParentKeys_WhenGivenTableWithDisabledForeignKeyToUniqueKey_ReturnsIsEnabledFalse()
+        {
+            var table = Database.GetTable("table_test_table_31");
+            var parentKeys = table.ParentKeys;
+            var foreignKey = parentKeys.Single();
+
+            Assert.IsFalse(foreignKey.ChildKey.IsEnabled);
+        }
+
+        [Test]
+        public async Task ParentKeyAsync_WhenGivenTableWithDisabledForeignKeyToUniqueKey_ReturnsIsEnabledFalse()
+        {
+            var table = await Database.GetTableAsync("table_test_table_31").ConfigureAwait(false);
+            var parentKeyLookup = await table.ParentKeyAsync().ConfigureAwait(false);
+            var foreignKey = parentKeyLookup.Values.Single();
+
+            Assert.IsFalse(foreignKey.ChildKey.IsEnabled);
+        }
+
+        [Test]
+        public async Task ParentKeysAsync_WhenGivenTableWithDisabledForeignKeyToUniqueKey_ReturnsIsEnabledFalse()
+        {
+            var table = await Database.GetTableAsync("table_test_table_31").ConfigureAwait(false);
+            var parentKeys = await table.ParentKeysAsync().ConfigureAwait(false);
+            var foreignKey = parentKeys.Single();
+
+            Assert.IsFalse(foreignKey.ChildKey.IsEnabled);
+        }
+
+        [Test]
+        public void ChildKeys_WhenGivenTableWithNoChildKeys_ReturnsEmptyCollection()
+        {
+            var table = Database.GetTable("table_test_table_2");
+            var count = table.ChildKeys.Count();
+
+            Assert.AreEqual(0, count);
+        }
+
+        [Test]
+        public async Task ChildKeysAsync_WhenGivenTableWithNoChildKeys_ReturnsEmptyCollection()
+        {
+            var table = await Database.GetTableAsync("table_test_table_2").ConfigureAwait(false);
+            var childKeys = await table.ChildKeysAsync().ConfigureAwait(false);
+            var count = childKeys.Count();
+
+            Assert.AreEqual(0, count);
+        }
+
+        [Test]
+        public void ChildKeys_WhenGivenChildTableWithForeignKeyToPrimaryKey_ContainsConstraintWithCorrectNames()
+        {
+            var table = Database.GetTable("table_test_table_15");
+            var childKeys = table.ChildKeys;
+            var foreignKey = table.ChildKeys.Single(k => k.ChildKey.Table.Name.LocalName == "table_test_table_16");
+
+            Assert.Multiple(() =>
+            {
+                Assert.AreEqual("fk_test_table_16", foreignKey.ChildKey.Name.LocalName);
+                Assert.AreEqual("pk_test_table_15", foreignKey.ParentKey.Name.LocalName);
+            });
+        }
+
+        [Test]
+        public async Task ChildKeysAsync_WhenGivenChildTableWithForeignKeyToPrimaryKey_ContainsConstraintWithCorrectNames()
+        {
+            var table = await Database.GetTableAsync("table_test_table_15").ConfigureAwait(false);
+            var childKeys = await table.ChildKeysAsync().ConfigureAwait(false);
+            var foreignKey = childKeys.Single(k => k.ChildKey.Table.Name.LocalName == "table_test_table_16");
+
+            Assert.Multiple(() =>
+            {
+                Assert.AreEqual("fk_test_table_16", foreignKey.ChildKey.Name.LocalName);
+                Assert.AreEqual("pk_test_table_15", foreignKey.ParentKey.Name.LocalName);
+            });
+        }
+
+        [Test]
+        public void ChildKeys_WhenGivenChildTableWithForeignKeyToPrimaryKey_ContainsConstraintWithCorrectKeyTypes()
+        {
+            var table = Database.GetTable("table_test_table_15");
+            var foreignKey = table.ChildKeys.Single(k => k.ChildKey.Table.Name.LocalName == "table_test_table_16");
+
+            Assert.Multiple(() =>
+            {
+                Assert.AreEqual(DatabaseKeyType.Foreign, foreignKey.ChildKey.KeyType);
+                Assert.AreEqual(DatabaseKeyType.Primary, foreignKey.ParentKey.KeyType);
+            });
+        }
+
+        [Test]
+        public async Task ChildKeysAsync_WhenGivenChildTableWithForeignKeyToPrimaryKey_ContainsConstraintWithCorrectKeyTypes()
+        {
+            var table = await Database.GetTableAsync("table_test_table_15").ConfigureAwait(false);
+            var childKeys = await table.ChildKeysAsync().ConfigureAwait(false);
+            var foreignKey = childKeys.Single(k => k.ChildKey.Table.Name.LocalName == "table_test_table_16");
+
+            Assert.Multiple(() =>
+            {
+                Assert.AreEqual(DatabaseKeyType.Foreign, foreignKey.ChildKey.KeyType);
+                Assert.AreEqual(DatabaseKeyType.Primary, foreignKey.ParentKey.KeyType);
+            });
+        }
+
+        [Test]
+        public void ChildKeys_WhenGivenChildTableWithForeignKeyToPrimaryKey_ContainsConstraintWithCorrectTables()
+        {
+            var table = Database.GetTable("table_test_table_15");
+            var foreignKey = table.ChildKeys.Single(k => k.ChildKey.Table.Name.LocalName == "table_test_table_16");
+
+            Assert.Multiple(() =>
+            {
+                Assert.AreEqual("table_test_table_16", foreignKey.ChildKey.Table.Name.LocalName);
+                Assert.AreEqual("table_test_table_15", foreignKey.ParentKey.Table.Name.LocalName);
+            });
+        }
+
+        [Test]
+        public async Task ChildKeysAsync_WhenGivenChildTableWithForeignKeyToPrimaryKey_ContainsConstraintWithCorrectTables()
+        {
+            var table = await Database.GetTableAsync("table_test_table_15").ConfigureAwait(false);
+            var childKeys = await table.ChildKeysAsync().ConfigureAwait(false);
+            var foreignKey = childKeys.Single(k => k.ChildKey.Table.Name.LocalName == "table_test_table_16");
+
+            Assert.Multiple(() =>
+            {
+                Assert.AreEqual("table_test_table_16", foreignKey.ChildKey.Table.Name.LocalName);
+                Assert.AreEqual("table_test_table_15", foreignKey.ParentKey.Table.Name.LocalName);
+            });
+        }
+
+        [Test]
+        public void ChildKeys_WhenGivenChildTableWithForeignKeyToPrimaryKey_ContainsConstraintWithCorrectColumns()
+        {
+            var table = Database.GetTable("table_test_table_15");
+            var foreignKey = table.ChildKeys.Single(k => k.ChildKey.Table.Name.LocalName == "table_test_table_16");
+
+            var childColumns = foreignKey.ChildKey.Columns.Select(c => c.Name.LocalName);
+            var parentColumns = foreignKey.ParentKey.Columns.Select(c => c.Name.LocalName);
+
+            var expectedChildColumns = new[] { "first_name_child" };
+            var expectedParentColumns = new[] { "first_name_parent" };
+
+            var childColumnsEqual = childColumns.SequenceEqual(expectedChildColumns);
+            var parentColumnsEqual = parentColumns.SequenceEqual(expectedParentColumns);
+
+            Assert.Multiple(() =>
+            {
+                Assert.IsTrue(childColumnsEqual);
+                Assert.IsTrue(parentColumnsEqual);
+            });
+        }
+
+        [Test]
+        public async Task ChildKeysAsync_WhenGivenChildTableWithForeignKeyToPrimaryKey_ContainsConstraintWithCorrectColumns()
+        {
+            var table = await Database.GetTableAsync("table_test_table_15").ConfigureAwait(false);
+            var childKeys = await table.ChildKeysAsync().ConfigureAwait(false);
+            var foreignKey = childKeys.Single(k => k.ChildKey.Table.Name.LocalName == "table_test_table_16");
+
+            var childColumns = foreignKey.ChildKey.Columns.Select(c => c.Name.LocalName);
+            var parentColumns = foreignKey.ParentKey.Columns.Select(c => c.Name.LocalName);
+
+            var expectedChildColumns = new[] { "first_name_child" };
+            var expectedParentColumns = new[] { "first_name_parent" };
+
+            var childColumnsEqual = childColumns.SequenceEqual(expectedChildColumns);
+            var parentColumnsEqual = parentColumns.SequenceEqual(expectedParentColumns);
+
+            Assert.Multiple(() =>
+            {
+                Assert.IsTrue(childColumnsEqual);
+                Assert.IsTrue(parentColumnsEqual);
+            });
+        }
+
+        [Test]
+        public void ChildKeys_WhenGivenChildTableWithForeignKeyToPrimaryKeyWithDefaultUpdateRule_ReturnsUpdateRuleAsNoAction()
+        {
+            var table = Database.GetTable("table_test_table_15");
+            var childKeys = table.ChildKeys;
+            var foreignKey = childKeys.Single(k => k.ChildKey.Table.Name.LocalName == "table_test_table_16");
+
+            Assert.AreEqual(RelationalKeyUpdateAction.NoAction, foreignKey.UpdateAction);
+        }
+
+        [Test]
+        public async Task ChildKeysAsync_WhenGivenChildTableWithForeignKeyToPrimaryKeyWithDefaultUpdateRule_ReturnsUpdateRuleAsNoAction()
+        {
+            var table = await Database.GetTableAsync("table_test_table_15").ConfigureAwait(false);
+            var childKeys = await table.ChildKeysAsync().ConfigureAwait(false);
+            var foreignKey = childKeys.Single(k => k.ChildKey.Table.Name.LocalName == "table_test_table_16");
+
+            Assert.AreEqual(RelationalKeyUpdateAction.NoAction, foreignKey.UpdateAction);
+        }
+
+        [Test]
+        public void ChildKeys_WhenGivenChildTableWithForeignKeyToPrimaryKeyWithCascadeUpdateRule_ReturnsUpdateRuleAsCascade()
+        {
+            var table = Database.GetTable("table_test_table_15");
+            var childKeys = table.ChildKeys;
+            var foreignKey = childKeys.Single(k => k.ChildKey.Table.Name.LocalName == "table_test_table_18");
+
+            Assert.AreEqual(RelationalKeyUpdateAction.Cascade, foreignKey.UpdateAction);
+        }
+
+        [Test]
+        public async Task ChildKeysAsync_WhenGivenChildTableWithForeignKeyToPrimaryKeyWithCascadeUpdateRule_ReturnsUpdateRuleAsCascade()
+        {
+            var table = await Database.GetTableAsync("table_test_table_15").ConfigureAwait(false);
+            var childKeys = await table.ChildKeysAsync().ConfigureAwait(false);
+            var foreignKey = childKeys.Single(k => k.ChildKey.Table.Name.LocalName == "table_test_table_18");
+
+            Assert.AreEqual(RelationalKeyUpdateAction.Cascade, foreignKey.UpdateAction);
+        }
+
+        [Test]
+        public void ChildKeys_WhenGivenChildTableWithForeignKeyToPrimaryKeyWithSetNullUpdateRule_ReturnsUpdateRuleAsSetNull()
+        {
+            var table = Database.GetTable("table_test_table_15");
+            var childKeys = table.ChildKeys;
+            var foreignKey = childKeys.Single(k => k.ChildKey.Table.Name.LocalName == "table_test_table_19");
+
+            Assert.AreEqual(RelationalKeyUpdateAction.SetNull, foreignKey.UpdateAction);
+        }
+
+        [Test]
+        public async Task ChildKeysAsync_WhenGivenChildTableWithForeignKeyToPrimaryKeyWithSetDefaultUpdateRule_ReturnsUpdateRuleAsSetNull()
+        {
+            var table = await Database.GetTableAsync("table_test_table_15").ConfigureAwait(false);
+            var childKeys = await table.ChildKeysAsync().ConfigureAwait(false);
+            var foreignKey = childKeys.Single(k => k.ChildKey.Table.Name.LocalName == "table_test_table_19");
+
+            Assert.AreEqual(RelationalKeyUpdateAction.SetNull, foreignKey.UpdateAction);
+        }
+
+        [Test]
+        public void ChildKeys_WhenGivenChildTableWithForeignKeyToPrimaryKeyWithSetDefaultUpdateRule_ReturnsUpdateRuleAsSetDefault()
+        {
+            var table = Database.GetTable("table_test_table_15");
+            var childKeys = table.ChildKeys;
+            var foreignKey = childKeys.Single(k => k.ChildKey.Table.Name.LocalName == "table_test_table_20");
+
+            Assert.AreEqual(RelationalKeyUpdateAction.SetDefault, foreignKey.UpdateAction);
+        }
+
+        [Test]
+        public async Task ChildKeysAsync_WhenGivenChildTableWithForeignKeyToPrimaryKeyWithSetDefaultUpdateRule_ReturnsUpdateRuleAsSetDefault()
+        {
+            var table = await Database.GetTableAsync("table_test_table_15").ConfigureAwait(false);
+            var childKeys = await table.ChildKeysAsync().ConfigureAwait(false);
+            var foreignKey = childKeys.Single(k => k.ChildKey.Table.Name.LocalName == "table_test_table_20");
+
+            Assert.AreEqual(RelationalKeyUpdateAction.SetDefault, foreignKey.UpdateAction);
+        }
+
+        [Test]
+        public void ChildKeys_WhenGivenChildTableWithForeignKeyToPrimaryKeyWithDefaultDeleteRule_ReturnsDeleteRuleAsNoAction()
+        {
+            var table = Database.GetTable("table_test_table_15");
+            var childKeys = table.ChildKeys;
+            var foreignKey = childKeys.Single(k => k.ChildKey.Table.Name.LocalName == "table_test_table_16");
+
+            Assert.AreEqual(RelationalKeyUpdateAction.NoAction, foreignKey.DeleteAction);
+        }
+
+        [Test]
+        public async Task ChildKeysAsync_WhenGivenChildTableWithForeignKeyToPrimaryKeyWithDefaultDeleteRule_ReturnsDeleteRuleAsNoAction()
+        {
+            var table = await Database.GetTableAsync("table_test_table_15").ConfigureAwait(false);
+            var childKeys = await table.ChildKeysAsync().ConfigureAwait(false);
+            var foreignKey = childKeys.Single(k => k.ChildKey.Table.Name.LocalName == "table_test_table_16");
+
+            Assert.AreEqual(RelationalKeyUpdateAction.NoAction, foreignKey.DeleteAction);
+        }
+
+        [Test]
+        public void ChildKeys_WhenGivenChildTableWithForeignKeyToPrimaryKeyWithCascadeDeleteRule_ReturnsDeleteRuleAsCascade()
+        {
+            var table = Database.GetTable("table_test_table_15");
+            var childKeys = table.ChildKeys;
+            var foreignKey = childKeys.Single(k => k.ChildKey.Table.Name.LocalName == "table_test_table_24");
+
+            Assert.AreEqual(RelationalKeyUpdateAction.Cascade, foreignKey.DeleteAction);
+        }
+
+        [Test]
+        public async Task ChildKeysAsync_WhenGivenChildTableWithForeignKeyToPrimaryKeyWithCascadeDeleteRule_ReturnsDeleteRuleAsCascade()
+        {
+            var table = await Database.GetTableAsync("table_test_table_15").ConfigureAwait(false);
+            var childKeys = await table.ChildKeysAsync().ConfigureAwait(false);
+            var foreignKey = childKeys.Single(k => k.ChildKey.Table.Name.LocalName == "table_test_table_24");
+
+            Assert.AreEqual(RelationalKeyUpdateAction.Cascade, foreignKey.DeleteAction);
+        }
+
+        [Test]
+        public void ChildKeys_WhenGivenChildTableWithForeignKeyToPrimaryKeyWithSetNullDeleteRule_ReturnsDeleteRuleAsSetNull()
+        {
+            var table = Database.GetTable("table_test_table_15");
+            var childKeys = table.ChildKeys;
+            var foreignKey = childKeys.Single(k => k.ChildKey.Table.Name.LocalName == "table_test_table_25");
+
+            Assert.AreEqual(RelationalKeyUpdateAction.SetNull, foreignKey.DeleteAction);
+        }
+
+        [Test]
+        public async Task ChildKeysAsync_WhenGivenChildTableWithForeignKeyToPrimaryKeyWithSetDefaultDeleteRule_ReturnsDeleteRuleAsSetNull()
+        {
+            var table = await Database.GetTableAsync("table_test_table_15").ConfigureAwait(false);
+            var childKeys = await table.ChildKeysAsync().ConfigureAwait(false);
+            var foreignKey = childKeys.Single(k => k.ChildKey.Table.Name.LocalName == "table_test_table_25");
+
+            Assert.AreEqual(RelationalKeyUpdateAction.SetNull, foreignKey.DeleteAction);
+        }
+
+        [Test]
+        public void ChildKeys_WhenGivenChildTableWithForeignKeyToPrimaryKeyWithSetDefaultDeleteRule_ReturnsDeleteRuleAsSetDefault()
+        {
+            var table = Database.GetTable("table_test_table_15");
+            var childKeys = table.ChildKeys;
+            var foreignKey = childKeys.Single(k => k.ChildKey.Table.Name.LocalName == "table_test_table_26");
+
+            Assert.AreEqual(RelationalKeyUpdateAction.SetDefault, foreignKey.DeleteAction);
+        }
+
+        [Test]
+        public async Task ChildKeysAsync_WhenGivenChildTableWithForeignKeyToPrimaryKeyWithSetDefaultDeleteRule_ReturnsDeleteRuleAsSetDefault()
+        {
+            var table = await Database.GetTableAsync("table_test_table_15").ConfigureAwait(false);
+            var childKeys = await table.ChildKeysAsync().ConfigureAwait(false);
+            var foreignKey = childKeys.Single(k => k.ChildKey.Table.Name.LocalName == "table_test_table_26");
+
+            Assert.AreEqual(RelationalKeyUpdateAction.SetDefault, foreignKey.DeleteAction);
+        }
+
+        [Test]
+        public void ChildKeys_WhenGivenChildTableWithForeignKeyToPrimaryKey_ReturnsIsEnabledTrue()
+        {
+            var table = Database.GetTable("table_test_table_15");
+            var childKeys = table.ChildKeys;
+            var foreignKey = childKeys.Single(k => k.ChildKey.Table.Name.LocalName == "table_test_table_16");
+
+            Assert.IsTrue(foreignKey.ChildKey.IsEnabled);
+        }
+
+        [Test]
+        public async Task ChildKeysAsync_WhenGivenChildTableWithForeignKeyToPrimaryKey_ReturnsIsEnabledTrue()
+        {
+            var table = await Database.GetTableAsync("table_test_table_15").ConfigureAwait(false);
+            var childKeys = await table.ChildKeysAsync().ConfigureAwait(false);
+            var foreignKey = childKeys.Single(k => k.ChildKey.Table.Name.LocalName == "table_test_table_16");
+
+            Assert.IsTrue(foreignKey.ChildKey.IsEnabled);
+        }
+
+        [Test]
+        public void ChildKeys_WhenGivenChildTableWithDisabledForeignKeyToPrimaryKey_ReturnsIsEnabledFalse()
+        {
+            var table = Database.GetTable("table_test_table_15");
+            var childKeys = table.ChildKeys;
+            var foreignKey = childKeys.Single(k => k.ChildKey.Table.Name.LocalName == "table_test_table_30");
+
+            Assert.IsFalse(foreignKey.ChildKey.IsEnabled);
+        }
+
+        [Test]
+        public async Task ChildKeysAsync_WhenGivenChildTableWithDisabledForeignKeyToPrimaryKey_ReturnsIsEnabledFalse()
+        {
+            var table = await Database.GetTableAsync("table_test_table_15").ConfigureAwait(false);
+            var childKeys = await table.ChildKeysAsync().ConfigureAwait(false);
+            var foreignKey = childKeys.Single(k => k.ChildKey.Table.Name.LocalName == "table_test_table_30");
+
+            Assert.IsFalse(foreignKey.ChildKey.IsEnabled);
+        }
+
+        [Test]
+        public void ChildKeys_WhenGivenChildTableWithForeignKeyToUniqueKey_ContainsConstraintWithCorrectNames()
+        {
+            var table = Database.GetTable("table_test_table_15");
+            var foreignKey = table.ChildKeys.Single(k => k.ChildKey.Table.Name.LocalName == "table_test_table_17");
+
+            Assert.Multiple(() =>
+            {
+                Assert.AreEqual("fk_test_table_17", foreignKey.ChildKey.Name.LocalName);
+                Assert.AreEqual("uk_test_table_15", foreignKey.ParentKey.Name.LocalName);
+            });
+        }
+
+        [Test]
+        public async Task ChildKeysAsync_WhenGivenChildTableWithForeignKeyToUniqueKey_ContainsConstraintWithCorrectNames()
+        {
+            var table = await Database.GetTableAsync("table_test_table_15").ConfigureAwait(false);
+            var childKeys = await table.ChildKeysAsync().ConfigureAwait(false);
+            var foreignKey = childKeys.Single(k => k.ChildKey.Table.Name.LocalName == "table_test_table_17");
+
+            Assert.Multiple(() =>
+            {
+                Assert.AreEqual("fk_test_table_17", foreignKey.ChildKey.Name.LocalName);
+                Assert.AreEqual("uk_test_table_15", foreignKey.ParentKey.Name.LocalName);
+            });
+        }
+
+        [Test]
+        public void ChildKeys_WhenGivenChildTableWithForeignKeyToUniqueKey_ContainsConstraintWithCorrectKeyTypes()
+        {
+            var table = Database.GetTable("table_test_table_15");
+            var foreignKey = table.ChildKeys.Single(k => k.ChildKey.Table.Name.LocalName == "table_test_table_17");
+
+            Assert.Multiple(() =>
+            {
+                Assert.AreEqual(DatabaseKeyType.Foreign, foreignKey.ChildKey.KeyType);
+                Assert.AreEqual(DatabaseKeyType.Unique, foreignKey.ParentKey.KeyType);
+            });
+        }
+
+        [Test]
+        public async Task ChildKeysAsync_WhenGivenChildTableWithForeignKeyToUniqueKey_ContainsConstraintWithCorrectKeyTypes()
+        {
+            var table = await Database.GetTableAsync("table_test_table_15").ConfigureAwait(false);
+            var childKeys = await table.ChildKeysAsync().ConfigureAwait(false);
+            var foreignKey = childKeys.Single(k => k.ChildKey.Table.Name.LocalName == "table_test_table_17");
+
+            Assert.Multiple(() =>
+            {
+                Assert.AreEqual(DatabaseKeyType.Foreign, foreignKey.ChildKey.KeyType);
+                Assert.AreEqual(DatabaseKeyType.Unique, foreignKey.ParentKey.KeyType);
+            });
+        }
+
+        [Test]
+        public void ChildKeys_WhenGivenChildTableWithForeignKeyToUniqueKey_ContainsConstraintWithCorrectTables()
+        {
+            var table = Database.GetTable("table_test_table_15");
+            var foreignKey = table.ChildKeys.Single(k => k.ChildKey.Table.Name.LocalName == "table_test_table_17");
+
+            Assert.Multiple(() =>
+            {
+                Assert.AreEqual("table_test_table_17", foreignKey.ChildKey.Table.Name.LocalName);
+                Assert.AreEqual("table_test_table_15", foreignKey.ParentKey.Table.Name.LocalName);
+            });
+        }
+
+        [Test]
+        public async Task ChildKeysAsync_WhenGivenChildTableWithForeignKeyToUniqueKey_ContainsConstraintWithCorrectTables()
+        {
+            var table = await Database.GetTableAsync("table_test_table_15").ConfigureAwait(false);
+            var childKeys = await table.ChildKeysAsync().ConfigureAwait(false);
+            var foreignKey = childKeys.Single(k => k.ChildKey.Table.Name.LocalName == "table_test_table_17");
+
+            Assert.Multiple(() =>
+            {
+                Assert.AreEqual("table_test_table_17", foreignKey.ChildKey.Table.Name.LocalName);
+                Assert.AreEqual("table_test_table_15", foreignKey.ParentKey.Table.Name.LocalName);
+            });
+        }
+
+        [Test]
+        public void ChildKeys_WhenGivenChildTableWithForeignKeyToUniqueKey_ContainsConstraintWithCorrectColumns()
+        {
+            var table = Database.GetTable("table_test_table_15");
+            var foreignKey = table.ChildKeys.Single(k => k.ChildKey.Table.Name.LocalName == "table_test_table_17");
+
+            var childColumns = foreignKey.ChildKey.Columns.Select(c => c.Name.LocalName);
+            var parentColumns = foreignKey.ParentKey.Columns.Select(c => c.Name.LocalName);
+
+            var expectedChildColumns = new[] { "last_name_child", "middle_name_child" };
+            var expectedParentColumns = new[] { "last_name_parent", "middle_name_parent" };
+
+            var childColumnsEqual = childColumns.SequenceEqual(expectedChildColumns);
+            var parentColumnsEqual = parentColumns.SequenceEqual(expectedParentColumns);
+
+            Assert.Multiple(() =>
+            {
+                Assert.IsTrue(childColumnsEqual);
+                Assert.IsTrue(parentColumnsEqual);
+            });
+        }
+
+        [Test]
+        public async Task ChildKeysAsync_WhenGivenChildTableWithForeignKeyToUniqueKey_ContainsConstraintWithCorrectColumns()
+        {
+            var table = await Database.GetTableAsync("table_test_table_15").ConfigureAwait(false);
+            var childKeys = await table.ChildKeysAsync().ConfigureAwait(false);
+            var foreignKey = childKeys.Single(k => k.ChildKey.Table.Name.LocalName == "table_test_table_17");
+
+            var childColumns = foreignKey.ChildKey.Columns.Select(c => c.Name.LocalName);
+            var parentColumns = foreignKey.ParentKey.Columns.Select(c => c.Name.LocalName);
+
+            var expectedChildColumns = new[] { "last_name_child", "middle_name_child" };
+            var expectedParentColumns = new[] { "last_name_parent", "middle_name_parent" };
+
+            var childColumnsEqual = childColumns.SequenceEqual(expectedChildColumns);
+            var parentColumnsEqual = parentColumns.SequenceEqual(expectedParentColumns);
+
+            Assert.Multiple(() =>
+            {
+                Assert.IsTrue(childColumnsEqual);
+                Assert.IsTrue(parentColumnsEqual);
+            });
+        }
+
+        [Test]
+        public void ChildKeys_WhenGivenChildTableWithForeignKeyToUniqueKeyWithDefaultUpdateRule_ReturnsUpdateRuleAsNoAction()
+        {
+            var table = Database.GetTable("table_test_table_15");
+            var childKeys = table.ChildKeys;
+            var foreignKey = childKeys.Single(k => k.ChildKey.Table.Name.LocalName == "table_test_table_17");
+
+            Assert.AreEqual(RelationalKeyUpdateAction.NoAction, foreignKey.UpdateAction);
+        }
+
+        [Test]
+        public async Task ChildKeysAsync_WhenGivenChildTableWithForeignKeyToUniqueKeyWithDefaultUpdateRule_ReturnsUpdateRuleAsNoAction()
+        {
+            var table = await Database.GetTableAsync("table_test_table_15").ConfigureAwait(false);
+            var childKeys = await table.ChildKeysAsync().ConfigureAwait(false);
+            var foreignKey = childKeys.Single(k => k.ChildKey.Table.Name.LocalName == "table_test_table_17");
+
+            Assert.AreEqual(RelationalKeyUpdateAction.NoAction, foreignKey.UpdateAction);
+        }
+
+        [Test]
+        public void ChildKeys_WhenGivenChildTableWithForeignKeyToUniqueKeyWithCascadeUpdateRule_ReturnsUpdateRuleAsCascade()
+        {
+            var table = Database.GetTable("table_test_table_15");
+            var childKeys = table.ChildKeys;
+            var foreignKey = childKeys.Single(k => k.ChildKey.Table.Name.LocalName == "table_test_table_21");
+
+            Assert.AreEqual(RelationalKeyUpdateAction.Cascade, foreignKey.UpdateAction);
+        }
+
+        [Test]
+        public async Task ChildKeysAsync_WhenGivenChildTableWithForeignKeyToUniqueKeyWithCascadeUpdateRule_ReturnsUpdateRuleAsCascade()
+        {
+            var table = await Database.GetTableAsync("table_test_table_15").ConfigureAwait(false);
+            var childKeys = await table.ChildKeysAsync().ConfigureAwait(false);
+            var foreignKey = childKeys.Single(k => k.ChildKey.Table.Name.LocalName == "table_test_table_21");
+
+            Assert.AreEqual(RelationalKeyUpdateAction.Cascade, foreignKey.UpdateAction);
+        }
+
+        [Test]
+        public void ChildKeys_WhenGivenChildTableWithForeignKeyToUniqueKeyWithSetNullUpdateRule_ReturnsUpdateRuleAsSetNull()
+        {
+            var table = Database.GetTable("table_test_table_15");
+            var childKeys = table.ChildKeys;
+            var foreignKey = childKeys.Single(k => k.ChildKey.Table.Name.LocalName == "table_test_table_22");
+
+            Assert.AreEqual(RelationalKeyUpdateAction.SetNull, foreignKey.UpdateAction);
+        }
+
+        [Test]
+        public async Task ChildKeysAsync_WhenGivenChildTableWithForeignKeyToUniqueKeyWithSetDefaultUpdateRule_ReturnsUpdateRuleAsSetNull()
+        {
+            var table = await Database.GetTableAsync("table_test_table_15").ConfigureAwait(false);
+            var childKeys = await table.ChildKeysAsync().ConfigureAwait(false);
+            var foreignKey = childKeys.Single(k => k.ChildKey.Table.Name.LocalName == "table_test_table_22");
+
+            Assert.AreEqual(RelationalKeyUpdateAction.SetNull, foreignKey.UpdateAction);
+        }
+
+        [Test]
+        public void ChildKeys_WhenGivenChildTableWithForeignKeyToUniqueKeyWithSetDefaultUpdateRule_ReturnsUpdateRuleAsSetDefault()
+        {
+            var table = Database.GetTable("table_test_table_15");
+            var childKeys = table.ChildKeys;
+            var foreignKey = childKeys.Single(k => k.ChildKey.Table.Name.LocalName == "table_test_table_23");
+
+            Assert.AreEqual(RelationalKeyUpdateAction.SetDefault, foreignKey.UpdateAction);
+        }
+
+        [Test]
+        public async Task ChildKeysAsync_WhenGivenChildTableWithForeignKeyToUniqueKeyWithSetDefaultUpdateRule_ReturnsUpdateRuleAsSetDefault()
+        {
+            var table = await Database.GetTableAsync("table_test_table_15").ConfigureAwait(false);
+            var childKeys = await table.ChildKeysAsync().ConfigureAwait(false);
+            var foreignKey = childKeys.Single(k => k.ChildKey.Table.Name.LocalName == "table_test_table_23");
+
+            Assert.AreEqual(RelationalKeyUpdateAction.SetDefault, foreignKey.UpdateAction);
+        }
+
+        [Test]
+        public void ChildKeys_WhenGivenChildTableWithForeignKeyToUniqueKeyWithDefaultDeleteRule_ReturnsDeleteRuleAsNoAction()
+        {
+            var table = Database.GetTable("table_test_table_15");
+            var childKeys = table.ChildKeys;
+            var foreignKey = childKeys.Single(k => k.ChildKey.Table.Name.LocalName == "table_test_table_17");
+
+            Assert.AreEqual(RelationalKeyUpdateAction.NoAction, foreignKey.DeleteAction);
+        }
+
+        [Test]
+        public async Task ChildKeysAsync_WhenGivenChildTableWithForeignKeyToUniqueKeyWithDefaultDeleteRule_ReturnsDeleteRuleAsNoAction()
+        {
+            var table = await Database.GetTableAsync("table_test_table_15").ConfigureAwait(false);
+            var childKeys = await table.ChildKeysAsync().ConfigureAwait(false);
+            var foreignKey = childKeys.Single(k => k.ChildKey.Table.Name.LocalName == "table_test_table_17");
+
+            Assert.AreEqual(RelationalKeyUpdateAction.NoAction, foreignKey.DeleteAction);
+        }
+
+        [Test]
+        public void ChildKeys_WhenGivenChildTableWithForeignKeyToUniqueKeyWithCascadeDeleteRule_ReturnsDeleteRuleAsCascade()
+        {
+            var table = Database.GetTable("table_test_table_15");
+            var childKeys = table.ChildKeys;
+            var foreignKey = childKeys.Single(k => k.ChildKey.Table.Name.LocalName == "table_test_table_27");
+
+            Assert.AreEqual(RelationalKeyUpdateAction.Cascade, foreignKey.DeleteAction);
+        }
+
+        [Test]
+        public async Task ChildKeysAsync_WhenGivenChildTableWithForeignKeyToUniqueKeyWithCascadeDeleteRule_ReturnsDeleteRuleAsCascade()
+        {
+            var table = await Database.GetTableAsync("table_test_table_15").ConfigureAwait(false);
+            var childKeys = await table.ChildKeysAsync().ConfigureAwait(false);
+            var foreignKey = childKeys.Single(k => k.ChildKey.Table.Name.LocalName == "table_test_table_27");
+
+            Assert.AreEqual(RelationalKeyUpdateAction.Cascade, foreignKey.DeleteAction);
+        }
+
+        [Test]
+        public void ChildKeys_WhenGivenChildTableWithForeignKeyToUniqueKeyWithSetNullDeleteRule_ReturnsDeleteRuleAsSetNull()
+        {
+            var table = Database.GetTable("table_test_table_15");
+            var childKeys = table.ChildKeys;
+            var foreignKey = childKeys.Single(k => k.ChildKey.Table.Name.LocalName == "table_test_table_28");
+
+            Assert.AreEqual(RelationalKeyUpdateAction.SetNull, foreignKey.DeleteAction);
+        }
+
+        [Test]
+        public async Task ChildKeysAsync_WhenGivenChildTableWithForeignKeyToUniqueKeyWithSetDefaultDeleteRule_ReturnsDeleteRuleAsSetNull()
+        {
+            var table = await Database.GetTableAsync("table_test_table_15").ConfigureAwait(false);
+            var childKeys = await table.ChildKeysAsync().ConfigureAwait(false);
+            var foreignKey = childKeys.Single(k => k.ChildKey.Table.Name.LocalName == "table_test_table_28");
+
+            Assert.AreEqual(RelationalKeyUpdateAction.SetNull, foreignKey.DeleteAction);
+        }
+
+        [Test]
+        public void ChildKeys_WhenGivenChildTableWithForeignKeyToUniqueKeyWithSetDefaultDeleteRule_ReturnsDeleteRuleAsSetDefault()
+        {
+            var table = Database.GetTable("table_test_table_15");
+            var childKeys = table.ChildKeys;
+            var foreignKey = childKeys.Single(k => k.ChildKey.Table.Name.LocalName == "table_test_table_29");
+
+            Assert.AreEqual(RelationalKeyUpdateAction.SetDefault, foreignKey.DeleteAction);
+        }
+
+        [Test]
+        public async Task ChildKeysAsync_WhenGivenChildTableWithForeignKeyToUniqueKeyWithSetDefaultDeleteRule_ReturnsDeleteRuleAsSetDefault()
+        {
+            var table = await Database.GetTableAsync("table_test_table_15").ConfigureAwait(false);
+            var childKeys = await table.ChildKeysAsync().ConfigureAwait(false);
+            var foreignKey = childKeys.Single(k => k.ChildKey.Table.Name.LocalName == "table_test_table_29");
+
+            Assert.AreEqual(RelationalKeyUpdateAction.SetDefault, foreignKey.DeleteAction);
+        }
+
+        [Test]
+        public void ChildKeys_WhenGivenChildTableWithForeignKeyToUniqueKey_ReturnsIsEnabledTrue()
+        {
+            var table = Database.GetTable("table_test_table_15");
+            var childKeys = table.ChildKeys;
+            var foreignKey = childKeys.Single(k => k.ChildKey.Table.Name.LocalName == "table_test_table_17");
+
+            Assert.IsTrue(foreignKey.ChildKey.IsEnabled);
+        }
+
+        [Test]
+        public async Task ChildKeysAsync_WhenGivenChildTableWithForeignKeyToUniqueKey_ReturnsIsEnabledTrue()
+        {
+            var table = await Database.GetTableAsync("table_test_table_15").ConfigureAwait(false);
+            var childKeys = await table.ChildKeysAsync().ConfigureAwait(false);
+            var foreignKey = childKeys.Single(k => k.ChildKey.Table.Name.LocalName == "table_test_table_17");
+
+            Assert.IsTrue(foreignKey.ChildKey.IsEnabled);
+        }
+
+        [Test]
+        public void ChildKeys_WhenGivenChildTableWithDisabledForeignKeyToUniqueKey_ReturnsIsEnabledFalse()
+        {
+            var table = Database.GetTable("table_test_table_15");
+            var childKeys = table.ChildKeys;
+            var foreignKey = childKeys.Single(k => k.ChildKey.Table.Name.LocalName == "table_test_table_31");
+
+            Assert.IsFalse(foreignKey.ChildKey.IsEnabled);
+        }
+
+        [Test]
+        public async Task ChildKeysAsync_WhenGivenChildTableWithDisabledForeignKeyToUniqueKey_ReturnsIsEnabledFalse()
+        {
+            var table = await Database.GetTableAsync("table_test_table_15").ConfigureAwait(false);
+            var childKeys = await table.ChildKeysAsync().ConfigureAwait(false);
+            var foreignKey = childKeys.Single(k => k.ChildKey.Table.Name.LocalName == "table_test_table_31");
+
+            Assert.IsFalse(foreignKey.ChildKey.IsEnabled);
+        }
     }
 }
