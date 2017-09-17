@@ -59,17 +59,5 @@ namespace SJP.Schematic.Core.Utilities
 
             return unreachableVertices;
         }
-
-        /// <summary>
-        /// Internal. Determines whether the vertex is null or not.
-        /// </summary>
-        /// <param name="vertex">A vertex.</param>
-        /// <returns><c>true</c> if <paramref name="vertex"/> is <c>null</c>; otherwise <c>false</c>. Always <c>false</c> when <see cref="TVertex"/> is a value type.</returns>
-        protected static bool IsVertexNull(TVertex vertex) => !_isVertexValueType && EqualityComparer<TVertex>.Default.Equals(vertex, default(TVertex));
-
-        /// <summary>
-        /// Internal. Determines whether <see cref="TVertex"/> is a value type.
-        /// </summary>
-        protected readonly static bool _isVertexValueType = typeof(TVertex).IsValueType;
     }
 }

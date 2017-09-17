@@ -19,7 +19,7 @@ namespace SJP.Schematic.Core.Utilities
         /// <exception cref="ArgumentNullException"><paramref name="vertex"/> is <c>null</c>.</exception>
         protected virtual string ToString(TVertex vertex)
         {
-            if (IsVertexNull(vertex))
+            if (ReferenceEquals(vertex, null))
                 throw new ArgumentNullException(nameof(vertex));
 
             return vertex.ToString();
@@ -38,9 +38,9 @@ namespace SJP.Schematic.Core.Utilities
         /// <exception cref="ArgumentNullException"><paramref name="from"/> or <paramref name="to"/> is <c>null</c>.</exception>
         public virtual IEnumerable<TEdge> GetEdges(TVertex from, TVertex to)
         {
-            if (IsVertexNull(from))
+            if (ReferenceEquals(from, null))
                 throw new ArgumentNullException(nameof(from));
-            if (IsVertexNull(to))
+            if (ReferenceEquals(to, null))
                 throw new ArgumentNullException(nameof(to));
 
             return _successorMap.TryGetValue(from, out var successorSet) && successorSet.TryGetValue(to, out var edgeList)
@@ -55,7 +55,7 @@ namespace SJP.Schematic.Core.Utilities
         /// <exception cref="ArgumentNullException"><paramref name="vertex"/> is <c>null</c>.</exception>
         public virtual void AddVertex(TVertex vertex)
         {
-            if (IsVertexNull(vertex))
+            if (ReferenceEquals(vertex, null))
                 throw new ArgumentNullException(nameof(vertex));
 
             _vertices.Add(vertex);
@@ -83,11 +83,11 @@ namespace SJP.Schematic.Core.Utilities
         /// <exception cref="ArgumentNullException"><paramref name="from"/>, <paramref name="to"/> or <paramref name="edge"/> is <c>null</c>.</exception>
         public virtual void AddEdge(TVertex from, TVertex to, TEdge edge)
         {
-            if (IsVertexNull(from))
+            if (ReferenceEquals(from, null))
                 throw new ArgumentNullException(nameof(from));
-            if (IsVertexNull(to))
+            if (ReferenceEquals(to, null))
                 throw new ArgumentNullException(nameof(to));
-            if (IsEdgeNull(edge))
+            if (ReferenceEquals(edge, null))
                 throw new ArgumentNullException(nameof(edge));
 
             AddEdges(from, to, new[] { edge });
@@ -102,9 +102,9 @@ namespace SJP.Schematic.Core.Utilities
         /// <exception cref="ArgumentNullException"><paramref name="from"/>, <paramref name="to"/> or <paramref name="edges"/> is <c>null</c>.</exception>
         public virtual void AddEdges(TVertex from, TVertex to, IEnumerable<TEdge> edges)
         {
-            if (IsVertexNull(from))
+            if (ReferenceEquals(from, null))
                 throw new ArgumentNullException(nameof(from));
-            if (IsVertexNull(to))
+            if (ReferenceEquals(to, null))
                 throw new ArgumentNullException(nameof(to));
             if (edges == null)
                 throw new ArgumentNullException(nameof(edges));
@@ -448,7 +448,7 @@ namespace SJP.Schematic.Core.Utilities
         /// <exception cref="ArgumentNullException"><paramref name="from"/> is <c>null</c>.</exception>
         public override IEnumerable<TVertex> GetOutgoingNeighbours(TVertex from)
         {
-            if (IsVertexNull(from))
+            if (ReferenceEquals(from, null))
                 throw new ArgumentNullException(nameof(from));
 
             return _successorMap.TryGetValue(from, out var successorSet)
@@ -463,17 +463,13 @@ namespace SJP.Schematic.Core.Utilities
         /// <exception cref="ArgumentNullException"><paramref name="to"/> is <c>null</c>.</exception>
         public override IEnumerable<TVertex> GetIncomingNeighbours(TVertex to)
         {
-            if (IsVertexNull(to))
+            if (ReferenceEquals(to, null))
                 throw new ArgumentNullException(nameof(to));
 
             return _successorMap.Where(kvp => kvp.Value.ContainsKey(to)).Select(kvp => kvp.Key);
         }
 
-        protected static bool IsEdgeNull(TEdge edge) => !_isEdgeValueType && EqualityComparer<TEdge>.Default.Equals(edge, default(TEdge));
-
         private readonly HashSet<TVertex> _vertices = new HashSet<TVertex>();
         private readonly Dictionary<TVertex, Dictionary<TVertex, List<TEdge>>> _successorMap = new Dictionary<TVertex, Dictionary<TVertex, List<TEdge>>>();
-
-        protected readonly static bool _isEdgeValueType = typeof(TEdge).IsValueType;
     }
 }
