@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using EnumsNET;
 
 namespace SJP.Schematic.Core
 {
@@ -7,8 +8,8 @@ namespace SJP.Schematic.Core
     {
         public IdentifierComparer(StringComparison comparison = StringComparison.OrdinalIgnoreCase, string defaultServer = null, string defaultDatabase = null, string defaultSchema = null)
         {
-            if (!Enum.IsDefined(_strComparisonType, comparison))
-                throw new InvalidOperationException($"The { nameof(StringComparison) } value is not defined.");
+            if (!comparison.IsValid())
+                throw new ArgumentException($"The { nameof(StringComparison) } provided must be a valid enum.", nameof(comparison));
 
             _comparer = GetStringComparer(comparison);
             _defaultServer = defaultServer.IsNullOrWhiteSpace() ? null : defaultServer;
@@ -107,6 +108,5 @@ namespace SJP.Schematic.Core
         private readonly string _defaultDatabase;
         private readonly string _defaultServer;
         private readonly StringComparer _comparer;
-        private static readonly Type _strComparisonType = typeof(StringComparison);
     }
 }

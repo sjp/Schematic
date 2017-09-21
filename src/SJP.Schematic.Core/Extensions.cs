@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Globalization;
 using System.Linq;
+using EnumsNET;
 
 namespace SJP.Schematic.Core
 {
@@ -165,9 +166,8 @@ namespace SJP.Schematic.Core
         {
             if (value == null)
                 throw new ArgumentNullException(nameof(value));
-
-            if (!Enum.IsDefined(typeof(StringComparison), comparisonType))
-                throw new ArgumentException($"The { nameof(comparisonType) } argument given is not a member of { typeof(StringComparison).FullName }", nameof(comparisonType));
+            if (!comparisonType.IsValid())
+                throw new ArgumentException($"The { nameof(StringComparison) } provided must be a valid enum.", nameof(comparisonType));
 
             return input.IndexOf(value, comparisonType) >= 0;
         }

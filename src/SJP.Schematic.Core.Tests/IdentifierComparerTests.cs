@@ -7,10 +7,10 @@ namespace SJP.Schematic.Core.Tests
     public class IdentifierComparerTests
     {
         [Test]
-        public void Ctor_GivenInvalidStringComparison_ThrowsInvalidOperationException()
+        public void Ctor_GivenInvalidStringComparison_ThrowsArgumentException()
         {
             const StringComparison badStringComparison = (StringComparison)55;
-            Assert.Throws<InvalidOperationException>(() => new IdentifierComparer(badStringComparison));
+            Assert.Throws<ArgumentException>(() => new IdentifierComparer(badStringComparison));
         }
 
         [Test]
