@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
-using System.Reactive.Linq;
 using System.Threading.Tasks;
 using Dapper;
 using SJP.Schematic.Core;
@@ -95,25 +94,17 @@ namespace SJP.Schematic.Sqlite
             }
         }
 
-        public IObservable<IRelationalDatabaseTable> TablesAsync()
+        public async Task<IAsyncEnumerable<IRelationalDatabaseTable>> TablesAsync()
         {
-            return Observable.Create<IRelationalDatabaseTable>(async observer =>
-            {
-                const string sql = "select name from sqlite_master where type = 'table' order by name";
-                var queryResults = await Connection.QueryAsync<string>(sql).ConfigureAwait(false);
+            const string sql = "select name from sqlite_master where type = 'table' order by name";
+            var queryResult = await Connection.QueryAsync<string>(sql).ConfigureAwait(false);
+            var tableNames = queryResult
+                .Where(name => !BuiltInTables.Contains(name))
+                .Select(name => new LocalIdentifier(name));
 
-                var tableNames = queryResults
-                    .Where(name => !BuiltInTables.Contains(name))
-                    .Select(name => new LocalIdentifier(name));
-
-                foreach (var tableName in tableNames)
-                {
-                    var table = await LoadTableAsync(tableName).ConfigureAwait(false);
-                    observer.OnNext(table);
-                }
-
-                observer.OnCompleted();
-            });
+            return tableNames
+                .Select(LoadTableSync)
+                .ToAsyncEnumerable();
         }
 
         protected virtual IRelationalDatabaseTable LoadTableSync(Identifier tableName)
@@ -193,22 +184,15 @@ namespace SJP.Schematic.Sqlite
             }
         }
 
-        public IObservable<IRelationalDatabaseView> ViewsAsync()
+        public async Task<IAsyncEnumerable<IRelationalDatabaseView>> ViewsAsync()
         {
-            return Observable.Create<IRelationalDatabaseView>(async observer =>
-            {
-                const string sql = "select name from sqlite_master where type = 'view' order by name";
-                var queryResult = await Connection.QueryAsync<string>(sql).ConfigureAwait(false);
-                var viewNames = queryResult.Select(name => new LocalIdentifier(name));
+            const string sql = "select name from sqlite_master where type = 'view' order by name";
+            var queryResult = await Connection.QueryAsync<string>(sql).ConfigureAwait(false);
+            var viewNames = queryResult.Select(name => new LocalIdentifier(name));
 
-                foreach (var viewName in viewNames)
-                {
-                    var view = await LoadViewAsync(viewName).ConfigureAwait(false);
-                    observer.OnNext(view);
-                }
-
-                observer.OnCompleted();
-            });
+            return viewNames
+                .Select(LoadViewSync)
+                .ToAsyncEnumerable();
         }
 
         protected virtual IRelationalDatabaseView LoadViewSync(Identifier viewName)
@@ -251,7 +235,7 @@ namespace SJP.Schematic.Sqlite
 
         public Task<IDatabaseSequence> GetSequenceAsync(Identifier sequenceName) => throw new NotSupportedException(SequencesNotSupported);
 
-        public IObservable<IDatabaseSequence> SequencesAsync() => throw new NotSupportedException(SequencesNotSupported);
+        public Task<IAsyncEnumerable<IDatabaseSequence>> SequencesAsync() => throw new NotSupportedException(SequencesNotSupported);
 
         #endregion Sequences
 
@@ -267,7 +251,7 @@ namespace SJP.Schematic.Sqlite
 
         public Task<IDatabaseSynonym> GetSynonymAsync(Identifier synonymName) => throw new NotSupportedException(SynonymsNotSupported);
 
-        public IObservable<IDatabaseSynonym> SynonymsAsync() => throw new NotSupportedException(SynonymsNotSupported);
+        public Task<IAsyncEnumerable<IDatabaseSynonym>> SynonymsAsync() => throw new NotSupportedException(SynonymsNotSupported);
 
         #endregion Synonyms
 
@@ -328,22 +312,15 @@ namespace SJP.Schematic.Sqlite
             }
         }
 
-        public IObservable<IDatabaseTrigger> TriggersAsync()
+        public async Task<IAsyncEnumerable<IDatabaseTrigger>> TriggersAsync()
         {
-            return Observable.Create<IDatabaseTrigger>(async observer =>
-            {
-                const string sql = "select name from sqlite_master where type = 'trigger' order by name";
-                var queryResult = await Connection.QueryAsync<string>(sql).ConfigureAwait(false);
-                var triggerNames = queryResult.Select(name => new LocalIdentifier(name));
+            const string sql = "select name from sqlite_master where type = 'trigger' order by name";
+            var queryResults = await Connection.QueryAsync<string>(sql).ConfigureAwait(false);
+            var triggerNames = queryResults.Select(name => new LocalIdentifier(name));
 
-                foreach (var triggerName in triggerNames)
-                {
-                    var trigger = await LoadTriggerAsync(triggerName).ConfigureAwait(false);
-                    observer.OnNext(trigger);
-                }
-
-                observer.OnCompleted();
-            });
+            return triggerNames
+                .Select(LoadTriggerSync)
+                .ToAsyncEnumerable();
         }
 
         protected virtual IDatabaseTrigger LoadTriggerSync(Identifier triggerName)

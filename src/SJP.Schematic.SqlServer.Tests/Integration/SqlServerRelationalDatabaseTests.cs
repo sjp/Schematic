@@ -1,6 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
-using System.Reactive.Linq;
 using System.Threading.Tasks;
 using Dapper;
 using NUnit.Framework;
@@ -177,16 +177,17 @@ namespace SJP.Schematic.SqlServer.Tests.Integration
             [Test]
             public async Task TablesAsync_WhenSubscribed_ContainsTables()
             {
-                var tables = await Database.TablesAsync().ToList();
+                var tables = await Database.TablesAsync().ConfigureAwait(false);
+                var count = await tables.Count().ConfigureAwait(false);
 
-                Assert.NotZero(tables.Count);
+                Assert.NotZero(count);
             }
 
             [Test]
             public async Task TablesAsync_WhenSubscribed_ContainsTestTable()
             {
-                var tables = await Database.TablesAsync().ToList();
-                var containsTestTable = tables.Any(t => t.Name.LocalName == "db_test_table_1");
+                var tables = await Database.TablesAsync().ConfigureAwait(false);
+                var containsTestTable = await tables.Any(t => t.Name.LocalName == "db_test_table_1").ConfigureAwait(false);
 
                 Assert.True(containsTestTable);
             }
@@ -347,17 +348,18 @@ namespace SJP.Schematic.SqlServer.Tests.Integration
             [Test]
             public async Task ViewsAsync_WhenSubscribed_ContainsViews()
             {
-                var views = await Database.ViewsAsync().ToList();
+                var views = await Database.ViewsAsync().ConfigureAwait(false);
+                var count = await views.Count().ConfigureAwait(false);
 
-                Assert.NotZero(views.Count);
+                Assert.NotZero(count);
             }
 
             [Test]
             public async Task ViewsAsync_WhenSubscribed_ContainsTestView()
             {
                 const string viewName = "db_test_view_1";
-                var views = await Database.ViewsAsync().ToList();
-                var containsTestView = views.Any(v => v.Name.LocalName == viewName);
+                var views = await Database.ViewsAsync().ConfigureAwait(false);
+                var containsTestView = await views.Any(v => v.Name.LocalName == viewName).ConfigureAwait(false);
 
                 Assert.True(containsTestView);
             }
@@ -515,16 +517,17 @@ namespace SJP.Schematic.SqlServer.Tests.Integration
             [Test]
             public async Task SequencesAsync_WhenSubscribed_ContainsSequences()
             {
-                var sequences = await Database.SequencesAsync().ToList();
+                var sequences = await Database.SequencesAsync().ConfigureAwait(false);
+                var count = await sequences.Count().ConfigureAwait(false);
 
-                Assert.NotZero(sequences.Count);
+                Assert.NotZero(count);
             }
 
             [Test]
             public async Task SequencesAsync_WhenSubscribed_ContainsTestSequence()
             {
-                var sequences = await Database.SequencesAsync().ToList();
-                var containsTestSequence = sequences.Any(s => s.Name.LocalName == "db_test_sequence_1");
+                var sequences = await Database.SequencesAsync().ConfigureAwait(false);
+                var containsTestSequence = await sequences.Any(s => s.Name.LocalName == "db_test_sequence_1").ConfigureAwait(false);
 
                 Assert.True(containsTestSequence);
             }
@@ -696,16 +699,17 @@ namespace SJP.Schematic.SqlServer.Tests.Integration
             [Test]
             public async Task SynonymsAsync_WhenSubscribed_ContainsSynonyms()
             {
-                var synonyms = await Database.SynonymsAsync().ToList();
+                var synonyms = await Database.SynonymsAsync().ConfigureAwait(false);
+                var count = await synonyms.Count().ConfigureAwait(false);
 
-                Assert.NotZero(synonyms.Count);
+                Assert.NotZero(count);
             }
 
             [Test]
             public async Task SynonymsAsync_WhenSubscribed_ContainsTestSynonym()
             {
-                var synonyms = await Database.SynonymsAsync().ToList();
-                var containsTestSynonym = synonyms.Any(s => s.Name.LocalName == "db_test_synonym_1");
+                var synonyms = await Database.SynonymsAsync().ConfigureAwait(false);
+                var containsTestSynonym = await synonyms.Any(s => s.Name.LocalName == "db_test_synonym_1").ConfigureAwait(false);
 
                 Assert.True(containsTestSynonym);
             }

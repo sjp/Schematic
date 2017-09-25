@@ -5,7 +5,6 @@ using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
-using System.Reactive.Linq;
 using SJP.Schematic.Core;
 using SJP.Schematic.Sqlite.Query;
 using SJP.Schematic.Sqlite.Parsing;
@@ -332,20 +331,21 @@ namespace SJP.Schematic.Sqlite
                 .ToList();
         }
 
-        protected virtual Task<IEnumerable<IDatabaseRelationalKey>> LoadChildKeysAsync()
+        protected virtual async Task<IEnumerable<IDatabaseRelationalKey>> LoadChildKeysAsync()
         {
-            var dbTables = Database.TablesAsync().ToEnumerable();
+            var dbTables = await Database.TablesAsync().ConfigureAwait(false);
 
-            IEnumerable<IDatabaseRelationalKey> childKeys = dbTables
-                .SelectMany(t => t.ParentKeys)
+            var childKeys = await dbTables
+                .SelectMany(t => t.ParentKeys.ToAsyncEnumerable())
                 .Where(fk =>
                 {
                     var parentTableName = fk.ParentKey.Table.Name.LocalName;
                     return string.Equals(parentTableName, Name.LocalName, StringComparison.OrdinalIgnoreCase);
                 })
-                .ToList();
+                .ToList()
+                .ConfigureAwait(false);
 
-            return Task.FromResult(childKeys);
+            return childKeys;
         }
 
         public IReadOnlyDictionary<Identifier, IDatabaseCheckConstraint> CheckConstraint => LoadCheckConstraintLookupSync();

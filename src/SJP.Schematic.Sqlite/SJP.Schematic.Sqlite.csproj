@@ -20,7 +20,7 @@
     <PackageReference Include="Dapper" Version="1.50.2" />
     <PackageReference Include="Microsoft.Data.SQLite" Version="2.0.0" />
     <PackageReference Include="Superpower" Version="1.0.2" />
-    <PackageReference Include="System.Reactive.Linq" Version="3.1.1" />
+    <PackageReference Include="System.Interactive.Async" Version="3.1.1" />
   </ItemGroup>
 
   <ItemGroup>

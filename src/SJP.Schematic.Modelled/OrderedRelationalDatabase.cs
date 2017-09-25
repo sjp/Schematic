@@ -2,7 +2,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reactive.Linq;
 using System.Threading.Tasks;
 
 namespace SJP.Schematic.Modelled
@@ -69,17 +68,18 @@ namespace SJP.Schematic.Modelled
             return LoadTableAsync(tableName);
         }
 
-        public IEnumerable<IRelationalDatabaseTable> Tables
-        {
-            get
-            {
-                return Databases.SelectMany(d => d.Tables).DistinctBy(t => t.Name);
-            }
-        }
+        public IEnumerable<IRelationalDatabaseTable> Tables =>
+            Databases
+                .SelectMany(d => d.Tables)
+                .DistinctBy(t => t.Name);
 
-        public IObservable<IRelationalDatabaseTable> TablesAsync()
+        public Task<IAsyncEnumerable<IRelationalDatabaseTable>> TablesAsync()
         {
-            return Databases.Select(d => d.TablesAsync()).Concat().Distinct(t => t.Name);
+            var result = Databases
+                .SelectMany(d => d.Tables)
+                .DistinctBy(t => t.Name)
+                .ToAsyncEnumerable();
+            return Task.FromResult(result);
         }
 
         protected virtual IRelationalDatabaseTable LoadTableSync(Identifier tableName)
@@ -139,17 +139,18 @@ namespace SJP.Schematic.Modelled
             return LoadViewAsync(viewName);
         }
 
-        public IEnumerable<IRelationalDatabaseView> Views
-        {
-            get
-            {
-                return Databases.SelectMany(d => d.Views).DistinctBy(t => t.Name);
-            }
-        }
+        public IEnumerable<IRelationalDatabaseView> Views =>
+            Databases
+                .SelectMany(d => d.Views)
+                .DistinctBy(t => t.Name);
 
-        public IObservable<IRelationalDatabaseView> ViewsAsync()
+        public Task<IAsyncEnumerable<IRelationalDatabaseView>> ViewsAsync()
         {
-            return Databases.Select(d => d.ViewsAsync()).Concat().Distinct(t => t.Name);
+            var result = Databases
+                .SelectMany(d => d.Views)
+                .DistinctBy(v => v.Name)
+                .ToAsyncEnumerable();
+            return Task.FromResult(result);
         }
 
         protected virtual IRelationalDatabaseView LoadViewSync(Identifier viewName)
@@ -209,20 +210,18 @@ namespace SJP.Schematic.Modelled
             return LoadSequenceAsync(sequenceName);
         }
 
-        public IEnumerable<IDatabaseSequence> Sequences
-        {
-            get
-            {
-                return Databases.SelectMany(d => d.Sequences).DistinctBy(t => t.Name);
-            }
-        }
+        public IEnumerable<IDatabaseSequence> Sequences =>
+            Databases
+                .SelectMany(d => d.Sequences)
+                .DistinctBy(t => t.Name);
 
-        public IObservable<IDatabaseSequence> SequencesAsync()
+        public Task<IAsyncEnumerable<IDatabaseSequence>> SequencesAsync()
         {
-            return Databases
-                .Select(d => d.SequencesAsync())
-                .Concat()
-                .Distinct(t => t.Name);
+            var result = Databases
+                .SelectMany(d => d.Sequences)
+                .DistinctBy(s => s.Name)
+                .ToAsyncEnumerable();
+            return Task.FromResult(result);
         }
 
         protected virtual IDatabaseSequence LoadSequenceSync(Identifier sequenceName)
@@ -282,17 +281,18 @@ namespace SJP.Schematic.Modelled
             return LoadSynonymAsync(synonymName);
         }
 
-        public IEnumerable<IDatabaseSynonym> Synonyms
-        {
-            get
-            {
-                return Databases.SelectMany(d => d.Synonyms).DistinctBy(t => t.Name);
-            }
-        }
+        public IEnumerable<IDatabaseSynonym> Synonyms =>
+            Databases
+                .SelectMany(d => d.Synonyms)
+                .DistinctBy(t => t.Name);
 
-        public IObservable<IDatabaseSynonym> SynonymsAsync()
+        public Task<IAsyncEnumerable<IDatabaseSynonym>> SynonymsAsync()
         {
-            return Databases.Select(d => d.SynonymsAsync()).Concat().Distinct(t => t.Name);
+            var result = Databases
+                .SelectMany(d => d.Synonyms)
+                .DistinctBy(s => s.Name)
+                .ToAsyncEnumerable();
+            return Task.FromResult(result);
         }
 
         protected virtual IDatabaseSynonym LoadSynonymSync(Identifier synonymName)
@@ -352,17 +352,18 @@ namespace SJP.Schematic.Modelled
             return LoadTriggerAsync(triggerName);
         }
 
-        public IEnumerable<IDatabaseTrigger> Triggers
-        {
-            get
-            {
-                return Databases.SelectMany(d => d.Triggers).DistinctBy(t => t.Name);
-            }
-        }
+        public IEnumerable<IDatabaseTrigger> Triggers =>
+            Databases
+                .SelectMany(d => d.Triggers)
+                .DistinctBy(t => t.Name);
 
-        public IObservable<IDatabaseTrigger> TriggersAsync()
+        public Task<IAsyncEnumerable<IDatabaseTrigger>> TriggersAsync()
         {
-            return Databases.Select(d => d.TriggersAsync()).Concat().Distinct(t => t.Name);
+            var result = Databases
+                .SelectMany(d => d.Triggers)
+                .DistinctBy(t => t.Name)
+                .ToAsyncEnumerable();
+            return Task.FromResult(result);
         }
 
         protected virtual IDatabaseTrigger LoadTriggerSync(Identifier triggerName)

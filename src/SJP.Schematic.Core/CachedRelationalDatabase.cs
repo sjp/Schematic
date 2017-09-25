@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reactive.Linq;
 using System.Threading.Tasks;
 using SJP.Schematic.Core.Utilities;
 
@@ -79,9 +78,10 @@ namespace SJP.Schematic.Core
             }
         }
 
-        public IObservable<IRelationalDatabaseTable> TablesAsync()
+        public async Task<IAsyncEnumerable<IRelationalDatabaseTable>> TablesAsync()
         {
-            return Database.TablesAsync()
+            var tables = await Database.TablesAsync().ConfigureAwait(false);
+            return tables
                 .Select(t => Table.GetValue(t.Name))
                 .Where(t => t != null);
         }
@@ -156,9 +156,10 @@ namespace SJP.Schematic.Core
             }
         }
 
-        public IObservable<IRelationalDatabaseView> ViewsAsync()
+        public async Task<IAsyncEnumerable<IRelationalDatabaseView>> ViewsAsync()
         {
-            return Database.ViewsAsync()
+            var views = await Database.ViewsAsync().ConfigureAwait(false);
+            return views
                 .Select(v => View.GetValue(v.Name))
                 .Where(v => v != null);
         }
@@ -229,9 +230,10 @@ namespace SJP.Schematic.Core
             }
         }
 
-        public IObservable<IDatabaseSequence> SequencesAsync()
+        public async Task<IAsyncEnumerable<IDatabaseSequence>> SequencesAsync()
         {
-            return Database.SequencesAsync()
+            var sequences = await Database.SequencesAsync().ConfigureAwait(false);
+            return sequences
                 .Select(s => Sequence.GetValue(s.Name))
                 .Where(s => s != null);
         }
@@ -302,9 +304,10 @@ namespace SJP.Schematic.Core
             }
         }
 
-        public IObservable<IDatabaseSynonym> SynonymsAsync()
+        public async Task<IAsyncEnumerable<IDatabaseSynonym>> SynonymsAsync()
         {
-            return Database.SynonymsAsync()
+            var synonyms = await Database.SynonymsAsync().ConfigureAwait(false);
+            return synonyms
                 .Select(s => Synonym.GetValue(s.Name))
                 .Where(s => s != null);
         }
@@ -375,9 +378,10 @@ namespace SJP.Schematic.Core
             }
         }
 
-        public IObservable<IDatabaseTrigger> TriggersAsync()
+        public async Task<IAsyncEnumerable<IDatabaseTrigger>> TriggersAsync()
         {
-            return Database.TriggersAsync()
+            var triggers = await Database.TriggersAsync().ConfigureAwait(false);
+            return triggers
                 .Select(t => Trigger.GetValue(t.Name))
                 .Where(t => t != null);
         }

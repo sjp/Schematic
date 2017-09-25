@@ -3,7 +3,6 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
-using System.Reactive.Linq;
 using System.Threading.Tasks;
 using SJP.Schematic.Core;
 using SJP.Schematic.SqlServer.Query;
@@ -99,22 +98,15 @@ namespace SJP.Schematic.SqlServer
             }
         }
 
-        public IObservable<IRelationalDatabaseTable> TablesAsync()
+        public async Task<IAsyncEnumerable<IRelationalDatabaseTable>> TablesAsync()
         {
-            return Observable.Create<IRelationalDatabaseTable>(async observer =>
-            {
-                const string sql = "select schema_name(schema_id) as SchemaName, name as ObjectName from sys.tables order by schema_name(schema_id), name";
-                var queryResults = await Connection.QueryAsync<QualifiedName>(sql).ConfigureAwait(false);
-                var tableNames = queryResults.Select(dto => new Identifier(dto.SchemaName, dto.ObjectName));
+            const string sql = "select schema_name(schema_id) as SchemaName, name as ObjectName from sys.tables order by schema_name(schema_id), name";
+            var queryResults = await Connection.QueryAsync<QualifiedName>(sql).ConfigureAwait(false);
+            var tableNames = queryResults.Select(dto => new Identifier(dto.SchemaName, dto.ObjectName));
 
-                foreach (var tableName in tableNames)
-                {
-                    var table = await LoadTableAsync(tableName).ConfigureAwait(false);
-                    observer.OnNext(table);
-                }
-
-                observer.OnCompleted();
-            });
+            return tableNames
+                .Select(LoadTableSync)
+                .ToAsyncEnumerable();
         }
 
         protected virtual IRelationalDatabaseTable LoadTableSync(Identifier tableName)
@@ -201,22 +193,15 @@ namespace SJP.Schematic.SqlServer
             }
         }
 
-        public IObservable<IRelationalDatabaseView> ViewsAsync()
+        public async Task<IAsyncEnumerable<IRelationalDatabaseView>> ViewsAsync()
         {
-            return Observable.Create<IRelationalDatabaseView>(async observer =>
-            {
-                const string sql = "select schema_name(schema_id) as SchemaName, name as ObjectName from sys.views order by schema_name(schema_id), name";
-                var queryResult = await Connection.QueryAsync<QualifiedName>(sql).ConfigureAwait(false);
-                var viewNames = queryResult.Select(dto => new Identifier(dto.SchemaName, dto.ObjectName));
+            const string sql = "select schema_name(schema_id) as SchemaName, name as ObjectName from sys.views order by schema_name(schema_id), name";
+            var queryResult = await Connection.QueryAsync<QualifiedName>(sql).ConfigureAwait(false);
+            var viewNames = queryResult.Select(dto => new Identifier(dto.SchemaName, dto.ObjectName));
 
-                foreach (var viewName in viewNames)
-                {
-                    var view = await LoadViewAsync(viewName).ConfigureAwait(false);
-                    observer.OnNext(view);
-                }
-
-                observer.OnCompleted();
-            });
+            return viewNames
+                .Select(LoadViewSync)
+                .ToAsyncEnumerable();
         }
 
         protected virtual IRelationalDatabaseView LoadViewSync(Identifier viewName)
@@ -305,22 +290,15 @@ namespace SJP.Schematic.SqlServer
             }
         }
 
-        public IObservable<IDatabaseSequence> SequencesAsync()
+        public async Task<IAsyncEnumerable<IDatabaseSequence>> SequencesAsync()
         {
-            return Observable.Create<IDatabaseSequence>(async observer =>
-            {
-                var queryResult = await Connection.QueryAsync<QualifiedName>(
-                "select schema_name(schema_id) as SchemaName, name as ObjectName from sys.sequences order by schema_name(schema_id), name").ConfigureAwait(false);
-                var sequenceNames = queryResult.Select(dto => new Identifier(dto.SchemaName, dto.ObjectName));
+            const string sql = "select schema_name(schema_id) as SchemaName, name as ObjectName from sys.sequences order by schema_name(schema_id), name";
+            var queryResult = await Connection.QueryAsync<QualifiedName>(sql).ConfigureAwait(false);
+            var sequenceNames = queryResult.Select(dto => new Identifier(dto.SchemaName, dto.ObjectName));
 
-                foreach (var sequenceName in sequenceNames)
-                {
-                    var sequence = await LoadSequenceAsync(sequenceName).ConfigureAwait(false);
-                    observer.OnNext(sequence);
-                }
-
-                observer.OnCompleted();
-            });
+            return sequenceNames
+                .Select(LoadSequenceSync)
+                .ToAsyncEnumerable();
         }
 
         protected virtual IDatabaseSequence LoadSequenceSync(Identifier sequenceName)
@@ -409,22 +387,15 @@ namespace SJP.Schematic.SqlServer
             }
         }
 
-        public IObservable<IDatabaseSynonym> SynonymsAsync()
+        public async Task<IAsyncEnumerable<IDatabaseSynonym>> SynonymsAsync()
         {
-            return Observable.Create<IDatabaseSynonym>(async observer =>
-            {
-                const string sql = "select schema_name(schema_id) as SchemaName, name as ObjectName from sys.synonyms order by schema_name(schema_id), name";
-                var queryResult = await Connection.QueryAsync<QualifiedName>(sql).ConfigureAwait(false);
-                var synonymNames = queryResult.Select(dto => new Identifier(dto.SchemaName, dto.ObjectName));
+            const string sql = "select schema_name(schema_id) as SchemaName, name as ObjectName from sys.synonyms order by schema_name(schema_id), name";
+            var queryResult = await Connection.QueryAsync<QualifiedName>(sql).ConfigureAwait(false);
+            var synonymNames = queryResult.Select(dto => new Identifier(dto.SchemaName, dto.ObjectName));
 
-                foreach (var synonymName in synonymNames)
-                {
-                    var synonym = await LoadSynonymAsync(synonymName).ConfigureAwait(false);
-                    observer.OnNext(synonym);
-                }
-
-                observer.OnCompleted();
-            });
+            return synonymNames
+                .Select(LoadSynonymSync)
+                .ToAsyncEnumerable();
         }
 
         protected virtual IDatabaseSynonym LoadSynonymSync(Identifier synonymName)
@@ -559,22 +530,15 @@ where schema_id = schema_id(@SchemaName) and name = @SynonymName
             }
         }
 
-        public IObservable<IDatabaseTrigger> TriggersAsync()
+        public async Task<IAsyncEnumerable<IDatabaseTrigger>> TriggersAsync()
         {
-            return Observable.Create<IDatabaseTrigger>(async observer =>
-            {
-                const string sql = "select schema_name(schema_id) as SchemaName, name as ObjectName from sys.triggers order by schema_name(schema_id), name";
-                var queryResult = await Connection.QueryAsync<QualifiedName>(sql).ConfigureAwait(false);
-                var triggerNames = queryResult.Select(dto => new Identifier(dto.SchemaName, dto.ObjectName));
+            const string sql = "select schema_name(schema_id) as SchemaName, name as ObjectName from sys.triggers order by schema_name(schema_id), name";
+            var queryResult = await Connection.QueryAsync<QualifiedName>(sql).ConfigureAwait(false);
+            var triggerNames = queryResult.Select(dto => new Identifier(dto.SchemaName, dto.ObjectName));
 
-                foreach (var triggerName in triggerNames)
-                {
-                    var trigger = await LoadTriggerAsync(triggerName).ConfigureAwait(false);
-                    observer.OnNext(trigger);
-                }
-
-                observer.OnCompleted();
-            });
+            return triggerNames
+                .Select(LoadTriggerSync)
+                .ToAsyncEnumerable();
         }
 
         protected virtual IDatabaseTrigger LoadTriggerSync(Identifier triggerName)

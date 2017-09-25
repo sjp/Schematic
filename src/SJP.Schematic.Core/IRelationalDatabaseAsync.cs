@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace SJP.Schematic.Core
@@ -17,30 +18,30 @@ namespace SJP.Schematic.Core
 
         Task<IRelationalDatabaseTable> GetTableAsync(Identifier tableName);
 
-        IObservable<IRelationalDatabaseTable> TablesAsync();
+        Task<IAsyncEnumerable<IRelationalDatabaseTable>> TablesAsync();
 
         Task<bool> ViewExistsAsync(Identifier viewName);
 
         Task<IRelationalDatabaseView> GetViewAsync(Identifier viewName);
 
-        IObservable<IRelationalDatabaseView> ViewsAsync();
+        Task<IAsyncEnumerable<IRelationalDatabaseView>> ViewsAsync();
 
         Task<bool> SequenceExistsAsync(Identifier sequenceName);
 
         Task<IDatabaseSequence> GetSequenceAsync(Identifier sequenceName);
 
-        IObservable<IDatabaseSequence> SequencesAsync();
+        Task<IAsyncEnumerable<IDatabaseSequence>> SequencesAsync();
 
         Task<bool> SynonymExistsAsync(Identifier synonymName);
 
         Task<IDatabaseSynonym> GetSynonymAsync(Identifier synonymName);
 
-        IObservable<IDatabaseSynonym> SynonymsAsync();
+        Task<IAsyncEnumerable<IDatabaseSynonym>> SynonymsAsync();
 
         Task<bool> TriggerExistsAsync(Identifier triggerName);
 
         Task<IDatabaseTrigger> GetTriggerAsync(Identifier triggerName);
 
-        IObservable<IDatabaseTrigger> TriggersAsync();
+        Task<IAsyncEnumerable<IDatabaseTrigger>> TriggersAsync();
     }
 }

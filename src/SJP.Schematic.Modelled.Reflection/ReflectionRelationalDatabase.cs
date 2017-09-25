@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
-using System.Reactive.Linq;
 using SJP.Schematic.Core;
 using SJP.Schematic.Modelled.Reflection.Model;
 
@@ -102,7 +101,7 @@ namespace SJP.Schematic.Modelled.Reflection
 
         public IEnumerable<IRelationalDatabaseTable> Tables => Table.Values;
 
-        public IObservable<IRelationalDatabaseTable> TablesAsync() => Tables.ToObservable();
+        public Task<IAsyncEnumerable<IRelationalDatabaseTable>> TablesAsync() => Task.FromResult(Tables.ToAsyncEnumerable());
 
         protected IReadOnlyDictionary<Identifier, IRelationalDatabaseTable> Table => _tableLookup.Value;
 
@@ -196,7 +195,7 @@ namespace SJP.Schematic.Modelled.Reflection
 
         public IEnumerable<IRelationalDatabaseView> Views => View.Values;
 
-        public IObservable<IRelationalDatabaseView> ViewsAsync() => Views.ToObservable();
+        public Task<IAsyncEnumerable<IRelationalDatabaseView>> ViewsAsync() => Task.FromResult(Views.ToAsyncEnumerable());
 
         protected IReadOnlyDictionary<Identifier, IRelationalDatabaseView> View => _viewLookup.Value;
 
@@ -290,7 +289,7 @@ namespace SJP.Schematic.Modelled.Reflection
 
         public IEnumerable<IDatabaseSequence> Sequences => Sequence.Values;
 
-        public IObservable<IDatabaseSequence> SequencesAsync() => Sequences.ToObservable();
+        public Task<IAsyncEnumerable<IDatabaseSequence>> SequencesAsync() => Task.FromResult(Sequences.ToAsyncEnumerable());
 
         protected IReadOnlyDictionary<Identifier, IDatabaseSequence> Sequence => _sequenceLookup.Value;
 
@@ -384,7 +383,7 @@ namespace SJP.Schematic.Modelled.Reflection
 
         public IEnumerable<IDatabaseSynonym> Synonyms => Synonym.Values;
 
-        public IObservable<IDatabaseSynonym> SynonymsAsync() => Synonyms.ToObservable();
+        public Task<IAsyncEnumerable<IDatabaseSynonym>> SynonymsAsync() => Task.FromResult(Synonyms.ToAsyncEnumerable());
 
         protected IReadOnlyDictionary<Identifier, IDatabaseSynonym> Synonym => _synonymLookup.Value;
 
@@ -474,7 +473,7 @@ namespace SJP.Schematic.Modelled.Reflection
 
         public IEnumerable<IDatabaseTrigger> Triggers => throw new NotImplementedException();
 
-        public IObservable<IDatabaseTrigger> TriggersAsync() => Triggers.ToObservable();
+        public Task<IAsyncEnumerable<IDatabaseTrigger>> TriggersAsync() => Task.FromResult(Triggers.ToAsyncEnumerable());
 
         // TODO IMPLEMENT
         protected IReadOnlyDictionary<Identifier, IDatabaseTrigger> Trigger => null; //_triggerLookup.Value;
