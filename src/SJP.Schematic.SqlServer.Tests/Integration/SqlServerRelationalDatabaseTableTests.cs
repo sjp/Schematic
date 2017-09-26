@@ -214,6 +214,7 @@ create table table_test_table_32 (
     constraint ck_test_table_32 check ([test_column]>(1))
 )").ConfigureAwait(false);
             await Connection.ExecuteAsync("alter table table_test_table_32 nocheck constraint ck_test_table_32").ConfigureAwait(false);
+            await Connection.ExecuteAsync("create table table_test_table_33 ( test_column int not null default 1 )").ConfigureAwait(false);
         }
 
         [OneTimeTearDown]
@@ -251,6 +252,7 @@ create table table_test_table_32 (
             await Connection.ExecuteAsync("drop table table_test_table_31").ConfigureAwait(false);
             await Connection.ExecuteAsync("drop table table_test_table_15").ConfigureAwait(false);
             await Connection.ExecuteAsync("drop table table_test_table_32").ConfigureAwait(false);
+            await Connection.ExecuteAsync("drop table table_test_table_33").ConfigureAwait(false);
         }
 
         [Test]

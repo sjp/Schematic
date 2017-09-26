@@ -82,6 +82,10 @@ namespace SJP.Schematic.SqlServer.Tests.Integration
             Assert.AreEqual("ck_test_table_14", check.Name.LocalName);
         }
 
+        // TODO, need to unwrap definitions possibly?
+        // This is because the input may not necessarily match default values we give it.
+        // i.e. declare definition as '([test_column] > 1)' and end up with '([test_column]>(1))'
+
         [Test]
         public void CheckConstraint_WhenGivenTableWithCheck_ReturnsContraintWithDefinition()
         {
