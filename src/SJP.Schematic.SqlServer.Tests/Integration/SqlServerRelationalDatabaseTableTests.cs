@@ -215,6 +215,12 @@ create table table_test_table_32 (
 )").ConfigureAwait(false);
             await Connection.ExecuteAsync("alter table table_test_table_32 nocheck constraint ck_test_table_32").ConfigureAwait(false);
             await Connection.ExecuteAsync("create table table_test_table_33 ( test_column int not null default 1 )").ConfigureAwait(false);
+            await Connection.ExecuteAsync(@"create table table_test_table_34 (
+    test_column_1 int,
+    test_column_2 int,
+    test_column_3 as test_column_1 + test_column_2
+)").ConfigureAwait(false);
+            await Connection.ExecuteAsync("create table table_test_table_35 ( test_column int identity (10, 5) primary key )").ConfigureAwait(false);
         }
 
         [OneTimeTearDown]
@@ -253,6 +259,8 @@ create table table_test_table_32 (
             await Connection.ExecuteAsync("drop table table_test_table_15").ConfigureAwait(false);
             await Connection.ExecuteAsync("drop table table_test_table_32").ConfigureAwait(false);
             await Connection.ExecuteAsync("drop table table_test_table_33").ConfigureAwait(false);
+            await Connection.ExecuteAsync("drop table table_test_table_34").ConfigureAwait(false);
+            await Connection.ExecuteAsync("drop table table_test_table_35").ConfigureAwait(false);
         }
 
         [Test]

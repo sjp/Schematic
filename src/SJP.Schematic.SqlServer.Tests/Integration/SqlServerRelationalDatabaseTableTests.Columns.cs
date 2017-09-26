@@ -1,6 +1,7 @@
 ﻿using System.Linq;
 using System.Threading.Tasks;
 using NUnit.Framework;
+using SJP.Schematic.Core;
 
 namespace SJP.Schematic.SqlServer.Tests.Integration
 {
@@ -345,8 +346,272 @@ namespace SJP.Schematic.SqlServer.Tests.Integration
             Assert.AreEqual(defaultValue, column.DefaultValue);
         }
 
-        // TODO: also need to check the following:
-        // computed column correct
-        // autoincrement correct
+        [Test]
+        public void Column_WhenGivenTableWithNonComputedColumn_ReturnsIsComputedFalse()
+        {
+            const string tableName = "table_test_table_1";
+            var table = Database.GetTable(tableName);
+            var column = table.Column.Values.Single();
+
+            Assert.IsFalse(column.IsComputed);
+        }
+
+        [Test]
+        public void Columns_WhenGivenTableWithNonComputedColumn_ReturnsIsComputedFalse()
+        {
+            const string tableName = "table_test_table_1";
+            var table = Database.GetTable(tableName);
+            var column = table.Columns.Single();
+
+            Assert.IsFalse(column.IsComputed);
+        }
+
+        [Test]
+        public async Task ColumnAsync_WhenGivenTableWithNonComputedColumn_ReturnsIsComputedFalse()
+        {
+            const string tableName = "table_test_table_1";
+            var table = await Database.GetTableAsync(tableName).ConfigureAwait(false);
+            var columnLookup = await table.ColumnAsync().ConfigureAwait(false);
+            var column = columnLookup.Values.Single();
+
+            Assert.IsFalse(column.IsComputed);
+        }
+
+        [Test]
+        public async Task ColumnsAsync_WhenGivenTableWithNonComputedColumn_ReturnsIsComputedFalse()
+        {
+            const string tableName = "table_test_table_1";
+            var table = await Database.GetTableAsync(tableName).ConfigureAwait(false);
+            var columns = await table.ColumnsAsync().ConfigureAwait(false);
+            var column = columns.Single();
+
+            Assert.IsFalse(column.IsComputed);
+        }
+
+        [Test]
+        public void Column_WhenGivenTableWithComputedColumn_ReturnsIsComputedTrue()
+        {
+            const string tableName = "table_test_table_34";
+            var table = Database.GetTable(tableName);
+            var column = table.Column.Values.Last();
+
+            Assert.IsTrue(column.IsComputed);
+        }
+
+        [Test]
+        public void Columns_WhenGivenTableWithComputedColumn_ReturnsIsComputedTrue()
+        {
+            const string tableName = "table_test_table_34";
+            var table = Database.GetTable(tableName);
+            var column = table.Columns.Last();
+
+            Assert.IsTrue(column.IsComputed);
+        }
+
+        [Test]
+        public async Task ColumnAsync_WhenGivenTableWithComputedColumn_ReturnsIsComputedTrue()
+        {
+            const string tableName = "table_test_table_34";
+            var table = await Database.GetTableAsync(tableName).ConfigureAwait(false);
+            var columnLookup = await table.ColumnAsync().ConfigureAwait(false);
+            var column = columnLookup.Values.Last();
+
+            Assert.IsTrue(column.IsComputed);
+        }
+
+        [Test]
+        public async Task ColumnsAsync_WhenGivenTableWithComputedColumn_ReturnsIsComputedTrue()
+        {
+            const string tableName = "table_test_table_34";
+            var table = await Database.GetTableAsync(tableName).ConfigureAwait(false);
+            var columns = await table.ColumnsAsync().ConfigureAwait(false);
+            var column = columns.Last();
+
+            Assert.IsTrue(column.IsComputed);
+        }
+
+        [Test]
+        public void Column_WhenGivenTableWithComputedColumnCastedToInterface_ReturnsNotNullObject()
+        {
+            const string tableName = "table_test_table_34";
+            var table = Database.GetTable(tableName);
+            var column = table.Column.Values.Last();
+
+            var computedColumn = column as IDatabaseComputedColumn;
+            Assert.IsNotNull(computedColumn);
+        }
+
+        [Test]
+        public void Columns_WhenGivenTableWithComputedColumnCastedToInterface_ReturnsNotNullObject()
+        {
+            const string tableName = "table_test_table_34";
+            var table = Database.GetTable(tableName);
+            var column = table.Columns.Last();
+
+            var computedColumn = column as IDatabaseComputedColumn;
+            Assert.IsNotNull(computedColumn);
+        }
+
+        [Test]
+        public async Task ColumnAsync_WhenGivenTableWithComputedColumnCastedToInterface_ReturnsNotNullObject()
+        {
+            const string tableName = "table_test_table_34";
+            var table = await Database.GetTableAsync(tableName).ConfigureAwait(false);
+            var columnLookup = await table.ColumnAsync().ConfigureAwait(false);
+            var column = columnLookup.Values.Last();
+
+            var computedColumn = column as IDatabaseComputedColumn;
+            Assert.IsNotNull(computedColumn);
+        }
+
+        [Test]
+        public async Task ColumnsAsync_WhenGivenTableWithComputedColumnCastedToInterface_ReturnsNotNullObject()
+        {
+            const string tableName = "table_test_table_34";
+            var table = await Database.GetTableAsync(tableName).ConfigureAwait(false);
+            var columns = await table.ColumnsAsync().ConfigureAwait(false);
+            var column = columns.Last();
+
+            var computedColumn = column as IDatabaseComputedColumn;
+            Assert.IsNotNull(computedColumn);
+        }
+
+        [Test]
+        public void Column_WhenGivenTableWithComputedColumnCastedToInterface_ReturnsCorrectDefinition()
+        {
+            const string tableName = "table_test_table_34";
+            const string expectedDefinition = "([test_column_1]+[test_column_2])";
+
+            var table = Database.GetTable(tableName);
+            var column = table.Column.Values.Last();
+
+            var computedColumn = column as IDatabaseComputedColumn;
+            Assert.AreEqual(expectedDefinition, computedColumn.Definition);
+        }
+
+        [Test]
+        public void Columns_WhenGivenTableWithComputedColumnCastedToInterface_ReturnsCorrectDefinition()
+        {
+            const string tableName = "table_test_table_34";
+            const string expectedDefinition = "([test_column_1]+[test_column_2])";
+
+            var table = Database.GetTable(tableName);
+            var column = table.Columns.Last();
+
+            var computedColumn = column as IDatabaseComputedColumn;
+            Assert.AreEqual(expectedDefinition, computedColumn.Definition);
+        }
+
+        [Test]
+        public async Task ColumnAsync_WhenGivenTableWithComputedColumnCastedToInterface_ReturnsCorrectDefinition()
+        {
+            const string tableName = "table_test_table_34";
+            const string expectedDefinition = "([test_column_1]+[test_column_2])";
+
+            var table = await Database.GetTableAsync(tableName).ConfigureAwait(false);
+            var columnLookup = await table.ColumnAsync().ConfigureAwait(false);
+            var column = columnLookup.Values.Last();
+
+            var computedColumn = column as IDatabaseComputedColumn;
+            Assert.AreEqual(expectedDefinition, computedColumn.Definition);
+        }
+
+        [Test]
+        public async Task ColumnsAsync_WhenGivenTableWithComputedColumnCastedToInterface_ReturnsCorrectDefinition()
+        {
+            const string tableName = "table_test_table_34";
+            const string expectedDefinition = "([test_column_1]+[test_column_2])";
+
+            var table = await Database.GetTableAsync(tableName).ConfigureAwait(false);
+            var columns = await table.ColumnsAsync().ConfigureAwait(false);
+            var column = columns.Last();
+
+            var computedColumn = column as IDatabaseComputedColumn;
+            Assert.AreEqual(expectedDefinition, computedColumn.Definition);
+        }
+
+        [Test]
+        public void Column_WhenGivenTableColumnWithoutIdentity_ReturnsIsAutoincrementFalse()
+        {
+            const string tableName = "table_test_table_1";
+            var table = Database.GetTable(tableName);
+            var column = table.Column.Values.Single();
+
+            Assert.IsFalse(column.IsAutoIncrement);
+        }
+
+        [Test]
+        public void Columns_WhenGivenTableColumnWithoutIdentity_ReturnsIsAutoincrementFalse()
+        {
+            const string tableName = "table_test_table_1";
+            var table = Database.GetTable(tableName);
+            var column = table.Columns.Single();
+
+            Assert.IsFalse(column.IsAutoIncrement);
+        }
+
+        [Test]
+        public async Task ColumnAsync_WhenGivenTableColumnWithoutIdentity_ReturnsIsAutoincrementFalse()
+        {
+            const string tableName = "table_test_table_1";
+            var table = await Database.GetTableAsync(tableName).ConfigureAwait(false);
+            var columnLookup = await table.ColumnAsync().ConfigureAwait(false);
+            var column = columnLookup.Values.Single();
+
+            Assert.IsFalse(column.IsAutoIncrement);
+        }
+
+        [Test]
+        public async Task ColumnsAsync_WhenGivenTableColumnWithoutIdentity_ReturnsIsAutoincrementFalse()
+        {
+            const string tableName = "table_test_table_1";
+            var table = await Database.GetTableAsync(tableName).ConfigureAwait(false);
+            var columns = await table.ColumnsAsync().ConfigureAwait(false);
+            var column = columns.Single();
+
+            Assert.IsFalse(column.IsAutoIncrement);
+        }
+
+        [Test]
+        public void Column_WhenGivenTableColumnWithIdentity_ReturnsIsAutoincrementTrue()
+        {
+            const string tableName = "table_test_table_35";
+            var table = Database.GetTable(tableName);
+            var column = table.Column.Values.Last();
+
+            Assert.IsTrue(column.IsAutoIncrement);
+        }
+
+        [Test]
+        public void Columns_WhenGivenTableColumnWithIdentity_ReturnsIsAutoincrementTrue()
+        {
+            const string tableName = "table_test_table_35";
+            var table = Database.GetTable(tableName);
+            var column = table.Columns.Last();
+
+            Assert.IsTrue(column.IsAutoIncrement);
+        }
+
+        [Test]
+        public async Task ColumnAsync_WhenGivenTableColumnWithIdentity_ReturnsIsAutoincrementTrue()
+        {
+            const string tableName = "table_test_table_35";
+            var table = await Database.GetTableAsync(tableName).ConfigureAwait(false);
+            var columnLookup = await table.ColumnAsync().ConfigureAwait(false);
+            var column = columnLookup.Values.Last();
+
+            Assert.IsTrue(column.IsAutoIncrement);
+        }
+
+        [Test]
+        public async Task ColumnsAsync_WhenGivenTableColumnWithIdentity_ReturnsIsAutoincrementTrue()
+        {
+            const string tableName = "table_test_table_35";
+            var table = await Database.GetTableAsync(tableName).ConfigureAwait(false);
+            var columns = await table.ColumnsAsync().ConfigureAwait(false);
+            var column = columns.Last();
+
+            Assert.IsTrue(column.IsAutoIncrement);
+        }
     }
 }
