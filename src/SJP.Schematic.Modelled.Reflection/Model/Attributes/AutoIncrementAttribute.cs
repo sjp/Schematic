@@ -8,11 +8,33 @@ namespace SJP.Schematic.Modelled.Reflection.Model
         public AutoIncrementAttribute()
             : base(new[] { Dialect.All })
         {
+            InitialValue = 1;
+            Increment = 1;
         }
 
         public AutoIncrementAttribute(params Type[] dialects)
             : base(dialects)
         {
+            InitialValue = 1;
+            Increment = 1;
         }
+
+        public AutoIncrementAttribute(decimal initialValue, decimal increment)
+            : base(new[] { Dialect.All })
+        {
+            InitialValue = initialValue;
+            Increment = increment;
+        }
+
+        public AutoIncrementAttribute(decimal initialValue, decimal increment, params Type[] dialects)
+            : base(dialects)
+        {
+            InitialValue = initialValue;
+            Increment = increment;
+        }
+
+        public decimal InitialValue { get; }
+
+        public decimal Increment { get; }
     }
 }

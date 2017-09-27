@@ -531,87 +531,171 @@ namespace SJP.Schematic.SqlServer.Tests.Integration
         }
 
         [Test]
-        public void Column_WhenGivenTableColumnWithoutIdentity_ReturnsIsAutoincrementFalse()
+        public void Column_WhenGivenTableColumnWithoutIdentity_ReturnsNullAutoincrement()
         {
             const string tableName = "table_test_table_1";
             var table = Database.GetTable(tableName);
             var column = table.Column.Values.Single();
 
-            Assert.IsFalse(column.IsAutoIncrement);
+            Assert.IsNull(column.AutoIncrement);
         }
 
         [Test]
-        public void Columns_WhenGivenTableColumnWithoutIdentity_ReturnsIsAutoincrementFalse()
+        public void Columns_WhenGivenTableColumnWithoutIdentity_ReturnsNullAutoincrement()
         {
             const string tableName = "table_test_table_1";
             var table = Database.GetTable(tableName);
             var column = table.Columns.Single();
 
-            Assert.IsFalse(column.IsAutoIncrement);
+            Assert.IsNull(column.AutoIncrement);
         }
 
         [Test]
-        public async Task ColumnAsync_WhenGivenTableColumnWithoutIdentity_ReturnsIsAutoincrementFalse()
+        public async Task ColumnAsync_WhenGivenTableColumnWithoutIdentity_ReturnsNullAutoincrement()
         {
             const string tableName = "table_test_table_1";
             var table = await Database.GetTableAsync(tableName).ConfigureAwait(false);
             var columnLookup = await table.ColumnAsync().ConfigureAwait(false);
             var column = columnLookup.Values.Single();
 
-            Assert.IsFalse(column.IsAutoIncrement);
+            Assert.IsNull(column.AutoIncrement);
         }
 
         [Test]
-        public async Task ColumnsAsync_WhenGivenTableColumnWithoutIdentity_ReturnsIsAutoincrementFalse()
+        public async Task ColumnsAsync_WhenGivenTableColumnWithoutIdentity_ReturnsNullAutoincrement()
         {
             const string tableName = "table_test_table_1";
             var table = await Database.GetTableAsync(tableName).ConfigureAwait(false);
             var columns = await table.ColumnsAsync().ConfigureAwait(false);
             var column = columns.Single();
 
-            Assert.IsFalse(column.IsAutoIncrement);
+            Assert.IsNull(column.AutoIncrement);
         }
 
         [Test]
-        public void Column_WhenGivenTableColumnWithIdentity_ReturnsIsAutoincrementTrue()
+        public void Column_WhenGivenTableColumnWithIdentity_ReturnsNotNullAutoincrement()
         {
             const string tableName = "table_test_table_35";
             var table = Database.GetTable(tableName);
             var column = table.Column.Values.Last();
 
-            Assert.IsTrue(column.IsAutoIncrement);
+            Assert.IsNotNull(column.AutoIncrement);
         }
 
         [Test]
-        public void Columns_WhenGivenTableColumnWithIdentity_ReturnsIsAutoincrementTrue()
+        public void Columns_WhenGivenTableColumnWithIdentity_ReturnsNotNullAutoincrement()
         {
             const string tableName = "table_test_table_35";
             var table = Database.GetTable(tableName);
             var column = table.Columns.Last();
 
-            Assert.IsTrue(column.IsAutoIncrement);
+            Assert.IsNotNull(column.AutoIncrement);
         }
 
         [Test]
-        public async Task ColumnAsync_WhenGivenTableColumnWithIdentity_ReturnsIsAutoincrementTrue()
+        public async Task ColumnAsync_WhenGivenTableColumnWithIdentity_ReturnsNotNullAutoincrement()
         {
             const string tableName = "table_test_table_35";
             var table = await Database.GetTableAsync(tableName).ConfigureAwait(false);
             var columnLookup = await table.ColumnAsync().ConfigureAwait(false);
             var column = columnLookup.Values.Last();
 
-            Assert.IsTrue(column.IsAutoIncrement);
+            Assert.IsNotNull(column.AutoIncrement);
         }
 
         [Test]
-        public async Task ColumnsAsync_WhenGivenTableColumnWithIdentity_ReturnsIsAutoincrementTrue()
+        public async Task ColumnsAsync_WhenGivenTableColumnWithIdentity_ReturnsNotNullAutoincrement()
         {
             const string tableName = "table_test_table_35";
             var table = await Database.GetTableAsync(tableName).ConfigureAwait(false);
             var columns = await table.ColumnsAsync().ConfigureAwait(false);
             var column = columns.Last();
 
-            Assert.IsTrue(column.IsAutoIncrement);
+            Assert.IsNotNull(column.AutoIncrement);
+        }
+
+        [Test]
+        public void Column_WhenGivenTableColumnWithIdentity_ReturnsCorrectInitialValue()
+        {
+            const string tableName = "table_test_table_35";
+            var table = Database.GetTable(tableName);
+            var column = table.Column.Values.Last();
+
+            Assert.AreEqual(10, column.AutoIncrement.InitialValue);
+        }
+
+        [Test]
+        public void Columns_WhenGivenTableColumnWithIdentity_ReturnsCorrectInitialValue()
+        {
+            const string tableName = "table_test_table_35";
+            var table = Database.GetTable(tableName);
+            var column = table.Columns.Last();
+
+            Assert.AreEqual(10, column.AutoIncrement.InitialValue);
+        }
+
+        [Test]
+        public async Task ColumnAsync_WhenGivenTableColumnWithIdentity_ReturnsCorrectInitialValue()
+        {
+            const string tableName = "table_test_table_35";
+            var table = await Database.GetTableAsync(tableName).ConfigureAwait(false);
+            var columnLookup = await table.ColumnAsync().ConfigureAwait(false);
+            var column = columnLookup.Values.Last();
+
+            Assert.AreEqual(10, column.AutoIncrement.InitialValue);
+        }
+
+        [Test]
+        public async Task ColumnsAsync_WhenGivenTableColumnWithIdentity_ReturnsCorrectInitialValue()
+        {
+            const string tableName = "table_test_table_35";
+            var table = await Database.GetTableAsync(tableName).ConfigureAwait(false);
+            var columns = await table.ColumnsAsync().ConfigureAwait(false);
+            var column = columns.Last();
+
+            Assert.AreEqual(10, column.AutoIncrement.InitialValue);
+        }
+
+        [Test]
+        public void Column_WhenGivenTableColumnWithIdentity_ReturnsCorrectIncrement()
+        {
+            const string tableName = "table_test_table_35";
+            var table = Database.GetTable(tableName);
+            var column = table.Column.Values.Last();
+
+            Assert.AreEqual(5, column.AutoIncrement.Increment);
+        }
+
+        [Test]
+        public void Columns_WhenGivenTableColumnWithIdentity_ReturnsCorrectIncrement()
+        {
+            const string tableName = "table_test_table_35";
+            var table = Database.GetTable(tableName);
+            var column = table.Columns.Last();
+
+            Assert.AreEqual(5, column.AutoIncrement.Increment);
+        }
+
+        [Test]
+        public async Task ColumnAsync_WhenGivenTableColumnWithIdentity_ReturnsCorrectIncrement()
+        {
+            const string tableName = "table_test_table_35";
+            var table = await Database.GetTableAsync(tableName).ConfigureAwait(false);
+            var columnLookup = await table.ColumnAsync().ConfigureAwait(false);
+            var column = columnLookup.Values.Last();
+
+            Assert.AreEqual(5, column.AutoIncrement.Increment);
+        }
+
+        [Test]
+        public async Task ColumnsAsync_WhenGivenTableColumnWithIdentity_ReturnsCorrectIncrement()
+        {
+            const string tableName = "table_test_table_35";
+            var table = await Database.GetTableAsync(tableName).ConfigureAwait(false);
+            var columns = await table.ColumnsAsync().ConfigureAwait(false);
+            var column = columns.Last();
+
+            Assert.AreEqual(5, column.AutoIncrement.Increment);
         }
     }
 }

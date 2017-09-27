@@ -271,8 +271,11 @@ where schema_name(v.schema_id) = @SchemaName
 
                 var columnName = new LocalIdentifier(row.ColumnName);
                 var isAutoIncrement = row.IdentitySeed.HasValue && row.IdentityIncrement.HasValue;
+                var autoIncrement = isAutoIncrement
+                    ? new AutoIncrement(row.IdentitySeed.Value, row.IdentityIncrement.Value)
+                    : (IAutoIncrement)null;
 
-                var column = new SqlServerDatabaseViewColumn(this, columnName, columnType, row.IsNullable, row.DefaultValue, isAutoIncrement);
+                var column = new SqlServerDatabaseViewColumn(this, columnName, columnType, row.IsNullable, row.DefaultValue, autoIncrement);
 
                 result.Add(column);
             }
@@ -325,8 +328,11 @@ where schema_name(v.schema_id) = @SchemaName
 
                 var columnName = new LocalIdentifier(row.ColumnName);
                 var isAutoIncrement = row.IdentitySeed.HasValue && row.IdentityIncrement.HasValue;
+                var autoIncrement = isAutoIncrement
+                    ? new AutoIncrement(row.IdentitySeed.Value, row.IdentityIncrement.Value)
+                    : (IAutoIncrement)null;
 
-                var column = new SqlServerDatabaseViewColumn(this, columnName, columnType, row.IsNullable, row.DefaultValue, isAutoIncrement);
+                var column = new SqlServerDatabaseViewColumn(this, columnName, columnType, row.IsNullable, row.DefaultValue, autoIncrement);
 
                 result.Add(column);
             }

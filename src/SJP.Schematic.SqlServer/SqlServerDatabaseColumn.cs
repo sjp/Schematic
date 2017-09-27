@@ -7,7 +7,7 @@ namespace SJP.Schematic.SqlServer
 {
     public abstract class SqlServerDatabaseColumn : IDatabaseColumn
     {
-        protected SqlServerDatabaseColumn(Identifier columnName, IDbType type, bool isNullable, string defaultValue, bool isAutoIncrement)
+        protected SqlServerDatabaseColumn(Identifier columnName, IDbType type, bool isNullable, string defaultValue, IAutoIncrement autoIncrement)
         {
             if (columnName == null || columnName.LocalName == null)
                 throw new ArgumentNullException(nameof(columnName));
@@ -16,7 +16,7 @@ namespace SJP.Schematic.SqlServer
             Type = type ?? throw new ArgumentNullException(nameof(type));
             IsNullable = isNullable;
             DefaultValue = StripParentheses(defaultValue);
-            IsAutoIncrement = isAutoIncrement;
+            AutoIncrement = autoIncrement;
         }
 
         public string DefaultValue { get; }
@@ -29,7 +29,7 @@ namespace SJP.Schematic.SqlServer
 
         public bool IsNullable { get; }
 
-        public bool IsAutoIncrement { get; }
+        public IAutoIncrement AutoIncrement { get; }
 
         protected static string StripParentheses(string defaultValue)
         {
@@ -67,8 +67,8 @@ namespace SJP.Schematic.SqlServer
 
     public class SqlServerDatabaseTableColumn : SqlServerDatabaseColumn, IDatabaseTableColumn
     {
-        public SqlServerDatabaseTableColumn(IRelationalDatabaseTable table, Identifier columnName, IDbType type, bool isNullable, string defaultValue, bool isAutoIncrement)
-            : base(columnName, type, isNullable, defaultValue, isAutoIncrement)
+        public SqlServerDatabaseTableColumn(IRelationalDatabaseTable table, Identifier columnName, IDbType type, bool isNullable, string defaultValue, IAutoIncrement autoIncrement)
+            : base(columnName, type, isNullable, defaultValue, autoIncrement)
         {
             Table = table ?? throw new ArgumentNullException(nameof(table));
         }
@@ -78,8 +78,8 @@ namespace SJP.Schematic.SqlServer
 
     public class SqlServerDatabaseViewColumn : SqlServerDatabaseColumn, IDatabaseViewColumn
     {
-        public SqlServerDatabaseViewColumn(IRelationalDatabaseView view, Identifier columnName, IDbType type, bool isNullable, string defaultValue, bool isAutoIncrement)
-            : base(columnName, type, isNullable, defaultValue, isAutoIncrement)
+        public SqlServerDatabaseViewColumn(IRelationalDatabaseView view, Identifier columnName, IDbType type, bool isNullable, string defaultValue, IAutoIncrement autoIncrement)
+            : base(columnName, type, isNullable, defaultValue, autoIncrement)
         {
             View = view ?? throw new ArgumentNullException(nameof(view));
         }

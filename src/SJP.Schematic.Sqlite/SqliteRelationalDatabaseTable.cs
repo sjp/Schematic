@@ -659,8 +659,11 @@ namespace SJP.Schematic.Sqlite
                     dbType = columnType;
 
                 var isAutoIncrement = parsedColumnInfo.IsAutoIncrement;
+                var autoIncrement = isAutoIncrement
+                    ? new AutoIncrement(1, 1)
+                    : (IAutoIncrement)null;
 
-                var column = new SqliteDatabaseTableColumn(this, tableInfo.name, columnType, !tableInfo.notnull, tableInfo.dflt_value, isAutoIncrement);
+                var column = new SqliteDatabaseTableColumn(this, tableInfo.name, columnType, !tableInfo.notnull, tableInfo.dflt_value, autoIncrement);
                 result.Add(column);
             }
 
@@ -694,8 +697,11 @@ namespace SJP.Schematic.Sqlite
                     dbType = columnType;
 
                 var isAutoIncrement = parsedColumnInfo.IsAutoIncrement;
+                var autoIncrement = isAutoIncrement
+                    ? new AutoIncrement(1, 1)
+                    : (IAutoIncrement)null;
 
-                var column = new SqliteDatabaseTableColumn(this, tableInfo.name, columnType, !tableInfo.notnull, tableInfo.dflt_value, isAutoIncrement);
+                var column = new SqliteDatabaseTableColumn(this, tableInfo.name, columnType, !tableInfo.notnull, tableInfo.dflt_value, autoIncrement);
                 result.Add(column);
             }
 

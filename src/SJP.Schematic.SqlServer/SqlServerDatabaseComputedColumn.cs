@@ -6,7 +6,7 @@ namespace SJP.Schematic.SqlServer
     public class SqlServerDatabaseComputedTableColumn : SqlServerDatabaseTableColumn, IDatabaseTableColumn, IDatabaseComputedColumn
     {
         public SqlServerDatabaseComputedTableColumn(IRelationalDatabaseTable table, Identifier columnName, IDbType type, bool isNullable, string defaultValue, string definition)
-            : base(table, columnName, type, isNullable, defaultValue, false)
+            : base(table, columnName, type, isNullable, defaultValue, null)
         {
             if (definition.IsNullOrWhiteSpace())
                 throw new ArgumentNullException(nameof(definition));

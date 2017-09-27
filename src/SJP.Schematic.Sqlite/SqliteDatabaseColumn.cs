@@ -5,7 +5,7 @@ namespace SJP.Schematic.Sqlite
 {
     public abstract class SqliteDatabaseColumn : IDatabaseColumn
     {
-        protected SqliteDatabaseColumn(Identifier columnName, IDbType type, bool isNullable, string defaultValue, bool isAutoIncrement)
+        protected SqliteDatabaseColumn(Identifier columnName, IDbType type, bool isNullable, string defaultValue, IAutoIncrement autoIncrement)
         {
             if (columnName == null || columnName.LocalName == null)
                 throw new ArgumentNullException(nameof(columnName));
@@ -14,7 +14,7 @@ namespace SJP.Schematic.Sqlite
             Type = type ?? throw new ArgumentNullException(nameof(type));
             IsNullable = isNullable;
             DefaultValue = defaultValue;
-            IsAutoIncrement = isAutoIncrement;
+            AutoIncrement = autoIncrement;
         }
 
         public string DefaultValue { get; }
@@ -27,13 +27,13 @@ namespace SJP.Schematic.Sqlite
 
         public bool IsNullable { get; }
 
-        public bool IsAutoIncrement { get; }
+        public IAutoIncrement AutoIncrement { get; }
     }
 
     public class SqliteDatabaseTableColumn : SqliteDatabaseColumn, IDatabaseTableColumn
     {
-        public SqliteDatabaseTableColumn(IRelationalDatabaseTable table, Identifier columnName, IDbType type, bool isNullable, string defaultValue, bool isAutoIncrement)
-            : base(columnName, type, isNullable, defaultValue, isAutoIncrement)
+        public SqliteDatabaseTableColumn(IRelationalDatabaseTable table, Identifier columnName, IDbType type, bool isNullable, string defaultValue, IAutoIncrement autoIncrement)
+            : base(columnName, type, isNullable, defaultValue, autoIncrement)
         {
             Table = table ?? throw new ArgumentNullException(nameof(table));
         }
@@ -43,13 +43,12 @@ namespace SJP.Schematic.Sqlite
 
     public class SqliteDatabaseViewColumn : SqliteDatabaseColumn, IDatabaseViewColumn
     {
-        public SqliteDatabaseViewColumn(IRelationalDatabaseView view, Identifier columnName, IDbType type, bool isNullable, string defaultValue, bool isAutoIncrement)
-            : base(columnName, type, isNullable, defaultValue, isAutoIncrement)
+        public SqliteDatabaseViewColumn(IRelationalDatabaseView view, Identifier columnName, IDbType type, bool isNullable, string defaultValue, IAutoIncrement autoIncrement)
+            : base(columnName, type, isNullable, defaultValue, autoIncrement)
         {
             View = view ?? throw new ArgumentNullException(nameof(view));
         }
 
         public IRelationalDatabaseView View { get; }
     }
-
 }

@@ -22,15 +22,16 @@ namespace SJP.Schematic.Modelled.Reflection
                 throw new ArgumentNullException($"The declared column type does not implement IDbType<T>. Check { prop.DeclaringType.FullName }.{ prop.Name } and ensure that the column type { declaredColumnType.FullName } implements this interface.", nameof(declaredColumnType));
 
             var columnType = new ReflectionColumnDataType(dialect, declaredColumnType, clrType);
-            var isDeclaredAutoIncrement = dialect.GetDialectAttribute<AutoIncrementAttribute>(declaredColumnType) != null
-                   || dialect.GetDialectAttribute<AutoIncrementAttribute>(prop) != null;
+            var autoIncrAttr = dialect.GetDialectAttribute<AutoIncrementAttribute>(declaredColumnType)
+                ?? dialect.GetDialectAttribute<AutoIncrementAttribute>(prop);
+            var isDeclaredAutoIncrement = autoIncrAttr != null;
 
             if (isDeclaredAutoIncrement)
             {
-                if (ValidAutoIncrementTypes.Contains(columnType.Type))
-                    IsAutoIncrement = true;
-                else
+                if (!ValidAutoIncrementTypes.Contains(columnType.Type))
                     throw new ArgumentNullException($"The column { prop.DeclaringType.FullName }.{ prop.Name } is declared as being auto incrementing, which is not supported on a '{ columnType.Type.ToString() }' data type.", nameof(declaredColumnType));
+
+                AutoIncrement = new AutoIncrement(autoIncrAttr.InitialValue, autoIncrAttr.Increment);
             }
 
             Table = table ?? throw new ArgumentNullException(nameof(table));
@@ -48,7 +49,7 @@ namespace SJP.Schematic.Modelled.Reflection
 
         public string DefaultValue { get; }
 
-        public bool IsAutoIncrement { get; }
+        public IAutoIncrement AutoIncrement { get; }
 
         public bool IsComputed { get; }
 

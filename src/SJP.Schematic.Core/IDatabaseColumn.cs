@@ -16,6 +16,6 @@
 
         IDbType Type { get; }
 
-        bool IsAutoIncrement { get; }
+        IAutoIncrement AutoIncrement { get; }
     }
 }

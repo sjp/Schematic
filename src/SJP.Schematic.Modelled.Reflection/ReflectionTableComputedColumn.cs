@@ -30,7 +30,7 @@ namespace SJP.Schematic.Modelled.Reflection
 
         public string DefaultValue { get; }
 
-        public bool IsAutoIncrement { get; }
+        public IAutoIncrement AutoIncrement { get; }
 
         public bool IsComputed { get; } = true;
 

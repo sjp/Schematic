@@ -803,10 +803,13 @@ where schema_name(t.schema_id) = @SchemaName
 
                 var columnName = new LocalIdentifier(row.ColumnName);
                 var isAutoIncrement = row.IdentitySeed.HasValue && row.IdentityIncrement.HasValue;
+                var autoIncrement = isAutoIncrement
+                    ? new AutoIncrement(row.IdentitySeed.Value, row.IdentityIncrement.Value)
+                    : (IAutoIncrement)null;
 
                 var column = row.IsComputed
                     ? new SqlServerDatabaseComputedTableColumn(this, columnName, columnType, row.IsNullable, row.DefaultValue, row.ComputedColumnDefinition)
-                    : new SqlServerDatabaseTableColumn(this, columnName, columnType, row.IsNullable, row.DefaultValue, isAutoIncrement);
+                    : new SqlServerDatabaseTableColumn(this, columnName, columnType, row.IsNullable, row.DefaultValue, autoIncrement);
 
                 result.Add(column);
             }
@@ -859,10 +862,13 @@ where schema_name(t.schema_id) = @SchemaName
 
                 var columnName = new LocalIdentifier(row.ColumnName);
                 var isAutoIncrement = row.IdentitySeed.HasValue && row.IdentityIncrement.HasValue;
+                var autoIncrement = isAutoIncrement
+                    ? new AutoIncrement(row.IdentitySeed.Value, row.IdentityIncrement.Value)
+                    : (IAutoIncrement)null;
 
                 var column = row.IsComputed
                     ? new SqlServerDatabaseComputedTableColumn(this, columnName, columnType, row.IsNullable, row.DefaultValue, row.ComputedColumnDefinition)
-                    : new SqlServerDatabaseTableColumn(this, columnName, columnType, row.IsNullable, row.DefaultValue, isAutoIncrement);
+                    : new SqlServerDatabaseTableColumn(this, columnName, columnType, row.IsNullable, row.DefaultValue, autoIncrement);
 
                 result.Add(column);
             }
