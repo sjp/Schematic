@@ -308,7 +308,10 @@ namespace SJP.Schematic.SqlServer.Tests.Integration
             var column = table.Column.Values.Single();
 
             const string defaultValue = "1";
-            Assert.AreEqual(defaultValue, column.DefaultValue);
+            var comparer = new SqlServerExpressionComparer();
+            var equals = comparer.Equals(defaultValue, column.DefaultValue);
+
+            Assert.IsTrue(equals);
         }
 
         [Test]
@@ -319,7 +322,10 @@ namespace SJP.Schematic.SqlServer.Tests.Integration
             var column = table.Columns.Single();
 
             const string defaultValue = "1";
-            Assert.AreEqual(defaultValue, column.DefaultValue);
+            var comparer = new SqlServerExpressionComparer();
+            var equals = comparer.Equals(defaultValue, column.DefaultValue);
+
+            Assert.IsTrue(equals);
         }
 
         [Test]
@@ -331,7 +337,10 @@ namespace SJP.Schematic.SqlServer.Tests.Integration
             var column = columnLookup.Values.Single();
 
             const string defaultValue = "1";
-            Assert.AreEqual(defaultValue, column.DefaultValue);
+            var comparer = new SqlServerExpressionComparer();
+            var equals = comparer.Equals(defaultValue, column.DefaultValue);
+
+            Assert.IsTrue(equals);
         }
 
         [Test]
@@ -343,7 +352,10 @@ namespace SJP.Schematic.SqlServer.Tests.Integration
             var column = columns.Single();
 
             const string defaultValue = "1";
-            Assert.AreEqual(defaultValue, column.DefaultValue);
+            var comparer = new SqlServerExpressionComparer();
+            var equals = comparer.Equals(defaultValue, column.DefaultValue);
+
+            Assert.IsTrue(equals);
         }
 
         [Test]

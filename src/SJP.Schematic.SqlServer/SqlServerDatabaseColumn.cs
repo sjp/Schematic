@@ -15,7 +15,7 @@ namespace SJP.Schematic.SqlServer
             Name = columnName.LocalName;
             Type = type ?? throw new ArgumentNullException(nameof(type));
             IsNullable = isNullable;
-            DefaultValue = StripParentheses(defaultValue);
+            DefaultValue = defaultValue;
             AutoIncrement = autoIncrement;
         }
 
@@ -30,39 +30,6 @@ namespace SJP.Schematic.SqlServer
         public bool IsNullable { get; }
 
         public IAutoIncrement AutoIncrement { get; }
-
-        protected static string StripParentheses(string defaultValue)
-        {
-            if (defaultValue == null)
-                return null;
-
-            var openParenChars = defaultValue.TakeWhile(c => c == '(' || char.IsWhiteSpace(c)).ToList();
-            var openParenCount = openParenChars.Count(c => c == '(');
-            if (openParenCount == 0)
-                return defaultValue;
-
-            var prefixIndex = openParenChars.Count;
-
-            var revDefault = defaultValue.Reverse().ToList();
-
-            var parenCount = 0;
-            var closedParenBuffer = new StringBuilder();
-            for (var i = 0; i < revDefault.Count; i++)
-            {
-                var c = revDefault[i];
-                if (c != ')' && parenCount == openParenCount)
-                    break;
-
-                if (c == ')')
-                    parenCount++;
-                if (c == ')' || char.IsWhiteSpace(c))
-                    closedParenBuffer.Append(c);
-            }
-
-            var suffix = closedParenBuffer.ToString();
-            var resultLength = defaultValue.Length - suffix.Length - prefixIndex;
-            return defaultValue.Substring(prefixIndex, resultLength);
-        }
     }
 
     public class SqlServerDatabaseTableColumn : SqlServerDatabaseColumn, IDatabaseTableColumn
