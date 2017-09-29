@@ -329,15 +329,19 @@ namespace SJP.Schematic.Sqlite
                 throw new ArgumentNullException(nameof(triggerName));
 
             const string sql = "select sql from sqlite_master where type = 'trigger' and lower(name) = lower(@TriggerName)";
-            var queryResult = Connection.QuerySingle<string>(sql, new { TriggerName = triggerName.LocalName });
-            if (queryResult == null)
+            var triggerSql = Connection.QuerySingle<string>(sql, new { TriggerName = triggerName.LocalName });
+            if (triggerSql == null)
                 return null;
 
             var tokenizer = new SqliteTokenizer();
-            var tokens = tokenizer.Tokenize(queryResult);
-            var triggerParser = new SqliteTriggerParser(tokens);
+            var tokenizeResult = tokenizer.TryTokenize(triggerSql);
+            if (!tokenizeResult.HasValue)
+                throw new Exception("Unable to parse the TRIGGER statement: " + triggerSql);
 
-            return new SqliteDatabaseTrigger(null, triggerName.LocalName, queryResult, triggerParser.Timing, triggerParser.Event);
+            var tokens = tokenizeResult.Value;
+            var parser = new SqliteTriggerParser(tokens);
+
+            return new SqliteDatabaseTrigger(null, triggerName.LocalName, triggerSql, parser.Timing, parser.Event);
         }
 
         protected virtual async Task<IDatabaseTrigger> LoadTriggerAsync(Identifier triggerName)
@@ -346,15 +350,19 @@ namespace SJP.Schematic.Sqlite
                 throw new ArgumentNullException(nameof(triggerName));
 
             const string sql = "select sql from sqlite_master where type = 'trigger' and lower(name) = lower(@TriggerName)";
-            var queryResult = await Connection.QuerySingleAsync<string>(sql, new { TriggerName = triggerName.LocalName }).ConfigureAwait(false);
-            if (queryResult == null)
+            var triggerSql = await Connection.QuerySingleAsync<string>(sql, new { TriggerName = triggerName.LocalName }).ConfigureAwait(false);
+            if (triggerSql == null)
                 return null;
 
             var tokenizer = new SqliteTokenizer();
-            var tokens = tokenizer.Tokenize(queryResult);
-            var triggerParser = new SqliteTriggerParser(tokens);
+            var tokenizeResult = tokenizer.TryTokenize(triggerSql);
+            if (!tokenizeResult.HasValue)
+                throw new Exception("Unable to parse the TRIGGER statement: " + triggerSql);
 
-            return new SqliteDatabaseTrigger(null, triggerName.LocalName, queryResult, triggerParser.Timing, triggerParser.Event);
+            var tokens = tokenizeResult.Value;
+            var parser = new SqliteTriggerParser(tokens);
+
+            return new SqliteDatabaseTrigger(null, triggerName.LocalName, triggerSql, parser.Timing, parser.Event);
         }
 
         #endregion Triggers

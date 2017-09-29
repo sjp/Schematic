@@ -747,7 +747,11 @@ namespace SJP.Schematic.Sqlite
             foreach (var triggerInfo in triggerInfos)
             {
                 var tokenizer = new SqliteTokenizer();
-                var tokens = tokenizer.Tokenize(triggerInfo.sql);
+                var tokenizeResult = tokenizer.TryTokenize(triggerInfo.sql);
+                if (!tokenizeResult.HasValue)
+                    throw new Exception("Unable to parse the TRIGGER statement: " + triggerInfo.sql);
+
+                var tokens = tokenizeResult.Value;
                 var parser = new SqliteTriggerParser(tokens);
 
                 var trigger = new SqliteDatabaseTrigger(this, triggerInfo.name, triggerInfo.sql, parser.Timing, parser.Event);
@@ -767,7 +771,11 @@ namespace SJP.Schematic.Sqlite
             foreach (var triggerInfo in triggerInfos)
             {
                 var tokenizer = new SqliteTokenizer();
-                var tokens = tokenizer.Tokenize(triggerInfo.sql);
+                var tokenizeResult = tokenizer.TryTokenize(triggerInfo.sql);
+                if (!tokenizeResult.HasValue)
+                    throw new Exception("Unable to parse the TRIGGER statement: " + triggerInfo.sql);
+
+                var tokens = tokenizeResult.Value;
                 var parser = new SqliteTriggerParser(tokens);
 
                 var trigger = new SqliteDatabaseTrigger(this, triggerInfo.name, triggerInfo.sql, parser.Timing, parser.Event);
@@ -802,8 +810,13 @@ namespace SJP.Schematic.Sqlite
             {
                 _rwLock.EnterWriteLock();
                 _createTableSql = tableSql;
+
                 var tokenizer = new SqliteTokenizer();
-                var tokens = tokenizer.Tokenize(_createTableSql);
+                var tokenizeResult = tokenizer.TryTokenize(_createTableSql);
+                if (!tokenizeResult.HasValue)
+                    throw new Exception("Unable to parse the CREATE TABLE statement: " + _createTableSql);
+
+                var tokens = tokenizeResult.Value;
                 _parser = new SqliteTableParser(tokens);
                 return _parser;
             }
@@ -834,8 +847,13 @@ namespace SJP.Schematic.Sqlite
             {
                 _rwLock.EnterWriteLock();
                 _createTableSql = tableSql;
+
                 var tokenizer = new SqliteTokenizer();
-                var tokens = tokenizer.Tokenize(_createTableSql);
+                var tokenizeResult = tokenizer.TryTokenize(_createTableSql);
+                if (!tokenizeResult.HasValue)
+                    throw new Exception("Unable to parse the CREATE TABLE statement: " + _createTableSql);
+
+                var tokens = tokenizeResult.Value;
                 _parser = new SqliteTableParser(tokens);
                 return _parser;
             }
