@@ -10,6 +10,8 @@ namespace SJP.Schematic.SqlServer
         {
             if (name == null || name.LocalName == null)
                 throw new ArgumentNullException(nameof(name));
+            if (definition.IsNullOrWhiteSpace())
+                throw new ArgumentNullException(nameof(definition));
             if (!queryTiming.IsValid())
                 throw new ArgumentException($"The { nameof(TriggerQueryTiming) } provided must be a valid enum.", nameof(queryTiming));
             if (!events.IsValid())
@@ -19,7 +21,7 @@ namespace SJP.Schematic.SqlServer
 
             Table = table ?? throw new ArgumentNullException(nameof(table));
             Name = name.LocalName;
-            Definition = definition ?? throw new ArgumentNullException(nameof(definition));
+            Definition = definition;
             QueryTiming = queryTiming;
             TriggerEvent = events;
             IsEnabled = isEnabled;
