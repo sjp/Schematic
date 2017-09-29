@@ -54,3 +54,7 @@
   
 * Minor optimisation, but preallocate lists and dictionaries where possible if we know
   their sizes.
+
+* Create a linter. Examples could be suggesting an index on a foreign key when one is missing.
+  Another could be hinting that a locale specific definition of a default value should not be used.
+  An example where locale specific values occur is in datetimes in SQL Server.
