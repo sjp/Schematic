@@ -243,7 +243,7 @@ namespace SJP.Schematic.Sqlite.Parsing
 
         private static TextParser<char> DecimalPoint => Character.EqualTo('.');
 
-        private readonly static ISet<char> _hexLetters = new HashSet<char> { 'A', 'B', 'C', 'D', 'E', 'F' };
+        private readonly static IEnumerable<char> _hexLetters = new HashSet<char> { 'A', 'B', 'C', 'D', 'E', 'F' };
 
         private static TextParser<char> HexDigit =>
             Character.Matching(c => c.IsDigit() || _hexLetters.Contains(c.ToUpperInvariant()), "hex digit");
@@ -379,7 +379,7 @@ namespace SJP.Schematic.Sqlite.Parsing
                 .Or(Span.EqualToIgnoreCase("DATETIME").Select(typeName => typeName.ToStringValue()))
                 .Or(Span.EqualToIgnoreCase("DATE").Select(typeName => typeName.ToStringValue()));
 
-        private static ISet<string> SqlKeywords { get; } = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+        private static IEnumerable<string> SqlKeywords { get; } = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
         {
             "ABORT",
             "ACTION",

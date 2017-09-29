@@ -189,7 +189,7 @@ namespace SJP.Schematic.Modelled.Reflection
 
         protected Type InstanceType { get; }
 
-        protected ISet<PropertyInfo> InstanceProperties { get; }
+        protected IEnumerable<PropertyInfo> InstanceProperties { get; }
 
         private IDatabaseKey LoadPrimaryKey()
         {

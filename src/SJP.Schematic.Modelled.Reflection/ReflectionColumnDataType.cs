@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using SJP.Schematic.Core;
 using SJP.Schematic.Modelled.Reflection.Model;
 
@@ -63,9 +64,9 @@ namespace SJP.Schematic.Modelled.Reflection
         private readonly IDatabaseDialect _dialect;
         private readonly DeclaredTypeAttribute _typeAttribute;
 
-        private readonly static ISet<DataType> _numericTypes = new HashSet<DataType> { DataType.BigInteger, DataType.Float, DataType.Integer, DataType.Numeric, DataType.SmallInteger };
+        private readonly static IEnumerable<DataType> _numericTypes = new HashSet<DataType> { DataType.BigInteger, DataType.Float, DataType.Integer, DataType.Numeric, DataType.SmallInteger };
 
-        private readonly static ISet<DataType> _stringTypes = new HashSet<DataType> { DataType.String, DataType.Text, DataType.Unicode, DataType.UnicodeText };
+        private readonly static IEnumerable<DataType> _stringTypes = new HashSet<DataType> { DataType.String, DataType.Text, DataType.Unicode, DataType.UnicodeText };
 
         private class ReflectionNumericColumnDataType : IDbNumericType
         {
@@ -116,7 +117,7 @@ namespace SJP.Schematic.Modelled.Reflection
 
             public string Collation { get; }
 
-            private readonly static ISet<DataType> _unicodeTypes = new HashSet<DataType> { DataType.Unicode, DataType.UnicodeText };
+            private readonly static IEnumerable<DataType> _unicodeTypes = new HashSet<DataType> { DataType.Unicode, DataType.UnicodeText };
         }
     }
 }

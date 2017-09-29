@@ -1,7 +1,8 @@
-﻿using Superpower.Model;
-using System;
+﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using SJP.Schematic.Core;
+using Superpower.Model;
 
 namespace SJP.Schematic.Sqlite.Parsing
 {
@@ -60,8 +61,9 @@ namespace SJP.Schematic.Sqlite.Parsing
             throw new Exception("Failed to parse trigger successfully.");
         }
 
-        private static ISet<string> TimingKeywords { get; } = new HashSet<string>(StringComparer.OrdinalIgnoreCase) { "BEFORE", "AFTER", "INSTEAD" };
-        private static ISet<string> EventKeywords { get; } = new HashSet<string>(StringComparer.OrdinalIgnoreCase) { "DELETE", "INSERT", "UPDATE" };
+        private static IEnumerable<string> TimingKeywords { get; } = new HashSet<string>(StringComparer.OrdinalIgnoreCase) { "BEFORE", "AFTER", "INSTEAD" };
+
+        private static IEnumerable<string> EventKeywords { get; } = new HashSet<string>(StringComparer.OrdinalIgnoreCase) { "DELETE", "INSERT", "UPDATE" };
 
         private class ParseResult
         {

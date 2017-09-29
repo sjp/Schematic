@@ -386,7 +386,7 @@ namespace SJP.Schematic.Sqlite.Parsing
                         .Select(end => prefix.Concat(new List<Token<SqlToken>> { end }))
                 );
 
-        private readonly static ISet<string> _constraintStartWords = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+        private readonly static IEnumerable<string> _constraintStartWords = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
         {
             "CONSTRAINT",
             "PRIMARY",

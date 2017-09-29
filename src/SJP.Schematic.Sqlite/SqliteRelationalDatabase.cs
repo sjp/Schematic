@@ -367,7 +367,7 @@ namespace SJP.Schematic.Sqlite
 
         #endregion Triggers
 
-        protected static ISet<string> BuiltInTables { get; } = new HashSet<string>(new[] { "sqlite_master", "sqlite_sequence" }, StringComparer.OrdinalIgnoreCase);
+        protected static IEnumerable<string> BuiltInTables { get; } = new HashSet<string>(new[] { "sqlite_master", "sqlite_sequence" }, StringComparer.OrdinalIgnoreCase);
 
         private const string SequencesNotSupported = "Sequences are not available in SQLite.";
         private const string SynonymsNotSupported = "Synonyms are not available in SQLite.";

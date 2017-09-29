@@ -74,7 +74,7 @@ namespace SJP.Schematic.Modelled.Reflection
 
         protected static Type ModelledTypeInterface { get; } = typeof(IDbType<>);
 
-        protected static ISet<DataType> ValidAutoIncrementTypes { get; } = new HashSet<DataType>
+        protected static IEnumerable<DataType> ValidAutoIncrementTypes { get; } = new HashSet<DataType>
         {
             DataType.BigInteger,
             DataType.Integer,
