@@ -11,7 +11,7 @@ namespace SJP.Schematic.Core
         public CachedRelationalDatabase(IRelationalDatabase database, IEqualityComparer<Identifier> comparer = null)
         {
             Database = database ?? throw new ArgumentNullException(nameof(database));
-            Comparer = comparer ?? new IdentifierComparer(StringComparer.Ordinal, database.DefaultSchema);
+            Comparer = comparer ?? new IdentifierComparer(StringComparer.Ordinal, database.ServerName, database.DatabaseName, database.DefaultSchema);
 
             Table = new IdentifierKeyedCache<IRelationalDatabaseTable>(LoadTableAsync, Comparer);
             View = new IdentifierKeyedCache<IRelationalDatabaseView>(LoadViewAsync, Comparer);
