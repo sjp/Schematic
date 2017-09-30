@@ -22,7 +22,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
     internal sealed class DatabaseDependentAttribute : CategoryAttribute
     {
         public DatabaseDependentAttribute()
-            : base("Database")
+            : base("SqliteDatabase")
         {
         }
     }

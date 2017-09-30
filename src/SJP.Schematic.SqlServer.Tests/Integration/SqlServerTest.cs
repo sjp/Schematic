@@ -22,7 +22,7 @@ namespace SJP.Schematic.SqlServer.Tests.Integration
     internal sealed class DatabaseDependentAttribute : CategoryAttribute
     {
         public DatabaseDependentAttribute()
-            : base("Database")
+            : base("SqlServerDatabase")
         {
         }
     }
