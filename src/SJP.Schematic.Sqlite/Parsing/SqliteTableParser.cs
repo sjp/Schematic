@@ -11,10 +11,12 @@ namespace SJP.Schematic.Sqlite.Parsing
 {
     public class SqliteTableParser
     {
-        public SqliteTableParser(TokenList<SqlToken> tokens)
+        public SqliteTableParser(TokenList<SqlToken> tokens, string definition)
         {
             if (tokens == default(TokenList<SqlToken>) || tokens.Empty())
                 throw new ArgumentNullException(nameof(tokens));
+
+            Definition = definition;
 
             var parseResult = ParseTokens(tokens);
             Columns = parseResult.Columns.ToList();
@@ -23,6 +25,8 @@ namespace SJP.Schematic.Sqlite.Parsing
                 .Concat(parseResult.Constraints)
                 .ToList();
         }
+
+        public string Definition { get; }
 
         public IEnumerable<Column> Columns { get; set; }
 

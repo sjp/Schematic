@@ -394,7 +394,11 @@ namespace SJP.Schematic.Sqlite
 
             foreach (var ck in checkConstraints)
             {
-                var definition = ck.Tokens.Select(token => token.ToStringValue()).Join(string.Empty);
+                var startIndex = ck.Tokens.First().Position.Absolute;
+                var lastToken = ck.Tokens.Last();
+                var endIndex = lastToken.Position.Absolute + lastToken.ToStringValue().Length;
+
+                var definition = parser.Definition.Substring(startIndex, endIndex - startIndex);
                 var check = new SqliteCheckConstraint(this, ck.Name, definition);
                 result.Add(check);
             }
@@ -416,7 +420,11 @@ namespace SJP.Schematic.Sqlite
 
             foreach (var ck in checkConstraints)
             {
-                var definition = ck.Tokens.Select(token => token.ToStringValue()).Join(string.Empty);
+                var startIndex = ck.Tokens.First().Position.Absolute;
+                var lastToken = ck.Tokens.Last();
+                var endIndex = lastToken.Position.Absolute + lastToken.ToStringValue().Length;
+
+                var definition = parser.Definition.Substring(startIndex, endIndex - startIndex);
                 var check = new SqliteCheckConstraint(this, ck.Name, definition);
                 result.Add(check);
             }
@@ -817,7 +825,7 @@ namespace SJP.Schematic.Sqlite
                     throw new Exception("Unable to parse the CREATE TABLE statement: " + _createTableSql);
 
                 var tokens = tokenizeResult.Value;
-                _parser = new SqliteTableParser(tokens);
+                _parser = new SqliteTableParser(tokens, tableSql);
                 return _parser;
             }
             finally
@@ -854,7 +862,7 @@ namespace SJP.Schematic.Sqlite
                     throw new Exception("Unable to parse the CREATE TABLE statement: " + _createTableSql);
 
                 var tokens = tokenizeResult.Value;
-                _parser = new SqliteTableParser(tokens);
+                _parser = new SqliteTableParser(tokens, tableSql);
                 return _parser;
             }
             finally
