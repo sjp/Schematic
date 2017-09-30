@@ -14,7 +14,9 @@ namespace SJP.Schematic.Sqlite
             if (!keyType.IsValid())
                 throw new ArgumentException($"The { nameof(DatabaseKeyType) } provided must be a valid enum.", nameof(keyType));
 
-            Name = name?.LocalName; // can be null!
+            if (name?.LocalName != null)
+                Name = name.LocalName; // can be null!
+
             Table = table ?? throw new ArgumentNullException(nameof(table));
             KeyType = keyType;
             Columns = columns;

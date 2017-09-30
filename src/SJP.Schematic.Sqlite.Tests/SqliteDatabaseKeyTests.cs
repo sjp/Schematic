@@ -21,18 +21,18 @@ namespace SJP.Schematic.Sqlite.Tests
         }
 
         [Test]
-        public void Ctor_GivenNullName_ThrowsArgumentNullException()
+        public void Ctor_GivenNullName_DoesNotThrowArgumentNullException()
         {
             var table = Mock.Of<IRelationalDatabaseTable>();
             const DatabaseKeyType keyType = DatabaseKeyType.Primary;
             var column = Mock.Of<IDatabaseColumn>();
             var columns = new[] { column };
 
-            Assert.Throws<ArgumentNullException>(() => new SqliteDatabaseKey(table, null, keyType, columns));
+            Assert.DoesNotThrow(() => new SqliteDatabaseKey(table, null, keyType, columns));
         }
 
         [Test]
-        public void Ctor_GivenNameMissingLocalIdentifier_ThrowsArgumentNullException()
+        public void Ctor_GivenNameMissingLocalIdentifier_DoesNotThrowArgumentNullException()
         {
             var table = Mock.Of<IRelationalDatabaseTable>();
             var keyName = new SchemaIdentifier("test_key");
@@ -40,7 +40,7 @@ namespace SJP.Schematic.Sqlite.Tests
             var column = Mock.Of<IDatabaseColumn>();
             var columns = new[] { column };
 
-            Assert.Throws<ArgumentNullException>(() => new SqliteDatabaseKey(table, keyName, keyType, columns));
+            Assert.DoesNotThrow(() => new SqliteDatabaseKey(table, keyName, keyType, columns));
         }
 
         [Test]

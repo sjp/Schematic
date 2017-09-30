@@ -138,7 +138,16 @@ namespace SJP.Schematic.Sqlite.Parsing
                 }
                 else
                 {
-                    next = next.Remainder.ConsumeChar();
+                    var op = Operators(next.Location);
+                    if (op.HasValue)
+                    {
+                        yield return Result.Value(SqlToken.Operator, next.Location, next.Remainder);
+                        next = op.Remainder.ConsumeChar();
+                    }
+                    else
+                    {
+                        next = next.Remainder.ConsumeChar();
+                    }
                 }
 
                 next = SkipWhiteSpace(next.Location);
@@ -176,12 +185,12 @@ namespace SJP.Schematic.Sqlite.Parsing
 
         private static TextParser<string> BracketedIdentifier =>
             Character.EqualTo('[')
-                .IgnoreThen(Span.EqualTo("]]").Value(']').Try().Or(Character.AnyChar).Many().Select(chars => new string(chars)))
-                .Then(s => Character.EqualTo(']').Value(s + "]"));
+                .IgnoreThen(Span.EqualTo("]]").Value(']').Try().Or(Character.Except(']')).Many().Select(chars => new string(chars)))
+                .Then(s => Character.EqualTo(']').Value(s));
 
         private static TextParser<string> EngravedIdentifier =>
             Character.EqualTo('`')
-                .IgnoreThen(Span.EqualTo("``").Value('`').Try().Or(Character.AnyChar).Many().Select(chars => new string(chars)))
+                .IgnoreThen(Span.EqualTo("``").Value('`').Try().Or(Character.Except('`')).Many().Select(chars => new string(chars)))
                 .Then(s => Character.EqualTo('`').Value(s));
 
         private static TextParser<char> SqlIdentifierStartChar =>
@@ -296,35 +305,36 @@ namespace SJP.Schematic.Sqlite.Parsing
                 .Or(Span.EqualToIgnoreCase("IN").Select(op => op.ToStringValue()))
                 .Or(Span.EqualToIgnoreCase("IS").Select(op => op.ToStringValue()))
                 .Or(Span.EqualToIgnoreCase("OR").Select(op => op.ToStringValue()));
+
         private static TextParser<string> Operators =>
             Span.EqualToIgnoreCase("REGEXP").Select(op => op.ToStringValue())
-                .Or(Span.EqualToIgnoreCase("MATCH").Select(op => op.ToStringValue()))
-                .Or(Span.EqualToIgnoreCase("GLOB").Select(op => op.ToStringValue()))
-                .Or(Span.EqualToIgnoreCase("LIKE").Select(op => op.ToStringValue()))
-                .Or(Span.EqualToIgnoreCase("AND").Select(op => op.ToStringValue()))
-                .Or(Span.EqualToIgnoreCase("NOT").Select(op => op.ToStringValue()))
-                .Or(Span.EqualToIgnoreCase("IN").Select(op => op.ToStringValue()))
-                .Or(Span.EqualToIgnoreCase("IS").Select(op => op.ToStringValue()))
-                .Or(Span.EqualToIgnoreCase("OR").Select(op => op.ToStringValue()))
-                .Or(Span.EqualTo("||").Select(op => op.ToStringValue()))
-                .Or(Span.EqualTo("<<").Select(op => op.ToStringValue()))
-                .Or(Span.EqualTo(">>").Select(op => op.ToStringValue()))
-                .Or(Span.EqualTo("<>").Select(op => op.ToStringValue()))
-                .Or(Span.EqualTo("!=").Select(op => op.ToStringValue()))
-                .Or(Span.EqualTo("==").Select(op => op.ToStringValue()))
-                .Or(Span.EqualTo(">=").Select(op => op.ToStringValue()))
-                .Or(Span.EqualTo("<=").Select(op => op.ToStringValue()))
-                .Or(Span.EqualTo("*").Select(op => op.ToStringValue()))
-                .Or(Span.EqualTo("/").Select(op => op.ToStringValue()))
-                .Or(Span.EqualTo("%").Select(op => op.ToStringValue()))
-                .Or(Span.EqualTo("+").Select(op => op.ToStringValue()))
-                .Or(Span.EqualTo("-").Select(op => op.ToStringValue()))
-                .Or(Span.EqualTo("&").Select(op => op.ToStringValue()))
-                .Or(Span.EqualTo("|").Select(op => op.ToStringValue()))
-                .Or(Span.EqualTo("<").Select(op => op.ToStringValue()))
-                .Or(Span.EqualTo(">").Select(op => op.ToStringValue()))
-                .Or(Span.EqualTo("=").Select(op => op.ToStringValue()))
-                .Or(Span.EqualTo("~").Select(op => op.ToStringValue()));
+                .Try().Or(Span.EqualToIgnoreCase("MATCH").Select(op => op.ToStringValue()))
+                .Try().Or(Span.EqualToIgnoreCase("GLOB").Select(op => op.ToStringValue()))
+                .Try().Or(Span.EqualToIgnoreCase("LIKE").Select(op => op.ToStringValue()))
+                .Try().Or(Span.EqualToIgnoreCase("AND").Select(op => op.ToStringValue()))
+                .Try().Or(Span.EqualToIgnoreCase("NOT").Select(op => op.ToStringValue()))
+                .Try().Or(Span.EqualToIgnoreCase("IN").Select(op => op.ToStringValue()))
+                .Try().Or(Span.EqualToIgnoreCase("IS").Select(op => op.ToStringValue()))
+                .Try().Or(Span.EqualToIgnoreCase("OR").Select(op => op.ToStringValue()))
+                .Try().Or(Span.EqualTo("||").Select(op => op.ToStringValue()))
+                .Try().Or(Span.EqualTo("<<").Select(op => op.ToStringValue()))
+                .Try().Or(Span.EqualTo(">>").Select(op => op.ToStringValue()))
+                .Try().Or(Span.EqualTo("<>").Select(op => op.ToStringValue()))
+                .Try().Or(Span.EqualTo("!=").Select(op => op.ToStringValue()))
+                .Try().Or(Span.EqualTo("==").Select(op => op.ToStringValue()))
+                .Try().Or(Span.EqualTo(">=").Select(op => op.ToStringValue()))
+                .Try().Or(Span.EqualTo("<=").Select(op => op.ToStringValue()))
+                .Try().Or(Span.EqualTo("*").Select(op => op.ToStringValue()))
+                .Try().Or(Span.EqualTo("/").Select(op => op.ToStringValue()))
+                .Try().Or(Span.EqualTo("%").Select(op => op.ToStringValue()))
+                .Try().Or(Span.EqualTo("+").Select(op => op.ToStringValue()))
+                .Try().Or(Span.EqualTo("-").Select(op => op.ToStringValue()))
+                .Try().Or(Span.EqualTo("&").Select(op => op.ToStringValue()))
+                .Try().Or(Span.EqualTo("|").Select(op => op.ToStringValue()))
+                .Try().Or(Span.EqualTo("<").Select(op => op.ToStringValue()))
+                .Try().Or(Span.EqualTo(">").Select(op => op.ToStringValue()))
+                .Try().Or(Span.EqualTo("=").Select(op => op.ToStringValue()))
+                .Try().Or(Span.EqualTo("~").Select(op => op.ToStringValue()));
 
         private static TextParser<string> TypeName =>
             // TEXT
@@ -345,14 +355,14 @@ namespace SJP.Schematic.Sqlite.Parsing
                 )
                 .Or(Span.EqualToIgnoreCase("CHARACTER").Select(typeName => typeName.ToStringValue()))
                 // INTEGER
-                .Or(Span.EqualToIgnoreCase("INTEGER").Select(typeName => typeName.ToStringValue()))
-                .Or(Span.EqualToIgnoreCase("TINYINT").Select(typeName => typeName.ToStringValue()))
-                .Or(Span.EqualToIgnoreCase("SMALLINT").Select(typeName => typeName.ToStringValue()))
-                .Or(Span.EqualToIgnoreCase("MEDIUMINT").Select(typeName => typeName.ToStringValue()))
-                .Or(Span.EqualToIgnoreCase("BIGINT").Select(typeName => typeName.ToStringValue()))
-                .Or(Span.EqualToIgnoreCase("INT8").Select(typeName => typeName.ToStringValue()))
-                .Or(Span.EqualToIgnoreCase("INT2").Select(typeName => typeName.ToStringValue()))
-                .Or(Span.EqualToIgnoreCase("INT").Select(typeName => typeName.ToStringValue()))
+                .Try().Or(Span.EqualToIgnoreCase("INTEGER").Select(typeName => typeName.ToStringValue()))
+                .Try().Or(Span.EqualToIgnoreCase("TINYINT").Select(typeName => typeName.ToStringValue()))
+                .Try().Or(Span.EqualToIgnoreCase("SMALLINT").Select(typeName => typeName.ToStringValue()))
+                .Try().Or(Span.EqualToIgnoreCase("MEDIUMINT").Select(typeName => typeName.ToStringValue()))
+                .Try().Or(Span.EqualToIgnoreCase("BIGINT").Select(typeName => typeName.ToStringValue()))
+                .Try().Or(Span.EqualToIgnoreCase("INT8").Select(typeName => typeName.ToStringValue()))
+                .Try().Or(Span.EqualToIgnoreCase("INT2").Select(typeName => typeName.ToStringValue()))
+                .Try().Or(Span.EqualToIgnoreCase("INT").Select(typeName => typeName.ToStringValue()))
                 .Or(
                     Span.EqualToIgnoreCase("UNSIGNED").Select(typeName => typeName.ToStringValue())
                         .Then(unsign => Character.WhiteSpace.AtLeastOnce().Select(ws => unsign + new string(ws)))

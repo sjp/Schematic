@@ -309,10 +309,12 @@ namespace SJP.Schematic.Sqlite.Parsing
                 {
                     var sourceColumns = hasForeign.Value.Select(UnwrapIdentifier);
                     next = hasForeign.Remainder.ConsumeToken();
-                    next = Foreign(next.Location).Remainder.ConsumeToken();
+
+                    var references = Foreign(next.Location);
+                    next = references.Remainder.ConsumeToken();
 
                     string foreignKeyTableName = null;
-                    var foreignTable = QualifiedName(hasForeign.Remainder);
+                    var foreignTable = QualifiedName(references.Remainder);
                     if (foreignTable.HasValue)
                         foreignKeyTableName = UnwrapIdentifier(foreignTable.Value);
 
@@ -365,6 +367,7 @@ namespace SJP.Schematic.Sqlite.Parsing
             Token.EqualTo(SqlToken.LParen)
                 .Then(_ =>
                     Expression
+                        .Select(expr => new[] { _ }.Concat(expr))
                         .Or(
                             Token.EqualTo(SqlToken.Keyword)
                                 .Or(Token.EqualTo(SqlToken.None))
@@ -378,9 +381,29 @@ namespace SJP.Schematic.Sqlite.Parsing
                                 .Or(Token.EqualTo(SqlToken.Terminator))
                                 .Or(Token.EqualTo(SqlToken.Type))
                             .Many()
-                            .Select(tokens => tokens as IEnumerable<Token<SqlToken>>)
+                            .Select(tokens => new[] { _ }.Concat(tokens))
                         )
                 )
+                // once more because we might obtain valid values from within an expression then encounter a nested expression
+                .Then(_ =>
+                    Expression
+                        .Select(_.Concat)
+                        .Or(
+                            Token.EqualTo(SqlToken.Keyword)
+                                .Or(Token.EqualTo(SqlToken.None))
+                                .Or(Token.EqualTo(SqlToken.Keyword))
+                                .Or(Token.EqualTo(SqlToken.Identifier))
+                                .Or(Token.EqualTo(SqlToken.Delimiter))
+                                .Or(Token.EqualTo(SqlToken.Dot))
+                                .Or(Token.EqualTo(SqlToken.Comment))
+                                .Or(Token.EqualTo(SqlToken.Literal))
+                                .Or(Token.EqualTo(SqlToken.Operator))
+                                .Or(Token.EqualTo(SqlToken.Terminator))
+                                .Or(Token.EqualTo(SqlToken.Type))
+                            .Many()
+                            .Select(tokens => _.Concat(tokens))
+                        )
+                ).Try()
                 .Then(prefix =>
                     Token.EqualTo(SqlToken.RParen)
                         .Select(end => prefix.Concat(new List<Token<SqlToken>> { end }))
@@ -429,7 +452,7 @@ namespace SJP.Schematic.Sqlite.Parsing
             Token.EqualTo(SqlToken.LParen).Value(string.Empty)
                 .IgnoreThen(
                     Token.EqualTo(SqlToken.Identifier)
-                        .AtLeastOnceDelimitedBy(Token.EqualTo(SqlToken.Identifier))
+                        .AtLeastOnceDelimitedBy(Token.EqualTo(SqlToken.Delimiter))
                         .Select(tokens => tokens.Select(t => t.ToStringValue()))
                 );
 
@@ -475,11 +498,11 @@ namespace SJP.Schematic.Sqlite.Parsing
                 .IgnoreThen(Token.EqualTo(SqlToken.Identifier).Select(ident => ident.ToStringValue()))
                 .IgnoreThen(Token.EqualTo(SqlToken.Dot))
                 .IgnoreThen(Token.EqualTo(SqlToken.Identifier).Select(ident => ident.ToStringValue()))
-            .Or(
+            .Try().Or(
                 Token.EqualTo(SqlToken.Identifier)
                     .IgnoreThen(Token.EqualTo(SqlToken.Dot))
                     .IgnoreThen(Token.EqualTo(SqlToken.Identifier).Select(ident => ident.ToStringValue()))
-            ).Or(Token.EqualTo(SqlToken.Identifier).Select(ident => ident.ToStringValue()));
+            ).Try().Or(Token.EqualTo(SqlToken.Identifier).Select(ident => ident.ToStringValue()));
 
         private static TokenListParser<SqlToken, string> SignedNumberOrLiteral =>
             Token.EqualTo(SqlToken.Operator)
@@ -537,7 +560,7 @@ namespace SJP.Schematic.Sqlite.Parsing
             {
                 if (!type.IsValid())
                     throw new ArgumentException($"The { nameof(ConstraintType) } provided must be a valid enum.", nameof(type));
-                if (columns == null || columns.Empty())
+                if (columns == null)
                     throw new ArgumentNullException(nameof(columns));
 
                 Name = name;

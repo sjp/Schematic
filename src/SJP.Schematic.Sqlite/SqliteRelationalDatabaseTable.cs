@@ -143,13 +143,13 @@ namespace SJP.Schematic.Sqlite
                 var infoSql = $"pragma index_xinfo({ Database.Dialect.QuoteName(indexList.name) })";
                 var indexInfo = Connection.Query<IndexXInfo>(infoSql);
                 var indexColumns = indexInfo
-                    .Where(i => i.key)
-                    .OrderBy(i => i.cid)
+                    .Where(i => i.key && i.cid >= 0)
+                    .OrderBy(i => i.seqno)
                     .Select(i => new SqliteDatabaseIndexColumn(Column[i.name], i.desc ? IndexColumnOrder.Descending : IndexColumnOrder.Ascending))
                     .ToList();
 
                 var includedColumns = indexInfo
-                    .Where(i => !i.key)
+                    .Where(i => !i.key && i.cid >= 0)
                     .OrderBy(i => i.name)
                     .Select(i => Column[i.name])
                     .ToList();
@@ -179,13 +179,13 @@ namespace SJP.Schematic.Sqlite
                 var infoSql = $"pragma index_xinfo({ Database.Dialect.QuoteName(indexList.name) })";
                 var indexInfo = await Connection.QueryAsync<IndexXInfo>(infoSql).ConfigureAwait(false);
                 var indexColumns = indexInfo
-                    .Where(i => i.key)
-                    .OrderBy(i => i.cid)
+                    .Where(i => i.key && i.cid >= 0)
+                    .OrderBy(i => i.seqno)
                     .Select(i => new SqliteDatabaseIndexColumn(Column[i.name], i.desc ? IndexColumnOrder.Descending : IndexColumnOrder.Ascending))
                     .ToList();
 
                 var includedColumns = indexInfo
-                    .Where(i => !i.key)
+                    .Where(i => !i.key && i.cid >= 0)
                     .OrderBy(i => i.name)
                     .Select(i => Column[i.name])
                     .ToList();
@@ -256,7 +256,7 @@ namespace SJP.Schematic.Sqlite
                 var indexSql = $"pragma index_xinfo({ Database.Dialect.QuoteName(ukIndexList.name) })";
                 var indexXInfos = Connection.Query<IndexXInfo>(indexSql);
                 var orderedColumns = indexXInfos
-                    .Where(i => i.cid > 0 && i.key)
+                    .Where(i => i.key && i.cid >= 0)
                     .OrderBy(i => i.seqno);
                 var columnNames = orderedColumns.Select(i => i.name).ToList();
                 var columns = orderedColumns.Select(i => tableColumn[i.name]).ToList();
@@ -299,7 +299,7 @@ namespace SJP.Schematic.Sqlite
                 var indexSql = $"pragma index_xinfo({ Database.Dialect.QuoteName(ukIndexList.name) })";
                 var indexXInfos = await Connection.QueryAsync<IndexXInfo>(indexSql).ConfigureAwait(false);
                 var orderedColumns = indexXInfos
-                    .Where(i => i.cid > 0 && i.key)
+                    .Where(i => i.key && i.cid >= 0)
                     .OrderBy(i => i.seqno);
                 var columnNames = orderedColumns.Select(i => i.name).ToList();
                 var columns = orderedColumns.Select(i => tableColumn[i.name]).ToList();
@@ -394,7 +394,7 @@ namespace SJP.Schematic.Sqlite
 
             foreach (var ck in checkConstraints)
             {
-                var definition = ck.Tokens.Select(token => token.ToStringValue()).Join(" ");
+                var definition = ck.Tokens.Select(token => token.ToStringValue()).Join(string.Empty);
                 var check = new SqliteCheckConstraint(this, ck.Name, definition);
                 result.Add(check);
             }
@@ -416,7 +416,7 @@ namespace SJP.Schematic.Sqlite
 
             foreach (var ck in checkConstraints)
             {
-                var definition = ck.Tokens.Select(token => token.ToStringValue()).Join(" ");
+                var definition = ck.Tokens.Select(token => token.ToStringValue()).Join(string.Empty);
                 var check = new SqliteCheckConstraint(this, ck.Name, definition);
                 result.Add(check);
             }
@@ -458,8 +458,8 @@ namespace SJP.Schematic.Sqlite
 
         protected virtual IEnumerable<IDatabaseRelationalKey> LoadParentKeysSync()
         {
-            const string sql = "pragma foreign_key_list(@TableName)";
-            var queryResult = Connection.Query<ForeignKeyList>(sql, new { TableName = Name.LocalName });
+            var sql = $"pragma foreign_key_list({ Database.Dialect.QuoteName(Name.LocalName) })";
+            var queryResult = Connection.Query<ForeignKeyList>(sql);
             if (queryResult.Empty())
                 return Enumerable.Empty<IDatabaseRelationalKey>();
 
@@ -509,12 +509,12 @@ namespace SJP.Schematic.Sqlite
 
                 var parsedConstraint = fkConstraints
                     .Where(fkc => string.Equals(fkc.ForeignKeyTableName, fkey.Key.ParentTableName, StringComparison.OrdinalIgnoreCase))
-                    .FirstOrDefault(fkc => fkc.ForeignKeyColumns.SequenceEqual(rows.Select(row => row.from), StringComparer.OrdinalIgnoreCase));
-                var constraintStringName = parsedConstraint.Name;
+                    .FirstOrDefault(fkc => fkc.ForeignKeyColumns.SequenceEqual(rows.Select(row => row.to), StringComparer.OrdinalIgnoreCase));
+                var constraintStringName = parsedConstraint?.Name;
 
                 var childKeyName = !constraintStringName.IsNullOrWhiteSpace() ? new LocalIdentifier(constraintStringName) : null;
                 var childKeyColumnLookup = Column;
-                var childKeyColumns = rows.Select(row => childKeyColumnLookup[row.from]);
+                var childKeyColumns = rows.Select(row => childKeyColumnLookup[row.from]).ToList();
 
                 var childKey = new SqliteDatabaseKey(this, childKeyName, DatabaseKeyType.Foreign, childKeyColumns);
 
@@ -530,8 +530,8 @@ namespace SJP.Schematic.Sqlite
 
         protected virtual async Task<IEnumerable<IDatabaseRelationalKey>> LoadParentKeysAsync()
         {
-            const string sql = "pragma foreign_key_list(@TableName)";
-            var queryResult = await Connection.QueryAsync<ForeignKeyList>(sql, new { TableName = Name.LocalName }).ConfigureAwait(false);
+            var sql = $"pragma foreign_key_list({ Database.Dialect.QuoteName(Name.LocalName) })";
+            var queryResult = await Connection.QueryAsync<ForeignKeyList>(sql).ConfigureAwait(false);
             if (queryResult.Empty())
                 return Enumerable.Empty<IDatabaseRelationalKey>();
 
@@ -581,12 +581,12 @@ namespace SJP.Schematic.Sqlite
 
                 var parsedConstraint = fkConstraints
                     .Where(fkc => string.Equals(fkc.ForeignKeyTableName, fkey.Key.ParentTableName, StringComparison.OrdinalIgnoreCase))
-                    .FirstOrDefault(fkc => fkc.ForeignKeyColumns.SequenceEqual(rows.Select(row => row.from), StringComparer.OrdinalIgnoreCase));
-                var constraintStringName = parsedConstraint.Name;
+                    .FirstOrDefault(fkc => fkc.ForeignKeyColumns.SequenceEqual(rows.Select(row => row.to), StringComparer.OrdinalIgnoreCase));
+                var constraintStringName = parsedConstraint?.Name;
 
                 var childKeyName = !constraintStringName.IsNullOrWhiteSpace() ? new LocalIdentifier(constraintStringName) : null;
                 var childKeyColumnLookup = await ColumnAsync().ConfigureAwait(false);
-                var childKeyColumns = rows.Select(row => childKeyColumnLookup[row.from]);
+                var childKeyColumns = rows.Select(row => childKeyColumnLookup[row.from]).ToList();
 
                 var childKey = new SqliteDatabaseKey(this, childKeyName, DatabaseKeyType.Foreign, childKeyColumns);
 
