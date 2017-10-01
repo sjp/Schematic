@@ -201,11 +201,9 @@ namespace SJP.Schematic.Sqlite
                 throw new ArgumentNullException(nameof(viewName));
 
             var exists = ViewExists(viewName.LocalName);
-            return null;
-            // TODO:
-            //return exists
-            //    ? new SQLiteRelationalDatabaseView(Connection, this, viewName)
-            //    : null;
+            return exists
+                ? new SqliteRelationalDatabaseView(Connection, this, viewName)
+                : null;
         }
 
         protected virtual async Task<IRelationalDatabaseView> LoadViewAsync(Identifier viewName)
@@ -214,11 +212,9 @@ namespace SJP.Schematic.Sqlite
                 throw new ArgumentNullException(nameof(viewName));
 
             var exists = await ViewExistsAsync(viewName).ConfigureAwait(false);
-            return null;
-            // TODO:
-            //return exists
-            //    ? new SQLiteRelationalDatabaseView(Connection, this, viewName)
-            //    : null;
+            return exists
+                ? new SqliteRelationalDatabaseView(Connection, this, viewName)
+                : null;
         }
 
         #endregion Views
