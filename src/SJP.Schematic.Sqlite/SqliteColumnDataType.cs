@@ -14,7 +14,9 @@ namespace SJP.Schematic.Sqlite
 
             PhysicalTypeName = typeName.LocalName.ToLowerInvariant();
             Type = GetDataTypeFromName(PhysicalTypeName);
-            ClrType = GetClrTypeFromTypeName(PhysicalTypeName);
+            ClrType = Type == DataType.Binary
+                ? typeof(byte[])
+                : GetClrTypeFromTypeName(PhysicalTypeName);
 
             IsNumericType = _numericTypes.Contains(Type);
             IsStringType = _stringTypes.Contains(Type);

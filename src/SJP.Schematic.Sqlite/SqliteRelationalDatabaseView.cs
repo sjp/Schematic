@@ -5,6 +5,7 @@ using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
 using SJP.Schematic.Core;
+using SJP.Schematic.Sqlite.Query;
 
 namespace SJP.Schematic.Sqlite
 {
@@ -96,120 +97,86 @@ namespace SJP.Schematic.Sqlite
 
         protected virtual IReadOnlyList<IDatabaseViewColumn> LoadColumnsSync()
         {
-            /*
-            const string sql = @"
-select
-    c.name as ColumnName,
-    schema_name(st.schema_id) as ColumnTypeSchema,
-    st.name as ColumnTypeName,
-    c.max_length as MaxLength,
-    c.precision as Precision,
-    c.scale as Scale,
-    c.collation_name as Collation,
-    c.is_computed as IsComputed,
-    c.is_nullable as IsNullable,
-    dc.definition as DefaultValue,
-    cc.definition as ComputedColumnDefinition,
-    (convert(bigint, ic.seed_value)) as IdentitySeed,
-    (convert(bigint, ic.increment_value)) as IdentityIncrement
-from sys.views v
-inner join sys.columns c on v.object_id = c.object_id
-left join sys.default_constraints dc on c.object_id = dc.parent_object_id and c.column_id = dc.parent_column_id
-left join sys.computed_columns cc on c.object_id = cc.object_id and c.column_id = cc.column_id
-left join sys.identity_columns ic on c.object_id = ic.object_id and c.column_id = ic.column_id
-left join sys.types st on c.user_type_id = st.user_type_id
-where schema_name(v.schema_id) = @SchemaName
-    and v.name = @ViewName
-    order by c.column_id";
+            var sql = $"pragma table_info({ Database.Dialect.QuoteName(Name.LocalName) })";
+            var tableInfos = Connection.Query<TableInfo>(sql);
 
-            var query = Connection.Query<ColumnData>(sql, new { SchemaName = Name.Schema, ViewName = Name.LocalName });*/
             var result = new List<IDatabaseViewColumn>();
-            /*
-            foreach (var row in query)
+            if (tableInfos.Empty())
+                return result;
+
+            foreach (var tableInfo in tableInfos)
             {
-                var columnTypeName = new Identifier(row.ColumnTypeSchema, row.ColumnTypeName);
+                var columnTypeName = tableInfo.type;
+                if (columnTypeName.IsNullOrWhiteSpace())
+                    columnTypeName = GetTypeofColumn(tableInfo.name);
+                if (columnTypeName.IsNullOrWhiteSpace())
+                    columnTypeName = "BLOB";
 
                 IDbType dbType;
-                var columnType = new SqlServerColumnDataType(columnTypeName);
+                var columnType = new SqliteColumnDataType(columnTypeName);
                 if (columnType.IsNumericType)
-                    dbType = new SqlServerNumericColumnDataType(columnTypeName, row.Precision, row.Scale); // new SqlServerDatabaseNumericColumnType(columnTypeName, row.MaxLength, row.Precision, row.Scale);
+                    dbType = new SqliteNumericColumnDataType(columnTypeName);
                 else if (columnType.IsStringType)
-                    dbType = new SqlServerStringColumnDataType(columnTypeName, row.MaxLength, row.Collation);
+                    dbType = new SqliteStringColumnDataType(columnTypeName);
                 else
                     dbType = columnType;
 
-                var columnName = new LocalIdentifier(row.ColumnName);
-                var isAutoIncrement = row.IdentitySeed.HasValue && row.IdentityIncrement.HasValue;
-                var autoIncrement = isAutoIncrement
-                    ? new AutoIncrement(row.IdentitySeed.Value, row.IdentityIncrement.Value)
-                    : (IAutoIncrement)null;
-
-                var column = new SqlServerDatabaseViewColumn(this, columnName, columnType, row.IsNullable, row.DefaultValue, autoIncrement);
-
+                var column = new SqliteDatabaseViewColumn(this, tableInfo.name, columnType, !tableInfo.notnull, tableInfo.dflt_value, null);
                 result.Add(column);
             }
-            */
+
             return result.AsReadOnly();
         }
 
         protected virtual async Task<IReadOnlyList<IDatabaseViewColumn>> LoadColumnsAsync()
         {
-            /*
-            const string sql = @"
-select
-    c.name as ColumnName,
-    schema_name(st.schema_id) as ColumnTypeSchema,
-    st.name as ColumnTypeName,
-    c.max_length as MaxLength,
-    c.precision as Precision,
-    c.scale as Scale,
-    c.collation_name as Collation,
-    c.is_computed as IsComputed,
-    c.is_nullable as IsNullable,
-    dc.definition as DefaultValue,
-    cc.definition as ComputedColumnDefinition,
-    (convert(bigint, ic.seed_value)) as IdentitySeed,
-    (convert(bigint, ic.increment_value)) as IdentityIncrement
-from sys.views v
-inner join sys.columns c on v.object_id = c.object_id
-left join sys.default_constraints dc on c.object_id = dc.parent_object_id and c.column_id = dc.parent_column_id
-left join sys.computed_columns cc on c.object_id = cc.object_id and c.column_id = cc.column_id
-left join sys.identity_columns ic on c.object_id = ic.object_id and c.column_id = ic.column_id
-left join sys.types st on c.user_type_id = st.user_type_id
-where schema_name(v.schema_id) = @SchemaName
-    and v.name = @ViewName
-    order by c.column_id";
+            var sql = $"pragma table_info({ Database.Dialect.QuoteName(Name.LocalName) })";
+            var tableInfos = await Connection.QueryAsync<TableInfo>(sql).ConfigureAwait(false);
 
-            var query = await Connection.QueryAsync<ColumnData>(sql, new { SchemaName = Name.Schema, ViewName = Name.LocalName }).ConfigureAwait(false);*/
             var result = new List<IDatabaseViewColumn>();
-            /*
-            foreach (var row in query)
+            if (tableInfos.Empty())
+                return result;
+
+            foreach (var tableInfo in tableInfos)
             {
-                var columnTypeName = new Identifier(row.ColumnTypeSchema, row.ColumnTypeName);
+                var columnTypeName = tableInfo.type;
+                if (columnTypeName.IsNullOrWhiteSpace())
+                    columnTypeName = GetTypeofColumn(tableInfo.name);
+                if (columnTypeName.IsNullOrWhiteSpace())
+                    columnTypeName = "BLOB";
 
                 IDbType dbType;
-                var columnType = new SqlServerColumnDataType(columnTypeName);
+                var columnType = new SqliteColumnDataType(columnTypeName);
                 if (columnType.IsNumericType)
-                    dbType = new SqlServerNumericColumnDataType(columnTypeName, row.Precision, row.Scale); // new SqlServerDatabaseNumericColumnType(columnTypeName, row.MaxLength, row.Precision, row.Scale);
+                    dbType = new SqliteNumericColumnDataType(columnTypeName);
                 else if (columnType.IsStringType)
-                    dbType = new SqlServerStringColumnDataType(columnTypeName, row.MaxLength, row.Collation);
+                    dbType = new SqliteStringColumnDataType(columnTypeName);
                 else
                     dbType = columnType;
 
-                var columnName = new LocalIdentifier(row.ColumnName);
-                var isAutoIncrement = row.IdentitySeed.HasValue && row.IdentityIncrement.HasValue;
-                var autoIncrement = isAutoIncrement
-                    ? new AutoIncrement(row.IdentitySeed.Value, row.IdentityIncrement.Value)
-                    : (IAutoIncrement)null;
-
-                var column = new SqlServerDatabaseViewColumn(this, columnName, columnType, row.IsNullable, row.DefaultValue, autoIncrement);
-
+                var column = new SqliteDatabaseViewColumn(this, tableInfo.name, columnType, !tableInfo.notnull, tableInfo.dflt_value, null);
                 result.Add(column);
             }
-            */
 
-            await Task.Delay(1).ConfigureAwait(false);
             return result.AsReadOnly();
+        }
+
+        protected virtual string GetTypeofColumn(Identifier columnName)
+        {
+            if (columnName == null || columnName.LocalName == null)
+                throw new ArgumentNullException(nameof(columnName));
+
+            var sql = $"select typeof({ Database.Dialect.QuoteName(columnName.LocalName) }) from { Database.Dialect.QuoteName(Name.LocalName) } limit 1";
+            return Connection.ExecuteScalar<string>(sql);
+        }
+
+        protected virtual Task<string> GetTypeofColumnAsync(Identifier columnName)
+        {
+            if (columnName == null || columnName.LocalName == null)
+                throw new ArgumentNullException(nameof(columnName));
+
+            var sql = $"select typeof({ Database.Dialect.QuoteName(columnName.LocalName) }) from { Database.Dialect.QuoteName(Name.LocalName) } limit 1";
+            return Connection.ExecuteScalarAsync<string>(sql);
         }
     }
 }

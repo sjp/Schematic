@@ -17,13 +17,19 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
         {
             await Connection.ExecuteAsync("create view view_test_view_1 as select 1 as test").ConfigureAwait(false);
             await Connection.ExecuteAsync("create table view_test_table_1 (table_id int primary key not null)").ConfigureAwait(false);
+            await Connection.ExecuteAsync("create view view_test_view_2 as select 1, 2.345, 'asd', X'DEADBEEF'").ConfigureAwait(false);
+            await Connection.ExecuteAsync("create view view_test_view_3 as select 1, 2.345, 'asd', X'DEADBEEF', table_id from view_test_table_1").ConfigureAwait(false);
+            await Connection.ExecuteAsync("create view view_test_view_4 as select 1, 1, 1, 1").ConfigureAwait(false);
         }
 
         [OneTimeTearDown]
         public async Task CleanUp()
         {
             await Connection.ExecuteAsync("drop view view_test_view_1").ConfigureAwait(false);
+            await Connection.ExecuteAsync("drop view view_test_view_3").ConfigureAwait(false);
             await Connection.ExecuteAsync("drop table view_test_table_1").ConfigureAwait(false);
+            await Connection.ExecuteAsync("drop view view_test_view_2").ConfigureAwait(false);
+            await Connection.ExecuteAsync("drop view view_test_view_4").ConfigureAwait(false);
         }
 
         [Test]
@@ -175,7 +181,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
 
             Assert.Zero(indexCount);
         }
-        /*
+
         [Test]
         public void Column_WhenViewContainsSingleColumn_ContainsOneValueOnly()
         {
@@ -198,7 +204,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
         [Test]
         public void Columns_WhenViewContainsSingleColumn_ContainsOneValueOnly()
         {
-            var viewName = new Identifier(Database.DefaultSchema, "view_test_view_1");
+            const string viewName = "view_test_view_1";
             var view = new SqliteRelationalDatabaseView(Connection, Database, viewName);
             var columnCount = view.Columns.Count();
 
@@ -257,6 +263,207 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
             var containsColumn = columns.Any(c => c.Name == "test");
 
             Assert.IsTrue(containsColumn);
-        }*/
+        }
+
+        [Test]
+        public void Column_WhenViewContainsUnnamedColumns_ReturnsNonEmptyLookup()
+        {
+            const string viewName = "view_test_view_2";
+            var view = new SqliteRelationalDatabaseView(Connection, Database, viewName);
+            var columnCount = view.Column.Count;
+
+            Assert.AreEqual(4, columnCount);
+        }
+
+        [Test]
+        public void Columns_WhenViewContainsUnnamedColumns_ContainsCorrectNumberOfColumns()
+        {
+            const string viewName = "view_test_view_2";
+            var view = new SqliteRelationalDatabaseView(Connection, Database, viewName);
+            var columnCount = view.Columns.Count();
+
+            Assert.AreEqual(4, columnCount);
+        }
+
+        [Test]
+        public void Columns_WhenViewContainsUnnamedColumns_ContainsCorrectTypesForColumns()
+        {
+            const string viewName = "view_test_view_2";
+            var view = new SqliteRelationalDatabaseView(Connection, Database, viewName);
+            var columnTypes = view.Columns.Select(c => c.Type.Type).ToList();
+            var expectedTypes = new[] { DataType.Integer, DataType.Float, DataType.Unicode, DataType.Binary };
+
+            var typesEqual = columnTypes.SequenceEqual(expectedTypes);
+            Assert.IsTrue(typesEqual);
+        }
+
+        [Test]
+        public async Task ColumnAsync_WhenViewContainsUnnamedColumns_ReturnsNonEmptyLookup()
+        {
+            const string viewName = "view_test_view_2";
+            var view = new SqliteRelationalDatabaseView(Connection, Database, viewName);
+            var columns = await view.ColumnAsync().ConfigureAwait(false);
+            var columnCount = columns.Count;
+
+            Assert.AreEqual(4, columnCount);
+        }
+
+        [Test]
+        public async Task ColumnsAsync_WhenViewContainsUnnamedColumns_ContainsCorrectNumberOfColumns()
+        {
+            const string viewName = "view_test_view_2";
+            var view = new SqliteRelationalDatabaseView(Connection, Database, viewName);
+            var columns = await view.ColumnsAsync().ConfigureAwait(false);
+            var columnCount = columns.Count;
+
+            Assert.AreEqual(4, columnCount);
+        }
+
+        [Test]
+        public async Task ColumnsAsync_WhenViewContainsUnnamedColumns_ContainsCorrectTypesForColumns()
+        {
+            const string viewName = "view_test_view_2";
+            var view = new SqliteRelationalDatabaseView(Connection, Database, viewName);
+            var columns = await view.ColumnsAsync().ConfigureAwait(false);
+            var columnTypes = view.Columns.Select(c => c.Type.Type).ToList();
+            var expectedTypes = new[] { DataType.Integer, DataType.Float, DataType.Unicode, DataType.Binary };
+
+            var typesEqual = columnTypes.SequenceEqual(expectedTypes);
+            Assert.IsTrue(typesEqual);
+        }
+
+        [Test]
+        public void Column_WhenViewContainsUnnamedColumnsAndTableColumn_ReturnsNonEmptyLookup()
+        {
+            const string viewName = "view_test_view_3";
+            var view = new SqliteRelationalDatabaseView(Connection, Database, viewName);
+            var columnCount = view.Column.Count;
+
+            Assert.AreEqual(5, columnCount);
+        }
+
+        [Test]
+        public void Columns_WhenViewContainsUnnamedColumnsAndTableColumn_ContainsCorrectNumberOfColumns()
+        {
+            const string viewName = "view_test_view_3";
+            var view = new SqliteRelationalDatabaseView(Connection, Database, viewName);
+            var columnCount = view.Columns.Count();
+
+            Assert.AreEqual(5, columnCount);
+        }
+
+        [Test]
+        public void Columns_WhenViewContainsUnnamedColumnsAndTableColumn_ContainsCorrectTypesForColumns()
+        {
+            const string viewName = "view_test_view_3";
+            var view = new SqliteRelationalDatabaseView(Connection, Database, viewName);
+            var columnTypes = view.Columns.Select(c => c.Type.Type).ToList();
+            var expectedTypes = new[] { DataType.Binary, DataType.Binary, DataType.Binary, DataType.Binary, DataType.Integer };
+
+            var typesEqual = columnTypes.SequenceEqual(expectedTypes);
+            Assert.IsTrue(typesEqual);
+        }
+
+        [Test]
+        public async Task ColumnAsync_WhenViewContainsUnnamedColumnsAndTableColumn_ReturnsNonEmptyLookup()
+        {
+            const string viewName = "view_test_view_3";
+            var view = new SqliteRelationalDatabaseView(Connection, Database, viewName);
+            var columns = await view.ColumnAsync().ConfigureAwait(false);
+            var columnCount = columns.Count;
+
+            Assert.AreEqual(5, columnCount);
+        }
+
+        [Test]
+        public async Task ColumnsAsync_WhenViewContainsUnnamedColumnsAndTableColumn_ContainsCorrectNumberOfColumns()
+        {
+            const string viewName = "view_test_view_3";
+            var view = new SqliteRelationalDatabaseView(Connection, Database, viewName);
+            var columns = await view.ColumnsAsync().ConfigureAwait(false);
+            var columnCount = columns.Count;
+
+            Assert.AreEqual(5, columnCount);
+        }
+
+        [Test]
+        public async Task ColumnsAsync_WhenViewContainsUnnamedColumnsAndTableColumn_ContainsCorrectTypesForColumns()
+        {
+            const string viewName = "view_test_view_3";
+            var view = new SqliteRelationalDatabaseView(Connection, Database, viewName);
+            var columns = await view.ColumnsAsync().ConfigureAwait(false);
+            var columnTypes = view.Columns.Select(c => c.Type.Type).ToList();
+            var expectedTypes = new[] { DataType.Binary, DataType.Binary, DataType.Binary, DataType.Binary, DataType.Integer };
+
+            var typesEqual = columnTypes.SequenceEqual(expectedTypes);
+            Assert.IsTrue(typesEqual);
+        }
+
+        [Test]
+        public void Column_WhenViewContainsDuplicatedUnnamedColumns_ReturnsNonEmptyLookup()
+        {
+            const string viewName = "view_test_view_4";
+            var view = new SqliteRelationalDatabaseView(Connection, Database, viewName);
+            var columnCount = view.Column.Count;
+
+            Assert.AreEqual(4, columnCount);
+        }
+
+        [Test]
+        public void Columns_WhenViewContainsDuplicatedUnnamedColumns_ContainsCorrectNumberOfColumns()
+        {
+            const string viewName = "view_test_view_4";
+            var view = new SqliteRelationalDatabaseView(Connection, Database, viewName);
+            var columnCount = view.Columns.Count();
+
+            Assert.AreEqual(4, columnCount);
+        }
+
+        [Test]
+        public void Columns_WhenViewContainsDuplicatedUnnamedColumns_ContainsCorrectTypesForColumns()
+        {
+            const string viewName = "view_test_view_4";
+            var view = new SqliteRelationalDatabaseView(Connection, Database, viewName);
+            var columnTypes = view.Columns.Select(c => c.Type.Type).ToList();
+            var expectedTypes = new[] { DataType.Integer, DataType.Integer, DataType.Integer, DataType.Integer };
+
+            var typesEqual = columnTypes.SequenceEqual(expectedTypes);
+            Assert.IsTrue(typesEqual);
+        }
+
+        [Test]
+        public async Task ColumnAsync_WhenViewContainsDuplicatedUnnamedColumns_ReturnsNonEmptyLookup()
+        {
+            const string viewName = "view_test_view_4";
+            var view = new SqliteRelationalDatabaseView(Connection, Database, viewName);
+            var columns = await view.ColumnAsync().ConfigureAwait(false);
+            var columnCount = columns.Count;
+
+            Assert.AreEqual(4, columnCount);
+        }
+
+        [Test]
+        public async Task ColumnsAsync_WhenViewContainsDuplicatedUnnamedColumns_ContainsCorrectNumberOfColumns()
+        {
+            const string viewName = "view_test_view_4";
+            var view = new SqliteRelationalDatabaseView(Connection, Database, viewName);
+            var columns = await view.ColumnsAsync().ConfigureAwait(false);
+            var columnCount = columns.Count;
+
+            Assert.AreEqual(4, columnCount);
+        }
+
+        [Test]
+        public async Task ColumnsAsync_WhenViewContainsDuplicatedUnnamedColumns_ContainsCorrectTypesForColumns()
+        {
+            const string viewName = "view_test_view_4";
+            var view = new SqliteRelationalDatabaseView(Connection, Database, viewName);
+            var columns = await view.ColumnsAsync().ConfigureAwait(false);
+            var columnTypes = view.Columns.Select(c => c.Type.Type).ToList();
+            var expectedTypes = new[] { DataType.Integer, DataType.Integer, DataType.Integer, DataType.Integer };
+
+            var typesEqual = columnTypes.SequenceEqual(expectedTypes);
+            Assert.IsTrue(typesEqual);
+        }
     }
 }
