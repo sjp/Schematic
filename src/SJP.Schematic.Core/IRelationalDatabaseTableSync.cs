@@ -30,7 +30,6 @@ namespace SJP.Schematic.Core
 
         IEnumerable<IDatabaseRelationalKey> ChildKeys { get; }
 
-        // TRIGGER ON TABLE or DATABASE OR BOTH?
         IReadOnlyDictionary<Identifier, IDatabaseTrigger> Trigger { get; }
 
         IEnumerable<IDatabaseTrigger> Triggers { get; }

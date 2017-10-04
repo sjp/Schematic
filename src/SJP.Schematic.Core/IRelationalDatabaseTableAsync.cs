@@ -3,7 +3,6 @@ using System.Threading.Tasks;
 
 namespace SJP.Schematic.Core
 {
-    // async analogues of every synchronous property
     public interface IRelationalDatabaseTableAsync : IDatabaseEntity
     {
         Task<IDatabaseKey> PrimaryKeyAsync();
@@ -25,7 +24,6 @@ namespace SJP.Schematic.Core
 
         Task<IEnumerable<IDatabaseRelationalKey>> ChildKeysAsync();
 
-        // TRIGGER ON TABLE or DATABASE OR BOTH?
         Task<IReadOnlyDictionary<Identifier, IDatabaseTrigger>> TriggerAsync();
         Task<IEnumerable<IDatabaseTrigger>> TriggersAsync();
     }

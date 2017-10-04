@@ -17,7 +17,6 @@ namespace SJP.Schematic.Core
             View = new IdentifierKeyedCache<IRelationalDatabaseView>(LoadViewAsync, Comparer);
             Sequence = new IdentifierKeyedCache<IDatabaseSequence>(LoadSequenceAsync, Comparer);
             Synonym = new IdentifierKeyedCache<IDatabaseSynonym>(LoadSynonymAsync, Comparer);
-            Trigger = new IdentifierKeyedCache<IDatabaseTrigger>(LoadTriggerAsync, Comparer);
         }
 
         public IDatabaseDialect Dialect => Database.Dialect;
@@ -331,80 +330,6 @@ namespace SJP.Schematic.Core
         }
 
         #endregion Synonyms
-
-        #region Triggers
-
-        protected ICache<Identifier, IDatabaseTrigger> Trigger { get; }
-
-        public bool TriggerExists(Identifier triggerName)
-        {
-            if (triggerName == null || triggerName.LocalName == null)
-                throw new ArgumentNullException(nameof(triggerName));
-
-            return Trigger.ContainsKey(triggerName);
-        }
-
-        public Task<bool> TriggerExistsAsync(Identifier triggerName)
-        {
-            if (triggerName == null || triggerName.LocalName == null)
-                throw new ArgumentNullException(nameof(triggerName));
-
-            return Trigger.ContainsKeyAsync(triggerName);
-        }
-
-        public IDatabaseTrigger GetTrigger(Identifier triggerName)
-        {
-            if (triggerName == null || triggerName.LocalName == null)
-                throw new ArgumentNullException(nameof(triggerName));
-
-            return Trigger.GetValue(triggerName);
-        }
-
-        public Task<IDatabaseTrigger> GetTriggerAsync(Identifier triggerName)
-        {
-            if (triggerName == null || triggerName.LocalName == null)
-                throw new ArgumentNullException(nameof(triggerName));
-
-            return Trigger.GetValueAsync(triggerName);
-        }
-
-        public IEnumerable<IDatabaseTrigger> Triggers
-        {
-            get
-            {
-                return Database.Triggers
-                    .Select(t => Trigger.GetValue(t.Name))
-                    .Where(t => t != null);
-            }
-        }
-
-        public async Task<IAsyncEnumerable<IDatabaseTrigger>> TriggersAsync()
-        {
-            var triggers = await Database.TriggersAsync().ConfigureAwait(false);
-            return triggers
-                .Select(t => Trigger.GetValue(t.Name))
-                .Where(t => t != null);
-        }
-
-        protected virtual IDatabaseTrigger LoadTriggerSync(Identifier triggerName)
-        {
-            if (triggerName == null || triggerName.LocalName == null)
-                throw new ArgumentNullException(nameof(triggerName));
-
-            triggerName = CreateQualifiedIdentifier(triggerName);
-            return Database.GetTrigger(triggerName);
-        }
-
-        protected virtual Task<IDatabaseTrigger> LoadTriggerAsync(Identifier triggerName)
-        {
-            if (triggerName == null || triggerName.LocalName == null)
-                throw new ArgumentNullException(nameof(triggerName));
-
-            triggerName = CreateQualifiedIdentifier(triggerName);
-            return Database.GetTriggerAsync(triggerName);
-        }
-
-        #endregion Triggers
 
         protected Identifier CreateQualifiedIdentifier(Identifier identifier)
         {

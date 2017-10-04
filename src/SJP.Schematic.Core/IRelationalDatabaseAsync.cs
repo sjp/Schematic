@@ -4,14 +4,6 @@ using System.Threading.Tasks;
 
 namespace SJP.Schematic.Core
 {
-    //TODO: suppport cancellation in every async method?
-    // could be as simple as:
-    //
-    // Task<IEnumerable<Task<IRelationalDatabaseTable>>> TablesAsync(CancellationToken cancel = default(CancellationToken));
-    //
-    // would only make sense for more complicated expression
-
-    // async analogues of every synchronous property/method
     public interface IRelationalDatabaseAsync
     {
         Task<bool> TableExistsAsync(Identifier tableName);
@@ -37,11 +29,5 @@ namespace SJP.Schematic.Core
         Task<IDatabaseSynonym> GetSynonymAsync(Identifier synonymName);
 
         Task<IAsyncEnumerable<IDatabaseSynonym>> SynonymsAsync();
-
-        Task<bool> TriggerExistsAsync(Identifier triggerName);
-
-        Task<IDatabaseTrigger> GetTriggerAsync(Identifier triggerName);
-
-        Task<IAsyncEnumerable<IDatabaseTrigger>> TriggersAsync();
     }
 }

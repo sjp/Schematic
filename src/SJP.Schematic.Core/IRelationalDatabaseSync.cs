@@ -33,11 +33,5 @@ namespace SJP.Schematic.Core
         IDatabaseSynonym GetSynonym(Identifier synonymName);
 
         IEnumerable<IDatabaseSynonym> Synonyms { get; }
-
-        bool TriggerExists(Identifier triggerName);
-
-        IDatabaseTrigger GetTrigger(Identifier triggerName);
-
-        IEnumerable<IDatabaseTrigger> Triggers { get; }
     }
 }
