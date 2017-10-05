@@ -933,7 +933,7 @@ where schema_name(t.schema_id) = @SchemaName and t.name = @TableName";
             foreach (var trig in triggers)
             {
                 var triggerName = new LocalIdentifier(trig.Key.TriggerName);
-                var queryTiming = trig.Key.IsInsteadOfTrigger ? TriggerQueryTiming.Before : TriggerQueryTiming.After;
+                var queryTiming = trig.Key.IsInsteadOfTrigger ? TriggerQueryTiming.InsteadOf : TriggerQueryTiming.After;
                 var definition = trig.Key.Definition;
                 var isEnabled = !trig.Key.IsDisabled;
 
@@ -985,7 +985,7 @@ where schema_name(t.schema_id) = @SchemaName and t.name = @TableName";
             foreach (var trig in triggers)
             {
                 var triggerName = new LocalIdentifier(trig.Key.TriggerName);
-                var queryTiming = trig.Key.IsInsteadOfTrigger ? TriggerQueryTiming.Before : TriggerQueryTiming.After;
+                var queryTiming = trig.Key.IsInsteadOfTrigger ? TriggerQueryTiming.InsteadOf : TriggerQueryTiming.After;
                 var definition = trig.Key.Definition;
                 var isEnabled = !trig.Key.IsDisabled;
 

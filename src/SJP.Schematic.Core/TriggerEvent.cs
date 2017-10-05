@@ -8,7 +8,6 @@ namespace SJP.Schematic.Core
         None = 0,
         Insert = 1,
         Update = 2,
-        Delete = 4,
-        Truncate = 8
+        Delete = 4
     }
 }

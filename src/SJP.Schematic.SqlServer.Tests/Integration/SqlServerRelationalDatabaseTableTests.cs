@@ -221,6 +221,89 @@ create table table_test_table_32 (
     test_column_3 as test_column_1 + test_column_2
 )").ConfigureAwait(false);
             await Connection.ExecuteAsync("create table table_test_table_35 ( test_column int identity (10, 5) primary key )").ConfigureAwait(false);
+            await Connection.ExecuteAsync("create table trigger_test_table_1 (table_id int primary key not null)").ConfigureAwait(false);
+            await Connection.ExecuteAsync("create table trigger_test_table_2 (table_id int primary key not null)").ConfigureAwait(false);
+            await Connection.ExecuteAsync(@"
+create trigger trigger_test_table_1_trigger_1
+on trigger_test_table_1
+for insert
+as
+begin
+    declare @test int
+end
+").ConfigureAwait(false);
+            await Connection.ExecuteAsync(@"
+create trigger trigger_test_table_1_trigger_2
+on trigger_test_table_1
+for update
+as
+begin
+    declare @test int
+end
+").ConfigureAwait(false);
+            await Connection.ExecuteAsync(@"
+create trigger trigger_test_table_1_trigger_3
+on trigger_test_table_1
+for delete
+as
+begin
+    declare @test int
+end
+").ConfigureAwait(false);
+            await Connection.ExecuteAsync(@"
+create trigger trigger_test_table_1_trigger_4
+on trigger_test_table_1
+after insert
+as
+begin
+    declare @test int
+end
+").ConfigureAwait(false);
+            await Connection.ExecuteAsync(@"
+create trigger trigger_test_table_1_trigger_5
+on trigger_test_table_1
+after update
+as
+begin
+    declare @test int
+end
+").ConfigureAwait(false);
+            await Connection.ExecuteAsync(@"
+create trigger trigger_test_table_1_trigger_6
+on trigger_test_table_1
+after delete
+as
+begin
+    declare @test int
+end
+").ConfigureAwait(false);
+            await Connection.ExecuteAsync(@"
+create trigger trigger_test_table_1_trigger_7
+on trigger_test_table_1
+instead of insert
+as
+begin
+    declare @test int
+end
+").ConfigureAwait(false);
+            await Connection.ExecuteAsync(@"
+create trigger trigger_test_table_1_trigger_8
+on trigger_test_table_1
+instead of update
+as
+begin
+    declare @test int
+end
+").ConfigureAwait(false);
+            await Connection.ExecuteAsync(@"
+create trigger trigger_test_table_1_trigger_9
+on trigger_test_table_1
+instead of delete
+as
+begin
+    declare @test int
+end
+").ConfigureAwait(false);
         }
 
         [OneTimeTearDown]
@@ -261,6 +344,8 @@ create table table_test_table_32 (
             await Connection.ExecuteAsync("drop table table_test_table_33").ConfigureAwait(false);
             await Connection.ExecuteAsync("drop table table_test_table_34").ConfigureAwait(false);
             await Connection.ExecuteAsync("drop table table_test_table_35").ConfigureAwait(false);
+            await Connection.ExecuteAsync("drop table trigger_test_table_1").ConfigureAwait(false);
+            await Connection.ExecuteAsync("drop table trigger_test_table_2").ConfigureAwait(false);
         }
 
         [Test]

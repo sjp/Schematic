@@ -13,7 +13,7 @@ namespace SJP.Schematic.SqlServer.Tests
         {
             Identifier triggerName = "test_trigger";
             const string definition = "create trigger test_trigger...";
-            const TriggerQueryTiming timing = TriggerQueryTiming.Before;
+            const TriggerQueryTiming timing = TriggerQueryTiming.InsteadOf;
             const TriggerEvent events = TriggerEvent.Update;
             const bool enabled = true;
 
@@ -25,7 +25,7 @@ namespace SJP.Schematic.SqlServer.Tests
         {
             var table = Mock.Of<IRelationalDatabaseTable>();
             const string definition = "create trigger test_trigger...";
-            const TriggerQueryTiming timing = TriggerQueryTiming.Before;
+            const TriggerQueryTiming timing = TriggerQueryTiming.InsteadOf;
             const TriggerEvent events = TriggerEvent.Update;
             const bool enabled = true;
 
@@ -38,7 +38,7 @@ namespace SJP.Schematic.SqlServer.Tests
             var table = Mock.Of<IRelationalDatabaseTable>();
             var triggerName = new SchemaIdentifier("test_trigger");
             const string definition = "create trigger test_trigger...";
-            const TriggerQueryTiming timing = TriggerQueryTiming.Before;
+            const TriggerQueryTiming timing = TriggerQueryTiming.InsteadOf;
             const TriggerEvent events = TriggerEvent.Update;
             const bool enabled = true;
 
@@ -50,7 +50,7 @@ namespace SJP.Schematic.SqlServer.Tests
         {
             var table = Mock.Of<IRelationalDatabaseTable>();
             Identifier triggerName = "test_trigger";
-            const TriggerQueryTiming timing = TriggerQueryTiming.Before;
+            const TriggerQueryTiming timing = TriggerQueryTiming.InsteadOf;
             const TriggerEvent events = TriggerEvent.Update;
             const bool enabled = true;
 
@@ -63,7 +63,7 @@ namespace SJP.Schematic.SqlServer.Tests
             var table = Mock.Of<IRelationalDatabaseTable>();
             Identifier triggerName = "test_trigger";
             var definition = string.Empty;
-            const TriggerQueryTiming timing = TriggerQueryTiming.Before;
+            const TriggerQueryTiming timing = TriggerQueryTiming.InsteadOf;
             const TriggerEvent events = TriggerEvent.Update;
             const bool enabled = true;
 
@@ -76,7 +76,7 @@ namespace SJP.Schematic.SqlServer.Tests
             var table = Mock.Of<IRelationalDatabaseTable>();
             Identifier triggerName = "test_trigger";
             const string definition = "          ";
-            const TriggerQueryTiming timing = TriggerQueryTiming.Before;
+            const TriggerQueryTiming timing = TriggerQueryTiming.InsteadOf;
             const TriggerEvent events = TriggerEvent.Update;
             const bool enabled = true;
 
@@ -102,7 +102,7 @@ namespace SJP.Schematic.SqlServer.Tests
             var table = Mock.Of<IRelationalDatabaseTable>();
             Identifier triggerName = "test_trigger";
             const string definition = "create trigger test_trigger...";
-            const TriggerQueryTiming timing = TriggerQueryTiming.Before;
+            const TriggerQueryTiming timing = TriggerQueryTiming.InsteadOf;
             const TriggerEvent events = (TriggerEvent)55;
             const bool enabled = true;
 
@@ -115,7 +115,7 @@ namespace SJP.Schematic.SqlServer.Tests
             var table = Mock.Of<IRelationalDatabaseTable>();
             Identifier triggerName = "test_trigger";
             const string definition = "create trigger test_trigger...";
-            const TriggerQueryTiming timing = TriggerQueryTiming.Before;
+            const TriggerQueryTiming timing = TriggerQueryTiming.InsteadOf;
             const TriggerEvent events = TriggerEvent.None;
             const bool enabled = true;
 
@@ -128,7 +128,7 @@ namespace SJP.Schematic.SqlServer.Tests
             var table = Mock.Of<IRelationalDatabaseTable>();
             Identifier triggerName = "test_trigger";
             const string definition = "create trigger test_trigger...";
-            const TriggerQueryTiming timing = TriggerQueryTiming.Before;
+            const TriggerQueryTiming timing = TriggerQueryTiming.InsteadOf;
             const TriggerEvent events = TriggerEvent.Update;
             const bool enabled = true;
 
@@ -143,7 +143,7 @@ namespace SJP.Schematic.SqlServer.Tests
             var table = Mock.Of<IRelationalDatabaseTable>();
             Identifier triggerName = "test_trigger";
             const string definition = "create trigger test_trigger...";
-            const TriggerQueryTiming timing = TriggerQueryTiming.Before;
+            const TriggerQueryTiming timing = TriggerQueryTiming.InsteadOf;
             const TriggerEvent events = TriggerEvent.Update;
             const bool enabled = true;
 
@@ -158,7 +158,7 @@ namespace SJP.Schematic.SqlServer.Tests
             var table = Mock.Of<IRelationalDatabaseTable>();
             Identifier triggerName = "test_trigger";
             const string definition = "create trigger test_trigger...";
-            const TriggerQueryTiming timing = TriggerQueryTiming.Before;
+            const TriggerQueryTiming timing = TriggerQueryTiming.InsteadOf;
             const TriggerEvent events = TriggerEvent.Update;
             const bool enabled = true;
 
@@ -173,7 +173,7 @@ namespace SJP.Schematic.SqlServer.Tests
             var table = Mock.Of<IRelationalDatabaseTable>();
             Identifier triggerName = "test_trigger";
             const string definition = "create trigger test_trigger...";
-            const TriggerQueryTiming timing = TriggerQueryTiming.Before;
+            const TriggerQueryTiming timing = TriggerQueryTiming.InsteadOf;
             const TriggerEvent events = TriggerEvent.Update;
             const bool enabled = true;
 
@@ -188,7 +188,7 @@ namespace SJP.Schematic.SqlServer.Tests
             var table = Mock.Of<IRelationalDatabaseTable>();
             Identifier triggerName = "test_trigger";
             const string definition = "create trigger test_trigger...";
-            const TriggerQueryTiming timing = TriggerQueryTiming.Before;
+            const TriggerQueryTiming timing = TriggerQueryTiming.InsteadOf;
             const TriggerEvent events = TriggerEvent.Update;
             const bool enabled = true;
 
@@ -203,7 +203,7 @@ namespace SJP.Schematic.SqlServer.Tests
             var table = Mock.Of<IRelationalDatabaseTable>();
             Identifier triggerName = "test_trigger";
             const string definition = "create trigger test_trigger...";
-            const TriggerQueryTiming timing = TriggerQueryTiming.Before;
+            const TriggerQueryTiming timing = TriggerQueryTiming.InsteadOf;
             const TriggerEvent events = TriggerEvent.Update;
             const bool enabled = true;
 
@@ -218,7 +218,7 @@ namespace SJP.Schematic.SqlServer.Tests
             var table = Mock.Of<IRelationalDatabaseTable>();
             Identifier triggerName = "test_trigger";
             const string definition = "create trigger test_trigger...";
-            const TriggerQueryTiming timing = TriggerQueryTiming.Before;
+            const TriggerQueryTiming timing = TriggerQueryTiming.InsteadOf;
             const TriggerEvent events = TriggerEvent.Update;
             const bool enabled = false;
 
