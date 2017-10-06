@@ -188,6 +188,44 @@ create table table_test_table_32 (
     constraint ck_test_table_32 check ([test_column]>(1))
 )").ConfigureAwait(false);
             await Connection.ExecuteAsync("create table table_test_table_33 ( test_column int not null default 1 )").ConfigureAwait(false);
+            await Connection.ExecuteAsync("create table trigger_test_table_1 (table_id integer primary key not null)").ConfigureAwait(false);
+            await Connection.ExecuteAsync("create table trigger_test_table_2 (table_id integer primary key not null)").ConfigureAwait(false);
+            await Connection.ExecuteAsync(@"create trigger trigger_test_table_1_trigger_1
+before insert
+on trigger_test_table_1
+begin
+    select 1;
+end").ConfigureAwait(false);
+            await Connection.ExecuteAsync(@"create trigger trigger_test_table_1_trigger_2
+before update
+on trigger_test_table_1
+begin
+    select 1;
+end").ConfigureAwait(false);
+            await Connection.ExecuteAsync(@"create trigger trigger_test_table_1_trigger_3
+before delete
+on trigger_test_table_1
+begin
+    select 1;
+end").ConfigureAwait(false);
+            await Connection.ExecuteAsync(@"create trigger trigger_test_table_1_trigger_4
+after insert
+on trigger_test_table_1
+begin
+    select 1;
+end").ConfigureAwait(false);
+            await Connection.ExecuteAsync(@"create trigger trigger_test_table_1_trigger_5
+after update
+on trigger_test_table_1
+begin
+    select 1;
+end").ConfigureAwait(false);
+            await Connection.ExecuteAsync(@"create trigger trigger_test_table_1_trigger_6
+after delete
+on trigger_test_table_1
+begin
+    select 1;
+end").ConfigureAwait(false);
         }
 
         [OneTimeTearDown]
@@ -223,6 +261,8 @@ create table table_test_table_32 (
             await Connection.ExecuteAsync("drop table table_test_table_15").ConfigureAwait(false);
             await Connection.ExecuteAsync("drop table table_test_table_32").ConfigureAwait(false);
             await Connection.ExecuteAsync("drop table table_test_table_33").ConfigureAwait(false);
+            await Connection.ExecuteAsync("drop table trigger_test_table_1").ConfigureAwait(false);
+            await Connection.ExecuteAsync("drop table trigger_test_table_2").ConfigureAwait(false);
         }
 
         [Test]

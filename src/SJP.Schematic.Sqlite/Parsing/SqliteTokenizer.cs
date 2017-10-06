@@ -30,8 +30,18 @@ namespace SJP.Schematic.Sqlite.Parsing
                     }
                     else if (op.HasValue)
                     {
-                        yield return Result.Value(SqlToken.Operator, op.Location, op.Remainder);
-                        next = op.Remainder.ConsumeChar();
+                        var identifier = SqlIdentifier(next.Location);
+                        if (identifier.HasValue)
+                        {
+                            var resultTokenType = SqlKeywords.Contains(identifier.Value) ? SqlToken.Keyword : SqlToken.Identifier;
+                            yield return Result.Value(resultTokenType, identifier.Location, identifier.Remainder);
+                            next = identifier.Remainder.ConsumeChar();
+                        }
+                        else
+                        {
+                            yield return Result.Value(SqlToken.Operator, op.Location, op.Remainder);
+                            next = op.Remainder.ConsumeChar();
+                        }
                     }
                     else if (literal.HasValue)
                     {
