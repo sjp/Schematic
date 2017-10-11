@@ -1009,12 +1009,12 @@ where schema_name(t.schema_id) = @SchemaName and t.name = @TableName";
             return result;
         }
 
-        protected IReadOnlyDictionary<int, RelationalKeyUpdateAction> RelationalActionMapping { get; } = new Dictionary<int, RelationalKeyUpdateAction>
+        protected IReadOnlyDictionary<int, Rule> RelationalActionMapping { get; } = new Dictionary<int, Rule>
         {
-            [0] = RelationalKeyUpdateAction.NoAction,
-            [1] = RelationalKeyUpdateAction.Cascade,
-            [2] = RelationalKeyUpdateAction.SetNull,
-            [3] = RelationalKeyUpdateAction.SetDefault
+            [0] = Rule.None,
+            [1] = Rule.Cascade,
+            [2] = Rule.SetNull,
+            [3] = Rule.SetDefault
         }.AsReadOnlyDictionary();
     }
 }

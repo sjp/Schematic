@@ -871,23 +871,23 @@ namespace SJP.Schematic.Sqlite
             }
         }
 
-        protected static RelationalKeyUpdateAction GetRelationalUpdateAction(string pragmaUpdateAction)
+        protected static Rule GetRelationalUpdateAction(string pragmaUpdateAction)
         {
             if (pragmaUpdateAction.IsNullOrWhiteSpace())
                 throw new ArgumentNullException(nameof(pragmaUpdateAction));
 
             return _relationalUpdateMapping.ContainsKey(pragmaUpdateAction)
                 ? _relationalUpdateMapping[pragmaUpdateAction]
-                : RelationalKeyUpdateAction.NoAction;
+                : Rule.None;
         }
 
-        private static readonly IReadOnlyDictionary<string, RelationalKeyUpdateAction> _relationalUpdateMapping = new Dictionary<String, RelationalKeyUpdateAction>(StringComparer.OrdinalIgnoreCase)
+        private static readonly IReadOnlyDictionary<string, Rule> _relationalUpdateMapping = new Dictionary<string, Rule>(StringComparer.OrdinalIgnoreCase)
         {
-            ["NO ACTION"] = RelationalKeyUpdateAction.NoAction,
-            ["RESTRICT"] = RelationalKeyUpdateAction.NoAction,
-            ["SET NULL"] = RelationalKeyUpdateAction.SetNull,
-            ["SET DEFAULT"] = RelationalKeyUpdateAction.SetDefault,
-            ["CASCADE"] = RelationalKeyUpdateAction.Cascade
+            ["NO ACTION"] = Rule.None,
+            ["RESTRICT"] = Rule.None,
+            ["SET NULL"] = Rule.SetNull,
+            ["SET DEFAULT"] = Rule.SetDefault,
+            ["CASCADE"] = Rule.Cascade
         };
 
         private string _createTableSql;

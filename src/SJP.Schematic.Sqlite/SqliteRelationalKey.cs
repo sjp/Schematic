@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Data;
 using EnumsNET;
 using SJP.Schematic.Core;
 
@@ -6,25 +7,25 @@ namespace SJP.Schematic.Sqlite
 {
     public class SqliteRelationalKey : IDatabaseRelationalKey
     {
-        public SqliteRelationalKey(IDatabaseKey childKey, IDatabaseKey parentKey, RelationalKeyUpdateAction deleteAction, RelationalKeyUpdateAction updateAction)
+        public SqliteRelationalKey(IDatabaseKey childKey, IDatabaseKey parentKey, Rule deleteRule, Rule updateRule)
         {
-            if (!deleteAction.IsValid())
-                throw new ArgumentException($"The { nameof(RelationalKeyUpdateAction) } provided must be a valid enum.", nameof(deleteAction));
-            if (!updateAction.IsValid())
-                throw new ArgumentException($"The { nameof(RelationalKeyUpdateAction) } provided must be a valid enum.", nameof(updateAction));
+            if (!deleteRule.IsValid())
+                throw new ArgumentException($"The { nameof(Rule) } provided must be a valid enum.", nameof(deleteRule));
+            if (!updateRule.IsValid())
+                throw new ArgumentException($"The { nameof(Rule) } provided must be a valid enum.", nameof(updateRule));
 
             ChildKey = childKey ?? throw new ArgumentNullException(nameof(childKey));
             ParentKey = parentKey ?? throw new ArgumentNullException(nameof(parentKey));
-            DeleteAction = deleteAction;
-            UpdateAction = updateAction;
+            DeleteRule = deleteRule;
+            UpdateRule = updateRule;
         }
 
         public IDatabaseKey ChildKey { get; }
 
         public IDatabaseKey ParentKey { get; }
 
-        public RelationalKeyUpdateAction DeleteAction { get; }
+        public Rule DeleteRule { get; }
 
-        public RelationalKeyUpdateAction UpdateAction { get; }
+        public Rule UpdateRule { get; }
     }
 }

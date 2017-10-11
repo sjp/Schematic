@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System.Data;
+using System.Linq;
 using System.Threading.Tasks;
 using NUnit.Framework;
 using SJP.Schematic.Core;
@@ -161,7 +162,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
             var childKeys = table.ChildKeys;
             var foreignKey = childKeys.Single(k => k.ChildKey.Table.Name.LocalName == "table_test_table_16");
 
-            Assert.AreEqual(RelationalKeyUpdateAction.NoAction, foreignKey.UpdateAction);
+            Assert.AreEqual(Rule.None, foreignKey.UpdateRule);
         }
 
         [Test]
@@ -171,7 +172,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
             var childKeys = await table.ChildKeysAsync().ConfigureAwait(false);
             var foreignKey = childKeys.Single(k => k.ChildKey.Table.Name.LocalName == "table_test_table_16");
 
-            Assert.AreEqual(RelationalKeyUpdateAction.NoAction, foreignKey.UpdateAction);
+            Assert.AreEqual(Rule.None, foreignKey.UpdateRule);
         }
 
         [Test]
@@ -181,7 +182,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
             var childKeys = table.ChildKeys;
             var foreignKey = childKeys.Single(k => k.ChildKey.Table.Name.LocalName == "table_test_table_18");
 
-            Assert.AreEqual(RelationalKeyUpdateAction.Cascade, foreignKey.UpdateAction);
+            Assert.AreEqual(Rule.Cascade, foreignKey.UpdateRule);
         }
 
         [Test]
@@ -191,7 +192,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
             var childKeys = await table.ChildKeysAsync().ConfigureAwait(false);
             var foreignKey = childKeys.Single(k => k.ChildKey.Table.Name.LocalName == "table_test_table_18");
 
-            Assert.AreEqual(RelationalKeyUpdateAction.Cascade, foreignKey.UpdateAction);
+            Assert.AreEqual(Rule.Cascade, foreignKey.UpdateRule);
         }
 
         [Test]
@@ -201,7 +202,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
             var childKeys = table.ChildKeys;
             var foreignKey = childKeys.Single(k => k.ChildKey.Table.Name.LocalName == "table_test_table_19");
 
-            Assert.AreEqual(RelationalKeyUpdateAction.SetNull, foreignKey.UpdateAction);
+            Assert.AreEqual(Rule.SetNull, foreignKey.UpdateRule);
         }
 
         [Test]
@@ -211,7 +212,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
             var childKeys = await table.ChildKeysAsync().ConfigureAwait(false);
             var foreignKey = childKeys.Single(k => k.ChildKey.Table.Name.LocalName == "table_test_table_19");
 
-            Assert.AreEqual(RelationalKeyUpdateAction.SetNull, foreignKey.UpdateAction);
+            Assert.AreEqual(Rule.SetNull, foreignKey.UpdateRule);
         }
 
         [Test]
@@ -221,7 +222,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
             var childKeys = table.ChildKeys;
             var foreignKey = childKeys.Single(k => k.ChildKey.Table.Name.LocalName == "table_test_table_20");
 
-            Assert.AreEqual(RelationalKeyUpdateAction.SetDefault, foreignKey.UpdateAction);
+            Assert.AreEqual(Rule.SetDefault, foreignKey.UpdateRule);
         }
 
         [Test]
@@ -231,7 +232,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
             var childKeys = await table.ChildKeysAsync().ConfigureAwait(false);
             var foreignKey = childKeys.Single(k => k.ChildKey.Table.Name.LocalName == "table_test_table_20");
 
-            Assert.AreEqual(RelationalKeyUpdateAction.SetDefault, foreignKey.UpdateAction);
+            Assert.AreEqual(Rule.SetDefault, foreignKey.UpdateRule);
         }
 
         [Test]
@@ -241,7 +242,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
             var childKeys = table.ChildKeys;
             var foreignKey = childKeys.Single(k => k.ChildKey.Table.Name.LocalName == "table_test_table_16");
 
-            Assert.AreEqual(RelationalKeyUpdateAction.NoAction, foreignKey.DeleteAction);
+            Assert.AreEqual(Rule.None, foreignKey.DeleteRule);
         }
 
         [Test]
@@ -251,7 +252,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
             var childKeys = await table.ChildKeysAsync().ConfigureAwait(false);
             var foreignKey = childKeys.Single(k => k.ChildKey.Table.Name.LocalName == "table_test_table_16");
 
-            Assert.AreEqual(RelationalKeyUpdateAction.NoAction, foreignKey.DeleteAction);
+            Assert.AreEqual(Rule.None, foreignKey.DeleteRule);
         }
 
         [Test]
@@ -261,7 +262,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
             var childKeys = table.ChildKeys;
             var foreignKey = childKeys.Single(k => k.ChildKey.Table.Name.LocalName == "table_test_table_24");
 
-            Assert.AreEqual(RelationalKeyUpdateAction.Cascade, foreignKey.DeleteAction);
+            Assert.AreEqual(Rule.Cascade, foreignKey.DeleteRule);
         }
 
         [Test]
@@ -271,7 +272,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
             var childKeys = await table.ChildKeysAsync().ConfigureAwait(false);
             var foreignKey = childKeys.Single(k => k.ChildKey.Table.Name.LocalName == "table_test_table_24");
 
-            Assert.AreEqual(RelationalKeyUpdateAction.Cascade, foreignKey.DeleteAction);
+            Assert.AreEqual(Rule.Cascade, foreignKey.DeleteRule);
         }
 
         [Test]
@@ -281,7 +282,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
             var childKeys = table.ChildKeys;
             var foreignKey = childKeys.Single(k => k.ChildKey.Table.Name.LocalName == "table_test_table_25");
 
-            Assert.AreEqual(RelationalKeyUpdateAction.SetNull, foreignKey.DeleteAction);
+            Assert.AreEqual(Rule.SetNull, foreignKey.DeleteRule);
         }
 
         [Test]
@@ -291,7 +292,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
             var childKeys = await table.ChildKeysAsync().ConfigureAwait(false);
             var foreignKey = childKeys.Single(k => k.ChildKey.Table.Name.LocalName == "table_test_table_25");
 
-            Assert.AreEqual(RelationalKeyUpdateAction.SetNull, foreignKey.DeleteAction);
+            Assert.AreEqual(Rule.SetNull, foreignKey.DeleteRule);
         }
 
         [Test]
@@ -301,7 +302,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
             var childKeys = table.ChildKeys;
             var foreignKey = childKeys.Single(k => k.ChildKey.Table.Name.LocalName == "table_test_table_26");
 
-            Assert.AreEqual(RelationalKeyUpdateAction.SetDefault, foreignKey.DeleteAction);
+            Assert.AreEqual(Rule.SetDefault, foreignKey.DeleteRule);
         }
 
         [Test]
@@ -311,7 +312,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
             var childKeys = await table.ChildKeysAsync().ConfigureAwait(false);
             var foreignKey = childKeys.Single(k => k.ChildKey.Table.Name.LocalName == "table_test_table_26");
 
-            Assert.AreEqual(RelationalKeyUpdateAction.SetDefault, foreignKey.DeleteAction);
+            Assert.AreEqual(Rule.SetDefault, foreignKey.DeleteRule);
         }
 
         [Test]
@@ -467,7 +468,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
             var childKeys = table.ChildKeys;
             var foreignKey = childKeys.Single(k => k.ChildKey.Table.Name.LocalName == "table_test_table_17");
 
-            Assert.AreEqual(RelationalKeyUpdateAction.NoAction, foreignKey.UpdateAction);
+            Assert.AreEqual(Rule.None, foreignKey.UpdateRule);
         }
 
         [Test]
@@ -477,7 +478,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
             var childKeys = await table.ChildKeysAsync().ConfigureAwait(false);
             var foreignKey = childKeys.Single(k => k.ChildKey.Table.Name.LocalName == "table_test_table_17");
 
-            Assert.AreEqual(RelationalKeyUpdateAction.NoAction, foreignKey.UpdateAction);
+            Assert.AreEqual(Rule.None, foreignKey.UpdateRule);
         }
 
         [Test]
@@ -487,7 +488,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
             var childKeys = table.ChildKeys;
             var foreignKey = childKeys.Single(k => k.ChildKey.Table.Name.LocalName == "table_test_table_21");
 
-            Assert.AreEqual(RelationalKeyUpdateAction.Cascade, foreignKey.UpdateAction);
+            Assert.AreEqual(Rule.Cascade, foreignKey.UpdateRule);
         }
 
         [Test]
@@ -497,7 +498,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
             var childKeys = await table.ChildKeysAsync().ConfigureAwait(false);
             var foreignKey = childKeys.Single(k => k.ChildKey.Table.Name.LocalName == "table_test_table_21");
 
-            Assert.AreEqual(RelationalKeyUpdateAction.Cascade, foreignKey.UpdateAction);
+            Assert.AreEqual(Rule.Cascade, foreignKey.UpdateRule);
         }
 
         [Test]
@@ -507,7 +508,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
             var childKeys = table.ChildKeys;
             var foreignKey = childKeys.Single(k => k.ChildKey.Table.Name.LocalName == "table_test_table_22");
 
-            Assert.AreEqual(RelationalKeyUpdateAction.SetNull, foreignKey.UpdateAction);
+            Assert.AreEqual(Rule.SetNull, foreignKey.UpdateRule);
         }
 
         [Test]
@@ -517,7 +518,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
             var childKeys = await table.ChildKeysAsync().ConfigureAwait(false);
             var foreignKey = childKeys.Single(k => k.ChildKey.Table.Name.LocalName == "table_test_table_22");
 
-            Assert.AreEqual(RelationalKeyUpdateAction.SetNull, foreignKey.UpdateAction);
+            Assert.AreEqual(Rule.SetNull, foreignKey.UpdateRule);
         }
 
         [Test]
@@ -527,7 +528,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
             var childKeys = table.ChildKeys;
             var foreignKey = childKeys.Single(k => k.ChildKey.Table.Name.LocalName == "table_test_table_23");
 
-            Assert.AreEqual(RelationalKeyUpdateAction.SetDefault, foreignKey.UpdateAction);
+            Assert.AreEqual(Rule.SetDefault, foreignKey.UpdateRule);
         }
 
         [Test]
@@ -537,7 +538,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
             var childKeys = await table.ChildKeysAsync().ConfigureAwait(false);
             var foreignKey = childKeys.Single(k => k.ChildKey.Table.Name.LocalName == "table_test_table_23");
 
-            Assert.AreEqual(RelationalKeyUpdateAction.SetDefault, foreignKey.UpdateAction);
+            Assert.AreEqual(Rule.SetDefault, foreignKey.UpdateRule);
         }
 
         [Test]
@@ -547,7 +548,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
             var childKeys = table.ChildKeys;
             var foreignKey = childKeys.Single(k => k.ChildKey.Table.Name.LocalName == "table_test_table_17");
 
-            Assert.AreEqual(RelationalKeyUpdateAction.NoAction, foreignKey.DeleteAction);
+            Assert.AreEqual(Rule.None, foreignKey.DeleteRule);
         }
 
         [Test]
@@ -557,7 +558,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
             var childKeys = await table.ChildKeysAsync().ConfigureAwait(false);
             var foreignKey = childKeys.Single(k => k.ChildKey.Table.Name.LocalName == "table_test_table_17");
 
-            Assert.AreEqual(RelationalKeyUpdateAction.NoAction, foreignKey.DeleteAction);
+            Assert.AreEqual(Rule.None, foreignKey.DeleteRule);
         }
 
         [Test]
@@ -567,7 +568,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
             var childKeys = table.ChildKeys;
             var foreignKey = childKeys.Single(k => k.ChildKey.Table.Name.LocalName == "table_test_table_27");
 
-            Assert.AreEqual(RelationalKeyUpdateAction.Cascade, foreignKey.DeleteAction);
+            Assert.AreEqual(Rule.Cascade, foreignKey.DeleteRule);
         }
 
         [Test]
@@ -577,7 +578,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
             var childKeys = await table.ChildKeysAsync().ConfigureAwait(false);
             var foreignKey = childKeys.Single(k => k.ChildKey.Table.Name.LocalName == "table_test_table_27");
 
-            Assert.AreEqual(RelationalKeyUpdateAction.Cascade, foreignKey.DeleteAction);
+            Assert.AreEqual(Rule.Cascade, foreignKey.DeleteRule);
         }
 
         [Test]
@@ -587,7 +588,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
             var childKeys = table.ChildKeys;
             var foreignKey = childKeys.Single(k => k.ChildKey.Table.Name.LocalName == "table_test_table_28");
 
-            Assert.AreEqual(RelationalKeyUpdateAction.SetNull, foreignKey.DeleteAction);
+            Assert.AreEqual(Rule.SetNull, foreignKey.DeleteRule);
         }
 
         [Test]
@@ -597,7 +598,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
             var childKeys = await table.ChildKeysAsync().ConfigureAwait(false);
             var foreignKey = childKeys.Single(k => k.ChildKey.Table.Name.LocalName == "table_test_table_28");
 
-            Assert.AreEqual(RelationalKeyUpdateAction.SetNull, foreignKey.DeleteAction);
+            Assert.AreEqual(Rule.SetNull, foreignKey.DeleteRule);
         }
 
         [Test]
@@ -607,7 +608,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
             var childKeys = table.ChildKeys;
             var foreignKey = childKeys.Single(k => k.ChildKey.Table.Name.LocalName == "table_test_table_29");
 
-            Assert.AreEqual(RelationalKeyUpdateAction.SetDefault, foreignKey.DeleteAction);
+            Assert.AreEqual(Rule.SetDefault, foreignKey.DeleteRule);
         }
 
         [Test]
@@ -617,7 +618,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
             var childKeys = await table.ChildKeysAsync().ConfigureAwait(false);
             var foreignKey = childKeys.Single(k => k.ChildKey.Table.Name.LocalName == "table_test_table_29");
 
-            Assert.AreEqual(RelationalKeyUpdateAction.SetDefault, foreignKey.DeleteAction);
+            Assert.AreEqual(Rule.SetDefault, foreignKey.DeleteRule);
         }
 
         [Test]

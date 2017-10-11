@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System.Data;
+using System.Linq;
 using System.Threading.Tasks;
 using NUnit.Framework;
 using SJP.Schematic.Core;
@@ -308,7 +309,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
             var parentKeyLookup = table.ParentKey;
             var foreignKey = parentKeyLookup.Values.Single();
 
-            Assert.AreEqual(RelationalKeyUpdateAction.NoAction, foreignKey.UpdateAction);
+            Assert.AreEqual(Rule.None, foreignKey.UpdateRule);
         }
 
         [Test]
@@ -318,7 +319,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
             var parentKeys = table.ParentKeys;
             var foreignKey = parentKeys.Single();
 
-            Assert.AreEqual(RelationalKeyUpdateAction.NoAction, foreignKey.UpdateAction);
+            Assert.AreEqual(Rule.None, foreignKey.UpdateRule);
         }
 
         [Test]
@@ -328,7 +329,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
             var parentKeyLookup = await table.ParentKeyAsync().ConfigureAwait(false);
             var foreignKey = parentKeyLookup.Values.Single();
 
-            Assert.AreEqual(RelationalKeyUpdateAction.NoAction, foreignKey.UpdateAction);
+            Assert.AreEqual(Rule.None, foreignKey.UpdateRule);
         }
 
         [Test]
@@ -338,7 +339,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
             var parentKeys = await table.ParentKeysAsync().ConfigureAwait(false);
             var foreignKey = parentKeys.Single();
 
-            Assert.AreEqual(RelationalKeyUpdateAction.NoAction, foreignKey.UpdateAction);
+            Assert.AreEqual(Rule.None, foreignKey.UpdateRule);
         }
 
         [Test]
@@ -348,7 +349,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
             var parentKeyLookup = table.ParentKey;
             var foreignKey = parentKeyLookup.Values.Single();
 
-            Assert.AreEqual(RelationalKeyUpdateAction.Cascade, foreignKey.UpdateAction);
+            Assert.AreEqual(Rule.Cascade, foreignKey.UpdateRule);
         }
 
         [Test]
@@ -358,7 +359,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
             var parentKeys = table.ParentKeys;
             var foreignKey = parentKeys.Single();
 
-            Assert.AreEqual(RelationalKeyUpdateAction.Cascade, foreignKey.UpdateAction);
+            Assert.AreEqual(Rule.Cascade, foreignKey.UpdateRule);
         }
 
         [Test]
@@ -368,7 +369,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
             var parentKeyLookup = await table.ParentKeyAsync().ConfigureAwait(false);
             var foreignKey = parentKeyLookup.Values.Single();
 
-            Assert.AreEqual(RelationalKeyUpdateAction.Cascade, foreignKey.UpdateAction);
+            Assert.AreEqual(Rule.Cascade, foreignKey.UpdateRule);
         }
 
         [Test]
@@ -378,7 +379,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
             var parentKeys = await table.ParentKeysAsync().ConfigureAwait(false);
             var foreignKey = parentKeys.Single();
 
-            Assert.AreEqual(RelationalKeyUpdateAction.Cascade, foreignKey.UpdateAction);
+            Assert.AreEqual(Rule.Cascade, foreignKey.UpdateRule);
         }
 
         [Test]
@@ -388,7 +389,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
             var parentKeyLookup = table.ParentKey;
             var foreignKey = parentKeyLookup.Values.Single();
 
-            Assert.AreEqual(RelationalKeyUpdateAction.SetNull, foreignKey.UpdateAction);
+            Assert.AreEqual(Rule.SetNull, foreignKey.UpdateRule);
         }
 
         [Test]
@@ -398,7 +399,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
             var parentKeys = table.ParentKeys;
             var foreignKey = parentKeys.Single();
 
-            Assert.AreEqual(RelationalKeyUpdateAction.SetNull, foreignKey.UpdateAction);
+            Assert.AreEqual(Rule.SetNull, foreignKey.UpdateRule);
         }
 
         [Test]
@@ -408,7 +409,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
             var parentKeyLookup = await table.ParentKeyAsync().ConfigureAwait(false);
             var foreignKey = parentKeyLookup.Values.Single();
 
-            Assert.AreEqual(RelationalKeyUpdateAction.SetNull, foreignKey.UpdateAction);
+            Assert.AreEqual(Rule.SetNull, foreignKey.UpdateRule);
         }
 
         [Test]
@@ -418,7 +419,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
             var parentKeys = await table.ParentKeysAsync().ConfigureAwait(false);
             var foreignKey = parentKeys.Single();
 
-            Assert.AreEqual(RelationalKeyUpdateAction.SetNull, foreignKey.UpdateAction);
+            Assert.AreEqual(Rule.SetNull, foreignKey.UpdateRule);
         }
 
         [Test]
@@ -428,7 +429,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
             var parentKeyLookup = table.ParentKey;
             var foreignKey = parentKeyLookup.Values.Single();
 
-            Assert.AreEqual(RelationalKeyUpdateAction.SetDefault, foreignKey.UpdateAction);
+            Assert.AreEqual(Rule.SetDefault, foreignKey.UpdateRule);
         }
 
         [Test]
@@ -438,7 +439,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
             var parentKeys = table.ParentKeys;
             var foreignKey = parentKeys.Single();
 
-            Assert.AreEqual(RelationalKeyUpdateAction.SetDefault, foreignKey.UpdateAction);
+            Assert.AreEqual(Rule.SetDefault, foreignKey.UpdateRule);
         }
 
         [Test]
@@ -448,7 +449,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
             var parentKeyLookup = await table.ParentKeyAsync().ConfigureAwait(false);
             var foreignKey = parentKeyLookup.Values.Single();
 
-            Assert.AreEqual(RelationalKeyUpdateAction.SetDefault, foreignKey.UpdateAction);
+            Assert.AreEqual(Rule.SetDefault, foreignKey.UpdateRule);
         }
 
         [Test]
@@ -458,7 +459,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
             var parentKeys = await table.ParentKeysAsync().ConfigureAwait(false);
             var foreignKey = parentKeys.Single();
 
-            Assert.AreEqual(RelationalKeyUpdateAction.SetDefault, foreignKey.UpdateAction);
+            Assert.AreEqual(Rule.SetDefault, foreignKey.UpdateRule);
         }
 
         [Test]
@@ -468,7 +469,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
             var parentKeyLookup = table.ParentKey;
             var foreignKey = parentKeyLookup.Values.Single();
 
-            Assert.AreEqual(RelationalKeyUpdateAction.NoAction, foreignKey.DeleteAction);
+            Assert.AreEqual(Rule.None, foreignKey.DeleteRule);
         }
 
         [Test]
@@ -478,7 +479,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
             var parentKeys = table.ParentKeys;
             var foreignKey = parentKeys.Single();
 
-            Assert.AreEqual(RelationalKeyUpdateAction.NoAction, foreignKey.DeleteAction);
+            Assert.AreEqual(Rule.None, foreignKey.DeleteRule);
         }
 
         [Test]
@@ -488,7 +489,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
             var parentKeyLookup = await table.ParentKeyAsync().ConfigureAwait(false);
             var foreignKey = parentKeyLookup.Values.Single();
 
-            Assert.AreEqual(RelationalKeyUpdateAction.NoAction, foreignKey.DeleteAction);
+            Assert.AreEqual(Rule.None, foreignKey.DeleteRule);
         }
 
         [Test]
@@ -498,7 +499,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
             var parentKeys = await table.ParentKeysAsync().ConfigureAwait(false);
             var foreignKey = parentKeys.Single();
 
-            Assert.AreEqual(RelationalKeyUpdateAction.NoAction, foreignKey.DeleteAction);
+            Assert.AreEqual(Rule.None, foreignKey.DeleteRule);
         }
 
         [Test]
@@ -508,7 +509,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
             var parentKeyLookup = table.ParentKey;
             var foreignKey = parentKeyLookup.Values.Single();
 
-            Assert.AreEqual(RelationalKeyUpdateAction.Cascade, foreignKey.DeleteAction);
+            Assert.AreEqual(Rule.Cascade, foreignKey.DeleteRule);
         }
 
         [Test]
@@ -518,7 +519,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
             var parentKeys = table.ParentKeys;
             var foreignKey = parentKeys.Single();
 
-            Assert.AreEqual(RelationalKeyUpdateAction.Cascade, foreignKey.DeleteAction);
+            Assert.AreEqual(Rule.Cascade, foreignKey.DeleteRule);
         }
 
         [Test]
@@ -528,7 +529,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
             var parentKeyLookup = await table.ParentKeyAsync().ConfigureAwait(false);
             var foreignKey = parentKeyLookup.Values.Single();
 
-            Assert.AreEqual(RelationalKeyUpdateAction.Cascade, foreignKey.DeleteAction);
+            Assert.AreEqual(Rule.Cascade, foreignKey.DeleteRule);
         }
 
         [Test]
@@ -538,7 +539,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
             var parentKeys = await table.ParentKeysAsync().ConfigureAwait(false);
             var foreignKey = parentKeys.Single();
 
-            Assert.AreEqual(RelationalKeyUpdateAction.Cascade, foreignKey.DeleteAction);
+            Assert.AreEqual(Rule.Cascade, foreignKey.DeleteRule);
         }
 
         [Test]
@@ -548,7 +549,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
             var parentKeyLookup = table.ParentKey;
             var foreignKey = parentKeyLookup.Values.Single();
 
-            Assert.AreEqual(RelationalKeyUpdateAction.SetNull, foreignKey.DeleteAction);
+            Assert.AreEqual(Rule.SetNull, foreignKey.DeleteRule);
         }
 
         [Test]
@@ -558,7 +559,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
             var parentKeys = table.ParentKeys;
             var foreignKey = parentKeys.Single();
 
-            Assert.AreEqual(RelationalKeyUpdateAction.SetNull, foreignKey.DeleteAction);
+            Assert.AreEqual(Rule.SetNull, foreignKey.DeleteRule);
         }
 
         [Test]
@@ -568,7 +569,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
             var parentKeyLookup = await table.ParentKeyAsync().ConfigureAwait(false);
             var foreignKey = parentKeyLookup.Values.Single();
 
-            Assert.AreEqual(RelationalKeyUpdateAction.SetNull, foreignKey.DeleteAction);
+            Assert.AreEqual(Rule.SetNull, foreignKey.DeleteRule);
         }
 
         [Test]
@@ -578,7 +579,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
             var parentKeys = await table.ParentKeysAsync().ConfigureAwait(false);
             var foreignKey = parentKeys.Single();
 
-            Assert.AreEqual(RelationalKeyUpdateAction.SetNull, foreignKey.DeleteAction);
+            Assert.AreEqual(Rule.SetNull, foreignKey.DeleteRule);
         }
 
         [Test]
@@ -588,7 +589,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
             var parentKeyLookup = table.ParentKey;
             var foreignKey = parentKeyLookup.Values.Single();
 
-            Assert.AreEqual(RelationalKeyUpdateAction.SetDefault, foreignKey.DeleteAction);
+            Assert.AreEqual(Rule.SetDefault, foreignKey.DeleteRule);
         }
 
         [Test]
@@ -598,7 +599,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
             var parentKeys = table.ParentKeys;
             var foreignKey = parentKeys.Single();
 
-            Assert.AreEqual(RelationalKeyUpdateAction.SetDefault, foreignKey.DeleteAction);
+            Assert.AreEqual(Rule.SetDefault, foreignKey.DeleteRule);
         }
 
         [Test]
@@ -608,7 +609,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
             var parentKeyLookup = await table.ParentKeyAsync().ConfigureAwait(false);
             var foreignKey = parentKeyLookup.Values.Single();
 
-            Assert.AreEqual(RelationalKeyUpdateAction.SetDefault, foreignKey.DeleteAction);
+            Assert.AreEqual(Rule.SetDefault, foreignKey.DeleteRule);
         }
 
         [Test]
@@ -618,7 +619,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
             var parentKeys = await table.ParentKeysAsync().ConfigureAwait(false);
             var foreignKey = parentKeys.Single();
 
-            Assert.AreEqual(RelationalKeyUpdateAction.SetDefault, foreignKey.DeleteAction);
+            Assert.AreEqual(Rule.SetDefault, foreignKey.DeleteRule);
         }
 
         [Test]
@@ -924,7 +925,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
             var parentKeyLookup = table.ParentKey;
             var foreignKey = parentKeyLookup.Values.Single();
 
-            Assert.AreEqual(RelationalKeyUpdateAction.NoAction, foreignKey.UpdateAction);
+            Assert.AreEqual(Rule.None, foreignKey.UpdateRule);
         }
 
         [Test]
@@ -934,7 +935,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
             var parentKeys = table.ParentKeys;
             var foreignKey = parentKeys.Single();
 
-            Assert.AreEqual(RelationalKeyUpdateAction.NoAction, foreignKey.UpdateAction);
+            Assert.AreEqual(Rule.None, foreignKey.UpdateRule);
         }
 
         [Test]
@@ -944,7 +945,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
             var parentKeyLookup = await table.ParentKeyAsync().ConfigureAwait(false);
             var foreignKey = parentKeyLookup.Values.Single();
 
-            Assert.AreEqual(RelationalKeyUpdateAction.NoAction, foreignKey.UpdateAction);
+            Assert.AreEqual(Rule.None, foreignKey.UpdateRule);
         }
 
         [Test]
@@ -954,7 +955,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
             var parentKeys = await table.ParentKeysAsync().ConfigureAwait(false);
             var foreignKey = parentKeys.Single();
 
-            Assert.AreEqual(RelationalKeyUpdateAction.NoAction, foreignKey.UpdateAction);
+            Assert.AreEqual(Rule.None, foreignKey.UpdateRule);
         }
 
         [Test]
@@ -964,7 +965,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
             var parentKeyLookup = table.ParentKey;
             var foreignKey = parentKeyLookup.Values.Single();
 
-            Assert.AreEqual(RelationalKeyUpdateAction.Cascade, foreignKey.UpdateAction);
+            Assert.AreEqual(Rule.Cascade, foreignKey.UpdateRule);
         }
 
         [Test]
@@ -974,7 +975,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
             var parentKeys = table.ParentKeys;
             var foreignKey = parentKeys.Single();
 
-            Assert.AreEqual(RelationalKeyUpdateAction.Cascade, foreignKey.UpdateAction);
+            Assert.AreEqual(Rule.Cascade, foreignKey.UpdateRule);
         }
 
         [Test]
@@ -984,7 +985,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
             var parentKeyLookup = await table.ParentKeyAsync().ConfigureAwait(false);
             var foreignKey = parentKeyLookup.Values.Single();
 
-            Assert.AreEqual(RelationalKeyUpdateAction.Cascade, foreignKey.UpdateAction);
+            Assert.AreEqual(Rule.Cascade, foreignKey.UpdateRule);
         }
 
         [Test]
@@ -994,7 +995,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
             var parentKeys = await table.ParentKeysAsync().ConfigureAwait(false);
             var foreignKey = parentKeys.Single();
 
-            Assert.AreEqual(RelationalKeyUpdateAction.Cascade, foreignKey.UpdateAction);
+            Assert.AreEqual(Rule.Cascade, foreignKey.UpdateRule);
         }
 
         [Test]
@@ -1004,7 +1005,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
             var parentKeyLookup = table.ParentKey;
             var foreignKey = parentKeyLookup.Values.Single();
 
-            Assert.AreEqual(RelationalKeyUpdateAction.SetNull, foreignKey.UpdateAction);
+            Assert.AreEqual(Rule.SetNull, foreignKey.UpdateRule);
         }
 
         [Test]
@@ -1014,7 +1015,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
             var parentKeys = table.ParentKeys;
             var foreignKey = parentKeys.Single();
 
-            Assert.AreEqual(RelationalKeyUpdateAction.SetNull, foreignKey.UpdateAction);
+            Assert.AreEqual(Rule.SetNull, foreignKey.UpdateRule);
         }
 
         [Test]
@@ -1024,7 +1025,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
             var parentKeyLookup = await table.ParentKeyAsync().ConfigureAwait(false);
             var foreignKey = parentKeyLookup.Values.Single();
 
-            Assert.AreEqual(RelationalKeyUpdateAction.SetNull, foreignKey.UpdateAction);
+            Assert.AreEqual(Rule.SetNull, foreignKey.UpdateRule);
         }
 
         [Test]
@@ -1034,7 +1035,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
             var parentKeys = await table.ParentKeysAsync().ConfigureAwait(false);
             var foreignKey = parentKeys.Single();
 
-            Assert.AreEqual(RelationalKeyUpdateAction.SetNull, foreignKey.UpdateAction);
+            Assert.AreEqual(Rule.SetNull, foreignKey.UpdateRule);
         }
 
         [Test]
@@ -1044,7 +1045,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
             var parentKeyLookup = table.ParentKey;
             var foreignKey = parentKeyLookup.Values.Single();
 
-            Assert.AreEqual(RelationalKeyUpdateAction.SetDefault, foreignKey.UpdateAction);
+            Assert.AreEqual(Rule.SetDefault, foreignKey.UpdateRule);
         }
 
         [Test]
@@ -1054,7 +1055,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
             var parentKeys = table.ParentKeys;
             var foreignKey = parentKeys.Single();
 
-            Assert.AreEqual(RelationalKeyUpdateAction.SetDefault, foreignKey.UpdateAction);
+            Assert.AreEqual(Rule.SetDefault, foreignKey.UpdateRule);
         }
 
         [Test]
@@ -1064,7 +1065,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
             var parentKeyLookup = await table.ParentKeyAsync().ConfigureAwait(false);
             var foreignKey = parentKeyLookup.Values.Single();
 
-            Assert.AreEqual(RelationalKeyUpdateAction.SetDefault, foreignKey.UpdateAction);
+            Assert.AreEqual(Rule.SetDefault, foreignKey.UpdateRule);
         }
 
         [Test]
@@ -1074,7 +1075,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
             var parentKeys = await table.ParentKeysAsync().ConfigureAwait(false);
             var foreignKey = parentKeys.Single();
 
-            Assert.AreEqual(RelationalKeyUpdateAction.SetDefault, foreignKey.UpdateAction);
+            Assert.AreEqual(Rule.SetDefault, foreignKey.UpdateRule);
         }
 
         [Test]
@@ -1084,7 +1085,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
             var parentKeyLookup = table.ParentKey;
             var foreignKey = parentKeyLookup.Values.Single();
 
-            Assert.AreEqual(RelationalKeyUpdateAction.NoAction, foreignKey.DeleteAction);
+            Assert.AreEqual(Rule.None, foreignKey.DeleteRule);
         }
 
         [Test]
@@ -1094,7 +1095,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
             var parentKeys = table.ParentKeys;
             var foreignKey = parentKeys.Single();
 
-            Assert.AreEqual(RelationalKeyUpdateAction.NoAction, foreignKey.DeleteAction);
+            Assert.AreEqual(Rule.None, foreignKey.DeleteRule);
         }
 
         [Test]
@@ -1104,7 +1105,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
             var parentKeyLookup = await table.ParentKeyAsync().ConfigureAwait(false);
             var foreignKey = parentKeyLookup.Values.Single();
 
-            Assert.AreEqual(RelationalKeyUpdateAction.NoAction, foreignKey.DeleteAction);
+            Assert.AreEqual(Rule.None, foreignKey.DeleteRule);
         }
 
         [Test]
@@ -1114,7 +1115,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
             var parentKeys = await table.ParentKeysAsync().ConfigureAwait(false);
             var foreignKey = parentKeys.Single();
 
-            Assert.AreEqual(RelationalKeyUpdateAction.NoAction, foreignKey.DeleteAction);
+            Assert.AreEqual(Rule.None, foreignKey.DeleteRule);
         }
 
         [Test]
@@ -1124,7 +1125,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
             var parentKeyLookup = table.ParentKey;
             var foreignKey = parentKeyLookup.Values.Single();
 
-            Assert.AreEqual(RelationalKeyUpdateAction.Cascade, foreignKey.DeleteAction);
+            Assert.AreEqual(Rule.Cascade, foreignKey.DeleteRule);
         }
 
         [Test]
@@ -1134,7 +1135,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
             var parentKeys = table.ParentKeys;
             var foreignKey = parentKeys.Single();
 
-            Assert.AreEqual(RelationalKeyUpdateAction.Cascade, foreignKey.DeleteAction);
+            Assert.AreEqual(Rule.Cascade, foreignKey.DeleteRule);
         }
 
         [Test]
@@ -1144,7 +1145,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
             var parentKeyLookup = await table.ParentKeyAsync().ConfigureAwait(false);
             var foreignKey = parentKeyLookup.Values.Single();
 
-            Assert.AreEqual(RelationalKeyUpdateAction.Cascade, foreignKey.DeleteAction);
+            Assert.AreEqual(Rule.Cascade, foreignKey.DeleteRule);
         }
 
         [Test]
@@ -1154,7 +1155,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
             var parentKeys = await table.ParentKeysAsync().ConfigureAwait(false);
             var foreignKey = parentKeys.Single();
 
-            Assert.AreEqual(RelationalKeyUpdateAction.Cascade, foreignKey.DeleteAction);
+            Assert.AreEqual(Rule.Cascade, foreignKey.DeleteRule);
         }
 
         [Test]
@@ -1164,7 +1165,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
             var parentKeyLookup = table.ParentKey;
             var foreignKey = parentKeyLookup.Values.Single();
 
-            Assert.AreEqual(RelationalKeyUpdateAction.SetNull, foreignKey.DeleteAction);
+            Assert.AreEqual(Rule.SetNull, foreignKey.DeleteRule);
         }
 
         [Test]
@@ -1174,7 +1175,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
             var parentKeys = table.ParentKeys;
             var foreignKey = parentKeys.Single();
 
-            Assert.AreEqual(RelationalKeyUpdateAction.SetNull, foreignKey.DeleteAction);
+            Assert.AreEqual(Rule.SetNull, foreignKey.DeleteRule);
         }
 
         [Test]
@@ -1184,7 +1185,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
             var parentKeyLookup = await table.ParentKeyAsync().ConfigureAwait(false);
             var foreignKey = parentKeyLookup.Values.Single();
 
-            Assert.AreEqual(RelationalKeyUpdateAction.SetNull, foreignKey.DeleteAction);
+            Assert.AreEqual(Rule.SetNull, foreignKey.DeleteRule);
         }
 
         [Test]
@@ -1194,7 +1195,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
             var parentKeys = await table.ParentKeysAsync().ConfigureAwait(false);
             var foreignKey = parentKeys.Single();
 
-            Assert.AreEqual(RelationalKeyUpdateAction.SetNull, foreignKey.DeleteAction);
+            Assert.AreEqual(Rule.SetNull, foreignKey.DeleteRule);
         }
 
         [Test]
@@ -1204,7 +1205,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
             var parentKeyLookup = table.ParentKey;
             var foreignKey = parentKeyLookup.Values.Single();
 
-            Assert.AreEqual(RelationalKeyUpdateAction.SetDefault, foreignKey.DeleteAction);
+            Assert.AreEqual(Rule.SetDefault, foreignKey.DeleteRule);
         }
 
         [Test]
@@ -1214,7 +1215,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
             var parentKeys = table.ParentKeys;
             var foreignKey = parentKeys.Single();
 
-            Assert.AreEqual(RelationalKeyUpdateAction.SetDefault, foreignKey.DeleteAction);
+            Assert.AreEqual(Rule.SetDefault, foreignKey.DeleteRule);
         }
 
         [Test]
@@ -1224,7 +1225,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
             var parentKeyLookup = await table.ParentKeyAsync().ConfigureAwait(false);
             var foreignKey = parentKeyLookup.Values.Single();
 
-            Assert.AreEqual(RelationalKeyUpdateAction.SetDefault, foreignKey.DeleteAction);
+            Assert.AreEqual(Rule.SetDefault, foreignKey.DeleteRule);
         }
 
         [Test]
@@ -1234,7 +1235,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
             var parentKeys = await table.ParentKeysAsync().ConfigureAwait(false);
             var foreignKey = parentKeys.Single();
 
-            Assert.AreEqual(RelationalKeyUpdateAction.SetDefault, foreignKey.DeleteAction);
+            Assert.AreEqual(Rule.SetDefault, foreignKey.DeleteRule);
         }
 
         [Test]

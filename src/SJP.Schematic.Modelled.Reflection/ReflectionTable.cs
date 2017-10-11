@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
@@ -143,25 +144,17 @@ namespace SJP.Schematic.Modelled.Reflection
                 //       maybe change interface of Synonym<T> to be something like Synonym<Table<T>> or Synonym<Synonym<T>> -- could unwrap at runtime?
                 var childKey = new ReflectionForeignKey(Dialect, this, parentKey, fk.Property, fkColumns);
 
-                var deleteAttr = Dialect.GetDialectAttribute<OnDeleteActionAttribute>(fk.Property);
-                var deleteAction = deleteAttr != null ? _updateActionMapping[deleteAttr.Action] : RelationalKeyUpdateAction.NoAction;
+                var deleteAttr = Dialect.GetDialectAttribute<OnDeleteRuleAttributeAttribute>(fk.Property);
+                var deleteRule = deleteAttr?.Rule ?? Rule.None;
 
-                var updateAttr = Dialect.GetDialectAttribute<OnUpdateActionAttribute>(fk.Property);
-                var updateAction = updateAttr != null ? _updateActionMapping[updateAttr.Action] : RelationalKeyUpdateAction.NoAction;
+                var updateAttr = Dialect.GetDialectAttribute<OnUpdateRuleAttribute>(fk.Property);
+                var updateRule = updateAttr?.Rule ?? Rule.None;
 
-                result[childKey.Name.LocalName] = new ReflectionRelationalKey(childKey, parentKey, deleteAction, updateAction);
+                result[childKey.Name.LocalName] = new ReflectionRelationalKey(childKey, parentKey, deleteRule, updateRule);
             }
 
             return result.AsReadOnlyDictionary();
         }
-
-        private readonly static IReadOnlyDictionary<ForeignKeyAction, RelationalKeyUpdateAction> _updateActionMapping = new Dictionary<ForeignKeyAction, RelationalKeyUpdateAction>
-        {
-            [ForeignKeyAction.NoAction] = RelationalKeyUpdateAction.NoAction,
-            [ForeignKeyAction.Cascade] = RelationalKeyUpdateAction.Cascade,
-            [ForeignKeyAction.SetNull] = RelationalKeyUpdateAction.SetNull,
-            [ForeignKeyAction.SetDefault] = RelationalKeyUpdateAction.SetDefault
-        };
 
         public object TableInstance { get; }
 

@@ -206,7 +206,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
         {
             const string viewName = "view_test_view_1";
             var view = new SqliteRelationalDatabaseView(Connection, Database, viewName);
-            var columnCount = view.Columns.Count();
+            var columnCount = view.Columns.Count;
 
             Assert.AreEqual(1, columnCount);
         }
@@ -280,7 +280,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
         {
             const string viewName = "view_test_view_2";
             var view = new SqliteRelationalDatabaseView(Connection, Database, viewName);
-            var columnCount = view.Columns.Count();
+            var columnCount = view.Columns.Count;
 
             Assert.AreEqual(4, columnCount);
         }
@@ -347,7 +347,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
         {
             const string viewName = "view_test_view_3";
             var view = new SqliteRelationalDatabaseView(Connection, Database, viewName);
-            var columnCount = view.Columns.Count();
+            var columnCount = view.Columns.Count;
 
             Assert.AreEqual(5, columnCount);
         }
@@ -414,7 +414,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
         {
             const string viewName = "view_test_view_4";
             var view = new SqliteRelationalDatabaseView(Connection, Database, viewName);
-            var columnCount = view.Columns.Count();
+            var columnCount = view.Columns.Count;
 
             Assert.AreEqual(4, columnCount);
         }

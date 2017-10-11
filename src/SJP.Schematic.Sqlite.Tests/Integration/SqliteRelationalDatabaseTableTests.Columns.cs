@@ -21,7 +21,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
         public void Columns_WhenGivenTableWithOneColumn_ReturnsColumnCollectionWithOneValue()
         {
             var table = Database.GetTable("table_test_table_1");
-            var count = table.Columns.Count();
+            var count = table.Columns.Count;
 
             Assert.AreEqual(1, count);
         }
@@ -40,7 +40,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
         {
             var table = await Database.GetTableAsync("table_test_table_1").ConfigureAwait(false);
             var columns = await table.ColumnsAsync().ConfigureAwait(false);
-            var count = columns.Count();
+            var count = columns.Count;
 
             Assert.AreEqual(1, count);
         }

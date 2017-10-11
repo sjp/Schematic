@@ -209,7 +209,7 @@ namespace SJP.Schematic.SqlServer.Tests.Integration
         {
             var viewName = new Identifier(Database.DefaultSchema, "view_test_view_1");
             var view = new SqlServerRelationalDatabaseView(Connection, Database, viewName);
-            var columnCount = view.Columns.Count();
+            var columnCount = view.Columns.Count;
 
             Assert.AreEqual(1, columnCount);
         }
