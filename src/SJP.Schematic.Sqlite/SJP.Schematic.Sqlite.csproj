@@ -14,6 +14,7 @@
     <RepositoryUrl>https://github.com/sjp/Schematic</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <PackageIconUrl>https://raw.github.com/sjp/Schematic/master/database.svg</PackageIconUrl>
+    <CheckForOverflowUnderflow>true</CheckForOverflowUnderflow>
   </PropertyGroup>
 
   <ItemGroup>
