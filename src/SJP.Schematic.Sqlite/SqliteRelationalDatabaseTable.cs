@@ -526,10 +526,10 @@ namespace SJP.Schematic.Sqlite
 
                 var childKey = new SqliteDatabaseKey(this, childKeyName, DatabaseKeyType.Foreign, childKeyColumns);
 
-                var deleteAction = GetRelationalUpdateAction(fkey.Key.OnDelete);
-                var updateAction = GetRelationalUpdateAction(fkey.Key.OnUpdate);
+                var deleteRule = GetRelationalUpdateRule(fkey.Key.OnDelete);
+                var updateRule = GetRelationalUpdateRule(fkey.Key.OnUpdate);
 
-                var relationalKey = new SqliteRelationalKey(childKey, parentConstraint, deleteAction, updateAction);
+                var relationalKey = new SqliteRelationalKey(childKey, parentConstraint, deleteRule, updateRule);
                 result.Add(relationalKey);
             }
 
@@ -598,10 +598,10 @@ namespace SJP.Schematic.Sqlite
 
                 var childKey = new SqliteDatabaseKey(this, childKeyName, DatabaseKeyType.Foreign, childKeyColumns);
 
-                var deleteAction = GetRelationalUpdateAction(fkey.Key.OnDelete);
-                var updateAction = GetRelationalUpdateAction(fkey.Key.OnUpdate);
+                var deleteRule = GetRelationalUpdateRule(fkey.Key.OnDelete);
+                var updateRule = GetRelationalUpdateRule(fkey.Key.OnUpdate);
 
-                var relationalKey = new SqliteRelationalKey(childKey, parentConstraint, deleteAction, updateAction);
+                var relationalKey = new SqliteRelationalKey(childKey, parentConstraint, deleteRule, updateRule);
                 result.Add(relationalKey);
             }
 
@@ -871,13 +871,13 @@ namespace SJP.Schematic.Sqlite
             }
         }
 
-        protected static Rule GetRelationalUpdateAction(string pragmaUpdateAction)
+        protected static Rule GetRelationalUpdateRule(string pragmaUpdateRule)
         {
-            if (pragmaUpdateAction.IsNullOrWhiteSpace())
-                throw new ArgumentNullException(nameof(pragmaUpdateAction));
+            if (pragmaUpdateRule.IsNullOrWhiteSpace())
+                throw new ArgumentNullException(nameof(pragmaUpdateRule));
 
-            return _relationalUpdateMapping.ContainsKey(pragmaUpdateAction)
-                ? _relationalUpdateMapping[pragmaUpdateAction]
+            return _relationalUpdateMapping.ContainsKey(pragmaUpdateRule)
+                ? _relationalUpdateMapping[pragmaUpdateRule]
                 : Rule.None;
         }
 

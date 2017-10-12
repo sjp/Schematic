@@ -354,7 +354,7 @@ order by ic.key_ordinal";
         protected virtual IEnumerable<IDatabaseRelationalKey> LoadChildKeysSync()
         {
             const string sql = @"
-select schema_name(child_t.schema_id) as ChildTableSchema, child_t.name as ChildTableName, fk.name as ChildKeyName, kc.name as ParentKeyName, kc.type as ParentKeyType, fk.delete_referential_action as DeleteAction, fk.update_referential_action as UpdateAction
+select schema_name(child_t.schema_id) as ChildTableSchema, child_t.name as ChildTableName, fk.name as ChildKeyName, kc.name as ParentKeyName, kc.type as ParentKeyType, fk.delete_referential_action as DeleteRule, fk.update_referential_action as UpdateRule
 from sys.tables parent_t
 inner join sys.foreign_keys fk on parent_t.object_id = fk.referenced_object_id
 inner join sys.tables child_t on fk.parent_object_id = child_t.object_id
@@ -375,8 +375,8 @@ where schema_name(parent_t.schema_id) = @SchemaName and parent_t.name = @TableNa
                 ChildKeyName = row.ChildKeyName,
                 ParentKeyName = row.ParentKeyName,
                 ParentKeyType = row.ParentKeyType,
-                DeleteAction = row.DeleteAction,
-                UpdateAction = row.UpdateAction
+                DeleteRule = row.DeleteRule,
+                UpdateRule = row.UpdateRule
             }).ToList();
             if (groupedChildKeys.Count == 0)
                 return Enumerable.Empty<IDatabaseRelationalKey>();
@@ -403,10 +403,10 @@ where schema_name(parent_t.schema_id) = @SchemaName and parent_t.name = @TableNa
                     parentKey = uniqueKeyLookup[groupedChildKey.Key.ParentKeyName];
                 }
 
-                var deleteAction = RelationalActionMapping[groupedChildKey.Key.DeleteAction];
-                var updateAction = RelationalActionMapping[groupedChildKey.Key.UpdateAction];
+                var deleteRule = RelationalRuleMapping[groupedChildKey.Key.DeleteRule];
+                var updateRule = RelationalRuleMapping[groupedChildKey.Key.UpdateRule];
 
-                var relationalKey = new SqlServerRelationalKey(childKey, parentKey, deleteAction, updateAction);
+                var relationalKey = new SqlServerRelationalKey(childKey, parentKey, deleteRule, updateRule);
                 result.Add(relationalKey);
             }
 
@@ -416,7 +416,7 @@ where schema_name(parent_t.schema_id) = @SchemaName and parent_t.name = @TableNa
         protected virtual async Task<IEnumerable<IDatabaseRelationalKey>> LoadChildKeysAsync()
         {
             const string sql = @"
-select schema_name(child_t.schema_id) as ChildTableSchema, child_t.name as ChildTableName, fk.name as ChildKeyName, kc.name as ParentKeyName, kc.type as ParentKeyType, fk.delete_referential_action as DeleteAction, fk.update_referential_action as UpdateAction
+select schema_name(child_t.schema_id) as ChildTableSchema, child_t.name as ChildTableName, fk.name as ChildKeyName, kc.name as ParentKeyName, kc.type as ParentKeyType, fk.delete_referential_action as DeleteRule, fk.update_referential_action as UpdateRule
 from sys.tables parent_t
 inner join sys.foreign_keys fk on parent_t.object_id = fk.referenced_object_id
 inner join sys.tables child_t on fk.parent_object_id = child_t.object_id
@@ -437,8 +437,8 @@ where schema_name(parent_t.schema_id) = @SchemaName and parent_t.name = @TableNa
                 ChildKeyName = row.ChildKeyName,
                 ParentKeyName = row.ParentKeyName,
                 ParentKeyType = row.ParentKeyType,
-                DeleteAction = row.DeleteAction,
-                UpdateAction = row.UpdateAction
+                DeleteRule = row.DeleteRule,
+                UpdateRule = row.UpdateRule
             }).ToList();
             if (groupedChildKeys.Count == 0)
                 return Enumerable.Empty<IDatabaseRelationalKey>();
@@ -465,9 +465,9 @@ where schema_name(parent_t.schema_id) = @SchemaName and parent_t.name = @TableNa
                     parentKey = uniqueKeyLookup[groupedChildKey.Key.ParentKeyName];
                 }
 
-                var deleteAction = RelationalActionMapping[groupedChildKey.Key.DeleteAction];
-                var updateAction = RelationalActionMapping[groupedChildKey.Key.UpdateAction];
-                var relationalKey = new SqlServerRelationalKey(childKey, parentKey, deleteAction, updateAction);
+                var deleteRule = RelationalRuleMapping[groupedChildKey.Key.DeleteRule];
+                var updateRule = RelationalRuleMapping[groupedChildKey.Key.UpdateRule];
+                var relationalKey = new SqlServerRelationalKey(childKey, parentKey, deleteRule, updateRule);
 
                 result.Add(relationalKey);
             }
@@ -590,7 +590,7 @@ where schema_name(t.schema_id) = @SchemaName and t.name = @TableName";
         protected virtual IEnumerable<IDatabaseRelationalKey> LoadParentKeysSync()
         {
             const string sql = @"
-select schema_name(parent_t.schema_id) as ParentTableSchema, parent_t.name as ParentTableName, fk.name as ChildKeyName, c.name as ColumnName, fkc.constraint_column_id as ConstraintColumnId, kc.name as ParentKeyName, kc.type as ParentKeyType, fk.delete_referential_action as DeleteAction, fk.update_referential_action as UpdateAction, fk.is_disabled as IsDisabled
+select schema_name(parent_t.schema_id) as ParentTableSchema, parent_t.name as ParentTableName, fk.name as ChildKeyName, c.name as ColumnName, fkc.constraint_column_id as ConstraintColumnId, kc.name as ParentKeyName, kc.type as ParentKeyType, fk.delete_referential_action as DeleteRule, fk.update_referential_action as UpdateRule, fk.is_disabled as IsDisabled
 from sys.tables parent_t
 inner join sys.foreign_keys fk on parent_t.object_id = fk.referenced_object_id
 inner join sys.tables child_t on fk.parent_object_id = child_t.object_id
@@ -610,8 +610,8 @@ where schema_name(child_t.schema_id) = @SchemaName and child_t.name = @TableName
                 ParentTableName = row.ParentTableName,
                 ParentKeyName = row.ParentKeyName,
                 KeyType = row.ParentKeyType,
-                DeleteAction = row.DeleteAction,
-                UpdateAction = row.UpdateAction,
+                DeleteRule = row.DeleteRule,
+                UpdateRule = row.UpdateRule,
                 IsDisabled = row.IsDisabled
             }).ToList();
             if (foreignKeys.Count == 0)
@@ -647,10 +647,10 @@ where schema_name(child_t.schema_id) = @SchemaName and child_t.name = @TableName
                 var isEnabled = !fkey.Key.IsDisabled;
                 var childKey = new SqlServerDatabaseKey(this, childKeyName, DatabaseKeyType.Foreign, childKeyColumns, isEnabled);
 
-                var deleteAction = RelationalActionMapping[fkey.Key.DeleteAction];
-                var updateAction = RelationalActionMapping[fkey.Key.UpdateAction];
+                var deleteRule = RelationalRuleMapping[fkey.Key.DeleteRule];
+                var updateRule = RelationalRuleMapping[fkey.Key.UpdateRule];
 
-                var relationalKey = new SqlServerRelationalKey(childKey, parentKey, deleteAction, updateAction);
+                var relationalKey = new SqlServerRelationalKey(childKey, parentKey, deleteRule, updateRule);
                 result.Add(relationalKey);
             }
 
@@ -660,7 +660,7 @@ where schema_name(child_t.schema_id) = @SchemaName and child_t.name = @TableName
         protected virtual async Task<IEnumerable<IDatabaseRelationalKey>> LoadParentKeysAsync()
         {
             const string sql = @"
-select schema_name(parent_t.schema_id) as ParentTableSchema, parent_t.name as ParentTableName, fk.name as ChildKeyName, c.name as ColumnName, fkc.constraint_column_id as ConstraintColumnId, kc.name as ParentKeyName, kc.type as ParentKeyType, fk.delete_referential_action as DeleteAction, fk.update_referential_action as UpdateAction, fk.is_disabled as IsDisabled
+select schema_name(parent_t.schema_id) as ParentTableSchema, parent_t.name as ParentTableName, fk.name as ChildKeyName, c.name as ColumnName, fkc.constraint_column_id as ConstraintColumnId, kc.name as ParentKeyName, kc.type as ParentKeyType, fk.delete_referential_action as DeleteRule, fk.update_referential_action as UpdateRule, fk.is_disabled as IsDisabled
 from sys.tables parent_t
 inner join sys.foreign_keys fk on parent_t.object_id = fk.referenced_object_id
 inner join sys.tables child_t on fk.parent_object_id = child_t.object_id
@@ -680,8 +680,8 @@ where schema_name(child_t.schema_id) = @SchemaName and child_t.name = @TableName
                 ParentTableName = row.ParentTableName,
                 ParentKeyName = row.ParentKeyName,
                 KeyType = row.ParentKeyType,
-                DeleteAction = row.DeleteAction,
-                UpdateAction = row.UpdateAction,
+                DeleteRule = row.DeleteRule,
+                UpdateRule = row.UpdateRule,
                 IsDisabled = row.IsDisabled
             }).ToList();
             if (foreignKeys.Count == 0)
@@ -717,10 +717,10 @@ where schema_name(child_t.schema_id) = @SchemaName and child_t.name = @TableName
                 var isEnabled = !fkey.Key.IsDisabled;
                 var childKey = new SqlServerDatabaseKey(this, childKeyName, DatabaseKeyType.Foreign, childKeyColumns, isEnabled);
 
-                var deleteAction = RelationalActionMapping[fkey.Key.DeleteAction];
-                var updateAction = RelationalActionMapping[fkey.Key.UpdateAction];
+                var deleteRule = RelationalRuleMapping[fkey.Key.DeleteRule];
+                var updateRule = RelationalRuleMapping[fkey.Key.UpdateRule];
 
-                var relationalKey = new SqlServerRelationalKey(childKey, parentKey, deleteAction, updateAction);
+                var relationalKey = new SqlServerRelationalKey(childKey, parentKey, deleteRule, updateRule);
                 result.Add(relationalKey);
             }
 
@@ -1009,7 +1009,7 @@ where schema_name(t.schema_id) = @SchemaName and t.name = @TableName";
             return result;
         }
 
-        protected IReadOnlyDictionary<int, Rule> RelationalActionMapping { get; } = new Dictionary<int, Rule>
+        protected IReadOnlyDictionary<int, Rule> RelationalRuleMapping { get; } = new Dictionary<int, Rule>
         {
             [0] = Rule.None,
             [1] = Rule.Cascade,

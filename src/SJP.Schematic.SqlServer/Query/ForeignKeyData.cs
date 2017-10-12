@@ -16,9 +16,9 @@
 
         public string ParentKeyType { get; set; }
 
-        public int DeleteAction { get; set; }
+        public int DeleteRule { get; set; }
 
-        public int UpdateAction { get; set; }
+        public int UpdateRule { get; set; }
 
         public bool IsDisabled { get; set; }
     }
