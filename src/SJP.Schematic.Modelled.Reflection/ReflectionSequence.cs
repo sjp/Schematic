@@ -20,7 +20,7 @@ namespace SJP.Schematic.Modelled.Reflection
             if (ctor == null)
                 throw new ArgumentException($"The sequence type { SequenceType.FullName } does not contain a default constructor.", nameof(sequenceType));
 
-            var instance = ctor.Invoke(new object[0]) as ISequence;
+            var instance = ctor.Invoke(Array.Empty<object>()) as ISequence;
             Cache = instance.Cache;
             Cycle = instance.Cycle;
             Increment = instance.Increment;

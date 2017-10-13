@@ -61,8 +61,10 @@ namespace SJP.Schematic.Modelled.Reflection
             if (tableInstance == null)
                 throw new ArgumentNullException(nameof(tableInstance));
 
-            var properties = tableType.GetTypeInfo().GetProperties();
-            var columnProps = properties.Where(IsColumnProperty);
+            var columnProps = tableType
+                .GetTypeInfo()
+                .GetProperties()
+                .Where(IsColumnProperty);
 
             foreach (var prop in columnProps)
             {
