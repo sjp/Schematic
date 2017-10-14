@@ -54,52 +54,66 @@ namespace SJP.Schematic.SqlServer.Tests
         [Test]
         public void ChildKey_PropertyGet_EqualsCtorArg()
         {
-            var parentKey = Mock.Of<IDatabaseKey>();
             const Rule deleteRule = Rule.Cascade;
             const Rule updateRule = Rule.SetDefault;
-
             Identifier keyName = "test_child_key";
-            var childKey = new Mock<IDatabaseKey>();
-            childKey.Setup(t => t.Name).Returns(keyName);
-            var childKeyArg = childKey.Object;
 
-            var relationalKey = new SqlServerRelationalKey(childKeyArg, parentKey, deleteRule, updateRule);
+            var childKeyMock = new Mock<IDatabaseKey>();
+            childKeyMock.Setup(k => k.KeyType).Returns(DatabaseKeyType.Foreign);
+            childKeyMock.Setup(k => k.Name).Returns(keyName);
+            var childKey = childKeyMock.Object;
+
+            var parentKeyMock = new Mock<IDatabaseKey>();
+            parentKeyMock.Setup(k => k.KeyType).Returns(DatabaseKeyType.Primary);
+            var parentKey = parentKeyMock.Object;
+
+            var relationalKey = new SqlServerRelationalKey(childKey, parentKey, deleteRule, updateRule);
 
             Assert.Multiple(() =>
             {
                 Assert.AreEqual(keyName, relationalKey.ChildKey.Name);
-                Assert.AreSame(childKeyArg, relationalKey.ChildKey);
+                Assert.AreSame(childKey, relationalKey.ChildKey);
             });
         }
 
         [Test]
         public void ParentKey_PropertyGet_EqualsCtorArg()
         {
-            var childKey = Mock.Of<IDatabaseKey>();
             const Rule deleteRule = Rule.Cascade;
             const Rule updateRule = Rule.SetDefault;
-
             Identifier keyName = "test_parent_key";
-            var parentKey = new Mock<IDatabaseKey>();
-            parentKey.Setup(t => t.Name).Returns(keyName);
-            var parentKeyArg = parentKey.Object;
 
-            var relationalKey = new SqlServerRelationalKey(childKey, parentKeyArg, deleteRule, updateRule);
+            var childKeyMock = new Mock<IDatabaseKey>();
+            childKeyMock.Setup(k => k.KeyType).Returns(DatabaseKeyType.Foreign);
+            var childKey = childKeyMock.Object;
+
+            var parentKeyMock = new Mock<IDatabaseKey>();
+            parentKeyMock.Setup(k => k.KeyType).Returns(DatabaseKeyType.Primary);
+            parentKeyMock.Setup(t => t.Name).Returns(keyName);
+            var parentKey = parentKeyMock.Object;
+
+            var relationalKey = new SqlServerRelationalKey(childKey, parentKey, deleteRule, updateRule);
 
             Assert.Multiple(() =>
             {
                 Assert.AreEqual(keyName, relationalKey.ParentKey.Name);
-                Assert.AreSame(parentKeyArg, relationalKey.ParentKey);
+                Assert.AreSame(parentKey, relationalKey.ParentKey);
             });
         }
 
         [Test]
         public void DeleteRule_PropertyGet_EqualsCtorArg()
         {
-            var childKey = Mock.Of<IDatabaseKey>();
-            var parentKey = Mock.Of<IDatabaseKey>();
             const Rule deleteRule = Rule.Cascade;
             const Rule updateRule = Rule.SetDefault;
+
+            var childKeyMock = new Mock<IDatabaseKey>();
+            childKeyMock.Setup(k => k.KeyType).Returns(DatabaseKeyType.Foreign);
+            var childKey = childKeyMock.Object;
+
+            var parentKeyMock = new Mock<IDatabaseKey>();
+            parentKeyMock.Setup(k => k.KeyType).Returns(DatabaseKeyType.Primary);
+            var parentKey = parentKeyMock.Object;
 
             var relationalKey = new SqlServerRelationalKey(childKey, parentKey, deleteRule, updateRule);
 
@@ -109,14 +123,46 @@ namespace SJP.Schematic.SqlServer.Tests
         [Test]
         public void UpdateRule_PropertyGet_EqualsCtorArg()
         {
-            var childKey = Mock.Of<IDatabaseKey>();
-            var parentKey = Mock.Of<IDatabaseKey>();
             const Rule deleteRule = Rule.Cascade;
             const Rule updateRule = Rule.SetDefault;
+
+            var childKeyMock = new Mock<IDatabaseKey>();
+            childKeyMock.Setup(k => k.KeyType).Returns(DatabaseKeyType.Foreign);
+            var childKey = childKeyMock.Object;
+
+            var parentKeyMock = new Mock<IDatabaseKey>();
+            parentKeyMock.Setup(k => k.KeyType).Returns(DatabaseKeyType.Primary);
+            var parentKey = parentKeyMock.Object;
 
             var relationalKey = new SqlServerRelationalKey(childKey, parentKey, deleteRule, updateRule);
 
             Assert.AreEqual(updateRule, relationalKey.UpdateRule);
+        }
+
+        [Test]
+        public void Ctor_GivenChildKeyNotForeignKey_ThrowsArgumentException()
+        {
+            var childKeyMock = new Mock<IDatabaseKey>();
+            childKeyMock.Setup(k => k.KeyType).Returns(DatabaseKeyType.Primary);
+            var parentKeyMock = new Mock<IDatabaseKey>();
+            parentKeyMock.Setup(k => k.KeyType).Returns(DatabaseKeyType.Primary);
+            const Rule deleteRule = Rule.None;
+            const Rule updateRule = Rule.None;
+
+            Assert.Throws<ArgumentException>(() => new SqlServerRelationalKey(childKeyMock.Object, parentKeyMock.Object, deleteRule, updateRule));
+        }
+
+        [Test]
+        public void Ctor_GivenParentKeyNotCandidateKey_ThrowsArgumentException()
+        {
+            var childKeyMock = new Mock<IDatabaseKey>();
+            childKeyMock.Setup(k => k.KeyType).Returns(DatabaseKeyType.Foreign);
+            var parentKeyMock = new Mock<IDatabaseKey>();
+            parentKeyMock.Setup(k => k.KeyType).Returns(DatabaseKeyType.Foreign);
+            const Rule deleteRule = Rule.None;
+            const Rule updateRule = Rule.None;
+
+            Assert.Throws<ArgumentException>(() => new SqlServerRelationalKey(childKeyMock.Object, parentKeyMock.Object, deleteRule, updateRule));
         }
     }
 }
