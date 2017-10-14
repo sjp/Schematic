@@ -544,5 +544,187 @@ namespace SJP.Schematic.Core.Tests
             var otherIdentifier = new ServerIdentifier("def");
             Assert.AreNotEqual(identifier.GetHashCode(), otherIdentifier.GetHashCode());
         }
+
+        [Test]
+        public void CreateQualifiedIdentifier_GivenFullyQualifiedArguments_CreatesFullyQualifiedIdentifier()
+        {
+            var identifier = Identifier.CreateQualifiedIdentifier("a", "b", "c", "d");
+
+            Assert.Multiple(() =>
+            {
+                Assert.AreEqual("a", identifier.Server);
+                Assert.AreEqual("b", identifier.Database);
+                Assert.AreEqual("c", identifier.Schema);
+                Assert.AreEqual("d", identifier.LocalName);
+            });
+        }
+
+        [Test]
+        public void CreateQualifiedIdentifier_GivenArgumentsWithoutServer_CreatesCorrectlyQualifiedIdentifier()
+        {
+            var identifier = Identifier.CreateQualifiedIdentifier(null, "b", "c", "d");
+
+            Assert.Multiple(() =>
+            {
+                Assert.IsNull(identifier.Server);
+                Assert.AreEqual("b", identifier.Database);
+                Assert.AreEqual("c", identifier.Schema);
+                Assert.AreEqual("d", identifier.LocalName);
+            });
+        }
+
+        [Test]
+        public void CreateQualifiedIdentifier_GivenArgumentsWithoutServerAndDatabase_CreatesCorrectlyQualifiedIdentifier()
+        {
+            var identifier = Identifier.CreateQualifiedIdentifier(null, null, "c", "d");
+
+            Assert.Multiple(() =>
+            {
+                Assert.IsNull(identifier.Server);
+                Assert.IsNull(identifier.Database);
+                Assert.AreEqual("c", identifier.Schema);
+                Assert.AreEqual("d", identifier.LocalName);
+            });
+        }
+
+        [Test]
+        public void CreateQualifiedIdentifier_GivenArgumentsWithoutServerAndDatabaseAndSchema_CreatesCorrectlyQualifiedIdentifier()
+        {
+            var identifier = Identifier.CreateQualifiedIdentifier(null, null, "d");
+
+            Assert.Multiple(() =>
+            {
+                Assert.IsNull(identifier.Server);
+                Assert.IsNull(identifier.Database);
+                Assert.IsNull(identifier.Schema);
+                Assert.AreEqual("d", identifier.LocalName);
+            });
+        }
+
+        [Test]
+        public void CreateQualifiedIdentifier_GivenArgumentsMissingServer_CreatesCorrectlyQualifiedIdentifier()
+        {
+            var identifier = Identifier.CreateQualifiedIdentifier("b", "c", "d");
+
+            Assert.Multiple(() =>
+            {
+                Assert.IsNull(identifier.Server);
+                Assert.AreEqual("b", identifier.Database);
+                Assert.AreEqual("c", identifier.Schema);
+                Assert.AreEqual("d", identifier.LocalName);
+            });
+        }
+
+        [Test]
+        public void CreateQualifiedIdentifier_GivenArgumentsMissingServerAndWithoutDatabase_CreatesCorrectlyQualifiedIdentifier()
+        {
+            var identifier = Identifier.CreateQualifiedIdentifier(null, "c", "d");
+
+            Assert.Multiple(() =>
+            {
+                Assert.IsNull(identifier.Server);
+                Assert.IsNull(identifier.Database);
+                Assert.AreEqual("c", identifier.Schema);
+                Assert.AreEqual("d", identifier.LocalName);
+            });
+        }
+
+        [Test]
+        public void CreateQualifiedIdentifier_GivenArgumentsMissingServerAndWithoutDatabaseAndSchema_CreatesCorrectlyQualifiedIdentifier()
+        {
+            var identifier = Identifier.CreateQualifiedIdentifier(null, null, "d");
+
+            Assert.Multiple(() =>
+            {
+                Assert.IsNull(identifier.Server);
+                Assert.IsNull(identifier.Database);
+                Assert.IsNull(identifier.Schema);
+                Assert.AreEqual("d", identifier.LocalName);
+            });
+        }
+
+        [Test]
+        public void CreateQualifiedIdentifier_GivenArgumentsWithOnlyDatabaseAndLocalName_CreatesCorrectlyQualifiedIdentifier()
+        {
+            var identifier = Identifier.CreateQualifiedIdentifier("c", "d");
+
+            Assert.Multiple(() =>
+            {
+                Assert.IsNull(identifier.Server);
+                Assert.IsNull(identifier.Database);
+                Assert.AreEqual("c", identifier.Schema);
+                Assert.AreEqual("d", identifier.LocalName);
+            });
+        }
+
+        [Test]
+        public void CreateQualifiedIdentifier_GivenArgumentsWithoutSchemaAndWithLocalName_CreatesCorrectlyQualifiedIdentifier()
+        {
+            var identifier = Identifier.CreateQualifiedIdentifier(null, "d");
+
+            Assert.Multiple(() =>
+            {
+                Assert.IsNull(identifier.Server);
+                Assert.IsNull(identifier.Database);
+                Assert.IsNull(identifier.Schema);
+                Assert.AreEqual("d", identifier.LocalName);
+            });
+        }
+
+        [Test]
+        public void CreateQualifiedIdentifier_GivenArgumentsWithOnlyLocalName_CreatesCorrectlyQualifiedIdentifier()
+        {
+            var identifier = Identifier.CreateQualifiedIdentifier("d");
+
+            Assert.Multiple(() =>
+            {
+                Assert.IsNull(identifier.Server);
+                Assert.IsNull(identifier.Database);
+                Assert.IsNull(identifier.Schema);
+                Assert.AreEqual("d", identifier.LocalName);
+            });
+        }
+
+        [Test]
+        public void CreateQualifiedIdentifier_GivenArgumentsWithoutServerAndDatabaseAndSchema_ThrowsArgumentNullException()
+        {
+            Assert.Throws<ArgumentNullException>(() => Identifier.CreateQualifiedIdentifier(null, null, null, null));
+        }
+
+        [Test]
+        public void CreateQualifiedIdentifier_GivenAllArgumentsExceptDatabase_ThrowsArgumentNullException()
+        {
+            Assert.Throws<ArgumentNullException>(() => Identifier.CreateQualifiedIdentifier("a", null, "c", "d"));
+        }
+
+        [Test]
+        public void CreateQualifiedIdentifier_GivenAllArgumentsExceptSchema_ThrowsArgumentNullException()
+        {
+            Assert.Throws<ArgumentNullException>(() => Identifier.CreateQualifiedIdentifier("a", "b", null, "d"));
+        }
+
+        [Test]
+        public void CreateQualifiedIdentifier_GivenAllArgumentsExceptLocalName_ThrowsArgumentNullException()
+        {
+            Assert.Throws<ArgumentNullException>(() => Identifier.CreateQualifiedIdentifier("a", "b", "c", null));
+        }
+
+        [Test]
+        public void CreateQualifiedIdentifier_GivenAllArgumentsExceptServerAndSchema_ThrowsArgumentNullException()
+        {
+            Assert.Throws<ArgumentNullException>(() => Identifier.CreateQualifiedIdentifier(null, "b", null, "d"));
+        }
+
+        [Test]
+        public void CreateQualifiedIdentifier_GivenOnlyDatabase_ThrowsArgumentNullException()
+        {
+            Assert.Throws<ArgumentNullException>(() => Identifier.CreateQualifiedIdentifier(null, "b", null, null));
+        }
+
+        [Test]
+        public void CreateQualifiedIdentifier_GivenOnlySchema_ThrowsArgumentNullException()
+        {
+            Assert.Throws<ArgumentNullException>(() => Identifier.CreateQualifiedIdentifier(null, null, "c", null));
+        }
     }
 }

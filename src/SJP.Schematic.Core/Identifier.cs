@@ -57,6 +57,40 @@ namespace SJP.Schematic.Core
             _localName = localName;
         }
 
+        public static Identifier CreateQualifiedIdentifier(string server, string database, string schema, string localName)
+        {
+            var serverPresent = !server.IsNullOrWhiteSpace();
+            var databasePresent = !database.IsNullOrWhiteSpace();
+            var schemaPresent = !schema.IsNullOrWhiteSpace();
+            var localNamePresent = !localName.IsNullOrWhiteSpace();
+
+            if (serverPresent && databasePresent && schemaPresent && localNamePresent)
+                return new Identifier(server, database, schema, localName);
+            else if (serverPresent)
+                throw new ArgumentNullException("A server name was provided, but other components are missing.");
+
+            if (databasePresent && schemaPresent && localNamePresent)
+                return new Identifier(database, schema, localName);
+            else if (databasePresent)
+                throw new ArgumentNullException("A database name was provided, but other components are missing.");
+
+            if (schemaPresent && localNamePresent)
+                return new Identifier(schema, localName);
+            else if (schemaPresent)
+                throw new ArgumentNullException("A schema name was provided, but other components are missing.");
+
+            if (!localNamePresent)
+                throw new ArgumentNullException("At least one component of an identifier must be provided.");
+
+            return new Identifier(localName);
+        }
+
+        public static Identifier CreateQualifiedIdentifier(string database, string schema, string localName) => CreateQualifiedIdentifier(null, database, schema, localName);
+
+        public static Identifier CreateQualifiedIdentifier(string schema, string localName) => CreateQualifiedIdentifier(null, null, schema, localName);
+
+        public static Identifier CreateQualifiedIdentifier(string localName) => CreateQualifiedIdentifier(null, null, null, localName);
+
         // needed for inheritance only
         protected Identifier()
         {
