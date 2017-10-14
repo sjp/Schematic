@@ -12,12 +12,13 @@ namespace SJP.Schematic.Modelled.Reflection
         {
             if (database == null)
                 throw new ArgumentException(nameof(database));
+            if (synonymType == null)
+                throw new ArgumentNullException(nameof(synonymType));
 
-            SynonymType = synonymType ?? throw new ArgumentNullException(nameof(synonymType));
             var dialect = database.Dialect;
-            Name = dialect.GetQualifiedNameOrDefault(database, SynonymType);
+            Name = dialect.GetQualifiedNameOrDefault(database, synonymType);
 
-            var targetType = GetBaseGenericTypeArg();
+            var targetType = GetBaseGenericTypeArg(synonymType);
             Target = dialect.GetQualifiedNameOrDefault(database, targetType);
         }
 
@@ -25,11 +26,10 @@ namespace SJP.Schematic.Modelled.Reflection
 
         public Identifier Target { get; }
 
-        protected Type SynonymType { get; }
-
-        private Type GetBaseGenericTypeArg()
+        private static Type GetBaseGenericTypeArg(Type synonymType)
         {
-            var type = SynonymType;
+            var originalType = synonymType;
+            var type = synonymType;
 
             while (type.GetTypeInfo().BaseType != null)
             {
@@ -38,7 +38,7 @@ namespace SJP.Schematic.Modelled.Reflection
                     return type.GetTypeInfo().GetGenericArguments().Single();
             }
 
-            throw new Exception($"Expected to find a synonym type that derived from Synonym<T>, but found that { SynonymType.FullName } does not derive from it.");
+            throw new Exception($"Expected to find a synonym type that derived from Synonym<T>, but found that { originalType.FullName } does not derive from it.");
         }
 
         private static Type GenericSynonymType { get; } = typeof(Synonym<>);

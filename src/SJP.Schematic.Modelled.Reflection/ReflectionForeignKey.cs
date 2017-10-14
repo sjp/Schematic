@@ -9,8 +9,8 @@ namespace SJP.Schematic.Modelled.Reflection
     // TODO: fix this so that we can point to synonyms
     public class ReflectionForeignKey : ReflectionKey
     {
-        public ReflectionForeignKey(IDatabaseDialect dialect, IRelationalDatabaseTable table, IDatabaseKey targetKey, PropertyInfo property, IEnumerable<IDatabaseColumn> columns)
-            : base(dialect, table, property, columns, DatabaseKeyType.Foreign)
+        public ReflectionForeignKey(IRelationalDatabaseTable table, Identifier name, IDatabaseKey targetKey, IEnumerable<IDatabaseColumn> columns)
+            : base(table, name, DatabaseKeyType.Foreign, columns)
         {
             if (targetKey == null)
                 throw new ArgumentNullException(nameof(targetKey));
@@ -24,8 +24,9 @@ namespace SJP.Schematic.Modelled.Reflection
 
             // if we're dealing with computed columns, we can't get the types easily so avoid checking the types
             var anyComputed = columns.Any(c => c.IsComputed) || targetKey.Columns.Any(c => c.IsComputed);
+            var columnTypesCompatible = ColumnTypesCompatible(columnTypes, targetColumnTypes);
 
-            if (!anyComputed && !ColumnTypesCompatible(columnTypes, targetColumnTypes))
+            if (!anyComputed && !columnTypesCompatible)
                 throw new ArgumentException("Incompatible column types between source and target key columns.", nameof(columns));
         }
 

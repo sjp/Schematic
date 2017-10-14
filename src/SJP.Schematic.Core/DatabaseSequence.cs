@@ -1,13 +1,10 @@
 ﻿using System;
-using System.Data;
-using SJP.Schematic.Core;
 
-namespace SJP.Schematic.Modelled
+namespace SJP.Schematic.Core
 {
-    public class ModelledDatabaseSequence : IDatabaseSequence
+    public class DatabaseSequence : IDatabaseSequence
     {
-        public ModelledDatabaseSequence(
-            IDbConnection connection,
+        public DatabaseSequence(
             IRelationalDatabase database,
             Identifier sequenceName,
             decimal start,
@@ -22,7 +19,6 @@ namespace SJP.Schematic.Modelled
                 throw new ArgumentNullException(nameof(sequenceName));
 
             Database = database ?? throw new ArgumentNullException(nameof(database));
-            Connection = connection ?? throw new ArgumentNullException(nameof(connection));
 
             var serverName = sequenceName.Server ?? database.ServerName;
             var databaseName = sequenceName.Database ?? database.DatabaseName;
@@ -63,8 +59,6 @@ namespace SJP.Schematic.Modelled
         public IRelationalDatabase Database { get; }
 
         public Identifier Name { get; }
-
-        protected IDbConnection Connection { get; }
 
         public int Cache { get; }
 

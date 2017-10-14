@@ -1,11 +1,10 @@
 ﻿using System;
-using SJP.Schematic.Core;
 
-namespace SJP.Schematic.Modelled
+namespace SJP.Schematic.Core
 {
-    public class ModelledDatabaseComputedTableColumn : ModelledDatabaseTableColumn, IDatabaseTableColumn, IDatabaseComputedColumn
+    public class DatabaseComputedTableColumn : DatabaseTableColumn, IDatabaseTableColumn, IDatabaseComputedColumn
     {
-        public ModelledDatabaseComputedTableColumn(IRelationalDatabaseTable table, Identifier columnName, IDbType type, bool isNullable, string defaultValue, string definition)
+        public DatabaseComputedTableColumn(IRelationalDatabaseTable table, Identifier columnName, IDbType type, bool isNullable, string defaultValue, string definition)
             : base(table, columnName, type, isNullable, defaultValue, null)
         {
             if (definition.IsNullOrWhiteSpace())

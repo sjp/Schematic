@@ -1,13 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using EnumsNET;
-using SJP.Schematic.Core;
 
-namespace SJP.Schematic.Modelled
+namespace SJP.Schematic.Core
 {
-    public class ModelledDatabaseKey : IDatabaseKey
+    public class DatabaseKey : IDatabaseKey
     {
-        public ModelledDatabaseKey(IRelationalDatabaseTable table, Identifier name, DatabaseKeyType keyType, IEnumerable<IDatabaseColumn> columns, bool isEnabled)
+        public DatabaseKey(IRelationalDatabaseTable table, Identifier name, DatabaseKeyType keyType, IEnumerable<IDatabaseColumn> columns, bool isEnabled)
         {
             if (name == null || name.LocalName == null)
                 throw new ArgumentNullException(nameof(name));

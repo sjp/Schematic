@@ -1,13 +1,12 @@
 ﻿using System;
 using System.Data;
 using EnumsNET;
-using SJP.Schematic.Core;
 
-namespace SJP.Schematic.Modelled
+namespace SJP.Schematic.Core
 {
-    public class ModelledRelationalKey : IDatabaseRelationalKey
+    public class DatabaseRelationalKey : IDatabaseRelationalKey
     {
-        public ModelledRelationalKey(IDatabaseKey childKey, IDatabaseKey parentKey, Rule deleteRule, Rule updateRule)
+        public DatabaseRelationalKey(IDatabaseKey childKey, IDatabaseKey parentKey, Rule deleteRule, Rule updateRule)
         {
             if (!deleteRule.IsValid())
                 throw new ArgumentException($"The { nameof(Rule) } provided must be a valid enum.", nameof(deleteRule));

@@ -4,11 +4,11 @@ using System.Linq;
 using EnumsNET;
 using SJP.Schematic.Core;
 
-namespace SJP.Schematic.Modelled
+namespace SJP.Schematic.Core
 {
-    public class ModelledDatabaseViewIndex : ModelledDatabaseIndex<IRelationalDatabaseView>, IDatabaseViewIndex
+    public class DatabaseViewIndex : DatabaseIndex<IRelationalDatabaseView>, IDatabaseViewIndex
     {
-        public ModelledDatabaseViewIndex(IRelationalDatabaseView view, Identifier name, bool isUnique, IEnumerable<IDatabaseIndexColumn> columns, IEnumerable<IDatabaseViewColumn> includedColumns, bool isEnabled)
+        public DatabaseViewIndex(IRelationalDatabaseView view, Identifier name, bool isUnique, IEnumerable<IDatabaseIndexColumn> columns, IEnumerable<IDatabaseViewColumn> includedColumns, bool isEnabled)
             : base(view, name, isUnique, columns, includedColumns, isEnabled)
         {
             View = view ?? throw new ArgumentNullException(nameof(view));
@@ -17,9 +17,9 @@ namespace SJP.Schematic.Modelled
         public IRelationalDatabaseView View { get; }
     }
 
-    public class ModelledDatabaseTableIndex : ModelledDatabaseIndex<IRelationalDatabaseTable>, IDatabaseTableIndex
+    public class DatabaseTableIndex : DatabaseIndex<IRelationalDatabaseTable>, IDatabaseTableIndex
     {
-        public ModelledDatabaseTableIndex(IRelationalDatabaseTable table, Identifier name, bool isUnique, IEnumerable<IDatabaseIndexColumn> columns, IEnumerable<IDatabaseTableColumn> includedColumns, bool isEnabled)
+        public DatabaseTableIndex(IRelationalDatabaseTable table, Identifier name, bool isUnique, IEnumerable<IDatabaseIndexColumn> columns, IEnumerable<IDatabaseTableColumn> includedColumns, bool isEnabled)
             : base(table, name, isUnique, columns, includedColumns, isEnabled)
         {
             Table = table ?? throw new ArgumentNullException(nameof(table));
@@ -28,9 +28,9 @@ namespace SJP.Schematic.Modelled
         public IRelationalDatabaseTable Table { get; }
     }
 
-    public abstract class ModelledDatabaseIndex<T> : IDatabaseIndex<T> where T : class, IDatabaseQueryable
+    public abstract class DatabaseIndex<T> : IDatabaseIndex<T> where T : class, IDatabaseQueryable
     {
-        protected ModelledDatabaseIndex(T parent, Identifier name, bool isUnique, IEnumerable<IDatabaseIndexColumn> columns, IEnumerable<IDatabaseColumn> includedColumns, bool isEnabled)
+        protected DatabaseIndex(T parent, Identifier name, bool isUnique, IEnumerable<IDatabaseIndexColumn> columns, IEnumerable<IDatabaseColumn> includedColumns, bool isEnabled)
         {
             if (name == null || name.LocalName == null)
                 throw new ArgumentNullException(nameof(name));
@@ -63,9 +63,9 @@ namespace SJP.Schematic.Modelled
         public bool IsEnabled { get; }
     }
 
-    public class ModelledDatabaseIndexColumn : IDatabaseIndexColumn
+    public class DatabaseIndexColumn : IDatabaseIndexColumn
     {
-        public ModelledDatabaseIndexColumn(IDatabaseColumn column, IndexColumnOrder order)
+        public DatabaseIndexColumn(IDatabaseColumn column, IndexColumnOrder order)
         {
             if (column == null)
                 throw new ArgumentNullException(nameof(column));

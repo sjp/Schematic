@@ -1,11 +1,10 @@
 ﻿using System;
-using SJP.Schematic.Core;
 
-namespace SJP.Schematic.Modelled
+namespace SJP.Schematic.Core
 {
-    public class ModelledCheckConstraint : IDatabaseCheckConstraint
+    public class DatabaseCheckConstraint : IDatabaseCheckConstraint
     {
-        public ModelledCheckConstraint(IRelationalDatabaseTable table, Identifier checkName, string definition, bool isEnabled)
+        public DatabaseCheckConstraint(IRelationalDatabaseTable table, Identifier checkName, string definition, bool isEnabled)
         {
             if (checkName == null || checkName.LocalName == null)
                 throw new ArgumentNullException(nameof(checkName));

@@ -1,13 +1,10 @@
 ﻿using System;
-using System.Linq;
-using System.Text;
-using SJP.Schematic.Core;
 
-namespace SJP.Schematic.Modelled
+namespace SJP.Schematic.Core
 {
-    public abstract class ModelledDatabaseColumn : IDatabaseColumn
+    public abstract class DatabaseColumn : IDatabaseColumn
     {
-        protected ModelledDatabaseColumn(Identifier columnName, IDbType type, bool isNullable, string defaultValue, IAutoIncrement autoIncrement)
+        protected DatabaseColumn(Identifier columnName, IDbType type, bool isNullable, string defaultValue, IAutoIncrement autoIncrement)
         {
             if (columnName == null || columnName.LocalName == null)
                 throw new ArgumentNullException(nameof(columnName));
@@ -32,9 +29,9 @@ namespace SJP.Schematic.Modelled
         public IAutoIncrement AutoIncrement { get; }
     }
 
-    public class ModelledDatabaseTableColumn : ModelledDatabaseColumn, IDatabaseTableColumn
+    public class DatabaseTableColumn : DatabaseColumn, IDatabaseTableColumn
     {
-        public ModelledDatabaseTableColumn(IRelationalDatabaseTable table, Identifier columnName, IDbType type, bool isNullable, string defaultValue, IAutoIncrement autoIncrement)
+        public DatabaseTableColumn(IRelationalDatabaseTable table, Identifier columnName, IDbType type, bool isNullable, string defaultValue, IAutoIncrement autoIncrement)
             : base(columnName, type, isNullable, defaultValue, autoIncrement)
         {
             Table = table ?? throw new ArgumentNullException(nameof(table));
@@ -43,9 +40,9 @@ namespace SJP.Schematic.Modelled
         public IRelationalDatabaseTable Table { get; }
     }
 
-    public class ModelledDatabaseViewColumn : ModelledDatabaseColumn, IDatabaseViewColumn
+    public class DatabaseViewColumn : DatabaseColumn, IDatabaseViewColumn
     {
-        public ModelledDatabaseViewColumn(IRelationalDatabaseView view, Identifier columnName, IDbType type, bool isNullable, string defaultValue, IAutoIncrement autoIncrement)
+        public DatabaseViewColumn(IRelationalDatabaseView view, Identifier columnName, IDbType type, bool isNullable, string defaultValue, IAutoIncrement autoIncrement)
             : base(columnName, type, isNullable, defaultValue, autoIncrement)
         {
             View = view ?? throw new ArgumentNullException(nameof(view));

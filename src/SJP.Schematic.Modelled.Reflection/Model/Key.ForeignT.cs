@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -46,10 +47,13 @@ namespace SJP.Schematic.Modelled.Reflection.Model
             {
                 var sourceType = Property.DeclaringType;
                 var sourceAsm = sourceType.GetTypeInfo().Assembly;
-                if (!AssemblyCache.ContainsKey(sourceAsm))
-                    AssemblyCache[sourceAsm] = AssemblyDefinition.ReadAssembly(sourceAsm.Location);
 
-                var sourceAsmDefinition = AssemblyCache[sourceAsm];
+                if (!AssemblyCache.TryGetValue(sourceAsm, out var sourceAsmDefinition))
+                {
+                    sourceAsmDefinition = AssemblyDefinition.ReadAssembly(sourceAsm.Location);
+                    AssemblyCache.TryAdd(sourceAsm, sourceAsmDefinition);
+                }
+
                 var sourceTypeDefinition = sourceAsmDefinition.MainModule.GetType(sourceType.FullName);
                 var sourceProperty = sourceTypeDefinition.Properties.SingleOrDefault(p => p.Name == Property.Name && !p.HasParameters);
                 if (sourceProperty == null)
@@ -101,7 +105,7 @@ namespace SJP.Schematic.Modelled.Reflection.Model
                 return targetProp;
             }
 
-            private static IDictionary<Assembly, AssemblyDefinition> AssemblyCache { get; } = new Dictionary<Assembly, AssemblyDefinition>();
+            private static ConcurrentDictionary<Assembly, AssemblyDefinition> AssemblyCache { get; } = new ConcurrentDictionary<Assembly, AssemblyDefinition>();
 
             private readonly Func<T, Key> _keySelector;
         }

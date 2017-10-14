@@ -1,12 +1,11 @@
 ﻿using System;
 using EnumsNET;
-using SJP.Schematic.Core;
 
-namespace SJP.Schematic.Modelled
+namespace SJP.Schematic.Core
 {
-    public class ModelledDatabaseTrigger : IDatabaseTrigger
+    public class DatabaseTrigger : IDatabaseTrigger
     {
-        public ModelledDatabaseTrigger(IRelationalDatabaseTable table, Identifier name, string definition, TriggerQueryTiming queryTiming, TriggerEvent events, bool isEnabled)
+        public DatabaseTrigger(IRelationalDatabaseTable table, Identifier name, string definition, TriggerQueryTiming queryTiming, TriggerEvent events, bool isEnabled)
         {
             if (name == null || name.LocalName == null)
                 throw new ArgumentNullException(nameof(name));

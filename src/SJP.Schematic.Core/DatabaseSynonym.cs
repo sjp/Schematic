@@ -1,12 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
-using SJP.Schematic.Core;
 
-namespace SJP.Schematic.Modelled
+namespace SJP.Schematic.Core
 {
-    public class ModelledSynonym : IDatabaseSynonym
+    public class DatabaseSynonym : IDatabaseSynonym
     {
-        public ModelledSynonym(IRelationalDatabase database, Identifier synonymName, Identifier targetName)
+        public DatabaseSynonym(IRelationalDatabase database, Identifier synonymName, Identifier targetName)
         {
             if (synonymName == null || synonymName.LocalName == null)
                 throw new ArgumentNullException(nameof(synonymName));

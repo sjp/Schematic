@@ -2,13 +2,12 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using SJP.Schematic.Core;
 
-namespace SJP.Schematic.Modelled
+namespace SJP.Schematic.Core
 {
-    public class ModelledRelationalDatabaseTable : IRelationalDatabaseTable, IRelationalDatabaseTableAsync
+    public class RelationalDatabaseTable : IRelationalDatabaseTable, IRelationalDatabaseTableAsync
     {
-        public ModelledRelationalDatabaseTable(
+        public RelationalDatabaseTable(
             IRelationalDatabase database,
             Identifier tableName,
             IReadOnlyList<IDatabaseTableColumn> columns,

@@ -10,17 +10,24 @@ namespace SJP.Schematic.Modelled.Reflection
     {
         public ReflectionRelationalKey(IDatabaseKey childKey, IDatabaseKey parentKey, Rule deleteRule, Rule updateRule)
         {
+            if (childKey == null)
+                throw new ArgumentNullException(nameof(childKey));
+            if (parentKey == null)
+                throw new ArgumentNullException(nameof(parentKey));
             if (!deleteRule.IsValid())
                 throw new ArgumentException($"The { nameof(Rule) } provided must be a valid enum.", nameof(deleteRule));
             if (!updateRule.IsValid())
                 throw new ArgumentException($"The { nameof(Rule) } provided must be a valid enum.", nameof(updateRule));
 
-            ChildKey = childKey ?? throw new ArgumentNullException(nameof(childKey));
-            ParentKey = parentKey ?? throw new ArgumentNullException(nameof(parentKey));
-            DeleteRule = deleteRule;
-            UpdateRule = updateRule;
+            // perform validation
+            var relationalKey = new DatabaseRelationalKey(childKey, parentKey, deleteRule, updateRule);
 
-            ValidateColumnSetsCompatible(childKey, parentKey);
+            ChildKey = relationalKey.ChildKey;
+            ParentKey = relationalKey.ParentKey;
+            DeleteRule = relationalKey.DeleteRule;
+            UpdateRule = relationalKey.UpdateRule;
+
+            ValidateColumnSetsCompatible(ChildKey, ParentKey);
         }
 
         public IDatabaseKey ChildKey { get; }

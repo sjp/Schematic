@@ -144,7 +144,8 @@ namespace SJP.Schematic.Modelled.Reflection
                 // check that columns match up with parent key -- otherwise will fail
                 // TODO: don't assume that the FK is to a table -- could be to a synonym
                 //       maybe change interface of Synonym<T> to be something like Synonym<Table<T>> or Synonym<Synonym<T>> -- could unwrap at runtime?
-                var childKey = new ReflectionForeignKey(Dialect, this, parentKey, fk.Property, fkColumns);
+                var childKeyName = Dialect.GetAliasOrDefault(fk.Property);
+                var childKey = new ReflectionForeignKey(this, childKeyName, parentKey, fkColumns);
 
                 var deleteAttr = Dialect.GetDialectAttribute<OnDeleteRuleAttributeAttribute>(fk.Property);
                 var deleteRule = deleteAttr?.Rule ?? Rule.None;
@@ -215,7 +216,8 @@ namespace SJP.Schematic.Modelled.Reflection
                 .Select(c => c.Property)
                 .Select(GetAnyColumnFromProperty);
 
-            return new ReflectionKey(Dialect, this, primaryKey.Property, pkColumns, primaryKey.KeyType);
+            var keyName = dialect.GetAliasOrDefault(primaryKey.Property);
+            return new ReflectionKey(this, keyName, primaryKey.KeyType, pkColumns);
         }
 
         private IReadOnlyDictionary<Identifier, IDatabaseTableIndex> LoadIndexes()
@@ -270,7 +272,8 @@ namespace SJP.Schematic.Modelled.Reflection
                     .Select(c => c.Property)
                     .Select(GetAnyColumnFromProperty);
 
-                var uk = new ReflectionKey(Dialect, this, uniqueKey.Property, ukColumns, uniqueKey.KeyType);
+                var keyName = Dialect.GetAliasOrDefault(uniqueKey.Property);
+                var uk = new ReflectionKey(this, keyName, uniqueKey.KeyType, ukColumns);
                 result[uk.Name.LocalName] = uk;
             }
 
