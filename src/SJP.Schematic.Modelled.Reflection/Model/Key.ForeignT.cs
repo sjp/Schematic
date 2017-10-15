@@ -54,7 +54,9 @@ namespace SJP.Schematic.Modelled.Reflection.Model
                     AssemblyCache.TryAdd(sourceAsm, sourceAsmDefinition);
                 }
 
-                var sourceTypeDefinition = sourceAsmDefinition.MainModule.GetType(sourceType.FullName);
+                // Mono.Cecil uses '/' to declare nested type names instead of '+'
+                var sourceSearchTypeName = sourceType.FullName.Replace('+', '/');
+                var sourceTypeDefinition = sourceAsmDefinition.MainModule.GetType(sourceSearchTypeName);
                 var sourceProperty = sourceTypeDefinition.Properties.SingleOrDefault(p => p.Name == Property.Name && !p.HasParameters);
                 if (sourceProperty == null)
                     throw new ArgumentException(
