@@ -71,9 +71,9 @@ namespace SJP.Schematic.SqlServer.Tests.Integration
         public void Database_PropertyGet_ShouldMatchCtorArg()
         {
             var database = Database;
-            var synonym = new SqlServerDatabaseSynonym(database, "test", "test");
+            var sequence = new SqlServerDatabaseSequence(Connection, database, "test");
 
-            Assert.AreSame(database, synonym.Database);
+            Assert.AreSame(database, sequence.Database);
         }
 
         [Test]
