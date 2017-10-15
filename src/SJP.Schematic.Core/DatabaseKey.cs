@@ -8,15 +8,16 @@ namespace SJP.Schematic.Core
     {
         public DatabaseKey(IRelationalDatabaseTable table, Identifier name, DatabaseKeyType keyType, IEnumerable<IDatabaseColumn> columns, bool isEnabled)
         {
-            if (name == null || name.LocalName == null)
-                throw new ArgumentNullException(nameof(name));
             if (columns == null || columns.Empty() || columns.AnyNull())
                 throw new ArgumentNullException(nameof(columns));
             if (!keyType.IsValid())
                 throw new ArgumentException($"The { nameof(DatabaseKeyType) } provided must be a valid enum.", nameof(keyType));
 
             Table = table ?? throw new ArgumentNullException(nameof(table));
-            Name = name.LocalName;
+
+            if (name?.LocalName != null)
+                Name = name.LocalName; // can be null!
+
             KeyType = keyType;
             Columns = columns;
             IsEnabled = isEnabled;

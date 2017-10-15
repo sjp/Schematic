@@ -17,13 +17,13 @@ namespace SJP.Schematic.Core
             var databaseName = synonymName.Database ?? database.DatabaseName;
             var schemaName = synonymName.Schema ?? database.DefaultSchema;
 
-            Name = new Identifier(serverName, databaseName, schemaName, synonymName.LocalName);
+            Name = Identifier.CreateQualifiedIdentifier(serverName, databaseName, schemaName, synonymName.LocalName);
 
             var targetServerName = targetName.Server ?? database.ServerName;
             var targetDatabaseName = targetName.Database ?? database.DatabaseName;
             var targetSchemaName = targetName.Schema ?? database.DefaultSchema;
 
-            Target = new Identifier(targetServerName, targetDatabaseName, targetSchemaName, targetName.LocalName); // don't check for validity of target, could be a broken synonym
+            Target = Identifier.CreateQualifiedIdentifier(targetServerName, targetDatabaseName, targetSchemaName, targetName.LocalName); // don't check for validity of target, could be a broken synonym
         }
 
         public IRelationalDatabase Database { get; }

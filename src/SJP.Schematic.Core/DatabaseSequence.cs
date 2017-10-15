@@ -24,7 +24,7 @@ namespace SJP.Schematic.Core
             var databaseName = sequenceName.Database ?? database.DatabaseName;
             var schemaName = sequenceName.Schema ?? database.DefaultSchema;
 
-            Name = new Identifier(serverName, databaseName, schemaName, sequenceName.LocalName);
+            Name = Identifier.CreateQualifiedIdentifier(serverName, databaseName, schemaName, sequenceName.LocalName);
 
             Start = start;
 
@@ -48,7 +48,7 @@ namespace SJP.Schematic.Core
             }
 
             if (cacheSize < 0)
-                cacheSize = -1;
+                cacheSize = UnknownCacheSize;
 
             Cache = cacheSize;
             Cycle = cycle;
@@ -71,5 +71,7 @@ namespace SJP.Schematic.Core
         public decimal? MinValue { get; }
 
         public decimal Start { get; }
+
+        public static int UnknownCacheSize { get; } = -1;
     }
 }
