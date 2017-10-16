@@ -10,19 +10,13 @@ namespace SJP.Schematic.Modelled.Reflection.Model
         public DefaultAttribute(string defaultValue)
             : base(new[] { Dialect.All })
         {
-            if (defaultValue.IsNullOrWhiteSpace())
-                throw new ArgumentNullException(nameof(defaultValue));
-
-            DefaultValue = defaultValue;
+            DefaultValue = defaultValue ?? throw new ArgumentNullException(nameof(defaultValue));
         }
 
         public DefaultAttribute(string defaultValue, params Type[] dialects)
             : base(dialects)
         {
-            if (defaultValue.IsNullOrWhiteSpace())
-                throw new ArgumentNullException(nameof(defaultValue));
-
-            DefaultValue = defaultValue;
+            DefaultValue = defaultValue ?? throw new ArgumentNullException(nameof(defaultValue));
         }
 
         public DefaultAttribute(byte defaultValue)

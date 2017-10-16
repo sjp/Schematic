@@ -147,7 +147,7 @@ namespace SJP.Schematic.Modelled.Reflection
                 var childKeyName = Dialect.GetAliasOrDefault(fk.Property);
                 var childKey = new ReflectionForeignKey(this, childKeyName, parentKey, fkColumns);
 
-                var deleteAttr = Dialect.GetDialectAttribute<OnDeleteRuleAttributeAttribute>(fk.Property);
+                var deleteAttr = Dialect.GetDialectAttribute<OnDeleteRuleAttribute>(fk.Property);
                 var deleteRule = deleteAttr?.Rule ?? Rule.None;
 
                 var updateAttr = Dialect.GetDialectAttribute<OnUpdateRuleAttribute>(fk.Property);

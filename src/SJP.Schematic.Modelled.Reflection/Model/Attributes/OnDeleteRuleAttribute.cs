@@ -5,9 +5,9 @@ using EnumsNET;
 namespace SJP.Schematic.Modelled.Reflection.Model
 {
     [AttributeUsage(AttributeTargets.Property, AllowMultiple = true, Inherited = true)]
-    public sealed class OnDeleteRuleAttributeAttribute : ModelledSchemaAttribute
+    public sealed class OnDeleteRuleAttribute : ModelledSchemaAttribute
     {
-        public OnDeleteRuleAttributeAttribute(Rule rule)
+        public OnDeleteRuleAttribute(Rule rule)
             : base(new[] { Dialect.All })
         {
             if (!rule.IsValid())
@@ -16,7 +16,7 @@ namespace SJP.Schematic.Modelled.Reflection.Model
             Rule = rule;
         }
 
-        public OnDeleteRuleAttributeAttribute(Rule rule, params Type[] dialects)
+        public OnDeleteRuleAttribute(Rule rule, params Type[] dialects)
             : base(dialects)
         {
             if (!rule.IsValid())
