@@ -1,5 +1,6 @@
 ﻿using System;
 using NUnit.Framework;
+using SJP.Schematic.Modelled.Reflection.Tests.Fakes;
 
 namespace SJP.Schematic.Modelled.Reflection.Model.Attributes.Tests
 {
@@ -25,10 +26,33 @@ namespace SJP.Schematic.Modelled.Reflection.Model.Attributes.Tests
         }
 
         [Test]
+        public void Ctor_GivenNullDialects_ThrowsArgumentNullException()
+        {
+            const string collationValue = "test";
+            Assert.Throws<ArgumentNullException>(() => new CollationAttribute(collationValue, null));
+        }
+
+        [Test]
+        public void Ctor_GivenEmptyDialects_ThrowsArgumentNullException()
+        {
+            const string collationValue = "test";
+            Assert.Throws<ArgumentNullException>(() => new CollationAttribute(collationValue, Array.Empty<Type>()));
+        }
+
+        [Test]
+        public void Ctor_GivenDialectsWithNullValue_ThrowsArgumentNullException()
+        {
+            const string collationValue = "test";
+            var dialects = new Type[] { null };
+
+            Assert.Throws<ArgumentNullException>(() => new CollationAttribute(collationValue, dialects));
+        }
+
+        [Test]
         public void CollationName_PropertyGet_MatchesCtorArgument()
         {
             const string collationValue = "test";
-            var collectionAttr = new CollationAttribute(collationValue);
+            var collectionAttr = new CollationAttribute(collationValue, typeof(FakeDialect));
 
             Assert.AreEqual(collationValue, collectionAttr.CollationName);
         }

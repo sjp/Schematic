@@ -31,7 +31,7 @@ namespace SJP.Schematic.Modelled.Reflection.Model
             if (!dataType.IsValid())
                 throw new ArgumentException($"The { nameof(DataType) } provided must be a valid enum.", nameof(dataType));
             if (length < 0)
-                throw new ArgumentOutOfRangeException(nameof(length), "A non-negative length must be provided");
+                throw new ArgumentOutOfRangeException(nameof(length), "A non-negative length must be provided.");
 
             DataType = dataType;
             Length = length;
@@ -44,7 +44,7 @@ namespace SJP.Schematic.Modelled.Reflection.Model
             if (!dataType.IsValid())
                 throw new ArgumentException($"The { nameof(DataType) } provided must be a valid enum.", nameof(dataType));
             if (length < 0)
-                throw new ArgumentOutOfRangeException(nameof(length), "A non-negative length must be provided");
+                throw new ArgumentOutOfRangeException(nameof(length), "A non-negative length must be provided.");
 
             DataType = dataType;
             Length = length;
@@ -57,9 +57,9 @@ namespace SJP.Schematic.Modelled.Reflection.Model
             if (!dataType.IsValid())
                 throw new ArgumentException($"The { nameof(DataType) } provided must be a valid enum.", nameof(dataType));
             if (precision < 0)
-                throw new ArgumentOutOfRangeException(nameof(precision), "A non-negative precision must be provided");
+                throw new ArgumentOutOfRangeException(nameof(precision), "A non-negative precision must be provided.");
             if (scale < 0)
-                throw new ArgumentOutOfRangeException(nameof(scale), "A non-negative scale must be provided");
+                throw new ArgumentOutOfRangeException(nameof(scale), "A non-negative scale must be provided.");
 
             DataType = dataType;
             Length = precision;
@@ -73,9 +73,9 @@ namespace SJP.Schematic.Modelled.Reflection.Model
             if (!dataType.IsValid())
                 throw new ArgumentException($"The { nameof(DataType) } provided must be a valid enum.", nameof(dataType));
             if (precision < 0)
-                throw new ArgumentOutOfRangeException(nameof(precision), "A non-negative precision must be provided");
+                throw new ArgumentOutOfRangeException(nameof(precision), "A non-negative precision must be provided.");
             if (scale < 0)
-                throw new ArgumentOutOfRangeException(nameof(scale), "A non-negative scale must be provided");
+                throw new ArgumentOutOfRangeException(nameof(scale), "A non-negative scale must be provided.");
 
             DataType = dataType;
             Length = precision;
