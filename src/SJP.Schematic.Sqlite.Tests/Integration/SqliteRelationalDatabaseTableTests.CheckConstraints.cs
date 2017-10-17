@@ -82,46 +82,62 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
             Assert.AreEqual("ck_test_table_14", check.Name.LocalName);
         }
 
-        // TODO, need to unwrap definitions possibly?
-        // This is because the input may not necessarily match default values we give it.
-        // i.e. declare definition as '([test_column] > 1)' and end up with '([test_column]>(1))'
-
         [Test]
         public void CheckConstraint_WhenGivenTableWithCheck_ReturnsContraintWithDefinition()
         {
+            const string expectedDefinition = "([test_column]>(1))";
+
             var table = Database.GetTable("table_test_table_14");
             var check = table.CheckConstraint["ck_test_table_14"];
 
-            Assert.AreEqual("([test_column]>(1))", check.Definition);
+            var comparer = new SqliteExpressionComparer();
+            var checksEqual = comparer.Equals(expectedDefinition, check.Definition);
+
+            Assert.IsTrue(checksEqual);
         }
 
         [Test]
         public void CheckConstraints_WhenGivenTableWithCheck_ReturnsContraintWithDefinition()
         {
+            const string expectedDefinition = "([test_column]>(1))";
+
             var table = Database.GetTable("table_test_table_14");
             var check = table.CheckConstraints.Single();
 
-            Assert.AreEqual("([test_column]>(1))", check.Definition);
+            var comparer = new SqliteExpressionComparer();
+            var checksEqual = comparer.Equals(expectedDefinition, check.Definition);
+
+            Assert.IsTrue(checksEqual);
         }
 
         [Test]
         public async Task CheckConstraintAsync_WhenGivenTableWithCheck_ReturnsContraintWithDefinition()
         {
+            const string expectedDefinition = "([test_column]>(1))";
+
             var table = await Database.GetTableAsync("table_test_table_14").ConfigureAwait(false);
             var checkLookup = await table.CheckConstraintAsync().ConfigureAwait(false);
             var check = checkLookup["ck_test_table_14"];
 
-            Assert.AreEqual("([test_column]>(1))", check.Definition);
+            var comparer = new SqliteExpressionComparer();
+            var checksEqual = comparer.Equals(expectedDefinition, check.Definition);
+
+            Assert.IsTrue(checksEqual);
         }
 
         [Test]
         public async Task CheckConstraintsAsync_WhenGivenTableWithCheck_ReturnsContraintWithDefinition()
         {
+            const string expectedDefinition = "([test_column]>(1))";
+
             var table = await Database.GetTableAsync("table_test_table_14").ConfigureAwait(false);
             var checks = await table.CheckConstraintsAsync().ConfigureAwait(false);
             var check = checks.Single();
 
-            Assert.AreEqual("([test_column]>(1))", check.Definition);
+            var comparer = new SqliteExpressionComparer();
+            var checksEqual = comparer.Equals(expectedDefinition, check.Definition);
+
+            Assert.IsTrue(checksEqual);
         }
 
         [Test]

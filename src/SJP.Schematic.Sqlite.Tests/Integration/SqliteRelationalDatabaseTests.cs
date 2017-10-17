@@ -31,12 +31,14 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
             public async Task Init()
             {
                 await Connection.ExecuteAsync("create table db_test_table_1 (id integer)").ConfigureAwait(false);
+                await Connection.ExecuteAsync("create view db_test_view_1 as select 1 as test").ConfigureAwait(false);
             }
 
             [OneTimeTearDown]
             public async Task CleanUp()
             {
                 await Connection.ExecuteAsync("drop table db_test_table_1").ConfigureAwait(false);
+                await Connection.ExecuteAsync("drop view db_test_view_1").ConfigureAwait(false);
             }
 
             private IRelationalDatabase Database => new SqliteRelationalDatabase(Dialect, Connection);
@@ -186,13 +188,12 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
                 Assert.Throws<ArgumentNullException>(() => Database.GetView(null));
             }
 
-            // TODO: uncomment when views are implemented
-            //[Test]
-            //public void GetView_WhenViewPresent_ReturnsView()
-            //{
-            //    var view = Database.GetView("db_test_view_presence");
-            //    Assert.NotNull(view);
-            //}
+            [Test]
+            public void GetView_WhenViewPresent_ReturnsView()
+            {
+                var view = Database.GetView("db_test_view_1");
+                Assert.NotNull(view);
+            }
 
             [Test]
             public void GetView_WhenViewMissing_ReturnsNull()
@@ -234,13 +235,12 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
                 Assert.ThrowsAsync<ArgumentNullException>(async () => await Database.GetViewAsync(null).ConfigureAwait(false));
             }
 
-            // TODO: uncomment when views are implemented
-            //[Test]
-            //public async Task GetViewAsync_WhenViewPresent_ReturnsView()
-            //{
-            //    var view = await Database.GetViewAsync("db_test_view_presence");
-            //    Assert.NotNull(view);
-            //}
+            [Test]
+            public async Task GetViewAsync_WhenViewPresent_ReturnsView()
+            {
+                var view = await Database.GetViewAsync("db_test_view_1").ConfigureAwait(false);
+                Assert.NotNull(view);
+            }
 
             [Test]
             public async Task GetViewAsync_WhenViewMissing_ReturnsNull()
