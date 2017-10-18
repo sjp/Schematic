@@ -256,39 +256,109 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
             private IRelationalDatabase Database => new SqliteRelationalDatabase(Dialect, Connection);
 
             [Test]
-            public void SequenceExists_WhenInvoked_ThrowsNotSupportedException()
+            public void SequenceExists_GivenNullSequenceName_ThrowsArgumentNullException()
             {
-                Assert.Throws<NotSupportedException>(() => Database.SequenceExists("test"));
+                Assert.Throws<ArgumentNullException>(() => Database.SequenceExists(null));
             }
 
             [Test]
-            public void GetSequence_WhenInvoked_ThrowsNotSupportedException()
+            public void SequenceExists_GivenInvalidSequenceName_ThrowsArgumentNullException()
             {
-                Assert.Throws<NotSupportedException>(() => Database.GetSequence("test"));
+                var schemaName = new SchemaIdentifier("asd");
+                Assert.Throws<ArgumentNullException>(() => Database.SequenceExists(schemaName));
             }
 
             [Test]
-            public void Sequences_WhenInvoked_ThrowsNotSupportedException()
+            public void SequenceExists_GivenValidSequenceName_ReturnsFalse()
             {
-                Assert.Throws<NotSupportedException>(() => Database.Sequences.ToList());
+                var sequenceName = new LocalIdentifier("asd");
+                var sequenceExists = Database.SequenceExists(sequenceName);
+
+                Assert.IsFalse(sequenceExists);
             }
 
             [Test]
-            public void SequenceExistsAsync_WhenInvoked_ThrowsNotSupportedException()
+            public void GetSequence_GivenNullSequenceName_ThrowsArgumentNullException()
             {
-                Assert.Throws<NotSupportedException>(() => Database.SequenceExistsAsync("test"));
+                Assert.Throws<ArgumentNullException>(() => Database.GetSequence(null));
             }
 
             [Test]
-            public void GetSequenceAsync_WhenInvoked_ThrowsNotSupportedException()
+            public void GetSequence_GivenInvalidSequenceName_ThrowsArgumentNullException()
             {
-                Assert.Throws<NotSupportedException>(() => Database.GetSequenceAsync("test"));
+                var schemaName = new SchemaIdentifier("asd");
+                Assert.Throws<ArgumentNullException>(() => Database.GetSequence(schemaName));
             }
 
             [Test]
-            public void SequencesAsync_WhenInvoked_ThrowsNotSupportedException()
+            public void GetSequence_GivenValidSequenceName_ReturnsNull()
             {
-                Assert.Throws<NotSupportedException>(() => Database.SequencesAsync());
+                var sequenceName = new LocalIdentifier("asd");
+                var sequence = Database.GetSequence(sequenceName);
+
+                Assert.IsNull(sequence);
+            }
+
+            [Test]
+            public void Sequences_PropertyGet_ReturnsEmptyCollection()
+            {
+                var sequences = Database.Sequences.ToList();
+                var count = sequences.Count;
+
+                Assert.Zero(count);
+            }
+
+            [Test]
+            public void SequenceExistsAsync_GivenNullSequenceName_ThrowsArgumentNullException()
+            {
+                Assert.Throws<ArgumentNullException>(() => Database.SequenceExistsAsync(null));
+            }
+
+            [Test]
+            public void SequenceExistsAsync_GivenInvalidSequenceName_ThrowsArgumentNullException()
+            {
+                var schemaName = new SchemaIdentifier("asd");
+                Assert.Throws<ArgumentNullException>(() => Database.SequenceExistsAsync(schemaName));
+            }
+
+            [Test]
+            public async Task SequenceExistsAsync_GivenValidSequenceName_ReturnsFalse()
+            {
+                var sequenceName = new LocalIdentifier("asd");
+                var sequenceExists = await Database.SequenceExistsAsync(sequenceName).ConfigureAwait(false);
+
+                Assert.IsFalse(sequenceExists);
+            }
+
+            [Test]
+            public void GetSequenceAsync_GivenNullSequenceName_ThrowsArgumentNullException()
+            {
+                Assert.Throws<ArgumentNullException>(() => Database.GetSequenceAsync(null));
+            }
+
+            [Test]
+            public void GetSequenceAsync_GivenInvalidSequenceName_ThrowsArgumentNullException()
+            {
+                var schemaName = new SchemaIdentifier("asd");
+                Assert.Throws<ArgumentNullException>(() => Database.GetSequenceAsync(schemaName));
+            }
+
+            [Test]
+            public async Task GetSequenceAsync_GivenValidSequenceName_ReturnsNull()
+            {
+                var sequenceName = new LocalIdentifier("asd");
+                var sequence = await Database.GetSequenceAsync(sequenceName).ConfigureAwait(false);
+
+                Assert.IsNull(sequence);
+            }
+
+            [Test]
+            public async Task SequencesAsync_PropertyGet_ReturnsEmptyCollection()
+            {
+                var sequences = await Database.SequencesAsync().ConfigureAwait(false);
+                var count = await sequences.Count().ConfigureAwait(false);
+
+                Assert.Zero(count);
             }
         }
 
@@ -298,39 +368,109 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
             private IRelationalDatabase Database => new SqliteRelationalDatabase(Dialect, Connection);
 
             [Test]
-            public void SynonymExists_WhenInvoked_ThrowsNotSupportedException()
+            public void SynonymExists_GivenNullSynonymName_ThrowsArgumentNullException()
             {
-                Assert.Throws<NotSupportedException>(() => Database.SynonymExists("test"));
+                Assert.Throws<ArgumentNullException>(() => Database.SynonymExists(null));
             }
 
             [Test]
-            public void GetSynonym_WhenInvoked_ThrowsNotSupportedException()
+            public void SynonymExists_GivenInvalidSynonymName_ThrowsArgumentNullException()
             {
-                Assert.Throws<NotSupportedException>(() => Database.GetSynonym("test"));
+                var schemaName = new SchemaIdentifier("asd");
+                Assert.Throws<ArgumentNullException>(() => Database.SynonymExists(schemaName));
             }
 
             [Test]
-            public void Synonyms_WhenInvoked_ThrowsNotSupportedException()
+            public void SynonymExists_GivenValidSynonymName_ReturnsFalse()
             {
-                Assert.Throws<NotSupportedException>(() => Database.Synonyms.ToList());
+                var synonymName = new LocalIdentifier("asd");
+                var synonymExists = Database.SynonymExists(synonymName);
+
+                Assert.IsFalse(synonymExists);
             }
 
             [Test]
-            public void SynonymExistsAsync_WhenInvoked_ThrowsNotSupportedException()
+            public void GetSynonym_GivenNullSynonymName_ThrowsArgumentNullException()
             {
-                Assert.Throws<NotSupportedException>(() => Database.SynonymExistsAsync("test"));
+                Assert.Throws<ArgumentNullException>(() => Database.GetSynonym(null));
             }
 
             [Test]
-            public void GetSynonymAsync_WhenInvoked_ThrowsNotSupportedException()
+            public void GetSynonym_GivenInvalidSynonymName_ThrowsArgumentNullException()
             {
-                Assert.Throws<NotSupportedException>(() => Database.GetSynonymAsync("test"));
+                var schemaName = new SchemaIdentifier("asd");
+                Assert.Throws<ArgumentNullException>(() => Database.GetSynonym(schemaName));
             }
 
             [Test]
-            public void SynonymsAsync_WhenInvoked_ThrowsNotSupportedException()
+            public void GetSynonym_GivenValidSynonymName_ReturnsNull()
             {
-                Assert.Throws<NotSupportedException>(() => Database.SynonymsAsync());
+                var synonymName = new LocalIdentifier("asd");
+                var synonym = Database.GetSynonym(synonymName);
+
+                Assert.IsNull(synonym);
+            }
+
+            [Test]
+            public void Synonyms_PropertyGet_ReturnsEmptyCollection()
+            {
+                var synonyms = Database.Synonyms.ToList();
+                var count = synonyms.Count;
+
+                Assert.Zero(count);
+            }
+
+            [Test]
+            public void SynonymExistsAsync_GivenNullSynonymName_ThrowsArgumentNullException()
+            {
+                Assert.Throws<ArgumentNullException>(() => Database.SynonymExistsAsync(null));
+            }
+
+            [Test]
+            public void SynonymExistsAsync_GivenInvalidSynonymName_ThrowsArgumentNullException()
+            {
+                var schemaName = new SchemaIdentifier("asd");
+                Assert.Throws<ArgumentNullException>(() => Database.SynonymExistsAsync(schemaName));
+            }
+
+            [Test]
+            public async Task SynonymExistsAsync_GivenValidSynonymName_ReturnsFalse()
+            {
+                var synonymName = new LocalIdentifier("asd");
+                var synonymExists = await Database.SynonymExistsAsync(synonymName).ConfigureAwait(false);
+
+                Assert.IsFalse(synonymExists);
+            }
+
+            [Test]
+            public void GetSynonymAsync_GivenNullSynonymName_ThrowsArgumentNullException()
+            {
+                Assert.Throws<ArgumentNullException>(() => Database.GetSynonymAsync(null));
+            }
+
+            [Test]
+            public void GetSynonymAsync_GivenInvalidSynonymName_ThrowsArgumentNullException()
+            {
+                var schemaName = new SchemaIdentifier("asd");
+                Assert.Throws<ArgumentNullException>(() => Database.GetSynonymAsync(schemaName));
+            }
+
+            [Test]
+            public async Task GetSynonymAsync_GivenValidSynonymName_ReturnsNull()
+            {
+                var synonymName = new LocalIdentifier("asd");
+                var synonym = await Database.GetSynonymAsync(synonymName).ConfigureAwait(false);
+
+                Assert.IsNull(synonym);
+            }
+
+            [Test]
+            public async Task SynonymsAsync_PropertyGet_ReturnsEmptyCollection()
+            {
+                var synonyms = await Database.SynonymsAsync().ConfigureAwait(false);
+                var count = await synonyms.Count().ConfigureAwait(false);
+
+                Assert.Zero(count);
             }
         }
     }

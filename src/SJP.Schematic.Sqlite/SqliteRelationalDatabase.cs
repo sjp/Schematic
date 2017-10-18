@@ -6,7 +6,6 @@ using System.Threading.Tasks;
 using Dapper;
 using SJP.Schematic.Core;
 using SJP.Schematic.Sqlite.Query;
-using SJP.Schematic.Sqlite.Parsing;
 
 namespace SJP.Schematic.Sqlite
 {
@@ -221,39 +220,84 @@ namespace SJP.Schematic.Sqlite
 
         #region Sequences
 
-        public bool SequenceExists(Identifier sequenceName) => throw new NotSupportedException(SequencesNotSupported);
+        public bool SequenceExists(Identifier sequenceName)
+        {
+            if (sequenceName == null || sequenceName.LocalName == null)
+                throw new ArgumentNullException(nameof(sequenceName));
 
-        public IDatabaseSequence GetSequence(Identifier sequenceName) => throw new NotSupportedException(SequencesNotSupported);
+            return false;
+        }
 
-        public IEnumerable<IDatabaseSequence> Sequences => throw new NotSupportedException(SequencesNotSupported);
+        public IDatabaseSequence GetSequence(Identifier sequenceName)
+        {
+            if (sequenceName == null || sequenceName.LocalName == null)
+                throw new ArgumentNullException(nameof(sequenceName));
 
-        public Task<bool> SequenceExistsAsync(Identifier sequenceName) => throw new NotSupportedException(SequencesNotSupported);
+            return null;
+        }
 
-        public Task<IDatabaseSequence> GetSequenceAsync(Identifier sequenceName) => throw new NotSupportedException(SequencesNotSupported);
+        public IEnumerable<IDatabaseSequence> Sequences => Enumerable.Empty<IDatabaseSequence>();
 
-        public Task<IAsyncEnumerable<IDatabaseSequence>> SequencesAsync() => throw new NotSupportedException(SequencesNotSupported);
+        public Task<bool> SequenceExistsAsync(Identifier sequenceName)
+        {
+            if (sequenceName == null || sequenceName.LocalName == null)
+                throw new ArgumentNullException(nameof(sequenceName));
+
+            return Task.FromResult(false);
+        }
+
+        public Task<IDatabaseSequence> GetSequenceAsync(Identifier sequenceName)
+        {
+            if (sequenceName == null || sequenceName.LocalName == null)
+                throw new ArgumentNullException(nameof(sequenceName));
+
+            return Task.FromResult<IDatabaseSequence>(null);
+        }
+
+        public Task<IAsyncEnumerable<IDatabaseSequence>> SequencesAsync() => Task.FromResult(Enumerable.Empty<IDatabaseSequence>().ToAsyncEnumerable());
 
         #endregion Sequences
 
         #region Synonyms
 
-        public bool SynonymExists(Identifier synonymName) => throw new NotSupportedException(SynonymsNotSupported);
+        public bool SynonymExists(Identifier synonymName)
+        {
+            if (synonymName == null || synonymName.LocalName == null)
+                throw new ArgumentNullException(nameof(synonymName));
 
-        public IDatabaseSynonym GetSynonym(Identifier synonymName) => throw new NotSupportedException(SynonymsNotSupported);
+            return false;
+        }
 
-        public IEnumerable<IDatabaseSynonym> Synonyms => throw new NotSupportedException(SynonymsNotSupported);
+        public IDatabaseSynonym GetSynonym(Identifier synonymName)
+        {
+            if (synonymName == null || synonymName.LocalName == null)
+                throw new ArgumentNullException(nameof(synonymName));
 
-        public Task<bool> SynonymExistsAsync(Identifier synonymName) => throw new NotSupportedException(SynonymsNotSupported);
+            return null;
+        }
 
-        public Task<IDatabaseSynonym> GetSynonymAsync(Identifier synonymName) => throw new NotSupportedException(SynonymsNotSupported);
+        public IEnumerable<IDatabaseSynonym> Synonyms => Enumerable.Empty<IDatabaseSynonym>();
 
-        public Task<IAsyncEnumerable<IDatabaseSynonym>> SynonymsAsync() => throw new NotSupportedException(SynonymsNotSupported);
+        public Task<bool> SynonymExistsAsync(Identifier synonymName)
+        {
+            if (synonymName == null || synonymName.LocalName == null)
+                throw new ArgumentNullException(nameof(synonymName));
+
+            return Task.FromResult(false);
+        }
+
+        public Task<IDatabaseSynonym> GetSynonymAsync(Identifier synonymName)
+        {
+            if (synonymName == null || synonymName.LocalName == null)
+                throw new ArgumentNullException(nameof(synonymName));
+
+            return Task.FromResult<IDatabaseSynonym>(null);
+        }
+
+        public Task<IAsyncEnumerable<IDatabaseSynonym>> SynonymsAsync() => Task.FromResult(Enumerable.Empty<IDatabaseSynonym>().ToAsyncEnumerable());
 
         #endregion Synonyms
 
         protected static IEnumerable<string> BuiltInTables { get; } = new HashSet<string>(new[] { "sqlite_master", "sqlite_sequence" }, StringComparer.OrdinalIgnoreCase);
-
-        private const string SequencesNotSupported = "Sequences are not available in SQLite.";
-        private const string SynonymsNotSupported = "Synonyms are not available in SQLite.";
     }
 }
