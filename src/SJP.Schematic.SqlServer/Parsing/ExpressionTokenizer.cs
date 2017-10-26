@@ -23,7 +23,6 @@ namespace SJP.Schematic.SqlServer.Parsing
             SimpleOps[')'] = ExpressionToken.RParen;
             SimpleOps['['] = ExpressionToken.LBracket;
             SimpleOps[']'] = ExpressionToken.RBracket;
-            SimpleOps['*'] = ExpressionToken.Asterisk;
             SimpleOps['?'] = ExpressionToken.QuestionMark;
         }
 

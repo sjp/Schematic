@@ -29,6 +29,10 @@ namespace SJP.Schematic.Core
 
         public static bool IsLetterOrDigit(this char c) => char.IsLetterOrDigit(c);
 
+        public static bool IsPunctuation(this char c) => char.IsPunctuation(c);
+
+        public static bool IsWhiteSpace(this char c) => char.IsWhiteSpace(c);
+
         public static char ToLowerInvariant(this char c) => char.ToLowerInvariant(c);
 
         public static char ToUpperInvariant(this char c) => char.ToUpperInvariant(c);

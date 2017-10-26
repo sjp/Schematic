@@ -1,16 +1,39 @@
-﻿using Superpower;
-using Superpower.Model;
-using Superpower.Parsers;
-using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Collections.Generic;
 using SJP.Schematic.Core;
+using Superpower;
+using Superpower.Model;
 
 namespace SJP.Schematic.Sqlite.Parsing
 {
-    public class SqliteTokenizer : Tokenizer<SqlToken>
+    public class SqliteTokenizer : Tokenizer<SqliteToken>
     {
-        protected override IEnumerable<Result<SqlToken>> Tokenize(TextSpan span)
+        static SqliteTokenizer()
+        {
+            SimpleOps['+'] = SqliteToken.Plus;
+            SimpleOps['-'] = SqliteToken.Minus;
+            SimpleOps['*'] = SqliteToken.Asterisk;
+            SimpleOps['/'] = SqliteToken.ForwardSlash;
+            SimpleOps['%'] = SqliteToken.Percent;
+            SimpleOps['^'] = SqliteToken.Caret;
+            SimpleOps['<'] = SqliteToken.LessThan;
+            SimpleOps['>'] = SqliteToken.GreaterThan;
+            SimpleOps['='] = SqliteToken.Equal;
+            SimpleOps[','] = SqliteToken.Comma;
+            SimpleOps['.'] = SqliteToken.Period;
+            SimpleOps['('] = SqliteToken.LParen;
+            SimpleOps[')'] = SqliteToken.RParen;
+            SimpleOps['['] = SqliteToken.LBracket;
+            SimpleOps[']'] = SqliteToken.RBracket;
+            SimpleOps['?'] = SqliteToken.QuestionMark;
+            SimpleOps['&'] = SqliteToken.Ampersand;
+            SimpleOps['|'] = SqliteToken.Pipe;
+            SimpleOps['~'] = SqliteToken.Tilde;
+            SimpleOps['`'] = SqliteToken.Backtick;
+            SimpleOps['"'] = SqliteToken.DoubleQuote;
+            SimpleOps[';'] = SqliteToken.Semicolon;
+        }
+
+        protected override IEnumerable<Result<SqliteToken>> Tokenize(TextSpan span)
         {
             var next = SkipWhiteSpace(span);
             if (!next.HasValue)
@@ -18,109 +41,97 @@ namespace SJP.Schematic.Sqlite.Parsing
 
             do
             {
-                if (next.Value.IsLetter())
+                if (next.Value.IsDigit())
                 {
-                    var typeName = TypeName(next.Location);
-                    var op = NamedOperators(next.Location);
-                    var literal = SqlLiteral(next.Location);
-                    if (typeName.HasValue)
+                    var hex = SqliteTextParsers.HexInteger(next.Location);
+                    if (hex.HasValue)
                     {
-                        yield return Result.Value(SqlToken.Type, typeName.Location, typeName.Remainder);
-                        next = typeName.Remainder.ConsumeChar();
+                        next = hex.Remainder.ConsumeChar();
+                        yield return Result.Value(SqliteToken.HexNumber, hex.Location, hex.Remainder);
                     }
-                    else if (op.HasValue)
+                    else
                     {
-                        var identifier = SqlIdentifier(next.Location);
-                        if (identifier.HasValue)
-                        {
-                            var resultTokenType = SqlKeywords.Contains(identifier.Value) ? SqlToken.Keyword : SqlToken.Identifier;
-                            yield return Result.Value(resultTokenType, identifier.Location, identifier.Remainder);
-                            next = identifier.Remainder.ConsumeChar();
-                        }
+                        var real = SqliteTextParsers.Real(next.Location);
+                        if (!real.HasValue)
+                            yield return Result.CastEmpty<TextSpan, SqliteToken>(real);
                         else
-                        {
-                            yield return Result.Value(SqlToken.Operator, op.Location, op.Remainder);
-                            next = op.Remainder.ConsumeChar();
-                        }
+                            yield return Result.Value(SqliteToken.Number, real.Location, real.Remainder);
+
+                        next = real.Remainder.ConsumeChar();
                     }
-                    else if (literal.HasValue)
+
+                    if (next.HasValue && !next.Value.IsPunctuation() && !next.Value.IsWhiteSpace())
                     {
-                        yield return Result.Value(SqlToken.Literal, literal.Location, literal.Remainder);
-                        next = literal.Remainder.ConsumeChar();
+                        yield return Result.Empty<SqliteToken>(next.Location, new[] { "digit" });
                     }
-                    else
-                    {
-                        var identifier = SqlIdentifier(next.Location);
-                        if (identifier.HasValue)
-                        {
-                            var resultTokenType = SqlKeywords.Contains(identifier.Value) ? SqlToken.Keyword : SqlToken.Identifier;
-                            yield return Result.Value(resultTokenType, identifier.Location, identifier.Remainder);
-                            next = identifier.Remainder.ConsumeChar();
-                        }
-                        else
-                        {
-                            yield return Result.Empty<SqlToken>(next.Location);
-                        }
-                    }
-                }
-                else if (next.Value.IsDigit())
-                {
-                    var literal = SqlNumeric(next.Location);
-                    if (literal.HasValue)
-                    {
-                        yield return Result.Value(SqlToken.Literal, literal.Location, literal.Remainder);
-                        next = literal.Remainder.ConsumeChar();
-                    }
-                    else
-                    {
-                        yield return Result.Empty<SqlToken>(next.Location);
-                    }
-                }
-                else if (next.Value == '[' || next.Value == '`' || next.Value == '"')
-                {
-                    var identifier = SqlIdentifier(next.Location);
-                    if (identifier.HasValue)
-                    {
-                        yield return Result.Value(SqlToken.Identifier, identifier.Location, identifier.Remainder);
-                        next = identifier.Remainder.ConsumeChar();
-                    }
-                    else
-                    {
-                        yield return Result.Empty<SqlToken>(next.Location);
-                    }
-                }
-                else if (next.Value == '.')
-                {
-                    yield return Result.Value(SqlToken.Dot, next.Location, next.Remainder);
-                    next = next.Remainder.ConsumeChar();
-                }
-                else if (next.Value == '(')
-                {
-                    yield return Result.Value(SqlToken.LParen, next.Location, next.Remainder);
-                    next = next.Remainder.ConsumeChar();
-                }
-                else if (next.Value == ')')
-                {
-                    yield return Result.Value(SqlToken.RParen, next.Location, next.Remainder);
-                    next = next.Remainder.ConsumeChar();
-                }
-                else if (next.Value == ',')
-                {
-                    yield return Result.Value(SqlToken.Delimiter, next.Location, next.Remainder);
-                    next = next.Remainder.ConsumeChar();
                 }
                 else if (next.Value == '\'')
                 {
-                    var sqlString = SqlString(next.Location);
-                    yield return sqlString.HasValue
-                        ? Result.Value(SqlToken.Literal, sqlString.Location, sqlString.Remainder)
-                        : Result.Empty<SqlToken>(next.Location);
+                    var str = SqliteTextParsers.SqlString(next.Location);
+                    if (!str.HasValue)
+                        yield return Result.CastEmpty<string, SqliteToken>(str);
 
-                    next = sqlString.Remainder.ConsumeChar();
+                    next = str.Remainder.ConsumeChar();
+
+                    yield return Result.Value(SqliteToken.String, str.Location, str.Remainder);
+                }
+                else if (next.Value == '`' || next.Value == '"' || next.Value == '[')
+                {
+                    var endChar = next.Value == '[' ? ']' : next.Value;
+
+                    var beginIdentifier = next.Location;
+                    do
+                    {
+                        next = next.Remainder.ConsumeChar();
+                    }
+                    while (next.HasValue && (next.Value != endChar));
+
+                    yield return Result.Value(SqliteToken.Identifier, beginIdentifier, next.Location);
+                }
+                else if (next.Value.IsLetter() || next.Value == '_')
+                {
+                    var blob = SqliteTextParsers.SqlBlob(next.Location);
+                    if (blob.HasValue)
+                    {
+                        yield return Result.Value(SqliteToken.Blob, blob.Location, blob.Remainder);
+                        next = blob.Remainder.ConsumeChar();
+                    }
+                    else
+                    {
+                        var beginIdentifier = next.Location;
+                        do
+                        {
+                            next = next.Remainder.ConsumeChar();
+                        }
+                        while (next.HasValue && (next.Value.IsLetterOrDigit() || next.Value == '_'));
+
+                        if (TryGetKeyword(beginIdentifier.Until(next.Location), out var keyword))
+                            yield return Result.Value(keyword, beginIdentifier, next.Location);
+                        else
+                            yield return Result.Value(SqliteToken.Identifier, beginIdentifier, next.Location);
+                    }
+                }
+                else if (next.Value == '/' && (!Previous.HasValue || PreRegexTokens.Contains(Previous.Kind)))
+                {
+                    var sqlComment = SqliteTextParsers.SqlComment(next.Location);
+                    if (sqlComment.HasValue)
+                    {
+                        // don't return comments, assume they're filtered out as it makes parsing more difficult
+                        next = sqlComment.Remainder.ConsumeChar();
+                    }
+                    else
+                    {
+                        var regex = SqliteTextParsers.RegularExpression(next.Location);
+                        if (!regex.HasValue)
+                            yield return Result.CastEmpty<Unit, SqliteToken>(regex);
+
+                        yield return Result.Value(SqliteToken.RegularExpression, next.Location, regex.Remainder);
+                        next = regex.Remainder.ConsumeChar();
+                    }
                 }
                 else if (next.Value == '-' || next.Value == '/')
                 {
-                    var sqlComment = SqlComment(next.Location);
+                    var sqlComment = SqliteTextParsers.SqlComment(next.Location);
                     if (sqlComment.HasValue)
                     {
                         // don't return comments, assume they're filtered out as it makes parsing more difficult
@@ -129,402 +140,211 @@ namespace SJP.Schematic.Sqlite.Parsing
                     }
                     else
                     {
-                        var op = Operators(next.Location);
-                        if (op.HasValue)
+                        if (TryGetKeyword(next.Location, out var keyword))
                         {
-                            yield return Result.Value(SqlToken.Operator, next.Location, next.Remainder);
-                            next = op.Remainder.ConsumeChar();
+                            yield return Result.Value(keyword, next.Location, next.Remainder);
+                            next = next.Remainder.ConsumeChar();
                         }
                         else
                         {
-                            yield return Result.Empty<SqlToken>(next.Location);
+                            yield return Result.Empty<SqliteToken>(next.Location);
                         }
                     }
                 }
-                else if (next.Value == ';')
-                {
-                    yield return Result.Value(SqlToken.Terminator, next.Location, next.Remainder);
-                    next = next.Remainder.ConsumeChar();
-                }
                 else
                 {
-                    var op = Operators(next.Location);
-                    if (op.HasValue)
+                    var compoundOp = SqliteTextParsers.CompoundOperator(next.Location);
+                    if (compoundOp.HasValue)
                     {
-                        yield return Result.Value(SqlToken.Operator, next.Location, next.Remainder);
-                        next = op.Remainder.ConsumeChar();
+                        yield return Result.Value(compoundOp.Value, compoundOp.Location, compoundOp.Remainder);
+                        next = compoundOp.Remainder.ConsumeChar();
+                    }
+                    else if (next.Value < SimpleOps.Length && SimpleOps[next.Value] != SqliteToken.None)
+                    {
+                        yield return Result.Value(SimpleOps[next.Value], next.Location, next.Remainder);
+                        next = next.Remainder.ConsumeChar();
                     }
                     else
                     {
+                        yield return Result.Empty<SqliteToken>(next.Location);
                         next = next.Remainder.ConsumeChar();
                     }
                 }
 
                 next = SkipWhiteSpace(next.Location);
-            }
-            while (next.HasValue);
+            } while (next.HasValue);
         }
 
-        private static TextParser<char> SqlStringContentChar =>
-           Span.EqualTo("''").Value('\'').Try().Or(Character.ExceptIn('\'', '\r', '\n'));
-
-        private static TextParser<string> SqlString =>
-            Character.EqualTo('\'')
-                .Then(prefix => SqlStringContentChar.Many().Select(chars => prefix.ToString() + new string(chars)))
-                .Then(s => Character.EqualTo('\'').Value(s + "'"));
-
-        private static TextParser<char> SqlInlineCommentChar =>
-            Character.ExceptIn('\r', '\n');
-
-        private static TextParser<string> SqlInlineComment =>
-            Span.EqualTo("--")
-                .Then(prefix => SqlInlineCommentChar.Many().Select(chars => prefix.ToString() + new string(chars)));
-
-        private static TextParser<string> SqlBlockComment =>
-            Span.EqualTo("/*")
-                .Then(prefix => Character.AnyChar.Many().Select(chars => prefix.ToString() + new string(chars)))
-                .Then(s => Span.EqualTo("*/").Value(s + "*/"));
-
-        private static TextParser<string> SqlComment =>
-            SqlInlineComment.Or(SqlBlockComment);
-
-        private static TextParser<string> QuotedIdentifier =>
-            Character.EqualTo('"')
-                .IgnoreThen(Span.EqualTo("\"\"").Value('"').Try().Or(Character.Except('"')).Many().Select(chars => new string(chars)))
-                .Then(s => Character.EqualTo('"').Value(s));
-
-        private static TextParser<string> BracketedIdentifier =>
-            Character.EqualTo('[')
-                .IgnoreThen(Span.EqualTo("]]").Value(']').Try().Or(Character.Except(']')).Many().Select(chars => new string(chars)))
-                .Then(s => Character.EqualTo(']').Value(s));
-
-        private static TextParser<string> EngravedIdentifier =>
-            Character.EqualTo('`')
-                .IgnoreThen(Span.EqualTo("``").Value('`').Try().Or(Character.Except('`')).Many().Select(chars => new string(chars)))
-                .Then(s => Character.EqualTo('`').Value(s));
-
-        private static TextParser<char> SqlIdentifierStartChar =>
-            Character.Letter.Or(Character.EqualTo('_'));
-
-        private static TextParser<char> SqlIdentifierChar =>
-            Character.LetterOrDigit.Or(Character.EqualTo('_'));
-
-        private static TextParser<string> SqlSimpleIdentifier =>
-            SqlIdentifierStartChar.AtLeastOnce()
-                .Then(start =>
-                    SqlIdentifierChar.Many()
-                        .Select(suffix => new string(start) + new string(suffix))
-                        .Try().Or(Parse.Return(new string(start))));
-
-        private static TextParser<string> SqlIdentifier =>
-            QuotedIdentifier
-                .Or(BracketedIdentifier)
-                .Or(EngravedIdentifier)
-                .Or(SqlSimpleIdentifier);
-
-        private static TextParser<string> SqlBlob =>
-            Span.EqualToIgnoreCase("x")
-                .Then(x => SqlString.Select(str => x.ToStringValue() + str));
-
-        private static TextParser<string> SignedNumber =>
-            Character.Matching(c => c == '+' || c == '-', "sign").Try()
-                .Then(c => Character.Digit.AtLeastOnce().Select(digits => c.ToString() + new string(digits)));
-
-        public static TextParser<string> SqlNumeric =>
-            HexLiteral
-                .Or(
-                    DecimalPoint
-                        .Then(point => Digit.AtLeastOnce().Select(digits => point + new string(digits)))
-                        .Then(_ => ExponentSuffix.Select(suffix => _ + suffix).Try().Or(Parse.Return(_)))
-                )
-                .Or(
-                    Digit.AtLeastOnce()
-                        .Then(digits =>
-                            DecimalPoint
-                                .Select(p => new string(digits) + p.ToString())
-                                .Then(prefix => Digit.Many()
-                                    .Select(suffixDigits => prefix + new string(suffixDigits)))
-                                .Try().Or(Parse.Return(new string(digits)))
-                        )
-                        .Then(_ => ExponentSuffix.Select(suffix => _ + suffix).Try().Or(Parse.Return(_)))
-                );
-
-        private static TextParser<string> SqlLiteral =>
-            Span.EqualToIgnoreCase("NULL").Select(_ => _.ToStringValue())
-                .Or(Span.EqualToIgnoreCase("CURRENT_TIME").Select(_ => _.ToStringValue()))
-                .Or(Span.EqualToIgnoreCase("CURRENT_DATE").Select(_ => _.ToStringValue()))
-                .Or(Span.EqualToIgnoreCase("CURRENT_TIMESTAMP").Select(_ => _.ToStringValue()))
-                .Or(SqlString)
-                .Or(SqlBlob)
-                .Or(SqlNumeric);
-
-        private static TextParser<char> Digit => Character.Digit;
-
-        private static TextParser<char> DecimalPoint => Character.EqualTo('.');
-
-        private readonly static IEnumerable<char> _hexLetters = new HashSet<char> { 'A', 'B', 'C', 'D', 'E', 'F' };
-
-        private static TextParser<char> HexDigit =>
-            Character.Matching(c => c.IsDigit() || _hexLetters.Contains(c.ToUpperInvariant()), "hex digit");
-
-        private static TextParser<string> HexPrefix =>
-            Span.EqualTo("0x").Value("0x");
-
-        private static TextParser<string> HexLiteral =>
-            HexPrefix
-                .Then(prefix => HexDigit.AtLeastOnce().Select(digits => prefix + new string(digits)));
-
-        private static TextParser<string> ExponentSuffix =>
-            Character.EqualTo('E')
-                .Then(e => Character.Matching(c => c == '+' || c == '-', "sign")
-                    .Select(sign => e.ToString() + sign.ToString())
-                    .Try().Or(Parse.Return(e.ToString()))
-                )
-                .Then(prefix => Character.Digit.AtLeastOnce().Select(digits => prefix + new string(digits)));
-
-        private static TextParser<string> RaiseFunction =>
-            Span.EqualToIgnoreCase("RAISE")
-                .Then(r => Span.EqualTo('(').Select(paren => r.ToStringValue() + paren.ToStringValue()))
-                .Then(prefix =>
-                    Span.EqualToIgnoreCase("IGNORE").Select(ign => prefix + ign.ToStringValue())
-                    .Or(
-                            Span.EqualToIgnoreCase("ROLLBACK")
-                        .Or(Span.EqualToIgnoreCase("ABORT"))
-                        .Or(Span.EqualToIgnoreCase("FAIL"))
-                        .Then(keyword => Span.EqualTo(",").Select(comma => keyword.ToStringValue() + comma.ToStringValue()))
-                        .Then(main => SqlString.Select(errmsg => main + errmsg))
-                    )
-                    .Then(main => Span.EqualTo(")").Select(paren => main + paren.ToStringValue()))
-                )
-                .Then(body => Span.EqualTo(")").Select(end => body + end.ToStringValue()));
-
-        private static TextParser<string> QualifedIdentifier =>
-            SqlIdentifier // maybe schema name
-                .Then(ident => Span.EqualTo(".").Select(dot => ident + dot.ToStringValue()).Try().Or(Parse.Return(ident)))
-                .Then(ident => SqlLiteral.Select(lit => ident + lit).Try().Or(Parse.Return(ident))) // maybe table name
-                .Then(ident => Span.EqualTo(".").Select(dot => ident + dot.ToStringValue()).Try().Or(Parse.Return(ident)))
-                .Then(ident => SqlLiteral.Select(lit => ident + lit).Try().Or(Parse.Return(ident))); // maybe column name
-
-        private static TextParser<string> NamedOperators =>
-            Span.EqualToIgnoreCase("REGEXP").Select(op => op.ToStringValue())
-                .Or(Span.EqualToIgnoreCase("MATCH").Select(op => op.ToStringValue()))
-                .Or(Span.EqualToIgnoreCase("GLOB").Select(op => op.ToStringValue()))
-                .Or(Span.EqualToIgnoreCase("LIKE").Select(op => op.ToStringValue()))
-                .Or(Span.EqualToIgnoreCase("AND").Select(op => op.ToStringValue()))
-                .Or(Span.EqualToIgnoreCase("NOT").Select(op => op.ToStringValue()))
-                .Or(Span.EqualToIgnoreCase("IN").Select(op => op.ToStringValue()))
-                .Or(Span.EqualToIgnoreCase("IS").Select(op => op.ToStringValue()))
-                .Or(Span.EqualToIgnoreCase("OR").Select(op => op.ToStringValue()));
-
-        private static TextParser<string> Operators =>
-            Span.EqualToIgnoreCase("REGEXP").Select(op => op.ToStringValue())
-                .Try().Or(Span.EqualToIgnoreCase("MATCH").Select(op => op.ToStringValue()))
-                .Try().Or(Span.EqualToIgnoreCase("GLOB").Select(op => op.ToStringValue()))
-                .Try().Or(Span.EqualToIgnoreCase("LIKE").Select(op => op.ToStringValue()))
-                .Try().Or(Span.EqualToIgnoreCase("AND").Select(op => op.ToStringValue()))
-                .Try().Or(Span.EqualToIgnoreCase("NOT").Select(op => op.ToStringValue()))
-                .Try().Or(Span.EqualToIgnoreCase("IN").Select(op => op.ToStringValue()))
-                .Try().Or(Span.EqualToIgnoreCase("IS").Select(op => op.ToStringValue()))
-                .Try().Or(Span.EqualToIgnoreCase("OR").Select(op => op.ToStringValue()))
-                .Try().Or(Span.EqualTo("||").Select(op => op.ToStringValue()))
-                .Try().Or(Span.EqualTo("<<").Select(op => op.ToStringValue()))
-                .Try().Or(Span.EqualTo(">>").Select(op => op.ToStringValue()))
-                .Try().Or(Span.EqualTo("<>").Select(op => op.ToStringValue()))
-                .Try().Or(Span.EqualTo("!=").Select(op => op.ToStringValue()))
-                .Try().Or(Span.EqualTo("==").Select(op => op.ToStringValue()))
-                .Try().Or(Span.EqualTo(">=").Select(op => op.ToStringValue()))
-                .Try().Or(Span.EqualTo("<=").Select(op => op.ToStringValue()))
-                .Try().Or(Span.EqualTo("*").Select(op => op.ToStringValue()))
-                .Try().Or(Span.EqualTo("/").Select(op => op.ToStringValue()))
-                .Try().Or(Span.EqualTo("%").Select(op => op.ToStringValue()))
-                .Try().Or(Span.EqualTo("+").Select(op => op.ToStringValue()))
-                .Try().Or(Span.EqualTo("-").Select(op => op.ToStringValue()))
-                .Try().Or(Span.EqualTo("&").Select(op => op.ToStringValue()))
-                .Try().Or(Span.EqualTo("|").Select(op => op.ToStringValue()))
-                .Try().Or(Span.EqualTo("<").Select(op => op.ToStringValue()))
-                .Try().Or(Span.EqualTo(">").Select(op => op.ToStringValue()))
-                .Try().Or(Span.EqualTo("=").Select(op => op.ToStringValue()))
-                .Try().Or(Span.EqualTo("~").Select(op => op.ToStringValue()));
-
-        private static TextParser<string> TypeName =>
-            // TEXT
-            Span.EqualToIgnoreCase("CLOB").Select(typeName => typeName.ToStringValue())
-                .Or(Span.EqualToIgnoreCase("TEXT").Select(typeName => typeName.ToStringValue()))
-                .Or(Span.EqualToIgnoreCase("NVARCHAR").Select(typeName => typeName.ToStringValue()))
-                .Or(Span.EqualToIgnoreCase("NCHAR").Select(typeName => typeName.ToStringValue()))
-                .Or(Span.EqualToIgnoreCase("VARCHAR").Select(typeName => typeName.ToStringValue()))
-                .Or(
-                    Span.EqualToIgnoreCase("VARYING").Select(typeName => typeName.ToStringValue())
-                        .Then(dbl => Character.WhiteSpace.AtLeastOnce().Select(ws => dbl + new string(ws)))
-                        .Then(prefix => Span.EqualToIgnoreCase("CHARACTER").Select(typeName => prefix + typeName.ToStringValue()))
-                )
-                .Or(
-                    Span.EqualToIgnoreCase("NATIVE").Select(typeName => typeName.ToStringValue())
-                        .Then(dbl => Character.WhiteSpace.AtLeastOnce().Select(ws => dbl + new string(ws)))
-                        .Then(prefix => Span.EqualToIgnoreCase("CHARACTER").Select(typeName => prefix + typeName.ToStringValue()))
-                )
-                .Or(Span.EqualToIgnoreCase("CHARACTER").Select(typeName => typeName.ToStringValue()))
-                // INTEGER
-                .Try().Or(Span.EqualToIgnoreCase("INTEGER").Select(typeName => typeName.ToStringValue()))
-                .Try().Or(Span.EqualToIgnoreCase("TINYINT").Select(typeName => typeName.ToStringValue()))
-                .Try().Or(Span.EqualToIgnoreCase("SMALLINT").Select(typeName => typeName.ToStringValue()))
-                .Try().Or(Span.EqualToIgnoreCase("MEDIUMINT").Select(typeName => typeName.ToStringValue()))
-                .Try().Or(Span.EqualToIgnoreCase("BIGINT").Select(typeName => typeName.ToStringValue()))
-                .Try().Or(Span.EqualToIgnoreCase("INT8").Select(typeName => typeName.ToStringValue()))
-                .Try().Or(Span.EqualToIgnoreCase("INT2").Select(typeName => typeName.ToStringValue()))
-                .Try().Or(Span.EqualToIgnoreCase("INT").Select(typeName => typeName.ToStringValue()))
-                .Or(
-                    Span.EqualToIgnoreCase("UNSIGNED").Select(typeName => typeName.ToStringValue())
-                        .Then(unsign => Character.WhiteSpace.AtLeastOnce().Select(ws => unsign + new string(ws)))
-                        .Then(prefix => Span.EqualToIgnoreCase("BIG").Select(typeName => prefix + typeName.ToStringValue()))
-                        .Then(prefix => Character.WhiteSpace.AtLeastOnce().Select(ws => prefix + new string(ws)))
-                        .Then(prefix => Span.EqualToIgnoreCase("INT").Select(typeName => prefix + typeName.ToStringValue()))
-                )
-
-                // BLOB
-                .Or(Span.EqualToIgnoreCase("BLOB").Select(typeName => typeName.ToStringValue()))
-                // REAL
-                .Or(
-                    Span.EqualToIgnoreCase("DOUBLE").Select(typeName => typeName.ToStringValue())
-                        .Then(dbl => Character.WhiteSpace.AtLeastOnce().Select(ws => dbl + new string(ws)))
-                        .Then(prefix => Span.EqualToIgnoreCase("PRECISION").Select(typeName => prefix + typeName.ToStringValue()))
-                )
-                .Or(Span.EqualToIgnoreCase("DOUBLE").Select(typeName => typeName.ToStringValue()))
-                .Or(Span.EqualToIgnoreCase("REAL").Select(typeName => typeName.ToStringValue()))
-                .Or(Span.EqualToIgnoreCase("FLOAT").Select(typeName => typeName.ToStringValue()))
-                // numeric
-                .Or(Span.EqualToIgnoreCase("NUMERIC").Select(typeName => typeName.ToStringValue()))
-                .Or(Span.EqualToIgnoreCase("DECIMAL").Select(typeName => typeName.ToStringValue()))
-                .Or(Span.EqualToIgnoreCase("BOOLEAN").Select(typeName => typeName.ToStringValue()))
-                .Or(Span.EqualToIgnoreCase("DATETIME").Select(typeName => typeName.ToStringValue()))
-                .Or(Span.EqualToIgnoreCase("DATE").Select(typeName => typeName.ToStringValue()));
-
-        private static IEnumerable<string> SqlKeywords { get; } = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+        private static bool TryGetKeyword(TextSpan span, out SqliteToken keyword)
         {
-            "ABORT",
-            "ACTION",
-            "ADD",
-            "AFTER",
-            "ALL",
-            "ALTER",
-            "ANALYZE",
-            "AND",
-            "AS",
-            "ASC",
-            "ATTACH",
-            "AUTOINCREMENT",
-            "BEFORE",
-            "BEGIN",
-            "BETWEEN",
-            "BY",
-            "CASCADE",
-            "CASE",
-            "CAST",
-            "CHECK",
-            "COLLATE",
-            "COLUMN",
-            "COMMIT",
-            "CONFLICT",
-            "CONSTRAINT",
-            "CREATE",
-            "CROSS",
-            "CURRENT_DATE",
-            "CURRENT_TIME",
-            "CURRENT_TIMESTAMP",
-            "DATABASE",
-            "DEFAULT",
-            "DEFERRABLE",
-            "DEFERRED",
-            "DELETE",
-            "DESC",
-            "DETACH",
-            "DISTINCT",
-            "DROP",
-            "EACH",
-            "ELSE",
-            "END",
-            "ESCAPE",
-            "EXCEPT",
-            "EXCLUSIVE",
-            "EXISTS",
-            "EXPLAIN",
-            "FAIL",
-            "FOR",
-            "FOREIGN",
-            "FROM",
-            "FULL",
-            "GLOB",
-            "GROUP",
-            "HAVING",
-            "IF",
-            "IGNORE",
-            "IMMEDIATE",
-            "IN",
-            "INDEX",
-            "INDEXED",
-            "INITIALLY",
-            "INNER",
-            "INSERT",
-            "INSTEAD",
-            "INTERSECT",
-            "INTO",
-            "IS",
-            "ISNULL",
-            "JOIN",
-            "KEY",
-            "LEFT",
-            "LIKE",
-            "LIMIT",
-            "MATCH",
-            "NATURAL",
-            "NO",
-            "NOT",
-            "NOTNULL",
-            "NULL",
-            "OF",
-            "OFFSET",
-            "ON",
-            "OR",
-            "ORDER",
-            "OUTER",
-            "PLAN",
-            "PRAGMA",
-            "PRIMARY",
-            "QUERY",
-            "RAISE",
-            "RECURSIVE",
-            "REFERENCES",
-            "REGEXP",
-            "REINDEX",
-            "RELEASE",
-            "RENAME",
-            "REPLACE",
-            "RESTRICT",
-            "RIGHT",
-            "ROLLBACK",
-            "ROW",
-            "SAVEPOINT",
-            "SELECT",
-            "SET",
-            "TABLE",
-            "TEMP",
-            "TEMPORARY",
-            "THEN",
-            "TO",
-            "TRANSACTION",
-            "TRIGGER",
-            "UNION",
-            "UNIQUE",
-            "UPDATE",
-            "USING",
-            "VACUUM",
-            "VALUES",
-            "VIEW",
-            "VIRTUAL",
-            "WHEN",
-            "WHERE",
-            "WITH",
-            "WITHOUT"
+            foreach (var kw in SqlKeywords)
+            {
+                if (span.EqualsValueIgnoreCase(kw.Text))
+                {
+                    keyword = kw.Token;
+                    return true;
+                }
+            }
+
+            keyword = SqliteToken.None;
+            return false;
+        }
+
+        private static readonly SqliteToken[] SimpleOps = new SqliteToken[128];
+
+        private static readonly HashSet<SqliteToken> PreRegexTokens = new HashSet<SqliteToken>
+        {
+            SqliteToken.And,
+            SqliteToken.Or,
+            SqliteToken.Not,
+            SqliteToken.LParen,
+            SqliteToken.LBracket,
+            SqliteToken.Comma,
+            SqliteToken.Equal,
+            SqliteToken.NotEqual,
+            SqliteToken.Like,
+            SqliteToken.GreaterThan,
+            SqliteToken.GreaterThanOrEqual,
+            SqliteToken.LessThan,
+            SqliteToken.LessThanOrEqual,
+            SqliteToken.Is
+        };
+
+        private static readonly SqliteKeyword[] SqlKeywords =
+        {
+            new SqliteKeyword("and", SqliteToken.And),
+            new SqliteKeyword("is", SqliteToken.Is),
+            new SqliteKeyword("like", SqliteToken.Like),
+            new SqliteKeyword("not", SqliteToken.Not),
+            new SqliteKeyword("or", SqliteToken.Or),
+            new SqliteKeyword("true", SqliteToken.True),
+            new SqliteKeyword("false", SqliteToken.False),
+            new SqliteKeyword("null", SqliteToken.Null),
+
+            new SqliteKeyword("abort", SqliteToken.Abort),
+            new SqliteKeyword("action", SqliteToken.Action),
+            new SqliteKeyword("add", SqliteToken.Add),
+            new SqliteKeyword("after", SqliteToken.After),
+            new SqliteKeyword("all", SqliteToken.All),
+            new SqliteKeyword("alter", SqliteToken.Alter),
+            new SqliteKeyword("analyze", SqliteToken.Analyze),
+            new SqliteKeyword("and", SqliteToken.And),
+            new SqliteKeyword("as", SqliteToken.As),
+            new SqliteKeyword("asc", SqliteToken.Ascending),
+            new SqliteKeyword("attach", SqliteToken.Attach),
+            new SqliteKeyword("autoincrement", SqliteToken.Autoincrement),
+            new SqliteKeyword("before", SqliteToken.Before),
+            new SqliteKeyword("begin", SqliteToken.Before),
+            new SqliteKeyword("between", SqliteToken.Between),
+            new SqliteKeyword("by", SqliteToken.By),
+            new SqliteKeyword("cascade", SqliteToken.Cascade),
+            new SqliteKeyword("case", SqliteToken.Case),
+            new SqliteKeyword("cast", SqliteToken.Cast),
+            new SqliteKeyword("check", SqliteToken.Check),
+            new SqliteKeyword("collate", SqliteToken.Collate),
+            new SqliteKeyword("column", SqliteToken.Column),
+            new SqliteKeyword("commit", SqliteToken.Commit),
+            new SqliteKeyword("conflict", SqliteToken.Conflict),
+            new SqliteKeyword("constraint", SqliteToken.Constraint),
+            new SqliteKeyword("create", SqliteToken.Create),
+            new SqliteKeyword("cross", SqliteToken.Cross),
+            new SqliteKeyword("current_date", SqliteToken.CurrentDate),
+            new SqliteKeyword("current_time", SqliteToken.CurrentTime),
+            new SqliteKeyword("current_timestamp", SqliteToken.CurrentTimestamp),
+            new SqliteKeyword("database", SqliteToken.Database),
+            new SqliteKeyword("default", SqliteToken.Default),
+            new SqliteKeyword("deferrable", SqliteToken.Deferrable),
+            new SqliteKeyword("deferred", SqliteToken.Deferred),
+            new SqliteKeyword("delete", SqliteToken.Delete),
+            new SqliteKeyword("desc", SqliteToken.Descending),
+            new SqliteKeyword("detach", SqliteToken.Detach),
+            new SqliteKeyword("distinct", SqliteToken.Distinct),
+            new SqliteKeyword("drop", SqliteToken.Drop),
+            new SqliteKeyword("each", SqliteToken.Each),
+            new SqliteKeyword("else", SqliteToken.Else),
+            new SqliteKeyword("end", SqliteToken.End),
+            new SqliteKeyword("escape", SqliteToken.Escape),
+            new SqliteKeyword("except", SqliteToken.Except),
+            new SqliteKeyword("exclusive", SqliteToken.Exclusive),
+            new SqliteKeyword("exists", SqliteToken.Exists),
+            new SqliteKeyword("explain", SqliteToken.Explain),
+            new SqliteKeyword("fail", SqliteToken.Fail),
+            new SqliteKeyword("for", SqliteToken.For),
+            new SqliteKeyword("foreign", SqliteToken.Foreign),
+            new SqliteKeyword("from", SqliteToken.From),
+            new SqliteKeyword("full", SqliteToken.Full),
+            new SqliteKeyword("glob", SqliteToken.Glob),
+            new SqliteKeyword("group", SqliteToken.Group),
+            new SqliteKeyword("having", SqliteToken.Having),
+            new SqliteKeyword("if", SqliteToken.If),
+            new SqliteKeyword("ignore", SqliteToken.Ignore),
+            new SqliteKeyword("immediate", SqliteToken.Immediate),
+            new SqliteKeyword("in", SqliteToken.In),
+            new SqliteKeyword("index", SqliteToken.Index),
+            new SqliteKeyword("indexed", SqliteToken.Indexed),
+            new SqliteKeyword("initially", SqliteToken.Initially),
+            new SqliteKeyword("inner", SqliteToken.Inner),
+            new SqliteKeyword("insert", SqliteToken.Insert),
+            new SqliteKeyword("instead", SqliteToken.Instead),
+            new SqliteKeyword("intersect", SqliteToken.Intersect),
+            new SqliteKeyword("into", SqliteToken.Into),
+            new SqliteKeyword("is", SqliteToken.Is),
+            new SqliteKeyword("isnull", SqliteToken.IsNull),
+            new SqliteKeyword("join", SqliteToken.Join),
+            new SqliteKeyword("key", SqliteToken.Key),
+            new SqliteKeyword("left", SqliteToken.Left),
+            new SqliteKeyword("like", SqliteToken.Like),
+            new SqliteKeyword("limit", SqliteToken.Limit),
+            new SqliteKeyword("match", SqliteToken.Match),
+            new SqliteKeyword("natural", SqliteToken.Natural),
+            new SqliteKeyword("no", SqliteToken.No),
+            new SqliteKeyword("not", SqliteToken.Not),
+            new SqliteKeyword("notnull", SqliteToken.NotNull),
+            new SqliteKeyword("null", SqliteToken.Null),
+            new SqliteKeyword("of", SqliteToken.Of),
+            new SqliteKeyword("offset", SqliteToken.Offset),
+            new SqliteKeyword("on", SqliteToken.On),
+            new SqliteKeyword("or", SqliteToken.Or),
+            new SqliteKeyword("order", SqliteToken.Order),
+            new SqliteKeyword("outer", SqliteToken.Outer),
+            new SqliteKeyword("plan", SqliteToken.Plan),
+            new SqliteKeyword("pragma", SqliteToken.Pragma),
+            new SqliteKeyword("primary", SqliteToken.Primary),
+            new SqliteKeyword("query", SqliteToken.Query),
+            new SqliteKeyword("raise", SqliteToken.Raise),
+            new SqliteKeyword("recursive", SqliteToken.Recursive),
+            new SqliteKeyword("references", SqliteToken.References),
+            new SqliteKeyword("regexp", SqliteToken.Regexp),
+            new SqliteKeyword("reindex", SqliteToken.ReIndex),
+            new SqliteKeyword("release", SqliteToken.Release),
+            new SqliteKeyword("rename", SqliteToken.Release),
+            new SqliteKeyword("replace", SqliteToken.Replace),
+            new SqliteKeyword("restrict", SqliteToken.Restrict),
+            new SqliteKeyword("right", SqliteToken.Right),
+            new SqliteKeyword("rollback", SqliteToken.Rollback),
+            new SqliteKeyword("row", SqliteToken.Row),
+            new SqliteKeyword("savepoint", SqliteToken.Savepoint),
+            new SqliteKeyword("select", SqliteToken.Select),
+            new SqliteKeyword("set", SqliteToken.Set),
+            new SqliteKeyword("table", SqliteToken.Table),
+            new SqliteKeyword("temp", SqliteToken.Temporary),
+            new SqliteKeyword("temporary", SqliteToken.Temporary),
+            new SqliteKeyword("then", SqliteToken.Then),
+            new SqliteKeyword("to", SqliteToken.To),
+            new SqliteKeyword("transaction", SqliteToken.Transaction),
+            new SqliteKeyword("trigger", SqliteToken.Trigger),
+            new SqliteKeyword("union", SqliteToken.Union),
+            new SqliteKeyword("unique", SqliteToken.Unique),
+            new SqliteKeyword("update", SqliteToken.Update),
+            new SqliteKeyword("using", SqliteToken.Using),
+            new SqliteKeyword("vacuum", SqliteToken.Vacuum),
+            new SqliteKeyword("values", SqliteToken.Values),
+            new SqliteKeyword("view", SqliteToken.View),
+            new SqliteKeyword("virtual", SqliteToken.Virtual),
+            new SqliteKeyword("when", SqliteToken.When),
+            new SqliteKeyword("where", SqliteToken.Where),
+            new SqliteKeyword("with", SqliteToken.With),
+            new SqliteKeyword("without", SqliteToken.Without)
         };
     }
 }

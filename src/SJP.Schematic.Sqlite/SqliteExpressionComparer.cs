@@ -55,7 +55,7 @@ namespace SJP.Schematic.Sqlite
 
         public int GetHashCode(string obj) => Comparer.GetHashCode(obj);
 
-        private bool TokensEqual(Token<SqlToken> x, Token<SqlToken> y)
+        private bool TokensEqual(Token<SqliteToken> x, Token<SqliteToken> y)
         {
             if (x.Kind != y.Kind)
                 return false;
@@ -73,9 +73,9 @@ namespace SJP.Schematic.Sqlite
             return comparer.Equals(xString, yString);
         }
 
-        private static bool IsStringToken(Token<SqlToken> token)
+        private static bool IsStringToken(Token<SqliteToken> token)
         {
-            if (token.Kind != SqlToken.Literal)
+            if (token.Kind != SqliteToken.String)
                 return false;
 
             var tokenValue = token.ToStringValue();

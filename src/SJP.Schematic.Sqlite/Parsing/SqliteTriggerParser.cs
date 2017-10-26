@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using SJP.Schematic.Core;
 using Superpower.Model;
 
@@ -8,74 +6,27 @@ namespace SJP.Schematic.Sqlite.Parsing
 {
     public class SqliteTriggerParser
     {
-        public SqliteTriggerParser(TokenList<SqlToken> tokens)
+        public SqliteTriggerParser(TokenList<SqliteToken> tokens)
         {
-            if (tokens == default(TokenList<SqlToken>) || tokens.Empty())
+            if (tokens == default(TokenList<SqliteToken>) || tokens.Empty())
                 throw new ArgumentNullException(nameof(tokens));
 
-            var parseResult = ParseTokens(tokens);
-            Timing = parseResult.Timing;
-            Event = parseResult.Event;
+            var timing = TriggerQueryTiming.After;
+            var evt = TriggerEvent.None;
+
+            var triggerDef = SqliteTokenParsers.TriggerDefinition(tokens);
+            if (triggerDef.HasValue)
+            {
+                timing = triggerDef.Value.timing;
+                evt = triggerDef.Value.evt;
+            }
+
+            Timing = timing;
+            Event = evt;
         }
 
         public TriggerQueryTiming Timing { get; }
 
         public TriggerEvent Event { get; }
-
-        private static ParseResult ParseTokens(TokenList<SqlToken> tokens)
-        {
-            var next = tokens.ConsumeToken();
-
-            var timing = TriggerQueryTiming.After;
-            var triggerEvent = TriggerEvent.None;
-
-            var foundTiming = false;
-
-            do
-            {
-                var kind = next.Value.Kind;
-                var span = next.Value.Span;
-
-                if (!foundTiming && kind == SqlToken.Keyword && TimingKeywords.Contains(span.ToStringValue()))
-                {
-                    foundTiming = true;
-                    var timingSpan = span.ToStringValue();
-                    if (timingSpan.Equals("INSTEAD", StringComparison.OrdinalIgnoreCase))
-                        timingSpan = "InsteadOf";
-                    if (!Enum.TryParse(timingSpan, true, out timing))
-                        throw new Exception("Failed to parse timing span: " + timingSpan);
-                }
-                else if (foundTiming && kind == SqlToken.Keyword && EventKeywords.Contains(span.ToStringValue()))
-                {
-                    var eventSpan = span.ToStringValue();
-                    if (!Enum.TryParse(eventSpan, true, out triggerEvent))
-                        throw new Exception("Failed to event span: " + eventSpan);
-
-                    return new ParseResult(timing, triggerEvent);
-                }
-
-                next = next.Remainder.ConsumeToken();
-            }
-            while (!next.Remainder.IsAtEnd);
-
-            throw new Exception("Failed to parse trigger successfully.");
-        }
-
-        private static IEnumerable<string> TimingKeywords { get; } = new HashSet<string>(StringComparer.OrdinalIgnoreCase) { "BEFORE", "AFTER", "INSTEAD" };
-
-        private static IEnumerable<string> EventKeywords { get; } = new HashSet<string>(StringComparer.OrdinalIgnoreCase) { "DELETE", "INSERT", "UPDATE" };
-
-        private class ParseResult
-        {
-            public ParseResult(TriggerQueryTiming timing, TriggerEvent triggerEvent)
-            {
-                Timing = timing;
-                Event = triggerEvent;
-            }
-
-            public TriggerQueryTiming Timing { get; }
-
-            public TriggerEvent Event { get; }
-        }
     }
 }
