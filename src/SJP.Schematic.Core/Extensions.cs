@@ -7,18 +7,6 @@ using EnumsNET;
 
 namespace SJP.Schematic.Core
 {
-    public static class CachingExtensions
-    {
-        public static IRelationalDatabase AsCachedDatabase(this IRelationalDatabase database)
-        {
-            if (database == null)
-                throw new ArgumentNullException(nameof(database));
-
-            var cachedDb = database as CachedRelationalDatabase;
-            return cachedDb ?? new CachedRelationalDatabase(database);
-        }
-    }
-
     public static class CharExtensions
     {
         public static UnicodeCategory GetUnicodeCategory(this char c) => CharUnicodeInfo.GetUnicodeCategory(c);
