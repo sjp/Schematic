@@ -20,7 +20,7 @@ namespace SJP.Schematic.Sqlite.Parsing
             PrimaryKey = parsedTable.PrimaryKey;
             UniqueKeys = parsedTable.UniqueKeys;
             ParentKeys = parsedTable.ParentKeys;
-            CheckConstraints = parsedTable.CheckConstraints;
+            Checks = parsedTable.Checks;
         }
 
         public string Definition { get; }
@@ -33,7 +33,7 @@ namespace SJP.Schematic.Sqlite.Parsing
 
         public IEnumerable<ForeignKey> ParentKeys { get; }
 
-        public IEnumerable<Check> CheckConstraints { get; }
+        public IEnumerable<Check> Checks { get; }
 
         private static ParsedTable ParseTokens(TokenList<SqliteToken> tokens)
         {
@@ -93,7 +93,7 @@ namespace SJP.Schematic.Sqlite.Parsing
                 if (parsedColumn.UniqueKey != null)
                     uniqueKeys.Add(parsedColumn.UniqueKey);
                 foreignKeys.AddRange(parsedColumn.ForeignKeys);
-                checks.AddRange(parsedColumn.CheckConstraints);
+                checks.AddRange(parsedColumn.Checks);
             }
 
             foreach (var parsedConstraint in parsedConstraints)
@@ -145,7 +145,7 @@ namespace SJP.Schematic.Sqlite.Parsing
                 Columns = columns.ToList();
                 PrimaryKey = primaryKey;
                 UniqueKeys = uniqueKeys.ToList();
-                CheckConstraints = checks.ToList();
+                Checks = checks.ToList();
                 ParentKeys = parentKeys.ToList();
             }
 
@@ -153,7 +153,7 @@ namespace SJP.Schematic.Sqlite.Parsing
             {
                 Columns = Enumerable.Empty<Column>();
                 UniqueKeys = Enumerable.Empty<UniqueKey>();
-                CheckConstraints = Enumerable.Empty<Check>();
+                Checks = Enumerable.Empty<Check>();
                 ParentKeys = Enumerable.Empty<ForeignKey>();
             }
 
@@ -163,7 +163,7 @@ namespace SJP.Schematic.Sqlite.Parsing
 
             public IEnumerable<UniqueKey> UniqueKeys { get; }
 
-            public IEnumerable<Check> CheckConstraints { get; }
+            public IEnumerable<Check> Checks { get; }
 
             public IEnumerable<ForeignKey> ParentKeys { get; }
 

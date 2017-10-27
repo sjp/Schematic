@@ -475,36 +475,36 @@ where schema_name(parent_t.schema_id) = @SchemaName and parent_t.name = @TableNa
             return result;
         }
 
-        public IReadOnlyDictionary<Identifier, IDatabaseCheckConstraint> CheckConstraint => LoadCheckConstraintLookupSync();
+        public IReadOnlyDictionary<Identifier, IDatabaseCheckConstraint> Check => LoadCheckLookupSync();
 
-        public Task<IReadOnlyDictionary<Identifier, IDatabaseCheckConstraint>> CheckConstraintAsync() => LoadCheckConstraintLookupAsync();
+        public Task<IReadOnlyDictionary<Identifier, IDatabaseCheckConstraint>> CheckAsync() => LoadCheckLookupAsync();
 
-        public IEnumerable<IDatabaseCheckConstraint> CheckConstraints => LoadCheckConstraintsSync();
+        public IEnumerable<IDatabaseCheckConstraint> Checks => LoadChecksSync();
 
-        public Task<IEnumerable<IDatabaseCheckConstraint>> CheckConstraintsAsync() => LoadCheckConstraintsAsync();
+        public Task<IEnumerable<IDatabaseCheckConstraint>> ChecksAsync() => LoadChecksAsync();
 
-        protected virtual IReadOnlyDictionary<Identifier, IDatabaseCheckConstraint> LoadCheckConstraintLookupSync()
+        protected virtual IReadOnlyDictionary<Identifier, IDatabaseCheckConstraint> LoadCheckLookupSync()
         {
             var result = new Dictionary<Identifier, IDatabaseCheckConstraint>(Comparer);
 
-            foreach (var check in CheckConstraints)
+            foreach (var check in Checks)
                 result[check.Name.LocalName] = check;
 
             return result.AsReadOnlyDictionary();
         }
 
-        protected virtual async Task<IReadOnlyDictionary<Identifier, IDatabaseCheckConstraint>> LoadCheckConstraintLookupAsync()
+        protected virtual async Task<IReadOnlyDictionary<Identifier, IDatabaseCheckConstraint>> LoadCheckLookupAsync()
         {
             var result = new Dictionary<Identifier, IDatabaseCheckConstraint>(Comparer);
 
-            var checks = await CheckConstraintsAsync().ConfigureAwait(false);
+            var checks = await ChecksAsync().ConfigureAwait(false);
             foreach (var check in checks)
                 result[check.Name.LocalName] = check;
 
             return result.AsReadOnlyDictionary();
         }
 
-        protected virtual IEnumerable<IDatabaseCheckConstraint> LoadCheckConstraintsSync()
+        protected virtual IEnumerable<IDatabaseCheckConstraint> LoadChecksSync()
         {
             const string sql = @"
 select cc.name as ConstraintName, cc.definition as Definition, cc.is_disabled as IsDisabled
@@ -512,26 +512,26 @@ from sys.tables t
 inner join sys.check_constraints cc on t.object_id = cc.parent_object_id
 where schema_name(t.schema_id) = @SchemaName and t.name = @TableName";
 
-            var checkConstraints = Connection.Query<CheckConstraintData>(sql, new { SchemaName = Name.Schema, TableName = Name.LocalName });
-            if (checkConstraints.Empty())
+            var checks = Connection.Query<CheckConstraintData>(sql, new { SchemaName = Name.Schema, TableName = Name.LocalName });
+            if (checks.Empty())
                 return Enumerable.Empty<IDatabaseCheckConstraint>();
 
             var result = new List<IDatabaseCheckConstraint>();
             var tableColumns = Column;
-            foreach (var checkRow in checkConstraints)
+            foreach (var checkRow in checks)
             {
                 var constraintName = new LocalIdentifier(checkRow.ConstraintName);
                 var definition = checkRow.Definition;
                 var isEnabled = !checkRow.IsDisabled;
 
-                var checkConstraint = new SqlServerCheckConstraint(this, constraintName, definition, isEnabled);
-                result.Add(checkConstraint);
+                var check = new SqlServerCheckConstraint(this, constraintName, definition, isEnabled);
+                result.Add(check);
             }
 
             return result;
         }
 
-        protected virtual async Task<IEnumerable<IDatabaseCheckConstraint>> LoadCheckConstraintsAsync()
+        protected virtual async Task<IEnumerable<IDatabaseCheckConstraint>> LoadChecksAsync()
         {
             const string sql = @"
 select cc.name as ConstraintName, cc.definition as Definition, cc.is_disabled as IsDisabled
@@ -539,20 +539,20 @@ from sys.tables t
 inner join sys.check_constraints cc on t.object_id = cc.parent_object_id
 where schema_name(t.schema_id) = @SchemaName and t.name = @TableName";
 
-            var checkConstraints = await Connection.QueryAsync<CheckConstraintData>(sql, new { SchemaName = Name.Schema, TableName = Name.LocalName }).ConfigureAwait(false);
-            if (checkConstraints.Empty())
+            var checks = await Connection.QueryAsync<CheckConstraintData>(sql, new { SchemaName = Name.Schema, TableName = Name.LocalName }).ConfigureAwait(false);
+            if (checks.Empty())
                 return Enumerable.Empty<IDatabaseCheckConstraint>();
 
             var result = new List<IDatabaseCheckConstraint>();
             var tableColumns = await ColumnAsync().ConfigureAwait(false);
-            foreach (var checkRow in checkConstraints)
+            foreach (var checkRow in checks)
             {
                 var constraintName = new LocalIdentifier(checkRow.ConstraintName);
                 var definition = checkRow.Definition;
                 var isEnabled = !checkRow.IsDisabled;
 
-                var checkConstraint = new SqlServerCheckConstraint(this, constraintName, definition, isEnabled);
-                result.Add(checkConstraint);
+                var check = new SqlServerCheckConstraint(this, constraintName, definition, isEnabled);
+                result.Add(check);
             }
 
             return result;

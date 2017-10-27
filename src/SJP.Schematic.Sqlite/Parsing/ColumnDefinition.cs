@@ -82,7 +82,7 @@ namespace SJP.Schematic.Sqlite.Parsing
             PrimaryKey = primaryKey;
             UniqueKey = uniqueKey;
             ForeignKeys = foreignKeys;
-            CheckConstraints = checks;
+            Checks = checks;
         }
 
         public string Name { get; }
@@ -103,6 +103,6 @@ namespace SJP.Schematic.Sqlite.Parsing
 
         public IEnumerable<ForeignKey> ForeignKeys { get; }
 
-        public IEnumerable<Check> CheckConstraints { get; }
+        public IEnumerable<Check> Checks { get; }
     }
 }

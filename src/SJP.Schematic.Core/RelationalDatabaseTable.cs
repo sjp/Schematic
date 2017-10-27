@@ -16,7 +16,7 @@ namespace SJP.Schematic.Core
             IEnumerable<IDatabaseRelationalKey> parentKeys,
             IEnumerable<IDatabaseRelationalKey> childKeys,
             IEnumerable<IDatabaseTableIndex> indexes,
-            IEnumerable<IDatabaseCheckConstraint> checkConstraints,
+            IEnumerable<IDatabaseCheckConstraint> checks,
             IEnumerable<IDatabaseTrigger> triggers,
             IEqualityComparer<Identifier> comparer = null)
         {
@@ -32,8 +32,8 @@ namespace SJP.Schematic.Core
                 throw new ArgumentNullException(nameof(childKeys));
             if (indexes == null || indexes.AnyNull())
                 throw new ArgumentNullException(nameof(indexes));
-            if (checkConstraints == null || checkConstraints.AnyNull())
-                throw new ArgumentNullException(nameof(checkConstraints));
+            if (checks == null || checks.AnyNull())
+                throw new ArgumentNullException(nameof(checks));
             if (triggers == null || triggers.AnyNull())
                 throw new ArgumentNullException(nameof(triggers));
 
@@ -50,7 +50,7 @@ namespace SJP.Schematic.Core
             ParentKeys = parentKeys;
             ChildKeys = childKeys;
             Indexes = indexes;
-            CheckConstraints = checkConstraints;
+            Checks = checks;
             Triggers = triggers;
             Comparer = comparer ?? new IdentifierComparer(StringComparer.Ordinal, serverName, databaseName, schemaName);
 
@@ -58,7 +58,7 @@ namespace SJP.Schematic.Core
             UniqueKey = CreateUniqueKeyLookup(UniqueKeys, Comparer);
             ParentKey = CreateParentKeyLookup(ParentKeys, Comparer);
             Index = CreateIndexLookup(Indexes, Comparer);
-            CheckConstraint = CreateCheckConstraintLookup(CheckConstraints, Comparer);
+            Check = CreateCheckLookup(Checks, Comparer);
             Trigger = CreateTriggerLookup(Triggers, Comparer);
         }
 
@@ -112,19 +112,19 @@ namespace SJP.Schematic.Core
 
         public Task<IEnumerable<IDatabaseRelationalKey>> ChildKeysAsync() => Task.FromResult(ChildKeys);
 
-        public IReadOnlyDictionary<Identifier, IDatabaseCheckConstraint> CheckConstraint { get; }
+        public IReadOnlyDictionary<Identifier, IDatabaseCheckConstraint> Check { get; }
 
-        public Task<IReadOnlyDictionary<Identifier, IDatabaseCheckConstraint>> CheckConstraintAsync() => Task.FromResult(CheckConstraint);
+        public Task<IReadOnlyDictionary<Identifier, IDatabaseCheckConstraint>> CheckAsync() => Task.FromResult(Check);
 
-        public IEnumerable<IDatabaseCheckConstraint> CheckConstraints { get; }
+        public IEnumerable<IDatabaseCheckConstraint> Checks { get; }
 
-        public Task<IEnumerable<IDatabaseCheckConstraint>> CheckConstraintsAsync() => Task.FromResult(CheckConstraints);
+        public Task<IEnumerable<IDatabaseCheckConstraint>> ChecksAsync() => Task.FromResult(Checks);
 
-        private static IReadOnlyDictionary<Identifier, IDatabaseCheckConstraint> CreateCheckConstraintLookup(IEnumerable<IDatabaseCheckConstraint> checkConstraints, IEqualityComparer<Identifier> comparer)
+        private static IReadOnlyDictionary<Identifier, IDatabaseCheckConstraint> CreateCheckLookup(IEnumerable<IDatabaseCheckConstraint> checks, IEqualityComparer<Identifier> comparer)
         {
             var result = new Dictionary<Identifier, IDatabaseCheckConstraint>(comparer);
 
-            foreach (var check in checkConstraints)
+            foreach (var check in checks)
                 result[check.Name.LocalName] = check;
 
             return result.AsReadOnlyDictionary();

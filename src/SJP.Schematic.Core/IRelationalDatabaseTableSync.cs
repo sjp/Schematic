@@ -12,9 +12,9 @@ namespace SJP.Schematic.Core
 
         IReadOnlyList<IDatabaseTableColumn> Columns { get; }
 
-        IReadOnlyDictionary<Identifier, IDatabaseCheckConstraint> CheckConstraint { get; }
+        IReadOnlyDictionary<Identifier, IDatabaseCheckConstraint> Check { get; }
 
-        IEnumerable<IDatabaseCheckConstraint> CheckConstraints { get; }
+        IEnumerable<IDatabaseCheckConstraint> Checks { get; }
 
         IReadOnlyDictionary<Identifier, IDatabaseTableIndex> Index { get; }
 

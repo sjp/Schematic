@@ -8,87 +8,87 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
     internal partial class SqliteRelationalDatabaseTableTests : SqliteTest
     {
         [Test]
-        public void CheckConstraint_WhenGivenTableWithNoChecks_ReturnsEmptyLookup()
+        public void Check_WhenGivenTableWithNoChecks_ReturnsEmptyLookup()
         {
             var table = Database.GetTable("table_test_table_1");
-            var checkLookup = table.CheckConstraint;
+            var checkLookup = table.Check;
 
             Assert.AreEqual(0, checkLookup.Count);
         }
 
         [Test]
-        public void CheckConstraints_WhenGivenTableWithNoChecks_ReturnsEmptyCollection()
+        public void Checks_WhenGivenTableWithNoChecks_ReturnsEmptyCollection()
         {
             var table = Database.GetTable("table_test_table_1");
-            var count = table.CheckConstraints.Count();
+            var count = table.Checks.Count();
 
             Assert.AreEqual(0, count);
         }
 
         [Test]
-        public async Task CheckConstraintAsync_WhenGivenTableWithNoChecks_ReturnsEmptyLookup()
+        public async Task CheckAsync_WhenGivenTableWithNoChecks_ReturnsEmptyLookup()
         {
             var table = await Database.GetTableAsync("table_test_table_1").ConfigureAwait(false);
-            var checkLookup = await table.CheckConstraintAsync().ConfigureAwait(false);
+            var checkLookup = await table.CheckAsync().ConfigureAwait(false);
 
             Assert.AreEqual(0, checkLookup.Count);
         }
 
         [Test]
-        public async Task CheckConstraintsAsync_WhenGivenTableWithNoChecks_ReturnsEmptyCollection()
+        public async Task ChecksAsync_WhenGivenTableWithNoChecks_ReturnsEmptyCollection()
         {
             var table = await Database.GetTableAsync("table_test_table_1").ConfigureAwait(false);
-            var checks = await table.CheckConstraintsAsync().ConfigureAwait(false);
+            var checks = await table.ChecksAsync().ConfigureAwait(false);
             var count = checks.Count();
 
             Assert.AreEqual(0, count);
         }
 
         [Test]
-        public void CheckConstraint_WhenGivenTableWithCheck_ReturnsContraintWithCorrectName()
+        public void Check_WhenGivenTableWithCheck_ReturnsContraintWithCorrectName()
         {
             var table = Database.GetTable("table_test_table_14");
-            var check = table.CheckConstraint["ck_test_table_14"];
+            var check = table.Check["ck_test_table_14"];
 
             Assert.AreEqual("ck_test_table_14", check.Name.LocalName);
         }
 
         [Test]
-        public void CheckConstraints_WhenGivenTableWithCheck_ReturnsContraintWithCorrectName()
+        public void Checks_WhenGivenTableWithCheck_ReturnsContraintWithCorrectName()
         {
             var table = Database.GetTable("table_test_table_14");
-            var check = table.CheckConstraints.Single();
+            var check = table.Checks.Single();
 
             Assert.AreEqual("ck_test_table_14", check.Name.LocalName);
         }
 
         [Test]
-        public async Task CheckConstraintAsync_WhenGivenTableWithCheck_ReturnsContraintWithCorrectName()
+        public async Task CheckAsync_WhenGivenTableWithCheck_ReturnsContraintWithCorrectName()
         {
             var table = await Database.GetTableAsync("table_test_table_14").ConfigureAwait(false);
-            var checkLookup = await table.CheckConstraintAsync().ConfigureAwait(false);
+            var checkLookup = await table.CheckAsync().ConfigureAwait(false);
             var check = checkLookup["ck_test_table_14"];
 
             Assert.AreEqual("ck_test_table_14", check.Name.LocalName);
         }
 
         [Test]
-        public async Task CheckConstraintsAsync_WhenGivenTableWithCheck_ReturnsContraintWithCorrectName()
+        public async Task ChecksAsync_WhenGivenTableWithCheck_ReturnsContraintWithCorrectName()
         {
             var table = await Database.GetTableAsync("table_test_table_14").ConfigureAwait(false);
-            var checks = await table.CheckConstraintsAsync().ConfigureAwait(false);
+            var checks = await table.ChecksAsync().ConfigureAwait(false);
             var check = checks.Single();
 
             Assert.AreEqual("ck_test_table_14", check.Name.LocalName);
         }
 
         [Test]
-        public void CheckConstraint_WhenGivenTableWithCheck_ReturnsContraintWithDefinition()
+        public void Check_WhenGivenTableWithCheck_ReturnsContraintWithDefinition()
         {
             const string expectedDefinition = "([test_column]>(1))";
 
             var table = Database.GetTable("table_test_table_14");
-            var check = table.CheckConstraint["ck_test_table_14"];
+            var check = table.Check["ck_test_table_14"];
 
             var comparer = new SqliteExpressionComparer();
             var checksEqual = comparer.Equals(expectedDefinition, check.Definition);
@@ -97,12 +97,12 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
         }
 
         [Test]
-        public void CheckConstraints_WhenGivenTableWithCheck_ReturnsContraintWithDefinition()
+        public void Checks_WhenGivenTableWithCheck_ReturnsContraintWithDefinition()
         {
             const string expectedDefinition = "([test_column]>(1))";
 
             var table = Database.GetTable("table_test_table_14");
-            var check = table.CheckConstraints.Single();
+            var check = table.Checks.Single();
 
             var comparer = new SqliteExpressionComparer();
             var checksEqual = comparer.Equals(expectedDefinition, check.Definition);
@@ -111,12 +111,12 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
         }
 
         [Test]
-        public async Task CheckConstraintAsync_WhenGivenTableWithCheck_ReturnsContraintWithDefinition()
+        public async Task CheckAsync_WhenGivenTableWithCheck_ReturnsContraintWithDefinition()
         {
             const string expectedDefinition = "([test_column]>(1))";
 
             var table = await Database.GetTableAsync("table_test_table_14").ConfigureAwait(false);
-            var checkLookup = await table.CheckConstraintAsync().ConfigureAwait(false);
+            var checkLookup = await table.CheckAsync().ConfigureAwait(false);
             var check = checkLookup["ck_test_table_14"];
 
             var comparer = new SqliteExpressionComparer();
@@ -126,12 +126,12 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
         }
 
         [Test]
-        public async Task CheckConstraintsAsync_WhenGivenTableWithCheck_ReturnsContraintWithDefinition()
+        public async Task ChecksAsync_WhenGivenTableWithCheck_ReturnsContraintWithDefinition()
         {
             const string expectedDefinition = "([test_column]>(1))";
 
             var table = await Database.GetTableAsync("table_test_table_14").ConfigureAwait(false);
-            var checks = await table.CheckConstraintsAsync().ConfigureAwait(false);
+            var checks = await table.ChecksAsync().ConfigureAwait(false);
             var check = checks.Single();
 
             var comparer = new SqliteExpressionComparer();
@@ -141,38 +141,38 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
         }
 
         [Test]
-        public void CheckConstraint_WhenGivenTableWithEnabledCheck_ReturnsIsEnabledTrue()
+        public void Check_WhenGivenTableWithEnabledCheck_ReturnsIsEnabledTrue()
         {
             var table = Database.GetTable("table_test_table_14");
-            var check = table.CheckConstraint["ck_test_table_14"];
+            var check = table.Check["ck_test_table_14"];
 
             Assert.IsTrue(check.IsEnabled);
         }
 
         [Test]
-        public void CheckConstraints_WhenGivenTableWithEnabledCheck_ReturnsIsEnabledTrue()
+        public void Checks_WhenGivenTableWithEnabledCheck_ReturnsIsEnabledTrue()
         {
             var table = Database.GetTable("table_test_table_14");
-            var check = table.CheckConstraints.Single();
+            var check = table.Checks.Single();
 
             Assert.IsTrue(check.IsEnabled);
         }
 
         [Test]
-        public async Task CheckConstraintAsync_WhenGivenTableWithEnabledCheck_ReturnsIsEnabledTrue()
+        public async Task CheckAsync_WhenGivenTableWithEnabledCheck_ReturnsIsEnabledTrue()
         {
             var table = await Database.GetTableAsync("table_test_table_14").ConfigureAwait(false);
-            var checkLookup = await table.CheckConstraintAsync().ConfigureAwait(false);
+            var checkLookup = await table.CheckAsync().ConfigureAwait(false);
             var check = checkLookup["ck_test_table_14"];
 
             Assert.IsTrue(check.IsEnabled);
         }
 
         [Test]
-        public async Task CheckConstraintsAsync_WhenGivenTableWithEnabledCheck_ReturnsIsEnabledTrue()
+        public async Task ChecksAsync_WhenGivenTableWithEnabledCheck_ReturnsIsEnabledTrue()
         {
             var table = await Database.GetTableAsync("table_test_table_14").ConfigureAwait(false);
-            var checks = await table.CheckConstraintsAsync().ConfigureAwait(false);
+            var checks = await table.ChecksAsync().ConfigureAwait(false);
             var check = checks.Single();
 
             Assert.IsTrue(check.IsEnabled);

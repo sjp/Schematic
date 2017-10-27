@@ -10,8 +10,8 @@ namespace SJP.Schematic.Core
         Task<IReadOnlyDictionary<Identifier, IDatabaseTableColumn>> ColumnAsync();
         Task<IReadOnlyList<IDatabaseTableColumn>> ColumnsAsync();
 
-        Task<IReadOnlyDictionary<Identifier, IDatabaseCheckConstraint>> CheckConstraintAsync();
-        Task<IEnumerable<IDatabaseCheckConstraint>> CheckConstraintsAsync();
+        Task<IReadOnlyDictionary<Identifier, IDatabaseCheckConstraint>> CheckAsync();
+        Task<IEnumerable<IDatabaseCheckConstraint>> ChecksAsync();
 
         Task<IReadOnlyDictionary<Identifier, IDatabaseTableIndex>> IndexAsync();
         Task<IEnumerable<IDatabaseTableIndex>> IndexesAsync();

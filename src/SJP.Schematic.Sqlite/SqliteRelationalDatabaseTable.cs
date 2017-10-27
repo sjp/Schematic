@@ -338,30 +338,30 @@ namespace SJP.Schematic.Sqlite
             return childKeys;
         }
 
-        public IReadOnlyDictionary<Identifier, IDatabaseCheckConstraint> CheckConstraint => LoadCheckConstraintLookupSync();
+        public IReadOnlyDictionary<Identifier, IDatabaseCheckConstraint> Check => LoadCheckLookupSync();
 
-        public Task<IReadOnlyDictionary<Identifier, IDatabaseCheckConstraint>> CheckConstraintAsync() => LoadCheckConstraintLookupAsync();
+        public Task<IReadOnlyDictionary<Identifier, IDatabaseCheckConstraint>> CheckAsync() => LoadCheckLookupAsync();
 
-        public IEnumerable<IDatabaseCheckConstraint> CheckConstraints => LoadCheckConstraintsSync();
+        public IEnumerable<IDatabaseCheckConstraint> Checks => LoadChecksSync();
 
-        public Task<IEnumerable<IDatabaseCheckConstraint>> CheckConstraintsAsync() => LoadCheckConstraintsAsync();
+        public Task<IEnumerable<IDatabaseCheckConstraint>> ChecksAsync() => LoadChecksAsync();
 
-        protected virtual IReadOnlyDictionary<Identifier, IDatabaseCheckConstraint> LoadCheckConstraintLookupSync()
+        protected virtual IReadOnlyDictionary<Identifier, IDatabaseCheckConstraint> LoadCheckLookupSync()
         {
             var result = new Dictionary<Identifier, IDatabaseCheckConstraint>(Comparer);
 
-            var namedChecks = CheckConstraints.Where(c => c.Name != null);
+            var namedChecks = Checks.Where(c => c.Name != null);
             foreach (var check in namedChecks)
                 result[check.Name.LocalName] = check;
 
             return result.AsReadOnlyDictionary();
         }
 
-        protected virtual async Task<IReadOnlyDictionary<Identifier, IDatabaseCheckConstraint>> LoadCheckConstraintLookupAsync()
+        protected virtual async Task<IReadOnlyDictionary<Identifier, IDatabaseCheckConstraint>> LoadCheckLookupAsync()
         {
             var result = new Dictionary<Identifier, IDatabaseCheckConstraint>(Comparer);
 
-            var checks = await CheckConstraintsAsync().ConfigureAwait(false);
+            var checks = await ChecksAsync().ConfigureAwait(false);
             var namedChecks = checks.Where(c => c.Name != null);
 
             foreach (var check in namedChecks)
@@ -370,16 +370,16 @@ namespace SJP.Schematic.Sqlite
             return result.AsReadOnlyDictionary();
         }
 
-        protected virtual IEnumerable<IDatabaseCheckConstraint> LoadCheckConstraintsSync()
+        protected virtual IEnumerable<IDatabaseCheckConstraint> LoadChecksSync()
         {
             var parser = ParsedDefinition;
-            var checkConstraints = parser.CheckConstraints.ToList();
-            if (checkConstraints.Count == 0)
+            var checks = parser.Checks.ToList();
+            if (checks.Count == 0)
                 return Enumerable.Empty<IDatabaseCheckConstraint>();
 
-            var result = new List<IDatabaseCheckConstraint>(checkConstraints.Count);
+            var result = new List<IDatabaseCheckConstraint>(checks.Count);
 
-            foreach (var ck in checkConstraints)
+            foreach (var ck in checks)
             {
                 var startIndex = ck.Definition.First().Position.Absolute;
                 var lastToken = ck.Definition.Last();
@@ -393,16 +393,16 @@ namespace SJP.Schematic.Sqlite
             return result;
         }
 
-        protected virtual async Task<IEnumerable<IDatabaseCheckConstraint>> LoadCheckConstraintsAsync()
+        protected virtual async Task<IEnumerable<IDatabaseCheckConstraint>> LoadChecksAsync()
         {
             var parser = await ParsedDefinitionAsync().ConfigureAwait(false);
-            var checkConstraints = parser.CheckConstraints.ToList();
-            if (checkConstraints.Count == 0)
+            var checks = parser.Checks.ToList();
+            if (checks.Count == 0)
                 return Enumerable.Empty<IDatabaseCheckConstraint>();
 
-            var result = new List<IDatabaseCheckConstraint>(checkConstraints.Count);
+            var result = new List<IDatabaseCheckConstraint>(checks.Count);
 
-            foreach (var ck in checkConstraints)
+            foreach (var ck in checks)
             {
                 var startIndex = ck.Definition.First().Position.Absolute;
                 var lastToken = ck.Definition.Last();

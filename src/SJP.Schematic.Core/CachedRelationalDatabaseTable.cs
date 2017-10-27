@@ -20,7 +20,7 @@ namespace SJP.Schematic.Core
             _indexes = new AsyncLazy<IReadOnlyDictionary<Identifier, IDatabaseTableIndex>>(Table.IndexAsync);
             _parentKeys = new AsyncLazy<IReadOnlyDictionary<Identifier, IDatabaseRelationalKey>>(Table.ParentKeyAsync);
             _childKeys = new AsyncLazy<IEnumerable<IDatabaseRelationalKey>>(Table.ChildKeysAsync);
-            _checks = new AsyncLazy<IReadOnlyDictionary<Identifier, IDatabaseCheckConstraint>>(Table.CheckConstraintAsync);
+            _checks = new AsyncLazy<IReadOnlyDictionary<Identifier, IDatabaseCheckConstraint>>(Table.CheckAsync);
             _triggers = new AsyncLazy<IReadOnlyDictionary<Identifier, IDatabaseTrigger>>(Table.TriggerAsync);
         }
 
@@ -36,9 +36,9 @@ namespace SJP.Schematic.Core
 
         public IReadOnlyList<IDatabaseTableColumn> Columns => _columns.Task.Result;
 
-        public IReadOnlyDictionary<Identifier, IDatabaseCheckConstraint> CheckConstraint => _checks.Task.Result;
+        public IReadOnlyDictionary<Identifier, IDatabaseCheckConstraint> Check => _checks.Task.Result;
 
-        public IEnumerable<IDatabaseCheckConstraint> CheckConstraints => _checks.Task.Result.Values;
+        public IEnumerable<IDatabaseCheckConstraint> Checks => _checks.Task.Result.Values;
 
         public IReadOnlyDictionary<Identifier, IDatabaseTableIndex> Index => _indexes.Task.Result;
 
@@ -58,9 +58,9 @@ namespace SJP.Schematic.Core
 
         public IEnumerable<IDatabaseTrigger> Triggers => _triggers.Task.Result.Values;
 
-        public Task<IReadOnlyDictionary<Identifier, IDatabaseCheckConstraint>> CheckConstraintAsync() => _checks.Task;
+        public Task<IReadOnlyDictionary<Identifier, IDatabaseCheckConstraint>> CheckAsync() => _checks.Task;
 
-        public async Task<IEnumerable<IDatabaseCheckConstraint>> CheckConstraintsAsync()
+        public async Task<IEnumerable<IDatabaseCheckConstraint>> ChecksAsync()
         {
             var checks = await _checks.ConfigureAwait(false);
             return checks.Values;

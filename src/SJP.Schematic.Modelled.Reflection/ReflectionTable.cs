@@ -402,9 +402,9 @@ namespace SJP.Schematic.Modelled.Reflection
 
         private static Type DbTypeArg { get; } = typeof(IDbType);
 
-        public IReadOnlyDictionary<Identifier, IDatabaseCheckConstraint> CheckConstraint => _checkLookup.Value;
+        public IReadOnlyDictionary<Identifier, IDatabaseCheckConstraint> Check => _checkLookup.Value;
 
-        public IEnumerable<IDatabaseCheckConstraint> CheckConstraints => _checkLookup.Value.Values;
+        public IEnumerable<IDatabaseCheckConstraint> Checks => _checkLookup.Value.Values;
 
         public IEnumerable<IDatabaseRelationalKey> ChildKeys => _childKeys.Value;
 
@@ -434,9 +434,9 @@ namespace SJP.Schematic.Modelled.Reflection
 
         public IEnumerable<IDatabaseKey> UniqueKeys => _uniqueKeyLookup.Value.Values;
 
-        public Task<IReadOnlyDictionary<Identifier, IDatabaseCheckConstraint>> CheckConstraintAsync() => Task.FromResult(_checkLookup.Value);
+        public Task<IReadOnlyDictionary<Identifier, IDatabaseCheckConstraint>> CheckAsync() => Task.FromResult(_checkLookup.Value);
 
-        public Task<IEnumerable<IDatabaseCheckConstraint>> CheckConstraintsAsync() => Task.FromResult(_checkLookup.Value.Values);
+        public Task<IEnumerable<IDatabaseCheckConstraint>> ChecksAsync() => Task.FromResult(_checkLookup.Value.Values);
 
         public Task<IEnumerable<IDatabaseRelationalKey>> ChildKeysAsync() => Task.FromResult(_childKeys.Value);
 
