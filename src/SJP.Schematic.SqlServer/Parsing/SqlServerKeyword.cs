@@ -3,9 +3,9 @@ using SJP.Schematic.Core;
 
 namespace SJP.Schematic.SqlServer.Parsing
 {
-    internal struct ExpressionKeyword
+    internal struct SqlServerKeyword
     {
-        public ExpressionKeyword(string keyword, ExpressionToken token)
+        public SqlServerKeyword(string keyword, SqlServerToken token)
         {
             if (keyword.IsNullOrWhiteSpace())
                 throw new ArgumentNullException(nameof(keyword));
@@ -16,6 +16,6 @@ namespace SJP.Schematic.SqlServer.Parsing
 
         public string Text { get; }
 
-        public ExpressionToken Token { get; }
+        public SqlServerToken Token { get; }
     }
 }

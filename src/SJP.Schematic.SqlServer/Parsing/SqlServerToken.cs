@@ -2,7 +2,7 @@
 
 namespace SJP.Schematic.SqlServer.Parsing
 {
-    internal enum ExpressionToken
+    internal enum SqlServerToken
     {
         None,
 

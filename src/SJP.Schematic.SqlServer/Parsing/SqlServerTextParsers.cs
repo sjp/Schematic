@@ -5,7 +5,7 @@ using Superpower.Parsers;
 
 namespace SJP.Schematic.SqlServer.Parsing
 {
-    internal static class ExpressionTextParsers
+    internal static class SqlServerTextParsers
     {
         public static TextParser<string> SqlBlob { get; } =
             Span.EqualTo("0x")
@@ -34,22 +34,22 @@ namespace SJP.Schematic.SqlServer.Parsing
                     .Then(n => Character.EqualTo('.').IgnoreThen(Numerics.Integer).OptionalOrDefault()
                         .Select(f => f == TextSpan.None ? n : new TextSpan(n.Source, n.Position, n.Length + f.Length + 1))));
 
-        private static readonly TextParser<ExpressionToken> LessOrEqual = Span.EqualTo("<=").Value(ExpressionToken.LessThanOrEqual);
-        private static readonly TextParser<ExpressionToken> GreaterOrEqual = Span.EqualTo(">=").Value(ExpressionToken.GreaterThanOrEqual);
-        private static readonly TextParser<ExpressionToken> NotEqual = Span.EqualTo("<>").Value(ExpressionToken.NotEqual);
-        private static readonly TextParser<ExpressionToken> PlusEqual = Span.EqualTo("+=").Value(ExpressionToken.PlusEquals);
-        private static readonly TextParser<ExpressionToken> MinusEqual = Span.EqualTo("-=").Value(ExpressionToken.MinusEquals);
-        private static readonly TextParser<ExpressionToken> MultiplyEqual = Span.EqualTo("*=").Value(ExpressionToken.MultiplyEquals);
-        private static readonly TextParser<ExpressionToken> DivideEqual = Span.EqualTo("/=").Value(ExpressionToken.DivideEquals);
-        private static readonly TextParser<ExpressionToken> NonStandardNotEqual = Span.EqualTo("!=").Value(ExpressionToken.NonStandardNotEqual);
-        private static readonly TextParser<ExpressionToken> NotLessThan = Span.EqualTo("!<").Value(ExpressionToken.NonStandardNotLessThan);
-        private static readonly TextParser<ExpressionToken> NotGreaterThan = Span.EqualTo("!>").Value(ExpressionToken.NonStandardNotGreaterThan);
-        private static readonly TextParser<ExpressionToken> BitwiseAndEqual = Span.EqualTo("&=").Value(ExpressionToken.BitwiseAndEqual);
-        private static readonly TextParser<ExpressionToken> BitwiseOrEqual = Span.EqualTo("|=").Value(ExpressionToken.BitwiseOrEqual);
-        private static readonly TextParser<ExpressionToken> BitwiseXorEqual = Span.EqualTo("^=").Value(ExpressionToken.BitwiseXorEqual);
-        private static readonly TextParser<ExpressionToken> Scope = Span.EqualTo("::").Value(ExpressionToken.Scope);
+        private static readonly TextParser<SqlServerToken> LessOrEqual = Span.EqualTo("<=").Value(SqlServerToken.LessThanOrEqual);
+        private static readonly TextParser<SqlServerToken> GreaterOrEqual = Span.EqualTo(">=").Value(SqlServerToken.GreaterThanOrEqual);
+        private static readonly TextParser<SqlServerToken> NotEqual = Span.EqualTo("<>").Value(SqlServerToken.NotEqual);
+        private static readonly TextParser<SqlServerToken> PlusEqual = Span.EqualTo("+=").Value(SqlServerToken.PlusEquals);
+        private static readonly TextParser<SqlServerToken> MinusEqual = Span.EqualTo("-=").Value(SqlServerToken.MinusEquals);
+        private static readonly TextParser<SqlServerToken> MultiplyEqual = Span.EqualTo("*=").Value(SqlServerToken.MultiplyEquals);
+        private static readonly TextParser<SqlServerToken> DivideEqual = Span.EqualTo("/=").Value(SqlServerToken.DivideEquals);
+        private static readonly TextParser<SqlServerToken> NonStandardNotEqual = Span.EqualTo("!=").Value(SqlServerToken.NonStandardNotEqual);
+        private static readonly TextParser<SqlServerToken> NotLessThan = Span.EqualTo("!<").Value(SqlServerToken.NonStandardNotLessThan);
+        private static readonly TextParser<SqlServerToken> NotGreaterThan = Span.EqualTo("!>").Value(SqlServerToken.NonStandardNotGreaterThan);
+        private static readonly TextParser<SqlServerToken> BitwiseAndEqual = Span.EqualTo("&=").Value(SqlServerToken.BitwiseAndEqual);
+        private static readonly TextParser<SqlServerToken> BitwiseOrEqual = Span.EqualTo("|=").Value(SqlServerToken.BitwiseOrEqual);
+        private static readonly TextParser<SqlServerToken> BitwiseXorEqual = Span.EqualTo("^=").Value(SqlServerToken.BitwiseXorEqual);
+        private static readonly TextParser<SqlServerToken> Scope = Span.EqualTo("::").Value(SqlServerToken.Scope);
 
-        public static TextParser<ExpressionToken> CompoundOperator { get; } =
+        public static TextParser<SqlServerToken> CompoundOperator { get; } =
             GreaterOrEqual
                 .Try().Or(LessOrEqual)
                 .Try().Or(NotEqual)
