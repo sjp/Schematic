@@ -302,32 +302,32 @@ end").ConfigureAwait(false);
         }
 
         [Test]
-        public void Name_GivenLocalNameOnlyInCtor_ShouldBeOnlyLocalName()
+        public void Name_GivenLocalNameOnlyInCtor_ShouldBeQualifiedCorrectly()
         {
+            var database = Database;
             var tableName = new LocalIdentifier("table_test_table_1");
-            var expectedTableName = new Identifier("table_test_table_1");
+            var expectedTableName = new Identifier(database.DefaultSchema, "table_test_table_1");
 
-            var table = new SqliteRelationalDatabaseTable(Connection, Database, tableName);
+            var table = new SqliteRelationalDatabaseTable(Connection, database, tableName);
 
             Assert.AreEqual(expectedTableName, table.Name);
         }
 
         [Test]
-        public void Name_GivenSchemaAndLocalNameOnlyInCtor_ShouldBeOnlyLocalName()
+        public void Name_GivenSchemaAndLocalNameOnlyInCtor_ShouldMatchArg()
         {
             var tableName = new Identifier("asd", "table_test_table_1");
-            var expectedTableName = new Identifier("table_test_table_1");
 
             var table = new SqliteRelationalDatabaseTable(Connection, Database, tableName);
 
-            Assert.AreEqual(expectedTableName, table.Name);
+            Assert.AreEqual(tableName, table.Name);
         }
 
         [Test]
-        public void Name_GivenDatabaseAndSchemaAndLocalNameOnlyInCtor_ShouldBeOnlyLocalName()
+        public void Name_GivenDatabaseAndSchemaAndLocalNameOnlyInCtor_ShouldBeOnlySchemaAndLocalName()
         {
             var tableName = new Identifier("qwe", "asd", "table_test_table_1");
-            var expectedTableName = new Identifier("table_test_table_1");
+            var expectedTableName = new Identifier("asd", "table_test_table_1");
 
             var table = new SqliteRelationalDatabaseTable(Connection, Database, tableName);
 
@@ -335,10 +335,10 @@ end").ConfigureAwait(false);
         }
 
         [Test]
-        public void Name_GivenFullyQualifiedNameInCtor_ShouldBeOnlyLocalName()
+        public void Name_GivenFullyQualifiedNameInCtor_ShouldBeOnlySchemaAndLocalName()
         {
             var tableName = new Identifier("qwe", "asd", "zxc", "table_test_table_1");
-            var expectedTableName = new Identifier("table_test_table_1");
+            var expectedTableName = new Identifier("zxc", "table_test_table_1");
 
             var table = new SqliteRelationalDatabaseTable(Connection, Database, tableName);
 

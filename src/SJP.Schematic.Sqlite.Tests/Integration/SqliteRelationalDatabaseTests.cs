@@ -19,9 +19,9 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
         }
 
         [Test]
-        public void DefaultSchema_PropertyGet_ShouldEqualConnectionDefaultSchema()
+        public void DefaultSchema_PropertyGet_ShouldEqualMain()
         {
-            Assert.AreEqual(Database.DefaultSchema, null);
+            Assert.AreEqual(Database.DefaultSchema, "main");
         }
 
         [TestFixture]

@@ -20,5 +20,36 @@ namespace SJP.Schematic.Sqlite.Tests
         {
             Assert.Throws<ArgumentNullException>(() => new SqliteRelationalDatabase(new SqliteDialect(), null));
         }
+
+        [Test]
+        public void Ctor_GivenNullDefaultSchema_ThrowsArgumentNullException()
+        {
+            var connection = Mock.Of<IDbConnection>();
+            Assert.Throws<ArgumentNullException>(() => new SqliteRelationalDatabase(new SqliteDialect(), connection, null));
+        }
+
+        [Test]
+        public void Ctor_GivenEmptyDefaultSchema_ThrowsArgumentNullException()
+        {
+            var connection = Mock.Of<IDbConnection>();
+            Assert.Throws<ArgumentNullException>(() => new SqliteRelationalDatabase(new SqliteDialect(), connection, string.Empty));
+        }
+
+        [Test]
+        public void Ctor_GivenWhiteSpaceDefaultSchema_ThrowsArgumentNullException()
+        {
+            var connection = Mock.Of<IDbConnection>();
+            Assert.Throws<ArgumentNullException>(() => new SqliteRelationalDatabase(new SqliteDialect(), connection, "   "));
+        }
+
+        [Test]
+        public void DefaultSchema_GivenNoDefaultSchemaInCtor_EqualsMain()
+        {
+            var connection = Mock.Of<IDbConnection>();
+            var database = new SqliteRelationalDatabase(new SqliteDialect(), connection);
+            const string expectedDefaultSchema = "main";
+
+            Assert.AreEqual(expectedDefaultSchema, database.DefaultSchema);
+        }
     }
 }

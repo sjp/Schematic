@@ -110,7 +110,7 @@ namespace SJP.Schematic.Sqlite.Parsing
                         break;
                     case TableConstraint.TableConstraintType.ForeignKey:
                         var fk = parsedConstraint as TableConstraint.ForeignKey;
-                        foreignKeys.Add(new ForeignKey(fk.Name, fk.Columns, fk.ParentTableName, fk.ParentColumnNames));
+                        foreignKeys.Add(new ForeignKey(fk.Name, fk.Columns, fk.ParentTable, fk.ParentColumnNames));
                         break;
                     case TableConstraint.TableConstraintType.Check:
                         var ck = parsedConstraint as TableConstraint.Check;

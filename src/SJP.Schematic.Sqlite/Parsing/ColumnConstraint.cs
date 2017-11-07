@@ -34,7 +34,7 @@ namespace SJP.Schematic.Sqlite.Parsing
 
         public ColumnConstraint WithName(SqlIdentifier identifier)
         {
-            Name = identifier?.Value ?? throw new ArgumentNullException(nameof(identifier));
+            Name = identifier?.Value?.LocalName ?? throw new ArgumentNullException(nameof(identifier));
             return this;
         }
 
@@ -113,11 +113,11 @@ namespace SJP.Schematic.Sqlite.Parsing
                 if (parentColumnNames == null || parentColumnNames.Empty())
                     throw new ArgumentNullException(nameof(parentColumnNames));
 
-                ParentTableName = parentTableName.Value;
-                ParentColumnNames = parentColumnNames.Select(c => c.Value).ToList();
+                ParentTable = parentTableName.Value;
+                ParentColumnNames = parentColumnNames.Select(c => c.Value.LocalName).ToList();
             }
 
-            public string ParentTableName { get; }
+            public Identifier ParentTable { get; }
 
             public IEnumerable<string> ParentColumnNames { get; }
         }

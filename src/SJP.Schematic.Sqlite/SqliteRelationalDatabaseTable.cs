@@ -21,8 +21,12 @@ namespace SJP.Schematic.Sqlite
 
             Connection = connection ?? throw new ArgumentNullException(nameof(connection));
             Database = database ?? throw new ArgumentNullException(nameof(database));
-            Name = tableName.LocalName;
-            Comparer = new IdentifierComparer(StringComparer.OrdinalIgnoreCase, Database.DefaultSchema);
+            Comparer = new IdentifierComparer(StringComparer.OrdinalIgnoreCase, defaultSchema: Database.DefaultSchema);
+
+            var schemaName = tableName.Schema ?? database.DefaultSchema;
+            var localName = tableName.LocalName;
+
+            Name = new Identifier(schemaName, localName);
         }
 
         public IRelationalDatabase Database { get; }
@@ -39,7 +43,7 @@ namespace SJP.Schematic.Sqlite
 
         protected virtual IDatabaseKey LoadPrimaryKeySync()
         {
-            var sql = $"pragma table_info({ Database.Dialect.QuoteName(Name.LocalName) })";
+            var sql = $"pragma { Database.Dialect.QuoteIdentifier(Name.Schema) }.table_info({ Database.Dialect.QuoteIdentifier(Name.LocalName) })";
             var tableInfos = Connection.Query<TableInfo>(sql);
             if (tableInfos.Empty())
                 return null;
@@ -64,7 +68,7 @@ namespace SJP.Schematic.Sqlite
 
         protected virtual async Task<IDatabaseKey> LoadPrimaryKeyAsync()
         {
-            var sql = $"pragma table_info({ Database.Dialect.QuoteName(Name.LocalName) })";
+            var sql = $"pragma { Database.Dialect.QuoteIdentifier(Name.Schema) }.table_info({ Database.Dialect.QuoteIdentifier(Name.LocalName) })";
             var tableInfos = await Connection.QueryAsync<TableInfo>(sql).ConfigureAwait(false);
             if (tableInfos.Empty())
                 return null;
@@ -121,7 +125,7 @@ namespace SJP.Schematic.Sqlite
 
         protected virtual IEnumerable<IDatabaseTableIndex> LoadIndexesSync()
         {
-            var listSql = $"pragma index_list({ Database.Dialect.QuoteName(Name.LocalName) })";
+            var listSql = $"pragma { Database.Dialect.QuoteIdentifier(Name.Schema) }.index_list({ Database.Dialect.QuoteIdentifier(Name.LocalName) })";
             var indexLists = Connection.Query<IndexList>(listSql);
             if (indexLists.Empty())
                 return Enumerable.Empty<IDatabaseTableIndex>();
@@ -134,7 +138,7 @@ namespace SJP.Schematic.Sqlite
 
             foreach (var indexList in nonConstraintIndexLists)
             {
-                var infoSql = $"pragma index_xinfo({ Database.Dialect.QuoteName(indexList.name) })";
+                var infoSql = $"pragma { Database.Dialect.QuoteIdentifier(Name.Schema) }.index_xinfo({ Database.Dialect.QuoteIdentifier(indexList.name) })";
                 var indexInfo = Connection.Query<IndexXInfo>(infoSql);
                 var indexColumns = indexInfo
                     .Where(i => i.key && i.cid >= 0)
@@ -157,7 +161,7 @@ namespace SJP.Schematic.Sqlite
 
         protected virtual async Task<IEnumerable<IDatabaseTableIndex>> LoadIndexesAsync()
         {
-            var listSql = $"pragma index_list({ Database.Dialect.QuoteName(Name.LocalName) })";
+            var listSql = $"pragma { Database.Dialect.QuoteIdentifier(Name.Schema) }.index_list({ Database.Dialect.QuoteIdentifier(Name.LocalName) })";
             var indexLists = await Connection.QueryAsync<IndexList>(listSql).ConfigureAwait(false);
             if (indexLists.Empty())
                 return Enumerable.Empty<IDatabaseTableIndex>();
@@ -170,7 +174,7 @@ namespace SJP.Schematic.Sqlite
 
             foreach (var indexList in nonConstraintIndexLists)
             {
-                var infoSql = $"pragma index_xinfo({ Database.Dialect.QuoteName(indexList.name) })";
+                var infoSql = $"pragma { Database.Dialect.QuoteIdentifier(Name.Schema) }.index_xinfo({ Database.Dialect.QuoteIdentifier(indexList.name) })";
                 var indexInfo = await Connection.QueryAsync<IndexXInfo>(infoSql).ConfigureAwait(false);
                 var indexColumns = indexInfo
                     .Where(i => i.key && i.cid >= 0)
@@ -225,7 +229,7 @@ namespace SJP.Schematic.Sqlite
 
         protected virtual IEnumerable<IDatabaseKey> LoadUniqueKeysSync()
         {
-            var sql = $"pragma index_list({ Database.Dialect.QuoteName(Name.LocalName) })";
+            var sql = $"pragma { Database.Dialect.QuoteIdentifier(Name.Schema) }.index_list({ Database.Dialect.QuoteIdentifier(Name.LocalName) })";
             var indexLists = Connection.Query<IndexList>(sql);
             if (indexLists.Empty())
                 return Enumerable.Empty<IDatabaseKey>();
@@ -244,7 +248,7 @@ namespace SJP.Schematic.Sqlite
             var tableColumn = Column;
             foreach (var ukIndexList in ukIndexLists)
             {
-                var indexSql = $"pragma index_xinfo({ Database.Dialect.QuoteName(ukIndexList.name) })";
+                var indexSql = $"pragma { Database.Dialect.QuoteIdentifier(Name.Schema) }.index_xinfo({ Database.Dialect.QuoteIdentifier(ukIndexList.name) })";
                 var indexXInfos = Connection.Query<IndexXInfo>(indexSql);
                 var orderedColumns = indexXInfos
                     .Where(i => i.key && i.cid >= 0)
@@ -266,7 +270,7 @@ namespace SJP.Schematic.Sqlite
 
         protected virtual async Task<IEnumerable<IDatabaseKey>> LoadUniqueKeysAsync()
         {
-            var sql = $"pragma index_list({ Database.Dialect.QuoteName(Name.LocalName) })";
+            var sql = $"pragma { Database.Dialect.QuoteIdentifier(Name.Schema) }.index_list({ Database.Dialect.QuoteIdentifier(Name.LocalName) })";
             var indexLists = await Connection.QueryAsync<IndexList>(sql).ConfigureAwait(false);
             if (indexLists.Empty())
                 return Enumerable.Empty<IDatabaseKey>();
@@ -285,7 +289,7 @@ namespace SJP.Schematic.Sqlite
             var tableColumn = await ColumnAsync().ConfigureAwait(false);
             foreach (var ukIndexList in ukIndexLists)
             {
-                var indexSql = $"pragma index_xinfo({ Database.Dialect.QuoteName(ukIndexList.name) })";
+                var indexSql = $"pragma { Database.Dialect.QuoteIdentifier(Name.Schema) }.index_xinfo({ Database.Dialect.QuoteIdentifier(ukIndexList.name) })";
                 var indexXInfos = await Connection.QueryAsync<IndexXInfo>(indexSql).ConfigureAwait(false);
                 var orderedColumns = indexXInfos
                     .Where(i => i.key && i.cid >= 0)
@@ -313,11 +317,7 @@ namespace SJP.Schematic.Sqlite
         {
             return Database.Tables
                 .SelectMany(t => t.ParentKeys)
-                .Where(fk =>
-                {
-                    var parentTableName = fk.ParentKey.Table.Name.LocalName;
-                    return string.Equals(parentTableName, Name.LocalName, StringComparison.OrdinalIgnoreCase);
-                })
+                .Where(fk => Comparer.Equals(Name, fk.ParentKey.Table.Name))
                 .ToList();
         }
 
@@ -327,11 +327,7 @@ namespace SJP.Schematic.Sqlite
 
             var childKeys = await dbTables
                 .SelectMany(t => t.ParentKeys.ToAsyncEnumerable())
-                .Where(fk =>
-                {
-                    var parentTableName = fk.ParentKey.Table.Name.LocalName;
-                    return string.Equals(parentTableName, Name.LocalName, StringComparison.OrdinalIgnoreCase);
-                })
+                .Where(fk => Comparer.Equals(Name, fk.ParentKey.Table.Name))
                 .ToList()
                 .ConfigureAwait(false);
 
@@ -450,7 +446,7 @@ namespace SJP.Schematic.Sqlite
 
         protected virtual IEnumerable<IDatabaseRelationalKey> LoadParentKeysSync()
         {
-            var sql = $"pragma foreign_key_list({ Database.Dialect.QuoteName(Name.LocalName) })";
+            var sql = $"pragma { Database.Dialect.QuoteIdentifier(Name.Schema) }.foreign_key_list({ Database.Dialect.QuoteIdentifier(Name.LocalName) })";
             var queryResult = Connection.Query<ForeignKeyList>(sql);
             if (queryResult.Empty())
                 return Enumerable.Empty<IDatabaseRelationalKey>();
@@ -496,7 +492,7 @@ namespace SJP.Schematic.Sqlite
                 var parentKey = new SqliteDatabaseKey(this, parentConstraint.Name, parentKeyType, parentColumns);
 
                 var parsedConstraint = fkConstraints
-                    .Where(fkc => string.Equals(fkc.ParentTable, fkey.Key.ParentTableName, StringComparison.OrdinalIgnoreCase))
+                    .Where(fkc => string.Equals(fkc.ParentTable.LocalName, fkey.Key.ParentTableName, StringComparison.OrdinalIgnoreCase))
                     .FirstOrDefault(fkc => fkc.ParentColumns.SequenceEqual(rows.Select(row => row.to), StringComparer.OrdinalIgnoreCase));
                 var constraintStringName = parsedConstraint?.Name;
 
@@ -518,7 +514,7 @@ namespace SJP.Schematic.Sqlite
 
         protected virtual async Task<IEnumerable<IDatabaseRelationalKey>> LoadParentKeysAsync()
         {
-            var sql = $"pragma foreign_key_list({ Database.Dialect.QuoteName(Name.LocalName) })";
+            var sql = $"pragma { Database.Dialect.QuoteIdentifier(Name.Schema) }.foreign_key_list({ Database.Dialect.QuoteIdentifier(Name.LocalName) })";
             var queryResult = await Connection.QueryAsync<ForeignKeyList>(sql).ConfigureAwait(false);
             if (queryResult.Empty())
                 return Enumerable.Empty<IDatabaseRelationalKey>();
@@ -564,7 +560,7 @@ namespace SJP.Schematic.Sqlite
                 var parentKey = new SqliteDatabaseKey(this, parentConstraint.Name, parentKeyType, parentColumns);
 
                 var parsedConstraint = fkConstraints
-                    .Where(fkc => string.Equals(fkc.ParentTable, fkey.Key.ParentTableName, StringComparison.OrdinalIgnoreCase))
+                    .Where(fkc => string.Equals(fkc.ParentTable.LocalName, fkey.Key.ParentTableName, StringComparison.OrdinalIgnoreCase))
                     .FirstOrDefault(fkc => fkc.ParentColumns.SequenceEqual(rows.Select(row => row.to), StringComparer.OrdinalIgnoreCase));
                 var constraintStringName = parsedConstraint?.Name;
 
@@ -618,7 +614,7 @@ namespace SJP.Schematic.Sqlite
 
         protected virtual IReadOnlyList<IDatabaseTableColumn> LoadColumnsSync()
         {
-            var sql = $"pragma table_info({ Database.Dialect.QuoteName(Name.LocalName) })";
+            var sql = $"pragma { Database.Dialect.QuoteIdentifier(Name.Schema) }.table_info({ Database.Dialect.QuoteIdentifier(Name.LocalName) })";
             var tableInfos = Connection.Query<TableInfo>(sql);
 
             var result = new List<IDatabaseTableColumn>();
@@ -656,7 +652,7 @@ namespace SJP.Schematic.Sqlite
 
         protected virtual async Task<IReadOnlyList<IDatabaseTableColumn>> LoadColumnsAsync()
         {
-            var sql = $"pragma table_info({ Database.Dialect.QuoteName(Name.LocalName) })";
+            var sql = $"pragma { Database.Dialect.QuoteIdentifier(Name.Schema) }.table_info({ Database.Dialect.QuoteIdentifier(Name.LocalName) })";
             var tableInfos = await Connection.QueryAsync<TableInfo>(sql).ConfigureAwait(false);
 
             var result = new List<IDatabaseTableColumn>();

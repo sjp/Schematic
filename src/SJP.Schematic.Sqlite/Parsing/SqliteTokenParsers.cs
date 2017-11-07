@@ -28,14 +28,14 @@ namespace SJP.Schematic.Sqlite.Parsing
         private static TokenListParser<SqliteToken, TableConstraint.ForeignKey> TableForeignKey =>
             Token.Sequence(SqliteToken.Foreign, SqliteToken.Key)
                 .IgnoreThen(ColumnList)
-                .Then(prev => ForeignKeyClause.Select(clause => new TableConstraint.ForeignKey(prev, clause.ParentTableName, clause.ParentColumnNames)));
+                .Then(prev => ForeignKeyClause.Select(clause => new TableConstraint.ForeignKey(prev, clause.ParentTable, clause.ParentColumnNames)));
 
         private static TokenListParser<SqliteToken, IEnumerable<string>> ColumnList =>
             Token.EqualTo(SqliteToken.LParen)
                 .IgnoreThen(
                     Token.EqualTo(SqliteToken.Identifier)
                         .ManyDelimitedBy(Token.EqualTo(SqliteToken.Comma))
-                        .Select(columns => columns.Select(col => new SqlIdentifier(col).Value))
+                        .Select(columns => columns.Select(col => new SqlIdentifier(col).Value.LocalName))
                 )
                 .Then(prev => Token.EqualTo(SqliteToken.RParen).Select(_ => prev));
 
@@ -83,7 +83,7 @@ namespace SJP.Schematic.Sqlite.Parsing
             Token.Sequence(SqliteToken.If, SqliteToken.Not, SqliteToken.Exists).Select(_ => _.AsEnumerable());
 
         public static TokenListParser<SqliteToken, SqlIdentifier> QualifiedName =>
-            Token.Sequence(SqliteToken.Identifier, SqliteToken.Period, SqliteToken.Identifier).Select(_ => new SqlIdentifier(_.Last())).Try()
+            Token.Sequence(SqliteToken.Identifier, SqliteToken.Period, SqliteToken.Identifier).Select(tokens => new SqlIdentifier(tokens[0], tokens[2])).Try()
                 .Or(Token.EqualTo(SqliteToken.Identifier).Select(name => new SqlIdentifier(name)));
 
         private static TokenListParser<SqliteToken, Token<SqliteToken>> ExpressionContent =>

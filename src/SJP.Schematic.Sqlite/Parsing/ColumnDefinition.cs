@@ -9,12 +9,12 @@ namespace SJP.Schematic.Sqlite.Parsing
     internal class ColumnDefinition
     {
         public ColumnDefinition(SqlIdentifier columnName)
-            : this(columnName.Value, Enumerable.Empty<Token<SqliteToken>>(), Enumerable.Empty<ColumnConstraint>())
+            : this(columnName.Value.LocalName, Enumerable.Empty<Token<SqliteToken>>(), Enumerable.Empty<ColumnConstraint>())
         {
         }
 
         public ColumnDefinition(SqlIdentifier columnName, IEnumerable<Token<SqliteToken>> typeDefinition)
-            : this(columnName.Value, typeDefinition, Enumerable.Empty<ColumnConstraint>())
+            : this(columnName.Value.LocalName, typeDefinition, Enumerable.Empty<ColumnConstraint>())
         {
         }
 
@@ -54,7 +54,7 @@ namespace SJP.Schematic.Sqlite.Parsing
                         break;
                     case ColumnConstraint.ColumnConstraintType.ForeignKey:
                         var fk = constraint as ColumnConstraint.ForeignKey;
-                        foreignKeys.Add(new ForeignKey(fk.Name, Name, fk.ParentTableName, fk.ParentColumnNames));
+                        foreignKeys.Add(new ForeignKey(fk.Name, Name, fk.ParentTable, fk.ParentColumnNames));
                         break;
                     case ColumnConstraint.ColumnConstraintType.Nullable:
                         var nullableCons = constraint as ColumnConstraint.Nullable;

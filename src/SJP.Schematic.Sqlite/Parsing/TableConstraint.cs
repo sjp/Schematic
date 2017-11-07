@@ -34,7 +34,7 @@ namespace SJP.Schematic.Sqlite.Parsing
             if (constraintName == null)
                 throw new ArgumentNullException(nameof(constraintName));
 
-            Name = constraintName.Value;
+            Name = constraintName.Value.LocalName;
             return this;
         }
 
@@ -68,24 +68,22 @@ namespace SJP.Schematic.Sqlite.Parsing
 
         public class ForeignKey : TableConstraint
         {
-            public ForeignKey(IEnumerable<string> columnNames, string parentTableName, IEnumerable<string> parentColumnNames)
+            public ForeignKey(IEnumerable<string> columnNames, Identifier parentTableName, IEnumerable<string> parentColumnNames)
                 : base(TableConstraintType.ForeignKey)
             {
                 if (columnNames == null || columnNames.Empty())
                     throw new ArgumentNullException(nameof(columnNames));
-                if (parentTableName.IsNullOrWhiteSpace())
-                    throw new ArgumentNullException(nameof(parentTableName));
                 if (parentColumnNames == null || parentColumnNames.Empty())
                     throw new ArgumentNullException(nameof(parentColumnNames));
 
                 Columns = columnNames.ToList();
-                ParentTableName = parentTableName;
+                ParentTable = parentTableName ?? throw new ArgumentNullException(nameof(parentTableName));
                 ParentColumnNames = parentColumnNames.ToList();
             }
 
             public IEnumerable<string> Columns { get; }
 
-            public string ParentTableName { get; }
+            public Identifier ParentTable { get; }
 
             public IEnumerable<string> ParentColumnNames { get; }
         }

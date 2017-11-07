@@ -18,15 +18,21 @@ namespace SJP.Schematic.Sqlite
 
             Connection = connection ?? throw new ArgumentNullException(nameof(connection));
             Database = database ?? throw new ArgumentNullException(nameof(database));
+            Comparer = new IdentifierComparer(StringComparer.OrdinalIgnoreCase, defaultSchema: Database.DefaultSchema);
 
-            Name = viewName.LocalName;
+            var schemaName = viewName.Schema ?? database.DefaultSchema;
+            var localName = viewName.LocalName;
+
+            Name = new Identifier(schemaName, localName);
         }
-
-        public Identifier Name { get; }
 
         public IRelationalDatabase Database { get; }
 
+        public Identifier Name { get; }
+
         protected IDbConnection Connection { get; }
+
+        protected IEqualityComparer<Identifier> Comparer { get; }
 
         public string Definition => LoadDefinitionSync();
 
@@ -34,13 +40,13 @@ namespace SJP.Schematic.Sqlite
 
         protected virtual string LoadDefinitionSync()
         {
-            const string sql = "select sql from sqlite_master where type = 'view' and tbl_name = @ViewName";
+            var sql = $"select sql from { Database.Dialect.QuoteIdentifier(Name.Schema) }.sqlite_master where type = 'view' and tbl_name = @ViewName";
             return Connection.ExecuteScalar<string>(sql, new { ViewName = Name.LocalName });
         }
 
         protected virtual Task<string> LoadDefinitionAsync()
         {
-            const string sql = "select sql from sqlite_master where type = 'view' and tbl_name = @ViewName";
+            var sql = $"select sql from { Database.Dialect.QuoteIdentifier(Name.Schema) }.sqlite_master where type = 'view' and tbl_name = @ViewName";
             return Connection.ExecuteScalarAsync<string>(sql, new { ViewName = Name.LocalName });
         }
 
@@ -60,7 +66,7 @@ namespace SJP.Schematic.Sqlite
 
         protected virtual IReadOnlyDictionary<Identifier, IDatabaseViewIndex> LoadIndexLookupSync()
         {
-            var result = new Dictionary<Identifier, IDatabaseViewIndex>();
+            var result = new Dictionary<Identifier, IDatabaseViewIndex>(Comparer);
             return result.AsReadOnlyDictionary();
         }
 
@@ -76,7 +82,7 @@ namespace SJP.Schematic.Sqlite
 
         protected virtual IReadOnlyDictionary<Identifier, IDatabaseViewColumn> LoadColumnLookupSync()
         {
-            var result = new Dictionary<Identifier, IDatabaseViewColumn>();
+            var result = new Dictionary<Identifier, IDatabaseViewColumn>(Comparer);
 
             foreach (var column in Columns.Where(c => c.Name != null))
                 result[column.Name.LocalName] = column;
@@ -86,7 +92,7 @@ namespace SJP.Schematic.Sqlite
 
         protected virtual async Task<IReadOnlyDictionary<Identifier, IDatabaseViewColumn>> LoadColumnLookupAsync()
         {
-            var result = new Dictionary<Identifier, IDatabaseViewColumn>();
+            var result = new Dictionary<Identifier, IDatabaseViewColumn>(Comparer);
 
             var columns = await ColumnsAsync().ConfigureAwait(false);
             foreach (var column in columns.Where(c => c.Name != null))
@@ -97,7 +103,7 @@ namespace SJP.Schematic.Sqlite
 
         protected virtual IReadOnlyList<IDatabaseViewColumn> LoadColumnsSync()
         {
-            var sql = $"pragma table_info({ Database.Dialect.QuoteName(Name.LocalName) })";
+            var sql = $"pragma { Database.Dialect.QuoteIdentifier(Name.Schema) }.table_info({ Database.Dialect.QuoteIdentifier(Name.LocalName) })";
             var tableInfos = Connection.Query<TableInfo>(sql);
 
             var result = new List<IDatabaseViewColumn>();
@@ -130,7 +136,7 @@ namespace SJP.Schematic.Sqlite
 
         protected virtual async Task<IReadOnlyList<IDatabaseViewColumn>> LoadColumnsAsync()
         {
-            var sql = $"pragma table_info({ Database.Dialect.QuoteName(Name.LocalName) })";
+            var sql = $"pragma { Database.Dialect.QuoteIdentifier(Name.Schema) }.table_info({ Database.Dialect.QuoteIdentifier(Name.LocalName) })";
             var tableInfos = await Connection.QueryAsync<TableInfo>(sql).ConfigureAwait(false);
 
             var result = new List<IDatabaseViewColumn>();
@@ -166,7 +172,7 @@ namespace SJP.Schematic.Sqlite
             if (columnName == null || columnName.LocalName == null)
                 throw new ArgumentNullException(nameof(columnName));
 
-            var sql = $"select typeof({ Database.Dialect.QuoteName(columnName.LocalName) }) from { Database.Dialect.QuoteName(Name.LocalName) } limit 1";
+            var sql = $"select typeof({ Database.Dialect.QuoteName(columnName.LocalName) }) from { Database.Dialect.QuoteName(Name) } limit 1";
             return Connection.ExecuteScalar<string>(sql);
         }
 
@@ -175,7 +181,7 @@ namespace SJP.Schematic.Sqlite
             if (columnName == null || columnName.LocalName == null)
                 throw new ArgumentNullException(nameof(columnName));
 
-            var sql = $"select typeof({ Database.Dialect.QuoteName(columnName.LocalName) }) from { Database.Dialect.QuoteName(Name.LocalName) } limit 1";
+            var sql = $"select typeof({ Database.Dialect.QuoteName(columnName.LocalName) }) from { Database.Dialect.QuoteName(Name) } limit 1";
             return Connection.ExecuteScalarAsync<string>(sql);
         }
     }

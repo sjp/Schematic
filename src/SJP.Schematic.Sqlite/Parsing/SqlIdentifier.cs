@@ -6,6 +6,19 @@ namespace SJP.Schematic.Sqlite.Parsing
 {
     internal class SqlIdentifier
     {
+        public SqlIdentifier(Token<SqliteToken> schemaToken, Token<SqliteToken> localNameToken)
+        {
+            if (schemaToken.Kind != SqliteToken.Identifier || schemaToken.ToStringValue().IsNullOrWhiteSpace())
+                throw new ArgumentException("The provided schema token must be an identifier token. Instead given: " + schemaToken.Kind.ToString(), nameof(schemaToken));
+            if (localNameToken.Kind != SqliteToken.Identifier || localNameToken.ToStringValue().IsNullOrWhiteSpace())
+                throw new ArgumentException("The provided local name token must be an identifier token. Instead given: " + localNameToken.Kind.ToString(), nameof(localNameToken));
+
+            var schemaName = UnwrapIdentifier(schemaToken.ToStringValue());
+            var localName = UnwrapIdentifier(localNameToken.ToStringValue());
+
+            Value = new Identifier(schemaName, localName);
+        }
+
         public SqlIdentifier(Token<SqliteToken> token)
         {
             if (token.Kind != SqliteToken.Identifier || token.ToStringValue().IsNullOrWhiteSpace())
@@ -14,7 +27,7 @@ namespace SJP.Schematic.Sqlite.Parsing
             Value = UnwrapIdentifier(token.ToStringValue());
         }
 
-        public string Value { get; }
+        public Identifier Value { get; }
 
         private static string UnwrapIdentifier(string identifier)
         {

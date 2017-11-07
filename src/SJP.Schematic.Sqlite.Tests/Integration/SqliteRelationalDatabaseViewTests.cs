@@ -71,17 +71,20 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
         [Test]
         public void Name_GivenLocalNameOnlyInCtor_ShouldBeQualifiedCorrectly()
         {
+            var database = Database;
             var viewName = new LocalIdentifier("view_test_view_1");
-            var view = new SqliteRelationalDatabaseView(Connection, Database, viewName);
+            var expectedViewName = new Identifier(database.DefaultSchema, "view_test_view_1");
 
-            Assert.AreEqual(viewName, view.Name);
+            var view = new SqliteRelationalDatabaseView(Connection, database, viewName);
+
+            Assert.AreEqual(expectedViewName, view.Name);
         }
 
         [Test]
         public void Name_GivenSchemaAndLocalNameOnlyInCtor_ShouldBeQualifiedCorrectly()
         {
             var viewName = new Identifier("asd", "view_test_view_1");
-            var expectedViewName = new Identifier("view_test_view_1");
+            var expectedViewName = new Identifier("asd", "view_test_view_1");
 
             var view = new SqliteRelationalDatabaseView(Connection, Database, viewName);
 
@@ -92,7 +95,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
         public void Name_GivenDatabaseAndSchemaAndLocalNameOnlyInCtor_ShouldBeQualifiedCorrectly()
         {
             var viewName = new Identifier("qwe", "asd", "view_test_view_1");
-            var expectedViewName = new Identifier("view_test_view_1");
+            var expectedViewName = new Identifier("asd", "view_test_view_1");
 
             var view = new SqliteRelationalDatabaseView(Connection, Database, viewName);
 
@@ -103,7 +106,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
         public void Name_GivenFullyQualifiedNameInCtor_ShouldBeQualifiedCorrectly()
         {
             var viewName = new Identifier("qwe", "asd", "zxc", "view_test_view_1");
-            var expectedViewName = new Identifier("view_test_view_1");
+            var expectedViewName = new Identifier("zxc", "view_test_view_1");
 
             var view = new SqliteRelationalDatabaseView(Connection, Database, viewName);
 

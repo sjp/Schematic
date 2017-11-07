@@ -13,7 +13,7 @@ namespace SJP.Schematic.Sqlite.Parsing
             if (identifier == null)
                 throw new ArgumentNullException(nameof(identifier));
 
-            Name = identifier.Value;
+            Name = identifier.Value.LocalName;
         }
 
         internal IndexedColumn(string identifier)
