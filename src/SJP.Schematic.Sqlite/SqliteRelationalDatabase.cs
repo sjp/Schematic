@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Dapper;
 using SJP.Schematic.Core;
 using SJP.Schematic.Sqlite.Query;
+using SJP.Schematic.Sqlite.Pragma;
 
 namespace SJP.Schematic.Sqlite
 {
@@ -17,7 +18,8 @@ namespace SJP.Schematic.Sqlite
             if (defaultSchema.IsNullOrWhiteSpace())
                 throw new ArgumentNullException(nameof(defaultSchema));
 
-            Metadata = new DatabaseMetadata { DatabaseName = connection.Database, DefaultSchema = defaultSchema };
+            Metadata = new DatabaseMetadata { DatabaseName = Connection.Database, DefaultSchema = defaultSchema };
+            Pragma = new ConnectionPragma(Dialect, Connection);
         }
 
         public string ServerName => null; // never not-null
@@ -27,6 +29,8 @@ namespace SJP.Schematic.Sqlite
         public string DefaultSchema => Metadata.DefaultSchema;
 
         protected DatabaseMetadata Metadata { get; }
+
+        protected ConnectionPragma Pragma { get; }
 
         #region Tables
 
@@ -47,7 +51,7 @@ namespace SJP.Schematic.Sqlite
                 ) > 0;
             }
 
-            var dbNames = DatabaseNames.OrderBy(l => l.seq).Select(l => l.name).ToList();
+            var dbNames = Pragma.DatabaseList.OrderBy(l => l.seq).Select(l => l.name).ToList();
             foreach (var dbName in dbNames)
             {
                 var sql = $"select count(*) from { Dialect.QuoteIdentifier(dbName) }.sqlite_master where type = 'table' and lower(name) = lower(@TableName)";
@@ -77,7 +81,7 @@ namespace SJP.Schematic.Sqlite
                 ).ConfigureAwait(false) > 0;
             }
 
-            var dbNamesResult = await DatabaseNamesAsync().ConfigureAwait(false);
+            var dbNamesResult = await Pragma.DatabaseListAsync().ConfigureAwait(false);
             var dbNames = dbNamesResult.OrderBy(l => l.seq).Select(l => l.name).ToList();
             foreach (var dbName in dbNames)
             {
@@ -102,7 +106,7 @@ namespace SJP.Schematic.Sqlite
             if (tableName.Schema != null)
                 return LoadTableSync(tableName);
 
-            var dbNames = DatabaseNames.OrderBy(l => l.seq).Select(l => l.name).ToList();
+            var dbNames = Pragma.DatabaseList.OrderBy(l => l.seq).Select(l => l.name).ToList();
             foreach (var dbName in dbNames)
             {
                 var qualifiedTableName = new Identifier(dbName, tableName.LocalName);
@@ -126,7 +130,7 @@ namespace SJP.Schematic.Sqlite
             if (tableName.Schema != null)
                 return await LoadTableAsync(tableName).ConfigureAwait(false);
 
-            var dbNamesResult = await DatabaseNamesAsync().ConfigureAwait(false);
+            var dbNamesResult = await Pragma.DatabaseListAsync().ConfigureAwait(false);
             var dbNames = dbNamesResult.OrderBy(l => l.seq).Select(l => l.name).ToList();
             foreach (var dbName in dbNames)
             {
@@ -144,11 +148,7 @@ namespace SJP.Schematic.Sqlite
         {
             get
             {
-                var dbNames = DatabaseNames
-                    .Select(l => l.name)
-                    .OrderBy(n => n)
-                    .ToList();
-
+                var dbNames = Pragma.DatabaseList.OrderBy(d => d.seq).Select(l => l.name).ToList();
                 foreach (var dbName in dbNames)
                 {
                     var sql = $"select name from { Dialect.QuoteIdentifier(dbName) }.sqlite_master where type = 'table' order by name";
@@ -168,11 +168,8 @@ namespace SJP.Schematic.Sqlite
 
         public async Task<IAsyncEnumerable<IRelationalDatabaseTable>> TablesAsync()
         {
-            var dbNamesQuery = await DatabaseNamesAsync().ConfigureAwait(false);
-            var dbNames = dbNamesQuery
-                .Select(l => l.name)
-                .OrderBy(n => n)
-                .ToList();
+            var dbNamesQuery = await Pragma.DatabaseListAsync().ConfigureAwait(false);
+            var dbNames = dbNamesQuery.OrderBy(d => d.seq).Select(l => l.name).ToList();
 
             var result = Enumerable.Empty<IRelationalDatabaseTable>().ToAsyncEnumerable();
 
@@ -207,7 +204,7 @@ namespace SJP.Schematic.Sqlite
                     : null;
             }
 
-            var dbNames = DatabaseNames.OrderBy(l => l.seq).Select(l => l.name).ToList();
+            var dbNames = Pragma.DatabaseList.OrderBy(l => l.seq).Select(l => l.name).ToList();
             foreach (var dbName in dbNames)
             {
                 var qualifiedTableName = new Identifier(dbName, tableName.LocalName);
@@ -235,7 +232,7 @@ namespace SJP.Schematic.Sqlite
                     : null;
             }
 
-            var dbNamesResult = await DatabaseNamesAsync().ConfigureAwait(false);
+            var dbNamesResult = await Pragma.DatabaseListAsync().ConfigureAwait(false);
             var dbNames = dbNamesResult.OrderBy(l => l.seq).Select(l => l.name).ToList();
             foreach (var dbName in dbNames)
             {
@@ -269,7 +266,7 @@ namespace SJP.Schematic.Sqlite
                 ) > 0;
             }
 
-            var dbNames = DatabaseNames.OrderBy(l => l.seq).Select(l => l.name).ToList();
+            var dbNames = Pragma.DatabaseList.OrderBy(l => l.seq).Select(l => l.name).ToList();
             foreach (var dbName in dbNames)
             {
                 var sql = $"select count(*) from { Dialect.QuoteIdentifier(dbName) }.sqlite_master where type = 'view' and lower(name) = lower(@ViewName)";
@@ -296,7 +293,7 @@ namespace SJP.Schematic.Sqlite
                 ).ConfigureAwait(false) > 0;
             }
 
-            var dbNamesResult = await DatabaseNamesAsync().ConfigureAwait(false);
+            var dbNamesResult = await Pragma.DatabaseListAsync().ConfigureAwait(false);
             var dbNames = dbNamesResult.OrderBy(l => l.seq).Select(l => l.name).ToList();
             foreach (var dbName in dbNames)
             {
@@ -318,7 +315,7 @@ namespace SJP.Schematic.Sqlite
             if (viewName.Schema != null)
                 return LoadViewSync(viewName);
 
-            var dbNames = DatabaseNames.OrderBy(l => l.seq).Select(l => l.name).ToList();
+            var dbNames = Pragma.DatabaseList.OrderBy(l => l.seq).Select(l => l.name).ToList();
             foreach (var dbName in dbNames)
             {
                 var qualifiedViewName = new Identifier(dbName, viewName.LocalName);
@@ -339,7 +336,7 @@ namespace SJP.Schematic.Sqlite
             if (viewName.Schema != null)
                 return await LoadViewAsync(viewName).ConfigureAwait(false);
 
-            var dbNamesResult = await DatabaseNamesAsync().ConfigureAwait(false);
+            var dbNamesResult = await Pragma.DatabaseListAsync().ConfigureAwait(false);
             var dbNames = dbNamesResult.OrderBy(l => l.seq).Select(l => l.name).ToList();
             foreach (var dbName in dbNames)
             {
@@ -357,11 +354,7 @@ namespace SJP.Schematic.Sqlite
         {
             get
             {
-                var dbNames = DatabaseNames
-                    .Select(l => l.name)
-                    .OrderBy(n => n)
-                    .ToList();
-
+                var dbNames = Pragma.DatabaseList.OrderBy(d => d.seq).Select(d => d.name).ToList();
                 foreach (var dbName in dbNames)
                 {
                     var sql = $"select name from { Dialect.QuoteIdentifier(dbName) }.sqlite_master where type = 'view' order by name";
@@ -381,11 +374,8 @@ namespace SJP.Schematic.Sqlite
 
         public async Task<IAsyncEnumerable<IRelationalDatabaseView>> ViewsAsync()
         {
-            var dbNamesQuery = await DatabaseNamesAsync().ConfigureAwait(false);
-            var dbNames = dbNamesQuery
-                .Select(l => l.name)
-                .OrderBy(n => n)
-                .ToList();
+            var dbNamesQuery = await Pragma.DatabaseListAsync().ConfigureAwait(false);
+            var dbNames = dbNamesQuery.OrderBy(d => d.seq).Select(l => l.name).ToList();
 
             var result = Enumerable.Empty<IRelationalDatabaseView>().ToAsyncEnumerable();
 
@@ -421,7 +411,7 @@ namespace SJP.Schematic.Sqlite
                     : null;
             }
 
-            var dbNames = DatabaseNames.OrderBy(l => l.seq).Select(l => l.name).ToList();
+            var dbNames = Pragma.DatabaseList.OrderBy(l => l.seq).Select(l => l.name).ToList();
             foreach (var dbName in dbNames)
             {
                 var qualifiedViewName = new Identifier(dbName, viewName.LocalName);
@@ -449,7 +439,7 @@ namespace SJP.Schematic.Sqlite
                     : null;
             }
 
-            var dbNamesResult = await DatabaseNamesAsync().ConfigureAwait(false);
+            var dbNamesResult = await Pragma.DatabaseListAsync().ConfigureAwait(false);
             var dbNames = dbNamesResult.OrderBy(l => l.seq).Select(l => l.name).ToList();
             foreach (var dbName in dbNames)
             {
@@ -547,10 +537,6 @@ namespace SJP.Schematic.Sqlite
         public Task<IAsyncEnumerable<IDatabaseSynonym>> SynonymsAsync() => Task.FromResult(Enumerable.Empty<IDatabaseSynonym>().ToAsyncEnumerable());
 
         #endregion Synonyms
-
-        protected IEnumerable<DatabaseList> DatabaseNames => Connection.Query<DatabaseList>("PRAGMA database_list");
-
-        protected Task<IEnumerable<DatabaseList>> DatabaseNamesAsync() => Connection.QueryAsync<DatabaseList>("PRAGMA database_list");
 
         protected static IEnumerable<string> BuiltInTables { get; } = new HashSet<string>(new[] { "sqlite_master", "sqlite_temp_master", "sqlite_sequence" }, StringComparer.OrdinalIgnoreCase);
     }

@@ -5,7 +5,7 @@ using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
 using SJP.Schematic.Core;
-using SJP.Schematic.Sqlite.Query;
+using SJP.Schematic.Sqlite.Pragma;
 
 namespace SJP.Schematic.Sqlite
 {
@@ -24,6 +24,7 @@ namespace SJP.Schematic.Sqlite
             var localName = viewName.LocalName;
 
             Name = new Identifier(schemaName, localName);
+            Pragma = new DatabasePragma(Database.Dialect, connection, schemaName);
         }
 
         public IRelationalDatabase Database { get; }
@@ -33,6 +34,8 @@ namespace SJP.Schematic.Sqlite
         protected IDbConnection Connection { get; }
 
         protected IEqualityComparer<Identifier> Comparer { get; }
+
+        protected DatabasePragma Pragma { get; }
 
         public string Definition => LoadDefinitionSync();
 
@@ -103,8 +106,7 @@ namespace SJP.Schematic.Sqlite
 
         protected virtual IReadOnlyList<IDatabaseViewColumn> LoadColumnsSync()
         {
-            var sql = $"pragma { Database.Dialect.QuoteIdentifier(Name.Schema) }.table_info({ Database.Dialect.QuoteIdentifier(Name.LocalName) })";
-            var tableInfos = Connection.Query<TableInfo>(sql);
+            var tableInfos = Pragma.TableInfo(Name);
 
             var result = new List<IDatabaseViewColumn>();
             if (tableInfos.Empty())
@@ -136,8 +138,7 @@ namespace SJP.Schematic.Sqlite
 
         protected virtual async Task<IReadOnlyList<IDatabaseViewColumn>> LoadColumnsAsync()
         {
-            var sql = $"pragma { Database.Dialect.QuoteIdentifier(Name.Schema) }.table_info({ Database.Dialect.QuoteIdentifier(Name.LocalName) })";
-            var tableInfos = await Connection.QueryAsync<TableInfo>(sql).ConfigureAwait(false);
+            var tableInfos = await Pragma.TableInfoAsync(Name).ConfigureAwait(false);
 
             var result = new List<IDatabaseViewColumn>();
             if (tableInfos.Empty())
@@ -147,7 +148,7 @@ namespace SJP.Schematic.Sqlite
             {
                 var columnTypeName = tableInfo.type;
                 if (columnTypeName.IsNullOrWhiteSpace())
-                    columnTypeName = GetTypeofColumn(tableInfo.name);
+                    columnTypeName = await GetTypeofColumnAsync(tableInfo.name).ConfigureAwait(false);
                 if (columnTypeName.IsNullOrWhiteSpace())
                     columnTypeName = "BLOB";
 
