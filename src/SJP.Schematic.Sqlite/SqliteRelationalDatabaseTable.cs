@@ -456,7 +456,7 @@ namespace SJP.Schematic.Sqlite
             {
                 var rows = fkey.OrderBy(row => row.seq);
 
-                var parentTableName = new Identifier(fkey.Key.ParentTableName);
+                var parentTableName = new Identifier(Name.Schema, fkey.Key.ParentTableName);
                 var parentTable = Database.GetTable(parentTableName);
 
                 var parentColumns = parentTable.Columns;
@@ -484,6 +484,7 @@ namespace SJP.Schematic.Sqlite
 
                 var parentKey = new SqliteDatabaseKey(this, parentConstraint.Name, parentKeyType, parentColumns);
 
+                // don't need to check for the parent schema as cross-schema references are not supported
                 var parsedConstraint = fkConstraints
                     .Where(fkc => string.Equals(fkc.ParentTable.LocalName, fkey.Key.ParentTableName, StringComparison.OrdinalIgnoreCase))
                     .FirstOrDefault(fkc => fkc.ParentColumns.SequenceEqual(rows.Select(row => row.to), StringComparer.OrdinalIgnoreCase));
@@ -523,7 +524,7 @@ namespace SJP.Schematic.Sqlite
             {
                 var rows = fkey.OrderBy(row => row.seq);
 
-                var parentTableName = new Identifier(fkey.Key.ParentTableName);
+                var parentTableName = new Identifier(Name.Schema, fkey.Key.ParentTableName);
                 var parentTable = await Database.GetTableAsync(parentTableName).ConfigureAwait(false);
 
                 var parentColumns = await parentTable.ColumnsAsync().ConfigureAwait(false);
@@ -551,6 +552,7 @@ namespace SJP.Schematic.Sqlite
 
                 var parentKey = new SqliteDatabaseKey(this, parentConstraint.Name, parentKeyType, parentColumns);
 
+                // don't need to check for the parent schema as cross-schema references are not supported
                 var parsedConstraint = fkConstraints
                     .Where(fkc => string.Equals(fkc.ParentTable.LocalName, fkey.Key.ParentTableName, StringComparison.OrdinalIgnoreCase))
                     .FirstOrDefault(fkc => fkc.ParentColumns.SequenceEqual(rows.Select(row => row.to), StringComparer.OrdinalIgnoreCase));
