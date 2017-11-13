@@ -10,6 +10,7 @@ The aim of this project is to create an easier way to declare and manage schemas
 
 Goals:
 
+* Easy querying of database schema in a vendor-independent manner. Vendor-specific information should also be available (e.g. PRAGMA for SQLite).
 * Simple and strongly-typed declarations of schema in C\#.
 * Automatic schema updates to match schema defined in C\#.
 * Customisable schema i.e. have schema declared in C\# but overridden (at least partially) in JSON, XML, etc.
