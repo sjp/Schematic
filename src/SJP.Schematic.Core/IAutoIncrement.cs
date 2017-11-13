@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-
-namespace SJP.Schematic.Core
+﻿namespace SJP.Schematic.Core
 {
     public interface IAutoIncrement
     {

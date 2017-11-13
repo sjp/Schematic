@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace SJP.Schematic.Sqlite.Pragma
+﻿namespace SJP.Schematic.Sqlite.Pragma
 {
     public enum AutoVacuumMode
     {

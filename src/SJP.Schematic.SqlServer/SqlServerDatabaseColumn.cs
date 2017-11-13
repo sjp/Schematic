@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Linq;
-using System.Text;
 using SJP.Schematic.Core;
 
 namespace SJP.Schematic.SqlServer

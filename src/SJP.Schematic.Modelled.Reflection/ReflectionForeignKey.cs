@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
 using SJP.Schematic.Core;
 
 namespace SJP.Schematic.Modelled.Reflection
