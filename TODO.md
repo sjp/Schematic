@@ -15,21 +15,6 @@
 * Full-text indexes? Not sure how generic they are or whether they need to be treated any
   differently in the declarations. Maybe just an attribute stating that it's a full-text index?
 
-* Improve caching on all dependent objects. Needs to be able to handle tables, views, etc.
-  Probably need to add an interface to know whether results are cached and that we can get
-  better extension methods for it.
-
-  This is in progress and caching can now be performed using IdentifierKeyedCache<T>.
-  What is remaining is a nice wrapper for some improved caching. For example to avoid
-  any duplication of queries within a table for example.
-
-  IDEA: This can be achieved by querying the database for all related information.
-  For example, a primary key needs to know about columns, so it could get cached
-  column information by getting it from the table's database property. Something like
-  `Database.GetTable(...).Column`. This would only work for the caching behaviour
-  and would otherwise cause another couple of queries to be run. Not ideal. Leave it
-  for now.
-
 * Think about dependencies/dependents. Seems clumsy doing this in the user interface.
   Most of the time we can determine this anyway, for example we can order based on
   foreign keys for table dependencies.
