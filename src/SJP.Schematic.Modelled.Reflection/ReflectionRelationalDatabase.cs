@@ -441,7 +441,9 @@ namespace SJP.Schematic.Modelled.Reflection
                 throw new ArgumentNullException(nameof(objectType));
 
             return DatabaseDefinitionType.GetTypeInfo().GetProperties()
-                .Where(pi => pi.PropertyType.GetGenericTypeDefinition().GetTypeInfo().IsAssignableFrom(objectType.GetTypeInfo()))
+                .Where(pi =>
+                    pi.PropertyType.GetGenericTypeDefinition().GetTypeInfo().IsAssignableFrom(objectType.GetTypeInfo())
+                    && !pi.PropertyType.GetGenericTypeDefinition().GetTypeInfo().IsAbstract)
                 .Select(pi => UnwrapGenericParameter(pi.PropertyType))
                 .ToList();
         }
@@ -483,7 +485,9 @@ namespace SJP.Schematic.Modelled.Reflection
 
             var validWrappers = new[] { TableGenericType, ViewGenericType, SequenceGenericType, SynonymGenericType };
             var unwrappedTypes = definitionType.GetTypeInfo().GetProperties()
-                .Where(pi => validWrappers.Any(wrapperType => pi.PropertyType.GetGenericTypeDefinition().GetTypeInfo().IsAssignableFrom(wrapperType.GetTypeInfo())))
+                .Where(pi => validWrappers.Any(wrapperType =>
+                        pi.PropertyType.GetGenericTypeDefinition().GetTypeInfo().IsAssignableFrom(wrapperType.GetTypeInfo())
+                        && !pi.PropertyType.GetGenericTypeDefinition().GetTypeInfo().IsAbstract))
                 .Select(pi => UnwrapGenericParameter(pi.PropertyType));
 
             foreach (var unwrappedType in unwrappedTypes)
