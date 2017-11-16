@@ -403,15 +403,12 @@ from sys.synonyms
 where schema_id = schema_id(@SchemaName) and name = @SynonymName
     ", new { SchemaName = synonymName.Schema, SynonymName = synonymName.LocalName });
 
-            Identifier targetName;
-            if (!queryResult.TargetServerName.IsNullOrWhiteSpace())
-                targetName = new Identifier(queryResult.TargetServerName, queryResult.TargetDatabaseName, queryResult.TargetSchemaName, queryResult.TargetObjectName);
-            else if (!queryResult.TargetDatabaseName.IsNullOrWhiteSpace())
-                targetName = new Identifier(queryResult.TargetDatabaseName, queryResult.TargetSchemaName, queryResult.TargetObjectName);
-            else if (!queryResult.TargetSchemaName.IsNullOrWhiteSpace())
-                targetName = new Identifier(queryResult.TargetSchemaName, queryResult.TargetObjectName);
-            else
-                targetName = new Identifier(queryResult.TargetObjectName);
+            var serverName = !queryResult.TargetServerName.IsNullOrWhiteSpace() ? queryResult.TargetServerName : null;
+            var databaseName = !queryResult.TargetDatabaseName.IsNullOrWhiteSpace() ? queryResult.TargetDatabaseName : null;
+            var schemaName = !queryResult.TargetSchemaName.IsNullOrWhiteSpace() ? queryResult.TargetSchemaName : null;
+            var localName = !queryResult.TargetObjectName.IsNullOrWhiteSpace() ? queryResult.TargetObjectName : null;
+
+            var targetName = Identifier.CreateQualifiedIdentifier(serverName, databaseName, schemaName, localName);
 
             return new SqlServerDatabaseSynonym(Database, synonymName, targetName);
         }
@@ -436,15 +433,12 @@ from sys.synonyms
 where schema_id = schema_id(@SchemaName) and name = @SynonymName
     ", new { SchemaName = synonymName.Schema, SynonymName = synonymName.LocalName }).ConfigureAwait(false);
 
-            Identifier targetName;
-            if (!queryResult.TargetServerName.IsNullOrWhiteSpace())
-                targetName = new Identifier(queryResult.TargetServerName, queryResult.TargetDatabaseName, queryResult.TargetSchemaName, queryResult.TargetObjectName);
-            else if (!queryResult.TargetDatabaseName.IsNullOrWhiteSpace())
-                targetName = new Identifier(queryResult.TargetDatabaseName, queryResult.TargetSchemaName, queryResult.TargetObjectName);
-            else if (!queryResult.TargetSchemaName.IsNullOrWhiteSpace())
-                targetName = new Identifier(queryResult.TargetSchemaName, queryResult.TargetObjectName);
-            else
-                targetName = new Identifier(queryResult.TargetObjectName);
+            var serverName = !queryResult.TargetServerName.IsNullOrWhiteSpace() ? queryResult.TargetServerName : null;
+            var databaseName = !queryResult.TargetDatabaseName.IsNullOrWhiteSpace() ? queryResult.TargetDatabaseName : null;
+            var schemaName = !queryResult.TargetSchemaName.IsNullOrWhiteSpace() ? queryResult.TargetSchemaName : null;
+            var localName = !queryResult.TargetObjectName.IsNullOrWhiteSpace() ? queryResult.TargetObjectName : null;
+
+            var targetName = Identifier.CreateQualifiedIdentifier(serverName, databaseName, schemaName, localName);
 
             return new SqlServerDatabaseSynonym(Database, synonymName, targetName);
         }
