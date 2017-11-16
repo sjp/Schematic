@@ -63,8 +63,6 @@ namespace SJP.Schematic.Modelled.Reflection
 
         protected ReflectionTypeProvider TypeProvider { get; }
 
-        #region Tables
-
         public bool TableExists(Identifier tableName)
         {
             if (tableName == null || tableName.LocalName == null)
@@ -141,10 +139,6 @@ namespace SJP.Schematic.Modelled.Reflection
 
             return lookup;
         }
-
-        #endregion Tables
-
-        #region Views
 
         public bool ViewExists(Identifier viewName)
         {
@@ -223,10 +217,6 @@ namespace SJP.Schematic.Modelled.Reflection
             return lookup;
         }
 
-        #endregion Views
-
-        #region Sequences
-
         public bool SequenceExists(Identifier sequenceName)
         {
             if (sequenceName == null || sequenceName.LocalName == null)
@@ -304,10 +294,6 @@ namespace SJP.Schematic.Modelled.Reflection
             return lookup;
         }
 
-        #endregion Sequences
-
-        #region Synonyms
-
         public bool SynonymExists(Identifier synonymName)
         {
             if (synonymName == null || synonymName.LocalName == null)
@@ -384,8 +370,6 @@ namespace SJP.Schematic.Modelled.Reflection
 
             return lookup;
         }
-
-        #endregion Synonyms
 
         protected Identifier CreateQualifiedIdentifier(Identifier identifier)
         {

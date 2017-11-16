@@ -32,8 +32,6 @@ namespace SJP.Schematic.Modelled
 
         public string DatabaseName => BaseDatabase.DatabaseName;
 
-        #region Tables
-
         public bool TableExists(Identifier tableName)
         {
             if (tableName == null || tableName.LocalName == null)
@@ -100,10 +98,6 @@ namespace SJP.Schematic.Modelled
             var tablesTask = await Task.WhenAll(tables).ConfigureAwait(false);
             return Array.Find(tablesTask, t => t != null);
         }
-
-        #endregion Tables
-
-        #region Views
 
         public bool ViewExists(Identifier viewName)
         {
@@ -172,10 +166,6 @@ namespace SJP.Schematic.Modelled
             return Array.Find(viewsTask, t => t != null);
         }
 
-        #endregion Views
-
-        #region Sequences
-
         public bool SequenceExists(Identifier sequenceName)
         {
             if (sequenceName == null)
@@ -243,10 +233,6 @@ namespace SJP.Schematic.Modelled
             return Array.Find(sequencesTask, t => t != null);
         }
 
-        #endregion Sequences
-
-        #region Synonyms
-
         public bool SynonymExists(Identifier synonymName)
         {
             if (synonymName == null || synonymName.LocalName == null)
@@ -313,8 +299,6 @@ namespace SJP.Schematic.Modelled
             var synonymsTask = await Task.WhenAll(synonyms).ConfigureAwait(false);
             return Array.Find(synonymsTask, t => t != null);
         }
-
-        #endregion Synonyms
 
         protected static IDependentRelationalDatabase SetParent(IRelationalDatabase parent, IDependentRelationalDatabase child)
         {

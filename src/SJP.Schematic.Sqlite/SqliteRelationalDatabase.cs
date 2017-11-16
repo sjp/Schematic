@@ -32,8 +32,6 @@ namespace SJP.Schematic.Sqlite
 
         protected ConnectionPragma Pragma { get; }
 
-        #region Tables
-
         public bool TableExists(Identifier tableName)
         {
             if (tableName == null || tableName.LocalName == null)
@@ -248,10 +246,6 @@ namespace SJP.Schematic.Sqlite
             return null;
         }
 
-        #endregion Tables
-
-        #region Views
-
         public bool ViewExists(Identifier viewName)
         {
             if (viewName == null || viewName.LocalName == null)
@@ -456,10 +450,6 @@ namespace SJP.Schematic.Sqlite
             return null;
         }
 
-        #endregion Views
-
-        #region Sequences
-
         public bool SequenceExists(Identifier sequenceName)
         {
             if (sequenceName == null || sequenceName.LocalName == null)
@@ -496,10 +486,6 @@ namespace SJP.Schematic.Sqlite
 
         public Task<IAsyncEnumerable<IDatabaseSequence>> SequencesAsync() => Task.FromResult(Enumerable.Empty<IDatabaseSequence>().ToAsyncEnumerable());
 
-        #endregion Sequences
-
-        #region Synonyms
-
         public bool SynonymExists(Identifier synonymName)
         {
             if (synonymName == null || synonymName.LocalName == null)
@@ -535,8 +521,6 @@ namespace SJP.Schematic.Sqlite
         }
 
         public Task<IAsyncEnumerable<IDatabaseSynonym>> SynonymsAsync() => Task.FromResult(Enumerable.Empty<IDatabaseSynonym>().ToAsyncEnumerable());
-
-        #endregion Synonyms
 
         protected static IEnumerable<string> BuiltInTables { get; } = new HashSet<string>(new[] { "sqlite_master", "sqlite_temp_master", "sqlite_sequence" }, StringComparer.OrdinalIgnoreCase);
     }

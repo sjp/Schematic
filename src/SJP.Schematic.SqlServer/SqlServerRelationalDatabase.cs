@@ -37,8 +37,6 @@ namespace SJP.Schematic.SqlServer
 
         protected DatabaseMetadata Metadata => _metadata.Value;
 
-        #region Tables
-
         public bool TableExists(Identifier tableName)
         {
             if (tableName == null || tableName.LocalName == null)
@@ -132,10 +130,6 @@ namespace SJP.Schematic.SqlServer
                 : null;
         }
 
-        #endregion Tables
-
-        #region Views
-
         public bool ViewExists(Identifier viewName)
         {
             if (viewName == null || viewName.LocalName == null)
@@ -226,10 +220,6 @@ namespace SJP.Schematic.SqlServer
                 ? new SqlServerRelationalDatabaseView(Connection, Database, viewName, Comparer)
                 : null;
         }
-
-        #endregion Views
-
-        #region Sequences
 
         public bool SequenceExists(Identifier sequenceName)
         {
@@ -323,10 +313,6 @@ namespace SJP.Schematic.SqlServer
                 ? new SqlServerDatabaseSequence(Connection, Database, sequenceName)
                 : null;
         }
-
-        #endregion Sequences
-
-        #region Synonyms
 
         public bool SynonymExists(Identifier synonymName)
         {
@@ -462,8 +448,6 @@ where schema_id = schema_id(@SchemaName) and name = @SynonymName
 
             return new SqlServerDatabaseSynonym(Database, synonymName, targetName);
         }
-
-        #endregion Synonyms
 
         private DatabaseMetadata LoadDatabaseMetadata()
         {
