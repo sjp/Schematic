@@ -30,9 +30,11 @@ namespace SJP.Schematic.Modelled.Reflection
 
             Comparer = comparer ?? new IdentifierComparer(StringComparer.OrdinalIgnoreCase, serverName, databaseName, defaultSchema);
 
-            EnsureUniqueTypes(DatabaseDefinitionType);
+            TypeProvider = new ReflectionTypeProvider(dialect, databaseDefinitionType);
+            EnsureUniqueTypes(DatabaseDefinitionType, TypeProvider);
 
             _parentDb = this;
+
             _tableLookup = new Lazy<IReadOnlyDictionary<Identifier, IRelationalDatabaseTable>>(LoadTables);
             _viewLookup = new Lazy<IReadOnlyDictionary<Identifier, IRelationalDatabaseView>>(LoadViews);
             _sequenceLookup = new Lazy<IReadOnlyDictionary<Identifier, IDatabaseSequence>>(LoadSequences);
@@ -58,6 +60,8 @@ namespace SJP.Schematic.Modelled.Reflection
         protected IEqualityComparer<Identifier> Comparer { get; }
 
         protected Type DatabaseDefinitionType { get; }
+
+        protected ReflectionTypeProvider TypeProvider { get; }
 
         #region Tables
 
@@ -86,7 +90,7 @@ namespace SJP.Schematic.Modelled.Reflection
                 throw new ArgumentNullException(nameof(tableName));
 
             tableName = CreateQualifiedIdentifier(tableName);
-            return Table.ContainsKey(tableName) ? Table[tableName] : null;
+            return Table.TryGetValue(tableName, out var table) ? table : null;
         }
 
         public Task<IRelationalDatabaseTable> GetTableAsync(Identifier tableName)
@@ -95,7 +99,7 @@ namespace SJP.Schematic.Modelled.Reflection
                 throw new ArgumentNullException(nameof(tableName));
 
             tableName = CreateQualifiedIdentifier(tableName);
-            var lookupResult = Table.ContainsKey(tableName) ? Table[tableName] : null;
+            var lookupResult = Table.TryGetValue(tableName, out var table) ? table : null;
             return Task.FromResult(lookupResult);
         }
 
@@ -124,31 +128,18 @@ namespace SJP.Schematic.Modelled.Reflection
 
         protected virtual IReadOnlyDictionary<Identifier, IRelationalDatabaseTable> LoadTables()
         {
-            var result = new Dictionary<Identifier, IRelationalDatabaseTable>(Comparer);
-
-            var tables = GetUnwrappedPropertyTypes(TableGenericType)
-                .Select(LoadTableSync)
-                .ToList();
+            var tables = TypeProvider.Tables.Select(LoadTableSync).ToList();
             if (tables.Count == 0)
-                return result;
+                return new Dictionary<Identifier, IRelationalDatabaseTable>(Comparer);
 
-            var duplicateNames = new HashSet<Identifier>();
-            foreach (var table in tables)
+            var (duplicateNames, lookup) = CreateLookup(tables);
+            if (duplicateNames.Any())
             {
-                if (result.ContainsKey(table.Name))
-                    duplicateNames.Add(table.Name);
-
-                result[table.Name] = table;
-            }
-
-            if (duplicateNames.Count > 0)
-            {
-                var dupes = duplicateNames.Select(n => Dialect.QuoteName(n.ToString()));
-                var message = "Duplicates found for the following tables: " + dupes.Join(", ");
+                var message = "Duplicates found for the following tables: " + duplicateNames.Join(", ");
                 throw new Exception(message);
             }
 
-            return result.AsReadOnlyDictionary();
+            return lookup;
         }
 
         #endregion Tables
@@ -180,7 +171,7 @@ namespace SJP.Schematic.Modelled.Reflection
                 throw new ArgumentNullException(nameof(viewName));
 
             viewName = CreateQualifiedIdentifier(viewName);
-            return View.ContainsKey(viewName) ? View[viewName] : null;
+            return View.TryGetValue(viewName, out var view) ? view : null;
         }
 
         public Task<IRelationalDatabaseView> GetViewAsync(Identifier viewName)
@@ -189,8 +180,8 @@ namespace SJP.Schematic.Modelled.Reflection
                 throw new ArgumentNullException(nameof(viewName));
 
             viewName = CreateQualifiedIdentifier(viewName);
-            var view = View.ContainsKey(viewName) ? View[viewName] : null;
-            return Task.FromResult(view);
+            var lookupResult = View.TryGetValue(viewName, out var view) ? view : null;
+            return Task.FromResult(lookupResult);
         }
 
         public IEnumerable<IRelationalDatabaseView> Views => View.Values;
@@ -218,31 +209,18 @@ namespace SJP.Schematic.Modelled.Reflection
 
         protected virtual IReadOnlyDictionary<Identifier, IRelationalDatabaseView> LoadViews()
         {
-            var result = new Dictionary<Identifier, IRelationalDatabaseView>(Comparer);
-
-            var views = GetUnwrappedPropertyTypes(ViewGenericType)
-                .Select(LoadViewSync)
-                .ToList();
+            var views = TypeProvider.Views.Select(LoadViewSync).ToList();
             if (views.Count == 0)
-                return result;
+                return new Dictionary<Identifier, IRelationalDatabaseView>(Comparer);
 
-            var duplicateNames = new HashSet<Identifier>();
-            foreach (var view in views)
+            var (duplicateNames, lookup) = CreateLookup(views);
+            if (duplicateNames.Any())
             {
-                if (result.ContainsKey(view.Name))
-                    duplicateNames.Add(view.Name);
-
-                result[view.Name] = view;
-            }
-
-            if (duplicateNames.Count > 0)
-            {
-                var dupes = duplicateNames.Select(n => Dialect.QuoteName(n.ToString()));
-                var message = "Duplicates found for the following views: " + dupes.Join(", ");
+                var message = "Duplicates found for the following views: " + duplicateNames.Join(", ");
                 throw new Exception(message);
             }
 
-            return result.AsReadOnlyDictionary();
+            return lookup;
         }
 
         #endregion Views
@@ -274,7 +252,7 @@ namespace SJP.Schematic.Modelled.Reflection
                 throw new ArgumentNullException(nameof(sequenceName));
 
             sequenceName = CreateQualifiedIdentifier(sequenceName);
-            return Sequence.ContainsKey(sequenceName) ? Sequence[sequenceName] : null;
+            return Sequence.TryGetValue(sequenceName, out var sequence) ? sequence : null;
         }
 
         public Task<IDatabaseSequence> GetSequenceAsync(Identifier sequenceName)
@@ -283,8 +261,8 @@ namespace SJP.Schematic.Modelled.Reflection
                 throw new ArgumentNullException(nameof(sequenceName));
 
             sequenceName = CreateQualifiedIdentifier(sequenceName);
-            var sequence = Sequence.ContainsKey(sequenceName) ? Sequence[sequenceName] : null;
-            return Task.FromResult(sequence);
+            var lookupResult = Sequence.TryGetValue(sequenceName, out var sequence) ? sequence : null;
+            return Task.FromResult(lookupResult);
         }
 
         public IEnumerable<IDatabaseSequence> Sequences => Sequence.Values;
@@ -312,31 +290,18 @@ namespace SJP.Schematic.Modelled.Reflection
 
         protected virtual IReadOnlyDictionary<Identifier, IDatabaseSequence> LoadSequences()
         {
-            var result = new Dictionary<Identifier, IDatabaseSequence>(Comparer);
-
-            var sequences = GetUnwrappedPropertyTypes(SequenceGenericType)
-                .Select(LoadSequenceSync)
-                .ToList();
+            var sequences = TypeProvider.Sequences.Select(LoadSequenceSync).ToList();
             if (sequences.Count == 0)
-                return result;
+                return new Dictionary<Identifier, IDatabaseSequence>(Comparer);
 
-            var duplicateNames = new HashSet<Identifier>();
-            foreach (var sequence in sequences)
+            var (duplicateNames, lookup) = CreateLookup(sequences);
+            if (duplicateNames.Any())
             {
-                if (result.ContainsKey(sequence.Name))
-                    duplicateNames.Add(sequence.Name);
-
-                result[sequence.Name] = sequence;
-            }
-
-            if (duplicateNames.Count > 0)
-            {
-                var dupes = duplicateNames.Select(n => Dialect.QuoteName(n.ToString()));
-                var message = "Duplicates found for the following sequences: " + dupes.Join(", ");
+                var message = "Duplicates found for the following sequences: " + duplicateNames.Join(", ");
                 throw new Exception(message);
             }
 
-            return result.AsReadOnlyDictionary();
+            return lookup;
         }
 
         #endregion Sequences
@@ -368,7 +333,7 @@ namespace SJP.Schematic.Modelled.Reflection
                 throw new ArgumentNullException(nameof(synonymName));
 
             synonymName = CreateQualifiedIdentifier(synonymName);
-            return Synonym.ContainsKey(synonymName) ? Synonym[synonymName] : null;
+            return Synonym.TryGetValue(synonymName, out var synonym) ? synonym : null;
         }
 
         public Task<IDatabaseSynonym> GetSynonymAsync(Identifier synonymName)
@@ -377,8 +342,8 @@ namespace SJP.Schematic.Modelled.Reflection
                 throw new ArgumentNullException(nameof(synonymName));
 
             synonymName = CreateQualifiedIdentifier(synonymName);
-            var synonym = Synonym.ContainsKey(synonymName) ? Synonym[synonymName] : null;
-            return Task.FromResult(synonym);
+            var lookupResult = Synonym.TryGetValue(synonymName, out var synonym) ? synonym : null;
+            return Task.FromResult(lookupResult);
         }
 
         public IEnumerable<IDatabaseSynonym> Synonyms => Synonym.Values;
@@ -406,47 +371,21 @@ namespace SJP.Schematic.Modelled.Reflection
 
         protected virtual IReadOnlyDictionary<Identifier, IDatabaseSynonym> LoadSynonyms()
         {
-            var result = new Dictionary<Identifier, IDatabaseSynonym>(Comparer);
-
-            var synonyms = GetUnwrappedPropertyTypes(SynonymGenericType)
-                .Select(LoadSynonymSync)
-                .ToList();
+            var synonyms = TypeProvider.Synonyms.Select(LoadSynonymSync).ToList();
             if (synonyms.Count == 0)
-                return result;
+                return new Dictionary<Identifier, IDatabaseSynonym>(Comparer);
 
-            var duplicateNames = new HashSet<Identifier>();
-            foreach (var synonym in synonyms)
+            var (duplicateNames, lookup) = CreateLookup(synonyms);
+            if (duplicateNames.Any())
             {
-                if (result.ContainsKey(synonym.Name))
-                    duplicateNames.Add(synonym.Name);
-
-                result[synonym.Name] = synonym;
-            }
-
-            if (duplicateNames.Count > 0)
-            {
-                var dupes = duplicateNames.Select(n => Dialect.QuoteName(n.ToString()));
-                var message = "Duplicates found for the following synonyms: " + dupes.Join(", ");
+                var message = "Duplicates found for the following synonyms: " + duplicateNames.Join(", ");
                 throw new Exception(message);
             }
 
-            return result.AsReadOnlyDictionary();
+            return lookup;
         }
 
         #endregion Synonyms
-
-        protected IEnumerable<Type> GetUnwrappedPropertyTypes(Type objectType)
-        {
-            if (objectType == null)
-                throw new ArgumentNullException(nameof(objectType));
-
-            return DatabaseDefinitionType.GetTypeInfo().GetProperties()
-                .Where(pi =>
-                    pi.PropertyType.GetGenericTypeDefinition().GetTypeInfo().IsAssignableFrom(objectType.GetTypeInfo())
-                    && !pi.PropertyType.GetGenericTypeDefinition().GetTypeInfo().IsAbstract)
-                .Select(pi => UnwrapGenericParameter(pi.PropertyType))
-                .ToList();
-        }
 
         protected Identifier CreateQualifiedIdentifier(Identifier identifier)
         {
@@ -467,28 +406,35 @@ namespace SJP.Schematic.Modelled.Reflection
             return identifier;
         }
 
-        protected static Type TableGenericType { get; } = typeof(Table<>);
+        protected (IEnumerable<string> quotedTypeNames, IReadOnlyDictionary<Identifier, TValue> lookup) CreateLookup<TValue>(IEnumerable<TValue> objects) where TValue : IDatabaseEntity
+        {
+            var result = new Dictionary<Identifier, TValue>(Comparer);
 
-        protected static Type ViewGenericType { get; } = typeof(View<>);
+            var duplicateNames = new HashSet<Identifier>();
+            foreach (var obj in objects)
+            {
+                if (result.ContainsKey(obj.Name))
+                    duplicateNames.Add(obj.Name);
 
-        protected static Type SequenceGenericType { get; } = typeof(Sequence<>);
+                result[obj.Name] = obj;
+            }
 
-        protected static Type SynonymGenericType { get; } = typeof(Synonym<>);
+            var duplicatedTypeNames = duplicateNames.Select(n => Dialect.QuoteName(n.ToString()));
+            var lookup = result.AsReadOnlyDictionary();
 
-        protected static Type UnwrapGenericParameter(Type inputType) => inputType.GetTypeInfo().GetGenericArguments().Single();
+            return (duplicatedTypeNames, lookup);
+        }
 
         // makes no sense to have duplicate types
-        private static void EnsureUniqueTypes(Type definitionType)
+        private static void EnsureUniqueTypes(Type definitionType, ReflectionTypeProvider typeProvider)
         {
             var foundTypes = new HashSet<Type>();
             var duplicateTypes = new HashSet<Type>();
 
-            var validWrappers = new[] { TableGenericType, ViewGenericType, SequenceGenericType, SynonymGenericType };
-            var unwrappedTypes = definitionType.GetTypeInfo().GetProperties()
-                .Where(pi => validWrappers.Any(wrapperType =>
-                        pi.PropertyType.GetGenericTypeDefinition().GetTypeInfo().IsAssignableFrom(wrapperType.GetTypeInfo())
-                        && !pi.PropertyType.GetGenericTypeDefinition().GetTypeInfo().IsAbstract))
-                .Select(pi => UnwrapGenericParameter(pi.PropertyType));
+            var unwrappedTypes = typeProvider.Tables
+                .Concat(typeProvider.Views)
+                .Concat(typeProvider.Sequences)
+                .Concat(typeProvider.Synonyms);
 
             foreach (var unwrappedType in unwrappedTypes)
             {
