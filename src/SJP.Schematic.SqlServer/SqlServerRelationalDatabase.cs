@@ -409,6 +409,7 @@ where schema_id = schema_id(@SchemaName) and name = @SynonymName
             var localName = !queryResult.TargetObjectName.IsNullOrWhiteSpace() ? queryResult.TargetObjectName : null;
 
             var targetName = Identifier.CreateQualifiedIdentifier(serverName, databaseName, schemaName, localName);
+            targetName = CreateQualifiedIdentifier(targetName);
 
             return new SqlServerDatabaseSynonym(Database, synonymName, targetName);
         }
@@ -439,6 +440,7 @@ where schema_id = schema_id(@SchemaName) and name = @SynonymName
             var localName = !queryResult.TargetObjectName.IsNullOrWhiteSpace() ? queryResult.TargetObjectName : null;
 
             var targetName = Identifier.CreateQualifiedIdentifier(serverName, databaseName, schemaName, localName);
+            targetName = CreateQualifiedIdentifier(targetName);
 
             return new SqlServerDatabaseSynonym(Database, synonymName, targetName);
         }
