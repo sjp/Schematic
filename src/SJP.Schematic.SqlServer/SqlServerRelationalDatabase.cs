@@ -44,9 +44,8 @@ namespace SJP.Schematic.SqlServer
 
             tableName = CreateQualifiedIdentifier(tableName);
 
-            const string sql = "select count(*) from sys.tables where schema_id = schema_id(@SchemaName) and name = @TableName";
             return Connection.ExecuteScalar<int>(
-                sql,
+                TableExistsQuery,
                 new { SchemaName = tableName.Schema, TableName = tableName.LocalName }
             ) != 0;
         }
@@ -58,12 +57,15 @@ namespace SJP.Schematic.SqlServer
 
             tableName = CreateQualifiedIdentifier(tableName);
 
-            const string sql = "select count(*) from sys.tables where schema_id = schema_id(@SchemaName) and name = @TableName";
             return await Connection.ExecuteScalarAsync<int>(
-                sql,
+                TableExistsQuery,
                 new { SchemaName = tableName.Schema, TableName = tableName.LocalName }
             ).ConfigureAwait(false) != 0;
         }
+
+        protected virtual string TableExistsQuery => TableExistsQuerySql;
+
+        private const string TableExistsQuerySql = "select count(*) from sys.tables where schema_id = schema_id(@SchemaName) and name = @TableName";
 
         public IRelationalDatabaseTable GetTable(Identifier tableName)
         {
@@ -87,8 +89,7 @@ namespace SJP.Schematic.SqlServer
         {
             get
             {
-                const string sql = "select schema_name(schema_id) as SchemaName, name as ObjectName from sys.tables order by schema_name(schema_id), name";
-                var tableNames = Connection.Query<QualifiedName>(sql)
+                var tableNames = Connection.Query<QualifiedName>(TablesQuery)
                     .Select(dto => new Identifier(dto.SchemaName, dto.ObjectName));
 
                 foreach (var tableName in tableNames)
@@ -98,14 +99,17 @@ namespace SJP.Schematic.SqlServer
 
         public async Task<IAsyncEnumerable<IRelationalDatabaseTable>> TablesAsync()
         {
-            const string sql = "select schema_name(schema_id) as SchemaName, name as ObjectName from sys.tables order by schema_name(schema_id), name";
-            var queryResults = await Connection.QueryAsync<QualifiedName>(sql).ConfigureAwait(false);
+            var queryResults = await Connection.QueryAsync<QualifiedName>(TablesQuery).ConfigureAwait(false);
             var tableNames = queryResults.Select(dto => new Identifier(dto.SchemaName, dto.ObjectName));
 
             return tableNames
                 .Select(LoadTableSync)
                 .ToAsyncEnumerable();
         }
+
+        protected virtual string TablesQuery => TablesQuerySql;
+
+        private const string TablesQuerySql = "select schema_name(schema_id) as SchemaName, name as ObjectName from sys.tables order by schema_name(schema_id), name";
 
         protected virtual IRelationalDatabaseTable LoadTableSync(Identifier tableName)
         {
@@ -138,7 +142,7 @@ namespace SJP.Schematic.SqlServer
             viewName = CreateQualifiedIdentifier(viewName);
 
             return Connection.ExecuteScalar<int>(
-                "select count(*) from sys.views where schema_id = schema_id(@SchemaName) and name = @ViewName",
+                ViewExistsQuery,
                 new { SchemaName = viewName.Schema, ViewName = viewName.LocalName }
             ) != 0;
         }
@@ -151,10 +155,14 @@ namespace SJP.Schematic.SqlServer
             viewName = CreateQualifiedIdentifier(viewName);
 
             return await Connection.ExecuteScalarAsync<int>(
-                "select count(*) from sys.views where schema_id = schema_id(@SchemaName) and name = @ViewName",
+                ViewExistsQuery,
                 new { SchemaName = viewName.Schema, ViewName = viewName.LocalName }
             ).ConfigureAwait(false) != 0;
         }
+
+        protected virtual string ViewExistsQuery => ViewExistsQuerySql;
+
+        private const string ViewExistsQuerySql = "select count(*) from sys.views where schema_id = schema_id(@SchemaName) and name = @ViewName";
 
         public IRelationalDatabaseView GetView(Identifier viewName)
         {
@@ -178,8 +186,7 @@ namespace SJP.Schematic.SqlServer
         {
             get
             {
-                const string sql = "select schema_name(schema_id) as SchemaName, name as ObjectName from sys.views order by schema_name(schema_id), name";
-                var viewNames = Connection.Query<QualifiedName>(sql)
+                var viewNames = Connection.Query<QualifiedName>(ViewsQuery)
                     .Select(dto => new Identifier(dto.SchemaName, dto.ObjectName));
 
                 foreach (var viewName in viewNames)
@@ -189,14 +196,17 @@ namespace SJP.Schematic.SqlServer
 
         public async Task<IAsyncEnumerable<IRelationalDatabaseView>> ViewsAsync()
         {
-            const string sql = "select schema_name(schema_id) as SchemaName, name as ObjectName from sys.views order by schema_name(schema_id), name";
-            var queryResult = await Connection.QueryAsync<QualifiedName>(sql).ConfigureAwait(false);
+            var queryResult = await Connection.QueryAsync<QualifiedName>(ViewsQuery).ConfigureAwait(false);
             var viewNames = queryResult.Select(dto => new Identifier(dto.SchemaName, dto.ObjectName));
 
             return viewNames
                 .Select(LoadViewSync)
                 .ToAsyncEnumerable();
         }
+
+        protected virtual string ViewsQuery => ViewsQuerySql;
+
+        private const string ViewsQuerySql = "select schema_name(schema_id) as SchemaName, name as ObjectName from sys.views order by schema_name(schema_id), name";
 
         protected virtual IRelationalDatabaseView LoadViewSync(Identifier viewName)
         {
@@ -228,9 +238,8 @@ namespace SJP.Schematic.SqlServer
 
             sequenceName = CreateQualifiedIdentifier(sequenceName);
 
-            const string sql = "select count(*) from sys.sequences where schema_id = schema_id(@SchemaName) and name = @SequenceName";
             return Connection.ExecuteScalar<int>(
-                sql,
+                SequenceExistsQuery,
                 new { SchemaName = sequenceName.Schema, SequenceName = sequenceName.LocalName }
             ) != 0;
         }
@@ -242,12 +251,15 @@ namespace SJP.Schematic.SqlServer
 
             sequenceName = CreateQualifiedIdentifier(sequenceName);
 
-            const string sql = "select count(*) from sys.sequences where schema_id = schema_id(@SchemaName) and name = @SequenceName";
             return await Connection.ExecuteScalarAsync<int>(
-                sql,
+                SequenceExistsQuery,
                 new { SchemaName = sequenceName.Schema, SequenceName = sequenceName.LocalName }
             ).ConfigureAwait(false) != 0;
         }
+
+        protected virtual string SequenceExistsQuery => SequenceExistsQuerySql;
+
+        private const string SequenceExistsQuerySql = "select count(*) from sys.sequences where schema_id = schema_id(@SchemaName) and name = @SequenceName";
 
         public IDatabaseSequence GetSequence(Identifier sequenceName)
         {
@@ -271,8 +283,7 @@ namespace SJP.Schematic.SqlServer
         {
             get
             {
-                const string sql = "select schema_name(schema_id) as SchemaName, name as ObjectName from sys.sequences order by schema_name(schema_id), name";
-                var sequenceNames = Connection.Query<QualifiedName>(sql)
+                var sequenceNames = Connection.Query<QualifiedName>(SequencesQuery)
                     .Select(dto => new Identifier(dto.SchemaName, dto.ObjectName));
 
                 foreach (var sequenceName in sequenceNames)
@@ -282,14 +293,17 @@ namespace SJP.Schematic.SqlServer
 
         public async Task<IAsyncEnumerable<IDatabaseSequence>> SequencesAsync()
         {
-            const string sql = "select schema_name(schema_id) as SchemaName, name as ObjectName from sys.sequences order by schema_name(schema_id), name";
-            var queryResult = await Connection.QueryAsync<QualifiedName>(sql).ConfigureAwait(false);
+            var queryResult = await Connection.QueryAsync<QualifiedName>(SequencesQuery).ConfigureAwait(false);
             var sequenceNames = queryResult.Select(dto => new Identifier(dto.SchemaName, dto.ObjectName));
 
             return sequenceNames
                 .Select(LoadSequenceSync)
                 .ToAsyncEnumerable();
         }
+
+        protected virtual string SequencesQuery => SequencesQuerySql;
+
+        private const string SequencesQuerySql = "select schema_name(schema_id) as SchemaName, name as ObjectName from sys.sequences order by schema_name(schema_id), name";
 
         protected virtual IDatabaseSequence LoadSequenceSync(Identifier sequenceName)
         {
@@ -321,9 +335,8 @@ namespace SJP.Schematic.SqlServer
 
             synonymName = CreateQualifiedIdentifier(synonymName);
 
-            const string sql = "select count(*) from sys.synonyms where schema_id = schema_id(@SchemaName) and name = @SynonymName";
             return Connection.ExecuteScalar<int>(
-                sql,
+                SynonymExistsQuery,
                 new { SchemaName = synonymName.Schema, SynonymName = synonymName.LocalName }
             ) != 0;
         }
@@ -335,12 +348,15 @@ namespace SJP.Schematic.SqlServer
 
             synonymName = CreateQualifiedIdentifier(synonymName);
 
-            const string sql = "select count(*) from sys.synonyms where schema_id = schema_id(@SchemaName) and name = @SynonymName";
             return await Connection.ExecuteScalarAsync<int>(
-                sql,
+                SynonymExistsQuery,
                 new { SchemaName = synonymName.Schema, SynonymName = synonymName.LocalName }
             ).ConfigureAwait(false) != 0;
         }
+
+        protected virtual string SynonymExistsQuery => SynonymExistsQuerySql;
+
+        private const string SynonymExistsQuerySql = "select count(*) from sys.synonyms where schema_id = schema_id(@SchemaName) and name = @SynonymName";
 
         public IDatabaseSynonym GetSynonym(Identifier synonymName)
         {
@@ -364,8 +380,7 @@ namespace SJP.Schematic.SqlServer
         {
             get
             {
-                const string sql = "select schema_name(schema_id) as SchemaName, name as ObjectName from sys.synonyms order by schema_name(schema_id), name";
-                var synonyms = Connection.Query<QualifiedName>(sql)
+                var synonyms = Connection.Query<QualifiedName>(SynonymsQuery)
                     .Select(dto => new Identifier(dto.SchemaName, dto.ObjectName));
 
                 foreach (var synonym in synonyms)
@@ -375,14 +390,17 @@ namespace SJP.Schematic.SqlServer
 
         public async Task<IAsyncEnumerable<IDatabaseSynonym>> SynonymsAsync()
         {
-            const string sql = "select schema_name(schema_id) as SchemaName, name as ObjectName from sys.synonyms order by schema_name(schema_id), name";
-            var queryResult = await Connection.QueryAsync<QualifiedName>(sql).ConfigureAwait(false);
+            var queryResult = await Connection.QueryAsync<QualifiedName>(SynonymsQuery).ConfigureAwait(false);
             var synonymNames = queryResult.Select(dto => new Identifier(dto.SchemaName, dto.ObjectName));
 
             return synonymNames
                 .Select(LoadSynonymSync)
                 .ToAsyncEnumerable();
         }
+
+        protected virtual string SynonymsQuery => SynonymsQuerySql;
+
+        private const string SynonymsQuerySql = "select schema_name(schema_id) as SchemaName, name as ObjectName from sys.synonyms order by schema_name(schema_id), name";
 
         protected virtual IDatabaseSynonym LoadSynonymSync(Identifier synonymName)
         {
@@ -393,15 +411,10 @@ namespace SJP.Schematic.SqlServer
             if (!SynonymExists(synonymName))
                 return null;
 
-            var queryResult = Connection.QuerySingle<SynonymData>(@"
-select
-    PARSENAME(base_object_name, 4) as TargetServerName,
-    PARSENAME(base_object_name, 3) as TargetDatabaseName,
-    PARSENAME(base_object_name, 2) as TargetSchemaName,
-    PARSENAME(base_object_name, 1) as TargetObjectName
-from sys.synonyms
-where schema_id = schema_id(@SchemaName) and name = @SynonymName
-    ", new { SchemaName = synonymName.Schema, SynonymName = synonymName.LocalName });
+            var queryResult = Connection.QuerySingle<SynonymData>(
+                LoadSynonymQuery,
+                new { SchemaName = synonymName.Schema, SynonymName = synonymName.LocalName }
+            );
 
             var serverName = !queryResult.TargetServerName.IsNullOrWhiteSpace() ? queryResult.TargetServerName : null;
             var databaseName = !queryResult.TargetDatabaseName.IsNullOrWhiteSpace() ? queryResult.TargetDatabaseName : null;
@@ -424,15 +437,10 @@ where schema_id = schema_id(@SchemaName) and name = @SynonymName
             if (!exists)
                 return null;
 
-            var queryResult = await Connection.QuerySingleAsync<SynonymData>(@"
-select
-    PARSENAME(base_object_name, 4) as TargetServerName,
-    PARSENAME(base_object_name, 3) as TargetDatabaseName,
-    PARSENAME(base_object_name, 2) as TargetSchemaName,
-    PARSENAME(base_object_name, 1) as TargetObjectName
-from sys.synonyms
-where schema_id = schema_id(@SchemaName) and name = @SynonymName
-    ", new { SchemaName = synonymName.Schema, SynonymName = synonymName.LocalName }).ConfigureAwait(false);
+            var queryResult = await Connection.QuerySingleAsync<SynonymData>(
+                LoadSynonymQuery,
+                new { SchemaName = synonymName.Schema, SynonymName = synonymName.LocalName }
+            ).ConfigureAwait(false);
 
             var serverName = !queryResult.TargetServerName.IsNullOrWhiteSpace() ? queryResult.TargetServerName : null;
             var databaseName = !queryResult.TargetDatabaseName.IsNullOrWhiteSpace() ? queryResult.TargetDatabaseName : null;
@@ -445,12 +453,29 @@ where schema_id = schema_id(@SchemaName) and name = @SynonymName
             return new SqlServerDatabaseSynonym(Database, synonymName, targetName);
         }
 
+        protected virtual string LoadSynonymQuery => LoadSynonymQuerySql;
+
+        private const string LoadSynonymQuerySql = @"
+select
+    PARSENAME(base_object_name, 4) as TargetServerName,
+    PARSENAME(base_object_name, 3) as TargetDatabaseName,
+    PARSENAME(base_object_name, 2) as TargetSchemaName,
+    PARSENAME(base_object_name, 1) as TargetObjectName
+from sys.synonyms
+where schema_id = schema_id(@SchemaName) and name = @SynonymName";
+
         private DatabaseMetadata LoadDatabaseMetadata()
         {
             const string sql = "select @@SERVERNAME as ServerName, db_name() as DatabaseName, schema_name() as DefaultSchema";
             return Connection.QuerySingle<DatabaseMetadata>(sql);
         }
 
+        /// <summary>
+        /// Qualifies an identifier with information from the database. For example, sets the schema if it is missing.
+        /// </summary>
+        /// <param name="identifier">An identifier which may or may not be fully qualified.</param>
+        /// <returns>A new identifier, which will have components present where they were previously missing.</returns>
+        /// <remarks>No components of an identifier when present will be modified. For example, when given a fully qualified identifier, a new identifier will be returned that is equal in value to the argument.</remarks>
         protected Identifier CreateQualifiedIdentifier(Identifier identifier)
         {
             if (identifier == null || identifier.LocalName == null)

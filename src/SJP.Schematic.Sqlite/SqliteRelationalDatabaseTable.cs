@@ -310,6 +310,7 @@ namespace SJP.Schematic.Sqlite
         protected virtual IEnumerable<IDatabaseRelationalKey> LoadChildKeysSync()
         {
             return Database.Tables
+                .Where(t => string.Equals(t.Name.Schema, Name.Schema, StringComparison.OrdinalIgnoreCase))
                 .SelectMany(t => t.ParentKeys)
                 .Where(fk => Comparer.Equals(Name, fk.ParentKey.Table.Name))
                 .ToList();
@@ -320,6 +321,7 @@ namespace SJP.Schematic.Sqlite
             var dbTables = await Database.TablesAsync().ConfigureAwait(false);
 
             var childKeys = await dbTables
+                .Where(t => string.Equals(t.Name.Schema, Name.Schema, StringComparison.OrdinalIgnoreCase))
                 .SelectMany(t => t.ParentKeys.ToAsyncEnumerable())
                 .Where(fk => Comparer.Equals(Name, fk.ParentKey.Table.Name))
                 .ToList()
