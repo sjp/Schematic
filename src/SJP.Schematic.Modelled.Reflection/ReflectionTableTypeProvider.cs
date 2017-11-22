@@ -207,23 +207,6 @@ namespace SJP.Schematic.Modelled.Reflection
 
         protected static Type IndexType { get; } = typeof(Index);
 
-        protected static Type DbTypeArg { get; } = typeof(IDbType);
-
-        protected IEnumerable<Type> GetUnwrappedPropertyTypes(Type objectType)
-        {
-            if (objectType == null)
-                throw new ArgumentNullException(nameof(objectType));
-
-            return TableProperties
-                .Where(pi =>
-                    pi.PropertyType.GetGenericTypeDefinition().GetTypeInfo().IsAssignableFrom(objectType.GetTypeInfo())
-                    && !pi.PropertyType.GetGenericTypeDefinition().GetTypeInfo().IsAbstract)
-                .Select(pi => UnwrapGenericParameter(pi.PropertyType))
-                .ToList();
-        }
-
-        protected static Type UnwrapGenericParameter(Type inputType) => inputType.GetTypeInfo().GetGenericArguments().Single();
-
         private readonly Lazy<IEnumerable<IModelledColumn>> _columns;
         private readonly Lazy<IEnumerable<IModelledCheckConstraint>> _checks;
         private readonly Lazy<IModelledKey> _primaryKey;
