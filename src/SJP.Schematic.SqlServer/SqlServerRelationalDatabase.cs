@@ -65,7 +65,7 @@ namespace SJP.Schematic.SqlServer
 
         protected virtual string TableExistsQuery => TableExistsQuerySql;
 
-        private const string TableExistsQuerySql = "select count(*) from sys.tables where schema_id = schema_id(@SchemaName) and name = @TableName";
+        private const string TableExistsQuerySql = "select top 1 1 from sys.tables where schema_id = schema_id(@SchemaName) and name = @TableName";
 
         public IRelationalDatabaseTable GetTable(Identifier tableName)
         {
@@ -162,7 +162,7 @@ namespace SJP.Schematic.SqlServer
 
         protected virtual string ViewExistsQuery => ViewExistsQuerySql;
 
-        private const string ViewExistsQuerySql = "select count(*) from sys.views where schema_id = schema_id(@SchemaName) and name = @ViewName";
+        private const string ViewExistsQuerySql = "select top 1 1 from sys.views where schema_id = schema_id(@SchemaName) and name = @ViewName";
 
         public IRelationalDatabaseView GetView(Identifier viewName)
         {
@@ -259,7 +259,7 @@ namespace SJP.Schematic.SqlServer
 
         protected virtual string SequenceExistsQuery => SequenceExistsQuerySql;
 
-        private const string SequenceExistsQuerySql = "select count(*) from sys.sequences where schema_id = schema_id(@SchemaName) and name = @SequenceName";
+        private const string SequenceExistsQuerySql = "select top 1 1 from sys.sequences where schema_id = schema_id(@SchemaName) and name = @SequenceName";
 
         public IDatabaseSequence GetSequence(Identifier sequenceName)
         {
@@ -356,7 +356,7 @@ namespace SJP.Schematic.SqlServer
 
         protected virtual string SynonymExistsQuery => SynonymExistsQuerySql;
 
-        private const string SynonymExistsQuerySql = "select count(*) from sys.synonyms where schema_id = schema_id(@SchemaName) and name = @SynonymName";
+        private const string SynonymExistsQuerySql = "select top 1 1 from sys.synonyms where schema_id = schema_id(@SchemaName) and name = @SynonymName";
 
         public IDatabaseSynonym GetSynonym(Identifier synonymName)
         {
