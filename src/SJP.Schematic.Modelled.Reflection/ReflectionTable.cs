@@ -112,8 +112,9 @@ namespace SJP.Schematic.Modelled.Reflection
         {
             if (column.IsComputed && column is IModelledComputedColumn computedColumn)
             {
+                var computedName = Dialect.GetAliasOrDefault(computedColumn.Property);
                 var definition = computedColumn.Expression.ToSql(Dialect);
-                return new ReflectionTableComputedColumn(Dialect, this, computedColumn.Property, definition);
+                return new ReflectionTableComputedColumn(Dialect, this, computedName, definition);
             }
             else
             {

@@ -256,30 +256,82 @@ namespace SJP.Schematic.Modelled.Reflection.Model
 
     public static class Sql
     {
-        public static ModelledSqlExpression Identity(ModelledColumn column) => new ModelledSqlExpression(IdentityFormat, ToParamObject(column));
+        public static ModelledSqlExpression Identity(ModelledColumn column)
+        {
+            if (column == null)
+                throw new ArgumentNullException(nameof(column));
 
-        public static ModelledSqlExpression Identity(Identifier name) => new ModelledSqlExpression(IdentityFormat, ToParamObject(name));
+            return new ModelledSqlExpression(IdentityFormat, ToParamObject(column));
+        }
 
-        public static ModelledSqlExpression Lower(ModelledColumn column) => new ModelledSqlExpression(LowerFormat, ToParamObject(column));
+        public static ModelledSqlExpression Identity(Identifier name)
+        {
+            if (name == null)
+                throw new ArgumentNullException(nameof(name));
 
-        public static ModelledSqlExpression Lower(Identifier name) => new ModelledSqlExpression(LowerFormat, ToParamObject(name));
+            return new ModelledSqlExpression(IdentityFormat, ToParamObject(name));
+        }
 
-        public static ModelledSqlExpression Upper(ModelledColumn column) => new ModelledSqlExpression(UpperFormat, ToParamObject(column));
+        public static ModelledSqlExpression Lower(ModelledColumn column)
+        {
+            if (column == null)
+                throw new ArgumentNullException(nameof(column));
 
-        public static ModelledSqlExpression Upper(Identifier name) => new ModelledSqlExpression(UpperFormat, name);
+            return new ModelledSqlExpression(LowerFormat, ToParamObject(column));
+        }
 
-        public static ModelledSqlExpression Coalesce(ModelledColumn column, IConvertible value) => new ModelledSqlExpression(CoalesceFormat, new { Identity = column, Value = value });
+        public static ModelledSqlExpression Lower(Identifier name)
+        {
+            if (name == null)
+                throw new ArgumentNullException(nameof(name));
 
-        public static ModelledSqlExpression Coalesce(Identifier name, IConvertible value) => new ModelledSqlExpression(CoalesceFormat, new { Identity = name, Value = value });
+            return new ModelledSqlExpression(LowerFormat, ToParamObject(name));
+        }
+
+        public static ModelledSqlExpression Upper(ModelledColumn column)
+        {
+            if (column == null)
+                throw new ArgumentNullException(nameof(column));
+
+            return new ModelledSqlExpression(UpperFormat, ToParamObject(column));
+        }
+
+        public static ModelledSqlExpression Upper(Identifier name)
+        {
+            if (name == null)
+                throw new ArgumentNullException(nameof(name));
+
+            return new ModelledSqlExpression(UpperFormat, name);
+        }
+
+        public static ModelledSqlExpression Coalesce(ModelledColumn column, IConvertible value)
+        {
+            if (column == null)
+                throw new ArgumentNullException(nameof(column));
+            if (value == null)
+                throw new ArgumentNullException(nameof(value));
+
+            return new ModelledSqlExpression(CoalesceFormat, new { Identity = column, Value = value });
+        }
+
+        public static ModelledSqlExpression Coalesce(Identifier name, IConvertible value)
+        {
+            if (name == null)
+                throw new ArgumentNullException(nameof(name));
+            if (value == null)
+                throw new ArgumentNullException(nameof(value));
+
+            return new ModelledSqlExpression(CoalesceFormat, new { Identity = name, Value = value });
+        }
 
         private static object ToParamObject(object obj) => new { Identity = obj };
 
-        private static string IdentityFormat { get; } = "@Identity";
+        private const string IdentityFormat = "@Identity";
 
-        private static string LowerFormat { get; } = "LOWER(@Identity)";
+        private const string LowerFormat = "LOWER(@Identity)";
 
-        private static string UpperFormat { get; } = "UPPER(@Identity)";
+        private const string UpperFormat = "UPPER(@Identity)";
 
-        private static string CoalesceFormat { get; } = "COALESCE(@Identity, @Value)";
+        private const string CoalesceFormat = "COALESCE(@Identity, @Value)";
     }
 }

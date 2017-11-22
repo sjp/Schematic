@@ -40,9 +40,21 @@ namespace SJP.Schematic.Modelled.Reflection.Model
             IncludedColumns = includedColumns.ToList();
         }
 
-        public Index Include(params IModelledColumn[] includedColumns) => Include(includedColumns as IEnumerable<IModelledColumn>);
+        public Index Include(params IModelledColumn[] includedColumns)
+        {
+            if (includedColumns == null)
+                throw new ArgumentNullException(nameof(includedColumns));
 
-        public Index Include(IEnumerable<IModelledColumn> includedColumns) => new Index(this, includedColumns);
+            return Include(includedColumns as IEnumerable<IModelledColumn>);
+        }
+
+        public Index Include(IEnumerable<IModelledColumn> includedColumns)
+        {
+            if (includedColumns == null)
+                throw new ArgumentNullException(nameof(includedColumns));
+
+            return new Index(this, includedColumns);
+        }
 
         public PropertyInfo Property { get; set; }
 

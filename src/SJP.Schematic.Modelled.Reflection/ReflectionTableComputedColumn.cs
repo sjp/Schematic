@@ -6,15 +6,14 @@ namespace SJP.Schematic.Modelled.Reflection
 {
     public class ReflectionTableComputedColumn : IDatabaseComputedColumn
     {
-        public ReflectionTableComputedColumn(IDatabaseDialect dialect, IRelationalDatabaseTable table, PropertyInfo prop, string definition)
+        public ReflectionTableComputedColumn(IDatabaseDialect dialect, IRelationalDatabaseTable table, Identifier columnName, string definition)
         {
             if (definition.IsNullOrWhiteSpace())
                 throw new ArgumentNullException(nameof(definition));
 
             Definition = definition;
-            Property = prop ?? throw new ArgumentNullException(nameof(prop));
             Dialect = dialect ?? throw new ArgumentNullException(nameof(dialect));
-            Name = dialect.GetAliasOrDefault(prop);
+            Name = columnName;
             Table = table ?? throw new ArgumentNullException(nameof(table));
             Type = new ReflectionComputedColumnDataType();
             IsNullable = true;
@@ -38,11 +37,9 @@ namespace SJP.Schematic.Modelled.Reflection
 
         protected IDatabaseDialect Dialect { get; }
 
-        protected PropertyInfo Property { get; }
-
         protected class ReflectionComputedColumnDataType : IDbType
         {
-            public DataType Type { get; } = DataType.Unknown;
+            public DataType Type { get; }
 
             public bool IsFixedLength { get; }
 
