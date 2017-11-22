@@ -6,7 +6,7 @@ namespace SJP.Schematic.Modelled.Reflection.Model
 {
     public abstract partial class Key : IModelledKey
     {
-        public abstract class ForeignKey : Key
+        public abstract class ForeignKey : Key, IModelledRelationalKey
         {
             protected ForeignKey(IEnumerable<IModelledColumn> columns)
                 : base(columns, DatabaseKeyType.Foreign) { }

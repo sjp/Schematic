@@ -31,15 +31,19 @@ namespace SJP.Schematic.Modelled.Reflection.Tests
         [Test]
         public void Ctor_GivenTableTypeWithNoDefaultCtor_ThrowsArgumentException()
         {
-            var database = Mock.Of<IRelationalDatabase>();
-            Assert.Throws<ArgumentException>(() => new ReflectionTable(database, typeof(TableTypeWithBadCtor)));
+            var databaseMock = new Mock<IRelationalDatabase>();
+            databaseMock.Setup(db => db.Dialect).Returns(new FakeDialect());
+
+            Assert.Throws<ArgumentException>(() => new ReflectionTable(databaseMock.Object, typeof(TableTypeWithBadCtor)));
         }
 
         [Test]
         public void Ctor_GivenTableTypeWithNotAutoProperty_ThrowsArgumentException()
         {
-            var database = Mock.Of<IRelationalDatabase>();
-            Assert.Throws<ArgumentException>(() => new ReflectionTable(database, typeof(TableTypeWithBadColumns)));
+            var databaseMock = new Mock<IRelationalDatabase>();
+            databaseMock.Setup(db => db.Dialect).Returns(new FakeDialect());
+
+            Assert.Throws<ArgumentException>(() => new ReflectionTable(databaseMock.Object, typeof(TableTypeWithBadColumns)));
         }
 
         [Test]

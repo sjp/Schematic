@@ -15,8 +15,9 @@ namespace SJP.Schematic.Modelled.Reflection
         {
             Database = database ?? throw new ArgumentNullException(nameof(database));
             InstanceType = tableType ?? throw new ArgumentNullException(nameof(tableType));
-            TableInstance = CreateTableInstance(InstanceType);
-            InstanceProperties = new HashSet<PropertyInfo>(InstanceType.GetTypeInfo().GetProperties());
+            Dialect = Database.Dialect;
+            Name = Dialect.GetQualifiedNameOrDefault(database, InstanceType);
+            TypeProvider = new ReflectionTableTypeProvider(Dialect, InstanceType);
 
             _columns = new Lazy<IReadOnlyList<IDatabaseTableColumn>>(LoadColumnList);
             _columnLookup = new Lazy<IReadOnlyDictionary<Identifier, IDatabaseTableColumn>>(LoadColumns);
@@ -26,12 +27,11 @@ namespace SJP.Schematic.Modelled.Reflection
             _parentKeyLookup = new Lazy<IReadOnlyDictionary<Identifier, IDatabaseRelationalKey>>(LoadParentKeys);
             _childKeys = new Lazy<IEnumerable<IDatabaseRelationalKey>>(LoadChildKeys);
             _primaryKey = new Lazy<IDatabaseKey>(LoadPrimaryKey);
-
-            Dialect = Database.Dialect;
-            Name = Dialect.GetQualifiedNameOrDefault(database, InstanceType);
         }
 
         protected IDatabaseDialect Dialect { get; }
+
+        protected ReflectionTableTypeProvider TypeProvider { get; }
 
         private IEnumerable<IDatabaseRelationalKey> LoadChildKeys()
         {
@@ -41,85 +41,26 @@ namespace SJP.Schematic.Modelled.Reflection
                 .ToList();
         }
 
-        protected static object CreateTableInstance(Type tableType)
-        {
-            if (tableType == null)
-                throw new ArgumentNullException(nameof(tableType));
-
-            var ctor = tableType.GetDefaultConstructor();
-            if (ctor == null)
-                throw new ArgumentException($"The provided table type '{ tableType.FullName }' does not contain a default constructor.", nameof(tableType));
-
-            var tableInstance = Activator.CreateInstance(tableType);
-            return PopulateColumnProperties(tableType, tableInstance);
-        }
-
-        protected static object PopulateColumnProperties(Type tableType, object tableInstance)
-        {
-            if (tableType == null)
-                throw new ArgumentNullException(nameof(tableType));
-            if (tableInstance == null)
-                throw new ArgumentNullException(nameof(tableInstance));
-
-            var columnProps = tableType
-                .GetTypeInfo()
-                .GetProperties()
-                .Where(IsColumnProperty);
-
-            foreach (var prop in columnProps)
-            {
-                var field = prop.GetAutoBackingField();
-                if (field == null)
-                    throw new ArgumentException($"The column property { tableType.FullName }.{ prop.Name } must be an auto-implemented property. For example: Column<T> { prop.Name } {{ get; }}");
-
-                var columnDbType = field.FieldType;
-                var columnPropertyProp = columnDbType.GetTypeInfo().GetProperty(nameof(IModelledColumn.Property), BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.FlattenHierarchy);
-                var columnInstance = Activator.CreateInstance(columnDbType);
-                columnPropertyProp.SetValue(columnInstance, prop);
-                field.SetValue(tableInstance, columnInstance);
-            }
-
-            return tableInstance;
-        }
-
         // TODO: see if it's possible to create a foreign key to a synonym in sql server
         //       this should be possible in oracle but not sure
         private IReadOnlyDictionary<Identifier, IDatabaseRelationalKey> LoadParentKeys()
         {
             var result = new Dictionary<Identifier, IDatabaseRelationalKey>();
-            var tableColumns = Column; // trigger load
 
-            var keyProperties = InstanceProperties.Where(IsKeyProperty).ToList();
-            if (keyProperties.Count == 0)
+            var parentKeys = TypeProvider.ParentKeys;
+            if (parentKeys.Empty())
                 return result;
 
-            var fks = new List<Key.ForeignKey>();
-            foreach (var keyProperty in keyProperties)
+            foreach (var declaredParentKey in parentKeys)
             {
-                var keyValue = keyProperty.GetValue(TableInstance) as Key.ForeignKey;
-                if (keyValue == null)
-                    throw new InvalidCastException($"Expected to find a key type { typeof(Key.ForeignKey).FullName } on { InstanceType.FullName }.{ keyProperty.Name }.");
+                var fkColumns = declaredParentKey.Columns.Select(GetColumn).ToList();
 
-                keyValue.Property = keyProperty;
-                if (keyValue.KeyType == DatabaseKeyType.Foreign)
-                    fks.Add(keyValue);
-            }
-
-            if (fks.Count == 0)
-                return result;
-
-            foreach (var fk in fks)
-            {
-                var fkColumns = fk.Columns
-                    .Select(c => c.Property)
-                    .Select(GetAnyColumnFromProperty);
-
-                var parentName = Dialect.GetQualifiedNameOrDefault(Database, fk.TargetType);
+                var parentName = Dialect.GetQualifiedNameOrDefault(Database, declaredParentKey.TargetType);
                 var parent = Database.GetTable(parentName);
 
-                var parentTable = new ReflectionTable(Database, fk.TargetType);
-                var parentInstance = parentTable.TableInstance;
-                var keyObject = fk.KeySelector(parentInstance);
+                var parentTypeProvider = new ReflectionTableTypeProvider(Dialect, declaredParentKey.TargetType);
+                var parentInstance = parentTypeProvider.TableInstance;
+                var keyObject = declaredParentKey.KeySelector(parentInstance);
                 var parentKeyName = Dialect.GetAliasOrDefault(keyObject.Property);
 
                 IDatabaseKey parentKey;
@@ -144,13 +85,13 @@ namespace SJP.Schematic.Modelled.Reflection
                 // check that columns match up with parent key -- otherwise will fail
                 // TODO: don't assume that the FK is to a table -- could be to a synonym
                 //       maybe change interface of Synonym<T> to be something like Synonym<Table<T>> or Synonym<Synonym<T>> -- could unwrap at runtime?
-                var childKeyName = Dialect.GetAliasOrDefault(fk.Property);
+                var childKeyName = Dialect.GetAliasOrDefault(declaredParentKey.Property);
                 var childKey = new ReflectionForeignKey(this, childKeyName, parentKey, fkColumns);
 
-                var deleteAttr = Dialect.GetDialectAttribute<OnDeleteRuleAttribute>(fk.Property);
+                var deleteAttr = Dialect.GetDialectAttribute<OnDeleteRuleAttribute>(declaredParentKey.Property);
                 var deleteRule = deleteAttr?.Rule ?? Rule.None;
 
-                var updateAttr = Dialect.GetDialectAttribute<OnUpdateRuleAttribute>(fk.Property);
+                var updateAttr = Dialect.GetDialectAttribute<OnUpdateRuleAttribute>(declaredParentKey.Property);
                 var updateRule = updateAttr?.Rule ?? Rule.None;
 
                 result[childKey.Name.LocalName] = new ReflectionRelationalKey(childKey, parentKey, deleteRule, updateRule);
@@ -159,28 +100,25 @@ namespace SJP.Schematic.Modelled.Reflection
             return result.AsReadOnlyDictionary();
         }
 
-        public object TableInstance { get; }
-
         private IReadOnlyList<IDatabaseTableColumn> LoadColumnList()
         {
-            var result = new List<IDatabaseTableColumn>();
+            return TypeProvider.Columns
+                .Select(GetColumn)
+                .ToList()
+                .AsReadOnly();
+        }
 
-            foreach (var prop in InstanceProperties)
+        private IDatabaseTableColumn GetColumn(IModelledColumn column)
+        {
+            if (column.IsComputed && column is IModelledComputedColumn computedColumn)
             {
-                if (IsColumnProperty(prop))
-                {
-                    var column = GetColumnFromProperty(prop);
-                    result.Add(column);
-                }
-
-                if (IsComputedColumnProperty(prop))
-                {
-                    var computedColumn = GetComputedColumnFromProperty(prop);
-                    result.Add(computedColumn);
-                }
+                var definition = computedColumn.Expression.ToSql(Dialect);
+                return new ReflectionTableComputedColumn(Dialect, this, computedColumn.Property, definition);
             }
-
-            return result.AsReadOnly();
+            else
+            {
+                return new ReflectionTableColumn(Dialect, this, column.Property, column.DeclaredDbType, column.IsNullable);
+            }
         }
 
         protected Type InstanceType { get; }
@@ -189,32 +127,9 @@ namespace SJP.Schematic.Modelled.Reflection
 
         private IDatabaseKey LoadPrimaryKey()
         {
-            var keyProperties = InstanceProperties.Where(IsKeyProperty).ToList();
-            if (keyProperties.Count == 0)
-                return null;
-
-            var primaryKeys = new List<IModelledKey>();
-            foreach (var keyProperty in keyProperties)
-            {
-                var keyValue = keyProperty.GetValue(TableInstance) as IModelledKey;
-                if (keyValue == null)
-                    throw new InvalidCastException($"Expected to find a key type that implements { typeof(IModelledKey).FullName } on { InstanceType.FullName }.{ keyProperty.Name }.");
-
-                keyValue.Property = keyProperty;
-                if (keyValue.KeyType == DatabaseKeyType.Primary)
-                    primaryKeys.Add(keyValue);
-            }
-
-            if (primaryKeys.Count == 0)
-                return null;
-            if (primaryKeys.Count > 1)
-                throw new ArgumentException("More than one primary key provided to " + InstanceType.FullName);
-
+            var primaryKey = TypeProvider.PrimaryKey;
             var dialect = Database.Dialect;
-            var primaryKey = primaryKeys.Single();
-            var pkColumns = primaryKey.Columns
-                .Select(c => c.Property)
-                .Select(GetAnyColumnFromProperty);
+            var pkColumns = primaryKey.Columns.Select(GetColumn).ToList();
 
             var keyName = dialect.GetAliasOrDefault(primaryKey.Property);
             return new ReflectionKey(this, keyName, primaryKey.KeyType, pkColumns);
@@ -224,16 +139,7 @@ namespace SJP.Schematic.Modelled.Reflection
         {
             var result = new Dictionary<Identifier, IDatabaseTableIndex>();
 
-            var indexes = InstanceProperties
-                .Where(IsIndexProperty)
-                .Select(prop =>
-                {
-                    var index = prop.GetValue(TableInstance) as IModelledIndex;
-                    index.Property = prop;
-                    return index;
-                });
-
-            foreach (var index in indexes)
+            foreach (var index in TypeProvider.Indexes)
             {
                 var refIndex = new ReflectionDatabaseTableIndex(this, index);
                 result[refIndex.Name.LocalName] = refIndex;
@@ -245,33 +151,14 @@ namespace SJP.Schematic.Modelled.Reflection
         private IReadOnlyDictionary<Identifier, IDatabaseKey> LoadUniqueKeys()
         {
             var result = new Dictionary<Identifier, IDatabaseKey>();
-            var tableColumns = Column; // trigger load
 
-            var keyProperties = InstanceProperties.Where(IsKeyProperty).ToList();
-            if (keyProperties.Count == 0)
-                return result;
-
-            var uniqueKeys = new List<IModelledKey>();
-            foreach (var keyProperty in keyProperties)
-            {
-                var keyValue = keyProperty.GetValue(TableInstance) as IModelledKey;
-                if (keyValue == null)
-                    throw new InvalidCastException($"Expected to find a key type that implements { typeof(IModelledKey).FullName } on { InstanceType.FullName }.{ keyProperty.Name }.");
-
-                keyValue.Property = keyProperty;
-                if (keyValue.KeyType == DatabaseKeyType.Unique)
-                    uniqueKeys.Add(keyValue);
-            }
-
-            if (uniqueKeys.Count == 0)
+            var uniqueKeys = TypeProvider.UniqueKeys;
+            if (uniqueKeys.Empty())
                 return result;
 
             foreach (var uniqueKey in uniqueKeys)
             {
-                var ukColumns = uniqueKey.Columns
-                    .Select(c => c.Property)
-                    .Select(GetAnyColumnFromProperty);
-
+                var ukColumns = uniqueKey.Columns.Select(GetColumn).ToList();
                 var keyName = Dialect.GetAliasOrDefault(uniqueKey.Property);
                 var uk = new ReflectionKey(this, keyName, uniqueKey.KeyType, ukColumns);
                 result[uk.Name.LocalName] = uk;
@@ -285,18 +172,10 @@ namespace SJP.Schematic.Modelled.Reflection
             var result = new Dictionary<Identifier, IDatabaseCheckConstraint>();
 
             var dialect = Database.Dialect;
-            var checkProperties = InstanceProperties.Where(IsCheckProperty);
-            var columnPropertyNames = PropertyColumnCache.Keys
-                .Select(prop => new KeyValuePair<string, PropertyInfo>(prop.Name, prop))
-                .ToDictionary();
-
-            foreach (var checkProperty in checkProperties)
+            foreach (var modelledCheck in TypeProvider.Checks)
             {
-                var modelledCheck = checkProperty.GetValue(TableInstance) as IModelledCheckConstraint;
-                modelledCheck.Property = checkProperty;
                 var definition = modelledCheck.Expression.ToSql(dialect);
-
-                var checkName = dialect.GetAliasOrDefault(checkProperty);
+                var checkName = dialect.GetAliasOrDefault(modelledCheck.Property);
                 var check = new ReflectionCheckConstraint(this, checkName, definition);
                 result[check.Name.LocalName] = check;
             }
@@ -308,99 +187,14 @@ namespace SJP.Schematic.Modelled.Reflection
         {
             var result = new Dictionary<Identifier, IDatabaseTableColumn>();
 
-            foreach (var prop in InstanceProperties)
+            foreach (var column in TypeProvider.Columns)
             {
-                if (IsColumnProperty(prop))
-                {
-                    var column = GetColumnFromProperty(prop);
-                    result[column.Name.LocalName] = column;
-                }
-
-                if (IsComputedColumnProperty(prop))
-                {
-                    var computedColumn = GetComputedColumnFromProperty(prop);
-                    result[computedColumn.Name.LocalName] = computedColumn;
-                }
+                var col = GetColumn(column);
+                result[col.Name.LocalName] = col;
             }
 
             return result.AsReadOnlyDictionary();
         }
-
-        protected virtual IDatabaseTableColumn GetAnyColumnFromProperty(PropertyInfo propInfo)
-        {
-            if (propInfo == null)
-                throw new ArgumentNullException(nameof(propInfo));
-
-            if (IsColumnProperty(propInfo))
-                return GetColumnFromProperty(propInfo);
-            if (IsComputedColumnProperty(propInfo))
-                return GetComputedColumnFromProperty(propInfo);
-
-            return null;
-        }
-
-        protected virtual IDatabaseTableColumn GetColumnFromProperty(PropertyInfo propInfo)
-        {
-            if (propInfo == null)
-                throw new ArgumentNullException(nameof(propInfo));
-            if (PropertyColumnCache.ContainsKey(propInfo))
-                return PropertyColumnCache[propInfo];
-
-            if (!propInfo.DeclaringType.GetTypeInfo().IsAssignableFrom(InstanceType.GetTypeInfo()))
-                throw new ArgumentException($"The property { propInfo.Name } must be a member of { InstanceType.FullName }, instead is a member of { propInfo.DeclaringType.FullName }", nameof(propInfo));
-            if (!IsColumnProperty(propInfo))
-                throw new ArgumentException($"The property { InstanceType.FullName }.{ propInfo.Name } must be a column property (i.e. declared as Column<T>). Instead it is declared as { propInfo.DeclaringType.FullName }", nameof(propInfo));
-
-            var modelledColumn = propInfo.GetValue(TableInstance) as IModelledColumn;
-            var column = new ReflectionTableColumn(Dialect, this, modelledColumn.Property, modelledColumn.DeclaredDbType, modelledColumn.IsNullable);
-            PropertyColumnCache[propInfo] = column; // add to cache
-            return column;
-        }
-
-        protected virtual IDatabaseTableColumn GetComputedColumnFromProperty(PropertyInfo propInfo)
-        {
-            if (propInfo == null)
-                throw new ArgumentNullException(nameof(propInfo));
-            if (PropertyColumnCache.ContainsKey(propInfo))
-                return PropertyColumnCache[propInfo];
-
-            if (!IsComputedColumnProperty(propInfo))
-                throw new ArgumentException($"The property { InstanceType.FullName }.{ propInfo.Name } must be a computed column property (i.e. declared as ComputedColumn). Instead it is declared as { propInfo.DeclaringType.FullName }", nameof(propInfo));
-
-            var modelledColumn = propInfo.GetValue(TableInstance) as IModelledComputedColumn;
-            var definition = modelledColumn.Expression.ToSql(Dialect);
-            var column = new ReflectionTableComputedColumn(Dialect, this, propInfo, definition);
-            PropertyColumnCache[propInfo] = column; // add to cache
-            return column;
-        }
-
-        private static bool IsColumnProperty(PropertyInfo prop) =>
-            prop.PropertyType.GetTypeInfo().IsGenericType
-            && prop.PropertyType.GetGenericTypeDefinition().GetTypeInfo().IsAssignableFrom(ColumnType.GetTypeInfo());
-
-        private static bool IsComputedColumnProperty(PropertyInfo prop) =>
-            prop.PropertyType.GetTypeInfo().IsAssignableFrom(ComputedColumnType.GetTypeInfo());
-
-        private static bool IsIndexProperty(PropertyInfo prop) =>
-            prop.PropertyType.GetTypeInfo().IsAssignableFrom(IndexType.GetTypeInfo());
-
-        private static bool IsKeyProperty(PropertyInfo prop) =>
-            prop.PropertyType.GetTypeInfo().IsAssignableFrom(KeyType.GetTypeInfo());
-
-        private static bool IsCheckProperty(PropertyInfo prop) =>
-            prop.PropertyType.GetTypeInfo().IsAssignableFrom(CheckType.GetTypeInfo());
-
-        private static Type ColumnType { get; } = typeof(Column<>);
-
-        private static Type ComputedColumnType { get; } = typeof(ComputedColumn);
-
-        private static Type KeyType { get; } = typeof(Key);
-
-        private static Type CheckType { get; } = typeof(Check);
-
-        private static Type IndexType { get; } = typeof(Index);
-
-        private static Type DbTypeArg { get; } = typeof(IDbType);
 
         public IReadOnlyDictionary<Identifier, IDatabaseCheckConstraint> Check => _checkLookup.Value;
 
@@ -471,8 +265,6 @@ namespace SJP.Schematic.Modelled.Reflection
         public Task<IReadOnlyDictionary<Identifier, IDatabaseKey>> UniqueKeyAsync() => Task.FromResult(_uniqueKeyLookup.Value);
 
         public Task<IEnumerable<IDatabaseKey>> UniqueKeysAsync() => Task.FromResult(_uniqueKeyLookup.Value.Values);
-
-        protected IDictionary<PropertyInfo, IDatabaseTableColumn> PropertyColumnCache { get; } = new Dictionary<PropertyInfo, IDatabaseTableColumn>();
 
         private readonly Lazy<IReadOnlyList<IDatabaseTableColumn>> _columns;
         private readonly Lazy<IReadOnlyDictionary<Identifier, IDatabaseTableColumn>> _columnLookup;
