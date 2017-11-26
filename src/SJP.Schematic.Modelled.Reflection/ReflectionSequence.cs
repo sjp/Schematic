@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Reflection;
 using SJP.Schematic.Core;
 
@@ -14,7 +15,7 @@ namespace SJP.Schematic.Modelled.Reflection
                 throw new ArgumentNullException(nameof(sequenceType));
 
             var typeInfo = sequenceType.GetTypeInfo();
-            if (!_iSequenceType.IsAssignableFrom(typeInfo))
+            if (!typeInfo.ImplementedInterfaces.Contains(_iSequenceType))
                 throw new ArgumentException($"The sequence type { typeInfo.FullName } must implement the { _iSequenceType.FullName } interface.", nameof(sequenceType));
             var ctor = sequenceType.GetDefaultConstructor();
             if (ctor == null)

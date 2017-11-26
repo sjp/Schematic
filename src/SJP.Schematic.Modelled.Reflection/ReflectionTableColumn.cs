@@ -62,14 +62,13 @@ namespace SJP.Schematic.Modelled.Reflection
             if (columnType == null)
                 throw new ArgumentNullException(nameof(columnType));
 
-            var dbTypeInterface = columnType.GetTypeInfo().GetInterfaces()
-                .SingleOrDefault(iface =>
-                    ModelledTypeInterface.GetTypeInfo().GetGenericTypeDefinition().GetTypeInfo()
-                        .IsAssignableFrom(iface.GetTypeInfo().GetGenericTypeDefinition().GetTypeInfo()));
-            if (dbTypeInterface == null)
-                return null;
+            var columnTypeInfo = columnType.GetTypeInfo();
+            var dbTypeInterface = columnTypeInfo.ImplementedInterfaces
+                .SingleOrDefault(iface => iface.IsGenericType && iface.GetGenericTypeDefinition() == ModelledTypeInterface);
 
-            return dbTypeInterface.GetTypeInfo().GetGenericArguments().Single();
+            return dbTypeInterface != null
+                ? dbTypeInterface.GetTypeInfo().GetGenericArguments().Single()
+                : null;
         }
 
         protected static Type ModelledTypeInterface { get; } = typeof(IDbType<>);

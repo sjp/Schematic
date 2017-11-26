@@ -16,7 +16,7 @@ namespace SJP.Schematic.Modelled.Reflection.Model
 
             // make sure that we only pass in dialect types
             var incorrectTypes = dialects
-                .Where(d => d != Dialect.All && !_dialectInterface.GetTypeInfo().IsAssignableFrom(d))
+                .Where(d => d != Dialect.All && !d.GetTypeInfo().ImplementedInterfaces.Contains(_dialectInterface))
                 .ToList();
             if (incorrectTypes.Count > 0)
             {
@@ -42,7 +42,9 @@ namespace SJP.Schematic.Modelled.Reflection.Model
         {
             if (dialect == null)
                 throw new ArgumentNullException(nameof(dialect));
-            if (!_dialectInterface.GetTypeInfo().IsAssignableFrom(dialect))
+
+            var dialectTypeInfo = dialect.GetTypeInfo();
+            if (!dialectTypeInfo.ImplementedInterfaces.Contains(_dialectInterface))
                 throw new ArgumentException($"The given type { dialect.FullName } is not a dialect type.", nameof(dialect));
 
             return AffectsAllDialects || Dialects.Any(d => d.GetTypeInfo().IsAssignableFrom(dialect));
