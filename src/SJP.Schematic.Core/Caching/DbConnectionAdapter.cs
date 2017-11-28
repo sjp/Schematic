@@ -9,42 +9,84 @@ namespace SJP.Schematic.Core.Caching
     /// </summary>
     public class DbConnectionAdapter : DbConnection
     {
+        /// <summary>
+        /// Creates an instance of a <see cref="DbConnection"/> from an <see cref="IDbConnection"/>.
+        /// </summary>
+        /// <param name="connection">A database connection.</param>
+        /// <exception cref="ArgumentNullException"><paramref name="connection"/> is <c>null</c>.</exception>
         public DbConnectionAdapter(IDbConnection connection)
         {
-            InnerConnection = connection ?? throw new ArgumentNullException(nameof(connection));
+            Connection = connection ?? throw new ArgumentNullException(nameof(connection));
         }
 
-        protected IDbConnection InnerConnection { get; }
+        /// <summary>
+        /// The existing connection that will be wrapped as a <see cref="DbConnection"/>.
+        /// </summary>
+        protected IDbConnection Connection { get; }
 
+        /// <summary>
+        /// Gets or sets the string used to open a database.
+        /// </summary>
         public override string ConnectionString
         {
-            get => InnerConnection.ConnectionString;
-            set => InnerConnection.ConnectionString = value;
+            get => Connection.ConnectionString;
+            set => Connection.ConnectionString = value;
         }
 
-        public override string Database => InnerConnection.Database;
+        /// <summary>
+        /// Gets the name of the current database after a connection is opened, or the database name specified in the connection string before the connection is opened.
+        /// </summary>
+        public override string Database => Connection.Database;
 
+        /// <summary>
+        /// Gets the name of the database server to which to connect. Always an empty string.
+        /// </summary>
         public override string DataSource => string.Empty;
 
+        /// <summary>
+        /// Gets a string that represents the version of the server to which the object is connected. Always an empty string.
+        /// </summary>
         public override string ServerVersion => string.Empty;
 
-        public override ConnectionState State => InnerConnection.State;
+        /// <summary>
+        /// Gets a value that describes the state of the connection.
+        /// </summary>
+        public override ConnectionState State => Connection.State;
 
-        public override void ChangeDatabase(string databaseName) => InnerConnection.ChangeDatabase(databaseName);
+        /// <summary>
+        /// Changes the current database for an open connection.
+        /// </summary>
+        /// <param name="databaseName">Specifies the name of the database for the connection to use.</param>
+        public override void ChangeDatabase(string databaseName) => Connection.ChangeDatabase(databaseName);
 
-        public override void Close() => InnerConnection.Close();
+        /// <summary>
+        /// Closes the connection to the database. This is the preferred method of closing any open connection.
+        /// </summary>
+        public override void Close() => Connection.Close();
 
-        public override void Open() => InnerConnection.Open();
+        /// <summary>
+        /// Opens a database connection with the settings specified by the <see cref="ConnectionString"/>.
+        /// </summary>
+        public override void Open() => Connection.Open();
 
+        /// <summary>
+        /// Starts a database transaction.
+        /// </summary>
+        /// <param name="isolationLevel">Specifies the isolation level for the transaction.</param>
+        /// <returns>An object representing the new transaction.</returns>
         protected override DbTransaction BeginDbTransaction(IsolationLevel isolationLevel)
         {
-            var transaction = InnerConnection.BeginTransaction(isolationLevel);
+            var transaction = Connection.BeginTransaction(isolationLevel);
             return transaction as DbTransaction ?? new DbTransactionAdapter(this, transaction);
         }
 
+        /// <summary>
+        /// Creates and returns a <see cref="DbCommand"/> object associated with the current connection.
+        /// </summary>
+        /// <returns>A <see cref="DbCommand"/> object.</returns>
         protected override DbCommand CreateDbCommand()
         {
-            var command = InnerConnection.CreateCommand();
+            var command = Connection.CreateCommand();
             return command as DbCommand ?? new DbCommandAdapter(this, command);
         }
     }

@@ -6,9 +6,14 @@ namespace SJP.Schematic.Core.Caching
     /// <summary>
     /// Provides an identity to be used to determine whether a command is unique for a collection.
     /// </summary>
-    public class CachingCommandIdentity
+    public class DbCommandIdentity
     {
-        public CachingCommandIdentity(IDbCommand command)
+        /// <summary>
+        /// Creates a <see cref="DbCommandIdentity"/> instance to create an identity for an <see cref="IDbCommand"/>.
+        /// </summary>
+        /// <param name="command">An <see cref="IDbCommand"/> object.</param>
+        /// <exception cref="ArgumentNullException"><paramref name="command"/> is <c>null</c>.</exception>
+        public DbCommandIdentity(IDbCommand command)
         {
             if (command == null)
                 throw new ArgumentNullException(nameof(command));
@@ -29,6 +34,9 @@ namespace SJP.Schematic.Core.Caching
 
         public override int GetHashCode() => Identity;
 
+        /// <summary>
+        /// An integer value that represents a unique hash for a <see cref="IDbCommand"/>.
+        /// </summary>
         public int Identity { get; }
     }
 }

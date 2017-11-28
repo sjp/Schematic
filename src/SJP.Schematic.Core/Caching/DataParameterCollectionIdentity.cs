@@ -9,6 +9,11 @@ namespace SJP.Schematic.Core.Caching
     /// </summary>
     public class DataParameterCollectionIdentity
     {
+        /// <summary>
+        /// Creates a <see cref="DataParameterCollectionIdentity"/> instance to create an identity for an <see cref="IDataParameterCollection"/>.
+        /// </summary>
+        /// <param name="collection">An <see cref="IDataParameterCollection"/> object.</param>
+        /// <exception cref="ArgumentNullException"><paramref name="collection"/> is <c>null</c>.</exception>
         public DataParameterCollectionIdentity(IDataParameterCollection collection)
         {
             if (collection == null)
@@ -31,6 +36,9 @@ namespace SJP.Schematic.Core.Caching
 
         public override int GetHashCode() => Identity;
 
+        /// <summary>
+        /// An integer value that represents a unique hash for a <see cref="IDataParameterCollection"/>.
+        /// </summary>
         public int Identity { get; }
     }
 }
