@@ -22,7 +22,7 @@ namespace SJP.Schematic.Core.Caching
 
             unchecked
             {
-                hashCode = (hashCode * 23) + command.CommandText.GetHashCode();
+                hashCode = (hashCode * 23) + (command.CommandText?.GetHashCode() ?? 0);
                 hashCode = (hashCode * 23) + command.CommandType.GetHashCode();
 
                 var parameters = new DataParameterCollectionIdentity(command.Parameters);

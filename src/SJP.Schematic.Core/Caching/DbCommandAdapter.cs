@@ -17,8 +17,8 @@ namespace SJP.Schematic.Core.Caching
         /// <exception cref="ArgumentNullException"><paramref name="connection"/> or <paramref name="command"/> is <c>null</c>.</exception>
         public DbCommandAdapter(DbConnection connection, IDbCommand command)
         {
-            DbConnection = connection ?? throw new ArgumentNullException(nameof(connection));
             Command = command ?? throw new ArgumentNullException(nameof(command));
+            DbConnection = connection ?? throw new ArgumentNullException(nameof(connection));
 
             DbParameterCollection = new DbParameterCollectionAdapter(command.Parameters);
         }

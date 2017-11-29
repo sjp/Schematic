@@ -70,7 +70,7 @@ namespace SJP.Schematic.Core.Caching
         /// <summary>
         /// Gets the number of rows changed, inserted, or deleted by execution of the SQL statement.
         /// </summary>
-        public override int RecordsAffected => Reader.Depth;
+        public override int RecordsAffected => Reader.RecordsAffected;
 
         /// <summary>
         /// Gets the value of the specified column as a Boolean.
