@@ -22,16 +22,22 @@ namespace SJP.Schematic.Sqlite
 
             Connection = connection ?? throw new ArgumentNullException(nameof(connection));
             Database = database ?? throw new ArgumentNullException(nameof(database));
+            if (database.Dialect == null)
+                throw new ArgumentException("The given database object does not contain a dialect.", nameof(database));
+            Dialect = database.Dialect;
+
             Comparer = new IdentifierComparer(StringComparer.OrdinalIgnoreCase, defaultSchema: Database.DefaultSchema);
 
             var schemaName = tableName.Schema ?? database.DefaultSchema;
             var localName = tableName.LocalName;
 
             Name = new Identifier(schemaName, localName);
-            Pragma = new DatabasePragma(Database.Dialect, connection, schemaName);
+            Pragma = new DatabasePragma(Dialect, connection, schemaName);
         }
 
         public IRelationalDatabase Database { get; }
+
+        protected IDatabaseDialect Dialect { get; }
 
         protected IDbConnection Connection { get; }
 

@@ -18,18 +18,24 @@ namespace SJP.Schematic.Sqlite
 
             Connection = connection ?? throw new ArgumentNullException(nameof(connection));
             Database = database ?? throw new ArgumentNullException(nameof(database));
+            if (database.Dialect == null)
+                throw new ArgumentException("The given database object does not contain a dialect.", nameof(database));
+            Dialect = database.Dialect;
+
             Comparer = new IdentifierComparer(StringComparer.OrdinalIgnoreCase, defaultSchema: Database.DefaultSchema);
 
             var schemaName = viewName.Schema ?? database.DefaultSchema;
             var localName = viewName.LocalName;
 
             Name = new Identifier(schemaName, localName);
-            Pragma = new DatabasePragma(Database.Dialect, connection, schemaName);
+            Pragma = new DatabasePragma(Dialect, connection, schemaName);
         }
 
         public IRelationalDatabase Database { get; }
 
         public Identifier Name { get; }
+
+        protected IDatabaseDialect Dialect { get; }
 
         protected IDbConnection Connection { get; }
 
@@ -43,13 +49,13 @@ namespace SJP.Schematic.Sqlite
 
         protected virtual string LoadDefinitionSync()
         {
-            var sql = $"select sql from { Database.Dialect.QuoteIdentifier(Name.Schema) }.sqlite_master where type = 'view' and tbl_name = @ViewName";
+            var sql = $"select sql from { Dialect.QuoteIdentifier(Name.Schema) }.sqlite_master where type = 'view' and tbl_name = @ViewName";
             return Connection.ExecuteScalar<string>(sql, new { ViewName = Name.LocalName });
         }
 
         protected virtual Task<string> LoadDefinitionAsync()
         {
-            var sql = $"select sql from { Database.Dialect.QuoteIdentifier(Name.Schema) }.sqlite_master where type = 'view' and tbl_name = @ViewName";
+            var sql = $"select sql from { Dialect.QuoteIdentifier(Name.Schema) }.sqlite_master where type = 'view' and tbl_name = @ViewName";
             return Connection.ExecuteScalarAsync<string>(sql, new { ViewName = Name.LocalName });
         }
 
@@ -173,7 +179,7 @@ namespace SJP.Schematic.Sqlite
             if (columnName == null || columnName.LocalName == null)
                 throw new ArgumentNullException(nameof(columnName));
 
-            var sql = $"select typeof({ Database.Dialect.QuoteName(columnName.LocalName) }) from { Database.Dialect.QuoteName(Name) } limit 1";
+            var sql = $"select typeof({ Dialect.QuoteName(columnName.LocalName) }) from { Dialect.QuoteName(Name) } limit 1";
             return Connection.ExecuteScalar<string>(sql);
         }
 
@@ -182,7 +188,7 @@ namespace SJP.Schematic.Sqlite
             if (columnName == null || columnName.LocalName == null)
                 throw new ArgumentNullException(nameof(columnName));
 
-            var sql = $"select typeof({ Database.Dialect.QuoteName(columnName.LocalName) }) from { Database.Dialect.QuoteName(Name) } limit 1";
+            var sql = $"select typeof({ Dialect.QuoteName(columnName.LocalName) }) from { Dialect.QuoteName(Name) } limit 1";
             return Connection.ExecuteScalarAsync<string>(sql);
         }
     }
