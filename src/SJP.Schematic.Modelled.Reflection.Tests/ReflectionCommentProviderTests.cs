@@ -8,8 +8,6 @@ using SJP.Schematic.Modelled.Reflection.Tests.Fakes;
 
 namespace SJP.Schematic.Modelled.Reflection.Tests
 {
-    // TODO: test protected methods
-
     [TestFixture]
     public class ReflectionCommentProviderTests
     {
