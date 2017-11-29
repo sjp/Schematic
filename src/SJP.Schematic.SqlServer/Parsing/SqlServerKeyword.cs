@@ -1,4 +1,5 @@
 ﻿using System;
+using EnumsNET;
 using SJP.Schematic.Core;
 
 namespace SJP.Schematic.SqlServer.Parsing
@@ -9,6 +10,8 @@ namespace SJP.Schematic.SqlServer.Parsing
         {
             if (keyword.IsNullOrWhiteSpace())
                 throw new ArgumentNullException(nameof(keyword));
+            if (!token.IsValid())
+                throw new ArgumentException($"The { nameof(SqlServerToken) } provided must be a valid enum.", nameof(token));
 
             Text = keyword;
             Token = token;
