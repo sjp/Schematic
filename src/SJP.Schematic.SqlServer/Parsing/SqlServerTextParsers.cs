@@ -22,6 +22,30 @@ namespace SJP.Schematic.SqlServer.Parsing
                 .IgnoreThen(SqlStringContentChar.Many())
                 .Then(s => Character.EqualTo('\'').Value(new string(s)));
 
+        public static TextParser<char> SqlInlineCommentChar { get; } =
+            Character.ExceptIn('\r', '\n');
+
+        public static TextParser<string> SqlInlineComment { get; } =
+            Span.EqualTo("--")
+                .Then(prefix => SqlInlineCommentChar.Many().Select(chars => prefix.ToString() + new string(chars)));
+
+        public static TextParser<string> SqlBlockComment { get; } =
+            Span.EqualTo("/*")
+                .Then(prefix =>
+                {
+                    var prev = (char)0; // can be anything, using NUL char to make this clear
+                    return Span.Until(c =>
+                    {
+                        var isTerminator = prev == '*' && c == '/';
+                        prev = c;
+                        return isTerminator;
+                    }).Select(c => prefix + c.ToString());
+                })
+                .Then(prefix => Character.EqualTo('/').Select(c => prefix + c.ToString()));
+
+        public static TextParser<string> SqlComment { get; } =
+            SqlInlineComment.Or(SqlBlockComment);
+
         public static TextParser<TextSpan> Real { get; } =
             Numerics.Integer
                 .Then(n => Character.EqualTo('.').IgnoreThen(Numerics.Integer).OptionalOrDefault()

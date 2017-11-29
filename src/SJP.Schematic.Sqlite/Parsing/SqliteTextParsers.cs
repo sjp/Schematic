@@ -35,8 +35,17 @@ namespace SJP.Schematic.Sqlite.Parsing
 
         public static TextParser<string> SqlBlockComment { get; } =
             Span.EqualTo("/*")
-                .Then(prefix => Character.AnyChar.Many().Select(chars => prefix.ToString() + new string(chars)))
-                .Then(s => Span.EqualTo("*/").Value(s + "*/"));
+                .Then(prefix =>
+                {
+                    char prev = 'x'; // can be anything
+                    return Span.Until(c =>
+                    {
+                        var isTerminator = prev == '*' && c == '/';
+                        prev = c;
+                        return isTerminator;
+                    }).Select(c => prefix + c.ToString());
+                })
+                .Then(prefix => Character.EqualTo('/').Select(c => prefix + c.ToString()));
 
         public static TextParser<string> SqlComment { get; } =
             SqlInlineComment.Or(SqlBlockComment);

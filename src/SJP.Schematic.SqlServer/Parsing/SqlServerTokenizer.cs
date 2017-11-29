@@ -111,6 +111,7 @@ namespace SJP.Schematic.SqlServer.Parsing
                         next = next.Remainder.ConsumeChar();
                     }
                     while (next.HasValue && (next.Value != endChar));
+                    next = next.Remainder.ConsumeChar(); // consume end char
 
                     yield return Result.Value(SqlServerToken.Identifier, beginIdentifier, next.Location);
                 }
@@ -138,6 +139,31 @@ namespace SJP.Schematic.SqlServer.Parsing
                     else
                     {
                         yield return Result.Value(SqlServerToken.Identifier, beginIdentifier, next.Location);
+                    }
+                }
+                else if (next.Value == '-' || next.Value == '/')
+                {
+                    var sqlComment = SqlServerTextParsers.SqlComment(next.Location);
+                    var compoundOp = SqlServerTextParsers.CompoundOperator(next.Location);
+                    if (sqlComment.HasValue)
+                    {
+                        // don't return comments, assume they're filtered out as it makes parsing more difficult
+                        next = sqlComment.Remainder.ConsumeChar();
+                    }
+                    else if (compoundOp.HasValue)
+                    {
+                        yield return Result.Value(compoundOp.Value, compoundOp.Location, compoundOp.Remainder);
+                        next = compoundOp.Remainder.ConsumeChar();
+                    }
+                    else if (next.Value < SimpleOps.Length && SimpleOps[next.Value] != SqlServerToken.None)
+                    {
+                        yield return Result.Value(SimpleOps[next.Value], next.Location, next.Remainder);
+                        next = next.Remainder.ConsumeChar();
+                    }
+                    else
+                    {
+                        yield return Result.Empty<SqlServerToken>(next.Location);
+                        next = next.Remainder.ConsumeChar();
                     }
                 }
                 else

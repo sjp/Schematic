@@ -85,6 +85,7 @@ namespace SJP.Schematic.Sqlite.Parsing
                         next = next.Remainder.ConsumeChar();
                     }
                     while (next.HasValue && (next.Value != endChar));
+                    next = next.Remainder.ConsumeChar(); // consume end char
 
                     yield return Result.Value(SqliteToken.Identifier, beginIdentifier, next.Location);
                 }
@@ -111,44 +112,29 @@ namespace SJP.Schematic.Sqlite.Parsing
                             yield return Result.Value(SqliteToken.Identifier, beginIdentifier, next.Location);
                     }
                 }
-                else if (next.Value == '/' && (!Previous.HasValue || PreRegexTokens.Contains(Previous.Kind)))
-                {
-                    var sqlComment = SqliteTextParsers.SqlComment(next.Location);
-                    if (sqlComment.HasValue)
-                    {
-                        // don't return comments, assume they're filtered out as it makes parsing more difficult
-                        next = sqlComment.Remainder.ConsumeChar();
-                    }
-                    else
-                    {
-                        var regex = SqliteTextParsers.RegularExpression(next.Location);
-                        if (!regex.HasValue)
-                            yield return Result.CastEmpty<Unit, SqliteToken>(regex);
-
-                        yield return Result.Value(SqliteToken.RegularExpression, next.Location, regex.Remainder);
-                        next = regex.Remainder.ConsumeChar();
-                    }
-                }
                 else if (next.Value == '-' || next.Value == '/')
                 {
                     var sqlComment = SqliteTextParsers.SqlComment(next.Location);
+                    var compoundOp = SqliteTextParsers.CompoundOperator(next.Location);
                     if (sqlComment.HasValue)
                     {
                         // don't return comments, assume they're filtered out as it makes parsing more difficult
-                        // yield return Result.Value(SqlToken.Comment, sqlComment.Location, sqlComment.Remainder);
                         next = sqlComment.Remainder.ConsumeChar();
+                    }
+                    else if (compoundOp.HasValue)
+                    {
+                        yield return Result.Value(compoundOp.Value, compoundOp.Location, compoundOp.Remainder);
+                        next = compoundOp.Remainder.ConsumeChar();
+                    }
+                    else if (next.Value < SimpleOps.Length && SimpleOps[next.Value] != SqliteToken.None)
+                    {
+                        yield return Result.Value(SimpleOps[next.Value], next.Location, next.Remainder);
+                        next = next.Remainder.ConsumeChar();
                     }
                     else
                     {
-                        if (TryGetKeyword(next.Location, out var keyword))
-                        {
-                            yield return Result.Value(keyword, next.Location, next.Remainder);
-                            next = next.Remainder.ConsumeChar();
-                        }
-                        else
-                        {
-                            yield return Result.Empty<SqliteToken>(next.Location);
-                        }
+                        yield return Result.Empty<SqliteToken>(next.Location);
+                        next = next.Remainder.ConsumeChar();
                     }
                 }
                 else
@@ -191,24 +177,6 @@ namespace SJP.Schematic.Sqlite.Parsing
         }
 
         private static readonly SqliteToken[] SimpleOps = new SqliteToken[128];
-
-        private static readonly HashSet<SqliteToken> PreRegexTokens = new HashSet<SqliteToken>
-        {
-            SqliteToken.And,
-            SqliteToken.Or,
-            SqliteToken.Not,
-            SqliteToken.LParen,
-            SqliteToken.LBracket,
-            SqliteToken.Comma,
-            SqliteToken.Equal,
-            SqliteToken.NotEqual,
-            SqliteToken.Like,
-            SqliteToken.GreaterThan,
-            SqliteToken.GreaterThanOrEqual,
-            SqliteToken.LessThan,
-            SqliteToken.LessThanOrEqual,
-            SqliteToken.Is
-        };
 
         private static readonly SqliteKeyword[] SqlKeywords =
         {
