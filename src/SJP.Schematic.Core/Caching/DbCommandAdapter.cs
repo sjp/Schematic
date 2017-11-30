@@ -152,5 +152,21 @@ namespace SJP.Schematic.Core.Caching
             var reader = Command.ExecuteReader(behavior);
             return reader as DbDataReader ?? new DbDataReaderAdapter(reader, behavior);
         }
+
+        /// <summary>
+        /// Releases the unmanaged resources used by the <see cref="DbCommand"/> and optionally releases the managed resources.
+        /// </summary>
+        /// <param name="disposing">When true, releases managed resources, including the contained <see cref="IDbCommand"/> object.</param>
+        protected override void Dispose(bool disposing)
+        {
+            base.Dispose(disposing);
+            if (_disposed || !disposing)
+                return;
+
+            Command.Dispose();
+            _disposed = true;
+        }
+
+        private bool _disposed;
     }
 }

@@ -89,5 +89,21 @@ namespace SJP.Schematic.Core.Caching
             var command = Connection.CreateCommand();
             return command as DbCommand ?? new DbCommandAdapter(this, command);
         }
+
+        /// <summary>
+        /// Releases the unmanaged resources used by the <see cref="DbConnection"/> and optionally releases the managed resources.
+        /// </summary>
+        /// <param name="disposing">When true, releases managed resources, including the contained <see cref="IDbConnection"/> object.</param>
+        protected override void Dispose(bool disposing)
+        {
+            base.Dispose(disposing);
+            if (_disposed || !disposing)
+                return;
+
+            Connection.Dispose();
+            _disposed = true;
+        }
+
+        private bool _disposed;
     }
 }

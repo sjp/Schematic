@@ -49,7 +49,7 @@ namespace SJP.Schematic.Core.Caching
         /// <summary>
         /// Releases the unmanaged resources used by the <see cref="DbTransaction"/> and optionally releases the managed resources.
         /// </summary>
-        /// <param name="disposing"></param>
+        /// <param name="disposing">When true, releases managed resources, including the contained <see cref="IDbTransaction"/> object.</param>
         protected override void Dispose(bool disposing)
         {
             base.Dispose(disposing);

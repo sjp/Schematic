@@ -264,6 +264,21 @@ namespace SJP.Schematic.Core.Caching
         /// <returns>A <c>null</c> <see cref="DataTable"/>.</returns>
         public override DataTable GetSchemaTable() => null; // returning null for avoids a NotSupportedException when using DataTable.Load()
 
+        /// <summary>
+        /// Releases the unmanaged resources used by the <see cref="DbDataReader"/> and optionally releases the managed resources.
+        /// </summary>
+        /// <param name="disposing">When true, releases managed resources, including the contained <see cref="IDataReader"/> object.</param>
+        protected override void Dispose(bool disposing)
+        {
+            base.Dispose(disposing);
+            if (_disposed || !disposing)
+                return;
+
+            Reader.Dispose();
+            _disposed = true;
+        }
+
+        private bool _disposed;
         private bool _hasRows;
     }
 }
