@@ -4,8 +4,14 @@ using Microsoft.Extensions.Logging.Abstractions.Internal;
 
 namespace SJP.Schematic.Core
 {
+    /// <summary>
+    /// A convenience wrapper two provide a pseudo-namespace for logging.
+    /// </summary>
     public static class Log
     {
+        /// <summary>
+        /// Retrieves a logging factory to enable logging within Schematic.
+        /// </summary>
         public static ILoggerFactory Factory
         {
             get => _factory;

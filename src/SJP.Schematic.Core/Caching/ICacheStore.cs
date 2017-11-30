@@ -26,7 +26,7 @@ namespace SJP.Schematic.Core.Caching
         /// Attempts to remove and return the value that has the specified key from the cache store.
         /// </summary>
         /// <param name="key">The key of the element to remove and return.</param>
-        /// <param name="value">When this method returns, contains the object removed from the cache store, or the default value of the <see cref="TValue"/> type if <paramref name="key"/> does not exist.</param>
+        /// <param name="value">When this method returns, contains the object removed from the cache store, or the default value of the <c>TValue</c> type if <paramref name="key"/> does not exist.</param>
         /// <returns><c>true</c> if the object was removed successfully; otherwise, <c>false</c>.</returns>
         bool TryRemove(TKey key, out TValue value);
 

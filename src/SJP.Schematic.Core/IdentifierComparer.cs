@@ -4,6 +4,9 @@ using EnumsNET;
 
 namespace SJP.Schematic.Core
 {
+    /// <summary>
+    /// Represents an <see cref="Identifier"/> comparison operation that uses specific case and culture-based or ordinal comparison rules.
+    /// </summary>
     public class IdentifierComparer : IEqualityComparer<Identifier>, IComparer<Identifier>
     {
         public IdentifierComparer(StringComparison comparison = StringComparison.OrdinalIgnoreCase, string defaultServer = null, string defaultDatabase = null, string defaultSchema = null)

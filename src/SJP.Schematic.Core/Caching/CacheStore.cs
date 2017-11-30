@@ -101,7 +101,7 @@ namespace SJP.Schematic.Core.Caching
         /// <summary>
         /// Returns an enumerator that iterates through the cache.
         /// </summary>
-        /// <returns>An <see cref="IEnumerator{KeyValuePair{TKey, TValue}}"/> for the cache.</returns>
+        /// <returns>An <see cref="IEnumerator{T}"/> for the cache.</returns>
         public IEnumerator<KeyValuePair<TKey, TValue>> GetEnumerator() => _cacheStore.GetEnumerator();
 
         /// <summary>
