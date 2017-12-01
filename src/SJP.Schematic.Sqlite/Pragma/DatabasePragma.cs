@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
 using Dapper;
@@ -17,11 +18,14 @@ namespace SJP.Schematic.Sqlite.Pragma
             if (schemaName.IsNullOrWhiteSpace())
                 throw new ArgumentNullException(nameof(schemaName));
 
+            SchemaName = schemaName;
             Dialect = dialect ?? throw new ArgumentNullException(nameof(dialect));
             Connection = connection ?? throw new ArgumentNullException(nameof(connection));
 
             PragmaPrefix = $"PRAGMA { Dialect.QuoteIdentifier(schemaName) }.";
         }
+
+        public string SchemaName { get; }
 
         protected IDatabaseDialect Dialect { get; }
 
@@ -32,12 +36,12 @@ namespace SJP.Schematic.Sqlite.Pragma
         public uint ApplicationId
         {
             get => Connection.ExecuteScalar<uint>(PragmaPrefix + "application_id");
-            set => Connection.Execute(PragmaPrefix + $"application_id = { value.ToString() }");
+            set => Connection.Execute(PragmaPrefix + $"application_id = { value.ToString(CultureInfo.InvariantCulture) }");
         }
 
         public Task<uint> ApplicationIdAsync() => Connection.ExecuteScalarAsync<uint>(PragmaPrefix + "application_id");
 
-        public Task ApplicationIdAsync(uint appId) => Connection.ExecuteAsync(PragmaPrefix + $"application_id = { appId.ToString() }");
+        public Task ApplicationIdAsync(uint appId) => Connection.ExecuteAsync(PragmaPrefix + $"application_id = { appId.ToString(CultureInfo.InvariantCulture) }");
 
         public AutoVacuumMode AutoVacuum
         {
@@ -71,7 +75,7 @@ namespace SJP.Schematic.Sqlite.Pragma
 
                 return (ulong)size;
             }
-            set => Connection.Execute(PragmaPrefix + $"cache_size = { value.ToString() }");
+            set => Connection.Execute(PragmaPrefix + $"cache_size = { value.ToString(CultureInfo.InvariantCulture) }");
         }
 
         public async Task<ulong> CacheSizeInPagesAsync()
@@ -83,7 +87,7 @@ namespace SJP.Schematic.Sqlite.Pragma
             return (ulong)size;
         }
 
-        public Task CacheSizeInPagesAsync(ulong cacheSize) => Connection.ExecuteAsync(PragmaPrefix + $"cache_size = { cacheSize.ToString() }");
+        public Task CacheSizeInPagesAsync(ulong cacheSize) => Connection.ExecuteAsync(PragmaPrefix + $"cache_size = { cacheSize.ToString(CultureInfo.InvariantCulture) }");
 
         public ulong CacheSizeInKibibytes
         {
@@ -97,7 +101,7 @@ namespace SJP.Schematic.Sqlite.Pragma
 
                 return (ulong)size;
             }
-            set => Connection.Execute(PragmaPrefix + $"cache_size = -{ value.ToString() }");
+            set => Connection.Execute(PragmaPrefix + $"cache_size = -{ value.ToString(CultureInfo.InvariantCulture) }");
         }
 
         public async Task<ulong> CacheSizeInKibibytesAsync()
@@ -111,7 +115,7 @@ namespace SJP.Schematic.Sqlite.Pragma
             return (ulong)size;
         }
 
-        public Task CacheSizeInKibibytesAsync(ulong cacheSize) => Connection.ExecuteAsync(PragmaPrefix + $"cache_size = -{ cacheSize.ToString() }");
+        public Task CacheSizeInKibibytesAsync(ulong cacheSize) => Connection.ExecuteAsync(PragmaPrefix + $"cache_size = -{ cacheSize.ToString(CultureInfo.InvariantCulture) }");
 
         public bool CacheSpill
         {
@@ -126,12 +130,12 @@ namespace SJP.Schematic.Sqlite.Pragma
         public uint CacheSpillInPages
         {
             get => Connection.ExecuteScalar<uint>(PragmaPrefix + "page_size");
-            set => Connection.Execute(PragmaPrefix + $"page_size = { value.ToString() }");
+            set => Connection.Execute(PragmaPrefix + $"page_size = { value.ToString(CultureInfo.InvariantCulture) }");
         }
 
         public Task<uint> CacheSpillInPagesAsync() => Connection.ExecuteScalarAsync<uint>(PragmaPrefix + "page_size");
 
-        public Task CacheSpillInPagesAsync(uint pageSize) => Connection.ExecuteAsync(PragmaPrefix + $"page_size = { pageSize.ToString() }");
+        public Task CacheSpillInPagesAsync(uint pageSize) => Connection.ExecuteAsync(PragmaPrefix + $"page_size = { pageSize.ToString(CultureInfo.InvariantCulture) }");
 
         public int DataVersion => Connection.ExecuteScalar<int>(PragmaPrefix + "data_version");
 
@@ -182,14 +186,14 @@ namespace SJP.Schematic.Sqlite.Pragma
             if (pages < 1)
                 Connection.Execute(PragmaPrefix + "incremental_vacuum");
             else
-                Connection.Execute(PragmaPrefix + $"incremental_vacuum = { pages.ToString() }");
+                Connection.Execute(PragmaPrefix + $"incremental_vacuum = { pages.ToString(CultureInfo.InvariantCulture) }");
         }
 
         public Task IncrementalVacuumAsync(ulong pages = 0)
         {
             return pages < 1
                 ? Connection.ExecuteAsync(PragmaPrefix + "incremental_vacuum")
-                : Connection.ExecuteAsync(PragmaPrefix + $"incremental_vacuum = { pages.ToString() }");
+                : Connection.ExecuteAsync(PragmaPrefix + $"incremental_vacuum = { pages.ToString(CultureInfo.InvariantCulture) }");
         }
 
         public IEnumerable<pragma_index_info> IndexInfo(string indexName)
@@ -244,7 +248,7 @@ namespace SJP.Schematic.Sqlite.Pragma
         {
             var sql = maxErrors == 0
                 ? PragmaPrefix + "integrity_check"
-                : PragmaPrefix + $"integrity_check({ maxErrors.ToString() })";
+                : PragmaPrefix + $"integrity_check({ maxErrors.ToString(CultureInfo.InvariantCulture) })";
             var result = Connection.Query<string>(sql).ToList();
             if (result.Count == 1 && result[0] == "ok")
                 return Enumerable.Empty<string>();
@@ -256,7 +260,7 @@ namespace SJP.Schematic.Sqlite.Pragma
         {
             var sql = maxErrors == 0
                 ? PragmaPrefix + "integrity_check"
-                : PragmaPrefix + $"integrity_check({ maxErrors.ToString() })";
+                : PragmaPrefix + $"integrity_check({ maxErrors.ToString(CultureInfo.InvariantCulture) })";
             var errors = await Connection.QueryAsync<string>(sql).ConfigureAwait(false);
             var result = errors.ToList();
             if (result.Count == 1 && result[0] == "ok")
@@ -305,12 +309,12 @@ namespace SJP.Schematic.Sqlite.Pragma
         public long JournalSizeLimit
         {
             get => Connection.ExecuteScalar<long>(PragmaPrefix + "journal_size_limit");
-            set => Connection.Execute(PragmaPrefix + $"journal_size_limit = { value.ToString() }");
+            set => Connection.Execute(PragmaPrefix + $"journal_size_limit = { value.ToString(CultureInfo.InvariantCulture) }");
         }
 
         public Task<long> JournalSizeLimitAsync() => Connection.ExecuteScalarAsync<long>(PragmaPrefix + "journal_size_limit");
 
-        public Task JournalSizeLimitAsync(long sizeLimit = -1) => Connection.ExecuteAsync(PragmaPrefix + $"journal_size_limit = { sizeLimit.ToString() }");
+        public Task JournalSizeLimitAsync(long sizeLimit = -1) => Connection.ExecuteAsync(PragmaPrefix + $"journal_size_limit = { sizeLimit.ToString(CultureInfo.InvariantCulture) }");
 
         public LockingMode LockingMode
         {
@@ -352,22 +356,22 @@ namespace SJP.Schematic.Sqlite.Pragma
         public ulong MaxPageCount
         {
             get => Connection.ExecuteScalar<ulong>(PragmaPrefix + "max_page_count");
-            set => Connection.Execute(PragmaPrefix + $"max_page_count = { value.ToString() }");
+            set => Connection.Execute(PragmaPrefix + $"max_page_count = { value.ToString(CultureInfo.InvariantCulture) }");
         }
 
         public Task<ulong> MaxPageCountAsync() => Connection.ExecuteScalarAsync<ulong>(PragmaPrefix + "max_page_count");
 
-        public Task MaxPageCountAsync(ulong maxPageCount) => Connection.ExecuteAsync(PragmaPrefix + $"max_page_count = { maxPageCount.ToString() }");
+        public Task MaxPageCountAsync(ulong maxPageCount) => Connection.ExecuteAsync(PragmaPrefix + $"max_page_count = { maxPageCount.ToString(CultureInfo.InvariantCulture) }");
 
         public ulong MmapSize
         {
             get => Connection.ExecuteScalar<ulong>(PragmaPrefix + "mmap_size");
-            set => Connection.Execute(PragmaPrefix + $"mmap_size = { value.ToString() }");
+            set => Connection.Execute(PragmaPrefix + $"mmap_size = { value.ToString(CultureInfo.InvariantCulture) }");
         }
 
         public Task<ulong> MmapSizeAsync() => Connection.ExecuteScalarAsync<ulong>(PragmaPrefix + "mmap_size");
 
-        public Task MmapSizeAsync(ulong mmapLimit) => Connection.ExecuteAsync(PragmaPrefix + $"mmap_size = { mmapLimit.ToString() }");
+        public Task MmapSizeAsync(ulong mmapLimit) => Connection.ExecuteAsync(PragmaPrefix + $"mmap_size = { mmapLimit.ToString(CultureInfo.InvariantCulture) }");
 
         public IEnumerable<string> Optimize(OptimizeFeatures features = OptimizeFeatures.Analyze)
         {
@@ -395,12 +399,12 @@ namespace SJP.Schematic.Sqlite.Pragma
             set
             {
                 if (value < 512)
-                    throw new ArgumentException("A page size must be a power of two whose value is at least 512. Given: " + value.ToString(), nameof(PageSize));
+                    throw new ArgumentException("A page size must be a power of two whose value is at least 512. Given: " + value.ToString(CultureInfo.InvariantCulture), nameof(PageSize));
 
                 if (!IsPowerOfTwo(value))
-                    throw new ArgumentException("A page size must be a power of two. Given: " + value.ToString(), nameof(PageSize));
+                    throw new ArgumentException("A page size must be a power of two. Given: " + value.ToString(CultureInfo.InvariantCulture), nameof(PageSize));
 
-                Connection.Execute(PragmaPrefix + $"page_size = { value.ToString() }");
+                Connection.Execute(PragmaPrefix + $"page_size = { value.ToString(CultureInfo.InvariantCulture) }");
             }
         }
 
@@ -409,12 +413,12 @@ namespace SJP.Schematic.Sqlite.Pragma
         public Task PageSizeAsync(ushort pageSize)
         {
             if (pageSize < 512)
-                throw new ArgumentException("A page size must be a power of two whose value is at least 512. Given: " + pageSize.ToString(), nameof(pageSize));
+                throw new ArgumentException("A page size must be a power of two whose value is at least 512. Given: " + pageSize.ToString(CultureInfo.InvariantCulture), nameof(pageSize));
 
             if (!IsPowerOfTwo(pageSize))
-                throw new ArgumentException("A page size must be a power of two. Given: " + pageSize.ToString(), nameof(pageSize));
+                throw new ArgumentException("A page size must be a power of two. Given: " + pageSize.ToString(CultureInfo.InvariantCulture), nameof(pageSize));
 
-            return Connection.ExecuteAsync(PragmaPrefix + $"page_size = { pageSize.ToString() }");
+            return Connection.ExecuteAsync(PragmaPrefix + $"page_size = { pageSize.ToString(CultureInfo.InvariantCulture) }");
         }
 
         protected static bool IsPowerOfTwo(ulong value) => value != 0 && (value & (value - 1)) == 0;
@@ -423,7 +427,7 @@ namespace SJP.Schematic.Sqlite.Pragma
         {
             var sql = maxErrors == 0
                 ? PragmaPrefix + "quick_check"
-                : PragmaPrefix + $"quick_check({ maxErrors.ToString() })";
+                : PragmaPrefix + $"quick_check({ maxErrors.ToString(CultureInfo.InvariantCulture) })";
             var result = Connection.Query<string>(sql).ToList();
             if (result.Count == 1 && result[0] == "ok")
                 return Enumerable.Empty<string>();
@@ -435,7 +439,7 @@ namespace SJP.Schematic.Sqlite.Pragma
         {
             var sql = maxErrors == 0
                 ? PragmaPrefix + "quick_check"
-                : PragmaPrefix + $"quick_check({ maxErrors.ToString() })";
+                : PragmaPrefix + $"quick_check({ maxErrors.ToString(CultureInfo.InvariantCulture) })";
             var errors = await Connection.QueryAsync<string>(sql).ConfigureAwait(false);
             var result = errors.ToList();
             if (result.Count == 1 && result[0] == "ok")
@@ -447,12 +451,12 @@ namespace SJP.Schematic.Sqlite.Pragma
         public int SchemaVersion
         {
             get => Connection.ExecuteScalar<int>(PragmaPrefix + "schema_version");
-            set => Connection.Execute(PragmaPrefix + $"schema_version = { value.ToString() }");
+            set => Connection.Execute(PragmaPrefix + $"schema_version = { value.ToString(CultureInfo.InvariantCulture) }");
         }
 
         public Task<int> SchemaVersionAsync() => Connection.ExecuteScalarAsync<int>(PragmaPrefix + "schema_version");
 
-        public Task SchemaVersionAsync(int schemaVersion) => Connection.ExecuteAsync(PragmaPrefix + $"schema_version = { schemaVersion.ToString() }");
+        public Task SchemaVersionAsync(int schemaVersion) => Connection.ExecuteAsync(PragmaPrefix + $"schema_version = { schemaVersion.ToString(CultureInfo.InvariantCulture) }");
 
         public SecureDeleteMode SecureDelete
         {
@@ -547,12 +551,12 @@ namespace SJP.Schematic.Sqlite.Pragma
         public int UserVersion
         {
             get => Connection.ExecuteScalar<int>(PragmaPrefix + "user_version");
-            set => Connection.Execute(PragmaPrefix + $"user_version = { value.ToString() }");
+            set => Connection.Execute(PragmaPrefix + $"user_version = { value.ToString(CultureInfo.InvariantCulture) }");
         }
 
         public Task<int> UserVersionAsync() => Connection.ExecuteScalarAsync<int>(PragmaPrefix + "user_version");
 
-        public Task UserVersionAsync(int userVersion) => Connection.ExecuteAsync(PragmaPrefix + $"user_version = { userVersion.ToString() }");
+        public Task UserVersionAsync(int userVersion) => Connection.ExecuteAsync(PragmaPrefix + $"user_version = { userVersion.ToString(CultureInfo.InvariantCulture) }");
 
         public pragma_wal_checkpoint WalCheckpoint(WalCheckpointMode checkpointMode = WalCheckpointMode.Passive)
         {

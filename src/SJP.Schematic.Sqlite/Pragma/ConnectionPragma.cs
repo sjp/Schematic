@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
 using Dapper;
@@ -59,7 +60,7 @@ namespace SJP.Schematic.Sqlite.Pragma
             set
             {
                 var ms = value.TotalMilliseconds < 1 ? 0 : (int)value.TotalMilliseconds;
-                Connection.Execute(PragmaPrefix + $"busy_timeout = { ms.ToString() }");
+                Connection.Execute(PragmaPrefix + $"busy_timeout = { ms.ToString(CultureInfo.InvariantCulture) }");
             }
         }
 
@@ -72,7 +73,7 @@ namespace SJP.Schematic.Sqlite.Pragma
         public Task BusyTimeoutAsync(TimeSpan timeout)
         {
             var ms = timeout.TotalMilliseconds < 1 ? 0 : (int)timeout.TotalMilliseconds;
-            return Connection.ExecuteAsync(PragmaPrefix + $"busy_timeout = { ms.ToString() }");
+            return Connection.ExecuteAsync(PragmaPrefix + $"busy_timeout = { ms.ToString(CultureInfo.InvariantCulture) }");
         }
 
         public void CaseSensitiveLike(bool enable) => Connection.Execute(PragmaPrefix + $"case_sensitive_like = { Convert.ToInt32(enable).ToString() }");
@@ -140,7 +141,8 @@ namespace SJP.Schematic.Sqlite.Pragma
                 if (!value.IsValid())
                     throw new ArgumentException($"The { nameof(Encoding) } provided must be a valid enum.", nameof(Encoding));
 
-                Connection.Execute(PragmaPrefix + $"encoding = { value.ToString() }");
+                var encodingName = _encodingNameMapping[value];
+                Connection.Execute(PragmaPrefix + "encoding = '" + encodingName + "'");
             }
         }
 
@@ -159,7 +161,7 @@ namespace SJP.Schematic.Sqlite.Pragma
                 throw new ArgumentException($"The { nameof(Encoding) } provided must be a valid enum.", nameof(encoding));
 
             var value = _encodingNameMapping[encoding];
-            return Connection.ExecuteAsync(PragmaPrefix + "encoding = " + value);
+            return Connection.ExecuteAsync(PragmaPrefix + "encoding = '" + value + "'");
         }
 
         public bool ForeignKeys
@@ -212,12 +214,10 @@ namespace SJP.Schematic.Sqlite.Pragma
             return Connection.QueryAsync<string>(PragmaPrefix + $"optimize = { (int)features }");
         }
 
-        protected static bool IsPowerOfTwo(ulong value) => value != 0 && (value & (value - 1)) == 0;
-
         public bool QueryOnly
         {
-            get => Connection.ExecuteScalar<bool>(PragmaPrefix + "legacy_file_format");
-            set => Connection.Execute(PragmaPrefix + $"legacy_file_format = { Convert.ToInt32(value).ToString() }");
+            get => Connection.ExecuteScalar<bool>(PragmaPrefix + "query_only");
+            set => Connection.Execute(PragmaPrefix + $"query_only = { Convert.ToInt32(value).ToString() }");
         }
 
         public Task<bool> QueryOnlyAsync() => Connection.ExecuteScalarAsync<bool>(PragmaPrefix + "query_only");
@@ -258,15 +258,15 @@ namespace SJP.Schematic.Sqlite.Pragma
 
         public Task ShrinkMemoryAsync() => Connection.ExecuteAsync(PragmaPrefix + "shrink_memory");
 
-        public ulong SoftHeapLimit
+        public long SoftHeapLimit
         {
-            get => Connection.ExecuteScalar<ulong>(PragmaPrefix + "soft_heap_limit");
-            set => Connection.Execute(PragmaPrefix + $"soft_heap_limit = { value.ToString() }");
+            get => Connection.ExecuteScalar<long>(PragmaPrefix + "soft_heap_limit");
+            set => Connection.Execute(PragmaPrefix + $"soft_heap_limit = { value.ToString(CultureInfo.InvariantCulture) }");
         }
 
-        public Task<ulong> SoftHeapLimitAsync() => Connection.ExecuteScalarAsync<ulong>(PragmaPrefix + "soft_heap_limit");
+        public Task<long> SoftHeapLimitAsync() => Connection.ExecuteScalarAsync<long>(PragmaPrefix + "soft_heap_limit");
 
-        public Task SoftHeapLimitAsync(ulong heapLimit) => Connection.ExecuteAsync(PragmaPrefix + $"soft_heap_limit = { heapLimit.ToString() }");
+        public Task SoftHeapLimitAsync(long heapLimit) => Connection.ExecuteAsync(PragmaPrefix + $"soft_heap_limit = { heapLimit.ToString(CultureInfo.InvariantCulture) }");
 
         public TemporaryStoreLocation TemporaryStore
         {
@@ -305,25 +305,25 @@ namespace SJP.Schematic.Sqlite.Pragma
             return Connection.ExecuteAsync(PragmaPrefix + "temp_store = " + value);
         }
 
-        public ulong Threads
+        public int Threads
         {
-            get => Connection.ExecuteScalar<ulong>(PragmaPrefix + "threads");
-            set => Connection.Execute(PragmaPrefix + $"threads = { value.ToString() }");
+            get => Connection.ExecuteScalar<int>(PragmaPrefix + "threads");
+            set => Connection.Execute(PragmaPrefix + $"threads = { value.ToString(CultureInfo.InvariantCulture) }");
         }
 
-        public Task<ulong> ThreadsAsync() => Connection.ExecuteScalarAsync<ulong>(PragmaPrefix + "threads");
+        public Task<int> ThreadsAsync() => Connection.ExecuteScalarAsync<int>(PragmaPrefix + "threads");
 
-        public Task ThreadsAsync(ulong maxThreads) => Connection.ExecuteAsync(PragmaPrefix + $"threads = { maxThreads.ToString() }");
+        public Task ThreadsAsync(int maxThreads) => Connection.ExecuteAsync(PragmaPrefix + $"threads = { maxThreads.ToString(CultureInfo.InvariantCulture) }");
 
-        public long WalAutoCheckpoint
+        public int WalAutoCheckpoint
         {
             get => Connection.ExecuteScalar<int>(PragmaPrefix + "wal_autocheckpoint");
-            set => Connection.Execute(PragmaPrefix + $"wal_autocheckpoint = { value.ToString() }");
+            set => Connection.Execute(PragmaPrefix + $"wal_autocheckpoint = { value.ToString(CultureInfo.InvariantCulture) }");
         }
 
-        public Task<long> WalAutoCheckpointAsync() => Connection.ExecuteScalarAsync<long>(PragmaPrefix + "wal_autocheckpoint");
+        public Task<int> WalAutoCheckpointAsync() => Connection.ExecuteScalarAsync<int>(PragmaPrefix + "wal_autocheckpoint");
 
-        public Task WalAutoCheckpointAsync(long maxPages) => Connection.ExecuteAsync(PragmaPrefix + $"wal_autocheckpoint = { maxPages.ToString() }");
+        public Task WalAutoCheckpointAsync(int maxPages) => Connection.ExecuteAsync(PragmaPrefix + $"wal_autocheckpoint = { maxPages.ToString() }");
 
         public bool WritableSchema
         {
