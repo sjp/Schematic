@@ -149,6 +149,8 @@ namespace SJP.Schematic.Sqlite.Pragma
         {
             if (tableName == null || tableName.LocalName == null)
                 throw new ArgumentNullException(nameof(tableName));
+            if (tableName.Schema != null && !string.Equals(tableName.Schema, SchemaName, StringComparison.OrdinalIgnoreCase))
+                throw new ArgumentException($"The given table name's does not match the current schema. Given '{ tableName.Schema }', expected '{ SchemaName }'", nameof(tableName));
 
             return Connection.Query<pragma_foreign_key_check>(PragmaPrefix + $"foreign_key_check({ Dialect.QuoteIdentifier(tableName.LocalName) })");
         }
@@ -157,6 +159,8 @@ namespace SJP.Schematic.Sqlite.Pragma
         {
             if (tableName == null || tableName.LocalName == null)
                 throw new ArgumentNullException(nameof(tableName));
+            if (tableName.Schema != null && !string.Equals(tableName.Schema, SchemaName, StringComparison.OrdinalIgnoreCase))
+                throw new ArgumentException($"The given table name's does not match the current schema. Given '{ tableName.Schema }', expected '{ SchemaName }'", nameof(tableName));
 
             return Connection.QueryAsync<pragma_foreign_key_check>(PragmaPrefix + $"foreign_key_check({ Dialect.QuoteIdentifier(tableName.LocalName) })");
         }
@@ -165,6 +169,8 @@ namespace SJP.Schematic.Sqlite.Pragma
         {
             if (tableName == null || tableName.LocalName == null)
                 throw new ArgumentNullException(nameof(tableName));
+            if (tableName.Schema != null && !string.Equals(tableName.Schema, SchemaName, StringComparison.OrdinalIgnoreCase))
+                throw new ArgumentException($"The given table name's does not match the current schema. Given '{ tableName.Schema }', expected '{ SchemaName }'", nameof(tableName));
 
             return Connection.Query<pragma_foreign_key_list>(PragmaPrefix + $"foreign_key_list({ Dialect.QuoteIdentifier(tableName.LocalName) })");
         }
@@ -173,6 +179,8 @@ namespace SJP.Schematic.Sqlite.Pragma
         {
             if (tableName == null || tableName.LocalName == null)
                 throw new ArgumentNullException(nameof(tableName));
+            if (tableName.Schema != null && !string.Equals(tableName.Schema, SchemaName, StringComparison.OrdinalIgnoreCase))
+                throw new ArgumentException($"The given table name's does not match the current schema. Given '{ tableName.Schema }', expected '{ SchemaName }'", nameof(tableName));
 
             return Connection.QueryAsync<pragma_foreign_key_list>(PragmaPrefix + $"foreign_key_list({ Dialect.QuoteIdentifier(tableName.LocalName) })");
         }
@@ -216,6 +224,8 @@ namespace SJP.Schematic.Sqlite.Pragma
         {
             if (tableName == null || tableName.LocalName == null)
                 throw new ArgumentNullException(nameof(tableName));
+            if (tableName.Schema != null && !string.Equals(tableName.Schema, SchemaName, StringComparison.OrdinalIgnoreCase))
+                throw new ArgumentException($"The given table name's does not match the current schema. Given '{ tableName.Schema }', expected '{ SchemaName }'", nameof(tableName));
 
             return Connection.Query<pragma_index_list>(PragmaPrefix + $"index_list({ Dialect.QuoteIdentifier(tableName.LocalName) })");
         }
@@ -224,6 +234,8 @@ namespace SJP.Schematic.Sqlite.Pragma
         {
             if (tableName == null || tableName.LocalName == null)
                 throw new ArgumentNullException(nameof(tableName));
+            if (tableName.Schema != null && !string.Equals(tableName.Schema, SchemaName, StringComparison.OrdinalIgnoreCase))
+                throw new ArgumentException($"The given table name's does not match the current schema. Given '{ tableName.Schema }', expected '{ SchemaName }'", nameof(tableName));
 
             return Connection.QueryAsync<pragma_index_list>(PragmaPrefix + $"index_list({ Dialect.QuoteIdentifier(tableName.LocalName) })");
         }
@@ -536,6 +548,8 @@ namespace SJP.Schematic.Sqlite.Pragma
         {
             if (tableName == null || tableName.LocalName == null)
                 throw new ArgumentNullException(nameof(tableName));
+            if (tableName.Schema != null && !string.Equals(tableName.Schema, SchemaName, StringComparison.OrdinalIgnoreCase))
+                throw new ArgumentException($"The given table name's does not match the current schema. Given '{ tableName.Schema }', expected '{ SchemaName }'", nameof(tableName));
 
             return Connection.Query<pragma_table_info>(PragmaPrefix + $"table_info({ Dialect.QuoteIdentifier(tableName.LocalName) })");
         }
@@ -544,6 +558,8 @@ namespace SJP.Schematic.Sqlite.Pragma
         {
             if (tableName == null || tableName.LocalName == null)
                 throw new ArgumentNullException(nameof(tableName));
+            if (tableName.Schema != null && !string.Equals(tableName.Schema, SchemaName, StringComparison.OrdinalIgnoreCase))
+                throw new ArgumentException($"The given table name's does not match the current schema. Given '{ tableName.Schema }', expected '{ SchemaName }'", nameof(tableName));
 
             return Connection.QueryAsync<pragma_table_info>(PragmaPrefix + $"table_info({ Dialect.QuoteIdentifier(tableName.LocalName) })");
         }
