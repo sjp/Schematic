@@ -13,6 +13,8 @@ namespace SJP.Schematic.Modelled.Reflection
         {
             Dialect = dialect ?? throw new ArgumentNullException(nameof(dialect));
             TableType = tableType ?? throw new ArgumentNullException(nameof(tableType));
+            if (tableType.IsAbstract)
+                throw new ArgumentException($"The given table type '{ tableType.FullName }' is abstract. A non-abstract table type must be provided.", nameof(tableType));
 
             _columns = new Lazy<IEnumerable<IModelledColumn>>(LoadColumns);
             _checks = new Lazy<IEnumerable<IModelledCheckConstraint>>(LoadChecks);

@@ -56,10 +56,9 @@ namespace SJP.Schematic.Modelled.Reflection
                 throw new ArgumentNullException(nameof(objectType));
 
             return _dbProperties
-                .Where(pi =>
-                    pi.PropertyType.GetGenericTypeDefinition().GetTypeInfo().IsAssignableFrom(objectType.GetTypeInfo())
-                    && !pi.PropertyType.GetGenericTypeDefinition().GetTypeInfo().IsAbstract)
+                .Where(pi => pi.PropertyType.GetGenericTypeDefinition().GetTypeInfo().IsAssignableFrom(objectType.GetTypeInfo()))
                 .Select(pi => UnwrapGenericParameter(pi.PropertyType))
+                .Where(t => !t.IsAbstract)
                 .ToList();
         }
 
