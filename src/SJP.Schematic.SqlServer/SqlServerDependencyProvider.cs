@@ -19,8 +19,8 @@ namespace SJP.Schematic.SqlServer
         /// </summary>
         /// <param name="objectName">The name of an object defined by an expression (e.g. a computed column definition).</param>
         /// <param name="expression">A SQL expression that may contain dependent object names.</param>
-        /// <returns></returns>
-        /// <remarks>This will also return unqualified identifiers, which may cause ambiguity between object names and column names.</remarks>
+        /// <returns>A collection of identifiers found in the expression.</returns>
+        /// <remarks>This will also return unqualified identifiers, which may cause ambiguity between object names and column names. Additionally it may return other identifiers, such as aliases or type names.</remarks>
         public IEnumerable<Identifier> GetDependencies(Identifier objectName, string expression)
         {
             if (objectName == null || objectName.LocalName == null)
@@ -53,7 +53,6 @@ namespace SJP.Schematic.SqlServer
                 else
                 {
                     next = next.Remainder.ConsumeToken();
-
                 }
             }
 

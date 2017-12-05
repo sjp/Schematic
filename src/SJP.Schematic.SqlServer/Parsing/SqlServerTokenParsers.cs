@@ -1,5 +1,4 @@
 ﻿using Superpower;
-using Superpower.Model;
 using Superpower.Parsers;
 
 namespace SJP.Schematic.SqlServer.Parsing
