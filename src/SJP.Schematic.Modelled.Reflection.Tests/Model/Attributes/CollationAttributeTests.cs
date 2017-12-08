@@ -1,5 +1,6 @@
 ﻿using System;
 using NUnit.Framework;
+using SJP.Schematic.Core;
 using SJP.Schematic.Modelled.Reflection.Tests.Fakes;
 
 namespace SJP.Schematic.Modelled.Reflection.Model.Attributes.Tests
@@ -29,7 +30,7 @@ namespace SJP.Schematic.Modelled.Reflection.Model.Attributes.Tests
         public void Ctor_GivenNullDialects_ThrowsArgumentNullException()
         {
             const string collationValue = "test";
-            Assert.Throws<ArgumentNullException>(() => new CollationAttribute(collationValue, null));
+            Assert.Throws<ArgumentNullException>(() => new CollationAttribute(collationValue, (Type[])null));
         }
 
         [Test]
@@ -53,8 +54,9 @@ namespace SJP.Schematic.Modelled.Reflection.Model.Attributes.Tests
         {
             const string collationValue = "test";
             var collectionAttr = new CollationAttribute(collationValue, typeof(FakeDialect));
+            var expected = new Identifier(collationValue);
 
-            Assert.AreEqual(collationValue, collectionAttr.CollationName);
+            Assert.AreEqual(expected, collectionAttr.CollationName);
         }
     }
 }
