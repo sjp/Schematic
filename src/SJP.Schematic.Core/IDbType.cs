@@ -4,12 +4,20 @@ namespace SJP.Schematic.Core
 {
     public interface IDbType
     {
-        DataType Type { get; }
+        Identifier TypeName { get; }
+
+        DataType DataType { get; }
+
+        string Definition { get; }
 
         bool IsFixedLength { get; }
 
-        int Length { get; }
+        int MaxLength { get; }
 
         Type ClrType { get; }
+
+        NumericPrecision NumericPrecision { get; }
+
+        Identifier Collation { get; }
     }
 }

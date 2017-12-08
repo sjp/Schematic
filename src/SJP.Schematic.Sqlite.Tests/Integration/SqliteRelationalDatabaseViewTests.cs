@@ -293,8 +293,8 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
         {
             const string viewName = "view_test_view_2";
             var view = new SqliteRelationalDatabaseView(Connection, Database, viewName);
-            var columnTypes = view.Columns.Select(c => c.Type.Type).ToList();
-            var expectedTypes = new[] { DataType.Integer, DataType.Float, DataType.Unicode, DataType.Binary };
+            var columnTypes = view.Columns.Select(c => c.Type.DataType).ToList();
+            var expectedTypes = new[] { DataType.BigInteger, DataType.Float, DataType.UnicodeText, DataType.LargeBinary };
 
             var typesEqual = columnTypes.SequenceEqual(expectedTypes);
             Assert.IsTrue(typesEqual);
@@ -328,8 +328,8 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
             const string viewName = "view_test_view_2";
             var view = new SqliteRelationalDatabaseView(Connection, Database, viewName);
             var columns = await view.ColumnsAsync().ConfigureAwait(false);
-            var columnTypes = view.Columns.Select(c => c.Type.Type).ToList();
-            var expectedTypes = new[] { DataType.Integer, DataType.Float, DataType.Unicode, DataType.Binary };
+            var columnTypes = view.Columns.Select(c => c.Type.DataType).ToList();
+            var expectedTypes = new[] { DataType.BigInteger, DataType.Float, DataType.UnicodeText, DataType.LargeBinary };
 
             var typesEqual = columnTypes.SequenceEqual(expectedTypes);
             Assert.IsTrue(typesEqual);
@@ -360,8 +360,8 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
         {
             const string viewName = "view_test_view_3";
             var view = new SqliteRelationalDatabaseView(Connection, Database, viewName);
-            var columnTypes = view.Columns.Select(c => c.Type.Type).ToList();
-            var expectedTypes = new[] { DataType.Binary, DataType.Binary, DataType.Binary, DataType.Binary, DataType.Integer };
+            var columnTypes = view.Columns.Select(c => c.Type.DataType).ToList();
+            var expectedTypes = new[] { DataType.Numeric, DataType.Numeric, DataType.Numeric, DataType.Numeric, DataType.BigInteger };
 
             var typesEqual = columnTypes.SequenceEqual(expectedTypes);
             Assert.IsTrue(typesEqual);
@@ -395,8 +395,8 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
             const string viewName = "view_test_view_3";
             var view = new SqliteRelationalDatabaseView(Connection, Database, viewName);
             var columns = await view.ColumnsAsync().ConfigureAwait(false);
-            var columnTypes = view.Columns.Select(c => c.Type.Type).ToList();
-            var expectedTypes = new[] { DataType.Binary, DataType.Binary, DataType.Binary, DataType.Binary, DataType.Integer };
+            var columnTypes = view.Columns.Select(c => c.Type.DataType).ToList();
+            var expectedTypes = new[] { DataType.Numeric, DataType.Numeric, DataType.Numeric, DataType.Numeric, DataType.BigInteger };
 
             var typesEqual = columnTypes.SequenceEqual(expectedTypes);
             Assert.IsTrue(typesEqual);
@@ -427,8 +427,8 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
         {
             const string viewName = "view_test_view_4";
             var view = new SqliteRelationalDatabaseView(Connection, Database, viewName);
-            var columnTypes = view.Columns.Select(c => c.Type.Type).ToList();
-            var expectedTypes = new[] { DataType.Integer, DataType.Integer, DataType.Integer, DataType.Integer };
+            var columnTypes = view.Columns.Select(c => c.Type.DataType).ToList();
+            var expectedTypes = new[] { DataType.BigInteger, DataType.BigInteger, DataType.BigInteger, DataType.BigInteger };
 
             var typesEqual = columnTypes.SequenceEqual(expectedTypes);
             Assert.IsTrue(typesEqual);
@@ -462,8 +462,8 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
             const string viewName = "view_test_view_4";
             var view = new SqliteRelationalDatabaseView(Connection, Database, viewName);
             var columns = await view.ColumnsAsync().ConfigureAwait(false);
-            var columnTypes = view.Columns.Select(c => c.Type.Type).ToList();
-            var expectedTypes = new[] { DataType.Integer, DataType.Integer, DataType.Integer, DataType.Integer };
+            var columnTypes = view.Columns.Select(c => c.Type.DataType).ToList();
+            var expectedTypes = new[] { DataType.BigInteger, DataType.BigInteger, DataType.BigInteger, DataType.BigInteger };
 
             var typesEqual = columnTypes.SequenceEqual(expectedTypes);
             Assert.IsTrue(typesEqual);

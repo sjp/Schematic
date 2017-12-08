@@ -790,16 +790,14 @@ where schema_name(t.schema_id) = @SchemaName
 
             foreach (var row in query)
             {
-                var columnTypeName = new Identifier(row.ColumnTypeSchema, row.ColumnTypeName);
-
-                IDbType dbType;
-                var columnType = new SqlServerColumnDataType(columnTypeName);
-                if (columnType.IsNumericType)
-                    dbType = new SqlServerNumericColumnDataType(columnTypeName, row.Precision, row.Scale);
-                else if (columnType.IsStringType)
-                    dbType = new SqlServerStringColumnDataType(columnTypeName, row.MaxLength, row.Collation);
-                else
-                    dbType = columnType;
+                var typeMetadata = new ColumnTypeMetadata
+                {
+                    TypeName = new Identifier(row.ColumnTypeSchema, row.ColumnTypeName),
+                    Collation = row.Collation.IsNullOrWhiteSpace() ? null : new Identifier(row.Collation),
+                    MaxLength = row.MaxLength,
+                    NumericPrecision = new NumericPrecision(row.Precision, row.Scale)
+                };
+                var columnType = Database.Dialect.CreateColumnType(typeMetadata);
 
                 var columnName = new LocalIdentifier(row.ColumnName);
                 var isAutoIncrement = row.IdentitySeed.HasValue && row.IdentityIncrement.HasValue;
@@ -849,16 +847,14 @@ where schema_name(t.schema_id) = @SchemaName
 
             foreach (var row in query)
             {
-                var columnTypeName = new Identifier(row.ColumnTypeSchema, row.ColumnTypeName);
-
-                IDbType dbType;
-                var columnType = new SqlServerColumnDataType(columnTypeName);
-                if (columnType.IsNumericType)
-                    dbType = new SqlServerNumericColumnDataType(columnTypeName, row.Precision, row.Scale);
-                else if (columnType.IsStringType)
-                    dbType = new SqlServerStringColumnDataType(columnTypeName, row.MaxLength, row.Collation);
-                else
-                    dbType = columnType;
+                var typeMetadata = new ColumnTypeMetadata
+                {
+                    TypeName = new Identifier(row.ColumnTypeSchema, row.ColumnTypeName),
+                    Collation = row.Collation.IsNullOrWhiteSpace() ? null : new Identifier(row.Collation),
+                    MaxLength = row.MaxLength,
+                    NumericPrecision = new NumericPrecision(row.Precision, row.Scale)
+                };
+                var columnType = Database.Dialect.CreateColumnType(typeMetadata);
 
                 var columnName = new LocalIdentifier(row.ColumnName);
                 var isAutoIncrement = row.IdentitySeed.HasValue && row.IdentityIncrement.HasValue;

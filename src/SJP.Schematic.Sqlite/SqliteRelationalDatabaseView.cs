@@ -123,17 +123,9 @@ namespace SJP.Schematic.Sqlite
                 var columnTypeName = tableInfo.type;
                 if (columnTypeName.IsNullOrWhiteSpace())
                     columnTypeName = GetTypeofColumn(tableInfo.name);
-                if (columnTypeName.IsNullOrWhiteSpace())
-                    columnTypeName = "BLOB";
 
-                IDbType dbType;
-                var columnType = new SqliteColumnDataType(columnTypeName);
-                if (columnType.IsNumericType)
-                    dbType = new SqliteNumericColumnDataType(columnTypeName);
-                else if (columnType.IsStringType)
-                    dbType = new SqliteStringColumnDataType(columnTypeName);
-                else
-                    dbType = columnType;
+                var affinity = _affinityParser.ParseTypeName(columnTypeName);
+                var columnType = new SqliteColumnType(affinity);
 
                 var column = new SqliteDatabaseViewColumn(this, tableInfo.name, columnType, !tableInfo.notnull, tableInfo.dflt_value, null);
                 result.Add(column);
@@ -155,17 +147,9 @@ namespace SJP.Schematic.Sqlite
                 var columnTypeName = tableInfo.type;
                 if (columnTypeName.IsNullOrWhiteSpace())
                     columnTypeName = await GetTypeofColumnAsync(tableInfo.name).ConfigureAwait(false);
-                if (columnTypeName.IsNullOrWhiteSpace())
-                    columnTypeName = "BLOB";
 
-                IDbType dbType;
-                var columnType = new SqliteColumnDataType(columnTypeName);
-                if (columnType.IsNumericType)
-                    dbType = new SqliteNumericColumnDataType(columnTypeName);
-                else if (columnType.IsStringType)
-                    dbType = new SqliteStringColumnDataType(columnTypeName);
-                else
-                    dbType = columnType;
+                var affinity = _affinityParser.ParseTypeName(columnTypeName);
+                var columnType = new SqliteColumnType(affinity);
 
                 var column = new SqliteDatabaseViewColumn(this, tableInfo.name, columnType, !tableInfo.notnull, tableInfo.dflt_value, null);
                 result.Add(column);
@@ -191,5 +175,7 @@ namespace SJP.Schematic.Sqlite
             var sql = $"select typeof({ Dialect.QuoteName(columnName.LocalName) }) from { Dialect.QuoteName(Name) } limit 1";
             return Connection.ExecuteScalarAsync<string>(sql);
         }
+
+        private readonly static SqliteTypeAffinityParser _affinityParser = new SqliteTypeAffinityParser();
     }
 }

@@ -629,14 +629,8 @@ namespace SJP.Schematic.Sqlite
                 var parsedColumnInfo = parsedColumns.FirstOrDefault(col => string.Equals(col.Name, tableInfo.name, StringComparison.OrdinalIgnoreCase));
                 var columnTypeName = tableInfo.type;
 
-                IDbType dbType;
-                var columnType = new SqliteColumnDataType(columnTypeName);
-                if (columnType.IsNumericType)
-                    dbType = new SqliteNumericColumnDataType(columnTypeName);
-                else if (columnType.IsStringType)
-                    dbType = new SqliteStringColumnDataType(columnTypeName, parsedColumnInfo.Collation.ToString());
-                else
-                    dbType = columnType;
+                var affinity = _affinityParser.ParseTypeName(columnTypeName);
+                var columnType = new SqliteColumnType(affinity);
 
                 var isAutoIncrement = parsedColumnInfo.IsAutoIncrement;
                 var autoIncrement = isAutoIncrement
@@ -666,14 +660,8 @@ namespace SJP.Schematic.Sqlite
                 var parsedColumnInfo = parsedColumns.FirstOrDefault(col => string.Equals(col.Name, tableInfo.name, StringComparison.OrdinalIgnoreCase));
                 var columnTypeName = tableInfo.type;
 
-                IDbType dbType;
-                var columnType = new SqliteColumnDataType(columnTypeName);
-                if (columnType.IsNumericType)
-                    dbType = new SqliteNumericColumnDataType(columnTypeName);
-                else if (columnType.IsStringType)
-                    dbType = new SqliteStringColumnDataType(columnTypeName, parsedColumnInfo.Collation.ToString());
-                else
-                    dbType = columnType;
+                var affinity = _affinityParser.ParseTypeName(columnTypeName);
+                var columnType = new SqliteColumnType(affinity);
 
                 var isAutoIncrement = parsedColumnInfo.IsAutoIncrement;
                 var autoIncrement = isAutoIncrement
@@ -864,5 +852,7 @@ namespace SJP.Schematic.Sqlite
         private string _createTableSql;
         private SqliteTableParser _parser;
         private readonly ReaderWriterLockSlim _rwLock = new ReaderWriterLockSlim();
+
+        private readonly static SqliteTypeAffinityParser _affinityParser = new SqliteTypeAffinityParser();
     }
 }

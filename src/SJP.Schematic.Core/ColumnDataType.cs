@@ -1,27 +1,52 @@
 ﻿using System;
+using EnumsNET;
 
 namespace SJP.Schematic.Core
 {
-    public abstract class ColumnDataType : IDbType
+    public class ColumnDataType : IDbType
     {
-        public virtual DataType Type => throw new NotImplementedException();
+        public ColumnDataType(
+            Identifier typeName,
+            DataType dataType,
+            string definition,
+            Type clrType,
+            bool isFixedLength,
+            int maxLength,
+            NumericPrecision numericPrecision,
+            Identifier collation
+        )
+        {
+            if (typeName == null || typeName.LocalName == null)
+                throw new ArgumentNullException(nameof(typeName));
+            if (!dataType.IsValid())
+                throw new ArgumentException($"The { nameof(DataType) } provided must be a valid enum.", nameof(dataType));
+            if (definition.IsNullOrWhiteSpace())
+                throw new ArgumentNullException(nameof(definition));
 
-        public virtual bool IsFixedLength => throw new NotImplementedException();
+            TypeName = typeName;
+            DataType = dataType;
+            Definition = definition;
+            ClrType = clrType ?? throw new ArgumentNullException(nameof(clrType));
+            IsFixedLength = isFixedLength;
+            MaxLength = maxLength;
+            NumericPrecision = numericPrecision;
+            Collation = collation;
+        }
 
-        public virtual int Length => throw new NotImplementedException();
+        public Identifier TypeName { get; }
 
-        public virtual Type ClrType => throw new NotImplementedException();
+        public DataType DataType { get; }
 
-        // expose via IDbStringType
-        public virtual bool IsUnicode => false;
+        public string Definition { get; }
 
-        public virtual string Collation => null;
+        public bool IsFixedLength { get; }
 
-        // expose via IDbNumericType
-        public virtual int Precision => UnknownLength;
+        public int MaxLength { get; }
 
-        public virtual int Scale => UnknownLength;
+        public Type ClrType { get; }
 
-        protected static int UnknownLength = -1;
+        public NumericPrecision NumericPrecision { get; }
+
+        public Identifier Collation { get; }
     }
 }

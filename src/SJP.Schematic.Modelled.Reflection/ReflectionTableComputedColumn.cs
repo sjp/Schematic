@@ -15,7 +15,6 @@ namespace SJP.Schematic.Modelled.Reflection
             Dialect = dialect ?? throw new ArgumentNullException(nameof(dialect));
             Name = columnName;
             Table = table ?? throw new ArgumentNullException(nameof(table));
-            Type = new ReflectionComputedColumnDataType();
             IsNullable = true;
         }
 
@@ -25,7 +24,7 @@ namespace SJP.Schematic.Modelled.Reflection
 
         public IRelationalDatabaseTable Table { get; }
 
-        public IDbType Type { get; }
+        public IDbType Type => _unknownType;
 
         public string DefaultValue { get; }
 
@@ -37,15 +36,26 @@ namespace SJP.Schematic.Modelled.Reflection
 
         protected IDatabaseDialect Dialect { get; }
 
+        protected readonly IDbType _unknownType = new ReflectionComputedColumnDataType();
+
+        // represents an unknown datatype
         protected class ReflectionComputedColumnDataType : IDbType
         {
-            public DataType Type { get; }
+            public Identifier TypeName { get; }
+
+            public DataType DataType { get; }
+
+            public string Definition { get; }
+
+            public NumericPrecision NumericPrecision { get; }
+
+            public Identifier Collation { get; }
 
             public bool IsFixedLength { get; }
 
-            public int Length => -1;
+            public int MaxLength { get; }
 
-            public Type ClrType => typeof(object);
+            public Type ClrType { get; } = typeof(object);
         }
     }
 }

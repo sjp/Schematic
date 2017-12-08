@@ -28,8 +28,8 @@ namespace SJP.Schematic.Modelled.Reflection
 
             if (isDeclaredAutoIncrement)
             {
-                if (!ValidAutoIncrementTypes.Contains(columnType.Type))
-                    throw new ArgumentNullException($"The column { prop.DeclaringType.FullName }.{ prop.Name } is declared as being auto incrementing, which is not supported on a '{ columnType.Type.ToString() }' data type.", nameof(declaredColumnType));
+                if (!ValidAutoIncrementTypes.Contains(columnType.DataType))
+                    throw new ArgumentNullException($"The column { prop.DeclaringType.FullName }.{ prop.Name } is declared as being auto incrementing, which is not supported on a '{ columnType.DataType.ToString() }' data type.", nameof(declaredColumnType));
 
                 AutoIncrement = new AutoIncrement(autoIncrAttr.InitialValue, autoIncrAttr.Increment);
             }

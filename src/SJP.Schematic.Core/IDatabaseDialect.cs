@@ -1,4 +1,7 @@
-﻿using System.Data;
+﻿using System;
+using System.Data;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace SJP.Schematic.Core
 {
@@ -16,48 +19,12 @@ namespace SJP.Schematic.Core
         // i.e. table, view, sequence, etc
         bool IsValidObjectName(Identifier name);
 
-        IDbConnection CreateConnection(string connectionString, bool openConnection = true);
+        IDbConnection CreateConnection(string connectionString);
 
-        // TODO: get a type name?
-        string GetTypeName(DataType dataType);
+        Task<IDbConnection> CreateConnectionAsync(string connectionString, CancellationToken cancellationToken = default(CancellationToken));
 
-        //string ParamString { get; set; }
+        IDbType GetComparableColumnType(IDbType otherType);
 
-        //[Obsolete("Use GetStringConverter().StringLength")]
-        //int DefaultStringLength { get; set; }
-        //
-        //string EscapeWildcards(string value);
-        //
-        //INamingStrategy NamingStrategy { get; set; }
-        //
-        //IStringSerializer StringSerializer { get; set; }
-        //
-        ///// <summary>
-        ///// Quote the string so that it can be used inside an SQL-expression
-        ///// Escape quotes inside the string
-        ///// </summary>
-        ///// <param name="paramValue"></param>
-        ///// <returns></returns>
-        //string GetQuotedValue(string paramValue);
-        //
-        //string GetQuotedColumnName(string columnName);
-        //
-        //string GetQuotedName(string columnName);
-        //
-        //string SanitizeFieldNameForParamName(string fieldName);
-        //
-        ////DDL
-        //string GetDropForeignKeyConstraints(ModelDefinition modelDef);
-        //
-        //string ToAddColumnStatement(Type modelType, FieldDefinition fieldDef);
-        //string ToAlterColumnStatement(Type modelType, FieldDefinition fieldDef);
-        //string ToChangeColumnNameStatement(Type modelType, FieldDefinition fieldDef, string oldColumnName);
-        //string ToAddForeignKeyStatement<T, TForeign>(Expression<Func<T, object>> field,
-        //                                             Expression<Func<TForeign, object>> foreignField,
-        //                                             OnFkOption onUpdate,
-        //                                             OnFkOption onDelete,
-        //                                             string foreignKeyName = null);
-        //string ToCreateIndexStatement<T>(Expression<Func<T, object>> field,
-        //                                 string indexName = null, bool unique = false);
+        IDbType CreateColumnType(ColumnTypeMetadata typeMetadata);
     }
 }

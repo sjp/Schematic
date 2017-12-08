@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace SJP.Schematic.Core
 {
@@ -10,7 +12,9 @@ namespace SJP.Schematic.Core
         {
         }
 
-        public abstract IDbConnection CreateConnection(string connectionString, bool openConnection = true);
+        public abstract IDbConnection CreateConnection(string connectionString);
+
+        public abstract Task<IDbConnection> CreateConnectionAsync(string connectionString, CancellationToken cancellationToken = default(CancellationToken));
 
         public virtual string QuoteName(Identifier name)
         {
@@ -45,7 +49,8 @@ namespace SJP.Schematic.Core
 
         public abstract bool IsValidObjectName(Identifier name);
 
-        // TODO: implement mapping for abstract types to physical types
-        public abstract string GetTypeName(DataType dataType);
+        public abstract IDbType CreateColumnType(ColumnTypeMetadata typeMetadata);
+
+        public abstract IDbType GetComparableColumnType(IDbType otherType);
     }
 }

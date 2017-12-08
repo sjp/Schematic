@@ -59,8 +59,8 @@ namespace SJP.Schematic.Modelled.Reflection
         {
             return columnType.ClrType == targetType.ClrType
                 && (columnType.IsFixedLength == targetType.IsFixedLength || (!columnType.IsFixedLength && targetType.IsFixedLength))
-                && columnType.Length >= targetType.Length
-                && columnType.Type == targetType.Type;
+                && columnType.MaxLength >= targetType.MaxLength
+                && columnType.DataType == targetType.DataType;
         }
     }
 }

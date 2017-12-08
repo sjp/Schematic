@@ -6,10 +6,6 @@ namespace SJP.Schematic.Modelled.Reflection
 {
     public class DbType<T> : IDbType<T>
     {
-        public DbType()
-        {
-        }
-
         public DataType DataType => throw new NotImplementedException();
 
         public T ClrType => throw new NotImplementedException();
