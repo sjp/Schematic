@@ -20,6 +20,9 @@ namespace SJP.Schematic.Core.Caching
             if (connection == null)
                 throw new ArgumentNullException(nameof(connection));
 
+            if (connection is CachingConnection cachingConnection)
+                return cachingConnection;
+
             var dbConnection = connection as DbConnection ?? new DbConnectionAdapter(connection);
             return new CachingConnection(dbConnection);
         }
