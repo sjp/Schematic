@@ -49,8 +49,6 @@ namespace SJP.Schematic.Core
 
         public abstract bool IsValidObjectName(Identifier name);
 
-        public abstract IDbType CreateColumnType(ColumnTypeMetadata typeMetadata);
-
-        public abstract IDbType GetComparableColumnType(IDbType otherType);
+        public abstract IDbTypeProvider TypeProvider { get; }
     }
 }

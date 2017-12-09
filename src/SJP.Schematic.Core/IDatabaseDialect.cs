@@ -23,8 +23,6 @@ namespace SJP.Schematic.Core
 
         Task<IDbConnection> CreateConnectionAsync(string connectionString, CancellationToken cancellationToken = default(CancellationToken));
 
-        IDbType GetComparableColumnType(IDbType otherType);
-
-        IDbType CreateColumnType(ColumnTypeMetadata typeMetadata);
+        IDbTypeProvider TypeProvider { get; }
     }
 }

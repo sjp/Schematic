@@ -19,6 +19,10 @@ namespace SJP.Schematic.Modelled.Reflection
             if (attr == null)
                 throw new ArgumentException($"The column type { columnType.FullName } does not contain a definition for the dialect { dialect.GetType().FullName }");
 
+            var typeProvider = dialect.TypeProvider;
+            if (typeProvider == null)
+                throw new ArgumentException("The given dialect does not contain a valid type provider.", nameof(dialect));
+
             var collationAttr = dialect.GetDialectAttribute<CollationAttribute>(columnType);
             var typeMetadata = new ColumnTypeMetadata
             {
@@ -29,7 +33,7 @@ namespace SJP.Schematic.Modelled.Reflection
                 MaxLength = attr.Length,
                 NumericPrecision = new NumericPrecision(attr.Precision, attr.Scale),
             };
-            var dbType = dialect.CreateColumnType(typeMetadata);
+            var dbType = typeProvider.CreateColumnType(typeMetadata);
 
             // map dbType to properties, avoids keeping a reference
             TypeName = dbType.TypeName;

@@ -11,23 +11,30 @@ namespace SJP.Schematic.Modelled.Reflection.Tests.Fakes
 
         public override Task<IDbConnection> CreateConnectionAsync(string connectionString, CancellationToken cancellationToken = default(CancellationToken)) => Task.FromResult<IDbConnection>(null);
 
-        public override IDbType CreateColumnType(ColumnTypeMetadata typeMetadata) => new ColumnDataType(
-            "test_type",
-            DataType.BigInteger,
-            "test_type(10)",
-            typeof(object),
-            false,
-            10,
-            new NumericPrecision(10, 0),
-            null
-        );
-
         public override bool IsValidColumnName(Identifier name) => true;
 
         public override bool IsValidConstraintName(Identifier name) => true;
 
         public override bool IsValidObjectName(Identifier name) => true;
 
-        public override IDbType GetComparableColumnType(IDbType otherType) => CreateColumnType(null);
+        public override IDbTypeProvider TypeProvider => _typeProvider;
+
+        private readonly static IDbTypeProvider _typeProvider = new DbTypeProvider();
+
+        private class DbTypeProvider : IDbTypeProvider
+        {
+            public IDbType CreateColumnType(ColumnTypeMetadata typeMetadata) => new ColumnDataType(
+                "test_type",
+                DataType.BigInteger,
+                "test_type(10)",
+                typeof(object),
+                false,
+                10,
+                new NumericPrecision(10, 0),
+                null
+            );
+
+            public IDbType GetComparableColumnType(IDbType otherType) => CreateColumnType(null);
+        }
     }
 }

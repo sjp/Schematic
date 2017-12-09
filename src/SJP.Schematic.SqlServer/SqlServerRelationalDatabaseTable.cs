@@ -19,6 +19,13 @@ namespace SJP.Schematic.SqlServer
             Connection = connection ?? throw new ArgumentNullException(nameof(connection));
             Database = database ?? throw new ArgumentNullException(nameof(database));
 
+            var dialect = database.Dialect;
+            if (dialect == null)
+                throw new ArgumentException("The given database does not contain a valid dialect.", nameof(database));
+
+            var typeProvider = dialect.TypeProvider;
+            TypeProvider = typeProvider ?? throw new ArgumentException("The given database's dialect does not have a valid type provider.", nameof(database));
+
             var serverName = tableName.Server ?? database.ServerName;
             var databaseName = tableName.Database ?? database.DatabaseName;
             var schemaName = tableName.Schema ?? database.DefaultSchema;
@@ -30,6 +37,8 @@ namespace SJP.Schematic.SqlServer
         public Identifier Name { get; }
 
         public IRelationalDatabase Database { get; }
+
+        protected IDbTypeProvider TypeProvider { get; }
 
         protected IDbConnection Connection { get; }
 
@@ -788,6 +797,8 @@ where schema_name(t.schema_id) = @SchemaName
             var query = Connection.Query<ColumnData>(sql, new { SchemaName = Name.Schema, TableName = Name.LocalName });
             var result = new List<IDatabaseTableColumn>();
 
+
+
             foreach (var row in query)
             {
                 var typeMetadata = new ColumnTypeMetadata
@@ -797,7 +808,7 @@ where schema_name(t.schema_id) = @SchemaName
                     MaxLength = row.MaxLength,
                     NumericPrecision = new NumericPrecision(row.Precision, row.Scale)
                 };
-                var columnType = Database.Dialect.CreateColumnType(typeMetadata);
+                var columnType = TypeProvider.CreateColumnType(typeMetadata);
 
                 var columnName = new LocalIdentifier(row.ColumnName);
                 var isAutoIncrement = row.IdentitySeed.HasValue && row.IdentityIncrement.HasValue;
@@ -854,7 +865,7 @@ where schema_name(t.schema_id) = @SchemaName
                     MaxLength = row.MaxLength,
                     NumericPrecision = new NumericPrecision(row.Precision, row.Scale)
                 };
-                var columnType = Database.Dialect.CreateColumnType(typeMetadata);
+                var columnType = TypeProvider.CreateColumnType(typeMetadata);
 
                 var columnName = new LocalIdentifier(row.ColumnName);
                 var isAutoIncrement = row.IdentitySeed.HasValue && row.IdentityIncrement.HasValue;
