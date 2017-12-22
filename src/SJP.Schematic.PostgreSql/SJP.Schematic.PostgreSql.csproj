@@ -4,25 +4,27 @@
     <TargetFramework>netstandard2.0</TargetFramework>
     <TreatWarningsAsErrors>True</TreatWarningsAsErrors>
     <TreatSpecificWarningsAsErrors />
-    <Description>Core components for database modelling and migrations in .NET</Description>
+    <Description>PostgreSQL database metadata and migration provider for SJP.Schematic</Description>
+    <Product />
+    <Company />
+    <Authors>Simon Potter</Authors>
     <Copyright>Copyright © Simon Potter 2017</Copyright>
+    <PackageLicenseUrl>https://raw.github.com/sjp/Schematic/master/LICENSE</PackageLicenseUrl>
+    <PackageProjectUrl>https://github.com/sjp/Schematic</PackageProjectUrl>
     <RepositoryUrl>https://github.com/sjp/Schematic</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
-    <NeutralLanguage>en-US</NeutralLanguage>
-    <PackageLicenseUrl>https://raw.github.com/sjp/Schematic/master/LICENSE</PackageLicenseUrl>
-    <Authors>Simon Potter</Authors>
-    <Company></Company>
-    <Product />
-    <PackageProjectUrl>https://github.com/sjp/Schematic</PackageProjectUrl>
     <PackageIconUrl>https://raw.github.com/sjp/Schematic/master/database.svg</PackageIconUrl>
     <CheckForOverflowUnderflow>true</CheckForOverflowUnderflow>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Enums.NET" Version="2.3.1" />
-    <PackageReference Include="Microsoft.Extensions.Logging" Version="2.0.0" />
-    <PackageReference Include="System.Data.Common" Version="4.3.0" />
+    <PackageReference Include="Dapper" Version="1.50.4" />
+    <PackageReference Include="Npgsql" Version="3.2.6" />
     <PackageReference Include="System.Interactive.Async" Version="3.1.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\SJP.Schematic.Core\SJP.Schematic.Core.csproj" />
   </ItemGroup>
 
 </Project>

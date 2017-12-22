@@ -1,0 +1,5 @@
+﻿{
+  "ConnectionStrings": {
+    "TestDb": "Server=192.168.149.128; Port=5432; Database=test_pgdb; User Id=pgsjp; Password=pgsjp"
+  }
+}

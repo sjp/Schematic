@@ -1,27 +1,35 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.26430.6
+VisualStudioVersion = 15.0.27130.0
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SJP.Schematic.Core", "SJP.Schematic.Core\SJP.Schematic.Core.csproj", "{A46BFB1C-82E2-443A-8163-9BFFE052DE3D}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SJP.Schematic.Core", "SJP.Schematic.Core\SJP.Schematic.Core.csproj", "{A46BFB1C-82E2-443A-8163-9BFFE052DE3D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SJP.Schematic.Core.Tests", "SJP.Schematic.Core.Tests\SJP.Schematic.Core.Tests.csproj", "{81476561-E9BD-466A-BB96-5B54375398D9}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SJP.Schematic.Core.Tests", "SJP.Schematic.Core.Tests\SJP.Schematic.Core.Tests.csproj", "{81476561-E9BD-466A-BB96-5B54375398D9}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SJP.Schematic.SqlServer.Tests", "SJP.Schematic.SqlServer.Tests\SJP.Schematic.SqlServer.Tests.csproj", "{8C3D7B3D-B2DC-418B-9BB5-E9F39A11857C}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SJP.Schematic.SqlServer.Tests", "SJP.Schematic.SqlServer.Tests\SJP.Schematic.SqlServer.Tests.csproj", "{8C3D7B3D-B2DC-418B-9BB5-E9F39A11857C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SJP.Schematic.Sqlite.Tests", "SJP.Schematic.Sqlite.Tests\SJP.Schematic.Sqlite.Tests.csproj", "{366A0989-DFB8-4497-8998-C07984A69322}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SJP.Schematic.Sqlite.Tests", "SJP.Schematic.Sqlite.Tests\SJP.Schematic.Sqlite.Tests.csproj", "{366A0989-DFB8-4497-8998-C07984A69322}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SJP.Schematic.Modelled", "SJP.Schematic.Modelled\SJP.Schematic.Modelled.csproj", "{76CF8690-5435-4080-BF55-3AC4243104E8}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SJP.Schematic.Modelled", "SJP.Schematic.Modelled\SJP.Schematic.Modelled.csproj", "{76CF8690-5435-4080-BF55-3AC4243104E8}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SJP.Schematic.Modelled.Reflection", "SJP.Schematic.Modelled.Reflection\SJP.Schematic.Modelled.Reflection.csproj", "{2063EAD2-F554-40B8-B836-C61927C1FFB5}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SJP.Schematic.Modelled.Reflection", "SJP.Schematic.Modelled.Reflection\SJP.Schematic.Modelled.Reflection.csproj", "{2063EAD2-F554-40B8-B836-C61927C1FFB5}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SJP.Schematic.Sqlite", "SJP.Schematic.Sqlite\SJP.Schematic.Sqlite.csproj", "{81A631CE-36FE-4F24-9F91-F859B1DE375B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SJP.Schematic.Sqlite", "SJP.Schematic.Sqlite\SJP.Schematic.Sqlite.csproj", "{81A631CE-36FE-4F24-9F91-F859B1DE375B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SJP.Schematic.SqlServer", "SJP.Schematic.SqlServer\SJP.Schematic.SqlServer.csproj", "{513C86D6-09A3-40A3-BA3F-B5DB92680F37}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SJP.Schematic.SqlServer", "SJP.Schematic.SqlServer\SJP.Schematic.SqlServer.csproj", "{513C86D6-09A3-40A3-BA3F-B5DB92680F37}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SJP.Schematic.Modelled.Tests", "SJP.Schematic.Modelled.Tests\SJP.Schematic.Modelled.Tests.csproj", "{81517592-A943-4922-8A0D-13D08E6556C5}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SJP.Schematic.Modelled.Reflection.Tests", "SJP.Schematic.Modelled.Reflection.Tests\SJP.Schematic.Modelled.Reflection.Tests.csproj", "{6238DB7F-02AD-4DB6-B4E4-7476BF9691E6}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SJP.Schematic.MySql", "SJP.Schematic.MySql\SJP.Schematic.MySql.csproj", "{3ACEC351-FC16-4926-B426-57072DD5FBAA}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SJP.Schematic.MySql.Tests", "SJP.Schematic.MySql.Tests\SJP.Schematic.MySql.Tests.csproj", "{15CE2463-5F61-4464-A790-3456863A552F}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SJP.Schematic.PostgreSql.Tests", "SJP.Schematic.PostgreSql.Tests\SJP.Schematic.PostgreSql.Tests.csproj", "{88859893-664F-4949-B5FE-A9EF2760EA12}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SJP.Schematic.PostgreSql", "SJP.Schematic.PostgreSql\SJP.Schematic.PostgreSql.csproj", "{8DE9D7DC-EE0E-4ED0-94A3-CD361BDE0F7F}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -69,8 +77,27 @@ Global
 		{6238DB7F-02AD-4DB6-B4E4-7476BF9691E6}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{6238DB7F-02AD-4DB6-B4E4-7476BF9691E6}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{6238DB7F-02AD-4DB6-B4E4-7476BF9691E6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3ACEC351-FC16-4926-B426-57072DD5FBAA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3ACEC351-FC16-4926-B426-57072DD5FBAA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3ACEC351-FC16-4926-B426-57072DD5FBAA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3ACEC351-FC16-4926-B426-57072DD5FBAA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{15CE2463-5F61-4464-A790-3456863A552F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{15CE2463-5F61-4464-A790-3456863A552F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{15CE2463-5F61-4464-A790-3456863A552F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{15CE2463-5F61-4464-A790-3456863A552F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{88859893-664F-4949-B5FE-A9EF2760EA12}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{88859893-664F-4949-B5FE-A9EF2760EA12}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{88859893-664F-4949-B5FE-A9EF2760EA12}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{88859893-664F-4949-B5FE-A9EF2760EA12}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8DE9D7DC-EE0E-4ED0-94A3-CD361BDE0F7F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8DE9D7DC-EE0E-4ED0-94A3-CD361BDE0F7F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8DE9D7DC-EE0E-4ED0-94A3-CD361BDE0F7F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8DE9D7DC-EE0E-4ED0-94A3-CD361BDE0F7F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {3545C270-D650-472F-AE69-D0D3596F46E8}
 	EndGlobalSection
 EndGlobal

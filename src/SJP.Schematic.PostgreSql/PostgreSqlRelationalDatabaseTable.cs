@@ -5,13 +5,13 @@ using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
 using SJP.Schematic.Core;
-using SJP.Schematic.SqlServer.Query;
+using SJP.Schematic.PostgreSql.Query;
 
-namespace SJP.Schematic.SqlServer
+namespace SJP.Schematic.PostgreSql
 {
-    public class SqlServerRelationalDatabaseTable : IRelationalDatabaseTable, IRelationalDatabaseTableAsync
+    public class PostgreSqlRelationalDatabaseTable : IRelationalDatabaseTable, IRelationalDatabaseTableAsync
     {
-        public SqlServerRelationalDatabaseTable(IDbConnection connection, IRelationalDatabase database, Identifier tableName, IEqualityComparer<Identifier> comparer = null)
+        public PostgreSqlRelationalDatabaseTable(IDbConnection connection, IRelationalDatabase database, Identifier tableName, IEqualityComparer<Identifier> comparer = null)
         {
             if (tableName == null || tableName.LocalName == null)
                 throw new ArgumentNullException(nameof(tableName));
@@ -51,67 +51,59 @@ namespace SJP.Schematic.SqlServer
         protected virtual IDatabaseKey LoadPrimaryKeySync()
         {
             const string sql = @"
-select kc.name as ConstraintName, c.name as ColumnName, i.is_disabled as IsDisabled
-from sys.tables t
-inner join sys.key_constraints kc on t.object_id = kc.parent_object_id
-inner join sys.indexes i on kc.parent_object_id = i.object_id and kc.unique_index_id = i.index_id
-inner join sys.index_columns ic on i.object_id = ic.object_id and i.index_id = ic.index_id
-inner join sys.columns c on ic.object_id = c.object_id and ic.column_id = c.column_id
-where
-    schema_name(t.schema_id) = @SchemaName and t.name = @TableName
-    and kc.type = 'PK'
-    and ic.is_included_column = 0
-order by ic.key_ordinal";
+select kc.constraint_name as ConstraintName, kc.column_name as ColumnName, kc.ordinal_position as OrdinalPosition
+from information_schema.table_constraints tc
+inner join information_schema.key_column_usage kc
+    on tc.constraint_catalog = kc.constraint_catalog
+    and tc.constraint_schema = kc.constraint_schema
+    and tc.constraint_name = kc.constraint_name
+where tc.table_schema = @SchemaName and tc.table_name = @TableName
+    and tc.constraint_type = 'PRIMARY KEY'";
 
             var primaryKeyColumns = Connection.Query<ConstraintColumnMapping>(sql, new { SchemaName = Name.Schema, TableName = Name.LocalName });
             if (primaryKeyColumns.Empty())
                 return null;
 
-            var groupedByName = primaryKeyColumns.GroupBy(row => new { ConstraintName = row.ConstraintName, IsDisabled = row.IsDisabled } );
+            var groupedByName = primaryKeyColumns.GroupBy(row => new { ConstraintName = row.ConstraintName } );
             var firstRow = groupedByName.First();
             var constraintName = firstRow.Key.ConstraintName;
-            var isEnabled = !firstRow.Key.IsDisabled;
 
             var tableColumns = Column;
             var columns = groupedByName
                 .Where(row => row.Key.ConstraintName == constraintName)
-                .SelectMany(g => g.Select(row => tableColumns[row.ColumnName]))
+                .SelectMany(g => g.OrderBy(row => row.OrdinalPosition).Select(row => tableColumns[row.ColumnName]))
                 .ToList();
 
-            return new SqlServerDatabaseKey(this, constraintName, DatabaseKeyType.Primary, columns, isEnabled);
+            return new PostgreSqlDatabaseKey(this, constraintName, DatabaseKeyType.Primary, columns);
         }
 
         protected virtual async Task<IDatabaseKey> LoadPrimaryKeyAsync()
         {
             const string sql = @"
-select kc.name as ConstraintName, c.name as ColumnName, i.is_disabled as IsDisabled
-from sys.tables t
-inner join sys.key_constraints kc on t.object_id = kc.parent_object_id
-inner join sys.indexes i on kc.parent_object_id = i.object_id and kc.unique_index_id = i.index_id
-inner join sys.index_columns ic on i.object_id = ic.object_id and i.index_id = ic.index_id
-inner join sys.columns c on ic.object_id = c.object_id and ic.column_id = c.column_id
-where
-    schema_name(t.schema_id) = @SchemaName and t.name = @TableName
-    and kc.type = 'PK'
-    and ic.is_included_column = 0
-order by ic.key_ordinal";
+select kc.constraint_name as ConstraintName, kc.column_name as ColumnName, kc.ordinal_position as OrdinalPosition
+from information_schema.table_constraints tc
+inner join information_schema.key_column_usage kc
+    on tc.constraint_catalog = kc.constraint_catalog
+    and tc.constraint_schema = kc.constraint_schema
+    and tc.constraint_name = kc.constraint_name
+where tc.table_schema = @SchemaName and tc.table_name = @TableName
+    and tc.constraint_type = 'PRIMARY KEY'";
 
             var primaryKeyColumns = await Connection.QueryAsync<ConstraintColumnMapping>(sql, new { SchemaName = Name.Schema, TableName = Name.LocalName }).ConfigureAwait(false);
             if (primaryKeyColumns.Empty())
                 return null;
 
-            var groupedByName = primaryKeyColumns.GroupBy(row => new { ConstraintName = row.ConstraintName, IsDisabled = row.IsDisabled });
+            var groupedByName = primaryKeyColumns.GroupBy(row => new { ConstraintName = row.ConstraintName });
             var firstRow = groupedByName.First();
             var constraintName = firstRow.Key.ConstraintName;
-            var isEnabled = !firstRow.Key.IsDisabled;
 
-            var tableColumns = await ColumnAsync().ConfigureAwait(false);
+            var tableColumns = Column;
             var columns = groupedByName
                 .Where(row => row.Key.ConstraintName == constraintName)
-                .SelectMany(g => g.Select(row => tableColumns[row.ColumnName]))
+                .SelectMany(g => g.OrderBy(row => row.OrdinalPosition).Select(row => tableColumns[row.ColumnName]))
                 .ToList();
 
-            return new SqlServerDatabaseKey(this, constraintName, DatabaseKeyType.Primary, columns, isEnabled);
+            return new PostgreSqlDatabaseKey(this, constraintName, DatabaseKeyType.Primary, columns);
         }
 
         public IReadOnlyDictionary<Identifier, IDatabaseTableIndex> Index => LoadIndexLookupSync();
@@ -146,20 +138,36 @@ order by ic.key_ordinal";
         protected virtual IEnumerable<IDatabaseTableIndex> LoadIndexesSync()
         {
             const string sql = @"
-select i.name as IndexName, i.is_unique as IsUnique, ic.key_ordinal as KeyOrdinal, ic.index_column_id as IndexColumnId, ic.is_included_column as IsIncludedColumn, ic.is_descending_key as IsDescending, c.name as ColumnName, i.is_disabled as IsDisabled
-from sys.tables t
-inner join sys.indexes i on t.object_id = i.object_id
-inner join sys.index_columns ic on i.object_id = ic.object_id and i.index_id = ic.index_id
-inner join sys.columns c on ic.object_id = c.object_id and ic.column_id = c.column_id
-where schema_name(t.schema_id) = @SchemaName and t.name = @TableName
-    and i.is_primary_key = 0 and i.is_unique_constraint = 0
-    order by ic.index_id, ic.key_ordinal, ic.index_column_id";
+select
+    i.relname as IndexName,
+    idx.indisunique as IsUnique,
+    idx.indisprimary as IsPrimary,
+    pg_catalog.generate_subscripts(idx.indkey, 1) as IndexColumnId,
+    pg_catalog.unnest(array(
+        select pg_catalog.pg_get_indexdef(idx.indexrelid, k + 1, true)
+        from pg_catalog.generate_subscripts(idx.indkey, 1) k
+        order by k
+    )) as IndexColumnExpression,
+    pg_catalog.unnest(array(
+        select pg_catalog.pg_index_column_has_property(idx.indexrelid, k + 1, 'desc')
+        from pg_catalog.generate_subscripts(idx.indkey, 1) k
+        order by k
+    )) as IsDescending,
+    (idx.indexprs is not null) or (idx.indkey::int[] @> array[0]) as IsFunctional
+from pg_catalog.pg_index idx
+    inner join pg_catalog.pg_class t on idx.indrelid = t.oid
+    inner join pg_catalog.pg_namespace ns on ns.oid = t.relnamespace
+    inner join pg_catalog.pg_class i on i.oid = idx.indexrelid
+where
+    t.relkind = 'r'
+    and t.relname = @TableName
+    and ns.nspname = @SchemaName";
 
             var queryResult = Connection.Query<IndexColumns>(sql, new { SchemaName = Name.Schema, TableName = Name.LocalName });
             if (queryResult.Empty())
                 return Enumerable.Empty<IDatabaseTableIndex>();
 
-            var indexColumns = queryResult.GroupBy(row => new { IndexName = row.IndexName, IsUnique = row.IsUnique, IsDisabled = row.IsDisabled }).ToList();
+            var indexColumns = queryResult.GroupBy(row => new { IndexName = row.IndexName, IsUnique = row.IsUnique, IsPrimary = row.IsPrimary }).ToList();
             if (indexColumns.Count == 0)
                 return Enumerable.Empty<IDatabaseTableIndex>();
 
@@ -169,24 +177,21 @@ where schema_name(t.schema_id) = @SchemaName and t.name = @TableName
             {
                 var isUnique = indexInfo.Key.IsUnique;
                 var indexName = new LocalIdentifier(indexInfo.Key.IndexName);
-                var isEnabled = !indexInfo.Key.IsDisabled;
 
                 var indexCols = indexInfo
-                    .Where(row => !row.IsIncludedColumn)
-                    .OrderBy(row => row.KeyOrdinal)
-                    .ThenBy(row => row.IndexColumnId)
-                    .Select(row => new { IsDescending = row.IsDescending, Column = tableColumns[row.ColumnName] })
-                    .Select(row => new SqlServerDatabaseIndexColumn(row.Column, row.IsDescending ? IndexColumnOrder.Descending : IndexColumnOrder.Ascending))
+                    .OrderBy(row => row.IndexColumnId)
+                    .Select(row => new
+                    {
+                        IsDescending = row.IsDescending,
+                        Expression = row.IndexColumnExpression,
+                        Column = tableColumns.ContainsKey(row.IndexColumnExpression) ? tableColumns[row.IndexColumnExpression] : null
+                    })
+                    .Select(row => row.Column != null
+                        ? new PostgreSqlDatabaseIndexColumn(row.Column, row.IsDescending ? IndexColumnOrder.Descending : IndexColumnOrder.Ascending)
+                        : new PostgreSqlDatabaseIndexColumn(row.Expression, row.IsDescending ? IndexColumnOrder.Descending : IndexColumnOrder.Ascending))
                     .ToList();
 
-                var includedCols = indexInfo
-                    .Where(row => row.IsIncludedColumn)
-                    .OrderBy(row => row.KeyOrdinal)
-                    .ThenBy(row => row.ColumnName) // matches SSMS behaviour
-                    .Select(row => tableColumns[row.ColumnName])
-                    .ToList();
-
-                var index = new SqlServerDatabaseTableIndex(this, indexName, isUnique, indexCols, includedCols, isEnabled);
+                var index = new PostgreSqlDatabaseTableIndex(this, indexName, isUnique, indexCols);
                 result.Add(index);
             }
 
@@ -196,20 +201,36 @@ where schema_name(t.schema_id) = @SchemaName and t.name = @TableName
         protected virtual async Task<IEnumerable<IDatabaseTableIndex>> LoadIndexesAsync()
         {
             const string sql = @"
-select i.name as IndexName, i.is_unique as IsUnique, ic.key_ordinal as KeyOrdinal, ic.index_column_id as IndexColumnId, ic.is_included_column as IsIncludedColumn, ic.is_descending_key as IsDescending, c.name as ColumnName, i.is_disabled as IsDisabled
-from sys.tables t
-inner join sys.indexes i on t.object_id = i.object_id
-inner join sys.index_columns ic on i.object_id = ic.object_id and i.index_id = ic.index_id
-inner join sys.columns c on ic.object_id = c.object_id and ic.column_id = c.column_id
-where schema_name(t.schema_id) = @SchemaName and t.name = @TableName
-    and i.is_primary_key = 0 and i.is_unique_constraint = 0
-    order by ic.index_id, ic.key_ordinal, ic.index_column_id";
+select
+    i.relname as IndexName,
+    idx.indisunique as IsUnique,
+    idx.indisprimary as IsPrimary,
+    pg_catalog.generate_subscripts(idx.indkey, 1) as IndexColumnId,
+    pg_catalog.unnest(array(
+        select pg_catalog.pg_get_indexdef(idx.indexrelid, k + 1, true)
+        from pg_catalog.generate_subscripts(idx.indkey, 1) k
+        order by k
+    )) as IndexColumnExpression,
+    pg_catalog.unnest(array(
+        select pg_catalog.pg_index_column_has_property(idx.indexrelid, k + 1, 'desc')
+        from pg_catalog.generate_subscripts(idx.indkey, 1) k
+        order by k
+    )) as IsDescending,
+    (idx.indexprs is not null) or (idx.indkey::int[] @> array[0]) as IsFunctional
+from pg_catalog.pg_index idx
+    inner join pg_catalog.pg_class t on idx.indrelid = t.oid
+    inner join pg_catalog.pg_namespace ns on ns.oid = t.relnamespace
+    inner join pg_catalog.pg_class i on i.oid = idx.indexrelid
+where
+    t.relkind = 'r'
+    and t.relname = @TableName
+    and ns.nspname = @SchemaName";
 
             var queryResult = await Connection.QueryAsync<IndexColumns>(sql, new { SchemaName = Name.Schema, TableName = Name.LocalName }).ConfigureAwait(false);
             if (queryResult.Empty())
                 return Enumerable.Empty<IDatabaseTableIndex>();
 
-            var indexColumns = queryResult.GroupBy(row => new { IndexName = row.IndexName, IsUnique = row.IsUnique, IsDisabled = row.IsDisabled }).ToList();
+            var indexColumns = queryResult.GroupBy(row => new { IndexName = row.IndexName, IsUnique = row.IsUnique, IsPrimary = row.IsPrimary }).ToList();
             if (indexColumns.Count == 0)
                 return Enumerable.Empty<IDatabaseTableIndex>();
 
@@ -219,24 +240,21 @@ where schema_name(t.schema_id) = @SchemaName and t.name = @TableName
             {
                 var isUnique = indexInfo.Key.IsUnique;
                 var indexName = new LocalIdentifier(indexInfo.Key.IndexName);
-                var isEnabled = !indexInfo.Key.IsDisabled;
 
                 var indexCols = indexInfo
-                    .Where(row => !row.IsIncludedColumn)
-                    .OrderBy(row => row.KeyOrdinal)
-                    .ThenBy(row => row.IndexColumnId)
-                    .Select(row => new { IsDescending = row.IsDescending, Column = tableColumns[row.ColumnName] })
-                    .Select(row => new SqlServerDatabaseIndexColumn(row.Column, row.IsDescending ? IndexColumnOrder.Descending : IndexColumnOrder.Ascending))
+                    .OrderBy(row => row.IndexColumnId)
+                    .Select(row => new
+                    {
+                        IsDescending = row.IsDescending,
+                        Expression = row.IndexColumnExpression,
+                        Column = tableColumns.ContainsKey(row.IndexColumnExpression) ? tableColumns[row.IndexColumnExpression] : null
+                    })
+                    .Select(row => row.Column != null
+                        ? new PostgreSqlDatabaseIndexColumn(row.Column, row.IsDescending ? IndexColumnOrder.Descending : IndexColumnOrder.Ascending)
+                        : new PostgreSqlDatabaseIndexColumn(row.Expression, row.IsDescending ? IndexColumnOrder.Descending : IndexColumnOrder.Ascending))
                     .ToList();
 
-                var includedCols = indexInfo
-                    .Where(row => row.IsIncludedColumn)
-                    .OrderBy(row => row.KeyOrdinal)
-                    .ThenBy(row => row.ColumnName) // matches SSMS behaviour
-                    .Select(row => tableColumns[row.ColumnName])
-                    .ToList();
-
-                var index = new SqlServerDatabaseTableIndex(this, indexName, isUnique, indexCols, includedCols, isEnabled);
+                var index = new PostgreSqlDatabaseTableIndex(this, indexName, isUnique, indexCols);
                 result.Add(index);
             }
 
@@ -275,31 +293,26 @@ where schema_name(t.schema_id) = @SchemaName and t.name = @TableName
         protected virtual IEnumerable<IDatabaseKey> LoadUniqueKeysSync()
         {
             const string sql = @"
-select kc.name as ConstraintName, c.name as ColumnName, i.is_disabled as IsDisabled
-from sys.tables t
-inner join sys.key_constraints kc on t.object_id = kc.parent_object_id
-inner join sys.indexes i on kc.parent_object_id = i.object_id and kc.unique_index_id = i.index_id
-inner join sys.index_columns ic on i.object_id = ic.object_id and i.index_id = ic.index_id
-inner join sys.columns c on ic.object_id = c.object_id
-    and ic.column_id = c.column_id
-where
-    schema_name(t.schema_id) = @SchemaName and t.name = @TableName
-    and kc.type = 'UQ'
-    and ic.is_included_column = 0
-order by ic.key_ordinal";
+select kc.constraint_name as ConstraintName, kc.column_name as ColumnName, kc.ordinal_position as OrdinalPosition
+from information_schema.table_constraints tc
+inner join information_schema.key_column_usage kc
+    on tc.constraint_catalog = kc.constraint_catalog
+    and tc.constraint_schema = kc.constraint_schema
+    and tc.constraint_name = kc.constraint_name
+where tc.table_schema = @SchemaName and tc.table_name = @TableName
+    and tc.constraint_type = 'UNIQUE'";
 
             var uniqueKeyColumns = Connection.Query<ConstraintColumnMapping>(sql, new { SchemaName = Name.Schema, TableName = Name.LocalName });
             if (uniqueKeyColumns.Empty())
                 return Enumerable.Empty<IDatabaseKey>();
 
-            var groupedByName = uniqueKeyColumns.GroupBy(row => new { ConstraintName = row.ConstraintName, IsDisabled = row.IsDisabled });
+            var groupedByName = uniqueKeyColumns.GroupBy(row => new { ConstraintName = row.ConstraintName });
             var tableColumns = Column;
             var constraintColumns = groupedByName
                 .Select(g => new
                 {
                     ConstraintName = g.Key.ConstraintName,
-                    Columns = g.Select(row => tableColumns[row.ColumnName]),
-                    IsEnabled = !g.Key.IsDisabled
+                    Columns = g.OrderBy(row => row.OrdinalPosition).Select(row => tableColumns[row.ColumnName]).ToList(),
                 })
                 .ToList();
             if (constraintColumns.Count == 0)
@@ -308,7 +321,7 @@ order by ic.key_ordinal";
             var result = new List<IDatabaseKey>(constraintColumns.Count);
             foreach (var uk in constraintColumns)
             {
-                var uniqueKey = new SqlServerDatabaseKey(this, uk.ConstraintName, DatabaseKeyType.Unique, uk.Columns, uk.IsEnabled);
+                var uniqueKey = new PostgreSqlDatabaseKey(this, uk.ConstraintName, DatabaseKeyType.Unique, uk.Columns);
                 result.Add(uniqueKey);
             }
             return result;
@@ -317,31 +330,26 @@ order by ic.key_ordinal";
         protected virtual async Task<IEnumerable<IDatabaseKey>> LoadUniqueKeysAsync()
         {
             const string sql = @"
-select kc.name as ConstraintName, c.name as ColumnName, i.is_disabled as IsDisabled
-from sys.tables t
-inner join sys.key_constraints kc on t.object_id = kc.parent_object_id
-inner join sys.indexes i on kc.parent_object_id = i.object_id and kc.unique_index_id = i.index_id
-inner join sys.index_columns ic on i.object_id = ic.object_id and i.index_id = ic.index_id
-inner join sys.columns c on ic.object_id = c.object_id
-    and ic.column_id = c.column_id
-where
-    schema_name(t.schema_id) = @SchemaName and t.name = @TableName
-    and kc.type = 'UQ'
-    and ic.is_included_column = 0
-order by ic.key_ordinal";
+select kc.constraint_name as ConstraintName, kc.column_name as ColumnName, kc.ordinal_position as OrdinalPosition
+from information_schema.table_constraints tc
+inner join information_schema.key_column_usage kc
+    on tc.constraint_catalog = kc.constraint_catalog
+    and tc.constraint_schema = kc.constraint_schema
+    and tc.constraint_name = kc.constraint_name
+where tc.table_schema = @SchemaName and tc.table_name = @TableName
+    and tc.constraint_type = 'UNIQUE'";
 
             var uniqueKeyColumns = await Connection.QueryAsync<ConstraintColumnMapping>(sql, new { SchemaName = Name.Schema, TableName = Name.LocalName }).ConfigureAwait(false);
             if (uniqueKeyColumns.Empty())
                 return Enumerable.Empty<IDatabaseKey>();
 
-            var groupedByName = uniqueKeyColumns.GroupBy(row => new { ConstraintName = row.ConstraintName, IsDisabled = row.IsDisabled });
+            var groupedByName = uniqueKeyColumns.GroupBy(row => new { ConstraintName = row.ConstraintName });
             var tableColumns = await ColumnAsync().ConfigureAwait(false);
             var constraintColumns = groupedByName
                 .Select(g => new
                 {
                     ConstraintName = g.Key.ConstraintName,
-                    Columns = g.Select(row => tableColumns[row.ColumnName]),
-                    IsEnabled = !g.Key.IsDisabled
+                    Columns = g.OrderBy(row => row.OrdinalPosition).Select(row => tableColumns[row.ColumnName]).ToList(),
                 })
                 .ToList();
             if (constraintColumns.Count == 0)
@@ -350,7 +358,7 @@ order by ic.key_ordinal";
             var result = new List<IDatabaseKey>(constraintColumns.Count);
             foreach (var uk in constraintColumns)
             {
-                var uniqueKey = new SqlServerDatabaseKey(this, uk.ConstraintName, DatabaseKeyType.Unique, uk.Columns, uk.IsEnabled);
+                var uniqueKey = new PostgreSqlDatabaseKey(this, uk.ConstraintName, DatabaseKeyType.Unique, uk.Columns);
                 result.Add(uniqueKey);
             }
             return result;
@@ -363,14 +371,34 @@ order by ic.key_ordinal";
         protected virtual IEnumerable<IDatabaseRelationalKey> LoadChildKeysSync()
         {
             const string sql = @"
-select schema_name(child_t.schema_id) as ChildTableSchema, child_t.name as ChildTableName, fk.name as ChildKeyName, kc.name as ParentKeyName, kc.type as ParentKeyType, fk.delete_referential_action as DeleteRule, fk.update_referential_action as UpdateRule
-from sys.tables parent_t
-inner join sys.foreign_keys fk on parent_t.object_id = fk.referenced_object_id
-inner join sys.tables child_t on fk.parent_object_id = child_t.object_id
-inner join sys.foreign_key_columns fkc on fk.object_id = fkc.constraint_object_id
-inner join sys.columns c on fkc.parent_column_id = c.column_id and c.object_id = fkc.parent_object_id
-inner join sys.key_constraints kc on kc.unique_index_id = fk.key_index_id and kc.parent_object_id = fk.referenced_object_id
-where schema_name(parent_t.schema_id) = @SchemaName and parent_t.name = @TableName";
+select
+    ns.nspname as ChildTableSchema,
+    t.relname as ChildTableName,
+    c.conname as ChildKeyName,
+    pkc.contype as ParentKeyType,
+    pkc.conname as ParentKeyName,
+    c.confupdtype as UpdateRule,
+    c.confdeltype as DeleteRule
+from pg_catalog.pg_namespace ns
+inner join pg_catalog.pg_class t on ns.oid = t.relnamespace
+inner join pg_catalog.pg_constraint c on c.conrelid = t.oid and c.contype = 'f'
+inner join pg_catalog.pg_class pt on pt.oid = c.confrelid
+inner join pg_catalog.pg_namespace pns on pns.oid = pt.relnamespace
+left join pg_catalog.pg_depend d1  -- find constraint's dependency on an index
+    on d1.objid = c.oid
+    and d1.classid = 'pg_constraint'::regclass
+    and d1.refclassid = 'pg_class'::regclass
+    and d1.refobjsubid = 0
+left join pg_catalog.pg_depend d2  -- find pkey/unique constraint for that index
+    on d2.refclassid = 'pg_constraint'::regclass
+    and d2.classid = 'pg_class'::regclass
+    and d2.objid = d1.refobjid
+    and d2.objsubid = 0
+    and d2.deptype = 'i'
+left join pg_catalog.pg_constraint pkc on pkc.oid = d2.refobjid
+    and pkc.contype in ('p', 'u')
+    and pkc.conrelid = c.confrelid
+where pt.relname = @TableName and pns.nspname = @SchemaName";
 
             var queryResult = Connection.Query<ChildKeyData>(sql, new { SchemaName = Name.Schema, TableName = Name.LocalName });
             if (queryResult.Empty())
@@ -402,7 +430,7 @@ where schema_name(parent_t.schema_id) = @SchemaName and parent_t.name = @TableNa
                 var childKey = parentKeyLookup[childKeyName.LocalName].ChildKey;
 
                 IDatabaseKey parentKey;
-                if (groupedChildKey.Key.ParentKeyType == "PK")
+                if (groupedChildKey.Key.ParentKeyType == "p")
                 {
                     parentKey = PrimaryKey;
                 }
@@ -415,7 +443,7 @@ where schema_name(parent_t.schema_id) = @SchemaName and parent_t.name = @TableNa
                 var deleteRule = RelationalRuleMapping[groupedChildKey.Key.DeleteRule];
                 var updateRule = RelationalRuleMapping[groupedChildKey.Key.UpdateRule];
 
-                var relationalKey = new SqlServerRelationalKey(childKey, parentKey, deleteRule, updateRule);
+                var relationalKey = new PostgreSqlRelationalKey(childKey, parentKey, deleteRule, updateRule);
                 result.Add(relationalKey);
             }
 
@@ -425,14 +453,34 @@ where schema_name(parent_t.schema_id) = @SchemaName and parent_t.name = @TableNa
         protected virtual async Task<IEnumerable<IDatabaseRelationalKey>> LoadChildKeysAsync()
         {
             const string sql = @"
-select schema_name(child_t.schema_id) as ChildTableSchema, child_t.name as ChildTableName, fk.name as ChildKeyName, kc.name as ParentKeyName, kc.type as ParentKeyType, fk.delete_referential_action as DeleteRule, fk.update_referential_action as UpdateRule
-from sys.tables parent_t
-inner join sys.foreign_keys fk on parent_t.object_id = fk.referenced_object_id
-inner join sys.tables child_t on fk.parent_object_id = child_t.object_id
-inner join sys.foreign_key_columns fkc on fk.object_id = fkc.constraint_object_id
-inner join sys.columns c on fkc.parent_column_id = c.column_id and c.object_id = fkc.parent_object_id
-inner join sys.key_constraints kc on kc.unique_index_id = fk.key_index_id and kc.parent_object_id = fk.referenced_object_id
-where schema_name(parent_t.schema_id) = @SchemaName and parent_t.name = @TableName";
+select
+    ns.nspname as ChildTableSchema,
+    t.relname as ChildTableName,
+    c.conname as ChildKeyName,
+    pkc.contype as ParentKeyType,
+    pkc.conname as ParentKeyName,
+    c.confupdtype as UpdateRule,
+    c.confdeltype as DeleteRule
+from pg_catalog.pg_namespace ns
+inner join pg_catalog.pg_class t on ns.oid = t.relnamespace
+inner join pg_catalog.pg_constraint c on c.conrelid = t.oid and c.contype = 'f'
+inner join pg_catalog.pg_class pt on pt.oid = c.confrelid
+inner join pg_catalog.pg_namespace pns on pns.oid = pt.relnamespace
+left join pg_catalog.pg_depend d1  -- find constraint's dependency on an index
+    on d1.objid = c.oid
+    and d1.classid = 'pg_constraint'::regclass
+    and d1.refclassid = 'pg_class'::regclass
+    and d1.refobjsubid = 0
+left join pg_catalog.pg_depend d2  -- find pkey/unique constraint for that index
+    on d2.refclassid = 'pg_constraint'::regclass
+    and d2.classid = 'pg_class'::regclass
+    and d2.objid = d1.refobjid
+    and d2.objsubid = 0
+    and d2.deptype = 'i'
+left join pg_catalog.pg_constraint pkc on pkc.oid = d2.refobjid
+    and pkc.contype in ('p', 'u')
+    and pkc.conrelid = c.confrelid
+where pt.relname = @TableName and pns.nspname = @SchemaName";
 
             var queryResult = await Connection.QueryAsync<ChildKeyData>(sql, new { SchemaName = Name.Schema, TableName = Name.LocalName }).ConfigureAwait(false);
             if (queryResult.Empty())
@@ -464,7 +512,7 @@ where schema_name(parent_t.schema_id) = @SchemaName and parent_t.name = @TableNa
                 var childKey = parentKeyLookup[childKeyName.LocalName].ChildKey;
 
                 IDatabaseKey parentKey;
-                if (groupedChildKey.Key.ParentKeyType == "PK")
+                if (groupedChildKey.Key.ParentKeyType == "p")
                 {
                     parentKey = await PrimaryKeyAsync().ConfigureAwait(false);
                 }
@@ -476,7 +524,7 @@ where schema_name(parent_t.schema_id) = @SchemaName and parent_t.name = @TableNa
 
                 var deleteRule = RelationalRuleMapping[groupedChildKey.Key.DeleteRule];
                 var updateRule = RelationalRuleMapping[groupedChildKey.Key.UpdateRule];
-                var relationalKey = new SqlServerRelationalKey(childKey, parentKey, deleteRule, updateRule);
+                var relationalKey = new PostgreSqlRelationalKey(childKey, parentKey, deleteRule, updateRule);
 
                 result.Add(relationalKey);
             }
@@ -516,10 +564,14 @@ where schema_name(parent_t.schema_id) = @SchemaName and parent_t.name = @TableNa
         protected virtual IEnumerable<IDatabaseCheckConstraint> LoadChecksSync()
         {
             const string sql = @"
-select cc.name as ConstraintName, cc.definition as Definition, cc.is_disabled as IsDisabled
-from sys.tables t
-inner join sys.check_constraints cc on t.object_id = cc.parent_object_id
-where schema_name(t.schema_id) = @SchemaName and t.name = @TableName";
+select c.conname as ConstraintName, c.consrc as Definition
+from pg_catalog.pg_namespace ns
+inner join pg_catalog.pg_class t on ns.oid = t.relnamespace
+inner join pg_catalog.pg_constraint c on c.conrelid = t.oid
+where
+    c.contype = 'c'
+    and t.relname = @TableName
+    and ns.nspname = @SchemaName";
 
             var checks = Connection.Query<CheckConstraintData>(sql, new { SchemaName = Name.Schema, TableName = Name.LocalName });
             if (checks.Empty())
@@ -531,9 +583,8 @@ where schema_name(t.schema_id) = @SchemaName and t.name = @TableName";
             {
                 var constraintName = new LocalIdentifier(checkRow.ConstraintName);
                 var definition = checkRow.Definition;
-                var isEnabled = !checkRow.IsDisabled;
 
-                var check = new SqlServerCheckConstraint(this, constraintName, definition, isEnabled);
+                var check = new PostgreSqlCheckConstraint(this, constraintName, definition);
                 result.Add(check);
             }
 
@@ -543,10 +594,14 @@ where schema_name(t.schema_id) = @SchemaName and t.name = @TableName";
         protected virtual async Task<IEnumerable<IDatabaseCheckConstraint>> LoadChecksAsync()
         {
             const string sql = @"
-select cc.name as ConstraintName, cc.definition as Definition, cc.is_disabled as IsDisabled
-from sys.tables t
-inner join sys.check_constraints cc on t.object_id = cc.parent_object_id
-where schema_name(t.schema_id) = @SchemaName and t.name = @TableName";
+select c.conname as ConstraintName, c.consrc as Definition
+from pg_catalog.pg_namespace ns
+inner join pg_catalog.pg_class t on ns.oid = t.relnamespace
+inner join pg_catalog.pg_constraint c on c.conrelid = t.oid
+where
+    c.contype = 'c'
+    and t.relname = @TableName
+    and ns.nspname = @SchemaName";
 
             var checks = await Connection.QueryAsync<CheckConstraintData>(sql, new { SchemaName = Name.Schema, TableName = Name.LocalName }).ConfigureAwait(false);
             if (checks.Empty())
@@ -558,9 +613,8 @@ where schema_name(t.schema_id) = @SchemaName and t.name = @TableName";
             {
                 var constraintName = new LocalIdentifier(checkRow.ConstraintName);
                 var definition = checkRow.Definition;
-                var isEnabled = !checkRow.IsDisabled;
 
-                var check = new SqlServerCheckConstraint(this, constraintName, definition, isEnabled);
+                var check = new PostgreSqlCheckConstraint(this, constraintName, definition);
                 result.Add(check);
             }
 
@@ -599,14 +653,38 @@ where schema_name(t.schema_id) = @SchemaName and t.name = @TableName";
         protected virtual IEnumerable<IDatabaseRelationalKey> LoadParentKeysSync()
         {
             const string sql = @"
-select schema_name(parent_t.schema_id) as ParentTableSchema, parent_t.name as ParentTableName, fk.name as ChildKeyName, c.name as ColumnName, fkc.constraint_column_id as ConstraintColumnId, kc.name as ParentKeyName, kc.type as ParentKeyType, fk.delete_referential_action as DeleteRule, fk.update_referential_action as UpdateRule, fk.is_disabled as IsDisabled
-from sys.tables parent_t
-inner join sys.foreign_keys fk on parent_t.object_id = fk.referenced_object_id
-inner join sys.tables child_t on fk.parent_object_id = child_t.object_id
-inner join sys.foreign_key_columns fkc on fk.object_id = fkc.constraint_object_id
-inner join sys.columns c on fkc.parent_column_id = c.column_id and c.object_id = fkc.parent_object_id
-inner join sys.key_constraints kc on kc.unique_index_id = fk.key_index_id and kc.parent_object_id = fk.referenced_object_id
-where schema_name(child_t.schema_id) = @SchemaName and child_t.name = @TableName";
+select
+    c.conname as ChildKeyName,
+    tc.attname as ColumnName,
+    child_cols.con_index as ConstraintColumnId,
+    pns.nspname as ParentSchemaName,
+    pt.relname as ParentTableName,
+    pkc.contype as ParentKeyType,
+    pkc.conname as ParentKeyName,
+    c.confupdtype as UpdateRule,
+    c.confdeltype as DeleteRule
+from pg_catalog.pg_namespace ns
+inner join pg_catalog.pg_class t on ns.oid = t.relnamespace
+inner join pg_catalog.pg_constraint c on c.conrelid = t.oid and c.contype = 'f'
+inner join pg_catalog.pg_attribute tc on tc.attrelid = t.oid and tc.attnum = any(c.conkey)
+inner join pg_catalog.unnest(c.conkey) with ordinality as child_cols(col_index, con_index) on child_cols.col_index = tc.attnum
+inner join pg_catalog.pg_class pt on pt.oid = c.confrelid
+inner join pg_catalog.pg_namespace pns on pns.oid = pt.relnamespace
+left join pg_catalog.pg_depend d1  -- find constraint's dependency on an index
+    on d1.objid = c.oid
+    and d1.classid = 'pg_constraint'::regclass
+    and d1.refclassid = 'pg_class'::regclass
+    and d1.refobjsubid = 0
+left join pg_catalog.pg_depend d2  -- find pkey/unique constraint for that index
+    on d2.refclassid = 'pg_constraint'::regclass
+    and d2.classid = 'pg_class'::regclass
+    and d2.objid = d1.refobjid
+    and d2.objsubid = 0
+    and d2.deptype = 'i'
+left join pg_catalog.pg_constraint pkc on pkc.oid = d2.refobjid
+    and pkc.contype in ('p', 'u')
+    and pkc.conrelid = c.confrelid
+where t.relname = @TableName and ns.nspname = @SchemaName";
 
             var queryResult = Connection.Query<ForeignKeyData>(sql, new { SchemaName = Name.Schema, TableName = Name.LocalName });
             if (queryResult.Empty())
@@ -615,13 +693,12 @@ where schema_name(child_t.schema_id) = @SchemaName and child_t.name = @TableName
             var foreignKeys = queryResult.GroupBy(row => new
             {
                 ChildKeyName = row.ChildKeyName,
-                ParentTableSchema = row.ParentTableSchema,
+                ParentSchemaName = row.ParentSchemaName,
                 ParentTableName = row.ParentTableName,
                 ParentKeyName = row.ParentKeyName,
                 KeyType = row.ParentKeyType,
                 DeleteRule = row.DeleteRule,
-                UpdateRule = row.UpdateRule,
-                IsDisabled = row.IsDisabled
+                UpdateRule = row.UpdateRule
             }).ToList();
             if (foreignKeys.Count == 0)
                 return Enumerable.Empty<IDatabaseRelationalKey>();
@@ -629,14 +706,12 @@ where schema_name(child_t.schema_id) = @SchemaName and child_t.name = @TableName
             var result = new List<IDatabaseRelationalKey>(foreignKeys.Count);
             foreach (var fkey in foreignKeys)
             {
-                var rows = fkey.OrderBy(row => row.ConstraintColumnId);
-
-                var parentTableName = new Identifier(fkey.Key.ParentTableSchema, fkey.Key.ParentTableName);
+                var parentTableName = new Identifier(fkey.Key.ParentSchemaName, fkey.Key.ParentTableName);
                 var parentTable = Database.GetTable(parentTableName);
                 var parentKeyName = new LocalIdentifier(fkey.Key.ParentKeyName);
 
                 IDatabaseKey parentKey;
-                if (fkey.Key.KeyType == "PK")
+                if (fkey.Key.KeyType == "p")
                 {
                     parentKey = parentTable.PrimaryKey;
                 }
@@ -653,13 +728,12 @@ where schema_name(child_t.schema_id) = @SchemaName and child_t.name = @TableName
                     .Select(row => childKeyColumnLookup[row.ColumnName])
                     .ToList();
 
-                var isEnabled = !fkey.Key.IsDisabled;
-                var childKey = new SqlServerDatabaseKey(this, childKeyName, DatabaseKeyType.Foreign, childKeyColumns, isEnabled);
+                var childKey = new PostgreSqlDatabaseKey(this, childKeyName, DatabaseKeyType.Foreign, childKeyColumns);
 
                 var deleteRule = RelationalRuleMapping[fkey.Key.DeleteRule];
                 var updateRule = RelationalRuleMapping[fkey.Key.UpdateRule];
 
-                var relationalKey = new SqlServerRelationalKey(childKey, parentKey, deleteRule, updateRule);
+                var relationalKey = new PostgreSqlRelationalKey(childKey, parentKey, deleteRule, updateRule);
                 result.Add(relationalKey);
             }
 
@@ -669,14 +743,38 @@ where schema_name(child_t.schema_id) = @SchemaName and child_t.name = @TableName
         protected virtual async Task<IEnumerable<IDatabaseRelationalKey>> LoadParentKeysAsync()
         {
             const string sql = @"
-select schema_name(parent_t.schema_id) as ParentTableSchema, parent_t.name as ParentTableName, fk.name as ChildKeyName, c.name as ColumnName, fkc.constraint_column_id as ConstraintColumnId, kc.name as ParentKeyName, kc.type as ParentKeyType, fk.delete_referential_action as DeleteRule, fk.update_referential_action as UpdateRule, fk.is_disabled as IsDisabled
-from sys.tables parent_t
-inner join sys.foreign_keys fk on parent_t.object_id = fk.referenced_object_id
-inner join sys.tables child_t on fk.parent_object_id = child_t.object_id
-inner join sys.foreign_key_columns fkc on fk.object_id = fkc.constraint_object_id
-inner join sys.columns c on fkc.parent_column_id = c.column_id and c.object_id = fkc.parent_object_id
-inner join sys.key_constraints kc on kc.unique_index_id = fk.key_index_id and kc.parent_object_id = fk.referenced_object_id
-where schema_name(child_t.schema_id) = @SchemaName and child_t.name = @TableName";
+select
+    c.conname as ChildKeyName,
+    tc.attname as ColumnName,
+    child_cols.con_index as ConstraintColumnId,
+    pns.nspname as ParentSchemaName,
+    pt.relname as ParentTableName,
+    pkc.contype as ParentKeyType,
+    pkc.conname as ParentKeyName,
+    c.confupdtype as UpdateRule,
+    c.confdeltype as DeleteRule
+from pg_namespace ns
+inner join pg_class t on ns.oid = t.relnamespace
+inner join pg_constraint c on c.conrelid = t.oid and c.contype = 'f'
+inner join pg_attribute tc on tc.attrelid = t.oid and tc.attnum = any(c.conkey)
+inner join pg_catalog.unnest(c.conkey) with ordinality as child_cols(col_index, con_index) on child_cols.col_index = tc.attnum
+inner join pg_class pt on pt.oid = c.confrelid
+inner join pg_namespace pns on pns.oid = pt.relnamespace
+left join pg_depend d1  -- find constraint's dependency on an index
+    on d1.objid = c.oid
+    and d1.classid = 'pg_constraint'::regclass
+    and d1.refclassid = 'pg_class'::regclass
+    and d1.refobjsubid = 0
+left join pg_depend d2  -- find pkey/unique constraint for that index
+    on d2.refclassid = 'pg_constraint'::regclass
+    and d2.classid = 'pg_class'::regclass
+    and d2.objid = d1.refobjid
+    and d2.objsubid = 0
+    and d2.deptype = 'i'
+left join pg_constraint pkc on pkc.oid = d2.refobjid
+    and pkc.contype in ('p', 'u')
+    and pkc.conrelid = c.confrelid
+where t.relname = @TableName and ns.nspname = @SchemaName";
 
             var queryResult = await Connection.QueryAsync<ForeignKeyData>(sql, new { SchemaName = Name.Schema, TableName = Name.LocalName }).ConfigureAwait(false);
             if (queryResult.Empty())
@@ -685,13 +783,12 @@ where schema_name(child_t.schema_id) = @SchemaName and child_t.name = @TableName
             var foreignKeys = queryResult.GroupBy(row => new
             {
                 ChildKeyName = row.ChildKeyName,
-                ParentTableSchema = row.ParentTableSchema,
+                ParentSchemaName = row.ParentSchemaName,
                 ParentTableName = row.ParentTableName,
                 ParentKeyName = row.ParentKeyName,
                 KeyType = row.ParentKeyType,
                 DeleteRule = row.DeleteRule,
-                UpdateRule = row.UpdateRule,
-                IsDisabled = row.IsDisabled
+                UpdateRule = row.UpdateRule
             }).ToList();
             if (foreignKeys.Count == 0)
                 return Enumerable.Empty<IDatabaseRelationalKey>();
@@ -699,16 +796,14 @@ where schema_name(child_t.schema_id) = @SchemaName and child_t.name = @TableName
             var result = new List<IDatabaseRelationalKey>(foreignKeys.Count);
             foreach (var fkey in foreignKeys)
             {
-                var rows = fkey.OrderBy(row => row.ConstraintColumnId);
-
-                var parentTableName = new Identifier(fkey.Key.ParentTableSchema, fkey.Key.ParentTableName);
+                var parentTableName = new Identifier(fkey.Key.ParentSchemaName, fkey.Key.ParentTableName);
                 var parentTable = await Database.GetTableAsync(parentTableName).ConfigureAwait(false);
                 var parentKeyName = new LocalIdentifier(fkey.Key.ParentKeyName);
 
                 IDatabaseKey parentKey;
-                if (fkey.Key.KeyType == "PK")
+                if (fkey.Key.KeyType == "p")
                 {
-                    parentKey = parentTable.PrimaryKey;
+                    parentKey = await parentTable.PrimaryKeyAsync().ConfigureAwait(false);
                 }
                 else
                 {
@@ -723,13 +818,12 @@ where schema_name(child_t.schema_id) = @SchemaName and child_t.name = @TableName
                     .Select(row => childKeyColumnLookup[row.ColumnName])
                     .ToList();
 
-                var isEnabled = !fkey.Key.IsDisabled;
-                var childKey = new SqlServerDatabaseKey(this, childKeyName, DatabaseKeyType.Foreign, childKeyColumns, isEnabled);
+                var childKey = new PostgreSqlDatabaseKey(this, childKeyName, DatabaseKeyType.Foreign, childKeyColumns);
 
                 var deleteRule = RelationalRuleMapping[fkey.Key.DeleteRule];
                 var updateRule = RelationalRuleMapping[fkey.Key.UpdateRule];
 
-                var relationalKey = new SqlServerRelationalKey(childKey, parentKey, deleteRule, updateRule);
+                var relationalKey = new PostgreSqlRelationalKey(childKey, parentKey, deleteRule, updateRule);
                 result.Add(relationalKey);
             }
 
@@ -771,55 +865,58 @@ where schema_name(child_t.schema_id) = @SchemaName and child_t.name = @TableName
         {
             const string sql = @"
 select
-    c.name as ColumnName,
-    schema_name(st.schema_id) as ColumnTypeSchema,
-    st.name as ColumnTypeName,
-    c.max_length as MaxLength,
-    c.precision as Precision,
-    c.scale as Scale,
-    c.collation_name as Collation,
-    c.is_computed as IsComputed,
-    c.is_nullable as IsNullable,
-    dc.definition as DefaultValue,
-    cc.definition as ComputedColumnDefinition,
-    (convert(bigint, ic.seed_value)) as IdentitySeed,
-    (convert(bigint, ic.increment_value)) as IdentityIncrement
-from sys.tables t
-inner join sys.columns c on t.object_id = c.object_id
-left join sys.default_constraints dc on c.object_id = dc.parent_object_id and c.column_id = dc.parent_column_id
-left join sys.computed_columns cc on c.object_id = cc.object_id and c.column_id = cc.column_id
-left join sys.identity_columns ic on c.object_id = ic.object_id and c.column_id = ic.column_id
-left join sys.types st on c.user_type_id = st.user_type_id
-where schema_name(t.schema_id) = @SchemaName
-    and t.name = @TableName
-    order by c.column_id";
+    column_name,
+    ordinal_position,
+    column_default,
+    is_nullable,
+    data_type,
+    character_maximum_length,
+    character_octet_length,
+    numeric_precision,
+    numeric_precision_radix,
+    numeric_scale,
+    datetime_precision,
+    interval_type,
+    collation_catalog,
+    collation_schema,
+    collation_name,
+    domain_catalog,
+    domain_schema,
+    domain_name,
+    udt_catalog,
+    udt_schema,
+    udt_name,
+    dtd_identifier,
+    (pg_catalog.parse_ident(pg_catalog.pg_get_serial_sequence(table_name, column_name)))[1] as serial_sequence_schema_name,
+    (pg_catalog.parse_ident(pg_catalog.pg_get_serial_sequence(table_name, column_name)))[2] as serial_sequence_local_name
+from information_schema.columns
+where table_schema = @SchemaName and table_name = @TableName
+order by ordinal_position";
 
             var query = Connection.Query<ColumnData>(sql, new { SchemaName = Name.Schema, TableName = Name.LocalName });
             var result = new List<IDatabaseTableColumn>();
-
-
 
             foreach (var row in query)
             {
                 var typeMetadata = new ColumnTypeMetadata
                 {
-                    TypeName = new Identifier(row.ColumnTypeSchema, row.ColumnTypeName),
-                    Collation = row.Collation.IsNullOrWhiteSpace() ? null : new Identifier(row.Collation),
-                    MaxLength = row.MaxLength,
-                    NumericPrecision = new NumericPrecision(row.Precision, row.Scale)
+                    TypeName = new Identifier(row.data_type),
+                    Collation = row.collation_name.IsNullOrWhiteSpace() ? null : new Identifier(row.collation_catalog, row.collation_schema, row.collation_name),
+                    //TODO -- need to fix max length as it's different for char-like objects and numeric
+                    //MaxLength = row.,
+                    // TODO: numeric_precision has a base, can be either binary or decimal, need to use the correct one
+                    NumericPrecision = new NumericPrecision(row.numeric_precision, row.numeric_scale)
                 };
-                var columnType = TypeProvider.CreateColumnType(typeMetadata);
 
-                var columnName = new LocalIdentifier(row.ColumnName);
-                var isAutoIncrement = row.IdentitySeed.HasValue && row.IdentityIncrement.HasValue;
+                var columnType = TypeProvider.CreateColumnType(typeMetadata);
+                var columnName = new LocalIdentifier(row.column_name);
+
+                var isAutoIncrement = !row.serial_sequence_schema_name.IsNullOrWhiteSpace() && !row.serial_sequence_local_name.IsNullOrWhiteSpace();
                 var autoIncrement = isAutoIncrement
-                    ? new AutoIncrement(row.IdentitySeed.Value, row.IdentityIncrement.Value)
+                    ? new AutoIncrement(1, 1)
                     : (IAutoIncrement)null;
 
-                var column = row.IsComputed
-                    ? new SqlServerDatabaseComputedTableColumn(this, columnName, columnType, row.IsNullable, row.DefaultValue, row.ComputedColumnDefinition)
-                    : new SqlServerDatabaseTableColumn(this, columnName, columnType, row.IsNullable, row.DefaultValue, autoIncrement);
-
+                var column = new PostgreSqlDatabaseTableColumn(this, columnName, columnType, row.is_nullable == "YES", row.column_default, autoIncrement);
                 result.Add(column);
             }
 
@@ -830,28 +927,33 @@ where schema_name(t.schema_id) = @SchemaName
         {
             const string sql = @"
 select
-    c.name as ColumnName,
-    schema_name(st.schema_id) as ColumnTypeSchema,
-    st.name as ColumnTypeName,
-    c.max_length as MaxLength,
-    c.precision as Precision,
-    c.scale as Scale,
-    c.collation_name as Collation,
-    c.is_computed as IsComputed,
-    c.is_nullable as IsNullable,
-    dc.definition as DefaultValue,
-    cc.definition as ComputedColumnDefinition,
-    (convert(bigint, ic.seed_value)) as IdentitySeed,
-    (convert(bigint, ic.increment_value)) as IdentityIncrement
-from sys.tables t
-inner join sys.columns c on t.object_id = c.object_id
-left join sys.default_constraints dc on c.object_id = dc.parent_object_id and c.column_id = dc.parent_column_id
-left join sys.computed_columns cc on c.object_id = cc.object_id and c.column_id = cc.column_id
-left join sys.identity_columns ic on c.object_id = ic.object_id and c.column_id = ic.column_id
-left join sys.types st on c.user_type_id = st.user_type_id
-where schema_name(t.schema_id) = @SchemaName
-    and t.name = @TableName
-    order by c.column_id";
+    column_name,
+    ordinal_position,
+    column_default,
+    is_nullable,
+    data_type,
+    character_maximum_length,
+    character_octet_length,
+    numeric_precision,
+    numeric_precision_radix,
+    numeric_scale,
+    datetime_precision,
+    interval_type,
+    collation_catalog,
+    collation_schema,
+    collation_name,
+    domain_catalog,
+    domain_schema,
+    domain_name,
+    udt_catalog,
+    udt_schema,
+    udt_name,
+    dtd_identifier,
+    (pg_catalog.parse_ident(pg_catalog.pg_get_serial_sequence(table_name, column_name)))[1] as serial_sequence_schema_name,
+    (pg_catalog.parse_ident(pg_catalog.pg_get_serial_sequence(table_name, column_name)))[2] as serial_sequence_local_name
+from information_schema.columns
+where table_schema = @SchemaName and table_name = @TableName
+order by ordinal_position";
 
             var query = await Connection.QueryAsync<ColumnData>(sql, new { SchemaName = Name.Schema, TableName = Name.LocalName }).ConfigureAwait(false);
             var result = new List<IDatabaseTableColumn>();
@@ -860,23 +962,23 @@ where schema_name(t.schema_id) = @SchemaName
             {
                 var typeMetadata = new ColumnTypeMetadata
                 {
-                    TypeName = new Identifier(row.ColumnTypeSchema, row.ColumnTypeName),
-                    Collation = row.Collation.IsNullOrWhiteSpace() ? null : new Identifier(row.Collation),
-                    MaxLength = row.MaxLength,
-                    NumericPrecision = new NumericPrecision(row.Precision, row.Scale)
+                    TypeName = new Identifier(row.data_type),
+                    Collation = row.collation_name.IsNullOrWhiteSpace() ? null : new Identifier(row.collation_catalog, row.collation_schema, row.collation_name),
+                    //TODO -- need to fix max length as it's different for char-like objects and numeric
+                    //MaxLength = row.,
+                    // TODO: numeric_precision has a base, can be either binary or decimal, need to use the correct one
+                    NumericPrecision = new NumericPrecision(row.numeric_precision, row.numeric_scale)
                 };
-                var columnType = TypeProvider.CreateColumnType(typeMetadata);
 
-                var columnName = new LocalIdentifier(row.ColumnName);
-                var isAutoIncrement = row.IdentitySeed.HasValue && row.IdentityIncrement.HasValue;
+                var columnType = TypeProvider.CreateColumnType(typeMetadata);
+                var columnName = new LocalIdentifier(row.column_name);
+
+                var isAutoIncrement = !row.serial_sequence_schema_name.IsNullOrWhiteSpace() && !row.serial_sequence_local_name.IsNullOrWhiteSpace();
                 var autoIncrement = isAutoIncrement
-                    ? new AutoIncrement(row.IdentitySeed.Value, row.IdentityIncrement.Value)
+                    ? new AutoIncrement(1, 1)
                     : (IAutoIncrement)null;
 
-                var column = row.IsComputed
-                    ? new SqlServerDatabaseComputedTableColumn(this, columnName, columnType, row.IsNullable, row.DefaultValue, row.ComputedColumnDefinition)
-                    : new SqlServerDatabaseTableColumn(this, columnName, columnType, row.IsNullable, row.DefaultValue, autoIncrement);
-
+                var column = new PostgreSqlDatabaseTableColumn(this, columnName, columnType, row.is_nullable == "YES", row.column_default, autoIncrement);
                 result.Add(column);
             }
 
@@ -915,12 +1017,14 @@ where schema_name(t.schema_id) = @SchemaName
         protected virtual IEnumerable<IDatabaseTrigger> LoadTriggersSync()
         {
             const string sql = @"
-select st.name as TriggerName, sm.definition as Definition, st.is_instead_of_trigger as IsInsteadOfTrigger, te.type_desc as TriggerEvent, st.is_disabled as IsDisabled
-from sys.tables t
-inner join sys.triggers st on t.object_id = st.parent_id
-inner join sys.sql_modules sm on st.object_id = sm.object_id
-inner join sys.trigger_events te on st.object_id = te.object_id
-where schema_name(t.schema_id) = @SchemaName and t.name = @TableName";
+select tr.tgname as TriggerName, tgenabled as EnabledFlag, itr.action_statement as Definition, itr.action_timing as Timing, itr.event_manipulation as TriggerEvent
+from pg_catalog.pg_class t
+inner join pg_catalog.pg_namespace ns on ns.oid = t.relnamespace
+inner join pg_catalog.pg_trigger tr on t.oid = tr.tgrelid
+inner join information_schema.triggers itr on ns.nspname = itr.event_object_schema and itr.event_object_table = t.relname and itr.trigger_name = tr.tgname
+where t.relkind = 'r'
+    and t.relname = @TableName
+    and ns.nspname = @SchemaName";
 
             var queryResult = Connection.Query<TriggerData>(sql, new { SchemaName = Name.Schema, TableName = Name.LocalName });
             if (queryResult.Empty())
@@ -930,8 +1034,8 @@ where schema_name(t.schema_id) = @SchemaName and t.name = @TableName";
             {
                 TriggerName = row.TriggerName,
                 Definition = row.Definition,
-                IsInsteadOfTrigger = row.IsInsteadOfTrigger,
-                IsDisabled = row.IsDisabled
+                Timing = row.Timing,
+                EnabledFlag = row.EnabledFlag
             }).ToList();
             if (triggers.Count == 0)
                 return Enumerable.Empty<IDatabaseTrigger>();
@@ -940,9 +1044,8 @@ where schema_name(t.schema_id) = @SchemaName and t.name = @TableName";
             foreach (var trig in triggers)
             {
                 var triggerName = new LocalIdentifier(trig.Key.TriggerName);
-                var queryTiming = trig.Key.IsInsteadOfTrigger ? TriggerQueryTiming.InsteadOf : TriggerQueryTiming.After;
+                var queryTiming = Enum.TryParse(trig.Key.Timing, true, out TriggerQueryTiming timing) ? timing : TriggerQueryTiming.Before;
                 var definition = trig.Key.Definition;
-                var isEnabled = !trig.Key.IsDisabled;
 
                 var events = TriggerEvent.None;
                 foreach (var trigEvent in trig)
@@ -957,7 +1060,8 @@ where schema_name(t.schema_id) = @SchemaName and t.name = @TableName";
                         throw new Exception("Found an unsupported trigger event name. Expected one of INSERT, UPDATE, DELETE, got: " + trigEvent.TriggerEvent);
                 }
 
-                var trigger = new SqlServerDatabaseTrigger(this, triggerName, definition, queryTiming, events, isEnabled);
+                var isEnabled = trig.Key.EnabledFlag != "D";
+                var trigger = new PostgreSqlDatabaseTrigger(this, triggerName, definition, queryTiming, events, isEnabled);
                 result.Add(trigger);
             }
 
@@ -967,12 +1071,14 @@ where schema_name(t.schema_id) = @SchemaName and t.name = @TableName";
         protected virtual async Task<IEnumerable<IDatabaseTrigger>> LoadTriggersAsync()
         {
             const string sql = @"
-select st.name as TriggerName, sm.definition as Definition, st.is_instead_of_trigger as IsInsteadOfTrigger, te.type_desc as TriggerEvent, st.is_disabled as IsDisabled
-from sys.tables t
-inner join sys.triggers st on t.object_id = st.parent_id
-inner join sys.sql_modules sm on st.object_id = sm.object_id
-inner join sys.trigger_events te on st.object_id = te.object_id
-where schema_name(t.schema_id) = @SchemaName and t.name = @TableName";
+select tr.tgname as TriggerName, tgenabled as EnabledFlag, itr.action_statement as Definition, itr.action_timing as Timing, itr.event_manipulation as TriggerEvent
+from pg_catalog.pg_class t
+inner join pg_catalog.pg_namespace ns on ns.oid = t.relnamespace
+inner join pg_catalog.pg_trigger tr on t.oid = tr.tgrelid
+inner join information_schema.triggers itr on ns.nspname = itr.event_object_schema and itr.event_object_table = t.relname and itr.trigger_name = tr.tgname
+where t.relkind = 'r'
+    and t.relname = @TableName
+    and ns.nspname = @SchemaName";
 
             var queryResult = await Connection.QueryAsync<TriggerData>(sql, new { SchemaName = Name.Schema, TableName = Name.LocalName }).ConfigureAwait(false);
             if (queryResult.Empty())
@@ -982,8 +1088,8 @@ where schema_name(t.schema_id) = @SchemaName and t.name = @TableName";
             {
                 TriggerName = row.TriggerName,
                 Definition = row.Definition,
-                IsInsteadOfTrigger = row.IsInsteadOfTrigger,
-                IsDisabled = row.IsDisabled
+                Timing = row.Timing,
+                EnabledFlag = row.EnabledFlag
             }).ToList();
             if (triggers.Count == 0)
                 return Enumerable.Empty<IDatabaseTrigger>();
@@ -992,9 +1098,8 @@ where schema_name(t.schema_id) = @SchemaName and t.name = @TableName";
             foreach (var trig in triggers)
             {
                 var triggerName = new LocalIdentifier(trig.Key.TriggerName);
-                var queryTiming = trig.Key.IsInsteadOfTrigger ? TriggerQueryTiming.InsteadOf : TriggerQueryTiming.After;
+                var queryTiming = Enum.TryParse(trig.Key.Timing, true, out TriggerQueryTiming timing) ? timing : TriggerQueryTiming.Before;
                 var definition = trig.Key.Definition;
-                var isEnabled = !trig.Key.IsDisabled;
 
                 var events = TriggerEvent.None;
                 foreach (var trigEvent in trig)
@@ -1009,19 +1114,21 @@ where schema_name(t.schema_id) = @SchemaName and t.name = @TableName";
                         throw new Exception("Found an unsupported trigger event name. Expected one of INSERT, UPDATE, DELETE, got: " + trigEvent.TriggerEvent);
                 }
 
-                var trigger = new SqlServerDatabaseTrigger(this, triggerName, definition, queryTiming, events, isEnabled);
+                var isEnabled = trig.Key.EnabledFlag != "D";
+                var trigger = new PostgreSqlDatabaseTrigger(this, triggerName, definition, queryTiming, events, isEnabled);
                 result.Add(trigger);
             }
 
             return result;
         }
 
-        protected IReadOnlyDictionary<int, Rule> RelationalRuleMapping { get; } = new Dictionary<int, Rule>
+        protected IReadOnlyDictionary<string, Rule> RelationalRuleMapping { get; } = new Dictionary<string, Rule>
         {
-            [0] = Rule.None,
-            [1] = Rule.Cascade,
-            [2] = Rule.SetNull,
-            [3] = Rule.SetDefault
+            ["a"] = Rule.None,
+            ["c"] = Rule.Cascade,
+            ["n"] = Rule.SetNull,
+            ["d"] = Rule.SetDefault,
+            ["r"] = Rule.None // could be changed to restrict
         }.AsReadOnlyDictionary();
     }
 }
