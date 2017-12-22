@@ -16,6 +16,9 @@ namespace SJP.Schematic.PostgreSql
             Database = database ?? throw new ArgumentNullException(nameof(database));
             Connection = connection ?? throw new ArgumentNullException(nameof(connection));
 
+            var dialect = database.Dialect;
+            Dialect = dialect ?? throw new ArgumentException("The given database does not contain a valid dialect.", nameof(database));
+
             var serverName = sequenceName.Server ?? database.ServerName;
             var databaseName = sequenceName.Database ?? database.DatabaseName;
             var schemaName = sequenceName.Schema ?? database.DefaultSchema;
@@ -30,6 +33,8 @@ namespace SJP.Schematic.PostgreSql
         public Identifier Name { get; }
 
         protected IDbConnection Connection { get; }
+
+        protected IDatabaseDialect Dialect { get; }
 
         public int Cache => SequenceData.CacheSize;
 
@@ -47,18 +52,22 @@ namespace SJP.Schematic.PostgreSql
 
         protected virtual SequenceData LoadSequenceData()
         {
-            return Connection.QuerySingle<SequenceData>(@"
+            // TODO: for PostgreSQL >= 10, there will be a p.cache_size available
+            const string sql = @"
 select
-    s.start_value as StartValue,
-    s.increment_by as Increment,
-    s.min_value as MinValue,
-    s.max_value as MaxValue,
-    s.cycle as Cycle,
-    s.cache_size as CacheSize
-from pg_catalog.pg_sequences s
-inner join pg_catalog.pg_namespace ns on s.schemaname = ns.nspname
-where ns.nspname = @SchemaName and s.sequencename = @SequenceName
-", new { SchemaName = Name.Schema, SequenceName = Name.LocalName });
+    p.start_value as StartValue,
+    p.minimum_value as MinValue,
+    p.maximum_value as MaxValue,
+    p.increment as Increment,
+    1 as CacheSize,
+    p.cycle_option as Cycle
+from pg_namespace nc, pg_class c, lateral pg_sequence_parameters(c.oid) p
+where c.relnamespace = nc.oid
+    and c.relkind = 'S'
+    and nc.nspname = @SchemaName
+    and c.relname = @SequenceName";
+
+            return Connection.QuerySingle<SequenceData>(sql, new { SchemaName = Name.Schema, SequenceName = Name.LocalName });
         }
 
         private readonly Lazy<SequenceData> _dataLoader;

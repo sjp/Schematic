@@ -259,7 +259,7 @@ namespace SJP.Schematic.PostgreSql
 
         protected virtual string SequenceExistsQuery => SequenceExistsQuerySql;
 
-        private const string SequenceExistsQuerySql = "select 1 from pg_catalog.pg_sequences where schemaname = @SchemaName and sequencename = @SequenceName and schemaname not in ('pg_catalog', 'information_schema') limit 1";
+        private const string SequenceExistsQuerySql = "select 1 from information_schema.sequences where sequence_schema = @SchemaName and sequence_name = @SequenceName and sequence_schema not in ('pg_catalog', 'information_schema') limit 1";
 
         public IDatabaseSequence GetSequence(Identifier sequenceName)
         {
@@ -303,7 +303,7 @@ namespace SJP.Schematic.PostgreSql
 
         protected virtual string SequencesQuery => SequencesQuerySql;
 
-        private const string SequencesQuerySql = "select schemaname as SchemaName, sequencename as ObjectName from pg_catalog.pg_sequences where schemaname not in ('pg_catalog', 'information_schema')";
+        private const string SequencesQuerySql = "select sequence_schema as SchemaName, sequence_name as ObjectName from information_schema.sequences where sequence_schema not in ('pg_catalog', 'information_schema')";
 
         protected virtual IDatabaseSequence LoadSequenceSync(Identifier sequenceName)
         {
