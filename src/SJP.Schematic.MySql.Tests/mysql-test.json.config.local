@@ -1,5 +1,4 @@
 ﻿{
   "ConnectionStrings": {
-    "TestDb": "Server=192.168.149.128; Database=test_db; Uid=test_user; Pwd=test_user_pw;"
   }
 }

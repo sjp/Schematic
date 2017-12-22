@@ -11,7 +11,10 @@ platform: Any CPU
 # build Configuration, i.e. Debug, Release, etc.
 configuration: Release
 
-services: mssql2016
+services:
+  - mssql2016
+  - postgresql10
+  - mysql
 
 build:
   verbosity: minimal
@@ -27,6 +30,11 @@ test_script:
   - ps: build/uploadtests.ps1 "src/SJP.Schematic.Sqlite.Tests/TestResults/SJP.Schematic.Sqlite.Tests.results.xml"
   - dotnet test src/SJP.Schematic.SqlServer.Tests/SJP.Schematic.SqlServer.Tests.csproj --configuration Release --logger:trx;LogFileName=SJP.Schematic.SqlServer.Tests.results.xml
   - ps: build/uploadtests.ps1 "src/SJP.Schematic.SqlServer.Tests/TestResults/SJP.Schematic.SqlServer.Tests.results.xml"
+
+  - dotnet test src/SJP.Schematic.MySql.Tests/SJP.Schematic.MySql.Tests.csproj --configuration Release --logger:trx;LogFileName=SJP.Schematic.MySql.Tests.results.xml
+  - ps: build/uploadtests.ps1 "src/SJP.Schematic.MySql.Tests/TestResults/SJP.Schematic.MySql.Tests.results.xml"
+  - dotnet test src/SJP.Schematic.PostgreSql.Tests/SJP.Schematic.PostgreSql.Tests.csproj --configuration Release --logger:trx;LogFileName=SJP.Schematic.PostgreSql.Tests.results.xml
+  - ps: build/uploadtests.ps1 "src/SJP.Schematic.PostgreSql.Tests/TestResults/SJP.Schematic.PostgreSql.Tests.results.xml"
 
 notifications:
 - provider: Email
