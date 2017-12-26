@@ -1,7 +1,6 @@
 ﻿using System.Linq;
 using System.Threading.Tasks;
 using NUnit.Framework;
-using SJP.Schematic.Core;
 
 namespace SJP.Schematic.PostgreSql.Tests.Integration
 {

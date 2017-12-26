@@ -6,6 +6,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using SJP.Schematic.Core;
 using SJP.Schematic.PostgreSql.Query;
+using System.Globalization;
 
 namespace SJP.Schematic.PostgreSql
 {
@@ -900,12 +901,13 @@ order by ordinal_position";
             {
                 var typeMetadata = new ColumnTypeMetadata
                 {
-                    TypeName = new Identifier(row.data_type),
+                    TypeName = new Identifier("pg_catalog", row.data_type),
                     Collation = row.collation_name.IsNullOrWhiteSpace() ? null : new Identifier(row.collation_catalog, row.collation_schema, row.collation_name),
-                    //TODO -- need to fix max length as it's different for char-like objects and numeric
-                    //MaxLength = row.,
-                    // TODO: numeric_precision has a base, can be either binary or decimal, need to use the correct one
-                    NumericPrecision = new NumericPrecision(row.numeric_precision, row.numeric_scale)
+                    MaxLength = row.character_maximum_length > 0 ? row.character_maximum_length
+                        : row.numeric_precision > 0 ? CreatePrecisionFromBase(row.numeric_precision, row.numeric_precision_radix) : 0,
+                    NumericPrecision = row.numeric_precision_radix > 0
+                        ? CreatePrecisionWithScaleFromBase(row.numeric_precision, row.numeric_scale, row.numeric_precision_radix)
+                        : new NumericPrecision()
                 };
 
                 var columnType = TypeProvider.CreateColumnType(typeMetadata);
@@ -916,7 +918,9 @@ order by ordinal_position";
                     ? new AutoIncrement(1, 1)
                     : (IAutoIncrement)null;
 
-                var column = new PostgreSqlDatabaseTableColumn(this, columnName, columnType, row.is_nullable == "YES", row.column_default, autoIncrement);
+                var isNullable = row.is_nullable == "YES";
+
+                var column = new PostgreSqlDatabaseTableColumn(this, columnName, columnType, isNullable, row.column_default, autoIncrement);
                 result.Add(column);
             }
 
@@ -962,12 +966,13 @@ order by ordinal_position";
             {
                 var typeMetadata = new ColumnTypeMetadata
                 {
-                    TypeName = new Identifier(row.data_type),
+                    TypeName = new Identifier("pg_catalog", row.data_type),
                     Collation = row.collation_name.IsNullOrWhiteSpace() ? null : new Identifier(row.collation_catalog, row.collation_schema, row.collation_name),
-                    //TODO -- need to fix max length as it's different for char-like objects and numeric
-                    //MaxLength = row.,
-                    // TODO: numeric_precision has a base, can be either binary or decimal, need to use the correct one
-                    NumericPrecision = new NumericPrecision(row.numeric_precision, row.numeric_scale)
+                    MaxLength = row.character_maximum_length > 0 ? row.character_maximum_length
+                        : row.numeric_precision > 0 ? CreatePrecisionFromBase(row.numeric_precision, row.numeric_precision_radix) : 0,
+                    NumericPrecision = row.numeric_precision_radix > 0
+                        ? CreatePrecisionWithScaleFromBase(row.numeric_precision, row.numeric_scale, row.numeric_precision_radix)
+                        : new NumericPrecision()
                 };
 
                 var columnType = TypeProvider.CreateColumnType(typeMetadata);
@@ -978,7 +983,9 @@ order by ordinal_position";
                     ? new AutoIncrement(1, 1)
                     : (IAutoIncrement)null;
 
-                var column = new PostgreSqlDatabaseTableColumn(this, columnName, columnType, row.is_nullable == "YES", row.column_default, autoIncrement);
+                var isNullable = row.is_nullable == "YES";
+
+                var column = new PostgreSqlDatabaseTableColumn(this, columnName, columnType, isNullable, row.column_default, autoIncrement);
                 result.Add(column);
             }
 
@@ -1120,6 +1127,37 @@ where t.relkind = 'r'
             }
 
             return result;
+        }
+
+        protected static int CreatePrecisionFromBase(int precision, int radix)
+        {
+            if (precision < 0)
+                throw new ArgumentOutOfRangeException(nameof(precision));
+            if (radix < 0)
+                throw new ArgumentOutOfRangeException(nameof(radix));
+
+            var newPrecision = Convert.ToInt64(Math.Pow(precision, radix));
+            var newPrecisionStr = newPrecision.ToString(CultureInfo.InvariantCulture);
+
+            return newPrecisionStr.Length;
+        }
+
+        protected static NumericPrecision CreatePrecisionWithScaleFromBase(int precision, int scale, int radix)
+        {
+            if (precision < 0)
+                throw new ArgumentOutOfRangeException(nameof(precision));
+            if (scale < 0)
+                throw new ArgumentOutOfRangeException(nameof(scale));
+            if (radix < 0)
+                throw new ArgumentOutOfRangeException(nameof(radix));
+
+            var newPrecision = Convert.ToInt64(Math.Pow(precision, radix));
+            var newPrecisionStr = newPrecision.ToString(CultureInfo.InvariantCulture);
+
+            var newScale = Convert.ToInt64(Math.Pow(scale, radix));
+            var newScaleStr = newScale.ToString(CultureInfo.InvariantCulture);
+
+            return new NumericPrecision(newPrecisionStr.Length, newScaleStr.Length);
         }
 
         protected IReadOnlyDictionary<string, Rule> RelationalRuleMapping { get; } = new Dictionary<string, Rule>

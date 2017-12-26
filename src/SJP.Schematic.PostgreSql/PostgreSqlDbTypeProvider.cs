@@ -69,40 +69,40 @@ namespace SJP.Schematic.PostgreSql
 
             switch (typeMetadata.DataType)
             {
-                case DataType.BigInteger:
-                    return new Identifier("sys", "bigint");
-                case DataType.Binary:
-                case DataType.LargeBinary:
-                    return typeMetadata.IsFixedLength
-                        ? new Identifier("sys", "binary")
-                        : new Identifier("sys", "varbinary");
                 case DataType.Boolean:
-                    return new Identifier("sys", "bit");
+                    return new Identifier("pg_catalog", "bool");
+                case DataType.BigInteger:
+                    return new Identifier("pg_catalog", "int8");
+                case DataType.Binary:
+                    return typeMetadata.IsFixedLength
+                        ? new Identifier("pg_catalog", "bit")
+                        : new Identifier("pg_catalog", "varbit");
+                case DataType.LargeBinary:
+                    return new Identifier("pg_catalog", "bytea");
                 case DataType.Date:
+                    return new Identifier("pg_catalog", "date");
                 case DataType.DateTime:
-                    return new Identifier("sys", "datetime2");
+                    return new Identifier("pg_catalog", "timestamp");
                 case DataType.Float:
-                    return new Identifier("sys", "float");
+                    return new Identifier("pg_catalog", "float8");
                 case DataType.Integer:
-                    return new Identifier("sys", "int");
+                    return new Identifier("pg_catalog", "int4");
                 case DataType.Interval:
-                    return new Identifier("sys", "datetimeoffset");
+                    return new Identifier("pg_catalog", "interval");
                 case DataType.Numeric:
-                    return new Identifier("sys", "numeric");
+                    return new Identifier("pg_catalog", "numeric");
                 case DataType.SmallInteger:
-                    return new Identifier("sys", "smallint");
-                case DataType.String:
-                case DataType.Text:
-                    return typeMetadata.IsFixedLength
-                        ? new Identifier("sys", "char")
-                        : new Identifier("sys", "varchar");
+                    return new Identifier("pg_catalog", "int2");
                 case DataType.Time:
-                    return new Identifier("sys", "time");
+                    return new Identifier("pg_catalog", "time");
+                case DataType.String:
                 case DataType.Unicode:
-                case DataType.UnicodeText:
                     return typeMetadata.IsFixedLength
-                        ? new Identifier("sys", "nchar")
-                        : new Identifier("sys", "nvarchar");
+                        ? new Identifier("pg_catalog", "char")
+                        : new Identifier("pg_catalog", "varchar");
+                case DataType.Text:
+                case DataType.UnicodeText:
+                    return new Identifier("pg_catalog", "text");
                 case DataType.Unknown:
                     throw new ArgumentOutOfRangeException("Unable to determine a type name for an unknown data type.", nameof(typeMetadata));
                 default:
@@ -119,7 +119,7 @@ namespace SJP.Schematic.PostgreSql
 
             var builder = new StringBuilder(typeMetadata.TypeName.LocalName.Length * 2);
             var typeName = typeMetadata.TypeName;
-            if (string.Equals(typeName.Schema, "sys", StringComparison.OrdinalIgnoreCase))
+            if (string.Equals(typeName.Schema, "pg_catalog", StringComparison.OrdinalIgnoreCase))
                 builder.Append(QuoteIdentifier(typeName.LocalName));
             else
                 builder.Append(QuoteName(typeName));
@@ -145,10 +145,6 @@ namespace SJP.Schematic.PostgreSql
                     : typeMetadata.MaxLength;
 
                 builder.Append(maxLength.ToString(CultureInfo.InvariantCulture));
-            }
-            else
-            {
-                builder.Append("max");
             }
 
             builder.Append(")");
@@ -181,7 +177,7 @@ namespace SJP.Schematic.PostgreSql
             if (identifier.IsNullOrWhiteSpace())
                 throw new ArgumentNullException(nameof(identifier));
 
-            return $"[{ identifier.Replace("]", "]]") }]";
+            return $"\"{ identifier.Replace("\"", "\"\"") }\"";
         }
 
         protected static string QuoteName(Identifier name)
@@ -203,103 +199,178 @@ namespace SJP.Schematic.PostgreSql
             return pieces.Join(".");
         }
 
-        private readonly static IEnumerable<Identifier> _fixedLengthTypes = new HashSet<Identifier>(IdentifierComparer.OrdinalIgnoreCase)
+        private readonly static IEnumerable<Identifier> _fixedLengthTypes = new HashSet<Identifier>(IdentifierComparer.Ordinal)
         {
-            new Identifier("sys", "char"),
-            new Identifier("sys", "nchar"),
-            new Identifier("sys", "binary")
+            new Identifier("pg_catalog", "bit"),
+            new Identifier("pg_catalog", "char"),
         };
 
-        private readonly static IEnumerable<Identifier> _typeNamesWithNoLengthAnnotation = new HashSet<Identifier>(IdentifierComparer.OrdinalIgnoreCase)
+        private readonly static IEnumerable<Identifier> _typeNamesWithNoLengthAnnotation = new HashSet<Identifier>(IdentifierComparer.Ordinal)
         {
-            new Identifier("sys", "bigint"),
-            new Identifier("sys", "bit"),
-            new Identifier("sys", "date"),
-            new Identifier("sys", "datetime"),
-            new Identifier("sys", "image"),
-            new Identifier("sys", "int"),
-            new Identifier("sys", "money"),
-            new Identifier("sys", "ntext"),
-            new Identifier("sys", "rowversion"),
-            new Identifier("sys", "smalldatetime"),
-            new Identifier("sys", "smallint"),
-            new Identifier("sys", "smallmoney"),
-            new Identifier("sys", "sql_variant"),
-            new Identifier("sys", "text"),
-            new Identifier("sys", "timestamp"),
-            new Identifier("sys", "tinyint"),
-            new Identifier("sys", "uniqueidentifier"),
-            new Identifier("sys", "xml")
+            new Identifier("pg_catalog", "bigint"),
+            new Identifier("pg_catalog", "int8"),
+            new Identifier("pg_catalog", "bigserial"),
+            new Identifier("pg_catalog", "serial8"),
+            new Identifier("pg_catalog", "boolean"),
+            new Identifier("pg_catalog", "bool"),
+            new Identifier("pg_catalog", "box"),
+            new Identifier("pg_catalog", "bytea"),
+            new Identifier("pg_catalog", "cidr"),
+            new Identifier("pg_catalog", "circle"),
+            new Identifier("pg_catalog", "date"),
+            new Identifier("pg_catalog", "float8"),
+            new Identifier("pg_catalog", "inet"),
+            new Identifier("pg_catalog", "integer"),
+            new Identifier("pg_catalog", "int"),
+            new Identifier("pg_catalog", "int4"),
+            new Identifier("pg_catalog", "json"),
+            new Identifier("pg_catalog", "jsonb"),
+            new Identifier("pg_catalog", "line"),
+            new Identifier("pg_catalog", "lseg"),
+            new Identifier("pg_catalog", "macaddr"),
+            new Identifier("pg_catalog", "macaddr8"),
+            new Identifier("pg_catalog", "money"),
+            new Identifier("pg_catalog", "path"),
+            new Identifier("pg_catalog", "pg_lsn"),
+            new Identifier("pg_catalog", "point"),
+            new Identifier("pg_catalog", "polygon"),
+            new Identifier("pg_catalog", "real"),
+            new Identifier("pg_catalog", "float4"),
+            new Identifier("pg_catalog", "smallint"),
+            new Identifier("pg_catalog", "int2"),
+            new Identifier("pg_catalog", "smallserial"),
+            new Identifier("pg_catalog", "serial2"),
+            new Identifier("pg_catalog", "serial"),
+            new Identifier("pg_catalog", "serial4"),
+            new Identifier("pg_catalog", "text"),
+            new Identifier("pg_catalog", "tsquery"),
+            new Identifier("pg_catalog", "tsvector"),
+            new Identifier("pg_catalog", "txid_snapshot"),
+            new Identifier("pg_catalog", "uuid"),
+            new Identifier("pg_catalog", "xml")
+
         };
 
-        private readonly static IReadOnlyDictionary<Identifier, DataType> _stringToDataTypeMap = new Dictionary<Identifier, DataType>(IdentifierComparer.OrdinalIgnoreCase)
+        private readonly static IReadOnlyDictionary<Identifier, DataType> _stringToDataTypeMap = new Dictionary<Identifier, DataType>(IdentifierComparer.Ordinal)
         {
-            [new Identifier("sys", "bigint")] = DataType.BigInteger,
-            [new Identifier("sys", "binary")] = DataType.Binary,
-            [new Identifier("sys", "bit")] = DataType.Boolean,
-            [new Identifier("sys", "char")] = DataType.String,
-            [new Identifier("sys", "date")] = DataType.Date,
-            [new Identifier("sys", "datetime")] = DataType.DateTime,
-            [new Identifier("sys", "datetime2")] = DataType.DateTime,
-            [new Identifier("sys", "datetimeoffset")] = DataType.Time, // not sure on this, another type better?
-            [new Identifier("sys", "decimal")] = DataType.Numeric,
-            [new Identifier("sys", "float")] = DataType.Float,
-            [new Identifier("sys", "image")] = DataType.Binary,
-            [new Identifier("sys", "int")] = DataType.Integer,
-            [new Identifier("sys", "money")] = DataType.Numeric,
-            [new Identifier("sys", "nchar")] = DataType.Unicode,
-            [new Identifier("sys", "ntext")] = DataType.UnicodeText,
-            [new Identifier("sys", "numeric")] = DataType.Numeric,
-            [new Identifier("sys", "nvarchar")] = DataType.Unicode,
-            [new Identifier("sys", "real")] = DataType.Float,
-            [new Identifier("sys", "rowversion")] = DataType.Binary,
-            [new Identifier("sys", "smalldatetime")] = DataType.DateTime,
-            [new Identifier("sys", "smallint")] = DataType.SmallInteger,
-            [new Identifier("sys", "smallmoney")] = DataType.Numeric,
-            [new Identifier("sys", "sql_variant")] = DataType.Unknown,
-            [new Identifier("sys", "text")] = DataType.Text,
-            [new Identifier("sys", "time")] = DataType.Time,
-            [new Identifier("sys", "timestamp")] = DataType.Binary,
-            [new Identifier("sys", "tinyint")] = DataType.SmallInteger,
-            [new Identifier("sys", "uniqueidentifier")] = DataType.Unknown,
-            [new Identifier("sys", "varbinary")] = DataType.Binary,
-            [new Identifier("sys", "varchar")] = DataType.String,
-            [new Identifier("sys", "xml")] = DataType.Unicode
+            [new Identifier("pg_catalog", "bigint")] = DataType.BigInteger,
+            [new Identifier("pg_catalog", "int8")] = DataType.BigInteger,
+            [new Identifier("pg_catalog", "bigserial")] = DataType.BigInteger,
+            [new Identifier("pg_catalog", "int8")] = DataType.BigInteger,
+            [new Identifier("pg_catalog", "bit")] = DataType.Binary,
+            [new Identifier("pg_catalog", "bit varying")] = DataType.Binary,
+            [new Identifier("pg_catalog", "varbit")] = DataType.Binary,
+            [new Identifier("pg_catalog", "boolean")] = DataType.Boolean,
+            [new Identifier("pg_catalog", "bool")] = DataType.Boolean,
+            [new Identifier("pg_catalog", "bytea")] = DataType.LargeBinary,
+            [new Identifier("pg_catalog", "character")] = DataType.Unicode,
+            [new Identifier("pg_catalog", "char")] = DataType.Unicode,
+            [new Identifier("pg_catalog", "character varying")] = DataType.Unicode,
+            [new Identifier("pg_catalog", "varchar")] = DataType.Unicode,
+            [new Identifier("pg_catalog", "text")] = DataType.UnicodeText,
+            [new Identifier("pg_catalog", "date")] = DataType.Date,
+            [new Identifier("pg_catalog", "double precision")] = DataType.Float,
+            [new Identifier("pg_catalog", "float8")] = DataType.Float,
+            [new Identifier("pg_catalog", "integer")] = DataType.Integer,
+            [new Identifier("pg_catalog", "int")] = DataType.Integer,
+            [new Identifier("pg_catalog", "int4")] = DataType.Integer,
+            [new Identifier("pg_catalog", "interval")] = DataType.Interval,
+            [new Identifier("pg_catalog", "json")] = DataType.UnicodeText,
+            [new Identifier("pg_catalog", "jsonb")] = DataType.UnicodeText,
+            [new Identifier("pg_catalog", "numeric")] = DataType.Numeric,
+            [new Identifier("pg_catalog", "decimal")] = DataType.Numeric,
+            [new Identifier("pg_catalog", "real")] = DataType.Float,
+            [new Identifier("pg_catalog", "float4")] = DataType.Float,
+            [new Identifier("pg_catalog", "smallint")] = DataType.SmallInteger,
+            [new Identifier("pg_catalog", "int2")] = DataType.SmallInteger,
+            [new Identifier("pg_catalog", "smallserial")] = DataType.SmallInteger,
+            [new Identifier("pg_catalog", "serial2")] = DataType.SmallInteger,
+            [new Identifier("pg_catalog", "serial")] = DataType.Integer,
+            [new Identifier("pg_catalog", "serial4")] = DataType.Integer,
+            [new Identifier("pg_catalog", "text")] = DataType.UnicodeText,
+            [new Identifier("pg_catalog", "time")] = DataType.Time,
+            [new Identifier("pg_catalog", "timetz")] = DataType.Time,
+            [new Identifier("pg_catalog", "timestamp")] = DataType.DateTime,
+            [new Identifier("pg_catalog", "timestamptz")] = DataType.DateTime,
+            [new Identifier("pg_catalog", "xml")] = DataType.UnicodeText,
+            [new Identifier("pg_catalog", "box")] = DataType.Unknown,
+            [new Identifier("pg_catalog", "cidr")] = DataType.Unknown,
+            [new Identifier("pg_catalog", "circle")] = DataType.Unknown,
+            [new Identifier("pg_catalog", "inet")] = DataType.Unknown,
+            [new Identifier("pg_catalog", "line")] = DataType.Unknown,
+            [new Identifier("pg_catalog", "lseg")] = DataType.Unknown,
+            [new Identifier("pg_catalog", "macaddr")] = DataType.Unknown,
+            [new Identifier("pg_catalog", "macaddr8")] = DataType.Unknown,
+            [new Identifier("pg_catalog", "money")] = DataType.Unknown,
+            [new Identifier("pg_catalog", "path")] = DataType.Unknown,
+            [new Identifier("pg_catalog", "pg_lsn")] = DataType.Unknown,
+            [new Identifier("pg_catalog", "point")] = DataType.Unknown,
+            [new Identifier("pg_catalog", "polygon")] = DataType.Unknown,
+            [new Identifier("pg_catalog", "tsquery")] = DataType.Unknown,
+            [new Identifier("pg_catalog", "tsvector")] = DataType.Unknown,
+            [new Identifier("pg_catalog", "txid_snapshot")] = DataType.Unknown,
+            [new Identifier("pg_catalog", "uuid")] = DataType.Unknown
         };
 
-        private readonly static IReadOnlyDictionary<Identifier, Type> _stringToClrTypeMap = new Dictionary<Identifier, Type>(IdentifierComparer.OrdinalIgnoreCase)
+        private readonly static IReadOnlyDictionary<Identifier, Type> _stringToClrTypeMap = new Dictionary<Identifier, Type>(IdentifierComparer.Ordinal)
         {
-            [new Identifier("sys", "bigint")] = typeof(long),
-            [new Identifier("sys", "binary")] = typeof(byte[]),
-            [new Identifier("sys", "bit")] = typeof(bool),
-            [new Identifier("sys", "char")] = typeof(string),
-            [new Identifier("sys", "date")] = typeof(DateTime),
-            [new Identifier("sys", "datetime")] = typeof(DateTime),
-            [new Identifier("sys", "datetime2")] = typeof(DateTime),
-            [new Identifier("sys", "datetimeoffset")] = typeof(DateTimeOffset),
-            [new Identifier("sys", "decimal")] = typeof(decimal),
-            [new Identifier("sys", "float")] = typeof(double),
-            [new Identifier("sys", "image")] = typeof(byte[]),
-            [new Identifier("sys", "int")] = typeof(int),
-            [new Identifier("sys", "money")] = typeof(decimal),
-            [new Identifier("sys", "nchar")] = typeof(string),
-            [new Identifier("sys", "ntext")] = typeof(string),
-            [new Identifier("sys", "numeric")] = typeof(decimal),
-            [new Identifier("sys", "nvarchar")] = typeof(string),
-            [new Identifier("sys", "real")] = typeof(float),
-            [new Identifier("sys", "rowversion")] = typeof(byte[]),
-            [new Identifier("sys", "smalldatetime")] = typeof(DateTime),
-            [new Identifier("sys", "smallint")] = typeof(short),
-            [new Identifier("sys", "smallmoney")] = typeof(decimal),
-            [new Identifier("sys", "sql_variant")] = typeof(object),
-            [new Identifier("sys", "text")] = typeof(string),
-            [new Identifier("sys", "time")] = typeof(TimeSpan),
-            [new Identifier("sys", "timestamp")] = typeof(byte[]),
-            [new Identifier("sys", "tinyint")] = typeof(byte),
-            [new Identifier("sys", "uniqueidentifier")] = typeof(Guid),
-            [new Identifier("sys", "varbinary")] = typeof(byte[]),
-            [new Identifier("sys", "varchar")] = typeof(string),
-            [new Identifier("sys", "xml")] = typeof(string)
+            [new Identifier("pg_catalog", "bigint")] = typeof(long),
+            [new Identifier("pg_catalog", "int8")] = typeof(long),
+            [new Identifier("pg_catalog", "bigserial")] = typeof(long),
+            [new Identifier("pg_catalog", "int8")] = typeof(long),
+            [new Identifier("pg_catalog", "bit")] = typeof(byte[]),
+            [new Identifier("pg_catalog", "bit varying")] = typeof(byte[]),
+            [new Identifier("pg_catalog", "varbit")] = typeof(byte[]),
+            [new Identifier("pg_catalog", "boolean")] = typeof(bool),
+            [new Identifier("pg_catalog", "bool")] = typeof(bool),
+            [new Identifier("pg_catalog", "bytea")] = typeof(byte[]),
+            [new Identifier("pg_catalog", "character")] = typeof(string),
+            [new Identifier("pg_catalog", "char")] = typeof(string),
+            [new Identifier("pg_catalog", "character varying")] = typeof(string),
+            [new Identifier("pg_catalog", "varchar")] = typeof(string),
+            [new Identifier("pg_catalog", "text")] = typeof(string),
+            [new Identifier("pg_catalog", "date")] = typeof(DateTime),
+            [new Identifier("pg_catalog", "double precision")] = typeof(double),
+            [new Identifier("pg_catalog", "float8")] = typeof(double),
+            [new Identifier("pg_catalog", "integer")] = typeof(int),
+            [new Identifier("pg_catalog", "int")] = typeof(int),
+            [new Identifier("pg_catalog", "int4")] = typeof(int),
+            [new Identifier("pg_catalog", "interval")] = typeof(TimeSpan),
+            [new Identifier("pg_catalog", "json")] = typeof(string),
+            [new Identifier("pg_catalog", "jsonb")] = typeof(string),
+            [new Identifier("pg_catalog", "numeric")] = typeof(decimal),
+            [new Identifier("pg_catalog", "decimal")] = typeof(decimal),
+            [new Identifier("pg_catalog", "real")] = typeof(float),
+            [new Identifier("pg_catalog", "float4")] = typeof(float),
+            [new Identifier("pg_catalog", "smallint")] = typeof(short),
+            [new Identifier("pg_catalog", "int2")] = typeof(short),
+            [new Identifier("pg_catalog", "smallserial")] = typeof(short),
+            [new Identifier("pg_catalog", "serial2")] = typeof(short),
+            [new Identifier("pg_catalog", "serial")] = typeof(int),
+            [new Identifier("pg_catalog", "serial4")] = typeof(int),
+            [new Identifier("pg_catalog", "text")] = typeof(string),
+            [new Identifier("pg_catalog", "time")] = typeof(TimeSpan),
+            [new Identifier("pg_catalog", "timetz")] = typeof(TimeSpan),
+            [new Identifier("pg_catalog", "timestamp")] = typeof(DateTime),
+            [new Identifier("pg_catalog", "timestamptz")] = typeof(DateTime),
+            [new Identifier("pg_catalog", "xml")] = typeof(string),
+            [new Identifier("pg_catalog", "box")] = typeof(object),
+            [new Identifier("pg_catalog", "cidr")] = typeof(object),
+            [new Identifier("pg_catalog", "circle")] = typeof(object),
+            [new Identifier("pg_catalog", "inet")] = typeof(object),
+            [new Identifier("pg_catalog", "line")] = typeof(object),
+            [new Identifier("pg_catalog", "lseg")] = typeof(object),
+            [new Identifier("pg_catalog", "macaddr")] = typeof(object),
+            [new Identifier("pg_catalog", "macaddr8")] = typeof(object),
+            [new Identifier("pg_catalog", "money")] = typeof(object),
+            [new Identifier("pg_catalog", "path")] = typeof(object),
+            [new Identifier("pg_catalog", "pg_lsn")] = typeof(object),
+            [new Identifier("pg_catalog", "point")] = typeof(object),
+            [new Identifier("pg_catalog", "polygon")] = typeof(object),
+            [new Identifier("pg_catalog", "tsquery")] = typeof(object),
+            [new Identifier("pg_catalog", "tsvector")] = typeof(object),
+            [new Identifier("pg_catalog", "txid_snapshot")] = typeof(object),
+            [new Identifier("pg_catalog", "uuid")] = typeof(object)
         };
     }
 }
