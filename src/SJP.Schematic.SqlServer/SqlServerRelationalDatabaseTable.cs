@@ -67,7 +67,7 @@ order by ic.key_ordinal";
             if (primaryKeyColumns.Empty())
                 return null;
 
-            var groupedByName = primaryKeyColumns.GroupBy(row => new { ConstraintName = row.ConstraintName, IsDisabled = row.IsDisabled } );
+            var groupedByName = primaryKeyColumns.GroupBy(row => new { row.ConstraintName, row.IsDisabled } );
             var firstRow = groupedByName.First();
             var constraintName = firstRow.Key.ConstraintName;
             var isEnabled = !firstRow.Key.IsDisabled;
@@ -100,7 +100,7 @@ order by ic.key_ordinal";
             if (primaryKeyColumns.Empty())
                 return null;
 
-            var groupedByName = primaryKeyColumns.GroupBy(row => new { ConstraintName = row.ConstraintName, IsDisabled = row.IsDisabled });
+            var groupedByName = primaryKeyColumns.GroupBy(row => new { row.ConstraintName, row.IsDisabled });
             var firstRow = groupedByName.First();
             var constraintName = firstRow.Key.ConstraintName;
             var isEnabled = !firstRow.Key.IsDisabled;
@@ -159,7 +159,7 @@ where schema_name(t.schema_id) = @SchemaName and t.name = @TableName
             if (queryResult.Empty())
                 return Enumerable.Empty<IDatabaseTableIndex>();
 
-            var indexColumns = queryResult.GroupBy(row => new { IndexName = row.IndexName, IsUnique = row.IsUnique, IsDisabled = row.IsDisabled }).ToList();
+            var indexColumns = queryResult.GroupBy(row => new { row.IndexName, row.IsUnique, row.IsDisabled }).ToList();
             if (indexColumns.Count == 0)
                 return Enumerable.Empty<IDatabaseTableIndex>();
 
@@ -175,7 +175,7 @@ where schema_name(t.schema_id) = @SchemaName and t.name = @TableName
                     .Where(row => !row.IsIncludedColumn)
                     .OrderBy(row => row.KeyOrdinal)
                     .ThenBy(row => row.IndexColumnId)
-                    .Select(row => new { IsDescending = row.IsDescending, Column = tableColumns[row.ColumnName] })
+                    .Select(row => new { row.IsDescending, Column = tableColumns[row.ColumnName] })
                     .Select(row => new SqlServerDatabaseIndexColumn(row.Column, row.IsDescending ? IndexColumnOrder.Descending : IndexColumnOrder.Ascending))
                     .ToList();
 
@@ -209,7 +209,7 @@ where schema_name(t.schema_id) = @SchemaName and t.name = @TableName
             if (queryResult.Empty())
                 return Enumerable.Empty<IDatabaseTableIndex>();
 
-            var indexColumns = queryResult.GroupBy(row => new { IndexName = row.IndexName, IsUnique = row.IsUnique, IsDisabled = row.IsDisabled }).ToList();
+            var indexColumns = queryResult.GroupBy(row => new { row.IndexName, row.IsUnique, row.IsDisabled }).ToList();
             if (indexColumns.Count == 0)
                 return Enumerable.Empty<IDatabaseTableIndex>();
 
@@ -225,7 +225,7 @@ where schema_name(t.schema_id) = @SchemaName and t.name = @TableName
                     .Where(row => !row.IsIncludedColumn)
                     .OrderBy(row => row.KeyOrdinal)
                     .ThenBy(row => row.IndexColumnId)
-                    .Select(row => new { IsDescending = row.IsDescending, Column = tableColumns[row.ColumnName] })
+                    .Select(row => new { row.IsDescending, Column = tableColumns[row.ColumnName] })
                     .Select(row => new SqlServerDatabaseIndexColumn(row.Column, row.IsDescending ? IndexColumnOrder.Descending : IndexColumnOrder.Ascending))
                     .ToList();
 
@@ -292,12 +292,12 @@ order by ic.key_ordinal";
             if (uniqueKeyColumns.Empty())
                 return Enumerable.Empty<IDatabaseKey>();
 
-            var groupedByName = uniqueKeyColumns.GroupBy(row => new { ConstraintName = row.ConstraintName, IsDisabled = row.IsDisabled });
+            var groupedByName = uniqueKeyColumns.GroupBy(row => new { row.ConstraintName, row.IsDisabled });
             var tableColumns = Column;
             var constraintColumns = groupedByName
                 .Select(g => new
                 {
-                    ConstraintName = g.Key.ConstraintName,
+                    g.Key.ConstraintName,
                     Columns = g.Select(row => tableColumns[row.ColumnName]),
                     IsEnabled = !g.Key.IsDisabled
                 })
@@ -334,12 +334,12 @@ order by ic.key_ordinal";
             if (uniqueKeyColumns.Empty())
                 return Enumerable.Empty<IDatabaseKey>();
 
-            var groupedByName = uniqueKeyColumns.GroupBy(row => new { ConstraintName = row.ConstraintName, IsDisabled = row.IsDisabled });
+            var groupedByName = uniqueKeyColumns.GroupBy(row => new { row.ConstraintName, row.IsDisabled });
             var tableColumns = await ColumnAsync().ConfigureAwait(false);
             var constraintColumns = groupedByName
                 .Select(g => new
                 {
-                    ConstraintName = g.Key.ConstraintName,
+                    g.Key.ConstraintName,
                     Columns = g.Select(row => tableColumns[row.ColumnName]),
                     IsEnabled = !g.Key.IsDisabled
                 })
@@ -379,13 +379,13 @@ where schema_name(parent_t.schema_id) = @SchemaName and parent_t.name = @TableNa
             var groupedChildKeys = queryResult.GroupBy(row =>
             new
             {
-                ChildTableSchema = row.ChildTableSchema,
-                ChildTableName = row.ChildTableName,
-                ChildKeyName = row.ChildKeyName,
-                ParentKeyName = row.ParentKeyName,
-                ParentKeyType = row.ParentKeyType,
-                DeleteRule = row.DeleteRule,
-                UpdateRule = row.UpdateRule
+                row.ChildTableSchema,
+                row.ChildTableName,
+                row.ChildKeyName,
+                row.ParentKeyName,
+                row.ParentKeyType,
+                row.DeleteRule,
+                row.UpdateRule
             }).ToList();
             if (groupedChildKeys.Count == 0)
                 return Enumerable.Empty<IDatabaseRelationalKey>();
@@ -441,13 +441,13 @@ where schema_name(parent_t.schema_id) = @SchemaName and parent_t.name = @TableNa
             var groupedChildKeys = queryResult.GroupBy(row =>
             new
             {
-                ChildTableSchema = row.ChildTableSchema,
-                ChildTableName = row.ChildTableName,
-                ChildKeyName = row.ChildKeyName,
-                ParentKeyName = row.ParentKeyName,
-                ParentKeyType = row.ParentKeyType,
-                DeleteRule = row.DeleteRule,
-                UpdateRule = row.UpdateRule
+                row.ChildTableSchema,
+                row.ChildTableName,
+                row.ChildKeyName,
+                row.ParentKeyName,
+                row.ParentKeyType,
+                row.DeleteRule,
+                row.UpdateRule
             }).ToList();
             if (groupedChildKeys.Count == 0)
                 return Enumerable.Empty<IDatabaseRelationalKey>();
@@ -614,14 +614,14 @@ where schema_name(child_t.schema_id) = @SchemaName and child_t.name = @TableName
 
             var foreignKeys = queryResult.GroupBy(row => new
             {
-                ChildKeyName = row.ChildKeyName,
-                ParentTableSchema = row.ParentTableSchema,
-                ParentTableName = row.ParentTableName,
-                ParentKeyName = row.ParentKeyName,
+                row.ChildKeyName,
+                row.ParentTableSchema,
+                row.ParentTableName,
+                row.ParentKeyName,
                 KeyType = row.ParentKeyType,
-                DeleteRule = row.DeleteRule,
-                UpdateRule = row.UpdateRule,
-                IsDisabled = row.IsDisabled
+                row.DeleteRule,
+                row.UpdateRule,
+                row.IsDisabled
             }).ToList();
             if (foreignKeys.Count == 0)
                 return Enumerable.Empty<IDatabaseRelationalKey>();
@@ -684,14 +684,14 @@ where schema_name(child_t.schema_id) = @SchemaName and child_t.name = @TableName
 
             var foreignKeys = queryResult.GroupBy(row => new
             {
-                ChildKeyName = row.ChildKeyName,
-                ParentTableSchema = row.ParentTableSchema,
-                ParentTableName = row.ParentTableName,
-                ParentKeyName = row.ParentKeyName,
+                row.ChildKeyName,
+                row.ParentTableSchema,
+                row.ParentTableName,
+                row.ParentKeyName,
                 KeyType = row.ParentKeyType,
-                DeleteRule = row.DeleteRule,
-                UpdateRule = row.UpdateRule,
-                IsDisabled = row.IsDisabled
+                row.DeleteRule,
+                row.UpdateRule,
+                row.IsDisabled
             }).ToList();
             if (foreignKeys.Count == 0)
                 return Enumerable.Empty<IDatabaseRelationalKey>();
@@ -928,10 +928,10 @@ where schema_name(t.schema_id) = @SchemaName and t.name = @TableName";
 
             var triggers = queryResult.GroupBy(row => new
             {
-                TriggerName = row.TriggerName,
-                Definition = row.Definition,
-                IsInsteadOfTrigger = row.IsInsteadOfTrigger,
-                IsDisabled = row.IsDisabled
+                row.TriggerName,
+                row.Definition,
+                row.IsInsteadOfTrigger,
+                row.IsDisabled
             }).ToList();
             if (triggers.Count == 0)
                 return Enumerable.Empty<IDatabaseTrigger>();
@@ -980,10 +980,10 @@ where schema_name(t.schema_id) = @SchemaName and t.name = @TableName";
 
             var triggers = queryResult.GroupBy(row => new
             {
-                TriggerName = row.TriggerName,
-                Definition = row.Definition,
-                IsInsteadOfTrigger = row.IsInsteadOfTrigger,
-                IsDisabled = row.IsDisabled
+                row.TriggerName,
+                row.Definition,
+                row.IsInsteadOfTrigger,
+                row.IsDisabled
             }).ToList();
             if (triggers.Count == 0)
                 return Enumerable.Empty<IDatabaseTrigger>();

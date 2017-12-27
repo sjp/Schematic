@@ -65,7 +65,7 @@ where tc.table_schema = @SchemaName and tc.table_name = @TableName
             if (primaryKeyColumns.Empty())
                 return null;
 
-            var groupedByName = primaryKeyColumns.GroupBy(row => new { ConstraintName = row.ConstraintName } );
+            var groupedByName = primaryKeyColumns.GroupBy(row => new { row.ConstraintName } );
             var firstRow = groupedByName.First();
             var constraintName = firstRow.Key.ConstraintName;
 
@@ -94,7 +94,7 @@ where tc.table_schema = @SchemaName and tc.table_name = @TableName
             if (primaryKeyColumns.Empty())
                 return null;
 
-            var groupedByName = primaryKeyColumns.GroupBy(row => new { ConstraintName = row.ConstraintName });
+            var groupedByName = primaryKeyColumns.GroupBy(row => new { row.ConstraintName });
             var firstRow = groupedByName.First();
             var constraintName = firstRow.Key.ConstraintName;
 
@@ -168,7 +168,7 @@ where
             if (queryResult.Empty())
                 return Enumerable.Empty<IDatabaseTableIndex>();
 
-            var indexColumns = queryResult.GroupBy(row => new { IndexName = row.IndexName, IsUnique = row.IsUnique, IsPrimary = row.IsPrimary }).ToList();
+            var indexColumns = queryResult.GroupBy(row => new { row.IndexName, row.IsUnique, row.IsPrimary }).ToList();
             if (indexColumns.Count == 0)
                 return Enumerable.Empty<IDatabaseTableIndex>();
 
@@ -183,7 +183,7 @@ where
                     .OrderBy(row => row.IndexColumnId)
                     .Select(row => new
                     {
-                        IsDescending = row.IsDescending,
+                        row.IsDescending,
                         Expression = row.IndexColumnExpression,
                         Column = tableColumns.ContainsKey(row.IndexColumnExpression) ? tableColumns[row.IndexColumnExpression] : null
                     })
@@ -231,7 +231,7 @@ where
             if (queryResult.Empty())
                 return Enumerable.Empty<IDatabaseTableIndex>();
 
-            var indexColumns = queryResult.GroupBy(row => new { IndexName = row.IndexName, IsUnique = row.IsUnique, IsPrimary = row.IsPrimary }).ToList();
+            var indexColumns = queryResult.GroupBy(row => new { row.IndexName, row.IsUnique, row.IsPrimary }).ToList();
             if (indexColumns.Count == 0)
                 return Enumerable.Empty<IDatabaseTableIndex>();
 
@@ -246,7 +246,7 @@ where
                     .OrderBy(row => row.IndexColumnId)
                     .Select(row => new
                     {
-                        IsDescending = row.IsDescending,
+                        row.IsDescending,
                         Expression = row.IndexColumnExpression,
                         Column = tableColumns.ContainsKey(row.IndexColumnExpression) ? tableColumns[row.IndexColumnExpression] : null
                     })
@@ -307,12 +307,12 @@ where tc.table_schema = @SchemaName and tc.table_name = @TableName
             if (uniqueKeyColumns.Empty())
                 return Enumerable.Empty<IDatabaseKey>();
 
-            var groupedByName = uniqueKeyColumns.GroupBy(row => new { ConstraintName = row.ConstraintName });
+            var groupedByName = uniqueKeyColumns.GroupBy(row => new { row.ConstraintName });
             var tableColumns = Column;
             var constraintColumns = groupedByName
                 .Select(g => new
                 {
-                    ConstraintName = g.Key.ConstraintName,
+                    g.Key.ConstraintName,
                     Columns = g.OrderBy(row => row.OrdinalPosition).Select(row => tableColumns[row.ColumnName]).ToList(),
                 })
                 .ToList();
@@ -344,12 +344,12 @@ where tc.table_schema = @SchemaName and tc.table_name = @TableName
             if (uniqueKeyColumns.Empty())
                 return Enumerable.Empty<IDatabaseKey>();
 
-            var groupedByName = uniqueKeyColumns.GroupBy(row => new { ConstraintName = row.ConstraintName });
+            var groupedByName = uniqueKeyColumns.GroupBy(row => new { row.ConstraintName });
             var tableColumns = await ColumnAsync().ConfigureAwait(false);
             var constraintColumns = groupedByName
                 .Select(g => new
                 {
-                    ConstraintName = g.Key.ConstraintName,
+                    g.Key.ConstraintName,
                     Columns = g.OrderBy(row => row.OrdinalPosition).Select(row => tableColumns[row.ColumnName]).ToList(),
                 })
                 .ToList();
@@ -408,13 +408,13 @@ where pt.relname = @TableName and pns.nspname = @SchemaName";
             var groupedChildKeys = queryResult.GroupBy(row =>
             new
             {
-                ChildTableSchema = row.ChildTableSchema,
-                ChildTableName = row.ChildTableName,
-                ChildKeyName = row.ChildKeyName,
-                ParentKeyName = row.ParentKeyName,
-                ParentKeyType = row.ParentKeyType,
-                DeleteRule = row.DeleteRule,
-                UpdateRule = row.UpdateRule
+                row.ChildTableSchema,
+                row.ChildTableName,
+                row.ChildKeyName,
+                row.ParentKeyName,
+                row.ParentKeyType,
+                row.DeleteRule,
+                row.UpdateRule
             }).ToList();
             if (groupedChildKeys.Count == 0)
                 return Enumerable.Empty<IDatabaseRelationalKey>();
@@ -490,13 +490,13 @@ where pt.relname = @TableName and pns.nspname = @SchemaName";
             var groupedChildKeys = queryResult.GroupBy(row =>
             new
             {
-                ChildTableSchema = row.ChildTableSchema,
-                ChildTableName = row.ChildTableName,
-                ChildKeyName = row.ChildKeyName,
-                ParentKeyName = row.ParentKeyName,
-                ParentKeyType = row.ParentKeyType,
-                DeleteRule = row.DeleteRule,
-                UpdateRule = row.UpdateRule
+                row.ChildTableSchema,
+                row.ChildTableName,
+                row.ChildKeyName,
+                row.ParentKeyName,
+                row.ParentKeyType,
+                row.DeleteRule,
+                row.UpdateRule
             }).ToList();
             if (groupedChildKeys.Count == 0)
                 return Enumerable.Empty<IDatabaseRelationalKey>();
@@ -693,13 +693,13 @@ where t.relname = @TableName and ns.nspname = @SchemaName";
 
             var foreignKeys = queryResult.GroupBy(row => new
             {
-                ChildKeyName = row.ChildKeyName,
-                ParentSchemaName = row.ParentSchemaName,
-                ParentTableName = row.ParentTableName,
-                ParentKeyName = row.ParentKeyName,
+                row.ChildKeyName,
+                row.ParentSchemaName,
+                row.ParentTableName,
+                row.ParentKeyName,
                 KeyType = row.ParentKeyType,
-                DeleteRule = row.DeleteRule,
-                UpdateRule = row.UpdateRule
+                row.DeleteRule,
+                row.UpdateRule
             }).ToList();
             if (foreignKeys.Count == 0)
                 return Enumerable.Empty<IDatabaseRelationalKey>();
@@ -783,13 +783,13 @@ where t.relname = @TableName and ns.nspname = @SchemaName";
 
             var foreignKeys = queryResult.GroupBy(row => new
             {
-                ChildKeyName = row.ChildKeyName,
-                ParentSchemaName = row.ParentSchemaName,
-                ParentTableName = row.ParentTableName,
-                ParentKeyName = row.ParentKeyName,
+                row.ChildKeyName,
+                row.ParentSchemaName,
+                row.ParentTableName,
+                row.ParentKeyName,
                 KeyType = row.ParentKeyType,
-                DeleteRule = row.DeleteRule,
-                UpdateRule = row.UpdateRule
+                row.DeleteRule,
+                row.UpdateRule
             }).ToList();
             if (foreignKeys.Count == 0)
                 return Enumerable.Empty<IDatabaseRelationalKey>();
@@ -1039,10 +1039,10 @@ where t.relkind = 'r'
 
             var triggers = queryResult.GroupBy(row => new
             {
-                TriggerName = row.TriggerName,
-                Definition = row.Definition,
-                Timing = row.Timing,
-                EnabledFlag = row.EnabledFlag
+                row.TriggerName,
+                row.Definition,
+                row.Timing,
+                row.EnabledFlag
             }).ToList();
             if (triggers.Count == 0)
                 return Enumerable.Empty<IDatabaseTrigger>();
@@ -1093,10 +1093,10 @@ where t.relkind = 'r'
 
             var triggers = queryResult.GroupBy(row => new
             {
-                TriggerName = row.TriggerName,
-                Definition = row.Definition,
-                Timing = row.Timing,
-                EnabledFlag = row.EnabledFlag
+                row.TriggerName,
+                row.Definition,
+                row.Timing,
+                row.EnabledFlag
             }).ToList();
             if (triggers.Count == 0)
                 return Enumerable.Empty<IDatabaseTrigger>();

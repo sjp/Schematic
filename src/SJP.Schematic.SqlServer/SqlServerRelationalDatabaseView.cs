@@ -97,7 +97,7 @@ where schema_name(v.schema_id) = @SchemaName and v.name = @ViewName
             if (queryResult.Empty())
                 return Enumerable.Empty<IDatabaseViewIndex>();
 
-            var indexColumns = queryResult.GroupBy(row => new { IndexName = row.IndexName, IsUnique = row.IsUnique, IsDisabled = row.IsDisabled }).ToList();
+            var indexColumns = queryResult.GroupBy(row => new { row.IndexName, row.IsUnique, row.IsDisabled }).ToList();
             if (indexColumns.Count == 0)
                 return Enumerable.Empty<IDatabaseViewIndex>();
 
@@ -113,7 +113,7 @@ where schema_name(v.schema_id) = @SchemaName and v.name = @ViewName
                     .Where(row => !row.IsIncludedColumn)
                     .OrderBy(row => row.KeyOrdinal)
                     .ThenBy(row => row.IndexColumnId)
-                    .Select(row => new { IsDescending = row.IsDescending, Column = viewColumns[row.ColumnName] })
+                    .Select(row => new { row.IsDescending, Column = viewColumns[row.ColumnName] })
                     .Select(row => new SqlServerDatabaseIndexColumn(row.Column, row.IsDescending ? IndexColumnOrder.Descending : IndexColumnOrder.Ascending))
                     .ToList();
 
@@ -149,7 +149,7 @@ where schema_name(v.schema_id) = @SchemaName and v.name = @ViewName
             if (queryResult.Empty())
                 return Enumerable.Empty<IDatabaseViewIndex>();
 
-            var indexColumns = queryResult.GroupBy(row => new { IndexName = row.IndexName, IsUnique = row.IsUnique, IsDisabled = row.IsDisabled }).ToList();
+            var indexColumns = queryResult.GroupBy(row => new { row.IndexName, row.IsUnique, row.IsDisabled }).ToList();
             if (indexColumns.Count == 0)
                 return Enumerable.Empty<IDatabaseViewIndex>();
 
@@ -165,7 +165,7 @@ where schema_name(v.schema_id) = @SchemaName and v.name = @ViewName
                     .Where(row => !row.IsIncludedColumn)
                     .OrderBy(row => row.KeyOrdinal)
                     .ThenBy(row => row.IndexColumnId)
-                    .Select(row => new { IsDescending = row.IsDescending, Column = viewColumns[row.ColumnName] })
+                    .Select(row => new { row.IsDescending, Column = viewColumns[row.ColumnName] })
                     .Select(row => new SqlServerDatabaseIndexColumn(row.Column, row.IsDescending ? IndexColumnOrder.Descending : IndexColumnOrder.Ascending))
                     .ToList();
 
