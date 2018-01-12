@@ -18,16 +18,8 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
             .Build();
     }
 
-    [AttributeUsage(AttributeTargets.Class, AllowMultiple = false, Inherited = true)]
-    internal sealed class DatabaseDependentAttribute : CategoryAttribute
-    {
-        public DatabaseDependentAttribute()
-            : base("SqliteDatabase")
-        {
-        }
-    }
-
-    [DatabaseDependent]
+    [Category("SqliteDatabase")]
+    [Category("SkipWhenLiveUnitTesting")]
     internal abstract class SqliteTest
     {
         protected IDbConnection Connection { get; } = Config.Connection;

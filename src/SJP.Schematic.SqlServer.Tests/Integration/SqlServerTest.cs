@@ -18,16 +18,8 @@ namespace SJP.Schematic.SqlServer.Tests.Integration
             .Build();
     }
 
-    [AttributeUsage(AttributeTargets.Class, AllowMultiple = false, Inherited = true)]
-    internal sealed class DatabaseDependentAttribute : CategoryAttribute
-    {
-        public DatabaseDependentAttribute()
-            : base("SqlServerDatabase")
-        {
-        }
-    }
-
-    [DatabaseDependent]
+    [Category("SqlServerDatabase")]
+    [Category("SkipWhenLiveUnitTesting")]
     internal abstract class SqlServerTest
     {
         protected IDbConnection Connection { get; } = Config.Connection;

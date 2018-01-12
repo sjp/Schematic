@@ -18,16 +18,8 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration
             .Build();
     }
 
-    [AttributeUsage(AttributeTargets.Class, AllowMultiple = false, Inherited = true)]
-    internal sealed class DatabaseDependentAttribute : CategoryAttribute
-    {
-        public DatabaseDependentAttribute()
-            : base("PostgreSqlDatabase")
-        {
-        }
-    }
-
-    [DatabaseDependent]
+    [Category("PostgreSqlDatabase")]
+    [Category("SkipWhenLiveUnitTesting")]
     internal abstract class PostgreSqlTest
     {
         protected IDbConnection Connection { get; } = Config.Connection;

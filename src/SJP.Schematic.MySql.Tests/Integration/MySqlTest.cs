@@ -18,16 +18,8 @@ namespace SJP.Schematic.MySql.Tests.Integration
             .Build();
     }
 
-    [AttributeUsage(AttributeTargets.Class, AllowMultiple = false, Inherited = true)]
-    internal sealed class DatabaseDependentAttribute : CategoryAttribute
-    {
-        public DatabaseDependentAttribute()
-            : base("MySqlDatabase")
-        {
-        }
-    }
-
-    [DatabaseDependent]
+    [Category("MySqlDatabase")]
+    [Category("SkipWhenLiveUnitTesting")]
     internal abstract class MySqlTest
     {
         protected IDbConnection Connection { get; } = Config.Connection;
