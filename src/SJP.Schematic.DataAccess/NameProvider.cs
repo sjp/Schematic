@@ -35,6 +35,7 @@ namespace SJP.Schematic.DataAccess
         /// <summary>
         /// Return a property name for a column.
         /// </summary>
+        /// <param name="className">The name of the class the column is a member of.</param>
         /// <param name="columnName">A column name.</param>
         /// <returns>A property name.</returns>
         public abstract string ColumnToPropertyName(string className, string columnName);
