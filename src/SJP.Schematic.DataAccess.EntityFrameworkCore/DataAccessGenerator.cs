@@ -6,12 +6,15 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore
 {
     public class DataAccessGenerator
     {
-        public DataAccessGenerator(IRelationalDatabase database)
+        public DataAccessGenerator(IRelationalDatabase database, INameProvider nameProvider)
         {
             Database = database ?? throw new ArgumentNullException(nameof(database));
+            NameProvider = nameProvider ?? throw new ArgumentNullException(nameof(nameProvider));
         }
 
         protected IRelationalDatabase Database { get; }
+
+        protected INameProvider NameProvider { get; }
 
         public void Generate(FileInfo projectPath, string ns)
         {
@@ -27,9 +30,8 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore
                 projectPath.Delete();
             File.WriteAllText(projectPath.FullName, ProjectGenerator.ProjectDefinition);
 
-            var nameProvider = new VerbatimNameProvider();
-            var dbContextGenerator = new DbContextBuilder(nameProvider, ns, Database);
-            var tableGenerator = new TableGenerator(nameProvider, ns);
+            var dbContextGenerator = new DbContextBuilder(NameProvider, ns, Database);
+            var tableGenerator = new TableGenerator(NameProvider, ns);
 
             foreach (var table in Database.Tables)
             {

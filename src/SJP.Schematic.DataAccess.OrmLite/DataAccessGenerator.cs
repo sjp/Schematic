@@ -6,12 +6,15 @@ namespace SJP.Schematic.DataAccess.OrmLite
 {
     public class DataAccessGenerator
     {
-        public DataAccessGenerator(IRelationalDatabase database)
+        public DataAccessGenerator(IRelationalDatabase database, INameProvider nameProvider)
         {
             Database = database ?? throw new ArgumentNullException(nameof(database));
+            NameProvider = nameProvider ?? throw new ArgumentNullException(nameof(nameProvider));
         }
 
         protected IRelationalDatabase Database { get; }
+
+        protected INameProvider NameProvider { get; }
 
         public void Generate(FileInfo projectPath, string ns)
         {
@@ -27,9 +30,8 @@ namespace SJP.Schematic.DataAccess.OrmLite
                 projectPath.Delete();
             File.WriteAllText(projectPath.FullName, ProjectGenerator.ProjectDefinition);
 
-            var nameProvider = new VerbatimNameProvider();
-            var tableGenerator = new TableGenerator(nameProvider, ns);
-            var viewGenerator = new ViewGenerator(nameProvider, ns);
+            var tableGenerator = new TableGenerator(NameProvider, ns);
+            var viewGenerator = new ViewGenerator(NameProvider, ns);
 
             foreach (var table in Database.Tables)
             {

@@ -6,10 +6,7 @@ namespace SJP.Schematic.DataAccess.Poco
 {
     public class DataAccessGenerator
     {
-        public DataAccessGenerator(
-            IRelationalDatabase database,
-            INameProvider nameProvider
-        )
+        public DataAccessGenerator(IRelationalDatabase database, INameProvider nameProvider)
         {
             Database = database ?? throw new ArgumentNullException(nameof(database));
             NameProvider = nameProvider ?? throw new ArgumentNullException(nameof(nameProvider));
@@ -33,9 +30,8 @@ namespace SJP.Schematic.DataAccess.Poco
                 projectPath.Delete();
             File.WriteAllText(projectPath.FullName, ProjectGenerator.ProjectDefinition);
 
-            var nameProvider = new VerbatimNameProvider();
-            var tableGenerator = new TableGenerator(nameProvider, baseNamespace);
-            var viewGenerator = new ViewGenerator(nameProvider, baseNamespace);
+            var tableGenerator = new TableGenerator(NameProvider, baseNamespace);
+            var viewGenerator = new ViewGenerator(NameProvider, baseNamespace);
 
             var projectDir = projectPath.Directory;
             var tablesDirectory = new DirectoryInfo(Path.Combine(projectDir.FullName, "Tables"));
