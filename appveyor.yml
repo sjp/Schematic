@@ -46,6 +46,14 @@ test_script:
   - createdb schematic
   - dotnet test src/SJP.Schematic.PostgreSql.Tests/SJP.Schematic.PostgreSql.Tests.csproj --configuration Release --logger:trx;LogFileName=SJP.Schematic.PostgreSql.Tests.results.xml
   - ps: build/uploadtests.ps1 "src/SJP.Schematic.PostgreSql.Tests/TestResults/SJP.Schematic.PostgreSql.Tests.results.xml"
+  - dotnet test src/SJP.Schematic.DataAccess.Tests/SJP.Schematic.DataAccess.Tests.csproj --configuration Release --logger:trx;LogFileName=SJP.Schematic.DataAccess.Tests.results.xml
+  - ps: build/uploadtests.ps1 "src/SJP.Schematic.DataAccess.Tests/TestResults/SJP.Schematic.DataAccess.Tests.results.xml"
+  - dotnet test src/SJP.Schematic.DataAccess.EntityFrameworkCore.Tests/SJP.Schematic.DataAccess.EntityFrameworkCore.Tests.csproj --configuration Release --logger:trx;LogFileName=SJP.Schematic.DataAccess.EntityFrameworkCore.Tests.results.xml
+  - ps: build/uploadtests.ps1 "src/SJP.Schematic.DataAccess.EntityFrameworkCore.Tests/TestResults/SJP.Schematic.DataAccess.EntityFrameworkCore.Tests.results.xml"
+  - dotnet test src/SJP.Schematic.DataAccess.OrmLite.Tests/SJP.Schematic.DataAccess.OrmLite.Tests.csproj --configuration Release --logger:trx;LogFileName=SJP.Schematic.DataAccess.OrmLite.Tests.results.xml
+  - ps: build/uploadtests.ps1 "src/SJP.Schematic.DataAccess.OrmLite.Tests/TestResults/SJP.Schematic.DataAccess.OrmLite.Tests.results.xml"
+  - dotnet test src/SJP.Schematic.DataAccess.Poco.Tests/SJP.Schematic.DataAccess.Poco.Tests.csproj --configuration Release --logger:trx;LogFileName=SJP.Schematic.DataAccess.Poco.Tests.results.xml
+  - ps: build/uploadtests.ps1 "src/SJP.Schematic.DataAccess.Poco.Tests/TestResults/SJP.Schematic.DataAccess.Poco.Tests.results.xml"
 
 notifications:
 - provider: Email
