@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.IO.Abstractions;
 using SJP.Schematic.Core;
 
 namespace SJP.Schematic.DataAccess.EntityFrameworkCore
@@ -16,27 +17,31 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore
 
         protected INameProvider NameProvider { get; }
 
-        public void Generate(FileInfo projectPath, string ns)
+        public void Generate(IFileSystem fileSystem, string projectPath, string baseNamespace)
         {
+            if (fileSystem == null)
+                throw new ArgumentNullException(nameof(fileSystem));
             if (projectPath == null)
                 throw new ArgumentNullException(nameof(projectPath));
-            if (ns.IsNullOrWhiteSpace())
-                throw new ArgumentNullException(nameof(ns));
+            if (baseNamespace.IsNullOrWhiteSpace())
+                throw new ArgumentNullException(nameof(baseNamespace));
 
-            if (!string.Equals(projectPath.Extension, ".csproj"))
+            var projectFileInfo = fileSystem.FileInfo.FromFileName(projectPath);
+            if (!string.Equals(projectFileInfo.Extension, ".csproj"))
                 throw new ArgumentException("The given path to a project must be a csproj file.", nameof(projectPath));
 
-            if (projectPath.Exists)
-                projectPath.Delete();
-            File.WriteAllText(projectPath.FullName, ProjectGenerator.ProjectDefinition);
+            if (projectFileInfo.Exists)
+                projectFileInfo.Delete();
+            File.WriteAllText(projectPath, ProjectGenerator.ProjectDefinition);
 
-            var dbContextGenerator = new DbContextBuilder(NameProvider, ns, Database);
-            var tableGenerator = new TableGenerator(NameProvider, ns);
+            var dbContextGenerator = new DbContextBuilder(NameProvider, baseNamespace, Database);
+            var tableGenerator = new TableGenerator(NameProvider, baseNamespace);
 
             foreach (var table in Database.Tables)
             {
                 var tableClass = tableGenerator.Generate(table);
-                var tablePath = tableGenerator.GetFilePath(projectPath.Directory, table.Name);
+                //var tablePath = tableGenerator.GetFilePath(projectFileInfo.Directory, table.Name);
+                var tablePath = tableGenerator.GetFilePath(null, table.Name);
 
                 if (!tablePath.Directory.Exists)
                     tablePath.Directory.Create();
@@ -48,7 +53,7 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore
             }
 
             var dbContextText = dbContextGenerator.Generate();
-            var dbContextPath = Path.Combine(projectPath.Directory.FullName, "AppContext.cs");
+            var dbContextPath = Path.Combine(projectFileInfo.Directory.FullName, "AppContext.cs");
             File.WriteAllText(dbContextPath, dbContextText);
         }
     }

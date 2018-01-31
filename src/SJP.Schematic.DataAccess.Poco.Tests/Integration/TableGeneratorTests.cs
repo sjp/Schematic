@@ -39,7 +39,7 @@ namespace SJP.Schematic.DataAccess.Poco.Tests.Integration
             var view = GetTable("test_table_1");
             var generator = TableGenerator;
 
-            var expected = TestTable1Output;
+            const string expected = TestTable1Output;
             var result = generator.Generate(view);
 
             Assert.AreEqual(expected, result);

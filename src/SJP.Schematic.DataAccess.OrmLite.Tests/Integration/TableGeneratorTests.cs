@@ -41,10 +41,10 @@ create table test_table_2 (
     constraint test_table_2_pk primary key (test_pk_1, test_pk_2),
     constraint test_table_2_multi_uk unique (first_name, middle_name, last_name)
 )").ConfigureAwait(false);
-            await Connection.ExecuteAsync(@"create index ix_test_table_2_first_name on test_table_2 (first_name, last_name)").ConfigureAwait(false);
-            await Connection.ExecuteAsync(@"create index ix_test_table_2_comment on test_table_2 (comment)").ConfigureAwait(false);
-            await Connection.ExecuteAsync(@"create unique index ux_test_table_2_first_name_middle_name on test_table_2 (first_name, middle_name)").ConfigureAwait(false);
-            await Connection.ExecuteAsync(@"create unique index ux_test_table_2_last_name on test_table_2 (last_name)").ConfigureAwait(false);
+            await Connection.ExecuteAsync("create index ix_test_table_2_first_name on test_table_2 (first_name, last_name)").ConfigureAwait(false);
+            await Connection.ExecuteAsync("create index ix_test_table_2_comment on test_table_2 (comment)").ConfigureAwait(false);
+            await Connection.ExecuteAsync("create unique index ux_test_table_2_first_name_middle_name on test_table_2 (first_name, middle_name)").ConfigureAwait(false);
+            await Connection.ExecuteAsync("create unique index ux_test_table_2_last_name on test_table_2 (last_name)").ConfigureAwait(false);
             await Connection.ExecuteAsync(@"
 create table test_table_3 (
     test_pk integer not null primary key autoincrement,

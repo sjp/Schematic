@@ -291,13 +291,5 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore
             ["UInt16"] = "ushort",
             ["String"] = "string"
         };
-
-        private readonly static IReadOnlyDictionary<Rule, string> _foreignKeyRule = new Dictionary<Rule, string>
-        {
-            [Rule.None] = "NO ACTION",
-            [Rule.Cascade] = "CASCADE",
-            [Rule.SetDefault] = "SET DEFAULT",
-            [Rule.SetNull] = "SET NULL"
-        };
     }
 }

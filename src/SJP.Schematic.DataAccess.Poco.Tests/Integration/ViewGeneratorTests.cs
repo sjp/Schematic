@@ -51,7 +51,7 @@ select
             var view = GetView("test_view_1");
             var generator = ViewGenerator;
 
-            var expected = TestView1Output;
+            const string expected = TestView1Output;
             var result = generator.Generate(view);
 
             Assert.AreEqual(expected, result);
@@ -63,7 +63,7 @@ select
             var view = GetView("test_view_2");
             var generator = ViewGenerator;
 
-            var expected = TestView2Output;
+            const string expected = TestView2Output;
             var result = generator.Generate(view);
 
             Assert.AreEqual(expected, result);
