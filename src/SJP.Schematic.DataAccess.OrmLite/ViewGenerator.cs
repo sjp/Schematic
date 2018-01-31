@@ -83,7 +83,7 @@ namespace SJP.Schematic.DataAccess.OrmLite
 
             builder.Append(viewIndent)
                 .Append("public class ")
-                .AppendLine(view.Name.LocalName)
+                .AppendLine(className)
                 .Append(viewIndent)
                 .AppendLine("{");
 
@@ -100,7 +100,7 @@ namespace SJP.Schematic.DataAccess.OrmLite
 
             builder.Append(viewIndent)
                 .AppendLine("}")
-                .AppendLine("}");
+                .Append("}");
 
             return builder.ToString();
         }

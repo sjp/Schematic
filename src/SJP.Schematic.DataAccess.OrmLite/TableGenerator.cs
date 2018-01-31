@@ -113,8 +113,12 @@ namespace SJP.Schematic.DataAccess.OrmLite
                 var fieldNames = string.Join(", ", columnNames);
 
                 builder.Append(tableIndent)
-                    .Append("[CompositeIndex(")
-                    .Append(fieldNames)
+                    .Append("[CompositeIndex(");
+
+                if (index.IsUnique)
+                    builder.Append("true, ");
+
+                builder.Append(fieldNames)
                     .AppendLine(")]");
             }
 
@@ -140,7 +144,7 @@ namespace SJP.Schematic.DataAccess.OrmLite
 
             builder.Append(tableIndent)
                 .AppendLine("}")
-                .AppendLine("}");
+                .Append("}");
 
             return builder.ToString();
         }
@@ -385,7 +389,7 @@ namespace SJP.Schematic.DataAccess.OrmLite
 
                 var indexColumn = columns[0];
                 var dependentColumns = indexColumn.DependentColumns.ToList();
-                if (dependentColumns.Count > 0)
+                if (dependentColumns.Count > 1)
                     continue;
 
                 var dependentColumn = dependentColumns[0];
@@ -413,7 +417,7 @@ namespace SJP.Schematic.DataAccess.OrmLite
 
                 var indexColumn = columns[0];
                 var dependentColumns = indexColumn.DependentColumns.ToList();
-                if (dependentColumns.Count > 0)
+                if (dependentColumns.Count > 1)
                     continue;
 
                 var dependentColumn = dependentColumns[0];

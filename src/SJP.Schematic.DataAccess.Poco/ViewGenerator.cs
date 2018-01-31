@@ -83,7 +83,7 @@ namespace SJP.Schematic.DataAccess.Poco
 
             builder.Append(viewIndent)
                 .AppendLine("}")
-                .AppendLine("}");
+                .Append("}");
 
             return builder.ToString();
         }
@@ -106,12 +106,14 @@ namespace SJP.Schematic.DataAccess.Poco
             if (clrType.Namespace == "System" && _typeNameMap.ContainsKey(typeName))
                 typeName = _typeNameMap[typeName];
 
+            var propertyName = NameProvider.ColumnToPropertyName(className, column.Name.LocalName);
+
             builder.Append(columnIndent)
                 .Append("public ")
                 .Append(typeName)
                 .Append(nullableSuffix)
                 .Append(" ")
-                .Append(column.Name.LocalName)
+                .Append(propertyName)
                 .AppendLine(" { get; set; }");
         }
 

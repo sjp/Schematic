@@ -160,7 +160,7 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore
 
             builder.Append(tableIndent)
                 .AppendLine("}")
-                .AppendLine("}");
+                .Append("}");
 
             return builder.ToString();
         }

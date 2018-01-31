@@ -100,7 +100,7 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore
 
             builder.Append(IndentLevel)
                 .AppendLine("}")
-                .AppendLine("}");
+                .Append("}");
 
             return builder.ToString();
         }

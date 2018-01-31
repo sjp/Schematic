@@ -83,7 +83,7 @@ namespace SJP.Schematic.DataAccess.Poco
 
             builder.Append(tableIndent)
                 .AppendLine("}")
-                .AppendLine("}");
+                .Append("}");
 
             return builder.ToString();
         }

@@ -8,7 +8,6 @@ using SJP.Schematic.DataAccess.Extensions;
 
 namespace SJP.Schematic.DataAccess.EntityFrameworkCore
 {
-
     public class ModelBuilder
     {
         public ModelBuilder(INameProvider nameProvider, string lineIndent, string indentLevel)
