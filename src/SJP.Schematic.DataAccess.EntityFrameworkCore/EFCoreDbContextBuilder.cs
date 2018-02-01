@@ -7,9 +7,9 @@ using SJP.Schematic.DataAccess.Extensions;
 
 namespace SJP.Schematic.DataAccess.EntityFrameworkCore
 {
-    public class DbContextBuilder
+    public class EFCoreDbContextBuilder
     {
-        public DbContextBuilder(IRelationalDatabase database, INameProvider nameProvider, string baseNamespace)
+        public EFCoreDbContextBuilder(IRelationalDatabase database, INameProvider nameProvider, string baseNamespace)
         {
             if (baseNamespace.IsNullOrWhiteSpace())
                 throw new ArgumentNullException(nameof(baseNamespace));
@@ -43,7 +43,7 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore
 
             const string tableIndent = IndentLevel + IndentLevel;
             const string contextIndent = tableIndent + IndentLevel;
-            var modelBuilder = new ModelBuilder(NameProvider, contextIndent, IndentLevel);
+            var modelBuilder = new EFCoreModelBuilder(NameProvider, contextIndent, IndentLevel);
 
             var missingFirstLine = true;
             foreach (var table in Database.Tables)

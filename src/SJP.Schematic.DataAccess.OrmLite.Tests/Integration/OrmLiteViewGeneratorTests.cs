@@ -4,16 +4,16 @@ using NUnit.Framework;
 using SJP.Schematic.Core;
 using SJP.Schematic.Sqlite;
 
-namespace SJP.Schematic.DataAccess.Poco.Tests.Integration
+namespace SJP.Schematic.DataAccess.OrmLite.Tests.Integration
 {
     [TestFixture]
-    internal class ViewGeneratorTests : SqliteTest
+    internal class OrmLiteViewGeneratorTests : SqliteTest
     {
         private IRelationalDatabase Database => new SqliteRelationalDatabase(Dialect, Connection);
 
         private IRelationalDatabaseView GetView(Identifier viewName) => Database.GetView(viewName);
 
-        private IDatabaseViewGenerator ViewGenerator => new ViewGenerator(new PascalCaseNameProvider(), TestNamespace);
+        private IDatabaseViewGenerator ViewGenerator => new OrmLiteViewGenerator(new PascalCaseNameProvider(), TestNamespace);
 
         [OneTimeSetUp]
         public async Task Init()
@@ -51,7 +51,7 @@ select
             var view = GetView("test_view_1");
             var generator = ViewGenerator;
 
-            const string expected = TestView1Output;
+            var expected = TestView1Output;
             var result = generator.Generate(view);
 
             Assert.AreEqual(expected, result);
@@ -63,81 +63,97 @@ select
             var view = GetView("test_view_2");
             var generator = ViewGenerator;
 
-            const string expected = TestView2Output;
+            var expected = TestView2Output;
             var result = generator.Generate(view);
 
             Assert.AreEqual(expected, result);
         }
 
-        private const string TestNamespace = "PocoTestNamespace";
+        private const string TestNamespace = "OrmLiteTestNamespace";
 
-        private const string TestView1Output = @"using System;
+        private readonly string TestView1Output = @"using System;
+using ServiceStack.DataAnnotations;
 
-namespace PocoTestNamespace.Main
+namespace OrmLiteTestNamespace.Main
 {
     /// <summary>
     /// A mapping class to query the <c>test_view_1</c> view.
     /// </summary>
+    [Schema(""main"")]
+    [Alias(""test_view_1"")]
     public class TestView1
     {
         /// <summary>
         /// The <c>testint</c> column.
         /// </summary>
+        [Alias(""testint"")]
         public long? Testint { get; set; }
 
         /// <summary>
         /// The <c>testdouble</c> column.
         /// </summary>
+        [Alias(""testdouble"")]
         public double? Testdouble { get; set; }
 
         /// <summary>
         /// The <c>testblob</c> column.
         /// </summary>
+        [Alias(""testblob"")]
         public byte[] Testblob { get; set; }
 
         /// <summary>
         /// The <c>testdatetime</c> column.
         /// </summary>
+        [Alias(""testdatetime"")]
         public string Testdatetime { get; set; }
 
         /// <summary>
         /// The <c>teststring</c> column.
         /// </summary>
+        [Alias(""teststring"")]
         public string Teststring { get; set; }
     }
 }";
-        private const string TestView2Output = @"using System;
+        private readonly string TestView2Output = @"using System;
+using ServiceStack.DataAnnotations;
 
-namespace PocoTestNamespace.Main
+namespace OrmLiteTestNamespace.Main
 {
     /// <summary>
     /// A mapping class to query the <c>test_view_2</c> view.
     /// </summary>
+    [Schema(""main"")]
+    [Alias(""test_view_2"")]
     public class TestView2
     {
         /// <summary>
         /// The <c>testint</c> column.
         /// </summary>
+        [Alias(""testint"")]
         public long? Testint { get; set; }
 
         /// <summary>
         /// The <c>testdecimal</c> column.
         /// </summary>
+        [Alias(""testdecimal"")]
         public decimal? Testdecimal { get; set; }
 
         /// <summary>
         /// The <c>testblob</c> column.
         /// </summary>
+        [Alias(""testblob"")]
         public byte[] Testblob { get; set; }
 
         /// <summary>
         /// The <c>testdatetime</c> column.
         /// </summary>
+        [Alias(""testdatetime"")]
         public decimal? Testdatetime { get; set; }
 
         /// <summary>
         /// The <c>teststring</c> column.
         /// </summary>
+        [Alias(""teststring"")]
         public string Teststring { get; set; }
     }
 }";

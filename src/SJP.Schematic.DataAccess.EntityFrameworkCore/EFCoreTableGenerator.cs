@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Data;
 using System.Globalization;
 using System.Linq;
 using System.Security;
@@ -11,9 +10,9 @@ using SJP.Schematic.DataAccess.Extensions;
 
 namespace SJP.Schematic.DataAccess.EntityFrameworkCore
 {
-    public class TableGenerator : DatabaseTableGenerator
+    public class EFCoreTableGenerator : DatabaseTableGenerator
     {
-        public TableGenerator(INameProvider nameProvider, string baseNamespace)
+        public EFCoreTableGenerator(INameProvider nameProvider, string baseNamespace)
             : base(nameProvider)
         {
             if (baseNamespace.IsNullOrWhiteSpace())

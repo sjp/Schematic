@@ -10,9 +10,9 @@ using SJP.Schematic.DataAccess.Extensions;
 
 namespace SJP.Schematic.DataAccess.OrmLite
 {
-    public class TableGenerator : DatabaseTableGenerator
+    public class OrmLiteTableGenerator : DatabaseTableGenerator
     {
-        public TableGenerator(INameProvider nameProvider, string baseNamespace)
+        public OrmLiteTableGenerator(INameProvider nameProvider, string baseNamespace)
             : base(nameProvider)
         {
             if (baseNamespace.IsNullOrWhiteSpace())

@@ -5,9 +5,9 @@ using SJP.Schematic.Core;
 
 namespace SJP.Schematic.DataAccess.Poco
 {
-    public class DataAccessGenerator
+    public class PocoDataAccessGenerator
     {
-        public DataAccessGenerator(IRelationalDatabase database, INameProvider nameProvider)
+        public PocoDataAccessGenerator(IRelationalDatabase database, INameProvider nameProvider)
         {
             Database = database ?? throw new ArgumentNullException(nameof(database));
             NameProvider = nameProvider ?? throw new ArgumentNullException(nameof(nameProvider));
@@ -36,10 +36,10 @@ namespace SJP.Schematic.DataAccess.Poco
             if (!projectFileInfo.Directory.Exists)
                 projectFileInfo.Directory.Create();
 
-            fileSystem.File.WriteAllText(projectPath, ProjectGenerator.ProjectDefinition);
+            fileSystem.File.WriteAllText(projectPath, ProjectDefinition);
 
-            var tableGenerator = new TableGenerator(NameProvider, baseNamespace);
-            var viewGenerator = new ViewGenerator(NameProvider, baseNamespace);
+            var tableGenerator = new PocoTableGenerator(NameProvider, baseNamespace);
+            var viewGenerator = new PocoViewGenerator(NameProvider, baseNamespace);
 
             foreach (var table in Database.Tables)
             {
@@ -69,5 +69,11 @@ namespace SJP.Schematic.DataAccess.Poco
                 fileSystem.File.WriteAllText(viewPath.FullName, viewClass);
             }
         }
+
+        protected const string ProjectDefinition = @"<Project Sdk=""Microsoft.NET.Sdk"">
+    <PropertyGroup>
+        <TargetFramework>netstandard2.0</TargetFramework>
+    </PropertyGroup>
+</Project>";
     }
 }

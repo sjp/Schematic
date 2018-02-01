@@ -4,9 +4,9 @@ using SJP.Schematic.Core;
 
 namespace SJP.Schematic.DataAccess.OrmLite
 {
-    public class DataAccessGenerator : IDataAccessGenerator
+    public class OrmLiteDataAccessGenerator : IDataAccessGenerator
     {
-        public DataAccessGenerator(IRelationalDatabase database, INameProvider nameProvider)
+        public OrmLiteDataAccessGenerator(IRelationalDatabase database, INameProvider nameProvider)
         {
             Database = database ?? throw new ArgumentNullException(nameof(database));
             NameProvider = nameProvider ?? throw new ArgumentNullException(nameof(nameProvider));
@@ -35,10 +35,10 @@ namespace SJP.Schematic.DataAccess.OrmLite
             if (!projectFileInfo.Directory.Exists)
                 projectFileInfo.Directory.Create();
 
-            fileSystem.File.WriteAllText(projectPath, ProjectGenerator.ProjectDefinition);
+            fileSystem.File.WriteAllText(projectPath, ProjectDefinition);
 
-            var tableGenerator = new TableGenerator(NameProvider, baseNamespace);
-            var viewGenerator = new ViewGenerator(NameProvider, baseNamespace);
+            var tableGenerator = new OrmLiteTableGenerator(NameProvider, baseNamespace);
+            var viewGenerator = new OrmLiteViewGenerator(NameProvider, baseNamespace);
 
             foreach (var table in Database.Tables)
             {
@@ -68,5 +68,15 @@ namespace SJP.Schematic.DataAccess.OrmLite
                 fileSystem.File.WriteAllText(viewPath.FullName, viewClass);
             }
         }
+
+        protected const string ProjectDefinition = @"<Project Sdk=""Microsoft.NET.Sdk"">
+    <PropertyGroup>
+        <TargetFramework>netstandard2.0</TargetFramework>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include=""ServiceStack.OrmLite"" Version=""5.0.2"" />
+    </ItemGroup>
+</Project>";
     }
 }

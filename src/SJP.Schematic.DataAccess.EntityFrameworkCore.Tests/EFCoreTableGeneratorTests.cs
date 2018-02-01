@@ -3,36 +3,36 @@ using System.IO;
 using NUnit.Framework;
 using SJP.Schematic.Core;
 
-namespace SJP.Schematic.DataAccess.OrmLite.Tests
+namespace SJP.Schematic.DataAccess.EntityFrameworkCore.Tests
 {
     [TestFixture]
-    public class TableGeneratorTests
+    public class EFCoreTableGeneratorTests
     {
         [Test]
         public void Ctor_GivenNullNameProvider_ThrowsArgumentNullException()
         {
-            Assert.Throws<ArgumentNullException>(() => new TableGenerator(null, "testns"));
+            Assert.Throws<ArgumentNullException>(() => new EFCoreTableGenerator(null, "testns"));
         }
 
         [Test]
         public void Ctor_GivenNullNamespace_ThrowsArgumentNullException()
         {
             var nameProvider = new VerbatimNameProvider();
-            Assert.Throws<ArgumentNullException>(() => new TableGenerator(nameProvider, null));
+            Assert.Throws<ArgumentNullException>(() => new EFCoreTableGenerator(nameProvider, null));
         }
 
         [Test]
         public void Ctor_GivenEmptyNamespace_ThrowsArgumentNullException()
         {
             var nameProvider = new VerbatimNameProvider();
-            Assert.Throws<ArgumentNullException>(() => new TableGenerator(nameProvider, string.Empty));
+            Assert.Throws<ArgumentNullException>(() => new EFCoreTableGenerator(nameProvider, string.Empty));
         }
 
         [Test]
         public void Ctor_GivenWhiteSpaceNamespace_ThrowsArgumentNullException()
         {
             var nameProvider = new VerbatimNameProvider();
-            Assert.Throws<ArgumentNullException>(() => new TableGenerator(nameProvider, "   "));
+            Assert.Throws<ArgumentNullException>(() => new EFCoreTableGenerator(nameProvider, "   "));
         }
 
         [Test]
@@ -40,7 +40,7 @@ namespace SJP.Schematic.DataAccess.OrmLite.Tests
         {
             var nameProvider = new VerbatimNameProvider();
             const string testNs = "SJP.Schematic.Test";
-            var generator = new TableGenerator(nameProvider, testNs);
+            var generator = new EFCoreTableGenerator(nameProvider, testNs);
 
             Assert.Throws<ArgumentNullException>(() => generator.GetFilePath(null, "test"));
         }
@@ -50,7 +50,7 @@ namespace SJP.Schematic.DataAccess.OrmLite.Tests
         {
             var nameProvider = new VerbatimNameProvider();
             const string testNs = "SJP.Schematic.Test";
-            var generator = new TableGenerator(nameProvider, testNs);
+            var generator = new EFCoreTableGenerator(nameProvider, testNs);
             var baseDir = new DirectoryInfo(Environment.CurrentDirectory);
 
             Assert.Throws<ArgumentNullException>(() => generator.GetFilePath(baseDir, null));
@@ -61,7 +61,7 @@ namespace SJP.Schematic.DataAccess.OrmLite.Tests
         {
             var nameProvider = new VerbatimNameProvider();
             const string testNs = "SJP.Schematic.Test";
-            var generator = new TableGenerator(nameProvider, testNs);
+            var generator = new EFCoreTableGenerator(nameProvider, testNs);
             var baseDir = new DirectoryInfo(Environment.CurrentDirectory);
 
             Assert.Throws<ArgumentNullException>(() => generator.GetFilePath(baseDir, new SchemaIdentifier("test")));
@@ -72,7 +72,7 @@ namespace SJP.Schematic.DataAccess.OrmLite.Tests
         {
             var nameProvider = new VerbatimNameProvider();
             const string testNs = "SJP.Schematic.Test";
-            var generator = new TableGenerator(nameProvider, testNs);
+            var generator = new EFCoreTableGenerator(nameProvider, testNs);
             var baseDir = new DirectoryInfo(Environment.CurrentDirectory);
             const string testTableName = "table_name";
             var expectedPath = Path.Combine(Environment.CurrentDirectory, "Tables", testTableName + ".cs");
@@ -87,7 +87,7 @@ namespace SJP.Schematic.DataAccess.OrmLite.Tests
         {
             var nameProvider = new VerbatimNameProvider();
             const string testNs = "SJP.Schematic.Test";
-            var generator = new TableGenerator(nameProvider, testNs);
+            var generator = new EFCoreTableGenerator(nameProvider, testNs);
             var baseDir = new DirectoryInfo(Environment.CurrentDirectory);
             const string testTableSchema = "table_schema";
             const string testTableName = "table_name";
@@ -103,7 +103,7 @@ namespace SJP.Schematic.DataAccess.OrmLite.Tests
         {
             var nameProvider = new VerbatimNameProvider();
             const string testNs = "SJP.Schematic.Test";
-            var generator = new TableGenerator(nameProvider, testNs);
+            var generator = new EFCoreTableGenerator(nameProvider, testNs);
 
             Assert.Throws<ArgumentNullException>(() => generator.Generate(null));
         }

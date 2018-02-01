@@ -8,9 +8,9 @@ using SJP.Schematic.DataAccess.Extensions;
 
 namespace SJP.Schematic.DataAccess.EntityFrameworkCore
 {
-    public class ModelBuilder
+    public class EFCoreModelBuilder
     {
-        public ModelBuilder(INameProvider nameProvider, string lineIndent, string indentLevel)
+        public EFCoreModelBuilder(INameProvider nameProvider, string lineIndent, string indentLevel)
         {
             NameProvider = nameProvider ?? throw new ArgumentNullException(nameof(nameProvider));
             LineIndent = lineIndent ?? throw new ArgumentNullException(nameof(lineIndent));
@@ -23,7 +23,7 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore
 
         protected string IndentLevel { get; }
 
-        public ModelBuilder AddTable(IRelationalDatabaseTable table)
+        public EFCoreModelBuilder AddTable(IRelationalDatabaseTable table)
         {
             if (table == null)
                 throw new ArgumentNullException(nameof(table));
@@ -207,7 +207,7 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore
             return this;
         }
 
-        public ModelBuilder AddSequence(IDatabaseSequence sequence)
+        public EFCoreModelBuilder AddSequence(IDatabaseSequence sequence)
         {
             if (sequence == null)
                 throw new ArgumentNullException(nameof(sequence));

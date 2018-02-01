@@ -7,13 +7,13 @@ using SJP.Schematic.Sqlite;
 namespace SJP.Schematic.DataAccess.Poco.Tests.Integration
 {
     [TestFixture]
-    internal class TableGeneratorTests : SqliteTest
+    internal class PocoTableGeneratorTests : SqliteTest
     {
         private IRelationalDatabase Database => new SqliteRelationalDatabase(Dialect, Connection);
 
         private IRelationalDatabaseTable GetTable(Identifier tableName) => Database.GetTable(tableName);
 
-        private IDatabaseTableGenerator TableGenerator => new TableGenerator(new PascalCaseNameProvider(), TestNamespace);
+        private IDatabaseTableGenerator TableGenerator => new PocoTableGenerator(new PascalCaseNameProvider(), TestNamespace);
 
         [OneTimeSetUp]
         public async Task Init()

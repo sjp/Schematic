@@ -5,9 +5,9 @@ using SJP.Schematic.Core;
 
 namespace SJP.Schematic.DataAccess.EntityFrameworkCore
 {
-    public class DataAccessGenerator : IDataAccessGenerator
+    public class EFCoreDataAccessGenerator : IDataAccessGenerator
     {
-        public DataAccessGenerator(IRelationalDatabase database, INameProvider nameProvider)
+        public EFCoreDataAccessGenerator(IRelationalDatabase database, INameProvider nameProvider)
         {
             Database = database ?? throw new ArgumentNullException(nameof(database));
             NameProvider = nameProvider ?? throw new ArgumentNullException(nameof(nameProvider));
@@ -38,8 +38,8 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore
 
             fileSystem.File.WriteAllText(projectPath, ProjectGenerator.ProjectDefinition);
 
-            var dbContextGenerator = new DbContextBuilder(Database, NameProvider, baseNamespace);
-            var tableGenerator = new TableGenerator(NameProvider, baseNamespace);
+            var dbContextGenerator = new EFCoreDbContextBuilder(Database, NameProvider, baseNamespace);
+            var tableGenerator = new EFCoreTableGenerator(NameProvider, baseNamespace);
 
             foreach (var table in Database.Tables)
             {

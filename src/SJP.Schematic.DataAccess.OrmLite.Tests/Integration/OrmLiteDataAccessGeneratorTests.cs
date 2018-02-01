@@ -11,7 +11,7 @@ using SJP.Schematic.Sqlite;
 namespace SJP.Schematic.DataAccess.OrmLite.Tests.Integration
 {
     [TestFixture]
-    internal class DataAccessGeneratorTests : SqliteTest
+    internal class OrmLiteDataAccessGeneratorTests : SqliteTest
     {
         private IRelationalDatabase Database => new SqliteRelationalDatabase(Dialect, Connection);
 
@@ -49,7 +49,7 @@ select
         public void Generate_GivenDatabaseWithTablesAndViews_GeneratesFilesInExpectedLocations()
         {
             var nameProvider = new PascalCaseNameProvider();
-            var generator = new DataAccessGenerator(Database, nameProvider);
+            var generator = new OrmLiteDataAccessGenerator(Database, nameProvider);
 
             var testProjectDir = Path.Combine(Environment.CurrentDirectory, "ormlitetest");
 

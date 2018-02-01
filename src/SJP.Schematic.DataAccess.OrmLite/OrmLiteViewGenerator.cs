@@ -8,9 +8,9 @@ using SJP.Schematic.DataAccess.Extensions;
 
 namespace SJP.Schematic.DataAccess.OrmLite
 {
-    public class ViewGenerator : DatabaseViewGenerator
+    public class OrmLiteViewGenerator : DatabaseViewGenerator
     {
-        public ViewGenerator(INameProvider nameProvider, string baseNamespace)
+        public OrmLiteViewGenerator(INameProvider nameProvider, string baseNamespace)
             : base(nameProvider)
         {
             if (baseNamespace.IsNullOrWhiteSpace())

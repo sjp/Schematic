@@ -3,36 +3,36 @@ using System.IO;
 using NUnit.Framework;
 using SJP.Schematic.Core;
 
-namespace SJP.Schematic.DataAccess.Poco.Tests
+namespace SJP.Schematic.DataAccess.OrmLite.Tests
 {
     [TestFixture]
-    public class ViewGeneratorTests
+    public class OrmLiteViewGeneratorTests
     {
         [Test]
         public void Ctor_GivenNullNameProvider_ThrowsArgumentNullException()
         {
-            Assert.Throws<ArgumentNullException>(() => new ViewGenerator(null, "testns"));
+            Assert.Throws<ArgumentNullException>(() => new OrmLiteViewGenerator(null, "testns"));
         }
 
         [Test]
         public void Ctor_GivenNullNamespace_ThrowsArgumentNullException()
         {
             var nameProvider = new VerbatimNameProvider();
-            Assert.Throws<ArgumentNullException>(() => new ViewGenerator(nameProvider, null));
+            Assert.Throws<ArgumentNullException>(() => new OrmLiteViewGenerator(nameProvider, null));
         }
 
         [Test]
         public void Ctor_GivenEmptyNamespace_ThrowsArgumentNullException()
         {
             var nameProvider = new VerbatimNameProvider();
-            Assert.Throws<ArgumentNullException>(() => new ViewGenerator(nameProvider, string.Empty));
+            Assert.Throws<ArgumentNullException>(() => new OrmLiteViewGenerator(nameProvider, string.Empty));
         }
 
         [Test]
         public void Ctor_GivenWhiteSpaceNamespace_ThrowsArgumentNullException()
         {
             var nameProvider = new VerbatimNameProvider();
-            Assert.Throws<ArgumentNullException>(() => new ViewGenerator(nameProvider, "   "));
+            Assert.Throws<ArgumentNullException>(() => new OrmLiteViewGenerator(nameProvider, "   "));
         }
 
         [Test]
@@ -40,7 +40,7 @@ namespace SJP.Schematic.DataAccess.Poco.Tests
         {
             var nameProvider = new VerbatimNameProvider();
             const string testNs = "SJP.Schematic.Test";
-            var generator = new ViewGenerator(nameProvider, testNs);
+            var generator = new OrmLiteViewGenerator(nameProvider, testNs);
             var baseDir = new DirectoryInfo(Environment.CurrentDirectory);
 
             Assert.Throws<ArgumentNullException>(() => generator.GetFilePath(baseDir, null));
@@ -51,7 +51,7 @@ namespace SJP.Schematic.DataAccess.Poco.Tests
         {
             var nameProvider = new VerbatimNameProvider();
             const string testNs = "SJP.Schematic.Test";
-            var generator = new ViewGenerator(nameProvider, testNs);
+            var generator = new OrmLiteViewGenerator(nameProvider, testNs);
             var baseDir = new DirectoryInfo(Environment.CurrentDirectory);
 
             Assert.Throws<ArgumentNullException>(() => generator.GetFilePath(baseDir, new SchemaIdentifier("test")));
@@ -62,7 +62,7 @@ namespace SJP.Schematic.DataAccess.Poco.Tests
         {
             var nameProvider = new VerbatimNameProvider();
             const string testNs = "SJP.Schematic.Test";
-            var generator = new ViewGenerator(nameProvider, testNs);
+            var generator = new OrmLiteViewGenerator(nameProvider, testNs);
             var baseDir = new DirectoryInfo(Environment.CurrentDirectory);
             const string testViewName = "view_name";
             var expectedPath = Path.Combine(Environment.CurrentDirectory, "Views", testViewName + ".cs");
@@ -77,7 +77,7 @@ namespace SJP.Schematic.DataAccess.Poco.Tests
         {
             var nameProvider = new VerbatimNameProvider();
             const string testNs = "SJP.Schematic.Test";
-            var generator = new ViewGenerator(nameProvider, testNs);
+            var generator = new OrmLiteViewGenerator(nameProvider, testNs);
             var baseDir = new DirectoryInfo(Environment.CurrentDirectory);
             const string testViewSchema = "view_schema";
             const string testViewName = "view_name";
@@ -93,7 +93,7 @@ namespace SJP.Schematic.DataAccess.Poco.Tests
         {
             var nameProvider = new VerbatimNameProvider();
             const string testNs = "SJP.Schematic.Test";
-            var generator = new ViewGenerator(nameProvider, testNs);
+            var generator = new OrmLiteViewGenerator(nameProvider, testNs);
 
             Assert.Throws<ArgumentNullException>(() => generator.Generate(null));
         }

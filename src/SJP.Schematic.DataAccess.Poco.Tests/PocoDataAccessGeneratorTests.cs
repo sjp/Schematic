@@ -8,20 +8,20 @@ using SJP.Schematic.Core;
 namespace SJP.Schematic.DataAccess.Poco.Tests
 {
     [TestFixture]
-    public class DataAccessGeneratorTests
+    public class PocoDataAccessGeneratorTests
     {
         [Test]
         public void Ctor_GivenNullDatabase_ThrowsArgumentNullException()
         {
             var nameProvider = new VerbatimNameProvider();
-            Assert.Throws<ArgumentNullException>(() => new DataAccessGenerator(null, nameProvider));
+            Assert.Throws<ArgumentNullException>(() => new PocoDataAccessGenerator(null, nameProvider));
         }
 
         [Test]
         public void Ctor_GivenNullNameProvider_ThrowsArgumentNullException()
         {
             var database = Mock.Of<IRelationalDatabase>();
-            Assert.Throws<ArgumentNullException>(() => new DataAccessGenerator(database, null));
+            Assert.Throws<ArgumentNullException>(() => new PocoDataAccessGenerator(database, null));
         }
 
         [Test]
@@ -29,7 +29,7 @@ namespace SJP.Schematic.DataAccess.Poco.Tests
         {
             var database = Mock.Of<IRelationalDatabase>();
             var nameProvider = new VerbatimNameProvider();
-            var generator = new DataAccessGenerator(database, nameProvider);
+            var generator = new PocoDataAccessGenerator(database, nameProvider);
             var projectPath = Path.Combine(Environment.CurrentDirectory, "DataAccessGeneratorTest.csproj");
 
             Assert.Throws<ArgumentNullException>(() => generator.Generate(null, projectPath, "testns"));
@@ -40,7 +40,7 @@ namespace SJP.Schematic.DataAccess.Poco.Tests
         {
             var database = Mock.Of<IRelationalDatabase>();
             var nameProvider = new VerbatimNameProvider();
-            var generator = new DataAccessGenerator(database, nameProvider);
+            var generator = new PocoDataAccessGenerator(database, nameProvider);
             var mockFs = new MockFileSystem();
 
             Assert.Throws<ArgumentNullException>(() => generator.Generate(mockFs, null, "testns"));
@@ -51,7 +51,7 @@ namespace SJP.Schematic.DataAccess.Poco.Tests
         {
             var database = Mock.Of<IRelationalDatabase>();
             var nameProvider = new VerbatimNameProvider();
-            var generator = new DataAccessGenerator(database, nameProvider);
+            var generator = new PocoDataAccessGenerator(database, nameProvider);
             var mockFs = new MockFileSystem();
 
             Assert.Throws<ArgumentNullException>(() => generator.Generate(mockFs, string.Empty, "testns"));
@@ -62,7 +62,7 @@ namespace SJP.Schematic.DataAccess.Poco.Tests
         {
             var database = Mock.Of<IRelationalDatabase>();
             var nameProvider = new VerbatimNameProvider();
-            var generator = new DataAccessGenerator(database, nameProvider);
+            var generator = new PocoDataAccessGenerator(database, nameProvider);
             var mockFs = new MockFileSystem();
 
             Assert.Throws<ArgumentNullException>(() => generator.Generate(mockFs, "    ", "testns"));
@@ -73,7 +73,7 @@ namespace SJP.Schematic.DataAccess.Poco.Tests
         {
             var database = Mock.Of<IRelationalDatabase>();
             var nameProvider = new VerbatimNameProvider();
-            var generator = new DataAccessGenerator(database, nameProvider);
+            var generator = new PocoDataAccessGenerator(database, nameProvider);
             var mockFs = new MockFileSystem();
             var projectPath = Path.Combine(Environment.CurrentDirectory, "DataAccessGeneratorTest.csproj");
 
@@ -85,7 +85,7 @@ namespace SJP.Schematic.DataAccess.Poco.Tests
         {
             var database = Mock.Of<IRelationalDatabase>();
             var nameProvider = new VerbatimNameProvider();
-            var generator = new DataAccessGenerator(database, nameProvider);
+            var generator = new PocoDataAccessGenerator(database, nameProvider);
             var mockFs = new MockFileSystem();
             var projectPath = Path.Combine(Environment.CurrentDirectory, "DataAccessGeneratorTest.csproj");
 
@@ -97,7 +97,7 @@ namespace SJP.Schematic.DataAccess.Poco.Tests
         {
             var database = Mock.Of<IRelationalDatabase>();
             var nameProvider = new VerbatimNameProvider();
-            var generator = new DataAccessGenerator(database, nameProvider);
+            var generator = new PocoDataAccessGenerator(database, nameProvider);
             var mockFs = new MockFileSystem();
             var projectPath = Path.Combine(Environment.CurrentDirectory, "DataAccessGeneratorTest.csproj");
 
@@ -109,7 +109,7 @@ namespace SJP.Schematic.DataAccess.Poco.Tests
         {
             var database = Mock.Of<IRelationalDatabase>();
             var nameProvider = new VerbatimNameProvider();
-            var generator = new DataAccessGenerator(database, nameProvider);
+            var generator = new PocoDataAccessGenerator(database, nameProvider);
             var mockFs = new MockFileSystem();
             var projectPath = Path.Combine(Environment.CurrentDirectory, "DataAccessGeneratorTest.vbproj");
 

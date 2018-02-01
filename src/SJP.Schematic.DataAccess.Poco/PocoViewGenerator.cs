@@ -8,9 +8,9 @@ using SJP.Schematic.DataAccess.Extensions;
 
 namespace SJP.Schematic.DataAccess.Poco
 {
-    public class TableGenerator : DatabaseTableGenerator
+    public class PocoViewGenerator : DatabaseViewGenerator
     {
-        public TableGenerator(INameProvider nameProvider, string baseNamespace)
+        public PocoViewGenerator(INameProvider nameProvider, string baseNamespace)
             : base(nameProvider)
         {
             if (baseNamespace.IsNullOrWhiteSpace())
@@ -21,19 +21,19 @@ namespace SJP.Schematic.DataAccess.Poco
 
         protected string Namespace { get; }
 
-        public override string Generate(IRelationalDatabaseTable table)
+        public override string Generate(IRelationalDatabaseView view)
         {
-            if (table == null)
-                throw new ArgumentNullException(nameof(table));
+            if (view == null)
+                throw new ArgumentNullException(nameof(view));
 
-            var schemaNamespace = NameProvider.SchemaToNamespace(table.Name);
-            var tableNamespace = schemaNamespace != null
+            var schemaNamespace = NameProvider.SchemaToNamespace(view.Name);
+            var viewNamespace = !schemaNamespace.IsNullOrWhiteSpace()
                 ? Namespace + "." + schemaNamespace
                 : Namespace;
 
-            var namespaces = table.Columns
+            var namespaces = view.Columns
                 .Select(c => c.Type.ClrType.Namespace)
-                .Where(ns => ns != tableNamespace)
+                .Where(ns => ns != viewNamespace)
                 .Distinct()
                 .OrderBy(n => n)
                 .ToList();
@@ -50,25 +50,26 @@ namespace SJP.Schematic.DataAccess.Poco
                 builder.AppendLine();
 
             builder.Append("namespace ")
-                .AppendLine(tableNamespace)
+                .AppendLine(viewNamespace)
                 .AppendLine("{");
 
             // todo configure for tabs?
-            const string tableIndent = IndentLevel;
+            const string viewIndent = IndentLevel;
 
-            var tableComment = GenerateTableComment(table.Name.LocalName);
-            builder.AppendComment(tableIndent, tableComment);
+            var tableComment = GenerateViewComment(view.Name.LocalName);
+            builder.AppendComment(viewIndent, tableComment);
 
-            var className = NameProvider.TableToClassName(table.Name);
-            builder.Append(tableIndent)
+            var className = NameProvider.ViewToClassName(view.Name);
+
+            builder.Append(viewIndent)
                 .Append("public class ")
                 .AppendLine(className)
-                .Append(tableIndent)
+                .Append(viewIndent)
                 .AppendLine("{");
 
-            const string columnIndent = tableIndent + IndentLevel;
+            const string columnIndent = viewIndent + IndentLevel;
             var hasFirstLine = false;
-            foreach (var column in table.Columns)
+            foreach (var column in view.Columns)
             {
                 if (hasFirstLine)
                     builder.AppendLine();
@@ -76,19 +77,18 @@ namespace SJP.Schematic.DataAccess.Poco
                 var columnComment = GenerateColumnComment(column.Name.LocalName);
                 builder.AppendComment(columnIndent, columnComment);
 
-                builder.Append(columnIndent);
                 AppendColumn(builder, columnIndent, className, column);
                 hasFirstLine = true;
             }
 
-            builder.Append(tableIndent)
+            builder.Append(viewIndent)
                 .AppendLine("}")
                 .Append("}");
 
             return builder.ToString();
         }
 
-        private void AppendColumn(StringBuilder builder, string columnIndent, string className, IDatabaseTableColumn column)
+        private void AppendColumn(StringBuilder builder, string columnIndent, string className, IDatabaseViewColumn column)
         {
             if (builder == null)
                 throw new ArgumentNullException(nameof(builder));
@@ -108,7 +108,8 @@ namespace SJP.Schematic.DataAccess.Poco
 
             var propertyName = NameProvider.ColumnToPropertyName(className, column.Name.LocalName);
 
-            builder.Append("public ")
+            builder.Append(columnIndent)
+                .Append("public ")
                 .Append(typeName)
                 .Append(nullableSuffix)
                 .Append(" ")
@@ -116,13 +117,13 @@ namespace SJP.Schematic.DataAccess.Poco
                 .AppendLine(" { get; set; }");
         }
 
-        protected virtual string GenerateTableComment(string tableName)
+        protected virtual string GenerateViewComment(string viewName)
         {
-            if (tableName.IsNullOrWhiteSpace())
-                throw new ArgumentNullException(nameof(tableName));
+            if (viewName.IsNullOrWhiteSpace())
+                throw new ArgumentNullException(nameof(viewName));
 
-            var escapedTableName = SecurityElement.Escape(tableName);
-            return "A mapping class to query the <c>" + escapedTableName + "</c> table.";
+            var escapedViewName = SecurityElement.Escape(viewName);
+            return "A mapping class to query the <c>" + escapedViewName + "</c> view.";
         }
 
         protected virtual string GenerateColumnComment(string columnName)
