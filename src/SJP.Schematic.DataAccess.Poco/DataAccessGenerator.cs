@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.IO.Abstractions;
 using SJP.Schematic.Core;
 
 namespace SJP.Schematic.DataAccess.Poco
@@ -16,36 +17,34 @@ namespace SJP.Schematic.DataAccess.Poco
 
         protected INameProvider NameProvider { get; }
 
-        public void Generate(FileInfo projectPath, string baseNamespace)
+        public void Generate(IFileSystem fileSystem, string projectPath, string baseNamespace)
         {
-            if (projectPath == null)
+            if (fileSystem == null)
+                throw new ArgumentNullException(nameof(fileSystem));
+            if (projectPath.IsNullOrWhiteSpace())
                 throw new ArgumentNullException(nameof(projectPath));
             if (baseNamespace.IsNullOrWhiteSpace())
                 throw new ArgumentNullException(nameof(baseNamespace));
 
-            if (!string.Equals(projectPath.Extension, ".csproj"))
+            var projectFileInfo = fileSystem.FileInfo.FromFileName(projectPath);
+            if (!string.Equals(projectFileInfo.Extension, ".csproj", StringComparison.OrdinalIgnoreCase))
                 throw new ArgumentException("The given path to a project must be a csproj file.", nameof(projectPath));
 
-            if (projectPath.Exists)
-                projectPath.Delete();
-            File.WriteAllText(projectPath.FullName, ProjectGenerator.ProjectDefinition);
+            if (projectFileInfo.Exists)
+                projectFileInfo.Delete();
+
+            if (!projectFileInfo.Directory.Exists)
+                projectFileInfo.Directory.Create();
+
+            fileSystem.File.WriteAllText(projectPath, ProjectGenerator.ProjectDefinition);
 
             var tableGenerator = new TableGenerator(NameProvider, baseNamespace);
             var viewGenerator = new ViewGenerator(NameProvider, baseNamespace);
 
-            var projectDir = projectPath.Directory;
-            var tablesDirectory = new DirectoryInfo(Path.Combine(projectDir.FullName, "Tables"));
-            var viewsDirectory = new DirectoryInfo(Path.Combine(projectDir.FullName, "Views"));
-
-            if (!tablesDirectory.Exists)
-                tablesDirectory.Create();
-            if (!viewsDirectory.Exists)
-                viewsDirectory.Create();
-
             foreach (var table in Database.Tables)
             {
                 var tableClass = tableGenerator.Generate(table);
-                var tablePath = tableGenerator.GetFilePath(projectPath.Directory, table.Name);
+                var tablePath = tableGenerator.GetFilePath(projectFileInfo.Directory, table.Name);
 
                 if (!tablePath.Directory.Exists)
                     tablePath.Directory.Create();
@@ -53,13 +52,13 @@ namespace SJP.Schematic.DataAccess.Poco
                 if (tablePath.Exists)
                     tablePath.Delete();
 
-                File.WriteAllText(tablePath.FullName, tableClass);
+                fileSystem.File.WriteAllText(tablePath.FullName, tableClass);
             }
 
             foreach (var view in Database.Views)
             {
                 var viewClass = viewGenerator.Generate(view);
-                var viewPath = viewGenerator.GetFilePath(projectPath.Directory, view.Name);
+                var viewPath = viewGenerator.GetFilePath(projectFileInfo.Directory, view.Name);
 
                 if (!viewPath.Directory.Exists)
                     viewPath.Directory.Create();
@@ -67,7 +66,7 @@ namespace SJP.Schematic.DataAccess.Poco
                 if (viewPath.Exists)
                     viewPath.Delete();
 
-                File.WriteAllText(viewPath.FullName, viewClass);
+                fileSystem.File.WriteAllText(viewPath.FullName, viewClass);
             }
         }
     }

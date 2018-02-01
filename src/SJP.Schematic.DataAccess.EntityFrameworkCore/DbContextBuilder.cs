@@ -9,21 +9,21 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore
 {
     public class DbContextBuilder
     {
-        public DbContextBuilder(INameProvider nameProvider, string baseNamespace, IRelationalDatabase database)
+        public DbContextBuilder(IRelationalDatabase database, INameProvider nameProvider, string baseNamespace)
         {
             if (baseNamespace.IsNullOrWhiteSpace())
                 throw new ArgumentNullException(nameof(baseNamespace));
 
+            Database = database ?? throw new ArgumentNullException(nameof(database));
             NameProvider = nameProvider ?? throw new ArgumentNullException(nameof(nameProvider));
             Namespace = baseNamespace;
-            Database = database ?? throw new ArgumentNullException(nameof(database));
         }
+
+        protected IRelationalDatabase Database { get; }
 
         protected INameProvider NameProvider { get; }
 
         protected string Namespace { get; }
-
-        protected IRelationalDatabase Database { get; }
 
         public string Generate()
         {

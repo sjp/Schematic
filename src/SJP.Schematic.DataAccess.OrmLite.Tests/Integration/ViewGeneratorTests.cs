@@ -69,12 +69,12 @@ select
             Assert.AreEqual(expected, result);
         }
 
-        private const string TestNamespace = "PocoTestNamespace";
+        private const string TestNamespace = "OrmLiteTestNamespace";
 
         private readonly string TestView1Output = @"using System;
 using ServiceStack.DataAnnotations;
 
-namespace PocoTestNamespace.Main
+namespace OrmLiteTestNamespace.Main
 {
     /// <summary>
     /// A mapping class to query the <c>test_view_1</c> view.
@@ -117,7 +117,7 @@ namespace PocoTestNamespace.Main
         private readonly string TestView2Output = @"using System;
 using ServiceStack.DataAnnotations;
 
-namespace PocoTestNamespace.Main
+namespace OrmLiteTestNamespace.Main
 {
     /// <summary>
     /// A mapping class to query the <c>test_view_2</c> view.

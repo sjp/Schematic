@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.IO.Abstractions;
 using SJP.Schematic.Core;
 
 namespace SJP.Schematic.DataAccess
@@ -16,7 +17,7 @@ namespace SJP.Schematic.DataAccess
 
         public abstract string Generate(IRelationalDatabaseTable table);
 
-        public virtual FileInfo GetFilePath(DirectoryInfo baseDirectory, Identifier objectName)
+        public virtual FileInfoBase GetFilePath(DirectoryInfoBase baseDirectory, Identifier objectName)
         {
             if (baseDirectory == null)
                 throw new ArgumentNullException(nameof(baseDirectory));
@@ -27,7 +28,7 @@ namespace SJP.Schematic.DataAccess
             if (objectName.Schema != null)
             {
                 var schemaName = NameProvider.SchemaToNamespace(objectName);
-                paths.Add(objectName.Schema);
+                paths.Add(schemaName);
             }
 
             var tableName = NameProvider.TableToClassName(objectName);

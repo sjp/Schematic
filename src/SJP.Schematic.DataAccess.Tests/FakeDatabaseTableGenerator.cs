@@ -1,4 +1,5 @@
 using System.IO;
+using System.IO.Abstractions;
 using SJP.Schematic.Core;
 
 namespace SJP.Schematic.DataAccess.Tests
@@ -12,6 +13,6 @@ namespace SJP.Schematic.DataAccess.Tests
 
         public override string Generate(IRelationalDatabaseTable table) => string.Empty;
 
-        public FileInfo InnerGetFilePath(DirectoryInfo baseDirectory, Identifier objectName) => GetFilePath(baseDirectory, objectName);
+        public FileInfoBase InnerGetFilePath(DirectoryInfoBase baseDirectory, Identifier objectName) => GetFilePath(baseDirectory, objectName);
     }
 }

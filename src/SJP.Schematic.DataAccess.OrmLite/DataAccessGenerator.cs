@@ -1,11 +1,10 @@
 ﻿using System;
-using System.IO;
 using System.IO.Abstractions;
 using SJP.Schematic.Core;
 
 namespace SJP.Schematic.DataAccess.OrmLite
 {
-    public class DataAccessGenerator
+    public class DataAccessGenerator : IDataAccessGenerator
     {
         public DataAccessGenerator(IRelationalDatabase database, INameProvider nameProvider)
         {
@@ -26,13 +25,17 @@ namespace SJP.Schematic.DataAccess.OrmLite
             if (baseNamespace.IsNullOrWhiteSpace())
                 throw new ArgumentNullException(nameof(baseNamespace));
 
-            var projectPathInfo = fileSystem.FileInfo.FromFileName(projectPath);
-            if (!string.Equals(projectPathInfo.Extension, ".csproj"))
+            var projectFileInfo = fileSystem.FileInfo.FromFileName(projectPath);
+            if (!string.Equals(projectFileInfo.Extension, ".csproj", StringComparison.OrdinalIgnoreCase))
                 throw new ArgumentException("The given path to a project must be a csproj file.", nameof(projectPath));
 
-            if (projectPathInfo.Exists)
-                projectPathInfo.Delete();
-            File.WriteAllText(projectPath, ProjectGenerator.ProjectDefinition);
+            if (projectFileInfo.Exists)
+                projectFileInfo.Delete();
+
+            if (!projectFileInfo.Directory.Exists)
+                projectFileInfo.Directory.Create();
+
+            fileSystem.File.WriteAllText(projectPath, ProjectGenerator.ProjectDefinition);
 
             var tableGenerator = new TableGenerator(NameProvider, baseNamespace);
             var viewGenerator = new ViewGenerator(NameProvider, baseNamespace);
@@ -40,8 +43,7 @@ namespace SJP.Schematic.DataAccess.OrmLite
             foreach (var table in Database.Tables)
             {
                 var tableClass = tableGenerator.Generate(table);
-                //var tablePath = tableGenerator.GetFilePath(projectPathInfo.Directory, table.Name);
-                var tablePath = tableGenerator.GetFilePath(null, table.Name);
+                var tablePath = tableGenerator.GetFilePath(projectFileInfo.Directory, table.Name);
 
                 if (!tablePath.Directory.Exists)
                     tablePath.Directory.Create();
@@ -49,14 +51,13 @@ namespace SJP.Schematic.DataAccess.OrmLite
                 if (tablePath.Exists)
                     tablePath.Delete();
 
-                File.WriteAllText(tablePath.FullName, tableClass);
+                fileSystem.File.WriteAllText(tablePath.FullName, tableClass);
             }
 
             foreach (var view in Database.Views)
             {
                 var viewClass = viewGenerator.Generate(view);
-                //var viewPath = viewGenerator.GetFilePath(projectPathInfo.Directory, view.Name);
-                var viewPath = viewGenerator.GetFilePath(null, view.Name);
+                var viewPath = viewGenerator.GetFilePath(projectFileInfo.Directory, view.Name);
 
                 if (!viewPath.Directory.Exists)
                     viewPath.Directory.Create();
@@ -64,7 +65,7 @@ namespace SJP.Schematic.DataAccess.OrmLite
                 if (viewPath.Exists)
                     viewPath.Delete();
 
-                File.WriteAllText(viewPath.FullName, viewClass);
+                fileSystem.File.WriteAllText(viewPath.FullName, viewClass);
             }
         }
     }

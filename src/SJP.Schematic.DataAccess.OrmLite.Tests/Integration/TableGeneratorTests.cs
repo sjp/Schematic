@@ -124,12 +124,12 @@ create table test_table_4 (
             Assert.AreEqual(expected, result);
         }
 
-        private const string TestNamespace = "PocoTestNamespace";
+        private const string TestNamespace = "OrmLiteTestNamespace";
 
         private readonly string TestTable1Output = @"using System;
 using ServiceStack.DataAnnotations;
 
-namespace PocoTestNamespace.Main
+namespace OrmLiteTestNamespace.Main
 {
     /// <summary>
     /// A mapping class to query the <c>test_table_1</c> table.
@@ -202,7 +202,7 @@ namespace PocoTestNamespace.Main
         private readonly string TestTable2Output = @"using System;
 using ServiceStack.DataAnnotations;
 
-namespace PocoTestNamespace.Main
+namespace OrmLiteTestNamespace.Main
 {
     /// <summary>
     /// A mapping class to query the <c>test_table_2</c> table.
@@ -260,7 +260,7 @@ namespace PocoTestNamespace.Main
         private readonly string TestTable4Output = @"using System;
 using ServiceStack.DataAnnotations;
 
-namespace PocoTestNamespace.Main
+namespace OrmLiteTestNamespace.Main
 {
     /// <summary>
     /// A mapping class to query the <c>test_table_4</c> table.

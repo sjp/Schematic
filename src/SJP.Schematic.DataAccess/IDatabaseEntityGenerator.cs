@@ -1,10 +1,11 @@
 ﻿using System.IO;
+using System.IO.Abstractions;
 using SJP.Schematic.Core;
 
 namespace SJP.Schematic.DataAccess
 {
     public interface IDatabaseEntityGenerator
     {
-        FileInfo GetFilePath(DirectoryInfo baseDirectory, Identifier objectName);
+        FileInfoBase GetFilePath(DirectoryInfoBase baseDirectory, Identifier objectName);
     }
 }
