@@ -36,7 +36,7 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore
             if (!projectFileInfo.Directory.Exists)
                 projectFileInfo.Directory.Create();
 
-            fileSystem.File.WriteAllText(projectPath, ProjectGenerator.ProjectDefinition);
+            fileSystem.File.WriteAllText(projectPath, ProjectDefinition);
 
             var dbContextGenerator = new EFCoreDbContextBuilder(Database, NameProvider, baseNamespace);
             var tableGenerator = new EFCoreTableGenerator(NameProvider, baseNamespace);
@@ -57,7 +57,18 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore
 
             var dbContextText = dbContextGenerator.Generate();
             var dbContextPath = Path.Combine(projectPath, "AppContext.cs");
-            File.WriteAllText(dbContextPath, dbContextText);
+
+            fileSystem.File.WriteAllText(dbContextPath, dbContextText);
         }
+
+        protected const string ProjectDefinition = @"<Project Sdk=""Microsoft.NET.Sdk"">
+    <PropertyGroup>
+        <TargetFramework>netstandard2.0</TargetFramework>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include=""Microsoft.EntityFrameworkCore.Relational"" Version=""2.0.1"" />
+    </ItemGroup>
+</Project>";
     }
 }
