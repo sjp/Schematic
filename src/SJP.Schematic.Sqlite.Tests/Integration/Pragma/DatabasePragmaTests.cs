@@ -8,7 +8,6 @@ using System.Data;
 using Microsoft.Data.Sqlite;
 using SJP.Schematic.Sqlite.Pragma;
 using Moq;
-using System.Collections.Generic;
 
 namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
 {

@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace SJP.Schematic.Core
+﻿namespace SJP.Schematic.Core
 {
     public struct NumericPrecision
     {

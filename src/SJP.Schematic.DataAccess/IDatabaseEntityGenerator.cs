@@ -1,5 +1,4 @@
-﻿using System.IO;
-using System.IO.Abstractions;
+﻿using System.IO.Abstractions;
 using SJP.Schematic.Core;
 
 namespace SJP.Schematic.DataAccess

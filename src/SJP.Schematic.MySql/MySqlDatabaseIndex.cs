@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using EnumsNET;
 using SJP.Schematic.Core;
 
 namespace SJP.Schematic.MySql
