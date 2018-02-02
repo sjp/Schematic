@@ -78,8 +78,7 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore
                 {
                     var schemaNameLiteral = schemaName.ToStringLiteral();
                     builder.Append(", Schema = ")
-                        .Append(schemaNameLiteral)
-                        .AppendLine(")]");
+                        .Append(schemaNameLiteral);
                 }
 
                 builder.AppendLine(")]");

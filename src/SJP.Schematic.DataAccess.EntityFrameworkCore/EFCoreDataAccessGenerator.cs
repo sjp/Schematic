@@ -56,7 +56,7 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore
             }
 
             var dbContextText = dbContextGenerator.Generate();
-            var dbContextPath = Path.Combine(projectPath, "AppContext.cs");
+            var dbContextPath = Path.Combine(projectFileInfo.Directory.FullName, "AppContext.cs");
 
             fileSystem.File.WriteAllText(dbContextPath, dbContextText);
         }

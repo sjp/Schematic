@@ -79,7 +79,7 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore
             if (primaryKey != null)
             {
                 var keyColumnSet = GenerateColumnSet(className, "t", primaryKey.Columns);
-                var keyNameLiteral = primaryKey.Name.LocalName.ToStringLiteral();
+                var keyNameLiteral = primaryKey.Name?.LocalName?.ToStringLiteral();
 
                 _builder.Append(LineIndent)
                     .Append("modelBuilder.Entity<")
@@ -105,7 +105,7 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore
             foreach (var uniqueKey in table.UniqueKeys)
             {
                 var keyColumnSet = GenerateColumnSet(className, "t", uniqueKey.Columns);
-                var keyNameLiteral = uniqueKey.Name.LocalName.ToStringLiteral();
+                var keyNameLiteral = uniqueKey.Name?.LocalName?.ToStringLiteral();
 
                 _builder.Append(LineIndent)
                     .Append("modelBuilder.Entity<")
@@ -122,7 +122,7 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore
                         .Append(chainIndent)
                         .Append(".HasName(")
                         .Append(keyNameLiteral)
-                        .AppendLine(")");
+                        .Append(")");
                 }
 
                 _builder.AppendLine(";");
@@ -191,7 +191,7 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore
                     .Append(parentColumnSet)
                     .Append(")");
 
-                var keyNameLiteral = relationalKey.ChildKey.Name.LocalName.ToStringLiteral();
+                var keyNameLiteral = relationalKey.ChildKey.Name?.LocalName?.ToStringLiteral();
                 if (!keyNameLiteral.IsNullOrWhiteSpace())
                 {
                     _builder.AppendLine()
@@ -257,7 +257,7 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore
                 : columnNames[0];
         }
 
-        public bool HasRecords => _builder.Capacity > 0;
+        public bool HasRecords => _builder.Length > 0;
 
         public override string ToString() => _builder.ToString();
 
