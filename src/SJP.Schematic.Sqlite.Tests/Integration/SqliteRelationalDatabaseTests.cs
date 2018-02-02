@@ -1,9 +1,10 @@
 ﻿using System;
-using System.Threading.Tasks;
-using NUnit.Framework;
-using Dapper;
-using SJP.Schematic.Core;
 using System.Linq;
+using System.Threading.Tasks;
+using Dapper;
+using Microsoft.Data.Sqlite;
+using NUnit.Framework;
+using SJP.Schematic.Core;
 
 namespace SJP.Schematic.Sqlite.Tests.Integration
 {
@@ -22,6 +23,90 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
         public void DefaultSchema_PropertyGet_ShouldEqualMain()
         {
             Assert.AreEqual(Database.DefaultSchema, "main");
+        }
+
+        [Test]
+        public void Vacuum_WhenInvoked_RunsWithoutError()
+        {
+            var sqliteDb = new SqliteRelationalDatabase(Dialect, Connection);
+            sqliteDb.Vacuum();
+        }
+
+        [Test]
+        public async Task VacuumAsync_WhenInvoked_RunsWithoutError()
+        {
+            var sqliteDb = new SqliteRelationalDatabase(Dialect, Connection);
+            await sqliteDb.VacuumAsync().ConfigureAwait(false);
+        }
+
+        [Test]
+        public void Vacuum_WhenGivenNullSchemaName_ThrowsArgumentNullException()
+        {
+            var sqliteDb = new SqliteRelationalDatabase(Dialect, Connection);
+            Assert.Throws<ArgumentNullException>(() => sqliteDb.Vacuum(null));
+        }
+
+        [Test]
+        public void Vacuum_WhenGivenEmptySchemaName_ThrowsArgumentNullException()
+        {
+            var sqliteDb = new SqliteRelationalDatabase(Dialect, Connection);
+            Assert.Throws<ArgumentNullException>(() => sqliteDb.Vacuum(string.Empty));
+        }
+
+        [Test]
+        public void Vacuum_WhenGivenWhiteSpaceSchemaName_ThrowsArgumentNullException()
+        {
+            var sqliteDb = new SqliteRelationalDatabase(Dialect, Connection);
+            Assert.Throws<ArgumentNullException>(() => sqliteDb.Vacuum("   "));
+        }
+
+        [Test]
+        public void VacuumAsync_WhenGivenNullSchemaName_ThrowsArgumentNullException()
+        {
+            var sqliteDb = new SqliteRelationalDatabase(Dialect, Connection);
+            Assert.ThrowsAsync<ArgumentNullException>(async () => await sqliteDb.VacuumAsync(null).ConfigureAwait(false));
+        }
+
+        [Test]
+        public void VacuumAsync_WhenGivenEmptySchemaName_ThrowsArgumentNullException()
+        {
+            var sqliteDb = new SqliteRelationalDatabase(Dialect, Connection);
+            Assert.ThrowsAsync<ArgumentNullException>(async () => await sqliteDb.VacuumAsync(string.Empty).ConfigureAwait(false));
+        }
+
+        [Test]
+        public void VacuumAsync_WhenGivenWhiteSpaceSchemaName_ThrowsArgumentNullException()
+        {
+            var sqliteDb = new SqliteRelationalDatabase(Dialect, Connection);
+            Assert.ThrowsAsync<ArgumentNullException>(async () => await sqliteDb.VacuumAsync("   ").ConfigureAwait(false));
+        }
+
+        [Test]
+        public void Vacuum_WhenGivenValidSchemaName_RunsWithoutError()
+        {
+            var sqliteDb = new SqliteRelationalDatabase(Dialect, Connection);
+            sqliteDb.Vacuum("main");
+        }
+
+        [Test]
+        public void Vacuum_WhenGivenUnknownSchemaName_ThrowsSqliteException()
+        {
+            var sqliteDb = new SqliteRelationalDatabase(Dialect, Connection);
+            Assert.Throws<SqliteException>(() => sqliteDb.Vacuum("asdas"));
+        }
+
+        [Test]
+        public async Task VacuumAsync_WhenGivenValidSchemaName_RunsWithoutError()
+        {
+            var sqliteDb = new SqliteRelationalDatabase(Dialect, Connection);
+            await sqliteDb.VacuumAsync("main").ConfigureAwait(false);
+        }
+
+        [Test]
+        public void VacuumAsync_WhenGivenUnknownSchemaName_ThrowsSqliteException()
+        {
+            var sqliteDb = new SqliteRelationalDatabase(Dialect, Connection);
+            Assert.ThrowsAsync<SqliteException>(async () => await sqliteDb.VacuumAsync("asdas").ConfigureAwait(false));
         }
 
         [TestFixture]

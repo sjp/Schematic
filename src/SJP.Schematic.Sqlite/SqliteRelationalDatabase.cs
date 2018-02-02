@@ -522,6 +522,36 @@ namespace SJP.Schematic.Sqlite
 
         public Task<IAsyncEnumerable<IDatabaseSynonym>> SynonymsAsync() => Task.FromResult(Enumerable.Empty<IDatabaseSynonym>().ToAsyncEnumerable());
 
+        public void Vacuum()
+        {
+            const string sql = "vacuum";
+            Connection.Execute(sql);
+        }
+
+        public async Task VacuumAsync()
+        {
+            const string sql = "vacuum";
+            var ignoredResult = await Connection.ExecuteAsync(sql).ConfigureAwait(false);
+        }
+
+        public void Vacuum(string schemaName)
+        {
+            if (schemaName.IsNullOrWhiteSpace())
+                throw new ArgumentNullException(nameof(schemaName));
+
+            var sql = $"vacuum { Dialect.QuoteIdentifier(schemaName) }";
+            Connection.Execute(sql);
+        }
+
+        public async Task VacuumAsync(string schemaName)
+        {
+            if (schemaName.IsNullOrWhiteSpace())
+                throw new ArgumentNullException(nameof(schemaName));
+
+            var sql = $"vacuum { Dialect.QuoteIdentifier(schemaName) }";
+            var ignoredResult = await Connection.ExecuteAsync(sql).ConfigureAwait(false);
+        }
+
         protected static IEnumerable<string> BuiltInTables { get; } = new HashSet<string>(new[] { "sqlite_master", "sqlite_temp_master", "sqlite_sequence" }, StringComparer.OrdinalIgnoreCase);
     }
 }
