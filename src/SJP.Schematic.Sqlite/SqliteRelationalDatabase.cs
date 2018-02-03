@@ -37,7 +37,7 @@ namespace SJP.Schematic.Sqlite
             if (tableName == null || tableName.LocalName == null)
                 throw new ArgumentNullException(nameof(tableName));
 
-            if (BuiltInTables.Contains(tableName.LocalName))
+            if (tableName.LocalName.StartsWith("sqlite_", StringComparison.OrdinalIgnoreCase))
                 return false;
 
             if (tableName.Schema != null)
@@ -67,7 +67,7 @@ namespace SJP.Schematic.Sqlite
             if (tableName == null || tableName.LocalName == null)
                 throw new ArgumentNullException(nameof(tableName));
 
-            if (BuiltInTables.Contains(tableName.LocalName))
+            if (IsReservedTableName(tableName))
                 return false;
 
             if (tableName.Schema != null)
@@ -98,7 +98,7 @@ namespace SJP.Schematic.Sqlite
             if (tableName == null || tableName.LocalName == null)
                 throw new ArgumentNullException(nameof(tableName));
 
-            if (BuiltInTables.Contains(tableName.LocalName))
+            if (IsReservedTableName(tableName))
                 return null;
 
             if (tableName.Schema != null)
@@ -122,7 +122,7 @@ namespace SJP.Schematic.Sqlite
             if (tableName == null || tableName.LocalName == null)
                 throw new ArgumentNullException(nameof(tableName));
 
-            if (BuiltInTables.Contains(tableName.LocalName))
+            if (IsReservedTableName(tableName))
                 return null;
 
             if (tableName.Schema != null)
@@ -151,7 +151,7 @@ namespace SJP.Schematic.Sqlite
                 {
                     var sql = $"select name from { Dialect.QuoteIdentifier(dbName) }.sqlite_master where type = 'table' order by name";
                     var tableNames = Connection.Query<string>(sql)
-                        .Where(name => !BuiltInTables.Contains(name))
+                        .Where(name => !IsReservedTableName(name))
                         .Select(name => new Identifier(dbName, name));
 
                     foreach (var tableName in tableNames)
@@ -176,7 +176,7 @@ namespace SJP.Schematic.Sqlite
                 var sql = $"select name from { Dialect.QuoteIdentifier(dbName) }.sqlite_master where type = 'table' order by name";
                 var queryResult = await Connection.QueryAsync<string>(sql).ConfigureAwait(false);
                 var tableNames = queryResult
-                    .Where(name => !BuiltInTables.Contains(name))
+                    .Where(name => !IsReservedTableName(name))
                     .Select(name => new Identifier(dbName, name));
 
                 foreach (var tableName in tableNames)
@@ -353,7 +353,7 @@ namespace SJP.Schematic.Sqlite
                 {
                     var sql = $"select name from { Dialect.QuoteIdentifier(dbName) }.sqlite_master where type = 'view' order by name";
                     var viewNames = Connection.Query<string>(sql)
-                        .Where(name => !BuiltInTables.Contains(name))
+                        .Where(name => !IsReservedTableName(name))
                         .Select(name => new Identifier(dbName, name));
 
                     foreach (var viewName in viewNames)
@@ -378,7 +378,7 @@ namespace SJP.Schematic.Sqlite
                 var sql = $"select name from { Dialect.QuoteIdentifier(dbName) }.sqlite_master where type = 'view' order by name";
                 var queryResult = await Connection.QueryAsync<string>(sql).ConfigureAwait(false);
                 var viewNames = queryResult
-                    .Where(name => !BuiltInTables.Contains(name))
+                    .Where(name => !IsReservedTableName(name))
                     .Select(name => new Identifier(dbName, name));
 
                 foreach (var viewName in viewNames)
@@ -552,6 +552,12 @@ namespace SJP.Schematic.Sqlite
             var ignoredResult = await Connection.ExecuteAsync(sql).ConfigureAwait(false);
         }
 
-        protected static IEnumerable<string> BuiltInTables { get; } = new HashSet<string>(new[] { "sqlite_master", "sqlite_temp_master", "sqlite_sequence" }, StringComparer.OrdinalIgnoreCase);
+        protected static bool IsReservedTableName(Identifier tableName)
+        {
+            if (tableName == null || tableName.LocalName == null)
+                throw new ArgumentNullException(nameof(tableName));
+
+            return tableName.LocalName.StartsWith("sqlite_", StringComparison.OrdinalIgnoreCase);
+        }
     }
 }
