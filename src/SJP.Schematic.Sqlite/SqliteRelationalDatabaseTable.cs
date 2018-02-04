@@ -43,7 +43,7 @@ namespace SJP.Schematic.Sqlite
 
         protected IEqualityComparer<Identifier> Comparer { get; }
 
-        protected DatabasePragma Pragma { get; }
+        protected ISqliteDatabasePragma Pragma { get; }
 
         public Identifier Name { get; }
 

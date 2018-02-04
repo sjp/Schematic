@@ -11,7 +11,7 @@ using SJP.Schematic.Sqlite.Pragma.Query;
 
 namespace SJP.Schematic.Sqlite.Pragma
 {
-    public class DatabasePragma
+    public class DatabasePragma : ISqliteDatabasePragma
     {
         public DatabasePragma(IDatabaseDialect dialect, IDbConnection connection, string schemaName)
         {

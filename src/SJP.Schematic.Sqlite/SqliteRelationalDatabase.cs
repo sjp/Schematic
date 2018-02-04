@@ -30,7 +30,7 @@ namespace SJP.Schematic.Sqlite
 
         protected DatabaseMetadata Metadata { get; }
 
-        protected ConnectionPragma Pragma { get; }
+        protected ISqliteConnectionPragma Pragma { get; }
 
         public bool TableExists(Identifier tableName)
         {

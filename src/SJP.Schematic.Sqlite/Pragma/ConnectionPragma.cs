@@ -11,7 +11,7 @@ using SJP.Schematic.Sqlite.Pragma.Query;
 
 namespace SJP.Schematic.Sqlite.Pragma
 {
-    public class ConnectionPragma
+    public class ConnectionPragma : ISqliteConnectionPragma
     {
         public ConnectionPragma(IDatabaseDialect dialect, IDbConnection connection)
         {
@@ -25,13 +25,13 @@ namespace SJP.Schematic.Sqlite.Pragma
 
         protected string PragmaPrefix { get; } = "PRAGMA ";
 
-        public IEnumerable<DatabasePragma> DatabasePragmas =>
+        public IEnumerable<ISqliteDatabasePragma> DatabasePragmas =>
             DatabaseList
                 .OrderBy(d => d.seq)
                 .Select(d => new DatabasePragma(Dialect, Connection, d.name))
                 .ToList();
 
-        public async Task<IEnumerable<DatabasePragma>> DatabasePragmasAsync()
+        public async Task<IEnumerable<ISqliteDatabasePragma>> DatabasePragmasAsync()
         {
             var databases = await DatabaseListAsync().ConfigureAwait(false);
             return databases
