@@ -12,9 +12,6 @@
 * Once types and API are settled, minimise API surface by making objects sealed or
   internal as much as possible.
 
-* Full-text indexes? Not sure how generic they are or whether they need to be treated any
-  differently in the declarations. Maybe just an attribute stating that it's a full-text index?
-
 * Think about dependencies/dependents. Seems clumsy doing this in the user interface.
   Most of the time we can determine this anyway, for example we can order based on
   foreign keys for table dependencies.
@@ -37,9 +34,6 @@
   In short, allow querying of information case-sensitively, but do not allow for the
   creation of a database where case-insensitiviy would break it.
   
-* Minor optimisation, but preallocate lists and dictionaries where possible if we know
-  their sizes.
-
 * Create a linter. Examples could be suggesting an index on a foreign key when one is missing.
   Another could be hinting that a locale specific definition of a default value should not be used.
   An example where locale specific values occur is in datetimes in SQL Server.
