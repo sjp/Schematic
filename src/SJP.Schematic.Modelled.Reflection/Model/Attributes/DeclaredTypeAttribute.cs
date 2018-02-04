@@ -83,15 +83,17 @@ namespace SJP.Schematic.Modelled.Reflection.Model
             Scale = scale;
         }
 
-        public virtual DataType DataType { get; }
+        public virtual DataType DataType { get; set; }
 
-        public virtual int Length { get; } = UnknownLength;
+        public virtual int Length { get; set; } = UnknownLength;
 
-        public virtual int Precision { get; } = UnknownLength;
+        public virtual int Precision { get; set; } = UnknownLength;
 
-        public virtual int Scale { get; } = UnknownLength;
+        public virtual int Scale { get; set; } = UnknownLength;
 
-        public virtual bool IsFixedLength { get; }
+        public virtual bool IsFixedLength { get; set; }
+
+        public virtual string TypeName { get; set; }
 
         protected static int UnknownLength = -1;
     }

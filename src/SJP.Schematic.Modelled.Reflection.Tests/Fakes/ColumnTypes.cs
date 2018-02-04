@@ -1,4 +1,5 @@
-﻿using SJP.Schematic.Modelled.Reflection.Model;
+﻿using SJP.Schematic.Core;
+using SJP.Schematic.Modelled.Reflection.Model;
 
 namespace SJP.Schematic.Modelled.Reflection.Tests.Fakes.ColumnTypes
 {
@@ -24,6 +25,11 @@ namespace SJP.Schematic.Modelled.Reflection.Tests.Fakes.ColumnTypes
 
     [ColumnType.LargeBinary]
     public struct Blob : IDbType<byte[]>
+    {
+    }
+
+    [ColumnType.Custom(DataType = DataType.Unicode, Length = 255, TypeName = "nvarchar(255)")]
+    public struct NVarchar255 : IDbType<string>
     {
     }
 }
