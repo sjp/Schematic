@@ -51,5 +51,221 @@ namespace SJP.Schematic.Sqlite.Tests
 
             Assert.AreEqual(expectedDefaultSchema, database.DefaultSchema);
         }
+
+        [Test]
+        public void Vacuum_GivenNullSchemaName_ThrowsArgumentNullException()
+        {
+            var connection = Mock.Of<IDbConnection>();
+            var database = new SqliteRelationalDatabase(new SqliteDialect(), connection);
+
+            Assert.Throws<ArgumentNullException>(() => database.Vacuum(null));
+        }
+
+        [Test]
+        public void Vacuum_GivenEmptySchemaName_ThrowsArgumentNullException()
+        {
+            var connection = Mock.Of<IDbConnection>();
+            var database = new SqliteRelationalDatabase(new SqliteDialect(), connection);
+
+            Assert.Throws<ArgumentNullException>(() => database.Vacuum(string.Empty));
+        }
+
+        [Test]
+        public void Vacuum_GivenWhiteSpaceSchemaName_ThrowsArgumentNullException()
+        {
+            var connection = Mock.Of<IDbConnection>();
+            var database = new SqliteRelationalDatabase(new SqliteDialect(), connection);
+
+            Assert.Throws<ArgumentNullException>(() => database.Vacuum("   "));
+        }
+
+        [Test]
+        public void VacuumAsync_WhenGivenNullSchemaName_ThrowsArgumentNullException()
+        {
+            var connection = Mock.Of<IDbConnection>();
+            var database = new SqliteRelationalDatabase(new SqliteDialect(), connection);
+
+            Assert.ThrowsAsync<ArgumentNullException>(async () => await database.VacuumAsync(null).ConfigureAwait(false));
+        }
+
+        [Test]
+        public void VacuumAsync_WhenGivenEmptySchemaName_ThrowsArgumentNullException()
+        {
+            var connection = Mock.Of<IDbConnection>();
+            var database = new SqliteRelationalDatabase(new SqliteDialect(), connection);
+
+            Assert.ThrowsAsync<ArgumentNullException>(async () => await database.VacuumAsync(string.Empty).ConfigureAwait(false));
+        }
+
+        [Test]
+        public void VacuumAsync_WhenGivenWhiteSpaceSchemaName_ThrowsArgumentNullException()
+        {
+            var connection = Mock.Of<IDbConnection>();
+            var database = new SqliteRelationalDatabase(new SqliteDialect(), connection);
+
+            Assert.ThrowsAsync<ArgumentNullException>(async () => await database.VacuumAsync("   ").ConfigureAwait(false));
+        }
+
+        [Test]
+        public void AttachDatabase_WhenGivenNullSchemaName_ThrowsArgumentNullException()
+        {
+            var connection = Mock.Of<IDbConnection>();
+            var database = new SqliteRelationalDatabase(new SqliteDialect(), connection);
+
+            Assert.Throws<ArgumentNullException>(() => database.AttachDatabase(null, ":memory:"));
+        }
+
+        [Test]
+        public void AttachDatabase_WhenGivenEmptySchemaName_ThrowsArgumentNullException()
+        {
+            var connection = Mock.Of<IDbConnection>();
+            var database = new SqliteRelationalDatabase(new SqliteDialect(), connection);
+
+            Assert.Throws<ArgumentNullException>(() => database.AttachDatabase(string.Empty, ":memory:"));
+        }
+
+        [Test]
+        public void AttachDatabase_WhenGivenWhiteSpaceSchemaName_ThrowsArgumentNullException()
+        {
+            var connection = Mock.Of<IDbConnection>();
+            var database = new SqliteRelationalDatabase(new SqliteDialect(), connection);
+
+            Assert.Throws<ArgumentNullException>(() => database.AttachDatabase("   ", ":memory:"));
+        }
+
+        [Test]
+        public void AttachDatabase_WhenGivenNullFileName_ThrowsArgumentNullException()
+        {
+            var connection = Mock.Of<IDbConnection>();
+            var database = new SqliteRelationalDatabase(new SqliteDialect(), connection);
+
+            Assert.Throws<ArgumentNullException>(() => database.AttachDatabase("test", null));
+        }
+
+        [Test]
+        public void AttachDatabase_WhenGivenEmptyFileName_ThrowsArgumentNullException()
+        {
+            var connection = Mock.Of<IDbConnection>();
+            var database = new SqliteRelationalDatabase(new SqliteDialect(), connection);
+
+            Assert.Throws<ArgumentNullException>(() => database.AttachDatabase("test", string.Empty));
+        }
+
+        [Test]
+        public void AttachDatabase_WhenGivenWhiteSpaceFileName_ThrowsArgumentNullException()
+        {
+            var connection = Mock.Of<IDbConnection>();
+            var database = new SqliteRelationalDatabase(new SqliteDialect(), connection);
+
+            Assert.Throws<ArgumentNullException>(() => database.AttachDatabase("test", "   "));
+        }
+
+        [Test]
+        public void AttachDatabaseAsync_WhenGivenNullSchemaName_ThrowsArgumentNullException()
+        {
+            var connection = Mock.Of<IDbConnection>();
+            var database = new SqliteRelationalDatabase(new SqliteDialect(), connection);
+
+            Assert.ThrowsAsync<ArgumentNullException>(async () => await database.AttachDatabaseAsync(null, ":memory:").ConfigureAwait(false));
+        }
+
+        [Test]
+        public void AttachDatabaseAsync_WhenGivenEmptySchemaName_ThrowsArgumentNullException()
+        {
+            var connection = Mock.Of<IDbConnection>();
+            var database = new SqliteRelationalDatabase(new SqliteDialect(), connection);
+
+            Assert.ThrowsAsync<ArgumentNullException>(async () => await database.AttachDatabaseAsync(string.Empty, ":memory:").ConfigureAwait(false));
+        }
+
+        [Test]
+        public void AttachDatabaseAsync_WhenGivenWhiteSpaceSchemaName_ThrowsArgumentNullException()
+        {
+            var connection = Mock.Of<IDbConnection>();
+            var database = new SqliteRelationalDatabase(new SqliteDialect(), connection);
+
+            Assert.ThrowsAsync<ArgumentNullException>(async () => await database.AttachDatabaseAsync("   ", ":memory:").ConfigureAwait(false));
+        }
+
+        [Test]
+        public void AttachDatabaseAsync_WhenGivenNullFileName_ThrowsArgumentNullException()
+        {
+            var connection = Mock.Of<IDbConnection>();
+            var database = new SqliteRelationalDatabase(new SqliteDialect(), connection);
+
+            Assert.ThrowsAsync<ArgumentNullException>(async () => await database.AttachDatabaseAsync("test", null).ConfigureAwait(false));
+        }
+
+        [Test]
+        public void AttachDatabaseAsync_WhenGivenEmptyFileName_ThrowsArgumentNullException()
+        {
+            var connection = Mock.Of<IDbConnection>();
+            var database = new SqliteRelationalDatabase(new SqliteDialect(), connection);
+
+            Assert.ThrowsAsync<ArgumentNullException>(async () => await database.AttachDatabaseAsync("test", string.Empty).ConfigureAwait(false));
+        }
+
+        [Test]
+        public void AttachDatabaseAsync_WhenGivenWhiteSpaceFileName_ThrowsArgumentNullException()
+        {
+            var connection = Mock.Of<IDbConnection>();
+            var database = new SqliteRelationalDatabase(new SqliteDialect(), connection);
+
+            Assert.ThrowsAsync<ArgumentNullException>(async () => await database.AttachDatabaseAsync("test", "   ").ConfigureAwait(false));
+        }
+
+        [Test]
+        public void DetachDatabase_WhenGivenNullSchemaName_ThrowsArgumentNullException()
+        {
+            var connection = Mock.Of<IDbConnection>();
+            var database = new SqliteRelationalDatabase(new SqliteDialect(), connection);
+
+            Assert.Throws<ArgumentNullException>(() => database.DetachDatabase(null));
+        }
+
+        [Test]
+        public void DetachDatabase_WhenGivenEmptySchemaName_ThrowsArgumentNullException()
+        {
+            var connection = Mock.Of<IDbConnection>();
+            var database = new SqliteRelationalDatabase(new SqliteDialect(), connection);
+
+            Assert.Throws<ArgumentNullException>(() => database.DetachDatabase(string.Empty));
+        }
+
+        [Test]
+        public void DetachDatabase_WhenGivenWhiteSpaceSchemaName_ThrowsArgumentNullException()
+        {
+            var connection = Mock.Of<IDbConnection>();
+            var database = new SqliteRelationalDatabase(new SqliteDialect(), connection);
+
+            Assert.Throws<ArgumentNullException>(() => database.DetachDatabase("   "));
+        }
+
+        [Test]
+        public void DetachDatabaseAsync_WhenGivenNullSchemaName_ThrowsArgumentNullException()
+        {
+            var connection = Mock.Of<IDbConnection>();
+            var database = new SqliteRelationalDatabase(new SqliteDialect(), connection);
+
+            Assert.ThrowsAsync<ArgumentNullException>(async () => await database.DetachDatabaseAsync(null).ConfigureAwait(false));
+        }
+
+        [Test]
+        public void DetachDatabaseAsync_WhenGivenEmptySchemaName_ThrowsArgumentNullException()
+        {
+            var connection = Mock.Of<IDbConnection>();
+            var database = new SqliteRelationalDatabase(new SqliteDialect(), connection);
+
+            Assert.ThrowsAsync<ArgumentNullException>(async () => await database.DetachDatabaseAsync(string.Empty).ConfigureAwait(false));
+        }
+
+        [Test]
+        public void DetachDatabaseAsync_WhenGivenWhiteSpaceSchemaName_ThrowsArgumentNullException()
+        {
+            var connection = Mock.Of<IDbConnection>();
+            var database = new SqliteRelationalDatabase(new SqliteDialect(), connection);
+
+            Assert.ThrowsAsync<ArgumentNullException>(async () => await database.DetachDatabaseAsync("   ").ConfigureAwait(false));
+        }
     }
 }

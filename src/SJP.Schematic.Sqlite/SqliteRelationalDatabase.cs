@@ -10,7 +10,7 @@ using SJP.Schematic.Sqlite.Pragma;
 
 namespace SJP.Schematic.Sqlite
 {
-    public class SqliteRelationalDatabase : RelationalDatabase, IRelationalDatabase
+    public class SqliteRelationalDatabase : RelationalDatabase, IRelationalDatabase, ISqliteDatabase
     {
         public SqliteRelationalDatabase(IDatabaseDialect dialect, IDbConnection connection, string defaultSchema = "main")
             : base(dialect, connection)
@@ -521,6 +521,56 @@ namespace SJP.Schematic.Sqlite
         }
 
         public Task<IAsyncEnumerable<IDatabaseSynonym>> SynonymsAsync() => Task.FromResult(Enumerable.Empty<IDatabaseSynonym>().ToAsyncEnumerable());
+
+        public void AttachDatabase(string schemaName, string fileName)
+        {
+            if (schemaName.IsNullOrWhiteSpace())
+                throw new ArgumentNullException(nameof(schemaName));
+            if (fileName.IsNullOrWhiteSpace())
+                throw new ArgumentNullException(nameof(fileName));
+
+            var quotedSchemaName = Dialect.QuoteIdentifier(schemaName);
+            var escapedFileName = fileName.Replace("'", "''");
+
+            var sql = $"ATTACH DATABASE '{ escapedFileName }' AS { quotedSchemaName }";
+            Connection.Execute(sql);
+        }
+
+        public async Task AttachDatabaseAsync(string schemaName, string fileName)
+        {
+            if (schemaName.IsNullOrWhiteSpace())
+                throw new ArgumentNullException(nameof(schemaName));
+            if (fileName.IsNullOrWhiteSpace())
+                throw new ArgumentNullException(nameof(fileName));
+
+            var quotedSchemaName = Dialect.QuoteIdentifier(schemaName);
+            var escapedFileName = fileName.Replace("'", "''");
+
+            var sql = $"ATTACH DATABASE '{ escapedFileName }' AS { quotedSchemaName }";
+            var result = await Connection.ExecuteAsync(sql).ConfigureAwait(false);
+        }
+
+        public void DetachDatabase(string schemaName)
+        {
+            if (schemaName.IsNullOrWhiteSpace())
+                throw new ArgumentNullException(nameof(schemaName));
+
+            var quotedSchemaName = Dialect.QuoteIdentifier(schemaName);
+
+            var sql = $"DETACH DATABASE { quotedSchemaName }";
+            Connection.Execute(sql);
+        }
+
+        public async Task DetachDatabaseAsync(string schemaName)
+        {
+            if (schemaName.IsNullOrWhiteSpace())
+                throw new ArgumentNullException(nameof(schemaName));
+
+            var quotedSchemaName = Dialect.QuoteIdentifier(schemaName);
+
+            var sql = $"DETACH DATABASE { quotedSchemaName }";
+            var result = await Connection.ExecuteAsync(sql).ConfigureAwait(false);
+        }
 
         public void Vacuum()
         {

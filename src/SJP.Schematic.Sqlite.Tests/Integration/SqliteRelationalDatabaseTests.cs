@@ -40,48 +40,6 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
         }
 
         [Test]
-        public void Vacuum_WhenGivenNullSchemaName_ThrowsArgumentNullException()
-        {
-            var sqliteDb = new SqliteRelationalDatabase(Dialect, Connection);
-            Assert.Throws<ArgumentNullException>(() => sqliteDb.Vacuum(null));
-        }
-
-        [Test]
-        public void Vacuum_WhenGivenEmptySchemaName_ThrowsArgumentNullException()
-        {
-            var sqliteDb = new SqliteRelationalDatabase(Dialect, Connection);
-            Assert.Throws<ArgumentNullException>(() => sqliteDb.Vacuum(string.Empty));
-        }
-
-        [Test]
-        public void Vacuum_WhenGivenWhiteSpaceSchemaName_ThrowsArgumentNullException()
-        {
-            var sqliteDb = new SqliteRelationalDatabase(Dialect, Connection);
-            Assert.Throws<ArgumentNullException>(() => sqliteDb.Vacuum("   "));
-        }
-
-        [Test]
-        public void VacuumAsync_WhenGivenNullSchemaName_ThrowsArgumentNullException()
-        {
-            var sqliteDb = new SqliteRelationalDatabase(Dialect, Connection);
-            Assert.ThrowsAsync<ArgumentNullException>(async () => await sqliteDb.VacuumAsync(null).ConfigureAwait(false));
-        }
-
-        [Test]
-        public void VacuumAsync_WhenGivenEmptySchemaName_ThrowsArgumentNullException()
-        {
-            var sqliteDb = new SqliteRelationalDatabase(Dialect, Connection);
-            Assert.ThrowsAsync<ArgumentNullException>(async () => await sqliteDb.VacuumAsync(string.Empty).ConfigureAwait(false));
-        }
-
-        [Test]
-        public void VacuumAsync_WhenGivenWhiteSpaceSchemaName_ThrowsArgumentNullException()
-        {
-            var sqliteDb = new SqliteRelationalDatabase(Dialect, Connection);
-            Assert.ThrowsAsync<ArgumentNullException>(async () => await sqliteDb.VacuumAsync("   ").ConfigureAwait(false));
-        }
-
-        [Test]
         public void Vacuum_WhenGivenValidSchemaName_RunsWithoutError()
         {
             var sqliteDb = new SqliteRelationalDatabase(Dialect, Connection);
@@ -107,6 +65,50 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
         {
             var sqliteDb = new SqliteRelationalDatabase(Dialect, Connection);
             Assert.ThrowsAsync<SqliteException>(async () => await sqliteDb.VacuumAsync("asdas").ConfigureAwait(false));
+        }
+
+        [Test]
+        public void AttachDatabase_WhenGivenValidSchemaAndFileNames_RunsWithoutError()
+        {
+            var sqliteDb = new SqliteRelationalDatabase(Dialect, Config.Connection);
+            sqliteDb.AttachDatabase("test", ":memory:");
+        }
+
+        [Test]
+        public async Task AttachDatabaseAsync_WhenGivenValidSchemaAndFileNames_RunsWithoutError()
+        {
+            var sqliteDb = new SqliteRelationalDatabase(Dialect, Config.Connection);
+            await sqliteDb.AttachDatabaseAsync("test", ":memory:").ConfigureAwait(false);
+        }
+
+        [Test]
+        public void DetachDatabase_WhenGivenValidSchemaName_RunsWithoutError()
+        {
+            var sqliteDb = new SqliteRelationalDatabase(Dialect, Config.Connection);
+            sqliteDb.AttachDatabase("test", ":memory:");
+            sqliteDb.DetachDatabase("test");
+        }
+
+        [Test]
+        public async Task DetachDatabaseAsync_WhenGivenValidSchemaName_RunsWithoutError()
+        {
+            var sqliteDb = new SqliteRelationalDatabase(Dialect, Config.Connection);
+            await sqliteDb.AttachDatabaseAsync("test", ":memory:").ConfigureAwait(false);
+            await sqliteDb.DetachDatabaseAsync("test").ConfigureAwait(false);
+        }
+
+        [Test]
+        public void DetachDatabase_WhenGivenUnknownSchemaName_ThrowsSqliteException()
+        {
+            var sqliteDb = new SqliteRelationalDatabase(Dialect, Config.Connection);
+            Assert.Throws<SqliteException>(() => sqliteDb.DetachDatabase("test"));
+        }
+
+        [Test]
+        public void DetachDatabaseAsync_WhenGivenUnknownSchemaName_ThrowsSqliteException()
+        {
+            var sqliteDb = new SqliteRelationalDatabase(Dialect, Config.Connection);
+            Assert.ThrowsAsync<SqliteException>(async () => await sqliteDb.DetachDatabaseAsync("test").ConfigureAwait(false));
         }
 
         [TestFixture]
