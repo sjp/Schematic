@@ -31,18 +31,6 @@ namespace SJP.Schematic.Sqlite.Tests
         }
 
         [Test]
-        public void Ctor_GivenNameMissingLocalIdentifier_ThrowsArgumentNullException()
-        {
-            var table = Mock.Of<IRelationalDatabaseTable>();
-            var triggerName = new SchemaIdentifier("test_trigger");
-            const string definition = "create trigger test_trigger...";
-            const TriggerQueryTiming timing = TriggerQueryTiming.Before;
-            const TriggerEvent events = TriggerEvent.Update;
-
-            Assert.Throws<ArgumentNullException>(() => new SqliteDatabaseTrigger(null, triggerName, definition, timing, events));
-        }
-
-        [Test]
         public void Ctor_GivenNullDefinition_ThrowsArgumentNullException()
         {
             var table = Mock.Of<IRelationalDatabaseTable>();

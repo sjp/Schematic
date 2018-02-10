@@ -6,9 +6,9 @@ namespace SJP.Schematic.Core
     {
         public DatabaseSynonym(IRelationalDatabase database, Identifier synonymName, Identifier targetName)
         {
-            if (synonymName == null || synonymName.LocalName == null)
+            if (synonymName == null)
                 throw new ArgumentNullException(nameof(synonymName));
-            if (targetName == null || targetName.LocalName == null)
+            if (targetName == null)
                 throw new ArgumentNullException(nameof(targetName));
 
             Database = database ?? throw new ArgumentNullException(nameof(database));

@@ -40,7 +40,7 @@ namespace SJP.Schematic.Sqlite
 
         public override string QuoteName(Identifier name)
         {
-            if (name == null || name.LocalName == null)
+            if (name == null)
                 throw new ArgumentNullException(nameof(name));
 
             if (name.Schema != null)

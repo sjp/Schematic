@@ -8,7 +8,7 @@ namespace SJP.Schematic.Core
     /// Describes an identifier which represents any object with a database. In particular it enables behaviour such a scoping an object name to a schema.
     /// </summary>
     [DebuggerDisplay("{DebuggerDisplay,nq}")]
-    public class Identifier : IEquatable<Identifier>, IComparable<Identifier>
+    public sealed class Identifier : IEquatable<Identifier>, IComparable<Identifier>
     {
         /// <summary>
         /// Creates an identifier that only contains an object's local name.
@@ -20,7 +20,7 @@ namespace SJP.Schematic.Core
             if (localName.IsNullOrWhiteSpace())
                 throw new ArgumentNullException(nameof(localName));
 
-            _localName = localName;
+            LocalName = localName;
         }
 
         /// <summary>
@@ -36,8 +36,8 @@ namespace SJP.Schematic.Core
             if (localName.IsNullOrWhiteSpace())
                 throw new ArgumentNullException(nameof(localName));
 
-            _schemaName = schema;
-            _localName = localName;
+            Schema = schema;
+            LocalName = localName;
         }
 
         /// <summary>
@@ -56,9 +56,9 @@ namespace SJP.Schematic.Core
             if (localName.IsNullOrWhiteSpace())
                 throw new ArgumentNullException(nameof(localName));
 
-            _databaseName = database;
-            _schemaName = schema;
-            _localName = localName;
+            Database = database;
+            Schema = schema;
+            LocalName = localName;
         }
 
         /// <summary>
@@ -80,10 +80,10 @@ namespace SJP.Schematic.Core
             if (localName.IsNullOrWhiteSpace())
                 throw new ArgumentNullException(nameof(localName));
 
-            _serverName = server;
-            _databaseName = database;
-            _schemaName = schema;
-            _localName = localName;
+            Server = server;
+            Database = database;
+            Schema = schema;
+            LocalName = localName;
         }
 
         /// <summary>
@@ -150,13 +150,6 @@ namespace SJP.Schematic.Core
         public static Identifier CreateQualifiedIdentifier(string localName) => CreateQualifiedIdentifier(null, null, null, localName);
 
         /// <summary>
-        /// Not intended to be used, except to hide the default constructor.
-        /// </summary>
-        protected Identifier()
-        {
-        }
-
-        /// <summary>
         /// A convenience operator that creates an <see cref="Identifier"/> from a string.
         /// </summary>
         /// <param name="localName">An object name.</param>
@@ -165,22 +158,22 @@ namespace SJP.Schematic.Core
         /// <summary>
         /// A server name.
         /// </summary>
-        public string Server => _serverName;
+        public string Server { get; }
 
         /// <summary>
         /// A database name.
         /// </summary>
-        public string Database => _databaseName;
+        public string Database { get; }
 
         /// <summary>
         /// A schema name.
         /// </summary>
-        public string Schema => _schemaName;
+        public string Schema { get; }
 
         /// <summary>
         /// An object name.
         /// </summary>
-        public string LocalName => _localName;
+        public string LocalName { get; }
 
         /// <summary>
         /// Provides a string representation of the <see cref="Identifier"/>. Not intended to be used directly.
@@ -303,102 +296,6 @@ namespace SJP.Schematic.Core
 
                 return pieces.Join(", ");
             }
-        }
-
-        /// <summary>
-        /// A mutable server name.
-        /// </summary>
-        protected string _serverName;
-
-        /// <summary>
-        /// A mutable database name.
-        /// </summary>
-        protected string _databaseName;
-
-        /// <summary>
-        /// A mutable schema name.
-        /// </summary>
-        protected string _schemaName;
-
-        /// <summary>
-        /// A mutable object name.
-        /// </summary>
-        protected string _localName;
-    }
-
-    /// <summary>
-    /// An identifier representing only a database name.
-    /// </summary>
-    public class ServerIdentifier : Identifier
-    {
-        /// <summary>
-        /// Creates an identifier representing only a server name.
-        /// </summary>
-        /// <param name="serverName">The name of the server.</param>
-        /// <exception cref="ArgumentNullException"><paramref name="serverName"/> is <c>null</c>, empty, or whitespace.</exception>
-        public ServerIdentifier(string serverName)
-        {
-            if (serverName.IsNullOrWhiteSpace())
-                throw new ArgumentNullException(nameof(serverName));
-
-            _serverName = serverName;
-        }
-    }
-
-    /// <summary>
-    /// An identifier representing only a database name.
-    /// </summary>
-    public class DatabaseIdentifier : Identifier
-    {
-        /// <summary>
-        /// Creates an identifier representing only a database name.
-        /// </summary>
-        /// <param name="databaseName">The name of the database.</param>
-        /// <exception cref="ArgumentNullException"><paramref name="databaseName"/> is <c>null</c>, empty, or whitespace.</exception>
-        public DatabaseIdentifier(string databaseName)
-        {
-            if (databaseName.IsNullOrWhiteSpace())
-                throw new ArgumentNullException(nameof(databaseName));
-
-            _databaseName = databaseName;
-        }
-    }
-
-    /// <summary>
-    /// An identifier representing only a schema name.
-    /// </summary>
-    public class SchemaIdentifier : Identifier
-    {
-        /// <summary>
-        /// Creates an identifier representing only a schema name.
-        /// </summary>
-        /// <param name="schemaName">The name of the schema.</param>
-        /// <exception cref="ArgumentNullException"><paramref name="schemaName"/> is <c>null</c>, empty, or whitespace.</exception>
-        public SchemaIdentifier(string schemaName)
-        {
-            if (schemaName.IsNullOrWhiteSpace())
-                throw new ArgumentNullException(nameof(schemaName));
-
-            _schemaName = schemaName;
-        }
-    }
-
-    /// <summary>
-    /// An identifier representing only an object's name.
-    /// </summary>
-    public class LocalIdentifier : Identifier
-    {
-        /// <summary>
-        /// Creates an identifier representing only a simple, unqualified name.
-        /// </summary>
-        /// <param name="localName">The name of the object.</param>
-        /// <exception cref="ArgumentNullException"><paramref name="localName"/> is <c>null</c>, empty, or whitespace.</exception>
-        public LocalIdentifier(string localName)
-        {
-            if (localName.IsNullOrWhiteSpace())
-                throw new ArgumentNullException(nameof(localName));
-
-            _localName = localName;
         }
     }
 }

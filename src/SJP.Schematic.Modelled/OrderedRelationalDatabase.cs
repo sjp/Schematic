@@ -34,7 +34,7 @@ namespace SJP.Schematic.Modelled
 
         public bool TableExists(Identifier tableName)
         {
-            if (tableName == null || tableName.LocalName == null)
+            if (tableName == null)
                 throw new ArgumentNullException(nameof(tableName));
 
             return Databases.Any(d => d.TableExists(tableName));
@@ -42,7 +42,7 @@ namespace SJP.Schematic.Modelled
 
         public async Task<bool> TableExistsAsync(Identifier tableName)
         {
-            if (tableName == null || tableName.LocalName == null)
+            if (tableName == null)
                 throw new ArgumentNullException(nameof(tableName));
 
             var tableExists = Databases.Select(d => d.TableExistsAsync(tableName)).ToArray();
@@ -52,7 +52,7 @@ namespace SJP.Schematic.Modelled
 
         public IRelationalDatabaseTable GetTable(Identifier tableName)
         {
-            if (tableName == null || tableName.LocalName == null)
+            if (tableName == null)
                 throw new ArgumentNullException(nameof(tableName));
 
             return LoadTableSync(tableName);
@@ -60,7 +60,7 @@ namespace SJP.Schematic.Modelled
 
         public Task<IRelationalDatabaseTable> GetTableAsync(Identifier tableName)
         {
-            if (tableName == null || tableName.LocalName == null)
+            if (tableName == null)
                 throw new ArgumentNullException(nameof(tableName));
 
             return LoadTableAsync(tableName);
@@ -82,7 +82,7 @@ namespace SJP.Schematic.Modelled
 
         protected virtual IRelationalDatabaseTable LoadTableSync(Identifier tableName)
         {
-            if (tableName == null || tableName.LocalName == null)
+            if (tableName == null)
                 throw new ArgumentNullException(nameof(tableName));
 
             var db = Databases.FirstOrDefault(d => d.TableExists(tableName));
@@ -91,7 +91,7 @@ namespace SJP.Schematic.Modelled
 
         protected virtual async Task<IRelationalDatabaseTable> LoadTableAsync(Identifier tableName)
         {
-            if (tableName == null || tableName.LocalName == null)
+            if (tableName == null)
                 throw new ArgumentNullException(nameof(tableName));
 
             var tables = Databases.Select(d => d.GetTableAsync(tableName)).ToArray();
@@ -101,7 +101,7 @@ namespace SJP.Schematic.Modelled
 
         public bool ViewExists(Identifier viewName)
         {
-            if (viewName == null || viewName.LocalName == null)
+            if (viewName == null)
                 throw new ArgumentNullException(nameof(viewName));
 
             return Databases.Any(d => d.ViewExists(viewName));
@@ -109,7 +109,7 @@ namespace SJP.Schematic.Modelled
 
         public async Task<bool> ViewExistsAsync(Identifier viewName)
         {
-            if (viewName == null || viewName.LocalName == null)
+            if (viewName == null)
                 throw new ArgumentNullException(nameof(viewName));
 
             var viewExists = Databases.Select(d => d.ViewExistsAsync(viewName)).ToArray();
@@ -119,7 +119,7 @@ namespace SJP.Schematic.Modelled
 
         public IRelationalDatabaseView GetView(Identifier viewName)
         {
-            if (viewName == null || viewName.LocalName == null)
+            if (viewName == null)
                 throw new ArgumentNullException(nameof(viewName));
 
             return LoadViewSync(viewName);
@@ -127,7 +127,7 @@ namespace SJP.Schematic.Modelled
 
         public Task<IRelationalDatabaseView> GetViewAsync(Identifier viewName)
         {
-            if (viewName == null || viewName.LocalName == null)
+            if (viewName == null)
                 throw new ArgumentNullException(nameof(viewName));
 
             return LoadViewAsync(viewName);
@@ -149,7 +149,7 @@ namespace SJP.Schematic.Modelled
 
         protected virtual IRelationalDatabaseView LoadViewSync(Identifier viewName)
         {
-            if (viewName == null || viewName.LocalName == null)
+            if (viewName == null)
                 throw new ArgumentNullException(nameof(viewName));
 
             var db = Databases.FirstOrDefault(d => d.ViewExists(viewName));
@@ -158,7 +158,7 @@ namespace SJP.Schematic.Modelled
 
         protected virtual async Task<IRelationalDatabaseView> LoadViewAsync(Identifier viewName)
         {
-            if (viewName == null || viewName.LocalName == null)
+            if (viewName == null)
                 throw new ArgumentNullException(nameof(viewName));
 
             var views = Databases.Select(d => d.GetViewAsync(viewName)).ToArray();
@@ -176,7 +176,7 @@ namespace SJP.Schematic.Modelled
 
         public async Task<bool> SequenceExistsAsync(Identifier sequenceName)
         {
-            if (sequenceName == null || sequenceName.LocalName == null)
+            if (sequenceName == null)
                 throw new ArgumentNullException(nameof(sequenceName));
 
             var sequenceExists = Databases.Select(d => d.SequenceExistsAsync(sequenceName)).ToArray();
@@ -186,7 +186,7 @@ namespace SJP.Schematic.Modelled
 
         public IDatabaseSequence GetSequence(Identifier sequenceName)
         {
-            if (sequenceName == null || sequenceName.LocalName == null)
+            if (sequenceName == null)
                 throw new ArgumentNullException(nameof(sequenceName));
 
             return LoadSequenceSync(sequenceName);
@@ -194,7 +194,7 @@ namespace SJP.Schematic.Modelled
 
         public Task<IDatabaseSequence> GetSequenceAsync(Identifier sequenceName)
         {
-            if (sequenceName == null || sequenceName.LocalName == null)
+            if (sequenceName == null)
                 throw new ArgumentNullException(nameof(sequenceName));
 
             return LoadSequenceAsync(sequenceName);
@@ -216,7 +216,7 @@ namespace SJP.Schematic.Modelled
 
         protected virtual IDatabaseSequence LoadSequenceSync(Identifier sequenceName)
         {
-            if (sequenceName == null || sequenceName.LocalName == null)
+            if (sequenceName == null)
                 throw new ArgumentNullException(nameof(sequenceName));
 
             var db = Databases.FirstOrDefault(d => d.SequenceExists(sequenceName));
@@ -225,7 +225,7 @@ namespace SJP.Schematic.Modelled
 
         protected virtual async Task<IDatabaseSequence> LoadSequenceAsync(Identifier sequenceName)
         {
-            if (sequenceName == null || sequenceName.LocalName == null)
+            if (sequenceName == null)
                 throw new ArgumentNullException(nameof(sequenceName));
 
             var sequences = Databases.Select(d => d.GetSequenceAsync(sequenceName)).ToArray();
@@ -235,7 +235,7 @@ namespace SJP.Schematic.Modelled
 
         public bool SynonymExists(Identifier synonymName)
         {
-            if (synonymName == null || synonymName.LocalName == null)
+            if (synonymName == null)
                 throw new ArgumentNullException(nameof(synonymName));
 
             return Databases.Any(d => d.SynonymExists(synonymName));
@@ -243,7 +243,7 @@ namespace SJP.Schematic.Modelled
 
         public async Task<bool> SynonymExistsAsync(Identifier synonymName)
         {
-            if (synonymName == null || synonymName.LocalName == null)
+            if (synonymName == null)
                 throw new ArgumentNullException(nameof(synonymName));
 
             var synonymExists = Databases.Select(d => d.SynonymExistsAsync(synonymName)).ToArray();
@@ -253,7 +253,7 @@ namespace SJP.Schematic.Modelled
 
         public IDatabaseSynonym GetSynonym(Identifier synonymName)
         {
-            if (synonymName == null || synonymName.LocalName == null)
+            if (synonymName == null)
                 throw new ArgumentNullException(nameof(synonymName));
 
             return LoadSynonymSync(synonymName);
@@ -261,7 +261,7 @@ namespace SJP.Schematic.Modelled
 
         public Task<IDatabaseSynonym> GetSynonymAsync(Identifier synonymName)
         {
-            if (synonymName == null || synonymName.LocalName == null)
+            if (synonymName == null)
                 throw new ArgumentNullException(nameof(synonymName));
 
             return LoadSynonymAsync(synonymName);
@@ -283,7 +283,7 @@ namespace SJP.Schematic.Modelled
 
         protected virtual IDatabaseSynonym LoadSynonymSync(Identifier synonymName)
         {
-            if (synonymName == null || synonymName.LocalName == null)
+            if (synonymName == null)
                 throw new ArgumentNullException(nameof(synonymName));
 
             var db = Databases.FirstOrDefault(d => d.SynonymExists(synonymName));
@@ -292,7 +292,7 @@ namespace SJP.Schematic.Modelled
 
         protected virtual async Task<IDatabaseSynonym> LoadSynonymAsync(Identifier synonymName)
         {
-            if (synonymName == null || synonymName.LocalName == null)
+            if (synonymName == null)
                 throw new ArgumentNullException(nameof(synonymName));
 
             var synonyms = Databases.Select(d => d.GetSynonymAsync(synonymName)).ToArray();

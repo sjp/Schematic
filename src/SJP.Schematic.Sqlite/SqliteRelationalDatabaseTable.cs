@@ -17,7 +17,7 @@ namespace SJP.Schematic.Sqlite
     {
         public SqliteRelationalDatabaseTable(IDbConnection connection, IRelationalDatabase database, Identifier tableName)
         {
-            if (tableName == null || tableName.LocalName == null)
+            if (tableName == null)
                 throw new ArgumentNullException(nameof(tableName));
 
             Connection = connection ?? throw new ArgumentNullException(nameof(connection));
@@ -71,7 +71,7 @@ namespace SJP.Schematic.Sqlite
             var pkConstraint = parser.PrimaryKey;
 
             var pkStringName = pkConstraint?.Name;
-            var primaryKeyName = !pkStringName.IsNullOrWhiteSpace() ? new LocalIdentifier(pkStringName) : null;
+            var primaryKeyName = !pkStringName.IsNullOrWhiteSpace() ? new Identifier(pkStringName) : null;
             return new SqliteDatabaseKey(this, primaryKeyName, DatabaseKeyType.Primary, columns);
         }
 
@@ -95,7 +95,7 @@ namespace SJP.Schematic.Sqlite
             var pkConstraint = parser.PrimaryKey;
 
             var pkStringName = pkConstraint?.Name;
-            var primaryKeyName = !pkStringName.IsNullOrWhiteSpace() ? new LocalIdentifier(pkStringName) : null;
+            var primaryKeyName = !pkStringName.IsNullOrWhiteSpace() ? new Identifier(pkStringName) : null;
             return new SqliteDatabaseKey(this, primaryKeyName, DatabaseKeyType.Primary, columns);
         }
 
@@ -262,7 +262,7 @@ namespace SJP.Schematic.Sqlite
                     .FirstOrDefault(constraint => constraint.Columns.Select(c => c.Name).SequenceEqual(columnNames));
                 var stringConstraintName = uniqueConstraint?.Name;
 
-                var keyName = !stringConstraintName.IsNullOrWhiteSpace() ? new LocalIdentifier(stringConstraintName) : null;
+                var keyName = !stringConstraintName.IsNullOrWhiteSpace() ? new Identifier(stringConstraintName) : null;
                 var uniqueKey = new SqliteDatabaseKey(this, keyName, DatabaseKeyType.Unique, columns);
                 result.Add(uniqueKey);
             }
@@ -301,7 +301,7 @@ namespace SJP.Schematic.Sqlite
                     .FirstOrDefault(constraint => constraint.Columns.Select(c => c.Name).SequenceEqual(columnNames));
                 var stringConstraintName = uniqueConstraint?.Name;
 
-                var keyName = !stringConstraintName.IsNullOrWhiteSpace() ? new LocalIdentifier(stringConstraintName) : null;
+                var keyName = !stringConstraintName.IsNullOrWhiteSpace() ? new Identifier(stringConstraintName) : null;
                 var uniqueKey = new SqliteDatabaseKey(this, keyName, DatabaseKeyType.Unique, columns);
                 result.Add(uniqueKey);
             }
@@ -498,7 +498,7 @@ namespace SJP.Schematic.Sqlite
                     .FirstOrDefault(fkc => fkc.ParentColumns.SequenceEqual(rows.Select(row => row.to), StringComparer.OrdinalIgnoreCase));
                 var constraintStringName = parsedConstraint?.Name;
 
-                var childKeyName = !constraintStringName.IsNullOrWhiteSpace() ? new LocalIdentifier(constraintStringName) : null;
+                var childKeyName = !constraintStringName.IsNullOrWhiteSpace() ? new Identifier(constraintStringName) : null;
                 var childKeyColumnLookup = Column;
                 var childKeyColumns = rows.Select(row => childKeyColumnLookup[row.from]).ToList();
 
@@ -566,7 +566,7 @@ namespace SJP.Schematic.Sqlite
                     .FirstOrDefault(fkc => fkc.ParentColumns.SequenceEqual(rows.Select(row => row.to), StringComparer.OrdinalIgnoreCase));
                 var constraintStringName = parsedConstraint?.Name;
 
-                var childKeyName = !constraintStringName.IsNullOrWhiteSpace() ? new LocalIdentifier(constraintStringName) : null;
+                var childKeyName = !constraintStringName.IsNullOrWhiteSpace() ? new Identifier(constraintStringName) : null;
                 var childKeyColumnLookup = await ColumnAsync().ConfigureAwait(false);
                 var childKeyColumns = rows.Select(row => childKeyColumnLookup[row.from]).ToList();
 

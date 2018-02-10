@@ -72,7 +72,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
         public void Name_GivenLocalNameOnlyInCtor_ShouldBeQualifiedCorrectly()
         {
             var database = Database;
-            var viewName = new LocalIdentifier("view_test_view_1");
+            var viewName = new Identifier("view_test_view_1");
             var expectedViewName = new Identifier(database.DefaultSchema, "view_test_view_1");
 
             var view = new SqliteRelationalDatabaseView(Connection, database, viewName);

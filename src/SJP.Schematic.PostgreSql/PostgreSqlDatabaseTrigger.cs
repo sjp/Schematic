@@ -8,7 +8,7 @@ namespace SJP.Schematic.PostgreSql
     {
         public PostgreSqlDatabaseTrigger(IRelationalDatabaseTable table, Identifier name, string definition, TriggerQueryTiming queryTiming, TriggerEvent events, bool isEnabled)
         {
-            if (name == null || name.LocalName == null)
+            if (name == null)
                 throw new ArgumentNullException(nameof(name));
             if (definition.IsNullOrWhiteSpace())
                 throw new ArgumentNullException(nameof(definition));

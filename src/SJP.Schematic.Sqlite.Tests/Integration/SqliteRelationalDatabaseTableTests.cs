@@ -305,7 +305,7 @@ end").ConfigureAwait(false);
         public void Name_GivenLocalNameOnlyInCtor_ShouldBeQualifiedCorrectly()
         {
             var database = Database;
-            var tableName = new LocalIdentifier("table_test_table_1");
+            var tableName = new Identifier("table_test_table_1");
             var expectedTableName = new Identifier(database.DefaultSchema, "table_test_table_1");
 
             var table = new SqliteRelationalDatabaseTable(Connection, database, tableName);

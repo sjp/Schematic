@@ -13,7 +13,7 @@ namespace SJP.Schematic.MySql
     {
         public MySqlRelationalDatabaseTable(IDbConnection connection, IRelationalDatabase database, Identifier tableName, IEqualityComparer<Identifier> comparer = null)
         {
-            if (tableName == null || tableName.LocalName == null)
+            if (tableName == null)
                 throw new ArgumentNullException(nameof(tableName));
 
             Connection = connection ?? throw new ArgumentNullException(nameof(connection));
@@ -167,7 +167,7 @@ where table_schema = @SchemaName and table_name = @TableName";
             foreach (var indexInfo in indexColumns)
             {
                 var isUnique = !indexInfo.Key.IsNonUnique;
-                var indexName = new LocalIdentifier(indexInfo.Key.IndexName);
+                var indexName = new Identifier(indexInfo.Key.IndexName);
 
                 var indexCols = indexInfo
                     .OrderBy(row => row.ColumnOrdinal)
@@ -207,7 +207,7 @@ where table_schema = @SchemaName and table_name = @TableName";
             foreach (var indexInfo in indexColumns)
             {
                 var isUnique = !indexInfo.Key.IsNonUnique;
-                var indexName = new LocalIdentifier(indexInfo.Key.IndexName);
+                var indexName = new Identifier(indexInfo.Key.IndexName);
 
                 var indexCols = indexInfo
                     .OrderBy(row => row.ColumnOrdinal)
@@ -378,7 +378,7 @@ where pt.table_schema = @SchemaName and pt.table_name = @TableName";
             var result = new List<IDatabaseRelationalKey>(groupedChildKeys.Count);
             foreach (var groupedChildKey in groupedChildKeys)
             {
-                var childKeyName = new LocalIdentifier(groupedChildKey.Key.ChildKeyName);
+                var childKeyName = new Identifier(groupedChildKey.Key.ChildKeyName);
 
                 var childTableName = new Identifier(groupedChildKey.Key.ChildTableSchema, groupedChildKey.Key.ChildTableName);
                 var childTable = Database.GetTable(childTableName);
@@ -448,7 +448,7 @@ where pt.table_schema = @SchemaName and pt.table_name = @TableName";
             var result = new List<IDatabaseRelationalKey>(groupedChildKeys.Count);
             foreach (var groupedChildKey in groupedChildKeys)
             {
-                var childKeyName = new LocalIdentifier(groupedChildKey.Key.ChildKeyName);
+                var childKeyName = new Identifier(groupedChildKey.Key.ChildKeyName);
 
                 var childTableName = new Identifier(groupedChildKey.Key.ChildTableSchema, groupedChildKey.Key.ChildTableName);
                 var childTable = await Database.GetTableAsync(childTableName).ConfigureAwait(false);
@@ -557,7 +557,7 @@ where t.table_schema = @SchemaName and t.table_name = @TableName";
             {
                 var parentTableName = new Identifier(fkey.Key.ParentTableSchema, fkey.Key.ParentTableName);
                 var parentTable = Database.GetTable(parentTableName);
-                var parentKeyName = new LocalIdentifier(fkey.Key.ParentKeyName);
+                var parentKeyName = new Identifier(fkey.Key.ParentKeyName);
 
                 IDatabaseKey parentKey;
                 if (fkey.Key.KeyType == "PRIMARY KEY")
@@ -570,7 +570,7 @@ where t.table_schema = @SchemaName and t.table_name = @TableName";
                     parentKey = uniqueKeys[parentKeyName.LocalName];
                 }
 
-                var childKeyName = new LocalIdentifier(fkey.Key.ChildKeyName);
+                var childKeyName = new Identifier(fkey.Key.ChildKeyName);
                 var childKeyColumnLookup = Column;
                 var childKeyColumns = fkey
                     .OrderBy(row => row.ConstraintColumnId)
@@ -631,7 +631,7 @@ where t.table_schema = @SchemaName and t.table_name = @TableName";
             {
                 var parentTableName = new Identifier(fkey.Key.ParentTableSchema, fkey.Key.ParentTableName);
                 var parentTable = await Database.GetTableAsync(parentTableName).ConfigureAwait(false);
-                var parentKeyName = new LocalIdentifier(fkey.Key.ParentKeyName);
+                var parentKeyName = new Identifier(fkey.Key.ParentKeyName);
 
                 IDatabaseKey parentKey;
                 if (fkey.Key.KeyType == "PRIMARY KEY")
@@ -644,7 +644,7 @@ where t.table_schema = @SchemaName and t.table_name = @TableName";
                     parentKey = uniqueKeys[parentKeyName.LocalName];
                 }
 
-                var childKeyName = new LocalIdentifier(fkey.Key.ChildKeyName);
+                var childKeyName = new Identifier(fkey.Key.ChildKeyName);
                 var childKeyColumnLookup = await ColumnAsync().ConfigureAwait(false);
                 var childKeyColumns = fkey
                     .OrderBy(row => row.ConstraintColumnId)
@@ -731,7 +731,7 @@ order by ordinal_position";
                 };
                 var columnType = TypeProvider.CreateColumnType(typeMetadata);
 
-                var columnName = new LocalIdentifier(row.ColumnName);
+                var columnName = new Identifier(row.ColumnName);
                 var isAutoIncrement = row.ExtraInformation.Contains("auto_increment", StringComparison.OrdinalIgnoreCase);
                 var autoIncrement = isAutoIncrement ? new AutoIncrement(1, 1) : (IAutoIncrement)null;
 
@@ -781,7 +781,7 @@ order by ordinal_position";
                 };
                 var columnType = TypeProvider.CreateColumnType(typeMetadata);
 
-                var columnName = new LocalIdentifier(row.ColumnName);
+                var columnName = new Identifier(row.ColumnName);
                 var isAutoIncrement = row.ExtraInformation.Contains("auto_increment", StringComparison.OrdinalIgnoreCase);
                 var autoIncrement = isAutoIncrement ? new AutoIncrement(1, 1) : (IAutoIncrement)null;
 
@@ -850,7 +850,7 @@ where tr.event_object_schema = @SchemaName and tr.event_object_table = @TableNam
             var result = new List<IDatabaseTrigger>(triggers.Count);
             foreach (var trig in triggers)
             {
-                var triggerName = new LocalIdentifier(trig.Key.TriggerName);
+                var triggerName = new Identifier(trig.Key.TriggerName);
                 var queryTiming = Enum.TryParse(trig.Key.Timing, true, out TriggerQueryTiming timing) ? timing : TriggerQueryTiming.Before;
                 var definition = trig.Key.Definition;
 
@@ -897,7 +897,7 @@ where tr.event_object_schema = @SchemaName and tr.event_object_table = @TableNam
             var result = new List<IDatabaseTrigger>(triggers.Count);
             foreach (var trig in triggers)
             {
-                var triggerName = new LocalIdentifier(trig.Key.TriggerName);
+                var triggerName = new Identifier(trig.Key.TriggerName);
                 var queryTiming = Enum.TryParse(trig.Key.Timing, true, out TriggerQueryTiming timing) ? timing : TriggerQueryTiming.Before;
                 var definition = trig.Key.Definition;
 

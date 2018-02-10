@@ -9,7 +9,7 @@ namespace SJP.Schematic.Sqlite
         {
             if (definition.IsNullOrWhiteSpace())
                 throw new ArgumentNullException(nameof(definition));
-            if (checkName == null || checkName.LocalName == null)
+            if (checkName == null)
                 throw new ArgumentNullException(nameof(checkName));
 
             Table = table ?? throw new ArgumentNullException(nameof(table));

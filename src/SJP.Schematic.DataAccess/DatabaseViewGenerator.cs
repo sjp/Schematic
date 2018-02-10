@@ -21,7 +21,7 @@ namespace SJP.Schematic.DataAccess
         {
             if (baseDirectory == null)
                 throw new ArgumentNullException(nameof(baseDirectory));
-            if (objectName == null || objectName.LocalName == null)
+            if (objectName == null)
                 throw new ArgumentNullException(nameof(objectName));
 
             var paths = new List<string> { baseDirectory.FullName, "Views" };

@@ -56,7 +56,7 @@ namespace SJP.Schematic.PostgreSql
 
         protected bool GetIsFixedLength(Identifier typeName)
         {
-            if (typeName == null || typeName.LocalName == null)
+            if (typeName == null)
                 throw new ArgumentNullException(nameof(typeName));
 
             return _fixedLengthTypes.Contains(typeName);
@@ -154,7 +154,7 @@ namespace SJP.Schematic.PostgreSql
 
         protected DataType GetDataType(Identifier typeName)
         {
-            if (typeName == null || typeName.LocalName == null)
+            if (typeName == null)
                 throw new ArgumentNullException(nameof(typeName));
 
             return _stringToDataTypeMap.ContainsKey(typeName)
@@ -164,7 +164,7 @@ namespace SJP.Schematic.PostgreSql
 
         protected Type GetClrType(Identifier typeName)
         {
-            if (typeName == null || typeName.LocalName == null)
+            if (typeName == null)
                 throw new ArgumentNullException(nameof(typeName));
 
             return _stringToClrTypeMap.ContainsKey(typeName)

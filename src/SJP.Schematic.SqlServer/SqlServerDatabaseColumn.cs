@@ -7,7 +7,7 @@ namespace SJP.Schematic.SqlServer
     {
         protected SqlServerDatabaseColumn(Identifier columnName, IDbType type, bool isNullable, string defaultValue, IAutoIncrement autoIncrement)
         {
-            if (columnName == null || columnName.LocalName == null)
+            if (columnName == null)
                 throw new ArgumentNullException(nameof(columnName));
 
             Name = columnName.LocalName;

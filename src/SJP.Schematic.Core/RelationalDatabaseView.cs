@@ -15,7 +15,7 @@ namespace SJP.Schematic.Core
             IEnumerable<IDatabaseViewIndex> indexes,
             IEqualityComparer<Identifier> comparer = null)
         {
-            if (viewName == null || viewName.LocalName == null)
+            if (viewName == null)
                 throw new ArgumentNullException(nameof(viewName));
             if (definition.IsNullOrWhiteSpace())
                 throw new ArgumentNullException(nameof(definition));

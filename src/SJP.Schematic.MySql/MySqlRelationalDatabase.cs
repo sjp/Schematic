@@ -39,7 +39,7 @@ namespace SJP.Schematic.MySql
 
         public bool TableExists(Identifier tableName)
         {
-            if (tableName == null || tableName.LocalName == null)
+            if (tableName == null)
                 throw new ArgumentNullException(nameof(tableName));
 
             tableName = CreateQualifiedIdentifier(tableName);
@@ -52,7 +52,7 @@ namespace SJP.Schematic.MySql
 
         public async Task<bool> TableExistsAsync(Identifier tableName)
         {
-            if (tableName == null || tableName.LocalName == null)
+            if (tableName == null)
                 throw new ArgumentNullException(nameof(tableName));
 
             tableName = CreateQualifiedIdentifier(tableName);
@@ -69,7 +69,7 @@ namespace SJP.Schematic.MySql
 
         public IRelationalDatabaseTable GetTable(Identifier tableName)
         {
-            if (tableName == null || tableName.LocalName == null)
+            if (tableName == null)
                 throw new ArgumentNullException(nameof(tableName));
 
             tableName = CreateQualifiedIdentifier(tableName);
@@ -78,7 +78,7 @@ namespace SJP.Schematic.MySql
 
         public Task<IRelationalDatabaseTable> GetTableAsync(Identifier tableName)
         {
-            if (tableName == null || tableName.LocalName == null)
+            if (tableName == null)
                 throw new ArgumentNullException(nameof(tableName));
 
             tableName = CreateQualifiedIdentifier(tableName);
@@ -113,7 +113,7 @@ namespace SJP.Schematic.MySql
 
         protected virtual IRelationalDatabaseTable LoadTableSync(Identifier tableName)
         {
-            if (tableName == null || tableName.LocalName == null)
+            if (tableName == null)
                 throw new ArgumentNullException(nameof(tableName));
 
             tableName = CreateQualifiedIdentifier(tableName);
@@ -124,7 +124,7 @@ namespace SJP.Schematic.MySql
 
         protected virtual async Task<IRelationalDatabaseTable> LoadTableAsync(Identifier tableName)
         {
-            if (tableName == null || tableName.LocalName == null)
+            if (tableName == null)
                 throw new ArgumentNullException(nameof(tableName));
 
             tableName = CreateQualifiedIdentifier(tableName);
@@ -136,7 +136,7 @@ namespace SJP.Schematic.MySql
 
         public bool ViewExists(Identifier viewName)
         {
-            if (viewName == null || viewName.LocalName == null)
+            if (viewName == null)
                 throw new ArgumentNullException(nameof(viewName));
 
             viewName = CreateQualifiedIdentifier(viewName);
@@ -149,7 +149,7 @@ namespace SJP.Schematic.MySql
 
         public async Task<bool> ViewExistsAsync(Identifier viewName)
         {
-            if (viewName == null || viewName.LocalName == null)
+            if (viewName == null)
                 throw new ArgumentNullException(nameof(viewName));
 
             viewName = CreateQualifiedIdentifier(viewName);
@@ -166,7 +166,7 @@ namespace SJP.Schematic.MySql
 
         public IRelationalDatabaseView GetView(Identifier viewName)
         {
-            if (viewName == null || viewName.LocalName == null)
+            if (viewName == null)
                 throw new ArgumentNullException(nameof(viewName));
 
             viewName = CreateQualifiedIdentifier(viewName);
@@ -175,7 +175,7 @@ namespace SJP.Schematic.MySql
 
         public Task<IRelationalDatabaseView> GetViewAsync(Identifier viewName)
         {
-            if (viewName == null || viewName.LocalName == null)
+            if (viewName == null)
                 throw new ArgumentNullException(nameof(viewName));
 
             viewName = CreateQualifiedIdentifier(viewName);
@@ -210,7 +210,7 @@ namespace SJP.Schematic.MySql
 
         protected virtual IRelationalDatabaseView LoadViewSync(Identifier viewName)
         {
-            if (viewName == null || viewName.LocalName == null)
+            if (viewName == null)
                 throw new ArgumentNullException(nameof(viewName));
 
             viewName = CreateQualifiedIdentifier(viewName);
@@ -221,7 +221,7 @@ namespace SJP.Schematic.MySql
 
         protected virtual async Task<IRelationalDatabaseView> LoadViewAsync(Identifier viewName)
         {
-            if (viewName == null || viewName.LocalName == null)
+            if (viewName == null)
                 throw new ArgumentNullException(nameof(viewName));
 
             viewName = CreateQualifiedIdentifier(viewName);
@@ -233,7 +233,7 @@ namespace SJP.Schematic.MySql
 
         public bool SequenceExists(Identifier sequenceName)
         {
-            if (sequenceName == null || sequenceName.LocalName == null)
+            if (sequenceName == null)
                 throw new ArgumentNullException(nameof(sequenceName));
 
             return false;
@@ -241,7 +241,7 @@ namespace SJP.Schematic.MySql
 
         public Task<bool> SequenceExistsAsync(Identifier sequenceName)
         {
-            if (sequenceName == null || sequenceName.LocalName == null)
+            if (sequenceName == null)
                 throw new ArgumentNullException(nameof(sequenceName));
 
             return Task.FromResult(false);
@@ -249,7 +249,7 @@ namespace SJP.Schematic.MySql
 
         public IDatabaseSequence GetSequence(Identifier sequenceName)
         {
-            if (sequenceName == null || sequenceName.LocalName == null)
+            if (sequenceName == null)
                 throw new ArgumentNullException(nameof(sequenceName));
 
             return null;
@@ -257,7 +257,7 @@ namespace SJP.Schematic.MySql
 
         public Task<IDatabaseSequence> GetSequenceAsync(Identifier sequenceName)
         {
-            if (sequenceName == null || sequenceName.LocalName == null)
+            if (sequenceName == null)
                 throw new ArgumentNullException(nameof(sequenceName));
 
             return Task.FromResult<IDatabaseSequence>(null);
@@ -269,7 +269,7 @@ namespace SJP.Schematic.MySql
 
         public bool SynonymExists(Identifier synonymName)
         {
-            if (synonymName == null || synonymName.LocalName == null)
+            if (synonymName == null)
                 throw new ArgumentNullException(nameof(synonymName));
 
             return false;
@@ -277,7 +277,7 @@ namespace SJP.Schematic.MySql
 
         public Task<bool> SynonymExistsAsync(Identifier synonymName)
         {
-            if (synonymName == null || synonymName.LocalName == null)
+            if (synonymName == null)
                 throw new ArgumentNullException(nameof(synonymName));
 
             return Task.FromResult(false);
@@ -285,7 +285,7 @@ namespace SJP.Schematic.MySql
 
         public IDatabaseSynonym GetSynonym(Identifier synonymName)
         {
-            if (synonymName == null || synonymName.LocalName == null)
+            if (synonymName == null)
                 throw new ArgumentNullException(nameof(synonymName));
 
             return null;
@@ -293,7 +293,7 @@ namespace SJP.Schematic.MySql
 
         public Task<IDatabaseSynonym> GetSynonymAsync(Identifier synonymName)
         {
-            if (synonymName == null || synonymName.LocalName == null)
+            if (synonymName == null)
                 throw new ArgumentNullException(nameof(synonymName));
 
             return Task.FromResult<IDatabaseSynonym>(null);
@@ -317,7 +317,7 @@ namespace SJP.Schematic.MySql
         /// <remarks>No components of an identifier when present will be modified. For example, when given a fully qualified identifier, a new identifier will be returned that is equal in value to the argument.</remarks>
         protected Identifier CreateQualifiedIdentifier(Identifier identifier)
         {
-            if (identifier == null || identifier.LocalName == null)
+            if (identifier == null)
                 throw new ArgumentNullException(nameof(identifier));
 
             var serverName = identifier.Server ?? ServerName;

@@ -10,7 +10,7 @@ namespace SJP.Schematic.SqlServer
     {
         public SqlServerDatabaseSequence(IDbConnection connection, IRelationalDatabase database, Identifier sequenceName)
         {
-            if (sequenceName == null || sequenceName.LocalName == null)
+            if (sequenceName == null)
                 throw new ArgumentNullException(nameof(sequenceName));
 
             Database = database ?? throw new ArgumentNullException(nameof(database));

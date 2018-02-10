@@ -13,7 +13,7 @@ namespace SJP.Schematic.MySql
     {
         public MySqlRelationalDatabaseView(IDbConnection connection, IRelationalDatabase database, Identifier viewName, IEqualityComparer<Identifier> comparer = null)
         {
-            if (viewName == null || viewName.LocalName == null)
+            if (viewName == null)
                 throw new ArgumentNullException(nameof(viewName));
 
             Connection = connection ?? throw new ArgumentNullException(nameof(connection));
@@ -145,7 +145,7 @@ order by ordinal_position";
                 };
                 var columnType = TypeProvider.CreateColumnType(typeMetadata);
 
-                var columnName = new LocalIdentifier(row.ColumnName);
+                var columnName = new Identifier(row.ColumnName);
                 var isAutoIncrement = row.ExtraInformation.Contains("auto_increment", StringComparison.OrdinalIgnoreCase);
                 var autoIncrement = isAutoIncrement ? new AutoIncrement(1, 1) : (IAutoIncrement)null;
                 var isNullable = !string.Equals(row.IsNullable, "NO", StringComparison.OrdinalIgnoreCase);
@@ -194,7 +194,7 @@ order by ordinal_position";
                 };
                 var columnType = TypeProvider.CreateColumnType(typeMetadata);
 
-                var columnName = new LocalIdentifier(row.ColumnName);
+                var columnName = new Identifier(row.ColumnName);
                 var isAutoIncrement = row.ExtraInformation.Contains("auto_increment", StringComparison.OrdinalIgnoreCase);
                 var autoIncrement = isAutoIncrement ? new AutoIncrement(1, 1) : (IAutoIncrement)null;
                 var isNullable = !string.Equals(row.IsNullable, "NO", StringComparison.OrdinalIgnoreCase);

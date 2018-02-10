@@ -63,7 +63,7 @@ namespace SJP.Schematic.Modelled.Reflection
 
         public bool TableExists(Identifier tableName)
         {
-            if (tableName == null || tableName.LocalName == null)
+            if (tableName == null)
                 throw new ArgumentNullException(nameof(tableName));
 
             tableName = CreateQualifiedIdentifier(tableName);
@@ -72,7 +72,7 @@ namespace SJP.Schematic.Modelled.Reflection
 
         public Task<bool> TableExistsAsync(Identifier tableName)
         {
-            if (tableName == null || tableName.LocalName == null)
+            if (tableName == null)
                 throw new ArgumentNullException(nameof(tableName));
 
             tableName = CreateQualifiedIdentifier(tableName);
@@ -82,7 +82,7 @@ namespace SJP.Schematic.Modelled.Reflection
 
         public IRelationalDatabaseTable GetTable(Identifier tableName)
         {
-            if (tableName == null || tableName.LocalName == null)
+            if (tableName == null)
                 throw new ArgumentNullException(nameof(tableName));
 
             tableName = CreateQualifiedIdentifier(tableName);
@@ -91,7 +91,7 @@ namespace SJP.Schematic.Modelled.Reflection
 
         public Task<IRelationalDatabaseTable> GetTableAsync(Identifier tableName)
         {
-            if (tableName == null || tableName.LocalName == null)
+            if (tableName == null)
                 throw new ArgumentNullException(nameof(tableName));
 
             tableName = CreateQualifiedIdentifier(tableName);
@@ -140,7 +140,7 @@ namespace SJP.Schematic.Modelled.Reflection
 
         public bool ViewExists(Identifier viewName)
         {
-            if (viewName == null || viewName.LocalName == null)
+            if (viewName == null)
                 throw new ArgumentNullException(nameof(viewName));
 
             viewName = CreateQualifiedIdentifier(viewName);
@@ -149,7 +149,7 @@ namespace SJP.Schematic.Modelled.Reflection
 
         public Task<bool> ViewExistsAsync(Identifier viewName)
         {
-            if (viewName == null || viewName.LocalName == null)
+            if (viewName == null)
                 throw new ArgumentNullException(nameof(viewName));
 
             viewName = CreateQualifiedIdentifier(viewName);
@@ -159,7 +159,7 @@ namespace SJP.Schematic.Modelled.Reflection
 
         public IRelationalDatabaseView GetView(Identifier viewName)
         {
-            if (viewName == null || viewName.LocalName == null)
+            if (viewName == null)
                 throw new ArgumentNullException(nameof(viewName));
 
             viewName = CreateQualifiedIdentifier(viewName);
@@ -168,7 +168,7 @@ namespace SJP.Schematic.Modelled.Reflection
 
         public Task<IRelationalDatabaseView> GetViewAsync(Identifier viewName)
         {
-            if (viewName == null || viewName.LocalName == null)
+            if (viewName == null)
                 throw new ArgumentNullException(nameof(viewName));
 
             viewName = CreateQualifiedIdentifier(viewName);
@@ -217,7 +217,7 @@ namespace SJP.Schematic.Modelled.Reflection
 
         public bool SequenceExists(Identifier sequenceName)
         {
-            if (sequenceName == null || sequenceName.LocalName == null)
+            if (sequenceName == null)
                 throw new ArgumentNullException(nameof(sequenceName));
 
             sequenceName = CreateQualifiedIdentifier(sequenceName);
@@ -226,7 +226,7 @@ namespace SJP.Schematic.Modelled.Reflection
 
         public Task<bool> SequenceExistsAsync(Identifier sequenceName)
         {
-            if (sequenceName == null || sequenceName.LocalName == null)
+            if (sequenceName == null)
                 throw new ArgumentNullException(nameof(sequenceName));
 
             sequenceName = CreateQualifiedIdentifier(sequenceName);
@@ -236,7 +236,7 @@ namespace SJP.Schematic.Modelled.Reflection
 
         public IDatabaseSequence GetSequence(Identifier sequenceName)
         {
-            if (sequenceName == null || sequenceName.LocalName == null)
+            if (sequenceName == null)
                 throw new ArgumentNullException(nameof(sequenceName));
 
             sequenceName = CreateQualifiedIdentifier(sequenceName);
@@ -245,7 +245,7 @@ namespace SJP.Schematic.Modelled.Reflection
 
         public Task<IDatabaseSequence> GetSequenceAsync(Identifier sequenceName)
         {
-            if (sequenceName == null || sequenceName.LocalName == null)
+            if (sequenceName == null)
                 throw new ArgumentNullException(nameof(sequenceName));
 
             sequenceName = CreateQualifiedIdentifier(sequenceName);
@@ -294,7 +294,7 @@ namespace SJP.Schematic.Modelled.Reflection
 
         public bool SynonymExists(Identifier synonymName)
         {
-            if (synonymName == null || synonymName.LocalName == null)
+            if (synonymName == null)
                 throw new ArgumentNullException(nameof(synonymName));
 
             synonymName = CreateQualifiedIdentifier(synonymName);
@@ -303,7 +303,7 @@ namespace SJP.Schematic.Modelled.Reflection
 
         public Task<bool> SynonymExistsAsync(Identifier synonymName)
         {
-            if (synonymName == null || synonymName.LocalName == null)
+            if (synonymName == null)
                 throw new ArgumentNullException(nameof(synonymName));
 
             synonymName = CreateQualifiedIdentifier(synonymName);
@@ -313,7 +313,7 @@ namespace SJP.Schematic.Modelled.Reflection
 
         public IDatabaseSynonym GetSynonym(Identifier synonymName)
         {
-            if (synonymName == null || synonymName.LocalName == null)
+            if (synonymName == null)
                 throw new ArgumentNullException(nameof(synonymName));
 
             synonymName = CreateQualifiedIdentifier(synonymName);
@@ -322,7 +322,7 @@ namespace SJP.Schematic.Modelled.Reflection
 
         public Task<IDatabaseSynonym> GetSynonymAsync(Identifier synonymName)
         {
-            if (synonymName == null || synonymName.LocalName == null)
+            if (synonymName == null)
                 throw new ArgumentNullException(nameof(synonymName));
 
             synonymName = CreateQualifiedIdentifier(synonymName);
@@ -371,7 +371,7 @@ namespace SJP.Schematic.Modelled.Reflection
 
         protected Identifier CreateQualifiedIdentifier(Identifier identifier)
         {
-            if (identifier == null || identifier.LocalName == null)
+            if (identifier == null)
                 throw new ArgumentNullException(nameof(identifier));
 
             var serverName = identifier.Server ?? ServerName;

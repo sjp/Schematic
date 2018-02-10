@@ -80,7 +80,7 @@ namespace SJP.Schematic.SqlServer.Tests.Integration
         public void Name_GivenLocalNameOnlyInCtor_ShouldBeQualifiedCorrectly()
         {
             var database = Database;
-            var sequenceName = new LocalIdentifier("sequence_test_sequence_1");
+            var sequenceName = new Identifier("sequence_test_sequence_1");
             var expectedSequenceName = new Identifier(database.ServerName, database.DatabaseName, database.DefaultSchema, "sequence_test_sequence_1");
 
             var sequence = new SqlServerDatabaseSequence(Connection, database, sequenceName);

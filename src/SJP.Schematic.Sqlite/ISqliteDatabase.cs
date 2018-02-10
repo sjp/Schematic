@@ -3,7 +3,6 @@ using SJP.Schematic.Core;
 
 namespace SJP.Schematic.Sqlite
 {
-
     public interface ISqliteDatabase : IRelationalDatabaseSync, IRelationalDatabaseAsync
     {
         void Vacuum();
@@ -20,6 +19,6 @@ namespace SJP.Schematic.Sqlite
 
         void DetachDatabase(string schemaName);
 
-        Task DetachDatabaseAsync(string schemaname);
+        Task DetachDatabaseAsync(string schemaName);
     }
 }

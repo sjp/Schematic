@@ -33,19 +33,6 @@ namespace SJP.Schematic.SqlServer.Tests
         }
 
         [Test]
-        public void Ctor_GivenNameMissingLocalIdentifier_ThrowsArgumentNullException()
-        {
-            var table = Mock.Of<IRelationalDatabaseTable>();
-            var triggerName = new SchemaIdentifier("test_trigger");
-            const string definition = "create trigger test_trigger...";
-            const TriggerQueryTiming timing = TriggerQueryTiming.InsteadOf;
-            const TriggerEvent events = TriggerEvent.Update;
-            const bool enabled = true;
-
-            Assert.Throws<ArgumentNullException>(() => new SqlServerDatabaseTrigger(null, triggerName, definition, timing, events, enabled));
-        }
-
-        [Test]
         public void Ctor_GivenNullDefinition_ThrowsArgumentNullException()
         {
             var table = Mock.Of<IRelationalDatabaseTable>();

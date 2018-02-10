@@ -13,7 +13,7 @@ namespace SJP.Schematic.SqlServer
     {
         public SqlServerRelationalDatabaseView(IDbConnection connection, IRelationalDatabase database, Identifier viewName, IEqualityComparer<Identifier> comparer = null)
         {
-            if (viewName == null || viewName.LocalName == null)
+            if (viewName == null)
                 throw new ArgumentNullException(nameof(viewName));
 
             Connection = connection ?? throw new ArgumentNullException(nameof(connection));
@@ -106,7 +106,7 @@ where schema_name(v.schema_id) = @SchemaName and v.name = @ViewName
             foreach (var indexInfo in indexColumns)
             {
                 var isUnique = indexInfo.Key.IsUnique;
-                var indexName = new LocalIdentifier(indexInfo.Key.IndexName);
+                var indexName = new Identifier(indexInfo.Key.IndexName);
                 var isEnabled = !indexInfo.Key.IsDisabled;
 
                 var indexCols = indexInfo
@@ -158,7 +158,7 @@ where schema_name(v.schema_id) = @SchemaName and v.name = @ViewName
             foreach (var indexInfo in indexColumns)
             {
                 var isUnique = indexInfo.Key.IsUnique;
-                var indexName = new LocalIdentifier(indexInfo.Key.IndexName);
+                var indexName = new Identifier(indexInfo.Key.IndexName);
                 var isEnabled = !indexInfo.Key.IsDisabled;
 
                 var indexCols = indexInfo
@@ -276,7 +276,7 @@ where schema_name(v.schema_id) = @SchemaName
                 };
                 var columnType = TypeProvider.CreateColumnType(typeMetadata);
 
-                var columnName = new LocalIdentifier(row.ColumnName);
+                var columnName = new Identifier(row.ColumnName);
                 var isAutoIncrement = row.IdentitySeed.HasValue && row.IdentityIncrement.HasValue;
                 var autoIncrement = isAutoIncrement
                     ? new AutoIncrement(row.IdentitySeed.Value, row.IdentityIncrement.Value)
@@ -331,7 +331,7 @@ where schema_name(v.schema_id) = @SchemaName
                 };
                 var columnType = TypeProvider.CreateColumnType(typeMetadata);
 
-                var columnName = new LocalIdentifier(row.ColumnName);
+                var columnName = new Identifier(row.ColumnName);
                 var isAutoIncrement = row.IdentitySeed.HasValue && row.IdentityIncrement.HasValue;
                 var autoIncrement = isAutoIncrement
                     ? new AutoIncrement(row.IdentitySeed.Value, row.IdentityIncrement.Value)

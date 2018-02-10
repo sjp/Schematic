@@ -45,7 +45,7 @@ namespace SJP.Schematic.Core.Tests
             databaseMock.Setup(d => d.DefaultSchema).Returns("c");
             var database = databaseMock.Object;
 
-            var sequenceName = new LocalIdentifier("test");
+            var sequenceName = new Identifier("test");
             var expectedSequenceName = new Identifier(database.ServerName, database.DatabaseName, database.DefaultSchema, "test");
 
             var sequence = new DatabaseSequence(database, "test", 1, 1, null, null, true, 0);

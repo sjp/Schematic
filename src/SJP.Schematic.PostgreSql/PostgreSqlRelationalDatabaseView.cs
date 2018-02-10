@@ -13,7 +13,7 @@ namespace SJP.Schematic.PostgreSql
     {
         public PostgreSqlRelationalDatabaseView(IDbConnection connection, IRelationalDatabase database, Identifier viewName, IEqualityComparer<Identifier> comparer = null)
         {
-            if (viewName == null || viewName.LocalName == null)
+            if (viewName == null)
                 throw new ArgumentNullException(nameof(viewName));
 
             Connection = connection ?? throw new ArgumentNullException(nameof(connection));
@@ -175,7 +175,7 @@ order by ordinal_position";
                 };
 
                 var columnType = TypeProvider.CreateColumnType(typeMetadata);
-                var columnName = new LocalIdentifier(row.column_name);
+                var columnName = new Identifier(row.column_name);
                 IAutoIncrement autoIncrement = null;
 
                 var column = new PostgreSqlDatabaseViewColumn(this, columnName, columnType, row.is_nullable == "YES", row.column_default, autoIncrement);
@@ -231,7 +231,7 @@ order by ordinal_position";
                 };
 
                 var columnType = TypeProvider.CreateColumnType(typeMetadata);
-                var columnName = new LocalIdentifier(row.column_name);
+                var columnName = new Identifier(row.column_name);
                 IAutoIncrement autoIncrement = null;
 
                 var column = new PostgreSqlDatabaseViewColumn(this, columnName, columnType, row.is_nullable == "YES", row.column_default, autoIncrement);

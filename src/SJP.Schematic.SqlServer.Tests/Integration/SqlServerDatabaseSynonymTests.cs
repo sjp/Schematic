@@ -58,7 +58,7 @@ namespace SJP.Schematic.SqlServer.Tests.Integration
         public void Name_GivenLocalNameOnlyInCtor_ShouldBeQualifiedCorrectly()
         {
             var database = Database;
-            var synonymName = new LocalIdentifier("synonym_test_synonym_1");
+            var synonymName = new Identifier("synonym_test_synonym_1");
             var expectedSynonymName = new Identifier(database.ServerName, database.DatabaseName, database.DefaultSchema, "synonym_test_synonym_1");
             const string targetName = "synonym_test_synonym_1";
 
@@ -111,7 +111,7 @@ namespace SJP.Schematic.SqlServer.Tests.Integration
         {
             var database = Database;
             const string synonymName = "synonym_test_synonym_1";
-            var targetName = new LocalIdentifier("synonym_test_synonym_1");
+            var targetName = new Identifier("synonym_test_synonym_1");
             var expectedTargetName = new Identifier(database.ServerName, database.DatabaseName, database.DefaultSchema, "synonym_test_synonym_1");
 
             var synonym = new SqlServerDatabaseSynonym(database, synonymName, targetName);

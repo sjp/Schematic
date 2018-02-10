@@ -16,14 +16,12 @@ namespace SJP.Schematic.Core
             Identifier collation
         )
         {
-            if (typeName == null || typeName.LocalName == null)
-                throw new ArgumentNullException(nameof(typeName));
             if (!dataType.IsValid())
                 throw new ArgumentException($"The { nameof(DataType) } provided must be a valid enum.", nameof(dataType));
             if (definition.IsNullOrWhiteSpace())
                 throw new ArgumentNullException(nameof(definition));
 
-            TypeName = typeName;
+            TypeName = typeName ?? throw new ArgumentNullException(nameof(typeName));
             DataType = dataType;
             Definition = definition;
             ClrType = clrType ?? throw new ArgumentNullException(nameof(clrType));

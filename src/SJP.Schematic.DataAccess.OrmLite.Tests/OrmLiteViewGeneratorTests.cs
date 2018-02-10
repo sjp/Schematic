@@ -47,17 +47,6 @@ namespace SJP.Schematic.DataAccess.OrmLite.Tests
         }
 
         [Test]
-        public void GetFilePath_GivenNullLocalName_ThrowsArgumentNullException()
-        {
-            var nameProvider = new VerbatimNameProvider();
-            const string testNs = "SJP.Schematic.Test";
-            var generator = new OrmLiteViewGenerator(nameProvider, testNs);
-            var baseDir = new DirectoryInfo(Environment.CurrentDirectory);
-
-            Assert.Throws<ArgumentNullException>(() => generator.GetFilePath(baseDir, new SchemaIdentifier("test")));
-        }
-
-        [Test]
         public void GetFilePath_GivenNameWithOnlyLocalName_ReturnsExpectedPath()
         {
             var nameProvider = new VerbatimNameProvider();

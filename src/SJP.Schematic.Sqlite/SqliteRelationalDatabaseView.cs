@@ -13,7 +13,7 @@ namespace SJP.Schematic.Sqlite
     {
         public SqliteRelationalDatabaseView(IDbConnection connection, IRelationalDatabase database, Identifier viewName)
         {
-            if (viewName == null || viewName.LocalName == null)
+            if (viewName == null)
                 throw new ArgumentNullException(nameof(viewName));
 
             Connection = connection ?? throw new ArgumentNullException(nameof(connection));
@@ -160,7 +160,7 @@ namespace SJP.Schematic.Sqlite
 
         protected virtual string GetTypeofColumn(Identifier columnName)
         {
-            if (columnName == null || columnName.LocalName == null)
+            if (columnName == null)
                 throw new ArgumentNullException(nameof(columnName));
 
             var sql = $"select typeof({ Dialect.QuoteName(columnName.LocalName) }) from { Dialect.QuoteName(Name) } limit 1";
@@ -169,7 +169,7 @@ namespace SJP.Schematic.Sqlite
 
         protected virtual Task<string> GetTypeofColumnAsync(Identifier columnName)
         {
-            if (columnName == null || columnName.LocalName == null)
+            if (columnName == null)
                 throw new ArgumentNullException(nameof(columnName));
 
             var sql = $"select typeof({ Dialect.QuoteName(columnName.LocalName) }) from { Dialect.QuoteName(Name) } limit 1";

@@ -388,7 +388,7 @@ end
         public void Name_GivenLocalNameOnlyInCtor_ShouldBeQualifiedCorrectly()
         {
             var database = Database;
-            var tableName = new LocalIdentifier("table_test_table_1");
+            var tableName = new Identifier("table_test_table_1");
             var expectedTableName = new Identifier(database.ServerName, database.DatabaseName, database.DefaultSchema, "table_test_table_1");
 
             var table = new SqlServerRelationalDatabaseTable(Connection, database, tableName);

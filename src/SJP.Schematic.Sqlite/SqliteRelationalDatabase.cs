@@ -34,10 +34,10 @@ namespace SJP.Schematic.Sqlite
 
         public bool TableExists(Identifier tableName)
         {
-            if (tableName == null || tableName.LocalName == null)
+            if (tableName == null)
                 throw new ArgumentNullException(nameof(tableName));
 
-            if (tableName.LocalName.StartsWith("sqlite_", StringComparison.OrdinalIgnoreCase))
+            if (IsReservedTableName(tableName))
                 return false;
 
             if (tableName.Schema != null)
@@ -64,7 +64,7 @@ namespace SJP.Schematic.Sqlite
 
         public async Task<bool> TableExistsAsync(Identifier tableName)
         {
-            if (tableName == null || tableName.LocalName == null)
+            if (tableName == null)
                 throw new ArgumentNullException(nameof(tableName));
 
             if (IsReservedTableName(tableName))
@@ -95,7 +95,7 @@ namespace SJP.Schematic.Sqlite
 
         public IRelationalDatabaseTable GetTable(Identifier tableName)
         {
-            if (tableName == null || tableName.LocalName == null)
+            if (tableName == null)
                 throw new ArgumentNullException(nameof(tableName));
 
             if (IsReservedTableName(tableName))
@@ -119,7 +119,7 @@ namespace SJP.Schematic.Sqlite
 
         public async Task<IRelationalDatabaseTable> GetTableAsync(Identifier tableName)
         {
-            if (tableName == null || tableName.LocalName == null)
+            if (tableName == null)
                 throw new ArgumentNullException(nameof(tableName));
 
             if (IsReservedTableName(tableName))
@@ -192,7 +192,7 @@ namespace SJP.Schematic.Sqlite
 
         protected virtual IRelationalDatabaseTable LoadTableSync(Identifier tableName)
         {
-            if (tableName == null || tableName.LocalName == null)
+            if (tableName == null)
                 throw new ArgumentNullException(nameof(tableName));
 
             if (tableName.Schema != null)
@@ -219,7 +219,7 @@ namespace SJP.Schematic.Sqlite
 
         protected virtual async Task<IRelationalDatabaseTable> LoadTableAsync(Identifier tableName)
         {
-            if (tableName == null || tableName.LocalName == null)
+            if (tableName == null)
                 throw new ArgumentNullException(nameof(tableName));
 
             if (tableName.Schema != null)
@@ -248,7 +248,7 @@ namespace SJP.Schematic.Sqlite
 
         public bool ViewExists(Identifier viewName)
         {
-            if (viewName == null || viewName.LocalName == null)
+            if (viewName == null)
                 throw new ArgumentNullException(nameof(viewName));
 
             if (viewName.Schema != null)
@@ -275,7 +275,7 @@ namespace SJP.Schematic.Sqlite
 
         public async Task<bool> ViewExistsAsync(Identifier viewName)
         {
-            if (viewName == null || viewName.LocalName == null)
+            if (viewName == null)
                 throw new ArgumentNullException(nameof(viewName));
 
             if (viewName.Schema != null)
@@ -303,7 +303,7 @@ namespace SJP.Schematic.Sqlite
 
         public IRelationalDatabaseView GetView(Identifier viewName)
         {
-            if (viewName == null || viewName.LocalName == null)
+            if (viewName == null)
                 throw new ArgumentNullException(nameof(viewName));
 
             if (viewName.Schema != null)
@@ -324,7 +324,7 @@ namespace SJP.Schematic.Sqlite
 
         public async Task<IRelationalDatabaseView> GetViewAsync(Identifier viewName)
         {
-            if (viewName == null || viewName.LocalName == null)
+            if (viewName == null)
                 throw new ArgumentNullException(nameof(viewName));
 
             if (viewName.Schema != null)
@@ -394,7 +394,7 @@ namespace SJP.Schematic.Sqlite
 
         protected virtual IRelationalDatabaseView LoadViewSync(Identifier viewName)
         {
-            if (viewName == null || viewName.LocalName == null)
+            if (viewName == null)
                 throw new ArgumentNullException(nameof(viewName));
 
             if (viewName.Schema != null)
@@ -422,7 +422,7 @@ namespace SJP.Schematic.Sqlite
 
         protected virtual async Task<IRelationalDatabaseView> LoadViewAsync(Identifier viewName)
         {
-            if (viewName == null || viewName.LocalName == null)
+            if (viewName == null)
                 throw new ArgumentNullException(nameof(viewName));
 
             if (viewName.Schema != null)
@@ -452,7 +452,7 @@ namespace SJP.Schematic.Sqlite
 
         public bool SequenceExists(Identifier sequenceName)
         {
-            if (sequenceName == null || sequenceName.LocalName == null)
+            if (sequenceName == null)
                 throw new ArgumentNullException(nameof(sequenceName));
 
             return false;
@@ -460,7 +460,7 @@ namespace SJP.Schematic.Sqlite
 
         public IDatabaseSequence GetSequence(Identifier sequenceName)
         {
-            if (sequenceName == null || sequenceName.LocalName == null)
+            if (sequenceName == null)
                 throw new ArgumentNullException(nameof(sequenceName));
 
             return null;
@@ -470,7 +470,7 @@ namespace SJP.Schematic.Sqlite
 
         public Task<bool> SequenceExistsAsync(Identifier sequenceName)
         {
-            if (sequenceName == null || sequenceName.LocalName == null)
+            if (sequenceName == null)
                 throw new ArgumentNullException(nameof(sequenceName));
 
             return Task.FromResult(false);
@@ -478,7 +478,7 @@ namespace SJP.Schematic.Sqlite
 
         public Task<IDatabaseSequence> GetSequenceAsync(Identifier sequenceName)
         {
-            if (sequenceName == null || sequenceName.LocalName == null)
+            if (sequenceName == null)
                 throw new ArgumentNullException(nameof(sequenceName));
 
             return Task.FromResult<IDatabaseSequence>(null);
@@ -488,7 +488,7 @@ namespace SJP.Schematic.Sqlite
 
         public bool SynonymExists(Identifier synonymName)
         {
-            if (synonymName == null || synonymName.LocalName == null)
+            if (synonymName == null)
                 throw new ArgumentNullException(nameof(synonymName));
 
             return false;
@@ -496,7 +496,7 @@ namespace SJP.Schematic.Sqlite
 
         public IDatabaseSynonym GetSynonym(Identifier synonymName)
         {
-            if (synonymName == null || synonymName.LocalName == null)
+            if (synonymName == null)
                 throw new ArgumentNullException(nameof(synonymName));
 
             return null;
@@ -506,7 +506,7 @@ namespace SJP.Schematic.Sqlite
 
         public Task<bool> SynonymExistsAsync(Identifier synonymName)
         {
-            if (synonymName == null || synonymName.LocalName == null)
+            if (synonymName == null)
                 throw new ArgumentNullException(nameof(synonymName));
 
             return Task.FromResult(false);
@@ -514,7 +514,7 @@ namespace SJP.Schematic.Sqlite
 
         public Task<IDatabaseSynonym> GetSynonymAsync(Identifier synonymName)
         {
-            if (synonymName == null || synonymName.LocalName == null)
+            if (synonymName == null)
                 throw new ArgumentNullException(nameof(synonymName));
 
             return Task.FromResult<IDatabaseSynonym>(null);
@@ -604,7 +604,7 @@ namespace SJP.Schematic.Sqlite
 
         protected static bool IsReservedTableName(Identifier tableName)
         {
-            if (tableName == null || tableName.LocalName == null)
+            if (tableName == null)
                 throw new ArgumentNullException(nameof(tableName));
 
             return tableName.LocalName.StartsWith("sqlite_", StringComparison.OrdinalIgnoreCase);

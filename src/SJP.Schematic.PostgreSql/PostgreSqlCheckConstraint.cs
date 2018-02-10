@@ -7,7 +7,7 @@ namespace SJP.Schematic.PostgreSql
     {
         public PostgreSqlCheckConstraint(IRelationalDatabaseTable table, Identifier checkName, string definition)
         {
-            if (checkName == null || checkName.LocalName == null)
+            if (checkName == null)
                 throw new ArgumentNullException(nameof(checkName));
             if (definition.IsNullOrWhiteSpace())
                 throw new ArgumentNullException(nameof(definition));

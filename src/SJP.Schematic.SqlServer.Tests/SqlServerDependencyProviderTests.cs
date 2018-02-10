@@ -24,15 +24,6 @@ namespace SJP.Schematic.SqlServer.Tests
         }
 
         [Test]
-        public void GetDependencies_GivenNullObjectNameWithNullLocalName_ThrowsArgumentsNullException()
-        {
-            var provider = new SqlServerDependencyProvider();
-            var objectName = new SchemaIdentifier("asd");
-
-            Assert.Throws<ArgumentNullException>(() => provider.GetDependencies(objectName, "asd"));
-        }
-
-        [Test]
         public void GetDependencies_GivenNullExpression_ThrowsArgumentsNullException()
         {
             var provider = new SqlServerDependencyProvider();

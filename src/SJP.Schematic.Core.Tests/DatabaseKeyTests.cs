@@ -31,18 +31,6 @@ namespace SJP.Schematic.Core.Tests
         }
 
         [Test]
-        public void Ctor_GivenNameMissingLocalIdentifier_DoesNotThrowArgumentNullException()
-        {
-            var table = Mock.Of<IRelationalDatabaseTable>();
-            var keyName = new SchemaIdentifier("test_key");
-            const DatabaseKeyType keyType = DatabaseKeyType.Primary;
-            var column = Mock.Of<IDatabaseColumn>();
-            var columns = new[] { column };
-
-            Assert.DoesNotThrow(() => new DatabaseKey(table, keyName, keyType, columns, true));
-        }
-
-        [Test]
         public void Ctor_GivenInvalidDatabaseKeyType_ThrowsArgumentException()
         {
             var table = Mock.Of<IRelationalDatabaseTable>();

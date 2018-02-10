@@ -32,7 +32,7 @@ namespace SJP.Schematic.PostgreSql
     {
         protected PostgreSqlDatabaseIndex(T parent, Identifier name, bool isUnique, IEnumerable<IDatabaseIndexColumn> columns)
         {
-            if (name == null || name.LocalName == null)
+            if (name == null)
                 throw new ArgumentNullException(nameof(name));
             if (columns == null || columns.Empty() || columns.AnyNull())
                 throw new ArgumentNullException(nameof(columns));

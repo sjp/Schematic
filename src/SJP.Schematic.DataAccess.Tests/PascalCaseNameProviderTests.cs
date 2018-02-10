@@ -65,14 +65,6 @@ namespace SJP.Schematic.DataAccess.Tests
         }
 
         [Test]
-        public void TableToClassName_GivenNullLocalName_ThrowsArgumentNullException()
-        {
-            var schemaIdentifier = new SchemaIdentifier("asd");
-            var nameProvider = new PascalCaseNameProvider();
-            Assert.Throws<ArgumentNullException>(() => nameProvider.TableToClassName(schemaIdentifier));
-        }
-
-        [Test]
         public void TableToClassName_GivenSpaceSeparatedLocalName_ReturnsSpaceRemovedText()
         {
             var nameProvider = new PascalCaseNameProvider();
@@ -110,14 +102,6 @@ namespace SJP.Schematic.DataAccess.Tests
         {
             var nameProvider = new PascalCaseNameProvider();
             Assert.Throws<ArgumentNullException>(() => nameProvider.ViewToClassName(null));
-        }
-
-        [Test]
-        public void ViewToClassName_GivenNullLocalName_ThrowsArgumentNullException()
-        {
-            var schemaIdentifier = new SchemaIdentifier("asd");
-            var nameProvider = new PascalCaseNameProvider();
-            Assert.Throws<ArgumentNullException>(() => nameProvider.ViewToClassName(schemaIdentifier));
         }
 
         [Test]

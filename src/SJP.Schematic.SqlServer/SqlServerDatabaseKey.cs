@@ -9,7 +9,7 @@ namespace SJP.Schematic.SqlServer
     {
         public SqlServerDatabaseKey(IRelationalDatabaseTable table, Identifier name, DatabaseKeyType keyType, IEnumerable<IDatabaseColumn> columns, bool isEnabled)
         {
-            if (name == null || name.LocalName == null)
+            if (name == null)
                 throw new ArgumentNullException(nameof(name));
             if (columns == null || columns.Empty() || columns.AnyNull())
                 throw new ArgumentNullException(nameof(columns));

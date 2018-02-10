@@ -22,13 +22,6 @@ namespace SJP.Schematic.Sqlite.Tests
         }
 
         [Test]
-        public void Ctor_GivenNullLocalName_ThrowsArgumentNullException()
-        {
-            var table = Mock.Of<IRelationalDatabaseTable>();
-            Assert.Throws<ArgumentNullException>(() => new SqliteCheckConstraint(table, new SchemaIdentifier("test_schema"), "test_check"));
-        }
-
-        [Test]
         public void Ctor_GivenNullDefinition_ThrowsArgumentNullException()
         {
             var table = Mock.Of<IRelationalDatabaseTable>();

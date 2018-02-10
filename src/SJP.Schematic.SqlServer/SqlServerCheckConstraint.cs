@@ -7,7 +7,7 @@ namespace SJP.Schematic.SqlServer
     {
         public SqlServerCheckConstraint(IRelationalDatabaseTable table, Identifier checkName, string definition, bool isEnabled)
         {
-            if (checkName == null || checkName.LocalName == null)
+            if (checkName == null)
                 throw new ArgumentNullException(nameof(checkName));
             if (definition.IsNullOrWhiteSpace())
                 throw new ArgumentNullException(nameof(definition));

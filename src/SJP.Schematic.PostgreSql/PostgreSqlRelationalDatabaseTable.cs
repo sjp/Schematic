@@ -14,7 +14,7 @@ namespace SJP.Schematic.PostgreSql
     {
         public PostgreSqlRelationalDatabaseTable(IDbConnection connection, IRelationalDatabase database, Identifier tableName, IEqualityComparer<Identifier> comparer = null)
         {
-            if (tableName == null || tableName.LocalName == null)
+            if (tableName == null)
                 throw new ArgumentNullException(nameof(tableName));
 
             Connection = connection ?? throw new ArgumentNullException(nameof(connection));
@@ -177,7 +177,7 @@ where
             foreach (var indexInfo in indexColumns)
             {
                 var isUnique = indexInfo.Key.IsUnique;
-                var indexName = new LocalIdentifier(indexInfo.Key.IndexName);
+                var indexName = new Identifier(indexInfo.Key.IndexName);
 
                 var indexCols = indexInfo
                     .OrderBy(row => row.IndexColumnId)
@@ -240,7 +240,7 @@ where
             foreach (var indexInfo in indexColumns)
             {
                 var isUnique = indexInfo.Key.IsUnique;
-                var indexName = new LocalIdentifier(indexInfo.Key.IndexName);
+                var indexName = new Identifier(indexInfo.Key.IndexName);
 
                 var indexCols = indexInfo
                     .OrderBy(row => row.IndexColumnId)
@@ -422,7 +422,7 @@ where pt.relname = @TableName and pns.nspname = @SchemaName";
             var result = new List<IDatabaseRelationalKey>(groupedChildKeys.Count);
             foreach (var groupedChildKey in groupedChildKeys)
             {
-                var childKeyName = new LocalIdentifier(groupedChildKey.Key.ChildKeyName);
+                var childKeyName = new Identifier(groupedChildKey.Key.ChildKeyName);
 
                 var childTableName = new Identifier(groupedChildKey.Key.ChildTableSchema, groupedChildKey.Key.ChildTableName);
                 var childTable = Database.GetTable(childTableName);
@@ -504,7 +504,7 @@ where pt.relname = @TableName and pns.nspname = @SchemaName";
             var result = new List<IDatabaseRelationalKey>(groupedChildKeys.Count);
             foreach (var groupedChildKey in groupedChildKeys)
             {
-                var childKeyName = new LocalIdentifier(groupedChildKey.Key.ChildKeyName);
+                var childKeyName = new Identifier(groupedChildKey.Key.ChildKeyName);
 
                 var childTableName = new Identifier(groupedChildKey.Key.ChildTableSchema, groupedChildKey.Key.ChildTableName);
                 var childTable = await Database.GetTableAsync(childTableName).ConfigureAwait(false);
@@ -582,7 +582,7 @@ where
             var tableColumns = Column;
             foreach (var checkRow in checks)
             {
-                var constraintName = new LocalIdentifier(checkRow.ConstraintName);
+                var constraintName = new Identifier(checkRow.ConstraintName);
                 var definition = checkRow.Definition;
 
                 var check = new PostgreSqlCheckConstraint(this, constraintName, definition);
@@ -612,7 +612,7 @@ where
             var tableColumns = await ColumnAsync().ConfigureAwait(false);
             foreach (var checkRow in checks)
             {
-                var constraintName = new LocalIdentifier(checkRow.ConstraintName);
+                var constraintName = new Identifier(checkRow.ConstraintName);
                 var definition = checkRow.Definition;
 
                 var check = new PostgreSqlCheckConstraint(this, constraintName, definition);
@@ -709,7 +709,7 @@ where t.relname = @TableName and ns.nspname = @SchemaName";
             {
                 var parentTableName = new Identifier(fkey.Key.ParentSchemaName, fkey.Key.ParentTableName);
                 var parentTable = Database.GetTable(parentTableName);
-                var parentKeyName = new LocalIdentifier(fkey.Key.ParentKeyName);
+                var parentKeyName = new Identifier(fkey.Key.ParentKeyName);
 
                 IDatabaseKey parentKey;
                 if (fkey.Key.KeyType == "p")
@@ -722,7 +722,7 @@ where t.relname = @TableName and ns.nspname = @SchemaName";
                     parentKey = uniqueKeys[parentKeyName.LocalName];
                 }
 
-                var childKeyName = new LocalIdentifier(fkey.Key.ChildKeyName);
+                var childKeyName = new Identifier(fkey.Key.ChildKeyName);
                 var childKeyColumnLookup = Column;
                 var childKeyColumns = fkey
                     .OrderBy(row => row.ConstraintColumnId)
@@ -799,7 +799,7 @@ where t.relname = @TableName and ns.nspname = @SchemaName";
             {
                 var parentTableName = new Identifier(fkey.Key.ParentSchemaName, fkey.Key.ParentTableName);
                 var parentTable = await Database.GetTableAsync(parentTableName).ConfigureAwait(false);
-                var parentKeyName = new LocalIdentifier(fkey.Key.ParentKeyName);
+                var parentKeyName = new Identifier(fkey.Key.ParentKeyName);
 
                 IDatabaseKey parentKey;
                 if (fkey.Key.KeyType == "p")
@@ -812,7 +812,7 @@ where t.relname = @TableName and ns.nspname = @SchemaName";
                     parentKey = uniqueKeys[parentKeyName.LocalName];
                 }
 
-                var childKeyName = new LocalIdentifier(fkey.Key.ChildKeyName);
+                var childKeyName = new Identifier(fkey.Key.ChildKeyName);
                 var childKeyColumnLookup = await ColumnAsync().ConfigureAwait(false);
                 var childKeyColumns = fkey
                     .OrderBy(row => row.ConstraintColumnId)
@@ -911,7 +911,7 @@ order by ordinal_position";
                 };
 
                 var columnType = TypeProvider.CreateColumnType(typeMetadata);
-                var columnName = new LocalIdentifier(row.column_name);
+                var columnName = new Identifier(row.column_name);
 
                 var isAutoIncrement = !row.serial_sequence_schema_name.IsNullOrWhiteSpace() && !row.serial_sequence_local_name.IsNullOrWhiteSpace();
                 var autoIncrement = isAutoIncrement
@@ -976,7 +976,7 @@ order by ordinal_position";
                 };
 
                 var columnType = TypeProvider.CreateColumnType(typeMetadata);
-                var columnName = new LocalIdentifier(row.column_name);
+                var columnName = new Identifier(row.column_name);
 
                 var isAutoIncrement = !row.serial_sequence_schema_name.IsNullOrWhiteSpace() && !row.serial_sequence_local_name.IsNullOrWhiteSpace();
                 var autoIncrement = isAutoIncrement
@@ -1050,7 +1050,7 @@ where t.relkind = 'r'
             var result = new List<IDatabaseTrigger>(triggers.Count);
             foreach (var trig in triggers)
             {
-                var triggerName = new LocalIdentifier(trig.Key.TriggerName);
+                var triggerName = new Identifier(trig.Key.TriggerName);
                 var queryTiming = Enum.TryParse(trig.Key.Timing, true, out TriggerQueryTiming timing) ? timing : TriggerQueryTiming.Before;
                 var definition = trig.Key.Definition;
 
@@ -1104,7 +1104,7 @@ where t.relkind = 'r'
             var result = new List<IDatabaseTrigger>(triggers.Count);
             foreach (var trig in triggers)
             {
-                var triggerName = new LocalIdentifier(trig.Key.TriggerName);
+                var triggerName = new Identifier(trig.Key.TriggerName);
                 var queryTiming = Enum.TryParse(trig.Key.Timing, true, out TriggerQueryTiming timing) ? timing : TriggerQueryTiming.Before;
                 var definition = trig.Key.Definition;
 

@@ -65,7 +65,7 @@ namespace SJP.Schematic.Core.Tests
             databaseMock.Setup(d => d.DefaultSchema).Returns("c");
             var database = databaseMock.Object;
 
-            var synonymName = new LocalIdentifier("synonym_test_synonym_1");
+            var synonymName = new Identifier("synonym_test_synonym_1");
             var expectedSynonymName = new Identifier(database.ServerName, database.DatabaseName, database.DefaultSchema, "synonym_test_synonym_1");
             const string targetName = "synonym_test_synonym_1";
 
@@ -133,7 +133,7 @@ namespace SJP.Schematic.Core.Tests
             var database = databaseMock.Object;
 
             const string synonymName = "synonym_test_synonym_1";
-            var targetName = new LocalIdentifier("synonym_test_synonym_1");
+            var targetName = new Identifier("synonym_test_synonym_1");
             var expectedTargetName = new Identifier(database.ServerName, database.DatabaseName, database.DefaultSchema, "synonym_test_synonym_1");
 
             var synonym = new DatabaseSynonym(database, synonymName, targetName);

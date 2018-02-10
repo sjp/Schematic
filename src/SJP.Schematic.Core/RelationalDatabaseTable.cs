@@ -20,7 +20,7 @@ namespace SJP.Schematic.Core
             IEnumerable<IDatabaseTrigger> triggers,
             IEqualityComparer<Identifier> comparer = null)
         {
-            if (tableName == null || tableName.LocalName == null)
+            if (tableName == null)
                 throw new ArgumentNullException(nameof(tableName));
             if (columns == null || columns.AnyNull())
                 throw new ArgumentNullException(nameof(columns));

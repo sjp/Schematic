@@ -15,7 +15,7 @@ namespace SJP.Schematic.Core
             int cacheSize
         )
         {
-            if (sequenceName == null || sequenceName.LocalName == null)
+            if (sequenceName == null)
                 throw new ArgumentNullException(nameof(sequenceName));
 
             Database = database ?? throw new ArgumentNullException(nameof(database));

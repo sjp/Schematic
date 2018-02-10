@@ -340,16 +340,9 @@ namespace SJP.Schematic.MySql.Tests.Integration
             }
 
             [Test]
-            public void SequenceExists_GivenInvalidSequenceName_ThrowsArgumentNullException()
-            {
-                var schemaName = new SchemaIdentifier("asd");
-                Assert.Throws<ArgumentNullException>(() => Database.SequenceExists(schemaName));
-            }
-
-            [Test]
             public void SequenceExists_GivenValidSequenceName_ReturnsFalse()
             {
-                var sequenceName = new LocalIdentifier("asd");
+                var sequenceName = new Identifier("asd");
                 var sequenceExists = Database.SequenceExists(sequenceName);
 
                 Assert.IsFalse(sequenceExists);
@@ -362,16 +355,9 @@ namespace SJP.Schematic.MySql.Tests.Integration
             }
 
             [Test]
-            public void GetSequence_GivenInvalidSequenceName_ThrowsArgumentNullException()
-            {
-                var schemaName = new SchemaIdentifier("asd");
-                Assert.Throws<ArgumentNullException>(() => Database.GetSequence(schemaName));
-            }
-
-            [Test]
             public void GetSequence_GivenValidSequenceName_ReturnsNull()
             {
-                var sequenceName = new LocalIdentifier("asd");
+                var sequenceName = new Identifier("asd");
                 var sequence = Database.GetSequence(sequenceName);
 
                 Assert.IsNull(sequence);
@@ -393,16 +379,9 @@ namespace SJP.Schematic.MySql.Tests.Integration
             }
 
             [Test]
-            public void SequenceExistsAsync_GivenInvalidSequenceName_ThrowsArgumentNullException()
-            {
-                var schemaName = new SchemaIdentifier("asd");
-                Assert.Throws<ArgumentNullException>(() => Database.SequenceExistsAsync(schemaName));
-            }
-
-            [Test]
             public async Task SequenceExistsAsync_GivenValidSequenceName_ReturnsFalse()
             {
-                var sequenceName = new LocalIdentifier("asd");
+                var sequenceName = new Identifier("asd");
                 var sequenceExists = await Database.SequenceExistsAsync(sequenceName).ConfigureAwait(false);
 
                 Assert.IsFalse(sequenceExists);
@@ -415,16 +394,9 @@ namespace SJP.Schematic.MySql.Tests.Integration
             }
 
             [Test]
-            public void GetSequenceAsync_GivenInvalidSequenceName_ThrowsArgumentNullException()
-            {
-                var schemaName = new SchemaIdentifier("asd");
-                Assert.Throws<ArgumentNullException>(() => Database.GetSequenceAsync(schemaName));
-            }
-
-            [Test]
             public async Task GetSequenceAsync_GivenValidSequenceName_ReturnsNull()
             {
-                var sequenceName = new LocalIdentifier("asd");
+                var sequenceName = new Identifier("asd");
                 var sequence = await Database.GetSequenceAsync(sequenceName).ConfigureAwait(false);
 
                 Assert.IsNull(sequence);
@@ -452,16 +424,9 @@ namespace SJP.Schematic.MySql.Tests.Integration
             }
 
             [Test]
-            public void SynonymExists_GivenInvalidSynonymName_ThrowsArgumentNullException()
-            {
-                var schemaName = new SchemaIdentifier("asd");
-                Assert.Throws<ArgumentNullException>(() => Database.SynonymExists(schemaName));
-            }
-
-            [Test]
             public void SynonymExists_GivenValidSynonymName_ReturnsFalse()
             {
-                var synonymName = new LocalIdentifier("asd");
+                var synonymName = new Identifier("asd");
                 var synonymExists = Database.SynonymExists(synonymName);
 
                 Assert.IsFalse(synonymExists);
@@ -474,16 +439,9 @@ namespace SJP.Schematic.MySql.Tests.Integration
             }
 
             [Test]
-            public void GetSynonym_GivenInvalidSynonymName_ThrowsArgumentNullException()
-            {
-                var schemaName = new SchemaIdentifier("asd");
-                Assert.Throws<ArgumentNullException>(() => Database.GetSynonym(schemaName));
-            }
-
-            [Test]
             public void GetSynonym_GivenValidSynonymName_ReturnsNull()
             {
-                var synonymName = new LocalIdentifier("asd");
+                var synonymName = new Identifier("asd");
                 var synonym = Database.GetSynonym(synonymName);
 
                 Assert.IsNull(synonym);
@@ -505,16 +463,9 @@ namespace SJP.Schematic.MySql.Tests.Integration
             }
 
             [Test]
-            public void SynonymExistsAsync_GivenInvalidSynonymName_ThrowsArgumentNullException()
-            {
-                var schemaName = new SchemaIdentifier("asd");
-                Assert.Throws<ArgumentNullException>(() => Database.SynonymExistsAsync(schemaName));
-            }
-
-            [Test]
             public async Task SynonymExistsAsync_GivenValidSynonymName_ReturnsFalse()
             {
-                var synonymName = new LocalIdentifier("asd");
+                var synonymName = new Identifier("asd");
                 var synonymExists = await Database.SynonymExistsAsync(synonymName).ConfigureAwait(false);
 
                 Assert.IsFalse(synonymExists);
@@ -527,16 +478,9 @@ namespace SJP.Schematic.MySql.Tests.Integration
             }
 
             [Test]
-            public void GetSynonymAsync_GivenInvalidSynonymName_ThrowsArgumentNullException()
-            {
-                var schemaName = new SchemaIdentifier("asd");
-                Assert.Throws<ArgumentNullException>(() => Database.GetSynonymAsync(schemaName));
-            }
-
-            [Test]
             public async Task GetSynonymAsync_GivenValidSynonymName_ReturnsNull()
             {
-                var synonymName = new LocalIdentifier("asd");
+                var synonymName = new Identifier("asd");
                 var synonym = await Database.GetSynonymAsync(synonymName).ConfigureAwait(false);
 
                 Assert.IsNull(synonym);

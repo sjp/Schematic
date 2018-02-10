@@ -56,7 +56,7 @@ namespace SJP.Schematic.SqlServer
 
         protected bool GetIsFixedLength(Identifier typeName)
         {
-            if (typeName == null || typeName.LocalName == null)
+            if (typeName == null)
                 throw new ArgumentNullException(nameof(typeName));
 
             return _fixedLengthTypes.Contains(typeName);
@@ -158,7 +158,7 @@ namespace SJP.Schematic.SqlServer
 
         protected DataType GetDataType(Identifier typeName)
         {
-            if (typeName == null || typeName.LocalName == null)
+            if (typeName == null)
                 throw new ArgumentNullException(nameof(typeName));
 
             return _stringToDataTypeMap.ContainsKey(typeName)
@@ -168,7 +168,7 @@ namespace SJP.Schematic.SqlServer
 
         protected Type GetClrType(Identifier typeName)
         {
-            if (typeName == null || typeName.LocalName == null)
+            if (typeName == null)
                 throw new ArgumentNullException(nameof(typeName));
 
             return _stringToClrTypeMap.ContainsKey(typeName)

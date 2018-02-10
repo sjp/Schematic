@@ -23,7 +23,7 @@ namespace SJP.Schematic.SqlServer
         /// <remarks>This will also return unqualified identifiers, which may cause ambiguity between object names and column names. Additionally it may return other identifiers, such as aliases or type names.</remarks>
         public IEnumerable<Identifier> GetDependencies(Identifier objectName, string expression)
         {
-            if (objectName == null || objectName.LocalName == null)
+            if (objectName == null)
                 throw new ArgumentNullException(nameof(objectName));
             if (expression.IsNullOrWhiteSpace())
                 throw new ArgumentNullException(nameof(expression));

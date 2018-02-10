@@ -34,16 +34,6 @@ namespace SJP.Schematic.DataAccess.Tests
         }
 
         [Test]
-        public void GetFilePath_GivenNullLocalName_ThrowsArgumentNullException()
-        {
-            var nameProvider = new VerbatimNameProvider();
-            var generator = new FakeDatabaseTableGenerator(nameProvider);
-            var baseDir = new DirectoryInfo(Environment.CurrentDirectory);
-
-            Assert.Throws<ArgumentNullException>(() => generator.InnerGetFilePath(baseDir, new SchemaIdentifier("test")));
-        }
-
-        [Test]
         public void GetFilePath_GivenNameWithOnlyLocalName_ReturnsExpectedPath()
         {
             var nameProvider = new VerbatimNameProvider();

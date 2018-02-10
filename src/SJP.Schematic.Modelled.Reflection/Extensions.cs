@@ -177,7 +177,7 @@ namespace SJP.Schematic.Modelled.Reflection
 
             var localName = dialect.GetAliasOrDefault(type);
             return schemaName.IsNullOrWhiteSpace()
-                ? new LocalIdentifier(localName)
+                ? new Identifier(localName)
                 : new Identifier(schemaName, localName);
         }
     }

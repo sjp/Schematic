@@ -30,7 +30,7 @@ namespace SJP.Schematic.DataAccess
         /// <returns>A class name.</returns>
         public override string TableToClassName(Identifier tableName)
         {
-            if (tableName == null || tableName.LocalName == null)
+            if (tableName == null)
                 throw new ArgumentNullException(nameof(tableName));
 
             return CreateValidIdentifier(tableName.LocalName);
@@ -43,7 +43,7 @@ namespace SJP.Schematic.DataAccess
         /// <returns>A class name.</returns>
         public override string ViewToClassName(Identifier viewName)
         {
-            if (viewName == null || viewName.LocalName == null)
+            if (viewName == null)
                 throw new ArgumentNullException(nameof(viewName));
 
             return CreateValidIdentifier(viewName.LocalName);
