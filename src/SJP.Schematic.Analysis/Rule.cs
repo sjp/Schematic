@@ -22,6 +22,6 @@ namespace SJP.Schematic.Analysis
 
         public string Title { get; }
 
-        public abstract IEnumerable<RuleMessage> AnalyseDatabase(IRelationalDatabase database);
+        public abstract IEnumerable<IRuleMessage> AnalyseDatabase(IRelationalDatabase database);
     }
 }

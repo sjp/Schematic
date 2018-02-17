@@ -4,16 +4,16 @@ using System.Linq;
 using System.Text;
 using SJP.Schematic.Core;
 
-namespace SJP.Schematic.Analysis
+namespace SJP.Schematic.Analysis.Rules
 {
     public class ForeignKeyIndexRule : Rule
     {
-        protected ForeignKeyIndexRule(RuleLevel level)
+        public ForeignKeyIndexRule(RuleLevel level)
             : base(RuleTitle, level)
         {
         }
 
-        public override IEnumerable<RuleMessage> AnalyseDatabase(IRelationalDatabase database)
+        public override IEnumerable<IRuleMessage> AnalyseDatabase(IRelationalDatabase database)
         {
             if (database == null)
                 throw new ArgumentNullException(nameof(database));
@@ -21,12 +21,12 @@ namespace SJP.Schematic.Analysis
             return database.Tables.SelectMany(AnalyseTable).ToList();
         }
 
-        protected IEnumerable<RuleMessage> AnalyseTable(IRelationalDatabaseTable table)
+        protected IEnumerable<IRuleMessage> AnalyseTable(IRelationalDatabaseTable table)
         {
             if (table == null)
                 throw new ArgumentNullException(nameof(table));
 
-            var result = new List<RuleMessage>();
+            var result = new List<IRuleMessage>();
 
             var indexes = table.Indexes.ToList();
             var foreignKeys = table.ParentKeys.Select(fk => fk.ChildKey).ToList();
@@ -92,13 +92,13 @@ namespace SJP.Schematic.Analysis
             if (columns.Skip(1).Any())
                 builder.Append("s");
 
-            var columnNames = columns.Select(c => c.ToString()).Join(", ");
+            var columnNames = columns.Select(c => c.Name.ToString()).Join(", ");
             builder.Append(" ")
                 .Append(columnNames);
 
             return builder.ToString();
         }
 
-        private const string RuleTitle = "Indexes missing on foreign key";
+        private const string RuleTitle = "Indexes missing on foreign key.";
     }
 }

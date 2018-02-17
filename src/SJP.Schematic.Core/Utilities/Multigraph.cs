@@ -282,7 +282,7 @@ namespace SJP.Schematic.Core.Utilities
                         // Throw an exception
                         if (formatCycle == null)
                         {
-                            throw new InvalidOperationException($"Unable to save changes because a circular dependency was detected in the data to be saved: '{ cycle.Select(ToString).Join(" -> ") }'.");
+                            throw new InvalidOperationException($"Unable to add relationship because a circular dependency was detected: '{ cycle.Select(ToString).Join(" -> ") }'.");
                         }
                         // Build the cycle message data
                         currentCycleVertex = cycle[0];
@@ -293,7 +293,7 @@ namespace SJP.Schematic.Core.Utilities
                             cycleData.Add(Tuple.Create(currentCycleVertex, vertex, GetEdges(currentCycleVertex, vertex)));
                             currentCycleVertex = vertex;
                         }
-                        throw new InvalidOperationException($"Unable to save changes because a circular dependency was detected in the data to be saved: '{ formatCycle(cycleData) }'.");
+                        throw new InvalidOperationException($"Unable to add relationship because a circular dependency was detected: '{ formatCycle(cycleData) }'.");
                     }
                 }
             }
@@ -419,7 +419,7 @@ namespace SJP.Schematic.Core.Utilities
                 // Throw an exception
                 if (formatCycle == null)
                 {
-                    throw new InvalidOperationException($"Unable to save changes because a circular dependency was detected in the data to be saved: '{ cycle.Select(ToString).Join(" -> ") }'.");
+                    throw new InvalidOperationException($"Unable to add relationship because a circular dependency was detected: '{ cycle.Select(ToString).Join(" -> ") }'.");
                 }
                 // Build the cycle message data
                 currentCycleVertex = cycle[0];
@@ -430,7 +430,7 @@ namespace SJP.Schematic.Core.Utilities
                     cycleData.Add(Tuple.Create(currentCycleVertex, vertex, GetEdges(currentCycleVertex, vertex)));
                     currentCycleVertex = vertex;
                 }
-                throw new InvalidOperationException($"Unable to save changes because a circular dependency was detected in the data to be saved: '{ formatCycle(cycleData) }'.");
+                throw new InvalidOperationException($"Unable to add relationship because a circular dependency was detected: '{ formatCycle(cycleData) }'.");
             }
 
             return result;

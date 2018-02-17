@@ -9,6 +9,6 @@ namespace SJP.Schematic.Analysis
 
         string Title { get; }
 
-        IEnumerable<RuleMessage> AnalyseDatabase(IRelationalDatabase database);
+        IEnumerable<IRuleMessage> AnalyseDatabase(IRelationalDatabase database);
     }
 }
