@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using SJP.Schematic.Core;
 
-namespace SJP.Schematic.Analysis
+namespace SJP.Schematic.Lint
 {
     public interface IRule
     {

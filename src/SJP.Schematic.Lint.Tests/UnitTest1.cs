@@ -1,7 +1,7 @@
 ﻿using System;
 using NUnit.Framework;
 
-namespace SJP.Schematic.Analysis.Tests
+namespace SJP.Schematic.Lint.Tests
 {
     [TestFixture]
     public class UnitTest1

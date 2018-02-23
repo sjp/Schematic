@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using SJP.Schematic.Core;
 
-namespace SJP.Schematic.Analysis.Rules
+namespace SJP.Schematic.Lint.Rules
 {
     public class UniqueIndexWithNullableColumnsRule : Rule
     {

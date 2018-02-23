@@ -1,4 +1,4 @@
-﻿namespace SJP.Schematic.Analysis
+﻿namespace SJP.Schematic.Lint
 {
     public interface IRuleMessage
     {

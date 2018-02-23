@@ -4,20 +4,14 @@ using System.Linq;
 using System.Text;
 using SJP.Schematic.Core;
 
-namespace SJP.Schematic.Analysis.Rules
+namespace SJP.Schematic.Lint.Rules
 {
-    public class TooManyColumnsRule : Rule
+    public class CandidateKeyMissingRule : Rule
     {
-        public TooManyColumnsRule(RuleLevel level, uint columnLimit = 100)
+        protected CandidateKeyMissingRule(RuleLevel level)
             : base(RuleTitle, level)
         {
-            if (columnLimit == 0)
-                throw new ArgumentOutOfRangeException("The column limit must be at least 1.", nameof(columnLimit));
-
-            ColumnLimit = columnLimit;
         }
-
-        protected uint ColumnLimit { get; }
 
         public override IEnumerable<IRuleMessage> AnalyseDatabase(IRelationalDatabase database)
         {
@@ -32,16 +26,15 @@ namespace SJP.Schematic.Analysis.Rules
             if (table == null)
                 throw new ArgumentNullException(nameof(table));
 
-            var columnCount = table.Columns.Count;
-            if (columnCount < ColumnLimit)
+            if (table.PrimaryKey != null || table.UniqueKeys.Any())
                 return Enumerable.Empty<IRuleMessage>();
 
-            var messageText = $"The table { table.Name } has too many columns. It has { columnCount.ToString() } columns.";
+            var messageText = $"The table { table.Name } has no candidate (primary or unique) keys. Consider adding one to ensure records are unique.";
             var ruleMessage = new RuleMessage(RuleTitle, Level, messageText);
 
             return new[] { ruleMessage };
         }
 
-        private const string RuleTitle = "Too many columns present on the table.";
+        private const string RuleTitle = "Table missing a candidate (primary or unique) key.";
     }
 }

@@ -6,7 +6,7 @@ using System.Text;
 using Dapper;
 using SJP.Schematic.Core;
 
-namespace SJP.Schematic.Analysis.Rules
+namespace SJP.Schematic.Lint.Rules
 {
     public class NumericValuesForTextRule : Rule
     {

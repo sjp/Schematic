@@ -2,7 +2,7 @@
 using EnumsNET;
 using SJP.Schematic.Core;
 
-namespace SJP.Schematic.Analysis
+namespace SJP.Schematic.Lint
 {
     public class RuleMessage : IRuleMessage
     {

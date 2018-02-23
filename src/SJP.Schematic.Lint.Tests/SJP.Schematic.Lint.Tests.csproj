@@ -14,7 +14,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\SJP.Schematic.Analysis\SJP.Schematic.Analysis.csproj" />
+    <ProjectReference Include="..\SJP.Schematic.Lint\SJP.Schematic.Lint.csproj" />
   </ItemGroup>
 
   <ItemGroup>

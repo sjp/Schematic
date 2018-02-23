@@ -4,11 +4,11 @@ using System.Linq;
 using System.Text;
 using SJP.Schematic.Core;
 
-namespace SJP.Schematic.Analysis.Rules
+namespace SJP.Schematic.Lint.Rules
 {
-    public class PrimaryKeyColumnNotFirstColumnRule : Rule
+    public class PrimaryKeyNotIntegerRule : Rule
     {
-        public PrimaryKeyColumnNotFirstColumnRule(RuleLevel level)
+        public PrimaryKeyNotIntegerRule(RuleLevel level)
             : base(RuleTitle, level)
         {
         }
@@ -31,24 +31,24 @@ namespace SJP.Schematic.Analysis.Rules
                 return Enumerable.Empty<IRuleMessage>();
 
             var pkColumns = primaryKey.Columns.ToList();
-            if (pkColumns.Count != 1)
+            if (pkColumns.Count == 1 && ColumnIsInteger(pkColumns[0]))
                 return Enumerable.Empty<IRuleMessage>();
 
-            var tableColumns = table.Columns;
-            if (tableColumns.Count == 0)
-                return Enumerable.Empty<IRuleMessage>();
-
-            var pkColumnName = pkColumns[0].Name;
-            var firstColumnName = table.Columns[0].Name;
-            if (pkColumnName == firstColumnName)
-                return Enumerable.Empty<IRuleMessage>();
-
-            var messageText = $"The table { table.Name } has a primary key whose column is the first column in the table.";
+            var messageText = $"The table { table.Name } has a primary key whose column is not an integer.";
             var ruleMessage = new RuleMessage(RuleTitle, Level, messageText);
 
             return new[] { ruleMessage };
         }
 
-        private const string RuleTitle = "Table primary key whose only column is not the first column in the table.";
+        protected static bool ColumnIsInteger(IDatabaseColumn column)
+        {
+            if (column == null)
+                throw new ArgumentNullException(nameof(column));
+
+            var integerTypes = new[] { DataType.BigInteger, DataType.Integer, DataType.SmallInteger };
+            return integerTypes.Contains(column.Type.DataType);
+        }
+
+        private const string RuleTitle = "Table contains a non-integer primary key.";
     }
 }

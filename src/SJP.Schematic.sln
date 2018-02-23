@@ -47,9 +47,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SJP.Schematic.DataAccess.Po
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SJP.Schematic.DataAccess.OrmLite.Tests", "SJP.Schematic.DataAccess.OrmLite.Tests\SJP.Schematic.DataAccess.OrmLite.Tests.csproj", "{CB001666-FFB4-4F52-B5AA-9301B069273F}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SJP.Schematic.Analysis", "SJP.Schematic.Analysis\SJP.Schematic.Analysis.csproj", "{1BC3631E-9928-4A79-9A82-91A0675E6486}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SJP.Schematic.Lint", "SJP.Schematic.Lint\SJP.Schematic.Lint.csproj", "{1BC3631E-9928-4A79-9A82-91A0675E6486}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SJP.Schematic.Analysis.Tests", "SJP.Schematic.Analysis.Tests\SJP.Schematic.Analysis.Tests.csproj", "{C4EB5A97-07DB-4ABD-BCDF-5D69B539532F}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SJP.Schematic.Lint.Tests", "SJP.Schematic.Lint.Tests\SJP.Schematic.Lint.Tests.csproj", "{C4EB5A97-07DB-4ABD-BCDF-5D69B539532F}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

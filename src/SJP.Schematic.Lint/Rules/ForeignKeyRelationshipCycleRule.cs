@@ -5,7 +5,7 @@ using System.Text;
 using SJP.Schematic.Core;
 using SJP.Schematic.Core.Utilities;
 
-namespace SJP.Schematic.Analysis.Rules
+namespace SJP.Schematic.Lint.Rules
 {
     public class ForeignKeyRelationshipCycleRule : Rule
     {

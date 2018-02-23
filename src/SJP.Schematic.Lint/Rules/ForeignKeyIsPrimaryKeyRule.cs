@@ -3,13 +3,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using SJP.Schematic.Core;
-using SJP.Schematic.Core.Utilities;
 
-namespace SJP.Schematic.Analysis.Rules
+namespace SJP.Schematic.Lint.Rules
 {
-    public class ForeignKeyColumnTypeMismatchRule : Rule
+    public class ForeignKeyIsPrimaryKeyRule : Rule
     {
-        protected ForeignKeyColumnTypeMismatchRule(RuleLevel level)
+        protected ForeignKeyIsPrimaryKeyRule(RuleLevel level)
             : base(RuleTitle, level)
         {
         }
@@ -32,14 +31,19 @@ namespace SJP.Schematic.Analysis.Rules
             var foreignKeys = table.ParentKeys.ToList();
             foreach (var foreignKey in foreignKeys)
             {
+                var childTableName = foreignKey.ChildKey.Table.Name;
+                var parentTableName = foreignKey.ParentKey.Table.Name;
+                if (childTableName != parentTableName)
+                    continue;
+
                 var childColumns = foreignKey.ChildKey.Columns;
                 var parentColumns = foreignKey.ParentKey.Columns;
 
-                var childColumnsInfo = childColumns.Select(c => new { c.Type.DataType, c.Type.MaxLength }).ToList();
-                var parentColumnsInfo = parentColumns.Select(c => new { c.Type.DataType, c.Type.MaxLength }).ToList();
+                var childColumnNames = childColumns.Select(c => c.Name).ToList();
+                var parentColumnNames = parentColumns.Select(c => c.Name).ToList();
 
-                var columnsEqual = childColumnsInfo.SequenceEqual(parentColumnsInfo);
-                if (columnsEqual)
+                var columnsEqual = childColumnNames.SequenceEqual(parentColumnNames);
+                if (!columnsEqual)
                     continue;
 
                 var fkName = foreignKey.ChildKey.Name?.ToString() ?? string.Empty;
@@ -52,11 +56,9 @@ namespace SJP.Schematic.Analysis.Rules
                         .Append("'");
                 }
 
-                builder.Append(" from ")
+                builder.Append(" on ")
                     .Append(foreignKey.ChildKey.Table.Name)
-                    .Append(" to ")
-                    .Append(foreignKey.ParentKey.Table.Name)
-                    .Append(" contains mismatching column types. These should be the same in order to ensure that foreign keys can always hold the same information as the target key.");
+                    .Append(" contains the same column set as the target key.");
 
                 var ruleMessage = new RuleMessage(RuleTitle, Level, builder.ToString());
                 result.Add(ruleMessage);
@@ -65,6 +67,6 @@ namespace SJP.Schematic.Analysis.Rules
             return result;
         }
 
-        private const string RuleTitle = "Foreign key relationships contain mismatching types.";
+        private const string RuleTitle = "Foreign key relationships contains the same columns as the target key.";
     }
 }
