@@ -31,68 +31,77 @@ namespace SJP.Schematic.Analysis.Rules
             var indexes = table.Indexes.ToList();
             foreach (var index in indexes)
             {
-                var indexColumnList = index.Columns.SelectMany(c => c.DependentColumns).Select(c => c.Name);
+                var indexColumnList = index.Columns
+                    .SelectMany(c => c.DependentColumns)
+                    .Select(c => c.Name);
 
                 var otherIndexes = indexes.Where(i => i.Name != index.Name);
                 foreach (var otherIndex in otherIndexes)
                 {
-                    var otherIndexColumnList = otherIndex.Columns.SelectMany(c => c.DependentColumns).Select(c => c.Name);
-                }
+                    var otherIndexColumnList = otherIndex.Columns
+                        .SelectMany(c => c.DependentColumns)
+                        .Select(c => c.Name);
 
-                //TODO add code to check whether a column list is a prefix of another
+                    var isPrefix = IsPrefixOf(indexColumnList, otherIndexColumnList);
+                    if (isPrefix)
+                    {
+                        var messageText = BuildMessage(table.Name, index, otherIndex);
+                        var ruleMessage = new RuleMessage(Title, Level, messageText);
+                        result.Add(ruleMessage);
+                    }
+                }
             }
 
             return result;
         }
 
-        protected static bool ColumnsHaveIndex(IEnumerable<IDatabaseColumn> columns, IEnumerable<IDatabaseIndexColumn> indexColumns)
+        protected static bool IsPrefixOf<T>(IEnumerable<T> prefixSet, IEnumerable<T> superSet)
         {
-            if (columns == null)
-                throw new ArgumentNullException(nameof(columns));
-            if (indexColumns == null)
-                throw new ArgumentNullException(nameof(indexColumns));
+            if (prefixSet == null)
+                throw new ArgumentNullException(nameof(prefixSet));
+            if (superSet == null)
+                throw new ArgumentNullException(nameof(superSet));
 
-            var columnList = columns.ToList();
-            var dependentColumns = indexColumns.SelectMany(ic => ic.DependentColumns).ToList();
+            var prefixSetList = prefixSet.ToList();
+            if (prefixSetList.Count == 0)
+                throw new ArgumentException("The given prefix set contained no values.", nameof(prefixSet));
 
-            // can only check for regular indexes, not functional ones (functions may be composed of multiple columns)
-            if (columnList.Count != dependentColumns.Count)
+            var superSetList = superSet.ToList();
+            if (superSetList.Count == 0)
+                throw new ArgumentException("The given super set contained no values.", nameof(superSet));
+
+            if (prefixSetList.Count > superSetList.Count)
                 return false;
 
-            var columnNames = columnList.Select(c => c.Name).ToList();
-            var indexColumnNames = dependentColumns.Select(ic => ic.Name).ToList();
+            if (superSetList.Count > prefixSetList.Count)
+                superSetList = superSetList.Take(prefixSetList.Count).ToList();
 
-            var comparer = IdentifierComparer.OrdinalIgnoreCase;
-            return columnNames.SequenceEqual(indexColumnNames, comparer);
+            return prefixSetList.SequenceEqual(superSetList);
         }
 
-        protected static string BuildMessage(Identifier tableName, Identifier foreignKeyName, IEnumerable<IDatabaseColumn> columns)
+        protected static string BuildMessage(Identifier tableName, IDatabaseTableIndex redundantIndex, IDatabaseTableIndex otherIndex)
         {
             if (tableName == null)
                 throw new ArgumentNullException(nameof(tableName));
-            if (columns == null || columns.Empty())
-                throw new ArgumentNullException(nameof(columns));
+            if (redundantIndex == null)
+                throw new ArgumentNullException(nameof(redundantIndex));
+            if (otherIndex == null)
+                throw new ArgumentNullException(nameof(otherIndex));
+
+            var redundantIndexColumns = redundantIndex.Columns
+                .SelectMany(c => c.DependentColumns)
+                .Select(c => c.Name.LocalName)
+                .Join(", ");
 
             var builder = new StringBuilder("The table ")
                 .Append(tableName.ToString())
-                .Append(" has a foreign key ");
-
-            if (foreignKeyName != null)
-            {
-                builder.Append("'")
-                    .Append(foreignKeyName.LocalName)
-                    .Append("' ");
-            }
-
-            builder.Append("which is missing an index on the column");
-
-            // plural check
-            if (columns.Skip(1).Any())
-                builder.Append("s");
-
-            var columnNames = columns.Select(c => c.Name.ToString()).Join(", ");
-            builder.Append(" ")
-                .Append(columnNames);
+                .Append(" has an index '")
+                .Append(redundantIndex.Name.LocalName)
+                .Append("' which may be redundant, as its column set (")
+                .Append(redundantIndexColumns)
+                .Append(") is the prefix of another index '")
+                .Append(otherIndex.Name.LocalName)
+                .Append("'.");
 
             return builder.ToString();
         }
