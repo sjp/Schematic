@@ -43,11 +43,7 @@ namespace SJP.Schematic.Core
             return $"\"{ identifier.Replace("\"", "\"\"") }\"";
         }
 
-        public abstract bool IsValidColumnName(Identifier name);
-
-        public abstract bool IsValidConstraintName(Identifier name);
-
-        public abstract bool IsValidObjectName(Identifier name);
+        public abstract bool IsReservedKeyword(string text);
 
         public abstract IDbTypeProvider TypeProvider { get; }
     }

@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Data;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Data.Sqlite;
@@ -23,20 +25,142 @@ namespace SJP.Schematic.Sqlite
             return connection;
         }
 
-        public override bool IsValidColumnName(Identifier name)
+        public override bool IsReservedKeyword(string text)
         {
-            throw new NotImplementedException();
+            if (text.IsNullOrWhiteSpace())
+                throw new ArgumentNullException(nameof(text));
+
+            return _keywords.Contains(text);
         }
 
-        public override bool IsValidConstraintName(Identifier name)
+        // https://www.sqlite.org/lang_keywords.html
+        private readonly static IEnumerable<string> _keywords = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
         {
-            throw new NotImplementedException();
-        }
-
-        public override bool IsValidObjectName(Identifier name)
-        {
-            throw new NotImplementedException();
-        }
+            "ABORT",
+            "ACTION",
+            "ADD",
+            "AFTER",
+            "ALL",
+            "ALTER",
+            "ANALYZE",
+            "AND",
+            "AS",
+            "ASC",
+            "ATTACH",
+            "AUTOINCREMENT",
+            "BEFORE",
+            "BEGIN",
+            "BETWEEN",
+            "BY",
+            "CASCADE",
+            "CASE",
+            "CAST",
+            "CHECK",
+            "COLLATE",
+            "COLUMN",
+            "COMMIT",
+            "CONFLICT",
+            "CONSTRAINT",
+            "CREATE",
+            "CROSS",
+            "CURRENT_DATE",
+            "CURRENT_TIME",
+            "CURRENT_TIMESTAMP",
+            "DATABASE",
+            "DEFAULT",
+            "DEFERRABLE",
+            "DEFERRED",
+            "DELETE",
+            "DESC",
+            "DETACH",
+            "DISTINCT",
+            "DROP",
+            "EACH",
+            "ELSE",
+            "END",
+            "ESCAPE",
+            "EXCEPT",
+            "EXCLUSIVE",
+            "EXISTS",
+            "EXPLAIN",
+            "FAIL",
+            "FOR",
+            "FOREIGN",
+            "FROM",
+            "FULL",
+            "GLOB",
+            "GROUP",
+            "HAVING",
+            "IF",
+            "IGNORE",
+            "IMMEDIATE",
+            "IN",
+            "INDEX",
+            "INDEXED",
+            "INITIALLY",
+            "INNER",
+            "INSERT",
+            "INSTEAD",
+            "INTERSECT",
+            "INTO",
+            "IS",
+            "ISNULL",
+            "JOIN",
+            "KEY",
+            "LEFT",
+            "LIKE",
+            "LIMIT",
+            "MATCH",
+            "NATURAL",
+            "NO",
+            "NOT",
+            "NOTNULL",
+            "NULL",
+            "OF",
+            "OFFSET",
+            "ON",
+            "OR",
+            "ORDER",
+            "OUTER",
+            "PLAN",
+            "PRAGMA",
+            "PRIMARY",
+            "QUERY",
+            "RAISE",
+            "RECURSIVE",
+            "REFERENCES",
+            "REGEXP",
+            "REINDEX",
+            "RELEASE",
+            "RENAME",
+            "REPLACE",
+            "RESTRICT",
+            "RIGHT",
+            "ROLLBACK",
+            "ROW",
+            "SAVEPOINT",
+            "SELECT",
+            "SET",
+            "TABLE",
+            "TEMP",
+            "TEMPORARY",
+            "THEN",
+            "TO",
+            "TRANSACTION",
+            "TRIGGER",
+            "UNION",
+            "UNIQUE",
+            "UPDATE",
+            "USING",
+            "VACUUM",
+            "VALUES",
+            "VIEW",
+            "VIRTUAL",
+            "WHEN",
+            "WHERE",
+            "WITH",
+            "WITHOUT"
+        };
 
         public override string QuoteName(Identifier name)
         {

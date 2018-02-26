@@ -11,11 +11,7 @@ namespace SJP.Schematic.Modelled.Reflection.Tests.Fakes
 
         public override Task<IDbConnection> CreateConnectionAsync(string connectionString, CancellationToken cancellationToken = default(CancellationToken)) => Task.FromResult<IDbConnection>(null);
 
-        public override bool IsValidColumnName(Identifier name) => true;
-
-        public override bool IsValidConstraintName(Identifier name) => true;
-
-        public override bool IsValidObjectName(Identifier name) => true;
+        public override bool IsReservedKeyword(string text) => false;
 
         public override IDbTypeProvider TypeProvider => _typeProvider;
 

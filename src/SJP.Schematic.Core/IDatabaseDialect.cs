@@ -10,13 +10,7 @@ namespace SJP.Schematic.Core
 
         string QuoteName(Identifier name);
 
-        bool IsValidColumnName(Identifier name);
-
-        // e.g. PK_TEST_123
-        bool IsValidConstraintName(Identifier name);
-
-        // i.e. table, view, sequence, etc
-        bool IsValidObjectName(Identifier name);
+        bool IsReservedKeyword(string text);
 
         IDbConnection CreateConnection(string connectionString);
 
