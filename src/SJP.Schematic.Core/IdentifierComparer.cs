@@ -7,14 +7,14 @@ namespace SJP.Schematic.Core
     /// <summary>
     /// Represents an <see cref="Identifier"/> comparison operation that uses specific case and culture-based or ordinal comparison rules.
     /// </summary>
-    public class IdentifierComparer : IEqualityComparer<Identifier>, IComparer<Identifier>
+    public sealed class IdentifierComparer : IEqualityComparer<Identifier>, IComparer<Identifier>
     {
         public IdentifierComparer(StringComparison comparison = StringComparison.OrdinalIgnoreCase, string defaultServer = null, string defaultDatabase = null, string defaultSchema = null)
         {
             if (!comparison.IsValid())
                 throw new ArgumentException($"The { nameof(StringComparison) } provided must be a valid enum.", nameof(comparison));
 
-            _comparer = GetStringComparer(comparison);
+            _comparer = _stringComparerLookup[comparison];
             _defaultServer = defaultServer.IsNullOrWhiteSpace() ? null : defaultServer;
             _defaultDatabase = defaultDatabase.IsNullOrWhiteSpace() ? null : defaultDatabase;
             _defaultSchema = defaultSchema.IsNullOrWhiteSpace() ? null : defaultSchema;
@@ -90,26 +90,23 @@ namespace SJP.Schematic.Core
 
         public static IdentifierComparer OrdinalIgnoreCase { get; } = new IdentifierComparer(StringComparer.OrdinalIgnoreCase);
 
-        private static StringComparer GetStringComparer(StringComparison comparison)
-        {
-            switch (comparison)
-            {
-                case StringComparison.CurrentCulture:
-                    return StringComparer.CurrentCulture;
-                case StringComparison.CurrentCultureIgnoreCase:
-                    return StringComparer.CurrentCultureIgnoreCase;
-                case StringComparison.Ordinal:
-                    return StringComparer.Ordinal;
-                case StringComparison.OrdinalIgnoreCase:
-                    return StringComparer.OrdinalIgnoreCase;
-                default:
-                    throw new ArgumentOutOfRangeException(nameof(comparison));
-            }
-        }
+        public static IdentifierComparer InvariantCulture { get; } = new IdentifierComparer(StringComparer.InvariantCulture);
+
+        public static IdentifierComparer InvariantCultureIgnoreCase { get; } = new IdentifierComparer(StringComparer.InvariantCultureIgnoreCase);
 
         private readonly string _defaultSchema;
         private readonly string _defaultDatabase;
         private readonly string _defaultServer;
         private readonly StringComparer _comparer;
+
+        private readonly static IReadOnlyDictionary<StringComparison, StringComparer> _stringComparerLookup = new Dictionary<StringComparison, StringComparer>
+        {
+            [StringComparison.CurrentCulture] = StringComparer.CurrentCulture,
+            [StringComparison.CurrentCultureIgnoreCase] = StringComparer.CurrentCultureIgnoreCase,
+            [StringComparison.Ordinal] = StringComparer.Ordinal,
+            [StringComparison.OrdinalIgnoreCase] = StringComparer.OrdinalIgnoreCase,
+            [StringComparison.InvariantCulture] = StringComparer.InvariantCulture,
+            [StringComparison.InvariantCultureIgnoreCase] = StringComparer.InvariantCultureIgnoreCase
+        };
     }
 }
