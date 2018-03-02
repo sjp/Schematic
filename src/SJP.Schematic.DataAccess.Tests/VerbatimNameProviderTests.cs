@@ -5,7 +5,7 @@ using SJP.Schematic.Core;
 namespace SJP.Schematic.DataAccess.Tests
 {
     [TestFixture]
-    public class VerbatimNameProviderTests
+    internal class VerbatimNameProviderTests
     {
         [Test]
         public void SchemaToNamespace_GivenNullName_ThrowsArgumentNullException()

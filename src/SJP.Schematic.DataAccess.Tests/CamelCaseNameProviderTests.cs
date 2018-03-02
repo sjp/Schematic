@@ -5,7 +5,7 @@ using SJP.Schematic.Core;
 namespace SJP.Schematic.DataAccess.Tests
 {
     [TestFixture]
-    public class CamelCaseNameProviderTests
+    internal class CamelCaseNameProviderTests
     {
         [Test]
         public void SchemaToNamespace_GivenNullName_ThrowsArgumentNullException()

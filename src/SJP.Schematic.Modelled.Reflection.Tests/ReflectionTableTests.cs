@@ -13,7 +13,7 @@ namespace SJP.Schematic.Modelled.Reflection.Tests
     // TODO: test protected methods
 
     [TestFixture]
-    public class ReflectionTableTests
+    internal class ReflectionTableTests
     {
         [Test]
         public void Ctor_GivenNullDatabase_ThrowsArgumentNullException()

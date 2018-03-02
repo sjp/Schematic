@@ -6,7 +6,7 @@ using SJP.Schematic.Core;
 namespace SJP.Schematic.DataAccess.Tests
 {
     [TestFixture]
-    public class DatabaseViewGeneratorTests
+    internal class DatabaseViewGeneratorTests
     {
         [Test]
         public void Ctor_GivenNullNameProvider_ThrowsArgumentNullException()

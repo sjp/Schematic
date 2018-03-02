@@ -7,7 +7,7 @@ using System.Data;
 namespace SJP.Schematic.Core.Tests.Caching
 {
     [TestFixture]
-    public class DbDataReaderAdapterTests
+    internal class DbDataReaderAdapterTests
     {
         protected Mock<IDataReader> ReaderMock => new Mock<IDataReader>();
 

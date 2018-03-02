@@ -5,7 +5,7 @@ using SJP.Schematic.Core;
 namespace SJP.Schematic.DataAccess.Tests
 {
     [TestFixture]
-    public class SnakeCaseNameProviderTests
+    internal class SnakeCaseNameProviderTests
     {
         [Test]
         public void SchemaToNamespace_GivenNullName_ThrowsArgumentNullException()

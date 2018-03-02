@@ -5,7 +5,7 @@ using NUnit.Framework;
 namespace SJP.Schematic.Modelled.Reflection.Model.Attributes.Tests
 {
     [TestFixture]
-    public class DefaultAttributeTests
+    internal class DefaultAttributeTests
     {
         [Test]
         public void Ctor_GivenNullStringValue_ThrowsArgumentNullException()

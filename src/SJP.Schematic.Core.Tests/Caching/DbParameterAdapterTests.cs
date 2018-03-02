@@ -7,7 +7,7 @@ using System.Data;
 namespace SJP.Schematic.Core.Tests.Caching
 {
     [TestFixture]
-    public class DbParameterAdapterTests
+    internal class DbParameterAdapterTests
     {
         protected Mock<IDbDataParameter> ParameterMock => new Mock<IDbDataParameter>();
 

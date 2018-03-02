@@ -4,7 +4,7 @@ using NUnit.Framework;
 namespace SJP.Schematic.Sqlite.Tests
 {
     [TestFixture]
-    public class SqliteDialectTests
+    internal class SqliteDialectTests
     {
         [Test]
         public void QuoteIdentifier_GivenNull_ThrowsArgumentNullException()

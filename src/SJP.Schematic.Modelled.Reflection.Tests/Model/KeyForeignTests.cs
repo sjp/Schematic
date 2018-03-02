@@ -6,7 +6,7 @@ using NUnit.Framework;
 namespace SJP.Schematic.Modelled.Reflection.Model.Tests
 {
     [TestFixture]
-    public class KeyForeignTests
+    internal class KeyForeignTests
     {
         [Test]
         public void Ctor_GivenNullColumns_ThrowsArgumentNullException()

@@ -8,7 +8,7 @@ using SJP.Schematic.Modelled.Reflection.Tests.Fakes.ColumnTypes;
 namespace SJP.Schematic.Modelled.Reflection.Tests
 {
     [TestFixture]
-    public class ReflectionRelationalDatabaseTests
+    internal class ReflectionRelationalDatabaseTests
     {
         [Test]
         public void CtorT_GivenNullDialect_ThrowsArgumentNullException()

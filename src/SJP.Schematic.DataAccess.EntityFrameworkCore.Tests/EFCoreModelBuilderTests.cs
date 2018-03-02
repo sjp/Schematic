@@ -4,7 +4,7 @@ using NUnit.Framework;
 namespace SJP.Schematic.DataAccess.EntityFrameworkCore.Tests
 {
     [TestFixture]
-    public class EFCoreModelBuilderTests
+    internal class EFCoreModelBuilderTests
     {
         [Test]
         public void Ctor_GivenNullNameProvider_ThrowsArgumentNullException()

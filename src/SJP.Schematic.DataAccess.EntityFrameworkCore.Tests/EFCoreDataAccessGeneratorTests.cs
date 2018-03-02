@@ -8,7 +8,7 @@ using SJP.Schematic.Core;
 namespace SJP.Schematic.DataAccess.EntityFrameworkCore.Tests
 {
     [TestFixture]
-    public class EFCoreDataAccessGeneratorTests
+    internal class EFCoreDataAccessGeneratorTests
     {
         [Test]
         public void Ctor_GivenNullDatabase_ThrowsArgumentNullException()

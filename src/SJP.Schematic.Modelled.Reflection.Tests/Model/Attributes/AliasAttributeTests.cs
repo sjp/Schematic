@@ -4,7 +4,7 @@ using NUnit.Framework;
 namespace SJP.Schematic.Modelled.Reflection.Model.Attributes.Tests
 {
     [TestFixture]
-    public class AliasAttributeTests
+    internal class AliasAttributeTests
     {
         [Test]
         public void Ctor_GivenNullAlias_ThrowsArgumentNullException()

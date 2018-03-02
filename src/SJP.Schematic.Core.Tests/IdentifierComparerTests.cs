@@ -4,7 +4,7 @@ using NUnit.Framework;
 namespace SJP.Schematic.Core.Tests
 {
     [TestFixture]
-    public class IdentifierComparerTests
+    internal class IdentifierComparerTests
     {
         [Test]
         public void Ctor_GivenInvalidStringComparison_ThrowsArgumentException()

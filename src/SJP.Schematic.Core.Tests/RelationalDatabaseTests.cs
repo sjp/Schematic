@@ -6,7 +6,7 @@ using NUnit.Framework;
 namespace SJP.Schematic.Core.Tests
 {
     [TestFixture]
-    public class RelationalDatabaseTests
+    internal class RelationalDatabaseTests
     {
         [Test]
         public void Ctor_GivenNullDialect_ThrowsArgumentNullException()

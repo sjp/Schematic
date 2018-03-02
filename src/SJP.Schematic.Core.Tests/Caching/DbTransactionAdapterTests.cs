@@ -8,7 +8,7 @@ using System.Data.Common;
 namespace SJP.Schematic.Core.Tests.Caching
 {
     [TestFixture]
-    public class DbTransactionAdapterTests
+    internal class DbTransactionAdapterTests
     {
         protected DbConnection Connection => new DbConnectionAdapter(Mock.Of<IDbConnection>());
 

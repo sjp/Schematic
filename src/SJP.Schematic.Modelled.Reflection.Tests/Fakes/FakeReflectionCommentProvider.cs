@@ -5,7 +5,7 @@ using System.Xml.Linq;
 namespace SJP.Schematic.Modelled.Reflection.Tests.Fakes
 {
     // used for testing the identifier generation
-    public class FakeReflectionCommentProvider : ReflectionCommentProvider
+    internal class FakeReflectionCommentProvider : ReflectionCommentProvider
     {
         public FakeReflectionCommentProvider()
             : base(XDocument.Parse("<doc></doc>"))

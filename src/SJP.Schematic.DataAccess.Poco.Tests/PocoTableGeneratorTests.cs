@@ -6,7 +6,7 @@ using SJP.Schematic.Core;
 namespace SJP.Schematic.DataAccess.Poco.Tests
 {
     [TestFixture]
-    public class PocoTableGeneratorTests
+    internal class PocoTableGeneratorTests
     {
         [Test]
         public void Ctor_GivenNullNameProvider_ThrowsArgumentNullException()

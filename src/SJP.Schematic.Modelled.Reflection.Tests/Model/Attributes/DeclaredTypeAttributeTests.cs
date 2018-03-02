@@ -5,7 +5,7 @@ using SJP.Schematic.Core;
 namespace SJP.Schematic.Modelled.Reflection.Model.Attributes.Tests
 {
     [TestFixture]
-    public class DeclaredTypeAttributeTests
+    internal class DeclaredTypeAttributeTests
     {
         [Test]
         public void Ctor_GivenInvalidDataType_ThrowsArgumentException()

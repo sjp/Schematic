@@ -6,7 +6,7 @@ namespace SJP.Schematic.Core.Tests.Caching
 {
     // can't test much as this is basically just a hash function
     [TestFixture]
-    public class DbCommandIdentityTests
+    internal class DbCommandIdentityTests
     {
         [Test]
         public void Ctor_GivenNullCommand_ThrowsArgNullException()

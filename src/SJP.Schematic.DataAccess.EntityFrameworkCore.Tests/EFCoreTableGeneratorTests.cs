@@ -6,7 +6,7 @@ using SJP.Schematic.Core;
 namespace SJP.Schematic.DataAccess.EntityFrameworkCore.Tests
 {
     [TestFixture]
-    public class EFCoreTableGeneratorTests
+    internal class EFCoreTableGeneratorTests
     {
         [Test]
         public void Ctor_GivenNullNameProvider_ThrowsArgumentNullException()

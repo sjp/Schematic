@@ -8,7 +8,7 @@ using SJP.Schematic.Core;
 namespace SJP.Schematic.DataAccess.Poco.Tests
 {
     [TestFixture]
-    public class PocoDataAccessGeneratorTests
+    internal class PocoDataAccessGeneratorTests
     {
         [Test]
         public void Ctor_GivenNullDatabase_ThrowsArgumentNullException()

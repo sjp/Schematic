@@ -5,7 +5,7 @@ using SJP.Schematic.Core;
 
 namespace SJP.Schematic.Modelled.Reflection.Tests.Fakes
 {
-    public class FakeDialect : DatabaseDialect<FakeDialect>
+    internal class FakeDialect : DatabaseDialect<FakeDialect>
     {
         public override IDbConnection CreateConnection(string connectionString) => null;
 

@@ -3,7 +3,7 @@ using SJP.Schematic.Core;
 
 namespace SJP.Schematic.DataAccess.Tests
 {
-    public class FakeDatabaseViewGenerator : DatabaseViewGenerator
+    internal class FakeDatabaseViewGenerator : DatabaseViewGenerator
     {
         public FakeDatabaseViewGenerator(INameProvider nameProvider)
             : base(nameProvider)

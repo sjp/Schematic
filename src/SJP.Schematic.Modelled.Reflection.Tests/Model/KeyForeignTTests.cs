@@ -8,7 +8,7 @@ using SJP.Schematic.Core;
 namespace SJP.Schematic.Modelled.Reflection.Model.Tests
 {
     [TestFixture]
-    public class KeyForeignTTests
+    internal class KeyForeignTTests
     {
         [Test]
         public void Ctor_GivenNullSelector_ThrowsArgumentNullException()

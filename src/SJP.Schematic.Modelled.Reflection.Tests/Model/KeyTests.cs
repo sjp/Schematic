@@ -8,7 +8,7 @@ using SJP.Schematic.Core;
 namespace SJP.Schematic.Modelled.Reflection.Model.Tests
 {
     [TestFixture]
-    public class KeyTests
+    internal class KeyTests
     {
         [Test]
         public void Ctor_GivenNullColumns_ThrowsArgumentNullException()

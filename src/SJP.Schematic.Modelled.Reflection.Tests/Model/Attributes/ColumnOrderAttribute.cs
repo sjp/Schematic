@@ -4,7 +4,7 @@ using NUnit.Framework;
 namespace SJP.Schematic.Modelled.Reflection.Model.Attributes.Tests
 {
     [TestFixture]
-    public class ColumnOrderAttributeTests
+    internal class ColumnOrderAttributeTests
     {
         [Test]
         public void Ctor_GivenNegativeColumnOrder_ThrowsArgumentOutOfRangeException()

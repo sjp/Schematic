@@ -7,7 +7,7 @@ using SJP.Schematic.Core.Caching;
 namespace SJP.Schematic.Core.Tests.Caching
 {
     [TestFixture]
-    public class CachingExtensionsTests
+    internal class CachingExtensionsTests
     {
         protected Mock<IDbConnection> ConnectionMock => new Mock<IDbConnection>();
 

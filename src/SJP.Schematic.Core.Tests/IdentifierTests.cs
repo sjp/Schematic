@@ -4,7 +4,7 @@ using NUnit.Framework;
 namespace SJP.Schematic.Core.Tests
 {
     [TestFixture]
-    public class IdentifierTests
+    internal class IdentifierTests
     {
         [Test]
         public void Ctor_GivenNullOrWhiteSpaceLocalName_ThrowsArgumentNullException()

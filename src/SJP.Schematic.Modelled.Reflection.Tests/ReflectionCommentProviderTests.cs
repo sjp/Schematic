@@ -9,7 +9,7 @@ using SJP.Schematic.Modelled.Reflection.Tests.Fakes;
 namespace SJP.Schematic.Modelled.Reflection.Tests
 {
     [TestFixture]
-    public class ReflectionCommentProviderTests
+    internal class ReflectionCommentProviderTests
     {
         protected static FakeReflectionCommentProvider FakeProvider { get; } = new FakeReflectionCommentProvider();
 
@@ -379,7 +379,7 @@ namespace SJP.Schematic.Modelled.Reflection.Tests
 
             public TestClass(int i) { i++; }
 
-            public string Q;
+            public string Q = "1";
 
             public const double PI = 3.14;
 

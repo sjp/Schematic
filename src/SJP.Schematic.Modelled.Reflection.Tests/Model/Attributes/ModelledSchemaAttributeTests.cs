@@ -9,7 +9,7 @@ using SJP.Schematic.Modelled.Reflection.Tests.Fakes;
 namespace SJP.Schematic.Modelled.Reflection.Model.Attributes.Tests
 {
     [TestFixture]
-    public class ModelledSchemaAttributeTests
+    internal class ModelledSchemaAttributeTests
     {
         [Test]
         public void Ctor_GivenNullDialects_ThrowsArgumentNullException()

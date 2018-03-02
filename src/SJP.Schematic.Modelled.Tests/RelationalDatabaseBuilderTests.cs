@@ -5,7 +5,7 @@ namespace SJP.Schematic.Modelled.Tests
 {
     // TODO, need to create some databases to build with
     [TestFixture]
-    public class RelationalDatabaseBuilderTests
+    internal class RelationalDatabaseBuilderTests
     {
         [Test]
         public void Ctor_GivenNullArguments_ThrowsArgumentNullException()

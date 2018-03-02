@@ -7,7 +7,7 @@ using System.Collections.Generic;
 namespace SJP.Schematic.Core.Tests.Caching
 {
     [TestFixture]
-    public class CacheStoreTests
+    internal class CacheStoreTests
     {
         // only going to be testing basics of ctors, as this is just a wrapper for ConcurrentDictionary<TKey, TValue>
         [Test]

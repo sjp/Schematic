@@ -3,7 +3,7 @@
 namespace SJP.Schematic.Core.Tests
 {
     [TestFixture]
-    public class AutoIncrementTests
+    internal class AutoIncrementTests
     {
         [Test]
         public void InitialValue_PropertyGet_EqualsCtorArgument()

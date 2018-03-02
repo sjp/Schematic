@@ -6,7 +6,7 @@ using SJP.Schematic.Core;
 namespace SJP.Schematic.DataAccess.OrmLite.Tests
 {
     [TestFixture]
-    public class OrmLiteViewGeneratorTests
+    internal class OrmLiteViewGeneratorTests
     {
         [Test]
         public void Ctor_GivenNullNameProvider_ThrowsArgumentNullException()

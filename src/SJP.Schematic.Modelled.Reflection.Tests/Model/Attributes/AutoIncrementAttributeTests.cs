@@ -3,7 +3,7 @@
 namespace SJP.Schematic.Modelled.Reflection.Model.Attributes.Tests
 {
     [TestFixture]
-    public class AutoIncrementAttributeTests
+    internal class AutoIncrementAttributeTests
     {
         [Test]
         public void Ctor_UsingDefaultCtor_SetsInitialValueToOne()

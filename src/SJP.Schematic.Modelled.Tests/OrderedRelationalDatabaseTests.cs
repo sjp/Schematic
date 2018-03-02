@@ -3,7 +3,7 @@
 namespace SJP.Schematic.Modelled.Tests
 {
     [TestFixture]
-    public class OrderedRelationalDatabaseTests
+    internal class OrderedRelationalDatabaseTests
     {
     }
 }

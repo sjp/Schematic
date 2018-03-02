@@ -6,7 +6,7 @@ using SJP.Schematic.Modelled.Reflection.Tests.Fakes;
 namespace SJP.Schematic.Modelled.Reflection.Model.Attributes.Tests
 {
     [TestFixture]
-    public class CollationAttributeTests
+    internal class CollationAttributeTests
     {
         [Test]
         public void Ctor_GivenNullCollationName_ThrowsArgumentNullException()

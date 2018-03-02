@@ -9,7 +9,7 @@ using System.Collections.Generic;
 namespace SJP.Schematic.Core.Tests.Caching
 {
     [TestFixture]
-    public class DbParameterCollectionAdapterTests
+    internal class DbParameterCollectionAdapterTests
     {
         protected Mock<IDataParameterCollection> CollectionMock => new Mock<IDataParameterCollection>();
 

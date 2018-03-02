@@ -8,7 +8,7 @@ using SJP.Schematic.Core;
 namespace SJP.Schematic.DataAccess.OrmLite.Tests
 {
     [TestFixture]
-    public class OrmLiteDataAccessGeneratorTests
+    internal class OrmLiteDataAccessGeneratorTests
     {
         [Test]
         public void Ctor_GivenNullDatabase_ThrowsArgumentNullException()

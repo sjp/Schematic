@@ -5,7 +5,7 @@ using NUnit.Framework;
 namespace SJP.Schematic.Modelled.Reflection.Model.Attributes.Tests
 {
     [TestFixture]
-    public class OnUpdateRuleAttributeTests
+    internal class OnUpdateRuleAttributeTests
     {
         [Test]
         public void Ctor_GivenInvalidRule_ThrowsArgumentException()
