@@ -187,7 +187,7 @@ namespace SJP.Schematic.Core.Utilities
                 {
                     if (!_lazy._instance.IsValueCreated || !_lazy._instance.Value.IsCompleted)
                         throw new InvalidOperationException("Not yet created.");
-                    return _lazy._instance.Value.Result;
+                    return _lazy._instance.Value.GetAwaiter().GetResult();
                 }
             }
 
