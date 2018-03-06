@@ -32,7 +32,7 @@ namespace SJP.Schematic.Core
 
             Comparer = comparer ?? new IdentifierComparer(StringComparer.Ordinal, serverName, databaseName, schemaName);
 
-            Name = new Identifier(serverName, databaseName, schemaName, viewName.LocalName);
+            Name = Identifier.CreateQualifiedIdentifier(serverName, databaseName, schemaName, viewName.LocalName);
 
             Column = CreateColumnLookup(Columns, Comparer);
             Index = CreateIndexLookup(Indexes, Comparer);

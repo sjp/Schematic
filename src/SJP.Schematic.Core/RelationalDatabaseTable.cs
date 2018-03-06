@@ -43,7 +43,7 @@ namespace SJP.Schematic.Core
             var databaseName = tableName.Database ?? database.DatabaseName;
             var schemaName = tableName.Schema ?? database.DefaultSchema;
 
-            Name = new Identifier(serverName, databaseName, schemaName, tableName.LocalName);
+            Name = Identifier.CreateQualifiedIdentifier(serverName, databaseName, schemaName, tableName.LocalName);
             Columns = columns;
             PrimaryKey = primaryKey;
             UniqueKeys = uniqueKeys;
