@@ -7,7 +7,7 @@ namespace SJP.Schematic.Lint.Rules
 {
     public class CandidateKeyMissingRule : Rule
     {
-        protected CandidateKeyMissingRule(RuleLevel level)
+        public CandidateKeyMissingRule(RuleLevel level)
             : base(RuleTitle, level)
         {
         }

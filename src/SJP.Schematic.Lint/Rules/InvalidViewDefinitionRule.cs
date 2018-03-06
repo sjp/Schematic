@@ -40,7 +40,7 @@ namespace SJP.Schematic.Lint.Rules
             {
                 var quotedViewName = dialect.QuoteName(view.Name);
                 var query = "select 1 as tmp from " + quotedViewName;
-                var result = Connection.ExecuteScalar(query);
+                var result = Connection.ExecuteScalar<long>(query);
 
                 return Enumerable.Empty<IRuleMessage>();
             }
