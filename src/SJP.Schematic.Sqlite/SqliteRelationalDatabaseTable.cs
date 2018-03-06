@@ -13,7 +13,7 @@ using System.Threading;
 
 namespace SJP.Schematic.Sqlite
 {
-    public class SqliteRelationalDatabaseTable : IRelationalDatabaseTable, IRelationalDatabaseTableAsync
+    public class SqliteRelationalDatabaseTable : IRelationalDatabaseTable
     {
         public SqliteRelationalDatabaseTable(IDbConnection connection, IRelationalDatabase database, Identifier tableName)
         {

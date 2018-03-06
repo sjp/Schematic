@@ -10,7 +10,7 @@ using System.Globalization;
 
 namespace SJP.Schematic.PostgreSql
 {
-    public class PostgreSqlRelationalDatabaseTable : IRelationalDatabaseTable, IRelationalDatabaseTableAsync
+    public class PostgreSqlRelationalDatabaseTable : IRelationalDatabaseTable
     {
         public PostgreSqlRelationalDatabaseTable(IDbConnection connection, IRelationalDatabase database, Identifier tableName, IEqualityComparer<Identifier> comparer = null)
         {

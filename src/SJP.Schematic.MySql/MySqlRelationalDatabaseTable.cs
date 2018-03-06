@@ -9,7 +9,7 @@ using SJP.Schematic.MySql.Query;
 
 namespace SJP.Schematic.MySql
 {
-    public class MySqlRelationalDatabaseTable : IRelationalDatabaseTable, IRelationalDatabaseTableAsync
+    public class MySqlRelationalDatabaseTable : IRelationalDatabaseTable
     {
         public MySqlRelationalDatabaseTable(IDbConnection connection, IRelationalDatabase database, Identifier tableName, IEqualityComparer<Identifier> comparer = null)
         {

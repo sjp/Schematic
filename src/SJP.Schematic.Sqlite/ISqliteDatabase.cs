@@ -3,7 +3,7 @@ using SJP.Schematic.Core;
 
 namespace SJP.Schematic.Sqlite
 {
-    public interface ISqliteDatabase : IRelationalDatabaseSync, IRelationalDatabaseAsync
+    public interface ISqliteDatabase : IRelationalDatabase
     {
         void Vacuum();
 

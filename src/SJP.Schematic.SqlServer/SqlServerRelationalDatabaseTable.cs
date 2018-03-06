@@ -9,7 +9,7 @@ using SJP.Schematic.SqlServer.Query;
 
 namespace SJP.Schematic.SqlServer
 {
-    public class SqlServerRelationalDatabaseTable : IRelationalDatabaseTable, IRelationalDatabaseTableAsync
+    public class SqlServerRelationalDatabaseTable : IRelationalDatabaseTable
     {
         public SqlServerRelationalDatabaseTable(IDbConnection connection, IRelationalDatabase database, Identifier tableName, IEqualityComparer<Identifier> comparer = null)
         {

@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace SJP.Schematic.Core
 {
-    public class RelationalDatabaseTable : IRelationalDatabaseTable, IRelationalDatabaseTableAsync
+    public class RelationalDatabaseTable : IRelationalDatabaseTable
     {
         public RelationalDatabaseTable(
             IRelationalDatabase database,

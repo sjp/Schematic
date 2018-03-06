@@ -93,7 +93,6 @@ namespace SJP.Schematic.Lint.Tests.Rules
             Assert.Zero(messages.Count());
         }
 
-
         [Test]
         public void AnalyseDatabase_GivenTableWithMultiColumnPrimaryKey_ProducesMessages()
         {
