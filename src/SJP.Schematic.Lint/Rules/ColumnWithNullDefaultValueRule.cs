@@ -33,7 +33,7 @@ namespace SJP.Schematic.Lint.Rules
 
             foreach (var nullableColumn in nullableColumns)
             {
-                if (!string.Equals("null", nullableColumn.DefaultValue, StringComparison.OrdinalIgnoreCase))
+                if (!IsNullDefaultValue(nullableColumn.DefaultValue))
                     continue;
 
                 var messageText = $"The table '{ table.Name }' has a column '{ nullableColumn.Name.LocalName }' whose default value is null. Consider removing the default value on the column.";
@@ -45,6 +45,13 @@ namespace SJP.Schematic.Lint.Rules
             return result;
         }
 
+        protected static bool IsNullDefaultValue(string defaultValue)
+        {
+            return !defaultValue.IsNullOrWhiteSpace()
+                && _nullValues.Contains(defaultValue);
+        }
+
         private const string RuleTitle = "Null default values assigned to column.";
+        private readonly static IEnumerable<string> _nullValues = new HashSet<string>(StringComparer.OrdinalIgnoreCase) { "null", "(null)" };
     }
 }

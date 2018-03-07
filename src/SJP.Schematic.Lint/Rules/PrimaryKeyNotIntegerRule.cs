@@ -33,7 +33,7 @@ namespace SJP.Schematic.Lint.Rules
             if (pkColumns.Count == 1 && ColumnIsInteger(pkColumns[0]))
                 return Enumerable.Empty<IRuleMessage>();
 
-            var messageText = $"The table { table.Name } has a primary key whose column is not an integer.";
+            var messageText = $"The table { table.Name } has a primary key which is not a single-column whose type is an integer.";
             var ruleMessage = new RuleMessage(RuleTitle, Level, messageText);
 
             return new[] { ruleMessage };

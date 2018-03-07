@@ -32,7 +32,7 @@ namespace SJP.Schematic.Lint.Rules
                 throw new ArgumentNullException(nameof(table));
 
             var columnCount = table.Columns.Count;
-            if (columnCount < ColumnLimit)
+            if (columnCount <= ColumnLimit)
                 return Enumerable.Empty<IRuleMessage>();
 
             var messageText = $"The table { table.Name } has too many columns. It has { columnCount.ToString() } columns.";
