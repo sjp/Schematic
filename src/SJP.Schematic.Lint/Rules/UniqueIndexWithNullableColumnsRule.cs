@@ -8,7 +8,7 @@ namespace SJP.Schematic.Lint.Rules
 {
     public class UniqueIndexWithNullableColumnsRule : Rule
     {
-        protected UniqueIndexWithNullableColumnsRule(RuleLevel level)
+        public UniqueIndexWithNullableColumnsRule(RuleLevel level)
             : base(RuleTitle, level)
         {
         }
