@@ -8,7 +8,7 @@ namespace SJP.Schematic.Lint.Rules
 {
     public class ForeignKeyIsPrimaryKeyRule : Rule
     {
-        protected ForeignKeyIsPrimaryKeyRule(RuleLevel level)
+        public ForeignKeyIsPrimaryKeyRule(RuleLevel level)
             : base(RuleTitle, level)
         {
         }

@@ -8,7 +8,7 @@ namespace SJP.Schematic.Lint.Rules
 {
     public class ForeignKeyRelationshipCycleRule : Rule
     {
-        protected ForeignKeyRelationshipCycleRule(RuleLevel level)
+        public ForeignKeyRelationshipCycleRule(RuleLevel level)
             : base(RuleTitle, level)
         {
         }
@@ -19,6 +19,7 @@ namespace SJP.Schematic.Lint.Rules
                 throw new ArgumentNullException(nameof(database));
 
             var graph = new Multigraph<Identifier, IDatabaseRelationalKey>();
+            graph.AddVertices(database.Tables.Select(t => t.Name));
 
             var foreignKeys = database.Tables.SelectMany(t => t.ParentKeys).ToList();
             foreach (var foreignKey in foreignKeys)

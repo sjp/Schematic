@@ -8,7 +8,7 @@ namespace SJP.Schematic.Lint.Rules
 {
     public class ForeignKeyColumnTypeMismatchRule : Rule
     {
-        protected ForeignKeyColumnTypeMismatchRule(RuleLevel level)
+        public ForeignKeyColumnTypeMismatchRule(RuleLevel level)
             : base(RuleTitle, level)
         {
         }
