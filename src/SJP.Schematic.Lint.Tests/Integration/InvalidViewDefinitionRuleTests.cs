@@ -31,11 +31,11 @@ namespace SJP.Schematic.Lint.Tests.Integration
         }
 
         [Test]
-        public void Ctor_GivenInvalidLevel_ThrowsArgumentNullException()
+        public void Ctor_GivenNullConnection_ThrowsArgumentNullException()
         {
             IDbConnection connection = null;
-            const RuleLevel level = (RuleLevel)999;
-            Assert.Throws<ArgumentException>(() => new InvalidViewDefinitionRule(connection, level));
+            const RuleLevel level = RuleLevel.Error;
+            Assert.Throws<ArgumentNullException>(() => new InvalidViewDefinitionRule(connection, level));
         }
 
         [Test]

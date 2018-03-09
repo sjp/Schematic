@@ -92,6 +92,10 @@ namespace SJP.Schematic.Lint.Rules
                 .SelectMany(c => c.DependentColumns)
                 .Select(c => c.Name.LocalName)
                 .Join(", ");
+            var otherIndexColumns = otherIndex.Columns
+                .SelectMany(c => c.DependentColumns)
+                .Select(c => c.Name.LocalName)
+                .Join(", ");
 
             var builder = new StringBuilder("The table ")
                 .Append(tableName.ToString())
@@ -101,11 +105,13 @@ namespace SJP.Schematic.Lint.Rules
                 .Append(redundantIndexColumns)
                 .Append(") is the prefix of another index '")
                 .Append(otherIndex.Name.LocalName)
-                .Append("'.");
+                .Append("' (")
+                .Append(otherIndexColumns)
+                .Append(").");
 
             return builder.ToString();
         }
 
-        private const string RuleTitle = "Indexes missing on foreign key.";
+        private const string RuleTitle = "Redundant indexes on a table.";
     }
 }

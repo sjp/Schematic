@@ -38,6 +38,15 @@ namespace SJP.Schematic.Lint.Rules
                 result.Add(ruleMessage);
             }
 
+            var primaryKey = table.PrimaryKey;
+            if (primaryKey != null && !primaryKey.IsEnabled)
+            {
+                var uniqueKeyName = primaryKey.Name?.LocalName != null ? $" '{ primaryKey.Name.LocalName }'" : string.Empty;
+                var messageText = $"The table '{ table.Name }' contains a disabled primary key{ uniqueKeyName }. Consider enabling or removing the primary key.";
+                var ruleMessage = new RuleMessage(RuleTitle, Level, messageText);
+                result.Add(ruleMessage);
+            }
+
             var disabledUniqueKeys = table.UniqueKeys.Where(uk => !uk.IsEnabled);
             foreach (var uniqueKey in disabledUniqueKeys)
             {
@@ -64,6 +73,7 @@ namespace SJP.Schematic.Lint.Rules
                 var ruleMessage = new RuleMessage(RuleTitle, Level, messageText);
                 result.Add(ruleMessage);
             }
+
             var disabledTriggers = table.Triggers.Where(uk => !uk.IsEnabled);
             foreach (var trigger in disabledTriggers)
             {
