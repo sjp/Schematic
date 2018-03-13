@@ -39,7 +39,7 @@ namespace SJP.Schematic.Lint.Rules
                 if (!isIndexedKey)
                 {
                     var messageText = BuildMessage(table.Name, foreignKey.Name, foreignKey.Columns);
-                    var message = new RuleMessage(RuleTitle, Level, "test"); // TODO fix message
+                    var message = new RuleMessage(RuleTitle, Level, messageText);
                     result.Add(message);
                 }
             }
@@ -92,7 +92,7 @@ namespace SJP.Schematic.Lint.Rules
             if (columns.Skip(1).Any())
                 builder.Append("s");
 
-            var columnNames = columns.Select(c => c.Name.ToString()).Join(", ");
+            var columnNames = columns.Select(c => c.Name.LocalName).Join(", ");
             builder.Append(" ")
                 .Append(columnNames);
 

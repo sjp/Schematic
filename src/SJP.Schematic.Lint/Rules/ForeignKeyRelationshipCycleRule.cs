@@ -21,7 +21,10 @@ namespace SJP.Schematic.Lint.Rules
             var graph = new Multigraph<Identifier, IDatabaseRelationalKey>();
             graph.AddVertices(database.Tables.Select(t => t.Name));
 
-            var foreignKeys = database.Tables.SelectMany(t => t.ParentKeys).ToList();
+            var foreignKeys = database.Tables
+                .SelectMany(t => t.ParentKeys)
+                .Where(fk => fk.ChildKey.Table.Name != fk.ParentKey.Table.Name)
+                .ToList();
             foreach (var foreignKey in foreignKeys)
                 graph.AddEdge(foreignKey.ChildKey.Table.Name, foreignKey.ParentKey.Table.Name, foreignKey);
 

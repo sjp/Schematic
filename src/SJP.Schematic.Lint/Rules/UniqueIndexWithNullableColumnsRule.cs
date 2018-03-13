@@ -73,7 +73,7 @@ namespace SJP.Schematic.Lint.Rules
                 : "which contains a nullable column: ";
             builder.Append(pluralText);
 
-            var columnNames = nullableColumns.Select(c => c.Name.ToString()).Join(", ");
+            var columnNames = nullableColumns.Select(c => c.Name.LocalName).Join(", ");
             builder.Append(columnNames);
 
             return builder.ToString();

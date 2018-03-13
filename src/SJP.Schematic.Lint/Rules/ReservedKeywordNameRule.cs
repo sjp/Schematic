@@ -40,7 +40,7 @@ namespace SJP.Schematic.Lint.Rules
             var tableNameIsKeyword = dialect.IsReservedKeyword(table.Name.LocalName);
             if (tableNameIsKeyword)
             {
-                var messageText = $"The table '{ table.Name }' is also a database keyword and requires quoting to be used. Consider renaming to a non-keyword name.";
+                var messageText = $"The table '{ table.Name }' is also a database keyword and may require quoting to be used. Consider renaming to a non-keyword name.";
                 var ruleMessage = new RuleMessage(RuleTitle, Level, messageText);
                 result.Add(ruleMessage);
             }
@@ -51,7 +51,7 @@ namespace SJP.Schematic.Lint.Rules
 
             foreach (var kwColumnName in keywordColumnNames)
             {
-                var messageText = $"The table '{ table.Name }' contains a column '{ kwColumnName }' which is also a database keyword and requires quoting to be used. Consider renaming to a non-keyword name.";
+                var messageText = $"The table '{ table.Name }' contains a column '{ kwColumnName }' which is also a database keyword and may require quoting to be used. Consider renaming to a non-keyword name.";
                 var ruleMessage = new RuleMessage(RuleTitle, Level, messageText);
                 result.Add(ruleMessage);
             }
@@ -71,7 +71,7 @@ namespace SJP.Schematic.Lint.Rules
             var viewNameIsKeyword = dialect.IsReservedKeyword(view.Name.LocalName);
             if (viewNameIsKeyword)
             {
-                var messageText = $"The view '{ view.Name }' is also a database keyword and requires quoting to be used. Consider renaming to a non-keyword name.";
+                var messageText = $"The view '{ view.Name }' is also a database keyword and may require quoting to be used. Consider renaming to a non-keyword name.";
                 var ruleMessage = new RuleMessage(RuleTitle, Level, messageText);
                 result.Add(ruleMessage);
             }
@@ -82,7 +82,7 @@ namespace SJP.Schematic.Lint.Rules
 
             foreach (var kwColumnName in keywordColumnNames)
             {
-                var messageText = $"The view '{ view.Name }' contains a column '{ kwColumnName }' which is also a database keyword and requires quoting to be used. Consider renaming to a non-keyword name.";
+                var messageText = $"The view '{ view.Name }' contains a column '{ kwColumnName }' which is also a database keyword and may require quoting to be used. Consider renaming to a non-keyword name.";
                 var ruleMessage = new RuleMessage(RuleTitle, Level, messageText);
                 result.Add(ruleMessage);
             }
@@ -102,7 +102,7 @@ namespace SJP.Schematic.Lint.Rules
             var sequenceNameIsKeyword = dialect.IsReservedKeyword(sequence.Name.LocalName);
             if (sequenceNameIsKeyword)
             {
-                var messageText = $"The sequence '{ sequence.Name }' is also a database keyword and requires quoting to be used. Consider renaming to a non-keyword name.";
+                var messageText = $"The sequence '{ sequence.Name }' is also a database keyword and may require quoting to be used. Consider renaming to a non-keyword name.";
                 var ruleMessage = new RuleMessage(RuleTitle, Level, messageText);
                 result.Add(ruleMessage);
             }
@@ -122,7 +122,7 @@ namespace SJP.Schematic.Lint.Rules
             var synonymNameIsKeyword = dialect.IsReservedKeyword(synonym.Name.LocalName);
             if (synonymNameIsKeyword)
             {
-                var messageText = $"The synonym '{ synonym.Name }' is also a database keyword and requires quoting to be used. Consider renaming to a non-keyword name.";
+                var messageText = $"The synonym '{ synonym.Name }' is also a database keyword and may require quoting to be used. Consider renaming to a non-keyword name.";
                 var ruleMessage = new RuleMessage(RuleTitle, Level, messageText);
                 result.Add(ruleMessage);
             }

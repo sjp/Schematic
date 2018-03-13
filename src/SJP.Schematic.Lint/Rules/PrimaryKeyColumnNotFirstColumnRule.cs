@@ -42,7 +42,7 @@ namespace SJP.Schematic.Lint.Rules
             if (pkColumnName == firstColumnName)
                 return Enumerable.Empty<IRuleMessage>();
 
-            var messageText = $"The table { table.Name } has a primary key whose column is the first column in the table.";
+            var messageText = $"The table { table.Name } has a primary key whose column is not the first column in the table.";
             var ruleMessage = new RuleMessage(RuleTitle, Level, messageText);
 
             return new[] { ruleMessage };
