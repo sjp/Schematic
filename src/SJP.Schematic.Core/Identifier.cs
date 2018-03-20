@@ -235,6 +235,22 @@ namespace SJP.Schematic.Core
         public static bool operator <(Identifier a, Identifier b) => IdentifierComparer.Ordinal.Compare(a, b) < 0;
 
         /// <summary>
+        /// Compares two specified <see cref="Identifier"/> objects and returns true when the first operand follows or is equal to the second when sorted.
+        /// </summary>
+        /// <param name="a">A database identifier.</param>
+        /// <param name="b">Another database identifier.</param>
+        /// <returns><c>true</c> if <paramref name="a"/> follows or is equal to <paramref name="b"/> when both are sorted; otherwise <c>false</c>.</returns>
+        public static bool operator >=(Identifier a, Identifier b) => IdentifierComparer.Ordinal.Compare(a, b) >= 0;
+
+        /// <summary>
+        /// Compares two specified <see cref="Identifier"/> objects and returns true when the first operand precedes or is equal to the second when sorted.
+        /// </summary>
+        /// <param name="a">A database identifier.</param>
+        /// <param name="b">Another database identifier.</param>
+        /// <returns><c>true</c> if <paramref name="a"/> precedes or is equal to <paramref name="b"/> when both are sorted; otherwise <c>false</c>.</returns>
+        public static bool operator <=(Identifier a, Identifier b) => IdentifierComparer.Ordinal.Compare(a, b) <= 0;
+
+        /// <summary>
         /// Determines whether the specified identifier is equal to the current identifier using the default (ordinal) identifier comparer.
         /// </summary>
         /// <param name="other">The identifier to compare with the current identifier.</param>
