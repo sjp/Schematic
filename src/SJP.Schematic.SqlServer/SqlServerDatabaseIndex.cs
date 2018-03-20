@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using EnumsNET;
 using SJP.Schematic.Core;
+using SJP.Schematic.Core.Extensions;
 
 namespace SJP.Schematic.SqlServer
 {

@@ -3,6 +3,7 @@ using System.Security;
 using System.Text;
 using Humanizer;
 using SJP.Schematic.Core;
+using SJP.Schematic.Core.Extensions;
 using SJP.Schematic.DataAccess.Extensions;
 
 namespace SJP.Schematic.DataAccess.EntityFrameworkCore

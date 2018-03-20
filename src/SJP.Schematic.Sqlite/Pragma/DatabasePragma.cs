@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using Dapper;
 using EnumsNET;
 using SJP.Schematic.Core;
+using SJP.Schematic.Core.Extensions;
 using SJP.Schematic.Sqlite.Pragma.Query;
 
 namespace SJP.Schematic.Sqlite.Pragma

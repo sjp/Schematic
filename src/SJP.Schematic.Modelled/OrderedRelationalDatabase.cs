@@ -1,4 +1,5 @@
 ﻿using SJP.Schematic.Core;
+using SJP.Schematic.Core.Extensions;
 using System;
 using System.Collections.Generic;
 using System.Linq;

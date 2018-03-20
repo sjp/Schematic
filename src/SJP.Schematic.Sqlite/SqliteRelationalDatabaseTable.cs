@@ -10,6 +10,7 @@ using SJP.Schematic.Sqlite.Query;
 using SJP.Schematic.Sqlite.Parsing;
 using SJP.Schematic.Sqlite.Pragma;
 using System.Threading;
+using SJP.Schematic.Core.Extensions;
 
 namespace SJP.Schematic.Sqlite
 {

@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using SJP.Schematic.Core;
+using SJP.Schematic.Core.Extensions;
 using Superpower.Model;
 
 namespace SJP.Schematic.Sqlite.Parsing

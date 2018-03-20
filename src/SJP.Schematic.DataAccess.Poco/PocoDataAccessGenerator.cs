@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO.Abstractions;
 using SJP.Schematic.Core;
+using SJP.Schematic.Core.Extensions;
 
 namespace SJP.Schematic.DataAccess.Poco
 {

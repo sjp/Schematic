@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using EnumsNET;
+using SJP.Schematic.Core.Extensions;
 
 namespace SJP.Schematic.Core
 {
@@ -53,8 +54,7 @@ namespace SJP.Schematic.Core
                 hash = (hash * 23) + (obj.Server != null ? _comparer.GetHashCode(obj.Server) : _defaultServer != null ? _comparer.GetHashCode(_defaultServer) : 0);
                 hash = (hash * 23) + (obj.Database != null ? _comparer.GetHashCode(obj.Database) : _defaultDatabase != null ? _comparer.GetHashCode(_defaultDatabase) : 0);
                 hash = (hash * 23) + (obj.Schema != null ? _comparer.GetHashCode(obj.Schema) : _defaultSchema != null ? _comparer.GetHashCode(_defaultSchema) : 0);
-                hash = (hash * 23) + (obj.LocalName != null ? _comparer.GetHashCode(obj.LocalName) : 0);
-                return hash;
+                return (hash * 23) + (obj.LocalName != null ? _comparer.GetHashCode(obj.LocalName) : 0);
             }
         }
 

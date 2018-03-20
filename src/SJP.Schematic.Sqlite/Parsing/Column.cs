@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using Superpower.Model;
-using SJP.Schematic.Core;
 using EnumsNET;
 using System.Linq;
+using SJP.Schematic.Core.Extensions;
 
 namespace SJP.Schematic.Sqlite.Parsing
 {

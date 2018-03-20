@@ -3,7 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Humanizer;
+using Microsoft.EntityFrameworkCore.Internal;
 using SJP.Schematic.Core;
+using SJP.Schematic.Core.Extensions;
 using SJP.Schematic.DataAccess.Extensions;
 
 namespace SJP.Schematic.DataAccess.EntityFrameworkCore

@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Reflection;
-using SJP.Schematic.Core;
+using SJP.Schematic.Core.Extensions;
 
 namespace SJP.Schematic.Modelled.Reflection.Model
 {

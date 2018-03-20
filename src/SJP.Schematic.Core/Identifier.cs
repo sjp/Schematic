@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using SJP.Schematic.Core.Extensions;
 
 namespace SJP.Schematic.Core
 {

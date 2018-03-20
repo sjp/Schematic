@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using SJP.Schematic.Core;
 using System.Linq;
+using SJP.Schematic.Core.Extensions;
 
 namespace SJP.Schematic.Sqlite.Parsing
 {

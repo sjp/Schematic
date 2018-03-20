@@ -1,5 +1,6 @@
 ﻿using System;
 using SJP.Schematic.Core;
+using SJP.Schematic.Core.Extensions;
 using Superpower.Model;
 
 namespace SJP.Schematic.Sqlite.Parsing

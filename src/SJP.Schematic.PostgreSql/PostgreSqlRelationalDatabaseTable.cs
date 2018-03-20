@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using SJP.Schematic.Core;
 using SJP.Schematic.PostgreSql.Query;
 using System.Globalization;
+using SJP.Schematic.Core.Extensions;
 
 namespace SJP.Schematic.PostgreSql
 {

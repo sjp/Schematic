@@ -5,6 +5,7 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using SJP.Schematic.Core;
+using SJP.Schematic.Core.Extensions;
 using Superpower;
 using Superpower.Model;
 using Superpower.Parsers;

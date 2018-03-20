@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using SJP.Schematic.Core;
+using SJP.Schematic.Core.Extensions;
 
 namespace SJP.Schematic.Lint.Rules
 {
@@ -123,7 +124,7 @@ namespace SJP.Schematic.Lint.Rules
             if (input == null)
                 throw new ArgumentNullException(nameof(input));
 
-            return input.Any(c => c.IsWhiteSpace());
+            return input.Any(char.IsWhiteSpace);
         }
 
         private const string RuleTitle = "Whitespace present in object name.";

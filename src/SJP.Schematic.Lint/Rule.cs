@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using EnumsNET;
 using SJP.Schematic.Core;
+using SJP.Schematic.Core.Extensions;
 
 namespace SJP.Schematic.Lint
 {

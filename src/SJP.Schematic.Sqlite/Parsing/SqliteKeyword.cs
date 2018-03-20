@@ -1,6 +1,6 @@
 ﻿using System;
 using EnumsNET;
-using SJP.Schematic.Core;
+using SJP.Schematic.Core.Extensions;
 
 namespace SJP.Schematic.Sqlite.Parsing
 {

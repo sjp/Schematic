@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using SJP.Schematic.Core;
+using SJP.Schematic.Core.Extensions;
 using SJP.Schematic.Sqlite.Parsing;
 using Superpower.Model;
 
