@@ -236,7 +236,7 @@ namespace SJP.Schematic.Sqlite
             foreach (var dbName in dbNames)
             {
                 var qualifiedTableName = new Identifier(dbName, tableName.LocalName);
-                var table = TableExists(qualifiedTableName)
+                var table = await TableExistsAsync(qualifiedTableName).ConfigureAwait(false)
                     ? new SqliteRelationalDatabaseTable(Connection, this, qualifiedTableName)
                     : null;
 

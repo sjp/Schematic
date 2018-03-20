@@ -165,16 +165,16 @@ namespace SJP.Schematic.Core.Caching
             if (Cache.TryGetValue(cacheKey, out var result))
             {
                 var cachedReader = result.CreateDataReader();
-                return cachedReader.Read()
+                return await cachedReader.ReadAsync(cancellationToken).ConfigureAwait(false)
                     ? cachedReader.GetValue(0)
                     : null;
             }
 
             result = new DataTable();
             result.Columns.Add(new DataColumn());
-            var reader = await Command.ExecuteReaderAsync().ConfigureAwait(false);
+            var reader = await Command.ExecuteReaderAsync(cancellationToken).ConfigureAwait(false);
             object value;
-            if (reader.Read())
+            if (await reader.ReadAsync(cancellationToken).ConfigureAwait(false))
             {
                 value = reader.GetValue(0);
                 var row = result.NewRow();
