@@ -222,7 +222,7 @@ namespace SJP.Schematic.Core.Caching
                 return result.CreateDataReader();
 
             result = new DataTable();
-            var reader = await Command.ExecuteReaderAsync(behavior).ConfigureAwait(false);
+            var reader = await Command.ExecuteReaderAsync(behavior, cancellationToken).ConfigureAwait(false);
             result.Load(reader);
 
             Cache.TryAdd(cacheKey, result);
