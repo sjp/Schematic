@@ -101,9 +101,9 @@ namespace SJP.Schematic.MySql
                 case DataType.Time:
                     return "time";
                 case DataType.Unknown:
-                    throw new ArgumentOutOfRangeException("Unable to determine a type name for an unknown data type.", nameof(typeMetadata));
+                    throw new ArgumentOutOfRangeException(nameof(typeMetadata), "Unable to determine a type name for an unknown data type.");
                 default:
-                    throw new ArgumentOutOfRangeException("Unable to determine a type name for data type: " + typeMetadata.DataType.ToString(), nameof(typeMetadata));
+                    throw new ArgumentOutOfRangeException(nameof(typeMetadata), "Unable to determine a type name for data type: " + typeMetadata.DataType.ToString());
             }
         }
 

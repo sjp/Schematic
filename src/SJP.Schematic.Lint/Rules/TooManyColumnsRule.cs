@@ -11,7 +11,7 @@ namespace SJP.Schematic.Lint.Rules
             : base(RuleTitle, level)
         {
             if (columnLimit == 0)
-                throw new ArgumentOutOfRangeException("The column limit must be at least 1.", nameof(columnLimit));
+                throw new ArgumentOutOfRangeException(nameof(columnLimit), "The column limit must be at least 1.");
 
             ColumnLimit = columnLimit;
         }

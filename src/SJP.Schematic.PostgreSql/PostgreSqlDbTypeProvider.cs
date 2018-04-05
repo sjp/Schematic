@@ -105,9 +105,9 @@ namespace SJP.Schematic.PostgreSql
                 case DataType.UnicodeText:
                     return new Identifier("pg_catalog", "text");
                 case DataType.Unknown:
-                    throw new ArgumentOutOfRangeException("Unable to determine a type name for an unknown data type.", nameof(typeMetadata));
+                    throw new ArgumentOutOfRangeException(nameof(typeMetadata), "Unable to determine a type name for an unknown data type.");
                 default:
-                    throw new ArgumentOutOfRangeException("Unable to determine a type name for data type: " + typeMetadata.DataType.ToString(), nameof(typeMetadata));
+                    throw new ArgumentOutOfRangeException(nameof(typeMetadata), "Unable to determine a type name for data type: " + typeMetadata.DataType.ToString());
             }
         }
 

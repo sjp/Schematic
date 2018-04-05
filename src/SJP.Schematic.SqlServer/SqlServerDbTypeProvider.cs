@@ -105,9 +105,9 @@ namespace SJP.Schematic.SqlServer
                         ? new Identifier("sys", "nchar")
                         : new Identifier("sys", "nvarchar");
                 case DataType.Unknown:
-                    throw new ArgumentOutOfRangeException("Unable to determine a type name for an unknown data type.", nameof(typeMetadata));
+                    throw new ArgumentOutOfRangeException(nameof(typeMetadata), "Unable to determine a type name for an unknown data type.");
                 default:
-                    throw new ArgumentOutOfRangeException("Unable to determine a type name for data type: " + typeMetadata.DataType.ToString(), nameof(typeMetadata));
+                    throw new ArgumentOutOfRangeException(nameof(typeMetadata), "Unable to determine a type name for data type: " + typeMetadata.DataType.ToString(), nameof(typeMetadata));
             }
         }
 
