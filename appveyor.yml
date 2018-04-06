@@ -54,6 +54,8 @@ test_script:
   - ps: build/uploadtests.ps1 "src/SJP.Schematic.DataAccess.OrmLite.Tests/TestResults/SJP.Schematic.DataAccess.OrmLite.Tests.results.xml"
   - dotnet test src/SJP.Schematic.DataAccess.Poco.Tests/SJP.Schematic.DataAccess.Poco.Tests.csproj --configuration Release --logger:trx;LogFileName=SJP.Schematic.DataAccess.Poco.Tests.results.xml
   - ps: build/uploadtests.ps1 "src/SJP.Schematic.DataAccess.Poco.Tests/TestResults/SJP.Schematic.DataAccess.Poco.Tests.results.xml"
+  - dotnet test src/SJP.Schematic.Lint.Tests/SJP.Schematic.Lint.Tests.csproj --configuration Release --logger:trx;LogFileName=SJP.Schematic.Lint.Tests.results.xml
+  - ps: build/uploadtests.ps1 "src/SJP.Schematic.Lint.Tests/TestResults/SJP.Schematic.Lint.Tests.results.xml"
 
 notifications:
 - provider: Email
