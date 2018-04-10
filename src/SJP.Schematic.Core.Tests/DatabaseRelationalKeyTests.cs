@@ -6,7 +6,7 @@ using System.Data;
 namespace SJP.Schematic.Core.Tests
 {
     [TestFixture]
-    internal class SqliteRelationalKeyTests
+    internal class DatabaseRelationalKeyTests
     {
         [Test]
         public void Ctor_GivenNullChildKey_ThrowsArgumentNullException()
