@@ -3,7 +3,6 @@ image: Visual Studio 2017
 
 install:
   - cmd: dotnet --info
-  - cmd: dotnet restore src
 
 # build platform, i.e. x86, x64, Any CPU. This setting is optional.
 platform: Any CPU
@@ -26,41 +25,15 @@ services:
   - postgresql96
   - mysql
 
-build:
-  verbosity: minimal
-
-test_script:
-  - dotnet test src/SJP.Schematic.Core.Tests/SJP.Schematic.Core.Tests.csproj --configuration Release --logger:trx;LogFileName=SJP.Schematic.Core.Tests.results.xml
-  - ps: build/uploadtests.ps1 "src/SJP.Schematic.Core.Tests/TestResults/SJP.Schematic.Core.Tests.results.xml"
-  - dotnet test src/SJP.Schematic.Modelled.Tests/SJP.Schematic.Modelled.Tests.csproj --configuration Release --logger:trx;LogFileName=SJP.Schematic.Modelled.Tests.results.xml
-  - ps: build/uploadtests.ps1 "src/SJP.Schematic.Modelled.Tests/TestResults/SJP.Schematic.Modelled.Tests.results.xml"
-  - dotnet test src/SJP.Schematic.Modelled.Reflection.Tests/SJP.Schematic.Modelled.Reflection.Tests.csproj --configuration Release --logger:trx;LogFileName=SJP.Schematic.Modelled.Reflection.Tests.results.xml
-  - ps: build/uploadtests.ps1 "src/SJP.Schematic.Modelled.Reflection.Tests/TestResults/SJP.Schematic.Modelled.Reflection.Tests.results.xml"
-  - dotnet test src/SJP.Schematic.Sqlite.Tests/SJP.Schematic.Sqlite.Tests.csproj --configuration Release --logger:trx;LogFileName=SJP.Schematic.Sqlite.Tests.results.xml
-  - ps: build/uploadtests.ps1 "src/SJP.Schematic.Sqlite.Tests/TestResults/SJP.Schematic.Sqlite.Tests.results.xml"
-  - dotnet test src/SJP.Schematic.SqlServer.Tests/SJP.Schematic.SqlServer.Tests.csproj --configuration Release --logger:trx;LogFileName=SJP.Schematic.SqlServer.Tests.results.xml
-  - ps: build/uploadtests.ps1 "src/SJP.Schematic.SqlServer.Tests/TestResults/SJP.Schematic.SqlServer.Tests.results.xml"
+build_script:
   - mysql -e "create database schematic;" --user=root
-  - dotnet test src/SJP.Schematic.MySql.Tests/SJP.Schematic.MySql.Tests.csproj --configuration Release --logger:trx;LogFileName=SJP.Schematic.MySql.Tests.results.xml
-  - ps: build/uploadtests.ps1 "src/SJP.Schematic.MySql.Tests/TestResults/SJP.Schematic.MySql.Tests.results.xml"
   - createdb schematic
-  - dotnet test src/SJP.Schematic.PostgreSql.Tests/SJP.Schematic.PostgreSql.Tests.csproj --configuration Release --logger:trx;LogFileName=SJP.Schematic.PostgreSql.Tests.results.xml
-  - ps: build/uploadtests.ps1 "src/SJP.Schematic.PostgreSql.Tests/TestResults/SJP.Schematic.PostgreSql.Tests.results.xml"
-  - dotnet test src/SJP.Schematic.DataAccess.Tests/SJP.Schematic.DataAccess.Tests.csproj --configuration Release --logger:trx;LogFileName=SJP.Schematic.DataAccess.Tests.results.xml
-  - ps: build/uploadtests.ps1 "src/SJP.Schematic.DataAccess.Tests/TestResults/SJP.Schematic.DataAccess.Tests.results.xml"
-  - dotnet test src/SJP.Schematic.DataAccess.EntityFrameworkCore.Tests/SJP.Schematic.DataAccess.EntityFrameworkCore.Tests.csproj --configuration Release --logger:trx;LogFileName=SJP.Schematic.DataAccess.EntityFrameworkCore.Tests.results.xml
-  - ps: build/uploadtests.ps1 "src/SJP.Schematic.DataAccess.EntityFrameworkCore.Tests/TestResults/SJP.Schematic.DataAccess.EntityFrameworkCore.Tests.results.xml"
-  - dotnet test src/SJP.Schematic.DataAccess.OrmLite.Tests/SJP.Schematic.DataAccess.OrmLite.Tests.csproj --configuration Release --logger:trx;LogFileName=SJP.Schematic.DataAccess.OrmLite.Tests.results.xml
-  - ps: build/uploadtests.ps1 "src/SJP.Schematic.DataAccess.OrmLite.Tests/TestResults/SJP.Schematic.DataAccess.OrmLite.Tests.results.xml"
-  - dotnet test src/SJP.Schematic.DataAccess.Poco.Tests/SJP.Schematic.DataAccess.Poco.Tests.csproj --configuration Release --logger:trx;LogFileName=SJP.Schematic.DataAccess.Poco.Tests.results.xml
-  - ps: build/uploadtests.ps1 "src/SJP.Schematic.DataAccess.Poco.Tests/TestResults/SJP.Schematic.DataAccess.Poco.Tests.results.xml"
-  - dotnet test src/SJP.Schematic.Lint.Tests/SJP.Schematic.Lint.Tests.csproj --configuration Release --logger:trx;LogFileName=SJP.Schematic.Lint.Tests.results.xml
-  - ps: build/uploadtests.ps1 "src/SJP.Schematic.Lint.Tests/TestResults/SJP.Schematic.Lint.Tests.results.xml"
+  - ps: ./build.ps1
 
 notifications:
 - provider: Email
   to:
-    - simon@sjp.co.nz
+    - '{{commitAuthorEmail}}'
   on_build_success: false
   on_build_failure: true
   on_build_status_changed: true
