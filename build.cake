@@ -1,3 +1,6 @@
+#tool nuget:?package=Codecov
+#addin nuget:?package=Cake.Codecov
+
 //////////////////////////////////////////////////////////////////////
 // ARGUMENTS
 //////////////////////////////////////////////////////////////////////
@@ -10,7 +13,7 @@ var configuration = Argument("configuration", "Release");
 if (string.IsNullOrWhiteSpace(configuration))
     configuration = "Release";
 
-var testFramework = "netcoreapp2.0";
+const bool reportCoverage = false;
 
 //////////////////////////////////////////////////////////////////////
 // PREPARATION
@@ -22,7 +25,6 @@ var testProjects = new Lazy<IEnumerable<string>>(() => solution.Value
     .Projects
     .Select(p => p.Path.FullPath)
     .Where(p => p.EndsWith(".Tests.csproj")));
-    //.Select(p => new FilePath(p).GetDirectory().FullPath));
 
 //////////////////////////////////////////////////////////////////////
 // TASKS
@@ -41,12 +43,10 @@ Task("Clean")
 Task("Build")
     .Does(() =>
 {
-    DotNetCoreRestore(solutionFile.FullPath);
     DotNetCoreBuild(solutionFile.FullPath, new DotNetCoreBuildSettings
     {
         Configuration = configuration,
-        Verbosity = DotNetCoreVerbosity.Minimal,
-        NoRestore = true
+        Verbosity = DotNetCoreVerbosity.Minimal
     });
 });
 
@@ -64,7 +64,18 @@ Task("Run-Unit-Tests")
             {
                 Configuration = configuration,
                 Logger = "trx",
-                ArgumentCustomization = a => a.AppendSwitchQuoted("--results-directory", tempDirectory)
+                ArgumentCustomization = a =>
+                {
+                    var result = a.AppendSwitchQuoted("--results-directory", tempDirectory);
+                    if (reportCoverage)
+                    {
+                        result = result.Append("/p:CollectCoverage=true")
+                            .Append("/p:CoverletOutputFormat=opencover")
+                            .Append("/p:CoverletOutputDirectory=" + tempDirectory);
+                    }
+
+                    return result;
+                }
             });
         }
         finally
@@ -76,11 +87,19 @@ Task("Run-Unit-Tests")
                 // https://github.com/Microsoft/vstest/issues/880#issuecomment-341912021
                 foreach (var testResultsFile in GetFiles(tempDirectory + "/**/*.trx"))
                     AppVeyor.UploadTestResults(testResultsFile, AppVeyorTestResultsType.MSTest);
+                
+                // Upload coverage report
+                if (reportCoverage)
+                {
+                    var coverageReport = GetFiles(tempDirectory + "/**/coverage.xml").First().FullPath;
+                    Codecov(coverageReport);
+                }
             }
         }
     }
     finally
     {
+
         DeleteDirectory(tempDirectory, new DeleteDirectorySettings { Recursive = true });
     }
 })
