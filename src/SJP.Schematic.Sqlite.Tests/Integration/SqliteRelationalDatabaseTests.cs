@@ -33,10 +33,10 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
         }
 
         [Test]
-        public async Task VacuumAsync_WhenInvoked_RunsWithoutError()
+        public Task VacuumAsync_WhenInvoked_RunsWithoutError()
         {
             var sqliteDb = new SqliteRelationalDatabase(Dialect, Connection);
-            await sqliteDb.VacuumAsync().ConfigureAwait(false);
+            return sqliteDb.VacuumAsync();
         }
 
         [Test]
@@ -54,10 +54,10 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
         }
 
         [Test]
-        public async Task VacuumAsync_WhenGivenValidSchemaName_RunsWithoutError()
+        public Task VacuumAsync_WhenGivenValidSchemaName_RunsWithoutError()
         {
             var sqliteDb = new SqliteRelationalDatabase(Dialect, Connection);
-            await sqliteDb.VacuumAsync("main").ConfigureAwait(false);
+            return sqliteDb.VacuumAsync("main");
         }
 
         [Test]
@@ -75,10 +75,10 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
         }
 
         [Test]
-        public async Task AttachDatabaseAsync_WhenGivenValidSchemaAndFileNames_RunsWithoutError()
+        public Task AttachDatabaseAsync_WhenGivenValidSchemaAndFileNames_RunsWithoutError()
         {
             var sqliteDb = new SqliteRelationalDatabase(Dialect, Config.Connection);
-            await sqliteDb.AttachDatabaseAsync("test", ":memory:").ConfigureAwait(false);
+            return sqliteDb.AttachDatabaseAsync("test", ":memory:");
         }
 
         [Test]
@@ -229,15 +229,15 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
         internal class ViewTests : SqliteTest
         {
             [OneTimeSetUp]
-            public async Task Init()
+            public Task Init()
             {
-                await Connection.ExecuteAsync("create view db_test_view_1 as select 1 as dummy").ConfigureAwait(false);
+                return Connection.ExecuteAsync("create view db_test_view_1 as select 1 as dummy");
             }
 
             [OneTimeTearDown]
-            public async Task CleanUp()
+            public Task CleanUp()
             {
-                await Connection.ExecuteAsync("drop view db_test_view_1").ConfigureAwait(false);
+                return Connection.ExecuteAsync("drop view db_test_view_1");
             }
 
             private IRelationalDatabase Database => new SqliteRelationalDatabase(new SqliteDialect(), Connection);

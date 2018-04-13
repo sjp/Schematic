@@ -28,15 +28,15 @@ namespace SJP.Schematic.SqlServer.Tests.Integration
         internal class TableTests : SqlServerTest
         {
             [OneTimeSetUp]
-            public async Task Init()
+            public Task Init()
             {
-                await Connection.ExecuteAsync("create table db_test_table_1 ( title nvarchar(200) )").ConfigureAwait(false);
+                return Connection.ExecuteAsync("create table db_test_table_1 ( title nvarchar(200) )");
             }
 
             [OneTimeTearDown]
-            public async Task CleanUp()
+            public Task CleanUp()
             {
-                await Connection.ExecuteAsync("drop table db_test_table_1").ConfigureAwait(false);
+                return Connection.ExecuteAsync("drop table db_test_table_1");
             }
 
             private IRelationalDatabase Database => new SqlServerRelationalDatabase(Dialect, Connection);
@@ -196,15 +196,15 @@ namespace SJP.Schematic.SqlServer.Tests.Integration
         internal class ViewTests : SqlServerTest
         {
             [OneTimeSetUp]
-            public async Task Init()
+            public Task Init()
             {
-                await Connection.ExecuteAsync("create view db_test_view_1 as select 1 as dummy").ConfigureAwait(false);
+                return Connection.ExecuteAsync("create view db_test_view_1 as select 1 as dummy");
             }
 
             [OneTimeTearDown]
-            public async Task CleanUp()
+            public Task CleanUp()
             {
-                await Connection.ExecuteAsync("drop view db_test_view_1").ConfigureAwait(false);
+                return Connection.ExecuteAsync("drop view db_test_view_1");
             }
 
             private IRelationalDatabase Database => new SqlServerRelationalDatabase(Dialect, Connection);
@@ -368,15 +368,15 @@ namespace SJP.Schematic.SqlServer.Tests.Integration
         internal class SequenceTests : SqlServerTest
         {
             [OneTimeSetUp]
-            public async Task Init()
+            public Task Init()
             {
-                await Connection.ExecuteAsync("create sequence db_test_sequence_1 start with 1000 increment by 1").ConfigureAwait(false);
+                return Connection.ExecuteAsync("create sequence db_test_sequence_1 start with 1000 increment by 1");
             }
 
             [OneTimeTearDown]
-            public async Task CleanUp()
+            public Task CleanUp()
             {
-                await Connection.ExecuteAsync("drop sequence db_test_sequence_1").ConfigureAwait(false);
+                return Connection.ExecuteAsync("drop sequence db_test_sequence_1");
             }
 
             private IRelationalDatabase Database => new SqlServerRelationalDatabase(Dialect, Connection);

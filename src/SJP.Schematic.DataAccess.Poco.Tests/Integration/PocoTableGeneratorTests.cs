@@ -16,21 +16,21 @@ namespace SJP.Schematic.DataAccess.Poco.Tests.Integration
         private IDatabaseTableGenerator TableGenerator => new PocoTableGenerator(new PascalCaseNameProvider(), TestNamespace);
 
         [OneTimeSetUp]
-        public async Task Init()
+        public Task Init()
         {
-            await Connection.ExecuteAsync(@"create table test_table_1 (
+            return Connection.ExecuteAsync(@"create table test_table_1 (
     testint integer not null primary key autoincrement,
     testdecimal numeric default 2.45,
     testblob blob default X'DEADBEEF',
     testdatetime datetime default CURRENT_TIMESTAMP,
     teststring text default 'asd'
-)").ConfigureAwait(false);
+)");
         }
 
         [OneTimeTearDown]
-        public async Task CleanUp()
+        public Task CleanUp()
         {
-            await Connection.ExecuteAsync("drop table test_table_1").ConfigureAwait(false);
+            return Connection.ExecuteAsync("drop table test_table_1");
         }
 
         [Test]

@@ -28,15 +28,15 @@ namespace SJP.Schematic.MySql.Tests.Integration
         internal class TableTests : MySqlTest
         {
             [OneTimeSetUp]
-            public async Task Init()
+            public Task Init()
             {
-                await Connection.ExecuteAsync("create table db_test_table_1 ( title nvarchar(200) )").ConfigureAwait(false);
+                return Connection.ExecuteAsync("create table db_test_table_1 ( title nvarchar(200) )");
             }
 
             [OneTimeTearDown]
-            public async Task CleanUp()
+            public Task CleanUp()
             {
-                await Connection.ExecuteAsync("drop table db_test_table_1").ConfigureAwait(false);
+                return Connection.ExecuteAsync("drop table db_test_table_1");
             }
 
             private IRelationalDatabase Database => new MySqlRelationalDatabase(Dialect, Connection);
@@ -178,15 +178,15 @@ namespace SJP.Schematic.MySql.Tests.Integration
         internal class ViewTests : MySqlTest
         {
             [OneTimeSetUp]
-            public async Task Init()
+            public Task Init()
             {
-                await Connection.ExecuteAsync("create view db_test_view_1 as select 1 as dummy").ConfigureAwait(false);
+                return Connection.ExecuteAsync("create view db_test_view_1 as select 1 as dummy");
             }
 
             [OneTimeTearDown]
-            public async Task CleanUp()
+            public Task CleanUp()
             {
-                await Connection.ExecuteAsync("drop view db_test_view_1").ConfigureAwait(false);
+                return Connection.ExecuteAsync("drop view db_test_view_1");
             }
 
             private IRelationalDatabase Database => new MySqlRelationalDatabase(Dialect, Connection);
