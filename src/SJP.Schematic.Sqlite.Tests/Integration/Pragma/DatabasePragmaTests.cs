@@ -1255,7 +1255,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
                 var dbPragma = new DatabasePragma(Dialect, connection, MainSchema);
 
                 var schemaVersion = dbPragma.SchemaVersion;
-                var newValue = schemaVersion == 123 ? 456 : 456;
+                var newValue = schemaVersion == 123 ? 456 : 123;
                 dbPragma.SchemaVersion = newValue;
                 var readOfNewValue = dbPragma.SchemaVersion;
 
@@ -1271,7 +1271,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
                 var dbPragma = new DatabasePragma(Dialect, connection, MainSchema);
 
                 var schemaVersion = await dbPragma.SchemaVersionAsync().ConfigureAwait(false);
-                var newValue = schemaVersion == 123 ? 456 : 456;
+                var newValue = schemaVersion == 123 ? 456 : 123;
                 await dbPragma.SchemaVersionAsync(newValue).ConfigureAwait(false);
                 var readOfNewValue = await dbPragma.SchemaVersionAsync().ConfigureAwait(false);
 
@@ -1475,7 +1475,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
                 var dbPragma = new DatabasePragma(Dialect, connection, MainSchema);
 
                 var userVersion = dbPragma.UserVersion;
-                var newValue = userVersion == 123 ? 456 : 456;
+                var newValue = userVersion == 123 ? 456 : 123;
                 dbPragma.UserVersion = newValue;
                 var readOfNewValue = dbPragma.UserVersion;
 
@@ -1491,7 +1491,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
                 var dbPragma = new DatabasePragma(Dialect, connection, MainSchema);
 
                 var userVersion = await dbPragma.UserVersionAsync().ConfigureAwait(false);
-                var newValue = userVersion == 123 ? 456 : 456;
+                var newValue = userVersion == 123 ? 456 : 123;
                 await dbPragma.UserVersionAsync(newValue).ConfigureAwait(false);
                 var readOfNewValue = await dbPragma.UserVersionAsync().ConfigureAwait(false);
 

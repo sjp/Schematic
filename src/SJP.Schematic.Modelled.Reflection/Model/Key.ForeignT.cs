@@ -28,7 +28,7 @@ namespace SJP.Schematic.Modelled.Reflection.Model
                 get
                 {
                     if (Property == null)
-                        throw new ArgumentException($"The { nameof(Property) } property must be set before calling { nameof(KeySelector) }.", nameof(Property));
+                        throw new InvalidOperationException($"The { nameof(Property) } property must be set before calling { nameof(KeySelector) }.");
 
                     var targetProp = GetTargetProperty();
                     return obj =>
@@ -107,9 +107,9 @@ namespace SJP.Schematic.Modelled.Reflection.Model
                 return targetProp;
             }
 
-            private static ConcurrentDictionary<Assembly, AssemblyDefinition> AssemblyCache { get; } = new ConcurrentDictionary<Assembly, AssemblyDefinition>();
-
             private readonly Func<T, Key> _keySelector;
         }
+
+        private static ConcurrentDictionary<Assembly, AssemblyDefinition> AssemblyCache { get; } = new ConcurrentDictionary<Assembly, AssemblyDefinition>();
     }
 }

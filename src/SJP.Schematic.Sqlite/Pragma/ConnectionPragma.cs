@@ -139,7 +139,7 @@ namespace SJP.Schematic.Sqlite.Pragma
             set
             {
                 if (!value.IsValid())
-                    throw new ArgumentException($"The { nameof(Encoding) } provided must be a valid enum.", nameof(Encoding));
+                    throw new ArgumentException($"The { nameof(Encoding) } provided must be a valid enum.", nameof(value));
 
                 var encodingName = _encodingNameMapping[value];
                 Connection.Execute(PragmaPrefix + "encoding = '" + encodingName + "'");
@@ -281,7 +281,7 @@ namespace SJP.Schematic.Sqlite.Pragma
             set
             {
                 if (!value.IsValid())
-                    throw new ArgumentException($"The { nameof(TemporaryStoreLocation) } provided must be a valid enum.", nameof(TemporaryStore));
+                    throw new ArgumentException($"The { nameof(TemporaryStoreLocation) } provided must be a valid enum.", nameof(value));
 
                 Connection.Execute(PragmaPrefix + $"temp_store = { Enums.GetUnderlyingValue(value).ToString().ToUpperInvariant() }");
             }

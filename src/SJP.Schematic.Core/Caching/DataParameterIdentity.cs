@@ -6,7 +6,7 @@ namespace SJP.Schematic.Core.Caching
     /// <summary>
     /// Provides an identity to be used for determining whether a parameter is unique within a command's parameter collection.
     /// </summary>
-    public class DataParameterIdentity
+    public sealed class DataParameterIdentity : IEquatable<DataParameterIdentity>
     {
         /// <summary>
         /// Creates a <see cref="DataParameterIdentity"/> instance to create an identity for an <see cref="IDbDataParameter"/>.
@@ -35,6 +35,18 @@ namespace SJP.Schematic.Core.Caching
         /// </summary>
         /// <returns>A hash code for the current object.</returns>
         public override int GetHashCode() => Identity;
+
+        public bool Equals(DataParameterIdentity other)
+        {
+            if (ReferenceEquals(this, other))
+                return true;
+            if (ReferenceEquals(other, null))
+                return false;
+
+            return Identity == other.Identity;
+        }
+
+        public override bool Equals(object obj) => Equals(obj as DataParameterIdentity);
 
         /// <summary>
         /// An integer value that represents a unique hash for a <see cref="IDbDataParameter"/>.

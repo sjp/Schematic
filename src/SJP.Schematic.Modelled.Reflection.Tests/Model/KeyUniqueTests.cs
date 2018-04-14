@@ -11,7 +11,7 @@ namespace SJP.Schematic.Modelled.Reflection.Model.Tests
         [Test]
         public void Ctor_GivenNullColumns_ThrowsArgumentNullException()
         {
-            Assert.Throws<ArgumentNullException>(() => new Key.Unique(null));
+            Assert.Throws<ArgumentNullException>(() => new Key.Unique((IModelledColumn[])null));
         }
 
         [Test]

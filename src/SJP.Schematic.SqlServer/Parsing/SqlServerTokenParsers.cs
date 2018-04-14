@@ -32,7 +32,6 @@ namespace SJP.Schematic.SqlServer.Parsing
                 SqlServerToken.Identifier
             ).Select(tokens => new SqlIdentifier(tokens[0], tokens[2]));
 
-
         public static TokenListParser<SqlServerToken, SqlIdentifier> LocalName =>
             Token.EqualTo(SqlServerToken.Identifier)
                 .Select(name => new SqlIdentifier(name));

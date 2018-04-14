@@ -106,20 +106,20 @@ namespace SJP.Schematic.Core
             if (serverPresent && databasePresent && schemaPresent && localNamePresent)
                 return new Identifier(server, database, schema, localName);
             else if (serverPresent)
-                throw new ArgumentNullException("A server name was provided, but other components are missing.");
+                throw new ArgumentNullException(nameof(server), "A server name was provided, but other components are missing.");
 
             if (databasePresent && schemaPresent && localNamePresent)
                 return new Identifier(database, schema, localName);
             else if (databasePresent)
-                throw new ArgumentNullException("A database name was provided, but other components are missing.");
+                throw new ArgumentNullException(nameof(database), "A database name was provided, but other components are missing.");
 
             if (schemaPresent && localNamePresent)
                 return new Identifier(schema, localName);
             else if (schemaPresent)
-                throw new ArgumentNullException("A schema name was provided, but other components are missing.");
+                throw new ArgumentNullException(nameof(schema), "A schema name was provided, but other components are missing.");
 
             if (!localNamePresent)
-                throw new ArgumentNullException("At least one component of an identifier must be provided.");
+                throw new ArgumentNullException(nameof(localName), "At least one component of an identifier must be provided.");
 
             return new Identifier(localName);
         }

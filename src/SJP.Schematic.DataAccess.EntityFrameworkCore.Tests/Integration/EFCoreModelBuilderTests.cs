@@ -114,7 +114,7 @@ create table test_table_4 (
             var table = database.Tables.First();
 
             var builder = Builder;
-            var result = builder.AddTable(table);
+            builder.AddTable(table);
 
             Assert.IsTrue(builder.HasRecords);
         }

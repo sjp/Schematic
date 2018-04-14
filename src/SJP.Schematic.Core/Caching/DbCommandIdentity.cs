@@ -6,7 +6,7 @@ namespace SJP.Schematic.Core.Caching
     /// <summary>
     /// Provides an identity to be used to determine whether a command is unique for a collection.
     /// </summary>
-    public class DbCommandIdentity
+    public sealed class DbCommandIdentity : IEquatable<DbCommandIdentity>
     {
         /// <summary>
         /// Creates a <see cref="DbCommandIdentity"/> instance to create an identity for an <see cref="IDbCommand"/>.
@@ -33,6 +33,18 @@ namespace SJP.Schematic.Core.Caching
         }
 
         public override int GetHashCode() => Identity;
+
+        public bool Equals(DbCommandIdentity other)
+        {
+            if (ReferenceEquals(this, other))
+                return true;
+            if (ReferenceEquals(other, null))
+                return false;
+
+            return Identity == other.Identity;
+        }
+
+        public override bool Equals(object obj) => Equals(obj as DbCommandIdentity);
 
         /// <summary>
         /// An integer value that represents a unique hash for a <see cref="IDbCommand"/>.

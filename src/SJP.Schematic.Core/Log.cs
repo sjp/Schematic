@@ -15,7 +15,7 @@ namespace SJP.Schematic.Core
         public static ILoggerFactory Factory
         {
             get => _factory;
-            set => _factory = value ?? throw new ArgumentNullException(nameof(Factory));
+            set => _factory = value ?? throw new ArgumentNullException(nameof(value));
         }
 
         private static ILoggerFactory _factory = new LoggerFactory();

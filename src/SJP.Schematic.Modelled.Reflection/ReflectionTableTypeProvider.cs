@@ -47,11 +47,11 @@ namespace SJP.Schematic.Modelled.Reflection
 
         public IEnumerable<IModelledIndex> Indexes => _indexes.Value;
 
-        protected virtual object CreateTableInstance()
+        protected object CreateTableInstance()
         {
             var ctor = TableType.GetDefaultConstructor();
             if (ctor == null)
-                throw new ArgumentException($"The table type '{ TableType.FullName }' does not contain a default constructor.", nameof(TableType));
+                throw new ArgumentException($"The table type '{ TableType.FullName }' does not contain a default constructor.");
 
             var tableInstance = Activator.CreateInstance(TableType);
             return PopulateColumnProperties(tableInstance);

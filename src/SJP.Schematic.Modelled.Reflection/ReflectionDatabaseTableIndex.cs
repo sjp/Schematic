@@ -21,7 +21,7 @@ namespace SJP.Schematic.Modelled.Reflection
             var dialect = table.Database.Dialect;
             Name = dialect.GetAliasOrDefault(index.Property);
 
-            var tableType = index.Property.DeclaringType.GetType().GetTypeInfo();
+            var tableType = index.Property.DeclaringType.GetTypeInfo();
             var propertyLookup = tableType.GetProperties()
                 .Select(p => new KeyValuePair<string, PropertyInfo>(p.Name, p))
                 .ToDictionary();

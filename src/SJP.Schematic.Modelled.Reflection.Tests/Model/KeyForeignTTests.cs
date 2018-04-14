@@ -48,23 +48,23 @@ namespace SJP.Schematic.Modelled.Reflection.Model.Tests
         }
 
         [Test]
-        public void KeySelector_WithSelectorToPrimaryKeyAndPropertyInfoNotSet_ThrowsArgumentException()
+        public void KeySelector_WithSelectorToPrimaryKeyAndPropertyInfoNotSet_ThrowsInvalidOperationException()
         {
             var testColumn = Mock.Of<IModelledColumn>();
             var foreignKey = new Key.Foreign<TestTable1>(t => t.PK_TARGET, testColumn);
 
             var instance = new TestTable1();
-            Assert.Throws<ArgumentException>(() => foreignKey.KeySelector.Invoke(instance));
+            Assert.Throws<InvalidOperationException>(() => foreignKey.KeySelector.Invoke(instance));
         }
 
         [Test]
-        public void KeySelector_WithSelectorUniqueKeyAndPropertyInfoNotSet_ThrowsArgumentException()
+        public void KeySelector_WithSelectorUniqueKeyAndPropertyInfoNotSet_ThrowsInvalidOperationException()
         {
             var testColumn = Mock.Of<IModelledColumn>();
             var foreignKey = new Key.Foreign<TestTable1>(t => t.UK_TARGET, testColumn);
 
             var instance = new TestTable1();
-            Assert.Throws<ArgumentException>(() => foreignKey.KeySelector.Invoke(instance));
+            Assert.Throws<InvalidOperationException>(() => foreignKey.KeySelector.Invoke(instance));
         }
 
         [Test]
@@ -102,17 +102,17 @@ namespace SJP.Schematic.Modelled.Reflection.Model.Tests
         }
 
         [Test]
-        public void KeySelector_GivenWrongObject_ThrowsArgumentException()
+        public void KeySelector_GivenWrongObject_ThrowsInvalidOperationException()
         {
             var testColumn = Mock.Of<IModelledColumn>();
             var foreignKey = new Key.Foreign<TestTable1>(t => t.PK_TARGET, testColumn);
 
             var instance = new object();
-            Assert.Throws<ArgumentException>(() => foreignKey.KeySelector.Invoke(instance));
+            Assert.Throws<InvalidOperationException>(() => foreignKey.KeySelector.Invoke(instance));
         }
 
         [Test]
-        public void KeySelector_WhenCtorNotGivenSimpleSelector_ThrowsArgumentException()
+        public void KeySelector_WhenCtorNotGivenSimpleSelector_ThrowsInvalidOperationException()
         {
             var testColumn = Mock.Of<IModelledColumn>();
             Func<TestTable1, Key> selector = t =>
@@ -125,7 +125,7 @@ namespace SJP.Schematic.Modelled.Reflection.Model.Tests
             var foreignKey = new Key.Foreign<TestTable1>(selector, testColumn);
 
             var instance = new TestTable1();
-            Assert.Throws<ArgumentException>(() => foreignKey.KeySelector.Invoke(instance));
+            Assert.Throws<InvalidOperationException>(() => foreignKey.KeySelector.Invoke(instance));
         }
 
         public class TestTable1

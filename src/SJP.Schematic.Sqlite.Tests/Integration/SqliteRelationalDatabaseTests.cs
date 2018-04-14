@@ -22,7 +22,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
         [Test]
         public void DefaultSchema_PropertyGet_ShouldEqualMain()
         {
-            Assert.AreEqual(Database.DefaultSchema, "main");
+            Assert.AreEqual("main", Database.DefaultSchema);
         }
 
         [Test]

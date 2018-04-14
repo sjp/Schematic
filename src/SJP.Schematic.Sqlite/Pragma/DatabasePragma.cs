@@ -50,7 +50,7 @@ namespace SJP.Schematic.Sqlite.Pragma
             set
             {
                 if (!value.IsValid())
-                    throw new ArgumentException($"The { nameof(AutoVacuumMode) } provided must be a valid enum.", nameof(AutoVacuum));
+                    throw new ArgumentException($"The { nameof(AutoVacuumMode) } provided must be a valid enum.", nameof(value));
 
                 Connection.Execute(PragmaPrefix + $"auto_vacuum = { value.ToString() }");
             }
@@ -295,7 +295,7 @@ namespace SJP.Schematic.Sqlite.Pragma
             set
             {
                 if (!value.IsValid())
-                    throw new ArgumentException($"The { nameof(JournalMode) } provided must be a valid enum.", nameof(JournalMode));
+                    throw new ArgumentException($"The { nameof(JournalMode) } provided must be a valid enum.", nameof(value));
 
                 Connection.Execute(PragmaPrefix + $"journal_mode = { value.ToString().ToUpperInvariant() }");
             }
@@ -342,7 +342,7 @@ namespace SJP.Schematic.Sqlite.Pragma
             set
             {
                 if (!value.IsValid())
-                    throw new ArgumentException($"The { nameof(LockingMode) } provided must be a valid enum.", nameof(LockingMode));
+                    throw new ArgumentException($"The { nameof(LockingMode) } provided must be a valid enum.", nameof(value));
 
                 Connection.Execute(PragmaPrefix + $"locking_mode = { value.ToString().ToUpperInvariant() }");
             }
@@ -412,10 +412,10 @@ namespace SJP.Schematic.Sqlite.Pragma
             set
             {
                 if (value < 512)
-                    throw new ArgumentException("A page size must be a power of two whose value is at least 512. Given: " + value.ToString(CultureInfo.InvariantCulture), nameof(PageSize));
+                    throw new ArgumentException("A page size must be a power of two whose value is at least 512. Given: " + value.ToString(CultureInfo.InvariantCulture), nameof(value));
 
                 if (!IsPowerOfTwo(value))
-                    throw new ArgumentException("A page size must be a power of two. Given: " + value.ToString(CultureInfo.InvariantCulture), nameof(PageSize));
+                    throw new ArgumentException("A page size must be a power of two. Given: " + value.ToString(CultureInfo.InvariantCulture), nameof(value));
 
                 Connection.Execute(PragmaPrefix + $"page_size = { value.ToString(CultureInfo.InvariantCulture) }");
             }
@@ -484,7 +484,7 @@ namespace SJP.Schematic.Sqlite.Pragma
             set
             {
                 if (!value.IsValid())
-                    throw new ArgumentException($"The { nameof(SecureDeleteMode) } provided must be a valid enum.", nameof(SecureDelete));
+                    throw new ArgumentException($"The { nameof(SecureDeleteMode) } provided must be a valid enum.", nameof(value));
 
                 Connection.Execute(PragmaPrefix + $"secure_delete = { value.ToString().ToUpperInvariant() }");
             }
@@ -521,7 +521,7 @@ namespace SJP.Schematic.Sqlite.Pragma
             set
             {
                 if (!value.IsValid())
-                    throw new ArgumentException($"The { nameof(SynchronousLevel) } provided must be a valid enum.", nameof(Synchronous));
+                    throw new ArgumentException($"The { nameof(SynchronousLevel) } provided must be a valid enum.", nameof(value));
 
                 Connection.Execute(PragmaPrefix + $"synchronous = { Enums.GetUnderlyingValue(value).ToString().ToUpperInvariant() }");
             }

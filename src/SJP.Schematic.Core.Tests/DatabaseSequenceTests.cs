@@ -48,7 +48,7 @@ namespace SJP.Schematic.Core.Tests
             var sequenceName = new Identifier("test");
             var expectedSequenceName = new Identifier(database.ServerName, database.DatabaseName, database.DefaultSchema, "test");
 
-            var sequence = new DatabaseSequence(database, "test", 1, 1, null, null, true, 0);
+            var sequence = new DatabaseSequence(database, sequenceName, 1, 1, null, null, true, 0);
 
             Assert.AreEqual(expectedSequenceName, sequence.Name);
         }

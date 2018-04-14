@@ -30,7 +30,7 @@ namespace SJP.Schematic.Lint.Rules
 
             try
             {
-                var cycle = graph.TopologicalSort();
+                graph.TopologicalSort();
                 return Enumerable.Empty<IRuleMessage>();
             }
             catch (Exception ex)

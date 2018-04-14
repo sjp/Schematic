@@ -580,7 +580,7 @@ where
                 return Enumerable.Empty<IDatabaseCheckConstraint>();
 
             var result = new List<IDatabaseCheckConstraint>();
-            var tableColumns = Column;
+
             foreach (var checkRow in checks)
             {
                 var constraintName = new Identifier(checkRow.ConstraintName);
@@ -610,7 +610,7 @@ where
                 return Enumerable.Empty<IDatabaseCheckConstraint>();
 
             var result = new List<IDatabaseCheckConstraint>();
-            var tableColumns = await ColumnAsync().ConfigureAwait(false);
+
             foreach (var checkRow in checks)
             {
                 var constraintName = new Identifier(checkRow.ConstraintName);

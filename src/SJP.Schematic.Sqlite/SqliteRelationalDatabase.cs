@@ -537,7 +537,7 @@ namespace SJP.Schematic.Sqlite
             Connection.Execute(sql);
         }
 
-        public async Task AttachDatabaseAsync(string schemaName, string fileName)
+        public Task AttachDatabaseAsync(string schemaName, string fileName)
         {
             if (schemaName.IsNullOrWhiteSpace())
                 throw new ArgumentNullException(nameof(schemaName));
@@ -548,7 +548,7 @@ namespace SJP.Schematic.Sqlite
             var escapedFileName = fileName.Replace("'", "''");
 
             var sql = $"ATTACH DATABASE '{ escapedFileName }' AS { quotedSchemaName }";
-            var result = await Connection.ExecuteAsync(sql).ConfigureAwait(false);
+            return Connection.ExecuteAsync(sql);
         }
 
         public void DetachDatabase(string schemaName)
@@ -562,7 +562,7 @@ namespace SJP.Schematic.Sqlite
             Connection.Execute(sql);
         }
 
-        public async Task DetachDatabaseAsync(string schemaName)
+        public Task DetachDatabaseAsync(string schemaName)
         {
             if (schemaName.IsNullOrWhiteSpace())
                 throw new ArgumentNullException(nameof(schemaName));
@@ -570,7 +570,7 @@ namespace SJP.Schematic.Sqlite
             var quotedSchemaName = Dialect.QuoteIdentifier(schemaName);
 
             var sql = $"DETACH DATABASE { quotedSchemaName }";
-            var result = await Connection.ExecuteAsync(sql).ConfigureAwait(false);
+            return Connection.ExecuteAsync(sql);
         }
 
         public void Vacuum()
@@ -579,10 +579,10 @@ namespace SJP.Schematic.Sqlite
             Connection.Execute(sql);
         }
 
-        public async Task VacuumAsync()
+        public Task VacuumAsync()
         {
             const string sql = "vacuum";
-            var ignoredResult = await Connection.ExecuteAsync(sql).ConfigureAwait(false);
+            return Connection.ExecuteAsync(sql);
         }
 
         public void Vacuum(string schemaName)
@@ -594,13 +594,13 @@ namespace SJP.Schematic.Sqlite
             Connection.Execute(sql);
         }
 
-        public async Task VacuumAsync(string schemaName)
+        public Task VacuumAsync(string schemaName)
         {
             if (schemaName.IsNullOrWhiteSpace())
                 throw new ArgumentNullException(nameof(schemaName));
 
             var sql = $"vacuum { Dialect.QuoteIdentifier(schemaName) }";
-            var ignoredResult = await Connection.ExecuteAsync(sql).ConfigureAwait(false);
+            return Connection.ExecuteAsync(sql);
         }
 
         protected static bool IsReservedTableName(Identifier tableName)

@@ -20,6 +20,9 @@ namespace SJP.Schematic.Core.Extensions
             if (source == null)
                 throw new ArgumentNullException(nameof(source));
 
+            if (source is List<T> list)
+                return list.AsReadOnly();
+
             return source.ToList().AsReadOnly();
         }
 

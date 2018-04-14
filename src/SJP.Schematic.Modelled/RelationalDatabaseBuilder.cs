@@ -41,7 +41,7 @@ namespace SJP.Schematic.Modelled
                 throw new ArgumentNullException(nameof(database));
 
             var appendedDatabases = new List<IDependentRelationalDatabase>(_databases) { database };
-            return new RelationalDatabaseBuilder(_databases);
+            return new RelationalDatabaseBuilder(appendedDatabases);
         }
 
         public IRelationalDatabaseBuilder OverrideWith(Func<IDependentRelationalDatabase> databaseFactory)

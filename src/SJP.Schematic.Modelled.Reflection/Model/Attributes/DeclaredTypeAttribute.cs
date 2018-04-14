@@ -95,6 +95,6 @@ namespace SJP.Schematic.Modelled.Reflection.Model
 
         public virtual string TypeName { get; set; }
 
-        protected static int UnknownLength = -1;
+        protected readonly static int UnknownLength = -1;
     }
 }

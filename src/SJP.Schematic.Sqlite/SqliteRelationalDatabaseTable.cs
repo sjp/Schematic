@@ -476,22 +476,17 @@ namespace SJP.Schematic.Sqlite
                     .SequenceEqual(parentColumns.Select(col => col.Name));
 
                 IDatabaseKey parentConstraint;
-                DatabaseKeyType parentKeyType;
                 if (pkColumnsEqual)
                 {
-                    parentKeyType = DatabaseKeyType.Primary;
                     parentConstraint = parentPrimaryKey;
                 }
                 else
                 {
-                    parentKeyType = DatabaseKeyType.Unique;
                     var uniqueKeys = parentTable.UniqueKeys;
                     parentConstraint = uniqueKeys.FirstOrDefault(uk =>
                         uk.Columns.Select(ukCol => ukCol.Name)
                             .SequenceEqual(parentColumns.Select(pc => pc.Name)));
                 }
-
-                var parentKey = new SqliteDatabaseKey(this, parentConstraint.Name, parentKeyType, parentColumns);
 
                 // don't need to check for the parent schema as cross-schema references are not supported
                 var parsedConstraint = fkConstraints
@@ -544,22 +539,17 @@ namespace SJP.Schematic.Sqlite
                     .SequenceEqual(parentColumns.Select(col => col.Name));
 
                 IDatabaseKey parentConstraint;
-                DatabaseKeyType parentKeyType;
                 if (pkColumnsEqual)
                 {
-                    parentKeyType = DatabaseKeyType.Primary;
                     parentConstraint = parentPrimaryKey;
                 }
                 else
                 {
-                    parentKeyType = DatabaseKeyType.Unique;
                     var uniqueKeys = await parentTable.UniqueKeysAsync().ConfigureAwait(false);
                     parentConstraint = uniqueKeys.FirstOrDefault(uk =>
                         uk.Columns.Select(ukCol => ukCol.Name)
                             .SequenceEqual(parentColumns.Select(pc => pc.Name)));
                 }
-
-                var parentKey = new SqliteDatabaseKey(this, parentConstraint.Name, parentKeyType, parentColumns);
 
                 // don't need to check for the parent schema as cross-schema references are not supported
                 var parsedConstraint = fkConstraints

@@ -527,7 +527,7 @@ where schema_name(t.schema_id) = @SchemaName and t.name = @TableName";
                 return Enumerable.Empty<IDatabaseCheckConstraint>();
 
             var result = new List<IDatabaseCheckConstraint>();
-            var tableColumns = Column;
+
             foreach (var checkRow in checks)
             {
                 var constraintName = new Identifier(checkRow.ConstraintName);
@@ -554,7 +554,7 @@ where schema_name(t.schema_id) = @SchemaName and t.name = @TableName";
                 return Enumerable.Empty<IDatabaseCheckConstraint>();
 
             var result = new List<IDatabaseCheckConstraint>();
-            var tableColumns = await ColumnAsync().ConfigureAwait(false);
+
             foreach (var checkRow in checks)
             {
                 var constraintName = new Identifier(checkRow.ConstraintName);
@@ -630,8 +630,6 @@ where schema_name(child_t.schema_id) = @SchemaName and child_t.name = @TableName
             var result = new List<IDatabaseRelationalKey>(foreignKeys.Count);
             foreach (var fkey in foreignKeys)
             {
-                var rows = fkey.OrderBy(row => row.ConstraintColumnId);
-
                 var parentTableName = new Identifier(fkey.Key.ParentTableSchema, fkey.Key.ParentTableName);
                 var parentTable = Database.GetTable(parentTableName);
                 var parentKeyName = new Identifier(fkey.Key.ParentKeyName);
@@ -700,8 +698,6 @@ where schema_name(child_t.schema_id) = @SchemaName and child_t.name = @TableName
             var result = new List<IDatabaseRelationalKey>(foreignKeys.Count);
             foreach (var fkey in foreignKeys)
             {
-                var rows = fkey.OrderBy(row => row.ConstraintColumnId);
-
                 var parentTableName = new Identifier(fkey.Key.ParentTableSchema, fkey.Key.ParentTableName);
                 var parentTable = await Database.GetTableAsync(parentTableName).ConfigureAwait(false);
                 var parentKeyName = new Identifier(fkey.Key.ParentKeyName);

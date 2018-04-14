@@ -20,7 +20,7 @@ namespace SJP.Schematic.SqlServer
 
         public bool Equals(string x, string y)
         {
-            if (ReferenceEquals(x, null) || ReferenceEquals(y, null) || ReferenceEquals(x, y))
+            if (ReferenceEquals(x, y))
                 return true;
             if (ReferenceEquals(x, null) ^ ReferenceEquals(y, null))
                 return false;

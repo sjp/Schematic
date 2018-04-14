@@ -23,7 +23,7 @@ namespace SJP.Schematic.SqlServer
         public IRelationalDatabase Parent
         {
             get => _parentDb;
-            set => _parentDb = value ?? throw new ArgumentNullException(nameof(Parent));
+            set => _parentDb = value ?? throw new ArgumentNullException(nameof(value));
         }
 
         protected IEqualityComparer<Identifier> Comparer { get; }

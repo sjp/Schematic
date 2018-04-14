@@ -124,8 +124,6 @@ namespace SJP.Schematic.SqlServer.Parsing
                     }
                     while (next.HasValue && (next.Value.IsLetterOrDigit() || next.Value == '_'));
 
-                    var identCandidate = beginIdentifier.Until(next.Location);
-                    var isNvarcharPrefix = identCandidate.EqualsValueIgnoreCase("N") && next.HasValue && next.Value == '\'';
                     var str = SqlServerTextParsers.SqlString(beginIdentifier);
                     if (str.HasValue)
                     {

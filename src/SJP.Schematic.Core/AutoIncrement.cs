@@ -5,7 +5,7 @@ namespace SJP.Schematic.Core
     /// <summary>
     /// A description of an autoincrementing sequence.
     /// </summary>
-    public struct AutoIncrement : IAutoIncrement
+    public struct AutoIncrement : IAutoIncrement, IEquatable<AutoIncrement>
     {
         /// <summary>
         /// Creates a description of an autoincrementing sequence.
@@ -32,5 +32,39 @@ namespace SJP.Schematic.Core
         /// The value incremented to the current value for each new row.
         /// </summary>
         public decimal Increment { get; }
+
+        public bool Equals(AutoIncrement other)
+        {
+            return InitialValue == other.InitialValue
+                && Increment == other.Increment;
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (obj is AutoIncrement ai)
+                return Equals(ai);
+
+            return false;
+        }
+
+        public override int GetHashCode()
+        {
+            unchecked
+            {
+                var hash = 17;
+                hash = (hash * 23) + InitialValue.GetHashCode();
+                return (hash * 23) + Increment.GetHashCode();
+            }
+        }
+
+        public static bool operator ==(AutoIncrement left, AutoIncrement right)
+        {
+            return left.Equals(right);
+        }
+
+        public static bool operator !=(AutoIncrement left, AutoIncrement right)
+        {
+            return !(left == right);
+        }
     }
 }

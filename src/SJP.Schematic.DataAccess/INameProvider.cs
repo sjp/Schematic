@@ -28,7 +28,6 @@ namespace SJP.Schematic.DataAccess
         /// <returns>A class name.</returns>
         string ViewToClassName(Identifier viewName);
 
-
         /// <summary>
         /// Return a property name for a column.
         /// </summary>

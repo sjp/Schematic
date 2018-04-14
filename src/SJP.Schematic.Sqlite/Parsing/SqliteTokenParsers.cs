@@ -14,7 +14,7 @@ namespace SJP.Schematic.Sqlite.Parsing
                 .IgnoreThen(IndexedColumnList)
                 .Then(cols =>
                     ConflictClause
-                        .Select(clause => new TableConstraint.PrimaryKey(cols)).Try()
+                        .Select(_ => new TableConstraint.PrimaryKey(cols)).Try()
                         .Or(Parse.Return<SqliteToken, TableConstraint.PrimaryKey>(new TableConstraint.PrimaryKey(cols))));
 
         private static TokenListParser<SqliteToken, TableConstraint.UniqueKey> TableUniqueKey =>
@@ -22,7 +22,7 @@ namespace SJP.Schematic.Sqlite.Parsing
                 .IgnoreThen(IndexedColumnList)
                 .Then(cols =>
                     ConflictClause
-                        .Select(clause => new TableConstraint.UniqueKey(cols)).Try()
+                        .Select(_ => new TableConstraint.UniqueKey(cols)).Try()
                         .Or(Parse.Return<SqliteToken, TableConstraint.UniqueKey>(new TableConstraint.UniqueKey(cols))));
 
         private static TokenListParser<SqliteToken, TableConstraint.ForeignKey> TableForeignKey =>
@@ -101,7 +101,7 @@ namespace SJP.Schematic.Sqlite.Parsing
 
         private static TokenListParser<SqliteToken, SqlIdentifier> ConstraintName =>
             Token.EqualTo(SqliteToken.Constraint)
-                .Then(constraint => Token.EqualTo(SqliteToken.Identifier).Select(ident => new SqlIdentifier(ident)));
+                .Then(_ => Token.EqualTo(SqliteToken.Identifier).Select(ident => new SqlIdentifier(ident)));
 
         private static TokenListParser<SqliteToken, IEnumerable<Token<SqliteToken>>> TypeName =>
             Token.EqualTo(SqliteToken.Identifier).Select(ident => ident.ToEnumerable())
@@ -117,8 +117,8 @@ namespace SJP.Schematic.Sqlite.Parsing
                         .Or(Parse.Return<SqliteToken, IEnumerable<Token<SqliteToken>>>(prev)));
 
         private static TokenListParser<SqliteToken, IndexColumnOrder> ColumnOrdering =>
-            Token.EqualTo(SqliteToken.Ascending).Select(asc => IndexColumnOrder.Ascending)
-                .Or(Token.EqualTo(SqliteToken.Descending).Select(desc => IndexColumnOrder.Descending));
+            Token.EqualTo(SqliteToken.Ascending).Select(_ => IndexColumnOrder.Ascending)
+                .Or(Token.EqualTo(SqliteToken.Descending).Select(_ => IndexColumnOrder.Descending));
 
         private static TokenListParser<SqliteToken, ColumnConstraint.Collation> Collate =>
             Token.EqualTo(SqliteToken.Collate)
@@ -167,28 +167,28 @@ namespace SJP.Schematic.Sqlite.Parsing
 
         private static TokenListParser<SqliteToken, ColumnConstraint.Check> ColumnCheckConstraint =>
             Token.EqualTo(SqliteToken.Check)
-                .Then(prev => Expression.Select(expr => new ColumnConstraint.Check(expr)));
+                .Then(_ => Expression.Select(expr => new ColumnConstraint.Check(expr)));
 
         private static TokenListParser<SqliteToken, ColumnConstraint.PrimaryKey> ColumnPrimaryKey =>
             Token.Sequence(SqliteToken.Primary, SqliteToken.Key)
                 .IgnoreThen(ColumnOrdering.Select(ordering => new ColumnConstraint.PrimaryKey(ordering)).Try().Or(Parse.Return<SqliteToken, ColumnConstraint.PrimaryKey>(new ColumnConstraint.PrimaryKey())))
-                .Then(prev => ConflictClause.Select(clause => prev).Try().Or(Parse.Return<SqliteToken, ColumnConstraint.PrimaryKey>(prev)))
+                .Then(prev => ConflictClause.Select(_ => prev).Try().Or(Parse.Return<SqliteToken, ColumnConstraint.PrimaryKey>(prev)))
                 .Then(prev =>
                     Token.EqualTo(SqliteToken.Autoincrement)
-                        .Select(autoinc => new ColumnConstraint.PrimaryKey(prev.ColumnOrder, true)).Try()
+                        .Select(_ => new ColumnConstraint.PrimaryKey(prev.ColumnOrder, true)).Try()
                         .Or(Parse.Return<SqliteToken, ColumnConstraint.PrimaryKey>(prev))
                 );
 
         private static TokenListParser<SqliteToken, ColumnConstraint.UniqueKey> ColumnUniqueKey =>
             Token.EqualTo(SqliteToken.Unique).Select(_ => new ColumnConstraint.UniqueKey())
                 .Then(prev =>
-                    ConflictClause.Select(clause => prev).Try()
+                    ConflictClause.Select(_ => prev).Try()
                         .Or(Parse.Return<SqliteToken, ColumnConstraint.UniqueKey>(prev))
                 );
 
         private static TokenListParser<SqliteToken, ColumnConstraint.DefaultConstraint> ColumnDefaultValue =>
             Token.EqualTo(SqliteToken.Default)
-                .Then(prev =>
+                .Then(_ =>
                     SqlLiteral.Select(literal => new ColumnConstraint.DefaultConstraint(literal))
                         .Or(Expression.Select(expr => new ColumnConstraint.DefaultConstraint(expr.Tokens)))
                 );
@@ -223,12 +223,12 @@ namespace SJP.Schematic.Sqlite.Parsing
         private static TokenListParser<SqliteToken, ColumnConstraint.ForeignKey> ForeignKeyClause =>
             Token.EqualTo(SqliteToken.References)
                 .IgnoreThen(QualifiedName)
-                .Then(name => Token.EqualTo(SqliteToken.LParen).Select(paren => name))
+                .Then(name => Token.EqualTo(SqliteToken.LParen).Select(_ => name))
                 .Then(name =>
                     Token.EqualTo(SqliteToken.Identifier)
                         .ManyDelimitedBy(Token.EqualTo(SqliteToken.Comma))
                         .Select(columns => new { TableName = name, ColumnNames = columns.Select(c => new SqlIdentifier(c)) }))
-                .Then(prev => Token.EqualTo(SqliteToken.RParen).Select(paren => new ColumnConstraint.ForeignKey(prev.TableName, prev.ColumnNames)))
+                .Then(prev => Token.EqualTo(SqliteToken.RParen).Select(_ => new ColumnConstraint.ForeignKey(prev.TableName, prev.ColumnNames)))
                 .Then(prev =>
                     ForeignKeyMatch.Or(ForeignKeyRules)
                         .Many().Select(_ => prev)

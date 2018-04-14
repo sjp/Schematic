@@ -236,14 +236,6 @@ namespace SJP.Schematic.Lint.Tests.Rules
             var rule = new DisabledObjectsRule(RuleLevel.Error);
             var database = CreateFakeDatabase();
 
-            var testColumn = new DatabaseTableColumn(
-                Mock.Of<IRelationalDatabaseTable>(),
-                "test_column",
-                Mock.Of<IDbType>(),
-                false,
-                null,
-                null
-            );
             var testCheck = new DatabaseCheckConstraint(
                 Mock.Of<IRelationalDatabaseTable>(),
                 "test_check",
@@ -276,14 +268,6 @@ namespace SJP.Schematic.Lint.Tests.Rules
             var rule = new DisabledObjectsRule(RuleLevel.Error);
             var database = CreateFakeDatabase();
 
-            var testColumn = new DatabaseTableColumn(
-                Mock.Of<IRelationalDatabaseTable>(),
-                "test_column",
-                Mock.Of<IDbType>(),
-                false,
-                null,
-                null
-            );
             var testTrigger = new DatabaseTrigger(
                 Mock.Of<IRelationalDatabaseTable>(),
                 "test_check",

@@ -137,7 +137,7 @@ namespace SJP.Schematic.Core.Utilities
             };
         }
 
-        private Func<Task<T>> RunOnThreadPool(Func<Task<T>> factory) => () => System.Threading.Tasks.Task.Run(factory);
+        private static Func<Task<T>> RunOnThreadPool(Func<Task<T>> factory) => () => System.Threading.Tasks.Task.Run(factory);
 
         /// <summary>
         /// The underlying lazy task.
