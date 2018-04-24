@@ -39,6 +39,7 @@ create table test_table_2 (
     last_name text not null,
     comment text null,
     constraint test_table_2_pk primary key (test_pk_1, test_pk_2),
+    constraint test_table_2_single_uk unique (middle_name),
     constraint test_table_2_multi_uk unique (first_name, middle_name, last_name)
 )").ConfigureAwait(false);
             await Connection.ExecuteAsync("create index ix_test_table_2_first_name on test_table_2 (first_name, last_name)").ConfigureAwait(false);
@@ -209,9 +210,9 @@ namespace OrmLiteTestNamespace.Main
     /// </summary>
     [Schema(""main"")]
     [Alias(""test_table_2"")]
-    [CompositeKey(""FirstName"", ""MiddleName"", ""LastName"")]
-    [CompositeIndex(true, ""FirstName"", ""MiddleName"")]
-    [CompositeIndex(""FirstName"", ""LastName"")]
+    [UniqueConstraint(nameof(FirstName), nameof(MiddleName), nameof(LastName))]
+    [CompositeIndex(true, nameof(FirstName), nameof(MiddleName))]
+    [CompositeIndex(nameof(FirstName), nameof(LastName))]
     public class TestTable2
     {
         /// <summary>
@@ -237,6 +238,7 @@ namespace OrmLiteTestNamespace.Main
         /// The <c>middle_name</c> column.
         /// </summary>
         [Required]
+        [Unique]
         [Alias(""middle_name"")]
         public string MiddleName { get; set; }
 

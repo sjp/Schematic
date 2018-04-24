@@ -89,12 +89,12 @@ namespace SJP.Schematic.DataAccess.OrmLite
             {
                 var columnNames = uniqueKey.Columns
                     .Select(c => NameProvider.ColumnToPropertyName(className, c.Name.LocalName))
-                    .Select(p => p.ToStringLiteral())
+                    .Select(p => "nameof(" + p + ")")
                     .ToList();
                 var fieldNames = string.Join(", ", columnNames);
 
                 builder.Append(tableIndent)
-                    .Append("[CompositeKey(")
+                    .Append("[UniqueConstraint(")
                     .Append(fieldNames)
                     .AppendLine(")]");
             }
@@ -109,7 +109,7 @@ namespace SJP.Schematic.DataAccess.OrmLite
 
                 var columnNames = dependentColumns
                     .Select(c => NameProvider.ColumnToPropertyName(className, c.Name.LocalName))
-                    .Select(p => p.ToStringLiteral())
+                    .Select(p => "nameof(" + p + ")")
                     .ToList();
                 var fieldNames = string.Join(", ", columnNames);
 
@@ -201,6 +201,13 @@ namespace SJP.Schematic.DataAccess.OrmLite
             {
                 builder.Append(columnIndent)
                     .AppendLine("[Index(true)]");
+            }
+
+            var isUniqueKey = ColumnIsUniqueKey(column);
+            if (isUniqueKey)
+            {
+                builder.Append(columnIndent)
+                    .AppendLine("[Unique]");
             }
 
             if (column.DefaultValue != null)
@@ -423,6 +430,29 @@ namespace SJP.Schematic.DataAccess.OrmLite
 
                 var dependentColumn = dependentColumns[0];
                 if (dependentColumn.Name.LocalName == column.Name.LocalName)
+                    return true;
+            }
+
+            return false;
+        }
+
+        protected static bool ColumnIsUniqueKey(IDatabaseTableColumn column)
+        {
+            if (column == null)
+                throw new ArgumentNullException(nameof(column));
+
+            var uniqueKeys = column.Table.UniqueKeys.ToList();
+            if (uniqueKeys.Count == 0)
+                return false;
+
+            foreach (var uniqueKey in uniqueKeys)
+            {
+                var ukColumns = uniqueKey.Columns.ToList();
+                if (ukColumns.Count != 1)
+                    continue;
+
+                var ukColumn = ukColumns[0];
+                if (column.Name.LocalName == ukColumn.Name.LocalName)
                     return true;
             }
 
