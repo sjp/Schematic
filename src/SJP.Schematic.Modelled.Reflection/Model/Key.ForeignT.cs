@@ -47,11 +47,12 @@ namespace SJP.Schematic.Modelled.Reflection.Model
             {
                 var sourceType = Property.DeclaringType;
                 var sourceAsm = sourceType.GetTypeInfo().Assembly;
+                var sourceAsmName = sourceAsm.GetName();
 
-                if (!AssemblyCache.TryGetValue(sourceAsm, out var sourceAsmDefinition))
+                if (!AssemblyCache.TryGetValue(sourceAsmName, out var sourceAsmDefinition))
                 {
                     sourceAsmDefinition = AssemblyDefinition.ReadAssembly(sourceAsm.Location);
-                    AssemblyCache.TryAdd(sourceAsm, sourceAsmDefinition);
+                    AssemblyCache.TryAdd(sourceAsmName, sourceAsmDefinition);
                 }
 
                 // Mono.Cecil uses '/' to declare nested type names instead of '+'
@@ -110,6 +111,6 @@ namespace SJP.Schematic.Modelled.Reflection.Model
             private readonly Func<T, Key> _keySelector;
         }
 
-        private static ConcurrentDictionary<Assembly, AssemblyDefinition> AssemblyCache { get; } = new ConcurrentDictionary<Assembly, AssemblyDefinition>();
+        private static ConcurrentDictionary<AssemblyName, AssemblyDefinition> AssemblyCache { get; } = new ConcurrentDictionary<AssemblyName, AssemblyDefinition>();
     }
 }

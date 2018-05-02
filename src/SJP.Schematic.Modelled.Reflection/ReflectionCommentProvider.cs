@@ -17,7 +17,7 @@ namespace SJP.Schematic.Modelled.Reflection
         /// <summary>
         /// Creates an instance from a reflected assembly.
         /// </summary>
-        /// <param name="assembly">A reflected asseembly that may have documentation available for it.</param>
+        /// <param name="assembly">A reflected assembly that may have documentation available for it.</param>
         /// <remarks>When a documentation file is not present for the assembly, all comments returned from this instance will be <c>null</c>.</remarks>
         /// <exception cref="ArgumentNullException"><paramref name="assembly"/> is <c>null</c>.</exception>
         public ReflectionCommentProvider(Assembly assembly)
@@ -143,7 +143,7 @@ namespace SJP.Schematic.Modelled.Reflection
         }
 
         /// <summary>
-        /// Given a reflected metadata object identifier, returns the object assocatied with it from the documentation file.
+        /// Given a reflected metadata object identifier, returns the object associated with it from the documentation file.
         /// </summary>
         /// <param name="identifier">A reflected metadata object identifier</param>
         /// <returns>A comment if available, otherwise <c>null</c>.</returns>
