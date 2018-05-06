@@ -95,7 +95,7 @@ namespace SJP.Schematic.SchemaSpy
             }
 
             var localNameHash = GenerateHashKey(identifier.LocalName);
-            builder.Append(identifier.Server);
+            builder.Append(localNameHash);
 
             var combinedHashSource = builder.ToString();
             return GenerateHashKey(combinedHashSource);
