@@ -2,6 +2,9 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
+    <TreatWarningsAsErrors>True</TreatWarningsAsErrors>
+    <TreatSpecificWarningsAsErrors />
+    <CheckForOverflowUnderflow>true</CheckForOverflowUnderflow>
   </PropertyGroup>
 
   <ItemGroup>
@@ -9,11 +12,22 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="ViewModels\" />
+    <PackageReference Include="Scriban" Version="1.2.0" />
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Scriban" Version="1.2.0" />
+    <EmbeddedResource Include="Html\Templates\*.scriban" />
+    <EmbeddedResource Include="assets\**\*.*" />
   </ItemGroup>
+
+  <Target Name="NpmClean" BeforeTargets="BeforeClean">
+    <Exec Command="npm install" WorkingDirectory="$(MSBuildThisFileDirectory)" />
+    <Exec Command="npm run clean" WorkingDirectory="$(MSBuildThisFileDirectory)" />
+  </Target>
+
+  <Target Name="NpmBuild" BeforeTargets="BeforeBuild">
+    <Exec Command="npm install" WorkingDirectory="$(MSBuildThisFileDirectory)" />
+    <Exec Command="npm run build" WorkingDirectory="$(MSBuildThisFileDirectory)" />
+  </Target>
 
 </Project>

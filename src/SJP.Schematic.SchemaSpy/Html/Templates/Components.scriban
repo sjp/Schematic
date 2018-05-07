@@ -19,20 +19,18 @@
                       <th align="right" valign="bottom">Columns</th>
                       <th align="right" valign="bottom">Rows</th>
                       <th align="right" valign="bottom">Type</th>
-                      <th class="toggle">Comments</th>
                     </tr>
                 </thead>
                 <tbody>
-                {{#tables}}
-                 <tr class="tbl even" valign="top">  <td class="detail"><a href="tables/{{table.name}}.html">{{table.name}}</a></td>
+                {{ for table in Tables }}
+                 <tr class="tbl even" valign="top">  <td class="detail"><a href="tables/{{table.name}}.html">{{ table.name | html.escape }}</a></td>
                   <td class="detail" align="right">{{table.maxChildren}}</td>
                   <td class="detail" align="right">{{table.maxParents}}</td>
                   <td class="detail" align="right">{{table.columns.size}}</td>
                   <td class="detail" align="right">{{table.numRows}}</td>
                   <td class="detail" align="right">{{table.type}}</td>
-                  <td class="comment detail" style="display: table-cell;">{{{comments}}}</td>
                   </tr>
-                {{/tables}}
+                {{end}}
             </table>
             </div>
             <!-- /.box-body -->

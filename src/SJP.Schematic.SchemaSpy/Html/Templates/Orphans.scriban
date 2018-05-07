@@ -1,6 +1,6 @@
       <!-- Content Header (Page header) -->
 <section class="content-header">
-    <h1>Utility Tables</h1>
+    <h1>Orphan Tables</h1>
 </section>
 <!-- Main content -->
 <section class="content">
@@ -13,7 +13,7 @@
             <div id="grid" data-columns>
                 {{#mustacheTables}}
                 <div class="item">
-                    <img src='diagrams/orphans/{{diagramName}}' usemap='#{{table.name}}' style="max-width:100%;" border='0' alt='' align='top'>
+                    <img src="diagrams/orphans/{{diagramName}}" usemap="#{{table.name}}" style="max-width:100%;" border="0" alt="" align="top">
                 </div>
                 {{/mustacheTables}}
             </div>

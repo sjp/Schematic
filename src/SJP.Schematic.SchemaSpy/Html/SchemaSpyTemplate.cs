@@ -2,7 +2,8 @@
 {
     public enum SchemaSpyTemplate
     {
-        Column,
+        None, // not intended to be used
+        Columns,
         Components,
         Constraint,
         Container,

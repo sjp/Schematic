@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using EnumsNET;
 using Scriban;
+using SJP.Schematic.Core.Extensions;
 
 namespace SJP.Schematic.SchemaSpy.Html
 {
@@ -21,9 +23,15 @@ namespace SJP.Schematic.SchemaSpy.Html
 
             var template = templateParameter.Template;
             if (!template.IsValid())
-                throw new ArgumentException($"The { nameof(SchemaSpyTemplate) } provided in the template parameter must be a valid enum.", nameof(template));
+                throw new ArgumentException($"The { nameof(SchemaSpyTemplate) } provided in the template parameter must be a valid enum.", nameof(templateParameter));
 
             var parsedTemplate = GetTemplate(template);
+            if (parsedTemplate.HasErrors)
+            {
+                var message = parsedTemplate.Messages.Select(m => m.Message).Join(", ");
+                throw new InvalidOperationException("Unable to render the template as it is not valid. Errors messages: " + message);
+            }
+
             return parsedTemplate.Render(templateParameter, member => member.Name);
         }
 

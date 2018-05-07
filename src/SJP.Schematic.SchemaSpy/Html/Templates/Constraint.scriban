@@ -16,7 +16,7 @@
             </div>
             <div class="box-body">
                 <table id="constraint_table" class="table table-bordered table-striped dataTable" role="grid">
-                <thead align='left'>
+                <thead align="left">
                 <tr>
                   <th>Constraint Name</th>
                   <th>Child Column</th>
@@ -25,34 +25,39 @@
                 </tr>
                 </thead>
                 <tbody>
-                {{#constraints}}
+                {{ for constraint in Constraints }}
                 <tr>
-                 <td>{{name}}</td>
+                 <td>{{ constraint.ConstraintName }}</td>
                  <td>
-                  <table border='0' cellspacing='0' cellpadding='0'>
-                  {{#childColumns}}
+                  <table border="0" cellspacing="0" cellpadding="0">
+                  {{ for childColumn in constraint.ChildColumns }}
                    <tr>
                     <td>
-                        <a href='tables/{{table.name}}.html'>{{table.name}}</a><span>.{{name}}</span>
+                        <a href="tables/{{table.name}}.html">{{table.name}}</a><span>.{{name}}</span>
                     </td>
                    </tr>
-                   {{/childColumns}}
+                   {{ end }}
                   </table>
                  </td>
                  <td>
-                  <table border='0' cellspacing='0' cellpadding='0'>
+                  <table border="0" cellspacing="0" cellpadding="0">
                   {{#parentColumns}}
                    <tr>
                     <td>
-                        <a href='tables/{{table.name}}.html'>{{table.name}}</a><span>.{{name}}</span>
+                        <a href="tables/{{table.name}}.html">{{table.name}}</a><span>.{{name}}</span>
                     </td>
                    </tr>
-                   {{/parentColumns}}
+                   {{ end }}
                   </table>
                  </td>
-                 <td><span title='{{deleteRuleDescription}}'>{{deleteRuleName}}</span></td>
+                  <td>
+                    <span title="{{deleteRuleDescription}}">{{deleteRuleName}}</span>
+                  </td>
+                  <td>
+                    <span title="{{updateRuleDescription}}">{{updateRuleName}}</span>
+                  </td>
                 </tr>
-                {{/constraints}}
+                {{ end }}
                 </tbody>
                 </table>
             </div>
@@ -69,7 +74,7 @@
             </div>
             <div class="box-body">
                 <table id="constraint_table" class="table table-bordered table-striped dataTable" role="grid">
-                <thead align='left'>
+                <thead align="left">
                 <tr>
                   <th>Table</th>
                   <th>Constraint Name</th>
@@ -80,7 +85,7 @@
                 {{#tables}}
                 {{#checkConstraints.keySet}}
                 <tr>
-                 <td><a href='tables/{{table.name}}.html'>{{table.name}}</a></td>
+                 <td><a href="tables/{{table.name}}.html">{{table.name}}</a></td>
                  <td>{{name}}</td>
                  <td>{{checkConstraints.keySet}}</td>
                 </tr>

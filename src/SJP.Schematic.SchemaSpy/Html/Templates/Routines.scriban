@@ -16,14 +16,14 @@
                     <div id="button_group_two" class="col-md-2 col-sm-4 pull-right text-right"></div>
                 </div>
                 <table id="routine_table" class="table table-bordered table-striped dataTable" role="grid">
-                <thead align='left'>
+                <thead align="left">
                 <tr>
                   <th>Name</th>
                   <th>Type</th>
                   <th>Language</th>
                   <th>Deterministic</th>
                   <th>Return Type</th>
-                  <th title='Comments' class="toggle"><span>Comments</span></th>
+                  <th title="Comments" class="toggle"><span>Comments</span></th>
                 </tr>
                 </thead>
                 <tbody>

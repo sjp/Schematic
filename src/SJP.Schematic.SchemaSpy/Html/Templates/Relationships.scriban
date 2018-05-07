@@ -28,13 +28,13 @@
                             <div class="alert alert-warning alert-dismissible">
                                 <button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
                                 <h4><i class="icon fa fa-info-circle"></i> Implied Relationships</h4>
-                                <p>No 'real' Foreign Key relationships were detected in the schema.<br>
-                                Displayed relationships are implied by a column's name/type/size matching another table's primary key.</p>
+                                <p>No &apos;real&apos; Foreign Key relationships were detected in the schema.<br>
+                                Displayed relationships are implied by a column&apos;s name/type/size matching another table&apos;s primary key.</p>
                             </div>
                         {{/hasOnlyImpliedRelationships}}
                     {{/isImplied}}
                     {{{map}}}
-                    <a name='diagram'><img id='{{id}}' src='diagrams/summary/{{fileName}}' usemap='#{{mapName}}' class='diagram' border='0' alt='' align='left'></a>
+                    <a name="diagram"><img id="{{id}}" src="diagrams/summary/{{fileName}}" usemap="#{{mapName}}" class="diagram" border="0" alt="" align="left"></a>
                 </div>
                 {{/diagrams}}
             </div>
@@ -57,7 +57,7 @@
             <button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
             <h4><i class="icon fa fa-warning"></i> Graphviz Needed!</h4>
             <p>SchemaSpy was unable to generate a diagram of table relationships.</br>
-            SchemaSpy requires Graphviz {{graphvizVersion}} from <a href='http://www.graphviz.org' target='_blank'>www.graphviz.org</a>.</p>
+            SchemaSpy requires Graphviz {{graphvizVersion}} from <a href="http://www.graphviz.org" target="_blank">www.graphviz.org</a>.</p>
         </div>
         {{/graphvizExists}}
       </section>

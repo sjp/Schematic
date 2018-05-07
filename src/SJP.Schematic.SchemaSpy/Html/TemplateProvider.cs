@@ -21,10 +21,11 @@ namespace SJP.Schematic.SchemaSpy.Html
         private static string GetResourceName(SchemaSpyTemplate template)
         {
             var templateKey = template.ToString();
-            if (!_templateResourceNames.Contains(templateKey))
+            var templateFileName = templateKey + TemplateExtension;
+
+            if (!_templateResourceNames.Any(name => name.EndsWith(templateFileName)))
                 throw new NotSupportedException($"The given template: { templateKey } is not a supported template.");
 
-            var templateFileName = templateKey + TemplateExtension;
             return _templateResourceNames.First(name => name.EndsWith(templateFileName));
         }
 
