@@ -29,6 +29,10 @@ bld/
 # Uncomment if you have tasks that create the project's static files in wwwroot
 #wwwroot/
 
+# For the SchemaSpy build
+src/SJP.Schematic.SchemaSpy/assets
+src/SJP.Schematic.SchemaSpy/package-lock.json
+
 # MSTest test Results
 [Tt]est[Rr]esult*/
 [Bb]uild[Ll]og.*
