@@ -3,6 +3,8 @@ image: Visual Studio 2017
 
 install:
   - cmd: dotnet --info
+  - cmd: node --version
+  - ps: Install-Product node $env:nodejs_version
 
 # build platform, i.e. x86, x64, Any CPU. This setting is optional.
 platform: Any CPU
@@ -11,6 +13,7 @@ platform: Any CPU
 configuration: Release
 
 environment:
+  nodejs_version: "Current"
   MYSQL_PWD: Password12!
   MYSQL_PATH: C:\Program Files\MySql\MySQL Server 5.7
   PGUSER: postgres
