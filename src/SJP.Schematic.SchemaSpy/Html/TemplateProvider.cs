@@ -3,7 +3,9 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Text;
 using EnumsNET;
+using Microsoft.Extensions.FileProviders;
 
 namespace SJP.Schematic.SchemaSpy.Html
 {
@@ -14,33 +16,37 @@ namespace SJP.Schematic.SchemaSpy.Html
             if (!template.IsValid())
                 throw new ArgumentException($"The { nameof(SchemaSpyTemplate) } provided must be a valid enum.", nameof(template));
 
-            var resourceName = GetResourceName(template);
-            return GetResourceAsString(resourceName);
+            var resource = GetResource(template);
+            return GetResourceAsString(resource);
         }
 
-        private static string GetResourceName(SchemaSpyTemplate template)
+        private static IFileInfo GetResource(SchemaSpyTemplate template)
         {
             var templateKey = template.ToString();
             var templateFileName = templateKey + TemplateExtension;
 
-            if (!_templateResourceNames.Any(name => name.EndsWith(templateFileName)))
+            var resourceFiles = _fileProvider.GetDirectoryContents("/");
+            var templateResource = resourceFiles.FirstOrDefault(r => r.Name.EndsWith(templateFileName));
+            if (templateResource == null)
                 throw new NotSupportedException($"The given template: { templateKey } is not a supported template.");
 
-            return _templateResourceNames.First(name => name.EndsWith(templateFileName));
+            return templateResource;
         }
 
-        private static string GetResourceAsString(string resourceName)
+        private static string GetResourceAsString(IFileInfo fileInfo)
         {
-            using (var stream = Assembly.GetExecutingAssembly().GetManifestResourceStream(resourceName))
-            using (var reader = new StreamReader(stream))
-                return reader.ReadToEnd();
+            if (fileInfo == null)
+                throw new ArgumentNullException(nameof(fileInfo));
+
+            using (var stream = new MemoryStream())
+            using (var reader = fileInfo.CreateReadStream())
+            {
+                reader.CopyTo(stream);
+                return Encoding.UTF8.GetString(stream.GetBuffer(), 0, (int)stream.Length);
+            }
         }
 
-        private static readonly IEnumerable<string> _templateResourceNames = Assembly.GetExecutingAssembly()
-            .GetManifestResourceNames()
-            .Where(name => name.Contains(".Html.Templates.") && name.EndsWith(TemplateExtension))
-            .ToList();
-
+        private static readonly IFileProvider _fileProvider = new EmbeddedFileProvider(Assembly.GetExecutingAssembly(), Assembly.GetExecutingAssembly().GetName().Name + ".Html.Templates");
         private const string TemplateExtension = ".scriban";
     }
 }
