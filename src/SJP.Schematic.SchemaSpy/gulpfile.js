@@ -2,7 +2,7 @@
 
 const gulp = require('gulp');
 const rename = require('gulp-rename');
-const jshint = require('gulp-jshint');
+const eslint = require('gulp-eslint');
 const uglify = require('gulp-uglify');
 const concat = require('gulp-concat');
 const sass = require('gulp-sass');
@@ -62,7 +62,7 @@ gulp.task('scripts:dev', function () {
             // TODO: add the schemaSpy.js file
         ])
         .pipe(concat('schemaspy-app.js'))
-        .pipe(jshint())
+        .pipe(eslint())
         .pipe(gulp.dest("assets/"));
 });
 
@@ -111,7 +111,7 @@ gulp.task('scripts:prod', function () {
             // TODO: add the schemaSpy.js file
         ])
         .pipe(concat('schemaspy-app.js'))
-        .pipe(jshint())
+        .pipe(eslint())
         .pipe(uglify())
         .pipe(gulp.dest("assets/js"));
 });
