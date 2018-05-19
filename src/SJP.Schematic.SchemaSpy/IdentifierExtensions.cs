@@ -12,6 +12,24 @@ namespace SJP.Schematic.SchemaSpy
 {
     internal static class IdentifierExtensions
     {
+        public static string ToVisibleName(this Identifier identifier)
+        {
+            if (identifier == null)
+                throw new ArgumentNullException(nameof(identifier));
+
+            var builder = new StringBuilder();
+
+            if (identifier.Schema != null)
+            {
+                builder.Append(identifier.Schema);
+                builder.Append(".");
+            }
+
+            builder.Append(identifier.LocalName);
+
+            return builder.ToString();
+        }
+
         public static string ToSafeKey(this Identifier identifier)
         {
             if (identifier == null)
@@ -21,7 +39,7 @@ namespace SJP.Schematic.SchemaSpy
             var hashKey = GenerateHashKey(identifier);
             var truncatedHash = Truncate(hashKey, HashKeyLength);
 
-            return safeName + IdentifierSeparator + truncatedHash;
+            return safeName + IdentifierSeparator + truncatedHash.ToLowerInvariant();
         }
 
         // https://adamhathcock.blog/2017/05/04/generating-url-slugs-in-net-core/
@@ -35,13 +53,15 @@ namespace SJP.Schematic.SchemaSpy
 
             var result = RemoveDiacritics(input).ToLowerInvariant();
             // invalid chars
-            result = Regex.Replace(result, @"[^a-z0-9\s-]", string.Empty);
+            result = Regex.Replace(result, @"[^a-z0-9\s-_.]", string.Empty);
             // convert multiple spaces into one space
             result = Regex.Replace(result, @"\s+", " ").Trim();
             // cut and trim
             result = Truncate(result, maxChars).Trim();
-            // hyphens
+            // whitespace to hyphens
             result = Regex.Replace(result, "\\s", "-").Trim();
+            // underscore/period to hyphen
+            result = Regex.Replace(result, "[_.]", "-").Trim();
 
             // ensure chars are safe on disk
             var invalidChars = Path.GetInvalidFileNameChars();
@@ -112,7 +132,7 @@ namespace SJP.Schematic.SchemaSpy
                 var hash = hasher.ComputeHash(bytes);
                 var builder = new StringBuilder(hash.Length);
                 foreach (var hashByte in hash)
-                    builder.Append(BitConverter.ToString(hash));
+                    builder.Append(hashByte.ToString("X2"));
                 return builder.ToString();
             }
         }

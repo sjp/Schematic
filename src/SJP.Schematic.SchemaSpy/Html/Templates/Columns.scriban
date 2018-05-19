@@ -1,48 +1,45 @@
-      <!-- Content Header (Page header) -->
-      <section class="content-header">
-        <h1>Columns</h1>
-      </section>
-      <!-- Main content -->
-      <section class="content">
-        <div class="box box-primary">
-            <div class="box-header with-border">
-              <span class="glyphicon glyphicon-list-alt" aria-hidden="true"></span>
-              <h3 class="box-title">Columns</h3>
-            </div>
-            <div class="box-body">
-                <div class="row">
-                    <div id="button_group_one" class="col-md-3 col-sm-6"></div>
-                    <div id="button_group_two" class="col-md-2 col-sm-4 pull-right text-right"></div>
-                </div>
-                <table id="column_table" class="table table-bordered table-striped dataTable" role="grid">
-                <thead align="left">
-                    <tr>
-                      <th>Table</th>
-                      <th>Type</th>
-                      <th>Column</th>
-                      <th>Type</th>
-                      <th title="Are nulls allowed?">Nulls</th>
-                      <th title="Default value">Default</th>
-                    </tr>
-                </thead>
-                <tbody>
-                {{ for column in TableColumns }}
-                    <tr>
-                     <td>{{ column.TableName | html.escape }}</td>
-                     <td>{{ column.TableType | html.escape }}</td>
-                     <td {{ column.ColumnClass }}>{{ column.ColumnIcon }}{{ column.ColumnName | html.escape }}</td>
-                     <td>{{ column.Type | html.escape }}</td>
-                     <td title="{{ column.TitleNullable }}">{{ column.NullableText }}</td>
-                     <td>{{ column.DefaultValue | html.escape }}</td>
-                    </tr>
-                {{ end }}
-                </tbody>
-                </table>
-            </div>
-        </div>
-      </section>
-      <script>
-          var config = {
-              pagination: true //{{paginationEnabled}}
-          }
-      </script>
+<section class="content-header">
+  <h1>Columns</h1>
+</section>
+<section class="content">
+  <div class="box box-primary">
+    <div class="box-header with-border">
+      <span class="glyphicon glyphicon-list-alt" aria-hidden="true"></span>
+      <h3 class="box-title">Columns</h3>
+    </div>
+    <div class="box-body">
+      <table class="database_objects table table-bordered table-striped dataTable" role="grid">
+        <thead align="left">
+          <tr>
+            <th>Table</th>
+            <th>Type</th>
+            <th>Column</th>
+            <th>Ordinal Position</th>
+            <th>Type</th>
+            <th title="Are nulls allowed?">Nullable</th>
+            <th title="Default value">Default</th>
+          </tr>
+        </thead>
+        <tbody>
+          {{ if ColumnsCount > 0 }}
+          {{ for column in TableColumns }}
+          <tr>
+            <td class="detail"><a href="{{ column.TableFolder }}/{{ column.TableUrl }}.html">{{ column.Name | html.escape }}</a></td>
+            <td class="detail">{{ column.TableType | html.escape }}</td>
+            <td {{ column.ColumnClass }}>{{ column.ColumnIcon }}{{ column.ColumnName | html.escape }}</td>
+            <td class="detail">{{ column.Ordinal | html.escape }}</td>
+            <td class="detail">{{ column.Type | html.escape }}</td>
+            <td class="detail" title="{{ column.TitleNullable }}">{{ column.NullableText }}</td>
+            <td class="detail">{{ column.DefaultValue | html.escape }}</td>
+          </tr>
+          {{ end }}
+          {{ else }}
+          <tr>
+            <td class="detail" colspan="7">No columns present.</td>
+          </tr>
+          {{ end }}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>

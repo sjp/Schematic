@@ -1,113 +1,203 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using EnumsNET;
+using SJP.Schematic.Core;
+using SJP.Schematic.Core.Extensions;
 
 namespace SJP.Schematic.SchemaSpy.Html.ViewModels
 {
-    public class Columns : ITemplateParameter
+    internal class Columns : ITemplateParameter
     {
         public SchemaSpyTemplate Template { get; } = SchemaSpyTemplate.Columns;
 
-        public IEnumerable<Column> TableColumns { get; set; } = Enumerable.Empty<Column>();
-    }
-
-    public class Column
-    {
-        public string TableName { get; set; }
-
-        public string TableType => ParentType.ToString();
-
-        public string ColumnName { get; set; }
-
-        public ParentObjectType ParentType
+        public IEnumerable<Column> TableColumns
         {
-            get => _parentType;
-            set
-            {
-                if (!value.IsValid())
-                    throw new ArgumentException($"The { nameof(ParentObjectType) } provided must be a valid enum.", nameof(value));
+            get => _tableColumns;
+            set => _tableColumns = value ?? throw new ArgumentNullException(nameof(value));
+        }
 
-                _parentType = value;
+        private IEnumerable<Column> _tableColumns = Enumerable.Empty<Column>();
+
+        public uint ColumnsCount => TableColumns.UCount();
+
+        internal abstract class Column
+        {
+            protected Column(Identifier tableName, string columnName)
+            {
+                _tableName = tableName;
+                _columnName = columnName;
+            }
+
+            public Identifier TableName
+            {
+                get => _tableName;
+                set => _tableName = value ?? throw new ArgumentNullException(nameof(value));
+            }
+
+            private Identifier _tableName;
+
+            public string Name => _tableName.ToVisibleName();
+
+            public string TableUrl => _tableName.ToSafeKey();
+
+            public string TableType => ParentType.ToString();
+
+            public abstract string TableFolder { get; }
+
+            public int Ordinal { get; set; }
+
+            public string ColumnName
+            {
+                get => _columnName;
+                set => _columnName = value ?? string.Empty;
+            }
+
+            private string _columnName;
+
+            public abstract ParentObjectType ParentType { get; }
+
+            public string TitleNullable => IsNullable ? "Nullable" : string.Empty;
+
+            public string NullableText => IsNullable ? "✓" : string.Empty;
+
+            public bool IsNullable { get; set; }
+
+            public string Type
+            {
+                get => _type;
+                set => _type = value ?? string.Empty;
+            }
+
+            private string _type = string.Empty;
+
+            public virtual string DefaultValue
+            {
+                get => _defaultValue;
+                set => _defaultValue = value ?? string.Empty;
+            }
+
+            private string _defaultValue = string.Empty;
+
+            public virtual bool IsUniqueKeyColumn { get; set; }
+
+            public virtual bool IsPrimaryKeyColumn { get; set; }
+
+            public virtual bool IsForeignKeyColumn { get; set; }
+
+            public virtual string ColumnClass => @"class=""detail""";
+
+            public virtual string ColumnIcon => string.Empty;
+
+            public virtual string ColumnTitle => string.Empty;
+
+            public enum ParentObjectType
+            {
+                None,
+                Table,
+                View
             }
         }
 
-        private ParentObjectType _parentType;
-
-        public string TitleNullable => IsNullable ? "Nullable" : string.Empty;
-
-        public string NullableText => IsNullable ? "✓" : string.Empty;
-
-        public bool IsNullable { get; set; }
-
-        public string Type { get; set; }
-
-        public string DefaultValue { get; set; }
-
-        public bool IsUniqueKeyColumn { get; set; }
-
-        public bool IsPrimaryKeyColumn { get; set; }
-
-        public bool IsForeignKeyColumn { get; set; }
-
-        public string ColumnClass
+        internal class TableColumn : Column
         {
-            get
+            public TableColumn(Identifier tableName, string columnName)
+                : base(tableName, columnName)
             {
-                var isKey = IsPrimaryKeyColumn || IsUniqueKeyColumn || IsForeignKeyColumn;
-                return isKey ? @"class="".keyColumn""" : string.Empty;
             }
-        }
 
-        public string ColumnIcon
-        {
-            get
+            public override string TableFolder { get; } = "tables";
+
+            public override ParentObjectType ParentType { get; } = ParentObjectType.Table;
+
+            public override string ColumnClass
             {
-                var iconPieces = new List<string>();
-
-                if (IsForeignKeyColumn)
+                get
                 {
-                    const string iconText = @"<i title=""Foreign Key"" class=""foreignKeyIcon icon ion-key iconkey"" style=""padding-left: 5px;""></i>";
-                    iconPieces.Add(iconText);
+                    var isKey = IsPrimaryKeyColumn || IsUniqueKeyColumn || IsForeignKeyColumn;
+                    return isKey ? @"class=""detail keyColumn""" : string.Empty;
                 }
-
-                if (IsUniqueKeyColumn)
-                {
-                    const string iconText = @"<i title=""Unique Key"" class=""uniqueKeyIcon icon ion-key iconkey"" style=""padding-left: 5px;""></i>";
-                    iconPieces.Add(iconText);
-                }
-
-                if (IsPrimaryKeyColumn)
-                {
-                    const string iconText = @"<i title=""Primary Key"" class=""primaryKeyIcon icon ion-key iconkey"" style=""padding-left: 5px;""></i>";
-                    iconPieces.Add(iconText);
-                }
-
-                return string.Concat(iconPieces);
             }
-        }
 
-        public string ColumnTitle
-        {
-            get
+            public override string ColumnIcon
             {
-                var titlePieces = new List<string>();
+                get
+                {
+                    var iconPieces = new List<string>();
 
-                if (IsPrimaryKeyColumn)
-                    titlePieces.Add("Primary Key");
-                if (IsUniqueKeyColumn)
-                    titlePieces.Add("Unique Key");
-                if (IsForeignKeyColumn)
-                    titlePieces.Add("Foreign Key");
+                    if (IsPrimaryKeyColumn)
+                    {
+                        const string iconText = @"<i title=""Primary Key"" class=""fa fa-key primaryKeyIcon"" style=""padding-left: 5px; padding-right: 5px;""></i>";
+                        iconPieces.Add(iconText);
+                    }
 
-                return string.Join(", ", titlePieces);
+                    if (IsUniqueKeyColumn)
+                    {
+                        const string iconText = @"<i title=""Unique Key"" class=""fa fa-key uniqueKeyIcon"" style=""padding-left: 5px; padding-right: 5px;""></i>";
+                        iconPieces.Add(iconText);
+                    }
+
+                    if (IsForeignKeyColumn)
+                    {
+                        const string iconText = @"<i title=""Foreign Key"" class=""fa fa-key foreignKeyIcon"" style=""padding-left: 5px; padding-right: 5px;""></i>";
+                        iconPieces.Add(iconText);
+                    }
+
+                    return string.Concat(iconPieces);
+                }
+            }
+
+            public override string ColumnTitle
+            {
+                get
+                {
+                    var titlePieces = new List<string>();
+
+                    if (IsPrimaryKeyColumn)
+                        titlePieces.Add("Primary Key");
+                    if (IsUniqueKeyColumn)
+                        titlePieces.Add("Unique Key");
+                    if (IsForeignKeyColumn)
+                        titlePieces.Add("Foreign Key");
+
+                    return string.Join(", ", titlePieces);
+                }
             }
         }
 
-        public enum ParentObjectType
+        internal class ViewColumn : Column
         {
-            Table,
-            View
+            public ViewColumn(Identifier tableName, string columnName)
+                : base(tableName, columnName)
+            {
+            }
+
+            public override string TableFolder { get; } = "views";
+
+            public override ParentObjectType ParentType { get; } = ParentObjectType.View;
+
+            public override string DefaultValue
+            {
+                get => string.Empty;
+                set { }
+            }
+
+            public override bool IsUniqueKeyColumn
+            {
+                get => false;
+                set { }
+            }
+
+            public override bool IsPrimaryKeyColumn
+            {
+                get => false;
+                set { }
+            }
+
+            public override bool IsForeignKeyColumn
+            {
+                get => false;
+                set { }
+            }
         }
     }
 }

@@ -17,12 +17,41 @@ gulp.task('clean', function () {
     ]);
 });
 
-gulp.task('fonts', function () {
-    return gulp.src('node_modules/source-sans-pro/**/*.{eot,woff,woff2,otf,ttf}')
-        .pipe(gulp.dest('assets/css/fonts'));
+gulp.task('source-sans-font', function () {
+    return gulp.src('node_modules/source-sans-pro/**/*.{eot,woff,woff2,otf,ttf,svg}')
+        .pipe(gulp.dest('assets/fonts'));
 });
 
-gulp.task('styles:dev', ['fonts'], function () {
+gulp.task('ionicons-font', function () {
+    return gulp.src('node_modules/ionicons/dist/fonts/*.{eot,woff,woff2,otf,ttf,svg}')
+        .pipe(gulp.dest('assets/fonts'));
+});
+
+gulp.task('fontawesome-font', function () {
+    return gulp.src('node_modules/font-awesome/fonts/*-webfont.{eot,woff,woff2,otf,ttf,svg}')
+        .pipe(gulp.dest('assets/fonts'));
+});
+
+gulp.task('glyphicons-font', function () {
+    return gulp.src('node_modules/bootstrap/dist/fonts/*.{eot,woff,woff2,otf,ttf,svg}')
+        .pipe(gulp.dest('assets/fonts'));
+});
+
+gulp.task('fonts', ['source-sans-font', 'ionicons-font', 'fontawesome-font', 'glyphicons-font'], function () {
+});
+
+gulp.task('viz-js', ['fonts'], function () {
+    return gulp.src([
+            'node_modules/viz.js/full.render.js',
+            'node_modules/viz.js/viz.js'
+        ])
+        .pipe(gulp.dest('assets/js'));
+});
+
+gulp.task('copy-assets', ['fonts', 'viz-js'], function () {
+});
+
+gulp.task('styles:dev', ['copy-assets'], function () {
     return gulp.src(
         [
             'node_modules/bootstrap/dist/css/bootstrap.css',
@@ -33,8 +62,9 @@ gulp.task('styles:dev', ['fonts'], function () {
             'node_modules/codemirror/lib/codemirror.css',
             'node_modules/admin-lte/dist/css/AdminLTE.css',
             'node_modules/admin-lte/dist/css/skins/_all-skins.css',
-            'Source/css/source-sans-pro.css'
-            // TODO: add the schemaSpy.css file
+            'Source/css/source-sans-pro.css',
+            'Source/css/schemaspy.css',
+            'Source/css/main.css'
         ])
         .pipe(concat('schemaspy-app.css'))
         .pipe(postcss([cssnext]))
@@ -53,13 +83,12 @@ gulp.task('scripts:dev', function () {
             'node_modules/datatables.net-buttons-bs/js/buttons.bootstrap.js',
             'node_modules/datatables.net-buttons/js/buttons.html5.js',
             'node_modules/datatables.net-buttons/js/buttons.print.js',
-            'node_modules/datatables.net-buttons/js/buttons.colVis.js',
             'node_modules/salvattore/dist/salvattore.js',
             'node_modules/anchor-js/anchor.js',
             'node_modules/codemirror/lib/codemirror.js',
             'node_modules/codemirror/mode/sql/sql.js',
-            'node_modules/admin-lte/dist/js/adminlte.js'
-            // TODO: add the schemaSpy.js file
+            'node_modules/admin-lte/dist/js/adminlte.js',
+            'Source/js/schemaspy.js'
         ])
         .pipe(concat('schemaspy-app.js'))
         .pipe(eslint())
@@ -70,19 +99,19 @@ gulp.task('build:dev', ['styles:dev', 'scripts:dev'], function () {
 
 });
 
-gulp.task('styles:prod', ['fonts'], function () {
+gulp.task('styles:prod', ['copy-assets'], function () {
     return gulp.src(
         [
             'node_modules/bootstrap/dist/css/bootstrap.min.css',
             'node_modules/font-awesome/css/font-awesome.min.css',
             'node_modules/ionicons/dist/css/ionicons.min.css',
-            'node_modules/datatables.net-bs/css/dataTables.bootstrap.min.css',
+            'node_modules/datatables.net-bs/css/dataTables.bootstrap.css',
             'node_modules/datatables.net-buttons-bs/css/buttons.bootstrap.min.css',
             'node_modules/codemirror/lib/codemirror.css',
             'node_modules/admin-lte/dist/css/AdminLTE.min.css',
             'node_modules/admin-lte/dist/css/skins/_all-skins.min.css',
-            'Source/css/source-sans-pro.css'
-            // TODO: add the schemaSpy.css file
+            'Source/css/source-sans-pro.css',
+            'Source/css/schemaspy.css'
         ])
         .pipe(concat('schemaspy-app.css'))
         .pipe(postcss([cssnext]))
@@ -102,16 +131,16 @@ gulp.task('scripts:prod', function () {
             'node_modules/datatables.net-buttons-bs/js/buttons.bootstrap.min.js',
             'node_modules/datatables.net-buttons/js/buttons.html5.min.js',
             'node_modules/datatables.net-buttons/js/buttons.print.min.js',
-            'node_modules/datatables.net-buttons/js/buttons.colVis.min.js',
             'node_modules/salvattore/dist/salvattore.min.js',
             'node_modules/anchor-js/anchor.min.js',
             'node_modules/codemirror/lib/codemirror.js',
             'node_modules/codemirror/mode/sql/sql.js',
-            'node_modules/admin-lte/dist/js/adminlte.min.js'
-            // TODO: add the schemaSpy.js file
+            'node_modules/admin-lte/dist/js/adminlte.min.js',
+            'Source/js/schemaspy.js',
+            'Source/js/main.js'
         ])
         .pipe(concat('schemaspy-app.js'))
-        .pipe(eslint())
+        //.pipe(eslint())
         .pipe(uglify())
         .pipe(gulp.dest("assets/js"));
 });

@@ -1,8 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
+using System.Collections.Concurrent;
 using System.Linq;
+using System.Reflection;
 using EnumsNET;
 using Scriban;
+using Scriban.Runtime;
 using SJP.Schematic.Core.Extensions;
 
 namespace SJP.Schematic.SchemaSpy.Html
@@ -29,10 +31,21 @@ namespace SJP.Schematic.SchemaSpy.Html
             if (parsedTemplate.HasErrors)
             {
                 var message = parsedTemplate.Messages.Select(m => m.Message).Join(", ");
-                throw new InvalidOperationException("Unable to render the template as it is not valid. Errors messages: " + message);
+                throw new InvalidOperationException("Unable to render the template as it is not valid. Error messages: " + message);
             }
 
-            return parsedTemplate.Render(templateParameter, member => member.Name);
+            var scriptObject = new ScriptObject();
+            scriptObject.Import(templateParameter, renamer: MemberRenamer);
+
+            var context = new TemplateContext
+            {
+                LoopLimit = int.MaxValue,
+                MemberRenamer = MemberRenamer,
+                StrictVariables = true
+            };
+            context.PushGlobal(scriptObject);
+
+            return parsedTemplate.Render(context);
         }
 
         protected Template GetTemplate(SchemaSpyTemplate template)
@@ -40,16 +53,18 @@ namespace SJP.Schematic.SchemaSpy.Html
             if (!template.IsValid())
                 throw new ArgumentException($"The { nameof(SchemaSpyTemplate) } provided must be a valid enum.", nameof(template));
 
-            if (_templateCache.ContainsKey(template))
-                return _templateCache[template];
+            if (_templateCache.TryGetValue(template, out var result))
+                return result;
 
             var templateText = TemplateProvider.GetTemplate(template);
             var parsedTemplate = Template.Parse(templateText);
-            _templateCache[template] = parsedTemplate;
+            _templateCache.TryAdd(template, parsedTemplate);
 
             return parsedTemplate;
         }
 
-        private readonly IDictionary<SchemaSpyTemplate, Template> _templateCache = new Dictionary<SchemaSpyTemplate, Template>();
+        private static string MemberRenamer(MemberInfo member) => member.Name;
+
+        private readonly ConcurrentDictionary<SchemaSpyTemplate, Template> _templateCache = new ConcurrentDictionary<SchemaSpyTemplate, Template>();
     }
 }

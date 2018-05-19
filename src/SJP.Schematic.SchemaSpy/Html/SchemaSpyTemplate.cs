@@ -5,12 +5,12 @@
         None, // not intended to be used
         Columns,
         Components,
-        Constraint,
+        Constraints,
         Container,
         Main,
-        Multi,
         Orphans,
         Relationships,
-        Routines
+        Table,
+        View
     }
 }

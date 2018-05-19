@@ -38,6 +38,9 @@ namespace SJP.Schematic.SchemaSpy.Html
                 if (targetFile.Exists && overwrite)
                     targetFile.Delete();
 
+                if (!targetFile.Directory.Exists)
+                    targetFile.Directory.Create();
+
                 using (var stream = targetFile.OpenWrite())
                 using (var resourceStream = resourceFile.CreateReadStream())
                     resourceStream.CopyTo(stream);
@@ -71,6 +74,9 @@ namespace SJP.Schematic.SchemaSpy.Html
                 if (targetFile.Exists && overwrite)
                     targetFile.Delete();
 
+                if (!targetFile.Directory.Exists)
+                    targetFile.Directory.Create();
+
                 using (var stream = targetFile.OpenWrite())
                 using (var resourceStream = resourceFile.CreateReadStream())
                     await resourceStream.CopyToAsync(stream).ConfigureAwait(false);
@@ -92,8 +98,24 @@ namespace SJP.Schematic.SchemaSpy.Html
             var dirName = Path.Combine(dirNamePieces);
             var fileNameWithExtension = pieces[pieces.Length - 2] + "." + pieces[pieces.Length - 1];
 
+            // assuming no more than 2 extensions -- refactor if more are needed
+            if (!_nonStandardExtensions.Contains("." + fileNameWithExtension))
+                return Path.Combine(dirName, fileNameWithExtension);
+
+            dirNamePieces = pieces.Take(pieces.Length - 3).ToArray();
+            dirName = Path.Combine(dirNamePieces);
+            fileNameWithExtension = pieces[pieces.Length - 3] + "." + pieces[pieces.Length - 2] + "." + pieces[pieces.Length - 1];
+
             return Path.Combine(dirName, fileNameWithExtension);
         }
+
+        private static readonly IEnumerable<string> _nonStandardExtensions = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+        {
+            ".otf.woff",
+            ".ttf.woff",
+            ".otf.woff2",
+            ".ttf.woff2"
+        };
 
         private static readonly IFileProvider _fileProvider = new EmbeddedFileProvider(Assembly.GetExecutingAssembly(), Assembly.GetExecutingAssembly().GetName().Name + ".assets");
     }

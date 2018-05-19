@@ -1,0 +1,290 @@
+<section class="content-header">
+  <h1>{{ Name }}</h1>
+</section>
+<section class="content">
+  <div class="box box-primary">
+    <div class="box-header with-border">
+      <span class="glyphicon glyphicon-list-alt" aria-hidden="true"></span>
+      <h3 id="Columns" class="box-title">Columns</h3>
+      <div class="box-tools pull-right">
+        <button type="button" class="btn btn-box-tool" data-widget="collapse">
+          <i class="fa fa-minus"></i>
+        </button>
+        <button type="button" class="btn btn-box-tool" data-widget="remove">
+          <i class="fa fa-times"></i>
+        </button>
+      </div>
+    </div>
+    <div class="box-body">
+      <table class="database_objects table table-bordered table-striped dataTable" role="grid">
+        <thead align="left">
+          <tr>
+            <th>Ordinal Position</th>
+            <th>Column</th>
+            <th>Type</th>
+            <th title="Are nulls allowed?">Nullable</th>
+            <th title="Default value">Default</th>
+            <th title="Columns in tables that reference this column">Children</th>
+            <th title="Columns in tables that are referenced by this column">Parents</th>
+          </tr>
+        </thead>
+        <tbody>
+          {{ if ColumnsCount > 0 }}
+          {{ for column in Columns }}
+          <tr>
+            <td>{{ column.Ordinal | html.escape }}</td>
+            <td {{ column.ColumnClass }}>{{ column.ColumnIcon }}{{ column.ColumnName | html.escape }}</td>
+            <td>{{ column.Type | html.escape }}</td>
+            <td title="{{ column.TitleNullable }}">{{ column.NullableText | html.escape }}</td>
+            <td>{{ column.DefaultValue | html.escape }}</td>
+            <td>
+              {{  if column.ChildKeysCount > 0 }}
+              <table border="0" cellspacing="0" cellpadding="0">
+                {{ for childKey in column.ChildKeys }}
+                <tr>
+                  <td title="{{ childKey.ConstraintDescription }}">
+                    <a href="{{ RootPath }}tables/{{ childKey.ChildTableUrl }}.html">{{ childKey.ChildTableName }}</a>.{{ childKey.ChildColumnName }}
+                  </td>
+                </tr>
+                {{ end }}
+              </table>
+              {{ end }}
+            </td>
+            <td>
+              {{ if column.ParentKeysCount > 0 }}
+              <table border="0" cellspacing="0" cellpadding="0">
+                {{ for parentKey in column.ParentKeys }}
+                <tr>
+                  <td title="{{ parentKey.ConstraintDescription }}">
+                    <a href="{{ RootPath }}tables/{{ parentKey.ParentTableUrl }}.html">{{ parentKey.ParentTableName }}</a>.{{ parentKey.ParentColumnName }}
+                  </td>
+                </tr>
+                {{ end }}
+              </table>
+              {{ end }}
+            </td>
+          </tr>
+          {{ end }}
+          {{ else }}
+          <tr>
+            <td class="detail" colspan="7">No columns present.</td>
+          </tr>
+          {{ end }}
+        </tbody>
+      </table>
+      <p title="{{ ColumnsCount }} columns">
+        Table contained <span id="recordNumber">{{ RowCount }}</span> rows.
+      </p>
+    </div>
+  </div>
+  <div class="box box-primary">
+    <div class="box-header with-border">
+      <i class="fa fa-key"></i>
+      <h3 class="box-title">Primary Key Constraint</h3>
+      <div class="box-tools pull-right">
+        <button type="button" class="btn btn-box-tool" data-widget="collapse">
+          <i class="fa fa-minus"></i>
+        </button>
+        <button type="button" class="btn btn-box-tool" data-widget="remove">
+          <i class="fa fa-times"></i>
+        </button>
+      </div>
+    </div>
+    <div class="box-body">
+      <table class="database_objects table table-bordered table-striped dataTable" role="grid">
+        <thead align="left">
+          <tr>
+            <th>Constraint Name</th>
+            <th>Columns</th>
+          </tr>
+        </thead>
+        <tbody>
+          {{ if PrimaryKeyExists }}
+          <tr>
+            <td class="detail">{{ PrimaryKey.ConstraintName }}</td>
+            <td class="detail">{{ PrimaryKey.ColumnNames }}</td>
+          </tr>
+          {{ else }}
+          <tr>
+            <td class="detail" colspan="2">No primary key present.</td>
+          </tr>
+          {{ end }}
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <div class="box box-primary">
+    <div class="box-header with-border">
+      <i class="fa fa-key"></i>
+      <h3 class="box-title">{{ UniqueKeysCount }} Unique Key Constraints</h3>
+      <div class="box-tools pull-right">
+        <button type="button" class="btn btn-box-tool" data-widget="collapse">
+          <i class="fa fa-minus"></i>
+        </button>
+        <button type="button" class="btn btn-box-tool" data-widget="remove">
+          <i class="fa fa-times"></i>
+        </button>
+      </div>
+    </div>
+    <div class="box-body">
+      <table class="database_objects table table-bordered table-striped dataTable" role="grid">
+        <thead align="left">
+          <tr>
+            <th>Constraint Name</th>
+            <th>Columns</th>
+          </tr>
+        </thead>
+        <tbody>
+          {{ if UniqueKeysCount > 0 }}
+          {{ for uniqueKey in UniqueKeys }}
+          <tr>
+            <td class="detail">{{ uniqueKey.ConstraintName }}</td>
+            <td class="detail">{{ uniqueKey.ColumnNames }}</td>
+          </tr>
+          {{ end }}
+          {{ else }}
+          <tr>
+            <td class="detail" colspan="2">No unique key constraints present.</td>
+          </tr>
+          {{ end }}
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <div class="box box-primary">
+    <div class="box-header with-border">
+      <i class="fa fa-key"></i>
+      <h3 class="box-title">{{ ForeignKeysCount }} Foreign Key Constraints</h3>
+      <div class="box-tools pull-right">
+        <button type="button" class="btn btn-box-tool" data-widget="collapse">
+          <i class="fa fa-minus"></i>
+        </button>
+        <button type="button" class="btn btn-box-tool" data-widget="remove">
+          <i class="fa fa-times"></i>
+        </button>
+      </div>
+    </div>
+    <div class="box-body">
+      <table class="database_objects table table-bordered table-striped dataTable" role="grid">
+        <thead align="left">
+          <tr>
+            <th>Constraint Name</th>
+            <th>Columns</th>
+            <th>Parent Constraint Name</th>
+            <th>Parent Table</th>
+            <th>Parent Columns</th>
+            <th>Delete Rule</th>
+            <th>Update Rule</th>
+          </tr>
+        </thead>
+        <tbody>
+          {{ if ForeignKeysCount > 0 }}
+          {{ for foreignKey in ForeignKeys }}
+          <tr>
+            <td class="detail">{{ foreignKey.ConstraintName }}</td>
+            <td class="detail">{{ foreignKey.ChildColumnNames }}</td>
+            <td class="detail">{{ foreignKey.ParentConstraintName }}</td>
+            <td class="detail">
+              <a href="tables/{{ foreignKey.ParentTableUrl }}.html">{{ foreignKey.ParentTableName }}</a>
+            </td>
+            <td class="detail">{{ foreignKey.ParentColumnNames }}</td>
+            <td class="detail">
+              <code>{{ foreignKey.DeleteRuleDescription }}</code>
+            </td>
+            <td class="detail">
+              <code>{{ foreignKey.UpdateRuleDescription }}</code>
+            </td>
+          </tr>
+          {{ end }}
+          {{ else }}
+          <tr>
+            <td class="detail" colspan="7">No foreign key constraints present.</td>
+          </tr>
+          {{ end }}
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <div class="box box-primary">
+    <div class="box-header with-border">
+      <i class="fa fa-key"></i>
+      <h3 class="box-title">{{ CheckConstraintsCount }} Check Constraints</h3>
+      <div class="box-tools pull-right">
+        <button type="button" class="btn btn-box-tool" data-widget="collapse">
+          <i class="fa fa-minus"></i>
+        </button>
+        <button type="button" class="btn btn-box-tool" data-widget="remove">
+          <i class="fa fa-times"></i>
+        </button>
+      </div>
+    </div>
+    <div class="box-body">
+      <table class="database_objects table table-bordered table-striped dataTable" role="grid">
+        <thead align="left">
+          <tr>
+            <th>Constraint Name</th>
+            <th>Definition</th>
+          </tr>
+        </thead>
+        <tbody>
+          {{ if CheckConstraintsCount > 0 }}
+          {{ for check in CheckConstraints }}
+          <tr>
+            <td class="detail">{{ check.ConstraintName }}</td>
+            <td class="detail">
+              <code>{{ check.Definition }}</code>
+            </td>
+          </tr>
+          {{ end }}
+          {{ else }}
+          <tr>
+            <td class="detail" colspan="2">No check constraints present.</td>
+          </tr>
+          {{ end }}
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <div class="box box-primary">
+    <div class="box-header with-border">
+      <i class="fa fa-sitemap"></i>
+      <h3 id="Indexes" class="box-title">Indexes</h3>
+      <div class="box-tools pull-right">
+        <button type="button" class="btn btn-box-tool" data-widget="collapse">
+          <i class="fa fa-minus"></i>
+        </button>
+        <button type="button" class="btn btn-box-tool" data-widget="remove">
+          <i class="fa fa-times"></i>
+        </button>
+      </div>
+    </div>
+    <div class="box-body">
+      <table class="database_objects table table-bordered table-striped dataTable" role="grid">
+        <thead>
+          <tr>
+            <th>Index Name</th>
+            <td>Unique</td>
+            <th>Columns</th>
+            <td>Included Columns</td>
+          </tr>
+        </thead>
+        <tbody>
+          {{ if IndexesCount > 0 }}
+          {{ for index in Indexes }}
+          <tr>
+            <td>{{ index.Name }}</td>
+            <td>{{ index.UniqueText }}</td>
+            <td>{{ index.ColumnsText }}</td>
+            <td>{{ index.IncludedColumnsText }}</td>
+          </tr>
+          {{ end }}
+          {{ else }}
+          <tr>
+            <td class="detail" colspan="4">No indexes present.</td>
+          </tr>
+          {{ end }}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>

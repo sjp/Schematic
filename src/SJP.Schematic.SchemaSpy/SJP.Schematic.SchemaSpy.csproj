@@ -12,13 +12,19 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="Dapper" Version="1.50.4" />
     <PackageReference Include="Microsoft.Extensions.FileProviders.Embedded" Version="2.0.1" />
     <PackageReference Include="Scriban" Version="1.2.0" />
+    <PackageReference Include="System.Text.Encodings.Web" Version="4.4.0" />
   </ItemGroup>
 
   <ItemGroup>
     <EmbeddedResource Include="Html\Templates\*.scriban" />
     <EmbeddedResource Include="assets\**\*.*" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Remove="Html\Templates\View.scriban" />
   </ItemGroup>
 
   <Target Name="NpmClean" BeforeTargets="BeforeClean">

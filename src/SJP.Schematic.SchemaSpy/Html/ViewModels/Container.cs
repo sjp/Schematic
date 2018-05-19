@@ -1,9 +1,11 @@
 ﻿using System;
+using System.Diagnostics;
+using System.Reflection;
 using SJP.Schematic.Core.Extensions;
 
 namespace SJP.Schematic.SchemaSpy.Html.ViewModels
 {
-    public class Container : ITemplateParameter
+    internal class Container : ITemplateParameter
     {
         public SchemaSpyTemplate Template { get; } = SchemaSpyTemplate.Container;
 
@@ -22,15 +24,9 @@ namespace SJP.Schematic.SchemaSpy.Html.ViewModels
 
         public string Content { get; set; }
 
-        // TODO -- change this to be based on the current assembly file version
-        public string ProjectVersion
-        {
-            get
-            {
-                var version = new Version(1, 0, 0);
-                return version.ToString();
-            }
-        }
+        public string ProjectVersion => _projectVersion;
+
+        private static readonly string _projectVersion = FileVersionInfo.GetVersionInfo(Assembly.GetExecutingAssembly().Location).FileVersion;
 
         public string PageScript
         {
