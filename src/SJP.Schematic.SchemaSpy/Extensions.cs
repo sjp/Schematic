@@ -124,4 +124,23 @@ namespace SJP.Schematic.SchemaSpy
             return connection.ExecuteScalarAsync<ulong>(query);
         }
     }
+
+    internal static class DatabaseKeyExtensions
+    {
+        public static int GetKeyHash(this IDatabaseKey key)
+        {
+            if (key == null)
+                throw new ArgumentNullException(nameof(key));
+
+            unchecked
+            {
+                var hash = 17;
+                hash = (hash * 23) + key.Table.Name.GetHashCode();
+                hash = (hash * 23) + key.KeyType.GetHashCode();
+                foreach (var column in key.Columns)
+                    hash = (hash * 23) + (column.Name?.LocalName?.GetHashCode() ?? 0);
+                return hash;
+            }
+        }
+    }
 }
