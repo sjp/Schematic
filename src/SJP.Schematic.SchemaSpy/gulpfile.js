@@ -1,15 +1,15 @@
 'use strict';
 
-const gulp = require('gulp');
-const rename = require('gulp-rename');
-const eslint = require('gulp-eslint');
-const uglify = require('gulp-uglify');
-const concat = require('gulp-concat');
-const sass = require('gulp-sass');
-const cssnano = require('gulp-cssnano');
-const postcss = require('gulp-postcss');
-const cssnext = require('postcss-cssnext');
-const del = require('del');
+const gulp = require("gulp");
+const rename = require("gulp-rename");
+const newer = require("gulp-newer");
+const uglify = require("gulp-uglify");
+const concat = require("gulp-concat");
+const sass = require("gulp-sass");
+const cssnano = require("gulp-cssnano");
+const postcss = require("gulp-postcss");
+const cssnext = require("postcss-cssnext");
+const del = require("del");
 
 gulp.task('clean', function () {
     return del([
@@ -19,25 +19,23 @@ gulp.task('clean', function () {
 
 gulp.task('source-sans-font', function () {
     return gulp.src('node_modules/source-sans-pro/**/*.{eot,woff,woff2,otf,ttf,svg}')
-        .pipe(gulp.dest('assets/fonts'));
-});
-
-gulp.task('ionicons-font', function () {
-    return gulp.src('node_modules/ionicons/dist/fonts/*.{eot,woff,woff2,otf,ttf,svg}')
+        .pipe(newer('assets/fonts'))
         .pipe(gulp.dest('assets/fonts'));
 });
 
 gulp.task('fontawesome-font', function () {
     return gulp.src('node_modules/font-awesome/fonts/*-webfont.{eot,woff,woff2,otf,ttf,svg}')
+        .pipe(newer('assets/fonts'))
         .pipe(gulp.dest('assets/fonts'));
 });
 
 gulp.task('glyphicons-font', function () {
     return gulp.src('node_modules/bootstrap/dist/fonts/*.{eot,woff,woff2,otf,ttf,svg}')
+        .pipe(newer('assets/fonts'))
         .pipe(gulp.dest('assets/fonts'));
 });
 
-gulp.task('fonts', ['source-sans-font', 'ionicons-font', 'fontawesome-font', 'glyphicons-font'], function () {
+gulp.task('fonts', ['source-sans-font', 'fontawesome-font', 'glyphicons-font'], function () {
 });
 
 gulp.task('viz-js', ['fonts'], function () {
@@ -45,6 +43,7 @@ gulp.task('viz-js', ['fonts'], function () {
             'node_modules/viz.js/full.render.js',
             'node_modules/viz.js/viz.js'
         ])
+        .pipe(newer('assets/js'))
         .pipe(gulp.dest('assets/js'));
 });
 
@@ -66,6 +65,7 @@ gulp.task('styles:dev', ['copy-assets'], function () {
             'Source/css/schemaspy.css',
             'Source/css/main.css'
         ])
+        .pipe(newer('assets/css/schemaspy-app.css'))
         .pipe(concat('schemaspy-app.css'))
         .pipe(postcss([cssnext]))
         .pipe(gulp.dest("assets/"));
@@ -90,6 +90,7 @@ gulp.task('scripts:dev', function () {
             'node_modules/admin-lte/dist/js/adminlte.js',
             'Source/js/schemaspy.js'
         ])
+        .pipe(newer("assets/js/schemaspy-app.js"))
         .pipe(concat('schemaspy-app.js'))
         .pipe(eslint())
         .pipe(gulp.dest("assets/"));
@@ -113,6 +114,7 @@ gulp.task('styles:prod', ['copy-assets'], function () {
             'Source/css/source-sans-pro.css',
             'Source/css/schemaspy.css'
         ])
+        .pipe(newer('assets/css/schemaspy-app.css'))
         .pipe(concat('schemaspy-app.css'))
         .pipe(postcss([cssnext]))
         .pipe(cssnano())
@@ -139,8 +141,8 @@ gulp.task('scripts:prod', function () {
             'Source/js/schemaspy.js',
             'Source/js/main.js'
         ])
+        .pipe(newer("assets/js/schemaspy-app.js"))
         .pipe(concat('schemaspy-app.js'))
-        //.pipe(eslint())
         .pipe(uglify())
         .pipe(gulp.dest("assets/js"));
 });
