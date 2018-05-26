@@ -60,4 +60,10 @@
             SchemaSpy requires Graphviz {{graphvizVersion}} from <a href="http://www.graphviz.org" target="_blank">www.graphviz.org</a>.</p>
         </div>
         {{/graphvizExists}}
+        <script id="compact-graph" type="text/vnd.graphviz">
+{{ CompactGraph }}
+        </script>
+        <script id="full-graph" type="text/vnd.graphviz">
+{{ FullGraph }}
+        </script>
       </section>

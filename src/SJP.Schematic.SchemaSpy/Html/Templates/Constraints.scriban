@@ -16,7 +16,11 @@
       </div>
     </div>
     <div class="box-body">
+      {{ if PrimaryKeysCount > 0 }}
       <table class="database_objects table table-bordered table-striped dataTable" role="grid">
+      {{ else }}
+      <table class="table table-bordered table-striped dataTable" role="grid">
+      {{ end }}
         <thead align="left">
           <tr>
             <th>Constraint Name</th>
@@ -58,7 +62,11 @@
       </div>
     </div>
     <div class="box-body">
+      {{ if UniqueKeysCount > 0 }}
       <table class="database_objects table table-bordered table-striped dataTable" role="grid">
+      {{ else }}
+      <table class="table table-bordered table-striped dataTable" role="grid">
+      {{ end }}
         <thead align="left">
           <tr>
             <th>Constraint Name</th>
@@ -100,7 +108,11 @@
       </div>
     </div>
     <div class="box-body">
+      {{ if ForeignKeysCount > 0 }}
       <table class="database_objects table table-bordered table-striped dataTable" role="grid">
+      {{ else }}
+      <table class="table table-bordered table-striped dataTable" role="grid">
+      {{ end }}
         <thead align="left">
           <tr>
             <th>Child Constraint Name</th>
@@ -154,7 +166,11 @@
       </div>
     </div>
     <div class="box-body">
+      {{ if CheckConstraintsCount > 0 }}
       <table class="database_objects table table-bordered table-striped dataTable" role="grid">
+      {{ else }}
+      <table class="table table-bordered table-striped dataTable" role="grid">
+      {{ end }}
         <thead align="left">
           <tr>
             <th>Constraint Name</th>

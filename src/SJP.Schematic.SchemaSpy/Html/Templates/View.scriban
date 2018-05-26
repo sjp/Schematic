@@ -16,7 +16,11 @@
       </div>
     </div>
     <div class="box-body">
+      {{ if ColumnsCount > 0 }}
       <table class="database_objects table table-bordered table-striped dataTable" role="grid">
+      {{ else }}
+      <table class="table table-bordered table-striped dataTable" role="grid">
+      {{ end }}
         <thead align="left">
           <tr>
             <th>Ordinal Position</th>

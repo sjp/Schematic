@@ -17,13 +17,13 @@ namespace SJP.Schematic.SchemaSpy.Html.ViewModels
 
         public DateTime GenerationTime => DateTime.Now;
 
-        public uint TableCount { get; set; }
+        public uint TablesCount { get; set; }
 
-        public uint ViewCount { get; set; }
+        public uint ViewsCount { get; set; }
 
-        public uint ColumnCount { get; set; }
+        public uint ColumnsCount { get; set; }
 
-        public uint ConstraintCount { get; set; }
+        public uint ConstraintsCount { get; set; }
 
         public IEnumerable<string> Schemas
         {

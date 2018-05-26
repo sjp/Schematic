@@ -1,5 +1,4 @@
-﻿using System;
-using System.Diagnostics;
+﻿using System.Diagnostics;
 using System.Reflection;
 using SJP.Schematic.Core.Extensions;
 
@@ -22,25 +21,13 @@ namespace SJP.Schematic.SchemaSpy.Html.ViewModels
             }
         }
 
+        private string _databaseName = "Database";
+
         public string Content { get; set; }
 
         public string ProjectVersion => _projectVersion;
 
         private static readonly string _projectVersion = FileVersionInfo.GetVersionInfo(Assembly.GetExecutingAssembly().Location).FileVersion;
 
-        public string PageScript
-        {
-            get => _pageScript;
-            set
-            {
-                if (value.IsNullOrWhiteSpace())
-                    throw new ArgumentNullException(nameof(value));
-
-                _pageScript = value;
-            }
-        }
-
-        private string _databaseName = "Database";
-        private string _pageScript = "main.js";
     }
 }

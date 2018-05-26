@@ -413,10 +413,10 @@ namespace SJP.Schematic.SchemaSpy.Html
                 DatabaseName = Database.DatabaseName ?? string.Empty,
                 ProductName = string.Empty,
                 ProductVersion = string.Empty,
-                TableCount = tables.UCount(),
-                ViewCount = views.UCount(),
-                ColumnCount = columns,
-                ConstraintCount = constraints,
+                TablesCount = tables.UCount(),
+                ViewsCount = views.UCount(),
+                ColumnsCount = columns,
+                ConstraintsCount = constraints,
                 Tables = renderTables,
                 Views = renderViews
             };
@@ -474,10 +474,10 @@ namespace SJP.Schematic.SchemaSpy.Html
                 DatabaseName = Database.DatabaseName ?? string.Empty,
                 ProductName = string.Empty,
                 ProductVersion = string.Empty,
-                TableCount = tables.UCount(),
-                ViewCount = views.UCount(),
-                ColumnCount = columns,
-                ConstraintCount = constraints,
+                TablesCount = tables.UCount(),
+                ViewsCount = views.UCount(),
+                ColumnsCount = columns,
+                ConstraintsCount = constraints,
                 Tables = renderTables,
                 Views = renderViews
             };

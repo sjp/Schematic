@@ -16,7 +16,11 @@
       </div>
     </div>
     <div class="box-body">
+      {{ if ColumnsCount > 0 }}
       <table class="database_objects table table-bordered table-striped dataTable" role="grid">
+      {{ else }}
+      <table class="table table-bordered table-striped dataTable" role="grid">
+      {{ end }}
         <thead align="left">
           <tr>
             <th>Ordinal Position</th>
@@ -91,7 +95,11 @@
       </div>
     </div>
     <div class="box-body">
+      {{ if PrimaryKeyExists }}
       <table class="database_objects table table-bordered table-striped dataTable" role="grid">
+      {{ else }}
+      <table class="table table-bordered table-striped dataTable" role="grid">
+      {{ end }}
         <thead align="left">
           <tr>
             <th>Constraint Name</th>
@@ -127,7 +135,11 @@
       </div>
     </div>
     <div class="box-body">
+      {{ if UniqueKeysCount > 0 }}
       <table class="database_objects table table-bordered table-striped dataTable" role="grid">
+      {{ else }}
+      <table class="table table-bordered table-striped dataTable" role="grid">
+      {{ end }}
         <thead align="left">
           <tr>
             <th>Constraint Name</th>
@@ -165,7 +177,11 @@
       </div>
     </div>
     <div class="box-body">
+      {{ if ForeignKeysCount > 0 }}
       <table class="database_objects table table-bordered table-striped dataTable" role="grid">
+      {{ else }}
+      <table class="table table-bordered table-striped dataTable" role="grid">
+      {{ end }}
         <thead align="left">
           <tr>
             <th>Constraint Name</th>
@@ -219,7 +235,11 @@
       </div>
     </div>
     <div class="box-body">
+      {{ if CheckConstraintsCount > 0 }}
       <table class="database_objects table table-bordered table-striped dataTable" role="grid">
+      {{ else }}
+      <table class="table table-bordered table-striped dataTable" role="grid">
+      {{ end }}
         <thead align="left">
           <tr>
             <th>Constraint Name</th>
@@ -259,13 +279,17 @@
       </div>
     </div>
     <div class="box-body">
+      {{ if IndexesCount > 0 }}
       <table class="database_objects table table-bordered table-striped dataTable" role="grid">
+      {{ else }}
+      <table class="table table-bordered table-striped dataTable" role="grid">
+      {{ end }}
         <thead>
           <tr>
             <th>Index Name</th>
-            <td>Unique</td>
+            <th>Unique</th>
             <th>Columns</th>
-            <td>Included Columns</td>
+            <th>Included Columns</th>
           </tr>
         </thead>
         <tbody>
@@ -287,4 +311,42 @@
       </table>
     </div>
   </div>
+  <div class="box box-primary">
+    <div class="box-header with-border">
+      <i class="fa fa-sitemap"></i>
+      <h3 id="Relationships" class="box-title">Relationships</h3>
+      <div class="box-tools pull-right">
+        <button type="button" class="btn btn-box-tool" data-widget="collapse">
+          <i class="fa fa-minus"></i>
+        </button>
+        <button type="button" class="btn btn-box-tool" data-widget="remove">
+          <i class="fa fa-times"></i>
+        </button>
+      </div>
+    </div>
+    <div class="box-body">
+      <div class="nav-tabs-custom" style="cursor: move;">
+        <h5>Close relationships within degrees of separation</h5>
+        <ul class="nav nav-tabs pull-left ui-sortable-handle">
+          {{ for diagram in Diagrams }}
+          <li {{ diagram.ActiveClass }}>
+            <a href="#{{ diagram.Id }}" data-toggle="tab" aria-expanded="true">{{ diagram.Name }}</a>
+          </li>
+          {{ end }}
+        </ul>
+        <div class="tab-content no-padding">
+          {{ for diagram in Diagrams }}
+          <div class="chart tab-pane {{ diagram.ActiveText }}" id="{{ diagram.Id }}" style="position: relative; overflow-x:auto;">
+          </div>
+          {{ end }}
+        </div>
+      </div>
+    </div>
+    <!-- /.box-body -->
+  </div>
 </section>
+{{ for diagram in Diagrams }}
+<script type="text/vnd.graphviz" data-graph-id="{{ diagram.Id }}">
+{{ diagram.Dot }}
+</script>
+{{ end }}

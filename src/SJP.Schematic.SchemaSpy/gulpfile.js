@@ -62,8 +62,7 @@ gulp.task('styles:dev', ['copy-assets'], function () {
             'node_modules/admin-lte/dist/css/AdminLTE.css',
             'node_modules/admin-lte/dist/css/skins/_all-skins.css',
             'Source/css/source-sans-pro.css',
-            'Source/css/schemaspy.css',
-            'Source/css/main.css'
+            'Source/css/schemaspy.css'
         ])
         .pipe(newer('assets/css/schemaspy-app.css'))
         .pipe(concat('schemaspy-app.css'))
@@ -138,8 +137,7 @@ gulp.task('scripts:prod', function () {
             'node_modules/codemirror/lib/codemirror.js',
             'node_modules/codemirror/mode/sql/sql.js',
             'node_modules/admin-lte/dist/js/adminlte.min.js',
-            'Source/js/schemaspy.js',
-            'Source/js/main.js'
+            'Source/js/schemaspy.js'
         ])
         .pipe(newer("assets/js/schemaspy-app.js"))
         .pipe(concat('schemaspy-app.js'))

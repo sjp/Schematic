@@ -111,6 +111,7 @@ namespace SJP.Schematic.SchemaSpy.Html
 
         private static readonly IEnumerable<string> _nonStandardExtensions = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
         {
+            ".render.js", // for viz.js
             ".otf.woff",
             ".ttf.woff",
             ".otf.woff2",

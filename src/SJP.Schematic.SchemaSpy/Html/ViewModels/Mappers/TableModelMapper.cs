@@ -4,6 +4,7 @@ using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
 using SJP.Schematic.Core;
+using SJP.Schematic.SchemaSpy.Dot;
 
 namespace SJP.Schematic.SchemaSpy.Html.ViewModels.Mappers
 {
@@ -180,8 +181,23 @@ namespace SJP.Schematic.SchemaSpy.Html.ViewModels.Mappers
                 renderChecks.Add(ck);
             }
 
+            var relationshipBuilder = new RelationshipFinder();
+            var oneDegreeTables = relationshipBuilder.GetTablesByDegrees(dbObject, 1);
+            var twoDegreeTables = relationshipBuilder.GetTablesByDegrees(dbObject, 2);
+
+            var dotFormatter = new DatabaseDotFormatter(Connection, dbObject.Database);
+            var oneDegreeDot = dotFormatter.RenderTables(oneDegreeTables);
+            var twoDegreeDot = dotFormatter.RenderTables(twoDegreeTables);
+
+            var diagrams = new[]
+            {
+                new Table.Diagram(dbObject.Name, "One", oneDegreeDot) { IsActive = true },
+                new Table.Diagram(dbObject.Name, "Two", twoDegreeDot)
+            };
+
             result.Columns = columns;
             result.Indexes = mappedIndexes;
+            result.Diagrams = diagrams;
 
             return result;
         }
@@ -347,8 +363,23 @@ namespace SJP.Schematic.SchemaSpy.Html.ViewModels.Mappers
                 renderChecks.Add(ck);
             }
 
+            var relationshipBuilder = new RelationshipFinder();
+            var oneDegreeTables = await relationshipBuilder.GetTablesByDegreesAsync(dbObject, 1).ConfigureAwait(false);
+            var twoDegreeTables = await relationshipBuilder.GetTablesByDegreesAsync(dbObject, 2).ConfigureAwait(false);
+
+            var dotFormatter = new DatabaseDotFormatter(Connection, dbObject.Database);
+            var oneDegreeDot = await dotFormatter.RenderTablesAsync(oneDegreeTables).ConfigureAwait(false);
+            var twoDegreeDot = await dotFormatter.RenderTablesAsync(twoDegreeTables).ConfigureAwait(false);
+
+            var diagrams = new[]
+            {
+                new Table.Diagram(dbObject.Name, "One", oneDegreeDot) { IsActive = true },
+                new Table.Diagram(dbObject.Name, "Two", twoDegreeDot)
+            };
+
             result.Columns = columns;
             result.Indexes = mappedIndexes;
+            result.Diagrams = diagrams;
 
             return result;
         }

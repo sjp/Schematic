@@ -88,6 +88,16 @@ namespace SJP.Schematic.SchemaSpy.Html.ViewModels
 
         public uint IndexesCount => Indexes.UCount();
 
+        public IEnumerable<Diagram> Diagrams
+        {
+            get => _diagrams;
+            set => _diagrams = value ?? throw new ArgumentNullException(nameof(value));
+        }
+
+        private IEnumerable<Diagram> _diagrams = Enumerable.Empty<Diagram>();
+
+        public uint DiagramsCount => Diagrams.UCount();
+
         internal class Column
         {
             public Column(string tableName, string columnName)
@@ -267,7 +277,7 @@ namespace SJP.Schematic.SchemaSpy.Html.ViewModels
 
             private IEnumerable<string> _childColumns = Enumerable.Empty<string>();
 
-            public string ChildColumnNames => _childColumns.Select(HtmlEncoder.Default.Encode).Join(", ");
+            public string ChildColumnNames => _childColumns.Join(", ");
 
             public string ParentTableName => _parentTableName.ToVisibleName();
 
@@ -281,7 +291,7 @@ namespace SJP.Schematic.SchemaSpy.Html.ViewModels
 
             private IEnumerable<string> _parentColumns = Enumerable.Empty<string>();
 
-            public string ParentColumnNames => _parentColumns.Select(HtmlEncoder.Default.Encode).Join(", ");
+            public string ParentColumnNames => _parentColumns.Join(", ");
 
             public Rule DeleteRule { get; set; }
 
@@ -450,6 +460,36 @@ namespace SJP.Schematic.SchemaSpy.Html.ViewModels
             public string QualifiedParentColumnName { get; }
 
             private readonly Identifier _childTableName;
+        }
+
+        internal class Diagram
+        {
+            public Diagram(Identifier tableName, string diagramName, string dotDefinition)
+            {
+                _tableName = tableName ?? throw new ArgumentNullException(nameof(tableName));
+
+                if (diagramName.IsNullOrWhiteSpace())
+                    throw new ArgumentNullException(nameof(diagramName));
+                Name = diagramName;
+
+                if (dotDefinition.IsNullOrWhiteSpace())
+                    throw new ArgumentNullException(nameof(dotDefinition));
+                Dot = dotDefinition;
+            }
+
+            public string Name { get; }
+
+            public string Id => _tableName.ToSafeKey() + "-" + Name.ToLowerInvariant() + "-chart";
+
+            public bool IsActive { get; set; }
+
+            public string ActiveClass => IsActive ? "class=\"active\"" : string.Empty;
+
+            public string ActiveText => IsActive ? "active" : string.Empty;
+
+            public string Dot { get; }
+
+            private readonly Identifier _tableName;
         }
     }
 }

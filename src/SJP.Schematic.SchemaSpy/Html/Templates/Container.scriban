@@ -42,7 +42,8 @@
     </div>
   </footer>
 </div>
+<script src="{{ RootPath }}js/viz.js"></script>
+<script src="{{ RootPath }}js/full.render.js"></script>
 <script src="{{ RootPath }}js/schemaspy-app.js"></script>
-<script src="{{ RootPath }}{{ PageScript }}"></script>
 </body>
 </html>
