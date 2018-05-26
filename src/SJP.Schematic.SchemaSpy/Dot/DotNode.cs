@@ -1,20 +1,21 @@
-﻿using SJP.Schematic.Core;
-using System;
+﻿using System;
 
 namespace SJP.Schematic.SchemaSpy.Dot
 {
-    public interface IDotNode
+    internal abstract class DotNode
     {
-        IRelationalDatabaseTable Table { get; }
-    }
-
-    public class DotNode : IDotNode
-    {
-        public DotNode(IRelationalDatabaseTable table)
+        protected DotNode(DotIdentifier identifier)
         {
-            Table = table ?? throw new ArgumentNullException(nameof(table));
+            Identifier = identifier ?? throw new ArgumentNullException(nameof(identifier));
+            _dotBuilder = new Lazy<string>(BuildDot);
         }
 
-        public IRelationalDatabaseTable Table { get; }
+        public DotIdentifier Identifier { get; }
+
+        public override string ToString() => _dotBuilder.Value;
+
+        protected abstract string BuildDot();
+
+        private readonly Lazy<string> _dotBuilder;
     }
 }
