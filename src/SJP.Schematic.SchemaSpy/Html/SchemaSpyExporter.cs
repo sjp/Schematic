@@ -116,6 +116,15 @@ namespace SJP.Schematic.SchemaSpy.Html
             };
             var renderedOrphansCont = _renderer.RenderTemplate(orphanCont);
             File.WriteAllText(Path.Combine(ExportDirectory.FullName, "orphans.html"), renderedOrphansCont);
+
+            var relationshipsContent = RenderRelationships();
+            var relationshipsCont = new Container
+            {
+                Content = relationshipsContent,
+                DatabaseName = Database.DatabaseName
+            };
+            var renderedRelationshipsCont = _renderer.RenderTemplate(relationshipsCont);
+            File.WriteAllText(Path.Combine(ExportDirectory.FullName, "relationships.html"), renderedRelationshipsCont);
         }
 
         public async Task ExportAsync()
@@ -203,6 +212,15 @@ namespace SJP.Schematic.SchemaSpy.Html
             };
             var renderedOrphansCont = _renderer.RenderTemplate(orphanCont);
             File.WriteAllText(Path.Combine(ExportDirectory.FullName, "orphans.html"), renderedOrphansCont);
+
+            var relationshipsContent = await RenderRelationshipsAsync().ConfigureAwait(false);
+            var relationshipsCont = new Container
+            {
+                Content = relationshipsContent,
+                DatabaseName = Database.DatabaseName
+            };
+            var renderedRelationshipsCont = _renderer.RenderTemplate(relationshipsCont);
+            File.WriteAllText(Path.Combine(ExportDirectory.FullName, "relationships.html"), renderedRelationshipsCont);
         }
 
         private string RenderTable(IRelationalDatabaseTable table)
@@ -514,6 +532,22 @@ namespace SJP.Schematic.SchemaSpy.Html
             var renderTables = await Task.WhenAll(mappingTasks).ConfigureAwait(false);
 
             var templateParameter = new Orphans { Tables = renderTables };
+            return _renderer.RenderTemplate(templateParameter);
+        }
+
+        private string RenderRelationships()
+        {
+            var mapper = new RelationshipsModelMapper(Connection);
+            var templateParameter = mapper.Map(Database);
+
+            return _renderer.RenderTemplate(templateParameter);
+        }
+
+        private async Task<string> RenderRelationshipsAsync()
+        {
+            var mapper = new RelationshipsModelMapper(Connection);
+            var templateParameter = await mapper.MapAsync(Database).ConfigureAwait(false);
+
             return _renderer.RenderTemplate(templateParameter);
         }
 

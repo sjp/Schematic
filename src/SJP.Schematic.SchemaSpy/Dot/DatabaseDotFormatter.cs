@@ -48,8 +48,17 @@ namespace SJP.Schematic.SchemaSpy.Dot
                 var columnNames = table.Columns.Select(c => c.Name.LocalName).ToList();
                 var columnTypes = table.Columns.Select(c => c.Type.Definition).ToList();
 
+                var primaryKey = table.PrimaryKey;
+                var uniqueKeys = table.UniqueKeys.ToList();
                 var childKeys = table.ChildKeys.ToList();
                 var parentKeys = table.ParentKeys.ToList();
+
+                var keyColumnNames = uniqueKeys
+                    .Concat(parentKeys.Select(fk => fk.ChildKey))
+                    .Concat(primaryKey != null ? new[] { primaryKey } : Enumerable.Empty<IDatabaseKey>())
+                    .SelectMany(key => key.Columns.Select(c => c.Name.LocalName))
+                    .Distinct()
+                    .ToList();
 
                 var childKeysCount = childKeys.UCount();
                 var parentKeysCount = parentKeys.UCount();
@@ -72,6 +81,7 @@ namespace SJP.Schematic.SchemaSpy.Dot
                     tableName,
                     columnNames,
                     columnTypes,
+                    keyColumnNames,
                     childKeysCount,
                     parentKeysCount,
                     rowCount,
@@ -282,8 +292,17 @@ namespace SJP.Schematic.SchemaSpy.Dot
                 var columnNames = tableColumns.Select(c => c.Name.LocalName).ToList();
                 var columnTypes = tableColumns.Select(c => c.Type.Definition).ToList();
 
+                var primaryKey = await table.PrimaryKeyAsync().ConfigureAwait(false);
+                var uniqueKeys = await table.UniqueKeysAsync().ConfigureAwait(false);
                 var childKeys = await table.ChildKeysAsync().ConfigureAwait(false);
                 var parentKeys = await table.ParentKeysAsync().ConfigureAwait(false);
+
+                var keyColumnNames = uniqueKeys
+                    .Concat(parentKeys.Select(fk => fk.ChildKey))
+                    .Concat(primaryKey != null ? new[] { primaryKey } : Enumerable.Empty<IDatabaseKey>())
+                    .SelectMany(key => key.Columns.Select(c => c.Name.LocalName))
+                    .Distinct()
+                    .ToList();
 
                 var childKeysCount = childKeys.ToList().UCount();
                 var parentKeysCount = parentKeys.ToList().UCount();
@@ -306,6 +325,7 @@ namespace SJP.Schematic.SchemaSpy.Dot
                     tableName,
                     columnNames,
                     columnTypes,
+                    keyColumnNames,
                     childKeysCount,
                     parentKeysCount,
                     rowCount,

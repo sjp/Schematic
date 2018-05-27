@@ -14,6 +14,7 @@ namespace SJP.Schematic.SchemaSpy.Dot
             string tableName,
             IEnumerable<string> columnNames,
             IEnumerable<string> columnTypes,
+            IEnumerable<string> keyColumnNames,
             uint children,
             uint parents,
             ulong rows,
@@ -27,6 +28,7 @@ namespace SJP.Schematic.SchemaSpy.Dot
             _tableName = tableName;
             _columnNames = columnNames?.ToList() ?? throw new ArgumentNullException(nameof(columnNames));
             _columnTypes = columnTypes?.ToList() ?? throw new ArgumentNullException(nameof(columnTypes));
+            _keyColumnNames = keyColumnNames?.ToList() ?? throw new ArgumentNullException(nameof(keyColumnNames));
             _children = children;
             _parents = parents;
             _rows = rows;
@@ -70,8 +72,15 @@ namespace SJP.Schematic.SchemaSpy.Dot
             table.Add(tableHeaderRow);
             table.Add(keyNameHeaderRow);
 
+            var hasSkippedRows = false;
             var columnRows = _columnNames.Select((c, i) =>
             {
+                if (_options.IsReducedColumnSet && !_keyColumnNames.Contains(c))
+                {
+                    hasSkippedRows = true;
+                    return null;
+                }
+
                 var columnRow = new XElement(HtmlElement.TableRow);
                 var columnCell = new XElement(HtmlElement.TableCell,
                         new XAttribute(HtmlAttribute.Port, c),
@@ -105,12 +114,14 @@ namespace SJP.Schematic.SchemaSpy.Dot
                 }
 
                 return columnRow;
-            }).ToList();
+            })
+            .Where(c => c != null)
+            .ToList();
 
             foreach (var columnRow in columnRows)
                 table.Add(columnRow);
 
-            if (_options.IsReducedColumnSet)
+            if (hasSkippedRows)
             {
                 var endRow = new XElement(HtmlElement.TableRow,
                     new XElement(HtmlElement.TableCell,
@@ -176,6 +187,7 @@ namespace SJP.Schematic.SchemaSpy.Dot
         private readonly string _tableName;
         private readonly IReadOnlyList<string> _columnNames;
         private readonly IReadOnlyList<string> _columnTypes;
+        private readonly IEnumerable<string> _keyColumnNames;
         private readonly uint _children;
         private readonly uint _parents;
         private readonly ulong _rows;
