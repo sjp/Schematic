@@ -10,11 +10,7 @@
       </span>
     </div>
     <div class="box-body">
-      {{ if TablesCount > 0 }}
-      <table class="database_objects table table-bordered table-striped dataTable" role="grid">
-      {{ else }}
-      <table class="table table-bordered table-striped dataTable" role="grid">
-      {{ end }}
+      <table class="{{ TablesTableClass }} table table-bordered table-striped dataTable" role="grid">
         <thead>
           <tr>
             <th valign="bottom">Table</th>

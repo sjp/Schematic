@@ -44,9 +44,13 @@ namespace SJP.Schematic.SchemaSpy.Html.ViewModels
 
         public uint ColumnsCount => Columns.UCount();
 
+        public string ColumnsTableClass => ColumnsCount > 0 ? "database_objects" : string.Empty;
+
         public PrimaryKeyConstraint PrimaryKey { get; set; }
 
         public bool PrimaryKeyExists => PrimaryKey != null;
+
+        public string PrimaryKeyTableClass => PrimaryKeyExists ? "database_objects" : string.Empty;
 
         public IEnumerable<UniqueKey> UniqueKeys
         {
@@ -58,6 +62,8 @@ namespace SJP.Schematic.SchemaSpy.Html.ViewModels
 
         public uint UniqueKeysCount => UniqueKeys.UCount();
 
+        public string UniqueKeysTableClass => UniqueKeysCount > 0 ? "database_objects" : string.Empty;
+
         public IEnumerable<ForeignKey> ForeignKeys
         {
             get => _foreignKeys;
@@ -67,6 +73,8 @@ namespace SJP.Schematic.SchemaSpy.Html.ViewModels
         private IEnumerable<ForeignKey> _foreignKeys = Enumerable.Empty<ForeignKey>();
 
         public uint ForeignKeysCount => ForeignKeys.UCount();
+
+        public string ForeignKeysTableClass => ForeignKeysCount > 0 ? "database_objects" : string.Empty;
 
         public IEnumerable<UniqueKey> CheckConstraints
         {
@@ -78,6 +86,8 @@ namespace SJP.Schematic.SchemaSpy.Html.ViewModels
 
         public uint CheckConstraintsCount => CheckConstraints.UCount();
 
+        public string CheckConstraintsTableClass => CheckConstraintsCount > 0 ? "database_objects" : string.Empty;
+
         public IEnumerable<Index> Indexes
         {
             get => _indexes;
@@ -88,6 +98,8 @@ namespace SJP.Schematic.SchemaSpy.Html.ViewModels
 
         public uint IndexesCount => Indexes.UCount();
 
+        public string IndexesTableClass => IndexesCount > 0 ? "database_objects" : string.Empty;
+
         public IEnumerable<Diagram> Diagrams
         {
             get => _diagrams;
@@ -95,8 +107,6 @@ namespace SJP.Schematic.SchemaSpy.Html.ViewModels
         }
 
         private IEnumerable<Diagram> _diagrams = Enumerable.Empty<Diagram>();
-
-        public uint DiagramsCount => Diagrams.UCount();
 
         internal class Column
         {

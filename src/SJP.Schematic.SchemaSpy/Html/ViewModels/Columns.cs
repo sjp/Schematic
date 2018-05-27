@@ -19,6 +19,8 @@ namespace SJP.Schematic.SchemaSpy.Html.ViewModels
 
         public uint ColumnsCount => TableColumns.UCount();
 
+        public string ColumnsTableClass => ColumnsCount > 0 ? "database_objects" : string.Empty;
+
         internal abstract class Column
         {
             protected Column(Identifier tableName, string columnName)

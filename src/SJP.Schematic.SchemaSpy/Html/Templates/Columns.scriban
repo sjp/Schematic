@@ -8,11 +8,7 @@
       <h3 class="box-title">Columns</h3>
     </div>
     <div class="box-body">
-      {{ if ColumnsCount > 0 }}
-      <table class="database_objects table table-bordered table-striped dataTable" role="grid">
-      {{ else }}
-      <table class="table table-bordered table-striped dataTable" role="grid">
-      {{ end }}
+      <table class="{{ ColumnsTableClass }} table table-bordered table-striped dataTable" role="grid">
         <thead align="left">
           <tr>
             <th>Table</th>

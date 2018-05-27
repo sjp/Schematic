@@ -16,11 +16,7 @@
       </div>
     </div>
     <div class="box-body">
-      {{ if ColumnsCount > 0 }}
-      <table class="database_objects table table-bordered table-striped dataTable" role="grid">
-      {{ else }}
-      <table class="table table-bordered table-striped dataTable" role="grid">
-      {{ end }}
+      <table class="{{ ColumnsTableClass }} table table-bordered table-striped dataTable" role="grid">
         <thead align="left">
           <tr>
             <th>Ordinal Position</th>
@@ -95,11 +91,7 @@
       </div>
     </div>
     <div class="box-body">
-      {{ if PrimaryKeyExists }}
-      <table class="database_objects table table-bordered table-striped dataTable" role="grid">
-      {{ else }}
-      <table class="table table-bordered table-striped dataTable" role="grid">
-      {{ end }}
+      <table class="{{ PrimaryKeyTableClass }} table table-bordered table-striped dataTable" role="grid">
         <thead align="left">
           <tr>
             <th>Constraint Name</th>
@@ -135,11 +127,7 @@
       </div>
     </div>
     <div class="box-body">
-      {{ if UniqueKeysCount > 0 }}
-      <table class="database_objects table table-bordered table-striped dataTable" role="grid">
-      {{ else }}
-      <table class="table table-bordered table-striped dataTable" role="grid">
-      {{ end }}
+      <table class="{{ UniqueKeysTableClass }} table table-bordered table-striped dataTable" role="grid">
         <thead align="left">
           <tr>
             <th>Constraint Name</th>
@@ -177,11 +165,7 @@
       </div>
     </div>
     <div class="box-body">
-      {{ if ForeignKeysCount > 0 }}
-      <table class="database_objects table table-bordered table-striped dataTable" role="grid">
-      {{ else }}
-      <table class="table table-bordered table-striped dataTable" role="grid">
-      {{ end }}
+      <table class="{{ ForeignKeysTableClass }} table table-bordered table-striped dataTable" role="grid">
         <thead align="left">
           <tr>
             <th>Constraint Name</th>
@@ -235,11 +219,7 @@
       </div>
     </div>
     <div class="box-body">
-      {{ if CheckConstraintsCount > 0 }}
-      <table class="database_objects table table-bordered table-striped dataTable" role="grid">
-      {{ else }}
-      <table class="table table-bordered table-striped dataTable" role="grid">
-      {{ end }}
+      <table class="{{ CheckConstraintsTableClass }} table table-bordered table-striped dataTable" role="grid">
         <thead align="left">
           <tr>
             <th>Constraint Name</th>
@@ -279,11 +259,7 @@
       </div>
     </div>
     <div class="box-body">
-      {{ if IndexesCount > 0 }}
-      <table class="database_objects table table-bordered table-striped dataTable" role="grid">
-      {{ else }}
-      <table class="table table-bordered table-striped dataTable" role="grid">
-      {{ end }}
+      <table class="{{ IndexesTableClass }} table table-bordered table-striped dataTable" role="grid">
         <thead>
           <tr>
             <th>Index Name</th>

@@ -22,6 +22,8 @@ namespace SJP.Schematic.SchemaSpy.Html.ViewModels
 
         public uint PrimaryKeysCount => _primaryKeys.UCount();
 
+        public string PrimaryKeysTableClass => PrimaryKeysCount > 0 ? "database_objects" : string.Empty;
+
         public IEnumerable<UniqueKey> UniqueKeys
         {
             get => _uniqueKeys;
@@ -31,6 +33,8 @@ namespace SJP.Schematic.SchemaSpy.Html.ViewModels
         private IEnumerable<UniqueKey> _uniqueKeys = Enumerable.Empty<UniqueKey>();
 
         public uint UniqueKeysCount => _uniqueKeys.UCount();
+
+        public string UniqueKeysTableClass => UniqueKeysCount > 0 ? "database_objects" : string.Empty;
 
         public IEnumerable<ForeignKey> ForeignKeys
         {
@@ -42,6 +46,8 @@ namespace SJP.Schematic.SchemaSpy.Html.ViewModels
 
         public uint ForeignKeysCount => _foreignKeys.UCount();
 
+        public string ForeignKeysTableClass => ForeignKeysCount > 0 ? "database_objects" : string.Empty;
+
         public IEnumerable<CheckConstraint> CheckConstraints
         {
             get => _checks;
@@ -51,6 +57,8 @@ namespace SJP.Schematic.SchemaSpy.Html.ViewModels
         private IEnumerable<CheckConstraint> _checks = Enumerable.Empty<CheckConstraint>();
 
         public uint CheckConstraintsCount => _checks.UCount();
+
+        public string CheckConstraintsTableClass => CheckConstraintsCount > 0 ? "database_objects" : string.Empty;
 
         internal abstract class TableConstraint
         {

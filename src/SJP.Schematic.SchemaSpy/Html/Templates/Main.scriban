@@ -37,7 +37,6 @@
         <span class="info-box-icon bg-green">
           <span class="glyphicon glyphicon-list-alt" aria-hidden="true"></span>
         </span>
-
         <div class="info-box-content">
           <span class="info-box-text">Columns</span>
           <span class="info-box-number">{{ ColumnsCount }}</span>
@@ -49,7 +48,6 @@
         <span class="info-box-icon bg-yellow">
           <i class="fa fa-key"></i>
         </span>
-
         <div class="info-box-content">
           <span class="info-box-text">Constraints</span>
           <span class="info-box-number">{{ ConstraintsCount }}</span>
@@ -86,11 +84,7 @@
       </span>
     </div>
     <div class="box-body">
-      {{ if TablesCount > 0 }}
-      <table class="database_objects table table-bordered table-striped dataTable" role="grid">
-      {{ else }}
-      <table class="table table-bordered table-striped dataTable" role="grid">
-      {{ end }}
+      <table class="{{ TablesTableClass }} table table-bordered table-striped dataTable" role="grid">
         <thead>
           <tr>
             <th valign="bottom">Table</th>
@@ -130,11 +124,7 @@
       </span>
     </div>
     <div class="box-body">
-      {{ if ViewsCount > 0 }}
-      <table class="database_objects table table-bordered table-striped dataTable" role="grid">
-      {{ else }}
-      <table class="table table-bordered table-striped dataTable" role="grid">
-      {{ end }}
+      <table class="{{ ViewsTableClass }} table table-bordered table-striped dataTable" role="grid">
         <thead>
           <tr>
             <th valign="bottom">View</th>

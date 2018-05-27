@@ -17,10 +17,6 @@ namespace SJP.Schematic.SchemaSpy.Html.ViewModels
 
         public DateTime GenerationTime => DateTime.Now;
 
-        public uint TablesCount { get; set; }
-
-        public uint ViewsCount { get; set; }
-
         public uint ColumnsCount { get; set; }
 
         public uint ConstraintsCount { get; set; }
@@ -41,6 +37,10 @@ namespace SJP.Schematic.SchemaSpy.Html.ViewModels
 
         private IEnumerable<Table> _tables = Enumerable.Empty<Table>();
 
+        public uint TablesCount => Tables.UCount();
+
+        public string TablesTableClass => TablesCount > 0 ? "database_objects" : string.Empty;
+
         public IEnumerable<View> Views
         {
             get => _views;
@@ -48,6 +48,10 @@ namespace SJP.Schematic.SchemaSpy.Html.ViewModels
         }
 
         private IEnumerable<View> _views = Enumerable.Empty<View>();
+
+        public uint ViewsCount => Views.UCount();
+
+        public string ViewsTableClass => ViewsCount > 0 ? "database_objects" : string.Empty;
 
         internal class Table
         {
