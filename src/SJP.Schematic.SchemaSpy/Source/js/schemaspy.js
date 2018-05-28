@@ -48,7 +48,8 @@ $(document).ready(function () {
             smartIndent: true,
             lineNumbers: true,
             matchBrackets: true,
-            autofocus: true
+            autofocus: true,
+            readOnly: true
         });
     }
 
