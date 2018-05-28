@@ -21,6 +21,8 @@ namespace SJP.Schematic.SchemaSpy.Html.ViewModels
 
         public uint ConstraintsCount { get; set; }
 
+        public uint IndexesCount { get; set; }
+
         public IEnumerable<string> Schemas
         {
             get => _schemas;

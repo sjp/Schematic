@@ -54,6 +54,17 @@
         </div>
       </div>
     </div>
+    <div class="col-md-2 col-sm-4 col-xs-12">
+      <div class="info-box">
+        <span class="info-box-icon bg-gray">
+          <span class="glyphicon glyphicon-list-alt" aria-hidden="true"></span>
+        </span>
+        <div class="info-box-content">
+          <span class="info-box-text">Indexes</span>
+          <span class="info-box-number">{{ IndexesCount }}</span>
+        </div>
+      </div>
+    </div>
   </div>
   <div class="box box-primary">
     <div class="box-header with-border">

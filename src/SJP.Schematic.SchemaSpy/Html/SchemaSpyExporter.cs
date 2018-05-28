@@ -125,6 +125,15 @@ namespace SJP.Schematic.SchemaSpy.Html
             };
             var renderedRelationshipsCont = _renderer.RenderTemplate(relationshipsCont);
             File.WriteAllText(Path.Combine(ExportDirectory.FullName, "relationships.html"), renderedRelationshipsCont);
+
+            var indexesContent = RenderIndexes();
+            var indexesCont = new Container
+            {
+                Content = indexesContent,
+                DatabaseName = Database.DatabaseName
+            };
+            var renderedIndexesCont = _renderer.RenderTemplate(indexesCont);
+            File.WriteAllText(Path.Combine(ExportDirectory.FullName, "indexes.html"), renderedIndexesCont);
         }
 
         public async Task ExportAsync()
@@ -221,6 +230,15 @@ namespace SJP.Schematic.SchemaSpy.Html
             };
             var renderedRelationshipsCont = _renderer.RenderTemplate(relationshipsCont);
             File.WriteAllText(Path.Combine(ExportDirectory.FullName, "relationships.html"), renderedRelationshipsCont);
+
+            var indexesContent = await RenderIndexesAsync().ConfigureAwait(false);
+            var indexesCont = new Container
+            {
+                Content = indexesContent,
+                DatabaseName = Database.DatabaseName
+            };
+            var renderedIndexesCont = _renderer.RenderTemplate(indexesCont);
+            File.WriteAllText(Path.Combine(ExportDirectory.FullName, "indexes.html"), renderedIndexesCont);
         }
 
         private string RenderTable(IRelationalDatabaseTable table)
@@ -394,6 +412,7 @@ namespace SJP.Schematic.SchemaSpy.Html
 
             var columns = 0U;
             var constraints = 0U;
+            var indexesCount = 0U;
             var renderTables = new List<Main.Table>();
             foreach (var table in tables)
             {
@@ -404,6 +423,10 @@ namespace SJP.Schematic.SchemaSpy.Html
 
                 var checksLookup = table.Check;
                 var checksCount = checksLookup.UCount();
+
+                var indexesLookup = table.Index;
+                var indexCount = indexesLookup.UCount();
+                indexesCount += indexCount;
 
                 if (table.PrimaryKey != null)
                     constraints++;
@@ -433,6 +456,7 @@ namespace SJP.Schematic.SchemaSpy.Html
                 ProductVersion = string.Empty,
                 ColumnsCount = columns,
                 ConstraintsCount = constraints,
+                IndexesCount = indexesCount,
                 Tables = renderTables,
                 Views = renderViews
             };
@@ -452,6 +476,7 @@ namespace SJP.Schematic.SchemaSpy.Html
 
             var columns = 0U;
             var constraints = 0U;
+            var indexesCount = 0U;
             var renderTables = new List<Main.Table>();
             foreach (var table in tables)
             {
@@ -462,6 +487,10 @@ namespace SJP.Schematic.SchemaSpy.Html
 
                 var checksLookup = await table.CheckAsync().ConfigureAwait(false);
                 var checksCount = checksLookup.UCount();
+
+                var indexesLookup = await table.IndexAsync().ConfigureAwait(false);
+                var indexCount = indexesLookup.UCount();
+                indexesCount += indexCount;
 
                 var primaryKey = await table.PrimaryKeyAsync().ConfigureAwait(false);
                 if (primaryKey != null)
@@ -492,6 +521,7 @@ namespace SJP.Schematic.SchemaSpy.Html
                 ProductVersion = string.Empty,
                 ColumnsCount = columns,
                 ConstraintsCount = constraints,
+                IndexesCount = indexesCount,
                 Tables = renderTables,
                 Views = renderViews
             };
@@ -548,6 +578,41 @@ namespace SJP.Schematic.SchemaSpy.Html
             var mapper = new RelationshipsModelMapper(Connection);
             var templateParameter = await mapper.MapAsync(Database).ConfigureAwait(false);
 
+            return _renderer.RenderTemplate(templateParameter);
+        }
+
+        private string RenderIndexes()
+        {
+            var mapper = new IndexesModelMapper(Database.Dialect);
+
+            var indexes = Database.Tables
+                .SelectMany(t => t.Indexes)
+                .Select(mapper.Map)
+                .OrderBy(i => i.TableName)
+                .ThenBy(i => i.Name)
+                .ToList();
+
+            var templateParameter = new Indexes { TableIndexes = indexes };
+            return _renderer.RenderTemplate(templateParameter);
+        }
+
+        private async Task<string> RenderIndexesAsync()
+        {
+            var mapper = new IndexesModelMapper(Database.Dialect);
+
+            var tablesAsync = await Database.TablesAsync().ConfigureAwait(false);
+            var tables = await tablesAsync.ToList().ConfigureAwait(false);
+            var indexesTasks = tables.Select(t => t.IndexesAsync()).ToArray();
+            var allIndexes = await Task.WhenAll(indexesTasks).ConfigureAwait(false);
+
+            var indexes = allIndexes
+                .SelectMany(i => i)
+                .Select(mapper.Map)
+                .OrderBy(i => i.TableName)
+                .ThenBy(i => i.Name)
+                .ToList();
+
+            var templateParameter = new Indexes { TableIndexes = indexes };
             return _renderer.RenderTemplate(templateParameter);
         }
 

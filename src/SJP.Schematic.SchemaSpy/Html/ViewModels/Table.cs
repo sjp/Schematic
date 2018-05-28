@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
-using System.Text.Encodings.Web;
 using SJP.Schematic.Core;
 using SJP.Schematic.Core.Extensions;
 
@@ -248,7 +247,7 @@ namespace SJP.Schematic.SchemaSpy.Html.ViewModels
 
             private IEnumerable<string> _columns = Enumerable.Empty<string>();
 
-            public string ColumnNames => _columns.Select(HtmlEncoder.Default.Encode).Join(", ");
+            public string ColumnNames => _columns.Join(", ");
         }
 
         internal class UniqueKey : TableConstraint
@@ -261,7 +260,7 @@ namespace SJP.Schematic.SchemaSpy.Html.ViewModels
 
             private IEnumerable<string> _columns = Enumerable.Empty<string>();
 
-            public string ColumnNames => _columns.Select(HtmlEncoder.Default.Encode).Join(", ");
+            public string ColumnNames => _columns.Join(", ");
         }
 
         internal class ForeignKey : TableConstraint

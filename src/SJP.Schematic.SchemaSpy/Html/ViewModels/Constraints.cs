@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
-using System.Text.Encodings.Web;
 using SJP.Schematic.Core;
 using SJP.Schematic.Core.Extensions;
 
@@ -97,7 +96,7 @@ namespace SJP.Schematic.SchemaSpy.Html.ViewModels
 
             private IEnumerable<string> _columns = Enumerable.Empty<string>();
 
-            public string ColumnNames => _columns.Select(HtmlEncoder.Default.Encode).Join(", ");
+            public string ColumnNames => _columns.Join(", ");
         }
 
         internal class UniqueKey : TableConstraint
@@ -115,7 +114,7 @@ namespace SJP.Schematic.SchemaSpy.Html.ViewModels
 
             private IEnumerable<string> _columns = Enumerable.Empty<string>();
 
-            public string ColumnNames => _columns.Select(HtmlEncoder.Default.Encode).Join(", ");
+            public string ColumnNames => _columns.Join(", ");
         }
 
         internal class ForeignKey : TableConstraint
@@ -142,7 +141,7 @@ namespace SJP.Schematic.SchemaSpy.Html.ViewModels
 
             private IEnumerable<string> _childColumns = Enumerable.Empty<string>();
 
-            public string ChildColumnNames => _childColumns.Select(HtmlEncoder.Default.Encode).Join(", ");
+            public string ChildColumnNames => _childColumns.Join(", ");
 
             public string ParentTableName => _parentTableName.ToVisibleName();
 
@@ -156,7 +155,7 @@ namespace SJP.Schematic.SchemaSpy.Html.ViewModels
 
             private IEnumerable<string> _parentColumns = Enumerable.Empty<string>();
 
-            public string ParentColumnNames => _parentColumns.Select(HtmlEncoder.Default.Encode).Join(", ");
+            public string ParentColumnNames => _parentColumns.Join(", ");
 
             public Rule DeleteRule { get; set; }
 

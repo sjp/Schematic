@@ -4,9 +4,9 @@
     {
         None, // not intended to be used
         Columns,
-        Components,
         Constraints,
         Container,
+        Indexes,
         Main,
         Orphans,
         Relationships,

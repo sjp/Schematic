@@ -22,7 +22,8 @@
           <ul class="nav navbar-nav">
             <li><a href="{{ RootPath }}index.html">Overview</a></li>
             <li><a href="{{ RootPath }}columns.html" title="All of the columns in the schema">Columns</a></li>
-            <li><a href="{{ RootPath }}constraints.html" title="Useful for diagnosing error messages that just give constraint name or number">Constraints</a></li>
+            <li><a href="{{ RootPath }}constraints.html" title="Useful for diagnosing error messages that just give a constraint name or number">Constraints</a></li>
+            <li><a href="{{ RootPath }}indexes.html" title="Useful for diagnosing error messages that just give an index name or number">Indexes</a></li>
             <li><a href="{{ RootPath }}relationships.html" title="Diagram of table relationships">Relationships</a></li>
             <li><a href="{{ RootPath }}orphans.html" title="Tables with neither parents nor children">Orphan&nbsp;Tables</a></li>
           </ul>
