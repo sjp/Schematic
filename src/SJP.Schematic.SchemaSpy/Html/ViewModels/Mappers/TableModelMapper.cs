@@ -186,8 +186,9 @@ namespace SJP.Schematic.SchemaSpy.Html.ViewModels.Mappers
             var twoDegreeTables = relationshipBuilder.GetTablesByDegrees(dbObject, 2);
 
             var dotFormatter = new DatabaseDotFormatter(Connection, dbObject.Database);
-            var oneDegreeDot = dotFormatter.RenderTables(oneDegreeTables);
-            var twoDegreeDot = dotFormatter.RenderTables(twoDegreeTables);
+            var renderOptions = new DotRenderOptions { HighlightedTable = dbObject.Name };
+            var oneDegreeDot = dotFormatter.RenderTables(oneDegreeTables, renderOptions);
+            var twoDegreeDot = dotFormatter.RenderTables(twoDegreeTables, renderOptions);
 
             var diagrams = new[]
             {
@@ -368,8 +369,9 @@ namespace SJP.Schematic.SchemaSpy.Html.ViewModels.Mappers
             var twoDegreeTables = await relationshipBuilder.GetTablesByDegreesAsync(dbObject, 2).ConfigureAwait(false);
 
             var dotFormatter = new DatabaseDotFormatter(Connection, dbObject.Database);
-            var oneDegreeDot = await dotFormatter.RenderTablesAsync(oneDegreeTables).ConfigureAwait(false);
-            var twoDegreeDot = await dotFormatter.RenderTablesAsync(twoDegreeTables).ConfigureAwait(false);
+            var renderOptions = new DotRenderOptions { HighlightedTable = dbObject.Name };
+            var oneDegreeDot = await dotFormatter.RenderTablesAsync(oneDegreeTables, renderOptions).ConfigureAwait(false);
+            var twoDegreeDot = await dotFormatter.RenderTablesAsync(twoDegreeTables, renderOptions).ConfigureAwait(false);
 
             var diagrams = new[]
             {

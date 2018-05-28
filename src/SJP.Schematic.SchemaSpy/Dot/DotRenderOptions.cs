@@ -1,4 +1,5 @@
 ﻿using System;
+using SJP.Schematic.Core;
 
 namespace SJP.Schematic.SchemaSpy.Dot
 {
@@ -7,6 +8,8 @@ namespace SJP.Schematic.SchemaSpy.Dot
         public bool ShowColumnDataType { get; set; }
 
         public bool IsReducedColumnSet { get; set; }
+
+        public Identifier HighlightedTable { get; set; }
 
         public string RootPath
         {

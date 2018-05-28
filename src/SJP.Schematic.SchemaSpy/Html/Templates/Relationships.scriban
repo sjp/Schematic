@@ -13,13 +13,13 @@
         <ul class="nav nav-tabs pull-left ui-sortable-handle">
           {{ for diagram in Diagrams }}
           <li {{ diagram.ActiveClass }}>
-            <a href="#{{ diagram.Id }}" data-toggle="tab" aria-expanded="true">{{ diagram.Name }}</a>
+            <a href="#{{ diagram.ContainerId }}" data-toggle="tab" aria-expanded="true">{{ diagram.Name }}</a>
           </li>
           {{ end }}
         </ul>
         <div class="tab-content no-padding">
           {{ for diagram in Diagrams }}
-          <div class="chart tab-pane {{ diagram.ActiveText }}" id="{{ diagram.Id }}" style="position: relative; overflow-x:auto;">
+          <div class="chart tab-pane {{ diagram.ActiveText }}" id="{{ diagram.ContainerId }}" style="position: relative; overflow-x:auto; height:0;padding-bottom:100%;width:100%;">
           </div>
           {{ end }}
         </div>
@@ -28,7 +28,7 @@
   </div>
 </section>
 {{ for diagram in Diagrams }}
-<script type="text/vnd.graphviz" data-graph-id="{{ diagram.Id }}">
+<script type="text/vnd.graphviz" data-graph-id="{{ diagram.ContainerId }}">
 {{ diagram.Dot }}
 </script>
 {{ end }}

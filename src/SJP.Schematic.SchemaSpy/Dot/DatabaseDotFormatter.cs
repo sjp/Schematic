@@ -73,7 +73,8 @@ namespace SJP.Schematic.SchemaSpy.Dot
                 var tableNodeOptions = new TableNodeOptions
                 {
                     IsReducedColumnSet = options.IsReducedColumnSet,
-                    ShowColumnDataType = options.ShowColumnDataType
+                    ShowColumnDataType = options.ShowColumnDataType,
+                    IsHighlighted = table.Name == options.HighlightedTable
                 };
 
                 var tableNode = new TableNode(
@@ -317,7 +318,8 @@ namespace SJP.Schematic.SchemaSpy.Dot
                 var tableNodeOptions = new TableNodeOptions
                 {
                     IsReducedColumnSet = options.IsReducedColumnSet,
-                    ShowColumnDataType = options.ShowColumnDataType
+                    ShowColumnDataType = options.ShowColumnDataType,
+                    IsHighlighted = table.Name == options.HighlightedTable
                 };
 
                 var tableNode = new TableNode(

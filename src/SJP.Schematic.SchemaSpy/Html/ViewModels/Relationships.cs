@@ -33,7 +33,7 @@ namespace SJP.Schematic.SchemaSpy.Html.ViewModels
 
             public string Name { get; }
 
-            public string Id => Name.ToLowerInvariant() + "-chart";
+            public string ContainerId => Name.ToLowerInvariant() + "-chart";
 
             public bool IsActive { get; set; }
 

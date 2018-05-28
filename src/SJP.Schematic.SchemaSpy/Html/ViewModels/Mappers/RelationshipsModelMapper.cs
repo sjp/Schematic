@@ -23,10 +23,19 @@ namespace SJP.Schematic.SchemaSpy.Html.ViewModels.Mappers
 
             var dotFormatter = new DatabaseDotFormatter(Connection, dbObject);
 
-            var compactOptions = new DotRenderOptions { IsReducedColumnSet = true };
+            var rootPath = string.Empty;
+            var compactOptions = new DotRenderOptions
+            {
+                IsReducedColumnSet = true,
+                RootPath = rootPath
+            };
             var compactDot = dotFormatter.RenderDatabase(compactOptions);
 
-            var largeOptions = new DotRenderOptions { IsReducedColumnSet = false };
+            var largeOptions = new DotRenderOptions
+            {
+                IsReducedColumnSet = false,
+                RootPath = rootPath
+            };
             var largeDot = dotFormatter.RenderDatabase(largeOptions);
 
             var diagrams = new[]
@@ -45,10 +54,19 @@ namespace SJP.Schematic.SchemaSpy.Html.ViewModels.Mappers
 
             var dotFormatter = new DatabaseDotFormatter(Connection, dbObject);
 
-            var compactOptions = new DotRenderOptions { IsReducedColumnSet = true };
+            var rootPath = string.Empty;
+            var compactOptions = new DotRenderOptions
+            {
+                IsReducedColumnSet = true,
+                RootPath = rootPath
+            };
             var compactDot = await dotFormatter.RenderDatabaseAsync(compactOptions).ConfigureAwait(false);
 
-            var largeOptions = new DotRenderOptions { IsReducedColumnSet = false };
+            var largeOptions = new DotRenderOptions
+            {
+                IsReducedColumnSet = false,
+                RootPath = rootPath
+            };
             var largeDot = await dotFormatter.RenderDatabaseAsync(largeOptions).ConfigureAwait(false);
 
             var diagrams = new[]

@@ -10,6 +10,8 @@ namespace SJP.Schematic.SchemaSpy.Dot
 
         public bool IsReducedColumnSet { get; set; }
 
+        public bool IsHighlighted { get; set; }
+
         public RgbColor TableBackgroundColor
         {
             get => _tableBackgroundColor;
@@ -28,8 +30,22 @@ namespace SJP.Schematic.SchemaSpy.Dot
             set => _footerBackgroundColor = value ?? throw new ArgumentNullException(nameof(value));
         }
 
+        public RgbColor HighlightedHeaderBackgroundColor
+        {
+            get => _highlightedHeaderBackgroundColor;
+            set => _highlightedHeaderBackgroundColor = value ?? throw new ArgumentNullException(nameof(value));
+        }
+
+        public RgbColor HighlightedFooterBackgroundColor
+        {
+            get => _highlightedFooterBackgroundColor;
+            set => _highlightedFooterBackgroundColor = value ?? throw new ArgumentNullException(nameof(value));
+        }
+
         private RgbColor _tableBackgroundColor = new RgbColor("#FFFFFF");
         private RgbColor _headerBackgroundColor = new RgbColor("#BFE3C6");
         private RgbColor _footerBackgroundColor = new RgbColor("#BFE3C6");
+        private RgbColor _highlightedHeaderBackgroundColor = new RgbColor("#5CD674");
+        private RgbColor _highlightedFooterBackgroundColor = new RgbColor("#5CD674");
     }
 }

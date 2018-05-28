@@ -489,7 +489,7 @@ namespace SJP.Schematic.SchemaSpy.Html.ViewModels
 
             public string Name { get; }
 
-            public string Id => _tableName.ToSafeKey() + "-" + Name.ToLowerInvariant() + "-chart";
+            public string ContainerId => _tableName.ToSafeKey() + "-" + Name.ToLowerInvariant() + "-chart";
 
             public bool IsActive { get; set; }
 

@@ -55,12 +55,42 @@ $(document).ready(function () {
     var viz = new Viz();
     $('script[type="text/vnd.graphviz"]').each(function (i, el) {
         var graphDefinition = el.textContent;
-        var graphSelector = $(el).attr("data-graph-id");
-        var targetElement = document.getElementById(graphSelector);
+        var containerSelector = $(el).attr("data-graph-id");
+        var svgSelector = containerSelector + "-svg";
 
+        var containerElement = document.getElementById(containerSelector);
         viz.renderSVGElement(graphDefinition)
             .then(function(element) {
-                targetElement.appendChild(element);
+                element.setAttribute("id", svgSelector);
+                containerElement.appendChild(element);
+                svgPanZoom(element, {
+                    controlIconsEnabled: true,
+                    minZoom: 0.1,
+                    maxZoom: 10.0
+                });
             });
+    });
+
+    $('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
+        var target = $(e.target).attr("href"); // activated tab
+        var svgSelector = target + "-svg";
+
+        var containerId = target.substr(1);
+        var graphDefinition = document.querySelector('script[data-graph-id="' + containerId + '"]').textContent;
+        
+        var containerElement = document.getElementById(containerId);
+        while (containerElement.firstChild)
+            containerElement.removeChild(containerElement.firstChild);
+
+        viz.renderSVGElement(graphDefinition)
+        .then(function(element) {
+            element.setAttribute("id", svgSelector);
+            containerElement.appendChild(element);
+            svgPanZoom(element, {
+                controlIconsEnabled: true,
+                minZoom: 0.1,
+                maxZoom: 10.0
+            });
+        });
     });
 });

@@ -56,16 +56,19 @@ namespace SJP.Schematic.SchemaSpy.Dot
                 new XAttribute(HtmlAttribute.BackgroundColor, _options.TableBackgroundColor)
             );
 
+            var headerBackgroundColor = _options.IsHighlighted
+                ? _options.HighlightedHeaderBackgroundColor
+                : _options.HeaderBackgroundColor;
             var tableHeaderRow = new XElement(HtmlElement.TableRow,
                 new XElement(HtmlElement.TableCell,
-                    new XAttribute(HtmlAttribute.BackgroundColor, _options.HeaderBackgroundColor),
+                    new XAttribute(HtmlAttribute.BackgroundColor, headerBackgroundColor),
                     new XAttribute(HtmlAttribute.ColumnSpan, 3),
                     new XElement(HtmlElement.Font,
                         new XAttribute(HtmlAttribute.FontFace, nameof(FontFace.Helvetica)),
                         new XElement(HtmlElement.Bold, "Table"))));
             var keyNameHeaderRow = new XElement(HtmlElement.TableRow,
                 new XElement(HtmlElement.TableCell,
-                    new XAttribute(HtmlAttribute.BackgroundColor, _options.HeaderBackgroundColor),
+                    new XAttribute(HtmlAttribute.BackgroundColor, headerBackgroundColor),
                     new XAttribute(HtmlAttribute.ColumnSpan, 3),
                     new XElement(HtmlElement.Bold, _tableName)));
 
@@ -137,10 +140,14 @@ namespace SJP.Schematic.SchemaSpy.Dot
             // can't use string.Empty as graphviz needs at least some whitespace in the <FONT> tag
             const string emptyText = " ";
 
+            var footerBackgroundColor = _options.IsHighlighted
+                ? _options.HighlightedFooterBackgroundColor
+                : _options.FooterBackgroundColor;
+
             var foreignKeyCellText = _parents > 0 ? _parents.ToString() + " P" : emptyText;
             var foreignKeyCell = new XElement(HtmlElement.TableCell,
                         new XAttribute(HtmlAttribute.Align, "LEFT"),
-                        new XAttribute(HtmlAttribute.BackgroundColor, _options.FooterBackgroundColor),
+                        new XAttribute(HtmlAttribute.BackgroundColor, footerBackgroundColor),
                         new XElement(HtmlElement.Font,
                             new XAttribute(HtmlAttribute.FontFace, nameof(FontFace.Helvetica)),
                             foreignKeyCellText));
@@ -149,7 +156,7 @@ namespace SJP.Schematic.SchemaSpy.Dot
 
             var rowsCell = new XElement(HtmlElement.TableCell,
                 new XAttribute(HtmlAttribute.Align, "RIGHT"),
-                new XAttribute(HtmlAttribute.BackgroundColor, _options.FooterBackgroundColor),
+                new XAttribute(HtmlAttribute.BackgroundColor, footerBackgroundColor),
                 new XElement(HtmlElement.Font,
                     new XAttribute(HtmlAttribute.FontFace, nameof(FontFace.Helvetica)),
                     rowsCellText));
@@ -157,7 +164,7 @@ namespace SJP.Schematic.SchemaSpy.Dot
             var childKeyCellText = _children > 0 ? _children.ToString() + " C" : emptyText;
             var childKeyCell = new XElement(HtmlElement.TableCell,
                 new XAttribute(HtmlAttribute.Align, "RIGHT"),
-                new XAttribute(HtmlAttribute.BackgroundColor, _options.FooterBackgroundColor),
+                new XAttribute(HtmlAttribute.BackgroundColor, footerBackgroundColor),
                 new XElement(HtmlElement.Font,
                     new XAttribute(HtmlAttribute.FontFace, nameof(FontFace.Helvetica)),
                     childKeyCellText));

@@ -87,6 +87,7 @@ gulp.task('scripts:dev', function () {
             'node_modules/codemirror/lib/codemirror.js',
             'node_modules/codemirror/mode/sql/sql.js',
             'node_modules/admin-lte/dist/js/adminlte.js',
+            'node_modules/svg-pan-zoom/dist/svg-pan-zoom.js',
             'Source/js/schemaspy.js'
         ])
         .pipe(newer("assets/js/schemaspy-app.js"))
@@ -137,6 +138,7 @@ gulp.task('scripts:prod', function () {
             'node_modules/codemirror/lib/codemirror.js',
             'node_modules/codemirror/mode/sql/sql.js',
             'node_modules/admin-lte/dist/js/adminlte.min.js',
+            'node_modules/svg-pan-zoom/dist/svg-pan-zoom.min.js',
             'Source/js/schemaspy.js'
         ])
         .pipe(newer("assets/js/schemaspy-app.js"))
