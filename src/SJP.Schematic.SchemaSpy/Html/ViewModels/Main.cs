@@ -55,6 +55,30 @@ namespace SJP.Schematic.SchemaSpy.Html.ViewModels
 
         public string ViewsTableClass => ViewsCount > 0 ? "database_objects" : string.Empty;
 
+        public IEnumerable<Sequence> Sequences
+        {
+            get => _sequences;
+            set => _sequences = value ?? throw new ArgumentNullException(nameof(value));
+        }
+
+        private IEnumerable<Sequence> _sequences = Enumerable.Empty<Sequence>();
+
+        public uint SequencesCount => Sequences.UCount();
+
+        public string SequencesTableClass => SequencesCount > 0 ? "database_objects" : string.Empty;
+
+        public IEnumerable<Synonym> Synonyms
+        {
+            get => _synonyms;
+            set => _synonyms = value ?? throw new ArgumentNullException(nameof(value));
+        }
+
+        private IEnumerable<Synonym> _synonyms = Enumerable.Empty<Synonym>();
+
+        public uint SynonymsCount => Synonyms.UCount();
+
+        public string SynonymsTableClass => SynonymsCount > 0 ? "database_objects" : string.Empty;
+
         internal class Table
         {
             public Table(Identifier tableName)
@@ -105,6 +129,74 @@ namespace SJP.Schematic.SchemaSpy.Html.ViewModels
             public uint ColumnCount { get; set; }
 
             public ulong RowCount { get; set; }
+        }
+
+        internal class Sequence
+        {
+            public Sequence(
+                Identifier sequenceName,
+                decimal start,
+                decimal increment,
+                decimal? minValue,
+                decimal? maxValue,
+                int cache,
+                bool cycle
+            )
+            {
+                SequenceName = sequenceName ?? throw new ArgumentNullException(nameof(sequenceName));
+                Start = start;
+                Increment = increment;
+                MinValue = minValue;
+                MaxValue = maxValue;
+                Cache = cache;
+                Cycle = cycle;
+            }
+
+            protected Identifier SequenceName { get; }
+
+            public decimal Start { get; }
+
+            public decimal Increment { get; }
+
+            protected decimal? MinValue { get; }
+
+            public string MinValueText => MinValue?.ToString() ?? string.Empty;
+
+            protected decimal? MaxValue { get; }
+
+            public string MaxValueText => MaxValue?.ToString() ?? string.Empty;
+
+            public int Cache { get; }
+
+            protected bool Cycle { get; }
+
+            public string Name => SequenceName.ToVisibleName();
+
+            public string CycleText => Cycle ? "✓" : string.Empty;
+
+        }
+
+        internal class Synonym
+        {
+            public Synonym(Identifier synonymName, Identifier target)
+            {
+                SynonymName = synonymName ?? throw new ArgumentNullException(nameof(synonymName));
+                Target = target ?? throw new ArgumentNullException(nameof(target));
+            }
+
+            protected Identifier SynonymName { get; }
+
+            protected Identifier Target { get; }
+
+            public Uri TargetUrl { get; set; }
+
+            public string Name => SynonymName.ToVisibleName();
+
+            public string TargetName => Target.ToVisibleName();
+
+            public string TargetText => TargetUrl != null
+                ? $"<a href=\"{ TargetUrl }\">{ TargetName }</a>"
+                : TargetName;
         }
     }
 }

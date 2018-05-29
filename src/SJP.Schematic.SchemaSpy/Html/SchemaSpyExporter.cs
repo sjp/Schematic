@@ -407,6 +407,8 @@ namespace SJP.Schematic.SchemaSpy.Html
         {
             var tables = Database.Tables.ToList();
             var views = Database.Views.ToList();
+            var sequences = Database.Sequences.ToList();
+            var synonyms = Database.Synonyms.ToList();
 
             var mapper = new MainModelMapper(Connection, Database.Dialect);
 
@@ -449,6 +451,29 @@ namespace SJP.Schematic.SchemaSpy.Html
                 renderViews.Add(renderView);
             }
 
+            var renderSynonyms = new List<Main.Synonym>();
+            foreach (var synonym in synonyms)
+            {
+                var model = mapper.Map(synonym);
+                Uri targetUrl = null;
+                var isTable = Database.TableExists(synonym.Target);
+                if (isTable)
+                {
+                    targetUrl = new Uri("tables/" + synonym.Target.ToSafeKey() + ".html", UriKind.Relative);
+                }
+                else
+                {
+                    var isView = Database.ViewExists(synonym.Target);
+                    if (isView)
+                        targetUrl = new Uri("views/" + synonym.Target.ToSafeKey() + ".html", UriKind.Relative);
+                }
+
+                model.TargetUrl = targetUrl;
+                renderSynonyms.Add(model);
+            }
+
+            var renderSequences = sequences.Select(mapper.Map).ToList();
+
             var main = new Main
             {
                 DatabaseName = Database.DatabaseName ?? string.Empty,
@@ -458,7 +483,9 @@ namespace SJP.Schematic.SchemaSpy.Html
                 ConstraintsCount = constraints,
                 IndexesCount = indexesCount,
                 Tables = renderTables,
-                Views = renderViews
+                Views = renderViews,
+                Sequences = renderSequences,
+                Synonyms = renderSynonyms
             };
 
             return _renderer.RenderTemplate(main);
@@ -468,9 +495,13 @@ namespace SJP.Schematic.SchemaSpy.Html
         {
             var tableCollection = await Database.TablesAsync().ConfigureAwait(false);
             var viewCollection = await Database.ViewsAsync().ConfigureAwait(false);
+            var sequencesCollection = await Database.SequencesAsync().ConfigureAwait(false);
+            var synonymsCollection = await Database.SynonymsAsync().ConfigureAwait(false);
 
             var tables = await tableCollection.ToList().ConfigureAwait(false);
             var views = await viewCollection.ToList().ConfigureAwait(false);
+            var sequences = await sequencesCollection.ToList().ConfigureAwait(false);
+            var synonyms = await synonymsCollection.ToList().ConfigureAwait(false);
 
             var mapper = new MainModelMapper(Connection, Database.Dialect);
 
@@ -514,6 +545,29 @@ namespace SJP.Schematic.SchemaSpy.Html
                 renderViews.Add(renderView);
             }
 
+            var renderSynonyms = new List<Main.Synonym>();
+            foreach (var synonym in synonyms)
+            {
+                var model = mapper.Map(synonym);
+                Uri targetUrl = null;
+                var isTable = await Database.TableExistsAsync(synonym.Target).ConfigureAwait(false);
+                if (isTable)
+                {
+                    targetUrl = new Uri("tables/" + synonym.Target.ToSafeKey() + ".html", UriKind.Relative);
+                }
+                else
+                {
+                    var isView = await Database.ViewExistsAsync(synonym.Target).ConfigureAwait(false);
+                    if (isView)
+                        targetUrl = new Uri("views/" + synonym.Target.ToSafeKey() + ".html", UriKind.Relative);
+                }
+
+                model.TargetUrl = targetUrl;
+                renderSynonyms.Add(model);
+            }
+
+            var renderSequences = sequences.Select(mapper.Map).ToList();
+
             var main = new Main
             {
                 DatabaseName = Database.DatabaseName ?? string.Empty,
@@ -523,7 +577,9 @@ namespace SJP.Schematic.SchemaSpy.Html
                 ConstraintsCount = constraints,
                 IndexesCount = indexesCount,
                 Tables = renderTables,
-                Views = renderViews
+                Views = renderViews,
+                Sequences = renderSequences,
+                Synonyms = renderSynonyms
             };
 
             return _renderer.RenderTemplate(main);

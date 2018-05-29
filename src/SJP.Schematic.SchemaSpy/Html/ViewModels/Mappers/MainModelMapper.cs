@@ -7,7 +7,9 @@ namespace SJP.Schematic.SchemaSpy.Html.ViewModels.Mappers
 {
     internal class MainModelMapper :
         IDatabaseModelMapper<IRelationalDatabaseTable, Main.Table>,
-        IDatabaseModelMapper<IRelationalDatabaseView, Main.View>
+        IDatabaseModelMapper<IRelationalDatabaseView, Main.View>,
+        IDatabaseModelMapper<IDatabaseSynonym, Main.Synonym>,
+        IDatabaseModelMapper<IDatabaseSequence, Main.Sequence>
     {
         public MainModelMapper(IDbConnection connection, IDatabaseDialect dialect)
         {
@@ -101,6 +103,30 @@ namespace SJP.Schematic.SchemaSpy.Html.ViewModels.Mappers
                 ColumnCount = columnCount,
                 RowCount = rowCount
             };
+        }
+
+        public Main.Sequence Map(IDatabaseSequence dbObject)
+        {
+            if (dbObject == null)
+                throw new ArgumentNullException(nameof(dbObject));
+
+            return new Main.Sequence(
+                dbObject.Name,
+                dbObject.Start,
+                dbObject.Increment,
+                dbObject.MinValue,
+                dbObject.MaxValue,
+                dbObject.Cache,
+                dbObject.Cycle
+            );
+        }
+
+        public Main.Synonym Map(IDatabaseSynonym dbObject)
+        {
+            if (dbObject == null)
+                throw new ArgumentNullException(nameof(dbObject));
+
+            return new Main.Synonym(dbObject.Name, dbObject.Target);
         }
     }
 }

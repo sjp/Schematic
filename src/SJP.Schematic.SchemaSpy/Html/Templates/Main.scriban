@@ -34,6 +34,28 @@
     </div>
     <div class="col-md-2 col-sm-4 col-xs-12">
       <div class="info-box">
+        <span class="info-box-icon bg-teal">
+          <i class="fa fa-table"></i>
+        </span>
+        <div class="info-box-content">
+          <span class="info-box-text">Sequences</span>
+          <span class="info-box-number">{{ SequencesCount }}</span>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-2 col-sm-4 col-xs-12">
+      <div class="info-box">
+        <span class="info-box-icon bg-teal">
+          <i class="fa fa-table"></i>
+        </span>
+        <div class="info-box-content">
+          <span class="info-box-text">Synonyms</span>
+          <span class="info-box-number">{{ SynonymsCount }}</span>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-2 col-sm-4 col-xs-12">
+      <div class="info-box">
         <span class="info-box-icon bg-green">
           <span class="glyphicon glyphicon-list-alt" aria-hidden="true"></span>
         </span>
@@ -157,6 +179,80 @@
           {{ else }}
           <tr class="tbl even">
             <td class="detail" colspan="3">No views present.</td>
+          </tr>
+          {{ end }}
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <div class="box box-primary">
+    <div class="box-header with-border">
+      <h3 class="box-title">Sequences</h3>
+      <span class="label label-primary pull-right">
+        <i class="fa fa-database fa-2x"></i>
+      </span>
+    </div>
+    <div class="box-body">
+      <table class="{{ SequencesTableClass }} table table-bordered table-striped dataTable" role="grid">
+        <thead>
+          <tr>
+            <th>Sequence</th>
+            <th>Start</th>
+            <th>Increment</th>
+            <th>Minimum Value</th>
+            <th>Maximum Value</th>
+            <th>Cache</th>
+            <th>Cycle</th>
+          </tr>
+        </thead>
+        <tbody>
+          {{ if SequencesCount > 0 }}
+          {{ for sequence in Sequences }}
+          <tr class="tbl even">
+            <td class="detail">{{ sequence.Name }}</td>
+            <td class="detail">{{ sequence.Start }}</td>
+            <td class="detail">{{ sequence.Increment }}</td>
+            <td class="detail">{{ sequence.MinValueText }}</td>
+            <td class="detail">{{ sequence.MaxValueText }}</td>
+            <td class="detail">{{ sequence.Cache }}</td>
+            <td class="detail">{{ sequence.CycleText }}</td>
+          </tr>
+          {{ end }}
+          {{ else }}
+          <tr class="tbl even">
+            <td class="detail" colspan="7">No sequences present.</td>
+          </tr>
+          {{ end }}
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <div class="box box-primary">
+    <div class="box-header with-border">
+      <h3 class="box-title">Synonyms</h3>
+      <span class="label label-primary pull-right">
+        <i class="fa fa-database fa-2x"></i>
+      </span>
+    </div>
+    <div class="box-body">
+      <table class="{{ SynonymsTableClass }} table table-bordered table-striped dataTable" role="grid">
+        <thead>
+          <tr>
+            <th>Synonym</th>
+            <th>Target</th>
+          </tr>
+        </thead>
+        <tbody>
+          {{ if SynonymsCount > 0 }}
+          {{ for synonym in Synonyms }}
+          <tr class="tbl even">
+            <td class="detail">{{ synonym.Name }}</td>
+            <td class="detail">{{ synonym.TargetText }}</td>
+          </tr>
+          {{ end }}
+          {{ else }}
+          <tr class="tbl even">
+            <td class="detail" colspan="2">No synonyms present.</td>
           </tr>
           {{ end }}
         </tbody>
