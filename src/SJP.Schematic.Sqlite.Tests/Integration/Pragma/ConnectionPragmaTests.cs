@@ -149,7 +149,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
                 var connPragma = new ConnectionPragma(dialect, connection);
 
                 var busyTimeout = connPragma.BusyTimeout;
-                var defaultValue = new TimeSpan(0, 0, 30);
+                var defaultValue = new TimeSpan(0, 0, 0);
 
                 Assert.AreEqual(defaultValue, busyTimeout);
             }
@@ -164,7 +164,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
                 var connPragma = new ConnectionPragma(dialect, connection);
 
                 var busyTimeout = await connPragma.BusyTimeoutAsync().ConfigureAwait(false);
-                var defaultValue = new TimeSpan(0, 0, 30);
+                var defaultValue = new TimeSpan(0, 0, 0);
 
                 Assert.AreEqual(defaultValue, busyTimeout);
             }
