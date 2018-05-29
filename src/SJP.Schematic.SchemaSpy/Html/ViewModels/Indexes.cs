@@ -28,7 +28,7 @@ namespace SJP.Schematic.SchemaSpy.Html.ViewModels
 
         public uint IndexesCount => TableIndexes.UCount();
 
-        public string IndexesTableClass => IndexesCount > 0 ? "database_objects" : string.Empty;
+        public string IndexesTableClass => IndexesCount > 0 ? CssClasses.DataTableClass : string.Empty;
 
         internal class Index
         {
@@ -42,6 +42,8 @@ namespace SJP.Schematic.SchemaSpy.Html.ViewModels
             protected Identifier Table { get; }
 
             public string TableName => Table.ToVisibleName();
+
+            public string TableUrl => Table.ToSafeKey();
 
             public bool Unique { get; set; }
 

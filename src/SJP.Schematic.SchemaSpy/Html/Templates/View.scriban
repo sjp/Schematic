@@ -33,7 +33,7 @@
             <td>{{ column.Ordinal | html.escape }}</td>
             <td>{{ column.ColumnName | html.escape }}</td>
             <td>{{ column.Type | html.escape }}</td>
-            <td title="{{ column.TitleNullable }}">{{ column.NullableText }}</td>
+            <td title="{{ column.TitleNullable | html.escape }}">{{ column.NullableText | html.escape }}</td>
             <td>{{ column.DefaultValue | html.escape }}</td>
           </tr>
           {{ end }}

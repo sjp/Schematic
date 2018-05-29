@@ -13,7 +13,7 @@
         <ul class="nav nav-tabs pull-left ui-sortable-handle">
           {{ for diagram in Diagrams }}
           <li {{ diagram.ActiveClass }}>
-            <a href="#{{ diagram.ContainerId }}" data-toggle="tab" aria-expanded="true">{{ diagram.Name }}</a>
+            <a href="#{{ diagram.ContainerId }}" data-toggle="tab" aria-expanded="true">{{ diagram.Name | html.escape }}</a>
           </li>
           {{ end }}
         </ul>

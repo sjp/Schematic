@@ -43,13 +43,13 @@ namespace SJP.Schematic.SchemaSpy.Html.ViewModels
 
         public uint ColumnsCount => Columns.UCount();
 
-        public string ColumnsTableClass => ColumnsCount > 0 ? "database_objects" : string.Empty;
+        public string ColumnsTableClass => ColumnsCount > 0 ? CssClasses.DataTableClass : string.Empty;
 
         public PrimaryKeyConstraint PrimaryKey { get; set; }
 
         public bool PrimaryKeyExists => PrimaryKey != null;
 
-        public string PrimaryKeyTableClass => PrimaryKeyExists ? "database_objects" : string.Empty;
+        public string PrimaryKeyTableClass => PrimaryKeyExists ? CssClasses.DataTableClass : string.Empty;
 
         public IEnumerable<UniqueKey> UniqueKeys
         {
@@ -61,7 +61,7 @@ namespace SJP.Schematic.SchemaSpy.Html.ViewModels
 
         public uint UniqueKeysCount => UniqueKeys.UCount();
 
-        public string UniqueKeysTableClass => UniqueKeysCount > 0 ? "database_objects" : string.Empty;
+        public string UniqueKeysTableClass => UniqueKeysCount > 0 ? CssClasses.DataTableClass : string.Empty;
 
         public IEnumerable<ForeignKey> ForeignKeys
         {
@@ -73,7 +73,7 @@ namespace SJP.Schematic.SchemaSpy.Html.ViewModels
 
         public uint ForeignKeysCount => ForeignKeys.UCount();
 
-        public string ForeignKeysTableClass => ForeignKeysCount > 0 ? "database_objects" : string.Empty;
+        public string ForeignKeysTableClass => ForeignKeysCount > 0 ? CssClasses.DataTableClass : string.Empty;
 
         public IEnumerable<UniqueKey> CheckConstraints
         {
@@ -85,7 +85,7 @@ namespace SJP.Schematic.SchemaSpy.Html.ViewModels
 
         public uint CheckConstraintsCount => CheckConstraints.UCount();
 
-        public string CheckConstraintsTableClass => CheckConstraintsCount > 0 ? "database_objects" : string.Empty;
+        public string CheckConstraintsTableClass => CheckConstraintsCount > 0 ? CssClasses.DataTableClass : string.Empty;
 
         public IEnumerable<Index> Indexes
         {
@@ -97,7 +97,7 @@ namespace SJP.Schematic.SchemaSpy.Html.ViewModels
 
         public uint IndexesCount => Indexes.UCount();
 
-        public string IndexesTableClass => IndexesCount > 0 ? "database_objects" : string.Empty;
+        public string IndexesTableClass => IndexesCount > 0 ? CssClasses.DataTableClass : string.Empty;
 
         public IEnumerable<Diagram> Diagrams
         {

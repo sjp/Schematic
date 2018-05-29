@@ -19,7 +19,7 @@ namespace SJP.Schematic.SchemaSpy.Html.ViewModels
 
         public uint TablesCount => Tables.UCount();
 
-        public string TablesTableClass => TablesCount > 0 ? "database_objects" : string.Empty;
+        public string TablesTableClass => TablesCount > 0 ? CssClasses.DataTableClass : string.Empty;
 
         internal class Table
         {

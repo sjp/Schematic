@@ -29,7 +29,7 @@
             <td {{ column.ColumnClass }}>{{ column.ColumnIcon }}{{ column.ColumnName | html.escape }}</td>
             <td class="detail">{{ column.Ordinal | html.escape }}</td>
             <td class="detail">{{ column.Type | html.escape }}</td>
-            <td class="detail" title="{{ column.TitleNullable }}">{{ column.NullableText }}</td>
+            <td class="detail" title="{{ column.TitleNullable | html.escape }}">{{ column.NullableText | html.escape }}</td>
             <td class="detail">{{ column.DefaultValue | html.escape }}</td>
           </tr>
           {{ end }}

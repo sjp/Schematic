@@ -209,13 +209,13 @@
           {{ if SequencesCount > 0 }}
           {{ for sequence in Sequences }}
           <tr class="tbl even">
-            <td class="detail">{{ sequence.Name }}</td>
+            <td class="detail">{{ sequence.Name | html.escape }}</td>
             <td class="detail">{{ sequence.Start }}</td>
             <td class="detail">{{ sequence.Increment }}</td>
-            <td class="detail">{{ sequence.MinValueText }}</td>
-            <td class="detail">{{ sequence.MaxValueText }}</td>
+            <td class="detail">{{ sequence.MinValueText | html.escape }}</td>
+            <td class="detail">{{ sequence.MaxValueText | html.escape }}</td>
             <td class="detail">{{ sequence.Cache }}</td>
-            <td class="detail">{{ sequence.CycleText }}</td>
+            <td class="detail">{{ sequence.CycleText | html.escape }}</td>
           </tr>
           {{ end }}
           {{ else }}
@@ -246,7 +246,7 @@
           {{ if SynonymsCount > 0 }}
           {{ for synonym in Synonyms }}
           <tr class="tbl even">
-            <td class="detail">{{ synonym.Name }}</td>
+            <td class="detail">{{ synonym.Name | html.escape }}</td>
             <td class="detail">{{ synonym.TargetText }}</td>
           </tr>
           {{ end }}

@@ -35,15 +35,15 @@
             <td>{{ column.Ordinal | html.escape }}</td>
             <td {{ column.ColumnClass }}>{{ column.ColumnIcon }}{{ column.ColumnName | html.escape }}</td>
             <td>{{ column.Type | html.escape }}</td>
-            <td title="{{ column.TitleNullable }}">{{ column.NullableText | html.escape }}</td>
+            <td title="{{ column.TitleNullable | html.escape }}">{{ column.NullableText | html.escape }}</td>
             <td>{{ column.DefaultValue | html.escape }}</td>
             <td>
               {{  if column.ChildKeysCount > 0 }}
               <table border="0" cellspacing="0" cellpadding="0">
                 {{ for childKey in column.ChildKeys }}
                 <tr>
-                  <td title="{{ childKey.ConstraintDescription }}">
-                    <a href="{{ RootPath }}tables/{{ childKey.ChildTableUrl }}.html">{{ childKey.ChildTableName }}</a>.{{ childKey.ChildColumnName }}
+                  <td title="{{ childKey.ConstraintDescription | html.escape }}">
+                    <a href="{{ RootPath }}tables/{{ childKey.ChildTableUrl }}.html">{{ childKey.ChildTableName | html.escape }}</a>.{{ childKey.ChildColumnName | html.escape }}
                   </td>
                 </tr>
                 {{ end }}
@@ -55,8 +55,8 @@
               <table border="0" cellspacing="0" cellpadding="0">
                 {{ for parentKey in column.ParentKeys }}
                 <tr>
-                  <td title="{{ parentKey.ConstraintDescription }}">
-                    <a href="{{ RootPath }}tables/{{ parentKey.ParentTableUrl }}.html">{{ parentKey.ParentTableName }}</a>.{{ parentKey.ParentColumnName }}
+                  <td title="{{ parentKey.ConstraintDescription | html.escape }}">
+                    <a href="{{ RootPath }}tables/{{ parentKey.ParentTableUrl }}.html">{{ parentKey.ParentTableName | html.escape }}</a>.{{ parentKey.ParentColumnName | html.escape }}
                   </td>
                 </tr>
                 {{ end }}
@@ -101,8 +101,8 @@
         <tbody>
           {{ if PrimaryKeyExists }}
           <tr>
-            <td class="detail">{{ PrimaryKey.ConstraintName }}</td>
-            <td class="detail">{{ PrimaryKey.ColumnNames }}</td>
+            <td class="detail">{{ PrimaryKey.ConstraintName | html.escape }}</td>
+            <td class="detail">{{ PrimaryKey.ColumnNames | html.escape }}</td>
           </tr>
           {{ else }}
           <tr>
@@ -138,8 +138,8 @@
           {{ if UniqueKeysCount > 0 }}
           {{ for uniqueKey in UniqueKeys }}
           <tr>
-            <td class="detail">{{ uniqueKey.ConstraintName }}</td>
-            <td class="detail">{{ uniqueKey.ColumnNames }}</td>
+            <td class="detail">{{ uniqueKey.ConstraintName | html.escape }}</td>
+            <td class="detail">{{ uniqueKey.ColumnNames | html.escape }}</td>
           </tr>
           {{ end }}
           {{ else }}
@@ -181,18 +181,18 @@
           {{ if ForeignKeysCount > 0 }}
           {{ for foreignKey in ForeignKeys }}
           <tr>
-            <td class="detail">{{ foreignKey.ConstraintName }}</td>
-            <td class="detail">{{ foreignKey.ChildColumnNames }}</td>
-            <td class="detail">{{ foreignKey.ParentConstraintName }}</td>
+            <td class="detail">{{ foreignKey.ConstraintName | html.escape }}</td>
+            <td class="detail">{{ foreignKey.ChildColumnNames | html.escape }}</td>
+            <td class="detail">{{ foreignKey.ParentConstraintName | html.escape }}</td>
             <td class="detail">
-              <a href="tables/{{ foreignKey.ParentTableUrl }}.html">{{ foreignKey.ParentTableName }}</a>
+              <a href="tables/{{ foreignKey.ParentTableUrl }}.html">{{ foreignKey.ParentTableName | html.escape }}</a>
             </td>
-            <td class="detail">{{ foreignKey.ParentColumnNames }}</td>
+            <td class="detail">{{ foreignKey.ParentColumnNames | html.escape }}</td>
             <td class="detail">
-              <code>{{ foreignKey.DeleteRuleDescription }}</code>
+              <code>{{ foreignKey.DeleteRuleDescription | html.escape }}</code>
             </td>
             <td class="detail">
-              <code>{{ foreignKey.UpdateRuleDescription }}</code>
+              <code>{{ foreignKey.UpdateRuleDescription | html.escape }}</code>
             </td>
           </tr>
           {{ end }}
@@ -230,9 +230,9 @@
           {{ if CheckConstraintsCount > 0 }}
           {{ for check in CheckConstraints }}
           <tr>
-            <td class="detail">{{ check.ConstraintName }}</td>
+            <td class="detail">{{ check.ConstraintName | html.escape }}</td>
             <td class="detail">
-              <code>{{ check.Definition }}</code>
+              <code>{{ check.Definition | html.escape }}</code>
             </td>
           </tr>
           {{ end }}
@@ -272,10 +272,10 @@
           {{ if IndexesCount > 0 }}
           {{ for index in Indexes }}
           <tr>
-            <td>{{ index.Name }}</td>
-            <td>{{ index.UniqueText }}</td>
-            <td>{{ index.ColumnsText }}</td>
-            <td>{{ index.IncludedColumnsText }}</td>
+            <td>{{ index.Name | html.escape }}</td>
+            <td>{{ index.UniqueText | html.escape }}</td>
+            <td>{{ index.ColumnsText | html.escape }}</td>
+            <td>{{ index.IncludedColumnsText | html.escape }}</td>
           </tr>
           {{ end }}
           {{ else }}
@@ -306,7 +306,7 @@
         <ul class="nav nav-tabs pull-left ui-sortable-handle">
           {{ for diagram in Diagrams }}
           <li {{ diagram.ActiveClass }}>
-            <a href="#{{ diagram.ContainerId }}" data-toggle="tab" aria-expanded="true">{{ diagram.Name }}</a>
+            <a href="#{{ diagram.ContainerId }}" data-toggle="tab" aria-expanded="true">{{ diagram.Name | html.escape }}</a>
           </li>
           {{ end }}
         </ul>

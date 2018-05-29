@@ -28,11 +28,11 @@
           {{ if PrimaryKeysCount > 0 }}
           {{ for primaryKey in PrimaryKeys }}
           <tr>
-            <td class="detail">{{ primaryKey.ConstraintName }}</td>
+            <td class="detail">{{ primaryKey.ConstraintName | html.escape }}</td>
             <td class="detail">
-              <a href="tables/{{ primaryKey.TableUrl }}.html">{{ primaryKey.TableName }}</a>
+              <a href="tables/{{ primaryKey.TableUrl }}.html">{{ primaryKey.TableName | html.escape }}</a>
             </td>
-            <td class="detail">{{ primaryKey.ColumnNames }}</td>
+            <td class="detail">{{ primaryKey.ColumnNames | html.escape }}</td>
           </tr>
           {{ end }}
           {{ else }}
@@ -70,11 +70,11 @@
           {{ if UniqueKeysCount > 0 }}
           {{ for uniqueKey in UniqueKeys }}
           <tr>
-            <td class="detail">{{ uniqueKey.ConstraintName }}</td>
+            <td class="detail">{{ uniqueKey.ConstraintName | html.escape }}</td>
             <td class="detail">
-              <a href="tables/{{ uniqueKey.TableUrl }}.html">{{ uniqueKey.TableName }}</a>
+              <a href="tables/{{ uniqueKey.TableUrl }}.html">{{ uniqueKey.TableName | html.escape }}</a>
             </td>
-            <td class="detail">{{ uniqueKey.ColumnNames }}</td>
+            <td class="detail">{{ uniqueKey.ColumnNames | html.escape }}</td>
           </tr>
           {{ end }}
           {{ else }}
@@ -117,18 +117,18 @@
           {{ if ForeignKeysCount > 0 }}
           {{ for foreignKey in ForeignKeys }}
           <tr>
-            <td class="detail">{{ foreignKey.ConstraintName }}</td>
+            <td class="detail">{{ foreignKey.ConstraintName | html.escape }}</td>
             <td class="detail">
-              <a href="tables/{{ foreignKey.TableUrl }}.html">{{ foreignKey.TableName }}</a>
+              <a href="tables/{{ foreignKey.TableUrl }}.html">{{ foreignKey.TableName | html.escape }}</a>
             </td>
-            <td class="detail">{{ foreignKey.ChildColumnNames }}</td>
-            <td class="detail">{{ foreignKey.ParentConstraintName }}</td>
+            <td class="detail">{{ foreignKey.ChildColumnNames | html.escape }}</td>
+            <td class="detail">{{ foreignKey.ParentConstraintName | html.escape }}</td>
             <td class="detail">
-              <a href="tables/{{ foreignKey.ParentTableUrl }}.html">{{ foreignKey.ParentTableName }}</a>
+              <a href="tables/{{ foreignKey.ParentTableUrl }}.html">{{ foreignKey.ParentTableName | html.escape }}</a>
             </td>
-            <td class="detail">{{ foreignKey.ParentColumnNames }}</td>
-            <td class="detail"><code>{{ foreignKey.DeleteRuleDescription }}</code></td>
-            <td class="detail"><code>{{ foreignKey.UpdateRuleDescription }}</code></td>
+            <td class="detail">{{ foreignKey.ParentColumnNames | html.escape }}</td>
+            <td class="detail"><code>{{ foreignKey.DeleteRuleDescription | html.escape }}</code></td>
+            <td class="detail"><code>{{ foreignKey.UpdateRuleDescription | html.escape }}</code></td>
           </tr>
           {{ end }}
           {{ else }}
@@ -166,12 +166,12 @@
           {{ if CheckConstraintsCount > 0 }}
           {{ for check in CheckConstraints }}
           <tr>
-            <td class="detail">{{ check.ConstraintName }}</td>
+            <td class="detail">{{ check.ConstraintName | html.escape }}</td>
             <td class="detail">
-              <a href="tables/{{ check.TableUrl }}.html">{{ check.TableName }}</a>
+              <a href="tables/{{ check.TableUrl }}.html">{{ check.TableName | html.escape }}</a>
             </td>
             <td class="detail">
-              <code>{{ check.Definition }}</code>
+              <code>{{ check.Definition | html.escape }}</code>
             </td>
           </tr>
           {{ end }}

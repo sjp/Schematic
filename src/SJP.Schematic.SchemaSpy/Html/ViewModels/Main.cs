@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Web;
 using SJP.Schematic.Core;
 
 namespace SJP.Schematic.SchemaSpy.Html.ViewModels
@@ -41,7 +42,7 @@ namespace SJP.Schematic.SchemaSpy.Html.ViewModels
 
         public uint TablesCount => Tables.UCount();
 
-        public string TablesTableClass => TablesCount > 0 ? "database_objects" : string.Empty;
+        public string TablesTableClass => TablesCount > 0 ? CssClasses.DataTableClass : string.Empty;
 
         public IEnumerable<View> Views
         {
@@ -53,7 +54,7 @@ namespace SJP.Schematic.SchemaSpy.Html.ViewModels
 
         public uint ViewsCount => Views.UCount();
 
-        public string ViewsTableClass => ViewsCount > 0 ? "database_objects" : string.Empty;
+        public string ViewsTableClass => ViewsCount > 0 ? CssClasses.DataTableClass : string.Empty;
 
         public IEnumerable<Sequence> Sequences
         {
@@ -65,7 +66,7 @@ namespace SJP.Schematic.SchemaSpy.Html.ViewModels
 
         public uint SequencesCount => Sequences.UCount();
 
-        public string SequencesTableClass => SequencesCount > 0 ? "database_objects" : string.Empty;
+        public string SequencesTableClass => SequencesCount > 0 ? CssClasses.DataTableClass : string.Empty;
 
         public IEnumerable<Synonym> Synonyms
         {
@@ -77,7 +78,7 @@ namespace SJP.Schematic.SchemaSpy.Html.ViewModels
 
         public uint SynonymsCount => Synonyms.UCount();
 
-        public string SynonymsTableClass => SynonymsCount > 0 ? "database_objects" : string.Empty;
+        public string SynonymsTableClass => SynonymsCount > 0 ? CssClasses.DataTableClass : string.Empty;
 
         internal class Table
         {
@@ -195,8 +196,8 @@ namespace SJP.Schematic.SchemaSpy.Html.ViewModels
             public string TargetName => Target.ToVisibleName();
 
             public string TargetText => TargetUrl != null
-                ? $"<a href=\"{ TargetUrl }\">{ TargetName }</a>"
-                : TargetName;
+                ? $"<a href=\"{ TargetUrl }\">{ HttpUtility.HtmlEncode(TargetName) }</a>"
+                : HttpUtility.HtmlEncode(TargetName);
         }
     }
 }

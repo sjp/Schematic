@@ -30,11 +30,13 @@
           {{ if IndexesCount > 0 }}
           {{ for index in TableIndexes }}
           <tr>
-            <td>{{ index.Name }}</td>
-            <td>{{ index.TableName }}</td>
-            <td>{{ index.UniqueText }}</td>
-            <td>{{ index.ColumnsText }}</td>
-            <td>{{ index.IncludedColumnsText }}</td>
+            <td>{{ index.Name | html.escape }}</td>
+            <td class="detail">
+              <a href="tables/{{ index.TableUrl }}.html">{{ index.TableName | html.escape }}</a>
+            </td>
+            <td>{{ index.UniqueText | html.escape }}</td>
+            <td>{{ index.ColumnsText | html.escape }}</td>
+            <td>{{ index.IncludedColumnsText | html.escape }}</td>
           </tr>
           {{ end }}
           {{ else }}
