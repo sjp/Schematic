@@ -14,12 +14,29 @@ namespace SJP.Schematic.SqlServer
     {
         public override IDbConnection CreateConnection(string connectionString)
         {
-            var connection = new SqlConnection(connectionString);
+            if (connectionString.IsNullOrWhiteSpace())
+                throw new ArgumentNullException(nameof(connectionString));
+
+            var builder = new SqlConnectionStringBuilder(connectionString) { MultipleActiveResultSets = true };
+            var connWithMars = builder.ConnectionString;
+
+            var connection = new SqlConnection(connWithMars);
             connection.Open();
             return connection;
         }
 
-        public override async Task<IDbConnection> CreateConnectionAsync(string connectionString, CancellationToken cancellationToken = default(CancellationToken))
+        public override Task<IDbConnection> CreateConnectionAsync(string connectionString, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            if (connectionString.IsNullOrWhiteSpace())
+                throw new ArgumentNullException(nameof(connectionString));
+
+            var builder = new SqlConnectionStringBuilder(connectionString) { MultipleActiveResultSets = true };
+            var connWithMars = builder.ConnectionString;
+
+            return CreateConnectionAsyncCore(connWithMars, cancellationToken);
+        }
+
+        private async Task<IDbConnection> CreateConnectionAsyncCore(string connectionString, CancellationToken cancellationToken = default(CancellationToken))
         {
             var connection = new SqlConnection(connectionString);
             await connection.OpenAsync(cancellationToken).ConfigureAwait(false);
