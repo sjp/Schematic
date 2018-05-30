@@ -9,7 +9,7 @@ namespace SJP.Schematic.Reporting.Html.ViewModels
 {
     internal class Table : ITemplateParameter
     {
-        public SchemaSpyTemplate Template { get; } = SchemaSpyTemplate.Table;
+        public ReportTemplate Template { get; } = ReportTemplate.Table;
 
         public Identifier TableName
         {

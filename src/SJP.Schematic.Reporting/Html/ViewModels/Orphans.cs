@@ -7,7 +7,7 @@ namespace SJP.Schematic.Reporting.Html.ViewModels
 {
     internal class Orphans : ITemplateParameter
     {
-        public SchemaSpyTemplate Template { get; } = SchemaSpyTemplate.Orphans;
+        public ReportTemplate Template { get; } = ReportTemplate.Orphans;
 
         public IEnumerable<Table> Tables
         {

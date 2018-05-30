@@ -9,7 +9,7 @@ namespace SJP.Schematic.Reporting.Html.ViewModels
 {
     internal class Constraints : ITemplateParameter
     {
-        public SchemaSpyTemplate Template { get; } = SchemaSpyTemplate.Constraints;
+        public ReportTemplate Template { get; } = ReportTemplate.Constraints;
 
         public IEnumerable<PrimaryKeyConstraint> PrimaryKeys
         {

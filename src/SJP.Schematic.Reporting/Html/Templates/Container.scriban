@@ -5,7 +5,7 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <title>{{ DatabaseName | html.escape }}</title>
   <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
-  <link rel="stylesheet" href="{{ RootPath }}css/schemaspy-app.css">
+  <link rel="stylesheet" href="{{ RootPath }}css/reporting-app.css">
 </head>
 <body class="hold-transition skin-blue layout-top-nav">
 <div class="wrapper">
@@ -46,6 +46,6 @@
 </div>
 <script src="{{ RootPath }}js/viz.js"></script>
 <script src="{{ RootPath }}js/full.render.js"></script>
-<script src="{{ RootPath }}js/schemaspy-app.js"></script>
+<script src="{{ RootPath }}js/reporting-app.js"></script>
 </body>
 </html>

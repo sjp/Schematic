@@ -1,6 +1,6 @@
 ﻿namespace SJP.Schematic.Reporting.Html
 {
-    public enum SchemaSpyTemplate
+    public enum ReportTemplate
     {
         None, // not intended to be used
         Columns,

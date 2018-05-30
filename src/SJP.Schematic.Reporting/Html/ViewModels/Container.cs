@@ -6,7 +6,7 @@ namespace SJP.Schematic.Reporting.Html.ViewModels
 {
     internal class Container : ITemplateParameter
     {
-        public SchemaSpyTemplate Template { get; } = SchemaSpyTemplate.Container;
+        public ReportTemplate Template { get; } = ReportTemplate.Container;
 
         public string RootPath { get; set; }
 

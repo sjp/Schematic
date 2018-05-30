@@ -8,7 +8,7 @@ namespace SJP.Schematic.Reporting.Html.ViewModels
 {
     internal class Relationships : ITemplateParameter
     {
-        public SchemaSpyTemplate Template { get; } = SchemaSpyTemplate.Relationships;
+        public ReportTemplate Template { get; } = ReportTemplate.Relationships;
 
         public IEnumerable<Diagram> Diagrams
         {

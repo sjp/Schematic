@@ -2,6 +2,6 @@
 {
     public interface ITemplateProvider
     {
-        string GetTemplate(SchemaSpyTemplate template);
+        string GetTemplate(ReportTemplate template);
     }
 }

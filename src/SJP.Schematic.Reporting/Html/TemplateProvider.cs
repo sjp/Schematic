@@ -10,16 +10,16 @@ namespace SJP.Schematic.Reporting.Html
 {
     public class TemplateProvider : ITemplateProvider
     {
-        public string GetTemplate(SchemaSpyTemplate template)
+        public string GetTemplate(ReportTemplate template)
         {
             if (!template.IsValid())
-                throw new ArgumentException($"The { nameof(SchemaSpyTemplate) } provided must be a valid enum.", nameof(template));
+                throw new ArgumentException($"The { nameof(ReportTemplate) } provided must be a valid enum.", nameof(template));
 
             var resource = GetResource(template);
             return GetResourceAsString(resource);
         }
 
-        private static IFileInfo GetResource(SchemaSpyTemplate template)
+        private static IFileInfo GetResource(ReportTemplate template)
         {
             var templateKey = template.ToString();
             var templateFileName = templateKey + TemplateExtension;

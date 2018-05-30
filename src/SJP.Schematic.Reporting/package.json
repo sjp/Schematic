@@ -1,7 +1,7 @@
 {
-  "name": "sjp-schematic-schemaspy",
+  "name": "sjp-schematic-reporting",
   "version": "1.0.0",
-  "description": "Schematic SchemaSpy",
+  "description": "Schematic Reporting",
   "main": "index.js",
   "scripts": {
     "build": "gulp",

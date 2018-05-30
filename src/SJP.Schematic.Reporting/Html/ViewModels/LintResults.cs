@@ -9,7 +9,7 @@ namespace SJP.Schematic.Reporting.Html.ViewModels
 {
     internal class LintResults : ITemplateParameter
     {
-        public SchemaSpyTemplate Template { get; } = SchemaSpyTemplate.Lint;
+        public ReportTemplate Template { get; } = ReportTemplate.Lint;
 
         public IEnumerable<LintRule> LintRules
         {

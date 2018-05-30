@@ -62,10 +62,10 @@ gulp.task('styles:dev', ['copy-assets'], function () {
             'node_modules/admin-lte/dist/css/AdminLTE.css',
             'node_modules/admin-lte/dist/css/skins/_all-skins.css',
             'Source/css/source-sans-pro.css',
-            'Source/css/schemaspy.css'
+            'Source/css/reporting.css'
         ])
-        .pipe(newer('assets/css/schemaspy-app.css'))
-        .pipe(concat('schemaspy-app.css'))
+        .pipe(newer('assets/css/reporting-app.css'))
+        .pipe(concat('reporting-app.css'))
         .pipe(postcss([cssnext]))
         .pipe(gulp.dest("assets/"));
 });
@@ -88,10 +88,10 @@ gulp.task('scripts:dev', function () {
             'node_modules/codemirror/mode/sql/sql.js',
             'node_modules/admin-lte/dist/js/adminlte.js',
             'node_modules/svg-pan-zoom/dist/svg-pan-zoom.js',
-            'Source/js/schemaspy.js'
+            'Source/js/reporting.js'
         ])
-        .pipe(newer("assets/js/schemaspy-app.js"))
-        .pipe(concat('schemaspy-app.js'))
+        .pipe(newer("assets/js/reporting-app.js"))
+        .pipe(concat('reporting-app.js'))
         .pipe(eslint())
         .pipe(gulp.dest("assets/"));
 });
@@ -112,10 +112,10 @@ gulp.task('styles:prod', ['copy-assets'], function () {
             'node_modules/admin-lte/dist/css/AdminLTE.min.css',
             'node_modules/admin-lte/dist/css/skins/_all-skins.min.css',
             'Source/css/source-sans-pro.css',
-            'Source/css/schemaspy.css'
+            'Source/css/reporting.css'
         ])
-        .pipe(newer('assets/css/schemaspy-app.css'))
-        .pipe(concat('schemaspy-app.css'))
+        .pipe(newer('assets/css/reporting-app.css'))
+        .pipe(concat('reporting-app.css'))
         .pipe(postcss([cssnext]))
         .pipe(cssnano())
         .pipe(gulp.dest("assets/css"));
@@ -139,10 +139,10 @@ gulp.task('scripts:prod', function () {
             'node_modules/codemirror/mode/sql/sql.js',
             'node_modules/admin-lte/dist/js/adminlte.min.js',
             'node_modules/svg-pan-zoom/dist/svg-pan-zoom.min.js',
-            'Source/js/schemaspy.js'
+            'Source/js/reporting.js'
         ])
-        .pipe(newer("assets/js/schemaspy-app.js"))
-        .pipe(concat('schemaspy-app.js'))
+        .pipe(newer("assets/js/reporting-app.js"))
+        .pipe(concat('reporting-app.js'))
         .pipe(uglify())
         .pipe(gulp.dest("assets/js"));
 });

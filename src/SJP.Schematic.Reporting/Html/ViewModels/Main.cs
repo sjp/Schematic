@@ -8,7 +8,7 @@ namespace SJP.Schematic.Reporting.Html.ViewModels
 {
     internal class Main : ITemplateParameter
     {
-        public SchemaSpyTemplate Template { get; } = SchemaSpyTemplate.Main;
+        public ReportTemplate Template { get; } = ReportTemplate.Main;
 
         public string DatabaseName { get; set; }
 

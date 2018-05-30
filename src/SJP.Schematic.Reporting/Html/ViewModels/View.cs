@@ -7,7 +7,7 @@ namespace SJP.Schematic.Reporting.Html.ViewModels
 {
     internal class View : ITemplateParameter
     {
-        public SchemaSpyTemplate Template { get; } = SchemaSpyTemplate.View;
+        public ReportTemplate Template { get; } = ReportTemplate.View;
 
         public Identifier ViewName
         {

@@ -25,7 +25,7 @@ namespace SJP.Schematic.Reporting.Html
 
             var template = templateParameter.Template;
             if (!template.IsValid())
-                throw new ArgumentException($"The { nameof(SchemaSpyTemplate) } provided in the template parameter must be a valid enum.", nameof(templateParameter));
+                throw new ArgumentException($"The { nameof(ReportTemplate) } provided in the template parameter must be a valid enum.", nameof(templateParameter));
 
             var parsedTemplate = GetTemplate(template);
             if (parsedTemplate.HasErrors)
@@ -48,10 +48,10 @@ namespace SJP.Schematic.Reporting.Html
             return parsedTemplate.Render(context);
         }
 
-        protected Template GetTemplate(SchemaSpyTemplate template)
+        protected Template GetTemplate(ReportTemplate template)
         {
             if (!template.IsValid())
-                throw new ArgumentException($"The { nameof(SchemaSpyTemplate) } provided must be a valid enum.", nameof(template));
+                throw new ArgumentException($"The { nameof(ReportTemplate) } provided must be a valid enum.", nameof(template));
 
             if (_templateCache.TryGetValue(template, out var result))
                 return result;
@@ -65,6 +65,6 @@ namespace SJP.Schematic.Reporting.Html
 
         private static string MemberRenamer(MemberInfo member) => member.Name;
 
-        private readonly ConcurrentDictionary<SchemaSpyTemplate, Template> _templateCache = new ConcurrentDictionary<SchemaSpyTemplate, Template>();
+        private readonly ConcurrentDictionary<ReportTemplate, Template> _templateCache = new ConcurrentDictionary<ReportTemplate, Template>();
     }
 }

@@ -7,7 +7,7 @@ namespace SJP.Schematic.Reporting.Html.ViewModels
 {
     internal class Columns : ITemplateParameter
     {
-        public SchemaSpyTemplate Template { get; } = SchemaSpyTemplate.Columns;
+        public ReportTemplate Template { get; } = ReportTemplate.Columns;
 
         public IEnumerable<Column> TableColumns
         {

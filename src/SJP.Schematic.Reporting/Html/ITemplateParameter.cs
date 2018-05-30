@@ -2,6 +2,6 @@
 {
     public interface ITemplateParameter
     {
-        SchemaSpyTemplate Template { get; }
+        ReportTemplate Template { get; }
     }
 }

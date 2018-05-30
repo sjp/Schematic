@@ -8,7 +8,7 @@ namespace SJP.Schematic.Reporting.Html.ViewModels
 {
     internal class Indexes : ITemplateParameter
     {
-        public SchemaSpyTemplate Template { get; } = SchemaSpyTemplate.Indexes;
+        public ReportTemplate Template { get; } = ReportTemplate.Indexes;
 
         public string RootPath
         {
