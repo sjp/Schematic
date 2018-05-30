@@ -112,7 +112,7 @@ namespace SJP.Schematic.Reporting.Dot
             return builder.ToString();
         }
 
-        private static readonly IReadOnlyDictionary<DatabaseKeyType, string> _keyTypeTitles = new Dictionary<DatabaseKeyType, string>
+        private readonly static IReadOnlyDictionary<DatabaseKeyType, string> _keyTypeTitles = new Dictionary<DatabaseKeyType, string>
         {
             [DatabaseKeyType.Foreign] = "Foreign Key",
             [DatabaseKeyType.Unique] = "Unique Key",

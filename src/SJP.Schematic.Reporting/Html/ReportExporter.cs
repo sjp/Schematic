@@ -719,6 +719,6 @@ namespace SJP.Schematic.Reporting.Html
             return Task.FromResult(_renderer.RenderTemplate(templateParameter));
         }
 
-        private static readonly IHtmlFormatter _renderer = new HtmlFormatter(new TemplateProvider());
+        private readonly static IHtmlFormatter _renderer = new HtmlFormatter(new TemplateProvider());
     }
 }

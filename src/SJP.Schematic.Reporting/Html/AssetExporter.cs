@@ -109,7 +109,7 @@ namespace SJP.Schematic.Reporting.Html
             return Path.Combine(dirName, fileNameWithExtension);
         }
 
-        private static readonly IEnumerable<string> _nonStandardExtensions = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+        private readonly static IEnumerable<string> _nonStandardExtensions = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
         {
             ".render.js", // for viz.js
             ".otf.woff",
@@ -118,6 +118,6 @@ namespace SJP.Schematic.Reporting.Html
             ".ttf.woff2"
         };
 
-        private static readonly IFileProvider _fileProvider = new EmbeddedFileProvider(Assembly.GetExecutingAssembly(), Assembly.GetExecutingAssembly().GetName().Name + ".assets");
+        private readonly static IFileProvider _fileProvider = new EmbeddedFileProvider(Assembly.GetExecutingAssembly(), Assembly.GetExecutingAssembly().GetName().Name + ".assets");
     }
 }

@@ -250,7 +250,7 @@ namespace SJP.Schematic.Modelled.Reflection.Model
             private static bool IsValidIdentifierPartCharacter(char c) =>
                 c.IsLetterOrDigit() || _validIdentifierCategories.Contains(c.GetUnicodeCategory());
 
-            private static readonly IEnumerable<UnicodeCategory> _validIdentifierCategories =
+            private readonly static IEnumerable<UnicodeCategory> _validIdentifierCategories =
                 new HashSet<UnicodeCategory>(new[] { UnicodeCategory.ConnectorPunctuation, UnicodeCategory.Format, UnicodeCategory.SpacingCombiningMark, UnicodeCategory.NonSpacingMark });
         }
     }

@@ -64,23 +64,23 @@ namespace SJP.Schematic.Sqlite.Parsing
                 .Then(n => Character.EqualTo('.').IgnoreThen(Numerics.Integer).OptionalOrDefault()
                     .Select(f => f == TextSpan.None ? n : new TextSpan(n.Source, n.Position, n.Length + f.Length + 1)));
 
-        private static readonly TextParser<SqliteToken> LessOrEqual = Span.EqualTo("<=").Value(SqliteToken.LessThanOrEqual);
-        private static readonly TextParser<SqliteToken> GreaterOrEqual = Span.EqualTo(">=").Value(SqliteToken.GreaterThanOrEqual);
-        private static readonly TextParser<SqliteToken> NotEqual = Span.EqualTo("<>").Value(SqliteToken.NotEqual);
-        private static readonly TextParser<SqliteToken> LogicalOr = Span.EqualTo("||").Value(SqliteToken.Or);
-        private static readonly TextParser<SqliteToken> LeftShift = Span.EqualTo("<<").Value(SqliteToken.LeftShift);
-        private static readonly TextParser<SqliteToken> RightShift = Span.EqualTo(">>").Value(SqliteToken.RightShift);
-        private static readonly TextParser<SqliteToken> BangNotEqual = Span.EqualTo("!=").Value(SqliteToken.NotEqual);
-        private static readonly TextParser<SqliteToken> DoubleEqual = Span.EqualTo("==").Value(SqliteToken.Equal);
-        private static readonly TextParser<SqliteToken> Regexp = Span.EqualTo("REGEXP").Value(SqliteToken.Regexp);
-        private static readonly TextParser<SqliteToken> Match = Span.EqualTo("MATCH").Value(SqliteToken.Match);
-        private static readonly TextParser<SqliteToken> Glob = Span.EqualTo("GLOB").Value(SqliteToken.Glob);
-        private static readonly TextParser<SqliteToken> Like = Span.EqualTo("LIKE").Value(SqliteToken.Like);
-        private static readonly TextParser<SqliteToken> And = Span.EqualTo("AND").Value(SqliteToken.And);
-        private static readonly TextParser<SqliteToken> Not = Span.EqualTo("NOT").Value(SqliteToken.Not);
-        private static readonly TextParser<SqliteToken> In = Span.EqualTo("IN").Value(SqliteToken.In);
-        private static readonly TextParser<SqliteToken> Is = Span.EqualTo("IS").Value(SqliteToken.Is);
-        private static readonly TextParser<SqliteToken> Or = Span.EqualTo("OR").Value(SqliteToken.Or);
+        private readonly static TextParser<SqliteToken> LessOrEqual = Span.EqualTo("<=").Value(SqliteToken.LessThanOrEqual);
+        private readonly static TextParser<SqliteToken> GreaterOrEqual = Span.EqualTo(">=").Value(SqliteToken.GreaterThanOrEqual);
+        private readonly static TextParser<SqliteToken> NotEqual = Span.EqualTo("<>").Value(SqliteToken.NotEqual);
+        private readonly static TextParser<SqliteToken> LogicalOr = Span.EqualTo("||").Value(SqliteToken.Or);
+        private readonly static TextParser<SqliteToken> LeftShift = Span.EqualTo("<<").Value(SqliteToken.LeftShift);
+        private readonly static TextParser<SqliteToken> RightShift = Span.EqualTo(">>").Value(SqliteToken.RightShift);
+        private readonly static TextParser<SqliteToken> BangNotEqual = Span.EqualTo("!=").Value(SqliteToken.NotEqual);
+        private readonly static TextParser<SqliteToken> DoubleEqual = Span.EqualTo("==").Value(SqliteToken.Equal);
+        private readonly static TextParser<SqliteToken> Regexp = Span.EqualTo("REGEXP").Value(SqliteToken.Regexp);
+        private readonly static TextParser<SqliteToken> Match = Span.EqualTo("MATCH").Value(SqliteToken.Match);
+        private readonly static TextParser<SqliteToken> Glob = Span.EqualTo("GLOB").Value(SqliteToken.Glob);
+        private readonly static TextParser<SqliteToken> Like = Span.EqualTo("LIKE").Value(SqliteToken.Like);
+        private readonly static TextParser<SqliteToken> And = Span.EqualTo("AND").Value(SqliteToken.And);
+        private readonly static TextParser<SqliteToken> Not = Span.EqualTo("NOT").Value(SqliteToken.Not);
+        private readonly static TextParser<SqliteToken> In = Span.EqualTo("IN").Value(SqliteToken.In);
+        private readonly static TextParser<SqliteToken> Is = Span.EqualTo("IS").Value(SqliteToken.Is);
+        private readonly static TextParser<SqliteToken> Or = Span.EqualTo("OR").Value(SqliteToken.Or);
 
         public static TextParser<SqliteToken> CompoundOperator { get; } =
             GreaterOrEqual

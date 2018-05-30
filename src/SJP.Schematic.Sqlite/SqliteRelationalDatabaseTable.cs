@@ -831,7 +831,7 @@ namespace SJP.Schematic.Sqlite
                 : Rule.None;
         }
 
-        private static readonly IReadOnlyDictionary<string, Rule> _relationalUpdateMapping = new Dictionary<string, Rule>(StringComparer.OrdinalIgnoreCase)
+        private readonly static IReadOnlyDictionary<string, Rule> _relationalUpdateMapping = new Dictionary<string, Rule>(StringComparer.OrdinalIgnoreCase)
         {
             ["NO ACTION"] = Rule.None,
             ["RESTRICT"] = Rule.None,

@@ -45,7 +45,7 @@ namespace SJP.Schematic.Reporting.Html
             }
         }
 
-        private static readonly IFileProvider _fileProvider = new EmbeddedFileProvider(Assembly.GetExecutingAssembly(), Assembly.GetExecutingAssembly().GetName().Name + ".Html.Templates");
+        private readonly static IFileProvider _fileProvider = new EmbeddedFileProvider(Assembly.GetExecutingAssembly(), Assembly.GetExecutingAssembly().GetName().Name + ".Html.Templates");
         private const string TemplateExtension = ".scriban";
     }
 }
