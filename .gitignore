@@ -30,8 +30,8 @@ bld/
 #wwwroot/
 
 # For the SchemaSpy build
-src/SJP.Schematic.SchemaSpy/assets
-src/SJP.Schematic.SchemaSpy/package-lock.json
+src/SJP.Schematic.Reporting/assets
+src/SJP.Schematic.Reporting/package-lock.json
 
 # MSTest test Results
 [Tt]est[Rr]esult*/
