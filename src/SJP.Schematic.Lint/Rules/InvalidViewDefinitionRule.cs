@@ -46,12 +46,20 @@ namespace SJP.Schematic.Lint.Rules
             }
             catch
             {
-                var messageText = $"The view { view.Name } was unable to be queried. This may indicate an incorrect view definition.";
-                var ruleMessage = new RuleMessage(RuleTitle, Level, messageText);
-                return new[] { ruleMessage };
+                var message = BuildMessage(view.Name);
+                return new[] { message };
             }
         }
 
-        private const string RuleTitle = "Invalid view definition.";
+        protected virtual IRuleMessage BuildMessage(Identifier viewName)
+        {
+            if (viewName == null)
+                throw new ArgumentNullException(nameof(viewName));
+
+            var messageText = $"The view { viewName } was unable to be queried. This may indicate an incorrect view definition.";
+            return new RuleMessage(RuleTitle, Level, messageText);
+        }
+
+        protected static string RuleTitle { get; } = "Invalid view definition.";
     }
 }

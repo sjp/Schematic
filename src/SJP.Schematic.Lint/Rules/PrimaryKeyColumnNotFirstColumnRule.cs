@@ -42,12 +42,19 @@ namespace SJP.Schematic.Lint.Rules
             if (pkColumnName == firstColumnName)
                 return Enumerable.Empty<IRuleMessage>();
 
-            var messageText = $"The table { table.Name } has a primary key whose column is not the first column in the table.";
-            var ruleMessage = new RuleMessage(RuleTitle, Level, messageText);
-
-            return new[] { ruleMessage };
+            var message = BuildMessage(table.Name);
+            return new[] { message };
         }
 
-        private const string RuleTitle = "Table primary key whose only column is not the first column in the table.";
+        protected virtual IRuleMessage BuildMessage(Identifier tableName)
+        {
+            if (tableName == null)
+                throw new ArgumentNullException(nameof(tableName));
+
+            var messageText = $"The table { tableName } has a primary key whose column is not the first column in the table.";
+            return new RuleMessage(RuleTitle, Level, messageText);
+        }
+
+        protected static string RuleTitle { get; } = "Table primary key whose only column is not the first column in the table.";
     }
 }

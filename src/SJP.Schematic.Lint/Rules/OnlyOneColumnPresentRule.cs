@@ -29,14 +29,21 @@ namespace SJP.Schematic.Lint.Rules
             if (columnCount > 1)
                 return Enumerable.Empty<IRuleMessage>();
 
-            var messageText = columnCount == 0
-                ? $"The table { table.Name } has too few columns. It has no columns, consider adding more."
-                : $"The table { table.Name } has too few columns. It has { columnCount.ToString() } column, consider adding more.";
-            var ruleMessage = new RuleMessage(RuleTitle, Level, messageText);
-
-            return new[] { ruleMessage };
+            var message = BuildMessage(table.Name, columnCount);
+            return new[] { message };
         }
 
-        private const string RuleTitle = "Only one column present on table.";
+        protected virtual IRuleMessage BuildMessage(Identifier tableName, int columnCount)
+        {
+            if (tableName == null)
+                throw new ArgumentNullException(nameof(tableName));
+
+            var messageText = columnCount == 0
+                ? $"The table { tableName } has too few columns. It has no columns, consider adding more."
+                : $"The table { tableName } has too few columns. It has one column, consider adding more.";
+            return new RuleMessage(RuleTitle, Level, messageText);
+        }
+
+        protected static string RuleTitle { get; } = "Only one column present on table.";
     }
 }

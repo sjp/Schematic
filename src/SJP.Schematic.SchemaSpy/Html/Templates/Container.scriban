@@ -26,6 +26,7 @@
             <li><a href="{{ RootPath }}indexes.html" title="Useful for diagnosing error messages that just give an index name or number">Indexes</a></li>
             <li><a href="{{ RootPath }}relationships.html" title="Diagram of table relationships">Relationships</a></li>
             <li><a href="{{ RootPath }}orphans.html" title="Tables with neither parents nor children">Orphan&nbsp;Tables</a></li>
+            <li><a href="{{ RootPath }}lint.html" title="Potential issues detected in the database">Lint</a></li>
           </ul>
         </div>
       </div>

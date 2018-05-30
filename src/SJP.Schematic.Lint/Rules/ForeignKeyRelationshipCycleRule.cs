@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using SJP.Schematic.Core;
+using SJP.Schematic.Core.Extensions;
 using SJP.Schematic.Core.Utilities;
 
 namespace SJP.Schematic.Lint.Rules
@@ -35,11 +36,19 @@ namespace SJP.Schematic.Lint.Rules
             }
             catch (Exception ex)
             {
-                var ruleMessage = new RuleMessage(RuleTitle, Level, ex.Message);
-                return new[] { ruleMessage };
+                var message = BuildMessage(ex.Message);
+                return new[] { message };
             }
         }
 
-        private const string RuleTitle = "Foreign key relationships contain a cycle.";
+        protected virtual IRuleMessage BuildMessage(string exceptionMessage)
+        {
+            if (exceptionMessage.IsNullOrWhiteSpace())
+                throw new ArgumentNullException(nameof(exceptionMessage));
+
+            return new RuleMessage(RuleTitle, Level, exceptionMessage);
+        }
+
+        protected static string RuleTitle { get; } = "Foreign key relationships contain a cycle.";
     }
 }

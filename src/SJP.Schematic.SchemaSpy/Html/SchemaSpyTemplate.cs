@@ -7,6 +7,7 @@
         Constraints,
         Container,
         Indexes,
+        Lint,
         Main,
         Orphans,
         Relationships,

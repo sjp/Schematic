@@ -31,12 +31,19 @@ namespace SJP.Schematic.Lint.Rules
             if (table.ChildKeys.Any())
                 return Enumerable.Empty<IRuleMessage>();
 
-            var messageText = $"The table { table.Name } is not related to any other table. Consider adding relations or removing the table.";
-            var ruleMessage = new RuleMessage(RuleTitle, Level, messageText);
-
-            return new[] { ruleMessage };
+            var message = BuildMessage(table.Name);
+            return new[] { message };
         }
 
-        private const string RuleTitle = "No relations on a table. The table is orphaned.";
+        protected virtual IRuleMessage BuildMessage(Identifier tableName)
+        {
+            if (tableName == null)
+                throw new ArgumentNullException(nameof(tableName));
+
+            var messageText = $"The table { tableName } is not related to any other table. Consider adding relations or removing the table.";
+            return new RuleMessage(RuleTitle, Level, messageText);
+        }
+
+        protected static string RuleTitle { get; } = "No relations on a table. The table is orphaned.";
     }
 }

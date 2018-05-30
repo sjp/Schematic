@@ -39,8 +39,8 @@ namespace SJP.Schematic.Lint.Rules
                 var isIndexedKey = indexes.Select(i => i.Columns).Any(ic => ColumnsHaveIndex(columns, ic));
                 if (!isIndexedKey)
                 {
-                    var messageText = BuildMessage(table.Name, foreignKey.Name, foreignKey.Columns);
-                    var message = new RuleMessage(RuleTitle, Level, messageText);
+                    var columnNames = columns.Select(c => c.Name.LocalName).ToList();
+                    var message = BuildMessage(foreignKey.Name?.LocalName, table.Name, columnNames);
                     result.Add(message);
                 }
             }
@@ -69,37 +69,38 @@ namespace SJP.Schematic.Lint.Rules
             return columnNames.SequenceEqual(indexColumnNames, comparer);
         }
 
-        protected static string BuildMessage(Identifier tableName, Identifier foreignKeyName, IEnumerable<IDatabaseColumn> columns)
+        protected virtual IRuleMessage BuildMessage(string foreignKeyName, Identifier tableName, IEnumerable<string> columnNames)
         {
             if (tableName == null)
                 throw new ArgumentNullException(nameof(tableName));
-            if (columns == null || columns.Empty())
-                throw new ArgumentNullException(nameof(columns));
+            if (columnNames == null || columnNames.Empty())
+                throw new ArgumentNullException(nameof(columnNames));
 
             var builder = new StringBuilder("The table ")
                 .Append(tableName.ToString())
                 .Append(" has a foreign key ");
 
-            if (foreignKeyName != null)
+            if (!foreignKeyName.IsNullOrWhiteSpace())
             {
                 builder.Append("'")
-                    .Append(foreignKeyName.LocalName)
+                    .Append(foreignKeyName)
                     .Append("' ");
             }
 
             builder.Append("which is missing an index on the column");
 
             // plural check
-            if (columns.Skip(1).Any())
+            if (columnNames.Skip(1).Any())
                 builder.Append("s");
 
-            var columnNames = columns.Select(c => c.Name.LocalName).Join(", ");
+            var joinedColumnNames = columnNames.Join(", ");
             builder.Append(" ")
-                .Append(columnNames);
+                .Append(joinedColumnNames);
 
-            return builder.ToString();
+            var messageText = builder.ToString();
+            return new RuleMessage(RuleTitle, Level, messageText);
         }
 
-        private const string RuleTitle = "Indexes missing on foreign key.";
+        protected static string RuleTitle { get; } = "Indexes missing on foreign key.";
     }
 }

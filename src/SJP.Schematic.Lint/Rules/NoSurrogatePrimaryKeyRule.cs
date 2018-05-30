@@ -29,12 +29,19 @@ namespace SJP.Schematic.Lint.Rules
             if (primaryKey == null || primaryKey.Columns.Count() == 1)
                 return Enumerable.Empty<IRuleMessage>();
 
-            var messageText = $"The table { table.Name } has a multi-column primary key. Consider introducing a surrogate primary key.";
-            var ruleMessage = new RuleMessage(RuleTitle, Level, messageText);
-
-            return new[] { ruleMessage };
+            var message = BuildMessage(table.Name);
+            return new[] { message };
         }
 
-        private const string RuleTitle = "No surrogate primary key present on table.";
+        protected virtual IRuleMessage BuildMessage(Identifier tableName)
+        {
+            if (tableName == null)
+                throw new ArgumentNullException(nameof(tableName));
+
+            var messageText = $"The table { tableName } has a multi-column primary key. Consider introducing a surrogate primary key.";
+            return new RuleMessage(RuleTitle, Level, messageText);
+        }
+
+        protected static string RuleTitle { get; } = "No surrogate primary key present on table.";
     }
 }

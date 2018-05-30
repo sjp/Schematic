@@ -9,6 +9,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\SJP.Schematic.Core\SJP.Schematic.Core.csproj" />
+    <ProjectReference Include="..\SJP.Schematic.Lint\SJP.Schematic.Lint.csproj" />
   </ItemGroup>
 
   <ItemGroup>
@@ -21,10 +22,6 @@
   <ItemGroup>
     <EmbeddedResource Include="Html\Templates\*.scriban" />
     <EmbeddedResource Include="assets\**\*.*" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <None Remove="Html\Templates\View.scriban" />
   </ItemGroup>
 
   <Target Name="NpmClean" BeforeTargets="BeforeClean">

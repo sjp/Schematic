@@ -33,10 +33,8 @@ namespace SJP.Schematic.Lint.Rules
             if (pkColumns.Count == 1 && ColumnIsInteger(pkColumns[0]))
                 return Enumerable.Empty<IRuleMessage>();
 
-            var messageText = $"The table { table.Name } has a primary key which is not a single-column whose type is an integer.";
-            var ruleMessage = new RuleMessage(RuleTitle, Level, messageText);
-
-            return new[] { ruleMessage };
+            var message = BuildMessage(table.Name);
+            return new[] { message };
         }
 
         protected static bool ColumnIsInteger(IDatabaseColumn column)
@@ -48,6 +46,15 @@ namespace SJP.Schematic.Lint.Rules
             return integerTypes.Contains(column.Type.DataType);
         }
 
-        private const string RuleTitle = "Table contains a non-integer primary key.";
+        protected virtual IRuleMessage BuildMessage(Identifier tableName)
+        {
+            if (tableName == null)
+                throw new ArgumentNullException(nameof(tableName));
+
+            var messageText = $"The table { tableName } has a primary key which is not a single-column whose type is an integer.";
+            return new RuleMessage(RuleTitle, Level, messageText);
+        }
+
+        protected static string RuleTitle { get; } = "Table contains a non-integer primary key.";
     }
 }

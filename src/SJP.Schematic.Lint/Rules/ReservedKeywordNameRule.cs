@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using SJP.Schematic.Core;
+using SJP.Schematic.Core.Extensions;
 
 namespace SJP.Schematic.Lint.Rules
 {
@@ -40,9 +41,8 @@ namespace SJP.Schematic.Lint.Rules
             var tableNameIsKeyword = dialect.IsReservedKeyword(table.Name.LocalName);
             if (tableNameIsKeyword)
             {
-                var messageText = $"The table '{ table.Name }' is also a database keyword and may require quoting to be used. Consider renaming to a non-keyword name.";
-                var ruleMessage = new RuleMessage(RuleTitle, Level, messageText);
-                result.Add(ruleMessage);
+                var message = BuildTableMessage(table.Name);
+                result.Add(message);
             }
 
             var keywordColumnNames = table.Columns
@@ -51,9 +51,8 @@ namespace SJP.Schematic.Lint.Rules
 
             foreach (var kwColumnName in keywordColumnNames)
             {
-                var messageText = $"The table '{ table.Name }' contains a column '{ kwColumnName }' which is also a database keyword and may require quoting to be used. Consider renaming to a non-keyword name.";
-                var ruleMessage = new RuleMessage(RuleTitle, Level, messageText);
-                result.Add(ruleMessage);
+                var message = BuildTableColumnMessage(table.Name, kwColumnName);
+                result.Add(message);
             }
 
             return result;
@@ -71,9 +70,8 @@ namespace SJP.Schematic.Lint.Rules
             var viewNameIsKeyword = dialect.IsReservedKeyword(view.Name.LocalName);
             if (viewNameIsKeyword)
             {
-                var messageText = $"The view '{ view.Name }' is also a database keyword and may require quoting to be used. Consider renaming to a non-keyword name.";
-                var ruleMessage = new RuleMessage(RuleTitle, Level, messageText);
-                result.Add(ruleMessage);
+                var message = BuildViewMessage(view.Name);
+                result.Add(message);
             }
 
             var keywordColumnNames = view.Columns
@@ -82,9 +80,8 @@ namespace SJP.Schematic.Lint.Rules
 
             foreach (var kwColumnName in keywordColumnNames)
             {
-                var messageText = $"The view '{ view.Name }' contains a column '{ kwColumnName }' which is also a database keyword and may require quoting to be used. Consider renaming to a non-keyword name.";
-                var ruleMessage = new RuleMessage(RuleTitle, Level, messageText);
-                result.Add(ruleMessage);
+                var message = BuildViewColumnMessage(view.Name, kwColumnName);
+                result.Add(message);
             }
 
             return result;
@@ -102,9 +99,8 @@ namespace SJP.Schematic.Lint.Rules
             var sequenceNameIsKeyword = dialect.IsReservedKeyword(sequence.Name.LocalName);
             if (sequenceNameIsKeyword)
             {
-                var messageText = $"The sequence '{ sequence.Name }' is also a database keyword and may require quoting to be used. Consider renaming to a non-keyword name.";
-                var ruleMessage = new RuleMessage(RuleTitle, Level, messageText);
-                result.Add(ruleMessage);
+                var message = BuildSequenceMessage(sequence.Name);
+                result.Add(message);
             }
 
             return result;
@@ -122,14 +118,71 @@ namespace SJP.Schematic.Lint.Rules
             var synonymNameIsKeyword = dialect.IsReservedKeyword(synonym.Name.LocalName);
             if (synonymNameIsKeyword)
             {
-                var messageText = $"The synonym '{ synonym.Name }' is also a database keyword and may require quoting to be used. Consider renaming to a non-keyword name.";
-                var ruleMessage = new RuleMessage(RuleTitle, Level, messageText);
-                result.Add(ruleMessage);
+                var message = BuildSynonymMessage(synonym.Name);
+                result.Add(message);
             }
 
             return result;
         }
 
-        private const string RuleTitle = "Object name is a reserved keyword.";
+        protected virtual IRuleMessage BuildTableMessage(Identifier tableName)
+        {
+            if (tableName == null)
+                throw new ArgumentNullException(nameof(tableName));
+
+            var messageText = $"The table '{ tableName }' is also a database keyword and may require quoting to be used. Consider renaming to a non-keyword name.";
+            return new RuleMessage(RuleTitle, Level, messageText);
+        }
+
+        protected virtual IRuleMessage BuildTableColumnMessage(Identifier tableName, string columnName)
+        {
+            if (tableName == null)
+                throw new ArgumentNullException(nameof(tableName));
+            if (columnName.IsNullOrWhiteSpace())
+                throw new ArgumentNullException(nameof(columnName));
+
+            var messageText = $"The table '{ tableName }' contains a column '{ columnName }' which is also a database keyword and may require quoting to be used. Consider renaming to a non-keyword name.";
+            return new RuleMessage(RuleTitle, Level, messageText);
+        }
+
+        protected virtual IRuleMessage BuildViewMessage(Identifier viewName)
+        {
+            if (viewName == null)
+                throw new ArgumentNullException(nameof(viewName));
+
+            var messageText = $"The view '{ viewName }' is also a database keyword and may require quoting to be used. Consider renaming to a non-keyword name.";
+            return new RuleMessage(RuleTitle, Level, messageText);
+        }
+
+        protected virtual IRuleMessage BuildViewColumnMessage(Identifier viewName, string columnName)
+        {
+            if (viewName == null)
+                throw new ArgumentNullException(nameof(viewName));
+            if (columnName.IsNullOrWhiteSpace())
+                throw new ArgumentNullException(nameof(columnName));
+
+            var messageText = $"The view '{ viewName }' contains a column '{ columnName }' which is also a database keyword and may require quoting to be used. Consider renaming to a non-keyword name.";
+            return new RuleMessage(RuleTitle, Level, messageText);
+        }
+
+        protected virtual IRuleMessage BuildSequenceMessage(Identifier sequenceName)
+        {
+            if (sequenceName == null)
+                throw new ArgumentNullException(nameof(sequenceName));
+
+            var messageText = $"The sequence '{ sequenceName }' is also a database keyword and may require quoting to be used. Consider renaming to a non-keyword name.";
+            return new RuleMessage(RuleTitle, Level, messageText);
+        }
+
+        protected virtual IRuleMessage BuildSynonymMessage(Identifier synonymName)
+        {
+            if (synonymName == null)
+                throw new ArgumentNullException(nameof(synonymName));
+
+            var messageText = $"The synonym '{ synonymName }' is also a database keyword and may require quoting to be used. Consider renaming to a non-keyword name.";
+            return new RuleMessage(RuleTitle, Level, messageText);
+        }
+
+        protected static string RuleTitle { get; } = "Object name is a reserved keyword.";
     }
 }

@@ -4,6 +4,7 @@ using System.Data;
 using System.Linq;
 using Dapper;
 using SJP.Schematic.Core;
+using SJP.Schematic.Core.Extensions;
 
 namespace SJP.Schematic.Lint.Rules
 {
@@ -47,10 +48,8 @@ namespace SJP.Schematic.Lint.Rules
                 if (nullableRowCount != tableRowCount)
                     continue;
 
-                var messageText = $"The table '{ table.Name }' has a nullable column '{ nullableColumn.Name.LocalName }' whose values are always null. Consider removing the column.";
-                var ruleMessage = new RuleMessage(RuleTitle, Level, messageText);
-
-                result.Add(ruleMessage);
+                var message = BuildMessage(table.Name, nullableColumn.Name.LocalName);
+                result.Add(message);
             }
 
             return result;
@@ -80,6 +79,17 @@ namespace SJP.Schematic.Lint.Rules
             return Connection.ExecuteScalar<long>(sql);
         }
 
-        private const string RuleTitle = "No not-null values exist for a nullable column.";
+        protected virtual IRuleMessage BuildMessage(Identifier tableName, string columnName)
+        {
+            if (tableName == null)
+                throw new ArgumentNullException(nameof(tableName));
+            if (columnName.IsNullOrWhiteSpace())
+                throw new ArgumentNullException(nameof(columnName));
+
+            var messageText = $"The table '{ tableName }' has a nullable column '{ columnName }' whose values are always null. Consider removing the column.";
+            return new RuleMessage(RuleTitle, Level, messageText);
+        }
+
+        protected static string RuleTitle { get; } = "No not-null values exist for a nullable column.";
     }
 }

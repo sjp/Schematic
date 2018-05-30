@@ -48,26 +48,33 @@ namespace SJP.Schematic.Lint.Rules
                     continue;
 
                 var fkName = foreignKey.ChildKey.Name?.ToString() ?? string.Empty;
-
-                var builder = new StringBuilder("A foreign key");
-                if (!fkName.IsNullOrEmpty())
-                {
-                    builder.Append(" '")
-                        .Append(fkName)
-                        .Append("'");
-                }
-
-                builder.Append(" on ")
-                    .Append(foreignKey.ChildKey.Table.Name)
-                    .Append(" contains the same column set as the target key.");
-
-                var ruleMessage = new RuleMessage(RuleTitle, Level, builder.ToString());
-                result.Add(ruleMessage);
+                var message = BuildMessage(fkName, foreignKey.ChildKey.Table.Name);
+                result.Add(message);
             }
 
             return result;
         }
 
-        private const string RuleTitle = "Foreign key relationships contains the same columns as the target key.";
+        protected virtual IRuleMessage BuildMessage(string foreignKeyName, Identifier childTableName)
+        {
+            if (childTableName == null)
+                throw new ArgumentNullException(nameof(childTableName));
+
+            var builder = new StringBuilder("A foreign key");
+            if (!foreignKeyName.IsNullOrWhiteSpace())
+            {
+                builder.Append(" '")
+                    .Append(foreignKeyName)
+                    .Append("'");
+            }
+
+            builder.Append(" on ")
+                .Append(childTableName)
+                .Append(" contains the same column set as the target key.");
+
+            return new RuleMessage(RuleTitle, Level, builder.ToString());
+        }
+
+        protected static string RuleTitle { get; } = "Foreign key relationships contains the same columns as the target key.";
     }
 }

@@ -35,12 +35,19 @@ namespace SJP.Schematic.Lint.Rules
             if (columnCount <= ColumnLimit)
                 return Enumerable.Empty<IRuleMessage>();
 
-            var messageText = $"The table { table.Name } has too many columns. It has { columnCount.ToString() } columns.";
-            var ruleMessage = new RuleMessage(RuleTitle, Level, messageText);
-
-            return new[] { ruleMessage };
+            var message = BuildMessage(table.Name, columnCount);
+            return new[] { message };
         }
 
-        private const string RuleTitle = "Too many columns present on the table.";
+        protected virtual IRuleMessage BuildMessage(Identifier tableName, int columnCount)
+        {
+            if (tableName == null)
+                throw new ArgumentNullException(nameof(tableName));
+
+            var messageText = $"The table { tableName } has too many columns. It has { columnCount.ToString() } columns.";
+            return new RuleMessage(RuleTitle, Level, messageText);
+        }
+
+        protected static string RuleTitle { get; } = "Too many columns present on the table.";
     }
 }

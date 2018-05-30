@@ -29,12 +29,19 @@ namespace SJP.Schematic.Lint.Rules
             if (containsNotNullColumns)
                 return Enumerable.Empty<IRuleMessage>();
 
-            var messageText = $"The table '{ table.Name }' has no not-nullable columns present. Consider adding one to ensure that each record contains data.";
-            var ruleMessage = new RuleMessage(RuleTitle, Level, messageText);
-
-            return new[] { ruleMessage };
+            var message = BuildMessage(table.Name);
+            return new[] { message };
         }
 
-        private const string RuleTitle = "No not-null columns present on the table.";
+        protected virtual IRuleMessage BuildMessage(Identifier tableName)
+        {
+            if (tableName == null)
+                throw new ArgumentNullException(nameof(tableName));
+
+            var messageText = $"The table '{ tableName }' has no not-nullable columns present. Consider adding one to ensure that each record contains data.";
+            return new RuleMessage(RuleTitle, Level, messageText);
+        }
+
+        protected static string RuleTitle { get; } = "No not-null columns present on the table.";
     }
 }

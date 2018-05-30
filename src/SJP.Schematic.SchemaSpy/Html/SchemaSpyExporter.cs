@@ -6,6 +6,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using SJP.Schematic.Core;
 using SJP.Schematic.Core.Extensions;
+using SJP.Schematic.SchemaSpy.Html.Lint;
 using SJP.Schematic.SchemaSpy.Html.ViewModels;
 using SJP.Schematic.SchemaSpy.Html.ViewModels.Mappers;
 
@@ -134,6 +135,15 @@ namespace SJP.Schematic.SchemaSpy.Html
             };
             var renderedIndexesCont = _renderer.RenderTemplate(indexesCont);
             File.WriteAllText(Path.Combine(ExportDirectory.FullName, "indexes.html"), renderedIndexesCont);
+
+            var lintContent = RenderLint();
+            var lintCont = new Container
+            {
+                Content = lintContent,
+                DatabaseName = Database.DatabaseName
+            };
+            var renderedLintCont = _renderer.RenderTemplate(lintCont);
+            File.WriteAllText(Path.Combine(ExportDirectory.FullName, "lint.html"), renderedLintCont);
         }
 
         public async Task ExportAsync()
@@ -239,6 +249,15 @@ namespace SJP.Schematic.SchemaSpy.Html
             };
             var renderedIndexesCont = _renderer.RenderTemplate(indexesCont);
             File.WriteAllText(Path.Combine(ExportDirectory.FullName, "indexes.html"), renderedIndexesCont);
+
+            var lintContent = await RenderLintAsync().ConfigureAwait(false);
+            var lintCont = new Container
+            {
+                Content = lintContent,
+                DatabaseName = Database.DatabaseName
+            };
+            var renderedLintCont = _renderer.RenderTemplate(lintCont);
+            File.WriteAllText(Path.Combine(ExportDirectory.FullName, "lint.html"), renderedLintCont);
         }
 
         private string RenderTable(IRelationalDatabaseTable table)
@@ -670,6 +689,34 @@ namespace SJP.Schematic.SchemaSpy.Html
 
             var templateParameter = new Indexes { TableIndexes = indexes };
             return _renderer.RenderTemplate(templateParameter);
+        }
+
+        private string RenderLint()
+        {
+            var linter = new DatabaseLinter(Connection, Database);
+            var messages = linter.AnalyzeDatabase();
+
+            var groupedRules = messages
+                .GroupBy(m => m.Title)
+                .Select(m => new LintResults.LintRule(m.Key, m.Select(r => r.Message).ToList()))
+                .ToList();
+
+            var templateParameter = new LintResults { LintRules = groupedRules };
+            return _renderer.RenderTemplate(templateParameter);
+        }
+
+        private Task<string> RenderLintAsync()
+        {
+            var linter = new DatabaseLinter(Connection, Database);
+            var messages = linter.AnalyzeDatabase();
+
+            var groupedRules = messages
+                .GroupBy(m => m.Title)
+                .Select(m => new LintResults.LintRule(m.Key, m.Select(r => r.Message).ToList()))
+                .ToList();
+
+            var templateParameter = new LintResults { LintRules = groupedRules };
+            return Task.FromResult(_renderer.RenderTemplate(templateParameter));
         }
 
         private static readonly IHtmlFormatter _renderer = new HtmlFormatter(new TemplateProvider());

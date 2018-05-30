@@ -28,12 +28,19 @@ namespace SJP.Schematic.Lint.Rules
             if (table.PrimaryKey != null || table.UniqueKeys.Any())
                 return Enumerable.Empty<IRuleMessage>();
 
-            var messageText = $"The table { table.Name } has no candidate (primary or unique) keys. Consider adding one to ensure records are unique.";
-            var ruleMessage = new RuleMessage(RuleTitle, Level, messageText);
-
+            var ruleMessage = BuildMessage(table.Name);
             return new[] { ruleMessage };
         }
 
-        private const string RuleTitle = "Table missing a candidate (primary or unique) key.";
+        protected virtual IRuleMessage BuildMessage(Identifier tableName)
+        {
+            if (tableName == null)
+                throw new ArgumentNullException(nameof(tableName));
+
+            var messageText = $"The table { tableName } has no candidate (primary or unique) keys. Consider adding one to ensure records are unique.";
+            return new RuleMessage(RuleTitle, Level, messageText);
+        }
+
+        protected static string RuleTitle { get; } = "Table missing a candidate (primary or unique) key.";
     }
 }

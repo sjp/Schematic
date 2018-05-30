@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using SJP.Schematic.Core;
+using SJP.Schematic.Core.Extensions;
 
 namespace SJP.Schematic.Lint.Rules
 {
@@ -32,60 +33,126 @@ namespace SJP.Schematic.Lint.Rules
                 .Where(fk => !fk.IsEnabled);
             foreach (var foreignKey in disabledForeignKeys)
             {
-                var foreignKeyName = foreignKey.Name?.LocalName != null ? $" '{ foreignKey.Name.LocalName }'" : string.Empty;
-                var messageText = $"The table '{ table.Name }' contains a disabled foreign key{ foreignKeyName }. Consider enabling or removing the foreign key.";
-                var ruleMessage = new RuleMessage(RuleTitle, Level, messageText);
+                var ruleMessage = BuildDisabledForeignKeyMessage(table.Name, foreignKey.Name?.LocalName);
                 result.Add(ruleMessage);
             }
 
             var primaryKey = table.PrimaryKey;
             if (primaryKey != null && !primaryKey.IsEnabled)
             {
-                var uniqueKeyName = primaryKey.Name?.LocalName != null ? $" '{ primaryKey.Name.LocalName }'" : string.Empty;
-                var messageText = $"The table '{ table.Name }' contains a disabled primary key{ uniqueKeyName }. Consider enabling or removing the primary key.";
-                var ruleMessage = new RuleMessage(RuleTitle, Level, messageText);
+                var ruleMessage = BuildDisabledPrimaryKeyMessage(table.Name, primaryKey.Name?.LocalName);
                 result.Add(ruleMessage);
             }
 
             var disabledUniqueKeys = table.UniqueKeys.Where(uk => !uk.IsEnabled);
             foreach (var uniqueKey in disabledUniqueKeys)
             {
-                var uniqueKeyName = uniqueKey.Name?.LocalName != null ? $" '{ uniqueKey.Name.LocalName }'" : string.Empty;
-                var messageText = $"The table '{ table.Name }' contains a disabled unique key{ uniqueKeyName }. Consider enabling or removing the unique key.";
-                var ruleMessage = new RuleMessage(RuleTitle, Level, messageText);
+                var ruleMessage = BuildDisabledUniqueKeyMessage(table.Name, uniqueKey.Name?.LocalName);
                 result.Add(ruleMessage);
             }
 
             var disabledChecks = table.Checks.Where(ck => !ck.IsEnabled);
-            foreach (var checks in disabledChecks)
+            foreach (var check in disabledChecks)
             {
-                var checkName = checks.Name?.LocalName != null ? $" '{ checks.Name.LocalName }'" : string.Empty;
-                var messageText = $"The table '{ table.Name }' contains a disabled check constraint{ checkName }. Consider enabling or removing the check constraint.";
-                var ruleMessage = new RuleMessage(RuleTitle, Level, messageText);
+                var ruleMessage = BuildDisabledCheckConstraintMessage(table.Name, check.Name?.LocalName);
                 result.Add(ruleMessage);
             }
 
             var disabledIndexes = table.Indexes.Where(ix => !ix.IsEnabled);
             foreach (var index in disabledIndexes)
             {
-                var indexName = index.Name?.LocalName != null ? $" '{ index.Name.LocalName }'" : string.Empty;
-                var messageText = $"The table '{ table.Name }' contains a disabled index{ indexName }. Consider enabling or removing the index.";
-                var ruleMessage = new RuleMessage(RuleTitle, Level, messageText);
+                var ruleMessage = BuildDisabledIndexMessage(table.Name, index.Name?.LocalName);
                 result.Add(ruleMessage);
             }
 
             var disabledTriggers = table.Triggers.Where(uk => !uk.IsEnabled);
             foreach (var trigger in disabledTriggers)
             {
-                var triggerName = trigger.Name?.LocalName != null ? $" '{ trigger.Name.LocalName }'" : string.Empty;
-                var messageText = $"The table '{ table.Name }' contains a disabled trigger{ triggerName }. Consider enabling or removing the trigger.";
-                var ruleMessage = new RuleMessage(RuleTitle, Level, messageText);
+                var ruleMessage = BuildDisabledTriggerMessage(table.Name, trigger.Name?.LocalName);
                 result.Add(ruleMessage);
             }
 
             return result;
         }
 
-        private const string RuleTitle = "Disabled constraint, index or triggers present on a table.";
+        protected virtual IRuleMessage BuildDisabledForeignKeyMessage(Identifier tableName, string foreignKeyName)
+        {
+            if (tableName == null)
+                throw new ArgumentNullException(nameof(tableName));
+
+            var messageKeyName = !foreignKeyName.IsNullOrWhiteSpace()
+                ? " '" + foreignKeyName + "'"
+                : string.Empty;
+
+            var messageText = $"The table '{ tableName }' contains a disabled foreign key{ messageKeyName }. Consider enabling or removing the foreign key.";
+            return new RuleMessage(RuleTitle, Level, messageText);
+        }
+
+        protected virtual IRuleMessage BuildDisabledPrimaryKeyMessage(Identifier tableName, string primaryKeyName)
+        {
+            if (tableName == null)
+                throw new ArgumentNullException(nameof(tableName));
+
+            var messageKeyName = !primaryKeyName.IsNullOrWhiteSpace()
+                ? " '" + primaryKeyName + "'"
+                : string.Empty;
+
+            var messageText = $"The table '{ tableName }' contains a disabled primary key{ messageKeyName }. Consider enabling or removing the primary key.";
+            return new RuleMessage(RuleTitle, Level, messageText);
+        }
+
+        protected virtual IRuleMessage BuildDisabledUniqueKeyMessage(Identifier tableName, string uniqueKeyName)
+        {
+            if (tableName == null)
+                throw new ArgumentNullException(nameof(tableName));
+
+            var messageKeyName = !uniqueKeyName.IsNullOrWhiteSpace()
+                ? " '" + uniqueKeyName + "'"
+                : string.Empty;
+
+            var messageText = $"The table '{ tableName }' contains a disabled unique key{ messageKeyName }. Consider enabling or removing the unique key.";
+            return new RuleMessage(RuleTitle, Level, messageText);
+        }
+
+        protected virtual IRuleMessage BuildDisabledCheckConstraintMessage(Identifier tableName, string checkName)
+        {
+            if (tableName == null)
+                throw new ArgumentNullException(nameof(tableName));
+
+            var messageCheckName = !checkName.IsNullOrWhiteSpace()
+                ? " '" + checkName + "'"
+                : string.Empty;
+
+            var messageText = $"The table '{ tableName }' contains a disabled check constraint{ messageCheckName }. Consider enabling or removing the check constraint.";
+            return new RuleMessage(RuleTitle, Level, messageText);
+        }
+
+        protected virtual IRuleMessage BuildDisabledIndexMessage(Identifier tableName, string indexName)
+        {
+            if (tableName == null)
+                throw new ArgumentNullException(nameof(tableName));
+
+            var messageIndexName = !indexName.IsNullOrWhiteSpace()
+                ? " '" + indexName + "'"
+                : string.Empty;
+
+            var messageText = $"The table '{ tableName }' contains a disabled index{ messageIndexName }. Consider enabling or removing the index.";
+            return new RuleMessage(RuleTitle, Level, messageText);
+        }
+
+        protected virtual IRuleMessage BuildDisabledTriggerMessage(Identifier tableName, string triggerName)
+        {
+            if (tableName == null)
+                throw new ArgumentNullException(nameof(tableName));
+
+            var messageTriggerName = !triggerName.IsNullOrWhiteSpace()
+                ? " '" + triggerName + "'"
+                : string.Empty;
+
+            var messageText = $"The table '{ tableName }' contains a disabled trigger{ messageTriggerName }. Consider enabling or removing the trigger.";
+            return new RuleMessage(RuleTitle, Level, messageText);
+        }
+
+        protected static string RuleTitle { get; } = "Disabled constraint, index or triggers present on a table.";
     }
 }

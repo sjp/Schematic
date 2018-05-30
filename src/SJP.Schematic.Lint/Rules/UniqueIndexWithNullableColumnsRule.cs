@@ -43,43 +43,44 @@ namespace SJP.Schematic.Lint.Rules
                 if (nullableColumns.Count == 0)
                     continue;
 
-                var messageText = BuildMessage(table.Name, index.Name, nullableColumns);
-                var ruleMessage = new RuleMessage(RuleTitle, Level, messageText);
-                result.Add(ruleMessage);
+                var columnNames = nullableColumns.Select(c => c.Name.LocalName).ToList();
+                var message = BuildMessage(table.Name, index.Name?.LocalName, columnNames);
+                result.Add(message);
             }
 
             return result;
         }
 
-        protected static string BuildMessage(Identifier tableName, Identifier indexName, IEnumerable<IDatabaseColumn> nullableColumns)
+        protected virtual IRuleMessage BuildMessage(Identifier tableName, string indexName, IEnumerable<string> columnNames)
         {
             if (tableName == null)
                 throw new ArgumentNullException(nameof(tableName));
-            if (nullableColumns == null || nullableColumns.Empty())
-                throw new ArgumentNullException(nameof(nullableColumns));
+            if (columnNames == null || columnNames.Empty())
+                throw new ArgumentNullException(nameof(columnNames));
 
             var builder = new StringBuilder("The table ")
                 .Append(tableName.ToString())
                 .Append(" has a unique index ");
 
-            if (indexName != null)
+            if (!indexName.IsNullOrWhiteSpace())
             {
                 builder.Append("'")
-                    .Append(indexName.LocalName)
+                    .Append(indexName)
                     .Append("' ");
             }
 
-            var pluralText = nullableColumns.Skip(1).Any()
+            var pluralText = columnNames.Skip(1).Any()
                 ? "which contains nullable columns: "
                 : "which contains a nullable column: ";
             builder.Append(pluralText);
 
-            var columnNames = nullableColumns.Select(c => c.Name.LocalName).Join(", ");
-            builder.Append(columnNames);
+            var joinedColumnNames = columnNames.Join(", ");
+            builder.Append(joinedColumnNames);
 
-            return builder.ToString();
+            var messageText = builder.ToString();
+            return new RuleMessage(RuleTitle, Level, messageText);
         }
 
-        private const string RuleTitle = "Unique index contains nullable columns.";
+        protected static string RuleTitle { get; } = "Unique index contains nullable columns.";
     }
 }

@@ -46,9 +46,15 @@ namespace SJP.Schematic.Lint.Rules
                     var isPrefix = IsPrefixOf(indexColumnList, otherIndexColumnList);
                     if (isPrefix)
                     {
-                        var messageText = BuildMessage(table.Name, index, otherIndex);
-                        var ruleMessage = new RuleMessage(Title, Level, messageText);
-                        result.Add(ruleMessage);
+                        var redundantIndexColumns = index.Columns
+                            .SelectMany(c => c.DependentColumns)
+                            .Select(c => c.Name.LocalName);
+                        var otherIndexColumns = otherIndex.Columns
+                            .SelectMany(c => c.DependentColumns)
+                            .Select(c => c.Name.LocalName);
+
+                        var message = BuildMessage(table.Name, index.Name.LocalName, redundantIndexColumns, otherIndex.Name.LocalName, otherIndexColumns);
+                        result.Add(message);
                     }
                 }
             }
@@ -80,39 +86,35 @@ namespace SJP.Schematic.Lint.Rules
             return prefixSetList.SequenceEqual(superSetList);
         }
 
-        protected static string BuildMessage(Identifier tableName, IDatabaseTableIndex redundantIndex, IDatabaseTableIndex otherIndex)
+        protected virtual IRuleMessage BuildMessage(Identifier tableName, string indexName, IEnumerable<string> redundantIndexColumnNames, string otherIndexName, IEnumerable<string> otherIndexColumnNames)
         {
             if (tableName == null)
                 throw new ArgumentNullException(nameof(tableName));
-            if (redundantIndex == null)
-                throw new ArgumentNullException(nameof(redundantIndex));
-            if (otherIndex == null)
-                throw new ArgumentNullException(nameof(otherIndex));
-
-            var redundantIndexColumns = redundantIndex.Columns
-                .SelectMany(c => c.DependentColumns)
-                .Select(c => c.Name.LocalName)
-                .Join(", ");
-            var otherIndexColumns = otherIndex.Columns
-                .SelectMany(c => c.DependentColumns)
-                .Select(c => c.Name.LocalName)
-                .Join(", ");
+            if (indexName.IsNullOrWhiteSpace())
+                throw new ArgumentNullException(nameof(indexName));
+            if (redundantIndexColumnNames == null || redundantIndexColumnNames.Empty())
+                throw new ArgumentNullException(nameof(redundantIndexColumnNames));
+            if (otherIndexName.IsNullOrWhiteSpace())
+                throw new ArgumentNullException(nameof(otherIndexName));
+            if (otherIndexColumnNames == null || otherIndexColumnNames.Empty())
+                throw new ArgumentNullException(nameof(otherIndexColumnNames));
 
             var builder = new StringBuilder("The table ")
-                .Append(tableName.ToString())
+                .Append(tableName)
                 .Append(" has an index '")
-                .Append(redundantIndex.Name.LocalName)
+                .Append(indexName)
                 .Append("' which may be redundant, as its column set (")
-                .Append(redundantIndexColumns)
+                .Append(redundantIndexColumnNames.Join(", "))
                 .Append(") is the prefix of another index '")
-                .Append(otherIndex.Name.LocalName)
+                .Append(otherIndexName)
                 .Append("' (")
-                .Append(otherIndexColumns)
+                .Append(otherIndexColumnNames.Join(", "))
                 .Append(").");
 
-            return builder.ToString();
+            var messageText = builder.ToString();
+            return new RuleMessage(RuleTitle, Level, messageText);
         }
 
-        private const string RuleTitle = "Redundant indexes on a table.";
+        protected static string RuleTitle { get; } = "Redundant indexes on a table.";
     }
 }

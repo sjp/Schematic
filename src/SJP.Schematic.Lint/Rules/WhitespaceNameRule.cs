@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using SJP.Schematic.Core;
+using SJP.Schematic.Core.Extensions;
 
 namespace SJP.Schematic.Lint.Rules
 {
@@ -34,9 +35,8 @@ namespace SJP.Schematic.Lint.Rules
             var tableNameHasWs = HasWhiteSpace(table.Name.LocalName);
             if (tableNameHasWs)
             {
-                var messageText = $"The table '{ table.Name }' contains whitespace and requires quoting to be used. Consider renaming to remove any whitespace.";
-                var ruleMessage = new RuleMessage(RuleTitle, Level, messageText);
-                result.Add(ruleMessage);
+                var message = BuildTableMessage(table.Name);
+                result.Add(message);
             }
 
             var whiteSpaceColumnNames = table.Columns
@@ -45,9 +45,8 @@ namespace SJP.Schematic.Lint.Rules
 
             foreach (var wsColumnName in whiteSpaceColumnNames)
             {
-                var messageText = $"The table '{ table.Name }' contains a column '{ wsColumnName }' which contains whitespace and requires quoting to be used. Consider renaming to remove any whitespace.";
-                var ruleMessage = new RuleMessage(RuleTitle, Level, messageText);
-                result.Add(ruleMessage);
+                var message = BuildTableColumnMessage(table.Name, wsColumnName);
+                result.Add(message);
             }
 
             return result;
@@ -63,9 +62,8 @@ namespace SJP.Schematic.Lint.Rules
             var viewNameHasWs = HasWhiteSpace(view.Name.LocalName);
             if (viewNameHasWs)
             {
-                var messageText = $"The view '{ view.Name }' contains whitespace and requires quoting to be used. Consider renaming to remove any whitespace.";
-                var ruleMessage = new RuleMessage(RuleTitle, Level, messageText);
-                result.Add(ruleMessage);
+                var message = BuildViewMessage(view.Name);
+                result.Add(message);
             }
 
             var whiteSpaceColumnNames = view.Columns
@@ -74,9 +72,8 @@ namespace SJP.Schematic.Lint.Rules
 
             foreach (var wsColumnName in whiteSpaceColumnNames)
             {
-                var messageText = $"The view '{ view.Name }' contains a column '{ wsColumnName }' which contains whitespace and requires quoting to be used. Consider renaming to remove any whitespace.";
-                var ruleMessage = new RuleMessage(RuleTitle, Level, messageText);
-                result.Add(ruleMessage);
+                var message = BuildViewColumnMessage(view.Name, wsColumnName);
+                result.Add(message);
             }
 
             return result;
@@ -92,9 +89,8 @@ namespace SJP.Schematic.Lint.Rules
             var sequenceNameHasWs = HasWhiteSpace(sequence.Name.LocalName);
             if (sequenceNameHasWs)
             {
-                var messageText = $"The sequence '{ sequence.Name }' contains whitespace and requires quoting to be used. Consider renaming to remove any whitespace.";
-                var ruleMessage = new RuleMessage(RuleTitle, Level, messageText);
-                result.Add(ruleMessage);
+                var message = BuildSequenceMessage(sequence.Name);
+                result.Add(message);
             }
 
             return result;
@@ -110,9 +106,8 @@ namespace SJP.Schematic.Lint.Rules
             var synonymNameHasWs = HasWhiteSpace(synonym.Name.LocalName);
             if (synonymNameHasWs)
             {
-                var messageText = $"The synonym '{ synonym.Name }' contains whitespace and requires quoting to be used. Consider renaming to remove any whitespace.";
-                var ruleMessage = new RuleMessage(RuleTitle, Level, messageText);
-                result.Add(ruleMessage);
+                var message = BuildSynonymMessage(synonym.Name);
+                result.Add(message);
             }
 
             return result;
@@ -126,6 +121,64 @@ namespace SJP.Schematic.Lint.Rules
             return input.Any(char.IsWhiteSpace);
         }
 
-        private const string RuleTitle = "Whitespace present in object name.";
+        protected virtual IRuleMessage BuildTableMessage(Identifier tableName)
+        {
+            if (tableName == null)
+                throw new ArgumentNullException(nameof(tableName));
+
+            var messageText = $"The table '{ tableName }' contains whitespace and requires quoting to be used. Consider renaming to remove any whitespace.";
+            return new RuleMessage(RuleTitle, Level, messageText);
+        }
+
+        protected virtual IRuleMessage BuildTableColumnMessage(Identifier tableName, string columnName)
+        {
+            if (tableName == null)
+                throw new ArgumentNullException(nameof(tableName));
+            if (columnName.IsNullOrWhiteSpace())
+                throw new ArgumentNullException(nameof(columnName));
+
+            var messageText = $"The table '{ tableName }' contains a column '{ columnName }' which contains whitespace and requires quoting to be used. Consider renaming to remove any whitespace.";
+            return new RuleMessage(RuleTitle, Level, messageText);
+        }
+
+        protected virtual IRuleMessage BuildViewMessage(Identifier viewName)
+        {
+            if (viewName == null)
+                throw new ArgumentNullException(nameof(viewName));
+
+            var messageText = $"The view '{ viewName }' contains whitespace and requires quoting to be used. Consider renaming to remove any whitespace.";
+            return new RuleMessage(RuleTitle, Level, messageText);
+        }
+
+        protected virtual IRuleMessage BuildViewColumnMessage(Identifier viewName, string columnName)
+        {
+            if (viewName == null)
+                throw new ArgumentNullException(nameof(viewName));
+            if (columnName.IsNullOrWhiteSpace())
+                throw new ArgumentNullException(nameof(columnName));
+
+            var messageText = $"The view '{ viewName }' contains a column '{ columnName }' which contains whitespace and requires quoting to be used. Consider renaming to remove any whitespace.";
+            return new RuleMessage(RuleTitle, Level, messageText);
+        }
+
+        protected virtual IRuleMessage BuildSequenceMessage(Identifier sequenceName)
+        {
+            if (sequenceName == null)
+                throw new ArgumentNullException(nameof(sequenceName));
+
+            var messageText = $"The sequence '{ sequenceName }' contains whitespace and requires quoting to be used. Consider renaming to remove any whitespace.";
+            return new RuleMessage(RuleTitle, Level, messageText);
+        }
+
+        protected virtual IRuleMessage BuildSynonymMessage(Identifier synonymName)
+        {
+            if (synonymName == null)
+                throw new ArgumentNullException(nameof(synonymName));
+
+            var messageText = $"The synonym '{ synonymName }' contains whitespace and requires quoting to be used. Consider renaming to remove any whitespace.";
+            return new RuleMessage(RuleTitle, Level, messageText);
+        }
+
+        protected static string RuleTitle { get; } = "Whitespace present in object name.";
     }
 }
