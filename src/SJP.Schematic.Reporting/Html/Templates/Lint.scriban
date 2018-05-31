@@ -1,9 +1,15 @@
 <section class="content-header">
   <h1>Lint Results</h1>
   <br>
+  {{ if LintRulesCount > 0 }}
   <div class="callout callout-warning">
     <p>Issues that might require correcting on about your database and schema.</p>
   </div>
+  {{ else }}
+  <div class="callout callout-success">
+    <p>No issues detected!</p>
+  </div>
+  {{ end }}
 </section>
 <section class="content">
   {{ for lintRule in LintRules }}
