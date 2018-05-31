@@ -30,7 +30,7 @@ namespace SJP.Schematic.Reporting.Html.Lint
         public IEnumerable<IRuleMessage> AnalyzeDatabase() =>
             Rules.SelectMany(rule => rule.AnalyseDatabase(Database)).ToList();
 
-        protected IEnumerable<Schematic.Lint.Rule> Rules => new Schematic.Lint.Rule[]
+        protected IEnumerable<IRule> Rules => new IRule[]
         {
             new CandidateKeyMissingRule(Level),
             new ColumnWithNullDefaultValueRule(Level),
