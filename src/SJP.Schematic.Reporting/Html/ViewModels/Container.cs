@@ -6,28 +6,29 @@ namespace SJP.Schematic.Reporting.Html.ViewModels
 {
     internal class Container : ITemplateParameter
     {
-        public ReportTemplate Template { get; } = ReportTemplate.Container;
-
-        public string RootPath { get; set; }
-
-        public string DatabaseName
+        public Container(
+            string content,
+            string databaseName,
+            string rootPath
+        )
         {
-            get => _databaseName;
-            set
-            {
-                _databaseName = value.IsNullOrWhiteSpace()
-                    ? "Database"
-                    : value + " Database";
-            }
+            Content = content ?? string.Empty;
+            DatabaseName = !databaseName.IsNullOrWhiteSpace()
+                ? databaseName + " Database"
+                : "Database";
+            RootPath = rootPath ?? string.Empty;
         }
 
-        private string _databaseName = "Database";
+        public ReportTemplate Template { get; } = ReportTemplate.Container;
 
-        public string Content { get; set; }
+        public string RootPath { get; }
+
+        public string DatabaseName { get; }
+
+        public string Content { get; }
 
         public string ProjectVersion => _projectVersion;
 
         private readonly static string _projectVersion = FileVersionInfo.GetVersionInfo(Assembly.GetExecutingAssembly().Location).FileVersion;
-
     }
 }

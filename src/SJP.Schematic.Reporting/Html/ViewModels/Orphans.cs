@@ -7,42 +7,41 @@ namespace SJP.Schematic.Reporting.Html.ViewModels
 {
     internal class Orphans : ITemplateParameter
     {
-        public ReportTemplate Template { get; } = ReportTemplate.Orphans;
-
-        public IEnumerable<Table> Tables
+        public Orphans(IEnumerable<Table> tables)
         {
-            get => _tables;
-            set => _tables = value ?? throw new ArgumentNullException(nameof(value));
+            Tables = tables ?? throw new ArgumentNullException(nameof(tables));
+            TablesCount = tables.UCount();
+            TablesTableClass = TablesCount > 0 ? CssClasses.DataTableClass : string.Empty;
         }
 
-        private IEnumerable<Table> _tables = Enumerable.Empty<Table>();
+        public ReportTemplate Template { get; } = ReportTemplate.Orphans;
 
-        public uint TablesCount => Tables.UCount();
+        public IEnumerable<Table> Tables { get; }
 
-        public string TablesTableClass => TablesCount > 0 ? CssClasses.DataTableClass : string.Empty;
+        public uint TablesCount { get; }
+
+        public string TablesTableClass { get; }
 
         internal class Table
         {
-            public Table(Identifier tableName)
+            public Table(Identifier tableName, uint columnCount, ulong rowCount)
             {
-                _tableName = tableName ?? throw new ArgumentNullException(nameof(tableName));
+                if (tableName == null)
+                    throw new ArgumentNullException(nameof(tableName));
+
+                Name = tableName.ToVisibleName();
+                TableUrl = tableName.ToSafeKey();
+                ColumnCount = columnCount;
+                RowCount = rowCount;
             }
 
-            public Identifier TableName
-            {
-                get => _tableName;
-                set => _tableName = value ?? throw new ArgumentNullException(nameof(value));
-            }
+            public string Name { get; }
 
-            private Identifier _tableName;
+            public string TableUrl { get; }
 
-            public string Name => _tableName.ToVisibleName();
+            public uint ColumnCount { get; }
 
-            public string TableUrl => _tableName.ToSafeKey();
-
-            public uint ColumnCount { get; set; }
-
-            public ulong RowCount { get; set; }
+            public ulong RowCount { get; }
         }
     }
 }

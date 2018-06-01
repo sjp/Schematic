@@ -8,128 +8,144 @@ namespace SJP.Schematic.Reporting.Html.ViewModels
 {
     internal class Main : ITemplateParameter
     {
+        public Main(
+            string databaseName,
+            string productName,
+            string productVersion,
+            uint columnsCount,
+            uint constraintsCount,
+            uint indexesCount,
+            IEnumerable<string> schemas,
+            IEnumerable<Table> tables,
+            IEnumerable<View> views,
+            IEnumerable<Sequence> sequences,
+            IEnumerable<Synonym> synonyms
+        )
+        {
+            DatabaseName = databaseName ?? string.Empty;
+            ProductName = productName ?? string.Empty;
+            ProductVersion = productVersion ?? string.Empty;
+
+            ColumnsCount = columnsCount;
+            ConstraintsCount = constraintsCount;
+            IndexesCount = indexesCount;
+
+            Schemas = schemas ?? throw new ArgumentNullException(nameof(schemas));
+
+            Tables = tables ?? throw new ArgumentNullException(nameof(tables));
+            TablesCount = tables.UCount();
+            TablesTableClass = TablesCount > 0 ? CssClasses.DataTableClass : string.Empty;
+
+            Views = views ?? throw new ArgumentNullException(nameof(views));
+            ViewsCount = views.UCount();
+            ViewsTableClass = ViewsCount > 0 ? CssClasses.DataTableClass : string.Empty;
+
+            Sequences = sequences ?? throw new ArgumentNullException(nameof(sequences));
+            SequencesCount = sequences.UCount();
+            SequencesTableClass = SequencesCount > 0 ? CssClasses.DataTableClass : string.Empty;
+
+            Synonyms = synonyms ?? throw new ArgumentNullException(nameof(synonyms));
+            SynonymsCount = synonyms.UCount();
+            SynonymsTableClass = SynonymsCount > 0 ? CssClasses.DataTableClass : string.Empty;
+        }
+
         public ReportTemplate Template { get; } = ReportTemplate.Main;
 
-        public string DatabaseName { get; set; }
+        public string DatabaseName { get; }
 
-        public string ProductName { get; set; }
+        public string ProductName { get; }
 
-        public string ProductVersion { get; set; }
+        public string ProductVersion { get; }
 
         public DateTime GenerationTime => DateTime.Now;
 
-        public uint ColumnsCount { get; set; }
+        public uint ColumnsCount { get; }
 
-        public uint ConstraintsCount { get; set; }
+        public uint ConstraintsCount { get; }
 
-        public uint IndexesCount { get; set; }
+        public uint IndexesCount { get; }
 
-        public IEnumerable<string> Schemas
-        {
-            get => _schemas;
-            set => _schemas = value ?? throw new ArgumentNullException(nameof(value));
-        }
+        public IEnumerable<string> Schemas { get; }
 
-        private IEnumerable<string> _schemas = Enumerable.Empty<string>();
+        public IEnumerable<Table> Tables { get; }
 
-        public IEnumerable<Table> Tables
-        {
-            get => _tables;
-            set => _tables = value ?? throw new ArgumentNullException(nameof(value));
-        }
+        public uint TablesCount { get; }
 
-        private IEnumerable<Table> _tables = Enumerable.Empty<Table>();
+        public string TablesTableClass { get; }
 
-        public uint TablesCount => Tables.UCount();
+        public IEnumerable<View> Views { get; }
 
-        public string TablesTableClass => TablesCount > 0 ? CssClasses.DataTableClass : string.Empty;
+        public uint ViewsCount { get; }
 
-        public IEnumerable<View> Views
-        {
-            get => _views;
-            set => _views = value ?? throw new ArgumentNullException(nameof(value));
-        }
+        public string ViewsTableClass { get; }
 
-        private IEnumerable<View> _views = Enumerable.Empty<View>();
+        public IEnumerable<Sequence> Sequences { get; }
 
-        public uint ViewsCount => Views.UCount();
+        public uint SequencesCount { get; }
 
-        public string ViewsTableClass => ViewsCount > 0 ? CssClasses.DataTableClass : string.Empty;
+        public string SequencesTableClass { get; }
 
-        public IEnumerable<Sequence> Sequences
-        {
-            get => _sequences;
-            set => _sequences = value ?? throw new ArgumentNullException(nameof(value));
-        }
+        public IEnumerable<Synonym> Synonyms { get; }
 
-        private IEnumerable<Sequence> _sequences = Enumerable.Empty<Sequence>();
+        public uint SynonymsCount { get; }
 
-        public uint SequencesCount => Sequences.UCount();
-
-        public string SequencesTableClass => SequencesCount > 0 ? CssClasses.DataTableClass : string.Empty;
-
-        public IEnumerable<Synonym> Synonyms
-        {
-            get => _synonyms;
-            set => _synonyms = value ?? throw new ArgumentNullException(nameof(value));
-        }
-
-        private IEnumerable<Synonym> _synonyms = Enumerable.Empty<Synonym>();
-
-        public uint SynonymsCount => Synonyms.UCount();
-
-        public string SynonymsTableClass => SynonymsCount > 0 ? CssClasses.DataTableClass : string.Empty;
+        public string SynonymsTableClass { get; }
 
         internal class Table
         {
-            public Table(Identifier tableName)
+            public Table(
+                Identifier tableName,
+                uint parentsCount,
+                uint childrenCount,
+                uint columnCount,
+                ulong rowCount
+            )
             {
-                _tableName = tableName ?? throw new ArgumentNullException(nameof(tableName));
+                if (tableName == null)
+                    throw new ArgumentNullException(nameof(tableName));
+
+                Name = tableName.ToVisibleName();
+                TableUrl = tableName.ToSafeKey();
+
+                ParentsCount = parentsCount;
+                ChildrenCount = childrenCount;
+                ColumnCount = columnCount;
+                RowCount = rowCount;
             }
 
-            public Identifier TableName
-            {
-                get => _tableName;
-                set => _tableName = value ?? throw new ArgumentNullException(nameof(value));
-            }
+            public string Name { get; }
 
-            private Identifier _tableName;
+            public string TableUrl { get; }
 
-            public string Name => _tableName.ToVisibleName();
+            public uint ParentsCount { get; }
 
-            public string TableUrl => _tableName.ToSafeKey();
+            public uint ChildrenCount { get; }
 
-            public uint ParentsCount { get; set; }
+            public uint ColumnCount { get; }
 
-            public uint ChildrenCount { get; set; }
-
-            public uint ColumnCount { get; set; }
-
-            public ulong RowCount { get; set; }
+            public ulong RowCount { get; }
         }
 
         internal class View
         {
-            public View(Identifier viewName)
+            public View(Identifier viewName, uint columnCount, ulong rowCount)
             {
-                _viewName = viewName ?? throw new ArgumentNullException(nameof(viewName));
+                if (viewName == null)
+                    throw new ArgumentNullException(nameof(viewName));
+
+                Name = viewName.ToVisibleName();
+                ViewUrl = viewName.ToSafeKey();
+                ColumnCount = columnCount;
+                RowCount = rowCount;
             }
 
-            public Identifier ViewName
-            {
-                get => _viewName;
-                set => _viewName = value ?? throw new ArgumentNullException(nameof(value));
-            }
+            public string Name { get; }
 
-            private Identifier _viewName;
+            public string ViewUrl { get; }
 
-            public string Name => _viewName.ToVisibleName();
+            public uint ColumnCount { get; }
 
-            public string ViewUrl => _viewName.ToSafeKey();
-
-            public uint ColumnCount { get; set; }
-
-            public ulong RowCount { get; set; }
+            public ulong RowCount { get; }
         }
 
         internal class Sequence
@@ -144,60 +160,53 @@ namespace SJP.Schematic.Reporting.Html.ViewModels
                 bool cycle
             )
             {
-                SequenceName = sequenceName ?? throw new ArgumentNullException(nameof(sequenceName));
+                if (sequenceName == null)
+                    throw new ArgumentNullException(nameof(sequenceName));
+
+                Name = sequenceName.ToVisibleName();
                 Start = start;
                 Increment = increment;
-                MinValue = minValue;
-                MaxValue = maxValue;
+                MinValueText = minValue?.ToString() ?? string.Empty;
+                MaxValueText = maxValue?.ToString() ?? string.Empty;
                 Cache = cache;
-                Cycle = cycle;
+                CycleText = cycle ? "✓" : string.Empty;
             }
-
-            protected Identifier SequenceName { get; }
 
             public decimal Start { get; }
 
             public decimal Increment { get; }
 
-            protected decimal? MinValue { get; }
+            public string MinValueText { get; }
 
-            public string MinValueText => MinValue?.ToString() ?? string.Empty;
-
-            protected decimal? MaxValue { get; }
-
-            public string MaxValueText => MaxValue?.ToString() ?? string.Empty;
+            public string MaxValueText { get; }
 
             public int Cache { get; }
 
-            protected bool Cycle { get; }
+            public string Name { get; }
 
-            public string Name => SequenceName.ToVisibleName();
-
-            public string CycleText => Cycle ? "✓" : string.Empty;
-
+            public string CycleText { get; }
         }
 
         internal class Synonym
         {
-            public Synonym(Identifier synonymName, Identifier target)
+            public Synonym(Identifier synonymName, Identifier target, Uri targetUrl)
             {
-                SynonymName = synonymName ?? throw new ArgumentNullException(nameof(synonymName));
-                Target = target ?? throw new ArgumentNullException(nameof(target));
+                if (synonymName == null)
+                    throw new ArgumentNullException(nameof(synonymName));
+                if (target == null)
+                    throw new ArgumentNullException(nameof(target));
+
+                Name = synonymName.ToVisibleName();
+
+                var targetName = target.ToVisibleName();
+                TargetText = targetUrl != null
+                    ? $"<a href=\"{ targetUrl }\">{ HttpUtility.HtmlEncode(targetName) }</a>"
+                    : HttpUtility.HtmlEncode(targetName);
             }
 
-            protected Identifier SynonymName { get; }
+            public string Name { get; }
 
-            protected Identifier Target { get; }
-
-            public Uri TargetUrl { get; set; }
-
-            public string Name => SynonymName.ToVisibleName();
-
-            public string TargetName => Target.ToVisibleName();
-
-            public string TargetText => TargetUrl != null
-                ? $"<a href=\"{ TargetUrl }\">{ HttpUtility.HtmlEncode(TargetName) }</a>"
-                : HttpUtility.HtmlEncode(TargetName);
+            public string TargetText { get; }
         }
     }
 }

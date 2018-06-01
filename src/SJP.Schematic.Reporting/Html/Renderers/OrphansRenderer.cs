@@ -41,15 +41,10 @@ namespace SJP.Schematic.Reporting.Html.Renderers
                 .OrderBy(vm => vm.Name)
                 .ToList();
 
-            var templateParameter = new Orphans { Tables = orphanedTableViewModels };
+            var templateParameter = new Orphans(orphanedTableViewModels);
             var renderedOrphans = Formatter.RenderTemplate(templateParameter);
 
-            var orphansContainer = new Container
-            {
-                Content = renderedOrphans,
-                DatabaseName = Database.DatabaseName
-            };
-
+            var orphansContainer = new Container(renderedOrphans, Database.DatabaseName, string.Empty);
             var renderedPage = Formatter.RenderTemplate(orphansContainer);
 
             if (!ExportDirectory.Exists)
@@ -75,15 +70,10 @@ namespace SJP.Schematic.Reporting.Html.Renderers
             var mappingTasks = orphanedTables.Select(mapper.MapAsync).ToArray();
             var orphanedTableViewModels = await Task.WhenAll(mappingTasks).ConfigureAwait(false);
 
-            var templateParameter = new Orphans { Tables = orphanedTableViewModels };
+            var templateParameter = new Orphans(orphanedTableViewModels);
             var renderedOrphans = Formatter.RenderTemplate(templateParameter);
 
-            var orphansContainer = new Container
-            {
-                Content = renderedOrphans,
-                DatabaseName = Database.DatabaseName
-            };
-
+            var orphansContainer = new Container(renderedOrphans, Database.DatabaseName, string.Empty);
             var renderedPage = Formatter.RenderTemplate(orphansContainer);
 
             if (!ExportDirectory.Exists)

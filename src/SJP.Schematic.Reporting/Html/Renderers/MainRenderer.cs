@@ -35,7 +35,7 @@ namespace SJP.Schematic.Reporting.Html.Renderers
             var sequences = Database.Sequences.ToList();
             var synonyms = Database.Synonyms.ToList();
 
-            var mapper = new MainModelMapper(Connection, Database.Dialect);
+            var mapper = new MainModelMapper(Connection, Database);
 
             var columns = 0U;
             var constraints = 0U;
@@ -76,39 +76,26 @@ namespace SJP.Schematic.Reporting.Html.Renderers
                 viewViewModels.Add(renderView);
             }
 
-            var synonymViewModels = new List<Main.Synonym>();
-            foreach (var synonym in synonyms)
-            {
-                var model = mapper.Map(synonym);
-                model.TargetUrl = GetSynonymTargetUrl(synonym.Target);
-
-                synonymViewModels.Add(model);
-            }
-
             var sequenceViewModels = sequences.Select(mapper.Map).ToList();
+            var synonymViewModels = synonyms.Select(mapper.Map).ToList();
 
-            var templateParameter = new Main
-            {
-                DatabaseName = Database.DatabaseName ?? string.Empty,
-                ProductName = string.Empty,
-                ProductVersion = string.Empty,
-                ColumnsCount = columns,
-                ConstraintsCount = constraints,
-                IndexesCount = indexesCount,
-                Tables = tableViewModels,
-                Views = viewViewModels,
-                Sequences = sequenceViewModels,
-                Synonyms = synonymViewModels
-            };
+            var templateParameter = new Main(
+                Database.DatabaseName,
+                string.Empty,
+                string.Empty,
+                columns,
+                constraints,
+                indexesCount,
+                Enumerable.Empty<string>(), // schemas
+                tableViewModels,
+                viewViewModels,
+                sequenceViewModels,
+                synonymViewModels
+            );
 
             var renderedMain = Formatter.RenderTemplate(templateParameter);
 
-            var mainContainer = new Container
-            {
-                Content = renderedMain,
-                DatabaseName = Database.DatabaseName
-            };
-
+            var mainContainer = new Container(renderedMain, Database.DatabaseName, string.Empty);
             var renderedPage = Formatter.RenderTemplate(mainContainer);
 
             if (!ExportDirectory.Exists)
@@ -130,7 +117,7 @@ namespace SJP.Schematic.Reporting.Html.Renderers
             var sequences = await sequencesCollection.ToList().ConfigureAwait(false);
             var synonyms = await synonymsCollection.ToList().ConfigureAwait(false);
 
-            var mapper = new MainModelMapper(Connection, Database.Dialect);
+            var mapper = new MainModelMapper(Connection, Database);
 
             var columns = 0U;
             var constraints = 0U;
@@ -172,39 +159,28 @@ namespace SJP.Schematic.Reporting.Html.Renderers
                 viewViewModels.Add(renderView);
             }
 
-            var synonymViewModels = new List<Main.Synonym>();
-            foreach (var synonym in synonyms)
-            {
-                var model = mapper.Map(synonym);
-                model.TargetUrl = await GetSynonymTargetUrlAsync(synonym.Target).ConfigureAwait(false);
-
-                synonymViewModels.Add(model);
-            }
-
             var sequenceViewModels = sequences.Select(mapper.Map).ToList();
 
-            var templateParameter = new Main
-            {
-                DatabaseName = Database.DatabaseName ?? string.Empty,
-                ProductName = string.Empty,
-                ProductVersion = string.Empty,
-                ColumnsCount = columns,
-                ConstraintsCount = constraints,
-                IndexesCount = indexesCount,
-                Tables = tableViewModels,
-                Views = viewViewModels,
-                Sequences = sequenceViewModels,
-                Synonyms = synonymViewModels
-            };
+            var synonymTasks = synonyms.Select(mapper.MapAsync).ToArray();
+            var synonymViewModels = await Task.WhenAll(synonymTasks).ConfigureAwait(false);
+
+            var templateParameter = new Main(
+                Database.DatabaseName,
+                string.Empty,
+                string.Empty,
+                columns,
+                constraints,
+                indexesCount,
+                Enumerable.Empty<string>(), // schemas
+                tableViewModels,
+                viewViewModels,
+                sequenceViewModels,
+                synonymViewModels
+            );
 
             var renderedMain = Formatter.RenderTemplate(templateParameter);
 
-            var mainContainer = new Container
-            {
-                Content = renderedMain,
-                DatabaseName = Database.DatabaseName
-            };
-
+            var mainContainer = new Container(renderedMain, Database.DatabaseName, string.Empty);
             var renderedPage = Formatter.RenderTemplate(mainContainer);
 
             if (!ExportDirectory.Exists)
@@ -213,46 +189,6 @@ namespace SJP.Schematic.Reporting.Html.Renderers
 
             using (var writer = File.CreateText(outputPath))
                 await writer.WriteAsync(renderedPage).ConfigureAwait(false);
-        }
-
-        private Uri GetSynonymTargetUrl(Identifier identifier)
-        {
-            if (identifier == null)
-                throw new ArgumentNullException(nameof(identifier));
-
-            var isTable = Database.TableExists(identifier);
-            if (isTable)
-            {
-                return new Uri("tables/" + identifier.ToSafeKey() + ".html", UriKind.Relative);
-            }
-            else
-            {
-                var isView = Database.ViewExists(identifier);
-                if (isView)
-                    return new Uri("views/" + identifier.ToSafeKey() + ".html", UriKind.Relative);
-            }
-
-            return null;
-        }
-
-        private async Task<Uri> GetSynonymTargetUrlAsync(Identifier identifier)
-        {
-            if (identifier == null)
-                throw new ArgumentNullException(nameof(identifier));
-
-            var isTable = await Database.TableExistsAsync(identifier).ConfigureAwait(false);
-            if (isTable)
-            {
-                return new Uri("tables/" + identifier.ToSafeKey() + ".html", UriKind.Relative);
-            }
-            else
-            {
-                var isView = await Database.ViewExistsAsync(identifier).ConfigureAwait(false);
-                if (isView)
-                    return new Uri("views/" + identifier.ToSafeKey() + ".html", UriKind.Relative);
-            }
-
-            return null;
         }
     }
 }

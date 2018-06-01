@@ -7,82 +7,75 @@ namespace SJP.Schematic.Reporting.Html.ViewModels
 {
     internal class View : ITemplateParameter
     {
+        public View(
+            Identifier viewName,
+            string rootPath,
+            ulong rowCount,
+            string definition,
+            IEnumerable<Column> columns
+        )
+        {
+            if (viewName == null)
+                throw new ArgumentNullException(nameof(viewName));
+
+            Name = viewName.ToVisibleName();
+            ViewUrl = viewName.ToSafeKey();
+            RootPath = rootPath ?? throw new ArgumentNullException(nameof(rootPath));
+            RowCount = rowCount;
+            Definition = definition ?? throw new ArgumentNullException(nameof(definition));
+
+            Columns = columns ?? throw new ArgumentNullException(nameof(columns));
+            ColumnsCount = columns.UCount();
+            ColumnsTableClass = ColumnsCount > 0 ? CssClasses.DataTableClass : string.Empty;
+        }
+
         public ReportTemplate Template { get; } = ReportTemplate.View;
 
-        public Identifier ViewName
-        {
-            get => _viewName;
-            set => _viewName = value ?? throw new ArgumentNullException(nameof(value));
-        }
+        public string RootPath { get; }
 
-        private Identifier _viewName;
+        public string Name { get; }
 
-        public string RootPath
-        {
-            get => _rootPath;
-            set => _rootPath = value ?? throw new ArgumentNullException(nameof(value));
-        }
+        public string ViewUrl { get; }
 
-        private string _rootPath = "../";
+        public ulong RowCount { get; }
 
-        public string Name => _viewName.ToVisibleName();
+        public string Definition { get; }
 
-        public string ViewUrl => _viewName.ToSafeKey();
+        public IEnumerable<Column> Columns { get; }
 
-        public ulong RowCount { get; set; }
+        public uint ColumnsCount { get; }
 
-        public string Definition
-        {
-            get => _definition;
-            set => _definition = value ?? string.Empty;
-        }
-
-        private string _definition = string.Empty;
-
-        public IEnumerable<Column> Columns
-        {
-            get => _columns;
-            set => _columns = value ?? throw new ArgumentNullException(nameof(value));
-        }
-
-        private IEnumerable<Column> _columns = Enumerable.Empty<Column>();
-
-        public uint ColumnsCount => Columns.UCount();
-
-        public string ColumnsTableClass => ColumnsCount > 0 ? CssClasses.DataTableClass : string.Empty;
+        public string ColumnsTableClass { get; }
 
         internal class Column
         {
-            public Column(string columnName)
+            public Column(
+                string columnName,
+                int ordinal,
+                bool isNullable,
+                string typeDefinition,
+                string defaultValue
+            )
             {
                 ColumnName = columnName ?? throw new ArgumentNullException(nameof(columnName));
+                Ordinal = ordinal;
+                TitleNullable = isNullable ? "Nullable" : string.Empty;
+                NullableText = isNullable ? "✓" : string.Empty;
+                Type = typeDefinition ?? string.Empty;
+                DefaultValue = defaultValue ?? string.Empty;
             }
 
-            public int Ordinal { get; set; }
+            public int Ordinal { get; }
 
             public string ColumnName { get; }
 
-            public string TitleNullable => IsNullable ? "Nullable" : string.Empty;
+            public string TitleNullable { get; }
 
-            public string NullableText => IsNullable ? "✓" : string.Empty;
+            public string NullableText { get; }
 
-            public bool IsNullable { get; set; }
+            public string Type { get; }
 
-            public string Type
-            {
-                get => _type;
-                set => _type = value ?? string.Empty;
-            }
-
-            private string _type = string.Empty;
-
-            public string DefaultValue
-            {
-                get => _defaultValue;
-                set => _defaultValue = value ?? string.Empty;
-            }
-
-            private string _defaultValue = string.Empty;
+            public string DefaultValue { get; }
         }
     }
 }

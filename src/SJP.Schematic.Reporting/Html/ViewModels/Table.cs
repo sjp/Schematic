@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
+using EnumsNET;
 using SJP.Schematic.Core;
 using SJP.Schematic.Core.Extensions;
 
@@ -9,308 +10,292 @@ namespace SJP.Schematic.Reporting.Html.ViewModels
 {
     internal class Table : ITemplateParameter
     {
+        public Table(
+            Identifier tableName,
+            IEnumerable<Column> columns,
+            PrimaryKeyConstraint primaryKey,
+            IEnumerable<UniqueKey> uniqueKeys,
+            IEnumerable<ForeignKey> foreignKeys,
+            IEnumerable<CheckConstraint> checks,
+            IEnumerable<Index> indexes,
+            IEnumerable<Diagram> diagrams,
+            string rootPath,
+            ulong rowCount
+        )
+        {
+            if (tableName == null)
+                throw new ArgumentNullException(nameof(tableName));
+
+            Name = tableName.ToVisibleName();
+            TableUrl = tableName.ToSafeKey();
+            RowCount = rowCount;
+
+            Columns = columns ?? throw new ArgumentNullException(nameof(columns));
+            ColumnsCount = columns.UCount();
+            ColumnsTableClass = ColumnsCount > 0 ? CssClasses.DataTableClass : string.Empty;
+
+            PrimaryKey = primaryKey;
+            PrimaryKeyExists = primaryKey != null;
+            PrimaryKeyTableClass = PrimaryKeyExists ? CssClasses.DataTableClass : string.Empty;
+
+            UniqueKeys = uniqueKeys ?? throw new ArgumentNullException(nameof(uniqueKeys));
+            UniqueKeysCount = uniqueKeys.UCount();
+            UniqueKeysTableClass = UniqueKeysCount > 0 ? CssClasses.DataTableClass : string.Empty;
+
+            ForeignKeys = foreignKeys ?? throw new ArgumentNullException(nameof(foreignKeys));
+            ForeignKeysCount = foreignKeys.UCount();
+            ForeignKeysTableClass = ForeignKeysCount > 0 ? CssClasses.DataTableClass : string.Empty;
+
+            CheckConstraints = checks ?? throw new ArgumentNullException(nameof(checks));
+            CheckConstraintsCount = checks.UCount();
+            CheckConstraintsTableClass = CheckConstraintsCount > 0 ? CssClasses.DataTableClass : string.Empty;
+
+            Indexes = indexes ?? throw new ArgumentNullException(nameof(checks));
+            IndexesCount = indexes.UCount();
+            IndexesTableClass = IndexesCount > 0 ? CssClasses.DataTableClass : string.Empty;
+
+            Diagrams = diagrams ?? throw new ArgumentNullException(nameof(diagrams));
+
+            RootPath = rootPath ?? throw new ArgumentNullException(nameof(rootPath));
+        }
+
         public ReportTemplate Template { get; } = ReportTemplate.Table;
 
-        public Identifier TableName
-        {
-            get => _tableName;
-            set => _tableName = value ?? throw new ArgumentNullException(nameof(value));
-        }
+        public string RootPath { get; }
 
-        private Identifier _tableName;
+        public string Name { get; }
 
-        public string RootPath
-        {
-            get => _rootPath;
-            set => _rootPath = value ?? throw new ArgumentNullException(nameof(value));
-        }
+        public string TableUrl { get; }
 
-        private string _rootPath = "../";
+        public ulong RowCount { get; }
 
-        public string Name => _tableName.ToVisibleName();
+        public IEnumerable<Column> Columns { get; }
 
-        public string TableUrl => _tableName.ToSafeKey();
+        public uint ColumnsCount { get; }
 
-        public ulong RowCount { get; set; }
+        public string ColumnsTableClass { get; }
 
-        public IEnumerable<Column> Columns
-        {
-            get => _columns;
-            set => _columns = value ?? throw new ArgumentNullException(nameof(value));
-        }
+        public PrimaryKeyConstraint PrimaryKey { get; }
 
-        private IEnumerable<Column> _columns = Enumerable.Empty<Column>();
+        public bool PrimaryKeyExists { get; }
 
-        public uint ColumnsCount => Columns.UCount();
+        public string PrimaryKeyTableClass { get; }
 
-        public string ColumnsTableClass => ColumnsCount > 0 ? CssClasses.DataTableClass : string.Empty;
+        public IEnumerable<UniqueKey> UniqueKeys { get; }
 
-        public PrimaryKeyConstraint PrimaryKey { get; set; }
+        public uint UniqueKeysCount { get; }
 
-        public bool PrimaryKeyExists => PrimaryKey != null;
+        public string UniqueKeysTableClass { get; }
 
-        public string PrimaryKeyTableClass => PrimaryKeyExists ? CssClasses.DataTableClass : string.Empty;
+        public IEnumerable<ForeignKey> ForeignKeys { get; }
 
-        public IEnumerable<UniqueKey> UniqueKeys
-        {
-            get => _uniqueKeys;
-            set => _uniqueKeys = value ?? throw new ArgumentNullException(nameof(value));
-        }
+        public uint ForeignKeysCount { get; }
 
-        private IEnumerable<UniqueKey> _uniqueKeys = Enumerable.Empty<UniqueKey>();
+        public string ForeignKeysTableClass { get; }
 
-        public uint UniqueKeysCount => UniqueKeys.UCount();
+        public IEnumerable<CheckConstraint> CheckConstraints { get; }
 
-        public string UniqueKeysTableClass => UniqueKeysCount > 0 ? CssClasses.DataTableClass : string.Empty;
+        public uint CheckConstraintsCount { get; }
 
-        public IEnumerable<ForeignKey> ForeignKeys
-        {
-            get => _foreignKeys;
-            set => _foreignKeys = value ?? throw new ArgumentNullException(nameof(value));
-        }
+        public string CheckConstraintsTableClass { get; }
 
-        private IEnumerable<ForeignKey> _foreignKeys = Enumerable.Empty<ForeignKey>();
+        public IEnumerable<Index> Indexes { get; }
 
-        public uint ForeignKeysCount => ForeignKeys.UCount();
+        public uint IndexesCount { get; }
 
-        public string ForeignKeysTableClass => ForeignKeysCount > 0 ? CssClasses.DataTableClass : string.Empty;
+        public string IndexesTableClass { get; }
 
-        public IEnumerable<UniqueKey> CheckConstraints
-        {
-            get => _checkConstraints;
-            set => _checkConstraints = value ?? throw new ArgumentNullException(nameof(value));
-        }
-
-        private IEnumerable<UniqueKey> _checkConstraints = Enumerable.Empty<UniqueKey>();
-
-        public uint CheckConstraintsCount => CheckConstraints.UCount();
-
-        public string CheckConstraintsTableClass => CheckConstraintsCount > 0 ? CssClasses.DataTableClass : string.Empty;
-
-        public IEnumerable<Index> Indexes
-        {
-            get => _indexes;
-            set => _indexes = value ?? throw new ArgumentNullException(nameof(value));
-        }
-
-        private IEnumerable<Index> _indexes = Enumerable.Empty<Index>();
-
-        public uint IndexesCount => Indexes.UCount();
-
-        public string IndexesTableClass => IndexesCount > 0 ? CssClasses.DataTableClass : string.Empty;
-
-        public IEnumerable<Diagram> Diagrams
-        {
-            get => _diagrams;
-            set => _diagrams = value ?? throw new ArgumentNullException(nameof(value));
-        }
-
-        private IEnumerable<Diagram> _diagrams = Enumerable.Empty<Diagram>();
+        public IEnumerable<Diagram> Diagrams { get; }
 
         internal class Column
         {
-            public Column(string tableName, string columnName)
+            public Column(
+                string columnName,
+                int ordinal,
+                bool isNullable,
+                string typeDefinition,
+                string defaultValue,
+                bool isPrimaryKeyColumn,
+                bool isUniqueKeyColumn,
+                bool isForeignKeyColumn,
+                IEnumerable<ChildKey> childKeys,
+                IEnumerable<ParentKey> parentKeys
+            )
             {
-                TableName = tableName ?? throw new ArgumentNullException(nameof(tableName));
                 ColumnName = columnName ?? throw new ArgumentNullException(nameof(columnName));
+                Ordinal = ordinal;
+                TitleNullable = isNullable ? "Nullable" : string.Empty;
+                NullableText = isNullable ? "✓" : string.Empty;
+                Type = typeDefinition ?? string.Empty;
+                DefaultValue = defaultValue ?? string.Empty;
+
+                ColumnClass = BuildColumnClass(isPrimaryKeyColumn, isUniqueKeyColumn, isForeignKeyColumn);
+                ColumnIcon = BuildColumnIcon(isPrimaryKeyColumn, isUniqueKeyColumn, isForeignKeyColumn);
+                ColumnTitle = BuildColumnTitle(isPrimaryKeyColumn, isUniqueKeyColumn, isForeignKeyColumn);
+
+                ChildKeys = childKeys ?? throw new ArgumentNullException(nameof(childKeys));
+                ChildKeysCount = childKeys.UCount();
+
+                ParentKeys = parentKeys ?? throw new ArgumentNullException(nameof(parentKeys));
+                ParentKeysCount = parentKeys.UCount();
             }
 
-            public int Ordinal { get; set; }
+            public int Ordinal { get; }
 
             public string ColumnName { get; }
 
-            public string TableName { get; }
+            public string TitleNullable { get; }
 
-            public string TitleNullable => IsNullable ? "Nullable" : string.Empty;
+            public string NullableText { get; }
 
-            public string NullableText => IsNullable ? "✓" : string.Empty;
+            public string Type { get; }
 
-            public bool IsNullable { get; set; }
+            public string DefaultValue { get; }
 
-            public string Type
+            public string ColumnClass { get; }
+
+            public string ColumnIcon { get; }
+
+            public string ColumnTitle { get; }
+
+            public IEnumerable<ParentKey> ParentKeys { get; }
+
+            public uint ParentKeysCount { get; }
+
+            public IEnumerable<ChildKey> ChildKeys { get; }
+
+            public uint ChildKeysCount { get; }
+
+            private static string BuildColumnClass(bool isPrimaryKeyColumn, bool isUniqueKeyColumn, bool isForeignKeyColumn)
             {
-                get => _type;
-                set => _type = value ?? string.Empty;
+                var isKey = isPrimaryKeyColumn || isUniqueKeyColumn || isForeignKeyColumn;
+                return isKey ? @"class=""detail keyColumn""" : string.Empty;
             }
 
-            private string _type = string.Empty;
-
-            public string DefaultValue
+            private static string BuildColumnIcon(bool isPrimaryKeyColumn, bool isUniqueKeyColumn, bool isForeignKeyColumn)
             {
-                get => _defaultValue;
-                set => _defaultValue = value ?? string.Empty;
-            }
+                var iconPieces = new List<string>();
 
-            private string _defaultValue = string.Empty;
-
-            public bool IsUniqueKeyColumn { get; set; }
-
-            public bool IsPrimaryKeyColumn { get; set; }
-
-            public bool IsForeignKeyColumn { get; set; }
-
-            public string ColumnClass
-            {
-                get
+                if (isPrimaryKeyColumn)
                 {
-                    var isKey = IsPrimaryKeyColumn || IsUniqueKeyColumn || IsForeignKeyColumn;
-                    return isKey ? @"class=""detail keyColumn""" : string.Empty;
+                    const string iconText = @"<i title=""Primary Key"" class=""fa fa-key primaryKeyIcon"" style=""padding-left: 5px; padding-right: 5px;""></i>";
+                    iconPieces.Add(iconText);
                 }
-            }
 
-            public string ColumnIcon
-            {
-                get
+                if (isUniqueKeyColumn)
                 {
-                    var iconPieces = new List<string>();
-
-                    if (IsPrimaryKeyColumn)
-                    {
-                        const string iconText = @"<i title=""Primary Key"" class=""fa fa-key primaryKeyIcon"" style=""padding-left: 5px; padding-right: 5px;""></i>";
-                        iconPieces.Add(iconText);
-                    }
-
-                    if (IsUniqueKeyColumn)
-                    {
-                        const string iconText = @"<i title=""Unique Key"" class=""fa fa-key uniqueKeyIcon"" style=""padding-left: 5px; padding-right: 5px;""></i>";
-                        iconPieces.Add(iconText);
-                    }
-
-                    if (IsForeignKeyColumn)
-                    {
-                        const string iconText = @"<i title=""Foreign Key"" class=""fa fa-key foreignKeyIcon"" style=""padding-left: 5px; padding-right: 5px;""></i>";
-                        iconPieces.Add(iconText);
-                    }
-
-                    return string.Concat(iconPieces);
+                    const string iconText = @"<i title=""Unique Key"" class=""fa fa-key uniqueKeyIcon"" style=""padding-left: 5px; padding-right: 5px;""></i>";
+                    iconPieces.Add(iconText);
                 }
-            }
 
-            public string ColumnTitle
-            {
-                get
+                if (isForeignKeyColumn)
                 {
-                    var titlePieces = new List<string>();
-
-                    if (IsPrimaryKeyColumn)
-                        titlePieces.Add("Primary Key");
-                    if (IsUniqueKeyColumn)
-                        titlePieces.Add("Unique Key");
-                    if (IsForeignKeyColumn)
-                        titlePieces.Add("Foreign Key");
-
-                    return string.Join(", ", titlePieces);
+                    const string iconText = @"<i title=""Foreign Key"" class=""fa fa-key foreignKeyIcon"" style=""padding-left: 5px; padding-right: 5px;""></i>";
+                    iconPieces.Add(iconText);
                 }
+
+                return string.Concat(iconPieces);
             }
 
-            public string QualifiedColumnName => TableName + "." + ColumnName;
-
-            public IEnumerable<ParentKey> ParentKeys
+            private static string BuildColumnTitle(bool isPrimaryKeyColumn, bool isUniqueKeyColumn, bool isForeignKeyColumn)
             {
-                get => _parentKeys;
-                set => _parentKeys = value ?? throw new ArgumentNullException(nameof(value));
+                var titlePieces = new List<string>();
+
+                if (isPrimaryKeyColumn)
+                    titlePieces.Add("Primary Key");
+                if (isUniqueKeyColumn)
+                    titlePieces.Add("Unique Key");
+                if (isForeignKeyColumn)
+                    titlePieces.Add("Foreign Key");
+
+                return titlePieces.Join(", ");
             }
-
-            private IEnumerable<ParentKey> _parentKeys = Enumerable.Empty<ParentKey>();
-
-            public uint ParentKeysCount => ParentKeys.UCount();
-
-            public IEnumerable<ChildKey> ChildKeys
-            {
-                get => _childKeys;
-                set => _childKeys = value ?? throw new ArgumentNullException(nameof(value));
-            }
-
-            private IEnumerable<ChildKey> _childKeys = Enumerable.Empty<ChildKey>();
-
-            public uint ChildKeysCount => ChildKeys.UCount();
         }
 
         internal abstract class TableConstraint
         {
-            public string ConstraintName
+            protected TableConstraint(string constraintName)
             {
-                get => _constraintName;
-                set => _constraintName = value ?? string.Empty;
+                ConstraintName = constraintName;
             }
 
-            private string _constraintName = string.Empty;
+            public string ConstraintName { get; }
         }
 
         internal class PrimaryKeyConstraint : TableConstraint
         {
-            public IEnumerable<string> Columns
+            public PrimaryKeyConstraint(string constraintName, IEnumerable<string> columns)
+                : base(constraintName)
             {
-                get => _columns;
-                set => _columns = value ?? throw new ArgumentNullException(nameof(value));
+                if (columns == null || columns.Empty())
+                    throw new ArgumentNullException(nameof(columns));
+
+                ColumnNames = columns.Join(", ");
             }
 
-            private IEnumerable<string> _columns = Enumerable.Empty<string>();
-
-            public string ColumnNames => _columns.Join(", ");
+            public string ColumnNames { get; }
         }
 
         internal class UniqueKey : TableConstraint
         {
-            public IEnumerable<string> Columns
+            public UniqueKey(string constraintName, IEnumerable<string> columns)
+                : base(constraintName)
             {
-                get => _columns;
-                set => _columns = value ?? throw new ArgumentNullException(nameof(value));
+                if (columns == null || columns.Empty())
+                    throw new ArgumentNullException(nameof(columns));
+
+                ColumnNames = columns.Join(", ");
             }
 
-            private IEnumerable<string> _columns = Enumerable.Empty<string>();
-
-            public string ColumnNames => _columns.Join(", ");
+            public string ColumnNames { get; }
         }
 
         internal class ForeignKey : TableConstraint
         {
-            public ForeignKey(Identifier parentTableName)
+            public ForeignKey(
+                string constraintName,
+                IEnumerable<string> columnNames,
+                Identifier parentTableName,
+                string parentConstraintName,
+                IEnumerable<string> parentColumnNames,
+                Rule deleteRule,
+                Rule updateRule
+            ) : base(constraintName)
             {
-                _parentTableName = parentTableName ?? throw new ArgumentNullException(nameof(parentTableName));
+                if (columnNames == null || columnNames.Empty())
+                    throw new ArgumentNullException(nameof(columnNames));
+                if (parentTableName == null)
+                    throw new ArgumentNullException(nameof(parentTableName));
+                if (parentColumnNames == null || parentColumnNames.Empty())
+                    throw new ArgumentNullException(nameof(parentColumnNames));
+                if (!deleteRule.IsValid())
+                    throw new ArgumentException($"The { nameof(Rule) } provided must be a valid enum.", nameof(deleteRule));
+                if (!updateRule.IsValid())
+                    throw new ArgumentException($"The { nameof(Rule) } provided must be a valid enum.", nameof(updateRule));
+
+                ChildColumnNames = columnNames.Join(", ");
+                ParentConstraintName = parentConstraintName;
+                ParentTableName = parentTableName.ToVisibleName();
+                ParentTableUrl = parentTableName.ToSafeKey();
+                ParentColumnNames = parentColumnNames.Join(", ");
+
+                DeleteRuleDescription = _ruleDescription[deleteRule];
+                UpdateRuleDescription = _ruleDescription[updateRule];
             }
 
-            public string ParentConstraintName
-            {
-                get => _parentConstraintName;
-                set => _parentConstraintName = value ?? string.Empty;
-            }
+            public string ParentConstraintName { get; }
 
-            private string _parentConstraintName = string.Empty;
+            public string ChildColumnNames { get; }
 
-            public IEnumerable<string> ChildColumns
-            {
-                get => _childColumns;
-                set => _childColumns = value ?? throw new ArgumentNullException(nameof(value));
-            }
+            public string ParentTableName { get; }
 
-            private IEnumerable<string> _childColumns = Enumerable.Empty<string>();
+            public string ParentTableUrl { get; }
 
-            public string ChildColumnNames => _childColumns.Join(", ");
+            public string ParentColumnNames { get; }
 
-            public string ParentTableName => _parentTableName.ToVisibleName();
+            public string DeleteRuleDescription { get; }
 
-            public string ParentTableUrl => _parentTableName.ToSafeKey();
-
-            public IEnumerable<string> ParentColumns
-            {
-                get => _parentColumns;
-                set => _parentColumns = value ?? throw new ArgumentNullException(nameof(value));
-            }
-
-            private IEnumerable<string> _parentColumns = Enumerable.Empty<string>();
-
-            public string ParentColumnNames => _parentColumns.Join(", ");
-
-            public Rule DeleteRule { get; set; }
-
-            public Rule UpdateRule { get; set; }
-
-            public string DeleteRuleDescription => _ruleDescription[DeleteRule];
-
-            public string UpdateRuleDescription => _ruleDescription[UpdateRule];
-
-            private readonly Identifier _parentTableName;
+            public string UpdateRuleDescription { get; }
 
             private readonly static IReadOnlyDictionary<Rule, string> _ruleDescription = new Dictionary<Rule, string>
             {
@@ -323,59 +308,45 @@ namespace SJP.Schematic.Reporting.Html.ViewModels
 
         internal class CheckConstraint : TableConstraint
         {
-            public string Definition
+            public CheckConstraint(string constraintName, string definition)
+                : base(constraintName)
             {
-                get => _definition;
-                set => _definition = value ?? string.Empty;
+                if (definition.IsNullOrWhiteSpace())
+                    throw new ArgumentNullException(nameof(definition));
+
+                Definition = definition;
             }
 
-            private string _definition = string.Empty;
+            public string Definition { get; }
         }
 
         internal class Index
         {
-            public string Name { get; set; }
-
-            public bool Unique { get; set; }
-
-            public string UniqueText => Unique ? "✓" : string.Empty;
-
-            public IEnumerable<string> Columns
+            public Index(
+                string indexName,
+                bool isUnique,
+                IEnumerable<string> columnNames,
+                IEnumerable<IndexColumnOrder> columnSorts,
+                IEnumerable<string> includedColumnNames
+            )
             {
-                get => _columns;
-                set => _columns = value ?? throw new ArgumentNullException(nameof(value));
+                Name = indexName ?? string.Empty;
+                UniqueText = isUnique ? "✓" : string.Empty;
+
+                ColumnsText = columnNames.Zip(
+                    columnSorts.Select(SortToString),
+                    (c, s) => c + " " + s
+                ).Join(", ");
+                IncludedColumnsText = includedColumnNames.Join(", ");
             }
 
-            private IEnumerable<string> _columns = Enumerable.Empty<string>();
+            public string Name { get; }
 
-            public IEnumerable<IndexColumnOrder> ColumnSorts
-            {
-                get => _columnSorts;
-                set => _columnSorts = value ?? throw new ArgumentNullException(nameof(value));
-            }
+            public string UniqueText { get; }
 
-            private IEnumerable<IndexColumnOrder> _columnSorts = Enumerable.Empty<IndexColumnOrder>();
+            public string ColumnsText { get; }
 
-            public IEnumerable<string> IncludedColumns
-            {
-                get => _includedColumns;
-                set => _includedColumns = value ?? throw new ArgumentNullException(nameof(value));
-            }
-
-            private IEnumerable<string> _includedColumns = Enumerable.Empty<string>();
-
-            public string ColumnsText
-            {
-                get
-                {
-                    return Columns.Zip(
-                        ColumnSorts.Select(SortToString),
-                        (c, s) => c + " " + s
-                    ).Join(", ");
-                }
-            }
-
-            public string IncludedColumnsText => IncludedColumns.Join(", ");
+            public string IncludedColumnsText { get; }
 
             private static string SortToString(IndexColumnOrder order)
             {
@@ -387,95 +358,72 @@ namespace SJP.Schematic.Reporting.Html.ViewModels
 
         internal class ParentKey
         {
-            public ParentKey(Identifier parentTableName, string parentColumnName, string qualifiedChildColumnName)
+            public ParentKey(string constraintName, Identifier parentTableName, string parentColumnName, string qualifiedChildColumnName)
             {
-                _parentTableName = parentTableName ?? throw new ArgumentNullException(nameof(parentTableName));
-                ParentColumnName = parentColumnName ?? throw new ArgumentNullException(nameof(parentColumnName));
-                QualifiedChildColumnName = qualifiedChildColumnName ?? throw new ArgumentNullException(nameof(qualifiedChildColumnName));
+                if (parentTableName == null)
+                    throw new ArgumentNullException(nameof(parentTableName));
+                if (parentColumnName.IsNullOrWhiteSpace())
+                    throw new ArgumentNullException(nameof(parentColumnName));
+                if (qualifiedChildColumnName.IsNullOrWhiteSpace())
+                    throw new ArgumentOutOfRangeException(nameof(qualifiedChildColumnName));
+
+                ParentTableName = parentTableName.ToVisibleName();
+                ParentTableUrl = parentTableName.ToSafeKey();
+                ParentColumnName = parentColumnName;
+
+                var qualifiedParentColumnName = ParentTableName + "." + parentColumnName;
+                var description = qualifiedChildColumnName + " references " + qualifiedParentColumnName;
+                if (!constraintName.IsNullOrWhiteSpace())
+                    description += " via " + constraintName;
+                ConstraintDescription = description;
             }
 
-            public string ConstraintDescription
-            {
-                get
-                {
-                    var message = QualifiedChildColumnName + " references " + QualifiedParentColumnName;
+            public string ConstraintDescription { get; }
 
-                    if (!ConstraintName.IsNullOrWhiteSpace())
-                        message += " via " + ConstraintName;
+            public string ParentTableName { get; }
 
-                    return message;
-                }
-            }
-
-            public string ConstraintName
-            {
-                get => _constraintName;
-                set => _constraintName = value ?? string.Empty;
-            }
-
-            private string _constraintName = string.Empty;
-
-            public string ParentTableName => _parentTableName.ToVisibleName();
-
-            public string ParentTableUrl => _parentTableName.ToSafeKey();
+            public string ParentTableUrl { get; }
 
             public string ParentColumnName { get; }
-
-            public string QualifiedChildColumnName { get; }
-
-            public string QualifiedParentColumnName => ParentTableName + "." + ParentColumnName;
-
-            private readonly Identifier _parentTableName;
         }
 
         internal class ChildKey
         {
-            public ChildKey(Identifier childTableName, string childColumnName, string qualifiedParentColumnName)
+            public ChildKey(string constraintName, Identifier childTableName, string childColumnName, string qualifiedParentColumnName)
             {
-                _childTableName = childTableName ?? throw new ArgumentNullException(nameof(childTableName));
-                ChildColumnName = childColumnName ?? throw new ArgumentNullException(nameof(childColumnName));
-                QualifiedParentColumnName = qualifiedParentColumnName ?? throw new ArgumentNullException(nameof(qualifiedParentColumnName));
+                if (childTableName == null)
+                    throw new ArgumentNullException(nameof(childTableName));
+                if (childColumnName.IsNullOrWhiteSpace())
+                    throw new ArgumentNullException(nameof(childColumnName));
+                if (qualifiedParentColumnName.IsNullOrWhiteSpace())
+                    throw new ArgumentNullException(nameof(qualifiedParentColumnName));
+
+                ChildTableName = childTableName.ToVisibleName();
+                ChildTableUrl = childTableName.ToSafeKey();
+                ChildColumnName = childColumnName;
+
+                var qualifiedChildColumnName = ChildTableName + "." + ChildColumnName;
+                var description = qualifiedChildColumnName + " references " + qualifiedParentColumnName;
+                if (!constraintName.IsNullOrWhiteSpace())
+                    description += " via " + constraintName;
+                ConstraintDescription = description;
             }
 
-            public string ConstraintDescription
-            {
-                get
-                {
-                    var message = QualifiedChildColumnName + " references " + QualifiedParentColumnName;
+            public string ConstraintDescription { get; }
 
-                    if (!ConstraintName.IsNullOrWhiteSpace())
-                        message += " via " + ConstraintName;
+            public string ChildTableName { get; }
 
-                    return message;
-                }
-            }
-
-            public string ConstraintName
-            {
-                get => _onstraintName;
-                set => _onstraintName = value ?? string.Empty;
-            }
-
-            private string _onstraintName = string.Empty;
-
-            public string ChildTableName => _childTableName.ToVisibleName();
-
-            public string ChildTableUrl => _childTableName.ToSafeKey();
+            public string ChildTableUrl { get; }
 
             public string ChildColumnName { get; }
-
-            public string QualifiedChildColumnName => ChildTableName + "." + ChildColumnName;
-
-            public string QualifiedParentColumnName { get; }
-
-            private readonly Identifier _childTableName;
         }
 
         internal class Diagram
         {
-            public Diagram(Identifier tableName, string diagramName, string dotDefinition)
+            public Diagram(Identifier tableName, string diagramName, string dotDefinition, bool isActive)
             {
-                _tableName = tableName ?? throw new ArgumentNullException(nameof(tableName));
+                if (tableName == null)
+                    throw new ArgumentNullException(nameof(tableName));
 
                 if (diagramName.IsNullOrWhiteSpace())
                     throw new ArgumentNullException(nameof(diagramName));
@@ -484,21 +432,21 @@ namespace SJP.Schematic.Reporting.Html.ViewModels
                 if (dotDefinition.IsNullOrWhiteSpace())
                     throw new ArgumentNullException(nameof(dotDefinition));
                 Dot = dotDefinition;
+
+                ContainerId = tableName.ToSafeKey() + "-" + Name.ToLowerInvariant() + "-chart";
+                ActiveClass = isActive ? "class=\"active\"" : string.Empty;
+                ActiveText = isActive ? "active" : string.Empty;
             }
 
             public string Name { get; }
 
-            public string ContainerId => _tableName.ToSafeKey() + "-" + Name.ToLowerInvariant() + "-chart";
+            public string ContainerId { get; }
 
-            public bool IsActive { get; set; }
+            public string ActiveClass { get; }
 
-            public string ActiveClass => IsActive ? "class=\"active\"" : string.Empty;
-
-            public string ActiveText => IsActive ? "active" : string.Empty;
+            public string ActiveText { get; }
 
             public string Dot { get; }
-
-            private readonly Identifier _tableName;
         }
     }
 }

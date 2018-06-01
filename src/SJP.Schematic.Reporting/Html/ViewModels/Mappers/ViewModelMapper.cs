@@ -27,21 +27,22 @@ namespace SJP.Schematic.Reporting.Html.ViewModels.Mappers
             var rowCount = Connection.GetRowCount(Dialect, dbObject.Name);
             var viewColumns = dbObject.Columns.ToList();
 
-            var columns = viewColumns.Select((vc, i) => new View.Column(vc.Name?.LocalName ?? string.Empty)
-            {
-                Ordinal = i + 1,
-                DefaultValue = vc.DefaultValue,
-                IsNullable = vc.IsNullable,
-                Type = vc.Type.Definition
-            }).ToList();
+            var columns = viewColumns.Select((vc, i) =>
+                new View.Column(
+                    vc.Name?.LocalName ?? string.Empty,
+                    i + 1,
+                    vc.IsNullable,
+                    vc.Type.Definition,
+                    vc.DefaultValue
+                )).ToList();
 
-            return new View
-            {
-                ViewName = dbObject.Name,
-                Definition = dbObject.Definition,
-                Columns = columns,
-                RowCount = rowCount
-            };
+            return new View(
+                dbObject.Name,
+                "../",
+                rowCount,
+                dbObject.Definition,
+                columns
+            );
         }
 
         public async Task<View> MapAsync(IRelationalDatabaseView dbObject)
@@ -52,21 +53,22 @@ namespace SJP.Schematic.Reporting.Html.ViewModels.Mappers
             var rowCount = await Connection.GetRowCountAsync(Dialect, dbObject.Name).ConfigureAwait(false);
             var viewColumns = await dbObject.ColumnsAsync().ConfigureAwait(false);
 
-            var columns = viewColumns.Select((vc, i) => new View.Column(vc.Name?.LocalName ?? string.Empty)
-            {
-                Ordinal = i + 1,
-                DefaultValue = vc.DefaultValue,
-                IsNullable = vc.IsNullable,
-                Type = vc.Type.Definition
-            }).ToList();
+            var columns = viewColumns.Select((vc, i) =>
+                new View.Column(
+                    vc.Name?.LocalName ?? string.Empty,
+                    i + 1,
+                    vc.IsNullable,
+                    vc.Type.Definition,
+                    vc.DefaultValue
+                )).ToList();
 
-            return new View
-            {
-                ViewName = dbObject.Name,
-                Definition = dbObject.Definition,
-                Columns = columns,
-                RowCount = rowCount
-            };
+            return new View(
+                dbObject.Name,
+                "../",
+                rowCount,
+                dbObject.Definition,
+                columns
+            );
         }
     }
 }

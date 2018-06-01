@@ -22,11 +22,10 @@ namespace SJP.Schematic.Reporting.Html.ViewModels.Mappers
             if (dbObject == null)
                 throw new ArgumentNullException(nameof(dbObject));
 
-            return new Orphans.Table(dbObject.Name)
-            {
-                ColumnCount = dbObject.Column.UCount(),
-                RowCount = Connection.GetRowCount(Dialect, dbObject.Name)
-            };
+            var columnCount = dbObject.Column.UCount();
+            var rowCount = Connection.GetRowCount(Dialect, dbObject.Name);
+
+            return new Orphans.Table(dbObject.Name, columnCount, rowCount);
         }
 
         public async Task<Orphans.Table> MapAsync(IRelationalDatabaseTable dbObject)
@@ -37,11 +36,7 @@ namespace SJP.Schematic.Reporting.Html.ViewModels.Mappers
             var columnLookup = await dbObject.ColumnAsync().ConfigureAwait(false);
             var rowCount = await Connection.GetRowCountAsync(Dialect, dbObject.Name).ConfigureAwait(false);
 
-            return new Orphans.Table(dbObject.Name)
-            {
-                ColumnCount = columnLookup.UCount(),
-                RowCount = rowCount
-            };
+            return new Orphans.Table(dbObject.Name, columnLookup.UCount(), rowCount);
         }
     }
 }

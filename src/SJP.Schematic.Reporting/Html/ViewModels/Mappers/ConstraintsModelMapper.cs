@@ -16,11 +16,12 @@ namespace SJP.Schematic.Reporting.Html.ViewModels.Mappers
                 throw new ArgumentNullException(nameof(dbObject));
 
             var columnNames = dbObject.Columns.Select(c => c.Name.LocalName).ToList();
-            return new Constraints.PrimaryKeyConstraint(dbObject.Table.Name)
-            {
-                Columns = columnNames,
-                ConstraintName = dbObject.Name?.LocalName
-            };
+
+            return new Constraints.PrimaryKeyConstraint(
+                dbObject.Table.Name,
+                dbObject.Name?.LocalName,
+                columnNames
+            );
         }
 
         Constraints.UniqueKey IDatabaseModelMapper<IDatabaseKey, Constraints.UniqueKey>.Map(IDatabaseKey dbObject)
@@ -29,11 +30,12 @@ namespace SJP.Schematic.Reporting.Html.ViewModels.Mappers
                 throw new ArgumentNullException(nameof(dbObject));
 
             var columnNames = dbObject.Columns.Select(c => c.Name.LocalName).ToList();
-            return new Constraints.UniqueKey(dbObject.Table.Name)
-            {
-                Columns = columnNames,
-                ConstraintName = dbObject.Name?.LocalName
-            };
+
+            return new Constraints.UniqueKey(
+                dbObject.Table.Name,
+                dbObject.Name?.LocalName,
+                columnNames
+            );
         }
 
         public Constraints.ForeignKey Map(IDatabaseRelationalKey dbObject)
@@ -44,15 +46,16 @@ namespace SJP.Schematic.Reporting.Html.ViewModels.Mappers
             var childColumnNames = dbObject.ChildKey.Columns.Select(c => c.Name.LocalName).ToList();
             var parentColumnNames = dbObject.ParentKey.Columns.Select(c => c.Name.LocalName).ToList();
 
-            return new Constraints.ForeignKey(dbObject.ChildKey.Table.Name, dbObject.ParentKey.Table.Name)
-            {
-                ChildColumns = childColumnNames,
-                ConstraintName = dbObject.ChildKey.Name?.LocalName,
-                ParentColumns = parentColumnNames,
-                ParentConstraintName = dbObject.ParentKey.Name?.LocalName,
-                DeleteRule = dbObject.DeleteRule,
-                UpdateRule = dbObject.UpdateRule
-            };
+            return new Constraints.ForeignKey(
+                dbObject.ChildKey.Table.Name,
+                dbObject.ChildKey.Name?.LocalName,
+                childColumnNames,
+                dbObject.ParentKey.Table.Name,
+                dbObject.ParentKey.Name?.LocalName,
+                parentColumnNames,
+                dbObject.DeleteRule,
+                dbObject.UpdateRule
+            );
         }
 
         public Constraints.CheckConstraint Map(IDatabaseCheckConstraint dbObject)
@@ -60,11 +63,11 @@ namespace SJP.Schematic.Reporting.Html.ViewModels.Mappers
             if (dbObject == null)
                 throw new ArgumentNullException(nameof(dbObject));
 
-            return new Constraints.CheckConstraint(dbObject.Table.Name)
-            {
-                ConstraintName = dbObject.Name?.LocalName,
-                Definition = dbObject.Definition
-            };
+            return new Constraints.CheckConstraint(
+                dbObject.Table.Name,
+                dbObject.Name?.LocalName,
+                dbObject.Definition
+            );
         }
     }
 }

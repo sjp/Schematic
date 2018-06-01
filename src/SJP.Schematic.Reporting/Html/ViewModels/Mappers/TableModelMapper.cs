@@ -27,13 +27,6 @@ namespace SJP.Schematic.Reporting.Html.ViewModels.Mappers
                 throw new ArgumentNullException(nameof(dbObject));
 
             var rowCount = Connection.GetRowCount(Dialect, dbObject.Name);
-
-            var result = new Table
-            {
-                TableName = dbObject.Name,
-                RowCount = rowCount
-            };
-
             var tableColumns = dbObject.Columns.Select((c, i) => new { Column = c, Ordinal = i + 1 }).ToList();
             var primaryKey = dbObject.PrimaryKey;
             var uniqueKeys = dbObject.UniqueKeys.ToList();
@@ -52,17 +45,6 @@ namespace SJP.Schematic.Reporting.Html.ViewModels.Mappers
                 var isUniqueKey = uniqueKeys.Any(uk => uk.Columns.Any(ukc => ukc.Name.LocalName == columnName));
                 var isParentKey = parentKeys.Any(fk => fk.ChildKey.Columns.Any(fkc => fkc.Name.LocalName == columnName));
 
-                var column = new Table.Column(result.Name, columnName)
-                {
-                    Ordinal = tableColumn.Ordinal,
-                    IsPrimaryKeyColumn = isPrimaryKey,
-                    IsUniqueKeyColumn = isUniqueKey,
-                    IsForeignKeyColumn = isParentKey,
-                    DefaultValue = col.DefaultValue,
-                    IsNullable = col.IsNullable,
-                    Type = col.Type.Definition
-                };
-
                 var matchingParentKeys = parentKeys.Where(fk => fk.ChildKey.Columns.Any(fkc => fkc.Name.LocalName == columnName)).ToList();
                 var columnParentKeys = new List<Table.ParentKey>();
                 foreach (var parentKey in matchingParentKeys)
@@ -78,17 +60,15 @@ namespace SJP.Schematic.Reporting.Html.ViewModels.Mappers
                         .ToList();
 
                     var columnFks = parentColumnNames.Select(colName =>
-                        new Table.ParentKey(parentKey.ParentKey.Table.Name, colName, qualifiedColumnName)
-                        {
-                            ConstraintName = parentKey.ChildKey.Name?.LocalName
-                        }
-                    )
-                    .ToList();
+                        new Table.ParentKey(
+                            parentKey.ChildKey.Name?.LocalName,
+                            parentKey.ParentKey.Table.Name,
+                            colName,
+                            qualifiedColumnName
+                        )).ToList();
 
                     columnParentKeys.AddRange(columnFks);
                 }
-
-                column.ParentKeys = columnParentKeys;
 
                 var matchingChildKeys = childKeys.Where(ck => ck.ParentKey.Columns.Any(ckc => ckc.Name.LocalName == columnName)).ToList();
                 var columnChildKeys = new List<Table.ChildKey>();
@@ -105,81 +85,70 @@ namespace SJP.Schematic.Reporting.Html.ViewModels.Mappers
                         .ToList();
 
                     var columnFks = childColumnNames.Select(colName =>
-                        new Table.ChildKey(childKey.ChildKey.Table.Name, colName, qualifiedColumnName)
-                        {
-                            ConstraintName = childKey.ChildKey.Name?.LocalName
-                        }
-                    )
-                    .ToList();
+                        new Table.ChildKey(
+                            childKey.ChildKey.Name?.LocalName,
+                            childKey.ChildKey.Table.Name,
+                            colName,
+                            qualifiedColumnName
+                        )).ToList();
 
                     columnChildKeys.AddRange(columnFks);
                 }
 
-                column.ChildKeys = columnChildKeys;
-
+                var column = new Table.Column(
+                    columnName,
+                    tableColumn.Ordinal,
+                    tableColumn.Column.IsNullable,
+                    tableColumn.Column.Type.Definition,
+                    tableColumn.Column.DefaultValue,
+                    isPrimaryKey,
+                    isUniqueKey,
+                    isParentKey,
+                    columnChildKeys,
+                    columnParentKeys
+                );
                 columns.Add(column);
             }
 
             var tableIndexes = dbObject.Indexes.ToList();
             var mappedIndexes = tableIndexes.Select(index =>
-                new Table.Index
-                {
-                    Name = index.Name?.LocalName,
-                    Unique = index.IsUnique,
-                    Columns = index.Columns.Select(c => c.GetExpression(Dialect)).ToList(),
-                    IncludedColumns = index.IncludedColumns.Select(c => c.Name.LocalName).ToList(),
-                    ColumnSorts = index.Columns.Select(c => c.Order).ToList()
-                }
-            ).ToList();
+                new Table.Index(
+                    index.Name?.LocalName,
+                    index.IsUnique,
+                    index.Columns.Select(c => c.GetExpression(Dialect)).ToList(),
+                    index.Columns.Select(c => c.Order).ToList(),
+                    index.IncludedColumns.Select(c => c.Name.LocalName).ToList()
+                )).ToList();
 
-            if (primaryKey != null)
-            {
-                var pkConstraint = new Table.PrimaryKeyConstraint
-                {
-                    Columns = primaryKey.Columns.Select(c => c.Name.LocalName).ToList(),
-                    ConstraintName = primaryKey.Name?.LocalName
-                };
-                result.PrimaryKey = pkConstraint;
-            }
+            var renderPrimaryKey = primaryKey != null
+                ? new Table.PrimaryKeyConstraint(
+                      primaryKey.Name?.LocalName,
+                      primaryKey.Columns.Select(c => c.Name.LocalName).ToList()
+                  )
+                : null;
 
-            var renderUniqueKeys = new List<Table.UniqueKey>();
-            foreach (var uniqueKey in uniqueKeys)
-            {
-                var uk = new Table.UniqueKey
-                {
-                    Columns = uniqueKey.Columns.Select(c => c.Name.LocalName).ToList(),
-                    ConstraintName = uniqueKey.Name?.LocalName
-                };
-                renderUniqueKeys.Add(uk);
-            }
-            result.UniqueKeys = renderUniqueKeys;
+            var renderUniqueKeys = uniqueKeys
+                .Select(uk => new Table.UniqueKey(
+                    uk.Name?.LocalName,
+                    uk.Columns.Select(c => c.Name.LocalName).ToList()
+                )).ToList();
 
-            var renderParentKeys = new List<Table.ForeignKey>();
-            foreach (var parentKey in parentKeys)
-            {
-                var fk = new Table.ForeignKey(parentKey.ParentKey.Table.Name)
-                {
-                    ChildColumns = parentKey.ChildKey.Columns.Select(c => c.Name.LocalName).ToList(),
-                    ConstraintName = parentKey.ChildKey.Name?.LocalName,
-                    ParentColumns = parentKey.ParentKey.Columns.Select(c => c.Name.LocalName).ToList(),
-                    ParentConstraintName = parentKey.ParentKey.Name?.LocalName,
-                    DeleteRule = parentKey.DeleteRule,
-                    UpdateRule = parentKey.UpdateRule
-                };
-                renderParentKeys.Add(fk);
-            }
-            result.ForeignKeys = renderParentKeys;
+            var renderParentKeys = parentKeys.Select(pk =>
+                new Table.ForeignKey(
+                    pk.ChildKey.Name?.LocalName,
+                    pk.ChildKey.Columns.Select(c => c.Name.LocalName).ToList(),
+                    pk.ParentKey.Table.Name,
+                    pk.ParentKey.Name?.LocalName,
+                    pk.ParentKey.Columns.Select(c => c.Name.LocalName).ToList(),
+                    pk.DeleteRule,
+                    pk.UpdateRule
+                )).ToList();
 
-            var renderChecks = new List<Table.CheckConstraint>();
-            foreach (var check in checks)
-            {
-                var ck = new Table.CheckConstraint
-                {
-                    Definition = check.Definition,
-                    ConstraintName = check.Name?.LocalName
-                };
-                renderChecks.Add(ck);
-            }
+            var renderChecks = checks.Select(c =>
+                new Table.CheckConstraint(
+                    c.Name?.LocalName,
+                    c.Definition
+                )).ToList();
 
             var relationshipBuilder = new RelationshipFinder();
             var oneDegreeTables = relationshipBuilder.GetTablesByDegrees(dbObject, 1);
@@ -192,15 +161,22 @@ namespace SJP.Schematic.Reporting.Html.ViewModels.Mappers
 
             var diagrams = new[]
             {
-                new Table.Diagram(dbObject.Name, "One", oneDegreeDot) { IsActive = true },
-                new Table.Diagram(dbObject.Name, "Two", twoDegreeDot)
+                new Table.Diagram(dbObject.Name, "One", oneDegreeDot, true),
+                new Table.Diagram(dbObject.Name, "Two", twoDegreeDot, false)
             };
 
-            result.Columns = columns;
-            result.Indexes = mappedIndexes;
-            result.Diagrams = diagrams;
-
-            return result;
+            return new Table(
+                dbObject.Name,
+                columns,
+                renderPrimaryKey,
+                renderUniqueKeys,
+                renderParentKeys,
+                renderChecks,
+                mappedIndexes,
+                diagrams,
+                "../",
+                rowCount
+            );
         }
 
         public async Task<Table> MapAsync(IRelationalDatabaseTable dbObject)
@@ -209,13 +185,6 @@ namespace SJP.Schematic.Reporting.Html.ViewModels.Mappers
                 throw new ArgumentNullException(nameof(dbObject));
 
             var rowCount = await Connection.GetRowCountAsync(Dialect, dbObject.Name).ConfigureAwait(false);
-
-            var result = new Table
-            {
-                TableName = dbObject.Name,
-                RowCount = rowCount
-            };
-
             var dbColumns = await dbObject.ColumnsAsync().ConfigureAwait(false);
             var tableColumns = dbColumns.Select((c, i) => new { Column = c, Ordinal = i + 1 }).ToList();
             var primaryKey = await dbObject.PrimaryKeyAsync().ConfigureAwait(false);
@@ -236,17 +205,6 @@ namespace SJP.Schematic.Reporting.Html.ViewModels.Mappers
                 var isUniqueKey = uniqueKeys.Any(uk => uk.Columns.Any(ukc => ukc.Name.LocalName == columnName));
                 var isParentKey = parentKeys.Any(fk => fk.ChildKey.Columns.Any(fkc => fkc.Name.LocalName == columnName));
 
-                var column = new Table.Column(result.Name, columnName)
-                {
-                    Ordinal = tableColumn.Ordinal,
-                    IsPrimaryKeyColumn = isPrimaryKey,
-                    IsUniqueKeyColumn = isUniqueKey,
-                    IsForeignKeyColumn = isParentKey,
-                    DefaultValue = col.DefaultValue,
-                    IsNullable = col.IsNullable,
-                    Type = col.Type.Definition
-                };
-
                 var matchingParentKeys = parentKeys.Where(fk => fk.ChildKey.Columns.Any(fkc => fkc.Name.LocalName == columnName)).ToList();
                 var columnParentKeys = new List<Table.ParentKey>();
                 foreach (var parentKey in matchingParentKeys)
@@ -262,17 +220,15 @@ namespace SJP.Schematic.Reporting.Html.ViewModels.Mappers
                         .ToList();
 
                     var columnFks = parentColumnNames.Select(colName =>
-                        new Table.ParentKey(parentKey.ParentKey.Table.Name, colName, qualifiedColumnName)
-                        {
-                            ConstraintName = parentKey.ChildKey.Name?.LocalName
-                        }
-                    )
-                    .ToList();
+                        new Table.ParentKey(
+                            parentKey.ChildKey.Name?.LocalName,
+                            parentKey.ParentKey.Table.Name,
+                            colName,
+                            qualifiedColumnName
+                        )).ToList();
 
                     columnParentKeys.AddRange(columnFks);
                 }
-
-                column.ParentKeys = columnParentKeys;
 
                 var matchingChildKeys = childKeys.Where(ck => ck.ParentKey.Columns.Any(ckc => ckc.Name.LocalName == columnName)).ToList();
                 var columnChildKeys = new List<Table.ChildKey>();
@@ -289,80 +245,69 @@ namespace SJP.Schematic.Reporting.Html.ViewModels.Mappers
                         .ToList();
 
                     var columnFks = childColumnNames.Select(colName =>
-                        new Table.ChildKey(childKey.ChildKey.Table.Name, colName, qualifiedColumnName)
-                        {
-                            ConstraintName = childKey.ChildKey.Name?.LocalName
-                        }
-                    )
-                    .ToList();
+                        new Table.ChildKey(
+                            childKey.ChildKey.Name?.LocalName,
+                            childKey.ChildKey.Table.Name,
+                            colName,
+                            qualifiedColumnName
+                        )).ToList();
 
                     columnChildKeys.AddRange(columnFks);
                 }
 
-                column.ChildKeys = columnChildKeys;
-
+                var column = new Table.Column(
+                    columnName,
+                    tableColumn.Ordinal,
+                    tableColumn.Column.IsNullable,
+                    tableColumn.Column.Type.Definition,
+                    tableColumn.Column.DefaultValue,
+                    isPrimaryKey,
+                    isUniqueKey,
+                    isParentKey,
+                    columnChildKeys,
+                    columnParentKeys
+                );
                 columns.Add(column);
             }
 
             var mappedIndexes = tableIndexes.Select(index =>
-                new Table.Index
-                {
-                    Name = index.Name?.LocalName,
-                    Unique = index.IsUnique,
-                    Columns = index.Columns.Select(c => c.GetExpression(Dialect)).ToList(),
-                    IncludedColumns = index.IncludedColumns.Select(c => c.Name.LocalName).ToList(),
-                    ColumnSorts = index.Columns.Select(c => c.Order).ToList()
-                }
-            ).ToList();
+                new Table.Index(
+                    index.Name?.LocalName,
+                    index.IsUnique,
+                    index.Columns.Select(c => c.GetExpression(Dialect)).ToList(),
+                    index.Columns.Select(c => c.Order).ToList(),
+                    index.IncludedColumns.Select(c => c.Name.LocalName).ToList()
+                )).ToList();
 
-            if (primaryKey != null)
-            {
-                var pkConstraint = new Table.PrimaryKeyConstraint
-                {
-                    Columns = primaryKey.Columns.Select(c => c.Name.LocalName).ToList(),
-                    ConstraintName = primaryKey.Name?.LocalName
-                };
-                result.PrimaryKey = pkConstraint;
-            }
+            var renderPrimaryKey = primaryKey != null
+                ? new Table.PrimaryKeyConstraint(
+                      primaryKey.Name?.LocalName,
+                      primaryKey.Columns.Select(c => c.Name.LocalName).ToList()
+                  )
+                : null;
 
-            var renderUniqueKeys = new List<Table.UniqueKey>();
-            foreach (var uniqueKey in uniqueKeys)
-            {
-                var uk = new Table.UniqueKey
-                {
-                    Columns = uniqueKey.Columns.Select(c => c.Name.LocalName).ToList(),
-                    ConstraintName = uniqueKey.Name?.LocalName
-                };
-                renderUniqueKeys.Add(uk);
-            }
-            result.UniqueKeys = renderUniqueKeys;
+            var renderUniqueKeys = uniqueKeys
+                .Select(uk => new Table.UniqueKey(
+                    uk.Name?.LocalName,
+                    uk.Columns.Select(c => c.Name.LocalName).ToList()
+                )).ToList();
 
-            var renderParentKeys = new List<Table.ForeignKey>();
-            foreach (var parentKey in parentKeys)
-            {
-                var fk = new Table.ForeignKey(parentKey.ParentKey.Table.Name)
-                {
-                    ChildColumns = parentKey.ChildKey.Columns.Select(c => c.Name.LocalName).ToList(),
-                    ConstraintName = parentKey.ChildKey.Name?.LocalName,
-                    ParentColumns = parentKey.ParentKey.Columns.Select(c => c.Name.LocalName).ToList(),
-                    ParentConstraintName = parentKey.ParentKey.Name?.LocalName,
-                    DeleteRule = parentKey.DeleteRule,
-                    UpdateRule = parentKey.UpdateRule
-                };
-                renderParentKeys.Add(fk);
-            }
-            result.ForeignKeys = renderParentKeys;
+            var renderParentKeys = parentKeys.Select(pk =>
+                new Table.ForeignKey(
+                    pk.ChildKey.Name?.LocalName,
+                    pk.ChildKey.Columns.Select(c => c.Name.LocalName).ToList(),
+                    pk.ParentKey.Table.Name,
+                    pk.ParentKey.Name?.LocalName,
+                    pk.ParentKey.Columns.Select(c => c.Name.LocalName).ToList(),
+                    pk.DeleteRule,
+                    pk.UpdateRule
+                )).ToList();
 
-            var renderChecks = new List<Table.CheckConstraint>();
-            foreach (var check in checks)
-            {
-                var ck = new Table.CheckConstraint
-                {
-                    Definition = check.Definition,
-                    ConstraintName = check.Name?.LocalName
-                };
-                renderChecks.Add(ck);
-            }
+            var renderChecks = checks.Select(c =>
+                new Table.CheckConstraint(
+                    c.Name?.LocalName,
+                    c.Definition
+                )).ToList();
 
             var relationshipBuilder = new RelationshipFinder();
             var oneDegreeTables = await relationshipBuilder.GetTablesByDegreesAsync(dbObject, 1).ConfigureAwait(false);
@@ -375,15 +320,22 @@ namespace SJP.Schematic.Reporting.Html.ViewModels.Mappers
 
             var diagrams = new[]
             {
-                new Table.Diagram(dbObject.Name, "One", oneDegreeDot) { IsActive = true },
-                new Table.Diagram(dbObject.Name, "Two", twoDegreeDot)
+                new Table.Diagram(dbObject.Name, "One", oneDegreeDot, true),
+                new Table.Diagram(dbObject.Name, "Two", twoDegreeDot, false)
             };
 
-            result.Columns = columns;
-            result.Indexes = mappedIndexes;
-            result.Diagrams = diagrams;
-
-            return result;
+            return new Table(
+                dbObject.Name,
+                columns,
+                renderPrimaryKey,
+                renderUniqueKeys,
+                renderParentKeys,
+                renderChecks,
+                mappedIndexes,
+                diagrams,
+                "../",
+                rowCount
+            );
         }
     }
 }

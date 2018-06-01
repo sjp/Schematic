@@ -38,15 +38,10 @@ namespace SJP.Schematic.Reporting.Html.Renderers
                 .ThenBy(i => i.Name)
                 .ToList();
 
-            var templateParameter = new Indexes { TableIndexes = indexes };
+            var templateParameter = new Indexes(indexes, string.Empty);
             var renderedIndexes = Formatter.RenderTemplate(templateParameter);
 
-            var indexesContainer = new Container
-            {
-                Content = renderedIndexes,
-                DatabaseName = Database.DatabaseName
-            };
-
+            var indexesContainer = new Container(renderedIndexes, Database.DatabaseName, string.Empty);
             var renderedPage = Formatter.RenderTemplate(indexesContainer);
 
             if (!ExportDirectory.Exists)
@@ -72,15 +67,10 @@ namespace SJP.Schematic.Reporting.Html.Renderers
                 .ThenBy(i => i.Name)
                 .ToList();
 
-            var templateParameter = new Indexes { TableIndexes = indexes };
+            var templateParameter = new Indexes(indexes, string.Empty);
             var renderedIndexes = Formatter.RenderTemplate(templateParameter);
 
-            var indexesContainer = new Container
-            {
-                Content = renderedIndexes,
-                DatabaseName = Database.DatabaseName
-            };
-
+            var indexesContainer = new Container(renderedIndexes, Database.DatabaseName, string.Empty);
             var renderedPage = Formatter.RenderTemplate(indexesContainer);
 
             if (!ExportDirectory.Exists)

@@ -45,21 +45,15 @@ namespace SJP.Schematic.Reporting.Html.Renderers
             var foreignKeyViewModels = foreignKeys.Select(mapper.Map).OrderBy(fk => fk.TableName).ToList();
             var checkConstraintViewModels = checkConstraints.Select(mapper.Map).OrderBy(ck => ck.TableName).ToList();
 
-            var templateParameter = new Constraints
-            {
-                PrimaryKeys = primaryKeyViewModels,
-                UniqueKeys = uniqueKeyViewModels,
-                ForeignKeys = foreignKeyViewModels,
-                CheckConstraints = checkConstraintViewModels
-            };
+            var templateParameter = new Constraints(
+                primaryKeyViewModels,
+                uniqueKeyViewModels,
+                foreignKeyViewModels,
+                checkConstraintViewModels
+            );
             var renderedConstraints = Formatter.RenderTemplate(templateParameter);
 
-            var constraintsContainer = new Container
-            {
-                Content = renderedConstraints,
-                DatabaseName = Database.DatabaseName
-            };
-
+            var constraintsContainer = new Container(renderedConstraints, Database.DatabaseName, string.Empty);
             var renderedPage = Formatter.RenderTemplate(constraintsContainer);
 
             if (!ExportDirectory.Exists)
@@ -88,20 +82,15 @@ namespace SJP.Schematic.Reporting.Html.Renderers
             var foreignKeyViewModels = foreignKeys.Select(mapper.Map).OrderBy(fk => fk.TableName).ToList();
             var checkConstraintViewModels = checkConstraints.Select(mapper.Map).OrderBy(ck => ck.TableName).ToList();
 
-            var templateParameter = new Constraints
-            {
-                PrimaryKeys = primaryKeyViewModels,
-                UniqueKeys = uniqueKeyViewModels,
-                ForeignKeys = foreignKeyViewModels,
-                CheckConstraints = checkConstraintViewModels
-            };
+            var templateParameter = new Constraints(
+                primaryKeyViewModels,
+                uniqueKeyViewModels,
+                foreignKeyViewModels,
+                checkConstraintViewModels
+            );
             var renderedConstraints = Formatter.RenderTemplate(templateParameter);
 
-            var constraintsContainer = new Container
-            {
-                Content = renderedConstraints,
-                DatabaseName = Database.DatabaseName
-            };
+            var constraintsContainer = new Container(renderedConstraints, Database.DatabaseName, string.Empty);
             var renderedPage = Formatter.RenderTemplate(constraintsContainer);
 
             if (!ExportDirectory.Exists)

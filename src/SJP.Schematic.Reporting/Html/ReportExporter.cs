@@ -50,6 +50,7 @@ namespace SJP.Schematic.Reporting.Html
             var assetExporter = new AssetExporter();
             await assetExporter.SaveAssetsAsync(ExportDirectory).ConfigureAwait(false);
         }
+
         protected IEnumerable<ITemplateRenderer> GetRenderers()
         {
             return new ITemplateRenderer[]

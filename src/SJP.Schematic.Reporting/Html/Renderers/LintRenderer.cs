@@ -37,15 +37,10 @@ namespace SJP.Schematic.Reporting.Html.Renderers
                 .Select(m => new LintResults.LintRule(m.Key, m.Select(r => r.Message).ToList()))
                 .ToList();
 
-            var templateParameter = new LintResults { LintRules = groupedRules };
+            var templateParameter = new LintResults(groupedRules);
             var renderedLint = Formatter.RenderTemplate(templateParameter);
 
-            var lintContainer = new Container
-            {
-                Content = renderedLint,
-                DatabaseName = Database.DatabaseName
-            };
-
+            var lintContainer = new Container(renderedLint, Database.DatabaseName, string.Empty);
             var renderedPage = Formatter.RenderTemplate(lintContainer);
 
             if (!ExportDirectory.Exists)
@@ -65,15 +60,10 @@ namespace SJP.Schematic.Reporting.Html.Renderers
                 .Select(m => new LintResults.LintRule(m.Key, m.Select(r => r.Message).ToList()))
                 .ToList();
 
-            var templateParameter = new LintResults { LintRules = groupedRules };
+            var templateParameter = new LintResults(groupedRules);
             var renderedLint = Formatter.RenderTemplate(templateParameter);
 
-            var lintContainer = new Container
-            {
-                Content = renderedLint,
-                DatabaseName = Database.DatabaseName
-            };
-
+            var lintContainer = new Container(renderedLint, Database.DatabaseName, string.Empty);
             var renderedPage = Formatter.RenderTemplate(lintContainer);
 
             if (!ExportDirectory.Exists)

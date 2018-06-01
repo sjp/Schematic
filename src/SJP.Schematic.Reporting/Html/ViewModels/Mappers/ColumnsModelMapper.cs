@@ -38,16 +38,17 @@ namespace SJP.Schematic.Reporting.Html.ViewModels.Mappers
                 var isUniqueKeyColumn = uniqueKeys.Any(uk => uk.Columns.Any(ukc => ukc.Name.LocalName == column.Name.LocalName));
                 var isForeignKeyColumn = parentKeys.Any(fk => fk.ChildKey.Columns.Any(fkc => fkc.Name.LocalName == column.Name.LocalName));
 
-                return new Columns.TableColumn(dbObject.Name, column.Name.LocalName)
-                {
-                    Ordinal = i + 1,
-                    IsNullable = column.IsNullable,
-                    DefaultValue = column.DefaultValue,
-                    Type = column.Type.Definition,
-                    IsForeignKeyColumn = isForeignKeyColumn,
-                    IsPrimaryKeyColumn = isPrimaryKeyColumn,
-                    IsUniqueKeyColumn = isUniqueKeyColumn
-                };
+                return new Columns.TableColumn(
+                    dbObject.Name,
+                    i + 1,
+                    column.Name.LocalName,
+                    column.Type.Definition,
+                    column.IsNullable,
+                    column.DefaultValue,
+                    isPrimaryKeyColumn,
+                    isUniqueKeyColumn,
+                    isForeignKeyColumn
+                );
             }).ToList();
         }
 
@@ -68,16 +69,17 @@ namespace SJP.Schematic.Reporting.Html.ViewModels.Mappers
                 var isUniqueKeyColumn = uniqueKeys.Any(uk => uk.Columns.Any(ukc => ukc.Name.LocalName == column.Name.LocalName));
                 var isForeignKeyColumn = parentKeys.Any(fk => fk.ChildKey.Columns.Any(fkc => fkc.Name.LocalName == column.Name.LocalName));
 
-                return new Columns.TableColumn(dbObject.Name, column.Name.LocalName)
-                {
-                    Ordinal = i + 1,
-                    IsNullable = column.IsNullable,
-                    DefaultValue = column.DefaultValue,
-                    Type = column.Type.Definition,
-                    IsForeignKeyColumn = isForeignKeyColumn,
-                    IsPrimaryKeyColumn = isPrimaryKeyColumn,
-                    IsUniqueKeyColumn = isUniqueKeyColumn
-                };
+                return new Columns.TableColumn(
+                    dbObject.Name,
+                    i + 1,
+                    column.Name.LocalName,
+                    column.Type.Definition,
+                    column.IsNullable,
+                    column.DefaultValue,
+                    isPrimaryKeyColumn,
+                    isUniqueKeyColumn,
+                    isForeignKeyColumn
+                );
             }).ToList();
         }
 
@@ -88,12 +90,15 @@ namespace SJP.Schematic.Reporting.Html.ViewModels.Mappers
 
             var columns = dbObject.Columns.ToList();
 
-            return columns.Select((c, i) => new Columns.ViewColumn(dbObject.Name, c.Name.LocalName)
-            {
-                Ordinal = i + 1,
-                IsNullable = c.IsNullable,
-                Type = c.Type.Definition
-            }).ToList();
+            return columns.Select((c, i) =>
+                new Columns.ViewColumn(
+                    dbObject.Name,
+                    i + 1,
+                    c.Name.LocalName,
+                    c.Type.Definition,
+                    c.IsNullable
+                )
+            ).ToList();
         }
 
         public async Task<IEnumerable<Columns.ViewColumn>> MapAsync(IRelationalDatabaseView dbObject)
@@ -103,12 +108,15 @@ namespace SJP.Schematic.Reporting.Html.ViewModels.Mappers
 
             var columns = await dbObject.ColumnsAsync().ConfigureAwait(false);
 
-            return columns.Select((c, i) => new Columns.ViewColumn(dbObject.Name, c.Name.LocalName)
-            {
-                Ordinal = i + 1,
-                IsNullable = c.IsNullable,
-                Type = c.Type.Definition
-            }).ToList();
+            return columns.Select((c, i) =>
+                new Columns.ViewColumn(
+                    dbObject.Name,
+                    i + 1,
+                    c.Name.LocalName,
+                    c.Type.Definition,
+                    c.IsNullable
+                )
+            ).ToList();
         }
     }
 }

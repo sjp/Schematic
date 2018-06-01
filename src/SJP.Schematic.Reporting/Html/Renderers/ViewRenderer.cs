@@ -41,12 +41,7 @@ namespace SJP.Schematic.Reporting.Html.Renderers
                 var viewModel = mapper.Map(view);
                 var renderedView = Formatter.RenderTemplate(viewModel);
 
-                var viewContainer = new Container
-                {
-                    Content = renderedView,
-                    DatabaseName = Database.DatabaseName,
-                    RootPath = "../"
-                };
+                var viewContainer = new Container(renderedView, Database.DatabaseName, "../");
                 var renderedPage = Formatter.RenderTemplate(viewContainer);
 
                 var outputPath = Path.Combine(ExportDirectory.FullName, view.Name.ToSafeKey() + ".html");
@@ -67,12 +62,7 @@ namespace SJP.Schematic.Reporting.Html.Renderers
                 var viewModel = await mapper.MapAsync(view).ConfigureAwait(false);
                 var renderedView = Formatter.RenderTemplate(viewModel);
 
-                var viewContainer = new Container
-                {
-                    Content = renderedView,
-                    DatabaseName = Database.DatabaseName,
-                    RootPath = "../"
-                };
+                var viewContainer = new Container(renderedView, Database.DatabaseName, "../");
                 var renderedPage = Formatter.RenderTemplate(viewContainer);
 
                 var outputPath = Path.Combine(ExportDirectory.FullName, view.Name.ToSafeKey() + ".html");

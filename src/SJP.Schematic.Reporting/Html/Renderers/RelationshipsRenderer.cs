@@ -32,12 +32,7 @@ namespace SJP.Schematic.Reporting.Html.Renderers
             var templateParameter = mapper.Map(Database);
             var renderedRelationships = Formatter.RenderTemplate(templateParameter);
 
-            var relationshipContainer = new Container
-            {
-                Content = renderedRelationships,
-                DatabaseName = Database.DatabaseName
-            };
-
+            var relationshipContainer = new Container(renderedRelationships, Database.DatabaseName, string.Empty);
             var renderedPage = Formatter.RenderTemplate(relationshipContainer);
 
             if (!ExportDirectory.Exists)
@@ -53,12 +48,7 @@ namespace SJP.Schematic.Reporting.Html.Renderers
             var templateParameter = await mapper.MapAsync(Database).ConfigureAwait(false);
             var renderedRelationships = Formatter.RenderTemplate(templateParameter);
 
-            var relationshipContainer = new Container
-            {
-                Content = renderedRelationships,
-                DatabaseName = Database.DatabaseName
-            };
-
+            var relationshipContainer = new Container(renderedRelationships, Database.DatabaseName, string.Empty);
             var renderedPage = Formatter.RenderTemplate(relationshipContainer);
 
             if (!ExportDirectory.Exists)

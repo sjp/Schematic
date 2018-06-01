@@ -42,15 +42,10 @@ namespace SJP.Schematic.Reporting.Html.Renderers
                 .ThenBy(c => c.Ordinal)
                 .ToList();
 
-            var templateParameter = new Columns { TableColumns = orderedColumns };
-            var renderedOrphans = Formatter.RenderTemplate(templateParameter);
+            var templateParameter = new Columns(orderedColumns);
+            var renderedColumns = Formatter.RenderTemplate(templateParameter);
 
-            var columnsContainer = new Container
-            {
-                Content = renderedOrphans,
-                DatabaseName = Database.DatabaseName
-            };
-
+            var columnsContainer = new Container(renderedColumns, Database.DatabaseName, string.Empty);
             var renderedPage = Formatter.RenderTemplate(columnsContainer);
 
             if (!ExportDirectory.Exists)
@@ -78,15 +73,10 @@ namespace SJP.Schematic.Reporting.Html.Renderers
                 .ThenBy(c => c.Ordinal)
                 .ToList();
 
-            var templateParameter = new Columns { TableColumns = orderedColumns };
-            var renderedOrphans = Formatter.RenderTemplate(templateParameter);
+            var templateParameter = new Columns(orderedColumns);
+            var renderedColumns = Formatter.RenderTemplate(templateParameter);
 
-            var columnsContainer = new Container
-            {
-                Content = renderedOrphans,
-                DatabaseName = Database.DatabaseName
-            };
-
+            var columnsContainer = new Container(renderedColumns, Database.DatabaseName, string.Empty);
             var renderedPage = Formatter.RenderTemplate(columnsContainer);
 
             if (!ExportDirectory.Exists)

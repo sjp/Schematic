@@ -7,19 +7,18 @@ namespace SJP.Schematic.Reporting.Html.ViewModels
 {
     internal class Relationships : ITemplateParameter
     {
-        public ReportTemplate Template { get; } = ReportTemplate.Relationships;
-
-        public IEnumerable<Diagram> Diagrams
+        public Relationships(IEnumerable<Diagram> diagrams)
         {
-            get => _diagrams;
-            set => _diagrams = value ?? throw new ArgumentNullException(nameof(value));
+            Diagrams = diagrams ?? throw new ArgumentNullException(nameof(diagrams));
         }
 
-        private IEnumerable<Diagram> _diagrams = Enumerable.Empty<Diagram>();
+        public ReportTemplate Template { get; } = ReportTemplate.Relationships;
+
+        public IEnumerable<Diagram> Diagrams { get; }
 
         internal class Diagram
         {
-            public Diagram(string diagramName, string dotDefinition)
+            public Diagram(string diagramName, string dotDefinition, bool isActive)
             {
                 if (diagramName.IsNullOrWhiteSpace())
                     throw new ArgumentNullException(nameof(diagramName));
@@ -28,17 +27,19 @@ namespace SJP.Schematic.Reporting.Html.ViewModels
                 if (dotDefinition.IsNullOrWhiteSpace())
                     throw new ArgumentNullException(nameof(dotDefinition));
                 Dot = dotDefinition;
+
+                ContainerId = Name.ToLowerInvariant() + "-chart";
+                ActiveClass = isActive ? "class=\"active\"" : string.Empty;
+                ActiveText = isActive ? "active" : string.Empty;
             }
 
             public string Name { get; }
 
-            public string ContainerId => Name.ToLowerInvariant() + "-chart";
+            public string ContainerId { get; }
 
-            public bool IsActive { get; set; }
+            public string ActiveClass { get; }
 
-            public string ActiveClass => IsActive ? "class=\"active\"" : string.Empty;
-
-            public string ActiveText => IsActive ? "active" : string.Empty;
+            public string ActiveText { get; }
 
             public string Dot { get; }
         }

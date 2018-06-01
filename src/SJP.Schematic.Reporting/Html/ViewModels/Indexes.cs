@@ -8,83 +8,74 @@ namespace SJP.Schematic.Reporting.Html.ViewModels
 {
     internal class Indexes : ITemplateParameter
     {
+        public Indexes(IEnumerable<Index> indexes, string rootPath)
+        {
+            if (indexes == null)
+                throw new ArgumentNullException(nameof(indexes));
+            if (rootPath == null)
+                throw new ArgumentNullException(nameof(rootPath));
+
+            TableIndexes = indexes;
+            IndexesCount = indexes.UCount();
+            IndexesTableClass = IndexesCount > 0 ? CssClasses.DataTableClass : string.Empty;
+
+            RootPath = rootPath;
+        }
+
         public ReportTemplate Template { get; } = ReportTemplate.Indexes;
 
-        public string RootPath
-        {
-            get => _rootPath;
-            set => _rootPath = value ?? throw new ArgumentNullException(nameof(value));
-        }
+        public string RootPath { get; }
 
-        private string _rootPath = "/";
+        public IEnumerable<Index> TableIndexes { get; }
 
-        public IEnumerable<Index> TableIndexes
-        {
-            get => _indexes;
-            set => _indexes = value ?? throw new ArgumentNullException(nameof(value));
-        }
+        public uint IndexesCount { get; }
 
-        private IEnumerable<Index> _indexes = Enumerable.Empty<Index>();
-
-        public uint IndexesCount => TableIndexes.UCount();
-
-        public string IndexesTableClass => IndexesCount > 0 ? CssClasses.DataTableClass : string.Empty;
+        public string IndexesTableClass { get; }
 
         internal class Index
         {
-            public Index(Identifier table)
+            public Index(
+                string indexName,
+                Identifier tableName,
+                bool isUnique,
+                IEnumerable<string> columnNames,
+                IEnumerable<IndexColumnOrder> columnSorts,
+                IEnumerable<string> includedColumnNames
+            )
             {
-                Table = table ?? throw new ArgumentNullException(nameof(table));
+                if (tableName == null)
+                    throw new ArgumentNullException(nameof(tableName));
+                if (columnNames == null || columnNames.Empty())
+                    throw new ArgumentNullException(nameof(columnNames));
+                if (columnSorts == null || columnSorts.Empty())
+                    throw new ArgumentNullException(nameof(columnSorts));
+                if (includedColumnNames == null)
+                    throw new ArgumentNullException(nameof(includedColumnNames));
+
+                Name = indexName ?? string.Empty;
+                TableName = tableName.ToVisibleName();
+                TableUrl = tableName.ToSafeKey();
+
+                UniqueText = isUnique ? "✓" : string.Empty;
+
+                ColumnsText = columnNames.Zip(
+                    columnSorts.Select(SortToString),
+                    (c, s) => c + " " + s
+                ).Join(", ");
+                IncludedColumnsText = includedColumnNames.Join(", ");
             }
 
-            public string Name { get; set; }
+            public string Name { get; }
 
-            protected Identifier Table { get; }
+            public string TableName { get; }
 
-            public string TableName => Table.ToVisibleName();
+            public string TableUrl { get; }
 
-            public string TableUrl => Table.ToSafeKey();
+            public string UniqueText { get; }
 
-            public bool Unique { get; set; }
+            public string ColumnsText { get; }
 
-            public string UniqueText => Unique ? "✓" : string.Empty;
-
-            public IEnumerable<string> Columns
-            {
-                get => _columns;
-                set => _columns = value ?? throw new ArgumentNullException(nameof(value));
-            }
-
-            private IEnumerable<string> _columns = Enumerable.Empty<string>();
-
-            public IEnumerable<IndexColumnOrder> ColumnSorts
-            {
-                get => _columnSorts;
-                set => _columnSorts = value ?? throw new ArgumentNullException(nameof(value));
-            }
-
-            private IEnumerable<IndexColumnOrder> _columnSorts = Enumerable.Empty<IndexColumnOrder>();
-
-            public IEnumerable<string> IncludedColumns
-            {
-                get => _includedColumns;
-                set => _includedColumns = value ?? throw new ArgumentNullException(nameof(value));
-            }
-
-            private IEnumerable<string> _includedColumns = Enumerable.Empty<string>();
-
-            public string ColumnsText
-            {
-                get
-                {
-                    return Columns.Zip(
-                        ColumnSorts.Select(SortToString),
-                        (c, s) => c + " " + s
-                    ).Join(", ");
-                }
-            }
-
-            public string IncludedColumnsText => IncludedColumns.Join(", ");
+            public string IncludedColumnsText { get; }
 
             private static string SortToString(IndexColumnOrder order)
             {

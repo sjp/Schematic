@@ -19,14 +19,14 @@ namespace SJP.Schematic.Reporting.Html.ViewModels.Mappers
             if (dbObject == null)
                 throw new ArgumentNullException(nameof(dbObject));
 
-            return new Indexes.Index(dbObject.Table.Name)
-            {
-                Name = dbObject.Name?.LocalName ?? string.Empty,
-                Unique = dbObject.IsUnique,
-                Columns = dbObject.Columns.Select(c => c.GetExpression(Dialect)).ToList(),
-                IncludedColumns = dbObject.IncludedColumns.Select(c => c.Name.LocalName).ToList(),
-                ColumnSorts = dbObject.Columns.Select(c => c.Order).ToList()
-            };
+            return new Indexes.Index(
+                dbObject.Name?.LocalName,
+                dbObject.Table.Name,
+                dbObject.IsUnique,
+                dbObject.Columns.Select(c => c.GetExpression(Dialect)).ToList(),
+                dbObject.Columns.Select(c => c.Order).ToList(),
+                dbObject.IncludedColumns.Select(c => c.Name.LocalName).ToList()
+            );
         }
     }
 }

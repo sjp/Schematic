@@ -40,11 +40,11 @@ namespace SJP.Schematic.Reporting.Html.ViewModels.Mappers
 
             var diagrams = new[]
             {
-                new Relationships.Diagram("Compact", compactDot) { IsActive = true },
-                new Relationships.Diagram("Large", largeDot)
+                new Relationships.Diagram("Compact", compactDot, true),
+                new Relationships.Diagram("Large", largeDot, false)
             };
 
-            return new Relationships { Diagrams = diagrams };
+            return new Relationships(diagrams);
         }
 
         public async Task<Relationships> MapAsync(IRelationalDatabase dbObject)
@@ -71,11 +71,11 @@ namespace SJP.Schematic.Reporting.Html.ViewModels.Mappers
 
             var diagrams = new[]
             {
-                new Relationships.Diagram("Compact", compactDot) { IsActive = true },
-                new Relationships.Diagram("Large", largeDot)
+                new Relationships.Diagram("Compact", compactDot, true),
+                new Relationships.Diagram("Large", largeDot, false)
             };
 
-            return new Relationships { Diagrams = diagrams };
+            return new Relationships(diagrams);
         }
     }
 }

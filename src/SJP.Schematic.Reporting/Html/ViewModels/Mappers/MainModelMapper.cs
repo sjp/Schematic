@@ -11,15 +11,15 @@ namespace SJP.Schematic.Reporting.Html.ViewModels.Mappers
         IDatabaseModelMapper<IDatabaseSynonym, Main.Synonym>,
         IDatabaseModelMapper<IDatabaseSequence, Main.Sequence>
     {
-        public MainModelMapper(IDbConnection connection, IDatabaseDialect dialect)
+        public MainModelMapper(IDbConnection connection, IRelationalDatabase database)
         {
             Connection = connection ?? throw new ArgumentNullException(nameof(connection));
-            Dialect = dialect ?? throw new ArgumentNullException(nameof(dialect));
+            Database = database ?? throw new ArgumentNullException(nameof(database));
         }
 
         protected IDbConnection Connection { get; }
 
-        protected IDatabaseDialect Dialect { get; }
+        protected IRelationalDatabase Database { get; }
 
         public Main.Table Map(IRelationalDatabaseTable dbObject)
         {
@@ -35,15 +35,15 @@ namespace SJP.Schematic.Reporting.Html.ViewModels.Mappers
             var columnLookup = dbObject.Column;
             var columnCount = columnLookup.UCount();
 
-            var rowCount = Connection.GetRowCount(Dialect, dbObject.Name);
+            var rowCount = Connection.GetRowCount(Database.Dialect, dbObject.Name);
 
-            return new Main.Table(dbObject.Name)
-            {
-                ParentsCount = parentKeyCount,
-                ChildrenCount = childKeyCount,
-                ColumnCount = columnCount,
-                RowCount = rowCount
-            };
+            return new Main.Table(
+                dbObject.Name,
+                parentKeyCount,
+                childKeyCount,
+                columnCount,
+                rowCount
+            );
         }
 
         public async Task<Main.Table> MapAsync(IRelationalDatabaseTable dbObject)
@@ -60,15 +60,15 @@ namespace SJP.Schematic.Reporting.Html.ViewModels.Mappers
             var columnLookup = await dbObject.ColumnAsync().ConfigureAwait(false);
             var columnCount = columnLookup.UCount();
 
-            var rowCount = await Connection.GetRowCountAsync(Dialect, dbObject.Name).ConfigureAwait(false);
+            var rowCount = await Connection.GetRowCountAsync(Database.Dialect, dbObject.Name).ConfigureAwait(false);
 
-            return new Main.Table(dbObject.Name)
-            {
-                ParentsCount = parentKeyCount,
-                ChildrenCount = childKeyCount,
-                ColumnCount = columnCount,
-                RowCount = rowCount
-            };
+            return new Main.Table(
+                dbObject.Name,
+                parentKeyCount,
+                childKeyCount,
+                columnCount,
+                rowCount
+            );
         }
 
         public Main.View Map(IRelationalDatabaseView dbObject)
@@ -78,14 +78,9 @@ namespace SJP.Schematic.Reporting.Html.ViewModels.Mappers
 
             var columnLookup = dbObject.Column;
             var columnCount = columnLookup.UCount();
+            var rowCount = Connection.GetRowCount(Database.Dialect, dbObject.Name);
 
-            var rowCount = Connection.GetRowCount(Dialect, dbObject.Name);
-
-            return new Main.View(dbObject.Name)
-            {
-                ColumnCount = columnCount,
-                RowCount = rowCount
-            };
+            return new Main.View(dbObject.Name, columnCount, rowCount);
         }
 
         public async Task<Main.View> MapAsync(IRelationalDatabaseView dbObject)
@@ -95,14 +90,9 @@ namespace SJP.Schematic.Reporting.Html.ViewModels.Mappers
 
             var columnLookup = await dbObject.ColumnAsync().ConfigureAwait(false);
             var columnCount = columnLookup.UCount();
+            var rowCount = await Connection.GetRowCountAsync(Database.Dialect, dbObject.Name).ConfigureAwait(false);
 
-            var rowCount = await Connection.GetRowCountAsync(Dialect, dbObject.Name).ConfigureAwait(false);
-
-            return new Main.View(dbObject.Name)
-            {
-                ColumnCount = columnCount,
-                RowCount = rowCount
-            };
+            return new Main.View(dbObject.Name, columnCount, rowCount);
         }
 
         public Main.Sequence Map(IDatabaseSequence dbObject)
@@ -126,7 +116,57 @@ namespace SJP.Schematic.Reporting.Html.ViewModels.Mappers
             if (dbObject == null)
                 throw new ArgumentNullException(nameof(dbObject));
 
-            return new Main.Synonym(dbObject.Name, dbObject.Target);
+            var targetUrl = GetSynonymTargetUrl(dbObject.Target);
+            return new Main.Synonym(dbObject.Name, dbObject.Target, targetUrl);
+        }
+
+        public async Task<Main.Synonym> MapAsync(IDatabaseSynonym dbObject)
+        {
+            if (dbObject == null)
+                throw new ArgumentNullException(nameof(dbObject));
+
+            var targetUrl = await GetSynonymTargetUrlAsync(dbObject.Target).ConfigureAwait(false);
+            return new Main.Synonym(dbObject.Name, dbObject.Target, targetUrl);
+        }
+
+        private Uri GetSynonymTargetUrl(Identifier identifier)
+        {
+            if (identifier == null)
+                throw new ArgumentNullException(nameof(identifier));
+
+            var isTable = Database.TableExists(identifier);
+            if (isTable)
+            {
+                return new Uri("tables/" + identifier.ToSafeKey() + ".html", UriKind.Relative);
+            }
+            else
+            {
+                var isView = Database.ViewExists(identifier);
+                if (isView)
+                    return new Uri("views/" + identifier.ToSafeKey() + ".html", UriKind.Relative);
+            }
+
+            return null;
+        }
+
+        private async Task<Uri> GetSynonymTargetUrlAsync(Identifier identifier)
+        {
+            if (identifier == null)
+                throw new ArgumentNullException(nameof(identifier));
+
+            var isTable = await Database.TableExistsAsync(identifier).ConfigureAwait(false);
+            if (isTable)
+            {
+                return new Uri("tables/" + identifier.ToSafeKey() + ".html", UriKind.Relative);
+            }
+            else
+            {
+                var isView = await Database.ViewExistsAsync(identifier).ConfigureAwait(false);
+                if (isView)
+                    return new Uri("views/" + identifier.ToSafeKey() + ".html", UriKind.Relative);
+            }
+
+            return null;
         }
     }
 }
