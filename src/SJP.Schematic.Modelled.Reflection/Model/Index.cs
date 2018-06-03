@@ -20,7 +20,7 @@ namespace SJP.Schematic.Modelled.Reflection.Model
                 throw new ArgumentNullException(nameof(indexColumns));
 
             Columns = indexColumns.ToList();
-            IncludedColumns = Enumerable.Empty<IModelledColumn>();
+            IncludedColumns = Array.Empty<IModelledColumn>();
         }
 
         private Index(IModelledIndex index, IEnumerable<IModelledColumn> includedColumns)

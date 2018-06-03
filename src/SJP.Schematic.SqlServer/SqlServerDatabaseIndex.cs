@@ -41,7 +41,7 @@ namespace SJP.Schematic.SqlServer
                 throw new ArgumentNullException(nameof(includedColumns));
 
             if (includedColumns == null)
-                includedColumns = Enumerable.Empty<IDatabaseColumn>();
+                includedColumns = Array.Empty<IDatabaseColumn>();
 
             Parent = parent ?? throw new ArgumentNullException(nameof(parent));
             Name = name.LocalName;

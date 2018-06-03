@@ -38,12 +38,12 @@ namespace SJP.Schematic.Lint.Tests.Rules
                 "test",
                 new List<IDatabaseTableColumn>(),
                 null,
-                Enumerable.Empty<IDatabaseKey>(),
-                Enumerable.Empty<IDatabaseRelationalKey>(),
-                Enumerable.Empty<IDatabaseRelationalKey>(),
-                Enumerable.Empty<IDatabaseTableIndex>(),
-                Enumerable.Empty<IDatabaseCheckConstraint>(),
-                Enumerable.Empty<IDatabaseTrigger>()
+                Array.Empty<IDatabaseKey>(),
+                Array.Empty<IDatabaseRelationalKey>(),
+                Array.Empty<IDatabaseRelationalKey>(),
+                Array.Empty<IDatabaseTableIndex>(),
+                Array.Empty<IDatabaseCheckConstraint>(),
+                Array.Empty<IDatabaseTrigger>()
             );
             database.Tables = new[] { table };
 
@@ -79,12 +79,12 @@ namespace SJP.Schematic.Lint.Tests.Rules
                 "test",
                 new List<IDatabaseTableColumn>(),
                 testPrimaryKey,
-                Enumerable.Empty<IDatabaseKey>(),
-                Enumerable.Empty<IDatabaseRelationalKey>(),
-                Enumerable.Empty<IDatabaseRelationalKey>(),
-                Enumerable.Empty<IDatabaseTableIndex>(),
-                Enumerable.Empty<IDatabaseCheckConstraint>(),
-                Enumerable.Empty<IDatabaseTrigger>()
+                Array.Empty<IDatabaseKey>(),
+                Array.Empty<IDatabaseRelationalKey>(),
+                Array.Empty<IDatabaseRelationalKey>(),
+                Array.Empty<IDatabaseTableIndex>(),
+                Array.Empty<IDatabaseCheckConstraint>(),
+                Array.Empty<IDatabaseTrigger>()
             );
             database.Tables = new[] { table };
 
@@ -133,12 +133,12 @@ namespace SJP.Schematic.Lint.Tests.Rules
                 "test",
                 new List<IDatabaseTableColumn>(),
                 null,
-                Enumerable.Empty<IDatabaseKey>(),
+                Array.Empty<IDatabaseKey>(),
                 new[] { testRelationalKey },
-                Enumerable.Empty<IDatabaseRelationalKey>(),
-                Enumerable.Empty<IDatabaseTableIndex>(),
-                Enumerable.Empty<IDatabaseCheckConstraint>(),
-                Enumerable.Empty<IDatabaseTrigger>()
+                Array.Empty<IDatabaseRelationalKey>(),
+                Array.Empty<IDatabaseTableIndex>(),
+                Array.Empty<IDatabaseCheckConstraint>(),
+                Array.Empty<IDatabaseTrigger>()
             );
             database.Tables = new[] { table };
 
@@ -175,11 +175,11 @@ namespace SJP.Schematic.Lint.Tests.Rules
                 new List<IDatabaseTableColumn>(),
                 null,
                 new[] { testUniqueKey },
-                Enumerable.Empty<IDatabaseRelationalKey>(),
-                Enumerable.Empty<IDatabaseRelationalKey>(),
-                Enumerable.Empty<IDatabaseTableIndex>(),
-                Enumerable.Empty<IDatabaseCheckConstraint>(),
-                Enumerable.Empty<IDatabaseTrigger>()
+                Array.Empty<IDatabaseRelationalKey>(),
+                Array.Empty<IDatabaseRelationalKey>(),
+                Array.Empty<IDatabaseTableIndex>(),
+                Array.Empty<IDatabaseCheckConstraint>(),
+                Array.Empty<IDatabaseTrigger>()
             );
             database.Tables = new[] { table };
 
@@ -207,7 +207,7 @@ namespace SJP.Schematic.Lint.Tests.Rules
                 "test_index",
                 true,
                 new[] { new DatabaseIndexColumn(testColumn, IndexColumnOrder.Ascending) },
-                Enumerable.Empty<IDatabaseTableColumn>(),
+                Array.Empty<IDatabaseTableColumn>(),
                 false
             );
 
@@ -216,12 +216,12 @@ namespace SJP.Schematic.Lint.Tests.Rules
                 "test",
                 new List<IDatabaseTableColumn>(),
                 null,
-                Enumerable.Empty<IDatabaseKey>(),
-                Enumerable.Empty<IDatabaseRelationalKey>(),
-                Enumerable.Empty<IDatabaseRelationalKey>(),
+                Array.Empty<IDatabaseKey>(),
+                Array.Empty<IDatabaseRelationalKey>(),
+                Array.Empty<IDatabaseRelationalKey>(),
                 new[] { testIndex },
-                Enumerable.Empty<IDatabaseCheckConstraint>(),
-                Enumerable.Empty<IDatabaseTrigger>()
+                Array.Empty<IDatabaseCheckConstraint>(),
+                Array.Empty<IDatabaseTrigger>()
             );
             database.Tables = new[] { table };
 
@@ -248,12 +248,12 @@ namespace SJP.Schematic.Lint.Tests.Rules
                 "test",
                 new List<IDatabaseTableColumn>(),
                 null,
-                Enumerable.Empty<IDatabaseKey>(),
-                Enumerable.Empty<IDatabaseRelationalKey>(),
-                Enumerable.Empty<IDatabaseRelationalKey>(),
-                Enumerable.Empty<IDatabaseTableIndex>(),
+                Array.Empty<IDatabaseKey>(),
+                Array.Empty<IDatabaseRelationalKey>(),
+                Array.Empty<IDatabaseRelationalKey>(),
+                Array.Empty<IDatabaseTableIndex>(),
                 new[] { testCheck },
-                Enumerable.Empty<IDatabaseTrigger>()
+                Array.Empty<IDatabaseTrigger>()
             );
             database.Tables = new[] { table };
 
@@ -282,11 +282,11 @@ namespace SJP.Schematic.Lint.Tests.Rules
                 "test",
                 new List<IDatabaseTableColumn>(),
                 null,
-                Enumerable.Empty<IDatabaseKey>(),
-                Enumerable.Empty<IDatabaseRelationalKey>(),
-                Enumerable.Empty<IDatabaseRelationalKey>(),
-                Enumerable.Empty<IDatabaseTableIndex>(),
-                Enumerable.Empty<IDatabaseCheckConstraint>(),
+                Array.Empty<IDatabaseKey>(),
+                Array.Empty<IDatabaseRelationalKey>(),
+                Array.Empty<IDatabaseRelationalKey>(),
+                Array.Empty<IDatabaseTableIndex>(),
+                Array.Empty<IDatabaseCheckConstraint>(),
                 new[] { testTrigger }
             );
             database.Tables = new[] { table };

@@ -145,7 +145,7 @@ namespace SJP.Schematic.Modelled.Reflection
         {
             var keyProperties = TableProperties.Where(IsKeyProperty).ToList();
             if (keyProperties.Count == 0)
-                return Enumerable.Empty<IModelledKey>();
+                return Array.Empty<IModelledKey>();
 
             var uniqueKeys = new List<IModelledKey>();
             foreach (var keyProperty in keyProperties)
@@ -166,7 +166,7 @@ namespace SJP.Schematic.Modelled.Reflection
         {
             var keyProperties = TableProperties.Where(IsKeyProperty).ToList();
             if (keyProperties.Count == 0)
-                return Enumerable.Empty<IModelledRelationalKey>();
+                return Array.Empty<IModelledRelationalKey>();
 
             var foreignKeys = new List<IModelledRelationalKey>();
             foreach (var keyProperty in keyProperties)

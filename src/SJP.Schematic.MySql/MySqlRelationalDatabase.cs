@@ -263,9 +263,9 @@ namespace SJP.Schematic.MySql
             return Task.FromResult<IDatabaseSequence>(null);
         }
 
-        public IEnumerable<IDatabaseSequence> Sequences => Enumerable.Empty<IDatabaseSequence>();
+        public IEnumerable<IDatabaseSequence> Sequences => Array.Empty<IDatabaseSequence>();
 
-        public Task<IAsyncEnumerable<IDatabaseSequence>> SequencesAsync() => Task.FromResult(Enumerable.Empty<IDatabaseSequence>().ToAsyncEnumerable());
+        public Task<IAsyncEnumerable<IDatabaseSequence>> SequencesAsync() => Task.FromResult(Array.Empty<IDatabaseSequence>().ToAsyncEnumerable());
 
         public bool SynonymExists(Identifier synonymName)
         {
@@ -299,9 +299,9 @@ namespace SJP.Schematic.MySql
             return Task.FromResult<IDatabaseSynonym>(null);
         }
 
-        public IEnumerable<IDatabaseSynonym> Synonyms => Enumerable.Empty<IDatabaseSynonym>();
+        public IEnumerable<IDatabaseSynonym> Synonyms => Array.Empty<IDatabaseSynonym>();
 
-        public Task<IAsyncEnumerable<IDatabaseSynonym>> SynonymsAsync() => Task.FromResult(Enumerable.Empty<IDatabaseSynonym>().ToAsyncEnumerable());
+        public Task<IAsyncEnumerable<IDatabaseSynonym>> SynonymsAsync() => Task.FromResult(Array.Empty<IDatabaseSynonym>().ToAsyncEnumerable());
 
         private DatabaseMetadata LoadDatabaseMetadata()
         {

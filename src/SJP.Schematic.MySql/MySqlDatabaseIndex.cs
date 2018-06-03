@@ -51,7 +51,7 @@ namespace SJP.Schematic.MySql
 
         public IEnumerable<IDatabaseIndexColumn> Columns { get; }
 
-        public IEnumerable<IDatabaseColumn> IncludedColumns { get; } = Enumerable.Empty<IDatabaseColumn>();
+        public IEnumerable<IDatabaseColumn> IncludedColumns { get; } = Array.Empty<IDatabaseColumn>();
 
         public bool IsEnabled { get; } = true;
     }

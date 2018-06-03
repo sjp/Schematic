@@ -9,12 +9,12 @@ namespace SJP.Schematic.Sqlite.Parsing
     internal class ColumnDefinition
     {
         public ColumnDefinition(SqlIdentifier columnName)
-            : this(columnName.Value.LocalName, Enumerable.Empty<Token<SqliteToken>>(), Enumerable.Empty<ColumnConstraint>())
+            : this(columnName.Value.LocalName, Array.Empty<Token<SqliteToken>>(), Array.Empty<ColumnConstraint>())
         {
         }
 
         public ColumnDefinition(SqlIdentifier columnName, IEnumerable<Token<SqliteToken>> typeDefinition)
-            : this(columnName.Value.LocalName, typeDefinition, Enumerable.Empty<ColumnConstraint>())
+            : this(columnName.Value.LocalName, typeDefinition, Array.Empty<ColumnConstraint>())
         {
         }
 

@@ -361,9 +361,9 @@ namespace SJP.Schematic.PostgreSql
             return Task.FromResult<IDatabaseSynonym>(null);
         }
 
-        public IEnumerable<IDatabaseSynonym> Synonyms => Enumerable.Empty<IDatabaseSynonym>();
+        public IEnumerable<IDatabaseSynonym> Synonyms => Array.Empty<IDatabaseSynonym>();
 
-        public Task<IAsyncEnumerable<IDatabaseSynonym>> SynonymsAsync() => Task.FromResult(Enumerable.Empty<IDatabaseSynonym>().ToAsyncEnumerable());
+        public Task<IAsyncEnumerable<IDatabaseSynonym>> SynonymsAsync() => Task.FromResult(Array.Empty<IDatabaseSynonym>().ToAsyncEnumerable());
 
         private DatabaseMetadata LoadDatabaseMetadata()
         {

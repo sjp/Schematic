@@ -39,7 +39,7 @@ namespace SJP.Schematic.Modelled.Reflection.Model
 
         protected IReadOnlyDictionary<string, object> Parameters { get; }
 
-        public IEnumerable<Identifier> DependentNames { get; } = Enumerable.Empty<Identifier>();
+        public IEnumerable<Identifier> DependentNames { get; } = Array.Empty<Identifier>();
 
         public bool IsIdentity
         {

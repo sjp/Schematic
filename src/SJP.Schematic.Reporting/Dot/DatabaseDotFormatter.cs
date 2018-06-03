@@ -55,7 +55,7 @@ namespace SJP.Schematic.Reporting.Dot
 
                 var keyColumnNames = uniqueKeys
                     .Concat(parentKeys.Select(fk => fk.ChildKey))
-                    .Concat(primaryKey != null ? new[] { primaryKey } : Enumerable.Empty<IDatabaseKey>())
+                    .Concat(primaryKey != null ? new[] { primaryKey } : Array.Empty<IDatabaseKey>())
                     .SelectMany(key => key.Columns.Select(c => c.Name.LocalName))
                     .Distinct()
                     .ToList();
@@ -206,7 +206,7 @@ namespace SJP.Schematic.Reporting.Dot
                     var childKeyToParentKeyEdge = new DotEdge(
                         childKeyIdentifier,
                         parentKeyIdentifier,
-                        Enumerable.Empty<EdgeAttribute>()
+                        Array.Empty<EdgeAttribute>()
                     );
                     edges.Add(childKeyToParentKeyEdge);
                 }
@@ -300,7 +300,7 @@ namespace SJP.Schematic.Reporting.Dot
 
                 var keyColumnNames = uniqueKeys
                     .Concat(parentKeys.Select(fk => fk.ChildKey))
-                    .Concat(primaryKey != null ? new[] { primaryKey } : Enumerable.Empty<IDatabaseKey>())
+                    .Concat(primaryKey != null ? new[] { primaryKey } : Array.Empty<IDatabaseKey>())
                     .SelectMany(key => key.Columns.Select(c => c.Name.LocalName))
                     .Distinct()
                     .ToList();
@@ -451,7 +451,7 @@ namespace SJP.Schematic.Reporting.Dot
                     var childKeyToParentKeyEdge = new DotEdge(
                         childKeyIdentifier,
                         parentKeyIdentifier,
-                        Enumerable.Empty<EdgeAttribute>()
+                        Array.Empty<EdgeAttribute>()
                     );
                     edges.Add(childKeyToParentKeyEdge);
                 }

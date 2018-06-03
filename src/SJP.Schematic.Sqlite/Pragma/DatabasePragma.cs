@@ -264,7 +264,7 @@ namespace SJP.Schematic.Sqlite.Pragma
                 : PragmaPrefix + $"integrity_check({ maxErrors.ToString(CultureInfo.InvariantCulture) })";
             var result = Connection.Query<string>(sql).ToList();
             if (result.Count == 1 && result[0] == "ok")
-                return Enumerable.Empty<string>();
+                return Array.Empty<string>();
 
             return result;
         }
@@ -277,7 +277,7 @@ namespace SJP.Schematic.Sqlite.Pragma
             var errors = await Connection.QueryAsync<string>(sql).ConfigureAwait(false);
             var result = errors.ToList();
             if (result.Count == 1 && result[0] == "ok")
-                return Enumerable.Empty<string>();
+                return Array.Empty<string>();
 
             return result;
         }
@@ -443,7 +443,7 @@ namespace SJP.Schematic.Sqlite.Pragma
                 : PragmaPrefix + $"quick_check({ maxErrors.ToString(CultureInfo.InvariantCulture) })";
             var result = Connection.Query<string>(sql).ToList();
             if (result.Count == 1 && result[0] == "ok")
-                return Enumerable.Empty<string>();
+                return Array.Empty<string>();
 
             return result;
         }
@@ -456,7 +456,7 @@ namespace SJP.Schematic.Sqlite.Pragma
             var errors = await Connection.QueryAsync<string>(sql).ConfigureAwait(false);
             var result = errors.ToList();
             if (result.Count == 1 && result[0] == "ok")
-                return Enumerable.Empty<string>();
+                return Array.Empty<string>();
 
             return result;
         }

@@ -56,12 +56,12 @@ namespace SJP.Schematic.Lint.Tests.Rules
                 "test",
                 new List<IDatabaseTableColumn>(),
                 null,
-                Enumerable.Empty<IDatabaseKey>(),
+                Array.Empty<IDatabaseKey>(),
                 new[] { parentKey },
-                Enumerable.Empty<IDatabaseRelationalKey>(),
-                Enumerable.Empty<IDatabaseTableIndex>(),
-                Enumerable.Empty<IDatabaseCheckConstraint>(),
-                Enumerable.Empty<IDatabaseTrigger>()
+                Array.Empty<IDatabaseRelationalKey>(),
+                Array.Empty<IDatabaseTableIndex>(),
+                Array.Empty<IDatabaseCheckConstraint>(),
+                Array.Empty<IDatabaseTrigger>()
             );
             database.Tables = new[] { childTable };
 
@@ -99,12 +99,12 @@ namespace SJP.Schematic.Lint.Tests.Rules
                 "test",
                 new List<IDatabaseTableColumn>(),
                 null,
-                Enumerable.Empty<IDatabaseKey>(),
-                Enumerable.Empty<IDatabaseRelationalKey>(),
+                Array.Empty<IDatabaseKey>(),
+                Array.Empty<IDatabaseRelationalKey>(),
                 new[] { childKey },
-                Enumerable.Empty<IDatabaseTableIndex>(),
-                Enumerable.Empty<IDatabaseCheckConstraint>(),
-                Enumerable.Empty<IDatabaseTrigger>()
+                Array.Empty<IDatabaseTableIndex>(),
+                Array.Empty<IDatabaseCheckConstraint>(),
+                Array.Empty<IDatabaseTrigger>()
             );
             database.Tables = new[] { parentTable };
 
@@ -124,12 +124,12 @@ namespace SJP.Schematic.Lint.Tests.Rules
                 "test",
                 new List<IDatabaseTableColumn>(),
                 null,
-                Enumerable.Empty<IDatabaseKey>(),
-                Enumerable.Empty<IDatabaseRelationalKey>(),
-                Enumerable.Empty<IDatabaseRelationalKey>(),
-                Enumerable.Empty<IDatabaseTableIndex>(),
-                Enumerable.Empty<IDatabaseCheckConstraint>(),
-                Enumerable.Empty<IDatabaseTrigger>()
+                Array.Empty<IDatabaseKey>(),
+                Array.Empty<IDatabaseRelationalKey>(),
+                Array.Empty<IDatabaseRelationalKey>(),
+                Array.Empty<IDatabaseTableIndex>(),
+                Array.Empty<IDatabaseCheckConstraint>(),
+                Array.Empty<IDatabaseTrigger>()
             );
             database.Tables = new[] { table };
 

@@ -27,20 +27,20 @@ namespace SJP.Schematic.Lint.Rules
 
             var primaryKey = table.PrimaryKey;
             if (primaryKey == null)
-                return Enumerable.Empty<IRuleMessage>();
+                return Array.Empty<IRuleMessage>();
 
             var pkColumns = primaryKey.Columns.ToList();
             if (pkColumns.Count != 1)
-                return Enumerable.Empty<IRuleMessage>();
+                return Array.Empty<IRuleMessage>();
 
             var tableColumns = table.Columns;
             if (tableColumns.Count == 0)
-                return Enumerable.Empty<IRuleMessage>();
+                return Array.Empty<IRuleMessage>();
 
             var pkColumnName = pkColumns[0].Name;
             var firstColumnName = table.Columns[0].Name;
             if (pkColumnName == firstColumnName)
-                return Enumerable.Empty<IRuleMessage>();
+                return Array.Empty<IRuleMessage>();
 
             var message = BuildMessage(table.Name);
             return new[] { message };

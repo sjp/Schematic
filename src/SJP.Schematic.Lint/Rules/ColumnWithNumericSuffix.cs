@@ -33,7 +33,7 @@ namespace SJP.Schematic.Lint.Rules
                 .Where(c => regex.IsMatch(c))
                 .ToList();
             if (columnsWithNumericSuffix.Count == 0)
-                return Enumerable.Empty<IRuleMessage>();
+                return Array.Empty<IRuleMessage>();
 
             return columnsWithNumericSuffix
                 .Select(c => BuildMessage(table.Name, c))

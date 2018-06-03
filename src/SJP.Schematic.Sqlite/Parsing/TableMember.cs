@@ -12,7 +12,7 @@ namespace SJP.Schematic.Sqlite.Parsing
                 throw new ArgumentNullException(nameof(column));
 
             Columns = column.ToEnumerable();
-            Constraints = Enumerable.Empty<TableConstraint>();
+            Constraints = Array.Empty<TableConstraint>();
         }
 
         public TableMember(TableConstraint constraint)
@@ -20,7 +20,7 @@ namespace SJP.Schematic.Sqlite.Parsing
             if (constraint == null)
                 throw new ArgumentNullException(nameof(constraint));
 
-            Columns = Enumerable.Empty<ColumnDefinition>();
+            Columns = Array.Empty<ColumnDefinition>();
             Constraints = constraint.ToEnumerable();
         }
 

@@ -30,7 +30,7 @@ namespace SJP.Schematic.Modelled.Reflection.Model
             // if we encounter Dialect.All then must affect everything
             if (dialects.Any(d => d == Dialect.All))
             {
-                dialects = Enumerable.Empty<Type>();
+                dialects = Array.Empty<Type>();
                 AffectsAllDialects = true;
             }
 

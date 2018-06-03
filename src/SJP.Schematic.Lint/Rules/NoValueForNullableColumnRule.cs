@@ -33,12 +33,12 @@ namespace SJP.Schematic.Lint.Rules
 
             var nullableColumns = table.Columns.Where(c => c.IsNullable).ToList();
             if (nullableColumns.Count == 0)
-                return Enumerable.Empty<IRuleMessage>();
+                return Array.Empty<IRuleMessage>();
 
             var dialect = table.Database.Dialect;
             var tableRowCount = GetRowCount(dialect, table);
             if (tableRowCount == 0)
-                return Enumerable.Empty<IRuleMessage>();
+                return Array.Empty<IRuleMessage>();
 
             var result = new List<IRuleMessage>();
 

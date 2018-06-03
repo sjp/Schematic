@@ -76,7 +76,7 @@ where table_schema = @SchemaName and table_name = @ViewName";
 
         public Task<IReadOnlyDictionary<Identifier, IDatabaseViewIndex>> IndexAsync() => Task.FromResult(Index);
 
-        public IEnumerable<IDatabaseViewIndex> Indexes => Enumerable.Empty<IDatabaseViewIndex>();
+        public IEnumerable<IDatabaseViewIndex> Indexes => Array.Empty<IDatabaseViewIndex>();
 
         public Task<IEnumerable<IDatabaseViewIndex>> IndexesAsync() => Task.FromResult(Indexes);
 

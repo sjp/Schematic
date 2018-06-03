@@ -26,7 +26,7 @@ namespace SJP.Schematic.Lint.Rules
                 throw new ArgumentNullException(nameof(table));
 
             if (table.PrimaryKey != null || table.UniqueKeys.Any())
-                return Enumerable.Empty<IRuleMessage>();
+                return Array.Empty<IRuleMessage>();
 
             var ruleMessage = BuildMessage(table.Name);
             return new[] { ruleMessage };

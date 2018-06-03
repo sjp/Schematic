@@ -32,7 +32,7 @@ namespace SJP.Schematic.Lint.Rules
             try
             {
                 graph.TopologicalSort();
-                return Enumerable.Empty<IRuleMessage>();
+                return Array.Empty<IRuleMessage>();
             }
             catch (Exception ex)
             {

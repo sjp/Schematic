@@ -136,11 +136,11 @@ namespace SJP.Schematic.Sqlite
         {
             var indexLists = Pragma.IndexList(Name);
             if (indexLists.Empty())
-                return Enumerable.Empty<IDatabaseTableIndex>();
+                return Array.Empty<IDatabaseTableIndex>();
 
             var nonConstraintIndexLists = indexLists.Where(i => i.origin == "c").ToList();
             if (nonConstraintIndexLists.Count == 0)
-                return Enumerable.Empty<IDatabaseTableIndex>();
+                return Array.Empty<IDatabaseTableIndex>();
 
             var result = new List<IDatabaseTableIndex>(nonConstraintIndexLists.Count);
 
@@ -170,11 +170,11 @@ namespace SJP.Schematic.Sqlite
         {
             var indexLists = await Pragma.IndexListAsync(Name).ConfigureAwait(false);
             if (indexLists.Empty())
-                return Enumerable.Empty<IDatabaseTableIndex>();
+                return Array.Empty<IDatabaseTableIndex>();
 
             var nonConstraintIndexLists = indexLists.Where(i => i.origin == "c").ToList();
             if (nonConstraintIndexLists.Count == 0)
-                return Enumerable.Empty<IDatabaseTableIndex>();
+                return Array.Empty<IDatabaseTableIndex>();
 
             var result = new List<IDatabaseTableIndex>(nonConstraintIndexLists.Count);
 
@@ -236,13 +236,13 @@ namespace SJP.Schematic.Sqlite
         {
             var indexLists = Pragma.IndexList(Name);
             if (indexLists.Empty())
-                return Enumerable.Empty<IDatabaseKey>();
+                return Array.Empty<IDatabaseKey>();
 
             var ukIndexLists = indexLists
                 .Where(i => i.origin == "u" && i.unique)
                 .ToList();
             if (ukIndexLists.Count == 0)
-                return Enumerable.Empty<IDatabaseKey>();
+                return Array.Empty<IDatabaseKey>();
 
             var result = new List<IDatabaseKey>(ukIndexLists.Count);
 
@@ -275,13 +275,13 @@ namespace SJP.Schematic.Sqlite
         {
             var indexLists = await Pragma.IndexListAsync(Name).ConfigureAwait(false);
             if (indexLists.Empty())
-                return Enumerable.Empty<IDatabaseKey>();
+                return Array.Empty<IDatabaseKey>();
 
             var ukIndexLists = indexLists
                 .Where(i => i.origin == "u" && i.unique)
                 .ToList();
             if (ukIndexLists.Count == 0)
-                return Enumerable.Empty<IDatabaseKey>();
+                return Array.Empty<IDatabaseKey>();
 
             var result = new List<IDatabaseKey>(ukIndexLists.Count);
 
@@ -374,7 +374,7 @@ namespace SJP.Schematic.Sqlite
             var parser = ParsedDefinition;
             var checks = parser.Checks.ToList();
             if (checks.Count == 0)
-                return Enumerable.Empty<IDatabaseCheckConstraint>();
+                return Array.Empty<IDatabaseCheckConstraint>();
 
             var result = new List<IDatabaseCheckConstraint>(checks.Count);
 
@@ -397,7 +397,7 @@ namespace SJP.Schematic.Sqlite
             var parser = await ParsedDefinitionAsync().ConfigureAwait(false);
             var checks = parser.Checks.ToList();
             if (checks.Count == 0)
-                return Enumerable.Empty<IDatabaseCheckConstraint>();
+                return Array.Empty<IDatabaseCheckConstraint>();
 
             var result = new List<IDatabaseCheckConstraint>(checks.Count);
 
@@ -451,11 +451,11 @@ namespace SJP.Schematic.Sqlite
         {
             var queryResult = Pragma.ForeignKeyList(Name);
             if (queryResult.Empty())
-                return Enumerable.Empty<IDatabaseRelationalKey>();
+                return Array.Empty<IDatabaseRelationalKey>();
 
             var foreignKeys = queryResult.GroupBy(row => new { ForeignKeyId = row.id, ParentTableName = row.table, OnDelete = row.on_delete, OnUpdate = row.on_update }).ToList();
             if (foreignKeys.Count == 0)
-                return Enumerable.Empty<IDatabaseRelationalKey>();
+                return Array.Empty<IDatabaseRelationalKey>();
 
             var parser = ParsedDefinition;
             var fkConstraints = parser.ParentKeys;
@@ -514,11 +514,11 @@ namespace SJP.Schematic.Sqlite
         {
             var queryResult = await Pragma.ForeignKeyListAsync(Name).ConfigureAwait(false);
             if (queryResult.Empty())
-                return Enumerable.Empty<IDatabaseRelationalKey>();
+                return Array.Empty<IDatabaseRelationalKey>();
 
             var foreignKeys = queryResult.GroupBy(row => new { ForeignKeyId = row.id, ParentTableName = row.table, OnDelete = row.on_delete, OnUpdate = row.on_update }).ToList();
             if (foreignKeys.Count == 0)
-                return Enumerable.Empty<IDatabaseRelationalKey>();
+                return Array.Empty<IDatabaseRelationalKey>();
 
             var parser = await ParsedDefinitionAsync().ConfigureAwait(false);
             var fkConstraints = parser.ParentKeys;

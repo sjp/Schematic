@@ -19,7 +19,7 @@ namespace SJP.Schematic.Modelled.Reflection.Model.Tests
         [Test]
         public void Ctor_GivenEmptyColumns_ThrowsArgumentNullException()
         {
-            Assert.Throws<ArgumentNullException>(() => new FakeKey(Enumerable.Empty<IModelledColumn>(), DatabaseKeyType.Primary));
+            Assert.Throws<ArgumentNullException>(() => new FakeKey(Array.Empty<IModelledColumn>(), DatabaseKeyType.Primary));
         }
 
         [Test]

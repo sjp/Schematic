@@ -170,7 +170,7 @@ namespace SJP.Schematic.Sqlite
             var dbNamesQuery = await Pragma.DatabaseListAsync().ConfigureAwait(false);
             var dbNames = dbNamesQuery.OrderBy(d => d.seq).Select(l => l.name).ToList();
 
-            var result = Enumerable.Empty<IRelationalDatabaseTable>().ToAsyncEnumerable();
+            var result = Array.Empty<IRelationalDatabaseTable>().ToAsyncEnumerable();
 
             foreach (var dbName in dbNames)
             {
@@ -372,7 +372,7 @@ namespace SJP.Schematic.Sqlite
             var dbNamesQuery = await Pragma.DatabaseListAsync().ConfigureAwait(false);
             var dbNames = dbNamesQuery.OrderBy(d => d.seq).Select(l => l.name).ToList();
 
-            var result = Enumerable.Empty<IRelationalDatabaseView>().ToAsyncEnumerable();
+            var result = Array.Empty<IRelationalDatabaseView>().ToAsyncEnumerable();
 
             foreach (var dbName in dbNames)
             {
@@ -467,7 +467,7 @@ namespace SJP.Schematic.Sqlite
             return null;
         }
 
-        public IEnumerable<IDatabaseSequence> Sequences => Enumerable.Empty<IDatabaseSequence>();
+        public IEnumerable<IDatabaseSequence> Sequences => Array.Empty<IDatabaseSequence>();
 
         public Task<bool> SequenceExistsAsync(Identifier sequenceName)
         {
@@ -485,7 +485,7 @@ namespace SJP.Schematic.Sqlite
             return Task.FromResult<IDatabaseSequence>(null);
         }
 
-        public Task<IAsyncEnumerable<IDatabaseSequence>> SequencesAsync() => Task.FromResult(Enumerable.Empty<IDatabaseSequence>().ToAsyncEnumerable());
+        public Task<IAsyncEnumerable<IDatabaseSequence>> SequencesAsync() => Task.FromResult(Array.Empty<IDatabaseSequence>().ToAsyncEnumerable());
 
         public bool SynonymExists(Identifier synonymName)
         {
@@ -503,7 +503,7 @@ namespace SJP.Schematic.Sqlite
             return null;
         }
 
-        public IEnumerable<IDatabaseSynonym> Synonyms => Enumerable.Empty<IDatabaseSynonym>();
+        public IEnumerable<IDatabaseSynonym> Synonyms => Array.Empty<IDatabaseSynonym>();
 
         public Task<bool> SynonymExistsAsync(Identifier synonymName)
         {
@@ -521,7 +521,7 @@ namespace SJP.Schematic.Sqlite
             return Task.FromResult<IDatabaseSynonym>(null);
         }
 
-        public Task<IAsyncEnumerable<IDatabaseSynonym>> SynonymsAsync() => Task.FromResult(Enumerable.Empty<IDatabaseSynonym>().ToAsyncEnumerable());
+        public Task<IAsyncEnumerable<IDatabaseSynonym>> SynonymsAsync() => Task.FromResult(Array.Empty<IDatabaseSynonym>().ToAsyncEnumerable());
 
         public void AttachDatabase(string schemaName, string fileName)
         {

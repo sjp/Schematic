@@ -70,7 +70,7 @@ namespace SJP.Schematic.Sqlite
 
         public Task<IEnumerable<IDatabaseViewIndex>> IndexesAsync() => LoadIndexesAsync();
 
-        protected virtual IEnumerable<IDatabaseViewIndex> LoadIndexesSync() => Enumerable.Empty<IDatabaseViewIndex>();
+        protected virtual IEnumerable<IDatabaseViewIndex> LoadIndexesSync() => Array.Empty<IDatabaseViewIndex>();
 
         protected virtual Task<IEnumerable<IDatabaseViewIndex>> LoadIndexesAsync() => Task.FromResult(LoadIndexesSync());
 

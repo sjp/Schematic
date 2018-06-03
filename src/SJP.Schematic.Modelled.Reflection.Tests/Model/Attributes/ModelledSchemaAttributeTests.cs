@@ -20,7 +20,7 @@ namespace SJP.Schematic.Modelled.Reflection.Model.Attributes.Tests
         [Test]
         public void Ctor_GivenEmptyDialects_ThrowsArgumentNullException()
         {
-            Assert.Throws<ArgumentNullException>(() => new FakeModelledSchemaAttribute(Enumerable.Empty<Type>()));
+            Assert.Throws<ArgumentNullException>(() => new FakeModelledSchemaAttribute(Array.Empty<Type>()));
         }
 
         [Test]

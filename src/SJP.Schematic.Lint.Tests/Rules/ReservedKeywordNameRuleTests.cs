@@ -39,12 +39,12 @@ namespace SJP.Schematic.Lint.Tests.Rules
                 tableName,
                 new List<IDatabaseTableColumn>(),
                 null,
-                Enumerable.Empty<IDatabaseKey>(),
-                Enumerable.Empty<IDatabaseRelationalKey>(),
-                Enumerable.Empty<IDatabaseRelationalKey>(),
-                Enumerable.Empty<IDatabaseTableIndex>(),
-                Enumerable.Empty<IDatabaseCheckConstraint>(),
-                Enumerable.Empty<IDatabaseTrigger>()
+                Array.Empty<IDatabaseKey>(),
+                Array.Empty<IDatabaseRelationalKey>(),
+                Array.Empty<IDatabaseRelationalKey>(),
+                Array.Empty<IDatabaseTableIndex>(),
+                Array.Empty<IDatabaseCheckConstraint>(),
+                Array.Empty<IDatabaseTrigger>()
             );
             database.Tables = new[] { table };
 
@@ -65,12 +65,12 @@ namespace SJP.Schematic.Lint.Tests.Rules
                 tableName,
                 new List<IDatabaseTableColumn>(),
                 null,
-                Enumerable.Empty<IDatabaseKey>(),
-                Enumerable.Empty<IDatabaseRelationalKey>(),
-                Enumerable.Empty<IDatabaseRelationalKey>(),
-                Enumerable.Empty<IDatabaseTableIndex>(),
-                Enumerable.Empty<IDatabaseCheckConstraint>(),
-                Enumerable.Empty<IDatabaseTrigger>()
+                Array.Empty<IDatabaseKey>(),
+                Array.Empty<IDatabaseRelationalKey>(),
+                Array.Empty<IDatabaseRelationalKey>(),
+                Array.Empty<IDatabaseTableIndex>(),
+                Array.Empty<IDatabaseCheckConstraint>(),
+                Array.Empty<IDatabaseTrigger>()
             );
             database.Tables = new[] { table };
 
@@ -99,12 +99,12 @@ namespace SJP.Schematic.Lint.Tests.Rules
                 "test",
                 new List<IDatabaseTableColumn> { testColumn },
                 null,
-                Enumerable.Empty<IDatabaseKey>(),
-                Enumerable.Empty<IDatabaseRelationalKey>(),
-                Enumerable.Empty<IDatabaseRelationalKey>(),
-                Enumerable.Empty<IDatabaseTableIndex>(),
-                Enumerable.Empty<IDatabaseCheckConstraint>(),
-                Enumerable.Empty<IDatabaseTrigger>()
+                Array.Empty<IDatabaseKey>(),
+                Array.Empty<IDatabaseRelationalKey>(),
+                Array.Empty<IDatabaseRelationalKey>(),
+                Array.Empty<IDatabaseTableIndex>(),
+                Array.Empty<IDatabaseCheckConstraint>(),
+                Array.Empty<IDatabaseTrigger>()
             );
             database.Tables = new[] { table };
 
@@ -133,12 +133,12 @@ namespace SJP.Schematic.Lint.Tests.Rules
                 "test",
                 new List<IDatabaseTableColumn> { testColumn },
                 null,
-                Enumerable.Empty<IDatabaseKey>(),
-                Enumerable.Empty<IDatabaseRelationalKey>(),
-                Enumerable.Empty<IDatabaseRelationalKey>(),
-                Enumerable.Empty<IDatabaseTableIndex>(),
-                Enumerable.Empty<IDatabaseCheckConstraint>(),
-                Enumerable.Empty<IDatabaseTrigger>()
+                Array.Empty<IDatabaseKey>(),
+                Array.Empty<IDatabaseRelationalKey>(),
+                Array.Empty<IDatabaseRelationalKey>(),
+                Array.Empty<IDatabaseTableIndex>(),
+                Array.Empty<IDatabaseCheckConstraint>(),
+                Array.Empty<IDatabaseTrigger>()
             );
             database.Tables = new[] { table };
 
@@ -159,7 +159,7 @@ namespace SJP.Schematic.Lint.Tests.Rules
                 viewName,
                 "select 1",
                 new List<IDatabaseViewColumn>(),
-                Enumerable.Empty<IDatabaseViewIndex>()
+                Array.Empty<IDatabaseViewIndex>()
             );
             database.Views = new[] { view };
 
@@ -180,7 +180,7 @@ namespace SJP.Schematic.Lint.Tests.Rules
                 viewName,
                 "select 1",
                 new List<IDatabaseViewColumn>(),
-                Enumerable.Empty<IDatabaseViewIndex>()
+                Array.Empty<IDatabaseViewIndex>()
             );
             database.Views = new[] { view };
 
@@ -210,7 +210,7 @@ namespace SJP.Schematic.Lint.Tests.Rules
                 viewName,
                 "select 1",
                 new List<IDatabaseViewColumn> { testColumn },
-                Enumerable.Empty<IDatabaseViewIndex>()
+                Array.Empty<IDatabaseViewIndex>()
             );
             database.Views = new[] { view };
 
@@ -240,7 +240,7 @@ namespace SJP.Schematic.Lint.Tests.Rules
                 viewName,
                 "select 1",
                 new List<IDatabaseViewColumn> { testColumn },
-                Enumerable.Empty<IDatabaseViewIndex>()
+                Array.Empty<IDatabaseViewIndex>()
             );
             database.Views = new[] { view };
 

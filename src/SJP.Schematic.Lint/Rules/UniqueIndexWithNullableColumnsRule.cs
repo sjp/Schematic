@@ -29,7 +29,7 @@ namespace SJP.Schematic.Lint.Rules
 
             var uniqueIndexes = table.Indexes.Where(i => i.IsUnique).ToList();
             if (uniqueIndexes.Count == 0)
-                return Enumerable.Empty<IRuleMessage>();
+                return Array.Empty<IRuleMessage>();
 
             var result = new List<IRuleMessage>();
 

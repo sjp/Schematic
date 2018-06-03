@@ -65,7 +65,7 @@ namespace SJP.Schematic.Lint.Tests
             {
             }
 
-            public override IEnumerable<IRuleMessage> AnalyseDatabase(IRelationalDatabase database) => Enumerable.Empty<IRuleMessage>();
+            public override IEnumerable<IRuleMessage> AnalyseDatabase(IRelationalDatabase database) => Array.Empty<IRuleMessage>();
         }
     }
 }

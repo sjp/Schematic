@@ -33,7 +33,7 @@ namespace SJP.Schematic.Lint.Rules
 
             var columnCount = table.Columns.Count;
             if (columnCount <= ColumnLimit)
-                return Enumerable.Empty<IRuleMessage>();
+                return Array.Empty<IRuleMessage>();
 
             var message = BuildMessage(table.Name, columnCount);
             return new[] { message };

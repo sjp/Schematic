@@ -27,7 +27,7 @@ namespace SJP.Schematic.Lint.Rules
 
             var containsNotNullColumns = table.Columns.Any(c => !c.IsNullable);
             if (containsNotNullColumns)
-                return Enumerable.Empty<IRuleMessage>();
+                return Array.Empty<IRuleMessage>();
 
             var message = BuildMessage(table.Name);
             return new[] { message };

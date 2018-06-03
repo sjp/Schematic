@@ -86,7 +86,7 @@ namespace SJP.Schematic.Reporting.Html.Renderers
                 columns,
                 constraints,
                 indexesCount,
-                Enumerable.Empty<string>(), // schemas
+                Array.Empty<string>(), // schemas
                 tableViewModels,
                 viewViewModels,
                 sequenceViewModels,
@@ -171,7 +171,7 @@ namespace SJP.Schematic.Reporting.Html.Renderers
                 columns,
                 constraints,
                 indexesCount,
-                Enumerable.Empty<string>(), // schemas
+                Array.Empty<string>(), // schemas
                 tableViewModels,
                 viewViewModels,
                 sequenceViewModels,

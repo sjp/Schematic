@@ -27,7 +27,7 @@ namespace SJP.Schematic.Lint.Rules
 
             var primaryKey = table.PrimaryKey;
             if (primaryKey == null || primaryKey.Columns.Count() == 1)
-                return Enumerable.Empty<IRuleMessage>();
+                return Array.Empty<IRuleMessage>();
 
             var message = BuildMessage(table.Name);
             return new[] { message };

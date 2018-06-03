@@ -27,11 +27,11 @@ namespace SJP.Schematic.Lint.Rules
 
             var primaryKey = table.PrimaryKey;
             if (primaryKey == null)
-                return Enumerable.Empty<IRuleMessage>();
+                return Array.Empty<IRuleMessage>();
 
             var pkColumns = primaryKey.Columns.ToList();
             if (pkColumns.Count == 1 && ColumnIsInteger(pkColumns[0]))
-                return Enumerable.Empty<IRuleMessage>();
+                return Array.Empty<IRuleMessage>();
 
             var message = BuildMessage(table.Name);
             return new[] { message };

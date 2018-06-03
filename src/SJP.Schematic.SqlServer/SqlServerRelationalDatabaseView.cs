@@ -96,11 +96,11 @@ where schema_name(v.schema_id) = @SchemaName and v.name = @ViewName
 
             var queryResult = Connection.Query<IndexColumns>(sql, new { SchemaName = Name.Schema, ViewName = Name.LocalName });
             if (queryResult.Empty())
-                return Enumerable.Empty<IDatabaseViewIndex>();
+                return Array.Empty<IDatabaseViewIndex>();
 
             var indexColumns = queryResult.GroupBy(row => new { row.IndexName, row.IsUnique, row.IsDisabled }).ToList();
             if (indexColumns.Count == 0)
-                return Enumerable.Empty<IDatabaseViewIndex>();
+                return Array.Empty<IDatabaseViewIndex>();
 
             var viewColumns = Column;
             var result = new List<IDatabaseViewIndex>(indexColumns.Count);
@@ -148,11 +148,11 @@ where schema_name(v.schema_id) = @SchemaName and v.name = @ViewName
 
             var queryResult = await Connection.QueryAsync<IndexColumns>(sql, new { SchemaName = Name.Schema, ViewName = Name.LocalName }).ConfigureAwait(false);
             if (queryResult.Empty())
-                return Enumerable.Empty<IDatabaseViewIndex>();
+                return Array.Empty<IDatabaseViewIndex>();
 
             var indexColumns = queryResult.GroupBy(row => new { row.IndexName, row.IsUnique, row.IsDisabled }).ToList();
             if (indexColumns.Count == 0)
-                return Enumerable.Empty<IDatabaseViewIndex>();
+                return Array.Empty<IDatabaseViewIndex>();
 
             var viewColumns = await ColumnAsync().ConfigureAwait(false);
             var result = new List<IDatabaseViewIndex>(indexColumns.Count);

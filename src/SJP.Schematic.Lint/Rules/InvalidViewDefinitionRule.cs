@@ -42,7 +42,7 @@ namespace SJP.Schematic.Lint.Rules
                 var query = "select 1 as tmp from " + quotedViewName;
                 Connection.ExecuteScalar<long>(query);
 
-                return Enumerable.Empty<IRuleMessage>();
+                return Array.Empty<IRuleMessage>();
             }
             catch
             {

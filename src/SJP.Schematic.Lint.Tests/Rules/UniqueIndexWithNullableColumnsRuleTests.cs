@@ -38,12 +38,12 @@ namespace SJP.Schematic.Lint.Tests.Rules
                 "test",
                 new List<IDatabaseTableColumn>(),
                 null,
-                Enumerable.Empty<IDatabaseKey>(),
-                Enumerable.Empty<IDatabaseRelationalKey>(),
-                Enumerable.Empty<IDatabaseRelationalKey>(),
-                Enumerable.Empty<IDatabaseTableIndex>(),
-                Enumerable.Empty<IDatabaseCheckConstraint>(),
-                Enumerable.Empty<IDatabaseTrigger>()
+                Array.Empty<IDatabaseKey>(),
+                Array.Empty<IDatabaseRelationalKey>(),
+                Array.Empty<IDatabaseRelationalKey>(),
+                Array.Empty<IDatabaseTableIndex>(),
+                Array.Empty<IDatabaseCheckConstraint>(),
+                Array.Empty<IDatabaseTrigger>()
             );
             database.Tables = new[] { table };
 
@@ -72,7 +72,7 @@ namespace SJP.Schematic.Lint.Tests.Rules
                 "test_index_name",
                 false,
                 new[] { new DatabaseIndexColumn(testColumn, IndexColumnOrder.Ascending) },
-                Enumerable.Empty<IDatabaseTableColumn>(),
+                Array.Empty<IDatabaseTableColumn>(),
                 true
             );
 
@@ -81,12 +81,12 @@ namespace SJP.Schematic.Lint.Tests.Rules
                 "test",
                 new List<IDatabaseTableColumn>(),
                 null,
-                Enumerable.Empty<IDatabaseKey>(),
-                Enumerable.Empty<IDatabaseRelationalKey>(),
-                Enumerable.Empty<IDatabaseRelationalKey>(),
+                Array.Empty<IDatabaseKey>(),
+                Array.Empty<IDatabaseRelationalKey>(),
+                Array.Empty<IDatabaseRelationalKey>(),
                 new[] { index },
-                Enumerable.Empty<IDatabaseCheckConstraint>(),
-                Enumerable.Empty<IDatabaseTrigger>()
+                Array.Empty<IDatabaseCheckConstraint>(),
+                Array.Empty<IDatabaseTrigger>()
             );
             database.Tables = new[] { table };
 
@@ -115,7 +115,7 @@ namespace SJP.Schematic.Lint.Tests.Rules
                 "test_index_name",
                 true,
                 new[] { new DatabaseIndexColumn(testColumn, IndexColumnOrder.Ascending) },
-                Enumerable.Empty<IDatabaseTableColumn>(),
+                Array.Empty<IDatabaseTableColumn>(),
                 true
             );
 
@@ -124,12 +124,12 @@ namespace SJP.Schematic.Lint.Tests.Rules
                 "test",
                 new List<IDatabaseTableColumn>(),
                 null,
-                Enumerable.Empty<IDatabaseKey>(),
-                Enumerable.Empty<IDatabaseRelationalKey>(),
-                Enumerable.Empty<IDatabaseRelationalKey>(),
+                Array.Empty<IDatabaseKey>(),
+                Array.Empty<IDatabaseRelationalKey>(),
+                Array.Empty<IDatabaseRelationalKey>(),
                 new[] { uniqueIndex },
-                Enumerable.Empty<IDatabaseCheckConstraint>(),
-                Enumerable.Empty<IDatabaseTrigger>()
+                Array.Empty<IDatabaseCheckConstraint>(),
+                Array.Empty<IDatabaseTrigger>()
             );
             database.Tables = new[] { table };
 
@@ -158,7 +158,7 @@ namespace SJP.Schematic.Lint.Tests.Rules
                 "test_index_name",
                 true,
                 new[] { new DatabaseIndexColumn(testColumn, IndexColumnOrder.Ascending) },
-                Enumerable.Empty<IDatabaseTableColumn>(),
+                Array.Empty<IDatabaseTableColumn>(),
                 true
             );
 
@@ -167,12 +167,12 @@ namespace SJP.Schematic.Lint.Tests.Rules
                 "test",
                 new List<IDatabaseTableColumn>(),
                 null,
-                Enumerable.Empty<IDatabaseKey>(),
-                Enumerable.Empty<IDatabaseRelationalKey>(),
-                Enumerable.Empty<IDatabaseRelationalKey>(),
+                Array.Empty<IDatabaseKey>(),
+                Array.Empty<IDatabaseRelationalKey>(),
+                Array.Empty<IDatabaseRelationalKey>(),
                 new[] { uniqueIndex },
-                Enumerable.Empty<IDatabaseCheckConstraint>(),
-                Enumerable.Empty<IDatabaseTrigger>()
+                Array.Empty<IDatabaseCheckConstraint>(),
+                Array.Empty<IDatabaseTrigger>()
             );
             database.Tables = new[] { table };
 

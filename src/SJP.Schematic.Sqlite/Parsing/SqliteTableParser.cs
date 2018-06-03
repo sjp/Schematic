@@ -151,10 +151,10 @@ namespace SJP.Schematic.Sqlite.Parsing
 
             private ParsedTable()
             {
-                Columns = Enumerable.Empty<Column>();
-                UniqueKeys = Enumerable.Empty<UniqueKey>();
-                Checks = Enumerable.Empty<Check>();
-                ParentKeys = Enumerable.Empty<ForeignKey>();
+                Columns = Array.Empty<Column>();
+                UniqueKeys = Array.Empty<UniqueKey>();
+                Checks = Array.Empty<Check>();
+                ParentKeys = Array.Empty<ForeignKey>();
             }
 
             public IEnumerable<Column> Columns { get; }

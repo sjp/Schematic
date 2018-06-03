@@ -58,7 +58,7 @@ namespace SJP.Schematic.Core.Tests
             var table = Mock.Of<IRelationalDatabaseTable>();
             Identifier keyName = "test_key";
             const DatabaseKeyType keyType = DatabaseKeyType.Primary;
-            var columns = Enumerable.Empty<IDatabaseColumn>();
+            var columns = Array.Empty<IDatabaseColumn>();
 
             Assert.Throws<ArgumentNullException>(() => new DatabaseKey(table, keyName, keyType, columns, true));
         }
