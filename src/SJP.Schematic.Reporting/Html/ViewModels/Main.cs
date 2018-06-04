@@ -31,6 +31,7 @@ namespace SJP.Schematic.Reporting.Html.ViewModels
             IndexesCount = indexesCount;
 
             Schemas = schemas ?? throw new ArgumentNullException(nameof(schemas));
+            SchemasCount = schemas.UCount();
 
             Tables = tables ?? throw new ArgumentNullException(nameof(tables));
             TablesCount = tables.UCount();
@@ -66,6 +67,8 @@ namespace SJP.Schematic.Reporting.Html.ViewModels
         public uint IndexesCount { get; }
 
         public IEnumerable<string> Schemas { get; }
+
+        public uint SchemasCount { get; }
 
         public IEnumerable<Table> Tables { get; }
 

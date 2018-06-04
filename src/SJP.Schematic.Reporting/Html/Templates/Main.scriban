@@ -99,16 +99,36 @@
       <p>Database: {{ ProductName | html.escape }} {{ ProductVersion | html.escape }}</p>
     </div>
   </div>
-  {{ for schema in Schemas }}
   <div class="box box-primary">
     <div class="box-header with-border">
-      <h3 class="box-title">Schema {{ schema }}</h3>
+      <h3 class="box-title">Schemas</h3>
       <span class="label label-primary pull-right">
         <i class="fa fa-cog fa-2x"></i>
       </span>
     </div>
+    <div class="box-body">
+      <table class="table table-bordered table-striped dataTable" role="grid">
+        <thead>
+          <tr>
+            <th>Schema</th>
+          </tr>
+        </thead>
+        <tbody>
+          {{ if SchemasCount > 0 }}
+          {{ for schema in Schemas }}
+          <tr class="tbl even">
+            <td class="detail">{{ schema | html.escape }}</td>
+          </tr>
+          {{ end }}
+          {{ else }}
+          <tr class="tbl even">
+            <td class="detail" colspan="1">No schemas present.</td>
+          </tr>
+          {{ end }}
+        </tbody>
+      </table>
+    </div>
   </div>
-  {{ end }}
   <div class="box box-primary">
     <div class="box-header with-border">
       <h3 class="box-title">Tables</h3>

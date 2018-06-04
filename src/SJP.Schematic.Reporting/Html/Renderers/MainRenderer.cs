@@ -79,6 +79,16 @@ namespace SJP.Schematic.Reporting.Html.Renderers
             var sequenceViewModels = sequences.Select(mapper.Map).ToList();
             var synonymViewModels = synonyms.Select(mapper.Map).ToList();
 
+            var schemas = tables.Select(t => t.Name)
+                .Union(views.Select(v => v.Name))
+                .Union(sequences.Select(s => s.Name))
+                .Union(synonyms.Select(s => s.Name))
+                .Select(n => n.Schema)
+                .Where(n => n != null)
+                .Distinct()
+                .OrderBy(n => n)
+                .ToList();
+
             var templateParameter = new Main(
                 Database.DatabaseName,
                 string.Empty,
@@ -86,7 +96,7 @@ namespace SJP.Schematic.Reporting.Html.Renderers
                 columns,
                 constraints,
                 indexesCount,
-                Array.Empty<string>(), // schemas
+                schemas,
                 tableViewModels,
                 viewViewModels,
                 sequenceViewModels,
@@ -164,6 +174,16 @@ namespace SJP.Schematic.Reporting.Html.Renderers
             var synonymTasks = synonyms.Select(mapper.MapAsync).ToArray();
             var synonymViewModels = await Task.WhenAll(synonymTasks).ConfigureAwait(false);
 
+            var schemas = tables.Select(t => t.Name)
+                .Union(views.Select(v => v.Name))
+                .Union(sequences.Select(s => s.Name))
+                .Union(synonyms.Select(s => s.Name))
+                .Select(n => n.Schema)
+                .Where(n => n != null)
+                .Distinct()
+                .OrderBy(n => n)
+                .ToList();
+
             var templateParameter = new Main(
                 Database.DatabaseName,
                 string.Empty,
@@ -171,7 +191,7 @@ namespace SJP.Schematic.Reporting.Html.Renderers
                 columns,
                 constraints,
                 indexesCount,
-                Array.Empty<string>(), // schemas
+                schemas,
                 tableViewModels,
                 viewViewModels,
                 sequenceViewModels,
