@@ -7,7 +7,7 @@ namespace SJP.Schematic.SqlServer.Tests.Integration
 {
     internal static class Config
     {
-        public static IDbConnection Connection => new SqlServerDialect().CreateConnection(ConnectionString);
+        public static IDbConnection Connection { get; } = new SqlServerDialect().CreateConnection(ConnectionString);
 
         private static string ConnectionString => Configuration.GetConnectionString("TestDb");
 

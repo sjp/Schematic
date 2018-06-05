@@ -7,7 +7,7 @@ namespace SJP.Schematic.Lint.Tests.Integration
 {
     internal static class Config
     {
-        public static IDbConnection Connection => new SqliteDialect().CreateConnection(ConnectionString);
+        public static IDbConnection Connection { get; } = new SqliteDialect().CreateConnection(ConnectionString);
 
         private static string ConnectionString => Configuration.GetConnectionString("TestDb");
 

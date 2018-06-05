@@ -7,7 +7,7 @@ namespace SJP.Schematic.MySql.Tests.Integration
 {
     internal static class Config
     {
-        public static IDbConnection Connection => new MySqlDialect().CreateConnection(ConnectionString);
+        public static IDbConnection Connection { get; } = new MySqlDialect().CreateConnection(ConnectionString);
 
         private static string ConnectionString => Configuration.GetConnectionString("TestDb");
 

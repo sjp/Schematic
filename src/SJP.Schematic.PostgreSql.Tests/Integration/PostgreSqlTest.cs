@@ -7,7 +7,7 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration
 {
     internal static class Config
     {
-        public static IDbConnection Connection => new PostgreSqlDialect().CreateConnection(ConnectionString);
+        public static IDbConnection Connection { get; } = new PostgreSqlDialect().CreateConnection(ConnectionString);
 
         private static string ConnectionString => Configuration.GetConnectionString("TestDb");
 
