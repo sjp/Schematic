@@ -55,6 +55,10 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SJP.Schematic.Reporting", "
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SJP.Schematic.Reporting.Tests", "SJP.Schematic.Reporting.Tests\SJP.Schematic.Reporting.Tests.csproj", "{CA35E288-358D-40EC-AADE-D9EDE10DAD25}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SJP.Schematic.Tool", "SJP.Schematic.Tool\SJP.Schematic.Tool.csproj", "{53944B99-42B1-42C4-8D0D-9275D3842E8D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SJP.Schematic.Tool.Tests", "SJP.Schematic.Tool.Tests\SJP.Schematic.Tool.Tests.csproj", "{8632CA8C-7447-494B-A55A-42E19D81A00B}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -165,6 +169,14 @@ Global
 		{CA35E288-358D-40EC-AADE-D9EDE10DAD25}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{CA35E288-358D-40EC-AADE-D9EDE10DAD25}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{CA35E288-358D-40EC-AADE-D9EDE10DAD25}.Release|Any CPU.Build.0 = Release|Any CPU
+		{53944B99-42B1-42C4-8D0D-9275D3842E8D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{53944B99-42B1-42C4-8D0D-9275D3842E8D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{53944B99-42B1-42C4-8D0D-9275D3842E8D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{53944B99-42B1-42C4-8D0D-9275D3842E8D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8632CA8C-7447-494B-A55A-42E19D81A00B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8632CA8C-7447-494B-A55A-42E19D81A00B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8632CA8C-7447-494B-A55A-42E19D81A00B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8632CA8C-7447-494B-A55A-42E19D81A00B}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
