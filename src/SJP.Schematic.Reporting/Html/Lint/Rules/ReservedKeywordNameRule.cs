@@ -40,7 +40,7 @@ namespace SJP.Schematic.Reporting.Html.Lint.Rules
             if (viewName == null)
                 throw new ArgumentNullException(nameof(viewName));
 
-            var viewLink = $"<a href=\"tables/{ viewName.ToSafeKey() }.html\">{ HttpUtility.HtmlEncode(viewName.ToVisibleName()) }</a>";
+            var viewLink = $"<a href=\"views/{ viewName.ToSafeKey() }.html\">{ HttpUtility.HtmlEncode(viewName.ToVisibleName()) }</a>";
             var messageText = $"The view { viewLink } is also a database keyword and may require quoting to be used. Consider renaming to a non-keyword name.";
             return new RuleMessage(RuleTitle, Level, messageText);
         }
@@ -52,7 +52,7 @@ namespace SJP.Schematic.Reporting.Html.Lint.Rules
             if (columnName.IsNullOrWhiteSpace())
                 throw new ArgumentNullException(nameof(columnName));
 
-            var viewLink = $"<a href=\"tables/{ viewName.ToSafeKey() }.html\">{ HttpUtility.HtmlEncode(viewName.ToVisibleName()) }</a>";
+            var viewLink = $"<a href=\"views/{ viewName.ToSafeKey() }.html\">{ HttpUtility.HtmlEncode(viewName.ToVisibleName()) }</a>";
             var messageText = $"The view { viewLink } contains a column <code>{  HttpUtility.HtmlEncode(columnName) }</code> which is also a database keyword and may require quoting to be used. Consider renaming to a non-keyword name.";
             return new RuleMessage(RuleTitle, Level, messageText);
         }

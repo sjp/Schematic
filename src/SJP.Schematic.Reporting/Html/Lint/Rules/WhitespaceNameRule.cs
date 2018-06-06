@@ -40,7 +40,7 @@ namespace SJP.Schematic.Reporting.Html.Lint.Rules
             if (viewName == null)
                 throw new ArgumentNullException(nameof(viewName));
 
-            var viewLink = $"<a href=\"tables/{ viewName.ToSafeKey() }.html\">{ HttpUtility.HtmlEncode(viewName.ToVisibleName()) }</a>";
+            var viewLink = $"<a href=\"views/{ viewName.ToSafeKey() }.html\">{ HttpUtility.HtmlEncode(viewName.ToVisibleName()) }</a>";
             var messageText = $"The view { viewLink } contains whitespace and requires quoting to be used. Consider renaming to remove any whitespace.";
             return new RuleMessage(RuleTitle, Level, messageText);
         }
@@ -52,7 +52,7 @@ namespace SJP.Schematic.Reporting.Html.Lint.Rules
             if (columnName.IsNullOrWhiteSpace())
                 throw new ArgumentNullException(nameof(columnName));
 
-            var viewLink = $"<a href=\"tables/{ viewName.ToSafeKey() }.html\">{ HttpUtility.HtmlEncode(viewName.ToVisibleName()) }</a>";
+            var viewLink = $"<a href=\"views/{ viewName.ToSafeKey() }.html\">{ HttpUtility.HtmlEncode(viewName.ToVisibleName()) }</a>";
             var messageText = $"The view { viewLink } contains a column <code>{ HttpUtility.HtmlEncode(columnName) }</code> which contains whitespace and requires quoting to be used. Consider renaming to remove any whitespace.";
             return new RuleMessage(RuleTitle, Level, messageText);
         }
