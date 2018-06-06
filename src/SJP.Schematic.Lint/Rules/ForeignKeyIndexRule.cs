@@ -65,8 +65,31 @@ namespace SJP.Schematic.Lint.Rules
             var columnNames = columnList.Select(c => c.Name).ToList();
             var indexColumnNames = dependentColumns.Select(ic => ic.Name).ToList();
 
-            var comparer = IdentifierComparer.OrdinalIgnoreCase;
-            return columnNames.SequenceEqual(indexColumnNames, comparer);
+            return IsPrefixOf(columnNames, indexColumnNames);
+        }
+
+        protected static bool IsPrefixOf<T>(IEnumerable<T> prefixSet, IEnumerable<T> otherSet)
+        {
+            if (prefixSet == null)
+                throw new ArgumentNullException(nameof(prefixSet));
+            if (otherSet == null)
+                throw new ArgumentNullException(nameof(otherSet));
+
+            var prefixSetList = prefixSet.ToList();
+            if (prefixSetList.Count == 0)
+                throw new ArgumentException("The given prefix set contained no values.", nameof(prefixSet));
+
+            var superSetList = otherSet.ToList();
+            if (superSetList.Count == 0)
+                throw new ArgumentException("The given super set contained no values.", nameof(otherSet));
+
+            if (prefixSetList.Count > superSetList.Count)
+                return false;
+
+            if (superSetList.Count > prefixSetList.Count)
+                superSetList = superSetList.Take(prefixSetList.Count).ToList();
+
+            return prefixSetList.SequenceEqual(superSetList);
         }
 
         protected virtual IRuleMessage BuildMessage(string foreignKeyName, Identifier tableName, IEnumerable<string> columnNames)

@@ -26,6 +26,13 @@ create table indexed_child_table_1 (
 )").ConfigureAwait(false);
             await Connection.ExecuteAsync("create index ix_indexed_child_table_1 on indexed_child_table_1 (column_2)").ConfigureAwait(false);
             await Connection.ExecuteAsync(@"
+create table indexed_child_table_2 (
+    column_1 integer,
+    column_2 integer,
+    constraint test_valid_fk foreign key (column_2) references no_index_parent_table_1 (column_1)
+)").ConfigureAwait(false);
+            await Connection.ExecuteAsync("create index ix_indexed_child_table_2 on indexed_child_table_2 (column_2, column_1)").ConfigureAwait(false);
+            await Connection.ExecuteAsync(@"
 create table not_indexed_child_table_1 (
     column_1 integer,
     column_2 integer,
@@ -38,6 +45,7 @@ create table not_indexed_child_table_1 (
         {
             await Connection.ExecuteAsync("drop table no_index_parent_table_1").ConfigureAwait(false);
             await Connection.ExecuteAsync("drop table indexed_child_table_1").ConfigureAwait(false);
+            await Connection.ExecuteAsync("drop table indexed_child_table_2").ConfigureAwait(false);
             await Connection.ExecuteAsync("drop table not_indexed_child_table_1").ConfigureAwait(false);
         }
 
