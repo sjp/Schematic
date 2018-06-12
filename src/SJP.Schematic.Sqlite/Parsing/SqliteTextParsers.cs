@@ -38,7 +38,7 @@ namespace SJP.Schematic.Sqlite.Parsing
                 .Then(prefix =>
                 {
                     char prev = 'x'; // can be anything
-                    return Span.Until(c =>
+                    return Span.WithAll(c =>
                     {
                         var isTerminator = prev == '*' && c == '/';
                         prev = c;

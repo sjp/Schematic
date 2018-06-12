@@ -34,7 +34,7 @@ namespace SJP.Schematic.SqlServer.Parsing
                 .Then(prefix =>
                 {
                     var prev = (char)0; // can be anything, using NUL char to make this clear
-                    return Span.Until(c =>
+                    return Span.WithAll(c =>
                     {
                         var isTerminator = prev == '*' && c == '/';
                         prev = c;

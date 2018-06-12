@@ -9,6 +9,7 @@ using SJP.Schematic.Core.Extensions;
 using Superpower;
 using Superpower.Model;
 using Superpower.Parsers;
+using SchematicIdentifier = SJP.Schematic.Core.Identifier;
 
 namespace SJP.Schematic.Modelled.Reflection.Model
 {
@@ -39,7 +40,7 @@ namespace SJP.Schematic.Modelled.Reflection.Model
 
         protected IReadOnlyDictionary<string, object> Parameters { get; }
 
-        public IEnumerable<Identifier> DependentNames { get; } = Array.Empty<Identifier>();
+        public IEnumerable<SchematicIdentifier> DependentNames { get; } = Array.Empty<SchematicIdentifier>();
 
         public bool IsIdentity
         {
@@ -265,7 +266,7 @@ namespace SJP.Schematic.Modelled.Reflection.Model
             return new ModelledSqlExpression(IdentityFormat, ToParamObject(column));
         }
 
-        public static ModelledSqlExpression Identity(Identifier name)
+        public static ModelledSqlExpression Identity(SchematicIdentifier name)
         {
             if (name == null)
                 throw new ArgumentNullException(nameof(name));
@@ -281,7 +282,7 @@ namespace SJP.Schematic.Modelled.Reflection.Model
             return new ModelledSqlExpression(LowerFormat, ToParamObject(column));
         }
 
-        public static ModelledSqlExpression Lower(Identifier name)
+        public static ModelledSqlExpression Lower(SchematicIdentifier name)
         {
             if (name == null)
                 throw new ArgumentNullException(nameof(name));
@@ -297,7 +298,7 @@ namespace SJP.Schematic.Modelled.Reflection.Model
             return new ModelledSqlExpression(UpperFormat, ToParamObject(column));
         }
 
-        public static ModelledSqlExpression Upper(Identifier name)
+        public static ModelledSqlExpression Upper(SchematicIdentifier name)
         {
             if (name == null)
                 throw new ArgumentNullException(nameof(name));
@@ -315,7 +316,7 @@ namespace SJP.Schematic.Modelled.Reflection.Model
             return new ModelledSqlExpression(CoalesceFormat, new { Identity = column, Value = value });
         }
 
-        public static ModelledSqlExpression Coalesce(Identifier name, IConvertible value)
+        public static ModelledSqlExpression Coalesce(SchematicIdentifier name, IConvertible value)
         {
             if (name == null)
                 throw new ArgumentNullException(nameof(name));
