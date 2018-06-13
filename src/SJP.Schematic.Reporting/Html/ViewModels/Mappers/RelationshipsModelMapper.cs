@@ -47,11 +47,16 @@ namespace SJP.Schematic.Reporting.Html.ViewModels.Mappers
             return new Relationships(diagrams);
         }
 
-        public async Task<Relationships> MapAsync(IRelationalDatabase dbObject)
+        public Task<Relationships> MapAsync(IRelationalDatabase dbObject)
         {
             if (dbObject == null)
                 throw new ArgumentNullException(nameof(dbObject));
 
+            return MapAsyncCore(dbObject);
+        }
+
+        private async Task<Relationships> MapAsyncCore(IRelationalDatabase dbObject)
+        {
             var dotFormatter = new DatabaseDotFormatter(Connection, dbObject);
 
             var rootPath = string.Empty;

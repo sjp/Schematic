@@ -85,7 +85,7 @@ namespace SJP.Schematic.Sqlite.Tests
             var connection = Mock.Of<IDbConnection>();
             var database = new SqliteRelationalDatabase(new SqliteDialect(), connection);
 
-            Assert.ThrowsAsync<ArgumentNullException>(async () => await database.VacuumAsync(null).ConfigureAwait(false));
+            Assert.Throws<ArgumentNullException>(() => database.VacuumAsync(null));
         }
 
         [Test]
@@ -94,7 +94,7 @@ namespace SJP.Schematic.Sqlite.Tests
             var connection = Mock.Of<IDbConnection>();
             var database = new SqliteRelationalDatabase(new SqliteDialect(), connection);
 
-            Assert.ThrowsAsync<ArgumentNullException>(async () => await database.VacuumAsync(string.Empty).ConfigureAwait(false));
+            Assert.Throws<ArgumentNullException>(() => database.VacuumAsync(string.Empty));
         }
 
         [Test]
@@ -103,7 +103,7 @@ namespace SJP.Schematic.Sqlite.Tests
             var connection = Mock.Of<IDbConnection>();
             var database = new SqliteRelationalDatabase(new SqliteDialect(), connection);
 
-            Assert.ThrowsAsync<ArgumentNullException>(async () => await database.VacuumAsync("   ").ConfigureAwait(false));
+            Assert.Throws<ArgumentNullException>(() => database.VacuumAsync("   "));
         }
 
         [Test]
@@ -166,7 +166,7 @@ namespace SJP.Schematic.Sqlite.Tests
             var connection = Mock.Of<IDbConnection>();
             var database = new SqliteRelationalDatabase(new SqliteDialect(), connection);
 
-            Assert.ThrowsAsync<ArgumentNullException>(async () => await database.AttachDatabaseAsync(null, ":memory:").ConfigureAwait(false));
+            Assert.Throws<ArgumentNullException>(() => database.AttachDatabaseAsync(null, ":memory:"));
         }
 
         [Test]
@@ -175,7 +175,7 @@ namespace SJP.Schematic.Sqlite.Tests
             var connection = Mock.Of<IDbConnection>();
             var database = new SqliteRelationalDatabase(new SqliteDialect(), connection);
 
-            Assert.ThrowsAsync<ArgumentNullException>(async () => await database.AttachDatabaseAsync(string.Empty, ":memory:").ConfigureAwait(false));
+            Assert.Throws<ArgumentNullException>(() => database.AttachDatabaseAsync(string.Empty, ":memory:"));
         }
 
         [Test]
@@ -184,7 +184,7 @@ namespace SJP.Schematic.Sqlite.Tests
             var connection = Mock.Of<IDbConnection>();
             var database = new SqliteRelationalDatabase(new SqliteDialect(), connection);
 
-            Assert.ThrowsAsync<ArgumentNullException>(async () => await database.AttachDatabaseAsync("   ", ":memory:").ConfigureAwait(false));
+            Assert.Throws<ArgumentNullException>(() => database.AttachDatabaseAsync("   ", ":memory:"));
         }
 
         [Test]
@@ -193,7 +193,7 @@ namespace SJP.Schematic.Sqlite.Tests
             var connection = Mock.Of<IDbConnection>();
             var database = new SqliteRelationalDatabase(new SqliteDialect(), connection);
 
-            Assert.ThrowsAsync<ArgumentNullException>(async () => await database.AttachDatabaseAsync("test", null).ConfigureAwait(false));
+            Assert.Throws<ArgumentNullException>(() => database.AttachDatabaseAsync("test", null));
         }
 
         [Test]
@@ -202,7 +202,7 @@ namespace SJP.Schematic.Sqlite.Tests
             var connection = Mock.Of<IDbConnection>();
             var database = new SqliteRelationalDatabase(new SqliteDialect(), connection);
 
-            Assert.ThrowsAsync<ArgumentNullException>(async () => await database.AttachDatabaseAsync("test", string.Empty).ConfigureAwait(false));
+            Assert.Throws<ArgumentNullException>(() => database.AttachDatabaseAsync("test", string.Empty));
         }
 
         [Test]
@@ -211,7 +211,7 @@ namespace SJP.Schematic.Sqlite.Tests
             var connection = Mock.Of<IDbConnection>();
             var database = new SqliteRelationalDatabase(new SqliteDialect(), connection);
 
-            Assert.ThrowsAsync<ArgumentNullException>(async () => await database.AttachDatabaseAsync("test", "   ").ConfigureAwait(false));
+            Assert.Throws<ArgumentNullException>(() => database.AttachDatabaseAsync("test", "   "));
         }
 
         [Test]
@@ -247,7 +247,7 @@ namespace SJP.Schematic.Sqlite.Tests
             var connection = Mock.Of<IDbConnection>();
             var database = new SqliteRelationalDatabase(new SqliteDialect(), connection);
 
-            Assert.ThrowsAsync<ArgumentNullException>(async () => await database.DetachDatabaseAsync(null).ConfigureAwait(false));
+            Assert.Throws<ArgumentNullException>(() => database.DetachDatabaseAsync(null));
         }
 
         [Test]
@@ -256,7 +256,7 @@ namespace SJP.Schematic.Sqlite.Tests
             var connection = Mock.Of<IDbConnection>();
             var database = new SqliteRelationalDatabase(new SqliteDialect(), connection);
 
-            Assert.ThrowsAsync<ArgumentNullException>(async () => await database.DetachDatabaseAsync(string.Empty).ConfigureAwait(false));
+            Assert.Throws<ArgumentNullException>(() => database.DetachDatabaseAsync(string.Empty));
         }
 
         [Test]
@@ -265,7 +265,7 @@ namespace SJP.Schematic.Sqlite.Tests
             var connection = Mock.Of<IDbConnection>();
             var database = new SqliteRelationalDatabase(new SqliteDialect(), connection);
 
-            Assert.ThrowsAsync<ArgumentNullException>(async () => await database.DetachDatabaseAsync("   ").ConfigureAwait(false));
+            Assert.Throws<ArgumentNullException>(() => database.DetachDatabaseAsync("   "));
         }
     }
 }

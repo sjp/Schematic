@@ -45,11 +45,16 @@ namespace SJP.Schematic.Reporting.Html.ViewModels.Mappers
             );
         }
 
-        public async Task<View> MapAsync(IRelationalDatabaseView dbObject)
+        public Task<View> MapAsync(IRelationalDatabaseView dbObject)
         {
             if (dbObject == null)
                 throw new ArgumentNullException(nameof(dbObject));
 
+            return MapAsyncCore(dbObject);
+        }
+
+        private async Task<View> MapAsyncCore(IRelationalDatabaseView dbObject)
+        {
             var rowCount = await Connection.GetRowCountAsync(Dialect, dbObject.Name).ConfigureAwait(false);
             var viewColumns = await dbObject.ColumnsAsync().ConfigureAwait(false);
 

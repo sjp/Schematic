@@ -46,11 +46,16 @@ namespace SJP.Schematic.Reporting.Html.ViewModels.Mappers
             );
         }
 
-        public async Task<Main.Table> MapAsync(IRelationalDatabaseTable dbObject)
+        public Task<Main.Table> MapAsync(IRelationalDatabaseTable dbObject)
         {
             if (dbObject == null)
                 throw new ArgumentNullException(nameof(dbObject));
 
+            return MapAsyncCore(dbObject);
+        }
+
+        private async Task<Main.Table> MapAsyncCore(IRelationalDatabaseTable dbObject)
+        {
             var parentKeyLookup = await dbObject.ParentKeyAsync().ConfigureAwait(false);
             var parentKeyCount = parentKeyLookup.UCount();
 
@@ -83,11 +88,16 @@ namespace SJP.Schematic.Reporting.Html.ViewModels.Mappers
             return new Main.View(dbObject.Name, columnCount, rowCount);
         }
 
-        public async Task<Main.View> MapAsync(IRelationalDatabaseView dbObject)
+        public Task<Main.View> MapAsync(IRelationalDatabaseView dbObject)
         {
             if (dbObject == null)
                 throw new ArgumentNullException(nameof(dbObject));
 
+            return MapAsyncCore(dbObject);
+        }
+
+        private async Task<Main.View> MapAsyncCore(IRelationalDatabaseView dbObject)
+        {
             var columnLookup = await dbObject.ColumnAsync().ConfigureAwait(false);
             var columnCount = columnLookup.UCount();
             var rowCount = await Connection.GetRowCountAsync(Database.Dialect, dbObject.Name).ConfigureAwait(false);
@@ -120,11 +130,16 @@ namespace SJP.Schematic.Reporting.Html.ViewModels.Mappers
             return new Main.Synonym(dbObject.Name, dbObject.Target, targetUrl);
         }
 
-        public async Task<Main.Synonym> MapAsync(IDatabaseSynonym dbObject)
+        public Task<Main.Synonym> MapAsync(IDatabaseSynonym dbObject)
         {
             if (dbObject == null)
                 throw new ArgumentNullException(nameof(dbObject));
 
+            return MapAsyncCore(dbObject);
+        }
+
+        private async Task<Main.Synonym> MapAsyncCore(IDatabaseSynonym dbObject)
+        {
             var targetUrl = await GetSynonymTargetUrlAsync(dbObject.Target).ConfigureAwait(false);
             return new Main.Synonym(dbObject.Name, dbObject.Target, targetUrl);
         }
@@ -151,9 +166,6 @@ namespace SJP.Schematic.Reporting.Html.ViewModels.Mappers
 
         private async Task<Uri> GetSynonymTargetUrlAsync(Identifier identifier)
         {
-            if (identifier == null)
-                throw new ArgumentNullException(nameof(identifier));
-
             var isTable = await Database.TableExistsAsync(identifier).ConfigureAwait(false);
             if (isTable)
             {

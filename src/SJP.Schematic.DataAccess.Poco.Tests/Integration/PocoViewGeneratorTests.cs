@@ -106,6 +106,7 @@ namespace PocoTestNamespace.Main
         public string Teststring { get; set; }
     }
 }";
+
         private const string TestView2Output = @"using System;
 
 namespace PocoTestNamespace.Main

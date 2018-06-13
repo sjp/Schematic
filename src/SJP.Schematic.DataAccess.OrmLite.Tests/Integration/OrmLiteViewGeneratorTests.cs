@@ -114,6 +114,7 @@ namespace OrmLiteTestNamespace.Main
         public string Teststring { get; set; }
     }
 }";
+
         private readonly string TestView2Output = @"using System;
 using ServiceStack.DataAnnotations;
 

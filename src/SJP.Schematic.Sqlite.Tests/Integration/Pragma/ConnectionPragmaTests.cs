@@ -512,7 +512,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
                 var connPragma = new ConnectionPragma(dialect, connection);
 
                 const Encoding newValue = (Encoding)55;
-                Assert.ThrowsAsync<ArgumentException>(async () => await connPragma.EncodingAsync(newValue).ConfigureAwait(false));
+                Assert.Throws<ArgumentException>(() => connPragma.EncodingAsync(newValue));
             }
         }
 
@@ -702,7 +702,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
                 var connPragma = new ConnectionPragma(dialect, connection);
 
                 const OptimizeFeatures newValue = (OptimizeFeatures)55;
-                Assert.ThrowsAsync<ArgumentException>(async () => await connPragma.OptimizeAsync(newValue).ConfigureAwait(false));
+                Assert.Throws<ArgumentException>(() => connPragma.OptimizeAsync(newValue));
             }
         }
 
@@ -952,7 +952,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
                 var connPragma = new ConnectionPragma(dialect, connection);
 
                 const TemporaryStoreLocation tempStore = (TemporaryStoreLocation)55;
-                Assert.ThrowsAsync<ArgumentException>(async () => await connPragma.TemporaryStoreAsync(tempStore).ConfigureAwait(false));
+                Assert.Throws<ArgumentException>(() => connPragma.TemporaryStoreAsync(tempStore));
             }
         }
 

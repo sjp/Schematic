@@ -41,11 +41,16 @@ namespace SJP.Schematic.Modelled
             return Databases.Any(d => d.TableExists(tableName));
         }
 
-        public async Task<bool> TableExistsAsync(Identifier tableName)
+        public Task<bool> TableExistsAsync(Identifier tableName)
         {
             if (tableName == null)
                 throw new ArgumentNullException(nameof(tableName));
 
+            return TableExistsAsyncCore(tableName);
+        }
+
+        private async Task<bool> TableExistsAsyncCore(Identifier tableName)
+        {
             var tableExists = Databases.Select(d => d.TableExistsAsync(tableName)).ToArray();
             var tablePresence = await Task.WhenAll(tableExists).ConfigureAwait(false);
             return tablePresence.Length > 0;
@@ -90,11 +95,16 @@ namespace SJP.Schematic.Modelled
             return db?.GetTable(tableName);
         }
 
-        protected virtual async Task<IRelationalDatabaseTable> LoadTableAsync(Identifier tableName)
+        protected virtual Task<IRelationalDatabaseTable> LoadTableAsync(Identifier tableName)
         {
             if (tableName == null)
                 throw new ArgumentNullException(nameof(tableName));
 
+            return LoadTableAsyncCore(tableName);
+        }
+
+        private async Task<IRelationalDatabaseTable> LoadTableAsyncCore(Identifier tableName)
+        {
             var tables = Databases.Select(d => d.GetTableAsync(tableName)).ToArray();
             var tablesTask = await Task.WhenAll(tables).ConfigureAwait(false);
             return Array.Find(tablesTask, t => t != null);
@@ -108,11 +118,16 @@ namespace SJP.Schematic.Modelled
             return Databases.Any(d => d.ViewExists(viewName));
         }
 
-        public async Task<bool> ViewExistsAsync(Identifier viewName)
+        public Task<bool> ViewExistsAsync(Identifier viewName)
         {
             if (viewName == null)
                 throw new ArgumentNullException(nameof(viewName));
 
+            return ViewExistsAsyncCore(viewName);
+        }
+
+        private async Task<bool> ViewExistsAsyncCore(Identifier viewName)
+        {
             var viewExists = Databases.Select(d => d.ViewExistsAsync(viewName)).ToArray();
             var viewPresence = await Task.WhenAll(viewExists).ConfigureAwait(false);
             return viewPresence.Length > 0;
@@ -157,11 +172,16 @@ namespace SJP.Schematic.Modelled
             return db?.GetView(viewName);
         }
 
-        protected virtual async Task<IRelationalDatabaseView> LoadViewAsync(Identifier viewName)
+        protected virtual Task<IRelationalDatabaseView> LoadViewAsync(Identifier viewName)
         {
             if (viewName == null)
                 throw new ArgumentNullException(nameof(viewName));
 
+            return LoadViewAsyncCore(viewName);
+        }
+
+        private async Task<IRelationalDatabaseView> LoadViewAsyncCore(Identifier viewName)
+        {
             var views = Databases.Select(d => d.GetViewAsync(viewName)).ToArray();
             var viewsTask = await Task.WhenAll(views).ConfigureAwait(false);
             return Array.Find(viewsTask, t => t != null);
@@ -175,11 +195,16 @@ namespace SJP.Schematic.Modelled
             return Databases.Any(d => d.SequenceExists(sequenceName));
         }
 
-        public async Task<bool> SequenceExistsAsync(Identifier sequenceName)
+        public Task<bool> SequenceExistsAsync(Identifier sequenceName)
         {
             if (sequenceName == null)
                 throw new ArgumentNullException(nameof(sequenceName));
 
+            return SequenceExistsAsyncCore(sequenceName);
+        }
+
+        private async Task<bool> SequenceExistsAsyncCore(Identifier sequenceName)
+        {
             var sequenceExists = Databases.Select(d => d.SequenceExistsAsync(sequenceName)).ToArray();
             var sequencePresence = await Task.WhenAll(sequenceExists).ConfigureAwait(false);
             return sequencePresence.Length > 0;
@@ -224,11 +249,16 @@ namespace SJP.Schematic.Modelled
             return db?.GetSequence(sequenceName);
         }
 
-        protected virtual async Task<IDatabaseSequence> LoadSequenceAsync(Identifier sequenceName)
+        protected virtual Task<IDatabaseSequence> LoadSequenceAsync(Identifier sequenceName)
         {
             if (sequenceName == null)
                 throw new ArgumentNullException(nameof(sequenceName));
 
+            return LoadSequenceAsyncCore(sequenceName);
+        }
+
+        private async Task<IDatabaseSequence> LoadSequenceAsyncCore(Identifier sequenceName)
+        {
             var sequences = Databases.Select(d => d.GetSequenceAsync(sequenceName)).ToArray();
             var sequencesTask = await Task.WhenAll(sequences).ConfigureAwait(false);
             return Array.Find(sequencesTask, t => t != null);
@@ -242,11 +272,16 @@ namespace SJP.Schematic.Modelled
             return Databases.Any(d => d.SynonymExists(synonymName));
         }
 
-        public async Task<bool> SynonymExistsAsync(Identifier synonymName)
+        public Task<bool> SynonymExistsAsync(Identifier synonymName)
         {
             if (synonymName == null)
                 throw new ArgumentNullException(nameof(synonymName));
 
+            return SynonymExistsAsyncCore(synonymName);
+        }
+
+        private async Task<bool> SynonymExistsAsyncCore(Identifier synonymName)
+        {
             var synonymExists = Databases.Select(d => d.SynonymExistsAsync(synonymName)).ToArray();
             var synonymPresence = await Task.WhenAll(synonymExists).ConfigureAwait(false);
             return synonymPresence.Length > 0;
@@ -291,11 +326,16 @@ namespace SJP.Schematic.Modelled
             return db?.GetSynonym(synonymName);
         }
 
-        protected virtual async Task<IDatabaseSynonym> LoadSynonymAsync(Identifier synonymName)
+        protected virtual Task<IDatabaseSynonym> LoadSynonymAsync(Identifier synonymName)
         {
             if (synonymName == null)
                 throw new ArgumentNullException(nameof(synonymName));
 
+            return LoadSynonymAsyncCore(synonymName);
+        }
+
+        private async Task<IDatabaseSynonym> LoadSynonymAsyncCore(Identifier synonymName)
+        {
             var synonyms = Databases.Select(d => d.GetSynonymAsync(synonymName)).ToArray();
             var synonymsTask = await Task.WhenAll(synonyms).ConfigureAwait(false);
             return Array.Find(synonymsTask, t => t != null);

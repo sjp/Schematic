@@ -28,11 +28,16 @@ namespace SJP.Schematic.Reporting.Html.ViewModels.Mappers
             return new Orphans.Table(dbObject.Name, columnCount, rowCount);
         }
 
-        public async Task<Orphans.Table> MapAsync(IRelationalDatabaseTable dbObject)
+        public Task<Orphans.Table> MapAsync(IRelationalDatabaseTable dbObject)
         {
             if (dbObject == null)
                 throw new ArgumentNullException(nameof(dbObject));
 
+            return MapAsyncCore(dbObject);
+        }
+
+        private async Task<Orphans.Table> MapAsyncCore(IRelationalDatabaseTable dbObject)
+        {
             var columnLookup = await dbObject.ColumnAsync().ConfigureAwait(false);
             var rowCount = await Connection.GetRowCountAsync(Dialect, dbObject.Name).ConfigureAwait(false);
 

@@ -51,11 +51,16 @@ namespace SJP.Schematic.PostgreSql
             ) != 0;
         }
 
-        public async Task<bool> TableExistsAsync(Identifier tableName)
+        public Task<bool> TableExistsAsync(Identifier tableName)
         {
             if (tableName == null)
                 throw new ArgumentNullException(nameof(tableName));
 
+            return TableExistsAsyncCore(tableName);
+        }
+
+        private async Task<bool> TableExistsAsyncCore(Identifier tableName)
+        {
             tableName = CreateQualifiedIdentifier(tableName);
 
             return await Connection.ExecuteScalarAsync<int>(
@@ -123,11 +128,16 @@ namespace SJP.Schematic.PostgreSql
                 : null;
         }
 
-        protected virtual async Task<IRelationalDatabaseTable> LoadTableAsync(Identifier tableName)
+        protected virtual Task<IRelationalDatabaseTable> LoadTableAsync(Identifier tableName)
         {
             if (tableName == null)
                 throw new ArgumentNullException(nameof(tableName));
 
+            return LoadTableAsyncCore(tableName);
+        }
+
+        private async Task<IRelationalDatabaseTable> LoadTableAsyncCore(Identifier tableName)
+        {
             tableName = CreateQualifiedIdentifier(tableName);
             var exists = await TableExistsAsync(tableName).ConfigureAwait(false);
             return exists
@@ -148,11 +158,16 @@ namespace SJP.Schematic.PostgreSql
             ) != 0;
         }
 
-        public async Task<bool> ViewExistsAsync(Identifier viewName)
+        public Task<bool> ViewExistsAsync(Identifier viewName)
         {
             if (viewName == null)
                 throw new ArgumentNullException(nameof(viewName));
 
+            return ViewExistsAsyncCore(viewName);
+        }
+
+        private async Task<bool> ViewExistsAsyncCore(Identifier viewName)
+        {
             viewName = CreateQualifiedIdentifier(viewName);
 
             return await Connection.ExecuteScalarAsync<int>(
@@ -220,11 +235,16 @@ namespace SJP.Schematic.PostgreSql
                 : null;
         }
 
-        protected virtual async Task<IRelationalDatabaseView> LoadViewAsync(Identifier viewName)
+        protected virtual Task<IRelationalDatabaseView> LoadViewAsync(Identifier viewName)
         {
             if (viewName == null)
                 throw new ArgumentNullException(nameof(viewName));
 
+            return LoadViewAsyncCore(viewName);
+        }
+
+        private async Task<IRelationalDatabaseView> LoadViewAsyncCore(Identifier viewName)
+        {
             viewName = CreateQualifiedIdentifier(viewName);
             var exists = await ViewExistsAsync(viewName).ConfigureAwait(false);
             return exists
@@ -245,11 +265,16 @@ namespace SJP.Schematic.PostgreSql
             ) != 0;
         }
 
-        public async Task<bool> SequenceExistsAsync(Identifier sequenceName)
+        public Task<bool> SequenceExistsAsync(Identifier sequenceName)
         {
             if (sequenceName == null)
                 throw new ArgumentNullException(nameof(sequenceName));
 
+            return SequenceExistsAsyncCore(sequenceName);
+        }
+
+        public async Task<bool> SequenceExistsAsyncCore(Identifier sequenceName)
+        {
             sequenceName = CreateQualifiedIdentifier(sequenceName);
 
             return await Connection.ExecuteScalarAsync<int>(
@@ -317,11 +342,16 @@ namespace SJP.Schematic.PostgreSql
                 : null;
         }
 
-        protected virtual async Task<IDatabaseSequence> LoadSequenceAsync(Identifier sequenceName)
+        protected virtual Task<IDatabaseSequence> LoadSequenceAsync(Identifier sequenceName)
         {
             if (sequenceName == null)
                 throw new ArgumentNullException(nameof(sequenceName));
 
+            return LoadSequenceAsyncCore(sequenceName);
+        }
+
+        private async Task<IDatabaseSequence> LoadSequenceAsyncCore(Identifier sequenceName)
+        {
             sequenceName = CreateQualifiedIdentifier(sequenceName);
             var exists = await SequenceExistsAsync(sequenceName).ConfigureAwait(false);
             return exists

@@ -327,7 +327,7 @@ namespace SJP.Schematic.Sqlite.Pragma
 
         public Task<long> JournalSizeLimitAsync() => Connection.ExecuteScalarAsync<long>(PragmaPrefix + "journal_size_limit");
 
-        public Task JournalSizeLimitAsync(long sizeLimit = -1) => Connection.ExecuteAsync(PragmaPrefix + $"journal_size_limit = { sizeLimit.ToString(CultureInfo.InvariantCulture) }");
+        public Task JournalSizeLimitAsync(long sizeLimit) => Connection.ExecuteAsync(PragmaPrefix + $"journal_size_limit = { sizeLimit.ToString(CultureInfo.InvariantCulture) }");
 
         public LockingMode LockingMode
         {
@@ -584,11 +584,16 @@ namespace SJP.Schematic.Sqlite.Pragma
             return Connection.Query<pragma_wal_checkpoint>(PragmaPrefix + "wal_checkpoint(" + checkpointModeStr + ")").Single();
         }
 
-        public async Task<pragma_wal_checkpoint> WalCheckpointAsync(WalCheckpointMode checkpointMode = WalCheckpointMode.Passive)
+        public Task<pragma_wal_checkpoint> WalCheckpointAsync(WalCheckpointMode checkpointMode = WalCheckpointMode.Passive)
         {
             if (!checkpointMode.IsValid())
                 throw new ArgumentException($"The { nameof(TemporaryStoreLocation) } provided must be a valid enum.", nameof(checkpointMode));
 
+            return WalCheckpointAsyncCore(checkpointMode);
+        }
+
+        private async Task<pragma_wal_checkpoint> WalCheckpointAsyncCore(WalCheckpointMode checkpointMode)
+        {
             var checkpointModeStr = checkpointMode.ToString().ToUpperInvariant();
             var result = await Connection.QueryAsync<pragma_wal_checkpoint>(PragmaPrefix + "wal_checkpoint(" + checkpointModeStr + ")").ConfigureAwait(false);
             return result.Single();

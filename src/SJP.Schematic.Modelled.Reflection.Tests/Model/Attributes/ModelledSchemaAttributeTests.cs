@@ -112,7 +112,7 @@ namespace SJP.Schematic.Modelled.Reflection.Model.Attributes.Tests
         }
 
         [AttributeUsage(AttributeTargets.All, AllowMultiple = false)]
-        private class FakeModelledSchemaAttribute : ModelledSchemaAttribute
+        private sealed class FakeModelledSchemaAttribute : ModelledSchemaAttribute
         {
             public FakeModelledSchemaAttribute(IEnumerable<Type> dialects) : base(dialects)
             {

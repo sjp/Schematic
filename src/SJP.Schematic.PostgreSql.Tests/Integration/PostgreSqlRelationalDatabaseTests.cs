@@ -93,7 +93,7 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration
             [Test]
             public void TableExistsAsync_GivenNullName_ThrowsArgumentNullException()
             {
-                Assert.ThrowsAsync<ArgumentNullException>(async () => await Database.TableExistsAsync(null).ConfigureAwait(false));
+                Assert.Throws<ArgumentNullException>(() => Database.TableExistsAsync(null));
             }
 
             [Test]
@@ -113,7 +113,7 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration
             [Test]
             public void GetTableAsync_GivenNullName_ThrowsArgumentNullException()
             {
-                Assert.ThrowsAsync<ArgumentNullException>(async () => await Database.GetTableAsync(null).ConfigureAwait(false));
+                Assert.Throws<ArgumentNullException>(() => Database.GetTableAsync(null));
             }
 
             [Test]
@@ -244,7 +244,7 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration
             [Test]
             public void ViewExistsAsync_GivenNullName_ThrowsArgumentNullException()
             {
-                Assert.ThrowsAsync<ArgumentNullException>(async () => await Database.ViewExistsAsync(null).ConfigureAwait(false));
+                Assert.Throws<ArgumentNullException>(() => Database.ViewExistsAsync(null));
             }
 
             [Test]
@@ -264,7 +264,7 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration
             [Test]
             public void GetViewAsync_GivenNullName_ThrowsArgumentNullException()
             {
-                Assert.ThrowsAsync<ArgumentNullException>(async () => await Database.GetViewAsync(null).ConfigureAwait(false));
+                Assert.Throws<ArgumentNullException>(() => Database.GetViewAsync(null));
             }
 
             [Test]
@@ -404,7 +404,7 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration
             [Test]
             public void SequenceExistsAsync_GivenNullName_ThrowsArgumentNullException()
             {
-                Assert.ThrowsAsync<ArgumentNullException>(async () => await Database.SequenceExistsAsync(null).ConfigureAwait(false));
+                Assert.Throws<ArgumentNullException>(() => Database.SequenceExistsAsync(null));
             }
 
             [Test]
@@ -431,7 +431,7 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration
             [Test]
             public void GetSequenceAsync_GivenNullName_ThrowsArgumentNullException()
             {
-                Assert.ThrowsAsync<ArgumentNullException>(async () => await Database.GetSequenceAsync(null).ConfigureAwait(false));
+                Assert.Throws<ArgumentNullException>(() => Database.GetSequenceAsync(null));
             }
 
             [Test]
@@ -526,7 +526,7 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration
             [Test]
             public void SynonymExistsAsync_GivenNullName_ThrowsArgumentNullException()
             {
-                Assert.ThrowsAsync<ArgumentNullException>(async () => await Database.SynonymExistsAsync(null).ConfigureAwait(false));
+                Assert.Throws<ArgumentNullException>(() => Database.SynonymExistsAsync(null));
             }
 
             [Test]
@@ -539,7 +539,7 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration
             [Test]
             public void GetSynonymAsync_GivenNullName_ThrowsArgumentNullException()
             {
-                Assert.ThrowsAsync<ArgumentNullException>(async () => await Database.GetSynonymAsync(null).ConfigureAwait(false));
+                Assert.Throws<ArgumentNullException>(() => Database.GetSynonymAsync(null));
             }
 
             [Test]

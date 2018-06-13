@@ -157,7 +157,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
                 var dbPragma = new DatabasePragma(Dialect, connection, MainSchema);
 
                 const AutoVacuumMode newValue = (AutoVacuumMode)55;
-                Assert.ThrowsAsync<ArgumentException>(async () => await dbPragma.AutoVacuumAsync(newValue).ConfigureAwait(false));
+                Assert.Throws<ArgumentException>(() => dbPragma.AutoVacuumAsync(newValue));
             }
         }
 
@@ -286,8 +286,10 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
         {
             using (var connection = CreateConnection())
             {
-                var connPragma = new ConnectionPragma(Dialect, connection);
-                connPragma.ForeignKeys = false; // must disable enforcement to allow delayed check
+                var connPragma = new ConnectionPragma(Dialect, connection)
+                {
+                    ForeignKeys = false // must disable enforcement to allow delayed check
+                };
 
                 var dbPragma = new DatabasePragma(Dialect, connection, MainSchema);
 
@@ -328,8 +330,10 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
         {
             using (var connection = CreateConnection())
             {
-                var connPragma = new ConnectionPragma(Dialect, connection);
-                connPragma.ForeignKeys = false; // must disable enforcement to allow delayed check
+                var connPragma = new ConnectionPragma(Dialect, connection)
+                {
+                    ForeignKeys = false // must disable enforcement to allow delayed check
+                };
 
                 var dbPragma = new DatabasePragma(Dialect, connection, MainSchema);
 
@@ -395,7 +399,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
             {
                 var dbPragma = new DatabasePragma(Dialect, connection, MainSchema);
 
-                Assert.ThrowsAsync<ArgumentNullException>(async () => await dbPragma.ForeignKeyCheckTableAsync(null).ConfigureAwait(false));
+                Assert.Throws<ArgumentNullException>(() => dbPragma.ForeignKeyCheckTableAsync(null));
             }
         }
 
@@ -407,7 +411,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
                 var dbPragma = new DatabasePragma(Dialect, connection, MainSchema);
 
                 var name = new Identifier("aksldjaslk", "asjdkas");
-                Assert.ThrowsAsync<ArgumentException>(async () => await dbPragma.ForeignKeyCheckTableAsync(name).ConfigureAwait(false));
+                Assert.Throws<ArgumentException>(() => dbPragma.ForeignKeyCheckTableAsync(name));
             }
         }
 
@@ -477,7 +481,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
             {
                 var dbPragma = new DatabasePragma(Dialect, connection, MainSchema);
 
-                Assert.ThrowsAsync<ArgumentNullException>(async () => await dbPragma.ForeignKeyListAsync(null).ConfigureAwait(false));
+                Assert.Throws<ArgumentNullException>(() => dbPragma.ForeignKeyListAsync(null));
             }
         }
 
@@ -489,7 +493,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
                 var dbPragma = new DatabasePragma(Dialect, connection, MainSchema);
 
                 var name = new Identifier("aksldjaslk", "asjdkas");
-                Assert.ThrowsAsync<ArgumentException>(async () => await dbPragma.ForeignKeyListAsync(name).ConfigureAwait(false));
+                Assert.Throws<ArgumentException>(() => dbPragma.ForeignKeyListAsync(name));
             }
         }
 
@@ -678,7 +682,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
             {
                 var dbPragma = new DatabasePragma(Dialect, connection, MainSchema);
 
-                Assert.ThrowsAsync<ArgumentNullException>(async () => await dbPragma.IndexListAsync(null).ConfigureAwait(false));
+                Assert.Throws<ArgumentNullException>(() => dbPragma.IndexListAsync(null));
             }
         }
 
@@ -690,7 +694,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
                 var dbPragma = new DatabasePragma(Dialect, connection, MainSchema);
 
                 var name = new Identifier("aksldjaslk", "asjdkas");
-                Assert.ThrowsAsync<ArgumentException>(async () => await dbPragma.IndexListAsync(name).ConfigureAwait(false));
+                Assert.Throws<ArgumentException>(() => dbPragma.IndexListAsync(name));
             }
         }
 
@@ -869,7 +873,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
                 var dbPragma = new DatabasePragma(Dialect, connection, MainSchema);
 
                 const JournalMode newValue = (JournalMode)55;
-                Assert.ThrowsAsync<ArgumentException>(async () => await dbPragma.JournalModeAsync(newValue).ConfigureAwait(false));
+                Assert.Throws<ArgumentException>(() => dbPragma.JournalModeAsync(newValue));
             }
         }
 
@@ -969,7 +973,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
                 var dbPragma = new DatabasePragma(Dialect, connection, MainSchema);
 
                 const LockingMode newValue = (LockingMode)55;
-                Assert.ThrowsAsync<ArgumentException>(async () => await dbPragma.LockingModeAsync(newValue).ConfigureAwait(false));
+                Assert.Throws<ArgumentException>(() => dbPragma.LockingModeAsync(newValue));
             }
         }
 
@@ -1083,7 +1087,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
                 var dbPragma = new DatabasePragma(Dialect, connection, MainSchema);
 
                 const OptimizeFeatures newValue = (OptimizeFeatures)55;
-                Assert.ThrowsAsync<ArgumentException>(async () => await dbPragma.OptimizeAsync(newValue).ConfigureAwait(false));
+                Assert.Throws<ArgumentException>(() => dbPragma.OptimizeAsync(newValue));
             }
         }
 
@@ -1163,7 +1167,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
                 var dbPragma = new DatabasePragma(Dialect, connection, MainSchema);
 
                 const ushort newValue = (ushort)300;
-                Assert.ThrowsAsync<ArgumentException>(async () => await dbPragma.PageSizeAsync(newValue).ConfigureAwait(false));
+                Assert.Throws<ArgumentException>(() => dbPragma.PageSizeAsync(newValue));
             }
         }
 
@@ -1187,7 +1191,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
                 var dbPragma = new DatabasePragma(Dialect, connection, MainSchema);
 
                 const ushort newValue = (ushort)600;
-                Assert.ThrowsAsync<ArgumentException>(async () => await dbPragma.PageSizeAsync(newValue).ConfigureAwait(false));
+                Assert.Throws<ArgumentException>(() => dbPragma.PageSizeAsync(newValue));
             }
         }
 
@@ -1331,7 +1335,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
                 var dbPragma = new DatabasePragma(Dialect, connection, MainSchema);
 
                 const SecureDeleteMode newValue = (SecureDeleteMode)55;
-                Assert.ThrowsAsync<ArgumentException>(async () => await dbPragma.SecureDeleteAsync(newValue).ConfigureAwait(false));
+                Assert.Throws<ArgumentException>(() => dbPragma.SecureDeleteAsync(newValue));
             }
         }
 
@@ -1387,7 +1391,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
                 var dbPragma = new DatabasePragma(Dialect, connection, MainSchema);
 
                 const SynchronousLevel newValue = (SynchronousLevel)55;
-                Assert.ThrowsAsync<ArgumentException>(async () => await dbPragma.SynchronousAsync(newValue).ConfigureAwait(false));
+                Assert.Throws<ArgumentException>(() => dbPragma.SynchronousAsync(newValue));
             }
         }
 
@@ -1451,7 +1455,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
             {
                 var dbPragma = new DatabasePragma(Dialect, connection, MainSchema);
 
-                Assert.ThrowsAsync<ArgumentNullException>(async () => await dbPragma.TableInfoAsync(null).ConfigureAwait(false));
+                Assert.Throws<ArgumentNullException>(() => dbPragma.TableInfoAsync(null));
             }
         }
 
@@ -1463,7 +1467,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
                 var dbPragma = new DatabasePragma(Dialect, connection, MainSchema);
 
                 var name = new Identifier("aksldjaslk", "asjdkas");
-                Assert.ThrowsAsync<ArgumentException>(async () => await dbPragma.TableInfoAsync(name).ConfigureAwait(false));
+                Assert.Throws<ArgumentException>(() => dbPragma.TableInfoAsync(name));
             }
         }
 
@@ -1543,7 +1547,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
                 var dbPragma = new DatabasePragma(Dialect, connection, MainSchema);
 
                 const WalCheckpointMode newValue = (WalCheckpointMode)55;
-                Assert.ThrowsAsync<ArgumentException>(async () => await dbPragma.WalCheckpointAsync(newValue).ConfigureAwait(false));
+                Assert.Throws<ArgumentException>(() => dbPragma.WalCheckpointAsync(newValue));
             }
         }
     }

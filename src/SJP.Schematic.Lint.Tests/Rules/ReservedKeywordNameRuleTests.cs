@@ -329,8 +329,7 @@ namespace SJP.Schematic.Lint.Tests.Rules
 
         private static FakeRelationalDatabase CreateFakeDatabase()
         {
-            var dialect = new FakeDatabaseDialect();
-            dialect.ReservedKeywords = new[] { "SELECT" };
+            var dialect = new FakeDatabaseDialect { ReservedKeywords = new[] { "SELECT" } };
 
             var connection = Mock.Of<IDbConnection>();
 

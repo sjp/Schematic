@@ -56,11 +56,16 @@ namespace SJP.Schematic.Reporting.Html
             return SaveAssetsAsync(dirInfo, overwrite);
         }
 
-        public async Task SaveAssetsAsync(DirectoryInfo directory, bool overwrite = true)
+        public Task SaveAssetsAsync(DirectoryInfo directory, bool overwrite = true)
         {
             if (directory == null)
                 throw new ArgumentNullException(nameof(directory));
 
+            return SaveAssetsAsyncCore(directory, overwrite);
+        }
+
+        private async Task SaveAssetsAsyncCore(DirectoryInfo directory, bool overwrite = true)
+        {
             if (!directory.Exists)
                 directory.Create();
 

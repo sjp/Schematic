@@ -87,7 +87,7 @@ namespace SJP.Schematic.Modelled.Reflection.Tests
         public void TableExistsAsync_GivenNullName_ThrowsArgumentNullException()
         {
             var db = new ReflectionRelationalDatabase<SampleDatabase>(new FakeDialect());
-            Assert.ThrowsAsync<ArgumentNullException>(async () => await db.TableExistsAsync(null).ConfigureAwait(false));
+            Assert.Throws<ArgumentNullException>(() => db.TableExistsAsync(null));
         }
 
         [Test]
@@ -118,7 +118,7 @@ namespace SJP.Schematic.Modelled.Reflection.Tests
         public void GetTableAsync_GivenNullName_ThrowsArgumentNullException()
         {
             var db = new ReflectionRelationalDatabase<SampleDatabase>(new FakeDialect());
-            Assert.ThrowsAsync<ArgumentNullException>(async () => await db.GetTableAsync(null).ConfigureAwait(false));
+            Assert.Throws<ArgumentNullException>(() => db.GetTableAsync(null));
         }
 
         [Test]

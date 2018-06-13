@@ -93,7 +93,7 @@ namespace SJP.Schematic.MySql.Tests.Integration
             [Test]
             public void TableExistsAsync_GivenNullName_ThrowsArgumentNullException()
             {
-                Assert.ThrowsAsync<ArgumentNullException>(async () => await Database.TableExistsAsync(null).ConfigureAwait(false));
+                Assert.Throws<ArgumentNullException>(() => Database.TableExistsAsync(null));
             }
 
             [Test]
@@ -113,7 +113,7 @@ namespace SJP.Schematic.MySql.Tests.Integration
             [Test]
             public void GetTableAsync_GivenNullName_ThrowsArgumentNullException()
             {
-                Assert.ThrowsAsync<ArgumentNullException>(async () => await Database.GetTableAsync(null).ConfigureAwait(false));
+                Assert.Throws<ArgumentNullException>(() => Database.GetTableAsync(null));
             }
 
             [Test]
@@ -244,7 +244,7 @@ namespace SJP.Schematic.MySql.Tests.Integration
             [Test]
             public void ViewExistsAsync_GivenNullName_ThrowsArgumentNullException()
             {
-                Assert.ThrowsAsync<ArgumentNullException>(async () => await Database.ViewExistsAsync(null).ConfigureAwait(false));
+                Assert.Throws<ArgumentNullException>(() => Database.ViewExistsAsync(null));
             }
 
             [Test]
@@ -264,7 +264,7 @@ namespace SJP.Schematic.MySql.Tests.Integration
             [Test]
             public void GetViewAsync_GivenNullName_ThrowsArgumentNullException()
             {
-                Assert.ThrowsAsync<ArgumentNullException>(async () => await Database.GetViewAsync(null).ConfigureAwait(false));
+                Assert.Throws<ArgumentNullException>(() => Database.GetViewAsync(null));
             }
 
             [Test]

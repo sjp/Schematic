@@ -61,7 +61,7 @@ namespace SJP.Schematic.Sqlite.Pragma
         Task<JournalMode> JournalModeAsync();
         Task JournalModeAsync(JournalMode journalMode);
         Task<long> JournalSizeLimitAsync();
-        Task JournalSizeLimitAsync(long sizeLimit = -1);
+        Task JournalSizeLimitAsync(long sizeLimit);
         Task<LockingMode> LockingModeAsync();
         Task LockingModeAsync(LockingMode lockingMode);
         Task<ulong> MaxPageCountAsync();

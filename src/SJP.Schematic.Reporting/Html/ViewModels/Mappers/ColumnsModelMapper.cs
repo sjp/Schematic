@@ -52,11 +52,16 @@ namespace SJP.Schematic.Reporting.Html.ViewModels.Mappers
             }).ToList();
         }
 
-        public async Task<IEnumerable<Columns.TableColumn>> MapAsync(IRelationalDatabaseTable dbObject)
+        public Task<IEnumerable<Columns.TableColumn>> MapAsync(IRelationalDatabaseTable dbObject)
         {
             if (dbObject == null)
                 throw new ArgumentNullException(nameof(dbObject));
 
+            return MapAsyncCore(dbObject);
+        }
+
+        private async Task<IEnumerable<Columns.TableColumn>> MapAsyncCore(IRelationalDatabaseTable dbObject)
+        {
             var primaryKey = await dbObject.PrimaryKeyAsync().ConfigureAwait(false);
             var uniqueKeys = await dbObject.UniqueKeysAsync().ConfigureAwait(false);
             var parentKeys = await dbObject.ParentKeysAsync().ConfigureAwait(false);
@@ -101,11 +106,16 @@ namespace SJP.Schematic.Reporting.Html.ViewModels.Mappers
             ).ToList();
         }
 
-        public async Task<IEnumerable<Columns.ViewColumn>> MapAsync(IRelationalDatabaseView dbObject)
+        public Task<IEnumerable<Columns.ViewColumn>> MapAsync(IRelationalDatabaseView dbObject)
         {
             if (dbObject == null)
                 throw new ArgumentNullException(nameof(dbObject));
 
+            return MapAsyncCore(dbObject);
+        }
+
+        private async Task<IEnumerable<Columns.ViewColumn>> MapAsyncCore(IRelationalDatabaseView dbObject)
+        {
             var columns = await dbObject.ColumnsAsync().ConfigureAwait(false);
 
             return columns.Select((c, i) =>

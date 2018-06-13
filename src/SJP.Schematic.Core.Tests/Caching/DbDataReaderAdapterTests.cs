@@ -108,7 +108,7 @@ namespace SJP.Schematic.Core.Tests.Caching
             var adapter = new DbDataReaderAdapter(mock.Object, CommandBehavior.Default);
             const int index = 1;
             const int offset = 1;
-            var buffer = new byte[] { };
+            var buffer = Array.Empty<byte>();
             const int bufferOffset = 1;
             const int length = 10;
             var result = adapter.GetBytes(index, offset, buffer, bufferOffset, length);
@@ -134,7 +134,7 @@ namespace SJP.Schematic.Core.Tests.Caching
             var adapter = new DbDataReaderAdapter(mock.Object, CommandBehavior.Default);
             const int index = 1;
             const int offset = 1;
-            var buffer = new char[] { };
+            var buffer = Array.Empty<char>();
             const int bufferOffset = 1;
             const int length = 10;
             var result = adapter.GetChars(index, offset, buffer, bufferOffset, length);
@@ -301,7 +301,7 @@ namespace SJP.Schematic.Core.Tests.Caching
         {
             var mock = ReaderMock;
             var adapter = new DbDataReaderAdapter(mock.Object, CommandBehavior.Default);
-            var values = new object[] { };
+            var values = Array.Empty<object>();
             var result = adapter.GetValues(values);
 
             mock.Verify(r => r.GetValues(values));

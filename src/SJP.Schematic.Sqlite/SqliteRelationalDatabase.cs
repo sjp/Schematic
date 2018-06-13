@@ -63,11 +63,16 @@ namespace SJP.Schematic.Sqlite
             return false;
         }
 
-        public async Task<bool> TableExistsAsync(Identifier tableName)
+        public Task<bool> TableExistsAsync(Identifier tableName)
         {
             if (tableName == null)
                 throw new ArgumentNullException(nameof(tableName));
 
+            return TableExistsAsyncCore(tableName);
+        }
+
+        private async Task<bool> TableExistsAsyncCore(Identifier tableName)
+        {
             if (IsReservedTableName(tableName))
                 return false;
 
@@ -118,11 +123,16 @@ namespace SJP.Schematic.Sqlite
             return null;
         }
 
-        public async Task<IRelationalDatabaseTable> GetTableAsync(Identifier tableName)
+        public Task<IRelationalDatabaseTable> GetTableAsync(Identifier tableName)
         {
             if (tableName == null)
                 throw new ArgumentNullException(nameof(tableName));
 
+            return GetTableAsyncCore(tableName);
+        }
+
+        private async Task<IRelationalDatabaseTable> GetTableAsyncCore(Identifier tableName)
+        {
             if (IsReservedTableName(tableName))
                 return null;
 
@@ -218,11 +228,16 @@ namespace SJP.Schematic.Sqlite
             return null;
         }
 
-        protected virtual async Task<IRelationalDatabaseTable> LoadTableAsync(Identifier tableName)
+        protected virtual Task<IRelationalDatabaseTable> LoadTableAsync(Identifier tableName)
         {
             if (tableName == null)
                 throw new ArgumentNullException(nameof(tableName));
 
+            return LoadTableAsyncCore(tableName);
+        }
+
+        private async Task<IRelationalDatabaseTable> LoadTableAsyncCore(Identifier tableName)
+        {
             if (tableName.Schema != null)
             {
                 var exists = await TableExistsAsync(tableName).ConfigureAwait(false);
@@ -274,11 +289,16 @@ namespace SJP.Schematic.Sqlite
             return false;
         }
 
-        public async Task<bool> ViewExistsAsync(Identifier viewName)
+        public Task<bool> ViewExistsAsync(Identifier viewName)
         {
             if (viewName == null)
                 throw new ArgumentNullException(nameof(viewName));
 
+            return ViewExistsAsyncCore(viewName);
+        }
+
+        private async Task<bool> ViewExistsAsyncCore(Identifier viewName)
+        {
             if (viewName.Schema != null)
             {
                 var sql = $"select count(*) from { Dialect.QuoteIdentifier(viewName.Schema) }.sqlite_master where type = 'view' and lower(name) = lower(@ViewName)";
@@ -323,11 +343,16 @@ namespace SJP.Schematic.Sqlite
             return null;
         }
 
-        public async Task<IRelationalDatabaseView> GetViewAsync(Identifier viewName)
+        public Task<IRelationalDatabaseView> GetViewAsync(Identifier viewName)
         {
             if (viewName == null)
                 throw new ArgumentNullException(nameof(viewName));
 
+            return GetViewAsyncCore(viewName);
+        }
+
+        private async Task<IRelationalDatabaseView> GetViewAsyncCore(Identifier viewName)
+        {
             if (viewName.Schema != null)
                 return await LoadViewAsync(viewName).ConfigureAwait(false);
 
@@ -421,11 +446,16 @@ namespace SJP.Schematic.Sqlite
             return null;
         }
 
-        protected virtual async Task<IRelationalDatabaseView> LoadViewAsync(Identifier viewName)
+        protected virtual Task<IRelationalDatabaseView> LoadViewAsync(Identifier viewName)
         {
             if (viewName == null)
                 throw new ArgumentNullException(nameof(viewName));
 
+            return LoadViewAsyncCore(viewName);
+        }
+
+        private async Task<IRelationalDatabaseView> LoadViewAsyncCore(Identifier viewName)
+        {
             if (viewName.Schema != null)
             {
                 var exists = await ViewExistsAsync(viewName).ConfigureAwait(false);

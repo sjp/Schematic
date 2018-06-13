@@ -143,7 +143,7 @@ namespace SJP.Schematic.Modelled.Reflection.Model.Attributes.Tests
         }
 
         [AttributeUsage(AttributeTargets.All, AllowMultiple = false)]
-        private class FakeDeclaredTypeAttribute : DeclaredTypeAttribute
+        private sealed class FakeDeclaredTypeAttribute : DeclaredTypeAttribute
         {
             public FakeDeclaredTypeAttribute(DataType dataType) : base(dataType)
             {

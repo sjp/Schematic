@@ -39,6 +39,7 @@ namespace SJP.Schematic.Core
 
             return new Logger<T>(factory);
         }
+
         /// <summary>
         /// Creates a new ILogger instance using the full name of the given type.
         /// </summary>
