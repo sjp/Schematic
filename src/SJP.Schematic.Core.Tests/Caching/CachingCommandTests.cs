@@ -10,9 +10,9 @@ namespace SJP.Schematic.Core.Tests.Caching
     [TestFixture]
     internal class CachingCommandTests
     {
-        protected DbConnection Connection => new DbConnectionAdapter(Mock.Of<IDbConnection>());
+        protected static DbConnection Connection => new DbConnectionAdapter(Mock.Of<IDbConnection>());
 
-        protected Mock<IDbCommand> CommandMock
+        protected static Mock<IDbCommand> CommandMock
         {
             get
             {
@@ -23,9 +23,9 @@ namespace SJP.Schematic.Core.Tests.Caching
             }
         }
 
-        protected DbCommand DbCommandMock => new DbCommandAdapter(Connection, CommandMock.Object);
+        protected static DbCommand DbCommandMock => new DbCommandAdapter(Connection, CommandMock.Object);
 
-        protected Mock<ICacheStore<int, DataTable>> CacheMock => new Mock<ICacheStore<int, DataTable>>();
+        protected static Mock<ICacheStore<int, DataTable>> CacheMock => new Mock<ICacheStore<int, DataTable>>();
 
         [Test]
         public void Ctor_GivenNullConnection_ThrowsArgNullException()
@@ -62,10 +62,7 @@ namespace SJP.Schematic.Core.Tests.Caching
             var mock = CommandMock;
             var command = new DbCommandAdapter(Connection, mock.Object);
             const string commandText = "asd";
-            var cachingCommand = new CachingCommand(command, CacheMock.Object)
-            {
-                CommandText = commandText
-            };
+            new CachingCommand(command, CacheMock.Object) { CommandText = commandText };
 
             mock.VerifySet(c => c.CommandText = commandText);
         }

@@ -1154,7 +1154,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
             {
                 var dbPragma = new DatabasePragma(Dialect, connection, MainSchema);
 
-                const ushort newValue = (ushort)300;
+                const ushort newValue = 300;
                 Assert.Throws<ArgumentException>(() => dbPragma.PageSize = newValue);
             }
         }
@@ -1166,7 +1166,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
             {
                 var dbPragma = new DatabasePragma(Dialect, connection, MainSchema);
 
-                const ushort newValue = (ushort)300;
+                const ushort newValue = 300;
                 Assert.Throws<ArgumentException>(() => dbPragma.PageSizeAsync(newValue));
             }
         }
@@ -1178,7 +1178,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
             {
                 var dbPragma = new DatabasePragma(Dialect, connection, MainSchema);
 
-                const ushort newValue = (ushort)600;
+                const ushort newValue = 600;
                 Assert.Throws<ArgumentException>(() => dbPragma.PageSize = newValue);
             }
         }
@@ -1190,7 +1190,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
             {
                 var dbPragma = new DatabasePragma(Dialect, connection, MainSchema);
 
-                const ushort newValue = (ushort)600;
+                const ushort newValue = 600;
                 Assert.Throws<ArgumentException>(() => dbPragma.PageSizeAsync(newValue));
             }
         }
