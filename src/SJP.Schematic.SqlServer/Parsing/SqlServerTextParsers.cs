@@ -8,13 +8,10 @@ namespace SJP.Schematic.SqlServer.Parsing
     {
         public static TextParser<string> SqlBlob { get; } =
             Span.EqualTo("0x")
-                .IgnoreThen(Character.Digit.Or(Character.Matching(ch => (ch >= 'a' && ch <= 'f') || (ch >= 'A' && ch <= 'F'), "a-f"))
-                    .Named("hex digit")
-                    .AtLeastOnce())
-                .Select(chrs => new string(chrs));
+                .IgnoreThen(Numerics.HexDigits.Select(_ => _.ToStringValue()));
 
         public static TextParser<char> SqlStringContentChar { get; } =
-            Span.EqualTo("''").Value('\'').Try().Or(Character.ExceptIn('\'', '\r', '\n'));
+            Span.EqualTo("''").Value('\'').Try().Or(Character.ExceptIn('\''));
 
         public static TextParser<string> SqlString { get; } =
             Character.EqualToIgnoreCase('N').IgnoreThen(Character.EqualTo('\''))
@@ -22,40 +19,15 @@ namespace SJP.Schematic.SqlServer.Parsing
                 .IgnoreThen(SqlStringContentChar.Many())
                 .Then(s => Character.EqualTo('\'').Value(new string(s)));
 
-        public static TextParser<char> SqlInlineCommentChar { get; } =
-            Character.ExceptIn('\r', '\n');
-
-        public static TextParser<string> SqlInlineComment { get; } =
-            Span.EqualTo("--")
-                .Then(prefix => SqlInlineCommentChar.Many().Select(chars => prefix.ToString() + new string(chars)));
-
-        public static TextParser<string> SqlBlockComment { get; } =
-            Span.EqualTo("/*")
-                .Then(prefix =>
-                {
-                    var prev = (char)0; // can be anything, using NUL char to make this clear
-                    return Span.WithAll(c =>
-                    {
-                        var isTerminator = prev == '*' && c == '/';
-                        prev = c;
-                        return isTerminator;
-                    }).Select(c => prefix + c.ToString());
-                })
-                .Then(prefix => Character.EqualTo('/').Select(c => prefix + c.ToString()));
-
         public static TextParser<string> SqlComment { get; } =
-            SqlInlineComment.Or(SqlBlockComment);
+            Comment.CStyle.Or(Comment.SqlStyle).Select(_ => _.ToStringValue());
 
         public static TextParser<TextSpan> Real { get; } =
-            Numerics.Integer
-                .Then(n => Character.EqualTo('.').IgnoreThen(Numerics.Integer).OptionalOrDefault()
-                    .Select(f => f == TextSpan.None ? n : new TextSpan(n.Source, n.Position, n.Length + f.Length + 1)));
+            Numerics.Decimal;
 
         public static TextParser<TextSpan> Money { get; } =
             Character.EqualTo('$')
-                .IgnoreThen(Numerics.Integer
-                    .Then(n => Character.EqualTo('.').IgnoreThen(Numerics.Integer).OptionalOrDefault()
-                        .Select(f => f == TextSpan.None ? n : new TextSpan(n.Source, n.Position, n.Length + f.Length + 1))));
+                .IgnoreThen(Numerics.Decimal);
 
         private readonly static TextParser<SqlServerToken> LessOrEqual = Span.EqualTo("<=").Value(SqlServerToken.LessThanOrEqual);
         private readonly static TextParser<SqlServerToken> GreaterOrEqual = Span.EqualTo(">=").Value(SqlServerToken.GreaterThanOrEqual);
