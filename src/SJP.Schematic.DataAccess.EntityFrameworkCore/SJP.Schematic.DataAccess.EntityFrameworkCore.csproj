@@ -7,7 +7,7 @@
     <CheckForOverflowUnderflow>true</CheckForOverflowUnderflow>  </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="2.1.0" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="2.1.1" />
     <PackageReference Include="System.IO.Abstractions" Version="2.1.0.178" />
   </ItemGroup>
 
