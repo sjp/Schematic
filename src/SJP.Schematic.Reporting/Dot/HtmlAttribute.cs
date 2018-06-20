@@ -10,6 +10,8 @@
 
         public static string CellBorder { get; } = "CELLBORDER";
 
+        public static string CellPadding { get; } = "CELLPADDING";
+
         public static string CellSpacing { get; } = "CELLSPACING";
 
         public static string ColumnSpan { get; } = "COLSPAN";

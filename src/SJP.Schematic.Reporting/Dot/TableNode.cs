@@ -1,4 +1,5 @@
-﻿using SJP.Schematic.Core.Extensions;
+﻿using SJP.Schematic.Core;
+using SJP.Schematic.Core.Extensions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -19,6 +20,7 @@ namespace SJP.Schematic.Reporting.Dot
             uint parents,
             ulong rows,
             IEnumerable<NodeAttribute> nodeAttrs,
+            IEnumerable<TableConstraint> constraints,
             TableNodeOptions options
         )
             : base(identifier)
@@ -33,6 +35,7 @@ namespace SJP.Schematic.Reporting.Dot
             _parents = parents;
             _rows = rows;
             _nodeAttrs = nodeAttrs ?? throw new ArgumentNullException(nameof(nodeAttrs));
+            _constraints = constraints ?? throw new ArgumentNullException(nameof(constraints));
             _options = options ?? throw new ArgumentNullException(nameof(options));
         }
 
@@ -66,14 +69,14 @@ namespace SJP.Schematic.Reporting.Dot
                     new XElement(HtmlElement.Font,
                         new XAttribute(HtmlAttribute.FontFace, nameof(FontFace.Helvetica)),
                         new XElement(HtmlElement.Bold, "Table"))));
-            var keyNameHeaderRow = new XElement(HtmlElement.TableRow,
+            var tableNameHeaderRow = new XElement(HtmlElement.TableRow,
                 new XElement(HtmlElement.TableCell,
                     new XAttribute(HtmlAttribute.BackgroundColor, headerBackgroundColor),
                     new XAttribute(HtmlAttribute.ColumnSpan, 3),
                     new XElement(HtmlElement.Bold, _tableName)));
 
             table.Add(tableHeaderRow);
-            table.Add(keyNameHeaderRow);
+            table.Add(tableNameHeaderRow);
 
             var hasSkippedRows = false;
             var columnRows = _columnNames.Select((c, i) =>
@@ -86,7 +89,6 @@ namespace SJP.Schematic.Reporting.Dot
 
                 var columnRow = new XElement(HtmlElement.TableRow);
                 var columnCell = new XElement(HtmlElement.TableCell,
-                        new XAttribute(HtmlAttribute.Port, c),
                         new XAttribute(HtmlAttribute.ColumnSpan, 3),
                         new XAttribute(HtmlAttribute.Align, "LEFT"));
 
@@ -110,8 +112,8 @@ namespace SJP.Schematic.Reporting.Dot
                 {
                     var columnType = _columnTypes[i];
                     var columnTypeCell = new XElement(HtmlElement.TableCell,
-                        new XAttribute(HtmlAttribute.Port, columnType),
-                        new XAttribute(HtmlAttribute.Align, "LEFT"));
+                        new XAttribute(HtmlAttribute.Align, "LEFT"),
+                        columnType);
 
                     columnRow.Add(columnTypeCell);
                 }
@@ -128,7 +130,6 @@ namespace SJP.Schematic.Reporting.Dot
             {
                 var endRow = new XElement(HtmlElement.TableRow,
                     new XElement(HtmlElement.TableCell,
-                        new XAttribute(HtmlAttribute.Port, "ellipsis"),
                         new XAttribute(HtmlAttribute.ColumnSpan, 3),
                         new XAttribute(HtmlAttribute.Align, "LEFT"),
                         "…"));
@@ -175,6 +176,75 @@ namespace SJP.Schematic.Reporting.Dot
 
             table.Add(footerRow);
 
+            // add constraints (if needed)
+            foreach (var constraint in _constraints)
+            {
+                var constraintWrapperRow = new XElement(HtmlElement.TableRow);
+                var constraintWrapperCell = new XElement(HtmlElement.TableCell,
+                    new XAttribute(HtmlAttribute.ColumnSpan, 3),
+                    new XAttribute(HtmlAttribute.CellPadding, 0),
+                    new XAttribute(HtmlAttribute.Border, 0),
+                    new XAttribute(HtmlAttribute.Port, constraint.Identifier));
+                constraintWrapperRow.Add(constraintWrapperCell);
+
+                var constraintTable = new XElement(HtmlElement.Table,
+                    new XAttribute(HtmlAttribute.Border, 0),
+                    new XAttribute(HtmlAttribute.CellBorder, 1),
+                    new XAttribute(HtmlAttribute.CellSpacing, 0),
+                    new XAttribute(HtmlAttribute.CellPadding, 4),
+                    new XAttribute(HtmlAttribute.BackgroundColor, _options.TableBackgroundColor)
+                );
+                constraintWrapperCell.Add(constraintTable);
+
+                var constraintHeaderColor = _options.IsHighlighted
+                    ? _options.GetHighlightedKeyHeaderBackgroundColor(constraint.KeyType)
+                    : _options.GetKeyHeaderBackgroundColor(constraint.KeyType);
+                var constraintHeaderRow = new XElement(HtmlElement.TableRow,
+                new XElement(HtmlElement.TableCell,
+                    new XAttribute(HtmlAttribute.BackgroundColor, constraintHeaderColor),
+                    new XElement(HtmlElement.Font,
+                        new XAttribute(HtmlAttribute.FontFace, nameof(FontFace.Helvetica)),
+                        new XElement(HtmlElement.Bold, constraint.KeyTitle))));
+                constraintTable.Add(constraintHeaderRow);
+
+                if (!constraint.ConstraintName.IsNullOrWhiteSpace())
+                {
+                    var constraintNameHeaderRow = new XElement(HtmlElement.TableRow,
+                        new XElement(HtmlElement.TableCell,
+                            new XAttribute(HtmlAttribute.BackgroundColor, constraintHeaderColor),
+                            new XElement(HtmlElement.Bold, constraint.ConstraintName)));
+
+                    constraintTable.Add(constraintNameHeaderRow);
+                }
+
+                var constraintColumnRows = constraint.ColumnNames.Select((c, i) =>
+                {
+                    var columnRow = new XElement(HtmlElement.TableRow);
+                    var columnNameCell = new XElement(HtmlElement.TableCell,
+                        new XAttribute(HtmlAttribute.Align, "LEFT"),
+                        c);
+
+                    columnRow.Add(columnNameCell);
+
+                    if (_options.ShowColumnDataType)
+                    {
+                        var columnType = _columnTypes[i];
+                        var columnTypeCell = new XElement(HtmlElement.TableCell,
+                            new XAttribute(HtmlAttribute.Align, "LEFT"),
+                            columnType);
+
+                        columnRow.Add(columnTypeCell);
+                    }
+
+                    return columnRow;
+                }).ToList();
+
+                foreach (var columnRow in constraintColumnRows)
+                    constraintTable.Add(columnRow);
+
+                table.Add(constraintWrapperRow);
+            }
+
             // do not use SaveOptions.None as indented XML causes incorrect formatting in Graphviz
             var labelContent = table.ToString(SaveOptions.DisableFormatting);
 
@@ -199,6 +269,7 @@ namespace SJP.Schematic.Reporting.Dot
         private readonly uint _parents;
         private readonly ulong _rows;
         private readonly IEnumerable<NodeAttribute> _nodeAttrs;
+        private readonly IEnumerable<TableConstraint> _constraints;
         private readonly TableNodeOptions _options;
     }
 }

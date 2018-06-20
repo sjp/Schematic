@@ -36,7 +36,6 @@ namespace SJP.Schematic.Reporting.Dot
             var tableNames = tables.Select(t => t.Name).ToList();
 
             var tableNodes = new Dictionary<DotIdentifier, DotNode>();
-            var relationalKeyNodes = new Dictionary<DotIdentifier, DotNode>();
             var edges = new List<DotEdge>();
 
             foreach (var table in tables)
@@ -77,19 +76,39 @@ namespace SJP.Schematic.Reporting.Dot
                     IsHighlighted = table.Name == options.HighlightedTable
                 };
 
-                var tableNode = new TableNode(
-                    nodeIdentifier,
-                    tableName,
-                    columnNames,
-                    columnTypes,
-                    keyColumnNames,
-                    childKeysCount,
-                    parentKeysCount,
-                    rowCount,
-                    tableNodeAttrs,
-                    tableNodeOptions
-                );
-                tableNodes[nodeIdentifier] = tableNode;
+                var tableConstraints = new List<TableConstraint>();
+
+                if (primaryKey != null)
+                {
+                    var primaryKeyNameText = primaryKey.Name == null
+                        ? primaryKey.GetKeyHash().ToString()
+                        : primaryKey.Name.LocalName;
+
+                    var primaryKeyConstraint = new TableConstraint(
+                        primaryKeyNameText,
+                        primaryKey.KeyType,
+                        primaryKey.Name.LocalName,
+                        primaryKey.Columns.Select(c => c.Name.LocalName).ToList(),
+                        primaryKey.Columns.Select(c => c.Type.Definition).ToList()
+                    );
+                    tableConstraints.Add(primaryKeyConstraint);
+                }
+
+                foreach (var uniqueKey in uniqueKeys)
+                {
+                    var uniqueKeyNameText = uniqueKey.Name == null
+                        ? uniqueKey.GetKeyHash().ToString()
+                        : uniqueKey.Name.LocalName;
+
+                    var uniqueKeyConstraint = new TableConstraint(
+                        uniqueKeyNameText,
+                        uniqueKey.KeyType,
+                        uniqueKey.Name.LocalName,
+                        uniqueKey.Columns.Select(c => c.Name.LocalName).ToList(),
+                        uniqueKey.Columns.Select(c => c.Type.Definition).ToList()
+                    );
+                    tableConstraints.Add(uniqueKeyConstraint);
+                }
 
                 foreach (var relationalKey in parentKeys)
                 {
@@ -100,120 +119,52 @@ namespace SJP.Schematic.Reporting.Dot
                     if (!hasParentKey)
                         continue;
 
-                    var childKeyIdentifierText = childKey.Table.Name.ToSafeKey() + ".";
-                    childKeyIdentifierText += childKey.Name == null
+                    var childKeyTableName = childKey.Table.Name.ToSafeKey();
+                    var childKeyName = childKey.Name == null
                         ? childKey.GetKeyHash().ToString()
                         : childKey.Name.LocalName;
-                    var childKeyIdentifier = new DotIdentifier(childKeyIdentifierText);
 
-                    var parentKeyIdentifierText = parentKey.Table.Name.ToSafeKey() + ".";
-                    parentKeyIdentifierText += parentKey.Name == null
+                    var parentKeyTableName = parentKey.Table.Name.ToSafeKey();
+                    var parentKeyName = parentKey.Name == null
                         ? parentKey.GetKeyHash().ToString()
                         : parentKey.Name.LocalName;
-                    var parentKeyIdentifier = new DotIdentifier(parentKeyIdentifierText);
-
-                    if (!relationalKeyNodes.ContainsKey(childKeyIdentifier))
-                    {
-                        var childTableName = childKey.Table.Name.ToVisibleName();
-                        var constraintName = childKey.Name == null
-                            ? "(Unnamed)"
-                            : childKey.Name.LocalName;
-                        var childKeyNodeAttrs = new[]
-                        {
-                            NodeAttribute.Tooltip(childTableName + "." + constraintName),
-                            NodeAttribute.URL(tableUri)
-                        };
-
-                        var childKeyNode = new ConstraintNode(
-                            childKeyIdentifier,
-                            childKey.KeyType,
-                            constraintName,
-                            childKey.Columns.Select(c => c.Name.LocalName).ToList(),
-                            childKey.Columns.Select(c => c.Type.Definition).ToList(),
-                            childKeyNodeAttrs,
-                            ConstraintNodeOptions.GetDefaultOptions(childKey.KeyType)
-                        );
-                        relationalKeyNodes[childKeyIdentifier] = childKeyNode;
-
-                        var edgeStyles = new[]
-                        {
-                            EdgeAttribute.ArrowHead(ArrowStyleName.Dot),
-                            EdgeAttribute.ArrowTail(ArrowStyleName.Dot),
-                            EdgeAttribute.Direction(EdgeDirection.Both)
-                        };
-
-                        var childKeyTableIdentifier = new DotIdentifier(childKey.Table.Name.ToSafeKey());
-                        foreach (var column in childKey.Columns)
-                        {
-                            var columnIdentifier = new DotIdentifier(column.Name.LocalName);
-                            var columnEdge = new DotEdge(
-                                childKeyTableIdentifier,
-                                columnIdentifier,
-                                childKeyIdentifier,
-                                columnIdentifier,
-                                edgeStyles
-                            );
-                            edges.Add(columnEdge);
-                        }
-                    }
-
-                    if (!relationalKeyNodes.ContainsKey(parentKeyIdentifier))
-                    {
-                        var parentTableName = parentKey.Table.Name.ToVisibleName();
-                        var constraintName = parentKey.Name == null
-                            ? "(Unnamed)"
-                            : parentKey.Name.LocalName;
-                        var parentTableUri = new Uri(options.RootPath + "tables/" + parentKey.Table.Name.ToSafeKey() + ".html", UriKind.Relative);
-                        var parentKeyNodeAttrs = new[]
-                        {
-                            NodeAttribute.Tooltip(parentTableName + "." + constraintName),
-                            NodeAttribute.URL(parentTableUri)
-                        };
-
-                        var parentKeyNode = new ConstraintNode(
-                            parentKeyIdentifier,
-                            parentKey.KeyType,
-                            constraintName,
-                            parentKey.Columns.Select(c => c.Name.LocalName).ToList(),
-                            parentKey.Columns.Select(c => c.Type.Definition).ToList(),
-                            parentKeyNodeAttrs,
-                            ConstraintNodeOptions.GetDefaultOptions(parentKey.KeyType)
-                        );
-                        relationalKeyNodes[parentKeyIdentifier] = parentKeyNode;
-
-                        var edgeStyles = new[]
-                        {
-                            EdgeAttribute.ArrowHead(ArrowStyleName.Dot),
-                            EdgeAttribute.ArrowTail(ArrowStyleName.Dot),
-                            EdgeAttribute.Direction(EdgeDirection.Both)
-                        };
-
-                        var parentKeyTableIdentifier = new DotIdentifier(parentKey.Table.Name.ToSafeKey());
-                        foreach (var column in parentKey.Columns)
-                        {
-                            var columnIdentifier = new DotIdentifier(column.Name.LocalName);
-                            var columnEdge = new DotEdge(
-                                parentKeyTableIdentifier,
-                                columnIdentifier,
-                                parentKeyIdentifier,
-                                columnIdentifier,
-                                edgeStyles
-                            );
-                            edges.Add(columnEdge);
-                        }
-                    }
 
                     var childKeyToParentKeyEdge = new DotEdge(
-                        childKeyIdentifier,
-                        parentKeyIdentifier,
+                        new DotIdentifier(childKeyTableName),
+                        new DotIdentifier(childKeyName),
+                        new DotIdentifier(parentKeyTableName),
+                        new DotIdentifier(parentKeyName),
                         Array.Empty<EdgeAttribute>()
                     );
                     edges.Add(childKeyToParentKeyEdge);
+
+                    var tableConstraint = new TableConstraint(
+                        childKeyName,
+                        childKey.KeyType,
+                        childKey.Name.LocalName,
+                        childKey.Columns.Select(c => c.Name.LocalName).ToList(),
+                        childKey.Columns.Select(c => c.Type.Definition).ToList()
+                    );
+                    tableConstraints.Add(tableConstraint);
                 }
+
+                var tableNode = new TableNode(
+                    nodeIdentifier,
+                    tableName,
+                    columnNames,
+                    columnTypes,
+                    keyColumnNames,
+                    childKeysCount,
+                    parentKeysCount,
+                    rowCount,
+                    tableNodeAttrs,
+                    tableConstraints,
+                    tableNodeOptions
+                );
+                tableNodes[nodeIdentifier] = tableNode;
             }
 
             var recordNodes = tableNodes.Values
-                .Concat(relationalKeyNodes.Values)
                 .OrderBy(node => node.Identifier.ToString())
                 .ToList();
 
@@ -280,7 +231,6 @@ namespace SJP.Schematic.Reporting.Dot
             var tableNames = tables.Select(t => t.Name).ToList();
 
             var tableNodes = new Dictionary<DotIdentifier, DotNode>();
-            var relationalKeyNodes = new Dictionary<DotIdentifier, DotNode>();
             var edges = new List<DotEdge>();
 
             foreach (var table in tables)
@@ -322,19 +272,39 @@ namespace SJP.Schematic.Reporting.Dot
                     IsHighlighted = table.Name == options.HighlightedTable
                 };
 
-                var tableNode = new TableNode(
-                    nodeIdentifier,
-                    tableName,
-                    columnNames,
-                    columnTypes,
-                    keyColumnNames,
-                    childKeysCount,
-                    parentKeysCount,
-                    rowCount,
-                    tableNodeAttrs,
-                    tableNodeOptions
-                );
-                tableNodes[nodeIdentifier] = tableNode;
+                var tableConstraints = new List<TableConstraint>();
+
+                if (primaryKey != null)
+                {
+                    var primaryKeyNameText = primaryKey.Name == null
+                        ? primaryKey.GetKeyHash().ToString()
+                        : primaryKey.Name.LocalName;
+
+                    var primaryKeyConstraint = new TableConstraint(
+                        primaryKeyNameText,
+                        primaryKey.KeyType,
+                        primaryKey.Name.LocalName,
+                        primaryKey.Columns.Select(c => c.Name.LocalName).ToList(),
+                        primaryKey.Columns.Select(c => c.Type.Definition).ToList()
+                    );
+                    tableConstraints.Add(primaryKeyConstraint);
+                }
+
+                foreach (var uniqueKey in uniqueKeys)
+                {
+                    var uniqueKeyNameText = uniqueKey.Name == null
+                        ? uniqueKey.GetKeyHash().ToString()
+                        : uniqueKey.Name.LocalName;
+
+                    var uniqueKeyConstraint = new TableConstraint(
+                        uniqueKeyNameText,
+                        uniqueKey.KeyType,
+                        uniqueKey.Name.LocalName,
+                        uniqueKey.Columns.Select(c => c.Name.LocalName).ToList(),
+                        uniqueKey.Columns.Select(c => c.Type.Definition).ToList()
+                    );
+                    tableConstraints.Add(uniqueKeyConstraint);
+                }
 
                 foreach (var relationalKey in parentKeys)
                 {
@@ -345,120 +315,52 @@ namespace SJP.Schematic.Reporting.Dot
                     if (!hasParentKey)
                         continue;
 
-                    var childKeyIdentifierText = childKey.Table.Name.ToSafeKey() + ".";
-                    childKeyIdentifierText += childKey.Name == null
+                    var childKeyTableName = childKey.Table.Name.ToSafeKey();
+                    var childKeyName = childKey.Name == null
                         ? childKey.GetKeyHash().ToString()
                         : childKey.Name.LocalName;
-                    var childKeyIdentifier = new DotIdentifier(childKeyIdentifierText);
 
-                    var parentKeyIdentifierText = parentKey.Table.Name.ToSafeKey() + ".";
-                    parentKeyIdentifierText += parentKey.Name == null
+                    var parentKeyTableName = parentKey.Table.Name.ToSafeKey();
+                    var parentKeyName = parentKey.Name == null
                         ? parentKey.GetKeyHash().ToString()
                         : parentKey.Name.LocalName;
-                    var parentKeyIdentifier = new DotIdentifier(parentKeyIdentifierText);
-
-                    if (!relationalKeyNodes.ContainsKey(childKeyIdentifier))
-                    {
-                        var childTableName = childKey.Table.Name.ToVisibleName();
-                        var constraintName = childKey.Name == null
-                            ? "(Unnamed)"
-                            : childKey.Name.LocalName;
-                        var childKeyNodeAttrs = new[]
-                        {
-                            NodeAttribute.Tooltip(childTableName + "." + constraintName),
-                            NodeAttribute.URL(tableUri)
-                        };
-
-                        var childKeyNode = new ConstraintNode(
-                            childKeyIdentifier,
-                            childKey.KeyType,
-                            constraintName,
-                            childKey.Columns.Select(c => c.Name.LocalName).ToList(),
-                            childKey.Columns.Select(c => c.Type.Definition).ToList(),
-                            childKeyNodeAttrs,
-                            ConstraintNodeOptions.GetDefaultOptions(childKey.KeyType)
-                        );
-                        relationalKeyNodes[childKeyIdentifier] = childKeyNode;
-
-                        var edgeStyles = new[]
-                        {
-                            EdgeAttribute.ArrowHead(ArrowStyleName.Dot),
-                            EdgeAttribute.ArrowTail(ArrowStyleName.Dot),
-                            EdgeAttribute.Direction(EdgeDirection.Both)
-                        };
-
-                        var childKeyTableIdentifier = new DotIdentifier(childKey.Table.Name.ToSafeKey());
-                        foreach (var column in childKey.Columns)
-                        {
-                            var columnIdentifier = new DotIdentifier(column.Name.LocalName);
-                            var columnEdge = new DotEdge(
-                                childKeyTableIdentifier,
-                                columnIdentifier,
-                                childKeyIdentifier,
-                                columnIdentifier,
-                                edgeStyles
-                            );
-                            edges.Add(columnEdge);
-                        }
-                    }
-
-                    if (!relationalKeyNodes.ContainsKey(parentKeyIdentifier))
-                    {
-                        var parentTableName = parentKey.Table.Name.ToVisibleName();
-                        var constraintName = parentKey.Name == null
-                            ? "(Unnamed)"
-                            : parentKey.Name.LocalName;
-                        var parentTableUri = new Uri(options.RootPath + "tables/" + parentKey.Table.Name.ToSafeKey() + ".html", UriKind.Relative);
-                        var parentKeyNodeAttrs = new[]
-                        {
-                            NodeAttribute.Tooltip(parentTableName + "." + constraintName),
-                            NodeAttribute.URL(parentTableUri)
-                        };
-
-                        var parentKeyNode = new ConstraintNode(
-                            parentKeyIdentifier,
-                            parentKey.KeyType,
-                            constraintName,
-                            parentKey.Columns.Select(c => c.Name.LocalName).ToList(),
-                            parentKey.Columns.Select(c => c.Type.Definition).ToList(),
-                            parentKeyNodeAttrs,
-                            ConstraintNodeOptions.GetDefaultOptions(parentKey.KeyType)
-                        );
-                        relationalKeyNodes[parentKeyIdentifier] = parentKeyNode;
-
-                        var edgeStyles = new[]
-                        {
-                            EdgeAttribute.ArrowHead(ArrowStyleName.Dot),
-                            EdgeAttribute.ArrowTail(ArrowStyleName.Dot),
-                            EdgeAttribute.Direction(EdgeDirection.Both)
-                        };
-
-                        var parentKeyTableIdentifier = new DotIdentifier(parentKey.Table.Name.ToSafeKey());
-                        foreach (var column in parentKey.Columns)
-                        {
-                            var columnIdentifier = new DotIdentifier(column.Name.LocalName);
-                            var columnEdge = new DotEdge(
-                                parentKeyTableIdentifier,
-                                columnIdentifier,
-                                parentKeyIdentifier,
-                                columnIdentifier,
-                                edgeStyles
-                            );
-                            edges.Add(columnEdge);
-                        }
-                    }
 
                     var childKeyToParentKeyEdge = new DotEdge(
-                        childKeyIdentifier,
-                        parentKeyIdentifier,
+                        new DotIdentifier(childKeyTableName),
+                        new DotIdentifier(childKeyName),
+                        new DotIdentifier(parentKeyTableName),
+                        new DotIdentifier(parentKeyName),
                         Array.Empty<EdgeAttribute>()
                     );
                     edges.Add(childKeyToParentKeyEdge);
+
+                    var tableConstraint = new TableConstraint(
+                        childKeyName,
+                        childKey.KeyType,
+                        childKey.Name.LocalName,
+                        childKey.Columns.Select(c => c.Name.LocalName).ToList(),
+                        childKey.Columns.Select(c => c.Type.Definition).ToList()
+                    );
+                    tableConstraints.Add(tableConstraint);
                 }
+
+                var tableNode = new TableNode(
+                    nodeIdentifier,
+                    tableName,
+                    columnNames,
+                    columnTypes,
+                    keyColumnNames,
+                    childKeysCount,
+                    parentKeysCount,
+                    rowCount,
+                    tableNodeAttrs,
+                    tableConstraints,
+                    tableNodeOptions
+                );
+                tableNodes[nodeIdentifier] = tableNode;
             }
 
             var recordNodes = tableNodes.Values
-                .Concat(relationalKeyNodes.Values)
                 .OrderBy(node => node.Identifier.ToString())
                 .ToList();
 
