@@ -3,6 +3,8 @@ using System;
 using System.Data;
 using SJP.Schematic.Core;
 using SJP.Schematic.PostgreSql.Query;
+using SJP.Schematic.Core.Utilities;
+using System.Threading.Tasks;
 
 namespace SJP.Schematic.PostgreSql
 {
@@ -25,7 +27,7 @@ namespace SJP.Schematic.PostgreSql
 
             Name = new Identifier(serverName, databaseName, schemaName, sequenceName.LocalName);
 
-            _dataLoader = new Lazy<SequenceData>(LoadSequenceData);
+            _dataLoader = new AsyncLazy<SequenceData>(LoadSequenceDataAsync);
         }
 
         public IRelationalDatabase Database { get; }
@@ -48,9 +50,9 @@ namespace SJP.Schematic.PostgreSql
 
         public decimal Start => SequenceData.StartValue;
 
-        protected SequenceData SequenceData => _dataLoader.Value;
+        protected SequenceData SequenceData => _dataLoader.Task.GetAwaiter().GetResult();
 
-        protected virtual SequenceData LoadSequenceData()
+        protected virtual Task<SequenceData> LoadSequenceDataAsync()
         {
             // TODO: for PostgreSQL >= 10, there will be a p.cache_size available
             const string sql = @"
@@ -67,9 +69,9 @@ where c.relnamespace = nc.oid
     and nc.nspname = @SchemaName
     and c.relname = @SequenceName";
 
-            return Connection.QuerySingle<SequenceData>(sql, new { SchemaName = Name.Schema, SequenceName = Name.LocalName });
+            return Connection.QuerySingleAsync<SequenceData>(sql, new { SchemaName = Name.Schema, SequenceName = Name.LocalName });
         }
 
-        private readonly Lazy<SequenceData> _dataLoader;
+        private readonly AsyncLazy<SequenceData> _dataLoader;
     }
 }

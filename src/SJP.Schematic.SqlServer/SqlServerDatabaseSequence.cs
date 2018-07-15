@@ -3,6 +3,8 @@ using System;
 using System.Data;
 using SJP.Schematic.Core;
 using SJP.Schematic.SqlServer.Query;
+using System.Threading.Tasks;
+using SJP.Schematic.Core.Utilities;
 
 namespace SJP.Schematic.SqlServer
 {
@@ -22,7 +24,7 @@ namespace SJP.Schematic.SqlServer
 
             Name = new Identifier(serverName, databaseName, schemaName, sequenceName.LocalName);
 
-            _dataLoader = new Lazy<SequenceData>(LoadSequenceData);
+            _dataLoader = new AsyncLazy<SequenceData>(LoadSequenceDataAsync);
         }
 
         public IRelationalDatabase Database { get; }
@@ -45,17 +47,17 @@ namespace SJP.Schematic.SqlServer
 
         public decimal Start => SequenceData.StartValue;
 
-        protected SequenceData SequenceData => _dataLoader.Value;
+        protected SequenceData SequenceData => _dataLoader.Task.GetAwaiter().GetResult();
 
-        protected virtual SequenceData LoadSequenceData()
+        protected virtual Task<SequenceData> LoadSequenceDataAsync()
         {
-            return Connection.QuerySingle<SequenceData>(@"
+            return Connection.QuerySingleAsync<SequenceData>(@"
 select start_value as StartValue, increment as Increment, minimum_value as MinValue, maximum_value as MaxValue, is_cycling as Cycle, is_cached as IsCached, cache_size as CacheSize
 from sys.sequences
 where schema_name(schema_id) = @SchemaName and name = @SequenceName
 ", new { SchemaName = Name.Schema, SequenceName = Name.LocalName });
         }
 
-        private readonly Lazy<SequenceData> _dataLoader;
+        private readonly AsyncLazy<SequenceData> _dataLoader;
     }
 }

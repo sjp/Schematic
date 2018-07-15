@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using SJP.Schematic.Core;
 using SJP.Schematic.SqlServer.Query;
 using SJP.Schematic.Core.Extensions;
+using SJP.Schematic.Core.Utilities;
 
 namespace SJP.Schematic.SqlServer
 {
@@ -15,7 +16,7 @@ namespace SJP.Schematic.SqlServer
         public SqlServerRelationalDatabase(IDatabaseDialect dialect, IDbConnection connection, IEqualityComparer<Identifier> comparer = null)
             : base(dialect, connection)
         {
-            _metadata = new Lazy<DatabaseMetadata>(LoadDatabaseMetadata);
+            _metadata = new AsyncLazy<DatabaseMetadata>(LoadDatabaseMetadataAsync);
             Comparer = comparer ?? new IdentifierComparer(StringComparer.OrdinalIgnoreCase, ServerName, DatabaseName, DefaultSchema);
             _parentDb = this;
         }
@@ -36,7 +37,7 @@ namespace SJP.Schematic.SqlServer
 
         public string DefaultSchema => Metadata.DefaultSchema;
 
-        protected DatabaseMetadata Metadata => _metadata.Value;
+        protected DatabaseMetadata Metadata => _metadata.Task.GetAwaiter().GetResult();
 
         public bool TableExists(Identifier tableName)
         {
@@ -505,10 +506,10 @@ select
 from sys.synonyms
 where schema_id = schema_id(@SchemaName) and name = @SynonymName";
 
-        private DatabaseMetadata LoadDatabaseMetadata()
+        private Task<DatabaseMetadata> LoadDatabaseMetadataAsync()
         {
             const string sql = "select @@SERVERNAME as ServerName, db_name() as DatabaseName, schema_name() as DefaultSchema";
-            return Connection.QuerySingle<DatabaseMetadata>(sql);
+            return Connection.QuerySingleAsync<DatabaseMetadata>(sql);
         }
 
         /// <summary>
@@ -530,6 +531,6 @@ where schema_id = schema_id(@SchemaName) and name = @SynonymName";
         }
 
         private IRelationalDatabase _parentDb;
-        private readonly Lazy<DatabaseMetadata> _metadata;
+        private readonly AsyncLazy<DatabaseMetadata> _metadata;
     }
 }

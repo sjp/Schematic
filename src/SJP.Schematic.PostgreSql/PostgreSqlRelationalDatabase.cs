@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using SJP.Schematic.Core;
 using SJP.Schematic.PostgreSql.Query;
 using SJP.Schematic.Core.Extensions;
+using SJP.Schematic.Core.Utilities;
 
 namespace SJP.Schematic.PostgreSql
 {
@@ -15,7 +16,7 @@ namespace SJP.Schematic.PostgreSql
         public PostgreSqlRelationalDatabase(IDatabaseDialect dialect, IDbConnection connection, IEqualityComparer<Identifier> comparer = null)
             : base(dialect, connection)
         {
-            _metadata = new Lazy<DatabaseMetadata>(LoadDatabaseMetadata);
+            _metadata = new AsyncLazy<DatabaseMetadata>(LoadDatabaseMetadataAsync);
             Comparer = comparer ?? new IdentifierComparer(StringComparer.Ordinal, ServerName, DatabaseName, DefaultSchema);
             _parentDb = this;
         }
@@ -36,7 +37,7 @@ namespace SJP.Schematic.PostgreSql
 
         public string DefaultSchema => Metadata.DefaultSchema;
 
-        protected DatabaseMetadata Metadata => _metadata.Value;
+        protected DatabaseMetadata Metadata => _metadata.Task.GetAwaiter().GetResult();
 
         public bool TableExists(Identifier tableName)
         {
@@ -395,14 +396,14 @@ namespace SJP.Schematic.PostgreSql
 
         public Task<IAsyncEnumerable<IDatabaseSynonym>> SynonymsAsync() => Task.FromResult(Array.Empty<IDatabaseSynonym>().ToAsyncEnumerable());
 
-        private DatabaseMetadata LoadDatabaseMetadata()
+        private async Task<DatabaseMetadata> LoadDatabaseMetadataAsync()
         {
             const string sql = @"
 select
     pg_catalog.host(pg_catalog.inet_server_addr()) as ServerName,
     pg_catalog.current_database() as DatabaseName,
     pg_catalog.current_schema() as DefaultSchema";
-            var result = Connection.QuerySingle<DatabaseMetadata>(sql);
+            var result = await Connection.QuerySingleAsync<DatabaseMetadata>(sql).ConfigureAwait(false);
 
             if (result.ServerName.IsNullOrWhiteSpace())
                 result.ServerName = "127.0.0.1";
@@ -429,6 +430,6 @@ select
         }
 
         private IRelationalDatabase _parentDb;
-        private readonly Lazy<DatabaseMetadata> _metadata;
+        private readonly AsyncLazy<DatabaseMetadata> _metadata;
     }
 }

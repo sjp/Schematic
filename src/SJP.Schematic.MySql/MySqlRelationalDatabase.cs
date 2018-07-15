@@ -6,6 +6,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using SJP.Schematic.Core;
 using SJP.Schematic.MySql.Query;
+using SJP.Schematic.Core.Utilities;
 
 namespace SJP.Schematic.MySql
 {
@@ -14,7 +15,7 @@ namespace SJP.Schematic.MySql
         public MySqlRelationalDatabase(IDatabaseDialect dialect, IDbConnection connection, IEqualityComparer<Identifier> comparer = null)
             : base(dialect, connection)
         {
-            _metadata = new Lazy<DatabaseMetadata>(LoadDatabaseMetadata);
+            _metadata = new AsyncLazy<DatabaseMetadata>(LoadDatabaseMetadataAsync);
             Comparer = comparer ?? new IdentifierComparer(StringComparer.Ordinal, ServerName, DatabaseName, DefaultSchema);
             _parentDb = this;
         }
@@ -35,7 +36,7 @@ namespace SJP.Schematic.MySql
 
         public string DefaultSchema => Metadata.DefaultSchema;
 
-        protected DatabaseMetadata Metadata => _metadata.Value;
+        protected DatabaseMetadata Metadata => _metadata.Task.GetAwaiter().GetResult();
 
         public bool TableExists(Identifier tableName)
         {
@@ -323,10 +324,10 @@ namespace SJP.Schematic.MySql
 
         public Task<IAsyncEnumerable<IDatabaseSynonym>> SynonymsAsync() => Task.FromResult(Array.Empty<IDatabaseSynonym>().ToAsyncEnumerable());
 
-        private DatabaseMetadata LoadDatabaseMetadata()
+        private Task<DatabaseMetadata> LoadDatabaseMetadataAsync()
         {
             const string sql = "select @@hostname as ServerName, database() as DatabaseName, schema() as DefaultSchema";
-            return Connection.QuerySingle<DatabaseMetadata>(sql);
+            return Connection.QuerySingleAsync<DatabaseMetadata>(sql);
         }
 
         /// <summary>
@@ -348,6 +349,6 @@ namespace SJP.Schematic.MySql
         }
 
         private IRelationalDatabase _parentDb;
-        private readonly Lazy<DatabaseMetadata> _metadata;
+        private readonly AsyncLazy<DatabaseMetadata> _metadata;
     }
 }
