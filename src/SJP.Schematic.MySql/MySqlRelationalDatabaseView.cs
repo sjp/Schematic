@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using SJP.Schematic.MySql.Query;
 using SJP.Schematic.Core;
 using SJP.Schematic.Core.Extensions;
+using System.Threading;
 
 namespace SJP.Schematic.MySql
 {
@@ -48,7 +49,7 @@ namespace SJP.Schematic.MySql
 
         public string Definition => LoadDefinitionSync();
 
-        public Task<string> DefinitionAsync() => LoadDefinitionAsync();
+        public Task<string> DefinitionAsync(CancellationToken cancellationToken = default(CancellationToken)) => LoadDefinitionAsync(cancellationToken);
 
         protected virtual string LoadDefinitionSync()
         {
@@ -60,7 +61,7 @@ where table_schema = @SchemaName and table_name = @ViewName";
             return Connection.ExecuteScalar<string>(sql, new { SchemaName = Name.Schema, ViewName = Name.LocalName });
         }
 
-        protected virtual Task<string> LoadDefinitionAsync()
+        protected virtual Task<string> LoadDefinitionAsync(CancellationToken cancellationToken)
         {
             const string sql = @"
 select view_definition
@@ -74,19 +75,19 @@ where table_schema = @SchemaName and table_name = @ViewName";
 
         public IReadOnlyDictionary<Identifier, IDatabaseViewIndex> Index => new Dictionary<Identifier, IDatabaseViewIndex>(Comparer);
 
-        public Task<IReadOnlyDictionary<Identifier, IDatabaseViewIndex>> IndexAsync() => Task.FromResult(Index);
+        public Task<IReadOnlyDictionary<Identifier, IDatabaseViewIndex>> IndexAsync(CancellationToken cancellationToken = default(CancellationToken)) => Task.FromResult(Index);
 
         public IEnumerable<IDatabaseViewIndex> Indexes => Array.Empty<IDatabaseViewIndex>();
 
-        public Task<IEnumerable<IDatabaseViewIndex>> IndexesAsync() => Task.FromResult(Indexes);
+        public Task<IEnumerable<IDatabaseViewIndex>> IndexesAsync(CancellationToken cancellationToken = default(CancellationToken)) => Task.FromResult(Indexes);
 
         public IReadOnlyDictionary<Identifier, IDatabaseViewColumn> Column => LoadColumnLookupSync();
 
-        public Task<IReadOnlyDictionary<Identifier, IDatabaseViewColumn>> ColumnAsync() => LoadColumnLookupAsync();
+        public Task<IReadOnlyDictionary<Identifier, IDatabaseViewColumn>> ColumnAsync(CancellationToken cancellationToken = default(CancellationToken)) => LoadColumnLookupAsync(cancellationToken);
 
         public IReadOnlyList<IDatabaseViewColumn> Columns => LoadColumnsSync();
 
-        public Task<IReadOnlyList<IDatabaseViewColumn>> ColumnsAsync() => LoadColumnsAsync();
+        public Task<IReadOnlyList<IDatabaseViewColumn>> ColumnsAsync(CancellationToken cancellationToken = default(CancellationToken)) => LoadColumnsAsync(cancellationToken);
 
         protected virtual IReadOnlyDictionary<Identifier, IDatabaseViewColumn> LoadColumnLookupSync()
         {
@@ -98,11 +99,11 @@ where table_schema = @SchemaName and table_name = @ViewName";
             return result.AsReadOnlyDictionary();
         }
 
-        protected virtual async Task<IReadOnlyDictionary<Identifier, IDatabaseViewColumn>> LoadColumnLookupAsync()
+        protected virtual async Task<IReadOnlyDictionary<Identifier, IDatabaseViewColumn>> LoadColumnLookupAsync(CancellationToken cancellationToken)
         {
             var result = new Dictionary<Identifier, IDatabaseViewColumn>(Comparer);
 
-            var columns = await ColumnsAsync().ConfigureAwait(false);
+            var columns = await ColumnsAsync(cancellationToken).ConfigureAwait(false);
             foreach (var column in columns.Where(c => c.Name != null))
                 result[column.Name.LocalName] = column;
 
@@ -158,7 +159,7 @@ order by ordinal_position";
             return result.AsReadOnly();
         }
 
-        protected virtual async Task<IReadOnlyList<IDatabaseViewColumn>> LoadColumnsAsync()
+        protected virtual async Task<IReadOnlyList<IDatabaseViewColumn>> LoadColumnsAsync(CancellationToken cancellationToken)
         {
             const string sql = @"
 select

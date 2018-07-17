@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using SJP.Schematic.Core;
 using SJP.Schematic.MySql.Query;
@@ -51,15 +52,15 @@ namespace SJP.Schematic.MySql
             ) != 0;
         }
 
-        public Task<bool> TableExistsAsync(Identifier tableName)
+        public Task<bool> TableExistsAsync(Identifier tableName, CancellationToken cancellationToken = default(CancellationToken))
         {
             if (tableName == null)
                 throw new ArgumentNullException(nameof(tableName));
 
-            return TableExistsAsyncCore(tableName);
+            return TableExistsAsyncCore(tableName, cancellationToken);
         }
 
-        private async Task<bool> TableExistsAsyncCore(Identifier tableName)
+        private async Task<bool> TableExistsAsyncCore(Identifier tableName, CancellationToken cancellationToken)
         {
             tableName = CreateQualifiedIdentifier(tableName);
 
@@ -82,13 +83,13 @@ namespace SJP.Schematic.MySql
             return LoadTableSync(tableName);
         }
 
-        public Task<IRelationalDatabaseTable> GetTableAsync(Identifier tableName)
+        public Task<IRelationalDatabaseTable> GetTableAsync(Identifier tableName, CancellationToken cancellationToken = default(CancellationToken))
         {
             if (tableName == null)
                 throw new ArgumentNullException(nameof(tableName));
 
             tableName = CreateQualifiedIdentifier(tableName);
-            return LoadTableAsync(tableName);
+            return LoadTableAsync(tableName, cancellationToken);
         }
 
         public IEnumerable<IRelationalDatabaseTable> Tables
@@ -103,7 +104,7 @@ namespace SJP.Schematic.MySql
             }
         }
 
-        public async Task<IAsyncEnumerable<IRelationalDatabaseTable>> TablesAsync()
+        public async Task<IAsyncEnumerable<IRelationalDatabaseTable>> TablesAsync(CancellationToken cancellationToken = default(CancellationToken))
         {
             var queryResults = await Connection.QueryAsync<QualifiedName>(TablesQuery, new { SchemaName = DefaultSchema }).ConfigureAwait(false);
             var tableNames = queryResults.Select(dto => new Identifier(dto.SchemaName, dto.ObjectName));
@@ -128,18 +129,18 @@ namespace SJP.Schematic.MySql
                 : null;
         }
 
-        protected virtual Task<IRelationalDatabaseTable> LoadTableAsync(Identifier tableName)
+        protected virtual Task<IRelationalDatabaseTable> LoadTableAsync(Identifier tableName, CancellationToken cancellationToken = default(CancellationToken))
         {
             if (tableName == null)
                 throw new ArgumentNullException(nameof(tableName));
 
-            return LoadTableAsyncCore(tableName);
+            return LoadTableAsyncCore(tableName, cancellationToken);
         }
 
-        private async Task<IRelationalDatabaseTable> LoadTableAsyncCore(Identifier tableName)
+        private async Task<IRelationalDatabaseTable> LoadTableAsyncCore(Identifier tableName, CancellationToken cancellationToken)
         {
             tableName = CreateQualifiedIdentifier(tableName);
-            var exists = await TableExistsAsync(tableName).ConfigureAwait(false);
+            var exists = await TableExistsAsync(tableName, cancellationToken).ConfigureAwait(false);
             return exists
                 ? new MySqlRelationalDatabaseTable(Connection, Database, tableName, Comparer)
                 : null;
@@ -158,15 +159,15 @@ namespace SJP.Schematic.MySql
             ) != 0;
         }
 
-        public Task<bool> ViewExistsAsync(Identifier viewName)
+        public Task<bool> ViewExistsAsync(Identifier viewName, CancellationToken cancellationToken = default(CancellationToken))
         {
             if (viewName == null)
                 throw new ArgumentNullException(nameof(viewName));
 
-            return ViewExistsAsyncCore(viewName);
+            return ViewExistsAsyncCore(viewName, cancellationToken);
         }
 
-        private async Task<bool> ViewExistsAsyncCore(Identifier viewName)
+        private async Task<bool> ViewExistsAsyncCore(Identifier viewName, CancellationToken cancellationToken)
         {
             viewName = CreateQualifiedIdentifier(viewName);
 
@@ -189,13 +190,13 @@ namespace SJP.Schematic.MySql
             return LoadViewSync(viewName);
         }
 
-        public Task<IRelationalDatabaseView> GetViewAsync(Identifier viewName)
+        public Task<IRelationalDatabaseView> GetViewAsync(Identifier viewName, CancellationToken cancellationToken = default(CancellationToken))
         {
             if (viewName == null)
                 throw new ArgumentNullException(nameof(viewName));
 
             viewName = CreateQualifiedIdentifier(viewName);
-            return LoadViewAsync(viewName);
+            return LoadViewAsync(viewName, cancellationToken);
         }
 
         public IEnumerable<IRelationalDatabaseView> Views
@@ -210,7 +211,7 @@ namespace SJP.Schematic.MySql
             }
         }
 
-        public async Task<IAsyncEnumerable<IRelationalDatabaseView>> ViewsAsync()
+        public async Task<IAsyncEnumerable<IRelationalDatabaseView>> ViewsAsync(CancellationToken cancellationToken = default(CancellationToken))
         {
             var queryResult = await Connection.QueryAsync<QualifiedName>(ViewsQuery, new { SchemaName = DefaultSchema }).ConfigureAwait(false);
             var viewNames = queryResult.Select(dto => new Identifier(dto.SchemaName, dto.ObjectName));
@@ -235,18 +236,18 @@ namespace SJP.Schematic.MySql
                 : null;
         }
 
-        protected virtual Task<IRelationalDatabaseView> LoadViewAsync(Identifier viewName)
+        protected virtual Task<IRelationalDatabaseView> LoadViewAsync(Identifier viewName, CancellationToken cancellationToken = default(CancellationToken))
         {
             if (viewName == null)
                 throw new ArgumentNullException(nameof(viewName));
 
-            return LoadViewAsyncCore(viewName);
+            return LoadViewAsyncCore(viewName, cancellationToken);
         }
 
-        private async Task<IRelationalDatabaseView> LoadViewAsyncCore(Identifier viewName)
+        private async Task<IRelationalDatabaseView> LoadViewAsyncCore(Identifier viewName, CancellationToken cancellationToken)
         {
             viewName = CreateQualifiedIdentifier(viewName);
-            var exists = await ViewExistsAsync(viewName).ConfigureAwait(false);
+            var exists = await ViewExistsAsync(viewName, cancellationToken).ConfigureAwait(false);
             return exists
                 ? new MySqlRelationalDatabaseView(Connection, Database, viewName, Comparer)
                 : null;
@@ -260,7 +261,7 @@ namespace SJP.Schematic.MySql
             return false;
         }
 
-        public Task<bool> SequenceExistsAsync(Identifier sequenceName)
+        public Task<bool> SequenceExistsAsync(Identifier sequenceName, CancellationToken cancellationToken = default(CancellationToken))
         {
             if (sequenceName == null)
                 throw new ArgumentNullException(nameof(sequenceName));
@@ -276,7 +277,7 @@ namespace SJP.Schematic.MySql
             return null;
         }
 
-        public Task<IDatabaseSequence> GetSequenceAsync(Identifier sequenceName)
+        public Task<IDatabaseSequence> GetSequenceAsync(Identifier sequenceName, CancellationToken cancellationToken = default(CancellationToken))
         {
             if (sequenceName == null)
                 throw new ArgumentNullException(nameof(sequenceName));
@@ -286,7 +287,7 @@ namespace SJP.Schematic.MySql
 
         public IEnumerable<IDatabaseSequence> Sequences => Array.Empty<IDatabaseSequence>();
 
-        public Task<IAsyncEnumerable<IDatabaseSequence>> SequencesAsync() => Task.FromResult(Array.Empty<IDatabaseSequence>().ToAsyncEnumerable());
+        public Task<IAsyncEnumerable<IDatabaseSequence>> SequencesAsync(CancellationToken cancellationToken = default(CancellationToken)) => Task.FromResult(Array.Empty<IDatabaseSequence>().ToAsyncEnumerable());
 
         public bool SynonymExists(Identifier synonymName)
         {
@@ -296,7 +297,7 @@ namespace SJP.Schematic.MySql
             return false;
         }
 
-        public Task<bool> SynonymExistsAsync(Identifier synonymName)
+        public Task<bool> SynonymExistsAsync(Identifier synonymName, CancellationToken cancellationToken = default(CancellationToken))
         {
             if (synonymName == null)
                 throw new ArgumentNullException(nameof(synonymName));
@@ -312,7 +313,7 @@ namespace SJP.Schematic.MySql
             return null;
         }
 
-        public Task<IDatabaseSynonym> GetSynonymAsync(Identifier synonymName)
+        public Task<IDatabaseSynonym> GetSynonymAsync(Identifier synonymName, CancellationToken cancellationToken = default(CancellationToken))
         {
             if (synonymName == null)
                 throw new ArgumentNullException(nameof(synonymName));
@@ -322,7 +323,7 @@ namespace SJP.Schematic.MySql
 
         public IEnumerable<IDatabaseSynonym> Synonyms => Array.Empty<IDatabaseSynonym>();
 
-        public Task<IAsyncEnumerable<IDatabaseSynonym>> SynonymsAsync() => Task.FromResult(Array.Empty<IDatabaseSynonym>().ToAsyncEnumerable());
+        public Task<IAsyncEnumerable<IDatabaseSynonym>> SynonymsAsync(CancellationToken cancellationToken = default(CancellationToken)) => Task.FromResult(Array.Empty<IDatabaseSynonym>().ToAsyncEnumerable());
 
         private Task<DatabaseMetadata> LoadDatabaseMetadataAsync()
         {

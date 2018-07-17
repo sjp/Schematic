@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace SJP.Schematic.Core
@@ -21,14 +22,14 @@ namespace SJP.Schematic.Core
         bool IsIndexed { get; }
 
         // async
-        Task<string> DefinitionAsync();
+        Task<string> DefinitionAsync(CancellationToken cancellationToken = default(CancellationToken));
 
-        Task<IReadOnlyDictionary<Identifier, IDatabaseViewColumn>> ColumnAsync();
+        Task<IReadOnlyDictionary<Identifier, IDatabaseViewColumn>> ColumnAsync(CancellationToken cancellationToken = default(CancellationToken));
 
-        Task<IReadOnlyList<IDatabaseViewColumn>> ColumnsAsync();
+        Task<IReadOnlyList<IDatabaseViewColumn>> ColumnsAsync(CancellationToken cancellationToken = default(CancellationToken));
 
-        Task<IReadOnlyDictionary<Identifier, IDatabaseViewIndex>> IndexAsync();
+        Task<IReadOnlyDictionary<Identifier, IDatabaseViewIndex>> IndexAsync(CancellationToken cancellationToken = default(CancellationToken));
 
-        Task<IEnumerable<IDatabaseViewIndex>> IndexesAsync();
+        Task<IEnumerable<IDatabaseViewIndex>> IndexesAsync(CancellationToken cancellationToken = default(CancellationToken));
     }
 }

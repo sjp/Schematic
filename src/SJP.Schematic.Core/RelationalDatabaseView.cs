@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using SJP.Schematic.Core.Extensions;
 
@@ -47,25 +48,25 @@ namespace SJP.Schematic.Core
 
         public string Definition { get; }
 
-        public Task<string> DefinitionAsync() => Task.FromResult(Definition);
+        public Task<string> DefinitionAsync(CancellationToken cancellationToken = default(CancellationToken)) => Task.FromResult(Definition);
 
         public bool IsIndexed { get; }
 
         public IReadOnlyDictionary<Identifier, IDatabaseViewIndex> Index { get; }
 
-        public Task<IReadOnlyDictionary<Identifier, IDatabaseViewIndex>> IndexAsync() => Task.FromResult(Index);
+        public Task<IReadOnlyDictionary<Identifier, IDatabaseViewIndex>> IndexAsync(CancellationToken cancellationToken = default(CancellationToken)) => Task.FromResult(Index);
 
         public IEnumerable<IDatabaseViewIndex> Indexes { get; }
 
-        public Task<IEnumerable<IDatabaseViewIndex>> IndexesAsync() => Task.FromResult(Indexes);
+        public Task<IEnumerable<IDatabaseViewIndex>> IndexesAsync(CancellationToken cancellationToken = default(CancellationToken)) => Task.FromResult(Indexes);
 
         public IReadOnlyDictionary<Identifier, IDatabaseViewColumn> Column { get; }
 
-        public Task<IReadOnlyDictionary<Identifier, IDatabaseViewColumn>> ColumnAsync() => Task.FromResult(Column);
+        public Task<IReadOnlyDictionary<Identifier, IDatabaseViewColumn>> ColumnAsync(CancellationToken cancellationToken = default(CancellationToken)) => Task.FromResult(Column);
 
         public IReadOnlyList<IDatabaseViewColumn> Columns { get; }
 
-        public Task<IReadOnlyList<IDatabaseViewColumn>> ColumnsAsync() => Task.FromResult(Columns);
+        public Task<IReadOnlyList<IDatabaseViewColumn>> ColumnsAsync(CancellationToken cancellationToken = default(CancellationToken)) => Task.FromResult(Columns);
 
         private static IReadOnlyDictionary<Identifier, IDatabaseViewColumn> CreateColumnLookup(IReadOnlyList<IDatabaseViewColumn> columns, IEqualityComparer<Identifier> comparer)
         {

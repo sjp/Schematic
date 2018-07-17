@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using SJP.Schematic.Core;
 using SJP.Schematic.Core.Extensions;
@@ -71,7 +72,7 @@ namespace SJP.Schematic.Modelled.Reflection
             return Table.ContainsKey(tableName);
         }
 
-        public Task<bool> TableExistsAsync(Identifier tableName)
+        public Task<bool> TableExistsAsync(Identifier tableName, CancellationToken cancellationToken = default(CancellationToken))
         {
             if (tableName == null)
                 throw new ArgumentNullException(nameof(tableName));
@@ -90,7 +91,7 @@ namespace SJP.Schematic.Modelled.Reflection
             return Table.TryGetValue(tableName, out var table) ? table : null;
         }
 
-        public Task<IRelationalDatabaseTable> GetTableAsync(Identifier tableName)
+        public Task<IRelationalDatabaseTable> GetTableAsync(Identifier tableName, CancellationToken cancellationToken = default(CancellationToken))
         {
             if (tableName == null)
                 throw new ArgumentNullException(nameof(tableName));
@@ -102,7 +103,7 @@ namespace SJP.Schematic.Modelled.Reflection
 
         public IEnumerable<IRelationalDatabaseTable> Tables => Table.Values;
 
-        public Task<IAsyncEnumerable<IRelationalDatabaseTable>> TablesAsync() => Task.FromResult(Tables.ToAsyncEnumerable());
+        public Task<IAsyncEnumerable<IRelationalDatabaseTable>> TablesAsync(CancellationToken cancellationToken = default(CancellationToken)) => Task.FromResult(Tables.ToAsyncEnumerable());
 
         protected IReadOnlyDictionary<Identifier, IRelationalDatabaseTable> Table => _tableLookup.Value;
 
@@ -148,7 +149,7 @@ namespace SJP.Schematic.Modelled.Reflection
             return View.ContainsKey(viewName);
         }
 
-        public Task<bool> ViewExistsAsync(Identifier viewName)
+        public Task<bool> ViewExistsAsync(Identifier viewName, CancellationToken cancellationToken = default(CancellationToken))
         {
             if (viewName == null)
                 throw new ArgumentNullException(nameof(viewName));
@@ -167,7 +168,7 @@ namespace SJP.Schematic.Modelled.Reflection
             return View.TryGetValue(viewName, out var view) ? view : null;
         }
 
-        public Task<IRelationalDatabaseView> GetViewAsync(Identifier viewName)
+        public Task<IRelationalDatabaseView> GetViewAsync(Identifier viewName, CancellationToken cancellationToken = default(CancellationToken))
         {
             if (viewName == null)
                 throw new ArgumentNullException(nameof(viewName));
@@ -179,7 +180,7 @@ namespace SJP.Schematic.Modelled.Reflection
 
         public IEnumerable<IRelationalDatabaseView> Views => View.Values;
 
-        public Task<IAsyncEnumerable<IRelationalDatabaseView>> ViewsAsync() => Task.FromResult(Views.ToAsyncEnumerable());
+        public Task<IAsyncEnumerable<IRelationalDatabaseView>> ViewsAsync(CancellationToken cancellationToken = default(CancellationToken)) => Task.FromResult(Views.ToAsyncEnumerable());
 
         protected IReadOnlyDictionary<Identifier, IRelationalDatabaseView> View => _viewLookup.Value;
 
@@ -225,7 +226,7 @@ namespace SJP.Schematic.Modelled.Reflection
             return Sequence.ContainsKey(sequenceName);
         }
 
-        public Task<bool> SequenceExistsAsync(Identifier sequenceName)
+        public Task<bool> SequenceExistsAsync(Identifier sequenceName, CancellationToken cancellationToken = default(CancellationToken))
         {
             if (sequenceName == null)
                 throw new ArgumentNullException(nameof(sequenceName));
@@ -244,7 +245,7 @@ namespace SJP.Schematic.Modelled.Reflection
             return Sequence.TryGetValue(sequenceName, out var sequence) ? sequence : null;
         }
 
-        public Task<IDatabaseSequence> GetSequenceAsync(Identifier sequenceName)
+        public Task<IDatabaseSequence> GetSequenceAsync(Identifier sequenceName, CancellationToken cancellationToken = default(CancellationToken))
         {
             if (sequenceName == null)
                 throw new ArgumentNullException(nameof(sequenceName));
@@ -256,7 +257,7 @@ namespace SJP.Schematic.Modelled.Reflection
 
         public IEnumerable<IDatabaseSequence> Sequences => Sequence.Values;
 
-        public Task<IAsyncEnumerable<IDatabaseSequence>> SequencesAsync() => Task.FromResult(Sequences.ToAsyncEnumerable());
+        public Task<IAsyncEnumerable<IDatabaseSequence>> SequencesAsync(CancellationToken cancellationToken = default(CancellationToken)) => Task.FromResult(Sequences.ToAsyncEnumerable());
 
         protected IReadOnlyDictionary<Identifier, IDatabaseSequence> Sequence => _sequenceLookup.Value;
 
@@ -302,7 +303,7 @@ namespace SJP.Schematic.Modelled.Reflection
             return Synonym.ContainsKey(synonymName);
         }
 
-        public Task<bool> SynonymExistsAsync(Identifier synonymName)
+        public Task<bool> SynonymExistsAsync(Identifier synonymName, CancellationToken cancellationToken = default(CancellationToken))
         {
             if (synonymName == null)
                 throw new ArgumentNullException(nameof(synonymName));
@@ -321,7 +322,7 @@ namespace SJP.Schematic.Modelled.Reflection
             return Synonym.TryGetValue(synonymName, out var synonym) ? synonym : null;
         }
 
-        public Task<IDatabaseSynonym> GetSynonymAsync(Identifier synonymName)
+        public Task<IDatabaseSynonym> GetSynonymAsync(Identifier synonymName, CancellationToken cancellationToken = default(CancellationToken))
         {
             if (synonymName == null)
                 throw new ArgumentNullException(nameof(synonymName));
@@ -333,7 +334,7 @@ namespace SJP.Schematic.Modelled.Reflection
 
         public IEnumerable<IDatabaseSynonym> Synonyms => Synonym.Values;
 
-        public Task<IAsyncEnumerable<IDatabaseSynonym>> SynonymsAsync() => Task.FromResult(Synonyms.ToAsyncEnumerable());
+        public Task<IAsyncEnumerable<IDatabaseSynonym>> SynonymsAsync(CancellationToken cancellationToken = default(CancellationToken)) => Task.FromResult(Synonyms.ToAsyncEnumerable());
 
         protected IReadOnlyDictionary<Identifier, IDatabaseSynonym> Synonym => _synonymLookup.Value;
 

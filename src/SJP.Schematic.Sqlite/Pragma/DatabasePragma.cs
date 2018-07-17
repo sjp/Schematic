@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Globalization;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using Dapper;
 using EnumsNET;
@@ -40,9 +41,9 @@ namespace SJP.Schematic.Sqlite.Pragma
             set => Connection.Execute(PragmaPrefix + $"application_id = { value.ToString(CultureInfo.InvariantCulture) }");
         }
 
-        public Task<uint> ApplicationIdAsync() => Connection.ExecuteScalarAsync<uint>(PragmaPrefix + "application_id");
+        public Task<uint> ApplicationIdAsync(CancellationToken cancellationToken = default(CancellationToken)) => Connection.ExecuteScalarAsync<uint>(PragmaPrefix + "application_id");
 
-        public Task ApplicationIdAsync(uint appId) => Connection.ExecuteAsync(PragmaPrefix + $"application_id = { appId.ToString(CultureInfo.InvariantCulture) }");
+        public Task ApplicationIdAsync(uint appId, CancellationToken cancellationToken = default(CancellationToken)) => Connection.ExecuteAsync(PragmaPrefix + $"application_id = { appId.ToString(CultureInfo.InvariantCulture) }");
 
         public AutoVacuumMode AutoVacuum
         {
@@ -56,9 +57,9 @@ namespace SJP.Schematic.Sqlite.Pragma
             }
         }
 
-        public Task<AutoVacuumMode> AutoVacuumAsync() => Connection.ExecuteScalarAsync<AutoVacuumMode>(PragmaPrefix + "auto_vacuum");
+        public Task<AutoVacuumMode> AutoVacuumAsync(CancellationToken cancellationToken = default(CancellationToken)) => Connection.ExecuteScalarAsync<AutoVacuumMode>(PragmaPrefix + "auto_vacuum");
 
-        public Task AutoVacuumAsync(AutoVacuumMode autoVacuumMode)
+        public Task AutoVacuumAsync(AutoVacuumMode autoVacuumMode, CancellationToken cancellationToken = default(CancellationToken))
         {
             if (!autoVacuumMode.IsValid())
                 throw new ArgumentException($"The { nameof(AutoVacuumMode) } provided must be a valid enum.", nameof(autoVacuumMode));
@@ -79,7 +80,7 @@ namespace SJP.Schematic.Sqlite.Pragma
             set => Connection.Execute(PragmaPrefix + $"cache_size = { value.ToString(CultureInfo.InvariantCulture) }");
         }
 
-        public async Task<ulong> CacheSizeInPagesAsync()
+        public async Task<ulong> CacheSizeInPagesAsync(CancellationToken cancellationToken = default(CancellationToken))
         {
             var size = await Connection.ExecuteScalarAsync<long>(PragmaPrefix + "cache_size").ConfigureAwait(false);
             if (size < 0)
@@ -88,7 +89,7 @@ namespace SJP.Schematic.Sqlite.Pragma
             return (ulong)size;
         }
 
-        public Task CacheSizeInPagesAsync(ulong cacheSize) => Connection.ExecuteAsync(PragmaPrefix + $"cache_size = { cacheSize.ToString(CultureInfo.InvariantCulture) }");
+        public Task CacheSizeInPagesAsync(ulong cacheSize, CancellationToken cancellationToken = default(CancellationToken)) => Connection.ExecuteAsync(PragmaPrefix + $"cache_size = { cacheSize.ToString(CultureInfo.InvariantCulture) }");
 
         public ulong CacheSizeInKibibytes
         {
@@ -105,18 +106,18 @@ namespace SJP.Schematic.Sqlite.Pragma
             set => Connection.Execute(PragmaPrefix + $"cache_size = -{ value.ToString(CultureInfo.InvariantCulture) }");
         }
 
-        public async Task<ulong> CacheSizeInKibibytesAsync()
+        public async Task<ulong> CacheSizeInKibibytesAsync(CancellationToken cancellationToken = default(CancellationToken))
         {
             var size = await Connection.ExecuteScalarAsync<long>(PragmaPrefix + "cache_size").ConfigureAwait(false);
             if (size > 0)
-                size *= await PageSizeAsync().ConfigureAwait(false) / 1024;
+                size *= await PageSizeAsync(cancellationToken).ConfigureAwait(false) / 1024;
             else
                 size *= -1;
 
             return (ulong)size;
         }
 
-        public Task CacheSizeInKibibytesAsync(ulong cacheSize) => Connection.ExecuteAsync(PragmaPrefix + $"cache_size = -{ cacheSize.ToString(CultureInfo.InvariantCulture) }");
+        public Task CacheSizeInKibibytesAsync(ulong cacheSize, CancellationToken cancellationToken = default(CancellationToken)) => Connection.ExecuteAsync(PragmaPrefix + $"cache_size = -{ cacheSize.ToString(CultureInfo.InvariantCulture) }");
 
         public bool CacheSpill
         {
@@ -124,9 +125,9 @@ namespace SJP.Schematic.Sqlite.Pragma
             set => Connection.Execute(PragmaPrefix + $"cache_spill = { Convert.ToInt32(value).ToString() }");
         }
 
-        public Task<bool> CacheSpillAsync() => Connection.ExecuteScalarAsync<bool>(PragmaPrefix + "cache_spill");
+        public Task<bool> CacheSpillAsync(CancellationToken cancellationToken = default(CancellationToken)) => Connection.ExecuteScalarAsync<bool>(PragmaPrefix + "cache_spill");
 
-        public Task CacheSpillAsync(bool enable) => Connection.ExecuteAsync(PragmaPrefix + $"cache_spill = { Convert.ToInt32(enable).ToString() }");
+        public Task CacheSpillAsync(bool enable, CancellationToken cancellationToken = default(CancellationToken)) => Connection.ExecuteAsync(PragmaPrefix + $"cache_spill = { Convert.ToInt32(enable).ToString() }");
 
         public uint CacheSpillInPages
         {
@@ -134,17 +135,17 @@ namespace SJP.Schematic.Sqlite.Pragma
             set => Connection.Execute(PragmaPrefix + $"page_size = { value.ToString(CultureInfo.InvariantCulture) }");
         }
 
-        public Task<uint> CacheSpillInPagesAsync() => Connection.ExecuteScalarAsync<uint>(PragmaPrefix + "page_size");
+        public Task<uint> CacheSpillInPagesAsync(CancellationToken cancellationToken = default(CancellationToken)) => Connection.ExecuteScalarAsync<uint>(PragmaPrefix + "page_size");
 
-        public Task CacheSpillInPagesAsync(uint pageSize) => Connection.ExecuteAsync(PragmaPrefix + $"page_size = { pageSize.ToString(CultureInfo.InvariantCulture) }");
+        public Task CacheSpillInPagesAsync(uint pageSize, CancellationToken cancellationToken = default(CancellationToken)) => Connection.ExecuteAsync(PragmaPrefix + $"page_size = { pageSize.ToString(CultureInfo.InvariantCulture) }");
 
         public int DataVersion => Connection.ExecuteScalar<int>(PragmaPrefix + "data_version");
 
-        public Task<int> DataVersionAsync() => Connection.ExecuteScalarAsync<int>(PragmaPrefix + "data_version");
+        public Task<int> DataVersionAsync(CancellationToken cancellationToken = default(CancellationToken)) => Connection.ExecuteScalarAsync<int>(PragmaPrefix + "data_version");
 
         public IEnumerable<pragma_foreign_key_check> ForeignKeyCheckDatabase => Connection.Query<pragma_foreign_key_check>(PragmaPrefix + "foreign_key_check");
 
-        public Task<IEnumerable<pragma_foreign_key_check>> ForeignKeyCheckDatabaseAsync() => Connection.QueryAsync<pragma_foreign_key_check>(PragmaPrefix + "foreign_key_check");
+        public Task<IEnumerable<pragma_foreign_key_check>> ForeignKeyCheckDatabaseAsync(CancellationToken cancellationToken = default(CancellationToken)) => Connection.QueryAsync<pragma_foreign_key_check>(PragmaPrefix + "foreign_key_check");
 
         public IEnumerable<pragma_foreign_key_check> ForeignKeyCheckTable(Identifier tableName)
         {
@@ -156,7 +157,7 @@ namespace SJP.Schematic.Sqlite.Pragma
             return Connection.Query<pragma_foreign_key_check>(PragmaPrefix + $"foreign_key_check({ Dialect.QuoteIdentifier(tableName.LocalName) })");
         }
 
-        public Task<IEnumerable<pragma_foreign_key_check>> ForeignKeyCheckTableAsync(Identifier tableName)
+        public Task<IEnumerable<pragma_foreign_key_check>> ForeignKeyCheckTableAsync(Identifier tableName, CancellationToken cancellationToken = default(CancellationToken))
         {
             if (tableName == null)
                 throw new ArgumentNullException(nameof(tableName));
@@ -176,7 +177,7 @@ namespace SJP.Schematic.Sqlite.Pragma
             return Connection.Query<pragma_foreign_key_list>(PragmaPrefix + $"foreign_key_list({ Dialect.QuoteIdentifier(tableName.LocalName) })");
         }
 
-        public Task<IEnumerable<pragma_foreign_key_list>> ForeignKeyListAsync(Identifier tableName)
+        public Task<IEnumerable<pragma_foreign_key_list>> ForeignKeyListAsync(Identifier tableName, CancellationToken cancellationToken = default(CancellationToken))
         {
             if (tableName == null)
                 throw new ArgumentNullException(nameof(tableName));
@@ -188,7 +189,7 @@ namespace SJP.Schematic.Sqlite.Pragma
 
         public ulong FreeListCount => Connection.ExecuteScalar<ulong>(PragmaPrefix + "freelist_count");
 
-        public Task<ulong> FreeListCountAsync() => Connection.ExecuteScalarAsync<ulong>(PragmaPrefix + "freelist_count");
+        public Task<ulong> FreeListCountAsync(CancellationToken cancellationToken = default(CancellationToken)) => Connection.ExecuteScalarAsync<ulong>(PragmaPrefix + "freelist_count");
 
         public void IncrementalVacuum(ulong pages = 0)
         {
@@ -198,7 +199,7 @@ namespace SJP.Schematic.Sqlite.Pragma
                 Connection.Execute(PragmaPrefix + $"incremental_vacuum = { pages.ToString(CultureInfo.InvariantCulture) }");
         }
 
-        public Task IncrementalVacuumAsync(ulong pages = 0)
+        public Task IncrementalVacuumAsync(ulong pages = 0, CancellationToken cancellationToken = default(CancellationToken))
         {
             return pages < 1
                 ? Connection.ExecuteAsync(PragmaPrefix + "incremental_vacuum")
@@ -213,7 +214,7 @@ namespace SJP.Schematic.Sqlite.Pragma
             return Connection.Query<pragma_index_info>(PragmaPrefix + $"index_info({ Dialect.QuoteIdentifier(indexName) })");
         }
 
-        public Task<IEnumerable<pragma_index_info>> IndexInfoAsync(string indexName)
+        public Task<IEnumerable<pragma_index_info>> IndexInfoAsync(string indexName, CancellationToken cancellationToken = default(CancellationToken))
         {
             if (indexName.IsNullOrWhiteSpace())
                 throw new ArgumentNullException(nameof(indexName));
@@ -231,7 +232,7 @@ namespace SJP.Schematic.Sqlite.Pragma
             return Connection.Query<pragma_index_list>(PragmaPrefix + $"index_list({ Dialect.QuoteIdentifier(tableName.LocalName) })");
         }
 
-        public Task<IEnumerable<pragma_index_list>> IndexListAsync(Identifier tableName)
+        public Task<IEnumerable<pragma_index_list>> IndexListAsync(Identifier tableName, CancellationToken cancellationToken = default(CancellationToken))
         {
             if (tableName == null)
                 throw new ArgumentNullException(nameof(tableName));
@@ -249,7 +250,7 @@ namespace SJP.Schematic.Sqlite.Pragma
             return Connection.Query<pragma_index_xinfo>(PragmaPrefix + $"index_xinfo({ Dialect.QuoteIdentifier(indexName) })");
         }
 
-        public Task<IEnumerable<pragma_index_xinfo>> IndexXInfoAsync(string indexName)
+        public Task<IEnumerable<pragma_index_xinfo>> IndexXInfoAsync(string indexName, CancellationToken cancellationToken = default(CancellationToken))
         {
             if (indexName.IsNullOrWhiteSpace())
                 throw new ArgumentNullException(nameof(indexName));
@@ -269,7 +270,7 @@ namespace SJP.Schematic.Sqlite.Pragma
             return result;
         }
 
-        public async Task<IEnumerable<string>> IntegrityCheckAsync(uint maxErrors = 0)
+        public async Task<IEnumerable<string>> IntegrityCheckAsync(uint maxErrors = 0, CancellationToken cancellationToken = default(CancellationToken))
         {
             var sql = maxErrors == 0
                 ? PragmaPrefix + "integrity_check"
@@ -301,7 +302,7 @@ namespace SJP.Schematic.Sqlite.Pragma
             }
         }
 
-        public async Task<JournalMode> JournalModeAsync()
+        public async Task<JournalMode> JournalModeAsync(CancellationToken cancellationToken = default(CancellationToken))
         {
             var journalModeName = await Connection.ExecuteScalarAsync<string>(PragmaPrefix + "journal_mode").ConfigureAwait(false);
             if (!Enum.TryParse(journalModeName, true, out JournalMode journalMode))
@@ -310,7 +311,7 @@ namespace SJP.Schematic.Sqlite.Pragma
             return journalMode;
         }
 
-        public Task JournalModeAsync(JournalMode journalMode)
+        public Task JournalModeAsync(JournalMode journalMode, CancellationToken cancellationToken = default(CancellationToken))
         {
             if (!journalMode.IsValid())
                 throw new ArgumentException($"The { nameof(JournalMode) } provided must be a valid enum.", nameof(journalMode));
@@ -325,9 +326,9 @@ namespace SJP.Schematic.Sqlite.Pragma
             set => Connection.Execute(PragmaPrefix + $"journal_size_limit = { value.ToString(CultureInfo.InvariantCulture) }");
         }
 
-        public Task<long> JournalSizeLimitAsync() => Connection.ExecuteScalarAsync<long>(PragmaPrefix + "journal_size_limit");
+        public Task<long> JournalSizeLimitAsync(CancellationToken cancellationToken = default(CancellationToken)) => Connection.ExecuteScalarAsync<long>(PragmaPrefix + "journal_size_limit");
 
-        public Task JournalSizeLimitAsync(long sizeLimit) => Connection.ExecuteAsync(PragmaPrefix + $"journal_size_limit = { sizeLimit.ToString(CultureInfo.InvariantCulture) }");
+        public Task JournalSizeLimitAsync(long sizeLimit, CancellationToken cancellationToken = default(CancellationToken)) => Connection.ExecuteAsync(PragmaPrefix + $"journal_size_limit = { sizeLimit.ToString(CultureInfo.InvariantCulture) }");
 
         public LockingMode LockingMode
         {
@@ -348,7 +349,7 @@ namespace SJP.Schematic.Sqlite.Pragma
             }
         }
 
-        public async Task<LockingMode> LockingModeAsync()
+        public async Task<LockingMode> LockingModeAsync(CancellationToken cancellationToken = default(CancellationToken))
         {
             var lockingModeName = await Connection.ExecuteScalarAsync<string>(PragmaPrefix + "locking_mode").ConfigureAwait(false);
             if (!Enum.TryParse(lockingModeName, true, out LockingMode lockingMode))
@@ -357,7 +358,7 @@ namespace SJP.Schematic.Sqlite.Pragma
             return lockingMode;
         }
 
-        public Task LockingModeAsync(LockingMode lockingMode)
+        public Task LockingModeAsync(LockingMode lockingMode, CancellationToken cancellationToken = default(CancellationToken))
         {
             if (!lockingMode.IsValid())
                 throw new ArgumentException($"The { nameof(LockingMode) } provided must be a valid enum.", nameof(lockingMode));
@@ -372,9 +373,9 @@ namespace SJP.Schematic.Sqlite.Pragma
             set => Connection.Execute(PragmaPrefix + $"max_page_count = { value.ToString(CultureInfo.InvariantCulture) }");
         }
 
-        public Task<ulong> MaxPageCountAsync() => Connection.ExecuteScalarAsync<ulong>(PragmaPrefix + "max_page_count");
+        public Task<ulong> MaxPageCountAsync(CancellationToken cancellationToken = default(CancellationToken)) => Connection.ExecuteScalarAsync<ulong>(PragmaPrefix + "max_page_count");
 
-        public Task MaxPageCountAsync(ulong maxPageCount) => Connection.ExecuteAsync(PragmaPrefix + $"max_page_count = { maxPageCount.ToString(CultureInfo.InvariantCulture) }");
+        public Task MaxPageCountAsync(ulong maxPageCount, CancellationToken cancellationToken = default(CancellationToken)) => Connection.ExecuteAsync(PragmaPrefix + $"max_page_count = { maxPageCount.ToString(CultureInfo.InvariantCulture) }");
 
         public ulong MmapSize
         {
@@ -382,9 +383,9 @@ namespace SJP.Schematic.Sqlite.Pragma
             set => Connection.Execute(PragmaPrefix + $"mmap_size = { value.ToString(CultureInfo.InvariantCulture) }");
         }
 
-        public Task<ulong> MmapSizeAsync() => Connection.ExecuteScalarAsync<ulong>(PragmaPrefix + "mmap_size");
+        public Task<ulong> MmapSizeAsync(CancellationToken cancellationToken = default(CancellationToken)) => Connection.ExecuteScalarAsync<ulong>(PragmaPrefix + "mmap_size");
 
-        public Task MmapSizeAsync(ulong mmapLimit) => Connection.ExecuteAsync(PragmaPrefix + $"mmap_size = { mmapLimit.ToString(CultureInfo.InvariantCulture) }");
+        public Task MmapSizeAsync(ulong mmapLimit, CancellationToken cancellationToken = default(CancellationToken)) => Connection.ExecuteAsync(PragmaPrefix + $"mmap_size = { mmapLimit.ToString(CultureInfo.InvariantCulture) }");
 
         public IEnumerable<string> Optimize(OptimizeFeatures features = OptimizeFeatures.Analyze)
         {
@@ -394,7 +395,7 @@ namespace SJP.Schematic.Sqlite.Pragma
             return Connection.Query<string>(PragmaPrefix + $"optimize = { (int)features }");
         }
 
-        public Task<IEnumerable<string>> OptimizeAsync(OptimizeFeatures features = OptimizeFeatures.Analyze)
+        public Task<IEnumerable<string>> OptimizeAsync(OptimizeFeatures features = OptimizeFeatures.Analyze, CancellationToken cancellationToken = default(CancellationToken))
         {
             if (!features.IsValid())
                 throw new ArgumentException($"The { nameof(OptimizeFeatures) } provided must be a valid enum.", nameof(features));
@@ -404,7 +405,7 @@ namespace SJP.Schematic.Sqlite.Pragma
 
         public ulong PageCount => Connection.ExecuteScalar<ulong>(PragmaPrefix + "page_count");
 
-        public Task<ulong> PageCountAsync() => Connection.ExecuteScalarAsync<ulong>(PragmaPrefix + "page_count");
+        public Task<ulong> PageCountAsync(CancellationToken cancellationToken = default(CancellationToken)) => Connection.ExecuteScalarAsync<ulong>(PragmaPrefix + "page_count");
 
         public ushort PageSize
         {
@@ -421,9 +422,9 @@ namespace SJP.Schematic.Sqlite.Pragma
             }
         }
 
-        public Task<ushort> PageSizeAsync() => Connection.ExecuteScalarAsync<ushort>(PragmaPrefix + "page_size");
+        public Task<ushort> PageSizeAsync(CancellationToken cancellationToken = default(CancellationToken)) => Connection.ExecuteScalarAsync<ushort>(PragmaPrefix + "page_size");
 
-        public Task PageSizeAsync(ushort pageSize)
+        public Task PageSizeAsync(ushort pageSize, CancellationToken cancellationToken = default(CancellationToken))
         {
             if (pageSize < 512)
                 throw new ArgumentException("A page size must be a power of two whose value is at least 512. Given: " + pageSize.ToString(CultureInfo.InvariantCulture), nameof(pageSize));
@@ -448,7 +449,7 @@ namespace SJP.Schematic.Sqlite.Pragma
             return result;
         }
 
-        public async Task<IEnumerable<string>> QuickCheckAsync(uint maxErrors = 0)
+        public async Task<IEnumerable<string>> QuickCheckAsync(uint maxErrors = 0, CancellationToken cancellationToken = default(CancellationToken))
         {
             var sql = maxErrors == 0
                 ? PragmaPrefix + "quick_check"
@@ -467,9 +468,9 @@ namespace SJP.Schematic.Sqlite.Pragma
             set => Connection.Execute(PragmaPrefix + $"schema_version = { value.ToString(CultureInfo.InvariantCulture) }");
         }
 
-        public Task<int> SchemaVersionAsync() => Connection.ExecuteScalarAsync<int>(PragmaPrefix + "schema_version");
+        public Task<int> SchemaVersionAsync(CancellationToken cancellationToken = default(CancellationToken)) => Connection.ExecuteScalarAsync<int>(PragmaPrefix + "schema_version");
 
-        public Task SchemaVersionAsync(int schemaVersion) => Connection.ExecuteAsync(PragmaPrefix + $"schema_version = { schemaVersion.ToString(CultureInfo.InvariantCulture) }");
+        public Task SchemaVersionAsync(int schemaVersion, CancellationToken cancellationToken = default(CancellationToken)) => Connection.ExecuteAsync(PragmaPrefix + $"schema_version = { schemaVersion.ToString(CultureInfo.InvariantCulture) }");
 
         public SecureDeleteMode SecureDelete
         {
@@ -490,7 +491,7 @@ namespace SJP.Schematic.Sqlite.Pragma
             }
         }
 
-        public async Task<SecureDeleteMode> SecureDeleteAsync()
+        public async Task<SecureDeleteMode> SecureDeleteAsync(CancellationToken cancellationToken = default(CancellationToken))
         {
             var secureDeleteValue = await Connection.ExecuteScalarAsync<int>(PragmaPrefix + "secure_delete").ConfigureAwait(false);
             if (!Enums.TryToObject(secureDeleteValue, out SecureDeleteMode deleteMode))
@@ -499,7 +500,7 @@ namespace SJP.Schematic.Sqlite.Pragma
             return deleteMode;
         }
 
-        public Task SecureDeleteAsync(SecureDeleteMode deleteMode)
+        public Task SecureDeleteAsync(SecureDeleteMode deleteMode, CancellationToken cancellationToken = default(CancellationToken))
         {
             if (!deleteMode.IsValid())
                 throw new ArgumentException($"The { nameof(SecureDeleteMode) } provided must be a valid enum.", nameof(deleteMode));
@@ -527,7 +528,7 @@ namespace SJP.Schematic.Sqlite.Pragma
             }
         }
 
-        public async Task<SynchronousLevel> SynchronousAsync()
+        public async Task<SynchronousLevel> SynchronousAsync(CancellationToken cancellationToken = default(CancellationToken))
         {
             var level = await Connection.ExecuteScalarAsync<int>(PragmaPrefix + "synchronous").ConfigureAwait(false);
             if (!Enums.TryToObject(level, out SynchronousLevel syncLevel))
@@ -536,7 +537,7 @@ namespace SJP.Schematic.Sqlite.Pragma
             return syncLevel;
         }
 
-        public Task SynchronousAsync(SynchronousLevel synchronousLevel)
+        public Task SynchronousAsync(SynchronousLevel synchronousLevel, CancellationToken cancellationToken = default(CancellationToken))
         {
             if (!synchronousLevel.IsValid())
                 throw new ArgumentException($"The { nameof(SynchronousLevel) } provided must be a valid enum.", nameof(synchronousLevel));
@@ -555,7 +556,7 @@ namespace SJP.Schematic.Sqlite.Pragma
             return Connection.Query<pragma_table_info>(PragmaPrefix + $"table_info({ Dialect.QuoteIdentifier(tableName.LocalName) })");
         }
 
-        public Task<IEnumerable<pragma_table_info>> TableInfoAsync(Identifier tableName)
+        public Task<IEnumerable<pragma_table_info>> TableInfoAsync(Identifier tableName, CancellationToken cancellationToken = default(CancellationToken))
         {
             if (tableName == null)
                 throw new ArgumentNullException(nameof(tableName));
@@ -571,9 +572,9 @@ namespace SJP.Schematic.Sqlite.Pragma
             set => Connection.Execute(PragmaPrefix + $"user_version = { value.ToString(CultureInfo.InvariantCulture) }");
         }
 
-        public Task<int> UserVersionAsync() => Connection.ExecuteScalarAsync<int>(PragmaPrefix + "user_version");
+        public Task<int> UserVersionAsync(CancellationToken cancellationToken = default(CancellationToken)) => Connection.ExecuteScalarAsync<int>(PragmaPrefix + "user_version");
 
-        public Task UserVersionAsync(int userVersion) => Connection.ExecuteAsync(PragmaPrefix + $"user_version = { userVersion.ToString(CultureInfo.InvariantCulture) }");
+        public Task UserVersionAsync(int userVersion, CancellationToken cancellationToken = default(CancellationToken)) => Connection.ExecuteAsync(PragmaPrefix + $"user_version = { userVersion.ToString(CultureInfo.InvariantCulture) }");
 
         public pragma_wal_checkpoint WalCheckpoint(WalCheckpointMode checkpointMode = WalCheckpointMode.Passive)
         {
@@ -584,15 +585,15 @@ namespace SJP.Schematic.Sqlite.Pragma
             return Connection.Query<pragma_wal_checkpoint>(PragmaPrefix + "wal_checkpoint(" + checkpointModeStr + ")").Single();
         }
 
-        public Task<pragma_wal_checkpoint> WalCheckpointAsync(WalCheckpointMode checkpointMode = WalCheckpointMode.Passive)
+        public Task<pragma_wal_checkpoint> WalCheckpointAsync(WalCheckpointMode checkpointMode = WalCheckpointMode.Passive, CancellationToken cancellationToken = default(CancellationToken))
         {
             if (!checkpointMode.IsValid())
                 throw new ArgumentException($"The { nameof(TemporaryStoreLocation) } provided must be a valid enum.", nameof(checkpointMode));
 
-            return WalCheckpointAsyncCore(checkpointMode);
+            return WalCheckpointAsyncCore(checkpointMode, cancellationToken);
         }
 
-        private async Task<pragma_wal_checkpoint> WalCheckpointAsyncCore(WalCheckpointMode checkpointMode)
+        private async Task<pragma_wal_checkpoint> WalCheckpointAsyncCore(WalCheckpointMode checkpointMode, CancellationToken cancellationToken)
         {
             var checkpointModeStr = checkpointMode.ToString().ToUpperInvariant();
             var result = await Connection.QueryAsync<pragma_wal_checkpoint>(PragmaPrefix + "wal_checkpoint(" + checkpointModeStr + ")").ConfigureAwait(false);

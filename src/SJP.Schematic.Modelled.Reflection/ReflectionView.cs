@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 using SJP.Schematic.Core;
 
@@ -18,7 +19,7 @@ namespace SJP.Schematic.Modelled.Reflection
 
         public string Definition => throw new NotImplementedException();
 
-        public Task<string> DefinitionAsync() => throw new NotImplementedException();
+        public Task<string> DefinitionAsync(CancellationToken cancellationToken = default(CancellationToken)) => throw new NotImplementedException();
 
         public IReadOnlyDictionary<Identifier, IDatabaseViewColumn> Column
         {
@@ -64,22 +65,22 @@ namespace SJP.Schematic.Modelled.Reflection
 
         public Identifier Name { get; }
 
-        public Task<IReadOnlyDictionary<Identifier, IDatabaseViewColumn>> ColumnAsync()
+        public Task<IReadOnlyDictionary<Identifier, IDatabaseViewColumn>> ColumnAsync(CancellationToken cancellationToken = default(CancellationToken))
         {
             throw new NotImplementedException();
         }
 
-        public Task<IReadOnlyList<IDatabaseViewColumn>> ColumnsAsync()
+        public Task<IReadOnlyList<IDatabaseViewColumn>> ColumnsAsync(CancellationToken cancellationToken = default(CancellationToken))
         {
             throw new NotImplementedException();
         }
 
-        public Task<IReadOnlyDictionary<Identifier, IDatabaseViewIndex>> IndexAsync()
+        public Task<IReadOnlyDictionary<Identifier, IDatabaseViewIndex>> IndexAsync(CancellationToken cancellationToken = default(CancellationToken))
         {
             throw new NotImplementedException();
         }
 
-        public Task<IEnumerable<IDatabaseViewIndex>> IndexesAsync()
+        public Task<IEnumerable<IDatabaseViewIndex>> IndexesAsync(CancellationToken cancellationToken = default(CancellationToken))
         {
             throw new NotImplementedException();
         }

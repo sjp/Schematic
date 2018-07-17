@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System.Threading;
+using System.Threading.Tasks;
 using SJP.Schematic.Core;
 
 namespace SJP.Schematic.Sqlite
@@ -7,18 +8,18 @@ namespace SJP.Schematic.Sqlite
     {
         void Vacuum();
 
-        Task VacuumAsync();
+        Task VacuumAsync(CancellationToken cancellationToken = default(CancellationToken));
 
         void Vacuum(string schemaName);
 
-        Task VacuumAsync(string schemaName);
+        Task VacuumAsync(string schemaName, CancellationToken cancellationToken = default(CancellationToken));
 
         void AttachDatabase(string schemaName, string fileName);
 
-        Task AttachDatabaseAsync(string schemaName, string fileName);
+        Task AttachDatabaseAsync(string schemaName, string fileName, CancellationToken cancellationToken = default(CancellationToken));
 
         void DetachDatabase(string schemaName);
 
-        Task DetachDatabaseAsync(string schemaName);
+        Task DetachDatabaseAsync(string schemaName, CancellationToken cancellationToken = default(CancellationToken));
     }
 }

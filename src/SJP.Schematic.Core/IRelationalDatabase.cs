@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace SJP.Schematic.Core
@@ -39,28 +40,28 @@ namespace SJP.Schematic.Core
         IEnumerable<IDatabaseSynonym> Synonyms { get; }
 
         // async
-        Task<bool> TableExistsAsync(Identifier tableName);
+        Task<bool> TableExistsAsync(Identifier tableName, CancellationToken cancellationToken = default(CancellationToken));
 
-        Task<IRelationalDatabaseTable> GetTableAsync(Identifier tableName);
+        Task<IRelationalDatabaseTable> GetTableAsync(Identifier tableName, CancellationToken cancellationToken = default(CancellationToken));
 
-        Task<IAsyncEnumerable<IRelationalDatabaseTable>> TablesAsync();
+        Task<IAsyncEnumerable<IRelationalDatabaseTable>> TablesAsync(CancellationToken cancellationToken = default(CancellationToken));
 
-        Task<bool> ViewExistsAsync(Identifier viewName);
+        Task<bool> ViewExistsAsync(Identifier viewName, CancellationToken cancellationToken = default(CancellationToken));
 
-        Task<IRelationalDatabaseView> GetViewAsync(Identifier viewName);
+        Task<IRelationalDatabaseView> GetViewAsync(Identifier viewName, CancellationToken cancellationToken = default(CancellationToken));
 
-        Task<IAsyncEnumerable<IRelationalDatabaseView>> ViewsAsync();
+        Task<IAsyncEnumerable<IRelationalDatabaseView>> ViewsAsync(CancellationToken cancellationToken = default(CancellationToken));
 
-        Task<bool> SequenceExistsAsync(Identifier sequenceName);
+        Task<bool> SequenceExistsAsync(Identifier sequenceName, CancellationToken cancellationToken = default(CancellationToken));
 
-        Task<IDatabaseSequence> GetSequenceAsync(Identifier sequenceName);
+        Task<IDatabaseSequence> GetSequenceAsync(Identifier sequenceName, CancellationToken cancellationToken = default(CancellationToken));
 
-        Task<IAsyncEnumerable<IDatabaseSequence>> SequencesAsync();
+        Task<IAsyncEnumerable<IDatabaseSequence>> SequencesAsync(CancellationToken cancellationToken = default(CancellationToken));
 
-        Task<bool> SynonymExistsAsync(Identifier synonymName);
+        Task<bool> SynonymExistsAsync(Identifier synonymName, CancellationToken cancellationToken = default(CancellationToken));
 
-        Task<IDatabaseSynonym> GetSynonymAsync(Identifier synonymName);
+        Task<IDatabaseSynonym> GetSynonymAsync(Identifier synonymName, CancellationToken cancellationToken = default(CancellationToken));
 
-        Task<IAsyncEnumerable<IDatabaseSynonym>> SynonymsAsync();
+        Task<IAsyncEnumerable<IDatabaseSynonym>> SynonymsAsync(CancellationToken cancellationToken = default(CancellationToken));
     }
 }

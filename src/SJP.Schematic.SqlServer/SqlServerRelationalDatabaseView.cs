@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using SJP.Schematic.SqlServer.Query;
 using SJP.Schematic.Core;
 using SJP.Schematic.Core.Extensions;
+using System.Threading;
 
 namespace SJP.Schematic.SqlServer
 {
@@ -48,7 +49,7 @@ namespace SJP.Schematic.SqlServer
 
         public string Definition => LoadDefinitionSync();
 
-        public Task<string> DefinitionAsync() => LoadDefinitionAsync();
+        public Task<string> DefinitionAsync(CancellationToken cancellationToken = default(CancellationToken)) => LoadDefinitionAsync(cancellationToken);
 
         protected virtual string LoadDefinitionSync()
         {
@@ -61,7 +62,7 @@ where schema_name(v.schema_id) = @SchemaName and v.name = @ViewName";
             return Connection.ExecuteScalar<string>(sql, new { SchemaName = Name.Schema, ViewName = Name.LocalName });
         }
 
-        protected virtual Task<string> LoadDefinitionAsync()
+        protected virtual Task<string> LoadDefinitionAsync(CancellationToken cancellationToken)
         {
             const string sql = @"
 select sm.definition
@@ -76,11 +77,11 @@ where schema_name(v.schema_id) = @SchemaName and v.name = @ViewName";
 
         public IReadOnlyDictionary<Identifier, IDatabaseViewIndex> Index => LoadIndexLookupSync();
 
-        public Task<IReadOnlyDictionary<Identifier, IDatabaseViewIndex>> IndexAsync() => LoadIndexLookupAsync();
+        public Task<IReadOnlyDictionary<Identifier, IDatabaseViewIndex>> IndexAsync(CancellationToken cancellationToken = default(CancellationToken)) => LoadIndexLookupAsync(cancellationToken);
 
         public IEnumerable<IDatabaseViewIndex> Indexes => LoadIndexesSync();
 
-        public Task<IEnumerable<IDatabaseViewIndex>> IndexesAsync() => LoadIndexesAsync();
+        public Task<IEnumerable<IDatabaseViewIndex>> IndexesAsync(CancellationToken cancellationToken = default(CancellationToken)) => LoadIndexesAsync(cancellationToken);
 
         protected virtual IEnumerable<IDatabaseViewIndex> LoadIndexesSync()
         {
@@ -134,7 +135,7 @@ where schema_name(v.schema_id) = @SchemaName and v.name = @ViewName
             return result;
         }
 
-        protected virtual async Task<IEnumerable<IDatabaseViewIndex>> LoadIndexesAsync()
+        protected virtual async Task<IEnumerable<IDatabaseViewIndex>> LoadIndexesAsync(CancellationToken cancellationToken)
         {
             const string sql = @"
 select i.name as IndexName, i.is_unique as IsUnique, ic.key_ordinal as KeyOrdinal, ic.index_column_id as IndexColumnId, ic.is_included_column as IsIncludedColumn, ic.is_descending_key as IsDescending, c.name as ColumnName, i.is_disabled as IsDisabled
@@ -154,7 +155,7 @@ where schema_name(v.schema_id) = @SchemaName and v.name = @ViewName
             if (indexColumns.Count == 0)
                 return Array.Empty<IDatabaseViewIndex>();
 
-            var viewColumns = await ColumnAsync().ConfigureAwait(false);
+            var viewColumns = await ColumnAsync(cancellationToken).ConfigureAwait(false);
             var result = new List<IDatabaseViewIndex>(indexColumns.Count);
             foreach (var indexInfo in indexColumns)
             {
@@ -196,11 +197,11 @@ where schema_name(v.schema_id) = @SchemaName and v.name = @ViewName
             return result.AsReadOnlyDictionary();
         }
 
-        protected virtual async Task<IReadOnlyDictionary<Identifier, IDatabaseViewIndex>> LoadIndexLookupAsync()
+        protected virtual async Task<IReadOnlyDictionary<Identifier, IDatabaseViewIndex>> LoadIndexLookupAsync(CancellationToken cancellationToken)
         {
             var result = new Dictionary<Identifier, IDatabaseViewIndex>(Comparer);
 
-            var indexes = await IndexesAsync().ConfigureAwait(false);
+            var indexes = await IndexesAsync(cancellationToken).ConfigureAwait(false);
             foreach (var index in indexes)
                 result[index.Name.LocalName] = index;
 
@@ -209,11 +210,11 @@ where schema_name(v.schema_id) = @SchemaName and v.name = @ViewName
 
         public IReadOnlyDictionary<Identifier, IDatabaseViewColumn> Column => LoadColumnLookupSync();
 
-        public Task<IReadOnlyDictionary<Identifier, IDatabaseViewColumn>> ColumnAsync() => LoadColumnLookupAsync();
+        public Task<IReadOnlyDictionary<Identifier, IDatabaseViewColumn>> ColumnAsync(CancellationToken cancellationToken = default(CancellationToken)) => LoadColumnLookupAsync(cancellationToken);
 
         public IReadOnlyList<IDatabaseViewColumn> Columns => LoadColumnsSync();
 
-        public Task<IReadOnlyList<IDatabaseViewColumn>> ColumnsAsync() => LoadColumnsAsync();
+        public Task<IReadOnlyList<IDatabaseViewColumn>> ColumnsAsync(CancellationToken cancellationToken = default(CancellationToken)) => LoadColumnsAsync(cancellationToken);
 
         protected virtual IReadOnlyDictionary<Identifier, IDatabaseViewColumn> LoadColumnLookupSync()
         {
@@ -225,11 +226,11 @@ where schema_name(v.schema_id) = @SchemaName and v.name = @ViewName
             return result.AsReadOnlyDictionary();
         }
 
-        protected virtual async Task<IReadOnlyDictionary<Identifier, IDatabaseViewColumn>> LoadColumnLookupAsync()
+        protected virtual async Task<IReadOnlyDictionary<Identifier, IDatabaseViewColumn>> LoadColumnLookupAsync(CancellationToken cancellationToken)
         {
             var result = new Dictionary<Identifier, IDatabaseViewColumn>(Comparer);
 
-            var columns = await ColumnsAsync().ConfigureAwait(false);
+            var columns = await ColumnsAsync(cancellationToken).ConfigureAwait(false);
             foreach (var column in columns.Where(c => c.Name != null))
                 result[column.Name.LocalName] = column;
 
@@ -291,7 +292,7 @@ where schema_name(v.schema_id) = @SchemaName
             return result.AsReadOnly();
         }
 
-        protected virtual async Task<IReadOnlyList<IDatabaseViewColumn>> LoadColumnsAsync()
+        protected virtual async Task<IReadOnlyList<IDatabaseViewColumn>> LoadColumnsAsync(CancellationToken cancellationToken)
         {
             const string sql = @"
 select

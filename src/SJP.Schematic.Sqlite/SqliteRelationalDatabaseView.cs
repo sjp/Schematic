@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using SJP.Schematic.Core;
 using SJP.Schematic.Sqlite.Pragma;
 using SJP.Schematic.Core.Extensions;
+using System.Threading;
 
 namespace SJP.Schematic.Sqlite
 {
@@ -46,7 +47,7 @@ namespace SJP.Schematic.Sqlite
 
         public string Definition => LoadDefinitionSync();
 
-        public Task<string> DefinitionAsync() => LoadDefinitionAsync();
+        public Task<string> DefinitionAsync(CancellationToken cancellationToken = default(CancellationToken)) => LoadDefinitionAsync(cancellationToken);
 
         protected virtual string LoadDefinitionSync()
         {
@@ -54,7 +55,7 @@ namespace SJP.Schematic.Sqlite
             return Connection.ExecuteScalar<string>(sql, new { ViewName = Name.LocalName });
         }
 
-        protected virtual Task<string> LoadDefinitionAsync()
+        protected virtual Task<string> LoadDefinitionAsync(CancellationToken cancellationToken)
         {
             var sql = $"select sql from { Dialect.QuoteIdentifier(Name.Schema) }.sqlite_master where type = 'view' and tbl_name = @ViewName";
             return Connection.ExecuteScalarAsync<string>(sql, new { ViewName = Name.LocalName });
@@ -64,15 +65,15 @@ namespace SJP.Schematic.Sqlite
 
         public IReadOnlyDictionary<Identifier, IDatabaseViewIndex> Index => LoadIndexLookupSync();
 
-        public Task<IReadOnlyDictionary<Identifier, IDatabaseViewIndex>> IndexAsync() => LoadIndexLookupAsync();
+        public Task<IReadOnlyDictionary<Identifier, IDatabaseViewIndex>> IndexAsync(CancellationToken cancellationToken = default(CancellationToken)) => LoadIndexLookupAsync(cancellationToken);
 
         public IEnumerable<IDatabaseViewIndex> Indexes => LoadIndexesSync();
 
-        public Task<IEnumerable<IDatabaseViewIndex>> IndexesAsync() => LoadIndexesAsync();
+        public Task<IEnumerable<IDatabaseViewIndex>> IndexesAsync(CancellationToken cancellationToken = default(CancellationToken)) => LoadIndexesAsync(cancellationToken);
 
         protected virtual IEnumerable<IDatabaseViewIndex> LoadIndexesSync() => Array.Empty<IDatabaseViewIndex>();
 
-        protected virtual Task<IEnumerable<IDatabaseViewIndex>> LoadIndexesAsync() => Task.FromResult(LoadIndexesSync());
+        protected virtual Task<IEnumerable<IDatabaseViewIndex>> LoadIndexesAsync(CancellationToken cancellationToken = default(CancellationToken)) => Task.FromResult(LoadIndexesSync());
 
         protected virtual IReadOnlyDictionary<Identifier, IDatabaseViewIndex> LoadIndexLookupSync()
         {
@@ -80,15 +81,15 @@ namespace SJP.Schematic.Sqlite
             return result.AsReadOnlyDictionary();
         }
 
-        protected virtual Task<IReadOnlyDictionary<Identifier, IDatabaseViewIndex>> LoadIndexLookupAsync() => Task.FromResult(LoadIndexLookupSync());
+        protected virtual Task<IReadOnlyDictionary<Identifier, IDatabaseViewIndex>> LoadIndexLookupAsync(CancellationToken cancellationToken = default(CancellationToken)) => Task.FromResult(LoadIndexLookupSync());
 
         public IReadOnlyDictionary<Identifier, IDatabaseViewColumn> Column => LoadColumnLookupSync();
 
-        public Task<IReadOnlyDictionary<Identifier, IDatabaseViewColumn>> ColumnAsync() => LoadColumnLookupAsync();
+        public Task<IReadOnlyDictionary<Identifier, IDatabaseViewColumn>> ColumnAsync(CancellationToken cancellationToken = default(CancellationToken)) => LoadColumnLookupAsync(cancellationToken);
 
         public IReadOnlyList<IDatabaseViewColumn> Columns => LoadColumnsSync();
 
-        public Task<IReadOnlyList<IDatabaseViewColumn>> ColumnsAsync() => LoadColumnsAsync();
+        public Task<IReadOnlyList<IDatabaseViewColumn>> ColumnsAsync(CancellationToken cancellationToken = default(CancellationToken)) => LoadColumnsAsync(cancellationToken);
 
         protected virtual IReadOnlyDictionary<Identifier, IDatabaseViewColumn> LoadColumnLookupSync()
         {
@@ -100,11 +101,11 @@ namespace SJP.Schematic.Sqlite
             return result.AsReadOnlyDictionary();
         }
 
-        protected virtual async Task<IReadOnlyDictionary<Identifier, IDatabaseViewColumn>> LoadColumnLookupAsync()
+        protected virtual async Task<IReadOnlyDictionary<Identifier, IDatabaseViewColumn>> LoadColumnLookupAsync(CancellationToken cancellationToken)
         {
             var result = new Dictionary<Identifier, IDatabaseViewColumn>(Comparer);
 
-            var columns = await ColumnsAsync().ConfigureAwait(false);
+            var columns = await ColumnsAsync(cancellationToken).ConfigureAwait(false);
             foreach (var column in columns.Where(c => c.Name != null))
                 result[column.Name.LocalName] = column;
 
@@ -135,9 +136,9 @@ namespace SJP.Schematic.Sqlite
             return result.AsReadOnly();
         }
 
-        protected virtual async Task<IReadOnlyList<IDatabaseViewColumn>> LoadColumnsAsync()
+        protected virtual async Task<IReadOnlyList<IDatabaseViewColumn>> LoadColumnsAsync(CancellationToken cancellationToken)
         {
-            var tableInfos = await Pragma.TableInfoAsync(Name).ConfigureAwait(false);
+            var tableInfos = await Pragma.TableInfoAsync(Name, cancellationToken).ConfigureAwait(false);
 
             var result = new List<IDatabaseViewColumn>();
             if (tableInfos.Empty())
@@ -147,7 +148,7 @@ namespace SJP.Schematic.Sqlite
             {
                 var columnTypeName = tableInfo.type;
                 if (columnTypeName.IsNullOrWhiteSpace())
-                    columnTypeName = await GetTypeofColumnAsync(tableInfo.name).ConfigureAwait(false);
+                    columnTypeName = await GetTypeofColumnAsync(tableInfo.name, cancellationToken).ConfigureAwait(false);
 
                 var affinity = _affinityParser.ParseTypeName(columnTypeName);
                 var columnType = new SqliteColumnType(affinity);
@@ -168,7 +169,7 @@ namespace SJP.Schematic.Sqlite
             return Connection.ExecuteScalar<string>(sql);
         }
 
-        protected virtual Task<string> GetTypeofColumnAsync(Identifier columnName)
+        protected virtual Task<string> GetTypeofColumnAsync(Identifier columnName, CancellationToken cancellationToken)
         {
             if (columnName == null)
                 throw new ArgumentNullException(nameof(columnName));
