@@ -15,7 +15,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
     [TestFixture]
     internal class ConnectionPragmaTests : SqliteTest
     {
-        private IDbConnection CreateConnection()
+        private static IDbConnection CreateConnection()
         {
             var connection = new SqliteConnection("Data Source=:memory:");
             connection.Open();
@@ -23,21 +23,21 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
         }
 
         [Test]
-        public void Ctor_GivenNullDialect_ThrowsArgumentNullException()
+        public static void Ctor_GivenNullDialect_ThrowsArgumentNullException()
         {
             var connection = Mock.Of<IDbConnection>();
             Assert.Throws<ArgumentNullException>(() => new ConnectionPragma(null, connection));
         }
 
         [Test]
-        public void Ctor_GivenNullConnection_ThrowsArgumentNullException()
+        public static void Ctor_GivenNullConnection_ThrowsArgumentNullException()
         {
             var dialect = Mock.Of<IDatabaseDialect>();
             Assert.Throws<ArgumentNullException>(() => new ConnectionPragma(dialect, null));
         }
 
         [Test]
-        public void DatabasePragmas_ForNewDatabase_ShouldBeMainAndTempSchemasOnly()
+        public static void DatabasePragmas_ForNewDatabase_ShouldBeMainAndTempSchemasOnly()
         {
             var expectedSchemas = new HashSet<string>(new[] { "main", "temp" }, StringComparer.OrdinalIgnoreCase);
 
@@ -54,7 +54,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
         }
 
         [Test]
-        public async Task DatabasePragmasAsync_ForNewDatabase_ShouldBeMainAndTempSchemasOnly()
+        public static async Task DatabasePragmasAsync_ForNewDatabase_ShouldBeMainAndTempSchemasOnly()
         {
             var expectedSchemas = new HashSet<string>(new[] { "main", "temp" }, StringComparer.OrdinalIgnoreCase);
 
@@ -72,7 +72,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
         }
 
         [Test]
-        public void DatabaseList_ForNewDatabase_ShouldBeMainAndTempSchemasOnly()
+        public static void DatabaseList_ForNewDatabase_ShouldBeMainAndTempSchemasOnly()
         {
             var expectedSchemas = new HashSet<string>(new[] { "main", "temp" }, StringComparer.OrdinalIgnoreCase);
 
@@ -89,7 +89,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
         }
 
         [Test]
-        public async Task DatabaseListAsync_ForNewDatabase_ShouldBeMainAndTempSchemasOnly()
+        public static async Task DatabaseListAsync_ForNewDatabase_ShouldBeMainAndTempSchemasOnly()
         {
             var expectedSchemas = new HashSet<string>(new[] { "main", "temp" }, StringComparer.OrdinalIgnoreCase);
 
@@ -107,7 +107,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
         }
 
         [Test]
-        public void AutomaticIndex_PropertyGetAndSet_ReadsAndWritesCorrectly()
+        public static void AutomaticIndex_PropertyGetAndSet_ReadsAndWritesCorrectly()
         {
             using (var connection = CreateConnection())
             {
@@ -124,7 +124,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
         }
 
         [Test]
-        public async Task AutomaticIndexAsync_GetAndSet_ReadsAndWritesCorrectly()
+        public static async Task AutomaticIndexAsync_GetAndSet_ReadsAndWritesCorrectly()
         {
             using (var connection = CreateConnection())
             {
@@ -141,7 +141,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
         }
 
         [Test]
-        public void BusyTimeout_PropertyGet_ReadsCorrectly()
+        public static void BusyTimeout_PropertyGet_ReadsCorrectly()
         {
             using (var connection = CreateConnection())
             {
@@ -156,7 +156,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
         }
 
         [Test]
-        public async Task BusyTimeoutAsync_Get_ReadsCorrectly()
+        public static async Task BusyTimeoutAsync_Get_ReadsCorrectly()
         {
             using (var connection = CreateConnection())
             {
@@ -172,7 +172,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
 
         [Test]
         [Ignore("SqliteConnection does not support setting of busy_timeout pragmas yet.")]
-        public void BusyTimeout_PropertyGetAndSet_ReadsAndWritesCorrectly()
+        public static void BusyTimeout_PropertyGetAndSet_ReadsAndWritesCorrectly()
         {
             using (var connection = CreateConnection())
             {
@@ -190,7 +190,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
 
         [Test]
         [Ignore("SqliteConnection does not support setting of busy_timeout pragmas yet.")]
-        public async Task BusyTimeoutAsync_GetAndSet_ReadsAndWritesCorrectly()
+        public static async Task BusyTimeoutAsync_GetAndSet_ReadsAndWritesCorrectly()
         {
             using (var connection = CreateConnection())
             {
@@ -207,7 +207,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
         }
 
         [Test]
-        public void CaseSensitiveLike_PropertySet_WritesCorrectly()
+        public static void CaseSensitiveLike_PropertySet_WritesCorrectly()
         {
             using (var connection = CreateConnection())
             {
@@ -238,7 +238,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
         }
 
         [Test]
-        public async Task CaseSensitiveLikeAsync_WhenSet_WritesCorrectly()
+        public static async Task CaseSensitiveLikeAsync_WhenSet_WritesCorrectly()
         {
             using (var connection = CreateConnection())
             {
@@ -269,7 +269,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
         }
 
         [Test]
-        public void CellSizeCheck_PropertyGetAndSet_ReadsAndWritesCorrectly()
+        public static void CellSizeCheck_PropertyGetAndSet_ReadsAndWritesCorrectly()
         {
             using (var connection = CreateConnection())
             {
@@ -286,7 +286,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
         }
 
         [Test]
-        public async Task CellSizeCheckAsync_GetAndSet_ReadsAndWritesCorrectly()
+        public static async Task CellSizeCheckAsync_GetAndSet_ReadsAndWritesCorrectly()
         {
             using (var connection = CreateConnection())
             {
@@ -303,7 +303,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
         }
 
         [Test]
-        public void CheckpointFullFsync_PropertyGetAndSet_ReadsAndWritesCorrectly()
+        public static void CheckpointFullFsync_PropertyGetAndSet_ReadsAndWritesCorrectly()
         {
             using (var connection = CreateConnection())
             {
@@ -320,7 +320,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
         }
 
         [Test]
-        public async Task CheckpointFullFsyncAsync_GetAndSet_ReadsAndWritesCorrectly()
+        public static async Task CheckpointFullFsyncAsync_GetAndSet_ReadsAndWritesCorrectly()
         {
             using (var connection = CreateConnection())
             {
@@ -337,7 +337,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
         }
 
         [Test]
-        public void CollationList_PropertyGet_ReadsCorrectly()
+        public static void CollationList_PropertyGet_ReadsCorrectly()
         {
             using (var connection = CreateConnection())
             {
@@ -351,7 +351,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
         }
 
         [Test]
-        public async Task CollationListAsync_GetInvoked_ReadsCorrectly()
+        public static async Task CollationListAsync_GetInvoked_ReadsCorrectly()
         {
             using (var connection = CreateConnection())
             {
@@ -366,7 +366,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
         }
 
         [Test]
-        public void CompileOptions_PropertyGet_ReadsCorrectly()
+        public static void CompileOptions_PropertyGet_ReadsCorrectly()
         {
             using (var connection = CreateConnection())
             {
@@ -380,7 +380,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
         }
 
         [Test]
-        public async Task CompileOptionsAsync_GetInvoked_ReadsCorrectly()
+        public static async Task CompileOptionsAsync_GetInvoked_ReadsCorrectly()
         {
             using (var connection = CreateConnection())
             {
@@ -395,7 +395,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
         }
 
         [Test]
-        public void DataVersion_PropertyGet_ReadsCorrectly()
+        public static void DataVersion_PropertyGet_ReadsCorrectly()
         {
             using (var connection = CreateConnection())
             {
@@ -409,7 +409,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
         }
 
         [Test]
-        public async Task DataVersionAsync_GetInvoked_ReadsCorrectly()
+        public static async Task DataVersionAsync_GetInvoked_ReadsCorrectly()
         {
             using (var connection = CreateConnection())
             {
@@ -423,7 +423,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
         }
 
         [Test]
-        public void DeferForeignKeys_PropertyGetAndSet_ReadsAndWritesCorrectly()
+        public static void DeferForeignKeys_PropertyGetAndSet_ReadsAndWritesCorrectly()
         {
             using (var connection = CreateConnection())
             {
@@ -440,7 +440,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
         }
 
         [Test]
-        public async Task DeferForeignKeysAsync_GetAndSet_ReadsAndWritesCorrectly()
+        public static async Task DeferForeignKeysAsync_GetAndSet_ReadsAndWritesCorrectly()
         {
             using (var connection = CreateConnection())
             {
@@ -457,7 +457,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
         }
 
         [Test]
-        public void Encoding_PropertyGetAndSet_ReadsAndWritesCorrectly()
+        public static void Encoding_PropertyGetAndSet_ReadsAndWritesCorrectly()
         {
             using (var connection = CreateConnection())
             {
@@ -474,7 +474,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
         }
 
         [Test]
-        public void Encoding_GivenInvalidEncodingValue_ThrowsArugmentException()
+        public static void Encoding_GivenInvalidEncodingValue_ThrowsArugmentException()
         {
             using (var connection = CreateConnection())
             {
@@ -487,7 +487,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
         }
 
         [Test]
-        public async Task EncodingAsync_GetAndSet_ReadsAndWritesCorrectly()
+        public static async Task EncodingAsync_GetAndSet_ReadsAndWritesCorrectly()
         {
             using (var connection = CreateConnection())
             {
@@ -504,7 +504,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
         }
 
         [Test]
-        public void EncodingAsync_GivenInvalidEncodingValue_ThrowsArgumentException()
+        public static void EncodingAsync_GivenInvalidEncodingValue_ThrowsArgumentException()
         {
             using (var connection = CreateConnection())
             {
@@ -517,7 +517,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
         }
 
         [Test]
-        public void ForeignKeys_PropertyGetAndSet_ReadsAndWritesCorrectly()
+        public static void ForeignKeys_PropertyGetAndSet_ReadsAndWritesCorrectly()
         {
             using (var connection = CreateConnection())
             {
@@ -534,7 +534,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
         }
 
         [Test]
-        public async Task ForeignKeysAsync_GetAndSet_ReadsAndWritesCorrectly()
+        public static async Task ForeignKeysAsync_GetAndSet_ReadsAndWritesCorrectly()
         {
             using (var connection = CreateConnection())
             {
@@ -551,7 +551,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
         }
 
         [Test]
-        public void FullFsync_PropertyGetAndSet_ReadsAndWritesCorrectly()
+        public static void FullFsync_PropertyGetAndSet_ReadsAndWritesCorrectly()
         {
             using (var connection = CreateConnection())
             {
@@ -568,7 +568,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
         }
 
         [Test]
-        public async Task FullFsyncAsync_GetAndSet_ReadsAndWritesCorrectly()
+        public static async Task FullFsyncAsync_GetAndSet_ReadsAndWritesCorrectly()
         {
             using (var connection = CreateConnection())
             {
@@ -585,7 +585,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
         }
 
         [Test]
-        public void IgnoreCheckConstraints_PropertySet_WritesCorrectly()
+        public static void IgnoreCheckConstraints_PropertySet_WritesCorrectly()
         {
             using (var connection = CreateConnection())
             {
@@ -603,7 +603,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
         }
 
         [Test]
-        public async Task IgnoreCheckConstraintsAsync_WhenSet_WritesCorrectly()
+        public static async Task IgnoreCheckConstraintsAsync_WhenSet_WritesCorrectly()
         {
             using (var connection = CreateConnection())
             {
@@ -621,7 +621,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
         }
 
         [Test]
-        public void LegacyFileFormat_PropertyGetAndSet_ReadsAndWritesCorrectly()
+        public static void LegacyFileFormat_PropertyGetAndSet_ReadsAndWritesCorrectly()
         {
             using (var connection = CreateConnection())
             {
@@ -638,7 +638,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
         }
 
         [Test]
-        public async Task LegacyFileFormatAsync_GetAndSet_ReadsAndWritesCorrectly()
+        public static async Task LegacyFileFormatAsync_GetAndSet_ReadsAndWritesCorrectly()
         {
             using (var connection = CreateConnection())
             {
@@ -655,7 +655,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
         }
 
         [Test]
-        public void Optimize_WhenInvoked_PerformsOperationSuccessfully()
+        public static void Optimize_WhenInvoked_PerformsOperationSuccessfully()
         {
             using (var connection = CreateConnection())
             {
@@ -668,7 +668,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
         }
 
         [Test]
-        public void Optimize_GivenInvalidOptimizeFeaturesValue_ThrowsArgumentException()
+        public static void Optimize_GivenInvalidOptimizeFeaturesValue_ThrowsArgumentException()
         {
             using (var connection = CreateConnection())
             {
@@ -681,7 +681,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
         }
 
         [Test]
-        public async Task OptimizeAsync_WhenInvoked_PerformsOperationSuccessfully()
+        public static async Task OptimizeAsync_WhenInvoked_PerformsOperationSuccessfully()
         {
             using (var connection = CreateConnection())
             {
@@ -694,7 +694,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
         }
 
         [Test]
-        public void OptimizeAsync_GivenInvalidOptimizeFeaturesValue_ThrowsArgumentException()
+        public static void OptimizeAsync_GivenInvalidOptimizeFeaturesValue_ThrowsArgumentException()
         {
             using (var connection = CreateConnection())
             {
@@ -707,7 +707,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
         }
 
         [Test]
-        public void QueryOnly_PropertyGetAndSet_ReadsAndWritesCorrectly()
+        public static void QueryOnly_PropertyGetAndSet_ReadsAndWritesCorrectly()
         {
             using (var connection = CreateConnection())
             {
@@ -724,7 +724,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
         }
 
         [Test]
-        public async Task QueryOnlyAsync_GetAndSet_ReadsAndWritesCorrectly()
+        public static async Task QueryOnlyAsync_GetAndSet_ReadsAndWritesCorrectly()
         {
             using (var connection = CreateConnection())
             {
@@ -741,7 +741,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
         }
 
         [Test]
-        public void ReadUncommitted_PropertyGetAndSet_ReadsAndWritesCorrectly()
+        public static void ReadUncommitted_PropertyGetAndSet_ReadsAndWritesCorrectly()
         {
             using (var connection = CreateConnection())
             {
@@ -758,7 +758,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
         }
 
         [Test]
-        public async Task ReadUncommittedAsync_GetAndSet_ReadsAndWritesCorrectly()
+        public static async Task ReadUncommittedAsync_GetAndSet_ReadsAndWritesCorrectly()
         {
             using (var connection = CreateConnection())
             {
@@ -775,7 +775,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
         }
 
         [Test]
-        public void RecursiveTriggers_PropertyGetAndSet_ReadsAndWritesCorrectly()
+        public static void RecursiveTriggers_PropertyGetAndSet_ReadsAndWritesCorrectly()
         {
             using (var connection = CreateConnection())
             {
@@ -792,7 +792,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
         }
 
         [Test]
-        public async Task RecursiveTriggersAsync_GetAndSet_ReadsAndWritesCorrectly()
+        public static async Task RecursiveTriggersAsync_GetAndSet_ReadsAndWritesCorrectly()
         {
             using (var connection = CreateConnection())
             {
@@ -809,7 +809,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
         }
 
         [Test]
-        public void ReverseUnorderedSelects_PropertyGetAndSet_ReadsAndWritesCorrectly()
+        public static void ReverseUnorderedSelects_PropertyGetAndSet_ReadsAndWritesCorrectly()
         {
             using (var connection = CreateConnection())
             {
@@ -826,7 +826,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
         }
 
         [Test]
-        public async Task ReverseUnorderedSelectsAsync_GetAndSet_ReadsAndWritesCorrectly()
+        public static async Task ReverseUnorderedSelectsAsync_GetAndSet_ReadsAndWritesCorrectly()
         {
             using (var connection = CreateConnection())
             {
@@ -843,7 +843,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
         }
 
         [Test]
-        public void ShrinkMemory_WhenInvoked_PerformsOperationSuccessfully()
+        public static void ShrinkMemory_WhenInvoked_PerformsOperationSuccessfully()
         {
             using (var connection = CreateConnection())
             {
@@ -856,7 +856,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
         }
 
         [Test]
-        public async Task ShrinkMemoryAsync_WhenInvoked_PerformsOperationSuccessfully()
+        public static async Task ShrinkMemoryAsync_WhenInvoked_PerformsOperationSuccessfully()
         {
             using (var connection = CreateConnection())
             {
@@ -869,7 +869,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
         }
 
         [Test]
-        public void SoftHeapLimit_PropertyGetAndSet_ReadsAndWritesCorrectly()
+        public static void SoftHeapLimit_PropertyGetAndSet_ReadsAndWritesCorrectly()
         {
             using (var connection = CreateConnection())
             {
@@ -883,7 +883,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
         }
 
         [Test]
-        public async Task SoftHeapLimitAsync_GetAndSet_ReadsAndWritesCorrectly()
+        public static async Task SoftHeapLimitAsync_GetAndSet_ReadsAndWritesCorrectly()
         {
             using (var connection = CreateConnection())
             {
@@ -900,7 +900,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
         }
 
         [Test]
-        public void TemporaryStore_PropertyGetAndSet_ReadsAndWritesCorrectly()
+        public static void TemporaryStore_PropertyGetAndSet_ReadsAndWritesCorrectly()
         {
             using (var connection = CreateConnection())
             {
@@ -914,7 +914,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
         }
 
         [Test]
-        public void TemporaryStore_GivenInvalidTemporaryStoreLocationValue_ThrowsArgumentException()
+        public static void TemporaryStore_GivenInvalidTemporaryStoreLocationValue_ThrowsArgumentException()
         {
             using (var connection = CreateConnection())
             {
@@ -927,7 +927,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
         }
 
         [Test]
-        public async Task TemporaryStoreAsync_GetAndSet_ReadsAndWritesCorrectly()
+        public static async Task TemporaryStoreAsync_GetAndSet_ReadsAndWritesCorrectly()
         {
             using (var connection = CreateConnection())
             {
@@ -944,7 +944,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
         }
 
         [Test]
-        public void TemporaryStoreAsync_GivenInvalidTemporaryStoreLocationValue_ThrowsArgumentException()
+        public static void TemporaryStoreAsync_GivenInvalidTemporaryStoreLocationValue_ThrowsArgumentException()
         {
             using (var connection = CreateConnection())
             {
@@ -957,7 +957,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
         }
 
         [Test]
-        public void Threads_PropertyGetAndSet_ReadsAndWritesCorrectly()
+        public static void Threads_PropertyGetAndSet_ReadsAndWritesCorrectly()
         {
             using (var connection = CreateConnection())
             {
@@ -971,7 +971,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
         }
 
         [Test]
-        public async Task ThreadsAsync_GetAndSet_ReadsAndWritesCorrectly()
+        public static async Task ThreadsAsync_GetAndSet_ReadsAndWritesCorrectly()
         {
             using (var connection = CreateConnection())
             {
@@ -988,7 +988,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
         }
 
         [Test]
-        public void WalAutoCheckpoint_PropertyGetAndSet_ReadsAndWritesCorrectly()
+        public static void WalAutoCheckpoint_PropertyGetAndSet_ReadsAndWritesCorrectly()
         {
             using (var connection = CreateConnection())
             {
@@ -1002,7 +1002,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
         }
 
         [Test]
-        public async Task WalAutoCheckpointAsync_GetAndSet_ReadsAndWritesCorrectly()
+        public static async Task WalAutoCheckpointAsync_GetAndSet_ReadsAndWritesCorrectly()
         {
             using (var connection = CreateConnection())
             {
@@ -1019,7 +1019,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
         }
 
         [Test]
-        public void WritableSchema_PropertyGetAndSet_ReadsAndWritesCorrectly()
+        public static void WritableSchema_PropertyGetAndSet_ReadsAndWritesCorrectly()
         {
             using (var connection = CreateConnection())
             {
@@ -1036,7 +1036,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
         }
 
         [Test]
-        public async Task WritableSchemaAsync_GetAndSet_ReadsAndWritesCorrectly()
+        public static async Task WritableSchemaAsync_GetAndSet_ReadsAndWritesCorrectly()
         {
             using (var connection = CreateConnection())
             {

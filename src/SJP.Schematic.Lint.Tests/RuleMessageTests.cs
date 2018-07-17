@@ -4,10 +4,10 @@ using NUnit.Framework;
 namespace SJP.Schematic.Lint.Tests
 {
     [TestFixture]
-    internal class RuleMessageTests
+    internal static class RuleMessageTests
     {
         [Test]
-        public void Ctor_GivenNullTitle_ThrowsArgumentNullException()
+        public static void Ctor_GivenNullTitle_ThrowsArgumentNullException()
         {
             const RuleLevel level = RuleLevel.Error;
             const string message = "message";
@@ -15,7 +15,7 @@ namespace SJP.Schematic.Lint.Tests
         }
 
         [Test]
-        public void Ctor_GivenEmptyTitle_ThrowsArgumentNullException()
+        public static void Ctor_GivenEmptyTitle_ThrowsArgumentNullException()
         {
             const RuleLevel level = RuleLevel.Error;
             const string message = "message";
@@ -23,7 +23,7 @@ namespace SJP.Schematic.Lint.Tests
         }
 
         [Test]
-        public void Ctor_GivenWhiteSpaceTitle_ThrowsArgumentNullException()
+        public static void Ctor_GivenWhiteSpaceTitle_ThrowsArgumentNullException()
         {
             const RuleLevel level = RuleLevel.Error;
             const string message = "message";
@@ -31,7 +31,7 @@ namespace SJP.Schematic.Lint.Tests
         }
 
         [Test]
-        public void Ctor_GivenInvalidRuleLevel_ThrowsArgumentException()
+        public static void Ctor_GivenInvalidRuleLevel_ThrowsArgumentException()
         {
             const string title = "title";
             const RuleLevel level = (RuleLevel)999;
@@ -40,7 +40,7 @@ namespace SJP.Schematic.Lint.Tests
         }
 
         [Test]
-        public void Ctor_GivenNullMessage_ThrowsArgumentNullException()
+        public static void Ctor_GivenNullMessage_ThrowsArgumentNullException()
         {
             const string title = "title";
             const RuleLevel level = RuleLevel.Error;
@@ -48,7 +48,7 @@ namespace SJP.Schematic.Lint.Tests
         }
 
         [Test]
-        public void Ctor_GivenEmptyMessage_ThrowsArgumentNullException()
+        public static void Ctor_GivenEmptyMessage_ThrowsArgumentNullException()
         {
             const string title = "title";
             const RuleLevel level = RuleLevel.Error;
@@ -56,7 +56,7 @@ namespace SJP.Schematic.Lint.Tests
         }
 
         [Test]
-        public void Ctor_GivenWhiteSpaceMessage_ThrowsArgumentNullException()
+        public static void Ctor_GivenWhiteSpaceMessage_ThrowsArgumentNullException()
         {
             const string title = "title";
             const RuleLevel level = RuleLevel.Error;
@@ -64,7 +64,7 @@ namespace SJP.Schematic.Lint.Tests
         }
 
         [Test]
-        public void Title_PropertyGet_MatchesCtorArg()
+        public static void Title_PropertyGet_MatchesCtorArg()
         {
             const string title = "title";
             const RuleLevel level = RuleLevel.Error;
@@ -76,7 +76,7 @@ namespace SJP.Schematic.Lint.Tests
         }
 
         [Test]
-        public void Level_PropertyGet_MatchesCtorArg()
+        public static void Level_PropertyGet_MatchesCtorArg()
         {
             const string title = "title";
             const RuleLevel level = RuleLevel.Error;
@@ -88,7 +88,7 @@ namespace SJP.Schematic.Lint.Tests
         }
 
         [Test]
-        public void Message_PropertyGet_MatchesCtorArg()
+        public static void Message_PropertyGet_MatchesCtorArg()
         {
             const string title = "title";
             const RuleLevel level = RuleLevel.Error;

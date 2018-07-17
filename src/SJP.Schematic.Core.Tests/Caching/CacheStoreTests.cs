@@ -7,30 +7,29 @@ using System.Collections.Generic;
 namespace SJP.Schematic.Core.Tests.Caching
 {
     [TestFixture]
-    internal class CacheStoreTests
+    internal static class CacheStoreTests
     {
         // only going to be testing basics of ctors, as this is just a wrapper for ConcurrentDictionary<TKey, TValue>
         [Test]
-        public void Ctor_WhenDefaultConstructorInvoked_CreatesSuccessfully()
+        public static void Ctor_WhenDefaultConstructorInvoked_CreatesSuccessfully()
         {
-            var store = new CacheStore<int, DataTable>();
-            Assert.Pass();
+            Assert.DoesNotThrow(() => new CacheStore<int, DataTable>());
         }
 
         [Test]
-        public void Ctor_GivenNullComparer_ThrowsArgNullException()
+        public static void Ctor_GivenNullComparer_ThrowsArgNullException()
         {
             Assert.Throws<ArgumentNullException>(() => new CacheStore<int, DataTable>((IEqualityComparer<int>)null));
         }
 
         [Test]
-        public void Ctor_GivenNullCollection_ThrowsArgNullException()
+        public static void Ctor_GivenNullCollection_ThrowsArgNullException()
         {
             Assert.Throws<ArgumentNullException>(() => new CacheStore<int, DataTable>((IEnumerable<KeyValuePair<int, DataTable>>)null));
         }
 
         [Test]
-        public void Ctor_GivenNullCollectionAndNullComparer_ThrowsArgNullException()
+        public static void Ctor_GivenNullCollectionAndNullComparer_ThrowsArgNullException()
         {
             Assert.Throws<ArgumentNullException>(() => new CacheStore<int, DataTable>((IEnumerable<KeyValuePair<int, DataTable>>)null, (IEqualityComparer<int>)null));
         }

@@ -3,10 +3,10 @@
 namespace SJP.Schematic.Core.Tests
 {
     [TestFixture]
-    internal class AutoIncrementTests
+    internal static class AutoIncrementTests
     {
         [Test]
-        public void InitialValue_PropertyGet_EqualsCtorArgument()
+        public static void InitialValue_PropertyGet_EqualsCtorArgument()
         {
             const int initialValue = 12345;
             const int increment = 9876;
@@ -16,7 +16,7 @@ namespace SJP.Schematic.Core.Tests
         }
 
         [Test]
-        public void Increment_PropertyGet_EqualsCtorArgument()
+        public static void Increment_PropertyGet_EqualsCtorArgument()
         {
             const int initialValue = 12345;
             const int increment = 9876;

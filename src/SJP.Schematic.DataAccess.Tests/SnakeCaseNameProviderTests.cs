@@ -5,17 +5,17 @@ using SJP.Schematic.Core;
 namespace SJP.Schematic.DataAccess.Tests
 {
     [TestFixture]
-    internal class SnakeCaseNameProviderTests
+    internal static class SnakeCaseNameProviderTests
     {
         [Test]
-        public void SchemaToNamespace_GivenNullName_ThrowsArgumentNullException()
+        public static void SchemaToNamespace_GivenNullName_ThrowsArgumentNullException()
         {
             var nameProvider = new SnakeCaseNameProvider();
             Assert.Throws<ArgumentNullException>(() => nameProvider.SchemaToNamespace(null));
         }
 
         [Test]
-        public void SchemaToNamespace_GivenNullSchema_ReturnsNull()
+        public static void SchemaToNamespace_GivenNullSchema_ReturnsNull()
         {
             var nameProvider = new SnakeCaseNameProvider();
             var testName = new Identifier("asd");
@@ -25,7 +25,7 @@ namespace SJP.Schematic.DataAccess.Tests
         }
 
         [Test]
-        public void SchemaToNamespace_GivenSpaceSeparatedSchemaName_ReturnsSpaceRemovedText()
+        public static void SchemaToNamespace_GivenSpaceSeparatedSchemaName_ReturnsSpaceRemovedText()
         {
             var nameProvider = new SnakeCaseNameProvider();
             var testName = new Identifier("first second", "asd");
@@ -36,7 +36,7 @@ namespace SJP.Schematic.DataAccess.Tests
         }
 
         [Test]
-        public void SchemaToNamespace_GivenUnderscoreSeparatedSchemaName_ReturnsSnakeCasedText()
+        public static void SchemaToNamespace_GivenUnderscoreSeparatedSchemaName_ReturnsSnakeCasedText()
         {
             var nameProvider = new SnakeCaseNameProvider();
             var testName = new Identifier("first_second", "asd");
@@ -47,7 +47,7 @@ namespace SJP.Schematic.DataAccess.Tests
         }
 
         [Test]
-        public void SchemaToNamespace_GivenCamelCasedSchemaName_ReturnsSnakeCasedText()
+        public static void SchemaToNamespace_GivenCamelCasedSchemaName_ReturnsSnakeCasedText()
         {
             var nameProvider = new SnakeCaseNameProvider();
             var testName = new Identifier("FirstSecond", "asd");
@@ -58,14 +58,14 @@ namespace SJP.Schematic.DataAccess.Tests
         }
 
         [Test]
-        public void TableToClassName_GivenNullName_ThrowsArgumentNullException()
+        public static void TableToClassName_GivenNullName_ThrowsArgumentNullException()
         {
             var nameProvider = new SnakeCaseNameProvider();
             Assert.Throws<ArgumentNullException>(() => nameProvider.TableToClassName(null));
         }
 
         [Test]
-        public void TableToClassName_GivenSpaceSeparatedLocalName_ReturnsSpaceRemovedText()
+        public static void TableToClassName_GivenSpaceSeparatedLocalName_ReturnsSpaceRemovedText()
         {
             var nameProvider = new SnakeCaseNameProvider();
             var testName = new Identifier("first second");
@@ -76,7 +76,7 @@ namespace SJP.Schematic.DataAccess.Tests
         }
 
         [Test]
-        public void TableToClassName_GivenCamelCasedSchemaName_ReturnsSnakeCasedText()
+        public static void TableToClassName_GivenCamelCasedSchemaName_ReturnsSnakeCasedText()
         {
             var nameProvider = new SnakeCaseNameProvider();
             var testName = new Identifier("firstSecond");
@@ -87,7 +87,7 @@ namespace SJP.Schematic.DataAccess.Tests
         }
 
         [Test]
-        public void TableToClassName_GivenPascalCasedSchemaName_ReturnsSnakeCasedText()
+        public static void TableToClassName_GivenPascalCasedSchemaName_ReturnsSnakeCasedText()
         {
             var nameProvider = new SnakeCaseNameProvider();
             var testName = new Identifier("FirstSecond");
@@ -98,14 +98,14 @@ namespace SJP.Schematic.DataAccess.Tests
         }
 
         [Test]
-        public void ViewToClassName_GivenNullName_ThrowsArgumentNullException()
+        public static void ViewToClassName_GivenNullName_ThrowsArgumentNullException()
         {
             var nameProvider = new SnakeCaseNameProvider();
             Assert.Throws<ArgumentNullException>(() => nameProvider.ViewToClassName(null));
         }
 
         [Test]
-        public void ViewToClassName_GivenSpaceSeparatedLocalName_ReturnsSpaceRemovedText()
+        public static void ViewToClassName_GivenSpaceSeparatedLocalName_ReturnsSpaceRemovedText()
         {
             var nameProvider = new SnakeCaseNameProvider();
             var testName = new Identifier("first second");
@@ -116,7 +116,7 @@ namespace SJP.Schematic.DataAccess.Tests
         }
 
         [Test]
-        public void ViewToClassName_GivenCamelCaseSchemaName_ReturnsSnakeCasedText()
+        public static void ViewToClassName_GivenCamelCaseSchemaName_ReturnsSnakeCasedText()
         {
             var nameProvider = new SnakeCaseNameProvider();
             var testName = new Identifier("first_second");
@@ -127,7 +127,7 @@ namespace SJP.Schematic.DataAccess.Tests
         }
 
         [Test]
-        public void ViewToClassName_GivenCamelCasedSchemaName_ReturnsSnakeCasedText()
+        public static void ViewToClassName_GivenCamelCasedSchemaName_ReturnsSnakeCasedText()
         {
             var nameProvider = new SnakeCaseNameProvider();
             var testName = new Identifier("FirstSecond");
@@ -138,7 +138,7 @@ namespace SJP.Schematic.DataAccess.Tests
         }
 
         [Test]
-        public void ColumnToPropertyName_GivenNullClassName_ThrowsArgumentNullException()
+        public static void ColumnToPropertyName_GivenNullClassName_ThrowsArgumentNullException()
         {
             const string columnName = "test";
             var nameProvider = new SnakeCaseNameProvider();
@@ -146,7 +146,7 @@ namespace SJP.Schematic.DataAccess.Tests
         }
 
         [Test]
-        public void ColumnToPropertyName_GivenEmptyClassName_ThrowsArgumentNullException()
+        public static void ColumnToPropertyName_GivenEmptyClassName_ThrowsArgumentNullException()
         {
             const string columnName = "test";
             var nameProvider = new SnakeCaseNameProvider();
@@ -154,7 +154,7 @@ namespace SJP.Schematic.DataAccess.Tests
         }
 
         [Test]
-        public void ColumnToPropertyName_GivenWhiteSpaceClassName_ThrowsArgumentNullException()
+        public static void ColumnToPropertyName_GivenWhiteSpaceClassName_ThrowsArgumentNullException()
         {
             const string columnName = "test";
             var nameProvider = new SnakeCaseNameProvider();
@@ -162,7 +162,7 @@ namespace SJP.Schematic.DataAccess.Tests
         }
 
         [Test]
-        public void ColumnToPropertyName_GivenNullColumnName_ThrowsArgumentNullException()
+        public static void ColumnToPropertyName_GivenNullColumnName_ThrowsArgumentNullException()
         {
             const string className = "test";
             var nameProvider = new SnakeCaseNameProvider();
@@ -170,7 +170,7 @@ namespace SJP.Schematic.DataAccess.Tests
         }
 
         [Test]
-        public void ColumnToPropertyName_GivenEmptyColumnName_ThrowsArgumentNullException()
+        public static void ColumnToPropertyName_GivenEmptyColumnName_ThrowsArgumentNullException()
         {
             const string className = "test";
             var nameProvider = new SnakeCaseNameProvider();
@@ -178,7 +178,7 @@ namespace SJP.Schematic.DataAccess.Tests
         }
 
         [Test]
-        public void ColumnToPropertyName_GivenWhiteSpaceColumnName_ThrowsArgumentNullException()
+        public static void ColumnToPropertyName_GivenWhiteSpaceColumnName_ThrowsArgumentNullException()
         {
             const string className = "test";
             var nameProvider = new SnakeCaseNameProvider();
@@ -186,7 +186,7 @@ namespace SJP.Schematic.DataAccess.Tests
         }
 
         [Test]
-        public void ColumnToPropertyName_GivenSpaceSeparatedSchemaName_ReturnsSpaceRemovedText()
+        public static void ColumnToPropertyName_GivenSpaceSeparatedSchemaName_ReturnsSpaceRemovedText()
         {
             var nameProvider = new SnakeCaseNameProvider();
 
@@ -199,7 +199,7 @@ namespace SJP.Schematic.DataAccess.Tests
         }
 
         [Test]
-        public void ColumnToPropertyName_GivenSnakeCasedClassName_ReturnsSnakeCasedText()
+        public static void ColumnToPropertyName_GivenSnakeCasedClassName_ReturnsSnakeCasedText()
         {
             var nameProvider = new SnakeCaseNameProvider();
 
@@ -212,7 +212,7 @@ namespace SJP.Schematic.DataAccess.Tests
         }
 
         [Test]
-        public void ColumnToPropertyName_GivenPascalCasedColumnName_ReturnsSnakeCasedText()
+        public static void ColumnToPropertyName_GivenPascalCasedColumnName_ReturnsSnakeCasedText()
         {
             var nameProvider = new SnakeCaseNameProvider();
 
@@ -225,7 +225,7 @@ namespace SJP.Schematic.DataAccess.Tests
         }
 
         [Test]
-        public void ColumnToPropertyName_GivenTransformedNameMatchingClassName_ReturnsUnderscoreAppendedColumnName()
+        public static void ColumnToPropertyName_GivenTransformedNameMatchingClassName_ReturnsUnderscoreAppendedColumnName()
         {
             var nameProvider = new SnakeCaseNameProvider();
 

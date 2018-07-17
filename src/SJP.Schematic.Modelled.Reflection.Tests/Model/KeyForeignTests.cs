@@ -1,27 +1,26 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using NUnit.Framework;
 
 namespace SJP.Schematic.Modelled.Reflection.Model.Tests
 {
     [TestFixture]
-    internal class KeyForeignTests
+    internal static class KeyForeignTests
     {
         [Test]
-        public void Ctor_GivenNullColumns_ThrowsArgumentNullException()
+        public static void Ctor_GivenNullColumns_ThrowsArgumentNullException()
         {
             Assert.Throws<ArgumentNullException>(() => new FakeForeignKey(null));
         }
 
         [Test]
-        public void Ctor_GivenEmptyColumns_ThrowsArgumentNullException()
+        public static void Ctor_GivenEmptyColumns_ThrowsArgumentNullException()
         {
             Assert.Throws<ArgumentNullException>(() => new FakeForeignKey(Array.Empty<IModelledColumn>()));
         }
 
         [Test]
-        public void Ctor_GivenCollectionWithNullColumn_ThrowsArgumentNullException()
+        public static void Ctor_GivenCollectionWithNullColumn_ThrowsArgumentNullException()
         {
             Assert.Throws<ArgumentNullException>(() => new FakeForeignKey(new List<IModelledColumn> { null }));
         }

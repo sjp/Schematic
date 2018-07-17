@@ -60,7 +60,7 @@ namespace SJP.Schematic.Reporting.Html.ViewModels.Mappers
             return MapAsyncCore(dbObject);
         }
 
-        private async Task<IEnumerable<Columns.TableColumn>> MapAsyncCore(IRelationalDatabaseTable dbObject)
+        private static async Task<IEnumerable<Columns.TableColumn>> MapAsyncCore(IRelationalDatabaseTable dbObject)
         {
             var primaryKey = await dbObject.PrimaryKeyAsync().ConfigureAwait(false);
             var uniqueKeys = await dbObject.UniqueKeysAsync().ConfigureAwait(false);
@@ -114,7 +114,7 @@ namespace SJP.Schematic.Reporting.Html.ViewModels.Mappers
             return MapAsyncCore(dbObject);
         }
 
-        private async Task<IEnumerable<Columns.ViewColumn>> MapAsyncCore(IRelationalDatabaseView dbObject)
+        private static async Task<IEnumerable<Columns.ViewColumn>> MapAsyncCore(IRelationalDatabaseView dbObject)
         {
             var columns = await dbObject.ColumnsAsync().ConfigureAwait(false);
 

@@ -6,37 +6,37 @@ using SJP.Schematic.Core;
 namespace SJP.Schematic.DataAccess.OrmLite.Tests
 {
     [TestFixture]
-    internal class OrmLiteViewGeneratorTests
+    internal static class OrmLiteViewGeneratorTests
     {
         [Test]
-        public void Ctor_GivenNullNameProvider_ThrowsArgumentNullException()
+        public static void Ctor_GivenNullNameProvider_ThrowsArgumentNullException()
         {
             Assert.Throws<ArgumentNullException>(() => new OrmLiteViewGenerator(null, "testns"));
         }
 
         [Test]
-        public void Ctor_GivenNullNamespace_ThrowsArgumentNullException()
+        public static void Ctor_GivenNullNamespace_ThrowsArgumentNullException()
         {
             var nameProvider = new VerbatimNameProvider();
             Assert.Throws<ArgumentNullException>(() => new OrmLiteViewGenerator(nameProvider, null));
         }
 
         [Test]
-        public void Ctor_GivenEmptyNamespace_ThrowsArgumentNullException()
+        public static void Ctor_GivenEmptyNamespace_ThrowsArgumentNullException()
         {
             var nameProvider = new VerbatimNameProvider();
             Assert.Throws<ArgumentNullException>(() => new OrmLiteViewGenerator(nameProvider, string.Empty));
         }
 
         [Test]
-        public void Ctor_GivenWhiteSpaceNamespace_ThrowsArgumentNullException()
+        public static void Ctor_GivenWhiteSpaceNamespace_ThrowsArgumentNullException()
         {
             var nameProvider = new VerbatimNameProvider();
             Assert.Throws<ArgumentNullException>(() => new OrmLiteViewGenerator(nameProvider, "   "));
         }
 
         [Test]
-        public void GetFilePath_GivenNullObjectName_ThrowsArgumentNullException()
+        public static void GetFilePath_GivenNullObjectName_ThrowsArgumentNullException()
         {
             var nameProvider = new VerbatimNameProvider();
             const string testNs = "SJP.Schematic.Test";
@@ -47,7 +47,7 @@ namespace SJP.Schematic.DataAccess.OrmLite.Tests
         }
 
         [Test]
-        public void GetFilePath_GivenNameWithOnlyLocalName_ReturnsExpectedPath()
+        public static void GetFilePath_GivenNameWithOnlyLocalName_ReturnsExpectedPath()
         {
             var nameProvider = new VerbatimNameProvider();
             const string testNs = "SJP.Schematic.Test";
@@ -62,7 +62,7 @@ namespace SJP.Schematic.DataAccess.OrmLite.Tests
         }
 
         [Test]
-        public void GetFilePath_GivenNameWithSchemaAndLocalName_ReturnsExpectedPath()
+        public static void GetFilePath_GivenNameWithSchemaAndLocalName_ReturnsExpectedPath()
         {
             var nameProvider = new VerbatimNameProvider();
             const string testNs = "SJP.Schematic.Test";
@@ -78,7 +78,7 @@ namespace SJP.Schematic.DataAccess.OrmLite.Tests
         }
 
         [Test]
-        public void Generate_GivenNullView_ThrowsArgumentNullException()
+        public static void Generate_GivenNullView_ThrowsArgumentNullException()
         {
             var nameProvider = new VerbatimNameProvider();
             const string testNs = "SJP.Schematic.Test";

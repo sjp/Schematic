@@ -11,24 +11,24 @@ using SJP.Schematic.Lint.Tests.Fakes;
 namespace SJP.Schematic.Lint.Tests.Rules
 {
     [TestFixture]
-    internal class WhitespaceNameRuleTests
+    internal static class WhitespaceNameRuleTests
     {
         [Test]
-        public void Ctor_GivenInvalidLevel_ThrowsArgumentException()
+        public static void Ctor_GivenInvalidLevel_ThrowsArgumentException()
         {
             const RuleLevel level = (RuleLevel)999;
             Assert.Throws<ArgumentException>(() => new WhitespaceNameRule(level));
         }
 
         [Test]
-        public void AnalyseDatabase_GivenNullDatabase_ThrowsArgumentNullException()
+        public static void AnalyseDatabase_GivenNullDatabase_ThrowsArgumentNullException()
         {
             var rule = new WhitespaceNameRule(RuleLevel.Error);
             Assert.Throws<ArgumentNullException>(() => rule.AnalyseDatabase(null));
         }
 
         [Test]
-        public void AnalyseDatabase_GivenTableWithRegularName_ProducesNoMessages()
+        public static void AnalyseDatabase_GivenTableWithRegularName_ProducesNoMessages()
         {
             var rule = new WhitespaceNameRule(RuleLevel.Error);
             var tableName = new Identifier("test");
@@ -54,7 +54,7 @@ namespace SJP.Schematic.Lint.Tests.Rules
         }
 
         [Test]
-        public void AnalyseDatabase_GivenTableWithNameContainingWhitespace_ProducesMessages()
+        public static void AnalyseDatabase_GivenTableWithNameContainingWhitespace_ProducesMessages()
         {
             var rule = new WhitespaceNameRule(RuleLevel.Error);
             var tableName = new Identifier("   test      ");
@@ -80,7 +80,7 @@ namespace SJP.Schematic.Lint.Tests.Rules
         }
 
         [Test]
-        public void AnalyseDatabase_GivenTableWithRegularColumnNames_ProducesNoMessages()
+        public static void AnalyseDatabase_GivenTableWithRegularColumnNames_ProducesNoMessages()
         {
             var rule = new WhitespaceNameRule(RuleLevel.Error);
             var database = CreateFakeDatabase();
@@ -114,7 +114,7 @@ namespace SJP.Schematic.Lint.Tests.Rules
         }
 
         [Test]
-        public void AnalyseDatabase_GivenTableWithColumnNameContainingWhitespace_ProducesMessages()
+        public static void AnalyseDatabase_GivenTableWithColumnNameContainingWhitespace_ProducesMessages()
         {
             var rule = new WhitespaceNameRule(RuleLevel.Error);
             var database = CreateFakeDatabase();
@@ -148,7 +148,7 @@ namespace SJP.Schematic.Lint.Tests.Rules
         }
 
         [Test]
-        public void AnalyseDatabase_GivenViewWithRegularName_ProducesNoMessages()
+        public static void AnalyseDatabase_GivenViewWithRegularName_ProducesNoMessages()
         {
             var rule = new WhitespaceNameRule(RuleLevel.Error);
             var viewName = new Identifier("test");
@@ -169,7 +169,7 @@ namespace SJP.Schematic.Lint.Tests.Rules
         }
 
         [Test]
-        public void AnalyseDatabase_GivenViewWithNameContainingWhitespace_ProducesMessages()
+        public static void AnalyseDatabase_GivenViewWithNameContainingWhitespace_ProducesMessages()
         {
             var rule = new WhitespaceNameRule(RuleLevel.Error);
             var viewName = new Identifier("   test   ");
@@ -190,7 +190,7 @@ namespace SJP.Schematic.Lint.Tests.Rules
         }
 
         [Test]
-        public void AnalyseDatabase_GivenViewWithRegularColumnNames_ProducesNoMessages()
+        public static void AnalyseDatabase_GivenViewWithRegularColumnNames_ProducesNoMessages()
         {
             var rule = new WhitespaceNameRule(RuleLevel.Error);
             var viewName = new Identifier("test");
@@ -220,7 +220,7 @@ namespace SJP.Schematic.Lint.Tests.Rules
         }
 
         [Test]
-        public void AnalyseDatabase_GivenViewWithColumnNameContainingWhitespace_ProducesMessages()
+        public static void AnalyseDatabase_GivenViewWithColumnNameContainingWhitespace_ProducesMessages()
         {
             var rule = new WhitespaceNameRule(RuleLevel.Error);
             var viewName = new Identifier("test");
@@ -250,7 +250,7 @@ namespace SJP.Schematic.Lint.Tests.Rules
         }
 
         [Test]
-        public void AnalyseDatabase_GivenSequenceWithRegularName_ProducesNoMessages()
+        public static void AnalyseDatabase_GivenSequenceWithRegularName_ProducesNoMessages()
         {
             var rule = new WhitespaceNameRule(RuleLevel.Error);
             var sequenceName = new Identifier("test");
@@ -274,7 +274,7 @@ namespace SJP.Schematic.Lint.Tests.Rules
         }
 
         [Test]
-        public void AnalyseDatabase_GivenSequenceWithNameContainingWhitespace_ProducesMessages()
+        public static void AnalyseDatabase_GivenSequenceWithNameContainingWhitespace_ProducesMessages()
         {
             var rule = new WhitespaceNameRule(RuleLevel.Error);
             var sequenceName = new Identifier("   test   ");
@@ -298,7 +298,7 @@ namespace SJP.Schematic.Lint.Tests.Rules
         }
 
         [Test]
-        public void AnalyseDatabase_GivenSynonymWithRegularName_ProducesNoMessages()
+        public static void AnalyseDatabase_GivenSynonymWithRegularName_ProducesNoMessages()
         {
             var rule = new WhitespaceNameRule(RuleLevel.Error);
             var synonymName = new Identifier("test");
@@ -313,7 +313,7 @@ namespace SJP.Schematic.Lint.Tests.Rules
         }
 
         [Test]
-        public void AnalyseDatabase_GivenSynonymWithNameContainingWhitespace_ProducesMessages()
+        public static void AnalyseDatabase_GivenSynonymWithNameContainingWhitespace_ProducesMessages()
         {
             var rule = new WhitespaceNameRule(RuleLevel.Error);
             var synonymName = new Identifier("   test   ");

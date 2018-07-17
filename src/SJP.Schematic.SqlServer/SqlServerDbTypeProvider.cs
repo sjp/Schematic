@@ -55,7 +55,7 @@ namespace SJP.Schematic.SqlServer
             return CreateColumnType(typeMetadata);
         }
 
-        protected bool GetIsFixedLength(Identifier typeName)
+        protected static bool GetIsFixedLength(Identifier typeName)
         {
             if (typeName == null)
                 throw new ArgumentNullException(nameof(typeName));
@@ -63,7 +63,7 @@ namespace SJP.Schematic.SqlServer
             return _fixedLengthTypes.Contains(typeName);
         }
 
-        protected Identifier GetDefaultTypeName(ColumnTypeMetadata typeMetadata)
+        protected static Identifier GetDefaultTypeName(ColumnTypeMetadata typeMetadata)
         {
             if (typeMetadata == null)
                 throw new ArgumentNullException(nameof(typeMetadata));
@@ -111,7 +111,7 @@ namespace SJP.Schematic.SqlServer
             }
         }
 
-        protected string GetFormattedTypeName(ColumnTypeMetadata typeMetadata)
+        protected static string GetFormattedTypeName(ColumnTypeMetadata typeMetadata)
         {
             if (typeMetadata == null)
                 throw new ArgumentNullException(nameof(typeMetadata));
@@ -157,7 +157,7 @@ namespace SJP.Schematic.SqlServer
             return builder.ToString();
         }
 
-        protected DataType GetDataType(Identifier typeName)
+        protected static DataType GetDataType(Identifier typeName)
         {
             if (typeName == null)
                 throw new ArgumentNullException(nameof(typeName));
@@ -167,7 +167,7 @@ namespace SJP.Schematic.SqlServer
                 : DataType.Unknown;
         }
 
-        protected Type GetClrType(Identifier typeName)
+        protected static Type GetClrType(Identifier typeName)
         {
             if (typeName == null)
                 throw new ArgumentNullException(nameof(typeName));

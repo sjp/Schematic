@@ -6,17 +6,17 @@ using System.Data;
 namespace SJP.Schematic.MySql.Tests
 {
     [TestFixture]
-    internal class MySqlRelationalDatabaseTests
+    internal static class MySqlRelationalDatabaseTests
     {
         [Test]
-        public void Ctor_GivenNullDialect_ThrowsArgumentNullException()
+        public static void Ctor_GivenNullDialect_ThrowsArgumentNullException()
         {
             var connection = Mock.Of<IDbConnection>();
             Assert.Throws<ArgumentNullException>(() => new MySqlRelationalDatabase(null, connection));
         }
 
         [Test]
-        public void Ctor_GivenNullConnection_ThrowsArgumentNullException()
+        public static void Ctor_GivenNullConnection_ThrowsArgumentNullException()
         {
             Assert.Throws<ArgumentNullException>(() => new MySqlRelationalDatabase(new MySqlDialect(), null));
         }

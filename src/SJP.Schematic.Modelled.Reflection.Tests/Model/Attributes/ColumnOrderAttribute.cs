@@ -4,16 +4,16 @@ using NUnit.Framework;
 namespace SJP.Schematic.Modelled.Reflection.Model.Attributes.Tests
 {
     [TestFixture]
-    internal class ColumnOrderAttributeTests
+    internal static class ColumnOrderAttributeTests
     {
         [Test]
-        public void Ctor_GivenNegativeColumnOrder_ThrowsArgumentOutOfRangeException()
+        public static void Ctor_GivenNegativeColumnOrder_ThrowsArgumentOutOfRangeException()
         {
             Assert.Throws<ArgumentOutOfRangeException>(() => new ColumnOrderAttribute(-1));
         }
 
         [Test]
-        public void ColumnNumber_PropertyGet_MatchesCtorArgument()
+        public static void ColumnNumber_PropertyGet_MatchesCtorArgument()
         {
             const int columnNumber = 10;
             var columnOrderAttr = new ColumnOrderAttribute(columnNumber);

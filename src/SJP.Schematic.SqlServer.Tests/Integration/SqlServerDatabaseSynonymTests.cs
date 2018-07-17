@@ -10,7 +10,7 @@ namespace SJP.Schematic.SqlServer.Tests.Integration
         private IRelationalDatabase Database => new SqlServerRelationalDatabase(Dialect, Connection);
 
         [Test]
-        public void Ctor_GivenNullDatabase_ThrowsArgNullException()
+        public static void Ctor_GivenNullDatabase_ThrowsArgNullException()
         {
             Assert.Throws<ArgumentNullException>(() => new SqlServerDatabaseSynonym(null, "test", "test"));
         }

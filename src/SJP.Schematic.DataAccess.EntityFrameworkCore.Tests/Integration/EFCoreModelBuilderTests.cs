@@ -12,7 +12,7 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore.Tests.Integration
     {
         private IRelationalDatabase Database => new SqliteRelationalDatabase(Dialect, Connection);
 
-        private EFCoreModelBuilder Builder => new EFCoreModelBuilder(new PascalCaseNameProvider(), "    ", "  ");
+        private static EFCoreModelBuilder Builder => new EFCoreModelBuilder(new PascalCaseNameProvider(), "    ", "  ");
 
         [OneTimeSetUp]
         public async Task Init()
@@ -100,7 +100,7 @@ create table test_table_4 (
         }
 
         [Test]
-        public void HasRecords_GivenUnmodifiedBuilder_ReturnsFalse()
+        public static void HasRecords_GivenUnmodifiedBuilder_ReturnsFalse()
         {
             var builder = Builder;
 

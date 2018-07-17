@@ -6,16 +6,16 @@ using SJP.Schematic.Core;
 namespace SJP.Schematic.DataAccess.Tests
 {
     [TestFixture]
-    internal class DatabaseViewGeneratorTests
+    internal static class DatabaseViewGeneratorTests
     {
         [Test]
-        public void Ctor_GivenNullNameProvider_ThrowsArgumentNullException()
+        public static void Ctor_GivenNullNameProvider_ThrowsArgumentNullException()
         {
             Assert.Throws<ArgumentNullException>(() => new FakeDatabaseViewGenerator(null));
         }
 
         [Test]
-        public void GetFilePath_GivenNullDirectory_ThrowsArgumentNullException()
+        public static void GetFilePath_GivenNullDirectory_ThrowsArgumentNullException()
         {
             var nameProvider = new VerbatimNameProvider();
             var generator = new FakeDatabaseViewGenerator(nameProvider);
@@ -24,7 +24,7 @@ namespace SJP.Schematic.DataAccess.Tests
         }
 
         [Test]
-        public void GetFilePath_GivenNullObjectName_ThrowsArgumentNullException()
+        public static void GetFilePath_GivenNullObjectName_ThrowsArgumentNullException()
         {
             var nameProvider = new VerbatimNameProvider();
             var generator = new FakeDatabaseViewGenerator(nameProvider);
@@ -34,7 +34,7 @@ namespace SJP.Schematic.DataAccess.Tests
         }
 
         [Test]
-        public void GetFilePath_GivenNameWithOnlyLocalName_ReturnsExpectedPath()
+        public static void GetFilePath_GivenNameWithOnlyLocalName_ReturnsExpectedPath()
         {
             var nameProvider = new VerbatimNameProvider();
             var generator = new FakeDatabaseViewGenerator(nameProvider);
@@ -48,7 +48,7 @@ namespace SJP.Schematic.DataAccess.Tests
         }
 
         [Test]
-        public void GetFilePath_GivenNameWithSchemaAndLocalName_ReturnsExpectedPath()
+        public static void GetFilePath_GivenNameWithSchemaAndLocalName_ReturnsExpectedPath()
         {
             var nameProvider = new VerbatimNameProvider();
             var generator = new FakeDatabaseViewGenerator(nameProvider);

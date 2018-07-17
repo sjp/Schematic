@@ -12,7 +12,7 @@ using SJP.Schematic.Core.Extensions;
 
 namespace SJP.Schematic.Sqlite
 {
-    public class SqliteRelationalDatabase : RelationalDatabase, IRelationalDatabase, ISqliteDatabase
+    public class SqliteRelationalDatabase : RelationalDatabase, ISqliteDatabase
     {
         public SqliteRelationalDatabase(IDatabaseDialect dialect, IDbConnection connection, string defaultSchema = "main")
             : base(dialect, connection)

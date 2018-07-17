@@ -11,24 +11,24 @@ using SJP.Schematic.Lint.Tests.Fakes;
 namespace SJP.Schematic.Lint.Tests.Rules
 {
     [TestFixture]
-    internal class PrimaryKeyNotIntegerRuleTests
+    internal static class PrimaryKeyNotIntegerRuleTests
     {
         [Test]
-        public void Ctor_GivenInvalidLevel_ThrowsArgumentException()
+        public static void Ctor_GivenInvalidLevel_ThrowsArgumentException()
         {
             const RuleLevel level = (RuleLevel)999;
             Assert.Throws<ArgumentException>(() => new PrimaryKeyNotIntegerRule(level));
         }
 
         [Test]
-        public void AnalyseDatabase_GivenNullDatabase_ThrowsArgumentNullException()
+        public static void AnalyseDatabase_GivenNullDatabase_ThrowsArgumentNullException()
         {
             var rule = new PrimaryKeyNotIntegerRule(RuleLevel.Error);
             Assert.Throws<ArgumentNullException>(() => rule.AnalyseDatabase(null));
         }
 
         [Test]
-        public void AnalyseDatabase_GivenTableWithMissingPrimaryKey_ProducesNoMessages()
+        public static void AnalyseDatabase_GivenTableWithMissingPrimaryKey_ProducesNoMessages()
         {
             var rule = new PrimaryKeyNotIntegerRule(RuleLevel.Error);
 
@@ -53,7 +53,7 @@ namespace SJP.Schematic.Lint.Tests.Rules
         }
 
         [Test]
-        public void AnalyseDatabase_GivenTableWithPrimaryKeyWithSingleIntegerColumn_ProducesNoMessages()
+        public static void AnalyseDatabase_GivenTableWithPrimaryKeyWithSingleIntegerColumn_ProducesNoMessages()
         {
             var rule = new PrimaryKeyNotIntegerRule(RuleLevel.Error);
             var database = CreateFakeDatabase();
@@ -97,7 +97,7 @@ namespace SJP.Schematic.Lint.Tests.Rules
         }
 
         [Test]
-        public void AnalyseDatabase_GivenTableWithPrimaryKeyWithSingleNonIntegerColumn_ProducesMessages()
+        public static void AnalyseDatabase_GivenTableWithPrimaryKeyWithSingleNonIntegerColumn_ProducesMessages()
         {
             var rule = new PrimaryKeyNotIntegerRule(RuleLevel.Error);
             var database = CreateFakeDatabase();
@@ -141,7 +141,7 @@ namespace SJP.Schematic.Lint.Tests.Rules
         }
 
         [Test]
-        public void AnalyseDatabase_GivenTableWithPrimaryKeyWithMultipleColumns_ProducesMessages()
+        public static void AnalyseDatabase_GivenTableWithPrimaryKeyWithMultipleColumns_ProducesMessages()
         {
             var rule = new PrimaryKeyNotIntegerRule(RuleLevel.Error);
             var database = CreateFakeDatabase();

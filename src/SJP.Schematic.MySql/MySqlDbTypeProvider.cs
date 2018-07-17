@@ -55,7 +55,7 @@ namespace SJP.Schematic.MySql
             return CreateColumnType(typeMetadata);
         }
 
-        protected bool GetIsFixedLength(string typeName)
+        protected static bool GetIsFixedLength(string typeName)
         {
             if (typeName.IsNullOrWhiteSpace())
                 throw new ArgumentNullException(nameof(typeName));
@@ -63,7 +63,7 @@ namespace SJP.Schematic.MySql
             return _fixedLengthTypes.Contains(typeName);
         }
 
-        protected Identifier GetDefaultTypeName(ColumnTypeMetadata typeMetadata)
+        protected static Identifier GetDefaultTypeName(ColumnTypeMetadata typeMetadata)
         {
             if (typeMetadata == null)
                 throw new ArgumentNullException(nameof(typeMetadata));
@@ -107,7 +107,7 @@ namespace SJP.Schematic.MySql
             }
         }
 
-        protected string GetFormattedTypeName(ColumnTypeMetadata typeMetadata)
+        protected static string GetFormattedTypeName(ColumnTypeMetadata typeMetadata)
         {
             if (typeMetadata == null)
                 throw new ArgumentNullException(nameof(typeMetadata));
@@ -144,7 +144,7 @@ namespace SJP.Schematic.MySql
             return builder.ToString();
         }
 
-        protected DataType GetDataType(string typeName)
+        protected static DataType GetDataType(string typeName)
         {
             if (typeName.IsNullOrWhiteSpace())
                 throw new ArgumentNullException(nameof(typeName));
@@ -154,7 +154,7 @@ namespace SJP.Schematic.MySql
                 : DataType.Unknown;
         }
 
-        protected Type GetClrType(string typeName)
+        protected static Type GetClrType(string typeName)
         {
             if (typeName.IsNullOrWhiteSpace())
                 throw new ArgumentNullException(nameof(typeName));

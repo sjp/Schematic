@@ -4,10 +4,10 @@ using NUnit.Framework;
 namespace SJP.Schematic.Core.Tests
 {
     [TestFixture]
-    internal class IdentifierTests
+    internal static class IdentifierTests
     {
         [Test]
-        public void Ctor_GivenNullOrWhiteSpaceLocalName_ThrowsArgumentNullException()
+        public static void Ctor_GivenNullOrWhiteSpaceLocalName_ThrowsArgumentNullException()
         {
             Assert.Multiple(() =>
             {
@@ -18,7 +18,7 @@ namespace SJP.Schematic.Core.Tests
         }
 
         [Test]
-        public void LocalName_PropertyGet_EqualsCtorArgument()
+        public static void LocalName_PropertyGet_EqualsCtorArgument()
         {
             const string name = "abc";
             var identifier = new Identifier(name);
@@ -26,7 +26,7 @@ namespace SJP.Schematic.Core.Tests
         }
 
         [Test]
-        public void Ctor_GivenNullWhiteSpaceSchemaAndLocalNames_ThrowsArgumentNullException()
+        public static void Ctor_GivenNullWhiteSpaceSchemaAndLocalNames_ThrowsArgumentNullException()
         {
             Assert.Multiple(() =>
             {
@@ -41,7 +41,7 @@ namespace SJP.Schematic.Core.Tests
         }
 
         [Test]
-        public void SchemaAndLocalName_PropertyGets_MatchCtorArguments()
+        public static void SchemaAndLocalName_PropertyGets_MatchCtorArguments()
         {
             const string localName = "abc";
             const string schema = "def";
@@ -55,7 +55,7 @@ namespace SJP.Schematic.Core.Tests
         }
 
         [Test]
-        public void Ctor_GivenNullWhiteSpaceDatabaseAndSchemaAndLocalNames_ThrowsArgumentNullException()
+        public static void Ctor_GivenNullWhiteSpaceDatabaseAndSchemaAndLocalNames_ThrowsArgumentNullException()
         {
             Assert.Multiple(() =>
             {
@@ -74,7 +74,7 @@ namespace SJP.Schematic.Core.Tests
         }
 
         [Test]
-        public void DatabaseAndSchemaAndLocalName_PropertyGets_MatchCtorArguments()
+        public static void DatabaseAndSchemaAndLocalName_PropertyGets_MatchCtorArguments()
         {
             const string localName = "abc";
             const string schema = "def";
@@ -90,7 +90,7 @@ namespace SJP.Schematic.Core.Tests
         }
 
         [Test]
-        public void Ctor_GivenNullWhiteSpaceServerAndDatabaseAndSchemaAndLocalNames_ThrowsArgumentNullException()
+        public static void Ctor_GivenNullWhiteSpaceServerAndDatabaseAndSchemaAndLocalNames_ThrowsArgumentNullException()
         {
             Assert.Multiple(() =>
             {
@@ -113,7 +113,7 @@ namespace SJP.Schematic.Core.Tests
         }
 
         [Test]
-        public void ServerAndDatabaseAndSchemaAndLocalName_PropertyGets_MatchCtorArguments()
+        public static void ServerAndDatabaseAndSchemaAndLocalName_PropertyGets_MatchCtorArguments()
         {
             const string localName = "abc";
             const string schema = "def";
@@ -131,7 +131,7 @@ namespace SJP.Schematic.Core.Tests
         }
 
         [Test]
-        public void LocalIdentifierCtor_GivenNullWhiteSpaceLocalName_ThrowsArgumentNullException()
+        public static void LocalIdentifierCtor_GivenNullWhiteSpaceLocalName_ThrowsArgumentNullException()
         {
             Assert.Multiple(() =>
             {
@@ -142,7 +142,7 @@ namespace SJP.Schematic.Core.Tests
         }
 
         [Test]
-        public void Equals_GivenEqualIdentifiers_ReturnsTrue()
+        public static void Equals_GivenEqualIdentifiers_ReturnsTrue()
         {
             const string name = "abc";
             var identifier = new Identifier(name, name);
@@ -151,7 +151,7 @@ namespace SJP.Schematic.Core.Tests
         }
 
         [Test]
-        public void Equals_GivenDifferentIdentifiers_ReturnsFalse()
+        public static void Equals_GivenDifferentIdentifiers_ReturnsFalse()
         {
             const string name = "abc";
             const string otherName = "def";
@@ -161,7 +161,7 @@ namespace SJP.Schematic.Core.Tests
         }
 
         [Test]
-        public void EqualsOp_GivenEqualIdentifiers_ReturnsTrue()
+        public static void EqualsOp_GivenEqualIdentifiers_ReturnsTrue()
         {
             const string name = "abc";
             var identifier = new Identifier(name, name);
@@ -171,7 +171,7 @@ namespace SJP.Schematic.Core.Tests
         }
 
         [Test]
-        public void EqualsOp_GivenDifferentIdentifiers_ReturnsFalse()
+        public static void EqualsOp_GivenDifferentIdentifiers_ReturnsFalse()
         {
             const string name = "abc";
             const string otherName = "def";
@@ -182,7 +182,7 @@ namespace SJP.Schematic.Core.Tests
         }
 
         [Test]
-        public void ObjectsEquals_GivenEqualIdentifiers_ReturnsTrue()
+        public static void ObjectsEquals_GivenEqualIdentifiers_ReturnsTrue()
         {
             const string name = "abc";
             object identifier = new Identifier(name, name);
@@ -196,7 +196,7 @@ namespace SJP.Schematic.Core.Tests
         }
 
         [Test]
-        public void ObjectsEquals_GivenDifferentObjects_ReturnsFalse()
+        public static void ObjectsEquals_GivenDifferentObjects_ReturnsFalse()
         {
             const string name = "abc";
             const string otherName = "def";
@@ -213,7 +213,7 @@ namespace SJP.Schematic.Core.Tests
         }
 
         [Test]
-        public void Identifier_WhenOnlyLocalNameProvided_OnlyHasLocalNamePropertySet()
+        public static void Identifier_WhenOnlyLocalNameProvided_OnlyHasLocalNamePropertySet()
         {
             var identifier = new Identifier("abc");
 
@@ -227,7 +227,7 @@ namespace SJP.Schematic.Core.Tests
         }
 
         [Test]
-        public void CreateQualifiedIdentifier_GivenFullyQualifiedArguments_CreatesFullyQualifiedIdentifier()
+        public static void CreateQualifiedIdentifier_GivenFullyQualifiedArguments_CreatesFullyQualifiedIdentifier()
         {
             var identifier = Identifier.CreateQualifiedIdentifier("a", "b", "c", "d");
 
@@ -241,7 +241,7 @@ namespace SJP.Schematic.Core.Tests
         }
 
         [Test]
-        public void CreateQualifiedIdentifier_GivenArgumentsWithoutServer_CreatesCorrectlyQualifiedIdentifier()
+        public static void CreateQualifiedIdentifier_GivenArgumentsWithoutServer_CreatesCorrectlyQualifiedIdentifier()
         {
             var identifier = Identifier.CreateQualifiedIdentifier(null, "b", "c", "d");
 
@@ -255,7 +255,7 @@ namespace SJP.Schematic.Core.Tests
         }
 
         [Test]
-        public void CreateQualifiedIdentifier_GivenArgumentsWithoutServerAndDatabase_CreatesCorrectlyQualifiedIdentifier()
+        public static void CreateQualifiedIdentifier_GivenArgumentsWithoutServerAndDatabase_CreatesCorrectlyQualifiedIdentifier()
         {
             var identifier = Identifier.CreateQualifiedIdentifier(null, null, "c", "d");
 
@@ -269,9 +269,9 @@ namespace SJP.Schematic.Core.Tests
         }
 
         [Test]
-        public void CreateQualifiedIdentifier_GivenArgumentsWithoutServerAndDatabaseAndSchema_CreatesCorrectlyQualifiedIdentifier()
+        public static void CreateQualifiedIdentifier_GivenArgumentsWithoutServerAndDatabaseAndSchema_CreatesCorrectlyQualifiedIdentifier()
         {
-            var identifier = Identifier.CreateQualifiedIdentifier(null, null, "d");
+            var identifier = Identifier.CreateQualifiedIdentifier(null, null, null, "d");
 
             Assert.Multiple(() =>
             {
@@ -283,7 +283,7 @@ namespace SJP.Schematic.Core.Tests
         }
 
         [Test]
-        public void CreateQualifiedIdentifier_GivenArgumentsMissingServer_CreatesCorrectlyQualifiedIdentifier()
+        public static void CreateQualifiedIdentifier_GivenArgumentsMissingServer_CreatesCorrectlyQualifiedIdentifier()
         {
             var identifier = Identifier.CreateQualifiedIdentifier("b", "c", "d");
 
@@ -297,7 +297,7 @@ namespace SJP.Schematic.Core.Tests
         }
 
         [Test]
-        public void CreateQualifiedIdentifier_GivenArgumentsMissingServerAndWithoutDatabase_CreatesCorrectlyQualifiedIdentifier()
+        public static void CreateQualifiedIdentifier_GivenArgumentsMissingServerAndWithoutDatabase_CreatesCorrectlyQualifiedIdentifier()
         {
             var identifier = Identifier.CreateQualifiedIdentifier(null, "c", "d");
 
@@ -311,7 +311,7 @@ namespace SJP.Schematic.Core.Tests
         }
 
         [Test]
-        public void CreateQualifiedIdentifier_GivenArgumentsMissingServerAndWithoutDatabaseAndSchema_CreatesCorrectlyQualifiedIdentifier()
+        public static void CreateQualifiedIdentifier_GivenArgumentsMissingServerAndWithoutDatabaseAndSchema_CreatesCorrectlyQualifiedIdentifier()
         {
             var identifier = Identifier.CreateQualifiedIdentifier(null, null, "d");
 
@@ -325,7 +325,7 @@ namespace SJP.Schematic.Core.Tests
         }
 
         [Test]
-        public void CreateQualifiedIdentifier_GivenArgumentsWithOnlyDatabaseAndLocalName_CreatesCorrectlyQualifiedIdentifier()
+        public static void CreateQualifiedIdentifier_GivenArgumentsWithOnlyDatabaseAndLocalName_CreatesCorrectlyQualifiedIdentifier()
         {
             var identifier = Identifier.CreateQualifiedIdentifier("c", "d");
 
@@ -339,7 +339,7 @@ namespace SJP.Schematic.Core.Tests
         }
 
         [Test]
-        public void CreateQualifiedIdentifier_GivenArgumentsWithoutSchemaAndWithLocalName_CreatesCorrectlyQualifiedIdentifier()
+        public static void CreateQualifiedIdentifier_GivenArgumentsWithoutSchemaAndWithLocalName_CreatesCorrectlyQualifiedIdentifier()
         {
             var identifier = Identifier.CreateQualifiedIdentifier(null, "d");
 
@@ -353,7 +353,7 @@ namespace SJP.Schematic.Core.Tests
         }
 
         [Test]
-        public void CreateQualifiedIdentifier_GivenArgumentsWithOnlyLocalName_CreatesCorrectlyQualifiedIdentifier()
+        public static void CreateQualifiedIdentifier_GivenArgumentsWithOnlyLocalName_CreatesCorrectlyQualifiedIdentifier()
         {
             var identifier = Identifier.CreateQualifiedIdentifier("d");
 
@@ -367,43 +367,43 @@ namespace SJP.Schematic.Core.Tests
         }
 
         [Test]
-        public void CreateQualifiedIdentifier_GivenArgumentsWithoutServerAndDatabaseAndSchema_ThrowsArgumentNullException()
+        public static void CreateQualifiedIdentifier_GivenArgumentsWithoutServerAndDatabaseAndSchema_ThrowsArgumentNullException()
         {
             Assert.Throws<ArgumentNullException>(() => Identifier.CreateQualifiedIdentifier(null, null, null, null));
         }
 
         [Test]
-        public void CreateQualifiedIdentifier_GivenAllArgumentsExceptDatabase_ThrowsArgumentNullException()
+        public static void CreateQualifiedIdentifier_GivenAllArgumentsExceptDatabase_ThrowsArgumentNullException()
         {
             Assert.Throws<ArgumentNullException>(() => Identifier.CreateQualifiedIdentifier("a", null, "c", "d"));
         }
 
         [Test]
-        public void CreateQualifiedIdentifier_GivenAllArgumentsExceptSchema_ThrowsArgumentNullException()
+        public static void CreateQualifiedIdentifier_GivenAllArgumentsExceptSchema_ThrowsArgumentNullException()
         {
             Assert.Throws<ArgumentNullException>(() => Identifier.CreateQualifiedIdentifier("a", "b", null, "d"));
         }
 
         [Test]
-        public void CreateQualifiedIdentifier_GivenAllArgumentsExceptLocalName_ThrowsArgumentNullException()
+        public static void CreateQualifiedIdentifier_GivenAllArgumentsExceptLocalName_ThrowsArgumentNullException()
         {
             Assert.Throws<ArgumentNullException>(() => Identifier.CreateQualifiedIdentifier("a", "b", "c", null));
         }
 
         [Test]
-        public void CreateQualifiedIdentifier_GivenAllArgumentsExceptServerAndSchema_ThrowsArgumentNullException()
+        public static void CreateQualifiedIdentifier_GivenAllArgumentsExceptServerAndSchema_ThrowsArgumentNullException()
         {
             Assert.Throws<ArgumentNullException>(() => Identifier.CreateQualifiedIdentifier(null, "b", null, "d"));
         }
 
         [Test]
-        public void CreateQualifiedIdentifier_GivenOnlyDatabase_ThrowsArgumentNullException()
+        public static void CreateQualifiedIdentifier_GivenOnlyDatabase_ThrowsArgumentNullException()
         {
             Assert.Throws<ArgumentNullException>(() => Identifier.CreateQualifiedIdentifier(null, "b", null, null));
         }
 
         [Test]
-        public void CreateQualifiedIdentifier_GivenOnlySchema_ThrowsArgumentNullException()
+        public static void CreateQualifiedIdentifier_GivenOnlySchema_ThrowsArgumentNullException()
         {
             Assert.Throws<ArgumentNullException>(() => Identifier.CreateQualifiedIdentifier(null, null, "c", null));
         }

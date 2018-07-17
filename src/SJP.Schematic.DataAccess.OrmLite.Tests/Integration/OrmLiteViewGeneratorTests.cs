@@ -13,7 +13,7 @@ namespace SJP.Schematic.DataAccess.OrmLite.Tests.Integration
 
         private IRelationalDatabaseView GetView(Identifier viewName) => Database.GetView(viewName);
 
-        private IDatabaseViewGenerator ViewGenerator => new OrmLiteViewGenerator(new PascalCaseNameProvider(), TestNamespace);
+        private static IDatabaseViewGenerator ViewGenerator => new OrmLiteViewGenerator(new PascalCaseNameProvider(), TestNamespace);
 
         [OneTimeSetUp]
         public async Task Init()

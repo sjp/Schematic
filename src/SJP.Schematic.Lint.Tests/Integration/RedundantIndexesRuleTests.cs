@@ -34,14 +34,14 @@ namespace SJP.Schematic.Lint.Tests.Integration
         }
 
         [Test]
-        public void Ctor_GivenInvalidLevel_ThrowsArgumentException()
+        public static void Ctor_GivenInvalidLevel_ThrowsArgumentException()
         {
             const RuleLevel level = (RuleLevel)999;
             Assert.Throws<ArgumentException>(() => new RedundantIndexesRule(level));
         }
 
         [Test]
-        public void AnalyseDatabase_GivenNullDatabase_ThrowsArgumentNullException()
+        public static void AnalyseDatabase_GivenNullDatabase_ThrowsArgumentNullException()
         {
             var rule = new RedundantIndexesRule(RuleLevel.Error);
             Assert.Throws<ArgumentNullException>(() => rule.AnalyseDatabase(null));

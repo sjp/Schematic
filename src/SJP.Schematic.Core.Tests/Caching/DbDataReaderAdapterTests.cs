@@ -7,18 +7,18 @@ using System.Data;
 namespace SJP.Schematic.Core.Tests.Caching
 {
     [TestFixture]
-    internal class DbDataReaderAdapterTests
+    internal static class DbDataReaderAdapterTests
     {
-        protected Mock<IDataReader> ReaderMock => new Mock<IDataReader>();
+        private static Mock<IDataReader> ReaderMock => new Mock<IDataReader>();
 
         [Test]
-        public void Ctor_GivenNullReader_ThrowsArgNullException()
+        public static void Ctor_GivenNullReader_ThrowsArgNullException()
         {
             Assert.Throws<ArgumentNullException>(() => new DbDataReaderAdapter(null, CommandBehavior.CloseConnection));
         }
 
         [Test]
-        public void Indexer_GetByIndex_ReadsProvidedCollection()
+        public static void Indexer_GetByIndex_ReadsProvidedCollection()
         {
             var mock = ReaderMock;
             var adapter = new DbDataReaderAdapter(mock.Object, CommandBehavior.Default);
@@ -29,7 +29,7 @@ namespace SJP.Schematic.Core.Tests.Caching
         }
 
         [Test]
-        public void Indexer_GetByName_ReadsProvidedCollection()
+        public static void Indexer_GetByName_ReadsProvidedCollection()
         {
             var mock = ReaderMock;
             var adapter = new DbDataReaderAdapter(mock.Object, CommandBehavior.Default);
@@ -40,7 +40,7 @@ namespace SJP.Schematic.Core.Tests.Caching
         }
 
         [Test]
-        public void Depth_PropertyGet_ReadsProvidedReader()
+        public static void Depth_PropertyGet_ReadsProvidedReader()
         {
             var mock = ReaderMock;
             var adapter = new DbDataReaderAdapter(mock.Object, CommandBehavior.Default);
@@ -50,7 +50,7 @@ namespace SJP.Schematic.Core.Tests.Caching
         }
 
         [Test]
-        public void FieldCount_PropertyGet_ReadsProvidedReader()
+        public static void FieldCount_PropertyGet_ReadsProvidedReader()
         {
             var mock = ReaderMock;
             var adapter = new DbDataReaderAdapter(mock.Object, CommandBehavior.Default);
@@ -60,7 +60,7 @@ namespace SJP.Schematic.Core.Tests.Caching
         }
 
         [Test]
-        public void IsClosed_PropertyGet_ReadsProvidedReader()
+        public static void IsClosed_PropertyGet_ReadsProvidedReader()
         {
             var mock = ReaderMock;
             var adapter = new DbDataReaderAdapter(mock.Object, CommandBehavior.Default);
@@ -70,7 +70,7 @@ namespace SJP.Schematic.Core.Tests.Caching
         }
 
         [Test]
-        public void RecordsAffected_PropertyGet_ReadsProvidedReader()
+        public static void RecordsAffected_PropertyGet_ReadsProvidedReader()
         {
             var mock = ReaderMock;
             var adapter = new DbDataReaderAdapter(mock.Object, CommandBehavior.Default);
@@ -80,7 +80,7 @@ namespace SJP.Schematic.Core.Tests.Caching
         }
 
         [Test]
-        public void GetBoolean_GetByIndex_ReadsProvidedReader()
+        public static void GetBoolean_GetByIndex_ReadsProvidedReader()
         {
             var mock = ReaderMock;
             var adapter = new DbDataReaderAdapter(mock.Object, CommandBehavior.Default);
@@ -91,7 +91,7 @@ namespace SJP.Schematic.Core.Tests.Caching
         }
 
         [Test]
-        public void GetByte_GetByIndex_ReadsProvidedReader()
+        public static void GetByte_GetByIndex_ReadsProvidedReader()
         {
             var mock = ReaderMock;
             var adapter = new DbDataReaderAdapter(mock.Object, CommandBehavior.Default);
@@ -102,7 +102,7 @@ namespace SJP.Schematic.Core.Tests.Caching
         }
 
         [Test]
-        public void GetBytes_GetByIndex_ReadsProvidedReader()
+        public static void GetBytes_GetByIndex_ReadsProvidedReader()
         {
             var mock = ReaderMock;
             var adapter = new DbDataReaderAdapter(mock.Object, CommandBehavior.Default);
@@ -117,7 +117,7 @@ namespace SJP.Schematic.Core.Tests.Caching
         }
 
         [Test]
-        public void GetChar_GetByIndex_ReadsProvidedReader()
+        public static void GetChar_GetByIndex_ReadsProvidedReader()
         {
             var mock = ReaderMock;
             var adapter = new DbDataReaderAdapter(mock.Object, CommandBehavior.Default);
@@ -128,7 +128,7 @@ namespace SJP.Schematic.Core.Tests.Caching
         }
 
         [Test]
-        public void GetChars_GetByIndex_ReadsProvidedReader()
+        public static void GetChars_GetByIndex_ReadsProvidedReader()
         {
             var mock = ReaderMock;
             var adapter = new DbDataReaderAdapter(mock.Object, CommandBehavior.Default);
@@ -143,7 +143,7 @@ namespace SJP.Schematic.Core.Tests.Caching
         }
 
         [Test]
-        public void GetDataTypeName_GetByIndex_ReadsProvidedReader()
+        public static void GetDataTypeName_GetByIndex_ReadsProvidedReader()
         {
             var mock = ReaderMock;
             var adapter = new DbDataReaderAdapter(mock.Object, CommandBehavior.Default);
@@ -154,7 +154,7 @@ namespace SJP.Schematic.Core.Tests.Caching
         }
 
         [Test]
-        public void GetDateTime_GetByIndex_ReadsProvidedReader()
+        public static void GetDateTime_GetByIndex_ReadsProvidedReader()
         {
             var mock = ReaderMock;
             var adapter = new DbDataReaderAdapter(mock.Object, CommandBehavior.Default);
@@ -165,7 +165,7 @@ namespace SJP.Schematic.Core.Tests.Caching
         }
 
         [Test]
-        public void GetDecimal_GetByIndex_ReadsProvidedReader()
+        public static void GetDecimal_GetByIndex_ReadsProvidedReader()
         {
             var mock = ReaderMock;
             var adapter = new DbDataReaderAdapter(mock.Object, CommandBehavior.Default);
@@ -176,7 +176,7 @@ namespace SJP.Schematic.Core.Tests.Caching
         }
 
         [Test]
-        public void GetDouble_GetByIndex_ReadsProvidedReader()
+        public static void GetDouble_GetByIndex_ReadsProvidedReader()
         {
             var mock = ReaderMock;
             var adapter = new DbDataReaderAdapter(mock.Object, CommandBehavior.Default);
@@ -187,7 +187,7 @@ namespace SJP.Schematic.Core.Tests.Caching
         }
 
         [Test]
-        public void GetFieldType_GetByIndex_ReadsProvidedReader()
+        public static void GetFieldType_GetByIndex_ReadsProvidedReader()
         {
             var mock = ReaderMock;
             var adapter = new DbDataReaderAdapter(mock.Object, CommandBehavior.Default);
@@ -198,7 +198,7 @@ namespace SJP.Schematic.Core.Tests.Caching
         }
 
         [Test]
-        public void GetFloat_GetByIndex_ReadsProvidedReader()
+        public static void GetFloat_GetByIndex_ReadsProvidedReader()
         {
             var mock = ReaderMock;
             var adapter = new DbDataReaderAdapter(mock.Object, CommandBehavior.Default);
@@ -209,7 +209,7 @@ namespace SJP.Schematic.Core.Tests.Caching
         }
 
         [Test]
-        public void GetGuid_GetByIndex_ReadsProvidedReader()
+        public static void GetGuid_GetByIndex_ReadsProvidedReader()
         {
             var mock = ReaderMock;
             var adapter = new DbDataReaderAdapter(mock.Object, CommandBehavior.Default);
@@ -220,7 +220,7 @@ namespace SJP.Schematic.Core.Tests.Caching
         }
 
         [Test]
-        public void GetInt16_GetByIndex_ReadsProvidedReader()
+        public static void GetInt16_GetByIndex_ReadsProvidedReader()
         {
             var mock = ReaderMock;
             var adapter = new DbDataReaderAdapter(mock.Object, CommandBehavior.Default);
@@ -231,7 +231,7 @@ namespace SJP.Schematic.Core.Tests.Caching
         }
 
         [Test]
-        public void GetInt32_GetByIndex_ReadsProvidedReader()
+        public static void GetInt32_GetByIndex_ReadsProvidedReader()
         {
             var mock = ReaderMock;
             var adapter = new DbDataReaderAdapter(mock.Object, CommandBehavior.Default);
@@ -242,7 +242,7 @@ namespace SJP.Schematic.Core.Tests.Caching
         }
 
         [Test]
-        public void GetInt64_GetByIndex_ReadsProvidedReader()
+        public static void GetInt64_GetByIndex_ReadsProvidedReader()
         {
             var mock = ReaderMock;
             var adapter = new DbDataReaderAdapter(mock.Object, CommandBehavior.Default);
@@ -253,7 +253,7 @@ namespace SJP.Schematic.Core.Tests.Caching
         }
 
         [Test]
-        public void GetName_GetByIndex_ReadsProvidedReader()
+        public static void GetName_GetByIndex_ReadsProvidedReader()
         {
             var mock = ReaderMock;
             var adapter = new DbDataReaderAdapter(mock.Object, CommandBehavior.Default);
@@ -264,7 +264,7 @@ namespace SJP.Schematic.Core.Tests.Caching
         }
 
         [Test]
-        public void GetOrdinal_GetByName_ReadsProvidedReader()
+        public static void GetOrdinal_GetByName_ReadsProvidedReader()
         {
             var mock = ReaderMock;
             var adapter = new DbDataReaderAdapter(mock.Object, CommandBehavior.Default);
@@ -275,7 +275,7 @@ namespace SJP.Schematic.Core.Tests.Caching
         }
 
         [Test]
-        public void GetString_GetByIndex_ReadsProvidedReader()
+        public static void GetString_GetByIndex_ReadsProvidedReader()
         {
             var mock = ReaderMock;
             var adapter = new DbDataReaderAdapter(mock.Object, CommandBehavior.Default);
@@ -286,7 +286,7 @@ namespace SJP.Schematic.Core.Tests.Caching
         }
 
         [Test]
-        public void GetValue_GetByIndex_ReadsProvidedReader()
+        public static void GetValue_GetByIndex_ReadsProvidedReader()
         {
             var mock = ReaderMock;
             var adapter = new DbDataReaderAdapter(mock.Object, CommandBehavior.Default);
@@ -297,7 +297,7 @@ namespace SJP.Schematic.Core.Tests.Caching
         }
 
         [Test]
-        public void GetValues_GetByIndex_ReadsProvidedReader()
+        public static void GetValues_GetByIndex_ReadsProvidedReader()
         {
             var mock = ReaderMock;
             var adapter = new DbDataReaderAdapter(mock.Object, CommandBehavior.Default);
@@ -308,7 +308,7 @@ namespace SJP.Schematic.Core.Tests.Caching
         }
 
         [Test]
-        public void IsDBNull_GetByIndex_ReadsProvidedReader()
+        public static void IsDBNull_GetByIndex_ReadsProvidedReader()
         {
             var mock = ReaderMock;
             var adapter = new DbDataReaderAdapter(mock.Object, CommandBehavior.Default);
@@ -319,7 +319,7 @@ namespace SJP.Schematic.Core.Tests.Caching
         }
 
         [Test]
-        public void NextResult_WhenInvoked_CallsProvidedReader()
+        public static void NextResult_WhenInvoked_CallsProvidedReader()
         {
             var mock = ReaderMock;
             var adapter = new DbDataReaderAdapter(mock.Object, CommandBehavior.Default);
@@ -329,7 +329,7 @@ namespace SJP.Schematic.Core.Tests.Caching
         }
 
         [Test]
-        public void Read_WhenInvoked_CallsProvidedReader()
+        public static void Read_WhenInvoked_CallsProvidedReader()
         {
             var mock = ReaderMock;
             var adapter = new DbDataReaderAdapter(mock.Object, CommandBehavior.Default);
@@ -339,7 +339,7 @@ namespace SJP.Schematic.Core.Tests.Caching
         }
 
         [Test]
-        public void GetSchemaTable_WhenInvoked_ReturnsNull()
+        public static void GetSchemaTable_WhenInvoked_ReturnsNull()
         {
             var mock = ReaderMock;
             var adapter = new DbDataReaderAdapter(mock.Object, CommandBehavior.Default);
@@ -349,7 +349,7 @@ namespace SJP.Schematic.Core.Tests.Caching
         }
 
         [Test]
-        public void HasRows_PropertyGet_ReturnsTrueIfReadFromProvidedReader()
+        public static void HasRows_PropertyGet_ReturnsTrueIfReadFromProvidedReader()
         {
             var mock = ReaderMock;
             mock.Setup(m => m.Read()).Returns(true);
@@ -361,7 +361,7 @@ namespace SJP.Schematic.Core.Tests.Caching
         }
 
         [Test]
-        public void HasRows_PropertyGet_ReturnsFalseIfNotReadFromProvidedReader()
+        public static void HasRows_PropertyGet_ReturnsFalseIfNotReadFromProvidedReader()
         {
             var mock = ReaderMock;
             mock.Setup(m => m.Read()).Returns(false);

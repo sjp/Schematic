@@ -2,15 +2,14 @@
 using NUnit.Framework;
 using Moq;
 using SJP.Schematic.Core;
-using System.Linq;
 
 namespace SJP.Schematic.Sqlite.Tests
 {
     [TestFixture]
-    internal class SqliteDatabaseKeyTests
+    internal static class SqliteDatabaseKeyTests
     {
         [Test]
-        public void Ctor_GivenNullTable_ThrowsArgumentNullException()
+        public static void Ctor_GivenNullTable_ThrowsArgumentNullException()
         {
             Identifier keyName = "test_key";
             const DatabaseKeyType keyType = DatabaseKeyType.Primary;
@@ -21,7 +20,7 @@ namespace SJP.Schematic.Sqlite.Tests
         }
 
         [Test]
-        public void Ctor_GivenNullName_DoesNotThrowArgumentNullException()
+        public static void Ctor_GivenNullName_DoesNotThrowArgumentNullException()
         {
             var table = Mock.Of<IRelationalDatabaseTable>();
             const DatabaseKeyType keyType = DatabaseKeyType.Primary;
@@ -32,7 +31,7 @@ namespace SJP.Schematic.Sqlite.Tests
         }
 
         [Test]
-        public void Ctor_GivenInvalidDatabaseKeyType_ThrowsArgumentException()
+        public static void Ctor_GivenInvalidDatabaseKeyType_ThrowsArgumentException()
         {
             var table = Mock.Of<IRelationalDatabaseTable>();
             Identifier keyName = "test_key";
@@ -44,7 +43,7 @@ namespace SJP.Schematic.Sqlite.Tests
         }
 
         [Test]
-        public void Ctor_GivenNullColumnSet_ThrowsArgumentNullException()
+        public static void Ctor_GivenNullColumnSet_ThrowsArgumentNullException()
         {
             var table = Mock.Of<IRelationalDatabaseTable>();
             Identifier keyName = "test_key";
@@ -54,7 +53,7 @@ namespace SJP.Schematic.Sqlite.Tests
         }
 
         [Test]
-        public void Ctor_GivenEmptyColumnSet_ThrowsArgumentNullException()
+        public static void Ctor_GivenEmptyColumnSet_ThrowsArgumentNullException()
         {
             var table = Mock.Of<IRelationalDatabaseTable>();
             Identifier keyName = "test_key";
@@ -65,7 +64,7 @@ namespace SJP.Schematic.Sqlite.Tests
         }
 
         [Test]
-        public void Ctor_GivenColumnSetContainingNullColumn_ThrowsArgumentNullException()
+        public static void Ctor_GivenColumnSetContainingNullColumn_ThrowsArgumentNullException()
         {
             var table = Mock.Of<IRelationalDatabaseTable>();
             Identifier keyName = "test_key";
@@ -76,7 +75,7 @@ namespace SJP.Schematic.Sqlite.Tests
         }
 
         [Test]
-        public void Table_PropertyGet_EqualsCtorArg()
+        public static void Table_PropertyGet_EqualsCtorArg()
         {
             var table = Mock.Of<IRelationalDatabaseTable>();
             Identifier keyName = "test_key";
@@ -90,7 +89,7 @@ namespace SJP.Schematic.Sqlite.Tests
         }
 
         [Test]
-        public void Name_PropertyGet_EqualsCtorArg()
+        public static void Name_PropertyGet_EqualsCtorArg()
         {
             var table = Mock.Of<IRelationalDatabaseTable>();
             Identifier keyName = "test_key";
@@ -104,7 +103,7 @@ namespace SJP.Schematic.Sqlite.Tests
         }
 
         [Test]
-        public void KeyType_PropertyGet_EqualsCtorArg()
+        public static void KeyType_PropertyGet_EqualsCtorArg()
         {
             var table = Mock.Of<IRelationalDatabaseTable>();
             Identifier keyName = "test_key";
@@ -118,7 +117,7 @@ namespace SJP.Schematic.Sqlite.Tests
         }
 
         [Test]
-        public void Columns_PropertyGet_EqualsCtorArg()
+        public static void Columns_PropertyGet_EqualsCtorArg()
         {
             var table = Mock.Of<IRelationalDatabaseTable>();
             Identifier keyName = "test_key";
@@ -132,7 +131,7 @@ namespace SJP.Schematic.Sqlite.Tests
         }
 
         [Test]
-        public void IsEnabled_PropertyGet_ReturnsTrue()
+        public static void IsEnabled_PropertyGet_ReturnsTrue()
         {
             var table = Mock.Of<IRelationalDatabaseTable>();
             Identifier keyName = "test_key";

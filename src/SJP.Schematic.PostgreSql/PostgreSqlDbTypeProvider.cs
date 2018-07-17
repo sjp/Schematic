@@ -55,7 +55,7 @@ namespace SJP.Schematic.PostgreSql
             return CreateColumnType(typeMetadata);
         }
 
-        protected bool GetIsFixedLength(Identifier typeName)
+        protected static bool GetIsFixedLength(Identifier typeName)
         {
             if (typeName == null)
                 throw new ArgumentNullException(nameof(typeName));
@@ -63,7 +63,7 @@ namespace SJP.Schematic.PostgreSql
             return _fixedLengthTypes.Contains(typeName);
         }
 
-        protected Identifier GetDefaultTypeName(ColumnTypeMetadata typeMetadata)
+        protected static Identifier GetDefaultTypeName(ColumnTypeMetadata typeMetadata)
         {
             if (typeMetadata == null)
                 throw new ArgumentNullException(nameof(typeMetadata));
@@ -111,7 +111,7 @@ namespace SJP.Schematic.PostgreSql
             }
         }
 
-        protected string GetFormattedTypeName(ColumnTypeMetadata typeMetadata)
+        protected static string GetFormattedTypeName(ColumnTypeMetadata typeMetadata)
         {
             if (typeMetadata == null)
                 throw new ArgumentNullException(nameof(typeMetadata));
@@ -153,7 +153,7 @@ namespace SJP.Schematic.PostgreSql
             return builder.ToString();
         }
 
-        protected DataType GetDataType(Identifier typeName)
+        protected static DataType GetDataType(Identifier typeName)
         {
             if (typeName == null)
                 throw new ArgumentNullException(nameof(typeName));
@@ -163,7 +163,7 @@ namespace SJP.Schematic.PostgreSql
                 : DataType.Unknown;
         }
 
-        protected Type GetClrType(Identifier typeName)
+        protected static Type GetClrType(Identifier typeName)
         {
             if (typeName == null)
                 throw new ArgumentNullException(nameof(typeName));

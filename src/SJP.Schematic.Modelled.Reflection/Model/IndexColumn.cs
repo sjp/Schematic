@@ -29,7 +29,7 @@ namespace SJP.Schematic.Modelled.Reflection.Model
         public static implicit operator IndexColumn(ModelledColumn column)
         {
             if (column == null)
-                throw new ArgumentNullException(nameof(column));
+                return null;
 
             ExpressionColumn expression = column;
             return new IndexColumn(expression);
@@ -38,7 +38,7 @@ namespace SJP.Schematic.Modelled.Reflection.Model
         public static implicit operator IndexColumn(ExpressionColumn column)
         {
             if (column == null)
-                throw new ArgumentNullException(nameof(column));
+                return null;
 
             return new IndexColumn(column);
         }
@@ -46,7 +46,7 @@ namespace SJP.Schematic.Modelled.Reflection.Model
         public static implicit operator IndexColumn(ModelledSqlExpression expression)
         {
             if (expression == null)
-                throw new ArgumentNullException(nameof(expression));
+                return null;
 
             return new IndexColumn(expression: expression);
         }

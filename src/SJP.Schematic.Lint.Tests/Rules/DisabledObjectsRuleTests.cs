@@ -11,24 +11,24 @@ using SJP.Schematic.Lint.Tests.Fakes;
 namespace SJP.Schematic.Lint.Tests.Rules
 {
     [TestFixture]
-    internal class DisabledObjectsRuleTests
+    internal static class DisabledObjectsRuleTests
     {
         [Test]
-        public void Ctor_GivenInvalidLevel_ThrowsArgumentException()
+        public static void Ctor_GivenInvalidLevel_ThrowsArgumentException()
         {
             const RuleLevel level = (RuleLevel)999;
             Assert.Throws<ArgumentException>(() => new DisabledObjectsRule(level));
         }
 
         [Test]
-        public void AnalyseDatabase_GivenNullDatabase_ThrowsArgumentNullException()
+        public static void AnalyseDatabase_GivenNullDatabase_ThrowsArgumentNullException()
         {
             var rule = new DisabledObjectsRule(RuleLevel.Error);
             Assert.Throws<ArgumentNullException>(() => rule.AnalyseDatabase(null));
         }
 
         [Test]
-        public void AnalyseDatabase_GivenTableWithNoDisabledObjects_ProducesNoMessages()
+        public static void AnalyseDatabase_GivenTableWithNoDisabledObjects_ProducesNoMessages()
         {
             var rule = new DisabledObjectsRule(RuleLevel.Error);
 
@@ -53,7 +53,7 @@ namespace SJP.Schematic.Lint.Tests.Rules
         }
 
         [Test]
-        public void AnalyseDatabase_GivenTableWithDisabledPrimaryKey_ProducesMessages()
+        public static void AnalyseDatabase_GivenTableWithDisabledPrimaryKey_ProducesMessages()
         {
             var rule = new DisabledObjectsRule(RuleLevel.Error);
             var database = CreateFakeDatabase();
@@ -94,7 +94,7 @@ namespace SJP.Schematic.Lint.Tests.Rules
         }
 
         [Test]
-        public void AnalyseDatabase_GivenTableWithDisabledForeignKey_ProducesMessages()
+        public static void AnalyseDatabase_GivenTableWithDisabledForeignKey_ProducesMessages()
         {
             var rule = new DisabledObjectsRule(RuleLevel.Error);
             var database = CreateFakeDatabase();
@@ -148,7 +148,7 @@ namespace SJP.Schematic.Lint.Tests.Rules
         }
 
         [Test]
-        public void AnalyseDatabase_GivenTableWithDisabledUniqueKey_ProducesMessages()
+        public static void AnalyseDatabase_GivenTableWithDisabledUniqueKey_ProducesMessages()
         {
             var rule = new DisabledObjectsRule(RuleLevel.Error);
             var database = CreateFakeDatabase();
@@ -189,7 +189,7 @@ namespace SJP.Schematic.Lint.Tests.Rules
         }
 
         [Test]
-        public void AnalyseDatabase_GivenTableWithDisabledIndex_ProducesMessages()
+        public static void AnalyseDatabase_GivenTableWithDisabledIndex_ProducesMessages()
         {
             var rule = new DisabledObjectsRule(RuleLevel.Error);
             var database = CreateFakeDatabase();
@@ -231,7 +231,7 @@ namespace SJP.Schematic.Lint.Tests.Rules
         }
 
         [Test]
-        public void AnalyseDatabase_GivenTableWithDisabledCheck_ProducesMessages()
+        public static void AnalyseDatabase_GivenTableWithDisabledCheck_ProducesMessages()
         {
             var rule = new DisabledObjectsRule(RuleLevel.Error);
             var database = CreateFakeDatabase();
@@ -263,7 +263,7 @@ namespace SJP.Schematic.Lint.Tests.Rules
         }
 
         [Test]
-        public void AnalyseDatabase_GivenTableWithDisabledTrigger_ProducesMessages()
+        public static void AnalyseDatabase_GivenTableWithDisabledTrigger_ProducesMessages()
         {
             var rule = new DisabledObjectsRule(RuleLevel.Error);
             var database = CreateFakeDatabase();

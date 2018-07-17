@@ -32,7 +32,6 @@ namespace SJP.Schematic.MySql.Tests.Integration
         public void ChildKeys_WhenGivenChildTableWithForeignKeyToPrimaryKey_ContainsConstraintWithCorrectNames()
         {
             var table = Database.GetTable("table_test_table_15");
-            var childKeys = table.ChildKeys;
             var foreignKey = table.ChildKeys.Single(k => k.ChildKey.Table.Name.LocalName == "table_test_table_16");
 
             Assert.Multiple(() =>

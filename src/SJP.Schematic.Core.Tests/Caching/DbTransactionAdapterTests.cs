@@ -8,32 +8,32 @@ using System.Data.Common;
 namespace SJP.Schematic.Core.Tests.Caching
 {
     [TestFixture]
-    internal class DbTransactionAdapterTests
+    internal static class DbTransactionAdapterTests
     {
-        protected DbConnection Connection => new DbConnectionAdapter(Mock.Of<IDbConnection>());
+        private static DbConnection Connection => new DbConnectionAdapter(Mock.Of<IDbConnection>());
 
-        protected Mock<IDbTransaction> TransactionMock => new Mock<IDbTransaction>();
+        private static Mock<IDbTransaction> TransactionMock => new Mock<IDbTransaction>();
 
         [Test]
-        public void Ctor_GivenNullConnection_ThrowsArgNullException()
+        public static void Ctor_GivenNullConnection_ThrowsArgNullException()
         {
             Assert.Throws<ArgumentNullException>(() => new DbTransactionAdapter(null, TransactionMock.Object));
         }
 
         [Test]
-        public void Ctor_GivenNullTransaction_ThrowsArgNullException()
+        public static void Ctor_GivenNullTransaction_ThrowsArgNullException()
         {
             Assert.Throws<ArgumentNullException>(() => new DbTransactionAdapter(Connection, null));
         }
 
         [Test]
-        public void Ctor_GivenNullConnectionAndNullTransaction_ThrowsArgNullException()
+        public static void Ctor_GivenNullConnectionAndNullTransaction_ThrowsArgNullException()
         {
             Assert.Throws<ArgumentNullException>(() => new DbTransactionAdapter(null, null));
         }
 
         [Test]
-        public void IsolationLevel_PropertyGet_ReadsProvidedTransaction()
+        public static void IsolationLevel_PropertyGet_ReadsProvidedTransaction()
         {
             var mock = TransactionMock;
             var adapter = new DbTransactionAdapter(Connection, mock.Object);
@@ -43,7 +43,7 @@ namespace SJP.Schematic.Core.Tests.Caching
         }
 
         [Test]
-        public void Commit_WhenInvoked_CallsProvidedTransaction()
+        public static void Commit_WhenInvoked_CallsProvidedTransaction()
         {
             var mock = TransactionMock;
             var adapter = new DbTransactionAdapter(Connection, mock.Object);
@@ -53,7 +53,7 @@ namespace SJP.Schematic.Core.Tests.Caching
         }
 
         [Test]
-        public void Rollback_WhenInvoked_CallsProvidedTransaction()
+        public static void Rollback_WhenInvoked_CallsProvidedTransaction()
         {
             var mock = TransactionMock;
             var adapter = new DbTransactionAdapter(Connection, mock.Object);

@@ -7,10 +7,10 @@ using SJP.Schematic.Core;
 namespace SJP.Schematic.SqlServer.Tests
 {
     [TestFixture]
-    internal class SqlServerRelationalKeyTests
+    internal static class SqlServerRelationalKeyTests
     {
         [Test]
-        public void Ctor_GivenNullChildKey_ThrowsArgumentNullException()
+        public static void Ctor_GivenNullChildKey_ThrowsArgumentNullException()
         {
             var parentKey = Mock.Of<IDatabaseKey>();
             const Rule deleteRule = Rule.None;
@@ -20,7 +20,7 @@ namespace SJP.Schematic.SqlServer.Tests
         }
 
         [Test]
-        public void Ctor_GivenNullParentKey_ThrowsArgumentNullException()
+        public static void Ctor_GivenNullParentKey_ThrowsArgumentNullException()
         {
             var childKey = Mock.Of<IDatabaseKey>();
             const Rule deleteRule = Rule.None;
@@ -30,7 +30,7 @@ namespace SJP.Schematic.SqlServer.Tests
         }
 
         [Test]
-        public void Ctor_GivenInvalidDeleteRule_ThrowsArgumentException()
+        public static void Ctor_GivenInvalidDeleteRule_ThrowsArgumentException()
         {
             var childKey = Mock.Of<IDatabaseKey>();
             var parentKey = Mock.Of<IDatabaseKey>();
@@ -41,7 +41,7 @@ namespace SJP.Schematic.SqlServer.Tests
         }
 
         [Test]
-        public void Ctor_GivenInvalidUpdateRule_ThrowsArgumentException()
+        public static void Ctor_GivenInvalidUpdateRule_ThrowsArgumentException()
         {
             var childKey = Mock.Of<IDatabaseKey>();
             var parentKey = Mock.Of<IDatabaseKey>();
@@ -52,7 +52,7 @@ namespace SJP.Schematic.SqlServer.Tests
         }
 
         [Test]
-        public void ChildKey_PropertyGet_EqualsCtorArg()
+        public static void ChildKey_PropertyGet_EqualsCtorArg()
         {
             const Rule deleteRule = Rule.Cascade;
             const Rule updateRule = Rule.SetDefault;
@@ -77,7 +77,7 @@ namespace SJP.Schematic.SqlServer.Tests
         }
 
         [Test]
-        public void ParentKey_PropertyGet_EqualsCtorArg()
+        public static void ParentKey_PropertyGet_EqualsCtorArg()
         {
             const Rule deleteRule = Rule.Cascade;
             const Rule updateRule = Rule.SetDefault;
@@ -102,7 +102,7 @@ namespace SJP.Schematic.SqlServer.Tests
         }
 
         [Test]
-        public void DeleteRule_PropertyGet_EqualsCtorArg()
+        public static void DeleteRule_PropertyGet_EqualsCtorArg()
         {
             const Rule deleteRule = Rule.Cascade;
             const Rule updateRule = Rule.SetDefault;
@@ -121,7 +121,7 @@ namespace SJP.Schematic.SqlServer.Tests
         }
 
         [Test]
-        public void UpdateRule_PropertyGet_EqualsCtorArg()
+        public static void UpdateRule_PropertyGet_EqualsCtorArg()
         {
             const Rule deleteRule = Rule.Cascade;
             const Rule updateRule = Rule.SetDefault;
@@ -140,7 +140,7 @@ namespace SJP.Schematic.SqlServer.Tests
         }
 
         [Test]
-        public void Ctor_GivenChildKeyNotForeignKey_ThrowsArgumentException()
+        public static void Ctor_GivenChildKeyNotForeignKey_ThrowsArgumentException()
         {
             var childKeyMock = new Mock<IDatabaseKey>();
             childKeyMock.Setup(k => k.KeyType).Returns(DatabaseKeyType.Primary);
@@ -153,7 +153,7 @@ namespace SJP.Schematic.SqlServer.Tests
         }
 
         [Test]
-        public void Ctor_GivenParentKeyNotCandidateKey_ThrowsArgumentException()
+        public static void Ctor_GivenParentKeyNotCandidateKey_ThrowsArgumentException()
         {
             var childKeyMock = new Mock<IDatabaseKey>();
             childKeyMock.Setup(k => k.KeyType).Returns(DatabaseKeyType.Foreign);

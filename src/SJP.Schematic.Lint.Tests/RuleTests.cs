@@ -1,37 +1,36 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using NUnit.Framework;
 using SJP.Schematic.Core;
 
 namespace SJP.Schematic.Lint.Tests
 {
     [TestFixture]
-    internal class RuleTests
+    internal static class RuleTests
     {
         [Test]
-        public void Ctor_GivenNullTitle_ThrowsArgumentNullException()
+        public static void Ctor_GivenNullTitle_ThrowsArgumentNullException()
         {
             const RuleLevel level = RuleLevel.Error;
             Assert.Throws<ArgumentNullException>(() => new FakeRule(null, level));
         }
 
         [Test]
-        public void Ctor_GivenEmptyTitle_ThrowsArgumentNullException()
+        public static void Ctor_GivenEmptyTitle_ThrowsArgumentNullException()
         {
             const RuleLevel level = RuleLevel.Error;
             Assert.Throws<ArgumentNullException>(() => new FakeRule(string.Empty, level));
         }
 
         [Test]
-        public void Ctor_GivenWhiteSpaceTitle_ThrowsArgumentNullException()
+        public static void Ctor_GivenWhiteSpaceTitle_ThrowsArgumentNullException()
         {
             const RuleLevel level = RuleLevel.Error;
             Assert.Throws<ArgumentNullException>(() => new FakeRule("   ", level));
         }
 
         [Test]
-        public void Ctor_GivenInvalidRuleLevel_ThrowsArgumentException()
+        public static void Ctor_GivenInvalidRuleLevel_ThrowsArgumentException()
         {
             const string title = "test";
             const RuleLevel level = (RuleLevel)999;
@@ -39,7 +38,7 @@ namespace SJP.Schematic.Lint.Tests
         }
 
         [Test]
-        public void Title_PropertyGet_MatchesCtorArg()
+        public static void Title_PropertyGet_MatchesCtorArg()
         {
             const string title = "test";
             const RuleLevel level = RuleLevel.Error;
@@ -49,7 +48,7 @@ namespace SJP.Schematic.Lint.Tests
         }
 
         [Test]
-        public void Level_PropertyGet_MatchesCtorArg()
+        public static void Level_PropertyGet_MatchesCtorArg()
         {
             const string title = "test";
             const RuleLevel level = RuleLevel.Error;

@@ -5,17 +5,17 @@ using SJP.Schematic.Core;
 namespace SJP.Schematic.Modelled.Reflection.Model.Attributes.Tests
 {
     [TestFixture]
-    internal class DeclaredTypeAttributeTests
+    internal static class DeclaredTypeAttributeTests
     {
         [Test]
-        public void Ctor_GivenInvalidDataType_ThrowsArgumentException()
+        public static void Ctor_GivenInvalidDataType_ThrowsArgumentException()
         {
             const DataType dataType = (DataType)55;
             Assert.Throws<ArgumentException>(() => new FakeDeclaredTypeAttribute(dataType));
         }
 
         [Test]
-        public void DataType_PropertyGet_MatchesCtorArg()
+        public static void DataType_PropertyGet_MatchesCtorArg()
         {
             const DataType dataType = DataType.Interval;
             var attr = new FakeDeclaredTypeAttribute(dataType);
@@ -24,21 +24,31 @@ namespace SJP.Schematic.Modelled.Reflection.Model.Attributes.Tests
         }
 
         [Test]
-        public void Ctor_GivenInvalidDataTypeAndValidLength_ThrowsArgumentException()
+        public static void Ctor_GivenInvalidDataTypeAndValidLength_ThrowsArgumentException()
         {
             const DataType dataType = (DataType)55;
             Assert.Throws<ArgumentException>(() => new FakeDeclaredTypeAttribute(dataType, 10, false));
         }
 
         [Test]
-        public void Ctor_GivenValidDataTypeAndInvalidLength_ThrowsArgumentOutOfRangeException()
+        public static void Ctor_GivenValidDataTypeAndInvalidLength_ThrowsArgumentOutOfRangeException()
         {
             const DataType dataType = DataType.Integer;
             Assert.Throws<ArgumentOutOfRangeException>(() => new FakeDeclaredTypeAttribute(dataType, -10, false));
         }
 
         [Test]
-        public void DataType_GivenValidDataTypeAndLengthPropertyGet_MatchesCtorArg()
+        public static void DataType_GivenValidDataTypeAndLengthPropertyGet_MatchesCtorArg()
+        {
+            const DataType dataType = DataType.Interval;
+            const int length = 10;
+            var attr = new FakeDeclaredTypeAttribute(dataType, length, true);
+
+            Assert.AreEqual(dataType, attr.DataType);
+        }
+
+        [Test]
+        public static void Length_GivenValidDataTypeAndLengthPropertyGet_MatchesCtorArg()
         {
             const DataType dataType = DataType.Interval;
             const int length = 10;
@@ -48,17 +58,7 @@ namespace SJP.Schematic.Modelled.Reflection.Model.Attributes.Tests
         }
 
         [Test]
-        public void Length_GivenValidDataTypeAndLengthPropertyGet_MatchesCtorArg()
-        {
-            const DataType dataType = DataType.Interval;
-            const int length = 10;
-            var attr = new FakeDeclaredTypeAttribute(dataType, length, true);
-
-            Assert.AreEqual(length, attr.Length);
-        }
-
-        [Test]
-        public void IsFixedLength_GivenValidDataTypeAndLengthPropertyGet_MatchesCtorArg()
+        public static void IsFixedLength_GivenValidDataTypeAndLengthPropertyGet_MatchesCtorArg()
         {
             const DataType dataType = DataType.Interval;
             const int length = 10;
@@ -69,7 +69,7 @@ namespace SJP.Schematic.Modelled.Reflection.Model.Attributes.Tests
         }
 
         [Test]
-        public void Ctor_GivenInvalidDataTypeAndValidPrecisionAndValidScale_ThrowsArgumentException()
+        public static void Ctor_GivenInvalidDataTypeAndValidPrecisionAndValidScale_ThrowsArgumentException()
         {
             const DataType dataType = (DataType)55;
             const int precision = 10;
@@ -79,7 +79,7 @@ namespace SJP.Schematic.Modelled.Reflection.Model.Attributes.Tests
         }
 
         [Test]
-        public void Ctor_GivenValidDataTypeAndInvalidPrecisionAndValidScale_ThrowsArgumentOutOfRangeException()
+        public static void Ctor_GivenValidDataTypeAndInvalidPrecisionAndValidScale_ThrowsArgumentOutOfRangeException()
         {
             const DataType dataType = DataType.Integer;
             const int precision = -10;
@@ -89,7 +89,7 @@ namespace SJP.Schematic.Modelled.Reflection.Model.Attributes.Tests
         }
 
         [Test]
-        public void DataType_GivenValidDataTypeAndValidPrecisionAndInvalidScale_MatchesCtorArg()
+        public static void DataType_GivenValidDataTypeAndValidPrecisionAndInvalidScale_MatchesCtorArg()
         {
             const DataType dataType = DataType.Integer;
             const int precision = 10;
@@ -99,7 +99,7 @@ namespace SJP.Schematic.Modelled.Reflection.Model.Attributes.Tests
         }
 
         [Test]
-        public void DataType_GivenValidDataTypeAndPrecisionAndScalePropertyGet_MatchesCtorArg()
+        public static void DataType_GivenValidDataTypeAndPrecisionAndScalePropertyGet_MatchesCtorArg()
         {
             const DataType dataType = DataType.Integer;
             const int precision = 10;
@@ -110,7 +110,7 @@ namespace SJP.Schematic.Modelled.Reflection.Model.Attributes.Tests
         }
 
         [Test]
-        public void Length_GivenValidDataTypeAndPrecisionAndScalePropertyGet_MatchesCtorArg()
+        public static void Length_GivenValidDataTypeAndPrecisionAndScalePropertyGet_MatchesCtorArg()
         {
             const DataType dataType = DataType.Integer;
             const int precision = 10;
@@ -121,7 +121,7 @@ namespace SJP.Schematic.Modelled.Reflection.Model.Attributes.Tests
         }
 
         [Test]
-        public void Precision_GivenValidDataTypeAndPrecisionAndScalePropertyGet_MatchesCtorArg()
+        public static void Precision_GivenValidDataTypeAndPrecisionAndScalePropertyGet_MatchesCtorArg()
         {
             const DataType dataType = DataType.Integer;
             const int precision = 10;
@@ -132,7 +132,7 @@ namespace SJP.Schematic.Modelled.Reflection.Model.Attributes.Tests
         }
 
         [Test]
-        public void Scale_GivenValidDataTypeAndLengthPropertyGet_MatchesCtorArg()
+        public static void Scale_GivenValidDataTypeAndLengthPropertyGet_MatchesCtorArg()
         {
             const DataType dataType = DataType.Integer;
             const int precision = 10;
@@ -149,23 +149,11 @@ namespace SJP.Schematic.Modelled.Reflection.Model.Attributes.Tests
             {
             }
 
-            public FakeDeclaredTypeAttribute(DataType dataType, params Type[] dialects) : base(dataType, dialects)
-            {
-            }
-
             public FakeDeclaredTypeAttribute(DataType dataType, int length, bool isFixedLength = false) : base(dataType, length, isFixedLength)
             {
             }
 
             public FakeDeclaredTypeAttribute(DataType dataType, int precision, int scale = 0) : base(dataType, precision, scale)
-            {
-            }
-
-            public FakeDeclaredTypeAttribute(DataType dataType, int length, bool isFixedLength = false, params Type[] dialects) : base(dataType, length, isFixedLength, dialects)
-            {
-            }
-
-            public FakeDeclaredTypeAttribute(DataType dataType, int precision, int scale = 0, params Type[] dialects) : base(dataType, precision, scale, dialects)
             {
             }
         }

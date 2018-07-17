@@ -11,24 +11,24 @@ using SJP.Schematic.Lint.Tests.Fakes;
 namespace SJP.Schematic.Lint.Tests.Rules
 {
     [TestFixture]
-    internal class NoSurrogatePrimaryKeyRuleTests
+    internal static class NoSurrogatePrimaryKeyRuleTests
     {
         [Test]
-        public void Ctor_GivenInvalidLevel_ThrowsArgumentException()
+        public static void Ctor_GivenInvalidLevel_ThrowsArgumentException()
         {
             const RuleLevel level = (RuleLevel)999;
             Assert.Throws<ArgumentException>(() => new NoSurrogatePrimaryKeyRule(level));
         }
 
         [Test]
-        public void AnalyseDatabase_GivenNullDatabase_ThrowsArgumentNullException()
+        public static void AnalyseDatabase_GivenNullDatabase_ThrowsArgumentNullException()
         {
             var rule = new NoSurrogatePrimaryKeyRule(RuleLevel.Error);
             Assert.Throws<ArgumentNullException>(() => rule.AnalyseDatabase(null));
         }
 
         [Test]
-        public void AnalyseDatabase_GivenTableWithMissingPrimaryKey_ProducesNoMessages()
+        public static void AnalyseDatabase_GivenTableWithMissingPrimaryKey_ProducesNoMessages()
         {
             var rule = new NoSurrogatePrimaryKeyRule(RuleLevel.Error);
 
@@ -53,7 +53,7 @@ namespace SJP.Schematic.Lint.Tests.Rules
         }
 
         [Test]
-        public void AnalyseDatabase_GivenTableWithSingleColumnPrimaryKey_ProducesNoMessages()
+        public static void AnalyseDatabase_GivenTableWithSingleColumnPrimaryKey_ProducesNoMessages()
         {
             var rule = new NoSurrogatePrimaryKeyRule(RuleLevel.Error);
             var database = CreateFakeDatabase();
@@ -94,7 +94,7 @@ namespace SJP.Schematic.Lint.Tests.Rules
         }
 
         [Test]
-        public void AnalyseDatabase_GivenTableWithMultiColumnPrimaryKey_ProducesMessages()
+        public static void AnalyseDatabase_GivenTableWithMultiColumnPrimaryKey_ProducesMessages()
         {
             var rule = new NoSurrogatePrimaryKeyRule(RuleLevel.Error);
             var database = CreateFakeDatabase();

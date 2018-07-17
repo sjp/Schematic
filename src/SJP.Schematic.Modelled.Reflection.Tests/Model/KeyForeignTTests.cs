@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using Moq;
 using NUnit.Framework;
@@ -8,38 +9,38 @@ using SJP.Schematic.Core;
 namespace SJP.Schematic.Modelled.Reflection.Model.Tests
 {
     [TestFixture]
-    internal class KeyForeignTTests
+    internal static class KeyForeignTTests
     {
         [Test]
-        public void Ctor_GivenNullSelector_ThrowsArgumentNullException()
+        public static void Ctor_GivenNullSelector_ThrowsArgumentNullException()
         {
             var testColumn = Mock.Of<IModelledColumn>();
             Assert.Throws<ArgumentNullException>(() => new Key.Foreign<TestTable1>(null, testColumn));
         }
 
         [Test]
-        public void Ctor_GivenNullColumn_ThrowsArgumentNullException()
+        public static void Ctor_GivenNullColumn_ThrowsArgumentNullException()
         {
             IModelledColumn testColumn = null;
             Assert.Throws<ArgumentNullException>(() => new Key.Foreign<TestTable1>(t => t.PK_TARGET, testColumn));
         }
 
         [Test]
-        public void Ctor_GivenNullColumns_ThrowsArgumentNullException()
+        public static void Ctor_GivenNullColumns_ThrowsArgumentNullException()
         {
             IEnumerable<IModelledColumn> testColumns = null;
             Assert.Throws<ArgumentNullException>(() => new Key.Foreign<TestTable1>(t => t.PK_TARGET, testColumns));
         }
 
         [Test]
-        public void Ctor_GivenCollectoonWithNullColumns_ThrowsArgumentNullException()
+        public static void Ctor_GivenCollectoonWithNullColumns_ThrowsArgumentNullException()
         {
             var testColumns = new IModelledColumn[] { null };
             Assert.Throws<ArgumentNullException>(() => new Key.Foreign<TestTable1>(t => t.PK_TARGET, testColumns));
         }
 
         [Test]
-        public void TargetType_PropertyGet_MatchesTypeArgument()
+        public static void TargetType_PropertyGet_MatchesTypeArgument()
         {
             var testColumn = Mock.Of<IModelledColumn>();
             var foreignKey = new Key.Foreign<TestTable1>(t => t.PK_TARGET, testColumn);
@@ -48,7 +49,7 @@ namespace SJP.Schematic.Modelled.Reflection.Model.Tests
         }
 
         [Test]
-        public void KeySelector_WithSelectorToPrimaryKeyAndPropertyInfoNotSet_ThrowsInvalidOperationException()
+        public static void KeySelector_WithSelectorToPrimaryKeyAndPropertyInfoNotSet_ThrowsInvalidOperationException()
         {
             var testColumn = Mock.Of<IModelledColumn>();
             var foreignKey = new Key.Foreign<TestTable1>(t => t.PK_TARGET, testColumn);
@@ -58,7 +59,7 @@ namespace SJP.Schematic.Modelled.Reflection.Model.Tests
         }
 
         [Test]
-        public void KeySelector_WithSelectorUniqueKeyAndPropertyInfoNotSet_ThrowsInvalidOperationException()
+        public static void KeySelector_WithSelectorUniqueKeyAndPropertyInfoNotSet_ThrowsInvalidOperationException()
         {
             var testColumn = Mock.Of<IModelledColumn>();
             var foreignKey = new Key.Foreign<TestTable1>(t => t.UK_TARGET, testColumn);
@@ -68,7 +69,7 @@ namespace SJP.Schematic.Modelled.Reflection.Model.Tests
         }
 
         [Test]
-        public void KeySelector_WithSimpleFunctionToPrimaryKey_ReturnsCorrectKey()
+        public static void KeySelector_WithSimpleFunctionToPrimaryKey_ReturnsCorrectKey()
         {
             var testColumn = Mock.Of<IModelledColumn>();
             var foreignKey = new Key.Foreign<TestTable1>(t => t.PK_TARGET, testColumn)
@@ -85,7 +86,7 @@ namespace SJP.Schematic.Modelled.Reflection.Model.Tests
         }
 
         [Test]
-        public void KeySelector_WithSimpleFunctionToUniqueKey_ReturnsCorrectKey()
+        public static void KeySelector_WithSimpleFunctionToUniqueKey_ReturnsCorrectKey()
         {
             var testColumn = Mock.Of<IModelledColumn>();
             var foreignKey = new Key.Foreign<TestTable1>(t => t.UK_TARGET, testColumn)
@@ -102,7 +103,7 @@ namespace SJP.Schematic.Modelled.Reflection.Model.Tests
         }
 
         [Test]
-        public void KeySelector_GivenWrongObject_ThrowsInvalidOperationException()
+        public static void KeySelector_GivenWrongObject_ThrowsInvalidOperationException()
         {
             var testColumn = Mock.Of<IModelledColumn>();
             var foreignKey = new Key.Foreign<TestTable1>(t => t.PK_TARGET, testColumn);
@@ -112,16 +113,16 @@ namespace SJP.Schematic.Modelled.Reflection.Model.Tests
         }
 
         [Test]
-        public void KeySelector_WhenCtorNotGivenSimpleSelector_ThrowsInvalidOperationException()
+        public static void KeySelector_WhenCtorNotGivenSimpleSelector_ThrowsInvalidOperationException()
         {
             var testColumn = Mock.Of<IModelledColumn>();
-            Func<TestTable1, Key> selector = t =>
+            Key selector(TestTable1 t)
             {
                 var testString = "test";
                 var strLength = testString.Length;
-                testString = null;
+                Debug.Assert(strLength > 0);
                 return t.PK_TARGET;
-            };
+            }
             var foreignKey = new Key.Foreign<TestTable1>(selector, testColumn);
 
             var instance = new TestTable1();

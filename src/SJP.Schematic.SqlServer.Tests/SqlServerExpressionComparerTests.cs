@@ -4,33 +4,30 @@ using NUnit.Framework;
 namespace SJP.Schematic.SqlServer.Tests
 {
     [TestFixture]
-    internal class SqlServerExpressionComparerTests
+    internal static class SqlServerExpressionComparerTests
     {
         [Test]
-        public void Ctor_GivenNullComparer_CreatesWithoutError()
+        public static void Ctor_GivenNullComparer_CreatesWithoutError()
         {
             var argComparer = StringComparer.Ordinal;
-            var comparer = new SqlServerExpressionComparer(sqlStringComparer: argComparer);
-            Assert.Pass();
+            Assert.DoesNotThrow(() => new SqlServerExpressionComparer(sqlStringComparer: argComparer));
         }
 
         [Test]
-        public void Ctor_GivenNullSqlStringComparer_CreatesWithoutError()
+        public static void Ctor_GivenNullSqlStringComparer_CreatesWithoutError()
         {
             var argComparer = StringComparer.Ordinal;
-            var comparer = new SqlServerExpressionComparer(argComparer);
-            Assert.Pass();
+            Assert.DoesNotThrow(() => new SqlServerExpressionComparer(argComparer));
         }
 
         [Test]
-        public void Ctor_GivenNoComparers_CreatesWithoutError()
+        public static void Ctor_GivenNoComparers_CreatesWithoutError()
         {
-            var comparer = new SqlServerExpressionComparer();
-            Assert.Pass();
+            Assert.DoesNotThrow(() => new SqlServerExpressionComparer());
         }
 
         [Test]
-        public void Equals_GivenEqualSqlStringArguments_ReturnsTrue()
+        public static void Equals_GivenEqualSqlStringArguments_ReturnsTrue()
         {
             const string input = "'abc'";
             var comparer = new SqlServerExpressionComparer();
@@ -41,7 +38,7 @@ namespace SJP.Schematic.SqlServer.Tests
         }
 
         [Test]
-        public void Equals_GivenDifferentSqlStringArguments_ReturnsFalse()
+        public static void Equals_GivenDifferentSqlStringArguments_ReturnsFalse()
         {
             const string inputX = "'abc'";
             const string inputY = "'zxc'";
@@ -53,7 +50,7 @@ namespace SJP.Schematic.SqlServer.Tests
         }
 
         [Test]
-        public void Equals_GivenEqualSqlStringArgumentsWrappedInParens_ReturnsTrue()
+        public static void Equals_GivenEqualSqlStringArgumentsWrappedInParens_ReturnsTrue()
         {
             const string input = "('abc')";
             var comparer = new SqlServerExpressionComparer();
@@ -64,7 +61,7 @@ namespace SJP.Schematic.SqlServer.Tests
         }
 
         [Test]
-        public void Equals_GivenDifferentSqlStringArgumentsWrappedInParens_ReturnsFalse()
+        public static void Equals_GivenDifferentSqlStringArgumentsWrappedInParens_ReturnsFalse()
         {
             const string inputX = "('abc')";
             const string inputY = "('zxc')";
@@ -76,7 +73,7 @@ namespace SJP.Schematic.SqlServer.Tests
         }
 
         [Test]
-        public void Equals_GivenEqualSqlStringsWithOneWrappedInParens_ReturnsTrue()
+        public static void Equals_GivenEqualSqlStringsWithOneWrappedInParens_ReturnsTrue()
         {
             const string inputX = "('abc')";
             const string inputY = "'abc'";
@@ -88,7 +85,7 @@ namespace SJP.Schematic.SqlServer.Tests
         }
 
         [Test]
-        public void Equals_GivenDifferentSqlStringsWithOneWrappedInParens_ReturnsTrue()
+        public static void Equals_GivenDifferentSqlStringsWithOneWrappedInParens_ReturnsTrue()
         {
             const string inputX = "('abc')";
             const string inputY = "'zxc'";
@@ -100,7 +97,7 @@ namespace SJP.Schematic.SqlServer.Tests
         }
 
         [Test]
-        public void Equals_GivenEqualDateArguments_ReturnsTrue()
+        public static void Equals_GivenEqualDateArguments_ReturnsTrue()
         {
             const string input = "getdate()";
             var comparer = new SqlServerExpressionComparer();
@@ -111,7 +108,7 @@ namespace SJP.Schematic.SqlServer.Tests
         }
 
         [Test]
-        public void Equals_GivenDifferentDateArguments_ReturnsFalse()
+        public static void Equals_GivenDifferentDateArguments_ReturnsFalse()
         {
             const string inputX = "getdate()";
             const string inputY = "getutcdate()";
@@ -123,7 +120,7 @@ namespace SJP.Schematic.SqlServer.Tests
         }
 
         [Test]
-        public void Equals_GivenEqualDateArgumentsWrappedInParens_ReturnsTrue()
+        public static void Equals_GivenEqualDateArgumentsWrappedInParens_ReturnsTrue()
         {
             const string input = "(getdate())";
             var comparer = new SqlServerExpressionComparer();
@@ -134,7 +131,7 @@ namespace SJP.Schematic.SqlServer.Tests
         }
 
         [Test]
-        public void Equals_GivenDifferentDateArgumentsWrappedInParens_ReturnsFalse()
+        public static void Equals_GivenDifferentDateArgumentsWrappedInParens_ReturnsFalse()
         {
             const string inputX = "(getdate())";
             const string inputY = "(getutcdate())";
@@ -146,7 +143,7 @@ namespace SJP.Schematic.SqlServer.Tests
         }
 
         [Test]
-        public void Equals_GivenEqualDatesWithOneWrappedInParens_ReturnsTrue()
+        public static void Equals_GivenEqualDatesWithOneWrappedInParens_ReturnsTrue()
         {
             const string inputX = "(getdate())";
             const string inputY = "getdate()";
@@ -158,7 +155,7 @@ namespace SJP.Schematic.SqlServer.Tests
         }
 
         [Test]
-        public void Equals_GivenDifferentDatesWithOneWrappedInParens_ReturnsTrue()
+        public static void Equals_GivenDifferentDatesWithOneWrappedInParens_ReturnsTrue()
         {
             const string inputX = "(getdate())";
             const string inputY = "getutcdate()";
@@ -170,7 +167,7 @@ namespace SJP.Schematic.SqlServer.Tests
         }
 
         [Test]
-        public void Equals_GivenEqualNumberArguments_ReturnsTrue()
+        public static void Equals_GivenEqualNumberArguments_ReturnsTrue()
         {
             const string input = "123";
             var comparer = new SqlServerExpressionComparer();
@@ -181,7 +178,7 @@ namespace SJP.Schematic.SqlServer.Tests
         }
 
         [Test]
-        public void Equals_GivenDifferentNumberArguments_ReturnsFalse()
+        public static void Equals_GivenDifferentNumberArguments_ReturnsFalse()
         {
             const string inputX = "123";
             const string inputY = "456";
@@ -193,7 +190,7 @@ namespace SJP.Schematic.SqlServer.Tests
         }
 
         [Test]
-        public void Equals_GivenEqualNumberArgumentsWrappedInParens_ReturnsTrue()
+        public static void Equals_GivenEqualNumberArgumentsWrappedInParens_ReturnsTrue()
         {
             const string input = "(123)";
             var comparer = new SqlServerExpressionComparer();
@@ -204,7 +201,7 @@ namespace SJP.Schematic.SqlServer.Tests
         }
 
         [Test]
-        public void Equals_GivenDifferentNumberArgumentsWrappedInParens_ReturnsFalse()
+        public static void Equals_GivenDifferentNumberArgumentsWrappedInParens_ReturnsFalse()
         {
             const string inputX = "(123)";
             const string inputY = "(456)";
@@ -216,7 +213,7 @@ namespace SJP.Schematic.SqlServer.Tests
         }
 
         [Test]
-        public void Equals_GivenEqualNumbersWithOneWrappedInParens_ReturnsTrue()
+        public static void Equals_GivenEqualNumbersWithOneWrappedInParens_ReturnsTrue()
         {
             const string inputX = "(123)";
             const string inputY = "123";
@@ -228,7 +225,7 @@ namespace SJP.Schematic.SqlServer.Tests
         }
 
         [Test]
-        public void Equals_GivenDifferentNumbersWithOneWrappedInParens_ReturnsTrue()
+        public static void Equals_GivenDifferentNumbersWithOneWrappedInParens_ReturnsTrue()
         {
             const string inputX = "(123)";
             const string inputY = "456";
@@ -240,7 +237,7 @@ namespace SJP.Schematic.SqlServer.Tests
         }
 
         [Test]
-        public void Equals_GivenEqualNumbersWithOneWrappedTwiceInParens_ReturnsTrue()
+        public static void Equals_GivenEqualNumbersWithOneWrappedTwiceInParens_ReturnsTrue()
         {
             const string inputX = "((123))";
             const string inputY = "123";
@@ -252,7 +249,7 @@ namespace SJP.Schematic.SqlServer.Tests
         }
 
         [Test]
-        public void Equals_GivenEqualComplexExpressions_ReturnsTrue()
+        public static void Equals_GivenEqualComplexExpressions_ReturnsTrue()
         {
             const string input = "[test_column_1] > len(left([abc], 50))";
             var comparer = new SqlServerExpressionComparer();
@@ -263,7 +260,7 @@ namespace SJP.Schematic.SqlServer.Tests
         }
 
         [Test]
-        public void Equals_GivenDifferentComplexExpressions_ReturnsFalse()
+        public static void Equals_GivenDifferentComplexExpressions_ReturnsFalse()
         {
             const string inputX = "[test_column_1] > len(left([abc], 50))";
             const string inputY = "[test_column_2] < len(left([abc], 50))";
@@ -275,7 +272,7 @@ namespace SJP.Schematic.SqlServer.Tests
         }
 
         [Test]
-        public void Equals_GivenEqualComplexExpressionsWrappedInParens_ReturnsTrue()
+        public static void Equals_GivenEqualComplexExpressionsWrappedInParens_ReturnsTrue()
         {
             const string input = "([test_column_1] > len(left([abc], 50)))";
             var comparer = new SqlServerExpressionComparer();
@@ -286,7 +283,7 @@ namespace SJP.Schematic.SqlServer.Tests
         }
 
         [Test]
-        public void Equals_GivenEqualComplexExpressionsOneWithParenWrappedNumericValue_ReturnsTrue()
+        public static void Equals_GivenEqualComplexExpressionsOneWithParenWrappedNumericValue_ReturnsTrue()
         {
             const string inputX = "([test_column_1] > len(left([abc], (50))))";
             const string inputY = "[test_column_1] > len(left([abc], 50))";
@@ -298,7 +295,7 @@ namespace SJP.Schematic.SqlServer.Tests
         }
 
         [Test]
-        public void Equals_GivenEqualComplexExpressionsOneWithWhitespaceRemoved_ReturnsTrue()
+        public static void Equals_GivenEqualComplexExpressionsOneWithWhitespaceRemoved_ReturnsTrue()
         {
             const string inputX = "([test_column_1] > len(left([abc], (50))))";
             const string inputY = "[test_column_1]>len(left([abc],50))";
@@ -310,7 +307,7 @@ namespace SJP.Schematic.SqlServer.Tests
         }
 
         [Test]
-        public void Equals_GivenDefaultTextComparerAndEqualComplexExpressionsButDifferentCase_ReturnsFalse()
+        public static void Equals_GivenDefaultTextComparerAndEqualComplexExpressionsButDifferentCase_ReturnsFalse()
         {
             const string inputX = "([test_column_1] > len(left([abc], (50))))";
             const string inputY = "([TEST_Column_1] > len(left([abc], (50))))";
@@ -322,7 +319,7 @@ namespace SJP.Schematic.SqlServer.Tests
         }
 
         [Test]
-        public void Equals_GivenIgnoreCaseTextComparerAndEqualComplexExpressionsButDifferentCase_ReturnsTrue()
+        public static void Equals_GivenIgnoreCaseTextComparerAndEqualComplexExpressionsButDifferentCase_ReturnsTrue()
         {
             const string inputX = "([test_column_1] > len(left([abc], (50))))";
             const string inputY = "([TEST_Column_1] > len(left([abc], (50))))";
@@ -334,7 +331,7 @@ namespace SJP.Schematic.SqlServer.Tests
         }
 
         [Test]
-        public void Equals_GivenDefaultTextComparerAndEqualComplexExpressionsButDifferentStringCase_ReturnsFalse()
+        public static void Equals_GivenDefaultTextComparerAndEqualComplexExpressionsButDifferentStringCase_ReturnsFalse()
         {
             const string inputX = "([test_column_1] > len(left('asd', (50))))";
             const string inputY = "([test_column_1] > len(left('ASD', (50))))";
@@ -346,7 +343,7 @@ namespace SJP.Schematic.SqlServer.Tests
         }
 
         [Test]
-        public void Equals_GivenIgnoreCaseTextComparerAndEqualComplexExpressionsButDifferentStringCase_ReturnsTrue()
+        public static void Equals_GivenIgnoreCaseTextComparerAndEqualComplexExpressionsButDifferentStringCase_ReturnsTrue()
         {
             const string inputX = "([test_column_1] > len(left('asd', (50))))";
             const string inputY = "([test_column_1] > len(left('ASD', (50))))";

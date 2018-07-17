@@ -7,18 +7,18 @@ using System.Data;
 namespace SJP.Schematic.Core.Tests.Caching
 {
     [TestFixture]
-    internal class DbConnectionAdapterTests
+    internal static class DbConnectionAdapterTests
     {
-        protected Mock<IDbConnection> ConnectionMock => new Mock<IDbConnection>();
+        private static Mock<IDbConnection> ConnectionMock => new Mock<IDbConnection>();
 
         [Test]
-        public void Ctor_GivenNullConnection_ThrowsArgNullException()
+        public static void Ctor_GivenNullConnection_ThrowsArgNullException()
         {
             Assert.Throws<ArgumentNullException>(() => new DbConnectionAdapter(null));
         }
 
         [Test]
-        public void ConnectionString_PropertyGet_ReadsProvidedConnection()
+        public static void ConnectionString_PropertyGet_ReadsProvidedConnection()
         {
             var mock = ConnectionMock;
             var adapter = new DbConnectionAdapter(mock.Object);
@@ -28,7 +28,7 @@ namespace SJP.Schematic.Core.Tests.Caching
         }
 
         [Test]
-        public void ConnectionString_PropertySet_SetsProvidedConnection()
+        public static void ConnectionString_PropertySet_SetsProvidedConnection()
         {
             var mock = ConnectionMock;
             var adapter = new DbConnectionAdapter(mock.Object);
@@ -39,7 +39,7 @@ namespace SJP.Schematic.Core.Tests.Caching
         }
 
         [Test]
-        public void Database_PropertyGet_ReadsProvidedConnection()
+        public static void Database_PropertyGet_ReadsProvidedConnection()
         {
             var mock = ConnectionMock;
             var adapter = new DbConnectionAdapter(mock.Object);
@@ -49,7 +49,7 @@ namespace SJP.Schematic.Core.Tests.Caching
         }
 
         [Test]
-        public void DataSource_PropertyGet_AlwaysEmptyString()
+        public static void DataSource_PropertyGet_AlwaysEmptyString()
         {
             var mock = ConnectionMock;
             var adapter = new DbConnectionAdapter(mock.Object);
@@ -59,7 +59,7 @@ namespace SJP.Schematic.Core.Tests.Caching
         }
 
         [Test]
-        public void ServerVersion_PropertyGet_AlwaysEmptyString()
+        public static void ServerVersion_PropertyGet_AlwaysEmptyString()
         {
             var mock = ConnectionMock;
             var adapter = new DbConnectionAdapter(mock.Object);
@@ -68,7 +68,7 @@ namespace SJP.Schematic.Core.Tests.Caching
         }
 
         [Test]
-        public void State_PropertyGet_ReadsProvidedConnection()
+        public static void State_PropertyGet_ReadsProvidedConnection()
         {
             var mock = ConnectionMock;
             var adapter = new DbConnectionAdapter(mock.Object);
@@ -78,7 +78,7 @@ namespace SJP.Schematic.Core.Tests.Caching
         }
 
         [Test]
-        public void ChangeDatabase_WhenInvoked_CallsProvidedConnection()
+        public static void ChangeDatabase_WhenInvoked_CallsProvidedConnection()
         {
             var mock = ConnectionMock;
             var adapter = new DbConnectionAdapter(mock.Object);
@@ -89,7 +89,7 @@ namespace SJP.Schematic.Core.Tests.Caching
         }
 
         [Test]
-        public void Close_WhenInvoked_CallsProvidedConnection()
+        public static void Close_WhenInvoked_CallsProvidedConnection()
         {
             var mock = ConnectionMock;
             var adapter = new DbConnectionAdapter(mock.Object);
@@ -99,7 +99,7 @@ namespace SJP.Schematic.Core.Tests.Caching
         }
 
         [Test]
-        public void Open_WhenInvoked_CallsProvidedConnection()
+        public static void Open_WhenInvoked_CallsProvidedConnection()
         {
             var mock = ConnectionMock;
             var adapter = new DbConnectionAdapter(mock.Object);
@@ -109,7 +109,7 @@ namespace SJP.Schematic.Core.Tests.Caching
         }
 
         [Test]
-        public void BeginTransaction_WhenInvoked_CallsProvidedConnection()
+        public static void BeginTransaction_WhenInvoked_CallsProvidedConnection()
         {
             var mock = ConnectionMock;
             var mockTransaction = Mock.Of<IDbTransaction>();
@@ -123,7 +123,7 @@ namespace SJP.Schematic.Core.Tests.Caching
         }
 
         [Test]
-        public void CreateCommand_WhenInvoked_CallsProvidedConnection()
+        public static void CreateCommand_WhenInvoked_CallsProvidedConnection()
         {
             var mock = ConnectionMock;
             var mockCommand = new Mock<IDbCommand>();

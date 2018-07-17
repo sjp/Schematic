@@ -5,17 +5,17 @@ using NUnit.Framework;
 namespace SJP.Schematic.Modelled.Reflection.Model.Attributes.Tests
 {
     [TestFixture]
-    internal class OnUpdateRuleAttributeTests
+    internal static class OnUpdateRuleAttributeTests
     {
         [Test]
-        public void Ctor_GivenInvalidRule_ThrowsArgumentException()
+        public static void Ctor_GivenInvalidRule_ThrowsArgumentException()
         {
             const Rule rule = (Rule)55;
             Assert.Throws<ArgumentException>(() => new OnUpdateRuleAttribute(rule));
         }
 
         [Test]
-        public void Rule_PropertyGet_MatchesCtorArgument()
+        public static void Rule_PropertyGet_MatchesCtorArgument()
         {
             const Rule rule = Rule.SetDefault;
             var onUpdateRuleAttr = new OnUpdateRuleAttribute(rule);

@@ -10,16 +10,11 @@ namespace SJP.Schematic.Reporting.Html.ViewModels
     {
         public Indexes(IEnumerable<Index> indexes, string rootPath)
         {
-            if (indexes == null)
-                throw new ArgumentNullException(nameof(indexes));
-            if (rootPath == null)
-                throw new ArgumentNullException(nameof(rootPath));
-
-            TableIndexes = indexes;
+            TableIndexes = indexes ?? throw new ArgumentNullException(nameof(indexes));
             IndexesCount = indexes.UCount();
             IndexesTableClass = IndexesCount > 0 ? CssClasses.DataTableClass : string.Empty;
 
-            RootPath = rootPath;
+            RootPath = rootPath ?? throw new ArgumentNullException(nameof(rootPath));
         }
 
         public ReportTemplate Template { get; } = ReportTemplate.Indexes;

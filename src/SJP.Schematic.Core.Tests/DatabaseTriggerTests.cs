@@ -5,10 +5,10 @@ using Moq;
 namespace SJP.Schematic.Core.Tests
 {
     [TestFixture]
-    internal class DatabaseTriggerTests
+    internal static class DatabaseTriggerTests
     {
         [Test]
-        public void Ctor_GivenNullTable_ThrowsArgumentNullException()
+        public static void Ctor_GivenNullTable_ThrowsArgumentNullException()
         {
             Identifier triggerName = "test_trigger";
             const string definition = "create trigger test_trigger...";
@@ -19,7 +19,7 @@ namespace SJP.Schematic.Core.Tests
         }
 
         [Test]
-        public void Ctor_GivenNullName_ThrowsArgumentNullException()
+        public static void Ctor_GivenNullName_ThrowsArgumentNullException()
         {
             var table = Mock.Of<IRelationalDatabaseTable>();
             const string definition = "create trigger test_trigger...";
@@ -30,9 +30,8 @@ namespace SJP.Schematic.Core.Tests
         }
 
         [Test]
-        public void Ctor_GivenNullDefinition_ThrowsArgumentNullException()
+        public static void Ctor_GivenNullDefinition_ThrowsArgumentNullException()
         {
-            var table = Mock.Of<IRelationalDatabaseTable>();
             Identifier triggerName = "test_trigger";
             const TriggerQueryTiming timing = TriggerQueryTiming.Before;
             const TriggerEvent events = TriggerEvent.Update;
@@ -41,9 +40,8 @@ namespace SJP.Schematic.Core.Tests
         }
 
         [Test]
-        public void Ctor_GivenEmptyDefinition_ThrowsArgumentNullException()
+        public static void Ctor_GivenEmptyDefinition_ThrowsArgumentNullException()
         {
-            var table = Mock.Of<IRelationalDatabaseTable>();
             Identifier triggerName = "test_trigger";
             var definition = string.Empty;
             const TriggerQueryTiming timing = TriggerQueryTiming.Before;
@@ -53,9 +51,8 @@ namespace SJP.Schematic.Core.Tests
         }
 
         [Test]
-        public void Ctor_GivenWhiteSpaceDefinition_ThrowsArgumentNullException()
+        public static void Ctor_GivenWhiteSpaceDefinition_ThrowsArgumentNullException()
         {
-            var table = Mock.Of<IRelationalDatabaseTable>();
             Identifier triggerName = "test_trigger";
             const string definition = "          ";
             const TriggerQueryTiming timing = TriggerQueryTiming.Before;
@@ -65,9 +62,8 @@ namespace SJP.Schematic.Core.Tests
         }
 
         [Test]
-        public void Ctor_GivenInvalidTriggerQueryTiming_ThrowsArgumentException()
+        public static void Ctor_GivenInvalidTriggerQueryTiming_ThrowsArgumentException()
         {
-            var table = Mock.Of<IRelationalDatabaseTable>();
             Identifier triggerName = "test_trigger";
             const string definition = "create trigger test_trigger...";
             const TriggerQueryTiming timing = (TriggerQueryTiming)55;
@@ -77,9 +73,8 @@ namespace SJP.Schematic.Core.Tests
         }
 
         [Test]
-        public void Ctor_GivenInvalidTriggerEvent_ThrowsArgumentException()
+        public static void Ctor_GivenInvalidTriggerEvent_ThrowsArgumentException()
         {
-            var table = Mock.Of<IRelationalDatabaseTable>();
             Identifier triggerName = "test_trigger";
             const string definition = "create trigger test_trigger...";
             const TriggerQueryTiming timing = TriggerQueryTiming.Before;
@@ -89,9 +84,8 @@ namespace SJP.Schematic.Core.Tests
         }
 
         [Test]
-        public void Ctor_GivenNoTriggerEvents_ThrowsArgumentException()
+        public static void Ctor_GivenNoTriggerEvents_ThrowsArgumentException()
         {
-            var table = Mock.Of<IRelationalDatabaseTable>();
             Identifier triggerName = "test_trigger";
             const string definition = "create trigger test_trigger...";
             const TriggerQueryTiming timing = TriggerQueryTiming.Before;
@@ -101,7 +95,7 @@ namespace SJP.Schematic.Core.Tests
         }
 
         [Test]
-        public void Table_PropertyGet_EqualsCtorArg()
+        public static void Table_PropertyGet_EqualsCtorArg()
         {
             var table = Mock.Of<IRelationalDatabaseTable>();
             Identifier triggerName = "test_trigger";
@@ -115,7 +109,7 @@ namespace SJP.Schematic.Core.Tests
         }
 
         [Test]
-        public void Name_PropertyGet_EqualsCtorArg()
+        public static void Name_PropertyGet_EqualsCtorArg()
         {
             var table = Mock.Of<IRelationalDatabaseTable>();
             Identifier triggerName = "test_trigger";
@@ -129,7 +123,7 @@ namespace SJP.Schematic.Core.Tests
         }
 
         [Test]
-        public void Definition_PropertyGet_EqualsCtorArg()
+        public static void Definition_PropertyGet_EqualsCtorArg()
         {
             var table = Mock.Of<IRelationalDatabaseTable>();
             Identifier triggerName = "test_trigger";
@@ -143,7 +137,7 @@ namespace SJP.Schematic.Core.Tests
         }
 
         [Test]
-        public void QueryTiming_PropertyGet_EqualsCtorArg()
+        public static void QueryTiming_PropertyGet_EqualsCtorArg()
         {
             var table = Mock.Of<IRelationalDatabaseTable>();
             Identifier triggerName = "test_trigger";
@@ -157,7 +151,7 @@ namespace SJP.Schematic.Core.Tests
         }
 
         [Test]
-        public void TriggerEvent_PropertyGet_EqualsCtorArg()
+        public static void TriggerEvent_PropertyGet_EqualsCtorArg()
         {
             var table = Mock.Of<IRelationalDatabaseTable>();
             Identifier triggerName = "test_trigger";
@@ -171,7 +165,7 @@ namespace SJP.Schematic.Core.Tests
         }
 
         [Test]
-        public void IsEnabled_WhenTrueProvidedInCtor_ReturnsTrue()
+        public static void IsEnabled_WhenTrueProvidedInCtor_ReturnsTrue()
         {
             var table = Mock.Of<IRelationalDatabaseTable>();
             Identifier triggerName = "test_trigger";
@@ -185,7 +179,7 @@ namespace SJP.Schematic.Core.Tests
         }
 
         [Test]
-        public void IsEnabled_WhenFalseProvidedInCtor_ReturnsFalse()
+        public static void IsEnabled_WhenFalseProvidedInCtor_ReturnsFalse()
         {
             var table = Mock.Of<IRelationalDatabaseTable>();
             Identifier triggerName = "test_trigger";

@@ -12,7 +12,7 @@ using SJP.Schematic.Core.Utilities;
 
 namespace SJP.Schematic.PostgreSql
 {
-    public class PostgreSqlRelationalDatabase : RelationalDatabase, IRelationalDatabase, IDependentRelationalDatabase
+    public class PostgreSqlRelationalDatabase : RelationalDatabase, IDependentRelationalDatabase
     {
         public PostgreSqlRelationalDatabase(IDatabaseDialect dialect, IDbConnection connection, IEqualityComparer<Identifier> comparer = null)
             : base(dialect, connection)

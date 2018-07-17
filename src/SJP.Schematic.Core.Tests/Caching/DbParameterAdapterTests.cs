@@ -7,18 +7,18 @@ using System.Data;
 namespace SJP.Schematic.Core.Tests.Caching
 {
     [TestFixture]
-    internal class DbParameterAdapterTests
+    internal static class DbParameterAdapterTests
     {
-        protected Mock<IDbDataParameter> ParameterMock => new Mock<IDbDataParameter>();
+        private static Mock<IDbDataParameter> ParameterMock => new Mock<IDbDataParameter>();
 
         [Test]
-        public void Ctor_GivenNullParameter_ThrowsArgNullException()
+        public static void Ctor_GivenNullParameter_ThrowsArgNullException()
         {
             Assert.Throws<ArgumentNullException>(() => new DbParameterAdapter(null));
         }
 
         [Test]
-        public void DbType_PropertyGet_ReadsProvidedParameter()
+        public static void DbType_PropertyGet_ReadsProvidedParameter()
         {
             var mock = ParameterMock;
             var adapter = new DbParameterAdapter(mock.Object);
@@ -28,7 +28,7 @@ namespace SJP.Schematic.Core.Tests.Caching
         }
 
         [Test]
-        public void DbType_PropertySet_SetsProvidedParameter()
+        public static void DbType_PropertySet_SetsProvidedParameter()
         {
             var mock = ParameterMock;
             var adapter = new DbParameterAdapter(mock.Object);
@@ -39,7 +39,7 @@ namespace SJP.Schematic.Core.Tests.Caching
         }
 
         [Test]
-        public void Direction_PropertyGet_ReadsProvidedParameter()
+        public static void Direction_PropertyGet_ReadsProvidedParameter()
         {
             var mock = ParameterMock;
             var adapter = new DbParameterAdapter(mock.Object);
@@ -49,7 +49,7 @@ namespace SJP.Schematic.Core.Tests.Caching
         }
 
         [Test]
-        public void Direction_PropertySet_SetsProvidedParameter()
+        public static void Direction_PropertySet_SetsProvidedParameter()
         {
             var mock = ParameterMock;
             var adapter = new DbParameterAdapter(mock.Object);
@@ -60,7 +60,7 @@ namespace SJP.Schematic.Core.Tests.Caching
         }
 
         [Test]
-        public void IsNullable_PropertyGet_ReadsProvidedParameter()
+        public static void IsNullable_PropertyGet_ReadsProvidedParameter()
         {
             var mock = ParameterMock;
             var adapter = new DbParameterAdapter(mock.Object);
@@ -70,7 +70,7 @@ namespace SJP.Schematic.Core.Tests.Caching
         }
 
         [Test]
-        public void ParameterName_PropertyGet_ReadsProvidedParameter()
+        public static void ParameterName_PropertyGet_ReadsProvidedParameter()
         {
             var mock = ParameterMock;
             var adapter = new DbParameterAdapter(mock.Object);
@@ -80,7 +80,7 @@ namespace SJP.Schematic.Core.Tests.Caching
         }
 
         [Test]
-        public void ParameterName_PropertySet_SetsProvidedParameter()
+        public static void ParameterName_PropertySet_SetsProvidedParameter()
         {
             var mock = ParameterMock;
             var adapter = new DbParameterAdapter(mock.Object);
@@ -91,7 +91,7 @@ namespace SJP.Schematic.Core.Tests.Caching
         }
 
         [Test]
-        public void Size_PropertyGet_ReadsProvidedParameter()
+        public static void Size_PropertyGet_ReadsProvidedParameter()
         {
             var mock = ParameterMock;
             var adapter = new DbParameterAdapter(mock.Object);
@@ -101,7 +101,7 @@ namespace SJP.Schematic.Core.Tests.Caching
         }
 
         [Test]
-        public void Size_PropertySet_SetsProvidedParameter()
+        public static void Size_PropertySet_SetsProvidedParameter()
         {
             var mock = ParameterMock;
             var adapter = new DbParameterAdapter(mock.Object);
@@ -112,7 +112,7 @@ namespace SJP.Schematic.Core.Tests.Caching
         }
 
         [Test]
-        public void SourceColumn_PropertyGet_ReadsProvidedParameter()
+        public static void SourceColumn_PropertyGet_ReadsProvidedParameter()
         {
             var mock = ParameterMock;
             var adapter = new DbParameterAdapter(mock.Object);
@@ -122,7 +122,7 @@ namespace SJP.Schematic.Core.Tests.Caching
         }
 
         [Test]
-        public void SourceColumn_PropertySet_SetsProvidedParameter()
+        public static void SourceColumn_PropertySet_SetsProvidedParameter()
         {
             var mock = ParameterMock;
             var adapter = new DbParameterAdapter(mock.Object);
@@ -133,7 +133,7 @@ namespace SJP.Schematic.Core.Tests.Caching
         }
 
         [Test]
-        public void Value_PropertyGet_ReadsProvidedParameter()
+        public static void Value_PropertyGet_ReadsProvidedParameter()
         {
             var mock = ParameterMock;
             var adapter = new DbParameterAdapter(mock.Object);
@@ -143,7 +143,7 @@ namespace SJP.Schematic.Core.Tests.Caching
         }
 
         [Test]
-        public void Value_PropertySet_SetsProvidedParameter()
+        public static void Value_PropertySet_SetsProvidedParameter()
         {
             var mock = ParameterMock;
             var adapter = new DbParameterAdapter(mock.Object);

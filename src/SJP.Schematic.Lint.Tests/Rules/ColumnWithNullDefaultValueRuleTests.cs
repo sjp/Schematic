@@ -11,24 +11,24 @@ using SJP.Schematic.Lint.Tests.Fakes;
 namespace SJP.Schematic.Lint.Tests.Rules
 {
     [TestFixture]
-    internal class ColumnWithNullDefaultValueRuleTests
+    internal static class ColumnWithNullDefaultValueRuleTests
     {
         [Test]
-        public void Ctor_GivenInvalidLevel_ThrowsArgumentException()
+        public static void Ctor_GivenInvalidLevel_ThrowsArgumentException()
         {
             const RuleLevel level = (RuleLevel)999;
             Assert.Throws<ArgumentException>(() => new ColumnWithNullDefaultValueRule(level));
         }
 
         [Test]
-        public void AnalyseDatabase_GivenNullDatabase_ThrowsArgumentNullException()
+        public static void AnalyseDatabase_GivenNullDatabase_ThrowsArgumentNullException()
         {
             var rule = new ColumnWithNullDefaultValueRule(RuleLevel.Error);
             Assert.Throws<ArgumentNullException>(() => rule.AnalyseDatabase(null));
         }
 
         [Test]
-        public void AnalyseDatabase_GivenTableWithoutColumnsContainingDefaultValues_ProducesNoMessages()
+        public static void AnalyseDatabase_GivenTableWithoutColumnsContainingDefaultValues_ProducesNoMessages()
         {
             var rule = new ColumnWithNullDefaultValueRule(RuleLevel.Error);
             var database = CreateFakeDatabase();
@@ -62,7 +62,7 @@ namespace SJP.Schematic.Lint.Tests.Rules
         }
 
         [Test]
-        public void AnalyseDatabase_GivenTableWithColumnsContainingDefaultValues_ProducesMessages()
+        public static void AnalyseDatabase_GivenTableWithColumnsContainingDefaultValues_ProducesMessages()
         {
             var rule = new ColumnWithNullDefaultValueRule(RuleLevel.Error);
             var database = CreateFakeDatabase();

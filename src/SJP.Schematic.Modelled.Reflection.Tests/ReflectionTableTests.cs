@@ -13,23 +13,23 @@ namespace SJP.Schematic.Modelled.Reflection.Tests
     // TODO: test protected methods
 
     [TestFixture]
-    internal class ReflectionTableTests
+    internal static class ReflectionTableTests
     {
         [Test]
-        public void Ctor_GivenNullDatabase_ThrowsArgumentNullException()
+        public static void Ctor_GivenNullDatabase_ThrowsArgumentNullException()
         {
             Assert.Throws<ArgumentNullException>(() => new ReflectionTable(null, typeof(object)));
         }
 
         [Test]
-        public void Ctor_GivenNullTableType_ThrowsArgumentNullException()
+        public static void Ctor_GivenNullTableType_ThrowsArgumentNullException()
         {
             var database = Mock.Of<IRelationalDatabase>();
             Assert.Throws<ArgumentNullException>(() => new ReflectionTable(database, null));
         }
 
         [Test]
-        public void Ctor_GivenTableTypeWithNoDefaultCtor_ThrowsArgumentException()
+        public static void Ctor_GivenTableTypeWithNoDefaultCtor_ThrowsArgumentException()
         {
             var databaseMock = new Mock<IRelationalDatabase>();
             databaseMock.Setup(db => db.Dialect).Returns(new FakeDialect());
@@ -38,7 +38,7 @@ namespace SJP.Schematic.Modelled.Reflection.Tests
         }
 
         [Test]
-        public void Ctor_GivenTableTypeWithNotAutoProperty_ThrowsArgumentException()
+        public static void Ctor_GivenTableTypeWithNotAutoProperty_ThrowsArgumentException()
         {
             var databaseMock = new Mock<IRelationalDatabase>();
             databaseMock.Setup(db => db.Dialect).Returns(new FakeDialect());
@@ -47,7 +47,7 @@ namespace SJP.Schematic.Modelled.Reflection.Tests
         }
 
         [Test]
-        public void Database_PropertyGet_MatchesCtorArgument()
+        public static void Database_PropertyGet_MatchesCtorArgument()
         {
             var database = new ReflectionRelationalDatabase<TestDatabase1>(new FakeDialect());
             var table = new ReflectionTable(database, typeof(TestTable1));
@@ -56,7 +56,7 @@ namespace SJP.Schematic.Modelled.Reflection.Tests
         }
 
         [Test]
-        public void Name_PropertyGetOnSimpleClass_ReturnsSameNameAsClass()
+        public static void Name_PropertyGetOnSimpleClass_ReturnsSameNameAsClass()
         {
             var database = new ReflectionRelationalDatabase<TestDatabase1>(new FakeDialect());
             var table = new ReflectionTable(database, typeof(TestTable1));
@@ -66,7 +66,7 @@ namespace SJP.Schematic.Modelled.Reflection.Tests
         }
 
         [Test]
-        public void Column_GivenTableWithNoColumns_ReturnsEmptyResult()
+        public static void Column_GivenTableWithNoColumns_ReturnsEmptyResult()
         {
             var database = new ReflectionRelationalDatabase<TestDatabase2>(new FakeDialect());
             var table = new ReflectionTable(database, typeof(TestTable2));
@@ -76,7 +76,7 @@ namespace SJP.Schematic.Modelled.Reflection.Tests
         }
 
         [Test]
-        public void Columns_GivenTableWithNoColumns_ReturnsEmptyResult()
+        public static void Columns_GivenTableWithNoColumns_ReturnsEmptyResult()
         {
             var database = new ReflectionRelationalDatabase<TestDatabase2>(new FakeDialect());
             var table = new ReflectionTable(database, typeof(TestTable2));
@@ -87,7 +87,7 @@ namespace SJP.Schematic.Modelled.Reflection.Tests
         }
 
         [Test]
-        public async Task ColumnAsync_GivenTableWithNoColumns_ReturnsEmptyResult()
+        public static async Task ColumnAsync_GivenTableWithNoColumns_ReturnsEmptyResult()
         {
             var database = new ReflectionRelationalDatabase<TestDatabase2>(new FakeDialect());
             var table = new ReflectionTable(database, typeof(TestTable2));
@@ -97,7 +97,7 @@ namespace SJP.Schematic.Modelled.Reflection.Tests
         }
 
         [Test]
-        public async Task ColumnsAsync_GivenTableWithNoColumns_ReturnsEmptyResult()
+        public static async Task ColumnsAsync_GivenTableWithNoColumns_ReturnsEmptyResult()
         {
             var database = new ReflectionRelationalDatabase<TestDatabase2>(new FakeDialect());
             var table = new ReflectionTable(database, typeof(TestTable2));
@@ -108,7 +108,7 @@ namespace SJP.Schematic.Modelled.Reflection.Tests
         }
 
         [Test]
-        public void Column_GivenTableWithOneColumn_ReturnsOneResult()
+        public static void Column_GivenTableWithOneColumn_ReturnsOneResult()
         {
             var database = new ReflectionRelationalDatabase<TestDatabase1>(new FakeDialect());
             var table = new ReflectionTable(database, typeof(TestTable1));
@@ -118,7 +118,7 @@ namespace SJP.Schematic.Modelled.Reflection.Tests
         }
 
         [Test]
-        public void Columns_GivenTableWithOneColumn_ReturnsOneResult()
+        public static void Columns_GivenTableWithOneColumn_ReturnsOneResult()
         {
             var database = new ReflectionRelationalDatabase<TestDatabase1>(new FakeDialect());
             var table = new ReflectionTable(database, typeof(TestTable1));
@@ -129,7 +129,7 @@ namespace SJP.Schematic.Modelled.Reflection.Tests
         }
 
         [Test]
-        public async Task ColumnAsync_GivenTableWithOneColumn_ReturnsOneResult()
+        public static async Task ColumnAsync_GivenTableWithOneColumn_ReturnsOneResult()
         {
             var database = new ReflectionRelationalDatabase<TestDatabase1>(new FakeDialect());
             var table = new ReflectionTable(database, typeof(TestTable1));
@@ -139,7 +139,7 @@ namespace SJP.Schematic.Modelled.Reflection.Tests
         }
 
         [Test]
-        public async Task ColumnsAsync_GivenTableWithOneColumn_ReturnsOneResult()
+        public static async Task ColumnsAsync_GivenTableWithOneColumn_ReturnsOneResult()
         {
             var database = new ReflectionRelationalDatabase<TestDatabase1>(new FakeDialect());
             var table = new ReflectionTable(database, typeof(TestTable1));
@@ -150,7 +150,7 @@ namespace SJP.Schematic.Modelled.Reflection.Tests
         }
 
         [Test]
-        public void Column_GivenTableWithOneColumn_ReturnsColumnWithCorrectName()
+        public static void Column_GivenTableWithOneColumn_ReturnsColumnWithCorrectName()
         {
             var database = new ReflectionRelationalDatabase<TestDatabase1>(new FakeDialect());
             var table = new ReflectionTable(database, typeof(TestTable1));
@@ -162,7 +162,7 @@ namespace SJP.Schematic.Modelled.Reflection.Tests
         }
 
         [Test]
-        public void Columns_GivenTableWithOneColumn_ReturnsColumnWithCorrectName()
+        public static void Columns_GivenTableWithOneColumn_ReturnsColumnWithCorrectName()
         {
             var database = new ReflectionRelationalDatabase<TestDatabase1>(new FakeDialect());
             var table = new ReflectionTable(database, typeof(TestTable1));
@@ -174,7 +174,7 @@ namespace SJP.Schematic.Modelled.Reflection.Tests
         }
 
         [Test]
-        public async Task ColumnAsync_GivenTableWithOneColumn_ReturnsColumnWithCorrectName()
+        public static async Task ColumnAsync_GivenTableWithOneColumn_ReturnsColumnWithCorrectName()
         {
             var database = new ReflectionRelationalDatabase<TestDatabase1>(new FakeDialect());
             var table = new ReflectionTable(database, typeof(TestTable1));
@@ -186,7 +186,7 @@ namespace SJP.Schematic.Modelled.Reflection.Tests
         }
 
         [Test]
-        public async Task ColumnsAsync_GivenTableWithOneColumn_ReturnsColumnWithCorrectName()
+        public static async Task ColumnsAsync_GivenTableWithOneColumn_ReturnsColumnWithCorrectName()
         {
             var database = new ReflectionRelationalDatabase<TestDatabase1>(new FakeDialect());
             var table = new ReflectionTable(database, typeof(TestTable1));

@@ -8,16 +8,16 @@ using SJP.Schematic.Modelled.Reflection.Tests.Fakes.ColumnTypes;
 namespace SJP.Schematic.Modelled.Reflection.Tests
 {
     [TestFixture]
-    internal class ReflectionRelationalDatabaseTests
+    internal static class ReflectionRelationalDatabaseTests
     {
         [Test]
-        public void CtorT_GivenNullDialect_ThrowsArgumentNullException()
+        public static void CtorT_GivenNullDialect_ThrowsArgumentNullException()
         {
             Assert.Throws<ArgumentNullException>(() => new ReflectionRelationalDatabase<SampleDatabase>(null));
         }
 
         [Test]
-        public void Ctor_GivenNullArguments_ThrowsArgumentNullException()
+        public static void Ctor_GivenNullArguments_ThrowsArgumentNullException()
         {
             var dialect = new FakeDialect();
             var dbType = typeof(SampleDatabase);
@@ -30,14 +30,14 @@ namespace SJP.Schematic.Modelled.Reflection.Tests
         }
 
         [Test]
-        public void TableExists_GivenNullName_ThrowsArgumentNullException()
+        public static void TableExists_GivenNullName_ThrowsArgumentNullException()
         {
             var db = new ReflectionRelationalDatabase<SampleDatabase>(new FakeDialect());
             Assert.Throws<ArgumentNullException>(() => db.TableExists(null));
         }
 
         [Test]
-        public void TableExists_WhenTablePresent_ReturnsTrue()
+        public static void TableExists_WhenTablePresent_ReturnsTrue()
         {
             var db = new ReflectionRelationalDatabase<SampleDatabase>(new FakeDialect());
             var tableExists = db.TableExists("TestTable1");
@@ -45,7 +45,7 @@ namespace SJP.Schematic.Modelled.Reflection.Tests
         }
 
         [Test]
-        public void TableExists_WhenTableMissing_ReturnsFalse()
+        public static void TableExists_WhenTableMissing_ReturnsFalse()
         {
             var db = new ReflectionRelationalDatabase<SampleDatabase>(new FakeDialect());
             var tableExists = db.TableExists("table_that_doesnt_exist");
@@ -53,7 +53,7 @@ namespace SJP.Schematic.Modelled.Reflection.Tests
         }
 
         [Test]
-        public void TableExists_WhenTablePresentWithDifferentCase_ReturnsTable()
+        public static void TableExists_WhenTablePresentWithDifferentCase_ReturnsTable()
         {
             var db = new ReflectionRelationalDatabase<SampleDatabase>(new FakeDialect());
             var tableExists = db.TableExists("testtable1");
@@ -61,14 +61,14 @@ namespace SJP.Schematic.Modelled.Reflection.Tests
         }
 
         [Test]
-        public void GetTable_GivenNullName_ThrowsArgumentNullException()
+        public static void GetTable_GivenNullName_ThrowsArgumentNullException()
         {
             var db = new ReflectionRelationalDatabase<SampleDatabase>(new FakeDialect());
             Assert.Throws<ArgumentNullException>(() => db.GetTable(null));
         }
 
         [Test]
-        public void GetTable_WhenTablePresent_ReturnsTable()
+        public static void GetTable_WhenTablePresent_ReturnsTable()
         {
             var db = new ReflectionRelationalDatabase<SampleDatabase>(new FakeDialect());
             var table = db.GetTable("TestTable1");
@@ -76,7 +76,7 @@ namespace SJP.Schematic.Modelled.Reflection.Tests
         }
 
         [Test]
-        public void GetTable_WhenTableMissing_ReturnsNull()
+        public static void GetTable_WhenTableMissing_ReturnsNull()
         {
             var db = new ReflectionRelationalDatabase<SampleDatabase>(new FakeDialect());
             var table = db.GetTable("table_that_doesnt_exist");
@@ -84,14 +84,14 @@ namespace SJP.Schematic.Modelled.Reflection.Tests
         }
 
         [Test]
-        public void TableExistsAsync_GivenNullName_ThrowsArgumentNullException()
+        public static void TableExistsAsync_GivenNullName_ThrowsArgumentNullException()
         {
             var db = new ReflectionRelationalDatabase<SampleDatabase>(new FakeDialect());
             Assert.Throws<ArgumentNullException>(() => db.TableExistsAsync(null));
         }
 
         [Test]
-        public async Task TableExistsAsync_WhenTablePresent_ReturnsTrue()
+        public static async Task TableExistsAsync_WhenTablePresent_ReturnsTrue()
         {
             var db = new ReflectionRelationalDatabase<SampleDatabase>(new FakeDialect());
             var tableExists = await db.TableExistsAsync("TestTable1").ConfigureAwait(false);
@@ -99,7 +99,7 @@ namespace SJP.Schematic.Modelled.Reflection.Tests
         }
 
         [Test]
-        public async Task TableExistsAsync_WhenTableMissing_ReturnsFalse()
+        public static async Task TableExistsAsync_WhenTableMissing_ReturnsFalse()
         {
             var db = new ReflectionRelationalDatabase<SampleDatabase>(new FakeDialect());
             var tableExists = await db.TableExistsAsync("table_that_doesnt_exist").ConfigureAwait(false);
@@ -107,7 +107,7 @@ namespace SJP.Schematic.Modelled.Reflection.Tests
         }
 
         [Test]
-        public async Task TableExistsAsync_WhenTablePresentWithDifferentCase_ReturnsTable()
+        public static async Task TableExistsAsync_WhenTablePresentWithDifferentCase_ReturnsTable()
         {
             var db = new ReflectionRelationalDatabase<SampleDatabase>(new FakeDialect());
             var tableExists = await db.TableExistsAsync("testtable1").ConfigureAwait(false);
@@ -115,14 +115,14 @@ namespace SJP.Schematic.Modelled.Reflection.Tests
         }
 
         [Test]
-        public void GetTableAsync_GivenNullName_ThrowsArgumentNullException()
+        public static void GetTableAsync_GivenNullName_ThrowsArgumentNullException()
         {
             var db = new ReflectionRelationalDatabase<SampleDatabase>(new FakeDialect());
             Assert.Throws<ArgumentNullException>(() => db.GetTableAsync(null));
         }
 
         [Test]
-        public async Task GetTableAsync_WhenTablePresent_ReturnsTable()
+        public static async Task GetTableAsync_WhenTablePresent_ReturnsTable()
         {
             var db = new ReflectionRelationalDatabase<SampleDatabase>(new FakeDialect());
             var table = await db.GetTableAsync("TestTable1").ConfigureAwait(false);
@@ -130,7 +130,7 @@ namespace SJP.Schematic.Modelled.Reflection.Tests
         }
 
         [Test]
-        public async Task GetTableAsync_WhenTableMissing_ReturnsNull()
+        public static async Task GetTableAsync_WhenTableMissing_ReturnsNull()
         {
             var db = new ReflectionRelationalDatabase<SampleDatabase>(new FakeDialect());
             var table =  await db.GetTableAsync("table_that_doesnt_exist").ConfigureAwait(false);

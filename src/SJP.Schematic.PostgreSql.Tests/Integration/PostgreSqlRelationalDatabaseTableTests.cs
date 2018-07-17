@@ -14,7 +14,6 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration
         [OneTimeSetUp]
         public async Task Init()
         {
-            var x = Database;
             await Connection.ExecuteAsync("create table table_test_table_1 ( test_column int )").ConfigureAwait(false);
             await Connection.ExecuteAsync("create table table_test_table_2 ( test_column int not null primary key )").ConfigureAwait(false);
             await Connection.ExecuteAsync(@"

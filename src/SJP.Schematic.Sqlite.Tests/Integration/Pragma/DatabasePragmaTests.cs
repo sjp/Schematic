@@ -14,7 +14,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
     [TestFixture]
     internal class DatabasePragmaTests : SqliteTest
     {
-        private IDbConnection CreateConnection()
+        private static IDbConnection CreateConnection()
         {
             var connection = new SqliteConnection("Data Source=:memory:");
             connection.Open();
@@ -24,21 +24,21 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
         private const string MainSchema = "main";
 
         [Test]
-        public void Ctor_GivenNullDialect_ThrowsArgumentNullException()
+        public static void Ctor_GivenNullDialect_ThrowsArgumentNullException()
         {
             var connection = Mock.Of<IDbConnection>();
             Assert.Throws<ArgumentNullException>(() => new DatabasePragma(null, connection, "main"));
         }
 
         [Test]
-        public void Ctor_GivenNullConnection_ThrowsArgumentNullException()
+        public static void Ctor_GivenNullConnection_ThrowsArgumentNullException()
         {
             var dialect = Mock.Of<IDatabaseDialect>();
             Assert.Throws<ArgumentNullException>(() => new DatabasePragma(dialect, null, "main"));
         }
 
         [Test]
-        public void Ctor_GivenNullSchemaName_ThrowsArgumentNullException()
+        public static void Ctor_GivenNullSchemaName_ThrowsArgumentNullException()
         {
             var dialect = Mock.Of<IDatabaseDialect>();
             var connection = Mock.Of<IDbConnection>();
@@ -46,7 +46,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
         }
 
         [Test]
-        public void Ctor_GivenEmptySchemaName_ThrowsArgumentNullException()
+        public static void Ctor_GivenEmptySchemaName_ThrowsArgumentNullException()
         {
             var dialect = Mock.Of<IDatabaseDialect>();
             var connection = Mock.Of<IDbConnection>();
@@ -54,7 +54,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
         }
 
         [Test]
-        public void Ctor_GivenWhiteSpaceSchemaName_ThrowsArgumentNullException()
+        public static void Ctor_GivenWhiteSpaceSchemaName_ThrowsArgumentNullException()
         {
             var dialect = Mock.Of<IDatabaseDialect>();
             var connection = Mock.Of<IDbConnection>();
@@ -62,7 +62,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
         }
 
         [Test]
-        public void SchemaName_PropertyGet_MatchesCtorArg()
+        public static void SchemaName_PropertyGet_MatchesCtorArg()
         {
             var dialect = Mock.Of<IDatabaseDialect>();
             var connection = Mock.Of<IDbConnection>();
@@ -270,14 +270,13 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
         }
 
         [Test]
-        public async Task DataVersionAsync_WhenGetInvoked_ReadsCorrectly()
+        public void DataVersionAsync_WhenGetInvoked_ReadsCorrectly()
         {
             using (var connection = CreateConnection())
             {
                 var dbPragma = new DatabasePragma(Dialect, connection, MainSchema);
 
-                var dataVersion = await dbPragma.DataVersionAsync().ConfigureAwait(false);
-                Assert.Pass();
+                Assert.DoesNotThrowAsync(() => dbPragma.DataVersionAsync());
             }
         }
 
@@ -286,12 +285,9 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
         {
             using (var connection = CreateConnection())
             {
-                var connPragma = new ConnectionPragma(Dialect, connection)
-                {
-                    ForeignKeys = false // must disable enforcement to allow delayed check
-                };
-
+                var connPragma = new ConnectionPragma(Dialect, connection);
                 var dbPragma = new DatabasePragma(Dialect, connection, MainSchema);
+                connPragma.ForeignKeys = false;
 
                 connection.Execute("create table test_parent ( id int primary key, val text )");
                 connection.Execute("create table test_child ( id int, parent_id int constraint fk_test_parent references test_parent (id) )");
@@ -330,12 +326,9 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
         {
             using (var connection = CreateConnection())
             {
-                var connPragma = new ConnectionPragma(Dialect, connection)
-                {
-                    ForeignKeys = false // must disable enforcement to allow delayed check
-                };
-
+                var connPragma = new ConnectionPragma(Dialect, connection);
                 var dbPragma = new DatabasePragma(Dialect, connection, MainSchema);
+                connPragma.ForeignKeys = false;
 
                 connection.Execute("create table test_parent ( id int primary key, val text )");
                 connection.Execute("create table test_child ( id int, parent_id int constraint fk_test_parent references test_parent (id) )");
@@ -510,14 +503,13 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
         }
 
         [Test]
-        public async Task FreeListCountAsync_WhenGetInvoked_ReadsCorrectly()
+        public void FreeListCountAsync_WhenGetInvoked_ReadsCorrectly()
         {
             using (var connection = CreateConnection())
             {
                 var dbPragma = new DatabasePragma(Dialect, connection, MainSchema);
 
-                var freeListCount = await dbPragma.FreeListCountAsync().ConfigureAwait(false);
-                Assert.Pass();
+                Assert.DoesNotThrowAsync(() => dbPragma.FreeListCountAsync());
             }
         }
 
@@ -1104,14 +1096,13 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
         }
 
         [Test]
-        public async Task PageCountAsync_WhenGetInvoked_ReadsCorrectly()
+        public void PageCountAsync_WhenGetInvoked_ReadsCorrectly()
         {
             using (var connection = CreateConnection())
             {
                 var dbPragma = new DatabasePragma(Dialect, connection, MainSchema);
 
-                var pageCount = await dbPragma.PageCountAsync().ConfigureAwait(false);
-                Assert.Pass();
+                Assert.DoesNotThrowAsync(() => dbPragma.PageCountAsync());
             }
         }
 

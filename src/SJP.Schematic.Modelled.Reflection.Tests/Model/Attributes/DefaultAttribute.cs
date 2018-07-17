@@ -5,16 +5,16 @@ using NUnit.Framework;
 namespace SJP.Schematic.Modelled.Reflection.Model.Attributes.Tests
 {
     [TestFixture]
-    internal class DefaultAttributeTests
+    internal static class DefaultAttributeTests
     {
         [Test]
-        public void Ctor_GivenNullStringValue_ThrowsArgumentNullException()
+        public static void Ctor_GivenNullStringValue_ThrowsArgumentNullException()
         {
             Assert.Throws<ArgumentNullException>(() => new DefaultAttribute(null));
         }
 
         [Test]
-        public void DefaultValue_PropertyGetFromStringCtorArg_MatchesCtorArgument()
+        public static void DefaultValue_PropertyGetFromStringCtorArg_MatchesCtorArgument()
         {
             const string defaultValue = "test";
             var defaultAttr = new DefaultAttribute(defaultValue);
@@ -23,7 +23,7 @@ namespace SJP.Schematic.Modelled.Reflection.Model.Attributes.Tests
         }
 
         [Test]
-        public void DefaultValue_PropertyGetFromDoubleCtorArg_MatchesCtorArgument()
+        public static void DefaultValue_PropertyGetFromDoubleCtorArg_MatchesCtorArgument()
         {
             const double defaultValue = 3.1415926;
             var defaultAttr = new DefaultAttribute(defaultValue);
@@ -32,7 +32,7 @@ namespace SJP.Schematic.Modelled.Reflection.Model.Attributes.Tests
         }
 
         [Test]
-        public void DefaultValue_PropertyGetFromIntCtorArg_MatchesCtorArgument()
+        public static void DefaultValue_PropertyGetFromIntCtorArg_MatchesCtorArgument()
         {
             const int defaultValue = 100;
             var defaultAttr = new DefaultAttribute(defaultValue);

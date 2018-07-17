@@ -5,10 +5,10 @@ namespace SJP.Schematic.Modelled.Tests
 {
     // TODO, need to create some databases to build with
     [TestFixture]
-    internal class RelationalDatabaseBuilderTests
+    internal static class RelationalDatabaseBuilderTests
     {
         [Test]
-        public void Ctor_GivenNullArguments_ThrowsArgumentNullException()
+        public static void Ctor_GivenNullArguments_ThrowsArgumentNullException()
         {
             Assert.Multiple(() =>
             {

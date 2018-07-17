@@ -11,7 +11,7 @@ using SJP.Schematic.Core.Utilities;
 
 namespace SJP.Schematic.MySql
 {
-    public class MySqlRelationalDatabase : RelationalDatabase, IRelationalDatabase, IDependentRelationalDatabase
+    public class MySqlRelationalDatabase : RelationalDatabase, IDependentRelationalDatabase
     {
         public MySqlRelationalDatabase(IDatabaseDialect dialect, IDbConnection connection, IEqualityComparer<Identifier> comparer = null)
             : base(dialect, connection)

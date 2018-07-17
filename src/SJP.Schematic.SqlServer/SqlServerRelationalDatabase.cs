@@ -12,7 +12,7 @@ using SJP.Schematic.Core.Utilities;
 
 namespace SJP.Schematic.SqlServer
 {
-    public class SqlServerRelationalDatabase : RelationalDatabase, IRelationalDatabase, IDependentRelationalDatabase
+    public class SqlServerRelationalDatabase : RelationalDatabase, IDependentRelationalDatabase
     {
         public SqlServerRelationalDatabase(IDatabaseDialect dialect, IDbConnection connection, IEqualityComparer<Identifier> comparer = null)
             : base(dialect, connection)

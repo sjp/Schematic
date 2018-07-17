@@ -9,36 +9,36 @@ using SJP.Schematic.Modelled.Reflection.Tests.Fakes;
 namespace SJP.Schematic.Modelled.Reflection.Model.Attributes.Tests
 {
     [TestFixture]
-    internal class ModelledSchemaAttributeTests
+    internal static class ModelledSchemaAttributeTests
     {
         [Test]
-        public void Ctor_GivenNullDialects_ThrowsArgumentNullException()
+        public static void Ctor_GivenNullDialects_ThrowsArgumentNullException()
         {
             Assert.Throws<ArgumentNullException>(() => new FakeModelledSchemaAttribute(null));
         }
 
         [Test]
-        public void Ctor_GivenEmptyDialects_ThrowsArgumentNullException()
+        public static void Ctor_GivenEmptyDialects_ThrowsArgumentNullException()
         {
             Assert.Throws<ArgumentNullException>(() => new FakeModelledSchemaAttribute(Array.Empty<Type>()));
         }
 
         [Test]
-        public void Ctor_GivenDialectsWithEmptyValue_ThrowsArgumentNullException()
+        public static void Ctor_GivenDialectsWithEmptyValue_ThrowsArgumentNullException()
         {
             var dialects = new List<Type> { null };
             Assert.Throws<ArgumentNullException>(() => new FakeModelledSchemaAttribute(dialects));
         }
 
         [Test]
-        public void Ctor_GivenNonDialectType_ThrowsArgumentNullException()
+        public static void Ctor_GivenNonDialectType_ThrowsArgumentNullException()
         {
             var dialects = new[] { typeof(object) };
             Assert.Throws<ArgumentException>(() => new FakeModelledSchemaAttribute(dialects));
         }
 
         [Test]
-        public void Dialects_WhenValidDialectGivenInCtor_ReturnsDialectsInProperty()
+        public static void Dialects_WhenValidDialectGivenInCtor_ReturnsDialectsInProperty()
         {
             var expectedDialect = typeof(FakeDialect);
             var dialects = new[] { expectedDialect };
@@ -49,7 +49,7 @@ namespace SJP.Schematic.Modelled.Reflection.Model.Attributes.Tests
         }
 
         [Test]
-        public void Dialects_WhenAllDialectsGivenInCtor_ReturnsEmptyCollection()
+        public static void Dialects_WhenAllDialectsGivenInCtor_ReturnsEmptyCollection()
         {
             var dialects = new[] { Dialect.All };
             var attr = new FakeModelledSchemaAttribute(dialects);
@@ -59,7 +59,7 @@ namespace SJP.Schematic.Modelled.Reflection.Model.Attributes.Tests
         }
 
         [Test]
-        public void SupportsDialect_GivenNullDialectType_ThrowsArgumentNullException()
+        public static void SupportsDialect_GivenNullDialectType_ThrowsArgumentNullException()
         {
             var dialects = new[] { typeof(FakeDialect) };
             var attr = new FakeModelledSchemaAttribute(dialects);
@@ -68,7 +68,7 @@ namespace SJP.Schematic.Modelled.Reflection.Model.Attributes.Tests
         }
 
         [Test]
-        public void SupportsDialect_GivenNonDialectType_ThrowsArgumentException()
+        public static void SupportsDialect_GivenNonDialectType_ThrowsArgumentException()
         {
             var dialects = new[] { typeof(FakeDialect) };
             var attr = new FakeModelledSchemaAttribute(dialects);
@@ -77,7 +77,7 @@ namespace SJP.Schematic.Modelled.Reflection.Model.Attributes.Tests
         }
 
         [Test]
-        public void SupportsDialect_GivenMatchingDialectType_ReturnsTrue()
+        public static void SupportsDialect_GivenMatchingDialectType_ReturnsTrue()
         {
             var dialects = new[] { typeof(FakeDialect) };
             var attr = new FakeModelledSchemaAttribute(dialects);
@@ -88,7 +88,7 @@ namespace SJP.Schematic.Modelled.Reflection.Model.Attributes.Tests
         }
 
         [Test]
-        public void SupportsDialect_WhenSupportsAllDialects_ReturnsTrue()
+        public static void SupportsDialect_WhenSupportsAllDialects_ReturnsTrue()
         {
             var dialects = new[] { Dialect.All };
             var attr = new FakeModelledSchemaAttribute(dialects);
@@ -99,7 +99,7 @@ namespace SJP.Schematic.Modelled.Reflection.Model.Attributes.Tests
         }
 
         [Test]
-        public void SupportsDialect_GivenNonMatchingDialectType_ReturnsFalse()
+        public static void SupportsDialect_GivenNonMatchingDialectType_ReturnsFalse()
         {
             var dialectMock = Mock.Of<IDatabaseDialect>();
             var mockInstanceType = dialectMock.GetType();

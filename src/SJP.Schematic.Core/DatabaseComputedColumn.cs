@@ -3,7 +3,7 @@ using SJP.Schematic.Core.Extensions;
 
 namespace SJP.Schematic.Core
 {
-    public class DatabaseComputedTableColumn : DatabaseTableColumn, IDatabaseTableColumn, IDatabaseComputedColumn
+    public class DatabaseComputedTableColumn : DatabaseTableColumn, IDatabaseComputedColumn
     {
         public DatabaseComputedTableColumn(IRelationalDatabaseTable table, Identifier columnName, IDbType type, bool isNullable, string defaultValue, string definition)
             : base(table, columnName, type, isNullable, defaultValue, null)

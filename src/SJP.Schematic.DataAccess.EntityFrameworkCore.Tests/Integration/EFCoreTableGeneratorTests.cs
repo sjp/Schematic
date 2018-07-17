@@ -13,7 +13,7 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore.Tests.Integration
 
         private IRelationalDatabaseTable GetTable(Identifier tableName) => Database.GetTable(tableName);
 
-        private IDatabaseTableGenerator TableGenerator => new EFCoreTableGenerator(new PascalCaseNameProvider(), TestNamespace);
+        private static IDatabaseTableGenerator TableGenerator => new EFCoreTableGenerator(new PascalCaseNameProvider(), TestNamespace);
 
         [OneTimeSetUp]
         public async Task Init()

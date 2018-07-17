@@ -5,30 +5,30 @@ using NUnit.Framework;
 namespace SJP.Schematic.Core.Tests
 {
     [TestFixture]
-    internal class DatabaseSynonymTests
+    internal static class DatabaseSynonymTests
     {
         [Test]
-        public void Ctor_GivenNullDatabase_ThrowsArgNullException()
+        public static void Ctor_GivenNullDatabase_ThrowsArgNullException()
         {
             Assert.Throws<ArgumentNullException>(() => new DatabaseSynonym(null, "test", "test"));
         }
 
         [Test]
-        public void Ctor_GivenNullName_ThrowsArgNullException()
+        public static void Ctor_GivenNullName_ThrowsArgNullException()
         {
             var database = Mock.Of<IRelationalDatabase>();
             Assert.Throws<ArgumentNullException>(() => new DatabaseSynonym(database, null, "test"));
         }
 
         [Test]
-        public void Ctor_GivenNullTarget_ThrowsArgNullException()
+        public static void Ctor_GivenNullTarget_ThrowsArgNullException()
         {
             var database = Mock.Of<IRelationalDatabase>();
             Assert.Throws<ArgumentNullException>(() => new DatabaseSynonym(database, "test", null));
         }
 
         [Test]
-        public void Database_PropertyGet_ShouldMatchCtorArg()
+        public static void Database_PropertyGet_ShouldMatchCtorArg()
         {
             var database = Mock.Of<IRelationalDatabase>();
             var synonym = new DatabaseSynonym(database, "test", "test");
@@ -37,7 +37,7 @@ namespace SJP.Schematic.Core.Tests
         }
 
         [Test]
-        public void Name_PropertyGet_ShouldEqualCtorArg()
+        public static void Name_PropertyGet_ShouldEqualCtorArg()
         {
             var database = Mock.Of<IRelationalDatabase>();
             const string synonymName = "synonym_test_synonym_1";
@@ -47,7 +47,7 @@ namespace SJP.Schematic.Core.Tests
         }
 
         [Test]
-        public void Target_PropertyGetGivenNotNullCtorArg_ShouldEqualCtorArg()
+        public static void Target_PropertyGetGivenNotNullCtorArg_ShouldEqualCtorArg()
         {
             var database = Mock.Of<IRelationalDatabase>();
             const string synonymName = "synonym_test_synonym_1";
@@ -57,7 +57,7 @@ namespace SJP.Schematic.Core.Tests
         }
 
         [Test]
-        public void Name_GivenLocalNameOnlyInCtor_ShouldBeQualifiedCorrectly()
+        public static void Name_GivenLocalNameOnlyInCtor_ShouldBeQualifiedCorrectly()
         {
             var databaseMock = new Mock<IRelationalDatabase>();
             databaseMock.Setup(d => d.ServerName).Returns("a");
@@ -75,7 +75,7 @@ namespace SJP.Schematic.Core.Tests
         }
 
         [Test]
-        public void Name_GivenSchemaAndLocalNameOnlyInCtor_ShouldBeQualifiedCorrectly()
+        public static void Name_GivenSchemaAndLocalNameOnlyInCtor_ShouldBeQualifiedCorrectly()
         {
             var databaseMock = new Mock<IRelationalDatabase>();
             databaseMock.Setup(d => d.ServerName).Returns("a");
@@ -93,7 +93,7 @@ namespace SJP.Schematic.Core.Tests
         }
 
         [Test]
-        public void Name_GivenDatabaseAndSchemaAndLocalNameOnlyInCtor_ShouldBeQualifiedCorrectly()
+        public static void Name_GivenDatabaseAndSchemaAndLocalNameOnlyInCtor_ShouldBeQualifiedCorrectly()
         {
             var databaseMock = new Mock<IRelationalDatabase>();
             databaseMock.Setup(d => d.ServerName).Returns("a");
@@ -111,7 +111,7 @@ namespace SJP.Schematic.Core.Tests
         }
 
         [Test]
-        public void Name_GivenFullyQualifiedNameInCtor_ShouldBeQualifiedCorrectly()
+        public static void Name_GivenFullyQualifiedNameInCtor_ShouldBeQualifiedCorrectly()
         {
             var database = Mock.Of<IRelationalDatabase>();
             var synonymName = new Identifier("qwe", "asd", "zxc", "synonym_test_synonym_1");
@@ -124,7 +124,7 @@ namespace SJP.Schematic.Core.Tests
         }
 
         [Test]
-        public void Target_GivenLocalNameOnlyInCtor_ShouldBeQualifiedCorrectly()
+        public static void Target_GivenLocalNameOnlyInCtor_ShouldBeQualifiedCorrectly()
         {
             var databaseMock = new Mock<IRelationalDatabase>();
             databaseMock.Setup(d => d.ServerName).Returns("a");
@@ -142,7 +142,7 @@ namespace SJP.Schematic.Core.Tests
         }
 
         [Test]
-        public void Target_GivenSchemaAndLocalNameOnlyInCtor_ShouldBeQualifiedCorrectly()
+        public static void Target_GivenSchemaAndLocalNameOnlyInCtor_ShouldBeQualifiedCorrectly()
         {
             var databaseMock = new Mock<IRelationalDatabase>();
             databaseMock.Setup(d => d.ServerName).Returns("a");
@@ -160,7 +160,7 @@ namespace SJP.Schematic.Core.Tests
         }
 
         [Test]
-        public void Target_GivenDatabaseAndSchemaAndLocalNameOnlyInCtor_ShouldBeQualifiedCorrectly()
+        public static void Target_GivenDatabaseAndSchemaAndLocalNameOnlyInCtor_ShouldBeQualifiedCorrectly()
         {
             var databaseMock = new Mock<IRelationalDatabase>();
             databaseMock.Setup(d => d.ServerName).Returns("a");
@@ -178,7 +178,7 @@ namespace SJP.Schematic.Core.Tests
         }
 
         [Test]
-        public void Target_GivenFullyQualifiedNameInCtor_ShouldBeQualifiedCorrectly()
+        public static void Target_GivenFullyQualifiedNameInCtor_ShouldBeQualifiedCorrectly()
         {
             var database = Mock.Of<IRelationalDatabase>();
             const string synonymName = "synonym_test_synonym_1";

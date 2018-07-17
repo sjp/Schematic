@@ -38,7 +38,7 @@ namespace SJP.Schematic.Sqlite
             return CreateColumnType(typeMetadata);
         }
 
-        protected string GetDefaultTypeName(DataType dataType)
+        protected static string GetDefaultTypeName(DataType dataType)
         {
             if (!dataType.IsValid())
                 throw new ArgumentException($"The { nameof(DataType) } provided must be a valid enum.", nameof(dataType));

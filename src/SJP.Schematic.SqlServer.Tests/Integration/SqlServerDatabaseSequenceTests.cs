@@ -46,21 +46,21 @@ namespace SJP.Schematic.SqlServer.Tests.Integration
         private IRelationalDatabase Database => new SqlServerRelationalDatabase(Dialect, Connection);
 
         [Test]
-        public void Ctor_GivenNullConnection_ThrowsArgNullException()
+        public static void Ctor_GivenNullConnection_ThrowsArgNullException()
         {
             var database = Mock.Of<IRelationalDatabase>();
             Assert.Throws<ArgumentNullException>(() => new SqlServerDatabaseSequence(null, database, "test"));
         }
 
         [Test]
-        public void Ctor_GivenNullDatabase_ThrowsArgNullException()
+        public static void Ctor_GivenNullDatabase_ThrowsArgNullException()
         {
             var connection = Mock.Of<IDbConnection>();
             Assert.Throws<ArgumentNullException>(() => new SqlServerDatabaseSequence(connection, null, "test"));
         }
 
         [Test]
-        public void Ctor_GivenNullName_ThrowsArgNullException()
+        public static void Ctor_GivenNullName_ThrowsArgNullException()
         {
             var connection = Mock.Of<IDbConnection>();
             var database = Mock.Of<IRelationalDatabase>();

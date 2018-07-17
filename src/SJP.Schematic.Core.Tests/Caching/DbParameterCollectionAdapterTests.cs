@@ -9,18 +9,18 @@ using System.Collections.Generic;
 namespace SJP.Schematic.Core.Tests.Caching
 {
     [TestFixture]
-    internal class DbParameterCollectionAdapterTests
+    internal static class DbParameterCollectionAdapterTests
     {
-        protected Mock<IDataParameterCollection> CollectionMock => new Mock<IDataParameterCollection>();
+        private static Mock<IDataParameterCollection> CollectionMock => new Mock<IDataParameterCollection>();
 
         [Test]
-        public void Ctor_GivenNullParameterCollection_ThrowsArgNullException()
+        public static void Ctor_GivenNullParameterCollection_ThrowsArgNullException()
         {
             Assert.Throws<ArgumentNullException>(() => new DbParameterCollectionAdapter(null));
         }
 
         [Test]
-        public void Indexer_GetByIndex_ReadsProvidedCollection()
+        public static void Indexer_GetByIndex_ReadsProvidedCollection()
         {
             var mock = CollectionMock;
             var adapter = new DbParameterCollectionAdapter(mock.Object);
@@ -30,7 +30,7 @@ namespace SJP.Schematic.Core.Tests.Caching
         }
 
         [Test]
-        public void Count_PropertyGet_ReadsProvidedCollection()
+        public static void Count_PropertyGet_ReadsProvidedCollection()
         {
             var mock = CollectionMock;
             var adapter = new DbParameterCollectionAdapter(mock.Object);
@@ -40,7 +40,7 @@ namespace SJP.Schematic.Core.Tests.Caching
         }
 
         [Test]
-        public void SyncRoot_PropertyGet_ReadsProvidedCollection()
+        public static void SyncRoot_PropertyGet_ReadsProvidedCollection()
         {
             var mock = CollectionMock;
             var adapter = new DbParameterCollectionAdapter(mock.Object);
@@ -50,7 +50,7 @@ namespace SJP.Schematic.Core.Tests.Caching
         }
 
         [Test]
-        public void Add_GivenObjectInput_CallsProvidedCollection()
+        public static void Add_GivenObjectInput_CallsProvidedCollection()
         {
             var mock = CollectionMock;
             var adapter = new DbParameterCollectionAdapter(mock.Object);
@@ -61,7 +61,7 @@ namespace SJP.Schematic.Core.Tests.Caching
         }
 
         [Test]
-        public void AddRange_GivenObjectInput_CallsProvidedCollectionAddMethod()
+        public static void AddRange_GivenObjectInput_CallsProvidedCollectionAddMethod()
         {
             var mock = CollectionMock;
             var adapter = new DbParameterCollectionAdapter(mock.Object);
@@ -73,7 +73,7 @@ namespace SJP.Schematic.Core.Tests.Caching
         }
 
         [Test]
-        public void AddRange_GivenNullInput_ThrowsArgumentNullException()
+        public static void AddRange_GivenNullInput_ThrowsArgumentNullException()
         {
             var mock = CollectionMock;
             var adapter = new DbParameterCollectionAdapter(mock.Object);
@@ -82,7 +82,7 @@ namespace SJP.Schematic.Core.Tests.Caching
         }
 
         [Test]
-        public void Clear_WhenInvoked_CallsProvidedCollection()
+        public static void Clear_WhenInvoked_CallsProvidedCollection()
         {
             var mock = CollectionMock;
             var adapter = new DbParameterCollectionAdapter(mock.Object);
@@ -92,7 +92,7 @@ namespace SJP.Schematic.Core.Tests.Caching
         }
 
         [Test]
-        public void Contains_WhenGivenValue_CallsProvidedCollection()
+        public static void Contains_WhenGivenValue_CallsProvidedCollection()
         {
             var mock = CollectionMock;
             var adapter = new DbParameterCollectionAdapter(mock.Object);
@@ -103,7 +103,7 @@ namespace SJP.Schematic.Core.Tests.Caching
         }
 
         [Test]
-        public void Contains_WhenGivenParameterName_CallsProvidedCollection()
+        public static void Contains_WhenGivenParameterName_CallsProvidedCollection()
         {
             var mock = CollectionMock;
             var adapter = new DbParameterCollectionAdapter(mock.Object);
@@ -114,7 +114,7 @@ namespace SJP.Schematic.Core.Tests.Caching
         }
 
         [Test]
-        public void CopyTo_WhenInvoked_CallsProvidedCollection()
+        public static void CopyTo_WhenInvoked_CallsProvidedCollection()
         {
             var mock = CollectionMock;
             var adapter = new DbParameterCollectionAdapter(mock.Object);
@@ -126,7 +126,7 @@ namespace SJP.Schematic.Core.Tests.Caching
         }
 
         [Test]
-        public void GetEnumerator_WhenInvoked_CallsProvidedCollection()
+        public static void GetEnumerator_WhenInvoked_CallsProvidedCollection()
         {
             var mock = CollectionMock;
             var adapter = new DbParameterCollectionAdapter(mock.Object);
@@ -136,7 +136,7 @@ namespace SJP.Schematic.Core.Tests.Caching
         }
 
         [Test]
-        public void IndexOf_WhenInvokedByValue_CallsProvidedCollection()
+        public static void IndexOf_WhenInvokedByValue_CallsProvidedCollection()
         {
             var mock = CollectionMock;
             var adapter = new DbParameterCollectionAdapter(mock.Object);
@@ -147,7 +147,7 @@ namespace SJP.Schematic.Core.Tests.Caching
         }
 
         [Test]
-        public void IndexOf_WhenInvokedByParameterName_CallsProvidedCollection()
+        public static void IndexOf_WhenInvokedByParameterName_CallsProvidedCollection()
         {
             var mock = CollectionMock;
             var adapter = new DbParameterCollectionAdapter(mock.Object);
@@ -158,7 +158,7 @@ namespace SJP.Schematic.Core.Tests.Caching
         }
 
         [Test]
-        public void Insert_WhenInvoked_CallsProvidedCollection()
+        public static void Insert_WhenInvoked_CallsProvidedCollection()
         {
             var mock = CollectionMock;
             var adapter = new DbParameterCollectionAdapter(mock.Object);
@@ -170,7 +170,7 @@ namespace SJP.Schematic.Core.Tests.Caching
         }
 
         [Test]
-        public void Remove_WhenInvoked_CallsProvidedCollection()
+        public static void Remove_WhenInvoked_CallsProvidedCollection()
         {
             var mock = CollectionMock;
             var adapter = new DbParameterCollectionAdapter(mock.Object);
@@ -181,7 +181,7 @@ namespace SJP.Schematic.Core.Tests.Caching
         }
 
         [Test]
-        public void RemoveAt_WhenInvokedByIndex_CallsProvidedCollection()
+        public static void RemoveAt_WhenInvokedByIndex_CallsProvidedCollection()
         {
             var mock = CollectionMock;
             var adapter = new DbParameterCollectionAdapter(mock.Object);
@@ -192,7 +192,7 @@ namespace SJP.Schematic.Core.Tests.Caching
         }
 
         [Test]
-        public void RemoveAt_WhenInvokedByName_CallsProvidedCollection()
+        public static void RemoveAt_WhenInvokedByName_CallsProvidedCollection()
         {
             var mock = CollectionMock;
             var adapter = new DbParameterCollectionAdapter(mock.Object);
@@ -203,7 +203,7 @@ namespace SJP.Schematic.Core.Tests.Caching
         }
 
         [Test]
-        public void GetParameter_WhenInvokedByIndex_CallsProvidedCollectionIndexer()
+        public static void GetParameter_WhenInvokedByIndex_CallsProvidedCollectionIndexer()
         {
             var mock = CollectionMock;
             var adapter = new FakeDbParameterCollectionAdapter(mock.Object);
@@ -214,7 +214,7 @@ namespace SJP.Schematic.Core.Tests.Caching
         }
 
         [Test]
-        public void GetParameter_WhenInvokedByName_CallsProvidedCollectionIndexer()
+        public static void GetParameter_WhenInvokedByName_CallsProvidedCollectionIndexer()
         {
             const string paramName = "asd";
             const int index = 3;
@@ -228,7 +228,7 @@ namespace SJP.Schematic.Core.Tests.Caching
         }
 
         [Test]
-        public void GetParameter_WhenInvokedByNameAndNotFound_ThrowsKeyNotFoundException()
+        public static void GetParameter_WhenInvokedByNameAndNotFound_ThrowsKeyNotFoundException()
         {
             const string paramName = "asd";
             const int index = -1;
@@ -240,7 +240,7 @@ namespace SJP.Schematic.Core.Tests.Caching
         }
 
         [Test]
-        public void SetParameter_WhenInvokedByIndex_CallsProvidedCollectionIndexer()
+        public static void SetParameter_WhenInvokedByIndex_CallsProvidedCollectionIndexer()
         {
             var mock = CollectionMock;
             var adapter = new FakeDbParameterCollectionAdapter(mock.Object);
@@ -253,7 +253,7 @@ namespace SJP.Schematic.Core.Tests.Caching
         }
 
         [Test]
-        public void SetParameter_WhenInvokedByName_CallsProvidedCollectionIndexer()
+        public static void SetParameter_WhenInvokedByName_CallsProvidedCollectionIndexer()
         {
             const string paramName = "asd";
             const int index = 3;
@@ -269,7 +269,7 @@ namespace SJP.Schematic.Core.Tests.Caching
         }
 
         [Test]
-        public void SetParameter_WhenInvokedByNameAndNotFound_ThrowsKeyNotFoundException()
+        public static void SetParameter_WhenInvokedByNameAndNotFound_ThrowsKeyNotFoundException()
         {
             const string paramName = "asd";
             const int index = -1;

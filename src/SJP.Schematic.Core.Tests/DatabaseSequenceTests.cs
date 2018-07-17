@@ -5,30 +5,30 @@ using NUnit.Framework;
 namespace SJP.Schematic.Core.Tests
 {
     [TestFixture]
-    internal class DatabaseSequenceTests
+    internal static class DatabaseSequenceTests
     {
         [Test]
-        public void Ctor_GivenNullDatabase_ThrowsArgNullException()
+        public static void Ctor_GivenNullDatabase_ThrowsArgNullException()
         {
             Assert.Throws<ArgumentNullException>(() => new DatabaseSequence(null, "test", 1, 1, null, null, true, 0));
         }
 
         [Test]
-        public void Ctor_GivenNullName_ThrowsArgNullException()
+        public static void Ctor_GivenNullName_ThrowsArgNullException()
         {
             var database = Mock.Of<IRelationalDatabase>();
             Assert.Throws<ArgumentNullException>(() => new DatabaseSequence(database, null, 1, 1, null, null, true, 0));
         }
 
         [Test]
-        public void Ctor_GivenZeroIncrement_ThrowsArgException()
+        public static void Ctor_GivenZeroIncrement_ThrowsArgException()
         {
             var database = Mock.Of<IRelationalDatabase>();
             Assert.Throws<ArgumentException>(() => new DatabaseSequence(database, "test", 1, 0, null, null, true, 0));
         }
 
         [Test]
-        public void Database_PropertyGet_ShouldMatchCtorArg()
+        public static void Database_PropertyGet_ShouldMatchCtorArg()
         {
             var database = Mock.Of<IRelationalDatabase>();
             var sequence = new DatabaseSequence(database, "test", 1, 1, null, null, true, 0);
@@ -37,7 +37,7 @@ namespace SJP.Schematic.Core.Tests
         }
 
         [Test]
-        public void Name_GivenLocalNameOnlyInCtor_ShouldBeQualifiedCorrectly()
+        public static void Name_GivenLocalNameOnlyInCtor_ShouldBeQualifiedCorrectly()
         {
             var databaseMock = new Mock<IRelationalDatabase>();
             databaseMock.Setup(d => d.ServerName).Returns("a");
@@ -54,7 +54,7 @@ namespace SJP.Schematic.Core.Tests
         }
 
         [Test]
-        public void Name_GivenSchemaAndLocalNameOnlyInCtor_ShouldBeQualifiedCorrectly()
+        public static void Name_GivenSchemaAndLocalNameOnlyInCtor_ShouldBeQualifiedCorrectly()
         {
             var databaseMock = new Mock<IRelationalDatabase>();
             databaseMock.Setup(d => d.ServerName).Returns("a");
@@ -70,7 +70,7 @@ namespace SJP.Schematic.Core.Tests
         }
 
         [Test]
-        public void Name_GivenDatabaseAndSchemaAndLocalNameOnlyInCtor_ShouldBeQualifiedCorrectly()
+        public static void Name_GivenDatabaseAndSchemaAndLocalNameOnlyInCtor_ShouldBeQualifiedCorrectly()
         {
             var databaseMock = new Mock<IRelationalDatabase>();
             databaseMock.Setup(d => d.ServerName).Returns("a");
@@ -85,7 +85,7 @@ namespace SJP.Schematic.Core.Tests
         }
 
         [Test]
-        public void Name_GivenFullyQualifiedNameInCtor_ShouldBeQualifiedCorrectly()
+        public static void Name_GivenFullyQualifiedNameInCtor_ShouldBeQualifiedCorrectly()
         {
             var database = Mock.Of<IRelationalDatabase>();
             var sequenceName = new Identifier("qwe", "asd", "zxc", "sequence_test_sequence_1");
@@ -97,35 +97,35 @@ namespace SJP.Schematic.Core.Tests
         }
 
         [Test]
-        public void Ctor_GivenPositiveIncrementAndMinValueLargerThanStart_ThrowsArgumentException()
+        public static void Ctor_GivenPositiveIncrementAndMinValueLargerThanStart_ThrowsArgumentException()
         {
             var database = Mock.Of<IRelationalDatabase>();
             Assert.Throws<ArgumentException>(() => new DatabaseSequence(database, "test", 1, 1, 2, null, true, 0));
         }
 
         [Test]
-        public void Ctor_GivenPositiveIncrementAndMaxValueLessThanStart_ThrowsArgumentException()
+        public static void Ctor_GivenPositiveIncrementAndMaxValueLessThanStart_ThrowsArgumentException()
         {
             var database = Mock.Of<IRelationalDatabase>();
             Assert.Throws<ArgumentException>(() => new DatabaseSequence(database, "test", 1, 1, null, -1, true, 0));
         }
 
         [Test]
-        public void Ctor_GivenNegativeIncrementAndMinValueLessThanStart_ThrowsArgumentException()
+        public static void Ctor_GivenNegativeIncrementAndMinValueLessThanStart_ThrowsArgumentException()
         {
             var database = Mock.Of<IRelationalDatabase>();
             Assert.Throws<ArgumentException>(() => new DatabaseSequence(database, "test", 1, -1, 0, null, true, 0));
         }
 
         [Test]
-        public void Ctor_GivenNegativeIncrementAndMaxValueGreaterThanStart_ThrowsArgumentException()
+        public static void Ctor_GivenNegativeIncrementAndMaxValueGreaterThanStart_ThrowsArgumentException()
         {
             var database = Mock.Of<IRelationalDatabase>();
             Assert.Throws<ArgumentException>(() => new DatabaseSequence(database, "test", 1, -1, null, 2, true, 0));
         }
 
         [Test]
-        public void Ctor_GivenNegativeCacheSize_SetsCacheSizeToUnknownValue()
+        public static void Ctor_GivenNegativeCacheSize_SetsCacheSizeToUnknownValue()
         {
             var database = Mock.Of<IRelationalDatabase>();
             var sequence =  new DatabaseSequence(database, "test", 1, -1, null, null, true, -3);
@@ -134,7 +134,7 @@ namespace SJP.Schematic.Core.Tests
         }
 
         [Test]
-        public void Cache_PropertyGet_MatchesCtorArg()
+        public static void Cache_PropertyGet_MatchesCtorArg()
         {
             var database = Mock.Of<IRelationalDatabase>();
             const int cacheSize = 20;
@@ -144,7 +144,7 @@ namespace SJP.Schematic.Core.Tests
         }
 
         [Test]
-        public void Cycle_PropertyGet_MatchesCtorArg()
+        public static void Cycle_PropertyGet_MatchesCtorArg()
         {
             var database = Mock.Of<IRelationalDatabase>();
             var sequence = new DatabaseSequence(database, "test", 1, 1, null, null, true, 1);
@@ -153,7 +153,7 @@ namespace SJP.Schematic.Core.Tests
         }
 
         [Test]
-        public void Increment_PropertyGet_MatchesCtorArg()
+        public static void Increment_PropertyGet_MatchesCtorArg()
         {
             var database = Mock.Of<IRelationalDatabase>();
             const int increment = 100;
@@ -163,7 +163,7 @@ namespace SJP.Schematic.Core.Tests
         }
 
         [Test]
-        public void MaxValue_PropertyGet_MatchesCtorArg()
+        public static void MaxValue_PropertyGet_MatchesCtorArg()
         {
             var database = Mock.Of<IRelationalDatabase>();
             const int maxValue = 100;
@@ -173,7 +173,7 @@ namespace SJP.Schematic.Core.Tests
         }
 
         [Test]
-        public void MinValue_PropertyGet_MatchesCtorArg()
+        public static void MinValue_PropertyGet_MatchesCtorArg()
         {
             var database = Mock.Of<IRelationalDatabase>();
             const int minValue = 100;
@@ -183,7 +183,7 @@ namespace SJP.Schematic.Core.Tests
         }
 
         [Test]
-        public void Start_PropertyGet_MatchesCtorArg()
+        public static void Start_PropertyGet_MatchesCtorArg()
         {
             var database = Mock.Of<IRelationalDatabase>();
             const int start = 100;

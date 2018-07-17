@@ -66,10 +66,11 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration
         [Test]
         public void UniqueKey_WhenGivenTableWithSingleColumnConstraintAsUniqueKey_ReturnsUniqueKeyWithCorrectName()
         {
+            const string uniqueKeyName = "uk_test_table_6";
             var table = Database.GetTable("table_test_table_6");
-            var uk = table.UniqueKey["uk_test_table_6"];
+            var uk = table.UniqueKey[uniqueKeyName];
 
-            Assert.AreEqual("uk_test_table_6", uk.Name.LocalName);
+            Assert.AreEqual(uniqueKeyName, uk.Name.LocalName);
         }
 
         [Test]
@@ -244,11 +245,12 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration
         [Test]
         public async Task UniqueKeyAsync_WhenGivenTableWithSingleColumnConstraintAsUniqueKey_ReturnsUniqueKeyWithCorrectName()
         {
+            const string uniqueKeyName = "uk_test_table_6";
             var table = await Database.GetTableAsync("table_test_table_6").ConfigureAwait(false);
             var ukLookup = await table.UniqueKeyAsync().ConfigureAwait(false);
-            var uk = ukLookup["uk_test_table_6"];
+            var uk = ukLookup[uniqueKeyName];
 
-            Assert.AreEqual("uk_test_table_6", uk.Name.LocalName);
+            Assert.AreEqual(uniqueKeyName, uk.Name.LocalName);
         }
 
         [Test]

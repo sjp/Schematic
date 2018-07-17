@@ -11,24 +11,24 @@ using SJP.Schematic.Lint.Tests.Fakes;
 namespace SJP.Schematic.Lint.Tests.Rules
 {
     [TestFixture]
-    internal class ReservedKeywordNameRuleTests
+    internal static class ReservedKeywordNameRuleTests
     {
         [Test]
-        public void Ctor_GivenInvalidLevel_ThrowsArgumentException()
+        public static void Ctor_GivenInvalidLevel_ThrowsArgumentException()
         {
             const RuleLevel level = (RuleLevel)999;
             Assert.Throws<ArgumentException>(() => new ReservedKeywordNameRule(level));
         }
 
         [Test]
-        public void AnalyseDatabase_GivenNullDatabase_ThrowsArgumentNullException()
+        public static void AnalyseDatabase_GivenNullDatabase_ThrowsArgumentNullException()
         {
             var rule = new ReservedKeywordNameRule(RuleLevel.Error);
             Assert.Throws<ArgumentNullException>(() => rule.AnalyseDatabase(null));
         }
 
         [Test]
-        public void AnalyseDatabase_GivenTableWithRegularName_ProducesNoMessages()
+        public static void AnalyseDatabase_GivenTableWithRegularName_ProducesNoMessages()
         {
             var rule = new ReservedKeywordNameRule(RuleLevel.Error);
             var tableName = new Identifier("test");
@@ -54,7 +54,7 @@ namespace SJP.Schematic.Lint.Tests.Rules
         }
 
         [Test]
-        public void AnalyseDatabase_GivenTableWithNameContainingReservedKeyword_ProducesMessages()
+        public static void AnalyseDatabase_GivenTableWithNameContainingReservedKeyword_ProducesMessages()
         {
             var rule = new ReservedKeywordNameRule(RuleLevel.Error);
             var tableName = new Identifier("SELECT");
@@ -80,7 +80,7 @@ namespace SJP.Schematic.Lint.Tests.Rules
         }
 
         [Test]
-        public void AnalyseDatabase_GivenTableWithRegularColumnNames_ProducesNoMessages()
+        public static void AnalyseDatabase_GivenTableWithRegularColumnNames_ProducesNoMessages()
         {
             var rule = new ReservedKeywordNameRule(RuleLevel.Error);
             var database = CreateFakeDatabase();
@@ -114,7 +114,7 @@ namespace SJP.Schematic.Lint.Tests.Rules
         }
 
         [Test]
-        public void AnalyseDatabase_GivenTableWithColumnNameContainingReservedKeyword_ProducesMessages()
+        public static void AnalyseDatabase_GivenTableWithColumnNameContainingReservedKeyword_ProducesMessages()
         {
             var rule = new ReservedKeywordNameRule(RuleLevel.Error);
             var database = CreateFakeDatabase();
@@ -148,7 +148,7 @@ namespace SJP.Schematic.Lint.Tests.Rules
         }
 
         [Test]
-        public void AnalyseDatabase_GivenViewWithRegularName_ProducesNoMessages()
+        public static void AnalyseDatabase_GivenViewWithRegularName_ProducesNoMessages()
         {
             var rule = new ReservedKeywordNameRule(RuleLevel.Error);
             var viewName = new Identifier("test");
@@ -169,7 +169,7 @@ namespace SJP.Schematic.Lint.Tests.Rules
         }
 
         [Test]
-        public void AnalyseDatabase_GivenViewWithNameContainingReservedKeyword_ProducesMessages()
+        public static void AnalyseDatabase_GivenViewWithNameContainingReservedKeyword_ProducesMessages()
         {
             var rule = new ReservedKeywordNameRule(RuleLevel.Error);
             var viewName = new Identifier("SELECT");
@@ -190,7 +190,7 @@ namespace SJP.Schematic.Lint.Tests.Rules
         }
 
         [Test]
-        public void AnalyseDatabase_GivenViewWithRegularColumnNames_ProducesNoMessages()
+        public static void AnalyseDatabase_GivenViewWithRegularColumnNames_ProducesNoMessages()
         {
             var rule = new ReservedKeywordNameRule(RuleLevel.Error);
             var viewName = new Identifier("test");
@@ -220,7 +220,7 @@ namespace SJP.Schematic.Lint.Tests.Rules
         }
 
         [Test]
-        public void AnalyseDatabase_GivenViewWithColumnNameContainingReservedKeyword_ProducesMessages()
+        public static void AnalyseDatabase_GivenViewWithColumnNameContainingReservedKeyword_ProducesMessages()
         {
             var rule = new ReservedKeywordNameRule(RuleLevel.Error);
             var viewName = new Identifier("test");
@@ -250,7 +250,7 @@ namespace SJP.Schematic.Lint.Tests.Rules
         }
 
         [Test]
-        public void AnalyseDatabase_GivenSequenceWithRegularName_ProducesNoMessages()
+        public static void AnalyseDatabase_GivenSequenceWithRegularName_ProducesNoMessages()
         {
             var rule = new ReservedKeywordNameRule(RuleLevel.Error);
             var sequenceName = new Identifier("test");
@@ -274,7 +274,7 @@ namespace SJP.Schematic.Lint.Tests.Rules
         }
 
         [Test]
-        public void AnalyseDatabase_GivenSequenceWithNameContainingReservedKeyword_ProducesMessages()
+        public static void AnalyseDatabase_GivenSequenceWithNameContainingReservedKeyword_ProducesMessages()
         {
             var rule = new ReservedKeywordNameRule(RuleLevel.Error);
             var sequenceName = new Identifier("SELECT");
@@ -298,7 +298,7 @@ namespace SJP.Schematic.Lint.Tests.Rules
         }
 
         [Test]
-        public void AnalyseDatabase_GivenSynonymWithRegularName_ProducesNoMessages()
+        public static void AnalyseDatabase_GivenSynonymWithRegularName_ProducesNoMessages()
         {
             var rule = new ReservedKeywordNameRule(RuleLevel.Error);
             var synonymName = new Identifier("test");
@@ -313,7 +313,7 @@ namespace SJP.Schematic.Lint.Tests.Rules
         }
 
         [Test]
-        public void AnalyseDatabase_GivenSynonymWithNameContainingReservedKeyword_ProducesMessages()
+        public static void AnalyseDatabase_GivenSynonymWithNameContainingReservedKeyword_ProducesMessages()
         {
             var rule = new ReservedKeywordNameRule(RuleLevel.Error);
             var synonymName = new Identifier("SELECT");

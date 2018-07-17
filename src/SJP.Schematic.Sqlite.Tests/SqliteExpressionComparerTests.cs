@@ -4,33 +4,30 @@ using NUnit.Framework;
 namespace SJP.Schematic.Sqlite.Tests
 {
     [TestFixture]
-    internal class SqliteExpressionComparerTests
+    internal static class SqliteExpressionComparerTests
     {
         [Test]
-        public void Ctor_GivenNullComparer_CreatesWithoutError()
+        public static void Ctor_GivenNullComparer_CreatesWithoutError()
         {
             var argComparer = StringComparer.Ordinal;
-            var comparer = new SqliteExpressionComparer(sqlStringComparer: argComparer);
-            Assert.Pass();
+            Assert.DoesNotThrow(() => new SqliteExpressionComparer(sqlStringComparer: argComparer));
         }
 
         [Test]
-        public void Ctor_GivenNullSqlStringComparer_CreatesWithoutError()
+        public static void Ctor_GivenNullSqlStringComparer_CreatesWithoutError()
         {
             var argComparer = StringComparer.Ordinal;
-            var comparer = new SqliteExpressionComparer(argComparer);
-            Assert.Pass();
+            Assert.DoesNotThrow(() => new SqliteExpressionComparer(argComparer));
         }
 
         [Test]
-        public void Ctor_GivenNoComparers_CreatesWithoutError()
+        public static void Ctor_GivenNoComparers_CreatesWithoutError()
         {
-            var comparer = new SqliteExpressionComparer();
-            Assert.Pass();
+            Assert.DoesNotThrow(() => new SqliteExpressionComparer());
         }
 
         [Test]
-        public void Equals_GivenEqualSqlStringArguments_ReturnsTrue()
+        public static void Equals_GivenEqualSqlStringArguments_ReturnsTrue()
         {
             const string input = "'abc'";
             var comparer = new SqliteExpressionComparer();
@@ -41,7 +38,7 @@ namespace SJP.Schematic.Sqlite.Tests
         }
 
         [Test]
-        public void Equals_GivenDifferentSqlStringArguments_ReturnsFalse()
+        public static void Equals_GivenDifferentSqlStringArguments_ReturnsFalse()
         {
             const string inputX = "'abc'";
             const string inputY = "'zxc'";
@@ -53,7 +50,7 @@ namespace SJP.Schematic.Sqlite.Tests
         }
 
         [Test]
-        public void Equals_GivenEqualDateArguments_ReturnsTrue()
+        public static void Equals_GivenEqualDateArguments_ReturnsTrue()
         {
             const string input = "getdate()";
             var comparer = new SqliteExpressionComparer();
@@ -64,7 +61,7 @@ namespace SJP.Schematic.Sqlite.Tests
         }
 
         [Test]
-        public void Equals_GivenDifferentDateArguments_ReturnsFalse()
+        public static void Equals_GivenDifferentDateArguments_ReturnsFalse()
         {
             const string inputX = "getdate()";
             const string inputY = "getutcdate()";
@@ -76,7 +73,7 @@ namespace SJP.Schematic.Sqlite.Tests
         }
 
         [Test]
-        public void Equals_GivenEqualNumberArguments_ReturnsTrue()
+        public static void Equals_GivenEqualNumberArguments_ReturnsTrue()
         {
             const string input = "123";
             var comparer = new SqliteExpressionComparer();
@@ -87,7 +84,7 @@ namespace SJP.Schematic.Sqlite.Tests
         }
 
         [Test]
-        public void Equals_GivenDifferentNumberArguments_ReturnsFalse()
+        public static void Equals_GivenDifferentNumberArguments_ReturnsFalse()
         {
             const string inputX = "123";
             const string inputY = "456";
@@ -99,7 +96,7 @@ namespace SJP.Schematic.Sqlite.Tests
         }
 
         [Test]
-        public void Equals_GivenEqualComplexExpressions_ReturnsTrue()
+        public static void Equals_GivenEqualComplexExpressions_ReturnsTrue()
         {
             const string input = "[test_column_1] > len(left([abc], 50))";
             var comparer = new SqliteExpressionComparer();
@@ -110,7 +107,7 @@ namespace SJP.Schematic.Sqlite.Tests
         }
 
         [Test]
-        public void Equals_GivenDifferentComplexExpressions_ReturnsFalse()
+        public static void Equals_GivenDifferentComplexExpressions_ReturnsFalse()
         {
             const string inputX = "[test_column_1] > len(left([abc], 50))";
             const string inputY = "[test_column_2] < len(left([abc], 50))";
@@ -122,7 +119,7 @@ namespace SJP.Schematic.Sqlite.Tests
         }
 
         [Test]
-        public void Equals_GivenDefaultTextComparerAndEqualComplexExpressionsButDifferentCase_ReturnsFalse()
+        public static void Equals_GivenDefaultTextComparerAndEqualComplexExpressionsButDifferentCase_ReturnsFalse()
         {
             const string inputX = "([test_column_1] > len(left([abc], (50))))";
             const string inputY = "([TEST_Column_1] > len(left([abc], (50))))";
@@ -134,7 +131,7 @@ namespace SJP.Schematic.Sqlite.Tests
         }
 
         [Test]
-        public void Equals_GivenIgnoreCaseTextComparerAndEqualComplexExpressionsButDifferentCase_ReturnsTrue()
+        public static void Equals_GivenIgnoreCaseTextComparerAndEqualComplexExpressionsButDifferentCase_ReturnsTrue()
         {
             const string inputX = "([test_column_1] > len(left([abc], (50))))";
             const string inputY = "([TEST_Column_1] > len(left([abc], (50))))";
@@ -146,7 +143,7 @@ namespace SJP.Schematic.Sqlite.Tests
         }
 
         [Test]
-        public void Equals_GivenDefaultTextComparerAndEqualComplexExpressionsButDifferentStringCase_ReturnsFalse()
+        public static void Equals_GivenDefaultTextComparerAndEqualComplexExpressionsButDifferentStringCase_ReturnsFalse()
         {
             const string inputX = "([test_column_1] > len(left('asd', (50))))";
             const string inputY = "([test_column_1] > len(left('ASD', (50))))";
@@ -158,7 +155,7 @@ namespace SJP.Schematic.Sqlite.Tests
         }
 
         [Test]
-        public void Equals_GivenIgnoreCaseTextComparerAndEqualComplexExpressionsButDifferentStringCase_ReturnsTrue()
+        public static void Equals_GivenIgnoreCaseTextComparerAndEqualComplexExpressionsButDifferentStringCase_ReturnsTrue()
         {
             const string inputX = "([test_column_1] > len(left('asd', (50))))";
             const string inputY = "([test_column_1] > len(left('ASD', (50))))";

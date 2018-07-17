@@ -4,7 +4,7 @@ using SJP.Schematic.Core.Extensions;
 
 namespace SJP.Schematic.MySql
 {
-    public class MySqlDatabaseComputedTableColumn : MySqlDatabaseTableColumn, IDatabaseTableColumn, IDatabaseComputedColumn
+    public class MySqlDatabaseComputedTableColumn : MySqlDatabaseTableColumn, IDatabaseComputedColumn
     {
         public MySqlDatabaseComputedTableColumn(IRelationalDatabaseTable table, Identifier columnName, IDbType type, bool isNullable, string defaultValue, string definition)
             : base(table, columnName, type, isNullable, defaultValue, null)

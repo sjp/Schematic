@@ -8,11 +8,11 @@ using System.Data.Common;
 namespace SJP.Schematic.Core.Tests.Caching
 {
     [TestFixture]
-    internal class DbCommandAdapterTests
+    internal static class DbCommandAdapterTests
     {
-        protected DbConnection Connection => new DbConnectionAdapter(Mock.Of<IDbConnection>());
+        private static DbConnection Connection => new DbConnectionAdapter(Mock.Of<IDbConnection>());
 
-        protected Mock<IDbCommand> CommandMock
+        private static Mock<IDbCommand> CommandMock
         {
             get
             {
@@ -24,25 +24,25 @@ namespace SJP.Schematic.Core.Tests.Caching
         }
 
         [Test]
-        public void Ctor_GivenNullConnection_ThrowsArgNullException()
+        public static void Ctor_GivenNullConnection_ThrowsArgNullException()
         {
             Assert.Throws<ArgumentNullException>(() => new DbCommandAdapter(null, CommandMock.Object));
         }
 
         [Test]
-        public void Ctor_GivenNullCommand_ThrowsArgNullException()
+        public static void Ctor_GivenNullCommand_ThrowsArgNullException()
         {
             Assert.Throws<ArgumentNullException>(() => new DbCommandAdapter(Connection, null));
         }
 
         [Test]
-        public void Ctor_GivenNullConnectionAndNullCommand_ThrowsArgNullException()
+        public static void Ctor_GivenNullConnectionAndNullCommand_ThrowsArgNullException()
         {
             Assert.Throws<ArgumentNullException>(() => new DbCommandAdapter(null, null));
         }
 
         [Test]
-        public void DbConnection_PropertyGet_ReadsProvidedCommand()
+        public static void DbConnection_PropertyGet_ReadsProvidedCommand()
         {
             var mock = CommandMock;
             var adapter = new FakeDbCommandAdapter(Connection, mock.Object);
@@ -52,7 +52,7 @@ namespace SJP.Schematic.Core.Tests.Caching
         }
 
         [Test]
-        public void DbConnection_PropertySet_SetsProvidedCommand()
+        public static void DbConnection_PropertySet_SetsProvidedCommand()
         {
             var connection = Connection;
             var mock = CommandMock;
@@ -65,7 +65,7 @@ namespace SJP.Schematic.Core.Tests.Caching
         }
 
         [Test]
-        public void DbTransaction_PropertyGet_ReadsProvidedCommand()
+        public static void DbTransaction_PropertyGet_ReadsProvidedCommand()
         {
             var mock = CommandMock;
             var adapter = new FakeDbCommandAdapter(Connection, mock.Object);
@@ -75,7 +75,7 @@ namespace SJP.Schematic.Core.Tests.Caching
         }
 
         [Test]
-        public void DbTransaction_PropertySet_SetsProvidedCommand()
+        public static void DbTransaction_PropertySet_SetsProvidedCommand()
         {
             var connection = Connection;
             var mock = CommandMock;
@@ -89,7 +89,7 @@ namespace SJP.Schematic.Core.Tests.Caching
         }
 
         [Test]
-        public void CommandText_PropertyGet_ReadsProvidedCommand()
+        public static void CommandText_PropertyGet_ReadsProvidedCommand()
         {
             var mock = CommandMock;
             var adapter = new DbCommandAdapter(Connection, mock.Object);
@@ -99,7 +99,7 @@ namespace SJP.Schematic.Core.Tests.Caching
         }
 
         [Test]
-        public void CommandText_PropertySet_SetsProvidedCommand()
+        public static void CommandText_PropertySet_SetsProvidedCommand()
         {
             var connection = Connection;
             var mock = CommandMock;
@@ -113,17 +113,17 @@ namespace SJP.Schematic.Core.Tests.Caching
         }
 
         [Test]
-        public void CommandTimeout_PropertyGet_ReadsProvidedCommand()
+        public static void CommandTimeout_PropertyGet_ReadsProvidedCommand()
         {
             var mock = CommandMock;
             var adapter = new DbCommandAdapter(Connection, mock.Object);
-            var commandText = adapter.CommandText;
+            var commandTimeout = adapter.CommandTimeout;
 
-            mock.VerifyGet(c => c.CommandText);
+            mock.VerifyGet(c => c.CommandTimeout);
         }
 
         [Test]
-        public void CommandTimeout_PropertySet_SetsProvidedCommand()
+        public static void CommandTimeout_PropertySet_SetsProvidedCommand()
         {
             var connection = Connection;
             var mock = CommandMock;
@@ -137,17 +137,17 @@ namespace SJP.Schematic.Core.Tests.Caching
         }
 
         [Test]
-        public void CommandType_PropertyGet_ReadsProvidedCommand()
+        public static void CommandType_PropertyGet_ReadsProvidedCommand()
         {
             var mock = CommandMock;
             var adapter = new DbCommandAdapter(Connection, mock.Object);
-            var commandText = adapter.CommandText;
+            var commandType = adapter.CommandType;
 
-            mock.VerifyGet(c => c.CommandText);
+            mock.VerifyGet(c => c.CommandType);
         }
 
         [Test]
-        public void CommandType_PropertySet_SetsProvidedCommand()
+        public static void CommandType_PropertySet_SetsProvidedCommand()
         {
             var connection = Connection;
             var mock = CommandMock;
@@ -161,7 +161,7 @@ namespace SJP.Schematic.Core.Tests.Caching
         }
 
         [Test]
-        public void DesignTimeVisible_PropertyGet_ReturnsFalse()
+        public static void DesignTimeVisible_PropertyGet_ReturnsFalse()
         {
             var mock = CommandMock;
             var adapter = new DbCommandAdapter(Connection, mock.Object);
@@ -171,7 +171,7 @@ namespace SJP.Schematic.Core.Tests.Caching
         }
 
         [Test]
-        public void DesignTimeVisible_PropertyGetAfterSettingToTrue_ReturnsFalse()
+        public static void DesignTimeVisible_PropertyGetAfterSettingToTrue_ReturnsFalse()
         {
             var mock = CommandMock;
             var adapter = new DbCommandAdapter(Connection, mock.Object)
@@ -184,7 +184,7 @@ namespace SJP.Schematic.Core.Tests.Caching
         }
 
         [Test]
-        public void UpdatedRowSource_PropertyGet_ReadsProvidedCommand()
+        public static void UpdatedRowSource_PropertyGet_ReadsProvidedCommand()
         {
             var mock = CommandMock;
             var adapter = new DbCommandAdapter(Connection, mock.Object);
@@ -194,7 +194,7 @@ namespace SJP.Schematic.Core.Tests.Caching
         }
 
         [Test]
-        public void UpdatedRowSource_PropertySet_SetsProvidedCommand()
+        public static void UpdatedRowSource_PropertySet_SetsProvidedCommand()
         {
             var connection = Connection;
             var mock = CommandMock;
@@ -208,7 +208,7 @@ namespace SJP.Schematic.Core.Tests.Caching
         }
 
         [Test]
-        public void Cancel_WhenInvoked_CallsProvidedCommand()
+        public static void Cancel_WhenInvoked_CallsProvidedCommand()
         {
             var mock = CommandMock;
             var adapter = new DbCommandAdapter(Connection, mock.Object);
@@ -218,7 +218,7 @@ namespace SJP.Schematic.Core.Tests.Caching
         }
 
         [Test]
-        public void ExecuteNonQuery_WhenInvoked_CallsProvidedCommand()
+        public static void ExecuteNonQuery_WhenInvoked_CallsProvidedCommand()
         {
             var mock = CommandMock;
             var adapter = new DbCommandAdapter(Connection, mock.Object);
@@ -228,7 +228,7 @@ namespace SJP.Schematic.Core.Tests.Caching
         }
 
         [Test]
-        public void ExecuteScalar_WhenInvoked_CallsProvidedCommand()
+        public static void ExecuteScalar_WhenInvoked_CallsProvidedCommand()
         {
             var mock = CommandMock;
             var adapter = new DbCommandAdapter(Connection, mock.Object);
@@ -238,7 +238,7 @@ namespace SJP.Schematic.Core.Tests.Caching
         }
 
         [Test]
-        public void Prepare_WhenInvoked_CallsProvidedCommand()
+        public static void Prepare_WhenInvoked_CallsProvidedCommand()
         {
             var mock = CommandMock;
             var adapter = new DbCommandAdapter(Connection, mock.Object);
@@ -248,7 +248,7 @@ namespace SJP.Schematic.Core.Tests.Caching
         }
 
         [Test]
-        public void CreateParameter_WhenInvoked_CallsProvidedCommand()
+        public static void CreateParameter_WhenInvoked_CallsProvidedCommand()
         {
             var mock = CommandMock;
             var mockParameter = Mock.Of<IDbDataParameter>();
@@ -261,7 +261,7 @@ namespace SJP.Schematic.Core.Tests.Caching
         }
 
         [Test]
-        public void ExecuteReader_WhenInvoked_CallsProvidedCommand()
+        public static void ExecuteReader_WhenInvoked_CallsProvidedCommand()
         {
             var mock = CommandMock;
             var mockReader = Mock.Of<IDataReader>();

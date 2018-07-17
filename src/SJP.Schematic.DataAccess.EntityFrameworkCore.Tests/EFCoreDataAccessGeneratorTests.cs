@@ -8,24 +8,24 @@ using SJP.Schematic.Core;
 namespace SJP.Schematic.DataAccess.EntityFrameworkCore.Tests
 {
     [TestFixture]
-    internal class EFCoreDataAccessGeneratorTests
+    internal static class EFCoreDataAccessGeneratorTests
     {
         [Test]
-        public void Ctor_GivenNullDatabase_ThrowsArgumentNullException()
+        public static void Ctor_GivenNullDatabase_ThrowsArgumentNullException()
         {
             var nameProvider = new VerbatimNameProvider();
             Assert.Throws<ArgumentNullException>(() => new EFCoreDataAccessGenerator(null, nameProvider));
         }
 
         [Test]
-        public void Ctor_GivenNullNameProvider_ThrowsArgumentNullException()
+        public static void Ctor_GivenNullNameProvider_ThrowsArgumentNullException()
         {
             var database = Mock.Of<IRelationalDatabase>();
             Assert.Throws<ArgumentNullException>(() => new EFCoreDataAccessGenerator(database, null));
         }
 
         [Test]
-        public void Generate_GivenNullFileSystem_ThrowsArgumentNullException()
+        public static void Generate_GivenNullFileSystem_ThrowsArgumentNullException()
         {
             var database = Mock.Of<IRelationalDatabase>();
             var nameProvider = new VerbatimNameProvider();
@@ -36,7 +36,7 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore.Tests
         }
 
         [Test]
-        public void Generate_GivenNullProjectPath_ThrowsArgumentNullException()
+        public static void Generate_GivenNullProjectPath_ThrowsArgumentNullException()
         {
             var database = Mock.Of<IRelationalDatabase>();
             var nameProvider = new VerbatimNameProvider();
@@ -47,7 +47,7 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore.Tests
         }
 
         [Test]
-        public void Generate_GivenEmptyProjectPath_ThrowsArgumentNullException()
+        public static void Generate_GivenEmptyProjectPath_ThrowsArgumentNullException()
         {
             var database = Mock.Of<IRelationalDatabase>();
             var nameProvider = new VerbatimNameProvider();
@@ -58,7 +58,7 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore.Tests
         }
 
         [Test]
-        public void Generate_GivenWhiteSpaceProjectPath_ThrowsArgumentNullException()
+        public static void Generate_GivenWhiteSpaceProjectPath_ThrowsArgumentNullException()
         {
             var database = Mock.Of<IRelationalDatabase>();
             var nameProvider = new VerbatimNameProvider();
@@ -69,7 +69,7 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore.Tests
         }
 
         [Test]
-        public void Generate_GivenNullNamespace_ThrowsArgumentNullException()
+        public static void Generate_GivenNullNamespace_ThrowsArgumentNullException()
         {
             var database = Mock.Of<IRelationalDatabase>();
             var nameProvider = new VerbatimNameProvider();
@@ -81,7 +81,7 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore.Tests
         }
 
         [Test]
-        public void Generate_GivenEmptyNamespace_ThrowsArgumentNullException()
+        public static void Generate_GivenEmptyNamespace_ThrowsArgumentNullException()
         {
             var database = Mock.Of<IRelationalDatabase>();
             var nameProvider = new VerbatimNameProvider();
@@ -93,7 +93,7 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore.Tests
         }
 
         [Test]
-        public void Generate_GivenWhiteSpaceNamespace_ThrowsArgumentNullException()
+        public static void Generate_GivenWhiteSpaceNamespace_ThrowsArgumentNullException()
         {
             var database = Mock.Of<IRelationalDatabase>();
             var nameProvider = new VerbatimNameProvider();
@@ -105,7 +105,7 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore.Tests
         }
 
         [Test]
-        public void Generate_GivenProjectPathNotACsproj_ThrowsArgumentException()
+        public static void Generate_GivenProjectPathNotACsproj_ThrowsArgumentException()
         {
             var database = Mock.Of<IRelationalDatabase>();
             var nameProvider = new VerbatimNameProvider();

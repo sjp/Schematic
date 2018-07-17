@@ -3,10 +3,10 @@
 namespace SJP.Schematic.Modelled.Tests
 {
     [TestFixture]
-    internal class OrderedRelationalDatabaseTests
+    internal static class OrderedRelationalDatabaseTests
     {
         [Test]
-        public void EmptyTest()
+        public static void EmptyTest()
         {
             Assert.Pass();
         }

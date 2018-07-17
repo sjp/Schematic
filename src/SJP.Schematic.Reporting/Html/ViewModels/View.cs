@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using SJP.Schematic.Core;
 
 namespace SJP.Schematic.Reporting.Html.ViewModels

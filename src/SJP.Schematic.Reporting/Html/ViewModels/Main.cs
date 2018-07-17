@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Web;
 using SJP.Schematic.Core;
 
@@ -58,7 +57,7 @@ namespace SJP.Schematic.Reporting.Html.ViewModels
 
         public string ProductVersion { get; }
 
-        public DateTime GenerationTime => DateTime.Now;
+        public static DateTime GenerationTime => DateTime.Now;
 
         public uint ColumnsCount { get; }
 

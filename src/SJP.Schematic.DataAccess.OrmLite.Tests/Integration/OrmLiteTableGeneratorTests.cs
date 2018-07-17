@@ -13,7 +13,7 @@ namespace SJP.Schematic.DataAccess.OrmLite.Tests.Integration
 
         private IRelationalDatabaseTable GetTable(Identifier tableName) => Database.GetTable(tableName);
 
-        private IDatabaseTableGenerator TableGenerator => new OrmLiteTableGenerator(new PascalCaseNameProvider(), TestNamespace);
+        private static IDatabaseTableGenerator TableGenerator => new OrmLiteTableGenerator(new PascalCaseNameProvider(), TestNamespace);
 
         [OneTimeSetUp]
         public async Task Init()

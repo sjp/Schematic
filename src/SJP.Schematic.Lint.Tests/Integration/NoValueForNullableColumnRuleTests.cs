@@ -32,7 +32,7 @@ namespace SJP.Schematic.Lint.Tests.Integration
         }
 
         [Test]
-        public void Ctor_GivenInvalidLevel_ThrowsArgumentNullException()
+        public static void Ctor_GivenInvalidLevel_ThrowsArgumentNullException()
         {
             IDbConnection connection = null;
             const RuleLevel level = RuleLevel.Error;
@@ -40,7 +40,7 @@ namespace SJP.Schematic.Lint.Tests.Integration
         }
 
         [Test]
-        public void Ctor_GivenInvalidLevel_ThrowsArgumenException()
+        public static void Ctor_GivenInvalidLevel_ThrowsArgumenException()
         {
             var connection = Mock.Of<IDbConnection>();
             const RuleLevel level = (RuleLevel)999;
@@ -48,7 +48,7 @@ namespace SJP.Schematic.Lint.Tests.Integration
         }
 
         [Test]
-        public void AnalyseDatabase_GivenNullDatabase_ThrowsArgumentNullException()
+        public static void AnalyseDatabase_GivenNullDatabase_ThrowsArgumentNullException()
         {
             var connection = Mock.Of<IDbConnection>();
             var rule = new NoValueForNullableColumnRule(connection, RuleLevel.Error);

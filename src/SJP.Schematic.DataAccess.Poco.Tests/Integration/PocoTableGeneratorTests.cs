@@ -13,7 +13,7 @@ namespace SJP.Schematic.DataAccess.Poco.Tests.Integration
 
         private IRelationalDatabaseTable GetTable(Identifier tableName) => Database.GetTable(tableName);
 
-        private IDatabaseTableGenerator TableGenerator => new PocoTableGenerator(new PascalCaseNameProvider(), TestNamespace);
+        private static IDatabaseTableGenerator TableGenerator => new PocoTableGenerator(new PascalCaseNameProvider(), TestNamespace);
 
         [OneTimeSetUp]
         public Task Init()

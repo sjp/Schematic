@@ -9,60 +9,60 @@ using SJP.Schematic.Modelled.Reflection.Tests.Fakes;
 namespace SJP.Schematic.Modelled.Reflection.Tests
 {
     [TestFixture]
-    internal class ReflectionCommentProviderTests
+    internal static class ReflectionCommentProviderTests
     {
-        protected static FakeReflectionCommentProvider FakeProvider { get; } = new FakeReflectionCommentProvider();
+        private static FakeReflectionCommentProvider FakeProvider { get; } = new FakeReflectionCommentProvider();
 
         [Test]
-        public void Ctor_GivenNullAssembly_ThrowsArgumentNullException()
+        public static void Ctor_GivenNullAssembly_ThrowsArgumentNullException()
         {
             Assert.Throws<ArgumentNullException>(() => new ReflectionCommentProvider((Assembly)null));
         }
 
         [Test]
-        public void Ctor_GivenNullDocument_ThrowsArgumentNullException()
+        public static void Ctor_GivenNullDocument_ThrowsArgumentNullException()
         {
             Assert.Throws<ArgumentNullException>(() => new ReflectionCommentProvider((XDocument)null));
         }
 
         [Test]
-        public void GetComment_GivenNullType_ThrowsArgumentNullException()
+        public static void GetComment_GivenNullType_ThrowsArgumentNullException()
         {
             Assert.Throws<ArgumentNullException>(() => FakeProvider.GetIdentifier((Type)null));
         }
 
         [Test]
-        public void GetComment_GivenNullConstructorInfo_ThrowsArgumentNullException()
+        public static void GetComment_GivenNullConstructorInfo_ThrowsArgumentNullException()
         {
             Assert.Throws<ArgumentNullException>(() => FakeProvider.GetIdentifier((ConstructorInfo)null));
         }
 
         [Test]
-        public void GetComment_GivenNullEventInfo_ThrowsArgumentNullException()
+        public static void GetComment_GivenNullEventInfo_ThrowsArgumentNullException()
         {
             Assert.Throws<ArgumentNullException>(() => FakeProvider.GetIdentifier((EventInfo)null));
         }
 
         [Test]
-        public void GetComment_GivenNullFieldInfo_ThrowsArgumentNullException()
+        public static void GetComment_GivenNullFieldInfo_ThrowsArgumentNullException()
         {
             Assert.Throws<ArgumentNullException>(() => FakeProvider.GetIdentifier((FieldInfo)null));
         }
 
         [Test]
-        public void GetComment_GivenNullMethodInfo_ThrowsArgumentNullException()
+        public static void GetComment_GivenNullMethodInfo_ThrowsArgumentNullException()
         {
             Assert.Throws<ArgumentNullException>(() => FakeProvider.GetIdentifier((MethodInfo)null));
         }
 
         [Test]
-        public void GetComment_GivenNullPropertyInfo_ThrowsArgumentNullException()
+        public static void GetComment_GivenNullPropertyInfo_ThrowsArgumentNullException()
         {
             Assert.Throws<ArgumentNullException>(() => FakeProvider.GetIdentifier((PropertyInfo)null));
         }
 
         [Test]
-        public void GetComment_WhenIncorrectDocumentProvided_ReturnsNull()
+        public static void GetComment_WhenIncorrectDocumentProvided_ReturnsNull()
         {
             var doc = XDocument.Parse("<a></a>");
             var type = typeof(ReflectionCommentProvider);
@@ -73,7 +73,7 @@ namespace SJP.Schematic.Modelled.Reflection.Tests
         }
 
         [Test]
-        public void GetComment_WhenMemberContainsNoNameAttribute_ReturnsNull()
+        public static void GetComment_WhenMemberContainsNoNameAttribute_ReturnsNull()
         {
             var doc = XDocument.Parse("<doc><member></member></doc>");
             var type = typeof(ReflectionCommentProvider);
@@ -84,7 +84,7 @@ namespace SJP.Schematic.Modelled.Reflection.Tests
         }
 
         [Test]
-        public void GetComment_WhenMemberFoundButNoSummaryPresent_ReturnsNull()
+        public static void GetComment_WhenMemberFoundButNoSummaryPresent_ReturnsNull()
         {
             var type = typeof(ReflectionCommentProvider);
             var fakeProvider = new FakeReflectionCommentProvider();
@@ -97,7 +97,7 @@ namespace SJP.Schematic.Modelled.Reflection.Tests
         }
 
         [Test]
-        public void GetComment_WhenIdentifierNotPresent_ReturnsNull()
+        public static void GetComment_WhenIdentifierNotPresent_ReturnsNull()
         {
             var doc = XDocument.Parse("<doc><member name=\"T:A.B.C\"><summary></summary></member></doc>");
             var type = typeof(ReflectionCommentProvider);
@@ -108,7 +108,7 @@ namespace SJP.Schematic.Modelled.Reflection.Tests
         }
 
         [Test]
-        public void GetComment_WhenMemberAndSummaryPresent_ReturnsCorrectSummaryValue()
+        public static void GetComment_WhenMemberAndSummaryPresent_ReturnsCorrectSummaryValue()
         {
             var type = typeof(ReflectionCommentProvider);
             var fakeProvider = new FakeReflectionCommentProvider();
@@ -122,7 +122,7 @@ namespace SJP.Schematic.Modelled.Reflection.Tests
         }
 
         [Test]
-        public void GetCommentByIdentifier_GivenPlainType_ReturnsCorrectIdentifier()
+        public static void GetCommentByIdentifier_GivenPlainType_ReturnsCorrectIdentifier()
         {
             var type = typeof(TestClass);
             const string expected = "T:SJP.Schematic.Modelled.Reflection.Tests.ReflectionCommentProviderTests.TestClass";
@@ -132,7 +132,7 @@ namespace SJP.Schematic.Modelled.Reflection.Tests
         }
 
         [Test]
-        public void GetCommentByIdentifier_GivenGenericType_ReturnsCorrectIdentifier()
+        public static void GetCommentByIdentifier_GivenGenericType_ReturnsCorrectIdentifier()
         {
             var type = typeof(TestGenericClass<string>);
             const string expected = "T:SJP.Schematic.Modelled.Reflection.Tests.ReflectionCommentProviderTests.TestGenericClass`1";
@@ -142,7 +142,7 @@ namespace SJP.Schematic.Modelled.Reflection.Tests
         }
 
         [Test]
-        public void GetCommentByIdentifier_GivenGenericTypeWithArray_ReturnsCorrectIdentifier()
+        public static void GetCommentByIdentifier_GivenGenericTypeWithArray_ReturnsCorrectIdentifier()
         {
             var type = typeof(TestGenericClass<string[,,]>);
             const string expected = "T:SJP.Schematic.Modelled.Reflection.Tests.ReflectionCommentProviderTests.TestGenericClass`1";
@@ -152,7 +152,7 @@ namespace SJP.Schematic.Modelled.Reflection.Tests
         }
 
         [Test]
-        public void GetCommentByIdentifier_GivenNestedType_ReturnsCorrectIdentifier()
+        public static void GetCommentByIdentifier_GivenNestedType_ReturnsCorrectIdentifier()
         {
             var type = typeof(TestClass.Nested);
             const string expected = "T:SJP.Schematic.Modelled.Reflection.Tests.ReflectionCommentProviderTests.TestClass.Nested";
@@ -162,7 +162,7 @@ namespace SJP.Schematic.Modelled.Reflection.Tests
         }
 
         [Test]
-        public void GetCommentByIdentifier_GivenDefaultCtor_ReturnsCorrectIdentifier()
+        public static void GetCommentByIdentifier_GivenDefaultCtor_ReturnsCorrectIdentifier()
         {
             var type = typeof(TestClass);
             var ctor = type.GetConstructors().First(c => c.GetParameters().Length == 0);
@@ -173,7 +173,7 @@ namespace SJP.Schematic.Modelled.Reflection.Tests
         }
 
         [Test]
-        public void GetCommentByIdentifier_GivenCtorWithIntArg_ReturnsCorrectIdentifier()
+        public static void GetCommentByIdentifier_GivenCtorWithIntArg_ReturnsCorrectIdentifier()
         {
             var type = typeof(TestClass);
             var ctor = type.GetConstructors().First(c => c.GetParameters().Length > 0);
@@ -184,7 +184,7 @@ namespace SJP.Schematic.Modelled.Reflection.Tests
         }
 
         [Test]
-        public void GetCommentByIdentifier_GivenStaticCtor_ReturnsCorrectIdentifier()
+        public static void GetCommentByIdentifier_GivenStaticCtor_ReturnsCorrectIdentifier()
         {
             var type = typeof(TestClass);
             const string expected = "M:SJP.Schematic.Modelled.Reflection.Tests.ReflectionCommentProviderTests.TestClass.#cctor";
@@ -194,7 +194,7 @@ namespace SJP.Schematic.Modelled.Reflection.Tests
         }
 
         [Test]
-        public void GetCommentByIdentifier_GivenField_ReturnsCorrectIdentifier()
+        public static void GetCommentByIdentifier_GivenField_ReturnsCorrectIdentifier()
         {
             var type = typeof(TestClass);
             var field = type.GetField("Q");
@@ -205,7 +205,7 @@ namespace SJP.Schematic.Modelled.Reflection.Tests
         }
 
         [Test]
-        public void GetCommentByIdentifier_GivenConstField_ReturnsCorrectIdentifier()
+        public static void GetCommentByIdentifier_GivenConstField_ReturnsCorrectIdentifier()
         {
             var type = typeof(TestClass);
             var field = type.GetField("PI");
@@ -216,7 +216,7 @@ namespace SJP.Schematic.Modelled.Reflection.Tests
         }
 
         [Test]
-        public void GetCommentByIdentifier_GivenParameterlessMethod_ReturnsCorrectIdentifier()
+        public static void GetCommentByIdentifier_GivenParameterlessMethod_ReturnsCorrectIdentifier()
         {
             var type = typeof(TestClass);
             var method = type.GetMethod("F");
@@ -227,7 +227,7 @@ namespace SJP.Schematic.Modelled.Reflection.Tests
         }
 
         [Test]
-        public void GetCommentByIdentifier_GivenMethodWithIntArg_ReturnsCorrectIdentifier()
+        public static void GetCommentByIdentifier_GivenMethodWithIntArg_ReturnsCorrectIdentifier()
         {
             var type = typeof(TestClass);
             var method = type.GetMethod("Farg");
@@ -238,7 +238,7 @@ namespace SJP.Schematic.Modelled.Reflection.Tests
         }
 
         [Test]
-        public void GetCommentByIdentifier_GivenMethodWithArrayArgs_ReturnsCorrectIdentifier()
+        public static void GetCommentByIdentifier_GivenMethodWithArrayArgs_ReturnsCorrectIdentifier()
         {
             var type = typeof(TestClass);
             var method = type.GetMethod("Gg");
@@ -249,7 +249,7 @@ namespace SJP.Schematic.Modelled.Reflection.Tests
         }
 
         [Test]
-        public void GetCommentByIdentifier_GivenMethodWithRefAndOutParameters_ReturnsCorrectIdentifier()
+        public static void GetCommentByIdentifier_GivenMethodWithRefAndOutParameters_ReturnsCorrectIdentifier()
         {
             var type = typeof(TestClass);
             var method = type.GetMethod("Cc");
@@ -260,7 +260,7 @@ namespace SJP.Schematic.Modelled.Reflection.Tests
         }
 
         [Test]
-        public void GetCommentByIdentifier_GivenMethodNamedLikeAnOperator_ReturnsCorrectIdentifier()
+        public static void GetCommentByIdentifier_GivenMethodNamedLikeAnOperator_ReturnsCorrectIdentifier()
         {
             var type = typeof(TestClass);
             var method = type.GetMethod("op_Implicit", new[] { typeof(TestClass) });
@@ -271,7 +271,7 @@ namespace SJP.Schematic.Modelled.Reflection.Tests
         }
 
         [Test]
-        public void GetCommentByIdentifier_GivenMethodWithGenericParameters_ReturnsCorrectIdentifier()
+        public static void GetCommentByIdentifier_GivenMethodWithGenericParameters_ReturnsCorrectIdentifier()
         {
             var type = typeof(TestClass);
             var method = type.GetMethod("Identity");
@@ -282,7 +282,7 @@ namespace SJP.Schematic.Modelled.Reflection.Tests
         }
 
         [Test]
-        public void GetCommentByIdentifier_GivenMethodWithGenericParameterFromGenericClass_ReturnsCorrectIdentifier()
+        public static void GetCommentByIdentifier_GivenMethodWithGenericParameterFromGenericClass_ReturnsCorrectIdentifier()
         {
             var type = typeof(TestGenericClass<>);
             var method = type.GetMethod("IdentityTest");
@@ -293,7 +293,7 @@ namespace SJP.Schematic.Modelled.Reflection.Tests
         }
 
         [Test]
-        public void GetCommentByIdentifier_GivenAdditionOperator_ReturnsCorrectIdentifier()
+        public static void GetCommentByIdentifier_GivenAdditionOperator_ReturnsCorrectIdentifier()
         {
             var type = typeof(TestClass);
             var method = type.GetMethod("op_Addition");
@@ -304,7 +304,7 @@ namespace SJP.Schematic.Modelled.Reflection.Tests
         }
 
         [Test]
-        public void GetCommentByIdentifier_GivenExplicitOperator_ReturnsCorrectIdentifier()
+        public static void GetCommentByIdentifier_GivenExplicitOperator_ReturnsCorrectIdentifier()
         {
             var type = typeof(TestClass);
             var method = type.GetMethod("op_Explicit");
@@ -315,11 +315,10 @@ namespace SJP.Schematic.Modelled.Reflection.Tests
         }
 
         [Test]
-        public void GetCommentByIdentifier_GivenImplicitOperator_ReturnsCorrectIdentifier()
+        public static void GetCommentByIdentifier_GivenImplicitOperator_ReturnsCorrectIdentifier()
         {
             var type = typeof(TestClass);
             var method = type.GetMethod("op_Implicit" , new[] { typeof(string) });
-            var allM = type.GetMethods();
             const string expected = "M:SJP.Schematic.Modelled.Reflection.Tests.ReflectionCommentProviderTests.TestClass.op_Implicit(System.String)~SJP.Schematic.Modelled.Reflection.Tests.ReflectionCommentProviderTests.TestClass";
             var identifier = FakeProvider.GetIdentifier(method);
 
@@ -327,7 +326,7 @@ namespace SJP.Schematic.Modelled.Reflection.Tests
         }
 
         [Test]
-        public void GetCommentByIdentifier_GivenDelegate_ReturnsCorrectIdentifier()
+        public static void GetCommentByIdentifier_GivenDelegate_ReturnsCorrectIdentifier()
         {
             var type = typeof(TestClass.D);
             const string expected = "T:SJP.Schematic.Modelled.Reflection.Tests.ReflectionCommentProviderTests.TestClass.D";
@@ -337,7 +336,7 @@ namespace SJP.Schematic.Modelled.Reflection.Tests
         }
 
         [Test]
-        public void GetCommentByIdentifier_GivenProperty_ReturnsCorrectIdentifier()
+        public static void GetCommentByIdentifier_GivenProperty_ReturnsCorrectIdentifier()
         {
             var type = typeof(TestClass);
             var property = type.GetProperty("Prop");
@@ -348,7 +347,7 @@ namespace SJP.Schematic.Modelled.Reflection.Tests
         }
 
         [Test]
-        public void GetCommentByIdentifier_GivenIndexer_ReturnsCorrectIdentifier()
+        public static void GetCommentByIdentifier_GivenIndexer_ReturnsCorrectIdentifier()
         {
             var type = typeof(TestClass);
             var property = type.GetProperty("Item");
@@ -359,7 +358,7 @@ namespace SJP.Schematic.Modelled.Reflection.Tests
         }
 
         [Test]
-        public void GetCommentByIdentifier_GivenEvent_ReturnsCorrectIdentifier()
+        public static void GetCommentByIdentifier_GivenEvent_ReturnsCorrectIdentifier()
         {
             var type = typeof(TestClass);
             var property = type.GetEvent("EventD");

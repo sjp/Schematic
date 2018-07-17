@@ -4,30 +4,30 @@ using NUnit.Framework;
 namespace SJP.Schematic.DataAccess.EntityFrameworkCore.Tests
 {
     [TestFixture]
-    internal class EFCoreModelBuilderTests
+    internal static class EFCoreModelBuilderTests
     {
         [Test]
-        public void Ctor_GivenNullNameProvider_ThrowsArgumentNullException()
+        public static void Ctor_GivenNullNameProvider_ThrowsArgumentNullException()
         {
             Assert.Throws<ArgumentNullException>(() => new EFCoreModelBuilder(null, " ", " "));
         }
 
         [Test]
-        public void Ctor_GivenNullLineIndent_ThrowsArgumentNullException()
+        public static void Ctor_GivenNullLineIndent_ThrowsArgumentNullException()
         {
             var nameProvider = new VerbatimNameProvider();
             Assert.Throws<ArgumentNullException>(() => new EFCoreModelBuilder(nameProvider, null, " "));
         }
 
         [Test]
-        public void Ctor_GivenNullIndentLevel_ThrowsArgumentNullException()
+        public static void Ctor_GivenNullIndentLevel_ThrowsArgumentNullException()
         {
             var nameProvider = new VerbatimNameProvider();
             Assert.Throws<ArgumentNullException>(() => new EFCoreModelBuilder(nameProvider, " ", null));
         }
 
         [Test]
-        public void AddTable_GivenNullTable_ThrowsArgumentNullException()
+        public static void AddTable_GivenNullTable_ThrowsArgumentNullException()
         {
             var nameProvider = new VerbatimNameProvider();
             var modelBuilder = new EFCoreModelBuilder(nameProvider, " ", " ");
@@ -36,7 +36,7 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore.Tests
         }
 
         [Test]
-        public void AddSequence_GivenNullTable_ThrowsArgumentNullException()
+        public static void AddSequence_GivenNullTable_ThrowsArgumentNullException()
         {
             var nameProvider = new VerbatimNameProvider();
             var modelBuilder = new EFCoreModelBuilder(nameProvider, " ", " ");

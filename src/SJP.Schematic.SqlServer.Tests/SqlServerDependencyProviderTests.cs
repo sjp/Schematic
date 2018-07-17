@@ -6,17 +6,16 @@ using SJP.Schematic.Core;
 namespace SJP.Schematic.SqlServer.Tests
 {
     [TestFixture]
-    internal class SqlServerDependencyProviderTests
+    internal static class SqlServerDependencyProviderTests
     {
         [Test]
-        public void Ctor_GivenNullComparer_CreatesWithoutError()
+        public static void Ctor_GivenNullComparer_CreatesWithoutError()
         {
-            var provider = new SqlServerDependencyProvider(null);
-            Assert.Pass();
+            Assert.DoesNotThrow(() => new SqlServerDependencyProvider(null));
         }
 
         [Test]
-        public void GetDependencies_GivenNullObjectName_ThrowsArgumentsNullException()
+        public static void GetDependencies_GivenNullObjectName_ThrowsArgumentsNullException()
         {
             var provider = new SqlServerDependencyProvider();
 
@@ -24,7 +23,7 @@ namespace SJP.Schematic.SqlServer.Tests
         }
 
         [Test]
-        public void GetDependencies_GivenNullExpression_ThrowsArgumentsNullException()
+        public static void GetDependencies_GivenNullExpression_ThrowsArgumentsNullException()
         {
             var provider = new SqlServerDependencyProvider();
             Identifier objectName = "asd";
@@ -33,7 +32,7 @@ namespace SJP.Schematic.SqlServer.Tests
         }
 
         [Test]
-        public void GetDependencies_GivenEmptyExpression_ThrowsArgumentsNullException()
+        public static void GetDependencies_GivenEmptyExpression_ThrowsArgumentsNullException()
         {
             var provider = new SqlServerDependencyProvider();
             Identifier objectName = "asd";
@@ -42,7 +41,7 @@ namespace SJP.Schematic.SqlServer.Tests
         }
 
         [Test]
-        public void GetDependencies_GivenWhiteSpaceExpression_ThrowsArgumentsNullException()
+        public static void GetDependencies_GivenWhiteSpaceExpression_ThrowsArgumentsNullException()
         {
             var provider = new SqlServerDependencyProvider();
             Identifier objectName = "asd";
@@ -51,7 +50,7 @@ namespace SJP.Schematic.SqlServer.Tests
         }
 
         [Test]
-        public void GetDependencies_GivenExpressionWithSameObjectAsTable_ReturnsEmptyCollection()
+        public static void GetDependencies_GivenExpressionWithSameObjectAsTable_ReturnsEmptyCollection()
         {
             var provider = new SqlServerDependencyProvider();
             Identifier objectName = "asd";
@@ -64,7 +63,7 @@ namespace SJP.Schematic.SqlServer.Tests
         }
 
         [Test]
-        public void GetDependencies_GivenExpressionWithSameObjectAsFunction_ReturnsEmptyCollection()
+        public static void GetDependencies_GivenExpressionWithSameObjectAsFunction_ReturnsEmptyCollection()
         {
             var provider = new SqlServerDependencyProvider();
             Identifier objectName = "asd";
@@ -77,7 +76,7 @@ namespace SJP.Schematic.SqlServer.Tests
         }
 
         [Test]
-        public void GetDependencies_GivenExpressionPointingToOtherTable_ReturnsOtherTable()
+        public static void GetDependencies_GivenExpressionPointingToOtherTable_ReturnsOtherTable()
         {
             var provider = new SqlServerDependencyProvider();
             Identifier objectName = "asd";
@@ -90,7 +89,7 @@ namespace SJP.Schematic.SqlServer.Tests
         }
 
         [Test]
-        public void GetDependencies_GivenExpressionPointingToOtherFunction_ReturnsOtherFunction()
+        public static void GetDependencies_GivenExpressionPointingToOtherFunction_ReturnsOtherFunction()
         {
             var provider = new SqlServerDependencyProvider();
             Identifier objectName = "asd";
@@ -103,7 +102,7 @@ namespace SJP.Schematic.SqlServer.Tests
         }
 
         [Test]
-        public void GetDependencies_GivenExpressionPointingToOtherColumns_ReturnsColumnNames()
+        public static void GetDependencies_GivenExpressionPointingToOtherColumns_ReturnsColumnNames()
         {
             var provider = new SqlServerDependencyProvider();
             Identifier objectName = "asd";
@@ -117,7 +116,7 @@ namespace SJP.Schematic.SqlServer.Tests
         }
 
         [Test]
-        public void GetDependencies_GivenExpressionForViewPointingToTableAndFunction_ReturnsColumnsTablesAndFunctions()
+        public static void GetDependencies_GivenExpressionForViewPointingToTableAndFunction_ReturnsColumnsTablesAndFunctions()
         {
             var provider = new SqlServerDependencyProvider();
             Identifier objectName = "asd";
@@ -143,7 +142,7 @@ SELECT * from dbo.FunctionName('testarg')
         }
 
         [Test]
-        public void GetDependencies_GivenExpressionForViewWithDuplicateNames_ReturnsUniqueDependencies()
+        public static void GetDependencies_GivenExpressionForViewWithDuplicateNames_ReturnsUniqueDependencies()
         {
             var provider = new SqlServerDependencyProvider();
             Identifier objectName = "asd";

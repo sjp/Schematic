@@ -6,10 +6,10 @@ using NUnit.Framework;
 namespace SJP.Schematic.Core.Tests
 {
     [TestFixture]
-    internal class RelationalDatabaseTests
+    internal static class RelationalDatabaseTests
     {
         [Test]
-        public void Ctor_GivenNullDialect_ThrowsArgumentNullException()
+        public static void Ctor_GivenNullDialect_ThrowsArgumentNullException()
         {
             IDatabaseDialect dialect = null;
             var connection = Mock.Of<IDbConnection>();
@@ -18,7 +18,7 @@ namespace SJP.Schematic.Core.Tests
         }
 
         [Test]
-        public void Ctor_GivenNullConnection_ThrowsArgumentNullException()
+        public static void Ctor_GivenNullConnection_ThrowsArgumentNullException()
         {
             var dialect = Mock.Of<IDatabaseDialect>();
             IDbConnection connection = null;
@@ -27,7 +27,7 @@ namespace SJP.Schematic.Core.Tests
         }
 
         [Test]
-        public void Ctor_GivenNonNullArguments_CreatesSuccessfully()
+        public static void Ctor_GivenNonNullArguments_CreatesSuccessfully()
         {
             var dialect = Mock.Of<IDatabaseDialect>();
             var connection = Mock.Of<IDbConnection>();

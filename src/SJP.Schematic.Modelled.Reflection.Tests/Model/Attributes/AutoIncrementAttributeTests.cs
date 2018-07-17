@@ -3,10 +3,10 @@
 namespace SJP.Schematic.Modelled.Reflection.Model.Attributes.Tests
 {
     [TestFixture]
-    internal class AutoIncrementAttributeTests
+    internal static class AutoIncrementAttributeTests
     {
         [Test]
-        public void Ctor_UsingDefaultCtor_SetsInitialValueToOne()
+        public static void Ctor_UsingDefaultCtor_SetsInitialValueToOne()
         {
             var aliasAttr = new AutoIncrementAttribute();
 
@@ -14,7 +14,7 @@ namespace SJP.Schematic.Modelled.Reflection.Model.Attributes.Tests
         }
 
         [Test]
-        public void Ctor_UsingDefaultCtor_SetsIncrementToOne()
+        public static void Ctor_UsingDefaultCtor_SetsIncrementToOne()
         {
             var aliasAttr = new AutoIncrementAttribute();
 
@@ -22,7 +22,7 @@ namespace SJP.Schematic.Modelled.Reflection.Model.Attributes.Tests
         }
 
         [Test]
-        public void InitialValue_PropertyGet_MatchesCtorArgument()
+        public static void InitialValue_PropertyGet_MatchesCtorArgument()
         {
             const int initialValue = 10;
             const int increment = 20;
@@ -32,7 +32,7 @@ namespace SJP.Schematic.Modelled.Reflection.Model.Attributes.Tests
         }
 
         [Test]
-        public void Increment_PropertyGet_MatchesCtorArgument()
+        public static void Increment_PropertyGet_MatchesCtorArgument()
         {
             const int initialValue = 10;
             const int increment = 20;

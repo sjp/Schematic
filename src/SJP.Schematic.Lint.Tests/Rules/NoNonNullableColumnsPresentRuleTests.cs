@@ -11,24 +11,24 @@ using SJP.Schematic.Lint.Tests.Fakes;
 namespace SJP.Schematic.Lint.Tests.Rules
 {
     [TestFixture]
-    internal class NoNonNullableColumnsPresentRuleTests
+    internal static class NoNonNullableColumnsPresentRuleTests
     {
         [Test]
-        public void Ctor_GivenInvalidLevel_ThrowsArgumentException()
+        public static void Ctor_GivenInvalidLevel_ThrowsArgumentException()
         {
             const RuleLevel level = (RuleLevel)999;
             Assert.Throws<ArgumentException>(() => new NoNonNullableColumnsPresentRule(level));
         }
 
         [Test]
-        public void AnalyseDatabase_GivenNullDatabase_ThrowsArgumentNullException()
+        public static void AnalyseDatabase_GivenNullDatabase_ThrowsArgumentNullException()
         {
             var rule = new NoNonNullableColumnsPresentRule(RuleLevel.Error);
             Assert.Throws<ArgumentNullException>(() => rule.AnalyseDatabase(null));
         }
 
         [Test]
-        public void AnalyseDatabase_GivenTableWithNotNullableColumns_ProducesNoMessages()
+        public static void AnalyseDatabase_GivenTableWithNotNullableColumns_ProducesNoMessages()
         {
             var rule = new OnlyOneColumnPresentRule(RuleLevel.Error);
             var database = CreateFakeDatabase();
@@ -80,7 +80,7 @@ namespace SJP.Schematic.Lint.Tests.Rules
         }
 
         [Test]
-        public void AnalyseDatabase_GivenTableWithNoNullableColumns_ProducesMessages()
+        public static void AnalyseDatabase_GivenTableWithNoNullableColumns_ProducesMessages()
         {
             var rule = new OnlyOneColumnPresentRule(RuleLevel.Error);
             var database = CreateFakeDatabase();

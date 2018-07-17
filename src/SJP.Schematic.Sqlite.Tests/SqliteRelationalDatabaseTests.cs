@@ -6,44 +6,44 @@ using System.Data;
 namespace SJP.Schematic.Sqlite.Tests
 {
     [TestFixture]
-    internal class SqliteRelationalDatabaseTests
+    internal static class SqliteRelationalDatabaseTests
     {
         [Test]
-        public void Ctor_GivenNullDialect_ThrowsArgumentNullException()
+        public static void Ctor_GivenNullDialect_ThrowsArgumentNullException()
         {
             var connection = Mock.Of<IDbConnection>();
             Assert.Throws<ArgumentNullException>(() => new SqliteRelationalDatabase(null, connection));
         }
 
         [Test]
-        public void Ctor_GivenNullConnection_ThrowsArgumentNullException()
+        public static void Ctor_GivenNullConnection_ThrowsArgumentNullException()
         {
             Assert.Throws<ArgumentNullException>(() => new SqliteRelationalDatabase(new SqliteDialect(), null));
         }
 
         [Test]
-        public void Ctor_GivenNullDefaultSchema_ThrowsArgumentNullException()
+        public static void Ctor_GivenNullDefaultSchema_ThrowsArgumentNullException()
         {
             var connection = Mock.Of<IDbConnection>();
             Assert.Throws<ArgumentNullException>(() => new SqliteRelationalDatabase(new SqliteDialect(), connection, null));
         }
 
         [Test]
-        public void Ctor_GivenEmptyDefaultSchema_ThrowsArgumentNullException()
+        public static void Ctor_GivenEmptyDefaultSchema_ThrowsArgumentNullException()
         {
             var connection = Mock.Of<IDbConnection>();
             Assert.Throws<ArgumentNullException>(() => new SqliteRelationalDatabase(new SqliteDialect(), connection, string.Empty));
         }
 
         [Test]
-        public void Ctor_GivenWhiteSpaceDefaultSchema_ThrowsArgumentNullException()
+        public static void Ctor_GivenWhiteSpaceDefaultSchema_ThrowsArgumentNullException()
         {
             var connection = Mock.Of<IDbConnection>();
             Assert.Throws<ArgumentNullException>(() => new SqliteRelationalDatabase(new SqliteDialect(), connection, "   "));
         }
 
         [Test]
-        public void DefaultSchema_GivenNoDefaultSchemaInCtor_EqualsMain()
+        public static void DefaultSchema_GivenNoDefaultSchemaInCtor_EqualsMain()
         {
             var connection = Mock.Of<IDbConnection>();
             var database = new SqliteRelationalDatabase(new SqliteDialect(), connection);
@@ -53,7 +53,7 @@ namespace SJP.Schematic.Sqlite.Tests
         }
 
         [Test]
-        public void Vacuum_GivenNullSchemaName_ThrowsArgumentNullException()
+        public static void Vacuum_GivenNullSchemaName_ThrowsArgumentNullException()
         {
             var connection = Mock.Of<IDbConnection>();
             var database = new SqliteRelationalDatabase(new SqliteDialect(), connection);
@@ -62,7 +62,7 @@ namespace SJP.Schematic.Sqlite.Tests
         }
 
         [Test]
-        public void Vacuum_GivenEmptySchemaName_ThrowsArgumentNullException()
+        public static void Vacuum_GivenEmptySchemaName_ThrowsArgumentNullException()
         {
             var connection = Mock.Of<IDbConnection>();
             var database = new SqliteRelationalDatabase(new SqliteDialect(), connection);
@@ -71,7 +71,7 @@ namespace SJP.Schematic.Sqlite.Tests
         }
 
         [Test]
-        public void Vacuum_GivenWhiteSpaceSchemaName_ThrowsArgumentNullException()
+        public static void Vacuum_GivenWhiteSpaceSchemaName_ThrowsArgumentNullException()
         {
             var connection = Mock.Of<IDbConnection>();
             var database = new SqliteRelationalDatabase(new SqliteDialect(), connection);
@@ -80,7 +80,7 @@ namespace SJP.Schematic.Sqlite.Tests
         }
 
         [Test]
-        public void VacuumAsync_WhenGivenNullSchemaName_ThrowsArgumentNullException()
+        public static void VacuumAsync_WhenGivenNullSchemaName_ThrowsArgumentNullException()
         {
             var connection = Mock.Of<IDbConnection>();
             var database = new SqliteRelationalDatabase(new SqliteDialect(), connection);
@@ -89,7 +89,7 @@ namespace SJP.Schematic.Sqlite.Tests
         }
 
         [Test]
-        public void VacuumAsync_WhenGivenEmptySchemaName_ThrowsArgumentNullException()
+        public static void VacuumAsync_WhenGivenEmptySchemaName_ThrowsArgumentNullException()
         {
             var connection = Mock.Of<IDbConnection>();
             var database = new SqliteRelationalDatabase(new SqliteDialect(), connection);
@@ -98,7 +98,7 @@ namespace SJP.Schematic.Sqlite.Tests
         }
 
         [Test]
-        public void VacuumAsync_WhenGivenWhiteSpaceSchemaName_ThrowsArgumentNullException()
+        public static void VacuumAsync_WhenGivenWhiteSpaceSchemaName_ThrowsArgumentNullException()
         {
             var connection = Mock.Of<IDbConnection>();
             var database = new SqliteRelationalDatabase(new SqliteDialect(), connection);
@@ -107,7 +107,7 @@ namespace SJP.Schematic.Sqlite.Tests
         }
 
         [Test]
-        public void AttachDatabase_WhenGivenNullSchemaName_ThrowsArgumentNullException()
+        public static void AttachDatabase_WhenGivenNullSchemaName_ThrowsArgumentNullException()
         {
             var connection = Mock.Of<IDbConnection>();
             var database = new SqliteRelationalDatabase(new SqliteDialect(), connection);
@@ -116,7 +116,7 @@ namespace SJP.Schematic.Sqlite.Tests
         }
 
         [Test]
-        public void AttachDatabase_WhenGivenEmptySchemaName_ThrowsArgumentNullException()
+        public static void AttachDatabase_WhenGivenEmptySchemaName_ThrowsArgumentNullException()
         {
             var connection = Mock.Of<IDbConnection>();
             var database = new SqliteRelationalDatabase(new SqliteDialect(), connection);
@@ -125,7 +125,7 @@ namespace SJP.Schematic.Sqlite.Tests
         }
 
         [Test]
-        public void AttachDatabase_WhenGivenWhiteSpaceSchemaName_ThrowsArgumentNullException()
+        public static void AttachDatabase_WhenGivenWhiteSpaceSchemaName_ThrowsArgumentNullException()
         {
             var connection = Mock.Of<IDbConnection>();
             var database = new SqliteRelationalDatabase(new SqliteDialect(), connection);
@@ -134,7 +134,7 @@ namespace SJP.Schematic.Sqlite.Tests
         }
 
         [Test]
-        public void AttachDatabase_WhenGivenNullFileName_ThrowsArgumentNullException()
+        public static void AttachDatabase_WhenGivenNullFileName_ThrowsArgumentNullException()
         {
             var connection = Mock.Of<IDbConnection>();
             var database = new SqliteRelationalDatabase(new SqliteDialect(), connection);
@@ -143,7 +143,7 @@ namespace SJP.Schematic.Sqlite.Tests
         }
 
         [Test]
-        public void AttachDatabase_WhenGivenEmptyFileName_ThrowsArgumentNullException()
+        public static void AttachDatabase_WhenGivenEmptyFileName_ThrowsArgumentNullException()
         {
             var connection = Mock.Of<IDbConnection>();
             var database = new SqliteRelationalDatabase(new SqliteDialect(), connection);
@@ -152,7 +152,7 @@ namespace SJP.Schematic.Sqlite.Tests
         }
 
         [Test]
-        public void AttachDatabase_WhenGivenWhiteSpaceFileName_ThrowsArgumentNullException()
+        public static void AttachDatabase_WhenGivenWhiteSpaceFileName_ThrowsArgumentNullException()
         {
             var connection = Mock.Of<IDbConnection>();
             var database = new SqliteRelationalDatabase(new SqliteDialect(), connection);
@@ -161,7 +161,7 @@ namespace SJP.Schematic.Sqlite.Tests
         }
 
         [Test]
-        public void AttachDatabaseAsync_WhenGivenNullSchemaName_ThrowsArgumentNullException()
+        public static void AttachDatabaseAsync_WhenGivenNullSchemaName_ThrowsArgumentNullException()
         {
             var connection = Mock.Of<IDbConnection>();
             var database = new SqliteRelationalDatabase(new SqliteDialect(), connection);
@@ -170,7 +170,7 @@ namespace SJP.Schematic.Sqlite.Tests
         }
 
         [Test]
-        public void AttachDatabaseAsync_WhenGivenEmptySchemaName_ThrowsArgumentNullException()
+        public static void AttachDatabaseAsync_WhenGivenEmptySchemaName_ThrowsArgumentNullException()
         {
             var connection = Mock.Of<IDbConnection>();
             var database = new SqliteRelationalDatabase(new SqliteDialect(), connection);
@@ -179,7 +179,7 @@ namespace SJP.Schematic.Sqlite.Tests
         }
 
         [Test]
-        public void AttachDatabaseAsync_WhenGivenWhiteSpaceSchemaName_ThrowsArgumentNullException()
+        public static void AttachDatabaseAsync_WhenGivenWhiteSpaceSchemaName_ThrowsArgumentNullException()
         {
             var connection = Mock.Of<IDbConnection>();
             var database = new SqliteRelationalDatabase(new SqliteDialect(), connection);
@@ -188,7 +188,7 @@ namespace SJP.Schematic.Sqlite.Tests
         }
 
         [Test]
-        public void AttachDatabaseAsync_WhenGivenNullFileName_ThrowsArgumentNullException()
+        public static void AttachDatabaseAsync_WhenGivenNullFileName_ThrowsArgumentNullException()
         {
             var connection = Mock.Of<IDbConnection>();
             var database = new SqliteRelationalDatabase(new SqliteDialect(), connection);
@@ -197,7 +197,7 @@ namespace SJP.Schematic.Sqlite.Tests
         }
 
         [Test]
-        public void AttachDatabaseAsync_WhenGivenEmptyFileName_ThrowsArgumentNullException()
+        public static void AttachDatabaseAsync_WhenGivenEmptyFileName_ThrowsArgumentNullException()
         {
             var connection = Mock.Of<IDbConnection>();
             var database = new SqliteRelationalDatabase(new SqliteDialect(), connection);
@@ -206,7 +206,7 @@ namespace SJP.Schematic.Sqlite.Tests
         }
 
         [Test]
-        public void AttachDatabaseAsync_WhenGivenWhiteSpaceFileName_ThrowsArgumentNullException()
+        public static void AttachDatabaseAsync_WhenGivenWhiteSpaceFileName_ThrowsArgumentNullException()
         {
             var connection = Mock.Of<IDbConnection>();
             var database = new SqliteRelationalDatabase(new SqliteDialect(), connection);
@@ -215,7 +215,7 @@ namespace SJP.Schematic.Sqlite.Tests
         }
 
         [Test]
-        public void DetachDatabase_WhenGivenNullSchemaName_ThrowsArgumentNullException()
+        public static void DetachDatabase_WhenGivenNullSchemaName_ThrowsArgumentNullException()
         {
             var connection = Mock.Of<IDbConnection>();
             var database = new SqliteRelationalDatabase(new SqliteDialect(), connection);
@@ -224,7 +224,7 @@ namespace SJP.Schematic.Sqlite.Tests
         }
 
         [Test]
-        public void DetachDatabase_WhenGivenEmptySchemaName_ThrowsArgumentNullException()
+        public static void DetachDatabase_WhenGivenEmptySchemaName_ThrowsArgumentNullException()
         {
             var connection = Mock.Of<IDbConnection>();
             var database = new SqliteRelationalDatabase(new SqliteDialect(), connection);
@@ -233,7 +233,7 @@ namespace SJP.Schematic.Sqlite.Tests
         }
 
         [Test]
-        public void DetachDatabase_WhenGivenWhiteSpaceSchemaName_ThrowsArgumentNullException()
+        public static void DetachDatabase_WhenGivenWhiteSpaceSchemaName_ThrowsArgumentNullException()
         {
             var connection = Mock.Of<IDbConnection>();
             var database = new SqliteRelationalDatabase(new SqliteDialect(), connection);
@@ -242,7 +242,7 @@ namespace SJP.Schematic.Sqlite.Tests
         }
 
         [Test]
-        public void DetachDatabaseAsync_WhenGivenNullSchemaName_ThrowsArgumentNullException()
+        public static void DetachDatabaseAsync_WhenGivenNullSchemaName_ThrowsArgumentNullException()
         {
             var connection = Mock.Of<IDbConnection>();
             var database = new SqliteRelationalDatabase(new SqliteDialect(), connection);
@@ -251,7 +251,7 @@ namespace SJP.Schematic.Sqlite.Tests
         }
 
         [Test]
-        public void DetachDatabaseAsync_WhenGivenEmptySchemaName_ThrowsArgumentNullException()
+        public static void DetachDatabaseAsync_WhenGivenEmptySchemaName_ThrowsArgumentNullException()
         {
             var connection = Mock.Of<IDbConnection>();
             var database = new SqliteRelationalDatabase(new SqliteDialect(), connection);
@@ -260,7 +260,7 @@ namespace SJP.Schematic.Sqlite.Tests
         }
 
         [Test]
-        public void DetachDatabaseAsync_WhenGivenWhiteSpaceSchemaName_ThrowsArgumentNullException()
+        public static void DetachDatabaseAsync_WhenGivenWhiteSpaceSchemaName_ThrowsArgumentNullException()
         {
             var connection = Mock.Of<IDbConnection>();
             var database = new SqliteRelationalDatabase(new SqliteDialect(), connection);
