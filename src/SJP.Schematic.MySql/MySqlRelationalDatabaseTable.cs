@@ -8,6 +8,7 @@ using SJP.Schematic.Core;
 using SJP.Schematic.MySql.Query;
 using SJP.Schematic.Core.Extensions;
 using System.Threading;
+using SJP.Schematic.Core.Utilities;
 
 namespace SJP.Schematic.MySql
 {
@@ -120,9 +121,9 @@ order by kc.ordinal_position";
 
         public Task<IReadOnlyDictionary<Identifier, IDatabaseTableIndex>> IndexAsync(CancellationToken cancellationToken = default(CancellationToken)) => LoadIndexLookupAsync(cancellationToken);
 
-        public IEnumerable<IDatabaseTableIndex> Indexes => LoadIndexesSync();
+        public IReadOnlyCollection<IDatabaseTableIndex> Indexes => LoadIndexesSync();
 
-        public Task<IEnumerable<IDatabaseTableIndex>> IndexesAsync(CancellationToken cancellationToken = default(CancellationToken)) => LoadIndexesAsync(cancellationToken);
+        public Task<IReadOnlyCollection<IDatabaseTableIndex>> IndexesAsync(CancellationToken cancellationToken = default(CancellationToken)) => LoadIndexesAsync(cancellationToken);
 
         protected virtual IReadOnlyDictionary<Identifier, IDatabaseTableIndex> LoadIndexLookupSync()
         {
@@ -145,7 +146,7 @@ order by kc.ordinal_position";
             return result.AsReadOnlyDictionary();
         }
 
-        protected virtual IEnumerable<IDatabaseTableIndex> LoadIndexesSync()
+        protected virtual IReadOnlyCollection<IDatabaseTableIndex> LoadIndexesSync()
         {
             const string sql = @"
 select
@@ -184,7 +185,7 @@ where table_schema = @SchemaName and table_name = @TableName";
             return result;
         }
 
-        protected virtual async Task<IEnumerable<IDatabaseTableIndex>> LoadIndexesAsync(CancellationToken cancellationToken)
+        protected virtual async Task<IReadOnlyCollection<IDatabaseTableIndex>> LoadIndexesAsync(CancellationToken cancellationToken)
         {
             const string sql = @"
 select
@@ -228,9 +229,9 @@ where table_schema = @SchemaName and table_name = @TableName";
 
         public Task<IReadOnlyDictionary<Identifier, IDatabaseKey>> UniqueKeyAsync(CancellationToken cancellationToken = default(CancellationToken)) => LoadUniqueKeyLookupAsync(cancellationToken);
 
-        public IEnumerable<IDatabaseKey> UniqueKeys => LoadUniqueKeysSync();
+        public IReadOnlyCollection<IDatabaseKey> UniqueKeys => LoadUniqueKeysSync();
 
-        public Task<IEnumerable<IDatabaseKey>> UniqueKeysAsync(CancellationToken cancellationToken = default(CancellationToken)) => LoadUniqueKeysAsync(cancellationToken);
+        public Task<IReadOnlyCollection<IDatabaseKey>> UniqueKeysAsync(CancellationToken cancellationToken = default(CancellationToken)) => LoadUniqueKeysAsync(cancellationToken);
 
         protected virtual IReadOnlyDictionary<Identifier, IDatabaseKey> LoadUniqueKeyLookupSync()
         {
@@ -253,7 +254,7 @@ where table_schema = @SchemaName and table_name = @TableName";
             return result.AsReadOnlyDictionary();
         }
 
-        protected virtual IEnumerable<IDatabaseKey> LoadUniqueKeysSync()
+        protected virtual IReadOnlyCollection<IDatabaseKey> LoadUniqueKeysSync()
         {
             const string sql = @"
 select kc.constraint_name as ConstraintName, kc.column_name as ColumnName
@@ -294,7 +295,7 @@ order by kc.ordinal_position";
             return result;
         }
 
-        protected virtual async Task<IEnumerable<IDatabaseKey>> LoadUniqueKeysAsync(CancellationToken cancellationToken)
+        protected virtual async Task<IReadOnlyCollection<IDatabaseKey>> LoadUniqueKeysAsync(CancellationToken cancellationToken)
         {
             const string sql = @"
 select kc.constraint_name as ConstraintName, kc.column_name as ColumnName
@@ -335,11 +336,11 @@ order by kc.ordinal_position";
             return result;
         }
 
-        public IEnumerable<IDatabaseRelationalKey> ChildKeys => LoadChildKeysSync();
+        public IReadOnlyCollection<IDatabaseRelationalKey> ChildKeys => LoadChildKeysSync();
 
-        public Task<IEnumerable<IDatabaseRelationalKey>> ChildKeysAsync(CancellationToken cancellationToken = default(CancellationToken)) => LoadChildKeysAsync(cancellationToken);
+        public Task<IReadOnlyCollection<IDatabaseRelationalKey>> ChildKeysAsync(CancellationToken cancellationToken = default(CancellationToken)) => LoadChildKeysAsync(cancellationToken);
 
-        protected virtual IEnumerable<IDatabaseRelationalKey> LoadChildKeysSync()
+        protected virtual IReadOnlyCollection<IDatabaseRelationalKey> LoadChildKeysSync()
         {
             const string sql = @"
 select
@@ -409,7 +410,7 @@ where pt.table_schema = @SchemaName and pt.table_name = @TableName";
             return result;
         }
 
-        protected virtual async Task<IEnumerable<IDatabaseRelationalKey>> LoadChildKeysAsync(CancellationToken cancellationToken)
+        protected virtual async Task<IReadOnlyCollection<IDatabaseRelationalKey>> LoadChildKeysAsync(CancellationToken cancellationToken)
         {
             const string sql = @"
 select
@@ -484,17 +485,21 @@ where pt.table_schema = @SchemaName and pt.table_name = @TableName";
 
         public Task<IReadOnlyDictionary<Identifier, IDatabaseCheckConstraint>> CheckAsync(CancellationToken cancellationToken = default(CancellationToken)) => Task.FromResult<IReadOnlyDictionary<Identifier, IDatabaseCheckConstraint>>(new Dictionary<Identifier, IDatabaseCheckConstraint>(Comparer));
 
-        public IEnumerable<IDatabaseCheckConstraint> Checks => Array.Empty<IDatabaseCheckConstraint>();
+        public IReadOnlyCollection<IDatabaseCheckConstraint> Checks => Array.Empty<IDatabaseCheckConstraint>();
 
-        public Task<IEnumerable<IDatabaseCheckConstraint>> ChecksAsync(CancellationToken cancellationToken = default(CancellationToken)) => Task.FromResult(Enumerable.Empty<IDatabaseCheckConstraint>());
+        public Task<IReadOnlyCollection<IDatabaseCheckConstraint>> ChecksAsync(CancellationToken cancellationToken = default(CancellationToken)) => _emptyChecks;
+
+        private readonly static Task<IReadOnlyCollection<IDatabaseCheckConstraint>> _emptyChecks = Task.FromResult<IReadOnlyCollection<IDatabaseCheckConstraint>>(
+            Array.Empty<IDatabaseCheckConstraint>()
+        );
 
         public IReadOnlyDictionary<Identifier, IDatabaseRelationalKey> ParentKey => LoadParentKeyLookupSync();
 
         public Task<IReadOnlyDictionary<Identifier, IDatabaseRelationalKey>> ParentKeyAsync(CancellationToken cancellationToken = default(CancellationToken)) => LoadParentKeyLookupAsync(cancellationToken);
 
-        public IEnumerable<IDatabaseRelationalKey> ParentKeys => LoadParentKeysSync();
+        public IReadOnlyCollection<IDatabaseRelationalKey> ParentKeys => LoadParentKeysSync();
 
-        public Task<IEnumerable<IDatabaseRelationalKey>> ParentKeysAsync(CancellationToken cancellationToken = default(CancellationToken)) => LoadParentKeysAsync(cancellationToken);
+        public Task<IReadOnlyCollection<IDatabaseRelationalKey>> ParentKeysAsync(CancellationToken cancellationToken = default(CancellationToken)) => LoadParentKeysAsync(cancellationToken);
 
         protected virtual IReadOnlyDictionary<Identifier, IDatabaseRelationalKey> LoadParentKeyLookupSync()
         {
@@ -517,7 +522,7 @@ where pt.table_schema = @SchemaName and pt.table_name = @TableName";
             return result.AsReadOnlyDictionary();
         }
 
-        protected virtual IEnumerable<IDatabaseRelationalKey> LoadParentKeysSync()
+        protected virtual IReadOnlyCollection<IDatabaseRelationalKey> LoadParentKeysSync()
         {
             const string sql = @"
 select
@@ -591,7 +596,7 @@ where t.table_schema = @SchemaName and t.table_name = @TableName";
             return result;
         }
 
-        protected virtual async Task<IEnumerable<IDatabaseRelationalKey>> LoadParentKeysAsync(CancellationToken cancellationToken)
+        protected virtual async Task<IReadOnlyCollection<IDatabaseRelationalKey>> LoadParentKeysAsync(CancellationToken cancellationToken)
         {
             const string sql = @"
 select
@@ -802,11 +807,11 @@ order by ordinal_position";
 
         public IReadOnlyDictionary<Identifier, IDatabaseTrigger> Trigger => LoadTriggerLookupSync();
 
-        public IEnumerable<IDatabaseTrigger> Triggers => LoadTriggersSync();
+        public IReadOnlyCollection<IDatabaseTrigger> Triggers => LoadTriggersSync();
 
         public Task<IReadOnlyDictionary<Identifier, IDatabaseTrigger>> TriggerAsync(CancellationToken cancellationToken = default(CancellationToken)) => LoadTriggerLookupAsync(cancellationToken);
 
-        public Task<IEnumerable<IDatabaseTrigger>> TriggersAsync(CancellationToken cancellationToken = default(CancellationToken)) => LoadTriggersAsync(cancellationToken);
+        public Task<IReadOnlyCollection<IDatabaseTrigger>> TriggersAsync(CancellationToken cancellationToken = default(CancellationToken)) => LoadTriggersAsync(cancellationToken);
 
         protected virtual IReadOnlyDictionary<Identifier, IDatabaseTrigger> LoadTriggerLookupSync()
         {
@@ -829,7 +834,7 @@ order by ordinal_position";
             return result.AsReadOnlyDictionary();
         }
 
-        protected virtual IEnumerable<IDatabaseTrigger> LoadTriggersSync()
+        protected virtual IReadOnlyCollection<IDatabaseTrigger> LoadTriggersSync()
         {
             const string sql = @"
 select tr.trigger_name as TriggerName, tr.action_statement as Definition, tr.action_timing as Timing, tr.event_manipulation as TriggerEvent
@@ -876,7 +881,7 @@ where tr.event_object_schema = @SchemaName and tr.event_object_table = @TableNam
             return result;
         }
 
-        protected virtual async Task<IEnumerable<IDatabaseTrigger>> LoadTriggersAsync(CancellationToken cancellationToken)
+        protected virtual async Task<IReadOnlyCollection<IDatabaseTrigger>> LoadTriggersAsync(CancellationToken cancellationToken)
         {
             const string sql = @"
 select tr.trigger_name as TriggerName, tr.action_statement as Definition, tr.action_timing as Timing, tr.event_manipulation as TriggerEvent

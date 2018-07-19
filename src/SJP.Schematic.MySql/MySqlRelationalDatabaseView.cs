@@ -8,6 +8,7 @@ using SJP.Schematic.MySql.Query;
 using SJP.Schematic.Core;
 using SJP.Schematic.Core.Extensions;
 using System.Threading;
+using SJP.Schematic.Core.Utilities;
 
 namespace SJP.Schematic.MySql
 {
@@ -77,9 +78,13 @@ where table_schema = @SchemaName and table_name = @ViewName";
 
         public Task<IReadOnlyDictionary<Identifier, IDatabaseViewIndex>> IndexAsync(CancellationToken cancellationToken = default(CancellationToken)) => Task.FromResult(Index);
 
-        public IEnumerable<IDatabaseViewIndex> Indexes => Array.Empty<IDatabaseViewIndex>();
+        public IReadOnlyCollection<IDatabaseViewIndex> Indexes => Array.Empty<IDatabaseViewIndex>();
 
-        public Task<IEnumerable<IDatabaseViewIndex>> IndexesAsync(CancellationToken cancellationToken = default(CancellationToken)) => Task.FromResult(Indexes);
+        public Task<IReadOnlyCollection<IDatabaseViewIndex>> IndexesAsync(CancellationToken cancellationToken = default(CancellationToken)) => _emptyIndexes;
+
+        private readonly static Task<IReadOnlyCollection<IDatabaseViewIndex>> _emptyIndexes = Task.FromResult<IReadOnlyCollection<IDatabaseViewIndex>>(
+            Array.Empty<IDatabaseViewIndex>()
+        );
 
         public IReadOnlyDictionary<Identifier, IDatabaseViewColumn> Column => LoadColumnLookupSync();
 

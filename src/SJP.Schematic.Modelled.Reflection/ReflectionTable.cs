@@ -7,6 +7,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using SJP.Schematic.Core;
 using SJP.Schematic.Core.Extensions;
+using SJP.Schematic.Core.Utilities;
 using SJP.Schematic.Modelled.Reflection.Model;
 
 namespace SJP.Schematic.Modelled.Reflection
@@ -27,7 +28,7 @@ namespace SJP.Schematic.Modelled.Reflection
             _uniqueKeyLookup = new Lazy<IReadOnlyDictionary<Identifier, IDatabaseKey>>(LoadUniqueKeys);
             _indexLookup = new Lazy<IReadOnlyDictionary<Identifier, IDatabaseTableIndex>>(LoadIndexes);
             _parentKeyLookup = new Lazy<IReadOnlyDictionary<Identifier, IDatabaseRelationalKey>>(LoadParentKeys);
-            _childKeys = new Lazy<IEnumerable<IDatabaseRelationalKey>>(LoadChildKeys);
+            _childKeys = new Lazy<IReadOnlyCollection<IDatabaseRelationalKey>>(LoadChildKeys);
             _primaryKey = new Lazy<IDatabaseKey>(LoadPrimaryKey);
         }
 
@@ -35,7 +36,7 @@ namespace SJP.Schematic.Modelled.Reflection
 
         protected ReflectionTableTypeProvider TypeProvider { get; }
 
-        private IEnumerable<IDatabaseRelationalKey> LoadChildKeys()
+        private IReadOnlyCollection<IDatabaseRelationalKey> LoadChildKeys()
         {
             return Database.Tables
                 .SelectMany(t => t.ParentKeys)
@@ -126,8 +127,6 @@ namespace SJP.Schematic.Modelled.Reflection
 
         protected Type InstanceType { get; }
 
-        protected IEnumerable<PropertyInfo> InstanceProperties { get; }
-
         private IDatabaseKey LoadPrimaryKey()
         {
             var primaryKey = TypeProvider.PrimaryKey;
@@ -201,9 +200,9 @@ namespace SJP.Schematic.Modelled.Reflection
 
         public IReadOnlyDictionary<Identifier, IDatabaseCheckConstraint> Check => _checkLookup.Value;
 
-        public IEnumerable<IDatabaseCheckConstraint> Checks => _checkLookup.Value.Values;
+        public IReadOnlyCollection<IDatabaseCheckConstraint> Checks => new ReadOnlyCollectionSlim<IDatabaseCheckConstraint>(_checkLookup.Value.Count, _checkLookup.Value.Values);
 
-        public IEnumerable<IDatabaseRelationalKey> ChildKeys => _childKeys.Value;
+        public IReadOnlyCollection<IDatabaseRelationalKey> ChildKeys => _childKeys.Value;
 
         public IReadOnlyDictionary<Identifier, IDatabaseTableColumn> Column => _columnLookup.Value;
 
@@ -213,29 +212,31 @@ namespace SJP.Schematic.Modelled.Reflection
 
         public IReadOnlyDictionary<Identifier, IDatabaseTableIndex> Index => _indexLookup.Value;
 
-        public IEnumerable<IDatabaseTableIndex> Indexes => _indexLookup.Value.Values;
+        public IReadOnlyCollection<IDatabaseTableIndex> Indexes => new ReadOnlyCollectionSlim<IDatabaseTableIndex>(_indexLookup.Value.Count, _indexLookup.Value.Values);
 
         public Identifier Name { get; }
 
         public IReadOnlyDictionary<Identifier, IDatabaseRelationalKey> ParentKey => _parentKeyLookup.Value;
 
-        public IEnumerable<IDatabaseRelationalKey> ParentKeys => _parentKeyLookup.Value.Values;
+        public IReadOnlyCollection<IDatabaseRelationalKey> ParentKeys => new ReadOnlyCollectionSlim<IDatabaseRelationalKey>(_parentKeyLookup.Value.Count, _parentKeyLookup.Value.Values);
 
         public IDatabaseKey PrimaryKey => _primaryKey.Value;
 
         public IReadOnlyDictionary<Identifier, IDatabaseTrigger> Trigger { get; }
 
-        public IEnumerable<IDatabaseTrigger> Triggers { get; }
+        public IReadOnlyCollection<IDatabaseTrigger> Triggers { get; }
 
         public IReadOnlyDictionary<Identifier, IDatabaseKey> UniqueKey => _uniqueKeyLookup.Value;
 
-        public IEnumerable<IDatabaseKey> UniqueKeys => _uniqueKeyLookup.Value.Values;
+        public IReadOnlyCollection<IDatabaseKey> UniqueKeys => new ReadOnlyCollectionSlim<IDatabaseKey>(_uniqueKeyLookup.Value.Count, _uniqueKeyLookup.Value.Values);
 
         public Task<IReadOnlyDictionary<Identifier, IDatabaseCheckConstraint>> CheckAsync(CancellationToken cancellationToken = default(CancellationToken)) => Task.FromResult(_checkLookup.Value);
 
-        public Task<IEnumerable<IDatabaseCheckConstraint>> ChecksAsync(CancellationToken cancellationToken = default(CancellationToken)) => Task.FromResult(_checkLookup.Value.Values);
+        public Task<IReadOnlyCollection<IDatabaseCheckConstraint>> ChecksAsync(CancellationToken cancellationToken = default(CancellationToken)) => Task.FromResult<IReadOnlyCollection<IDatabaseCheckConstraint>>(
+            new ReadOnlyCollectionSlim<IDatabaseCheckConstraint>(_checkLookup.Value.Count, _checkLookup.Value.Values)
+        );
 
-        public Task<IEnumerable<IDatabaseRelationalKey>> ChildKeysAsync(CancellationToken cancellationToken = default(CancellationToken)) => Task.FromResult(_childKeys.Value);
+        public Task<IReadOnlyCollection<IDatabaseRelationalKey>> ChildKeysAsync(CancellationToken cancellationToken = default(CancellationToken)) => Task.FromResult(_childKeys.Value);
 
         public Task<IReadOnlyDictionary<Identifier, IDatabaseTableColumn>> ColumnAsync(CancellationToken cancellationToken = default(CancellationToken)) => Task.FromResult(_columnLookup.Value);
 
@@ -247,11 +248,15 @@ namespace SJP.Schematic.Modelled.Reflection
 
         public Task<IReadOnlyDictionary<Identifier, IDatabaseTableIndex>> IndexAsync(CancellationToken cancellationToken = default(CancellationToken)) => Task.FromResult(_indexLookup.Value);
 
-        public Task<IEnumerable<IDatabaseTableIndex>> IndexesAsync(CancellationToken cancellationToken = default(CancellationToken)) => Task.FromResult(_indexLookup.Value.Values);
+        public Task<IReadOnlyCollection<IDatabaseTableIndex>> IndexesAsync(CancellationToken cancellationToken = default(CancellationToken)) => Task.FromResult<IReadOnlyCollection<IDatabaseTableIndex>>(
+            new ReadOnlyCollectionSlim<IDatabaseTableIndex>(_indexLookup.Value.Count, _indexLookup.Value.Values)
+        );
 
         public Task<IReadOnlyDictionary<Identifier, IDatabaseRelationalKey>> ParentKeyAsync(CancellationToken cancellationToken = default(CancellationToken)) => Task.FromResult(_parentKeyLookup.Value);
 
-        public Task<IEnumerable<IDatabaseRelationalKey>> ParentKeysAsync(CancellationToken cancellationToken = default(CancellationToken)) => Task.FromResult(_parentKeyLookup.Value.Values);
+        public Task<IReadOnlyCollection<IDatabaseRelationalKey>> ParentKeysAsync(CancellationToken cancellationToken = default(CancellationToken)) => Task.FromResult<IReadOnlyCollection<IDatabaseRelationalKey>>(
+            new ReadOnlyCollectionSlim<IDatabaseRelationalKey>(_parentKeyLookup.Value.Count, _parentKeyLookup.Value.Values)
+        );
 
         public Task<IDatabaseKey> PrimaryKeyAsync(CancellationToken cancellationToken = default(CancellationToken)) => Task.FromResult(_primaryKey.Value);
 
@@ -260,14 +265,16 @@ namespace SJP.Schematic.Modelled.Reflection
             throw new NotImplementedException();
         }
 
-        public Task<IEnumerable<IDatabaseTrigger>> TriggersAsync(CancellationToken cancellationToken = default(CancellationToken))
+        public Task<IReadOnlyCollection<IDatabaseTrigger>> TriggersAsync(CancellationToken cancellationToken = default(CancellationToken))
         {
             throw new NotImplementedException();
         }
 
         public Task<IReadOnlyDictionary<Identifier, IDatabaseKey>> UniqueKeyAsync(CancellationToken cancellationToken = default(CancellationToken)) => Task.FromResult(_uniqueKeyLookup.Value);
 
-        public Task<IEnumerable<IDatabaseKey>> UniqueKeysAsync(CancellationToken cancellationToken = default(CancellationToken)) => Task.FromResult(_uniqueKeyLookup.Value.Values);
+        public Task<IReadOnlyCollection<IDatabaseKey>> UniqueKeysAsync(CancellationToken cancellationToken = default(CancellationToken)) => Task.FromResult<IReadOnlyCollection<IDatabaseKey>>(
+            new ReadOnlyCollectionSlim<IDatabaseKey>(_uniqueKeyLookup.Value.Count, _uniqueKeyLookup.Value.Values)
+        );
 
         private readonly Lazy<IReadOnlyList<IDatabaseTableColumn>> _columns;
         private readonly Lazy<IReadOnlyDictionary<Identifier, IDatabaseTableColumn>> _columnLookup;
@@ -277,7 +284,7 @@ namespace SJP.Schematic.Modelled.Reflection
         private readonly Lazy<IReadOnlyDictionary<Identifier, IDatabaseRelationalKey>> _parentKeyLookup;
         // TODO: implement triggers
         //private readonly Lazy<IReadOnlyDictionary<string, IDatabaseTrigger>> _triggerLookup;
-        private readonly Lazy<IEnumerable<IDatabaseRelationalKey>> _childKeys;
+        private readonly Lazy<IReadOnlyCollection<IDatabaseRelationalKey>> _childKeys;
         private readonly Lazy<IDatabaseKey> _primaryKey;
     }
 }

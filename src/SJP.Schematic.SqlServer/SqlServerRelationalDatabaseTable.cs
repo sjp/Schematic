@@ -120,9 +120,9 @@ order by ic.key_ordinal";
 
         public Task<IReadOnlyDictionary<Identifier, IDatabaseTableIndex>> IndexAsync(CancellationToken cancellationToken = default(CancellationToken)) => LoadIndexLookupAsync(cancellationToken);
 
-        public IEnumerable<IDatabaseTableIndex> Indexes => LoadIndexesSync();
+        public IReadOnlyCollection<IDatabaseTableIndex> Indexes => LoadIndexesSync();
 
-        public Task<IEnumerable<IDatabaseTableIndex>> IndexesAsync(CancellationToken cancellationToken = default(CancellationToken)) => LoadIndexesAsync(cancellationToken);
+        public Task<IReadOnlyCollection<IDatabaseTableIndex>> IndexesAsync(CancellationToken cancellationToken = default(CancellationToken)) => LoadIndexesAsync(cancellationToken);
 
         protected virtual IReadOnlyDictionary<Identifier, IDatabaseTableIndex> LoadIndexLookupSync()
         {
@@ -145,7 +145,7 @@ order by ic.key_ordinal";
             return result.AsReadOnlyDictionary();
         }
 
-        protected virtual IEnumerable<IDatabaseTableIndex> LoadIndexesSync()
+        protected virtual IReadOnlyCollection<IDatabaseTableIndex> LoadIndexesSync()
         {
             const string sql = @"
 select i.name as IndexName, i.is_unique as IsUnique, ic.key_ordinal as KeyOrdinal, ic.index_column_id as IndexColumnId, ic.is_included_column as IsIncludedColumn, ic.is_descending_key as IsDescending, c.name as ColumnName, i.is_disabled as IsDisabled
@@ -195,7 +195,7 @@ where schema_name(t.schema_id) = @SchemaName and t.name = @TableName
             return result;
         }
 
-        protected virtual async Task<IEnumerable<IDatabaseTableIndex>> LoadIndexesAsync(CancellationToken cancellationToken)
+        protected virtual async Task<IReadOnlyCollection<IDatabaseTableIndex>> LoadIndexesAsync(CancellationToken cancellationToken)
         {
             const string sql = @"
 select i.name as IndexName, i.is_unique as IsUnique, ic.key_ordinal as KeyOrdinal, ic.index_column_id as IndexColumnId, ic.is_included_column as IsIncludedColumn, ic.is_descending_key as IsDescending, c.name as ColumnName, i.is_disabled as IsDisabled
@@ -249,9 +249,9 @@ where schema_name(t.schema_id) = @SchemaName and t.name = @TableName
 
         public Task<IReadOnlyDictionary<Identifier, IDatabaseKey>> UniqueKeyAsync(CancellationToken cancellationToken = default(CancellationToken)) => LoadUniqueKeyLookupAsync(cancellationToken);
 
-        public IEnumerable<IDatabaseKey> UniqueKeys => LoadUniqueKeysSync();
+        public IReadOnlyCollection<IDatabaseKey> UniqueKeys => LoadUniqueKeysSync();
 
-        public Task<IEnumerable<IDatabaseKey>> UniqueKeysAsync(CancellationToken cancellationToken = default(CancellationToken)) => LoadUniqueKeysAsync(cancellationToken);
+        public Task<IReadOnlyCollection<IDatabaseKey>> UniqueKeysAsync(CancellationToken cancellationToken = default(CancellationToken)) => LoadUniqueKeysAsync(cancellationToken);
 
         protected virtual IReadOnlyDictionary<Identifier, IDatabaseKey> LoadUniqueKeyLookupSync()
         {
@@ -274,7 +274,7 @@ where schema_name(t.schema_id) = @SchemaName and t.name = @TableName
             return result.AsReadOnlyDictionary();
         }
 
-        protected virtual IEnumerable<IDatabaseKey> LoadUniqueKeysSync()
+        protected virtual IReadOnlyCollection<IDatabaseKey> LoadUniqueKeysSync()
         {
             const string sql = @"
 select kc.name as ConstraintName, c.name as ColumnName, i.is_disabled as IsDisabled
@@ -316,7 +316,7 @@ order by ic.key_ordinal";
             return result;
         }
 
-        protected virtual async Task<IEnumerable<IDatabaseKey>> LoadUniqueKeysAsync(CancellationToken cancellationToken)
+        protected virtual async Task<IReadOnlyCollection<IDatabaseKey>> LoadUniqueKeysAsync(CancellationToken cancellationToken)
         {
             const string sql = @"
 select kc.name as ConstraintName, c.name as ColumnName, i.is_disabled as IsDisabled
@@ -358,11 +358,11 @@ order by ic.key_ordinal";
             return result;
         }
 
-        public IEnumerable<IDatabaseRelationalKey> ChildKeys => LoadChildKeysSync();
+        public IReadOnlyCollection<IDatabaseRelationalKey> ChildKeys => LoadChildKeysSync();
 
-        public Task<IEnumerable<IDatabaseRelationalKey>> ChildKeysAsync(CancellationToken cancellationToken = default(CancellationToken)) => LoadChildKeysAsync(cancellationToken);
+        public Task<IReadOnlyCollection<IDatabaseRelationalKey>> ChildKeysAsync(CancellationToken cancellationToken = default(CancellationToken)) => LoadChildKeysAsync(cancellationToken);
 
-        protected virtual IEnumerable<IDatabaseRelationalKey> LoadChildKeysSync()
+        protected virtual IReadOnlyCollection<IDatabaseRelationalKey> LoadChildKeysSync()
         {
             const string sql = @"
 select schema_name(child_t.schema_id) as ChildTableSchema, child_t.name as ChildTableName, fk.name as ChildKeyName, kc.name as ParentKeyName, kc.type as ParentKeyType, fk.delete_referential_action as DeleteRule, fk.update_referential_action as UpdateRule
@@ -424,7 +424,7 @@ where schema_name(parent_t.schema_id) = @SchemaName and parent_t.name = @TableNa
             return result;
         }
 
-        protected virtual async Task<IEnumerable<IDatabaseRelationalKey>> LoadChildKeysAsync(CancellationToken cancellationToken)
+        protected virtual async Task<IReadOnlyCollection<IDatabaseRelationalKey>> LoadChildKeysAsync(CancellationToken cancellationToken)
         {
             const string sql = @"
 select schema_name(child_t.schema_id) as ChildTableSchema, child_t.name as ChildTableName, fk.name as ChildKeyName, kc.name as ParentKeyName, kc.type as ParentKeyType, fk.delete_referential_action as DeleteRule, fk.update_referential_action as UpdateRule
@@ -490,9 +490,9 @@ where schema_name(parent_t.schema_id) = @SchemaName and parent_t.name = @TableNa
 
         public Task<IReadOnlyDictionary<Identifier, IDatabaseCheckConstraint>> CheckAsync(CancellationToken cancellationToken = default(CancellationToken)) => LoadCheckLookupAsync(cancellationToken);
 
-        public IEnumerable<IDatabaseCheckConstraint> Checks => LoadChecksSync();
+        public IReadOnlyCollection<IDatabaseCheckConstraint> Checks => LoadChecksSync();
 
-        public Task<IEnumerable<IDatabaseCheckConstraint>> ChecksAsync(CancellationToken cancellationToken = default(CancellationToken)) => LoadChecksAsync(cancellationToken);
+        public Task<IReadOnlyCollection<IDatabaseCheckConstraint>> ChecksAsync(CancellationToken cancellationToken = default(CancellationToken)) => LoadChecksAsync(cancellationToken);
 
         protected virtual IReadOnlyDictionary<Identifier, IDatabaseCheckConstraint> LoadCheckLookupSync()
         {
@@ -515,7 +515,7 @@ where schema_name(parent_t.schema_id) = @SchemaName and parent_t.name = @TableNa
             return result.AsReadOnlyDictionary();
         }
 
-        protected virtual IEnumerable<IDatabaseCheckConstraint> LoadChecksSync()
+        protected virtual IReadOnlyCollection<IDatabaseCheckConstraint> LoadChecksSync()
         {
             const string sql = @"
 select cc.name as ConstraintName, cc.definition as Definition, cc.is_disabled as IsDisabled
@@ -542,7 +542,7 @@ where schema_name(t.schema_id) = @SchemaName and t.name = @TableName";
             return result;
         }
 
-        protected virtual async Task<IEnumerable<IDatabaseCheckConstraint>> LoadChecksAsync(CancellationToken cancellationToken)
+        protected virtual async Task<IReadOnlyCollection<IDatabaseCheckConstraint>> LoadChecksAsync(CancellationToken cancellationToken)
         {
             const string sql = @"
 select cc.name as ConstraintName, cc.definition as Definition, cc.is_disabled as IsDisabled
@@ -573,9 +573,9 @@ where schema_name(t.schema_id) = @SchemaName and t.name = @TableName";
 
         public Task<IReadOnlyDictionary<Identifier, IDatabaseRelationalKey>> ParentKeyAsync(CancellationToken cancellationToken = default(CancellationToken)) => LoadParentKeyLookupAsync(cancellationToken);
 
-        public IEnumerable<IDatabaseRelationalKey> ParentKeys => LoadParentKeysSync();
+        public IReadOnlyCollection<IDatabaseRelationalKey> ParentKeys => LoadParentKeysSync();
 
-        public Task<IEnumerable<IDatabaseRelationalKey>> ParentKeysAsync(CancellationToken cancellationToken = default(CancellationToken)) => LoadParentKeysAsync(cancellationToken);
+        public Task<IReadOnlyCollection<IDatabaseRelationalKey>> ParentKeysAsync(CancellationToken cancellationToken = default(CancellationToken)) => LoadParentKeysAsync(cancellationToken);
 
         protected virtual IReadOnlyDictionary<Identifier, IDatabaseRelationalKey> LoadParentKeyLookupSync()
         {
@@ -598,7 +598,7 @@ where schema_name(t.schema_id) = @SchemaName and t.name = @TableName";
             return result.AsReadOnlyDictionary();
         }
 
-        protected virtual IEnumerable<IDatabaseRelationalKey> LoadParentKeysSync()
+        protected virtual IReadOnlyCollection<IDatabaseRelationalKey> LoadParentKeysSync()
         {
             const string sql = @"
 select schema_name(parent_t.schema_id) as ParentTableSchema, parent_t.name as ParentTableName, fk.name as ChildKeyName, c.name as ColumnName, fkc.constraint_column_id as ConstraintColumnId, kc.name as ParentKeyName, kc.type as ParentKeyType, fk.delete_referential_action as DeleteRule, fk.update_referential_action as UpdateRule, fk.is_disabled as IsDisabled
@@ -666,7 +666,7 @@ where schema_name(child_t.schema_id) = @SchemaName and child_t.name = @TableName
             return result;
         }
 
-        protected virtual async Task<IEnumerable<IDatabaseRelationalKey>> LoadParentKeysAsync(CancellationToken cancellationToken)
+        protected virtual async Task<IReadOnlyCollection<IDatabaseRelationalKey>> LoadParentKeysAsync(CancellationToken cancellationToken)
         {
             const string sql = @"
 select schema_name(parent_t.schema_id) as ParentTableSchema, parent_t.name as ParentTableName, fk.name as ChildKeyName, c.name as ColumnName, fkc.constraint_column_id as ConstraintColumnId, kc.name as ParentKeyName, kc.type as ParentKeyType, fk.delete_referential_action as DeleteRule, fk.update_referential_action as UpdateRule, fk.is_disabled as IsDisabled
@@ -881,11 +881,11 @@ where schema_name(t.schema_id) = @SchemaName
 
         public IReadOnlyDictionary<Identifier, IDatabaseTrigger> Trigger => LoadTriggerLookupSync();
 
-        public IEnumerable<IDatabaseTrigger> Triggers => LoadTriggersSync();
+        public IReadOnlyCollection<IDatabaseTrigger> Triggers => LoadTriggersSync();
 
         public Task<IReadOnlyDictionary<Identifier, IDatabaseTrigger>> TriggerAsync(CancellationToken cancellationToken = default(CancellationToken)) => LoadTriggerLookupAsync(cancellationToken);
 
-        public Task<IEnumerable<IDatabaseTrigger>> TriggersAsync(CancellationToken cancellationToken = default(CancellationToken)) => LoadTriggersAsync(cancellationToken);
+        public Task<IReadOnlyCollection<IDatabaseTrigger>> TriggersAsync(CancellationToken cancellationToken = default(CancellationToken)) => LoadTriggersAsync(cancellationToken);
 
         protected virtual IReadOnlyDictionary<Identifier, IDatabaseTrigger> LoadTriggerLookupSync()
         {
@@ -908,7 +908,7 @@ where schema_name(t.schema_id) = @SchemaName
             return result.AsReadOnlyDictionary();
         }
 
-        protected virtual IEnumerable<IDatabaseTrigger> LoadTriggersSync()
+        protected virtual IReadOnlyCollection<IDatabaseTrigger> LoadTriggersSync()
         {
             const string sql = @"
 select st.name as TriggerName, sm.definition as Definition, st.is_instead_of_trigger as IsInsteadOfTrigger, te.type_desc as TriggerEvent, st.is_disabled as IsDisabled
@@ -960,7 +960,7 @@ where schema_name(t.schema_id) = @SchemaName and t.name = @TableName";
             return result;
         }
 
-        protected virtual async Task<IEnumerable<IDatabaseTrigger>> LoadTriggersAsync(CancellationToken cancellationToken)
+        protected virtual async Task<IReadOnlyCollection<IDatabaseTrigger>> LoadTriggersAsync(CancellationToken cancellationToken)
         {
             const string sql = @"
 select st.name as TriggerName, sm.definition as Definition, st.is_instead_of_trigger as IsInsteadOfTrigger, te.type_desc as TriggerEvent, st.is_disabled as IsDisabled

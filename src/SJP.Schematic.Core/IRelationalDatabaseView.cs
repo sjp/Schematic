@@ -17,7 +17,7 @@ namespace SJP.Schematic.Core
 
         IReadOnlyDictionary<Identifier, IDatabaseViewIndex> Index { get; }
 
-        IEnumerable<IDatabaseViewIndex> Indexes { get; }
+        IReadOnlyCollection<IDatabaseViewIndex> Indexes { get; }
 
         bool IsIndexed { get; }
 
@@ -30,6 +30,6 @@ namespace SJP.Schematic.Core
 
         Task<IReadOnlyDictionary<Identifier, IDatabaseViewIndex>> IndexAsync(CancellationToken cancellationToken = default(CancellationToken));
 
-        Task<IEnumerable<IDatabaseViewIndex>> IndexesAsync(CancellationToken cancellationToken = default(CancellationToken));
+        Task<IReadOnlyCollection<IDatabaseViewIndex>> IndexesAsync(CancellationToken cancellationToken = default(CancellationToken));
     }
 }

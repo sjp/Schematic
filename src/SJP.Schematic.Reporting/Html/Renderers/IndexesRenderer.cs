@@ -56,8 +56,8 @@ namespace SJP.Schematic.Reporting.Html.Renderers
             var mapper = new IndexesModelMapper(Database.Dialect);
 
             var tablesAsync = await Database.TablesAsync().ConfigureAwait(false);
-            var tables = await tablesAsync.ToList().ConfigureAwait(false);
-            var indexesTasks = tables.Select(t => t.IndexesAsync()).ToArray();
+            var tables = await Task.WhenAll(tablesAsync).ConfigureAwait(false);
+            var indexesTasks = tables.Select(t => t.IndexesAsync());
             var allIndexes = await Task.WhenAll(indexesTasks).ConfigureAwait(false);
 
             var indexes = allIndexes

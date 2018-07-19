@@ -47,7 +47,7 @@ namespace SJP.Schematic.Modelled.Reflection
             }
         }
 
-        public IEnumerable<IDatabaseViewIndex> Indexes
+        public IReadOnlyCollection<IDatabaseViewIndex> Indexes
         {
             get
             {
@@ -80,7 +80,7 @@ namespace SJP.Schematic.Modelled.Reflection
             throw new NotImplementedException();
         }
 
-        public Task<IEnumerable<IDatabaseViewIndex>> IndexesAsync(CancellationToken cancellationToken = default(CancellationToken))
+        public Task<IReadOnlyCollection<IDatabaseViewIndex>> IndexesAsync(CancellationToken cancellationToken = default(CancellationToken))
         {
             throw new NotImplementedException();
         }

@@ -56,15 +56,17 @@ namespace SJP.Schematic.Reporting.Html.Renderers
 
         public async Task RenderAsync()
         {
-            var tables = await Database.TablesAsync().ConfigureAwait(false);
-            var orphanedTables = new List<IRelationalDatabaseTable>();
-            await tables.ForEachAsync(async t =>
-            {
-                var parentKeys = await t.ParentKeysAsync().ConfigureAwait(false);
-                var childKeys = await t.ChildKeysAsync().ConfigureAwait(false);
-                if (parentKeys.Empty() && childKeys.Empty())
-                    orphanedTables.Add(t);
-            }).ConfigureAwait(false);
+            var tablesCollection = await Database.TablesAsync().ConfigureAwait(false);
+
+            var tables = await Task.WhenAll(tablesCollection).ConfigureAwait(false);
+            var tableParentKeyCountTasks = tables.Select(t => t.ParentKeysAsync());
+            var tableChildKeyCountTasks = tables.Select(t => t.ChildKeysAsync());
+            var tableParentKeyCounts = await Task.WhenAll(tableParentKeyCountTasks).ConfigureAwait(false);
+            var tableChildKeyCounts = await Task.WhenAll(tableChildKeyCountTasks).ConfigureAwait(false);
+
+            var orphanedTables = tables
+                .Where((t, i) => tableParentKeyCounts[i].Count == 0 && tableChildKeyCounts[i].Count == 0)
+                .ToList();
 
             var mapper = new OrphansModelMapper(Connection, Database.Dialect);
             var mappingTasks = orphanedTables.Select(mapper.MapAsync).ToArray();

@@ -54,10 +54,11 @@ namespace SJP.Schematic.Reporting.Html.Renderers
 
         public async Task RenderAsync()
         {
-            var tables = await Database.TablesAsync().ConfigureAwait(false);
+            var tableCollection = await Database.TablesAsync().ConfigureAwait(false);
+            var tables = await Task.WhenAll(tableCollection).ConfigureAwait(false);
             var mapper = new TableModelMapper(Connection, Database.Dialect);
 
-            await tables.ForEachAsync(async table =>
+            var tableTasks = tables.Select(async table =>
             {
                 var tableModel = await mapper.MapAsync(table).ConfigureAwait(false);
                 var renderedTable = Formatter.RenderTemplate(tableModel);
@@ -71,7 +72,8 @@ namespace SJP.Schematic.Reporting.Html.Renderers
 
                 using (var writer = File.CreateText(outputPath))
                     await writer.WriteAsync(renderedPage).ConfigureAwait(false);
-            }).ConfigureAwait(false);
+            });
+            await Task.WhenAll(tableTasks).ConfigureAwait(false);
         }
     }
 }

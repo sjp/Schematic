@@ -122,10 +122,10 @@ namespace SJP.Schematic.Reporting.Html.Renderers
             var sequencesCollection = await Database.SequencesAsync().ConfigureAwait(false);
             var synonymsCollection = await Database.SynonymsAsync().ConfigureAwait(false);
 
-            var tables = await tableCollection.ToList().ConfigureAwait(false);
-            var views = await viewCollection.ToList().ConfigureAwait(false);
-            var sequences = await sequencesCollection.ToList().ConfigureAwait(false);
-            var synonyms = await synonymsCollection.ToList().ConfigureAwait(false);
+            var tables = await Task.WhenAll(tableCollection).ConfigureAwait(false);
+            var views = await Task.WhenAll(viewCollection).ConfigureAwait(false);
+            var sequences = await Task.WhenAll(sequencesCollection).ConfigureAwait(false);
+            var synonyms = await Task.WhenAll(synonymsCollection).ConfigureAwait(false);
 
             var mapper = new MainModelMapper(Connection, Database);
 

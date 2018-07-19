@@ -8,9 +8,9 @@ namespace SJP.Schematic.Core
 
         Identifier Name { get; }
 
-        IEnumerable<IDatabaseIndexColumn> Columns { get; }
+        IReadOnlyCollection<IDatabaseIndexColumn> Columns { get; }
 
-        IEnumerable<IDatabaseColumn> IncludedColumns { get; }
+        IReadOnlyCollection<IDatabaseColumn> IncludedColumns { get; }
 
         bool IsUnique { get; }
     }

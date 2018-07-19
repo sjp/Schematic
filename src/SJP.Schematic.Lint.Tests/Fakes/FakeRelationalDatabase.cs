@@ -20,13 +20,13 @@ namespace SJP.Schematic.Lint.Tests.Fakes
 
         public virtual string DefaultSchema { get; set; }
 
-        public virtual IEnumerable<IRelationalDatabaseTable> Tables { get; set; } = new List<IRelationalDatabaseTable>();
+        public virtual IReadOnlyCollection<IRelationalDatabaseTable> Tables { get; set; } = new List<IRelationalDatabaseTable>();
 
-        public virtual IEnumerable<IRelationalDatabaseView> Views { get; set; } = new List<IRelationalDatabaseView>();
+        public virtual IReadOnlyCollection<IRelationalDatabaseView> Views { get; set; } = new List<IRelationalDatabaseView>();
 
-        public virtual IEnumerable<IDatabaseSequence> Sequences { get; set; } = new List<IDatabaseSequence>();
+        public virtual IReadOnlyCollection<IDatabaseSequence> Sequences { get; set; } = new List<IDatabaseSequence>();
 
-        public virtual IEnumerable<IDatabaseSynonym> Synonyms { get; set; } = new List<IDatabaseSynonym>();
+        public virtual IReadOnlyCollection<IDatabaseSynonym> Synonyms { get; set; } = new List<IDatabaseSynonym>();
 
         public virtual IDatabaseSequence GetSequence(Identifier sequenceName) => null;
 
@@ -48,24 +48,32 @@ namespace SJP.Schematic.Lint.Tests.Fakes
 
         public virtual Task<bool> SequenceExistsAsync(Identifier sequenceName, CancellationToken cancellationToken = default(CancellationToken)) => Task.FromResult(false);
 
-        public virtual Task<IAsyncEnumerable<IDatabaseSequence>> SequencesAsync(CancellationToken cancellationToken = default(CancellationToken)) => Task.FromResult(Sequences.ToAsyncEnumerable());
+        public virtual Task<IReadOnlyCollection<Task<IDatabaseSequence>>> SequencesAsync(CancellationToken cancellationToken = default(CancellationToken)) => Task.FromResult<IReadOnlyCollection<Task<IDatabaseSequence>>>(
+            Sequences.Select(Task.FromResult).ToList()
+        );
 
         public virtual bool SynonymExists(Identifier synonymName) => false;
 
         public virtual Task<bool> SynonymExistsAsync(Identifier synonymName, CancellationToken cancellationToken = default(CancellationToken)) => Task.FromResult(false);
 
-        public virtual Task<IAsyncEnumerable<IDatabaseSynonym>> SynonymsAsync(CancellationToken cancellationToken = default(CancellationToken)) => Task.FromResult(Synonyms.ToAsyncEnumerable());
+        public virtual Task<IReadOnlyCollection<Task<IDatabaseSynonym>>> SynonymsAsync(CancellationToken cancellationToken = default(CancellationToken)) => Task.FromResult<IReadOnlyCollection<Task<IDatabaseSynonym>>>(
+            Synonyms.Select(Task.FromResult).ToList()
+        );
 
         public virtual bool TableExists(Identifier tableName) => false;
 
         public virtual Task<bool> TableExistsAsync(Identifier tableName, CancellationToken cancellationToken = default(CancellationToken)) => Task.FromResult(false);
 
-        public virtual Task<IAsyncEnumerable<IRelationalDatabaseTable>> TablesAsync(CancellationToken cancellationToken = default(CancellationToken)) => Task.FromResult(Tables.ToAsyncEnumerable());
+        public virtual Task<IReadOnlyCollection<Task<IRelationalDatabaseTable>>> TablesAsync(CancellationToken cancellationToken = default(CancellationToken)) => Task.FromResult<IReadOnlyCollection<Task<IRelationalDatabaseTable>>>(
+            Tables.Select(Task.FromResult).ToList()
+        );
 
         public virtual bool ViewExists(Identifier viewName) => false;
 
         public virtual Task<bool> ViewExistsAsync(Identifier viewName, CancellationToken cancellationToken = default(CancellationToken)) => Task.FromResult(false);
 
-        public virtual Task<IAsyncEnumerable<IRelationalDatabaseView>> ViewsAsync(CancellationToken cancellationToken = default(CancellationToken)) => Task.FromResult(Views.ToAsyncEnumerable());
+        public virtual Task<IReadOnlyCollection<Task<IRelationalDatabaseView>>> ViewsAsync(CancellationToken cancellationToken = default(CancellationToken)) => Task.FromResult<IReadOnlyCollection<Task<IRelationalDatabaseView>>>(
+            Views.Select(Task.FromResult).ToList()
+        );
     }
 }

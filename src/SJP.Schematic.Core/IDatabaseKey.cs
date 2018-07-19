@@ -8,7 +8,7 @@ namespace SJP.Schematic.Core
 
         Identifier Name { get; }
 
-        IEnumerable<IDatabaseColumn> Columns { get; }
+        IReadOnlyCollection<IDatabaseColumn> Columns { get; }
 
         DatabaseKeyType KeyType { get; }
     }

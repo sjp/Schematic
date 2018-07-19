@@ -60,8 +60,8 @@ namespace SJP.Schematic.Reporting.Html.Renderers
             var tableCollection = await Database.TablesAsync().ConfigureAwait(false);
             var viewCollection = await Database.ViewsAsync().ConfigureAwait(false);
 
-            var tables = await tableCollection.ToList().ConfigureAwait(false);
-            var views = await viewCollection.ToList().ConfigureAwait(false);
+            var tables = await Task.WhenAll(tableCollection).ConfigureAwait(false);
+            var views = await Task.WhenAll(viewCollection).ConfigureAwait(false);
 
             var mapper = new ColumnsModelMapper(Connection, Database.Dialect);
 

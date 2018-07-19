@@ -6,8 +6,8 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using SJP.Schematic.Core;
-using SJP.Schematic.MySql.Query;
 using SJP.Schematic.Core.Utilities;
+using SJP.Schematic.MySql.Query;
 
 namespace SJP.Schematic.MySql
 {
@@ -92,26 +92,28 @@ namespace SJP.Schematic.MySql
             return LoadTableAsync(tableName, cancellationToken);
         }
 
-        public IEnumerable<IRelationalDatabaseTable> Tables
+        public IReadOnlyCollection<IRelationalDatabaseTable> Tables
         {
             get
             {
                 var tableNames = Connection.Query<QualifiedName>(TablesQuery, new { SchemaName = DefaultSchema })
-                    .Select(dto => new Identifier(dto.SchemaName, dto.ObjectName));
+                    .Select(dto => new Identifier(dto.SchemaName, dto.ObjectName))
+                    .ToList();
 
-                foreach (var tableName in tableNames)
-                    yield return LoadTableSync(tableName);
+                var tables = tableNames.Select(LoadTableSync);
+                return new ReadOnlyCollectionSlim<IRelationalDatabaseTable>(tableNames.Count, tables);
             }
         }
 
-        public async Task<IAsyncEnumerable<IRelationalDatabaseTable>> TablesAsync(CancellationToken cancellationToken = default(CancellationToken))
+        public async Task<IReadOnlyCollection<Task<IRelationalDatabaseTable>>> TablesAsync(CancellationToken cancellationToken = default(CancellationToken))
         {
             var queryResults = await Connection.QueryAsync<QualifiedName>(TablesQuery, new { SchemaName = DefaultSchema }).ConfigureAwait(false);
-            var tableNames = queryResults.Select(dto => new Identifier(dto.SchemaName, dto.ObjectName));
+            var tableNames = queryResults
+                .Select(dto => new Identifier(dto.SchemaName, dto.ObjectName))
+                .ToList();
 
-            return tableNames
-                .Select(LoadTableSync)
-                .ToAsyncEnumerable();
+            var tables = tableNames.Select(name => LoadTableAsync(name, cancellationToken));
+            return new ReadOnlyCollectionSlim<Task<IRelationalDatabaseTable>>(tableNames.Count, tables);
         }
 
         protected virtual string TablesQuery => TablesQuerySql;
@@ -199,26 +201,28 @@ namespace SJP.Schematic.MySql
             return LoadViewAsync(viewName, cancellationToken);
         }
 
-        public IEnumerable<IRelationalDatabaseView> Views
+        public IReadOnlyCollection<IRelationalDatabaseView> Views
         {
             get
             {
                 var viewNames = Connection.Query<QualifiedName>(ViewsQuery, new { SchemaName = DefaultSchema })
-                    .Select(dto => new Identifier(dto.SchemaName, dto.ObjectName));
+                    .Select(dto => new Identifier(dto.SchemaName, dto.ObjectName))
+                    .ToList();
 
-                foreach (var viewName in viewNames)
-                    yield return LoadViewSync(viewName);
+                var views = viewNames.Select(LoadViewSync);
+                return new ReadOnlyCollectionSlim<IRelationalDatabaseView>(viewNames.Count, views);
             }
         }
 
-        public async Task<IAsyncEnumerable<IRelationalDatabaseView>> ViewsAsync(CancellationToken cancellationToken = default(CancellationToken))
+        public async Task<IReadOnlyCollection<Task<IRelationalDatabaseView>>> ViewsAsync(CancellationToken cancellationToken = default(CancellationToken))
         {
             var queryResult = await Connection.QueryAsync<QualifiedName>(ViewsQuery, new { SchemaName = DefaultSchema }).ConfigureAwait(false);
-            var viewNames = queryResult.Select(dto => new Identifier(dto.SchemaName, dto.ObjectName));
+            var viewNames = queryResult
+                .Select(dto => new Identifier(dto.SchemaName, dto.ObjectName))
+                .ToList();
 
-            return viewNames
-                .Select(LoadViewSync)
-                .ToAsyncEnumerable();
+            var views = viewNames.Select(name => LoadViewAsync(name, cancellationToken));
+            return new ReadOnlyCollectionSlim<Task<IRelationalDatabaseView>>(viewNames.Count, views);
         }
 
         protected virtual string ViewsQuery => ViewsQuerySql;
@@ -285,9 +289,13 @@ namespace SJP.Schematic.MySql
             return Task.FromResult<IDatabaseSequence>(null);
         }
 
-        public IEnumerable<IDatabaseSequence> Sequences => Array.Empty<IDatabaseSequence>();
+        public IReadOnlyCollection<IDatabaseSequence> Sequences => Array.Empty<IDatabaseSequence>();
 
-        public Task<IAsyncEnumerable<IDatabaseSequence>> SequencesAsync(CancellationToken cancellationToken = default(CancellationToken)) => Task.FromResult(Array.Empty<IDatabaseSequence>().ToAsyncEnumerable());
+        public Task<IReadOnlyCollection<Task<IDatabaseSequence>>> SequencesAsync(CancellationToken cancellationToken = default(CancellationToken)) => _emptySequences;
+
+        private readonly static Task<IReadOnlyCollection<Task<IDatabaseSequence>>> _emptySequences = Task.FromResult<IReadOnlyCollection<Task<IDatabaseSequence>>>(
+            Array.Empty<Task<IDatabaseSequence>>()
+        );
 
         public bool SynonymExists(Identifier synonymName)
         {
@@ -321,9 +329,13 @@ namespace SJP.Schematic.MySql
             return Task.FromResult<IDatabaseSynonym>(null);
         }
 
-        public IEnumerable<IDatabaseSynonym> Synonyms => Array.Empty<IDatabaseSynonym>();
+        public IReadOnlyCollection<IDatabaseSynonym> Synonyms => Array.Empty<IDatabaseSynonym>();
 
-        public Task<IAsyncEnumerable<IDatabaseSynonym>> SynonymsAsync(CancellationToken cancellationToken = default(CancellationToken)) => Task.FromResult(Array.Empty<IDatabaseSynonym>().ToAsyncEnumerable());
+        public Task<IReadOnlyCollection<Task<IDatabaseSynonym>>> SynonymsAsync(CancellationToken cancellationToken = default(CancellationToken)) => _emptySynonyms;
+
+        private readonly static Task<IReadOnlyCollection<Task<IDatabaseSynonym>>> _emptySynonyms = Task.FromResult<IReadOnlyCollection<Task<IDatabaseSynonym>>>(
+            Array.Empty<Task<IDatabaseSynonym>>()
+        );
 
         private Task<DatabaseMetadata> LoadDatabaseMetadataAsync()
         {

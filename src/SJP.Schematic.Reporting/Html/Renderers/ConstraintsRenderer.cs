@@ -66,12 +66,17 @@ namespace SJP.Schematic.Reporting.Html.Renderers
         public async Task RenderAsync()
         {
             var tableCollection = await Database.TablesAsync().ConfigureAwait(false);
-            var tables = await tableCollection.ToList().ConfigureAwait(false);
+            var tables = await Task.WhenAll(tableCollection).ConfigureAwait(false);
 
             var primaryKeys = await tables.SelectNotNullAsync(t => t.PrimaryKeyAsync()).ConfigureAwait(false);
-            var uniqueKeys = await tables.SelectManyAsync(t => t.UniqueKeysAsync()).ConfigureAwait(false);
-            var foreignKeys = await tables.SelectManyAsync(t => t.ParentKeysAsync()).ConfigureAwait(false);
-            var checkConstraints = await tables.SelectManyAsync(t => t.ChecksAsync()).ConfigureAwait(false);
+
+            var uniqueKeyCollections = await Task.WhenAll(tables.Select(t => t.UniqueKeysAsync())).ConfigureAwait(false);
+            var foreignKeyCollections = await Task.WhenAll(tables.Select(t => t.ParentKeysAsync())).ConfigureAwait(false);
+            var checkConstraintCollections = await Task.WhenAll(tables.Select(t => t.ChecksAsync())).ConfigureAwait(false);
+
+            var uniqueKeys = uniqueKeyCollections.SelectMany(uk => uk).ToList();
+            var foreignKeys = foreignKeyCollections.SelectMany(uk => uk).ToList();
+            var checkConstraints = checkConstraintCollections.SelectMany(uk => uk).ToList();
 
             var mapper = new ConstraintsModelMapper();
             var pkMapper = mapper as IDatabaseModelMapper<IDatabaseKey, Constraints.PrimaryKeyConstraint>;

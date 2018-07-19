@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using EnumsNET;
 using SJP.Schematic.Core.Extensions;
 
@@ -20,7 +21,7 @@ namespace SJP.Schematic.Core
                 Name = name.LocalName; // can be null!
 
             KeyType = keyType;
-            Columns = columns;
+            Columns = columns.ToList();
             IsEnabled = isEnabled;
         }
 
@@ -30,7 +31,7 @@ namespace SJP.Schematic.Core
 
         public DatabaseKeyType KeyType { get; }
 
-        public IEnumerable<IDatabaseColumn> Columns { get; }
+        public IReadOnlyCollection<IDatabaseColumn> Columns { get; }
 
         public bool IsEnabled { get; }
     }

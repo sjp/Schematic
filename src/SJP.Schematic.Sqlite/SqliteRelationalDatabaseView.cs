@@ -67,13 +67,13 @@ namespace SJP.Schematic.Sqlite
 
         public Task<IReadOnlyDictionary<Identifier, IDatabaseViewIndex>> IndexAsync(CancellationToken cancellationToken = default(CancellationToken)) => LoadIndexLookupAsync(cancellationToken);
 
-        public IEnumerable<IDatabaseViewIndex> Indexes => LoadIndexesSync();
+        public IReadOnlyCollection<IDatabaseViewIndex> Indexes => LoadIndexesSync();
 
-        public Task<IEnumerable<IDatabaseViewIndex>> IndexesAsync(CancellationToken cancellationToken = default(CancellationToken)) => LoadIndexesAsync(cancellationToken);
+        public Task<IReadOnlyCollection<IDatabaseViewIndex>> IndexesAsync(CancellationToken cancellationToken = default(CancellationToken)) => LoadIndexesAsync(cancellationToken);
 
-        protected virtual IEnumerable<IDatabaseViewIndex> LoadIndexesSync() => Array.Empty<IDatabaseViewIndex>();
+        protected virtual IReadOnlyCollection<IDatabaseViewIndex> LoadIndexesSync() => Array.Empty<IDatabaseViewIndex>();
 
-        protected virtual Task<IEnumerable<IDatabaseViewIndex>> LoadIndexesAsync(CancellationToken cancellationToken = default(CancellationToken)) => Task.FromResult(LoadIndexesSync());
+        protected virtual Task<IReadOnlyCollection<IDatabaseViewIndex>> LoadIndexesAsync(CancellationToken cancellationToken = default(CancellationToken)) => Task.FromResult(LoadIndexesSync());
 
         protected virtual IReadOnlyDictionary<Identifier, IDatabaseViewIndex> LoadIndexLookupSync()
         {

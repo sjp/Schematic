@@ -40,7 +40,7 @@ namespace SJP.Schematic.MySql
             Parent = parent ?? throw new ArgumentNullException(nameof(parent));
             Name = name.LocalName;
             IsUnique = isUnique;
-            Columns = columns;
+            Columns = columns.ToList();
         }
 
         public T Parent { get; }
@@ -49,9 +49,9 @@ namespace SJP.Schematic.MySql
 
         public bool IsUnique { get; }
 
-        public IEnumerable<IDatabaseIndexColumn> Columns { get; }
+        public IReadOnlyCollection<IDatabaseIndexColumn> Columns { get; }
 
-        public IEnumerable<IDatabaseColumn> IncludedColumns { get; } = Array.Empty<IDatabaseColumn>();
+        public IReadOnlyCollection<IDatabaseColumn> IncludedColumns { get; } = Array.Empty<IDatabaseColumn>();
 
         public bool IsEnabled { get; } = true;
     }

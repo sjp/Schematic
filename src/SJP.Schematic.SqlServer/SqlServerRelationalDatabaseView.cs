@@ -79,11 +79,11 @@ where schema_name(v.schema_id) = @SchemaName and v.name = @ViewName";
 
         public Task<IReadOnlyDictionary<Identifier, IDatabaseViewIndex>> IndexAsync(CancellationToken cancellationToken = default(CancellationToken)) => LoadIndexLookupAsync(cancellationToken);
 
-        public IEnumerable<IDatabaseViewIndex> Indexes => LoadIndexesSync();
+        public IReadOnlyCollection<IDatabaseViewIndex> Indexes => LoadIndexesSync();
 
-        public Task<IEnumerable<IDatabaseViewIndex>> IndexesAsync(CancellationToken cancellationToken = default(CancellationToken)) => LoadIndexesAsync(cancellationToken);
+        public Task<IReadOnlyCollection<IDatabaseViewIndex>> IndexesAsync(CancellationToken cancellationToken = default(CancellationToken)) => LoadIndexesAsync(cancellationToken);
 
-        protected virtual IEnumerable<IDatabaseViewIndex> LoadIndexesSync()
+        protected virtual IReadOnlyCollection<IDatabaseViewIndex> LoadIndexesSync()
         {
             const string sql = @"
 select i.name as IndexName, i.is_unique as IsUnique, ic.key_ordinal as KeyOrdinal, ic.index_column_id as IndexColumnId, ic.is_included_column as IsIncludedColumn, ic.is_descending_key as IsDescending, c.name as ColumnName, i.is_disabled as IsDisabled
@@ -135,7 +135,7 @@ where schema_name(v.schema_id) = @SchemaName and v.name = @ViewName
             return result;
         }
 
-        protected virtual async Task<IEnumerable<IDatabaseViewIndex>> LoadIndexesAsync(CancellationToken cancellationToken)
+        protected virtual async Task<IReadOnlyCollection<IDatabaseViewIndex>> LoadIndexesAsync(CancellationToken cancellationToken)
         {
             const string sql = @"
 select i.name as IndexName, i.is_unique as IsUnique, ic.key_ordinal as KeyOrdinal, ic.index_column_id as IndexColumnId, ic.is_included_column as IsIncludedColumn, ic.is_descending_key as IsDescending, c.name as ColumnName, i.is_disabled as IsDisabled

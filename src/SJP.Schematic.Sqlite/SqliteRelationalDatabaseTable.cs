@@ -104,9 +104,9 @@ namespace SJP.Schematic.Sqlite
 
         public Task<IReadOnlyDictionary<Identifier, IDatabaseTableIndex>> IndexAsync(CancellationToken cancellationToken = default(CancellationToken)) => LoadIndexLookupAsync(cancellationToken);
 
-        public IEnumerable<IDatabaseTableIndex> Indexes => LoadIndexesSync();
+        public IReadOnlyCollection<IDatabaseTableIndex> Indexes => LoadIndexesSync();
 
-        public Task<IEnumerable<IDatabaseTableIndex>> IndexesAsync(CancellationToken cancellationToken = default(CancellationToken)) => LoadIndexesAsync(cancellationToken);
+        public Task<IReadOnlyCollection<IDatabaseTableIndex>> IndexesAsync(CancellationToken cancellationToken = default(CancellationToken)) => LoadIndexesAsync(cancellationToken);
 
         protected virtual IReadOnlyDictionary<Identifier, IDatabaseTableIndex> LoadIndexLookupSync()
         {
@@ -132,7 +132,7 @@ namespace SJP.Schematic.Sqlite
             return result.AsReadOnlyDictionary();
         }
 
-        protected virtual IEnumerable<IDatabaseTableIndex> LoadIndexesSync()
+        protected virtual IReadOnlyCollection<IDatabaseTableIndex> LoadIndexesSync()
         {
             var indexLists = Pragma.IndexList(Name);
             if (indexLists.Empty())
@@ -166,7 +166,7 @@ namespace SJP.Schematic.Sqlite
             return result;
         }
 
-        protected virtual async Task<IEnumerable<IDatabaseTableIndex>> LoadIndexesAsync(CancellationToken cancellationToken)
+        protected virtual async Task<IReadOnlyCollection<IDatabaseTableIndex>> LoadIndexesAsync(CancellationToken cancellationToken)
         {
             var indexLists = await Pragma.IndexListAsync(Name, cancellationToken).ConfigureAwait(false);
             if (indexLists.Empty())
@@ -204,9 +204,9 @@ namespace SJP.Schematic.Sqlite
 
         public Task<IReadOnlyDictionary<Identifier, IDatabaseKey>> UniqueKeyAsync(CancellationToken cancellationToken = default(CancellationToken)) => LoadUniqueKeyLookupAsync(cancellationToken);
 
-        public IEnumerable<IDatabaseKey> UniqueKeys => LoadUniqueKeysSync();
+        public IReadOnlyCollection<IDatabaseKey> UniqueKeys => LoadUniqueKeysSync();
 
-        public Task<IEnumerable<IDatabaseKey>> UniqueKeysAsync(CancellationToken cancellationToken = default(CancellationToken)) => LoadUniqueKeysAsync(cancellationToken);
+        public Task<IReadOnlyCollection<IDatabaseKey>> UniqueKeysAsync(CancellationToken cancellationToken = default(CancellationToken)) => LoadUniqueKeysAsync(cancellationToken);
 
         protected virtual IReadOnlyDictionary<Identifier, IDatabaseKey> LoadUniqueKeyLookupSync()
         {
@@ -232,7 +232,7 @@ namespace SJP.Schematic.Sqlite
             return result.AsReadOnlyDictionary();
         }
 
-        protected virtual IEnumerable<IDatabaseKey> LoadUniqueKeysSync()
+        protected virtual IReadOnlyCollection<IDatabaseKey> LoadUniqueKeysSync()
         {
             var indexLists = Pragma.IndexList(Name);
             if (indexLists.Empty())
@@ -271,7 +271,7 @@ namespace SJP.Schematic.Sqlite
             return result;
         }
 
-        protected virtual async Task<IEnumerable<IDatabaseKey>> LoadUniqueKeysAsync(CancellationToken cancellationToken)
+        protected virtual async Task<IReadOnlyCollection<IDatabaseKey>> LoadUniqueKeysAsync(CancellationToken cancellationToken)
         {
             var indexLists = await Pragma.IndexListAsync(Name, cancellationToken).ConfigureAwait(false);
             if (indexLists.Empty())
@@ -310,11 +310,11 @@ namespace SJP.Schematic.Sqlite
             return result;
         }
 
-        public IEnumerable<IDatabaseRelationalKey> ChildKeys => LoadChildKeysSync();
+        public IReadOnlyCollection<IDatabaseRelationalKey> ChildKeys => LoadChildKeysSync();
 
-        public Task<IEnumerable<IDatabaseRelationalKey>> ChildKeysAsync(CancellationToken cancellationToken = default(CancellationToken)) => LoadChildKeysAsync(cancellationToken);
+        public Task<IReadOnlyCollection<IDatabaseRelationalKey>> ChildKeysAsync(CancellationToken cancellationToken = default(CancellationToken)) => LoadChildKeysAsync(cancellationToken);
 
-        protected virtual IEnumerable<IDatabaseRelationalKey> LoadChildKeysSync()
+        protected virtual IReadOnlyCollection<IDatabaseRelationalKey> LoadChildKeysSync()
         {
             return Database.Tables
                 .Where(t => string.Equals(t.Name.Schema, Name.Schema, StringComparison.OrdinalIgnoreCase))
@@ -323,16 +323,21 @@ namespace SJP.Schematic.Sqlite
                 .ToList();
         }
 
-        protected virtual async Task<IEnumerable<IDatabaseRelationalKey>> LoadChildKeysAsync(CancellationToken cancellationToken)
+        protected virtual async Task<IReadOnlyCollection<IDatabaseRelationalKey>> LoadChildKeysAsync(CancellationToken cancellationToken)
         {
-            var dbTables = await Database.TablesAsync(cancellationToken).ConfigureAwait(false);
+            var dbTableCollections = await Database.TablesAsync(cancellationToken).ConfigureAwait(false);
+            var dbTables = await Task.WhenAll(dbTableCollections).ConfigureAwait(false);
 
-            var childKeys = await dbTables
+            var parentKeyCollectionTasks = dbTables
                 .Where(t => string.Equals(t.Name.Schema, Name.Schema, StringComparison.OrdinalIgnoreCase))
-                .SelectMany(t => t.ParentKeys.ToAsyncEnumerable())
+                .Select(t => t.ParentKeysAsync())
+                .ToList();
+            var parentKeyCollections = await Task.WhenAll(parentKeyCollectionTasks).ConfigureAwait(false);
+
+            var childKeys = parentKeyCollections
+                .SelectMany(pkc => pkc)
                 .Where(fk => Comparer.Equals(Name, fk.ParentKey.Table.Name))
-                .ToList()
-                .ConfigureAwait(false);
+                .ToList();
 
             return childKeys;
         }
@@ -341,9 +346,9 @@ namespace SJP.Schematic.Sqlite
 
         public Task<IReadOnlyDictionary<Identifier, IDatabaseCheckConstraint>> CheckAsync(CancellationToken cancellationToken = default(CancellationToken)) => LoadCheckLookupAsync(cancellationToken);
 
-        public IEnumerable<IDatabaseCheckConstraint> Checks => LoadChecksSync();
+        public IReadOnlyCollection<IDatabaseCheckConstraint> Checks => LoadChecksSync();
 
-        public Task<IEnumerable<IDatabaseCheckConstraint>> ChecksAsync(CancellationToken cancellationToken = default(CancellationToken)) => LoadChecksAsync(cancellationToken);
+        public Task<IReadOnlyCollection<IDatabaseCheckConstraint>> ChecksAsync(CancellationToken cancellationToken = default(CancellationToken)) => LoadChecksAsync(cancellationToken);
 
         protected virtual IReadOnlyDictionary<Identifier, IDatabaseCheckConstraint> LoadCheckLookupSync()
         {
@@ -369,7 +374,7 @@ namespace SJP.Schematic.Sqlite
             return result.AsReadOnlyDictionary();
         }
 
-        protected virtual IEnumerable<IDatabaseCheckConstraint> LoadChecksSync()
+        protected virtual IReadOnlyCollection<IDatabaseCheckConstraint> LoadChecksSync()
         {
             var parser = ParsedDefinition;
             var checks = parser.Checks.ToList();
@@ -392,7 +397,7 @@ namespace SJP.Schematic.Sqlite
             return result;
         }
 
-        protected virtual async Task<IEnumerable<IDatabaseCheckConstraint>> LoadChecksAsync(CancellationToken cancellationToken)
+        protected virtual async Task<IReadOnlyCollection<IDatabaseCheckConstraint>> LoadChecksAsync(CancellationToken cancellationToken)
         {
             var parser = await ParsedDefinitionAsync(cancellationToken).ConfigureAwait(false);
             var checks = parser.Checks.ToList();
@@ -419,9 +424,9 @@ namespace SJP.Schematic.Sqlite
 
         public Task<IReadOnlyDictionary<Identifier, IDatabaseRelationalKey>> ParentKeyAsync(CancellationToken cancellationToken = default(CancellationToken)) => LoadParentKeyLookupAsync(cancellationToken);
 
-        public IEnumerable<IDatabaseRelationalKey> ParentKeys => LoadParentKeysSync();
+        public IReadOnlyCollection<IDatabaseRelationalKey> ParentKeys => LoadParentKeysSync();
 
-        public Task<IEnumerable<IDatabaseRelationalKey>> ParentKeysAsync(CancellationToken cancellationToken = default(CancellationToken)) => LoadParentKeysAsync(cancellationToken);
+        public Task<IReadOnlyCollection<IDatabaseRelationalKey>> ParentKeysAsync(CancellationToken cancellationToken = default(CancellationToken)) => LoadParentKeysAsync(cancellationToken);
 
         protected virtual IReadOnlyDictionary<Identifier, IDatabaseRelationalKey> LoadParentKeyLookupSync()
         {
@@ -447,7 +452,7 @@ namespace SJP.Schematic.Sqlite
             return result.AsReadOnlyDictionary();
         }
 
-        protected virtual IEnumerable<IDatabaseRelationalKey> LoadParentKeysSync()
+        protected virtual IReadOnlyCollection<IDatabaseRelationalKey> LoadParentKeysSync()
         {
             var queryResult = Pragma.ForeignKeyList(Name);
             if (queryResult.Empty())
@@ -510,7 +515,7 @@ namespace SJP.Schematic.Sqlite
             return result;
         }
 
-        protected virtual async Task<IEnumerable<IDatabaseRelationalKey>> LoadParentKeysAsync(CancellationToken cancellationToken)
+        protected virtual async Task<IReadOnlyCollection<IDatabaseRelationalKey>> LoadParentKeysAsync(CancellationToken cancellationToken)
         {
             var queryResult = await Pragma.ForeignKeyListAsync(Name, cancellationToken).ConfigureAwait(false);
             if (queryResult.Empty())
@@ -670,9 +675,9 @@ namespace SJP.Schematic.Sqlite
 
         public Task<IReadOnlyDictionary<Identifier, IDatabaseTrigger>> TriggerAsync(CancellationToken cancellationToken = default(CancellationToken)) => LoadTriggerLookupAsync(cancellationToken);
 
-        public IEnumerable<IDatabaseTrigger> Triggers => LoadTriggersSync();
+        public IReadOnlyCollection<IDatabaseTrigger> Triggers => LoadTriggersSync();
 
-        public Task<IEnumerable<IDatabaseTrigger>> TriggersAsync(CancellationToken cancellationToken = default(CancellationToken)) => LoadTriggersAsync(cancellationToken);
+        public Task<IReadOnlyCollection<IDatabaseTrigger>> TriggersAsync(CancellationToken cancellationToken = default(CancellationToken)) => LoadTriggersAsync(cancellationToken);
 
         protected virtual IReadOnlyDictionary<Identifier, IDatabaseTrigger> LoadTriggerLookupSync()
         {
@@ -695,7 +700,7 @@ namespace SJP.Schematic.Sqlite
             return result.AsReadOnlyDictionary();
         }
 
-        protected virtual IEnumerable<IDatabaseTrigger> LoadTriggersSync()
+        protected virtual IReadOnlyCollection<IDatabaseTrigger> LoadTriggersSync()
         {
             const string sql = "select * from sqlite_master where type = 'trigger' and tbl_name = @TableName";
             var triggerInfos = Connection.Query<SqliteMaster>(sql, new { TableName = Name.LocalName });
@@ -719,7 +724,7 @@ namespace SJP.Schematic.Sqlite
             return result;
         }
 
-        protected virtual async Task<IEnumerable<IDatabaseTrigger>> LoadTriggersAsync(CancellationToken cancellationToken)
+        protected virtual async Task<IReadOnlyCollection<IDatabaseTrigger>> LoadTriggersAsync(CancellationToken cancellationToken)
         {
             const string sql = "select * from sqlite_master where type = 'trigger' and tbl_name = @TableName";
             var triggerInfos = await Connection.QueryAsync<SqliteMaster>(sql, new { TableName = Name.LocalName }).ConfigureAwait(false);

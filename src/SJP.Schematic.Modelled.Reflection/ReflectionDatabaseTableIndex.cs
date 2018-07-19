@@ -72,9 +72,9 @@ namespace SJP.Schematic.Modelled.Reflection
 
         public IRelationalDatabaseTable Parent { get; }
 
-        public IEnumerable<IDatabaseIndexColumn> Columns { get; }
+        public IReadOnlyCollection<IDatabaseIndexColumn> Columns { get; }
 
-        public IEnumerable<IDatabaseColumn> IncludedColumns { get; }
+        public IReadOnlyCollection<IDatabaseColumn> IncludedColumns { get; }
 
         public bool IsUnique { get; }
 

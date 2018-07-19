@@ -17,7 +17,7 @@ namespace SJP.Schematic.PostgreSql
         public PostgreSqlRelationalDatabase(IDatabaseDialect dialect, IDbConnection connection, IEqualityComparer<Identifier> comparer = null)
             : base(dialect, connection)
         {
-            _metadata = new AsyncLazy<DatabaseMetadata>(LoadDatabaseMetadataAsync);
+            _metadata = new Lazy<DatabaseMetadata>(LoadDatabaseMetadata);
             Comparer = comparer ?? new IdentifierComparer(StringComparer.Ordinal, ServerName, DatabaseName, DefaultSchema);
             _parentDb = this;
         }
@@ -38,7 +38,7 @@ namespace SJP.Schematic.PostgreSql
 
         public string DefaultSchema => Metadata.DefaultSchema;
 
-        protected DatabaseMetadata Metadata => _metadata.Task.GetAwaiter().GetResult();
+        protected DatabaseMetadata Metadata => _metadata.Value;
 
         public bool TableExists(Identifier tableName)
         {
@@ -93,26 +93,28 @@ namespace SJP.Schematic.PostgreSql
             return LoadTableAsync(tableName, cancellationToken);
         }
 
-        public IEnumerable<IRelationalDatabaseTable> Tables
+        public IReadOnlyCollection<IRelationalDatabaseTable> Tables
         {
             get
             {
                 var tableNames = Connection.Query<QualifiedName>(TablesQuery)
-                    .Select(dto => new Identifier(dto.SchemaName, dto.ObjectName));
+                    .Select(dto => new Identifier(dto.SchemaName, dto.ObjectName))
+                    .ToList();
 
-                foreach (var tableName in tableNames)
-                    yield return LoadTableSync(tableName);
+                var tables = tableNames.Select(LoadTableSync);
+                return new ReadOnlyCollectionSlim<IRelationalDatabaseTable>(tableNames.Count, tables);
             }
         }
 
-        public async Task<IAsyncEnumerable<IRelationalDatabaseTable>> TablesAsync(CancellationToken cancellationToken = default(CancellationToken))
+        public async Task<IReadOnlyCollection<Task<IRelationalDatabaseTable>>> TablesAsync(CancellationToken cancellationToken = default(CancellationToken))
         {
             var queryResults = await Connection.QueryAsync<QualifiedName>(TablesQuery).ConfigureAwait(false);
-            var tableNames = queryResults.Select(dto => new Identifier(dto.SchemaName, dto.ObjectName));
+            var tableNames = queryResults
+                .Select(dto => new Identifier(dto.SchemaName, dto.ObjectName))
+                .ToList();
 
-            return tableNames
-                .Select(LoadTableSync)
-                .ToAsyncEnumerable();
+            var tables = tableNames.Select(name => LoadTableAsync(name, cancellationToken));
+            return new ReadOnlyCollectionSlim<Task<IRelationalDatabaseTable>>(tableNames.Count, tables);
         }
 
         protected virtual string TablesQuery => TablesQuerySql;
@@ -200,26 +202,28 @@ namespace SJP.Schematic.PostgreSql
             return LoadViewAsync(viewName, cancellationToken);
         }
 
-        public IEnumerable<IRelationalDatabaseView> Views
+        public IReadOnlyCollection<IRelationalDatabaseView> Views
         {
             get
             {
                 var viewNames = Connection.Query<QualifiedName>(ViewsQuery)
-                    .Select(dto => new Identifier(dto.SchemaName, dto.ObjectName));
+                    .Select(dto => new Identifier(dto.SchemaName, dto.ObjectName))
+                    .ToList();
 
-                foreach (var viewName in viewNames)
-                    yield return LoadViewSync(viewName);
+                var views = viewNames.Select(LoadViewSync);
+                return new ReadOnlyCollectionSlim<IRelationalDatabaseView>(viewNames.Count, views);
             }
         }
 
-        public async Task<IAsyncEnumerable<IRelationalDatabaseView>> ViewsAsync(CancellationToken cancellationToken = default(CancellationToken))
+        public async Task<IReadOnlyCollection<Task<IRelationalDatabaseView>>> ViewsAsync(CancellationToken cancellationToken = default(CancellationToken))
         {
             var queryResult = await Connection.QueryAsync<QualifiedName>(ViewsQuery).ConfigureAwait(false);
-            var viewNames = queryResult.Select(dto => new Identifier(dto.SchemaName, dto.ObjectName));
+            var viewNames = queryResult
+                .Select(dto => new Identifier(dto.SchemaName, dto.ObjectName))
+                .ToList();
 
-            return viewNames
-                .Select(LoadViewSync)
-                .ToAsyncEnumerable();
+            var views = viewNames.Select(name => LoadViewAsync(name, cancellationToken));
+            return new ReadOnlyCollectionSlim<Task<IRelationalDatabaseView>>(viewNames.Count, views);
         }
 
         protected virtual string ViewsQuery => ViewsQuerySql;
@@ -307,26 +311,28 @@ namespace SJP.Schematic.PostgreSql
             return LoadSequenceAsync(sequenceName, cancellationToken);
         }
 
-        public IEnumerable<IDatabaseSequence> Sequences
+        public IReadOnlyCollection<IDatabaseSequence> Sequences
         {
             get
             {
                 var sequenceNames = Connection.Query<QualifiedName>(SequencesQuery)
-                    .Select(dto => new Identifier(dto.SchemaName, dto.ObjectName));
+                    .Select(dto => new Identifier(dto.SchemaName, dto.ObjectName))
+                    .ToList();
 
-                foreach (var sequenceName in sequenceNames)
-                    yield return LoadSequenceSync(sequenceName);
+                var sequences = sequenceNames.Select(LoadSequenceSync);
+                return new ReadOnlyCollectionSlim<IDatabaseSequence>(sequenceNames.Count, sequences);
             }
         }
 
-        public async Task<IAsyncEnumerable<IDatabaseSequence>> SequencesAsync(CancellationToken cancellationToken = default(CancellationToken))
+        public async Task<IReadOnlyCollection<Task<IDatabaseSequence>>> SequencesAsync(CancellationToken cancellationToken = default(CancellationToken))
         {
             var queryResult = await Connection.QueryAsync<QualifiedName>(SequencesQuery).ConfigureAwait(false);
-            var sequenceNames = queryResult.Select(dto => new Identifier(dto.SchemaName, dto.ObjectName));
+            var sequenceNames = queryResult
+                .Select(dto => new Identifier(dto.SchemaName, dto.ObjectName))
+                .ToList();
 
-            return sequenceNames
-                .Select(LoadSequenceSync)
-                .ToAsyncEnumerable();
+            var sequences = sequenceNames.Select(name => LoadSequenceAsync(name, cancellationToken));
+            return new ReadOnlyCollectionSlim<Task<IDatabaseSequence>>(sequenceNames.Count, sequences);
         }
 
         protected virtual string SequencesQuery => SequencesQuerySql;
@@ -393,18 +399,22 @@ namespace SJP.Schematic.PostgreSql
             return Task.FromResult<IDatabaseSynonym>(null);
         }
 
-        public IEnumerable<IDatabaseSynonym> Synonyms => Array.Empty<IDatabaseSynonym>();
+        public IReadOnlyCollection<IDatabaseSynonym> Synonyms => Array.Empty<IDatabaseSynonym>();
 
-        public Task<IAsyncEnumerable<IDatabaseSynonym>> SynonymsAsync(CancellationToken cancellationToken = default(CancellationToken)) => Task.FromResult(Array.Empty<IDatabaseSynonym>().ToAsyncEnumerable());
+        public Task<IReadOnlyCollection<Task<IDatabaseSynonym>>> SynonymsAsync(CancellationToken cancellationToken = default(CancellationToken)) => _emptySynonyms;
 
-        private async Task<DatabaseMetadata> LoadDatabaseMetadataAsync()
+        private readonly static Task<IReadOnlyCollection<Task<IDatabaseSynonym>>> _emptySynonyms = Task.FromResult<IReadOnlyCollection<Task<IDatabaseSynonym>>>(
+            Array.Empty<Task<IDatabaseSynonym>>()
+        );
+
+        private DatabaseMetadata LoadDatabaseMetadata()
         {
             const string sql = @"
 select
     pg_catalog.host(pg_catalog.inet_server_addr()) as ServerName,
     pg_catalog.current_database() as DatabaseName,
     pg_catalog.current_schema() as DefaultSchema";
-            var result = await Connection.QuerySingleAsync<DatabaseMetadata>(sql).ConfigureAwait(false);
+            var result = Connection.QuerySingle<DatabaseMetadata>(sql);
 
             if (result.ServerName.IsNullOrWhiteSpace())
                 result.ServerName = "127.0.0.1";
@@ -431,6 +441,6 @@ select
         }
 
         private IRelationalDatabase _parentDb;
-        private readonly AsyncLazy<DatabaseMetadata> _metadata;
+        private readonly Lazy<DatabaseMetadata> _metadata;
     }
 }

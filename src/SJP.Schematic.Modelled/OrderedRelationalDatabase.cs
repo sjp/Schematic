@@ -73,18 +73,23 @@ namespace SJP.Schematic.Modelled
             return LoadTableAsync(tableName, cancellationToken);
         }
 
-        public IEnumerable<IRelationalDatabaseTable> Tables =>
+        public IReadOnlyCollection<IRelationalDatabaseTable> Tables =>
             Databases
                 .SelectMany(d => d.Tables)
-                .DistinctBy(t => t.Name);
-
-        public Task<IAsyncEnumerable<IRelationalDatabaseTable>> TablesAsync(CancellationToken cancellationToken = default(CancellationToken))
-        {
-            var result = Databases
-                .SelectMany(d => d.Tables)
                 .DistinctBy(t => t.Name)
-                .ToAsyncEnumerable();
-            return Task.FromResult(result);
+                .ToList();
+
+        public async Task<IReadOnlyCollection<Task<IRelationalDatabaseTable>>> TablesAsync(CancellationToken cancellationToken = default(CancellationToken))
+        {
+            var tablesTasks = Databases.Select(d => d.TablesAsync(cancellationToken));
+            var tableCollections = await Task.WhenAll(tablesTasks).ConfigureAwait(false);
+            var allTableTasks = tableCollections.SelectMany(t => t);
+            var allTables = await Task.WhenAll(allTableTasks).ConfigureAwait(false);
+
+            return allTables
+                .DistinctBy(t => t.Name)
+                .Select(Task.FromResult)
+                .ToList();
         }
 
         protected virtual IRelationalDatabaseTable LoadTableSync(Identifier tableName)
@@ -150,18 +155,23 @@ namespace SJP.Schematic.Modelled
             return LoadViewAsync(viewName, cancellationToken);
         }
 
-        public IEnumerable<IRelationalDatabaseView> Views =>
+        public IReadOnlyCollection<IRelationalDatabaseView> Views =>
             Databases
                 .SelectMany(d => d.Views)
-                .DistinctBy(t => t.Name);
+                .DistinctBy(t => t.Name)
+                .ToList();
 
-        public Task<IAsyncEnumerable<IRelationalDatabaseView>> ViewsAsync(CancellationToken cancellationToken = default(CancellationToken))
+        public async Task<IReadOnlyCollection<Task<IRelationalDatabaseView>>> ViewsAsync(CancellationToken cancellationToken = default(CancellationToken))
         {
-            var result = Databases
-                .SelectMany(d => d.Views)
+            var viewsTasks = Databases.Select(d => d.ViewsAsync(cancellationToken));
+            var viewCollections = await Task.WhenAll(viewsTasks).ConfigureAwait(false);
+            var allViewTasks = viewCollections.SelectMany(v => v);
+            var allViews = await Task.WhenAll(allViewTasks).ConfigureAwait(false);
+
+            return allViews
                 .DistinctBy(v => v.Name)
-                .ToAsyncEnumerable();
-            return Task.FromResult(result);
+                .Select(Task.FromResult)
+                .ToList();
         }
 
         protected virtual IRelationalDatabaseView LoadViewSync(Identifier viewName)
@@ -227,18 +237,23 @@ namespace SJP.Schematic.Modelled
             return LoadSequenceAsync(sequenceName, cancellationToken);
         }
 
-        public IEnumerable<IDatabaseSequence> Sequences =>
+        public IReadOnlyCollection<IDatabaseSequence> Sequences =>
             Databases
                 .SelectMany(d => d.Sequences)
-                .DistinctBy(t => t.Name);
+                .DistinctBy(t => t.Name)
+                .ToList();
 
-        public Task<IAsyncEnumerable<IDatabaseSequence>> SequencesAsync(CancellationToken cancellationToken = default(CancellationToken))
+        public async Task<IReadOnlyCollection<Task<IDatabaseSequence>>> SequencesAsync(CancellationToken cancellationToken = default(CancellationToken))
         {
-            var result = Databases
-                .SelectMany(d => d.Sequences)
+            var sequencesTasks = Databases.Select(d => d.SequencesAsync(cancellationToken));
+            var sequenceCollections = await Task.WhenAll(sequencesTasks).ConfigureAwait(false);
+            var allSequenceTasks = sequenceCollections.SelectMany(s => s);
+            var allSequences = await Task.WhenAll(allSequenceTasks).ConfigureAwait(false);
+
+            return allSequences
                 .DistinctBy(s => s.Name)
-                .ToAsyncEnumerable();
-            return Task.FromResult(result);
+                .Select(Task.FromResult)
+                .ToList();
         }
 
         protected virtual IDatabaseSequence LoadSequenceSync(Identifier sequenceName)
@@ -304,18 +319,23 @@ namespace SJP.Schematic.Modelled
             return LoadSynonymAsync(synonymName, cancellationToken);
         }
 
-        public IEnumerable<IDatabaseSynonym> Synonyms =>
+        public IReadOnlyCollection<IDatabaseSynonym> Synonyms =>
             Databases
                 .SelectMany(d => d.Synonyms)
-                .DistinctBy(t => t.Name);
+                .DistinctBy(t => t.Name)
+                .ToList();
 
-        public Task<IAsyncEnumerable<IDatabaseSynonym>> SynonymsAsync(CancellationToken cancellationToken = default(CancellationToken))
+        public async Task<IReadOnlyCollection<Task<IDatabaseSynonym>>> SynonymsAsync(CancellationToken cancellationToken = default(CancellationToken))
         {
-            var result = Databases
-                .SelectMany(d => d.Synonyms)
+            var synonymsTasks = Databases.Select(d => d.SynonymsAsync(cancellationToken));
+            var synonymCollections = await Task.WhenAll(synonymsTasks).ConfigureAwait(false);
+            var allSynonymTasks = synonymCollections.SelectMany(s => s);
+            var allSynonyms = await Task.WhenAll(allSynonymTasks).ConfigureAwait(false);
+
+            return allSynonyms
                 .DistinctBy(s => s.Name)
-                .ToAsyncEnumerable();
-            return Task.FromResult(result);
+                .Select(Task.FromResult)
+                .ToList();
         }
 
         protected virtual IDatabaseSynonym LoadSynonymSync(Identifier synonymName)

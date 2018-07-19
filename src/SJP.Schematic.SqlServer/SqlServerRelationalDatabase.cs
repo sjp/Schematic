@@ -93,26 +93,28 @@ namespace SJP.Schematic.SqlServer
             return LoadTableAsync(tableName, cancellationToken);
         }
 
-        public IEnumerable<IRelationalDatabaseTable> Tables
+        public IReadOnlyCollection<IRelationalDatabaseTable> Tables
         {
             get
             {
                 var tableNames = Connection.Query<QualifiedName>(TablesQuery)
-                    .Select(dto => new Identifier(dto.SchemaName, dto.ObjectName));
+                    .Select(dto => new Identifier(dto.SchemaName, dto.ObjectName))
+                    .ToList();
 
-                foreach (var tableName in tableNames)
-                    yield return LoadTableSync(tableName);
+                var tables = tableNames.Select(LoadTableSync);
+                return new ReadOnlyCollectionSlim<IRelationalDatabaseTable>(tableNames.Count, tables);
             }
         }
 
-        public async Task<IAsyncEnumerable<IRelationalDatabaseTable>> TablesAsync(CancellationToken cancellationToken = default(CancellationToken))
+        public async Task<IReadOnlyCollection<Task<IRelationalDatabaseTable>>> TablesAsync(CancellationToken cancellationToken = default(CancellationToken))
         {
             var queryResults = await Connection.QueryAsync<QualifiedName>(TablesQuery).ConfigureAwait(false);
-            var tableNames = queryResults.Select(dto => new Identifier(dto.SchemaName, dto.ObjectName));
+            var tableNames = queryResults
+                .Select(dto => new Identifier(dto.SchemaName, dto.ObjectName))
+                .ToList();
 
-            return tableNames
-                .Select(LoadTableSync)
-                .ToAsyncEnumerable();
+            var tables = tableNames.Select(name => LoadTableAsync(name, cancellationToken));
+            return new ReadOnlyCollectionSlim<Task<IRelationalDatabaseTable>>(tableNames.Count, tables);
         }
 
         protected virtual string TablesQuery => TablesQuerySql;
@@ -200,26 +202,28 @@ namespace SJP.Schematic.SqlServer
             return LoadViewAsync(viewName, cancellationToken);
         }
 
-        public IEnumerable<IRelationalDatabaseView> Views
+        public IReadOnlyCollection<IRelationalDatabaseView> Views
         {
             get
             {
                 var viewNames = Connection.Query<QualifiedName>(ViewsQuery)
-                    .Select(dto => new Identifier(dto.SchemaName, dto.ObjectName));
+                    .Select(dto => new Identifier(dto.SchemaName, dto.ObjectName))
+                    .ToList();
 
-                foreach (var viewName in viewNames)
-                    yield return LoadViewSync(viewName);
+                var views = viewNames.Select(LoadViewSync);
+                return new ReadOnlyCollectionSlim<IRelationalDatabaseView>(viewNames.Count, views);
             }
         }
 
-        public async Task<IAsyncEnumerable<IRelationalDatabaseView>> ViewsAsync(CancellationToken cancellationToken = default(CancellationToken))
+        public async Task<IReadOnlyCollection<Task<IRelationalDatabaseView>>> ViewsAsync(CancellationToken cancellationToken = default(CancellationToken))
         {
             var queryResult = await Connection.QueryAsync<QualifiedName>(ViewsQuery).ConfigureAwait(false);
-            var viewNames = queryResult.Select(dto => new Identifier(dto.SchemaName, dto.ObjectName));
+            var viewNames = queryResult
+                .Select(dto => new Identifier(dto.SchemaName, dto.ObjectName))
+                .ToList();
 
-            return viewNames
-                .Select(LoadViewSync)
-                .ToAsyncEnumerable();
+            var views = viewNames.Select(name => LoadViewAsync(name, cancellationToken));
+            return new ReadOnlyCollectionSlim<Task<IRelationalDatabaseView>>(viewNames.Count, views);
         }
 
         protected virtual string ViewsQuery => ViewsQuerySql;
@@ -307,26 +311,28 @@ namespace SJP.Schematic.SqlServer
             return LoadSequenceAsync(sequenceName);
         }
 
-        public IEnumerable<IDatabaseSequence> Sequences
+        public IReadOnlyCollection<IDatabaseSequence> Sequences
         {
             get
             {
                 var sequenceNames = Connection.Query<QualifiedName>(SequencesQuery)
-                    .Select(dto => new Identifier(dto.SchemaName, dto.ObjectName));
+                    .Select(dto => new Identifier(dto.SchemaName, dto.ObjectName))
+                    .ToList();
 
-                foreach (var sequenceName in sequenceNames)
-                    yield return LoadSequenceSync(sequenceName);
+                var sequences = sequenceNames.Select(LoadSequenceSync);
+                return new ReadOnlyCollectionSlim<IDatabaseSequence>(sequenceNames.Count, sequences);
             }
         }
 
-        public async Task<IAsyncEnumerable<IDatabaseSequence>> SequencesAsync(CancellationToken cancellationToken = default(CancellationToken))
+        public async Task<IReadOnlyCollection<Task<IDatabaseSequence>>> SequencesAsync(CancellationToken cancellationToken = default(CancellationToken))
         {
             var queryResult = await Connection.QueryAsync<QualifiedName>(SequencesQuery).ConfigureAwait(false);
-            var sequenceNames = queryResult.Select(dto => new Identifier(dto.SchemaName, dto.ObjectName));
+            var sequenceNames = queryResult
+                .Select(dto => new Identifier(dto.SchemaName, dto.ObjectName))
+                .ToList();
 
-            return sequenceNames
-                .Select(LoadSequenceSync)
-                .ToAsyncEnumerable();
+            var sequences = sequenceNames.Select(name => LoadSequenceAsync(name, cancellationToken));
+            return new ReadOnlyCollectionSlim<Task<IDatabaseSequence>>(sequenceNames.Count, sequences);
         }
 
         protected virtual string SequencesQuery => SequencesQuerySql;
@@ -414,26 +420,28 @@ namespace SJP.Schematic.SqlServer
             return LoadSynonymAsync(synonymName, cancellationToken);
         }
 
-        public IEnumerable<IDatabaseSynonym> Synonyms
+        public IReadOnlyCollection<IDatabaseSynonym> Synonyms
         {
             get
             {
-                var synonyms = Connection.Query<QualifiedName>(SynonymsQuery)
-                    .Select(dto => new Identifier(dto.SchemaName, dto.ObjectName));
+                var synonymNames = Connection.Query<QualifiedName>(SynonymsQuery)
+                    .Select(dto => new Identifier(dto.SchemaName, dto.ObjectName))
+                    .ToList();
 
-                foreach (var synonym in synonyms)
-                    yield return LoadSynonymSync(synonym);
+                var synonyms = synonymNames.Select(LoadSynonymSync);
+                return new ReadOnlyCollectionSlim<IDatabaseSynonym>(synonymNames.Count, synonyms);
             }
         }
 
-        public async Task<IAsyncEnumerable<IDatabaseSynonym>> SynonymsAsync(CancellationToken cancellationToken = default(CancellationToken))
+        public async Task<IReadOnlyCollection<Task<IDatabaseSynonym>>> SynonymsAsync(CancellationToken cancellationToken = default(CancellationToken))
         {
             var queryResult = await Connection.QueryAsync<QualifiedName>(SynonymsQuery).ConfigureAwait(false);
-            var synonymNames = queryResult.Select(dto => new Identifier(dto.SchemaName, dto.ObjectName));
+            var synonymNames = queryResult
+                .Select(dto => new Identifier(dto.SchemaName, dto.ObjectName))
+                .ToList();
 
-            return synonymNames
-                .Select(LoadSynonymSync)
-                .ToAsyncEnumerable();
+            var synonyms = synonymNames.Select(name => LoadSynonymAsync(name, cancellationToken));
+            return new ReadOnlyCollectionSlim<Task<IDatabaseSynonym>>(synonymNames.Count, synonyms);
         }
 
         protected virtual string SynonymsQuery => SynonymsQuerySql;

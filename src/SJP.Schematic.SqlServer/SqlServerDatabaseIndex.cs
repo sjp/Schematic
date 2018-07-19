@@ -46,8 +46,8 @@ namespace SJP.Schematic.SqlServer
             Parent = parent ?? throw new ArgumentNullException(nameof(parent));
             Name = name.LocalName;
             IsUnique = isUnique;
-            Columns = columns;
-            IncludedColumns = includedColumns;
+            Columns = columns.ToList();
+            IncludedColumns = includedColumns.ToList();
             IsEnabled = isEnabled;
         }
 
@@ -57,9 +57,9 @@ namespace SJP.Schematic.SqlServer
 
         public bool IsUnique { get; }
 
-        public IEnumerable<IDatabaseIndexColumn> Columns { get; }
+        public IReadOnlyCollection<IDatabaseIndexColumn> Columns { get; }
 
-        public IEnumerable<IDatabaseColumn> IncludedColumns { get; }
+        public IReadOnlyCollection<IDatabaseColumn> IncludedColumns { get; }
 
         public bool IsEnabled { get; }
     }

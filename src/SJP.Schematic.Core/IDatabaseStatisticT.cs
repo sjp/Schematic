@@ -6,6 +6,6 @@ namespace SJP.Schematic.Core
     {
         T Parent { get; }
 
-        IEnumerable<IDatabaseColumn> Columns { get; }
+        IReadOnlyCollection<IDatabaseColumn> Columns { get; }
     }
 }

@@ -28,11 +28,14 @@ namespace SJP.Schematic.Sqlite
             if (includedColumns != null && includedColumns.AnyNull())
                 throw new ArgumentNullException(nameof(includedColumns));
 
+            if (includedColumns == null)
+                includedColumns = Array.Empty<IDatabaseColumn>();
+
             Parent = parent ?? throw new ArgumentNullException(nameof(parent));
             Name = name.LocalName;
             IsUnique = isUnique;
             Columns = columns.ToList();
-            IncludedColumns = includedColumns != null ? includedColumns.ToList() : Enumerable.Empty<IDatabaseColumn>();
+            IncludedColumns = includedColumns.ToList();
         }
 
         public T Parent { get; }
@@ -41,9 +44,9 @@ namespace SJP.Schematic.Sqlite
 
         public bool IsUnique { get; }
 
-        public IEnumerable<IDatabaseIndexColumn> Columns { get; }
+        public IReadOnlyCollection<IDatabaseIndexColumn> Columns { get; }
 
-        public IEnumerable<IDatabaseColumn> IncludedColumns { get; }
+        public IReadOnlyCollection<IDatabaseColumn> IncludedColumns { get; }
 
         public bool IsEnabled { get; } = true;
     }

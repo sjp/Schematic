@@ -5,6 +5,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using SJP.Schematic.Core;
 using SJP.Schematic.Core.Extensions;
+using SJP.Schematic.Core.Utilities;
 
 namespace SJP.Schematic.Modelled.Reflection
 {
@@ -101,9 +102,11 @@ namespace SJP.Schematic.Modelled.Reflection
             return Task.FromResult(lookupResult);
         }
 
-        public IEnumerable<IRelationalDatabaseTable> Tables => Table.Values;
+        public IReadOnlyCollection<IRelationalDatabaseTable> Tables => new ReadOnlyCollectionSlim<IRelationalDatabaseTable>(Table.Count, Table.Values);
 
-        public Task<IAsyncEnumerable<IRelationalDatabaseTable>> TablesAsync(CancellationToken cancellationToken = default(CancellationToken)) => Task.FromResult(Tables.ToAsyncEnumerable());
+        public Task<IReadOnlyCollection<Task<IRelationalDatabaseTable>>> TablesAsync(CancellationToken cancellationToken = default(CancellationToken)) => Task.FromResult<IReadOnlyCollection<Task<IRelationalDatabaseTable>>>(
+            Tables.Select(Task.FromResult).ToList()
+        );
 
         protected IReadOnlyDictionary<Identifier, IRelationalDatabaseTable> Table => _tableLookup.Value;
 
@@ -178,9 +181,11 @@ namespace SJP.Schematic.Modelled.Reflection
             return Task.FromResult(lookupResult);
         }
 
-        public IEnumerable<IRelationalDatabaseView> Views => View.Values;
+        public IReadOnlyCollection<IRelationalDatabaseView> Views => new ReadOnlyCollectionSlim<IRelationalDatabaseView>(View.Count, View.Values);
 
-        public Task<IAsyncEnumerable<IRelationalDatabaseView>> ViewsAsync(CancellationToken cancellationToken = default(CancellationToken)) => Task.FromResult(Views.ToAsyncEnumerable());
+        public Task<IReadOnlyCollection<Task<IRelationalDatabaseView>>> ViewsAsync(CancellationToken cancellationToken = default(CancellationToken)) => Task.FromResult<IReadOnlyCollection<Task<IRelationalDatabaseView>>>(
+            Views.Select(Task.FromResult).ToList()
+        );
 
         protected IReadOnlyDictionary<Identifier, IRelationalDatabaseView> View => _viewLookup.Value;
 
@@ -255,9 +260,11 @@ namespace SJP.Schematic.Modelled.Reflection
             return Task.FromResult(lookupResult);
         }
 
-        public IEnumerable<IDatabaseSequence> Sequences => Sequence.Values;
+        public IReadOnlyCollection<IDatabaseSequence> Sequences => new ReadOnlyCollectionSlim<IDatabaseSequence>(Sequence.Count, Sequence.Values);
 
-        public Task<IAsyncEnumerable<IDatabaseSequence>> SequencesAsync(CancellationToken cancellationToken = default(CancellationToken)) => Task.FromResult(Sequences.ToAsyncEnumerable());
+        public Task<IReadOnlyCollection<Task<IDatabaseSequence>>> SequencesAsync(CancellationToken cancellationToken = default(CancellationToken)) => Task.FromResult<IReadOnlyCollection<Task<IDatabaseSequence>>>(
+            Sequences.Select(Task.FromResult).ToList()
+        );
 
         protected IReadOnlyDictionary<Identifier, IDatabaseSequence> Sequence => _sequenceLookup.Value;
 
@@ -332,9 +339,11 @@ namespace SJP.Schematic.Modelled.Reflection
             return Task.FromResult(lookupResult);
         }
 
-        public IEnumerable<IDatabaseSynonym> Synonyms => Synonym.Values;
+        public IReadOnlyCollection<IDatabaseSynonym> Synonyms => new ReadOnlyCollectionSlim<IDatabaseSynonym>(Synonym.Count, Synonym.Values);
 
-        public Task<IAsyncEnumerable<IDatabaseSynonym>> SynonymsAsync(CancellationToken cancellationToken = default(CancellationToken)) => Task.FromResult(Synonyms.ToAsyncEnumerable());
+        public Task<IReadOnlyCollection<Task<IDatabaseSynonym>>> SynonymsAsync(CancellationToken cancellationToken = default(CancellationToken)) => Task.FromResult<IReadOnlyCollection<Task<IDatabaseSynonym>>>(
+            Synonyms.Select(Task.FromResult).ToList()
+        );
 
         protected IReadOnlyDictionary<Identifier, IDatabaseSynonym> Synonym => _synonymLookup.Value;
 
@@ -390,9 +399,9 @@ namespace SJP.Schematic.Modelled.Reflection
             return identifier;
         }
 
-        protected (IEnumerable<string> quotedTypeNames, IReadOnlyDictionary<Identifier, TValue> lookup) CreateLookup<TValue>(IEnumerable<TValue> objects) where TValue : IDatabaseEntity
+        protected (IEnumerable<string> quotedTypeNames, IReadOnlyDictionary<Identifier, TValue> lookup) CreateLookup<TValue>(IReadOnlyCollection<TValue> objects) where TValue : IDatabaseEntity
         {
-            var result = new Dictionary<Identifier, TValue>(Comparer);
+            var result = new Dictionary<Identifier, TValue>(objects.Count, Comparer);
 
             var duplicateNames = new HashSet<Identifier>();
             foreach (var obj in objects)

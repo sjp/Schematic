@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using EnumsNET;
 using SJP.Schematic.Core;
 using SJP.Schematic.Core.Extensions;
@@ -20,7 +21,7 @@ namespace SJP.Schematic.Sqlite
 
             Table = table ?? throw new ArgumentNullException(nameof(table));
             KeyType = keyType;
-            Columns = columns;
+            Columns = columns.ToList();
         }
 
         public IRelationalDatabaseTable Table { get; }
@@ -29,7 +30,7 @@ namespace SJP.Schematic.Sqlite
 
         public DatabaseKeyType KeyType { get; }
 
-        public IEnumerable<IDatabaseColumn> Columns { get; }
+        public IReadOnlyCollection<IDatabaseColumn> Columns { get; }
 
         public bool IsEnabled { get; } = true;
     }

@@ -14,7 +14,7 @@ namespace SJP.Schematic.Core
             Identifier viewName,
             string definition,
             IReadOnlyList<IDatabaseViewColumn> columns,
-            IEnumerable<IDatabaseViewIndex> indexes,
+            IReadOnlyCollection<IDatabaseViewIndex> indexes,
             IEqualityComparer<Identifier> comparer = null)
         {
             if (viewName == null)
@@ -56,9 +56,9 @@ namespace SJP.Schematic.Core
 
         public Task<IReadOnlyDictionary<Identifier, IDatabaseViewIndex>> IndexAsync(CancellationToken cancellationToken = default(CancellationToken)) => Task.FromResult(Index);
 
-        public IEnumerable<IDatabaseViewIndex> Indexes { get; }
+        public IReadOnlyCollection<IDatabaseViewIndex> Indexes { get; }
 
-        public Task<IEnumerable<IDatabaseViewIndex>> IndexesAsync(CancellationToken cancellationToken = default(CancellationToken)) => Task.FromResult(Indexes);
+        public Task<IReadOnlyCollection<IDatabaseViewIndex>> IndexesAsync(CancellationToken cancellationToken = default(CancellationToken)) => Task.FromResult(Indexes);
 
         public IReadOnlyDictionary<Identifier, IDatabaseViewColumn> Column { get; }
 
@@ -79,7 +79,7 @@ namespace SJP.Schematic.Core
             return result.AsReadOnlyDictionary();
         }
 
-        private static IReadOnlyDictionary<Identifier, IDatabaseViewIndex> CreateIndexLookup(IEnumerable<IDatabaseViewIndex> indexes, IEqualityComparer<Identifier> comparer)
+        private static IReadOnlyDictionary<Identifier, IDatabaseViewIndex> CreateIndexLookup(IReadOnlyCollection<IDatabaseViewIndex> indexes, IEqualityComparer<Identifier> comparer)
         {
             var result = new Dictionary<Identifier, IDatabaseViewIndex>(comparer);
 

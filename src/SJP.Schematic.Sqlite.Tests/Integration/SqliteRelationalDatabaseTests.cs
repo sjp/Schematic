@@ -415,9 +415,8 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
             public async Task SequencesAsync_PropertyGet_ReturnsEmptyCollection()
             {
                 var sequences = await Database.SequencesAsync().ConfigureAwait(false);
-                var count = await sequences.Count().ConfigureAwait(false);
 
-                Assert.Zero(count);
+                Assert.Zero(sequences.Count);
             }
         }
 
@@ -499,9 +498,8 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
             public async Task SynonymsAsync_PropertyGet_ReturnsEmptyCollection()
             {
                 var synonyms = await Database.SynonymsAsync().ConfigureAwait(false);
-                var count = await synonyms.Count().ConfigureAwait(false);
 
-                Assert.Zero(count);
+                Assert.Zero(synonyms.Count);
             }
         }
     }

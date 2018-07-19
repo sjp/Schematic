@@ -9,6 +9,7 @@ using SJP.Schematic.Core;
 using SJP.Schematic.Sqlite.Query;
 using SJP.Schematic.Sqlite.Pragma;
 using SJP.Schematic.Core.Extensions;
+using SJP.Schematic.Core.Utilities;
 
 namespace SJP.Schematic.Sqlite
 {
@@ -154,10 +155,12 @@ namespace SJP.Schematic.Sqlite
             return null;
         }
 
-        public IEnumerable<IRelationalDatabaseTable> Tables
+        public IReadOnlyCollection<IRelationalDatabaseTable> Tables
         {
             get
             {
+                var qualifiedTableNames = new List<Identifier>();
+
                 var dbNames = Pragma.DatabaseList.OrderBy(d => d.seq).Select(l => l.name).ToList();
                 foreach (var dbName in dbNames)
                 {
@@ -166,22 +169,20 @@ namespace SJP.Schematic.Sqlite
                         .Where(name => !IsReservedTableName(name))
                         .Select(name => new Identifier(dbName, name));
 
-                    foreach (var tableName in tableNames)
-                    {
-                        var table = LoadTableSync(tableName);
-                        if (table != null)
-                            yield return table;
-                    }
+                    qualifiedTableNames.AddRange(tableNames);
                 }
+
+                var tables = qualifiedTableNames.Select(LoadTableSync);
+                return new ReadOnlyCollectionSlim<IRelationalDatabaseTable>(qualifiedTableNames.Count, tables);
             }
         }
 
-        public async Task<IAsyncEnumerable<IRelationalDatabaseTable>> TablesAsync(CancellationToken cancellationToken = default(CancellationToken))
+        public async Task<IReadOnlyCollection<Task<IRelationalDatabaseTable>>> TablesAsync(CancellationToken cancellationToken = default(CancellationToken))
         {
             var dbNamesQuery = await Pragma.DatabaseListAsync().ConfigureAwait(false);
             var dbNames = dbNamesQuery.OrderBy(d => d.seq).Select(l => l.name).ToList();
 
-            var result = Array.Empty<IRelationalDatabaseTable>().ToAsyncEnumerable();
+            var qualifiedTableNames = new List<Identifier>();
 
             foreach (var dbName in dbNames)
             {
@@ -191,15 +192,11 @@ namespace SJP.Schematic.Sqlite
                     .Where(name => !IsReservedTableName(name))
                     .Select(name => new Identifier(dbName, name));
 
-                foreach (var tableName in tableNames)
-                {
-                    var table = LoadTableSync(tableName);
-                    if (table != null)
-                        result = result.Append(table);
-                }
+                qualifiedTableNames.AddRange(tableNames);
             }
 
-            return result;
+            var tables = qualifiedTableNames.Select(name => LoadTableAsync(name, cancellationToken));
+            return new ReadOnlyCollectionSlim<Task<IRelationalDatabaseTable>>(qualifiedTableNames.Count, tables);
         }
 
         protected virtual IRelationalDatabaseTable LoadTableSync(Identifier tableName)
@@ -371,10 +368,12 @@ namespace SJP.Schematic.Sqlite
             return null;
         }
 
-        public IEnumerable<IRelationalDatabaseView> Views
+        public IReadOnlyCollection<IRelationalDatabaseView> Views
         {
             get
             {
+                var qualifiedViewNames = new List<Identifier>();
+
                 var dbNames = Pragma.DatabaseList.OrderBy(d => d.seq).Select(d => d.name).ToList();
                 foreach (var dbName in dbNames)
                 {
@@ -383,22 +382,20 @@ namespace SJP.Schematic.Sqlite
                         .Where(name => !IsReservedTableName(name))
                         .Select(name => new Identifier(dbName, name));
 
-                    foreach (var viewName in viewNames)
-                    {
-                        var view = LoadViewSync(viewName);
-                        if (view != null)
-                            yield return view;
-                    }
+                    qualifiedViewNames.AddRange(viewNames);
                 }
+
+                var views = qualifiedViewNames.Select(LoadViewSync);
+                return new ReadOnlyCollectionSlim<IRelationalDatabaseView>(qualifiedViewNames.Count, views);
             }
         }
 
-        public async Task<IAsyncEnumerable<IRelationalDatabaseView>> ViewsAsync(CancellationToken cancellationToken = default(CancellationToken))
+        public async Task<IReadOnlyCollection<Task<IRelationalDatabaseView>>> ViewsAsync(CancellationToken cancellationToken = default(CancellationToken))
         {
             var dbNamesQuery = await Pragma.DatabaseListAsync().ConfigureAwait(false);
             var dbNames = dbNamesQuery.OrderBy(d => d.seq).Select(l => l.name).ToList();
 
-            var result = Array.Empty<IRelationalDatabaseView>().ToAsyncEnumerable();
+            var qualifiedViewNames = new List<Identifier>();
 
             foreach (var dbName in dbNames)
             {
@@ -408,15 +405,11 @@ namespace SJP.Schematic.Sqlite
                     .Where(name => !IsReservedTableName(name))
                     .Select(name => new Identifier(dbName, name));
 
-                foreach (var viewName in viewNames)
-                {
-                    var view = await LoadViewAsync(viewName, cancellationToken).ConfigureAwait(false);
-                    if (view != null)
-                        result = result.Append(view);
-                }
+                qualifiedViewNames.AddRange(viewNames);
             }
 
-            return result;
+            var views = qualifiedViewNames.Select(name => LoadViewAsync(name, cancellationToken));
+            return new ReadOnlyCollectionSlim<Task<IRelationalDatabaseView>>(qualifiedViewNames.Count, views);
         }
 
         protected virtual IRelationalDatabaseView LoadViewSync(Identifier viewName)
@@ -498,7 +491,7 @@ namespace SJP.Schematic.Sqlite
             return null;
         }
 
-        public IEnumerable<IDatabaseSequence> Sequences => Array.Empty<IDatabaseSequence>();
+        public IReadOnlyCollection<IDatabaseSequence> Sequences { get; } = Array.Empty<IDatabaseSequence>();
 
         public Task<bool> SequenceExistsAsync(Identifier sequenceName, CancellationToken cancellationToken = default(CancellationToken))
         {
@@ -516,7 +509,10 @@ namespace SJP.Schematic.Sqlite
             return Task.FromResult<IDatabaseSequence>(null);
         }
 
-        public Task<IAsyncEnumerable<IDatabaseSequence>> SequencesAsync(CancellationToken cancellationToken = default(CancellationToken)) => Task.FromResult(Array.Empty<IDatabaseSequence>().ToAsyncEnumerable());
+        public Task<IReadOnlyCollection<Task<IDatabaseSequence>>> SequencesAsync(CancellationToken cancellationToken = default(CancellationToken)) => _emptySequences;
+
+        private readonly static Task<IReadOnlyCollection<Task<IDatabaseSequence>>> _emptySequences =
+            Task.FromResult<IReadOnlyCollection<Task<IDatabaseSequence>>>(Array.Empty<Task<IDatabaseSequence>>());
 
         public bool SynonymExists(Identifier synonymName)
         {
@@ -534,7 +530,7 @@ namespace SJP.Schematic.Sqlite
             return null;
         }
 
-        public IEnumerable<IDatabaseSynonym> Synonyms => Array.Empty<IDatabaseSynonym>();
+        public IReadOnlyCollection<IDatabaseSynonym> Synonyms { get; } = Array.Empty<IDatabaseSynonym>();
 
         public Task<bool> SynonymExistsAsync(Identifier synonymName, CancellationToken cancellationToken = default(CancellationToken))
         {
@@ -552,7 +548,10 @@ namespace SJP.Schematic.Sqlite
             return Task.FromResult<IDatabaseSynonym>(null);
         }
 
-        public Task<IAsyncEnumerable<IDatabaseSynonym>> SynonymsAsync(CancellationToken cancellationToken = default(CancellationToken)) => Task.FromResult(Array.Empty<IDatabaseSynonym>().ToAsyncEnumerable());
+        public Task<IReadOnlyCollection<Task<IDatabaseSynonym>>> SynonymsAsync(CancellationToken cancellationToken = default(CancellationToken)) => _emptySynonyms;
+
+        private readonly static Task<IReadOnlyCollection<Task<IDatabaseSynonym>>> _emptySynonyms =
+            Task.FromResult<IReadOnlyCollection<Task<IDatabaseSynonym>>>(Array.Empty<Task<IDatabaseSynonym>>());
 
         public void AttachDatabase(string schemaName, string fileName)
         {
