@@ -21,7 +21,6 @@
     <PackageReference Include="Dapper" Version="1.50.5" />
     <PackageReference Include="Microsoft.Data.SQLite" Version="2.1.0" />
     <PackageReference Include="Superpower" Version="2.0.0" />
-    <PackageReference Include="System.Interactive.Async" Version="3.2.0" />
   </ItemGroup>
 
   <ItemGroup>
