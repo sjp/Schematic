@@ -84,12 +84,12 @@ namespace SJP.Schematic.Core
 
         private static IReadOnlyDictionary<Identifier, IDatabaseTableIndex> CreateIndexLookup(IReadOnlyCollection<IDatabaseTableIndex> indexes, IEqualityComparer<Identifier> comparer)
         {
-            var result = new Dictionary<Identifier, IDatabaseTableIndex>(comparer);
+            var result = new Dictionary<Identifier, IDatabaseTableIndex>(indexes.Count, comparer);
 
             foreach (var index in indexes)
                 result[index.Name.LocalName] = index;
 
-            return result.AsReadOnlyDictionary();
+            return result;
         }
 
         public IReadOnlyDictionary<Identifier, IDatabaseKey> UniqueKey { get; }
@@ -102,12 +102,12 @@ namespace SJP.Schematic.Core
 
         private static IReadOnlyDictionary<Identifier, IDatabaseKey> CreateUniqueKeyLookup(IReadOnlyCollection<IDatabaseKey> uniqueKeys, IEqualityComparer<Identifier> comparer)
         {
-            var result = new Dictionary<Identifier, IDatabaseKey>(comparer);
+            var result = new Dictionary<Identifier, IDatabaseKey>(uniqueKeys.Count, comparer);
 
             foreach (var uk in uniqueKeys)
                 result[uk.Name.LocalName] = uk;
 
-            return result.AsReadOnlyDictionary();
+            return result;
         }
 
         public IReadOnlyCollection<IDatabaseRelationalKey> ChildKeys { get; }
@@ -124,12 +124,12 @@ namespace SJP.Schematic.Core
 
         private static IReadOnlyDictionary<Identifier, IDatabaseCheckConstraint> CreateCheckLookup(IReadOnlyCollection<IDatabaseCheckConstraint> checks, IEqualityComparer<Identifier> comparer)
         {
-            var result = new Dictionary<Identifier, IDatabaseCheckConstraint>(comparer);
+            var result = new Dictionary<Identifier, IDatabaseCheckConstraint>(checks.Count, comparer);
 
             foreach (var check in checks)
                 result[check.Name.LocalName] = check;
 
-            return result.AsReadOnlyDictionary();
+            return result;
         }
 
         public IReadOnlyDictionary<Identifier, IDatabaseRelationalKey> ParentKey { get; }
@@ -142,12 +142,12 @@ namespace SJP.Schematic.Core
 
         private static IReadOnlyDictionary<Identifier, IDatabaseRelationalKey> CreateParentKeyLookup(IReadOnlyCollection<IDatabaseRelationalKey> parentKeys, IEqualityComparer<Identifier> comparer)
         {
-            var result = new Dictionary<Identifier, IDatabaseRelationalKey>(comparer);
+            var result = new Dictionary<Identifier, IDatabaseRelationalKey>(parentKeys.Count, comparer);
 
             foreach (var parentKey in parentKeys)
                 result[parentKey.ChildKey.Name.LocalName] = parentKey;
 
-            return result.AsReadOnlyDictionary();
+            return result;
         }
 
         public IReadOnlyList<IDatabaseTableColumn> Columns { get; }
@@ -160,13 +160,13 @@ namespace SJP.Schematic.Core
 
         private static IReadOnlyDictionary<Identifier, IDatabaseTableColumn> CreateColumnLookup(IReadOnlyList<IDatabaseTableColumn> columns, IEqualityComparer<Identifier> comparer)
         {
-            var result = new Dictionary<Identifier, IDatabaseTableColumn>(comparer);
+            var result = new Dictionary<Identifier, IDatabaseTableColumn>(columns.Count, comparer);
 
             var namedColumns = columns.Where(c => c.Name != null);
             foreach (var column in namedColumns)
                 result[column.Name.LocalName] = column;
 
-            return result.AsReadOnlyDictionary();
+            return result;
         }
 
         public IReadOnlyDictionary<Identifier, IDatabaseTrigger> Trigger { get; }
@@ -179,12 +179,12 @@ namespace SJP.Schematic.Core
 
         private static IReadOnlyDictionary<Identifier, IDatabaseTrigger> CreateTriggerLookup(IReadOnlyCollection<IDatabaseTrigger> triggers, IEqualityComparer<Identifier> comparer)
         {
-            var result = new Dictionary<Identifier, IDatabaseTrigger>(comparer);
+            var result = new Dictionary<Identifier, IDatabaseTrigger>(triggers.Count, comparer);
 
             foreach (var trigger in triggers)
                 result[trigger.Name.LocalName] = trigger;
 
-            return result.AsReadOnlyDictionary();
+            return result;
         }
     }
 }

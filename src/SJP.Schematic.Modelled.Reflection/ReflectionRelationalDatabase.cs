@@ -131,7 +131,7 @@ namespace SJP.Schematic.Modelled.Reflection
         {
             var tables = TypeProvider.Tables.Select(LoadTableSync).ToList();
             if (tables.Count == 0)
-                return new Dictionary<Identifier, IRelationalDatabaseTable>(Comparer);
+                return _emptyTableLookup;
 
             var (duplicateNames, lookup) = CreateLookup(tables);
             if (duplicateNames.Any())
@@ -210,7 +210,7 @@ namespace SJP.Schematic.Modelled.Reflection
         {
             var views = TypeProvider.Views.Select(LoadViewSync).ToList();
             if (views.Count == 0)
-                return new Dictionary<Identifier, IRelationalDatabaseView>(Comparer);
+                return _emptyViewLookup;
 
             var (duplicateNames, lookup) = CreateLookup(views);
             if (duplicateNames.Any())
@@ -289,7 +289,7 @@ namespace SJP.Schematic.Modelled.Reflection
         {
             var sequences = TypeProvider.Sequences.Select(LoadSequenceSync).ToList();
             if (sequences.Count == 0)
-                return new Dictionary<Identifier, IDatabaseSequence>(Comparer);
+                return _emptySequenceLookup;
 
             var (duplicateNames, lookup) = CreateLookup(sequences);
             if (duplicateNames.Any())
@@ -368,7 +368,7 @@ namespace SJP.Schematic.Modelled.Reflection
         {
             var synonyms = TypeProvider.Synonyms.Select(LoadSynonymSync).ToList();
             if (synonyms.Count == 0)
-                return new Dictionary<Identifier, IDatabaseSynonym>(Comparer);
+                return _emptySynonymLookup;
 
             var (duplicateNames, lookup) = CreateLookup(synonyms);
             if (duplicateNames.Any())
@@ -413,7 +413,7 @@ namespace SJP.Schematic.Modelled.Reflection
             }
 
             var duplicatedTypeNames = duplicateNames.Select(n => Dialect.QuoteName(n.ToString()));
-            var lookup = result.AsReadOnlyDictionary();
+            var lookup = result;
 
             return (duplicatedTypeNames, lookup);
         }
@@ -449,5 +449,10 @@ namespace SJP.Schematic.Modelled.Reflection
         private readonly Lazy<IReadOnlyDictionary<Identifier, IRelationalDatabaseView>> _viewLookup;
         private readonly Lazy<IReadOnlyDictionary<Identifier, IDatabaseSequence>> _sequenceLookup;
         private readonly Lazy<IReadOnlyDictionary<Identifier, IDatabaseSynonym>> _synonymLookup;
+
+        private readonly static IReadOnlyDictionary<Identifier, IRelationalDatabaseTable> _emptyTableLookup = new Dictionary<Identifier, IRelationalDatabaseTable>();
+        private readonly static IReadOnlyDictionary<Identifier, IRelationalDatabaseView> _emptyViewLookup = new Dictionary<Identifier, IRelationalDatabaseView>();
+        private readonly static IReadOnlyDictionary<Identifier, IDatabaseSequence> _emptySequenceLookup = new Dictionary<Identifier, IDatabaseSequence>();
+        private readonly static IReadOnlyDictionary<Identifier, IDatabaseSynonym> _emptySynonymLookup = new Dictionary<Identifier, IDatabaseSynonym>();
     }
 }

@@ -145,7 +145,7 @@ namespace SJP.Schematic.Modelled.Reflection.Model
                 result[propName] = propValue ?? throw new ArgumentException($"The property { propName } on the given parameter object is null. A value must be set", nameof(param));
             }
 
-            return result.AsReadOnlyDictionary();
+            return result;
         }
 
         protected static string UnwrapTokenValue(Token<ExpressionToken> token)

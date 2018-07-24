@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
-using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using SJP.Schematic.Core;
@@ -100,7 +99,7 @@ namespace SJP.Schematic.Modelled.Reflection
                 result[childKey.Name.LocalName] = new ReflectionRelationalKey(childKey, parentKey, deleteRule, updateRule);
             }
 
-            return result.AsReadOnlyDictionary();
+            return result;
         }
 
         private IReadOnlyList<IDatabaseTableColumn> LoadColumnList()
@@ -147,7 +146,7 @@ namespace SJP.Schematic.Modelled.Reflection
                 result[refIndex.Name.LocalName] = refIndex;
             }
 
-            return result.AsReadOnlyDictionary();
+            return result;
         }
 
         private IReadOnlyDictionary<Identifier, IDatabaseKey> LoadUniqueKeys()
@@ -166,7 +165,7 @@ namespace SJP.Schematic.Modelled.Reflection
                 result[uk.Name.LocalName] = uk;
             }
 
-            return result.AsReadOnlyDictionary();
+            return result;
         }
 
         private IReadOnlyDictionary<Identifier, IDatabaseCheckConstraint> LoadChecks()
@@ -182,7 +181,7 @@ namespace SJP.Schematic.Modelled.Reflection
                 result[check.Name.LocalName] = check;
             }
 
-            return result.AsReadOnlyDictionary();
+            return result;
         }
 
         private IReadOnlyDictionary<Identifier, IDatabaseTableColumn> LoadColumns()
@@ -195,7 +194,7 @@ namespace SJP.Schematic.Modelled.Reflection
                 result[col.Name.LocalName] = col;
             }
 
-            return result.AsReadOnlyDictionary();
+            return result;
         }
 
         public IReadOnlyDictionary<Identifier, IDatabaseCheckConstraint> Check => _checkLookup.Value;

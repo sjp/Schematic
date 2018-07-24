@@ -70,23 +70,23 @@ namespace SJP.Schematic.Core
 
         private static IReadOnlyDictionary<Identifier, IDatabaseViewColumn> CreateColumnLookup(IReadOnlyList<IDatabaseViewColumn> columns, IEqualityComparer<Identifier> comparer)
         {
-            var result = new Dictionary<Identifier, IDatabaseViewColumn>(comparer);
+            var result = new Dictionary<Identifier, IDatabaseViewColumn>(columns.Count, comparer);
 
             var namedColumns = columns.Where(c => c.Name != null);
             foreach (var column in namedColumns)
                 result[column.Name.LocalName] = column;
 
-            return result.AsReadOnlyDictionary();
+            return result;
         }
 
         private static IReadOnlyDictionary<Identifier, IDatabaseViewIndex> CreateIndexLookup(IReadOnlyCollection<IDatabaseViewIndex> indexes, IEqualityComparer<Identifier> comparer)
         {
-            var result = new Dictionary<Identifier, IDatabaseViewIndex>(comparer);
+            var result = new Dictionary<Identifier, IDatabaseViewIndex>(indexes.Count, comparer);
 
             foreach (var index in indexes)
                 result[index.Name.LocalName] = index;
 
-            return result.AsReadOnlyDictionary();
+            return result;
         }
     }
 }

@@ -8,7 +8,6 @@ using SJP.Schematic.PostgreSql.Query;
 using SJP.Schematic.Core;
 using SJP.Schematic.Core.Extensions;
 using System.Threading;
-using SJP.Schematic.Core.Utilities;
 
 namespace SJP.Schematic.PostgreSql
 {
@@ -82,30 +81,13 @@ where table_schema = @SchemaName and table_name = @ViewName";
 
         public Task<IReadOnlyCollection<IDatabaseViewIndex>> IndexesAsync(CancellationToken cancellationToken = default(CancellationToken)) => _emptyIndexes;
 
-        private readonly static Task<IReadOnlyCollection<IDatabaseViewIndex>> _emptyIndexes = Task.FromResult<IReadOnlyCollection<IDatabaseViewIndex>>(
-            Array.Empty<IDatabaseViewIndex>()
-        );
+        protected virtual IReadOnlyDictionary<Identifier, IDatabaseViewIndex> LoadIndexLookupSync() => _emptyIndexLookup;
 
-        protected virtual IReadOnlyDictionary<Identifier, IDatabaseViewIndex> LoadIndexLookupSync()
-        {
-            var result = new Dictionary<Identifier, IDatabaseViewIndex>(Comparer);
+        protected virtual Task<IReadOnlyDictionary<Identifier, IDatabaseViewIndex>> LoadIndexLookupAsync(CancellationToken cancellationToken) => _emptyIndexLookupTask;
 
-            foreach (var index in Indexes)
-                result[index.Name.LocalName] = index;
-
-            return result.AsReadOnlyDictionary();
-        }
-
-        protected virtual async Task<IReadOnlyDictionary<Identifier, IDatabaseViewIndex>> LoadIndexLookupAsync(CancellationToken cancellationToken)
-        {
-            var result = new Dictionary<Identifier, IDatabaseViewIndex>(Comparer);
-
-            var indexes = await IndexesAsync(cancellationToken).ConfigureAwait(false);
-            foreach (var index in indexes)
-                result[index.Name.LocalName] = index;
-
-            return result.AsReadOnlyDictionary();
-        }
+        private readonly static Task<IReadOnlyCollection<IDatabaseViewIndex>> _emptyIndexes = Task.FromResult<IReadOnlyCollection<IDatabaseViewIndex>>(Array.Empty<IDatabaseViewIndex>());
+        private readonly static IReadOnlyDictionary<Identifier, IDatabaseViewIndex> _emptyIndexLookup = new Dictionary<Identifier, IDatabaseViewIndex>();
+        private readonly static Task<IReadOnlyDictionary<Identifier, IDatabaseViewIndex>> _emptyIndexLookupTask = Task.FromResult(_emptyIndexLookup);
 
         public IReadOnlyDictionary<Identifier, IDatabaseViewColumn> Column => LoadColumnLookupSync();
 
@@ -117,23 +99,24 @@ where table_schema = @SchemaName and table_name = @ViewName";
 
         protected virtual IReadOnlyDictionary<Identifier, IDatabaseViewColumn> LoadColumnLookupSync()
         {
-            var result = new Dictionary<Identifier, IDatabaseViewColumn>(Comparer);
+            var columns = Columns;
+            var result = new Dictionary<Identifier, IDatabaseViewColumn>(columns.Count, Comparer);
 
-            foreach (var column in Columns.Where(c => c.Name != null))
+            foreach (var column in columns.Where(c => c.Name != null))
                 result[column.Name.LocalName] = column;
 
-            return result.AsReadOnlyDictionary();
+            return result;
         }
 
         protected virtual async Task<IReadOnlyDictionary<Identifier, IDatabaseViewColumn>> LoadColumnLookupAsync(CancellationToken cancellationToken)
         {
-            var result = new Dictionary<Identifier, IDatabaseViewColumn>(Comparer);
-
             var columns = await ColumnsAsync(cancellationToken).ConfigureAwait(false);
+            var result = new Dictionary<Identifier, IDatabaseViewColumn>(columns.Count, Comparer);
+
             foreach (var column in columns.Where(c => c.Name != null))
                 result[column.Name.LocalName] = column;
 
-            return result.AsReadOnlyDictionary();
+            return result;
         }
 
         protected virtual IReadOnlyList<IDatabaseViewColumn> LoadColumnsSync()

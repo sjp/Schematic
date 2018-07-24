@@ -8,7 +8,6 @@ using SJP.Schematic.MySql.Query;
 using SJP.Schematic.Core;
 using SJP.Schematic.Core.Extensions;
 using System.Threading;
-using SJP.Schematic.Core.Utilities;
 
 namespace SJP.Schematic.MySql
 {
@@ -74,17 +73,17 @@ where table_schema = @SchemaName and table_name = @ViewName";
 
         public bool IsIndexed => Indexes.Any();
 
-        public IReadOnlyDictionary<Identifier, IDatabaseViewIndex> Index => new Dictionary<Identifier, IDatabaseViewIndex>(Comparer);
+        public IReadOnlyDictionary<Identifier, IDatabaseViewIndex> Index => _emptyIndexLookup;
 
-        public Task<IReadOnlyDictionary<Identifier, IDatabaseViewIndex>> IndexAsync(CancellationToken cancellationToken = default(CancellationToken)) => Task.FromResult(Index);
+        public Task<IReadOnlyDictionary<Identifier, IDatabaseViewIndex>> IndexAsync(CancellationToken cancellationToken = default(CancellationToken)) => _emptyIndexLookupTask;
 
         public IReadOnlyCollection<IDatabaseViewIndex> Indexes => Array.Empty<IDatabaseViewIndex>();
 
         public Task<IReadOnlyCollection<IDatabaseViewIndex>> IndexesAsync(CancellationToken cancellationToken = default(CancellationToken)) => _emptyIndexes;
 
-        private readonly static Task<IReadOnlyCollection<IDatabaseViewIndex>> _emptyIndexes = Task.FromResult<IReadOnlyCollection<IDatabaseViewIndex>>(
-            Array.Empty<IDatabaseViewIndex>()
-        );
+        private readonly static Task<IReadOnlyCollection<IDatabaseViewIndex>> _emptyIndexes = Task.FromResult<IReadOnlyCollection<IDatabaseViewIndex>>(Array.Empty<IDatabaseViewIndex>());
+        private readonly static IReadOnlyDictionary<Identifier, IDatabaseViewIndex> _emptyIndexLookup = new Dictionary<Identifier, IDatabaseViewIndex>();
+        private readonly static Task<IReadOnlyDictionary<Identifier, IDatabaseViewIndex>> _emptyIndexLookupTask = Task.FromResult(_emptyIndexLookup);
 
         public IReadOnlyDictionary<Identifier, IDatabaseViewColumn> Column => LoadColumnLookupSync();
 
@@ -96,23 +95,24 @@ where table_schema = @SchemaName and table_name = @ViewName";
 
         protected virtual IReadOnlyDictionary<Identifier, IDatabaseViewColumn> LoadColumnLookupSync()
         {
-            var result = new Dictionary<Identifier, IDatabaseViewColumn>(Comparer);
+            var columns = Columns;
+            var result = new Dictionary<Identifier, IDatabaseViewColumn>(columns.Count, Comparer);
 
-            foreach (var column in Columns.Where(c => c.Name != null))
+            foreach (var column in columns.Where(c => c.Name != null))
                 result[column.Name.LocalName] = column;
 
-            return result.AsReadOnlyDictionary();
+            return result;
         }
 
         protected virtual async Task<IReadOnlyDictionary<Identifier, IDatabaseViewColumn>> LoadColumnLookupAsync(CancellationToken cancellationToken)
         {
-            var result = new Dictionary<Identifier, IDatabaseViewColumn>(Comparer);
-
             var columns = await ColumnsAsync(cancellationToken).ConfigureAwait(false);
+            var result = new Dictionary<Identifier, IDatabaseViewColumn>(columns.Count, Comparer);
+
             foreach (var column in columns.Where(c => c.Name != null))
                 result[column.Name.LocalName] = column;
 
-            return result.AsReadOnlyDictionary();
+            return result;
         }
 
         protected virtual IReadOnlyList<IDatabaseViewColumn> LoadColumnsSync()

@@ -26,7 +26,7 @@ namespace SJP.Schematic.Lint.Rules
                 throw new ArgumentNullException(nameof(table));
 
             var primaryKey = table.PrimaryKey;
-            if (primaryKey == null || primaryKey.Columns.Count() == 1)
+            if (primaryKey == null || primaryKey.Columns.Count == 1)
                 return Array.Empty<IRuleMessage>();
 
             var message = BuildMessage(table.Name);

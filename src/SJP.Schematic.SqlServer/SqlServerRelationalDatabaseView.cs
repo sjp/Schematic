@@ -189,23 +189,24 @@ where schema_name(v.schema_id) = @SchemaName and v.name = @ViewName
 
         protected virtual IReadOnlyDictionary<Identifier, IDatabaseViewIndex> LoadIndexLookupSync()
         {
-            var result = new Dictionary<Identifier, IDatabaseViewIndex>(Comparer);
+            var indexes = Indexes;
+            var result = new Dictionary<Identifier, IDatabaseViewIndex>(indexes.Count, Comparer);
 
-            foreach (var index in Indexes)
+            foreach (var index in indexes)
                 result[index.Name.LocalName] = index;
 
-            return result.AsReadOnlyDictionary();
+            return result;
         }
 
         protected virtual async Task<IReadOnlyDictionary<Identifier, IDatabaseViewIndex>> LoadIndexLookupAsync(CancellationToken cancellationToken)
         {
-            var result = new Dictionary<Identifier, IDatabaseViewIndex>(Comparer);
-
             var indexes = await IndexesAsync(cancellationToken).ConfigureAwait(false);
+            var result = new Dictionary<Identifier, IDatabaseViewIndex>(indexes.Count, Comparer);
+
             foreach (var index in indexes)
                 result[index.Name.LocalName] = index;
 
-            return result.AsReadOnlyDictionary();
+            return result;
         }
 
         public IReadOnlyDictionary<Identifier, IDatabaseViewColumn> Column => LoadColumnLookupSync();
@@ -218,23 +219,24 @@ where schema_name(v.schema_id) = @SchemaName and v.name = @ViewName
 
         protected virtual IReadOnlyDictionary<Identifier, IDatabaseViewColumn> LoadColumnLookupSync()
         {
-            var result = new Dictionary<Identifier, IDatabaseViewColumn>(Comparer);
+            var columns = Columns;
+            var result = new Dictionary<Identifier, IDatabaseViewColumn>(columns.Count, Comparer);
 
-            foreach (var column in Columns.Where(c => c.Name != null))
+            foreach (var column in columns.Where(c => c.Name != null))
                 result[column.Name.LocalName] = column;
 
-            return result.AsReadOnlyDictionary();
+            return result;
         }
 
         protected virtual async Task<IReadOnlyDictionary<Identifier, IDatabaseViewColumn>> LoadColumnLookupAsync(CancellationToken cancellationToken)
         {
-            var result = new Dictionary<Identifier, IDatabaseViewColumn>(Comparer);
-
             var columns = await ColumnsAsync(cancellationToken).ConfigureAwait(false);
+            var result = new Dictionary<Identifier, IDatabaseViewColumn>(columns.Count, Comparer);
+
             foreach (var column in columns.Where(c => c.Name != null))
                 result[column.Name.LocalName] = column;
 
-            return result.AsReadOnlyDictionary();
+            return result;
         }
 
         protected virtual IReadOnlyList<IDatabaseViewColumn> LoadColumnsSync()

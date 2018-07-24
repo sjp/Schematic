@@ -126,23 +126,24 @@ order by ic.key_ordinal";
 
         protected virtual IReadOnlyDictionary<Identifier, IDatabaseTableIndex> LoadIndexLookupSync()
         {
-            var result = new Dictionary<Identifier, IDatabaseTableIndex>(Comparer);
+            var indexes = Indexes;
+            var result = new Dictionary<Identifier, IDatabaseTableIndex>(indexes.Count, Comparer);
 
-            foreach (var index in Indexes)
+            foreach (var index in indexes)
                 result[index.Name.LocalName] = index;
 
-            return result.AsReadOnlyDictionary();
+            return result;
         }
 
         protected virtual async Task<IReadOnlyDictionary<Identifier, IDatabaseTableIndex>> LoadIndexLookupAsync(CancellationToken cancellationToken)
         {
-            var result = new Dictionary<Identifier, IDatabaseTableIndex>(Comparer);
-
             var indexes = await IndexesAsync(cancellationToken).ConfigureAwait(false);
+            var result = new Dictionary<Identifier, IDatabaseTableIndex>(indexes.Count, Comparer);
+
             foreach (var index in indexes)
                 result[index.Name.LocalName] = index;
 
-            return result.AsReadOnlyDictionary();
+            return result;
         }
 
         protected virtual IReadOnlyCollection<IDatabaseTableIndex> LoadIndexesSync()
@@ -255,23 +256,24 @@ where schema_name(t.schema_id) = @SchemaName and t.name = @TableName
 
         protected virtual IReadOnlyDictionary<Identifier, IDatabaseKey> LoadUniqueKeyLookupSync()
         {
-            var result = new Dictionary<Identifier, IDatabaseKey>(Comparer);
+            var uniqueKeys = UniqueKeys;
+            var result = new Dictionary<Identifier, IDatabaseKey>(uniqueKeys.Count, Comparer);
 
-            foreach (var uk in UniqueKeys)
+            foreach (var uk in uniqueKeys)
                 result[uk.Name.LocalName] = uk;
 
-            return result.AsReadOnlyDictionary();
+            return result;
         }
 
         protected virtual async Task<IReadOnlyDictionary<Identifier, IDatabaseKey>> LoadUniqueKeyLookupAsync(CancellationToken cancellationToken)
         {
-            var result = new Dictionary<Identifier, IDatabaseKey>(Comparer);
-
             var uniqueKeys = await UniqueKeysAsync(cancellationToken).ConfigureAwait(false);
+            var result = new Dictionary<Identifier, IDatabaseKey>(uniqueKeys.Count, Comparer);
+
             foreach (var uk in uniqueKeys)
                 result[uk.Name.LocalName] = uk;
 
-            return result.AsReadOnlyDictionary();
+            return result;
         }
 
         protected virtual IReadOnlyCollection<IDatabaseKey> LoadUniqueKeysSync()
@@ -496,23 +498,24 @@ where schema_name(parent_t.schema_id) = @SchemaName and parent_t.name = @TableNa
 
         protected virtual IReadOnlyDictionary<Identifier, IDatabaseCheckConstraint> LoadCheckLookupSync()
         {
-            var result = new Dictionary<Identifier, IDatabaseCheckConstraint>(Comparer);
+            var checks = Checks;
+            var result = new Dictionary<Identifier, IDatabaseCheckConstraint>(checks.Count, Comparer);
 
-            foreach (var check in Checks)
+            foreach (var check in checks)
                 result[check.Name.LocalName] = check;
 
-            return result.AsReadOnlyDictionary();
+            return result;
         }
 
         protected virtual async Task<IReadOnlyDictionary<Identifier, IDatabaseCheckConstraint>> LoadCheckLookupAsync(CancellationToken cancellationToken)
         {
-            var result = new Dictionary<Identifier, IDatabaseCheckConstraint>(Comparer);
-
             var checks = await ChecksAsync(cancellationToken).ConfigureAwait(false);
+            var result = new Dictionary<Identifier, IDatabaseCheckConstraint>(checks.Count, Comparer);
+
             foreach (var check in checks)
                 result[check.Name.LocalName] = check;
 
-            return result.AsReadOnlyDictionary();
+            return result;
         }
 
         protected virtual IReadOnlyCollection<IDatabaseCheckConstraint> LoadChecksSync()
@@ -579,23 +582,24 @@ where schema_name(t.schema_id) = @SchemaName and t.name = @TableName";
 
         protected virtual IReadOnlyDictionary<Identifier, IDatabaseRelationalKey> LoadParentKeyLookupSync()
         {
-            var result = new Dictionary<Identifier, IDatabaseRelationalKey>(Comparer);
+            var parentKeys = ParentKeys;
+            var result = new Dictionary<Identifier, IDatabaseRelationalKey>(parentKeys.Count, Comparer);
 
-            foreach (var parentKey in ParentKeys)
+            foreach (var parentKey in parentKeys)
                 result[parentKey.ChildKey.Name.LocalName] = parentKey;
 
-            return result.AsReadOnlyDictionary();
+            return result;
         }
 
         protected virtual async Task<IReadOnlyDictionary<Identifier, IDatabaseRelationalKey>> LoadParentKeyLookupAsync(CancellationToken cancellationToken)
         {
-            var result = new Dictionary<Identifier, IDatabaseRelationalKey>(Comparer);
-
             var parentKeys = await ParentKeysAsync(cancellationToken).ConfigureAwait(false);
+            var result = new Dictionary<Identifier, IDatabaseRelationalKey>(parentKeys.Count, Comparer);
+
             foreach (var parentKey in parentKeys)
                 result[parentKey.ChildKey.Name.LocalName] = parentKey;
 
-            return result.AsReadOnlyDictionary();
+            return result;
         }
 
         protected virtual IReadOnlyCollection<IDatabaseRelationalKey> LoadParentKeysSync()
@@ -744,25 +748,24 @@ where schema_name(child_t.schema_id) = @SchemaName and child_t.name = @TableName
 
         protected virtual IReadOnlyDictionary<Identifier, IDatabaseTableColumn> LoadColumnLookupSync()
         {
-            var result = new Dictionary<Identifier, IDatabaseTableColumn>(Comparer);
+            var columns = Columns;
+            var result = new Dictionary<Identifier, IDatabaseTableColumn>(columns.Count, Comparer);
 
-            var columns = Columns.Where(c => c.Name != null);
-            foreach (var column in columns)
+            foreach (var column in columns.Where(c => c.Name != null))
                 result[column.Name.LocalName] = column;
 
-            return result.AsReadOnlyDictionary();
+            return result;
         }
 
         protected virtual async Task<IReadOnlyDictionary<Identifier, IDatabaseTableColumn>> LoadColumnLookupAsync(CancellationToken cancellationToken)
         {
-            var result = new Dictionary<Identifier, IDatabaseTableColumn>(Comparer);
+            var columns = await ColumnsAsync(cancellationToken).ConfigureAwait(false);
+            var result = new Dictionary<Identifier, IDatabaseTableColumn>(columns.Count, Comparer);
 
-            var allColumns = await ColumnsAsync(cancellationToken).ConfigureAwait(false);
-            var columns = allColumns.Where(c => c.Name != null);
-            foreach (var column in columns)
+            foreach (var column in columns.Where(c => c.Name != null))
                 result[column.Name.LocalName] = column;
 
-            return result.AsReadOnlyDictionary();
+            return result;
         }
 
         protected virtual IReadOnlyList<IDatabaseTableColumn> LoadColumnsSync()
@@ -889,23 +892,24 @@ where schema_name(t.schema_id) = @SchemaName
 
         protected virtual IReadOnlyDictionary<Identifier, IDatabaseTrigger> LoadTriggerLookupSync()
         {
-            var result = new Dictionary<Identifier, IDatabaseTrigger>(Comparer);
+            var triggers = Triggers;
+            var result = new Dictionary<Identifier, IDatabaseTrigger>(triggers.Count, Comparer);
 
-            foreach (var trigger in Triggers)
+            foreach (var trigger in triggers)
                 result[trigger.Name.LocalName] = trigger;
 
-            return result.AsReadOnlyDictionary();
+            return result;
         }
 
         protected virtual async Task<IReadOnlyDictionary<Identifier, IDatabaseTrigger>> LoadTriggerLookupAsync(CancellationToken cancellationToken)
         {
-            var result = new Dictionary<Identifier, IDatabaseTrigger>(Comparer);
-
             var triggers = await TriggersAsync(cancellationToken).ConfigureAwait(false);
+            var result = new Dictionary<Identifier, IDatabaseTrigger>(triggers.Count, Comparer);
+
             foreach (var trigger in triggers)
                 result[trigger.Name.LocalName] = trigger;
 
-            return result.AsReadOnlyDictionary();
+            return result;
         }
 
         protected virtual IReadOnlyCollection<IDatabaseTrigger> LoadTriggersSync()
@@ -1018,6 +1022,6 @@ where schema_name(t.schema_id) = @SchemaName and t.name = @TableName";
             [1] = Rule.Cascade,
             [2] = Rule.SetNull,
             [3] = Rule.SetDefault
-        }.AsReadOnlyDictionary();
+        };
     }
 }

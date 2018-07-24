@@ -8,7 +8,6 @@ using SJP.Schematic.Core;
 using SJP.Schematic.MySql.Query;
 using SJP.Schematic.Core.Extensions;
 using System.Threading;
-using SJP.Schematic.Core.Utilities;
 
 namespace SJP.Schematic.MySql
 {
@@ -127,23 +126,24 @@ order by kc.ordinal_position";
 
         protected virtual IReadOnlyDictionary<Identifier, IDatabaseTableIndex> LoadIndexLookupSync()
         {
-            var result = new Dictionary<Identifier, IDatabaseTableIndex>(Comparer);
+            var indexes = Indexes;
+            var result = new Dictionary<Identifier, IDatabaseTableIndex>(indexes.Count, Comparer);
 
-            foreach (var index in Indexes)
+            foreach (var index in indexes)
                 result[index.Name.LocalName] = index;
 
-            return result.AsReadOnlyDictionary();
+            return result;
         }
 
         protected virtual async Task<IReadOnlyDictionary<Identifier, IDatabaseTableIndex>> LoadIndexLookupAsync(CancellationToken cancellationToken)
         {
-            var result = new Dictionary<Identifier, IDatabaseTableIndex>(Comparer);
-
             var indexes = await IndexesAsync(cancellationToken).ConfigureAwait(false);
+            var result = new Dictionary<Identifier, IDatabaseTableIndex>(indexes.Count, Comparer);
+
             foreach (var index in indexes)
                 result[index.Name.LocalName] = index;
 
-            return result.AsReadOnlyDictionary();
+            return result;
         }
 
         protected virtual IReadOnlyCollection<IDatabaseTableIndex> LoadIndexesSync()
@@ -235,23 +235,24 @@ where table_schema = @SchemaName and table_name = @TableName";
 
         protected virtual IReadOnlyDictionary<Identifier, IDatabaseKey> LoadUniqueKeyLookupSync()
         {
-            var result = new Dictionary<Identifier, IDatabaseKey>(Comparer);
+            var uniqueKeys = UniqueKeys;
+            var result = new Dictionary<Identifier, IDatabaseKey>(uniqueKeys.Count, Comparer);
 
-            foreach (var uk in UniqueKeys)
+            foreach (var uk in uniqueKeys)
                 result[uk.Name.LocalName] = uk;
 
-            return result.AsReadOnlyDictionary();
+            return result;
         }
 
         protected virtual async Task<IReadOnlyDictionary<Identifier, IDatabaseKey>> LoadUniqueKeyLookupAsync(CancellationToken cancellationToken)
         {
-            var result = new Dictionary<Identifier, IDatabaseKey>(Comparer);
-
             var uniqueKeys = await UniqueKeysAsync(cancellationToken).ConfigureAwait(false);
+            var result = new Dictionary<Identifier, IDatabaseKey>(uniqueKeys.Count, Comparer);
+
             foreach (var uk in uniqueKeys)
                 result[uk.Name.LocalName] = uk;
 
-            return result.AsReadOnlyDictionary();
+            return result;
         }
 
         protected virtual IReadOnlyCollection<IDatabaseKey> LoadUniqueKeysSync()
@@ -481,17 +482,17 @@ where pt.table_schema = @SchemaName and pt.table_name = @TableName";
         }
 
         // checks are parsed but not supported by MySQL
-        public IReadOnlyDictionary<Identifier, IDatabaseCheckConstraint> Check => new Dictionary<Identifier, IDatabaseCheckConstraint>(Comparer);
+        public IReadOnlyDictionary<Identifier, IDatabaseCheckConstraint> Check => _emptyCheckLookup;
 
-        public Task<IReadOnlyDictionary<Identifier, IDatabaseCheckConstraint>> CheckAsync(CancellationToken cancellationToken = default(CancellationToken)) => Task.FromResult<IReadOnlyDictionary<Identifier, IDatabaseCheckConstraint>>(new Dictionary<Identifier, IDatabaseCheckConstraint>(Comparer));
+        public Task<IReadOnlyDictionary<Identifier, IDatabaseCheckConstraint>> CheckAsync(CancellationToken cancellationToken = default(CancellationToken)) => _emptyCheckLookupTask;
 
         public IReadOnlyCollection<IDatabaseCheckConstraint> Checks => Array.Empty<IDatabaseCheckConstraint>();
 
         public Task<IReadOnlyCollection<IDatabaseCheckConstraint>> ChecksAsync(CancellationToken cancellationToken = default(CancellationToken)) => _emptyChecks;
 
-        private readonly static Task<IReadOnlyCollection<IDatabaseCheckConstraint>> _emptyChecks = Task.FromResult<IReadOnlyCollection<IDatabaseCheckConstraint>>(
-            Array.Empty<IDatabaseCheckConstraint>()
-        );
+        private readonly static Task<IReadOnlyCollection<IDatabaseCheckConstraint>> _emptyChecks = Task.FromResult<IReadOnlyCollection<IDatabaseCheckConstraint>>(Array.Empty<IDatabaseCheckConstraint>());
+        private readonly static IReadOnlyDictionary<Identifier, IDatabaseCheckConstraint> _emptyCheckLookup = new Dictionary<Identifier, IDatabaseCheckConstraint>();
+        private readonly static Task<IReadOnlyDictionary<Identifier, IDatabaseCheckConstraint>> _emptyCheckLookupTask = Task.FromResult(_emptyCheckLookup);
 
         public IReadOnlyDictionary<Identifier, IDatabaseRelationalKey> ParentKey => LoadParentKeyLookupSync();
 
@@ -503,23 +504,24 @@ where pt.table_schema = @SchemaName and pt.table_name = @TableName";
 
         protected virtual IReadOnlyDictionary<Identifier, IDatabaseRelationalKey> LoadParentKeyLookupSync()
         {
-            var result = new Dictionary<Identifier, IDatabaseRelationalKey>(Comparer);
+            var parentKeys = ParentKeys;
+            var result = new Dictionary<Identifier, IDatabaseRelationalKey>(parentKeys.Count, Comparer);
 
-            foreach (var parentKey in ParentKeys)
+            foreach (var parentKey in parentKeys)
                 result[parentKey.ChildKey.Name.LocalName] = parentKey;
 
-            return result.AsReadOnlyDictionary();
+            return result;
         }
 
         protected virtual async Task<IReadOnlyDictionary<Identifier, IDatabaseRelationalKey>> LoadParentKeyLookupAsync(CancellationToken cancellationToken)
         {
-            var result = new Dictionary<Identifier, IDatabaseRelationalKey>(Comparer);
-
             var parentKeys = await ParentKeysAsync(cancellationToken).ConfigureAwait(false);
+            var result = new Dictionary<Identifier, IDatabaseRelationalKey>(parentKeys.Count, Comparer);
+
             foreach (var parentKey in parentKeys)
                 result[parentKey.ChildKey.Name.LocalName] = parentKey;
 
-            return result.AsReadOnlyDictionary();
+            return result;
         }
 
         protected virtual IReadOnlyCollection<IDatabaseRelationalKey> LoadParentKeysSync()
@@ -680,25 +682,24 @@ where t.table_schema = @SchemaName and t.table_name = @TableName";
 
         protected virtual IReadOnlyDictionary<Identifier, IDatabaseTableColumn> LoadColumnLookupSync()
         {
-            var result = new Dictionary<Identifier, IDatabaseTableColumn>(Comparer);
+            var columns = Columns;
+            var result = new Dictionary<Identifier, IDatabaseTableColumn>(columns.Count, Comparer);
 
-            var columns = Columns.Where(c => c.Name != null);
-            foreach (var column in columns)
+            foreach (var column in columns.Where(c => c.Name != null))
                 result[column.Name.LocalName] = column;
 
-            return result.AsReadOnlyDictionary();
+            return result;
         }
 
         protected virtual async Task<IReadOnlyDictionary<Identifier, IDatabaseTableColumn>> LoadColumnLookupAsync(CancellationToken cancellationToken)
         {
-            var result = new Dictionary<Identifier, IDatabaseTableColumn>(Comparer);
+            var columns = await ColumnsAsync(cancellationToken).ConfigureAwait(false);
+            var result = new Dictionary<Identifier, IDatabaseTableColumn>(columns.Count, Comparer);
 
-            var allColumns = await ColumnsAsync(cancellationToken).ConfigureAwait(false);
-            var columns = allColumns.Where(c => c.Name != null);
-            foreach (var column in columns)
+            foreach (var column in columns.Where(c => c.Name != null))
                 result[column.Name.LocalName] = column;
 
-            return result.AsReadOnlyDictionary();
+            return result;
         }
 
         protected virtual IReadOnlyList<IDatabaseTableColumn> LoadColumnsSync()
@@ -815,23 +816,24 @@ order by ordinal_position";
 
         protected virtual IReadOnlyDictionary<Identifier, IDatabaseTrigger> LoadTriggerLookupSync()
         {
-            var result = new Dictionary<Identifier, IDatabaseTrigger>(Comparer);
+            var triggers = Triggers;
+            var result = new Dictionary<Identifier, IDatabaseTrigger>(triggers.Count, Comparer);
 
-            foreach (var trigger in Triggers)
+            foreach (var trigger in triggers)
                 result[trigger.Name.LocalName] = trigger;
 
-            return result.AsReadOnlyDictionary();
+            return result;
         }
 
         protected virtual async Task<IReadOnlyDictionary<Identifier, IDatabaseTrigger>> LoadTriggerLookupAsync(CancellationToken cancellationToken)
         {
-            var result = new Dictionary<Identifier, IDatabaseTrigger>(Comparer);
-
             var triggers = await TriggersAsync(cancellationToken).ConfigureAwait(false);
+            var result = new Dictionary<Identifier, IDatabaseTrigger>(triggers.Count, Comparer);
+
             foreach (var trigger in triggers)
                 result[trigger.Name.LocalName] = trigger;
 
-            return result.AsReadOnlyDictionary();
+            return result;
         }
 
         protected virtual IReadOnlyCollection<IDatabaseTrigger> LoadTriggersSync()
@@ -935,6 +937,6 @@ where tr.event_object_schema = @SchemaName and tr.event_object_table = @TableNam
             ["CASCADE"] = Rule.Cascade,
             ["SET NULL"] = Rule.SetNull,
             ["SET DEFAULT"] = Rule.SetDefault
-        }.AsReadOnlyDictionary();
+        };
     }
 }
