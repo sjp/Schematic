@@ -26,6 +26,18 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
         }
 
         [Test]
+        public void DatabaseVersion_PropertyGet_ShouldBeNonNull()
+        {
+            Assert.IsNotNull(Database.DatabaseVersion);
+        }
+
+        [Test]
+        public void DatabaseVersion_PropertyGet_ShouldBeNonEmpty()
+        {
+            Assert.AreNotEqual(string.Empty, Database.DatabaseVersion);
+        }
+
+        [Test]
         public void Vacuum_WhenInvoked_RunsWithoutError()
         {
             var sqliteDb = new SqliteRelationalDatabase(Dialect, Connection);

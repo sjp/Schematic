@@ -24,6 +24,18 @@ namespace SJP.Schematic.SqlServer.Tests.Integration
             Assert.AreEqual("dbo", Database.DefaultSchema);
         }
 
+        [Test]
+        public void DatabaseVersion_PropertyGet_ShouldBeNonNull()
+        {
+            Assert.IsNotNull(Database.DatabaseVersion);
+        }
+
+        [Test]
+        public void DatabaseVersion_PropertyGet_ShouldBeNonEmpty()
+        {
+            Assert.AreNotEqual(string.Empty, Database.DatabaseVersion);
+        }
+
         [TestFixture]
         internal class TableTests : SqlServerTest
         {

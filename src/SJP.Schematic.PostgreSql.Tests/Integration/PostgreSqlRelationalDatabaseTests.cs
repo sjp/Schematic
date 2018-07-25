@@ -24,6 +24,18 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration
             Assert.AreEqual("public", Database.DefaultSchema);
         }
 
+        [Test]
+        public void DatabaseVersion_PropertyGet_ShouldBeNonNull()
+        {
+            Assert.IsNotNull(Database.DatabaseVersion);
+        }
+
+        [Test]
+        public void DatabaseVersion_PropertyGet_ShouldBeNonEmpty()
+        {
+            Assert.AreNotEqual(string.Empty, Database.DatabaseVersion);
+        }
+
         [TestFixture]
         internal class TableTests : PostgreSqlTest
         {
