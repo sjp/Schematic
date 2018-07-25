@@ -9,6 +9,8 @@ namespace SJP.Schematic.Core
         // sync
         IDatabaseDialect Dialect { get; }
 
+        string DatabaseVersion { get; }
+
         string ServerName { get; }
 
         string DatabaseName { get; }

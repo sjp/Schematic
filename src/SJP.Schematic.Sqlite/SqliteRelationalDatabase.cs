@@ -21,17 +21,19 @@ namespace SJP.Schematic.Sqlite
             if (defaultSchema.IsNullOrWhiteSpace())
                 throw new ArgumentNullException(nameof(defaultSchema));
 
-            Metadata = new DatabaseMetadata { DatabaseName = Connection.Database, DefaultSchema = defaultSchema };
+            DatabaseName = Connection.Database;
+            DefaultSchema = defaultSchema;
+            _versionLoader = new AsyncLazy<string>(LoadDatabaseVersion);
             Pragma = new ConnectionPragma(Dialect, Connection);
         }
 
         public string ServerName => null; // never not-null
 
-        public string DatabaseName => Metadata.DatabaseName;
+        public string DatabaseName { get; }
 
-        public string DefaultSchema => Metadata.DefaultSchema;
+        public string DefaultSchema { get; }
 
-        protected DatabaseMetadata Metadata { get; }
+        public string DatabaseVersion => _versionLoader.Task.GetAwaiter().GetResult();
 
         protected ISqliteConnectionPragma Pragma { get; }
 
@@ -640,5 +642,13 @@ namespace SJP.Schematic.Sqlite
 
             return tableName.LocalName.StartsWith("sqlite_", StringComparison.OrdinalIgnoreCase);
         }
+
+        private async Task<string> LoadDatabaseVersion()
+        {
+            var version = await Connection.ExecuteScalarAsync<string>(@"select sqlite_version()").ConfigureAwait(false);
+            return "SQLite " + version;
+        }
+
+        private readonly AsyncLazy<string> _versionLoader;
     }
 }

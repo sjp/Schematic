@@ -58,6 +58,8 @@ namespace SJP.Schematic.Modelled.Reflection
 
         public string DefaultSchema { get; }
 
+        public string DatabaseVersion { get; } = string.Empty;
+
         protected IEqualityComparer<Identifier> Comparer { get; }
 
         protected Type DatabaseDefinitionType { get; }

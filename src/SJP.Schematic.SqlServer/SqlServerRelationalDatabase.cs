@@ -38,6 +38,8 @@ namespace SJP.Schematic.SqlServer
 
         public string DefaultSchema => Metadata.DefaultSchema;
 
+        public string DatabaseVersion => Metadata.DatabaseVersion;
+
         protected DatabaseMetadata Metadata => _metadata.Task.GetAwaiter().GetResult();
 
         public bool TableExists(Identifier tableName)
@@ -517,7 +519,7 @@ where schema_id = schema_id(@SchemaName) and name = @SynonymName";
 
         private Task<DatabaseMetadata> LoadDatabaseMetadataAsync()
         {
-            const string sql = "select @@SERVERNAME as ServerName, db_name() as DatabaseName, schema_name() as DefaultSchema";
+            const string sql = "select @@SERVERNAME as ServerName, db_name() as DatabaseName, schema_name() as DefaultSchema, @@version as DatabaseVersion";
             return Connection.QuerySingleAsync<DatabaseMetadata>(sql);
         }
 

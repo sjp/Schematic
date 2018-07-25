@@ -91,8 +91,7 @@ namespace SJP.Schematic.Reporting.Html.Renderers
 
             var templateParameter = new Main(
                 Database.DatabaseName,
-                string.Empty,
-                string.Empty,
+                Database.DatabaseVersion,
                 columns,
                 constraints,
                 indexesCount,
@@ -186,8 +185,7 @@ namespace SJP.Schematic.Reporting.Html.Renderers
 
             var templateParameter = new Main(
                 Database.DatabaseName,
-                string.Empty,
-                string.Empty,
+                Database.DatabaseVersion,
                 columns,
                 constraints,
                 indexesCount,

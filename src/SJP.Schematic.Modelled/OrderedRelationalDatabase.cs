@@ -34,6 +34,8 @@ namespace SJP.Schematic.Modelled
 
         public string DatabaseName => BaseDatabase.DatabaseName;
 
+        public string DatabaseVersion => BaseDatabase.DatabaseVersion;
+
         public bool TableExists(Identifier tableName)
         {
             if (tableName == null)

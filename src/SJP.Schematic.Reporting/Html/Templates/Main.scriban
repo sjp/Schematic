@@ -96,7 +96,7 @@
       </span>
     </div>
     <div class="box-body">
-      <p>Database: {{ ProductName | html.escape }} {{ ProductVersion | html.escape }}</p>
+      <p>Database: {{ DatabaseVersion | html.escape }}</p>
     </div>
   </div>
   <div class="box box-primary">

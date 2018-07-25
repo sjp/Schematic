@@ -9,8 +9,7 @@ namespace SJP.Schematic.Reporting.Html.ViewModels
     {
         public Main(
             string databaseName,
-            string productName,
-            string productVersion,
+            string databaseVersion,
             uint columnsCount,
             uint constraintsCount,
             uint indexesCount,
@@ -22,8 +21,7 @@ namespace SJP.Schematic.Reporting.Html.ViewModels
         )
         {
             DatabaseName = databaseName ?? string.Empty;
-            ProductName = productName ?? string.Empty;
-            ProductVersion = productVersion ?? string.Empty;
+            DatabaseVersion = databaseVersion ?? string.Empty;
 
             ColumnsCount = columnsCount;
             ConstraintsCount = constraintsCount;
@@ -53,9 +51,7 @@ namespace SJP.Schematic.Reporting.Html.ViewModels
 
         public string DatabaseName { get; }
 
-        public string ProductName { get; }
-
-        public string ProductVersion { get; }
+        public string DatabaseVersion { get; }
 
         public static DateTime GenerationTime => DateTime.Now;
 

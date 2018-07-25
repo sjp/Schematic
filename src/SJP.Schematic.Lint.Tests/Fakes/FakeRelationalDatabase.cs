@@ -20,6 +20,8 @@ namespace SJP.Schematic.Lint.Tests.Fakes
 
         public virtual string DefaultSchema { get; set; }
 
+        public virtual string DatabaseVersion { get; set; }
+
         public virtual IReadOnlyCollection<IRelationalDatabaseTable> Tables { get; set; } = new List<IRelationalDatabaseTable>();
 
         public virtual IReadOnlyCollection<IRelationalDatabaseView> Views { get; set; } = new List<IRelationalDatabaseView>();

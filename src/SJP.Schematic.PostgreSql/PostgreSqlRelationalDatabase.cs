@@ -38,6 +38,8 @@ namespace SJP.Schematic.PostgreSql
 
         public string DefaultSchema => Metadata.DefaultSchema;
 
+        public string DatabaseVersion => Metadata.DatabaseVersion;
+
         protected DatabaseMetadata Metadata => _metadata.Value;
 
         public bool TableExists(Identifier tableName)
@@ -413,7 +415,8 @@ namespace SJP.Schematic.PostgreSql
 select
     pg_catalog.host(pg_catalog.inet_server_addr()) as ServerName,
     pg_catalog.current_database() as DatabaseName,
-    pg_catalog.current_schema() as DefaultSchema";
+    pg_catalog.current_schema() as DefaultSchema,
+    pg_catalog.version() as DatabaseVersion";
             var result = Connection.QuerySingle<DatabaseMetadata>(sql);
 
             if (result.ServerName.IsNullOrWhiteSpace())

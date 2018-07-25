@@ -37,6 +37,8 @@ namespace SJP.Schematic.MySql
 
         public string DefaultSchema => Metadata.DefaultSchema;
 
+        public string DatabaseVersion => Metadata.DatabaseVersion;
+
         protected DatabaseMetadata Metadata => _metadata.Task.GetAwaiter().GetResult();
 
         public bool TableExists(Identifier tableName)
@@ -337,10 +339,12 @@ namespace SJP.Schematic.MySql
             Array.Empty<Task<IDatabaseSynonym>>()
         );
 
-        private Task<DatabaseMetadata> LoadDatabaseMetadataAsync()
+        private async Task<DatabaseMetadata> LoadDatabaseMetadataAsync()
         {
-            const string sql = "select @@hostname as ServerName, database() as DatabaseName, schema() as DefaultSchema";
-            return Connection.QuerySingleAsync<DatabaseMetadata>(sql);
+            const string sql = "select @@hostname as ServerName, database() as DatabaseName, schema() as DefaultSchema, version() as DatabaseVersion";
+            var metadata = await Connection.QuerySingleAsync<DatabaseMetadata>(sql).ConfigureAwait(false);
+            metadata.DatabaseVersion = "MySQL " + metadata.DatabaseVersion;
+            return metadata;
         }
 
         /// <summary>
