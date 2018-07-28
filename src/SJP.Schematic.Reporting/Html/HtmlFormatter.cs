@@ -6,6 +6,7 @@ using EnumsNET;
 using Scriban;
 using Scriban.Runtime;
 using SJP.Schematic.Core.Extensions;
+using RazorLight;
 
 namespace SJP.Schematic.Reporting.Html
 {
@@ -66,5 +67,33 @@ namespace SJP.Schematic.Reporting.Html
         private static string MemberRenamer(MemberInfo member) => member.Name;
 
         private readonly ConcurrentDictionary<ReportTemplate, Template> _templateCache = new ConcurrentDictionary<ReportTemplate, Template>();
+    }
+
+    public class HtmlFormatter2 : IHtmlFormatter
+    {
+        public HtmlFormatter2()
+        {
+        }
+
+        public string RenderTemplate(ITemplateParameter templateParameter)
+        {
+            if (templateParameter == null)
+                throw new ArgumentNullException(nameof(templateParameter));
+
+            var template = templateParameter.Template;
+            if (!template.IsValid())
+                throw new ArgumentException($"The { nameof(ReportTemplate) } provided in the template parameter must be a valid enum.", nameof(templateParameter));
+
+            var path = GetTemplatePath(template);
+            return _engine.CompileRenderAsync(path, templateParameter).GetAwaiter().GetResult();
+        }
+
+        private static string GetTemplatePath(ReportTemplate template) => "Templates." + template.ToString() + ".cshtml";
+
+        private readonly static RazorLightEngine _engine = new RazorLightEngineBuilder()
+            .UseEmbeddedResourcesProject(typeof(HtmlFormatter2))
+            .SetOperatingAssembly(typeof(HtmlFormatter2).Assembly)
+            .UseMemoryCachingProvider()
+            .Build();
     }
 }

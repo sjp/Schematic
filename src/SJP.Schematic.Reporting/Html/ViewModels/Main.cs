@@ -53,7 +53,7 @@ namespace SJP.Schematic.Reporting.Html.ViewModels
 
         public string DatabaseVersion { get; }
 
-        public static DateTime GenerationTime => DateTime.Now;
+        public DateTime GenerationTime => DateTime.Now;
 
         public uint ColumnsCount { get; }
 

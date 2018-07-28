@@ -1,0 +1,59 @@
+@using RazorLight
+@using SJP.Schematic.Reporting.Html.ViewModels
+@inherits TemplatePage<Indexes>
+
+<section class="content-header">
+  <h1>Indexes</h1>
+</section>
+<section class="content">
+  <div class="box box-primary">
+    <div class="box-header with-border">
+      <i class="fa fa-sitemap"></i>
+      <h3 id="Indexes" class="box-title">Indexes</h3>
+      <div class="box-tools pull-right">
+        <button type="button" class="btn btn-box-tool" data-widget="collapse">
+          <i class="fa fa-minus"></i>
+        </button>
+        <button type="button" class="btn btn-box-tool" data-widget="remove">
+          <i class="fa fa-times"></i>
+        </button>
+      </div>
+    </div>
+    <div class="box-body">
+      <table class="@Model.IndexesTableClass table table-bordered table-striped dataTable" role="grid">
+        <thead>
+          <tr>
+            <th>Index Name</th>
+            <th>Table Name</th>
+            <th>Unique</th>
+            <th>Columns</th>
+            <th>Included Columns</th>
+          </tr>
+        </thead>
+        <tbody>
+          @if (Model.IndexesCount > 0)
+          {
+          @foreach (var index in Model.TableIndexes)
+          {
+          <tr>
+            <td>@index.Name</td>
+            <td class="detail">
+              <a href="tables/@(index.TableUrl).html">@index.TableName</a>
+            </td>
+            <td>@index.UniqueText</td>
+            <td>@index.ColumnsText</td>
+            <td>@index.IncludedColumnsText</td>
+          </tr>
+          }
+          }
+          else
+          {
+          <tr>
+            <td class="detail" colspan="5">No indexes present.</td>
+          </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>

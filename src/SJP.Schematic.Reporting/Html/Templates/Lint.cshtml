@@ -1,0 +1,65 @@
+@using RazorLight
+@using SJP.Schematic.Reporting.Html.ViewModels
+@inherits TemplatePage<LintResults>
+
+<section class="content-header">
+  <h1>Lint Results</h1>
+  <br>
+  @if (Model.LintRulesCount > 0)
+  {
+  <div class="callout callout-warning">
+    <p>Issues that might require correcting on about your database and schema.</p>
+  </div>
+  }
+  else
+  {
+  <div class="callout callout-success">
+    <p>No issues detected!</p>
+  </div>
+  }
+</section>
+<section class="content">
+  @foreach (var lintRule in Model.LintRules)
+  {
+  <div class="box box-primary">
+    <div class="box-header with-border">
+      <i class="fa fa-exclamation-circle"></i>
+      <h3 class="box-title">@lintRule.RuleTitle</h3>
+      <div class="box-tools pull-right">
+        <button type="button" class="btn btn-box-tool" data-widget="collapse">
+          <i class="fa fa-minus"></i>
+        </button>
+        <button type="button" class="btn btn-box-tool" data-widget="remove">
+          <i class="fa fa-times"></i>
+        </button>
+      </div>
+    </div>
+    <div class="box-body">
+      <table class="table table-bordered table-striped dataTable" role="grid">
+        <thead align="left">
+          <tr>
+            <th>Message</th>
+          </tr>
+        </thead>
+        <tbody>
+          @if (lintRule.MessageCount > 0)
+          {
+          @foreach (var message in lintRule.Messages)
+          {
+          <tr>
+            <td class="detail">@message</td>
+          </tr>
+          }
+          }
+          else
+          {
+          <tr>
+            <td class="detail">No issues detected.</td>
+          </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  </div>
+  }
+</section>

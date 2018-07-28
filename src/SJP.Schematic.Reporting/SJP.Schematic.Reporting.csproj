@@ -5,6 +5,8 @@
     <TreatWarningsAsErrors>True</TreatWarningsAsErrors>
     <TreatSpecificWarningsAsErrors />
     <CheckForOverflowUnderflow>true</CheckForOverflowUnderflow>
+
+    <PreserveCompilationContext>true</PreserveCompilationContext>
   </PropertyGroup>
 
   <ItemGroup>
@@ -15,12 +17,14 @@
   <ItemGroup>
     <PackageReference Include="Dapper" Version="1.50.5" />
     <PackageReference Include="Microsoft.Extensions.FileProviders.Embedded" Version="2.1.1" />
+    <PackageReference Include="RazorLight" Version="2.0.0-beta1" />
     <PackageReference Include="Scriban" Version="1.2.3" />
     <PackageReference Include="System.Text.Encodings.Web" Version="4.5.0" />
   </ItemGroup>
 
   <ItemGroup>
     <EmbeddedResource Include="Html\Templates\*.scriban" />
+    <EmbeddedResource Include="Html\Templates\*.cshtml" />
     <EmbeddedResource Include="assets\**\*.*" />
   </ItemGroup>
 
