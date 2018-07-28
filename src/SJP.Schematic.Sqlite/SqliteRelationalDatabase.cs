@@ -6,10 +6,10 @@ using System.Threading;
 using System.Threading.Tasks;
 using Dapper;
 using SJP.Schematic.Core;
-using SJP.Schematic.Sqlite.Query;
 using SJP.Schematic.Sqlite.Pragma;
 using SJP.Schematic.Core.Extensions;
 using SJP.Schematic.Core.Utilities;
+using Microsoft.Extensions.Logging;
 
 namespace SJP.Schematic.Sqlite
 {
@@ -37,6 +37,8 @@ namespace SJP.Schematic.Sqlite
 
         protected ISqliteConnectionPragma Pragma { get; }
 
+        private ILogger<SqliteRelationalDatabase> Logger { get; } = Logging.Factory.CreateLogger<SqliteRelationalDatabase>();
+
         public bool TableExists(Identifier tableName)
         {
             if (tableName == null)
@@ -47,11 +49,17 @@ namespace SJP.Schematic.Sqlite
 
             if (tableName.Schema != null)
             {
+                Logger.LogInformation("Checking if the table exists for {Schema}.{LocalName}", tableName.Schema, tableName.LocalName);
                 var sql = $"select count(*) from { Dialect.QuoteIdentifier(tableName.Schema) }.sqlite_master where type = 'table' and lower(name) = lower(@TableName)";
-                return Connection.ExecuteScalar<int>(
+                Logger.LogInformation("Running query {Sql}", sql);
+                var result = Connection.ExecuteScalar<int>(
                     sql,
                     new { TableName = tableName.LocalName }
                 ) > 0;
+
+                Logger.LogInformation("TableExists for {Schema}.{LocalName} returned {Result}", tableName.Schema, tableName.LocalName, result);
+
+                return result;
             }
 
             var dbNames = Pragma.DatabaseList.OrderBy(l => l.seq).Select(l => l.name).ToList();
