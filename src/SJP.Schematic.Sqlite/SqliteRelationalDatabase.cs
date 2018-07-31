@@ -49,9 +49,10 @@ namespace SJP.Schematic.Sqlite
 
             if (tableName.Schema != null)
             {
-                Logger.LogInformation("Checking if the table exists for {Schema}.{LocalName}", tableName.Schema, tableName.LocalName);
+                Logger.LogDebug("Checking if the table exists for {Schema}.{LocalName}", tableName.Schema, tableName.LocalName);
                 var sql = $"select count(*) from { Dialect.QuoteIdentifier(tableName.Schema) }.sqlite_master where type = 'table' and lower(name) = lower(@TableName)";
-                Logger.LogInformation("Running query {Sql}", sql);
+                Logger.LogDebug("Running query {Sql}", sql);
+
                 var result = Connection.ExecuteScalar<int>(
                     sql,
                     new { TableName = tableName.LocalName }
@@ -65,12 +66,20 @@ namespace SJP.Schematic.Sqlite
             var dbNames = Pragma.DatabaseList.OrderBy(l => l.seq).Select(l => l.name).ToList();
             foreach (var dbName in dbNames)
             {
+                Logger.LogDebug("Checking if the table exists for {Schema}.{LocalName}", dbName, tableName.LocalName);
                 var sql = $"select count(*) from { Dialect.QuoteIdentifier(dbName) }.sqlite_master where type = 'table' and lower(name) = lower(@TableName)";
+                Logger.LogDebug("Running query {Sql}", sql);
+
                 var tableCount = Connection.ExecuteScalar<int>(sql, new { TableName = tableName.LocalName });
 
                 if (tableCount > 0)
+                {
+                    Logger.LogInformation("TableExists for {Schema}.{LocalName} returned {Result}", dbName, tableName.LocalName, true);
                     return true;
+                }
             }
+
+            Logger.LogInformation("TableExists for {LocalName} returned {Result}", tableName.LocalName, false);
 
             return false;
         }
