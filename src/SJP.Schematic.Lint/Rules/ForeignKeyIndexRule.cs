@@ -29,7 +29,7 @@ namespace SJP.Schematic.Lint.Rules
 
             var result = new List<IRuleMessage>();
 
-            var indexes = table.Indexes.ToList();
+            var indexes = table.Indexes;
             var foreignKeys = table.ParentKeys.Select(fk => fk.ChildKey).ToList();
 
             foreach (var foreignKey in foreignKeys)

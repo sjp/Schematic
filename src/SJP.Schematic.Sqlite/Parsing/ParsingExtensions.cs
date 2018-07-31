@@ -26,7 +26,7 @@ namespace SJP.Schematic.Sqlite.Parsing
             return input;
         }
 
-        public static TokenListParser<TKind, Token<TKind>> NotEqualTo<TKind>(params TKind[] kinds)
+        public static TokenListParser<TKind, Token<TKind>> NotEqualTo<TKind>(this IEnumerable<TKind> kinds)
         {
             var expectations = new[] { kinds.Select(k => k.ToString()).Join(", ") };
 

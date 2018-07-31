@@ -8,19 +8,19 @@ namespace SJP.Schematic.Sqlite.Parsing
 {
     public class ForeignKey
     {
-        public ForeignKey(string constraintName, string columnName, Identifier parentTable, IEnumerable<string> parentColumnNames)
-            : this(constraintName, columnName.ToEnumerable(), parentTable, parentColumnNames)
+        public ForeignKey(string constraintName, string columnName, Identifier parentTable, IReadOnlyCollection<string> parentColumnNames)
+            : this(constraintName, new[] { columnName }, parentTable, parentColumnNames)
         {
         }
 
-        public ForeignKey(string constraintName, IEnumerable<string> columnNames, Identifier parentTable, IEnumerable<string> parentColumnNames)
+        public ForeignKey(string constraintName, IReadOnlyCollection<string> columnNames, Identifier parentTable, IReadOnlyCollection<string> parentColumnNames)
         {
             if (columnNames == null || columnNames.Empty() || columnNames.Any(c => c.IsNullOrWhiteSpace()))
                 throw new ArgumentNullException(nameof(columnNames));
             if (parentColumnNames == null || parentColumnNames.Empty() || parentColumnNames.Any(c => c.IsNullOrWhiteSpace()))
                 throw new ArgumentNullException(nameof(parentColumnNames));
-            if (columnNames.Count() != parentColumnNames.Count())
-                throw new ArgumentException($"The number of source columns ({ columnNames.Count() }) does not match the number of target columns ({ parentColumnNames.Count() }).", nameof(parentColumnNames));
+            if (columnNames.Count != parentColumnNames.Count)
+                throw new ArgumentException($"The number of source columns ({ columnNames.Count }) does not match the number of target columns ({ parentColumnNames.Count }).", nameof(parentColumnNames));
 
             ParentTable = parentTable ?? throw new ArgumentNullException(nameof(parentTable));
             Name = constraintName;

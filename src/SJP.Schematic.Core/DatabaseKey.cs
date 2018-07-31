@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using EnumsNET;
 using SJP.Schematic.Core.Extensions;
 
@@ -8,7 +7,7 @@ namespace SJP.Schematic.Core
 {
     public class DatabaseKey : IDatabaseKey
     {
-        public DatabaseKey(IRelationalDatabaseTable table, Identifier name, DatabaseKeyType keyType, IEnumerable<IDatabaseColumn> columns, bool isEnabled)
+        public DatabaseKey(IRelationalDatabaseTable table, Identifier name, DatabaseKeyType keyType, IReadOnlyCollection<IDatabaseColumn> columns, bool isEnabled)
         {
             if (columns == null || columns.Empty() || columns.AnyNull())
                 throw new ArgumentNullException(nameof(columns));
@@ -21,7 +20,7 @@ namespace SJP.Schematic.Core
                 Name = name.LocalName; // can be null!
 
             KeyType = keyType;
-            Columns = columns.ToList();
+            Columns = columns;
             IsEnabled = isEnabled;
         }
 

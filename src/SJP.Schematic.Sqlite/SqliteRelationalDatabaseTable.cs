@@ -613,9 +613,10 @@ namespace SJP.Schematic.Sqlite
         protected virtual IReadOnlyList<IDatabaseTableColumn> LoadColumnsSync()
         {
             var tableInfos = Pragma.TableInfo(Name);
-            var result = new List<IDatabaseTableColumn>();
             if (tableInfos.Empty())
-                return result;
+                return Array.Empty<IDatabaseTableColumn>();
+
+            var result = new List<IDatabaseTableColumn>();
 
             var parser = ParsedDefinition;
             var parsedColumns = parser.Columns;
@@ -643,10 +644,10 @@ namespace SJP.Schematic.Sqlite
         protected virtual async Task<IReadOnlyList<IDatabaseTableColumn>> LoadColumnsAsync(CancellationToken cancellationToken)
         {
             var tableInfos = await Pragma.TableInfoAsync(Name, cancellationToken).ConfigureAwait(false);
+            if (tableInfos.Empty())
+                return Array.Empty<IDatabaseTableColumn>();
 
             var result = new List<IDatabaseTableColumn>();
-            if (tableInfos.Empty())
-                return result;
 
             var parser = await ParsedDefinitionAsync(cancellationToken).ConfigureAwait(false);
             var parsedColumns = parser.Columns;

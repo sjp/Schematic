@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using EnumsNET;
 using SJP.Schematic.Core;
 using SJP.Schematic.Core.Extensions;
@@ -9,7 +8,7 @@ namespace SJP.Schematic.MySql
 {
     public class MySqlDatabaseKey : IDatabaseKey
     {
-        public MySqlDatabaseKey(IRelationalDatabaseTable table, Identifier name, DatabaseKeyType keyType, IEnumerable<IDatabaseColumn> columns)
+        public MySqlDatabaseKey(IRelationalDatabaseTable table, Identifier name, DatabaseKeyType keyType, IReadOnlyCollection<IDatabaseColumn> columns)
         {
             if (name == null)
                 throw new ArgumentNullException(nameof(name));
@@ -21,7 +20,7 @@ namespace SJP.Schematic.MySql
             Table = table ?? throw new ArgumentNullException(nameof(table));
             Name = name.LocalName;
             KeyType = keyType;
-            Columns = columns.ToList();
+            Columns = columns;
             IsEnabled = true;
         }
 

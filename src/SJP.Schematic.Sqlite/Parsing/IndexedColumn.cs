@@ -30,10 +30,10 @@ namespace SJP.Schematic.Sqlite.Parsing
             if (expression == null)
                 throw new ArgumentNullException(nameof(expression));
 
-            Expression = expression.Tokens;
+            Expression = expression.Tokens.ToReadOnlyList();
         }
 
-        internal IndexedColumn(IEnumerable<Token<SqliteToken>> expression)
+        internal IndexedColumn(IReadOnlyCollection<Token<SqliteToken>> expression)
         {
             if (expression == null || expression.Empty())
                 throw new ArgumentNullException(nameof(expression));
@@ -43,7 +43,7 @@ namespace SJP.Schematic.Sqlite.Parsing
 
         public string Name { get; protected set; }
 
-        public IEnumerable<Token<SqliteToken>> Expression { get; protected set; }
+        public IReadOnlyCollection<Token<SqliteToken>> Expression { get; protected set; }
 
         public SqliteCollation Collation { get; protected set; }
 

@@ -9,7 +9,7 @@ namespace SJP.Schematic.PostgreSql
 {
     public class PostgreSqlDatabaseViewIndex : PostgreSqlDatabaseIndex<IRelationalDatabaseView>, IDatabaseViewIndex
     {
-        public PostgreSqlDatabaseViewIndex(IRelationalDatabaseView view, Identifier name, bool isUnique, IEnumerable<IDatabaseIndexColumn> columns)
+        public PostgreSqlDatabaseViewIndex(IRelationalDatabaseView view, Identifier name, bool isUnique, IReadOnlyCollection<IDatabaseIndexColumn> columns)
             : base(view, name, isUnique, columns)
         {
             View = view ?? throw new ArgumentNullException(nameof(view));
@@ -20,7 +20,7 @@ namespace SJP.Schematic.PostgreSql
 
     public class PostgreSqlDatabaseTableIndex : PostgreSqlDatabaseIndex<IRelationalDatabaseTable>, IDatabaseTableIndex
     {
-        public PostgreSqlDatabaseTableIndex(IRelationalDatabaseTable table, Identifier name, bool isUnique, IEnumerable<IDatabaseIndexColumn> columns)
+        public PostgreSqlDatabaseTableIndex(IRelationalDatabaseTable table, Identifier name, bool isUnique, IReadOnlyCollection<IDatabaseIndexColumn> columns)
             : base(table, name, isUnique, columns)
         {
             Table = table ?? throw new ArgumentNullException(nameof(table));
@@ -31,7 +31,7 @@ namespace SJP.Schematic.PostgreSql
 
     public abstract class PostgreSqlDatabaseIndex<T> : IDatabaseIndex<T> where T : class, IDatabaseQueryable
     {
-        protected PostgreSqlDatabaseIndex(T parent, Identifier name, bool isUnique, IEnumerable<IDatabaseIndexColumn> columns)
+        protected PostgreSqlDatabaseIndex(T parent, Identifier name, bool isUnique, IReadOnlyCollection<IDatabaseIndexColumn> columns)
         {
             if (name == null)
                 throw new ArgumentNullException(nameof(name));
@@ -41,7 +41,7 @@ namespace SJP.Schematic.PostgreSql
             Parent = parent ?? throw new ArgumentNullException(nameof(parent));
             Name = name.LocalName;
             IsUnique = isUnique;
-            Columns = columns.ToList();
+            Columns = columns;
         }
 
         public T Parent { get; }

@@ -126,11 +126,11 @@ namespace SJP.Schematic.Sqlite.Parsing
         private class ParsedTable
         {
             public ParsedTable(
-                IEnumerable<Column> columns,
+                IReadOnlyCollection<Column> columns,
                 PrimaryKey primaryKey,
-                IEnumerable<UniqueKey> uniqueKeys,
-                IEnumerable<ForeignKey> parentKeys,
-                IEnumerable<Check> checks
+                IReadOnlyCollection<UniqueKey> uniqueKeys,
+                IReadOnlyCollection<ForeignKey> parentKeys,
+                IReadOnlyCollection<Check> checks
             )
             {
                 if (columns == null || columns.Empty())
@@ -142,11 +142,11 @@ namespace SJP.Schematic.Sqlite.Parsing
                 if (parentKeys == null)
                     throw new ArgumentNullException(nameof(parentKeys));
 
-                Columns = columns.ToList();
+                Columns = columns;
                 PrimaryKey = primaryKey;
-                UniqueKeys = uniqueKeys.ToList();
-                Checks = checks.ToList();
-                ParentKeys = parentKeys.ToList();
+                UniqueKeys = uniqueKeys;
+                Checks = checks;
+                ParentKeys = parentKeys;
             }
 
             private ParsedTable()

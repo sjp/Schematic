@@ -29,7 +29,7 @@ namespace SJP.Schematic.Lint.Rules
 
             var result = new List<IRuleMessage>();
 
-            var foreignKeys = table.ParentKeys.ToList();
+            var foreignKeys = table.ParentKeys;
             foreach (var foreignKey in foreignKeys)
             {
                 var childTableName = foreignKey.ChildKey.Table.Name;

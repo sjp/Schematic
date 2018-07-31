@@ -41,35 +41,35 @@ namespace SJP.Schematic.Sqlite.Parsing
 
         public class PrimaryKey : TableConstraint
         {
-            public PrimaryKey(IEnumerable<IndexedColumn> columns)
+            public PrimaryKey(IReadOnlyCollection<IndexedColumn> columns)
                 : base(TableConstraintType.PrimaryKey)
             {
                 if (columns == null || columns.Empty())
                     throw new ArgumentNullException(nameof(columns));
 
-                Columns = columns.ToList();
+                Columns = columns;
             }
 
-            public IEnumerable<IndexedColumn> Columns { get; }
+            public IReadOnlyCollection<IndexedColumn> Columns { get; }
         }
 
         public class UniqueKey : TableConstraint
         {
-            public UniqueKey(IEnumerable<IndexedColumn> columns)
+            public UniqueKey(IReadOnlyCollection<IndexedColumn> columns)
                 : base(TableConstraintType.UniqueKey)
             {
                 if (columns == null || columns.Empty())
                     throw new ArgumentNullException(nameof(columns));
 
-                Columns = columns.ToList();
+                Columns = columns;
             }
 
-            public IEnumerable<IndexedColumn> Columns { get; }
+            public IReadOnlyCollection<IndexedColumn> Columns { get; }
         }
 
         public class ForeignKey : TableConstraint
         {
-            public ForeignKey(IEnumerable<string> columnNames, Identifier parentTableName, IEnumerable<string> parentColumnNames)
+            public ForeignKey(IReadOnlyCollection<string> columnNames, Identifier parentTableName, IReadOnlyCollection<string> parentColumnNames)
                 : base(TableConstraintType.ForeignKey)
             {
                 if (columnNames == null || columnNames.Empty())
@@ -77,16 +77,16 @@ namespace SJP.Schematic.Sqlite.Parsing
                 if (parentColumnNames == null || parentColumnNames.Empty())
                     throw new ArgumentNullException(nameof(parentColumnNames));
 
-                Columns = columnNames.ToList();
+                Columns = columnNames;
                 ParentTable = parentTableName ?? throw new ArgumentNullException(nameof(parentTableName));
-                ParentColumnNames = parentColumnNames.ToList();
+                ParentColumnNames = parentColumnNames;
             }
 
-            public IEnumerable<string> Columns { get; }
+            public IReadOnlyCollection<string> Columns { get; }
 
             public Identifier ParentTable { get; }
 
-            public IEnumerable<string> ParentColumnNames { get; }
+            public IReadOnlyCollection<string> ParentColumnNames { get; }
         }
 
         public class Check : TableConstraint
@@ -100,7 +100,7 @@ namespace SJP.Schematic.Sqlite.Parsing
                 Definition = definition.Tokens.ToList();
             }
 
-            public IEnumerable<Token<SqliteToken>> Definition { get; }
+            public IReadOnlyCollection<Token<SqliteToken>> Definition { get; }
         }
     }
 }

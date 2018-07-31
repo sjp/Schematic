@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using EnumsNET;
 using SJP.Schematic.Core;
 using SJP.Schematic.Core.Extensions;
@@ -9,7 +8,7 @@ namespace SJP.Schematic.PostgreSql
 {
     public class PostgreSqlDatabaseKey : IDatabaseKey
     {
-        public PostgreSqlDatabaseKey(IRelationalDatabaseTable table, Identifier name, DatabaseKeyType keyType, IEnumerable<IDatabaseColumn> columns)
+        public PostgreSqlDatabaseKey(IRelationalDatabaseTable table, Identifier name, DatabaseKeyType keyType, IReadOnlyCollection<IDatabaseColumn> columns)
         {
             if (name == null)
                 throw new ArgumentNullException(nameof(name));
@@ -21,7 +20,7 @@ namespace SJP.Schematic.PostgreSql
             Table = table ?? throw new ArgumentNullException(nameof(table));
             Name = name.LocalName;
             KeyType = keyType;
-            Columns = columns.ToList();
+            Columns = columns;
         }
 
         public IRelationalDatabaseTable Table { get; }

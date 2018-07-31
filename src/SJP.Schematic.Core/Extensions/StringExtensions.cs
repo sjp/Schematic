@@ -11,7 +11,15 @@ namespace SJP.Schematic.Core.Extensions
 
         public static bool IsNullOrWhiteSpace(this string input) => string.IsNullOrWhiteSpace(input);
 
-        public static string Join(this IEnumerable<string> values, string separator) => string.Join(separator, values);
+        public static string Join(this IEnumerable<string> values, string separator)
+        {
+            if (values == null)
+                throw new ArgumentNullException(nameof(values));
+            if (separator == null)
+                throw new ArgumentNullException(nameof(separator));
+
+            return string.Join(separator, values);
+        }
 
         public static bool Contains(this string input, string value, StringComparison comparisonType)
         {

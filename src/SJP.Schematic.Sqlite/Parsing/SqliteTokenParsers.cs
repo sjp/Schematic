@@ -14,21 +14,21 @@ namespace SJP.Schematic.Sqlite.Parsing
                 .IgnoreThen(IndexedColumnList)
                 .Then(cols =>
                     ConflictClause
-                        .Select(_ => new TableConstraint.PrimaryKey(cols)).Try()
-                        .Or(Parse.Return<SqliteToken, TableConstraint.PrimaryKey>(new TableConstraint.PrimaryKey(cols))));
+                        .Select(_ => new TableConstraint.PrimaryKey(cols.ToList())).Try()
+                        .Or(Parse.Return<SqliteToken, TableConstraint.PrimaryKey>(new TableConstraint.PrimaryKey(cols.ToList()))));
 
         private static TokenListParser<SqliteToken, TableConstraint.UniqueKey> TableUniqueKey =>
             Token.EqualTo(SqliteToken.Unique).Select(_ => _.ToEnumerable())
                 .IgnoreThen(IndexedColumnList)
                 .Then(cols =>
                     ConflictClause
-                        .Select(_ => new TableConstraint.UniqueKey(cols)).Try()
-                        .Or(Parse.Return<SqliteToken, TableConstraint.UniqueKey>(new TableConstraint.UniqueKey(cols))));
+                        .Select(_ => new TableConstraint.UniqueKey(cols.ToList())).Try()
+                        .Or(Parse.Return<SqliteToken, TableConstraint.UniqueKey>(new TableConstraint.UniqueKey(cols.ToList()))));
 
         private static TokenListParser<SqliteToken, TableConstraint.ForeignKey> TableForeignKey =>
             Token.Sequence(SqliteToken.Foreign, SqliteToken.Key)
                 .IgnoreThen(ColumnList)
-                .Then(prev => ForeignKeyClause.Select(clause => new TableConstraint.ForeignKey(prev, clause.ParentTable, clause.ParentColumnNames)));
+                .Then(prev => ForeignKeyClause.Select(clause => new TableConstraint.ForeignKey(prev.ToList(), clause.ParentTable, clause.ParentColumnNames.ToList())));
 
         private static TokenListParser<SqliteToken, IEnumerable<string>> ColumnList =>
             Token.EqualTo(SqliteToken.LParen)
@@ -87,7 +87,7 @@ namespace SJP.Schematic.Sqlite.Parsing
                 .Or(Token.EqualTo(SqliteToken.Identifier).Select(name => new SqlIdentifier(name)));
 
         private static TokenListParser<SqliteToken, Token<SqliteToken>> ExpressionContent =>
-            ParsingExtensions.NotEqualTo(SqliteToken.LParen, SqliteToken.RParen);
+            new[] { SqliteToken.LParen, SqliteToken.RParen }.NotEqualTo();
 
         private static TokenListParser<SqliteToken, SqlExpression> Expression =>
             Token.EqualTo(SqliteToken.LParen)
@@ -189,8 +189,8 @@ namespace SJP.Schematic.Sqlite.Parsing
         private static TokenListParser<SqliteToken, ColumnConstraint.DefaultConstraint> ColumnDefaultValue =>
             Token.EqualTo(SqliteToken.Default)
                 .Then(_ =>
-                    SqlLiteral.Select(literal => new ColumnConstraint.DefaultConstraint(literal))
-                        .Or(Expression.Select(expr => new ColumnConstraint.DefaultConstraint(expr.Tokens)))
+                    SqlLiteral.Select(literal => new ColumnConstraint.DefaultConstraint(literal.ToList()))
+                        .Or(Expression.Select(expr => new ColumnConstraint.DefaultConstraint(expr.Tokens.ToList())))
                 );
 
         private static TokenListParser<SqliteToken, IEnumerable<Token<SqliteToken>>> ForeignKeyMatch =>
@@ -228,7 +228,7 @@ namespace SJP.Schematic.Sqlite.Parsing
                     Token.EqualTo(SqliteToken.Identifier)
                         .ManyDelimitedBy(Token.EqualTo(SqliteToken.Comma))
                         .Select(columns => new { TableName = name, ColumnNames = columns.Select(c => new SqlIdentifier(c)) }))
-                .Then(prev => Token.EqualTo(SqliteToken.RParen).Select(_ => new ColumnConstraint.ForeignKey(prev.TableName, prev.ColumnNames)))
+                .Then(prev => Token.EqualTo(SqliteToken.RParen).Select(_ => new ColumnConstraint.ForeignKey(prev.TableName, prev.ColumnNames.ToList())))
                 .Then(prev =>
                     ForeignKeyMatch.Or(ForeignKeyRules)
                         .Many().Select(_ => prev)

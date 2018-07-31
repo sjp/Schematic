@@ -8,14 +8,14 @@ namespace SJP.Schematic.Modelled.Reflection
     // TODO: fix this so that we can point to synonyms
     public class ReflectionForeignKey : ReflectionKey
     {
-        public ReflectionForeignKey(IRelationalDatabaseTable table, Identifier name, IDatabaseKey targetKey, IEnumerable<IDatabaseColumn> columns)
+        public ReflectionForeignKey(IRelationalDatabaseTable table, Identifier name, IDatabaseKey targetKey, IReadOnlyCollection<IDatabaseColumn> columns)
             : base(table, name, DatabaseKeyType.Foreign, columns)
         {
             if (targetKey == null)
                 throw new ArgumentNullException(nameof(targetKey));
             if (targetKey.KeyType != DatabaseKeyType.Primary && targetKey.KeyType != DatabaseKeyType.Unique)
                 throw new ArgumentException("The parent key given to a foreign key must be a primary or unique key. Instead given: " + targetKey.KeyType.ToString(), nameof(targetKey));
-            if (columns.Count() != targetKey.Columns.Count)
+            if (columns.Count != targetKey.Columns.Count)
                 throw new ArgumentException("The number of columns given to a foreign key must match the number of columns in the target key", nameof(columns));
 
             var columnTypes = columns.Select(c => c.Type).ToList();

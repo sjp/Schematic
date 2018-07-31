@@ -75,8 +75,7 @@ namespace SJP.Schematic.Modelled.Reflection.Model
                         $"{ Property.DeclaringType.FullName }.{ Property.Name }."
                     );
 
-                var fnOperand = fnInstruction.Operand as MethodDefinition;
-                if (fnOperand == null)
+                if (!(fnInstruction.Operand is MethodDefinition fnOperand))
                     throw new ArgumentException(
                         "Expected to find a method definition associated with a function pointer instruction but could not find one for " +
                         $"{ Property.DeclaringType.FullName }.{ Property.Name }.",
@@ -93,8 +92,7 @@ namespace SJP.Schematic.Modelled.Reflection.Model
                         $"{ Property.DeclaringType.FullName }.{ Property.Name }."
                     );
 
-                var bodyMethodDef = bodyCallInstr.Operand as MethodDefinition;
-                if (bodyMethodDef == null)
+                if (!(bodyCallInstr.Operand is MethodDefinition bodyMethodDef))
                     throw new ArgumentException("Expected to find a method definition associated with the call or virtual call instruction but could not find one in the key selector.");
 
                 var targetPropertyName = bodyMethodDef.Name;

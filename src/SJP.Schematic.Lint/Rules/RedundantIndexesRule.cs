@@ -29,7 +29,7 @@ namespace SJP.Schematic.Lint.Rules
 
             var result = new List<IRuleMessage>();
 
-            var indexes = table.Indexes.ToList();
+            var indexes = table.Indexes;
             foreach (var index in indexes)
             {
                 var indexColumnList = index.Columns

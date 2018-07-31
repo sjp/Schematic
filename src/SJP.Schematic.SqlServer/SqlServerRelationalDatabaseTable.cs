@@ -302,7 +302,7 @@ order by ic.key_ordinal";
                 .Select(g => new
                 {
                     g.Key.ConstraintName,
-                    Columns = g.Select(row => tableColumns[row.ColumnName]),
+                    Columns = g.Select(row => tableColumns[row.ColumnName]).ToList(),
                     IsEnabled = !g.Key.IsDisabled
                 })
                 .ToList();
@@ -344,7 +344,7 @@ order by ic.key_ordinal";
                 .Select(g => new
                 {
                     g.Key.ConstraintName,
-                    Columns = g.Select(row => tableColumns[row.ColumnName]),
+                    Columns = g.Select(row => tableColumns[row.ColumnName]).ToList(),
                     IsEnabled = !g.Key.IsDisabled
                 })
                 .ToList();

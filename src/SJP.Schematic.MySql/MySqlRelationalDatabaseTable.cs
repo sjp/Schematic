@@ -281,7 +281,7 @@ order by kc.ordinal_position";
                 .Select(g => new
                 {
                     g.Key.ConstraintName,
-                    Columns = g.Select(row => tableColumns[row.ColumnName]),
+                    Columns = g.Select(row => tableColumns[row.ColumnName]).ToList(),
                 })
                 .ToList();
             if (constraintColumns.Count == 0)
@@ -322,7 +322,7 @@ order by kc.ordinal_position";
                 .Select(g => new
                 {
                     g.Key.ConstraintName,
-                    Columns = g.Select(row => tableColumns[row.ColumnName]),
+                    Columns = g.Select(row => tableColumns[row.ColumnName]).ToList(),
                 })
                 .ToList();
             if (constraintColumns.Count == 0)

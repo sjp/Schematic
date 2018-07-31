@@ -102,7 +102,7 @@ namespace SJP.Schematic.DataAccess.OrmLite
             var multiColumnIndexes = table.Indexes.Where(ix => ix.Columns.Skip(1).Any()).ToList();
             foreach (var index in multiColumnIndexes)
             {
-                var indexColumns = index.Columns.ToList();
+                var indexColumns = index.Columns;
                 var dependentColumns = indexColumns.SelectMany(ic => ic.DependentColumns).ToList();
                 if (dependentColumns.Count > indexColumns.Count)
                     continue;
@@ -321,11 +321,11 @@ namespace SJP.Schematic.DataAccess.OrmLite
             if (primaryKey == null)
                 return false;
 
-            var pkColumns = primaryKey.Columns.ToList();
+            var pkColumns = primaryKey.Columns;
             if (pkColumns.Count != 1)
                 return false;
 
-            return column.Name.LocalName == pkColumns[0].Name.LocalName;
+            return column.Name.LocalName == pkColumns.First().Name.LocalName;
         }
 
         protected static bool ColumnIsForeignKey(IDatabaseTableColumn column)
@@ -333,7 +333,7 @@ namespace SJP.Schematic.DataAccess.OrmLite
             if (column == null)
                 throw new ArgumentNullException(nameof(column));
 
-            var foreignKeys = column.Table.ParentKeys.ToList();
+            var foreignKeys = column.Table.ParentKeys;
             if (foreignKeys.Count == 0)
                 return false;
 
@@ -342,11 +342,11 @@ namespace SJP.Schematic.DataAccess.OrmLite
                 if (foreignKey.ParentKey.KeyType != DatabaseKeyType.Primary)
                     continue; // ormlite only supports FK to primary key
 
-                var childColumns = foreignKey.ChildKey.Columns.ToList();
+                var childColumns = foreignKey.ChildKey.Columns;
                 if (childColumns.Count > 1)
                     continue;
 
-                var childColumn = childColumns[0];
+                var childColumn = childColumns.First();
                 if (childColumn.Name.LocalName == column.Name.LocalName)
                     return true;
             }
@@ -359,7 +359,7 @@ namespace SJP.Schematic.DataAccess.OrmLite
             if (column == null)
                 throw new ArgumentNullException(nameof(column));
 
-            var foreignKeys = column.Table.ParentKeys.ToList();
+            var foreignKeys = column.Table.ParentKeys;
             if (foreignKeys.Count == 0)
                 return null;
 
@@ -368,11 +368,11 @@ namespace SJP.Schematic.DataAccess.OrmLite
                 if (foreignKey.ParentKey.KeyType != DatabaseKeyType.Primary)
                     continue; // ormlite only supports FK to primary key
 
-                var childColumns = foreignKey.ChildKey.Columns.ToList();
+                var childColumns = foreignKey.ChildKey.Columns;
                 if (childColumns.Count > 1)
                     continue;
 
-                var childColumn = childColumns[0];
+                var childColumn = childColumns.First();
                 if (childColumn.Name.LocalName == column.Name.LocalName)
                     return foreignKey;
             }
@@ -391,12 +391,12 @@ namespace SJP.Schematic.DataAccess.OrmLite
 
             foreach (var index in indexes)
             {
-                var columns = index.Columns.ToList();
+                var columns = index.Columns;
                 if (columns.Count > 1)
                     continue;
 
-                var indexColumn = columns[0];
-                var dependentColumns = indexColumn.DependentColumns.ToList();
+                var indexColumn = columns.First();
+                var dependentColumns = indexColumn.DependentColumns;
                 if (dependentColumns.Count > 1)
                     continue;
 
@@ -419,12 +419,12 @@ namespace SJP.Schematic.DataAccess.OrmLite
 
             foreach (var index in indexes)
             {
-                var columns = index.Columns.ToList();
+                var columns = index.Columns;
                 if (columns.Count > 1)
                     continue;
 
-                var indexColumn = columns[0];
-                var dependentColumns = indexColumn.DependentColumns.ToList();
+                var indexColumn = columns.First();
+                var dependentColumns = indexColumn.DependentColumns;
                 if (dependentColumns.Count > 1)
                     continue;
 
@@ -441,17 +441,17 @@ namespace SJP.Schematic.DataAccess.OrmLite
             if (column == null)
                 throw new ArgumentNullException(nameof(column));
 
-            var uniqueKeys = column.Table.UniqueKeys.ToList();
+            var uniqueKeys = column.Table.UniqueKeys;
             if (uniqueKeys.Count == 0)
                 return false;
 
             foreach (var uniqueKey in uniqueKeys)
             {
-                var ukColumns = uniqueKey.Columns.ToList();
+                var ukColumns = uniqueKey.Columns;
                 if (ukColumns.Count != 1)
                     continue;
 
-                var ukColumn = ukColumns[0];
+                var ukColumn = ukColumns.First();
                 if (column.Name.LocalName == ukColumn.Name.LocalName)
                     return true;
             }

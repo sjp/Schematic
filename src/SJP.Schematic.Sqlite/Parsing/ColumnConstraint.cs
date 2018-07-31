@@ -67,16 +67,16 @@ namespace SJP.Schematic.Sqlite.Parsing
 
         public class DefaultConstraint : ColumnConstraint
         {
-            public DefaultConstraint(IEnumerable<Token<SqliteToken>> tokens)
+            public DefaultConstraint(IReadOnlyCollection<Token<SqliteToken>> tokens)
                 : base(ColumnConstraintType.Default)
             {
                 if (tokens == null || tokens.Empty())
                     throw new ArgumentNullException(nameof(tokens));
 
-                DefaultValue = tokens.ToList();
+                DefaultValue = tokens;
             }
 
-            public IEnumerable<Token<SqliteToken>> DefaultValue { get; }
+            public IReadOnlyCollection<Token<SqliteToken>> DefaultValue { get; }
         }
 
         public class PrimaryKey : ColumnConstraint
@@ -106,7 +106,7 @@ namespace SJP.Schematic.Sqlite.Parsing
 
         public class ForeignKey : ColumnConstraint
         {
-            public ForeignKey(SqlIdentifier parentTableName, IEnumerable<SqlIdentifier> parentColumnNames)
+            public ForeignKey(SqlIdentifier parentTableName, IReadOnlyCollection<SqlIdentifier> parentColumnNames)
                 : base(ColumnConstraintType.ForeignKey)
             {
                 if (parentTableName == null)
@@ -120,7 +120,7 @@ namespace SJP.Schematic.Sqlite.Parsing
 
             public Identifier ParentTable { get; }
 
-            public IEnumerable<string> ParentColumnNames { get; }
+            public IReadOnlyCollection<string> ParentColumnNames { get; }
         }
 
         public class Check : ColumnConstraint
@@ -134,7 +134,7 @@ namespace SJP.Schematic.Sqlite.Parsing
                 Definition = definition.Tokens.ToList();
             }
 
-            public IEnumerable<Token<SqliteToken>> Definition { get; }
+            public IReadOnlyCollection<Token<SqliteToken>> Definition { get; }
         }
     }
 }

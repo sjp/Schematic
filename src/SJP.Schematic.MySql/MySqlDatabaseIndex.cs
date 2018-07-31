@@ -8,7 +8,7 @@ namespace SJP.Schematic.MySql
 {
     public class MySqlDatabaseViewIndex : MySqlDatabaseIndex<IRelationalDatabaseView>, IDatabaseViewIndex
     {
-        public MySqlDatabaseViewIndex(IRelationalDatabaseView view, Identifier name, bool isUnique, IEnumerable<IDatabaseIndexColumn> columns)
+        public MySqlDatabaseViewIndex(IRelationalDatabaseView view, Identifier name, bool isUnique, IReadOnlyCollection<IDatabaseIndexColumn> columns)
             : base(view, name, isUnique, columns)
         {
             View = view ?? throw new ArgumentNullException(nameof(view));
@@ -19,7 +19,7 @@ namespace SJP.Schematic.MySql
 
     public class MySqlDatabaseTableIndex : MySqlDatabaseIndex<IRelationalDatabaseTable>, IDatabaseTableIndex
     {
-        public MySqlDatabaseTableIndex(IRelationalDatabaseTable table, Identifier name, bool isUnique, IEnumerable<IDatabaseIndexColumn> columns)
+        public MySqlDatabaseTableIndex(IRelationalDatabaseTable table, Identifier name, bool isUnique, IReadOnlyCollection<IDatabaseIndexColumn> columns)
             : base(table, name, isUnique, columns)
         {
             Table = table ?? throw new ArgumentNullException(nameof(table));
@@ -30,7 +30,7 @@ namespace SJP.Schematic.MySql
 
     public abstract class MySqlDatabaseIndex<T> : IDatabaseIndex<T> where T : class, IDatabaseQueryable
     {
-        protected MySqlDatabaseIndex(T parent, Identifier name, bool isUnique, IEnumerable<IDatabaseIndexColumn> columns)
+        protected MySqlDatabaseIndex(T parent, Identifier name, bool isUnique, IReadOnlyCollection<IDatabaseIndexColumn> columns)
         {
             if (name == null)
                 throw new ArgumentNullException(nameof(name));
@@ -40,7 +40,7 @@ namespace SJP.Schematic.MySql
             Parent = parent ?? throw new ArgumentNullException(nameof(parent));
             Name = name.LocalName;
             IsUnique = isUnique;
-            Columns = columns.ToList();
+            Columns = columns;
         }
 
         public T Parent { get; }

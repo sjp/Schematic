@@ -8,7 +8,7 @@ namespace SJP.Schematic.Core
 {
     public class DatabaseViewIndex : DatabaseIndex<IRelationalDatabaseView>, IDatabaseViewIndex
     {
-        public DatabaseViewIndex(IRelationalDatabaseView view, Identifier name, bool isUnique, IEnumerable<IDatabaseIndexColumn> columns, IEnumerable<IDatabaseViewColumn> includedColumns, bool isEnabled)
+        public DatabaseViewIndex(IRelationalDatabaseView view, Identifier name, bool isUnique, IReadOnlyCollection<IDatabaseIndexColumn> columns, IReadOnlyCollection<IDatabaseViewColumn> includedColumns, bool isEnabled)
             : base(view, name, isUnique, columns, includedColumns, isEnabled)
         {
             View = view ?? throw new ArgumentNullException(nameof(view));
@@ -19,7 +19,7 @@ namespace SJP.Schematic.Core
 
     public class DatabaseTableIndex : DatabaseIndex<IRelationalDatabaseTable>, IDatabaseTableIndex
     {
-        public DatabaseTableIndex(IRelationalDatabaseTable table, Identifier name, bool isUnique, IEnumerable<IDatabaseIndexColumn> columns, IEnumerable<IDatabaseTableColumn> includedColumns, bool isEnabled)
+        public DatabaseTableIndex(IRelationalDatabaseTable table, Identifier name, bool isUnique, IReadOnlyCollection<IDatabaseIndexColumn> columns, IReadOnlyCollection<IDatabaseTableColumn> includedColumns, bool isEnabled)
             : base(table, name, isUnique, columns, includedColumns, isEnabled)
         {
             Table = table ?? throw new ArgumentNullException(nameof(table));
@@ -30,7 +30,7 @@ namespace SJP.Schematic.Core
 
     public abstract class DatabaseIndex<T> : IDatabaseIndex<T> where T : class, IDatabaseQueryable
     {
-        protected DatabaseIndex(T parent, Identifier name, bool isUnique, IEnumerable<IDatabaseIndexColumn> columns, IEnumerable<IDatabaseColumn> includedColumns, bool isEnabled)
+        protected DatabaseIndex(T parent, Identifier name, bool isUnique, IReadOnlyCollection<IDatabaseIndexColumn> columns, IReadOnlyCollection<IDatabaseColumn> includedColumns, bool isEnabled)
         {
             if (name == null)
                 throw new ArgumentNullException(nameof(name));
@@ -45,8 +45,8 @@ namespace SJP.Schematic.Core
             Parent = parent ?? throw new ArgumentNullException(nameof(parent));
             Name = name.LocalName;
             IsUnique = isUnique;
-            Columns = columns.ToList();
-            IncludedColumns = includedColumns.ToList();
+            Columns = columns;
+            IncludedColumns = includedColumns;
             IsEnabled = isEnabled;
         }
 

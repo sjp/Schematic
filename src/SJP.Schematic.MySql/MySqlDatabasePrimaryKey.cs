@@ -5,7 +5,7 @@ namespace SJP.Schematic.MySql
 {
     public class MySqlDatabasePrimaryKey : MySqlDatabaseKey
     {
-        public MySqlDatabasePrimaryKey(IRelationalDatabaseTable table, IEnumerable<IDatabaseColumn> columns)
+        public MySqlDatabasePrimaryKey(IRelationalDatabaseTable table, IReadOnlyCollection<IDatabaseColumn> columns)
             : base(table, new Identifier("PRIMARY"), DatabaseKeyType.Primary, columns)
         {
         }

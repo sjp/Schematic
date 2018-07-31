@@ -16,12 +16,12 @@ namespace SJP.Schematic.Modelled.Reflection
             if (tableType.IsAbstract)
                 throw new ArgumentException($"The given table type '{ tableType.FullName }' is abstract. A non-abstract table type must be provided.", nameof(tableType));
 
-            _columns = new Lazy<IEnumerable<IModelledColumn>>(LoadColumns);
-            _checks = new Lazy<IEnumerable<IModelledCheckConstraint>>(LoadChecks);
+            _columns = new Lazy<IReadOnlyCollection<IModelledColumn>>(LoadColumns);
+            _checks = new Lazy<IReadOnlyCollection<IModelledCheckConstraint>>(LoadChecks);
             _primaryKey = new Lazy<IModelledKey>(LoadPrimaryKey);
-            _uniqueKeys = new Lazy<IEnumerable<IModelledKey>>(LoadUniqueKeys);
-            _parentKeys = new Lazy<IEnumerable<IModelledRelationalKey>>(LoadParentKeys);
-            _indexes = new Lazy<IEnumerable<IModelledIndex>>(LoadIndexes);
+            _uniqueKeys = new Lazy<IReadOnlyCollection<IModelledKey>>(LoadUniqueKeys);
+            _parentKeys = new Lazy<IReadOnlyCollection<IModelledRelationalKey>>(LoadParentKeys);
+            _indexes = new Lazy<IReadOnlyCollection<IModelledIndex>>(LoadIndexes);
 
             TableProperties = TableType.GetTypeInfo().GetProperties();
             TableInstance = CreateTableInstance();
@@ -33,19 +33,19 @@ namespace SJP.Schematic.Modelled.Reflection
 
         protected Type TableType { get; }
 
-        protected IEnumerable<PropertyInfo> TableProperties { get; }
+        protected IReadOnlyCollection<PropertyInfo> TableProperties { get; }
 
-        public IEnumerable<IModelledColumn> Columns => _columns.Value;
+        public IReadOnlyCollection<IModelledColumn> Columns => _columns.Value;
 
-        public IEnumerable<IModelledCheckConstraint> Checks => _checks.Value;
+        public IReadOnlyCollection<IModelledCheckConstraint> Checks => _checks.Value;
 
         public IModelledKey PrimaryKey => _primaryKey.Value;
 
-        public IEnumerable<IModelledKey> UniqueKeys => _uniqueKeys.Value;
+        public IReadOnlyCollection<IModelledKey> UniqueKeys => _uniqueKeys.Value;
 
-        public IEnumerable<IModelledRelationalKey> ParentKeys => _parentKeys.Value;
+        public IReadOnlyCollection<IModelledRelationalKey> ParentKeys => _parentKeys.Value;
 
-        public IEnumerable<IModelledIndex> Indexes => _indexes.Value;
+        public IReadOnlyCollection<IModelledIndex> Indexes => _indexes.Value;
 
         protected object CreateTableInstance()
         {
@@ -83,7 +83,7 @@ namespace SJP.Schematic.Modelled.Reflection
             return tableInstance;
         }
 
-        protected virtual IEnumerable<IModelledColumn> LoadColumns()
+        protected virtual IReadOnlyCollection<IModelledColumn> LoadColumns()
         {
             return TableProperties
                 .Where(p => IsColumnProperty(p) || IsComputedColumnProperty(p))
@@ -91,7 +91,7 @@ namespace SJP.Schematic.Modelled.Reflection
                 .ToList();
         }
 
-        protected virtual IEnumerable<IModelledCheckConstraint> LoadChecks()
+        protected virtual IReadOnlyCollection<IModelledCheckConstraint> LoadChecks()
         {
             return TableProperties
                 .Where(IsCheckProperty)
@@ -104,7 +104,7 @@ namespace SJP.Schematic.Modelled.Reflection
                 .ToList();
         }
 
-        protected virtual IEnumerable<IModelledIndex> LoadIndexes()
+        protected virtual IReadOnlyCollection<IModelledIndex> LoadIndexes()
         {
             return TableProperties
                 .Where(IsIndexProperty)
@@ -124,8 +124,7 @@ namespace SJP.Schematic.Modelled.Reflection
 
             foreach (var keyProperty in keyProperties)
             {
-                var keyValue = keyProperty.GetValue(TableInstance) as IModelledKey;
-                if (keyValue == null)
+                if (!(keyProperty.GetValue(TableInstance) is IModelledKey keyValue))
                     throw new InvalidCastException($"Expected to find a key type that implements { typeof(IModelledKey).FullName } on { TableType.FullName }.{ keyProperty.Name }.");
 
                 keyValue.Property = keyProperty;
@@ -141,7 +140,7 @@ namespace SJP.Schematic.Modelled.Reflection
             return primaryKeys[0];
         }
 
-        protected virtual IEnumerable<IModelledKey> LoadUniqueKeys()
+        protected virtual IReadOnlyCollection<IModelledKey> LoadUniqueKeys()
         {
             var keyProperties = TableProperties.Where(IsKeyProperty).ToList();
             if (keyProperties.Count == 0)
@@ -150,8 +149,7 @@ namespace SJP.Schematic.Modelled.Reflection
             var uniqueKeys = new List<IModelledKey>();
             foreach (var keyProperty in keyProperties)
             {
-                var keyValue = keyProperty.GetValue(TableInstance) as IModelledKey;
-                if (keyValue == null)
+                if (!(keyProperty.GetValue(TableInstance) is IModelledKey keyValue))
                     throw new InvalidCastException($"Expected to find a key type that implements { typeof(IModelledKey).FullName } on { TableType.FullName }.{ keyProperty.Name }.");
 
                 keyValue.Property = keyProperty;
@@ -162,7 +160,7 @@ namespace SJP.Schematic.Modelled.Reflection
             return uniqueKeys;
         }
 
-        protected virtual IEnumerable<IModelledRelationalKey> LoadParentKeys()
+        protected virtual IReadOnlyCollection<IModelledRelationalKey> LoadParentKeys()
         {
             var keyProperties = TableProperties.Where(IsKeyProperty).ToList();
             if (keyProperties.Count == 0)
@@ -171,8 +169,7 @@ namespace SJP.Schematic.Modelled.Reflection
             var foreignKeys = new List<IModelledRelationalKey>();
             foreach (var keyProperty in keyProperties)
             {
-                var keyValue = keyProperty.GetValue(TableInstance) as IModelledRelationalKey;
-                if (keyValue == null)
+                if (!(keyProperty.GetValue(TableInstance) is IModelledRelationalKey keyValue))
                     throw new InvalidCastException($"Expected to find a key type { typeof(IModelledRelationalKey).FullName } on { TableType.FullName }.{ keyProperty.Name }.");
 
                 keyValue.Property = keyProperty;
@@ -209,11 +206,11 @@ namespace SJP.Schematic.Modelled.Reflection
 
         protected static Type IndexType { get; } = typeof(Index);
 
-        private readonly Lazy<IEnumerable<IModelledColumn>> _columns;
-        private readonly Lazy<IEnumerable<IModelledCheckConstraint>> _checks;
+        private readonly Lazy<IReadOnlyCollection<IModelledColumn>> _columns;
+        private readonly Lazy<IReadOnlyCollection<IModelledCheckConstraint>> _checks;
         private readonly Lazy<IModelledKey> _primaryKey;
-        private readonly Lazy<IEnumerable<IModelledKey>> _uniqueKeys;
-        private readonly Lazy<IEnumerable<IModelledRelationalKey>> _parentKeys;
-        private readonly Lazy<IEnumerable<IModelledIndex>> _indexes;
+        private readonly Lazy<IReadOnlyCollection<IModelledKey>> _uniqueKeys;
+        private readonly Lazy<IReadOnlyCollection<IModelledRelationalKey>> _parentKeys;
+        private readonly Lazy<IReadOnlyCollection<IModelledIndex>> _indexes;
     }
 }
