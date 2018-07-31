@@ -25,7 +25,7 @@ namespace SJP.Schematic.Lint.Rules
             if (table == null)
                 throw new ArgumentNullException(nameof(table));
 
-            if (table.PrimaryKey != null || table.UniqueKeys.Any())
+            if (table.PrimaryKey != null || table.UniqueKeys.Count > 0)
                 return Array.Empty<IRuleMessage>();
 
             var ruleMessage = BuildMessage(table.Name);

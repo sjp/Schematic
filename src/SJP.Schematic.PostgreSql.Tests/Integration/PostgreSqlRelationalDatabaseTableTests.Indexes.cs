@@ -83,7 +83,7 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration
         public void Indexes_WhenGivenTableWithNoIndexes_ReturnsEmptyCollection()
         {
             var table = Database.GetTable("table_test_table_1");
-            var count = table.Indexes.Count();
+            var count = table.Indexes.Count;
 
             Assert.AreEqual(0, count);
         }
@@ -228,7 +228,7 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration
         {
             var table = await Database.GetTableAsync("table_test_table_1").ConfigureAwait(false);
             var indexes = await table.IndexesAsync().ConfigureAwait(false);
-            var count = indexes.Count();
+            var count = indexes.Count;
 
             Assert.AreEqual(0, count);
         }

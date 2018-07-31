@@ -20,7 +20,7 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration
         public void Checks_WhenGivenTableWithNoChecks_ReturnsEmptyCollection()
         {
             var table = Database.GetTable("table_test_table_1");
-            var count = table.Checks.Count();
+            var count = table.Checks.Count;
 
             Assert.AreEqual(0, count);
         }
@@ -39,7 +39,7 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration
         {
             var table = await Database.GetTableAsync("table_test_table_1").ConfigureAwait(false);
             var checks = await table.ChecksAsync().ConfigureAwait(false);
-            var count = checks.Count();
+            var count = checks.Count;
 
             Assert.AreEqual(0, count);
         }

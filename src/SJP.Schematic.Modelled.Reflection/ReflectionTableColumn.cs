@@ -66,9 +66,7 @@ namespace SJP.Schematic.Modelled.Reflection
             var dbTypeInterface = columnTypeInfo.ImplementedInterfaces
                 .SingleOrDefault(iface => iface.IsGenericType && iface.GetGenericTypeDefinition() == ModelledTypeInterface);
 
-            return dbTypeInterface != null
-                ? dbTypeInterface.GetTypeInfo().GetGenericArguments().Single()
-                : null;
+            return dbTypeInterface?.GetTypeInfo()?.GetGenericArguments()?.Single();
         }
 
         protected static Type ModelledTypeInterface { get; } = typeof(IDbType<>);

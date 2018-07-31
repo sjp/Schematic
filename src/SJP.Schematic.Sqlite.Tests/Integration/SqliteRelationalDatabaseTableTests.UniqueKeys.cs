@@ -99,7 +99,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
         public void UniqueKeys_WhenGivenTableWithNoUniqueKeys_ReturnsEmptyCollection()
         {
             var table = Database.GetTable("table_test_table_1");
-            var count = table.UniqueKeys.Count();
+            var count = table.UniqueKeys.Count;
 
             Assert.AreEqual(0, count);
         }
@@ -267,7 +267,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
         {
             var table = await Database.GetTableAsync("table_test_table_1").ConfigureAwait(false);
             var uniqueKeys = await table.UniqueKeysAsync().ConfigureAwait(false);
-            var count = uniqueKeys.Count();
+            var count = uniqueKeys.Count;
 
             Assert.AreEqual(0, count);
         }

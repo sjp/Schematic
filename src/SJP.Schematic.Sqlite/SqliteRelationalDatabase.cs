@@ -662,7 +662,7 @@ namespace SJP.Schematic.Sqlite
 
         private async Task<string> LoadDatabaseVersion()
         {
-            var version = await Connection.ExecuteScalarAsync<string>(@"select sqlite_version()").ConfigureAwait(false);
+            var version = await Connection.ExecuteScalarAsync<string>("select sqlite_version()").ConfigureAwait(false);
             return "SQLite " + version;
         }
 

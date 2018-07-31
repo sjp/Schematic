@@ -158,7 +158,7 @@ end";
         public void Triggers_GivenTableWithNoTriggers_ReturnsEmptyCollection()
         {
             var table = Database.GetTable("trigger_test_table_2");
-            var count = table.Triggers.Count();
+            var count = table.Triggers.Count;
 
             Assert.Zero(count);
         }
@@ -167,7 +167,7 @@ end";
         public void Triggers_GivenTableWithTrigger_ReturnsNonEmptyCollection()
         {
             var table = Database.GetTable("trigger_test_table_1");
-            var count = table.Triggers.Count();
+            var count = table.Triggers.Count;
 
             Assert.NotZero(count);
         }
@@ -444,7 +444,7 @@ end";
             var table = await Database.GetTableAsync("trigger_test_table_2").ConfigureAwait(false);
             var triggers = await table.TriggersAsync().ConfigureAwait(false);
 
-            var count = triggers.Count();
+            var count = triggers.Count;
 
             Assert.Zero(count);
         }
@@ -453,7 +453,7 @@ end";
         public async Task TriggersAsync_GivenTableWithTrigger_ReturnsNonEmptyCollection()
         {
             var table = await Database.GetTableAsync("trigger_test_table_1").ConfigureAwait(false);
-            var count = table.Triggers.Count();
+            var count = table.Triggers.Count;
 
             Assert.NotZero(count);
         }

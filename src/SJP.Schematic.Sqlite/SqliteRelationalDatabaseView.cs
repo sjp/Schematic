@@ -61,7 +61,7 @@ namespace SJP.Schematic.Sqlite
             return Connection.ExecuteScalarAsync<string>(sql, new { ViewName = Name.LocalName });
         }
 
-        public bool IsIndexed => Indexes.Any();
+        public bool IsIndexed => Indexes.Count > 0;
 
         public IReadOnlyDictionary<Identifier, IDatabaseViewIndex> Index => LoadIndexLookupSync();
 

@@ -33,7 +33,7 @@ namespace SJP.Schematic.Core
         {
             if (ReferenceEquals(x, y))
                 return true;
-            if (ReferenceEquals(x, null) ^ ReferenceEquals(y, null))
+            if (x is null ^ y is null)
                 return false;
 
             // both must be not null at this point

@@ -22,7 +22,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
         public void ParentKeys_WhenGivenTableWithNoForeignKeys_ReturnsEmptyCollection()
         {
             var table = Database.GetTable("table_test_table_15");
-            var count = table.ParentKeys.Count();
+            var count = table.ParentKeys.Count;
 
             Assert.AreEqual(0, count);
         }
@@ -41,7 +41,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
         {
             var table = await Database.GetTableAsync("table_test_table_15").ConfigureAwait(false);
             var parentKeys = await table.ParentKeysAsync().ConfigureAwait(false);
-            var count = parentKeys.Count();
+            var count = parentKeys.Count;
 
             Assert.AreEqual(0, count);
         }

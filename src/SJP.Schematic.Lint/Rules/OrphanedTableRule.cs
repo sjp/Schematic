@@ -25,10 +25,10 @@ namespace SJP.Schematic.Lint.Rules
             if (table == null)
                 throw new ArgumentNullException(nameof(table));
 
-            if (table.ParentKeys.Any())
+            if (table.ParentKeys.Count > 0)
                 return Array.Empty<IRuleMessage>();
 
-            if (table.ChildKeys.Any())
+            if (table.ChildKeys.Count > 0)
                 return Array.Empty<IRuleMessage>();
 
             var message = BuildMessage(table.Name);

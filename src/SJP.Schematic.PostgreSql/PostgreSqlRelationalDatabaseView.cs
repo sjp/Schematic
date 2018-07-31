@@ -71,7 +71,7 @@ where table_schema = @SchemaName and table_name = @ViewName";
             return Connection.ExecuteScalarAsync<string>(sql, new { SchemaName = Name.Schema, ViewName = Name.LocalName });
         }
 
-        public bool IsIndexed => Indexes.Any();
+        public bool IsIndexed => Indexes.Count > 0;
 
         public IReadOnlyDictionary<Identifier, IDatabaseViewIndex> Index => LoadIndexLookupSync();
 

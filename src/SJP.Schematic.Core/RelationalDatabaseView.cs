@@ -25,7 +25,7 @@ namespace SJP.Schematic.Core
             Database = database ?? throw new ArgumentNullException(nameof(database));
             Columns = columns ?? throw new ArgumentNullException(nameof(columns));
             Indexes = indexes ?? throw new ArgumentNullException(nameof(indexes));
-            IsIndexed = Indexes.Any();
+            IsIndexed = Indexes.Count > 0;
             Definition = definition;
 
             var serverName = viewName.Server ?? database.ServerName;

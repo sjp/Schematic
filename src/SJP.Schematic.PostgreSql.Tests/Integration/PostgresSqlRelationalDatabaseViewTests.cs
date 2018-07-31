@@ -168,7 +168,7 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration
         public void Indexes_WhenViewIsNotIndexed_ReturnsEmptyCollection()
         {
             var view = new PostgreSqlRelationalDatabaseView(Connection, Database, "view_test_view_1");
-            var indexCount = view.Indexes.Count();
+            var indexCount = view.Indexes.Count;
 
             Assert.Zero(indexCount);
         }
@@ -178,7 +178,7 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration
         {
             var view = new PostgreSqlRelationalDatabaseView(Connection, Database, "view_test_view_1");
             var indexes = await view.IndexesAsync().ConfigureAwait(false);
-            var indexCount = indexes.Count();
+            var indexCount = indexes.Count;
 
             Assert.Zero(indexCount);
         }

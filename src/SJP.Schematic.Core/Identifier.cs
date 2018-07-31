@@ -196,7 +196,7 @@ namespace SJP.Schematic.Core
         {
             if (ReferenceEquals(a, b))
                 return true;
-            if (ReferenceEquals(a, null) ^ ReferenceEquals(b, null))
+            if (a is null ^ b is null)
                 return false;
 
             return a.Equals(b);
@@ -212,7 +212,7 @@ namespace SJP.Schematic.Core
         {
             if (ReferenceEquals(a, b))
                 return false;
-            if (ReferenceEquals(a, null) ^ ReferenceEquals(b, null))
+            if (a is null ^ b is null)
                 return true;
 
             return !a.Equals(b);
@@ -267,8 +267,7 @@ namespace SJP.Schematic.Core
             if (ReferenceEquals(this, obj))
                 return true;
 
-            var other = obj as Identifier;
-            if (other == null)
+            if (!(obj is Identifier other))
                 return false;
 
             return Equals(other);

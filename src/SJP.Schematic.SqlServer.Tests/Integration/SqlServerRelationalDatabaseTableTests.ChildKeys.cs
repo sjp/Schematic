@@ -13,7 +13,7 @@ namespace SJP.Schematic.SqlServer.Tests.Integration
         public void ChildKeys_WhenGivenTableWithNoChildKeys_ReturnsEmptyCollection()
         {
             var table = Database.GetTable("table_test_table_2");
-            var count = table.ChildKeys.Count();
+            var count = table.ChildKeys.Count;
 
             Assert.AreEqual(0, count);
         }
@@ -23,7 +23,7 @@ namespace SJP.Schematic.SqlServer.Tests.Integration
         {
             var table = await Database.GetTableAsync("table_test_table_2").ConfigureAwait(false);
             var childKeys = await table.ChildKeysAsync().ConfigureAwait(false);
-            var count = childKeys.Count();
+            var count = childKeys.Count;
 
             Assert.AreEqual(0, count);
         }

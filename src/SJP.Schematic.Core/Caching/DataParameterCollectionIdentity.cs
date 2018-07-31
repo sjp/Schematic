@@ -40,7 +40,7 @@ namespace SJP.Schematic.Core.Caching
         {
             if (ReferenceEquals(this, other))
                 return true;
-            if (ReferenceEquals(other, null))
+            if (other is null)
                 return false;
 
             return Identity == other.Identity;
