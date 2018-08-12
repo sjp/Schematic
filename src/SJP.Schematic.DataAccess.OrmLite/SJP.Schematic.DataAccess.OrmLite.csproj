@@ -9,7 +9,7 @@
 
   <ItemGroup>
     <PackageReference Include="ServiceStack.OrmLite" Version="5.1.0" />
-    <PackageReference Include="System.IO.Abstractions" Version="2.1.0.211" />
+    <PackageReference Include="System.IO.Abstractions" Version="2.1.0.217" />
   </ItemGroup>
 
   <ItemGroup>
