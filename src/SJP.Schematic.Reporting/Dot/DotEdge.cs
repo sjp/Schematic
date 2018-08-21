@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using SJP.Schematic.Core.Utilities;
 
 namespace SJP.Schematic.Reporting.Dot
 {
@@ -35,7 +36,7 @@ namespace SJP.Schematic.Reporting.Dot
 
         private string BuildDot()
         {
-            var builder = new StringBuilder();
+            var builder = StringBuilderCache.Acquire();
 
             var sourceIdentifier = SourcePort != null
                 ? SourceNode + ":" + SourcePort
@@ -61,7 +62,7 @@ namespace SJP.Schematic.Reporting.Dot
                 builder.Append("]");
             }
 
-            return builder.ToString();
+            return StringBuilderCache.GetStringAndRelease(builder);
         }
 
         public override string ToString() => _dotBuilder.Value;

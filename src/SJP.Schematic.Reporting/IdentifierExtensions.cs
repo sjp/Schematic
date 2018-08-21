@@ -7,6 +7,7 @@ using System.Linq;
 using System.Globalization;
 using System.Text.RegularExpressions;
 using System.IO;
+using SJP.Schematic.Core.Utilities;
 
 namespace SJP.Schematic.Reporting
 {
@@ -17,7 +18,7 @@ namespace SJP.Schematic.Reporting
             if (identifier == null)
                 throw new ArgumentNullException(nameof(identifier));
 
-            var builder = new StringBuilder();
+            var builder = StringBuilderCache.Acquire();
 
             if (identifier.Schema != null)
             {
@@ -27,7 +28,7 @@ namespace SJP.Schematic.Reporting
 
             builder.Append(identifier.LocalName);
 
-            return builder.ToString();
+            return StringBuilderCache.GetStringAndRelease(builder);
         }
 
         public static string ToSafeKey(this Identifier identifier)
@@ -94,7 +95,7 @@ namespace SJP.Schematic.Reporting
             if (identifier == null)
                 throw new ArgumentNullException(nameof(identifier));
 
-            var builder = new StringBuilder();
+            var builder = StringBuilderCache.Acquire();
 
             if (identifier.Server != null)
             {
@@ -117,7 +118,7 @@ namespace SJP.Schematic.Reporting
             var localNameHash = GenerateHashKey(identifier.LocalName);
             builder.Append(localNameHash);
 
-            var combinedHashSource = builder.ToString();
+            var combinedHashSource = StringBuilderCache.GetStringAndRelease(builder);
             return GenerateHashKey(combinedHashSource);
         }
 
@@ -130,10 +131,10 @@ namespace SJP.Schematic.Reporting
             using (var hasher = new SHA512Managed())
             {
                 var hash = hasher.ComputeHash(bytes);
-                var builder = new StringBuilder(hash.Length);
+                var builder = StringBuilderCache.Acquire(hash.Length);
                 foreach (var hashByte in hash)
                     builder.Append(hashByte.ToString("X2"));
-                return builder.ToString();
+                return StringBuilderCache.GetStringAndRelease(builder);
             }
         }
 

@@ -32,7 +32,7 @@ namespace SJP.Schematic.SqlServer
             var databaseName = tableName.Database ?? database.DatabaseName;
             var schemaName = tableName.Schema ?? database.DefaultSchema;
 
-            Name = new Identifier(serverName, databaseName, schemaName, tableName.LocalName);
+            Name = Identifier.CreateQualifiedIdentifier(serverName, databaseName, schemaName, tableName.LocalName);
             Comparer = comparer ?? new IdentifierComparer(StringComparer.Ordinal, serverName, databaseName, schemaName);
         }
 
@@ -171,7 +171,7 @@ where schema_name(t.schema_id) = @SchemaName and t.name = @TableName
             foreach (var indexInfo in indexColumns)
             {
                 var isUnique = indexInfo.Key.IsUnique;
-                var indexName = new Identifier(indexInfo.Key.IndexName);
+                var indexName = Identifier.CreateQualifiedIdentifier(indexInfo.Key.IndexName);
                 var isEnabled = !indexInfo.Key.IsDisabled;
 
                 var indexCols = indexInfo
@@ -221,7 +221,7 @@ where schema_name(t.schema_id) = @SchemaName and t.name = @TableName
             foreach (var indexInfo in indexColumns)
             {
                 var isUnique = indexInfo.Key.IsUnique;
-                var indexName = new Identifier(indexInfo.Key.IndexName);
+                var indexName = Identifier.CreateQualifiedIdentifier(indexInfo.Key.IndexName);
                 var isEnabled = !indexInfo.Key.IsDisabled;
 
                 var indexCols = indexInfo
@@ -397,9 +397,9 @@ where schema_name(parent_t.schema_id) = @SchemaName and parent_t.name = @TableNa
             var result = new List<IDatabaseRelationalKey>(groupedChildKeys.Count);
             foreach (var groupedChildKey in groupedChildKeys)
             {
-                var childKeyName = new Identifier(groupedChildKey.Key.ChildKeyName);
+                var childKeyName = Identifier.CreateQualifiedIdentifier(groupedChildKey.Key.ChildKeyName);
 
-                var childTableName = new Identifier(groupedChildKey.Key.ChildTableSchema, groupedChildKey.Key.ChildTableName);
+                var childTableName = Identifier.CreateQualifiedIdentifier(groupedChildKey.Key.ChildTableSchema, groupedChildKey.Key.ChildTableName);
                 var childTable = Database.GetTable(childTableName);
                 var parentKeyLookup = childTable.ParentKey;
 
@@ -459,9 +459,9 @@ where schema_name(parent_t.schema_id) = @SchemaName and parent_t.name = @TableNa
             var result = new List<IDatabaseRelationalKey>(groupedChildKeys.Count);
             foreach (var groupedChildKey in groupedChildKeys)
             {
-                var childKeyName = new Identifier(groupedChildKey.Key.ChildKeyName);
+                var childKeyName = Identifier.CreateQualifiedIdentifier(groupedChildKey.Key.ChildKeyName);
 
-                var childTableName = new Identifier(groupedChildKey.Key.ChildTableSchema, groupedChildKey.Key.ChildTableName);
+                var childTableName = Identifier.CreateQualifiedIdentifier(groupedChildKey.Key.ChildTableSchema, groupedChildKey.Key.ChildTableName);
                 var childTable = await Database.GetTableAsync(childTableName, cancellationToken).ConfigureAwait(false);
                 var parentKeyLookup = await childTable.ParentKeyAsync(cancellationToken).ConfigureAwait(false);
 
@@ -534,7 +534,7 @@ where schema_name(t.schema_id) = @SchemaName and t.name = @TableName";
 
             foreach (var checkRow in checks)
             {
-                var constraintName = new Identifier(checkRow.ConstraintName);
+                var constraintName = Identifier.CreateQualifiedIdentifier(checkRow.ConstraintName);
                 var definition = checkRow.Definition;
                 var isEnabled = !checkRow.IsDisabled;
 
@@ -561,7 +561,7 @@ where schema_name(t.schema_id) = @SchemaName and t.name = @TableName";
 
             foreach (var checkRow in checks)
             {
-                var constraintName = new Identifier(checkRow.ConstraintName);
+                var constraintName = Identifier.CreateQualifiedIdentifier(checkRow.ConstraintName);
                 var definition = checkRow.Definition;
                 var isEnabled = !checkRow.IsDisabled;
 
@@ -635,9 +635,9 @@ where schema_name(child_t.schema_id) = @SchemaName and child_t.name = @TableName
             var result = new List<IDatabaseRelationalKey>(foreignKeys.Count);
             foreach (var fkey in foreignKeys)
             {
-                var parentTableName = new Identifier(fkey.Key.ParentTableSchema, fkey.Key.ParentTableName);
+                var parentTableName = Identifier.CreateQualifiedIdentifier(fkey.Key.ParentTableSchema, fkey.Key.ParentTableName);
                 var parentTable = Database.GetTable(parentTableName);
-                var parentKeyName = new Identifier(fkey.Key.ParentKeyName);
+                var parentKeyName = Identifier.CreateQualifiedIdentifier(fkey.Key.ParentKeyName);
 
                 IDatabaseKey parentKey;
                 if (fkey.Key.KeyType == "PK")
@@ -650,7 +650,7 @@ where schema_name(child_t.schema_id) = @SchemaName and child_t.name = @TableName
                     parentKey = uniqueKeys[parentKeyName.LocalName];
                 }
 
-                var childKeyName = new Identifier(fkey.Key.ChildKeyName);
+                var childKeyName = Identifier.CreateQualifiedIdentifier(fkey.Key.ChildKeyName);
                 var childKeyColumnLookup = Column;
                 var childKeyColumns = fkey
                     .OrderBy(row => row.ConstraintColumnId)
@@ -703,9 +703,9 @@ where schema_name(child_t.schema_id) = @SchemaName and child_t.name = @TableName
             var result = new List<IDatabaseRelationalKey>(foreignKeys.Count);
             foreach (var fkey in foreignKeys)
             {
-                var parentTableName = new Identifier(fkey.Key.ParentTableSchema, fkey.Key.ParentTableName);
+                var parentTableName = Identifier.CreateQualifiedIdentifier(fkey.Key.ParentTableSchema, fkey.Key.ParentTableName);
                 var parentTable = await Database.GetTableAsync(parentTableName, cancellationToken).ConfigureAwait(false);
-                var parentKeyName = new Identifier(fkey.Key.ParentKeyName);
+                var parentKeyName = Identifier.CreateQualifiedIdentifier(fkey.Key.ParentKeyName);
 
                 IDatabaseKey parentKey;
                 if (fkey.Key.KeyType == "PK")
@@ -718,7 +718,7 @@ where schema_name(child_t.schema_id) = @SchemaName and child_t.name = @TableName
                     parentKey = uniqueKeys[parentKeyName.LocalName];
                 }
 
-                var childKeyName = new Identifier(fkey.Key.ChildKeyName);
+                var childKeyName = Identifier.CreateQualifiedIdentifier(fkey.Key.ChildKeyName);
                 var childKeyColumnLookup = await ColumnAsync(cancellationToken).ConfigureAwait(false);
                 var childKeyColumns = fkey
                     .OrderBy(row => row.ConstraintColumnId)
@@ -802,14 +802,14 @@ where schema_name(t.schema_id) = @SchemaName
             {
                 var typeMetadata = new ColumnTypeMetadata
                 {
-                    TypeName = new Identifier(row.ColumnTypeSchema, row.ColumnTypeName),
-                    Collation = row.Collation.IsNullOrWhiteSpace() ? null : new Identifier(row.Collation),
+                    TypeName = Identifier.CreateQualifiedIdentifier(row.ColumnTypeSchema, row.ColumnTypeName),
+                    Collation = row.Collation.IsNullOrWhiteSpace() ? null : Identifier.CreateQualifiedIdentifier(row.Collation),
                     MaxLength = row.MaxLength,
                     NumericPrecision = new NumericPrecision(row.Precision, row.Scale)
                 };
                 var columnType = TypeProvider.CreateColumnType(typeMetadata);
 
-                var columnName = new Identifier(row.ColumnName);
+                var columnName = Identifier.CreateQualifiedIdentifier(row.ColumnName);
                 var isAutoIncrement = row.IdentitySeed.HasValue && row.IdentityIncrement.HasValue;
                 var autoIncrement = isAutoIncrement
                     ? new AutoIncrement(row.IdentitySeed.Value, row.IdentityIncrement.Value)
@@ -859,14 +859,14 @@ where schema_name(t.schema_id) = @SchemaName
             {
                 var typeMetadata = new ColumnTypeMetadata
                 {
-                    TypeName = new Identifier(row.ColumnTypeSchema, row.ColumnTypeName),
-                    Collation = row.Collation.IsNullOrWhiteSpace() ? null : new Identifier(row.Collation),
+                    TypeName = Identifier.CreateQualifiedIdentifier(row.ColumnTypeSchema, row.ColumnTypeName),
+                    Collation = row.Collation.IsNullOrWhiteSpace() ? null : Identifier.CreateQualifiedIdentifier(row.Collation),
                     MaxLength = row.MaxLength,
                     NumericPrecision = new NumericPrecision(row.Precision, row.Scale)
                 };
                 var columnType = TypeProvider.CreateColumnType(typeMetadata);
 
-                var columnName = new Identifier(row.ColumnName);
+                var columnName = Identifier.CreateQualifiedIdentifier(row.ColumnName);
                 var isAutoIncrement = row.IdentitySeed.HasValue && row.IdentityIncrement.HasValue;
                 var autoIncrement = isAutoIncrement
                     ? new AutoIncrement(row.IdentitySeed.Value, row.IdentityIncrement.Value)
@@ -939,7 +939,7 @@ where schema_name(t.schema_id) = @SchemaName and t.name = @TableName";
             var result = new List<IDatabaseTrigger>(triggers.Count);
             foreach (var trig in triggers)
             {
-                var triggerName = new Identifier(trig.Key.TriggerName);
+                var triggerName = Identifier.CreateQualifiedIdentifier(trig.Key.TriggerName);
                 var queryTiming = trig.Key.IsInsteadOfTrigger ? TriggerQueryTiming.InsteadOf : TriggerQueryTiming.After;
                 var definition = trig.Key.Definition;
                 var isEnabled = !trig.Key.IsDisabled;
@@ -991,7 +991,7 @@ where schema_name(t.schema_id) = @SchemaName and t.name = @TableName";
             var result = new List<IDatabaseTrigger>(triggers.Count);
             foreach (var trig in triggers)
             {
-                var triggerName = new Identifier(trig.Key.TriggerName);
+                var triggerName = Identifier.CreateQualifiedIdentifier(trig.Key.TriggerName);
                 var queryTiming = trig.Key.IsInsteadOfTrigger ? TriggerQueryTiming.InsteadOf : TriggerQueryTiming.After;
                 var definition = trig.Key.Definition;
                 var isEnabled = !trig.Key.IsDisabled;

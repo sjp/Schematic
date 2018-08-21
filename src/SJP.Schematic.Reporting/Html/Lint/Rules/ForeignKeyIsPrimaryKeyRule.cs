@@ -3,6 +3,7 @@ using System.Text;
 using System.Web;
 using SJP.Schematic.Core;
 using SJP.Schematic.Core.Extensions;
+using SJP.Schematic.Core.Utilities;
 using SJP.Schematic.Lint;
 
 namespace SJP.Schematic.Reporting.Html.Lint.Rules
@@ -19,7 +20,8 @@ namespace SJP.Schematic.Reporting.Html.Lint.Rules
             if (childTableName == null)
                 throw new ArgumentNullException(nameof(childTableName));
 
-            var builder = new StringBuilder("A foreign key");
+            var builder = StringBuilderCache.Acquire();
+            builder.Append("A foreign key");
             if (!foreignKeyName.IsNullOrWhiteSpace())
             {
                 builder.Append(" <code>")
@@ -32,7 +34,8 @@ namespace SJP.Schematic.Reporting.Html.Lint.Rules
                 .Append(childTableLink)
                 .Append(" contains the same column set as the target key.");
 
-            return new RuleMessage(RuleTitle, Level, builder.ToString());
+            var message = StringBuilderCache.GetStringAndRelease(builder);
+            return new RuleMessage(RuleTitle, Level, message);
         }
     }
 }

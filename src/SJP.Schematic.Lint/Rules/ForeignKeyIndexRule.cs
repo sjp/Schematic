@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using SJP.Schematic.Core;
 using SJP.Schematic.Core.Extensions;
+using SJP.Schematic.Core.Utilities;
 
 namespace SJP.Schematic.Lint.Rules
 {
@@ -99,7 +100,8 @@ namespace SJP.Schematic.Lint.Rules
             if (columnNames == null || columnNames.Empty())
                 throw new ArgumentNullException(nameof(columnNames));
 
-            var builder = new StringBuilder("The table ")
+            var builder = StringBuilderCache.Acquire();
+            builder.Append("The table ")
                 .Append(tableName.ToString())
                 .Append(" has a foreign key ");
 
@@ -120,7 +122,7 @@ namespace SJP.Schematic.Lint.Rules
             builder.Append(" ")
                 .Append(joinedColumnNames);
 
-            var messageText = builder.ToString();
+            var messageText = StringBuilderCache.GetStringAndRelease(builder);
             return new RuleMessage(RuleTitle, Level, messageText);
         }
 

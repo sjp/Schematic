@@ -16,7 +16,7 @@ namespace SJP.Schematic.Modelled.Reflection.Model
             if (collationName.IsNullOrWhiteSpace())
                 throw new ArgumentNullException(nameof(collationName));
 
-            CollationName = new Identifier(schemaName, collationName);
+            CollationName = Identifier.CreateQualifiedIdentifier(schemaName, collationName);
         }
 
         public CollationAttribute(string collationName, params Type[] dialects)

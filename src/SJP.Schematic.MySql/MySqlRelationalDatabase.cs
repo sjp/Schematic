@@ -99,7 +99,7 @@ namespace SJP.Schematic.MySql
             get
             {
                 var tableNames = Connection.Query<QualifiedName>(TablesQuery, new { SchemaName = DefaultSchema })
-                    .Select(dto => new Identifier(dto.SchemaName, dto.ObjectName))
+                    .Select(dto => Identifier.CreateQualifiedIdentifier(dto.SchemaName, dto.ObjectName))
                     .ToList();
 
                 var tables = tableNames.Select(LoadTableSync);
@@ -111,7 +111,7 @@ namespace SJP.Schematic.MySql
         {
             var queryResults = await Connection.QueryAsync<QualifiedName>(TablesQuery, new { SchemaName = DefaultSchema }).ConfigureAwait(false);
             var tableNames = queryResults
-                .Select(dto => new Identifier(dto.SchemaName, dto.ObjectName))
+                .Select(dto => Identifier.CreateQualifiedIdentifier(dto.SchemaName, dto.ObjectName))
                 .ToList();
 
             var tables = tableNames.Select(name => LoadTableAsync(name, cancellationToken));
@@ -208,7 +208,7 @@ namespace SJP.Schematic.MySql
             get
             {
                 var viewNames = Connection.Query<QualifiedName>(ViewsQuery, new { SchemaName = DefaultSchema })
-                    .Select(dto => new Identifier(dto.SchemaName, dto.ObjectName))
+                    .Select(dto => Identifier.CreateQualifiedIdentifier(dto.SchemaName, dto.ObjectName))
                     .ToList();
 
                 var views = viewNames.Select(LoadViewSync);
@@ -220,7 +220,7 @@ namespace SJP.Schematic.MySql
         {
             var queryResult = await Connection.QueryAsync<QualifiedName>(ViewsQuery, new { SchemaName = DefaultSchema }).ConfigureAwait(false);
             var viewNames = queryResult
-                .Select(dto => new Identifier(dto.SchemaName, dto.ObjectName))
+                .Select(dto => Identifier.CreateQualifiedIdentifier(dto.SchemaName, dto.ObjectName))
                 .ToList();
 
             var views = viewNames.Select(name => LoadViewAsync(name, cancellationToken));
@@ -362,7 +362,7 @@ namespace SJP.Schematic.MySql
             var databaseName = identifier.Database ?? DatabaseName;
             var schema = identifier.Schema ?? DefaultSchema;
 
-            return new Identifier(serverName, databaseName, schema, identifier.LocalName);
+            return Identifier.CreateQualifiedIdentifier(serverName, databaseName, schema, identifier.LocalName);
         }
 
         private IRelationalDatabase _parentDb;

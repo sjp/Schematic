@@ -5,6 +5,7 @@ using System.Text;
 using System.Web;
 using SJP.Schematic.Core;
 using SJP.Schematic.Core.Extensions;
+using SJP.Schematic.Core.Utilities;
 using SJP.Schematic.Lint;
 
 namespace SJP.Schematic.Reporting.Html.Lint.Rules
@@ -24,7 +25,8 @@ namespace SJP.Schematic.Reporting.Html.Lint.Rules
                 throw new ArgumentNullException(nameof(columnNames));
 
             var tableLink = $"<a href=\"tables/{ tableName.ToSafeKey() }.html\">{ HttpUtility.HtmlEncode(tableName.ToVisibleName()) }</a>";
-            var builder = new StringBuilder("The table ")
+            var builder = StringBuilderCache.Acquire();
+            builder.Append("The table ")
                 .Append(tableLink)
                 .Append(" has a foreign key");
 
@@ -47,7 +49,7 @@ namespace SJP.Schematic.Reporting.Html.Lint.Rules
             builder.Append(" ")
                 .Append(joinedColumnNames);
 
-            var messageText = builder.ToString();
+            var messageText = StringBuilderCache.GetStringAndRelease(builder);
             return new RuleMessage(RuleTitle, Level, messageText);
         }
     }

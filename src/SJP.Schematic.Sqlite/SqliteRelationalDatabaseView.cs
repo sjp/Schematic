@@ -29,7 +29,7 @@ namespace SJP.Schematic.Sqlite
             var schemaName = viewName.Schema ?? database.DefaultSchema;
             var localName = viewName.LocalName;
 
-            Name = new Identifier(schemaName, localName);
+            Name = Identifier.CreateQualifiedIdentifier(schemaName, localName);
             Pragma = new DatabasePragma(Dialect, connection, schemaName);
         }
 

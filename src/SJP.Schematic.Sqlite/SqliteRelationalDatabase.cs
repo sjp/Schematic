@@ -134,7 +134,7 @@ namespace SJP.Schematic.Sqlite
             var dbNames = Pragma.DatabaseList.OrderBy(l => l.seq).Select(l => l.name).ToList();
             foreach (var dbName in dbNames)
             {
-                var qualifiedTableName = new Identifier(dbName, tableName.LocalName);
+                var qualifiedTableName = Identifier.CreateQualifiedIdentifier(dbName, tableName.LocalName);
                 var table = LoadTableSync(qualifiedTableName);
 
                 if (table != null)
@@ -164,7 +164,7 @@ namespace SJP.Schematic.Sqlite
             var dbNames = dbNamesResult.OrderBy(l => l.seq).Select(l => l.name).ToList();
             foreach (var dbName in dbNames)
             {
-                var qualifiedTableName = new Identifier(dbName, tableName.LocalName);
+                var qualifiedTableName = Identifier.CreateQualifiedIdentifier(dbName, tableName.LocalName);
                 var table = await LoadTableAsync(qualifiedTableName, cancellationToken).ConfigureAwait(false);
 
                 if (table != null)
@@ -186,7 +186,7 @@ namespace SJP.Schematic.Sqlite
                     var sql = $"select name from { Dialect.QuoteIdentifier(dbName) }.sqlite_master where type = 'table' order by name";
                     var tableNames = Connection.Query<string>(sql)
                         .Where(name => !IsReservedTableName(name))
-                        .Select(name => new Identifier(dbName, name));
+                        .Select(name => Identifier.CreateQualifiedIdentifier(dbName, name));
 
                     qualifiedTableNames.AddRange(tableNames);
                 }
@@ -209,7 +209,7 @@ namespace SJP.Schematic.Sqlite
                 var queryResult = await Connection.QueryAsync<string>(sql).ConfigureAwait(false);
                 var tableNames = queryResult
                     .Where(name => !IsReservedTableName(name))
-                    .Select(name => new Identifier(dbName, name));
+                    .Select(name => Identifier.CreateQualifiedIdentifier(dbName, name));
 
                 qualifiedTableNames.AddRange(tableNames);
             }
@@ -233,7 +233,7 @@ namespace SJP.Schematic.Sqlite
             var dbNames = Pragma.DatabaseList.OrderBy(l => l.seq).Select(l => l.name).ToList();
             foreach (var dbName in dbNames)
             {
-                var qualifiedTableName = new Identifier(dbName, tableName.LocalName);
+                var qualifiedTableName = Identifier.CreateQualifiedIdentifier(dbName, tableName.LocalName);
                 var table = TableExists(qualifiedTableName)
                     ? new SqliteRelationalDatabaseTable(Connection, this, qualifiedTableName)
                     : null;
@@ -267,7 +267,7 @@ namespace SJP.Schematic.Sqlite
             var dbNames = dbNamesResult.OrderBy(l => l.seq).Select(l => l.name).ToList();
             foreach (var dbName in dbNames)
             {
-                var qualifiedTableName = new Identifier(dbName, tableName.LocalName);
+                var qualifiedTableName = Identifier.CreateQualifiedIdentifier(dbName, tableName.LocalName);
                 var table = await TableExistsAsync(qualifiedTableName, cancellationToken).ConfigureAwait(false)
                     ? new SqliteRelationalDatabaseTable(Connection, this, qualifiedTableName)
                     : null;
@@ -350,7 +350,7 @@ namespace SJP.Schematic.Sqlite
             var dbNames = Pragma.DatabaseList.OrderBy(l => l.seq).Select(l => l.name).ToList();
             foreach (var dbName in dbNames)
             {
-                var qualifiedViewName = new Identifier(dbName, viewName.LocalName);
+                var qualifiedViewName = Identifier.CreateQualifiedIdentifier(dbName, viewName.LocalName);
                 var view = LoadViewSync(qualifiedViewName);
 
                 if (view != null)
@@ -377,7 +377,7 @@ namespace SJP.Schematic.Sqlite
             var dbNames = dbNamesResult.OrderBy(l => l.seq).Select(l => l.name).ToList();
             foreach (var dbName in dbNames)
             {
-                var qualifiedViewName = new Identifier(dbName, viewName.LocalName);
+                var qualifiedViewName = Identifier.CreateQualifiedIdentifier(dbName, viewName.LocalName);
                 var view = await LoadViewAsync(qualifiedViewName, cancellationToken).ConfigureAwait(false);
 
                 if (view != null)
@@ -399,7 +399,7 @@ namespace SJP.Schematic.Sqlite
                     var sql = $"select name from { Dialect.QuoteIdentifier(dbName) }.sqlite_master where type = 'view' order by name";
                     var viewNames = Connection.Query<string>(sql)
                         .Where(name => !IsReservedTableName(name))
-                        .Select(name => new Identifier(dbName, name));
+                        .Select(name => Identifier.CreateQualifiedIdentifier(dbName, name));
 
                     qualifiedViewNames.AddRange(viewNames);
                 }
@@ -422,7 +422,7 @@ namespace SJP.Schematic.Sqlite
                 var queryResult = await Connection.QueryAsync<string>(sql).ConfigureAwait(false);
                 var viewNames = queryResult
                     .Where(name => !IsReservedTableName(name))
-                    .Select(name => new Identifier(dbName, name));
+                    .Select(name => Identifier.CreateQualifiedIdentifier(dbName, name));
 
                 qualifiedViewNames.AddRange(viewNames);
             }
@@ -447,7 +447,7 @@ namespace SJP.Schematic.Sqlite
             var dbNames = Pragma.DatabaseList.OrderBy(l => l.seq).Select(l => l.name).ToList();
             foreach (var dbName in dbNames)
             {
-                var qualifiedViewName = new Identifier(dbName, viewName.LocalName);
+                var qualifiedViewName = Identifier.CreateQualifiedIdentifier(dbName, viewName.LocalName);
                 var view = ViewExists(qualifiedViewName)
                     ? new SqliteRelationalDatabaseView(Connection, this, qualifiedViewName)
                     : null;
@@ -481,7 +481,7 @@ namespace SJP.Schematic.Sqlite
             var dbNames = dbNamesResult.OrderBy(l => l.seq).Select(l => l.name).ToList();
             foreach (var dbName in dbNames)
             {
-                var qualifiedViewName = new Identifier(dbName, viewName.LocalName);
+                var qualifiedViewName = Identifier.CreateQualifiedIdentifier(dbName, viewName.LocalName);
                 var exists = await ViewExistsAsync(qualifiedViewName, cancellationToken).ConfigureAwait(false);
                 var view = exists
                     ? new SqliteRelationalDatabaseView(Connection, this, qualifiedViewName)

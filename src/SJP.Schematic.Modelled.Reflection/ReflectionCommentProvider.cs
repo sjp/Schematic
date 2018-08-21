@@ -6,6 +6,7 @@ using System.Reflection;
 using System.Text;
 using System.Xml.Linq;
 using SJP.Schematic.Core.Extensions;
+using SJP.Schematic.Core.Utilities;
 
 namespace SJP.Schematic.Modelled.Reflection
 {
@@ -175,12 +176,14 @@ namespace SJP.Schematic.Modelled.Reflection
             if (constructorInfo == null)
                 throw new ArgumentNullException(nameof(constructorInfo));
 
-            var builder = new StringBuilder("M:");
+            var builder = StringBuilderCache.Acquire();
+
+            builder.Append("M:");
             AppendFullTypeName(builder, constructorInfo.DeclaringType);
             builder.Append(".");
             AppendMethodName(builder, constructorInfo);
 
-            return builder.ToString();
+            return StringBuilderCache.GetStringAndRelease(builder);
         }
 
         /// <summary>
@@ -194,12 +197,14 @@ namespace SJP.Schematic.Modelled.Reflection
             if (eventInfo == null)
                 throw new ArgumentNullException(nameof(eventInfo));
 
-            var builder = new StringBuilder("E:");
+            var builder = StringBuilderCache.Acquire();
+
+            builder.Append("E:");
             AppendFullTypeName(builder, eventInfo.DeclaringType);
             builder.Append(".");
             builder.Append(eventInfo.Name);
 
-            return builder.ToString();
+            return StringBuilderCache.GetStringAndRelease(builder);
         }
 
         /// <summary>
@@ -213,12 +218,14 @@ namespace SJP.Schematic.Modelled.Reflection
             if (fieldInfo == null)
                 throw new ArgumentNullException(nameof(fieldInfo));
 
-            var builder = new StringBuilder("F:");
+            var builder = StringBuilderCache.Acquire();
+
+            builder.Append("F:");
             AppendFullTypeName(builder, fieldInfo.DeclaringType);
             builder.Append(".");
             builder.Append(fieldInfo.Name);
 
-            return builder.ToString();
+            return StringBuilderCache.GetStringAndRelease(builder);
         }
 
         /// <summary>
@@ -232,7 +239,9 @@ namespace SJP.Schematic.Modelled.Reflection
             if (methodInfo == null)
                 throw new ArgumentNullException(nameof(methodInfo));
 
-            var builder = new StringBuilder("M:");
+            var builder = StringBuilderCache.Acquire();
+
+            builder.Append("M:");
             AppendFullTypeName(builder, methodInfo.DeclaringType);
             builder.Append(".");
             AppendMethodName(builder, methodInfo);
@@ -243,7 +252,7 @@ namespace SJP.Schematic.Modelled.Reflection
                 AppendFullTypeName(builder, methodInfo.ReturnType, true);
             }
 
-            return builder.ToString();
+            return StringBuilderCache.GetStringAndRelease(builder);
         }
 
         /// <summary>
@@ -257,7 +266,9 @@ namespace SJP.Schematic.Modelled.Reflection
             if (propertyInfo == null)
                 throw new ArgumentNullException(nameof(propertyInfo));
 
-            var builder = new StringBuilder("P:");
+            var builder = StringBuilderCache.Acquire();
+
+            builder.Append("P:");
             AppendFullTypeName(builder, propertyInfo.DeclaringType);
             builder.Append(".");
             builder.Append(propertyInfo.Name);
@@ -267,7 +278,7 @@ namespace SJP.Schematic.Modelled.Reflection
             if (propertyArgs.Length > 0)
                 AppendParameterNames(builder, propertyArgs);
 
-            return builder.ToString();
+            return StringBuilderCache.GetStringAndRelease(builder);
         }
 
         /// <summary>
@@ -281,10 +292,12 @@ namespace SJP.Schematic.Modelled.Reflection
             if (type == null)
                 throw new ArgumentNullException(nameof(type));
 
-            var builder = new StringBuilder("T:");
+            var builder = StringBuilderCache.Acquire();
+
+            builder.Append("T:");
             AppendFullTypeName(builder, type, expandGenericArgs: false);
 
-            return builder.ToString();
+            return StringBuilderCache.GetStringAndRelease(builder);
         }
 
         private static void AppendFullTypeName(StringBuilder builder, Type type, bool expandGenericArgs = false)
@@ -328,7 +341,8 @@ namespace SJP.Schematic.Modelled.Reflection
                     var rank = currentType.GetArrayRank();
                     if (rank > 1)
                     {
-                        var arrayBuilder = new StringBuilder("[");
+                        var arrayBuilder = StringBuilderCache.Acquire();
+                        arrayBuilder.Append("[");
 
                         for (var i = 0; i < rank; i++)
                         {
@@ -337,7 +351,8 @@ namespace SJP.Schematic.Modelled.Reflection
                         }
 
                         arrayBuilder.Replace(",", "]", arrayBuilder.Length - 1, 1);
-                        segments.Add(arrayBuilder.ToString());
+                        var segment = StringBuilderCache.GetStringAndRelease(arrayBuilder);
+                        segments.Add(segment);
                     }
                     else
                     {
@@ -374,7 +389,8 @@ namespace SJP.Schematic.Modelled.Reflection
 
             if (type.GetTypeInfo().IsGenericType)
             {
-                var genericArgsBuilder = new StringBuilder("{");
+                var genericArgsBuilder = StringBuilderCache.Acquire();
+                genericArgsBuilder.Append("{");
 
                 var genericArgs = type.GetGenericArguments();
                 foreach (var argType in genericArgs)
@@ -384,7 +400,8 @@ namespace SJP.Schematic.Modelled.Reflection
                 }
                 genericArgsBuilder.Replace(",", "}", genericArgsBuilder.Length - 1, 1);
 
-                builder.Replace("`" + genericArgs.Length.ToString(), genericArgsBuilder.ToString());
+                var genericArgsText = StringBuilderCache.GetStringAndRelease(genericArgsBuilder);
+                builder.Replace("`" + genericArgs.Length.ToString(), genericArgsText);
             }
             else if (type.IsArray)
             {

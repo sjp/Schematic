@@ -17,7 +17,7 @@ namespace SJP.Schematic.Sqlite.Parsing
             var schemaName = UnwrapIdentifier(schemaToken.ToStringValue());
             var localName = UnwrapIdentifier(localNameToken.ToStringValue());
 
-            Value = new Identifier(schemaName, localName);
+            Value = Identifier.CreateQualifiedIdentifier(schemaName, localName);
         }
 
         public SqlIdentifier(Token<SqliteToken> token)

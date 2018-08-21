@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using SJP.Schematic.Core;
 using SJP.Schematic.Core.Extensions;
+using SJP.Schematic.Core.Utilities;
 
 namespace SJP.Schematic.PostgreSql
 {
@@ -118,7 +119,7 @@ namespace SJP.Schematic.PostgreSql
             if (typeMetadata.TypeName == null)
                 throw new ArgumentException("The type name is missing. A formatted type name cannot be generated.", nameof(typeMetadata));
 
-            var builder = new StringBuilder(typeMetadata.TypeName.LocalName.Length * 2);
+            var builder = StringBuilderCache.Acquire(typeMetadata.TypeName.LocalName.Length * 2);
             var typeName = typeMetadata.TypeName;
             if (string.Equals(typeName.Schema, "pg_catalog", StringComparison.OrdinalIgnoreCase))
                 builder.Append(QuoteIdentifier(typeName.LocalName));
@@ -126,7 +127,7 @@ namespace SJP.Schematic.PostgreSql
                 builder.Append(QuoteName(typeName));
 
             if (_typeNamesWithNoLengthAnnotation.Contains(typeName))
-                return builder.ToString();
+                return StringBuilderCache.GetStringAndRelease(builder);
 
             builder.Append("(");
 
@@ -150,7 +151,7 @@ namespace SJP.Schematic.PostgreSql
 
             builder.Append(")");
 
-            return builder.ToString();
+            return StringBuilderCache.GetStringAndRelease(builder);
         }
 
         protected static DataType GetDataType(Identifier typeName)
@@ -249,7 +250,6 @@ namespace SJP.Schematic.PostgreSql
             new Identifier("pg_catalog", "txid_snapshot"),
             new Identifier("pg_catalog", "uuid"),
             new Identifier("pg_catalog", "xml")
-
         };
 
         private readonly static IReadOnlyDictionary<Identifier, DataType> _stringToDataTypeMap = new Dictionary<Identifier, DataType>(IdentifierComparer.Ordinal)

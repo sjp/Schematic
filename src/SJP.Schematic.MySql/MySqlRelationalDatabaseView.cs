@@ -34,7 +34,7 @@ namespace SJP.Schematic.MySql
 
             Comparer = comparer ?? new IdentifierComparer(StringComparer.Ordinal, serverName, databaseName, schemaName);
 
-            Name = new Identifier(serverName, databaseName, schemaName, viewName.LocalName);
+            Name = Identifier.CreateQualifiedIdentifier(serverName, databaseName, schemaName, viewName.LocalName);
         }
 
         public Identifier Name { get; }
@@ -145,14 +145,14 @@ order by ordinal_position";
 
                 var typeMetadata = new ColumnTypeMetadata
                 {
-                    TypeName = new Identifier(row.DataTypeName),
-                    Collation = row.Collation.IsNullOrWhiteSpace() ? null : new Identifier(row.Collation),
+                    TypeName = Identifier.CreateQualifiedIdentifier(row.DataTypeName),
+                    Collation = row.Collation.IsNullOrWhiteSpace() ? null : Identifier.CreateQualifiedIdentifier(row.Collation),
                     MaxLength = row.CharacterMaxLength,
                     NumericPrecision = precision
                 };
                 var columnType = TypeProvider.CreateColumnType(typeMetadata);
 
-                var columnName = new Identifier(row.ColumnName);
+                var columnName = Identifier.CreateQualifiedIdentifier(row.ColumnName);
                 var isAutoIncrement = row.ExtraInformation.Contains("auto_increment", StringComparison.OrdinalIgnoreCase);
                 var autoIncrement = isAutoIncrement ? new AutoIncrement(1, 1) : (IAutoIncrement)null;
                 var isNullable = !string.Equals(row.IsNullable, "NO", StringComparison.OrdinalIgnoreCase);
@@ -194,14 +194,14 @@ order by ordinal_position";
 
                 var typeMetadata = new ColumnTypeMetadata
                 {
-                    TypeName = new Identifier(row.DataTypeName),
-                    Collation = row.Collation.IsNullOrWhiteSpace() ? null : new Identifier(row.Collation),
+                    TypeName = Identifier.CreateQualifiedIdentifier(row.DataTypeName),
+                    Collation = row.Collation.IsNullOrWhiteSpace() ? null : Identifier.CreateQualifiedIdentifier(row.Collation),
                     MaxLength = row.CharacterMaxLength,
                     NumericPrecision = precision
                 };
                 var columnType = TypeProvider.CreateColumnType(typeMetadata);
 
-                var columnName = new Identifier(row.ColumnName);
+                var columnName = Identifier.CreateQualifiedIdentifier(row.ColumnName);
                 var isAutoIncrement = row.ExtraInformation.Contains("auto_increment", StringComparison.OrdinalIgnoreCase);
                 var autoIncrement = isAutoIncrement ? new AutoIncrement(1, 1) : (IAutoIncrement)null;
                 var isNullable = !string.Equals(row.IsNullable, "NO", StringComparison.OrdinalIgnoreCase);

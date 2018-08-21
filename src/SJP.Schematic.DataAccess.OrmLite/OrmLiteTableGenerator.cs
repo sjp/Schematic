@@ -7,6 +7,7 @@ using System.Security;
 using System.Text;
 using SJP.Schematic.Core;
 using SJP.Schematic.Core.Extensions;
+using SJP.Schematic.Core.Utilities;
 using SJP.Schematic.DataAccess.Extensions;
 
 namespace SJP.Schematic.DataAccess.OrmLite
@@ -43,7 +44,7 @@ namespace SJP.Schematic.DataAccess.OrmLite
 
             namespaces.Add("ServiceStack.DataAnnotations");
 
-            var builder = new StringBuilder();
+            var builder = StringBuilderCache.Acquire();
             foreach (var ns in namespaces)
             {
                 builder.Append("using ")
@@ -147,7 +148,7 @@ namespace SJP.Schematic.DataAccess.OrmLite
                 .AppendLine("}")
                 .Append("}");
 
-            return builder.ToString();
+            return StringBuilderCache.GetStringAndRelease(builder);
         }
 
         private void AppendColumn(StringBuilder builder, string columnIndent, string className, IDatabaseTableColumn column)

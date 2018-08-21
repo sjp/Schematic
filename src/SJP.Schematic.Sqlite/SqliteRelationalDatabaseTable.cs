@@ -32,7 +32,7 @@ namespace SJP.Schematic.Sqlite
             var schemaName = tableName.Schema ?? database.DefaultSchema;
             var localName = tableName.LocalName;
 
-            Name = new Identifier(schemaName, localName);
+            Name = Identifier.CreateQualifiedIdentifier(schemaName, localName);
             Pragma = new DatabasePragma(Dialect, connection, schemaName);
         }
 
@@ -72,7 +72,7 @@ namespace SJP.Schematic.Sqlite
             var pkConstraint = parser.PrimaryKey;
 
             var pkStringName = pkConstraint?.Name;
-            var primaryKeyName = !pkStringName.IsNullOrWhiteSpace() ? new Identifier(pkStringName) : null;
+            var primaryKeyName = !pkStringName.IsNullOrWhiteSpace() ? Identifier.CreateQualifiedIdentifier(pkStringName) : null;
             return new SqliteDatabaseKey(this, primaryKeyName, DatabaseKeyType.Primary, columns);
         }
 
@@ -96,7 +96,7 @@ namespace SJP.Schematic.Sqlite
             var pkConstraint = parser.PrimaryKey;
 
             var pkStringName = pkConstraint?.Name;
-            var primaryKeyName = !pkStringName.IsNullOrWhiteSpace() ? new Identifier(pkStringName) : null;
+            var primaryKeyName = !pkStringName.IsNullOrWhiteSpace() ? Identifier.CreateQualifiedIdentifier(pkStringName) : null;
             return new SqliteDatabaseKey(this, primaryKeyName, DatabaseKeyType.Primary, columns);
         }
 
@@ -263,7 +263,7 @@ namespace SJP.Schematic.Sqlite
                     .FirstOrDefault(constraint => constraint.Columns.Select(c => c.Name).SequenceEqual(columnNames));
                 var stringConstraintName = uniqueConstraint?.Name;
 
-                var keyName = !stringConstraintName.IsNullOrWhiteSpace() ? new Identifier(stringConstraintName) : null;
+                var keyName = !stringConstraintName.IsNullOrWhiteSpace() ? Identifier.CreateQualifiedIdentifier(stringConstraintName) : null;
                 var uniqueKey = new SqliteDatabaseKey(this, keyName, DatabaseKeyType.Unique, columns);
                 result.Add(uniqueKey);
             }
@@ -302,7 +302,7 @@ namespace SJP.Schematic.Sqlite
                     .FirstOrDefault(constraint => constraint.Columns.Select(c => c.Name).SequenceEqual(columnNames));
                 var stringConstraintName = uniqueConstraint?.Name;
 
-                var keyName = !stringConstraintName.IsNullOrWhiteSpace() ? new Identifier(stringConstraintName) : null;
+                var keyName = !stringConstraintName.IsNullOrWhiteSpace() ? Identifier.CreateQualifiedIdentifier(stringConstraintName) : null;
                 var uniqueKey = new SqliteDatabaseKey(this, keyName, DatabaseKeyType.Unique, columns);
                 result.Add(uniqueKey);
             }
@@ -470,7 +470,7 @@ namespace SJP.Schematic.Sqlite
             {
                 var rows = fkey.OrderBy(row => row.seq);
 
-                var parentTableName = new Identifier(Name.Schema, fkey.Key.ParentTableName);
+                var parentTableName = Identifier.CreateQualifiedIdentifier(Name.Schema, fkey.Key.ParentTableName);
                 var parentTable = Database.GetTable(parentTableName);
 
                 var parentColumns = parentTable.Columns;
@@ -499,7 +499,7 @@ namespace SJP.Schematic.Sqlite
                     .FirstOrDefault(fkc => fkc.ParentColumns.SequenceEqual(rows.Select(row => row.to), StringComparer.OrdinalIgnoreCase));
                 var constraintStringName = parsedConstraint?.Name;
 
-                var childKeyName = !constraintStringName.IsNullOrWhiteSpace() ? new Identifier(constraintStringName) : null;
+                var childKeyName = !constraintStringName.IsNullOrWhiteSpace() ? Identifier.CreateQualifiedIdentifier(constraintStringName) : null;
                 var childKeyColumnLookup = Column;
                 var childKeyColumns = rows.Select(row => childKeyColumnLookup[row.from]).ToList();
 
@@ -533,7 +533,7 @@ namespace SJP.Schematic.Sqlite
             {
                 var rows = fkey.OrderBy(row => row.seq);
 
-                var parentTableName = new Identifier(Name.Schema, fkey.Key.ParentTableName);
+                var parentTableName = Identifier.CreateQualifiedIdentifier(Name.Schema, fkey.Key.ParentTableName);
                 var parentTable = await Database.GetTableAsync(parentTableName, cancellationToken).ConfigureAwait(false);
 
                 var parentColumns = await parentTable.ColumnsAsync(cancellationToken).ConfigureAwait(false);
@@ -562,7 +562,7 @@ namespace SJP.Schematic.Sqlite
                     .FirstOrDefault(fkc => fkc.ParentColumns.SequenceEqual(rows.Select(row => row.to), StringComparer.OrdinalIgnoreCase));
                 var constraintStringName = parsedConstraint?.Name;
 
-                var childKeyName = !constraintStringName.IsNullOrWhiteSpace() ? new Identifier(constraintStringName) : null;
+                var childKeyName = !constraintStringName.IsNullOrWhiteSpace() ? Identifier.CreateQualifiedIdentifier(constraintStringName) : null;
                 var childKeyColumnLookup = await ColumnAsync(cancellationToken).ConfigureAwait(false);
                 var childKeyColumns = rows.Select(row => childKeyColumnLookup[row.from]).ToList();
 

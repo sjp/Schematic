@@ -34,7 +34,7 @@ namespace SJP.Schematic.SqlServer
 
             Comparer = comparer ?? new IdentifierComparer(StringComparer.Ordinal, serverName, databaseName, schemaName);
 
-            Name = new Identifier(serverName, databaseName, schemaName, viewName.LocalName);
+            Name = Identifier.CreateQualifiedIdentifier(serverName, databaseName, schemaName, viewName.LocalName);
         }
 
         public Identifier Name { get; }
@@ -108,7 +108,7 @@ where schema_name(v.schema_id) = @SchemaName and v.name = @ViewName
             foreach (var indexInfo in indexColumns)
             {
                 var isUnique = indexInfo.Key.IsUnique;
-                var indexName = new Identifier(indexInfo.Key.IndexName);
+                var indexName = Identifier.CreateQualifiedIdentifier(indexInfo.Key.IndexName);
                 var isEnabled = !indexInfo.Key.IsDisabled;
 
                 var indexCols = indexInfo
@@ -160,7 +160,7 @@ where schema_name(v.schema_id) = @SchemaName and v.name = @ViewName
             foreach (var indexInfo in indexColumns)
             {
                 var isUnique = indexInfo.Key.IsUnique;
-                var indexName = new Identifier(indexInfo.Key.IndexName);
+                var indexName = Identifier.CreateQualifiedIdentifier(indexInfo.Key.IndexName);
                 var isEnabled = !indexInfo.Key.IsDisabled;
 
                 var indexCols = indexInfo
@@ -273,14 +273,14 @@ where schema_name(v.schema_id) = @SchemaName
             {
                 var typeMetadata = new ColumnTypeMetadata
                 {
-                    TypeName = new Identifier(row.ColumnTypeSchema, row.ColumnTypeName),
-                    Collation = row.Collation.IsNullOrWhiteSpace() ? null : new Identifier(row.Collation),
+                    TypeName = Identifier.CreateQualifiedIdentifier(row.ColumnTypeSchema, row.ColumnTypeName),
+                    Collation = row.Collation.IsNullOrWhiteSpace() ? null : Identifier.CreateQualifiedIdentifier(row.Collation),
                     MaxLength = row.MaxLength,
                     NumericPrecision = new NumericPrecision(row.Precision, row.Scale)
                 };
                 var columnType = TypeProvider.CreateColumnType(typeMetadata);
 
-                var columnName = new Identifier(row.ColumnName);
+                var columnName = Identifier.CreateQualifiedIdentifier(row.ColumnName);
                 var isAutoIncrement = row.IdentitySeed.HasValue && row.IdentityIncrement.HasValue;
                 var autoIncrement = isAutoIncrement
                     ? new AutoIncrement(row.IdentitySeed.Value, row.IdentityIncrement.Value)
@@ -328,14 +328,14 @@ where schema_name(v.schema_id) = @SchemaName
             {
                 var typeMetadata = new ColumnTypeMetadata
                 {
-                    TypeName = new Identifier(row.ColumnTypeSchema, row.ColumnTypeName),
-                    Collation = row.Collation.IsNullOrWhiteSpace() ? null : new Identifier(row.Collation),
+                    TypeName = Identifier.CreateQualifiedIdentifier(row.ColumnTypeSchema, row.ColumnTypeName),
+                    Collation = row.Collation.IsNullOrWhiteSpace() ? null : Identifier.CreateQualifiedIdentifier(row.Collation),
                     MaxLength = row.MaxLength,
                     NumericPrecision = new NumericPrecision(row.Precision, row.Scale)
                 };
                 var columnType = TypeProvider.CreateColumnType(typeMetadata);
 
-                var columnName = new Identifier(row.ColumnName);
+                var columnName = Identifier.CreateQualifiedIdentifier(row.ColumnName);
                 var isAutoIncrement = row.IdentitySeed.HasValue && row.IdentityIncrement.HasValue;
                 var autoIncrement = isAutoIncrement
                     ? new AutoIncrement(row.IdentitySeed.Value, row.IdentityIncrement.Value)

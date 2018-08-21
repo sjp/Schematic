@@ -391,14 +391,7 @@ namespace SJP.Schematic.Modelled.Reflection
             var databaseName = identifier.Database ?? DatabaseName;
             var schema = identifier.Schema ?? DefaultSchema;
 
-            if (!serverName.IsNullOrWhiteSpace())
-                return new Identifier(serverName, databaseName, schema, identifier.LocalName);
-            if (!databaseName.IsNullOrWhiteSpace())
-                return new Identifier(databaseName, schema, identifier.LocalName);
-            if (!schema.IsNullOrWhiteSpace())
-                return new Identifier(schema, identifier.LocalName);
-
-            return identifier;
+            return Identifier.CreateQualifiedIdentifier(serverName, databaseName, schema, identifier.LocalName);
         }
 
         protected (IEnumerable<string> quotedTypeNames, IReadOnlyDictionary<Identifier, TValue> lookup) CreateLookup<TValue>(IReadOnlyCollection<TValue> objects) where TValue : IDatabaseEntity

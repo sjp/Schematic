@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using SJP.Schematic.Core;
 using SJP.Schematic.Core.Extensions;
+using SJP.Schematic.Core.Utilities;
 
 namespace SJP.Schematic.Lint.Rules
 {
@@ -99,7 +100,8 @@ namespace SJP.Schematic.Lint.Rules
             if (otherIndexColumnNames == null || otherIndexColumnNames.Empty())
                 throw new ArgumentNullException(nameof(otherIndexColumnNames));
 
-            var builder = new StringBuilder("The table ")
+            var builder = StringBuilderCache.Acquire();
+            builder.Append("The table ")
                 .Append(tableName)
                 .Append(" has an index '")
                 .Append(indexName)
@@ -111,7 +113,7 @@ namespace SJP.Schematic.Lint.Rules
                 .Append(otherIndexColumnNames.Join(", "))
                 .Append(").");
 
-            var messageText = builder.ToString();
+            var messageText = StringBuilderCache.GetStringAndRelease(builder);
             return new RuleMessage(RuleTitle, Level, messageText);
         }
 

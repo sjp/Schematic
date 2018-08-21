@@ -23,7 +23,7 @@ namespace SJP.Schematic.SqlServer.Parsing
             var schemaName = UnwrapIdentifier(schemaToken.ToStringValue());
             var localName = UnwrapIdentifier(localNameToken.ToStringValue());
 
-            Value = new Identifier(serverName, databaseName, schemaName, localName);
+            Value = Identifier.CreateQualifiedIdentifier(serverName, databaseName, schemaName, localName);
         }
 
         public SqlIdentifier(Token<SqlServerToken> databaseToken, Token<SqlServerToken> schemaToken, Token<SqlServerToken> localNameToken)
@@ -39,7 +39,7 @@ namespace SJP.Schematic.SqlServer.Parsing
             var schemaName = UnwrapIdentifier(schemaToken.ToStringValue());
             var localName = UnwrapIdentifier(localNameToken.ToStringValue());
 
-            Value = new Identifier(databaseName, schemaName, localName);
+            Value = Identifier.CreateQualifiedIdentifier(databaseName, schemaName, localName);
         }
 
         public SqlIdentifier(Token<SqlServerToken> schemaToken, Token<SqlServerToken> localNameToken)
@@ -52,7 +52,7 @@ namespace SJP.Schematic.SqlServer.Parsing
             var schemaName = UnwrapIdentifier(schemaToken.ToStringValue());
             var localName = UnwrapIdentifier(localNameToken.ToStringValue());
 
-            Value = new Identifier(schemaName, localName);
+            Value = Identifier.CreateQualifiedIdentifier(schemaName, localName);
         }
 
         public SqlIdentifier(Token<SqlServerToken> token)

@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using Microsoft.Extensions.Caching.Memory;
 using SJP.Schematic.Core.Extensions;
+using SJP.Schematic.Core.Utilities;
 
 namespace SJP.Schematic.Core
 {
@@ -103,25 +105,49 @@ namespace SJP.Schematic.Core
             var schemaPresent = !schema.IsNullOrWhiteSpace();
             var localNamePresent = !localName.IsNullOrWhiteSpace();
 
+            var identifierKey = GetHashCode(server, database, schema, localName);
+            if (_cache.TryGetValue(identifierKey, out Identifier identifier))
+                return identifier;
+
             if (serverPresent && databasePresent && schemaPresent && localNamePresent)
-                return new Identifier(server, database, schema, localName);
+            {
+                var result = new Identifier(server, database, schema, localName);
+                _cache.Set(identifierKey, result, _cacheLength);
+                return result;
+            }
             else if (serverPresent)
+            {
                 throw new ArgumentNullException(nameof(server), "A server name was provided, but other components are missing.");
+            }
 
             if (databasePresent && schemaPresent && localNamePresent)
-                return new Identifier(database, schema, localName);
+            {
+                var result = new Identifier(database, schema, localName);
+                _cache.Set(identifierKey, result, _cacheLength);
+                return result;
+            }
             else if (databasePresent)
+            {
                 throw new ArgumentNullException(nameof(database), "A database name was provided, but other components are missing.");
+            }
 
             if (schemaPresent && localNamePresent)
-                return new Identifier(schema, localName);
+            {
+                var result = new Identifier(schema, localName);
+                _cache.Set(identifierKey, result, _cacheLength);
+                return result;
+            }
             else if (schemaPresent)
+            {
                 throw new ArgumentNullException(nameof(schema), "A schema name was provided, but other components are missing.");
+            }
 
             if (!localNamePresent)
                 throw new ArgumentNullException(nameof(localName), "At least one component of an identifier must be provided.");
 
-            return new Identifier(localName);
+            var localIdentifier = new Identifier(localName);
+            _cache.Set(identifierKey, localIdentifier, _cacheLength);
+            return localIdentifier;
         }
 
         /// <summary>
@@ -154,7 +180,17 @@ namespace SJP.Schematic.Core
         /// A convenience operator that creates an <see cref="Identifier"/> from a string.
         /// </summary>
         /// <param name="localName">An object name.</param>
-        public static implicit operator Identifier(string localName) => new Identifier(localName);
+        public static implicit operator Identifier(string localName)
+        {
+            var identifierKey = GetHashCode(null, null, null, localName);
+            if (_cache.TryGetValue(identifierKey, out Identifier identifier))
+                return identifier;
+
+            identifier = new Identifier(localName);
+            _cache.Set(identifierKey, identifier);
+
+            return identifier;
+        }
 
         /// <summary>
         /// A server name.
@@ -299,19 +335,38 @@ namespace SJP.Schematic.Core
         {
             get
             {
-                var pieces = new List<string>();
+                var builder = StringBuilderCache.Acquire();
+
+                // always used except for LocalName, if available
+                const string separator = ", ";
 
                 if (!Server.IsNullOrWhiteSpace())
-                    pieces.Add($"Server = { Server }");
+                    builder.Append("Server = ").Append(Server).Append(separator);
                 if (!Database.IsNullOrWhiteSpace())
-                    pieces.Add($"Database = { Database }");
+                    builder.Append("Database = ").Append(Database).Append(separator);
                 if (!Schema.IsNullOrWhiteSpace())
-                    pieces.Add($"Schema = { Schema }");
+                    builder.Append("Schema = ").Append(Schema).Append(separator);
                 if (!LocalName.IsNullOrWhiteSpace())
-                    pieces.Add($"LocalName = { LocalName }");
+                    builder.Append("LocalName = ").Append(LocalName);
 
-                return pieces.Join(", ");
+                return StringBuilderCache.GetStringAndRelease(builder);
             }
         }
+
+        private static int GetHashCode(string server, string database, string schema, string localName)
+        {
+            unchecked
+            {
+                var hash = 17;
+                hash = (hash * 23) + (server != null ? _comparer.GetHashCode(server) : 0);
+                hash = (hash * 23) + (database != null ? _comparer.GetHashCode(database) : 0);
+                hash = (hash * 23) + (schema != null ? _comparer.GetHashCode(schema) : 0);
+                return (hash * 23) + (localName != null ? _comparer.GetHashCode(localName) : 0);
+            }
+        }
+
+        private readonly static TimeSpan _cacheLength = TimeSpan.FromMinutes(2); // only cache identifiers for two minutes
+        private readonly static IMemoryCache _cache = new MemoryCache(new MemoryCacheOptions());
+        private readonly static StringComparer _comparer = StringComparer.Ordinal;
     }
 }

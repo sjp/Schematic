@@ -100,7 +100,7 @@ namespace SJP.Schematic.PostgreSql
             get
             {
                 var tableNames = Connection.Query<QualifiedName>(TablesQuery)
-                    .Select(dto => new Identifier(dto.SchemaName, dto.ObjectName))
+                    .Select(dto => Identifier.CreateQualifiedIdentifier(dto.SchemaName, dto.ObjectName))
                     .ToList();
 
                 var tables = tableNames.Select(LoadTableSync);
@@ -112,7 +112,7 @@ namespace SJP.Schematic.PostgreSql
         {
             var queryResults = await Connection.QueryAsync<QualifiedName>(TablesQuery).ConfigureAwait(false);
             var tableNames = queryResults
-                .Select(dto => new Identifier(dto.SchemaName, dto.ObjectName))
+                .Select(dto => Identifier.CreateQualifiedIdentifier(dto.SchemaName, dto.ObjectName))
                 .ToList();
 
             var tables = tableNames.Select(name => LoadTableAsync(name, cancellationToken));
@@ -209,7 +209,7 @@ namespace SJP.Schematic.PostgreSql
             get
             {
                 var viewNames = Connection.Query<QualifiedName>(ViewsQuery)
-                    .Select(dto => new Identifier(dto.SchemaName, dto.ObjectName))
+                    .Select(dto => Identifier.CreateQualifiedIdentifier(dto.SchemaName, dto.ObjectName))
                     .ToList();
 
                 var views = viewNames.Select(LoadViewSync);
@@ -221,7 +221,7 @@ namespace SJP.Schematic.PostgreSql
         {
             var queryResult = await Connection.QueryAsync<QualifiedName>(ViewsQuery).ConfigureAwait(false);
             var viewNames = queryResult
-                .Select(dto => new Identifier(dto.SchemaName, dto.ObjectName))
+                .Select(dto => Identifier.CreateQualifiedIdentifier(dto.SchemaName, dto.ObjectName))
                 .ToList();
 
             var views = viewNames.Select(name => LoadViewAsync(name, cancellationToken));
@@ -318,7 +318,7 @@ namespace SJP.Schematic.PostgreSql
             get
             {
                 var sequenceNames = Connection.Query<QualifiedName>(SequencesQuery)
-                    .Select(dto => new Identifier(dto.SchemaName, dto.ObjectName))
+                    .Select(dto => Identifier.CreateQualifiedIdentifier(dto.SchemaName, dto.ObjectName))
                     .ToList();
 
                 var sequences = sequenceNames.Select(LoadSequenceSync);
@@ -330,7 +330,7 @@ namespace SJP.Schematic.PostgreSql
         {
             var queryResult = await Connection.QueryAsync<QualifiedName>(SequencesQuery).ConfigureAwait(false);
             var sequenceNames = queryResult
-                .Select(dto => new Identifier(dto.SchemaName, dto.ObjectName))
+                .Select(dto => Identifier.CreateQualifiedIdentifier(dto.SchemaName, dto.ObjectName))
                 .ToList();
 
             var sequences = sequenceNames.Select(name => LoadSequenceAsync(name, cancellationToken));
@@ -440,7 +440,7 @@ select
             var databaseName = identifier.Database ?? DatabaseName;
             var schema = identifier.Schema ?? DefaultSchema;
 
-            return new Identifier(serverName, databaseName, schema, identifier.LocalName);
+            return Identifier.CreateQualifiedIdentifier(serverName, databaseName, schema, identifier.LocalName);
         }
 
         private IRelationalDatabase _parentDb;

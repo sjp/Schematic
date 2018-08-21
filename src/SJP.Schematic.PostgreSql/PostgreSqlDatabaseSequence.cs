@@ -25,7 +25,7 @@ namespace SJP.Schematic.PostgreSql
             var databaseName = sequenceName.Database ?? database.DatabaseName;
             var schemaName = sequenceName.Schema ?? database.DefaultSchema;
 
-            Name = new Identifier(serverName, databaseName, schemaName, sequenceName.LocalName);
+            Name = Identifier.CreateQualifiedIdentifier(serverName, databaseName, schemaName, sequenceName.LocalName);
 
             _dataLoader = new AsyncLazy<SequenceData>(LoadSequenceDataAsync);
         }

@@ -5,6 +5,7 @@ using System.Text;
 using System.Web;
 using SJP.Schematic.Core;
 using SJP.Schematic.Core.Extensions;
+using SJP.Schematic.Core.Utilities;
 using SJP.Schematic.Lint;
 
 namespace SJP.Schematic.Reporting.Html.Lint.Rules
@@ -38,7 +39,8 @@ namespace SJP.Schematic.Reporting.Html.Lint.Rules
                 .Select(columnName => "<code>" + HttpUtility.HtmlEncode(columnName) + "</code>")
                 .Join(", ");
 
-            var builder = new StringBuilder("The table ")
+            var builder = StringBuilderCache.Acquire();
+            builder.Append("The table ")
                 .Append(tableLink)
                 .Append(" has an index <code>")
                 .Append(HttpUtility.HtmlEncode(indexName))
@@ -50,7 +52,7 @@ namespace SJP.Schematic.Reporting.Html.Lint.Rules
                 .Append(otherColumnNames)
                 .Append(").");
 
-            var messageText = builder.ToString();
+            var messageText = StringBuilderCache.GetStringAndRelease(builder);
             return new RuleMessage(RuleTitle, Level, messageText);
         }
     }

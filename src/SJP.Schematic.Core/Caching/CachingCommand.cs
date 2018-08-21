@@ -125,7 +125,7 @@ namespace SJP.Schematic.Core.Caching
         /// <returns>The first column of the first row in the result set.</returns>
         public override object ExecuteScalar()
         {
-            var cacheKey = new DbCommandIdentity(this).Identity;
+            var cacheKey = DbCommandIdentityProvider.GetIdentity(this);
             if (Cache.TryGetValue(cacheKey, out var result))
             {
                 var cachedReader = result.CreateDataReader();
@@ -161,7 +161,7 @@ namespace SJP.Schematic.Core.Caching
         /// <returns>A task representing the asynchronous operation.</returns>
         public override async Task<object> ExecuteScalarAsync(CancellationToken cancellationToken)
         {
-            var cacheKey = new DbCommandIdentity(this).Identity;
+            var cacheKey = DbCommandIdentityProvider.GetIdentity(this);
             if (Cache.TryGetValue(cacheKey, out var result))
             {
                 var cachedReader = result.CreateDataReader();
@@ -197,13 +197,15 @@ namespace SJP.Schematic.Core.Caching
         /// <returns>A <see cref="DbDataReader"/> object.</returns>
         protected override DbDataReader ExecuteDbDataReader(CommandBehavior behavior)
         {
-            var cacheKey = new DbCommandIdentity(this).Identity;
+            var cacheKey = DbCommandIdentityProvider.GetIdentity(this);
             if (Cache.TryGetValue(cacheKey, out var result))
                 return result.CreateDataReader();
 
             result = new DataTable();
             var reader = Command.ExecuteReader(behavior);
+            result.BeginLoadData();
             result.Load(reader);
+            result.EndLoadData();
 
             Cache.TryAdd(cacheKey, result);
             return result.CreateDataReader();
@@ -217,13 +219,15 @@ namespace SJP.Schematic.Core.Caching
         /// <returns>A task representing the asynchronous operation.</returns>
         protected override async Task<DbDataReader> ExecuteDbDataReaderAsync(CommandBehavior behavior, CancellationToken cancellationToken)
         {
-            var cacheKey = new DbCommandIdentity(this).Identity;
+            var cacheKey = DbCommandIdentityProvider.GetIdentity(this);
             if (Cache.TryGetValue(cacheKey, out var result))
                 return result.CreateDataReader();
 
             result = new DataTable();
             var reader = await Command.ExecuteReaderAsync(behavior, cancellationToken).ConfigureAwait(false);
+            result.BeginLoadData();
             result.Load(reader);
+            result.EndLoadData();
 
             Cache.TryAdd(cacheKey, result);
             return result.CreateDataReader();

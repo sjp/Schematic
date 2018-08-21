@@ -118,7 +118,7 @@ namespace SJP.Schematic.Modelled.Reflection.Model.Tests
             var testColumn = Mock.Of<IModelledColumn>();
             Key selector(TestTable1 t)
             {
-                var testString = "test";
+                const string testString = "test";
                 var strLength = testString.Length;
                 Debug.Assert(strLength > 0);
                 return t.PK_TARGET;

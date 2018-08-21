@@ -1,4 +1,5 @@
 ﻿using SJP.Schematic.Core.Extensions;
+using SJP.Schematic.Core.Utilities;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -40,7 +41,7 @@ namespace SJP.Schematic.Reporting.Dot
 
         protected override string BuildDot()
         {
-            var builder = new StringBuilder();
+            var builder = StringBuilderCache.Acquire();
 
             builder.Append(Identifier);
             builder.AppendLine(" [");
@@ -257,7 +258,7 @@ namespace SJP.Schematic.Reporting.Dot
 
             builder.Append("]");
 
-            return builder.ToString();
+            return StringBuilderCache.GetStringAndRelease(builder);
         }
 
         private readonly string _tableName;

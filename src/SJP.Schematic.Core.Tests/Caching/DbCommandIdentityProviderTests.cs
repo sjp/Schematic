@@ -6,12 +6,12 @@ namespace SJP.Schematic.Core.Tests.Caching
 {
     // can't test much as this is basically just a hash function
     [TestFixture]
-    internal static class DataParameterCollectionIdentityTests
+    internal static class DbCommandIdentityProviderTests
     {
         [Test]
-        public static void Ctor_GivenNullDataParameterCollection_ThrowsArgNullException()
+        public static void Ctor_GivenNullCommand_ThrowsArgNullException()
         {
-            Assert.Throws<ArgumentNullException>(() => new DataParameterCollectionIdentity(null));
+            Assert.Throws<ArgumentNullException>(() => DbCommandIdentityProvider.GetIdentity(null));
         }
     }
 }

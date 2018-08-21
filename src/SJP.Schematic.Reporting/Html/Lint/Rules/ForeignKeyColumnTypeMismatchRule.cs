@@ -3,6 +3,7 @@ using System.Text;
 using System.Web;
 using SJP.Schematic.Core;
 using SJP.Schematic.Core.Extensions;
+using SJP.Schematic.Core.Utilities;
 using SJP.Schematic.Lint;
 
 namespace SJP.Schematic.Reporting.Html.Lint.Rules
@@ -21,7 +22,8 @@ namespace SJP.Schematic.Reporting.Html.Lint.Rules
             if (parentTableName == null)
                 throw new ArgumentNullException(nameof(parentTableName));
 
-            var builder = new StringBuilder("A foreign key");
+            var builder = StringBuilderCache.Acquire();
+            builder.Append("A foreign key");
             if (!foreignKeyName.IsNullOrWhiteSpace())
             {
                 builder.Append(" <code>")
@@ -38,7 +40,7 @@ namespace SJP.Schematic.Reporting.Html.Lint.Rules
                 .Append(parentTableLink)
                 .Append(" contains mismatching column types. These should be the same in order to ensure that foreign keys can always hold the same information as the target key.");
 
-            var messageText = builder.ToString();
+            var messageText = StringBuilderCache.GetStringAndRelease(builder);
             return new RuleMessage(RuleTitle, Level, messageText);
         }
     }

@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using SJP.Schematic.Core;
 using SJP.Schematic.Core.Extensions;
+using SJP.Schematic.Core.Utilities;
 
 namespace SJP.Schematic.SqlServer
 {
@@ -118,7 +119,7 @@ namespace SJP.Schematic.SqlServer
             if (typeMetadata.TypeName == null)
                 throw new ArgumentException("The type name is missing. A formatted type name cannot be generated.", nameof(typeMetadata));
 
-            var builder = new StringBuilder(typeMetadata.TypeName.LocalName.Length * 2);
+            var builder = StringBuilderCache.Acquire(typeMetadata.TypeName.LocalName.Length * 2);
             var typeName = typeMetadata.TypeName;
             if (string.Equals(typeName.Schema, "sys", StringComparison.OrdinalIgnoreCase))
                 builder.Append(QuoteIdentifier(typeName.LocalName));
@@ -126,7 +127,7 @@ namespace SJP.Schematic.SqlServer
                 builder.Append(QuoteName(typeName));
 
             if (_typeNamesWithNoLengthAnnotation.Contains(typeName))
-                return builder.ToString();
+                return StringBuilderCache.GetStringAndRelease(builder);
 
             builder.Append("(");
 
@@ -154,7 +155,7 @@ namespace SJP.Schematic.SqlServer
 
             builder.Append(")");
 
-            return builder.ToString();
+            return StringBuilderCache.GetStringAndRelease(builder);
         }
 
         protected static DataType GetDataType(Identifier typeName)

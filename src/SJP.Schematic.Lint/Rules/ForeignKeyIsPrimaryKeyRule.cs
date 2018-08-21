@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using SJP.Schematic.Core;
 using SJP.Schematic.Core.Extensions;
+using SJP.Schematic.Core.Utilities;
 
 namespace SJP.Schematic.Lint.Rules
 {
@@ -60,7 +61,8 @@ namespace SJP.Schematic.Lint.Rules
             if (childTableName == null)
                 throw new ArgumentNullException(nameof(childTableName));
 
-            var builder = new StringBuilder("A foreign key");
+            var builder = StringBuilderCache.Acquire();
+            builder.Append("A foreign key");
             if (!foreignKeyName.IsNullOrWhiteSpace())
             {
                 builder.Append(" '")
@@ -72,7 +74,8 @@ namespace SJP.Schematic.Lint.Rules
                 .Append(childTableName)
                 .Append(" contains the same column set as the target key.");
 
-            return new RuleMessage(RuleTitle, Level, builder.ToString());
+            var messageText = StringBuilderCache.GetStringAndRelease(builder);
+            return new RuleMessage(RuleTitle, Level, messageText);
         }
 
         protected static string RuleTitle { get; } = "Foreign key relationships contains the same columns as the target key.";

@@ -6,6 +6,7 @@ using System.Reflection;
 using System.Text;
 using SJP.Schematic.Core;
 using SJP.Schematic.Core.Extensions;
+using SJP.Schematic.Core.Utilities;
 using Superpower;
 using Superpower.Model;
 using Superpower.Parsers;
@@ -59,7 +60,7 @@ namespace SJP.Schematic.Modelled.Reflection.Model
             if (Tokens.Empty())
                 return ExpressionText;
 
-            var builder = new StringBuilder(ExpressionText.Length);
+            var builder = StringBuilderCache.Acquire(ExpressionText.Length);
 
             var tokenValues = GetTokenValues(dialect);
             var tokenInfo = Tokens.Zip(tokenValues, (t, v) =>
@@ -89,7 +90,7 @@ namespace SJP.Schematic.Modelled.Reflection.Model
             if (prevEnd < (ExpressionText.Length - 1))
                 builder.Append(ExpressionText.Substring(prevEnd + 1));
 
-            return builder.ToString();
+            return StringBuilderCache.GetStringAndRelease(builder);
         }
 
         private IEnumerable<string> GetTokenValues(IDatabaseDialect dialect)

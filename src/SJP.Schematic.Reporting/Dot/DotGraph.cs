@@ -5,6 +5,7 @@ using System.Text;
 using System.Diagnostics;
 using System.Reflection;
 using System.IO;
+using SJP.Schematic.Core.Utilities;
 
 namespace SJP.Schematic.Reporting.Dot
 {
@@ -44,7 +45,7 @@ namespace SJP.Schematic.Reporting.Dot
 
         private string BuildDot()
         {
-            var builder = new StringBuilder();
+            var builder = StringBuilderCache.Acquire();
 
             builder.Append("// Schematic version ").AppendLine(_fileVersion);
             builder.Append("digraph ").Append(GraphName).AppendLine(" {");
@@ -119,7 +120,7 @@ namespace SJP.Schematic.Reporting.Dot
             }
 
             builder.AppendLine("}");
-            return builder.ToString();
+            return StringBuilderCache.GetStringAndRelease(builder);
         }
 
         private static string GetIndentForLevel(uint level) => new string(' ', (int)(level * 2));

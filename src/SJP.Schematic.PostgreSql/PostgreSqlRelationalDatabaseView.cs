@@ -34,7 +34,7 @@ namespace SJP.Schematic.PostgreSql
 
             Comparer = comparer ?? new IdentifierComparer(StringComparer.Ordinal, serverName, databaseName, schemaName);
 
-            Name = new Identifier(serverName, databaseName, schemaName, viewName.LocalName);
+            Name = Identifier.CreateQualifiedIdentifier(serverName, databaseName, schemaName, viewName.LocalName);
         }
 
         public Identifier Name { get; }
@@ -156,8 +156,8 @@ order by ordinal_position";
             {
                 var typeMetadata = new ColumnTypeMetadata
                 {
-                    TypeName = new Identifier(row.data_type),
-                    Collation = row.collation_name.IsNullOrWhiteSpace() ? null : new Identifier(row.collation_catalog, row.collation_schema, row.collation_name),
+                    TypeName = Identifier.CreateQualifiedIdentifier(row.data_type),
+                    Collation = row.collation_name.IsNullOrWhiteSpace() ? null : Identifier.CreateQualifiedIdentifier(row.collation_catalog, row.collation_schema, row.collation_name),
                     //TODO -- need to fix max length as it's different for char-like objects and numeric
                     //MaxLength = row.,
                     // TODO: numeric_precision has a base, can be either binary or decimal, need to use the correct one
@@ -165,7 +165,7 @@ order by ordinal_position";
                 };
 
                 var columnType = TypeProvider.CreateColumnType(typeMetadata);
-                var columnName = new Identifier(row.column_name);
+                var columnName = Identifier.CreateQualifiedIdentifier(row.column_name);
                 IAutoIncrement autoIncrement = null;
 
                 var column = new PostgreSqlDatabaseViewColumn(this, columnName, columnType, row.is_nullable == "YES", row.column_default, autoIncrement);
@@ -212,8 +212,8 @@ order by ordinal_position";
             {
                 var typeMetadata = new ColumnTypeMetadata
                 {
-                    TypeName = new Identifier(row.data_type),
-                    Collation = row.collation_name.IsNullOrWhiteSpace() ? null : new Identifier(row.collation_catalog, row.collation_schema, row.collation_name),
+                    TypeName = Identifier.CreateQualifiedIdentifier(row.data_type),
+                    Collation = row.collation_name.IsNullOrWhiteSpace() ? null : Identifier.CreateQualifiedIdentifier(row.collation_catalog, row.collation_schema, row.collation_name),
                     //TODO -- need to fix max length as it's different for char-like objects and numeric
                     //MaxLength = row.,
                     // TODO: numeric_precision has a base, can be either binary or decimal, need to use the correct one
@@ -221,7 +221,7 @@ order by ordinal_position";
                 };
 
                 var columnType = TypeProvider.CreateColumnType(typeMetadata);
-                var columnName = new Identifier(row.column_name);
+                var columnName = Identifier.CreateQualifiedIdentifier(row.column_name);
                 IAutoIncrement autoIncrement = null;
 
                 var column = new PostgreSqlDatabaseViewColumn(this, columnName, columnType, row.is_nullable == "YES", row.column_default, autoIncrement);
