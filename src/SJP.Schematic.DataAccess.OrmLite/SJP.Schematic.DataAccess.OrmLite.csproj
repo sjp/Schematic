@@ -8,8 +8,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="ServiceStack.OrmLite" Version="5.1.0" />
-    <PackageReference Include="System.IO.Abstractions" Version="2.1.0.227" />
+    <PackageReference Include="ServiceStack.OrmLite" Version="5.2.0" />
+    <PackageReference Include="System.IO.Abstractions" Version="2.1.0.228" />
   </ItemGroup>
 
   <ItemGroup>
