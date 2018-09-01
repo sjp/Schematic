@@ -25,9 +25,10 @@ The aim of this project is to create an easier way to declare and manage schemas
 
 ## Currently supported databases
 
-* SQLite
-* PostgreSQL
 * MySQL
+* Oracle
+* PostgreSQL
+* SQLite
 * SQL Server
 
 ## Status
