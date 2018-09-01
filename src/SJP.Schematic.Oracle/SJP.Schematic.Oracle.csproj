@@ -1,0 +1,30 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <TreatWarningsAsErrors>True</TreatWarningsAsErrors>
+    <TreatSpecificWarningsAsErrors />
+    <Description>Oracle database metadata and migration provider for SJP.Schematic</Description>
+    <Product />
+    <Company />
+    <Authors>Simon Potter</Authors>
+    <Copyright>Copyright © Simon Potter 2017</Copyright>
+    <PackageLicenseUrl>https://raw.github.com/sjp/Schematic/master/LICENSE</PackageLicenseUrl>
+    <PackageProjectUrl>https://github.com/sjp/Schematic</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/sjp/Schematic</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageIconUrl>https://raw.github.com/sjp/Schematic/master/database.svg</PackageIconUrl>
+    <CheckForOverflowUnderflow>true</CheckForOverflowUnderflow>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Dapper" Version="1.50.5" />
+    <PackageReference Include="Oracle.ManagedDataAccess.Core" Version="2.12.0-beta3" />
+    <PackageReference Include="Superpower" Version="2.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\SJP.Schematic.Core\SJP.Schematic.Core.csproj" />
+  </ItemGroup>
+
+</Project>
