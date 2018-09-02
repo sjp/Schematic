@@ -62,41 +62,6 @@ where OWNER = :SchemaName and VIEW_NAME = :ViewName";
             return Connection.ExecuteScalar<string>(sql, new { SchemaName = Name.Schema, ViewName = Name.LocalName });
         }
 
-
-
-
-        // TODO REMOVE
-        public virtual string LoadConstraintDefinitionSync()
-        {
-            const string sql = @"
-select TEXT_VC
-from DBA_VIEWS
-where VIEW_NAME = 'DBA_CONSTRAINTS'";
-
-            return Connection.ExecuteScalar<string>(sql, new { SchemaName = "SYS", ViewName = "DBA_VIEWS" });
-        }
-
-        public virtual string LoadIndexDefinitionSync()
-        {
-            const string sql = @"
-select TEXT_VC
-from DBA_VIEWS
-where VIEW_NAME = 'DBA_INDEXES'";
-
-            return Connection.ExecuteScalar<string>(sql, new { SchemaName = "SYS", ViewName = "DBA_VIEWS" });
-        }
-
-        public virtual string LoadViewDefinitionSync()
-        {
-            const string sql = @"
-select TEXT_VC
-from DBA_VIEWS
-where VIEW_NAME = 'DBA_VIEWS'";
-
-            return Connection.ExecuteScalar<string>(sql, new { SchemaName = "SYS", ViewName = "DBA_VIEWS" });
-        }
-
-
         protected virtual Task<string> LoadDefinitionAsync(CancellationToken cancellationToken)
         {
             const string sql = @"
