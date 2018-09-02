@@ -5,8 +5,6 @@ using System.Linq;
 using SJP.Schematic.Core;
 using SJP.Schematic.Core.Extensions;
 using SJP.Schematic.Core.Utilities;
-using Oracle.ManagedDataAccess.Client;
-using System.Collections;
 
 namespace SJP.Schematic.Oracle
 {

@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using SJP.Schematic.Core.Utilities;
 
 namespace SJP.Schematic.Reporting.Dot
