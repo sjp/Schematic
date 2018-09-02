@@ -6,28 +6,6 @@ using SJP.Schematic.Core.Extensions;
 
 namespace SJP.Schematic.MySql
 {
-    public class MySqlDatabaseViewIndex : MySqlDatabaseIndex<IRelationalDatabaseView>, IDatabaseViewIndex
-    {
-        public MySqlDatabaseViewIndex(IRelationalDatabaseView view, Identifier name, bool isUnique, IReadOnlyCollection<IDatabaseIndexColumn> columns)
-            : base(view, name, isUnique, columns)
-        {
-            View = view ?? throw new ArgumentNullException(nameof(view));
-        }
-
-        public IRelationalDatabaseView View { get; }
-    }
-
-    public class MySqlDatabaseTableIndex : MySqlDatabaseIndex<IRelationalDatabaseTable>, IDatabaseTableIndex
-    {
-        public MySqlDatabaseTableIndex(IRelationalDatabaseTable table, Identifier name, bool isUnique, IReadOnlyCollection<IDatabaseIndexColumn> columns)
-            : base(table, name, isUnique, columns)
-        {
-            Table = table ?? throw new ArgumentNullException(nameof(table));
-        }
-
-        public IRelationalDatabaseTable Table { get; }
-    }
-
     public abstract class MySqlDatabaseIndex<T> : IDatabaseIndex<T> where T : class, IDatabaseQueryable
     {
         protected MySqlDatabaseIndex(T parent, Identifier name, bool isUnique, IReadOnlyCollection<IDatabaseIndexColumn> columns)

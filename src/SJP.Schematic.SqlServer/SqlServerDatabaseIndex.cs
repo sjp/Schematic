@@ -7,28 +7,6 @@ using SJP.Schematic.Core.Extensions;
 
 namespace SJP.Schematic.SqlServer
 {
-    public class SqlServerDatabaseViewIndex : SqlServerDatabaseIndex<IRelationalDatabaseView>, IDatabaseViewIndex
-    {
-        public SqlServerDatabaseViewIndex(IRelationalDatabaseView view, Identifier name, bool isUnique, IReadOnlyCollection<IDatabaseIndexColumn> columns, IReadOnlyCollection<IDatabaseViewColumn> includedColumns, bool isEnabled)
-            : base(view, name, isUnique, columns, includedColumns, isEnabled)
-        {
-            View = view ?? throw new ArgumentNullException(nameof(view));
-        }
-
-        public IRelationalDatabaseView View { get; }
-    }
-
-    public class SqlServerDatabaseTableIndex : SqlServerDatabaseIndex<IRelationalDatabaseTable>, IDatabaseTableIndex
-    {
-        public SqlServerDatabaseTableIndex(IRelationalDatabaseTable table, Identifier name, bool isUnique, IReadOnlyCollection<IDatabaseIndexColumn> columns, IReadOnlyCollection<IDatabaseTableColumn> includedColumns, bool isEnabled)
-            : base(table, name, isUnique, columns, includedColumns, isEnabled)
-        {
-            Table = table ?? throw new ArgumentNullException(nameof(table));
-        }
-
-        public IRelationalDatabaseTable Table { get; }
-    }
-
     public abstract class SqlServerDatabaseIndex<T> : IDatabaseIndex<T> where T : class, IDatabaseQueryable
     {
         protected SqlServerDatabaseIndex(T parent, Identifier name, bool isUnique, IReadOnlyCollection<IDatabaseIndexColumn> columns, IReadOnlyCollection<IDatabaseColumn> includedColumns, bool isEnabled)

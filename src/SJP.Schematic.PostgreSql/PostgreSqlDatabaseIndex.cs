@@ -7,28 +7,6 @@ using SJP.Schematic.Core.Extensions;
 
 namespace SJP.Schematic.PostgreSql
 {
-    public class PostgreSqlDatabaseViewIndex : PostgreSqlDatabaseIndex<IRelationalDatabaseView>, IDatabaseViewIndex
-    {
-        public PostgreSqlDatabaseViewIndex(IRelationalDatabaseView view, Identifier name, bool isUnique, IReadOnlyCollection<IDatabaseIndexColumn> columns)
-            : base(view, name, isUnique, columns)
-        {
-            View = view ?? throw new ArgumentNullException(nameof(view));
-        }
-
-        public IRelationalDatabaseView View { get; }
-    }
-
-    public class PostgreSqlDatabaseTableIndex : PostgreSqlDatabaseIndex<IRelationalDatabaseTable>, IDatabaseTableIndex
-    {
-        public PostgreSqlDatabaseTableIndex(IRelationalDatabaseTable table, Identifier name, bool isUnique, IReadOnlyCollection<IDatabaseIndexColumn> columns)
-            : base(table, name, isUnique, columns)
-        {
-            Table = table ?? throw new ArgumentNullException(nameof(table));
-        }
-
-        public IRelationalDatabaseTable Table { get; }
-    }
-
     public abstract class PostgreSqlDatabaseIndex<T> : IDatabaseIndex<T> where T : class, IDatabaseQueryable
     {
         protected PostgreSqlDatabaseIndex(T parent, Identifier name, bool isUnique, IReadOnlyCollection<IDatabaseIndexColumn> columns)
