@@ -1,5 +1,4 @@
-﻿using System;
-using System.Linq;
+﻿using System.Linq;
 using System.Threading.Tasks;
 using Dapper;
 using NUnit.Framework;
@@ -7,7 +6,6 @@ using SJP.Schematic.Core;
 
 namespace SJP.Schematic.SqlServer.Tests.Integration
 {
-    [TestFixture]
     internal class SqlServerRelationalDatabaseViewTests : SqlServerTest
     {
         private IRelationalDatabase Database => new SqlServerRelationalDatabase(Dialect, Connection);
@@ -27,42 +25,6 @@ namespace SJP.Schematic.SqlServer.Tests.Integration
             await Connection.ExecuteAsync("drop view view_test_view_1").ConfigureAwait(false);
             await Connection.ExecuteAsync("drop view view_test_view_2").ConfigureAwait(false);
             await Connection.ExecuteAsync("drop table view_test_table_1").ConfigureAwait(false);
-        }
-
-        [Test]
-        public void Ctor_GivenNullConnection_ThrowsArgNullException()
-        {
-            Assert.Throws<ArgumentNullException>(() => new SqlServerRelationalDatabaseView(null, Database, "test"));
-        }
-
-        [Test]
-        public void Ctor_GivenNullDatabase_ThrowsArgNullException()
-        {
-            Assert.Throws<ArgumentNullException>(() => new SqlServerRelationalDatabaseView(Connection, null, "test"));
-        }
-
-        [Test]
-        public void Ctor_GivenNullName_ThrowsArgNullException()
-        {
-            Assert.Throws<ArgumentNullException>(() => new SqlServerRelationalDatabaseView(Connection, Database, null));
-        }
-
-        [Test]
-        public void Database_PropertyGet_ShouldMatchCtorArg()
-        {
-            var database = Database;
-            var view = new SqlServerRelationalDatabaseView(Connection, database, "view_test_view_1");
-
-            Assert.AreSame(database, view.Database);
-        }
-
-        [Test]
-        public void Name_PropertyGet_ShouldEqualCtorArg()
-        {
-            const string viewName = "view_test_view_1";
-            var view = new SqlServerRelationalDatabaseView(Connection, Database, viewName);
-
-            Assert.AreEqual(viewName, view.Name.LocalName);
         }
 
         [Test]

@@ -29,26 +29,4 @@ namespace SJP.Schematic.SqlServer
 
         public IAutoIncrement AutoIncrement { get; }
     }
-
-    public class SqlServerDatabaseTableColumn : SqlServerDatabaseColumn, IDatabaseTableColumn
-    {
-        public SqlServerDatabaseTableColumn(IRelationalDatabaseTable table, Identifier columnName, IDbType type, bool isNullable, string defaultValue, IAutoIncrement autoIncrement)
-            : base(columnName, type, isNullable, defaultValue, autoIncrement)
-        {
-            Table = table ?? throw new ArgumentNullException(nameof(table));
-        }
-
-        public IRelationalDatabaseTable Table { get; }
-    }
-
-    public class SqlServerDatabaseViewColumn : SqlServerDatabaseColumn, IDatabaseViewColumn
-    {
-        public SqlServerDatabaseViewColumn(IRelationalDatabaseView view, Identifier columnName, IDbType type, bool isNullable, string defaultValue, IAutoIncrement autoIncrement)
-            : base(columnName, type, isNullable, defaultValue, autoIncrement)
-        {
-            View = view ?? throw new ArgumentNullException(nameof(view));
-        }
-
-        public IRelationalDatabaseView View { get; }
-    }
 }

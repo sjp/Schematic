@@ -7,7 +7,6 @@ using SJP.Schematic.Core;
 
 namespace SJP.Schematic.SqlServer.Tests.Integration
 {
-    [TestFixture]
     internal class SqlServerRelationalDatabaseTests : SqlServerTest
     {
         private IRelationalDatabase Database => new SqlServerRelationalDatabase(Dialect, Connection);

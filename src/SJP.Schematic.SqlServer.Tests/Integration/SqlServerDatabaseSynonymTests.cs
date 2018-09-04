@@ -1,58 +1,16 @@
-﻿using System;
-using NUnit.Framework;
+﻿using NUnit.Framework;
 using SJP.Schematic.Core;
 
 namespace SJP.Schematic.SqlServer.Tests.Integration
 {
-    [TestFixture]
     internal class SqlServerDatabaseSynonymTests : SqlServerTest
     {
-        private IRelationalDatabase Database => new SqlServerRelationalDatabase(Dialect, Connection);
-
-        [Test]
-        public static void Ctor_GivenNullDatabase_ThrowsArgNullException()
+        public SqlServerDatabaseSynonymTests()
         {
-            Assert.Throws<ArgumentNullException>(() => new SqlServerDatabaseSynonym(null, "test", "test"));
+            Database = new SqlServerRelationalDatabase(Dialect, Connection);
         }
 
-        [Test]
-        public void Ctor_GivenNullName_ThrowsArgNullException()
-        {
-            Assert.Throws<ArgumentNullException>(() => new SqlServerDatabaseSynonym(Database, null, "test"));
-        }
-
-        [Test]
-        public void Ctor_GivenNullTarget_ThrowsArgNullException()
-        {
-            Assert.Throws<ArgumentNullException>(() => new SqlServerDatabaseSynonym(Database, "test", null));
-        }
-
-        [Test]
-        public void Database_PropertyGet_ShouldMatchCtorArg()
-        {
-            var database = Database;
-            var synonym = new SqlServerDatabaseSynonym(database, "test", "test");
-
-            Assert.AreSame(database, synonym.Database);
-        }
-
-        [Test]
-        public void Name_PropertyGet_ShouldEqualCtorArg()
-        {
-            const string synonymName = "synonym_test_synonym_1";
-            var synonym = new SqlServerDatabaseSynonym(Database, synonymName, synonymName);
-
-            Assert.AreEqual(synonymName, synonym.Name.LocalName);
-        }
-
-        [Test]
-        public void Target_PropertyGetGivenNotNullCtorArg_ShouldEqualCtorArg()
-        {
-            const string synonymName = "synonym_test_synonym_1";
-            var synonym = new SqlServerDatabaseSynonym(Database, synonymName, synonymName);
-
-            Assert.AreEqual(synonymName, synonym.Target.LocalName);
-        }
+        private IRelationalDatabase Database { get; }
 
         [Test]
         public void Name_GivenLocalNameOnlyInCtor_ShouldBeQualifiedCorrectly()

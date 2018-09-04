@@ -19,6 +19,7 @@ namespace SJP.Schematic.SqlServer.Tests.Integration
 
     [Category("SqlServerDatabase")]
     [Category("SkipWhenLiveUnitTesting")]
+    [TestFixture]
     internal abstract class SqlServerTest
     {
         protected IDbConnection Connection { get; } = Config.Connection;

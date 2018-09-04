@@ -1,14 +1,10 @@
-﻿using System;
-using System.Data;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using Dapper;
-using Moq;
 using NUnit.Framework;
 using SJP.Schematic.Core;
 
 namespace SJP.Schematic.SqlServer.Tests.Integration
 {
-    [TestFixture]
     internal class SqlServerDatabaseSequenceTests : SqlServerTest
     {
         [OneTimeSetUp]
@@ -44,37 +40,6 @@ namespace SJP.Schematic.SqlServer.Tests.Integration
         }
 
         private IRelationalDatabase Database => new SqlServerRelationalDatabase(Dialect, Connection);
-
-        [Test]
-        public static void Ctor_GivenNullConnection_ThrowsArgNullException()
-        {
-            var database = Mock.Of<IRelationalDatabase>();
-            Assert.Throws<ArgumentNullException>(() => new SqlServerDatabaseSequence(null, database, "test"));
-        }
-
-        [Test]
-        public static void Ctor_GivenNullDatabase_ThrowsArgNullException()
-        {
-            var connection = Mock.Of<IDbConnection>();
-            Assert.Throws<ArgumentNullException>(() => new SqlServerDatabaseSequence(connection, null, "test"));
-        }
-
-        [Test]
-        public static void Ctor_GivenNullName_ThrowsArgNullException()
-        {
-            var connection = Mock.Of<IDbConnection>();
-            var database = Mock.Of<IRelationalDatabase>();
-            Assert.Throws<ArgumentNullException>(() => new SqlServerDatabaseSequence(connection, database, null));
-        }
-
-        [Test]
-        public void Database_PropertyGet_ShouldMatchCtorArg()
-        {
-            var database = Database;
-            var sequence = new SqlServerDatabaseSequence(Connection, database, "test");
-
-            Assert.AreSame(database, sequence.Database);
-        }
 
         [Test]
         public void Name_GivenLocalNameOnlyInCtor_ShouldBeQualifiedCorrectly()

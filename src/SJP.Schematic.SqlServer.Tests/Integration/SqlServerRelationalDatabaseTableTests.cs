@@ -1,12 +1,10 @@
-﻿using System;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using Dapper;
 using NUnit.Framework;
 using SJP.Schematic.Core;
 
 namespace SJP.Schematic.SqlServer.Tests.Integration
 {
-    [TestFixture]
     internal partial class SqlServerRelationalDatabaseTableTests : SqlServerTest
     {
         private IRelationalDatabase Database => new SqlServerRelationalDatabase(Dialect, Connection);
@@ -346,42 +344,6 @@ end
             await Connection.ExecuteAsync("drop table table_test_table_35").ConfigureAwait(false);
             await Connection.ExecuteAsync("drop table trigger_test_table_1").ConfigureAwait(false);
             await Connection.ExecuteAsync("drop table trigger_test_table_2").ConfigureAwait(false);
-        }
-
-        [Test]
-        public void Ctor_GivenNullConnection_ThrowsArgNullException()
-        {
-            Assert.Throws<ArgumentNullException>(() => new SqlServerRelationalDatabaseTable(null, Database, "test"));
-        }
-
-        [Test]
-        public void Ctor_GivenNullDatabase_ThrowsArgNullException()
-        {
-            Assert.Throws<ArgumentNullException>(() => new SqlServerRelationalDatabaseTable(Connection, null, "test"));
-        }
-
-        [Test]
-        public void Ctor_GivenNullName_ThrowsArgNullException()
-        {
-            Assert.Throws<ArgumentNullException>(() => new SqlServerRelationalDatabaseTable(Connection, Database, null));
-        }
-
-        [Test]
-        public void Database_PropertyGet_ShouldMatchCtorArg()
-        {
-            var database = Database;
-            var table = new SqlServerRelationalDatabaseTable(Connection, database, "table_test_table_1");
-
-            Assert.AreSame(database, table.Database);
-        }
-
-        [Test]
-        public void Name_PropertyGet_ShouldEqualCtorArg()
-        {
-            const string tableName = "table_test_table_1";
-            var table = new SqlServerRelationalDatabaseTable(Connection, Database, tableName);
-
-            Assert.AreEqual(tableName, table.Name.LocalName);
         }
 
         [Test]

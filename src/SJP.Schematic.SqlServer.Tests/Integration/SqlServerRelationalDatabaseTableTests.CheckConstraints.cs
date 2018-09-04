@@ -4,7 +4,6 @@ using NUnit.Framework;
 
 namespace SJP.Schematic.SqlServer.Tests.Integration
 {
-    [TestFixture]
     internal partial class SqlServerRelationalDatabaseTableTests : SqlServerTest
     {
         [Test]
