@@ -95,7 +95,6 @@ namespace SJP.Schematic.MySql.Tests
             Assert.IsTrue(column.IsNullable);
         }
 
-
         [Test]
         public static void DefaultValue_PropertyGet_ReturnsCtorArg()
         {

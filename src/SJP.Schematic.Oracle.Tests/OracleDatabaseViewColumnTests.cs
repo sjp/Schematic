@@ -107,7 +107,6 @@ namespace SJP.Schematic.Oracle.Tests
             Assert.AreEqual(defaultValue, column.DefaultValue);
         }
 
-
         [Test]
         public static void IsComputed_PropertyGet_ReturnsFalse()
         {
