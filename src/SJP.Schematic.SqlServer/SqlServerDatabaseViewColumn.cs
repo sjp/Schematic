@@ -3,7 +3,6 @@ using SJP.Schematic.Core;
 
 namespace SJP.Schematic.SqlServer
 {
-
     public class SqlServerDatabaseViewColumn : SqlServerDatabaseColumn, IDatabaseViewColumn
     {
         public SqlServerDatabaseViewColumn(IRelationalDatabaseView view, Identifier columnName, IDbType type, bool isNullable, string defaultValue, IAutoIncrement autoIncrement)

@@ -3,16 +3,16 @@ using NUnit.Framework;
 using Moq;
 using SJP.Schematic.Core;
 
-namespace SJP.Schematic.SqlServer.Tests
+namespace SJP.Schematic.Oracle.Tests
 {
     [TestFixture]
-    internal static class SqlServerDatabaseTableColumnTests
+    internal static class OracleDatabaseTableColumnTests
     {
         [Test]
         public static void Ctor_GivenNullTable_ThrowsArgumentNullException()
         {
             var columnType = Mock.Of<IDbType>();
-            Assert.Throws<ArgumentNullException>(() => new SqlServerDatabaseTableColumn(null, "test_column", columnType, true, null, null));
+            Assert.Throws<ArgumentNullException>(() => new OracleDatabaseTableColumn(null, "test_column", columnType, true, null));
         }
 
         [Test]
@@ -20,14 +20,14 @@ namespace SJP.Schematic.SqlServer.Tests
         {
             var table = Mock.Of<IRelationalDatabaseTable>();
             var columnType = Mock.Of<IDbType>();
-            Assert.Throws<ArgumentNullException>(() => new SqlServerDatabaseTableColumn(table, null, columnType, true, null, null));
+            Assert.Throws<ArgumentNullException>(() => new OracleDatabaseTableColumn(table, null, columnType, true, null));
         }
 
         [Test]
         public static void Ctor_GivenNullType_ThrowsArgumentNullException()
         {
             var table = Mock.Of<IRelationalDatabaseTable>();
-            Assert.Throws<ArgumentNullException>(() => new SqlServerDatabaseTableColumn(table, "test_column", null, true, null, null));
+            Assert.Throws<ArgumentNullException>(() => new OracleDatabaseTableColumn(table, "test_column", null, true, null));
         }
 
         [Test]
@@ -40,7 +40,7 @@ namespace SJP.Schematic.SqlServer.Tests
 
             var columnType = Mock.Of<IDbType>();
 
-            var column = new SqlServerDatabaseTableColumn(tableArg, "test_column", columnType, true, null, null);
+            var column = new OracleDatabaseTableColumn(tableArg, "test_column", columnType, true, null);
 
             Assert.Multiple(() =>
             {
@@ -56,7 +56,7 @@ namespace SJP.Schematic.SqlServer.Tests
             var table = Mock.Of<IRelationalDatabaseTable>();
             var columnType = Mock.Of<IDbType>();
 
-            var column = new SqlServerDatabaseTableColumn(table, columnName, columnType, true, null, null);
+            var column = new OracleDatabaseTableColumn(table, columnName, columnType, true, null);
 
             Assert.AreEqual(columnName, column.Name);
         }
@@ -68,7 +68,7 @@ namespace SJP.Schematic.SqlServer.Tests
             var table = Mock.Of<IRelationalDatabaseTable>();
             var columnType = Mock.Of<IDbType>();
 
-            var column = new SqlServerDatabaseTableColumn(table, columnName, columnType, true, null, null);
+            var column = new OracleDatabaseTableColumn(table, columnName, columnType, true, null);
 
             Assert.AreEqual(columnType, column.Type);
         }
@@ -79,7 +79,7 @@ namespace SJP.Schematic.SqlServer.Tests
             Identifier columnName = "test_column";
             var table = Mock.Of<IRelationalDatabaseTable>();
             var columnType = Mock.Of<IDbType>();
-            var column = new SqlServerDatabaseTableColumn(table, columnName, columnType, false, null, null);
+            var column = new OracleDatabaseTableColumn(table, columnName, columnType, false, null);
 
             Assert.IsFalse(column.IsNullable);
         }
@@ -90,7 +90,7 @@ namespace SJP.Schematic.SqlServer.Tests
             Identifier columnName = "test_column";
             var table = Mock.Of<IRelationalDatabaseTable>();
             var columnType = Mock.Of<IDbType>();
-            var column = new SqlServerDatabaseTableColumn(table, columnName, columnType, true, null, null);
+            var column = new OracleDatabaseTableColumn(table, columnName, columnType, true, null);
 
             Assert.IsTrue(column.IsNullable);
         }
@@ -102,7 +102,7 @@ namespace SJP.Schematic.SqlServer.Tests
             var table = Mock.Of<IRelationalDatabaseTable>();
             var columnType = Mock.Of<IDbType>();
             const string defaultValue = "1";
-            var column = new SqlServerDatabaseTableColumn(table, columnName, columnType, true, defaultValue, null);
+            var column = new OracleDatabaseTableColumn(table, columnName, columnType, true, defaultValue);
 
             Assert.AreEqual(defaultValue, column.DefaultValue);
         }
@@ -113,7 +113,7 @@ namespace SJP.Schematic.SqlServer.Tests
             Identifier columnName = "test_column";
             var table = Mock.Of<IRelationalDatabaseTable>();
             var columnType = Mock.Of<IDbType>();
-            var column = new SqlServerDatabaseTableColumn(table, columnName, columnType, true, null, null);
+            var column = new OracleDatabaseTableColumn(table, columnName, columnType, true, null);
 
             Assert.IsFalse(column.IsComputed);
         }
@@ -124,26 +124,9 @@ namespace SJP.Schematic.SqlServer.Tests
             Identifier columnName = "test_column";
             var table = Mock.Of<IRelationalDatabaseTable>();
             var columnType = Mock.Of<IDbType>();
-            var column = new SqlServerDatabaseTableColumn(table, columnName, columnType, true, null, null);
+            var column = new OracleDatabaseTableColumn(table, columnName, columnType, true, null);
 
             Assert.IsNull(column.AutoIncrement);
-        }
-
-        [Test]
-        public static void AutoIncrement_GivenValidCtorArgPropertyGet_EqualsCtorArg()
-        {
-            Identifier columnName = "test_column";
-            var table = Mock.Of<IRelationalDatabaseTable>();
-            var columnType = Mock.Of<IDbType>();
-            var autoIncrement = new AutoIncrement(30, 2);
-
-            var column = new SqlServerDatabaseTableColumn(table, columnName, columnType, true, null, autoIncrement);
-
-            Assert.Multiple(() =>
-            {
-                Assert.AreEqual(autoIncrement.InitialValue, column.AutoIncrement.InitialValue);
-                Assert.AreEqual(autoIncrement.Increment, column.AutoIncrement.Increment);
-            });
         }
     }
 }

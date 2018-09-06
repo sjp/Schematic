@@ -3,16 +3,16 @@ using NUnit.Framework;
 using Moq;
 using SJP.Schematic.Core;
 
-namespace SJP.Schematic.SqlServer.Tests
+namespace SJP.Schematic.Oracle.Tests
 {
     [TestFixture]
-    internal static class SqlServerDatabaseViewColumnTests
+    internal static class OracleDatabaseViewColumnTests
     {
         [Test]
         public static void Ctor_GivenNullView_ThrowsArgumentNullException()
         {
             var columnType = Mock.Of<IDbType>();
-            Assert.Throws<ArgumentNullException>(() => new SqlServerDatabaseViewColumn(null, "test_column", columnType, true, null, null));
+            Assert.Throws<ArgumentNullException>(() => new OracleDatabaseViewColumn(null, "test_column", columnType, true, null));
         }
 
         [Test]
@@ -20,14 +20,14 @@ namespace SJP.Schematic.SqlServer.Tests
         {
             var view = Mock.Of<IRelationalDatabaseView>();
             var columnType = Mock.Of<IDbType>();
-            Assert.Throws<ArgumentNullException>(() => new SqlServerDatabaseViewColumn(view, null, columnType, true, null, null));
+            Assert.Throws<ArgumentNullException>(() => new OracleDatabaseViewColumn(view, null, columnType, true, null));
         }
 
         [Test]
         public static void Ctor_GivenNullType_ThrowsArgumentNullException()
         {
             var view = Mock.Of<IRelationalDatabaseView>();
-            Assert.Throws<ArgumentNullException>(() => new SqlServerDatabaseViewColumn(view, "test_column", null, true, null, null));
+            Assert.Throws<ArgumentNullException>(() => new OracleDatabaseViewColumn(view, "test_column", null, true, null));
         }
 
         [Test]
@@ -40,7 +40,7 @@ namespace SJP.Schematic.SqlServer.Tests
 
             var columnType = Mock.Of<IDbType>();
 
-            var column = new SqlServerDatabaseViewColumn(viewArg, "test_column", columnType, true, null, null);
+            var column = new OracleDatabaseViewColumn(viewArg, "test_column", columnType, true, null);
 
             Assert.Multiple(() =>
             {
@@ -56,7 +56,7 @@ namespace SJP.Schematic.SqlServer.Tests
             var view = Mock.Of<IRelationalDatabaseView>();
             var columnType = Mock.Of<IDbType>();
 
-            var column = new SqlServerDatabaseViewColumn(view, columnName, columnType, true, null, null);
+            var column = new OracleDatabaseViewColumn(view, columnName, columnType, true, null);
 
             Assert.AreEqual(columnName, column.Name);
         }
@@ -68,7 +68,7 @@ namespace SJP.Schematic.SqlServer.Tests
             var view = Mock.Of<IRelationalDatabaseView>();
             var columnType = Mock.Of<IDbType>();
 
-            var column = new SqlServerDatabaseViewColumn(view, columnName, columnType, true, null, null);
+            var column = new OracleDatabaseViewColumn(view, columnName, columnType, true, null);
 
             Assert.AreEqual(columnType, column.Type);
         }
@@ -79,7 +79,7 @@ namespace SJP.Schematic.SqlServer.Tests
             Identifier columnName = "test_column";
             var view = Mock.Of<IRelationalDatabaseView>();
             var columnType = Mock.Of<IDbType>();
-            var column = new SqlServerDatabaseViewColumn(view, columnName, columnType, false, null, null);
+            var column = new OracleDatabaseViewColumn(view, columnName, columnType, false, null);
 
             Assert.IsFalse(column.IsNullable);
         }
@@ -90,7 +90,7 @@ namespace SJP.Schematic.SqlServer.Tests
             Identifier columnName = "test_column";
             var view = Mock.Of<IRelationalDatabaseView>();
             var columnType = Mock.Of<IDbType>();
-            var column = new SqlServerDatabaseViewColumn(view, columnName, columnType, true, null, null);
+            var column = new OracleDatabaseViewColumn(view, columnName, columnType, true, null);
 
             Assert.IsTrue(column.IsNullable);
         }
@@ -102,10 +102,11 @@ namespace SJP.Schematic.SqlServer.Tests
             var view = Mock.Of<IRelationalDatabaseView>();
             var columnType = Mock.Of<IDbType>();
             const string defaultValue = "1";
-            var column = new SqlServerDatabaseViewColumn(view, columnName, columnType, true, defaultValue, null);
+            var column = new OracleDatabaseViewColumn(view, columnName, columnType, true, defaultValue);
 
             Assert.AreEqual(defaultValue, column.DefaultValue);
         }
+
 
         [Test]
         public static void IsComputed_PropertyGet_ReturnsFalse()
@@ -113,37 +114,20 @@ namespace SJP.Schematic.SqlServer.Tests
             Identifier columnName = "test_column";
             var view = Mock.Of<IRelationalDatabaseView>();
             var columnType = Mock.Of<IDbType>();
-            var column = new SqlServerDatabaseViewColumn(view, columnName, columnType, true, null, null);
+            var column = new OracleDatabaseViewColumn(view, columnName, columnType, true, null);
 
             Assert.IsFalse(column.IsComputed);
         }
 
         [Test]
-        public static void AutoIncrement_GivenNullCtorArgPropertyGet_EqualsNull()
+        public static void AutoIncrement_PropertyGet_EqualsNull()
         {
             Identifier columnName = "test_column";
             var view = Mock.Of<IRelationalDatabaseView>();
             var columnType = Mock.Of<IDbType>();
-            var column = new SqlServerDatabaseViewColumn(view, columnName, columnType, true, null, null);
+            var column = new OracleDatabaseViewColumn(view, columnName, columnType, true, null);
 
             Assert.IsNull(column.AutoIncrement);
-        }
-
-        [Test]
-        public static void AutoIncrement_GivenValidCtorArgPropertyGet_EqualsCtorArg()
-        {
-            Identifier columnName = "test_column";
-            var view = Mock.Of<IRelationalDatabaseView>();
-            var columnType = Mock.Of<IDbType>();
-            var autoIncrement = new AutoIncrement(30, 2);
-
-            var column = new SqlServerDatabaseViewColumn(view, columnName, columnType, true, null, autoIncrement);
-
-            Assert.Multiple(() =>
-            {
-                Assert.AreEqual(autoIncrement.InitialValue, column.AutoIncrement.InitialValue);
-                Assert.AreEqual(autoIncrement.Increment, column.AutoIncrement.Increment);
-            });
         }
     }
 }

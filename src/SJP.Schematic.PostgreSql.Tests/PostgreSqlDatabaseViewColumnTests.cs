@@ -3,49 +3,49 @@ using NUnit.Framework;
 using Moq;
 using SJP.Schematic.Core;
 
-namespace SJP.Schematic.SqlServer.Tests
+namespace SJP.Schematic.PostgreSql.Tests
 {
     [TestFixture]
-    internal static class SqlServerDatabaseTableColumnTests
+    internal static class PostgreSqlDatabaseViewColumnTests
     {
         [Test]
-        public static void Ctor_GivenNullTable_ThrowsArgumentNullException()
+        public static void Ctor_GivenNullView_ThrowsArgumentNullException()
         {
             var columnType = Mock.Of<IDbType>();
-            Assert.Throws<ArgumentNullException>(() => new SqlServerDatabaseTableColumn(null, "test_column", columnType, true, null, null));
+            Assert.Throws<ArgumentNullException>(() => new PostgreSqlDatabaseViewColumn(null, "test_column", columnType, true, null, null));
         }
 
         [Test]
         public static void Ctor_GivenNullName_ThrowsArgumentNullException()
         {
-            var table = Mock.Of<IRelationalDatabaseTable>();
+            var view = Mock.Of<IRelationalDatabaseView>();
             var columnType = Mock.Of<IDbType>();
-            Assert.Throws<ArgumentNullException>(() => new SqlServerDatabaseTableColumn(table, null, columnType, true, null, null));
+            Assert.Throws<ArgumentNullException>(() => new PostgreSqlDatabaseViewColumn(view, null, columnType, true, null, null));
         }
 
         [Test]
         public static void Ctor_GivenNullType_ThrowsArgumentNullException()
         {
-            var table = Mock.Of<IRelationalDatabaseTable>();
-            Assert.Throws<ArgumentNullException>(() => new SqlServerDatabaseTableColumn(table, "test_column", null, true, null, null));
+            var view = Mock.Of<IRelationalDatabaseView>();
+            Assert.Throws<ArgumentNullException>(() => new PostgreSqlDatabaseViewColumn(view, "test_column", null, true, null, null));
         }
 
         [Test]
-        public static void Table_PropertyGet_EqualsCtorArg()
+        public static void View_PropertyGet_EqualsCtorArg()
         {
-            Identifier tableName = "test_table";
-            var table = new Mock<IRelationalDatabaseTable>();
-            table.Setup(t => t.Name).Returns(tableName);
-            var tableArg = table.Object;
+            Identifier viewName = "test_view";
+            var view = new Mock<IRelationalDatabaseView>();
+            view.Setup(t => t.Name).Returns(viewName);
+            var viewArg = view.Object;
 
             var columnType = Mock.Of<IDbType>();
 
-            var column = new SqlServerDatabaseTableColumn(tableArg, "test_column", columnType, true, null, null);
+            var column = new PostgreSqlDatabaseViewColumn(viewArg, "test_column", columnType, true, null, null);
 
             Assert.Multiple(() =>
             {
-                Assert.AreEqual(tableName, column.Table.Name);
-                Assert.AreSame(tableArg, column.Table);
+                Assert.AreEqual(viewName, column.View.Name);
+                Assert.AreSame(viewArg, column.View);
             });
         }
 
@@ -53,10 +53,10 @@ namespace SJP.Schematic.SqlServer.Tests
         public static void Name_PropertyGet_EqualsCtorArg()
         {
             Identifier columnName = "test_column";
-            var table = Mock.Of<IRelationalDatabaseTable>();
+            var view = Mock.Of<IRelationalDatabaseView>();
             var columnType = Mock.Of<IDbType>();
 
-            var column = new SqlServerDatabaseTableColumn(table, columnName, columnType, true, null, null);
+            var column = new PostgreSqlDatabaseViewColumn(view, columnName, columnType, true, null, null);
 
             Assert.AreEqual(columnName, column.Name);
         }
@@ -65,10 +65,10 @@ namespace SJP.Schematic.SqlServer.Tests
         public static void Type_PropertyGet_EqualsCtorArg()
         {
             Identifier columnName = "test_column";
-            var table = Mock.Of<IRelationalDatabaseTable>();
+            var view = Mock.Of<IRelationalDatabaseView>();
             var columnType = Mock.Of<IDbType>();
 
-            var column = new SqlServerDatabaseTableColumn(table, columnName, columnType, true, null, null);
+            var column = new PostgreSqlDatabaseViewColumn(view, columnName, columnType, true, null, null);
 
             Assert.AreEqual(columnType, column.Type);
         }
@@ -77,9 +77,9 @@ namespace SJP.Schematic.SqlServer.Tests
         public static void IsNullable_GivenFalseCtorArgPropertyGet_EqualsFalse()
         {
             Identifier columnName = "test_column";
-            var table = Mock.Of<IRelationalDatabaseTable>();
+            var view = Mock.Of<IRelationalDatabaseView>();
             var columnType = Mock.Of<IDbType>();
-            var column = new SqlServerDatabaseTableColumn(table, columnName, columnType, false, null, null);
+            var column = new PostgreSqlDatabaseViewColumn(view, columnName, columnType, false, null, null);
 
             Assert.IsFalse(column.IsNullable);
         }
@@ -88,9 +88,9 @@ namespace SJP.Schematic.SqlServer.Tests
         public static void IsNullable_GivenTrueCtorArgPropertyGet_EqualsTrue()
         {
             Identifier columnName = "test_column";
-            var table = Mock.Of<IRelationalDatabaseTable>();
+            var view = Mock.Of<IRelationalDatabaseView>();
             var columnType = Mock.Of<IDbType>();
-            var column = new SqlServerDatabaseTableColumn(table, columnName, columnType, true, null, null);
+            var column = new PostgreSqlDatabaseViewColumn(view, columnName, columnType, true, null, null);
 
             Assert.IsTrue(column.IsNullable);
         }
@@ -99,10 +99,10 @@ namespace SJP.Schematic.SqlServer.Tests
         public static void DefaultValue_PropertyGet_ReturnsCtorArg()
         {
             Identifier columnName = "test_column";
-            var table = Mock.Of<IRelationalDatabaseTable>();
+            var view = Mock.Of<IRelationalDatabaseView>();
             var columnType = Mock.Of<IDbType>();
             const string defaultValue = "1";
-            var column = new SqlServerDatabaseTableColumn(table, columnName, columnType, true, defaultValue, null);
+            var column = new PostgreSqlDatabaseViewColumn(view, columnName, columnType, true, defaultValue, null);
 
             Assert.AreEqual(defaultValue, column.DefaultValue);
         }
@@ -111,9 +111,9 @@ namespace SJP.Schematic.SqlServer.Tests
         public static void IsComputed_PropertyGet_ReturnsFalse()
         {
             Identifier columnName = "test_column";
-            var table = Mock.Of<IRelationalDatabaseTable>();
+            var view = Mock.Of<IRelationalDatabaseView>();
             var columnType = Mock.Of<IDbType>();
-            var column = new SqlServerDatabaseTableColumn(table, columnName, columnType, true, null, null);
+            var column = new PostgreSqlDatabaseViewColumn(view, columnName, columnType, true, null, null);
 
             Assert.IsFalse(column.IsComputed);
         }
@@ -122,9 +122,9 @@ namespace SJP.Schematic.SqlServer.Tests
         public static void AutoIncrement_GivenNullCtorArgPropertyGet_EqualsNull()
         {
             Identifier columnName = "test_column";
-            var table = Mock.Of<IRelationalDatabaseTable>();
+            var view = Mock.Of<IRelationalDatabaseView>();
             var columnType = Mock.Of<IDbType>();
-            var column = new SqlServerDatabaseTableColumn(table, columnName, columnType, true, null, null);
+            var column = new PostgreSqlDatabaseViewColumn(view, columnName, columnType, true, null, null);
 
             Assert.IsNull(column.AutoIncrement);
         }
@@ -133,11 +133,11 @@ namespace SJP.Schematic.SqlServer.Tests
         public static void AutoIncrement_GivenValidCtorArgPropertyGet_EqualsCtorArg()
         {
             Identifier columnName = "test_column";
-            var table = Mock.Of<IRelationalDatabaseTable>();
+            var view = Mock.Of<IRelationalDatabaseView>();
             var columnType = Mock.Of<IDbType>();
             var autoIncrement = new AutoIncrement(30, 2);
 
-            var column = new SqlServerDatabaseTableColumn(table, columnName, columnType, true, null, autoIncrement);
+            var column = new PostgreSqlDatabaseViewColumn(view, columnName, columnType, true, null, autoIncrement);
 
             Assert.Multiple(() =>
             {

@@ -29,26 +29,4 @@ namespace SJP.Schematic.Sqlite
 
         public IAutoIncrement AutoIncrement { get; }
     }
-
-    public class SqliteDatabaseTableColumn : SqliteDatabaseColumn, IDatabaseTableColumn
-    {
-        public SqliteDatabaseTableColumn(IRelationalDatabaseTable table, Identifier columnName, IDbType type, bool isNullable, string defaultValue, IAutoIncrement autoIncrement)
-            : base(columnName, type, isNullable, defaultValue, autoIncrement)
-        {
-            Table = table ?? throw new ArgumentNullException(nameof(table));
-        }
-
-        public IRelationalDatabaseTable Table { get; }
-    }
-
-    public class SqliteDatabaseViewColumn : SqliteDatabaseColumn, IDatabaseViewColumn
-    {
-        public SqliteDatabaseViewColumn(IRelationalDatabaseView view, Identifier columnName, IDbType type, bool isNullable, string defaultValue, IAutoIncrement autoIncrement)
-            : base(columnName, type, isNullable, defaultValue, autoIncrement)
-        {
-            View = view ?? throw new ArgumentNullException(nameof(view));
-        }
-
-        public IRelationalDatabaseView View { get; }
-    }
 }

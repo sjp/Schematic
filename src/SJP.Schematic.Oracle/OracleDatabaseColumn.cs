@@ -28,26 +28,4 @@ namespace SJP.Schematic.Oracle
 
         public IAutoIncrement AutoIncrement { get; }
     }
-
-    public class OracleDatabaseTableColumn : OracleDatabaseColumn, IDatabaseTableColumn
-    {
-        public OracleDatabaseTableColumn(IRelationalDatabaseTable table, Identifier columnName, IDbType type, bool isNullable, string defaultValue)
-            : base(columnName, type, isNullable, defaultValue)
-        {
-            Table = table ?? throw new ArgumentNullException(nameof(table));
-        }
-
-        public IRelationalDatabaseTable Table { get; }
-    }
-
-    public class OracleDatabaseViewColumn : OracleDatabaseColumn, IDatabaseViewColumn
-    {
-        public OracleDatabaseViewColumn(IRelationalDatabaseView view, Identifier columnName, IDbType type, bool isNullable, string defaultValue)
-            : base(columnName, type, isNullable, defaultValue)
-        {
-            View = view ?? throw new ArgumentNullException(nameof(view));
-        }
-
-        public IRelationalDatabaseView View { get; }
-    }
 }
