@@ -49,37 +49,22 @@ namespace SJP.Schematic.Sqlite
 
             if (tableName.Schema != null)
             {
-                Logger.LogDebug("Checking if the table exists for {Schema}.{LocalName}", tableName.Schema, tableName.LocalName);
-                var sql = $"select count(*) from { Dialect.QuoteIdentifier(tableName.Schema) }.sqlite_master where type = 'table' and lower(name) = lower(@TableName)";
-                Logger.LogDebug("Running query {Sql}", sql);
-
-                var result = Connection.ExecuteScalar<int>(
+                var sql = TableExistsQuery(tableName.Schema);
+                return Connection.ExecuteScalar<int>(
                     sql,
                     new { TableName = tableName.LocalName }
                 ) > 0;
-
-                Logger.LogInformation("TableExists for {Schema}.{LocalName} returned {Result}", tableName.Schema, tableName.LocalName, result);
-
-                return result;
             }
 
             var dbNames = Pragma.DatabaseList.OrderBy(l => l.seq).Select(l => l.name).ToList();
             foreach (var dbName in dbNames)
             {
-                Logger.LogDebug("Checking if the table exists for {Schema}.{LocalName}", dbName, tableName.LocalName);
-                var sql = $"select count(*) from { Dialect.QuoteIdentifier(dbName) }.sqlite_master where type = 'table' and lower(name) = lower(@TableName)";
-                Logger.LogDebug("Running query {Sql}", sql);
-
+                var sql = TableExistsQuery(dbName);
                 var tableCount = Connection.ExecuteScalar<int>(sql, new { TableName = tableName.LocalName });
 
                 if (tableCount > 0)
-                {
-                    Logger.LogInformation("TableExists for {Schema}.{LocalName} returned {Result}", dbName, tableName.LocalName, true);
                     return true;
-                }
             }
-
-            Logger.LogInformation("TableExists for {LocalName} returned {Result}", tableName.LocalName, false);
 
             return false;
         }
@@ -99,7 +84,7 @@ namespace SJP.Schematic.Sqlite
 
             if (tableName.Schema != null)
             {
-                var sql = $"select count(*) from { Dialect.QuoteIdentifier(tableName.Schema) }.sqlite_master where type = 'table' and lower(name) = lower(@TableName)";
+                var sql = TableExistsQuery(tableName.Schema);
                 return await Connection.ExecuteScalarAsync<int>(
                     sql,
                     new { TableName = tableName.LocalName }
@@ -110,7 +95,7 @@ namespace SJP.Schematic.Sqlite
             var dbNames = dbNamesResult.OrderBy(l => l.seq).Select(l => l.name).ToList();
             foreach (var dbName in dbNames)
             {
-                var sql = $"select count(*) from { Dialect.QuoteIdentifier(dbName) }.sqlite_master where type = 'table' and lower(name) = lower(@TableName)";
+                var sql = TableExistsQuery(dbName);
                 var tableCount = await Connection.ExecuteScalarAsync<int>(sql, new { TableName = tableName.LocalName }).ConfigureAwait(false);
 
                 if (tableCount > 0)
@@ -118,6 +103,14 @@ namespace SJP.Schematic.Sqlite
             }
 
             return false;
+        }
+
+        protected virtual string TableExistsQuery(string schemaName)
+        {
+            if (schemaName.IsNullOrWhiteSpace())
+                throw new ArgumentNullException(nameof(schemaName));
+
+            return $"select count(*) from { Dialect.QuoteIdentifier(schemaName) }.sqlite_master where type = 'table' and lower(name) = lower(@TableName)";
         }
 
         public IRelationalDatabaseTable GetTable(Identifier tableName)
@@ -183,7 +176,7 @@ namespace SJP.Schematic.Sqlite
                 var dbNames = Pragma.DatabaseList.OrderBy(d => d.seq).Select(l => l.name).ToList();
                 foreach (var dbName in dbNames)
                 {
-                    var sql = $"select name from { Dialect.QuoteIdentifier(dbName) }.sqlite_master where type = 'table' order by name";
+                    var sql = TablesQuery(dbName);
                     var tableNames = Connection.Query<string>(sql)
                         .Where(name => !IsReservedTableName(name))
                         .Select(name => Identifier.CreateQualifiedIdentifier(dbName, name));
@@ -205,7 +198,7 @@ namespace SJP.Schematic.Sqlite
 
             foreach (var dbName in dbNames)
             {
-                var sql = $"select name from { Dialect.QuoteIdentifier(dbName) }.sqlite_master where type = 'table' order by name";
+                var sql = TablesQuery(dbName);
                 var queryResult = await Connection.QueryAsync<string>(sql).ConfigureAwait(false);
                 var tableNames = queryResult
                     .Where(name => !IsReservedTableName(name))
@@ -216,6 +209,14 @@ namespace SJP.Schematic.Sqlite
 
             var tables = qualifiedTableNames.Select(name => LoadTableAsync(name, cancellationToken));
             return new ReadOnlyCollectionSlim<Task<IRelationalDatabaseTable>>(qualifiedTableNames.Count, tables);
+        }
+
+        protected virtual string TablesQuery(string schemaName)
+        {
+            if (schemaName.IsNullOrWhiteSpace())
+                throw new ArgumentNullException(nameof(schemaName));
+
+            return $"select name from { Dialect.QuoteIdentifier(schemaName) }.sqlite_master where type = 'table' order by name";
         }
 
         protected virtual IRelationalDatabaseTable LoadTableSync(Identifier tableName)
@@ -286,7 +287,7 @@ namespace SJP.Schematic.Sqlite
 
             if (viewName.Schema != null)
             {
-                var sql = $"select count(*) from { Dialect.QuoteIdentifier(viewName.Schema) }.sqlite_master where type = 'view' and lower(name) = lower(@ViewName)";
+                var sql = ViewExistsQuery(viewName.Schema);
                 return Connection.ExecuteScalar<int>(
                     sql,
                     new { ViewName = viewName.LocalName }
@@ -296,7 +297,7 @@ namespace SJP.Schematic.Sqlite
             var dbNames = Pragma.DatabaseList.OrderBy(l => l.seq).Select(l => l.name).ToList();
             foreach (var dbName in dbNames)
             {
-                var sql = $"select count(*) from { Dialect.QuoteIdentifier(dbName) }.sqlite_master where type = 'view' and lower(name) = lower(@ViewName)";
+                var sql = ViewExistsQuery(dbName);
                 var viewCount = Connection.ExecuteScalar<int>(sql, new { ViewName = viewName.LocalName });
 
                 if (viewCount > 0)
@@ -318,7 +319,7 @@ namespace SJP.Schematic.Sqlite
         {
             if (viewName.Schema != null)
             {
-                var sql = $"select count(*) from { Dialect.QuoteIdentifier(viewName.Schema) }.sqlite_master where type = 'view' and lower(name) = lower(@ViewName)";
+                var sql = ViewExistsQuery(viewName.Schema);
                 return await Connection.ExecuteScalarAsync<int>(
                     sql,
                     new { ViewName = viewName.LocalName }
@@ -329,7 +330,7 @@ namespace SJP.Schematic.Sqlite
             var dbNames = dbNamesResult.OrderBy(l => l.seq).Select(l => l.name).ToList();
             foreach (var dbName in dbNames)
             {
-                var sql = $"select count(*) from { Dialect.QuoteIdentifier(dbName) }.sqlite_master where type = 'view' and lower(name) = lower(@ViewName)";
+                var sql = ViewExistsQuery(dbName);
                 var viewCount = await Connection.ExecuteScalarAsync<int>(sql, new { ViewName = viewName.LocalName }).ConfigureAwait(false);
 
                 if (viewCount > 0)
@@ -337,6 +338,14 @@ namespace SJP.Schematic.Sqlite
             }
 
             return false;
+        }
+
+        protected virtual string ViewExistsQuery(string schemaName)
+        {
+            if (schemaName.IsNullOrWhiteSpace())
+                throw new ArgumentNullException(nameof(schemaName));
+
+            return $"select count(*) from { Dialect.QuoteIdentifier(schemaName) }.sqlite_master where type = 'view' and lower(name) = lower(@ViewName)";
         }
 
         public IRelationalDatabaseView GetView(Identifier viewName)
@@ -396,7 +405,7 @@ namespace SJP.Schematic.Sqlite
                 var dbNames = Pragma.DatabaseList.OrderBy(d => d.seq).Select(d => d.name).ToList();
                 foreach (var dbName in dbNames)
                 {
-                    var sql = $"select name from { Dialect.QuoteIdentifier(dbName) }.sqlite_master where type = 'view' order by name";
+                    var sql = ViewsQuery(dbName);
                     var viewNames = Connection.Query<string>(sql)
                         .Where(name => !IsReservedTableName(name))
                         .Select(name => Identifier.CreateQualifiedIdentifier(dbName, name));
@@ -418,7 +427,7 @@ namespace SJP.Schematic.Sqlite
 
             foreach (var dbName in dbNames)
             {
-                var sql = $"select name from { Dialect.QuoteIdentifier(dbName) }.sqlite_master where type = 'view' order by name";
+                var sql = ViewsQuery(dbName);
                 var queryResult = await Connection.QueryAsync<string>(sql).ConfigureAwait(false);
                 var viewNames = queryResult
                     .Where(name => !IsReservedTableName(name))
@@ -429,6 +438,14 @@ namespace SJP.Schematic.Sqlite
 
             var views = qualifiedViewNames.Select(name => LoadViewAsync(name, cancellationToken));
             return new ReadOnlyCollectionSlim<Task<IRelationalDatabaseView>>(qualifiedViewNames.Count, views);
+        }
+
+        protected virtual string ViewsQuery(string schemaName)
+        {
+            if (schemaName.IsNullOrWhiteSpace())
+                throw new ArgumentNullException(nameof(schemaName));
+
+            return $"select name from { Dialect.QuoteIdentifier(schemaName) }.sqlite_master where type = 'view' order by name";
         }
 
         protected virtual IRelationalDatabaseView LoadViewSync(Identifier viewName)
@@ -579,10 +596,7 @@ namespace SJP.Schematic.Sqlite
             if (fileName.IsNullOrWhiteSpace())
                 throw new ArgumentNullException(nameof(fileName));
 
-            var quotedSchemaName = Dialect.QuoteIdentifier(schemaName);
-            var escapedFileName = fileName.Replace("'", "''");
-
-            var sql = $"ATTACH DATABASE '{ escapedFileName }' AS { quotedSchemaName }";
+            var sql = AttachDatabaseQuery(schemaName, fileName);
             Connection.Execute(sql);
         }
 
@@ -593,11 +607,21 @@ namespace SJP.Schematic.Sqlite
             if (fileName.IsNullOrWhiteSpace())
                 throw new ArgumentNullException(nameof(fileName));
 
+            var sql = AttachDatabaseQuery(schemaName, fileName);
+            return Connection.ExecuteAsync(sql);
+        }
+
+        protected virtual string AttachDatabaseQuery(string schemaName, string fileName)
+        {
+            if (schemaName.IsNullOrWhiteSpace())
+                throw new ArgumentNullException(nameof(schemaName));
+            if (fileName.IsNullOrWhiteSpace())
+                throw new ArgumentNullException(nameof(fileName));
+
             var quotedSchemaName = Dialect.QuoteIdentifier(schemaName);
             var escapedFileName = fileName.Replace("'", "''");
 
-            var sql = $"ATTACH DATABASE '{ escapedFileName }' AS { quotedSchemaName }";
-            return Connection.ExecuteAsync(sql);
+            return $"ATTACH DATABASE '{ escapedFileName }' AS { quotedSchemaName }";
         }
 
         public void DetachDatabase(string schemaName)
@@ -605,9 +629,7 @@ namespace SJP.Schematic.Sqlite
             if (schemaName.IsNullOrWhiteSpace())
                 throw new ArgumentNullException(nameof(schemaName));
 
-            var quotedSchemaName = Dialect.QuoteIdentifier(schemaName);
-
-            var sql = $"DETACH DATABASE { quotedSchemaName }";
+            var sql = DetachDatabaseQuery(schemaName);
             Connection.Execute(sql);
         }
 
@@ -616,10 +638,16 @@ namespace SJP.Schematic.Sqlite
             if (schemaName.IsNullOrWhiteSpace())
                 throw new ArgumentNullException(nameof(schemaName));
 
-            var quotedSchemaName = Dialect.QuoteIdentifier(schemaName);
-
-            var sql = $"DETACH DATABASE { quotedSchemaName }";
+            var sql = DetachDatabaseQuery(schemaName);
             return Connection.ExecuteAsync(sql);
+        }
+
+        protected virtual string DetachDatabaseQuery(string schemaName)
+        {
+            if (schemaName.IsNullOrWhiteSpace())
+                throw new ArgumentNullException(nameof(schemaName));
+
+            return "DETACH DATABASE " + Dialect.QuoteIdentifier(schemaName);
         }
 
         public void Vacuum()
@@ -639,7 +667,7 @@ namespace SJP.Schematic.Sqlite
             if (schemaName.IsNullOrWhiteSpace())
                 throw new ArgumentNullException(nameof(schemaName));
 
-            var sql = $"vacuum { Dialect.QuoteIdentifier(schemaName) }";
+            var sql = VacuumQuery(schemaName);
             Connection.Execute(sql);
         }
 
@@ -648,8 +676,16 @@ namespace SJP.Schematic.Sqlite
             if (schemaName.IsNullOrWhiteSpace())
                 throw new ArgumentNullException(nameof(schemaName));
 
-            var sql = $"vacuum { Dialect.QuoteIdentifier(schemaName) }";
+            var sql = VacuumQuery(schemaName);
             return Connection.ExecuteAsync(sql);
+        }
+
+        protected virtual string VacuumQuery(string schemaName)
+        {
+            if (schemaName.IsNullOrWhiteSpace())
+                throw new ArgumentNullException(nameof(schemaName));
+
+            return "vacuum " + Dialect.QuoteIdentifier(schemaName);
         }
 
         protected static bool IsReservedTableName(Identifier tableName)

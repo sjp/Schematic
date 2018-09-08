@@ -51,15 +51,15 @@ namespace SJP.Schematic.Sqlite
 
         protected virtual string LoadDefinitionSync()
         {
-            var sql = $"select sql from { Dialect.QuoteIdentifier(Name.Schema) }.sqlite_master where type = 'view' and tbl_name = @ViewName";
-            return Connection.ExecuteScalar<string>(sql, new { ViewName = Name.LocalName });
+            return Connection.ExecuteScalar<string>(DefinitionQuery, new { ViewName = Name.LocalName });
         }
 
         protected virtual Task<string> LoadDefinitionAsync(CancellationToken cancellationToken)
         {
-            var sql = $"select sql from { Dialect.QuoteIdentifier(Name.Schema) }.sqlite_master where type = 'view' and tbl_name = @ViewName";
-            return Connection.ExecuteScalarAsync<string>(sql, new { ViewName = Name.LocalName });
+            return Connection.ExecuteScalarAsync<string>(DefinitionQuery, new { ViewName = Name.LocalName });
         }
+
+        protected virtual string DefinitionQuery => $"select sql from { Dialect.QuoteIdentifier(Name.Schema) }.sqlite_master where type = 'view' and tbl_name = @ViewName";
 
         public bool IsIndexed => Indexes.Count > 0;
 
@@ -165,7 +165,7 @@ namespace SJP.Schematic.Sqlite
             if (columnName == null)
                 throw new ArgumentNullException(nameof(columnName));
 
-            var sql = $"select typeof({ Dialect.QuoteName(columnName.LocalName) }) from { Dialect.QuoteName(Name) } limit 1";
+            var sql = GetTypeofQuery(columnName.LocalName);
             return Connection.ExecuteScalar<string>(sql);
         }
 
@@ -174,9 +174,11 @@ namespace SJP.Schematic.Sqlite
             if (columnName == null)
                 throw new ArgumentNullException(nameof(columnName));
 
-            var sql = $"select typeof({ Dialect.QuoteName(columnName.LocalName) }) from { Dialect.QuoteName(Name) } limit 1";
+            var sql = GetTypeofQuery(columnName.LocalName);
             return Connection.ExecuteScalarAsync<string>(sql);
         }
+
+        protected virtual string GetTypeofQuery(string columnName) => $"select typeof({ Dialect.QuoteName(columnName) }) from { Dialect.QuoteName(Name) } limit 1";
 
         private readonly static SqliteTypeAffinityParser _affinityParser = new SqliteTypeAffinityParser();
     }

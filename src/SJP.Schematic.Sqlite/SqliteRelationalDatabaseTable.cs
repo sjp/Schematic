@@ -255,7 +255,8 @@ namespace SJP.Schematic.Sqlite
                 var indexXInfos = Pragma.IndexXInfo(ukIndexList.name);
                 var orderedColumns = indexXInfos
                     .Where(i => i.key && i.cid >= 0)
-                    .OrderBy(i => i.seqno);
+                    .OrderBy(i => i.seqno)
+                    .ToList();
                 var columnNames = orderedColumns.Select(i => i.name).ToList();
                 var columns = orderedColumns.Select(i => tableColumn[i.name]).ToList();
 
@@ -294,7 +295,8 @@ namespace SJP.Schematic.Sqlite
                 var indexXInfos = await Pragma.IndexXInfoAsync(ukIndexList.name, cancellationToken).ConfigureAwait(false);
                 var orderedColumns = indexXInfos
                     .Where(i => i.key && i.cid >= 0)
-                    .OrderBy(i => i.seqno);
+                    .OrderBy(i => i.seqno)
+                    .ToList();
                 var columnNames = orderedColumns.Select(i => i.name).ToList();
                 var columns = orderedColumns.Select(i => tableColumn[i.name]).ToList();
 
@@ -704,8 +706,7 @@ namespace SJP.Schematic.Sqlite
 
         protected virtual IReadOnlyCollection<IDatabaseTrigger> LoadTriggersSync()
         {
-            const string sql = "select * from sqlite_master where type = 'trigger' and tbl_name = @TableName";
-            var triggerInfos = Connection.Query<SqliteMaster>(sql, new { TableName = Name.LocalName });
+            var triggerInfos = Connection.Query<SqliteMaster>(TriggerDefinitionQuery, new { TableName = Name.LocalName });
 
             var result = new List<IDatabaseTrigger>();
 
@@ -728,8 +729,7 @@ namespace SJP.Schematic.Sqlite
 
         protected virtual async Task<IReadOnlyCollection<IDatabaseTrigger>> LoadTriggersAsync(CancellationToken cancellationToken)
         {
-            const string sql = "select * from sqlite_master where type = 'trigger' and tbl_name = @TableName";
-            var triggerInfos = await Connection.QueryAsync<SqliteMaster>(sql, new { TableName = Name.LocalName }).ConfigureAwait(false);
+            var triggerInfos = await Connection.QueryAsync<SqliteMaster>(TriggerDefinitionQuery, new { TableName = Name.LocalName }).ConfigureAwait(false);
 
             var result = new List<IDatabaseTrigger>();
 
@@ -750,6 +750,8 @@ namespace SJP.Schematic.Sqlite
             return result;
         }
 
+        protected virtual string TriggerDefinitionQuery => $"select * from { Dialect.QuoteIdentifier(Name.Schema) }.sqlite_master where type = 'trigger' and tbl_name = @TableName";
+
         protected SqliteTableParser ParsedDefinition => LoadTableParserSync();
 
         protected Task<SqliteTableParser> ParsedDefinitionAsync(CancellationToken cancellationToken) => LoadTableParserAsync(cancellationToken);
@@ -761,8 +763,7 @@ namespace SJP.Schematic.Sqlite
             try
             {
                 _rwLock.EnterReadLock();
-                const string sql = "select sql from sqlite_master where type = 'table' and name = @TableName";
-                tableSql = Connection.ExecuteScalar<string>(sql, new { TableName = Name.LocalName });
+                tableSql = Connection.ExecuteScalar<string>(TableDefinitionQuery, new { TableName = Name.LocalName });
                 if (tableSql == _createTableSql)
                     return _parser;
             }
@@ -798,8 +799,7 @@ namespace SJP.Schematic.Sqlite
             try
             {
                 _rwLock.EnterReadLock();
-                const string sql = "select sql from sqlite_master where type = 'table' and name = @TableName";
-                tableSql = await Connection.ExecuteScalarAsync<string>(sql, new { TableName = Name.LocalName }).ConfigureAwait(false);
+                tableSql = await Connection.ExecuteScalarAsync<string>(TableDefinitionQuery, new { TableName = Name.LocalName }).ConfigureAwait(false);
                 if (tableSql == _createTableSql)
                     return _parser;
             }
@@ -827,6 +827,8 @@ namespace SJP.Schematic.Sqlite
                 _rwLock.ExitWriteLock();
             }
         }
+
+        protected virtual string TableDefinitionQuery => $"select sql from { Dialect.QuoteIdentifier(Name.Schema) }.sqlite_master where type = 'table' and tbl_name = @TableName";
 
         protected static Rule GetRelationalUpdateRule(string pragmaUpdateRule)
         {
