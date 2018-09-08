@@ -12,7 +12,6 @@ namespace SJP.Schematic.Tool
     {
         private DatabaseCommand DatabaseParent { get; set; }
 
-
         private GenerateCommand GenerateParent { get; set; }
 
         private int OnExecute(CommandLineApplication application)
