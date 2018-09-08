@@ -75,7 +75,12 @@ namespace SJP.Schematic.PostgreSql
 
         protected virtual string TableExistsQuery => TableExistsQuerySql;
 
-        private const string TableExistsQuerySql = "select 1 from pg_catalog.pg_tables where schemaname = @SchemaName and tablename = @TableName and schemaname not in ('pg_catalog', 'information_schema') limit 1";
+        private const string TableExistsQuerySql = @"
+select 1
+from pg_catalog.pg_tables
+where schemaname = @SchemaName and tablename = @TableName
+    and schemaname not in ('pg_catalog', 'information_schema')
+limit 1";
 
         public IRelationalDatabaseTable GetTable(Identifier tableName)
         {
@@ -121,7 +126,12 @@ namespace SJP.Schematic.PostgreSql
 
         protected virtual string TablesQuery => TablesQuerySql;
 
-        private const string TablesQuerySql = "select schemaname as SchemaName, tablename as ObjectName from pg_catalog.pg_tables where schemaname not in ('pg_catalog', 'information_schema')";
+        private const string TablesQuerySql = @"
+select
+    schemaname as SchemaName,
+    tablename as ObjectName
+from pg_catalog.pg_tables
+where schemaname not in ('pg_catalog', 'information_schema')";
 
         protected virtual IRelationalDatabaseTable LoadTableSync(Identifier tableName)
         {
@@ -184,7 +194,12 @@ namespace SJP.Schematic.PostgreSql
 
         protected virtual string ViewExistsQuery => ViewExistsQuerySql;
 
-        private const string ViewExistsQuerySql = "select 1 from pg_catalog.pg_views where schemaname = @SchemaName and viewname = @ViewName and schemaname not in ('pg_catalog', 'information_schema') limit 1";
+        private const string ViewExistsQuerySql = @"
+select 1
+from pg_catalog.pg_views
+where schemaname = @SchemaName and viewname = @ViewName
+    and schemaname not in ('pg_catalog', 'information_schema')
+limit 1";
 
         public IRelationalDatabaseView GetView(Identifier viewName)
         {
@@ -230,7 +245,12 @@ namespace SJP.Schematic.PostgreSql
 
         protected virtual string ViewsQuery => ViewsQuerySql;
 
-        private const string ViewsQuerySql = "select schemaname as SchemaName, viewname as ObjectName from pg_catalog.pg_views where schemaname not in ('pg_catalog', 'information_schema')";
+        private const string ViewsQuerySql = @"
+select
+    schemaname as SchemaName,
+    viewname as ObjectName
+from pg_catalog.pg_views
+where schemaname not in ('pg_catalog', 'information_schema')";
 
         protected virtual IRelationalDatabaseView LoadViewSync(Identifier viewName)
         {
@@ -293,7 +313,12 @@ namespace SJP.Schematic.PostgreSql
 
         protected virtual string SequenceExistsQuery => SequenceExistsQuerySql;
 
-        private const string SequenceExistsQuerySql = "select 1 from information_schema.sequences where sequence_schema = @SchemaName and sequence_name = @SequenceName and sequence_schema not in ('pg_catalog', 'information_schema') limit 1";
+        private const string SequenceExistsQuerySql = @"
+select 1
+from information_schema.sequences
+where sequence_schema = @SchemaName and sequence_name = @SequenceName
+    and sequence_schema not in ('pg_catalog', 'information_schema')
+limit 1";
 
         public IDatabaseSequence GetSequence(Identifier sequenceName)
         {
@@ -339,7 +364,12 @@ namespace SJP.Schematic.PostgreSql
 
         protected virtual string SequencesQuery => SequencesQuerySql;
 
-        private const string SequencesQuerySql = "select sequence_schema as SchemaName, sequence_name as ObjectName from information_schema.sequences where sequence_schema not in ('pg_catalog', 'information_schema')";
+        private const string SequencesQuerySql = @"
+select
+    sequence_schema as SchemaName,
+    sequence_name as ObjectName
+from information_schema.sequences
+where sequence_schema not in ('pg_catalog', 'information_schema')";
 
         protected virtual IDatabaseSequence LoadSequenceSync(Identifier sequenceName)
         {

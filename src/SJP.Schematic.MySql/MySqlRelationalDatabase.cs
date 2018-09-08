@@ -74,7 +74,11 @@ namespace SJP.Schematic.MySql
 
         protected virtual string TableExistsQuery => TableExistsQuerySql;
 
-        private const string TableExistsQuerySql = "select 1 from information_schema.tables where table_schema = @SchemaName and table_name = @TableName limit 1";
+        private const string TableExistsQuerySql = @"
+select 1
+from information_schema.tables
+where table_schema = @SchemaName and table_name = @TableName
+limit 1";
 
         public IRelationalDatabaseTable GetTable(Identifier tableName)
         {
@@ -120,7 +124,12 @@ namespace SJP.Schematic.MySql
 
         protected virtual string TablesQuery => TablesQuerySql;
 
-        private const string TablesQuerySql = "select TABLE_SCHEMA as SchemaName, TABLE_NAME as ObjectName from information_schema.tables where TABLE_SCHEMA = @SchemaName order by TABLE_NAME";
+        private const string TablesQuerySql = @"
+select
+    TABLE_SCHEMA as SchemaName,
+    TABLE_NAME as ObjectName
+from information_schema.tables
+where TABLE_SCHEMA = @SchemaName order by TABLE_NAME";
 
         protected virtual IRelationalDatabaseTable LoadTableSync(Identifier tableName)
         {
@@ -183,7 +192,11 @@ namespace SJP.Schematic.MySql
 
         protected virtual string ViewExistsQuery => ViewExistsQuerySql;
 
-        private const string ViewExistsQuerySql = "select 1 from information_schema.views where table_schema = @SchemaName and table_name = @ViewName limit 1";
+        private const string ViewExistsQuerySql = @"
+select 1
+from information_schema.views
+where table_schema = @SchemaName and table_name = @ViewName
+limit 1";
 
         public IRelationalDatabaseView GetView(Identifier viewName)
         {
@@ -229,7 +242,12 @@ namespace SJP.Schematic.MySql
 
         protected virtual string ViewsQuery => ViewsQuerySql;
 
-        private const string ViewsQuerySql = "select TABLE_SCHEMA as SchemaName, TABLE_NAME as ObjectName from information_schema.views where TABLE_SCHEMA = @SchemaName order by TABLE_NAME";
+        private const string ViewsQuerySql = @"
+select
+    TABLE_SCHEMA as SchemaName,
+    TABLE_NAME as ObjectName
+from information_schema.views
+where TABLE_SCHEMA = @SchemaName order by TABLE_NAME";
 
         protected virtual IRelationalDatabaseView LoadViewSync(Identifier viewName)
         {
@@ -341,7 +359,12 @@ namespace SJP.Schematic.MySql
 
         private async Task<DatabaseMetadata> LoadDatabaseMetadataAsync()
         {
-            const string sql = "select @@hostname as ServerName, database() as DatabaseName, schema() as DefaultSchema, version() as DatabaseVersion";
+            const string sql = @"
+select
+    @@hostname as ServerName,
+    database() as DatabaseName,
+    schema() as DefaultSchema,
+    version() as DatabaseVersion";
             var metadata = await Connection.QuerySingleAsync<DatabaseMetadata>(sql).ConfigureAwait(false);
             metadata.DatabaseVersion = "MySQL " + metadata.DatabaseVersion;
             return metadata;

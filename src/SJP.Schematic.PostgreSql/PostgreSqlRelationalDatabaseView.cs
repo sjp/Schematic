@@ -51,25 +51,16 @@ namespace SJP.Schematic.PostgreSql
 
         public Task<string> DefinitionAsync(CancellationToken cancellationToken = default(CancellationToken)) => LoadDefinitionAsync(cancellationToken);
 
-        protected virtual string LoadDefinitionSync()
-        {
-            const string sql = @"
+        protected virtual string LoadDefinitionSync() => Connection.ExecuteScalar<string>(DefinitionQuery, new { SchemaName = Name.Schema, ViewName = Name.LocalName });
+
+        protected virtual Task<string> LoadDefinitionAsync(CancellationToken cancellationToken) => Connection.ExecuteScalarAsync<string>(DefinitionQuery, new { SchemaName = Name.Schema, ViewName = Name.LocalName });
+
+        protected virtual string DefinitionQuery => DefinitionQuerySql;
+
+        private const string DefinitionQuerySql = @"
 select view_definition
 from information_schema.views
 where table_schema = @SchemaName and table_name = @ViewName";
-
-            return Connection.ExecuteScalar<string>(sql, new { SchemaName = Name.Schema, ViewName = Name.LocalName });
-        }
-
-        protected virtual Task<string> LoadDefinitionAsync(CancellationToken cancellationToken)
-        {
-            const string sql = @"
-select view_definition
-from information_schema.views
-where table_schema = @SchemaName and table_name = @ViewName";
-
-            return Connection.ExecuteScalarAsync<string>(sql, new { SchemaName = Name.Schema, ViewName = Name.LocalName });
-        }
 
         public bool IsIndexed => Indexes.Count > 0;
 
@@ -121,35 +112,7 @@ where table_schema = @SchemaName and table_name = @ViewName";
 
         protected virtual IReadOnlyList<IDatabaseViewColumn> LoadColumnsSync()
         {
-            const string sql = @"
-select
-    column_name,
-    ordinal_position,
-    column_default,
-    is_nullable,
-    data_type,
-    character_maximum_length,
-    character_octet_length,
-    numeric_precision,
-    numeric_precision_radix,
-    numeric_scale,
-    datetime_precision,
-    interval_type,
-    collation_catalog,
-    collation_schema,
-    collation_name,
-    domain_catalog,
-    domain_schema,
-    domain_name,
-    udt_catalog,
-    udt_schema,
-    udt_name,
-    dtd_identifier
-from information_schema.columns
-where table_schema = @SchemaName and table_name = @ViewName
-order by ordinal_position";
-
-            var query = Connection.Query<ColumnData>(sql, new { SchemaName = Name.Schema, ViewName = Name.LocalName });
+            var query = Connection.Query<ColumnData>(ColumnsQuery, new { SchemaName = Name.Schema, ViewName = Name.LocalName });
             var result = new List<IDatabaseViewColumn>();
 
             foreach (var row in query)
@@ -177,7 +140,35 @@ order by ordinal_position";
 
         protected virtual async Task<IReadOnlyList<IDatabaseViewColumn>> LoadColumnsAsync(CancellationToken cancellationToken)
         {
-            const string sql = @"
+            var query = await Connection.QueryAsync<ColumnData>(ColumnsQuery, new { SchemaName = Name.Schema, ViewName = Name.LocalName }).ConfigureAwait(false);
+            var result = new List<IDatabaseViewColumn>();
+
+            foreach (var row in query)
+            {
+                var typeMetadata = new ColumnTypeMetadata
+                {
+                    TypeName = Identifier.CreateQualifiedIdentifier(row.data_type),
+                    Collation = row.collation_name.IsNullOrWhiteSpace() ? null : Identifier.CreateQualifiedIdentifier(row.collation_catalog, row.collation_schema, row.collation_name),
+                    //TODO -- need to fix max length as it's different for char-like objects and numeric
+                    //MaxLength = row.,
+                    // TODO: numeric_precision has a base, can be either binary or decimal, need to use the correct one
+                    NumericPrecision = new NumericPrecision(row.numeric_precision, row.numeric_scale)
+                };
+
+                var columnType = TypeProvider.CreateColumnType(typeMetadata);
+                var columnName = Identifier.CreateQualifiedIdentifier(row.column_name);
+                IAutoIncrement autoIncrement = null;
+
+                var column = new PostgreSqlDatabaseViewColumn(this, columnName, columnType, row.is_nullable == "YES", row.column_default, autoIncrement);
+                result.Add(column);
+            }
+
+            return result.AsReadOnly();
+        }
+
+        protected virtual string ColumnsQuery => ColumnsQuerySql;
+
+        private const string ColumnsQuerySql = @"
 select
     column_name,
     ordinal_position,
@@ -204,31 +195,5 @@ select
 from information_schema.columns
 where table_schema = @SchemaName and table_name = @ViewName
 order by ordinal_position";
-
-            var query = await Connection.QueryAsync<ColumnData>(sql, new { SchemaName = Name.Schema, ViewName = Name.LocalName }).ConfigureAwait(false);
-            var result = new List<IDatabaseViewColumn>();
-
-            foreach (var row in query)
-            {
-                var typeMetadata = new ColumnTypeMetadata
-                {
-                    TypeName = Identifier.CreateQualifiedIdentifier(row.data_type),
-                    Collation = row.collation_name.IsNullOrWhiteSpace() ? null : Identifier.CreateQualifiedIdentifier(row.collation_catalog, row.collation_schema, row.collation_name),
-                    //TODO -- need to fix max length as it's different for char-like objects and numeric
-                    //MaxLength = row.,
-                    // TODO: numeric_precision has a base, can be either binary or decimal, need to use the correct one
-                    NumericPrecision = new NumericPrecision(row.numeric_precision, row.numeric_scale)
-                };
-
-                var columnType = TypeProvider.CreateColumnType(typeMetadata);
-                var columnName = Identifier.CreateQualifiedIdentifier(row.column_name);
-                IAutoIncrement autoIncrement = null;
-
-                var column = new PostgreSqlDatabaseViewColumn(this, columnName, columnType, row.is_nullable == "YES", row.column_default, autoIncrement);
-                result.Add(column);
-            }
-
-            return result.AsReadOnly();
-        }
     }
 }

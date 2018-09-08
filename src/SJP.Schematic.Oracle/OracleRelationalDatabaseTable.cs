@@ -53,17 +53,7 @@ namespace SJP.Schematic.Oracle
 
         protected virtual IDatabaseKey LoadPrimaryKeySync()
         {
-            const string sql = @"
-select
-    ac.CONSTRAINT_NAME as ConstraintName,
-    ac.STATUS as EnabledStatus,
-    acc.COLUMN_NAME as ColumnName,
-    acc.POSITION as ColumnPosition
-from ALL_CONSTRAINTS ac
-inner join ALL_CONS_COLUMNS acc on ac.OWNER = acc.OWNER and ac.CONSTRAINT_NAME = acc.CONSTRAINT_NAME and ac.TABLE_NAME = acc.TABLE_NAME
-where ac.OWNER = :SchemaName and ac.TABLE_NAME = :TableName and ac.CONSTRAINT_TYPE = 'P'";
-
-            var primaryKeyColumns = Connection.Query<ConstraintColumnMapping>(sql, new { SchemaName = Name.Schema, TableName = Name.LocalName });
+            var primaryKeyColumns = Connection.Query<ConstraintColumnMapping>(PrimaryKeyQuery, new { SchemaName = Name.Schema, TableName = Name.LocalName });
             if (primaryKeyColumns.Empty())
                 return null;
 
@@ -83,17 +73,7 @@ where ac.OWNER = :SchemaName and ac.TABLE_NAME = :TableName and ac.CONSTRAINT_TY
 
         protected virtual async Task<IDatabaseKey> LoadPrimaryKeyAsync(CancellationToken cancellationToken)
         {
-            const string sql = @"
-select
-    ac.CONSTRAINT_NAME as ConstraintName,
-    ac.STATUS as EnabledStatus,
-    acc.COLUMN_NAME as ColumnName,
-    acc.POSITION as ColumnPosition
-from ALL_CONSTRAINTS ac
-inner join ALL_CONS_COLUMNS acc on ac.OWNER = acc.OWNER and ac.CONSTRAINT_NAME = acc.CONSTRAINT_NAME and ac.TABLE_NAME = acc.TABLE_NAME
-where ac.OWNER = :SchemaName and ac.TABLE_NAME = :TableName and ac.CONSTRAINT_TYPE = 'P'";
-
-            var primaryKeyColumns = await Connection.QueryAsync<ConstraintColumnMapping>(sql, new { SchemaName = Name.Schema, TableName = Name.LocalName }).ConfigureAwait(false);
+            var primaryKeyColumns = await Connection.QueryAsync<ConstraintColumnMapping>(PrimaryKeyQuery, new { SchemaName = Name.Schema, TableName = Name.LocalName }).ConfigureAwait(false);
             if (primaryKeyColumns.Empty())
                 return null;
 
@@ -110,6 +90,18 @@ where ac.OWNER = :SchemaName and ac.TABLE_NAME = :TableName and ac.CONSTRAINT_TY
 
             return new OracleDatabaseKey(this, constraintName, DatabaseKeyType.Primary, columns, isEnabled);
         }
+
+        protected virtual string PrimaryKeyQuery => PrimaryKeyQuerySql;
+
+        private const string PrimaryKeyQuerySql = @"
+select
+    ac.CONSTRAINT_NAME as ConstraintName,
+    ac.STATUS as EnabledStatus,
+    acc.COLUMN_NAME as ColumnName,
+    acc.POSITION as ColumnPosition
+from ALL_CONSTRAINTS ac
+inner join ALL_CONS_COLUMNS acc on ac.OWNER = acc.OWNER and ac.CONSTRAINT_NAME = acc.CONSTRAINT_NAME and ac.TABLE_NAME = acc.TABLE_NAME
+where ac.OWNER = :SchemaName and ac.TABLE_NAME = :TableName and ac.CONSTRAINT_TYPE = 'P'";
 
         public IReadOnlyDictionary<Identifier, IDatabaseTableIndex> Index => LoadIndexLookupSync();
 
@@ -143,26 +135,7 @@ where ac.OWNER = :SchemaName and ac.TABLE_NAME = :TableName and ac.CONSTRAINT_TY
 
         protected virtual IReadOnlyCollection<IDatabaseTableIndex> LoadIndexesSync()
         {
-            const string sql = @"
-select
-    ai.OWNER as IndexOwner,
-    ai.INDEX_NAME as IndexName,
-    ai.UNIQUENESS as Uniqueness,
-    ind.PROPERTY as IndexProperty,
-    aic.COLUMN_NAME as ColumnName,
-    aic.COLUMN_POSITION as ColumnPosition,
-    aic.DESCEND as IsDescending
-from ALL_INDEXES ai
-inner join ALL_OBJECTS ao on ai.OWNER = ao.OWNER and ai.INDEX_NAME = ao.OBJECT_NAME
-inner join SYS.IND$ ind on ao.OBJECT_ID = ind.OBJ#
-inner join ALL_IND_COLUMNS aic
-    on ai.OWNER = aic.INDEX_OWNER and ai.INDEX_NAME = aic.INDEX_NAME
-where ai.TABLE_OWNER = :SchemaName and ai.TABLE_NAME = :TableName
-    and aic.TABLE_OWNER = :SchemaName and aic.TABLE_NAME = :TableName
-    and ao.OBJECT_TYPE = 'INDEX'
-order by aic.COLUMN_POSITION";
-
-            var queryResult = Connection.Query<IndexColumns>(sql, new { SchemaName = Name.Schema, TableName = Name.LocalName });
+            var queryResult = Connection.Query<IndexColumns>(IndexesQuery, new { SchemaName = Name.Schema, TableName = Name.LocalName });
             if (queryResult.Empty())
                 return Array.Empty<IDatabaseTableIndex>();
 
@@ -193,26 +166,7 @@ order by aic.COLUMN_POSITION";
 
         protected virtual async Task<IReadOnlyCollection<IDatabaseTableIndex>> LoadIndexesAsync(CancellationToken cancellationToken)
         {
-            const string sql = @"
-select
-    ai.OWNER as IndexOwner,
-    ai.INDEX_NAME as IndexName,
-    ai.UNIQUENESS as Uniqueness,
-    ind.PROPERTY as IndexProperty,
-    aic.COLUMN_NAME as ColumnName,
-    aic.COLUMN_POSITION as ColumnPosition,
-    aic.DESCEND as IsDescending
-from ALL_INDEXES ai
-inner join ALL_OBJECTS ao on ai.OWNER = ao.OWNER and ai.INDEX_NAME = ao.OBJECT_NAME
-inner join SYS.IND$ ind on ao.OBJECT_ID = ind.OBJ#
-inner join ALL_IND_COLUMNS aic
-    on ai.OWNER = aic.INDEX_OWNER and ai.INDEX_NAME = aic.INDEX_NAME
-where ai.TABLE_OWNER = :SchemaName and ai.TABLE_NAME = :TableName
-    and aic.TABLE_OWNER = :SchemaName and aic.TABLE_NAME = :TableName
-    and ao.OBJECT_TYPE = 'INDEX'
-order by aic.COLUMN_POSITION";
-
-            var queryResult = await Connection.QueryAsync<IndexColumns>(sql, new { SchemaName = Name.Schema, TableName = Name.LocalName }).ConfigureAwait(false);
+            var queryResult = await Connection.QueryAsync<IndexColumns>(IndexesQuery, new { SchemaName = Name.Schema, TableName = Name.LocalName }).ConfigureAwait(false);
             if (queryResult.Empty())
                 return Array.Empty<IDatabaseTableIndex>();
 
@@ -240,6 +194,27 @@ order by aic.COLUMN_POSITION";
 
             return result;
         }
+
+        protected virtual string IndexesQuery => IndexesQuerySql;
+
+        private const string IndexesQuerySql = @"
+select
+    ai.OWNER as IndexOwner,
+    ai.INDEX_NAME as IndexName,
+    ai.UNIQUENESS as Uniqueness,
+    ind.PROPERTY as IndexProperty,
+    aic.COLUMN_NAME as ColumnName,
+    aic.COLUMN_POSITION as ColumnPosition,
+    aic.DESCEND as IsDescending
+from ALL_INDEXES ai
+inner join ALL_OBJECTS ao on ai.OWNER = ao.OWNER and ai.INDEX_NAME = ao.OBJECT_NAME
+inner join SYS.IND$ ind on ao.OBJECT_ID = ind.OBJ#
+inner join ALL_IND_COLUMNS aic
+    on ai.OWNER = aic.INDEX_OWNER and ai.INDEX_NAME = aic.INDEX_NAME
+where ai.TABLE_OWNER = :SchemaName and ai.TABLE_NAME = :TableName
+    and aic.TABLE_OWNER = :SchemaName and aic.TABLE_NAME = :TableName
+    and ao.OBJECT_TYPE = 'INDEX'
+order by aic.COLUMN_POSITION";
 
         public IReadOnlyDictionary<Identifier, IDatabaseKey> UniqueKey => LoadUniqueKeyLookupSync();
 
@@ -273,17 +248,7 @@ order by aic.COLUMN_POSITION";
 
         protected virtual IReadOnlyCollection<IDatabaseKey> LoadUniqueKeysSync()
         {
-            const string sql = @"
-select
-    ac.CONSTRAINT_NAME as ConstraintName,
-    ac.STATUS as EnabledStatus,
-    acc.COLUMN_NAME as ColumnName,
-    acc.POSITION as ColumnPosition
-from ALL_CONSTRAINTS ac
-inner join ALL_CONS_COLUMNS acc on ac.OWNER = acc.OWNER and ac.CONSTRAINT_NAME = acc.CONSTRAINT_NAME and ac.TABLE_NAME = acc.TABLE_NAME
-where ac.OWNER = :SchemaName and ac.TABLE_NAME = :TableName and ac.CONSTRAINT_TYPE = 'U'";
-
-            var uniqueKeyColumns = Connection.Query<ConstraintColumnMapping>(sql, new { SchemaName = Name.Schema, TableName = Name.LocalName });
+            var uniqueKeyColumns = Connection.Query<ConstraintColumnMapping>(UniqueKeysQuery, new { SchemaName = Name.Schema, TableName = Name.LocalName });
             if (uniqueKeyColumns.Empty())
                 return Array.Empty<IDatabaseKey>();
 
@@ -313,17 +278,7 @@ where ac.OWNER = :SchemaName and ac.TABLE_NAME = :TableName and ac.CONSTRAINT_TY
 
         protected virtual async Task<IReadOnlyCollection<IDatabaseKey>> LoadUniqueKeysAsync(CancellationToken cancellationToken)
         {
-            const string sql = @"
-select
-    ac.CONSTRAINT_NAME as ConstraintName,
-    ac.STATUS as EnabledStatus,
-    acc.COLUMN_NAME as ColumnName,
-    acc.POSITION as ColumnPosition
-from ALL_CONSTRAINTS ac
-inner join ALL_CONS_COLUMNS acc on ac.OWNER = acc.OWNER and ac.CONSTRAINT_NAME = acc.CONSTRAINT_NAME and ac.TABLE_NAME = acc.TABLE_NAME
-where ac.OWNER = :SchemaName and ac.TABLE_NAME = :TableName and ac.CONSTRAINT_TYPE = 'U'";
-
-            var uniqueKeyColumns = await Connection.QueryAsync<ConstraintColumnMapping>(sql, new { SchemaName = Name.Schema, TableName = Name.LocalName }).ConfigureAwait(false);
+            var uniqueKeyColumns = await Connection.QueryAsync<ConstraintColumnMapping>(UniqueKeysQuery, new { SchemaName = Name.Schema, TableName = Name.LocalName }).ConfigureAwait(false);
             if (uniqueKeyColumns.Empty())
                 return Array.Empty<IDatabaseKey>();
 
@@ -351,26 +306,25 @@ where ac.OWNER = :SchemaName and ac.TABLE_NAME = :TableName and ac.CONSTRAINT_TY
             return result;
         }
 
+        protected virtual string UniqueKeysQuery => UniqueKeysQuerySql;
+
+        private const string UniqueKeysQuerySql = @"
+select
+    ac.CONSTRAINT_NAME as ConstraintName,
+    ac.STATUS as EnabledStatus,
+    acc.COLUMN_NAME as ColumnName,
+    acc.POSITION as ColumnPosition
+from ALL_CONSTRAINTS ac
+inner join ALL_CONS_COLUMNS acc on ac.OWNER = acc.OWNER and ac.CONSTRAINT_NAME = acc.CONSTRAINT_NAME and ac.TABLE_NAME = acc.TABLE_NAME
+where ac.OWNER = :SchemaName and ac.TABLE_NAME = :TableName and ac.CONSTRAINT_TYPE = 'U'";
+
         public IReadOnlyCollection<IDatabaseRelationalKey> ChildKeys => LoadChildKeysSync();
 
         public Task<IReadOnlyCollection<IDatabaseRelationalKey>> ChildKeysAsync(CancellationToken cancellationToken = default(CancellationToken)) => LoadChildKeysAsync(cancellationToken);
 
         protected virtual IReadOnlyCollection<IDatabaseRelationalKey> LoadChildKeysSync()
         {
-            const string sql = @"
-select
-    ac.OWNER as ChildTableSchema,
-    ac.TABLE_NAME as ChildTableName,
-    ac.CONSTRAINT_NAME as ChildKeyName,
-    ac.STATUS as EnabledStatus,
-    ac.DELETE_RULE as DeleteRule,
-    pac.CONSTRAINT_NAME as ParentKeyName,
-    pac.CONSTRAINT_TYPE as ParentKeyType
-from ALL_CONSTRAINTS ac
-inner join ALL_CONSTRAINTS pac on pac.OWNER = ac.R_OWNER and pac.CONSTRAINT_NAME = ac.R_CONSTRAINT_NAME
-where pac.OWNER = :SchemaName and pac.TABLE_NAME = :TableName and ac.CONSTRAINT_TYPE = 'R' and pac.CONSTRAINT_TYPE in ('P', 'U')";
-
-            var queryResult = Connection.Query<ChildKeyData>(sql, new { SchemaName = Name.Schema, TableName = Name.LocalName });
+            var queryResult = Connection.Query<ChildKeyData>(ChildKeysQuery, new { SchemaName = Name.Schema, TableName = Name.LocalName });
             if (queryResult.Empty())
                 return Array.Empty<IDatabaseRelationalKey>();
 
@@ -410,20 +364,7 @@ where pac.OWNER = :SchemaName and pac.TABLE_NAME = :TableName and ac.CONSTRAINT_
 
         protected virtual async Task<IReadOnlyCollection<IDatabaseRelationalKey>> LoadChildKeysAsync(CancellationToken cancellationToken)
         {
-            const string sql = @"
-select
-    ac.OWNER as ChildTableSchema,
-    ac.TABLE_NAME as ChildTableName,
-    ac.CONSTRAINT_NAME as ChildKeyName,
-    ac.STATUS as EnabledStatus,
-    ac.DELETE_RULE as DeleteRule,
-    pac.CONSTRAINT_NAME as ParentKeyName,
-    pac.CONSTRAINT_TYPE as ParentKeyType
-from ALL_CONSTRAINTS ac
-inner join ALL_CONSTRAINTS pac on pac.OWNER = ac.R_OWNER and pac.CONSTRAINT_NAME = ac.R_CONSTRAINT_NAME
-where pac.OWNER = :SchemaName and pac.TABLE_NAME = :TableName and ac.CONSTRAINT_TYPE = 'R' and pac.CONSTRAINT_TYPE in ('P', 'U')";
-
-            var queryResult = await Connection.QueryAsync<ChildKeyData>(sql, new { SchemaName = Name.Schema, TableName = Name.LocalName }).ConfigureAwait(false);
+            var queryResult = await Connection.QueryAsync<ChildKeyData>(ChildKeysQuery, new { SchemaName = Name.Schema, TableName = Name.LocalName }).ConfigureAwait(false);
             if (queryResult.Empty())
                 return Array.Empty<IDatabaseRelationalKey>();
 
@@ -461,6 +402,21 @@ where pac.OWNER = :SchemaName and pac.TABLE_NAME = :TableName and ac.CONSTRAINT_
             return result;
         }
 
+        protected virtual string ChildKeysQuery => ChildKeysQuerySql;
+
+        private const string ChildKeysQuerySql = @"
+select
+    ac.OWNER as ChildTableSchema,
+    ac.TABLE_NAME as ChildTableName,
+    ac.CONSTRAINT_NAME as ChildKeyName,
+    ac.STATUS as EnabledStatus,
+    ac.DELETE_RULE as DeleteRule,
+    pac.CONSTRAINT_NAME as ParentKeyName,
+    pac.CONSTRAINT_TYPE as ParentKeyType
+from ALL_CONSTRAINTS ac
+inner join ALL_CONSTRAINTS pac on pac.OWNER = ac.R_OWNER and pac.CONSTRAINT_NAME = ac.R_CONSTRAINT_NAME
+where pac.OWNER = :SchemaName and pac.TABLE_NAME = :TableName and ac.CONSTRAINT_TYPE = 'R' and pac.CONSTRAINT_TYPE in ('P', 'U')";
+
         public IReadOnlyDictionary<Identifier, IDatabaseCheckConstraint> Check => LoadCheckLookupSync();
 
         public Task<IReadOnlyDictionary<Identifier, IDatabaseCheckConstraint>> CheckAsync(CancellationToken cancellationToken = default(CancellationToken)) => LoadCheckLookupAsync(cancellationToken);
@@ -493,15 +449,7 @@ where pac.OWNER = :SchemaName and pac.TABLE_NAME = :TableName and ac.CONSTRAINT_
 
         protected virtual IReadOnlyCollection<IDatabaseCheckConstraint> LoadChecksSync()
         {
-            const string sql = @"
-select
-    CONSTRAINT_NAME as ConstraintName,
-    SEARCH_CONDITION as Definition,
-    STATUS as EnabledStatus
-from ALL_CONSTRAINTS
-where OWNER = :SchemaName and TABLE_NAME = :TableName and CONSTRAINT_TYPE = 'C'";
-
-            var checks = Connection.Query<CheckConstraintData>(sql, new { SchemaName = Name.Schema, TableName = Name.LocalName });
+            var checks = Connection.Query<CheckConstraintData>(ChecksQuery, new { SchemaName = Name.Schema, TableName = Name.LocalName });
             if (checks.Empty())
                 return Array.Empty<IDatabaseCheckConstraint>();
 
@@ -530,15 +478,7 @@ where OWNER = :SchemaName and TABLE_NAME = :TableName and CONSTRAINT_TYPE = 'C'"
 
         protected virtual async Task<IReadOnlyCollection<IDatabaseCheckConstraint>> LoadChecksAsync(CancellationToken cancellationToken)
         {
-            const string sql = @"
-select
-    CONSTRAINT_NAME as ConstraintName,
-    SEARCH_CONDITION as Definition,
-    STATUS as EnabledStatus
-from ALL_CONSTRAINTS
-where OWNER = :SchemaName and TABLE_NAME = :TableName and CONSTRAINT_TYPE = 'C'";
-
-            var checks = await Connection.QueryAsync<CheckConstraintData>(sql, new { SchemaName = Name.Schema, TableName = Name.LocalName }).ConfigureAwait(false);
+            var checks = await Connection.QueryAsync<CheckConstraintData>(ChecksQuery, new { SchemaName = Name.Schema, TableName = Name.LocalName }).ConfigureAwait(false);
             if (checks.Empty())
                 return Array.Empty<IDatabaseCheckConstraint>();
 
@@ -565,6 +505,16 @@ where OWNER = :SchemaName and TABLE_NAME = :TableName and CONSTRAINT_TYPE = 'C'"
 
             return result;
         }
+
+        protected virtual string ChecksQuery => ChecksQuerySql;
+
+        private const string ChecksQuerySql = @"
+select
+    CONSTRAINT_NAME as ConstraintName,
+    SEARCH_CONDITION as Definition,
+    STATUS as EnabledStatus
+from ALL_CONSTRAINTS
+where OWNER = :SchemaName and TABLE_NAME = :TableName and CONSTRAINT_TYPE = 'C'";
 
         public IReadOnlyDictionary<Identifier, IDatabaseRelationalKey> ParentKey => LoadParentKeyLookupSync();
 
@@ -598,23 +548,7 @@ where OWNER = :SchemaName and TABLE_NAME = :TableName and CONSTRAINT_TYPE = 'C'"
 
         protected virtual IReadOnlyCollection<IDatabaseRelationalKey> LoadParentKeysSync()
         {
-            const string sql = @"
-select
-    ac.CONSTRAINT_NAME as ConstraintName,
-    ac.STATUS as EnabledStatus,
-    ac.DELETE_RULE as DeleteRule,
-    pac.OWNER as ParentTableSchema,
-    pac.TABLE_NAME as ParentTableName,
-    pac.CONSTRAINT_NAME as ParentConstraintName,
-    pac.CONSTRAINT_TYPE as ParentKeyType,
-    acc.COLUMN_NAME as ColumnName,
-    acc.POSITION as ColumnPosition
-from ALL_CONSTRAINTS ac
-inner join ALL_CONS_COLUMNS acc on ac.OWNER = acc.OWNER and ac.CONSTRAINT_NAME = acc.CONSTRAINT_NAME and ac.TABLE_NAME = acc.TABLE_NAME
-inner join ALL_CONSTRAINTS pac on pac.OWNER = ac.R_OWNER and pac.CONSTRAINT_NAME = ac.R_CONSTRAINT_NAME
-where ac.OWNER = :SchemaName and ac.TABLE_NAME = :TableName and ac.CONSTRAINT_TYPE = 'R' and pac.CONSTRAINT_TYPE in ('P', 'U')";
-
-            var queryResult = Connection.Query<ForeignKeyData>(sql, new { SchemaName = Name.Schema, TableName = Name.LocalName });
+            var queryResult = Connection.Query<ForeignKeyData>(ParentKeysQuery, new { SchemaName = Name.Schema, TableName = Name.LocalName });
             if (queryResult.Empty())
                 return Array.Empty<IDatabaseRelationalKey>();
 
@@ -669,23 +603,7 @@ where ac.OWNER = :SchemaName and ac.TABLE_NAME = :TableName and ac.CONSTRAINT_TY
 
         protected virtual async Task<IReadOnlyCollection<IDatabaseRelationalKey>> LoadParentKeysAsync(CancellationToken cancellationToken)
         {
-            const string sql = @"
-select
-    ac.CONSTRAINT_NAME as ConstraintName,
-    ac.STATUS as EnabledStatus,
-    ac.DELETE_RULE as DeleteRule,
-    pac.OWNER as ParentTableSchema,
-    pac.TABLE_NAME as ParentTableName,
-    pac.CONSTRAINT_NAME as ParentConstraintName,
-    pac.CONSTRAINT_TYPE as ParentKeyType,
-    acc.COLUMN_NAME as ColumnName,
-    acc.POSITION as ColumnPosition
-from ALL_CONSTRAINTS ac
-inner join ALL_CONS_COLUMNS acc on ac.OWNER = acc.OWNER and ac.CONSTRAINT_NAME = acc.CONSTRAINT_NAME and ac.TABLE_NAME = acc.TABLE_NAME
-inner join ALL_CONSTRAINTS pac on pac.OWNER = ac.R_OWNER and pac.CONSTRAINT_NAME = ac.R_CONSTRAINT_NAME
-where ac.OWNER = :SchemaName and ac.TABLE_NAME = :TableName and ac.CONSTRAINT_TYPE = 'R' and pac.CONSTRAINT_TYPE in ('P', 'U')";
-
-            var queryResult = await Connection.QueryAsync<ForeignKeyData>(sql, new { SchemaName = Name.Schema, TableName = Name.LocalName }).ConfigureAwait(false);
+            var queryResult = await Connection.QueryAsync<ForeignKeyData>(ParentKeysQuery, new { SchemaName = Name.Schema, TableName = Name.LocalName }).ConfigureAwait(false);
             if (queryResult.Empty())
                 return Array.Empty<IDatabaseRelationalKey>();
 
@@ -738,6 +656,24 @@ where ac.OWNER = :SchemaName and ac.TABLE_NAME = :TableName and ac.CONSTRAINT_TY
             return result;
         }
 
+        protected virtual string ParentKeysQuery => ParentKeysQuerySql;
+
+        private const string ParentKeysQuerySql = @"
+select
+    ac.CONSTRAINT_NAME as ConstraintName,
+    ac.STATUS as EnabledStatus,
+    ac.DELETE_RULE as DeleteRule,
+    pac.OWNER as ParentTableSchema,
+    pac.TABLE_NAME as ParentTableName,
+    pac.CONSTRAINT_NAME as ParentConstraintName,
+    pac.CONSTRAINT_TYPE as ParentKeyType,
+    acc.COLUMN_NAME as ColumnName,
+    acc.POSITION as ColumnPosition
+from ALL_CONSTRAINTS ac
+inner join ALL_CONS_COLUMNS acc on ac.OWNER = acc.OWNER and ac.CONSTRAINT_NAME = acc.CONSTRAINT_NAME and ac.TABLE_NAME = acc.TABLE_NAME
+inner join ALL_CONSTRAINTS pac on pac.OWNER = ac.R_OWNER and pac.CONSTRAINT_NAME = ac.R_CONSTRAINT_NAME
+where ac.OWNER = :SchemaName and ac.TABLE_NAME = :TableName and ac.CONSTRAINT_TYPE = 'R' and pac.CONSTRAINT_TYPE in ('P', 'U')";
+
         public IReadOnlyList<IDatabaseTableColumn> Columns => LoadColumnsSync();
 
         public Task<IReadOnlyList<IDatabaseTableColumn>> ColumnsAsync(CancellationToken cancellationToken = default(CancellationToken)) => LoadColumnsAsync(cancellationToken);
@@ -770,23 +706,7 @@ where ac.OWNER = :SchemaName and ac.TABLE_NAME = :TableName and ac.CONSTRAINT_TY
 
         protected virtual IReadOnlyList<IDatabaseTableColumn> LoadColumnsSync()
         {
-            const string sql = @"
-select
-    COLUMN_NAME as ColumnName,
-    DATA_TYPE_OWNER as ColumnTypeSchema,
-    DATA_TYPE as ColumnTypeName,
-    DATA_LENGTH as DataLength,
-    DATA_PRECISION as Precision,
-    DATA_SCALE as Scale,
-    DATA_DEFAULT as DefaultValue,
-    CHAR_LENGTH as CharacterLength,
-    CHARACTER_SET_NAME as Collation,
-    VIRTUAL_COLUMN as IsComputed
-from ALL_TAB_COLS
-where OWNER = :SchemaName and TABLE_NAME = :TableName
-order by COLUMN_ID";
-
-            var query = Connection.Query<ColumnData>(sql, new { SchemaName = Name.Schema, TableName = Name.LocalName });
+            var query = Connection.Query<ColumnData>(ColumnsQuery, new { SchemaName = Name.Schema, TableName = Name.LocalName });
 
             var columnNames = query.Select(row => row.ColumnName).ToList();
             var notNullableColumnNames = GetNotNullConstrainedColumns(columnNames);
@@ -818,23 +738,7 @@ order by COLUMN_ID";
 
         protected virtual async Task<IReadOnlyList<IDatabaseTableColumn>> LoadColumnsAsync(CancellationToken cancellationToken)
         {
-            const string sql = @"
-select
-    COLUMN_NAME as ColumnName,
-    DATA_TYPE_OWNER as ColumnTypeSchema,
-    DATA_TYPE as ColumnTypeName,
-    DATA_LENGTH as DataLength,
-    DATA_PRECISION as Precision,
-    DATA_SCALE as Scale,
-    DATA_DEFAULT as DefaultValue,
-    CHAR_LENGTH as CharacterLength,
-    CHARACTER_SET_NAME as Collation,
-    VIRTUAL_COLUMN as IsComputed
-from ALL_TAB_COLS
-where OWNER = :SchemaName and TABLE_NAME = :TableName
-order by COLUMN_ID";
-
-            var query = await Connection.QueryAsync<ColumnData>(sql, new { SchemaName = Name.Schema, TableName = Name.LocalName }).ConfigureAwait(false);
+            var query = await Connection.QueryAsync<ColumnData>(ColumnsQuery, new { SchemaName = Name.Schema, TableName = Name.LocalName }).ConfigureAwait(false);
 
             var columnNames = query.Select(row => row.ColumnName).ToList();
             var notNullableColumnNames = await GetNotNullConstrainedColumnsAsync(columnNames).ConfigureAwait(false);
@@ -863,6 +767,24 @@ order by COLUMN_ID";
 
             return result.AsReadOnly();
         }
+
+        protected virtual string ColumnsQuery => ColumnsQuerySql;
+
+        private const string ColumnsQuerySql = @"
+select
+    COLUMN_NAME as ColumnName,
+    DATA_TYPE_OWNER as ColumnTypeSchema,
+    DATA_TYPE as ColumnTypeName,
+    DATA_LENGTH as DataLength,
+    DATA_PRECISION as Precision,
+    DATA_SCALE as Scale,
+    DATA_DEFAULT as DefaultValue,
+    CHAR_LENGTH as CharacterLength,
+    CHARACTER_SET_NAME as Collation,
+    VIRTUAL_COLUMN as IsComputed
+from ALL_TAB_COLS
+where OWNER = :SchemaName and TABLE_NAME = :TableName
+order by COLUMN_ID";
 
         public IReadOnlyDictionary<Identifier, IDatabaseTrigger> Trigger => LoadTriggerLookupSync();
 
@@ -896,18 +818,7 @@ order by COLUMN_ID";
 
         protected virtual IReadOnlyCollection<IDatabaseTrigger> LoadTriggersSync()
         {
-            const string sql = @"
-select
-    OWNER as TriggerSchema,
-    TRIGGER_NAME as TriggerName,
-    TRIGGER_TYPE as TriggerType,
-    TRIGGERING_EVENT as TriggerEvent,
-    TRIGGER_BODY as Definition,
-    STATUS as EnabledStatus
-from ALL_TRIGGERS
-where TABLE_OWNER = :SchemaName and TABLE_NAME = :TableName and BASE_OBJECT_TYPE = 'TABLE'";
-
-            var queryResult = Connection.Query<TriggerData>(sql, new { SchemaName = Name.Schema, TableName = Name.LocalName });
+            var queryResult = Connection.Query<TriggerData>(TriggersQuery, new { SchemaName = Name.Schema, TableName = Name.LocalName });
             if (queryResult.Empty())
                 return Array.Empty<IDatabaseTrigger>();
 
@@ -947,18 +858,7 @@ where TABLE_OWNER = :SchemaName and TABLE_NAME = :TableName and BASE_OBJECT_TYPE
 
         protected virtual async Task<IReadOnlyCollection<IDatabaseTrigger>> LoadTriggersAsync(CancellationToken cancellationToken)
         {
-            const string sql = @"
-select
-    OWNER as TriggerSchema,
-    TRIGGER_NAME as TriggerName,
-    TRIGGER_TYPE as TriggerType,
-    TRIGGERING_EVENT as TriggerEvent,
-    TRIGGER_BODY as Definition,
-    STATUS as EnabledStatus
-from ALL_TRIGGERS
-where TABLE_OWNER = :SchemaName and TABLE_NAME = :TableName and BASE_OBJECT_TYPE = 'TABLE'";
-
-            var queryResult = await Connection.QueryAsync<TriggerData>(sql, new { SchemaName = Name.Schema, TableName = Name.LocalName }).ConfigureAwait(false);
+            var queryResult = await Connection.QueryAsync<TriggerData>(TriggersQuery, new { SchemaName = Name.Schema, TableName = Name.LocalName }).ConfigureAwait(false);
             if (queryResult.Empty())
                 return Array.Empty<IDatabaseTrigger>();
 
@@ -996,20 +896,25 @@ where TABLE_OWNER = :SchemaName and TABLE_NAME = :TableName and BASE_OBJECT_TYPE
             return result;
         }
 
+        protected virtual string TriggersQuery => TriggersQuerySql;
+
+        private const string TriggersQuerySql = @"
+select
+    OWNER as TriggerSchema,
+    TRIGGER_NAME as TriggerName,
+    TRIGGER_TYPE as TriggerType,
+    TRIGGERING_EVENT as TriggerEvent,
+    TRIGGER_BODY as Definition,
+    STATUS as EnabledStatus
+from ALL_TRIGGERS
+where TABLE_OWNER = :SchemaName and TABLE_NAME = :TableName and BASE_OBJECT_TYPE = 'TABLE'";
+
         protected IEnumerable<string> GetNotNullConstrainedColumns(IEnumerable<string> columnNames)
         {
             if (columnNames == null)
                 throw new ArgumentNullException(nameof(columnNames));
 
-            const string sql = @"
-select
-    CONSTRAINT_NAME as ConstraintName,
-    SEARCH_CONDITION as Definition,
-    STATUS as EnabledStatus
-from ALL_CONSTRAINTS
-where OWNER = :SchemaName and TABLE_NAME = :TableName and CONSTRAINT_TYPE = 'C'";
-
-            var checks = Connection.Query<CheckConstraintData>(sql, new { SchemaName = Name.Schema, TableName = Name.LocalName });
+            var checks = Connection.Query<CheckConstraintData>(ChecksQuery, new { SchemaName = Name.Schema, TableName = Name.LocalName });
             if (checks.Empty())
                 return Array.Empty<string>();
 
@@ -1033,15 +938,7 @@ where OWNER = :SchemaName and TABLE_NAME = :TableName and CONSTRAINT_TYPE = 'C'"
 
         private async Task<IEnumerable<string>> GetNotNullConstrainedColumnsAsyncCore(IEnumerable<string> columnNames)
         {
-            const string sql = @"
-select
-    CONSTRAINT_NAME as ConstraintName,
-    SEARCH_CONDITION as Definition,
-    STATUS as EnabledStatus
-from ALL_CONSTRAINTS
-where OWNER = :SchemaName and TABLE_NAME = :TableName and CONSTRAINT_TYPE = 'C'";
-
-            var checks = await Connection.QueryAsync<CheckConstraintData>(sql, new { SchemaName = Name.Schema, TableName = Name.LocalName }).ConfigureAwait(false);
+            var checks = await Connection.QueryAsync<CheckConstraintData>(ChecksQuery, new { SchemaName = Name.Schema, TableName = Name.LocalName }).ConfigureAwait(false);
             if (checks.Empty())
                 return Array.Empty<string>();
 

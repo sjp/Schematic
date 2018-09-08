@@ -52,21 +52,7 @@ namespace SJP.Schematic.MySql
 
         protected virtual IDatabaseKey LoadPrimaryKeySync()
         {
-            const string sql = @"
-select kc.constraint_name as ConstraintName, kc.column_name as ColumnName
-from information_schema.tables t
-inner join information_schema.table_constraints tc on t.table_schema = tc.table_schema and t.table_name = tc.table_name
-inner join information_schema.key_column_usage kc
-    on t.table_schema = kc.table_schema
-    and t.table_name = kc.table_name
-    and tc.constraint_schema = kc.constraint_schema
-    and tc.constraint_name = kc.constraint_name
-where
-    t.table_schema = @SchemaName and t.table_name = @TableName
-    and tc.constraint_type = 'PRIMARY KEY'
-order by kc.ordinal_position";
-
-            var primaryKeyColumns = Connection.Query<ConstraintColumnMapping>(sql, new { SchemaName = Name.Schema, TableName = Name.LocalName });
+            var primaryKeyColumns = Connection.Query<ConstraintColumnMapping>(PrimaryKeyQuery, new { SchemaName = Name.Schema, TableName = Name.LocalName });
             if (primaryKeyColumns.Empty())
                 return null;
 
@@ -85,21 +71,7 @@ order by kc.ordinal_position";
 
         protected virtual async Task<IDatabaseKey> LoadPrimaryKeyAsync(CancellationToken cancellationToken)
         {
-            const string sql = @"
-select kc.constraint_name as ConstraintName, kc.column_name as ColumnName
-from information_schema.tables t
-inner join information_schema.table_constraints tc on t.table_schema = tc.table_schema and t.table_name = tc.table_name
-inner join information_schema.key_column_usage kc
-    on t.table_schema = kc.table_schema
-    and t.table_name = kc.table_name
-    and tc.constraint_schema = kc.constraint_schema
-    and tc.constraint_name = kc.constraint_name
-where
-    t.table_schema = @SchemaName and t.table_name = @TableName
-    and tc.constraint_type = 'PRIMARY KEY'
-order by kc.ordinal_position";
-
-            var primaryKeyColumns = await Connection.QueryAsync<ConstraintColumnMapping>(sql, new { SchemaName = Name.Schema, TableName = Name.LocalName }).ConfigureAwait(false);
+            var primaryKeyColumns = await Connection.QueryAsync<ConstraintColumnMapping>(PrimaryKeyQuery, new { SchemaName = Name.Schema, TableName = Name.LocalName }).ConfigureAwait(false);
             if (primaryKeyColumns.Empty())
                 return null;
 
@@ -115,6 +87,23 @@ order by kc.ordinal_position";
 
             return new MySqlDatabasePrimaryKey(this, columns);
         }
+
+        protected virtual string PrimaryKeyQuery => PrimaryKeyQuerySql;
+
+        private const string PrimaryKeyQuerySql = @"
+select
+    kc.constraint_name as ConstraintName,
+    kc.column_name as ColumnName
+from information_schema.tables t
+inner join information_schema.table_constraints tc on t.table_schema = tc.table_schema and t.table_name = tc.table_name
+inner join information_schema.key_column_usage kc
+    on t.table_schema = kc.table_schema
+    and t.table_name = kc.table_name
+    and tc.constraint_schema = kc.constraint_schema
+    and tc.constraint_name = kc.constraint_name
+where t.table_schema = @SchemaName and t.table_name = @TableName
+    and tc.constraint_type = 'PRIMARY KEY'
+order by kc.ordinal_position";
 
         public IReadOnlyDictionary<Identifier, IDatabaseTableIndex> Index => LoadIndexLookupSync();
 
@@ -148,16 +137,7 @@ order by kc.ordinal_position";
 
         protected virtual IReadOnlyCollection<IDatabaseTableIndex> LoadIndexesSync()
         {
-            const string sql = @"
-select
-    index_name as IndexName,
-    non_unique as IsNonUnique,
-    seq_in_index as ColumnOrdinal,
-    column_name as ColumnName
-from information_schema.statistics
-where table_schema = @SchemaName and table_name = @TableName";
-
-            var queryResult = Connection.Query<IndexColumns>(sql, new { SchemaName = Name.Schema, TableName = Name.LocalName });
+            var queryResult = Connection.Query<IndexColumns>(IndexesQuery, new { SchemaName = Name.Schema, TableName = Name.LocalName });
             if (queryResult.Empty())
                 return Array.Empty<IDatabaseTableIndex>();
 
@@ -187,16 +167,7 @@ where table_schema = @SchemaName and table_name = @TableName";
 
         protected virtual async Task<IReadOnlyCollection<IDatabaseTableIndex>> LoadIndexesAsync(CancellationToken cancellationToken)
         {
-            const string sql = @"
-select
-    index_name as IndexName,
-    non_unique as IsNonUnique,
-    seq_in_index as ColumnOrdinal,
-    column_name as ColumnName
-from information_schema.statistics
-where table_schema = @SchemaName and table_name = @TableName";
-
-            var queryResult = await Connection.QueryAsync<IndexColumns>(sql, new { SchemaName = Name.Schema, TableName = Name.LocalName }).ConfigureAwait(false);
+            var queryResult = await Connection.QueryAsync<IndexColumns>(IndexesQuery, new { SchemaName = Name.Schema, TableName = Name.LocalName }).ConfigureAwait(false);
             if (queryResult.Empty())
                 return Array.Empty<IDatabaseTableIndex>();
 
@@ -224,6 +195,17 @@ where table_schema = @SchemaName and table_name = @TableName";
 
             return result;
         }
+
+        protected virtual string IndexesQuery => IndexesQuerySql;
+
+        private const string IndexesQuerySql = @"
+select
+    index_name as IndexName,
+    non_unique as IsNonUnique,
+    seq_in_index as ColumnOrdinal,
+    column_name as ColumnName
+from information_schema.statistics
+where table_schema = @SchemaName and table_name = @TableName";
 
         public IReadOnlyDictionary<Identifier, IDatabaseKey> UniqueKey => LoadUniqueKeyLookupSync();
 
@@ -257,21 +239,7 @@ where table_schema = @SchemaName and table_name = @TableName";
 
         protected virtual IReadOnlyCollection<IDatabaseKey> LoadUniqueKeysSync()
         {
-            const string sql = @"
-select kc.constraint_name as ConstraintName, kc.column_name as ColumnName
-from information_schema.tables t
-inner join information_schema.table_constraints tc on t.table_schema = tc.table_schema and t.table_name = tc.table_name
-inner join information_schema.key_column_usage kc
-    on t.table_schema = kc.table_schema
-    and t.table_name = kc.table_name
-    and tc.constraint_schema = kc.constraint_schema
-    and tc.constraint_name = kc.constraint_name
-where
-    t.table_schema = @SchemaName and t.table_name = @TableName
-    and tc.constraint_type = 'UNIQUE'
-order by kc.ordinal_position";
-
-            var uniqueKeyColumns = Connection.Query<ConstraintColumnMapping>(sql, new { SchemaName = Name.Schema, TableName = Name.LocalName });
+            var uniqueKeyColumns = Connection.Query<ConstraintColumnMapping>(UniqueKeysQuery, new { SchemaName = Name.Schema, TableName = Name.LocalName });
             if (uniqueKeyColumns.Empty())
                 return Array.Empty<IDatabaseKey>();
 
@@ -298,21 +266,7 @@ order by kc.ordinal_position";
 
         protected virtual async Task<IReadOnlyCollection<IDatabaseKey>> LoadUniqueKeysAsync(CancellationToken cancellationToken)
         {
-            const string sql = @"
-select kc.constraint_name as ConstraintName, kc.column_name as ColumnName
-from information_schema.tables t
-inner join information_schema.table_constraints tc on t.table_schema = tc.table_schema and t.table_name = tc.table_name
-inner join information_schema.key_column_usage kc
-    on t.table_schema = kc.table_schema
-    and t.table_name = kc.table_name
-    and tc.constraint_schema = kc.constraint_schema
-    and tc.constraint_name = kc.constraint_name
-where
-    t.table_schema = @SchemaName and t.table_name = @TableName
-    and tc.constraint_type = 'UNIQUE'
-order by kc.ordinal_position";
-
-            var uniqueKeyColumns = await Connection.QueryAsync<ConstraintColumnMapping>(sql, new { SchemaName = Name.Schema, TableName = Name.LocalName }).ConfigureAwait(false);
+            var uniqueKeyColumns = await Connection.QueryAsync<ConstraintColumnMapping>(UniqueKeysQuery, new { SchemaName = Name.Schema, TableName = Name.LocalName }).ConfigureAwait(false);
             if (uniqueKeyColumns.Empty())
                 return Array.Empty<IDatabaseKey>();
 
@@ -337,31 +291,30 @@ order by kc.ordinal_position";
             return result;
         }
 
+        protected virtual string UniqueKeysQuery => UniqueKeysQuerySql;
+
+        private const string UniqueKeysQuerySql = @"
+select
+    kc.constraint_name as ConstraintName,
+    kc.column_name as ColumnName
+from information_schema.tables t
+inner join information_schema.table_constraints tc on t.table_schema = tc.table_schema and t.table_name = tc.table_name
+inner join information_schema.key_column_usage kc
+    on t.table_schema = kc.table_schema
+    and t.table_name = kc.table_name
+    and tc.constraint_schema = kc.constraint_schema
+    and tc.constraint_name = kc.constraint_name
+where t.table_schema = @SchemaName and t.table_name = @TableName
+    and tc.constraint_type = 'UNIQUE'
+order by kc.ordinal_position";
+
         public IReadOnlyCollection<IDatabaseRelationalKey> ChildKeys => LoadChildKeysSync();
 
         public Task<IReadOnlyCollection<IDatabaseRelationalKey>> ChildKeysAsync(CancellationToken cancellationToken = default(CancellationToken)) => LoadChildKeysAsync(cancellationToken);
 
         protected virtual IReadOnlyCollection<IDatabaseRelationalKey> LoadChildKeysSync()
         {
-            const string sql = @"
-select
-    t.table_schema as ChildTableSchema,
-    t.table_name as ChildTableName,
-    pt.table_schema as ParentTableSchema,
-    pt.table_name as ParentTableName,
-    rc.constraint_name as ChildKeyName,
-    rc.unique_constraint_name as ParentKeyName,
-    ptc.constraint_type as ParentKeyType,
-    rc.delete_rule as DeleteRule,
-    rc.update_rule as UpdateRule
-from information_schema.tables t
-inner join information_schema.referential_constraints rc on t.table_schema = rc.constraint_schema and t.table_name = rc.table_name
-inner join information_schema.key_column_usage kc on t.table_schema = kc.table_schema and t.table_name = kc.table_name
-inner join information_schema.tables pt on pt.table_schema = rc.unique_constraint_schema and pt.table_name = rc.referenced_table_name
-inner join information_schema.table_constraints ptc on pt.table_schema = ptc.table_schema and pt.table_name = ptc.table_name and ptc.constraint_name = rc.unique_constraint_name
-where pt.table_schema = @SchemaName and pt.table_name = @TableName";
-
-            var queryResult = Connection.Query<ChildKeyData>(sql, new { SchemaName = Name.Schema, TableName = Name.LocalName });
+            var queryResult = Connection.Query<ChildKeyData>(ChildKeysQuery, new { SchemaName = Name.Schema, TableName = Name.LocalName });
             if (queryResult.Empty())
                 return Array.Empty<IDatabaseRelationalKey>();
 
@@ -413,25 +366,7 @@ where pt.table_schema = @SchemaName and pt.table_name = @TableName";
 
         protected virtual async Task<IReadOnlyCollection<IDatabaseRelationalKey>> LoadChildKeysAsync(CancellationToken cancellationToken)
         {
-            const string sql = @"
-select
-    t.table_schema as ChildTableSchema,
-    t.table_name as ChildTableName,
-    pt.table_schema as ParentTableSchema,
-    pt.table_name as ParentTableName,
-    rc.constraint_name as ChildKeyName,
-    rc.unique_constraint_name as ParentKeyName,
-    ptc.constraint_type as ParentKeyType,
-    rc.delete_rule as DeleteRule,
-    rc.update_rule as UpdateRule
-from information_schema.tables t
-inner join information_schema.referential_constraints rc on t.table_schema = rc.constraint_schema and t.table_name = rc.table_name
-inner join information_schema.key_column_usage kc on t.table_schema = kc.table_schema and t.table_name = kc.table_name
-inner join information_schema.tables pt on pt.table_schema = rc.unique_constraint_schema and pt.table_name = rc.referenced_table_name
-inner join information_schema.table_constraints ptc on pt.table_schema = ptc.table_schema and pt.table_name = ptc.table_name and ptc.constraint_name = rc.unique_constraint_name
-where pt.table_schema = @SchemaName and pt.table_name = @TableName";
-
-            var queryResult = await Connection.QueryAsync<ChildKeyData>(sql, new { SchemaName = Name.Schema, TableName = Name.LocalName }).ConfigureAwait(false);
+            var queryResult = await Connection.QueryAsync<ChildKeyData>(ChildKeysQuery, new { SchemaName = Name.Schema, TableName = Name.LocalName }).ConfigureAwait(false);
             if (queryResult.Empty())
                 return Array.Empty<IDatabaseRelationalKey>();
 
@@ -481,6 +416,26 @@ where pt.table_schema = @SchemaName and pt.table_name = @TableName";
             return result;
         }
 
+        protected virtual string ChildKeysQuery => ChildKeysQuerySql;
+
+        private const string ChildKeysQuerySql = @"
+select
+    t.table_schema as ChildTableSchema,
+    t.table_name as ChildTableName,
+    pt.table_schema as ParentTableSchema,
+    pt.table_name as ParentTableName,
+    rc.constraint_name as ChildKeyName,
+    rc.unique_constraint_name as ParentKeyName,
+    ptc.constraint_type as ParentKeyType,
+    rc.delete_rule as DeleteRule,
+    rc.update_rule as UpdateRule
+from information_schema.tables t
+inner join information_schema.referential_constraints rc on t.table_schema = rc.constraint_schema and t.table_name = rc.table_name
+inner join information_schema.key_column_usage kc on t.table_schema = kc.table_schema and t.table_name = kc.table_name
+inner join information_schema.tables pt on pt.table_schema = rc.unique_constraint_schema and pt.table_name = rc.referenced_table_name
+inner join information_schema.table_constraints ptc on pt.table_schema = ptc.table_schema and pt.table_name = ptc.table_name and ptc.constraint_name = rc.unique_constraint_name
+where pt.table_schema = @SchemaName and pt.table_name = @TableName";
+
         // checks are parsed but not supported by MySQL
         public IReadOnlyDictionary<Identifier, IDatabaseCheckConstraint> Check => _emptyCheckLookup;
 
@@ -526,25 +481,7 @@ where pt.table_schema = @SchemaName and pt.table_name = @TableName";
 
         protected virtual IReadOnlyCollection<IDatabaseRelationalKey> LoadParentKeysSync()
         {
-            const string sql = @"
-select
-    pt.table_schema as ParentTableSchema,
-    pt.table_name as ParentTableName,
-    rc.constraint_name as ChildKeyName,
-    rc.unique_constraint_name as ParentKeyName,
-    kc.column_name as ColumnName,
-    kc.ordinal_position as ConstraintColumnId,
-    ptc.constraint_type as ParentKeyType,
-    rc.delete_rule as DeleteRule,
-    rc.update_rule as UpdateRule
-from information_schema.tables t
-inner join information_schema.referential_constraints rc on t.table_schema = rc.constraint_schema and t.table_name = rc.table_name
-inner join information_schema.key_column_usage kc on t.table_schema = kc.table_schema and t.table_name = kc.table_name
-inner join information_schema.tables pt on pt.table_schema = rc.unique_constraint_schema and pt.table_name = rc.referenced_table_name
-inner join information_schema.table_constraints ptc on pt.table_schema = ptc.table_schema and pt.table_name = ptc.table_name and ptc.constraint_name = rc.unique_constraint_name
-where t.table_schema = @SchemaName and t.table_name = @TableName";
-
-            var queryResult = Connection.Query<ForeignKeyData>(sql, new { SchemaName = Name.Schema, TableName = Name.LocalName });
+            var queryResult = Connection.Query<ForeignKeyData>(ParentKeysQuery, new { SchemaName = Name.Schema, TableName = Name.LocalName });
             if (queryResult.Empty())
                 return Array.Empty<IDatabaseRelationalKey>();
 
@@ -600,25 +537,7 @@ where t.table_schema = @SchemaName and t.table_name = @TableName";
 
         protected virtual async Task<IReadOnlyCollection<IDatabaseRelationalKey>> LoadParentKeysAsync(CancellationToken cancellationToken)
         {
-            const string sql = @"
-select
-    pt.table_schema as ParentTableSchema,
-    pt.table_name as ParentTableName,
-    rc.constraint_name as ChildKeyName,
-    rc.unique_constraint_name as ParentKeyName,
-    kc.column_name as ColumnName,
-    kc.ordinal_position as ConstraintColumnId,
-    ptc.constraint_type as ParentKeyType,
-    rc.delete_rule as DeleteRule,
-    rc.update_rule as UpdateRule
-from information_schema.tables t
-inner join information_schema.referential_constraints rc on t.table_schema = rc.constraint_schema and t.table_name = rc.table_name
-inner join information_schema.key_column_usage kc on t.table_schema = kc.table_schema and t.table_name = kc.table_name
-inner join information_schema.tables pt on pt.table_schema = rc.unique_constraint_schema and pt.table_name = rc.referenced_table_name
-inner join information_schema.table_constraints ptc on pt.table_schema = ptc.table_schema and pt.table_name = ptc.table_name and ptc.constraint_name = rc.unique_constraint_name
-where t.table_schema = @SchemaName and t.table_name = @TableName";
-
-            var queryResult = await Connection.QueryAsync<ForeignKeyData>(sql, new { SchemaName = Name.Schema, TableName = Name.LocalName }).ConfigureAwait(false);
+            var queryResult = await Connection.QueryAsync<ForeignKeyData>(ParentKeysQuery, new { SchemaName = Name.Schema, TableName = Name.LocalName }).ConfigureAwait(false);
             if (queryResult.Empty())
                 return Array.Empty<IDatabaseRelationalKey>();
 
@@ -672,6 +591,26 @@ where t.table_schema = @SchemaName and t.table_name = @TableName";
             return result;
         }
 
+        protected virtual string ParentKeysQuery => ParentKeysQuerySql;
+
+        private const string ParentKeysQuerySql = @"
+select
+    pt.table_schema as ParentTableSchema,
+    pt.table_name as ParentTableName,
+    rc.constraint_name as ChildKeyName,
+    rc.unique_constraint_name as ParentKeyName,
+    kc.column_name as ColumnName,
+    kc.ordinal_position as ConstraintColumnId,
+    ptc.constraint_type as ParentKeyType,
+    rc.delete_rule as DeleteRule,
+    rc.update_rule as UpdateRule
+from information_schema.tables t
+inner join information_schema.referential_constraints rc on t.table_schema = rc.constraint_schema and t.table_name = rc.table_name
+inner join information_schema.key_column_usage kc on t.table_schema = kc.table_schema and t.table_name = kc.table_name
+inner join information_schema.tables pt on pt.table_schema = rc.unique_constraint_schema and pt.table_name = rc.referenced_table_name
+inner join information_schema.table_constraints ptc on pt.table_schema = ptc.table_schema and pt.table_name = ptc.table_name and ptc.constraint_name = rc.unique_constraint_name
+where t.table_schema = @SchemaName and t.table_name = @TableName";
+
         public IReadOnlyList<IDatabaseTableColumn> Columns => LoadColumnsSync();
 
         public Task<IReadOnlyList<IDatabaseTableColumn>> ColumnsAsync(CancellationToken cancellationToken = default(CancellationToken)) => LoadColumnsAsync(cancellationToken);
@@ -704,24 +643,7 @@ where t.table_schema = @SchemaName and t.table_name = @TableName";
 
         protected virtual IReadOnlyList<IDatabaseTableColumn> LoadColumnsSync()
         {
-            const string sql = @"
-select
-    column_name as ColumnName,
-    data_type as DataTypeName,
-    character_maximum_length as CharacterMaxLength,
-    numeric_precision as `Precision`,
-    numeric_scale as `Scale`,
-    datetime_precision as `DateTimePrecision`,
-    collation_name as Collation,
-    is_nullable as IsNullable,
-    column_default as DefaultValue,
-    generation_expression as ComputedColumnDefinition,
-    extra as ExtraInformation
-from information_schema.columns
-where table_schema = @SchemaName and table_name = @TableName
-order by ordinal_position";
-
-            var query = Connection.Query<ColumnData>(sql, new { SchemaName = Name.Schema, TableName = Name.LocalName });
+            var query = Connection.Query<ColumnData>(ColumnsQuery, new { SchemaName = Name.Schema, TableName = Name.LocalName });
             var result = new List<IDatabaseTableColumn>();
 
             foreach (var row in query)
@@ -758,24 +680,7 @@ order by ordinal_position";
 
         protected virtual async Task<IReadOnlyList<IDatabaseTableColumn>> LoadColumnsAsync(CancellationToken cancellationToken)
         {
-            const string sql = @"
-select
-    column_name as ColumnName,
-    data_type as DataTypeName,
-    character_maximum_length as CharacterMaxLength,
-    numeric_precision as `Precision`,
-    numeric_scale as `Scale`,
-    datetime_precision as `DateTimePrecision`,
-    collation_name as Collation,
-    is_nullable as IsNullable,
-    column_default as DefaultValue,
-    generation_expression as ComputedColumnDefinition,
-    extra as ExtraInformation
-from information_schema.columns
-where table_schema = @SchemaName and table_name = @TableName
-order by ordinal_position";
-
-            var query = await Connection.QueryAsync<ColumnData>(sql, new { SchemaName = Name.Schema, TableName = Name.LocalName }).ConfigureAwait(false);
+            var query = await Connection.QueryAsync<ColumnData>(ColumnsQuery, new { SchemaName = Name.Schema, TableName = Name.LocalName }).ConfigureAwait(false);
             var result = new List<IDatabaseTableColumn>();
 
             foreach (var row in query)
@@ -805,6 +710,25 @@ order by ordinal_position";
 
             return result.AsReadOnly();
         }
+
+        protected virtual string ColumnsQuery => ColumnsQuerySql;
+
+        private const string ColumnsQuerySql = @"
+select
+    column_name as ColumnName,
+    data_type as DataTypeName,
+    character_maximum_length as CharacterMaxLength,
+    numeric_precision as `Precision`,
+    numeric_scale as `Scale`,
+    datetime_precision as `DateTimePrecision`,
+    collation_name as Collation,
+    is_nullable as IsNullable,
+    column_default as DefaultValue,
+    generation_expression as ComputedColumnDefinition,
+    extra as ExtraInformation
+from information_schema.columns
+where table_schema = @SchemaName and table_name = @TableName
+order by ordinal_position";
 
         public IReadOnlyDictionary<Identifier, IDatabaseTrigger> Trigger => LoadTriggerLookupSync();
 
@@ -838,12 +762,7 @@ order by ordinal_position";
 
         protected virtual IReadOnlyCollection<IDatabaseTrigger> LoadTriggersSync()
         {
-            const string sql = @"
-select tr.trigger_name as TriggerName, tr.action_statement as Definition, tr.action_timing as Timing, tr.event_manipulation as TriggerEvent
-from information_schema.triggers tr
-where tr.event_object_schema = @SchemaName and tr.event_object_table = @TableName";
-
-            var queryResult = Connection.Query<TriggerData>(sql, new { SchemaName = Name.Schema, TableName = Name.LocalName });
+            var queryResult = Connection.Query<TriggerData>(TriggersQuery, new { SchemaName = Name.Schema, TableName = Name.LocalName });
             if (queryResult.Empty())
                 return Array.Empty<IDatabaseTrigger>();
 
@@ -885,12 +804,7 @@ where tr.event_object_schema = @SchemaName and tr.event_object_table = @TableNam
 
         protected virtual async Task<IReadOnlyCollection<IDatabaseTrigger>> LoadTriggersAsync(CancellationToken cancellationToken)
         {
-            const string sql = @"
-select tr.trigger_name as TriggerName, tr.action_statement as Definition, tr.action_timing as Timing, tr.event_manipulation as TriggerEvent
-from information_schema.triggers tr
-where tr.event_object_schema = @SchemaName and tr.event_object_table = @TableName";
-
-            var queryResult = await Connection.QueryAsync<TriggerData>(sql, new { SchemaName = Name.Schema, TableName = Name.LocalName }).ConfigureAwait(false);
+            var queryResult = await Connection.QueryAsync<TriggerData>(TriggersQuery, new { SchemaName = Name.Schema, TableName = Name.LocalName }).ConfigureAwait(false);
             if (queryResult.Empty())
                 return Array.Empty<IDatabaseTrigger>();
 
@@ -929,6 +843,17 @@ where tr.event_object_schema = @SchemaName and tr.event_object_table = @TableNam
 
             return result;
         }
+
+        protected virtual string TriggersQuery => TriggersQuerySql;
+
+        private const string TriggersQuerySql = @"
+select
+    tr.trigger_name as TriggerName,
+    tr.action_statement as Definition,
+    tr.action_timing as Timing,
+    tr.event_manipulation as TriggerEvent
+from information_schema.triggers tr
+where tr.event_object_schema = @SchemaName and tr.event_object_table = @TableName";
 
         protected IReadOnlyDictionary<string, Rule> RelationalRuleMapping { get; } = new Dictionary<string, Rule>(StringComparer.OrdinalIgnoreCase)
         {

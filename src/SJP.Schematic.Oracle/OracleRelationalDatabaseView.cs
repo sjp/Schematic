@@ -52,25 +52,16 @@ namespace SJP.Schematic.Oracle
 
         public Task<string> DefinitionAsync(CancellationToken cancellationToken = default(CancellationToken)) => LoadDefinitionAsync(cancellationToken);
 
-        protected virtual string LoadDefinitionSync()
-        {
-            const string sql = @"
+        protected virtual string LoadDefinitionSync() => Connection.ExecuteScalar<string>(DefinitionQuery, new { SchemaName = Name.Schema, ViewName = Name.LocalName });
+
+        protected virtual Task<string> LoadDefinitionAsync(CancellationToken cancellationToken) => Connection.ExecuteScalarAsync<string>(DefinitionQuery, new { SchemaName = Name.Schema, ViewName = Name.LocalName });
+
+        protected virtual string DefinitionQuery => DefinitionQuerySql;
+
+        private const string DefinitionQuerySql = @"
 select TEXT
 from ALL_VIEWS
 where OWNER = :SchemaName and VIEW_NAME = :ViewName";
-
-            return Connection.ExecuteScalar<string>(sql, new { SchemaName = Name.Schema, ViewName = Name.LocalName });
-        }
-
-        protected virtual Task<string> LoadDefinitionAsync(CancellationToken cancellationToken)
-        {
-            const string sql = @"
-select TEXT
-from ALL_VIEWS
-where OWNER = :SchemaName and VIEW_NAME = :ViewName";
-
-            return Connection.ExecuteScalarAsync<string>(sql, new { SchemaName = Name.Schema, ViewName = Name.LocalName });
-        }
 
         public bool IsIndexed => Indexes.Count > 0;
 
@@ -84,26 +75,7 @@ where OWNER = :SchemaName and VIEW_NAME = :ViewName";
 
         protected virtual IReadOnlyCollection<IDatabaseViewIndex> LoadIndexesSync()
         {
-            const string sql = @"
-select
-    ai.OWNER as IndexOwner,
-    ai.INDEX_NAME as IndexName,
-    ai.UNIQUENESS as Uniqueness,
-    ind.PROPERTY as IndexProperty,
-    aic.COLUMN_NAME as ColumnName,
-    aic.COLUMN_POSITION as ColumnPosition,
-    aic.DESCEND as IsDescending
-from ALL_INDEXES ai
-inner join ALL_OBJECTS ao on ai.OWNER = ao.OWNER and ai.INDEX_NAME = ao.OBJECT_NAME
-inner join SYS.IND$ ind on ao.OBJECT_ID = ind.OBJ#
-inner join ALL_IND_COLUMNS aic
-    on ai.OWNER = aic.INDEX_OWNER and ai.INDEX_NAME = aic.INDEX_NAME
-where ai.TABLE_OWNER = :SchemaName and ai.TABLE_NAME = :ViewName
-    and aic.TABLE_OWNER = :SchemaName and aic.TABLE_NAME = :ViewName
-    and ao.OBJECT_TYPE = 'INDEX'
-order by aic.COLUMN_POSITION";
-
-            var queryResult = Connection.Query<IndexColumns>(sql, new { SchemaName = Name.Schema, ViewName = Name.LocalName });
+            var queryResult = Connection.Query<IndexColumns>(IndexesQuery, new { SchemaName = Name.Schema, ViewName = Name.LocalName });
             if (queryResult.Empty())
                 return Array.Empty<IDatabaseViewIndex>();
 
@@ -136,26 +108,7 @@ order by aic.COLUMN_POSITION";
 
         protected virtual async Task<IReadOnlyCollection<IDatabaseViewIndex>> LoadIndexesAsync(CancellationToken cancellationToken)
         {
-            const string sql = @"
-select
-    ai.OWNER as IndexOwner,
-    ai.INDEX_NAME as IndexName,
-    ai.UNIQUENESS as Uniqueness,
-    ind.PROPERTY as IndexProperty,
-    aic.COLUMN_NAME as ColumnName,
-    aic.COLUMN_POSITION as ColumnPosition,
-    aic.DESCEND as IsDescending
-from ALL_INDEXES ai
-inner join ALL_OBJECTS ao on ai.OWNER = ao.OWNER and ai.INDEX_NAME = ao.OBJECT_NAME
-inner join SYS.IND$ ind on ao.OBJECT_ID = ind.OBJ#
-inner join ALL_IND_COLUMNS aic
-    on ai.OWNER = aic.INDEX_OWNER and ai.INDEX_NAME = aic.INDEX_NAME
-where ai.TABLE_OWNER = :SchemaName and ai.TABLE_NAME = :ViewName
-    and aic.TABLE_OWNER = :SchemaName and aic.TABLE_NAME = :ViewName
-    and ao.OBJECT_TYPE = 'INDEX'
-order by aic.COLUMN_POSITION";
-
-            var queryResult = await Connection.QueryAsync<IndexColumns>(sql, new { SchemaName = Name.Schema, ViewName = Name.LocalName }).ConfigureAwait(false);
+            var queryResult = await Connection.QueryAsync<IndexColumns>(IndexesQuery, new { SchemaName = Name.Schema, ViewName = Name.LocalName }).ConfigureAwait(false);
             if (queryResult.Empty())
                 return Array.Empty<IDatabaseViewIndex>();
 
@@ -185,6 +138,27 @@ order by aic.COLUMN_POSITION";
 
             return result;
         }
+
+        protected virtual string IndexesQuery => IndexesQuerySql;
+
+        private const string IndexesQuerySql = @"
+select
+    ai.OWNER as IndexOwner,
+    ai.INDEX_NAME as IndexName,
+    ai.UNIQUENESS as Uniqueness,
+    ind.PROPERTY as IndexProperty,
+    aic.COLUMN_NAME as ColumnName,
+    aic.COLUMN_POSITION as ColumnPosition,
+    aic.DESCEND as IsDescending
+from ALL_INDEXES ai
+inner join ALL_OBJECTS ao on ai.OWNER = ao.OWNER and ai.INDEX_NAME = ao.OBJECT_NAME
+inner join SYS.IND$ ind on ao.OBJECT_ID = ind.OBJ#
+inner join ALL_IND_COLUMNS aic
+    on ai.OWNER = aic.INDEX_OWNER and ai.INDEX_NAME = aic.INDEX_NAME
+where ai.TABLE_OWNER = :SchemaName and ai.TABLE_NAME = :ViewName
+    and aic.TABLE_OWNER = :SchemaName and aic.TABLE_NAME = :ViewName
+    and ao.OBJECT_TYPE = 'INDEX'
+order by aic.COLUMN_POSITION";
 
         protected virtual IReadOnlyDictionary<Identifier, IDatabaseViewIndex> LoadIndexLookupSync()
         {
@@ -240,24 +214,7 @@ order by aic.COLUMN_POSITION";
 
         protected virtual IReadOnlyList<IDatabaseViewColumn> LoadColumnsSync()
         {
-            const string sql = @"
-select
-    atc.COLUMN_NAME as ColumnName,
-    atc.DATA_TYPE_OWNER as ColumnTypeSchema,
-    atc.DATA_TYPE as ColumnTypeName,
-    atc.DATA_LENGTH as DataLength,
-    atc.DATA_PRECISION as Precision,
-    atc.DATA_SCALE as Scale,
-    atc.NULLABLE as IsNullable,
-    atc.DATA_DEFAULT as DefaultValue,
-    atc.CHAR_LENGTH as CharacterLength,
-    atc.CHARACTER_SET_NAME as Collation,
-    atc.VIRTUAL_COLUMN as IsComputed
-from ALL_TAB_COLS atc
-where OWNER = :SchemaName and TABLE_NAME = :ViewName
-order by atc.COLUMN_ID";
-
-            var query = Connection.Query<ColumnData>(sql, new { SchemaName = Name.Schema, ViewName = Name.LocalName });
+            var query = Connection.Query<ColumnData>(ColumnsQuery, new { SchemaName = Name.Schema, ViewName = Name.LocalName });
 
             var columnNames = query.Select(row => row.ColumnName).ToList();
             var notNullableColumnNames = GetNotNullConstrainedColumns(columnNames);
@@ -287,24 +244,7 @@ order by atc.COLUMN_ID";
 
         protected virtual async Task<IReadOnlyList<IDatabaseViewColumn>> LoadColumnsAsync(CancellationToken cancellationToken)
         {
-            const string sql = @"
-select
-    atc.COLUMN_NAME as ColumnName,
-    atc.DATA_TYPE_OWNER as ColumnTypeSchema,
-    atc.DATA_TYPE as ColumnTypeName,
-    atc.DATA_LENGTH as DataLength,
-    atc.DATA_PRECISION as Precision,
-    atc.DATA_SCALE as Scale,
-    atc.NULLABLE as IsNullable,
-    atc.DATA_DEFAULT as DefaultValue,
-    atc.CHAR_LENGTH as CharacterLength,
-    atc.CHARACTER_SET_NAME as Collation,
-    atc.VIRTUAL_COLUMN as IsComputed
-from ALL_TAB_COLS atc
-where OWNER = :SchemaName and TABLE_NAME = :ViewName
-order by atc.COLUMN_ID";
-
-            var query = await Connection.QueryAsync<ColumnData>(sql, new { SchemaName = Name.Schema, ViewName = Name.LocalName }).ConfigureAwait(false);
+            var query = await Connection.QueryAsync<ColumnData>(ColumnsQuery, new { SchemaName = Name.Schema, ViewName = Name.LocalName }).ConfigureAwait(false);
 
             var columnNames = query.Select(row => row.ColumnName).ToList();
             var notNullableColumnNames = await GetNotNullConstrainedColumnsAsync(columnNames).ConfigureAwait(false);
@@ -332,20 +272,31 @@ order by atc.COLUMN_ID";
             return result.AsReadOnly();
         }
 
+        protected virtual string ColumnsQuery => ColumnsQuerySql;
+
+        private const string ColumnsQuerySql = @"
+select
+    atc.COLUMN_NAME as ColumnName,
+    atc.DATA_TYPE_OWNER as ColumnTypeSchema,
+    atc.DATA_TYPE as ColumnTypeName,
+    atc.DATA_LENGTH as DataLength,
+    atc.DATA_PRECISION as Precision,
+    atc.DATA_SCALE as Scale,
+    atc.NULLABLE as IsNullable,
+    atc.DATA_DEFAULT as DefaultValue,
+    atc.CHAR_LENGTH as CharacterLength,
+    atc.CHARACTER_SET_NAME as Collation,
+    atc.VIRTUAL_COLUMN as IsComputed
+from ALL_TAB_COLS atc
+where OWNER = :SchemaName and TABLE_NAME = :ViewName
+order by atc.COLUMN_ID";
+
         protected IEnumerable<string> GetNotNullConstrainedColumns(IEnumerable<string> columnNames)
         {
             if (columnNames == null)
                 throw new ArgumentNullException(nameof(columnNames));
 
-            const string sql = @"
-select
-    CONSTRAINT_NAME as ConstraintName,
-    SEARCH_CONDITION as Definition,
-    STATUS as EnabledStatus
-from ALL_CONSTRAINTS
-where OWNER = :SchemaName and TABLE_NAME = :TableName and CONSTRAINT_TYPE = 'C'";
-
-            var checks = Connection.Query<CheckConstraintData>(sql, new { SchemaName = Name.Schema, TableName = Name.LocalName });
+            var checks = Connection.Query<CheckConstraintData>(ChecksQuery, new { SchemaName = Name.Schema, TableName = Name.LocalName });
             if (checks.Empty())
                 return Array.Empty<string>();
 
@@ -369,15 +320,7 @@ where OWNER = :SchemaName and TABLE_NAME = :TableName and CONSTRAINT_TYPE = 'C'"
 
         private async Task<IEnumerable<string>> GetNotNullConstrainedColumnsAsyncCore(IEnumerable<string> columnNames)
         {
-            const string sql = @"
-select
-    CONSTRAINT_NAME as ConstraintName,
-    SEARCH_CONDITION as Definition,
-    STATUS as EnabledStatus
-from ALL_CONSTRAINTS
-where OWNER = :SchemaName and TABLE_NAME = :TableName and CONSTRAINT_TYPE = 'C'";
-
-            var checks = await Connection.QueryAsync<CheckConstraintData>(sql, new { SchemaName = Name.Schema, TableName = Name.LocalName }).ConfigureAwait(false);
+            var checks = await Connection.QueryAsync<CheckConstraintData>(ChecksQuery, new { SchemaName = Name.Schema, TableName = Name.LocalName }).ConfigureAwait(false);
             if (checks.Empty())
                 return Array.Empty<string>();
 
@@ -390,6 +333,16 @@ where OWNER = :SchemaName and TABLE_NAME = :TableName and CONSTRAINT_TYPE = 'C'"
                 .Select(c => columnNotNullConstraints[c.Definition])
                 .ToList();
         }
+
+        protected virtual string ChecksQuery => ChecksQuerySql;
+
+        private const string ChecksQuerySql = @"
+select
+    CONSTRAINT_NAME as ConstraintName,
+    SEARCH_CONDITION as Definition,
+    STATUS as EnabledStatus
+from ALL_CONSTRAINTS
+where OWNER = :SchemaName and TABLE_NAME = :TableName and CONSTRAINT_TYPE = 'C'";
 
         private static string GenerateNotNullDefinition(string columnName)
         {

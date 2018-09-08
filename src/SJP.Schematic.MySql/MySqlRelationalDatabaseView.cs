@@ -51,25 +51,16 @@ namespace SJP.Schematic.MySql
 
         public Task<string> DefinitionAsync(CancellationToken cancellationToken = default(CancellationToken)) => LoadDefinitionAsync(cancellationToken);
 
-        protected virtual string LoadDefinitionSync()
-        {
-            const string sql = @"
+        protected virtual string LoadDefinitionSync() => Connection.ExecuteScalar<string>(DefinitionQuery, new { SchemaName = Name.Schema, ViewName = Name.LocalName });
+
+        protected virtual Task<string> LoadDefinitionAsync(CancellationToken cancellationToken) => Connection.ExecuteScalarAsync<string>(DefinitionQuery, new { SchemaName = Name.Schema, ViewName = Name.LocalName });
+
+        protected virtual string DefinitionQuery => DefinitionQuerySql;
+
+        private const string DefinitionQuerySql = @"
 select view_definition
 from information_schema.views
 where table_schema = @SchemaName and table_name = @ViewName";
-
-            return Connection.ExecuteScalar<string>(sql, new { SchemaName = Name.Schema, ViewName = Name.LocalName });
-        }
-
-        protected virtual Task<string> LoadDefinitionAsync(CancellationToken cancellationToken)
-        {
-            const string sql = @"
-select view_definition
-from information_schema.views
-where table_schema = @SchemaName and table_name = @ViewName";
-
-            return Connection.ExecuteScalarAsync<string>(sql, new { SchemaName = Name.Schema, ViewName = Name.LocalName });
-        }
 
         public bool IsIndexed => Indexes.Count > 0;
 
@@ -117,24 +108,7 @@ where table_schema = @SchemaName and table_name = @ViewName";
 
         protected virtual IReadOnlyList<IDatabaseViewColumn> LoadColumnsSync()
         {
-            const string sql = @"
-select
-    column_name as ColumnName,
-    data_type as DataTypeName,
-    character_maximum_length as CharacterMaxLength,
-    numeric_precision as `Precision`,
-    numeric_scale as `Scale`,
-    datetime_precision as `DateTimePrecision`,
-    collation_name as Collation,
-    is_nullable as IsNullable,
-    column_default as DefaultValue,
-    generation_expression as ComputedColumnDefinition,
-    extra as ExtraInformation
-from information_schema.columns
-where table_schema = @SchemaName and table_name = @ViewName
-order by ordinal_position";
-
-            var query = Connection.Query<ColumnData>(sql, new { SchemaName = Name.Schema, ViewName = Name.LocalName });
+            var query = Connection.Query<ColumnData>(ColumnsQuery, new { SchemaName = Name.Schema, ViewName = Name.LocalName });
             var result = new List<IDatabaseViewColumn>();
 
             foreach (var row in query)
@@ -166,24 +140,7 @@ order by ordinal_position";
 
         protected virtual async Task<IReadOnlyList<IDatabaseViewColumn>> LoadColumnsAsync(CancellationToken cancellationToken)
         {
-            const string sql = @"
-select
-    column_name as ColumnName,
-    data_type as DataTypeName,
-    character_maximum_length as CharacterMaxLength,
-    numeric_precision as `Precision`,
-    numeric_scale as `Scale`,
-    datetime_precision as `DateTimePrecision`,
-    collation_name as Collation,
-    is_nullable as IsNullable,
-    column_default as DefaultValue,
-    generation_expression as ComputedColumnDefinition,
-    extra as ExtraInformation
-from information_schema.columns
-where table_schema = @SchemaName and table_name = @ViewName
-order by ordinal_position";
-
-            var query = await Connection.QueryAsync<ColumnData>(sql, new { SchemaName = Name.Schema, ViewName = Name.LocalName }).ConfigureAwait(false);
+            var query = await Connection.QueryAsync<ColumnData>(ColumnsQuery, new { SchemaName = Name.Schema, ViewName = Name.LocalName }).ConfigureAwait(false);
             var result = new List<IDatabaseViewColumn>();
 
             foreach (var row in query)
@@ -212,5 +169,24 @@ order by ordinal_position";
 
             return result.AsReadOnly();
         }
+
+        protected virtual string ColumnsQuery => ColumnsQuerySql;
+
+        private const string ColumnsQuerySql = @"
+select
+    column_name as ColumnName,
+    data_type as DataTypeName,
+    character_maximum_length as CharacterMaxLength,
+    numeric_precision as `Precision`,
+    numeric_scale as `Scale`,
+    datetime_precision as `DateTimePrecision`,
+    collation_name as Collation,
+    is_nullable as IsNullable,
+    column_default as DefaultValue,
+    generation_expression as ComputedColumnDefinition,
+    extra as ExtraInformation
+from information_schema.columns
+where table_schema = @SchemaName and table_name = @ViewName
+order by ordinal_position";
     }
 }
