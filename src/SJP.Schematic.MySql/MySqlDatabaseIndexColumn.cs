@@ -1,22 +1,18 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using EnumsNET;
 using SJP.Schematic.Core;
 
-namespace SJP.Schematic.Sqlite
+namespace SJP.Schematic.MySql
 {
-    public class SqliteDatabaseIndexColumn : IDatabaseIndexColumn
+    public class MySqlDatabaseIndexColumn : IDatabaseIndexColumn
     {
-        public SqliteDatabaseIndexColumn(IDatabaseColumn column, IndexColumnOrder order)
+        public MySqlDatabaseIndexColumn(IDatabaseColumn column)
         {
             if (column == null)
                 throw new ArgumentNullException(nameof(column));
-            if (!order.IsValid())
-                throw new ArgumentException($"The { nameof(IndexColumnOrder) } provided must be a valid enum.", nameof(order));
 
             DependentColumns = new List<IDatabaseColumn> { column }.AsReadOnly();
-            Order = order;
         }
 
         public IReadOnlyList<IDatabaseColumn> DependentColumns { get; }

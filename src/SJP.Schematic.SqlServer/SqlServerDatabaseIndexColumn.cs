@@ -4,11 +4,11 @@ using System.Linq;
 using EnumsNET;
 using SJP.Schematic.Core;
 
-namespace SJP.Schematic.Sqlite
+namespace SJP.Schematic.SqlServer
 {
-    public class SqliteDatabaseIndexColumn : IDatabaseIndexColumn
+    public class SqlServerDatabaseIndexColumn : IDatabaseIndexColumn
     {
-        public SqliteDatabaseIndexColumn(IDatabaseColumn column, IndexColumnOrder order)
+        public SqlServerDatabaseIndexColumn(IDatabaseColumn column, IndexColumnOrder order)
         {
             if (column == null)
                 throw new ArgumentNullException(nameof(column));

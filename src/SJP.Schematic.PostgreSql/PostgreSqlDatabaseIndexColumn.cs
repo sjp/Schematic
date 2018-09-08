@@ -3,12 +3,24 @@ using System.Collections.Generic;
 using System.Linq;
 using EnumsNET;
 using SJP.Schematic.Core;
+using SJP.Schematic.Core.Extensions;
 
-namespace SJP.Schematic.Sqlite
+namespace SJP.Schematic.PostgreSql
 {
-    public class SqliteDatabaseIndexColumn : IDatabaseIndexColumn
+    public class PostgreSqlDatabaseIndexColumn : IDatabaseIndexColumn
     {
-        public SqliteDatabaseIndexColumn(IDatabaseColumn column, IndexColumnOrder order)
+        public PostgreSqlDatabaseIndexColumn(string expression, IndexColumnOrder order)
+        {
+            if (expression.IsNullOrWhiteSpace())
+                throw new ArgumentNullException(nameof(expression));
+            if (!order.IsValid())
+                throw new ArgumentException($"The { nameof(IndexColumnOrder) } provided must be a valid enum.", nameof(order));
+
+            _expression = expression;
+            Order = order;
+        }
+
+        public PostgreSqlDatabaseIndexColumn(IDatabaseColumn column, IndexColumnOrder order)
         {
             if (column == null)
                 throw new ArgumentNullException(nameof(column));
@@ -28,9 +40,11 @@ namespace SJP.Schematic.Sqlite
             if (dialect == null)
                 throw new ArgumentNullException(nameof(dialect));
 
-            return DependentColumns
+            return _expression ?? DependentColumns
                 .Select(c => dialect.QuoteName(c.Name))
                 .Single();
         }
+
+        private readonly string _expression;
     }
 }
