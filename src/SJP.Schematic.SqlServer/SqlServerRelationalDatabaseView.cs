@@ -53,25 +53,21 @@ namespace SJP.Schematic.SqlServer
 
         protected virtual string LoadDefinitionSync()
         {
-            const string sql = @"
-select sm.definition
-from sys.sql_modules sm
-inner join sys.views v on sm.object_id = v.object_id
-where schema_name(v.schema_id) = @SchemaName and v.name = @ViewName";
-
-            return Connection.ExecuteScalar<string>(sql, new { SchemaName = Name.Schema, ViewName = Name.LocalName });
+            return Connection.ExecuteScalar<string>(DefinitionQuery, new { SchemaName = Name.Schema, ViewName = Name.LocalName });
         }
 
         protected virtual Task<string> LoadDefinitionAsync(CancellationToken cancellationToken)
         {
-            const string sql = @"
+            return Connection.ExecuteScalarAsync<string>(DefinitionQuery, new { SchemaName = Name.Schema, ViewName = Name.LocalName });
+        }
+
+        protected virtual string DefinitionQuery => DefinitionQuerySql;
+
+        private const string DefinitionQuerySql = @"
 select sm.definition
 from sys.sql_modules sm
 inner join sys.views v on sm.object_id = v.object_id
 where schema_name(v.schema_id) = @SchemaName and v.name = @ViewName";
-
-            return Connection.ExecuteScalarAsync<string>(sql, new { SchemaName = Name.Schema, ViewName = Name.LocalName });
-        }
 
         public bool IsIndexed => Indexes.Count > 0;
 
@@ -85,17 +81,7 @@ where schema_name(v.schema_id) = @SchemaName and v.name = @ViewName";
 
         protected virtual IReadOnlyCollection<IDatabaseViewIndex> LoadIndexesSync()
         {
-            const string sql = @"
-select i.name as IndexName, i.is_unique as IsUnique, ic.key_ordinal as KeyOrdinal, ic.index_column_id as IndexColumnId, ic.is_included_column as IsIncludedColumn, ic.is_descending_key as IsDescending, c.name as ColumnName, i.is_disabled as IsDisabled
-from sys.views v
-inner join sys.indexes i on v.object_id = i.object_id
-inner join sys.index_columns ic on i.object_id = ic.object_id and i.index_id = ic.index_id
-inner join sys.columns c on ic.object_id = c.object_id and ic.column_id = c.column_id
-where schema_name(v.schema_id) = @SchemaName and v.name = @ViewName
-    and i.is_primary_key = 0 and i.is_unique_constraint = 0
-    order by ic.index_id, ic.key_ordinal, ic.index_column_id";
-
-            var queryResult = Connection.Query<IndexColumns>(sql, new { SchemaName = Name.Schema, ViewName = Name.LocalName });
+            var queryResult = Connection.Query<IndexColumns>(IndexesQuery, new { SchemaName = Name.Schema, ViewName = Name.LocalName });
             if (queryResult.Empty())
                 return Array.Empty<IDatabaseViewIndex>();
 
@@ -137,17 +123,7 @@ where schema_name(v.schema_id) = @SchemaName and v.name = @ViewName
 
         protected virtual async Task<IReadOnlyCollection<IDatabaseViewIndex>> LoadIndexesAsync(CancellationToken cancellationToken)
         {
-            const string sql = @"
-select i.name as IndexName, i.is_unique as IsUnique, ic.key_ordinal as KeyOrdinal, ic.index_column_id as IndexColumnId, ic.is_included_column as IsIncludedColumn, ic.is_descending_key as IsDescending, c.name as ColumnName, i.is_disabled as IsDisabled
-from sys.views v
-inner join sys.indexes i on v.object_id = i.object_id
-inner join sys.index_columns ic on i.object_id = ic.object_id and i.index_id = ic.index_id
-inner join sys.columns c on ic.object_id = c.object_id and ic.column_id = c.column_id
-where schema_name(v.schema_id) = @SchemaName and v.name = @ViewName
-    and i.is_primary_key = 0 and i.is_unique_constraint = 0
-    order by ic.index_id, ic.key_ordinal, ic.index_column_id";
-
-            var queryResult = await Connection.QueryAsync<IndexColumns>(sql, new { SchemaName = Name.Schema, ViewName = Name.LocalName }).ConfigureAwait(false);
+            var queryResult = await Connection.QueryAsync<IndexColumns>(IndexesQuery, new { SchemaName = Name.Schema, ViewName = Name.LocalName }).ConfigureAwait(false);
             if (queryResult.Empty())
                 return Array.Empty<IDatabaseViewIndex>();
 
@@ -209,6 +185,26 @@ where schema_name(v.schema_id) = @SchemaName and v.name = @ViewName
             return result;
         }
 
+        protected virtual string IndexesQuery => IndexesQuerySql;
+
+        private const string IndexesQuerySql = @"
+select
+    i.name as IndexName,
+    i.is_unique as IsUnique,
+    ic.key_ordinal as KeyOrdinal,
+    ic.index_column_id as IndexColumnId,
+    ic.is_included_column as IsIncludedColumn,
+    ic.is_descending_key as IsDescending,
+    c.name as ColumnName,
+    i.is_disabled as IsDisabled
+from sys.views v
+inner join sys.indexes i on v.object_id = i.object_id
+inner join sys.index_columns ic on i.object_id = ic.object_id and i.index_id = ic.index_id
+inner join sys.columns c on ic.object_id = c.object_id and ic.column_id = c.column_id
+where schema_name(v.schema_id) = @SchemaName and v.name = @ViewName
+    and i.is_primary_key = 0 and i.is_unique_constraint = 0
+order by ic.index_id, ic.key_ordinal, ic.index_column_id";
+
         public IReadOnlyDictionary<Identifier, IDatabaseViewColumn> Column => LoadColumnLookupSync();
 
         public Task<IReadOnlyDictionary<Identifier, IDatabaseViewColumn>> ColumnAsync(CancellationToken cancellationToken = default(CancellationToken)) => LoadColumnLookupAsync(cancellationToken);
@@ -241,32 +237,7 @@ where schema_name(v.schema_id) = @SchemaName and v.name = @ViewName
 
         protected virtual IReadOnlyList<IDatabaseViewColumn> LoadColumnsSync()
         {
-            const string sql = @"
-select
-    c.name as ColumnName,
-    schema_name(st.schema_id) as ColumnTypeSchema,
-    st.name as ColumnTypeName,
-    c.max_length as MaxLength,
-    c.precision as Precision,
-    c.scale as Scale,
-    c.collation_name as Collation,
-    c.is_computed as IsComputed,
-    c.is_nullable as IsNullable,
-    dc.definition as DefaultValue,
-    cc.definition as ComputedColumnDefinition,
-    (convert(bigint, ic.seed_value)) as IdentitySeed,
-    (convert(bigint, ic.increment_value)) as IdentityIncrement
-from sys.views v
-inner join sys.columns c on v.object_id = c.object_id
-left join sys.default_constraints dc on c.object_id = dc.parent_object_id and c.column_id = dc.parent_column_id
-left join sys.computed_columns cc on c.object_id = cc.object_id and c.column_id = cc.column_id
-left join sys.identity_columns ic on c.object_id = ic.object_id and c.column_id = ic.column_id
-left join sys.types st on c.user_type_id = st.user_type_id
-where schema_name(v.schema_id) = @SchemaName
-    and v.name = @ViewName
-    order by c.column_id";
-
-            var query = Connection.Query<ColumnData>(sql, new { SchemaName = Name.Schema, ViewName = Name.LocalName });
+            var query = Connection.Query<ColumnData>(ColumnsQuery, new { SchemaName = Name.Schema, ViewName = Name.LocalName });
             var result = new List<IDatabaseViewColumn>();
 
             foreach (var row in query)
@@ -296,32 +267,7 @@ where schema_name(v.schema_id) = @SchemaName
 
         protected virtual async Task<IReadOnlyList<IDatabaseViewColumn>> LoadColumnsAsync(CancellationToken cancellationToken)
         {
-            const string sql = @"
-select
-    c.name as ColumnName,
-    schema_name(st.schema_id) as ColumnTypeSchema,
-    st.name as ColumnTypeName,
-    c.max_length as MaxLength,
-    c.precision as Precision,
-    c.scale as Scale,
-    c.collation_name as Collation,
-    c.is_computed as IsComputed,
-    c.is_nullable as IsNullable,
-    dc.definition as DefaultValue,
-    cc.definition as ComputedColumnDefinition,
-    (convert(bigint, ic.seed_value)) as IdentitySeed,
-    (convert(bigint, ic.increment_value)) as IdentityIncrement
-from sys.views v
-inner join sys.columns c on v.object_id = c.object_id
-left join sys.default_constraints dc on c.object_id = dc.parent_object_id and c.column_id = dc.parent_column_id
-left join sys.computed_columns cc on c.object_id = cc.object_id and c.column_id = cc.column_id
-left join sys.identity_columns ic on c.object_id = ic.object_id and c.column_id = ic.column_id
-left join sys.types st on c.user_type_id = st.user_type_id
-where schema_name(v.schema_id) = @SchemaName
-    and v.name = @ViewName
-    order by c.column_id";
-
-            var query = await Connection.QueryAsync<ColumnData>(sql, new { SchemaName = Name.Schema, ViewName = Name.LocalName }).ConfigureAwait(false);
+            var query = await Connection.QueryAsync<ColumnData>(ColumnsQuery, new { SchemaName = Name.Schema, ViewName = Name.LocalName }).ConfigureAwait(false);
             var result = new List<IDatabaseViewColumn>();
 
             foreach (var row in query)
@@ -348,5 +294,32 @@ where schema_name(v.schema_id) = @SchemaName
 
             return result.AsReadOnly();
         }
+
+        protected virtual string ColumnsQuery => ColumnsQuerySql;
+
+        private const string ColumnsQuerySql = @"
+select
+    c.name as ColumnName,
+    schema_name(st.schema_id) as ColumnTypeSchema,
+    st.name as ColumnTypeName,
+    c.max_length as MaxLength,
+    c.precision as Precision,
+    c.scale as Scale,
+    c.collation_name as Collation,
+    c.is_computed as IsComputed,
+    c.is_nullable as IsNullable,
+    dc.definition as DefaultValue,
+    cc.definition as ComputedColumnDefinition,
+    (convert(bigint, ic.seed_value)) as IdentitySeed,
+    (convert(bigint, ic.increment_value)) as IdentityIncrement
+from sys.views v
+inner join sys.columns c on v.object_id = c.object_id
+left join sys.default_constraints dc on c.object_id = dc.parent_object_id and c.column_id = dc.parent_column_id
+left join sys.computed_columns cc on c.object_id = cc.object_id and c.column_id = cc.column_id
+left join sys.identity_columns ic on c.object_id = ic.object_id and c.column_id = ic.column_id
+left join sys.types st on c.user_type_id = st.user_type_id
+where schema_name(v.schema_id) = @SchemaName
+    and v.name = @ViewName
+order by c.column_id";
     }
 }

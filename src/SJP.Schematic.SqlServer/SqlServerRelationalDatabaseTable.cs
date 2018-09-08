@@ -52,20 +52,7 @@ namespace SJP.Schematic.SqlServer
 
         protected virtual IDatabaseKey LoadPrimaryKeySync()
         {
-            const string sql = @"
-select kc.name as ConstraintName, c.name as ColumnName, i.is_disabled as IsDisabled
-from sys.tables t
-inner join sys.key_constraints kc on t.object_id = kc.parent_object_id
-inner join sys.indexes i on kc.parent_object_id = i.object_id and kc.unique_index_id = i.index_id
-inner join sys.index_columns ic on i.object_id = ic.object_id and i.index_id = ic.index_id
-inner join sys.columns c on ic.object_id = c.object_id and ic.column_id = c.column_id
-where
-    schema_name(t.schema_id) = @SchemaName and t.name = @TableName
-    and kc.type = 'PK'
-    and ic.is_included_column = 0
-order by ic.key_ordinal";
-
-            var primaryKeyColumns = Connection.Query<ConstraintColumnMapping>(sql, new { SchemaName = Name.Schema, TableName = Name.LocalName });
+            var primaryKeyColumns = Connection.Query<ConstraintColumnMapping>(PrimaryKeyQuery, new { SchemaName = Name.Schema, TableName = Name.LocalName });
             if (primaryKeyColumns.Empty())
                 return null;
 
@@ -85,20 +72,7 @@ order by ic.key_ordinal";
 
         protected virtual async Task<IDatabaseKey> LoadPrimaryKeyAsync(CancellationToken cancellationToken)
         {
-            const string sql = @"
-select kc.name as ConstraintName, c.name as ColumnName, i.is_disabled as IsDisabled
-from sys.tables t
-inner join sys.key_constraints kc on t.object_id = kc.parent_object_id
-inner join sys.indexes i on kc.parent_object_id = i.object_id and kc.unique_index_id = i.index_id
-inner join sys.index_columns ic on i.object_id = ic.object_id and i.index_id = ic.index_id
-inner join sys.columns c on ic.object_id = c.object_id and ic.column_id = c.column_id
-where
-    schema_name(t.schema_id) = @SchemaName and t.name = @TableName
-    and kc.type = 'PK'
-    and ic.is_included_column = 0
-order by ic.key_ordinal";
-
-            var primaryKeyColumns = await Connection.QueryAsync<ConstraintColumnMapping>(sql, new { SchemaName = Name.Schema, TableName = Name.LocalName }).ConfigureAwait(false);
+            var primaryKeyColumns = await Connection.QueryAsync<ConstraintColumnMapping>(PrimaryKeyQuery, new { SchemaName = Name.Schema, TableName = Name.LocalName }).ConfigureAwait(false);
             if (primaryKeyColumns.Empty())
                 return null;
 
@@ -115,6 +89,22 @@ order by ic.key_ordinal";
 
             return new SqlServerDatabaseKey(this, constraintName, DatabaseKeyType.Primary, columns, isEnabled);
         }
+
+        protected virtual string PrimaryKeyQuery => PrimaryKeyQuerySql;
+
+        private const string PrimaryKeyQuerySql = @"
+select
+    kc.name as ConstraintName,
+    c.name as ColumnName,
+    i.is_disabled as IsDisabled
+from sys.tables t
+inner join sys.key_constraints kc on t.object_id = kc.parent_object_id
+inner join sys.indexes i on kc.parent_object_id = i.object_id and kc.unique_index_id = i.index_id
+inner join sys.index_columns ic on i.object_id = ic.object_id and i.index_id = ic.index_id
+inner join sys.columns c on ic.object_id = c.object_id and ic.column_id = c.column_id
+where schema_name(t.schema_id) = @SchemaName and t.name = @TableName
+    and kc.type = 'PK' and ic.is_included_column = 0
+order by ic.key_ordinal";
 
         public IReadOnlyDictionary<Identifier, IDatabaseTableIndex> Index => LoadIndexLookupSync();
 
@@ -148,17 +138,7 @@ order by ic.key_ordinal";
 
         protected virtual IReadOnlyCollection<IDatabaseTableIndex> LoadIndexesSync()
         {
-            const string sql = @"
-select i.name as IndexName, i.is_unique as IsUnique, ic.key_ordinal as KeyOrdinal, ic.index_column_id as IndexColumnId, ic.is_included_column as IsIncludedColumn, ic.is_descending_key as IsDescending, c.name as ColumnName, i.is_disabled as IsDisabled
-from sys.tables t
-inner join sys.indexes i on t.object_id = i.object_id
-inner join sys.index_columns ic on i.object_id = ic.object_id and i.index_id = ic.index_id
-inner join sys.columns c on ic.object_id = c.object_id and ic.column_id = c.column_id
-where schema_name(t.schema_id) = @SchemaName and t.name = @TableName
-    and i.is_primary_key = 0 and i.is_unique_constraint = 0
-    order by ic.index_id, ic.key_ordinal, ic.index_column_id";
-
-            var queryResult = Connection.Query<IndexColumns>(sql, new { SchemaName = Name.Schema, TableName = Name.LocalName });
+            var queryResult = Connection.Query<IndexColumns>(IndexesQuery, new { SchemaName = Name.Schema, TableName = Name.LocalName });
             if (queryResult.Empty())
                 return Array.Empty<IDatabaseTableIndex>();
 
@@ -198,17 +178,7 @@ where schema_name(t.schema_id) = @SchemaName and t.name = @TableName
 
         protected virtual async Task<IReadOnlyCollection<IDatabaseTableIndex>> LoadIndexesAsync(CancellationToken cancellationToken)
         {
-            const string sql = @"
-select i.name as IndexName, i.is_unique as IsUnique, ic.key_ordinal as KeyOrdinal, ic.index_column_id as IndexColumnId, ic.is_included_column as IsIncludedColumn, ic.is_descending_key as IsDescending, c.name as ColumnName, i.is_disabled as IsDisabled
-from sys.tables t
-inner join sys.indexes i on t.object_id = i.object_id
-inner join sys.index_columns ic on i.object_id = ic.object_id and i.index_id = ic.index_id
-inner join sys.columns c on ic.object_id = c.object_id and ic.column_id = c.column_id
-where schema_name(t.schema_id) = @SchemaName and t.name = @TableName
-    and i.is_primary_key = 0 and i.is_unique_constraint = 0
-    order by ic.index_id, ic.key_ordinal, ic.index_column_id";
-
-            var queryResult = await Connection.QueryAsync<IndexColumns>(sql, new { SchemaName = Name.Schema, TableName = Name.LocalName }).ConfigureAwait(false);
+            var queryResult = await Connection.QueryAsync<IndexColumns>(IndexesQuery, new { SchemaName = Name.Schema, TableName = Name.LocalName }).ConfigureAwait(false);
             if (queryResult.Empty())
                 return Array.Empty<IDatabaseTableIndex>();
 
@@ -246,6 +216,26 @@ where schema_name(t.schema_id) = @SchemaName and t.name = @TableName
             return result;
         }
 
+        protected virtual string IndexesQuery => IndexesQuerySql;
+
+        private const string IndexesQuerySql = @"
+select
+    i.name as IndexName,
+    i.is_unique as IsUnique,
+    ic.key_ordinal as KeyOrdinal,
+    ic.index_column_id as IndexColumnId,
+    ic.is_included_column as IsIncludedColumn,
+    ic.is_descending_key as IsDescending,
+    c.name as ColumnName,
+    i.is_disabled as IsDisabled
+from sys.tables t
+inner join sys.indexes i on t.object_id = i.object_id
+inner join sys.index_columns ic on i.object_id = ic.object_id and i.index_id = ic.index_id
+inner join sys.columns c on ic.object_id = c.object_id and ic.column_id = c.column_id
+where schema_name(t.schema_id) = @SchemaName and t.name = @TableName
+    and i.is_primary_key = 0 and i.is_unique_constraint = 0
+order by ic.index_id, ic.key_ordinal, ic.index_column_id";
+
         public IReadOnlyDictionary<Identifier, IDatabaseKey> UniqueKey => LoadUniqueKeyLookupSync();
 
         public Task<IReadOnlyDictionary<Identifier, IDatabaseKey>> UniqueKeyAsync(CancellationToken cancellationToken = default(CancellationToken)) => LoadUniqueKeyLookupAsync(cancellationToken);
@@ -278,21 +268,7 @@ where schema_name(t.schema_id) = @SchemaName and t.name = @TableName
 
         protected virtual IReadOnlyCollection<IDatabaseKey> LoadUniqueKeysSync()
         {
-            const string sql = @"
-select kc.name as ConstraintName, c.name as ColumnName, i.is_disabled as IsDisabled
-from sys.tables t
-inner join sys.key_constraints kc on t.object_id = kc.parent_object_id
-inner join sys.indexes i on kc.parent_object_id = i.object_id and kc.unique_index_id = i.index_id
-inner join sys.index_columns ic on i.object_id = ic.object_id and i.index_id = ic.index_id
-inner join sys.columns c on ic.object_id = c.object_id
-    and ic.column_id = c.column_id
-where
-    schema_name(t.schema_id) = @SchemaName and t.name = @TableName
-    and kc.type = 'UQ'
-    and ic.is_included_column = 0
-order by ic.key_ordinal";
-
-            var uniqueKeyColumns = Connection.Query<ConstraintColumnMapping>(sql, new { SchemaName = Name.Schema, TableName = Name.LocalName });
+            var uniqueKeyColumns = Connection.Query<ConstraintColumnMapping>(UniqueKeysQuery, new { SchemaName = Name.Schema, TableName = Name.LocalName });
             if (uniqueKeyColumns.Empty())
                 return Array.Empty<IDatabaseKey>();
 
@@ -320,21 +296,7 @@ order by ic.key_ordinal";
 
         protected virtual async Task<IReadOnlyCollection<IDatabaseKey>> LoadUniqueKeysAsync(CancellationToken cancellationToken)
         {
-            const string sql = @"
-select kc.name as ConstraintName, c.name as ColumnName, i.is_disabled as IsDisabled
-from sys.tables t
-inner join sys.key_constraints kc on t.object_id = kc.parent_object_id
-inner join sys.indexes i on kc.parent_object_id = i.object_id and kc.unique_index_id = i.index_id
-inner join sys.index_columns ic on i.object_id = ic.object_id and i.index_id = ic.index_id
-inner join sys.columns c on ic.object_id = c.object_id
-    and ic.column_id = c.column_id
-where
-    schema_name(t.schema_id) = @SchemaName and t.name = @TableName
-    and kc.type = 'UQ'
-    and ic.is_included_column = 0
-order by ic.key_ordinal";
-
-            var uniqueKeyColumns = await Connection.QueryAsync<ConstraintColumnMapping>(sql, new { SchemaName = Name.Schema, TableName = Name.LocalName }).ConfigureAwait(false);
+            var uniqueKeyColumns = await Connection.QueryAsync<ConstraintColumnMapping>(UniqueKeysQuery, new { SchemaName = Name.Schema, TableName = Name.LocalName }).ConfigureAwait(false);
             if (uniqueKeyColumns.Empty())
                 return Array.Empty<IDatabaseKey>();
 
@@ -360,23 +322,31 @@ order by ic.key_ordinal";
             return result;
         }
 
+        protected virtual string UniqueKeysQuery => UniqueKeysQuerySql;
+
+        private const string UniqueKeysQuerySql = @"
+select
+    kc.name as ConstraintName,
+    c.name as ColumnName,
+    i.is_disabled as IsDisabled
+from sys.tables t
+inner join sys.key_constraints kc on t.object_id = kc.parent_object_id
+inner join sys.indexes i on kc.parent_object_id = i.object_id and kc.unique_index_id = i.index_id
+inner join sys.index_columns ic on i.object_id = ic.object_id and i.index_id = ic.index_id
+inner join sys.columns c on ic.object_id = c.object_id and ic.column_id = c.column_id
+where
+    schema_name(t.schema_id) = @SchemaName and t.name = @TableName
+    and kc.type = 'UQ'
+    and ic.is_included_column = 0
+order by ic.key_ordinal";
+
         public IReadOnlyCollection<IDatabaseRelationalKey> ChildKeys => LoadChildKeysSync();
 
         public Task<IReadOnlyCollection<IDatabaseRelationalKey>> ChildKeysAsync(CancellationToken cancellationToken = default(CancellationToken)) => LoadChildKeysAsync(cancellationToken);
 
         protected virtual IReadOnlyCollection<IDatabaseRelationalKey> LoadChildKeysSync()
         {
-            const string sql = @"
-select schema_name(child_t.schema_id) as ChildTableSchema, child_t.name as ChildTableName, fk.name as ChildKeyName, kc.name as ParentKeyName, kc.type as ParentKeyType, fk.delete_referential_action as DeleteRule, fk.update_referential_action as UpdateRule
-from sys.tables parent_t
-inner join sys.foreign_keys fk on parent_t.object_id = fk.referenced_object_id
-inner join sys.tables child_t on fk.parent_object_id = child_t.object_id
-inner join sys.foreign_key_columns fkc on fk.object_id = fkc.constraint_object_id
-inner join sys.columns c on fkc.parent_column_id = c.column_id and c.object_id = fkc.parent_object_id
-inner join sys.key_constraints kc on kc.unique_index_id = fk.key_index_id and kc.parent_object_id = fk.referenced_object_id
-where schema_name(parent_t.schema_id) = @SchemaName and parent_t.name = @TableName";
-
-            var queryResult = Connection.Query<ChildKeyData>(sql, new { SchemaName = Name.Schema, TableName = Name.LocalName });
+            var queryResult = Connection.Query<ChildKeyData>(ChildKeysQuery, new { SchemaName = Name.Schema, TableName = Name.LocalName });
             if (queryResult.Empty())
                 return Array.Empty<IDatabaseRelationalKey>();
 
@@ -428,17 +398,7 @@ where schema_name(parent_t.schema_id) = @SchemaName and parent_t.name = @TableNa
 
         protected virtual async Task<IReadOnlyCollection<IDatabaseRelationalKey>> LoadChildKeysAsync(CancellationToken cancellationToken)
         {
-            const string sql = @"
-select schema_name(child_t.schema_id) as ChildTableSchema, child_t.name as ChildTableName, fk.name as ChildKeyName, kc.name as ParentKeyName, kc.type as ParentKeyType, fk.delete_referential_action as DeleteRule, fk.update_referential_action as UpdateRule
-from sys.tables parent_t
-inner join sys.foreign_keys fk on parent_t.object_id = fk.referenced_object_id
-inner join sys.tables child_t on fk.parent_object_id = child_t.object_id
-inner join sys.foreign_key_columns fkc on fk.object_id = fkc.constraint_object_id
-inner join sys.columns c on fkc.parent_column_id = c.column_id and c.object_id = fkc.parent_object_id
-inner join sys.key_constraints kc on kc.unique_index_id = fk.key_index_id and kc.parent_object_id = fk.referenced_object_id
-where schema_name(parent_t.schema_id) = @SchemaName and parent_t.name = @TableName";
-
-            var queryResult = await Connection.QueryAsync<ChildKeyData>(sql, new { SchemaName = Name.Schema, TableName = Name.LocalName }).ConfigureAwait(false);
+            var queryResult = await Connection.QueryAsync<ChildKeyData>(ChildKeysQuery, new { SchemaName = Name.Schema, TableName = Name.LocalName }).ConfigureAwait(false);
             if (queryResult.Empty())
                 return Array.Empty<IDatabaseRelationalKey>();
 
@@ -488,6 +448,25 @@ where schema_name(parent_t.schema_id) = @SchemaName and parent_t.name = @TableNa
             return result;
         }
 
+        protected virtual string ChildKeysQuery => ChildKeysQuerySql;
+
+        private const string ChildKeysQuerySql = @"
+select
+    schema_name(child_t.schema_id) as ChildTableSchema,
+    child_t.name as ChildTableName,
+    fk.name as ChildKeyName,
+    kc.name as ParentKeyName,
+    kc.type as ParentKeyType,
+    fk.delete_referential_action as DeleteRule,
+    fk.update_referential_action as UpdateRule
+from sys.tables parent_t
+inner join sys.foreign_keys fk on parent_t.object_id = fk.referenced_object_id
+inner join sys.tables child_t on fk.parent_object_id = child_t.object_id
+inner join sys.foreign_key_columns fkc on fk.object_id = fkc.constraint_object_id
+inner join sys.columns c on fkc.parent_column_id = c.column_id and c.object_id = fkc.parent_object_id
+inner join sys.key_constraints kc on kc.unique_index_id = fk.key_index_id and kc.parent_object_id = fk.referenced_object_id
+where schema_name(parent_t.schema_id) = @SchemaName and parent_t.name = @TableName";
+
         public IReadOnlyDictionary<Identifier, IDatabaseCheckConstraint> Check => LoadCheckLookupSync();
 
         public Task<IReadOnlyDictionary<Identifier, IDatabaseCheckConstraint>> CheckAsync(CancellationToken cancellationToken = default(CancellationToken)) => LoadCheckLookupAsync(cancellationToken);
@@ -520,13 +499,7 @@ where schema_name(parent_t.schema_id) = @SchemaName and parent_t.name = @TableNa
 
         protected virtual IReadOnlyCollection<IDatabaseCheckConstraint> LoadChecksSync()
         {
-            const string sql = @"
-select cc.name as ConstraintName, cc.definition as Definition, cc.is_disabled as IsDisabled
-from sys.tables t
-inner join sys.check_constraints cc on t.object_id = cc.parent_object_id
-where schema_name(t.schema_id) = @SchemaName and t.name = @TableName";
-
-            var checks = Connection.Query<CheckConstraintData>(sql, new { SchemaName = Name.Schema, TableName = Name.LocalName });
+            var checks = Connection.Query<CheckConstraintData>(ChecksQuery, new { SchemaName = Name.Schema, TableName = Name.LocalName });
             if (checks.Empty())
                 return Array.Empty<IDatabaseCheckConstraint>();
 
@@ -547,13 +520,7 @@ where schema_name(t.schema_id) = @SchemaName and t.name = @TableName";
 
         protected virtual async Task<IReadOnlyCollection<IDatabaseCheckConstraint>> LoadChecksAsync(CancellationToken cancellationToken)
         {
-            const string sql = @"
-select cc.name as ConstraintName, cc.definition as Definition, cc.is_disabled as IsDisabled
-from sys.tables t
-inner join sys.check_constraints cc on t.object_id = cc.parent_object_id
-where schema_name(t.schema_id) = @SchemaName and t.name = @TableName";
-
-            var checks = await Connection.QueryAsync<CheckConstraintData>(sql, new { SchemaName = Name.Schema, TableName = Name.LocalName }).ConfigureAwait(false);
+            var checks = await Connection.QueryAsync<CheckConstraintData>(ChecksQuery, new { SchemaName = Name.Schema, TableName = Name.LocalName }).ConfigureAwait(false);
             if (checks.Empty())
                 return Array.Empty<IDatabaseCheckConstraint>();
 
@@ -571,6 +538,17 @@ where schema_name(t.schema_id) = @SchemaName and t.name = @TableName";
 
             return result;
         }
+
+        protected virtual string ChecksQuery => ChecksQuerySql;
+
+        private const string ChecksQuerySql = @"
+select
+    cc.name as ConstraintName,
+    cc.definition as Definition,
+    cc.is_disabled as IsDisabled
+from sys.tables t
+inner join sys.check_constraints cc on t.object_id = cc.parent_object_id
+where schema_name(t.schema_id) = @SchemaName and t.name = @TableName";
 
         public IReadOnlyDictionary<Identifier, IDatabaseRelationalKey> ParentKey => LoadParentKeyLookupSync();
 
@@ -604,17 +582,7 @@ where schema_name(t.schema_id) = @SchemaName and t.name = @TableName";
 
         protected virtual IReadOnlyCollection<IDatabaseRelationalKey> LoadParentKeysSync()
         {
-            const string sql = @"
-select schema_name(parent_t.schema_id) as ParentTableSchema, parent_t.name as ParentTableName, fk.name as ChildKeyName, c.name as ColumnName, fkc.constraint_column_id as ConstraintColumnId, kc.name as ParentKeyName, kc.type as ParentKeyType, fk.delete_referential_action as DeleteRule, fk.update_referential_action as UpdateRule, fk.is_disabled as IsDisabled
-from sys.tables parent_t
-inner join sys.foreign_keys fk on parent_t.object_id = fk.referenced_object_id
-inner join sys.tables child_t on fk.parent_object_id = child_t.object_id
-inner join sys.foreign_key_columns fkc on fk.object_id = fkc.constraint_object_id
-inner join sys.columns c on fkc.parent_column_id = c.column_id and c.object_id = fkc.parent_object_id
-inner join sys.key_constraints kc on kc.unique_index_id = fk.key_index_id and kc.parent_object_id = fk.referenced_object_id
-where schema_name(child_t.schema_id) = @SchemaName and child_t.name = @TableName";
-
-            var queryResult = Connection.Query<ForeignKeyData>(sql, new { SchemaName = Name.Schema, TableName = Name.LocalName });
+            var queryResult = Connection.Query<ForeignKeyData>(ParentKeysQuery, new { SchemaName = Name.Schema, TableName = Name.LocalName });
             if (queryResult.Empty())
                 return Array.Empty<IDatabaseRelationalKey>();
 
@@ -672,17 +640,7 @@ where schema_name(child_t.schema_id) = @SchemaName and child_t.name = @TableName
 
         protected virtual async Task<IReadOnlyCollection<IDatabaseRelationalKey>> LoadParentKeysAsync(CancellationToken cancellationToken)
         {
-            const string sql = @"
-select schema_name(parent_t.schema_id) as ParentTableSchema, parent_t.name as ParentTableName, fk.name as ChildKeyName, c.name as ColumnName, fkc.constraint_column_id as ConstraintColumnId, kc.name as ParentKeyName, kc.type as ParentKeyType, fk.delete_referential_action as DeleteRule, fk.update_referential_action as UpdateRule, fk.is_disabled as IsDisabled
-from sys.tables parent_t
-inner join sys.foreign_keys fk on parent_t.object_id = fk.referenced_object_id
-inner join sys.tables child_t on fk.parent_object_id = child_t.object_id
-inner join sys.foreign_key_columns fkc on fk.object_id = fkc.constraint_object_id
-inner join sys.columns c on fkc.parent_column_id = c.column_id and c.object_id = fkc.parent_object_id
-inner join sys.key_constraints kc on kc.unique_index_id = fk.key_index_id and kc.parent_object_id = fk.referenced_object_id
-where schema_name(child_t.schema_id) = @SchemaName and child_t.name = @TableName";
-
-            var queryResult = await Connection.QueryAsync<ForeignKeyData>(sql, new { SchemaName = Name.Schema, TableName = Name.LocalName }).ConfigureAwait(false);
+            var queryResult = await Connection.QueryAsync<ForeignKeyData>(ParentKeysQuery, new { SchemaName = Name.Schema, TableName = Name.LocalName }).ConfigureAwait(false);
             if (queryResult.Empty())
                 return Array.Empty<IDatabaseRelationalKey>();
 
@@ -738,6 +696,28 @@ where schema_name(child_t.schema_id) = @SchemaName and child_t.name = @TableName
             return result;
         }
 
+        protected virtual string ParentKeysQuery => ParentKeysQuerySql;
+
+        private const string ParentKeysQuerySql = @"
+select
+    schema_name(parent_t.schema_id) as ParentTableSchema,
+    parent_t.name as ParentTableName,
+    fk.name as ChildKeyName,
+    c.name as ColumnName,
+    fkc.constraint_column_id as ConstraintColumnId,
+    kc.name as ParentKeyName,
+    kc.type as ParentKeyType,
+    fk.delete_referential_action as DeleteRule,
+    fk.update_referential_action as UpdateRule,
+    fk.is_disabled as IsDisabled
+from sys.tables parent_t
+inner join sys.foreign_keys fk on parent_t.object_id = fk.referenced_object_id
+inner join sys.tables child_t on fk.parent_object_id = child_t.object_id
+inner join sys.foreign_key_columns fkc on fk.object_id = fkc.constraint_object_id
+inner join sys.columns c on fkc.parent_column_id = c.column_id and c.object_id = fkc.parent_object_id
+inner join sys.key_constraints kc on kc.unique_index_id = fk.key_index_id and kc.parent_object_id = fk.referenced_object_id
+where schema_name(child_t.schema_id) = @SchemaName and child_t.name = @TableName";
+
         public IReadOnlyList<IDatabaseTableColumn> Columns => LoadColumnsSync();
 
         public Task<IReadOnlyList<IDatabaseTableColumn>> ColumnsAsync(CancellationToken cancellationToken = default(CancellationToken)) => LoadColumnsAsync(cancellationToken);
@@ -770,32 +750,7 @@ where schema_name(child_t.schema_id) = @SchemaName and child_t.name = @TableName
 
         protected virtual IReadOnlyList<IDatabaseTableColumn> LoadColumnsSync()
         {
-            const string sql = @"
-select
-    c.name as ColumnName,
-    schema_name(st.schema_id) as ColumnTypeSchema,
-    st.name as ColumnTypeName,
-    c.max_length as MaxLength,
-    c.precision as Precision,
-    c.scale as Scale,
-    c.collation_name as Collation,
-    c.is_computed as IsComputed,
-    c.is_nullable as IsNullable,
-    dc.definition as DefaultValue,
-    cc.definition as ComputedColumnDefinition,
-    (convert(bigint, ic.seed_value)) as IdentitySeed,
-    (convert(bigint, ic.increment_value)) as IdentityIncrement
-from sys.tables t
-inner join sys.columns c on t.object_id = c.object_id
-left join sys.default_constraints dc on c.object_id = dc.parent_object_id and c.column_id = dc.parent_column_id
-left join sys.computed_columns cc on c.object_id = cc.object_id and c.column_id = cc.column_id
-left join sys.identity_columns ic on c.object_id = ic.object_id and c.column_id = ic.column_id
-left join sys.types st on c.user_type_id = st.user_type_id
-where schema_name(t.schema_id) = @SchemaName
-    and t.name = @TableName
-    order by c.column_id";
-
-            var query = Connection.Query<ColumnData>(sql, new { SchemaName = Name.Schema, TableName = Name.LocalName });
+            var query = Connection.Query<ColumnData>(ColumnsQuery, new { SchemaName = Name.Schema, TableName = Name.LocalName });
             var result = new List<IDatabaseTableColumn>();
 
             foreach (var row in query)
@@ -827,32 +782,7 @@ where schema_name(t.schema_id) = @SchemaName
 
         protected virtual async Task<IReadOnlyList<IDatabaseTableColumn>> LoadColumnsAsync(CancellationToken cancellationToken)
         {
-            const string sql = @"
-select
-    c.name as ColumnName,
-    schema_name(st.schema_id) as ColumnTypeSchema,
-    st.name as ColumnTypeName,
-    c.max_length as MaxLength,
-    c.precision as Precision,
-    c.scale as Scale,
-    c.collation_name as Collation,
-    c.is_computed as IsComputed,
-    c.is_nullable as IsNullable,
-    dc.definition as DefaultValue,
-    cc.definition as ComputedColumnDefinition,
-    (convert(bigint, ic.seed_value)) as IdentitySeed,
-    (convert(bigint, ic.increment_value)) as IdentityIncrement
-from sys.tables t
-inner join sys.columns c on t.object_id = c.object_id
-left join sys.default_constraints dc on c.object_id = dc.parent_object_id and c.column_id = dc.parent_column_id
-left join sys.computed_columns cc on c.object_id = cc.object_id and c.column_id = cc.column_id
-left join sys.identity_columns ic on c.object_id = ic.object_id and c.column_id = ic.column_id
-left join sys.types st on c.user_type_id = st.user_type_id
-where schema_name(t.schema_id) = @SchemaName
-    and t.name = @TableName
-    order by c.column_id";
-
-            var query = await Connection.QueryAsync<ColumnData>(sql, new { SchemaName = Name.Schema, TableName = Name.LocalName }).ConfigureAwait(false);
+            var query = await Connection.QueryAsync<ColumnData>(ColumnsQuery, new { SchemaName = Name.Schema, TableName = Name.LocalName }).ConfigureAwait(false);
             var result = new List<IDatabaseTableColumn>();
 
             foreach (var row in query)
@@ -881,6 +811,33 @@ where schema_name(t.schema_id) = @SchemaName
 
             return result.AsReadOnly();
         }
+
+        protected virtual string ColumnsQuery => ColumnsQuerySql;
+
+        private const string ColumnsQuerySql = @"
+select
+    c.name as ColumnName,
+    schema_name(st.schema_id) as ColumnTypeSchema,
+    st.name as ColumnTypeName,
+    c.max_length as MaxLength,
+    c.precision as Precision,
+    c.scale as Scale,
+    c.collation_name as Collation,
+    c.is_computed as IsComputed,
+    c.is_nullable as IsNullable,
+    dc.definition as DefaultValue,
+    cc.definition as ComputedColumnDefinition,
+    (convert(bigint, ic.seed_value)) as IdentitySeed,
+    (convert(bigint, ic.increment_value)) as IdentityIncrement
+from sys.tables t
+inner join sys.columns c on t.object_id = c.object_id
+left join sys.default_constraints dc on c.object_id = dc.parent_object_id and c.column_id = dc.parent_column_id
+left join sys.computed_columns cc on c.object_id = cc.object_id and c.column_id = cc.column_id
+left join sys.identity_columns ic on c.object_id = ic.object_id and c.column_id = ic.column_id
+left join sys.types st on c.user_type_id = st.user_type_id
+where schema_name(t.schema_id) = @SchemaName
+    and t.name = @TableName
+    order by c.column_id";
 
         public IReadOnlyDictionary<Identifier, IDatabaseTrigger> Trigger => LoadTriggerLookupSync();
 
@@ -914,15 +871,7 @@ where schema_name(t.schema_id) = @SchemaName
 
         protected virtual IReadOnlyCollection<IDatabaseTrigger> LoadTriggersSync()
         {
-            const string sql = @"
-select st.name as TriggerName, sm.definition as Definition, st.is_instead_of_trigger as IsInsteadOfTrigger, te.type_desc as TriggerEvent, st.is_disabled as IsDisabled
-from sys.tables t
-inner join sys.triggers st on t.object_id = st.parent_id
-inner join sys.sql_modules sm on st.object_id = sm.object_id
-inner join sys.trigger_events te on st.object_id = te.object_id
-where schema_name(t.schema_id) = @SchemaName and t.name = @TableName";
-
-            var queryResult = Connection.Query<TriggerData>(sql, new { SchemaName = Name.Schema, TableName = Name.LocalName });
+            var queryResult = Connection.Query<TriggerData>(TriggersQuery, new { SchemaName = Name.Schema, TableName = Name.LocalName });
             if (queryResult.Empty())
                 return Array.Empty<IDatabaseTrigger>();
 
@@ -966,15 +915,7 @@ where schema_name(t.schema_id) = @SchemaName and t.name = @TableName";
 
         protected virtual async Task<IReadOnlyCollection<IDatabaseTrigger>> LoadTriggersAsync(CancellationToken cancellationToken)
         {
-            const string sql = @"
-select st.name as TriggerName, sm.definition as Definition, st.is_instead_of_trigger as IsInsteadOfTrigger, te.type_desc as TriggerEvent, st.is_disabled as IsDisabled
-from sys.tables t
-inner join sys.triggers st on t.object_id = st.parent_id
-inner join sys.sql_modules sm on st.object_id = sm.object_id
-inner join sys.trigger_events te on st.object_id = te.object_id
-where schema_name(t.schema_id) = @SchemaName and t.name = @TableName";
-
-            var queryResult = await Connection.QueryAsync<TriggerData>(sql, new { SchemaName = Name.Schema, TableName = Name.LocalName }).ConfigureAwait(false);
+            var queryResult = await Connection.QueryAsync<TriggerData>(TriggersQuery, new { SchemaName = Name.Schema, TableName = Name.LocalName }).ConfigureAwait(false);
             if (queryResult.Empty())
                 return Array.Empty<IDatabaseTrigger>();
 
@@ -1015,6 +956,21 @@ where schema_name(t.schema_id) = @SchemaName and t.name = @TableName";
 
             return result;
         }
+
+        protected virtual string TriggersQuery => TriggersQuerySql;
+
+        private const string TriggersQuerySql = @"
+select
+    st.name as TriggerName,
+    sm.definition as Definition,
+    st.is_instead_of_trigger as IsInsteadOfTrigger,
+    te.type_desc as TriggerEvent,
+    st.is_disabled as IsDisabled
+from sys.tables t
+inner join sys.triggers st on t.object_id = st.parent_id
+inner join sys.sql_modules sm on st.object_id = sm.object_id
+inner join sys.trigger_events te on st.object_id = te.object_id
+where schema_name(t.schema_id) = @SchemaName and t.name = @TableName";
 
         protected IReadOnlyDictionary<int, Rule> RelationalRuleMapping { get; } = new Dictionary<int, Rule>
         {

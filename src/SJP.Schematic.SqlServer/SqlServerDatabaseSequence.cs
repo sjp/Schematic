@@ -52,7 +52,14 @@ namespace SJP.Schematic.SqlServer
         protected virtual Task<SequenceData> LoadSequenceDataAsync()
         {
             return Connection.QuerySingleAsync<SequenceData>(@"
-select start_value as StartValue, increment as Increment, minimum_value as MinValue, maximum_value as MaxValue, is_cycling as Cycle, is_cached as IsCached, cache_size as CacheSize
+select
+    start_value as StartValue,
+    increment as Increment,
+    minimum_value as MinValue,
+    maximum_value as MaxValue,
+    is_cycling as Cycle,
+    is_cached as IsCached,
+    cache_size as CacheSize
 from sys.sequences
 where schema_name(schema_id) = @SchemaName and name = @SequenceName
 ", new { SchemaName = Name.Schema, SequenceName = Name.LocalName });
