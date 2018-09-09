@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace SJP.Schematic.Core.Utilities
+namespace SJP.Schematic.Core
 {
     public interface IIdentifierResolutionStrategy
     {
