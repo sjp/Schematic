@@ -2,10 +2,11 @@
 using System.Collections.Generic;
 using System.Linq;
 using SJP.Schematic.Core;
+using SJP.Schematic.Core.Utilities;
 
-namespace SJP.Schematic.Oracle
+namespace SJP.Schematic.PostgreSql
 {
-    public class DefaultOracleNameResolverStrategy : INameResolverStrategy
+    public class DefaultPostgreSqlIdentifierResolutionStrategy : IIdentifierResolutionStrategy
     {
         public IEnumerable<Identifier> GetResolutionOrder(Identifier identifier)
         {
@@ -20,8 +21,8 @@ namespace SJP.Schematic.Oracle
 
             var schemaNames = GetResolutionOrder(identifier.Schema);
 
-            var hasLowerDatabase = identifier.Database != null && identifier.Database.Any(char.IsLower);
-            var database = hasLowerDatabase ? identifier.Database.ToUpperInvariant() : identifier.Database;
+            var hasUpperDatabase = identifier.Database != null && identifier.Database.Any(char.IsUpper);
+            var database = hasUpperDatabase ? identifier.Database.ToLowerInvariant() : identifier.Database;
 
             var server = identifier.Server;
 
@@ -33,9 +34,9 @@ namespace SJP.Schematic.Oracle
 
         private static IEnumerable<string> GetResolutionOrder(string identifierComponent)
         {
-            var isUpperCase = identifierComponent.All(char.IsUpper);
-            if (!isUpperCase)
-                yield return identifierComponent.ToUpperInvariant();
+            var isLowerCase = identifierComponent.All(char.IsLower);
+            if (!isLowerCase)
+                yield return identifierComponent.ToLowerInvariant();
 
             yield return identifierComponent;
         }

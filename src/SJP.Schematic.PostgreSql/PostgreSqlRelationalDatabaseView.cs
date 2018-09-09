@@ -8,12 +8,13 @@ using SJP.Schematic.PostgreSql.Query;
 using SJP.Schematic.Core;
 using SJP.Schematic.Core.Extensions;
 using System.Threading;
+using SJP.Schematic.Core.Utilities;
 
 namespace SJP.Schematic.PostgreSql
 {
     public class PostgreSqlRelationalDatabaseView : IRelationalDatabaseView
     {
-        public PostgreSqlRelationalDatabaseView(IDbConnection connection, IRelationalDatabase database, Identifier viewName, IEqualityComparer<Identifier> comparer = null)
+        public PostgreSqlRelationalDatabaseView(IDbConnection connection, IRelationalDatabase database, Identifier viewName, IIdentifierResolutionStrategy identifierResolver = null)
         {
             if (viewName == null)
                 throw new ArgumentNullException(nameof(viewName));
@@ -32,9 +33,8 @@ namespace SJP.Schematic.PostgreSql
             var databaseName = viewName.Database ?? database.DatabaseName;
             var schemaName = viewName.Schema ?? database.DefaultSchema;
 
-            Comparer = comparer ?? new IdentifierComparer(StringComparer.Ordinal, serverName, databaseName, schemaName);
-
             Name = Identifier.CreateQualifiedIdentifier(serverName, databaseName, schemaName, viewName.LocalName);
+            IdentifierResolver = identifierResolver ?? new DefaultPostgreSqlIdentifierResolutionStrategy();
         }
 
         public Identifier Name { get; }
@@ -45,7 +45,7 @@ namespace SJP.Schematic.PostgreSql
 
         protected IDbConnection Connection { get; }
 
-        protected IEqualityComparer<Identifier> Comparer { get; }
+        protected IIdentifierResolutionStrategy IdentifierResolver { get; }
 
         public string Definition => LoadDefinitionSync();
 
@@ -91,23 +91,23 @@ where table_schema = @SchemaName and table_name = @ViewName";
         protected virtual IReadOnlyDictionary<Identifier, IDatabaseViewColumn> LoadColumnLookupSync()
         {
             var columns = Columns;
-            var result = new Dictionary<Identifier, IDatabaseViewColumn>(columns.Count, Comparer);
+            var result = new Dictionary<Identifier, IDatabaseViewColumn>(columns.Count);
 
             foreach (var column in columns.Where(c => c.Name != null))
                 result[column.Name.LocalName] = column;
 
-            return result;
+            return new IdentifierResolvingDictionary<IDatabaseViewColumn>(result, IdentifierResolver);
         }
 
         protected virtual async Task<IReadOnlyDictionary<Identifier, IDatabaseViewColumn>> LoadColumnLookupAsync(CancellationToken cancellationToken)
         {
             var columns = await ColumnsAsync(cancellationToken).ConfigureAwait(false);
-            var result = new Dictionary<Identifier, IDatabaseViewColumn>(columns.Count, Comparer);
+            var result = new Dictionary<Identifier, IDatabaseViewColumn>(columns.Count);
 
             foreach (var column in columns.Where(c => c.Name != null))
                 result[column.Name.LocalName] = column;
 
-            return result;
+            return new IdentifierResolvingDictionary<IDatabaseViewColumn>(result, IdentifierResolver);
         }
 
         protected virtual IReadOnlyList<IDatabaseViewColumn> LoadColumnsSync()

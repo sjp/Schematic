@@ -7,14 +7,14 @@ using System.Threading.Tasks;
 using SJP.Schematic.Oracle.Query;
 using SJP.Schematic.Core;
 using SJP.Schematic.Core.Extensions;
+using SJP.Schematic.Core.Utilities;
 using System.Threading;
-using SJP.Schematic.Oracle.Utilities;
 
 namespace SJP.Schematic.Oracle
 {
     public class OracleRelationalDatabaseView : IRelationalDatabaseView
     {
-        public OracleRelationalDatabaseView(IDbConnection connection, IRelationalDatabase database, Identifier viewName, INameResolverStrategy strategy = null)
+        public OracleRelationalDatabaseView(IDbConnection connection, IRelationalDatabase database, Identifier viewName, IIdentifierResolutionStrategy identifierResolver = null)
         {
             if (viewName == null)
                 throw new ArgumentNullException(nameof(viewName));
@@ -33,9 +33,8 @@ namespace SJP.Schematic.Oracle
             var databaseName = viewName.Database ?? database.DatabaseName;
             var schemaName = viewName.Schema ?? database.DefaultSchema;
 
-            NameResolver = strategy ?? new DefaultOracleNameResolverStrategy();
-
             Name = Identifier.CreateQualifiedIdentifier(serverName, databaseName, schemaName, viewName.LocalName);
+            IdentifierResolver = identifierResolver ?? new DefaultOracleIdentifierResolutionStrategy();
         }
 
         public Identifier Name { get; }
@@ -46,7 +45,7 @@ namespace SJP.Schematic.Oracle
 
         protected IDbConnection Connection { get; }
 
-        protected INameResolverStrategy NameResolver { get; }
+        protected IIdentifierResolutionStrategy IdentifierResolver { get; }
 
         public string Definition => LoadDefinitionSync();
 
@@ -168,7 +167,7 @@ order by aic.COLUMN_POSITION";
             foreach (var index in indexes)
                 result[index.Name.LocalName] = index;
 
-            return new ResolvingKeyDictionary<IDatabaseViewIndex>(result, NameResolver);
+            return new IdentifierResolvingDictionary<IDatabaseViewIndex>(result, IdentifierResolver);
         }
 
         protected virtual async Task<IReadOnlyDictionary<Identifier, IDatabaseViewIndex>> LoadIndexLookupAsync(CancellationToken cancellationToken)
@@ -179,7 +178,7 @@ order by aic.COLUMN_POSITION";
             foreach (var index in indexes)
                 result[index.Name.LocalName] = index;
 
-            return new ResolvingKeyDictionary<IDatabaseViewIndex>(result, NameResolver);
+            return new IdentifierResolvingDictionary<IDatabaseViewIndex>(result, IdentifierResolver);
         }
 
         public IReadOnlyDictionary<Identifier, IDatabaseViewColumn> Column => LoadColumnLookupSync();
@@ -198,7 +197,7 @@ order by aic.COLUMN_POSITION";
             foreach (var column in columns.Where(c => c.Name != null))
                 result[column.Name.LocalName] = column;
 
-            return new ResolvingKeyDictionary<IDatabaseViewColumn>(result, NameResolver);
+            return new IdentifierResolvingDictionary<IDatabaseViewColumn>(result, IdentifierResolver);
         }
 
         protected virtual async Task<IReadOnlyDictionary<Identifier, IDatabaseViewColumn>> LoadColumnLookupAsync(CancellationToken cancellationToken)
@@ -209,7 +208,7 @@ order by aic.COLUMN_POSITION";
             foreach (var column in columns.Where(c => c.Name != null))
                 result[column.Name.LocalName] = column;
 
-            return new ResolvingKeyDictionary<IDatabaseViewColumn>(result, NameResolver);
+            return new IdentifierResolvingDictionary<IDatabaseViewColumn>(result, IdentifierResolver);
         }
 
         protected virtual IReadOnlyList<IDatabaseViewColumn> LoadColumnsSync()

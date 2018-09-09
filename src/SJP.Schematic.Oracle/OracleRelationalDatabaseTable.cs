@@ -7,14 +7,14 @@ using System.Threading;
 using System.Threading.Tasks;
 using SJP.Schematic.Core;
 using SJP.Schematic.Core.Extensions;
+using SJP.Schematic.Core.Utilities;
 using SJP.Schematic.Oracle.Query;
-using SJP.Schematic.Oracle.Utilities;
 
 namespace SJP.Schematic.Oracle
 {
     public class OracleRelationalDatabaseTable : IRelationalDatabaseTable
     {
-        public OracleRelationalDatabaseTable(IDbConnection connection, IRelationalDatabase database, Identifier tableName, INameResolverStrategy nameResolver = null)
+        public OracleRelationalDatabaseTable(IDbConnection connection, IRelationalDatabase database, Identifier tableName, IIdentifierResolutionStrategy identifierResolver = null)
         {
             if (tableName == null)
                 throw new ArgumentNullException(nameof(tableName));
@@ -34,7 +34,7 @@ namespace SJP.Schematic.Oracle
             var schemaName = tableName.Schema ?? database.DefaultSchema;
 
             Name = Identifier.CreateQualifiedIdentifier(serverName, databaseName, schemaName, tableName.LocalName);
-            NameResolver = nameResolver ?? new DefaultOracleNameResolverStrategy();
+            IdentifierResolver = identifierResolver ?? new DefaultOracleIdentifierResolutionStrategy();
         }
 
         public Identifier Name { get; }
@@ -45,7 +45,7 @@ namespace SJP.Schematic.Oracle
 
         protected IDbConnection Connection { get; }
 
-        protected INameResolverStrategy NameResolver { get; }
+        protected IIdentifierResolutionStrategy IdentifierResolver { get; }
 
         public IDatabaseKey PrimaryKey => LoadPrimaryKeySync();
 
@@ -119,7 +119,7 @@ where ac.OWNER = :SchemaName and ac.TABLE_NAME = :TableName and ac.CONSTRAINT_TY
             foreach (var index in indexes)
                 result[index.Name.LocalName] = index;
 
-            return new ResolvingKeyDictionary<IDatabaseTableIndex>(result, NameResolver);
+            return new IdentifierResolvingDictionary<IDatabaseTableIndex>(result, IdentifierResolver);
         }
 
         protected virtual async Task<IReadOnlyDictionary<Identifier, IDatabaseTableIndex>> LoadIndexLookupAsync(CancellationToken cancellationToken)
@@ -130,7 +130,7 @@ where ac.OWNER = :SchemaName and ac.TABLE_NAME = :TableName and ac.CONSTRAINT_TY
             foreach (var index in indexes)
                 result[index.Name.LocalName] = index;
 
-            return new ResolvingKeyDictionary<IDatabaseTableIndex>(result, NameResolver);
+            return new IdentifierResolvingDictionary<IDatabaseTableIndex>(result, IdentifierResolver);
         }
 
         protected virtual IReadOnlyCollection<IDatabaseTableIndex> LoadIndexesSync()
@@ -232,7 +232,7 @@ order by aic.COLUMN_POSITION";
             foreach (var uk in uniqueKeys)
                 result[uk.Name.LocalName] = uk;
 
-            return new ResolvingKeyDictionary<IDatabaseKey>(result, NameResolver);
+            return new IdentifierResolvingDictionary<IDatabaseKey>(result, IdentifierResolver);
         }
 
         protected virtual async Task<IReadOnlyDictionary<Identifier, IDatabaseKey>> LoadUniqueKeyLookupAsync(CancellationToken cancellationToken)
@@ -243,7 +243,7 @@ order by aic.COLUMN_POSITION";
             foreach (var uk in uniqueKeys)
                 result[uk.Name.LocalName] = uk;
 
-            return new ResolvingKeyDictionary<IDatabaseKey>(result, NameResolver);
+            return new IdentifierResolvingDictionary<IDatabaseKey>(result, IdentifierResolver);
         }
 
         protected virtual IReadOnlyCollection<IDatabaseKey> LoadUniqueKeysSync()
@@ -433,7 +433,7 @@ where pac.OWNER = :SchemaName and pac.TABLE_NAME = :TableName and ac.CONSTRAINT_
             foreach (var check in checks)
                 result[check.Name.LocalName] = check;
 
-            return new ResolvingKeyDictionary<IDatabaseCheckConstraint>(result, NameResolver);
+            return new IdentifierResolvingDictionary<IDatabaseCheckConstraint>(result, IdentifierResolver);
         }
 
         protected virtual async Task<IReadOnlyDictionary<Identifier, IDatabaseCheckConstraint>> LoadCheckLookupAsync(CancellationToken cancellationToken)
@@ -444,7 +444,7 @@ where pac.OWNER = :SchemaName and pac.TABLE_NAME = :TableName and ac.CONSTRAINT_
             foreach (var check in checks)
                 result[check.Name.LocalName] = check;
 
-            return new ResolvingKeyDictionary<IDatabaseCheckConstraint>(result, NameResolver);
+            return new IdentifierResolvingDictionary<IDatabaseCheckConstraint>(result, IdentifierResolver);
         }
 
         protected virtual IReadOnlyCollection<IDatabaseCheckConstraint> LoadChecksSync()
@@ -532,7 +532,7 @@ where OWNER = :SchemaName and TABLE_NAME = :TableName and CONSTRAINT_TYPE = 'C'"
             foreach (var parentKey in parentKeys)
                 result[parentKey.ChildKey.Name.LocalName] = parentKey;
 
-            return new ResolvingKeyDictionary<IDatabaseRelationalKey>(result, NameResolver);
+            return new IdentifierResolvingDictionary<IDatabaseRelationalKey>(result, IdentifierResolver);
         }
 
         protected virtual async Task<IReadOnlyDictionary<Identifier, IDatabaseRelationalKey>> LoadParentKeyLookupAsync(CancellationToken cancellationToken)
@@ -543,7 +543,7 @@ where OWNER = :SchemaName and TABLE_NAME = :TableName and CONSTRAINT_TYPE = 'C'"
             foreach (var parentKey in parentKeys)
                 result[parentKey.ChildKey.Name.LocalName] = parentKey;
 
-            return new ResolvingKeyDictionary<IDatabaseRelationalKey>(result, NameResolver);
+            return new IdentifierResolvingDictionary<IDatabaseRelationalKey>(result, IdentifierResolver);
         }
 
         protected virtual IReadOnlyCollection<IDatabaseRelationalKey> LoadParentKeysSync()
@@ -690,7 +690,7 @@ where ac.OWNER = :SchemaName and ac.TABLE_NAME = :TableName and ac.CONSTRAINT_TY
             foreach (var column in columns.Where(c => c.Name != null))
                 result[column.Name.LocalName] = column;
 
-            return new ResolvingKeyDictionary<IDatabaseTableColumn>(result, NameResolver);
+            return new IdentifierResolvingDictionary<IDatabaseTableColumn>(result, IdentifierResolver);
         }
 
         protected virtual async Task<IReadOnlyDictionary<Identifier, IDatabaseTableColumn>> LoadColumnLookupAsync(CancellationToken cancellationToken)
@@ -701,7 +701,7 @@ where ac.OWNER = :SchemaName and ac.TABLE_NAME = :TableName and ac.CONSTRAINT_TY
             foreach (var column in columns.Where(c => c.Name != null))
                 result[column.Name.LocalName] = column;
 
-            return new ResolvingKeyDictionary<IDatabaseTableColumn>(result, NameResolver);
+            return new IdentifierResolvingDictionary<IDatabaseTableColumn>(result, IdentifierResolver);
         }
 
         protected virtual IReadOnlyList<IDatabaseTableColumn> LoadColumnsSync()
@@ -802,7 +802,7 @@ order by COLUMN_ID";
             foreach (var trigger in triggers)
                 result[trigger.Name.LocalName] = trigger;
 
-            return new ResolvingKeyDictionary<IDatabaseTrigger>(result, NameResolver);
+            return new IdentifierResolvingDictionary<IDatabaseTrigger>(result, IdentifierResolver);
         }
 
         protected virtual async Task<IReadOnlyDictionary<Identifier, IDatabaseTrigger>> LoadTriggerLookupAsync(CancellationToken cancellationToken)
@@ -813,7 +813,7 @@ order by COLUMN_ID";
             foreach (var trigger in triggers)
                 result[trigger.Name.LocalName] = trigger;
 
-            return new ResolvingKeyDictionary<IDatabaseTrigger>(result, NameResolver);
+            return new IdentifierResolvingDictionary<IDatabaseTrigger>(result, IdentifierResolver);
         }
 
         protected virtual IReadOnlyCollection<IDatabaseTrigger> LoadTriggersSync()

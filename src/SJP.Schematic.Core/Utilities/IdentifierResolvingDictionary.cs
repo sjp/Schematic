@@ -2,16 +2,15 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using SJP.Schematic.Core;
 
-namespace SJP.Schematic.Oracle.Utilities
+namespace SJP.Schematic.Core.Utilities
 {
-    public class ResolvingKeyDictionary<TValue> : IReadOnlyDictionary<Identifier, TValue>
+    public class IdentifierResolvingDictionary<TValue> : IReadOnlyDictionary<Identifier, TValue>
     {
-        public ResolvingKeyDictionary(IReadOnlyDictionary<Identifier, TValue> dictionary, INameResolverStrategy nameResolver)
+        public IdentifierResolvingDictionary(IReadOnlyDictionary<Identifier, TValue> dictionary, IIdentifierResolutionStrategy identifierResolver)
         {
             _dictionary = dictionary ?? throw new ArgumentNullException(nameof(dictionary));
-            _nameResolver = nameResolver ?? throw new ArgumentNullException(nameof(nameResolver));
+            _identifierResolver = identifierResolver ?? throw new ArgumentNullException(nameof(identifierResolver));
         }
 
         public IEnumerable<Identifier> Keys => _dictionary.Keys;
@@ -39,7 +38,7 @@ namespace SJP.Schematic.Oracle.Utilities
             if (key == null)
                 throw new ArgumentNullException(nameof(key));
 
-            var names = _nameResolver.GetResolutionOrder(key);
+            var names = _identifierResolver.GetResolutionOrder(key);
             return names.Any(_dictionary.ContainsKey);
         }
 
@@ -48,7 +47,7 @@ namespace SJP.Schematic.Oracle.Utilities
             if (key == null)
                 throw new ArgumentNullException(nameof(key));
 
-            var names = _nameResolver.GetResolutionOrder(key);
+            var names = _identifierResolver.GetResolutionOrder(key);
             foreach (var name in names)
             {
                 if (_dictionary.TryGetValue(name, out value))
@@ -64,6 +63,6 @@ namespace SJP.Schematic.Oracle.Utilities
         IEnumerator IEnumerable.GetEnumerator() => _dictionary.GetEnumerator();
 
         private readonly IReadOnlyDictionary<Identifier, TValue> _dictionary;
-        private readonly INameResolverStrategy _nameResolver;
+        private readonly IIdentifierResolutionStrategy _identifierResolver;
     }
 }

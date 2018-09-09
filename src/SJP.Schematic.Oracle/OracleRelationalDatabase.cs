@@ -14,11 +14,11 @@ namespace SJP.Schematic.Oracle
 {
     public class OracleRelationalDatabase : RelationalDatabase, IDependentRelationalDatabase
     {
-        public OracleRelationalDatabase(IDatabaseDialect dialect, IDbConnection connection, INameResolverStrategy nameResolver = null)
+        public OracleRelationalDatabase(IDatabaseDialect dialect, IDbConnection connection, IIdentifierResolutionStrategy identifierResolver = null)
             : base(dialect, connection)
         {
             _metadata = new AsyncLazy<DatabaseMetadata>(LoadDatabaseMetadataAsync);
-            NameResolver = nameResolver ?? new DefaultOracleNameResolverStrategy();
+            IdentifierResolver = identifierResolver ?? new DefaultOracleIdentifierResolutionStrategy();
             _parentDb = this;
         }
 
@@ -28,7 +28,7 @@ namespace SJP.Schematic.Oracle
             set => _parentDb = value ?? throw new ArgumentNullException(nameof(value));
         }
 
-        protected INameResolverStrategy NameResolver { get; }
+        protected IIdentifierResolutionStrategy IdentifierResolver { get; }
 
         protected IRelationalDatabase Database => Parent;
 
@@ -164,7 +164,7 @@ order by t.OWNER, t.TABLE_NAME";
 
             tableName = ResolveFirstObjectExistsName(tableName, TableExists);
             return tableName != null
-                ? new OracleRelationalDatabaseTable(Connection, Database, tableName, NameResolver)
+                ? new OracleRelationalDatabaseTable(Connection, Database, tableName, IdentifierResolver)
                 : null;
         }
 
@@ -180,7 +180,7 @@ order by t.OWNER, t.TABLE_NAME";
         {
             tableName = await ResolveFirstObjectExistsNameAsync(tableName, TableExistsAsync, cancellationToken).ConfigureAwait(false);
             return tableName != null
-                ? new OracleRelationalDatabaseTable(Connection, Database, tableName, NameResolver)
+                ? new OracleRelationalDatabaseTable(Connection, Database, tableName, IdentifierResolver)
                 : null;
         }
 
@@ -306,7 +306,7 @@ order by v.OWNER, v.VIEW_NAME";
 
             viewName = ResolveFirstObjectExistsName(viewName, ViewExists);
             return viewName != null
-                ? new OracleRelationalDatabaseView(Connection, Database, viewName, NameResolver)
+                ? new OracleRelationalDatabaseView(Connection, Database, viewName, IdentifierResolver)
                 : null;
         }
 
@@ -322,7 +322,7 @@ order by v.OWNER, v.VIEW_NAME";
         {
             viewName = await ResolveFirstObjectExistsNameAsync(viewName, ViewExistsAsync, cancellationToken).ConfigureAwait(false);
             return viewName != null
-                ? new OracleRelationalDatabaseView(Connection, Database, viewName, NameResolver)
+                ? new OracleRelationalDatabaseView(Connection, Database, viewName, IdentifierResolver)
                 : null;
         }
 
@@ -736,7 +736,7 @@ where s.SYNONYM_NAME = :SynonymName and o.OWNER = USER and o.ORACLE_MAINTAINED <
             if (objectExistsFunc == null)
                 throw new ArgumentNullException(nameof(objectExistsFunc));
 
-            var resolvedNames = NameResolver
+            var resolvedNames = IdentifierResolver
                 .GetResolutionOrder(objectName)
                 .Select(CreateQualifiedIdentifier);
             return resolvedNames.FirstOrDefault(objectExistsFunc);
@@ -754,7 +754,7 @@ where s.SYNONYM_NAME = :SynonymName and o.OWNER = USER and o.ORACLE_MAINTAINED <
 
         private async Task<Identifier> ResolveFirstObjectExistsNameAsyncCore(Identifier objectName, Func<Identifier, CancellationToken, Task<bool>> objectExistsFunc, CancellationToken cancellationToken)
         {
-            var resolvedNames = NameResolver
+            var resolvedNames = IdentifierResolver
                 .GetResolutionOrder(objectName)
                 .Select(CreateQualifiedIdentifier);
 

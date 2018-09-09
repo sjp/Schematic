@@ -14,11 +14,11 @@ namespace SJP.Schematic.PostgreSql
 {
     public class PostgreSqlRelationalDatabase : RelationalDatabase, IDependentRelationalDatabase
     {
-        public PostgreSqlRelationalDatabase(IDatabaseDialect dialect, IDbConnection connection, IEqualityComparer<Identifier> comparer = null)
+        public PostgreSqlRelationalDatabase(IDatabaseDialect dialect, IDbConnection connection, IIdentifierResolutionStrategy identifierResolver = null)
             : base(dialect, connection)
         {
             _metadata = new Lazy<DatabaseMetadata>(LoadDatabaseMetadata);
-            Comparer = comparer ?? new IdentifierComparer(StringComparer.Ordinal, ServerName, DatabaseName, DefaultSchema);
+            IdentifierResolver = identifierResolver ?? new DefaultPostgreSqlIdentifierResolutionStrategy();
             _parentDb = this;
         }
 
@@ -28,7 +28,7 @@ namespace SJP.Schematic.PostgreSql
             set => _parentDb = value ?? throw new ArgumentNullException(nameof(value));
         }
 
-        protected IEqualityComparer<Identifier> Comparer { get; }
+        protected IIdentifierResolutionStrategy IdentifierResolver { get; }
 
         protected IRelationalDatabase Database => Parent;
 
@@ -140,7 +140,7 @@ where schemaname not in ('pg_catalog', 'information_schema')";
 
             tableName = CreateQualifiedIdentifier(tableName);
             return TableExists(tableName)
-                ? new PostgreSqlRelationalDatabaseTable(Connection, Database, tableName, Comparer)
+                ? new PostgreSqlRelationalDatabaseTable(Connection, Database, tableName, IdentifierResolver)
                 : null;
         }
 
@@ -157,7 +157,7 @@ where schemaname not in ('pg_catalog', 'information_schema')";
             tableName = CreateQualifiedIdentifier(tableName);
             var exists = await TableExistsAsync(tableName, cancellationToken).ConfigureAwait(false);
             return exists
-                ? new PostgreSqlRelationalDatabaseTable(Connection, Database, tableName, Comparer)
+                ? new PostgreSqlRelationalDatabaseTable(Connection, Database, tableName, IdentifierResolver)
                 : null;
         }
 
@@ -259,7 +259,7 @@ where schemaname not in ('pg_catalog', 'information_schema')";
 
             viewName = CreateQualifiedIdentifier(viewName);
             return ViewExists(viewName)
-                ? new PostgreSqlRelationalDatabaseView(Connection, Database, viewName, Comparer)
+                ? new PostgreSqlRelationalDatabaseView(Connection, Database, viewName, IdentifierResolver)
                 : null;
         }
 
@@ -276,7 +276,7 @@ where schemaname not in ('pg_catalog', 'information_schema')";
             viewName = CreateQualifiedIdentifier(viewName);
             var exists = await ViewExistsAsync(viewName, cancellationToken).ConfigureAwait(false);
             return exists
-                ? new PostgreSqlRelationalDatabaseView(Connection, Database, viewName, Comparer)
+                ? new PostgreSqlRelationalDatabaseView(Connection, Database, viewName, IdentifierResolver)
                 : null;
         }
 

@@ -1,9 +1,8 @@
 ﻿using System.Collections.Generic;
-using SJP.Schematic.Core;
 
-namespace SJP.Schematic.Oracle
+namespace SJP.Schematic.Core.Utilities
 {
-    public interface INameResolverStrategy
+    public interface IIdentifierResolutionStrategy
     {
         IEnumerable<Identifier> GetResolutionOrder(Identifier identifier);
     }
