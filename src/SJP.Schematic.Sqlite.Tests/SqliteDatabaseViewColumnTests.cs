@@ -106,6 +106,7 @@ namespace SJP.Schematic.Sqlite.Tests
 
             Assert.AreEqual(defaultValue, column.DefaultValue);
         }
+
         [Test]
         public static void IsComputed_PropertyGet_ReturnsFalse()
         {
