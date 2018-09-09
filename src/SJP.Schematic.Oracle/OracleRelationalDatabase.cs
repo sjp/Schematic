@@ -498,10 +498,21 @@ order by s.SEQUENCE_OWNER, s.SEQUENCE_NAME";
 
             synonymName = CreateQualifiedIdentifier(synonymName);
 
+            if (synonymName.Database == DatabaseName && synonymName.Schema == DefaultSchema)
+                return UserSynonymExistsStrict(synonymName.LocalName);
+
             return Connection.ExecuteScalar<int>(
                 SynonymExistsQuery,
                 new { SchemaName = synonymName.Schema, SynonymName = synonymName.LocalName }
             ) != 0;
+        }
+
+        protected bool UserSynonymExistsStrict(string synonymName)
+        {
+            if (synonymName.IsNullOrWhiteSpace())
+                throw new ArgumentNullException(nameof(synonymName));
+
+            return Connection.ExecuteScalar<int>(UserSynonymExistsQuery, new { SynonymName = synonymName }) != 0;
         }
 
         protected Task<bool> SynonymExistsStrictAsync(Identifier synonymName, CancellationToken cancellationToken = default(CancellationToken))
@@ -516,9 +527,20 @@ order by s.SEQUENCE_OWNER, s.SEQUENCE_NAME";
         {
             synonymName = CreateQualifiedIdentifier(synonymName);
 
+            if (synonymName.Database == DatabaseName && synonymName.Schema == DefaultSchema)
+                return await UserSynonymExistsStrictAsyncCore(synonymName.LocalName, cancellationToken).ConfigureAwait(false);
+
             return await Connection.ExecuteScalarAsync<int>(
                 SynonymExistsQuery,
                 new { SchemaName = synonymName.Schema, SynonymName = synonymName.LocalName }
+            ).ConfigureAwait(false) != 0;
+        }
+
+        private async Task<bool> UserSynonymExistsStrictAsyncCore(string synonymName, CancellationToken cancellationToken)
+        {
+            return await Connection.ExecuteScalarAsync<int>(
+                UserSynonymExistsQuery,
+                new { SynonymName = synonymName }
             ).ConfigureAwait(false) != 0;
         }
 
@@ -529,6 +551,14 @@ select COUNT(*)
 from ALL_SYNONYMS s
 inner join ALL_OBJECTS o on s.OWNER = o.OWNER and s.SYNONYM_NAME = o.OBJECT_NAME
 where s.OWNER = :SchemaName and s.SYNONYM_NAME = :SynonymName and o.ORACLE_MAINTAINED <> 'Y'";
+
+        protected virtual string UserSynonymExistsQuery => UserSynonymExistsQuerySql;
+
+        private const string UserSynonymExistsQuerySql = @"
+select COUNT(*)
+from USER_SYNONYMS s
+inner join ALL_OBJECTS o on s.SYNONYM_NAME = o.OBJECT_NAME
+where o.OWNER = USER and s.SYNONYM_NAME = :SynonymName and o.ORACLE_MAINTAINED <> 'Y'";
 
         public IDatabaseSynonym GetSynonym(Identifier synonymName)
         {
@@ -593,9 +623,29 @@ order by s.DB_LINK, s.OWNER, s.SYNONYM_NAME";
             if (synonymName == null)
                 return null;
 
+            if (synonymName.Database == DatabaseName && synonymName.Schema == DefaultSchema)
+                return LoadUserSynonymSync(synonymName.LocalName);
+
             var queryResult = Connection.QuerySingle<SynonymData>(
                 LoadSynonymQuery,
                 new { SchemaName = synonymName.Schema, SynonymName = synonymName.LocalName }
+            );
+
+            var databaseName = !queryResult.TargetDatabaseName.IsNullOrWhiteSpace() ? queryResult.TargetDatabaseName : null;
+            var schemaName = !queryResult.TargetSchemaName.IsNullOrWhiteSpace() ? queryResult.TargetSchemaName : null;
+            var localName = !queryResult.TargetObjectName.IsNullOrWhiteSpace() ? queryResult.TargetObjectName : null;
+
+            var targetName = Identifier.CreateQualifiedIdentifier(databaseName, schemaName, localName);
+            targetName = CreateQualifiedIdentifier(targetName);
+
+            return new OracleDatabaseSynonym(Database, synonymName, targetName);
+        }
+
+        private IDatabaseSynonym LoadUserSynonymSync(string synonymName)
+        {
+            var queryResult = Connection.QuerySingle<SynonymData>(
+                LoadUserSynonymQuery,
+                new { SynonymName = synonymName }
             );
 
             var databaseName = !queryResult.TargetDatabaseName.IsNullOrWhiteSpace() ? queryResult.TargetDatabaseName : null;
@@ -622,9 +672,29 @@ order by s.DB_LINK, s.OWNER, s.SYNONYM_NAME";
             if (synonymName == null)
                 return null;
 
+            if (synonymName.Database == DatabaseName && synonymName.Schema == DefaultSchema)
+                return await LoadUserSynonymAsyncCore(synonymName.LocalName, cancellationToken).ConfigureAwait(false);
+
             var queryResult = await Connection.QuerySingleAsync<SynonymData>(
                 LoadSynonymQuery,
                 new { SchemaName = synonymName.Schema, SynonymName = synonymName.LocalName }
+            ).ConfigureAwait(false);
+
+            var databaseName = !queryResult.TargetDatabaseName.IsNullOrWhiteSpace() ? queryResult.TargetDatabaseName : null;
+            var schemaName = !queryResult.TargetSchemaName.IsNullOrWhiteSpace() ? queryResult.TargetSchemaName : null;
+            var localName = !queryResult.TargetObjectName.IsNullOrWhiteSpace() ? queryResult.TargetObjectName : null;
+
+            var targetName = Identifier.CreateQualifiedIdentifier(databaseName, schemaName, localName);
+            targetName = CreateQualifiedIdentifier(targetName);
+
+            return new OracleDatabaseSynonym(Database, synonymName, targetName);
+        }
+
+        private async Task<IDatabaseSynonym> LoadUserSynonymAsyncCore(string synonymName, CancellationToken cancellationToken)
+        {
+            var queryResult = await Connection.QuerySingleAsync<SynonymData>(
+                LoadUserSynonymQuery,
+                new { SynonymName = synonymName }
             ).ConfigureAwait(false);
 
             var databaseName = !queryResult.TargetDatabaseName.IsNullOrWhiteSpace() ? queryResult.TargetDatabaseName : null;
@@ -647,6 +717,17 @@ select distinct
 from ALL_SYNONYMS s
 inner join ALL_OBJECTS o on s.OWNER = o.OWNER and s.SYNONYM_NAME = o.OBJECT_NAME
 where s.OWNER = :SchemaName and s.SYNONYM_NAME = :SynonymName and o.ORACLE_MAINTAINED <> 'Y'";
+
+        protected virtual string LoadUserSynonymQuery => LoadUserSynonymQuerySql;
+
+        private const string LoadUserSynonymQuerySql = @"
+select distinct
+    s.DB_LINK as TargetDatabaseName,
+    s.TABLE_OWNER as TargetSchemaName,
+    s.TABLE_NAME as TargetObjectName
+from USER_SYNONYMS s
+inner join ALL_OBJECTS o on s.SYNONYM_NAME = o.OBJECT_NAME
+where s.SYNONYM_NAME = :SynonymName and o.OWNER = USER and o.ORACLE_MAINTAINED <> 'Y'";
 
         protected Identifier ResolveFirstObjectExistsName(Identifier objectName, Func<Identifier, bool> objectExistsFunc)
         {
