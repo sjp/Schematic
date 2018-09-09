@@ -37,8 +37,6 @@ namespace SJP.Schematic.Sqlite
 
         protected ISqliteConnectionPragma Pragma { get; }
 
-        private ILogger<SqliteRelationalDatabase> Logger { get; } = Logging.Factory.CreateLogger<SqliteRelationalDatabase>();
-
         public bool TableExists(Identifier tableName)
         {
             if (tableName == null)
