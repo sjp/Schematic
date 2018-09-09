@@ -9,7 +9,6 @@ using SJP.Schematic.Core;
 using SJP.Schematic.Sqlite.Pragma;
 using SJP.Schematic.Core.Extensions;
 using SJP.Schematic.Core.Utilities;
-using Microsoft.Extensions.Logging;
 
 namespace SJP.Schematic.Sqlite
 {
