@@ -5,7 +5,7 @@ using SJP.Schematic.Lint;
 
 namespace SJP.Schematic.Reporting.Html.Lint.Rules
 {
-    internal class OrphanedTableRule : Schematic.Lint.Rules.OrphanedTableRule
+    internal sealed class OrphanedTableRule : Schematic.Lint.Rules.OrphanedTableRule
     {
         public OrphanedTableRule(RuleLevel level)
             : base(level)

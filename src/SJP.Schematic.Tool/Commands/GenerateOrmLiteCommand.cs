@@ -8,7 +8,7 @@ using SJP.Schematic.DataAccess.OrmLite;
 namespace SJP.Schematic.Tool
 {
     [Command(Description = "Generate ORM classes for use with OrmLite.")]
-    internal class GenerateOrmLiteCommand
+    internal sealed class GenerateOrmLiteCommand
     {
         private DatabaseCommand DatabaseParent { get; set; }
 

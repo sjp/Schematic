@@ -11,7 +11,7 @@ namespace SJP.Schematic.Tool
     [Subcommand("ef", typeof(GenerateEfCommand))]
     [Subcommand("ormlite", typeof(GenerateOrmLiteCommand))]
     [Subcommand("poco", typeof(GeneratePocoCommand))]
-    internal class GenerateCommand
+    internal sealed class GenerateCommand
     {
         [Option(Description = "How database object names will be translated", LongName = "translator", ShortName = "t", Inherited = true)]
         [AllowedValues("camelcase", "snakecase", "pascalcase", "verbatim", IgnoreCase = true)]

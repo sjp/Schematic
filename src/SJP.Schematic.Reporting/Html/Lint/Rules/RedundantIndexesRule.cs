@@ -9,7 +9,7 @@ using SJP.Schematic.Lint;
 
 namespace SJP.Schematic.Reporting.Html.Lint.Rules
 {
-    internal class RedundantIndexesRule : Schematic.Lint.Rules.RedundantIndexesRule
+    internal sealed class RedundantIndexesRule : Schematic.Lint.Rules.RedundantIndexesRule
     {
         public RedundantIndexesRule(RuleLevel level)
             : base(level)

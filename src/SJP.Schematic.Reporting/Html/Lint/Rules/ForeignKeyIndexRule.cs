@@ -9,7 +9,7 @@ using SJP.Schematic.Lint;
 
 namespace SJP.Schematic.Reporting.Html.Lint.Rules
 {
-    internal class ForeignKeyIndexRule : Schematic.Lint.Rules.ForeignKeyIndexRule
+    internal sealed class ForeignKeyIndexRule : Schematic.Lint.Rules.ForeignKeyIndexRule
     {
         public ForeignKeyIndexRule(RuleLevel level)
             : base(level)

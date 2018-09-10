@@ -5,7 +5,7 @@ using SJP.Schematic.Core;
 
 namespace SJP.Schematic.SqlServer.Tests.Integration
 {
-    internal class SqlServerDatabaseSequenceTests : SqlServerTest
+    internal sealed class SqlServerDatabaseSequenceTests : SqlServerTest
     {
         [OneTimeSetUp]
         public async Task Init()

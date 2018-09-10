@@ -6,7 +6,7 @@ using SJP.Schematic.Lint;
 
 namespace SJP.Schematic.Reporting.Html.Lint.Rules
 {
-    internal class ReservedKeywordNameRule : Schematic.Lint.Rules.ReservedKeywordNameRule
+    internal sealed class ReservedKeywordNameRule : Schematic.Lint.Rules.ReservedKeywordNameRule
     {
         public ReservedKeywordNameRule(RuleLevel level)
             : base(level)

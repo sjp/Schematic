@@ -5,7 +5,7 @@ using SJP.Schematic.Lint;
 
 namespace SJP.Schematic.Reporting.Html.Lint.Rules
 {
-    internal class CandidateKeyMissingRule : Schematic.Lint.Rules.CandidateKeyMissingRule
+    internal sealed class CandidateKeyMissingRule : Schematic.Lint.Rules.CandidateKeyMissingRule
     {
         public CandidateKeyMissingRule(RuleLevel level)
             : base(level)

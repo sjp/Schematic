@@ -8,7 +8,7 @@ using SJP.Schematic.Core;
 
 namespace SJP.Schematic.PostgreSql.Tests.Integration
 {
-    internal class PostgreSqlDatabaseSequenceTests : PostgreSqlTest
+    internal sealed class PostgreSqlDatabaseSequenceTests : PostgreSqlTest
     {
         [OneTimeSetUp]
         public async Task Init()

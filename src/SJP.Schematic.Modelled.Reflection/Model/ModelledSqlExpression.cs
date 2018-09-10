@@ -168,7 +168,7 @@ namespace SJP.Schematic.Modelled.Reflection.Model
             Literal
         }
 
-        protected class ExpressionParser : Tokenizer<ExpressionToken>
+        protected sealed class ExpressionParser : Tokenizer<ExpressionToken>
         {
             protected override IEnumerable<Result<ExpressionToken>> Tokenize(TextSpan span)
             {

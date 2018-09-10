@@ -4,7 +4,7 @@ using SJP.Schematic.Core;
 
 namespace SJP.Schematic.Oracle.Tests.Integration
 {
-    internal class OracleDatabaseSynonymTests : OracleTest
+    internal sealed class OracleDatabaseSynonymTests : OracleTest
     {
         private IRelationalDatabase Database => new OracleRelationalDatabase(Dialect, Connection);
 

@@ -6,7 +6,7 @@ using SJP.Schematic.Core.Extensions;
 
 namespace SJP.Schematic.Reporting.Html.ViewModels
 {
-    internal class Columns : ITemplateParameter
+    internal sealed class Columns : ITemplateParameter
     {
         public Columns(IEnumerable<Column> columns)
         {
@@ -85,7 +85,7 @@ namespace SJP.Schematic.Reporting.Html.ViewModels
             }
         }
 
-        internal class TableColumn : Column
+        internal sealed class TableColumn : Column
         {
             public TableColumn(
                 Identifier tableName,
@@ -163,7 +163,7 @@ namespace SJP.Schematic.Reporting.Html.ViewModels
             }
         }
 
-        internal class ViewColumn : Column
+        internal sealed class ViewColumn : Column
         {
             public ViewColumn(
                 Identifier viewName,

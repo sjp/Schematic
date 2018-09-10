@@ -6,7 +6,7 @@ using SJP.Schematic.Lint;
 
 namespace SJP.Schematic.Reporting.Html.Lint.Rules
 {
-    internal class WhitespaceNameRule : Schematic.Lint.Rules.WhitespaceNameRule
+    internal sealed class WhitespaceNameRule : Schematic.Lint.Rules.WhitespaceNameRule
     {
         public WhitespaceNameRule(RuleLevel level)
             : base(level)

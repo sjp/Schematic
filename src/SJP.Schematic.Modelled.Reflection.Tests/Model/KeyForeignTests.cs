@@ -25,7 +25,7 @@ namespace SJP.Schematic.Modelled.Reflection.Model.Tests
             Assert.Throws<ArgumentNullException>(() => new FakeForeignKey(new List<IModelledColumn> { null }));
         }
 
-        private class FakeForeignKey : Key.ForeignKey
+        private sealed class FakeForeignKey : Key.ForeignKey
         {
             public FakeForeignKey(IEnumerable<IModelledColumn> columns)
                 : base(columns)

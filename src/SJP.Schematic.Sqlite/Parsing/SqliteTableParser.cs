@@ -123,7 +123,7 @@ namespace SJP.Schematic.Sqlite.Parsing
         }
 
         // only used for structured return from ParseTokens()
-        private class ParsedTable
+        private sealed class ParsedTable
         {
             public ParsedTable(
                 IReadOnlyCollection<Column> columns,

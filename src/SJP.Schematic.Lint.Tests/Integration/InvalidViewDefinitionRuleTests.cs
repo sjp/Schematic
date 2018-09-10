@@ -11,7 +11,7 @@ using SJP.Schematic.Sqlite;
 
 namespace SJP.Schematic.Lint.Tests.Integration
 {
-    internal class InvalidViewDefinitionRuleTests : SqliteTest
+    internal sealed class InvalidViewDefinitionRuleTests : SqliteTest
     {
         [OneTimeSetUp]
         public async Task Init()

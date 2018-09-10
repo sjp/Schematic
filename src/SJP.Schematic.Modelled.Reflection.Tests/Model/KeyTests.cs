@@ -34,7 +34,7 @@ namespace SJP.Schematic.Modelled.Reflection.Model.Tests
             Assert.Throws<ArgumentException>(() => new FakeKey(new List<IModelledColumn> { Mock.Of<IModelledColumn>() }, badKeyType));
         }
 
-        private class FakeKey : Key
+        private sealed class FakeKey : Key
         {
             public FakeKey(IEnumerable<IModelledColumn> columns, DatabaseKeyType keyType)
                 : base(columns, keyType)

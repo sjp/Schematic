@@ -39,7 +39,7 @@ namespace SJP.Schematic.Modelled.Reflection
         protected readonly IDbType _unknownType = new ReflectionComputedColumnDataType();
 
         // represents an unknown datatype
-        protected class ReflectionComputedColumnDataType : IDbType
+        protected sealed class ReflectionComputedColumnDataType : IDbType
         {
             public Identifier TypeName { get; }
 

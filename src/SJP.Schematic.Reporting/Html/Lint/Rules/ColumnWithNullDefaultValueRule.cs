@@ -6,7 +6,7 @@ using SJP.Schematic.Lint;
 
 namespace SJP.Schematic.Reporting.Html.Lint.Rules
 {
-    internal class ColumnWithNullDefaultValueRule : Schematic.Lint.Rules.ColumnWithNullDefaultValueRule
+    internal sealed class ColumnWithNullDefaultValueRule : Schematic.Lint.Rules.ColumnWithNullDefaultValueRule
     {
         public ColumnWithNullDefaultValueRule(RuleLevel level)
             : base(level)

@@ -8,7 +8,7 @@ using SJP.Schematic.Core.Extensions;
 
 namespace SJP.Schematic.Reporting.Html.ViewModels
 {
-    internal class Constraints : ITemplateParameter
+    internal sealed class Constraints : ITemplateParameter
     {
         public Constraints(
             IEnumerable<PrimaryKeyConstraint> primaryKeys,
@@ -80,7 +80,7 @@ namespace SJP.Schematic.Reporting.Html.ViewModels
             public string ConstraintName { get; }
         }
 
-        internal class PrimaryKeyConstraint : TableConstraint
+        internal sealed class PrimaryKeyConstraint : TableConstraint
         {
             public PrimaryKeyConstraint(Identifier tableName, string constraintName, IEnumerable<string> columnNames)
                 : base(tableName, constraintName)
@@ -94,7 +94,7 @@ namespace SJP.Schematic.Reporting.Html.ViewModels
             public string ColumnNames { get; }
         }
 
-        internal class UniqueKey : TableConstraint
+        internal sealed class UniqueKey : TableConstraint
         {
             public UniqueKey(Identifier tableName, string constraintName, IEnumerable<string> columnNames)
                 : base(tableName, constraintName)
@@ -108,7 +108,7 @@ namespace SJP.Schematic.Reporting.Html.ViewModels
             public string ColumnNames { get; }
         }
 
-        internal class ForeignKey : TableConstraint
+        internal sealed class ForeignKey : TableConstraint
         {
             public ForeignKey(
                 Identifier childTableName,
@@ -167,7 +167,7 @@ namespace SJP.Schematic.Reporting.Html.ViewModels
             };
         }
 
-        internal class CheckConstraint : TableConstraint
+        internal sealed class CheckConstraint : TableConstraint
         {
             public CheckConstraint(Identifier tableName, string constraintName, string definition)
                 : base(tableName, constraintName)

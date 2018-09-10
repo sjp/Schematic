@@ -7,7 +7,7 @@ using SJP.Schematic.Core;
 
 namespace SJP.Schematic.Sqlite.Tests.Integration
 {
-    internal class SqliteRelationalDatabaseViewTests : SqliteTest
+    internal sealed class SqliteRelationalDatabaseViewTests : SqliteTest
     {
         private IRelationalDatabase Database => new SqliteRelationalDatabase(Dialect, Connection);
 

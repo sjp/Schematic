@@ -6,7 +6,7 @@ using SJP.Schematic.Reporting.Dot;
 
 namespace SJP.Schematic.Reporting.Html.ViewModels.Mappers
 {
-    internal class RelationshipsModelMapper :
+    internal sealed class RelationshipsModelMapper :
         IDatabaseModelMapper<IRelationalDatabase, Relationships>
     {
         public RelationshipsModelMapper(IDbConnection connection)
@@ -14,7 +14,7 @@ namespace SJP.Schematic.Reporting.Html.ViewModels.Mappers
             Connection = connection ?? throw new ArgumentNullException(nameof(connection));
         }
 
-        protected IDbConnection Connection { get; }
+        private IDbConnection Connection { get; }
 
         public Relationships Map(IRelationalDatabase dbObject)
         {

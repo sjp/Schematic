@@ -5,7 +5,7 @@ using SJP.Schematic.Lint;
 
 namespace SJP.Schematic.Reporting.Html.Lint.Rules
 {
-    internal class NoNonNullableColumnsPresentRule : Schematic.Lint.Rules.NoNonNullableColumnsPresentRule
+    internal sealed class NoNonNullableColumnsPresentRule : Schematic.Lint.Rules.NoNonNullableColumnsPresentRule
     {
         public NoNonNullableColumnsPresentRule(RuleLevel level)
             : base(level)

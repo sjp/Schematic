@@ -6,7 +6,7 @@ using SJP.Schematic.Sqlite;
 
 namespace SJP.Schematic.DataAccess.Poco.Tests.Integration
 {
-    internal class PocoViewGeneratorTests : SqliteTest
+    internal sealed class PocoViewGeneratorTests : SqliteTest
     {
         private IRelationalDatabase Database => new SqliteRelationalDatabase(Dialect, Connection);
 

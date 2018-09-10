@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace SJP.Schematic.Reporting
 {
-    internal class RelationshipFinder
+    internal sealed class RelationshipFinder
     {
         public IEnumerable<IRelationalDatabaseTable> GetTablesByDegrees(IRelationalDatabaseTable table, uint degrees)
         {

@@ -5,7 +5,7 @@ using SJP.Schematic.Core;
 
 namespace SJP.Schematic.Modelled.Reflection.Tests.Fakes
 {
-    internal class FakeDialect : DatabaseDialect<FakeDialect>
+    internal sealed class FakeDialect : DatabaseDialect<FakeDialect>
     {
         public override IDbConnection CreateConnection(string connectionString) => null;
 
@@ -17,7 +17,7 @@ namespace SJP.Schematic.Modelled.Reflection.Tests.Fakes
 
         private readonly static IDbTypeProvider _typeProvider = new DbTypeProvider();
 
-        private class DbTypeProvider : IDbTypeProvider
+        private sealed class DbTypeProvider : IDbTypeProvider
         {
             public IDbType CreateColumnType(ColumnTypeMetadata typeMetadata) => new ColumnDataType(
                 "test_type",

@@ -5,7 +5,7 @@ using Superpower.Model;
 
 namespace SJP.Schematic.SqlServer.Parsing
 {
-    internal class SqlIdentifier
+    internal sealed class SqlIdentifier
     {
         public SqlIdentifier(Token<SqlServerToken> serverToken, Token<SqlServerToken> databaseToken, Token<SqlServerToken> schemaToken, Token<SqlServerToken> localNameToken)
         {

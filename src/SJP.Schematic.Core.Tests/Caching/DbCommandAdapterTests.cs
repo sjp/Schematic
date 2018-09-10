@@ -274,7 +274,7 @@ namespace SJP.Schematic.Core.Tests.Caching
             mock.Verify(c => c.ExecuteReader(behavior));
         }
 
-        protected class FakeDbCommandAdapter : DbCommandAdapter
+        private sealed class FakeDbCommandAdapter : DbCommandAdapter
         {
             public FakeDbCommandAdapter(DbConnection connection, IDbCommand command)
                 : base(connection, command)
@@ -283,14 +283,14 @@ namespace SJP.Schematic.Core.Tests.Caching
 
             public DbConnection InnerConnection
             {
-                get => base.DbConnection;
-                set => base.DbConnection = value;
+                get => DbConnection;
+                set => DbConnection = value;
             }
 
             public DbTransaction InnerTransaction
             {
-                get => base.DbTransaction;
-                set => base.DbTransaction = value;
+                get => DbTransaction;
+                set => DbTransaction = value;
             }
         }
     }

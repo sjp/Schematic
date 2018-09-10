@@ -8,7 +8,7 @@ using SJP.Schematic.Reporting.Dot;
 
 namespace SJP.Schematic.Reporting.Html.ViewModels.Mappers
 {
-    internal class TableModelMapper :
+    internal sealed class TableModelMapper :
         IDatabaseModelMapper<IRelationalDatabaseTable, Table>
     {
         public TableModelMapper(IDbConnection connection, IDatabaseDialect dialect)
@@ -17,9 +17,9 @@ namespace SJP.Schematic.Reporting.Html.ViewModels.Mappers
             Dialect = dialect ?? throw new ArgumentNullException(nameof(dialect));
         }
 
-        protected IDbConnection Connection { get; }
+        private IDbConnection Connection { get; }
 
-        protected IDatabaseDialect Dialect { get; }
+        private IDatabaseDialect Dialect { get; }
 
         public Table Map(IRelationalDatabaseTable dbObject)
         {

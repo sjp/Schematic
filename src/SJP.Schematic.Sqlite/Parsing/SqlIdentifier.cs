@@ -5,7 +5,7 @@ using Superpower.Model;
 
 namespace SJP.Schematic.Sqlite.Parsing
 {
-    internal class SqlIdentifier
+    internal sealed class SqlIdentifier
     {
         public SqlIdentifier(Token<SqliteToken> schemaToken, Token<SqliteToken> localNameToken)
         {

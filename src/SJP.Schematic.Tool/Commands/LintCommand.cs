@@ -4,7 +4,7 @@ using McMaster.Extensions.CommandLineUtils;
 namespace SJP.Schematic.Tool
 {
     [Command(Name = "lint", Description = "Provides a lint report for potential schema issues.")]
-    internal class LintCommand
+    internal sealed class LintCommand
     {
         private DatabaseCommand Parent { get; set; }
 

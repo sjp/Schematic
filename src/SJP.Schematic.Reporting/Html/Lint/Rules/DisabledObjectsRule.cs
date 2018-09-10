@@ -6,7 +6,7 @@ using SJP.Schematic.Lint;
 
 namespace SJP.Schematic.Reporting.Html.Lint.Rules
 {
-    internal class DisabledObjectsRule : Schematic.Lint.Rules.DisabledObjectsRule
+    internal sealed class DisabledObjectsRule : Schematic.Lint.Rules.DisabledObjectsRule
     {
         public DisabledObjectsRule(RuleLevel level)
             : base(level)

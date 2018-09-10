@@ -11,7 +11,7 @@ using SJP.Schematic.Sqlite;
 
 namespace SJP.Schematic.Lint.Tests.Integration
 {
-    internal class ForeignKeyIndexRuleTests : SqliteTest
+    internal sealed class ForeignKeyIndexRuleTests : SqliteTest
     {
         [OneTimeSetUp]
         public async Task Init()

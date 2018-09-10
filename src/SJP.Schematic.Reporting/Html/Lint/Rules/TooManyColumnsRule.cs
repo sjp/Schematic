@@ -5,7 +5,7 @@ using SJP.Schematic.Lint;
 
 namespace SJP.Schematic.Reporting.Html.Lint.Rules
 {
-    internal class TooManyColumnsRule : Schematic.Lint.Rules.TooManyColumnsRule
+    internal sealed class TooManyColumnsRule : Schematic.Lint.Rules.TooManyColumnsRule
     {
         public TooManyColumnsRule(RuleLevel level, uint columnLimit = 100)
             : base(level, columnLimit)

@@ -6,7 +6,7 @@ using Superpower.Model;
 
 namespace SJP.Schematic.Sqlite.Parsing
 {
-    internal class ColumnDefinition
+    internal sealed class ColumnDefinition
     {
         public ColumnDefinition(SqlIdentifier columnName)
             : this(columnName.Value.LocalName, Array.Empty<Token<SqliteToken>>(), Array.Empty<ColumnConstraint>())

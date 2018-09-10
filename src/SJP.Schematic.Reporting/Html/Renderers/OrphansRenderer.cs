@@ -10,7 +10,7 @@ using SJP.Schematic.Reporting.Html.ViewModels.Mappers;
 
 namespace SJP.Schematic.Reporting.Html.Renderers
 {
-    internal class OrphansRenderer : ITemplateRenderer
+    internal sealed class OrphansRenderer : ITemplateRenderer
     {
         public OrphansRenderer(IDbConnection connection, IRelationalDatabase database, IHtmlFormatter formatter, DirectoryInfo exportDirectory)
         {
@@ -20,13 +20,13 @@ namespace SJP.Schematic.Reporting.Html.Renderers
             ExportDirectory = exportDirectory ?? throw new ArgumentNullException(nameof(exportDirectory));
         }
 
-        protected IDbConnection Connection { get; }
+        private IDbConnection Connection { get; }
 
-        protected IRelationalDatabase Database { get; }
+        private IRelationalDatabase Database { get; }
 
-        protected IHtmlFormatter Formatter { get; }
+        private IHtmlFormatter Formatter { get; }
 
-        protected DirectoryInfo ExportDirectory { get; }
+        private DirectoryInfo ExportDirectory { get; }
 
         public void Render()
         {

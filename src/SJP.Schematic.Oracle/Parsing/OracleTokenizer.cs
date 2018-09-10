@@ -5,7 +5,7 @@ using Superpower.Model;
 
 namespace SJP.Schematic.Oracle.Parsing
 {
-    internal class OracleTokenizer : Tokenizer<OracleToken>
+    internal sealed class OracleTokenizer : Tokenizer<OracleToken>
     {
         static OracleTokenizer()
         {

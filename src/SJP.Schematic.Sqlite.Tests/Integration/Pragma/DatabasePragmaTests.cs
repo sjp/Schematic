@@ -11,7 +11,7 @@ using Moq;
 
 namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
 {
-    internal class DatabasePragmaTests : SqliteTest
+    internal sealed class DatabasePragmaTests : SqliteTest
     {
         private static IDbConnection CreateConnection()
         {

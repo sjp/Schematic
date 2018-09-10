@@ -35,7 +35,7 @@ namespace SJP.Schematic.Core.Tests
             Assert.DoesNotThrow(() => new FakeRelationalDatabase(dialect, connection));
         }
 
-        private class FakeRelationalDatabase : RelationalDatabase
+        private sealed class FakeRelationalDatabase : RelationalDatabase
         {
             public FakeRelationalDatabase(IDatabaseDialect dialect, IDbConnection connection)
                 : base(dialect, connection)

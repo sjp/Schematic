@@ -5,7 +5,7 @@ using SJP.Schematic.Lint;
 
 namespace SJP.Schematic.Reporting.Html.Lint.Rules
 {
-    internal class NoSurrogatePrimaryKeyRule : Schematic.Lint.Rules.NoSurrogatePrimaryKeyRule
+    internal sealed class NoSurrogatePrimaryKeyRule : Schematic.Lint.Rules.NoSurrogatePrimaryKeyRule
     {
         public NoSurrogatePrimaryKeyRule(RuleLevel level)
             : base(level)

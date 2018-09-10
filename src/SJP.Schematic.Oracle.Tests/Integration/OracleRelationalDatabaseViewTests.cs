@@ -7,7 +7,7 @@ using SJP.Schematic.Core;
 
 namespace SJP.Schematic.Oracle.Tests.Integration
 {
-    internal class OracleRelationalDatabaseViewTests : OracleTest
+    internal sealed class OracleRelationalDatabaseViewTests : OracleTest
     {
         private IRelationalDatabase Database => new OracleRelationalDatabase(Dialect, Connection);
 

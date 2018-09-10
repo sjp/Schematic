@@ -8,7 +8,7 @@ using SJP.Schematic.Core.Extensions;
 
 namespace SJP.Schematic.Reporting.Html.ViewModels
 {
-    internal class Table : ITemplateParameter
+    internal sealed class Table : ITemplateParameter
     {
         public Table(
             Identifier tableName,
@@ -107,7 +107,7 @@ namespace SJP.Schematic.Reporting.Html.ViewModels
 
         public IEnumerable<Diagram> Diagrams { get; }
 
-        internal class Column
+        internal sealed class Column
         {
             public Column(
                 string columnName,
@@ -222,7 +222,7 @@ namespace SJP.Schematic.Reporting.Html.ViewModels
             public string ConstraintName { get; }
         }
 
-        internal class PrimaryKeyConstraint : TableConstraint
+        internal sealed class PrimaryKeyConstraint : TableConstraint
         {
             public PrimaryKeyConstraint(string constraintName, IEnumerable<string> columns)
                 : base(constraintName)
@@ -236,7 +236,7 @@ namespace SJP.Schematic.Reporting.Html.ViewModels
             public string ColumnNames { get; }
         }
 
-        internal class UniqueKey : TableConstraint
+        internal sealed class UniqueKey : TableConstraint
         {
             public UniqueKey(string constraintName, IEnumerable<string> columns)
                 : base(constraintName)
@@ -250,7 +250,7 @@ namespace SJP.Schematic.Reporting.Html.ViewModels
             public string ColumnNames { get; }
         }
 
-        internal class ForeignKey : TableConstraint
+        internal sealed class ForeignKey : TableConstraint
         {
             public ForeignKey(
                 string constraintName,
@@ -306,7 +306,7 @@ namespace SJP.Schematic.Reporting.Html.ViewModels
             };
         }
 
-        internal class CheckConstraint : TableConstraint
+        internal sealed class CheckConstraint : TableConstraint
         {
             public CheckConstraint(string constraintName, string definition)
                 : base(constraintName)
@@ -320,7 +320,7 @@ namespace SJP.Schematic.Reporting.Html.ViewModels
             public string Definition { get; }
         }
 
-        internal class Index
+        internal sealed class Index
         {
             public Index(
                 string indexName,
@@ -356,7 +356,7 @@ namespace SJP.Schematic.Reporting.Html.ViewModels
             }
         }
 
-        internal class ParentKey
+        internal sealed class ParentKey
         {
             public ParentKey(string constraintName, Identifier parentTableName, string parentColumnName, string qualifiedChildColumnName)
             {
@@ -387,7 +387,7 @@ namespace SJP.Schematic.Reporting.Html.ViewModels
             public string ParentColumnName { get; }
         }
 
-        internal class ChildKey
+        internal sealed class ChildKey
         {
             public ChildKey(string constraintName, Identifier childTableName, string childColumnName, string qualifiedParentColumnName)
             {
@@ -418,7 +418,7 @@ namespace SJP.Schematic.Reporting.Html.ViewModels
             public string ChildColumnName { get; }
         }
 
-        internal class Diagram
+        internal sealed class Diagram
         {
             public Diagram(Identifier tableName, string diagramName, string dotDefinition, bool isActive)
             {

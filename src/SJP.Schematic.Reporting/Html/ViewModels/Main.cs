@@ -5,7 +5,7 @@ using SJP.Schematic.Core;
 
 namespace SJP.Schematic.Reporting.Html.ViewModels
 {
-    internal class Main : ITemplateParameter
+    internal sealed class Main : ITemplateParameter
     {
         public Main(
             string databaseName,
@@ -89,7 +89,7 @@ namespace SJP.Schematic.Reporting.Html.ViewModels
 
         public string SynonymsTableClass { get; }
 
-        internal class Table
+        internal sealed class Table
         {
             public Table(
                 Identifier tableName,
@@ -124,7 +124,7 @@ namespace SJP.Schematic.Reporting.Html.ViewModels
             public ulong RowCount { get; }
         }
 
-        internal class View
+        internal sealed class View
         {
             public View(Identifier viewName, uint columnCount, ulong rowCount)
             {
@@ -146,7 +146,7 @@ namespace SJP.Schematic.Reporting.Html.ViewModels
             public ulong RowCount { get; }
         }
 
-        internal class Sequence
+        internal sealed class Sequence
         {
             public Sequence(
                 Identifier sequenceName,
@@ -185,7 +185,7 @@ namespace SJP.Schematic.Reporting.Html.ViewModels
             public string CycleText { get; }
         }
 
-        internal class Synonym
+        internal sealed class Synonym
         {
             public Synonym(Identifier synonymName, Identifier target, Uri targetUrl)
             {

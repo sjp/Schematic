@@ -3,7 +3,7 @@ using SJP.Schematic.Core;
 
 namespace SJP.Schematic.SqlServer.Tests.Integration
 {
-    internal class SqlServerDatabaseSynonymTests : SqlServerTest
+    internal sealed class SqlServerDatabaseSynonymTests : SqlServerTest
     {
         public SqlServerDatabaseSynonymTests()
         {

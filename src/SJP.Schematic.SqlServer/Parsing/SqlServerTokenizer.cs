@@ -5,7 +5,7 @@ using Superpower.Model;
 
 namespace SJP.Schematic.SqlServer.Parsing
 {
-    internal class SqlServerTokenizer : Tokenizer<SqlServerToken>
+    internal sealed class SqlServerTokenizer : Tokenizer<SqlServerToken>
     {
         static SqlServerTokenizer()
         {

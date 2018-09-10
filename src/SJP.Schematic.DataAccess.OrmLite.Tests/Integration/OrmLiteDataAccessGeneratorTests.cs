@@ -10,7 +10,7 @@ using SJP.Schematic.Sqlite;
 
 namespace SJP.Schematic.DataAccess.OrmLite.Tests.Integration
 {
-    internal class OrmLiteDataAccessGeneratorTests : SqliteTest
+    internal sealed class OrmLiteDataAccessGeneratorTests : SqliteTest
     {
         private IRelationalDatabase Database => new SqliteRelationalDatabase(Dialect, Connection);
 

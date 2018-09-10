@@ -6,7 +6,7 @@ using SJP.Schematic.Sqlite;
 
 namespace SJP.Schematic.DataAccess.EntityFrameworkCore.Tests.Integration
 {
-    internal class EFCoreDbContextBuilderTests : SqliteTest
+    internal sealed class EFCoreDbContextBuilderTests : SqliteTest
     {
         private IRelationalDatabase Database => new SqliteRelationalDatabase(Dialect, Connection);
 

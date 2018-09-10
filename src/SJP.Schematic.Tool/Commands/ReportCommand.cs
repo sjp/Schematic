@@ -6,7 +6,7 @@ using SJP.Schematic.Reporting.Html;
 namespace SJP.Schematic.Tool
 {
     [Command(Name = "report", Description = "Creates a graphical report on database schema and relationships.")]
-    internal class ReportCommand
+    internal sealed class ReportCommand
     {
         private DatabaseCommand Parent { get; set; }
 

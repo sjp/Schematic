@@ -4,7 +4,7 @@ using McMaster.Extensions.CommandLineUtils;
 namespace SJP.Schematic.Tool
 {
     [Command(Name = "test", Description = "Test a database connection to see whether it is available.")]
-    internal class TestCommand
+    internal sealed class TestCommand
     {
         private DatabaseCommand Parent { get; set; }
 

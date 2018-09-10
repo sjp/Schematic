@@ -10,7 +10,7 @@ using SJP.Schematic.Sqlite;
 
 namespace SJP.Schematic.DataAccess.Poco.Tests.Integration
 {
-    internal class PocoDataAccessGeneratorTests : SqliteTest
+    internal sealed class PocoDataAccessGeneratorTests : SqliteTest
     {
         private IRelationalDatabase Database => new SqliteRelationalDatabase(Dialect, Connection);
 

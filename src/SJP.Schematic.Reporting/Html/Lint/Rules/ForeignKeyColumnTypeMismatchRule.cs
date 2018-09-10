@@ -7,7 +7,7 @@ using SJP.Schematic.Lint;
 
 namespace SJP.Schematic.Reporting.Html.Lint.Rules
 {
-    internal class ForeignKeyColumnTypeMismatchRule : Schematic.Lint.Rules.ForeignKeyColumnTypeMismatchRule
+    internal sealed class ForeignKeyColumnTypeMismatchRule : Schematic.Lint.Rules.ForeignKeyColumnTypeMismatchRule
     {
         public ForeignKeyColumnTypeMismatchRule(RuleLevel level)
             : base(level)

@@ -6,7 +6,7 @@ using SJP.Schematic.Core;
 
 namespace SJP.Schematic.Reporting.Html.ViewModels.Mappers
 {
-    internal class ViewModelMapper :
+    internal sealed class ViewModelMapper :
         IDatabaseModelMapper<IRelationalDatabaseView, View>
     {
         public ViewModelMapper(IDbConnection connection, IDatabaseDialect dialect)
@@ -15,9 +15,9 @@ namespace SJP.Schematic.Reporting.Html.ViewModels.Mappers
             Dialect = dialect ?? throw new ArgumentNullException(nameof(dialect));
         }
 
-        protected IDbConnection Connection { get; }
+        private IDbConnection Connection { get; }
 
-        protected IDatabaseDialect Dialect { get; }
+        private IDatabaseDialect Dialect { get; }
 
         public View Map(IRelationalDatabaseView dbObject)
         {

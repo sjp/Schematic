@@ -4,7 +4,7 @@ using SJP.Schematic.Core;
 
 namespace SJP.Schematic.Reporting.Html.ViewModels
 {
-    internal class View : ITemplateParameter
+    internal sealed class View : ITemplateParameter
     {
         public View(
             Identifier viewName,
@@ -46,7 +46,7 @@ namespace SJP.Schematic.Reporting.Html.ViewModels
 
         public string ColumnsTableClass { get; }
 
-        internal class Column
+        internal sealed class Column
         {
             public Column(
                 string columnName,

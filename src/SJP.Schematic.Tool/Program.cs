@@ -8,7 +8,7 @@ namespace SJP.Schematic.Tool
     [Subcommand("lint", typeof(LintCommand))]
     [Subcommand("generate", typeof(GenerateCommand))]
     [Subcommand("report", typeof(ReportCommand))]
-    internal class Program
+    internal sealed class Program
     {
         public static int Main(string[] args) => CommandLineApplication.Execute<Program>(args);
 

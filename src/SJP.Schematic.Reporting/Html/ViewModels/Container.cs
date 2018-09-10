@@ -4,7 +4,7 @@ using SJP.Schematic.Core.Extensions;
 
 namespace SJP.Schematic.Reporting.Html.ViewModels
 {
-    internal class Container : ITemplateParameter
+    internal sealed class Container : ITemplateParameter
     {
         public Container(
             string content,

@@ -4,7 +4,7 @@ using SJP.Schematic.Core;
 
 namespace SJP.Schematic.Reporting.Html.ViewModels.Mappers
 {
-    internal class ConstraintsModelMapper :
+    internal sealed class ConstraintsModelMapper :
         IDatabaseModelMapper<IDatabaseKey, Constraints.PrimaryKeyConstraint>,
         IDatabaseModelMapper<IDatabaseKey, Constraints.UniqueKey>,
         IDatabaseModelMapper<IDatabaseRelationalKey, Constraints.ForeignKey>,

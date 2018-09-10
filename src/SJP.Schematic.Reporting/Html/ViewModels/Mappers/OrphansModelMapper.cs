@@ -5,7 +5,7 @@ using SJP.Schematic.Core;
 
 namespace SJP.Schematic.Reporting.Html.ViewModels.Mappers
 {
-    internal class OrphansModelMapper : IDatabaseModelMapper<IRelationalDatabaseTable, Orphans.Table>
+    internal sealed class OrphansModelMapper : IDatabaseModelMapper<IRelationalDatabaseTable, Orphans.Table>
     {
         public OrphansModelMapper(IDbConnection connection, IDatabaseDialect dialect)
         {
@@ -13,9 +13,9 @@ namespace SJP.Schematic.Reporting.Html.ViewModels.Mappers
             Dialect = dialect ?? throw new ArgumentNullException(nameof(dialect));
         }
 
-        protected IDbConnection Connection { get; }
+        private IDbConnection Connection { get; }
 
-        protected IDatabaseDialect Dialect { get; }
+        private IDatabaseDialect Dialect { get; }
 
         public Orphans.Table Map(IRelationalDatabaseTable dbObject)
         {

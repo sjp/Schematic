@@ -7,7 +7,7 @@ using SJP.Schematic.Core;
 
 namespace SJP.Schematic.MySql.Tests.Integration
 {
-    internal class MySqlRelationalDatabaseTests : MySqlTest
+    internal sealed class MySqlRelationalDatabaseTests : MySqlTest
     {
         private IRelationalDatabase Database => new MySqlRelationalDatabase(Dialect, Connection);
 
@@ -35,7 +35,7 @@ namespace SJP.Schematic.MySql.Tests.Integration
             Assert.AreNotEqual(string.Empty, Database.DatabaseVersion);
         }
 
-        internal class TableTests : MySqlTest
+        internal sealed class TableTests : MySqlTest
         {
             [OneTimeSetUp]
             public Task Init()
@@ -184,7 +184,7 @@ namespace SJP.Schematic.MySql.Tests.Integration
             }
         }
 
-        internal class ViewTests : MySqlTest
+        internal sealed class ViewTests : MySqlTest
         {
             [OneTimeSetUp]
             public Task Init()
@@ -337,7 +337,7 @@ namespace SJP.Schematic.MySql.Tests.Integration
             }
         }
 
-        internal class SequenceTests : MySqlTest
+        internal sealed class SequenceTests : MySqlTest
         {
             private IRelationalDatabase Database => new MySqlRelationalDatabase(Dialect, Connection);
 
@@ -419,7 +419,7 @@ namespace SJP.Schematic.MySql.Tests.Integration
             }
         }
 
-        internal class SynonymTests : MySqlTest
+        internal sealed class SynonymTests : MySqlTest
         {
             private IRelationalDatabase Database => new MySqlRelationalDatabase(Dialect, Connection);
 

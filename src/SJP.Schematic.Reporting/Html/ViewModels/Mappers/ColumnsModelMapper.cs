@@ -7,7 +7,7 @@ using SJP.Schematic.Core;
 
 namespace SJP.Schematic.Reporting.Html.ViewModels.Mappers
 {
-    internal class ColumnsModelMapper :
+    internal sealed class ColumnsModelMapper :
         IDatabaseModelMapper<IRelationalDatabaseTable, IEnumerable<Columns.TableColumn>>,
         IDatabaseModelMapper<IRelationalDatabaseView, IEnumerable<Columns.ViewColumn>>
     {
@@ -17,9 +17,9 @@ namespace SJP.Schematic.Reporting.Html.ViewModels.Mappers
             Dialect = dialect ?? throw new ArgumentNullException(nameof(dialect));
         }
 
-        protected IDbConnection Connection { get; }
+        private IDbConnection Connection { get; }
 
-        protected IDatabaseDialect Dialect { get; }
+        private IDatabaseDialect Dialect { get; }
 
         public IEnumerable<Columns.TableColumn> Map(IRelationalDatabaseTable dbObject)
         {

@@ -9,7 +9,7 @@ using SJP.Schematic.Reporting.Html.Lint.Rules;
 
 namespace SJP.Schematic.Reporting.Html.Lint
 {
-    internal class DatabaseLinter
+    internal sealed class DatabaseLinter
     {
         public DatabaseLinter(IDbConnection connection, IRelationalDatabase database, RuleLevel level = RuleLevel.Warning)
         {
@@ -21,16 +21,16 @@ namespace SJP.Schematic.Reporting.Html.Lint
             Level = level;
         }
 
-        protected IDbConnection Connection { get; }
+        private IDbConnection Connection { get; }
 
-        protected IRelationalDatabase Database { get; }
+        private IRelationalDatabase Database { get; }
 
-        protected RuleLevel Level { get; }
+        private RuleLevel Level { get; }
 
         public IEnumerable<IRuleMessage> AnalyzeDatabase() =>
             Rules.SelectMany(rule => rule.AnalyseDatabase(Database)).ToList();
 
-        protected IEnumerable<IRule> Rules => new IRule[]
+        private IEnumerable<IRule> Rules => new IRule[]
         {
             new CandidateKeyMissingRule(Level),
             new ColumnWithNullDefaultValueRule(Level),

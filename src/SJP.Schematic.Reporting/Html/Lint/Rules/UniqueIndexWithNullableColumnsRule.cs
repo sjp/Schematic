@@ -9,7 +9,7 @@ using SJP.Schematic.Lint;
 
 namespace SJP.Schematic.Reporting.Html.Lint.Rules
 {
-    internal class UniqueIndexWithNullableColumnsRule : Schematic.Lint.Rules.UniqueIndexWithNullableColumnsRule
+    internal sealed class UniqueIndexWithNullableColumnsRule : Schematic.Lint.Rules.UniqueIndexWithNullableColumnsRule
     {
         public UniqueIndexWithNullableColumnsRule(RuleLevel level)
             : base(level)

@@ -7,7 +7,7 @@ using Superpower.Model;
 
 namespace SJP.Schematic.Sqlite.Parsing
 {
-    internal class SqlExpression
+    internal sealed class SqlExpression
     {
         public SqlExpression(IEnumerable<Token<SqliteToken>> tokens)
         {

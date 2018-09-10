@@ -11,7 +11,7 @@ using SJP.Schematic.Sqlite;
 
 namespace SJP.Schematic.Lint.Tests.Integration
 {
-    internal class ForeignKeyColumnTypeMismatchRuleTests : SqliteTest
+    internal sealed class ForeignKeyColumnTypeMismatchRuleTests : SqliteTest
     {
         [OneTimeSetUp]
         public async Task Init()

@@ -11,7 +11,7 @@ using SJP.Schematic.Sqlite;
 
 namespace SJP.Schematic.Lint.Tests.Integration
 {
-    internal class NoValueForNullableColumnRuleTests : SqliteTest
+    internal sealed class NoValueForNullableColumnRuleTests : SqliteTest
     {
         [OneTimeSetUp]
         public async Task Init()

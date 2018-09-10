@@ -7,7 +7,7 @@ using SJP.Schematic.Core;
 
 namespace SJP.Schematic.Oracle.Tests.Integration
 {
-    internal class OracleRelationalDatabaseTests : OracleTest
+    internal sealed class OracleRelationalDatabaseTests : OracleTest
     {
         private IRelationalDatabase Database => new OracleRelationalDatabase(Dialect, Connection);
 
@@ -37,7 +37,7 @@ namespace SJP.Schematic.Oracle.Tests.Integration
             Assert.AreNotEqual(string.Empty, Database.DatabaseVersion);
         }
 
-        internal class TableTests : OracleTest
+        internal sealed class TableTests : OracleTest
         {
             [OneTimeSetUp]
             public Task Init()
@@ -204,7 +204,7 @@ namespace SJP.Schematic.Oracle.Tests.Integration
             }
         }
 
-        internal class ViewTests : OracleTest
+        internal sealed class ViewTests : OracleTest
         {
             [OneTimeSetUp]
             public Task Init()
@@ -373,7 +373,7 @@ namespace SJP.Schematic.Oracle.Tests.Integration
             }
         }
 
-        internal class SequenceTests : OracleTest
+        internal sealed class SequenceTests : OracleTest
         {
             [OneTimeSetUp]
             public Task Init()
@@ -543,7 +543,7 @@ namespace SJP.Schematic.Oracle.Tests.Integration
             }
         }
 
-        internal class SynonymTests : OracleTest
+        internal sealed class SynonymTests : OracleTest
         {
             [OneTimeSetUp]
             public async Task Init()

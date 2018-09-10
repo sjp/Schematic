@@ -197,7 +197,7 @@ namespace SJP.Schematic.Modelled.Reflection.Tests
             Assert.AreEqual(expectedName, column.Name);
         }
 
-        private class TableTypeWithBadCtor
+        private sealed class TableTypeWithBadCtor
         {
             public TableTypeWithBadCtor(string tableName)
             {
@@ -207,29 +207,29 @@ namespace SJP.Schematic.Modelled.Reflection.Tests
             public string TableName { get; }
         }
 
-        private class TableTypeWithBadColumns
+        private sealed class TableTypeWithBadColumns
         {
             public Column<BigInteger> TEST_COLUMN_1 => _column;
 
             private readonly Column<BigInteger> _column = new Column<BigInteger>();
         }
 
-        private class TestDatabase1
+        private sealed class TestDatabase1
         {
             public Table<TestTable1> TestTable1 { get; }
         }
 
-        private class TestTable1
+        private sealed class TestTable1
         {
             public Column<BigInteger> TEST_COLUMN_1 { get; }
         }
 
-        private class TestDatabase2
+        private sealed class TestDatabase2
         {
             public Table<TestTable2> TestTable2 { get; }
         }
 
-        private class TestTable2
+        private sealed class TestTable2
         {
         }
     }

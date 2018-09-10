@@ -11,7 +11,7 @@ using SJP.Schematic.Sqlite;
 
 namespace SJP.Schematic.Lint.Tests.Integration
 {
-    internal class RedundantIndexesRuleTests : SqliteTest
+    internal sealed class RedundantIndexesRuleTests : SqliteTest
     {
         [OneTimeSetUp]
         public async Task Init()

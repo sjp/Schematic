@@ -6,7 +6,7 @@ using SJP.Schematic.Lint;
 
 namespace SJP.Schematic.Reporting.Html.Lint.Rules
 {
-    internal class InvalidViewDefinitionRule : Schematic.Lint.Rules.InvalidViewDefinitionRule
+    internal sealed class InvalidViewDefinitionRule : Schematic.Lint.Rules.InvalidViewDefinitionRule
     {
         public InvalidViewDefinitionRule(IDbConnection connection, RuleLevel level)
             : base(connection, level)

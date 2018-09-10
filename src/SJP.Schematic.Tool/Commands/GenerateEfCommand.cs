@@ -8,7 +8,7 @@ using SJP.Schematic.DataAccess.EntityFrameworkCore;
 namespace SJP.Schematic.Tool
 {
     [Command(Description = "Generate ORM classes for use with EF Core.")]
-    internal class GenerateEfCommand
+    internal sealed class GenerateEfCommand
     {
         private DatabaseCommand DatabaseParent { get; set; }
 

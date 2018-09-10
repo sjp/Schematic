@@ -5,7 +5,7 @@ using Superpower.Model;
 
 namespace SJP.Schematic.Oracle.Parsing
 {
-    internal class SqlIdentifier
+    internal sealed class SqlIdentifier
     {
         public SqlIdentifier(Token<OracleToken> serverToken, Token<OracleToken> databaseToken, Token<OracleToken> schemaToken, Token<OracleToken> localNameToken)
         {

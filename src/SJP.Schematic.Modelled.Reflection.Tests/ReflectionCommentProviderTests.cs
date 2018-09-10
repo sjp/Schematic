@@ -370,7 +370,7 @@ namespace SJP.Schematic.Modelled.Reflection.Tests
 
         // Note that the following demo class is largely taken from here:
         // https://docs.microsoft.com/en-us/dotnet/csharp/programming-guide/xmldoc/processing-the-xml-file
-        protected class TestClass
+        private sealed class TestClass
         {
             public TestClass() { }
 
@@ -430,7 +430,7 @@ namespace SJP.Schematic.Modelled.Reflection.Tests
             }
         }
 
-        protected class TestGenericClass<T>
+        private sealed class TestGenericClass<T>
         {
             public int IdentityTest(T t) => ReferenceEquals(t, null) ? 0 : 1;
         }

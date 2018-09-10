@@ -8,7 +8,7 @@ using SJP.Schematic.Core;
 
 namespace SJP.Schematic.Oracle.Tests.Integration
 {
-    internal class OracleDatabaseSequenceTests : OracleTest
+    internal sealed class OracleDatabaseSequenceTests : OracleTest
     {
         [OneTimeSetUp]
         public async Task Init()

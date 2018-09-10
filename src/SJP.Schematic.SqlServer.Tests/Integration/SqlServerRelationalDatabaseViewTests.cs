@@ -6,7 +6,7 @@ using SJP.Schematic.Core;
 
 namespace SJP.Schematic.SqlServer.Tests.Integration
 {
-    internal class SqlServerRelationalDatabaseViewTests : SqlServerTest
+    internal sealed class SqlServerRelationalDatabaseViewTests : SqlServerTest
     {
         private IRelationalDatabase Database => new SqlServerRelationalDatabase(Dialect, Connection);
 

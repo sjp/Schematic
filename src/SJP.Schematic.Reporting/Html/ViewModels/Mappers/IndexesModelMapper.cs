@@ -4,7 +4,7 @@ using SJP.Schematic.Core;
 
 namespace SJP.Schematic.Reporting.Html.ViewModels.Mappers
 {
-    internal class IndexesModelMapper :
+    internal sealed class IndexesModelMapper :
         IDatabaseModelMapper<IDatabaseTableIndex, Indexes.Index>
     {
         public IndexesModelMapper(IDatabaseDialect dialect)
@@ -12,7 +12,7 @@ namespace SJP.Schematic.Reporting.Html.ViewModels.Mappers
             Dialect = dialect ?? throw new ArgumentNullException(nameof(dialect));
         }
 
-        protected IDatabaseDialect Dialect { get; }
+        private IDatabaseDialect Dialect { get; }
 
         public Indexes.Index Map(IDatabaseTableIndex dbObject)
         {

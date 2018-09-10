@@ -281,7 +281,7 @@ namespace SJP.Schematic.Core.Tests.Caching
             Assert.Throws<KeyNotFoundException>(() => adapter.SetInnerParameter(paramName, value));
         }
 
-        protected class FakeDbParameterCollectionAdapter : DbParameterCollectionAdapter
+        private sealed class FakeDbParameterCollectionAdapter : DbParameterCollectionAdapter
         {
             public FakeDbParameterCollectionAdapter(IDataParameterCollection collection)
                 : base(collection)

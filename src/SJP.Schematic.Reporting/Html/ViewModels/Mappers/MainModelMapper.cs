@@ -5,7 +5,7 @@ using SJP.Schematic.Core;
 
 namespace SJP.Schematic.Reporting.Html.ViewModels.Mappers
 {
-    internal class MainModelMapper :
+    internal sealed class MainModelMapper :
         IDatabaseModelMapper<IRelationalDatabaseTable, Main.Table>,
         IDatabaseModelMapper<IRelationalDatabaseView, Main.View>,
         IDatabaseModelMapper<IDatabaseSynonym, Main.Synonym>,
@@ -17,9 +17,9 @@ namespace SJP.Schematic.Reporting.Html.ViewModels.Mappers
             Database = database ?? throw new ArgumentNullException(nameof(database));
         }
 
-        protected IDbConnection Connection { get; }
+        private IDbConnection Connection { get; }
 
-        protected IRelationalDatabase Database { get; }
+        private IRelationalDatabase Database { get; }
 
         public Main.Table Map(IRelationalDatabaseTable dbObject)
         {

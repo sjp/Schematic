@@ -7,7 +7,7 @@ using SJP.Schematic.Lint;
 
 namespace SJP.Schematic.Reporting.Html.Lint.Rules
 {
-    internal class NoValueForNullableColumnRule : Schematic.Lint.Rules.NoValueForNullableColumnRule
+    internal sealed class NoValueForNullableColumnRule : Schematic.Lint.Rules.NoValueForNullableColumnRule
     {
         public NoValueForNullableColumnRule(IDbConnection connection, RuleLevel level)
             : base(connection, level)

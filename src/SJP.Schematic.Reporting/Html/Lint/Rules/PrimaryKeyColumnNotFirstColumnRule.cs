@@ -5,7 +5,7 @@ using SJP.Schematic.Lint;
 
 namespace SJP.Schematic.Reporting.Html.Lint.Rules
 {
-    internal class PrimaryKeyColumnNotFirstColumnRule : Schematic.Lint.Rules.PrimaryKeyColumnNotFirstColumnRule
+    internal sealed class PrimaryKeyColumnNotFirstColumnRule : Schematic.Lint.Rules.PrimaryKeyColumnNotFirstColumnRule
     {
         public PrimaryKeyColumnNotFirstColumnRule(RuleLevel level)
             : base(level)

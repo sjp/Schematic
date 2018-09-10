@@ -8,7 +8,7 @@ using System;
 namespace SJP.Schematic.Tool
 {
     [Command(Description = "Generate POCO classes for basic mapping ORMs, e.g. Dapper.")]
-    internal class GeneratePocoCommand
+    internal sealed class GeneratePocoCommand
     {
         private DatabaseCommand DatabaseParent { get; set; }
 

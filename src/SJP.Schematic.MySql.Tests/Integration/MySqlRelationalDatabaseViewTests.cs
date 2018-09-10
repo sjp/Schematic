@@ -7,7 +7,7 @@ using SJP.Schematic.Core;
 
 namespace SJP.Schematic.MySql.Tests.Integration
 {
-    internal class MySqlRelationalDatabaseViewTests : MySqlTest
+    internal sealed class MySqlRelationalDatabaseViewTests : MySqlTest
     {
         private IRelationalDatabase Database => new MySqlRelationalDatabase(Dialect, Connection);
 

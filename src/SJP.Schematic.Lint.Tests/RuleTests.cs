@@ -57,7 +57,7 @@ namespace SJP.Schematic.Lint.Tests
             Assert.AreEqual(level, rule.Level);
         }
 
-        protected class FakeRule : Rule
+        private sealed class FakeRule : Rule
         {
             public FakeRule(string title, RuleLevel level)
                 : base(title, level)

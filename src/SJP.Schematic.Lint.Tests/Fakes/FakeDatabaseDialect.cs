@@ -7,7 +7,7 @@ using SJP.Schematic.Core;
 
 namespace SJP.Schematic.Lint.Tests.Fakes
 {
-    internal class FakeDatabaseDialect : DatabaseDialect<FakeDatabaseDialect>
+    internal sealed class FakeDatabaseDialect : DatabaseDialect<FakeDatabaseDialect>
     {
         public override IDbTypeProvider TypeProvider => null;
 

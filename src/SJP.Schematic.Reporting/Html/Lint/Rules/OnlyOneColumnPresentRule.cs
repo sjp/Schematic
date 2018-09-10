@@ -5,7 +5,7 @@ using SJP.Schematic.Lint;
 
 namespace SJP.Schematic.Reporting.Html.Lint.Rules
 {
-    internal class OnlyOneColumnPresentRule : Schematic.Lint.Rules.OnlyOneColumnPresentRule
+    internal sealed class OnlyOneColumnPresentRule : Schematic.Lint.Rules.OnlyOneColumnPresentRule
     {
         public OnlyOneColumnPresentRule(RuleLevel level)
             : base(level)

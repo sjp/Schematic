@@ -7,7 +7,7 @@ using SJP.Schematic.Core;
 
 namespace SJP.Schematic.SqlServer.Tests.Integration
 {
-    internal class SqlServerRelationalDatabaseTests : SqlServerTest
+    internal sealed class SqlServerRelationalDatabaseTests : SqlServerTest
     {
         private IRelationalDatabase Database => new SqlServerRelationalDatabase(Dialect, Connection);
 
@@ -36,7 +36,7 @@ namespace SJP.Schematic.SqlServer.Tests.Integration
         }
 
         [TestFixture]
-        internal class TableTests : SqlServerTest
+        internal sealed class TableTests : SqlServerTest
         {
             [OneTimeSetUp]
             public Task Init()
@@ -204,7 +204,7 @@ namespace SJP.Schematic.SqlServer.Tests.Integration
         }
 
         [TestFixture]
-        internal class ViewTests : SqlServerTest
+        internal sealed class ViewTests : SqlServerTest
         {
             [OneTimeSetUp]
             public Task Init()
@@ -376,7 +376,7 @@ namespace SJP.Schematic.SqlServer.Tests.Integration
         }
 
         [TestFixture]
-        internal class SequenceTests : SqlServerTest
+        internal sealed class SequenceTests : SqlServerTest
         {
             [OneTimeSetUp]
             public Task Init()
@@ -544,7 +544,7 @@ namespace SJP.Schematic.SqlServer.Tests.Integration
         }
 
         [TestFixture]
-        internal class SynonymTests : SqlServerTest
+        internal sealed class SynonymTests : SqlServerTest
         {
             [OneTimeSetUp]
             public async Task Init()

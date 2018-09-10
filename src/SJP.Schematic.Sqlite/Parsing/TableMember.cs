@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace SJP.Schematic.Sqlite.Parsing
 {
-    internal class TableMember
+    internal sealed class TableMember
     {
         public TableMember(ColumnDefinition column)
         {
