@@ -45,7 +45,7 @@ namespace SJP.Schematic.Modelled.Reflection.Model
             // a PropertyInfo object on the resulting key before we use it later via reflection.
             private PropertyInfo GetTargetProperty()
             {
-                var sourceType = Property.DeclaringType;
+                var sourceType = Property.ReflectedType;
                 var sourceAsm = sourceType.GetTypeInfo().Assembly;
                 var sourceAsmName = sourceAsm.GetName();
 
@@ -61,8 +61,8 @@ namespace SJP.Schematic.Modelled.Reflection.Model
                 var sourceProperty = sourceTypeDefinition.Properties.SingleOrDefault(p => p.Name == Property.Name && !p.HasParameters);
                 if (sourceProperty == null)
                     throw new ArgumentException(
-                        $"Could not find the source property { Property.DeclaringType.FullName }.{ Property.Name }. Check that assemblies are up to date.",
-                        $"{ Property.DeclaringType.FullName }.{ Property.Name }."
+                        $"Could not find the source property { Property.ReflectedType.FullName }.{ Property.Name }. Check that assemblies are up to date.",
+                        $"{ Property.ReflectedType.FullName }.{ Property.Name }."
                     );
 
                 var sourcePropInstructions = sourceProperty.GetMethod.Body.Instructions;
@@ -70,16 +70,16 @@ namespace SJP.Schematic.Modelled.Reflection.Model
                 if (fnInstruction == null)
                     throw new ArgumentException(
                         "Could not find function pointer instruction in the get method of the source property " +
-                        $"{ Property.DeclaringType.FullName }.{ Property.Name }. " +
+                        $"{ Property.ReflectedType.FullName }.{ Property.Name }. " +
                         "Is the key selector method a simple lambda expression?",
-                        $"{ Property.DeclaringType.FullName }.{ Property.Name }."
+                        $"{ Property.ReflectedType.FullName }.{ Property.Name }."
                     );
 
                 if (!(fnInstruction.Operand is MethodDefinition fnOperand))
                     throw new ArgumentException(
                         "Expected to find a method definition associated with a function pointer instruction but could not find one for " +
-                        $"{ Property.DeclaringType.FullName }.{ Property.Name }.",
-                        $"{ Property.DeclaringType.FullName }.{ Property.Name }."
+                        $"{ Property.ReflectedType.FullName }.{ Property.Name }.",
+                        $"{ Property.ReflectedType.FullName }.{ Property.Name }."
                     );
 
                 var operandInstructions = fnOperand.Body.Instructions;
@@ -87,9 +87,9 @@ namespace SJP.Schematic.Modelled.Reflection.Model
                 if (bodyCallInstr == null)
                     throw new ArgumentException(
                         "Could not find call or virtual call instruction in the key selector function that was provided to " +
-                        $"{ Property.DeclaringType.FullName }.{ Property.Name }. " +
+                        $"{ Property.ReflectedType.FullName }.{ Property.Name }. " +
                         "Is the key selector method a simple lambda expression?",
-                        $"{ Property.DeclaringType.FullName }.{ Property.Name }."
+                        $"{ Property.ReflectedType.FullName }.{ Property.Name }."
                     );
 
                 if (!(bodyCallInstr.Operand is MethodDefinition bodyMethodDef))
@@ -100,7 +100,7 @@ namespace SJP.Schematic.Modelled.Reflection.Model
                 if (targetProp == null)
                     throw new ArgumentException(
                         $"Expected to find a property named { targetPropertyName } in { TargetType.FullName } but could not find one.",
-                        $"{ Property.DeclaringType.FullName }.{ Property.Name }."
+                        $"{ Property.ReflectedType.FullName }.{ Property.Name }."
                     );
 
                 return targetProp;

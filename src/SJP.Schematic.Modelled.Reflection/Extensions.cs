@@ -69,7 +69,7 @@ namespace SJP.Schematic.Modelled.Reflection
                 .ToList();
 
             if (attrs.Count > 1)
-                throw new ArgumentException($"More than one matching { typeof(T).FullName } attribute was found for the property { property.Name } in { property.DeclaringType.FullName }.", nameof(property));
+                throw new ArgumentException($"More than one matching { typeof(T).FullName } attribute was found for the property { property.Name } in { property.ReflectedType.FullName }.", nameof(property));
 
             return attrs.SingleOrDefault();
         }
