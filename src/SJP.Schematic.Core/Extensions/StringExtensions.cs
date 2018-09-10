@@ -22,6 +22,8 @@ namespace SJP.Schematic.Core.Extensions
 
         public static bool Contains(this string input, string value, StringComparison comparisonType)
         {
+            if (input == null)
+                throw new ArgumentNullException(nameof(input));
             if (value == null)
                 throw new ArgumentNullException(nameof(value));
             if (!comparisonType.IsValid())

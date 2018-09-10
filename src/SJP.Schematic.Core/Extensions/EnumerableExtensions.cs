@@ -49,6 +49,8 @@ namespace SJP.Schematic.Core.Extensions
                 throw new ArgumentNullException(nameof(source));
             if (keySelector == null)
                 throw new ArgumentNullException(nameof(keySelector));
+            if (comparer == null)
+                throw new ArgumentNullException(nameof(comparer));
 
             return _(); IEnumerable<TSource> _()
             {

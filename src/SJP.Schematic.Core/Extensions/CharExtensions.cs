@@ -4,7 +4,7 @@ namespace SJP.Schematic.Core.Extensions
 {
     public static class CharExtensions
     {
-        public static UnicodeCategory GetUnicodeCategory(this char c) => CharUnicodeInfo.GetUnicodeCategory(c);
+        public static UnicodeCategory GetUnicodeCategory(this char c) => char.GetUnicodeCategory(c);
 
         public static bool IsDigit(this char c) => char.IsDigit(c);
 
