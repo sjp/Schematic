@@ -5,7 +5,6 @@ using SJP.Schematic.Core;
 
 namespace SJP.Schematic.Sqlite.Tests.Integration
 {
-    [TestFixture]
     internal partial class SqliteRelationalDatabaseTableTests : SqliteTest
     {
         [Test]

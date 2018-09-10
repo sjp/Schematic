@@ -8,7 +8,6 @@ using SJP.Schematic.Core;
 
 namespace SJP.Schematic.Sqlite.Tests.Integration
 {
-    [TestFixture]
     internal class SqliteRelationalDatabaseTests : SqliteTest
     {
         private IRelationalDatabase Database => new SqliteRelationalDatabase(Dialect, Connection);
@@ -123,7 +122,6 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
             Assert.ThrowsAsync<SqliteException>(async () => await sqliteDb.DetachDatabaseAsync("test").ConfigureAwait(false));
         }
 
-        [TestFixture]
         internal class TableTests : SqliteTest
         {
             [OneTimeSetUp]
@@ -237,7 +235,6 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
             }
         }
 
-        [TestFixture]
         internal class ViewTests : SqliteTest
         {
             [OneTimeSetUp]
@@ -349,7 +346,6 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
             }
         }
 
-        [TestFixture]
         internal class SequenceTests : SqliteTest
         {
             private IRelationalDatabase Database => new SqliteRelationalDatabase(Dialect, Connection);
@@ -432,7 +428,6 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
             }
         }
 
-        [TestFixture]
         internal class SynonymTests : SqliteTest
         {
             private IRelationalDatabase Database => new SqliteRelationalDatabase(Dialect, Connection);

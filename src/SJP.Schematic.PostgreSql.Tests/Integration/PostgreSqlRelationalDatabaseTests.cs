@@ -7,7 +7,6 @@ using SJP.Schematic.Core;
 
 namespace SJP.Schematic.PostgreSql.Tests.Integration
 {
-    [TestFixture]
     internal class PostgreSqlRelationalDatabaseTests : PostgreSqlTest
     {
         private IRelationalDatabase Database => new PostgreSqlRelationalDatabase(Dialect, Connection);
@@ -36,7 +35,6 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration
             Assert.AreNotEqual(string.Empty, Database.DatabaseVersion);
         }
 
-        [TestFixture]
         internal class TableTests : PostgreSqlTest
         {
             [OneTimeSetUp]
@@ -189,7 +187,6 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration
             }
         }
 
-        [TestFixture]
         internal class ViewTests : PostgreSqlTest
         {
             [OneTimeSetUp]
@@ -343,7 +340,6 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration
             }
         }
 
-        [TestFixture]
         internal class SequenceTests : PostgreSqlTest
         {
             [OneTimeSetUp]
@@ -510,7 +506,6 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration
             }
         }
 
-        [TestFixture]
         internal class SynonymTests : PostgreSqlTest
         {
             private IRelationalDatabase Database => new PostgreSqlRelationalDatabase(Dialect, Connection);

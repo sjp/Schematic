@@ -5,7 +5,6 @@ using SJP.Schematic.Core;
 
 namespace SJP.Schematic.PostgreSql.Tests.Integration
 {
-    [TestFixture]
     internal partial class PostgreSqlRelationalDatabaseTableTests : PostgreSqlTest
     {
         [Test]

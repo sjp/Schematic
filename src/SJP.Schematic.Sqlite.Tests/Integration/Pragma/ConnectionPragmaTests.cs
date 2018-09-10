@@ -12,7 +12,6 @@ using System.Collections.Generic;
 
 namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
 {
-    [TestFixture]
     internal class ConnectionPragmaTests : SqliteTest
     {
         private static IDbConnection CreateConnection()

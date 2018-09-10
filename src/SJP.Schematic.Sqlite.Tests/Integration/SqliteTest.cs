@@ -19,6 +19,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
 
     [Category("SqliteDatabase")]
     [Category("SkipWhenLiveUnitTesting")]
+    [TestFixture]
     internal abstract class SqliteTest
     {
         protected IDbConnection Connection { get; } = Config.Connection;

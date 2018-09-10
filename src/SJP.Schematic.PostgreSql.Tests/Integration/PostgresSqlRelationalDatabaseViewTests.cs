@@ -7,7 +7,6 @@ using SJP.Schematic.Core;
 
 namespace SJP.Schematic.PostgreSql.Tests.Integration
 {
-    [TestFixture]
     internal class PostgreSqlRelationalDatabaseViewTests : PostgreSqlTest
     {
         private IRelationalDatabase Database => new PostgreSqlRelationalDatabase(Dialect, Connection);

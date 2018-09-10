@@ -11,7 +11,6 @@ using SJP.Schematic.Sqlite;
 
 namespace SJP.Schematic.Lint.Tests.Integration
 {
-    [TestFixture]
     internal class InvalidViewDefinitionRuleTests : SqliteTest
     {
         [OneTimeSetUp]

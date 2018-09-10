@@ -4,7 +4,6 @@ using NUnit.Framework;
 
 namespace SJP.Schematic.PostgreSql.Tests.Integration
 {
-    [TestFixture]
     internal partial class PostgreSqlRelationalDatabaseTableTests : PostgreSqlTest
     {
         [Test]

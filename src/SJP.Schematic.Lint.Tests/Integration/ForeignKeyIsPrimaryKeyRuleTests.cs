@@ -11,7 +11,6 @@ using SJP.Schematic.Sqlite;
 
 namespace SJP.Schematic.Lint.Tests.Integration
 {
-    [TestFixture]
     internal class ForeignKeyIsPrimaryKeyRuleTests : SqliteTest
     {
         [OneTimeSetUp]

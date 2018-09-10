@@ -19,6 +19,7 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration
 
     [Category("PostgreSqlDatabase")]
     [Category("SkipWhenLiveUnitTesting")]
+    [TestFixture]
     internal abstract class PostgreSqlTest
     {
         protected IDbConnection Connection { get; } = Config.Connection;

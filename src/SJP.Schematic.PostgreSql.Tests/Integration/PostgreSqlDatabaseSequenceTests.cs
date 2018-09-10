@@ -8,7 +8,6 @@ using SJP.Schematic.Core;
 
 namespace SJP.Schematic.PostgreSql.Tests.Integration
 {
-    [TestFixture]
     internal class PostgreSqlDatabaseSequenceTests : PostgreSqlTest
     {
         [OneTimeSetUp]

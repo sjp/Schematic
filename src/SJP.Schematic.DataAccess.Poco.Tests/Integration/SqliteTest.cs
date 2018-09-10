@@ -1,5 +1,6 @@
 ﻿using System.Data;
 using Microsoft.Extensions.Configuration;
+using NUnit.Framework;
 using SJP.Schematic.Core;
 using SJP.Schematic.Sqlite;
 
@@ -17,6 +18,7 @@ namespace SJP.Schematic.DataAccess.Poco.Tests
             .Build();
     }
 
+    [TestFixture]
     internal abstract class SqliteTest
     {
         protected IDbConnection Connection { get; } = Config.Connection;
