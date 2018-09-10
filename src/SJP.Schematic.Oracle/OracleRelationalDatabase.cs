@@ -558,7 +558,7 @@ where s.OWNER = :SchemaName and s.SYNONYM_NAME = :SynonymName and o.ORACLE_MAINT
 select COUNT(*)
 from USER_SYNONYMS s
 inner join ALL_OBJECTS o on s.SYNONYM_NAME = o.OBJECT_NAME
-where o.OWNER = USER and s.SYNONYM_NAME = :SynonymName and o.ORACLE_MAINTAINED <> 'Y'";
+where o.OWNER = SYS_CONTEXT('USERENV', 'CURRENT_USER') and s.SYNONYM_NAME = :SynonymName and o.ORACLE_MAINTAINED <> 'Y'";
 
         public IDatabaseSynonym GetSynonym(Identifier synonymName)
         {
@@ -727,7 +727,7 @@ select distinct
     s.TABLE_NAME as TargetObjectName
 from USER_SYNONYMS s
 inner join ALL_OBJECTS o on s.SYNONYM_NAME = o.OBJECT_NAME
-where s.SYNONYM_NAME = :SynonymName and o.OWNER = USER and o.ORACLE_MAINTAINED <> 'Y'";
+where s.SYNONYM_NAME = :SynonymName and o.OWNER = SYS_CONTEXT('USERENV', 'CURRENT_USER') and o.ORACLE_MAINTAINED <> 'Y'";
 
         protected Identifier ResolveFirstObjectExistsName(Identifier objectName, Func<Identifier, bool> objectExistsFunc)
         {
@@ -793,7 +793,7 @@ select
     SYS_CONTEXT('USERENV', 'SERVER_HOST') as ServerHost,
     SYS_CONTEXT('USERENV', 'INSTANCE_NAME') as ServerSid,
     SYS_CONTEXT('USERENV', 'DB_NAME') as DatabaseName,
-    USER as DefaultSchema
+    SYS_CONTEXT('USERENV', 'CURRENT_USER') as DefaultSchema
 from DUAL";
             var hostInfoTask = Connection.QueryFirstOrDefaultAsync<DatabaseHost>(hostSql);
 
