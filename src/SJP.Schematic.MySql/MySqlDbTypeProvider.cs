@@ -120,7 +120,7 @@ namespace SJP.Schematic.MySql
             builder.Append(typeName);
 
             if (_typeNamesWithNoLengthAnnotation.Contains(typeName))
-                return StringBuilderCache.GetStringAndRelease(builder);
+                return builder.GetStringAndRelease();
 
             builder.Append("(");
 
@@ -141,7 +141,7 @@ namespace SJP.Schematic.MySql
 
             builder.Append(")");
 
-            return StringBuilderCache.GetStringAndRelease(builder);
+            return builder.GetStringAndRelease();
         }
 
         protected static DataType GetDataType(string typeName)

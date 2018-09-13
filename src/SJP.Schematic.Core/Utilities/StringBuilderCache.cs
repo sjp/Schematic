@@ -34,7 +34,7 @@ namespace SJP.Schematic.Core.Utilities
             return new StringBuilder(capacity);
         }
 
-        public static string GetStringAndRelease(StringBuilder builder)
+        public static string GetStringAndRelease(this StringBuilder builder)
         {
             if (builder == null)
                 throw new ArgumentNullException(nameof(builder));

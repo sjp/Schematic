@@ -89,7 +89,7 @@ namespace SJP.Schematic.Modelled.Reflection.Model
             if (prevEnd < (ExpressionText.Length - 1))
                 builder.Append(ExpressionText.Substring(prevEnd + 1));
 
-            return StringBuilderCache.GetStringAndRelease(builder);
+            return builder.GetStringAndRelease();
         }
 
         private IEnumerable<string> GetTokenValues(IDatabaseDialect dialect)

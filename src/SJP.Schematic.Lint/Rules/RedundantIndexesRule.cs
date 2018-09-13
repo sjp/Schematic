@@ -112,7 +112,7 @@ namespace SJP.Schematic.Lint.Rules
                 .Append(otherIndexColumnNames.Join(", "))
                 .Append(").");
 
-            var messageText = StringBuilderCache.GetStringAndRelease(builder);
+            var messageText = builder.GetStringAndRelease();
             return new RuleMessage(RuleTitle, Level, messageText);
         }
 

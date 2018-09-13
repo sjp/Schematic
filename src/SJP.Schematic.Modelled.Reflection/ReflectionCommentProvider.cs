@@ -183,7 +183,7 @@ namespace SJP.Schematic.Modelled.Reflection
             builder.Append(".");
             AppendMethodName(builder, constructorInfo);
 
-            return StringBuilderCache.GetStringAndRelease(builder);
+            return builder.GetStringAndRelease();
         }
 
         /// <summary>
@@ -204,7 +204,7 @@ namespace SJP.Schematic.Modelled.Reflection
             builder.Append(".");
             builder.Append(eventInfo.Name);
 
-            return StringBuilderCache.GetStringAndRelease(builder);
+            return builder.GetStringAndRelease();
         }
 
         /// <summary>
@@ -225,7 +225,7 @@ namespace SJP.Schematic.Modelled.Reflection
             builder.Append(".");
             builder.Append(fieldInfo.Name);
 
-            return StringBuilderCache.GetStringAndRelease(builder);
+            return builder.GetStringAndRelease();
         }
 
         /// <summary>
@@ -252,7 +252,7 @@ namespace SJP.Schematic.Modelled.Reflection
                 AppendFullTypeName(builder, methodInfo.ReturnType, true);
             }
 
-            return StringBuilderCache.GetStringAndRelease(builder);
+            return builder.GetStringAndRelease();
         }
 
         /// <summary>
@@ -278,7 +278,7 @@ namespace SJP.Schematic.Modelled.Reflection
             if (propertyArgs.Length > 0)
                 AppendParameterNames(builder, propertyArgs);
 
-            return StringBuilderCache.GetStringAndRelease(builder);
+            return builder.GetStringAndRelease();
         }
 
         /// <summary>
@@ -297,7 +297,7 @@ namespace SJP.Schematic.Modelled.Reflection
             builder.Append("T:");
             AppendFullTypeName(builder, type, expandGenericArgs: false);
 
-            return StringBuilderCache.GetStringAndRelease(builder);
+            return builder.GetStringAndRelease();
         }
 
         private static void AppendFullTypeName(StringBuilder builder, Type type, bool expandGenericArgs = false)
@@ -351,7 +351,7 @@ namespace SJP.Schematic.Modelled.Reflection
                         }
 
                         arrayBuilder.Replace(",", "]", arrayBuilder.Length - 1, 1);
-                        var segment = StringBuilderCache.GetStringAndRelease(arrayBuilder);
+                        var segment = arrayBuilder.GetStringAndRelease();
                         segments.Add(segment);
                     }
                     else
@@ -400,7 +400,7 @@ namespace SJP.Schematic.Modelled.Reflection
                 }
                 genericArgsBuilder.Replace(",", "}", genericArgsBuilder.Length - 1, 1);
 
-                var genericArgsText = StringBuilderCache.GetStringAndRelease(genericArgsBuilder);
+                var genericArgsText = genericArgsBuilder.GetStringAndRelease();
                 builder.Replace("`" + genericArgs.Length.ToString(), genericArgsText);
             }
             else if (type.IsArray)

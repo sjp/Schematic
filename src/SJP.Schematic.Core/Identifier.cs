@@ -348,7 +348,7 @@ namespace SJP.Schematic.Core
                 if (!LocalName.IsNullOrWhiteSpace())
                     builder.Append("LocalName = ").Append(LocalName);
 
-                return StringBuilderCache.GetStringAndRelease(builder);
+                return builder.GetStringAndRelease();
             }
         }
 

@@ -126,7 +126,7 @@ namespace SJP.Schematic.Oracle
                 builder.Append(QuoteName(typeName));
 
             if (_typeNamesWithNoLengthAnnotation.Contains(typeName.LocalName))
-                return StringBuilderCache.GetStringAndRelease(builder);
+                return builder.GetStringAndRelease();
 
             if (typeMetadata.NumericPrecision.Precision > 0)
             {
@@ -151,7 +151,7 @@ namespace SJP.Schematic.Oracle
                 builder.Append(")");
             }
 
-            return StringBuilderCache.GetStringAndRelease(builder);
+            return builder.GetStringAndRelease();
         }
 
         protected static DataType GetDataType(Identifier typeName)
@@ -198,7 +198,7 @@ namespace SJP.Schematic.Oracle
             if (name.LocalName != null)
                 builder.Append(QuoteIdentifier(name.LocalName));
 
-            return StringBuilderCache.GetStringAndRelease(builder);
+            return builder.GetStringAndRelease();
         }
 
         private readonly static IEnumerable<string> _fixedLengthTypes = new HashSet<string>(StringComparer.OrdinalIgnoreCase)

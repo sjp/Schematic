@@ -47,7 +47,7 @@ namespace SJP.Schematic.Reporting.Html.Lint.Rules
                 .Join(", ");
             builder.Append(joinedColumnNames);
 
-            var messageText = StringBuilderCache.GetStringAndRelease(builder);
+            var messageText = builder.GetStringAndRelease();
             return new RuleMessage(RuleTitle, Level, messageText);
         }
     }

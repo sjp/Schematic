@@ -148,7 +148,7 @@ namespace SJP.Schematic.DataAccess.OrmLite
                 .AppendLine("}")
                 .Append("}");
 
-            return StringBuilderCache.GetStringAndRelease(builder);
+            return builder.GetStringAndRelease();
         }
 
         private void AppendColumn(StringBuilder builder, string columnIndent, string className, IDatabaseTableColumn column)

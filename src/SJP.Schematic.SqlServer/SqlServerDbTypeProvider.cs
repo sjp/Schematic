@@ -126,7 +126,7 @@ namespace SJP.Schematic.SqlServer
                 builder.Append(QuoteName(typeName));
 
             if (_typeNamesWithNoLengthAnnotation.Contains(typeName))
-                return StringBuilderCache.GetStringAndRelease(builder);
+                return builder.GetStringAndRelease();
 
             builder.Append("(");
 
@@ -154,7 +154,7 @@ namespace SJP.Schematic.SqlServer
 
             builder.Append(")");
 
-            return StringBuilderCache.GetStringAndRelease(builder);
+            return builder.GetStringAndRelease();
         }
 
         protected static DataType GetDataType(Identifier typeName)

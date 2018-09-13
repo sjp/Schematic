@@ -73,7 +73,7 @@ namespace SJP.Schematic.Lint.Rules
                 .Append(parentTableName)
                 .Append(" contains mismatching column types. These should be the same in order to ensure that foreign keys can always hold the same information as the target key.");
 
-            var messageText = StringBuilderCache.GetStringAndRelease(builder);
+            var messageText = builder.GetStringAndRelease();
             return new RuleMessage(RuleTitle, Level, messageText);
         }
 

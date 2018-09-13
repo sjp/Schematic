@@ -61,7 +61,7 @@ namespace SJP.Schematic.Reporting.Dot
                 builder.Append("]");
             }
 
-            return StringBuilderCache.GetStringAndRelease(builder);
+            return builder.GetStringAndRelease();
         }
 
         public override string ToString() => _dotBuilder.Value;

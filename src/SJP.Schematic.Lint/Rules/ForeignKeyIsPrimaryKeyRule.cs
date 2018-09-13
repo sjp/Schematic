@@ -73,7 +73,7 @@ namespace SJP.Schematic.Lint.Rules
                 .Append(childTableName)
                 .Append(" contains the same column set as the target key.");
 
-            var messageText = StringBuilderCache.GetStringAndRelease(builder);
+            var messageText = builder.GetStringAndRelease();
             return new RuleMessage(RuleTitle, Level, messageText);
         }
 

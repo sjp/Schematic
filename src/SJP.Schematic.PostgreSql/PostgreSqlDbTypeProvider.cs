@@ -126,7 +126,7 @@ namespace SJP.Schematic.PostgreSql
                 builder.Append(QuoteName(typeName));
 
             if (_typeNamesWithNoLengthAnnotation.Contains(typeName))
-                return StringBuilderCache.GetStringAndRelease(builder);
+                return builder.GetStringAndRelease();
 
             builder.Append("(");
 
@@ -150,7 +150,7 @@ namespace SJP.Schematic.PostgreSql
 
             builder.Append(")");
 
-            return StringBuilderCache.GetStringAndRelease(builder);
+            return builder.GetStringAndRelease();
         }
 
         protected static DataType GetDataType(Identifier typeName)

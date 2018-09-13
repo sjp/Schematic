@@ -33,7 +33,7 @@ namespace SJP.Schematic.Reporting.Html.Lint.Rules
                 .Append(childTableLink)
                 .Append(" contains the same column set as the target key.");
 
-            var message = StringBuilderCache.GetStringAndRelease(builder);
+            var message = builder.GetStringAndRelease();
             return new RuleMessage(RuleTitle, Level, message);
         }
     }

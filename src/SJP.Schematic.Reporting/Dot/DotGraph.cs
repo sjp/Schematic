@@ -119,7 +119,7 @@ namespace SJP.Schematic.Reporting.Dot
             }
 
             builder.AppendLine("}");
-            return StringBuilderCache.GetStringAndRelease(builder);
+            return builder.GetStringAndRelease();
         }
 
         private static string GetIndentForLevel(uint level) => new string(' ', (int)(level * 2));

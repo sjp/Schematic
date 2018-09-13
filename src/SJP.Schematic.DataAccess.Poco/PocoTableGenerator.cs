@@ -87,7 +87,7 @@ namespace SJP.Schematic.DataAccess.Poco
                 .AppendLine("}")
                 .Append("}");
 
-            return StringBuilderCache.GetStringAndRelease(builder);
+            return builder.GetStringAndRelease();
         }
 
         private void AppendColumn(StringBuilder builder, string columnIndent, string className, IDatabaseTableColumn column)

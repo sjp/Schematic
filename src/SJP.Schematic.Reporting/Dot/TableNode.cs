@@ -257,7 +257,7 @@ namespace SJP.Schematic.Reporting.Dot
 
             builder.Append("]");
 
-            return StringBuilderCache.GetStringAndRelease(builder);
+            return builder.GetStringAndRelease();
         }
 
         private readonly string _tableName;

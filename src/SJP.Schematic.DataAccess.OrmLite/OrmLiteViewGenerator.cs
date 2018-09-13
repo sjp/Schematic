@@ -104,7 +104,7 @@ namespace SJP.Schematic.DataAccess.OrmLite
                 .AppendLine("}")
                 .Append("}");
 
-            return StringBuilderCache.GetStringAndRelease(builder);
+            return builder.GetStringAndRelease();
         }
 
         protected virtual string GenerateViewComment(string viewName)

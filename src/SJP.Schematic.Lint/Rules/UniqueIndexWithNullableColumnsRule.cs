@@ -78,7 +78,7 @@ namespace SJP.Schematic.Lint.Rules
             var joinedColumnNames = columnNames.Join(", ");
             builder.Append(joinedColumnNames);
 
-            var messageText = StringBuilderCache.GetStringAndRelease(builder);
+            var messageText = builder.GetStringAndRelease();
             return new RuleMessage(RuleTitle, Level, messageText);
         }
 

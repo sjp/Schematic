@@ -28,7 +28,7 @@ namespace SJP.Schematic.Reporting
 
             builder.Append(identifier.LocalName);
 
-            return StringBuilderCache.GetStringAndRelease(builder);
+            return builder.GetStringAndRelease();
         }
 
         public static string ToSafeKey(this Identifier identifier)
@@ -118,7 +118,7 @@ namespace SJP.Schematic.Reporting
             var localNameHash = GenerateHashKey(identifier.LocalName);
             builder.Append(localNameHash);
 
-            var combinedHashSource = StringBuilderCache.GetStringAndRelease(builder);
+            var combinedHashSource = builder.GetStringAndRelease();
             return GenerateHashKey(combinedHashSource);
         }
 
@@ -134,7 +134,7 @@ namespace SJP.Schematic.Reporting
                 var builder = StringBuilderCache.Acquire(hash.Length);
                 foreach (var hashByte in hash)
                     builder.Append(hashByte.ToString("X2"));
-                return StringBuilderCache.GetStringAndRelease(builder);
+                return builder.GetStringAndRelease();
             }
         }
 
