@@ -33,6 +33,9 @@ build_script:
   - createdb schematic
   - ps: ./build.ps1
 
+test_script:
+  - ps: ./build.ps1 -Target Run-Unit-Tests
+
 notifications:
 - provider: Email
   to:

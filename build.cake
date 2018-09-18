@@ -54,7 +54,7 @@ Task("Run-Unit-Tests")
     .IsDependentOn("Build")
     .DoesForEach(testProjects.Value, testProject =>
 {
-    var tempDirectory = System.IO.Path.Combine(System.IO.Path.GetTempPath(), System.IO.Path.GetRandomFileName());   
+    var tempDirectory = System.IO.Path.Combine(System.IO.Path.GetTempPath(), System.IO.Path.GetRandomFileName());
     CreateDirectory(tempDirectory);
     try
     {
@@ -71,7 +71,7 @@ Task("Run-Unit-Tests")
                     {
                         result = result.Append("/p:CollectCoverage=true")
                             .Append("/p:CoverletOutputFormat=opencover")
-                            .Append("/p:CoverletOutputDirectory=" + tempDirectory);
+                            .Append("/p:CoverletOutput=" + tempDirectory + "/coverage.xml");
                     }
 
                     return result;
@@ -87,7 +87,7 @@ Task("Run-Unit-Tests")
                 // https://github.com/Microsoft/vstest/issues/880#issuecomment-341912021
                 foreach (var testResultsFile in GetFiles(tempDirectory + "/**/*.trx"))
                     AppVeyor.UploadTestResults(testResultsFile, AppVeyorTestResultsType.MSTest);
-                
+
                 // Upload coverage report
                 if (reportCoverage)
                 {
@@ -99,7 +99,6 @@ Task("Run-Unit-Tests")
     }
     finally
     {
-
         DeleteDirectory(tempDirectory, new DeleteDirectorySettings { Recursive = true });
     }
 })
@@ -110,7 +109,7 @@ Task("Run-Unit-Tests")
 //////////////////////////////////////////////////////////////////////
 
 Task("Default")
-    .IsDependentOn("Run-Unit-Tests");
+    .IsDependentOn("Build");
 
 //////////////////////////////////////////////////////////////////////
 // EXECUTION
