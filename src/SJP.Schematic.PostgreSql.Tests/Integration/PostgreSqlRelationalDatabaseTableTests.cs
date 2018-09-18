@@ -292,7 +292,7 @@ execute procedure test_trigger_fn()").ConfigureAwait(false);
             await Connection.ExecuteAsync("drop table table_test_table_35").ConfigureAwait(false);
             await Connection.ExecuteAsync("drop table trigger_test_table_1").ConfigureAwait(false);
             await Connection.ExecuteAsync("drop table trigger_test_table_2").ConfigureAwait(false);
-            await Connection.ExecuteAsync("drop function test_trigger_fn").ConfigureAwait(false);
+            await Connection.ExecuteAsync("drop function test_trigger_fn()").ConfigureAwait(false);
         }
 
         [Test]
