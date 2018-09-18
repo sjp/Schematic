@@ -21,19 +21,3 @@
   This means that instead of Columns we really should be doing something like
   expressions as the enumerable object, which should be an identity expression
   most of the time.
-
-* For Oracle, we will have to do a test for whether the name must be quoted. Just a
-  query that attempts to do it unquoted should be fine. If we can get the name
-  unquoted then the name can be used in the uppercase form and should be translated.
-
-  Do not allow name clashes when case-insensitivity is present. There is no good
-  reason for this to be used so do not support it. Additionally this behaviour would
-  not be portable across different vendors (SQLite for example is case-insensitive
-  everywhere).
-
-  In short, allow querying of information case-sensitively, but do not allow for the
-  creation of a database where case-insensitiviy would break it.
-  
-* Create a linter. Examples could be suggesting an index on a foreign key when one is missing.
-  Another could be hinting that a locale specific definition of a default value should not be used.
-  An example where locale specific values occur is in datetimes in SQL Server.
