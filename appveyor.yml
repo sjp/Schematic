@@ -34,7 +34,7 @@ build_script:
   - ps: ./build.ps1
 
 test_script:
-  - ps: ./build.ps1 -Target Run-Unit-Tests
+  - ps: ./build.ps1 -Target Run-Unit-Tests -verbosity=Diagnostic
 
 notifications:
 - provider: Email
