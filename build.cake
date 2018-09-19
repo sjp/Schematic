@@ -13,7 +13,7 @@ var configuration = Argument("configuration", "Release");
 if (string.IsNullOrWhiteSpace(configuration))
     configuration = "Release";
 
-const bool reportCoverage = false;
+const bool reportCoverage = true;
 
 //////////////////////////////////////////////////////////////////////
 // PREPARATION
