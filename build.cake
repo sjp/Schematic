@@ -86,7 +86,13 @@ Task("Run-Unit-Tests")
                 // AppVeyor seems to ignore all but the first TRX upload– perhaps because the test names are identical
                 // https://github.com/Microsoft/vstest/issues/880#issuecomment-341912021
                 foreach (var testResultsFile in GetFiles(tempDirectory + "/**/*.trx"))
-                    AppVeyor.UploadTestResults(testResultsFile, AppVeyorTestResultsType.MSTest);
+                {
+                    try
+                    {
+                        AppVeyor.UploadTestResults(testResultsFile, AppVeyorTestResultsType.MSTest);
+                    }
+                    catch {}
+                }
 
                 // Upload coverage report
                 if (reportCoverage)
