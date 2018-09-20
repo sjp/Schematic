@@ -877,7 +877,10 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
 
                 var softHeapLimit = connPragma.SoftHeapLimit;
                 var newValue = softHeapLimit == 0 ? 9000 : 0;
+                connPragma.SoftHeapLimit = newValue;
                 var readOfNewValue = connPragma.SoftHeapLimit;
+
+                Assert.AreEqual(newValue, readOfNewValue);
             }
         }
 
@@ -907,8 +910,11 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
                 var connPragma = new ConnectionPragma(dialect, connection);
 
                 var tempStore = connPragma.TemporaryStore;
-                connPragma.TemporaryStore = tempStore == TemporaryStoreLocation.Default ? TemporaryStoreLocation.File : TemporaryStoreLocation.Default;
+                var newValue = tempStore == TemporaryStoreLocation.Default ? TemporaryStoreLocation.File : TemporaryStoreLocation.Default;
+                connPragma.TemporaryStore = newValue;
                 var readOfNewValue = connPragma.TemporaryStore;
+
+                Assert.AreEqual(newValue, readOfNewValue);
             }
         }
 
@@ -964,8 +970,11 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
                 var connPragma = new ConnectionPragma(dialect, connection);
 
                 var threads = connPragma.Threads;
-                connPragma.Threads = threads == 0 ? 8 : 0;
+                var newValue = threads == 0 ? 8 : 0;
+                connPragma.Threads = newValue;
                 var readOfNewValue = connPragma.Threads;
+
+                Assert.AreEqual(newValue, readOfNewValue);
             }
         }
 
@@ -995,8 +1004,11 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
                 var connPragma = new ConnectionPragma(dialect, connection);
 
                 var autoCheckpoint = connPragma.WalAutoCheckpoint;
-                connPragma.WalAutoCheckpoint = autoCheckpoint == 50 ? 100 : 50;
+                var newValue = autoCheckpoint == 50 ? 100 : 50;
+                connPragma.WalAutoCheckpoint = newValue;
                 var readOfNewValue = connPragma.WalAutoCheckpoint;
+
+                Assert.AreEqual(newValue, readOfNewValue);
             }
         }
 

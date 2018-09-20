@@ -144,20 +144,6 @@ namespace SJP.Schematic.Sqlite.Pragma
 
         protected virtual string CacheSpillSetQuery(bool enable) => PragmaPrefix + "cache_spill = " + Convert.ToInt32(enable).ToString(CultureInfo.InvariantCulture);
 
-        public uint CacheSpillInPages
-        {
-            get => Connection.ExecuteScalar<uint>(CacheSpillInPagesQuery);
-            set => Connection.Execute(CacheSpillInPagesSetQuery(value));
-        }
-
-        public Task<uint> CacheSpillInPagesAsync(CancellationToken cancellationToken = default(CancellationToken)) => Connection.ExecuteScalarAsync<uint>(CacheSpillInPagesQuery);
-
-        public Task CacheSpillInPagesAsync(uint pageSize, CancellationToken cancellationToken = default(CancellationToken)) => Connection.ExecuteAsync(CacheSpillInPagesSetQuery(pageSize));
-
-        protected virtual string CacheSpillInPagesQuery => PragmaPrefix + "page_size";
-
-        protected virtual string CacheSpillInPagesSetQuery(uint pageSize) => PragmaPrefix + "page_size = " + pageSize.ToString(CultureInfo.InvariantCulture);
-
         public int DataVersion => Connection.ExecuteScalar<int>(DataVersionQuery);
 
         public Task<int> DataVersionAsync(CancellationToken cancellationToken = default(CancellationToken)) => Connection.ExecuteScalarAsync<int>(DataVersionQuery);
@@ -207,8 +193,6 @@ namespace SJP.Schematic.Sqlite.Pragma
         public void IncrementalVacuum(ulong pages = 0) => Connection.Execute(IncrementalVacuumQuery(pages));
 
         public Task IncrementalVacuumAsync(ulong pages = 0, CancellationToken cancellationToken = default(CancellationToken)) => Connection.ExecuteAsync(IncrementalVacuumQuery(pages));
-
-        protected virtual string IncrementalVacuumReadQuery => PragmaPrefix + "incremental_vacuum";
 
         protected virtual string IncrementalVacuumQuery(ulong pages)
         {

@@ -13,7 +13,6 @@ namespace SJP.Schematic.Sqlite.Pragma
         ulong CacheSizeInKibibytes { get; set; }
         ulong CacheSizeInPages { get; set; }
         bool CacheSpill { get; set; }
-        uint CacheSpillInPages { get; set; }
         int DataVersion { get; }
         IEnumerable<pragma_foreign_key_check> ForeignKeyCheckDatabase { get; }
         ulong FreeListCount { get; }
@@ -40,8 +39,6 @@ namespace SJP.Schematic.Sqlite.Pragma
         Task CacheSizeInPagesAsync(ulong cacheSize, CancellationToken cancellationToken = default(CancellationToken));
         Task<bool> CacheSpillAsync(CancellationToken cancellationToken = default(CancellationToken));
         Task CacheSpillAsync(bool enable, CancellationToken cancellationToken = default(CancellationToken));
-        Task<uint> CacheSpillInPagesAsync(CancellationToken cancellationToken = default(CancellationToken));
-        Task CacheSpillInPagesAsync(uint pageSize, CancellationToken cancellationToken = default(CancellationToken));
         Task<int> DataVersionAsync(CancellationToken cancellationToken = default(CancellationToken));
         Task<IEnumerable<pragma_foreign_key_check>> ForeignKeyCheckDatabaseAsync(CancellationToken cancellationToken = default(CancellationToken));
         IEnumerable<pragma_foreign_key_check> ForeignKeyCheckTable(Identifier tableName);
