@@ -12,25 +12,16 @@ using SJP.Schematic.Core.Utilities;
 
 namespace SJP.Schematic.Oracle
 {
-    public class OracleRelationalDatabase : RelationalDatabase, IDependentRelationalDatabase
+    public class OracleRelationalDatabase : RelationalDatabase, IRelationalDatabase
     {
         public OracleRelationalDatabase(IDatabaseDialect dialect, IDbConnection connection, IIdentifierResolutionStrategy identifierResolver = null)
             : base(dialect, connection)
         {
             _metadata = new AsyncLazy<DatabaseMetadata>(LoadDatabaseMetadataAsync);
             IdentifierResolver = identifierResolver ?? new DefaultOracleIdentifierResolutionStrategy();
-            _parentDb = this;
-        }
-
-        public IRelationalDatabase Parent
-        {
-            get => _parentDb;
-            set => _parentDb = value ?? throw new ArgumentNullException(nameof(value));
         }
 
         protected IIdentifierResolutionStrategy IdentifierResolver { get; }
-
-        protected IRelationalDatabase Database => Parent;
 
         public string ServerName => Metadata.ServerName;
 
@@ -164,7 +155,7 @@ order by t.OWNER, t.TABLE_NAME";
 
             tableName = ResolveFirstObjectExistsName(tableName, TableExists);
             return tableName != null
-                ? new OracleRelationalDatabaseTable(Connection, Database, tableName, IdentifierResolver)
+                ? new OracleRelationalDatabaseTable(Connection, this, tableName, IdentifierResolver)
                 : null;
         }
 
@@ -180,7 +171,7 @@ order by t.OWNER, t.TABLE_NAME";
         {
             tableName = await ResolveFirstObjectExistsNameAsync(tableName, TableExistsAsync, cancellationToken).ConfigureAwait(false);
             return tableName != null
-                ? new OracleRelationalDatabaseTable(Connection, Database, tableName, IdentifierResolver)
+                ? new OracleRelationalDatabaseTable(Connection, this, tableName, IdentifierResolver)
                 : null;
         }
 
@@ -306,7 +297,7 @@ order by v.OWNER, v.VIEW_NAME";
 
             viewName = ResolveFirstObjectExistsName(viewName, ViewExists);
             return viewName != null
-                ? new OracleRelationalDatabaseView(Connection, Database, viewName, IdentifierResolver)
+                ? new OracleRelationalDatabaseView(Connection, this, viewName, IdentifierResolver)
                 : null;
         }
 
@@ -322,7 +313,7 @@ order by v.OWNER, v.VIEW_NAME";
         {
             viewName = await ResolveFirstObjectExistsNameAsync(viewName, ViewExistsAsync, cancellationToken).ConfigureAwait(false);
             return viewName != null
-                ? new OracleRelationalDatabaseView(Connection, Database, viewName, IdentifierResolver)
+                ? new OracleRelationalDatabaseView(Connection, this, viewName, IdentifierResolver)
                 : null;
         }
 
@@ -448,7 +439,7 @@ order by s.SEQUENCE_OWNER, s.SEQUENCE_NAME";
 
             sequenceName = ResolveFirstObjectExistsName(sequenceName, SequenceExists);
             return sequenceName != null
-                ? new OracleDatabaseSequence(Connection, Database, sequenceName)
+                ? new OracleDatabaseSequence(Connection, this, sequenceName)
                 : null;
         }
 
@@ -464,7 +455,7 @@ order by s.SEQUENCE_OWNER, s.SEQUENCE_NAME";
         {
             sequenceName = await ResolveFirstObjectExistsNameAsync(sequenceName, SequenceExistsAsync, cancellationToken).ConfigureAwait(false);
             return sequenceName != null
-                ? new OracleDatabaseSequence(Connection, Database, sequenceName)
+                ? new OracleDatabaseSequence(Connection, this, sequenceName)
                 : null;
         }
 
@@ -638,7 +629,7 @@ order by s.DB_LINK, s.OWNER, s.SYNONYM_NAME";
             var targetName = Identifier.CreateQualifiedIdentifier(databaseName, schemaName, localName);
             targetName = CreateQualifiedIdentifier(targetName);
 
-            return new OracleDatabaseSynonym(Database, synonymName, targetName);
+            return new OracleDatabaseSynonym(this, synonymName, targetName);
         }
 
         private IDatabaseSynonym LoadUserSynonymSync(string synonymName)
@@ -655,7 +646,7 @@ order by s.DB_LINK, s.OWNER, s.SYNONYM_NAME";
             var targetName = Identifier.CreateQualifiedIdentifier(databaseName, schemaName, localName);
             targetName = CreateQualifiedIdentifier(targetName);
 
-            return new OracleDatabaseSynonym(Database, synonymName, targetName);
+            return new OracleDatabaseSynonym(this, synonymName, targetName);
         }
 
         protected virtual Task<IDatabaseSynonym> LoadSynonymAsync(Identifier synonymName, CancellationToken cancellationToken = default(CancellationToken))
@@ -687,7 +678,7 @@ order by s.DB_LINK, s.OWNER, s.SYNONYM_NAME";
             var targetName = Identifier.CreateQualifiedIdentifier(databaseName, schemaName, localName);
             targetName = CreateQualifiedIdentifier(targetName);
 
-            return new OracleDatabaseSynonym(Database, synonymName, targetName);
+            return new OracleDatabaseSynonym(this, synonymName, targetName);
         }
 
         private async Task<IDatabaseSynonym> LoadUserSynonymAsyncCore(string synonymName, CancellationToken cancellationToken)
@@ -704,7 +695,7 @@ order by s.DB_LINK, s.OWNER, s.SYNONYM_NAME";
             var targetName = Identifier.CreateQualifiedIdentifier(databaseName, schemaName, localName);
             targetName = CreateQualifiedIdentifier(targetName);
 
-            return new OracleDatabaseSynonym(Database, synonymName, targetName);
+            return new OracleDatabaseSynonym(this, synonymName, targetName);
         }
 
         protected virtual string LoadSynonymQuery => LoadSynonymQuerySql;
@@ -822,7 +813,6 @@ where PRODUCT like 'Oracle Database%'";
             };
         }
 
-        private IRelationalDatabase _parentDb;
         private readonly AsyncLazy<DatabaseMetadata> _metadata;
     }
 }

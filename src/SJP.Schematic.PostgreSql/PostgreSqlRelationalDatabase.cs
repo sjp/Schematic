@@ -12,25 +12,16 @@ using SJP.Schematic.Core.Utilities;
 
 namespace SJP.Schematic.PostgreSql
 {
-    public class PostgreSqlRelationalDatabase : RelationalDatabase, IDependentRelationalDatabase
+    public class PostgreSqlRelationalDatabase : RelationalDatabase, IRelationalDatabase
     {
         public PostgreSqlRelationalDatabase(IDatabaseDialect dialect, IDbConnection connection, IIdentifierResolutionStrategy identifierResolver = null)
             : base(dialect, connection)
         {
             _metadata = new Lazy<DatabaseMetadata>(LoadDatabaseMetadata);
             IdentifierResolver = identifierResolver ?? new DefaultPostgreSqlIdentifierResolutionStrategy();
-            _parentDb = this;
-        }
-
-        public IRelationalDatabase Parent
-        {
-            get => _parentDb;
-            set => _parentDb = value ?? throw new ArgumentNullException(nameof(value));
         }
 
         protected IIdentifierResolutionStrategy IdentifierResolver { get; }
-
-        protected IRelationalDatabase Database => Parent;
 
         public string ServerName => Metadata.ServerName;
 
@@ -140,7 +131,7 @@ where schemaname not in ('pg_catalog', 'information_schema')";
 
             tableName = CreateQualifiedIdentifier(tableName);
             return TableExists(tableName)
-                ? new PostgreSqlRelationalDatabaseTable(Connection, Database, tableName, IdentifierResolver)
+                ? new PostgreSqlRelationalDatabaseTable(Connection, this, tableName, IdentifierResolver)
                 : null;
         }
 
@@ -157,7 +148,7 @@ where schemaname not in ('pg_catalog', 'information_schema')";
             tableName = CreateQualifiedIdentifier(tableName);
             var exists = await TableExistsAsync(tableName, cancellationToken).ConfigureAwait(false);
             return exists
-                ? new PostgreSqlRelationalDatabaseTable(Connection, Database, tableName, IdentifierResolver)
+                ? new PostgreSqlRelationalDatabaseTable(Connection, this, tableName, IdentifierResolver)
                 : null;
         }
 
@@ -259,7 +250,7 @@ where schemaname not in ('pg_catalog', 'information_schema')";
 
             viewName = CreateQualifiedIdentifier(viewName);
             return ViewExists(viewName)
-                ? new PostgreSqlRelationalDatabaseView(Connection, Database, viewName, IdentifierResolver)
+                ? new PostgreSqlRelationalDatabaseView(Connection, this, viewName, IdentifierResolver)
                 : null;
         }
 
@@ -276,7 +267,7 @@ where schemaname not in ('pg_catalog', 'information_schema')";
             viewName = CreateQualifiedIdentifier(viewName);
             var exists = await ViewExistsAsync(viewName, cancellationToken).ConfigureAwait(false);
             return exists
-                ? new PostgreSqlRelationalDatabaseView(Connection, Database, viewName, IdentifierResolver)
+                ? new PostgreSqlRelationalDatabaseView(Connection, this, viewName, IdentifierResolver)
                 : null;
         }
 
@@ -378,7 +369,7 @@ where sequence_schema not in ('pg_catalog', 'information_schema')";
 
             sequenceName = CreateQualifiedIdentifier(sequenceName);
             return SequenceExists(sequenceName)
-                ? new PostgreSqlDatabaseSequence(Connection, Database, sequenceName)
+                ? new PostgreSqlDatabaseSequence(Connection, this, sequenceName)
                 : null;
         }
 
@@ -395,7 +386,7 @@ where sequence_schema not in ('pg_catalog', 'information_schema')";
             sequenceName = CreateQualifiedIdentifier(sequenceName);
             var exists = await SequenceExistsAsync(sequenceName, cancellationToken).ConfigureAwait(false);
             return exists
-                ? new PostgreSqlDatabaseSequence(Connection, Database, sequenceName)
+                ? new PostgreSqlDatabaseSequence(Connection, this, sequenceName)
                 : null;
         }
 
@@ -473,7 +464,6 @@ select
             return Identifier.CreateQualifiedIdentifier(serverName, databaseName, schema, identifier.LocalName);
         }
 
-        private IRelationalDatabase _parentDb;
         private readonly Lazy<DatabaseMetadata> _metadata;
     }
 }

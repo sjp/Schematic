@@ -34,21 +34,11 @@ namespace SJP.Schematic.Modelled.Reflection
             TypeProvider = new ReflectionTypeProvider(dialect, databaseDefinitionType);
             EnsureUniqueTypes(DatabaseDefinitionType, TypeProvider);
 
-            _parentDb = this;
-
             _tableLookup = new Lazy<IReadOnlyDictionary<Identifier, IRelationalDatabaseTable>>(LoadTables);
             _viewLookup = new Lazy<IReadOnlyDictionary<Identifier, IRelationalDatabaseView>>(LoadViews);
             _sequenceLookup = new Lazy<IReadOnlyDictionary<Identifier, IDatabaseSequence>>(LoadSequences);
             _synonymLookup = new Lazy<IReadOnlyDictionary<Identifier, IDatabaseSynonym>>(LoadSynonyms);
         }
-
-        public IRelationalDatabase Parent
-        {
-            get => _parentDb;
-            set => _parentDb = value ?? throw new ArgumentNullException(nameof(value));
-        }
-
-        protected IRelationalDatabase Database => Parent;
 
         public IDatabaseDialect Dialect { get; }
 
@@ -117,7 +107,7 @@ namespace SJP.Schematic.Modelled.Reflection
             if (tableType == null)
                 throw new ArgumentNullException(nameof(tableType));
 
-            return new ReflectionTable(Database, tableType);
+            return new ReflectionTable(this, tableType);
         }
 
         protected virtual Task<IRelationalDatabaseTable> LoadTableAsync(Type tableType)
@@ -125,7 +115,7 @@ namespace SJP.Schematic.Modelled.Reflection
             if (tableType == null)
                 throw new ArgumentNullException(nameof(tableType));
 
-            var table = new ReflectionTable(Database, tableType);
+            var table = new ReflectionTable(this, tableType);
             return Task.FromResult<IRelationalDatabaseTable>(table);
         }
 
@@ -196,7 +186,7 @@ namespace SJP.Schematic.Modelled.Reflection
             if (viewType == null)
                 throw new ArgumentNullException(nameof(viewType));
 
-            return new ReflectionView(Database, viewType);
+            return new ReflectionView(this, viewType);
         }
 
         protected virtual Task<IRelationalDatabaseView> LoadViewAsync(Type viewType)
@@ -204,7 +194,7 @@ namespace SJP.Schematic.Modelled.Reflection
             if (viewType == null)
                 throw new ArgumentNullException(nameof(viewType));
 
-            var view = new ReflectionView(Database, viewType);
+            var view = new ReflectionView(this, viewType);
             return Task.FromResult<IRelationalDatabaseView>(view);
         }
 
@@ -275,7 +265,7 @@ namespace SJP.Schematic.Modelled.Reflection
             if (sequenceType == null)
                 throw new ArgumentNullException(nameof(sequenceType));
 
-            return new ReflectionSequence(Database, sequenceType);
+            return new ReflectionSequence(this, sequenceType);
         }
 
         protected virtual Task<IDatabaseSequence> LoadSequenceAsync(Type sequenceType)
@@ -283,7 +273,7 @@ namespace SJP.Schematic.Modelled.Reflection
             if (sequenceType == null)
                 throw new ArgumentNullException(nameof(sequenceType));
 
-            var sequence = new ReflectionSequence(Database, sequenceType);
+            var sequence = new ReflectionSequence(this, sequenceType);
             return Task.FromResult<IDatabaseSequence>(sequence);
         }
 
@@ -354,7 +344,7 @@ namespace SJP.Schematic.Modelled.Reflection
             if (synonymType == null)
                 throw new ArgumentNullException(nameof(synonymType));
 
-            return new ReflectionSynonym(Database, synonymType);
+            return new ReflectionSynonym(this, synonymType);
         }
 
         protected virtual Task<IDatabaseSynonym> LoadSynonymAsync(Type synonymType)
@@ -362,7 +352,7 @@ namespace SJP.Schematic.Modelled.Reflection
             if (synonymType == null)
                 throw new ArgumentNullException(nameof(synonymType));
 
-            var synonym = new ReflectionSynonym(Database, synonymType);
+            var synonym = new ReflectionSynonym(this, synonymType);
             return Task.FromResult<IDatabaseSynonym>(synonym);
         }
 
@@ -437,8 +427,6 @@ namespace SJP.Schematic.Modelled.Reflection
                 throw new Exception(message);
             }
         }
-
-        private IRelationalDatabase _parentDb;
 
         private readonly Lazy<IReadOnlyDictionary<Identifier, IRelationalDatabaseTable>> _tableLookup;
         private readonly Lazy<IReadOnlyDictionary<Identifier, IRelationalDatabaseView>> _viewLookup;

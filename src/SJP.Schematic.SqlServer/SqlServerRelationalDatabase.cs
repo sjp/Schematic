@@ -12,25 +12,16 @@ using SJP.Schematic.Core.Utilities;
 
 namespace SJP.Schematic.SqlServer
 {
-    public class SqlServerRelationalDatabase : RelationalDatabase, IDependentRelationalDatabase
+    public class SqlServerRelationalDatabase : RelationalDatabase, IRelationalDatabase
     {
         public SqlServerRelationalDatabase(IDatabaseDialect dialect, IDbConnection connection, IEqualityComparer<Identifier> comparer = null)
             : base(dialect, connection)
         {
             _metadata = new AsyncLazy<DatabaseMetadata>(LoadDatabaseMetadataAsync);
             Comparer = comparer ?? new IdentifierComparer(StringComparer.OrdinalIgnoreCase, ServerName, DatabaseName, DefaultSchema);
-            _parentDb = this;
-        }
-
-        public IRelationalDatabase Parent
-        {
-            get => _parentDb;
-            set => _parentDb = value ?? throw new ArgumentNullException(nameof(value));
         }
 
         protected IEqualityComparer<Identifier> Comparer { get; }
-
-        protected IRelationalDatabase Database => Parent;
 
         public string ServerName => Metadata.ServerName;
 
@@ -130,7 +121,7 @@ namespace SJP.Schematic.SqlServer
 
             tableName = CreateQualifiedIdentifier(tableName);
             return TableExists(tableName)
-                ? new SqlServerRelationalDatabaseTable(Connection, Database, tableName, Comparer)
+                ? new SqlServerRelationalDatabaseTable(Connection, this, tableName, Comparer)
                 : null;
         }
 
@@ -147,7 +138,7 @@ namespace SJP.Schematic.SqlServer
             tableName = CreateQualifiedIdentifier(tableName);
             var exists = await TableExistsAsync(tableName, cancellationToken).ConfigureAwait(false);
             return exists
-                ? new SqlServerRelationalDatabaseTable(Connection, Database, tableName, Comparer)
+                ? new SqlServerRelationalDatabaseTable(Connection, this, tableName, Comparer)
                 : null;
         }
 
@@ -239,7 +230,7 @@ namespace SJP.Schematic.SqlServer
 
             viewName = CreateQualifiedIdentifier(viewName);
             return ViewExists(viewName)
-                ? new SqlServerRelationalDatabaseView(Connection, Database, viewName, Comparer)
+                ? new SqlServerRelationalDatabaseView(Connection, this, viewName, Comparer)
                 : null;
         }
 
@@ -256,7 +247,7 @@ namespace SJP.Schematic.SqlServer
             viewName = CreateQualifiedIdentifier(viewName);
             var exists = await ViewExistsAsync(viewName, cancellationToken).ConfigureAwait(false);
             return exists
-                ? new SqlServerRelationalDatabaseView(Connection, Database, viewName, Comparer)
+                ? new SqlServerRelationalDatabaseView(Connection, this, viewName, Comparer)
                 : null;
         }
 
@@ -348,7 +339,7 @@ namespace SJP.Schematic.SqlServer
 
             sequenceName = CreateQualifiedIdentifier(sequenceName);
             return SequenceExists(sequenceName)
-                ? new SqlServerDatabaseSequence(Connection, Database, sequenceName)
+                ? new SqlServerDatabaseSequence(Connection, this, sequenceName)
                 : null;
         }
 
@@ -365,7 +356,7 @@ namespace SJP.Schematic.SqlServer
             sequenceName = CreateQualifiedIdentifier(sequenceName);
             var exists = await SequenceExistsAsync(sequenceName, cancellationToken).ConfigureAwait(false);
             return exists
-                ? new SqlServerDatabaseSequence(Connection, Database, sequenceName)
+                ? new SqlServerDatabaseSequence(Connection, this, sequenceName)
                 : null;
         }
 
@@ -472,7 +463,7 @@ namespace SJP.Schematic.SqlServer
             var targetName = Identifier.CreateQualifiedIdentifier(serverName, databaseName, schemaName, localName);
             targetName = CreateQualifiedIdentifier(targetName);
 
-            return new SqlServerDatabaseSynonym(Database, synonymName, targetName);
+            return new SqlServerDatabaseSynonym(this, synonymName, targetName);
         }
 
         protected virtual Task<IDatabaseSynonym> LoadSynonymAsync(Identifier synonymName, CancellationToken cancellationToken = default(CancellationToken))
@@ -503,7 +494,7 @@ namespace SJP.Schematic.SqlServer
             var targetName = Identifier.CreateQualifiedIdentifier(serverName, databaseName, schemaName, localName);
             targetName = CreateQualifiedIdentifier(targetName);
 
-            return new SqlServerDatabaseSynonym(Database, synonymName, targetName);
+            return new SqlServerDatabaseSynonym(this, synonymName, targetName);
         }
 
         protected virtual string LoadSynonymQuery => LoadSynonymQuerySql;
@@ -541,7 +532,6 @@ where schema_id = schema_id(@SchemaName) and name = @SynonymName";
             return Identifier.CreateQualifiedIdentifier(serverName, databaseName, schema, identifier.LocalName);
         }
 
-        private IRelationalDatabase _parentDb;
         private readonly AsyncLazy<DatabaseMetadata> _metadata;
     }
 }

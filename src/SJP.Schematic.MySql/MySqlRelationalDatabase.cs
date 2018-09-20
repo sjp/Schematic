@@ -11,25 +11,16 @@ using SJP.Schematic.MySql.Query;
 
 namespace SJP.Schematic.MySql
 {
-    public class MySqlRelationalDatabase : RelationalDatabase, IDependentRelationalDatabase
+    public class MySqlRelationalDatabase : RelationalDatabase, IRelationalDatabase
     {
         public MySqlRelationalDatabase(IDatabaseDialect dialect, IDbConnection connection, IEqualityComparer<Identifier> comparer = null)
             : base(dialect, connection)
         {
             _metadata = new AsyncLazy<DatabaseMetadata>(LoadDatabaseMetadataAsync);
             Comparer = comparer ?? new IdentifierComparer(StringComparer.Ordinal, ServerName, DatabaseName, DefaultSchema);
-            _parentDb = this;
-        }
-
-        public IRelationalDatabase Parent
-        {
-            get => _parentDb;
-            set => _parentDb = value ?? throw new ArgumentNullException(nameof(value));
         }
 
         protected IEqualityComparer<Identifier> Comparer { get; }
-
-        protected IRelationalDatabase Database => Parent;
 
         public string ServerName => Metadata.ServerName;
 
@@ -138,7 +129,7 @@ where TABLE_SCHEMA = @SchemaName order by TABLE_NAME";
 
             tableName = CreateQualifiedIdentifier(tableName);
             return TableExists(tableName)
-                ? new MySqlRelationalDatabaseTable(Connection, Database, tableName, Comparer)
+                ? new MySqlRelationalDatabaseTable(Connection, this, tableName, Comparer)
                 : null;
         }
 
@@ -155,7 +146,7 @@ where TABLE_SCHEMA = @SchemaName order by TABLE_NAME";
             tableName = CreateQualifiedIdentifier(tableName);
             var exists = await TableExistsAsync(tableName, cancellationToken).ConfigureAwait(false);
             return exists
-                ? new MySqlRelationalDatabaseTable(Connection, Database, tableName, Comparer)
+                ? new MySqlRelationalDatabaseTable(Connection, this, tableName, Comparer)
                 : null;
         }
 
@@ -256,7 +247,7 @@ where TABLE_SCHEMA = @SchemaName order by TABLE_NAME";
 
             viewName = CreateQualifiedIdentifier(viewName);
             return ViewExists(viewName)
-                ? new MySqlRelationalDatabaseView(Connection, Database, viewName, Comparer)
+                ? new MySqlRelationalDatabaseView(Connection, this, viewName, Comparer)
                 : null;
         }
 
@@ -273,7 +264,7 @@ where TABLE_SCHEMA = @SchemaName order by TABLE_NAME";
             viewName = CreateQualifiedIdentifier(viewName);
             var exists = await ViewExistsAsync(viewName, cancellationToken).ConfigureAwait(false);
             return exists
-                ? new MySqlRelationalDatabaseView(Connection, Database, viewName, Comparer)
+                ? new MySqlRelationalDatabaseView(Connection, this, viewName, Comparer)
                 : null;
         }
 
@@ -388,7 +379,6 @@ select
             return Identifier.CreateQualifiedIdentifier(serverName, databaseName, schema, identifier.LocalName);
         }
 
-        private IRelationalDatabase _parentDb;
         private readonly AsyncLazy<DatabaseMetadata> _metadata;
     }
 }
