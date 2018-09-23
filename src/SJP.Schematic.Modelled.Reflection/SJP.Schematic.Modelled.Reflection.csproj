@@ -18,7 +18,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Mono.Cecil" Version="0.10.0" />
+    <PackageReference Include="Mono.Cecil" Version="0.10.1" />
     <PackageReference Include="Superpower" Version="2.1.0" />
     <PackageReference Include="System.Reflection" Version="4.3.0" />
   </ItemGroup>

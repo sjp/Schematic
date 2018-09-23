@@ -19,7 +19,7 @@
 
   <ItemGroup>
     <PackageReference Include="Dapper" Version="1.50.5" />
-    <PackageReference Include="Oracle.ManagedDataAccess.Core" Version="2.12.0-beta3" />
+    <PackageReference Include="Oracle.ManagedDataAccess.Core" Version="2.18.3" />
     <PackageReference Include="Superpower" Version="2.1.0" />
   </ItemGroup>
 
