@@ -35,7 +35,6 @@ namespace SJP.Schematic.SqlServer.Tests.Integration
             Assert.AreNotEqual(string.Empty, Database.DatabaseVersion);
         }
 
-        [TestFixture]
         internal sealed class TableTests : SqlServerTest
         {
             [OneTimeSetUp]
@@ -203,7 +202,6 @@ namespace SJP.Schematic.SqlServer.Tests.Integration
             }
         }
 
-        [TestFixture]
         internal sealed class ViewTests : SqlServerTest
         {
             [OneTimeSetUp]
@@ -375,7 +373,6 @@ namespace SJP.Schematic.SqlServer.Tests.Integration
             }
         }
 
-        [TestFixture]
         internal sealed class SequenceTests : SqlServerTest
         {
             [OneTimeSetUp]
@@ -543,7 +540,6 @@ namespace SJP.Schematic.SqlServer.Tests.Integration
             }
         }
 
-        [TestFixture]
         internal sealed class SynonymTests : SqlServerTest
         {
             [OneTimeSetUp]
