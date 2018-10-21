@@ -8,8 +8,8 @@ namespace SJP.Schematic.Modelled.Reflection
     // TODO: fix this so that we can point to synonyms
     public class ReflectionForeignKey : ReflectionKey
     {
-        public ReflectionForeignKey(IRelationalDatabaseTable table, Identifier name, IDatabaseKey targetKey, IReadOnlyCollection<IDatabaseColumn> columns)
-            : base(table, name, DatabaseKeyType.Foreign, columns)
+        public ReflectionForeignKey(Identifier name, IDatabaseKey targetKey, IReadOnlyCollection<IDatabaseColumn> columns)
+            : base(name, DatabaseKeyType.Foreign, columns)
         {
             if (targetKey == null)
                 throw new ArgumentNullException(nameof(targetKey));

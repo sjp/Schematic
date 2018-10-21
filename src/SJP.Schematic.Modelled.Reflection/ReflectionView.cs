@@ -10,9 +10,8 @@ namespace SJP.Schematic.Modelled.Reflection
     {
         public ReflectionView(IRelationalDatabase database, Type viewType)
         {
-            Database = database ?? throw new ArgumentNullException(nameof(database));
             ViewType = viewType ?? throw new ArgumentNullException(nameof(viewType));
-            Name = Database.Dialect.GetQualifiedNameOrDefault(Database, ViewType);
+            Name = database.Dialect.GetQualifiedNameOrDefault(database, ViewType);
         }
 
         protected Type ViewType { get; }
@@ -21,7 +20,7 @@ namespace SJP.Schematic.Modelled.Reflection
 
         public Task<string> DefinitionAsync(CancellationToken cancellationToken = default(CancellationToken)) => throw new NotImplementedException();
 
-        public IReadOnlyDictionary<Identifier, IDatabaseViewColumn> Column
+        public IReadOnlyDictionary<Identifier, IDatabaseColumn> Column
         {
             get
             {
@@ -29,7 +28,7 @@ namespace SJP.Schematic.Modelled.Reflection
             }
         }
 
-        public IReadOnlyList<IDatabaseViewColumn> Columns
+        public IReadOnlyList<IDatabaseColumn> Columns
         {
             get
             {
@@ -37,9 +36,7 @@ namespace SJP.Schematic.Modelled.Reflection
             }
         }
 
-        public IRelationalDatabase Database { get; }
-
-        public IReadOnlyDictionary<Identifier, IDatabaseViewIndex> Index
+        public IReadOnlyDictionary<Identifier, IDatabaseIndex> Index
         {
             get
             {
@@ -47,7 +44,7 @@ namespace SJP.Schematic.Modelled.Reflection
             }
         }
 
-        public IReadOnlyCollection<IDatabaseViewIndex> Indexes
+        public IReadOnlyCollection<IDatabaseIndex> Indexes
         {
             get
             {
@@ -65,22 +62,22 @@ namespace SJP.Schematic.Modelled.Reflection
 
         public Identifier Name { get; }
 
-        public Task<IReadOnlyDictionary<Identifier, IDatabaseViewColumn>> ColumnAsync(CancellationToken cancellationToken = default(CancellationToken))
+        public Task<IReadOnlyDictionary<Identifier, IDatabaseColumn>> ColumnAsync(CancellationToken cancellationToken = default(CancellationToken))
         {
             throw new NotImplementedException();
         }
 
-        public Task<IReadOnlyList<IDatabaseViewColumn>> ColumnsAsync(CancellationToken cancellationToken = default(CancellationToken))
+        public Task<IReadOnlyList<IDatabaseColumn>> ColumnsAsync(CancellationToken cancellationToken = default(CancellationToken))
         {
             throw new NotImplementedException();
         }
 
-        public Task<IReadOnlyDictionary<Identifier, IDatabaseViewIndex>> IndexAsync(CancellationToken cancellationToken = default(CancellationToken))
+        public Task<IReadOnlyDictionary<Identifier, IDatabaseIndex>> IndexAsync(CancellationToken cancellationToken = default(CancellationToken))
         {
             throw new NotImplementedException();
         }
 
-        public Task<IReadOnlyCollection<IDatabaseViewIndex>> IndexesAsync(CancellationToken cancellationToken = default(CancellationToken))
+        public Task<IReadOnlyCollection<IDatabaseIndex>> IndexesAsync(CancellationToken cancellationToken = default(CancellationToken))
         {
             throw new NotImplementedException();
         }

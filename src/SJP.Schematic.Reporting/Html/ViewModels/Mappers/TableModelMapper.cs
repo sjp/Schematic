@@ -8,38 +8,40 @@ using SJP.Schematic.Reporting.Dot;
 
 namespace SJP.Schematic.Reporting.Html.ViewModels.Mappers
 {
-    internal sealed class TableModelMapper :
-        IDatabaseModelMapper<IRelationalDatabaseTable, Table>
+    internal sealed class TableModelMapper
     {
-        public TableModelMapper(IDbConnection connection, IDatabaseDialect dialect)
+        public TableModelMapper(IDbConnection connection, IRelationalDatabase database, IDatabaseDialect dialect)
         {
             Connection = connection ?? throw new ArgumentNullException(nameof(connection));
+            Database = database ?? throw new ArgumentNullException(nameof(database));
             Dialect = dialect ?? throw new ArgumentNullException(nameof(dialect));
         }
 
         private IDbConnection Connection { get; }
 
+        private IRelationalDatabase Database { get; }
+
         private IDatabaseDialect Dialect { get; }
 
-        public Table Map(IRelationalDatabaseTable dbObject)
+        public Table Map(IRelationalDatabaseTable table)
         {
-            if (dbObject == null)
-                throw new ArgumentNullException(nameof(dbObject));
+            if (table == null)
+                throw new ArgumentNullException(nameof(table));
 
-            var rowCount = Connection.GetRowCount(Dialect, dbObject.Name);
-            var tableColumns = dbObject.Columns.Select((c, i) => new { Column = c, Ordinal = i + 1 }).ToList();
-            var primaryKey = dbObject.PrimaryKey;
-            var uniqueKeys = dbObject.UniqueKeys.ToList();
-            var parentKeys = dbObject.ParentKeys.ToList();
-            var childKeys = dbObject.ChildKeys.ToList();
-            var checks = dbObject.Checks.ToList();
+            var rowCount = Connection.GetRowCount(Dialect, table.Name);
+            var tableColumns = table.Columns.Select((c, i) => new { Column = c, Ordinal = i + 1 }).ToList();
+            var primaryKey = table.PrimaryKey;
+            var uniqueKeys = table.UniqueKeys.ToList();
+            var parentKeys = table.ParentKeys.ToList();
+            var childKeys = table.ChildKeys.ToList();
+            var checks = table.Checks.ToList();
 
             var columns = new List<Table.Column>();
             foreach (var tableColumn in tableColumns)
             {
                 var col = tableColumn.Column;
                 var columnName = col.Name.LocalName;
-                var qualifiedColumnName = dbObject.Name.ToVisibleName() + "." + columnName;
+                var qualifiedColumnName = table.Name.ToVisibleName() + "." + columnName;
 
                 var isPrimaryKey = primaryKey != null && primaryKey.Columns.Any(c => c.Name.LocalName == columnName);
                 var isUniqueKey = uniqueKeys.Any(uk => uk.Columns.Any(ukc => ukc.Name.LocalName == columnName));
@@ -62,7 +64,7 @@ namespace SJP.Schematic.Reporting.Html.ViewModels.Mappers
                     var columnFks = parentColumnNames.Select(colName =>
                         new Table.ParentKey(
                             parentKey.ChildKey.Name?.LocalName,
-                            parentKey.ParentKey.Table.Name,
+                            parentKey.ParentTable,
                             colName,
                             qualifiedColumnName
                         )).ToList();
@@ -87,7 +89,7 @@ namespace SJP.Schematic.Reporting.Html.ViewModels.Mappers
                     var columnFks = childColumnNames.Select(colName =>
                         new Table.ChildKey(
                             childKey.ChildKey.Name?.LocalName,
-                            childKey.ChildKey.Table.Name,
+                            childKey.ChildTable,
                             colName,
                             qualifiedColumnName
                         )).ToList();
@@ -110,7 +112,7 @@ namespace SJP.Schematic.Reporting.Html.ViewModels.Mappers
                 columns.Add(column);
             }
 
-            var tableIndexes = dbObject.Indexes.ToList();
+            var tableIndexes = table.Indexes.ToList();
             var mappedIndexes = tableIndexes.Select(index =>
                 new Table.Index(
                     index.Name?.LocalName,
@@ -137,7 +139,7 @@ namespace SJP.Schematic.Reporting.Html.ViewModels.Mappers
                 new Table.ForeignKey(
                     pk.ChildKey.Name?.LocalName,
                     pk.ChildKey.Columns.Select(c => c.Name.LocalName).ToList(),
-                    pk.ParentKey.Table.Name,
+                    pk.ParentTable,
                     pk.ParentKey.Name?.LocalName,
                     pk.ParentKey.Columns.Select(c => c.Name.LocalName).ToList(),
                     pk.DeleteRule,
@@ -150,23 +152,23 @@ namespace SJP.Schematic.Reporting.Html.ViewModels.Mappers
                     c.Definition
                 )).ToList();
 
-            var relationshipBuilder = new RelationshipFinder();
-            var oneDegreeTables = relationshipBuilder.GetTablesByDegrees(dbObject, 1);
-            var twoDegreeTables = relationshipBuilder.GetTablesByDegrees(dbObject, 2);
+            var relationshipBuilder = new RelationshipFinder(Database);
+            var oneDegreeTables = relationshipBuilder.GetTablesByDegrees(table, 1);
+            var twoDegreeTables = relationshipBuilder.GetTablesByDegrees(table, 2);
 
-            var dotFormatter = new DatabaseDotFormatter(Connection, dbObject.Database);
-            var renderOptions = new DotRenderOptions { HighlightedTable = dbObject.Name };
+            var dotFormatter = new DatabaseDotFormatter(Connection, Database);
+            var renderOptions = new DotRenderOptions { HighlightedTable = table.Name };
             var oneDegreeDot = dotFormatter.RenderTables(oneDegreeTables, renderOptions);
             var twoDegreeDot = dotFormatter.RenderTables(twoDegreeTables, renderOptions);
 
             var diagrams = new[]
             {
-                new Table.Diagram(dbObject.Name, "One", oneDegreeDot, true),
-                new Table.Diagram(dbObject.Name, "Two", twoDegreeDot, false)
+                new Table.Diagram(table.Name, "One", oneDegreeDot, true),
+                new Table.Diagram(table.Name, "Two", twoDegreeDot, false)
             };
 
             return new Table(
-                dbObject.Name,
+                table.Name,
                 columns,
                 renderPrimaryKey,
                 renderUniqueKeys,
@@ -179,32 +181,32 @@ namespace SJP.Schematic.Reporting.Html.ViewModels.Mappers
             );
         }
 
-        public Task<Table> MapAsync(IRelationalDatabaseTable dbObject)
+        public Task<Table> MapAsync(IRelationalDatabaseTable table)
         {
-            if (dbObject == null)
-                throw new ArgumentNullException(nameof(dbObject));
+            if (table == null)
+                throw new ArgumentNullException(nameof(table));
 
-            return MapAsyncCore(dbObject);
+            return MapAsyncCore(table);
         }
 
-        private async Task<Table> MapAsyncCore(IRelationalDatabaseTable dbObject)
+        private async Task<Table> MapAsyncCore(IRelationalDatabaseTable table)
         {
-            var rowCount = await Connection.GetRowCountAsync(Dialect, dbObject.Name).ConfigureAwait(false);
-            var dbColumns = await dbObject.ColumnsAsync().ConfigureAwait(false);
+            var rowCount = await Connection.GetRowCountAsync(Dialect, table.Name).ConfigureAwait(false);
+            var dbColumns = await table.ColumnsAsync().ConfigureAwait(false);
             var tableColumns = dbColumns.Select((c, i) => new { Column = c, Ordinal = i + 1 }).ToList();
-            var primaryKey = await dbObject.PrimaryKeyAsync().ConfigureAwait(false);
-            var uniqueKeys = await dbObject.UniqueKeysAsync().ConfigureAwait(false);
-            var parentKeys = await dbObject.ParentKeysAsync().ConfigureAwait(false);
-            var childKeys = await dbObject.ChildKeysAsync().ConfigureAwait(false);
-            var checks = await dbObject.ChecksAsync().ConfigureAwait(false);
-            var tableIndexes = await dbObject.IndexesAsync().ConfigureAwait(false);
+            var primaryKey = await table.PrimaryKeyAsync().ConfigureAwait(false);
+            var uniqueKeys = await table.UniqueKeysAsync().ConfigureAwait(false);
+            var parentKeys = await table.ParentKeysAsync().ConfigureAwait(false);
+            var childKeys = await table.ChildKeysAsync().ConfigureAwait(false);
+            var checks = await table.ChecksAsync().ConfigureAwait(false);
+            var tableIndexes = await table.IndexesAsync().ConfigureAwait(false);
 
             var columns = new List<Table.Column>();
             foreach (var tableColumn in tableColumns)
             {
                 var col = tableColumn.Column;
                 var columnName = col.Name.LocalName;
-                var qualifiedColumnName = dbObject.Name.ToVisibleName() + "." + columnName;
+                var qualifiedColumnName = table.Name.ToVisibleName() + "." + columnName;
 
                 var isPrimaryKey = primaryKey != null && primaryKey.Columns.Any(c => c.Name.LocalName == columnName);
                 var isUniqueKey = uniqueKeys.Any(uk => uk.Columns.Any(ukc => ukc.Name.LocalName == columnName));
@@ -227,7 +229,7 @@ namespace SJP.Schematic.Reporting.Html.ViewModels.Mappers
                     var columnFks = parentColumnNames.Select(colName =>
                         new Table.ParentKey(
                             parentKey.ChildKey.Name?.LocalName,
-                            parentKey.ParentKey.Table.Name,
+                            parentKey.ParentTable,
                             colName,
                             qualifiedColumnName
                         )).ToList();
@@ -252,7 +254,7 @@ namespace SJP.Schematic.Reporting.Html.ViewModels.Mappers
                     var columnFks = childColumnNames.Select(colName =>
                         new Table.ChildKey(
                             childKey.ChildKey.Name?.LocalName,
-                            childKey.ChildKey.Table.Name,
+                            childKey.ChildTable,
                             colName,
                             qualifiedColumnName
                         )).ToList();
@@ -301,7 +303,7 @@ namespace SJP.Schematic.Reporting.Html.ViewModels.Mappers
                 new Table.ForeignKey(
                     pk.ChildKey.Name?.LocalName,
                     pk.ChildKey.Columns.Select(c => c.Name.LocalName).ToList(),
-                    pk.ParentKey.Table.Name,
+                    pk.ParentTable,
                     pk.ParentKey.Name?.LocalName,
                     pk.ParentKey.Columns.Select(c => c.Name.LocalName).ToList(),
                     pk.DeleteRule,
@@ -314,23 +316,23 @@ namespace SJP.Schematic.Reporting.Html.ViewModels.Mappers
                     c.Definition
                 )).ToList();
 
-            var relationshipBuilder = new RelationshipFinder();
-            var oneDegreeTables = await relationshipBuilder.GetTablesByDegreesAsync(dbObject, 1).ConfigureAwait(false);
-            var twoDegreeTables = await relationshipBuilder.GetTablesByDegreesAsync(dbObject, 2).ConfigureAwait(false);
+            var relationshipBuilder = new RelationshipFinder(Database);
+            var oneDegreeTables = await relationshipBuilder.GetTablesByDegreesAsync(table, 1).ConfigureAwait(false);
+            var twoDegreeTables = await relationshipBuilder.GetTablesByDegreesAsync(table, 2).ConfigureAwait(false);
 
-            var dotFormatter = new DatabaseDotFormatter(Connection, dbObject.Database);
-            var renderOptions = new DotRenderOptions { HighlightedTable = dbObject.Name };
+            var dotFormatter = new DatabaseDotFormatter(Connection, Database);
+            var renderOptions = new DotRenderOptions { HighlightedTable = table.Name };
             var oneDegreeDot = await dotFormatter.RenderTablesAsync(oneDegreeTables, renderOptions).ConfigureAwait(false);
             var twoDegreeDot = await dotFormatter.RenderTablesAsync(twoDegreeTables, renderOptions).ConfigureAwait(false);
 
             var diagrams = new[]
             {
-                new Table.Diagram(dbObject.Name, "One", oneDegreeDot, true),
-                new Table.Diagram(dbObject.Name, "Two", twoDegreeDot, false)
+                new Table.Diagram(table.Name, "One", oneDegreeDot, true),
+                new Table.Diagram(table.Name, "Two", twoDegreeDot, false)
             };
 
             return new Table(
-                dbObject.Name,
+                table.Name,
                 columns,
                 renderPrimaryKey,
                 renderUniqueKeys,

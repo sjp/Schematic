@@ -15,11 +15,12 @@ namespace SJP.Schematic.MySql
     {
         public MySqlRelationalDatabaseView(IDbConnection connection, IRelationalDatabase database, Identifier viewName, IEqualityComparer<Identifier> comparer = null)
         {
+            if (database == null)
+                throw new ArgumentNullException(nameof(database));
             if (viewName == null)
                 throw new ArgumentNullException(nameof(viewName));
 
             Connection = connection ?? throw new ArgumentNullException(nameof(connection));
-            Database = database ?? throw new ArgumentNullException(nameof(database));
 
             var dialect = database.Dialect;
             if (dialect == null)
@@ -38,8 +39,6 @@ namespace SJP.Schematic.MySql
         }
 
         public Identifier Name { get; }
-
-        public IRelationalDatabase Database { get; }
 
         protected IDbTypeProvider TypeProvider { get; }
 
@@ -64,30 +63,30 @@ where table_schema = @SchemaName and table_name = @ViewName";
 
         public bool IsIndexed => Indexes.Count > 0;
 
-        public IReadOnlyDictionary<Identifier, IDatabaseViewIndex> Index => _emptyIndexLookup;
+        public IReadOnlyDictionary<Identifier, IDatabaseIndex> Index => _emptyIndexLookup;
 
-        public Task<IReadOnlyDictionary<Identifier, IDatabaseViewIndex>> IndexAsync(CancellationToken cancellationToken = default(CancellationToken)) => _emptyIndexLookupTask;
+        public Task<IReadOnlyDictionary<Identifier, IDatabaseIndex>> IndexAsync(CancellationToken cancellationToken = default(CancellationToken)) => _emptyIndexLookupTask;
 
-        public IReadOnlyCollection<IDatabaseViewIndex> Indexes => Array.Empty<IDatabaseViewIndex>();
+        public IReadOnlyCollection<IDatabaseIndex> Indexes => Array.Empty<IDatabaseIndex>();
 
-        public Task<IReadOnlyCollection<IDatabaseViewIndex>> IndexesAsync(CancellationToken cancellationToken = default(CancellationToken)) => _emptyIndexes;
+        public Task<IReadOnlyCollection<IDatabaseIndex>> IndexesAsync(CancellationToken cancellationToken = default(CancellationToken)) => _emptyIndexes;
 
-        private readonly static Task<IReadOnlyCollection<IDatabaseViewIndex>> _emptyIndexes = Task.FromResult<IReadOnlyCollection<IDatabaseViewIndex>>(Array.Empty<IDatabaseViewIndex>());
-        private readonly static IReadOnlyDictionary<Identifier, IDatabaseViewIndex> _emptyIndexLookup = new Dictionary<Identifier, IDatabaseViewIndex>();
-        private readonly static Task<IReadOnlyDictionary<Identifier, IDatabaseViewIndex>> _emptyIndexLookupTask = Task.FromResult(_emptyIndexLookup);
+        private readonly static Task<IReadOnlyCollection<IDatabaseIndex>> _emptyIndexes = Task.FromResult<IReadOnlyCollection<IDatabaseIndex>>(Array.Empty<IDatabaseIndex>());
+        private readonly static IReadOnlyDictionary<Identifier, IDatabaseIndex> _emptyIndexLookup = new Dictionary<Identifier, IDatabaseIndex>();
+        private readonly static Task<IReadOnlyDictionary<Identifier, IDatabaseIndex>> _emptyIndexLookupTask = Task.FromResult(_emptyIndexLookup);
 
-        public IReadOnlyDictionary<Identifier, IDatabaseViewColumn> Column => LoadColumnLookupSync();
+        public IReadOnlyDictionary<Identifier, IDatabaseColumn> Column => LoadColumnLookupSync();
 
-        public Task<IReadOnlyDictionary<Identifier, IDatabaseViewColumn>> ColumnAsync(CancellationToken cancellationToken = default(CancellationToken)) => LoadColumnLookupAsync(cancellationToken);
+        public Task<IReadOnlyDictionary<Identifier, IDatabaseColumn>> ColumnAsync(CancellationToken cancellationToken = default(CancellationToken)) => LoadColumnLookupAsync(cancellationToken);
 
-        public IReadOnlyList<IDatabaseViewColumn> Columns => LoadColumnsSync();
+        public IReadOnlyList<IDatabaseColumn> Columns => LoadColumnsSync();
 
-        public Task<IReadOnlyList<IDatabaseViewColumn>> ColumnsAsync(CancellationToken cancellationToken = default(CancellationToken)) => LoadColumnsAsync(cancellationToken);
+        public Task<IReadOnlyList<IDatabaseColumn>> ColumnsAsync(CancellationToken cancellationToken = default(CancellationToken)) => LoadColumnsAsync(cancellationToken);
 
-        protected virtual IReadOnlyDictionary<Identifier, IDatabaseViewColumn> LoadColumnLookupSync()
+        protected virtual IReadOnlyDictionary<Identifier, IDatabaseColumn> LoadColumnLookupSync()
         {
             var columns = Columns;
-            var result = new Dictionary<Identifier, IDatabaseViewColumn>(columns.Count, Comparer);
+            var result = new Dictionary<Identifier, IDatabaseColumn>(columns.Count, Comparer);
 
             foreach (var column in columns.Where(c => c.Name != null))
                 result[column.Name.LocalName] = column;
@@ -95,10 +94,10 @@ where table_schema = @SchemaName and table_name = @ViewName";
             return result;
         }
 
-        protected virtual async Task<IReadOnlyDictionary<Identifier, IDatabaseViewColumn>> LoadColumnLookupAsync(CancellationToken cancellationToken)
+        protected virtual async Task<IReadOnlyDictionary<Identifier, IDatabaseColumn>> LoadColumnLookupAsync(CancellationToken cancellationToken)
         {
             var columns = await ColumnsAsync(cancellationToken).ConfigureAwait(false);
-            var result = new Dictionary<Identifier, IDatabaseViewColumn>(columns.Count, Comparer);
+            var result = new Dictionary<Identifier, IDatabaseColumn>(columns.Count, Comparer);
 
             foreach (var column in columns.Where(c => c.Name != null))
                 result[column.Name.LocalName] = column;
@@ -106,10 +105,10 @@ where table_schema = @SchemaName and table_name = @ViewName";
             return result;
         }
 
-        protected virtual IReadOnlyList<IDatabaseViewColumn> LoadColumnsSync()
+        protected virtual IReadOnlyList<IDatabaseColumn> LoadColumnsSync()
         {
             var query = Connection.Query<ColumnData>(ColumnsQuery, new { SchemaName = Name.Schema, ViewName = Name.LocalName });
-            var result = new List<IDatabaseViewColumn>();
+            var result = new List<IDatabaseColumn>();
 
             foreach (var row in query)
             {
@@ -131,17 +130,17 @@ where table_schema = @SchemaName and table_name = @ViewName";
                 var autoIncrement = isAutoIncrement ? new AutoIncrement(1, 1) : (IAutoIncrement)null;
                 var isNullable = !string.Equals(row.IsNullable, "NO", StringComparison.OrdinalIgnoreCase);
 
-                var column = new MySqlDatabaseViewColumn(this, columnName, columnType, isNullable, row.DefaultValue, autoIncrement);
+                var column = new MySqlDatabaseColumn(columnName, columnType, isNullable, row.DefaultValue, autoIncrement);
                 result.Add(column);
             }
 
             return result.AsReadOnly();
         }
 
-        protected virtual async Task<IReadOnlyList<IDatabaseViewColumn>> LoadColumnsAsync(CancellationToken cancellationToken)
+        protected virtual async Task<IReadOnlyList<IDatabaseColumn>> LoadColumnsAsync(CancellationToken cancellationToken)
         {
             var query = await Connection.QueryAsync<ColumnData>(ColumnsQuery, new { SchemaName = Name.Schema, ViewName = Name.LocalName }).ConfigureAwait(false);
-            var result = new List<IDatabaseViewColumn>();
+            var result = new List<IDatabaseColumn>();
 
             foreach (var row in query)
             {
@@ -163,7 +162,7 @@ where table_schema = @SchemaName and table_name = @ViewName";
                 var autoIncrement = isAutoIncrement ? new AutoIncrement(1, 1) : (IAutoIncrement)null;
                 var isNullable = !string.Equals(row.IsNullable, "NO", StringComparison.OrdinalIgnoreCase);
 
-                var column = new MySqlDatabaseViewColumn(this, columnName, columnType, isNullable, row.DefaultValue, autoIncrement);
+                var column = new MySqlDatabaseColumn(columnName, columnType, isNullable, row.DefaultValue, autoIncrement);
                 result.Add(column);
             }
 

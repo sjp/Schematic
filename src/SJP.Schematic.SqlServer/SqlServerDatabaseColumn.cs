@@ -3,9 +3,9 @@ using SJP.Schematic.Core;
 
 namespace SJP.Schematic.SqlServer
 {
-    public abstract class SqlServerDatabaseColumn : IDatabaseColumn
+    public class SqlServerDatabaseColumn : IDatabaseColumn
     {
-        protected SqlServerDatabaseColumn(Identifier columnName, IDbType type, bool isNullable, string defaultValue, IAutoIncrement autoIncrement)
+        public SqlServerDatabaseColumn(Identifier columnName, IDbType type, bool isNullable, string defaultValue, IAutoIncrement autoIncrement)
         {
             if (columnName == null)
                 throw new ArgumentNullException(nameof(columnName));

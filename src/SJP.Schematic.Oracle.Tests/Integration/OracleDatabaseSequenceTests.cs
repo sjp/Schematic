@@ -71,15 +71,6 @@ namespace SJP.Schematic.Oracle.Tests.Integration
         }
 
         [Test]
-        public void Database_PropertyGet_ShouldMatchCtorArg()
-        {
-            var database = Database;
-            var sequence = new OracleDatabaseSequence(Connection, database, "test");
-
-            Assert.AreSame(database, sequence.Database);
-        }
-
-        [Test]
         public void Name_GivenLocalNameOnlyInCtor_ShouldBeQualifiedCorrectly()
         {
             var database = Database;

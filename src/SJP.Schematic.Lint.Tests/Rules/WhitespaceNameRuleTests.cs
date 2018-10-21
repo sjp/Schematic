@@ -37,12 +37,12 @@ namespace SJP.Schematic.Lint.Tests.Rules
             var table = new RelationalDatabaseTable(
                 database,
                 tableName,
-                new List<IDatabaseTableColumn>(),
+                new List<IDatabaseColumn>(),
                 null,
                 Array.Empty<IDatabaseKey>(),
                 Array.Empty<IDatabaseRelationalKey>(),
                 Array.Empty<IDatabaseRelationalKey>(),
-                Array.Empty<IDatabaseTableIndex>(),
+                Array.Empty<IDatabaseIndex>(),
                 Array.Empty<IDatabaseCheckConstraint>(),
                 Array.Empty<IDatabaseTrigger>()
             );
@@ -63,12 +63,12 @@ namespace SJP.Schematic.Lint.Tests.Rules
             var table = new RelationalDatabaseTable(
                 database,
                 tableName,
-                new List<IDatabaseTableColumn>(),
+                new List<IDatabaseColumn>(),
                 null,
                 Array.Empty<IDatabaseKey>(),
                 Array.Empty<IDatabaseRelationalKey>(),
                 Array.Empty<IDatabaseRelationalKey>(),
-                Array.Empty<IDatabaseTableIndex>(),
+                Array.Empty<IDatabaseIndex>(),
                 Array.Empty<IDatabaseCheckConstraint>(),
                 Array.Empty<IDatabaseTrigger>()
             );
@@ -85,8 +85,7 @@ namespace SJP.Schematic.Lint.Tests.Rules
             var rule = new WhitespaceNameRule(RuleLevel.Error);
             var database = CreateFakeDatabase();
 
-            var testColumn = new DatabaseTableColumn(
-                Mock.Of<IRelationalDatabaseTable>(),
+            var testColumn = new DatabaseColumn(
                 "test_column",
                 Mock.Of<IDbType>(),
                 false,
@@ -97,12 +96,12 @@ namespace SJP.Schematic.Lint.Tests.Rules
             var table = new RelationalDatabaseTable(
                 database,
                 "test",
-                new List<IDatabaseTableColumn> { testColumn },
+                new List<IDatabaseColumn> { testColumn },
                 null,
                 Array.Empty<IDatabaseKey>(),
                 Array.Empty<IDatabaseRelationalKey>(),
                 Array.Empty<IDatabaseRelationalKey>(),
-                Array.Empty<IDatabaseTableIndex>(),
+                Array.Empty<IDatabaseIndex>(),
                 Array.Empty<IDatabaseCheckConstraint>(),
                 Array.Empty<IDatabaseTrigger>()
             );
@@ -119,8 +118,7 @@ namespace SJP.Schematic.Lint.Tests.Rules
             var rule = new WhitespaceNameRule(RuleLevel.Error);
             var database = CreateFakeDatabase();
 
-            var testColumn = new DatabaseTableColumn(
-                Mock.Of<IRelationalDatabaseTable>(),
+            var testColumn = new DatabaseColumn(
                 "   test_column ",
                 Mock.Of<IDbType>(),
                 false,
@@ -131,12 +129,12 @@ namespace SJP.Schematic.Lint.Tests.Rules
             var table = new RelationalDatabaseTable(
                 database,
                 "test",
-                new List<IDatabaseTableColumn> { testColumn },
+                new List<IDatabaseColumn> { testColumn },
                 null,
                 Array.Empty<IDatabaseKey>(),
                 Array.Empty<IDatabaseRelationalKey>(),
                 Array.Empty<IDatabaseRelationalKey>(),
-                Array.Empty<IDatabaseTableIndex>(),
+                Array.Empty<IDatabaseIndex>(),
                 Array.Empty<IDatabaseCheckConstraint>(),
                 Array.Empty<IDatabaseTrigger>()
             );
@@ -158,8 +156,8 @@ namespace SJP.Schematic.Lint.Tests.Rules
                 database,
                 viewName,
                 "select 1",
-                new List<IDatabaseViewColumn>(),
-                Array.Empty<IDatabaseViewIndex>()
+                new List<IDatabaseColumn>(),
+                Array.Empty<IDatabaseIndex>()
             );
             database.Views = new[] { view };
 
@@ -179,8 +177,8 @@ namespace SJP.Schematic.Lint.Tests.Rules
                 database,
                 viewName,
                 "select 1",
-                new List<IDatabaseViewColumn>(),
-                Array.Empty<IDatabaseViewIndex>()
+                new List<IDatabaseColumn>(),
+                Array.Empty<IDatabaseIndex>()
             );
             database.Views = new[] { view };
 
@@ -195,8 +193,7 @@ namespace SJP.Schematic.Lint.Tests.Rules
             var rule = new WhitespaceNameRule(RuleLevel.Error);
             var viewName = new Identifier("test");
 
-            var testColumn = new DatabaseViewColumn(
-                Mock.Of<IRelationalDatabaseView>(),
+            var testColumn = new DatabaseColumn(
                 "test_column",
                 Mock.Of<IDbType>(),
                 false,
@@ -209,8 +206,8 @@ namespace SJP.Schematic.Lint.Tests.Rules
                 database,
                 viewName,
                 "select 1",
-                new List<IDatabaseViewColumn> { testColumn },
-                Array.Empty<IDatabaseViewIndex>()
+                new List<IDatabaseColumn> { testColumn },
+                Array.Empty<IDatabaseIndex>()
             );
             database.Views = new[] { view };
 
@@ -225,8 +222,7 @@ namespace SJP.Schematic.Lint.Tests.Rules
             var rule = new WhitespaceNameRule(RuleLevel.Error);
             var viewName = new Identifier("test");
 
-            var testColumn = new DatabaseViewColumn(
-                Mock.Of<IRelationalDatabaseView>(),
+            var testColumn = new DatabaseColumn(
                 "   test_column   ",
                 Mock.Of<IDbType>(),
                 false,
@@ -239,8 +235,8 @@ namespace SJP.Schematic.Lint.Tests.Rules
                 database,
                 viewName,
                 "select 1",
-                new List<IDatabaseViewColumn> { testColumn },
-                Array.Empty<IDatabaseViewIndex>()
+                new List<IDatabaseColumn> { testColumn },
+                Array.Empty<IDatabaseIndex>()
             );
             database.Views = new[] { view };
 

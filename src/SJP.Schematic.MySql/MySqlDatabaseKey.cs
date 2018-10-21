@@ -8,7 +8,7 @@ namespace SJP.Schematic.MySql
 {
     public class MySqlDatabaseKey : IDatabaseKey
     {
-        public MySqlDatabaseKey(IRelationalDatabaseTable table, Identifier name, DatabaseKeyType keyType, IReadOnlyCollection<IDatabaseColumn> columns)
+        public MySqlDatabaseKey(Identifier name, DatabaseKeyType keyType, IReadOnlyCollection<IDatabaseColumn> columns)
         {
             if (name == null)
                 throw new ArgumentNullException(nameof(name));
@@ -17,14 +17,11 @@ namespace SJP.Schematic.MySql
             if (!keyType.IsValid())
                 throw new ArgumentException($"The { nameof(DatabaseKeyType) } provided must be a valid enum.", nameof(keyType));
 
-            Table = table ?? throw new ArgumentNullException(nameof(table));
             Name = name.LocalName;
             KeyType = keyType;
             Columns = columns;
             IsEnabled = true;
         }
-
-        public IRelationalDatabaseTable Table { get; }
 
         public Identifier Name { get; }
 

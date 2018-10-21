@@ -6,8 +6,7 @@ using SJP.Schematic.Core;
 
 namespace SJP.Schematic.Reporting.Html.ViewModels.Mappers
 {
-    internal sealed class ViewModelMapper :
-        IDatabaseModelMapper<IRelationalDatabaseView, View>
+    internal sealed class ViewModelMapper
     {
         public ViewModelMapper(IDbConnection connection, IDatabaseDialect dialect)
         {
@@ -19,13 +18,13 @@ namespace SJP.Schematic.Reporting.Html.ViewModels.Mappers
 
         private IDatabaseDialect Dialect { get; }
 
-        public View Map(IRelationalDatabaseView dbObject)
+        public View Map(IRelationalDatabaseView view)
         {
-            if (dbObject == null)
-                throw new ArgumentNullException(nameof(dbObject));
+            if (view == null)
+                throw new ArgumentNullException(nameof(view));
 
-            var rowCount = Connection.GetRowCount(Dialect, dbObject.Name);
-            var viewColumns = dbObject.Columns.ToList();
+            var rowCount = Connection.GetRowCount(Dialect, view.Name);
+            var viewColumns = view.Columns.ToList();
 
             var columns = viewColumns.Select((vc, i) =>
                 new View.Column(
@@ -37,26 +36,26 @@ namespace SJP.Schematic.Reporting.Html.ViewModels.Mappers
                 )).ToList();
 
             return new View(
-                dbObject.Name,
+                view.Name,
                 "../",
                 rowCount,
-                dbObject.Definition,
+                view.Definition,
                 columns
             );
         }
 
-        public Task<View> MapAsync(IRelationalDatabaseView dbObject)
+        public Task<View> MapAsync(IRelationalDatabaseView view)
         {
-            if (dbObject == null)
-                throw new ArgumentNullException(nameof(dbObject));
+            if (view == null)
+                throw new ArgumentNullException(nameof(view));
 
-            return MapAsyncCore(dbObject);
+            return MapAsyncCore(view);
         }
 
-        private async Task<View> MapAsyncCore(IRelationalDatabaseView dbObject)
+        private async Task<View> MapAsyncCore(IRelationalDatabaseView view)
         {
-            var rowCount = await Connection.GetRowCountAsync(Dialect, dbObject.Name).ConfigureAwait(false);
-            var viewColumns = await dbObject.ColumnsAsync().ConfigureAwait(false);
+            var rowCount = await Connection.GetRowCountAsync(Dialect, view.Name).ConfigureAwait(false);
+            var viewColumns = await view.ColumnsAsync().ConfigureAwait(false);
 
             var columns = viewColumns.Select((vc, i) =>
                 new View.Column(
@@ -68,10 +67,10 @@ namespace SJP.Schematic.Reporting.Html.ViewModels.Mappers
                 )).ToList();
 
             return new View(
-                dbObject.Name,
+                view.Name,
                 "../",
                 rowCount,
-                dbObject.Definition,
+                view.Definition,
                 columns
             );
         }

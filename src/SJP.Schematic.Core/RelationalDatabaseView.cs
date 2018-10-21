@@ -13,8 +13,8 @@ namespace SJP.Schematic.Core
             IRelationalDatabase database,
             Identifier viewName,
             string definition,
-            IReadOnlyList<IDatabaseViewColumn> columns,
-            IReadOnlyCollection<IDatabaseViewIndex> indexes,
+            IReadOnlyList<IDatabaseColumn> columns,
+            IReadOnlyCollection<IDatabaseIndex> indexes,
             IEqualityComparer<Identifier> comparer = null)
         {
             if (viewName == null)
@@ -42,7 +42,7 @@ namespace SJP.Schematic.Core
 
         public Identifier Name { get; }
 
-        public IRelationalDatabase Database { get; }
+        protected IRelationalDatabase Database { get; }
 
         protected IEqualityComparer<Identifier> Comparer { get; }
 
@@ -52,25 +52,25 @@ namespace SJP.Schematic.Core
 
         public bool IsIndexed { get; }
 
-        public IReadOnlyDictionary<Identifier, IDatabaseViewIndex> Index { get; }
+        public IReadOnlyDictionary<Identifier, IDatabaseIndex> Index { get; }
 
-        public Task<IReadOnlyDictionary<Identifier, IDatabaseViewIndex>> IndexAsync(CancellationToken cancellationToken = default(CancellationToken)) => Task.FromResult(Index);
+        public Task<IReadOnlyDictionary<Identifier, IDatabaseIndex>> IndexAsync(CancellationToken cancellationToken = default(CancellationToken)) => Task.FromResult(Index);
 
-        public IReadOnlyCollection<IDatabaseViewIndex> Indexes { get; }
+        public IReadOnlyCollection<IDatabaseIndex> Indexes { get; }
 
-        public Task<IReadOnlyCollection<IDatabaseViewIndex>> IndexesAsync(CancellationToken cancellationToken = default(CancellationToken)) => Task.FromResult(Indexes);
+        public Task<IReadOnlyCollection<IDatabaseIndex>> IndexesAsync(CancellationToken cancellationToken = default(CancellationToken)) => Task.FromResult(Indexes);
 
-        public IReadOnlyDictionary<Identifier, IDatabaseViewColumn> Column { get; }
+        public IReadOnlyDictionary<Identifier, IDatabaseColumn> Column { get; }
 
-        public Task<IReadOnlyDictionary<Identifier, IDatabaseViewColumn>> ColumnAsync(CancellationToken cancellationToken = default(CancellationToken)) => Task.FromResult(Column);
+        public Task<IReadOnlyDictionary<Identifier, IDatabaseColumn>> ColumnAsync(CancellationToken cancellationToken = default(CancellationToken)) => Task.FromResult(Column);
 
-        public IReadOnlyList<IDatabaseViewColumn> Columns { get; }
+        public IReadOnlyList<IDatabaseColumn> Columns { get; }
 
-        public Task<IReadOnlyList<IDatabaseViewColumn>> ColumnsAsync(CancellationToken cancellationToken = default(CancellationToken)) => Task.FromResult(Columns);
+        public Task<IReadOnlyList<IDatabaseColumn>> ColumnsAsync(CancellationToken cancellationToken = default(CancellationToken)) => Task.FromResult(Columns);
 
-        private static IReadOnlyDictionary<Identifier, IDatabaseViewColumn> CreateColumnLookup(IReadOnlyList<IDatabaseViewColumn> columns, IEqualityComparer<Identifier> comparer)
+        private static IReadOnlyDictionary<Identifier, IDatabaseColumn> CreateColumnLookup(IReadOnlyList<IDatabaseColumn> columns, IEqualityComparer<Identifier> comparer)
         {
-            var result = new Dictionary<Identifier, IDatabaseViewColumn>(columns.Count, comparer);
+            var result = new Dictionary<Identifier, IDatabaseColumn>(columns.Count, comparer);
 
             var namedColumns = columns.Where(c => c.Name != null);
             foreach (var column in namedColumns)
@@ -79,9 +79,9 @@ namespace SJP.Schematic.Core
             return result;
         }
 
-        private static IReadOnlyDictionary<Identifier, IDatabaseViewIndex> CreateIndexLookup(IReadOnlyCollection<IDatabaseViewIndex> indexes, IEqualityComparer<Identifier> comparer)
+        private static IReadOnlyDictionary<Identifier, IDatabaseIndex> CreateIndexLookup(IReadOnlyCollection<IDatabaseIndex> indexes, IEqualityComparer<Identifier> comparer)
         {
-            var result = new Dictionary<Identifier, IDatabaseViewIndex>(indexes.Count, comparer);
+            var result = new Dictionary<Identifier, IDatabaseIndex>(indexes.Count, comparer);
 
             foreach (var index in indexes)
                 result[index.Name.LocalName] = index;

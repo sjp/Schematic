@@ -21,11 +21,11 @@ namespace SJP.Schematic.Modelled.Reflection
             Name = Dialect.GetQualifiedNameOrDefault(database, InstanceType);
             TypeProvider = new ReflectionTableTypeProvider(Dialect, InstanceType);
 
-            _columns = new Lazy<IReadOnlyList<IDatabaseTableColumn>>(LoadColumnList);
-            _columnLookup = new Lazy<IReadOnlyDictionary<Identifier, IDatabaseTableColumn>>(LoadColumns);
+            _columns = new Lazy<IReadOnlyList<IDatabaseColumn>>(LoadColumnList);
+            _columnLookup = new Lazy<IReadOnlyDictionary<Identifier, IDatabaseColumn>>(LoadColumns);
             _checkLookup = new Lazy<IReadOnlyDictionary<Identifier, IDatabaseCheckConstraint>>(LoadChecks);
             _uniqueKeyLookup = new Lazy<IReadOnlyDictionary<Identifier, IDatabaseKey>>(LoadUniqueKeys);
-            _indexLookup = new Lazy<IReadOnlyDictionary<Identifier, IDatabaseTableIndex>>(LoadIndexes);
+            _indexLookup = new Lazy<IReadOnlyDictionary<Identifier, IDatabaseIndex>>(LoadIndexes);
             _parentKeyLookup = new Lazy<IReadOnlyDictionary<Identifier, IDatabaseRelationalKey>>(LoadParentKeys);
             _childKeys = new Lazy<IReadOnlyCollection<IDatabaseRelationalKey>>(LoadChildKeys);
             _primaryKey = new Lazy<IDatabaseKey>(LoadPrimaryKey);
@@ -39,7 +39,7 @@ namespace SJP.Schematic.Modelled.Reflection
         {
             return Database.Tables
                 .SelectMany(t => t.ParentKeys)
-                .Where(fk => fk.ParentKey.Table.Name == Name)
+                .Where(fk => fk.ParentTable == Name)
                 .ToList();
         }
 
@@ -88,7 +88,7 @@ namespace SJP.Schematic.Modelled.Reflection
                 // TODO: don't assume that the FK is to a table -- could be to a synonym
                 //       maybe change interface of Synonym<T> to be something like Synonym<Table<T>> or Synonym<Synonym<T>> -- could unwrap at runtime?
                 var childKeyName = Dialect.GetAliasOrDefault(declaredParentKey.Property);
-                var childKey = new ReflectionForeignKey(this, childKeyName, parentKey, fkColumns);
+                var childKey = new ReflectionForeignKey(childKeyName, parentKey, fkColumns);
 
                 var deleteAttr = Dialect.GetDialectAttribute<OnDeleteRuleAttribute>(declaredParentKey.Property);
                 var deleteRule = deleteAttr?.Rule ?? Rule.None;
@@ -96,13 +96,13 @@ namespace SJP.Schematic.Modelled.Reflection
                 var updateAttr = Dialect.GetDialectAttribute<OnUpdateRuleAttribute>(declaredParentKey.Property);
                 var updateRule = updateAttr?.Rule ?? Rule.None;
 
-                result[childKey.Name.LocalName] = new ReflectionRelationalKey(childKey, parentKey, deleteRule, updateRule);
+                result[childKey.Name.LocalName] = new ReflectionRelationalKey(Name, childKey, parent.Name, parentKey, deleteRule, updateRule);
             }
 
             return result;
         }
 
-        private IReadOnlyList<IDatabaseTableColumn> LoadColumnList()
+        private IReadOnlyList<IDatabaseColumn> LoadColumnList()
         {
             return TypeProvider.Columns
                 .Select(GetColumn)
@@ -110,7 +110,7 @@ namespace SJP.Schematic.Modelled.Reflection
                 .AsReadOnly();
         }
 
-        private IDatabaseTableColumn GetColumn(IModelledColumn column)
+        private IDatabaseColumn GetColumn(IModelledColumn column)
         {
             if (column.IsComputed && column is IModelledComputedColumn computedColumn)
             {
@@ -120,7 +120,7 @@ namespace SJP.Schematic.Modelled.Reflection
             }
             else
             {
-                return new ReflectionTableColumn(Dialect, this, column.Property, column.DeclaredDbType, column.IsNullable);
+                return new ReflectionTableColumn(Dialect, column.Property, column.DeclaredDbType, column.IsNullable);
             }
         }
 
@@ -133,16 +133,16 @@ namespace SJP.Schematic.Modelled.Reflection
             var pkColumns = primaryKey.Columns.Select(GetColumn).ToList();
 
             var keyName = dialect.GetAliasOrDefault(primaryKey.Property);
-            return new ReflectionKey(this, keyName, primaryKey.KeyType, pkColumns);
+            return new ReflectionKey(keyName, primaryKey.KeyType, pkColumns);
         }
 
-        private IReadOnlyDictionary<Identifier, IDatabaseTableIndex> LoadIndexes()
+        private IReadOnlyDictionary<Identifier, IDatabaseIndex> LoadIndexes()
         {
-            var result = new Dictionary<Identifier, IDatabaseTableIndex>();
+            var result = new Dictionary<Identifier, IDatabaseIndex>();
 
             foreach (var index in TypeProvider.Indexes)
             {
-                var refIndex = new ReflectionDatabaseTableIndex(this, index);
+                var refIndex = new ReflectionDatabaseTableIndex(Database.Dialect, this, index);
                 result[refIndex.Name.LocalName] = refIndex;
             }
 
@@ -161,7 +161,7 @@ namespace SJP.Schematic.Modelled.Reflection
             {
                 var ukColumns = uniqueKey.Columns.Select(GetColumn).ToList();
                 var keyName = Dialect.GetAliasOrDefault(uniqueKey.Property);
-                var uk = new ReflectionKey(this, keyName, uniqueKey.KeyType, ukColumns);
+                var uk = new ReflectionKey(keyName, uniqueKey.KeyType, ukColumns);
                 result[uk.Name.LocalName] = uk;
             }
 
@@ -177,16 +177,16 @@ namespace SJP.Schematic.Modelled.Reflection
             {
                 var definition = modelledCheck.Expression.ToSql(dialect);
                 var checkName = dialect.GetAliasOrDefault(modelledCheck.Property);
-                var check = new ReflectionCheckConstraint(this, checkName, definition);
+                var check = new ReflectionCheckConstraint(checkName, definition);
                 result[check.Name.LocalName] = check;
             }
 
             return result;
         }
 
-        private IReadOnlyDictionary<Identifier, IDatabaseTableColumn> LoadColumns()
+        private IReadOnlyDictionary<Identifier, IDatabaseColumn> LoadColumns()
         {
-            var result = new Dictionary<Identifier, IDatabaseTableColumn>();
+            var result = new Dictionary<Identifier, IDatabaseColumn>();
 
             foreach (var column in TypeProvider.Columns)
             {
@@ -203,15 +203,15 @@ namespace SJP.Schematic.Modelled.Reflection
 
         public IReadOnlyCollection<IDatabaseRelationalKey> ChildKeys => _childKeys.Value;
 
-        public IReadOnlyDictionary<Identifier, IDatabaseTableColumn> Column => _columnLookup.Value;
+        public IReadOnlyDictionary<Identifier, IDatabaseColumn> Column => _columnLookup.Value;
 
-        public IReadOnlyList<IDatabaseTableColumn> Columns => _columns.Value;
+        public IReadOnlyList<IDatabaseColumn> Columns => _columns.Value;
 
-        public IRelationalDatabase Database { get; }
+        protected IRelationalDatabase Database { get; }
 
-        public IReadOnlyDictionary<Identifier, IDatabaseTableIndex> Index => _indexLookup.Value;
+        public IReadOnlyDictionary<Identifier, IDatabaseIndex> Index => _indexLookup.Value;
 
-        public IReadOnlyCollection<IDatabaseTableIndex> Indexes => new ReadOnlyCollectionSlim<IDatabaseTableIndex>(_indexLookup.Value.Count, _indexLookup.Value.Values);
+        public IReadOnlyCollection<IDatabaseIndex> Indexes => new ReadOnlyCollectionSlim<IDatabaseIndex>(_indexLookup.Value.Count, _indexLookup.Value.Values);
 
         public Identifier Name { get; }
 
@@ -237,18 +237,18 @@ namespace SJP.Schematic.Modelled.Reflection
 
         public Task<IReadOnlyCollection<IDatabaseRelationalKey>> ChildKeysAsync(CancellationToken cancellationToken = default(CancellationToken)) => Task.FromResult(_childKeys.Value);
 
-        public Task<IReadOnlyDictionary<Identifier, IDatabaseTableColumn>> ColumnAsync(CancellationToken cancellationToken = default(CancellationToken)) => Task.FromResult(_columnLookup.Value);
+        public Task<IReadOnlyDictionary<Identifier, IDatabaseColumn>> ColumnAsync(CancellationToken cancellationToken = default(CancellationToken)) => Task.FromResult(_columnLookup.Value);
 
-        public Task<IReadOnlyList<IDatabaseTableColumn>> ColumnsAsync(CancellationToken cancellationToken = default(CancellationToken))
+        public Task<IReadOnlyList<IDatabaseColumn>> ColumnsAsync(CancellationToken cancellationToken = default(CancellationToken))
         {
             var result = _columnLookup.Value.Values.ToList().AsReadOnly();
-            return Task.FromResult<IReadOnlyList<IDatabaseTableColumn>>(result);
+            return Task.FromResult<IReadOnlyList<IDatabaseColumn>>(result);
         }
 
-        public Task<IReadOnlyDictionary<Identifier, IDatabaseTableIndex>> IndexAsync(CancellationToken cancellationToken = default(CancellationToken)) => Task.FromResult(_indexLookup.Value);
+        public Task<IReadOnlyDictionary<Identifier, IDatabaseIndex>> IndexAsync(CancellationToken cancellationToken = default(CancellationToken)) => Task.FromResult(_indexLookup.Value);
 
-        public Task<IReadOnlyCollection<IDatabaseTableIndex>> IndexesAsync(CancellationToken cancellationToken = default(CancellationToken)) => Task.FromResult<IReadOnlyCollection<IDatabaseTableIndex>>(
-            new ReadOnlyCollectionSlim<IDatabaseTableIndex>(_indexLookup.Value.Count, _indexLookup.Value.Values)
+        public Task<IReadOnlyCollection<IDatabaseIndex>> IndexesAsync(CancellationToken cancellationToken = default(CancellationToken)) => Task.FromResult<IReadOnlyCollection<IDatabaseIndex>>(
+            new ReadOnlyCollectionSlim<IDatabaseIndex>(_indexLookup.Value.Count, _indexLookup.Value.Values)
         );
 
         public Task<IReadOnlyDictionary<Identifier, IDatabaseRelationalKey>> ParentKeyAsync(CancellationToken cancellationToken = default(CancellationToken)) => Task.FromResult(_parentKeyLookup.Value);
@@ -275,11 +275,11 @@ namespace SJP.Schematic.Modelled.Reflection
             new ReadOnlyCollectionSlim<IDatabaseKey>(_uniqueKeyLookup.Value.Count, _uniqueKeyLookup.Value.Values)
         );
 
-        private readonly Lazy<IReadOnlyList<IDatabaseTableColumn>> _columns;
-        private readonly Lazy<IReadOnlyDictionary<Identifier, IDatabaseTableColumn>> _columnLookup;
+        private readonly Lazy<IReadOnlyList<IDatabaseColumn>> _columns;
+        private readonly Lazy<IReadOnlyDictionary<Identifier, IDatabaseColumn>> _columnLookup;
         private readonly Lazy<IReadOnlyDictionary<Identifier, IDatabaseKey>> _uniqueKeyLookup;
         private readonly Lazy<IReadOnlyDictionary<Identifier, IDatabaseCheckConstraint>> _checkLookup;
-        private readonly Lazy<IReadOnlyDictionary<Identifier, IDatabaseTableIndex>> _indexLookup;
+        private readonly Lazy<IReadOnlyDictionary<Identifier, IDatabaseIndex>> _indexLookup;
         private readonly Lazy<IReadOnlyDictionary<Identifier, IDatabaseRelationalKey>> _parentKeyLookup;
         // TODO: implement triggers
         //private readonly Lazy<IReadOnlyDictionary<string, IDatabaseTrigger>> _triggerLookup;

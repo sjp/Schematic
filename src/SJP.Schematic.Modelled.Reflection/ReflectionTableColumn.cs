@@ -7,9 +7,9 @@ using SJP.Schematic.Modelled.Reflection.Model;
 
 namespace SJP.Schematic.Modelled.Reflection
 {
-    public class ReflectionTableColumn : IDatabaseTableColumn
+    public class ReflectionTableColumn : IDatabaseColumn
     {
-        public ReflectionTableColumn(IDatabaseDialect dialect, IRelationalDatabaseTable table, PropertyInfo prop, Type declaredColumnType, bool isNullable)
+        public ReflectionTableColumn(IDatabaseDialect dialect, PropertyInfo prop, Type declaredColumnType, bool isNullable)
         {
             Property = prop ?? throw new ArgumentNullException(nameof(prop));
             Dialect = dialect ?? throw new ArgumentNullException(nameof(dialect));
@@ -34,7 +34,6 @@ namespace SJP.Schematic.Modelled.Reflection
                 AutoIncrement = new AutoIncrement(autoIncrAttr.InitialValue, autoIncrAttr.Increment);
             }
 
-            Table = table ?? throw new ArgumentNullException(nameof(table));
             Type = columnType ?? throw new ArgumentNullException(nameof(declaredColumnType));
             IsNullable = isNullable;
         }

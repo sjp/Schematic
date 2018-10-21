@@ -4,8 +4,6 @@
     {
         Identifier Name { get; }
 
-        IRelationalDatabaseTable Table { get; }
-
         string Definition { get; }
     }
 }

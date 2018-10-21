@@ -47,15 +47,6 @@ namespace SJP.Schematic.Modelled.Reflection.Tests
         }
 
         [Test]
-        public static void Database_PropertyGet_MatchesCtorArgument()
-        {
-            var database = new ReflectionRelationalDatabase<TestDatabase1>(new FakeDialect());
-            var table = new ReflectionTable(database, typeof(TestTable1));
-
-            Assert.AreEqual(database, table.Database);
-        }
-
-        [Test]
         public static void Name_PropertyGetOnSimpleClass_ReturnsSameNameAsClass()
         {
             var database = new ReflectionRelationalDatabase<TestDatabase1>(new FakeDialect());

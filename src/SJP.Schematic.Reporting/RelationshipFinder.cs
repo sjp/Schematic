@@ -9,6 +9,13 @@ namespace SJP.Schematic.Reporting
 {
     internal sealed class RelationshipFinder
     {
+        public RelationshipFinder(IRelationalDatabase database)
+        {
+            Database = database ?? throw new ArgumentNullException(nameof(database));
+        }
+
+        private IRelationalDatabase Database { get; }
+
         public IEnumerable<IRelationalDatabaseTable> GetTablesByDegrees(IRelationalDatabaseTable table, uint degrees)
         {
             if (table == null)
@@ -38,7 +45,7 @@ namespace SJP.Schematic.Reporting
             return result.Values;
         }
 
-        private static void AddRelatedTables(IDictionary<Identifier, IRelationalDatabaseTable> tableLookup, IEnumerable<IRelationalDatabaseTable> tables, uint degree)
+        private void AddRelatedTables(IDictionary<Identifier, IRelationalDatabaseTable> tableLookup, IEnumerable<IRelationalDatabaseTable> tables, uint degree)
         {
             if (tableLookup == null)
                 throw new ArgumentNullException(nameof(tableLookup));
@@ -57,18 +64,27 @@ namespace SJP.Schematic.Reporting
 
                 foreach (var childKey in childKeys)
                 {
-                    var childTableName = childKey.ChildKey.Table.Name;
+                    var childTableName = childKey.ChildTable;
                     var isNewTable = !tableLookup.ContainsKey(childTableName) && !addedTables.ContainsKey(childTableName);
-                    if (isNewTable)
-                        addedTables[childTableName] = childKey.ChildKey.Table;
+                    if (!isNewTable)
+                        continue;
+
+                    var childTable = Database.GetTable(childTableName);
+                    if (childTable != null)
+                        addedTables[childTableName] = childTable;
                 }
 
                 foreach (var parentKey in parentKeys)
                 {
-                    var parentTableName = parentKey.ParentKey.Table.Name;
+                    var parentTableName = parentKey.ParentTable;
                     var isNewTable = !tableLookup.ContainsKey(parentTableName) && !addedTables.ContainsKey(parentTableName);
-                    if (isNewTable)
-                        addedTables[parentTableName] = parentKey.ParentKey.Table;
+
+                    if (!isNewTable)
+                        continue;
+
+                    var parentTable = Database.GetTable(parentTableName);
+                    if (parentTable != null)
+                        addedTables[parentTableName] = parentTable;
                 }
             }
 
@@ -79,7 +95,7 @@ namespace SJP.Schematic.Reporting
             AddRelatedTables(tableLookup, addedTables.Values, newDegree);
         }
 
-        private static async Task AddRelatedTablesAsync(IDictionary<Identifier, IRelationalDatabaseTable> tableLookup, IEnumerable<IRelationalDatabaseTable> tables, uint degree)
+        private async Task AddRelatedTablesAsync(IDictionary<Identifier, IRelationalDatabaseTable> tableLookup, IEnumerable<IRelationalDatabaseTable> tables, uint degree)
         {
             if (tables.Empty() || degree == 0)
                 return;
@@ -93,18 +109,26 @@ namespace SJP.Schematic.Reporting
 
                 foreach (var childKey in childKeys)
                 {
-                    var childTableName = childKey.ChildKey.Table.Name;
+                    var childTableName = childKey.ChildTable;
                     var isNewTable = !tableLookup.ContainsKey(childTableName) && !addedTables.ContainsKey(childTableName);
-                    if (isNewTable)
-                        addedTables[childTableName] = childKey.ChildKey.Table;
+                    if (!isNewTable)
+                        continue;
+
+                    var childTable = await Database.GetTableAsync(childTableName).ConfigureAwait(false);
+                    if (childTable != null)
+                        addedTables[childTableName] = childTable;
                 }
 
                 foreach (var parentKey in parentKeys)
                 {
-                    var parentTableName = parentKey.ParentKey.Table.Name;
+                    var parentTableName = parentKey.ParentTable;
                     var isNewTable = !tableLookup.ContainsKey(parentTableName) && !addedTables.ContainsKey(parentTableName);
-                    if (isNewTable)
-                        addedTables[parentTableName] = parentKey.ParentKey.Table;
+                    if (!isNewTable)
+                        continue;
+
+                    var parentTable = await Database.GetTableAsync(parentTableName).ConfigureAwait(false);
+                    if (parentTable != null)
+                        addedTables[parentTableName] = parentTable;
                 }
             }
 

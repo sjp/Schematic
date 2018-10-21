@@ -6,8 +6,7 @@ using SJP.Schematic.Reporting.Dot;
 
 namespace SJP.Schematic.Reporting.Html.ViewModels.Mappers
 {
-    internal sealed class RelationshipsModelMapper :
-        IDatabaseModelMapper<IRelationalDatabase, Relationships>
+    internal sealed class RelationshipsModelMapper
     {
         public RelationshipsModelMapper(IDbConnection connection)
         {
@@ -16,12 +15,12 @@ namespace SJP.Schematic.Reporting.Html.ViewModels.Mappers
 
         private IDbConnection Connection { get; }
 
-        public Relationships Map(IRelationalDatabase dbObject)
+        public Relationships Map(IRelationalDatabase database)
         {
-            if (dbObject == null)
-                throw new ArgumentNullException(nameof(dbObject));
+            if (database == null)
+                throw new ArgumentNullException(nameof(database));
 
-            var dotFormatter = new DatabaseDotFormatter(Connection, dbObject);
+            var dotFormatter = new DatabaseDotFormatter(Connection, database);
 
             var rootPath = string.Empty;
             var compactOptions = new DotRenderOptions
@@ -47,17 +46,17 @@ namespace SJP.Schematic.Reporting.Html.ViewModels.Mappers
             return new Relationships(diagrams);
         }
 
-        public Task<Relationships> MapAsync(IRelationalDatabase dbObject)
+        public Task<Relationships> MapAsync(IRelationalDatabase database)
         {
-            if (dbObject == null)
-                throw new ArgumentNullException(nameof(dbObject));
+            if (database == null)
+                throw new ArgumentNullException(nameof(database));
 
-            return MapAsyncCore(dbObject);
+            return MapAsyncCore(database);
         }
 
-        private async Task<Relationships> MapAsyncCore(IRelationalDatabase dbObject)
+        private async Task<Relationships> MapAsyncCore(IRelationalDatabase database)
         {
-            var dotFormatter = new DatabaseDotFormatter(Connection, dbObject);
+            var dotFormatter = new DatabaseDotFormatter(Connection, database);
 
             var rootPath = string.Empty;
             var compactOptions = new DotRenderOptions

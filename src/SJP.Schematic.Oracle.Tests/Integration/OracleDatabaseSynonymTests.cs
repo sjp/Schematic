@@ -27,15 +27,6 @@ namespace SJP.Schematic.Oracle.Tests.Integration
         }
 
         [Test]
-        public void Database_PropertyGet_ShouldMatchCtorArg()
-        {
-            var database = Database;
-            var synonym = new OracleDatabaseSynonym(database, "test", "test");
-
-            Assert.AreSame(database, synonym.Database);
-        }
-
-        [Test]
         public void Name_PropertyGet_ShouldEqualCtorArg()
         {
             const string synonymName = "synonym_test_synonym_1";

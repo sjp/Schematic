@@ -1,6 +1,5 @@
 ﻿using System;
 using NUnit.Framework;
-using Moq;
 
 namespace SJP.Schematic.Core.Tests
 {
@@ -8,25 +7,13 @@ namespace SJP.Schematic.Core.Tests
     internal static class DatabaseTriggerTests
     {
         [Test]
-        public static void Ctor_GivenNullTable_ThrowsArgumentNullException()
-        {
-            Identifier triggerName = "test_trigger";
-            const string definition = "create trigger test_trigger...";
-            const TriggerQueryTiming timing = TriggerQueryTiming.Before;
-            const TriggerEvent events = TriggerEvent.Update;
-
-            Assert.Throws<ArgumentNullException>(() => new DatabaseTrigger(null, triggerName, definition, timing, events, true));
-        }
-
-        [Test]
         public static void Ctor_GivenNullName_ThrowsArgumentNullException()
         {
-            var table = Mock.Of<IRelationalDatabaseTable>();
             const string definition = "create trigger test_trigger...";
             const TriggerQueryTiming timing = TriggerQueryTiming.Before;
             const TriggerEvent events = TriggerEvent.Update;
 
-            Assert.Throws<ArgumentNullException>(() => new DatabaseTrigger(table, null, definition, timing, events, true));
+            Assert.Throws<ArgumentNullException>(() => new DatabaseTrigger(null, definition, timing, events, true));
         }
 
         [Test]
@@ -36,7 +23,7 @@ namespace SJP.Schematic.Core.Tests
             const TriggerQueryTiming timing = TriggerQueryTiming.Before;
             const TriggerEvent events = TriggerEvent.Update;
 
-            Assert.Throws<ArgumentNullException>(() => new DatabaseTrigger(null, triggerName, null, timing, events, true));
+            Assert.Throws<ArgumentNullException>(() => new DatabaseTrigger(triggerName, null, timing, events, true));
         }
 
         [Test]
@@ -47,7 +34,7 @@ namespace SJP.Schematic.Core.Tests
             const TriggerQueryTiming timing = TriggerQueryTiming.Before;
             const TriggerEvent events = TriggerEvent.Update;
 
-            Assert.Throws<ArgumentNullException>(() => new DatabaseTrigger(null, triggerName, definition, timing, events, true));
+            Assert.Throws<ArgumentNullException>(() => new DatabaseTrigger(triggerName, definition, timing, events, true));
         }
 
         [Test]
@@ -58,7 +45,7 @@ namespace SJP.Schematic.Core.Tests
             const TriggerQueryTiming timing = TriggerQueryTiming.Before;
             const TriggerEvent events = TriggerEvent.Update;
 
-            Assert.Throws<ArgumentNullException>(() => new DatabaseTrigger(null, triggerName, definition, timing, events, true));
+            Assert.Throws<ArgumentNullException>(() => new DatabaseTrigger(triggerName, definition, timing, events, true));
         }
 
         [Test]
@@ -69,7 +56,7 @@ namespace SJP.Schematic.Core.Tests
             const TriggerQueryTiming timing = (TriggerQueryTiming)55;
             const TriggerEvent events = TriggerEvent.Update;
 
-            Assert.Throws<ArgumentException>(() => new DatabaseTrigger(null, triggerName, definition, timing, events, true));
+            Assert.Throws<ArgumentException>(() => new DatabaseTrigger(triggerName, definition, timing, events, true));
         }
 
         [Test]
@@ -80,7 +67,7 @@ namespace SJP.Schematic.Core.Tests
             const TriggerQueryTiming timing = TriggerQueryTiming.Before;
             const TriggerEvent events = (TriggerEvent)55;
 
-            Assert.Throws<ArgumentException>(() => new DatabaseTrigger(null, triggerName, definition, timing, events, true));
+            Assert.Throws<ArgumentException>(() => new DatabaseTrigger(triggerName, definition, timing, events, true));
         }
 
         [Test]
@@ -91,33 +78,18 @@ namespace SJP.Schematic.Core.Tests
             const TriggerQueryTiming timing = TriggerQueryTiming.Before;
             const TriggerEvent events = TriggerEvent.None;
 
-            Assert.Throws<ArgumentException>(() => new DatabaseTrigger(null, triggerName, definition, timing, events, true));
-        }
-
-        [Test]
-        public static void Table_PropertyGet_EqualsCtorArg()
-        {
-            var table = Mock.Of<IRelationalDatabaseTable>();
-            Identifier triggerName = "test_trigger";
-            const string definition = "create trigger test_trigger...";
-            const TriggerQueryTiming timing = TriggerQueryTiming.Before;
-            const TriggerEvent events = TriggerEvent.Update;
-
-            var trigger = new DatabaseTrigger(table, triggerName, definition, timing, events, true);
-
-            Assert.AreEqual(table, trigger.Table);
+            Assert.Throws<ArgumentException>(() => new DatabaseTrigger(triggerName, definition, timing, events, true));
         }
 
         [Test]
         public static void Name_PropertyGet_EqualsCtorArg()
         {
-            var table = Mock.Of<IRelationalDatabaseTable>();
             Identifier triggerName = "test_trigger";
             const string definition = "create trigger test_trigger...";
             const TriggerQueryTiming timing = TriggerQueryTiming.Before;
             const TriggerEvent events = TriggerEvent.Update;
 
-            var trigger = new DatabaseTrigger(table, triggerName, definition, timing, events, true);
+            var trigger = new DatabaseTrigger(triggerName, definition, timing, events, true);
 
             Assert.AreEqual(triggerName, trigger.Name);
         }
@@ -125,13 +97,12 @@ namespace SJP.Schematic.Core.Tests
         [Test]
         public static void Definition_PropertyGet_EqualsCtorArg()
         {
-            var table = Mock.Of<IRelationalDatabaseTable>();
             Identifier triggerName = "test_trigger";
             const string definition = "create trigger test_trigger...";
             const TriggerQueryTiming timing = TriggerQueryTiming.Before;
             const TriggerEvent events = TriggerEvent.Update;
 
-            var trigger = new DatabaseTrigger(table, triggerName, definition, timing, events, true);
+            var trigger = new DatabaseTrigger(triggerName, definition, timing, events, true);
 
             Assert.AreEqual(definition, trigger.Definition);
         }
@@ -139,13 +110,12 @@ namespace SJP.Schematic.Core.Tests
         [Test]
         public static void QueryTiming_PropertyGet_EqualsCtorArg()
         {
-            var table = Mock.Of<IRelationalDatabaseTable>();
             Identifier triggerName = "test_trigger";
             const string definition = "create trigger test_trigger...";
             const TriggerQueryTiming timing = TriggerQueryTiming.Before;
             const TriggerEvent events = TriggerEvent.Update;
 
-            var trigger = new DatabaseTrigger(table, triggerName, definition, timing, events, true);
+            var trigger = new DatabaseTrigger(triggerName, definition, timing, events, true);
 
             Assert.AreEqual(timing, trigger.QueryTiming);
         }
@@ -153,13 +123,12 @@ namespace SJP.Schematic.Core.Tests
         [Test]
         public static void TriggerEvent_PropertyGet_EqualsCtorArg()
         {
-            var table = Mock.Of<IRelationalDatabaseTable>();
             Identifier triggerName = "test_trigger";
             const string definition = "create trigger test_trigger...";
             const TriggerQueryTiming timing = TriggerQueryTiming.Before;
             const TriggerEvent events = TriggerEvent.Update;
 
-            var trigger = new DatabaseTrigger(table, triggerName, definition, timing, events, true);
+            var trigger = new DatabaseTrigger(triggerName, definition, timing, events, true);
 
             Assert.AreEqual(events, trigger.TriggerEvent);
         }
@@ -167,13 +136,12 @@ namespace SJP.Schematic.Core.Tests
         [Test]
         public static void IsEnabled_WhenTrueProvidedInCtor_ReturnsTrue()
         {
-            var table = Mock.Of<IRelationalDatabaseTable>();
             Identifier triggerName = "test_trigger";
             const string definition = "create trigger test_trigger...";
             const TriggerQueryTiming timing = TriggerQueryTiming.Before;
             const TriggerEvent events = TriggerEvent.Update;
 
-            var trigger = new DatabaseTrigger(table, triggerName, definition, timing, events, true);
+            var trigger = new DatabaseTrigger(triggerName, definition, timing, events, true);
 
             Assert.IsTrue(trigger.IsEnabled);
         }
@@ -181,13 +149,12 @@ namespace SJP.Schematic.Core.Tests
         [Test]
         public static void IsEnabled_WhenFalseProvidedInCtor_ReturnsFalse()
         {
-            var table = Mock.Of<IRelationalDatabaseTable>();
             Identifier triggerName = "test_trigger";
             const string definition = "create trigger test_trigger...";
             const TriggerQueryTiming timing = TriggerQueryTiming.Before;
             const TriggerEvent events = TriggerEvent.Update;
 
-            var trigger = new DatabaseTrigger(table, triggerName, definition, timing, events, false);
+            var trigger = new DatabaseTrigger(triggerName, definition, timing, events, false);
 
             Assert.IsFalse(trigger.IsEnabled);
         }

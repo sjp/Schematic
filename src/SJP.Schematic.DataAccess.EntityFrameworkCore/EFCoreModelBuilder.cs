@@ -168,7 +168,7 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore
             {
                 var childKey = relationalKey.ChildKey;
                 var parentKey = relationalKey.ParentKey;
-                var parentPropertyName = NameProvider.TableToClassName(parentKey.Table.Name);
+                var parentPropertyName = NameProvider.TableToClassName(relationalKey.ParentTable);
                 var childColumnSet = GenerateColumnSet(className, "t", childKey.Columns);
                 var parentColumnSet = GenerateColumnSet(className, "t", parentKey.Columns);
 

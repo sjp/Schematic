@@ -283,15 +283,6 @@ end").ConfigureAwait(false);
         }
 
         [Test]
-        public void Database_PropertyGet_ShouldMatchCtorArg()
-        {
-            var database = Database;
-            var table = new SqliteRelationalDatabaseTable(Connection, database, "table_test_table_1");
-
-            Assert.AreSame(database, table.Database);
-        }
-
-        [Test]
         public void Name_PropertyGet_ShouldEqualCtorArg()
         {
             const string tableName = "table_test_table_1";

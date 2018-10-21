@@ -7,7 +7,7 @@ namespace SJP.Schematic.MySql
 {
     public class MySqlRelationalKey : IDatabaseRelationalKey
     {
-        public MySqlRelationalKey(IDatabaseKey childKey, IDatabaseKey parentKey, Rule deleteRule, Rule updateRule)
+        public MySqlRelationalKey(Identifier childTableName, IDatabaseKey childKey, Identifier parentTableName, IDatabaseKey parentKey, Rule deleteRule, Rule updateRule)
         {
             if (!deleteRule.IsValid())
                 throw new ArgumentException($"The { nameof(Rule) } provided must be a valid enum.", nameof(deleteRule));
@@ -18,7 +18,9 @@ namespace SJP.Schematic.MySql
             if (updateRule == Rule.SetDefault)
                 throw new ArgumentException("MySQL does not support an update rule of 'SET DEFAULT'.", nameof(updateRule));
 
+            ChildTable = childTableName ?? throw new ArgumentNullException(nameof(childTableName));
             ChildKey = childKey ?? throw new ArgumentNullException(nameof(childKey));
+            ParentTable = parentTableName ?? throw new ArgumentNullException(nameof(parentTableName));
             ParentKey = parentKey ?? throw new ArgumentNullException(nameof(parentKey));
 
             if (ChildKey.KeyType != DatabaseKeyType.Foreign)
@@ -30,7 +32,11 @@ namespace SJP.Schematic.MySql
             UpdateRule = updateRule;
         }
 
+        public Identifier ChildTable { get; }
+
         public IDatabaseKey ChildKey { get; }
+
+        public Identifier ParentTable { get; }
 
         public IDatabaseKey ParentKey { get; }
 

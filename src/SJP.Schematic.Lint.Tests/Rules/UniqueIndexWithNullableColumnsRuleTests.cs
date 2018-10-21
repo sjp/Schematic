@@ -36,12 +36,12 @@ namespace SJP.Schematic.Lint.Tests.Rules
             var table = new RelationalDatabaseTable(
                 database,
                 "test",
-                new List<IDatabaseTableColumn>(),
+                new List<IDatabaseColumn>(),
                 null,
                 Array.Empty<IDatabaseKey>(),
                 Array.Empty<IDatabaseRelationalKey>(),
                 Array.Empty<IDatabaseRelationalKey>(),
-                Array.Empty<IDatabaseTableIndex>(),
+                Array.Empty<IDatabaseIndex>(),
                 Array.Empty<IDatabaseCheckConstraint>(),
                 Array.Empty<IDatabaseTrigger>()
             );
@@ -58,8 +58,7 @@ namespace SJP.Schematic.Lint.Tests.Rules
             var rule = new UniqueIndexWithNullableColumnsRule(RuleLevel.Error);
             var database = CreateFakeDatabase();
 
-            var testColumn = new DatabaseTableColumn(
-                Mock.Of<IRelationalDatabaseTable>(),
+            var testColumn = new DatabaseColumn(
                 "test_column_1",
                 Mock.Of<IDbType>(),
                 false,
@@ -67,19 +66,18 @@ namespace SJP.Schematic.Lint.Tests.Rules
                 null
             );
 
-            var index = new DatabaseTableIndex(
-                Mock.Of<IRelationalDatabaseTable>(),
+            var index = new DatabaseIndex(
                 "test_index_name",
                 false,
                 new[] { new DatabaseIndexColumn(testColumn, IndexColumnOrder.Ascending) },
-                Array.Empty<IDatabaseTableColumn>(),
+                Array.Empty<IDatabaseColumn>(),
                 true
             );
 
             var table = new RelationalDatabaseTable(
                 database,
                 "test",
-                new List<IDatabaseTableColumn>(),
+                new List<IDatabaseColumn>(),
                 null,
                 Array.Empty<IDatabaseKey>(),
                 Array.Empty<IDatabaseRelationalKey>(),
@@ -101,8 +99,7 @@ namespace SJP.Schematic.Lint.Tests.Rules
             var rule = new UniqueIndexWithNullableColumnsRule(RuleLevel.Error);
             var database = CreateFakeDatabase();
 
-            var testColumn = new DatabaseTableColumn(
-                Mock.Of<IRelationalDatabaseTable>(),
+            var testColumn = new DatabaseColumn(
                 "test_column_1",
                 Mock.Of<IDbType>(),
                 false,
@@ -110,19 +107,18 @@ namespace SJP.Schematic.Lint.Tests.Rules
                 null
             );
 
-            var uniqueIndex = new DatabaseTableIndex(
-                Mock.Of<IRelationalDatabaseTable>(),
+            var uniqueIndex = new DatabaseIndex(
                 "test_index_name",
                 true,
                 new[] { new DatabaseIndexColumn(testColumn, IndexColumnOrder.Ascending) },
-                Array.Empty<IDatabaseTableColumn>(),
+                Array.Empty<IDatabaseColumn>(),
                 true
             );
 
             var table = new RelationalDatabaseTable(
                 database,
                 "test",
-                new List<IDatabaseTableColumn>(),
+                new List<IDatabaseColumn>(),
                 null,
                 Array.Empty<IDatabaseKey>(),
                 Array.Empty<IDatabaseRelationalKey>(),
@@ -144,8 +140,7 @@ namespace SJP.Schematic.Lint.Tests.Rules
             var rule = new UniqueIndexWithNullableColumnsRule(RuleLevel.Error);
             var database = CreateFakeDatabase();
 
-            var testColumn = new DatabaseTableColumn(
-                Mock.Of<IRelationalDatabaseTable>(),
+            var testColumn = new DatabaseColumn(
                 "test_column_1",
                 Mock.Of<IDbType>(),
                 true,
@@ -153,19 +148,18 @@ namespace SJP.Schematic.Lint.Tests.Rules
                 null
             );
 
-            var uniqueIndex = new DatabaseTableIndex(
-                Mock.Of<IRelationalDatabaseTable>(),
+            var uniqueIndex = new DatabaseIndex(
                 "test_index_name",
                 true,
                 new[] { new DatabaseIndexColumn(testColumn, IndexColumnOrder.Ascending) },
-                Array.Empty<IDatabaseTableColumn>(),
+                Array.Empty<IDatabaseColumn>(),
                 true
             );
 
             var table = new RelationalDatabaseTable(
                 database,
                 "test",
-                new List<IDatabaseTableColumn>(),
+                new List<IDatabaseColumn>(),
                 null,
                 Array.Empty<IDatabaseKey>(),
                 Array.Empty<IDatabaseRelationalKey>(),

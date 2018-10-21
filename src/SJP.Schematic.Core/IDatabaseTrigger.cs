@@ -2,8 +2,6 @@
 {
     public interface IDatabaseTrigger : IDatabaseEntity, IDatabaseOptional
     {
-        IRelationalDatabaseTable Table { get; }
-
         string Definition { get; }
 
         TriggerQueryTiming QueryTiming { get; }

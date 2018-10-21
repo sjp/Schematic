@@ -5,9 +5,9 @@ using SJP.Schematic.Core.Extensions;
 
 namespace SJP.Schematic.SqlServer
 {
-    public abstract class SqlServerDatabaseIndex<T> : IDatabaseIndex<T> where T : class, IDatabaseQueryable
+    public class SqlServerDatabaseIndex : IDatabaseIndex
     {
-        protected SqlServerDatabaseIndex(T parent, Identifier name, bool isUnique, IReadOnlyCollection<IDatabaseIndexColumn> columns, IReadOnlyCollection<IDatabaseColumn> includedColumns, bool isEnabled)
+        public SqlServerDatabaseIndex(Identifier name, bool isUnique, IReadOnlyCollection<IDatabaseIndexColumn> columns, IReadOnlyCollection<IDatabaseColumn> includedColumns, bool isEnabled)
         {
             if (name == null)
                 throw new ArgumentNullException(nameof(name));
@@ -19,15 +19,12 @@ namespace SJP.Schematic.SqlServer
             if (includedColumns == null)
                 includedColumns = Array.Empty<IDatabaseColumn>();
 
-            Parent = parent ?? throw new ArgumentNullException(nameof(parent));
             Name = name.LocalName;
             IsUnique = isUnique;
             Columns = columns;
             IncludedColumns = includedColumns;
             IsEnabled = isEnabled;
         }
-
-        public T Parent { get; }
 
         public Identifier Name { get; }
 

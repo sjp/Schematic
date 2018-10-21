@@ -43,7 +43,7 @@ namespace SJP.Schematic.Lint.Rules
                     continue;
 
                 var fkName = foreignKey.ChildKey.Name?.ToString() ?? string.Empty;
-                var ruleMessage = BuildMessage(fkName, foreignKey.ChildKey.Table.Name, foreignKey.ParentKey.Table.Name);
+                var ruleMessage = BuildMessage(fkName, foreignKey.ChildTable, foreignKey.ParentTable);
 
                 result.Add(ruleMessage);
             }

@@ -3,9 +3,9 @@ using SJP.Schematic.Core;
 
 namespace SJP.Schematic.PostgreSql
 {
-    public abstract class PostgreSqlDatabaseColumn : IDatabaseColumn
+    public class PostgreSqlDatabaseColumn : IDatabaseColumn
     {
-        protected PostgreSqlDatabaseColumn(Identifier columnName, IDbType type, bool isNullable, string defaultValue, IAutoIncrement autoIncrement)
+        public PostgreSqlDatabaseColumn(Identifier columnName, IDbType type, bool isNullable, string defaultValue, IAutoIncrement autoIncrement)
         {
             if (columnName == null)
                 throw new ArgumentNullException(nameof(columnName));

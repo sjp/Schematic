@@ -4,69 +4,71 @@ using SJP.Schematic.Core;
 
 namespace SJP.Schematic.Reporting.Html.ViewModels.Mappers
 {
-    internal sealed class ConstraintsModelMapper :
-        IDatabaseModelMapper<IDatabaseKey, Constraints.PrimaryKeyConstraint>,
-        IDatabaseModelMapper<IDatabaseKey, Constraints.UniqueKey>,
-        IDatabaseModelMapper<IDatabaseRelationalKey, Constraints.ForeignKey>,
-        IDatabaseModelMapper<IDatabaseCheckConstraint, Constraints.CheckConstraint>
+    internal sealed class ConstraintsModelMapper
     {
-        Constraints.PrimaryKeyConstraint IDatabaseModelMapper<IDatabaseKey, Constraints.PrimaryKeyConstraint>.Map(IDatabaseKey dbObject)
+        public Constraints.PrimaryKeyConstraint MapPrimaryKey(Identifier tableName, IDatabaseKey primaryKey)
         {
-            if (dbObject == null)
-                throw new ArgumentNullException(nameof(dbObject));
+            if (tableName == null)
+                throw new ArgumentNullException(nameof(tableName));
+            if (primaryKey == null)
+                throw new ArgumentNullException(nameof(primaryKey));
 
-            var columnNames = dbObject.Columns.Select(c => c.Name.LocalName).ToList();
+            var columnNames = primaryKey.Columns.Select(c => c.Name.LocalName).ToList();
 
             return new Constraints.PrimaryKeyConstraint(
-                dbObject.Table.Name,
-                dbObject.Name?.LocalName,
+                tableName,
+                primaryKey.Name?.LocalName,
                 columnNames
             );
         }
 
-        Constraints.UniqueKey IDatabaseModelMapper<IDatabaseKey, Constraints.UniqueKey>.Map(IDatabaseKey dbObject)
+        public Constraints.UniqueKey MapUniqueKey(Identifier tableName, IDatabaseKey uniqueKey)
         {
-            if (dbObject == null)
-                throw new ArgumentNullException(nameof(dbObject));
+            if (tableName == null)
+                throw new ArgumentNullException(nameof(tableName));
+            if (uniqueKey == null)
+                throw new ArgumentNullException(nameof(uniqueKey));
 
-            var columnNames = dbObject.Columns.Select(c => c.Name.LocalName).ToList();
+            var columnNames = uniqueKey.Columns.Select(c => c.Name.LocalName).ToList();
 
             return new Constraints.UniqueKey(
-                dbObject.Table.Name,
-                dbObject.Name?.LocalName,
+                tableName,
+                uniqueKey.Name?.LocalName,
                 columnNames
             );
         }
 
-        public Constraints.ForeignKey Map(IDatabaseRelationalKey dbObject)
+        public Constraints.ForeignKey MapForeignKey(IDatabaseRelationalKey foreignKey)
         {
-            if (dbObject == null)
-                throw new ArgumentNullException(nameof(dbObject));
+            if (foreignKey == null)
+                throw new ArgumentNullException(nameof(foreignKey));
 
-            var childColumnNames = dbObject.ChildKey.Columns.Select(c => c.Name.LocalName).ToList();
-            var parentColumnNames = dbObject.ParentKey.Columns.Select(c => c.Name.LocalName).ToList();
+            var childColumnNames = foreignKey.ChildKey.Columns.Select(c => c.Name.LocalName).ToList();
+            var parentColumnNames = foreignKey.ParentKey.Columns.Select(c => c.Name.LocalName).ToList();
 
             return new Constraints.ForeignKey(
-                dbObject.ChildKey.Table.Name,
-                dbObject.ChildKey.Name?.LocalName,
+                foreignKey.ChildTable,
+                foreignKey.ChildKey.Name?.LocalName,
                 childColumnNames,
-                dbObject.ParentKey.Table.Name,
-                dbObject.ParentKey.Name?.LocalName,
+                foreignKey.ParentTable,
+                foreignKey.ParentKey.Name?.LocalName,
                 parentColumnNames,
-                dbObject.DeleteRule,
-                dbObject.UpdateRule
+                foreignKey.DeleteRule,
+                foreignKey.UpdateRule
             );
         }
 
-        public Constraints.CheckConstraint Map(IDatabaseCheckConstraint dbObject)
+        public Constraints.CheckConstraint MapCheckConstraint(Identifier tableName, IDatabaseCheckConstraint check)
         {
-            if (dbObject == null)
-                throw new ArgumentNullException(nameof(dbObject));
+            if (tableName == null)
+                throw new ArgumentNullException(nameof(tableName));
+            if (check == null)
+                throw new ArgumentNullException(nameof(check));
 
             return new Constraints.CheckConstraint(
-                dbObject.Table.Name,
-                dbObject.Name?.LocalName,
-                dbObject.Definition
+                tableName,
+                check.Name?.LocalName,
+                check.Definition
             );
         }
     }

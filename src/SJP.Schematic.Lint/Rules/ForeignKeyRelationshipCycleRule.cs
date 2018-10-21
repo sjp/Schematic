@@ -24,10 +24,10 @@ namespace SJP.Schematic.Lint.Rules
 
             var foreignKeys = database.Tables
                 .SelectMany(t => t.ParentKeys)
-                .Where(fk => fk.ChildKey.Table.Name != fk.ParentKey.Table.Name)
+                .Where(fk => fk.ChildTable != fk.ParentTable)
                 .ToList();
             foreach (var foreignKey in foreignKeys)
-                graph.AddEdge(foreignKey.ChildKey.Table.Name, foreignKey.ParentKey.Table.Name, foreignKey);
+                graph.AddEdge(foreignKey.ChildTable, foreignKey.ParentTable, foreignKey);
 
             try
             {

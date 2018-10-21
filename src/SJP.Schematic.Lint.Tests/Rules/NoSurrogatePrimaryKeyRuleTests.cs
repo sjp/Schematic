@@ -36,12 +36,12 @@ namespace SJP.Schematic.Lint.Tests.Rules
             var table = new RelationalDatabaseTable(
                 database,
                 "test",
-                new List<IDatabaseTableColumn>(),
+                new List<IDatabaseColumn>(),
                 null,
                 Array.Empty<IDatabaseKey>(),
                 Array.Empty<IDatabaseRelationalKey>(),
                 Array.Empty<IDatabaseRelationalKey>(),
-                Array.Empty<IDatabaseTableIndex>(),
+                Array.Empty<IDatabaseIndex>(),
                 Array.Empty<IDatabaseCheckConstraint>(),
                 Array.Empty<IDatabaseTrigger>()
             );
@@ -58,8 +58,7 @@ namespace SJP.Schematic.Lint.Tests.Rules
             var rule = new NoSurrogatePrimaryKeyRule(RuleLevel.Error);
             var database = CreateFakeDatabase();
 
-            var testColumn = new DatabaseTableColumn(
-                Mock.Of<IRelationalDatabaseTable>(),
+            var testColumn = new DatabaseColumn(
                 "test_column",
                 Mock.Of<IDbType>(),
                 false,
@@ -67,7 +66,6 @@ namespace SJP.Schematic.Lint.Tests.Rules
                 null
             );
             var testPrimaryKey = new DatabaseKey(
-                Mock.Of<IRelationalDatabaseTable>(),
                 "test_primary_key",
                 DatabaseKeyType.Primary,
                 new[] { testColumn },
@@ -77,12 +75,12 @@ namespace SJP.Schematic.Lint.Tests.Rules
             var table = new RelationalDatabaseTable(
                 database,
                 "test",
-                new List<IDatabaseTableColumn>(),
+                new List<IDatabaseColumn>(),
                 testPrimaryKey,
                 Array.Empty<IDatabaseKey>(),
                 Array.Empty<IDatabaseRelationalKey>(),
                 Array.Empty<IDatabaseRelationalKey>(),
-                Array.Empty<IDatabaseTableIndex>(),
+                Array.Empty<IDatabaseIndex>(),
                 Array.Empty<IDatabaseCheckConstraint>(),
                 Array.Empty<IDatabaseTrigger>()
             );
@@ -99,16 +97,14 @@ namespace SJP.Schematic.Lint.Tests.Rules
             var rule = new NoSurrogatePrimaryKeyRule(RuleLevel.Error);
             var database = CreateFakeDatabase();
 
-            var testColumnA = new DatabaseTableColumn(
-                Mock.Of<IRelationalDatabaseTable>(),
+            var testColumnA = new DatabaseColumn(
                 "test_column_a",
                 Mock.Of<IDbType>(),
                 false,
                 null,
                 null
             );
-            var testColumnB = new DatabaseTableColumn(
-                Mock.Of<IRelationalDatabaseTable>(),
+            var testColumnB = new DatabaseColumn(
                 "test_column_b",
                 Mock.Of<IDbType>(),
                 false,
@@ -116,7 +112,6 @@ namespace SJP.Schematic.Lint.Tests.Rules
                 null
             );
             var testPrimaryKey = new DatabaseKey(
-                Mock.Of<IRelationalDatabaseTable>(),
                 "test_primary_key",
                 DatabaseKeyType.Primary,
                 new[] { testColumnA, testColumnB },
@@ -126,12 +121,12 @@ namespace SJP.Schematic.Lint.Tests.Rules
             var table = new RelationalDatabaseTable(
                 database,
                 "test",
-                new List<IDatabaseTableColumn>(),
+                new List<IDatabaseColumn>(),
                 testPrimaryKey,
                 Array.Empty<IDatabaseKey>(),
                 Array.Empty<IDatabaseRelationalKey>(),
                 Array.Empty<IDatabaseRelationalKey>(),
-                Array.Empty<IDatabaseTableIndex>(),
+                Array.Empty<IDatabaseIndex>(),
                 Array.Empty<IDatabaseCheckConstraint>(),
                 Array.Empty<IDatabaseTrigger>()
             );

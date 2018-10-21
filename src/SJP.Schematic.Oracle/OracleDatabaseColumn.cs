@@ -3,9 +3,9 @@ using SJP.Schematic.Core;
 
 namespace SJP.Schematic.Oracle
 {
-    public abstract class OracleDatabaseColumn : IDatabaseColumn
+    public class OracleDatabaseColumn : IDatabaseColumn
     {
-        protected OracleDatabaseColumn(Identifier columnName, IDbType type, bool isNullable, string defaultValue)
+        public OracleDatabaseColumn(Identifier columnName, IDbType type, bool isNullable, string defaultValue)
         {
             if (columnName == null)
                 throw new ArgumentNullException(nameof(columnName));

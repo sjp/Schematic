@@ -3,9 +3,9 @@ using SJP.Schematic.Core;
 
 namespace SJP.Schematic.Sqlite
 {
-    public abstract class SqliteDatabaseColumn : IDatabaseColumn
+    public class SqliteDatabaseColumn : IDatabaseColumn
     {
-        protected SqliteDatabaseColumn(Identifier columnName, IDbType type, bool isNullable, string defaultValue, IAutoIncrement autoIncrement)
+        public SqliteDatabaseColumn(Identifier columnName, IDbType type, bool isNullable, string defaultValue, IAutoIncrement autoIncrement)
         {
             if (columnName == null)
                 throw new ArgumentNullException(nameof(columnName));

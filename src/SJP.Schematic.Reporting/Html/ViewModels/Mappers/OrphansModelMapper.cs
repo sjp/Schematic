@@ -5,7 +5,7 @@ using SJP.Schematic.Core;
 
 namespace SJP.Schematic.Reporting.Html.ViewModels.Mappers
 {
-    internal sealed class OrphansModelMapper : IDatabaseModelMapper<IRelationalDatabaseTable, Orphans.Table>
+    internal sealed class OrphansModelMapper
     {
         public OrphansModelMapper(IDbConnection connection, IDatabaseDialect dialect)
         {
@@ -17,31 +17,31 @@ namespace SJP.Schematic.Reporting.Html.ViewModels.Mappers
 
         private IDatabaseDialect Dialect { get; }
 
-        public Orphans.Table Map(IRelationalDatabaseTable dbObject)
+        public Orphans.Table Map(IRelationalDatabaseTable table)
         {
-            if (dbObject == null)
-                throw new ArgumentNullException(nameof(dbObject));
+            if (table == null)
+                throw new ArgumentNullException(nameof(table));
 
-            var columnCount = dbObject.Column.UCount();
-            var rowCount = Connection.GetRowCount(Dialect, dbObject.Name);
+            var columnCount = table.Column.UCount();
+            var rowCount = Connection.GetRowCount(Dialect, table.Name);
 
-            return new Orphans.Table(dbObject.Name, columnCount, rowCount);
+            return new Orphans.Table(table.Name, columnCount, rowCount);
         }
 
-        public Task<Orphans.Table> MapAsync(IRelationalDatabaseTable dbObject)
+        public Task<Orphans.Table> MapAsync(IRelationalDatabaseTable table)
         {
-            if (dbObject == null)
-                throw new ArgumentNullException(nameof(dbObject));
+            if (table == null)
+                throw new ArgumentNullException(nameof(table));
 
-            return MapAsyncCore(dbObject);
+            return MapAsyncCore(table);
         }
 
-        private async Task<Orphans.Table> MapAsyncCore(IRelationalDatabaseTable dbObject)
+        private async Task<Orphans.Table> MapAsyncCore(IRelationalDatabaseTable table)
         {
-            var columnLookup = await dbObject.ColumnAsync().ConfigureAwait(false);
-            var rowCount = await Connection.GetRowCountAsync(Dialect, dbObject.Name).ConfigureAwait(false);
+            var columnLookup = await table.ColumnAsync().ConfigureAwait(false);
+            var rowCount = await Connection.GetRowCountAsync(Dialect, table.Name).ConfigureAwait(false);
 
-            return new Orphans.Table(dbObject.Name, columnLookup.UCount(), rowCount);
+            return new Orphans.Table(table.Name, columnLookup.UCount(), rowCount);
         }
     }
 }

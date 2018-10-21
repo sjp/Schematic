@@ -31,19 +31,17 @@ namespace SJP.Schematic.Reporting.Html.Renderers
         {
             var tables = Database.Tables.ToList();
 
-            var primaryKeys = tables.SelectNotNull(t => t.PrimaryKey).ToList();
-            var uniqueKeys = tables.SelectMany(t => t.UniqueKeys).ToList();
+            var primaryKeys = tables.SelectNotNull(t => new { TableName = t.Name, t.PrimaryKey }).ToList();
+            var uniqueKeys = tables.SelectMany(t => t.UniqueKeys.Select(uk => new { TableName = t.Name, UniqueKey = uk })).ToList();
             var foreignKeys = tables.SelectMany(t => t.ParentKeys).ToList();
-            var checkConstraints = tables.SelectMany(t => t.Checks).ToList();
+            var checkConstraints = tables.SelectMany(t => t.Checks.Select(ck => new { TableName = t.Name, Check = ck })).ToList();
 
             var mapper = new ConstraintsModelMapper();
-            var pkMapper = mapper as IDatabaseModelMapper<IDatabaseKey, Constraints.PrimaryKeyConstraint>;
-            var ukMapper = mapper as IDatabaseModelMapper<IDatabaseKey, Constraints.UniqueKey>;
 
-            var primaryKeyViewModels = primaryKeys.Select(pkMapper.Map).OrderBy(pk => pk.TableName).ToList();
-            var uniqueKeyViewModels = uniqueKeys.Select(ukMapper.Map).OrderBy(uk => uk.TableName).ToList();
-            var foreignKeyViewModels = foreignKeys.Select(mapper.Map).OrderBy(fk => fk.TableName).ToList();
-            var checkConstraintViewModels = checkConstraints.Select(mapper.Map).OrderBy(ck => ck.TableName).ToList();
+            var primaryKeyViewModels = primaryKeys.Select(pk => mapper.MapPrimaryKey(pk.TableName, pk.PrimaryKey)).OrderBy(pk => pk.TableName).ToList();
+            var uniqueKeyViewModels = uniqueKeys.Select(uk => mapper.MapUniqueKey(uk.TableName, uk.UniqueKey)).OrderBy(uk => uk.TableName).ToList();
+            var foreignKeyViewModels = foreignKeys.Select(mapper.MapForeignKey).OrderBy(fk => fk.TableName).ToList();
+            var checkConstraintViewModels = checkConstraints.Select(ck => mapper.MapCheckConstraint(ck.TableName, ck.Check)).OrderBy(ck => ck.TableName).ToList();
 
             var templateParameter = new Constraints(
                 primaryKeyViewModels,
@@ -68,24 +66,17 @@ namespace SJP.Schematic.Reporting.Html.Renderers
             var tableCollection = await Database.TablesAsync().ConfigureAwait(false);
             var tables = await Task.WhenAll(tableCollection).ConfigureAwait(false);
 
-            var primaryKeys = await tables.SelectNotNullAsync(t => t.PrimaryKeyAsync()).ConfigureAwait(false);
-
-            var uniqueKeyCollections = await Task.WhenAll(tables.Select(t => t.UniqueKeysAsync())).ConfigureAwait(false);
-            var foreignKeyCollections = await Task.WhenAll(tables.Select(t => t.ParentKeysAsync())).ConfigureAwait(false);
-            var checkConstraintCollections = await Task.WhenAll(tables.Select(t => t.ChecksAsync())).ConfigureAwait(false);
-
-            var uniqueKeys = uniqueKeyCollections.SelectMany(uk => uk).ToList();
-            var foreignKeys = foreignKeyCollections.SelectMany(uk => uk).ToList();
-            var checkConstraints = checkConstraintCollections.SelectMany(uk => uk).ToList();
+            var primaryKeys = await tables.SelectNotNullAsync(async t => new { TableName = t.Name, PrimaryKey = await t.PrimaryKeyAsync().ConfigureAwait(false) }).ConfigureAwait(false);
+            var uniqueKeys = await Task.WhenAll(tables.Select(async t => new { TableName = t.Name, UniqueKeys = await t.UniqueKeysAsync().ConfigureAwait(false) })).ConfigureAwait(false);
+            var foreignKeys = await Task.WhenAll(tables.Select(t => t.ParentKeysAsync())).ConfigureAwait(false);
+            var checkConstraints = await Task.WhenAll(tables.Select(async t => new { TableName = t.Name, Checks = await t.ChecksAsync().ConfigureAwait(false) })).ConfigureAwait(false);
 
             var mapper = new ConstraintsModelMapper();
-            var pkMapper = mapper as IDatabaseModelMapper<IDatabaseKey, Constraints.PrimaryKeyConstraint>;
-            var ukMapper = mapper as IDatabaseModelMapper<IDatabaseKey, Constraints.UniqueKey>;
 
-            var primaryKeyViewModels = primaryKeys.Select(pkMapper.Map).OrderBy(pk => pk.TableName).ToList();
-            var uniqueKeyViewModels = uniqueKeys.Select(ukMapper.Map).OrderBy(uk => uk.TableName).ToList();
-            var foreignKeyViewModels = foreignKeys.Select(mapper.Map).OrderBy(fk => fk.TableName).ToList();
-            var checkConstraintViewModels = checkConstraints.Select(mapper.Map).OrderBy(ck => ck.TableName).ToList();
+            var primaryKeyViewModels = primaryKeys.Select(pk => mapper.MapPrimaryKey(pk.TableName, pk.PrimaryKey)).OrderBy(pk => pk.TableName).ToList();
+            var uniqueKeyViewModels = uniqueKeys.SelectMany(t => t.UniqueKeys.Select(uk => mapper.MapUniqueKey(t.TableName, uk))).OrderBy(uk => uk.TableName).ToList();
+            var foreignKeyViewModels = foreignKeys.SelectMany(_ => _).Select(mapper.MapForeignKey).OrderBy(fk => fk.TableName).ToList();
+            var checkConstraintViewModels = checkConstraints.SelectMany(t => t.Checks.Select(ck => mapper.MapCheckConstraint(t.TableName, ck))).OrderBy(ck => ck.TableName).ToList();
 
             var templateParameter = new Constraints(
                 primaryKeyViewModels,

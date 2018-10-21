@@ -6,9 +6,9 @@ using SJP.Schematic.Core.Extensions;
 
 namespace SJP.Schematic.Sqlite
 {
-    public abstract class SqliteDatabaseIndex<T> : IDatabaseIndex<T> where T : class, IDatabaseQueryable
+    public class SqliteDatabaseIndex : IDatabaseIndex
     {
-        protected SqliteDatabaseIndex(T parent, Identifier name, bool isUnique, IEnumerable<IDatabaseIndexColumn> columns, IEnumerable<IDatabaseColumn> includedColumns)
+        public SqliteDatabaseIndex(Identifier name, bool isUnique, IEnumerable<IDatabaseIndexColumn> columns, IEnumerable<IDatabaseColumn> includedColumns)
         {
             if (name == null)
                 throw new ArgumentNullException(nameof(name));
@@ -20,14 +20,11 @@ namespace SJP.Schematic.Sqlite
             if (includedColumns == null)
                 includedColumns = Array.Empty<IDatabaseColumn>();
 
-            Parent = parent ?? throw new ArgumentNullException(nameof(parent));
             Name = name.LocalName;
             IsUnique = isUnique;
             Columns = columns.ToList();
             IncludedColumns = includedColumns.ToList();
         }
-
-        public T Parent { get; }
 
         public Identifier Name { get; }
 

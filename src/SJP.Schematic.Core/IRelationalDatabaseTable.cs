@@ -7,21 +7,19 @@ namespace SJP.Schematic.Core
     public interface IRelationalDatabaseTable : IDatabaseQueryable
     {
         // sync
-        IRelationalDatabase Database { get; }
-
         IDatabaseKey PrimaryKey { get; }
 
-        IReadOnlyDictionary<Identifier, IDatabaseTableColumn> Column { get; }
+        IReadOnlyDictionary<Identifier, IDatabaseColumn> Column { get; }
 
-        IReadOnlyList<IDatabaseTableColumn> Columns { get; }
+        IReadOnlyList<IDatabaseColumn> Columns { get; }
 
         IReadOnlyDictionary<Identifier, IDatabaseCheckConstraint> Check { get; }
 
         IReadOnlyCollection<IDatabaseCheckConstraint> Checks { get; }
 
-        IReadOnlyDictionary<Identifier, IDatabaseTableIndex> Index { get; }
+        IReadOnlyDictionary<Identifier, IDatabaseIndex> Index { get; }
 
-        IReadOnlyCollection<IDatabaseTableIndex> Indexes { get; }
+        IReadOnlyCollection<IDatabaseIndex> Indexes { get; }
 
         IReadOnlyDictionary<Identifier, IDatabaseKey> UniqueKey { get; }
 
@@ -40,14 +38,14 @@ namespace SJP.Schematic.Core
         // async
         Task<IDatabaseKey> PrimaryKeyAsync(CancellationToken cancellationToken = default(CancellationToken));
 
-        Task<IReadOnlyDictionary<Identifier, IDatabaseTableColumn>> ColumnAsync(CancellationToken cancellationToken = default(CancellationToken));
-        Task<IReadOnlyList<IDatabaseTableColumn>> ColumnsAsync(CancellationToken cancellationToken = default(CancellationToken));
+        Task<IReadOnlyDictionary<Identifier, IDatabaseColumn>> ColumnAsync(CancellationToken cancellationToken = default(CancellationToken));
+        Task<IReadOnlyList<IDatabaseColumn>> ColumnsAsync(CancellationToken cancellationToken = default(CancellationToken));
 
         Task<IReadOnlyDictionary<Identifier, IDatabaseCheckConstraint>> CheckAsync(CancellationToken cancellationToken = default(CancellationToken));
         Task<IReadOnlyCollection<IDatabaseCheckConstraint>> ChecksAsync(CancellationToken cancellationToken = default(CancellationToken));
 
-        Task<IReadOnlyDictionary<Identifier, IDatabaseTableIndex>> IndexAsync(CancellationToken cancellationToken = default(CancellationToken));
-        Task<IReadOnlyCollection<IDatabaseTableIndex>> IndexesAsync(CancellationToken cancellationToken = default(CancellationToken));
+        Task<IReadOnlyDictionary<Identifier, IDatabaseIndex>> IndexAsync(CancellationToken cancellationToken = default(CancellationToken));
+        Task<IReadOnlyCollection<IDatabaseIndex>> IndexesAsync(CancellationToken cancellationToken = default(CancellationToken));
 
         Task<IReadOnlyDictionary<Identifier, IDatabaseKey>> UniqueKeyAsync(CancellationToken cancellationToken = default(CancellationToken));
         Task<IReadOnlyCollection<IDatabaseKey>> UniqueKeysAsync(CancellationToken cancellationToken = default(CancellationToken));

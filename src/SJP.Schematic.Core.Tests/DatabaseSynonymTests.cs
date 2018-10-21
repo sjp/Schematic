@@ -28,15 +28,6 @@ namespace SJP.Schematic.Core.Tests
         }
 
         [Test]
-        public static void Database_PropertyGet_ShouldMatchCtorArg()
-        {
-            var database = Mock.Of<IRelationalDatabase>();
-            var synonym = new DatabaseSynonym(database, "test", "test");
-
-            Assert.AreSame(database, synonym.Database);
-        }
-
-        [Test]
         public static void Name_PropertyGet_ShouldEqualCtorArg()
         {
             var database = Mock.Of<IRelationalDatabase>();

@@ -5,22 +5,19 @@ using SJP.Schematic.Core.Extensions;
 
 namespace SJP.Schematic.PostgreSql
 {
-    public abstract class PostgreSqlDatabaseIndex<T> : IDatabaseIndex<T> where T : class, IDatabaseQueryable
+    public class PostgreSqlDatabaseIndex : IDatabaseIndex
     {
-        protected PostgreSqlDatabaseIndex(T parent, Identifier name, bool isUnique, IReadOnlyCollection<IDatabaseIndexColumn> columns)
+        public PostgreSqlDatabaseIndex(Identifier name, bool isUnique, IReadOnlyCollection<IDatabaseIndexColumn> columns)
         {
             if (name == null)
                 throw new ArgumentNullException(nameof(name));
             if (columns == null || columns.Empty() || columns.AnyNull())
                 throw new ArgumentNullException(nameof(columns));
 
-            Parent = parent ?? throw new ArgumentNullException(nameof(parent));
             Name = name.LocalName;
             IsUnique = isUnique;
             Columns = columns;
         }
-
-        public T Parent { get; }
 
         public Identifier Name { get; }
 

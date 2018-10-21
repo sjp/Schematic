@@ -47,15 +47,6 @@ namespace SJP.Schematic.Oracle.Tests.Integration
         }
 
         [Test]
-        public void Database_PropertyGet_ShouldMatchCtorArg()
-        {
-            var database = Database;
-            var view = new OracleRelationalDatabaseView(Connection, database, "VIEW_TEST_VIEW_1");
-
-            Assert.AreSame(database, view.Database);
-        }
-
-        [Test]
         public void Name_PropertyGet_ShouldEqualCtorArg()
         {
             const string viewName = "VIEW_TEST_VIEW_1";

@@ -31,7 +31,7 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration
         public void ChildKeys_WhenGivenChildTableWithForeignKeyToPrimaryKey_ContainsConstraintWithCorrectNames()
         {
             var table = Database.GetTable("table_test_table_15");
-            var foreignKey = table.ChildKeys.Single(k => k.ChildKey.Table.Name.LocalName == "table_test_table_16");
+            var foreignKey = table.ChildKeys.Single(k => k.ChildTable.LocalName == "table_test_table_16");
 
             Assert.Multiple(() =>
             {
@@ -45,7 +45,7 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration
         {
             var table = await Database.GetTableAsync("table_test_table_15").ConfigureAwait(false);
             var childKeys = await table.ChildKeysAsync().ConfigureAwait(false);
-            var foreignKey = childKeys.Single(k => k.ChildKey.Table.Name.LocalName == "table_test_table_16");
+            var foreignKey = childKeys.Single(k => k.ChildTable.LocalName == "table_test_table_16");
 
             Assert.Multiple(() =>
             {
@@ -58,7 +58,7 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration
         public void ChildKeys_WhenGivenChildTableWithForeignKeyToPrimaryKey_ContainsConstraintWithCorrectKeyTypes()
         {
             var table = Database.GetTable("table_test_table_15");
-            var foreignKey = table.ChildKeys.Single(k => k.ChildKey.Table.Name.LocalName == "table_test_table_16");
+            var foreignKey = table.ChildKeys.Single(k => k.ChildTable.LocalName == "table_test_table_16");
 
             Assert.Multiple(() =>
             {
@@ -72,7 +72,7 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration
         {
             var table = await Database.GetTableAsync("table_test_table_15").ConfigureAwait(false);
             var childKeys = await table.ChildKeysAsync().ConfigureAwait(false);
-            var foreignKey = childKeys.Single(k => k.ChildKey.Table.Name.LocalName == "table_test_table_16");
+            var foreignKey = childKeys.Single(k => k.ChildTable.LocalName == "table_test_table_16");
 
             Assert.Multiple(() =>
             {
@@ -85,12 +85,12 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration
         public void ChildKeys_WhenGivenChildTableWithForeignKeyToPrimaryKey_ContainsConstraintWithCorrectTables()
         {
             var table = Database.GetTable("table_test_table_15");
-            var foreignKey = table.ChildKeys.Single(k => k.ChildKey.Table.Name.LocalName == "table_test_table_16");
+            var foreignKey = table.ChildKeys.Single(k => k.ChildTable.LocalName == "table_test_table_16");
 
             Assert.Multiple(() =>
             {
-                Assert.AreEqual("table_test_table_16", foreignKey.ChildKey.Table.Name.LocalName);
-                Assert.AreEqual("table_test_table_15", foreignKey.ParentKey.Table.Name.LocalName);
+                Assert.AreEqual("table_test_table_16", foreignKey.ChildTable.LocalName);
+                Assert.AreEqual("table_test_table_15", foreignKey.ParentTable.LocalName);
             });
         }
 
@@ -99,12 +99,12 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration
         {
             var table = await Database.GetTableAsync("table_test_table_15").ConfigureAwait(false);
             var childKeys = await table.ChildKeysAsync().ConfigureAwait(false);
-            var foreignKey = childKeys.Single(k => k.ChildKey.Table.Name.LocalName == "table_test_table_16");
+            var foreignKey = childKeys.Single(k => k.ChildTable.LocalName == "table_test_table_16");
 
             Assert.Multiple(() =>
             {
-                Assert.AreEqual("table_test_table_16", foreignKey.ChildKey.Table.Name.LocalName);
-                Assert.AreEqual("table_test_table_15", foreignKey.ParentKey.Table.Name.LocalName);
+                Assert.AreEqual("table_test_table_16", foreignKey.ChildTable.LocalName);
+                Assert.AreEqual("table_test_table_15", foreignKey.ParentTable.LocalName);
             });
         }
 
@@ -112,7 +112,7 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration
         public void ChildKeys_WhenGivenChildTableWithForeignKeyToPrimaryKey_ContainsConstraintWithCorrectColumns()
         {
             var table = Database.GetTable("table_test_table_15");
-            var foreignKey = table.ChildKeys.Single(k => k.ChildKey.Table.Name.LocalName == "table_test_table_16");
+            var foreignKey = table.ChildKeys.Single(k => k.ChildTable.LocalName == "table_test_table_16");
 
             var childColumns = foreignKey.ChildKey.Columns.Select(c => c.Name.LocalName);
             var parentColumns = foreignKey.ParentKey.Columns.Select(c => c.Name.LocalName);
@@ -135,7 +135,7 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration
         {
             var table = await Database.GetTableAsync("table_test_table_15").ConfigureAwait(false);
             var childKeys = await table.ChildKeysAsync().ConfigureAwait(false);
-            var foreignKey = childKeys.Single(k => k.ChildKey.Table.Name.LocalName == "table_test_table_16");
+            var foreignKey = childKeys.Single(k => k.ChildTable.LocalName == "table_test_table_16");
 
             var childColumns = foreignKey.ChildKey.Columns.Select(c => c.Name.LocalName);
             var parentColumns = foreignKey.ParentKey.Columns.Select(c => c.Name.LocalName);
@@ -158,7 +158,7 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration
         {
             var table = Database.GetTable("table_test_table_15");
             var childKeys = table.ChildKeys;
-            var foreignKey = childKeys.Single(k => k.ChildKey.Table.Name.LocalName == "table_test_table_16");
+            var foreignKey = childKeys.Single(k => k.ChildTable.LocalName == "table_test_table_16");
 
             Assert.AreEqual(Rule.None, foreignKey.UpdateRule);
         }
@@ -168,7 +168,7 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration
         {
             var table = await Database.GetTableAsync("table_test_table_15").ConfigureAwait(false);
             var childKeys = await table.ChildKeysAsync().ConfigureAwait(false);
-            var foreignKey = childKeys.Single(k => k.ChildKey.Table.Name.LocalName == "table_test_table_16");
+            var foreignKey = childKeys.Single(k => k.ChildTable.LocalName == "table_test_table_16");
 
             Assert.AreEqual(Rule.None, foreignKey.UpdateRule);
         }
@@ -178,7 +178,7 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration
         {
             var table = Database.GetTable("table_test_table_15");
             var childKeys = table.ChildKeys;
-            var foreignKey = childKeys.Single(k => k.ChildKey.Table.Name.LocalName == "table_test_table_18");
+            var foreignKey = childKeys.Single(k => k.ChildTable.LocalName == "table_test_table_18");
 
             Assert.AreEqual(Rule.Cascade, foreignKey.UpdateRule);
         }
@@ -188,7 +188,7 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration
         {
             var table = await Database.GetTableAsync("table_test_table_15").ConfigureAwait(false);
             var childKeys = await table.ChildKeysAsync().ConfigureAwait(false);
-            var foreignKey = childKeys.Single(k => k.ChildKey.Table.Name.LocalName == "table_test_table_18");
+            var foreignKey = childKeys.Single(k => k.ChildTable.LocalName == "table_test_table_18");
 
             Assert.AreEqual(Rule.Cascade, foreignKey.UpdateRule);
         }
@@ -198,7 +198,7 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration
         {
             var table = Database.GetTable("table_test_table_15");
             var childKeys = table.ChildKeys;
-            var foreignKey = childKeys.Single(k => k.ChildKey.Table.Name.LocalName == "table_test_table_19");
+            var foreignKey = childKeys.Single(k => k.ChildTable.LocalName == "table_test_table_19");
 
             Assert.AreEqual(Rule.SetNull, foreignKey.UpdateRule);
         }
@@ -208,7 +208,7 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration
         {
             var table = await Database.GetTableAsync("table_test_table_15").ConfigureAwait(false);
             var childKeys = await table.ChildKeysAsync().ConfigureAwait(false);
-            var foreignKey = childKeys.Single(k => k.ChildKey.Table.Name.LocalName == "table_test_table_19");
+            var foreignKey = childKeys.Single(k => k.ChildTable.LocalName == "table_test_table_19");
 
             Assert.AreEqual(Rule.SetNull, foreignKey.UpdateRule);
         }
@@ -218,7 +218,7 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration
         {
             var table = Database.GetTable("table_test_table_15");
             var childKeys = table.ChildKeys;
-            var foreignKey = childKeys.Single(k => k.ChildKey.Table.Name.LocalName == "table_test_table_20");
+            var foreignKey = childKeys.Single(k => k.ChildTable.LocalName == "table_test_table_20");
 
             Assert.AreEqual(Rule.SetDefault, foreignKey.UpdateRule);
         }
@@ -228,7 +228,7 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration
         {
             var table = await Database.GetTableAsync("table_test_table_15").ConfigureAwait(false);
             var childKeys = await table.ChildKeysAsync().ConfigureAwait(false);
-            var foreignKey = childKeys.Single(k => k.ChildKey.Table.Name.LocalName == "table_test_table_20");
+            var foreignKey = childKeys.Single(k => k.ChildTable.LocalName == "table_test_table_20");
 
             Assert.AreEqual(Rule.SetDefault, foreignKey.UpdateRule);
         }
@@ -238,7 +238,7 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration
         {
             var table = Database.GetTable("table_test_table_15");
             var childKeys = table.ChildKeys;
-            var foreignKey = childKeys.Single(k => k.ChildKey.Table.Name.LocalName == "table_test_table_16");
+            var foreignKey = childKeys.Single(k => k.ChildTable.LocalName == "table_test_table_16");
 
             Assert.AreEqual(Rule.None, foreignKey.DeleteRule);
         }
@@ -248,7 +248,7 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration
         {
             var table = await Database.GetTableAsync("table_test_table_15").ConfigureAwait(false);
             var childKeys = await table.ChildKeysAsync().ConfigureAwait(false);
-            var foreignKey = childKeys.Single(k => k.ChildKey.Table.Name.LocalName == "table_test_table_16");
+            var foreignKey = childKeys.Single(k => k.ChildTable.LocalName == "table_test_table_16");
 
             Assert.AreEqual(Rule.None, foreignKey.DeleteRule);
         }
@@ -258,7 +258,7 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration
         {
             var table = Database.GetTable("table_test_table_15");
             var childKeys = table.ChildKeys;
-            var foreignKey = childKeys.Single(k => k.ChildKey.Table.Name.LocalName == "table_test_table_24");
+            var foreignKey = childKeys.Single(k => k.ChildTable.LocalName == "table_test_table_24");
 
             Assert.AreEqual(Rule.Cascade, foreignKey.DeleteRule);
         }
@@ -268,7 +268,7 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration
         {
             var table = await Database.GetTableAsync("table_test_table_15").ConfigureAwait(false);
             var childKeys = await table.ChildKeysAsync().ConfigureAwait(false);
-            var foreignKey = childKeys.Single(k => k.ChildKey.Table.Name.LocalName == "table_test_table_24");
+            var foreignKey = childKeys.Single(k => k.ChildTable.LocalName == "table_test_table_24");
 
             Assert.AreEqual(Rule.Cascade, foreignKey.DeleteRule);
         }
@@ -278,7 +278,7 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration
         {
             var table = Database.GetTable("table_test_table_15");
             var childKeys = table.ChildKeys;
-            var foreignKey = childKeys.Single(k => k.ChildKey.Table.Name.LocalName == "table_test_table_25");
+            var foreignKey = childKeys.Single(k => k.ChildTable.LocalName == "table_test_table_25");
 
             Assert.AreEqual(Rule.SetNull, foreignKey.DeleteRule);
         }
@@ -288,7 +288,7 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration
         {
             var table = await Database.GetTableAsync("table_test_table_15").ConfigureAwait(false);
             var childKeys = await table.ChildKeysAsync().ConfigureAwait(false);
-            var foreignKey = childKeys.Single(k => k.ChildKey.Table.Name.LocalName == "table_test_table_25");
+            var foreignKey = childKeys.Single(k => k.ChildTable.LocalName == "table_test_table_25");
 
             Assert.AreEqual(Rule.SetNull, foreignKey.DeleteRule);
         }
@@ -298,7 +298,7 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration
         {
             var table = Database.GetTable("table_test_table_15");
             var childKeys = table.ChildKeys;
-            var foreignKey = childKeys.Single(k => k.ChildKey.Table.Name.LocalName == "table_test_table_26");
+            var foreignKey = childKeys.Single(k => k.ChildTable.LocalName == "table_test_table_26");
 
             Assert.AreEqual(Rule.SetDefault, foreignKey.DeleteRule);
         }
@@ -308,7 +308,7 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration
         {
             var table = await Database.GetTableAsync("table_test_table_15").ConfigureAwait(false);
             var childKeys = await table.ChildKeysAsync().ConfigureAwait(false);
-            var foreignKey = childKeys.Single(k => k.ChildKey.Table.Name.LocalName == "table_test_table_26");
+            var foreignKey = childKeys.Single(k => k.ChildTable.LocalName == "table_test_table_26");
 
             Assert.AreEqual(Rule.SetDefault, foreignKey.DeleteRule);
         }
@@ -318,7 +318,7 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration
         {
             var table = Database.GetTable("table_test_table_15");
             var childKeys = table.ChildKeys;
-            var foreignKey = childKeys.Single(k => k.ChildKey.Table.Name.LocalName == "table_test_table_16");
+            var foreignKey = childKeys.Single(k => k.ChildTable.LocalName == "table_test_table_16");
 
             Assert.IsTrue(foreignKey.ChildKey.IsEnabled);
         }
@@ -328,7 +328,7 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration
         {
             var table = await Database.GetTableAsync("table_test_table_15").ConfigureAwait(false);
             var childKeys = await table.ChildKeysAsync().ConfigureAwait(false);
-            var foreignKey = childKeys.Single(k => k.ChildKey.Table.Name.LocalName == "table_test_table_16");
+            var foreignKey = childKeys.Single(k => k.ChildTable.LocalName == "table_test_table_16");
 
             Assert.IsTrue(foreignKey.ChildKey.IsEnabled);
         }
@@ -337,7 +337,7 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration
         public void ChildKeys_WhenGivenChildTableWithForeignKeyToUniqueKey_ContainsConstraintWithCorrectNames()
         {
             var table = Database.GetTable("table_test_table_15");
-            var foreignKey = table.ChildKeys.Single(k => k.ChildKey.Table.Name.LocalName == "table_test_table_17");
+            var foreignKey = table.ChildKeys.Single(k => k.ChildTable.LocalName == "table_test_table_17");
 
             Assert.Multiple(() =>
             {
@@ -351,7 +351,7 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration
         {
             var table = await Database.GetTableAsync("table_test_table_15").ConfigureAwait(false);
             var childKeys = await table.ChildKeysAsync().ConfigureAwait(false);
-            var foreignKey = childKeys.Single(k => k.ChildKey.Table.Name.LocalName == "table_test_table_17");
+            var foreignKey = childKeys.Single(k => k.ChildTable.LocalName == "table_test_table_17");
 
             Assert.Multiple(() =>
             {
@@ -364,7 +364,7 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration
         public void ChildKeys_WhenGivenChildTableWithForeignKeyToUniqueKey_ContainsConstraintWithCorrectKeyTypes()
         {
             var table = Database.GetTable("table_test_table_15");
-            var foreignKey = table.ChildKeys.Single(k => k.ChildKey.Table.Name.LocalName == "table_test_table_17");
+            var foreignKey = table.ChildKeys.Single(k => k.ChildTable.LocalName == "table_test_table_17");
 
             Assert.Multiple(() =>
             {
@@ -378,7 +378,7 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration
         {
             var table = await Database.GetTableAsync("table_test_table_15").ConfigureAwait(false);
             var childKeys = await table.ChildKeysAsync().ConfigureAwait(false);
-            var foreignKey = childKeys.Single(k => k.ChildKey.Table.Name.LocalName == "table_test_table_17");
+            var foreignKey = childKeys.Single(k => k.ChildTable.LocalName == "table_test_table_17");
 
             Assert.Multiple(() =>
             {
@@ -391,12 +391,12 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration
         public void ChildKeys_WhenGivenChildTableWithForeignKeyToUniqueKey_ContainsConstraintWithCorrectTables()
         {
             var table = Database.GetTable("table_test_table_15");
-            var foreignKey = table.ChildKeys.Single(k => k.ChildKey.Table.Name.LocalName == "table_test_table_17");
+            var foreignKey = table.ChildKeys.Single(k => k.ChildTable.LocalName == "table_test_table_17");
 
             Assert.Multiple(() =>
             {
-                Assert.AreEqual("table_test_table_17", foreignKey.ChildKey.Table.Name.LocalName);
-                Assert.AreEqual("table_test_table_15", foreignKey.ParentKey.Table.Name.LocalName);
+                Assert.AreEqual("table_test_table_17", foreignKey.ChildTable.LocalName);
+                Assert.AreEqual("table_test_table_15", foreignKey.ParentTable.LocalName);
             });
         }
 
@@ -405,12 +405,12 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration
         {
             var table = await Database.GetTableAsync("table_test_table_15").ConfigureAwait(false);
             var childKeys = await table.ChildKeysAsync().ConfigureAwait(false);
-            var foreignKey = childKeys.Single(k => k.ChildKey.Table.Name.LocalName == "table_test_table_17");
+            var foreignKey = childKeys.Single(k => k.ChildTable.LocalName == "table_test_table_17");
 
             Assert.Multiple(() =>
             {
-                Assert.AreEqual("table_test_table_17", foreignKey.ChildKey.Table.Name.LocalName);
-                Assert.AreEqual("table_test_table_15", foreignKey.ParentKey.Table.Name.LocalName);
+                Assert.AreEqual("table_test_table_17", foreignKey.ChildTable.LocalName);
+                Assert.AreEqual("table_test_table_15", foreignKey.ParentTable.LocalName);
             });
         }
 
@@ -418,7 +418,7 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration
         public void ChildKeys_WhenGivenChildTableWithForeignKeyToUniqueKey_ContainsConstraintWithCorrectColumns()
         {
             var table = Database.GetTable("table_test_table_15");
-            var foreignKey = table.ChildKeys.Single(k => k.ChildKey.Table.Name.LocalName == "table_test_table_17");
+            var foreignKey = table.ChildKeys.Single(k => k.ChildTable.LocalName == "table_test_table_17");
 
             var childColumns = foreignKey.ChildKey.Columns.Select(c => c.Name.LocalName);
             var parentColumns = foreignKey.ParentKey.Columns.Select(c => c.Name.LocalName);
@@ -441,7 +441,7 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration
         {
             var table = await Database.GetTableAsync("table_test_table_15").ConfigureAwait(false);
             var childKeys = await table.ChildKeysAsync().ConfigureAwait(false);
-            var foreignKey = childKeys.Single(k => k.ChildKey.Table.Name.LocalName == "table_test_table_17");
+            var foreignKey = childKeys.Single(k => k.ChildTable.LocalName == "table_test_table_17");
 
             var childColumns = foreignKey.ChildKey.Columns.Select(c => c.Name.LocalName);
             var parentColumns = foreignKey.ParentKey.Columns.Select(c => c.Name.LocalName);
@@ -464,7 +464,7 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration
         {
             var table = Database.GetTable("table_test_table_15");
             var childKeys = table.ChildKeys;
-            var foreignKey = childKeys.Single(k => k.ChildKey.Table.Name.LocalName == "table_test_table_17");
+            var foreignKey = childKeys.Single(k => k.ChildTable.LocalName == "table_test_table_17");
 
             Assert.AreEqual(Rule.None, foreignKey.UpdateRule);
         }
@@ -474,7 +474,7 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration
         {
             var table = await Database.GetTableAsync("table_test_table_15").ConfigureAwait(false);
             var childKeys = await table.ChildKeysAsync().ConfigureAwait(false);
-            var foreignKey = childKeys.Single(k => k.ChildKey.Table.Name.LocalName == "table_test_table_17");
+            var foreignKey = childKeys.Single(k => k.ChildTable.LocalName == "table_test_table_17");
 
             Assert.AreEqual(Rule.None, foreignKey.UpdateRule);
         }
@@ -484,7 +484,7 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration
         {
             var table = Database.GetTable("table_test_table_15");
             var childKeys = table.ChildKeys;
-            var foreignKey = childKeys.Single(k => k.ChildKey.Table.Name.LocalName == "table_test_table_21");
+            var foreignKey = childKeys.Single(k => k.ChildTable.LocalName == "table_test_table_21");
 
             Assert.AreEqual(Rule.Cascade, foreignKey.UpdateRule);
         }
@@ -494,7 +494,7 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration
         {
             var table = await Database.GetTableAsync("table_test_table_15").ConfigureAwait(false);
             var childKeys = await table.ChildKeysAsync().ConfigureAwait(false);
-            var foreignKey = childKeys.Single(k => k.ChildKey.Table.Name.LocalName == "table_test_table_21");
+            var foreignKey = childKeys.Single(k => k.ChildTable.LocalName == "table_test_table_21");
 
             Assert.AreEqual(Rule.Cascade, foreignKey.UpdateRule);
         }
@@ -504,7 +504,7 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration
         {
             var table = Database.GetTable("table_test_table_15");
             var childKeys = table.ChildKeys;
-            var foreignKey = childKeys.Single(k => k.ChildKey.Table.Name.LocalName == "table_test_table_22");
+            var foreignKey = childKeys.Single(k => k.ChildTable.LocalName == "table_test_table_22");
 
             Assert.AreEqual(Rule.SetNull, foreignKey.UpdateRule);
         }
@@ -514,7 +514,7 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration
         {
             var table = await Database.GetTableAsync("table_test_table_15").ConfigureAwait(false);
             var childKeys = await table.ChildKeysAsync().ConfigureAwait(false);
-            var foreignKey = childKeys.Single(k => k.ChildKey.Table.Name.LocalName == "table_test_table_22");
+            var foreignKey = childKeys.Single(k => k.ChildTable.LocalName == "table_test_table_22");
 
             Assert.AreEqual(Rule.SetNull, foreignKey.UpdateRule);
         }
@@ -524,7 +524,7 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration
         {
             var table = Database.GetTable("table_test_table_15");
             var childKeys = table.ChildKeys;
-            var foreignKey = childKeys.Single(k => k.ChildKey.Table.Name.LocalName == "table_test_table_23");
+            var foreignKey = childKeys.Single(k => k.ChildTable.LocalName == "table_test_table_23");
 
             Assert.AreEqual(Rule.SetDefault, foreignKey.UpdateRule);
         }
@@ -534,7 +534,7 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration
         {
             var table = await Database.GetTableAsync("table_test_table_15").ConfigureAwait(false);
             var childKeys = await table.ChildKeysAsync().ConfigureAwait(false);
-            var foreignKey = childKeys.Single(k => k.ChildKey.Table.Name.LocalName == "table_test_table_23");
+            var foreignKey = childKeys.Single(k => k.ChildTable.LocalName == "table_test_table_23");
 
             Assert.AreEqual(Rule.SetDefault, foreignKey.UpdateRule);
         }
@@ -544,7 +544,7 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration
         {
             var table = Database.GetTable("table_test_table_15");
             var childKeys = table.ChildKeys;
-            var foreignKey = childKeys.Single(k => k.ChildKey.Table.Name.LocalName == "table_test_table_17");
+            var foreignKey = childKeys.Single(k => k.ChildTable.LocalName == "table_test_table_17");
 
             Assert.AreEqual(Rule.None, foreignKey.DeleteRule);
         }
@@ -554,7 +554,7 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration
         {
             var table = await Database.GetTableAsync("table_test_table_15").ConfigureAwait(false);
             var childKeys = await table.ChildKeysAsync().ConfigureAwait(false);
-            var foreignKey = childKeys.Single(k => k.ChildKey.Table.Name.LocalName == "table_test_table_17");
+            var foreignKey = childKeys.Single(k => k.ChildTable.LocalName == "table_test_table_17");
 
             Assert.AreEqual(Rule.None, foreignKey.DeleteRule);
         }
@@ -564,7 +564,7 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration
         {
             var table = Database.GetTable("table_test_table_15");
             var childKeys = table.ChildKeys;
-            var foreignKey = childKeys.Single(k => k.ChildKey.Table.Name.LocalName == "table_test_table_27");
+            var foreignKey = childKeys.Single(k => k.ChildTable.LocalName == "table_test_table_27");
 
             Assert.AreEqual(Rule.Cascade, foreignKey.DeleteRule);
         }
@@ -574,7 +574,7 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration
         {
             var table = await Database.GetTableAsync("table_test_table_15").ConfigureAwait(false);
             var childKeys = await table.ChildKeysAsync().ConfigureAwait(false);
-            var foreignKey = childKeys.Single(k => k.ChildKey.Table.Name.LocalName == "table_test_table_27");
+            var foreignKey = childKeys.Single(k => k.ChildTable.LocalName == "table_test_table_27");
 
             Assert.AreEqual(Rule.Cascade, foreignKey.DeleteRule);
         }
@@ -584,7 +584,7 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration
         {
             var table = Database.GetTable("table_test_table_15");
             var childKeys = table.ChildKeys;
-            var foreignKey = childKeys.Single(k => k.ChildKey.Table.Name.LocalName == "table_test_table_28");
+            var foreignKey = childKeys.Single(k => k.ChildTable.LocalName == "table_test_table_28");
 
             Assert.AreEqual(Rule.SetNull, foreignKey.DeleteRule);
         }
@@ -594,7 +594,7 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration
         {
             var table = await Database.GetTableAsync("table_test_table_15").ConfigureAwait(false);
             var childKeys = await table.ChildKeysAsync().ConfigureAwait(false);
-            var foreignKey = childKeys.Single(k => k.ChildKey.Table.Name.LocalName == "table_test_table_28");
+            var foreignKey = childKeys.Single(k => k.ChildTable.LocalName == "table_test_table_28");
 
             Assert.AreEqual(Rule.SetNull, foreignKey.DeleteRule);
         }
@@ -604,7 +604,7 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration
         {
             var table = Database.GetTable("table_test_table_15");
             var childKeys = table.ChildKeys;
-            var foreignKey = childKeys.Single(k => k.ChildKey.Table.Name.LocalName == "table_test_table_29");
+            var foreignKey = childKeys.Single(k => k.ChildTable.LocalName == "table_test_table_29");
 
             Assert.AreEqual(Rule.SetDefault, foreignKey.DeleteRule);
         }
@@ -614,7 +614,7 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration
         {
             var table = await Database.GetTableAsync("table_test_table_15").ConfigureAwait(false);
             var childKeys = await table.ChildKeysAsync().ConfigureAwait(false);
-            var foreignKey = childKeys.Single(k => k.ChildKey.Table.Name.LocalName == "table_test_table_29");
+            var foreignKey = childKeys.Single(k => k.ChildTable.LocalName == "table_test_table_29");
 
             Assert.AreEqual(Rule.SetDefault, foreignKey.DeleteRule);
         }
@@ -624,7 +624,7 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration
         {
             var table = Database.GetTable("table_test_table_15");
             var childKeys = table.ChildKeys;
-            var foreignKey = childKeys.Single(k => k.ChildKey.Table.Name.LocalName == "table_test_table_17");
+            var foreignKey = childKeys.Single(k => k.ChildTable.LocalName == "table_test_table_17");
 
             Assert.IsTrue(foreignKey.ChildKey.IsEnabled);
         }
@@ -634,7 +634,7 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration
         {
             var table = await Database.GetTableAsync("table_test_table_15").ConfigureAwait(false);
             var childKeys = await table.ChildKeysAsync().ConfigureAwait(false);
-            var foreignKey = childKeys.Single(k => k.ChildKey.Table.Name.LocalName == "table_test_table_17");
+            var foreignKey = childKeys.Single(k => k.ChildTable.LocalName == "table_test_table_17");
 
             Assert.IsTrue(foreignKey.ChildKey.IsEnabled);
         }

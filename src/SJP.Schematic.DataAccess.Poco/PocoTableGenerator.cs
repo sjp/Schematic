@@ -90,7 +90,7 @@ namespace SJP.Schematic.DataAccess.Poco
             return builder.GetStringAndRelease();
         }
 
-        private void AppendColumn(StringBuilder builder, string columnIndent, string className, IDatabaseTableColumn column)
+        private void AppendColumn(StringBuilder builder, string columnIndent, string className, IDatabaseColumn column)
         {
             if (builder == null)
                 throw new ArgumentNullException(nameof(builder));

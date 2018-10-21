@@ -36,7 +36,7 @@ namespace SJP.Schematic.Sqlite
             Pragma = new DatabasePragma(Dialect, connection, schemaName);
         }
 
-        public IRelationalDatabase Database { get; }
+        protected IRelationalDatabase Database { get; }
 
         protected IDatabaseDialect Dialect { get; }
 
@@ -73,7 +73,7 @@ namespace SJP.Schematic.Sqlite
 
             var pkStringName = pkConstraint?.Name;
             var primaryKeyName = !pkStringName.IsNullOrWhiteSpace() ? Identifier.CreateQualifiedIdentifier(pkStringName) : null;
-            return new SqliteDatabaseKey(this, primaryKeyName, DatabaseKeyType.Primary, columns);
+            return new SqliteDatabaseKey(primaryKeyName, DatabaseKeyType.Primary, columns);
         }
 
         protected virtual async Task<IDatabaseKey> LoadPrimaryKeyAsync(CancellationToken cancellationToken)
@@ -97,21 +97,21 @@ namespace SJP.Schematic.Sqlite
 
             var pkStringName = pkConstraint?.Name;
             var primaryKeyName = !pkStringName.IsNullOrWhiteSpace() ? Identifier.CreateQualifiedIdentifier(pkStringName) : null;
-            return new SqliteDatabaseKey(this, primaryKeyName, DatabaseKeyType.Primary, columns);
+            return new SqliteDatabaseKey(primaryKeyName, DatabaseKeyType.Primary, columns);
         }
 
-        public IReadOnlyDictionary<Identifier, IDatabaseTableIndex> Index => LoadIndexLookupSync();
+        public IReadOnlyDictionary<Identifier, IDatabaseIndex> Index => LoadIndexLookupSync();
 
-        public Task<IReadOnlyDictionary<Identifier, IDatabaseTableIndex>> IndexAsync(CancellationToken cancellationToken = default(CancellationToken)) => LoadIndexLookupAsync(cancellationToken);
+        public Task<IReadOnlyDictionary<Identifier, IDatabaseIndex>> IndexAsync(CancellationToken cancellationToken = default(CancellationToken)) => LoadIndexLookupAsync(cancellationToken);
 
-        public IReadOnlyCollection<IDatabaseTableIndex> Indexes => LoadIndexesSync();
+        public IReadOnlyCollection<IDatabaseIndex> Indexes => LoadIndexesSync();
 
-        public Task<IReadOnlyCollection<IDatabaseTableIndex>> IndexesAsync(CancellationToken cancellationToken = default(CancellationToken)) => LoadIndexesAsync(cancellationToken);
+        public Task<IReadOnlyCollection<IDatabaseIndex>> IndexesAsync(CancellationToken cancellationToken = default(CancellationToken)) => LoadIndexesAsync(cancellationToken);
 
-        protected virtual IReadOnlyDictionary<Identifier, IDatabaseTableIndex> LoadIndexLookupSync()
+        protected virtual IReadOnlyDictionary<Identifier, IDatabaseIndex> LoadIndexLookupSync()
         {
             var indexes = Indexes;
-            var result = new Dictionary<Identifier, IDatabaseTableIndex>(indexes.Count, Comparer);
+            var result = new Dictionary<Identifier, IDatabaseIndex>(indexes.Count, Comparer);
 
             var namedIndexes = indexes.Where(i => i.Name != null);
             foreach (var index in namedIndexes)
@@ -120,10 +120,10 @@ namespace SJP.Schematic.Sqlite
             return result;
         }
 
-        protected virtual async Task<IReadOnlyDictionary<Identifier, IDatabaseTableIndex>> LoadIndexLookupAsync(CancellationToken cancellationToken)
+        protected virtual async Task<IReadOnlyDictionary<Identifier, IDatabaseIndex>> LoadIndexLookupAsync(CancellationToken cancellationToken)
         {
             var indexes = await IndexesAsync(cancellationToken).ConfigureAwait(false);
-            var result = new Dictionary<Identifier, IDatabaseTableIndex>(indexes.Count, Comparer);
+            var result = new Dictionary<Identifier, IDatabaseIndex>(indexes.Count, Comparer);
 
             var namedIndexes = indexes.Where(i => i.Name != null);
             foreach (var index in namedIndexes)
@@ -132,17 +132,17 @@ namespace SJP.Schematic.Sqlite
             return result;
         }
 
-        protected virtual IReadOnlyCollection<IDatabaseTableIndex> LoadIndexesSync()
+        protected virtual IReadOnlyCollection<IDatabaseIndex> LoadIndexesSync()
         {
             var indexLists = Pragma.IndexList(Name);
             if (indexLists.Empty())
-                return Array.Empty<IDatabaseTableIndex>();
+                return Array.Empty<IDatabaseIndex>();
 
             var nonConstraintIndexLists = indexLists.Where(i => i.origin == "c").ToList();
             if (nonConstraintIndexLists.Count == 0)
-                return Array.Empty<IDatabaseTableIndex>();
+                return Array.Empty<IDatabaseIndex>();
 
-            var result = new List<IDatabaseTableIndex>(nonConstraintIndexLists.Count);
+            var result = new List<IDatabaseIndex>(nonConstraintIndexLists.Count);
 
             foreach (var indexList in nonConstraintIndexLists)
             {
@@ -159,24 +159,24 @@ namespace SJP.Schematic.Sqlite
                     .Select(i => Column[i.name])
                     .ToList();
 
-                var index = new SqliteDatabaseTableIndex(this, indexList.name, indexList.unique, indexColumns, includedColumns);
+                var index = new SqliteDatabaseIndex(indexList.name, indexList.unique, indexColumns, includedColumns);
                 result.Add(index);
             }
 
             return result;
         }
 
-        protected virtual async Task<IReadOnlyCollection<IDatabaseTableIndex>> LoadIndexesAsync(CancellationToken cancellationToken)
+        protected virtual async Task<IReadOnlyCollection<IDatabaseIndex>> LoadIndexesAsync(CancellationToken cancellationToken)
         {
             var indexLists = await Pragma.IndexListAsync(Name, cancellationToken).ConfigureAwait(false);
             if (indexLists.Empty())
-                return Array.Empty<IDatabaseTableIndex>();
+                return Array.Empty<IDatabaseIndex>();
 
             var nonConstraintIndexLists = indexLists.Where(i => i.origin == "c").ToList();
             if (nonConstraintIndexLists.Count == 0)
-                return Array.Empty<IDatabaseTableIndex>();
+                return Array.Empty<IDatabaseIndex>();
 
-            var result = new List<IDatabaseTableIndex>(nonConstraintIndexLists.Count);
+            var result = new List<IDatabaseIndex>(nonConstraintIndexLists.Count);
 
             foreach (var indexList in nonConstraintIndexLists)
             {
@@ -193,7 +193,7 @@ namespace SJP.Schematic.Sqlite
                     .Select(i => Column[i.name])
                     .ToList();
 
-                var index = new SqliteDatabaseTableIndex(this, indexList.name, indexList.unique, indexColumns, includedColumns);
+                var index = new SqliteDatabaseIndex(indexList.name, indexList.unique, indexColumns, includedColumns);
                 result.Add(index);
             }
 
@@ -265,7 +265,7 @@ namespace SJP.Schematic.Sqlite
                 var stringConstraintName = uniqueConstraint?.Name;
 
                 var keyName = !stringConstraintName.IsNullOrWhiteSpace() ? Identifier.CreateQualifiedIdentifier(stringConstraintName) : null;
-                var uniqueKey = new SqliteDatabaseKey(this, keyName, DatabaseKeyType.Unique, columns);
+                var uniqueKey = new SqliteDatabaseKey(keyName, DatabaseKeyType.Unique, columns);
                 result.Add(uniqueKey);
             }
 
@@ -305,7 +305,7 @@ namespace SJP.Schematic.Sqlite
                 var stringConstraintName = uniqueConstraint?.Name;
 
                 var keyName = !stringConstraintName.IsNullOrWhiteSpace() ? Identifier.CreateQualifiedIdentifier(stringConstraintName) : null;
-                var uniqueKey = new SqliteDatabaseKey(this, keyName, DatabaseKeyType.Unique, columns);
+                var uniqueKey = new SqliteDatabaseKey(keyName, DatabaseKeyType.Unique, columns);
                 result.Add(uniqueKey);
             }
 
@@ -321,7 +321,7 @@ namespace SJP.Schematic.Sqlite
             return Database.Tables
                 .Where(t => string.Equals(t.Name.Schema, Name.Schema, StringComparison.OrdinalIgnoreCase))
                 .SelectMany(t => t.ParentKeys)
-                .Where(fk => Comparer.Equals(Name, fk.ParentKey.Table.Name))
+                .Where(fk => Comparer.Equals(Name, fk.ParentTable))
                 .ToList();
         }
 
@@ -338,7 +338,7 @@ namespace SJP.Schematic.Sqlite
 
             var childKeys = parentKeyCollections
                 .SelectMany(pkc => pkc)
-                .Where(fk => Comparer.Equals(Name, fk.ParentKey.Table.Name))
+                .Where(fk => Comparer.Equals(Name, fk.ParentTable))
                 .ToList();
 
             return childKeys;
@@ -392,7 +392,7 @@ namespace SJP.Schematic.Sqlite
                 var endIndex = lastToken.Position.Absolute + lastToken.ToStringValue().Length;
 
                 var definition = parser.Definition.Substring(startIndex, endIndex - startIndex);
-                var check = new SqliteCheckConstraint(this, ck.Name, definition);
+                var check = new SqliteCheckConstraint(ck.Name, definition);
                 result.Add(check);
             }
 
@@ -415,7 +415,7 @@ namespace SJP.Schematic.Sqlite
                 var endIndex = lastToken.Position.Absolute + lastToken.ToStringValue().Length;
 
                 var definition = parser.Definition.Substring(startIndex, endIndex - startIndex);
-                var check = new SqliteCheckConstraint(this, ck.Name, definition);
+                var check = new SqliteCheckConstraint(ck.Name, definition);
                 result.Add(check);
             }
 
@@ -505,12 +505,12 @@ namespace SJP.Schematic.Sqlite
                 var childKeyColumnLookup = Column;
                 var childKeyColumns = rows.Select(row => childKeyColumnLookup[row.from]).ToList();
 
-                var childKey = new SqliteDatabaseKey(this, childKeyName, DatabaseKeyType.Foreign, childKeyColumns);
+                var childKey = new SqliteDatabaseKey(childKeyName, DatabaseKeyType.Foreign, childKeyColumns);
 
                 var deleteRule = GetRelationalUpdateRule(fkey.Key.OnDelete);
                 var updateRule = GetRelationalUpdateRule(fkey.Key.OnUpdate);
 
-                var relationalKey = new SqliteRelationalKey(childKey, parentConstraint, deleteRule, updateRule);
+                var relationalKey = new SqliteRelationalKey(Name, childKey, parentTableName, parentConstraint, deleteRule, updateRule);
                 result.Add(relationalKey);
             }
 
@@ -568,30 +568,30 @@ namespace SJP.Schematic.Sqlite
                 var childKeyColumnLookup = await ColumnAsync(cancellationToken).ConfigureAwait(false);
                 var childKeyColumns = rows.Select(row => childKeyColumnLookup[row.from]).ToList();
 
-                var childKey = new SqliteDatabaseKey(this, childKeyName, DatabaseKeyType.Foreign, childKeyColumns);
+                var childKey = new SqliteDatabaseKey(childKeyName, DatabaseKeyType.Foreign, childKeyColumns);
 
                 var deleteRule = GetRelationalUpdateRule(fkey.Key.OnDelete);
                 var updateRule = GetRelationalUpdateRule(fkey.Key.OnUpdate);
 
-                var relationalKey = new SqliteRelationalKey(childKey, parentConstraint, deleteRule, updateRule);
+                var relationalKey = new SqliteRelationalKey(Name, childKey, parentTableName, parentConstraint, deleteRule, updateRule);
                 result.Add(relationalKey);
             }
 
             return result;
         }
 
-        public IReadOnlyList<IDatabaseTableColumn> Columns => LoadColumnsSync();
+        public IReadOnlyList<IDatabaseColumn> Columns => LoadColumnsSync();
 
-        public Task<IReadOnlyList<IDatabaseTableColumn>> ColumnsAsync(CancellationToken cancellationToken = default(CancellationToken)) => LoadColumnsAsync(cancellationToken);
+        public Task<IReadOnlyList<IDatabaseColumn>> ColumnsAsync(CancellationToken cancellationToken = default(CancellationToken)) => LoadColumnsAsync(cancellationToken);
 
-        public IReadOnlyDictionary<Identifier, IDatabaseTableColumn> Column => LoadColumnLookupSync();
+        public IReadOnlyDictionary<Identifier, IDatabaseColumn> Column => LoadColumnLookupSync();
 
-        public Task<IReadOnlyDictionary<Identifier, IDatabaseTableColumn>> ColumnAsync(CancellationToken cancellationToken = default(CancellationToken)) => LoadColumnLookupAsync(cancellationToken);
+        public Task<IReadOnlyDictionary<Identifier, IDatabaseColumn>> ColumnAsync(CancellationToken cancellationToken = default(CancellationToken)) => LoadColumnLookupAsync(cancellationToken);
 
-        protected virtual IReadOnlyDictionary<Identifier, IDatabaseTableColumn> LoadColumnLookupSync()
+        protected virtual IReadOnlyDictionary<Identifier, IDatabaseColumn> LoadColumnLookupSync()
         {
             var columns = Columns;
-            var result = new Dictionary<Identifier, IDatabaseTableColumn>(columns.Count, Comparer);
+            var result = new Dictionary<Identifier, IDatabaseColumn>(columns.Count, Comparer);
 
             var namedColumns = columns.Where(c => c.Name != null);
             foreach (var column in namedColumns)
@@ -600,10 +600,10 @@ namespace SJP.Schematic.Sqlite
             return result;
         }
 
-        protected virtual async Task<IReadOnlyDictionary<Identifier, IDatabaseTableColumn>> LoadColumnLookupAsync(CancellationToken cancellationToken)
+        protected virtual async Task<IReadOnlyDictionary<Identifier, IDatabaseColumn>> LoadColumnLookupAsync(CancellationToken cancellationToken)
         {
             var columns = await ColumnsAsync(cancellationToken).ConfigureAwait(false);
-            var result = new Dictionary<Identifier, IDatabaseTableColumn>(columns.Count, Comparer);
+            var result = new Dictionary<Identifier, IDatabaseColumn>(columns.Count, Comparer);
 
             var namedColumns = columns.Where(c => c.Name != null);
             foreach (var column in namedColumns)
@@ -612,13 +612,13 @@ namespace SJP.Schematic.Sqlite
             return result;
         }
 
-        protected virtual IReadOnlyList<IDatabaseTableColumn> LoadColumnsSync()
+        protected virtual IReadOnlyList<IDatabaseColumn> LoadColumnsSync()
         {
             var tableInfos = Pragma.TableInfo(Name);
             if (tableInfos.Empty())
-                return Array.Empty<IDatabaseTableColumn>();
+                return Array.Empty<IDatabaseColumn>();
 
-            var result = new List<IDatabaseTableColumn>();
+            var result = new List<IDatabaseColumn>();
 
             var parser = ParsedDefinition;
             var parsedColumns = parser.Columns;
@@ -636,20 +636,20 @@ namespace SJP.Schematic.Sqlite
                     ? new AutoIncrement(1, 1)
                     : (IAutoIncrement)null;
 
-                var column = new SqliteDatabaseTableColumn(this, tableInfo.name, columnType, !tableInfo.notnull, tableInfo.dflt_value, autoIncrement);
+                var column = new SqliteDatabaseColumn(tableInfo.name, columnType, !tableInfo.notnull, tableInfo.dflt_value, autoIncrement);
                 result.Add(column);
             }
 
             return result.AsReadOnly();
         }
 
-        protected virtual async Task<IReadOnlyList<IDatabaseTableColumn>> LoadColumnsAsync(CancellationToken cancellationToken)
+        protected virtual async Task<IReadOnlyList<IDatabaseColumn>> LoadColumnsAsync(CancellationToken cancellationToken)
         {
             var tableInfos = await Pragma.TableInfoAsync(Name, cancellationToken).ConfigureAwait(false);
             if (tableInfos.Empty())
-                return Array.Empty<IDatabaseTableColumn>();
+                return Array.Empty<IDatabaseColumn>();
 
-            var result = new List<IDatabaseTableColumn>();
+            var result = new List<IDatabaseColumn>();
 
             var parser = await ParsedDefinitionAsync(cancellationToken).ConfigureAwait(false);
             var parsedColumns = parser.Columns;
@@ -667,7 +667,7 @@ namespace SJP.Schematic.Sqlite
                     ? new AutoIncrement(1, 1)
                     : (IAutoIncrement)null;
 
-                var column = new SqliteDatabaseTableColumn(this, tableInfo.name, columnType, !tableInfo.notnull, tableInfo.dflt_value, autoIncrement);
+                var column = new SqliteDatabaseColumn(tableInfo.name, columnType, !tableInfo.notnull, tableInfo.dflt_value, autoIncrement);
                 result.Add(column);
             }
 
@@ -720,7 +720,7 @@ namespace SJP.Schematic.Sqlite
                 var tokens = tokenizeResult.Value;
                 var parser = new SqliteTriggerParser(tokens);
 
-                var trigger = new SqliteDatabaseTrigger(this, triggerInfo.name, triggerInfo.sql, parser.Timing, parser.Event);
+                var trigger = new SqliteDatabaseTrigger(triggerInfo.name, triggerInfo.sql, parser.Timing, parser.Event);
                 result.Add(trigger);
             }
 
@@ -743,7 +743,7 @@ namespace SJP.Schematic.Sqlite
                 var tokens = tokenizeResult.Value;
                 var parser = new SqliteTriggerParser(tokens);
 
-                var trigger = new SqliteDatabaseTrigger(this, triggerInfo.name, triggerInfo.sql, parser.Timing, parser.Event);
+                var trigger = new SqliteDatabaseTrigger(triggerInfo.name, triggerInfo.sql, parser.Timing, parser.Event);
                 result.Add(trigger);
             }
 

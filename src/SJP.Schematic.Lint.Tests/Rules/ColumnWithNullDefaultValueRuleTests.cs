@@ -33,8 +33,7 @@ namespace SJP.Schematic.Lint.Tests.Rules
             var rule = new ColumnWithNullDefaultValueRule(RuleLevel.Error);
             var database = CreateFakeDatabase();
 
-            var testColumn = new DatabaseTableColumn(
-                Mock.Of<IRelationalDatabaseTable>(),
+            var testColumn = new DatabaseColumn(
                 "test_column",
                 Mock.Of<IDbType>(),
                 true,
@@ -45,12 +44,12 @@ namespace SJP.Schematic.Lint.Tests.Rules
             var table = new RelationalDatabaseTable(
                 database,
                 "test",
-                new List<IDatabaseTableColumn> { testColumn },
+                new List<IDatabaseColumn> { testColumn },
                 null,
                 Array.Empty<IDatabaseKey>(),
                 Array.Empty<IDatabaseRelationalKey>(),
                 Array.Empty<IDatabaseRelationalKey>(),
-                Array.Empty<IDatabaseTableIndex>(),
+                Array.Empty<IDatabaseIndex>(),
                 Array.Empty<IDatabaseCheckConstraint>(),
                 Array.Empty<IDatabaseTrigger>()
             );
@@ -67,8 +66,7 @@ namespace SJP.Schematic.Lint.Tests.Rules
             var rule = new ColumnWithNullDefaultValueRule(RuleLevel.Error);
             var database = CreateFakeDatabase();
 
-            var testColumn = new DatabaseTableColumn(
-                Mock.Of<IRelationalDatabaseTable>(),
+            var testColumn = new DatabaseColumn(
                 "test_column",
                 Mock.Of<IDbType>(),
                 true,
@@ -79,12 +77,12 @@ namespace SJP.Schematic.Lint.Tests.Rules
             var table = new RelationalDatabaseTable(
                 database,
                 "test",
-                new List<IDatabaseTableColumn> { testColumn },
+                new List<IDatabaseColumn> { testColumn },
                 null,
                 Array.Empty<IDatabaseKey>(),
                 Array.Empty<IDatabaseRelationalKey>(),
                 Array.Empty<IDatabaseRelationalKey>(),
-                Array.Empty<IDatabaseTableIndex>(),
+                Array.Empty<IDatabaseIndex>(),
                 Array.Empty<IDatabaseCheckConstraint>(),
                 Array.Empty<IDatabaseTrigger>()
             );

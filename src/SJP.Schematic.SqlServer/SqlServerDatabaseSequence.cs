@@ -12,10 +12,11 @@ namespace SJP.Schematic.SqlServer
     {
         public SqlServerDatabaseSequence(IDbConnection connection, IRelationalDatabase database, Identifier sequenceName)
         {
+            if (database == null)
+                throw new ArgumentNullException(nameof(database));
             if (sequenceName == null)
                 throw new ArgumentNullException(nameof(sequenceName));
 
-            Database = database ?? throw new ArgumentNullException(nameof(database));
             Connection = connection ?? throw new ArgumentNullException(nameof(connection));
 
             var serverName = sequenceName.Server ?? database.ServerName;
@@ -26,8 +27,6 @@ namespace SJP.Schematic.SqlServer
 
             _dataLoader = new AsyncLazy<SequenceData>(LoadSequenceDataAsync);
         }
-
-        public IRelationalDatabase Database { get; }
 
         public Identifier Name { get; }
 

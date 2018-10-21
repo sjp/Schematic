@@ -41,23 +41,6 @@ namespace SJP.Schematic.Sqlite.Tests
         }
 
         [Test]
-        public static void Database_PropertyGet_ShouldMatchCtorArg()
-        {
-            var connection = Mock.Of<IDbConnection>();
-            var dbMock = new Mock<IRelationalDatabase>();
-            var dialectMock = new Mock<IDatabaseDialect>();
-            var typeProvider = Mock.Of<IDbTypeProvider>();
-            dialectMock.SetupGet(d => d.TypeProvider).Returns(typeProvider);
-            var dialect = dialectMock.Object;
-            dbMock.SetupGet(db => db.Dialect).Returns(dialect);
-            var database = dbMock.Object;
-
-            var table = new SqliteRelationalDatabaseTable(connection, database, new Identifier("main", "table_test_table_1"));
-
-            Assert.AreSame(database, table.Database);
-        }
-
-        [Test]
         public static void Name_PropertyGet_ShouldEqualCtorArg()
         {
             var connection = Mock.Of<IDbConnection>();

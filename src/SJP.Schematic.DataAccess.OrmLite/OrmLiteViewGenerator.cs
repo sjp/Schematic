@@ -125,7 +125,7 @@ namespace SJP.Schematic.DataAccess.OrmLite
             return "The <c>" + escapedColumnName + "</c> column.";
         }
 
-        private void AppendColumn(StringBuilder builder, string columnIndent, string className, IDatabaseViewColumn column)
+        private void AppendColumn(StringBuilder builder, string columnIndent, string className, IDatabaseColumn column)
         {
             if (builder == null)
                 throw new ArgumentNullException(nameof(builder));

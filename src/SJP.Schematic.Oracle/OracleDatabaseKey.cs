@@ -8,7 +8,7 @@ namespace SJP.Schematic.Oracle
 {
     public class OracleDatabaseKey : IDatabaseKey
     {
-        public OracleDatabaseKey(IRelationalDatabaseTable table, Identifier name, DatabaseKeyType keyType, IReadOnlyCollection<IDatabaseColumn> columns, bool isEnabled)
+        public OracleDatabaseKey(Identifier name, DatabaseKeyType keyType, IReadOnlyCollection<IDatabaseColumn> columns, bool isEnabled)
         {
             if (name == null)
                 throw new ArgumentNullException(nameof(name));
@@ -17,14 +17,11 @@ namespace SJP.Schematic.Oracle
             if (!keyType.IsValid())
                 throw new ArgumentException($"The { nameof(DatabaseKeyType) } provided must be a valid enum.", nameof(keyType));
 
-            Table = table ?? throw new ArgumentNullException(nameof(table));
             Name = name.LocalName;
             KeyType = keyType;
             Columns = columns;
             IsEnabled = isEnabled;
         }
-
-        public IRelationalDatabaseTable Table { get; }
 
         public Identifier Name { get; }
 

@@ -12,12 +12,12 @@ namespace SJP.Schematic.Core
         public RelationalDatabaseTable(
             IRelationalDatabase database,
             Identifier tableName,
-            IReadOnlyList<IDatabaseTableColumn> columns,
+            IReadOnlyList<IDatabaseColumn> columns,
             IDatabaseKey primaryKey,
             IReadOnlyCollection<IDatabaseKey> uniqueKeys,
             IReadOnlyCollection<IDatabaseRelationalKey> parentKeys,
             IReadOnlyCollection<IDatabaseRelationalKey> childKeys,
-            IReadOnlyCollection<IDatabaseTableIndex> indexes,
+            IReadOnlyCollection<IDatabaseIndex> indexes,
             IReadOnlyCollection<IDatabaseCheckConstraint> checks,
             IReadOnlyCollection<IDatabaseTrigger> triggers,
             IEqualityComparer<Identifier> comparer = null)
@@ -66,7 +66,7 @@ namespace SJP.Schematic.Core
 
         public Identifier Name { get; }
 
-        public IRelationalDatabase Database { get; }
+        protected IRelationalDatabase Database { get; }
 
         protected IEqualityComparer<Identifier> Comparer { get; }
 
@@ -74,17 +74,17 @@ namespace SJP.Schematic.Core
 
         public Task<IDatabaseKey> PrimaryKeyAsync(CancellationToken cancellationToken = default(CancellationToken)) => Task.FromResult(PrimaryKey);
 
-        public IReadOnlyDictionary<Identifier, IDatabaseTableIndex> Index { get; }
+        public IReadOnlyDictionary<Identifier, IDatabaseIndex> Index { get; }
 
-        public Task<IReadOnlyDictionary<Identifier, IDatabaseTableIndex>> IndexAsync(CancellationToken cancellationToken = default(CancellationToken)) => Task.FromResult(Index);
+        public Task<IReadOnlyDictionary<Identifier, IDatabaseIndex>> IndexAsync(CancellationToken cancellationToken = default(CancellationToken)) => Task.FromResult(Index);
 
-        public IReadOnlyCollection<IDatabaseTableIndex> Indexes { get; }
+        public IReadOnlyCollection<IDatabaseIndex> Indexes { get; }
 
-        public Task<IReadOnlyCollection<IDatabaseTableIndex>> IndexesAsync(CancellationToken cancellationToken = default(CancellationToken)) => Task.FromResult(Indexes);
+        public Task<IReadOnlyCollection<IDatabaseIndex>> IndexesAsync(CancellationToken cancellationToken = default(CancellationToken)) => Task.FromResult(Indexes);
 
-        private static IReadOnlyDictionary<Identifier, IDatabaseTableIndex> CreateIndexLookup(IReadOnlyCollection<IDatabaseTableIndex> indexes, IEqualityComparer<Identifier> comparer)
+        private static IReadOnlyDictionary<Identifier, IDatabaseIndex> CreateIndexLookup(IReadOnlyCollection<IDatabaseIndex> indexes, IEqualityComparer<Identifier> comparer)
         {
-            var result = new Dictionary<Identifier, IDatabaseTableIndex>(indexes.Count, comparer);
+            var result = new Dictionary<Identifier, IDatabaseIndex>(indexes.Count, comparer);
 
             foreach (var index in indexes)
                 result[index.Name.LocalName] = index;
@@ -150,17 +150,17 @@ namespace SJP.Schematic.Core
             return result;
         }
 
-        public IReadOnlyList<IDatabaseTableColumn> Columns { get; }
+        public IReadOnlyList<IDatabaseColumn> Columns { get; }
 
-        public Task<IReadOnlyList<IDatabaseTableColumn>> ColumnsAsync(CancellationToken cancellationToken = default(CancellationToken)) => Task.FromResult(Columns);
+        public Task<IReadOnlyList<IDatabaseColumn>> ColumnsAsync(CancellationToken cancellationToken = default(CancellationToken)) => Task.FromResult(Columns);
 
-        public IReadOnlyDictionary<Identifier, IDatabaseTableColumn> Column { get; }
+        public IReadOnlyDictionary<Identifier, IDatabaseColumn> Column { get; }
 
-        public Task<IReadOnlyDictionary<Identifier, IDatabaseTableColumn>> ColumnAsync(CancellationToken cancellationToken = default(CancellationToken)) => Task.FromResult(Column);
+        public Task<IReadOnlyDictionary<Identifier, IDatabaseColumn>> ColumnAsync(CancellationToken cancellationToken = default(CancellationToken)) => Task.FromResult(Column);
 
-        private static IReadOnlyDictionary<Identifier, IDatabaseTableColumn> CreateColumnLookup(IReadOnlyList<IDatabaseTableColumn> columns, IEqualityComparer<Identifier> comparer)
+        private static IReadOnlyDictionary<Identifier, IDatabaseColumn> CreateColumnLookup(IReadOnlyList<IDatabaseColumn> columns, IEqualityComparer<Identifier> comparer)
         {
-            var result = new Dictionary<Identifier, IDatabaseTableColumn>(columns.Count, comparer);
+            var result = new Dictionary<Identifier, IDatabaseColumn>(columns.Count, comparer);
 
             var namedColumns = columns.Where(c => c.Name != null);
             foreach (var column in namedColumns)

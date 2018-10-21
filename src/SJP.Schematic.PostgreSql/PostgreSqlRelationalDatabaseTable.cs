@@ -40,7 +40,7 @@ namespace SJP.Schematic.PostgreSql
 
         public Identifier Name { get; }
 
-        public IRelationalDatabase Database { get; }
+        protected IRelationalDatabase Database { get; }
 
         protected IDbTypeProvider TypeProvider { get; }
 
@@ -68,7 +68,7 @@ namespace SJP.Schematic.PostgreSql
                 .SelectMany(g => g.OrderBy(row => row.OrdinalPosition).Select(row => tableColumns[row.ColumnName]))
                 .ToList();
 
-            return new PostgreSqlDatabaseKey(this, constraintName, DatabaseKeyType.Primary, columns);
+            return new PostgreSqlDatabaseKey(constraintName, DatabaseKeyType.Primary, columns);
         }
 
         protected virtual async Task<IDatabaseKey> LoadPrimaryKeyAsync(CancellationToken cancellationToken)
@@ -87,7 +87,7 @@ namespace SJP.Schematic.PostgreSql
                 .SelectMany(g => g.OrderBy(row => row.OrdinalPosition).Select(row => tableColumns[row.ColumnName]))
                 .ToList();
 
-            return new PostgreSqlDatabaseKey(this, constraintName, DatabaseKeyType.Primary, columns);
+            return new PostgreSqlDatabaseKey(constraintName, DatabaseKeyType.Primary, columns);
         }
 
         protected virtual string PrimaryKeyQuery => PrimaryKeyQuerySql;
@@ -105,48 +105,48 @@ inner join information_schema.key_column_usage kc
 where tc.table_schema = @SchemaName and tc.table_name = @TableName
     and tc.constraint_type = 'PRIMARY KEY'";
 
-        public IReadOnlyDictionary<Identifier, IDatabaseTableIndex> Index => LoadIndexLookupSync();
+        public IReadOnlyDictionary<Identifier, IDatabaseIndex> Index => LoadIndexLookupSync();
 
-        public Task<IReadOnlyDictionary<Identifier, IDatabaseTableIndex>> IndexAsync(CancellationToken cancellationToken = default(CancellationToken)) => LoadIndexLookupAsync(cancellationToken);
+        public Task<IReadOnlyDictionary<Identifier, IDatabaseIndex>> IndexAsync(CancellationToken cancellationToken = default(CancellationToken)) => LoadIndexLookupAsync(cancellationToken);
 
-        public IReadOnlyCollection<IDatabaseTableIndex> Indexes => LoadIndexesSync();
+        public IReadOnlyCollection<IDatabaseIndex> Indexes => LoadIndexesSync();
 
-        public Task<IReadOnlyCollection<IDatabaseTableIndex>> IndexesAsync(CancellationToken cancellationToken = default(CancellationToken)) => LoadIndexesAsync(cancellationToken);
+        public Task<IReadOnlyCollection<IDatabaseIndex>> IndexesAsync(CancellationToken cancellationToken = default(CancellationToken)) => LoadIndexesAsync(cancellationToken);
 
-        protected virtual IReadOnlyDictionary<Identifier, IDatabaseTableIndex> LoadIndexLookupSync()
+        protected virtual IReadOnlyDictionary<Identifier, IDatabaseIndex> LoadIndexLookupSync()
         {
             var indexes = Indexes;
-            var result = new Dictionary<Identifier, IDatabaseTableIndex>(indexes.Count);
+            var result = new Dictionary<Identifier, IDatabaseIndex>(indexes.Count);
 
             foreach (var index in indexes)
                 result[index.Name.LocalName] = index;
 
-            return new IdentifierResolvingDictionary<IDatabaseTableIndex>(result, IdentifierResolver);
+            return new IdentifierResolvingDictionary<IDatabaseIndex>(result, IdentifierResolver);
         }
 
-        protected virtual async Task<IReadOnlyDictionary<Identifier, IDatabaseTableIndex>> LoadIndexLookupAsync(CancellationToken cancellationToken)
+        protected virtual async Task<IReadOnlyDictionary<Identifier, IDatabaseIndex>> LoadIndexLookupAsync(CancellationToken cancellationToken)
         {
             var indexes = await IndexesAsync(cancellationToken).ConfigureAwait(false);
-            var result = new Dictionary<Identifier, IDatabaseTableIndex>(indexes.Count);
+            var result = new Dictionary<Identifier, IDatabaseIndex>(indexes.Count);
 
             foreach (var index in indexes)
                 result[index.Name.LocalName] = index;
 
-            return new IdentifierResolvingDictionary<IDatabaseTableIndex>(result, IdentifierResolver);
+            return new IdentifierResolvingDictionary<IDatabaseIndex>(result, IdentifierResolver);
         }
 
-        protected virtual IReadOnlyCollection<IDatabaseTableIndex> LoadIndexesSync()
+        protected virtual IReadOnlyCollection<IDatabaseIndex> LoadIndexesSync()
         {
             var queryResult = Connection.Query<IndexColumns>(IndexesQuery, new { SchemaName = Name.Schema, TableName = Name.LocalName });
             if (queryResult.Empty())
-                return Array.Empty<IDatabaseTableIndex>();
+                return Array.Empty<IDatabaseIndex>();
 
             var indexColumns = queryResult.GroupBy(row => new { row.IndexName, row.IsUnique, row.IsPrimary }).ToList();
             if (indexColumns.Count == 0)
-                return Array.Empty<IDatabaseTableIndex>();
+                return Array.Empty<IDatabaseIndex>();
 
             var tableColumns = Column;
-            var result = new List<IDatabaseTableIndex>(indexColumns.Count);
+            var result = new List<IDatabaseIndex>(indexColumns.Count);
             foreach (var indexInfo in indexColumns)
             {
                 var isUnique = indexInfo.Key.IsUnique;
@@ -165,25 +165,25 @@ where tc.table_schema = @SchemaName and tc.table_name = @TableName
                         : new PostgreSqlDatabaseIndexColumn(row.Expression, row.IsDescending ? IndexColumnOrder.Descending : IndexColumnOrder.Ascending))
                     .ToList();
 
-                var index = new PostgreSqlDatabaseTableIndex(this, indexName, isUnique, indexCols);
+                var index = new PostgreSqlDatabaseIndex(indexName, isUnique, indexCols);
                 result.Add(index);
             }
 
             return result;
         }
 
-        protected virtual async Task<IReadOnlyCollection<IDatabaseTableIndex>> LoadIndexesAsync(CancellationToken cancellationToken)
+        protected virtual async Task<IReadOnlyCollection<IDatabaseIndex>> LoadIndexesAsync(CancellationToken cancellationToken)
         {
             var queryResult = await Connection.QueryAsync<IndexColumns>(IndexesQuery, new { SchemaName = Name.Schema, TableName = Name.LocalName }).ConfigureAwait(false);
             if (queryResult.Empty())
-                return Array.Empty<IDatabaseTableIndex>();
+                return Array.Empty<IDatabaseIndex>();
 
             var indexColumns = queryResult.GroupBy(row => new { row.IndexName, row.IsUnique, row.IsPrimary }).ToList();
             if (indexColumns.Count == 0)
-                return Array.Empty<IDatabaseTableIndex>();
+                return Array.Empty<IDatabaseIndex>();
 
             var tableColumns = await ColumnAsync(cancellationToken).ConfigureAwait(false);
-            var result = new List<IDatabaseTableIndex>(indexColumns.Count);
+            var result = new List<IDatabaseIndex>(indexColumns.Count);
             foreach (var indexInfo in indexColumns)
             {
                 var isUnique = indexInfo.Key.IsUnique;
@@ -202,7 +202,7 @@ where tc.table_schema = @SchemaName and tc.table_name = @TableName
                         : new PostgreSqlDatabaseIndexColumn(row.Expression, row.IsDescending ? IndexColumnOrder.Descending : IndexColumnOrder.Ascending))
                     .ToList();
 
-                var index = new PostgreSqlDatabaseTableIndex(this, indexName, isUnique, indexCols);
+                var index = new PostgreSqlDatabaseIndex(indexName, isUnique, indexCols);
                 result.Add(index);
             }
 
@@ -288,7 +288,7 @@ where
             var result = new List<IDatabaseKey>(constraintColumns.Count);
             foreach (var uk in constraintColumns)
             {
-                var uniqueKey = new PostgreSqlDatabaseKey(this, uk.ConstraintName, DatabaseKeyType.Unique, uk.Columns);
+                var uniqueKey = new PostgreSqlDatabaseKey(uk.ConstraintName, DatabaseKeyType.Unique, uk.Columns);
                 result.Add(uniqueKey);
             }
             return result;
@@ -315,7 +315,7 @@ where
             var result = new List<IDatabaseKey>(constraintColumns.Count);
             foreach (var uk in constraintColumns)
             {
-                var uniqueKey = new PostgreSqlDatabaseKey(this, uk.ConstraintName, DatabaseKeyType.Unique, uk.Columns);
+                var uniqueKey = new PostgreSqlDatabaseKey(uk.ConstraintName, DatabaseKeyType.Unique, uk.Columns);
                 result.Add(uniqueKey);
             }
             return result;
@@ -385,7 +385,7 @@ where tc.table_schema = @SchemaName and tc.table_name = @TableName
                 var deleteRule = RelationalRuleMapping[groupedChildKey.Key.DeleteRule];
                 var updateRule = RelationalRuleMapping[groupedChildKey.Key.UpdateRule];
 
-                var relationalKey = new PostgreSqlRelationalKey(childKey, parentKey, deleteRule, updateRule);
+                var relationalKey = new PostgreSqlRelationalKey(childTableName, childKey, Name, parentKey, deleteRule, updateRule);
                 result.Add(relationalKey);
             }
 
@@ -436,7 +436,7 @@ where tc.table_schema = @SchemaName and tc.table_name = @TableName
 
                 var deleteRule = RelationalRuleMapping[groupedChildKey.Key.DeleteRule];
                 var updateRule = RelationalRuleMapping[groupedChildKey.Key.UpdateRule];
-                var relationalKey = new PostgreSqlRelationalKey(childKey, parentKey, deleteRule, updateRule);
+                var relationalKey = new PostgreSqlRelationalKey(childTableName, childKey, Name, parentKey, deleteRule, updateRule);
 
                 result.Add(relationalKey);
             }
@@ -519,7 +519,7 @@ where pt.relname = @TableName and pns.nspname = @SchemaName";
                 var constraintName = Identifier.CreateQualifiedIdentifier(checkRow.ConstraintName);
                 var definition = checkRow.Definition;
 
-                var check = new PostgreSqlCheckConstraint(this, constraintName, definition);
+                var check = new PostgreSqlCheckConstraint(constraintName, definition);
                 result.Add(check);
             }
 
@@ -539,7 +539,7 @@ where pt.relname = @TableName and pns.nspname = @SchemaName";
                 var constraintName = Identifier.CreateQualifiedIdentifier(checkRow.ConstraintName);
                 var definition = checkRow.Definition;
 
-                var check = new PostgreSqlCheckConstraint(this, constraintName, definition);
+                var check = new PostgreSqlCheckConstraint(constraintName, definition);
                 result.Add(check);
             }
 
@@ -634,12 +634,12 @@ where
                     .Select(row => childKeyColumnLookup[row.ColumnName])
                     .ToList();
 
-                var childKey = new PostgreSqlDatabaseKey(this, childKeyName, DatabaseKeyType.Foreign, childKeyColumns);
+                var childKey = new PostgreSqlDatabaseKey(childKeyName, DatabaseKeyType.Foreign, childKeyColumns);
 
                 var deleteRule = RelationalRuleMapping[fkey.Key.DeleteRule];
                 var updateRule = RelationalRuleMapping[fkey.Key.UpdateRule];
 
-                var relationalKey = new PostgreSqlRelationalKey(childKey, parentKey, deleteRule, updateRule);
+                var relationalKey = new PostgreSqlRelationalKey(Name, childKey, parentTableName, parentKey, deleteRule, updateRule);
                 result.Add(relationalKey);
             }
 
@@ -690,12 +690,12 @@ where
                     .Select(row => childKeyColumnLookup[row.ColumnName])
                     .ToList();
 
-                var childKey = new PostgreSqlDatabaseKey(this, childKeyName, DatabaseKeyType.Foreign, childKeyColumns);
+                var childKey = new PostgreSqlDatabaseKey(childKeyName, DatabaseKeyType.Foreign, childKeyColumns);
 
                 var deleteRule = RelationalRuleMapping[fkey.Key.DeleteRule];
                 var updateRule = RelationalRuleMapping[fkey.Key.UpdateRule];
 
-                var relationalKey = new PostgreSqlRelationalKey(childKey, parentKey, deleteRule, updateRule);
+                var relationalKey = new PostgreSqlRelationalKey(Name, childKey, parentTableName, parentKey, deleteRule, updateRule);
                 result.Add(relationalKey);
             }
 
@@ -738,40 +738,40 @@ left join pg_catalog.pg_constraint pkc on pkc.oid = d2.refobjid
     and pkc.conrelid = c.confrelid
 where t.relname = @TableName and ns.nspname = @SchemaName";
 
-        public IReadOnlyList<IDatabaseTableColumn> Columns => LoadColumnsSync();
+        public IReadOnlyList<IDatabaseColumn> Columns => LoadColumnsSync();
 
-        public Task<IReadOnlyList<IDatabaseTableColumn>> ColumnsAsync(CancellationToken cancellationToken = default(CancellationToken)) => LoadColumnsAsync(cancellationToken);
+        public Task<IReadOnlyList<IDatabaseColumn>> ColumnsAsync(CancellationToken cancellationToken = default(CancellationToken)) => LoadColumnsAsync(cancellationToken);
 
-        public IReadOnlyDictionary<Identifier, IDatabaseTableColumn> Column => LoadColumnLookupSync();
+        public IReadOnlyDictionary<Identifier, IDatabaseColumn> Column => LoadColumnLookupSync();
 
-        public Task<IReadOnlyDictionary<Identifier, IDatabaseTableColumn>> ColumnAsync(CancellationToken cancellationToken = default(CancellationToken)) => LoadColumnLookupAsync(cancellationToken);
+        public Task<IReadOnlyDictionary<Identifier, IDatabaseColumn>> ColumnAsync(CancellationToken cancellationToken = default(CancellationToken)) => LoadColumnLookupAsync(cancellationToken);
 
-        protected virtual IReadOnlyDictionary<Identifier, IDatabaseTableColumn> LoadColumnLookupSync()
+        protected virtual IReadOnlyDictionary<Identifier, IDatabaseColumn> LoadColumnLookupSync()
         {
             var columns = Columns;
-            var result = new Dictionary<Identifier, IDatabaseTableColumn>(columns.Count);
+            var result = new Dictionary<Identifier, IDatabaseColumn>(columns.Count);
 
             foreach (var column in columns.Where(c => c.Name != null))
                 result[column.Name.LocalName] = column;
 
-            return new IdentifierResolvingDictionary<IDatabaseTableColumn>(result, IdentifierResolver);
+            return new IdentifierResolvingDictionary<IDatabaseColumn>(result, IdentifierResolver);
         }
 
-        protected virtual async Task<IReadOnlyDictionary<Identifier, IDatabaseTableColumn>> LoadColumnLookupAsync(CancellationToken cancellationToken)
+        protected virtual async Task<IReadOnlyDictionary<Identifier, IDatabaseColumn>> LoadColumnLookupAsync(CancellationToken cancellationToken)
         {
             var columns = await ColumnsAsync(cancellationToken).ConfigureAwait(false);
-            var result = new Dictionary<Identifier, IDatabaseTableColumn>(columns.Count);
+            var result = new Dictionary<Identifier, IDatabaseColumn>(columns.Count);
 
             foreach (var column in columns.Where(c => c.Name != null))
                 result[column.Name.LocalName] = column;
 
-            return new IdentifierResolvingDictionary<IDatabaseTableColumn>(result, IdentifierResolver);
+            return new IdentifierResolvingDictionary<IDatabaseColumn>(result, IdentifierResolver);
         }
 
-        protected virtual IReadOnlyList<IDatabaseTableColumn> LoadColumnsSync()
+        protected virtual IReadOnlyList<IDatabaseColumn> LoadColumnsSync()
         {
             var query = Connection.Query<ColumnData>(ColumnsQuery, new { SchemaName = Name.Schema, TableName = Name.LocalName });
-            var result = new List<IDatabaseTableColumn>();
+            var result = new List<IDatabaseColumn>();
 
             foreach (var row in query)
             {
@@ -797,17 +797,17 @@ where t.relname = @TableName and ns.nspname = @SchemaName";
 
                 var isNullable = row.is_nullable == "YES";
 
-                var column = new PostgreSqlDatabaseTableColumn(this, columnName, columnType, isNullable, row.column_default, autoIncrement);
+                var column = new PostgreSqlDatabaseColumn(columnName, columnType, isNullable, row.column_default, autoIncrement);
                 result.Add(column);
             }
 
             return result.AsReadOnly();
         }
 
-        protected virtual async Task<IReadOnlyList<IDatabaseTableColumn>> LoadColumnsAsync(CancellationToken cancellationToken)
+        protected virtual async Task<IReadOnlyList<IDatabaseColumn>> LoadColumnsAsync(CancellationToken cancellationToken)
         {
             var query = await Connection.QueryAsync<ColumnData>(ColumnsQuery, new { SchemaName = Name.Schema, TableName = Name.LocalName }).ConfigureAwait(false);
-            var result = new List<IDatabaseTableColumn>();
+            var result = new List<IDatabaseColumn>();
 
             foreach (var row in query)
             {
@@ -833,7 +833,7 @@ where t.relname = @TableName and ns.nspname = @SchemaName";
 
                 var isNullable = row.is_nullable == "YES";
 
-                var column = new PostgreSqlDatabaseTableColumn(this, columnName, columnType, isNullable, row.column_default, autoIncrement);
+                var column = new PostgreSqlDatabaseColumn(columnName, columnType, isNullable, row.column_default, autoIncrement);
                 result.Add(column);
             }
 
@@ -939,7 +939,7 @@ order by ordinal_position";
                 }
 
                 var isEnabled = trig.Key.EnabledFlag != "D";
-                var trigger = new PostgreSqlDatabaseTrigger(this, triggerName, definition, queryTiming, events, isEnabled);
+                var trigger = new PostgreSqlDatabaseTrigger(triggerName, definition, queryTiming, events, isEnabled);
                 result.Add(trigger);
             }
 
@@ -983,7 +983,7 @@ order by ordinal_position";
                 }
 
                 var isEnabled = trig.Key.EnabledFlag != "D";
-                var trigger = new PostgreSqlDatabaseTrigger(this, triggerName, definition, queryTiming, events, isEnabled);
+                var trigger = new PostgreSqlDatabaseTrigger(triggerName, definition, queryTiming, events, isEnabled);
                 result.Add(trigger);
             }
 

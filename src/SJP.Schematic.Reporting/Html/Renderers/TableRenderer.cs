@@ -34,7 +34,7 @@ namespace SJP.Schematic.Reporting.Html.Renderers
         public void Render()
         {
             var tables = Database.Tables.ToList();
-            var mapper = new TableModelMapper(Connection, Database.Dialect);
+            var mapper = new TableModelMapper(Connection, Database, Database.Dialect);
 
             foreach (var table in tables)
             {
@@ -56,7 +56,7 @@ namespace SJP.Schematic.Reporting.Html.Renderers
         {
             var tableCollection = await Database.TablesAsync().ConfigureAwait(false);
             var tables = await Task.WhenAll(tableCollection).ConfigureAwait(false);
-            var mapper = new TableModelMapper(Connection, Database.Dialect);
+            var mapper = new TableModelMapper(Connection, Database, Database.Dialect);
 
             var tableTasks = tables.Select(async table =>
             {

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Data;
 using System.IO;
 using System.Linq;
@@ -32,8 +33,8 @@ namespace SJP.Schematic.Reporting.Html.Renderers
             var mapper = new IndexesModelMapper(Database.Dialect);
 
             var indexes = Database.Tables
-                .SelectMany(t => t.Indexes)
-                .Select(mapper.Map)
+                .Select(t => new { TableName = t.Name, t.Indexes })
+                .SelectMany(t => t.Indexes.Select(i => mapper.Map(t.TableName, i)))
                 .OrderBy(i => i.TableName)
                 .ThenBy(i => i.Name)
                 .ToList();
@@ -57,12 +58,17 @@ namespace SJP.Schematic.Reporting.Html.Renderers
 
             var tablesAsync = await Database.TablesAsync().ConfigureAwait(false);
             var tables = await Task.WhenAll(tablesAsync).ConfigureAwait(false);
-            var indexesTasks = tables.Select(t => t.IndexesAsync());
-            var allIndexes = await Task.WhenAll(indexesTasks).ConfigureAwait(false);
+
+            var allIndexes = new List<Indexes.Index>();
+
+            foreach (var table in tables)
+            {
+                var tableIndexes = await table.IndexesAsync().ConfigureAwait(false);
+                var mappedIndexes = tableIndexes.Select(i => mapper.Map(table.Name, i));
+                allIndexes.AddRange(mappedIndexes);
+            }
 
             var indexes = allIndexes
-                .SelectMany(i => i)
-                .Select(mapper.Map)
                 .OrderBy(i => i.TableName)
                 .ThenBy(i => i.Name)
                 .ToList();

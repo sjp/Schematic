@@ -7,9 +7,7 @@ using SJP.Schematic.Core;
 
 namespace SJP.Schematic.Reporting.Html.ViewModels.Mappers
 {
-    internal sealed class ColumnsModelMapper :
-        IDatabaseModelMapper<IRelationalDatabaseTable, IEnumerable<Columns.TableColumn>>,
-        IDatabaseModelMapper<IRelationalDatabaseView, IEnumerable<Columns.ViewColumn>>
+    internal sealed class ColumnsModelMapper
     {
         public ColumnsModelMapper(IDbConnection connection, IDatabaseDialect dialect)
         {
@@ -21,16 +19,16 @@ namespace SJP.Schematic.Reporting.Html.ViewModels.Mappers
 
         private IDatabaseDialect Dialect { get; }
 
-        public IEnumerable<Columns.TableColumn> Map(IRelationalDatabaseTable dbObject)
+        public IEnumerable<Columns.TableColumn> Map(IRelationalDatabaseTable table)
         {
-            if (dbObject == null)
-                throw new ArgumentNullException(nameof(dbObject));
+            if (table == null)
+                throw new ArgumentNullException(nameof(table));
 
-            var primaryKey = dbObject.PrimaryKey;
-            var uniqueKeys = dbObject.UniqueKeys.ToList();
-            var parentKeys = dbObject.ParentKeys.ToList();
+            var primaryKey = table.PrimaryKey;
+            var uniqueKeys = table.UniqueKeys.ToList();
+            var parentKeys = table.ParentKeys.ToList();
 
-            var columns = dbObject.Columns.ToList();
+            var columns = table.Columns.ToList();
 
             return columns.Select((column, i) =>
             {
@@ -39,7 +37,7 @@ namespace SJP.Schematic.Reporting.Html.ViewModels.Mappers
                 var isForeignKeyColumn = parentKeys.Any(fk => fk.ChildKey.Columns.Any(fkc => fkc.Name.LocalName == column.Name.LocalName));
 
                 return new Columns.TableColumn(
-                    dbObject.Name,
+                    table.Name,
                     i + 1,
                     column.Name.LocalName,
                     column.Type.Definition,
@@ -52,21 +50,21 @@ namespace SJP.Schematic.Reporting.Html.ViewModels.Mappers
             }).ToList();
         }
 
-        public Task<IEnumerable<Columns.TableColumn>> MapAsync(IRelationalDatabaseTable dbObject)
+        public Task<IEnumerable<Columns.TableColumn>> MapAsync(IRelationalDatabaseTable table)
         {
-            if (dbObject == null)
-                throw new ArgumentNullException(nameof(dbObject));
+            if (table == null)
+                throw new ArgumentNullException(nameof(table));
 
-            return MapAsyncCore(dbObject);
+            return MapAsyncCore(table);
         }
 
-        private static async Task<IEnumerable<Columns.TableColumn>> MapAsyncCore(IRelationalDatabaseTable dbObject)
+        private static async Task<IEnumerable<Columns.TableColumn>> MapAsyncCore(IRelationalDatabaseTable table)
         {
-            var primaryKey = await dbObject.PrimaryKeyAsync().ConfigureAwait(false);
-            var uniqueKeys = await dbObject.UniqueKeysAsync().ConfigureAwait(false);
-            var parentKeys = await dbObject.ParentKeysAsync().ConfigureAwait(false);
+            var primaryKey = await table.PrimaryKeyAsync().ConfigureAwait(false);
+            var uniqueKeys = await table.UniqueKeysAsync().ConfigureAwait(false);
+            var parentKeys = await table.ParentKeysAsync().ConfigureAwait(false);
 
-            var columns = await dbObject.ColumnsAsync().ConfigureAwait(false);
+            var columns = await table.ColumnsAsync().ConfigureAwait(false);
 
             return columns.Select((column, i) =>
             {
@@ -75,7 +73,7 @@ namespace SJP.Schematic.Reporting.Html.ViewModels.Mappers
                 var isForeignKeyColumn = parentKeys.Any(fk => fk.ChildKey.Columns.Any(fkc => fkc.Name.LocalName == column.Name.LocalName));
 
                 return new Columns.TableColumn(
-                    dbObject.Name,
+                    table.Name,
                     i + 1,
                     column.Name.LocalName,
                     column.Type.Definition,
@@ -88,16 +86,16 @@ namespace SJP.Schematic.Reporting.Html.ViewModels.Mappers
             }).ToList();
         }
 
-        public IEnumerable<Columns.ViewColumn> Map(IRelationalDatabaseView dbObject)
+        public IEnumerable<Columns.ViewColumn> Map(IRelationalDatabaseView view)
         {
-            if (dbObject == null)
-                throw new ArgumentNullException(nameof(dbObject));
+            if (view == null)
+                throw new ArgumentNullException(nameof(view));
 
-            var columns = dbObject.Columns.ToList();
+            var columns = view.Columns.ToList();
 
             return columns.Select((c, i) =>
                 new Columns.ViewColumn(
-                    dbObject.Name,
+                    view.Name,
                     i + 1,
                     c.Name.LocalName,
                     c.Type.Definition,
@@ -106,21 +104,21 @@ namespace SJP.Schematic.Reporting.Html.ViewModels.Mappers
             ).ToList();
         }
 
-        public Task<IEnumerable<Columns.ViewColumn>> MapAsync(IRelationalDatabaseView dbObject)
+        public Task<IEnumerable<Columns.ViewColumn>> MapAsync(IRelationalDatabaseView view)
         {
-            if (dbObject == null)
-                throw new ArgumentNullException(nameof(dbObject));
+            if (view == null)
+                throw new ArgumentNullException(nameof(view));
 
-            return MapAsyncCore(dbObject);
+            return MapAsyncCore(view);
         }
 
-        private static async Task<IEnumerable<Columns.ViewColumn>> MapAsyncCore(IRelationalDatabaseView dbObject)
+        private static async Task<IEnumerable<Columns.ViewColumn>> MapAsyncCore(IRelationalDatabaseView view)
         {
-            var columns = await dbObject.ColumnsAsync().ConfigureAwait(false);
+            var columns = await view.ColumnsAsync().ConfigureAwait(false);
 
             return columns.Select((c, i) =>
                 new Columns.ViewColumn(
-                    dbObject.Name,
+                    view.Name,
                     i + 1,
                     c.Name.LocalName,
                     c.Type.Definition,

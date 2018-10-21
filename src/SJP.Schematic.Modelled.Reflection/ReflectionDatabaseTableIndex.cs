@@ -8,17 +8,19 @@ using SJP.Schematic.Modelled.Reflection.Model;
 
 namespace SJP.Schematic.Modelled.Reflection
 {
-    public class ReflectionDatabaseTableIndex : IDatabaseTableIndex
+    public class ReflectionDatabaseTableIndex : IDatabaseIndex
     {
-        public ReflectionDatabaseTableIndex(IRelationalDatabaseTable table, IModelledIndex index)
+        public ReflectionDatabaseTableIndex(IDatabaseDialect dialect, IRelationalDatabaseTable table, IModelledIndex index)
         {
+            if (dialect == null)
+                throw new ArgumentNullException(nameof(dialect));
+            if (table == null)
+                throw new ArgumentNullException(nameof(table));
             if (index == null)
                 throw new ArgumentNullException(nameof(index));
 
-            Parent = table ?? throw new ArgumentNullException(nameof(table));
             IsUnique = index.IsUnique;
 
-            var dialect = table.Database.Dialect;
             Name = dialect.GetAliasOrDefault(index.Property);
 
             var tableType = index.Property.ReflectedType.GetTypeInfo();
@@ -27,7 +29,7 @@ namespace SJP.Schematic.Modelled.Reflection
                 .ToDictionary();
 
             var columns = new List<IDatabaseIndexColumn>();
-            var includedColumns = new List<IDatabaseTableColumn>();
+            var includedColumns = new List<IDatabaseColumn>();
 
             var isFunctionBasedIndex = false;
 
@@ -37,7 +39,7 @@ namespace SJP.Schematic.Modelled.Reflection
                 {
                     var expressionName = indexColumn.Expression.DependentNames.Single().LocalName;
                     var columnName = dialect.GetAliasOrDefault(propertyLookup[expressionName]);
-                    var tableColumns = new List<IDatabaseColumn> { Parent.Column[columnName] };
+                    var tableColumns = new List<IDatabaseColumn> { table.Column[columnName] };
                     var column = new ReflectionIndexColumn(indexColumn.Expression, tableColumns, indexColumn.Order);
                     columns.Add(column);
                 }
@@ -48,7 +50,7 @@ namespace SJP.Schematic.Modelled.Reflection
                         .Select(name => propertyLookup.ContainsKey(name.LocalName) ? propertyLookup[name.LocalName] : null)
                         .Where(prop => prop != null)
                         .Select(prop => dialect.GetAliasOrDefault(prop))
-                        .Select(name => table.Column[name] as IDatabaseColumn)
+                        .Select(name => table.Column[name])
                         .ToList();
                     var column = new ReflectionIndexColumn(indexColumn.Expression, tableColumns, indexColumn.Order);
                     columns.Add(column);
@@ -67,10 +69,6 @@ namespace SJP.Schematic.Modelled.Reflection
             Columns = columns;
             IncludedColumns = includedColumns;
         }
-
-        public IRelationalDatabaseTable Table => Parent;
-
-        public IRelationalDatabaseTable Parent { get; }
 
         public IReadOnlyCollection<IDatabaseIndexColumn> Columns { get; }
 

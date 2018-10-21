@@ -7,12 +7,14 @@ namespace SJP.Schematic.Oracle
 {
     public class OracleRelationalKey : IDatabaseRelationalKey
     {
-        public OracleRelationalKey(IDatabaseKey childKey, IDatabaseKey parentKey, Rule deleteRule)
+        public OracleRelationalKey(Identifier childTableName, IDatabaseKey childKey, Identifier parentTableName, IDatabaseKey parentKey, Rule deleteRule)
         {
             if (!deleteRule.IsValid())
                 throw new ArgumentException($"The { nameof(Rule) } provided must be a valid enum.", nameof(deleteRule));
 
+            ChildTable = childTableName ?? throw new ArgumentNullException(nameof(childTableName));
             ChildKey = childKey ?? throw new ArgumentNullException(nameof(childKey));
+            ParentTable = parentTableName ?? throw new ArgumentNullException(nameof(parentTableName));
             ParentKey = parentKey ?? throw new ArgumentNullException(nameof(parentKey));
 
             if (ChildKey.KeyType != DatabaseKeyType.Foreign)
@@ -23,7 +25,11 @@ namespace SJP.Schematic.Oracle
             DeleteRule = deleteRule;
         }
 
+        public Identifier ChildTable { get; }
+
         public IDatabaseKey ChildKey { get; }
+
+        public Identifier ParentTable { get; }
 
         public IDatabaseKey ParentKey { get; }
 

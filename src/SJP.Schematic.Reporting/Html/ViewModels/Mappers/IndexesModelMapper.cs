@@ -4,8 +4,7 @@ using SJP.Schematic.Core;
 
 namespace SJP.Schematic.Reporting.Html.ViewModels.Mappers
 {
-    internal sealed class IndexesModelMapper :
-        IDatabaseModelMapper<IDatabaseTableIndex, Indexes.Index>
+    internal sealed class IndexesModelMapper
     {
         public IndexesModelMapper(IDatabaseDialect dialect)
         {
@@ -14,18 +13,20 @@ namespace SJP.Schematic.Reporting.Html.ViewModels.Mappers
 
         private IDatabaseDialect Dialect { get; }
 
-        public Indexes.Index Map(IDatabaseTableIndex dbObject)
+        public Indexes.Index Map(Identifier parent, IDatabaseIndex index)
         {
-            if (dbObject == null)
-                throw new ArgumentNullException(nameof(dbObject));
+            if (parent == null)
+                throw new ArgumentNullException(nameof(parent));
+            if (index == null)
+                throw new ArgumentNullException(nameof(index));
 
             return new Indexes.Index(
-                dbObject.Name?.LocalName,
-                dbObject.Table.Name,
-                dbObject.IsUnique,
-                dbObject.Columns.Select(c => c.GetExpression(Dialect)).ToList(),
-                dbObject.Columns.Select(c => c.Order).ToList(),
-                dbObject.IncludedColumns.Select(c => c.Name.LocalName).ToList()
+                index.Name?.LocalName,
+                parent,
+                index.IsUnique,
+                index.Columns.Select(c => c.GetExpression(Dialect)).ToList(),
+                index.Columns.Select(c => c.Order).ToList(),
+                index.IncludedColumns.Select(c => c.Name.LocalName).ToList()
             );
         }
     }

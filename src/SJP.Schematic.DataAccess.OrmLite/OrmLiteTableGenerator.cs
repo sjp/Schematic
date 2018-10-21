@@ -59,7 +59,7 @@ namespace SJP.Schematic.DataAccess.OrmLite
                 .AppendLine(tableNamespace)
                 .AppendLine("{");
 
-            // todo configure for tabs?
+            // TODO configure for tabs?
             const string tableIndent = IndentLevel;
 
             var tableComment = GenerateTableComment(table.Name.LocalName);
@@ -140,7 +140,7 @@ namespace SJP.Schematic.DataAccess.OrmLite
                 var columnComment = GenerateColumnComment(column.Name.LocalName);
                 builder.AppendComment(columnIndent, columnComment);
 
-                AppendColumn(builder, columnIndent, className, column);
+                AppendColumn(builder, columnIndent, className, table, column);
                 hasFirstLine = true;
             }
 
@@ -151,7 +151,7 @@ namespace SJP.Schematic.DataAccess.OrmLite
             return builder.GetStringAndRelease();
         }
 
-        private void AppendColumn(StringBuilder builder, string columnIndent, string className, IDatabaseTableColumn column)
+        private void AppendColumn(StringBuilder builder, string columnIndent, string className, IRelationalDatabaseTable table, IDatabaseColumn column)
         {
             if (builder == null)
                 throw new ArgumentNullException(nameof(builder));
@@ -159,6 +159,8 @@ namespace SJP.Schematic.DataAccess.OrmLite
                 throw new ArgumentNullException(nameof(columnIndent));
             if (className.IsNullOrWhiteSpace())
                 throw new ArgumentNullException(nameof(className));
+            if (table == null)
+                throw new ArgumentNullException(nameof(table));
             if (column == null)
                 throw new ArgumentNullException(nameof(column));
 
@@ -183,28 +185,28 @@ namespace SJP.Schematic.DataAccess.OrmLite
             if (clrType.Namespace == "System" && _typeNameMap.ContainsKey(typeName))
                 typeName = _typeNameMap[typeName];
 
-            var isPrimaryKey = ColumnIsPrimaryKey(column);
+            var isPrimaryKey = ColumnIsPrimaryKey(table, column);
             if (isPrimaryKey)
             {
                 builder.Append(columnIndent)
                     .AppendLine("[PrimaryKey]");
             }
 
-            var isNonUniqueIndex = ColumnIsNonUniqueIndex(column);
+            var isNonUniqueIndex = ColumnIsNonUniqueIndex(table, column);
             if (isNonUniqueIndex)
             {
                 builder.Append(columnIndent)
                     .AppendLine("[Index]");
             }
 
-            var isUniqueIndex = ColumnIsUniqueIndex(column);
+            var isUniqueIndex = ColumnIsUniqueIndex(table, column);
             if (isUniqueIndex)
             {
                 builder.Append(columnIndent)
                     .AppendLine("[Index(true)]");
             }
 
-            var isUniqueKey = ColumnIsUniqueKey(column);
+            var isUniqueKey = ColumnIsUniqueKey(table, column);
             if (isUniqueKey)
             {
                 builder.Append(columnIndent)
@@ -220,14 +222,14 @@ namespace SJP.Schematic.DataAccess.OrmLite
                     .AppendLine(")]");
             }
 
-            var isForeignKey = ColumnIsForeignKey(column);
+            var isForeignKey = ColumnIsForeignKey(table, column);
             if (isForeignKey)
             {
-                var relationalKey = ColumnRelationalKey(column);
+                var relationalKey = ColumnRelationalKey(table, column);
                 if (relationalKey == null)
                     throw new InvalidOperationException("Could not find parent key for foreign key relationship. Expected to find one for " + column.Name.LocalName + "." + column.Name.LocalName);
 
-                var parentTable = relationalKey.ParentKey.Table.Name;
+                var parentTable = relationalKey.ParentTable;
                 var parentClassName = NameProvider.TableToClassName(parentTable);
                 // TODO check that this is not implicit -- i.e. there is a naming convention applied
                 //      so explicitly declaring via [References(...)] may not be necessary
@@ -313,12 +315,14 @@ namespace SJP.Schematic.DataAccess.OrmLite
             return "The <c>" + escapedColumnName + "</c> column.";
         }
 
-        protected static bool ColumnIsPrimaryKey(IDatabaseTableColumn column)
+        protected static bool ColumnIsPrimaryKey(IRelationalDatabaseTable table, IDatabaseColumn column)
         {
+            if (table == null)
+                throw new ArgumentNullException(nameof(table));
             if (column == null)
                 throw new ArgumentNullException(nameof(column));
 
-            var primaryKey = column.Table?.PrimaryKey;
+            var primaryKey = table?.PrimaryKey;
             if (primaryKey == null)
                 return false;
 
@@ -329,12 +333,14 @@ namespace SJP.Schematic.DataAccess.OrmLite
             return column.Name.LocalName == pkColumns.First().Name.LocalName;
         }
 
-        protected static bool ColumnIsForeignKey(IDatabaseTableColumn column)
+        protected static bool ColumnIsForeignKey(IRelationalDatabaseTable table, IDatabaseColumn column)
         {
+            if (table == null)
+                throw new ArgumentNullException(nameof(table));
             if (column == null)
                 throw new ArgumentNullException(nameof(column));
 
-            var foreignKeys = column.Table.ParentKeys;
+            var foreignKeys = table.ParentKeys;
             if (foreignKeys.Count == 0)
                 return false;
 
@@ -355,12 +361,14 @@ namespace SJP.Schematic.DataAccess.OrmLite
             return false;
         }
 
-        protected static IDatabaseRelationalKey ColumnRelationalKey(IDatabaseTableColumn column)
+        protected static IDatabaseRelationalKey ColumnRelationalKey(IRelationalDatabaseTable table, IDatabaseColumn column)
         {
+            if (table == null)
+                throw new ArgumentNullException(nameof(table));
             if (column == null)
                 throw new ArgumentNullException(nameof(column));
 
-            var foreignKeys = column.Table.ParentKeys;
+            var foreignKeys = table.ParentKeys;
             if (foreignKeys.Count == 0)
                 return null;
 
@@ -381,12 +389,12 @@ namespace SJP.Schematic.DataAccess.OrmLite
             return null;
         }
 
-        protected static bool ColumnIsNonUniqueIndex(IDatabaseTableColumn column)
+        protected static bool ColumnIsNonUniqueIndex(IRelationalDatabaseTable table, IDatabaseColumn column)
         {
             if (column == null)
                 throw new ArgumentNullException(nameof(column));
 
-            var indexes = column.Table.Indexes.Where(i => !i.IsUnique).ToList();
+            var indexes = table.Indexes.Where(i => !i.IsUnique).ToList();
             if (indexes.Count == 0)
                 return false;
 
@@ -409,12 +417,14 @@ namespace SJP.Schematic.DataAccess.OrmLite
             return false;
         }
 
-        protected static bool ColumnIsUniqueIndex(IDatabaseTableColumn column)
+        protected static bool ColumnIsUniqueIndex(IRelationalDatabaseTable table, IDatabaseColumn column)
         {
+            if (table == null)
+                throw new ArgumentNullException(nameof(table));
             if (column == null)
                 throw new ArgumentNullException(nameof(column));
 
-            var indexes = column.Table.Indexes.Where(i => i.IsUnique).ToList();
+            var indexes = table.Indexes.Where(i => i.IsUnique).ToList();
             if (indexes.Count == 0)
                 return false;
 
@@ -437,12 +447,14 @@ namespace SJP.Schematic.DataAccess.OrmLite
             return false;
         }
 
-        protected static bool ColumnIsUniqueKey(IDatabaseTableColumn column)
+        protected static bool ColumnIsUniqueKey(IRelationalDatabaseTable table, IDatabaseColumn column)
         {
+            if (table == null)
+                throw new ArgumentNullException(nameof(table));
             if (column == null)
                 throw new ArgumentNullException(nameof(column));
 
-            var uniqueKeys = column.Table.UniqueKeys;
+            var uniqueKeys = table.UniqueKeys;
             if (uniqueKeys.Count == 0)
                 return false;
 

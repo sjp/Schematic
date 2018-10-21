@@ -6,19 +6,16 @@ namespace SJP.Schematic.PostgreSql
 {
     public class PostgreSqlCheckConstraint : IDatabaseCheckConstraint
     {
-        public PostgreSqlCheckConstraint(IRelationalDatabaseTable table, Identifier checkName, string definition)
+        public PostgreSqlCheckConstraint(Identifier checkName, string definition)
         {
             if (checkName == null)
                 throw new ArgumentNullException(nameof(checkName));
             if (definition.IsNullOrWhiteSpace())
                 throw new ArgumentNullException(nameof(definition));
 
-            Table = table ?? throw new ArgumentNullException(nameof(table));
             Name = checkName.LocalName;
             Definition = definition;
         }
-
-        public IRelationalDatabaseTable Table { get; }
 
         public Identifier Name { get; }
 

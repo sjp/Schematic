@@ -164,8 +164,8 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
 
             Assert.Multiple(() =>
             {
-                Assert.AreEqual("table_test_table_16", foreignKey.ChildKey.Table.Name.LocalName);
-                Assert.AreEqual("table_test_table_15", foreignKey.ParentKey.Table.Name.LocalName);
+                Assert.AreEqual("table_test_table_16", foreignKey.ChildTable.LocalName);
+                Assert.AreEqual("table_test_table_15", foreignKey.ParentTable.LocalName);
             });
         }
 
@@ -177,8 +177,8 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
 
             Assert.Multiple(() =>
             {
-                Assert.AreEqual("table_test_table_16", foreignKey.ChildKey.Table.Name.LocalName);
-                Assert.AreEqual("table_test_table_15", foreignKey.ParentKey.Table.Name.LocalName);
+                Assert.AreEqual("table_test_table_16", foreignKey.ChildTable.LocalName);
+                Assert.AreEqual("table_test_table_15", foreignKey.ParentTable.LocalName);
             });
         }
 
@@ -191,8 +191,8 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
 
             Assert.Multiple(() =>
             {
-                Assert.AreEqual("table_test_table_16", foreignKey.ChildKey.Table.Name.LocalName);
-                Assert.AreEqual("table_test_table_15", foreignKey.ParentKey.Table.Name.LocalName);
+                Assert.AreEqual("table_test_table_16", foreignKey.ChildTable.LocalName);
+                Assert.AreEqual("table_test_table_15", foreignKey.ParentTable.LocalName);
             });
         }
 
@@ -205,8 +205,8 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
 
             Assert.Multiple(() =>
             {
-                Assert.AreEqual("table_test_table_16", foreignKey.ChildKey.Table.Name.LocalName);
-                Assert.AreEqual("table_test_table_15", foreignKey.ParentKey.Table.Name.LocalName);
+                Assert.AreEqual("table_test_table_16", foreignKey.ChildTable.LocalName);
+                Assert.AreEqual("table_test_table_15", foreignKey.ParentTable.LocalName);
             });
         }
 
@@ -780,8 +780,8 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
 
             Assert.Multiple(() =>
             {
-                Assert.AreEqual("table_test_table_17", foreignKey.ChildKey.Table.Name.LocalName);
-                Assert.AreEqual("table_test_table_15", foreignKey.ParentKey.Table.Name.LocalName);
+                Assert.AreEqual("table_test_table_17", foreignKey.ChildTable.LocalName);
+                Assert.AreEqual("table_test_table_15", foreignKey.ParentTable.LocalName);
             });
         }
 
@@ -793,8 +793,8 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
 
             Assert.Multiple(() =>
             {
-                Assert.AreEqual("table_test_table_17", foreignKey.ChildKey.Table.Name.LocalName);
-                Assert.AreEqual("table_test_table_15", foreignKey.ParentKey.Table.Name.LocalName);
+                Assert.AreEqual("table_test_table_17", foreignKey.ChildTable.LocalName);
+                Assert.AreEqual("table_test_table_15", foreignKey.ParentTable.LocalName);
             });
         }
 
@@ -807,8 +807,8 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
 
             Assert.Multiple(() =>
             {
-                Assert.AreEqual("table_test_table_17", foreignKey.ChildKey.Table.Name.LocalName);
-                Assert.AreEqual("table_test_table_15", foreignKey.ParentKey.Table.Name.LocalName);
+                Assert.AreEqual("table_test_table_17", foreignKey.ChildTable.LocalName);
+                Assert.AreEqual("table_test_table_15", foreignKey.ParentTable.LocalName);
             });
         }
 
@@ -821,8 +821,8 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
 
             Assert.Multiple(() =>
             {
-                Assert.AreEqual("table_test_table_17", foreignKey.ChildKey.Table.Name.LocalName);
-                Assert.AreEqual("table_test_table_15", foreignKey.ParentKey.Table.Name.LocalName);
+                Assert.AreEqual("table_test_table_17", foreignKey.ChildTable.LocalName);
+                Assert.AreEqual("table_test_table_15", foreignKey.ParentTable.LocalName);
             });
         }
 

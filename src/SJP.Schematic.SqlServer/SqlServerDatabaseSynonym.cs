@@ -7,12 +7,12 @@ namespace SJP.Schematic.SqlServer
     {
         public SqlServerDatabaseSynonym(IRelationalDatabase database, Identifier synonymName, Identifier targetName)
         {
+            if (database == null)
+                throw new ArgumentNullException(nameof(database));
             if (synonymName == null)
                 throw new ArgumentNullException(nameof(synonymName));
             if (targetName == null)
                 throw new ArgumentNullException(nameof(targetName));
-
-            Database = database ?? throw new ArgumentNullException(nameof(database));
 
             var serverName = synonymName.Server ?? database.ServerName;
             var databaseName = synonymName.Database ?? database.DatabaseName;
@@ -26,8 +26,6 @@ namespace SJP.Schematic.SqlServer
 
             Target = Identifier.CreateQualifiedIdentifier(targetServerName, targetDatabaseName, targetSchemaName, targetName.LocalName); // don't check for validity of target, could be a broken synonym
         }
-
-        public IRelationalDatabase Database { get; }
 
         public Identifier Name { get; }
 

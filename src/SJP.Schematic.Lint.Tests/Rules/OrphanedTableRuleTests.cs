@@ -34,18 +34,18 @@ namespace SJP.Schematic.Lint.Tests.Rules
 
             var database = CreateFakeDatabase();
             var parentKey = new DatabaseRelationalKey(
+                "child_table",
                 new DatabaseKey(
-                    Mock.Of<IRelationalDatabaseTable>(),
                     "child_key",
                     DatabaseKeyType.Foreign,
-                    new[] { Mock.Of<IDatabaseTableColumn>() },
+                    new[] { Mock.Of<IDatabaseColumn>() },
                     true
                 ),
+                "parent_table",
                 new DatabaseKey(
-                    Mock.Of<IRelationalDatabaseTable>(),
                     "parent_key",
                     DatabaseKeyType.Primary,
-                    new[] { Mock.Of<IDatabaseTableColumn>() },
+                    new[] { Mock.Of<IDatabaseColumn>() },
                     true
                 ),
                 System.Data.Rule.None,
@@ -54,12 +54,12 @@ namespace SJP.Schematic.Lint.Tests.Rules
             var childTable = new RelationalDatabaseTable(
                 database,
                 "test",
-                new List<IDatabaseTableColumn>(),
+                new List<IDatabaseColumn>(),
                 null,
                 Array.Empty<IDatabaseKey>(),
                 new[] { parentKey },
                 Array.Empty<IDatabaseRelationalKey>(),
-                Array.Empty<IDatabaseTableIndex>(),
+                Array.Empty<IDatabaseIndex>(),
                 Array.Empty<IDatabaseCheckConstraint>(),
                 Array.Empty<IDatabaseTrigger>()
             );
@@ -77,18 +77,18 @@ namespace SJP.Schematic.Lint.Tests.Rules
 
             var database = CreateFakeDatabase();
             var childKey = new DatabaseRelationalKey(
+                "child_table",
                 new DatabaseKey(
-                    Mock.Of<IRelationalDatabaseTable>(),
                     "child_key",
                     DatabaseKeyType.Foreign,
-                    new[] { Mock.Of<IDatabaseTableColumn>() },
+                    new[] { Mock.Of<IDatabaseColumn>() },
                     true
                 ),
+                "parent_table",
                 new DatabaseKey(
-                    Mock.Of<IRelationalDatabaseTable>(),
                     "parent_key",
                     DatabaseKeyType.Primary,
-                    new[] { Mock.Of<IDatabaseTableColumn>() },
+                    new[] { Mock.Of<IDatabaseColumn>() },
                     true
                 ),
                 System.Data.Rule.None,
@@ -97,12 +97,12 @@ namespace SJP.Schematic.Lint.Tests.Rules
             var parentTable = new RelationalDatabaseTable(
                 database,
                 "test",
-                new List<IDatabaseTableColumn>(),
+                new List<IDatabaseColumn>(),
                 null,
                 Array.Empty<IDatabaseKey>(),
                 Array.Empty<IDatabaseRelationalKey>(),
                 new[] { childKey },
-                Array.Empty<IDatabaseTableIndex>(),
+                Array.Empty<IDatabaseIndex>(),
                 Array.Empty<IDatabaseCheckConstraint>(),
                 Array.Empty<IDatabaseTrigger>()
             );
@@ -122,12 +122,12 @@ namespace SJP.Schematic.Lint.Tests.Rules
             var table = new RelationalDatabaseTable(
                 database,
                 "test",
-                new List<IDatabaseTableColumn>(),
+                new List<IDatabaseColumn>(),
                 null,
                 Array.Empty<IDatabaseKey>(),
                 Array.Empty<IDatabaseRelationalKey>(),
                 Array.Empty<IDatabaseRelationalKey>(),
-                Array.Empty<IDatabaseTableIndex>(),
+                Array.Empty<IDatabaseIndex>(),
                 Array.Empty<IDatabaseCheckConstraint>(),
                 Array.Empty<IDatabaseTrigger>()
             );

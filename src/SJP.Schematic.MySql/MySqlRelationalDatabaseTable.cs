@@ -38,7 +38,7 @@ namespace SJP.Schematic.MySql
 
         public Identifier Name { get; }
 
-        public IRelationalDatabase Database { get; }
+        protected IRelationalDatabase Database { get; }
 
         protected IDbTypeProvider TypeProvider { get; }
 
@@ -66,7 +66,7 @@ namespace SJP.Schematic.MySql
                 .SelectMany(g => g.Select(row => tableColumns[row.ColumnName]))
                 .ToList();
 
-            return new MySqlDatabasePrimaryKey(this, columns);
+            return new MySqlDatabasePrimaryKey(columns);
         }
 
         protected virtual async Task<IDatabaseKey> LoadPrimaryKeyAsync(CancellationToken cancellationToken)
@@ -85,7 +85,7 @@ namespace SJP.Schematic.MySql
                 .SelectMany(g => g.Select(row => tableColumns[row.ColumnName]))
                 .ToList();
 
-            return new MySqlDatabasePrimaryKey(this, columns);
+            return new MySqlDatabasePrimaryKey(columns);
         }
 
         protected virtual string PrimaryKeyQuery => PrimaryKeyQuerySql;
@@ -105,18 +105,18 @@ where t.table_schema = @SchemaName and t.table_name = @TableName
     and tc.constraint_type = 'PRIMARY KEY'
 order by kc.ordinal_position";
 
-        public IReadOnlyDictionary<Identifier, IDatabaseTableIndex> Index => LoadIndexLookupSync();
+        public IReadOnlyDictionary<Identifier, IDatabaseIndex> Index => LoadIndexLookupSync();
 
-        public Task<IReadOnlyDictionary<Identifier, IDatabaseTableIndex>> IndexAsync(CancellationToken cancellationToken = default(CancellationToken)) => LoadIndexLookupAsync(cancellationToken);
+        public Task<IReadOnlyDictionary<Identifier, IDatabaseIndex>> IndexAsync(CancellationToken cancellationToken = default(CancellationToken)) => LoadIndexLookupAsync(cancellationToken);
 
-        public IReadOnlyCollection<IDatabaseTableIndex> Indexes => LoadIndexesSync();
+        public IReadOnlyCollection<IDatabaseIndex> Indexes => LoadIndexesSync();
 
-        public Task<IReadOnlyCollection<IDatabaseTableIndex>> IndexesAsync(CancellationToken cancellationToken = default(CancellationToken)) => LoadIndexesAsync(cancellationToken);
+        public Task<IReadOnlyCollection<IDatabaseIndex>> IndexesAsync(CancellationToken cancellationToken = default(CancellationToken)) => LoadIndexesAsync(cancellationToken);
 
-        protected virtual IReadOnlyDictionary<Identifier, IDatabaseTableIndex> LoadIndexLookupSync()
+        protected virtual IReadOnlyDictionary<Identifier, IDatabaseIndex> LoadIndexLookupSync()
         {
             var indexes = Indexes;
-            var result = new Dictionary<Identifier, IDatabaseTableIndex>(indexes.Count, Comparer);
+            var result = new Dictionary<Identifier, IDatabaseIndex>(indexes.Count, Comparer);
 
             foreach (var index in indexes)
                 result[index.Name.LocalName] = index;
@@ -124,10 +124,10 @@ order by kc.ordinal_position";
             return result;
         }
 
-        protected virtual async Task<IReadOnlyDictionary<Identifier, IDatabaseTableIndex>> LoadIndexLookupAsync(CancellationToken cancellationToken)
+        protected virtual async Task<IReadOnlyDictionary<Identifier, IDatabaseIndex>> LoadIndexLookupAsync(CancellationToken cancellationToken)
         {
             var indexes = await IndexesAsync(cancellationToken).ConfigureAwait(false);
-            var result = new Dictionary<Identifier, IDatabaseTableIndex>(indexes.Count, Comparer);
+            var result = new Dictionary<Identifier, IDatabaseIndex>(indexes.Count, Comparer);
 
             foreach (var index in indexes)
                 result[index.Name.LocalName] = index;
@@ -135,18 +135,18 @@ order by kc.ordinal_position";
             return result;
         }
 
-        protected virtual IReadOnlyCollection<IDatabaseTableIndex> LoadIndexesSync()
+        protected virtual IReadOnlyCollection<IDatabaseIndex> LoadIndexesSync()
         {
             var queryResult = Connection.Query<IndexColumns>(IndexesQuery, new { SchemaName = Name.Schema, TableName = Name.LocalName });
             if (queryResult.Empty())
-                return Array.Empty<IDatabaseTableIndex>();
+                return Array.Empty<IDatabaseIndex>();
 
             var indexColumns = queryResult.GroupBy(row => new { row.IndexName, row.IsNonUnique }).ToList();
             if (indexColumns.Count == 0)
-                return Array.Empty<IDatabaseTableIndex>();
+                return Array.Empty<IDatabaseIndex>();
 
             var tableColumns = Column;
-            var result = new List<IDatabaseTableIndex>(indexColumns.Count);
+            var result = new List<IDatabaseIndex>(indexColumns.Count);
             foreach (var indexInfo in indexColumns)
             {
                 var isUnique = !indexInfo.Key.IsNonUnique;
@@ -158,25 +158,25 @@ order by kc.ordinal_position";
                     .Select(col => new MySqlDatabaseIndexColumn(col))
                     .ToList();
 
-                var index = new MySqlDatabaseTableIndex(this, indexName, isUnique, indexCols);
+                var index = new MySqlDatabaseIndex(indexName, isUnique, indexCols);
                 result.Add(index);
             }
 
             return result;
         }
 
-        protected virtual async Task<IReadOnlyCollection<IDatabaseTableIndex>> LoadIndexesAsync(CancellationToken cancellationToken)
+        protected virtual async Task<IReadOnlyCollection<IDatabaseIndex>> LoadIndexesAsync(CancellationToken cancellationToken)
         {
             var queryResult = await Connection.QueryAsync<IndexColumns>(IndexesQuery, new { SchemaName = Name.Schema, TableName = Name.LocalName }).ConfigureAwait(false);
             if (queryResult.Empty())
-                return Array.Empty<IDatabaseTableIndex>();
+                return Array.Empty<IDatabaseIndex>();
 
             var indexColumns = queryResult.GroupBy(row => new { row.IndexName, row.IsNonUnique }).ToList();
             if (indexColumns.Count == 0)
-                return Array.Empty<IDatabaseTableIndex>();
+                return Array.Empty<IDatabaseIndex>();
 
             var tableColumns = await ColumnAsync(cancellationToken).ConfigureAwait(false);
-            var result = new List<IDatabaseTableIndex>(indexColumns.Count);
+            var result = new List<IDatabaseIndex>(indexColumns.Count);
 
             foreach (var indexInfo in indexColumns)
             {
@@ -189,7 +189,7 @@ order by kc.ordinal_position";
                     .Select(col => new MySqlDatabaseIndexColumn(col))
                     .ToList();
 
-                var index = new MySqlDatabaseTableIndex(this, indexName, isUnique, indexCols);
+                var index = new MySqlDatabaseIndex(indexName, isUnique, indexCols);
                 result.Add(index);
             }
 
@@ -258,7 +258,7 @@ where table_schema = @SchemaName and table_name = @TableName";
             var result = new List<IDatabaseKey>(constraintColumns.Count);
             foreach (var uk in constraintColumns)
             {
-                var uniqueKey = new MySqlDatabaseKey(this, uk.ConstraintName, DatabaseKeyType.Unique, uk.Columns);
+                var uniqueKey = new MySqlDatabaseKey(uk.ConstraintName, DatabaseKeyType.Unique, uk.Columns);
                 result.Add(uniqueKey);
             }
             return result;
@@ -285,7 +285,7 @@ where table_schema = @SchemaName and table_name = @TableName";
             var result = new List<IDatabaseKey>(constraintColumns.Count);
             foreach (var uk in constraintColumns)
             {
-                var uniqueKey = new MySqlDatabaseKey(this, uk.ConstraintName, DatabaseKeyType.Unique, uk.Columns);
+                var uniqueKey = new MySqlDatabaseKey(uk.ConstraintName, DatabaseKeyType.Unique, uk.Columns);
                 result.Add(uniqueKey);
             }
             return result;
@@ -357,7 +357,7 @@ order by kc.ordinal_position";
                 var deleteRule = RelationalRuleMapping[groupedChildKey.Key.DeleteRule];
                 var updateRule = RelationalRuleMapping[groupedChildKey.Key.UpdateRule];
 
-                var relationalKey = new MySqlRelationalKey(childKey, parentKey, deleteRule, updateRule);
+                var relationalKey = new MySqlRelationalKey(childTableName, childKey, Name, parentKey, deleteRule, updateRule);
                 result.Add(relationalKey);
             }
 
@@ -408,7 +408,7 @@ order by kc.ordinal_position";
 
                 var deleteRule = RelationalRuleMapping[groupedChildKey.Key.DeleteRule];
                 var updateRule = RelationalRuleMapping[groupedChildKey.Key.UpdateRule];
-                var relationalKey = new MySqlRelationalKey(childKey, parentKey, deleteRule, updateRule);
+                var relationalKey = new MySqlRelationalKey(childTableName, childKey, Name, parentKey, deleteRule, updateRule);
 
                 result.Add(relationalKey);
             }
@@ -523,12 +523,12 @@ where pt.table_schema = @SchemaName and pt.table_name = @TableName";
                     .Select(row => childKeyColumnLookup[row.ColumnName])
                     .ToList();
 
-                var childKey = new MySqlDatabaseKey(this, childKeyName, DatabaseKeyType.Foreign, childKeyColumns);
+                var childKey = new MySqlDatabaseKey(childKeyName, DatabaseKeyType.Foreign, childKeyColumns);
 
                 var deleteRule = RelationalRuleMapping[fkey.Key.DeleteRule];
                 var updateRule = RelationalRuleMapping[fkey.Key.UpdateRule];
 
-                var relationalKey = new MySqlRelationalKey(childKey, parentKey, deleteRule, updateRule);
+                var relationalKey = new MySqlRelationalKey(Name, childKey, parentTableName, parentKey, deleteRule, updateRule);
                 result.Add(relationalKey);
             }
 
@@ -579,12 +579,12 @@ where pt.table_schema = @SchemaName and pt.table_name = @TableName";
                     .Select(row => childKeyColumnLookup[row.ColumnName])
                     .ToList();
 
-                var childKey = new MySqlDatabaseKey(this, childKeyName, DatabaseKeyType.Foreign, childKeyColumns);
+                var childKey = new MySqlDatabaseKey(childKeyName, DatabaseKeyType.Foreign, childKeyColumns);
 
                 var deleteRule = RelationalRuleMapping[fkey.Key.DeleteRule];
                 var updateRule = RelationalRuleMapping[fkey.Key.UpdateRule];
 
-                var relationalKey = new MySqlRelationalKey(childKey, parentKey, deleteRule, updateRule);
+                var relationalKey = new MySqlRelationalKey(Name, childKey, parentTableName, parentKey, deleteRule, updateRule);
                 result.Add(relationalKey);
             }
 
@@ -611,18 +611,18 @@ inner join information_schema.tables pt on pt.table_schema = rc.unique_constrain
 inner join information_schema.table_constraints ptc on pt.table_schema = ptc.table_schema and pt.table_name = ptc.table_name and ptc.constraint_name = rc.unique_constraint_name
 where t.table_schema = @SchemaName and t.table_name = @TableName";
 
-        public IReadOnlyList<IDatabaseTableColumn> Columns => LoadColumnsSync();
+        public IReadOnlyList<IDatabaseColumn> Columns => LoadColumnsSync();
 
-        public Task<IReadOnlyList<IDatabaseTableColumn>> ColumnsAsync(CancellationToken cancellationToken = default(CancellationToken)) => LoadColumnsAsync(cancellationToken);
+        public Task<IReadOnlyList<IDatabaseColumn>> ColumnsAsync(CancellationToken cancellationToken = default(CancellationToken)) => LoadColumnsAsync(cancellationToken);
 
-        public IReadOnlyDictionary<Identifier, IDatabaseTableColumn> Column => LoadColumnLookupSync();
+        public IReadOnlyDictionary<Identifier, IDatabaseColumn> Column => LoadColumnLookupSync();
 
-        public Task<IReadOnlyDictionary<Identifier, IDatabaseTableColumn>> ColumnAsync(CancellationToken cancellationToken = default(CancellationToken)) => LoadColumnLookupAsync(cancellationToken);
+        public Task<IReadOnlyDictionary<Identifier, IDatabaseColumn>> ColumnAsync(CancellationToken cancellationToken = default(CancellationToken)) => LoadColumnLookupAsync(cancellationToken);
 
-        protected virtual IReadOnlyDictionary<Identifier, IDatabaseTableColumn> LoadColumnLookupSync()
+        protected virtual IReadOnlyDictionary<Identifier, IDatabaseColumn> LoadColumnLookupSync()
         {
             var columns = Columns;
-            var result = new Dictionary<Identifier, IDatabaseTableColumn>(columns.Count, Comparer);
+            var result = new Dictionary<Identifier, IDatabaseColumn>(columns.Count, Comparer);
 
             foreach (var column in columns.Where(c => c.Name != null))
                 result[column.Name.LocalName] = column;
@@ -630,10 +630,10 @@ where t.table_schema = @SchemaName and t.table_name = @TableName";
             return result;
         }
 
-        protected virtual async Task<IReadOnlyDictionary<Identifier, IDatabaseTableColumn>> LoadColumnLookupAsync(CancellationToken cancellationToken)
+        protected virtual async Task<IReadOnlyDictionary<Identifier, IDatabaseColumn>> LoadColumnLookupAsync(CancellationToken cancellationToken)
         {
             var columns = await ColumnsAsync(cancellationToken).ConfigureAwait(false);
-            var result = new Dictionary<Identifier, IDatabaseTableColumn>(columns.Count, Comparer);
+            var result = new Dictionary<Identifier, IDatabaseColumn>(columns.Count, Comparer);
 
             foreach (var column in columns.Where(c => c.Name != null))
                 result[column.Name.LocalName] = column;
@@ -641,10 +641,10 @@ where t.table_schema = @SchemaName and t.table_name = @TableName";
             return result;
         }
 
-        protected virtual IReadOnlyList<IDatabaseTableColumn> LoadColumnsSync()
+        protected virtual IReadOnlyList<IDatabaseColumn> LoadColumnsSync()
         {
             var query = Connection.Query<ColumnData>(ColumnsQuery, new { SchemaName = Name.Schema, TableName = Name.LocalName });
-            var result = new List<IDatabaseTableColumn>();
+            var result = new List<IDatabaseColumn>();
 
             foreach (var row in query)
             {
@@ -669,8 +669,8 @@ where t.table_schema = @SchemaName and t.table_name = @TableName";
                 var isNullable = !string.Equals(row.IsNullable, "NO", StringComparison.OrdinalIgnoreCase);
 
                 var column = isComputed
-                    ? new MySqlDatabaseComputedTableColumn(this, columnName, columnType, isNullable, row.DefaultValue, row.ComputedColumnDefinition)
-                    : new MySqlDatabaseTableColumn(this, columnName, columnType, isNullable, row.DefaultValue, autoIncrement);
+                    ? new MySqlDatabaseComputedColumn(columnName, columnType, isNullable, row.DefaultValue, row.ComputedColumnDefinition)
+                    : new MySqlDatabaseColumn(columnName, columnType, isNullable, row.DefaultValue, autoIncrement);
 
                 result.Add(column);
             }
@@ -678,10 +678,10 @@ where t.table_schema = @SchemaName and t.table_name = @TableName";
             return result.AsReadOnly();
         }
 
-        protected virtual async Task<IReadOnlyList<IDatabaseTableColumn>> LoadColumnsAsync(CancellationToken cancellationToken)
+        protected virtual async Task<IReadOnlyList<IDatabaseColumn>> LoadColumnsAsync(CancellationToken cancellationToken)
         {
             var query = await Connection.QueryAsync<ColumnData>(ColumnsQuery, new { SchemaName = Name.Schema, TableName = Name.LocalName }).ConfigureAwait(false);
-            var result = new List<IDatabaseTableColumn>();
+            var result = new List<IDatabaseColumn>();
 
             foreach (var row in query)
             {
@@ -702,8 +702,8 @@ where t.table_schema = @SchemaName and t.table_name = @TableName";
                 var isNullable = !string.Equals(row.IsNullable, "NO", StringComparison.OrdinalIgnoreCase);
 
                 var column = isComputed
-                    ? new MySqlDatabaseComputedTableColumn(this, columnName, columnType, isNullable, row.DefaultValue, row.ComputedColumnDefinition)
-                    : new MySqlDatabaseTableColumn(this, columnName, columnType, isNullable, row.DefaultValue, autoIncrement);
+                    ? new MySqlDatabaseComputedColumn(columnName, columnType, isNullable, row.DefaultValue, row.ComputedColumnDefinition)
+                    : new MySqlDatabaseColumn(columnName, columnType, isNullable, row.DefaultValue, autoIncrement);
 
                 result.Add(column);
             }
@@ -795,7 +795,7 @@ order by ordinal_position";
                         throw new Exception("Found an unsupported trigger event name. Expected one of INSERT, UPDATE, DELETE, got: " + trigEvent.TriggerEvent);
                 }
 
-                var trigger = new MySqlDatabaseTrigger(this, triggerName, definition, queryTiming, events);
+                var trigger = new MySqlDatabaseTrigger(triggerName, definition, queryTiming, events);
                 result.Add(trigger);
             }
 
@@ -837,7 +837,7 @@ order by ordinal_position";
                         throw new Exception("Found an unsupported trigger event name. Expected one of INSERT, UPDATE, DELETE, got: " + trigEvent.TriggerEvent);
                 }
 
-                var trigger = new MySqlDatabaseTrigger(this, triggerName, definition, queryTiming, events);
+                var trigger = new MySqlDatabaseTrigger(triggerName, definition, queryTiming, events);
                 result.Add(trigger);
             }
 

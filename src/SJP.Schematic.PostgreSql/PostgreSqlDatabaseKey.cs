@@ -8,7 +8,7 @@ namespace SJP.Schematic.PostgreSql
 {
     public class PostgreSqlDatabaseKey : IDatabaseKey
     {
-        public PostgreSqlDatabaseKey(IRelationalDatabaseTable table, Identifier name, DatabaseKeyType keyType, IReadOnlyCollection<IDatabaseColumn> columns)
+        public PostgreSqlDatabaseKey(Identifier name, DatabaseKeyType keyType, IReadOnlyCollection<IDatabaseColumn> columns)
         {
             if (name == null)
                 throw new ArgumentNullException(nameof(name));
@@ -17,13 +17,10 @@ namespace SJP.Schematic.PostgreSql
             if (!keyType.IsValid())
                 throw new ArgumentException($"The { nameof(DatabaseKeyType) } provided must be a valid enum.", nameof(keyType));
 
-            Table = table ?? throw new ArgumentNullException(nameof(table));
             Name = name.LocalName;
             KeyType = keyType;
             Columns = columns;
         }
-
-        public IRelationalDatabaseTable Table { get; }
 
         public Identifier Name { get; }
 

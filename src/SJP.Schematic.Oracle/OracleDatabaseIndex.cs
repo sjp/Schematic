@@ -6,9 +6,9 @@ using SJP.Schematic.Core.Extensions;
 
 namespace SJP.Schematic.Oracle
 {
-    public abstract class OracleDatabaseIndex<T> : IDatabaseIndex<T> where T : class, IDatabaseQueryable
+    public class OracleDatabaseIndex : IDatabaseIndex
     {
-        protected OracleDatabaseIndex(T parent, Identifier name, bool isUnique, IReadOnlyCollection<IDatabaseIndexColumn> columns, OracleIndexProperties properties)
+        public OracleDatabaseIndex(Identifier name, bool isUnique, IReadOnlyCollection<IDatabaseIndexColumn> columns, OracleIndexProperties properties)
         {
             if (name == null)
                 throw new ArgumentNullException(nameof(name));
@@ -17,15 +17,12 @@ namespace SJP.Schematic.Oracle
             if (!properties.IsValid())
                 throw new ArgumentException($"The { nameof(OracleIndexProperties) } provided must be a valid enum.", nameof(properties));
 
-            Parent = parent ?? throw new ArgumentNullException(nameof(parent));
             Name = name.LocalName;
             IsUnique = isUnique;
             Columns = columns;
 
             GeneratedByConstraint = (properties & _constraintGeneratedProps) == _constraintGeneratedProps;
         }
-
-        public T Parent { get; }
 
         public Identifier Name { get; }
 

@@ -32,8 +32,8 @@ namespace SJP.Schematic.Lint.Rules
             var foreignKeys = table.ParentKeys;
             foreach (var foreignKey in foreignKeys)
             {
-                var childTableName = foreignKey.ChildKey.Table.Name;
-                var parentTableName = foreignKey.ParentKey.Table.Name;
+                var childTableName = foreignKey.ChildTable;
+                var parentTableName = foreignKey.ParentTable;
                 if (childTableName != parentTableName)
                     continue;
 
@@ -48,7 +48,7 @@ namespace SJP.Schematic.Lint.Rules
                     continue;
 
                 var fkName = foreignKey.ChildKey.Name?.ToString() ?? string.Empty;
-                var message = BuildMessage(fkName, foreignKey.ChildKey.Table.Name);
+                var message = BuildMessage(fkName, childTableName);
                 result.Add(message);
             }
 

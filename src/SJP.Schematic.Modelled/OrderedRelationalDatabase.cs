@@ -11,14 +11,14 @@ namespace SJP.Schematic.Modelled
     public class OrderedRelationalDatabase : IRelationalDatabase
     {
         // databases in order of preference, most preferred first
-        public OrderedRelationalDatabase(IEnumerable<IDependentRelationalDatabase> databases)
+        public OrderedRelationalDatabase(IEnumerable<IRelationalDatabase> databases)
         {
             if (databases == null)
                 throw new ArgumentNullException(nameof(databases));
             if (databases.Empty())
                 throw new ArgumentException("At least one database must be present in the collection of databases", nameof(databases));
 
-            Databases = databases.Select(d => SetParent(this, d)).ToList();
+            Databases = databases.ToList();
             BaseDatabase = Databases.Last();
         }
 
@@ -362,15 +362,6 @@ namespace SJP.Schematic.Modelled
             var synonyms = Databases.Select(d => d.GetSynonymAsync(synonymName, cancellationToken)).ToArray();
             var synonymsTask = await Task.WhenAll(synonyms).ConfigureAwait(false);
             return Array.Find(synonymsTask, t => t != null);
-        }
-
-        protected static IDependentRelationalDatabase SetParent(IRelationalDatabase parent, IDependentRelationalDatabase child)
-        {
-            if (child == null)
-                throw new ArgumentNullException(nameof(child));
-
-            child.Parent = parent ?? throw new ArgumentNullException(nameof(parent));
-            return child;
         }
     }
 }

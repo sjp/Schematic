@@ -60,7 +60,7 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore
                 .AppendLine(tableNamespace)
                 .AppendLine("{");
 
-            // todo configure for tabs?
+            // TODO configure for tabs?
             const string tableIndent = IndentLevel;
 
             var tableComment = GenerateTableComment(table.Name.LocalName);
@@ -110,11 +110,10 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore
                 if (hasFirstLine)
                     builder.AppendLine();
 
-                var parentKey = relationalKey.ParentKey;
-                var parentTable = parentKey.Table;
+                var parentTable = relationalKey.ParentTable;
 
-                var parentSchemaName = parentTable.Name.Schema;
-                var parentClassName = NameProvider.TableToClassName(parentTable.Name);
+                var parentSchemaName = parentTable.Schema;
+                var parentClassName = NameProvider.TableToClassName(parentTable);
                 var qualifiedParentName = !parentSchemaName.IsNullOrWhiteSpace()
                     ? parentSchemaName + "." + parentClassName
                     : parentClassName;
@@ -135,11 +134,10 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore
                 if (hasFirstLine)
                     builder.AppendLine();
 
-                var childKey = relationalKey.ChildKey;
-                var childTable = childKey.Table;
+                var childTable = relationalKey.ChildTable;
 
-                var childSchemaName = childTable.Name.Schema;
-                var childClassName = NameProvider.TableToClassName(childTable.Name);
+                var childSchemaName = childTable.Schema;
+                var childClassName = NameProvider.TableToClassName(childTable);
                 var qualifiedChildName = !childSchemaName.IsNullOrWhiteSpace()
                     ? childSchemaName + "." + childClassName
                     : childClassName;
@@ -164,7 +162,7 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore
             return builder.ToString();
         }
 
-        private void AppendColumn(StringBuilder builder, string columnIndent, string className, IDatabaseTableColumn column)
+        private void AppendColumn(StringBuilder builder, string columnIndent, string className, IDatabaseColumn column)
         {
             if (builder == null)
                 throw new ArgumentNullException(nameof(builder));
@@ -251,8 +249,8 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore
                 throw new ArgumentNullException(nameof(relationalKey));
 
             var escapedForeignKeyName = SecurityElement.Escape(relationalKey.ChildKey.Name.LocalName ?? string.Empty);
-            var escapedChildTableName = SecurityElement.Escape(relationalKey.ChildKey.Table.Name.LocalName);
-            var escapedParentTableName = SecurityElement.Escape(relationalKey.ParentKey.Table.Name.LocalName);
+            var escapedChildTableName = SecurityElement.Escape(relationalKey.ChildTable.LocalName);
+            var escapedParentTableName = SecurityElement.Escape(relationalKey.ParentTable.LocalName);
 
             return "The <c>" + escapedForeignKeyName + "</c> foreign key. Navigates from <c>" + escapedChildTableName + "</c> to <c>" + escapedParentTableName + "</c>.";
         }
@@ -263,8 +261,8 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore
                 throw new ArgumentNullException(nameof(relationalKey));
 
             var escapedForeignKeyName = SecurityElement.Escape(relationalKey.ChildKey.Name.LocalName ?? string.Empty);
-            var escapedChildTableName = SecurityElement.Escape(relationalKey.ChildKey.Table.Name.LocalName);
-            var escapedParentTableName = SecurityElement.Escape(relationalKey.ParentKey.Table.Name.LocalName);
+            var escapedChildTableName = SecurityElement.Escape(relationalKey.ChildTable.LocalName);
+            var escapedParentTableName = SecurityElement.Escape(relationalKey.ParentTable.LocalName);
 
             return "The <c>" + escapedForeignKeyName + "</c> child key. Navigates from <c>" + escapedParentTableName + "</c> to <c>" + escapedChildTableName + "</c> entities.";
         }

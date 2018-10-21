@@ -3,10 +3,10 @@ using SJP.Schematic.Core.Extensions;
 
 namespace SJP.Schematic.Core
 {
-    public class DatabaseComputedTableColumn : DatabaseTableColumn, IDatabaseComputedColumn
+    public class DatabaseComputedColumn : DatabaseColumn, IDatabaseComputedColumn
     {
-        public DatabaseComputedTableColumn(IRelationalDatabaseTable table, Identifier columnName, IDbType type, bool isNullable, string defaultValue, string definition)
-            : base(table, columnName, type, isNullable, defaultValue, null)
+        public DatabaseComputedColumn(Identifier columnName, IDbType type, bool isNullable, string defaultValue, string definition)
+            : base(columnName, type, isNullable, defaultValue, null)
         {
             if (definition.IsNullOrWhiteSpace())
                 throw new ArgumentNullException(nameof(definition));

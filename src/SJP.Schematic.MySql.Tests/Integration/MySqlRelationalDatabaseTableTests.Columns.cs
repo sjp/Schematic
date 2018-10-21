@@ -132,48 +132,6 @@ namespace SJP.Schematic.MySql.Tests.Integration
         }
 
         [Test]
-        public void Column_WhenGivenTableWithOneColumn_ReturnsColumnWithCorrectTable()
-        {
-            const string tableName = "table_test_table_1";
-            var table = Database.GetTable(tableName);
-            var column = table.Column.Values.Single();
-
-            Assert.AreEqual(tableName, column.Table.Name.LocalName);
-        }
-
-        [Test]
-        public void Columns_WhenGivenTableWithOneColumn_ReturnsColumnWithCorrectTable()
-        {
-            const string tableName = "table_test_table_1";
-            var table = Database.GetTable(tableName);
-            var column = table.Columns.Single();
-
-            Assert.AreEqual(tableName, column.Table.Name.LocalName);
-        }
-
-        [Test]
-        public async Task ColumnAsync_WhenGivenTableWithOneColumn_ReturnsColumnWithCorrectTable()
-        {
-            const string tableName = "table_test_table_1";
-            var table = await Database.GetTableAsync(tableName).ConfigureAwait(false);
-            var columnLookup = await table.ColumnAsync().ConfigureAwait(false);
-            var column = columnLookup.Values.Single();
-
-            Assert.AreEqual(tableName, column.Table.Name.LocalName);
-        }
-
-        [Test]
-        public async Task ColumnsAsync_WhenGivenTableWithOneColumn_ReturnsColumnWithCorrectTable()
-        {
-            const string tableName = "table_test_table_1";
-            var table = await Database.GetTableAsync(tableName).ConfigureAwait(false);
-            var columns = await table.ColumnsAsync().ConfigureAwait(false);
-            var column = columns.Single();
-
-            Assert.AreEqual(tableName, column.Table.Name.LocalName);
-        }
-
-        [Test]
         public void Column_WhenGivenTableWithNullableColumn_ColumnReturnsIsNullableTrue()
         {
             const string tableName = "table_test_table_1";

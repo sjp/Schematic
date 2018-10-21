@@ -7,14 +7,12 @@ namespace SJP.Schematic.Core
 {
     public class DatabaseKey : IDatabaseKey
     {
-        public DatabaseKey(IRelationalDatabaseTable table, Identifier name, DatabaseKeyType keyType, IReadOnlyCollection<IDatabaseColumn> columns, bool isEnabled)
+        public DatabaseKey(Identifier name, DatabaseKeyType keyType, IReadOnlyCollection<IDatabaseColumn> columns, bool isEnabled)
         {
             if (columns == null || columns.Empty() || columns.AnyNull())
                 throw new ArgumentNullException(nameof(columns));
             if (!keyType.IsValid())
                 throw new ArgumentException($"The { nameof(DatabaseKeyType) } provided must be a valid enum.", nameof(keyType));
-
-            Table = table ?? throw new ArgumentNullException(nameof(table));
 
             if (name?.LocalName != null)
                 Name = name.LocalName; // can be null!
@@ -23,8 +21,6 @@ namespace SJP.Schematic.Core
             Columns = columns;
             IsEnabled = isEnabled;
         }
-
-        public IRelationalDatabaseTable Table { get; }
 
         public Identifier Name { get; }
 

@@ -7,7 +7,7 @@ namespace SJP.Schematic.Oracle
 {
     public class OracleDatabaseTrigger : IDatabaseTrigger
     {
-        public OracleDatabaseTrigger(IRelationalDatabaseTable table, Identifier name, string definition, TriggerQueryTiming queryTiming, TriggerEvent events, bool isEnabled)
+        public OracleDatabaseTrigger(Identifier name, string definition, TriggerQueryTiming queryTiming, TriggerEvent events, bool isEnabled)
         {
             if (name == null)
                 throw new ArgumentNullException(nameof(name));
@@ -20,7 +20,6 @@ namespace SJP.Schematic.Oracle
             if (events == TriggerEvent.None)
                 throw new ArgumentException("Invalid trigger event flags given. Must include at least one event, e.g. INSERT, DELETE, UPDATE.", nameof(events));
 
-            Table = table ?? throw new ArgumentNullException(nameof(table));
             Name = name.LocalName;
             Definition = definition;
             QueryTiming = queryTiming;
@@ -35,8 +34,6 @@ namespace SJP.Schematic.Oracle
         public TriggerQueryTiming QueryTiming { get; }
 
         public TriggerEvent TriggerEvent { get; }
-
-        public IRelationalDatabaseTable Table { get; }
 
         public bool IsEnabled { get; }
     }

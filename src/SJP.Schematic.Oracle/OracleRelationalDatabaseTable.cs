@@ -39,7 +39,7 @@ namespace SJP.Schematic.Oracle
 
         public Identifier Name { get; }
 
-        public IRelationalDatabase Database { get; }
+        protected IRelationalDatabase Database { get; }
 
         protected IDbTypeProvider TypeProvider { get; }
 
@@ -68,7 +68,7 @@ namespace SJP.Schematic.Oracle
                 .Select(row => tableColumns[row.ColumnName])
                 .ToList();
 
-            return new OracleDatabaseKey(this, constraintName, DatabaseKeyType.Primary, columns, isEnabled);
+            return new OracleDatabaseKey(constraintName, DatabaseKeyType.Primary, columns, isEnabled);
         }
 
         protected virtual async Task<IDatabaseKey> LoadPrimaryKeyAsync(CancellationToken cancellationToken)
@@ -88,7 +88,7 @@ namespace SJP.Schematic.Oracle
                 .Select(row => tableColumns[row.ColumnName])
                 .ToList();
 
-            return new OracleDatabaseKey(this, constraintName, DatabaseKeyType.Primary, columns, isEnabled);
+            return new OracleDatabaseKey(constraintName, DatabaseKeyType.Primary, columns, isEnabled);
         }
 
         protected virtual string PrimaryKeyQuery => PrimaryKeyQuerySql;
@@ -103,48 +103,48 @@ from ALL_CONSTRAINTS ac
 inner join ALL_CONS_COLUMNS acc on ac.OWNER = acc.OWNER and ac.CONSTRAINT_NAME = acc.CONSTRAINT_NAME and ac.TABLE_NAME = acc.TABLE_NAME
 where ac.OWNER = :SchemaName and ac.TABLE_NAME = :TableName and ac.CONSTRAINT_TYPE = 'P'";
 
-        public IReadOnlyDictionary<Identifier, IDatabaseTableIndex> Index => LoadIndexLookupSync();
+        public IReadOnlyDictionary<Identifier, IDatabaseIndex> Index => LoadIndexLookupSync();
 
-        public Task<IReadOnlyDictionary<Identifier, IDatabaseTableIndex>> IndexAsync(CancellationToken cancellationToken = default(CancellationToken)) => LoadIndexLookupAsync(cancellationToken);
+        public Task<IReadOnlyDictionary<Identifier, IDatabaseIndex>> IndexAsync(CancellationToken cancellationToken = default(CancellationToken)) => LoadIndexLookupAsync(cancellationToken);
 
-        public IReadOnlyCollection<IDatabaseTableIndex> Indexes => LoadIndexesSync();
+        public IReadOnlyCollection<IDatabaseIndex> Indexes => LoadIndexesSync();
 
-        public Task<IReadOnlyCollection<IDatabaseTableIndex>> IndexesAsync(CancellationToken cancellationToken = default(CancellationToken)) => LoadIndexesAsync(cancellationToken);
+        public Task<IReadOnlyCollection<IDatabaseIndex>> IndexesAsync(CancellationToken cancellationToken = default(CancellationToken)) => LoadIndexesAsync(cancellationToken);
 
-        protected virtual IReadOnlyDictionary<Identifier, IDatabaseTableIndex> LoadIndexLookupSync()
+        protected virtual IReadOnlyDictionary<Identifier, IDatabaseIndex> LoadIndexLookupSync()
         {
             var indexes = Indexes;
-            var result = new Dictionary<Identifier, IDatabaseTableIndex>(indexes.Count);
+            var result = new Dictionary<Identifier, IDatabaseIndex>(indexes.Count);
 
             foreach (var index in indexes)
                 result[index.Name.LocalName] = index;
 
-            return new IdentifierResolvingDictionary<IDatabaseTableIndex>(result, IdentifierResolver);
+            return new IdentifierResolvingDictionary<IDatabaseIndex>(result, IdentifierResolver);
         }
 
-        protected virtual async Task<IReadOnlyDictionary<Identifier, IDatabaseTableIndex>> LoadIndexLookupAsync(CancellationToken cancellationToken)
+        protected virtual async Task<IReadOnlyDictionary<Identifier, IDatabaseIndex>> LoadIndexLookupAsync(CancellationToken cancellationToken)
         {
             var indexes = await IndexesAsync(cancellationToken).ConfigureAwait(false);
-            var result = new Dictionary<Identifier, IDatabaseTableIndex>(indexes.Count);
+            var result = new Dictionary<Identifier, IDatabaseIndex>(indexes.Count);
 
             foreach (var index in indexes)
                 result[index.Name.LocalName] = index;
 
-            return new IdentifierResolvingDictionary<IDatabaseTableIndex>(result, IdentifierResolver);
+            return new IdentifierResolvingDictionary<IDatabaseIndex>(result, IdentifierResolver);
         }
 
-        protected virtual IReadOnlyCollection<IDatabaseTableIndex> LoadIndexesSync()
+        protected virtual IReadOnlyCollection<IDatabaseIndex> LoadIndexesSync()
         {
             var queryResult = Connection.Query<IndexColumns>(IndexesQuery, new { SchemaName = Name.Schema, TableName = Name.LocalName });
             if (queryResult.Empty())
-                return Array.Empty<IDatabaseTableIndex>();
+                return Array.Empty<IDatabaseIndex>();
 
             var indexColumns = queryResult.GroupBy(row => new { row.IndexName, row.IndexProperty, row.Uniqueness }).ToList();
             if (indexColumns.Count == 0)
-                return Array.Empty<IDatabaseTableIndex>();
+                return Array.Empty<IDatabaseIndex>();
 
             var tableColumns = Column;
-            var result = new List<IDatabaseTableIndex>(indexColumns.Count);
+            var result = new List<IDatabaseIndex>(indexColumns.Count);
             foreach (var indexInfo in indexColumns)
             {
                 var indexProperties = (OracleIndexProperties)indexInfo.Key.IndexProperty;
@@ -157,25 +157,25 @@ where ac.OWNER = :SchemaName and ac.TABLE_NAME = :TableName and ac.CONSTRAINT_TY
                     .Select(row => new OracleDatabaseIndexColumn(row.Column, row.IsDescending == "Y" ? IndexColumnOrder.Descending : IndexColumnOrder.Ascending))
                     .ToList();
 
-                var index = new OracleDatabaseTableIndex(this, indexName, isUnique, indexCols, indexProperties);
+                var index = new OracleDatabaseIndex(indexName, isUnique, indexCols, indexProperties);
                 result.Add(index);
             }
 
             return result;
         }
 
-        protected virtual async Task<IReadOnlyCollection<IDatabaseTableIndex>> LoadIndexesAsync(CancellationToken cancellationToken)
+        protected virtual async Task<IReadOnlyCollection<IDatabaseIndex>> LoadIndexesAsync(CancellationToken cancellationToken)
         {
             var queryResult = await Connection.QueryAsync<IndexColumns>(IndexesQuery, new { SchemaName = Name.Schema, TableName = Name.LocalName }).ConfigureAwait(false);
             if (queryResult.Empty())
-                return Array.Empty<IDatabaseTableIndex>();
+                return Array.Empty<IDatabaseIndex>();
 
             var indexColumns = queryResult.GroupBy(row => new { row.IndexName, row.IndexProperty, row.Uniqueness }).ToList();
             if (indexColumns.Count == 0)
-                return Array.Empty<IDatabaseTableIndex>();
+                return Array.Empty<IDatabaseIndex>();
 
             var tableColumns = await ColumnAsync(cancellationToken).ConfigureAwait(false);
-            var result = new List<IDatabaseTableIndex>(indexColumns.Count);
+            var result = new List<IDatabaseIndex>(indexColumns.Count);
             foreach (var indexInfo in indexColumns)
             {
                 var indexProperties = (OracleIndexProperties)indexInfo.Key.IndexProperty;
@@ -188,7 +188,7 @@ where ac.OWNER = :SchemaName and ac.TABLE_NAME = :TableName and ac.CONSTRAINT_TY
                     .Select(row => new OracleDatabaseIndexColumn(row.Column, row.IsDescending == "Y" ? IndexColumnOrder.Descending : IndexColumnOrder.Ascending))
                     .ToList();
 
-                var index = new OracleDatabaseTableIndex(this, indexName, isUnique, indexCols, indexProperties);
+                var index = new OracleDatabaseIndex(indexName, isUnique, indexCols, indexProperties);
                 result.Add(index);
             }
 
@@ -270,7 +270,7 @@ order by aic.COLUMN_POSITION";
             var result = new List<IDatabaseKey>(constraintColumns.Count);
             foreach (var uk in constraintColumns)
             {
-                var uniqueKey = new OracleDatabaseKey(this, uk.ConstraintName, DatabaseKeyType.Unique, uk.Columns, uk.IsEnabled);
+                var uniqueKey = new OracleDatabaseKey(uk.ConstraintName, DatabaseKeyType.Unique, uk.Columns, uk.IsEnabled);
                 result.Add(uniqueKey);
             }
             return result;
@@ -300,7 +300,7 @@ order by aic.COLUMN_POSITION";
             var result = new List<IDatabaseKey>(constraintColumns.Count);
             foreach (var uk in constraintColumns)
             {
-                var uniqueKey = new OracleDatabaseKey(this, uk.ConstraintName, DatabaseKeyType.Unique, uk.Columns, uk.IsEnabled);
+                var uniqueKey = new OracleDatabaseKey(uk.ConstraintName, DatabaseKeyType.Unique, uk.Columns, uk.IsEnabled);
                 result.Add(uniqueKey);
             }
             return result;
@@ -355,7 +355,7 @@ where ac.OWNER = :SchemaName and ac.TABLE_NAME = :TableName and ac.CONSTRAINT_TY
 
                 var deleteRule = RelationalRuleMapping[childKeyRow.DeleteRule];
 
-                var relationalKey = new OracleRelationalKey(childKey, parentKey, deleteRule);
+                var relationalKey = new OracleRelationalKey(childTableName, childKey, Name, parentKey, deleteRule);
                 result.Add(relationalKey);
             }
 
@@ -394,7 +394,7 @@ where ac.OWNER = :SchemaName and ac.TABLE_NAME = :TableName and ac.CONSTRAINT_TY
                 }
 
                 var deleteRule = RelationalRuleMapping[childKeyRow.DeleteRule];
-                var relationalKey = new OracleRelationalKey(childKey, parentKey, deleteRule);
+                var relationalKey = new OracleRelationalKey(childTableName, childKey, Name, parentKey, deleteRule);
 
                 result.Add(relationalKey);
             }
@@ -469,7 +469,7 @@ where pac.OWNER = :SchemaName and pac.TABLE_NAME = :TableName and ac.CONSTRAINT_
                 var definition = checkRow.Definition;
                 var isEnabled = checkRow.EnabledStatus == "ENABLED";
 
-                var check = new OracleCheckConstraint(this, constraintName, definition, isEnabled);
+                var check = new OracleCheckConstraint(constraintName, definition, isEnabled);
                 result.Add(check);
             }
 
@@ -499,7 +499,7 @@ where pac.OWNER = :SchemaName and pac.TABLE_NAME = :TableName and ac.CONSTRAINT_
                 var definition = checkRow.Definition;
                 var isEnabled = checkRow.EnabledStatus == "ENABLED";
 
-                var check = new OracleCheckConstraint(this, constraintName, definition, isEnabled);
+                var check = new OracleCheckConstraint(constraintName, definition, isEnabled);
                 result.Add(check);
             }
 
@@ -591,10 +591,10 @@ where OWNER = :SchemaName and TABLE_NAME = :TableName and CONSTRAINT_TYPE = 'C'"
                     .ToList();
 
                 var isEnabled = fkey.Key.EnabledStatus == "ENABLED";
-                var childKey = new OracleDatabaseKey(this, childKeyName, DatabaseKeyType.Foreign, childKeyColumns, isEnabled);
+                var childKey = new OracleDatabaseKey(childKeyName, DatabaseKeyType.Foreign, childKeyColumns, isEnabled);
 
                 var deleteRule = RelationalRuleMapping[fkey.Key.DeleteRule];
-                var relationalKey = new OracleRelationalKey(childKey, parentKey, deleteRule);
+                var relationalKey = new OracleRelationalKey(Name, childKey, parentTableName, parentKey, deleteRule);
                 result.Add(relationalKey);
             }
 
@@ -646,10 +646,10 @@ where OWNER = :SchemaName and TABLE_NAME = :TableName and CONSTRAINT_TYPE = 'C'"
                     .ToList();
 
                 var isEnabled = fkey.Key.EnabledStatus == "ENABLED";
-                var childKey = new OracleDatabaseKey(this, childKeyName, DatabaseKeyType.Foreign, childKeyColumns, isEnabled);
+                var childKey = new OracleDatabaseKey(childKeyName, DatabaseKeyType.Foreign, childKeyColumns, isEnabled);
 
                 var deleteRule = RelationalRuleMapping[fkey.Key.DeleteRule];
-                var relationalKey = new OracleRelationalKey(childKey, parentKey, deleteRule);
+                var relationalKey = new OracleRelationalKey(Name, childKey, parentTableName, parentKey, deleteRule);
                 result.Add(relationalKey);
             }
 
@@ -674,43 +674,43 @@ inner join ALL_CONS_COLUMNS acc on ac.OWNER = acc.OWNER and ac.CONSTRAINT_NAME =
 inner join ALL_CONSTRAINTS pac on pac.OWNER = ac.R_OWNER and pac.CONSTRAINT_NAME = ac.R_CONSTRAINT_NAME
 where ac.OWNER = :SchemaName and ac.TABLE_NAME = :TableName and ac.CONSTRAINT_TYPE = 'R' and pac.CONSTRAINT_TYPE in ('P', 'U')";
 
-        public IReadOnlyList<IDatabaseTableColumn> Columns => LoadColumnsSync();
+        public IReadOnlyList<IDatabaseColumn> Columns => LoadColumnsSync();
 
-        public Task<IReadOnlyList<IDatabaseTableColumn>> ColumnsAsync(CancellationToken cancellationToken = default(CancellationToken)) => LoadColumnsAsync(cancellationToken);
+        public Task<IReadOnlyList<IDatabaseColumn>> ColumnsAsync(CancellationToken cancellationToken = default(CancellationToken)) => LoadColumnsAsync(cancellationToken);
 
-        public IReadOnlyDictionary<Identifier, IDatabaseTableColumn> Column => LoadColumnLookupSync();
+        public IReadOnlyDictionary<Identifier, IDatabaseColumn> Column => LoadColumnLookupSync();
 
-        public Task<IReadOnlyDictionary<Identifier, IDatabaseTableColumn>> ColumnAsync(CancellationToken cancellationToken = default(CancellationToken)) => LoadColumnLookupAsync(cancellationToken);
+        public Task<IReadOnlyDictionary<Identifier, IDatabaseColumn>> ColumnAsync(CancellationToken cancellationToken = default(CancellationToken)) => LoadColumnLookupAsync(cancellationToken);
 
-        protected virtual IReadOnlyDictionary<Identifier, IDatabaseTableColumn> LoadColumnLookupSync()
+        protected virtual IReadOnlyDictionary<Identifier, IDatabaseColumn> LoadColumnLookupSync()
         {
             var columns = Columns;
-            var result = new Dictionary<Identifier, IDatabaseTableColumn>(columns.Count);
+            var result = new Dictionary<Identifier, IDatabaseColumn>(columns.Count);
 
             foreach (var column in columns.Where(c => c.Name != null))
                 result[column.Name.LocalName] = column;
 
-            return new IdentifierResolvingDictionary<IDatabaseTableColumn>(result, IdentifierResolver);
+            return new IdentifierResolvingDictionary<IDatabaseColumn>(result, IdentifierResolver);
         }
 
-        protected virtual async Task<IReadOnlyDictionary<Identifier, IDatabaseTableColumn>> LoadColumnLookupAsync(CancellationToken cancellationToken)
+        protected virtual async Task<IReadOnlyDictionary<Identifier, IDatabaseColumn>> LoadColumnLookupAsync(CancellationToken cancellationToken)
         {
             var columns = await ColumnsAsync(cancellationToken).ConfigureAwait(false);
-            var result = new Dictionary<Identifier, IDatabaseTableColumn>(columns.Count);
+            var result = new Dictionary<Identifier, IDatabaseColumn>(columns.Count);
 
             foreach (var column in columns.Where(c => c.Name != null))
                 result[column.Name.LocalName] = column;
 
-            return new IdentifierResolvingDictionary<IDatabaseTableColumn>(result, IdentifierResolver);
+            return new IdentifierResolvingDictionary<IDatabaseColumn>(result, IdentifierResolver);
         }
 
-        protected virtual IReadOnlyList<IDatabaseTableColumn> LoadColumnsSync()
+        protected virtual IReadOnlyList<IDatabaseColumn> LoadColumnsSync()
         {
             var query = Connection.Query<ColumnData>(ColumnsQuery, new { SchemaName = Name.Schema, TableName = Name.LocalName });
 
             var columnNames = query.Select(row => row.ColumnName).ToList();
             var notNullableColumnNames = GetNotNullConstrainedColumns(columnNames);
-            var result = new List<IDatabaseTableColumn>();
+            var result = new List<IDatabaseColumn>();
 
             foreach (var row in query)
             {
@@ -727,8 +727,8 @@ where ac.OWNER = :SchemaName and ac.TABLE_NAME = :TableName and ac.CONSTRAINT_TY
                 var columnName = Identifier.CreateQualifiedIdentifier(row.ColumnName);
 
                 var column = row.IsComputed == "YES"
-                    ? new OracleDatabaseComputedTableColumn(this, columnName, columnType, isNullable, row.DefaultValue)
-                    : new OracleDatabaseTableColumn(this, columnName, columnType, isNullable, row.DefaultValue);
+                    ? new OracleDatabaseComputedColumn(columnName, columnType, isNullable, row.DefaultValue)
+                    : new OracleDatabaseColumn(columnName, columnType, isNullable, row.DefaultValue);
 
                 result.Add(column);
             }
@@ -736,13 +736,13 @@ where ac.OWNER = :SchemaName and ac.TABLE_NAME = :TableName and ac.CONSTRAINT_TY
             return result.AsReadOnly();
         }
 
-        protected virtual async Task<IReadOnlyList<IDatabaseTableColumn>> LoadColumnsAsync(CancellationToken cancellationToken)
+        protected virtual async Task<IReadOnlyList<IDatabaseColumn>> LoadColumnsAsync(CancellationToken cancellationToken)
         {
             var query = await Connection.QueryAsync<ColumnData>(ColumnsQuery, new { SchemaName = Name.Schema, TableName = Name.LocalName }).ConfigureAwait(false);
 
             var columnNames = query.Select(row => row.ColumnName).ToList();
             var notNullableColumnNames = await GetNotNullConstrainedColumnsAsync(columnNames).ConfigureAwait(false);
-            var result = new List<IDatabaseTableColumn>();
+            var result = new List<IDatabaseColumn>();
 
             foreach (var row in query)
             {
@@ -759,8 +759,8 @@ where ac.OWNER = :SchemaName and ac.TABLE_NAME = :TableName and ac.CONSTRAINT_TY
                 var columnName = Identifier.CreateQualifiedIdentifier(row.ColumnName);
 
                 var column = row.IsComputed == "YES"
-                    ? new OracleDatabaseComputedTableColumn(this, columnName, columnType, isNullable, row.DefaultValue)
-                    : new OracleDatabaseTableColumn(this, columnName, columnType, isNullable, row.DefaultValue);
+                    ? new OracleDatabaseComputedColumn(columnName, columnType, isNullable, row.DefaultValue)
+                    : new OracleDatabaseColumn(columnName, columnType, isNullable, row.DefaultValue);
 
                 result.Add(column);
             }
@@ -849,7 +849,7 @@ order by COLUMN_ID";
                         throw new Exception("Found an unsupported trigger event name. Expected one of INSERT, UPDATE, DELETE, got: " + triggerEventPiece);
                 }
 
-                var trigger = new OracleDatabaseTrigger(this, triggerName, definition, queryTiming, events, isEnabled);
+                var trigger = new OracleDatabaseTrigger(triggerName, definition, queryTiming, events, isEnabled);
                 result.Add(trigger);
             }
 
@@ -889,7 +889,7 @@ order by COLUMN_ID";
                         throw new Exception("Found an unsupported trigger event name. Expected one of INSERT, UPDATE, DELETE, got: " + triggerEventPiece);
                 }
 
-                var trigger = new OracleDatabaseTrigger(this, triggerName, definition, queryTiming, events, isEnabled);
+                var trigger = new OracleDatabaseTrigger(triggerName, definition, queryTiming, events, isEnabled);
                 result.Add(trigger);
             }
 

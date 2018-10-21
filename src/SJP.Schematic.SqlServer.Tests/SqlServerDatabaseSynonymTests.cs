@@ -36,18 +36,6 @@ namespace SJP.Schematic.SqlServer.Tests
         }
 
         [Test]
-        public static void Database_PropertyGet_EqualsCtorArg()
-        {
-            var database = Mock.Of<IRelationalDatabase>();
-            const string synonymName = "test_synonym";
-            const string targetName = "test_target";
-
-            var synonym = new SqlServerDatabaseSynonym(database, synonymName, targetName);
-
-            Assert.AreEqual(database, synonym.Database);
-        }
-
-        [Test]
         public static void Name_PropertyGet_EqualsCtorArg()
         {
             var database = Mock.Of<IRelationalDatabase>();

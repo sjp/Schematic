@@ -5,9 +5,9 @@ namespace SJP.Schematic.Modelled
 {
     public interface IRelationalDatabaseBuilder
     {
-        IRelationalDatabaseBuilder OverrideWith(IDependentRelationalDatabase database);
+        IRelationalDatabaseBuilder OverrideWith(IRelationalDatabase database);
 
-        IRelationalDatabaseBuilder OverrideWith(Func<IDependentRelationalDatabase> databaseFactory);
+        IRelationalDatabaseBuilder OverrideWith(Func<IRelationalDatabase> databaseFactory);
 
         IRelationalDatabase Build();
     }

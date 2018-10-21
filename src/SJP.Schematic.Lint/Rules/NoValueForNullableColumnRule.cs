@@ -23,11 +23,13 @@ namespace SJP.Schematic.Lint.Rules
             if (database == null)
                 throw new ArgumentNullException(nameof(database));
 
-            return database.Tables.SelectMany(AnalyseTable).ToList();
+            return database.Tables.SelectMany(t => AnalyseTable(database.Dialect, t)).ToList();
         }
 
-        protected IEnumerable<IRuleMessage> AnalyseTable(IRelationalDatabaseTable table)
+        protected IEnumerable<IRuleMessage> AnalyseTable(IDatabaseDialect dialect, IRelationalDatabaseTable table)
         {
+            if (dialect == null)
+                throw new ArgumentNullException(nameof(dialect));
             if (table == null)
                 throw new ArgumentNullException(nameof(table));
 
@@ -35,7 +37,6 @@ namespace SJP.Schematic.Lint.Rules
             if (nullableColumns.Count == 0)
                 return Array.Empty<IRuleMessage>();
 
-            var dialect = table.Database.Dialect;
             var tableRowCount = GetRowCount(dialect, table);
             if (tableRowCount == 0)
                 return Array.Empty<IRuleMessage>();

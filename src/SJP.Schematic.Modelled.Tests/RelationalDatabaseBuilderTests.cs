@@ -1,5 +1,6 @@
-﻿using NUnit.Framework;
-using System;
+﻿using System;
+using NUnit.Framework;
+using SJP.Schematic.Core;
 
 namespace SJP.Schematic.Modelled.Tests
 {
@@ -12,8 +13,8 @@ namespace SJP.Schematic.Modelled.Tests
         {
             Assert.Multiple(() =>
             {
-                Assert.Throws<ArgumentNullException>(() => new RelationalDatabaseBuilder((IDependentRelationalDatabase)null));
-                Assert.Throws<ArgumentNullException>(() => new RelationalDatabaseBuilder((Func<IDependentRelationalDatabase>)null));
+                Assert.Throws<ArgumentNullException>(() => new RelationalDatabaseBuilder((IRelationalDatabase)null));
+                Assert.Throws<ArgumentNullException>(() => new RelationalDatabaseBuilder((Func<IRelationalDatabase>)null));
             });
         }
     }

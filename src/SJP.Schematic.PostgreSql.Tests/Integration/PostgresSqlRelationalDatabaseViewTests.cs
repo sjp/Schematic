@@ -46,15 +46,6 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration
         }
 
         [Test]
-        public void Database_PropertyGet_ShouldMatchCtorArg()
-        {
-            var database = Database;
-            var view = new PostgreSqlRelationalDatabaseView(Connection, database, "view_test_view_1");
-
-            Assert.AreSame(database, view.Database);
-        }
-
-        [Test]
         public void Name_PropertyGet_ShouldEqualCtorArg()
         {
             const string viewName = "view_test_view_1";

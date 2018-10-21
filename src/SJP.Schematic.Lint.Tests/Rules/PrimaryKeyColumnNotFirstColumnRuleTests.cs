@@ -36,12 +36,12 @@ namespace SJP.Schematic.Lint.Tests.Rules
             var table = new RelationalDatabaseTable(
                 database,
                 "test",
-                new List<IDatabaseTableColumn>(),
+                new List<IDatabaseColumn>(),
                 null,
                 Array.Empty<IDatabaseKey>(),
                 Array.Empty<IDatabaseRelationalKey>(),
                 Array.Empty<IDatabaseRelationalKey>(),
-                Array.Empty<IDatabaseTableIndex>(),
+                Array.Empty<IDatabaseIndex>(),
                 Array.Empty<IDatabaseCheckConstraint>(),
                 Array.Empty<IDatabaseTrigger>()
             );
@@ -58,16 +58,14 @@ namespace SJP.Schematic.Lint.Tests.Rules
             var rule = new PrimaryKeyColumnNotFirstColumnRule(RuleLevel.Error);
             var database = CreateFakeDatabase();
 
-            var testColumn1 = new DatabaseTableColumn(
-                Mock.Of<IRelationalDatabaseTable>(),
+            var testColumn1 = new DatabaseColumn(
                 "test_column_1",
                 Mock.Of<IDbType>(),
                 false,
                 null,
                 null
             );
-            var testColumn2 = new DatabaseTableColumn(
-                Mock.Of<IRelationalDatabaseTable>(),
+            var testColumn2 = new DatabaseColumn(
                 "test_column_2",
                 Mock.Of<IDbType>(),
                 false,
@@ -75,7 +73,6 @@ namespace SJP.Schematic.Lint.Tests.Rules
                 null
             );
             var testPrimaryKey = new DatabaseKey(
-                Mock.Of<IRelationalDatabaseTable>(),
                 "test_primary_key",
                 DatabaseKeyType.Primary,
                 new[] { testColumn1, testColumn2 },
@@ -85,12 +82,12 @@ namespace SJP.Schematic.Lint.Tests.Rules
             var table = new RelationalDatabaseTable(
                 database,
                 "test",
-                new List<IDatabaseTableColumn> { testColumn1, testColumn2 },
+                new List<IDatabaseColumn> { testColumn1, testColumn2 },
                 testPrimaryKey,
                 Array.Empty<IDatabaseKey>(),
                 Array.Empty<IDatabaseRelationalKey>(),
                 Array.Empty<IDatabaseRelationalKey>(),
-                Array.Empty<IDatabaseTableIndex>(),
+                Array.Empty<IDatabaseIndex>(),
                 Array.Empty<IDatabaseCheckConstraint>(),
                 Array.Empty<IDatabaseTrigger>()
             );
@@ -107,16 +104,14 @@ namespace SJP.Schematic.Lint.Tests.Rules
             var rule = new PrimaryKeyColumnNotFirstColumnRule(RuleLevel.Error);
             var database = CreateFakeDatabase();
 
-            var testColumn1 = new DatabaseTableColumn(
-                Mock.Of<IRelationalDatabaseTable>(),
+            var testColumn1 = new DatabaseColumn(
                 "test_column_1",
                 Mock.Of<IDbType>(),
                 false,
                 null,
                 null
             );
-            var testColumn2 = new DatabaseTableColumn(
-                Mock.Of<IRelationalDatabaseTable>(),
+            var testColumn2 = new DatabaseColumn(
                 "test_column_2",
                 Mock.Of<IDbType>(),
                 false,
@@ -124,7 +119,6 @@ namespace SJP.Schematic.Lint.Tests.Rules
                 null
             );
             var testPrimaryKey = new DatabaseKey(
-                Mock.Of<IRelationalDatabaseTable>(),
                 "test_primary_key",
                 DatabaseKeyType.Primary,
                 new[] { testColumn1 },
@@ -134,12 +128,12 @@ namespace SJP.Schematic.Lint.Tests.Rules
             var table = new RelationalDatabaseTable(
                 database,
                 "test",
-                new List<IDatabaseTableColumn> { testColumn1, testColumn2 },
+                new List<IDatabaseColumn> { testColumn1, testColumn2 },
                 testPrimaryKey,
                 Array.Empty<IDatabaseKey>(),
                 Array.Empty<IDatabaseRelationalKey>(),
                 Array.Empty<IDatabaseRelationalKey>(),
-                Array.Empty<IDatabaseTableIndex>(),
+                Array.Empty<IDatabaseIndex>(),
                 Array.Empty<IDatabaseCheckConstraint>(),
                 Array.Empty<IDatabaseTrigger>()
             );
@@ -156,16 +150,14 @@ namespace SJP.Schematic.Lint.Tests.Rules
             var rule = new PrimaryKeyColumnNotFirstColumnRule(RuleLevel.Error);
             var database = CreateFakeDatabase();
 
-            var testColumn1 = new DatabaseTableColumn(
-                Mock.Of<IRelationalDatabaseTable>(),
+            var testColumn1 = new DatabaseColumn(
                 "test_column_1",
                 Mock.Of<IDbType>(),
                 false,
                 null,
                 null
             );
-            var testColumn2 = new DatabaseTableColumn(
-                Mock.Of<IRelationalDatabaseTable>(),
+            var testColumn2 = new DatabaseColumn(
                 "test_column_2",
                 Mock.Of<IDbType>(),
                 false,
@@ -173,7 +165,6 @@ namespace SJP.Schematic.Lint.Tests.Rules
                 null
             );
             var testPrimaryKey = new DatabaseKey(
-                Mock.Of<IRelationalDatabaseTable>(),
                 "test_primary_key",
                 DatabaseKeyType.Primary,
                 new[] { testColumn2 },
@@ -183,12 +174,12 @@ namespace SJP.Schematic.Lint.Tests.Rules
             var table = new RelationalDatabaseTable(
                 database,
                 "test",
-                new List<IDatabaseTableColumn> { testColumn1, testColumn2 },
+                new List<IDatabaseColumn> { testColumn1, testColumn2 },
                 testPrimaryKey,
                 Array.Empty<IDatabaseKey>(),
                 Array.Empty<IDatabaseRelationalKey>(),
                 Array.Empty<IDatabaseRelationalKey>(),
-                Array.Empty<IDatabaseTableIndex>(),
+                Array.Empty<IDatabaseIndex>(),
                 Array.Empty<IDatabaseCheckConstraint>(),
                 Array.Empty<IDatabaseTrigger>()
             );

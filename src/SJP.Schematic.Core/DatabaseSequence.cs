@@ -15,10 +15,10 @@ namespace SJP.Schematic.Core
             int cacheSize
         )
         {
+            if (database == null)
+                throw new ArgumentNullException(nameof(database));
             if (sequenceName == null)
                 throw new ArgumentNullException(nameof(sequenceName));
-
-            Database = database ?? throw new ArgumentNullException(nameof(database));
 
             var serverName = sequenceName.Server ?? database.ServerName;
             var databaseName = sequenceName.Database ?? database.DatabaseName;
@@ -55,8 +55,6 @@ namespace SJP.Schematic.Core
             MinValue = minValue;
             MaxValue = maxValue;
         }
-
-        public IRelationalDatabase Database { get; }
 
         public Identifier Name { get; }
 

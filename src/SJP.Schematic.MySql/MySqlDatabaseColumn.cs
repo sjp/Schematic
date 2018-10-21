@@ -3,9 +3,9 @@ using SJP.Schematic.Core;
 
 namespace SJP.Schematic.MySql
 {
-    public abstract class MySqlDatabaseColumn : IDatabaseColumn
+    public class MySqlDatabaseColumn : IDatabaseColumn
     {
-        protected MySqlDatabaseColumn(Identifier columnName, IDbType type, bool isNullable, string defaultValue, IAutoIncrement autoIncrement)
+        public MySqlDatabaseColumn(Identifier columnName, IDbType type, bool isNullable, string defaultValue, IAutoIncrement autoIncrement)
         {
             if (columnName == null)
                 throw new ArgumentNullException(nameof(columnName));

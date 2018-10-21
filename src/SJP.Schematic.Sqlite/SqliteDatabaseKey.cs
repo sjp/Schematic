@@ -9,7 +9,7 @@ namespace SJP.Schematic.Sqlite
 {
     public class SqliteDatabaseKey : IDatabaseKey
     {
-        public SqliteDatabaseKey(IRelationalDatabaseTable table, Identifier name, DatabaseKeyType keyType, IEnumerable<IDatabaseColumn> columns)
+        public SqliteDatabaseKey(Identifier name, DatabaseKeyType keyType, IEnumerable<IDatabaseColumn> columns)
         {
             if (columns == null || columns.Empty() || columns.AnyNull())
                 throw new ArgumentNullException(nameof(columns));
@@ -19,12 +19,9 @@ namespace SJP.Schematic.Sqlite
             if (name?.LocalName != null)
                 Name = name.LocalName; // can be null!
 
-            Table = table ?? throw new ArgumentNullException(nameof(table));
             KeyType = keyType;
             Columns = columns.ToList();
         }
-
-        public IRelationalDatabaseTable Table { get; }
 
         public Identifier Name { get; }
 

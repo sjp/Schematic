@@ -5,11 +5,7 @@ using SJP.Schematic.Core;
 
 namespace SJP.Schematic.Reporting.Html.ViewModels.Mappers
 {
-    internal sealed class MainModelMapper :
-        IDatabaseModelMapper<IRelationalDatabaseTable, Main.Table>,
-        IDatabaseModelMapper<IRelationalDatabaseView, Main.View>,
-        IDatabaseModelMapper<IDatabaseSynonym, Main.Synonym>,
-        IDatabaseModelMapper<IDatabaseSequence, Main.Sequence>
+    internal sealed class MainModelMapper
     {
         public MainModelMapper(IDbConnection connection, IRelationalDatabase database)
         {
@@ -21,24 +17,24 @@ namespace SJP.Schematic.Reporting.Html.ViewModels.Mappers
 
         private IRelationalDatabase Database { get; }
 
-        public Main.Table Map(IRelationalDatabaseTable dbObject)
+        public Main.Table Map(IRelationalDatabaseTable table)
         {
-            if (dbObject == null)
-                throw new ArgumentNullException(nameof(dbObject));
+            if (table == null)
+                throw new ArgumentNullException(nameof(table));
 
-            var parentKeyLookup = dbObject.ParentKey;
+            var parentKeyLookup = table.ParentKey;
             var parentKeyCount = parentKeyLookup.UCount();
 
-            var childKeys = dbObject.ChildKeys;
+            var childKeys = table.ChildKeys;
             var childKeyCount = childKeys.UCount();
 
-            var columnLookup = dbObject.Column;
+            var columnLookup = table.Column;
             var columnCount = columnLookup.UCount();
 
-            var rowCount = Connection.GetRowCount(Database.Dialect, dbObject.Name);
+            var rowCount = Connection.GetRowCount(Database.Dialect, table.Name);
 
             return new Main.Table(
-                dbObject.Name,
+                table.Name,
                 parentKeyCount,
                 childKeyCount,
                 columnCount,
@@ -46,29 +42,29 @@ namespace SJP.Schematic.Reporting.Html.ViewModels.Mappers
             );
         }
 
-        public Task<Main.Table> MapAsync(IRelationalDatabaseTable dbObject)
+        public Task<Main.Table> MapAsync(IRelationalDatabaseTable table)
         {
-            if (dbObject == null)
-                throw new ArgumentNullException(nameof(dbObject));
+            if (table == null)
+                throw new ArgumentNullException(nameof(table));
 
-            return MapAsyncCore(dbObject);
+            return MapAsyncCore(table);
         }
 
-        private async Task<Main.Table> MapAsyncCore(IRelationalDatabaseTable dbObject)
+        private async Task<Main.Table> MapAsyncCore(IRelationalDatabaseTable table)
         {
-            var parentKeyLookup = await dbObject.ParentKeyAsync().ConfigureAwait(false);
+            var parentKeyLookup = await table.ParentKeyAsync().ConfigureAwait(false);
             var parentKeyCount = parentKeyLookup.UCount();
 
-            var childKeys = await dbObject.ChildKeysAsync().ConfigureAwait(false);
+            var childKeys = await table.ChildKeysAsync().ConfigureAwait(false);
             var childKeyCount = childKeys.UCount();
 
-            var columnLookup = await dbObject.ColumnAsync().ConfigureAwait(false);
+            var columnLookup = await table.ColumnAsync().ConfigureAwait(false);
             var columnCount = columnLookup.UCount();
 
-            var rowCount = await Connection.GetRowCountAsync(Database.Dialect, dbObject.Name).ConfigureAwait(false);
+            var rowCount = await Connection.GetRowCountAsync(Database.Dialect, table.Name).ConfigureAwait(false);
 
             return new Main.Table(
-                dbObject.Name,
+                table.Name,
                 parentKeyCount,
                 childKeyCount,
                 columnCount,
@@ -76,72 +72,72 @@ namespace SJP.Schematic.Reporting.Html.ViewModels.Mappers
             );
         }
 
-        public Main.View Map(IRelationalDatabaseView dbObject)
+        public Main.View Map(IRelationalDatabaseView view)
         {
-            if (dbObject == null)
-                throw new ArgumentNullException(nameof(dbObject));
+            if (view == null)
+                throw new ArgumentNullException(nameof(view));
 
-            var columnLookup = dbObject.Column;
+            var columnLookup = view.Column;
             var columnCount = columnLookup.UCount();
-            var rowCount = Connection.GetRowCount(Database.Dialect, dbObject.Name);
+            var rowCount = Connection.GetRowCount(Database.Dialect, view.Name);
 
-            return new Main.View(dbObject.Name, columnCount, rowCount);
+            return new Main.View(view.Name, columnCount, rowCount);
         }
 
-        public Task<Main.View> MapAsync(IRelationalDatabaseView dbObject)
+        public Task<Main.View> MapAsync(IRelationalDatabaseView view)
         {
-            if (dbObject == null)
-                throw new ArgumentNullException(nameof(dbObject));
+            if (view == null)
+                throw new ArgumentNullException(nameof(view));
 
-            return MapAsyncCore(dbObject);
+            return MapAsyncCore(view);
         }
 
-        private async Task<Main.View> MapAsyncCore(IRelationalDatabaseView dbObject)
+        private async Task<Main.View> MapAsyncCore(IRelationalDatabaseView view)
         {
-            var columnLookup = await dbObject.ColumnAsync().ConfigureAwait(false);
+            var columnLookup = await view.ColumnAsync().ConfigureAwait(false);
             var columnCount = columnLookup.UCount();
-            var rowCount = await Connection.GetRowCountAsync(Database.Dialect, dbObject.Name).ConfigureAwait(false);
+            var rowCount = await Connection.GetRowCountAsync(Database.Dialect, view.Name).ConfigureAwait(false);
 
-            return new Main.View(dbObject.Name, columnCount, rowCount);
+            return new Main.View(view.Name, columnCount, rowCount);
         }
 
-        public Main.Sequence Map(IDatabaseSequence dbObject)
+        public Main.Sequence Map(IDatabaseSequence sequence)
         {
-            if (dbObject == null)
-                throw new ArgumentNullException(nameof(dbObject));
+            if (sequence == null)
+                throw new ArgumentNullException(nameof(sequence));
 
             return new Main.Sequence(
-                dbObject.Name,
-                dbObject.Start,
-                dbObject.Increment,
-                dbObject.MinValue,
-                dbObject.MaxValue,
-                dbObject.Cache,
-                dbObject.Cycle
+                sequence.Name,
+                sequence.Start,
+                sequence.Increment,
+                sequence.MinValue,
+                sequence.MaxValue,
+                sequence.Cache,
+                sequence.Cycle
             );
         }
 
-        public Main.Synonym Map(IDatabaseSynonym dbObject)
+        public Main.Synonym Map(IDatabaseSynonym synonym)
         {
-            if (dbObject == null)
-                throw new ArgumentNullException(nameof(dbObject));
+            if (synonym == null)
+                throw new ArgumentNullException(nameof(synonym));
 
-            var targetUrl = GetSynonymTargetUrl(dbObject.Target);
-            return new Main.Synonym(dbObject.Name, dbObject.Target, targetUrl);
+            var targetUrl = GetSynonymTargetUrl(synonym.Target);
+            return new Main.Synonym(synonym.Name, synonym.Target, targetUrl);
         }
 
-        public Task<Main.Synonym> MapAsync(IDatabaseSynonym dbObject)
+        public Task<Main.Synonym> MapAsync(IDatabaseSynonym synonym)
         {
-            if (dbObject == null)
-                throw new ArgumentNullException(nameof(dbObject));
+            if (synonym == null)
+                throw new ArgumentNullException(nameof(synonym));
 
-            return MapAsyncCore(dbObject);
+            return MapAsyncCore(synonym);
         }
 
-        private async Task<Main.Synonym> MapAsyncCore(IDatabaseSynonym dbObject)
+        private async Task<Main.Synonym> MapAsyncCore(IDatabaseSynonym synonym)
         {
-            var targetUrl = await GetSynonymTargetUrlAsync(dbObject.Target).ConfigureAwait(false);
-            return new Main.Synonym(dbObject.Name, dbObject.Target, targetUrl);
+            var targetUrl = await GetSynonymTargetUrlAsync(synonym.Target).ConfigureAwait(false);
+            return new Main.Synonym(synonym.Name, synonym.Target, targetUrl);
         }
 
         private Uri GetSynonymTargetUrl(Identifier identifier)

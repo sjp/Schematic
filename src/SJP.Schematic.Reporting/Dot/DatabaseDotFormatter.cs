@@ -81,7 +81,7 @@ namespace SJP.Schematic.Reporting.Dot
                 if (primaryKey != null)
                 {
                     var primaryKeyNameText = primaryKey.Name == null
-                        ? primaryKey.GetKeyHash().ToString()
+                        ? primaryKey.GetKeyHash(table.Name).ToString()
                         : primaryKey.Name.LocalName;
 
                     var primaryKeyConstraint = new TableConstraint(
@@ -97,7 +97,7 @@ namespace SJP.Schematic.Reporting.Dot
                 foreach (var uniqueKey in uniqueKeys)
                 {
                     var uniqueKeyNameText = uniqueKey.Name == null
-                        ? uniqueKey.GetKeyHash().ToString()
+                        ? uniqueKey.GetKeyHash(table.Name).ToString()
                         : uniqueKey.Name.LocalName;
 
                     var uniqueKeyConstraint = new TableConstraint(
@@ -115,18 +115,18 @@ namespace SJP.Schematic.Reporting.Dot
                     var childKey = relationalKey.ChildKey;
                     var parentKey = relationalKey.ParentKey;
 
-                    var hasParentKey = tableNames.Contains(parentKey.Table.Name);
+                    var hasParentKey = tableNames.Contains(relationalKey.ParentTable);
                     if (!hasParentKey)
                         continue;
 
-                    var childKeyTableName = childKey.Table.Name.ToSafeKey();
+                    var childKeyTableName = relationalKey.ChildTable.ToSafeKey();
                     var childKeyName = childKey.Name == null
-                        ? childKey.GetKeyHash().ToString()
+                        ? childKey.GetKeyHash(relationalKey.ChildTable).ToString()
                         : childKey.Name.LocalName;
 
-                    var parentKeyTableName = parentKey.Table.Name.ToSafeKey();
+                    var parentKeyTableName = relationalKey.ParentTable.ToSafeKey();
                     var parentKeyName = parentKey.Name == null
-                        ? parentKey.GetKeyHash().ToString()
+                        ? parentKey.GetKeyHash(relationalKey.ParentTable).ToString()
                         : parentKey.Name.LocalName;
 
                     var childKeyToParentKeyEdge = new DotEdge(
@@ -277,7 +277,7 @@ namespace SJP.Schematic.Reporting.Dot
                 if (primaryKey != null)
                 {
                     var primaryKeyNameText = primaryKey.Name == null
-                        ? primaryKey.GetKeyHash().ToString()
+                        ? primaryKey.GetKeyHash(table.Name).ToString()
                         : primaryKey.Name.LocalName;
 
                     var primaryKeyConstraint = new TableConstraint(
@@ -293,7 +293,7 @@ namespace SJP.Schematic.Reporting.Dot
                 foreach (var uniqueKey in uniqueKeys)
                 {
                     var uniqueKeyNameText = uniqueKey.Name == null
-                        ? uniqueKey.GetKeyHash().ToString()
+                        ? uniqueKey.GetKeyHash(table.Name).ToString()
                         : uniqueKey.Name.LocalName;
 
                     var uniqueKeyConstraint = new TableConstraint(
@@ -311,18 +311,18 @@ namespace SJP.Schematic.Reporting.Dot
                     var childKey = relationalKey.ChildKey;
                     var parentKey = relationalKey.ParentKey;
 
-                    var hasParentKey = tableNames.Contains(parentKey.Table.Name);
+                    var hasParentKey = tableNames.Contains(relationalKey.ParentTable);
                     if (!hasParentKey)
                         continue;
 
-                    var childKeyTableName = childKey.Table.Name.ToSafeKey();
+                    var childKeyTableName = relationalKey.ChildTable.ToSafeKey();
                     var childKeyName = childKey.Name == null
-                        ? childKey.GetKeyHash().ToString()
+                        ? childKey.GetKeyHash(relationalKey.ChildTable).ToString()
                         : childKey.Name.LocalName;
 
-                    var parentKeyTableName = parentKey.Table.Name.ToSafeKey();
+                    var parentKeyTableName = relationalKey.ParentTable.ToSafeKey();
                     var parentKeyName = parentKey.Name == null
-                        ? parentKey.GetKeyHash().ToString()
+                        ? parentKey.GetKeyHash(relationalKey.ParentTable).ToString()
                         : parentKey.Name.LocalName;
 
                     var childKeyToParentKeyEdge = new DotEdge(

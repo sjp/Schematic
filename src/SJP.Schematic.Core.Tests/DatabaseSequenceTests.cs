@@ -28,15 +28,6 @@ namespace SJP.Schematic.Core.Tests
         }
 
         [Test]
-        public static void Database_PropertyGet_ShouldMatchCtorArg()
-        {
-            var database = Mock.Of<IRelationalDatabase>();
-            var sequence = new DatabaseSequence(database, "test", 1, 1, null, null, true, 0);
-
-            Assert.AreSame(database, sequence.Database);
-        }
-
-        [Test]
         public static void Name_GivenLocalNameOnlyInCtor_ShouldBeQualifiedCorrectly()
         {
             var databaseMock = new Mock<IRelationalDatabase>();

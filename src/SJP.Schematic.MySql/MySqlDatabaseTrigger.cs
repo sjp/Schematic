@@ -7,7 +7,7 @@ namespace SJP.Schematic.MySql
 {
     public class MySqlDatabaseTrigger : IDatabaseTrigger
     {
-        public MySqlDatabaseTrigger(IRelationalDatabaseTable table, Identifier name, string definition, TriggerQueryTiming queryTiming, TriggerEvent events)
+        public MySqlDatabaseTrigger(Identifier name, string definition, TriggerQueryTiming queryTiming, TriggerEvent events)
         {
             if (name == null)
                 throw new ArgumentNullException(nameof(name));
@@ -20,7 +20,6 @@ namespace SJP.Schematic.MySql
             if (events == TriggerEvent.None)
                 throw new ArgumentException("Invalid trigger event flags given. Must include at least one event, e.g. INSERT, DELETE, UPDATE.", nameof(events));
 
-            Table = table ?? throw new ArgumentNullException(nameof(table));
             Name = name.LocalName;
             Definition = definition;
             QueryTiming = queryTiming;
@@ -34,8 +33,6 @@ namespace SJP.Schematic.MySql
         public TriggerQueryTiming QueryTiming { get; }
 
         public TriggerEvent TriggerEvent { get; }
-
-        public IRelationalDatabaseTable Table { get; }
 
         public bool IsEnabled { get; } = true;
     }

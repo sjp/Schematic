@@ -1,6 +1,6 @@
 ﻿namespace SJP.Schematic.Core
 {
-    public interface IDatabaseComputedColumn : IDatabaseTableColumn
+    public interface IDatabaseComputedColumn : IDatabaseColumn
     {
         string Definition { get; }
     }

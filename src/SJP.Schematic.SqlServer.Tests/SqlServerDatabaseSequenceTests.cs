@@ -37,18 +37,6 @@ namespace SJP.Schematic.SqlServer.Tests
         }
 
         [Test]
-        public static void Database_PropertyGet_EqualsCtorArg()
-        {
-            var connection = Mock.Of<IDbConnection>();
-            var database = Mock.Of<IRelationalDatabase>();
-            const string sequenceName = "test_sequence";
-
-            var sequence = new SqlServerDatabaseSequence(connection, database, sequenceName);
-
-            Assert.AreEqual(database, sequence.Database);
-        }
-
-        [Test]
         public static void Name_PropertyGet_EqualsCtorArg()
         {
             var connection = Mock.Of<IDbConnection>();

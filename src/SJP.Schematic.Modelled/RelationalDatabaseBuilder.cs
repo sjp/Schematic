@@ -8,24 +8,24 @@ namespace SJP.Schematic.Modelled
 {
     public class RelationalDatabaseBuilder : IRelationalDatabaseBuilder
     {
-        public RelationalDatabaseBuilder(IDependentRelationalDatabase database)
+        public RelationalDatabaseBuilder(IRelationalDatabase database)
         {
             if (database == null)
                 throw new ArgumentNullException(nameof(database));
 
-            _databases = new List<IDependentRelationalDatabase> { database };
+            _databases = new List<IRelationalDatabase> { database };
         }
 
-        public RelationalDatabaseBuilder(Func<IDependentRelationalDatabase> databaseFactory)
+        public RelationalDatabaseBuilder(Func<IRelationalDatabase> databaseFactory)
         {
             if (databaseFactory == null)
                 throw new ArgumentNullException(nameof(databaseFactory));
 
             var result = databaseFactory.Invoke();
-            _databases = new List<IDependentRelationalDatabase> { result };
+            _databases = new List<IRelationalDatabase> { result };
         }
 
-        protected RelationalDatabaseBuilder(IEnumerable<IDependentRelationalDatabase> databases)
+        protected RelationalDatabaseBuilder(IEnumerable<IRelationalDatabase> databases)
         {
             if (databases == null)
                 throw new ArgumentNullException(nameof(databases));
@@ -35,27 +35,27 @@ namespace SJP.Schematic.Modelled
             _databases = databases.ToList();
         }
 
-        public IRelationalDatabaseBuilder OverrideWith(IDependentRelationalDatabase database)
+        public IRelationalDatabaseBuilder OverrideWith(IRelationalDatabase database)
         {
             if (database == null)
                 throw new ArgumentNullException(nameof(database));
 
-            var appendedDatabases = new List<IDependentRelationalDatabase>(_databases) { database };
+            var appendedDatabases = new List<IRelationalDatabase>(_databases) { database };
             return new RelationalDatabaseBuilder(appendedDatabases);
         }
 
-        public IRelationalDatabaseBuilder OverrideWith(Func<IDependentRelationalDatabase> databaseFactory)
+        public IRelationalDatabaseBuilder OverrideWith(Func<IRelationalDatabase> databaseFactory)
         {
             if (databaseFactory == null)
                 throw new ArgumentNullException(nameof(databaseFactory));
 
             var result = databaseFactory.Invoke();
-            var appendedDatabases = new List<IDependentRelationalDatabase>(_databases) { result };
+            var appendedDatabases = new List<IRelationalDatabase>(_databases) { result };
             return new RelationalDatabaseBuilder(appendedDatabases);
         }
 
         public IRelationalDatabase Build() => new OrderedRelationalDatabase(_databases.Reverse());
 
-        private readonly IList<IDependentRelationalDatabase> _databases;
+        private readonly IList<IRelationalDatabase> _databases;
     }
 }
