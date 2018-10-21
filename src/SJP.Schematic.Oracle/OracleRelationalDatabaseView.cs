@@ -95,8 +95,6 @@ where OWNER = :SchemaName and VIEW_NAME = :ViewName";
                     .Select(row => new OracleDatabaseIndexColumn(row.Column, row.IsDescending == "Y" ? IndexColumnOrder.Descending : IndexColumnOrder.Ascending))
                     .ToList();
 
-                // TODO: Merge index definitions so that views and tables can be shared (but typed)
-                //       Use generics for Parent<T> ?
                 var index = new OracleDatabaseIndex(indexName, isUnique, indexCols, indexProperties);
                 result.Add(index);
             }
@@ -128,8 +126,6 @@ where OWNER = :SchemaName and VIEW_NAME = :ViewName";
                     .Select(row => new OracleDatabaseIndexColumn(row.Column, row.IsDescending == "Y" ? IndexColumnOrder.Descending : IndexColumnOrder.Ascending))
                     .ToList();
 
-                // TODO: Merge index definitions so that views and tables can be shared (but typed)
-                //       Use generics for Parent<T> ?
                 var index = new OracleDatabaseIndex(indexName, isUnique, indexCols, indexProperties);
                 result.Add(index);
             }

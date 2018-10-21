@@ -9,8 +9,7 @@ using SJP.Schematic.Core.Utilities;
 
 namespace SJP.Schematic.Modelled.Reflection
 {
-    // TODO: uncomment interface when ready
-    public class ReflectionRelationalDatabase : IRelationalDatabase //, IDependentRelationalDatabase
+    public class ReflectionRelationalDatabase : IRelationalDatabase
     {
         public ReflectionRelationalDatabase(IDatabaseDialect dialect, Type databaseDefinitionType, string serverName = null, string databaseName = null, string defaultSchema = null, IEqualityComparer<Identifier> comparer = null)
         {

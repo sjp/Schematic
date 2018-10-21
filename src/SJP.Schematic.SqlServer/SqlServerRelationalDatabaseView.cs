@@ -111,8 +111,6 @@ where schema_name(v.schema_id) = @SchemaName and v.name = @ViewName";
                     .Select(row => viewColumns[row.ColumnName])
                     .ToList();
 
-                // TODO: Merge index definitions so that views and tables can be shared (but typed)
-                //       Use generics for Parent<T> ?
                 var index = new SqlServerDatabaseIndex(indexName, isUnique, indexCols, includedCols, isEnabled);
                 result.Add(index);
             }
@@ -153,8 +151,6 @@ where schema_name(v.schema_id) = @SchemaName and v.name = @ViewName";
                     .Select(row => viewColumns[row.ColumnName])
                     .ToList();
 
-                // TODO: Merge index definitions so that views and tables can be shared (but typed)
-                //       Use generics for Parent<T> ?
                 var index = new SqlServerDatabaseIndex(indexName, isUnique, indexCols, includedCols, isEnabled);
                 result.Add(index);
             }
