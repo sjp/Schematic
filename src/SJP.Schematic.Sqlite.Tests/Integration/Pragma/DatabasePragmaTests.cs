@@ -7,7 +7,6 @@ using System.Linq;
 using System.Data;
 using Microsoft.Data.Sqlite;
 using SJP.Schematic.Sqlite.Pragma;
-using Moq;
 
 namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
 {
