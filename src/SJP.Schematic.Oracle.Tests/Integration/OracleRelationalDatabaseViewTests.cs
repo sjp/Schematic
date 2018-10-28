@@ -29,33 +29,6 @@ namespace SJP.Schematic.Oracle.Tests.Integration
         }
 
         [Test]
-        public void Ctor_GivenNullConnection_ThrowsArgNullException()
-        {
-            Assert.Throws<ArgumentNullException>(() => new OracleRelationalDatabaseView(null, Dialect.TypeProvider, "test"));
-        }
-
-        [Test]
-        public void Ctor_GivenNullTypeProvider_ThrowsArgNullException()
-        {
-            Assert.Throws<ArgumentNullException>(() => new OracleRelationalDatabaseView(Connection, null, "test"));
-        }
-
-        [Test]
-        public void Ctor_GivenNullName_ThrowsArgNullException()
-        {
-            Assert.Throws<ArgumentNullException>(() => new OracleRelationalDatabaseView(Connection, Dialect.TypeProvider, null));
-        }
-
-        [Test]
-        public void Name_PropertyGet_ShouldEqualCtorArg()
-        {
-            var viewName = new Identifier("VIEW_TEST_VIEW_1");
-            var view = new OracleRelationalDatabaseView(Connection, Dialect.TypeProvider, viewName);
-
-            Assert.AreEqual(viewName, view.Name);
-        }
-
-        [Test]
         public void Definition_PropertyGet_ReturnsCorrectDefinition()
         {
             var database = Database;

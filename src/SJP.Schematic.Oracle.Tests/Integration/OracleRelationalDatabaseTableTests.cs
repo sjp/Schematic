@@ -297,38 +297,5 @@ end;
             await Connection.ExecuteAsync("drop table trigger_test_table_1").ConfigureAwait(false);
             await Connection.ExecuteAsync("drop table trigger_test_table_2").ConfigureAwait(false);
         }
-
-        [Test]
-        public void Ctor_GivenNullConnection_ThrowsArgNullException()
-        {
-            Assert.Throws<ArgumentNullException>(() => new OracleRelationalDatabaseTable(null, Database, Dialect.TypeProvider, "test"));
-        }
-
-        [Test]
-        public void Ctor_GivenNullDatabase_ThrowsArgNullException()
-        {
-            Assert.Throws<ArgumentNullException>(() => new OracleRelationalDatabaseTable(Connection, null, Dialect.TypeProvider, "test"));
-        }
-
-        [Test]
-        public void Ctor_GivenNullTypeProvider_ThrowsArgNullException()
-        {
-            Assert.Throws<ArgumentNullException>(() => new OracleRelationalDatabaseTable(Connection, Database, null, "test"));
-        }
-
-        [Test]
-        public void Ctor_GivenNullName_ThrowsArgNullException()
-        {
-            Assert.Throws<ArgumentNullException>(() => new OracleRelationalDatabaseTable(Connection, Database, Dialect.TypeProvider, null));
-        }
-
-        [Test]
-        public void Name_PropertyGet_ShouldEqualCtorArg()
-        {
-            var tableName = new Identifier("table_test_table_1");
-            var table = new OracleRelationalDatabaseTable(Connection, Database, Dialect.TypeProvider, tableName);
-
-            Assert.AreEqual(tableName, table.Name);
-        }
     }
 }

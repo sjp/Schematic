@@ -23,56 +23,6 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
         private const string MainSchema = "main";
 
         [Test]
-        public static void Ctor_GivenNullDialect_ThrowsArgumentNullException()
-        {
-            var connection = Mock.Of<IDbConnection>();
-            Assert.Throws<ArgumentNullException>(() => new DatabasePragma(null, connection, "main"));
-        }
-
-        [Test]
-        public static void Ctor_GivenNullConnection_ThrowsArgumentNullException()
-        {
-            var dialect = Mock.Of<IDatabaseDialect>();
-            Assert.Throws<ArgumentNullException>(() => new DatabasePragma(dialect, null, "main"));
-        }
-
-        [Test]
-        public static void Ctor_GivenNullSchemaName_ThrowsArgumentNullException()
-        {
-            var dialect = Mock.Of<IDatabaseDialect>();
-            var connection = Mock.Of<IDbConnection>();
-            Assert.Throws<ArgumentNullException>(() => new DatabasePragma(dialect, connection, null));
-        }
-
-        [Test]
-        public static void Ctor_GivenEmptySchemaName_ThrowsArgumentNullException()
-        {
-            var dialect = Mock.Of<IDatabaseDialect>();
-            var connection = Mock.Of<IDbConnection>();
-            Assert.Throws<ArgumentNullException>(() => new DatabasePragma(dialect, connection, string.Empty));
-        }
-
-        [Test]
-        public static void Ctor_GivenWhiteSpaceSchemaName_ThrowsArgumentNullException()
-        {
-            var dialect = Mock.Of<IDatabaseDialect>();
-            var connection = Mock.Of<IDbConnection>();
-            Assert.Throws<ArgumentNullException>(() => new DatabasePragma(dialect, connection, "      "));
-        }
-
-        [Test]
-        public static void SchemaName_PropertyGet_MatchesCtorArg()
-        {
-            var dialect = Mock.Of<IDatabaseDialect>();
-            var connection = Mock.Of<IDbConnection>();
-
-            const string schemaName = "asd";
-            var dbPragma = new DatabasePragma(dialect, connection, "asd");
-
-            Assert.AreEqual(schemaName, dbPragma.SchemaName);
-        }
-
-        [Test]
         public void ApplicationId_PropertyGetAndSet_ReadsAndWritesCorrectly()
         {
             using (var connection = CreateConnection())
@@ -920,8 +870,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
                 var dbPragma = new DatabasePragma(Dialect, connection, MainSchema);
 
                 var lockingMode = dbPragma.LockingMode; // should be normal
-                const LockingMode newValue = LockingMode.Exclusive;
-                dbPragma.LockingMode = newValue;
+                dbPragma.LockingMode = LockingMode.Exclusive;
                 var readOfNewValue = dbPragma.LockingMode;
 
                 Assert.Pass(); // not checking value as it's a once-only effect

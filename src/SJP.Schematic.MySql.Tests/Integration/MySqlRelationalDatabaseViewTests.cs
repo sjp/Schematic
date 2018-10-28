@@ -28,33 +28,6 @@ namespace SJP.Schematic.MySql.Tests.Integration
         }
 
         [Test]
-        public void Ctor_GivenNullConnection_ThrowsArgNullException()
-        {
-            Assert.Throws<ArgumentNullException>(() => new MySqlRelationalDatabaseView(null, Dialect.TypeProvider, "test"));
-        }
-
-        [Test]
-        public void Ctor_GivenNullTypeProvider_ThrowsArgNullException()
-        {
-            Assert.Throws<ArgumentNullException>(() => new MySqlRelationalDatabaseView(Connection, null, "test"));
-        }
-
-        [Test]
-        public void Ctor_GivenNullName_ThrowsArgNullException()
-        {
-            Assert.Throws<ArgumentNullException>(() => new MySqlRelationalDatabaseView(Connection, Dialect.TypeProvider, null));
-        }
-
-        [Test]
-        public void Name_PropertyGet_ShouldEqualCtorArg()
-        {
-            var viewName = new Identifier("view_test_view_1");
-            var view = new MySqlRelationalDatabaseView(Connection, Dialect.TypeProvider, viewName);
-
-            Assert.AreEqual(viewName, view.Name);
-        }
-
-        [Test]
         public void Definition_PropertyGet_ReturnsCorrectDefinition()
         {
             var viewName = new Identifier(Database.DefaultSchema, "view_test_view_1");

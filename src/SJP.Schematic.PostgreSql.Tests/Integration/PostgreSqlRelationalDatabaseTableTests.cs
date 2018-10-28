@@ -294,38 +294,5 @@ execute procedure test_trigger_fn()").ConfigureAwait(false);
             await Connection.ExecuteAsync("drop table trigger_test_table_2").ConfigureAwait(false);
             await Connection.ExecuteAsync("drop function test_trigger_fn()").ConfigureAwait(false);
         }
-
-        [Test]
-        public void Ctor_GivenNullConnection_ThrowsArgNullException()
-        {
-            Assert.Throws<ArgumentNullException>(() => new PostgreSqlRelationalDatabaseTable(null, Database, Dialect.TypeProvider, "test"));
-        }
-
-        [Test]
-        public void Ctor_GivenNullDatabase_ThrowsArgNullException()
-        {
-            Assert.Throws<ArgumentNullException>(() => new PostgreSqlRelationalDatabaseTable(Connection, null, Dialect.TypeProvider, "test"));
-        }
-
-        [Test]
-        public void Ctor_GivenNullTypeProvider_ThrowsArgNullException()
-        {
-            Assert.Throws<ArgumentNullException>(() => new PostgreSqlRelationalDatabaseTable(Connection, Database, null, "test"));
-        }
-
-        [Test]
-        public void Ctor_GivenNullName_ThrowsArgNullException()
-        {
-            Assert.Throws<ArgumentNullException>(() => new PostgreSqlRelationalDatabaseTable(Connection, Database, Dialect.TypeProvider, null));
-        }
-
-        [Test]
-        public void Name_PropertyGet_ShouldEqualCtorArg()
-        {
-            var tableName = new Identifier("table_test_table_1");
-            var table = new PostgreSqlRelationalDatabaseTable(Connection, Database, Dialect.TypeProvider, tableName);
-
-            Assert.AreEqual(tableName, table.Name);
-        }
     }
 }

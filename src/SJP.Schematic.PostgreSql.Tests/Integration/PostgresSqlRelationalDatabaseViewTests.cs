@@ -28,33 +28,6 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration
         }
 
         [Test]
-        public void Ctor_GivenNullConnection_ThrowsArgNullException()
-        {
-            Assert.Throws<ArgumentNullException>(() => new PostgreSqlRelationalDatabaseView(null, Dialect.TypeProvider, "test"));
-        }
-
-        [Test]
-        public void Ctor_GivenNullTypeProvider_ThrowsArgNullException()
-        {
-            Assert.Throws<ArgumentNullException>(() => new PostgreSqlRelationalDatabaseView(Connection, null, "test"));
-        }
-
-        [Test]
-        public void Ctor_GivenNullName_ThrowsArgNullException()
-        {
-            Assert.Throws<ArgumentNullException>(() => new PostgreSqlRelationalDatabaseView(Connection, Dialect.TypeProvider, null));
-        }
-
-        [Test]
-        public void Name_PropertyGet_ShouldEqualCtorArg()
-        {
-            var viewName = new Identifier("view_test_view_1");
-            var view = new PostgreSqlRelationalDatabaseView(Connection, Dialect.TypeProvider, viewName);
-
-            Assert.AreEqual(viewName, view.Name);
-        }
-
-        [Test]
         public void Definition_PropertyGet_ReturnsCorrectDefinition()
         {
             var database = Database;

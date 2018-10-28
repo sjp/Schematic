@@ -12,11 +12,8 @@ namespace SJP.Schematic.Sqlite.Tests
         [Test]
         public static void Ctor_GivenNullConnection_ThrowsArgNullException()
         {
+            var dialect = Mock.Of<IDatabaseDialect>();
             var dbMock = new Mock<IRelationalDatabase>();
-            var dialectMock = new Mock<IDatabaseDialect>();
-            var typeProvider = Mock.Of<IDbTypeProvider>();
-            dialectMock.SetupGet(d => d.TypeProvider).Returns(typeProvider);
-            var dialect = dialectMock.Object;
             dbMock.SetupGet(db => db.Dialect).Returns(dialect);
             var database = dbMock.Object;
 
@@ -35,7 +32,10 @@ namespace SJP.Schematic.Sqlite.Tests
         public static void Ctor_GivenNullName_ThrowsArgNullException()
         {
             var connection = Mock.Of<IDbConnection>();
-            var database = Mock.Of<IRelationalDatabase>();
+            var dialect = Mock.Of<IDatabaseDialect>();
+            var dbMock = new Mock<IRelationalDatabase>();
+            dbMock.SetupGet(db => db.Dialect).Returns(dialect);
+            var database = dbMock.Object;
 
             Assert.Throws<ArgumentNullException>(() => new SqliteRelationalDatabaseTable(connection, database, null));
         }
@@ -54,17 +54,60 @@ namespace SJP.Schematic.Sqlite.Tests
         {
             var connection = Mock.Of<IDbConnection>();
             var dbMock = new Mock<IRelationalDatabase>();
-            var dialectMock = new Mock<IDatabaseDialect>();
-            var typeProvider = Mock.Of<IDbTypeProvider>();
-            dialectMock.SetupGet(d => d.TypeProvider).Returns(typeProvider);
-            var dialect = dialectMock.Object;
+            var dialect = Mock.Of<IDatabaseDialect>();
             dbMock.SetupGet(db => db.Dialect).Returns(dialect);
             var database = dbMock.Object;
-            var tableName = new Identifier("main", "table_test_table_1");
+            var tableName = new Identifier("main", "test_1");
 
             var table = new SqliteRelationalDatabaseTable(connection, database, tableName);
 
-            Assert.AreEqual(tableName.LocalName, table.Name.LocalName);
+            Assert.AreEqual(tableName, table.Name);
+        }
+
+        public static void Name_GivenSchemaAndLocalNameOnlyInCtor_ShouldMatchArg()
+        {
+            var connection = Mock.Of<IDbConnection>();
+            var dbMock = new Mock<IRelationalDatabase>();
+            var dialect = Mock.Of<IDatabaseDialect>();
+            dbMock.SetupGet(db => db.Dialect).Returns(dialect);
+            var database = dbMock.Object;
+            var tableName = new Identifier("asd", "table_test_table_1");
+
+            var table = new SqliteRelationalDatabaseTable(connection, database, tableName);
+
+            Assert.AreEqual(tableName, table.Name);
+        }
+
+        [Test]
+        public static void Name_GivenDatabaseAndSchemaAndLocalNameInCtor_ShouldBeOnlySchemaAndLocalName()
+        {
+            var connection = Mock.Of<IDbConnection>();
+            var dbMock = new Mock<IRelationalDatabase>();
+            var dialect = Mock.Of<IDatabaseDialect>();
+            dbMock.SetupGet(db => db.Dialect).Returns(dialect);
+            var database = dbMock.Object;
+            var tableName = new Identifier("qwe", "asd", "table_test_table_1");
+            var expectedTableName = new Identifier("asd", "table_test_table_1");
+
+            var table = new SqliteRelationalDatabaseTable(connection, database, tableName);
+
+            Assert.AreEqual(expectedTableName, table.Name);
+        }
+
+        [Test]
+        public static void Name_GivenFullyQualifiedNameInCtor_ShouldBeOnlySchemaAndLocalName()
+        {
+            var connection = Mock.Of<IDbConnection>();
+            var dbMock = new Mock<IRelationalDatabase>();
+            var dialect = Mock.Of<IDatabaseDialect>();
+            dbMock.SetupGet(db => db.Dialect).Returns(dialect);
+            var database = dbMock.Object;
+            var tableName = new Identifier("qwe", "asd", "zxc", "table_test_table_1");
+            var expectedTableName = new Identifier("zxc", "table_test_table_1");
+
+            var table = new SqliteRelationalDatabaseTable(connection, database, tableName);
+
+            Assert.AreEqual(expectedTableName, table.Name);
         }
     }
 }

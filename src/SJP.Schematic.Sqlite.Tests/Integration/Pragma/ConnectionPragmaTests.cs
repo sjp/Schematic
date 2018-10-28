@@ -22,20 +22,6 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
         }
 
         [Test]
-        public static void Ctor_GivenNullDialect_ThrowsArgumentNullException()
-        {
-            var connection = Mock.Of<IDbConnection>();
-            Assert.Throws<ArgumentNullException>(() => new ConnectionPragma(null, connection));
-        }
-
-        [Test]
-        public static void Ctor_GivenNullConnection_ThrowsArgumentNullException()
-        {
-            var dialect = Mock.Of<IDatabaseDialect>();
-            Assert.Throws<ArgumentNullException>(() => new ConnectionPragma(dialect, null));
-        }
-
-        [Test]
         public static void DatabasePragmas_ForNewDatabase_ShouldBeMainAndTempSchemasOnly()
         {
             var expectedSchemas = new HashSet<string>(new[] { "main", "temp" }, StringComparer.OrdinalIgnoreCase);
