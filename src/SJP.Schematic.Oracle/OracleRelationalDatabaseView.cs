@@ -76,7 +76,7 @@ where OWNER = :SchemaName and VIEW_NAME = :ViewName";
                 var indexCols = indexInfo
                     .OrderBy(row => row.ColumnPosition)
                     .Select(row => new { row.IsDescending, Column = viewColumns[row.ColumnName] })
-                    .Select(row => new OracleDatabaseIndexColumn(row.Column, row.IsDescending == "Y" ? IndexColumnOrder.Descending : IndexColumnOrder.Ascending))
+                    .Select(row => new DatabaseIndexColumn(row.Column, row.IsDescending == "Y" ? IndexColumnOrder.Descending : IndexColumnOrder.Ascending))
                     .ToList();
 
                 var index = new OracleDatabaseIndex(indexName, isUnique, indexCols, indexProperties);
@@ -107,7 +107,7 @@ where OWNER = :SchemaName and VIEW_NAME = :ViewName";
                 var indexCols = indexInfo
                     .OrderBy(row => row.ColumnPosition)
                     .Select(row => new { row.IsDescending, Column = viewColumns[row.ColumnName] })
-                    .Select(row => new OracleDatabaseIndexColumn(row.Column, row.IsDescending == "Y" ? IndexColumnOrder.Descending : IndexColumnOrder.Ascending))
+                    .Select(row => new DatabaseIndexColumn(row.Column, row.IsDescending == "Y" ? IndexColumnOrder.Descending : IndexColumnOrder.Ascending))
                     .ToList();
 
                 var index = new OracleDatabaseIndex(indexName, isUnique, indexCols, indexProperties);

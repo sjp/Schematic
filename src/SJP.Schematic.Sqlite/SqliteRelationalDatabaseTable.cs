@@ -152,7 +152,7 @@ namespace SJP.Schematic.Sqlite
                 var indexColumns = indexInfo
                     .Where(i => i.key && i.cid >= 0)
                     .OrderBy(i => i.seqno)
-                    .Select(i => new SqliteDatabaseIndexColumn(Column[i.name], i.desc ? IndexColumnOrder.Descending : IndexColumnOrder.Ascending))
+                    .Select(i => new DatabaseIndexColumn(Column[i.name], i.desc ? IndexColumnOrder.Descending : IndexColumnOrder.Ascending))
                     .ToList();
 
                 var includedColumns = indexInfo
@@ -186,7 +186,7 @@ namespace SJP.Schematic.Sqlite
                 var indexColumns = indexInfo
                     .Where(i => i.key && i.cid >= 0)
                     .OrderBy(i => i.seqno)
-                    .Select(i => new SqliteDatabaseIndexColumn(Column[i.name], i.desc ? IndexColumnOrder.Descending : IndexColumnOrder.Ascending))
+                    .Select(i => new DatabaseIndexColumn(Column[i.name], i.desc ? IndexColumnOrder.Descending : IndexColumnOrder.Ascending))
                     .ToList();
 
                 var includedColumns = indexInfo
@@ -512,7 +512,7 @@ namespace SJP.Schematic.Sqlite
                 var deleteRule = GetRelationalUpdateRule(fkey.Key.OnDelete);
                 var updateRule = GetRelationalUpdateRule(fkey.Key.OnUpdate);
 
-                var relationalKey = new SqliteRelationalKey(Name, childKey, parentTableName, parentConstraint, deleteRule, updateRule);
+                var relationalKey = new DatabaseRelationalKey(Name, childKey, parentTableName, parentConstraint, deleteRule, updateRule);
                 result.Add(relationalKey);
             }
 
@@ -575,7 +575,7 @@ namespace SJP.Schematic.Sqlite
                 var deleteRule = GetRelationalUpdateRule(fkey.Key.OnDelete);
                 var updateRule = GetRelationalUpdateRule(fkey.Key.OnUpdate);
 
-                var relationalKey = new SqliteRelationalKey(Name, childKey, parentTableName, parentConstraint, deleteRule, updateRule);
+                var relationalKey = new DatabaseRelationalKey(Name, childKey, parentTableName, parentConstraint, deleteRule, updateRule);
                 result.Add(relationalKey);
             }
 

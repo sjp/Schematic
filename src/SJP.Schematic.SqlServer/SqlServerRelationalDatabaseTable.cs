@@ -145,7 +145,7 @@ order by ic.key_ordinal";
                     .OrderBy(row => row.KeyOrdinal)
                     .ThenBy(row => row.IndexColumnId)
                     .Select(row => new { row.IsDescending, Column = tableColumns[row.ColumnName] })
-                    .Select(row => new SqlServerDatabaseIndexColumn(row.Column, row.IsDescending ? IndexColumnOrder.Descending : IndexColumnOrder.Ascending))
+                    .Select(row => new DatabaseIndexColumn(row.Column, row.IsDescending ? IndexColumnOrder.Descending : IndexColumnOrder.Ascending))
                     .ToList();
 
                 var includedCols = indexInfo
@@ -155,7 +155,7 @@ order by ic.key_ordinal";
                     .Select(row => tableColumns[row.ColumnName])
                     .ToList();
 
-                var index = new SqlServerDatabaseIndex(indexName, isUnique, indexCols, includedCols, isEnabled);
+                var index = new DatabaseIndex(indexName, isUnique, indexCols, includedCols, isEnabled);
                 result.Add(index);
             }
 
@@ -185,7 +185,7 @@ order by ic.key_ordinal";
                     .OrderBy(row => row.KeyOrdinal)
                     .ThenBy(row => row.IndexColumnId)
                     .Select(row => new { row.IsDescending, Column = tableColumns[row.ColumnName] })
-                    .Select(row => new SqlServerDatabaseIndexColumn(row.Column, row.IsDescending ? IndexColumnOrder.Descending : IndexColumnOrder.Ascending))
+                    .Select(row => new DatabaseIndexColumn(row.Column, row.IsDescending ? IndexColumnOrder.Descending : IndexColumnOrder.Ascending))
                     .ToList();
 
                 var includedCols = indexInfo
@@ -195,7 +195,7 @@ order by ic.key_ordinal";
                     .Select(row => tableColumns[row.ColumnName])
                     .ToList();
 
-                var index = new SqlServerDatabaseIndex(indexName, isUnique, indexCols, includedCols, isEnabled);
+                var index = new DatabaseIndex(indexName, isUnique, indexCols, includedCols, isEnabled);
                 result.Add(index);
             }
 
@@ -375,7 +375,7 @@ order by ic.key_ordinal";
                 var deleteRule = RelationalRuleMapping[groupedChildKey.Key.DeleteRule];
                 var updateRule = RelationalRuleMapping[groupedChildKey.Key.UpdateRule];
 
-                var relationalKey = new SqlServerRelationalKey(childTableName, childKey, Name, parentKey, deleteRule, updateRule);
+                var relationalKey = new DatabaseRelationalKey(childTableName, childKey, Name, parentKey, deleteRule, updateRule);
                 result.Add(relationalKey);
             }
 
@@ -426,7 +426,7 @@ order by ic.key_ordinal";
 
                 var deleteRule = RelationalRuleMapping[groupedChildKey.Key.DeleteRule];
                 var updateRule = RelationalRuleMapping[groupedChildKey.Key.UpdateRule];
-                var relationalKey = new SqlServerRelationalKey(childTableName, childKey, Name, parentKey, deleteRule, updateRule);
+                var relationalKey = new DatabaseRelationalKey(childTableName, childKey, Name, parentKey, deleteRule, updateRule);
 
                 result.Add(relationalKey);
             }
@@ -497,7 +497,7 @@ where schema_name(parent_t.schema_id) = @SchemaName and parent_t.name = @TableNa
                 var definition = checkRow.Definition;
                 var isEnabled = !checkRow.IsDisabled;
 
-                var check = new SqlServerCheckConstraint(constraintName, definition, isEnabled);
+                var check = new DatabaseCheckConstraint(constraintName, definition, isEnabled);
                 result.Add(check);
             }
 
@@ -518,7 +518,7 @@ where schema_name(parent_t.schema_id) = @SchemaName and parent_t.name = @TableNa
                 var definition = checkRow.Definition;
                 var isEnabled = !checkRow.IsDisabled;
 
-                var check = new SqlServerCheckConstraint(constraintName, definition, isEnabled);
+                var check = new DatabaseCheckConstraint(constraintName, definition, isEnabled);
                 result.Add(check);
             }
 
@@ -617,7 +617,7 @@ where schema_name(t.schema_id) = @SchemaName and t.name = @TableName";
                 var deleteRule = RelationalRuleMapping[fkey.Key.DeleteRule];
                 var updateRule = RelationalRuleMapping[fkey.Key.UpdateRule];
 
-                var relationalKey = new SqlServerRelationalKey(Name, childKey, parentTableName, parentKey, deleteRule, updateRule);
+                var relationalKey = new DatabaseRelationalKey(Name, childKey, parentTableName, parentKey, deleteRule, updateRule);
                 result.Add(relationalKey);
             }
 
@@ -675,7 +675,7 @@ where schema_name(t.schema_id) = @SchemaName and t.name = @TableName";
                 var deleteRule = RelationalRuleMapping[fkey.Key.DeleteRule];
                 var updateRule = RelationalRuleMapping[fkey.Key.UpdateRule];
 
-                var relationalKey = new SqlServerRelationalKey(Name, childKey, parentTableName, parentKey, deleteRule, updateRule);
+                var relationalKey = new DatabaseRelationalKey(Name, childKey, parentTableName, parentKey, deleteRule, updateRule);
                 result.Add(relationalKey);
             }
 
@@ -892,7 +892,7 @@ where schema_name(t.schema_id) = @SchemaName
                         throw new Exception("Found an unsupported trigger event name. Expected one of INSERT, UPDATE, DELETE, got: " + trigEvent.TriggerEvent);
                 }
 
-                var trigger = new SqlServerDatabaseTrigger(triggerName, definition, queryTiming, events, isEnabled);
+                var trigger = new DatabaseTrigger(triggerName, definition, queryTiming, events, isEnabled);
                 result.Add(trigger);
             }
 
@@ -936,7 +936,7 @@ where schema_name(t.schema_id) = @SchemaName
                         throw new Exception("Found an unsupported trigger event name. Expected one of INSERT, UPDATE, DELETE, got: " + trigEvent.TriggerEvent);
                 }
 
-                var trigger = new SqlServerDatabaseTrigger(triggerName, definition, queryTiming, events, isEnabled);
+                var trigger = new DatabaseTrigger(triggerName, definition, queryTiming, events, isEnabled);
                 result.Add(trigger);
             }
 

@@ -2,13 +2,12 @@
 using System.Collections.Generic;
 using System.Linq;
 using EnumsNET;
-using SJP.Schematic.Core;
 
-namespace SJP.Schematic.Sqlite
+namespace SJP.Schematic.Core
 {
-    public class SqliteDatabaseIndexColumn : IDatabaseIndexColumn
+    public class DatabaseIndexColumn : IDatabaseIndexColumn
     {
-        public SqliteDatabaseIndexColumn(IDatabaseColumn column, IndexColumnOrder order)
+        public DatabaseIndexColumn(IDatabaseColumn column, IndexColumnOrder order)
         {
             if (column == null)
                 throw new ArgumentNullException(nameof(column));
@@ -25,9 +24,6 @@ namespace SJP.Schematic.Sqlite
 
         public string GetExpression(IDatabaseDialect dialect)
         {
-            if (dialect == null)
-                throw new ArgumentNullException(nameof(dialect));
-
             return DependentColumns
                 .Select(c => dialect.QuoteName(c.Name))
                 .Single();

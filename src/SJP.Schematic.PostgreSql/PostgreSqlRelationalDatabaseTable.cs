@@ -371,7 +371,7 @@ where tc.table_schema = @SchemaName and tc.table_name = @TableName
                 var deleteRule = RelationalRuleMapping[groupedChildKey.Key.DeleteRule];
                 var updateRule = RelationalRuleMapping[groupedChildKey.Key.UpdateRule];
 
-                var relationalKey = new PostgreSqlRelationalKey(childTableName, childKey, Name, parentKey, deleteRule, updateRule);
+                var relationalKey = new DatabaseRelationalKey(childTableName, childKey, Name, parentKey, deleteRule, updateRule);
                 result.Add(relationalKey);
             }
 
@@ -422,7 +422,7 @@ where tc.table_schema = @SchemaName and tc.table_name = @TableName
 
                 var deleteRule = RelationalRuleMapping[groupedChildKey.Key.DeleteRule];
                 var updateRule = RelationalRuleMapping[groupedChildKey.Key.UpdateRule];
-                var relationalKey = new PostgreSqlRelationalKey(childTableName, childKey, Name, parentKey, deleteRule, updateRule);
+                var relationalKey = new DatabaseRelationalKey(childTableName, childKey, Name, parentKey, deleteRule, updateRule);
 
                 result.Add(relationalKey);
             }
@@ -625,7 +625,7 @@ where
                 var deleteRule = RelationalRuleMapping[fkey.Key.DeleteRule];
                 var updateRule = RelationalRuleMapping[fkey.Key.UpdateRule];
 
-                var relationalKey = new PostgreSqlRelationalKey(Name, childKey, parentTableName, parentKey, deleteRule, updateRule);
+                var relationalKey = new DatabaseRelationalKey(Name, childKey, parentTableName, parentKey, deleteRule, updateRule);
                 result.Add(relationalKey);
             }
 
@@ -681,7 +681,7 @@ where
                 var deleteRule = RelationalRuleMapping[fkey.Key.DeleteRule];
                 var updateRule = RelationalRuleMapping[fkey.Key.UpdateRule];
 
-                var relationalKey = new PostgreSqlRelationalKey(Name, childKey, parentTableName, parentKey, deleteRule, updateRule);
+                var relationalKey = new DatabaseRelationalKey(Name, childKey, parentTableName, parentKey, deleteRule, updateRule);
                 result.Add(relationalKey);
             }
 

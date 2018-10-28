@@ -87,7 +87,7 @@ where schema_name(v.schema_id) = @SchemaName and v.name = @ViewName";
                     .OrderBy(row => row.KeyOrdinal)
                     .ThenBy(row => row.IndexColumnId)
                     .Select(row => new { row.IsDescending, Column = viewColumns[row.ColumnName] })
-                    .Select(row => new SqlServerDatabaseIndexColumn(row.Column, row.IsDescending ? IndexColumnOrder.Descending : IndexColumnOrder.Ascending))
+                    .Select(row => new DatabaseIndexColumn(row.Column, row.IsDescending ? IndexColumnOrder.Descending : IndexColumnOrder.Ascending))
                     .ToList();
 
                 var includedCols = indexInfo
@@ -97,7 +97,7 @@ where schema_name(v.schema_id) = @SchemaName and v.name = @ViewName";
                     .Select(row => viewColumns[row.ColumnName])
                     .ToList();
 
-                var index = new SqlServerDatabaseIndex(indexName, isUnique, indexCols, includedCols, isEnabled);
+                var index = new DatabaseIndex(indexName, isUnique, indexCols, includedCols, isEnabled);
                 result.Add(index);
             }
 
@@ -127,7 +127,7 @@ where schema_name(v.schema_id) = @SchemaName and v.name = @ViewName";
                     .OrderBy(row => row.KeyOrdinal)
                     .ThenBy(row => row.IndexColumnId)
                     .Select(row => new { row.IsDescending, Column = viewColumns[row.ColumnName] })
-                    .Select(row => new SqlServerDatabaseIndexColumn(row.Column, row.IsDescending ? IndexColumnOrder.Descending : IndexColumnOrder.Ascending))
+                    .Select(row => new DatabaseIndexColumn(row.Column, row.IsDescending ? IndexColumnOrder.Descending : IndexColumnOrder.Ascending))
                     .ToList();
 
                 var includedCols = indexInfo
@@ -137,7 +137,7 @@ where schema_name(v.schema_id) = @SchemaName and v.name = @ViewName";
                     .Select(row => viewColumns[row.ColumnName])
                     .ToList();
 
-                var index = new SqlServerDatabaseIndex(indexName, isUnique, indexCols, includedCols, isEnabled);
+                var index = new DatabaseIndex(indexName, isUnique, indexCols, includedCols, isEnabled);
                 result.Add(index);
             }
 

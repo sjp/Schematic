@@ -140,7 +140,7 @@ where ac.OWNER = :SchemaName and ac.TABLE_NAME = :TableName and ac.CONSTRAINT_TY
                 var indexCols = indexInfo
                     .OrderBy(row => row.ColumnPosition)
                     .Select(row => new { row.IsDescending, Column = tableColumns[row.ColumnName] })
-                    .Select(row => new OracleDatabaseIndexColumn(row.Column, row.IsDescending == "Y" ? IndexColumnOrder.Descending : IndexColumnOrder.Ascending))
+                    .Select(row => new DatabaseIndexColumn(row.Column, row.IsDescending == "Y" ? IndexColumnOrder.Descending : IndexColumnOrder.Ascending))
                     .ToList();
 
                 var index = new OracleDatabaseIndex(indexName, isUnique, indexCols, indexProperties);
@@ -171,7 +171,7 @@ where ac.OWNER = :SchemaName and ac.TABLE_NAME = :TableName and ac.CONSTRAINT_TY
                 var indexCols = indexInfo
                     .OrderBy(row => row.ColumnPosition)
                     .Select(row => new { row.IsDescending, Column = tableColumns[row.ColumnName] })
-                    .Select(row => new OracleDatabaseIndexColumn(row.Column, row.IsDescending == "Y" ? IndexColumnOrder.Descending : IndexColumnOrder.Ascending))
+                    .Select(row => new DatabaseIndexColumn(row.Column, row.IsDescending == "Y" ? IndexColumnOrder.Descending : IndexColumnOrder.Ascending))
                     .ToList();
 
                 var index = new OracleDatabaseIndex(indexName, isUnique, indexCols, indexProperties);
@@ -455,7 +455,7 @@ where pac.OWNER = :SchemaName and pac.TABLE_NAME = :TableName and ac.CONSTRAINT_
                 var definition = checkRow.Definition;
                 var isEnabled = checkRow.EnabledStatus == "ENABLED";
 
-                var check = new OracleCheckConstraint(constraintName, definition, isEnabled);
+                var check = new DatabaseCheckConstraint(constraintName, definition, isEnabled);
                 result.Add(check);
             }
 
@@ -485,7 +485,7 @@ where pac.OWNER = :SchemaName and pac.TABLE_NAME = :TableName and ac.CONSTRAINT_
                 var definition = checkRow.Definition;
                 var isEnabled = checkRow.EnabledStatus == "ENABLED";
 
-                var check = new OracleCheckConstraint(constraintName, definition, isEnabled);
+                var check = new DatabaseCheckConstraint(constraintName, definition, isEnabled);
                 result.Add(check);
             }
 
@@ -835,7 +835,7 @@ order by COLUMN_ID";
                         throw new Exception("Found an unsupported trigger event name. Expected one of INSERT, UPDATE, DELETE, got: " + triggerEventPiece);
                 }
 
-                var trigger = new OracleDatabaseTrigger(triggerName, definition, queryTiming, events, isEnabled);
+                var trigger = new DatabaseTrigger(triggerName, definition, queryTiming, events, isEnabled);
                 result.Add(trigger);
             }
 
@@ -875,7 +875,7 @@ order by COLUMN_ID";
                         throw new Exception("Found an unsupported trigger event name. Expected one of INSERT, UPDATE, DELETE, got: " + triggerEventPiece);
                 }
 
-                var trigger = new OracleDatabaseTrigger(triggerName, definition, queryTiming, events, isEnabled);
+                var trigger = new DatabaseTrigger(triggerName, definition, queryTiming, events, isEnabled);
                 result.Add(trigger);
             }
 
