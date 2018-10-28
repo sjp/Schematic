@@ -272,6 +272,53 @@ namespace SJP.Schematic.Oracle.Tests.Integration
             }
 
             [Test]
+            public void GetView_WhenViewPresentGivenLocalNameOnly_ShouldBeQualifiedCorrectly()
+            {
+                var database = Database;
+                var viewName = new Identifier("DB_TEST_VIEW_1");
+                var expectedViewName = new Identifier(database.ServerName, database.DatabaseName, database.DefaultSchema, "DB_TEST_VIEW_1");
+
+                var view = database.GetView(viewName);
+
+                Assert.AreEqual(expectedViewName, view.Name);
+            }
+
+            [Test]
+            public void GetView_WhenViewPresentGivenSchemaAndLocalNameOnly_ShouldBeQualifiedCorrectly()
+            {
+                var database = Database;
+                var viewName = new Identifier(database.DefaultSchema, "DB_TEST_VIEW_1");
+                var expectedViewName = new Identifier(database.ServerName, database.DatabaseName, database.DefaultSchema, "DB_TEST_VIEW_1");
+
+                var view = database.GetView(viewName);
+
+                Assert.AreEqual(expectedViewName, view.Name);
+            }
+
+            [Test]
+            public void GetView_WhenViewPresentGivenDatabaseAndSchemaAndLocalNameOnly_ShouldBeQualifiedCorrectly()
+            {
+                var database = Database;
+                var viewName = new Identifier(database.DatabaseName, database.DefaultSchema, "DB_TEST_VIEW_1");
+                var expectedViewName = new Identifier(database.ServerName, database.DatabaseName, database.DefaultSchema, "DB_TEST_VIEW_1");
+
+                var view = database.GetView(viewName);
+
+                Assert.AreEqual(expectedViewName, view.Name);
+            }
+
+            [Test]
+            public void GetView_WhenViewPresentGivenFullyQualifiedName_ShouldBeQualifiedCorrectly()
+            {
+                var database = Database;
+                var viewName = new Identifier(database.ServerName, database.DatabaseName, database.DefaultSchema, "DB_TEST_VIEW_1");
+
+                var view = database.GetView(viewName);
+
+                Assert.AreEqual(viewName, view.Name);
+            }
+
+            [Test]
             public void GetView_WhenViewMissing_ReturnsNull()
             {
                 var view = Database.GetView("view_that_doesnt_exist");
@@ -327,6 +374,53 @@ namespace SJP.Schematic.Oracle.Tests.Integration
                 var view = await database.GetViewAsync(viewName).ConfigureAwait(false);
 
                 Assert.AreEqual(expectedViewName, view.Name);
+            }
+
+            [Test]
+            public async Task GetViewAsync_WhenViewPresentGivenLocalNameOnly_ShouldBeQualifiedCorrectly()
+            {
+                var database = Database;
+                var viewName = new Identifier("DB_TEST_VIEW_1");
+                var expectedViewName = new Identifier(database.ServerName, database.DatabaseName, database.DefaultSchema, "DB_TEST_VIEW_1");
+
+                var view = await database.GetViewAsync(viewName).ConfigureAwait(false);
+
+                Assert.AreEqual(expectedViewName, view.Name);
+            }
+
+            [Test]
+            public async Task GetViewAsync_WhenViewPresentGivenSchemaAndLocalNameOnly_ShouldBeQualifiedCorrectly()
+            {
+                var database = Database;
+                var viewName = new Identifier(database.DefaultSchema, "DB_TEST_VIEW_1");
+                var expectedViewName = new Identifier(database.ServerName, database.DatabaseName, database.DefaultSchema, "DB_TEST_VIEW_1");
+
+                var view = await database.GetViewAsync(viewName).ConfigureAwait(false);
+
+                Assert.AreEqual(expectedViewName, view.Name);
+            }
+
+            [Test]
+            public async Task GetViewAsync_WhenViewPresentGivenDatabaseAndSchemaAndLocalNameOnly_ShouldBeQualifiedCorrectly()
+            {
+                var database = Database;
+                var viewName = new Identifier(database.DatabaseName, database.DefaultSchema, "DB_TEST_VIEW_1");
+                var expectedViewName = new Identifier(database.ServerName, database.DatabaseName, database.DefaultSchema, "DB_TEST_VIEW_1");
+
+                var view = await database.GetViewAsync(viewName).ConfigureAwait(false);
+
+                Assert.AreEqual(expectedViewName, view.Name);
+            }
+
+            [Test]
+            public async Task GetViewAsync_WhenViewPresentGivenFullyQualifiedName_ShouldBeQualifiedCorrectly()
+            {
+                var database = Database;
+                var viewName = new Identifier(database.ServerName, database.DatabaseName, database.DefaultSchema, "DB_TEST_VIEW_1");
+
+                var view = await database.GetViewAsync(viewName).ConfigureAwait(false);
+
+                Assert.AreEqual(viewName, view.Name);
             }
 
             [Test]
@@ -441,6 +535,53 @@ namespace SJP.Schematic.Oracle.Tests.Integration
             }
 
             [Test]
+            public void GetSequence_WhenSequencePresentGivenLocalNameOnly_ShouldBeQualifiedCorrectly()
+            {
+                var database = Database;
+                var sequenceName = new Identifier("DB_TEST_SEQUENCE_1");
+                var expectedSequenceName = new Identifier(database.ServerName, database.DatabaseName, database.DefaultSchema, "DB_TEST_SEQUENCE_1");
+
+                var sequence = database.GetSequence(sequenceName);
+
+                Assert.AreEqual(expectedSequenceName, sequence.Name);
+            }
+
+            [Test]
+            public void GetSequence_WhenSequencePresentGivenSchemaAndLocalNameOnly_ShouldBeQualifiedCorrectly()
+            {
+                var database = Database;
+                var sequenceName = new Identifier(database.DefaultSchema, "DB_TEST_SEQUENCE_1");
+                var expectedSequenceName = new Identifier(database.ServerName, database.DatabaseName, database.DefaultSchema, "DB_TEST_SEQUENCE_1");
+
+                var sequence = database.GetSequence(sequenceName);
+
+                Assert.AreEqual(expectedSequenceName, sequence.Name);
+            }
+
+            [Test]
+            public void GetSequence_WhenSequencePresentGivenDatabaseAndSchemaAndLocalNameOnly_ShouldBeQualifiedCorrectly()
+            {
+                var database = Database;
+                var sequenceName = new Identifier(database.DatabaseName, database.DefaultSchema, "DB_TEST_SEQUENCE_1");
+                var expectedSequenceName = new Identifier(database.ServerName, database.DatabaseName, database.DefaultSchema, "DB_TEST_SEQUENCE_1");
+
+                var sequence = database.GetSequence(sequenceName);
+
+                Assert.AreEqual(expectedSequenceName, sequence.Name);
+            }
+
+            [Test]
+            public void GetSequence_WhenSequencePresentGivenFullyQualifiedName_ShouldBeQualifiedCorrectly()
+            {
+                var database = Database;
+                var sequenceName = new Identifier(database.ServerName, database.DatabaseName, database.DefaultSchema, "DB_TEST_SEQUENCE_1");
+
+                var sequence = database.GetSequence(sequenceName);
+
+                Assert.AreEqual(sequenceName, sequence.Name);
+            }
+
+            [Test]
             public void GetSequence_WhenSequenceMissing_ReturnsNull()
             {
                 var sequence = Database.GetSequence("sequence_that_doesnt_exist");
@@ -496,6 +637,53 @@ namespace SJP.Schematic.Oracle.Tests.Integration
                 var sequence = await Database.GetSequenceAsync(sequenceName).ConfigureAwait(false);
 
                 Assert.AreEqual(expectedSequenceName, sequence.Name.LocalName);
+            }
+
+            [Test]
+            public async Task GetSequenceAsync_WhenSequencePresentGivenLocalNameOnly_ShouldBeQualifiedCorrectly()
+            {
+                var database = Database;
+                var sequenceName = new Identifier("DB_TEST_SEQUENCE_1");
+                var expectedSequenceName = new Identifier(database.ServerName, database.DatabaseName, database.DefaultSchema, "DB_TEST_SEQUENCE_1");
+
+                var sequence = await database.GetSequenceAsync(sequenceName).ConfigureAwait(false);
+
+                Assert.AreEqual(expectedSequenceName, sequence.Name);
+            }
+
+            [Test]
+            public async Task GetSequenceAsync_WhenSequencePresentGivenSchemaAndLocalNameOnly_ShouldBeQualifiedCorrectly()
+            {
+                var database = Database;
+                var sequenceName = new Identifier(database.DefaultSchema, "DB_TEST_SEQUENCE_1");
+                var expectedSequenceName = new Identifier(database.ServerName, database.DatabaseName, database.DefaultSchema, "DB_TEST_SEQUENCE_1");
+
+                var sequence = await database.GetSequenceAsync(sequenceName).ConfigureAwait(false);
+
+                Assert.AreEqual(expectedSequenceName, sequence.Name);
+            }
+
+            [Test]
+            public async Task GetSequenceAsync_WhenSequencePresentGivenDatabaseAndSchemaAndLocalNameOnly_ShouldBeQualifiedCorrectly()
+            {
+                var database = Database;
+                var sequenceName = new Identifier(database.DatabaseName, database.DefaultSchema, "DB_TEST_SEQUENCE_1");
+                var expectedSequenceName = new Identifier(database.ServerName, database.DatabaseName, database.DefaultSchema, "DB_TEST_SEQUENCE_1");
+
+                var sequence = await database.GetSequenceAsync(sequenceName).ConfigureAwait(false);
+
+                Assert.AreEqual(expectedSequenceName, sequence.Name);
+            }
+
+            [Test]
+            public async Task GetSequenceAsync_WhenSequencePresentGivenFullyQualifiedName_ShouldBeQualifiedCorrectly()
+            {
+                var database = Database;
+                var sequenceName = new Identifier(database.ServerName, database.DatabaseName, database.DefaultSchema, "DB_TEST_SEQUENCE_1");
+
+                var sequence = await database.GetSequenceAsync(sequenceName).ConfigureAwait(false);
+
+                Assert.AreEqual(sequenceName, sequence.Name);
             }
 
             [Test]

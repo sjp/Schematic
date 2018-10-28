@@ -129,7 +129,7 @@ where TABLE_SCHEMA = @SchemaName order by TABLE_NAME";
 
             tableName = CreateQualifiedIdentifier(tableName);
             return TableExists(tableName)
-                ? new MySqlRelationalDatabaseTable(Connection, this, tableName, Comparer)
+                ? new MySqlRelationalDatabaseTable(Connection, this, Dialect.TypeProvider, tableName, Comparer)
                 : null;
         }
 
@@ -146,7 +146,7 @@ where TABLE_SCHEMA = @SchemaName order by TABLE_NAME";
             tableName = CreateQualifiedIdentifier(tableName);
             var exists = await TableExistsAsync(tableName, cancellationToken).ConfigureAwait(false);
             return exists
-                ? new MySqlRelationalDatabaseTable(Connection, this, tableName, Comparer)
+                ? new MySqlRelationalDatabaseTable(Connection, this, Dialect.TypeProvider, tableName, Comparer)
                 : null;
         }
 
@@ -247,7 +247,7 @@ where TABLE_SCHEMA = @SchemaName order by TABLE_NAME";
 
             viewName = CreateQualifiedIdentifier(viewName);
             return ViewExists(viewName)
-                ? new MySqlRelationalDatabaseView(Connection, this, viewName, Comparer)
+                ? new MySqlRelationalDatabaseView(Connection, Dialect.TypeProvider, viewName, Comparer)
                 : null;
         }
 
@@ -264,7 +264,7 @@ where TABLE_SCHEMA = @SchemaName order by TABLE_NAME";
             viewName = CreateQualifiedIdentifier(viewName);
             var exists = await ViewExistsAsync(viewName, cancellationToken).ConfigureAwait(false);
             return exists
-                ? new MySqlRelationalDatabaseView(Connection, this, viewName, Comparer)
+                ? new MySqlRelationalDatabaseView(Connection, Dialect.TypeProvider, viewName, Comparer)
                 : null;
         }
 

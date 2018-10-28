@@ -10,23 +10,10 @@ namespace SJP.Schematic.PostgreSql
 {
     public class PostgreSqlDatabaseSequence : IDatabaseSequence
     {
-        public PostgreSqlDatabaseSequence(IDbConnection connection, IRelationalDatabase database, Identifier sequenceName)
+        public PostgreSqlDatabaseSequence(IDbConnection connection, Identifier sequenceName)
         {
-            if (database == null)
-                throw new ArgumentNullException(nameof(database));
-            if (sequenceName == null)
-                throw new ArgumentNullException(nameof(sequenceName));
-
             Connection = connection ?? throw new ArgumentNullException(nameof(connection));
-
-            var dialect = database.Dialect;
-            Dialect = dialect ?? throw new ArgumentException("The given database does not contain a valid dialect.", nameof(database));
-
-            var serverName = sequenceName.Server ?? database.ServerName;
-            var databaseName = sequenceName.Database ?? database.DatabaseName;
-            var schemaName = sequenceName.Schema ?? database.DefaultSchema;
-
-            Name = Identifier.CreateQualifiedIdentifier(serverName, databaseName, schemaName, sequenceName.LocalName);
+            Name = sequenceName ?? throw new ArgumentNullException(nameof(sequenceName));
 
             _dataLoader = new AsyncLazy<SequenceData>(LoadSequenceDataAsync);
         }
@@ -34,8 +21,6 @@ namespace SJP.Schematic.PostgreSql
         public Identifier Name { get; }
 
         protected IDbConnection Connection { get; }
-
-        protected IDatabaseDialect Dialect { get; }
 
         public int Cache => SequenceData.CacheSize;
 

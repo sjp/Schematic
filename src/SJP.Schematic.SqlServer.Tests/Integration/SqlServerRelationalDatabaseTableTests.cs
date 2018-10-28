@@ -345,52 +345,5 @@ end
             await Connection.ExecuteAsync("drop table trigger_test_table_1").ConfigureAwait(false);
             await Connection.ExecuteAsync("drop table trigger_test_table_2").ConfigureAwait(false);
         }
-
-        [Test]
-        public void Name_GivenLocalNameOnlyInCtor_ShouldBeQualifiedCorrectly()
-        {
-            var database = Database;
-            var tableName = new Identifier("table_test_table_1");
-            var expectedTableName = new Identifier(database.ServerName, database.DatabaseName, database.DefaultSchema, "table_test_table_1");
-
-            var table = new SqlServerRelationalDatabaseTable(Connection, database, tableName);
-
-            Assert.AreEqual(expectedTableName, table.Name);
-        }
-
-        [Test]
-        public void Name_GivenSchemaAndLocalNameOnlyInCtor_ShouldBeQualifiedCorrectly()
-        {
-            var database = Database;
-            var tableName = new Identifier("asd", "table_test_table_1");
-            var expectedTableName = new Identifier(database.ServerName, database.DatabaseName, "asd", "table_test_table_1");
-
-            var table = new SqlServerRelationalDatabaseTable(Connection, database, tableName);
-
-            Assert.AreEqual(expectedTableName, table.Name);
-        }
-
-        [Test]
-        public void Name_GivenDatabaseAndSchemaAndLocalNameOnlyInCtor_ShouldBeQualifiedCorrectly()
-        {
-            var database = Database;
-            var tableName = new Identifier("qwe", "asd", "table_test_table_1");
-            var expectedTableName = new Identifier(database.ServerName, "qwe", "asd", "table_test_table_1");
-
-            var table = new SqlServerRelationalDatabaseTable(Connection, database, tableName);
-
-            Assert.AreEqual(expectedTableName, table.Name);
-        }
-
-        [Test]
-        public void Name_GivenFullyQualifiedNameInCtor_ShouldBeQualifiedCorrectly()
-        {
-            var tableName = new Identifier("qwe", "asd", "zxc", "table_test_table_1");
-            var expectedTableName = new Identifier("qwe", "asd", "zxc", "table_test_table_1");
-
-            var table = new SqlServerRelationalDatabaseTable(Connection, Database, tableName);
-
-            Assert.AreEqual(expectedTableName, table.Name);
-        }
     }
 }

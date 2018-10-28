@@ -18,22 +18,24 @@ namespace SJP.Schematic.Sqlite
     {
         public SqliteRelationalDatabaseTable(IDbConnection connection, IRelationalDatabase database, Identifier tableName)
         {
+            Connection = connection ?? throw new ArgumentNullException(nameof(connection));
+
             if (tableName == null)
                 throw new ArgumentNullException(nameof(tableName));
+            if (tableName.Schema == null)
+                throw new ArgumentException("The given table name is missing a required schema name.", nameof(tableName));
 
-            Connection = connection ?? throw new ArgumentNullException(nameof(connection));
+            Name = tableName.Database == null
+                ? tableName
+                : Identifier.CreateQualifiedIdentifier(tableName.Schema, tableName.LocalName);
+
             Database = database ?? throw new ArgumentNullException(nameof(database));
             if (database.Dialect == null)
                 throw new ArgumentException("The given database object does not contain a dialect.", nameof(database));
             Dialect = database.Dialect;
 
             Comparer = new IdentifierComparer(StringComparer.OrdinalIgnoreCase, defaultSchema: Database.DefaultSchema);
-
-            var schemaName = tableName.Schema ?? database.DefaultSchema;
-            var localName = tableName.LocalName;
-
-            Name = Identifier.CreateQualifiedIdentifier(schemaName, localName);
-            Pragma = new DatabasePragma(Dialect, connection, schemaName);
+            Pragma = new DatabasePragma(Dialect, connection, tableName.Schema);
         }
 
         protected IRelationalDatabase Database { get; }

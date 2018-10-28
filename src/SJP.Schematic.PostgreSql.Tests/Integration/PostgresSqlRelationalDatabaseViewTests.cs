@@ -30,11 +30,11 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration
         [Test]
         public void Ctor_GivenNullConnection_ThrowsArgNullException()
         {
-            Assert.Throws<ArgumentNullException>(() => new PostgreSqlRelationalDatabaseView(null, Database, "test"));
+            Assert.Throws<ArgumentNullException>(() => new PostgreSqlRelationalDatabaseView(null, Dialect.TypeProvider, "test"));
         }
 
         [Test]
-        public void Ctor_GivenNullDatabase_ThrowsArgNullException()
+        public void Ctor_GivenNullTypeProvider_ThrowsArgNullException()
         {
             Assert.Throws<ArgumentNullException>(() => new PostgreSqlRelationalDatabaseView(Connection, null, "test"));
         }
@@ -42,63 +42,16 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration
         [Test]
         public void Ctor_GivenNullName_ThrowsArgNullException()
         {
-            Assert.Throws<ArgumentNullException>(() => new PostgreSqlRelationalDatabaseView(Connection, Database, null));
+            Assert.Throws<ArgumentNullException>(() => new PostgreSqlRelationalDatabaseView(Connection, Dialect.TypeProvider, null));
         }
 
         [Test]
         public void Name_PropertyGet_ShouldEqualCtorArg()
         {
-            const string viewName = "view_test_view_1";
-            var view = new PostgreSqlRelationalDatabaseView(Connection, Database, viewName);
-
-            Assert.AreEqual(viewName, view.Name.LocalName);
-        }
-
-        [Test]
-        public void Name_GivenLocalNameOnlyInCtor_ShouldBeQualifiedCorrectly()
-        {
-            var database = Database;
             var viewName = new Identifier("view_test_view_1");
-            var expectedViewName = new Identifier(database.ServerName, database.DatabaseName, database.DefaultSchema, "view_test_view_1");
+            var view = new PostgreSqlRelationalDatabaseView(Connection, Dialect.TypeProvider, viewName);
 
-            var view = new PostgreSqlRelationalDatabaseView(Connection, database, viewName);
-
-            Assert.AreEqual(expectedViewName, view.Name);
-        }
-
-        [Test]
-        public void Name_GivenSchemaAndLocalNameOnlyInCtor_ShouldBeQualifiedCorrectly()
-        {
-            var database = Database;
-            var viewName = new Identifier("asd", "view_test_view_1");
-            var expectedViewName = new Identifier(database.ServerName, database.DatabaseName, "asd", "view_test_view_1");
-
-            var view = new PostgreSqlRelationalDatabaseView(Connection, database, viewName);
-
-            Assert.AreEqual(expectedViewName, view.Name);
-        }
-
-        [Test]
-        public void Name_GivenDatabaseAndSchemaAndLocalNameOnlyInCtor_ShouldBeQualifiedCorrectly()
-        {
-            var database = Database;
-            var viewName = new Identifier("qwe", "asd", "view_test_view_1");
-            var expectedViewName = new Identifier(database.ServerName, "qwe", "asd", "view_test_view_1");
-
-            var view = new PostgreSqlRelationalDatabaseView(Connection, database, viewName);
-
-            Assert.AreEqual(expectedViewName, view.Name);
-        }
-
-        [Test]
-        public void Name_GivenFullyQualifiedNameInCtor_ShouldBeQualifiedCorrectly()
-        {
-            var viewName = new Identifier("qwe", "asd", "zxc", "view_test_view_1");
-            var expectedViewName = new Identifier("qwe", "asd", "zxc", "view_test_view_1");
-
-            var view = new PostgreSqlRelationalDatabaseView(Connection, Database, viewName);
-
-            Assert.AreEqual(expectedViewName, view.Name);
+            Assert.AreEqual(viewName, view.Name);
         }
 
         [Test]
@@ -106,7 +59,7 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration
         {
             var database = Database;
             var viewName = new Identifier(database.DefaultSchema, "view_test_view_1");
-            var view = new PostgreSqlRelationalDatabaseView(Connection, database, viewName);
+            var view = new PostgreSqlRelationalDatabaseView(Connection, Dialect.TypeProvider, viewName);
 
             var definition = view.Definition;
             const string expected = " SELECT 1 AS test;";
@@ -119,7 +72,7 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration
         {
             var database = Database;
             var viewName = new Identifier(database.DefaultSchema, "view_test_view_1");
-            var view = new PostgreSqlRelationalDatabaseView(Connection, database, viewName);
+            var view = new PostgreSqlRelationalDatabaseView(Connection, Dialect.TypeProvider, viewName);
 
             var definition = await view.DefinitionAsync().ConfigureAwait(false);
             const string expected = " SELECT 1 AS test;";
@@ -130,7 +83,7 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration
         [Test]
         public void IsIndexed_WhenViewIsNotIndexed_ReturnsFalse()
         {
-            var view = new PostgreSqlRelationalDatabaseView(Connection, Database, "view_test_view_1");
+            var view = new PostgreSqlRelationalDatabaseView(Connection, Dialect.TypeProvider, "view_test_view_1");
 
             Assert.IsFalse(view.IsIndexed);
         }
@@ -138,7 +91,7 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration
         [Test]
         public void Index_WhenViewIsNotIndexed_ReturnsEmptyLookup()
         {
-            var view = new PostgreSqlRelationalDatabaseView(Connection, Database, "view_test_view_1");
+            var view = new PostgreSqlRelationalDatabaseView(Connection, Dialect.TypeProvider, "view_test_view_1");
             var indexCount = view.Index.Count;
 
             Assert.Zero(indexCount);
@@ -147,7 +100,7 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration
         [Test]
         public async Task IndexAsync_WhenViewIsNotIndexed_ReturnsEmptyLookup()
         {
-            var view = new PostgreSqlRelationalDatabaseView(Connection, Database, "view_test_view_1");
+            var view = new PostgreSqlRelationalDatabaseView(Connection, Dialect.TypeProvider, "view_test_view_1");
             var indexes = await view.IndexAsync().ConfigureAwait(false);
             var indexCount = indexes.Count;
 
@@ -157,7 +110,7 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration
         [Test]
         public void Indexes_WhenViewIsNotIndexed_ReturnsEmptyCollection()
         {
-            var view = new PostgreSqlRelationalDatabaseView(Connection, Database, "view_test_view_1");
+            var view = new PostgreSqlRelationalDatabaseView(Connection, Dialect.TypeProvider, "view_test_view_1");
             var indexCount = view.Indexes.Count;
 
             Assert.Zero(indexCount);
@@ -166,7 +119,7 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration
         [Test]
         public async Task IndexesAsync_WhenViewIsNotIndexed_ReturnsEmptyCollection()
         {
-            var view = new PostgreSqlRelationalDatabaseView(Connection, Database, "view_test_view_1");
+            var view = new PostgreSqlRelationalDatabaseView(Connection, Dialect.TypeProvider, "view_test_view_1");
             var indexes = await view.IndexesAsync().ConfigureAwait(false);
             var indexCount = indexes.Count;
 
@@ -178,7 +131,7 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration
         {
             var database = Database;
             var viewName = new Identifier(database.DefaultSchema, "view_test_view_1");
-            var view = new PostgreSqlRelationalDatabaseView(Connection, database, viewName);
+            var view = new PostgreSqlRelationalDatabaseView(Connection, Dialect.TypeProvider, viewName);
             var columnCount = view.Column.Count;
 
             Assert.AreEqual(1, columnCount);
@@ -187,7 +140,9 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration
         [Test]
         public void Column_WhenViewContainsSingleColumn_ContainsColumnName()
         {
-            var view = new PostgreSqlRelationalDatabaseView(Connection, Database, "view_test_view_1");
+            var database = Database;
+            var viewName = new Identifier(database.DefaultSchema, "view_test_view_1");
+            var view = new PostgreSqlRelationalDatabaseView(Connection, Dialect.TypeProvider, viewName);
             var containsColumn = view.Column.ContainsKey("test");
 
             Assert.IsTrue(containsColumn);
@@ -197,7 +152,7 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration
         public void Columns_WhenViewContainsSingleColumn_ContainsOneValueOnly()
         {
             var viewName = new Identifier(Database.DefaultSchema, "view_test_view_1");
-            var view = new PostgreSqlRelationalDatabaseView(Connection, Database, viewName);
+            var view = new PostgreSqlRelationalDatabaseView(Connection, Dialect.TypeProvider, viewName);
             var columnCount = view.Columns.Count;
 
             Assert.AreEqual(1, columnCount);
@@ -208,7 +163,7 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration
         {
             var database = Database;
             var viewName = new Identifier(database.DefaultSchema, "view_test_view_1");
-            var view = new PostgreSqlRelationalDatabaseView(Connection, database, viewName);
+            var view = new PostgreSqlRelationalDatabaseView(Connection, Dialect.TypeProvider, viewName);
             var containsColumn = view.Columns.Any(c => c.Name == "test");
 
             Assert.IsTrue(containsColumn);
@@ -219,7 +174,7 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration
         {
             var database = Database;
             var viewName = new Identifier(database.DefaultSchema, "view_test_view_1");
-            var view = new PostgreSqlRelationalDatabaseView(Connection, database, viewName);
+            var view = new PostgreSqlRelationalDatabaseView(Connection, Dialect.TypeProvider, viewName);
             var columns = await view.ColumnAsync().ConfigureAwait(false);
             var columnCount = columns.Count;
 
@@ -231,7 +186,7 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration
         {
             var database = Database;
             var viewName = new Identifier(database.DefaultSchema, "view_test_view_1");
-            var view = new PostgreSqlRelationalDatabaseView(Connection, database, viewName);
+            var view = new PostgreSqlRelationalDatabaseView(Connection, Dialect.TypeProvider, viewName);
             var columns = await view.ColumnAsync().ConfigureAwait(false);
             var containsColumn = columns.ContainsKey("test");
 
@@ -243,7 +198,7 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration
         {
             var database = Database;
             var viewName = new Identifier(database.DefaultSchema, "view_test_view_1");
-            var view = new PostgreSqlRelationalDatabaseView(Connection, database, viewName);
+            var view = new PostgreSqlRelationalDatabaseView(Connection, Dialect.TypeProvider, viewName);
             var columns = await view.ColumnsAsync().ConfigureAwait(false);
             var columnCount = columns.Count;
 
@@ -255,7 +210,7 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration
         {
             var database = Database;
             var viewName = new Identifier(database.DefaultSchema, "view_test_view_1");
-            var view = new PostgreSqlRelationalDatabaseView(Connection, database, viewName);
+            var view = new PostgreSqlRelationalDatabaseView(Connection, Dialect.TypeProvider, viewName);
             var columns = await view.ColumnsAsync().ConfigureAwait(false);
             var containsColumn = columns.Any(c => c.Name == "test");
 

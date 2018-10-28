@@ -19,7 +19,7 @@ namespace SJP.Schematic.Sqlite.Tests
             var dialect = dialectMock.Object;
             dbMock.SetupGet(db => db.Dialect).Returns(dialect);
             var database = dbMock.Object;
-            Assert.Throws<ArgumentNullException>(() => new SqliteRelationalDatabaseView(null, database, "test"));
+            Assert.Throws<ArgumentNullException>(() => new SqliteRelationalDatabaseView(null, database, new Identifier("main", "test")));
         }
 
         [Test]
@@ -27,7 +27,7 @@ namespace SJP.Schematic.Sqlite.Tests
         {
             var connection = Mock.Of<IDbConnection>();
 
-            Assert.Throws<ArgumentNullException>(() => new SqliteRelationalDatabaseView(connection, null, "test"));
+            Assert.Throws<ArgumentNullException>(() => new SqliteRelationalDatabaseView(connection, null, new Identifier("main", "test")));
         }
 
         [Test]
@@ -37,6 +37,15 @@ namespace SJP.Schematic.Sqlite.Tests
             var database = Mock.Of<IRelationalDatabase>();
 
             Assert.Throws<ArgumentNullException>(() => new SqliteRelationalDatabaseView(connection, database, null));
+        }
+
+        [Test]
+        public static void Ctor_GivenNullSchemaName_ThrowsArgumentException()
+        {
+            var connection = Mock.Of<IDbConnection>();
+            var database = Mock.Of<IRelationalDatabase>();
+
+            Assert.Throws<ArgumentException>(() => new SqliteRelationalDatabaseView(connection, database, new Identifier("main", "test_view")));
         }
 
         [Test]
@@ -50,7 +59,7 @@ namespace SJP.Schematic.Sqlite.Tests
             var dialect = dialectMock.Object;
             dbMock.SetupGet(db => db.Dialect).Returns(dialect);
             var database = dbMock.Object;
-            var viewName = new Identifier("main", "table_test_table_1");
+            var viewName = new Identifier("main", "table_test_view_1");
 
             var view = new SqliteRelationalDatabaseView(connection, database, viewName);
 

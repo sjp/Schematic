@@ -267,13 +267,13 @@ end").ConfigureAwait(false);
         [Test]
         public void Ctor_GivenNullConnection_ThrowsArgNullException()
         {
-            Assert.Throws<ArgumentNullException>(() => new SqliteRelationalDatabaseTable(null, Database, "test"));
+            Assert.Throws<ArgumentNullException>(() => new SqliteRelationalDatabaseTable(null, Database, new Identifier("main", "test")));
         }
 
         [Test]
         public void Ctor_GivenNullDatabase_ThrowsArgNullException()
         {
-            Assert.Throws<ArgumentNullException>(() => new SqliteRelationalDatabaseTable(Connection, null, "test"));
+            Assert.Throws<ArgumentNullException>(() => new SqliteRelationalDatabaseTable(Connection, null, new Identifier("main", "test")));
         }
 
         [Test]
@@ -283,24 +283,19 @@ end").ConfigureAwait(false);
         }
 
         [Test]
-        public void Name_PropertyGet_ShouldEqualCtorArg()
+        public void Ctor_GivenMissingSchemaName_ThrowsArgNullException()
         {
-            const string tableName = "table_test_table_1";
-            var table = new SqliteRelationalDatabaseTable(Connection, Database, tableName);
-
-            Assert.AreEqual(tableName, table.Name.LocalName);
+            Assert.Throws<ArgumentException>(() => new SqliteRelationalDatabaseTable(Connection, Database, "test"));
         }
 
         [Test]
-        public void Name_GivenLocalNameOnlyInCtor_ShouldBeQualifiedCorrectly()
+        public void Name_PropertyGet_ShouldEqualCtorArg()
         {
             var database = Database;
-            var tableName = new Identifier("table_test_table_1");
-            var expectedTableName = new Identifier(database.DefaultSchema, "table_test_table_1");
-
+            var tableName = new Identifier(database.DefaultSchema, "table_test_table_1");
             var table = new SqliteRelationalDatabaseTable(Connection, database, tableName);
 
-            Assert.AreEqual(expectedTableName, table.Name);
+            Assert.AreEqual(tableName, table.Name);
         }
 
         [Test]
@@ -314,7 +309,7 @@ end").ConfigureAwait(false);
         }
 
         [Test]
-        public void Name_GivenDatabaseAndSchemaAndLocalNameOnlyInCtor_ShouldBeOnlySchemaAndLocalName()
+        public void Name_GivenDatabaseAndSchemaAndLocalNameInCtor_ShouldBeOnlySchemaAndLocalName()
         {
             var tableName = new Identifier("qwe", "asd", "table_test_table_1");
             var expectedTableName = new Identifier("asd", "table_test_table_1");

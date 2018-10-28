@@ -253,7 +253,6 @@ namespace SJP.Schematic.Lint.Tests.Rules
 
             var database = CreateFakeDatabase();
             var sequence = new DatabaseSequence(
-                database,
                 sequenceName,
                 1,
                 1,
@@ -277,7 +276,6 @@ namespace SJP.Schematic.Lint.Tests.Rules
 
             var database = CreateFakeDatabase();
             var sequence = new DatabaseSequence(
-                database,
                 sequenceName,
                 1,
                 1,
@@ -300,7 +298,7 @@ namespace SJP.Schematic.Lint.Tests.Rules
             var synonymName = new Identifier("test");
 
             var database = CreateFakeDatabase();
-            var synonym = new DatabaseSynonym(database, synonymName, "target");
+            var synonym = new DatabaseSynonym(synonymName, "target");
             database.Synonyms = new[] { synonym };
 
             var messages = rule.AnalyseDatabase(database);
@@ -315,7 +313,7 @@ namespace SJP.Schematic.Lint.Tests.Rules
             var synonymName = new Identifier("   test   ");
 
             var database = CreateFakeDatabase();
-            var synonym = new DatabaseSynonym(database, synonymName, "target");
+            var synonym = new DatabaseSynonym(synonymName, "target");
             database.Synonyms = new[] { synonym };
 
             var messages = rule.AnalyseDatabase(database);

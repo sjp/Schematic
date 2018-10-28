@@ -14,27 +14,11 @@ namespace SJP.Schematic.Oracle
 {
     public class OracleRelationalDatabaseView : IRelationalDatabaseView
     {
-        public OracleRelationalDatabaseView(IDbConnection connection, IRelationalDatabase database, Identifier viewName, IIdentifierResolutionStrategy identifierResolver = null)
+        public OracleRelationalDatabaseView(IDbConnection connection, IDbTypeProvider typeProvider, Identifier viewName, IIdentifierResolutionStrategy identifierResolver = null)
         {
-            if (database == null)
-                throw new ArgumentNullException(nameof(database));
-            if (viewName == null)
-                throw new ArgumentNullException(nameof(viewName));
-
             Connection = connection ?? throw new ArgumentNullException(nameof(connection));
-
-            var dialect = database.Dialect;
-            if (dialect == null)
-                throw new ArgumentException("The given database does not contain a valid dialect.", nameof(database));
-
-            var typeProvider = dialect.TypeProvider;
-            TypeProvider = typeProvider ?? throw new ArgumentException("The given database's dialect does not have a valid type provider.", nameof(database));
-
-            var serverName = viewName.Server ?? database.ServerName;
-            var databaseName = viewName.Database ?? database.DatabaseName;
-            var schemaName = viewName.Schema ?? database.DefaultSchema;
-
-            Name = Identifier.CreateQualifiedIdentifier(serverName, databaseName, schemaName, viewName.LocalName);
+            TypeProvider = typeProvider ?? throw new ArgumentNullException(nameof(typeProvider));
+            Name = viewName ?? throw new ArgumentNullException(nameof(viewName));
             IdentifierResolver = identifierResolver ?? new DefaultOracleIdentifierResolutionStrategy();
         }
 

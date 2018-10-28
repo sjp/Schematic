@@ -94,6 +94,53 @@ namespace SJP.Schematic.MySql.Tests.Integration
             }
 
             [Test]
+            public void GetTable_WhenTablePresentGivenLocalNameOnly_ShouldBeQualifiedCorrectly()
+            {
+                var database = Database;
+                var tableName = new Identifier("db_test_table_1");
+                var expectedTableName = new Identifier(database.ServerName, database.DatabaseName, database.DefaultSchema, "db_test_table_1");
+
+                var table = database.GetTable(tableName);
+
+                Assert.AreEqual(expectedTableName, table.Name);
+            }
+
+            [Test]
+            public void GetTable_WhenTablePresentGivenSchemaAndLocalNameOnly_ShouldBeQualifiedCorrectly()
+            {
+                var database = Database;
+                var tableName = new Identifier(database.DefaultSchema, "db_test_table_1");
+                var expectedTableName = new Identifier(database.ServerName, database.DatabaseName, database.DefaultSchema, "db_test_table_1");
+
+                var table = database.GetTable(tableName);
+
+                Assert.AreEqual(expectedTableName, table.Name);
+            }
+
+            [Test]
+            public void GetTable_WhenTablePresentGivenDatabaseAndSchemaAndLocalNameOnly_ShouldBeQualifiedCorrectly()
+            {
+                var database = Database;
+                var tableName = new Identifier(database.DatabaseName, database.DefaultSchema, "db_test_table_1");
+                var expectedTableName = new Identifier(database.ServerName, database.DatabaseName, database.DefaultSchema, "db_test_table_1");
+
+                var table = database.GetTable(tableName);
+
+                Assert.AreEqual(expectedTableName, table.Name);
+            }
+
+            [Test]
+            public void GetTable_WhenTablePresentGivenFullyQualifiedName_ShouldBeQualifiedCorrectly()
+            {
+                var database = Database;
+                var tableName = new Identifier(database.ServerName, database.DatabaseName, database.DefaultSchema, "db_test_table_1");
+
+                var table = database.GetTable(tableName);
+
+                Assert.AreEqual(tableName, table.Name);
+            }
+
+            [Test]
             public void GetTable_WhenTableMissing_ReturnsNull()
             {
                 var table = Database.GetTable("table_that_doesnt_exist");
@@ -140,6 +187,53 @@ namespace SJP.Schematic.MySql.Tests.Integration
                 var table = await Database.GetTableAsync(tableName).ConfigureAwait(false);
 
                 Assert.AreEqual(tableName, table.Name.LocalName);
+            }
+
+            [Test]
+            public async Task GetTableAsync_WhenTablePresentGivenLocalNameOnly_ShouldBeQualifiedCorrectly()
+            {
+                var database = Database;
+                var tableName = new Identifier("db_test_table_1");
+                var expectedTableName = new Identifier(database.ServerName, database.DatabaseName, database.DefaultSchema, "db_test_table_1");
+
+                var table = await database.GetTableAsync(tableName).ConfigureAwait(false);
+
+                Assert.AreEqual(expectedTableName, table.Name);
+            }
+
+            [Test]
+            public async Task GetTableAsync_WhenTablePresentGivenSchemaAndLocalNameOnly_ShouldBeQualifiedCorrectly()
+            {
+                var database = Database;
+                var tableName = new Identifier(database.DefaultSchema, "db_test_table_1");
+                var expectedTableName = new Identifier(database.ServerName, database.DatabaseName, database.DefaultSchema, "db_test_table_1");
+
+                var table = await database.GetTableAsync(tableName).ConfigureAwait(false);
+
+                Assert.AreEqual(expectedTableName, table.Name);
+            }
+
+            [Test]
+            public async Task GetTableAsync_WhenTablePresentGivenDatabaseAndSchemaAndLocalNameOnly_ShouldBeQualifiedCorrectly()
+            {
+                var database = Database;
+                var tableName = new Identifier(database.DatabaseName, database.DefaultSchema, "db_test_table_1");
+                var expectedTableName = new Identifier(database.ServerName, database.DatabaseName, database.DefaultSchema, "db_test_table_1");
+
+                var table = await database.GetTableAsync(tableName).ConfigureAwait(false);
+
+                Assert.AreEqual(expectedTableName, table.Name);
+            }
+
+            [Test]
+            public async Task GetTableAsync_WhenTablePresentGivenFullyQualifiedName_ShouldBeQualifiedCorrectly()
+            {
+                var database = Database;
+                var tableName = Identifier.CreateQualifiedIdentifier(database.ServerName, database.DatabaseName, database.DefaultSchema, "db_test_table_1");
+
+                var table = await database.GetTableAsync(tableName).ConfigureAwait(false);
+
+                Assert.AreEqual(tableName, table.Name);
             }
 
             [Test]
@@ -244,6 +338,53 @@ namespace SJP.Schematic.MySql.Tests.Integration
             }
 
             [Test]
+            public void GetView_WhenViewPresentGivenLocalNameOnly_ShouldBeQualifiedCorrectly()
+            {
+                var database = Database;
+                var viewName = new Identifier("db_test_view_1");
+                var expectedViewName = new Identifier(database.ServerName, database.DatabaseName, database.DefaultSchema, "db_test_view_1");
+
+                var view = database.GetView(viewName);
+
+                Assert.AreEqual(expectedViewName, view.Name);
+            }
+
+            [Test]
+            public void GetView_GivenSchemaAndLocalNameOnly_ShouldBeQualifiedCorrectly()
+            {
+                var database = Database;
+                var viewName = new Identifier(database.DefaultSchema, "db_test_view_1");
+                var expectedViewName = new Identifier(database.ServerName, database.DatabaseName, database.DefaultSchema, "db_test_view_1");
+
+                var view = database.GetView(viewName);
+
+                Assert.AreEqual(expectedViewName, view.Name);
+            }
+
+            [Test]
+            public void GetView_WhenViewPresentGivenDatabaseAndSchemaAndLocalNameOnly_ShouldBeQualifiedCorrectly()
+            {
+                var database = Database;
+                var viewName = new Identifier(database.DatabaseName, database.DefaultSchema, "db_test_view_1");
+                var expectedViewName = new Identifier(database.ServerName, database.DatabaseName, database.DefaultSchema, "db_test_view_1");
+
+                var view = database.GetView(viewName);
+
+                Assert.AreEqual(expectedViewName, view.Name);
+            }
+
+            [Test]
+            public void GetView_WhenViewPresentGivenFullyQualifiedName_ShouldBeQualifiedCorrectly()
+            {
+                var database = Database;
+                var viewName = new Identifier(database.ServerName, database.DatabaseName, database.DefaultSchema, "db_test_view_1");
+
+                var view = database.GetView(viewName);
+
+                Assert.AreEqual(viewName, view.Name);
+            }
+
+            [Test]
             public void GetView_WhenViewMissing_ReturnsNull()
             {
                 var view = Database.GetView("view_that_doesnt_exist");
@@ -288,6 +429,53 @@ namespace SJP.Schematic.MySql.Tests.Integration
             {
                 var database = Database;
                 var viewName = new Identifier(database.ServerName, database.DatabaseName, database.DefaultSchema, "db_test_view_1");
+                var view = await database.GetViewAsync(viewName).ConfigureAwait(false);
+
+                Assert.AreEqual(viewName, view.Name);
+            }
+
+            [Test]
+            public async Task GetViewAsync_WhenViewPresentGivenLocalNameOnly_ShouldBeQualifiedCorrectly()
+            {
+                var database = Database;
+                var viewName = new Identifier("db_test_view_1");
+                var expectedViewName = new Identifier(database.ServerName, database.DatabaseName, database.DefaultSchema, "db_test_view_1");
+
+                var view = await database.GetViewAsync(viewName).ConfigureAwait(false);
+
+                Assert.AreEqual(expectedViewName, view.Name);
+            }
+
+            [Test]
+            public async Task GetViewAsync_GivenSchemaAndLocalNameOnly_ShouldBeQualifiedCorrectly()
+            {
+                var database = Database;
+                var viewName = new Identifier(database.DefaultSchema, "db_test_view_1");
+                var expectedViewName = new Identifier(database.ServerName, database.DatabaseName, database.DefaultSchema, "db_test_view_1");
+
+                var view = await database.GetViewAsync(viewName).ConfigureAwait(false);
+
+                Assert.AreEqual(expectedViewName, view.Name);
+            }
+
+            [Test]
+            public async Task GetViewAsync_WhenViewPresentGivenDatabaseAndSchemaAndLocalNameOnly_ShouldBeQualifiedCorrectly()
+            {
+                var database = Database;
+                var viewName = new Identifier(database.DatabaseName, database.DefaultSchema, "db_test_view_1");
+                var expectedViewName = new Identifier(database.ServerName, database.DatabaseName, database.DefaultSchema, "db_test_view_1");
+
+                var view = await database.GetViewAsync(viewName).ConfigureAwait(false);
+
+                Assert.AreEqual(expectedViewName, view.Name);
+            }
+
+            [Test]
+            public async Task GetViewAsync_WhenViewPresentGivenFullyQualifiedName_ShouldBeQualifiedCorrectly()
+            {
+                var database = Database;
+                var viewName = new Identifier(database.ServerName, database.DatabaseName, database.DefaultSchema, "db_test_view_1");
+
                 var view = await database.GetViewAsync(viewName).ConfigureAwait(false);
 
                 Assert.AreEqual(viewName, view.Name);

@@ -42,53 +42,6 @@ namespace SJP.Schematic.SqlServer.Tests.Integration
         private IRelationalDatabase Database => new SqlServerRelationalDatabase(Dialect, Connection);
 
         [Test]
-        public void Name_GivenLocalNameOnlyInCtor_ShouldBeQualifiedCorrectly()
-        {
-            var database = Database;
-            var sequenceName = new Identifier("sequence_test_sequence_1");
-            var expectedSequenceName = new Identifier(database.ServerName, database.DatabaseName, database.DefaultSchema, "sequence_test_sequence_1");
-
-            var sequence = new SqlServerDatabaseSequence(Connection, database, sequenceName);
-
-            Assert.AreEqual(expectedSequenceName, sequence.Name);
-        }
-
-        [Test]
-        public void Name_GivenSchemaAndLocalNameOnlyInCtor_ShouldBeQualifiedCorrectly()
-        {
-            var database = Database;
-            var sequenceName = new Identifier("asd", "sequence_test_sequence_1");
-            var expectedSequenceName = new Identifier(database.ServerName, database.DatabaseName, "asd", "sequence_test_sequence_1");
-
-            var sequence = new SqlServerDatabaseSequence(Connection, database, sequenceName);
-
-            Assert.AreEqual(expectedSequenceName, sequence.Name);
-        }
-
-        [Test]
-        public void Name_GivenDatabaseAndSchemaAndLocalNameOnlyInCtor_ShouldBeQualifiedCorrectly()
-        {
-            var database = Database;
-            var sequenceName = new Identifier("qwe", "asd", "sequence_test_sequence_1");
-            var expectedSequenceName = new Identifier(database.ServerName, "qwe", "asd", "sequence_test_sequence_1");
-
-            var sequence = new SqlServerDatabaseSequence(Connection, database, sequenceName);
-
-            Assert.AreEqual(expectedSequenceName, sequence.Name);
-        }
-
-        [Test]
-        public void Name_GivenFullyQualifiedNameInCtor_ShouldBeQualifiedCorrectly()
-        {
-            var sequenceName = new Identifier("qwe", "asd", "zxc", "sequence_test_sequence_1");
-            var expectedSequenceName = new Identifier("qwe", "asd", "zxc", "sequence_test_sequence_1");
-
-            var sequence = new SqlServerDatabaseSequence(Connection, Database, sequenceName);
-
-            Assert.AreEqual(expectedSequenceName, sequence.Name);
-        }
-
-        [Test]
         public void Start_GivenDefaultSequence_ReturnsLongMinValue()
         {
             var sequence = Database.GetSequence("db_test_sequence_1");

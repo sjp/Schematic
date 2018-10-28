@@ -155,7 +155,7 @@ order by t.OWNER, t.TABLE_NAME";
 
             tableName = ResolveFirstObjectExistsName(tableName, TableExists);
             return tableName != null
-                ? new OracleRelationalDatabaseTable(Connection, this, tableName, IdentifierResolver)
+                ? new OracleRelationalDatabaseTable(Connection, this, Dialect.TypeProvider, tableName, IdentifierResolver)
                 : null;
         }
 
@@ -171,7 +171,7 @@ order by t.OWNER, t.TABLE_NAME";
         {
             tableName = await ResolveFirstObjectExistsNameAsync(tableName, TableExistsAsync, cancellationToken).ConfigureAwait(false);
             return tableName != null
-                ? new OracleRelationalDatabaseTable(Connection, this, tableName, IdentifierResolver)
+                ? new OracleRelationalDatabaseTable(Connection, this, Dialect.TypeProvider, tableName, IdentifierResolver)
                 : null;
         }
 
@@ -297,7 +297,7 @@ order by v.OWNER, v.VIEW_NAME";
 
             viewName = ResolveFirstObjectExistsName(viewName, ViewExists);
             return viewName != null
-                ? new OracleRelationalDatabaseView(Connection, this, viewName, IdentifierResolver)
+                ? new OracleRelationalDatabaseView(Connection, Dialect.TypeProvider, viewName, IdentifierResolver)
                 : null;
         }
 
@@ -313,7 +313,7 @@ order by v.OWNER, v.VIEW_NAME";
         {
             viewName = await ResolveFirstObjectExistsNameAsync(viewName, ViewExistsAsync, cancellationToken).ConfigureAwait(false);
             return viewName != null
-                ? new OracleRelationalDatabaseView(Connection, this, viewName, IdentifierResolver)
+                ? new OracleRelationalDatabaseView(Connection, Dialect.TypeProvider, viewName, IdentifierResolver)
                 : null;
         }
 
@@ -439,7 +439,7 @@ order by s.SEQUENCE_OWNER, s.SEQUENCE_NAME";
 
             sequenceName = ResolveFirstObjectExistsName(sequenceName, SequenceExists);
             return sequenceName != null
-                ? new OracleDatabaseSequence(Connection, this, sequenceName)
+                ? new OracleDatabaseSequence(Connection, sequenceName)
                 : null;
         }
 
@@ -455,7 +455,7 @@ order by s.SEQUENCE_OWNER, s.SEQUENCE_NAME";
         {
             sequenceName = await ResolveFirstObjectExistsNameAsync(sequenceName, SequenceExistsAsync, cancellationToken).ConfigureAwait(false);
             return sequenceName != null
-                ? new OracleDatabaseSequence(Connection, this, sequenceName)
+                ? new OracleDatabaseSequence(Connection, sequenceName)
                 : null;
         }
 
@@ -629,7 +629,7 @@ order by s.DB_LINK, s.OWNER, s.SYNONYM_NAME";
             var targetName = Identifier.CreateQualifiedIdentifier(databaseName, schemaName, localName);
             targetName = CreateQualifiedIdentifier(targetName);
 
-            return new OracleDatabaseSynonym(this, synonymName, targetName);
+            return new DatabaseSynonym(synonymName, targetName);
         }
 
         private IDatabaseSynonym LoadUserSynonymSync(string synonymName)
@@ -646,7 +646,7 @@ order by s.DB_LINK, s.OWNER, s.SYNONYM_NAME";
             var targetName = Identifier.CreateQualifiedIdentifier(databaseName, schemaName, localName);
             targetName = CreateQualifiedIdentifier(targetName);
 
-            return new OracleDatabaseSynonym(this, synonymName, targetName);
+            return new DatabaseSynonym(synonymName, targetName);
         }
 
         protected virtual Task<IDatabaseSynonym> LoadSynonymAsync(Identifier synonymName, CancellationToken cancellationToken = default(CancellationToken))
@@ -678,7 +678,7 @@ order by s.DB_LINK, s.OWNER, s.SYNONYM_NAME";
             var targetName = Identifier.CreateQualifiedIdentifier(databaseName, schemaName, localName);
             targetName = CreateQualifiedIdentifier(targetName);
 
-            return new OracleDatabaseSynonym(this, synonymName, targetName);
+            return new DatabaseSynonym(synonymName, targetName);
         }
 
         private async Task<IDatabaseSynonym> LoadUserSynonymAsyncCore(string synonymName, CancellationToken cancellationToken)
@@ -695,7 +695,7 @@ order by s.DB_LINK, s.OWNER, s.SYNONYM_NAME";
             var targetName = Identifier.CreateQualifiedIdentifier(databaseName, schemaName, localName);
             targetName = CreateQualifiedIdentifier(targetName);
 
-            return new OracleDatabaseSynonym(this, synonymName, targetName);
+            return new DatabaseSynonym(synonymName, targetName);
         }
 
         protected virtual string LoadSynonymQuery => LoadSynonymQuerySql;

@@ -121,7 +121,7 @@ namespace SJP.Schematic.SqlServer
 
             tableName = CreateQualifiedIdentifier(tableName);
             return TableExists(tableName)
-                ? new SqlServerRelationalDatabaseTable(Connection, this, tableName, Comparer)
+                ? new SqlServerRelationalDatabaseTable(Connection, this, Dialect.TypeProvider, tableName, Comparer)
                 : null;
         }
 
@@ -138,7 +138,7 @@ namespace SJP.Schematic.SqlServer
             tableName = CreateQualifiedIdentifier(tableName);
             var exists = await TableExistsAsync(tableName, cancellationToken).ConfigureAwait(false);
             return exists
-                ? new SqlServerRelationalDatabaseTable(Connection, this, tableName, Comparer)
+                ? new SqlServerRelationalDatabaseTable(Connection, this, Dialect.TypeProvider, tableName, Comparer)
                 : null;
         }
 
@@ -230,7 +230,7 @@ namespace SJP.Schematic.SqlServer
 
             viewName = CreateQualifiedIdentifier(viewName);
             return ViewExists(viewName)
-                ? new SqlServerRelationalDatabaseView(Connection, this, viewName, Comparer)
+                ? new SqlServerRelationalDatabaseView(Connection, this, Dialect.TypeProvider, viewName, Comparer)
                 : null;
         }
 
@@ -247,7 +247,7 @@ namespace SJP.Schematic.SqlServer
             viewName = CreateQualifiedIdentifier(viewName);
             var exists = await ViewExistsAsync(viewName, cancellationToken).ConfigureAwait(false);
             return exists
-                ? new SqlServerRelationalDatabaseView(Connection, this, viewName, Comparer)
+                ? new SqlServerRelationalDatabaseView(Connection, this, Dialect.TypeProvider, viewName, Comparer)
                 : null;
         }
 
@@ -339,7 +339,7 @@ namespace SJP.Schematic.SqlServer
 
             sequenceName = CreateQualifiedIdentifier(sequenceName);
             return SequenceExists(sequenceName)
-                ? new SqlServerDatabaseSequence(Connection, this, sequenceName)
+                ? new SqlServerDatabaseSequence(Connection, sequenceName)
                 : null;
         }
 
@@ -356,7 +356,7 @@ namespace SJP.Schematic.SqlServer
             sequenceName = CreateQualifiedIdentifier(sequenceName);
             var exists = await SequenceExistsAsync(sequenceName, cancellationToken).ConfigureAwait(false);
             return exists
-                ? new SqlServerDatabaseSequence(Connection, this, sequenceName)
+                ? new SqlServerDatabaseSequence(Connection, sequenceName)
                 : null;
         }
 
@@ -463,7 +463,7 @@ namespace SJP.Schematic.SqlServer
             var targetName = Identifier.CreateQualifiedIdentifier(serverName, databaseName, schemaName, localName);
             targetName = CreateQualifiedIdentifier(targetName);
 
-            return new SqlServerDatabaseSynonym(this, synonymName, targetName);
+            return new DatabaseSynonym(synonymName, targetName);
         }
 
         protected virtual Task<IDatabaseSynonym> LoadSynonymAsync(Identifier synonymName, CancellationToken cancellationToken = default(CancellationToken))
@@ -494,7 +494,7 @@ namespace SJP.Schematic.SqlServer
             var targetName = Identifier.CreateQualifiedIdentifier(serverName, databaseName, schemaName, localName);
             targetName = CreateQualifiedIdentifier(targetName);
 
-            return new SqlServerDatabaseSynonym(this, synonymName, targetName);
+            return new DatabaseSynonym(synonymName, targetName);
         }
 
         protected virtual string LoadSynonymQuery => LoadSynonymQuerySql;

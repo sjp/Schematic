@@ -15,23 +15,24 @@ namespace SJP.Schematic.Sqlite
     {
         public SqliteRelationalDatabaseView(IDbConnection connection, IRelationalDatabase database, Identifier viewName)
         {
-            if (database == null)
-                throw new ArgumentNullException(nameof(database));
+            Connection = connection ?? throw new ArgumentNullException(nameof(connection));
+
             if (viewName == null)
                 throw new ArgumentNullException(nameof(viewName));
+            if (viewName.Schema == null)
+                throw new ArgumentException("The given view name is missing a required schema name.", nameof(viewName));
+            Name = viewName.Database == null
+                ? viewName
+                : Identifier.CreateQualifiedIdentifier(viewName.Schema, viewName.LocalName);
 
-            Connection = connection ?? throw new ArgumentNullException(nameof(connection));
+            if (database == null)
+                throw new ArgumentNullException(nameof(database));
             if (database.Dialect == null)
                 throw new ArgumentException("The given database object does not contain a dialect.", nameof(database));
             Dialect = database.Dialect;
 
             Comparer = new IdentifierComparer(StringComparer.OrdinalIgnoreCase, defaultSchema: database.DefaultSchema);
-
-            var schemaName = viewName.Schema ?? database.DefaultSchema;
-            var localName = viewName.LocalName;
-
-            Name = Identifier.CreateQualifiedIdentifier(schemaName, localName);
-            Pragma = new DatabasePragma(Dialect, connection, schemaName);
+            Pragma = new DatabasePragma(Dialect, connection, viewName.Schema);
         }
 
         public Identifier Name { get; }

@@ -15,26 +15,12 @@ namespace SJP.Schematic.PostgreSql
 {
     public class PostgreSqlRelationalDatabaseTable : IRelationalDatabaseTable
     {
-        public PostgreSqlRelationalDatabaseTable(IDbConnection connection, IRelationalDatabase database, Identifier tableName, IIdentifierResolutionStrategy identifierResolver = null)
+        public PostgreSqlRelationalDatabaseTable(IDbConnection connection, IRelationalDatabase database, IDbTypeProvider typeProvider, Identifier tableName, IIdentifierResolutionStrategy identifierResolver = null)
         {
-            if (tableName == null)
-                throw new ArgumentNullException(nameof(tableName));
-
             Connection = connection ?? throw new ArgumentNullException(nameof(connection));
             Database = database ?? throw new ArgumentNullException(nameof(database));
-
-            var dialect = database.Dialect;
-            if (dialect == null)
-                throw new ArgumentException("The given database does not contain a valid dialect.", nameof(database));
-
-            var typeProvider = dialect.TypeProvider;
-            TypeProvider = typeProvider ?? throw new ArgumentException("The given database's dialect does not have a valid type provider.", nameof(database));
-
-            var serverName = tableName.Server ?? database.ServerName;
-            var databaseName = tableName.Database ?? database.DatabaseName;
-            var schemaName = tableName.Schema ?? database.DefaultSchema;
-
-            Name = Identifier.CreateQualifiedIdentifier(serverName, databaseName, schemaName, tableName.LocalName);
+            TypeProvider = typeProvider ?? throw new ArgumentNullException(nameof(typeProvider));
+            Name = tableName ?? throw new ArgumentNullException(nameof(tableName));
             IdentifierResolver = identifierResolver ?? new DefaultPostgreSqlIdentifierResolutionStrategy();
         }
 

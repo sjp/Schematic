@@ -40,12 +40,7 @@ namespace SJP.Schematic.Core
                 throw new ArgumentNullException(nameof(triggers));
 
             Database = database ?? throw new ArgumentNullException(nameof(database));
-
-            var serverName = tableName.Server ?? database.ServerName;
-            var databaseName = tableName.Database ?? database.DatabaseName;
-            var schemaName = tableName.Schema ?? database.DefaultSchema;
-
-            Name = Identifier.CreateQualifiedIdentifier(serverName, databaseName, schemaName, tableName.LocalName);
+            Name = tableName ?? throw new ArgumentNullException(nameof(tableName));
             Columns = columns;
             PrimaryKey = primaryKey;
             UniqueKeys = uniqueKeys;
@@ -54,7 +49,7 @@ namespace SJP.Schematic.Core
             Indexes = indexes;
             Checks = checks;
             Triggers = triggers;
-            Comparer = comparer ?? new IdentifierComparer(StringComparer.Ordinal, serverName, databaseName, schemaName);
+            Comparer = comparer ?? new IdentifierComparer(StringComparer.Ordinal, database.ServerName, database.DatabaseName, database.DefaultSchema);
 
             Column = CreateColumnLookup(Columns, Comparer);
             UniqueKey = CreateUniqueKeyLookup(UniqueKeys, Comparer);

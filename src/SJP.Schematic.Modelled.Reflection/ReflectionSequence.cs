@@ -27,7 +27,6 @@ namespace SJP.Schematic.Modelled.Reflection
 
             // create an inner sequence, which will perform validation
             var sequence = new DatabaseSequence(
-                database,
                 sequenceName,
                 instance.Start,
                 instance.Increment,

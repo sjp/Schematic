@@ -5,7 +5,6 @@ namespace SJP.Schematic.Core
     public class DatabaseSequence : IDatabaseSequence
     {
         public DatabaseSequence(
-            IRelationalDatabase database,
             Identifier sequenceName,
             decimal start,
             decimal increment,
@@ -15,17 +14,7 @@ namespace SJP.Schematic.Core
             int cacheSize
         )
         {
-            if (database == null)
-                throw new ArgumentNullException(nameof(database));
-            if (sequenceName == null)
-                throw new ArgumentNullException(nameof(sequenceName));
-
-            var serverName = sequenceName.Server ?? database.ServerName;
-            var databaseName = sequenceName.Database ?? database.DatabaseName;
-            var schemaName = sequenceName.Schema ?? database.DefaultSchema;
-
-            Name = Identifier.CreateQualifiedIdentifier(serverName, databaseName, schemaName, sequenceName.LocalName);
-
+            Name = sequenceName ?? throw new ArgumentNullException(nameof(sequenceName));
             Start = start;
 
             if (increment == 0)

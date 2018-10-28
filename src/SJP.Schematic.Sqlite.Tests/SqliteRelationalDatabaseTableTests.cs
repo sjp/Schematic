@@ -20,7 +20,7 @@ namespace SJP.Schematic.Sqlite.Tests
             dbMock.SetupGet(db => db.Dialect).Returns(dialect);
             var database = dbMock.Object;
 
-            Assert.Throws<ArgumentNullException>(() => new SqliteRelationalDatabaseTable(null, database, "test"));
+            Assert.Throws<ArgumentNullException>(() => new SqliteRelationalDatabaseTable(null, database, new Identifier("main", "test")));
         }
 
         [Test]
@@ -28,7 +28,7 @@ namespace SJP.Schematic.Sqlite.Tests
         {
             var connection = Mock.Of<IDbConnection>();
 
-            Assert.Throws<ArgumentNullException>(() => new SqliteRelationalDatabaseTable(connection, null, "test"));
+            Assert.Throws<ArgumentNullException>(() => new SqliteRelationalDatabaseTable(connection, null, new Identifier("main", "test")));
         }
 
         [Test]
@@ -38,6 +38,15 @@ namespace SJP.Schematic.Sqlite.Tests
             var database = Mock.Of<IRelationalDatabase>();
 
             Assert.Throws<ArgumentNullException>(() => new SqliteRelationalDatabaseTable(connection, database, null));
+        }
+
+        [Test]
+        public static void Ctor_GivenNullSchemaName_ThrowsArgumentException()
+        {
+            var connection = Mock.Of<IDbConnection>();
+            var database = Mock.Of<IRelationalDatabase>();
+
+            Assert.Throws<ArgumentException>(() => new SqliteRelationalDatabaseTable(connection, database, new Identifier("main", "test_table")));
         }
 
         [Test]

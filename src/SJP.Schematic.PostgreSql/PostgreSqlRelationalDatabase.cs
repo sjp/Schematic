@@ -131,7 +131,7 @@ where schemaname not in ('pg_catalog', 'information_schema')";
 
             tableName = CreateQualifiedIdentifier(tableName);
             return TableExists(tableName)
-                ? new PostgreSqlRelationalDatabaseTable(Connection, this, tableName, IdentifierResolver)
+                ? new PostgreSqlRelationalDatabaseTable(Connection, this, Dialect.TypeProvider, tableName, IdentifierResolver)
                 : null;
         }
 
@@ -148,7 +148,7 @@ where schemaname not in ('pg_catalog', 'information_schema')";
             tableName = CreateQualifiedIdentifier(tableName);
             var exists = await TableExistsAsync(tableName, cancellationToken).ConfigureAwait(false);
             return exists
-                ? new PostgreSqlRelationalDatabaseTable(Connection, this, tableName, IdentifierResolver)
+                ? new PostgreSqlRelationalDatabaseTable(Connection, this, Dialect.TypeProvider, tableName, IdentifierResolver)
                 : null;
         }
 
@@ -250,7 +250,7 @@ where schemaname not in ('pg_catalog', 'information_schema')";
 
             viewName = CreateQualifiedIdentifier(viewName);
             return ViewExists(viewName)
-                ? new PostgreSqlRelationalDatabaseView(Connection, this, viewName, IdentifierResolver)
+                ? new PostgreSqlRelationalDatabaseView(Connection, Dialect.TypeProvider, viewName, IdentifierResolver)
                 : null;
         }
 
@@ -267,7 +267,7 @@ where schemaname not in ('pg_catalog', 'information_schema')";
             viewName = CreateQualifiedIdentifier(viewName);
             var exists = await ViewExistsAsync(viewName, cancellationToken).ConfigureAwait(false);
             return exists
-                ? new PostgreSqlRelationalDatabaseView(Connection, this, viewName, IdentifierResolver)
+                ? new PostgreSqlRelationalDatabaseView(Connection, Dialect.TypeProvider, viewName, IdentifierResolver)
                 : null;
         }
 
@@ -369,7 +369,7 @@ where sequence_schema not in ('pg_catalog', 'information_schema')";
 
             sequenceName = CreateQualifiedIdentifier(sequenceName);
             return SequenceExists(sequenceName)
-                ? new PostgreSqlDatabaseSequence(Connection, this, sequenceName)
+                ? new PostgreSqlDatabaseSequence(Connection, sequenceName)
                 : null;
         }
 
@@ -386,7 +386,7 @@ where sequence_schema not in ('pg_catalog', 'information_schema')";
             sequenceName = CreateQualifiedIdentifier(sequenceName);
             var exists = await SequenceExistsAsync(sequenceName, cancellationToken).ConfigureAwait(false);
             return exists
-                ? new PostgreSqlDatabaseSequence(Connection, this, sequenceName)
+                ? new PostgreSqlDatabaseSequence(Connection, sequenceName)
                 : null;
         }
 

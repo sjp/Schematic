@@ -13,29 +13,15 @@ namespace SJP.Schematic.SqlServer
 {
     public class SqlServerRelationalDatabaseView : IRelationalDatabaseView
     {
-        public SqlServerRelationalDatabaseView(IDbConnection connection, IRelationalDatabase database, Identifier viewName, IEqualityComparer<Identifier> comparer = null)
+        public SqlServerRelationalDatabaseView(IDbConnection connection, IRelationalDatabase database, IDbTypeProvider typeProvider, Identifier viewName, IEqualityComparer<Identifier> comparer = null)
         {
             if (database == null)
                 throw new ArgumentNullException(nameof(database));
-            if (viewName == null)
-                throw new ArgumentNullException(nameof(viewName));
 
             Connection = connection ?? throw new ArgumentNullException(nameof(connection));
-
-            var dialect = database.Dialect;
-            if (dialect == null)
-                throw new ArgumentException("The given database does not contain a valid dialect.", nameof(database));
-
-            var typeProvider = dialect.TypeProvider;
-            TypeProvider = typeProvider ?? throw new ArgumentException("The given database's dialect does not have a valid type provider.", nameof(database));
-
-            var serverName = viewName.Server ?? database.ServerName;
-            var databaseName = viewName.Database ?? database.DatabaseName;
-            var schemaName = viewName.Schema ?? database.DefaultSchema;
-
-            Comparer = comparer ?? new IdentifierComparer(StringComparer.Ordinal, serverName, databaseName, schemaName);
-
-            Name = Identifier.CreateQualifiedIdentifier(serverName, databaseName, schemaName, viewName.LocalName);
+            TypeProvider = typeProvider ?? throw new ArgumentNullException(nameof(typeProvider));
+            Name = viewName ?? throw new ArgumentNullException(nameof(viewName));
+            Comparer = comparer ?? new IdentifierComparer(StringComparer.Ordinal, database.ServerName, database.DatabaseName, database.DefaultSchema);
         }
 
         public Identifier Name { get; }

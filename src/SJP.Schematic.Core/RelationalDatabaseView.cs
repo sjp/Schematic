@@ -17,24 +17,17 @@ namespace SJP.Schematic.Core
             IReadOnlyCollection<IDatabaseIndex> indexes,
             IEqualityComparer<Identifier> comparer = null)
         {
-            if (viewName == null)
-                throw new ArgumentNullException(nameof(viewName));
             if (definition.IsNullOrWhiteSpace())
                 throw new ArgumentNullException(nameof(definition));
 
             Database = database ?? throw new ArgumentNullException(nameof(database));
+            Name = viewName ?? throw new ArgumentNullException(nameof(viewName));
             Columns = columns ?? throw new ArgumentNullException(nameof(columns));
             Indexes = indexes ?? throw new ArgumentNullException(nameof(indexes));
             IsIndexed = Indexes.Count > 0;
             Definition = definition;
 
-            var serverName = viewName.Server ?? database.ServerName;
-            var databaseName = viewName.Database ?? database.DatabaseName;
-            var schemaName = viewName.Schema ?? database.DefaultSchema;
-
-            Comparer = comparer ?? new IdentifierComparer(StringComparer.Ordinal, serverName, databaseName, schemaName);
-
-            Name = Identifier.CreateQualifiedIdentifier(serverName, databaseName, schemaName, viewName.LocalName);
+            Comparer = comparer ?? new IdentifierComparer(StringComparer.Ordinal, database.ServerName, database.DatabaseName, database.DefaultSchema);
 
             Column = CreateColumnLookup(Columns, Comparer);
             Index = CreateIndexLookup(Indexes, Comparer);

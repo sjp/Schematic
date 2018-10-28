@@ -10,20 +10,10 @@ namespace SJP.Schematic.Oracle
 {
     public class OracleDatabaseSequence : IDatabaseSequence
     {
-        public OracleDatabaseSequence(IDbConnection connection, IRelationalDatabase database, Identifier sequenceName)
+        public OracleDatabaseSequence(IDbConnection connection, Identifier sequenceName)
         {
-            if (database == null)
-                throw new ArgumentNullException(nameof(database));
-            if (sequenceName == null)
-                throw new ArgumentNullException(nameof(sequenceName));
-
             Connection = connection ?? throw new ArgumentNullException(nameof(connection));
-
-            var serverName = sequenceName.Server ?? database.ServerName;
-            var databaseName = sequenceName.Database ?? database.DatabaseName;
-            var schemaName = sequenceName.Schema ?? database.DefaultSchema;
-
-            Name = Identifier.CreateQualifiedIdentifier(serverName, databaseName, schemaName, sequenceName.LocalName);
+            Name = sequenceName ?? throw new ArgumentNullException(nameof(sequenceName));
 
             _dataLoader = new AsyncLazy<SequenceData>(LoadSequenceDataAsync);
         }

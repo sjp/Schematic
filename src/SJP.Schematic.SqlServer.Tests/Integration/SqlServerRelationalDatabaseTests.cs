@@ -103,6 +103,53 @@ namespace SJP.Schematic.SqlServer.Tests.Integration
             }
 
             [Test]
+            public void GetTable_WhenTablePresentGivenLocalNameOnly_ShouldBeQualifiedCorrectly()
+            {
+                var database = Database;
+                var tableName = new Identifier("db_test_table_1");
+                var expectedTableName = new Identifier(database.ServerName, database.DatabaseName, database.DefaultSchema, "db_test_table_1");
+
+                var table = database.GetTable(tableName);
+
+                Assert.AreEqual(expectedTableName, table.Name);
+            }
+
+            [Test]
+            public void GetTable_WhenTablePresentGivenSchemaAndLocalNameOnly_ShouldBeQualifiedCorrectly()
+            {
+                var database = Database;
+                var tableName = new Identifier(database.DefaultSchema, "db_test_table_1");
+                var expectedTableName = new Identifier(database.ServerName, database.DatabaseName, database.DefaultSchema, "db_test_table_1");
+
+                var table = database.GetTable(tableName);
+
+                Assert.AreEqual(expectedTableName, table.Name);
+            }
+
+            [Test]
+            public void GetTable_WhenTablePresentGivenDatabaseAndSchemaAndLocalNameOnly_ShouldBeQualifiedCorrectly()
+            {
+                var database = Database;
+                var tableName = new Identifier(database.DatabaseName, database.DefaultSchema, "db_test_table_1");
+                var expectedTableName = new Identifier(database.ServerName, database.DatabaseName, database.DefaultSchema, "db_test_table_1");
+
+                var table = database.GetTable(tableName);
+
+                Assert.AreEqual(expectedTableName, table.Name);
+            }
+
+            [Test]
+            public void GetTable_WhenTablePresentGivenFullyQualifiedName_ShouldBeQualifiedCorrectly()
+            {
+                var database = Database;
+                var tableName = new Identifier(database.ServerName, database.DatabaseName, database.DefaultSchema, "db_test_table_1");
+
+                var table = database.GetTable(tableName);
+
+                Assert.AreEqual(tableName, table.Name);
+            }
+
+            [Test]
             public void GetTable_WhenTableMissing_ReturnsNull()
             {
                 var table = Database.GetTable("table_that_doesnt_exist");
@@ -158,6 +205,53 @@ namespace SJP.Schematic.SqlServer.Tests.Integration
                 var table = await Database.GetTableAsync(tableName).ConfigureAwait(false);
 
                 Assert.AreEqual(tableName, table.Name.LocalName);
+            }
+
+            [Test]
+            public async Task GetTableAsync_WhenTablePresentGivenLocalNameOnly_ShouldBeQualifiedCorrectly()
+            {
+                var database = Database;
+                var tableName = new Identifier("db_test_table_1");
+                var expectedTableName = new Identifier(database.ServerName, database.DatabaseName, database.DefaultSchema, "db_test_table_1");
+
+                var table = await database.GetTableAsync(tableName).ConfigureAwait(false);
+
+                Assert.AreEqual(expectedTableName, table.Name);
+            }
+
+            [Test]
+            public async Task GetTableAsync_WhenTablePresentGivenSchemaAndLocalNameOnly_ShouldBeQualifiedCorrectly()
+            {
+                var database = Database;
+                var tableName = new Identifier(database.DefaultSchema, "db_test_table_1");
+                var expectedTableName = new Identifier(database.ServerName, database.DatabaseName, database.DefaultSchema, "db_test_table_1");
+
+                var table = await database.GetTableAsync(tableName).ConfigureAwait(false);
+
+                Assert.AreEqual(expectedTableName, table.Name);
+            }
+
+            [Test]
+            public async Task GetTableAsync_WhenTablePresentGivenDatabaseAndSchemaAndLocalNameOnly_ShouldBeQualifiedCorrectly()
+            {
+                var database = Database;
+                var tableName = new Identifier(database.DatabaseName, database.DefaultSchema, "db_test_table_1");
+                var expectedTableName = new Identifier(database.ServerName, database.DatabaseName, database.DefaultSchema, "db_test_table_1");
+
+                var table = await database.GetTableAsync(tableName).ConfigureAwait(false);
+
+                Assert.AreEqual(expectedTableName, table.Name);
+            }
+
+            [Test]
+            public async Task GetTableAsync_WhenTablePresentGivenFullyQualifiedName_ShouldBeQualifiedCorrectly()
+            {
+                var database = Database;
+                var tableName = new Identifier(database.ServerName, database.DatabaseName, database.DefaultSchema, "db_test_table_1");
+
+                var table = await database.GetTableAsync(tableName).ConfigureAwait(false);
+
+                Assert.AreEqual(tableName, table.Name);
             }
 
             [Test]
@@ -271,6 +365,53 @@ namespace SJP.Schematic.SqlServer.Tests.Integration
             }
 
             [Test]
+            public void GetView_WhenViewPresentGivenLocalNameOnly_ShouldBeQualifiedCorrectly()
+            {
+                var database = Database;
+                var viewName = new Identifier("db_test_view_1");
+                var expectedViewName = new Identifier(database.ServerName, database.DatabaseName, database.DefaultSchema, "db_test_view_1");
+
+                var view = database.GetView(viewName);
+
+                Assert.AreEqual(expectedViewName, view.Name);
+            }
+
+            [Test]
+            public void GetView_WhenViewPresentGivenSchemaAndLocalNameOnly_ShouldBeQualifiedCorrectly()
+            {
+                var database = Database;
+                var viewName = new Identifier(Database.DefaultSchema, "db_test_view_1");
+                var expectedViewName = new Identifier(database.ServerName, database.DatabaseName, database.DefaultSchema, "db_test_view_1");
+
+                var view = database.GetView(viewName);
+
+                Assert.AreEqual(expectedViewName, view.Name);
+            }
+
+            [Test]
+            public void GetView_WhenViewPresentGivenDatabaseAndSchemaAndLocalNameOnly_ShouldBeQualifiedCorrectly()
+            {
+                var database = Database;
+                var viewName = new Identifier(database.DatabaseName, database.DefaultSchema, "db_test_view_1");
+                var expectedViewName = new Identifier(database.ServerName, database.DatabaseName, database.DefaultSchema, "db_test_view_1");
+
+                var view = database.GetView(viewName);
+
+                Assert.AreEqual(expectedViewName, view.Name);
+            }
+
+            [Test]
+            public void GetView_WhenViewPresentGivenFullyQualifiedName_ShouldBeQualifiedCorrectly()
+            {
+                var database = Database;
+                var viewName = new Identifier(database.ServerName, database.DatabaseName, database.DefaultSchema, "db_test_view_1");
+
+                var view = database.GetView(viewName);
+
+                Assert.AreEqual(viewName, view.Name);
+            }
+
+            [Test]
             public void GetView_WhenViewMissing_ReturnsNull()
             {
                 var view = Database.GetView("view_that_doesnt_exist");
@@ -324,6 +465,53 @@ namespace SJP.Schematic.SqlServer.Tests.Integration
             {
                 var database = Database;
                 var viewName = new Identifier(database.ServerName, database.DatabaseName, database.DefaultSchema, "db_test_view_1");
+                var view = await database.GetViewAsync(viewName).ConfigureAwait(false);
+
+                Assert.AreEqual(viewName, view.Name);
+            }
+
+            [Test]
+            public async Task GetViewAsync_WhenViewPresentGivenLocalNameOnly_ShouldBeQualifiedCorrectly()
+            {
+                var database = Database;
+                var viewName = new Identifier("db_test_view_1");
+                var expectedViewName = new Identifier(database.ServerName, database.DatabaseName, database.DefaultSchema, "db_test_view_1");
+
+                var view = await database.GetViewAsync(viewName).ConfigureAwait(false);
+
+                Assert.AreEqual(expectedViewName, view.Name);
+            }
+
+            [Test]
+            public async Task GetViewAsync_WhenViewPresentGivenSchemaAndLocalNameOnly_ShouldBeQualifiedCorrectly()
+            {
+                var database = Database;
+                var viewName = new Identifier(Database.DefaultSchema, "db_test_view_1");
+                var expectedViewName = new Identifier(database.ServerName, database.DatabaseName, database.DefaultSchema, "db_test_view_1");
+
+                var view = await database.GetViewAsync(viewName).ConfigureAwait(false);
+
+                Assert.AreEqual(expectedViewName, view.Name);
+            }
+
+            [Test]
+            public async Task GetViewAsync_WhenViewPresentGivenDatabaseAndSchemaAndLocalNameOnly_ShouldBeQualifiedCorrectly()
+            {
+                var database = Database;
+                var viewName = new Identifier(database.DatabaseName, database.DefaultSchema, "db_test_view_1");
+                var expectedViewName = new Identifier(database.ServerName, database.DatabaseName, database.DefaultSchema, "db_test_view_1");
+
+                var view = await database.GetViewAsync(viewName).ConfigureAwait(false);
+
+                Assert.AreEqual(expectedViewName, view.Name);
+            }
+
+            [Test]
+            public async Task GetViewAsync_WhenViewPresentGivenFullyQualifiedName_ShouldBeQualifiedCorrectly()
+            {
+                var database = Database;
+                var viewName = new Identifier(database.ServerName, database.DatabaseName, database.DefaultSchema, "db_test_view_1");
+
                 var view = await database.GetViewAsync(viewName).ConfigureAwait(false);
 
                 Assert.AreEqual(viewName, view.Name);
@@ -441,6 +629,53 @@ namespace SJP.Schematic.SqlServer.Tests.Integration
             }
 
             [Test]
+            public void GetSequence_WhenSequencePresentGivenLocalNameOnly_ShouldBeQualifiedCorrectly()
+            {
+                var database = Database;
+                var sequenceName = new Identifier("db_test_sequence_1");
+                var expectedSequenceName = new Identifier(database.ServerName, database.DatabaseName, database.DefaultSchema, "db_test_sequence_1");
+
+                var sequence = database.GetSequence(sequenceName);
+
+                Assert.AreEqual(expectedSequenceName, sequence.Name);
+            }
+
+            [Test]
+            public void GetSequence_WhenSequencePresentGivenSchemaAndLocalNameOnly_ShouldBeQualifiedCorrectly()
+            {
+                var database = Database;
+                var sequenceName = new Identifier(database.DefaultSchema, "db_test_sequence_1");
+                var expectedSequenceName = new Identifier(database.ServerName, database.DatabaseName, database.DefaultSchema, "db_test_sequence_1");
+
+                var sequence = database.GetSequence(sequenceName);
+
+                Assert.AreEqual(expectedSequenceName, sequence.Name);
+            }
+
+            [Test]
+            public void GetSequence_WhenSequencePresentGivenDatabaseAndSchemaAndLocalNameOnly_ShouldBeQualifiedCorrectly()
+            {
+                var database = Database;
+                var sequenceName = new Identifier(database.DatabaseName, database.DefaultSchema, "db_test_sequence_1");
+                var expectedSequenceName = new Identifier(database.ServerName, database.DatabaseName, database.DefaultSchema, "db_test_sequence_1");
+
+                var sequence = database.GetSequence(sequenceName);
+
+                Assert.AreEqual(expectedSequenceName, sequence.Name);
+            }
+
+            [Test]
+            public void GetSequence_WhenSequencePresentGivenFullyQualifiedName_ShouldBeQualifiedCorrectly()
+            {
+                var database = Database;
+                var sequenceName = new Identifier(database.ServerName, database.DatabaseName, database.DefaultSchema, "db_test_sequence_1");
+
+                var sequence = database.GetSequence(sequenceName);
+
+                Assert.AreEqual(sequenceName, sequence.Name);
+            }
+
+            [Test]
             public void GetSequence_WhenSequenceMissing_ReturnsNull()
             {
                 var sequence = Database.GetSequence("sequence_that_doesnt_exist");
@@ -496,6 +731,53 @@ namespace SJP.Schematic.SqlServer.Tests.Integration
                 var sequence = await Database.GetSequenceAsync(sequenceName).ConfigureAwait(false);
 
                 Assert.AreEqual(sequenceName, sequence.Name.LocalName);
+            }
+
+            [Test]
+            public async Task GetSequenceAsync_WhenSequencePresentGivenLocalNameOnly_ShouldBeQualifiedCorrectly()
+            {
+                var database = Database;
+                var sequenceName = new Identifier("db_test_sequence_1");
+                var expectedSequenceName = new Identifier(database.ServerName, database.DatabaseName, database.DefaultSchema, "db_test_sequence_1");
+
+                var sequence = await database.GetSequenceAsync(sequenceName).ConfigureAwait(false);
+
+                Assert.AreEqual(expectedSequenceName, sequence.Name);
+            }
+
+            [Test]
+            public async Task GetSequenceAsync_WhenSequencePresentGivenSchemaAndLocalNameOnly_ShouldBeQualifiedCorrectly()
+            {
+                var database = Database;
+                var sequenceName = new Identifier(database.DefaultSchema, "db_test_sequence_1");
+                var expectedSequenceName = new Identifier(database.ServerName, database.DatabaseName, database.DefaultSchema, "db_test_sequence_1");
+
+                var sequence = await database.GetSequenceAsync(sequenceName).ConfigureAwait(false);
+
+                Assert.AreEqual(expectedSequenceName, sequence.Name);
+            }
+
+            [Test]
+            public async Task GetSequenceAsync_WhenSequencePresentGivenDatabaseAndSchemaAndLocalNameOnly_ShouldBeQualifiedCorrectly()
+            {
+                var database = Database;
+                var sequenceName = new Identifier(database.DatabaseName, database.DefaultSchema, "db_test_sequence_1");
+                var expectedSequenceName = new Identifier(database.ServerName, database.DatabaseName, database.DefaultSchema, "db_test_sequence_1");
+
+                var sequence = await database.GetSequenceAsync(sequenceName).ConfigureAwait(false);
+
+                Assert.AreEqual(expectedSequenceName, sequence.Name);
+            }
+
+            [Test]
+            public async Task GetSequenceAsync_WhenSequencePresentGivenFullyQualifiedName_ShouldBeQualifiedCorrectly()
+            {
+                var database = Database;
+                var sequenceName = new Identifier(database.ServerName, database.DatabaseName, database.DefaultSchema, "db_test_sequence_1");
+
+                var sequence = await database.GetSequenceAsync(sequenceName).ConfigureAwait(false);
+
+                Assert.AreEqual(sequenceName, sequence.Name);
             }
 
             [Test]
@@ -621,6 +903,53 @@ namespace SJP.Schematic.SqlServer.Tests.Integration
             }
 
             [Test]
+            public void GetSynonym_WhenSynonymExistsGivenLocalNameOnly_ShouldBeQualifiedCorrectly()
+            {
+                var database = Database;
+                var synonymName = new Identifier("db_test_synonym_1");
+                var expectedSynonymName = new Identifier(database.ServerName, database.DatabaseName, database.DefaultSchema, "db_test_synonym_1");
+
+                var synonym = database.GetSynonym(synonymName);
+
+                Assert.AreEqual(expectedSynonymName, synonym.Name);
+            }
+
+            [Test]
+            public void GetSynonym_WhenSynonymExistsGivenSchemaAndLocalNameOnly_ShouldBeQualifiedCorrectly()
+            {
+                var database = Database;
+                var synonymName = new Identifier(database.DefaultSchema, "db_test_synonym_1");
+                var expectedSynonymName = new Identifier(database.ServerName, database.DatabaseName, database.DefaultSchema, "db_test_synonym_1");
+
+                var synonym = database.GetSynonym(synonymName);
+
+                Assert.AreEqual(expectedSynonymName, synonym.Name);
+            }
+
+            [Test]
+            public void GetSynonym_WhenSynonymExistsGivenDatabaseAndSchemaAndLocalNameOnly_ShouldBeQualifiedCorrectly()
+            {
+                var database = Database;
+                var synonymName = new Identifier(database.DatabaseName, database.DefaultSchema, "db_test_synonym_1");
+                var expectedSynonymName = new Identifier(database.ServerName, database.DatabaseName, database.DefaultSchema, "db_test_synonym_1");
+
+                var synonym = database.GetSynonym(synonymName);
+
+                Assert.AreEqual(expectedSynonymName, synonym.Name);
+            }
+
+            [Test]
+            public void GetSynonym_WhenSynonymExistsGivenFullyQualifiedName_ShouldBeQualifiedCorrectly()
+            {
+                var database = Database;
+                var synonymName = new Identifier(database.ServerName, database.DatabaseName, database.DefaultSchema, "db_test_synonym_1");
+
+                var synonym = database.GetSynonym(synonymName);
+
+                Assert.AreEqual(synonymName, synonym.Name);
+            }
+
+            [Test]
             public void GetSynonym_WhenSynonymMissing_ReturnsNull()
             {
                 var synonym = Database.GetSynonym("synonym_that_doesnt_exist");
@@ -677,6 +1006,53 @@ namespace SJP.Schematic.SqlServer.Tests.Integration
                 var synonym = await database.GetSynonymAsync(synonymName).ConfigureAwait(false);
 
                 Assert.AreEqual(synonymName, synonym.Name.LocalName);
+            }
+
+            [Test]
+            public async Task GetSynonymAsync_WhenSynonymExistsGivenLocalNameOnly_ShouldBeQualifiedCorrectly()
+            {
+                var database = Database;
+                var synonymName = new Identifier("db_test_synonym_1");
+                var expectedSynonymName = new Identifier(database.ServerName, database.DatabaseName, database.DefaultSchema, "db_test_synonym_1");
+
+                var synonym = await database.GetSynonymAsync(synonymName).ConfigureAwait(false);
+
+                Assert.AreEqual(expectedSynonymName, synonym.Name);
+            }
+
+            [Test]
+            public async Task GetSynonymAsync_WhenSynonymExistsGivenSchemaAndLocalNameOnly_ShouldBeQualifiedCorrectly()
+            {
+                var database = Database;
+                var synonymName = new Identifier(database.DefaultSchema, "db_test_synonym_1");
+                var expectedSynonymName = new Identifier(database.ServerName, database.DatabaseName, database.DefaultSchema, "db_test_synonym_1");
+
+                var synonym = await database.GetSynonymAsync(synonymName).ConfigureAwait(false);
+
+                Assert.AreEqual(expectedSynonymName, synonym.Name);
+            }
+
+            [Test]
+            public async Task GetSynonymAsync_WhenSynonymExistsGivenDatabaseAndSchemaAndLocalNameOnly_ShouldBeQualifiedCorrectly()
+            {
+                var database = Database;
+                var synonymName = new Identifier(database.DatabaseName, database.DefaultSchema, "db_test_synonym_1");
+                var expectedSynonymName = new Identifier(database.ServerName, database.DatabaseName, database.DefaultSchema, "db_test_synonym_1");
+
+                var synonym = await database.GetSynonymAsync(synonymName).ConfigureAwait(false);
+
+                Assert.AreEqual(expectedSynonymName, synonym.Name);
+            }
+
+            [Test]
+            public async Task GetSynonymAsync_WhenSynonymExistsGivenFullyQualifiedName_ShouldBeQualifiedCorrectly()
+            {
+                var database = Database;
+                var synonymName = new Identifier(database.ServerName, database.DatabaseName, database.DefaultSchema, "db_test_synonym_1");
+
+                var synonym = await database.GetSynonymAsync(synonymName).ConfigureAwait(false);
+
+                Assert.AreEqual(synonymName, synonym.Name);
             }
 
             [Test]

@@ -13,29 +13,13 @@ namespace SJP.Schematic.MySql
 {
     public class MySqlRelationalDatabaseView : IRelationalDatabaseView
     {
-        public MySqlRelationalDatabaseView(IDbConnection connection, IRelationalDatabase database, Identifier viewName, IEqualityComparer<Identifier> comparer = null)
+        public MySqlRelationalDatabaseView(IDbConnection connection, IDbTypeProvider typeProvider, Identifier viewName, IEqualityComparer<Identifier> comparer = null)
         {
-            if (database == null)
-                throw new ArgumentNullException(nameof(database));
-            if (viewName == null)
-                throw new ArgumentNullException(nameof(viewName));
-
             Connection = connection ?? throw new ArgumentNullException(nameof(connection));
+            TypeProvider = typeProvider ?? throw new ArgumentNullException(nameof(typeProvider));
+            Name = viewName ?? throw new ArgumentNullException(nameof(viewName));
 
-            var dialect = database.Dialect;
-            if (dialect == null)
-                throw new ArgumentException("The given database does not contain a valid dialect.", nameof(database));
-
-            var typeProvider = dialect.TypeProvider;
-            TypeProvider = typeProvider ?? throw new ArgumentException("The given database's dialect does not have a valid type provider.", nameof(database));
-
-            var serverName = viewName.Server ?? database.ServerName;
-            var databaseName = viewName.Database ?? database.DatabaseName;
-            var schemaName = viewName.Schema ?? database.DefaultSchema;
-
-            Comparer = comparer ?? new IdentifierComparer(StringComparer.Ordinal, serverName, databaseName, schemaName);
-
-            Name = Identifier.CreateQualifiedIdentifier(serverName, databaseName, schemaName, viewName.LocalName);
+            Comparer = comparer ?? new IdentifierComparer(StringComparer.Ordinal, viewName.Server, viewName.Database, viewName.Schema);
         }
 
         public Identifier Name { get; }

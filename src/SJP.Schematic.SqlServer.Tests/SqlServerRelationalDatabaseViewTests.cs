@@ -12,22 +12,28 @@ namespace SJP.Schematic.SqlServer.Tests
         [Test]
         public static void Ctor_GivenNullConnection_ThrowsArgNullException()
         {
-            var dbMock = new Mock<IRelationalDatabase>();
-            var dialectMock = new Mock<IDatabaseDialect>();
+            var database = Mock.Of<IRelationalDatabase>();
             var typeProvider = Mock.Of<IDbTypeProvider>();
-            dialectMock.SetupGet(d => d.TypeProvider).Returns(typeProvider);
-            var dialect = dialectMock.Object;
-            dbMock.SetupGet(db => db.Dialect).Returns(dialect);
-            var database = dbMock.Object;
-            Assert.Throws<ArgumentNullException>(() => new SqlServerRelationalDatabaseView(null, database, "test"));
+
+            Assert.Throws<ArgumentNullException>(() => new SqlServerRelationalDatabaseView(null, database, typeProvider, "test"));
         }
 
         [Test]
         public static void Ctor_GivenNullDatabase_ThrowsArgNullException()
         {
             var connection = Mock.Of<IDbConnection>();
+            var typeProvider = Mock.Of<IDbTypeProvider>();
 
-            Assert.Throws<ArgumentNullException>(() => new SqlServerRelationalDatabaseView(connection, null, "test"));
+            Assert.Throws<ArgumentNullException>(() => new SqlServerRelationalDatabaseView(connection, null, typeProvider, "test"));
+        }
+
+        [Test]
+        public static void Ctor_GivenNullTypeProvider_ThrowsArgNullException()
+        {
+            var connection = Mock.Of<IDbConnection>();
+            var database = Mock.Of<IRelationalDatabase>();
+
+            Assert.Throws<ArgumentNullException>(() => new SqlServerRelationalDatabaseView(connection, database, null, "test"));
         }
 
         [Test]
@@ -35,26 +41,22 @@ namespace SJP.Schematic.SqlServer.Tests
         {
             var connection = Mock.Of<IDbConnection>();
             var database = Mock.Of<IRelationalDatabase>();
+            var typeProvider = Mock.Of<IDbTypeProvider>();
 
-            Assert.Throws<ArgumentNullException>(() => new SqlServerRelationalDatabaseView(connection, database, null));
+            Assert.Throws<ArgumentNullException>(() => new SqlServerRelationalDatabaseView(connection, database, typeProvider, null));
         }
 
         [Test]
         public static void Name_PropertyGet_ShouldEqualCtorArg()
         {
             var connection = Mock.Of<IDbConnection>();
-            var dbMock = new Mock<IRelationalDatabase>();
-            var dialectMock = new Mock<IDatabaseDialect>();
+            var database = Mock.Of<IRelationalDatabase>();
             var typeProvider = Mock.Of<IDbTypeProvider>();
-            dialectMock.SetupGet(d => d.TypeProvider).Returns(typeProvider);
-            var dialect = dialectMock.Object;
-            dbMock.SetupGet(db => db.Dialect).Returns(dialect);
-            var database = dbMock.Object;
-            const string viewName = "view_test_view_1";
+            var viewName = new Identifier("view_test_view_1");
 
-            var view = new SqlServerRelationalDatabaseView(connection, database, viewName);
+            var view = new SqlServerRelationalDatabaseView(connection, database, typeProvider, viewName);
 
-            Assert.AreEqual(viewName, view.Name.LocalName);
+            Assert.AreEqual(viewName, view.Name);
         }
     }
 }
