@@ -783,7 +783,7 @@ where t.relname = @TableName and ns.nspname = @SchemaName";
 
                 var isNullable = row.is_nullable == "YES";
 
-                var column = new PostgreSqlDatabaseColumn(columnName, columnType, isNullable, row.column_default, autoIncrement);
+                var column = new DatabaseColumn(columnName, columnType, isNullable, row.column_default, autoIncrement);
                 result.Add(column);
             }
 
@@ -819,7 +819,7 @@ where t.relname = @TableName and ns.nspname = @SchemaName";
 
                 var isNullable = row.is_nullable == "YES";
 
-                var column = new PostgreSqlDatabaseColumn(columnName, columnType, isNullable, row.column_default, autoIncrement);
+                var column = new DatabaseColumn(columnName, columnType, isNullable, row.column_default, autoIncrement);
                 result.Add(column);
             }
 

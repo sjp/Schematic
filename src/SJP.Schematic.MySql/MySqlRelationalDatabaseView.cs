@@ -114,7 +114,7 @@ where table_schema = @SchemaName and table_name = @ViewName";
                 var autoIncrement = isAutoIncrement ? new AutoIncrement(1, 1) : (IAutoIncrement)null;
                 var isNullable = !string.Equals(row.IsNullable, "NO", StringComparison.OrdinalIgnoreCase);
 
-                var column = new MySqlDatabaseColumn(columnName, columnType, isNullable, row.DefaultValue, autoIncrement);
+                var column = new DatabaseColumn(columnName, columnType, isNullable, row.DefaultValue, autoIncrement);
                 result.Add(column);
             }
 
@@ -146,7 +146,7 @@ where table_schema = @SchemaName and table_name = @ViewName";
                 var autoIncrement = isAutoIncrement ? new AutoIncrement(1, 1) : (IAutoIncrement)null;
                 var isNullable = !string.Equals(row.IsNullable, "NO", StringComparison.OrdinalIgnoreCase);
 
-                var column = new MySqlDatabaseColumn(columnName, columnType, isNullable, row.DefaultValue, autoIncrement);
+                var column = new DatabaseColumn(columnName, columnType, isNullable, row.DefaultValue, autoIncrement);
                 result.Add(column);
             }
 

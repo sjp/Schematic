@@ -114,7 +114,7 @@ where table_schema = @SchemaName and table_name = @ViewName";
                 var columnName = Identifier.CreateQualifiedIdentifier(row.column_name);
                 IAutoIncrement autoIncrement = null;
 
-                var column = new PostgreSqlDatabaseColumn(columnName, columnType, row.is_nullable == "YES", row.column_default, autoIncrement);
+                var column = new DatabaseColumn(columnName, columnType, row.is_nullable == "YES", row.column_default, autoIncrement);
                 result.Add(column);
             }
 
@@ -142,7 +142,7 @@ where table_schema = @SchemaName and table_name = @ViewName";
                 var columnName = Identifier.CreateQualifiedIdentifier(row.column_name);
                 IAutoIncrement autoIncrement = null;
 
-                var column = new PostgreSqlDatabaseColumn(columnName, columnType, row.is_nullable == "YES", row.column_default, autoIncrement);
+                var column = new DatabaseColumn(columnName, columnType, row.is_nullable == "YES", row.column_default, autoIncrement);
                 result.Add(column);
             }
 

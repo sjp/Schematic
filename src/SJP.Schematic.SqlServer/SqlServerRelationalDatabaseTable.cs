@@ -757,8 +757,8 @@ where schema_name(child_t.schema_id) = @SchemaName and child_t.name = @TableName
                     : (IAutoIncrement)null;
 
                 var column = row.IsComputed
-                    ? new SqlServerDatabaseComputedColumn(columnName, columnType, row.IsNullable, row.DefaultValue, row.ComputedColumnDefinition)
-                    : new SqlServerDatabaseColumn(columnName, columnType, row.IsNullable, row.DefaultValue, autoIncrement);
+                    ? new DatabaseComputedColumn(columnName, columnType, row.IsNullable, row.DefaultValue, row.ComputedColumnDefinition)
+                    : new DatabaseColumn(columnName, columnType, row.IsNullable, row.DefaultValue, autoIncrement);
 
                 result.Add(column);
             }
@@ -789,8 +789,8 @@ where schema_name(child_t.schema_id) = @SchemaName and child_t.name = @TableName
                     : (IAutoIncrement)null;
 
                 var column = row.IsComputed
-                    ? new SqlServerDatabaseComputedColumn(columnName, columnType, row.IsNullable, row.DefaultValue, row.ComputedColumnDefinition)
-                    : new SqlServerDatabaseColumn(columnName, columnType, row.IsNullable, row.DefaultValue, autoIncrement);
+                    ? new DatabaseComputedColumn(columnName, columnType, row.IsNullable, row.DefaultValue, row.ComputedColumnDefinition)
+                    : new DatabaseColumn(columnName, columnType, row.IsNullable, row.DefaultValue, autoIncrement);
 
                 result.Add(column);
             }

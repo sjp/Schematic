@@ -638,7 +638,7 @@ namespace SJP.Schematic.Sqlite
                     ? new AutoIncrement(1, 1)
                     : (IAutoIncrement)null;
 
-                var column = new SqliteDatabaseColumn(tableInfo.name, columnType, !tableInfo.notnull, tableInfo.dflt_value, autoIncrement);
+                var column = new DatabaseColumn(tableInfo.name, columnType, !tableInfo.notnull, tableInfo.dflt_value, autoIncrement);
                 result.Add(column);
             }
 
@@ -669,7 +669,7 @@ namespace SJP.Schematic.Sqlite
                     ? new AutoIncrement(1, 1)
                     : (IAutoIncrement)null;
 
-                var column = new SqliteDatabaseColumn(tableInfo.name, columnType, !tableInfo.notnull, tableInfo.dflt_value, autoIncrement);
+                var column = new DatabaseColumn(tableInfo.name, columnType, !tableInfo.notnull, tableInfo.dflt_value, autoIncrement);
                 result.Add(column);
             }
 

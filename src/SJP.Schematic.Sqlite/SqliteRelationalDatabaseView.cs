@@ -129,7 +129,7 @@ namespace SJP.Schematic.Sqlite
                 var affinity = _affinityParser.ParseTypeName(columnTypeName);
                 var columnType = new SqliteColumnType(affinity);
 
-                var column = new SqliteDatabaseColumn(tableInfo.name, columnType, !tableInfo.notnull, tableInfo.dflt_value, null);
+                var column = new DatabaseColumn(tableInfo.name, columnType, !tableInfo.notnull, tableInfo.dflt_value, null);
                 result.Add(column);
             }
 
@@ -153,7 +153,7 @@ namespace SJP.Schematic.Sqlite
                 var affinity = _affinityParser.ParseTypeName(columnTypeName);
                 var columnType = new SqliteColumnType(affinity);
 
-                var column = new SqliteDatabaseColumn(tableInfo.name, columnType, !tableInfo.notnull, tableInfo.dflt_value, null);
+                var column = new DatabaseColumn(tableInfo.name, columnType, !tableInfo.notnull, tableInfo.dflt_value, null);
                 result.Add(column);
             }
 

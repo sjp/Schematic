@@ -238,7 +238,7 @@ order by ic.index_id, ic.key_ordinal, ic.index_column_id";
                     ? new AutoIncrement(row.IdentitySeed.Value, row.IdentityIncrement.Value)
                     : (IAutoIncrement)null;
 
-                var column = new SqlServerDatabaseColumn(columnName, columnType, row.IsNullable, row.DefaultValue, autoIncrement);
+                var column = new DatabaseColumn(columnName, columnType, row.IsNullable, row.DefaultValue, autoIncrement);
 
                 result.Add(column);
             }
@@ -268,7 +268,7 @@ order by ic.index_id, ic.key_ordinal, ic.index_column_id";
                     ? new AutoIncrement(row.IdentitySeed.Value, row.IdentityIncrement.Value)
                     : (IAutoIncrement)null;
 
-                var column = new SqlServerDatabaseColumn(columnName, columnType, row.IsNullable, row.DefaultValue, autoIncrement);
+                var column = new DatabaseColumn(columnName, columnType, row.IsNullable, row.DefaultValue, autoIncrement);
 
                 result.Add(column);
             }

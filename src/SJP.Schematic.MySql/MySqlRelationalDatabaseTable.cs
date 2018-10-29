@@ -655,8 +655,8 @@ where t.table_schema = @SchemaName and t.table_name = @TableName";
                 var isNullable = !string.Equals(row.IsNullable, "NO", StringComparison.OrdinalIgnoreCase);
 
                 var column = isComputed
-                    ? new MySqlDatabaseComputedColumn(columnName, columnType, isNullable, row.DefaultValue, row.ComputedColumnDefinition)
-                    : new MySqlDatabaseColumn(columnName, columnType, isNullable, row.DefaultValue, autoIncrement);
+                    ? new DatabaseComputedColumn(columnName, columnType, isNullable, row.DefaultValue, row.ComputedColumnDefinition)
+                    : new DatabaseColumn(columnName, columnType, isNullable, row.DefaultValue, autoIncrement);
 
                 result.Add(column);
             }
@@ -688,8 +688,8 @@ where t.table_schema = @SchemaName and t.table_name = @TableName";
                 var isNullable = !string.Equals(row.IsNullable, "NO", StringComparison.OrdinalIgnoreCase);
 
                 var column = isComputed
-                    ? new MySqlDatabaseComputedColumn(columnName, columnType, isNullable, row.DefaultValue, row.ComputedColumnDefinition)
-                    : new MySqlDatabaseColumn(columnName, columnType, isNullable, row.DefaultValue, autoIncrement);
+                    ? new DatabaseComputedColumn(columnName, columnType, isNullable, row.DefaultValue, row.ComputedColumnDefinition)
+                    : new DatabaseColumn(columnName, columnType, isNullable, row.DefaultValue, autoIncrement);
 
                 result.Add(column);
             }
