@@ -6,7 +6,7 @@ using SJP.Schematic.Core.Extensions;
 
 namespace SJP.Schematic.Oracle
 {
-    public class OracleDatabaseIndex : IDatabaseIndex
+    public class OracleDatabaseIndex : IOracleDatabaseIndex
     {
         public OracleDatabaseIndex(Identifier name, bool isUnique, IReadOnlyCollection<IDatabaseIndexColumn> columns, OracleIndexProperties properties)
         {
