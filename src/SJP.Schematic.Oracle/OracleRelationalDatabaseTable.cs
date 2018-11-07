@@ -14,13 +14,13 @@ namespace SJP.Schematic.Oracle
 {
     public class OracleRelationalDatabaseTable : IRelationalDatabaseTable
     {
-        public OracleRelationalDatabaseTable(IDbConnection connection, IRelationalDatabase database, IDbTypeProvider typeProvider, Identifier tableName, IIdentifierResolutionStrategy identifierResolver = null)
+        public OracleRelationalDatabaseTable(IDbConnection connection, IRelationalDatabase database, IDbTypeProvider typeProvider, Identifier tableName, IIdentifierResolutionStrategy identifierResolver)
         {
             Connection = connection ?? throw new ArgumentNullException(nameof(connection));
             Database = database ?? throw new ArgumentNullException(nameof(database));
             TypeProvider = typeProvider ?? throw new ArgumentNullException(nameof(typeProvider));
             Name = tableName ?? throw new ArgumentNullException(nameof(tableName));
-            IdentifierResolver = identifierResolver ?? new DefaultOracleIdentifierResolutionStrategy();
+            IdentifierResolver = identifierResolver ?? throw new ArgumentNullException(nameof(identifierResolver));
         }
 
         public Identifier Name { get; }

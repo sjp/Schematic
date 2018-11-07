@@ -12,13 +12,22 @@ namespace SJP.Schematic.Oracle.Tests
         public static void Ctor_GivenNullDialect_ThrowsArgumentNullException()
         {
             var connection = Mock.Of<IDbConnection>();
-            Assert.Throws<ArgumentNullException>(() => new OracleRelationalDatabase(null, connection));
+            var identifierResolver = new DefaultOracleIdentifierResolutionStrategy();
+            Assert.Throws<ArgumentNullException>(() => new OracleRelationalDatabase(null, connection, identifierResolver));
         }
 
         [Test]
         public static void Ctor_GivenNullConnection_ThrowsArgumentNullException()
         {
-            Assert.Throws<ArgumentNullException>(() => new OracleRelationalDatabase(new OracleDialect(), null));
+            var identifierResolver = new DefaultOracleIdentifierResolutionStrategy();
+            Assert.Throws<ArgumentNullException>(() => new OracleRelationalDatabase(new OracleDialect(), null, identifierResolver));
+        }
+
+        [Test]
+        public static void Ctor_GivenNullIdentifierResolver_ThrowsArgumentNullException()
+        {
+            var connection = Mock.Of<IDbConnection>();
+            Assert.Throws<ArgumentNullException>(() => new OracleRelationalDatabase(new OracleDialect(), connection, null));
         }
     }
 }

@@ -39,7 +39,8 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration
             await Connection.ExecuteAsync("drop sequence db_test_sequence_11").ConfigureAwait(false);
         }
 
-        private IRelationalDatabase Database => new PostgreSqlRelationalDatabase(Dialect, Connection);
+        private IIdentifierResolutionStrategy IdentifierResolver { get; } = new DefaultPostgreSqlIdentifierResolutionStrategy();
+        private IRelationalDatabase Database => new PostgreSqlRelationalDatabase(Dialect, Connection, IdentifierResolver);
 
         [Test]
         public void Start_GivenDefaultSequence_ReturnsOne()

@@ -43,7 +43,8 @@ namespace SJP.Schematic.Oracle.Tests.Integration
         private const int SequenceDefaultMinValue = 1;
         private const decimal OracleNumberMaxValue = 9999999999999999999999999999m;
 
-        private IRelationalDatabase Database => new OracleRelationalDatabase(Dialect, Connection);
+        private IIdentifierResolutionStrategy IdentifierResolver { get; } = new DefaultOracleIdentifierResolutionStrategy();
+        private IRelationalDatabase Database => new OracleRelationalDatabase(Dialect, Connection, IdentifierResolver);
 
         [Test]
         public void Start_GivenDefaultSequence_ReturnsOne()

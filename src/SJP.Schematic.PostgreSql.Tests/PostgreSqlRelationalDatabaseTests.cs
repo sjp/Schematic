@@ -12,13 +12,16 @@ namespace SJP.Schematic.PostgreSql.Tests
         public static void Ctor_GivenNullDialect_ThrowsArgumentNullException()
         {
             var connection = Mock.Of<IDbConnection>();
-            Assert.Throws<ArgumentNullException>(() => new PostgreSqlRelationalDatabase(null, connection));
+            var identifierResolver = new DefaultPostgreSqlIdentifierResolutionStrategy();
+
+            Assert.Throws<ArgumentNullException>(() => new PostgreSqlRelationalDatabase(null, connection, identifierResolver));
         }
 
         [Test]
         public static void Ctor_GivenNullConnection_ThrowsArgumentNullException()
         {
-            Assert.Throws<ArgumentNullException>(() => new PostgreSqlRelationalDatabase(new PostgreSqlDialect(), null));
+            var identifierResolver = new DefaultPostgreSqlIdentifierResolutionStrategy();
+            Assert.Throws<ArgumentNullException>(() => new PostgreSqlRelationalDatabase(new PostgreSqlDialect(), null, identifierResolver));
         }
     }
 }

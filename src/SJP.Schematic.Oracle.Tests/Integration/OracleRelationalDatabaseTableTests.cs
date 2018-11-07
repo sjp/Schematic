@@ -7,7 +7,8 @@ namespace SJP.Schematic.Oracle.Tests.Integration
 {
     internal partial class OracleRelationalDatabaseTableTests : OracleTest
     {
-        private IRelationalDatabase Database => new OracleRelationalDatabase(Dialect, Connection);
+        private IIdentifierResolutionStrategy IdentifierResolver { get; } = new DefaultOracleIdentifierResolutionStrategy();
+        private IRelationalDatabase Database => new OracleRelationalDatabase(Dialect, Connection, IdentifierResolver);
 
         [OneTimeSetUp]
         public async Task Init()

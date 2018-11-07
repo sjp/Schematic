@@ -14,12 +14,12 @@ namespace SJP.Schematic.Oracle
 {
     public class OracleRelationalDatabaseView : IRelationalDatabaseView
     {
-        public OracleRelationalDatabaseView(IDbConnection connection, IDbTypeProvider typeProvider, Identifier viewName, IIdentifierResolutionStrategy identifierResolver = null)
+        public OracleRelationalDatabaseView(IDbConnection connection, IDbTypeProvider typeProvider, Identifier viewName, IIdentifierResolutionStrategy identifierResolver)
         {
             Connection = connection ?? throw new ArgumentNullException(nameof(connection));
             TypeProvider = typeProvider ?? throw new ArgumentNullException(nameof(typeProvider));
             Name = viewName ?? throw new ArgumentNullException(nameof(viewName));
-            IdentifierResolver = identifierResolver ?? new DefaultOracleIdentifierResolutionStrategy();
+            IdentifierResolver = identifierResolver ?? throw new ArgumentNullException(nameof(identifierResolver));
         }
 
         public Identifier Name { get; }

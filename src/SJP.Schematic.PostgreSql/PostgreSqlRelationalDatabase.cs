@@ -14,11 +14,11 @@ namespace SJP.Schematic.PostgreSql
 {
     public class PostgreSqlRelationalDatabase : RelationalDatabase, IRelationalDatabase
     {
-        public PostgreSqlRelationalDatabase(IDatabaseDialect dialect, IDbConnection connection, IIdentifierResolutionStrategy identifierResolver = null)
+        public PostgreSqlRelationalDatabase(IDatabaseDialect dialect, IDbConnection connection, IIdentifierResolutionStrategy identifierResolver)
             : base(dialect, connection)
         {
+            IdentifierResolver = identifierResolver ?? throw new ArgumentNullException(nameof(identifierResolver));
             _metadata = new Lazy<DatabaseMetadata>(LoadDatabaseMetadata);
-            IdentifierResolver = identifierResolver ?? new DefaultPostgreSqlIdentifierResolutionStrategy();
         }
 
         protected IIdentifierResolutionStrategy IdentifierResolver { get; }

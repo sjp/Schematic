@@ -7,7 +7,8 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration
 {
     internal partial class PostgreSqlRelationalDatabaseTableTests : PostgreSqlTest
     {
-        private IRelationalDatabase Database => new PostgreSqlRelationalDatabase(Dialect, Connection);
+        private IIdentifierResolutionStrategy IdentifierResolver { get; } = new DefaultPostgreSqlIdentifierResolutionStrategy();
+        private IRelationalDatabase Database => new PostgreSqlRelationalDatabase(Dialect, Connection, IdentifierResolver);
 
         [OneTimeSetUp]
         public async Task Init()

@@ -9,7 +9,7 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration
 {
     internal sealed class PostgreSqlRelationalDatabaseTests : PostgreSqlTest
     {
-        private IRelationalDatabase Database => new PostgreSqlRelationalDatabase(Dialect, Connection);
+        private IRelationalDatabase Database => new PostgreSqlRelationalDatabase(Dialect, Connection, new DefaultPostgreSqlIdentifierResolutionStrategy());
 
         [Test]
         public void Database_PropertyGet_ShouldMatchConnectionDatabase()
@@ -49,7 +49,7 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration
                 return Connection.ExecuteAsync("drop table db_test_table_1");
             }
 
-            private IRelationalDatabase Database => new PostgreSqlRelationalDatabase(Dialect, Connection);
+            private IRelationalDatabase Database => new PostgreSqlRelationalDatabase(Dialect, Connection, new DefaultPostgreSqlIdentifierResolutionStrategy());
 
             [Test]
             public void GetTable_GivenNullName_ThrowsArgumentNullException()
@@ -255,7 +255,7 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration
                 return Connection.ExecuteAsync("drop view db_test_view_1");
             }
 
-            private IRelationalDatabase Database => new PostgreSqlRelationalDatabase(Dialect, Connection);
+            private IRelationalDatabase Database => new PostgreSqlRelationalDatabase(Dialect, Connection, new DefaultPostgreSqlIdentifierResolutionStrategy());
 
             [Test]
             public void GetView_GivenNullName_ThrowsArgumentNullException()
@@ -462,7 +462,7 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration
                 return Connection.ExecuteAsync("drop sequence db_test_sequence_1");
             }
 
-            private IRelationalDatabase Database => new PostgreSqlRelationalDatabase(Dialect, Connection);
+            private IRelationalDatabase Database => new PostgreSqlRelationalDatabase(Dialect, Connection, new DefaultPostgreSqlIdentifierResolutionStrategy());
 
             [Test]
             public void GetSequence_GivenNullName_ThrowsArgumentNullException()
@@ -656,7 +656,7 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration
 
         internal sealed class SynonymTests : PostgreSqlTest
         {
-            private IRelationalDatabase Database => new PostgreSqlRelationalDatabase(Dialect, Connection);
+            private IRelationalDatabase Database => new PostgreSqlRelationalDatabase(Dialect, Connection, new DefaultPostgreSqlIdentifierResolutionStrategy());
 
             [Test]
             public void GetSynonym_GivenNullName_ThrowsArgumentNullException()

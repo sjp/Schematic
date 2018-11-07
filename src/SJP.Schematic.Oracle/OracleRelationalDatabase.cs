@@ -14,11 +14,11 @@ namespace SJP.Schematic.Oracle
 {
     public class OracleRelationalDatabase : RelationalDatabase, IRelationalDatabase
     {
-        public OracleRelationalDatabase(IDatabaseDialect dialect, IDbConnection connection, IIdentifierResolutionStrategy identifierResolver = null)
+        public OracleRelationalDatabase(IDatabaseDialect dialect, IDbConnection connection, IIdentifierResolutionStrategy identifierResolver)
             : base(dialect, connection)
         {
+            IdentifierResolver = identifierResolver ?? throw new ArgumentNullException(nameof(identifierResolver));
             _metadata = new AsyncLazy<DatabaseMetadata>(LoadDatabaseMetadataAsync);
-            IdentifierResolver = identifierResolver ?? new DefaultOracleIdentifierResolutionStrategy();
         }
 
         protected IIdentifierResolutionStrategy IdentifierResolver { get; }

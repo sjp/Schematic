@@ -9,7 +9,7 @@ namespace SJP.Schematic.Oracle.Tests.Integration
 {
     internal sealed class OracleRelationalDatabaseTests : OracleTest
     {
-        private IRelationalDatabase Database => new OracleRelationalDatabase(Dialect, Connection);
+        private IRelationalDatabase Database => new OracleRelationalDatabase(Dialect, Connection, new DefaultOracleIdentifierResolutionStrategy());
 
         [Test]
         public void Database_PropertyGet_ShouldNotBeEmpty()
@@ -51,7 +51,7 @@ namespace SJP.Schematic.Oracle.Tests.Integration
                 return Connection.ExecuteAsync("drop table db_test_table_1");
             }
 
-            private IRelationalDatabase Database => new OracleRelationalDatabase(Dialect, Connection);
+            private IRelationalDatabase Database => new OracleRelationalDatabase(Dialect, Connection, new DefaultOracleIdentifierResolutionStrategy());
 
             [Test]
             public void GetTable_GivenNullName_ThrowsArgumentNullException()
@@ -164,7 +164,7 @@ namespace SJP.Schematic.Oracle.Tests.Integration
                 return Connection.ExecuteAsync("drop view db_test_view_1");
             }
 
-            private IRelationalDatabase Database => new OracleRelationalDatabase(Dialect, Connection);
+            private IRelationalDatabase Database => new OracleRelationalDatabase(Dialect, Connection, new DefaultOracleIdentifierResolutionStrategy());
 
             [Test]
             public void GetView_GivenNullName_ThrowsArgumentNullException()
@@ -373,7 +373,7 @@ namespace SJP.Schematic.Oracle.Tests.Integration
                 return Connection.ExecuteAsync("drop sequence db_test_sequence_1");
             }
 
-            private IRelationalDatabase Database => new OracleRelationalDatabase(Dialect, Connection);
+            private IRelationalDatabase Database => new OracleRelationalDatabase(Dialect, Connection, new DefaultOracleIdentifierResolutionStrategy());
 
             [Test]
             public void GetSequence_GivenNullName_ThrowsArgumentNullException()
@@ -595,7 +595,8 @@ namespace SJP.Schematic.Oracle.Tests.Integration
                 await Connection.ExecuteAsync("drop synonym synonym_test_synonym_3").ConfigureAwait(false);
             }
 
-            private IRelationalDatabase Database => new OracleRelationalDatabase(Dialect, Connection);
+            private IIdentifierResolutionStrategy IdentifierResolver { get; } = new DefaultOracleIdentifierResolutionStrategy();
+            private IRelationalDatabase Database => new OracleRelationalDatabase(Dialect, Connection, IdentifierResolver);
 
             [Test]
             public void GetSynonym_GivenNullName_ThrowsArgumentNullException()
