@@ -144,7 +144,7 @@ namespace SJP.Schematic.Tool
                 ["sqlite"] = (d, c) => new SqliteRelationalDatabase(d, c),
                 ["sqlserver"] = (d, c) => new SqlServerRelationalDatabase(d, c),
                 ["mysql"] = (d, c) => new MySqlRelationalDatabase(d, c),
-                ["postgresql"] = (d, c) => new PostgreSqlRelationalDatabase(d, c)
+                ["postgresql"] = (d, c) => new PostgreSqlRelationalDatabase(d, c, new DefaultPostgreSqlIdentifierResolutionStrategy())
             };
 
         public sealed class ConnectionStatus
