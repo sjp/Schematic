@@ -32,7 +32,7 @@ namespace SJP.Schematic.SqlServer.Tests.Integration
         {
             var database = Database;
             var viewName = new Identifier(database.DefaultSchema, "view_test_view_1");
-            var view = new SqlServerRelationalDatabaseView(Connection, Database, Dialect.TypeProvider, viewName);
+            var view = database.GetView(viewName);
 
             var definition = view.Definition;
             const string expected = "create view view_test_view_1 as select 1 as test";
@@ -45,7 +45,7 @@ namespace SJP.Schematic.SqlServer.Tests.Integration
         {
             var database = Database;
             var viewName = new Identifier(database.DefaultSchema, "view_test_view_1");
-            var view = new SqlServerRelationalDatabaseView(Connection, Database, Dialect.TypeProvider, viewName);
+            var view = await database.GetViewAsync(viewName).ConfigureAwait(false);
 
             var definition = await view.DefinitionAsync().ConfigureAwait(false);
             const string expected = "create view view_test_view_1 as select 1 as test";
@@ -56,7 +56,7 @@ namespace SJP.Schematic.SqlServer.Tests.Integration
         [Test]
         public void IsIndexed_WhenViewIsNotIndexed_ReturnsFalse()
         {
-            var view = new SqlServerRelationalDatabaseView(Connection, Database, Dialect.TypeProvider, "view_test_view_1");
+            var view = Database.GetView("view_test_view_1");
 
             Assert.IsFalse(view.IsIndexed);
         }
@@ -64,7 +64,7 @@ namespace SJP.Schematic.SqlServer.Tests.Integration
         [Test]
         public void Index_WhenViewIsNotIndexed_ReturnsEmptyLookup()
         {
-            var view = new SqlServerRelationalDatabaseView(Connection, Database, Dialect.TypeProvider, "view_test_view_1");
+            var view = Database.GetView("view_test_view_1");
             var indexCount = view.Index.Count;
 
             Assert.Zero(indexCount);
@@ -73,7 +73,7 @@ namespace SJP.Schematic.SqlServer.Tests.Integration
         [Test]
         public async Task IndexAsync_WhenViewIsNotIndexed_ReturnsEmptyLookup()
         {
-            var view = new SqlServerRelationalDatabaseView(Connection, Database, Dialect.TypeProvider, "view_test_view_1");
+            var view = await Database.GetViewAsync("view_test_view_1").ConfigureAwait(false);
             var indexes = await view.IndexAsync().ConfigureAwait(false);
             var indexCount = indexes.Count;
 
@@ -83,7 +83,7 @@ namespace SJP.Schematic.SqlServer.Tests.Integration
         [Test]
         public void Indexes_WhenViewIsNotIndexed_ReturnsEmptyCollection()
         {
-            var view = new SqlServerRelationalDatabaseView(Connection, Database, Dialect.TypeProvider, "view_test_view_1");
+            var view = Database.GetView("view_test_view_1");
             var indexCount = view.Indexes.Count;
 
             Assert.Zero(indexCount);
@@ -92,7 +92,7 @@ namespace SJP.Schematic.SqlServer.Tests.Integration
         [Test]
         public async Task IndexesAsync_WhenViewIsNotIndexed_ReturnsEmptyCollection()
         {
-            var view = new SqlServerRelationalDatabaseView(Connection, Database, Dialect.TypeProvider, "view_test_view_1");
+            var view = await Database.GetViewAsync("view_test_view_1").ConfigureAwait(false);
             var indexes = await view.IndexesAsync().ConfigureAwait(false);
             var indexCount = indexes.Count;
 
@@ -104,7 +104,7 @@ namespace SJP.Schematic.SqlServer.Tests.Integration
         {
             var database = Database;
             var viewName = new Identifier(database.DefaultSchema, "view_test_view_1");
-            var view = new SqlServerRelationalDatabaseView(Connection, Database, Dialect.TypeProvider, viewName);
+            var view = database.GetView(viewName);
             var columnCount = view.Column.Count;
 
             Assert.AreEqual(1, columnCount);
@@ -115,7 +115,7 @@ namespace SJP.Schematic.SqlServer.Tests.Integration
         {
             var database = Database;
             var viewName = new Identifier(database.DefaultSchema, "view_test_view_1");
-            var view = new SqlServerRelationalDatabaseView(Connection, database, Dialect.TypeProvider, viewName);
+            var view = database.GetView(viewName);
             var containsColumn = view.Column.ContainsKey("test");
 
             Assert.IsTrue(containsColumn);
@@ -125,7 +125,7 @@ namespace SJP.Schematic.SqlServer.Tests.Integration
         public void Columns_WhenViewContainsSingleColumn_ContainsOneValueOnly()
         {
             var viewName = new Identifier(Database.DefaultSchema, "view_test_view_1");
-            var view = new SqlServerRelationalDatabaseView(Connection, Database, Dialect.TypeProvider, viewName);
+            var view = Database.GetView(viewName);
             var columnCount = view.Columns.Count;
 
             Assert.AreEqual(1, columnCount);
@@ -136,7 +136,7 @@ namespace SJP.Schematic.SqlServer.Tests.Integration
         {
             var database = Database;
             var viewName = new Identifier(database.DefaultSchema, "view_test_view_1");
-            var view = new SqlServerRelationalDatabaseView(Connection, Database, Dialect.TypeProvider, viewName);
+            var view = database.GetView(viewName);
             var containsColumn = view.Columns.Any(c => c.Name == "test");
 
             Assert.IsTrue(containsColumn);
@@ -147,7 +147,7 @@ namespace SJP.Schematic.SqlServer.Tests.Integration
         {
             var database = Database;
             var viewName = new Identifier(database.DefaultSchema, "view_test_view_1");
-            var view = new SqlServerRelationalDatabaseView(Connection, Database, Dialect.TypeProvider, viewName);
+            var view = await database.GetViewAsync(viewName).ConfigureAwait(false);
             var columns = await view.ColumnAsync().ConfigureAwait(false);
             var columnCount = columns.Count;
 
@@ -159,7 +159,7 @@ namespace SJP.Schematic.SqlServer.Tests.Integration
         {
             var database = Database;
             var viewName = new Identifier(database.DefaultSchema, "view_test_view_1");
-            var view = new SqlServerRelationalDatabaseView(Connection, Database, Dialect.TypeProvider, viewName);
+            var view = await database.GetViewAsync(viewName).ConfigureAwait(false);
             var columns = await view.ColumnAsync().ConfigureAwait(false);
             var containsColumn = columns.ContainsKey("test");
 
@@ -171,7 +171,7 @@ namespace SJP.Schematic.SqlServer.Tests.Integration
         {
             var database = Database;
             var viewName = new Identifier(database.DefaultSchema, "view_test_view_1");
-            var view = new SqlServerRelationalDatabaseView(Connection, Database, Dialect.TypeProvider, viewName);
+            var view = await database.GetViewAsync(viewName).ConfigureAwait(false);
             var columns = await view.ColumnsAsync().ConfigureAwait(false);
             var columnCount = columns.Count;
 
@@ -183,7 +183,7 @@ namespace SJP.Schematic.SqlServer.Tests.Integration
         {
             var database = Database;
             var viewName = new Identifier(database.DefaultSchema, "view_test_view_1");
-            var view = new SqlServerRelationalDatabaseView(Connection, Database, Dialect.TypeProvider, viewName);
+            var view = await database.GetViewAsync(viewName).ConfigureAwait(false);
             var columns = await view.ColumnsAsync().ConfigureAwait(false);
             var containsColumn = columns.Any(c => c.Name == "test");
 
@@ -195,7 +195,7 @@ namespace SJP.Schematic.SqlServer.Tests.Integration
         {
             var database = Database;
             var viewName = new Identifier(database.DefaultSchema, "view_test_view_2");
-            var view = new SqlServerRelationalDatabaseView(Connection, Database, Dialect.TypeProvider, viewName);
+            var view = database.GetView(viewName);
 
             Assert.IsTrue(view.IsIndexed);
         }
@@ -205,7 +205,7 @@ namespace SJP.Schematic.SqlServer.Tests.Integration
         {
             var database = Database;
             var viewName = new Identifier(database.DefaultSchema, "view_test_view_2");
-            var view = new SqlServerRelationalDatabaseView(Connection, Database, Dialect.TypeProvider, viewName);
+            var view = database.GetView(viewName);
             var indexCount = view.Index.Count;
 
             Assert.AreEqual(1, indexCount);
@@ -216,7 +216,7 @@ namespace SJP.Schematic.SqlServer.Tests.Integration
         {
             var database = Database;
             var viewName = new Identifier(database.DefaultSchema, "view_test_view_2");
-            var view = new SqlServerRelationalDatabaseView(Connection, Database, Dialect.TypeProvider, viewName);
+            var view = await database.GetViewAsync(viewName).ConfigureAwait(false);
             var indexes = await view.IndexAsync().ConfigureAwait(false);
             var indexCount = indexes.Count;
 
@@ -228,7 +228,7 @@ namespace SJP.Schematic.SqlServer.Tests.Integration
         {
             var database = Database;
             var viewName = new Identifier(database.DefaultSchema, "view_test_view_2");
-            var view = new SqlServerRelationalDatabaseView(Connection, Database, Dialect.TypeProvider, viewName);
+            var view = database.GetView(viewName);
             var indexCount = view.Indexes.Count;
 
             Assert.AreEqual(1, indexCount);
@@ -239,7 +239,7 @@ namespace SJP.Schematic.SqlServer.Tests.Integration
         {
             var database = Database;
             var viewName = new Identifier(database.DefaultSchema, "view_test_view_2");
-            var view = new SqlServerRelationalDatabaseView(Connection, Database, Dialect.TypeProvider, viewName);
+            var view = await database.GetViewAsync(viewName).ConfigureAwait(false);
             var indexes = await view.IndexesAsync().ConfigureAwait(false);
             var indexCount = indexes.Count;
 
@@ -252,7 +252,7 @@ namespace SJP.Schematic.SqlServer.Tests.Integration
             Identifier indexName = "ix_view_test_view_2";
             var database = Database;
             var viewName = new Identifier(database.DefaultSchema, "view_test_view_2");
-            var view = new SqlServerRelationalDatabaseView(Connection, Database, Dialect.TypeProvider, viewName);
+            var view = database.GetView(viewName);
             var containsIndex = view.Index.ContainsKey(indexName);
 
             Assert.IsTrue(containsIndex);
@@ -264,7 +264,7 @@ namespace SJP.Schematic.SqlServer.Tests.Integration
             Identifier indexName = "ix_view_test_view_2";
             var database = Database;
             var viewName = new Identifier(database.DefaultSchema, "view_test_view_2");
-            var view = new SqlServerRelationalDatabaseView(Connection, Database, Dialect.TypeProvider, viewName);
+            var view = await database.GetViewAsync(viewName).ConfigureAwait(false);
             var indexes = await view.IndexAsync().ConfigureAwait(false);
             var containsIndex = indexes.ContainsKey(indexName);
 
@@ -277,7 +277,7 @@ namespace SJP.Schematic.SqlServer.Tests.Integration
             Identifier indexName = "ix_view_test_view_2";
             var database = Database;
             var viewName = new Identifier(database.DefaultSchema, "view_test_view_2");
-            var view = new SqlServerRelationalDatabaseView(Connection, Database, Dialect.TypeProvider, viewName);
+            var view = database.GetView(viewName);
             var containsIndex = view.Indexes.Any(i => i.Name == indexName);
 
             Assert.IsTrue(containsIndex);
@@ -289,7 +289,7 @@ namespace SJP.Schematic.SqlServer.Tests.Integration
             Identifier indexName = "ix_view_test_view_2";
             var database = Database;
             var viewName = new Identifier(database.DefaultSchema, "view_test_view_2");
-            var view = new SqlServerRelationalDatabaseView(Connection, Database, Dialect.TypeProvider, viewName);
+            var view = await database.GetViewAsync(viewName).ConfigureAwait(false);
             var indexes = await view.IndexesAsync().ConfigureAwait(false);
             var containsIndex = indexes.Any(i => i.Name == indexName);
 
