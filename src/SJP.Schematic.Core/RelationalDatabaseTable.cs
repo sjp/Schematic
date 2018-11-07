@@ -19,8 +19,7 @@ namespace SJP.Schematic.Core
             IReadOnlyCollection<IDatabaseRelationalKey> childKeys,
             IReadOnlyCollection<IDatabaseIndex> indexes,
             IReadOnlyCollection<IDatabaseCheckConstraint> checks,
-            IReadOnlyCollection<IDatabaseTrigger> triggers,
-            IEqualityComparer<Identifier> comparer = null)
+            IReadOnlyCollection<IDatabaseTrigger> triggers)
         {
             if (tableName == null)
                 throw new ArgumentNullException(nameof(tableName));
@@ -49,21 +48,18 @@ namespace SJP.Schematic.Core
             Indexes = indexes;
             Checks = checks;
             Triggers = triggers;
-            Comparer = comparer ?? new IdentifierComparer(StringComparer.Ordinal, database.ServerName, database.DatabaseName, database.DefaultSchema);
 
-            Column = CreateColumnLookup(Columns, Comparer);
-            UniqueKey = CreateUniqueKeyLookup(UniqueKeys, Comparer);
-            ParentKey = CreateParentKeyLookup(ParentKeys, Comparer);
-            Index = CreateIndexLookup(Indexes, Comparer);
-            Check = CreateCheckLookup(Checks, Comparer);
-            Trigger = CreateTriggerLookup(Triggers, Comparer);
+            Column = CreateColumnLookup(Columns);
+            UniqueKey = CreateUniqueKeyLookup(UniqueKeys);
+            ParentKey = CreateParentKeyLookup(ParentKeys);
+            Index = CreateIndexLookup(Indexes);
+            Check = CreateCheckLookup(Checks);
+            Trigger = CreateTriggerLookup(Triggers);
         }
 
         public Identifier Name { get; }
 
         protected IRelationalDatabase Database { get; }
-
-        protected IEqualityComparer<Identifier> Comparer { get; }
 
         public IDatabaseKey PrimaryKey { get; }
 
@@ -77,9 +73,9 @@ namespace SJP.Schematic.Core
 
         public Task<IReadOnlyCollection<IDatabaseIndex>> IndexesAsync(CancellationToken cancellationToken = default(CancellationToken)) => Task.FromResult(Indexes);
 
-        private static IReadOnlyDictionary<Identifier, IDatabaseIndex> CreateIndexLookup(IReadOnlyCollection<IDatabaseIndex> indexes, IEqualityComparer<Identifier> comparer)
+        private static IReadOnlyDictionary<Identifier, IDatabaseIndex> CreateIndexLookup(IReadOnlyCollection<IDatabaseIndex> indexes)
         {
-            var result = new Dictionary<Identifier, IDatabaseIndex>(indexes.Count, comparer);
+            var result = new Dictionary<Identifier, IDatabaseIndex>(indexes.Count);
 
             foreach (var index in indexes)
                 result[index.Name.LocalName] = index;
@@ -95,9 +91,9 @@ namespace SJP.Schematic.Core
 
         public Task<IReadOnlyCollection<IDatabaseKey>> UniqueKeysAsync(CancellationToken cancellationToken = default(CancellationToken)) => Task.FromResult(UniqueKeys);
 
-        private static IReadOnlyDictionary<Identifier, IDatabaseKey> CreateUniqueKeyLookup(IReadOnlyCollection<IDatabaseKey> uniqueKeys, IEqualityComparer<Identifier> comparer)
+        private static IReadOnlyDictionary<Identifier, IDatabaseKey> CreateUniqueKeyLookup(IReadOnlyCollection<IDatabaseKey> uniqueKeys)
         {
-            var result = new Dictionary<Identifier, IDatabaseKey>(uniqueKeys.Count, comparer);
+            var result = new Dictionary<Identifier, IDatabaseKey>(uniqueKeys.Count);
 
             foreach (var uk in uniqueKeys)
                 result[uk.Name.LocalName] = uk;
@@ -117,9 +113,9 @@ namespace SJP.Schematic.Core
 
         public Task<IReadOnlyCollection<IDatabaseCheckConstraint>> ChecksAsync(CancellationToken cancellationToken = default(CancellationToken)) => Task.FromResult(Checks);
 
-        private static IReadOnlyDictionary<Identifier, IDatabaseCheckConstraint> CreateCheckLookup(IReadOnlyCollection<IDatabaseCheckConstraint> checks, IEqualityComparer<Identifier> comparer)
+        private static IReadOnlyDictionary<Identifier, IDatabaseCheckConstraint> CreateCheckLookup(IReadOnlyCollection<IDatabaseCheckConstraint> checks)
         {
-            var result = new Dictionary<Identifier, IDatabaseCheckConstraint>(checks.Count, comparer);
+            var result = new Dictionary<Identifier, IDatabaseCheckConstraint>(checks.Count);
 
             foreach (var check in checks)
                 result[check.Name.LocalName] = check;
@@ -135,9 +131,9 @@ namespace SJP.Schematic.Core
 
         public Task<IReadOnlyCollection<IDatabaseRelationalKey>> ParentKeysAsync(CancellationToken cancellationToken = default(CancellationToken)) => Task.FromResult(ParentKeys);
 
-        private static IReadOnlyDictionary<Identifier, IDatabaseRelationalKey> CreateParentKeyLookup(IReadOnlyCollection<IDatabaseRelationalKey> parentKeys, IEqualityComparer<Identifier> comparer)
+        private static IReadOnlyDictionary<Identifier, IDatabaseRelationalKey> CreateParentKeyLookup(IReadOnlyCollection<IDatabaseRelationalKey> parentKeys)
         {
-            var result = new Dictionary<Identifier, IDatabaseRelationalKey>(parentKeys.Count, comparer);
+            var result = new Dictionary<Identifier, IDatabaseRelationalKey>(parentKeys.Count);
 
             foreach (var parentKey in parentKeys)
                 result[parentKey.ChildKey.Name.LocalName] = parentKey;
@@ -153,9 +149,9 @@ namespace SJP.Schematic.Core
 
         public Task<IReadOnlyDictionary<Identifier, IDatabaseColumn>> ColumnAsync(CancellationToken cancellationToken = default(CancellationToken)) => Task.FromResult(Column);
 
-        private static IReadOnlyDictionary<Identifier, IDatabaseColumn> CreateColumnLookup(IReadOnlyList<IDatabaseColumn> columns, IEqualityComparer<Identifier> comparer)
+        private static IReadOnlyDictionary<Identifier, IDatabaseColumn> CreateColumnLookup(IReadOnlyList<IDatabaseColumn> columns)
         {
-            var result = new Dictionary<Identifier, IDatabaseColumn>(columns.Count, comparer);
+            var result = new Dictionary<Identifier, IDatabaseColumn>(columns.Count);
 
             var namedColumns = columns.Where(c => c.Name != null);
             foreach (var column in namedColumns)
@@ -172,9 +168,9 @@ namespace SJP.Schematic.Core
 
         public Task<IReadOnlyDictionary<Identifier, IDatabaseTrigger>> TriggerAsync(CancellationToken cancellationToken = default(CancellationToken)) => Task.FromResult(Trigger);
 
-        private static IReadOnlyDictionary<Identifier, IDatabaseTrigger> CreateTriggerLookup(IReadOnlyCollection<IDatabaseTrigger> triggers, IEqualityComparer<Identifier> comparer)
+        private static IReadOnlyDictionary<Identifier, IDatabaseTrigger> CreateTriggerLookup(IReadOnlyCollection<IDatabaseTrigger> triggers)
         {
-            var result = new Dictionary<Identifier, IDatabaseTrigger>(triggers.Count, comparer);
+            var result = new Dictionary<Identifier, IDatabaseTrigger>(triggers.Count);
 
             foreach (var trigger in triggers)
                 result[trigger.Name.LocalName] = trigger;

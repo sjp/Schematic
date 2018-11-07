@@ -14,14 +14,11 @@ namespace SJP.Schematic.SqlServer
 {
     public class SqlServerRelationalDatabase : RelationalDatabase, IRelationalDatabase
     {
-        public SqlServerRelationalDatabase(IDatabaseDialect dialect, IDbConnection connection, IEqualityComparer<Identifier> comparer = null)
+        public SqlServerRelationalDatabase(IDatabaseDialect dialect, IDbConnection connection)
             : base(dialect, connection)
         {
             _metadata = new AsyncLazy<DatabaseMetadata>(LoadDatabaseMetadataAsync);
-            Comparer = comparer ?? new IdentifierComparer(StringComparer.OrdinalIgnoreCase, ServerName, DatabaseName, DefaultSchema);
         }
-
-        protected IEqualityComparer<Identifier> Comparer { get; }
 
         public string ServerName => Metadata.ServerName;
 
@@ -33,40 +30,50 @@ namespace SJP.Schematic.SqlServer
 
         protected DatabaseMetadata Metadata => _metadata.Task.GetAwaiter().GetResult();
 
-        public bool TableExists(Identifier tableName)
+        protected Identifier GetResolvedTableName(Identifier tableName)
         {
             if (tableName == null)
                 throw new ArgumentNullException(nameof(tableName));
 
             tableName = CreateQualifiedIdentifier(tableName);
-
-            return Connection.ExecuteScalar<int>(
-                TableExistsQuery,
+            var qualifiedTableName = Connection.Query<QualifiedName>(
+                TableNameQuery,
                 new { SchemaName = tableName.Schema, TableName = tableName.LocalName }
-            ) != 0;
+            ).FirstOrDefault();
+
+            return qualifiedTableName != null
+                ? Identifier.CreateQualifiedIdentifier(tableName.Server, tableName.Database, qualifiedTableName.SchemaName, qualifiedTableName.ObjectName)
+                : null;
         }
 
-        public Task<bool> TableExistsAsync(Identifier tableName, CancellationToken cancellationToken = default(CancellationToken))
+        protected Task<Identifier> GetResolvedTableNameAsync(Identifier tableName, CancellationToken cancellationToken = default(CancellationToken))
         {
             if (tableName == null)
                 throw new ArgumentNullException(nameof(tableName));
 
-            return TableExistsAsyncCore(tableName, cancellationToken);
+            return GetResolvedTableNameAsyncCore(tableName, cancellationToken);
         }
 
-        private async Task<bool> TableExistsAsyncCore(Identifier tableName, CancellationToken cancellationToken)
+        private async Task<Identifier> GetResolvedTableNameAsyncCore(Identifier tableName, CancellationToken cancellationToken)
         {
             tableName = CreateQualifiedIdentifier(tableName);
-
-            return await Connection.ExecuteScalarAsync<int>(
-                TableExistsQuery,
+            var qualifiedTableNames = await Connection.QueryAsync<QualifiedName>(
+                TableNameQuery,
                 new { SchemaName = tableName.Schema, TableName = tableName.LocalName }
-            ).ConfigureAwait(false) != 0;
+            ).ConfigureAwait(false);
+            var qualifiedTableName = qualifiedTableNames.FirstOrDefault();
+
+            return qualifiedTableName != null
+                ? Identifier.CreateQualifiedIdentifier(tableName.Server, tableName.Database, qualifiedTableName.SchemaName, qualifiedTableName.ObjectName)
+                : null;
         }
 
-        protected virtual string TableExistsQuery => TableExistsQuerySql;
+        protected virtual string TableNameQuery => TableNameQuerySql;
 
-        private const string TableExistsQuerySql = "select top 1 1 from sys.tables where schema_id = schema_id(@SchemaName) and name = @TableName";
+        private const string TableNameQuerySql = @"
+select top 1 schema_name(schema_id) as SchemaName, name as ObjectName
+from sys.tables
+where schema_id = schema_id(@SchemaName) and name = @TableName";
 
         public IRelationalDatabaseTable GetTable(Identifier tableName)
         {
@@ -120,8 +127,10 @@ namespace SJP.Schematic.SqlServer
                 throw new ArgumentNullException(nameof(tableName));
 
             tableName = CreateQualifiedIdentifier(tableName);
-            return TableExists(tableName)
-                ? new SqlServerRelationalDatabaseTable(Connection, this, Dialect.TypeProvider, tableName, Comparer)
+            var qualifiedName = GetResolvedTableName(tableName);
+
+            return qualifiedName != null
+                ? new SqlServerRelationalDatabaseTable(Connection, this, Dialect.TypeProvider, qualifiedName)
                 : null;
         }
 
@@ -136,46 +145,57 @@ namespace SJP.Schematic.SqlServer
         private async Task<IRelationalDatabaseTable> LoadTableAsyncCore(Identifier tableName, CancellationToken cancellationToken)
         {
             tableName = CreateQualifiedIdentifier(tableName);
-            var exists = await TableExistsAsync(tableName, cancellationToken).ConfigureAwait(false);
-            return exists
-                ? new SqlServerRelationalDatabaseTable(Connection, this, Dialect.TypeProvider, tableName, Comparer)
+            var qualifiedName = await GetResolvedTableNameAsync(tableName, cancellationToken).ConfigureAwait(false);
+
+            return qualifiedName != null
+                ? new SqlServerRelationalDatabaseTable(Connection, this, Dialect.TypeProvider, qualifiedName)
                 : null;
         }
 
-        public bool ViewExists(Identifier viewName)
+        protected Identifier GetResolvedViewName(Identifier viewName)
         {
             if (viewName == null)
                 throw new ArgumentNullException(nameof(viewName));
 
             viewName = CreateQualifiedIdentifier(viewName);
-
-            return Connection.ExecuteScalar<int>(
-                ViewExistsQuery,
+            var qualifiedViewName = Connection.Query<QualifiedName>(
+                ViewNameQuery,
                 new { SchemaName = viewName.Schema, ViewName = viewName.LocalName }
-            ) != 0;
+            ).FirstOrDefault();
+
+            return qualifiedViewName != null
+                ? Identifier.CreateQualifiedIdentifier(viewName.Server, viewName.Database, qualifiedViewName.SchemaName, qualifiedViewName.ObjectName)
+                : null;
         }
 
-        public Task<bool> ViewExistsAsync(Identifier viewName, CancellationToken cancellationToken = default(CancellationToken))
+        protected Task<Identifier> GetResolvedViewNameAsync(Identifier viewName, CancellationToken cancellationToken = default(CancellationToken))
         {
             if (viewName == null)
                 throw new ArgumentNullException(nameof(viewName));
 
-            return ViewExistsAsyncCore(viewName, cancellationToken);
+            return GetResolvedViewNameAsyncCore(viewName, cancellationToken);
         }
 
-        private async Task<bool> ViewExistsAsyncCore(Identifier viewName, CancellationToken cancellationToken)
+        private async Task<Identifier> GetResolvedViewNameAsyncCore(Identifier viewName, CancellationToken cancellationToken)
         {
             viewName = CreateQualifiedIdentifier(viewName);
-
-            return await Connection.ExecuteScalarAsync<int>(
-                ViewExistsQuery,
+            var qualifiedViewNames = await Connection.QueryAsync<QualifiedName>(
+                ViewNameQuery,
                 new { SchemaName = viewName.Schema, ViewName = viewName.LocalName }
-            ).ConfigureAwait(false) != 0;
+            ).ConfigureAwait(false);
+            var qualifiedViewName = qualifiedViewNames.FirstOrDefault();
+
+            return qualifiedViewName != null
+                ? Identifier.CreateQualifiedIdentifier(viewName.Server, viewName.Database, qualifiedViewName.SchemaName, qualifiedViewName.ObjectName)
+                : null;
         }
 
-        protected virtual string ViewExistsQuery => ViewExistsQuerySql;
+        protected virtual string ViewNameQuery => ViewNameQuerySql;
 
-        private const string ViewExistsQuerySql = "select top 1 1 from sys.views where schema_id = schema_id(@SchemaName) and name = @ViewName";
+        private const string ViewNameQuerySql = @"
+select top 1 schema_name(schema_id) as SchemaName, name as ObjectName
+from sys.views
+where schema_id = schema_id(@SchemaName) and name = @ViewName";
 
         public IRelationalDatabaseView GetView(Identifier viewName)
         {
@@ -229,8 +249,10 @@ namespace SJP.Schematic.SqlServer
                 throw new ArgumentNullException(nameof(viewName));
 
             viewName = CreateQualifiedIdentifier(viewName);
-            return ViewExists(viewName)
-                ? new SqlServerRelationalDatabaseView(Connection, this, Dialect.TypeProvider, viewName, Comparer)
+            var qualifiedName = GetResolvedViewName(viewName);
+
+            return qualifiedName != null
+                ? new SqlServerRelationalDatabaseView(Connection, this, Dialect.TypeProvider, qualifiedName)
                 : null;
         }
 
@@ -245,46 +267,57 @@ namespace SJP.Schematic.SqlServer
         private async Task<IRelationalDatabaseView> LoadViewAsyncCore(Identifier viewName, CancellationToken cancellationToken)
         {
             viewName = CreateQualifiedIdentifier(viewName);
-            var exists = await ViewExistsAsync(viewName, cancellationToken).ConfigureAwait(false);
-            return exists
-                ? new SqlServerRelationalDatabaseView(Connection, this, Dialect.TypeProvider, viewName, Comparer)
+            var qualifiedName = await GetResolvedViewNameAsync(viewName, cancellationToken).ConfigureAwait(false);
+
+            return qualifiedName != null
+                ? new SqlServerRelationalDatabaseView(Connection, this, Dialect.TypeProvider, qualifiedName)
                 : null;
         }
 
-        public bool SequenceExists(Identifier sequenceName)
+        protected Identifier GetResolvedSequenceName(Identifier sequenceName)
         {
             if (sequenceName == null)
                 throw new ArgumentNullException(nameof(sequenceName));
 
             sequenceName = CreateQualifiedIdentifier(sequenceName);
-
-            return Connection.ExecuteScalar<int>(
-                SequenceExistsQuery,
+            var qualifiedSequenceName = Connection.Query<QualifiedName>(
+                SequenceNameQuery,
                 new { SchemaName = sequenceName.Schema, SequenceName = sequenceName.LocalName }
-            ) != 0;
+            ).FirstOrDefault();
+
+            return qualifiedSequenceName != null
+                ? Identifier.CreateQualifiedIdentifier(sequenceName.Server, sequenceName.Database, qualifiedSequenceName.SchemaName, qualifiedSequenceName.ObjectName)
+                : null;
         }
 
-        public Task<bool> SequenceExistsAsync(Identifier sequenceName, CancellationToken cancellationToken = default(CancellationToken))
+        protected Task<Identifier> GetResolvedSequenceNameAsync(Identifier sequenceName, CancellationToken cancellationToken = default(CancellationToken))
         {
             if (sequenceName == null)
                 throw new ArgumentNullException(nameof(sequenceName));
 
-            return SequenceExistsAsyncCore(sequenceName, cancellationToken);
+            return GetResolvedSequenceNameAsyncCore(sequenceName, cancellationToken);
         }
 
-        private async Task<bool> SequenceExistsAsyncCore(Identifier sequenceName, CancellationToken cancellationToken)
+        private async Task<Identifier> GetResolvedSequenceNameAsyncCore(Identifier sequenceName, CancellationToken cancellationToken)
         {
             sequenceName = CreateQualifiedIdentifier(sequenceName);
-
-            return await Connection.ExecuteScalarAsync<int>(
-                SequenceExistsQuery,
+            var qualifiedSequenceNames = await Connection.QueryAsync<QualifiedName>(
+                SequenceNameQuery,
                 new { SchemaName = sequenceName.Schema, SequenceName = sequenceName.LocalName }
-            ).ConfigureAwait(false) != 0;
+            ).ConfigureAwait(false);
+            var qualifiedSequenceName = qualifiedSequenceNames.FirstOrDefault();
+
+            return qualifiedSequenceName != null
+                ? Identifier.CreateQualifiedIdentifier(sequenceName.Server, sequenceName.Database, qualifiedSequenceName.SchemaName, qualifiedSequenceName.ObjectName)
+                : null;
         }
 
-        protected virtual string SequenceExistsQuery => SequenceExistsQuerySql;
+        protected virtual string SequenceNameQuery => SequenceNameQuerySql;
 
-        private const string SequenceExistsQuerySql = "select top 1 1 from sys.sequences where schema_id = schema_id(@SchemaName) and name = @SequenceName";
+        private const string SequenceNameQuerySql = @"
+select top 1 schema_name(schema_id) as SchemaName, name as ObjectName
+from sys.sequences
+where schema_id = schema_id(@SchemaName) and name = @SequenceName";
 
         public IDatabaseSequence GetSequence(Identifier sequenceName)
         {
@@ -338,8 +371,10 @@ namespace SJP.Schematic.SqlServer
                 throw new ArgumentNullException(nameof(sequenceName));
 
             sequenceName = CreateQualifiedIdentifier(sequenceName);
-            return SequenceExists(sequenceName)
-                ? new SqlServerDatabaseSequence(Connection, sequenceName)
+            var qualifiedSequenceName = GetResolvedSequenceName(sequenceName);
+
+            return qualifiedSequenceName != null
+                ? new SqlServerDatabaseSequence(Connection, qualifiedSequenceName)
                 : null;
         }
 
@@ -354,46 +389,57 @@ namespace SJP.Schematic.SqlServer
         private async Task<IDatabaseSequence> LoadSequenceAsyncCore(Identifier sequenceName, CancellationToken cancellationToken)
         {
             sequenceName = CreateQualifiedIdentifier(sequenceName);
-            var exists = await SequenceExistsAsync(sequenceName, cancellationToken).ConfigureAwait(false);
-            return exists
-                ? new SqlServerDatabaseSequence(Connection, sequenceName)
+            var qualifiedSequenceName = await GetResolvedSequenceNameAsync(sequenceName, cancellationToken).ConfigureAwait(false);
+
+            return qualifiedSequenceName != null
+                ? new SqlServerDatabaseSequence(Connection, qualifiedSequenceName)
                 : null;
         }
 
-        public bool SynonymExists(Identifier synonymName)
+        protected Identifier GetResolvedSynonymName(Identifier synonymName)
         {
             if (synonymName == null)
                 throw new ArgumentNullException(nameof(synonymName));
 
             synonymName = CreateQualifiedIdentifier(synonymName);
-
-            return Connection.ExecuteScalar<int>(
-                SynonymExistsQuery,
+            var qualifiedSynonymName = Connection.Query<QualifiedName>(
+                SynonymNameQuery,
                 new { SchemaName = synonymName.Schema, SynonymName = synonymName.LocalName }
-            ) != 0;
+            ).FirstOrDefault();
+
+            return qualifiedSynonymName != null
+                ? Identifier.CreateQualifiedIdentifier(synonymName.Server, synonymName.Database, qualifiedSynonymName.SchemaName, qualifiedSynonymName.ObjectName)
+                : null;
         }
 
-        public Task<bool> SynonymExistsAsync(Identifier synonymName, CancellationToken cancellationToken = default(CancellationToken))
+        protected Task<Identifier> GetResolvedSynonymNameAsync(Identifier synonymName, CancellationToken cancellationToken = default(CancellationToken))
         {
             if (synonymName == null)
                 throw new ArgumentNullException(nameof(synonymName));
 
-            return SynonymExistsAsyncCore(synonymName, cancellationToken);
+            return GetResolvedSynonymNameAsyncCore(synonymName, cancellationToken);
         }
 
-        private async Task<bool> SynonymExistsAsyncCore(Identifier synonymName, CancellationToken cancellationToken)
+        private async Task<Identifier> GetResolvedSynonymNameAsyncCore(Identifier synonymName, CancellationToken cancellationToken)
         {
             synonymName = CreateQualifiedIdentifier(synonymName);
-
-            return await Connection.ExecuteScalarAsync<int>(
-                SynonymExistsQuery,
+            var qualifiedSynonymNames = await Connection.QueryAsync<QualifiedName>(
+                SynonymNameQuery,
                 new { SchemaName = synonymName.Schema, SynonymName = synonymName.LocalName }
-            ).ConfigureAwait(false) != 0;
+            ).ConfigureAwait(false);
+            var qualifiedSynonymName = qualifiedSynonymNames.FirstOrDefault();
+
+            return qualifiedSynonymName != null
+                ? Identifier.CreateQualifiedIdentifier(synonymName.Server, synonymName.Database, qualifiedSynonymName.SchemaName, qualifiedSynonymName.ObjectName)
+                : null;
         }
 
-        protected virtual string SynonymExistsQuery => SynonymExistsQuerySql;
+        protected virtual string SynonymNameQuery => SynonymNameQuerySql;
 
-        private const string SynonymExistsQuerySql = "select top 1 1 from sys.synonyms where schema_id = schema_id(@SchemaName) and name = @SynonymName";
+        private const string SynonymNameQuerySql = @"
+select top 1 schema_name(schema_id) as SchemaName, name as ObjectName
+from sys.synonyms
+where schema_id = schema_id(@SchemaName) and name = @SynonymName";
 
         public IDatabaseSynonym GetSynonym(Identifier synonymName)
         {
@@ -447,7 +493,8 @@ namespace SJP.Schematic.SqlServer
                 throw new ArgumentNullException(nameof(synonymName));
 
             synonymName = CreateQualifiedIdentifier(synonymName);
-            if (!SynonymExists(synonymName))
+            synonymName = GetResolvedSynonymName(synonymName);
+            if (synonymName == null)
                 return null;
 
             var queryResult = Connection.QuerySingle<SynonymData>(
@@ -477,8 +524,9 @@ namespace SJP.Schematic.SqlServer
         private async Task<IDatabaseSynonym> LoadSynonymAsyncCore(Identifier synonymName, CancellationToken cancellationToken)
         {
             synonymName = CreateQualifiedIdentifier(synonymName);
-            var exists = await SynonymExistsAsync(synonymName, cancellationToken).ConfigureAwait(false);
-            if (!exists)
+            synonymName = await GetResolvedSynonymNameAsync(synonymName, cancellationToken).ConfigureAwait(false);
+
+            if (synonymName == null)
                 return null;
 
             var queryResult = await Connection.QuerySingleAsync<SynonymData>(

@@ -13,13 +13,11 @@ namespace SJP.Schematic.MySql
 {
     public class MySqlRelationalDatabaseView : IRelationalDatabaseView
     {
-        public MySqlRelationalDatabaseView(IDbConnection connection, IDbTypeProvider typeProvider, Identifier viewName, IEqualityComparer<Identifier> comparer = null)
+        public MySqlRelationalDatabaseView(IDbConnection connection, IDbTypeProvider typeProvider, Identifier viewName)
         {
             Connection = connection ?? throw new ArgumentNullException(nameof(connection));
             TypeProvider = typeProvider ?? throw new ArgumentNullException(nameof(typeProvider));
             Name = viewName ?? throw new ArgumentNullException(nameof(viewName));
-
-            Comparer = comparer ?? new IdentifierComparer(StringComparer.Ordinal, viewName.Server, viewName.Database, viewName.Schema);
         }
 
         public Identifier Name { get; }
@@ -27,8 +25,6 @@ namespace SJP.Schematic.MySql
         protected IDbTypeProvider TypeProvider { get; }
 
         protected IDbConnection Connection { get; }
-
-        protected IEqualityComparer<Identifier> Comparer { get; }
 
         public string Definition => LoadDefinitionSync();
 
@@ -70,7 +66,7 @@ where table_schema = @SchemaName and table_name = @ViewName";
         protected virtual IReadOnlyDictionary<Identifier, IDatabaseColumn> LoadColumnLookupSync()
         {
             var columns = Columns;
-            var result = new Dictionary<Identifier, IDatabaseColumn>(columns.Count, Comparer);
+            var result = new Dictionary<Identifier, IDatabaseColumn>(columns.Count);
 
             foreach (var column in columns.Where(c => c.Name != null))
                 result[column.Name.LocalName] = column;
@@ -81,7 +77,7 @@ where table_schema = @SchemaName and table_name = @ViewName";
         protected virtual async Task<IReadOnlyDictionary<Identifier, IDatabaseColumn>> LoadColumnLookupAsync(CancellationToken cancellationToken)
         {
             var columns = await ColumnsAsync(cancellationToken).ConfigureAwait(false);
-            var result = new Dictionary<Identifier, IDatabaseColumn>(columns.Count, Comparer);
+            var result = new Dictionary<Identifier, IDatabaseColumn>(columns.Count);
 
             foreach (var column in columns.Where(c => c.Name != null))
                 result[column.Name.LocalName] = column;

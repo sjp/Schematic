@@ -13,7 +13,7 @@ namespace SJP.Schematic.SqlServer
 {
     public class SqlServerRelationalDatabaseView : IRelationalDatabaseView
     {
-        public SqlServerRelationalDatabaseView(IDbConnection connection, IRelationalDatabase database, IDbTypeProvider typeProvider, Identifier viewName, IEqualityComparer<Identifier> comparer = null)
+        public SqlServerRelationalDatabaseView(IDbConnection connection, IRelationalDatabase database, IDbTypeProvider typeProvider, Identifier viewName)
         {
             if (database == null)
                 throw new ArgumentNullException(nameof(database));
@@ -21,7 +21,6 @@ namespace SJP.Schematic.SqlServer
             Connection = connection ?? throw new ArgumentNullException(nameof(connection));
             TypeProvider = typeProvider ?? throw new ArgumentNullException(nameof(typeProvider));
             Name = viewName ?? throw new ArgumentNullException(nameof(viewName));
-            Comparer = comparer ?? new IdentifierComparer(StringComparer.Ordinal, database.ServerName, database.DatabaseName, database.DefaultSchema);
         }
 
         public Identifier Name { get; }
@@ -29,8 +28,6 @@ namespace SJP.Schematic.SqlServer
         protected IDbTypeProvider TypeProvider { get; }
 
         protected IDbConnection Connection { get; }
-
-        protected IEqualityComparer<Identifier> Comparer { get; }
 
         public string Definition => LoadDefinitionSync();
 
@@ -147,7 +144,7 @@ where schema_name(v.schema_id) = @SchemaName and v.name = @ViewName";
         protected virtual IReadOnlyDictionary<Identifier, IDatabaseIndex> LoadIndexLookupSync()
         {
             var indexes = Indexes;
-            var result = new Dictionary<Identifier, IDatabaseIndex>(indexes.Count, Comparer);
+            var result = new Dictionary<Identifier, IDatabaseIndex>(indexes.Count);
 
             foreach (var index in indexes)
                 result[index.Name.LocalName] = index;
@@ -158,7 +155,7 @@ where schema_name(v.schema_id) = @SchemaName and v.name = @ViewName";
         protected virtual async Task<IReadOnlyDictionary<Identifier, IDatabaseIndex>> LoadIndexLookupAsync(CancellationToken cancellationToken)
         {
             var indexes = await IndexesAsync(cancellationToken).ConfigureAwait(false);
-            var result = new Dictionary<Identifier, IDatabaseIndex>(indexes.Count, Comparer);
+            var result = new Dictionary<Identifier, IDatabaseIndex>(indexes.Count);
 
             foreach (var index in indexes)
                 result[index.Name.LocalName] = index;
@@ -197,7 +194,7 @@ order by ic.index_id, ic.key_ordinal, ic.index_column_id";
         protected virtual IReadOnlyDictionary<Identifier, IDatabaseColumn> LoadColumnLookupSync()
         {
             var columns = Columns;
-            var result = new Dictionary<Identifier, IDatabaseColumn>(columns.Count, Comparer);
+            var result = new Dictionary<Identifier, IDatabaseColumn>(columns.Count);
 
             foreach (var column in columns.Where(c => c.Name != null))
                 result[column.Name.LocalName] = column;
@@ -208,7 +205,7 @@ order by ic.index_id, ic.key_ordinal, ic.index_column_id";
         protected virtual async Task<IReadOnlyDictionary<Identifier, IDatabaseColumn>> LoadColumnLookupAsync(CancellationToken cancellationToken)
         {
             var columns = await ColumnsAsync(cancellationToken).ConfigureAwait(false);
-            var result = new Dictionary<Identifier, IDatabaseColumn>(columns.Count, Comparer);
+            var result = new Dictionary<Identifier, IDatabaseColumn>(columns.Count);
 
             foreach (var column in columns.Where(c => c.Name != null))
                 result[column.Name.LocalName] = column;

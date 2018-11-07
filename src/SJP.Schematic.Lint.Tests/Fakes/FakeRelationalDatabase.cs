@@ -46,33 +46,17 @@ namespace SJP.Schematic.Lint.Tests.Fakes
 
         public virtual Task<IRelationalDatabaseView> GetViewAsync(Identifier viewName, CancellationToken cancellationToken = default(CancellationToken)) => Task.FromResult<IRelationalDatabaseView>(null);
 
-        public virtual bool SequenceExists(Identifier sequenceName) => false;
-
-        public virtual Task<bool> SequenceExistsAsync(Identifier sequenceName, CancellationToken cancellationToken = default(CancellationToken)) => Task.FromResult(false);
-
         public virtual Task<IReadOnlyCollection<Task<IDatabaseSequence>>> SequencesAsync(CancellationToken cancellationToken = default(CancellationToken)) => Task.FromResult<IReadOnlyCollection<Task<IDatabaseSequence>>>(
             Sequences.Select(Task.FromResult).ToList()
         );
-
-        public virtual bool SynonymExists(Identifier synonymName) => false;
-
-        public virtual Task<bool> SynonymExistsAsync(Identifier synonymName, CancellationToken cancellationToken = default(CancellationToken)) => Task.FromResult(false);
 
         public virtual Task<IReadOnlyCollection<Task<IDatabaseSynonym>>> SynonymsAsync(CancellationToken cancellationToken = default(CancellationToken)) => Task.FromResult<IReadOnlyCollection<Task<IDatabaseSynonym>>>(
             Synonyms.Select(Task.FromResult).ToList()
         );
 
-        public virtual bool TableExists(Identifier tableName) => false;
-
-        public virtual Task<bool> TableExistsAsync(Identifier tableName, CancellationToken cancellationToken = default(CancellationToken)) => Task.FromResult(false);
-
         public virtual Task<IReadOnlyCollection<Task<IRelationalDatabaseTable>>> TablesAsync(CancellationToken cancellationToken = default(CancellationToken)) => Task.FromResult<IReadOnlyCollection<Task<IRelationalDatabaseTable>>>(
             Tables.Select(Task.FromResult).ToList()
         );
-
-        public virtual bool ViewExists(Identifier viewName) => false;
-
-        public virtual Task<bool> ViewExistsAsync(Identifier viewName, CancellationToken cancellationToken = default(CancellationToken)) => Task.FromResult(false);
 
         public virtual Task<IReadOnlyCollection<Task<IRelationalDatabaseView>>> ViewsAsync(CancellationToken cancellationToken = default(CancellationToken)) => Task.FromResult<IReadOnlyCollection<Task<IRelationalDatabaseView>>>(
             Views.Select(Task.FromResult).ToList()

@@ -31,7 +31,6 @@ namespace SJP.Schematic.Sqlite
                 throw new ArgumentException("The given database object does not contain a dialect.", nameof(database));
             Dialect = database.Dialect;
 
-            Comparer = new IdentifierComparer(StringComparer.OrdinalIgnoreCase, defaultSchema: database.DefaultSchema);
             Pragma = new DatabasePragma(Dialect, connection, viewName.Schema);
         }
 
@@ -40,8 +39,6 @@ namespace SJP.Schematic.Sqlite
         protected IDatabaseDialect Dialect { get; }
 
         protected IDbConnection Connection { get; }
-
-        protected IEqualityComparer<Identifier> Comparer { get; }
 
         protected ISqliteDatabasePragma Pragma { get; }
 
@@ -93,7 +90,7 @@ namespace SJP.Schematic.Sqlite
         protected virtual IReadOnlyDictionary<Identifier, IDatabaseColumn> LoadColumnLookupSync()
         {
             var columns = Columns;
-            var result = new Dictionary<Identifier, IDatabaseColumn>(columns.Count, Comparer);
+            var result = new Dictionary<Identifier, IDatabaseColumn>(columns.Count);
 
             foreach (var column in columns.Where(c => c.Name != null))
                 result[column.Name.LocalName] = column;
@@ -104,7 +101,7 @@ namespace SJP.Schematic.Sqlite
         protected virtual async Task<IReadOnlyDictionary<Identifier, IDatabaseColumn>> LoadColumnLookupAsync(CancellationToken cancellationToken)
         {
             var columns = await ColumnsAsync(cancellationToken).ConfigureAwait(false);
-            var result = new Dictionary<Identifier, IDatabaseColumn>(columns.Count, Comparer);
+            var result = new Dictionary<Identifier, IDatabaseColumn>(columns.Count);
 
             foreach (var column in columns.Where(c => c.Name != null))
                 result[column.Name.LocalName] = column;

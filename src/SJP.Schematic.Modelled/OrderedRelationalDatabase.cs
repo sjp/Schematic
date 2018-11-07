@@ -36,29 +36,6 @@ namespace SJP.Schematic.Modelled
 
         public string DatabaseVersion => BaseDatabase.DatabaseVersion;
 
-        public bool TableExists(Identifier tableName)
-        {
-            if (tableName == null)
-                throw new ArgumentNullException(nameof(tableName));
-
-            return Databases.Any(d => d.TableExists(tableName));
-        }
-
-        public Task<bool> TableExistsAsync(Identifier tableName, CancellationToken cancellationToken = default(CancellationToken))
-        {
-            if (tableName == null)
-                throw new ArgumentNullException(nameof(tableName));
-
-            return TableExistsAsyncCore(tableName, cancellationToken);
-        }
-
-        private async Task<bool> TableExistsAsyncCore(Identifier tableName, CancellationToken cancellationToken)
-        {
-            var tableExists = Databases.Select(d => d.TableExistsAsync(tableName, cancellationToken)).ToArray();
-            var tablePresence = await Task.WhenAll(tableExists).ConfigureAwait(false);
-            return tablePresence.Length > 0;
-        }
-
         public IRelationalDatabaseTable GetTable(Identifier tableName)
         {
             if (tableName == null)
@@ -99,8 +76,9 @@ namespace SJP.Schematic.Modelled
             if (tableName == null)
                 throw new ArgumentNullException(nameof(tableName));
 
-            var db = Databases.FirstOrDefault(d => d.TableExists(tableName));
-            return db?.GetTable(tableName);
+            return Databases
+                .Select(d => d.GetTable(tableName))
+                .FirstOrDefault(t => t != null);
         }
 
         protected virtual Task<IRelationalDatabaseTable> LoadTableAsync(Identifier tableName, CancellationToken cancellationToken)
@@ -116,29 +94,6 @@ namespace SJP.Schematic.Modelled
             var tables = Databases.Select(d => d.GetTableAsync(tableName, cancellationToken)).ToArray();
             var tablesTask = await Task.WhenAll(tables).ConfigureAwait(false);
             return Array.Find(tablesTask, t => t != null);
-        }
-
-        public bool ViewExists(Identifier viewName)
-        {
-            if (viewName == null)
-                throw new ArgumentNullException(nameof(viewName));
-
-            return Databases.Any(d => d.ViewExists(viewName));
-        }
-
-        public Task<bool> ViewExistsAsync(Identifier viewName, CancellationToken cancellationToken = default(CancellationToken))
-        {
-            if (viewName == null)
-                throw new ArgumentNullException(nameof(viewName));
-
-            return ViewExistsAsyncCore(viewName, cancellationToken);
-        }
-
-        private async Task<bool> ViewExistsAsyncCore(Identifier viewName, CancellationToken cancellationToken)
-        {
-            var viewExists = Databases.Select(d => d.ViewExistsAsync(viewName, cancellationToken)).ToArray();
-            var viewPresence = await Task.WhenAll(viewExists).ConfigureAwait(false);
-            return viewPresence.Length > 0;
         }
 
         public IRelationalDatabaseView GetView(Identifier viewName)
@@ -181,8 +136,9 @@ namespace SJP.Schematic.Modelled
             if (viewName == null)
                 throw new ArgumentNullException(nameof(viewName));
 
-            var db = Databases.FirstOrDefault(d => d.ViewExists(viewName));
-            return db?.GetView(viewName);
+            return Databases
+                .Select(d => d.GetView(viewName))
+                .FirstOrDefault(v => v != null);
         }
 
         protected virtual Task<IRelationalDatabaseView> LoadViewAsync(Identifier viewName, CancellationToken cancellationToken)
@@ -198,29 +154,6 @@ namespace SJP.Schematic.Modelled
             var views = Databases.Select(d => d.GetViewAsync(viewName, cancellationToken)).ToArray();
             var viewsTask = await Task.WhenAll(views).ConfigureAwait(false);
             return Array.Find(viewsTask, t => t != null);
-        }
-
-        public bool SequenceExists(Identifier sequenceName)
-        {
-            if (sequenceName == null)
-                throw new ArgumentNullException(nameof(sequenceName));
-
-            return Databases.Any(d => d.SequenceExists(sequenceName));
-        }
-
-        public Task<bool> SequenceExistsAsync(Identifier sequenceName, CancellationToken cancellationToken = default(CancellationToken))
-        {
-            if (sequenceName == null)
-                throw new ArgumentNullException(nameof(sequenceName));
-
-            return SequenceExistsAsyncCore(sequenceName, cancellationToken);
-        }
-
-        private async Task<bool> SequenceExistsAsyncCore(Identifier sequenceName, CancellationToken cancellationToken)
-        {
-            var sequenceExists = Databases.Select(d => d.SequenceExistsAsync(sequenceName, cancellationToken)).ToArray();
-            var sequencePresence = await Task.WhenAll(sequenceExists).ConfigureAwait(false);
-            return sequencePresence.Length > 0;
         }
 
         public IDatabaseSequence GetSequence(Identifier sequenceName)
@@ -263,8 +196,9 @@ namespace SJP.Schematic.Modelled
             if (sequenceName == null)
                 throw new ArgumentNullException(nameof(sequenceName));
 
-            var db = Databases.FirstOrDefault(d => d.SequenceExists(sequenceName));
-            return db?.GetSequence(sequenceName);
+            return Databases
+                .Select(d => d.GetSequence(sequenceName))
+                .FirstOrDefault(s => s != null);
         }
 
         protected virtual Task<IDatabaseSequence> LoadSequenceAsync(Identifier sequenceName, CancellationToken cancellationToken)
@@ -280,29 +214,6 @@ namespace SJP.Schematic.Modelled
             var sequences = Databases.Select(d => d.GetSequenceAsync(sequenceName, cancellationToken)).ToArray();
             var sequencesTask = await Task.WhenAll(sequences).ConfigureAwait(false);
             return Array.Find(sequencesTask, t => t != null);
-        }
-
-        public bool SynonymExists(Identifier synonymName)
-        {
-            if (synonymName == null)
-                throw new ArgumentNullException(nameof(synonymName));
-
-            return Databases.Any(d => d.SynonymExists(synonymName));
-        }
-
-        public Task<bool> SynonymExistsAsync(Identifier synonymName, CancellationToken cancellationToken = default(CancellationToken))
-        {
-            if (synonymName == null)
-                throw new ArgumentNullException(nameof(synonymName));
-
-            return SynonymExistsAsyncCore(synonymName, cancellationToken);
-        }
-
-        private async Task<bool> SynonymExistsAsyncCore(Identifier synonymName, CancellationToken cancellationToken)
-        {
-            var synonymExists = Databases.Select(d => d.SynonymExistsAsync(synonymName, cancellationToken)).ToArray();
-            var synonymPresence = await Task.WhenAll(synonymExists).ConfigureAwait(false);
-            return synonymPresence.Length > 0;
         }
 
         public IDatabaseSynonym GetSynonym(Identifier synonymName)
@@ -345,8 +256,9 @@ namespace SJP.Schematic.Modelled
             if (synonymName == null)
                 throw new ArgumentNullException(nameof(synonymName));
 
-            var db = Databases.FirstOrDefault(d => d.SynonymExists(synonymName));
-            return db?.GetSynonym(synonymName);
+            return Databases
+                .Select(d => d.GetSynonym(synonymName))
+                .FirstOrDefault(s => s != null);
         }
 
         protected virtual Task<IDatabaseSynonym> LoadSynonymAsync(Identifier synonymName, CancellationToken cancellationToken)

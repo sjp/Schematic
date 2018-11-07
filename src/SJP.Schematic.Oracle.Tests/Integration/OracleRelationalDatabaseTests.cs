@@ -54,33 +54,6 @@ namespace SJP.Schematic.Oracle.Tests.Integration
             private IRelationalDatabase Database => new OracleRelationalDatabase(Dialect, Connection);
 
             [Test]
-            public void TableExists_GivenNullName_ThrowsArgumentNullException()
-            {
-                Assert.Throws<ArgumentNullException>(() => Database.TableExists(null));
-            }
-
-            [Test]
-            public void TableExists_WhenTablePresent_ReturnsTrue()
-            {
-                var tableExists = Database.TableExists("db_test_table_1");
-                Assert.IsTrue(tableExists);
-            }
-
-            [Test]
-            public void TableExists_WhenTableMissing_ReturnsFalse()
-            {
-                var tableExists = Database.TableExists("table_that_doesnt_exist");
-                Assert.IsFalse(tableExists);
-            }
-
-            [Test]
-            public void TableExists_WhenTablePresentWithDifferentCase_ReturnsTrue()
-            {
-                var tableExists = Database.TableExists("DB_TEST_table_1");
-                Assert.IsTrue(tableExists);
-            }
-
-            [Test]
             public void GetTable_GivenNullName_ThrowsArgumentNullException()
             {
                 Assert.Throws<ArgumentNullException>(() => Database.GetTable(null));
@@ -108,33 +81,6 @@ namespace SJP.Schematic.Oracle.Tests.Integration
             {
                 var table = Database.GetTable("table_that_doesnt_exist");
                 Assert.IsNull(table);
-            }
-
-            [Test]
-            public void TableExistsAsync_GivenNullName_ThrowsArgumentNullException()
-            {
-                Assert.Throws<ArgumentNullException>(() => Database.TableExistsAsync(null));
-            }
-
-            [Test]
-            public async Task TableExistsAsync_WhenTablePresent_ReturnsTrue()
-            {
-                var tableExists = await Database.TableExistsAsync("db_test_table_1").ConfigureAwait(false);
-                Assert.IsTrue(tableExists);
-            }
-
-            [Test]
-            public async Task TableExistsAsync_WhenTableMissing_ReturnsFalse()
-            {
-                var tableExists = await Database.TableExistsAsync("table_that_doesnt_exist").ConfigureAwait(false);
-                Assert.IsFalse(tableExists);
-            }
-
-            [Test]
-            public async Task TableExistsAsync_WhenTablePresentWithDifferentCase_ReturnsTrue()
-            {
-                var tableExists = await Database.TableExistsAsync("DB_TEST_table_1").ConfigureAwait(false);
-                Assert.IsTrue(tableExists);
             }
 
             [Test]
@@ -221,33 +167,6 @@ namespace SJP.Schematic.Oracle.Tests.Integration
             private IRelationalDatabase Database => new OracleRelationalDatabase(Dialect, Connection);
 
             [Test]
-            public void ViewExists_GivenNullName_ThrowsArgumentNullException()
-            {
-                Assert.Throws<ArgumentNullException>(() => Database.ViewExists(null));
-            }
-
-            [Test]
-            public void ViewExists_WhenViewPresent_ReturnsTrue()
-            {
-                var viewExists = Database.ViewExists("db_test_view_1");
-                Assert.IsTrue(viewExists);
-            }
-
-            [Test]
-            public void ViewExists_WhenViewMissing_ReturnsFalse()
-            {
-                var viewExists = Database.ViewExists("view_that_doesnt_exist");
-                Assert.IsFalse(viewExists);
-            }
-
-            [Test]
-            public void ViewExists_WhenViewPresentWithDifferentCase_ReturnsTrue()
-            {
-                var viewExists = Database.ViewExists("DB_TEST_view_1");
-                Assert.IsTrue(viewExists);
-            }
-
-            [Test]
             public void GetView_GivenNullName_ThrowsArgumentNullException()
             {
                 Assert.Throws<ArgumentNullException>(() => Database.GetView(null));
@@ -323,33 +242,6 @@ namespace SJP.Schematic.Oracle.Tests.Integration
             {
                 var view = Database.GetView("view_that_doesnt_exist");
                 Assert.IsNull(view);
-            }
-
-            [Test]
-            public void ViewExistsAsync_GivenNullName_ThrowsArgumentNullException()
-            {
-                Assert.Throws<ArgumentNullException>(() => Database.ViewExistsAsync(null));
-            }
-
-            [Test]
-            public async Task ViewExistsAsync_WhenViewPresent_ReturnsTrue()
-            {
-                var viewExists = await Database.ViewExistsAsync("db_test_view_1").ConfigureAwait(false);
-                Assert.IsTrue(viewExists);
-            }
-
-            [Test]
-            public async Task ViewExistsAsync_WhenViewMissing_ReturnsFalse()
-            {
-                var viewExists = await Database.ViewExistsAsync("view_that_doesnt_exist").ConfigureAwait(false);
-                Assert.IsFalse(viewExists);
-            }
-
-            [Test]
-            public async Task ViewExistsAsync_WhenViewPresentWithDifferentCase_ReturnsTrue()
-            {
-                var viewExists = await Database.ViewExistsAsync("DB_TEST_view_1").ConfigureAwait(false);
-                Assert.IsTrue(viewExists);
             }
 
             [Test]
@@ -484,33 +376,6 @@ namespace SJP.Schematic.Oracle.Tests.Integration
             private IRelationalDatabase Database => new OracleRelationalDatabase(Dialect, Connection);
 
             [Test]
-            public void SequenceExists_GivenNullName_ThrowsArgumentNullException()
-            {
-                Assert.Throws<ArgumentNullException>(() => Database.SequenceExists(null));
-            }
-
-            [Test]
-            public void SequenceExists_WhenSequencePresent_ReturnsTrue()
-            {
-                var sequenceExists = Database.SequenceExists("db_test_sequence_1");
-                Assert.IsTrue(sequenceExists);
-            }
-
-            [Test]
-            public void SequenceExists_WhenSequenceMissing_ReturnsFalse()
-            {
-                var sequenceExists = Database.SequenceExists("sequence_that_doesnt_exist");
-                Assert.IsFalse(sequenceExists);
-            }
-
-            [Test]
-            public void SequenceExists_WhenSequencePresentWithDifferentCase_ReturnsTrue()
-            {
-                var sequenceExists = Database.SequenceExists("DB_TEST_sequence_1");
-                Assert.IsTrue(sequenceExists);
-            }
-
-            [Test]
             public void GetSequence_GivenNullName_ThrowsArgumentNullException()
             {
                 Assert.Throws<ArgumentNullException>(() => Database.GetSequence(null));
@@ -586,33 +451,6 @@ namespace SJP.Schematic.Oracle.Tests.Integration
             {
                 var sequence = Database.GetSequence("sequence_that_doesnt_exist");
                 Assert.IsNull(sequence);
-            }
-
-            [Test]
-            public void SequenceExistsAsync_GivenNullName_ThrowsArgumentNullException()
-            {
-                Assert.Throws<ArgumentNullException>(() => Database.SequenceExistsAsync(null));
-            }
-
-            [Test]
-            public async Task SequenceExistsAsync_WhenSequencePresent_ReturnsTrue()
-            {
-                var sequenceExists = await Database.SequenceExistsAsync("db_test_sequence_1").ConfigureAwait(false);
-                Assert.IsTrue(sequenceExists);
-            }
-
-            [Test]
-            public async Task SequenceExistsAsync_WhenSequenceMissing_ReturnsFalse()
-            {
-                var sequenceExists = await Database.SequenceExistsAsync("sequence_that_doesnt_exist").ConfigureAwait(false);
-                Assert.IsFalse(sequenceExists);
-            }
-
-            [Test]
-            public async Task SequenceExistsAsync_WhenSequencePresentWithDifferentCase_ReturnsTrue()
-            {
-                var sequenceExists = await Database.SequenceExistsAsync("DB_TEST_sequence_1").ConfigureAwait(false);
-                Assert.IsTrue(sequenceExists);
             }
 
             [Test]
@@ -760,33 +598,6 @@ namespace SJP.Schematic.Oracle.Tests.Integration
             private IRelationalDatabase Database => new OracleRelationalDatabase(Dialect, Connection);
 
             [Test]
-            public void SynonymExists_GivenNullName_ThrowsArgumentNullException()
-            {
-                Assert.Throws<ArgumentNullException>(() => Database.SynonymExists(null));
-            }
-
-            [Test]
-            public void SynonymExists_WhenSynonymPresent_ReturnsTrue()
-            {
-                var synonymExists = Database.SynonymExists("db_test_synonym_1");
-                Assert.IsTrue(synonymExists);
-            }
-
-            [Test]
-            public void SynonymExists_WhenSynonymMissing_ReturnsFalse()
-            {
-                var synonymExists = Database.SynonymExists("synonym_that_doesnt_exist");
-                Assert.IsFalse(synonymExists);
-            }
-
-            [Test]
-            public void SynonymExists_WhenSynonymPresentWithDifferentCase_ReturnsTrue()
-            {
-                var synonymExists = Database.SynonymExists("DB_TEST_synonym_1");
-                Assert.IsTrue(synonymExists);
-            }
-
-            [Test]
             public void GetSynonym_GivenNullName_ThrowsArgumentNullException()
             {
                 Assert.Throws<ArgumentNullException>(() => Database.GetSynonym(null));
@@ -816,33 +627,6 @@ namespace SJP.Schematic.Oracle.Tests.Integration
             {
                 var synonym = Database.GetSynonym("synonym_that_doesnt_exist");
                 Assert.IsNull(synonym);
-            }
-
-            [Test]
-            public void SynonymExistsAsync_GivenNullName_ThrowsArgumentNullException()
-            {
-                Assert.Throws<ArgumentNullException>(() => Database.SynonymExistsAsync(null));
-            }
-
-            [Test]
-            public async Task SynonymExistsAsync_WhenSynonymPresent_ReturnsTrue()
-            {
-                var synonymExists = await Database.SynonymExistsAsync("db_test_synonym_1").ConfigureAwait(false);
-                Assert.IsTrue(synonymExists);
-            }
-
-            [Test]
-            public async Task SynonymExistsAsync_WhenSynonymMissing_ReturnsFalse()
-            {
-                var synonymExists = await Database.SynonymExistsAsync("synonym_that_doesnt_exist").ConfigureAwait(false);
-                Assert.IsFalse(synonymExists);
-            }
-
-            [Test]
-            public async Task SynonymExistsAsync_WhenSynonymPresentWithDifferentCase_ReturnsTrue()
-            {
-                var synonymExists = await Database.SynonymExistsAsync("DB_TEST_synonym_1").ConfigureAwait(false);
-                Assert.IsTrue(synonymExists);
             }
 
             [Test]

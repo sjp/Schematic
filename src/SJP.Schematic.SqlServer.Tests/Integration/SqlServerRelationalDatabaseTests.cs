@@ -52,35 +52,6 @@ namespace SJP.Schematic.SqlServer.Tests.Integration
             private IRelationalDatabase Database => new SqlServerRelationalDatabase(Dialect, Connection);
 
             [Test]
-            public void TableExists_GivenNullName_ThrowsArgumentNullException()
-            {
-                Assert.Throws<ArgumentNullException>(() => Database.TableExists(null));
-            }
-
-            [Test]
-            public void TableExists_WhenTablePresent_ReturnsTrue()
-            {
-                var tableExists = Database.TableExists("db_test_table_1");
-                Assert.IsTrue(tableExists);
-            }
-
-            [Test]
-            public void TableExists_WhenTableMissing_ReturnsFalse()
-            {
-                var tableExists = Database.TableExists("table_that_doesnt_exist");
-                Assert.IsFalse(tableExists);
-            }
-
-            // TODO: This will be dependent on the collation of the database
-            //       so may break on a different one
-            [Test]
-            public void TableExists_WhenTablePresentWithDifferentCase_ReturnsTrue()
-            {
-                var tableExists = Database.TableExists("DB_TEST_table_1");
-                Assert.IsTrue(tableExists);
-            }
-
-            [Test]
             public void GetTable_GivenNullName_ThrowsArgumentNullException()
             {
                 Assert.Throws<ArgumentNullException>(() => Database.GetTable(null));
@@ -157,32 +128,24 @@ namespace SJP.Schematic.SqlServer.Tests.Integration
             }
 
             [Test]
-            public void TableExistsAsync_GivenNullName_ThrowsArgumentNullException()
+            public void GetTable_WhenTablePresentGivenLocalNameWithDifferentCase_ReturnsMatchingName()
             {
-                Assert.Throws<ArgumentNullException>(() => Database.TableExistsAsync(null));
+                var inputName = new Identifier("DB_TEST_table_1");
+                var table = Database.GetTable(inputName);
+
+                var equalNames = IdentifierComparer.OrdinalIgnoreCase.Equals(inputName, table.Name.LocalName);
+                Assert.IsTrue(equalNames);
             }
 
             [Test]
-            public async Task TableExistsAsync_WhenTablePresent_ReturnsTrue()
+            public void GetTable_WhenTablePresentGivenSchemaAndLocalNameWithDifferentCase_ReturnsMatchingName()
             {
-                var tableExists = await Database.TableExistsAsync("db_test_table_1").ConfigureAwait(false);
-                Assert.IsTrue(tableExists);
-            }
+                var inputName = new Identifier("Dbo", "DB_TEST_table_1");
+                var table = Database.GetTable(inputName);
 
-            [Test]
-            public async Task TableExistsAsync_WhenTableMissing_ReturnsFalse()
-            {
-                var tableExists = await Database.TableExistsAsync("table_that_doesnt_exist").ConfigureAwait(false);
-                Assert.IsFalse(tableExists);
-            }
-
-            // TODO: This will be dependent on the collation of the database
-            //       so may break on a different one
-            [Test]
-            public async Task TableExistsAsync_WhenTablePresentWithDifferentCase_ReturnsTrue()
-            {
-                var tableExists = await Database.TableExistsAsync("DB_TEST_table_1").ConfigureAwait(false);
-                Assert.IsTrue(tableExists);
+                var equalNames = IdentifierComparer.OrdinalIgnoreCase.Equals(inputName.Schema, table.Name.Schema)
+                    && IdentifierComparer.OrdinalIgnoreCase.Equals(inputName.LocalName, table.Name.LocalName);
+                Assert.IsTrue(equalNames);
             }
 
             [Test]
@@ -262,6 +225,27 @@ namespace SJP.Schematic.SqlServer.Tests.Integration
             }
 
             [Test]
+            public async Task GetTableAsync_WhenTablePresentGivenLocalNameWithDifferentCase_ReturnsMatchingName()
+            {
+                var inputName = new Identifier("DB_TEST_table_1");
+                var table = await Database.GetTableAsync(inputName).ConfigureAwait(false);
+
+                var equalNames = IdentifierComparer.OrdinalIgnoreCase.Equals(inputName, table.Name.LocalName);
+                Assert.IsTrue(equalNames);
+            }
+
+            [Test]
+            public async Task GetTableAsync_WhenTablePresentGivenSchemaAndLocalNameWithDifferentCase_ReturnsMatchingName()
+            {
+                var inputName = new Identifier("Dbo", "DB_TEST_table_1");
+                var table = await Database.GetTableAsync(inputName).ConfigureAwait(false);
+
+                var equalNames = IdentifierComparer.OrdinalIgnoreCase.Equals(inputName.Schema, table.Name.Schema)
+                    && IdentifierComparer.OrdinalIgnoreCase.Equals(inputName.LocalName, table.Name.LocalName);
+                Assert.IsTrue(equalNames);
+            }
+
+            [Test]
             public void Tables_WhenEnumerated_ContainsTables()
             {
                 var tables = Database.Tables.ToList();
@@ -311,35 +295,6 @@ namespace SJP.Schematic.SqlServer.Tests.Integration
             }
 
             private IRelationalDatabase Database => new SqlServerRelationalDatabase(Dialect, Connection);
-
-            [Test]
-            public void ViewExists_GivenNullName_ThrowsArgumentNullException()
-            {
-                Assert.Throws<ArgumentNullException>(() => Database.ViewExists(null));
-            }
-
-            [Test]
-            public void ViewExists_WhenViewPresent_ReturnsTrue()
-            {
-                var viewExists = Database.ViewExists("db_test_view_1");
-                Assert.IsTrue(viewExists);
-            }
-
-            [Test]
-            public void ViewExists_WhenViewMissing_ReturnsFalse()
-            {
-                var viewExists = Database.ViewExists("view_that_doesnt_exist");
-                Assert.IsFalse(viewExists);
-            }
-
-            // TODO: This will be dependent on the collation of the database
-            //       so may break on a different one
-            [Test]
-            public void ViewExists_WhenViewPresentWithDifferentCase_ReturnsTrue()
-            {
-                var viewExists = Database.ViewExists("DB_TEST_view_1");
-                Assert.IsTrue(viewExists);
-            }
 
             [Test]
             public void GetView_GivenNullName_ThrowsArgumentNullException()
@@ -419,32 +374,24 @@ namespace SJP.Schematic.SqlServer.Tests.Integration
             }
 
             [Test]
-            public void ViewExistsAsync_GivenNullName_ThrowsArgumentNullException()
+            public void GetView_WhenViewPresentGivenLocalNameWithDifferentCase_ReturnsMatchingName()
             {
-                Assert.Throws<ArgumentNullException>(() => Database.ViewExistsAsync(null));
+                var inputName = new Identifier("DB_TEST_view_1");
+                var view = Database.GetView(inputName);
+
+                var equalNames = IdentifierComparer.OrdinalIgnoreCase.Equals(inputName, view.Name.LocalName);
+                Assert.IsTrue(equalNames);
             }
 
             [Test]
-            public async Task ViewExistsAsync_WhenViewPresent_ReturnsTrue()
+            public void GetView_WhenViewPresentGivenSchemaAndLocalNameWithDifferentCase_ReturnsMatchingName()
             {
-                var viewExists = await Database.ViewExistsAsync("db_test_view_1").ConfigureAwait(false);
-                Assert.IsTrue(viewExists);
-            }
+                var inputName = new Identifier("Dbo", "DB_TEST_view_1");
+                var view = Database.GetView(inputName);
 
-            [Test]
-            public async Task ViewExistsAsync_WhenViewMissing_ReturnsFalse()
-            {
-                var viewExists = await Database.ViewExistsAsync("view_that_doesnt_exist").ConfigureAwait(false);
-                Assert.IsFalse(viewExists);
-            }
-
-            // TODO: This will be dependent on the collation of the database
-            //       so may break on a different one
-            [Test]
-            public async Task ViewExistsAsync_WhenViewPresentWithDifferentCase_ReturnsTrue()
-            {
-                var viewExists = await Database.ViewExistsAsync("DB_TEST_view_1").ConfigureAwait(false);
-                Assert.IsTrue(viewExists);
+                var equalNames = IdentifierComparer.OrdinalIgnoreCase.Equals(inputName.Schema, view.Name.Schema)
+                    && IdentifierComparer.OrdinalIgnoreCase.Equals(inputName.LocalName, view.Name.LocalName);
+                Assert.IsTrue(equalNames);
             }
 
             [Test]
@@ -525,6 +472,27 @@ namespace SJP.Schematic.SqlServer.Tests.Integration
             }
 
             [Test]
+            public async Task GetViewAsync_WhenViewPresentGivenLocalNameWithDifferentCase_ReturnsMatchingName()
+            {
+                var inputName = new Identifier("DB_TEST_view_1");
+                var view = await Database.GetViewAsync(inputName).ConfigureAwait(false);
+
+                var equalNames = IdentifierComparer.OrdinalIgnoreCase.Equals(inputName, view.Name.LocalName);
+                Assert.IsTrue(equalNames);
+            }
+
+            [Test]
+            public async Task GetViewAsync_WhenViewPresentGivenSchemaAndLocalNameWithDifferentCase_ReturnsMatchingName()
+            {
+                var inputName = new Identifier("Dbo", "DB_TEST_view_1");
+                var view = await Database.GetViewAsync(inputName).ConfigureAwait(false);
+
+                var equalNames = IdentifierComparer.OrdinalIgnoreCase.Equals(inputName.Schema, view.Name.Schema)
+                    && IdentifierComparer.OrdinalIgnoreCase.Equals(inputName.LocalName, view.Name.LocalName);
+                Assert.IsTrue(equalNames);
+            }
+
+            [Test]
             public void Views_WhenEnumerated_ContainsViews()
             {
                 var views = Database.Views.ToList();
@@ -576,35 +544,6 @@ namespace SJP.Schematic.SqlServer.Tests.Integration
             }
 
             private IRelationalDatabase Database => new SqlServerRelationalDatabase(Dialect, Connection);
-
-            [Test]
-            public void SequenceExists_GivenNullName_ThrowsArgumentNullException()
-            {
-                Assert.Throws<ArgumentNullException>(() => Database.SequenceExists(null));
-            }
-
-            [Test]
-            public void SequenceExists_WhenSequencePresent_ReturnsTrue()
-            {
-                var sequenceExists = Database.SequenceExists("db_test_sequence_1");
-                Assert.IsTrue(sequenceExists);
-            }
-
-            [Test]
-            public void SequenceExists_WhenSequenceMissing_ReturnsFalse()
-            {
-                var sequenceExists = Database.SequenceExists("sequence_that_doesnt_exist");
-                Assert.IsFalse(sequenceExists);
-            }
-
-            // TODO: This will be dependent on the collation of the database
-            //       so may break on a different one
-            [Test]
-            public void SequenceExists_WhenSequencePresentWithDifferentCase_ReturnsTrue()
-            {
-                var sequenceExists = Database.SequenceExists("DB_TEST_sequence_1");
-                Assert.IsTrue(sequenceExists);
-            }
 
             [Test]
             public void GetSequence_GivenNullName_ThrowsArgumentNullException()
@@ -683,32 +622,24 @@ namespace SJP.Schematic.SqlServer.Tests.Integration
             }
 
             [Test]
-            public void SequenceExistsAsync_GivenNullName_ThrowsArgumentNullException()
+            public void GetSequence_WhenSequencePresentGivenLocalNameWithDifferentCase_ReturnsMatchingName()
             {
-                Assert.Throws<ArgumentNullException>(() => Database.SequenceExistsAsync(null));
+                var inputName = new Identifier("DB_TEST_sequence_1");
+                var sequence = Database.GetSequence(inputName);
+
+                var equalNames = IdentifierComparer.OrdinalIgnoreCase.Equals(inputName, sequence.Name.LocalName);
+                Assert.IsTrue(equalNames);
             }
 
             [Test]
-            public async Task SequenceExistsAsync_WhenSequencePresent_ReturnsTrue()
+            public void GetSequence_WhenSequencePresentGivenSchemaAndLocalNameWithDifferentCase_ReturnsMatchingName()
             {
-                var sequenceExists = await Database.SequenceExistsAsync("db_test_sequence_1").ConfigureAwait(false);
-                Assert.IsTrue(sequenceExists);
-            }
+                var inputName = new Identifier("Dbo", "DB_TEST_sequence_1");
+                var sequence = Database.GetSequence(inputName);
 
-            [Test]
-            public async Task SequenceExistsAsync_WhenSequenceMissing_ReturnsFalse()
-            {
-                var sequenceExists = await Database.SequenceExistsAsync("sequence_that_doesnt_exist").ConfigureAwait(false);
-                Assert.IsFalse(sequenceExists);
-            }
-
-            // TODO: This will be dependent on the collation of the database
-            //       so may break on a different one
-            [Test]
-            public async Task SequenceExistsAsync_WhenSequencePresentWithDifferentCase_ReturnsTrue()
-            {
-                var sequenceExists = await Database.SequenceExistsAsync("DB_TEST_sequence_1").ConfigureAwait(false);
-                Assert.IsTrue(sequenceExists);
+                var equalNames = IdentifierComparer.OrdinalIgnoreCase.Equals(inputName.Schema, sequence.Name.Schema)
+                    && IdentifierComparer.OrdinalIgnoreCase.Equals(inputName.LocalName, sequence.Name.LocalName);
+                Assert.IsTrue(equalNames);
             }
 
             [Test]
@@ -788,6 +719,27 @@ namespace SJP.Schematic.SqlServer.Tests.Integration
             }
 
             [Test]
+            public async Task GetSequenceAsync_WhenSequencePresentGivenLocalNameWithDifferentCase_ReturnsMatchingName()
+            {
+                var inputName = new Identifier("DB_TEST_sequence_1");
+                var sequence = await Database.GetSequenceAsync(inputName).ConfigureAwait(false);
+
+                var equalNames = IdentifierComparer.OrdinalIgnoreCase.Equals(inputName, sequence.Name.LocalName);
+                Assert.IsTrue(equalNames);
+            }
+
+            [Test]
+            public async Task GetSequenceAsync_WhenSequencePresentGivenSchemaAndLocalNameWithDifferentCase_ReturnsMatchingName()
+            {
+                var inputName = new Identifier("Dbo", "DB_TEST_sequence_1");
+                var sequence = await Database.GetSequenceAsync(inputName).ConfigureAwait(false);
+
+                var equalNames = IdentifierComparer.OrdinalIgnoreCase.Equals(inputName.Schema, sequence.Name.Schema)
+                    && IdentifierComparer.OrdinalIgnoreCase.Equals(inputName.LocalName, sequence.Name.LocalName);
+                Assert.IsTrue(equalNames);
+            }
+
+            [Test]
             public void Sequences_WhenEnumerated_ContainsSequences()
             {
                 var sequences = Database.Sequences.ToList();
@@ -849,35 +801,6 @@ namespace SJP.Schematic.SqlServer.Tests.Integration
             }
 
             private IRelationalDatabase Database => new SqlServerRelationalDatabase(Dialect, Connection);
-
-            [Test]
-            public void SynonymExists_GivenNullName_ThrowsArgumentNullException()
-            {
-                Assert.Throws<ArgumentNullException>(() => Database.SynonymExists(null));
-            }
-
-            [Test]
-            public void SynonymExists_WhenSynonymPresent_ReturnsTrue()
-            {
-                var synonymExists = Database.SynonymExists("db_test_synonym_1");
-                Assert.IsTrue(synonymExists);
-            }
-
-            [Test]
-            public void SynonymExists_WhenSynonymMissing_ReturnsFalse()
-            {
-                var synonymExists = Database.SynonymExists("synonym_that_doesnt_exist");
-                Assert.IsFalse(synonymExists);
-            }
-
-            // TODO: This will be dependent on the collation of the database
-            //       so may break on a different one
-            [Test]
-            public void SynonymExists_WhenSynonymPresentWithDifferentCase_ReturnsTrue()
-            {
-                var synonymExists = Database.SynonymExists("DB_TEST_synonym_1");
-                Assert.IsTrue(synonymExists);
-            }
 
             [Test]
             public void GetSynonym_GivenNullName_ThrowsArgumentNullException()
@@ -957,32 +880,24 @@ namespace SJP.Schematic.SqlServer.Tests.Integration
             }
 
             [Test]
-            public void SynonymExistsAsync_GivenNullName_ThrowsArgumentNullException()
+            public void GetSynonym_WhenSynonymPresentGivenLocalNameWithDifferentCase_ReturnsMatchingName()
             {
-                Assert.Throws<ArgumentNullException>(() => Database.SynonymExistsAsync(null));
+                var inputName = new Identifier("DB_TEST_synonym_1");
+                var synonym = Database.GetSynonym(inputName);
+
+                var equalNames = IdentifierComparer.OrdinalIgnoreCase.Equals(inputName, synonym.Name.LocalName);
+                Assert.IsTrue(equalNames);
             }
 
             [Test]
-            public async Task SynonymExistsAsync_WhenSynonymPresent_ReturnsTrue()
+            public void GetSynonym_WhenSynonymPresentGivenSchemaAndLocalNameWithDifferentCase_ReturnsMatchingName()
             {
-                var synonymExists = await Database.SynonymExistsAsync("db_test_synonym_1").ConfigureAwait(false);
-                Assert.IsTrue(synonymExists);
-            }
+                var inputName = new Identifier("Dbo", "DB_TEST_synonym_1");
+                var synonym = Database.GetSynonym(inputName);
 
-            [Test]
-            public async Task SynonymExistsAsync_WhenSynonymMissing_ReturnsFalse()
-            {
-                var synonymExists = await Database.SynonymExistsAsync("synonym_that_doesnt_exist").ConfigureAwait(false);
-                Assert.IsFalse(synonymExists);
-            }
-
-            // TODO: This will be dependent on the collation of the database
-            //       so may break on a different one
-            [Test]
-            public async Task SynonymExistsAsync_WhenSynonymPresentWithDifferentCase_ReturnsTrue()
-            {
-                var synonymExists = await Database.SynonymExistsAsync("DB_TEST_synonym_1").ConfigureAwait(false);
-                Assert.IsTrue(synonymExists);
+                var equalNames = IdentifierComparer.OrdinalIgnoreCase.Equals(inputName.Schema, synonym.Name.Schema)
+                    && IdentifierComparer.OrdinalIgnoreCase.Equals(inputName.LocalName, synonym.Name.LocalName);
+                Assert.IsTrue(equalNames);
             }
 
             [Test]
@@ -1060,6 +975,27 @@ namespace SJP.Schematic.SqlServer.Tests.Integration
             {
                 var synonym = await Database.GetSynonymAsync("synonym_that_doesnt_exist").ConfigureAwait(false);
                 Assert.IsNull(synonym);
+            }
+
+            [Test]
+            public async Task GetSynonymAsync_WhenSynonymPresentGivenLocalNameWithDifferentCase_ReturnsMatchingName()
+            {
+                var inputName = new Identifier("DB_TEST_synonym_1");
+                var synonym = await Database.GetSynonymAsync(inputName).ConfigureAwait(false);
+
+                var equalNames = IdentifierComparer.OrdinalIgnoreCase.Equals(inputName, synonym.Name.LocalName);
+                Assert.IsTrue(equalNames);
+            }
+
+            [Test]
+            public async Task GetSynonymAsync_WhenSynonymPresentGivenSchemaAndLocalNameWithDifferentCase_ReturnsMatchingName()
+            {
+                var inputName = new Identifier("Dbo", "DB_TEST_synonym_1");
+                var synonym = await Database.GetSynonymAsync(inputName).ConfigureAwait(false);
+
+                var equalNames = IdentifierComparer.OrdinalIgnoreCase.Equals(inputName.Schema, synonym.Name.Schema)
+                    && IdentifierComparer.OrdinalIgnoreCase.Equals(inputName.LocalName, synonym.Name.LocalName);
+                Assert.IsTrue(equalNames);
             }
 
             [Test]

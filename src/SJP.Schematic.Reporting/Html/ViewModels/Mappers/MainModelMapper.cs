@@ -145,16 +145,16 @@ namespace SJP.Schematic.Reporting.Html.ViewModels.Mappers
             if (identifier == null)
                 throw new ArgumentNullException(nameof(identifier));
 
-            var isTable = Database.TableExists(identifier);
-            if (isTable)
+            var table = Database.GetTable(identifier);
+            if (table != null)
             {
-                return new Uri("tables/" + identifier.ToSafeKey() + ".html", UriKind.Relative);
+                return new Uri("tables/" + table.Name.ToSafeKey() + ".html", UriKind.Relative);
             }
             else
             {
-                var isView = Database.ViewExists(identifier);
-                if (isView)
-                    return new Uri("views/" + identifier.ToSafeKey() + ".html", UriKind.Relative);
+                var view = Database.GetView(identifier);
+                if (view != null)
+                    return new Uri("views/" + view.Name.ToSafeKey() + ".html", UriKind.Relative);
             }
 
             return null;
@@ -162,16 +162,16 @@ namespace SJP.Schematic.Reporting.Html.ViewModels.Mappers
 
         private async Task<Uri> GetSynonymTargetUrlAsync(Identifier identifier)
         {
-            var isTable = await Database.TableExistsAsync(identifier).ConfigureAwait(false);
-            if (isTable)
+            var table = await Database.GetTableAsync(identifier).ConfigureAwait(false);
+            if (table != null)
             {
-                return new Uri("tables/" + identifier.ToSafeKey() + ".html", UriKind.Relative);
+                return new Uri("tables/" + table.Name.ToSafeKey() + ".html", UriKind.Relative);
             }
             else
             {
-                var isView = await Database.ViewExistsAsync(identifier).ConfigureAwait(false);
-                if (isView)
-                    return new Uri("views/" + identifier.ToSafeKey() + ".html", UriKind.Relative);
+                var view = await Database.GetViewAsync(identifier).ConfigureAwait(false);
+                if (view != null)
+                    return new Uri("views/" + view.Name.ToSafeKey() + ".html", UriKind.Relative);
             }
 
             return null;

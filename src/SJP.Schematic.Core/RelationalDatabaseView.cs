@@ -14,8 +14,7 @@ namespace SJP.Schematic.Core
             Identifier viewName,
             string definition,
             IReadOnlyList<IDatabaseColumn> columns,
-            IReadOnlyCollection<IDatabaseIndex> indexes,
-            IEqualityComparer<Identifier> comparer = null)
+            IReadOnlyCollection<IDatabaseIndex> indexes)
         {
             if (definition.IsNullOrWhiteSpace())
                 throw new ArgumentNullException(nameof(definition));
@@ -27,10 +26,8 @@ namespace SJP.Schematic.Core
             IsIndexed = Indexes.Count > 0;
             Definition = definition;
 
-            Comparer = comparer ?? new IdentifierComparer(StringComparer.Ordinal, database.ServerName, database.DatabaseName, database.DefaultSchema);
-
-            Column = CreateColumnLookup(Columns, Comparer);
-            Index = CreateIndexLookup(Indexes, Comparer);
+            Column = CreateColumnLookup(Columns);
+            Index = CreateIndexLookup(Indexes);
         }
 
         public Identifier Name { get; }
@@ -61,9 +58,9 @@ namespace SJP.Schematic.Core
 
         public Task<IReadOnlyList<IDatabaseColumn>> ColumnsAsync(CancellationToken cancellationToken = default(CancellationToken)) => Task.FromResult(Columns);
 
-        private static IReadOnlyDictionary<Identifier, IDatabaseColumn> CreateColumnLookup(IReadOnlyList<IDatabaseColumn> columns, IEqualityComparer<Identifier> comparer)
+        private static IReadOnlyDictionary<Identifier, IDatabaseColumn> CreateColumnLookup(IReadOnlyList<IDatabaseColumn> columns)
         {
-            var result = new Dictionary<Identifier, IDatabaseColumn>(columns.Count, comparer);
+            var result = new Dictionary<Identifier, IDatabaseColumn>(columns.Count);
 
             var namedColumns = columns.Where(c => c.Name != null);
             foreach (var column in namedColumns)
@@ -72,9 +69,9 @@ namespace SJP.Schematic.Core
             return result;
         }
 
-        private static IReadOnlyDictionary<Identifier, IDatabaseIndex> CreateIndexLookup(IReadOnlyCollection<IDatabaseIndex> indexes, IEqualityComparer<Identifier> comparer)
+        private static IReadOnlyDictionary<Identifier, IDatabaseIndex> CreateIndexLookup(IReadOnlyCollection<IDatabaseIndex> indexes)
         {
-            var result = new Dictionary<Identifier, IDatabaseIndex>(indexes.Count, comparer);
+            var result = new Dictionary<Identifier, IDatabaseIndex>(indexes.Count);
 
             foreach (var index in indexes)
                 result[index.Name.LocalName] = index;

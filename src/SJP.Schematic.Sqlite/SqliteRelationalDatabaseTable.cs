@@ -34,7 +34,6 @@ namespace SJP.Schematic.Sqlite
                 throw new ArgumentException("The given database object does not contain a dialect.", nameof(database));
             Dialect = database.Dialect;
 
-            Comparer = new IdentifierComparer(StringComparer.OrdinalIgnoreCase, defaultSchema: Database.DefaultSchema);
             Pragma = new DatabasePragma(Dialect, connection, tableName.Schema);
         }
 
@@ -43,8 +42,6 @@ namespace SJP.Schematic.Sqlite
         protected IDatabaseDialect Dialect { get; }
 
         protected IDbConnection Connection { get; }
-
-        protected IEqualityComparer<Identifier> Comparer { get; }
 
         protected ISqliteDatabasePragma Pragma { get; }
 
@@ -113,7 +110,7 @@ namespace SJP.Schematic.Sqlite
         protected virtual IReadOnlyDictionary<Identifier, IDatabaseIndex> LoadIndexLookupSync()
         {
             var indexes = Indexes;
-            var result = new Dictionary<Identifier, IDatabaseIndex>(indexes.Count, Comparer);
+            var result = new Dictionary<Identifier, IDatabaseIndex>(indexes.Count);
 
             var namedIndexes = indexes.Where(i => i.Name != null);
             foreach (var index in namedIndexes)
@@ -125,7 +122,7 @@ namespace SJP.Schematic.Sqlite
         protected virtual async Task<IReadOnlyDictionary<Identifier, IDatabaseIndex>> LoadIndexLookupAsync(CancellationToken cancellationToken)
         {
             var indexes = await IndexesAsync(cancellationToken).ConfigureAwait(false);
-            var result = new Dictionary<Identifier, IDatabaseIndex>(indexes.Count, Comparer);
+            var result = new Dictionary<Identifier, IDatabaseIndex>(indexes.Count);
 
             var namedIndexes = indexes.Where(i => i.Name != null);
             foreach (var index in namedIndexes)
@@ -213,7 +210,7 @@ namespace SJP.Schematic.Sqlite
         protected virtual IReadOnlyDictionary<Identifier, IDatabaseKey> LoadUniqueKeyLookupSync()
         {
             var uniqueKeys = UniqueKeys;
-            var result = new Dictionary<Identifier, IDatabaseKey>(uniqueKeys.Count, Comparer);
+            var result = new Dictionary<Identifier, IDatabaseKey>(uniqueKeys.Count);
 
             var namedUniqueKeys = uniqueKeys.Where(uk => uk.Name != null);
             foreach (var uk in namedUniqueKeys)
@@ -225,7 +222,7 @@ namespace SJP.Schematic.Sqlite
         protected virtual async Task<IReadOnlyDictionary<Identifier, IDatabaseKey>> LoadUniqueKeyLookupAsync(CancellationToken cancellationToken)
         {
             var uniqueKeys = await UniqueKeysAsync(cancellationToken).ConfigureAwait(false);
-            var result = new Dictionary<Identifier, IDatabaseKey>(uniqueKeys.Count, Comparer);
+            var result = new Dictionary<Identifier, IDatabaseKey>(uniqueKeys.Count);
 
             var namedUniqueKeys = uniqueKeys.Where(uk => uk.Name != null);
             foreach (var uk in namedUniqueKeys)
@@ -323,7 +320,7 @@ namespace SJP.Schematic.Sqlite
             return Database.Tables
                 .Where(t => string.Equals(t.Name.Schema, Name.Schema, StringComparison.OrdinalIgnoreCase))
                 .SelectMany(t => t.ParentKeys)
-                .Where(fk => Comparer.Equals(Name, fk.ParentTable))
+                .Where(fk => Name.Equals(fk.ParentTable))
                 .ToList();
         }
 
@@ -340,7 +337,7 @@ namespace SJP.Schematic.Sqlite
 
             var childKeys = parentKeyCollections
                 .SelectMany(pkc => pkc)
-                .Where(fk => Comparer.Equals(Name, fk.ParentTable))
+                .Where(fk => Name.Equals(fk.ParentTable))
                 .ToList();
 
             return childKeys;
@@ -357,7 +354,7 @@ namespace SJP.Schematic.Sqlite
         protected virtual IReadOnlyDictionary<Identifier, IDatabaseCheckConstraint> LoadCheckLookupSync()
         {
             var checks = Checks;
-            var result = new Dictionary<Identifier, IDatabaseCheckConstraint>(checks.Count, Comparer);
+            var result = new Dictionary<Identifier, IDatabaseCheckConstraint>(checks.Count);
 
             var namedChecks = checks.Where(c => c.Name != null);
             foreach (var check in namedChecks)
@@ -369,7 +366,7 @@ namespace SJP.Schematic.Sqlite
         protected virtual async Task<IReadOnlyDictionary<Identifier, IDatabaseCheckConstraint>> LoadCheckLookupAsync(CancellationToken cancellationToken)
         {
             var checks = await ChecksAsync(cancellationToken).ConfigureAwait(false);
-            var result = new Dictionary<Identifier, IDatabaseCheckConstraint>(checks.Count, Comparer);
+            var result = new Dictionary<Identifier, IDatabaseCheckConstraint>(checks.Count);
 
             var namedChecks = checks.Where(c => c.Name != null);
             foreach (var check in namedChecks)
@@ -435,7 +432,7 @@ namespace SJP.Schematic.Sqlite
         protected virtual IReadOnlyDictionary<Identifier, IDatabaseRelationalKey> LoadParentKeyLookupSync()
         {
             var parentKeys = ParentKeys;
-            var result = new Dictionary<Identifier, IDatabaseRelationalKey>(parentKeys.Count, Comparer);
+            var result = new Dictionary<Identifier, IDatabaseRelationalKey>(parentKeys.Count);
 
             var namedParentKeys = parentKeys.Where(fk => fk.ChildKey.Name != null);
             foreach (var parentKey in namedParentKeys)
@@ -447,7 +444,7 @@ namespace SJP.Schematic.Sqlite
         protected virtual async Task<IReadOnlyDictionary<Identifier, IDatabaseRelationalKey>> LoadParentKeyLookupAsync(CancellationToken cancellationToken)
         {
             var parentKeys = await ParentKeysAsync(cancellationToken).ConfigureAwait(false);
-            var result = new Dictionary<Identifier, IDatabaseRelationalKey>(parentKeys.Count, Comparer);
+            var result = new Dictionary<Identifier, IDatabaseRelationalKey>(parentKeys.Count);
 
             var namedParentKeys = parentKeys.Where(fk => fk.ChildKey.Name != null);
             foreach (var parentKey in namedParentKeys)
@@ -593,7 +590,7 @@ namespace SJP.Schematic.Sqlite
         protected virtual IReadOnlyDictionary<Identifier, IDatabaseColumn> LoadColumnLookupSync()
         {
             var columns = Columns;
-            var result = new Dictionary<Identifier, IDatabaseColumn>(columns.Count, Comparer);
+            var result = new Dictionary<Identifier, IDatabaseColumn>(columns.Count);
 
             var namedColumns = columns.Where(c => c.Name != null);
             foreach (var column in namedColumns)
@@ -605,7 +602,7 @@ namespace SJP.Schematic.Sqlite
         protected virtual async Task<IReadOnlyDictionary<Identifier, IDatabaseColumn>> LoadColumnLookupAsync(CancellationToken cancellationToken)
         {
             var columns = await ColumnsAsync(cancellationToken).ConfigureAwait(false);
-            var result = new Dictionary<Identifier, IDatabaseColumn>(columns.Count, Comparer);
+            var result = new Dictionary<Identifier, IDatabaseColumn>(columns.Count);
 
             var namedColumns = columns.Where(c => c.Name != null);
             foreach (var column in namedColumns)
@@ -687,7 +684,7 @@ namespace SJP.Schematic.Sqlite
         protected virtual IReadOnlyDictionary<Identifier, IDatabaseTrigger> LoadTriggerLookupSync()
         {
             var triggers = Triggers;
-            var result = new Dictionary<Identifier, IDatabaseTrigger>(triggers.Count, Comparer);
+            var result = new Dictionary<Identifier, IDatabaseTrigger>(triggers.Count);
 
             foreach (var trigger in triggers)
                 result[trigger.Name.LocalName] = trigger;
@@ -698,7 +695,7 @@ namespace SJP.Schematic.Sqlite
         protected virtual async Task<IReadOnlyDictionary<Identifier, IDatabaseTrigger>> LoadTriggerLookupAsync(CancellationToken cancellationToken)
         {
             var triggers = await TriggersAsync(cancellationToken).ConfigureAwait(false);
-            var result = new Dictionary<Identifier, IDatabaseTrigger>(triggers.Count, Comparer);
+            var result = new Dictionary<Identifier, IDatabaseTrigger>(triggers.Count);
 
             foreach (var trigger in triggers)
                 result[trigger.Name.LocalName] = trigger;

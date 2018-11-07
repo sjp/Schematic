@@ -13,13 +13,12 @@ namespace SJP.Schematic.MySql
 {
     public class MySqlRelationalDatabaseTable : IRelationalDatabaseTable
     {
-        public MySqlRelationalDatabaseTable(IDbConnection connection, IRelationalDatabase database, IDbTypeProvider typeProvider, Identifier tableName, IEqualityComparer<Identifier> comparer = null)
+        public MySqlRelationalDatabaseTable(IDbConnection connection, IRelationalDatabase database, IDbTypeProvider typeProvider, Identifier tableName)
         {
             Connection = connection ?? throw new ArgumentNullException(nameof(connection));
             Database = database ?? throw new ArgumentNullException(nameof(database));
             TypeProvider = typeProvider ?? throw new ArgumentNullException(nameof(typeProvider));
             Name = tableName ?? throw new ArgumentNullException(nameof(tableName));
-            Comparer = comparer ?? new IdentifierComparer(StringComparer.Ordinal, database.ServerName, database.DatabaseName, database.DefaultSchema);
         }
 
         public Identifier Name { get; }
@@ -29,8 +28,6 @@ namespace SJP.Schematic.MySql
         protected IDbTypeProvider TypeProvider { get; }
 
         protected IDbConnection Connection { get; }
-
-        protected IEqualityComparer<Identifier> Comparer { get; }
 
         public IDatabaseKey PrimaryKey => LoadPrimaryKeySync();
 
@@ -102,7 +99,7 @@ order by kc.ordinal_position";
         protected virtual IReadOnlyDictionary<Identifier, IDatabaseIndex> LoadIndexLookupSync()
         {
             var indexes = Indexes;
-            var result = new Dictionary<Identifier, IDatabaseIndex>(indexes.Count, Comparer);
+            var result = new Dictionary<Identifier, IDatabaseIndex>(indexes.Count);
 
             foreach (var index in indexes)
                 result[index.Name.LocalName] = index;
@@ -113,7 +110,7 @@ order by kc.ordinal_position";
         protected virtual async Task<IReadOnlyDictionary<Identifier, IDatabaseIndex>> LoadIndexLookupAsync(CancellationToken cancellationToken)
         {
             var indexes = await IndexesAsync(cancellationToken).ConfigureAwait(false);
-            var result = new Dictionary<Identifier, IDatabaseIndex>(indexes.Count, Comparer);
+            var result = new Dictionary<Identifier, IDatabaseIndex>(indexes.Count);
 
             foreach (var index in indexes)
                 result[index.Name.LocalName] = index;
@@ -204,7 +201,7 @@ where table_schema = @SchemaName and table_name = @TableName";
         protected virtual IReadOnlyDictionary<Identifier, IDatabaseKey> LoadUniqueKeyLookupSync()
         {
             var uniqueKeys = UniqueKeys;
-            var result = new Dictionary<Identifier, IDatabaseKey>(uniqueKeys.Count, Comparer);
+            var result = new Dictionary<Identifier, IDatabaseKey>(uniqueKeys.Count);
 
             foreach (var uk in uniqueKeys)
                 result[uk.Name.LocalName] = uk;
@@ -215,7 +212,7 @@ where table_schema = @SchemaName and table_name = @TableName";
         protected virtual async Task<IReadOnlyDictionary<Identifier, IDatabaseKey>> LoadUniqueKeyLookupAsync(CancellationToken cancellationToken)
         {
             var uniqueKeys = await UniqueKeysAsync(cancellationToken).ConfigureAwait(false);
-            var result = new Dictionary<Identifier, IDatabaseKey>(uniqueKeys.Count, Comparer);
+            var result = new Dictionary<Identifier, IDatabaseKey>(uniqueKeys.Count);
 
             foreach (var uk in uniqueKeys)
                 result[uk.Name.LocalName] = uk;
@@ -446,7 +443,7 @@ where pt.table_schema = @SchemaName and pt.table_name = @TableName";
         protected virtual IReadOnlyDictionary<Identifier, IDatabaseRelationalKey> LoadParentKeyLookupSync()
         {
             var parentKeys = ParentKeys;
-            var result = new Dictionary<Identifier, IDatabaseRelationalKey>(parentKeys.Count, Comparer);
+            var result = new Dictionary<Identifier, IDatabaseRelationalKey>(parentKeys.Count);
 
             foreach (var parentKey in parentKeys)
                 result[parentKey.ChildKey.Name.LocalName] = parentKey;
@@ -457,7 +454,7 @@ where pt.table_schema = @SchemaName and pt.table_name = @TableName";
         protected virtual async Task<IReadOnlyDictionary<Identifier, IDatabaseRelationalKey>> LoadParentKeyLookupAsync(CancellationToken cancellationToken)
         {
             var parentKeys = await ParentKeysAsync(cancellationToken).ConfigureAwait(false);
-            var result = new Dictionary<Identifier, IDatabaseRelationalKey>(parentKeys.Count, Comparer);
+            var result = new Dictionary<Identifier, IDatabaseRelationalKey>(parentKeys.Count);
 
             foreach (var parentKey in parentKeys)
                 result[parentKey.ChildKey.Name.LocalName] = parentKey;
@@ -608,7 +605,7 @@ where t.table_schema = @SchemaName and t.table_name = @TableName";
         protected virtual IReadOnlyDictionary<Identifier, IDatabaseColumn> LoadColumnLookupSync()
         {
             var columns = Columns;
-            var result = new Dictionary<Identifier, IDatabaseColumn>(columns.Count, Comparer);
+            var result = new Dictionary<Identifier, IDatabaseColumn>(columns.Count);
 
             foreach (var column in columns.Where(c => c.Name != null))
                 result[column.Name.LocalName] = column;
@@ -619,7 +616,7 @@ where t.table_schema = @SchemaName and t.table_name = @TableName";
         protected virtual async Task<IReadOnlyDictionary<Identifier, IDatabaseColumn>> LoadColumnLookupAsync(CancellationToken cancellationToken)
         {
             var columns = await ColumnsAsync(cancellationToken).ConfigureAwait(false);
-            var result = new Dictionary<Identifier, IDatabaseColumn>(columns.Count, Comparer);
+            var result = new Dictionary<Identifier, IDatabaseColumn>(columns.Count);
 
             foreach (var column in columns.Where(c => c.Name != null))
                 result[column.Name.LocalName] = column;
@@ -727,7 +724,7 @@ order by ordinal_position";
         protected virtual IReadOnlyDictionary<Identifier, IDatabaseTrigger> LoadTriggerLookupSync()
         {
             var triggers = Triggers;
-            var result = new Dictionary<Identifier, IDatabaseTrigger>(triggers.Count, Comparer);
+            var result = new Dictionary<Identifier, IDatabaseTrigger>(triggers.Count);
 
             foreach (var trigger in triggers)
                 result[trigger.Name.LocalName] = trigger;
@@ -738,7 +735,7 @@ order by ordinal_position";
         protected virtual async Task<IReadOnlyDictionary<Identifier, IDatabaseTrigger>> LoadTriggerLookupAsync(CancellationToken cancellationToken)
         {
             var triggers = await TriggersAsync(cancellationToken).ConfigureAwait(false);
-            var result = new Dictionary<Identifier, IDatabaseTrigger>(triggers.Count, Comparer);
+            var result = new Dictionary<Identifier, IDatabaseTrigger>(triggers.Count);
 
             foreach (var trigger in triggers)
                 result[trigger.Name.LocalName] = trigger;

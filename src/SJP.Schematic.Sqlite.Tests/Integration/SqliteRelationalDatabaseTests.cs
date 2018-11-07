@@ -141,33 +141,6 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
             private IRelationalDatabase Database => new SqliteRelationalDatabase(Dialect, Connection);
 
             [Test]
-            public void TableExists_GivenNullName_ThrowsArgumentNullException()
-            {
-                Assert.Throws<ArgumentNullException>(() => Database.TableExists(null));
-            }
-
-            [Test]
-            public void TableExists_WhenTablePresent_ReturnsTrue()
-            {
-                var tableExists = Database.TableExists("db_test_table_1");
-                Assert.IsTrue(tableExists);
-            }
-
-            [Test]
-            public void TableExists_WhenTableMissing_ReturnsFalse()
-            {
-                var tableExists = Database.TableExists("table_that_doesnt_exist");
-                Assert.IsFalse(tableExists);
-            }
-
-            [Test]
-            public void TableExists_WhenTablePresentWithDifferentCase_ReturnsTable()
-            {
-                var tableExists = Database.TableExists("DB_TEST_table_1");
-                Assert.IsTrue(tableExists);
-            }
-
-            [Test]
             public void GetTable_GivenNullName_ThrowsArgumentNullException()
             {
                 Assert.Throws<ArgumentNullException>(() => Database.GetTable(null));
@@ -223,30 +196,23 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
             }
 
             [Test]
-            public void TableExistsAsync_GivenNullName_ThrowsArgumentNullException()
+            public void GetTable_WhenTablePresentGivenLocalNameWithDifferentCase_ReturnsMatchingName()
             {
-                Assert.Throws<ArgumentNullException>(() => Database.TableExistsAsync(null));
+                var inputName = new Identifier("DB_TEST_table_1");
+                var table = Database.GetTable(inputName);
+
+                var equalNames = IdentifierComparer.OrdinalIgnoreCase.Equals(inputName, table.Name.LocalName);
+                Assert.IsTrue(equalNames);
             }
 
             [Test]
-            public async Task TableExistsAsync_WhenTablePresent_ReturnsTrue()
+            public void GetTable_WhenTablePresentGivenQualifiedNameWithDifferentCase_ReturnsMatchingName()
             {
-                var tableExists = await Database.TableExistsAsync("db_test_table_1").ConfigureAwait(false);
-                Assert.IsTrue(tableExists);
-            }
+                var inputName = new Identifier("Main", "DB_TEST_table_1");
+                var table = Database.GetTable(inputName);
 
-            [Test]
-            public async Task TableExistsAsync_WhenTableMissing_ReturnsFalse()
-            {
-                var tableExists = await Database.TableExistsAsync("table_that_doesnt_exist").ConfigureAwait(false);
-                Assert.IsFalse(tableExists);
-            }
-
-            [Test]
-            public async Task TableExistsAsync_WhenTablePresentWithDifferentCase_ReturnsTrue()
-            {
-                var tableExists = await Database.TableExistsAsync("DB_TEST_table_1").ConfigureAwait(false);
-                Assert.IsTrue(tableExists);
+                var equalNames = IdentifierComparer.OrdinalIgnoreCase.Equals(inputName, table.Name);
+                Assert.IsTrue(equalNames);
             }
 
             [Test]
@@ -303,6 +269,26 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
                 var table = await Database.GetTableAsync("table_that_doesnt_exist").ConfigureAwait(false);
                 Assert.IsNull(table);
             }
+
+            [Test]
+            public async Task TableExistsAsync_WhenTablePresentGivenLocalNameNameWithDifferentCase_ReturnsMatchingName()
+            {
+                var inputName = new Identifier("DB_TEST_table_1");
+                var table = await Database.GetTableAsync(inputName).ConfigureAwait(false);
+
+                var equalNames = IdentifierComparer.OrdinalIgnoreCase.Equals(inputName, table.Name.LocalName);
+                Assert.IsTrue(equalNames);
+            }
+
+            [Test]
+            public async Task TableExistsAsync_WhenTablePresentGivenQualifiedNameNameWithDifferentCase_ReturnsMatchingName()
+            {
+                var inputName = new Identifier("Main", "DB_TEST_table_1");
+                var table = await Database.GetTableAsync(inputName).ConfigureAwait(false);
+
+                var equalNames = IdentifierComparer.OrdinalIgnoreCase.Equals(inputName, table.Name);
+                Assert.IsTrue(equalNames);
+            }
         }
 
         internal sealed class ViewTests : SqliteTest
@@ -320,33 +306,6 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
             }
 
             private IRelationalDatabase Database => new SqliteRelationalDatabase(new SqliteDialect(), Connection);
-
-            [Test]
-            public void ViewExists_GivenNullName_ThrowsArgumentNullException()
-            {
-                Assert.Throws<ArgumentNullException>(() => Database.ViewExists(null));
-            }
-
-            [Test]
-            public void ViewExists_WhenViewPresent_ReturnsTrue()
-            {
-                var viewExists = Database.ViewExists("db_test_view_1");
-                Assert.IsTrue(viewExists);
-            }
-
-            [Test]
-            public void ViewExists_WhenViewMissing_ReturnsFalse()
-            {
-                var viewExists = Database.ViewExists("view_that_doesnt_exist");
-                Assert.IsFalse(viewExists);
-            }
-
-            [Test]
-            public void ViewExists_WhenViewPresentWithDifferentCase_ReturnsTrue()
-            {
-                var viewExists = Database.ViewExists("DB_TEST_view_1");
-                Assert.IsTrue(viewExists);
-            }
 
             [Test]
             public void GetView_GivenNullName_ThrowsArgumentNullException()
@@ -404,30 +363,23 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
             }
 
             [Test]
-            public void ViewExistsAsync_GivenNullName_ThrowsArgumentNullException()
+            public void GetView_WhenViewPresentGivenLocalNameWithDifferentCase_ReturnsMatchingName()
             {
-                Assert.Throws<ArgumentNullException>( () => Database.ViewExistsAsync(null));
+                var inputName = new Identifier("DB_TEST_view_1");
+                var view = Database.GetView(inputName);
+
+                var equalNames = IdentifierComparer.OrdinalIgnoreCase.Equals(inputName, view.Name.LocalName);
+                Assert.IsTrue(equalNames);
             }
 
             [Test]
-            public async Task ViewExistsAsync_WhenViewPresent_ReturnsTrue()
+            public void GetView_WhenViewPresentGivenQualifiedNameWithDifferentCase_ReturnsMatchingName()
             {
-                var viewExists = await Database.ViewExistsAsync("db_test_view_1").ConfigureAwait(false);
-                Assert.IsTrue(viewExists);
-            }
+                var inputName = new Identifier("Main", "DB_TEST_view_1");
+                var view = Database.GetView(inputName);
 
-            [Test]
-            public async Task ViewExistsAsync_WhenViewMissing_ReturnsFalse()
-            {
-                var viewExists = await Database.ViewExistsAsync("view_that_doesnt_exist").ConfigureAwait(false);
-                Assert.IsFalse(viewExists);
-            }
-
-            [Test]
-            public async Task ViewExistsAsync_WhenViewPresentWithDifferentCase_ReturnsTrue()
-            {
-                var viewExists = await Database.ViewExistsAsync("DB_TEST_view_1").ConfigureAwait(false);
-                Assert.IsTrue(viewExists);
+                var equalNames = IdentifierComparer.OrdinalIgnoreCase.Equals(inputName, view.Name);
+                Assert.IsTrue(equalNames);
             }
 
             [Test]
@@ -484,26 +436,31 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
                 var view = await Database.GetViewAsync("view_that_doesnt_exist").ConfigureAwait(false);
                 Assert.IsNull(view);
             }
+
+            [Test]
+            public async Task GetViewAsync_WhenViewPresentGivenLocalNameNameWithDifferentCase_ReturnsMatchingName()
+            {
+                var inputName = new Identifier("DB_TEST_view_1");
+                var view = await Database.GetViewAsync(inputName).ConfigureAwait(false);
+
+                var equalNames = IdentifierComparer.OrdinalIgnoreCase.Equals(inputName, view.Name.LocalName);
+                Assert.IsTrue(equalNames);
+            }
+
+            [Test]
+            public async Task GetViewAsync_WhenViewPresentGivenQualifiedNameNameWithDifferentCase_ReturnsMatchingName()
+            {
+                var inputName = new Identifier("Main", "DB_TEST_view_1");
+                var view = await Database.GetViewAsync(inputName).ConfigureAwait(false);
+
+                var equalNames = IdentifierComparer.OrdinalIgnoreCase.Equals(inputName, view.Name);
+                Assert.IsTrue(equalNames);
+            }
         }
 
         internal sealed class SequenceTests : SqliteTest
         {
             private IRelationalDatabase Database => new SqliteRelationalDatabase(Dialect, Connection);
-
-            [Test]
-            public void SequenceExists_GivenNullSequenceName_ThrowsArgumentNullException()
-            {
-                Assert.Throws<ArgumentNullException>(() => Database.SequenceExists(null));
-            }
-
-            [Test]
-            public void SequenceExists_GivenValidSequenceName_ReturnsFalse()
-            {
-                var sequenceName = new Identifier("asd");
-                var sequenceExists = Database.SequenceExists(sequenceName);
-
-                Assert.IsFalse(sequenceExists);
-            }
 
             [Test]
             public void GetSequence_GivenNullSequenceName_ThrowsArgumentNullException()
@@ -527,21 +484,6 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
                 var count = sequences.Count;
 
                 Assert.Zero(count);
-            }
-
-            [Test]
-            public void SequenceExistsAsync_GivenNullSequenceName_ThrowsArgumentNullException()
-            {
-                Assert.Throws<ArgumentNullException>(() => Database.SequenceExistsAsync(null));
-            }
-
-            [Test]
-            public async Task SequenceExistsAsync_GivenValidSequenceName_ReturnsFalse()
-            {
-                var sequenceName = new Identifier("asd");
-                var sequenceExists = await Database.SequenceExistsAsync(sequenceName).ConfigureAwait(false);
-
-                Assert.IsFalse(sequenceExists);
             }
 
             [Test]
@@ -573,21 +515,6 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
             private IRelationalDatabase Database => new SqliteRelationalDatabase(Dialect, Connection);
 
             [Test]
-            public void SynonymExists_GivenNullSynonymName_ThrowsArgumentNullException()
-            {
-                Assert.Throws<ArgumentNullException>(() => Database.SynonymExists(null));
-            }
-
-            [Test]
-            public void SynonymExists_GivenValidSynonymName_ReturnsFalse()
-            {
-                var synonymName = new Identifier("asd");
-                var synonymExists = Database.SynonymExists(synonymName);
-
-                Assert.IsFalse(synonymExists);
-            }
-
-            [Test]
             public void GetSynonym_GivenNullSynonymName_ThrowsArgumentNullException()
             {
                 Assert.Throws<ArgumentNullException>(() => Database.GetSynonym(null));
@@ -609,21 +536,6 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
                 var count = synonyms.Count;
 
                 Assert.Zero(count);
-            }
-
-            [Test]
-            public void SynonymExistsAsync_GivenNullSynonymName_ThrowsArgumentNullException()
-            {
-                Assert.Throws<ArgumentNullException>(() => Database.SynonymExistsAsync(null));
-            }
-
-            [Test]
-            public async Task SynonymExistsAsync_GivenValidSynonymName_ReturnsFalse()
-            {
-                var synonymName = new Identifier("asd");
-                var synonymExists = await Database.SynonymExistsAsync(synonymName).ConfigureAwait(false);
-
-                Assert.IsFalse(synonymExists);
             }
 
             [Test]

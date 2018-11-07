@@ -11,7 +11,7 @@ namespace SJP.Schematic.Modelled.Reflection
 {
     public class ReflectionRelationalDatabase : IRelationalDatabase
     {
-        public ReflectionRelationalDatabase(IDatabaseDialect dialect, Type databaseDefinitionType, string serverName = null, string databaseName = null, string defaultSchema = null, IEqualityComparer<Identifier> comparer = null)
+        public ReflectionRelationalDatabase(IDatabaseDialect dialect, Type databaseDefinitionType, string serverName = null, string databaseName = null, string defaultSchema = null)
         {
             Dialect = dialect ?? throw new ArgumentNullException(nameof(dialect));
             DatabaseDefinitionType = databaseDefinitionType ?? throw new ArgumentNullException(nameof(databaseDefinitionType));
@@ -27,8 +27,6 @@ namespace SJP.Schematic.Modelled.Reflection
             if (defaultSchema.IsNullOrWhiteSpace())
                 defaultSchema = null;
             DefaultSchema = defaultSchema;
-
-            Comparer = comparer ?? new IdentifierComparer(StringComparer.OrdinalIgnoreCase, serverName, databaseName, defaultSchema);
 
             TypeProvider = new ReflectionTypeProvider(dialect, databaseDefinitionType);
             EnsureUniqueTypes(DatabaseDefinitionType, TypeProvider);
@@ -49,30 +47,9 @@ namespace SJP.Schematic.Modelled.Reflection
 
         public string DatabaseVersion { get; } = string.Empty;
 
-        protected IEqualityComparer<Identifier> Comparer { get; }
-
         protected Type DatabaseDefinitionType { get; }
 
         protected ReflectionTypeProvider TypeProvider { get; }
-
-        public bool TableExists(Identifier tableName)
-        {
-            if (tableName == null)
-                throw new ArgumentNullException(nameof(tableName));
-
-            tableName = CreateQualifiedIdentifier(tableName);
-            return Table.ContainsKey(tableName);
-        }
-
-        public Task<bool> TableExistsAsync(Identifier tableName, CancellationToken cancellationToken = default(CancellationToken))
-        {
-            if (tableName == null)
-                throw new ArgumentNullException(nameof(tableName));
-
-            tableName = CreateQualifiedIdentifier(tableName);
-            var lookupContains = Table.ContainsKey(tableName);
-            return Task.FromResult(lookupContains);
-        }
 
         public IRelationalDatabaseTable GetTable(Identifier tableName)
         {
@@ -132,25 +109,6 @@ namespace SJP.Schematic.Modelled.Reflection
             }
 
             return lookup;
-        }
-
-        public bool ViewExists(Identifier viewName)
-        {
-            if (viewName == null)
-                throw new ArgumentNullException(nameof(viewName));
-
-            viewName = CreateQualifiedIdentifier(viewName);
-            return View.ContainsKey(viewName);
-        }
-
-        public Task<bool> ViewExistsAsync(Identifier viewName, CancellationToken cancellationToken = default(CancellationToken))
-        {
-            if (viewName == null)
-                throw new ArgumentNullException(nameof(viewName));
-
-            viewName = CreateQualifiedIdentifier(viewName);
-            var lookupContains = View.ContainsKey(viewName);
-            return Task.FromResult(lookupContains);
         }
 
         public IRelationalDatabaseView GetView(Identifier viewName)
@@ -213,25 +171,6 @@ namespace SJP.Schematic.Modelled.Reflection
             return lookup;
         }
 
-        public bool SequenceExists(Identifier sequenceName)
-        {
-            if (sequenceName == null)
-                throw new ArgumentNullException(nameof(sequenceName));
-
-            sequenceName = CreateQualifiedIdentifier(sequenceName);
-            return Sequence.ContainsKey(sequenceName);
-        }
-
-        public Task<bool> SequenceExistsAsync(Identifier sequenceName, CancellationToken cancellationToken = default(CancellationToken))
-        {
-            if (sequenceName == null)
-                throw new ArgumentNullException(nameof(sequenceName));
-
-            sequenceName = CreateQualifiedIdentifier(sequenceName);
-            var lookupContains = Sequence.ContainsKey(sequenceName);
-            return Task.FromResult(lookupContains);
-        }
-
         public IDatabaseSequence GetSequence(Identifier sequenceName)
         {
             if (sequenceName == null)
@@ -290,25 +229,6 @@ namespace SJP.Schematic.Modelled.Reflection
             }
 
             return lookup;
-        }
-
-        public bool SynonymExists(Identifier synonymName)
-        {
-            if (synonymName == null)
-                throw new ArgumentNullException(nameof(synonymName));
-
-            synonymName = CreateQualifiedIdentifier(synonymName);
-            return Synonym.ContainsKey(synonymName);
-        }
-
-        public Task<bool> SynonymExistsAsync(Identifier synonymName, CancellationToken cancellationToken = default(CancellationToken))
-        {
-            if (synonymName == null)
-                throw new ArgumentNullException(nameof(synonymName));
-
-            synonymName = CreateQualifiedIdentifier(synonymName);
-            var lookupContains = Synonym.ContainsKey(synonymName);
-            return Task.FromResult(lookupContains);
         }
 
         public IDatabaseSynonym GetSynonym(Identifier synonymName)
@@ -385,7 +305,7 @@ namespace SJP.Schematic.Modelled.Reflection
 
         protected (IEnumerable<string> quotedTypeNames, IReadOnlyDictionary<Identifier, TValue> lookup) CreateLookup<TValue>(IReadOnlyCollection<TValue> objects) where TValue : IDatabaseEntity
         {
-            var result = new Dictionary<Identifier, TValue>(objects.Count, Comparer);
+            var result = new Dictionary<Identifier, TValue>(objects.Count);
 
             var duplicateNames = new HashSet<Identifier>();
             foreach (var obj in objects)

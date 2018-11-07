@@ -36,78 +36,103 @@ namespace SJP.Schematic.Sqlite
 
         protected ISqliteConnectionPragma Pragma { get; }
 
-        public bool TableExists(Identifier tableName)
+        protected Identifier GetResolvedTableName(Identifier tableName)
         {
             if (tableName == null)
                 throw new ArgumentNullException(nameof(tableName));
 
             if (IsReservedTableName(tableName))
-                return false;
+                return null;
 
             if (tableName.Schema != null)
             {
-                var sql = TableExistsQuery(tableName.Schema);
-                return Connection.ExecuteScalar<int>(
+                var sql = TableNameQuery(tableName.Schema);
+                var tableLocalName = Connection.ExecuteScalar<string>(
                     sql,
                     new { TableName = tableName.LocalName }
-                ) > 0;
+                );
+
+                if (tableLocalName != null)
+                {
+                    var tableSchemaName = Pragma.DatabaseList
+                        .OrderBy(s => s.seq)
+                        .Select(s => s.name)
+                        .FirstOrDefault(s => string.Equals(s, tableName.Schema, StringComparison.OrdinalIgnoreCase));
+                    if (tableSchemaName == null)
+                        throw new InvalidOperationException("Unable to find a database matching the given schema name: " + tableName.Schema);
+
+                    return Identifier.CreateQualifiedIdentifier(tableSchemaName, tableLocalName);
+                }
             }
 
             var dbNames = Pragma.DatabaseList.OrderBy(l => l.seq).Select(l => l.name).ToList();
             foreach (var dbName in dbNames)
             {
-                var sql = TableExistsQuery(dbName);
-                var tableCount = Connection.ExecuteScalar<int>(sql, new { TableName = tableName.LocalName });
+                var sql = TableNameQuery(dbName);
+                var tableLocalName = Connection.ExecuteScalar<string>(sql, new { TableName = tableName.LocalName });
 
-                if (tableCount > 0)
-                    return true;
+                if (tableLocalName != null)
+                    return Identifier.CreateQualifiedIdentifier(dbName, tableLocalName);
             }
 
-            return false;
+            return null;
         }
 
-        public Task<bool> TableExistsAsync(Identifier tableName, CancellationToken cancellationToken = default(CancellationToken))
+        protected Task<Identifier> GetResolvedTableNameAsync(Identifier tableName, CancellationToken cancellationToken = default(CancellationToken))
         {
             if (tableName == null)
                 throw new ArgumentNullException(nameof(tableName));
 
-            return TableExistsAsyncCore(tableName, cancellationToken);
+            return GetResolvedTableNameAsyncCore(tableName, cancellationToken);
         }
 
-        private async Task<bool> TableExistsAsyncCore(Identifier tableName, CancellationToken cancellationToken)
+        private async Task<Identifier> GetResolvedTableNameAsyncCore(Identifier tableName, CancellationToken cancellationToken)
         {
             if (IsReservedTableName(tableName))
-                return false;
+                return null;
 
             if (tableName.Schema != null)
             {
-                var sql = TableExistsQuery(tableName.Schema);
-                return await Connection.ExecuteScalarAsync<int>(
+                var sql = TableNameQuery(tableName.Schema);
+                var tableLocalName = await Connection.ExecuteScalarAsync<string>(
                     sql,
                     new { TableName = tableName.LocalName }
-                ).ConfigureAwait(false) > 0;
+                ).ConfigureAwait(false);
+
+                if (tableLocalName != null)
+                {
+                    var dbList = await Pragma.DatabaseListAsync().ConfigureAwait(false);
+                    var tableSchemaName = dbList
+                            .OrderBy(s => s.seq)
+                            .Select(s => s.name)
+                            .FirstOrDefault(s => string.Equals(s, tableName.Schema, StringComparison.OrdinalIgnoreCase));
+                    if (tableSchemaName == null)
+                        throw new InvalidOperationException("Unable to find a database matching the given schema name: " + tableName.Schema);
+
+                    return Identifier.CreateQualifiedIdentifier(tableSchemaName, tableLocalName);
+                }
             }
 
             var dbNamesResult = await Pragma.DatabaseListAsync().ConfigureAwait(false);
             var dbNames = dbNamesResult.OrderBy(l => l.seq).Select(l => l.name).ToList();
             foreach (var dbName in dbNames)
             {
-                var sql = TableExistsQuery(dbName);
-                var tableCount = await Connection.ExecuteScalarAsync<int>(sql, new { TableName = tableName.LocalName }).ConfigureAwait(false);
+                var sql = TableNameQuery(dbName);
+                var tableLocalName = await Connection.ExecuteScalarAsync<string>(sql, new { TableName = tableName.LocalName }).ConfigureAwait(false);
 
-                if (tableCount > 0)
-                    return true;
+                if (tableLocalName != null)
+                    return Identifier.CreateQualifiedIdentifier(dbName, tableLocalName);
             }
 
-            return false;
+            return null;
         }
 
-        protected virtual string TableExistsQuery(string schemaName)
+        protected virtual string TableNameQuery(string schemaName)
         {
             if (schemaName.IsNullOrWhiteSpace())
                 throw new ArgumentNullException(nameof(schemaName));
 
-            return $"select count(*) from { Dialect.QuoteIdentifier(schemaName) }.sqlite_master where type = 'table' and lower(name) = lower(@TableName)";
+            return $"select name from { Dialect.QuoteIdentifier(schemaName) }.sqlite_master where type = 'table' and lower(name) = lower(@TableName)";
         }
 
         public IRelationalDatabaseTable GetTable(Identifier tableName)
@@ -223,8 +248,9 @@ namespace SJP.Schematic.Sqlite
 
             if (tableName.Schema != null)
             {
-                return TableExists(tableName)
-                    ? new SqliteRelationalDatabaseTable(Connection, this, tableName)
+                var qualifiedTableName = GetResolvedTableName(tableName);
+                return qualifiedTableName != null
+                    ? new SqliteRelationalDatabaseTable(Connection, this, qualifiedTableName)
                     : null;
             }
 
@@ -232,7 +258,9 @@ namespace SJP.Schematic.Sqlite
             foreach (var dbName in dbNames)
             {
                 var qualifiedTableName = Identifier.CreateQualifiedIdentifier(dbName, tableName.LocalName);
-                var table = TableExists(qualifiedTableName)
+                qualifiedTableName = GetResolvedTableName(qualifiedTableName);
+
+                var table = qualifiedTableName != null
                     ? new SqliteRelationalDatabaseTable(Connection, this, qualifiedTableName)
                     : null;
 
@@ -255,9 +283,9 @@ namespace SJP.Schematic.Sqlite
         {
             if (tableName.Schema != null)
             {
-                var exists = await TableExistsAsync(tableName, cancellationToken).ConfigureAwait(false);
-                return exists
-                    ? new SqliteRelationalDatabaseTable(Connection, this, tableName)
+                var qualifiedTableName = await GetResolvedTableNameAsync(tableName, cancellationToken).ConfigureAwait(false);
+                return qualifiedTableName != null
+                    ? new SqliteRelationalDatabaseTable(Connection, this, qualifiedTableName)
                     : null;
             }
 
@@ -266,7 +294,9 @@ namespace SJP.Schematic.Sqlite
             foreach (var dbName in dbNames)
             {
                 var qualifiedTableName = Identifier.CreateQualifiedIdentifier(dbName, tableName.LocalName);
-                var table = await TableExistsAsync(qualifiedTableName, cancellationToken).ConfigureAwait(false)
+                qualifiedTableName = await GetResolvedTableNameAsync(qualifiedTableName, cancellationToken).ConfigureAwait(false);
+
+                var table = qualifiedTableName != null
                     ? new SqliteRelationalDatabaseTable(Connection, this, qualifiedTableName)
                     : null;
 
@@ -277,72 +307,97 @@ namespace SJP.Schematic.Sqlite
             return null;
         }
 
-        public bool ViewExists(Identifier viewName)
+        protected Identifier GetResolvedViewName(Identifier viewName)
         {
             if (viewName == null)
                 throw new ArgumentNullException(nameof(viewName));
 
             if (viewName.Schema != null)
             {
-                var sql = ViewExistsQuery(viewName.Schema);
-                return Connection.ExecuteScalar<int>(
+                var sql = ViewNameQuery(viewName.Schema);
+                var viewLocalName = Connection.ExecuteScalar<string>(
                     sql,
                     new { ViewName = viewName.LocalName }
-                ) > 0;
+                );
+
+                if (viewLocalName != null)
+                {
+                    var viewSchemaName = Pragma.DatabaseList
+                        .OrderBy(s => s.seq)
+                        .Select(s => s.name)
+                        .FirstOrDefault(s => string.Equals(s, viewName.Schema, StringComparison.OrdinalIgnoreCase));
+                    if (viewSchemaName == null)
+                        throw new InvalidOperationException("Unable to find a database matching the given schema name: " + viewName.Schema);
+
+                    return Identifier.CreateQualifiedIdentifier(viewSchemaName, viewLocalName);
+                }
             }
 
             var dbNames = Pragma.DatabaseList.OrderBy(l => l.seq).Select(l => l.name).ToList();
             foreach (var dbName in dbNames)
             {
-                var sql = ViewExistsQuery(dbName);
-                var viewCount = Connection.ExecuteScalar<int>(sql, new { ViewName = viewName.LocalName });
+                var sql = ViewNameQuery(dbName);
+                var viewLocalName = Connection.ExecuteScalar<string>(sql, new { ViewName = viewName.LocalName });
 
-                if (viewCount > 0)
-                    return true;
+                if (viewLocalName != null)
+                    return Identifier.CreateQualifiedIdentifier(dbName, viewLocalName);
             }
 
-            return false;
+            return null;
         }
 
-        public Task<bool> ViewExistsAsync(Identifier viewName, CancellationToken cancellationToken = default(CancellationToken))
+        public Task<Identifier> GetResolvedViewNameAsync(Identifier viewName, CancellationToken cancellationToken = default(CancellationToken))
         {
             if (viewName == null)
                 throw new ArgumentNullException(nameof(viewName));
 
-            return ViewExistsAsyncCore(viewName, cancellationToken);
+            return GetResolvedViewNameAsyncCore(viewName, cancellationToken);
         }
 
-        private async Task<bool> ViewExistsAsyncCore(Identifier viewName, CancellationToken cancellationToken)
+        private async Task<Identifier> GetResolvedViewNameAsyncCore(Identifier viewName, CancellationToken cancellationToken)
         {
             if (viewName.Schema != null)
             {
-                var sql = ViewExistsQuery(viewName.Schema);
-                return await Connection.ExecuteScalarAsync<int>(
+                var sql = ViewNameQuery(viewName.Schema);
+                var viewLocalName = await Connection.ExecuteScalarAsync<string>(
                     sql,
                     new { ViewName = viewName.LocalName }
-                ).ConfigureAwait(false) > 0;
+                ).ConfigureAwait(false);
+
+                if (viewLocalName != null)
+                {
+                    var dbList = await Pragma.DatabaseListAsync().ConfigureAwait(false);
+                    var viewSchemaName = dbList
+                            .OrderBy(s => s.seq)
+                            .Select(s => s.name)
+                            .FirstOrDefault(s => string.Equals(s, viewName.Schema, StringComparison.OrdinalIgnoreCase));
+                    if (viewSchemaName == null)
+                        throw new InvalidOperationException("Unable to find a database matching the given schema name: " + viewName.Schema);
+
+                    return Identifier.CreateQualifiedIdentifier(viewSchemaName, viewLocalName);
+                }
             }
 
             var dbNamesResult = await Pragma.DatabaseListAsync().ConfigureAwait(false);
             var dbNames = dbNamesResult.OrderBy(l => l.seq).Select(l => l.name).ToList();
             foreach (var dbName in dbNames)
             {
-                var sql = ViewExistsQuery(dbName);
-                var viewCount = await Connection.ExecuteScalarAsync<int>(sql, new { ViewName = viewName.LocalName }).ConfigureAwait(false);
+                var sql = ViewNameQuery(dbName);
+                var viewLocalName = await Connection.ExecuteScalarAsync<string>(sql, new { ViewName = viewName.LocalName }).ConfigureAwait(false);
 
-                if (viewCount > 0)
-                    return true;
+                if (viewLocalName != null)
+                    return Identifier.CreateQualifiedIdentifier(dbName, viewLocalName);
             }
 
-            return false;
+            return null;
         }
 
-        protected virtual string ViewExistsQuery(string schemaName)
+        protected virtual string ViewNameQuery(string schemaName)
         {
             if (schemaName.IsNullOrWhiteSpace())
                 throw new ArgumentNullException(nameof(schemaName));
 
-            return $"select count(*) from { Dialect.QuoteIdentifier(schemaName) }.sqlite_master where type = 'view' and lower(name) = lower(@ViewName)";
+            return $"select name from { Dialect.QuoteIdentifier(schemaName) }.sqlite_master where type = 'view' and lower(name) = lower(@ViewName)";
         }
 
         public IRelationalDatabaseView GetView(Identifier viewName)
@@ -452,9 +507,9 @@ namespace SJP.Schematic.Sqlite
 
             if (viewName.Schema != null)
             {
-                var exists = ViewExists(viewName);
-                return exists
-                    ? new SqliteRelationalDatabaseView(Connection, this, viewName)
+                var qualifiedViewName = GetResolvedViewName(viewName);
+                return qualifiedViewName != null
+                    ? new SqliteRelationalDatabaseView(Connection, this, qualifiedViewName)
                     : null;
             }
 
@@ -462,7 +517,9 @@ namespace SJP.Schematic.Sqlite
             foreach (var dbName in dbNames)
             {
                 var qualifiedViewName = Identifier.CreateQualifiedIdentifier(dbName, viewName.LocalName);
-                var view = ViewExists(qualifiedViewName)
+                qualifiedViewName = GetResolvedViewName(qualifiedViewName);
+
+                var view = qualifiedViewName != null
                     ? new SqliteRelationalDatabaseView(Connection, this, qualifiedViewName)
                     : null;
 
@@ -485,9 +542,9 @@ namespace SJP.Schematic.Sqlite
         {
             if (viewName.Schema != null)
             {
-                var exists = await ViewExistsAsync(viewName, cancellationToken).ConfigureAwait(false);
-                return exists
-                    ? new SqliteRelationalDatabaseView(Connection, this, viewName)
+                var qualifiedViewName = await GetResolvedViewNameAsync(viewName, cancellationToken).ConfigureAwait(false);
+                return qualifiedViewName != null
+                    ? new SqliteRelationalDatabaseView(Connection, this, qualifiedViewName)
                     : null;
             }
 
@@ -496,8 +553,9 @@ namespace SJP.Schematic.Sqlite
             foreach (var dbName in dbNames)
             {
                 var qualifiedViewName = Identifier.CreateQualifiedIdentifier(dbName, viewName.LocalName);
-                var exists = await ViewExistsAsync(qualifiedViewName, cancellationToken).ConfigureAwait(false);
-                var view = exists
+                qualifiedViewName = await GetResolvedViewNameAsync(qualifiedViewName, cancellationToken).ConfigureAwait(false);
+
+                var view = qualifiedViewName != null
                     ? new SqliteRelationalDatabaseView(Connection, this, qualifiedViewName)
                     : null;
 
@@ -506,14 +564,6 @@ namespace SJP.Schematic.Sqlite
             }
 
             return null;
-        }
-
-        public bool SequenceExists(Identifier sequenceName)
-        {
-            if (sequenceName == null)
-                throw new ArgumentNullException(nameof(sequenceName));
-
-            return false;
         }
 
         public IDatabaseSequence GetSequence(Identifier sequenceName)
@@ -525,14 +575,6 @@ namespace SJP.Schematic.Sqlite
         }
 
         public IReadOnlyCollection<IDatabaseSequence> Sequences { get; } = Array.Empty<IDatabaseSequence>();
-
-        public Task<bool> SequenceExistsAsync(Identifier sequenceName, CancellationToken cancellationToken = default(CancellationToken))
-        {
-            if (sequenceName == null)
-                throw new ArgumentNullException(nameof(sequenceName));
-
-            return Task.FromResult(false);
-        }
 
         public Task<IDatabaseSequence> GetSequenceAsync(Identifier sequenceName, CancellationToken cancellationToken = default(CancellationToken))
         {
@@ -547,14 +589,6 @@ namespace SJP.Schematic.Sqlite
         private readonly static Task<IReadOnlyCollection<Task<IDatabaseSequence>>> _emptySequences =
             Task.FromResult<IReadOnlyCollection<Task<IDatabaseSequence>>>(Array.Empty<Task<IDatabaseSequence>>());
 
-        public bool SynonymExists(Identifier synonymName)
-        {
-            if (synonymName == null)
-                throw new ArgumentNullException(nameof(synonymName));
-
-            return false;
-        }
-
         public IDatabaseSynonym GetSynonym(Identifier synonymName)
         {
             if (synonymName == null)
@@ -564,14 +598,6 @@ namespace SJP.Schematic.Sqlite
         }
 
         public IReadOnlyCollection<IDatabaseSynonym> Synonyms { get; } = Array.Empty<IDatabaseSynonym>();
-
-        public Task<bool> SynonymExistsAsync(Identifier synonymName, CancellationToken cancellationToken = default(CancellationToken))
-        {
-            if (synonymName == null)
-                throw new ArgumentNullException(nameof(synonymName));
-
-            return Task.FromResult(false);
-        }
 
         public Task<IDatabaseSynonym> GetSynonymAsync(Identifier synonymName, CancellationToken cancellationToken = default(CancellationToken))
         {
