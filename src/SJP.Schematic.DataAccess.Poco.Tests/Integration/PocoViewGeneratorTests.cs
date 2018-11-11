@@ -2,6 +2,7 @@
 using Dapper;
 using NUnit.Framework;
 using SJP.Schematic.Core;
+using SJP.Schematic.Core.Extensions;
 using SJP.Schematic.Sqlite;
 
 namespace SJP.Schematic.DataAccess.Poco.Tests.Integration
@@ -10,7 +11,7 @@ namespace SJP.Schematic.DataAccess.Poco.Tests.Integration
     {
         private IRelationalDatabase Database => new SqliteRelationalDatabase(Dialect, Connection);
 
-        private IRelationalDatabaseView GetView(Identifier viewName) => Database.GetView(viewName);
+        private IRelationalDatabaseView GetView(Identifier viewName) => Database.GetView(viewName).UnwrapSome();
 
         private static IDatabaseViewGenerator ViewGenerator => new PocoViewGenerator(new PascalCaseNameProvider(), TestNamespace);
 

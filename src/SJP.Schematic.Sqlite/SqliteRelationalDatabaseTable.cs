@@ -472,8 +472,11 @@ namespace SJP.Schematic.Sqlite
                 var rows = fkey.OrderBy(row => row.seq);
 
                 var parentTableName = Identifier.CreateQualifiedIdentifier(Name.Schema, fkey.Key.ParentTableName);
-                var parentTable = Database.GetTable(parentTableName);
+                var parentOption = Database.GetTable(parentTableName);
+                if (parentOption.IsNone)
+                    throw new Exception("Could not find parent table with name: " + parentTableName.ToString());
 
+                var parentTable = parentOption.UnwrapSome();
                 var parentColumns = parentTable.Columns;
                 parentColumns = rows.Select(row => parentTable.Column[row.to]).ToList();
 
@@ -535,8 +538,11 @@ namespace SJP.Schematic.Sqlite
                 var rows = fkey.OrderBy(row => row.seq);
 
                 var parentTableName = Identifier.CreateQualifiedIdentifier(Name.Schema, fkey.Key.ParentTableName);
-                var parentTable = await Database.GetTableAsync(parentTableName, cancellationToken).ConfigureAwait(false);
+                var parentOption = await Database.GetTableAsync(parentTableName).ConfigureAwait(false);
+                if (parentOption.IsNone)
+                    throw new Exception("Could not find parent table with name: " + parentTableName.ToString());
 
+                var parentTable = parentOption.UnwrapSome();
                 var parentColumns = await parentTable.ColumnsAsync(cancellationToken).ConfigureAwait(false);
                 parentColumns = rows.Select(row => parentTable.Column[row.to]).ToList();
 

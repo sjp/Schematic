@@ -5,6 +5,8 @@ using System.Threading.Tasks;
 using Dapper;
 using Moq;
 using NUnit.Framework;
+using SJP.Schematic.Core;
+using SJP.Schematic.Core.Extensions;
 using SJP.Schematic.Lint.Rules;
 using SJP.Schematic.Lint.Tests.Fakes;
 using SJP.Schematic.Sqlite;
@@ -78,8 +80,8 @@ create table no_cycle_table_2 (
 
             fakeDatabase.Tables = new[]
             {
-                database.GetTable("no_cycle_table_1"),
-                database.GetTable("no_cycle_table_2")
+                database.GetTable("no_cycle_table_1").UnwrapSome(),
+                database.GetTable("no_cycle_table_2").UnwrapSome()
             };
 
             var messages = rule.AnalyseDatabase(fakeDatabase);
@@ -96,9 +98,9 @@ create table no_cycle_table_2 (
 
             fakeDatabase.Tables = new[]
             {
-                database.GetTable("cycle_table_1"),
-                database.GetTable("cycle_table_2"),
-                database.GetTable("cycle_table_3")
+                database.GetTable("cycle_table_1").UnwrapSome(),
+                database.GetTable("cycle_table_2").UnwrapSome(),
+                database.GetTable("cycle_table_3").UnwrapSome()
             };
 
             var messages = rule.AnalyseDatabase(fakeDatabase);

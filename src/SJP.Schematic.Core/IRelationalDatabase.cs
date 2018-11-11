@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using LanguageExt;
 
 namespace SJP.Schematic.Core
 {
@@ -17,36 +18,36 @@ namespace SJP.Schematic.Core
 
         string DefaultSchema { get; }
 
-        IRelationalDatabaseTable GetTable(Identifier tableName);
+        Option<IRelationalDatabaseTable> GetTable(Identifier tableName);
 
         IReadOnlyCollection<IRelationalDatabaseTable> Tables { get; }
 
-        IRelationalDatabaseView GetView(Identifier viewName);
+        Option<IRelationalDatabaseView> GetView(Identifier viewName);
 
         IReadOnlyCollection<IRelationalDatabaseView> Views { get; }
 
-        IDatabaseSequence GetSequence(Identifier sequenceName);
+        Option<IDatabaseSequence> GetSequence(Identifier sequenceName);
 
         IReadOnlyCollection<IDatabaseSequence> Sequences { get; }
 
-        IDatabaseSynonym GetSynonym(Identifier synonymName);
+        Option<IDatabaseSynonym> GetSynonym(Identifier synonymName);
 
         IReadOnlyCollection<IDatabaseSynonym> Synonyms { get; }
 
         // async
-        Task<IRelationalDatabaseTable> GetTableAsync(Identifier tableName, CancellationToken cancellationToken = default(CancellationToken));
+        Task<Option<IRelationalDatabaseTable>> GetTableAsync(Identifier tableName, CancellationToken cancellationToken = default(CancellationToken));
 
         Task<IReadOnlyCollection<Task<IRelationalDatabaseTable>>> TablesAsync(CancellationToken cancellationToken = default(CancellationToken));
 
-        Task<IRelationalDatabaseView> GetViewAsync(Identifier viewName, CancellationToken cancellationToken = default(CancellationToken));
+        Task<Option<IRelationalDatabaseView>> GetViewAsync(Identifier viewName, CancellationToken cancellationToken = default(CancellationToken));
 
         Task<IReadOnlyCollection<Task<IRelationalDatabaseView>>> ViewsAsync(CancellationToken cancellationToken = default(CancellationToken));
 
-        Task<IDatabaseSequence> GetSequenceAsync(Identifier sequenceName, CancellationToken cancellationToken = default(CancellationToken));
+        Task<Option<IDatabaseSequence>> GetSequenceAsync(Identifier sequenceName, CancellationToken cancellationToken = default(CancellationToken));
 
         Task<IReadOnlyCollection<Task<IDatabaseSequence>>> SequencesAsync(CancellationToken cancellationToken = default(CancellationToken));
 
-        Task<IDatabaseSynonym> GetSynonymAsync(Identifier synonymName, CancellationToken cancellationToken = default(CancellationToken));
+        Task<Option<IDatabaseSynonym>> GetSynonymAsync(Identifier synonymName, CancellationToken cancellationToken = default(CancellationToken));
 
         Task<IReadOnlyCollection<Task<IDatabaseSynonym>>> SynonymsAsync(CancellationToken cancellationToken = default(CancellationToken));
     }

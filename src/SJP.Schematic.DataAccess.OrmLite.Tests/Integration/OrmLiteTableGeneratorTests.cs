@@ -2,6 +2,7 @@
 using Dapper;
 using NUnit.Framework;
 using SJP.Schematic.Core;
+using SJP.Schematic.Core.Extensions;
 using SJP.Schematic.Sqlite;
 
 namespace SJP.Schematic.DataAccess.OrmLite.Tests.Integration
@@ -10,7 +11,7 @@ namespace SJP.Schematic.DataAccess.OrmLite.Tests.Integration
     {
         private IRelationalDatabase Database => new SqliteRelationalDatabase(Dialect, Connection);
 
-        private IRelationalDatabaseTable GetTable(Identifier tableName) => Database.GetTable(tableName);
+        private IRelationalDatabaseTable GetTable(Identifier tableName) => Database.GetTable(tableName).UnwrapSome();
 
         private static IDatabaseTableGenerator TableGenerator => new OrmLiteTableGenerator(new PascalCaseNameProvider(), TestNamespace);
 

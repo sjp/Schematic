@@ -41,15 +41,15 @@ namespace SJP.Schematic.Modelled.Reflection.Tests
         {
             var db = new ReflectionRelationalDatabase<SampleDatabase>(new FakeDialect());
             var table = db.GetTable("TestTable1");
-            Assert.NotNull(table);
+            Assert.IsTrue(table.IsSome);
         }
 
         [Test]
-        public static void GetTable_WhenTableMissing_ReturnsNull()
+        public static void GetTable_WhenTableMissing_ReturnsNone()
         {
             var db = new ReflectionRelationalDatabase<SampleDatabase>(new FakeDialect());
             var table = db.GetTable("table_that_doesnt_exist");
-            Assert.IsNull(table);
+            Assert.IsTrue(table.IsNone);
         }
 
         [Test]
@@ -64,15 +64,15 @@ namespace SJP.Schematic.Modelled.Reflection.Tests
         {
             var db = new ReflectionRelationalDatabase<SampleDatabase>(new FakeDialect());
             var table = await db.GetTableAsync("TestTable1").ConfigureAwait(false);
-            Assert.NotNull(table);
+            Assert.IsTrue(table.IsSome);
         }
 
         [Test]
-        public static async Task GetTableAsync_WhenTableMissing_ReturnsNull()
+        public static async Task GetTableAsync_WhenTableMissing_ReturnsNone()
         {
             var db = new ReflectionRelationalDatabase<SampleDatabase>(new FakeDialect());
             var table =  await db.GetTableAsync("table_that_doesnt_exist").ConfigureAwait(false);
-            Assert.IsNull(table);
+            Assert.IsTrue(table.IsNone);
         }
 
         private class SampleDatabase

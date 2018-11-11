@@ -321,7 +321,11 @@ order by kc.ordinal_position";
                 var childKeyName = Identifier.CreateQualifiedIdentifier(groupedChildKey.Key.ChildKeyName);
 
                 var childTableName = Identifier.CreateQualifiedIdentifier(groupedChildKey.Key.ChildTableSchema, groupedChildKey.Key.ChildTableName);
-                var childTable = Database.GetTable(childTableName);
+                var childOption = Database.GetTable(childTableName);
+                if (childOption.IsNone)
+                    throw new Exception("Could not find child table with name: " + childTableName.ToString());
+
+                var childTable = childOption.UnwrapSome();
                 var parentKeyLookup = childTable.ParentKey;
 
                 var childKey = parentKeyLookup[childKeyName.LocalName].ChildKey;
@@ -373,7 +377,11 @@ order by kc.ordinal_position";
                 var childKeyName = Identifier.CreateQualifiedIdentifier(groupedChildKey.Key.ChildKeyName);
 
                 var childTableName = Identifier.CreateQualifiedIdentifier(groupedChildKey.Key.ChildTableSchema, groupedChildKey.Key.ChildTableName);
-                var childTable = await Database.GetTableAsync(childTableName, cancellationToken).ConfigureAwait(false);
+                var childOption = await Database.GetTableAsync(childTableName, cancellationToken).ConfigureAwait(false);
+                if (childOption.IsNone)
+                    throw new Exception("Could not find child table with name: " + childTableName.ToString());
+
+                var childTable = childOption.UnwrapSome();
                 var parentKeyLookup = await childTable.ParentKeyAsync(cancellationToken).ConfigureAwait(false);
 
                 var childKey = parentKeyLookup[childKeyName.LocalName].ChildKey;
@@ -420,11 +428,11 @@ inner join information_schema.table_constraints ptc on pt.table_schema = ptc.tab
 where pt.table_schema = @SchemaName and pt.table_name = @TableName";
 
         // checks are parsed but not supported by MySQL
-        public IReadOnlyDictionary<Identifier, IDatabaseCheckConstraint> Check => _emptyCheckLookup;
+        public IReadOnlyDictionary<Identifier, IDatabaseCheckConstraint> Check { get; } = _emptyCheckLookup;
 
         public Task<IReadOnlyDictionary<Identifier, IDatabaseCheckConstraint>> CheckAsync(CancellationToken cancellationToken = default(CancellationToken)) => _emptyCheckLookupTask;
 
-        public IReadOnlyCollection<IDatabaseCheckConstraint> Checks => Array.Empty<IDatabaseCheckConstraint>();
+        public IReadOnlyCollection<IDatabaseCheckConstraint> Checks { get; } = Array.Empty<IDatabaseCheckConstraint>();
 
         public Task<IReadOnlyCollection<IDatabaseCheckConstraint>> ChecksAsync(CancellationToken cancellationToken = default(CancellationToken)) => _emptyChecks;
 
@@ -485,7 +493,11 @@ where pt.table_schema = @SchemaName and pt.table_name = @TableName";
             foreach (var fkey in foreignKeys)
             {
                 var parentTableName = Identifier.CreateQualifiedIdentifier(fkey.Key.ParentTableSchema, fkey.Key.ParentTableName);
-                var parentTable = Database.GetTable(parentTableName);
+                var parentOption = Database.GetTable(parentTableName);
+                if (parentOption.IsNone)
+                    throw new Exception("Could not find parent table with name: " + parentTableName.ToString());
+
+                var parentTable = parentOption.UnwrapSome();
                 var parentKeyName = Identifier.CreateQualifiedIdentifier(fkey.Key.ParentKeyName);
 
                 IDatabaseKey parentKey;
@@ -541,7 +553,11 @@ where pt.table_schema = @SchemaName and pt.table_name = @TableName";
             foreach (var fkey in foreignKeys)
             {
                 var parentTableName = Identifier.CreateQualifiedIdentifier(fkey.Key.ParentTableSchema, fkey.Key.ParentTableName);
-                var parentTable = await Database.GetTableAsync(parentTableName, cancellationToken).ConfigureAwait(false);
+                var parentOption = await Database.GetTableAsync(parentTableName, cancellationToken).ConfigureAwait(false);
+                if (parentOption.IsNone)
+                    throw new Exception("Could not find parent table with name: " + parentTableName.ToString());
+
+                var parentTable = parentOption.UnwrapSome();
                 var parentKeyName = Identifier.CreateQualifiedIdentifier(fkey.Key.ParentKeyName);
 
                 IDatabaseKey parentKey;

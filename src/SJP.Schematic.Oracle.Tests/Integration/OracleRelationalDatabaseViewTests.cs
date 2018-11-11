@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using Dapper;
 using NUnit.Framework;
 using SJP.Schematic.Core;
+using SJP.Schematic.Core.Extensions;
 
 namespace SJP.Schematic.Oracle.Tests.Integration
 {
@@ -33,7 +34,7 @@ namespace SJP.Schematic.Oracle.Tests.Integration
         {
             var database = Database;
             var viewName = new Identifier(database.DefaultSchema, "VIEW_TEST_VIEW_1");
-            var view = database.GetView(viewName);
+            var view = database.GetView(viewName).UnwrapSome();
 
             var definition = view.Definition;
             const string expected = "select 1 as test from dual";
@@ -46,7 +47,8 @@ namespace SJP.Schematic.Oracle.Tests.Integration
         {
             var database = Database;
             var viewName = new Identifier(database.DefaultSchema, "VIEW_TEST_VIEW_1");
-            var view = await database.GetViewAsync(viewName).ConfigureAwait(false);
+            var viewOption = await database.GetViewAsync(viewName).ConfigureAwait(false);
+            var view = viewOption.UnwrapSome();
 
             var definition = await view.DefinitionAsync().ConfigureAwait(false);
             const string expected = "select 1 as test from dual";
@@ -57,7 +59,7 @@ namespace SJP.Schematic.Oracle.Tests.Integration
         [Test]
         public void IsIndexed_WhenViewIsNotIndexed_ReturnsFalse()
         {
-            var view = Database.GetView("VIEW_TEST_VIEW_1");
+            var view = Database.GetView("VIEW_TEST_VIEW_1").UnwrapSome();
 
             Assert.IsFalse(view.IsIndexed);
         }
@@ -65,7 +67,7 @@ namespace SJP.Schematic.Oracle.Tests.Integration
         [Test]
         public void Index_WhenViewIsNotIndexed_ReturnsEmptyLookup()
         {
-            var view = Database.GetView("VIEW_TEST_VIEW_1");
+            var view = Database.GetView("VIEW_TEST_VIEW_1").UnwrapSome();
             var indexCount = view.Index.Count;
 
             Assert.Zero(indexCount);
@@ -74,7 +76,8 @@ namespace SJP.Schematic.Oracle.Tests.Integration
         [Test]
         public async Task IndexAsync_WhenViewIsNotIndexed_ReturnsEmptyLookup()
         {
-            var view = await Database.GetViewAsync("VIEW_TEST_VIEW_1").ConfigureAwait(false);
+            var viewOption = await Database.GetViewAsync("VIEW_TEST_VIEW_1").ConfigureAwait(false);
+            var view = viewOption.UnwrapSome();
             var indexes = await view.IndexAsync().ConfigureAwait(false);
             var indexCount = indexes.Count;
 
@@ -84,7 +87,7 @@ namespace SJP.Schematic.Oracle.Tests.Integration
         [Test]
         public void Indexes_WhenViewIsNotIndexed_ReturnsEmptyCollection()
         {
-            var view = Database.GetView("VIEW_TEST_VIEW_1");
+            var view = Database.GetView("VIEW_TEST_VIEW_1").UnwrapSome();
             var indexCount = view.Indexes.Count;
 
             Assert.Zero(indexCount);
@@ -93,7 +96,8 @@ namespace SJP.Schematic.Oracle.Tests.Integration
         [Test]
         public async Task IndexesAsync_WhenViewIsNotIndexed_ReturnsEmptyCollection()
         {
-            var view = await Database.GetViewAsync("VIEW_TEST_VIEW_1").ConfigureAwait(false);
+            var viewOption = await Database.GetViewAsync("VIEW_TEST_VIEW_1").ConfigureAwait(false);
+            var view = viewOption.UnwrapSome();
             var indexes = await view.IndexesAsync().ConfigureAwait(false);
             var indexCount = indexes.Count;
 
@@ -105,7 +109,7 @@ namespace SJP.Schematic.Oracle.Tests.Integration
         {
             var database = Database;
             var viewName = new Identifier(database.DefaultSchema, "VIEW_TEST_VIEW_1");
-            var view = database.GetView(viewName);
+            var view = database.GetView(viewName).UnwrapSome();
             var columnCount = view.Column.Count;
 
             Assert.AreEqual(1, columnCount);
@@ -116,7 +120,7 @@ namespace SJP.Schematic.Oracle.Tests.Integration
         {
             const string expectedColumnName = "TEST";
 
-            var view = Database.GetView("VIEW_TEST_VIEW_1");
+            var view = Database.GetView("VIEW_TEST_VIEW_1").UnwrapSome();
             var containsColumn = view.Column.ContainsKey(expectedColumnName);
 
             Assert.IsTrue(containsColumn);
@@ -126,7 +130,7 @@ namespace SJP.Schematic.Oracle.Tests.Integration
         public void Columns_WhenViewContainsSingleColumn_ContainsOneValueOnly()
         {
             var viewName = new Identifier(Database.DefaultSchema, "VIEW_TEST_VIEW_1");
-            var view = Database.GetView(viewName);
+            var view = Database.GetView(viewName).UnwrapSome();
             var columnCount = view.Columns.Count;
 
             Assert.AreEqual(1, columnCount);
@@ -139,7 +143,7 @@ namespace SJP.Schematic.Oracle.Tests.Integration
 
             var database = Database;
             var viewName = new Identifier(database.DefaultSchema, "VIEW_TEST_VIEW_1");
-            var view = database.GetView(viewName);
+            var view = database.GetView(viewName).UnwrapSome();
             var containsColumn = view.Columns.Any(c => c.Name == expectedColumnName);
 
             Assert.IsTrue(containsColumn);
@@ -150,7 +154,8 @@ namespace SJP.Schematic.Oracle.Tests.Integration
         {
             var database = Database;
             var viewName = new Identifier(database.DefaultSchema, "VIEW_TEST_VIEW_1");
-            var view = await database.GetViewAsync(viewName).ConfigureAwait(false);
+            var viewOption = await database.GetViewAsync(viewName).ConfigureAwait(false);
+            var view = viewOption.UnwrapSome();
             var columns = await view.ColumnAsync().ConfigureAwait(false);
             var columnCount = columns.Count;
 
@@ -164,7 +169,8 @@ namespace SJP.Schematic.Oracle.Tests.Integration
 
             var database = Database;
             var viewName = new Identifier(database.DefaultSchema, "VIEW_TEST_VIEW_1");
-            var view = await database.GetViewAsync(viewName).ConfigureAwait(false);
+            var viewOption = await database.GetViewAsync(viewName).ConfigureAwait(false);
+            var view = viewOption.UnwrapSome();
             var columns = await view.ColumnAsync().ConfigureAwait(false);
             var containsColumn = columns.ContainsKey(expectedColumnName);
 
@@ -176,7 +182,8 @@ namespace SJP.Schematic.Oracle.Tests.Integration
         {
             var database = Database;
             var viewName = new Identifier(database.DefaultSchema, "VIEW_TEST_VIEW_1");
-            var view = await database.GetViewAsync(viewName).ConfigureAwait(false);
+            var viewOption = await database.GetViewAsync(viewName).ConfigureAwait(false);
+            var view = viewOption.UnwrapSome();
             var columns = await view.ColumnsAsync().ConfigureAwait(false);
             var columnCount = columns.Count;
 
@@ -190,7 +197,8 @@ namespace SJP.Schematic.Oracle.Tests.Integration
 
             var database = Database;
             var viewName = new Identifier(database.DefaultSchema, "VIEW_TEST_VIEW_1");
-            var view = await database.GetViewAsync(viewName).ConfigureAwait(false);
+            var viewOption = await database.GetViewAsync(viewName).ConfigureAwait(false);
+            var view = viewOption.UnwrapSome();
             var columns = await view.ColumnsAsync().ConfigureAwait(false);
             var containsColumn = columns.Any(c => c.Name == expectedColumnName);
 
@@ -200,7 +208,7 @@ namespace SJP.Schematic.Oracle.Tests.Integration
         [Test]
         public void IsIndexed_WhenViewHasSingleIndex_ReturnsTrue()
         {
-            var view = Database.GetView("VIEW_TEST_VIEW_2");
+            var view = Database.GetView("VIEW_TEST_VIEW_2").UnwrapSome();
 
             Assert.IsTrue(view.IsIndexed);
         }
@@ -208,7 +216,7 @@ namespace SJP.Schematic.Oracle.Tests.Integration
         [Test]
         public void Index_WhenViewHasSingleIndex_ContainsOneValueOnly()
         {
-            var view = Database.GetView("VIEW_TEST_VIEW_2");
+            var view = Database.GetView("VIEW_TEST_VIEW_2").UnwrapSome();
             var indexCount = view.Index.Count;
 
             Assert.AreEqual(1, indexCount);
@@ -217,7 +225,8 @@ namespace SJP.Schematic.Oracle.Tests.Integration
         [Test]
         public async Task IndexAsync_WhenViewHasSingleIndex_ContainsOneValueOnly()
         {
-            var view = await Database.GetViewAsync("VIEW_TEST_VIEW_2").ConfigureAwait(false);
+            var viewOption = await Database.GetViewAsync("VIEW_TEST_VIEW_2").ConfigureAwait(false);
+            var view = viewOption.UnwrapSome();
             var indexes = await view.IndexAsync().ConfigureAwait(false);
             var indexCount = indexes.Count;
 
@@ -227,7 +236,7 @@ namespace SJP.Schematic.Oracle.Tests.Integration
         [Test]
         public void Indexes_WhenViewHasSingleIndex_ContainsOneValueOnly()
         {
-            var view = Database.GetView("VIEW_TEST_VIEW_2");
+            var view = Database.GetView("VIEW_TEST_VIEW_2").UnwrapSome();
             var indexCount = view.Indexes.Count;
 
             Assert.AreEqual(1, indexCount);
@@ -236,7 +245,8 @@ namespace SJP.Schematic.Oracle.Tests.Integration
         [Test]
         public async Task IndexesAsync_WhenViewHasSingleIndex_ContainsOneValueOnly()
         {
-            var view = await Database.GetViewAsync("VIEW_TEST_VIEW_2").ConfigureAwait(false);
+            var viewOption = await Database.GetViewAsync("VIEW_TEST_VIEW_2").ConfigureAwait(false);
+            var view = viewOption.UnwrapSome();
             var indexes = await view.IndexesAsync().ConfigureAwait(false);
             var indexCount = indexes.Count;
 
@@ -247,7 +257,7 @@ namespace SJP.Schematic.Oracle.Tests.Integration
         public void Index_WhenViewHasSingleIndex_ContainsIndexName()
         {
             const string indexName = "IX_VIEW_TEST_VIEW_2";
-            var view = Database.GetView("VIEW_TEST_VIEW_2");
+            var view = Database.GetView("VIEW_TEST_VIEW_2").UnwrapSome();
             var containsIndex = view.Index.ContainsKey(indexName);
 
             Assert.IsTrue(containsIndex);
@@ -257,7 +267,8 @@ namespace SJP.Schematic.Oracle.Tests.Integration
         public async Task IndexAsync_WhenViewHasSingleIndex_ContainsIndexName()
         {
             const string indexName = "IX_VIEW_TEST_VIEW_2";
-            var view = await Database.GetViewAsync("VIEW_TEST_VIEW_2").ConfigureAwait(false);
+            var viewOption = await Database.GetViewAsync("VIEW_TEST_VIEW_2").ConfigureAwait(false);
+            var view = viewOption.UnwrapSome();
             var indexes = await view.IndexAsync().ConfigureAwait(false);
             var containsIndex = indexes.ContainsKey(indexName);
 
@@ -268,7 +279,7 @@ namespace SJP.Schematic.Oracle.Tests.Integration
         public void Indexes_WhenViewHasSingleIndex_ContainsIndexName()
         {
             const string indexName = "IX_VIEW_TEST_VIEW_2";
-            var view = Database.GetView("VIEW_TEST_VIEW_2");
+            var view = Database.GetView("VIEW_TEST_VIEW_2").UnwrapSome();
             var containsIndex = view.Indexes.Any(i => i.Name == indexName);
 
             Assert.IsTrue(containsIndex);
@@ -278,7 +289,8 @@ namespace SJP.Schematic.Oracle.Tests.Integration
         public async Task IndexesAsync_WhenViewHasSingleIndex_ContainsIndexName()
         {
             const string indexName = "IX_VIEW_TEST_VIEW_2";
-            var view = await Database.GetViewAsync("VIEW_TEST_VIEW_2").ConfigureAwait(false);
+            var viewOption = await Database.GetViewAsync("VIEW_TEST_VIEW_2").ConfigureAwait(false);
+            var view = viewOption.UnwrapSome();
             var indexes = await view.IndexesAsync().ConfigureAwait(false);
             var containsIndex = indexes.Any(i => i.Name == indexName);
 

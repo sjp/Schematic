@@ -5,6 +5,8 @@ using System.Threading.Tasks;
 using Dapper;
 using Moq;
 using NUnit.Framework;
+using SJP.Schematic.Core;
+using SJP.Schematic.Core.Extensions;
 using SJP.Schematic.Lint.Rules;
 using SJP.Schematic.Lint.Tests.Fakes;
 using SJP.Schematic.Sqlite;
@@ -53,7 +55,7 @@ namespace SJP.Schematic.Lint.Tests.Integration
             var fakeDatabase = CreateFakeDatabase();
             var database = new SqliteRelationalDatabase(Dialect, Connection);
 
-            fakeDatabase.Tables = new[] { database.GetTable("valid_table_1") };
+            fakeDatabase.Tables = new[] { database.GetTable("valid_table_1").UnwrapSome() };
 
             var messages = rule.AnalyseDatabase(fakeDatabase);
 
@@ -67,7 +69,7 @@ namespace SJP.Schematic.Lint.Tests.Integration
             var fakeDatabase = CreateFakeDatabase();
             var database = new SqliteRelationalDatabase(Dialect, Connection);
 
-            fakeDatabase.Tables = new[] { database.GetTable("valid_table_2") };
+            fakeDatabase.Tables = new[] { database.GetTable("valid_table_2").UnwrapSome() };
 
             var messages = rule.AnalyseDatabase(fakeDatabase);
 
@@ -81,7 +83,7 @@ namespace SJP.Schematic.Lint.Tests.Integration
             var fakeDatabase = CreateFakeDatabase();
             var database = new SqliteRelationalDatabase(Dialect, Connection);
 
-            fakeDatabase.Tables = new[] { database.GetTable("valid_table_3") };
+            fakeDatabase.Tables = new[] { database.GetTable("valid_table_3").UnwrapSome() };
 
             var messages = rule.AnalyseDatabase(fakeDatabase);
 

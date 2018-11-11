@@ -70,8 +70,7 @@ namespace SJP.Schematic.Reporting
                         continue;
 
                     var childTable = Database.GetTable(childTableName);
-                    if (childTable != null)
-                        addedTables[childTableName] = childTable;
+                    childTable.IfSome(t => addedTables[childTableName] = t);
                 }
 
                 foreach (var parentKey in parentKeys)
@@ -83,8 +82,7 @@ namespace SJP.Schematic.Reporting
                         continue;
 
                     var parentTable = Database.GetTable(parentTableName);
-                    if (parentTable != null)
-                        addedTables[parentTableName] = parentTable;
+                    parentTable.IfSome(t => addedTables[parentTableName] = t);
                 }
             }
 
@@ -115,8 +113,7 @@ namespace SJP.Schematic.Reporting
                         continue;
 
                     var childTable = await Database.GetTableAsync(childTableName).ConfigureAwait(false);
-                    if (childTable != null)
-                        addedTables[childTableName] = childTable;
+                    childTable.IfSome(t => addedTables[childTableName] = t);
                 }
 
                 foreach (var parentKey in parentKeys)
@@ -127,8 +124,7 @@ namespace SJP.Schematic.Reporting
                         continue;
 
                     var parentTable = await Database.GetTableAsync(parentTableName).ConfigureAwait(false);
-                    if (parentTable != null)
-                        addedTables[parentTableName] = parentTable;
+                    parentTable.IfSome(t => addedTables[parentTableName] = t);
                 }
             }
 

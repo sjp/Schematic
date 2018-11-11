@@ -9,6 +9,7 @@ using SJP.Schematic.Core;
 using SJP.Schematic.PostgreSql.Query;
 using SJP.Schematic.Core.Extensions;
 using SJP.Schematic.Core.Utilities;
+using LanguageExt;
 
 namespace SJP.Schematic.PostgreSql
 {
@@ -33,23 +34,23 @@ namespace SJP.Schematic.PostgreSql
 
         protected DatabaseMetadata Metadata => _metadata.Value;
 
-        protected Identifier GetResolvedTableName(Identifier tableName)
+        protected Option<Identifier> GetResolvedTableName(Identifier tableName)
         {
             if (tableName == null)
                 throw new ArgumentNullException(nameof(tableName));
 
             tableName = CreateQualifiedIdentifier(tableName);
-            var qualifiedTableName = Connection.Query<QualifiedName>(
+            var qualifiedTableName = Connection.QueryFirstOrDefault<QualifiedName>(
                 TableNameQuery,
                 new { SchemaName = tableName.Schema, TableName = tableName.LocalName }
-            ).FirstOrDefault();
+            );
 
             return qualifiedTableName != null
-                ? Identifier.CreateQualifiedIdentifier(ServerName, DatabaseName, qualifiedTableName.SchemaName, qualifiedTableName.ObjectName)
-                : null;
+                ? Option<Identifier>.Some(Identifier.CreateQualifiedIdentifier(ServerName, DatabaseName, qualifiedTableName.SchemaName, qualifiedTableName.ObjectName))
+                : Option<Identifier>.None;
         }
 
-        protected Task<Identifier> GetResolvedTableNameAsync(Identifier tableName, CancellationToken cancellationToken = default(CancellationToken))
+        protected Task<Option<Identifier>> GetResolvedTableNameAsync(Identifier tableName, CancellationToken cancellationToken = default(CancellationToken))
         {
             if (tableName == null)
                 throw new ArgumentNullException(nameof(tableName));
@@ -57,19 +58,18 @@ namespace SJP.Schematic.PostgreSql
             return GetResolvedTableNameAsyncCore(tableName, cancellationToken);
         }
 
-        private async Task<Identifier> GetResolvedTableNameAsyncCore(Identifier tableName, CancellationToken cancellationToken)
+        private async Task<Option<Identifier>> GetResolvedTableNameAsyncCore(Identifier tableName, CancellationToken cancellationToken)
         {
             tableName = CreateQualifiedIdentifier(tableName);
 
-            var qualifiedTableNames = await Connection.QueryAsync<QualifiedName>(
+            var qualifiedTableName = await Connection.QueryFirstOrDefaultAsync<QualifiedName>(
                 TableNameQuery,
                 new { SchemaName = tableName.Schema, TableName = tableName.LocalName }
             ).ConfigureAwait(false);
-            var qualifiedTableName = qualifiedTableNames.FirstOrDefault();
 
             return qualifiedTableName != null
-                ? Identifier.CreateQualifiedIdentifier(ServerName, DatabaseName, qualifiedTableName.SchemaName, qualifiedTableName.ObjectName)
-                : null;
+                ? Option<Identifier>.Some(Identifier.CreateQualifiedIdentifier(ServerName, DatabaseName, qualifiedTableName.SchemaName, qualifiedTableName.ObjectName))
+                : Option<Identifier>.None;
         }
 
         protected virtual string TableNameQuery => TableNameQuerySql;
@@ -81,7 +81,7 @@ where schemaname = @SchemaName and tablename = @TableName
     and schemaname not in ('pg_catalog', 'information_schema')
 limit 1";
 
-        public IRelationalDatabaseTable GetTable(Identifier tableName)
+        public Option<IRelationalDatabaseTable> GetTable(Identifier tableName)
         {
             if (tableName == null)
                 throw new ArgumentNullException(nameof(tableName));
@@ -90,7 +90,7 @@ limit 1";
             return LoadTableSync(tableName);
         }
 
-        public Task<IRelationalDatabaseTable> GetTableAsync(Identifier tableName, CancellationToken cancellationToken = default(CancellationToken))
+        public Task<Option<IRelationalDatabaseTable>> GetTableAsync(Identifier tableName, CancellationToken cancellationToken = default(CancellationToken))
         {
             if (tableName == null)
                 throw new ArgumentNullException(nameof(tableName));
@@ -107,7 +107,10 @@ limit 1";
                     .Select(dto => Identifier.CreateQualifiedIdentifier(dto.SchemaName, dto.ObjectName))
                     .ToList();
 
-                var tables = tableNames.Select(LoadTableSync);
+                var tables = tableNames
+                    .Select(LoadTableSync)
+                    .Where(t => t.IsSome)
+                    .Select(t => t.UnwrapSome());
                 return new ReadOnlyCollectionSlim<IRelationalDatabaseTable>(tableNames.Count, tables);
             }
         }
@@ -119,7 +122,10 @@ limit 1";
                 .Select(dto => Identifier.CreateQualifiedIdentifier(dto.SchemaName, dto.ObjectName))
                 .ToList();
 
-            var tables = tableNames.Select(name => LoadTableAsync(name, cancellationToken));
+            var tables = tableNames
+                .Select(name => LoadTableAsync(name, cancellationToken))
+                .Where(t => t.IsSome)
+                .Select(t => t.UnwrapSome());
             return new ReadOnlyCollectionSlim<Task<IRelationalDatabaseTable>>(tableNames.Count, tables);
         }
 
@@ -132,20 +138,17 @@ select
 from pg_catalog.pg_tables
 where schemaname not in ('pg_catalog', 'information_schema')";
 
-        protected virtual IRelationalDatabaseTable LoadTableSync(Identifier tableName)
+        protected virtual Option<IRelationalDatabaseTable> LoadTableSync(Identifier tableName)
         {
             if (tableName == null)
                 throw new ArgumentNullException(nameof(tableName));
 
             tableName = CreateQualifiedIdentifier(tableName);
-            var qualifiedTableName = GetResolvedTableName(tableName);
-
-            return qualifiedTableName != null
-                ? new PostgreSqlRelationalDatabaseTable(Connection, this, Dialect.TypeProvider, qualifiedTableName, IdentifierResolver)
-                : null;
+            return GetResolvedTableName(tableName)
+                .Map<IRelationalDatabaseTable>(name => new PostgreSqlRelationalDatabaseTable(Connection, this, Dialect.TypeProvider, name, IdentifierResolver));
         }
 
-        protected virtual Task<IRelationalDatabaseTable> LoadTableAsync(Identifier tableName, CancellationToken cancellationToken = default(CancellationToken))
+        protected virtual Task<Option<IRelationalDatabaseTable>> LoadTableAsync(Identifier tableName, CancellationToken cancellationToken = default(CancellationToken))
         {
             if (tableName == null)
                 throw new ArgumentNullException(nameof(tableName));
@@ -153,34 +156,33 @@ where schemaname not in ('pg_catalog', 'information_schema')";
             return LoadTableAsyncCore(tableName, cancellationToken);
         }
 
-        private async Task<IRelationalDatabaseTable> LoadTableAsyncCore(Identifier tableName, CancellationToken cancellationToken)
+        private async Task<Option<IRelationalDatabaseTable>> LoadTableAsyncCore(Identifier tableName, CancellationToken cancellationToken)
         {
             tableName = CreateQualifiedIdentifier(tableName);
             var qualifiedTableName = await GetResolvedTableNameAsync(tableName, cancellationToken).ConfigureAwait(false);
 
-            return qualifiedTableName != null
-                ? new PostgreSqlRelationalDatabaseTable(Connection, this, Dialect.TypeProvider, qualifiedTableName, IdentifierResolver)
-                : null;
+            return qualifiedTableName
+                .Map<IRelationalDatabaseTable>(name => new PostgreSqlRelationalDatabaseTable(Connection, this, Dialect.TypeProvider, name, IdentifierResolver));
         }
 
-        protected Identifier GetResolvedViewName(Identifier viewName)
+        protected Option<Identifier> GetResolvedViewName(Identifier viewName)
         {
             if (viewName == null)
                 throw new ArgumentNullException(nameof(viewName));
 
             viewName = CreateQualifiedIdentifier(viewName);
 
-            var qualifiedViewName = Connection.Query<QualifiedName>(
+            var qualifiedViewName = Connection.QueryFirstOrDefault<QualifiedName>(
                 ViewNameQuery,
                 new { SchemaName = viewName.Schema, ViewName = viewName.LocalName }
-            ).FirstOrDefault();
+            );
 
             return qualifiedViewName != null
-                ? Identifier.CreateQualifiedIdentifier(ServerName, DatabaseName, qualifiedViewName.SchemaName, qualifiedViewName.ObjectName)
-                : null;
+                ? Option<Identifier>.Some(Identifier.CreateQualifiedIdentifier(ServerName, DatabaseName, qualifiedViewName.SchemaName, qualifiedViewName.ObjectName))
+                : Option<Identifier>.None;
         }
 
-        protected Task<Identifier> GetResolvedViewNameAsync(Identifier viewName, CancellationToken cancellationToken = default(CancellationToken))
+        protected Task<Option<Identifier>> GetResolvedViewNameAsync(Identifier viewName, CancellationToken cancellationToken = default(CancellationToken))
         {
             if (viewName == null)
                 throw new ArgumentNullException(nameof(viewName));
@@ -188,19 +190,18 @@ where schemaname not in ('pg_catalog', 'information_schema')";
             return GetResolvedViewNameAsyncCore(viewName, cancellationToken);
         }
 
-        private async Task<Identifier> GetResolvedViewNameAsyncCore(Identifier viewName, CancellationToken cancellationToken)
+        private async Task<Option<Identifier>> GetResolvedViewNameAsyncCore(Identifier viewName, CancellationToken cancellationToken)
         {
             viewName = CreateQualifiedIdentifier(viewName);
 
-            var qualifiedViewNames = await Connection.QueryAsync<QualifiedName>(
+            var qualifiedViewName = await Connection.QueryFirstOrDefaultAsync<QualifiedName>(
                 ViewNameQuery,
                 new { SchemaName = viewName.Schema, ViewName = viewName.LocalName }
             ).ConfigureAwait(false);
-            var qualifiedViewName = qualifiedViewNames.FirstOrDefault();
 
             return qualifiedViewName != null
-                ? Identifier.CreateQualifiedIdentifier(ServerName, DatabaseName, qualifiedViewName.SchemaName, qualifiedViewName.ObjectName)
-                : null;
+                ? Option<Identifier>.Some(Identifier.CreateQualifiedIdentifier(ServerName, DatabaseName, qualifiedViewName.SchemaName, qualifiedViewName.ObjectName))
+                : Option<Identifier>.None;
         }
 
         protected virtual string ViewNameQuery => ViewNameQuerySql;
@@ -212,7 +213,7 @@ where schemaname = @SchemaName and viewname = @ViewName
     and schemaname not in ('pg_catalog', 'information_schema')
 limit 1";
 
-        public IRelationalDatabaseView GetView(Identifier viewName)
+        public Option<IRelationalDatabaseView> GetView(Identifier viewName)
         {
             if (viewName == null)
                 throw new ArgumentNullException(nameof(viewName));
@@ -221,7 +222,7 @@ limit 1";
             return LoadViewSync(viewName);
         }
 
-        public Task<IRelationalDatabaseView> GetViewAsync(Identifier viewName, CancellationToken cancellationToken = default(CancellationToken))
+        public Task<Option<IRelationalDatabaseView>> GetViewAsync(Identifier viewName, CancellationToken cancellationToken = default(CancellationToken))
         {
             if (viewName == null)
                 throw new ArgumentNullException(nameof(viewName));
@@ -238,7 +239,10 @@ limit 1";
                     .Select(dto => Identifier.CreateQualifiedIdentifier(dto.SchemaName, dto.ObjectName))
                     .ToList();
 
-                var views = viewNames.Select(LoadViewSync);
+                var views = viewNames
+                    .Select(LoadViewSync)
+                    .Where(v => v.IsSome)
+                    .Select(v => v.UnwrapSome());
                 return new ReadOnlyCollectionSlim<IRelationalDatabaseView>(viewNames.Count, views);
             }
         }
@@ -250,7 +254,10 @@ limit 1";
                 .Select(dto => Identifier.CreateQualifiedIdentifier(dto.SchemaName, dto.ObjectName))
                 .ToList();
 
-            var views = viewNames.Select(name => LoadViewAsync(name, cancellationToken));
+            var views = viewNames
+                .Select(name => LoadViewAsync(name, cancellationToken))
+                .Where(v => v.IsSome)
+                .Select(v => v.UnwrapSome());
             return new ReadOnlyCollectionSlim<Task<IRelationalDatabaseView>>(viewNames.Count, views);
         }
 
@@ -263,20 +270,17 @@ select
 from pg_catalog.pg_views
 where schemaname not in ('pg_catalog', 'information_schema')";
 
-        protected virtual IRelationalDatabaseView LoadViewSync(Identifier viewName)
+        protected virtual Option<IRelationalDatabaseView> LoadViewSync(Identifier viewName)
         {
             if (viewName == null)
                 throw new ArgumentNullException(nameof(viewName));
 
             viewName = CreateQualifiedIdentifier(viewName);
-            var qualifiedViewName = GetResolvedViewName(viewName);
-
-            return qualifiedViewName != null
-                ? new PostgreSqlRelationalDatabaseView(Connection, Dialect.TypeProvider, qualifiedViewName, IdentifierResolver)
-                : null;
+            return GetResolvedViewName(viewName)
+                .Map<IRelationalDatabaseView>(name => new PostgreSqlRelationalDatabaseView(Connection, Dialect.TypeProvider, name, IdentifierResolver));
         }
 
-        protected virtual Task<IRelationalDatabaseView> LoadViewAsync(Identifier viewName, CancellationToken cancellationToken = default(CancellationToken))
+        protected virtual Task<Option<IRelationalDatabaseView>> LoadViewAsync(Identifier viewName, CancellationToken cancellationToken = default(CancellationToken))
         {
             if (viewName == null)
                 throw new ArgumentNullException(nameof(viewName));
@@ -284,33 +288,32 @@ where schemaname not in ('pg_catalog', 'information_schema')";
             return LoadViewAsyncCore(viewName, cancellationToken);
         }
 
-        private async Task<IRelationalDatabaseView> LoadViewAsyncCore(Identifier viewName, CancellationToken cancellationToken)
+        private async Task<Option<IRelationalDatabaseView>> LoadViewAsyncCore(Identifier viewName, CancellationToken cancellationToken)
         {
             viewName = CreateQualifiedIdentifier(viewName);
             var qualifiedViewName = await GetResolvedViewNameAsync(viewName, cancellationToken).ConfigureAwait(false);
 
-            return qualifiedViewName != null
-                ? new PostgreSqlRelationalDatabaseView(Connection, Dialect.TypeProvider, qualifiedViewName, IdentifierResolver)
-                : null;
+            return qualifiedViewName
+                .Map<IRelationalDatabaseView>(name => new PostgreSqlRelationalDatabaseView(Connection, Dialect.TypeProvider, name, IdentifierResolver));
         }
 
-        protected Identifier GetResolvedSequenceName(Identifier sequenceName)
+        protected Option<Identifier> GetResolvedSequenceName(Identifier sequenceName)
         {
             if (sequenceName == null)
                 throw new ArgumentNullException(nameof(sequenceName));
 
             sequenceName = CreateQualifiedIdentifier(sequenceName);
-            var qualifiedSequenceName = Connection.Query<QualifiedName>(
+            var qualifiedSequenceName = Connection.QueryFirstOrDefault<QualifiedName>(
                 SequenceNameQuery,
                 new { SchemaName = sequenceName.Schema, SequenceName = sequenceName.LocalName }
-            ).FirstOrDefault();
+            );
 
             return qualifiedSequenceName != null
-                ? Identifier.CreateQualifiedIdentifier(ServerName, DatabaseName, qualifiedSequenceName.SchemaName, qualifiedSequenceName.ObjectName)
-                : null;
+                ? Option<Identifier>.Some(Identifier.CreateQualifiedIdentifier(ServerName, DatabaseName, qualifiedSequenceName.SchemaName, qualifiedSequenceName.ObjectName))
+                : Option<Identifier>.None;
         }
 
-        protected Task<Identifier> GetResolvedSequenceNameAsync(Identifier sequenceName, CancellationToken cancellationToken = default(CancellationToken))
+        protected Task<Option<Identifier>> GetResolvedSequenceNameAsync(Identifier sequenceName, CancellationToken cancellationToken = default(CancellationToken))
         {
             if (sequenceName == null)
                 throw new ArgumentNullException(nameof(sequenceName));
@@ -318,19 +321,18 @@ where schemaname not in ('pg_catalog', 'information_schema')";
             return GetResolvedSequenceNameAsyncCore(sequenceName, cancellationToken);
         }
 
-        private async Task<Identifier> GetResolvedSequenceNameAsyncCore(Identifier sequenceName, CancellationToken cancellationToken)
+        private async Task<Option<Identifier>> GetResolvedSequenceNameAsyncCore(Identifier sequenceName, CancellationToken cancellationToken)
         {
             sequenceName = CreateQualifiedIdentifier(sequenceName);
 
-            var qualifiedSequenceNames = await Connection.QueryAsync<QualifiedName>(
+            var qualifiedSequenceName = await Connection.QueryFirstOrDefaultAsync<QualifiedName>(
                 SequenceNameQuery,
                 new { SchemaName = sequenceName.Schema, SequenceName = sequenceName.LocalName }
             ).ConfigureAwait(false);
-            var qualifiedSequenceName = qualifiedSequenceNames.FirstOrDefault();
 
             return qualifiedSequenceName != null
-                ? Identifier.CreateQualifiedIdentifier(ServerName, DatabaseName, qualifiedSequenceName.SchemaName, qualifiedSequenceName.ObjectName)
-                : null;
+                ? Option<Identifier>.Some(Identifier.CreateQualifiedIdentifier(ServerName, DatabaseName, qualifiedSequenceName.SchemaName, qualifiedSequenceName.ObjectName))
+                : Option<Identifier>.None;
         }
 
         protected virtual string SequenceNameQuery => SequenceNameQuerySql;
@@ -342,7 +344,7 @@ where sequence_schema = @SchemaName and sequence_name = @SequenceName
     and sequence_schema not in ('pg_catalog', 'information_schema')
 limit 1";
 
-        public IDatabaseSequence GetSequence(Identifier sequenceName)
+        public Option<IDatabaseSequence> GetSequence(Identifier sequenceName)
         {
             if (sequenceName == null)
                 throw new ArgumentNullException(nameof(sequenceName));
@@ -351,7 +353,7 @@ limit 1";
             return LoadSequenceSync(sequenceName);
         }
 
-        public Task<IDatabaseSequence> GetSequenceAsync(Identifier sequenceName, CancellationToken cancellationToken = default(CancellationToken))
+        public Task<Option<IDatabaseSequence>> GetSequenceAsync(Identifier sequenceName, CancellationToken cancellationToken = default(CancellationToken))
         {
             if (sequenceName == null)
                 throw new ArgumentNullException(nameof(sequenceName));
@@ -368,7 +370,10 @@ limit 1";
                     .Select(dto => Identifier.CreateQualifiedIdentifier(dto.SchemaName, dto.ObjectName))
                     .ToList();
 
-                var sequences = sequenceNames.Select(LoadSequenceSync);
+                var sequences = sequenceNames
+                    .Select(LoadSequenceSync)
+                    .Where(s => s.IsSome)
+                    .Select(s => s.UnwrapSome());
                 return new ReadOnlyCollectionSlim<IDatabaseSequence>(sequenceNames.Count, sequences);
             }
         }
@@ -380,7 +385,10 @@ limit 1";
                 .Select(dto => Identifier.CreateQualifiedIdentifier(dto.SchemaName, dto.ObjectName))
                 .ToList();
 
-            var sequences = sequenceNames.Select(name => LoadSequenceAsync(name, cancellationToken));
+            var sequences = sequenceNames
+                .Select(name => LoadSequenceAsync(name, cancellationToken))
+                .Where(s => s.IsSome)
+                .Select(s => s.UnwrapSome());
             return new ReadOnlyCollectionSlim<Task<IDatabaseSequence>>(sequenceNames.Count, sequences);
         }
 
@@ -393,20 +401,17 @@ select
 from information_schema.sequences
 where sequence_schema not in ('pg_catalog', 'information_schema')";
 
-        protected virtual IDatabaseSequence LoadSequenceSync(Identifier sequenceName)
+        protected virtual Option<IDatabaseSequence> LoadSequenceSync(Identifier sequenceName)
         {
             if (sequenceName == null)
                 throw new ArgumentNullException(nameof(sequenceName));
 
             sequenceName = CreateQualifiedIdentifier(sequenceName);
-            var qualifiedSequenceName = GetResolvedSequenceName(sequenceName);
-
-            return qualifiedSequenceName != null
-                ? new PostgreSqlDatabaseSequence(Connection, qualifiedSequenceName)
-                : null;
+            return GetResolvedSequenceName(sequenceName)
+                .Map<IDatabaseSequence>(name => new PostgreSqlDatabaseSequence(Connection, name));
         }
 
-        protected virtual Task<IDatabaseSequence> LoadSequenceAsync(Identifier sequenceName, CancellationToken cancellationToken = default(CancellationToken))
+        protected virtual Task<Option<IDatabaseSequence>> LoadSequenceAsync(Identifier sequenceName, CancellationToken cancellationToken = default(CancellationToken))
         {
             if (sequenceName == null)
                 throw new ArgumentNullException(nameof(sequenceName));
@@ -414,39 +419,34 @@ where sequence_schema not in ('pg_catalog', 'information_schema')";
             return LoadSequenceAsyncCore(sequenceName, cancellationToken);
         }
 
-        private async Task<IDatabaseSequence> LoadSequenceAsyncCore(Identifier sequenceName, CancellationToken cancellationToken)
+        private async Task<Option<IDatabaseSequence>> LoadSequenceAsyncCore(Identifier sequenceName, CancellationToken cancellationToken)
         {
             sequenceName = CreateQualifiedIdentifier(sequenceName);
             var qualifiedSequenceName = await GetResolvedSequenceNameAsync(sequenceName, cancellationToken).ConfigureAwait(false);
 
-            return qualifiedSequenceName != null
-                ? new PostgreSqlDatabaseSequence(Connection, qualifiedSequenceName)
-                : null;
+            return qualifiedSequenceName
+                .Map<IDatabaseSequence>(name => new PostgreSqlDatabaseSequence(Connection, name));
         }
 
-        public IDatabaseSynonym GetSynonym(Identifier synonymName)
+        public Option<IDatabaseSynonym> GetSynonym(Identifier synonymName)
         {
             if (synonymName == null)
                 throw new ArgumentNullException(nameof(synonymName));
 
-            return null;
+            return _missingSynonym;
         }
 
-        public Task<IDatabaseSynonym> GetSynonymAsync(Identifier synonymName, CancellationToken cancellationToken = default(CancellationToken))
+        public Task<Option<IDatabaseSynonym>> GetSynonymAsync(Identifier synonymName, CancellationToken cancellationToken = default(CancellationToken))
         {
             if (synonymName == null)
                 throw new ArgumentNullException(nameof(synonymName));
 
-            return Task.FromResult<IDatabaseSynonym>(null);
+            return _missingSynonymTask;
         }
 
-        public IReadOnlyCollection<IDatabaseSynonym> Synonyms => Array.Empty<IDatabaseSynonym>();
+        public IReadOnlyCollection<IDatabaseSynonym> Synonyms { get; } = Array.Empty<IDatabaseSynonym>();
 
         public Task<IReadOnlyCollection<Task<IDatabaseSynonym>>> SynonymsAsync(CancellationToken cancellationToken = default(CancellationToken)) => _emptySynonyms;
-
-        private readonly static Task<IReadOnlyCollection<Task<IDatabaseSynonym>>> _emptySynonyms = Task.FromResult<IReadOnlyCollection<Task<IDatabaseSynonym>>>(
-            Array.Empty<Task<IDatabaseSynonym>>()
-        );
 
         private DatabaseMetadata LoadDatabaseMetadata()
         {
@@ -483,5 +483,9 @@ select
         }
 
         private readonly Lazy<DatabaseMetadata> _metadata;
+
+        private readonly static Option<IDatabaseSynonym> _missingSynonym = Option<IDatabaseSynonym>.None;
+        private readonly static Task<Option<IDatabaseSynonym>> _missingSynonymTask = Task.FromResult(Option<IDatabaseSynonym>.None);
+        private readonly static Task<IReadOnlyCollection<Task<IDatabaseSynonym>>> _emptySynonyms = Task.FromResult<IReadOnlyCollection<Task<IDatabaseSynonym>>>(Array.Empty<Task<IDatabaseSynonym>>());
     }
 }

@@ -9,6 +9,7 @@ using SJP.Schematic.Core;
 using SJP.Schematic.Sqlite.Pragma;
 using SJP.Schematic.Core.Extensions;
 using SJP.Schematic.Core.Utilities;
+using LanguageExt;
 
 namespace SJP.Schematic.Sqlite
 {
@@ -36,13 +37,13 @@ namespace SJP.Schematic.Sqlite
 
         protected ISqliteConnectionPragma Pragma { get; }
 
-        protected Identifier GetResolvedTableName(Identifier tableName)
+        protected Option<Identifier> GetResolvedTableName(Identifier tableName)
         {
             if (tableName == null)
                 throw new ArgumentNullException(nameof(tableName));
 
             if (IsReservedTableName(tableName))
-                return null;
+                return Option<Identifier>.None;
 
             if (tableName.Schema != null)
             {
@@ -61,7 +62,7 @@ namespace SJP.Schematic.Sqlite
                     if (tableSchemaName == null)
                         throw new InvalidOperationException("Unable to find a database matching the given schema name: " + tableName.Schema);
 
-                    return Identifier.CreateQualifiedIdentifier(tableSchemaName, tableLocalName);
+                    return Option<Identifier>.Some(Identifier.CreateQualifiedIdentifier(tableSchemaName, tableLocalName));
                 }
             }
 
@@ -72,13 +73,13 @@ namespace SJP.Schematic.Sqlite
                 var tableLocalName = Connection.ExecuteScalar<string>(sql, new { TableName = tableName.LocalName });
 
                 if (tableLocalName != null)
-                    return Identifier.CreateQualifiedIdentifier(dbName, tableLocalName);
+                    return Option<Identifier>.Some(Identifier.CreateQualifiedIdentifier(dbName, tableLocalName));
             }
 
-            return null;
+            return Option<Identifier>.None;
         }
 
-        protected Task<Identifier> GetResolvedTableNameAsync(Identifier tableName, CancellationToken cancellationToken = default(CancellationToken))
+        protected Task<Option<Identifier>> GetResolvedTableNameAsync(Identifier tableName, CancellationToken cancellationToken = default(CancellationToken))
         {
             if (tableName == null)
                 throw new ArgumentNullException(nameof(tableName));
@@ -86,10 +87,10 @@ namespace SJP.Schematic.Sqlite
             return GetResolvedTableNameAsyncCore(tableName, cancellationToken);
         }
 
-        private async Task<Identifier> GetResolvedTableNameAsyncCore(Identifier tableName, CancellationToken cancellationToken)
+        private async Task<Option<Identifier>> GetResolvedTableNameAsyncCore(Identifier tableName, CancellationToken cancellationToken)
         {
             if (IsReservedTableName(tableName))
-                return null;
+                return Option<Identifier>.None;
 
             if (tableName.Schema != null)
             {
@@ -103,13 +104,13 @@ namespace SJP.Schematic.Sqlite
                 {
                     var dbList = await Pragma.DatabaseListAsync().ConfigureAwait(false);
                     var tableSchemaName = dbList
-                            .OrderBy(s => s.seq)
-                            .Select(s => s.name)
-                            .FirstOrDefault(s => string.Equals(s, tableName.Schema, StringComparison.OrdinalIgnoreCase));
+                        .OrderBy(s => s.seq)
+                        .Select(s => s.name)
+                        .FirstOrDefault(s => string.Equals(s, tableName.Schema, StringComparison.OrdinalIgnoreCase));
                     if (tableSchemaName == null)
                         throw new InvalidOperationException("Unable to find a database matching the given schema name: " + tableName.Schema);
 
-                    return Identifier.CreateQualifiedIdentifier(tableSchemaName, tableLocalName);
+                    return Option<Identifier>.Some(Identifier.CreateQualifiedIdentifier(tableSchemaName, tableLocalName));
                 }
             }
 
@@ -121,10 +122,10 @@ namespace SJP.Schematic.Sqlite
                 var tableLocalName = await Connection.ExecuteScalarAsync<string>(sql, new { TableName = tableName.LocalName }).ConfigureAwait(false);
 
                 if (tableLocalName != null)
-                    return Identifier.CreateQualifiedIdentifier(dbName, tableLocalName);
+                    return Option<Identifier>.Some(Identifier.CreateQualifiedIdentifier(dbName, tableLocalName));
             }
 
-            return null;
+            return Option<Identifier>.None;
         }
 
         protected virtual string TableNameQuery(string schemaName)
@@ -135,13 +136,13 @@ namespace SJP.Schematic.Sqlite
             return $"select name from { Dialect.QuoteIdentifier(schemaName) }.sqlite_master where type = 'table' and lower(name) = lower(@TableName)";
         }
 
-        public IRelationalDatabaseTable GetTable(Identifier tableName)
+        public Option<IRelationalDatabaseTable> GetTable(Identifier tableName)
         {
             if (tableName == null)
                 throw new ArgumentNullException(nameof(tableName));
 
             if (IsReservedTableName(tableName))
-                return null;
+                return Option<IRelationalDatabaseTable>.None;
 
             if (tableName.Schema != null)
                 return LoadTableSync(tableName);
@@ -152,14 +153,14 @@ namespace SJP.Schematic.Sqlite
                 var qualifiedTableName = Identifier.CreateQualifiedIdentifier(dbName, tableName.LocalName);
                 var table = LoadTableSync(qualifiedTableName);
 
-                if (table != null)
+                if (table.IsSome)
                     return table;
             }
 
-            return null;
+            return Option<IRelationalDatabaseTable>.None;
         }
 
-        public Task<IRelationalDatabaseTable> GetTableAsync(Identifier tableName, CancellationToken cancellationToken = default(CancellationToken))
+        public Task<Option<IRelationalDatabaseTable>> GetTableAsync(Identifier tableName, CancellationToken cancellationToken = default(CancellationToken))
         {
             if (tableName == null)
                 throw new ArgumentNullException(nameof(tableName));
@@ -167,10 +168,10 @@ namespace SJP.Schematic.Sqlite
             return GetTableAsyncCore(tableName, cancellationToken);
         }
 
-        private async Task<IRelationalDatabaseTable> GetTableAsyncCore(Identifier tableName, CancellationToken cancellationToken)
+        private async Task<Option<IRelationalDatabaseTable>> GetTableAsyncCore(Identifier tableName, CancellationToken cancellationToken)
         {
             if (IsReservedTableName(tableName))
-                return null;
+                return Option<IRelationalDatabaseTable>.None;
 
             if (tableName.Schema != null)
                 return await LoadTableAsync(tableName, cancellationToken).ConfigureAwait(false);
@@ -182,11 +183,11 @@ namespace SJP.Schematic.Sqlite
                 var qualifiedTableName = Identifier.CreateQualifiedIdentifier(dbName, tableName.LocalName);
                 var table = await LoadTableAsync(qualifiedTableName, cancellationToken).ConfigureAwait(false);
 
-                if (table != null)
+                if (table.IsSome)
                     return table;
             }
 
-            return null;
+            return Option<IRelationalDatabaseTable>.None;
         }
 
         public IReadOnlyCollection<IRelationalDatabaseTable> Tables
@@ -206,7 +207,10 @@ namespace SJP.Schematic.Sqlite
                     qualifiedTableNames.AddRange(tableNames);
                 }
 
-                var tables = qualifiedTableNames.Select(LoadTableSync);
+                var tables = qualifiedTableNames
+                    .Select(LoadTableSync)
+                    .Where(t => t.IsSome)
+                    .Select(t => t.UnwrapSome());
                 return new ReadOnlyCollectionSlim<IRelationalDatabaseTable>(qualifiedTableNames.Count, tables);
             }
         }
@@ -229,7 +233,10 @@ namespace SJP.Schematic.Sqlite
                 qualifiedTableNames.AddRange(tableNames);
             }
 
-            var tables = qualifiedTableNames.Select(name => LoadTableAsync(name, cancellationToken));
+            var tables = qualifiedTableNames
+                .Select(name => LoadTableAsync(name, cancellationToken))
+                .Where(t => t.IsSome)
+                .Select(t => t.UnwrapSome());
             return new ReadOnlyCollectionSlim<Task<IRelationalDatabaseTable>>(qualifiedTableNames.Count, tables);
         }
 
@@ -241,37 +248,32 @@ namespace SJP.Schematic.Sqlite
             return $"select name from { Dialect.QuoteIdentifier(schemaName) }.sqlite_master where type = 'table' order by name";
         }
 
-        protected virtual IRelationalDatabaseTable LoadTableSync(Identifier tableName)
+        protected virtual Option<IRelationalDatabaseTable> LoadTableSync(Identifier tableName)
         {
             if (tableName == null)
                 throw new ArgumentNullException(nameof(tableName));
 
             if (tableName.Schema != null)
             {
-                var qualifiedTableName = GetResolvedTableName(tableName);
-                return qualifiedTableName != null
-                    ? new SqliteRelationalDatabaseTable(Connection, this, qualifiedTableName)
-                    : null;
+                return GetResolvedTableName(tableName)
+                    .Map<IRelationalDatabaseTable>(name => new SqliteRelationalDatabaseTable(Connection, this, name));
             }
 
             var dbNames = Pragma.DatabaseList.OrderBy(l => l.seq).Select(l => l.name).ToList();
             foreach (var dbName in dbNames)
             {
                 var qualifiedTableName = Identifier.CreateQualifiedIdentifier(dbName, tableName.LocalName);
-                qualifiedTableName = GetResolvedTableName(qualifiedTableName);
+                var table = GetResolvedTableName(qualifiedTableName)
+                    .Map<IRelationalDatabaseTable>(name => new SqliteRelationalDatabaseTable(Connection, this, name));
 
-                var table = qualifiedTableName != null
-                    ? new SqliteRelationalDatabaseTable(Connection, this, qualifiedTableName)
-                    : null;
-
-                if (table != null)
+                if (table.IsSome)
                     return table;
             }
 
-            return null;
+            return Option<IRelationalDatabaseTable>.None;
         }
 
-        protected virtual Task<IRelationalDatabaseTable> LoadTableAsync(Identifier tableName, CancellationToken cancellationToken)
+        protected virtual Task<Option<IRelationalDatabaseTable>> LoadTableAsync(Identifier tableName, CancellationToken cancellationToken)
         {
             if (tableName == null)
                 throw new ArgumentNullException(nameof(tableName));
@@ -279,14 +281,12 @@ namespace SJP.Schematic.Sqlite
             return LoadTableAsyncCore(tableName, cancellationToken);
         }
 
-        private async Task<IRelationalDatabaseTable> LoadTableAsyncCore(Identifier tableName, CancellationToken cancellationToken)
+        private async Task<Option<IRelationalDatabaseTable>> LoadTableAsyncCore(Identifier tableName, CancellationToken cancellationToken)
         {
             if (tableName.Schema != null)
             {
                 var qualifiedTableName = await GetResolvedTableNameAsync(tableName, cancellationToken).ConfigureAwait(false);
-                return qualifiedTableName != null
-                    ? new SqliteRelationalDatabaseTable(Connection, this, qualifiedTableName)
-                    : null;
+                return qualifiedTableName.Map<IRelationalDatabaseTable>(name => new SqliteRelationalDatabaseTable(Connection, this, name));
             }
 
             var dbNamesResult = await Pragma.DatabaseListAsync().ConfigureAwait(false);
@@ -294,20 +294,17 @@ namespace SJP.Schematic.Sqlite
             foreach (var dbName in dbNames)
             {
                 var qualifiedTableName = Identifier.CreateQualifiedIdentifier(dbName, tableName.LocalName);
-                qualifiedTableName = await GetResolvedTableNameAsync(qualifiedTableName, cancellationToken).ConfigureAwait(false);
+                var resolvedTableName = await GetResolvedTableNameAsync(qualifiedTableName, cancellationToken).ConfigureAwait(false);
 
-                var table = qualifiedTableName != null
-                    ? new SqliteRelationalDatabaseTable(Connection, this, qualifiedTableName)
-                    : null;
-
-                if (table != null)
+                var table = resolvedTableName.Map<IRelationalDatabaseTable>(name => new SqliteRelationalDatabaseTable(Connection, this, name));
+                if (table.IsSome)
                     return table;
             }
 
-            return null;
+            return Option<IRelationalDatabaseTable>.None;
         }
 
-        protected Identifier GetResolvedViewName(Identifier viewName)
+        protected Option<Identifier> GetResolvedViewName(Identifier viewName)
         {
             if (viewName == null)
                 throw new ArgumentNullException(nameof(viewName));
@@ -329,7 +326,7 @@ namespace SJP.Schematic.Sqlite
                     if (viewSchemaName == null)
                         throw new InvalidOperationException("Unable to find a database matching the given schema name: " + viewName.Schema);
 
-                    return Identifier.CreateQualifiedIdentifier(viewSchemaName, viewLocalName);
+                    return Option<Identifier>.Some(Identifier.CreateQualifiedIdentifier(viewSchemaName, viewLocalName));
                 }
             }
 
@@ -340,13 +337,13 @@ namespace SJP.Schematic.Sqlite
                 var viewLocalName = Connection.ExecuteScalar<string>(sql, new { ViewName = viewName.LocalName });
 
                 if (viewLocalName != null)
-                    return Identifier.CreateQualifiedIdentifier(dbName, viewLocalName);
+                    return Option<Identifier>.Some(Identifier.CreateQualifiedIdentifier(dbName, viewLocalName));
             }
 
-            return null;
+            return Option<Identifier>.None;
         }
 
-        public Task<Identifier> GetResolvedViewNameAsync(Identifier viewName, CancellationToken cancellationToken = default(CancellationToken))
+        public Task<Option<Identifier>> GetResolvedViewNameAsync(Identifier viewName, CancellationToken cancellationToken = default(CancellationToken))
         {
             if (viewName == null)
                 throw new ArgumentNullException(nameof(viewName));
@@ -354,7 +351,7 @@ namespace SJP.Schematic.Sqlite
             return GetResolvedViewNameAsyncCore(viewName, cancellationToken);
         }
 
-        private async Task<Identifier> GetResolvedViewNameAsyncCore(Identifier viewName, CancellationToken cancellationToken)
+        private async Task<Option<Identifier>> GetResolvedViewNameAsyncCore(Identifier viewName, CancellationToken cancellationToken)
         {
             if (viewName.Schema != null)
             {
@@ -368,13 +365,13 @@ namespace SJP.Schematic.Sqlite
                 {
                     var dbList = await Pragma.DatabaseListAsync().ConfigureAwait(false);
                     var viewSchemaName = dbList
-                            .OrderBy(s => s.seq)
-                            .Select(s => s.name)
-                            .FirstOrDefault(s => string.Equals(s, viewName.Schema, StringComparison.OrdinalIgnoreCase));
+                        .OrderBy(s => s.seq)
+                        .Select(s => s.name)
+                        .FirstOrDefault(s => string.Equals(s, viewName.Schema, StringComparison.OrdinalIgnoreCase));
                     if (viewSchemaName == null)
                         throw new InvalidOperationException("Unable to find a database matching the given schema name: " + viewName.Schema);
 
-                    return Identifier.CreateQualifiedIdentifier(viewSchemaName, viewLocalName);
+                    return Option<Identifier>.Some(Identifier.CreateQualifiedIdentifier(viewSchemaName, viewLocalName));
                 }
             }
 
@@ -386,10 +383,10 @@ namespace SJP.Schematic.Sqlite
                 var viewLocalName = await Connection.ExecuteScalarAsync<string>(sql, new { ViewName = viewName.LocalName }).ConfigureAwait(false);
 
                 if (viewLocalName != null)
-                    return Identifier.CreateQualifiedIdentifier(dbName, viewLocalName);
+                    return Option<Identifier>.Some(Identifier.CreateQualifiedIdentifier(dbName, viewLocalName));
             }
 
-            return null;
+            return Option<Identifier>.None;
         }
 
         protected virtual string ViewNameQuery(string schemaName)
@@ -400,7 +397,7 @@ namespace SJP.Schematic.Sqlite
             return $"select name from { Dialect.QuoteIdentifier(schemaName) }.sqlite_master where type = 'view' and lower(name) = lower(@ViewName)";
         }
 
-        public IRelationalDatabaseView GetView(Identifier viewName)
+        public Option<IRelationalDatabaseView> GetView(Identifier viewName)
         {
             if (viewName == null)
                 throw new ArgumentNullException(nameof(viewName));
@@ -414,14 +411,14 @@ namespace SJP.Schematic.Sqlite
                 var qualifiedViewName = Identifier.CreateQualifiedIdentifier(dbName, viewName.LocalName);
                 var view = LoadViewSync(qualifiedViewName);
 
-                if (view != null)
+                if (view.IsSome)
                     return view;
             }
 
-            return null;
+            return Option<IRelationalDatabaseView>.None;
         }
 
-        public Task<IRelationalDatabaseView> GetViewAsync(Identifier viewName, CancellationToken cancellationToken = default(CancellationToken))
+        public Task<Option<IRelationalDatabaseView>> GetViewAsync(Identifier viewName, CancellationToken cancellationToken = default(CancellationToken))
         {
             if (viewName == null)
                 throw new ArgumentNullException(nameof(viewName));
@@ -429,7 +426,7 @@ namespace SJP.Schematic.Sqlite
             return GetViewAsyncCore(viewName, cancellationToken);
         }
 
-        private async Task<IRelationalDatabaseView> GetViewAsyncCore(Identifier viewName, CancellationToken cancellationToken)
+        private async Task<Option<IRelationalDatabaseView>> GetViewAsyncCore(Identifier viewName, CancellationToken cancellationToken)
         {
             if (viewName.Schema != null)
                 return await LoadViewAsync(viewName, cancellationToken).ConfigureAwait(false);
@@ -441,11 +438,11 @@ namespace SJP.Schematic.Sqlite
                 var qualifiedViewName = Identifier.CreateQualifiedIdentifier(dbName, viewName.LocalName);
                 var view = await LoadViewAsync(qualifiedViewName, cancellationToken).ConfigureAwait(false);
 
-                if (view != null)
+                if (view.IsSome)
                     return view;
             }
 
-            return null;
+            return Option<IRelationalDatabaseView>.None;
         }
 
         public IReadOnlyCollection<IRelationalDatabaseView> Views
@@ -465,7 +462,10 @@ namespace SJP.Schematic.Sqlite
                     qualifiedViewNames.AddRange(viewNames);
                 }
 
-                var views = qualifiedViewNames.Select(LoadViewSync);
+                var views = qualifiedViewNames
+                    .Select(LoadViewSync)
+                    .Where(v => v.IsSome)
+                    .Select(v => v.UnwrapSome());
                 return new ReadOnlyCollectionSlim<IRelationalDatabaseView>(qualifiedViewNames.Count, views);
             }
         }
@@ -488,7 +488,10 @@ namespace SJP.Schematic.Sqlite
                 qualifiedViewNames.AddRange(viewNames);
             }
 
-            var views = qualifiedViewNames.Select(name => LoadViewAsync(name, cancellationToken));
+            var views = qualifiedViewNames
+                .Select(name => LoadViewAsync(name, cancellationToken))
+                .Where(v => v.IsSome)
+                .Select(v => v.UnwrapSome());
             return new ReadOnlyCollectionSlim<Task<IRelationalDatabaseView>>(qualifiedViewNames.Count, views);
         }
 
@@ -500,37 +503,32 @@ namespace SJP.Schematic.Sqlite
             return $"select name from { Dialect.QuoteIdentifier(schemaName) }.sqlite_master where type = 'view' order by name";
         }
 
-        protected virtual IRelationalDatabaseView LoadViewSync(Identifier viewName)
+        protected virtual Option<IRelationalDatabaseView> LoadViewSync(Identifier viewName)
         {
             if (viewName == null)
                 throw new ArgumentNullException(nameof(viewName));
 
             if (viewName.Schema != null)
             {
-                var qualifiedViewName = GetResolvedViewName(viewName);
-                return qualifiedViewName != null
-                    ? new SqliteRelationalDatabaseView(Connection, this, qualifiedViewName)
-                    : null;
+                return GetResolvedViewName(viewName)
+                    .Map<IRelationalDatabaseView>(name => new SqliteRelationalDatabaseView(Connection, this, name));
             }
 
             var dbNames = Pragma.DatabaseList.OrderBy(l => l.seq).Select(l => l.name).ToList();
             foreach (var dbName in dbNames)
             {
                 var qualifiedViewName = Identifier.CreateQualifiedIdentifier(dbName, viewName.LocalName);
-                qualifiedViewName = GetResolvedViewName(qualifiedViewName);
+                var view = GetResolvedViewName(qualifiedViewName)
+                    .Map<IRelationalDatabaseView>(name => new SqliteRelationalDatabaseView(Connection, this, name));
 
-                var view = qualifiedViewName != null
-                    ? new SqliteRelationalDatabaseView(Connection, this, qualifiedViewName)
-                    : null;
-
-                if (view != null)
+                if (view.IsSome)
                     return view;
             }
 
-            return null;
+            return Option<IRelationalDatabaseView>.None;
         }
 
-        protected virtual Task<IRelationalDatabaseView> LoadViewAsync(Identifier viewName, CancellationToken cancellationToken = default(CancellationToken))
+        protected virtual Task<Option<IRelationalDatabaseView>> LoadViewAsync(Identifier viewName, CancellationToken cancellationToken = default(CancellationToken))
         {
             if (viewName == null)
                 throw new ArgumentNullException(nameof(viewName));
@@ -538,14 +536,12 @@ namespace SJP.Schematic.Sqlite
             return LoadViewAsyncCore(viewName, cancellationToken);
         }
 
-        private async Task<IRelationalDatabaseView> LoadViewAsyncCore(Identifier viewName, CancellationToken cancellationToken)
+        private async Task<Option<IRelationalDatabaseView>> LoadViewAsyncCore(Identifier viewName, CancellationToken cancellationToken)
         {
             if (viewName.Schema != null)
             {
                 var qualifiedViewName = await GetResolvedViewNameAsync(viewName, cancellationToken).ConfigureAwait(false);
-                return qualifiedViewName != null
-                    ? new SqliteRelationalDatabaseView(Connection, this, qualifiedViewName)
-                    : null;
+                return qualifiedViewName.Map<IRelationalDatabaseView>(name => new SqliteRelationalDatabaseView(Connection, this, name));
             }
 
             var dbNamesResult = await Pragma.DatabaseListAsync().ConfigureAwait(false);
@@ -553,64 +549,55 @@ namespace SJP.Schematic.Sqlite
             foreach (var dbName in dbNames)
             {
                 var qualifiedViewName = Identifier.CreateQualifiedIdentifier(dbName, viewName.LocalName);
-                qualifiedViewName = await GetResolvedViewNameAsync(qualifiedViewName, cancellationToken).ConfigureAwait(false);
+                var resolvedViewName = await GetResolvedViewNameAsync(qualifiedViewName, cancellationToken).ConfigureAwait(false);
 
-                var view = qualifiedViewName != null
-                    ? new SqliteRelationalDatabaseView(Connection, this, qualifiedViewName)
-                    : null;
-
-                if (view != null)
+                var view = resolvedViewName.Map<IRelationalDatabaseView>(name => new SqliteRelationalDatabaseView(Connection, this, name));
+                if (view.IsSome)
                     return view;
             }
 
-            return null;
+            return Option<IRelationalDatabaseView>.None;
         }
 
-        public IDatabaseSequence GetSequence(Identifier sequenceName)
+        public Option<IDatabaseSequence> GetSequence(Identifier sequenceName)
         {
             if (sequenceName == null)
                 throw new ArgumentNullException(nameof(sequenceName));
 
-            return null;
+            return _missingSequence;
         }
 
         public IReadOnlyCollection<IDatabaseSequence> Sequences { get; } = Array.Empty<IDatabaseSequence>();
 
-        public Task<IDatabaseSequence> GetSequenceAsync(Identifier sequenceName, CancellationToken cancellationToken = default(CancellationToken))
+        public Task<Option<IDatabaseSequence>> GetSequenceAsync(Identifier sequenceName, CancellationToken cancellationToken = default(CancellationToken))
         {
             if (sequenceName == null)
                 throw new ArgumentNullException(nameof(sequenceName));
 
-            return Task.FromResult<IDatabaseSequence>(null);
+            return _missingSequenceTask;
         }
 
-        public Task<IReadOnlyCollection<Task<IDatabaseSequence>>> SequencesAsync(CancellationToken cancellationToken = default(CancellationToken)) => _emptySequences;
+        public Task<IReadOnlyCollection<Task<IDatabaseSequence>>> SequencesAsync(CancellationToken cancellationToken = default(CancellationToken)) => _emptySequencesTask;
 
-        private readonly static Task<IReadOnlyCollection<Task<IDatabaseSequence>>> _emptySequences =
-            Task.FromResult<IReadOnlyCollection<Task<IDatabaseSequence>>>(Array.Empty<Task<IDatabaseSequence>>());
-
-        public IDatabaseSynonym GetSynonym(Identifier synonymName)
+        public Option<IDatabaseSynonym> GetSynonym(Identifier synonymName)
         {
             if (synonymName == null)
                 throw new ArgumentNullException(nameof(synonymName));
 
-            return null;
+            return _missingSynonym;
         }
 
         public IReadOnlyCollection<IDatabaseSynonym> Synonyms { get; } = Array.Empty<IDatabaseSynonym>();
 
-        public Task<IDatabaseSynonym> GetSynonymAsync(Identifier synonymName, CancellationToken cancellationToken = default(CancellationToken))
+        public Task<Option<IDatabaseSynonym>> GetSynonymAsync(Identifier synonymName, CancellationToken cancellationToken = default(CancellationToken))
         {
             if (synonymName == null)
                 throw new ArgumentNullException(nameof(synonymName));
 
-            return Task.FromResult<IDatabaseSynonym>(null);
+            return _missingSynonymTask;
         }
 
-        public Task<IReadOnlyCollection<Task<IDatabaseSynonym>>> SynonymsAsync(CancellationToken cancellationToken = default(CancellationToken)) => _emptySynonyms;
-
-        private readonly static Task<IReadOnlyCollection<Task<IDatabaseSynonym>>> _emptySynonyms =
-            Task.FromResult<IReadOnlyCollection<Task<IDatabaseSynonym>>>(Array.Empty<Task<IDatabaseSynonym>>());
+        public Task<IReadOnlyCollection<Task<IDatabaseSynonym>>> SynonymsAsync(CancellationToken cancellationToken = default(CancellationToken)) => _emptySynonymsTask;
 
         public void AttachDatabase(string schemaName, string fileName)
         {
@@ -726,5 +713,12 @@ namespace SJP.Schematic.Sqlite
         }
 
         private readonly AsyncLazy<string> _versionLoader;
+
+        private readonly static Option<IDatabaseSequence> _missingSequence = Option<IDatabaseSequence>.None;
+        private readonly static Task<Option<IDatabaseSequence>> _missingSequenceTask = Task.FromResult(_missingSequence);
+        private readonly static Task<IReadOnlyCollection<Task<IDatabaseSequence>>> _emptySequencesTask = Task.FromResult<IReadOnlyCollection<Task<IDatabaseSequence>>>(Array.Empty<Task<IDatabaseSequence>>());
+        private readonly static Option<IDatabaseSynonym> _missingSynonym = Option<IDatabaseSynonym>.None;
+        private readonly static Task<Option<IDatabaseSynonym>> _missingSynonymTask = Task.FromResult(_missingSynonym);
+        private readonly static Task<IReadOnlyCollection<Task<IDatabaseSynonym>>> _emptySynonymsTask = Task.FromResult<IReadOnlyCollection<Task<IDatabaseSynonym>>>(Array.Empty<Task<IDatabaseSynonym>>());
     }
 }

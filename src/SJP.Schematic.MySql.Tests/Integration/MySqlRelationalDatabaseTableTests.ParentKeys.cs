@@ -3,6 +3,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using NUnit.Framework;
 using SJP.Schematic.Core;
+using SJP.Schematic.Core.Extensions;
 
 namespace SJP.Schematic.MySql.Tests.Integration
 {
@@ -11,7 +12,7 @@ namespace SJP.Schematic.MySql.Tests.Integration
         [Test]
         public void ParentKey_WhenGivenTableWithNoForeignKeys_ReturnsEmptyLookup()
         {
-            var table = Database.GetTable("table_test_table_15");
+            var table = Database.GetTable("table_test_table_15").UnwrapSome();
             var parentKeyLookup = table.ParentKey;
 
             Assert.AreEqual(0, parentKeyLookup.Count);
@@ -20,7 +21,7 @@ namespace SJP.Schematic.MySql.Tests.Integration
         [Test]
         public void ParentKeys_WhenGivenTableWithNoForeignKeys_ReturnsEmptyCollection()
         {
-            var table = Database.GetTable("table_test_table_15");
+            var table = Database.GetTable("table_test_table_15").UnwrapSome();
             var count = table.ParentKeys.Count;
 
             Assert.AreEqual(0, count);
@@ -29,8 +30,8 @@ namespace SJP.Schematic.MySql.Tests.Integration
         [Test]
         public async Task ParentKeyAsync_WhenGivenTableWithNoForeignKeys_ReturnsEmptyLookup()
         {
-            var table = await Database.GetTableAsync("table_test_table_15").ConfigureAwait(false);
-            var parentKeyLookup = await table.ParentKeyAsync().ConfigureAwait(false);
+            var tableOption = await Database.GetTableAsync("table_test_table_15").ConfigureAwait(false);
+            var parentKeyLookup = await tableOption.UnwrapSome().ParentKeyAsync().ConfigureAwait(false);
 
             Assert.AreEqual(0, parentKeyLookup.Count);
         }
@@ -38,8 +39,8 @@ namespace SJP.Schematic.MySql.Tests.Integration
         [Test]
         public async Task ParentKeysAsync_WhenGivenTableWithNoForeignKeys_ReturnsEmptyCollection()
         {
-            var table = await Database.GetTableAsync("table_test_table_15").ConfigureAwait(false);
-            var parentKeys = await table.ParentKeysAsync().ConfigureAwait(false);
+            var tableOption = await Database.GetTableAsync("table_test_table_15").ConfigureAwait(false);
+            var parentKeys = await tableOption.UnwrapSome().ParentKeysAsync().ConfigureAwait(false);
             var count = parentKeys.Count;
 
             Assert.AreEqual(0, count);
@@ -48,7 +49,7 @@ namespace SJP.Schematic.MySql.Tests.Integration
         [Test]
         public void ParentKey_WhenGivenTableWithForeignKeyToPrimaryKey_ReturnsConstraintWithCorrectNames()
         {
-            var table = Database.GetTable("table_test_table_16");
+            var table = Database.GetTable("table_test_table_16").UnwrapSome();
             var parentKeyLookup = table.ParentKey;
             var foreignKey = parentKeyLookup["fk_test_table_16"];
 
@@ -62,7 +63,7 @@ namespace SJP.Schematic.MySql.Tests.Integration
         [Test]
         public void ParentKeys_WhenGivenTableWithForeignKeyToPrimaryKey_ContainsConstraintWithCorrectNames()
         {
-            var table = Database.GetTable("table_test_table_16");
+            var table = Database.GetTable("table_test_table_16").UnwrapSome();
             var foreignKey = table.ParentKeys.Single();
 
             Assert.Multiple(() =>
@@ -75,8 +76,8 @@ namespace SJP.Schematic.MySql.Tests.Integration
         [Test]
         public async Task ParentKeyAsync_WhenGivenTableWithForeignKeyToPrimaryKey_ReturnsConstraintWithCorrectNames()
         {
-            var table = await Database.GetTableAsync("table_test_table_16").ConfigureAwait(false);
-            var parentKeyLookup = await table.ParentKeyAsync().ConfigureAwait(false);
+            var tableOption = await Database.GetTableAsync("table_test_table_16").ConfigureAwait(false);
+            var parentKeyLookup = await tableOption.UnwrapSome().ParentKeyAsync().ConfigureAwait(false);
             var foreignKey = parentKeyLookup["fk_test_table_16"];
 
             Assert.Multiple(() =>
@@ -89,8 +90,8 @@ namespace SJP.Schematic.MySql.Tests.Integration
         [Test]
         public async Task ParentKeysAsync_WhenGivenTableWithForeignKeyToPrimaryKey_ContainsConstraintWithCorrectNames()
         {
-            var table = await Database.GetTableAsync("table_test_table_16").ConfigureAwait(false);
-            var parentKeys = await table.ParentKeysAsync().ConfigureAwait(false);
+            var tableOption = await Database.GetTableAsync("table_test_table_16").ConfigureAwait(false);
+            var parentKeys = await tableOption.UnwrapSome().ParentKeysAsync().ConfigureAwait(false);
             var foreignKey = parentKeys.Single();
 
             Assert.Multiple(() =>
@@ -103,7 +104,7 @@ namespace SJP.Schematic.MySql.Tests.Integration
         [Test]
         public void ParentKey_WhenGivenTableWithForeignKeyToPrimaryKey_ReturnsConstraintWithCorrectKeyTypes()
         {
-            var table = Database.GetTable("table_test_table_16");
+            var table = Database.GetTable("table_test_table_16").UnwrapSome();
             var parentKeyLookup = table.ParentKey;
             var foreignKey = parentKeyLookup["fk_test_table_16"];
 
@@ -117,7 +118,7 @@ namespace SJP.Schematic.MySql.Tests.Integration
         [Test]
         public void ParentKeys_WhenGivenTableWithForeignKeyToPrimaryKey_ContainsConstraintWithCorrectKeyTypes()
         {
-            var table = Database.GetTable("table_test_table_16");
+            var table = Database.GetTable("table_test_table_16").UnwrapSome();
             var foreignKey = table.ParentKeys.Single();
 
             Assert.Multiple(() =>
@@ -130,8 +131,8 @@ namespace SJP.Schematic.MySql.Tests.Integration
         [Test]
         public async Task ParentKeyAsync_WhenGivenTableWithForeignKeyToPrimaryKey_ReturnsConstraintWithCorrectKeyTypes()
         {
-            var table = await Database.GetTableAsync("table_test_table_16").ConfigureAwait(false);
-            var parentKeyLookup = await table.ParentKeyAsync().ConfigureAwait(false);
+            var tableOption = await Database.GetTableAsync("table_test_table_16").ConfigureAwait(false);
+            var parentKeyLookup = await tableOption.UnwrapSome().ParentKeyAsync().ConfigureAwait(false);
             var foreignKey = parentKeyLookup["fk_test_table_16"];
 
             Assert.Multiple(() =>
@@ -144,8 +145,8 @@ namespace SJP.Schematic.MySql.Tests.Integration
         [Test]
         public async Task ParentKeysAsync_WhenGivenTableWithForeignKeyToPrimaryKey_ContainsConstraintWithCorrectKeyTypes()
         {
-            var table = await Database.GetTableAsync("table_test_table_16").ConfigureAwait(false);
-            var parentKeys = await table.ParentKeysAsync().ConfigureAwait(false);
+            var tableOption = await Database.GetTableAsync("table_test_table_16").ConfigureAwait(false);
+            var parentKeys = await tableOption.UnwrapSome().ParentKeysAsync().ConfigureAwait(false);
             var foreignKey = parentKeys.Single();
 
             Assert.Multiple(() =>
@@ -158,7 +159,7 @@ namespace SJP.Schematic.MySql.Tests.Integration
         [Test]
         public void ParentKey_WhenGivenTableWithForeignKeyToPrimaryKey_ReturnsConstraintWithCorrectTables()
         {
-            var table = Database.GetTable("table_test_table_16");
+            var table = Database.GetTable("table_test_table_16").UnwrapSome();
             var parentKeyLookup = table.ParentKey;
             var foreignKey = parentKeyLookup["fk_test_table_16"];
 
@@ -172,7 +173,7 @@ namespace SJP.Schematic.MySql.Tests.Integration
         [Test]
         public void ParentKeys_WhenGivenTableWithForeignKeyToPrimaryKey_ContainsConstraintWithCorrectTables()
         {
-            var table = Database.GetTable("table_test_table_16");
+            var table = Database.GetTable("table_test_table_16").UnwrapSome();
             var foreignKey = table.ParentKeys.Single();
 
             Assert.Multiple(() =>
@@ -185,8 +186,8 @@ namespace SJP.Schematic.MySql.Tests.Integration
         [Test]
         public async Task ParentKeyAsync_WhenGivenTableWithForeignKeyToPrimaryKey_ReturnsConstraintWithCorrectTables()
         {
-            var table = await Database.GetTableAsync("table_test_table_16").ConfigureAwait(false);
-            var parentKeyLookup = await table.ParentKeyAsync().ConfigureAwait(false);
+            var tableOption = await Database.GetTableAsync("table_test_table_16").ConfigureAwait(false);
+            var parentKeyLookup = await tableOption.UnwrapSome().ParentKeyAsync().ConfigureAwait(false);
             var foreignKey = parentKeyLookup["fk_test_table_16"];
 
             Assert.Multiple(() =>
@@ -199,8 +200,8 @@ namespace SJP.Schematic.MySql.Tests.Integration
         [Test]
         public async Task ParentKeysAsync_WhenGivenTableWithForeignKeyToPrimaryKey_ContainsConstraintWithCorrectTables()
         {
-            var table = await Database.GetTableAsync("table_test_table_16").ConfigureAwait(false);
-            var parentKeys = await table.ParentKeysAsync().ConfigureAwait(false);
+            var tableOption = await Database.GetTableAsync("table_test_table_16").ConfigureAwait(false);
+            var parentKeys = await tableOption.UnwrapSome().ParentKeysAsync().ConfigureAwait(false);
             var foreignKey = parentKeys.Single();
 
             Assert.Multiple(() =>
@@ -213,7 +214,7 @@ namespace SJP.Schematic.MySql.Tests.Integration
         [Test]
         public void ParentKey_WhenGivenTableWithForeignKeyToPrimaryKey_ReturnsConstraintWithCorrectColumns()
         {
-            var table = Database.GetTable("table_test_table_16");
+            var table = Database.GetTable("table_test_table_16").UnwrapSome();
             var parentKeyLookup = table.ParentKey;
             var foreignKey = parentKeyLookup["fk_test_table_16"];
 
@@ -236,7 +237,7 @@ namespace SJP.Schematic.MySql.Tests.Integration
         [Test]
         public void ParentKeys_WhenGivenTableWithForeignKeyToPrimaryKey_ContainsConstraintWithCorrectColumns()
         {
-            var table = Database.GetTable("table_test_table_16");
+            var table = Database.GetTable("table_test_table_16").UnwrapSome();
             var foreignKey = table.ParentKeys.Single();
 
             var childColumns = foreignKey.ChildKey.Columns.Select(c => c.Name.LocalName);
@@ -258,8 +259,8 @@ namespace SJP.Schematic.MySql.Tests.Integration
         [Test]
         public async Task ParentKeyAsync_WhenGivenTableWithForeignKeyToPrimaryKey_ReturnsConstraintWithCorrectColumns()
         {
-            var table = await Database.GetTableAsync("table_test_table_16").ConfigureAwait(false);
-            var parentKeyLookup = await table.ParentKeyAsync().ConfigureAwait(false);
+            var tableOption = await Database.GetTableAsync("table_test_table_16").ConfigureAwait(false);
+            var parentKeyLookup = await tableOption.UnwrapSome().ParentKeyAsync().ConfigureAwait(false);
             var foreignKey = parentKeyLookup["fk_test_table_16"];
 
             var childColumns = foreignKey.ChildKey.Columns.Select(c => c.Name.LocalName);
@@ -281,8 +282,8 @@ namespace SJP.Schematic.MySql.Tests.Integration
         [Test]
         public async Task ParentKeysAsync_WhenGivenTableWithForeignKeyToPrimaryKey_ContainsConstraintWithCorrectColumns()
         {
-            var table = await Database.GetTableAsync("table_test_table_16").ConfigureAwait(false);
-            var parentKeys = await table.ParentKeysAsync().ConfigureAwait(false);
+            var tableOption = await Database.GetTableAsync("table_test_table_16").ConfigureAwait(false);
+            var parentKeys = await tableOption.UnwrapSome().ParentKeysAsync().ConfigureAwait(false);
             var foreignKey = parentKeys.Single();
 
             var childColumns = foreignKey.ChildKey.Columns.Select(c => c.Name.LocalName);
@@ -304,7 +305,7 @@ namespace SJP.Schematic.MySql.Tests.Integration
         [Test]
         public void ParentKey_WhenGivenTableWithForeignKeyToPrimaryKeyWithDefaultUpdateRule_ReturnsUpdateRuleAsNoAction()
         {
-            var table = Database.GetTable("table_test_table_16");
+            var table = Database.GetTable("table_test_table_16").UnwrapSome();
             var parentKeyLookup = table.ParentKey;
             var foreignKey = parentKeyLookup.Values.Single();
 
@@ -314,7 +315,7 @@ namespace SJP.Schematic.MySql.Tests.Integration
         [Test]
         public void ParentKeys_WhenGivenTableWithForeignKeyToPrimaryKeyWithDefaultUpdateRule_ReturnsUpdateRuleAsNoAction()
         {
-            var table = Database.GetTable("table_test_table_16");
+            var table = Database.GetTable("table_test_table_16").UnwrapSome();
             var parentKeys = table.ParentKeys;
             var foreignKey = parentKeys.Single();
 
@@ -324,8 +325,8 @@ namespace SJP.Schematic.MySql.Tests.Integration
         [Test]
         public async Task ParentKeyAsync_WhenGivenTableWithForeignKeyToPrimaryKeyWithDefaultUpdateRule_ReturnsUpdateRuleAsNoAction()
         {
-            var table = await Database.GetTableAsync("table_test_table_16").ConfigureAwait(false);
-            var parentKeyLookup = await table.ParentKeyAsync().ConfigureAwait(false);
+            var tableOption = await Database.GetTableAsync("table_test_table_16").ConfigureAwait(false);
+            var parentKeyLookup = await tableOption.UnwrapSome().ParentKeyAsync().ConfigureAwait(false);
             var foreignKey = parentKeyLookup.Values.Single();
 
             Assert.AreEqual(Rule.None, foreignKey.UpdateRule);
@@ -334,8 +335,8 @@ namespace SJP.Schematic.MySql.Tests.Integration
         [Test]
         public async Task ParentKeysAsync_WhenGivenTableWithForeignKeyToPrimaryKeyWithDefaultUpdateRule_ReturnsUpdateRuleAsNoAction()
         {
-            var table = await Database.GetTableAsync("table_test_table_16").ConfigureAwait(false);
-            var parentKeys = await table.ParentKeysAsync().ConfigureAwait(false);
+            var tableOption = await Database.GetTableAsync("table_test_table_16").ConfigureAwait(false);
+            var parentKeys = await tableOption.UnwrapSome().ParentKeysAsync().ConfigureAwait(false);
             var foreignKey = parentKeys.Single();
 
             Assert.AreEqual(Rule.None, foreignKey.UpdateRule);
@@ -344,7 +345,7 @@ namespace SJP.Schematic.MySql.Tests.Integration
         [Test]
         public void ParentKey_WhenGivenTableWithForeignKeyToPrimaryKeyWithCascadeUpdateRule_ReturnsUpdateRuleAsCascade()
         {
-            var table = Database.GetTable("table_test_table_18");
+            var table = Database.GetTable("table_test_table_18").UnwrapSome();
             var parentKeyLookup = table.ParentKey;
             var foreignKey = parentKeyLookup.Values.Single();
 
@@ -354,7 +355,7 @@ namespace SJP.Schematic.MySql.Tests.Integration
         [Test]
         public void ParentKeys_WhenGivenTableWithForeignKeyToPrimaryKeyWithCascadeUpdateRule_ReturnsUpdateRuleAsCascade()
         {
-            var table = Database.GetTable("table_test_table_18");
+            var table = Database.GetTable("table_test_table_18").UnwrapSome();
             var parentKeys = table.ParentKeys;
             var foreignKey = parentKeys.Single();
 
@@ -364,8 +365,8 @@ namespace SJP.Schematic.MySql.Tests.Integration
         [Test]
         public async Task ParentKeyAsync_WhenGivenTableWithForeignKeyToPrimaryKeyWithCascadeUpdateRule_ReturnsUpdateRuleAsCascade()
         {
-            var table = await Database.GetTableAsync("table_test_table_18").ConfigureAwait(false);
-            var parentKeyLookup = await table.ParentKeyAsync().ConfigureAwait(false);
+            var tableOption = await Database.GetTableAsync("table_test_table_18").ConfigureAwait(false);
+            var parentKeyLookup = await tableOption.UnwrapSome().ParentKeyAsync().ConfigureAwait(false);
             var foreignKey = parentKeyLookup.Values.Single();
 
             Assert.AreEqual(Rule.Cascade, foreignKey.UpdateRule);
@@ -374,8 +375,8 @@ namespace SJP.Schematic.MySql.Tests.Integration
         [Test]
         public async Task ParentKeysAsync_WhenGivenTableWithForeignKeyToPrimaryKeyWithCascadeUpdateRule_ReturnsUpdateRuleAsCascade()
         {
-            var table = await Database.GetTableAsync("table_test_table_18").ConfigureAwait(false);
-            var parentKeys = await table.ParentKeysAsync().ConfigureAwait(false);
+            var tableOption = await Database.GetTableAsync("table_test_table_18").ConfigureAwait(false);
+            var parentKeys = await tableOption.UnwrapSome().ParentKeysAsync().ConfigureAwait(false);
             var foreignKey = parentKeys.Single();
 
             Assert.AreEqual(Rule.Cascade, foreignKey.UpdateRule);
@@ -384,7 +385,7 @@ namespace SJP.Schematic.MySql.Tests.Integration
         [Test]
         public void ParentKey_WhenGivenTableWithForeignKeyToPrimaryKeyWithSetNullUpdateRule_ReturnsUpdateRuleAsSetNull()
         {
-            var table = Database.GetTable("table_test_table_19");
+            var table = Database.GetTable("table_test_table_19").UnwrapSome();
             var parentKeyLookup = table.ParentKey;
             var foreignKey = parentKeyLookup.Values.Single();
 
@@ -394,7 +395,7 @@ namespace SJP.Schematic.MySql.Tests.Integration
         [Test]
         public void ParentKeys_WhenGivenTableWithForeignKeyToPrimaryKeyWithSetNullUpdateRule_ReturnsUpdateRuleAsSetNull()
         {
-            var table = Database.GetTable("table_test_table_19");
+            var table = Database.GetTable("table_test_table_19").UnwrapSome();
             var parentKeys = table.ParentKeys;
             var foreignKey = parentKeys.Single();
 
@@ -404,8 +405,8 @@ namespace SJP.Schematic.MySql.Tests.Integration
         [Test]
         public async Task ParentKeyAsync_WhenGivenTableWithForeignKeyToPrimaryKeyWithSetNullUpdateRule_ReturnsUpdateRuleAsSetNull()
         {
-            var table = await Database.GetTableAsync("table_test_table_19").ConfigureAwait(false);
-            var parentKeyLookup = await table.ParentKeyAsync().ConfigureAwait(false);
+            var tableOption = await Database.GetTableAsync("table_test_table_19").ConfigureAwait(false);
+            var parentKeyLookup = await tableOption.UnwrapSome().ParentKeyAsync().ConfigureAwait(false);
             var foreignKey = parentKeyLookup.Values.Single();
 
             Assert.AreEqual(Rule.SetNull, foreignKey.UpdateRule);
@@ -414,8 +415,8 @@ namespace SJP.Schematic.MySql.Tests.Integration
         [Test]
         public async Task ParentKeysAsync_WhenGivenTableWithForeignKeyToPrimaryKeyWithSetNullUpdateRule_ReturnsUpdateRuleAsSetNull()
         {
-            var table = await Database.GetTableAsync("table_test_table_19").ConfigureAwait(false);
-            var parentKeys = await table.ParentKeysAsync().ConfigureAwait(false);
+            var tableOption = await Database.GetTableAsync("table_test_table_19").ConfigureAwait(false);
+            var parentKeys = await tableOption.UnwrapSome().ParentKeysAsync().ConfigureAwait(false);
             var foreignKey = parentKeys.Single();
 
             Assert.AreEqual(Rule.SetNull, foreignKey.UpdateRule);
@@ -424,7 +425,7 @@ namespace SJP.Schematic.MySql.Tests.Integration
         [Test]
         public void ParentKey_WhenGivenTableWithForeignKeyToPrimaryKeyWithDefaultDeleteRule_ReturnsDeleteRuleAsNoAction()
         {
-            var table = Database.GetTable("table_test_table_16");
+            var table = Database.GetTable("table_test_table_16").UnwrapSome();
             var parentKeyLookup = table.ParentKey;
             var foreignKey = parentKeyLookup.Values.Single();
 
@@ -434,7 +435,7 @@ namespace SJP.Schematic.MySql.Tests.Integration
         [Test]
         public void ParentKeys_WhenGivenTableWithForeignKeyToPrimaryKeyWithDefaultDeleteRule_ReturnsDeleteRuleAsNoAction()
         {
-            var table = Database.GetTable("table_test_table_16");
+            var table = Database.GetTable("table_test_table_16").UnwrapSome();
             var parentKeys = table.ParentKeys;
             var foreignKey = parentKeys.Single();
 
@@ -444,8 +445,8 @@ namespace SJP.Schematic.MySql.Tests.Integration
         [Test]
         public async Task ParentKeyAsync_WhenGivenTableWithForeignKeyToPrimaryKeyWithDefaultDeleteRule_ReturnsDeleteRuleAsNoAction()
         {
-            var table = await Database.GetTableAsync("table_test_table_16").ConfigureAwait(false);
-            var parentKeyLookup = await table.ParentKeyAsync().ConfigureAwait(false);
+            var tableOption = await Database.GetTableAsync("table_test_table_16").ConfigureAwait(false);
+            var parentKeyLookup = await tableOption.UnwrapSome().ParentKeyAsync().ConfigureAwait(false);
             var foreignKey = parentKeyLookup.Values.Single();
 
             Assert.AreEqual(Rule.None, foreignKey.DeleteRule);
@@ -454,8 +455,8 @@ namespace SJP.Schematic.MySql.Tests.Integration
         [Test]
         public async Task ParentKeysAsync_WhenGivenTableWithForeignKeyToPrimaryKeyWithDefaultDeleteRule_ReturnsDeleteRuleAsNoAction()
         {
-            var table = await Database.GetTableAsync("table_test_table_16").ConfigureAwait(false);
-            var parentKeys = await table.ParentKeysAsync().ConfigureAwait(false);
+            var tableOption = await Database.GetTableAsync("table_test_table_16").ConfigureAwait(false);
+            var parentKeys = await tableOption.UnwrapSome().ParentKeysAsync().ConfigureAwait(false);
             var foreignKey = parentKeys.Single();
 
             Assert.AreEqual(Rule.None, foreignKey.DeleteRule);
@@ -464,7 +465,7 @@ namespace SJP.Schematic.MySql.Tests.Integration
         [Test]
         public void ParentKey_WhenGivenTableWithForeignKeyToPrimaryKeyWithCascadeDeleteRule_ReturnsDeleteRuleAsCascade()
         {
-            var table = Database.GetTable("table_test_table_24");
+            var table = Database.GetTable("table_test_table_24").UnwrapSome();
             var parentKeyLookup = table.ParentKey;
             var foreignKey = parentKeyLookup.Values.Single();
 
@@ -474,7 +475,7 @@ namespace SJP.Schematic.MySql.Tests.Integration
         [Test]
         public void ParentKeys_WhenGivenTableWithForeignKeyToPrimaryKeyWithCascadeDeleteRule_ReturnsDeleteRuleAsCascade()
         {
-            var table = Database.GetTable("table_test_table_24");
+            var table = Database.GetTable("table_test_table_24").UnwrapSome();
             var parentKeys = table.ParentKeys;
             var foreignKey = parentKeys.Single();
 
@@ -484,8 +485,8 @@ namespace SJP.Schematic.MySql.Tests.Integration
         [Test]
         public async Task ParentKeyAsync_WhenGivenTableWithForeignKeyToPrimaryKeyWithCascadeDeleteRule_ReturnsDeleteRuleAsCascade()
         {
-            var table = await Database.GetTableAsync("table_test_table_24").ConfigureAwait(false);
-            var parentKeyLookup = await table.ParentKeyAsync().ConfigureAwait(false);
+            var tableOption = await Database.GetTableAsync("table_test_table_24").ConfigureAwait(false);
+            var parentKeyLookup = await tableOption.UnwrapSome().ParentKeyAsync().ConfigureAwait(false);
             var foreignKey = parentKeyLookup.Values.Single();
 
             Assert.AreEqual(Rule.Cascade, foreignKey.DeleteRule);
@@ -494,8 +495,8 @@ namespace SJP.Schematic.MySql.Tests.Integration
         [Test]
         public async Task ParentKeysAsync_WhenGivenTableWithForeignKeyToPrimaryKeyWithCascadeDeleteRule_ReturnsDeleteRuleAsCascade()
         {
-            var table = await Database.GetTableAsync("table_test_table_24").ConfigureAwait(false);
-            var parentKeys = await table.ParentKeysAsync().ConfigureAwait(false);
+            var tableOption = await Database.GetTableAsync("table_test_table_24").ConfigureAwait(false);
+            var parentKeys = await tableOption.UnwrapSome().ParentKeysAsync().ConfigureAwait(false);
             var foreignKey = parentKeys.Single();
 
             Assert.AreEqual(Rule.Cascade, foreignKey.DeleteRule);
@@ -504,7 +505,7 @@ namespace SJP.Schematic.MySql.Tests.Integration
         [Test]
         public void ParentKey_WhenGivenTableWithForeignKeyToPrimaryKeyWithSetNullDeleteRule_ReturnsDeleteRuleAsSetNull()
         {
-            var table = Database.GetTable("table_test_table_25");
+            var table = Database.GetTable("table_test_table_25").UnwrapSome();
             var parentKeyLookup = table.ParentKey;
             var foreignKey = parentKeyLookup.Values.Single();
 
@@ -514,7 +515,7 @@ namespace SJP.Schematic.MySql.Tests.Integration
         [Test]
         public void ParentKeys_WhenGivenTableWithForeignKeyToPrimaryKeyWithSetNullDeleteRule_ReturnsDeleteRuleAsSetNull()
         {
-            var table = Database.GetTable("table_test_table_25");
+            var table = Database.GetTable("table_test_table_25").UnwrapSome();
             var parentKeys = table.ParentKeys;
             var foreignKey = parentKeys.Single();
 
@@ -524,8 +525,8 @@ namespace SJP.Schematic.MySql.Tests.Integration
         [Test]
         public async Task ParentKeyAsync_WhenGivenTableWithForeignKeyToPrimaryKeyWithSetNullDeleteRule_ReturnsDeleteRuleAsSetNull()
         {
-            var table = await Database.GetTableAsync("table_test_table_25").ConfigureAwait(false);
-            var parentKeyLookup = await table.ParentKeyAsync().ConfigureAwait(false);
+            var tableOption = await Database.GetTableAsync("table_test_table_25").ConfigureAwait(false);
+            var parentKeyLookup = await tableOption.UnwrapSome().ParentKeyAsync().ConfigureAwait(false);
             var foreignKey = parentKeyLookup.Values.Single();
 
             Assert.AreEqual(Rule.SetNull, foreignKey.DeleteRule);
@@ -534,8 +535,8 @@ namespace SJP.Schematic.MySql.Tests.Integration
         [Test]
         public async Task ParentKeysAsync_WhenGivenTableWithForeignKeyToPrimaryKeyWithSetNullDeleteRule_ReturnsDeleteRuleAsSetNull()
         {
-            var table = await Database.GetTableAsync("table_test_table_25").ConfigureAwait(false);
-            var parentKeys = await table.ParentKeysAsync().ConfigureAwait(false);
+            var tableOption = await Database.GetTableAsync("table_test_table_25").ConfigureAwait(false);
+            var parentKeys = await tableOption.UnwrapSome().ParentKeysAsync().ConfigureAwait(false);
             var foreignKey = parentKeys.Single();
 
             Assert.AreEqual(Rule.SetNull, foreignKey.DeleteRule);
@@ -544,7 +545,7 @@ namespace SJP.Schematic.MySql.Tests.Integration
         [Test]
         public void ParentKey_WhenGivenTableWithForeignKeyToPrimaryKey_ReturnsIsEnabledTrue()
         {
-            var table = Database.GetTable("table_test_table_16");
+            var table = Database.GetTable("table_test_table_16").UnwrapSome();
             var parentKeyLookup = table.ParentKey;
             var foreignKey = parentKeyLookup.Values.Single();
 
@@ -554,7 +555,7 @@ namespace SJP.Schematic.MySql.Tests.Integration
         [Test]
         public void ParentKeys_WhenGivenTableWithForeignKeyToPrimaryKey_ReturnsIsEnabledTrue()
         {
-            var table = Database.GetTable("table_test_table_16");
+            var table = Database.GetTable("table_test_table_16").UnwrapSome();
             var parentKeys = table.ParentKeys;
             var foreignKey = parentKeys.Single();
 
@@ -564,8 +565,8 @@ namespace SJP.Schematic.MySql.Tests.Integration
         [Test]
         public async Task ParentKeyAsync_WhenGivenTableWithForeignKeyToPrimaryKey_ReturnsIsEnabledTrue()
         {
-            var table = await Database.GetTableAsync("table_test_table_16").ConfigureAwait(false);
-            var parentKeyLookup = await table.ParentKeyAsync().ConfigureAwait(false);
+            var tableOption = await Database.GetTableAsync("table_test_table_16").ConfigureAwait(false);
+            var parentKeyLookup = await tableOption.UnwrapSome().ParentKeyAsync().ConfigureAwait(false);
             var foreignKey = parentKeyLookup.Values.Single();
 
             Assert.IsTrue(foreignKey.ChildKey.IsEnabled);
@@ -574,8 +575,8 @@ namespace SJP.Schematic.MySql.Tests.Integration
         [Test]
         public async Task ParentKeysAsync_WhenGivenTableWithForeignKeyToPrimaryKey_ReturnsIsEnabledTrue()
         {
-            var table = await Database.GetTableAsync("table_test_table_16").ConfigureAwait(false);
-            var parentKeys = await table.ParentKeysAsync().ConfigureAwait(false);
+            var tableOption = await Database.GetTableAsync("table_test_table_16").ConfigureAwait(false);
+            var parentKeys = await tableOption.UnwrapSome().ParentKeysAsync().ConfigureAwait(false);
             var foreignKey = parentKeys.Single();
 
             Assert.IsTrue(foreignKey.ChildKey.IsEnabled);
@@ -584,7 +585,7 @@ namespace SJP.Schematic.MySql.Tests.Integration
         [Test]
         public void ParentKey_WhenGivenTableWithForeignKeyToUniqueKey_ReturnsConstraintWithCorrectNames()
         {
-            var table = Database.GetTable("table_test_table_17");
+            var table = Database.GetTable("table_test_table_17").UnwrapSome();
             var parentKeyLookup = table.ParentKey;
             var foreignKey = parentKeyLookup["fk_test_table_17"];
 
@@ -598,7 +599,7 @@ namespace SJP.Schematic.MySql.Tests.Integration
         [Test]
         public void ParentKeys_WhenGivenTableWithForeignKeyToUniqueKey_ContainsConstraintWithCorrectNames()
         {
-            var table = Database.GetTable("table_test_table_17");
+            var table = Database.GetTable("table_test_table_17").UnwrapSome();
             var foreignKey = table.ParentKeys.Single();
 
             Assert.Multiple(() =>
@@ -611,8 +612,8 @@ namespace SJP.Schematic.MySql.Tests.Integration
         [Test]
         public async Task ParentKeyAsync_WhenGivenTableWithForeignKeyToUniqueKey_ReturnsConstraintWithCorrectNames()
         {
-            var table = await Database.GetTableAsync("table_test_table_17").ConfigureAwait(false);
-            var parentKeyLookup = await table.ParentKeyAsync().ConfigureAwait(false);
+            var tableOption = await Database.GetTableAsync("table_test_table_17").ConfigureAwait(false);
+            var parentKeyLookup = await tableOption.UnwrapSome().ParentKeyAsync().ConfigureAwait(false);
             var foreignKey = parentKeyLookup["fk_test_table_17"];
 
             Assert.Multiple(() =>
@@ -625,8 +626,8 @@ namespace SJP.Schematic.MySql.Tests.Integration
         [Test]
         public async Task ParentKeysAsync_WhenGivenTableWithForeignKeyToUniqueKey_ContainsConstraintWithCorrectNames()
         {
-            var table = await Database.GetTableAsync("table_test_table_17").ConfigureAwait(false);
-            var parentKeys = await table.ParentKeysAsync().ConfigureAwait(false);
+            var tableOption = await Database.GetTableAsync("table_test_table_17").ConfigureAwait(false);
+            var parentKeys = await tableOption.UnwrapSome().ParentKeysAsync().ConfigureAwait(false);
             var foreignKey = parentKeys.Single();
 
             Assert.Multiple(() =>
@@ -639,7 +640,7 @@ namespace SJP.Schematic.MySql.Tests.Integration
         [Test]
         public void ParentKey_WhenGivenTableWithForeignKeyToUniqueKey_ReturnsConstraintWithCorrectKeyTypes()
         {
-            var table = Database.GetTable("table_test_table_17");
+            var table = Database.GetTable("table_test_table_17").UnwrapSome();
             var parentKeyLookup = table.ParentKey;
             var foreignKey = parentKeyLookup["fk_test_table_17"];
 
@@ -653,7 +654,7 @@ namespace SJP.Schematic.MySql.Tests.Integration
         [Test]
         public void ParentKeys_WhenGivenTableWithForeignKeyToUniqueKey_ContainsConstraintWithCorrectKeyTypes()
         {
-            var table = Database.GetTable("table_test_table_17");
+            var table = Database.GetTable("table_test_table_17").UnwrapSome();
             var foreignKey = table.ParentKeys.Single();
 
             Assert.Multiple(() =>
@@ -666,8 +667,8 @@ namespace SJP.Schematic.MySql.Tests.Integration
         [Test]
         public async Task ParentKeyAsync_WhenGivenTableWithForeignKeyToUniqueKey_ReturnsConstraintWithCorrectKeyTypes()
         {
-            var table = await Database.GetTableAsync("table_test_table_17").ConfigureAwait(false);
-            var parentKeyLookup = await table.ParentKeyAsync().ConfigureAwait(false);
+            var tableOption = await Database.GetTableAsync("table_test_table_17").ConfigureAwait(false);
+            var parentKeyLookup = await tableOption.UnwrapSome().ParentKeyAsync().ConfigureAwait(false);
             var foreignKey = parentKeyLookup["fk_test_table_17"];
 
             Assert.Multiple(() =>
@@ -680,8 +681,8 @@ namespace SJP.Schematic.MySql.Tests.Integration
         [Test]
         public async Task ParentKeysAsync_WhenGivenTableWithForeignKeyToUniqueKey_ContainsConstraintWithCorrectKeyTypes()
         {
-            var table = await Database.GetTableAsync("table_test_table_17").ConfigureAwait(false);
-            var parentKeys = await table.ParentKeysAsync().ConfigureAwait(false);
+            var tableOption = await Database.GetTableAsync("table_test_table_17").ConfigureAwait(false);
+            var parentKeys = await tableOption.UnwrapSome().ParentKeysAsync().ConfigureAwait(false);
             var foreignKey = parentKeys.Single();
 
             Assert.Multiple(() =>
@@ -694,7 +695,7 @@ namespace SJP.Schematic.MySql.Tests.Integration
         [Test]
         public void ParentKey_WhenGivenTableWithForeignKeyToUniqueKey_ReturnsConstraintWithCorrectTables()
         {
-            var table = Database.GetTable("table_test_table_17");
+            var table = Database.GetTable("table_test_table_17").UnwrapSome();
             var parentKeyLookup = table.ParentKey;
             var foreignKey = parentKeyLookup["fk_test_table_17"];
 
@@ -708,7 +709,7 @@ namespace SJP.Schematic.MySql.Tests.Integration
         [Test]
         public void ParentKeys_WhenGivenTableWithForeignKeyToUniqueKey_ContainsConstraintWithCorrectTables()
         {
-            var table = Database.GetTable("table_test_table_17");
+            var table = Database.GetTable("table_test_table_17").UnwrapSome();
             var foreignKey = table.ParentKeys.Single();
 
             Assert.Multiple(() =>
@@ -721,8 +722,8 @@ namespace SJP.Schematic.MySql.Tests.Integration
         [Test]
         public async Task ParentKeyAsync_WhenGivenTableWithForeignKeyToUniqueKey_ReturnsConstraintWithCorrectTables()
         {
-            var table = await Database.GetTableAsync("table_test_table_17").ConfigureAwait(false);
-            var parentKeyLookup = await table.ParentKeyAsync().ConfigureAwait(false);
+            var tableOption = await Database.GetTableAsync("table_test_table_17").ConfigureAwait(false);
+            var parentKeyLookup = await tableOption.UnwrapSome().ParentKeyAsync().ConfigureAwait(false);
             var foreignKey = parentKeyLookup["fk_test_table_17"];
 
             Assert.Multiple(() =>
@@ -735,8 +736,8 @@ namespace SJP.Schematic.MySql.Tests.Integration
         [Test]
         public async Task ParentKeysAsync_WhenGivenTableWithForeignKeyToUniqueKey_ContainsConstraintWithCorrectTables()
         {
-            var table = await Database.GetTableAsync("table_test_table_17").ConfigureAwait(false);
-            var parentKeys = await table.ParentKeysAsync().ConfigureAwait(false);
+            var tableOption = await Database.GetTableAsync("table_test_table_17").ConfigureAwait(false);
+            var parentKeys = await tableOption.UnwrapSome().ParentKeysAsync().ConfigureAwait(false);
             var foreignKey = parentKeys.Single();
 
             Assert.Multiple(() =>
@@ -749,7 +750,7 @@ namespace SJP.Schematic.MySql.Tests.Integration
         [Test]
         public void ParentKey_WhenGivenTableWithForeignKeyToUniqueKey_ReturnsConstraintWithCorrectColumns()
         {
-            var table = Database.GetTable("table_test_table_17");
+            var table = Database.GetTable("table_test_table_17").UnwrapSome();
             var parentKeyLookup = table.ParentKey;
             var foreignKey = parentKeyLookup["fk_test_table_17"];
 
@@ -772,7 +773,7 @@ namespace SJP.Schematic.MySql.Tests.Integration
         [Test]
         public void ParentKeys_WhenGivenTableWithForeignKeyToUniqueKey_ContainsConstraintWithCorrectColumns()
         {
-            var table = Database.GetTable("table_test_table_17");
+            var table = Database.GetTable("table_test_table_17").UnwrapSome();
             var foreignKey = table.ParentKeys.Single();
 
             var childColumns = foreignKey.ChildKey.Columns.Select(c => c.Name.LocalName);
@@ -794,8 +795,8 @@ namespace SJP.Schematic.MySql.Tests.Integration
         [Test]
         public async Task ParentKeyAsync_WhenGivenTableWithForeignKeyToUniqueKey_ReturnsConstraintWithCorrectColumns()
         {
-            var table = await Database.GetTableAsync("table_test_table_17").ConfigureAwait(false);
-            var parentKeyLookup = await table.ParentKeyAsync().ConfigureAwait(false);
+            var tableOption = await Database.GetTableAsync("table_test_table_17").ConfigureAwait(false);
+            var parentKeyLookup = await tableOption.UnwrapSome().ParentKeyAsync().ConfigureAwait(false);
             var foreignKey = parentKeyLookup["fk_test_table_17"];
 
             var childColumns = foreignKey.ChildKey.Columns.Select(c => c.Name.LocalName);
@@ -817,8 +818,8 @@ namespace SJP.Schematic.MySql.Tests.Integration
         [Test]
         public async Task ParentKeysAsync_WhenGivenTableWithForeignKeyToUniqueKey_ContainsConstraintWithCorrectColumns()
         {
-            var table = await Database.GetTableAsync("table_test_table_17").ConfigureAwait(false);
-            var parentKeys = await table.ParentKeysAsync().ConfigureAwait(false);
+            var tableOption = await Database.GetTableAsync("table_test_table_17").ConfigureAwait(false);
+            var parentKeys = await tableOption.UnwrapSome().ParentKeysAsync().ConfigureAwait(false);
             var foreignKey = parentKeys.Single();
 
             var childColumns = foreignKey.ChildKey.Columns.Select(c => c.Name.LocalName);
@@ -840,7 +841,7 @@ namespace SJP.Schematic.MySql.Tests.Integration
         [Test]
         public void ParentKey_WhenGivenTableWithForeignKeyToUniqueKeyWithDefaultUpdateRule_ReturnsUpdateRuleAsNoAction()
         {
-            var table = Database.GetTable("table_test_table_17");
+            var table = Database.GetTable("table_test_table_17").UnwrapSome();
             var parentKeyLookup = table.ParentKey;
             var foreignKey = parentKeyLookup.Values.Single();
 
@@ -850,7 +851,7 @@ namespace SJP.Schematic.MySql.Tests.Integration
         [Test]
         public void ParentKeys_WhenGivenTableWithForeignKeyToUniqueKeyWithDefaultUpdateRule_ReturnsUpdateRuleAsNoAction()
         {
-            var table = Database.GetTable("table_test_table_17");
+            var table = Database.GetTable("table_test_table_17").UnwrapSome();
             var parentKeys = table.ParentKeys;
             var foreignKey = parentKeys.Single();
 
@@ -860,8 +861,8 @@ namespace SJP.Schematic.MySql.Tests.Integration
         [Test]
         public async Task ParentKeyAsync_WhenGivenTableWithForeignKeyToUniqueKeyWithDefaultUpdateRule_ReturnsUpdateRuleAsNoAction()
         {
-            var table = await Database.GetTableAsync("table_test_table_17").ConfigureAwait(false);
-            var parentKeyLookup = await table.ParentKeyAsync().ConfigureAwait(false);
+            var tableOption = await Database.GetTableAsync("table_test_table_17").ConfigureAwait(false);
+            var parentKeyLookup = await tableOption.UnwrapSome().ParentKeyAsync().ConfigureAwait(false);
             var foreignKey = parentKeyLookup.Values.Single();
 
             Assert.AreEqual(Rule.None, foreignKey.UpdateRule);
@@ -870,8 +871,8 @@ namespace SJP.Schematic.MySql.Tests.Integration
         [Test]
         public async Task ParentKeysAsync_WhenGivenTableWithForeignKeyToUniqueKeyWithDefaultUpdateRule_ReturnsUpdateRuleAsNoAction()
         {
-            var table = await Database.GetTableAsync("table_test_table_17").ConfigureAwait(false);
-            var parentKeys = await table.ParentKeysAsync().ConfigureAwait(false);
+            var tableOption = await Database.GetTableAsync("table_test_table_17").ConfigureAwait(false);
+            var parentKeys = await tableOption.UnwrapSome().ParentKeysAsync().ConfigureAwait(false);
             var foreignKey = parentKeys.Single();
 
             Assert.AreEqual(Rule.None, foreignKey.UpdateRule);
@@ -880,7 +881,7 @@ namespace SJP.Schematic.MySql.Tests.Integration
         [Test]
         public void ParentKey_WhenGivenTableWithForeignKeyToUniqueKeyWithCascadeUpdateRule_ReturnsUpdateRuleAsCascade()
         {
-            var table = Database.GetTable("table_test_table_21");
+            var table = Database.GetTable("table_test_table_21").UnwrapSome();
             var parentKeyLookup = table.ParentKey;
             var foreignKey = parentKeyLookup.Values.Single();
 
@@ -890,7 +891,7 @@ namespace SJP.Schematic.MySql.Tests.Integration
         [Test]
         public void ParentKeys_WhenGivenTableWithForeignKeyToUniqueKeyWithCascadeUpdateRule_ReturnsUpdateRuleAsCascade()
         {
-            var table = Database.GetTable("table_test_table_21");
+            var table = Database.GetTable("table_test_table_21").UnwrapSome();
             var parentKeys = table.ParentKeys;
             var foreignKey = parentKeys.Single();
 
@@ -900,8 +901,8 @@ namespace SJP.Schematic.MySql.Tests.Integration
         [Test]
         public async Task ParentKeyAsync_WhenGivenTableWithForeignKeyToUniqueKeyWithCascadeUpdateRule_ReturnsUpdateRuleAsCascade()
         {
-            var table = await Database.GetTableAsync("table_test_table_21").ConfigureAwait(false);
-            var parentKeyLookup = await table.ParentKeyAsync().ConfigureAwait(false);
+            var tableOption = await Database.GetTableAsync("table_test_table_21").ConfigureAwait(false);
+            var parentKeyLookup = await tableOption.UnwrapSome().ParentKeyAsync().ConfigureAwait(false);
             var foreignKey = parentKeyLookup.Values.Single();
 
             Assert.AreEqual(Rule.Cascade, foreignKey.UpdateRule);
@@ -910,8 +911,8 @@ namespace SJP.Schematic.MySql.Tests.Integration
         [Test]
         public async Task ParentKeysAsync_WhenGivenTableWithForeignKeyToUniqueKeyWithCascadeUpdateRule_ReturnsUpdateRuleAsCascade()
         {
-            var table = await Database.GetTableAsync("table_test_table_21").ConfigureAwait(false);
-            var parentKeys = await table.ParentKeysAsync().ConfigureAwait(false);
+            var tableOption = await Database.GetTableAsync("table_test_table_21").ConfigureAwait(false);
+            var parentKeys = await tableOption.UnwrapSome().ParentKeysAsync().ConfigureAwait(false);
             var foreignKey = parentKeys.Single();
 
             Assert.AreEqual(Rule.Cascade, foreignKey.UpdateRule);
@@ -920,7 +921,7 @@ namespace SJP.Schematic.MySql.Tests.Integration
         [Test]
         public void ParentKey_WhenGivenTableWithForeignKeyToUniqueKeyWithSetNullUpdateRule_ReturnsUpdateRuleAsSetNull()
         {
-            var table = Database.GetTable("table_test_table_22");
+            var table = Database.GetTable("table_test_table_22").UnwrapSome();
             var parentKeyLookup = table.ParentKey;
             var foreignKey = parentKeyLookup.Values.Single();
 
@@ -930,7 +931,7 @@ namespace SJP.Schematic.MySql.Tests.Integration
         [Test]
         public void ParentKeys_WhenGivenTableWithForeignKeyToUniqueKeyWithSetNullUpdateRule_ReturnsUpdateRuleAsSetNull()
         {
-            var table = Database.GetTable("table_test_table_22");
+            var table = Database.GetTable("table_test_table_22").UnwrapSome();
             var parentKeys = table.ParentKeys;
             var foreignKey = parentKeys.Single();
 
@@ -940,8 +941,8 @@ namespace SJP.Schematic.MySql.Tests.Integration
         [Test]
         public async Task ParentKeyAsync_WhenGivenTableWithForeignKeyToUniqueKeyWithSetNullUpdateRule_ReturnsUpdateRuleAsSetNull()
         {
-            var table = await Database.GetTableAsync("table_test_table_22").ConfigureAwait(false);
-            var parentKeyLookup = await table.ParentKeyAsync().ConfigureAwait(false);
+            var tableOption = await Database.GetTableAsync("table_test_table_22").ConfigureAwait(false);
+            var parentKeyLookup = await tableOption.UnwrapSome().ParentKeyAsync().ConfigureAwait(false);
             var foreignKey = parentKeyLookup.Values.Single();
 
             Assert.AreEqual(Rule.SetNull, foreignKey.UpdateRule);
@@ -950,8 +951,8 @@ namespace SJP.Schematic.MySql.Tests.Integration
         [Test]
         public async Task ParentKeysAsync_WhenGivenTableWithForeignKeyToUniqueKeyWithSetNullUpdateRule_ReturnsUpdateRuleAsSetNull()
         {
-            var table = await Database.GetTableAsync("table_test_table_22").ConfigureAwait(false);
-            var parentKeys = await table.ParentKeysAsync().ConfigureAwait(false);
+            var tableOption = await Database.GetTableAsync("table_test_table_22").ConfigureAwait(false);
+            var parentKeys = await tableOption.UnwrapSome().ParentKeysAsync().ConfigureAwait(false);
             var foreignKey = parentKeys.Single();
 
             Assert.AreEqual(Rule.SetNull, foreignKey.UpdateRule);
@@ -960,7 +961,7 @@ namespace SJP.Schematic.MySql.Tests.Integration
         [Test]
         public void ParentKey_WhenGivenTableWithForeignKeyToUniqueKeyWithDefaultDeleteRule_ReturnsDeleteRuleAsNoAction()
         {
-            var table = Database.GetTable("table_test_table_17");
+            var table = Database.GetTable("table_test_table_17").UnwrapSome();
             var parentKeyLookup = table.ParentKey;
             var foreignKey = parentKeyLookup.Values.Single();
 
@@ -970,7 +971,7 @@ namespace SJP.Schematic.MySql.Tests.Integration
         [Test]
         public void ParentKeys_WhenGivenTableWithForeignKeyToUniqueKeyWithDefaultDeleteRule_ReturnsDeleteRuleAsNoAction()
         {
-            var table = Database.GetTable("table_test_table_17");
+            var table = Database.GetTable("table_test_table_17").UnwrapSome();
             var parentKeys = table.ParentKeys;
             var foreignKey = parentKeys.Single();
 
@@ -980,8 +981,8 @@ namespace SJP.Schematic.MySql.Tests.Integration
         [Test]
         public async Task ParentKeyAsync_WhenGivenTableWithForeignKeyToUniqueKeyWithDefaultDeleteRule_ReturnsDeleteRuleAsNoAction()
         {
-            var table = await Database.GetTableAsync("table_test_table_17").ConfigureAwait(false);
-            var parentKeyLookup = await table.ParentKeyAsync().ConfigureAwait(false);
+            var tableOption = await Database.GetTableAsync("table_test_table_17").ConfigureAwait(false);
+            var parentKeyLookup = await tableOption.UnwrapSome().ParentKeyAsync().ConfigureAwait(false);
             var foreignKey = parentKeyLookup.Values.Single();
 
             Assert.AreEqual(Rule.None, foreignKey.DeleteRule);
@@ -990,8 +991,8 @@ namespace SJP.Schematic.MySql.Tests.Integration
         [Test]
         public async Task ParentKeysAsync_WhenGivenTableWithForeignKeyToUniqueKeyWithDefaultDeleteRule_ReturnsDeleteRuleAsNoAction()
         {
-            var table = await Database.GetTableAsync("table_test_table_17").ConfigureAwait(false);
-            var parentKeys = await table.ParentKeysAsync().ConfigureAwait(false);
+            var tableOption = await Database.GetTableAsync("table_test_table_17").ConfigureAwait(false);
+            var parentKeys = await tableOption.UnwrapSome().ParentKeysAsync().ConfigureAwait(false);
             var foreignKey = parentKeys.Single();
 
             Assert.AreEqual(Rule.None, foreignKey.DeleteRule);
@@ -1000,7 +1001,7 @@ namespace SJP.Schematic.MySql.Tests.Integration
         [Test]
         public void ParentKey_WhenGivenTableWithForeignKeyToUniqueKeyWithCascadeDeleteRule_ReturnsDeleteRuleAsCascade()
         {
-            var table = Database.GetTable("table_test_table_27");
+            var table = Database.GetTable("table_test_table_27").UnwrapSome();
             var parentKeyLookup = table.ParentKey;
             var foreignKey = parentKeyLookup.Values.Single();
 
@@ -1010,7 +1011,7 @@ namespace SJP.Schematic.MySql.Tests.Integration
         [Test]
         public void ParentKeys_WhenGivenTableWithForeignKeyToUniqueKeyWithCascadeDeleteRule_ReturnsDeleteRuleAsCascade()
         {
-            var table = Database.GetTable("table_test_table_27");
+            var table = Database.GetTable("table_test_table_27").UnwrapSome();
             var parentKeys = table.ParentKeys;
             var foreignKey = parentKeys.Single();
 
@@ -1020,8 +1021,8 @@ namespace SJP.Schematic.MySql.Tests.Integration
         [Test]
         public async Task ParentKeyAsync_WhenGivenTableWithForeignKeyToUniqueKeyWithCascadeDeleteRule_ReturnsDeleteRuleAsCascade()
         {
-            var table = await Database.GetTableAsync("table_test_table_27").ConfigureAwait(false);
-            var parentKeyLookup = await table.ParentKeyAsync().ConfigureAwait(false);
+            var tableOption = await Database.GetTableAsync("table_test_table_27").ConfigureAwait(false);
+            var parentKeyLookup = await tableOption.UnwrapSome().ParentKeyAsync().ConfigureAwait(false);
             var foreignKey = parentKeyLookup.Values.Single();
 
             Assert.AreEqual(Rule.Cascade, foreignKey.DeleteRule);
@@ -1030,8 +1031,8 @@ namespace SJP.Schematic.MySql.Tests.Integration
         [Test]
         public async Task ParentKeysAsync_WhenGivenTableWithForeignKeyToUniqueKeyWithCascadeDeleteRule_ReturnsDeleteRuleAsCascade()
         {
-            var table = await Database.GetTableAsync("table_test_table_27").ConfigureAwait(false);
-            var parentKeys = await table.ParentKeysAsync().ConfigureAwait(false);
+            var tableOption = await Database.GetTableAsync("table_test_table_27").ConfigureAwait(false);
+            var parentKeys = await tableOption.UnwrapSome().ParentKeysAsync().ConfigureAwait(false);
             var foreignKey = parentKeys.Single();
 
             Assert.AreEqual(Rule.Cascade, foreignKey.DeleteRule);
@@ -1040,7 +1041,7 @@ namespace SJP.Schematic.MySql.Tests.Integration
         [Test]
         public void ParentKey_WhenGivenTableWithForeignKeyToUniqueKeyWithSetNullDeleteRule_ReturnsDeleteRuleAsSetNull()
         {
-            var table = Database.GetTable("table_test_table_28");
+            var table = Database.GetTable("table_test_table_28").UnwrapSome();
             var parentKeyLookup = table.ParentKey;
             var foreignKey = parentKeyLookup.Values.Single();
 
@@ -1050,7 +1051,7 @@ namespace SJP.Schematic.MySql.Tests.Integration
         [Test]
         public void ParentKeys_WhenGivenTableWithForeignKeyToUniqueKeyWithSetNullDeleteRule_ReturnsDeleteRuleAsSetNull()
         {
-            var table = Database.GetTable("table_test_table_28");
+            var table = Database.GetTable("table_test_table_28").UnwrapSome();
             var parentKeys = table.ParentKeys;
             var foreignKey = parentKeys.Single();
 
@@ -1060,8 +1061,8 @@ namespace SJP.Schematic.MySql.Tests.Integration
         [Test]
         public async Task ParentKeyAsync_WhenGivenTableWithForeignKeyToUniqueKeyWithSetNullDeleteRule_ReturnsDeleteRuleAsSetNull()
         {
-            var table = await Database.GetTableAsync("table_test_table_28").ConfigureAwait(false);
-            var parentKeyLookup = await table.ParentKeyAsync().ConfigureAwait(false);
+            var tableOption = await Database.GetTableAsync("table_test_table_28").ConfigureAwait(false);
+            var parentKeyLookup = await tableOption.UnwrapSome().ParentKeyAsync().ConfigureAwait(false);
             var foreignKey = parentKeyLookup.Values.Single();
 
             Assert.AreEqual(Rule.SetNull, foreignKey.DeleteRule);
@@ -1070,8 +1071,8 @@ namespace SJP.Schematic.MySql.Tests.Integration
         [Test]
         public async Task ParentKeysAsync_WhenGivenTableWithForeignKeyToUniqueKeyWithSetNullDeleteRule_ReturnsDeleteRuleAsSetNull()
         {
-            var table = await Database.GetTableAsync("table_test_table_28").ConfigureAwait(false);
-            var parentKeys = await table.ParentKeysAsync().ConfigureAwait(false);
+            var tableOption = await Database.GetTableAsync("table_test_table_28").ConfigureAwait(false);
+            var parentKeys = await tableOption.UnwrapSome().ParentKeysAsync().ConfigureAwait(false);
             var foreignKey = parentKeys.Single();
 
             Assert.AreEqual(Rule.SetNull, foreignKey.DeleteRule);
@@ -1080,7 +1081,7 @@ namespace SJP.Schematic.MySql.Tests.Integration
         [Test]
         public void ParentKey_WhenGivenTableWithForeignKeyToUniqueKey_ReturnsIsEnabledTrue()
         {
-            var table = Database.GetTable("table_test_table_17");
+            var table = Database.GetTable("table_test_table_17").UnwrapSome();
             var parentKeyLookup = table.ParentKey;
             var foreignKey = parentKeyLookup.Values.Single();
 
@@ -1090,7 +1091,7 @@ namespace SJP.Schematic.MySql.Tests.Integration
         [Test]
         public void ParentKeys_WhenGivenTableWithForeignKeyToUniqueKey_ReturnsIsEnabledTrue()
         {
-            var table = Database.GetTable("table_test_table_17");
+            var table = Database.GetTable("table_test_table_17").UnwrapSome();
             var parentKeys = table.ParentKeys;
             var foreignKey = parentKeys.Single();
 
@@ -1100,8 +1101,8 @@ namespace SJP.Schematic.MySql.Tests.Integration
         [Test]
         public async Task ParentKeyAsync_WhenGivenTableWithForeignKeyToUniqueKey_ReturnsIsEnabledTrue()
         {
-            var table = await Database.GetTableAsync("table_test_table_17").ConfigureAwait(false);
-            var parentKeyLookup = await table.ParentKeyAsync().ConfigureAwait(false);
+            var tableOption = await Database.GetTableAsync("table_test_table_17").ConfigureAwait(false);
+            var parentKeyLookup = await tableOption.UnwrapSome().ParentKeyAsync().ConfigureAwait(false);
             var foreignKey = parentKeyLookup.Values.Single();
 
             Assert.IsTrue(foreignKey.ChildKey.IsEnabled);
@@ -1110,8 +1111,8 @@ namespace SJP.Schematic.MySql.Tests.Integration
         [Test]
         public async Task ParentKeysAsync_WhenGivenTableWithForeignKeyToUniqueKey_ReturnsIsEnabledTrue()
         {
-            var table = await Database.GetTableAsync("table_test_table_17").ConfigureAwait(false);
-            var parentKeys = await table.ParentKeysAsync().ConfigureAwait(false);
+            var tableOption = await Database.GetTableAsync("table_test_table_17").ConfigureAwait(false);
+            var parentKeys = await tableOption.UnwrapSome().ParentKeysAsync().ConfigureAwait(false);
             var foreignKey = parentKeys.Single();
 
             Assert.IsTrue(foreignKey.ChildKey.IsEnabled);

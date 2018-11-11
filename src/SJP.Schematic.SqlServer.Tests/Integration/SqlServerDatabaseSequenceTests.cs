@@ -2,6 +2,7 @@
 using Dapper;
 using NUnit.Framework;
 using SJP.Schematic.Core;
+using SJP.Schematic.Core.Extensions;
 
 namespace SJP.Schematic.SqlServer.Tests.Integration
 {
@@ -44,7 +45,7 @@ namespace SJP.Schematic.SqlServer.Tests.Integration
         [Test]
         public void Start_GivenDefaultSequence_ReturnsLongMinValue()
         {
-            var sequence = Database.GetSequence("db_test_sequence_1");
+            var sequence = Database.GetSequence("db_test_sequence_1").UnwrapSome();
 
             Assert.AreEqual(long.MinValue, sequence.Start);
         }
@@ -52,7 +53,7 @@ namespace SJP.Schematic.SqlServer.Tests.Integration
         [Test]
         public void Start_GivenSequenceWithCustomStart_ReturnsCorrectValue()
         {
-            var sequence = Database.GetSequence("db_test_sequence_2");
+            var sequence = Database.GetSequence("db_test_sequence_2").UnwrapSome();
 
             Assert.AreEqual(20, sequence.Start);
         }
@@ -60,7 +61,7 @@ namespace SJP.Schematic.SqlServer.Tests.Integration
         [Test]
         public void Increment_GivenDefaultSequence_ReturnsOne()
         {
-            var sequence = Database.GetSequence("db_test_sequence_1");
+            var sequence = Database.GetSequence("db_test_sequence_1").UnwrapSome();
 
             Assert.AreEqual(1, sequence.Increment);
         }
@@ -68,7 +69,7 @@ namespace SJP.Schematic.SqlServer.Tests.Integration
         [Test]
         public void Increment_GivenSequenceWithCustomIncrement_ReturnsCorrectValue()
         {
-            var sequence = Database.GetSequence("db_test_sequence_3");
+            var sequence = Database.GetSequence("db_test_sequence_3").UnwrapSome();
 
             Assert.AreEqual(100, sequence.Increment);
         }
@@ -76,7 +77,7 @@ namespace SJP.Schematic.SqlServer.Tests.Integration
         [Test]
         public void MinValue_GivenDefaultSequence_ReturnsLongMinValue()
         {
-            var sequence = Database.GetSequence("db_test_sequence_1");
+            var sequence = Database.GetSequence("db_test_sequence_1").UnwrapSome();
 
             Assert.AreEqual(long.MinValue, sequence.MinValue);
         }
@@ -84,7 +85,7 @@ namespace SJP.Schematic.SqlServer.Tests.Integration
         [Test]
         public void MinValue_GivenSequenceWithCustomMinValue_ReturnsCorrectValue()
         {
-            var sequence = Database.GetSequence("db_test_sequence_4");
+            var sequence = Database.GetSequence("db_test_sequence_4").UnwrapSome();
 
             Assert.AreEqual(-99, sequence.MinValue);
         }
@@ -92,7 +93,7 @@ namespace SJP.Schematic.SqlServer.Tests.Integration
         [Test]
         public void MinValue_GivenSequenceWithNoMinValue_ReturnsLongMinValue()
         {
-            var sequence = Database.GetSequence("db_test_sequence_5");
+            var sequence = Database.GetSequence("db_test_sequence_5").UnwrapSome();
 
             Assert.AreEqual(long.MinValue, sequence.MinValue);
         }
@@ -100,7 +101,7 @@ namespace SJP.Schematic.SqlServer.Tests.Integration
         [Test]
         public void MaxValue_GivenDefaultSequence_ReturnsLongMaxValue()
         {
-            var sequence = Database.GetSequence("db_test_sequence_1");
+            var sequence = Database.GetSequence("db_test_sequence_1").UnwrapSome();
 
             Assert.AreEqual(long.MaxValue, sequence.MaxValue);
         }
@@ -108,7 +109,7 @@ namespace SJP.Schematic.SqlServer.Tests.Integration
         [Test]
         public void MaxValue_GivenSequenceWithCustomMaxValue_ReturnsCorrectValue()
         {
-            var sequence = Database.GetSequence("db_test_sequence_6");
+            var sequence = Database.GetSequence("db_test_sequence_6").UnwrapSome();
 
             Assert.AreEqual(333, sequence.MaxValue);
         }
@@ -116,7 +117,7 @@ namespace SJP.Schematic.SqlServer.Tests.Integration
         [Test]
         public void MaxValue_GivenSequenceWithNoMaxValue_ReturnsLongMaxValue()
         {
-            var sequence = Database.GetSequence("db_test_sequence_7");
+            var sequence = Database.GetSequence("db_test_sequence_7").UnwrapSome();
 
             Assert.AreEqual(long.MaxValue, sequence.MaxValue);
         }
@@ -124,7 +125,7 @@ namespace SJP.Schematic.SqlServer.Tests.Integration
         [Test]
         public void Cycle_GivenDefaultSequence_ReturnsTrue()
         {
-            var sequence = Database.GetSequence("db_test_sequence_1");
+            var sequence = Database.GetSequence("db_test_sequence_1").UnwrapSome();
 
             Assert.IsFalse(sequence.Cycle);
         }
@@ -132,7 +133,7 @@ namespace SJP.Schematic.SqlServer.Tests.Integration
         [Test]
         public void Cycle_GivenSequenceWithCycle_ReturnsTrue()
         {
-            var sequence = Database.GetSequence("db_test_sequence_8");
+            var sequence = Database.GetSequence("db_test_sequence_8").UnwrapSome();
 
             Assert.IsTrue(sequence.Cycle);
         }
@@ -140,7 +141,7 @@ namespace SJP.Schematic.SqlServer.Tests.Integration
         [Test]
         public void Cycle_GivenSequenceWithNoCycle_ReturnsTrue()
         {
-            var sequence = Database.GetSequence("db_test_sequence_9");
+            var sequence = Database.GetSequence("db_test_sequence_9").UnwrapSome();
 
             Assert.IsFalse(sequence.Cycle);
         }
@@ -148,7 +149,7 @@ namespace SJP.Schematic.SqlServer.Tests.Integration
         [Test]
         public void Cache_GivenDefaultSequence_ReturnsNegativeOne()
         {
-            var sequence = Database.GetSequence("db_test_sequence_1");
+            var sequence = Database.GetSequence("db_test_sequence_1").UnwrapSome();
 
             Assert.AreEqual(-1, sequence.Cache);
         }
@@ -156,7 +157,7 @@ namespace SJP.Schematic.SqlServer.Tests.Integration
         [Test]
         public void Cache_GivenSequenceWithCacheSet_ReturnsCorrectValue()
         {
-            var sequence = Database.GetSequence("db_test_sequence_10");
+            var sequence = Database.GetSequence("db_test_sequence_10").UnwrapSome();
 
             Assert.AreEqual(10, sequence.Cache);
         }
@@ -164,7 +165,7 @@ namespace SJP.Schematic.SqlServer.Tests.Integration
         [Test]
         public void Cache_GivenSequenceWithNoCacheSet_ReturnsCorrectValue()
         {
-            var sequence = Database.GetSequence("db_test_sequence_11");
+            var sequence = Database.GetSequence("db_test_sequence_11").UnwrapSome();
 
             Assert.AreEqual(0, sequence.Cache);
         }

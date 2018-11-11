@@ -1,6 +1,7 @@
 ﻿using System.Linq;
 using System.Threading.Tasks;
 using NUnit.Framework;
+using SJP.Schematic.Core.Extensions;
 
 namespace SJP.Schematic.Sqlite.Tests.Integration
 {
@@ -9,7 +10,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
         [Test]
         public void Check_WhenGivenTableWithNoChecks_ReturnsEmptyLookup()
         {
-            var table = Database.GetTable("table_test_table_1");
+            var table = Database.GetTable("table_test_table_1").UnwrapSome();
             var checkLookup = table.Check;
 
             Assert.AreEqual(0, checkLookup.Count);
@@ -18,7 +19,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
         [Test]
         public void Checks_WhenGivenTableWithNoChecks_ReturnsEmptyCollection()
         {
-            var table = Database.GetTable("table_test_table_1");
+            var table = Database.GetTable("table_test_table_1").UnwrapSome();
             var count = table.Checks.Count;
 
             Assert.AreEqual(0, count);
@@ -27,8 +28,8 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
         [Test]
         public async Task CheckAsync_WhenGivenTableWithNoChecks_ReturnsEmptyLookup()
         {
-            var table = await Database.GetTableAsync("table_test_table_1").ConfigureAwait(false);
-            var checkLookup = await table.CheckAsync().ConfigureAwait(false);
+            var tableOption = await Database.GetTableAsync("table_test_table_1").ConfigureAwait(false);
+            var checkLookup = await tableOption.UnwrapSome().CheckAsync().ConfigureAwait(false);
 
             Assert.AreEqual(0, checkLookup.Count);
         }
@@ -36,8 +37,8 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
         [Test]
         public async Task ChecksAsync_WhenGivenTableWithNoChecks_ReturnsEmptyCollection()
         {
-            var table = await Database.GetTableAsync("table_test_table_1").ConfigureAwait(false);
-            var checks = await table.ChecksAsync().ConfigureAwait(false);
+            var tableOption = await Database.GetTableAsync("table_test_table_1").ConfigureAwait(false);
+            var checks = await tableOption.UnwrapSome().ChecksAsync().ConfigureAwait(false);
             var count = checks.Count;
 
             Assert.AreEqual(0, count);
@@ -46,7 +47,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
         [Test]
         public void Check_WhenGivenTableWithCheck_ReturnsContraintWithCorrectName()
         {
-            var table = Database.GetTable("table_test_table_14");
+            var table = Database.GetTable("table_test_table_14").UnwrapSome();
             var check = table.Check["ck_test_table_14"];
 
             Assert.AreEqual("ck_test_table_14", check.Name.LocalName);
@@ -55,7 +56,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
         [Test]
         public void Checks_WhenGivenTableWithCheck_ReturnsContraintWithCorrectName()
         {
-            var table = Database.GetTable("table_test_table_14");
+            var table = Database.GetTable("table_test_table_14").UnwrapSome();
             var check = table.Checks.Single();
 
             Assert.AreEqual("ck_test_table_14", check.Name.LocalName);
@@ -64,8 +65,8 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
         [Test]
         public async Task CheckAsync_WhenGivenTableWithCheck_ReturnsContraintWithCorrectName()
         {
-            var table = await Database.GetTableAsync("table_test_table_14").ConfigureAwait(false);
-            var checkLookup = await table.CheckAsync().ConfigureAwait(false);
+            var tableOption = await Database.GetTableAsync("table_test_table_14").ConfigureAwait(false);
+            var checkLookup = await tableOption.UnwrapSome().CheckAsync().ConfigureAwait(false);
             var check = checkLookup["ck_test_table_14"];
 
             Assert.AreEqual("ck_test_table_14", check.Name.LocalName);
@@ -74,8 +75,8 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
         [Test]
         public async Task ChecksAsync_WhenGivenTableWithCheck_ReturnsContraintWithCorrectName()
         {
-            var table = await Database.GetTableAsync("table_test_table_14").ConfigureAwait(false);
-            var checks = await table.ChecksAsync().ConfigureAwait(false);
+            var tableOption = await Database.GetTableAsync("table_test_table_14").ConfigureAwait(false);
+            var checks = await tableOption.UnwrapSome().ChecksAsync().ConfigureAwait(false);
             var check = checks.Single();
 
             Assert.AreEqual("ck_test_table_14", check.Name.LocalName);
@@ -86,7 +87,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
         {
             const string expectedDefinition = "([test_column]>(1))";
 
-            var table = Database.GetTable("table_test_table_14");
+            var table = Database.GetTable("table_test_table_14").UnwrapSome();
             var check = table.Check["ck_test_table_14"];
 
             var comparer = new SqliteExpressionComparer();
@@ -100,7 +101,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
         {
             const string expectedDefinition = "([test_column]>(1))";
 
-            var table = Database.GetTable("table_test_table_14");
+            var table = Database.GetTable("table_test_table_14").UnwrapSome();
             var check = table.Checks.Single();
 
             var comparer = new SqliteExpressionComparer();
@@ -114,8 +115,8 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
         {
             const string expectedDefinition = "([test_column]>(1))";
 
-            var table = await Database.GetTableAsync("table_test_table_14").ConfigureAwait(false);
-            var checkLookup = await table.CheckAsync().ConfigureAwait(false);
+            var tableOption = await Database.GetTableAsync("table_test_table_14").ConfigureAwait(false);
+            var checkLookup = await tableOption.UnwrapSome().CheckAsync().ConfigureAwait(false);
             var check = checkLookup["ck_test_table_14"];
 
             var comparer = new SqliteExpressionComparer();
@@ -129,8 +130,8 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
         {
             const string expectedDefinition = "([test_column]>(1))";
 
-            var table = await Database.GetTableAsync("table_test_table_14").ConfigureAwait(false);
-            var checks = await table.ChecksAsync().ConfigureAwait(false);
+            var tableOption = await Database.GetTableAsync("table_test_table_14").ConfigureAwait(false);
+            var checks = await tableOption.UnwrapSome().ChecksAsync().ConfigureAwait(false);
             var check = checks.Single();
 
             var comparer = new SqliteExpressionComparer();
@@ -142,7 +143,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
         [Test]
         public void Check_WhenGivenTableWithEnabledCheck_ReturnsIsEnabledTrue()
         {
-            var table = Database.GetTable("table_test_table_14");
+            var table = Database.GetTable("table_test_table_14").UnwrapSome();
             var check = table.Check["ck_test_table_14"];
 
             Assert.IsTrue(check.IsEnabled);
@@ -151,7 +152,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
         [Test]
         public void Checks_WhenGivenTableWithEnabledCheck_ReturnsIsEnabledTrue()
         {
-            var table = Database.GetTable("table_test_table_14");
+            var table = Database.GetTable("table_test_table_14").UnwrapSome();
             var check = table.Checks.Single();
 
             Assert.IsTrue(check.IsEnabled);
@@ -160,8 +161,8 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
         [Test]
         public async Task CheckAsync_WhenGivenTableWithEnabledCheck_ReturnsIsEnabledTrue()
         {
-            var table = await Database.GetTableAsync("table_test_table_14").ConfigureAwait(false);
-            var checkLookup = await table.CheckAsync().ConfigureAwait(false);
+            var tableOption = await Database.GetTableAsync("table_test_table_14").ConfigureAwait(false);
+            var checkLookup = await tableOption.UnwrapSome().CheckAsync().ConfigureAwait(false);
             var check = checkLookup["ck_test_table_14"];
 
             Assert.IsTrue(check.IsEnabled);
@@ -170,8 +171,8 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
         [Test]
         public async Task ChecksAsync_WhenGivenTableWithEnabledCheck_ReturnsIsEnabledTrue()
         {
-            var table = await Database.GetTableAsync("table_test_table_14").ConfigureAwait(false);
-            var checks = await table.ChecksAsync().ConfigureAwait(false);
+            var tableOption = await Database.GetTableAsync("table_test_table_14").ConfigureAwait(false);
+            var checks = await tableOption.UnwrapSome().ChecksAsync().ConfigureAwait(false);
             var check = checks.Single();
 
             Assert.IsTrue(check.IsEnabled);

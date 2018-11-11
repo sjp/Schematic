@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using LanguageExt;
 using SJP.Schematic.Core;
 using SJP.Schematic.Core.Extensions;
 using SJP.Schematic.Core.Utilities;
@@ -51,22 +52,29 @@ namespace SJP.Schematic.Modelled.Reflection
 
         protected ReflectionTypeProvider TypeProvider { get; }
 
-        public IRelationalDatabaseTable GetTable(Identifier tableName)
+        public Option<IRelationalDatabaseTable> GetTable(Identifier tableName)
         {
             if (tableName == null)
                 throw new ArgumentNullException(nameof(tableName));
 
             tableName = CreateQualifiedIdentifier(tableName);
-            return Table.TryGetValue(tableName, out var table) ? table : null;
+            var lookupResult = Table.TryGetValue(tableName, out var table)
+                ? Option<IRelationalDatabaseTable>.Some(table)
+                : Option<IRelationalDatabaseTable>.None;
+
+            return lookupResult;
         }
 
-        public Task<IRelationalDatabaseTable> GetTableAsync(Identifier tableName, CancellationToken cancellationToken = default(CancellationToken))
+        public Task<Option<IRelationalDatabaseTable>> GetTableAsync(Identifier tableName, CancellationToken cancellationToken = default(CancellationToken))
         {
             if (tableName == null)
                 throw new ArgumentNullException(nameof(tableName));
 
             tableName = CreateQualifiedIdentifier(tableName);
-            var lookupResult = Table.TryGetValue(tableName, out var table) ? table : null;
+            var lookupResult = Table.TryGetValue(tableName, out var table)
+                ? Option<IRelationalDatabaseTable>.Some(table)
+                : Option<IRelationalDatabaseTable>.None;
+
             return Task.FromResult(lookupResult);
         }
 
@@ -78,21 +86,25 @@ namespace SJP.Schematic.Modelled.Reflection
 
         protected IReadOnlyDictionary<Identifier, IRelationalDatabaseTable> Table => _tableLookup.Value;
 
-        protected virtual IRelationalDatabaseTable LoadTableSync(Type tableType)
+        protected virtual Option<IRelationalDatabaseTable> LoadTableSync(Type tableType)
         {
             if (tableType == null)
                 throw new ArgumentNullException(nameof(tableType));
 
+            // TODO: check whether this even exists...
             return new ReflectionTable(this, tableType);
         }
 
-        protected virtual Task<IRelationalDatabaseTable> LoadTableAsync(Type tableType)
+        protected virtual Task<Option<IRelationalDatabaseTable>> LoadTableAsync(Type tableType)
         {
             if (tableType == null)
                 throw new ArgumentNullException(nameof(tableType));
 
+            // TODO: check whether this even exists...
             var table = new ReflectionTable(this, tableType);
-            return Task.FromResult<IRelationalDatabaseTable>(table);
+            var tableOption = Option<IRelationalDatabaseTable>.Some(table);
+
+            return Task.FromResult(tableOption);
         }
 
         protected virtual IReadOnlyDictionary<Identifier, IRelationalDatabaseTable> LoadTables()
@@ -111,22 +123,29 @@ namespace SJP.Schematic.Modelled.Reflection
             return lookup;
         }
 
-        public IRelationalDatabaseView GetView(Identifier viewName)
+        public Option<IRelationalDatabaseView> GetView(Identifier viewName)
         {
             if (viewName == null)
                 throw new ArgumentNullException(nameof(viewName));
 
             viewName = CreateQualifiedIdentifier(viewName);
-            return View.TryGetValue(viewName, out var view) ? view : null;
+            var lookupResult =  View.TryGetValue(viewName, out var view)
+                ? Option<IRelationalDatabaseView>.Some(view)
+                : Option<IRelationalDatabaseView>.None;
+
+            return lookupResult;
         }
 
-        public Task<IRelationalDatabaseView> GetViewAsync(Identifier viewName, CancellationToken cancellationToken = default(CancellationToken))
+        public Task<Option<IRelationalDatabaseView>> GetViewAsync(Identifier viewName, CancellationToken cancellationToken = default(CancellationToken))
         {
             if (viewName == null)
                 throw new ArgumentNullException(nameof(viewName));
 
             viewName = CreateQualifiedIdentifier(viewName);
-            var lookupResult = View.TryGetValue(viewName, out var view) ? view : null;
+            var lookupResult = View.TryGetValue(viewName, out var view)
+                ? Option<IRelationalDatabaseView>.Some(view)
+                : Option<IRelationalDatabaseView>.None;
+
             return Task.FromResult(lookupResult);
         }
 
@@ -138,21 +157,24 @@ namespace SJP.Schematic.Modelled.Reflection
 
         protected IReadOnlyDictionary<Identifier, IRelationalDatabaseView> View => _viewLookup.Value;
 
-        protected virtual IRelationalDatabaseView LoadViewSync(Type viewType)
+        protected virtual Option<IRelationalDatabaseView> LoadViewSync(Type viewType)
         {
             if (viewType == null)
                 throw new ArgumentNullException(nameof(viewType));
 
+            // TODO: check this exists...
             return new ReflectionView(this, viewType);
         }
 
-        protected virtual Task<IRelationalDatabaseView> LoadViewAsync(Type viewType)
+        protected virtual Task<Option<IRelationalDatabaseView>> LoadViewAsync(Type viewType)
         {
             if (viewType == null)
                 throw new ArgumentNullException(nameof(viewType));
 
             var view = new ReflectionView(this, viewType);
-            return Task.FromResult<IRelationalDatabaseView>(view);
+            var viewOption = Option<IRelationalDatabaseView>.Some(view);
+
+            return Task.FromResult(viewOption);
         }
 
         protected virtual IReadOnlyDictionary<Identifier, IRelationalDatabaseView> LoadViews()
@@ -171,22 +193,29 @@ namespace SJP.Schematic.Modelled.Reflection
             return lookup;
         }
 
-        public IDatabaseSequence GetSequence(Identifier sequenceName)
+        public Option<IDatabaseSequence> GetSequence(Identifier sequenceName)
         {
             if (sequenceName == null)
                 throw new ArgumentNullException(nameof(sequenceName));
 
             sequenceName = CreateQualifiedIdentifier(sequenceName);
-            return Sequence.TryGetValue(sequenceName, out var sequence) ? sequence : null;
+            var lookupResult = Sequence.TryGetValue(sequenceName, out var sequence)
+                ? Option<IDatabaseSequence>.Some(sequence)
+                : Option<IDatabaseSequence>.None;
+
+            return lookupResult;
         }
 
-        public Task<IDatabaseSequence> GetSequenceAsync(Identifier sequenceName, CancellationToken cancellationToken = default(CancellationToken))
+        public Task<Option<IDatabaseSequence>> GetSequenceAsync(Identifier sequenceName, CancellationToken cancellationToken = default(CancellationToken))
         {
             if (sequenceName == null)
                 throw new ArgumentNullException(nameof(sequenceName));
 
             sequenceName = CreateQualifiedIdentifier(sequenceName);
-            var lookupResult = Sequence.TryGetValue(sequenceName, out var sequence) ? sequence : null;
+            var lookupResult = Sequence.TryGetValue(sequenceName, out var sequence)
+                ? Option<IDatabaseSequence>.Some(sequence)
+                : Option<IDatabaseSequence>.None;
+
             return Task.FromResult(lookupResult);
         }
 
@@ -198,7 +227,7 @@ namespace SJP.Schematic.Modelled.Reflection
 
         protected IReadOnlyDictionary<Identifier, IDatabaseSequence> Sequence => _sequenceLookup.Value;
 
-        protected virtual IDatabaseSequence LoadSequenceSync(Type sequenceType)
+        protected virtual Option<IDatabaseSequence> LoadSequenceSync(Type sequenceType)
         {
             if (sequenceType == null)
                 throw new ArgumentNullException(nameof(sequenceType));
@@ -206,13 +235,15 @@ namespace SJP.Schematic.Modelled.Reflection
             return new ReflectionSequence(this, sequenceType);
         }
 
-        protected virtual Task<IDatabaseSequence> LoadSequenceAsync(Type sequenceType)
+        protected virtual Task<Option<IDatabaseSequence>> LoadSequenceAsync(Type sequenceType)
         {
             if (sequenceType == null)
                 throw new ArgumentNullException(nameof(sequenceType));
 
             var sequence = new ReflectionSequence(this, sequenceType);
-            return Task.FromResult<IDatabaseSequence>(sequence);
+            var sequenceOption = Option<IDatabaseSequence>.Some(sequence);
+
+            return Task.FromResult(sequenceOption);
         }
 
         protected virtual IReadOnlyDictionary<Identifier, IDatabaseSequence> LoadSequences()
@@ -231,22 +262,29 @@ namespace SJP.Schematic.Modelled.Reflection
             return lookup;
         }
 
-        public IDatabaseSynonym GetSynonym(Identifier synonymName)
+        public Option<IDatabaseSynonym> GetSynonym(Identifier synonymName)
         {
             if (synonymName == null)
                 throw new ArgumentNullException(nameof(synonymName));
 
             synonymName = CreateQualifiedIdentifier(synonymName);
-            return Synonym.TryGetValue(synonymName, out var synonym) ? synonym : null;
+            var lookupResult = Synonym.TryGetValue(synonymName, out var synonym)
+                ? Option<IDatabaseSynonym>.Some(synonym)
+                : Option<IDatabaseSynonym>.None;
+
+            return lookupResult;
         }
 
-        public Task<IDatabaseSynonym> GetSynonymAsync(Identifier synonymName, CancellationToken cancellationToken = default(CancellationToken))
+        public Task<Option<IDatabaseSynonym>> GetSynonymAsync(Identifier synonymName, CancellationToken cancellationToken = default(CancellationToken))
         {
             if (synonymName == null)
                 throw new ArgumentNullException(nameof(synonymName));
 
             synonymName = CreateQualifiedIdentifier(synonymName);
-            var lookupResult = Synonym.TryGetValue(synonymName, out var synonym) ? synonym : null;
+            var lookupResult = Synonym.TryGetValue(synonymName, out var synonym)
+                ? Option<IDatabaseSynonym>.Some(synonym)
+                : Option<IDatabaseSynonym>.None;
+
             return Task.FromResult(lookupResult);
         }
 
@@ -258,7 +296,7 @@ namespace SJP.Schematic.Modelled.Reflection
 
         protected IReadOnlyDictionary<Identifier, IDatabaseSynonym> Synonym => _synonymLookup.Value;
 
-        protected virtual IDatabaseSynonym LoadSynonymSync(Type synonymType)
+        protected virtual Option<IDatabaseSynonym> LoadSynonymSync(Type synonymType)
         {
             if (synonymType == null)
                 throw new ArgumentNullException(nameof(synonymType));
@@ -266,13 +304,15 @@ namespace SJP.Schematic.Modelled.Reflection
             return new ReflectionSynonym(this, synonymType);
         }
 
-        protected virtual Task<IDatabaseSynonym> LoadSynonymAsync(Type synonymType)
+        protected virtual Task<Option<IDatabaseSynonym>> LoadSynonymAsync(Type synonymType)
         {
             if (synonymType == null)
                 throw new ArgumentNullException(nameof(synonymType));
 
             var synonym = new ReflectionSynonym(this, synonymType);
-            return Task.FromResult<IDatabaseSynonym>(synonym);
+            var synonymOption = Option<IDatabaseSynonym>.Some(synonym);
+
+            return Task.FromResult<Option<IDatabaseSynonym>>(synonymOption);
         }
 
         protected virtual IReadOnlyDictionary<Identifier, IDatabaseSynonym> LoadSynonyms()
@@ -303,17 +343,20 @@ namespace SJP.Schematic.Modelled.Reflection
             return Identifier.CreateQualifiedIdentifier(serverName, databaseName, schema, identifier.LocalName);
         }
 
-        protected (IEnumerable<string> quotedTypeNames, IReadOnlyDictionary<Identifier, TValue> lookup) CreateLookup<TValue>(IReadOnlyCollection<TValue> objects) where TValue : IDatabaseEntity
+        protected (IEnumerable<string> quotedTypeNames, IReadOnlyDictionary<Identifier, TValue> lookup) CreateLookup<TValue>(IReadOnlyCollection<Option<TValue>> objects) where TValue : IDatabaseEntity
         {
             var result = new Dictionary<Identifier, TValue>(objects.Count);
 
-            var duplicateNames = new HashSet<Identifier>();
+            var duplicateNames = new System.Collections.Generic.HashSet<Identifier>();
             foreach (var obj in objects)
             {
-                if (result.ContainsKey(obj.Name))
-                    duplicateNames.Add(obj.Name);
+                obj.IfSome(o =>
+                {
+                    if (result.ContainsKey(o.Name))
+                        duplicateNames.Add(o.Name);
 
-                result[obj.Name] = obj;
+                    result[o.Name] = o;
+                });
             }
 
             var duplicatedTypeNames = duplicateNames.Select(n => Dialect.QuoteName(n.ToString()));
@@ -325,8 +368,8 @@ namespace SJP.Schematic.Modelled.Reflection
         // makes no sense to have duplicate types
         private static void EnsureUniqueTypes(Type definitionType, ReflectionTypeProvider typeProvider)
         {
-            var foundTypes = new HashSet<Type>();
-            var duplicateTypes = new HashSet<Type>();
+            var foundTypes = new System.Collections.Generic.HashSet<Type>();
+            var duplicateTypes = new System.Collections.Generic.HashSet<Type>();
 
             var unwrappedTypes = typeProvider.Tables
                 .Concat(typeProvider.Views)

@@ -8,6 +8,8 @@ using System.Threading.Tasks;
 using SJP.Schematic.Core;
 using SJP.Schematic.Core.Utilities;
 using SJP.Schematic.MySql.Query;
+using LanguageExt;
+using SJP.Schematic.Core.Extensions;
 
 namespace SJP.Schematic.MySql
 {
@@ -29,26 +31,24 @@ namespace SJP.Schematic.MySql
 
         protected DatabaseMetadata Metadata => _metadata.Task.GetAwaiter().GetResult();
 
-        protected Identifier GetResolvedTableName(Identifier tableName)
+        protected Option<Identifier> GetResolvedTableName(Identifier tableName)
         {
             if (tableName == null)
                 throw new ArgumentNullException(nameof(tableName));
 
             tableName = CreateQualifiedIdentifier(tableName);
 
-            var qualifiedNames = Connection.Query<QualifiedName>(
+            var qualifiedName = Connection.QueryFirstOrDefault<QualifiedName>(
                 TableNameQuery,
                 new { SchemaName = tableName.Schema, TableName = tableName.LocalName }
             );
-            var qualifiedName = qualifiedNames.FirstOrDefault();
 
-            if (qualifiedName == null)
-                return null;
-
-            return Identifier.CreateQualifiedIdentifier(tableName.Server, tableName.Database, qualifiedName.SchemaName, qualifiedName.ObjectName);
+            return qualifiedName != null
+                ? Option<Identifier>.Some(Identifier.CreateQualifiedIdentifier(tableName.Server, tableName.Database, qualifiedName.SchemaName, qualifiedName.ObjectName))
+                : Option<Identifier>.None;
         }
 
-        protected Task<Identifier> GetResolvedTableNameAsync(Identifier tableName, CancellationToken cancellationToken = default(CancellationToken))
+        protected Task<Option<Identifier>> GetResolvedTableNameAsync(Identifier tableName, CancellationToken cancellationToken = default(CancellationToken))
         {
             if (tableName == null)
                 throw new ArgumentNullException(nameof(tableName));
@@ -56,20 +56,18 @@ namespace SJP.Schematic.MySql
             return GetResolvedTableNameAsyncCore(tableName, cancellationToken);
         }
 
-        private async Task<Identifier> GetResolvedTableNameAsyncCore(Identifier tableName, CancellationToken cancellationToken)
+        private async Task<Option<Identifier>> GetResolvedTableNameAsyncCore(Identifier tableName, CancellationToken cancellationToken)
         {
             tableName = CreateQualifiedIdentifier(tableName);
 
-            var qualifiedNames = await Connection.QueryAsync<QualifiedName>(
+            var qualifiedName = await Connection.QueryFirstOrDefaultAsync<QualifiedName>(
                 TableNameQuery,
                 new { SchemaName = tableName.Schema, TableName = tableName.LocalName }
             ).ConfigureAwait(false);
-            var qualifiedName = qualifiedNames.FirstOrDefault();
 
-            if (qualifiedName == null)
-                return null;
-
-            return Identifier.CreateQualifiedIdentifier(tableName.Server, tableName.Database, qualifiedName.SchemaName, qualifiedName.ObjectName);
+            return qualifiedName != null
+                ? Option<Identifier>.Some(Identifier.CreateQualifiedIdentifier(tableName.Server, tableName.Database, qualifiedName.SchemaName, qualifiedName.ObjectName))
+                : Option<Identifier>.None;
         }
 
         protected virtual string TableNameQuery => TableNameQuerySql;
@@ -80,7 +78,7 @@ from information_schema.tables
 where table_schema = @SchemaName and table_name = @TableName
 limit 1";
 
-        public IRelationalDatabaseTable GetTable(Identifier tableName)
+        public Option<IRelationalDatabaseTable> GetTable(Identifier tableName)
         {
             if (tableName == null)
                 throw new ArgumentNullException(nameof(tableName));
@@ -89,7 +87,7 @@ limit 1";
             return LoadTableSync(tableName);
         }
 
-        public Task<IRelationalDatabaseTable> GetTableAsync(Identifier tableName, CancellationToken cancellationToken = default(CancellationToken))
+        public Task<Option<IRelationalDatabaseTable>> GetTableAsync(Identifier tableName, CancellationToken cancellationToken = default(CancellationToken))
         {
             if (tableName == null)
                 throw new ArgumentNullException(nameof(tableName));
@@ -106,7 +104,10 @@ limit 1";
                     .Select(dto => Identifier.CreateQualifiedIdentifier(dto.SchemaName, dto.ObjectName))
                     .ToList();
 
-                var tables = tableNames.Select(LoadTableSync);
+                var tables = tableNames
+                    .Select(LoadTableSync)
+                    .Where(t => t.IsSome)
+                    .Select(t => t.UnwrapSome());
                 return new ReadOnlyCollectionSlim<IRelationalDatabaseTable>(tableNames.Count, tables);
             }
         }
@@ -118,7 +119,10 @@ limit 1";
                 .Select(dto => Identifier.CreateQualifiedIdentifier(dto.SchemaName, dto.ObjectName))
                 .ToList();
 
-            var tables = tableNames.Select(name => LoadTableAsync(name, cancellationToken));
+            var tables = tableNames
+                .Select(name => LoadTableAsync(name, cancellationToken))
+                .Where(t => t.IsSome)
+                .Select(t => t.UnwrapSome());
             return new ReadOnlyCollectionSlim<Task<IRelationalDatabaseTable>>(tableNames.Count, tables);
         }
 
@@ -131,20 +135,17 @@ select
 from information_schema.tables
 where TABLE_SCHEMA = @SchemaName order by TABLE_NAME";
 
-        protected virtual IRelationalDatabaseTable LoadTableSync(Identifier tableName)
+        protected virtual Option<IRelationalDatabaseTable> LoadTableSync(Identifier tableName)
         {
             if (tableName == null)
                 throw new ArgumentNullException(nameof(tableName));
 
             tableName = CreateQualifiedIdentifier(tableName);
-            var qualifiedTableName = GetResolvedTableName(tableName);
-
-            return qualifiedTableName != null
-                ? new MySqlRelationalDatabaseTable(Connection, this, Dialect.TypeProvider, qualifiedTableName)
-                : null;
+            return GetResolvedTableName(tableName)
+                .Map<IRelationalDatabaseTable>(name => new MySqlRelationalDatabaseTable(Connection, this, Dialect.TypeProvider, name));
         }
 
-        protected virtual Task<IRelationalDatabaseTable> LoadTableAsync(Identifier tableName, CancellationToken cancellationToken = default(CancellationToken))
+        protected virtual Task<Option<IRelationalDatabaseTable>> LoadTableAsync(Identifier tableName, CancellationToken cancellationToken = default(CancellationToken))
         {
             if (tableName == null)
                 throw new ArgumentNullException(nameof(tableName));
@@ -152,34 +153,32 @@ where TABLE_SCHEMA = @SchemaName order by TABLE_NAME";
             return LoadTableAsyncCore(tableName, cancellationToken);
         }
 
-        private async Task<IRelationalDatabaseTable> LoadTableAsyncCore(Identifier tableName, CancellationToken cancellationToken)
+        private async Task<Option<IRelationalDatabaseTable>> LoadTableAsyncCore(Identifier tableName, CancellationToken cancellationToken)
         {
             tableName = CreateQualifiedIdentifier(tableName);
             var qualifiedTableName = await GetResolvedTableNameAsync(tableName, cancellationToken).ConfigureAwait(false);
 
-            return qualifiedTableName != null
-                ? new MySqlRelationalDatabaseTable(Connection, this, Dialect.TypeProvider, qualifiedTableName)
-                : null;
+            return qualifiedTableName.Map<IRelationalDatabaseTable>(name => new MySqlRelationalDatabaseTable(Connection, this, Dialect.TypeProvider, name));
         }
 
-        protected Identifier GetResolvedViewName(Identifier viewName)
+        protected Option<Identifier> GetResolvedViewName(Identifier viewName)
         {
             if (viewName == null)
                 throw new ArgumentNullException(nameof(viewName));
 
             viewName = CreateQualifiedIdentifier(viewName);
 
-            var qualifiedName = Connection.Query<QualifiedName>(
+            var qualifiedName = Connection.QueryFirstOrDefault<QualifiedName>(
                 ViewNameQuery,
                 new { SchemaName = viewName.Schema, ViewName = viewName.LocalName }
-            ).FirstOrDefault();
+            );
 
             return qualifiedName != null
-                ? Identifier.CreateQualifiedIdentifier(viewName.Server, viewName.Database, qualifiedName.SchemaName, qualifiedName.ObjectName)
-                : null;
+                ? Option<Identifier>.Some(Identifier.CreateQualifiedIdentifier(viewName.Server, viewName.Database, qualifiedName.SchemaName, qualifiedName.ObjectName))
+                : Option<Identifier>.None;
         }
 
-        protected Task<Identifier> GetResolvedViewNameAsync(Identifier viewName, CancellationToken cancellationToken = default(CancellationToken))
+        protected Task<Option<Identifier>> GetResolvedViewNameAsync(Identifier viewName, CancellationToken cancellationToken = default(CancellationToken))
         {
             if (viewName == null)
                 throw new ArgumentNullException(nameof(viewName));
@@ -187,19 +186,18 @@ where TABLE_SCHEMA = @SchemaName order by TABLE_NAME";
             return GetResolvedViewNameAsyncCore(viewName, cancellationToken);
         }
 
-        private async Task<Identifier> GetResolvedViewNameAsyncCore(Identifier viewName, CancellationToken cancellationToken)
+        private async Task<Option<Identifier>> GetResolvedViewNameAsyncCore(Identifier viewName, CancellationToken cancellationToken)
         {
             viewName = CreateQualifiedIdentifier(viewName);
 
-            var qualifiedNames = await Connection.QueryAsync<QualifiedName>(
+            var qualifiedName = await Connection.QueryFirstOrDefaultAsync<QualifiedName>(
                 ViewNameQuery,
                 new { SchemaName = viewName.Schema, ViewName = viewName.LocalName }
             ).ConfigureAwait(false);
-            var qualifiedName = qualifiedNames.FirstOrDefault();
 
             return qualifiedName != null
-                ? Identifier.CreateQualifiedIdentifier(viewName.Server, viewName.Database, qualifiedName.SchemaName, qualifiedName.ObjectName)
-                : null;
+                ? Option<Identifier>.Some(Identifier.CreateQualifiedIdentifier(viewName.Server, viewName.Database, qualifiedName.SchemaName, qualifiedName.ObjectName))
+                : Option<Identifier>.None;
         }
 
         protected virtual string ViewNameQuery => ViewNameQuerySql;
@@ -210,7 +208,7 @@ from information_schema.views
 where table_schema = @SchemaName and table_name = @ViewName
 limit 1";
 
-        public IRelationalDatabaseView GetView(Identifier viewName)
+        public Option<IRelationalDatabaseView> GetView(Identifier viewName)
         {
             if (viewName == null)
                 throw new ArgumentNullException(nameof(viewName));
@@ -219,7 +217,7 @@ limit 1";
             return LoadViewSync(viewName);
         }
 
-        public Task<IRelationalDatabaseView> GetViewAsync(Identifier viewName, CancellationToken cancellationToken = default(CancellationToken))
+        public Task<Option<IRelationalDatabaseView>> GetViewAsync(Identifier viewName, CancellationToken cancellationToken = default(CancellationToken))
         {
             if (viewName == null)
                 throw new ArgumentNullException(nameof(viewName));
@@ -236,7 +234,10 @@ limit 1";
                     .Select(dto => Identifier.CreateQualifiedIdentifier(dto.SchemaName, dto.ObjectName))
                     .ToList();
 
-                var views = viewNames.Select(LoadViewSync);
+                var views = viewNames
+                    .Select(LoadViewSync)
+                    .Where(v => v.IsSome)
+                    .Select(v => v.UnwrapSome());
                 return new ReadOnlyCollectionSlim<IRelationalDatabaseView>(viewNames.Count, views);
             }
         }
@@ -248,7 +249,10 @@ limit 1";
                 .Select(dto => Identifier.CreateQualifiedIdentifier(dto.SchemaName, dto.ObjectName))
                 .ToList();
 
-            var views = viewNames.Select(name => LoadViewAsync(name, cancellationToken));
+            var views = viewNames
+                .Select(name => LoadViewAsync(name, cancellationToken))
+                .Where(v => v.IsSome)
+                .Select(v => v.UnwrapSome());
             return new ReadOnlyCollectionSlim<Task<IRelationalDatabaseView>>(viewNames.Count, views);
         }
 
@@ -261,20 +265,17 @@ select
 from information_schema.views
 where TABLE_SCHEMA = @SchemaName order by TABLE_NAME";
 
-        protected virtual IRelationalDatabaseView LoadViewSync(Identifier viewName)
+        protected virtual Option<IRelationalDatabaseView> LoadViewSync(Identifier viewName)
         {
             if (viewName == null)
                 throw new ArgumentNullException(nameof(viewName));
 
             viewName = CreateQualifiedIdentifier(viewName);
-            var qualifiedViewName = GetResolvedViewName(viewName);
-
-            return qualifiedViewName != null
-                ? new MySqlRelationalDatabaseView(Connection, Dialect.TypeProvider, qualifiedViewName)
-                : null;
+            return GetResolvedViewName(viewName)
+                .Map<IRelationalDatabaseView>(name => new MySqlRelationalDatabaseView(Connection, Dialect.TypeProvider, name));
         }
 
-        protected virtual Task<IRelationalDatabaseView> LoadViewAsync(Identifier viewName, CancellationToken cancellationToken = default(CancellationToken))
+        protected virtual Task<Option<IRelationalDatabaseView>> LoadViewAsync(Identifier viewName, CancellationToken cancellationToken = default(CancellationToken))
         {
             if (viewName == null)
                 throw new ArgumentNullException(nameof(viewName));
@@ -282,63 +283,54 @@ where TABLE_SCHEMA = @SchemaName order by TABLE_NAME";
             return LoadViewAsyncCore(viewName, cancellationToken);
         }
 
-        private async Task<IRelationalDatabaseView> LoadViewAsyncCore(Identifier viewName, CancellationToken cancellationToken)
+        private async Task<Option<IRelationalDatabaseView>> LoadViewAsyncCore(Identifier viewName, CancellationToken cancellationToken)
         {
             viewName = CreateQualifiedIdentifier(viewName);
             var qualifiedViewName = await GetResolvedViewNameAsync(viewName, cancellationToken).ConfigureAwait(false);
 
-            return qualifiedViewName != null
-                ? new MySqlRelationalDatabaseView(Connection, Dialect.TypeProvider, qualifiedViewName)
-                : null;
+            return qualifiedViewName
+                .Map<IRelationalDatabaseView>(name => new MySqlRelationalDatabaseView(Connection, Dialect.TypeProvider, name));
         }
 
-        public IDatabaseSequence GetSequence(Identifier sequenceName)
+        public Option<IDatabaseSequence> GetSequence(Identifier sequenceName)
         {
             if (sequenceName == null)
                 throw new ArgumentNullException(nameof(sequenceName));
 
-            return null;
+            return _missingSequence;
         }
 
-        public Task<IDatabaseSequence> GetSequenceAsync(Identifier sequenceName, CancellationToken cancellationToken = default(CancellationToken))
+        public Task<Option<IDatabaseSequence>> GetSequenceAsync(Identifier sequenceName, CancellationToken cancellationToken = default(CancellationToken))
         {
             if (sequenceName == null)
                 throw new ArgumentNullException(nameof(sequenceName));
 
-            return Task.FromResult<IDatabaseSequence>(null);
+            return _missingSequenceTask;
         }
 
-        public IReadOnlyCollection<IDatabaseSequence> Sequences => Array.Empty<IDatabaseSequence>();
+        public IReadOnlyCollection<IDatabaseSequence> Sequences { get; } = Array.Empty<IDatabaseSequence>();
 
         public Task<IReadOnlyCollection<Task<IDatabaseSequence>>> SequencesAsync(CancellationToken cancellationToken = default(CancellationToken)) => _emptySequences;
 
-        private readonly static Task<IReadOnlyCollection<Task<IDatabaseSequence>>> _emptySequences = Task.FromResult<IReadOnlyCollection<Task<IDatabaseSequence>>>(
-            Array.Empty<Task<IDatabaseSequence>>()
-        );
-
-        public IDatabaseSynonym GetSynonym(Identifier synonymName)
+        public Option<IDatabaseSynonym> GetSynonym(Identifier synonymName)
         {
             if (synonymName == null)
                 throw new ArgumentNullException(nameof(synonymName));
 
-            return null;
+            return _missingSynonym;
         }
 
-        public Task<IDatabaseSynonym> GetSynonymAsync(Identifier synonymName, CancellationToken cancellationToken = default(CancellationToken))
+        public Task<Option<IDatabaseSynonym>> GetSynonymAsync(Identifier synonymName, CancellationToken cancellationToken = default(CancellationToken))
         {
             if (synonymName == null)
                 throw new ArgumentNullException(nameof(synonymName));
 
-            return Task.FromResult<IDatabaseSynonym>(null);
+            return _missingSynonymTask;
         }
 
-        public IReadOnlyCollection<IDatabaseSynonym> Synonyms => Array.Empty<IDatabaseSynonym>();
+        public IReadOnlyCollection<IDatabaseSynonym> Synonyms { get; } = Array.Empty<IDatabaseSynonym>();
 
         public Task<IReadOnlyCollection<Task<IDatabaseSynonym>>> SynonymsAsync(CancellationToken cancellationToken = default(CancellationToken)) => _emptySynonyms;
-
-        private readonly static Task<IReadOnlyCollection<Task<IDatabaseSynonym>>> _emptySynonyms = Task.FromResult<IReadOnlyCollection<Task<IDatabaseSynonym>>>(
-            Array.Empty<Task<IDatabaseSynonym>>()
-        );
 
         private async Task<DatabaseMetadata> LoadDatabaseMetadataAsync()
         {
@@ -372,5 +364,12 @@ select
         }
 
         private readonly AsyncLazy<DatabaseMetadata> _metadata;
+
+        private readonly static Option<IDatabaseSequence> _missingSequence = Option<IDatabaseSequence>.None;
+        private readonly static Task<Option<IDatabaseSequence>> _missingSequenceTask = Task.FromResult(Option<IDatabaseSequence>.None);
+        private readonly static Task<IReadOnlyCollection<Task<IDatabaseSequence>>> _emptySequences = Task.FromResult<IReadOnlyCollection<Task<IDatabaseSequence>>>(Array.Empty<Task<IDatabaseSequence>>());
+        private readonly static Option<IDatabaseSynonym> _missingSynonym = Option<IDatabaseSynonym>.None;
+        private readonly static Task<Option<IDatabaseSynonym>> _missingSynonymTask = Task.FromResult(Option<IDatabaseSynonym>.None);
+        private readonly static Task<IReadOnlyCollection<Task<IDatabaseSynonym>>> _emptySynonyms = Task.FromResult<IReadOnlyCollection<Task<IDatabaseSynonym>>>(Array.Empty<Task<IDatabaseSynonym>>());
     }
 }

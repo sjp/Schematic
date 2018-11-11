@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Threading;
 using System.Threading.Tasks;
+using LanguageExt;
 using Moq;
 using NUnit.Framework;
 using SJP.Schematic.Core.Extensions;
@@ -52,7 +53,7 @@ namespace SJP.Schematic.Core.Tests.Extensions
             var databaseMock = new Mock<IRelationalDatabase>();
             var table = Mock.Of<IRelationalDatabaseTable>();
             var tableName = new Identifier("A");
-            databaseMock.Setup(db => db.GetTable(tableName)).Returns(table);
+            databaseMock.Setup(db => db.GetTable(tableName)).Returns(Option<IRelationalDatabaseTable>.Some(table));
             var database = databaseMock.Object;
 
             Assert.IsTrue(database.TryGetTable(tableName, out var _));
@@ -64,7 +65,7 @@ namespace SJP.Schematic.Core.Tests.Extensions
             var databaseMock = new Mock<IRelationalDatabase>();
             var table = Mock.Of<IRelationalDatabaseTable>();
             var tableName = new Identifier("A");
-            databaseMock.Setup(db => db.GetTable(tableName)).Returns(table);
+            databaseMock.Setup(db => db.GetTable(tableName)).Returns(Option<IRelationalDatabaseTable>.Some(table));
             var database = databaseMock.Object;
 
             database.TryGetTable(tableName, out var tableResult);
@@ -98,7 +99,7 @@ namespace SJP.Schematic.Core.Tests.Extensions
             var databaseMock = new Mock<IRelationalDatabase>();
             var table = Mock.Of<IRelationalDatabaseTable>();
             var tableName = new Identifier("A");
-            databaseMock.Setup(db => db.GetTableAsync(tableName, CancellationToken.None)).Returns(Task.FromResult(table));
+            databaseMock.Setup(db => db.GetTableAsync(tableName, CancellationToken.None)).Returns(Task.FromResult(Option<IRelationalDatabaseTable>.Some(table)));
             var database = databaseMock.Object;
 
             var result = await database.TryGetTableAsync(tableName, CancellationToken.None).ConfigureAwait(false);
@@ -111,7 +112,7 @@ namespace SJP.Schematic.Core.Tests.Extensions
             var databaseMock = new Mock<IRelationalDatabase>();
             var table = Mock.Of<IRelationalDatabaseTable>();
             var tableName = new Identifier("A");
-            databaseMock.Setup(db => db.GetTableAsync(tableName, CancellationToken.None)).Returns(Task.FromResult(table));
+            databaseMock.Setup(db => db.GetTableAsync(tableName, CancellationToken.None)).Returns(Task.FromResult(Option<IRelationalDatabaseTable>.Some(table)));
             var database = databaseMock.Object;
 
             var result = await database.TryGetTableAsync(tableName, CancellationToken.None).ConfigureAwait(false);
@@ -180,7 +181,7 @@ namespace SJP.Schematic.Core.Tests.Extensions
             var databaseMock = new Mock<IRelationalDatabase>();
             var view = Mock.Of<IRelationalDatabaseView>();
             var viewName = new Identifier("A");
-            databaseMock.Setup(db => db.GetView(viewName)).Returns(view);
+            databaseMock.Setup(db => db.GetView(viewName)).Returns(Option<IRelationalDatabaseView>.Some(view));
             var database = databaseMock.Object;
 
             Assert.IsTrue(database.TryGetView(viewName, out var _));
@@ -192,7 +193,7 @@ namespace SJP.Schematic.Core.Tests.Extensions
             var databaseMock = new Mock<IRelationalDatabase>();
             var view = Mock.Of<IRelationalDatabaseView>();
             var viewName = new Identifier("A");
-            databaseMock.Setup(db => db.GetView(viewName)).Returns(view);
+            databaseMock.Setup(db => db.GetView(viewName)).Returns(Option<IRelationalDatabaseView>.Some(view));
             var database = databaseMock.Object;
 
             database.TryGetView(viewName, out var viewResult);
@@ -226,7 +227,7 @@ namespace SJP.Schematic.Core.Tests.Extensions
             var databaseMock = new Mock<IRelationalDatabase>();
             var view = Mock.Of<IRelationalDatabaseView>();
             var viewName = new Identifier("A");
-            databaseMock.Setup(db => db.GetViewAsync(viewName, CancellationToken.None)).Returns(Task.FromResult(view));
+            databaseMock.Setup(db => db.GetViewAsync(viewName, CancellationToken.None)).Returns(Task.FromResult(Option<IRelationalDatabaseView>.Some(view)));
             var database = databaseMock.Object;
 
             var result = await database.TryGetViewAsync(viewName, CancellationToken.None).ConfigureAwait(false);
@@ -239,7 +240,7 @@ namespace SJP.Schematic.Core.Tests.Extensions
             var databaseMock = new Mock<IRelationalDatabase>();
             var view = Mock.Of<IRelationalDatabaseView>();
             var viewName = new Identifier("A");
-            databaseMock.Setup(db => db.GetViewAsync(viewName, CancellationToken.None)).Returns(Task.FromResult(view));
+            databaseMock.Setup(db => db.GetViewAsync(viewName, CancellationToken.None)).Returns(Task.FromResult(Option<IRelationalDatabaseView>.Some(view)));
             var database = databaseMock.Object;
 
             var result = await database.TryGetViewAsync(viewName, CancellationToken.None).ConfigureAwait(false);
@@ -308,7 +309,7 @@ namespace SJP.Schematic.Core.Tests.Extensions
             var databaseMock = new Mock<IRelationalDatabase>();
             var sequence = Mock.Of<IDatabaseSequence>();
             var sequenceName = new Identifier("A");
-            databaseMock.Setup(db => db.GetSequence(sequenceName)).Returns(sequence);
+            databaseMock.Setup(db => db.GetSequence(sequenceName)).Returns(Option<IDatabaseSequence>.Some(sequence));
             var database = databaseMock.Object;
 
             Assert.IsTrue(database.TryGetSequence(sequenceName, out var _));
@@ -320,7 +321,7 @@ namespace SJP.Schematic.Core.Tests.Extensions
             var databaseMock = new Mock<IRelationalDatabase>();
             var sequence = Mock.Of<IDatabaseSequence>();
             var sequenceName = new Identifier("A");
-            databaseMock.Setup(db => db.GetSequence(sequenceName)).Returns(sequence);
+            databaseMock.Setup(db => db.GetSequence(sequenceName)).Returns(Option<IDatabaseSequence>.Some(sequence));
             var database = databaseMock.Object;
 
             database.TryGetSequence(sequenceName, out var sequenceResult);
@@ -354,7 +355,7 @@ namespace SJP.Schematic.Core.Tests.Extensions
             var databaseMock = new Mock<IRelationalDatabase>();
             var sequence = Mock.Of<IDatabaseSequence>();
             var sequenceName = new Identifier("A");
-            databaseMock.Setup(db => db.GetSequenceAsync(sequenceName, CancellationToken.None)).Returns(Task.FromResult(sequence));
+            databaseMock.Setup(db => db.GetSequenceAsync(sequenceName, CancellationToken.None)).Returns(Task.FromResult(Option<IDatabaseSequence>.Some(sequence)));
             var database = databaseMock.Object;
 
             var result = await database.TryGetSequenceAsync(sequenceName, CancellationToken.None).ConfigureAwait(false);
@@ -367,7 +368,7 @@ namespace SJP.Schematic.Core.Tests.Extensions
             var databaseMock = new Mock<IRelationalDatabase>();
             var sequence = Mock.Of<IDatabaseSequence>();
             var sequenceName = new Identifier("A");
-            databaseMock.Setup(db => db.GetSequenceAsync(sequenceName, CancellationToken.None)).Returns(Task.FromResult(sequence));
+            databaseMock.Setup(db => db.GetSequenceAsync(sequenceName, CancellationToken.None)).Returns(Task.FromResult(Option<IDatabaseSequence>.Some(sequence)));
             var database = databaseMock.Object;
 
             var result = await database.TryGetSequenceAsync(sequenceName, CancellationToken.None).ConfigureAwait(false);
@@ -436,7 +437,7 @@ namespace SJP.Schematic.Core.Tests.Extensions
             var databaseMock = new Mock<IRelationalDatabase>();
             var synonym = Mock.Of<IDatabaseSynonym>();
             var synonymName = new Identifier("A");
-            databaseMock.Setup(db => db.GetSynonym(synonymName)).Returns(synonym);
+            databaseMock.Setup(db => db.GetSynonym(synonymName)).Returns(Option<IDatabaseSynonym>.Some(synonym));
             var database = databaseMock.Object;
 
             Assert.IsTrue(database.TryGetSynonym(synonymName, out var _));
@@ -448,7 +449,7 @@ namespace SJP.Schematic.Core.Tests.Extensions
             var databaseMock = new Mock<IRelationalDatabase>();
             var synonym = Mock.Of<IDatabaseSynonym>();
             var synonymName = new Identifier("A");
-            databaseMock.Setup(db => db.GetSynonym(synonymName)).Returns(synonym);
+            databaseMock.Setup(db => db.GetSynonym(synonymName)).Returns(Option<IDatabaseSynonym>.Some(synonym));
             var database = databaseMock.Object;
 
             database.TryGetSynonym(synonymName, out var synonymResult);
@@ -482,7 +483,7 @@ namespace SJP.Schematic.Core.Tests.Extensions
             var databaseMock = new Mock<IRelationalDatabase>();
             var synonym = Mock.Of<IDatabaseSynonym>();
             var synonymName = new Identifier("A");
-            databaseMock.Setup(db => db.GetSynonymAsync(synonymName, CancellationToken.None)).Returns(Task.FromResult(synonym));
+            databaseMock.Setup(db => db.GetSynonymAsync(synonymName, CancellationToken.None)).Returns(Task.FromResult(Option<IDatabaseSynonym>.Some(synonym)));
             var database = databaseMock.Object;
 
             var result = await database.TryGetSynonymAsync(synonymName, CancellationToken.None).ConfigureAwait(false);
@@ -495,7 +496,7 @@ namespace SJP.Schematic.Core.Tests.Extensions
             var databaseMock = new Mock<IRelationalDatabase>();
             var synonym = Mock.Of<IDatabaseSynonym>();
             var synonymName = new Identifier("A");
-            databaseMock.Setup(db => db.GetSynonymAsync(synonymName, CancellationToken.None)).Returns(Task.FromResult(synonym));
+            databaseMock.Setup(db => db.GetSynonymAsync(synonymName, CancellationToken.None)).Returns(Task.FromResult(Option<IDatabaseSynonym>.Some(synonym)));
             var database = databaseMock.Object;
 
             var result = await database.TryGetSynonymAsync(synonymName, CancellationToken.None).ConfigureAwait(false);

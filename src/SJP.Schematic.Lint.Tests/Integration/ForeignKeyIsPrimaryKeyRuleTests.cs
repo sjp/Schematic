@@ -5,6 +5,8 @@ using System.Threading.Tasks;
 using Dapper;
 using Moq;
 using NUnit.Framework;
+using SJP.Schematic.Core;
+using SJP.Schematic.Core.Extensions;
 using SJP.Schematic.Lint.Rules;
 using SJP.Schematic.Lint.Tests.Fakes;
 using SJP.Schematic.Sqlite;
@@ -57,7 +59,10 @@ create table parent_table_with_pk_column_to_pk_column_1 (
             var fakeDatabase = CreateFakeDatabase();
             var database = new SqliteRelationalDatabase(Dialect, Connection);
 
-            fakeDatabase.Tables = new[] { database.GetTable("parent_table_with_different_column_to_pk_column_1") };
+            fakeDatabase.Tables = new[]
+            {
+                database.GetTable("parent_table_with_different_column_to_pk_column_1").UnwrapSome()
+            };
 
             var messages = rule.AnalyseDatabase(fakeDatabase);
 
@@ -71,7 +76,7 @@ create table parent_table_with_pk_column_to_pk_column_1 (
             var fakeDatabase = CreateFakeDatabase();
             var database = new SqliteRelationalDatabase(Dialect, Connection);
 
-            fakeDatabase.Tables = new[] { database.GetTable("parent_table_with_pk_column_to_pk_column_1") };
+            fakeDatabase.Tables = new[] { database.GetTable("parent_table_with_pk_column_to_pk_column_1").UnwrapSome() };
 
             var messages = rule.AnalyseDatabase(fakeDatabase);
 

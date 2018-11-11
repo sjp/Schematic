@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using Dapper;
 using NUnit.Framework;
 using SJP.Schematic.Core;
+using SJP.Schematic.Core.Extensions;
 
 namespace SJP.Schematic.PostgreSql.Tests.Integration
 {
@@ -61,14 +62,14 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration
             public void GetTable_WhenTablePresent_ReturnsTable()
             {
                 var table = Database.GetTable("db_test_table_1");
-                Assert.NotNull(table);
+                Assert.IsTrue(table.IsSome);
             }
 
             [Test]
             public void GetTable_WhenTablePresent_ReturnsTableWithCorrectName()
             {
                 const string tableName = "db_test_table_1";
-                var table = Database.GetTable(tableName);
+                var table = Database.GetTable(tableName).UnwrapSome();
 
                 Assert.AreEqual(tableName, table.Name.LocalName);
             }
@@ -80,7 +81,7 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration
                 var tableName = new Identifier("db_test_table_1");
                 var expectedTableName = new Identifier(database.ServerName, database.DatabaseName, database.DefaultSchema, "db_test_table_1");
 
-                var table = database.GetTable(tableName);
+                var table = database.GetTable(tableName).UnwrapSome();
 
                 Assert.AreEqual(expectedTableName, table.Name);
             }
@@ -92,7 +93,7 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration
                 var tableName = new Identifier(database.DefaultSchema, "db_test_table_1");
                 var expectedTableName = new Identifier(database.ServerName, database.DatabaseName, database.DefaultSchema, "db_test_table_1");
 
-                var table = database.GetTable(tableName);
+                var table = database.GetTable(tableName).UnwrapSome();
 
                 Assert.AreEqual(expectedTableName, table.Name);
             }
@@ -104,7 +105,7 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration
                 var tableName = new Identifier(database.DatabaseName, database.DefaultSchema, "db_test_table_1");
                 var expectedTableName = new Identifier(database.ServerName, database.DatabaseName, database.DefaultSchema, "db_test_table_1");
 
-                var table = database.GetTable(tableName);
+                var table = database.GetTable(tableName).UnwrapSome();
 
                 Assert.AreEqual(expectedTableName, table.Name);
             }
@@ -115,16 +116,16 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration
                 var database = Database;
                 var tableName = new Identifier(database.ServerName, database.DatabaseName, database.DefaultSchema, "db_test_table_1");
 
-                var table = database.GetTable(tableName);
+                var table = database.GetTable(tableName).UnwrapSome();
 
                 Assert.AreEqual(tableName, table.Name);
             }
 
             [Test]
-            public void GetTable_WhenTableMissing_ReturnsNull()
+            public void GetTable_WhenTableMissing_ReturnsNone()
             {
                 var table = Database.GetTable("table_that_doesnt_exist");
-                Assert.IsNull(table);
+                Assert.IsTrue(table.IsNone);
             }
 
             [Test]
@@ -137,14 +138,15 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration
             public async Task GetTableAsync_WhenTablePresent_ReturnsTable()
             {
                 var table = await Database.GetTableAsync("db_test_table_1").ConfigureAwait(false);
-                Assert.NotNull(table);
+                Assert.IsTrue(table.IsSome);
             }
 
             [Test]
             public async Task GetTableAsync_WhenTablePresent_ReturnsTableWithCorrectName()
             {
                 const string tableName = "db_test_table_1";
-                var table = await Database.GetTableAsync(tableName).ConfigureAwait(false);
+                var tableOption = await Database.GetTableAsync(tableName).ConfigureAwait(false);
+                var table = tableOption.UnwrapSome();
 
                 Assert.AreEqual(tableName, table.Name.LocalName);
             }
@@ -156,7 +158,8 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration
                 var tableName = new Identifier("db_test_table_1");
                 var expectedTableName = new Identifier(database.ServerName, database.DatabaseName, database.DefaultSchema, "db_test_table_1");
 
-                var table = await database.GetTableAsync(tableName).ConfigureAwait(false);
+                var tableOption = await database.GetTableAsync(tableName).ConfigureAwait(false);
+                var table = tableOption.UnwrapSome();
 
                 Assert.AreEqual(expectedTableName, table.Name);
             }
@@ -168,7 +171,8 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration
                 var tableName = new Identifier(database.DefaultSchema, "db_test_table_1");
                 var expectedTableName = new Identifier(database.ServerName, database.DatabaseName, database.DefaultSchema, "db_test_table_1");
 
-                var table = await database.GetTableAsync(tableName).ConfigureAwait(false);
+                var tableOption = await database.GetTableAsync(tableName).ConfigureAwait(false);
+                var table = tableOption.UnwrapSome();
 
                 Assert.AreEqual(expectedTableName, table.Name);
             }
@@ -180,7 +184,8 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration
                 var tableName = new Identifier(database.DatabaseName, database.DefaultSchema, "db_test_table_1");
                 var expectedTableName = new Identifier(database.ServerName, database.DatabaseName, database.DefaultSchema, "db_test_table_1");
 
-                var table = await database.GetTableAsync(tableName).ConfigureAwait(false);
+                var tableOption = await database.GetTableAsync(tableName).ConfigureAwait(false);
+                var table = tableOption.UnwrapSome();
 
                 Assert.AreEqual(expectedTableName, table.Name);
             }
@@ -191,16 +196,17 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration
                 var database = Database;
                 var tableName = new Identifier(database.ServerName, database.DatabaseName, database.DefaultSchema, "db_test_table_1");
 
-                var table = await database.GetTableAsync(tableName).ConfigureAwait(false);
+                var tableOption = await database.GetTableAsync(tableName).ConfigureAwait(false);
+                var table = tableOption.UnwrapSome();
 
                 Assert.AreEqual(tableName, table.Name);
             }
 
             [Test]
-            public async Task GetTableAsync_WhenTableMissing_ReturnsNull()
+            public async Task GetTableAsync_WhenTableMissing_ReturnsNone()
             {
                 var table = await Database.GetTableAsync("table_that_doesnt_exist").ConfigureAwait(false);
-                Assert.IsNull(table);
+                Assert.IsTrue(table.IsNone);
             }
 
             [Test]
@@ -267,7 +273,7 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration
             public void GetView_WhenViewPresent_ReturnsView()
             {
                 var view = Database.GetView("db_test_view_1");
-                Assert.NotNull(view);
+                Assert.IsTrue(view.IsSome);
             }
 
             [Test]
@@ -275,7 +281,7 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration
             {
                 var database = Database;
                 var viewName = new Identifier(database.ServerName, database.DatabaseName, database.DefaultSchema, "db_test_view_1");
-                var view = database.GetView(viewName);
+                var view = database.GetView(viewName).UnwrapSome();
 
                 Assert.AreEqual(viewName, view.Name);
             }
@@ -287,7 +293,7 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration
                 var viewName = new Identifier("db_test_view_1");
                 var expectedViewName = new Identifier(database.ServerName, database.DatabaseName, database.DefaultSchema, "db_test_view_1");
 
-                var view = database.GetView(viewName);
+                var view = database.GetView(viewName).UnwrapSome();
 
                 Assert.AreEqual(expectedViewName, view.Name);
             }
@@ -299,7 +305,7 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration
                 var viewName = new Identifier(database.DefaultSchema, "db_test_view_1");
                 var expectedViewName = new Identifier(database.ServerName, database.DatabaseName, database.DefaultSchema, "db_test_view_1");
 
-                var view = database.GetView(viewName);
+                var view = database.GetView(viewName).UnwrapSome();
 
                 Assert.AreEqual(expectedViewName, view.Name);
             }
@@ -311,7 +317,7 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration
                 var viewName = new Identifier(database.DatabaseName, database.DefaultSchema, "db_test_view_1");
                 var expectedViewName = new Identifier(database.ServerName, database.DatabaseName, database.DefaultSchema, "db_test_view_1");
 
-                var view = database.GetView(viewName);
+                var view = database.GetView(viewName).UnwrapSome();
 
                 Assert.AreEqual(expectedViewName, view.Name);
             }
@@ -322,16 +328,16 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration
                 var database = Database;
                 var viewName = new Identifier(database.ServerName, database.DatabaseName, database.DefaultSchema, "db_test_view_1");
 
-                var view = database.GetView(viewName);
+                var view = database.GetView(viewName).UnwrapSome();
 
                 Assert.AreEqual(viewName, view.Name);
             }
 
             [Test]
-            public void GetView_WhenViewMissing_ReturnsNull()
+            public void GetView_WhenViewMissing_ReturnsNone()
             {
                 var view = Database.GetView("view_that_doesnt_exist");
-                Assert.IsNull(view);
+                Assert.IsTrue(view.IsNone);
             }
 
             [Test]
@@ -344,7 +350,7 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration
             public async Task GetViewAsync_WhenViewPresent_ReturnsView()
             {
                 var view = await Database.GetViewAsync("db_test_view_1").ConfigureAwait(false);
-                Assert.NotNull(view);
+                Assert.IsTrue(view.IsSome);
             }
 
             [Test]
@@ -352,7 +358,8 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration
             {
                 var database = Database;
                 var viewName = new Identifier(database.ServerName, database.DatabaseName, database.DefaultSchema, "db_test_view_1");
-                var view = await database.GetViewAsync(viewName).ConfigureAwait(false);
+                var viewOption = await database.GetViewAsync(viewName).ConfigureAwait(false);
+                var view = viewOption.UnwrapSome();
 
                 Assert.AreEqual(viewName, view.Name);
             }
@@ -364,7 +371,8 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration
                 var viewName = new Identifier("db_test_view_1");
                 var expectedViewName = new Identifier(database.ServerName, database.DatabaseName, database.DefaultSchema, "db_test_view_1");
 
-                var view = await database.GetViewAsync(viewName).ConfigureAwait(false);
+                var viewOption = await database.GetViewAsync(viewName).ConfigureAwait(false);
+                var view = viewOption.UnwrapSome();
 
                 Assert.AreEqual(expectedViewName, view.Name);
             }
@@ -376,7 +384,8 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration
                 var viewName = new Identifier(database.DefaultSchema, "db_test_view_1");
                 var expectedViewName = new Identifier(database.ServerName, database.DatabaseName, database.DefaultSchema, "db_test_view_1");
 
-                var view = await database.GetViewAsync(viewName).ConfigureAwait(false);
+                var viewOption = await database.GetViewAsync(viewName).ConfigureAwait(false);
+                var view = viewOption.UnwrapSome();
 
                 Assert.AreEqual(expectedViewName, view.Name);
             }
@@ -388,7 +397,8 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration
                 var viewName = new Identifier(database.DatabaseName, database.DefaultSchema, "db_test_view_1");
                 var expectedViewName = new Identifier(database.ServerName, database.DatabaseName, database.DefaultSchema, "db_test_view_1");
 
-                var view = await database.GetViewAsync(viewName).ConfigureAwait(false);
+                var viewOption = await database.GetViewAsync(viewName).ConfigureAwait(false);
+                var view = viewOption.UnwrapSome();
 
                 Assert.AreEqual(expectedViewName, view.Name);
             }
@@ -399,16 +409,17 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration
                 var database = Database;
                 var viewName = new Identifier(database.ServerName, database.DatabaseName, database.DefaultSchema, "db_test_view_1");
 
-                var view = await database.GetViewAsync(viewName).ConfigureAwait(false);
+                var viewOption = await database.GetViewAsync(viewName).ConfigureAwait(false);
+                var view = viewOption.UnwrapSome();
 
                 Assert.AreEqual(viewName, view.Name);
             }
 
             [Test]
-            public async Task GetViewAsync_WhenViewMissing_ReturnsNull()
+            public async Task GetViewAsync_WhenViewMissing_ReturnsNone()
             {
                 var view = await Database.GetViewAsync("view_that_doesnt_exist").ConfigureAwait(false);
-                Assert.IsNull(view);
+                Assert.IsTrue(view.IsNone);
             }
 
             [Test]
@@ -474,14 +485,14 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration
             public void GetSequence_WhenSequencePresent_ReturnsSequence()
             {
                 var sequence = Database.GetSequence("db_test_sequence_1");
-                Assert.NotNull(sequence);
+                Assert.IsTrue(sequence.IsSome);
             }
 
             [Test]
             public void GetSequence_WhenSequencePresent_ReturnsSequenceWithCorrectName()
             {
                 const string sequenceName = "db_test_sequence_1";
-                var sequence = Database.GetSequence(sequenceName);
+                var sequence = Database.GetSequence(sequenceName).UnwrapSome();
 
                 Assert.AreEqual(sequenceName, sequence.Name.LocalName);
             }
@@ -493,7 +504,7 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration
                 var sequenceName = new Identifier("db_test_sequence_1");
                 var expectedSequenceName = new Identifier(database.ServerName, database.DatabaseName, database.DefaultSchema, "db_test_sequence_1");
 
-                var sequence = database.GetSequence(sequenceName);
+                var sequence = database.GetSequence(sequenceName).UnwrapSome();
 
                 Assert.AreEqual(expectedSequenceName, sequence.Name);
             }
@@ -505,7 +516,7 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration
                 var sequenceName = new Identifier(database.DefaultSchema, "db_test_sequence_1");
                 var expectedSequenceName = new Identifier(database.ServerName, database.DatabaseName, database.DefaultSchema, "db_test_sequence_1");
 
-                var sequence = database.GetSequence(sequenceName);
+                var sequence = database.GetSequence(sequenceName).UnwrapSome();
 
                 Assert.AreEqual(expectedSequenceName, sequence.Name);
             }
@@ -517,7 +528,7 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration
                 var sequenceName = new Identifier(database.DatabaseName, database.DefaultSchema, "db_test_sequence_1");
                 var expectedSequenceName = new Identifier(database.ServerName, database.DatabaseName, database.DefaultSchema, "db_test_sequence_1");
 
-                var sequence = database.GetSequence(sequenceName);
+                var sequence = database.GetSequence(sequenceName).UnwrapSome();
 
                 Assert.AreEqual(expectedSequenceName, sequence.Name);
             }
@@ -528,16 +539,16 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration
                 var database = Database;
                 var sequenceName = new Identifier(database.ServerName, database.DatabaseName, database.DefaultSchema, "db_test_sequence_1");
 
-                var sequence = database.GetSequence(sequenceName);
+                var sequence = database.GetSequence(sequenceName).UnwrapSome();
 
                 Assert.AreEqual(sequenceName, sequence.Name);
             }
 
             [Test]
-            public void GetSequence_WhenSequenceMissing_ReturnsNull()
+            public void GetSequence_WhenSequenceMissing_ReturnsNone()
             {
                 var sequence = Database.GetSequence("sequence_that_doesnt_exist");
-                Assert.IsNull(sequence);
+                Assert.IsTrue(sequence.IsNone);
             }
 
             [Test]
@@ -550,14 +561,15 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration
             public async Task GetSequenceAsync_WhenSequencePresent_ReturnsSequence()
             {
                 var sequence = await Database.GetSequenceAsync("db_test_sequence_1").ConfigureAwait(false);
-                Assert.NotNull(sequence);
+                Assert.IsTrue(sequence.IsSome);
             }
 
             [Test]
             public async Task GetSequenceAsync_WhenSequencePresent_ReturnsSequenceWithCorrectName()
             {
                 const string sequenceName = "db_test_sequence_1";
-                var sequence = await Database.GetSequenceAsync(sequenceName).ConfigureAwait(false);
+                var sequenceOption = await Database.GetSequenceAsync(sequenceName).ConfigureAwait(false);
+                var sequence = sequenceOption.UnwrapSome();
 
                 Assert.AreEqual(sequenceName, sequence.Name.LocalName);
             }
@@ -569,7 +581,8 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration
                 var sequenceName = new Identifier("db_test_sequence_1");
                 var expectedSequenceName = new Identifier(database.ServerName, database.DatabaseName, database.DefaultSchema, "db_test_sequence_1");
 
-                var sequence = await database.GetSequenceAsync(sequenceName).ConfigureAwait(false);
+                var sequenceOption = await database.GetSequenceAsync(sequenceName).ConfigureAwait(false);
+                var sequence = sequenceOption.UnwrapSome();
 
                 Assert.AreEqual(expectedSequenceName, sequence.Name);
             }
@@ -581,7 +594,8 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration
                 var sequenceName = new Identifier(database.DefaultSchema, "db_test_sequence_1");
                 var expectedSequenceName = new Identifier(database.ServerName, database.DatabaseName, database.DefaultSchema, "db_test_sequence_1");
 
-                var sequence = await database.GetSequenceAsync(sequenceName).ConfigureAwait(false);
+                var sequenceOption = await database.GetSequenceAsync(sequenceName).ConfigureAwait(false);
+                var sequence = sequenceOption.UnwrapSome();
 
                 Assert.AreEqual(expectedSequenceName, sequence.Name);
             }
@@ -593,7 +607,8 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration
                 var sequenceName = new Identifier(database.DatabaseName, database.DefaultSchema, "db_test_sequence_1");
                 var expectedSequenceName = new Identifier(database.ServerName, database.DatabaseName, database.DefaultSchema, "db_test_sequence_1");
 
-                var sequence = await database.GetSequenceAsync(sequenceName).ConfigureAwait(false);
+                var sequenceOption = await database.GetSequenceAsync(sequenceName).ConfigureAwait(false);
+                var sequence = sequenceOption.UnwrapSome();
 
                 Assert.AreEqual(expectedSequenceName, sequence.Name);
             }
@@ -604,16 +619,17 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration
                 var database = Database;
                 var sequenceName = new Identifier(database.ServerName, database.DatabaseName, database.DefaultSchema, "db_test_sequence_1");
 
-                var sequence = await database.GetSequenceAsync(sequenceName).ConfigureAwait(false);
+                var sequenceOption = await database.GetSequenceAsync(sequenceName).ConfigureAwait(false);
+                var sequence = sequenceOption.UnwrapSome();
 
                 Assert.AreEqual(sequenceName, sequence.Name);
             }
 
             [Test]
-            public async Task GetSequenceAsync_WhenSequenceMissing_ReturnsNull()
+            public async Task GetSequenceAsync_WhenSequenceMissing_ReturnsNone()
             {
                 var sequence = await Database.GetSequenceAsync("sequence_that_doesnt_exist").ConfigureAwait(false);
-                Assert.IsNull(sequence);
+                Assert.IsTrue(sequence.IsNone);
             }
 
             [Test]
@@ -665,10 +681,10 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration
             }
 
             [Test]
-            public void GetSynonym_WhenSynonymMissing_ReturnsNull()
+            public void GetSynonym_WhenSynonymMissing_ReturnsNone()
             {
                 var synonym = Database.GetSynonym("synonym_that_doesnt_exist");
-                Assert.IsNull(synonym);
+                Assert.IsTrue(synonym.IsNone);
             }
 
             [Test]
@@ -678,10 +694,10 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration
             }
 
             [Test]
-            public async Task GetSynonymAsync_WhenSynonymMissing_ReturnsNull()
+            public async Task GetSynonymAsync_WhenSynonymMissing_ReturnsNone()
             {
                 var synonym = await Database.GetSynonymAsync("synonym_that_doesnt_exist").ConfigureAwait(false);
-                Assert.IsNull(synonym);
+                Assert.IsTrue(synonym.IsNone);
             }
 
             [Test]

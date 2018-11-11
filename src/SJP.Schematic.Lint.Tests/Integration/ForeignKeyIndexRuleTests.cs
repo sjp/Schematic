@@ -5,6 +5,8 @@ using System.Threading.Tasks;
 using Dapper;
 using Moq;
 using NUnit.Framework;
+using SJP.Schematic.Core;
+using SJP.Schematic.Core.Extensions;
 using SJP.Schematic.Lint.Rules;
 using SJP.Schematic.Lint.Tests.Fakes;
 using SJP.Schematic.Sqlite;
@@ -71,8 +73,8 @@ create table not_indexed_child_table_1 (
 
             fakeDatabase.Tables = new[]
             {
-                database.GetTable("no_index_parent_table_1"),
-                database.GetTable("indexed_child_table_1")
+                database.GetTable("no_index_parent_table_1").UnwrapSome(),
+                database.GetTable("indexed_child_table_1").UnwrapSome()
             };
 
             var messages = rule.AnalyseDatabase(fakeDatabase);
@@ -89,8 +91,8 @@ create table not_indexed_child_table_1 (
 
             fakeDatabase.Tables = new[]
             {
-                database.GetTable("no_index_parent_table_1"),
-                database.GetTable("not_indexed_child_table_1")
+                database.GetTable("no_index_parent_table_1").UnwrapSome(),
+                database.GetTable("not_indexed_child_table_1").UnwrapSome()
             };
 
             var messages = rule.AnalyseDatabase(fakeDatabase);

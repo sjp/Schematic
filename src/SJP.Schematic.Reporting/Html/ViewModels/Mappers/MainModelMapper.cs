@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Data;
 using System.Threading.Tasks;
+using LanguageExt;
 using SJP.Schematic.Core;
+using SJP.Schematic.Core.Extensions;
 
 namespace SJP.Schematic.Reporting.Html.ViewModels.Mappers
 {
@@ -140,41 +142,37 @@ namespace SJP.Schematic.Reporting.Html.ViewModels.Mappers
             return new Main.Synonym(synonym.Name, synonym.Target, targetUrl);
         }
 
-        private Uri GetSynonymTargetUrl(Identifier identifier)
+        private Option<Uri> GetSynonymTargetUrl(Identifier identifier)
         {
             if (identifier == null)
                 throw new ArgumentNullException(nameof(identifier));
 
             var table = Database.GetTable(identifier);
-            if (table != null)
-            {
-                return new Uri("tables/" + table.Name.ToSafeKey() + ".html", UriKind.Relative);
-            }
-            else
-            {
-                var view = Database.GetView(identifier);
-                if (view != null)
-                    return new Uri("views/" + view.Name.ToSafeKey() + ".html", UriKind.Relative);
-            }
+            var tableUri = table.Map(t => new Uri("tables/" + t.Name.ToSafeKey() + ".html", UriKind.Relative));
+            if (tableUri.IsSome)
+                return tableUri;
 
-            return null;
+            var view = Database.GetView(identifier);
+            var viewUri = view.Map(v => new Uri("views/" + v.Name.ToSafeKey() + ".html", UriKind.Relative));
+            if (viewUri.IsSome)
+                return viewUri;
+
+            return Option<Uri>.None;
         }
 
-        private async Task<Uri> GetSynonymTargetUrlAsync(Identifier identifier)
+        private async Task<Option<Uri>> GetSynonymTargetUrlAsync(Identifier identifier)
         {
             var table = await Database.GetTableAsync(identifier).ConfigureAwait(false);
-            if (table != null)
-            {
-                return new Uri("tables/" + table.Name.ToSafeKey() + ".html", UriKind.Relative);
-            }
-            else
-            {
-                var view = await Database.GetViewAsync(identifier).ConfigureAwait(false);
-                if (view != null)
-                    return new Uri("views/" + view.Name.ToSafeKey() + ".html", UriKind.Relative);
-            }
+            var tableUri = table.Map(t => new Uri("tables/" + t.Name.ToSafeKey() + ".html", UriKind.Relative));
+            if (tableUri.IsSome)
+                return tableUri;
 
-            return null;
+            var view = await Database.GetViewAsync(identifier).ConfigureAwait(false);
+            var viewUri = view.Map(v => new Uri("views/" + v.Name.ToSafeKey() + ".html", UriKind.Relative));
+            if (viewUri.IsSome)
+                return viewUri;
+
+            return Option<Uri>.None;
         }
     }
 }

@@ -47,7 +47,7 @@ where table_schema = @SchemaName and table_name = @ViewName";
 
         public Task<IReadOnlyDictionary<Identifier, IDatabaseIndex>> IndexAsync(CancellationToken cancellationToken = default(CancellationToken)) => _emptyIndexLookupTask;
 
-        public IReadOnlyCollection<IDatabaseIndex> Indexes => Array.Empty<IDatabaseIndex>();
+        public IReadOnlyCollection<IDatabaseIndex> Indexes { get; } = Array.Empty<IDatabaseIndex>();
 
         public Task<IReadOnlyCollection<IDatabaseIndex>> IndexesAsync(CancellationToken cancellationToken = default(CancellationToken)) => _emptyIndexes;
 

@@ -58,7 +58,11 @@ namespace SJP.Schematic.Modelled.Reflection
                 var fkColumns = declaredParentKey.Columns.Select(GetColumn).ToList();
 
                 var parentName = Dialect.GetQualifiedNameOrDefault(Database, declaredParentKey.TargetType);
-                var parent = Database.GetTable(parentName);
+                var parentOption = Database.GetTable(parentName);
+                if (parentOption.IsNone)
+                    throw new Exception("Could not find parent table with name: " + parentName.ToString());
+
+                var parent = parentOption.UnwrapSome();
 
                 var parentTypeProvider = new ReflectionTableTypeProvider(Dialect, declaredParentKey.TargetType);
                 var parentInstance = parentTypeProvider.TableInstance;

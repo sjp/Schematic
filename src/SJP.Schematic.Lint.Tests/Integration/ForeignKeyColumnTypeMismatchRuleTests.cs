@@ -5,6 +5,8 @@ using System.Threading.Tasks;
 using Dapper;
 using Moq;
 using NUnit.Framework;
+using SJP.Schematic.Core;
+using SJP.Schematic.Core.Extensions;
 using SJP.Schematic.Lint.Rules;
 using SJP.Schematic.Lint.Tests.Fakes;
 using SJP.Schematic.Sqlite;
@@ -60,7 +62,11 @@ create table child_table_with_text_key_column_1 (
             var fakeDatabase = CreateFakeDatabase();
             var database = new SqliteRelationalDatabase(Dialect, Connection);
 
-            fakeDatabase.Tables = new[] { database.GetTable("parent_table_with_int_key_column_1"), database.GetTable("child_table_with_int_key_column_1") };
+            fakeDatabase.Tables = new[]
+            {
+                database.GetTable("parent_table_with_int_key_column_1").UnwrapSome(),
+                database.GetTable("child_table_with_int_key_column_1").UnwrapSome()
+            };
 
             var messages = rule.AnalyseDatabase(fakeDatabase);
 
@@ -74,7 +80,11 @@ create table child_table_with_text_key_column_1 (
             var fakeDatabase = CreateFakeDatabase();
             var database = new SqliteRelationalDatabase(Dialect, Connection);
 
-            fakeDatabase.Tables = new[] { database.GetTable("parent_table_with_int_key_column_1"), database.GetTable("child_table_with_text_key_column_1") };
+            fakeDatabase.Tables = new[]
+            {
+                database.GetTable("parent_table_with_int_key_column_1").UnwrapSome(),
+                database.GetTable("child_table_with_text_key_column_1").UnwrapSome()
+            };
 
             var messages = rule.AnalyseDatabase(fakeDatabase);
 

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Web;
+using LanguageExt;
 using SJP.Schematic.Core;
 
 namespace SJP.Schematic.Reporting.Html.ViewModels
@@ -187,7 +188,7 @@ namespace SJP.Schematic.Reporting.Html.ViewModels
 
         internal sealed class Synonym
         {
-            public Synonym(Identifier synonymName, Identifier target, Uri targetUrl)
+            public Synonym(Identifier synonymName, Identifier target, Option<Uri> targetUrl)
             {
                 if (synonymName == null)
                     throw new ArgumentNullException(nameof(synonymName));
@@ -197,9 +198,10 @@ namespace SJP.Schematic.Reporting.Html.ViewModels
                 Name = synonymName.ToVisibleName();
 
                 var targetName = target.ToVisibleName();
-                TargetText = targetUrl != null
-                    ? $"<a href=\"{ targetUrl }\">{ HttpUtility.HtmlEncode(targetName) }</a>"
-                    : HttpUtility.HtmlEncode(targetName);
+                TargetText = targetUrl.Match(
+                    uri => $"<a href=\"{ uri }\">{ HttpUtility.HtmlEncode(targetName) }</a>",
+                    () => HttpUtility.HtmlEncode(targetName)
+                );
             }
 
             public string Name { get; }

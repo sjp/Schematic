@@ -1,6 +1,7 @@
 ﻿using System.Linq;
 using System.Threading.Tasks;
 using NUnit.Framework;
+using SJP.Schematic.Core.Extensions;
 
 namespace SJP.Schematic.MySql.Tests.Integration
 {
@@ -9,7 +10,7 @@ namespace SJP.Schematic.MySql.Tests.Integration
         [Test]
         public void Index_WhenGivenTableWithNoIndexes_ReturnsEmptyLookup()
         {
-            var table = Database.GetTable("table_test_table_1");
+            var table = Database.GetTable("table_test_table_1").UnwrapSome();
             var count = table.Index.Count;
 
             Assert.AreEqual(0, count);
@@ -19,7 +20,7 @@ namespace SJP.Schematic.MySql.Tests.Integration
         public void Index_WhenQueriedByName_ReturnsCorrectIndex()
         {
             const string indexName = "ix_test_table_8";
-            var table = Database.GetTable("table_test_table_8");
+            var table = Database.GetTable("table_test_table_8").UnwrapSome();
             var index = table.Index[indexName];
 
             Assert.AreEqual(indexName, index.Name.LocalName);
@@ -28,7 +29,7 @@ namespace SJP.Schematic.MySql.Tests.Integration
         [Test]
         public void Index_WhenGivenTableWithSingleColumnIndex_ReturnsIndexWithColumnOnly()
         {
-            var table = Database.GetTable("table_test_table_8");
+            var table = Database.GetTable("table_test_table_8").UnwrapSome();
             var index = table.Index["ix_test_table_8"];
             var indexColumns = index.Columns.ToList();
 
@@ -42,7 +43,7 @@ namespace SJP.Schematic.MySql.Tests.Integration
         [Test]
         public void Index_WhenGivenTableWithSingleColumnIndex_ReturnsIndexWithCorrectName()
         {
-            var table = Database.GetTable("table_test_table_8");
+            var table = Database.GetTable("table_test_table_8").UnwrapSome();
             var index = table.Index["ix_test_table_8"];
 
             Assert.AreEqual("ix_test_table_8", index.Name.LocalName);
@@ -53,7 +54,7 @@ namespace SJP.Schematic.MySql.Tests.Integration
         {
             var expectedColumnNames = new[] { "first_name", "last_name", "middle_name" };
 
-            var table = Database.GetTable("table_test_table_9");
+            var table = Database.GetTable("table_test_table_9").UnwrapSome();
             var index = table.Index["ix_test_table_9"];
             var indexColumns = index.Columns
                 .Select(c => c.DependentColumns.Single())
@@ -72,7 +73,7 @@ namespace SJP.Schematic.MySql.Tests.Integration
         [Test]
         public void Index_WhenGivenTableWithMultiColumnIndex_ReturnsIndexWithCorrectName()
         {
-            var table = Database.GetTable("table_test_table_9");
+            var table = Database.GetTable("table_test_table_9").UnwrapSome();
             var index = table.Index["ix_test_table_9"];
 
             Assert.AreEqual("ix_test_table_9", index.Name.LocalName);
@@ -81,7 +82,7 @@ namespace SJP.Schematic.MySql.Tests.Integration
         [Test]
         public void Indexes_WhenGivenTableWithNoIndexes_ReturnsEmptyCollection()
         {
-            var table = Database.GetTable("table_test_table_1");
+            var table = Database.GetTable("table_test_table_1").UnwrapSome();
             var count = table.Indexes.Count;
 
             Assert.AreEqual(0, count);
@@ -90,7 +91,7 @@ namespace SJP.Schematic.MySql.Tests.Integration
         [Test]
         public void Indexes_WhenGivenTableWithSingleColumnIndex_ReturnsIndexWithColumnOnly()
         {
-            var table = Database.GetTable("table_test_table_8");
+            var table = Database.GetTable("table_test_table_8").UnwrapSome();
             var index = table.Indexes.Single();
             var indexColumns = index.Columns
                 .Select(c => c.DependentColumns.Single())
@@ -106,7 +107,7 @@ namespace SJP.Schematic.MySql.Tests.Integration
         [Test]
         public void Indexes_WhenGivenTableWithSingleColumnIndex_ReturnsIndexWithCorrectName()
         {
-            var table = Database.GetTable("table_test_table_8");
+            var table = Database.GetTable("table_test_table_8").UnwrapSome();
             var index = table.Indexes.Single();
 
             Assert.AreEqual("ix_test_table_8", index.Name.LocalName);
@@ -117,7 +118,7 @@ namespace SJP.Schematic.MySql.Tests.Integration
         {
             var expectedColumnNames = new[] { "first_name", "last_name", "middle_name" };
 
-            var table = Database.GetTable("table_test_table_9");
+            var table = Database.GetTable("table_test_table_9").UnwrapSome();
             var index = table.Indexes.Single();
             var indexColumns = index.Columns
                 .Select(c => c.DependentColumns.Single())
@@ -136,7 +137,7 @@ namespace SJP.Schematic.MySql.Tests.Integration
         [Test]
         public void Indexes_WhenGivenTableWithMultiColumnIndex_ReturnsIndexWithCorrectName()
         {
-            var table = Database.GetTable("table_test_table_9");
+            var table = Database.GetTable("table_test_table_9").UnwrapSome();
             var index = table.Indexes.Single();
 
             Assert.AreEqual("ix_test_table_9", index.Name.LocalName);
@@ -145,8 +146,8 @@ namespace SJP.Schematic.MySql.Tests.Integration
         [Test]
         public async Task IndexAsync_WhenGivenTableWithNoIndexes_ReturnsEmptyLookup()
         {
-            var table = await Database.GetTableAsync("table_test_table_1").ConfigureAwait(false);
-            var indexLookup = await table.IndexAsync().ConfigureAwait(false);
+            var tableOption = await Database.GetTableAsync("table_test_table_1").ConfigureAwait(false);
+            var indexLookup = await tableOption.UnwrapSome().IndexAsync().ConfigureAwait(false);
             var count = indexLookup.Count;
 
             Assert.AreEqual(0, count);
@@ -156,8 +157,8 @@ namespace SJP.Schematic.MySql.Tests.Integration
         public async Task IndexAsync_WhenQueriedByName_ReturnsCorrectIndex()
         {
             const string indexName = "ix_test_table_8";
-            var table = await Database.GetTableAsync("table_test_table_8").ConfigureAwait(false);
-            var indexLookup = await table.IndexAsync().ConfigureAwait(false);
+            var tableOption = await Database.GetTableAsync("table_test_table_8").ConfigureAwait(false);
+            var indexLookup = await tableOption.UnwrapSome().IndexAsync().ConfigureAwait(false);
             var index = indexLookup[indexName];
 
             Assert.AreEqual(indexName, index.Name.LocalName);
@@ -166,8 +167,8 @@ namespace SJP.Schematic.MySql.Tests.Integration
         [Test]
         public async Task IndexAsync_WhenGivenTableWithSingleColumnIndex_ReturnsIndexWithColumnOnly()
         {
-            var table = await Database.GetTableAsync("table_test_table_8").ConfigureAwait(false);
-            var indexLookup = await table.IndexAsync().ConfigureAwait(false);
+            var tableOption = await Database.GetTableAsync("table_test_table_8").ConfigureAwait(false);
+            var indexLookup = await tableOption.UnwrapSome().IndexAsync().ConfigureAwait(false);
             var index = indexLookup["ix_test_table_8"];
             var indexColumns = index.Columns
                 .Select(c => c.DependentColumns.Single())
@@ -183,8 +184,8 @@ namespace SJP.Schematic.MySql.Tests.Integration
         [Test]
         public async Task IndexAsync_WhenGivenTableWithSingleColumnIndex_ReturnsIndexWithCorrectName()
         {
-            var table = await Database.GetTableAsync("table_test_table_8").ConfigureAwait(false);
-            var indexLookup = await table.IndexAsync().ConfigureAwait(false);
+            var tableOption = await Database.GetTableAsync("table_test_table_8").ConfigureAwait(false);
+            var indexLookup = await tableOption.UnwrapSome().IndexAsync().ConfigureAwait(false);
             var index = indexLookup["ix_test_table_8"];
 
             Assert.AreEqual("ix_test_table_8", index.Name.LocalName);
@@ -195,8 +196,8 @@ namespace SJP.Schematic.MySql.Tests.Integration
         {
             var expectedColumnNames = new[] { "first_name", "last_name", "middle_name" };
 
-            var table = await Database.GetTableAsync("table_test_table_9").ConfigureAwait(false);
-            var indexLookup = await table.IndexAsync().ConfigureAwait(false);
+            var tableOption = await Database.GetTableAsync("table_test_table_9").ConfigureAwait(false);
+            var indexLookup = await tableOption.UnwrapSome().IndexAsync().ConfigureAwait(false);
             var index = indexLookup["ix_test_table_9"];
             var indexColumns = index.Columns
                 .Select(c => c.DependentColumns.Single())
@@ -215,8 +216,8 @@ namespace SJP.Schematic.MySql.Tests.Integration
         [Test]
         public async Task IndexAsync_WhenGivenTableWithMultiColumnIndex_ReturnsIndexWithCorrectName()
         {
-            var table = await Database.GetTableAsync("table_test_table_9").ConfigureAwait(false);
-            var indexLookup = await table.IndexAsync().ConfigureAwait(false);
+            var tableOption = await Database.GetTableAsync("table_test_table_9").ConfigureAwait(false);
+            var indexLookup = await tableOption.UnwrapSome().IndexAsync().ConfigureAwait(false);
             var index = indexLookup["ix_test_table_9"];
 
             Assert.AreEqual("ix_test_table_9", index.Name.LocalName);
@@ -225,8 +226,8 @@ namespace SJP.Schematic.MySql.Tests.Integration
         [Test]
         public async Task IndexesAsync_WhenGivenTableWithNoIndexes_ReturnsEmptyCollection()
         {
-            var table = await Database.GetTableAsync("table_test_table_1").ConfigureAwait(false);
-            var indexes = await table.IndexesAsync().ConfigureAwait(false);
+            var tableOption = await Database.GetTableAsync("table_test_table_1").ConfigureAwait(false);
+            var indexes = await tableOption.UnwrapSome().IndexesAsync().ConfigureAwait(false);
             var count = indexes.Count;
 
             Assert.AreEqual(0, count);
@@ -235,8 +236,8 @@ namespace SJP.Schematic.MySql.Tests.Integration
         [Test]
         public async Task IndexesAsync_WhenGivenTableWithSingleColumnIndex_ReturnsIndexWithColumnOnly()
         {
-            var table = await Database.GetTableAsync("table_test_table_8").ConfigureAwait(false);
-            var indexes = await table.IndexesAsync().ConfigureAwait(false);
+            var tableOption = await Database.GetTableAsync("table_test_table_8").ConfigureAwait(false);
+            var indexes = await tableOption.UnwrapSome().IndexesAsync().ConfigureAwait(false);
             var index = indexes.Single();
             var indexColumns = index.Columns
                 .Select(c => c.DependentColumns.Single())
@@ -252,8 +253,8 @@ namespace SJP.Schematic.MySql.Tests.Integration
         [Test]
         public async Task IndexesAsync_WhenGivenTableWithSingleColumnIndex_ReturnsIndexWithCorrectName()
         {
-            var table = await Database.GetTableAsync("table_test_table_8").ConfigureAwait(false);
-            var indexes = await table.IndexesAsync().ConfigureAwait(false);
+            var tableOption = await Database.GetTableAsync("table_test_table_8").ConfigureAwait(false);
+            var indexes = await tableOption.UnwrapSome().IndexesAsync().ConfigureAwait(false);
             var index = indexes.Single();
 
             Assert.AreEqual("ix_test_table_8", index.Name.LocalName);
@@ -264,8 +265,8 @@ namespace SJP.Schematic.MySql.Tests.Integration
         {
             var expectedColumnNames = new[] { "first_name", "last_name", "middle_name" };
 
-            var table = await Database.GetTableAsync("table_test_table_9").ConfigureAwait(false);
-            var indexes = await table.IndexesAsync().ConfigureAwait(false);
+            var tableOption = await Database.GetTableAsync("table_test_table_9").ConfigureAwait(false);
+            var indexes = await tableOption.UnwrapSome().IndexesAsync().ConfigureAwait(false);
             var index = indexes.Single();
             var indexColumns = index.Columns
                 .Select(c => c.DependentColumns.Single())
@@ -284,8 +285,8 @@ namespace SJP.Schematic.MySql.Tests.Integration
         [Test]
         public async Task IndexesAsync_WhenGivenTableWithMultiColumnIndex_ReturnsIndexWithCorrectName()
         {
-            var table = await Database.GetTableAsync("table_test_table_9").ConfigureAwait(false);
-            var indexes = await table.IndexesAsync().ConfigureAwait(false);
+            var tableOption = await Database.GetTableAsync("table_test_table_9").ConfigureAwait(false);
+            var indexes = await tableOption.UnwrapSome().IndexesAsync().ConfigureAwait(false);
             var index = indexes.Single();
 
             Assert.AreEqual("ix_test_table_9", index.Name.LocalName);
@@ -294,7 +295,7 @@ namespace SJP.Schematic.MySql.Tests.Integration
         [Test]
         public void Index_WhenGivenTableWithIndexContainingNoIncludedColumns_ReturnsIndexWithoutIncludedColumns()
         {
-            var table = Database.GetTable("table_test_table_9");
+            var table = Database.GetTable("table_test_table_9").UnwrapSome();
             var indexLookup = table.Index;
             var index = indexLookup["ix_test_table_9"];
             var includedColumns = index.IncludedColumns
@@ -307,7 +308,7 @@ namespace SJP.Schematic.MySql.Tests.Integration
         [Test]
         public void Indexes_WhenGivenTableWithIndexContainingNoIncludedColumns_ReturnsIndexWithoutIncludedColumns()
         {
-            var table = Database.GetTable("table_test_table_9");
+            var table = Database.GetTable("table_test_table_9").UnwrapSome();
             var index = table.Indexes.Single();
             var includedColumns = index.IncludedColumns
                 .Select(c => c.Name.LocalName)
@@ -319,8 +320,8 @@ namespace SJP.Schematic.MySql.Tests.Integration
         [Test]
         public async Task IndexAsync_WhenGivenTableWithIndexContainingNoIncludedColumns_ReturnsIndexWithoutIncludedColumns()
         {
-            var table = await Database.GetTableAsync("table_test_table_9").ConfigureAwait(false);
-            var indexLookup = await table.IndexAsync().ConfigureAwait(false);
+            var tableOption = await Database.GetTableAsync("table_test_table_9").ConfigureAwait(false);
+            var indexLookup = await tableOption.UnwrapSome().IndexAsync().ConfigureAwait(false);
             var index = indexLookup["ix_test_table_9"];
             var includedColumns = index.IncludedColumns
                 .Select(c => c.Name.LocalName)
@@ -332,8 +333,8 @@ namespace SJP.Schematic.MySql.Tests.Integration
         [Test]
         public async Task IndexesAsync_WhenGivenTableWithIndexContainingNoIncludedColumns_ReturnsIndexWithoutIncludedColumns()
         {
-            var table = await Database.GetTableAsync("table_test_table_9").ConfigureAwait(false);
-            var indexes = await table.IndexesAsync().ConfigureAwait(false);
+            var tableOption = await Database.GetTableAsync("table_test_table_9").ConfigureAwait(false);
+            var indexes = await tableOption.UnwrapSome().IndexesAsync().ConfigureAwait(false);
             var index = indexes.Single();
             var includedColumns = index.IncludedColumns
                 .Select(c => c.Name.LocalName)
@@ -345,7 +346,7 @@ namespace SJP.Schematic.MySql.Tests.Integration
         [Test]
         public void Index_WhenGivenTableWithEnabledIndex_ReturnsIndexWithIsEnabledTrue()
         {
-            var table = Database.GetTable("table_test_table_11");
+            var table = Database.GetTable("table_test_table_11").UnwrapSome();
             var index = table.Index.Values.Single();
 
             Assert.IsTrue(index.IsEnabled);
@@ -354,7 +355,7 @@ namespace SJP.Schematic.MySql.Tests.Integration
         [Test]
         public void Indexes_WhenGivenTableWithEnabledIndex_ReturnsIndexWithIsEnabledTrue()
         {
-            var table = Database.GetTable("table_test_table_11");
+            var table = Database.GetTable("table_test_table_11").UnwrapSome();
             var index = table.Indexes.Single();
 
             Assert.IsTrue(index.IsEnabled);
@@ -363,8 +364,8 @@ namespace SJP.Schematic.MySql.Tests.Integration
         [Test]
         public async Task IndexAsync_WhenGivenTableWithEnabledIndex_ReturnsIndexWithIsEnabledTrue()
         {
-            var table = await Database.GetTableAsync("table_test_table_11").ConfigureAwait(false);
-            var indexLookup = await table.IndexAsync().ConfigureAwait(false);
+            var tableOption = await Database.GetTableAsync("table_test_table_11").ConfigureAwait(false);
+            var indexLookup = await tableOption.UnwrapSome().IndexAsync().ConfigureAwait(false);
             var index = indexLookup.Values.Single();
 
             Assert.IsTrue(index.IsEnabled);
@@ -373,8 +374,8 @@ namespace SJP.Schematic.MySql.Tests.Integration
         [Test]
         public async Task IndexesAsync_WhenGivenTableWithEnabledIndex_ReturnsIndexWithIsEnabledTrue()
         {
-            var table = await Database.GetTableAsync("table_test_table_11").ConfigureAwait(false);
-            var indexes = await table.IndexesAsync().ConfigureAwait(false);
+            var tableOption = await Database.GetTableAsync("table_test_table_11").ConfigureAwait(false);
+            var indexes = await tableOption.UnwrapSome().IndexesAsync().ConfigureAwait(false);
             var index = indexes.Single();
 
             Assert.IsTrue(index.IsEnabled);
@@ -383,7 +384,7 @@ namespace SJP.Schematic.MySql.Tests.Integration
         [Test]
         public void Index_WhenGivenTableWithNonUniqueIndex_ReturnsIndexWithIsUniqueFalse()
         {
-            var table = Database.GetTable("table_test_table_9");
+            var table = Database.GetTable("table_test_table_9").UnwrapSome();
             var index = table.Index.Values.Single();
 
             Assert.IsFalse(index.IsUnique);
@@ -392,7 +393,7 @@ namespace SJP.Schematic.MySql.Tests.Integration
         [Test]
         public void Indexes_WhenGivenTableWithNonUniqueIndex_ReturnsIndexWithIsUniqueFalse()
         {
-            var table = Database.GetTable("table_test_table_9");
+            var table = Database.GetTable("table_test_table_9").UnwrapSome();
             var index = table.Indexes.Single();
 
             Assert.IsFalse(index.IsUnique);
@@ -401,8 +402,8 @@ namespace SJP.Schematic.MySql.Tests.Integration
         [Test]
         public async Task IndexAsync_WhenGivenTableWithNonUniqueIndex_ReturnsIndexWithIsUniqueFalse()
         {
-            var table = await Database.GetTableAsync("table_test_table_9").ConfigureAwait(false);
-            var indexLookup = await table.IndexAsync().ConfigureAwait(false);
+            var tableOption = await Database.GetTableAsync("table_test_table_9").ConfigureAwait(false);
+            var indexLookup = await tableOption.UnwrapSome().IndexAsync().ConfigureAwait(false);
             var index = indexLookup.Values.Single();
 
             Assert.IsFalse(index.IsUnique);
@@ -411,8 +412,8 @@ namespace SJP.Schematic.MySql.Tests.Integration
         [Test]
         public async Task IndexesAsync_WhenGivenTableWithNonUniqueIndex_ReturnsIndexWithIsUniqueFalse()
         {
-            var table = await Database.GetTableAsync("table_test_table_9").ConfigureAwait(false);
-            var indexes = await table.IndexesAsync().ConfigureAwait(false);
+            var tableOption = await Database.GetTableAsync("table_test_table_9").ConfigureAwait(false);
+            var indexes = await tableOption.UnwrapSome().IndexesAsync().ConfigureAwait(false);
             var index = indexes.Single();
 
             Assert.IsFalse(index.IsUnique);
@@ -421,7 +422,7 @@ namespace SJP.Schematic.MySql.Tests.Integration
         [Test]
         public void Index_WhenGivenTableWithUniqueIndex_ReturnsIndexWithIsUniqueTrue()
         {
-            var table = Database.GetTable("table_test_table_13");
+            var table = Database.GetTable("table_test_table_13").UnwrapSome();
             var index = table.Index.Values.Single();
 
             Assert.IsTrue(index.IsUnique);
@@ -430,7 +431,7 @@ namespace SJP.Schematic.MySql.Tests.Integration
         [Test]
         public void Indexes_WhenGivenTableWithUniqueIndex_ReturnsIndexWithIsUniqueTrue()
         {
-            var table = Database.GetTable("table_test_table_13");
+            var table = Database.GetTable("table_test_table_13").UnwrapSome();
             var index = table.Indexes.Single();
 
             Assert.IsTrue(index.IsUnique);
@@ -439,8 +440,8 @@ namespace SJP.Schematic.MySql.Tests.Integration
         [Test]
         public async Task IndexAsync_WhenGivenTableWithUniqueIndex_ReturnsIndexWithIsUniqueTrue()
         {
-            var table = await Database.GetTableAsync("table_test_table_13").ConfigureAwait(false);
-            var indexLookup = await table.IndexAsync().ConfigureAwait(false);
+            var tableOption = await Database.GetTableAsync("table_test_table_13").ConfigureAwait(false);
+            var indexLookup = await tableOption.UnwrapSome().IndexAsync().ConfigureAwait(false);
             var index = indexLookup.Values.Single();
 
             Assert.IsTrue(index.IsUnique);
@@ -449,8 +450,8 @@ namespace SJP.Schematic.MySql.Tests.Integration
         [Test]
         public async Task IndexesAsync_WhenGivenTableWithUniqueIndex_ReturnsIndexWithIsUniqueTrue()
         {
-            var table = await Database.GetTableAsync("table_test_table_13").ConfigureAwait(false);
-            var indexes = await table.IndexesAsync().ConfigureAwait(false);
+            var tableOption = await Database.GetTableAsync("table_test_table_13").ConfigureAwait(false);
+            var indexes = await tableOption.UnwrapSome().IndexesAsync().ConfigureAwait(false);
             var index = indexes.Single();
 
             Assert.IsTrue(index.IsUnique);

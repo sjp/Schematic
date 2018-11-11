@@ -2,6 +2,7 @@
 using Dapper;
 using NUnit.Framework;
 using SJP.Schematic.Core;
+using SJP.Schematic.Core.Extensions;
 
 namespace SJP.Schematic.Oracle.Tests.Integration
 {
@@ -49,7 +50,7 @@ namespace SJP.Schematic.Oracle.Tests.Integration
         [Test]
         public void Start_GivenDefaultSequence_ReturnsOne()
         {
-            var sequence = Database.GetSequence("DB_TEST_SEQUENCE_1");
+            var sequence = Database.GetSequence("DB_TEST_SEQUENCE_1").UnwrapSome();
 
             Assert.AreEqual(1, sequence.Start);
         }
@@ -57,7 +58,7 @@ namespace SJP.Schematic.Oracle.Tests.Integration
         [Test]
         public void Start_GivenSequenceWithCustomStart_ReturnsCorrectValue()
         {
-            var sequence = Database.GetSequence("DB_TEST_SEQUENCE_2");
+            var sequence = Database.GetSequence("DB_TEST_SEQUENCE_2").UnwrapSome();
 
             Assert.AreEqual(1, sequence.Start);
         }
@@ -65,7 +66,7 @@ namespace SJP.Schematic.Oracle.Tests.Integration
         [Test]
         public void Increment_GivenDefaultSequence_ReturnsOne()
         {
-            var sequence = Database.GetSequence("DB_TEST_SEQUENCE_1");
+            var sequence = Database.GetSequence("DB_TEST_SEQUENCE_1").UnwrapSome();
 
             Assert.AreEqual(1, sequence.Increment);
         }
@@ -73,7 +74,7 @@ namespace SJP.Schematic.Oracle.Tests.Integration
         [Test]
         public void Increment_GivenSequenceWithCustomIncrement_ReturnsCorrectValue()
         {
-            var sequence = Database.GetSequence("DB_TEST_SEQUENCE_3");
+            var sequence = Database.GetSequence("DB_TEST_SEQUENCE_3").UnwrapSome();
 
             Assert.AreEqual(100, sequence.Increment);
         }
@@ -81,7 +82,7 @@ namespace SJP.Schematic.Oracle.Tests.Integration
         [Test]
         public void MinValue_GivenDefaultSequence_ReturnsOne()
         {
-            var sequence = Database.GetSequence("DB_TEST_SEQUENCE_1");
+            var sequence = Database.GetSequence("DB_TEST_SEQUENCE_1").UnwrapSome();
 
             Assert.AreEqual(SequenceDefaultMinValue, sequence.MinValue);
         }
@@ -89,7 +90,7 @@ namespace SJP.Schematic.Oracle.Tests.Integration
         [Test]
         public void MinValue_GivenSequenceWithCustomMinValue_ReturnsCorrectValue()
         {
-            var sequence = Database.GetSequence("DB_TEST_SEQUENCE_4");
+            var sequence = Database.GetSequence("DB_TEST_SEQUENCE_4").UnwrapSome();
 
             Assert.AreEqual(-99, sequence.MinValue);
         }
@@ -97,7 +98,7 @@ namespace SJP.Schematic.Oracle.Tests.Integration
         [Test]
         public void MinValue_GivenAscendingSequenceWithNoMinValue_ReturnsOne()
         {
-            var sequence = Database.GetSequence("DB_TEST_SEQUENCE_5");
+            var sequence = Database.GetSequence("DB_TEST_SEQUENCE_5").UnwrapSome();
 
             Assert.AreEqual(1, sequence.MinValue);
         }
@@ -105,7 +106,7 @@ namespace SJP.Schematic.Oracle.Tests.Integration
         [Test]
         public void MaxValue_GivenDefaultSequence_ReturnsOracleNumberMaxValue()
         {
-            var sequence = Database.GetSequence("DB_TEST_SEQUENCE_1");
+            var sequence = Database.GetSequence("DB_TEST_SEQUENCE_1").UnwrapSome();
 
             Assert.AreEqual(OracleNumberMaxValue, sequence.MaxValue);
         }
@@ -113,7 +114,7 @@ namespace SJP.Schematic.Oracle.Tests.Integration
         [Test]
         public void MaxValue_GivenSequenceWithCustomMaxValue_ReturnsCorrectValue()
         {
-            var sequence = Database.GetSequence("DB_TEST_SEQUENCE_6");
+            var sequence = Database.GetSequence("DB_TEST_SEQUENCE_6").UnwrapSome();
 
             Assert.AreEqual(333, sequence.MaxValue);
         }
@@ -121,7 +122,7 @@ namespace SJP.Schematic.Oracle.Tests.Integration
         [Test]
         public void MaxValue_GivenSequenceWithNoMaxValue_ReturnsOracleNumberMaxValue()
         {
-            var sequence = Database.GetSequence("DB_TEST_SEQUENCE_7");
+            var sequence = Database.GetSequence("DB_TEST_SEQUENCE_7").UnwrapSome();
 
             Assert.AreEqual(OracleNumberMaxValue, sequence.MaxValue);
         }
@@ -129,7 +130,7 @@ namespace SJP.Schematic.Oracle.Tests.Integration
         [Test]
         public void Cycle_GivenDefaultSequence_ReturnsTrue()
         {
-            var sequence = Database.GetSequence("DB_TEST_SEQUENCE_1");
+            var sequence = Database.GetSequence("DB_TEST_SEQUENCE_1").UnwrapSome();
 
             Assert.IsFalse(sequence.Cycle);
         }
@@ -137,7 +138,7 @@ namespace SJP.Schematic.Oracle.Tests.Integration
         [Test]
         public void Cycle_GivenSequenceWithCycle_ReturnsTrue()
         {
-            var sequence = Database.GetSequence("DB_TEST_SEQUENCE_8");
+            var sequence = Database.GetSequence("DB_TEST_SEQUENCE_8").UnwrapSome();
 
             Assert.IsTrue(sequence.Cycle);
         }
@@ -145,7 +146,7 @@ namespace SJP.Schematic.Oracle.Tests.Integration
         [Test]
         public void Cycle_GivenSequenceWithNoCycle_ReturnsTrue()
         {
-            var sequence = Database.GetSequence("DB_TEST_SEQUENCE_9");
+            var sequence = Database.GetSequence("DB_TEST_SEQUENCE_9").UnwrapSome();
 
             Assert.IsFalse(sequence.Cycle);
         }
@@ -153,7 +154,7 @@ namespace SJP.Schematic.Oracle.Tests.Integration
         [Test]
         public void Cache_GivenDefaultSequence_ReturnsDefaultCacheSize()
         {
-            var sequence = Database.GetSequence("DB_TEST_SEQUENCE_1");
+            var sequence = Database.GetSequence("DB_TEST_SEQUENCE_1").UnwrapSome();
 
             Assert.AreEqual(SequenceDefaultCache, sequence.Cache);
         }
@@ -161,7 +162,7 @@ namespace SJP.Schematic.Oracle.Tests.Integration
         [Test]
         public void Cache_GivenSequenceWithCacheSet_ReturnsCorrectValue()
         {
-            var sequence = Database.GetSequence("DB_TEST_SEQUENCE_10");
+            var sequence = Database.GetSequence("DB_TEST_SEQUENCE_10").UnwrapSome();
 
             Assert.AreEqual(10, sequence.Cache);
         }
@@ -169,7 +170,7 @@ namespace SJP.Schematic.Oracle.Tests.Integration
         [Test]
         public void Cache_GivenSequenceWithNoCacheSet_ReturnsCorrectValue()
         {
-            var sequence = Database.GetSequence("DB_TEST_SEQUENCE_11");
+            var sequence = Database.GetSequence("DB_TEST_SEQUENCE_11").UnwrapSome();
 
             Assert.AreEqual(0, sequence.Cache);
         }

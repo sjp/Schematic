@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using Dapper;
 using NUnit.Framework;
 using SJP.Schematic.Core;
+using SJP.Schematic.Core.Extensions;
 
 namespace SJP.Schematic.Sqlite.Tests.Integration
 {
@@ -36,7 +37,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
         {
             var database = Database;
             var viewName = new Identifier(database.DefaultSchema, "view_test_view_1");
-            var view = database.GetView(viewName);
+            var view = database.GetView(viewName).UnwrapSome();
 
             var definition = view.Definition;
             const string expected = "create view view_test_view_1 as select 1 as test";
@@ -50,7 +51,8 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
         {
             var database = Database;
             var viewName = new Identifier(database.DefaultSchema, "view_test_view_1");
-            var view = await database.GetViewAsync(viewName).ConfigureAwait(false);
+            var viewOption = await database.GetViewAsync(viewName).ConfigureAwait(false);
+            var view = viewOption.UnwrapSome();
 
             var definition = await view.DefinitionAsync().ConfigureAwait(false);
             const string expected = "create view view_test_view_1 as select 1 as test";
@@ -64,7 +66,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
         {
             var database = Database;
             var viewName = new Identifier(database.DefaultSchema, "view_test_view_1");
-            var view = database.GetView(viewName);
+            var view = database.GetView(viewName).UnwrapSome();
 
             Assert.IsFalse(view.IsIndexed);
         }
@@ -74,7 +76,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
         {
             var database = Database;
             var viewName = new Identifier(database.DefaultSchema, "view_test_view_1");
-            var view = database.GetView(viewName);
+            var view = database.GetView(viewName).UnwrapSome();
             var indexCount = view.Index.Count;
 
             Assert.Zero(indexCount);
@@ -85,7 +87,8 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
         {
             var database = Database;
             var viewName = new Identifier(database.DefaultSchema, "view_test_view_1");
-            var view = await database.GetViewAsync(viewName).ConfigureAwait(false);
+            var viewOption = await database.GetViewAsync(viewName).ConfigureAwait(false);
+            var view = viewOption.UnwrapSome();
             var indexes = await view.IndexAsync().ConfigureAwait(false);
             var indexCount = indexes.Count;
 
@@ -97,7 +100,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
         {
             var database = Database;
             var viewName = new Identifier(database.DefaultSchema, "view_test_view_1");
-            var view = database.GetView(viewName);
+            var view = database.GetView(viewName).UnwrapSome();
             var indexCount = view.Indexes.Count;
 
             Assert.Zero(indexCount);
@@ -108,7 +111,8 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
         {
             var database = Database;
             var viewName = new Identifier(database.DefaultSchema, "view_test_view_1");
-            var view = await database.GetViewAsync(viewName).ConfigureAwait(false);
+            var viewOption = await database.GetViewAsync(viewName).ConfigureAwait(false);
+            var view = viewOption.UnwrapSome();
             var indexes = await view.IndexesAsync().ConfigureAwait(false);
             var indexCount = indexes.Count;
 
@@ -120,7 +124,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
         {
             var database = Database;
             var viewName = new Identifier(database.DefaultSchema, "view_test_view_1");
-            var view = database.GetView(viewName);
+            var view = database.GetView(viewName).UnwrapSome();
             var columnCount = view.Column.Count;
 
             Assert.AreEqual(1, columnCount);
@@ -131,7 +135,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
         {
             var database = Database;
             var viewName = new Identifier(database.DefaultSchema, "view_test_view_1");
-            var view = database.GetView(viewName);
+            var view = database.GetView(viewName).UnwrapSome();
             var containsColumn = view.Column.ContainsKey("test");
 
             Assert.IsTrue(containsColumn);
@@ -142,7 +146,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
         {
             var database = Database;
             var viewName = new Identifier(database.DefaultSchema, "view_test_view_1");
-            var view = database.GetView(viewName);
+            var view = database.GetView(viewName).UnwrapSome();
             var columnCount = view.Columns.Count;
 
             Assert.AreEqual(1, columnCount);
@@ -153,7 +157,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
         {
             var database = Database;
             var viewName = new Identifier(database.DefaultSchema, "view_test_view_1");
-            var view = database.GetView(viewName);
+            var view = database.GetView(viewName).UnwrapSome();
             var containsColumn = view.Columns.Any(c => c.Name == "test");
 
             Assert.IsTrue(containsColumn);
@@ -164,7 +168,8 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
         {
             var database = Database;
             var viewName = new Identifier(database.DefaultSchema, "view_test_view_1");
-            var view = await database.GetViewAsync(viewName).ConfigureAwait(false);
+            var viewOption = await database.GetViewAsync(viewName).ConfigureAwait(false);
+            var view = viewOption.UnwrapSome();
             var columns = await view.ColumnAsync().ConfigureAwait(false);
             var columnCount = columns.Count;
 
@@ -176,7 +181,8 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
         {
             var database = Database;
             var viewName = new Identifier(database.DefaultSchema, "view_test_view_1");
-            var view = await database.GetViewAsync(viewName).ConfigureAwait(false);
+            var viewOption = await database.GetViewAsync(viewName).ConfigureAwait(false);
+            var view = viewOption.UnwrapSome();
             var columns = await view.ColumnAsync().ConfigureAwait(false);
             var containsColumn = columns.ContainsKey("test");
 
@@ -188,7 +194,8 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
         {
             var database = Database;
             var viewName = new Identifier(database.DefaultSchema, "view_test_view_1");
-            var view = await database.GetViewAsync(viewName).ConfigureAwait(false);
+            var viewOption = await database.GetViewAsync(viewName).ConfigureAwait(false);
+            var view = viewOption.UnwrapSome();
             var columns = await view.ColumnsAsync().ConfigureAwait(false);
             var columnCount = columns.Count;
 
@@ -200,7 +207,8 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
         {
             var database = Database;
             var viewName = new Identifier(database.DefaultSchema, "view_test_view_1");
-            var view = await database.GetViewAsync(viewName).ConfigureAwait(false);
+            var viewOption = await database.GetViewAsync(viewName).ConfigureAwait(false);
+            var view = viewOption.UnwrapSome();
             var columns = await view.ColumnsAsync().ConfigureAwait(false);
             var containsColumn = columns.Any(c => c.Name == "test");
 
@@ -212,7 +220,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
         {
             var database = Database;
             var viewName = new Identifier(database.DefaultSchema, "view_test_view_2");
-            var view = database.GetView(viewName);
+            var view = database.GetView(viewName).UnwrapSome();
             var columnCount = view.Column.Count;
 
             Assert.AreEqual(4, columnCount);
@@ -223,7 +231,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
         {
             var database = Database;
             var viewName = new Identifier(database.DefaultSchema, "view_test_view_2");
-            var view = database.GetView(viewName);
+            var view = database.GetView(viewName).UnwrapSome();
             var columnCount = view.Columns.Count;
 
             Assert.AreEqual(4, columnCount);
@@ -234,7 +242,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
         {
             var database = Database;
             var viewName = new Identifier(database.DefaultSchema, "view_test_view_2");
-            var view = database.GetView(viewName);
+            var view = database.GetView(viewName).UnwrapSome();
             var columnTypes = view.Columns.Select(c => c.Type.DataType).ToList();
             var expectedTypes = new[] { DataType.BigInteger, DataType.Float, DataType.UnicodeText, DataType.LargeBinary };
 
@@ -247,7 +255,8 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
         {
             var database = Database;
             var viewName = new Identifier(database.DefaultSchema, "view_test_view_2");
-            var view = await database.GetViewAsync(viewName).ConfigureAwait(false);
+            var viewOption = await database.GetViewAsync(viewName).ConfigureAwait(false);
+            var view = viewOption.UnwrapSome();
             var columns = await view.ColumnAsync().ConfigureAwait(false);
             var columnCount = columns.Count;
 
@@ -259,7 +268,8 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
         {
             var database = Database;
             var viewName = new Identifier(database.DefaultSchema, "view_test_view_2");
-            var view = await database.GetViewAsync(viewName).ConfigureAwait(false);
+            var viewOption = await database.GetViewAsync(viewName).ConfigureAwait(false);
+            var view = viewOption.UnwrapSome();
             var columns = await view.ColumnsAsync().ConfigureAwait(false);
             var columnCount = columns.Count;
 
@@ -271,7 +281,8 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
         {
             var database = Database;
             var viewName = new Identifier(database.DefaultSchema, "view_test_view_2");
-            var view = await database.GetViewAsync(viewName).ConfigureAwait(false);
+            var viewOption = await database.GetViewAsync(viewName).ConfigureAwait(false);
+            var view = viewOption.UnwrapSome();
             var columns = await view.ColumnsAsync().ConfigureAwait(false);
             var columnTypes = columns.Select(c => c.Type.DataType).ToList();
             var expectedTypes = new[] { DataType.BigInteger, DataType.Float, DataType.UnicodeText, DataType.LargeBinary };
@@ -285,7 +296,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
         {
             var database = Database;
             var viewName = new Identifier(database.DefaultSchema, "view_test_view_3");
-            var view = database.GetView(viewName);
+            var view = database.GetView(viewName).UnwrapSome();
             var columnCount = view.Column.Count;
 
             Assert.AreEqual(5, columnCount);
@@ -296,7 +307,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
         {
             var database = Database;
             var viewName = new Identifier(database.DefaultSchema, "view_test_view_3");
-            var view = database.GetView(viewName);
+            var view = database.GetView(viewName).UnwrapSome();
             var columnCount = view.Columns.Count;
 
             Assert.AreEqual(5, columnCount);
@@ -307,7 +318,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
         {
             var database = Database;
             var viewName = new Identifier(database.DefaultSchema, "view_test_view_3");
-            var view = database.GetView(viewName);
+            var view = database.GetView(viewName).UnwrapSome();
             var columnTypes = view.Columns.Select(c => c.Type.DataType).ToList();
             var expectedTypes = new[] { DataType.Numeric, DataType.Numeric, DataType.Numeric, DataType.Numeric, DataType.BigInteger };
 
@@ -320,7 +331,8 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
         {
             var database = Database;
             var viewName = new Identifier(database.DefaultSchema, "view_test_view_3");
-            var view = await database.GetViewAsync(viewName).ConfigureAwait(false);
+            var viewOption = await database.GetViewAsync(viewName).ConfigureAwait(false);
+            var view = viewOption.UnwrapSome();
             var columns = await view.ColumnAsync().ConfigureAwait(false);
             var columnCount = columns.Count;
 
@@ -332,7 +344,8 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
         {
             var database = Database;
             var viewName = new Identifier(database.DefaultSchema, "view_test_view_3");
-            var view = await database.GetViewAsync(viewName).ConfigureAwait(false);
+            var viewOption = await database.GetViewAsync(viewName).ConfigureAwait(false);
+            var view = viewOption.UnwrapSome();
             var columns = await view.ColumnsAsync().ConfigureAwait(false);
             var columnCount = columns.Count;
 
@@ -344,7 +357,8 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
         {
             var database = Database;
             var viewName = new Identifier(database.DefaultSchema, "view_test_view_3");
-            var view = await database.GetViewAsync(viewName).ConfigureAwait(false);
+            var viewOption = await database.GetViewAsync(viewName).ConfigureAwait(false);
+            var view = viewOption.UnwrapSome();
             var columns = await view.ColumnsAsync().ConfigureAwait(false);
             var columnTypes = columns.Select(c => c.Type.DataType).ToList();
             var expectedTypes = new[] { DataType.Numeric, DataType.Numeric, DataType.Numeric, DataType.Numeric, DataType.BigInteger };
@@ -358,7 +372,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
         {
             var database = Database;
             var viewName = new Identifier(database.DefaultSchema, "view_test_view_4");
-            var view = database.GetView(viewName);
+            var view = database.GetView(viewName).UnwrapSome();
             var columnCount = view.Column.Count;
 
             Assert.AreEqual(4, columnCount);
@@ -369,7 +383,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
         {
             var database = Database;
             var viewName = new Identifier(database.DefaultSchema, "view_test_view_4");
-            var view = database.GetView(viewName);
+            var view = database.GetView(viewName).UnwrapSome();
             var columnCount = view.Columns.Count;
 
             Assert.AreEqual(4, columnCount);
@@ -380,7 +394,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
         {
             var database = Database;
             var viewName = new Identifier(database.DefaultSchema, "view_test_view_4");
-            var view = database.GetView(viewName);
+            var view = database.GetView(viewName).UnwrapSome();
             var columnTypes = view.Columns.Select(c => c.Type.DataType).ToList();
             var expectedTypes = new[] { DataType.BigInteger, DataType.BigInteger, DataType.BigInteger, DataType.BigInteger };
 
@@ -393,7 +407,8 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
         {
             var database = Database;
             var viewName = new Identifier(database.DefaultSchema, "view_test_view_4");
-            var view = await database.GetViewAsync(viewName).ConfigureAwait(false);
+            var viewOption = await database.GetViewAsync(viewName).ConfigureAwait(false);
+            var view = viewOption.UnwrapSome();
             var columns = await view.ColumnAsync().ConfigureAwait(false);
             var columnCount = columns.Count;
 
@@ -405,7 +420,8 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
         {
             var database = Database;
             var viewName = new Identifier(database.DefaultSchema, "view_test_view_4");
-            var view = await database.GetViewAsync(viewName).ConfigureAwait(false);
+            var viewOption = await database.GetViewAsync(viewName).ConfigureAwait(false);
+            var view = viewOption.UnwrapSome();
             var columns = await view.ColumnsAsync().ConfigureAwait(false);
             var columnCount = columns.Count;
 
@@ -417,7 +433,8 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
         {
             var database = Database;
             var viewName = new Identifier(database.DefaultSchema, "view_test_view_4");
-            var view = await database.GetViewAsync(viewName).ConfigureAwait(false);
+            var viewOption = await database.GetViewAsync(viewName).ConfigureAwait(false);
+            var view = viewOption.UnwrapSome();
             var columns = await view.ColumnsAsync().ConfigureAwait(false);
             var columnTypes = columns.Select(c => c.Type.DataType).ToList();
             var expectedTypes = new[] { DataType.BigInteger, DataType.BigInteger, DataType.BigInteger, DataType.BigInteger };

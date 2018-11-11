@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using Dapper;
 using NUnit.Framework;
 using SJP.Schematic.Core;
+using SJP.Schematic.Core.Extensions;
 
 namespace SJP.Schematic.Oracle.Tests.Integration
 {
@@ -63,7 +64,7 @@ namespace SJP.Schematic.Oracle.Tests.Integration
             public void GetTable_WhenTablePresent_ReturnsTable()
             {
                 var table = Database.GetTable("db_test_table_1");
-                Assert.NotNull(table);
+                Assert.IsTrue(table.IsSome);
             }
 
             [Test]
@@ -71,16 +72,16 @@ namespace SJP.Schematic.Oracle.Tests.Integration
             {
                 const string tableName = "db_test_table_1";
                 const string expectedTableName = "DB_TEST_TABLE_1";
-                var table = Database.GetTable(tableName);
+                var table = Database.GetTable(tableName).UnwrapSome();
 
                 Assert.AreEqual(expectedTableName, table.Name.LocalName);
             }
 
             [Test]
-            public void GetTable_WhenTableMissing_ReturnsNull()
+            public void GetTable_WhenTableMissing_ReturnsNone()
             {
                 var table = Database.GetTable("table_that_doesnt_exist");
-                Assert.IsNull(table);
+                Assert.IsTrue(table.IsNone);
             }
 
             [Test]
@@ -93,7 +94,7 @@ namespace SJP.Schematic.Oracle.Tests.Integration
             public async Task GetTableAsync_WhenTablePresent_ReturnsTable()
             {
                 var table = await Database.GetTableAsync("db_test_table_1").ConfigureAwait(false);
-                Assert.NotNull(table);
+                Assert.IsTrue(table.IsSome);
             }
 
             [Test]
@@ -103,14 +104,14 @@ namespace SJP.Schematic.Oracle.Tests.Integration
                 const string expectedTableName = "DB_TEST_TABLE_1";
                 var table = await Database.GetTableAsync(tableName).ConfigureAwait(false);
 
-                Assert.AreEqual(expectedTableName, table.Name.LocalName);
+                Assert.AreEqual(expectedTableName, table.UnwrapSome().Name.LocalName);
             }
 
             [Test]
-            public async Task GetTableAsync_WhenTableMissing_ReturnsNull()
+            public async Task GetTableAsync_WhenTableMissing_ReturnsNone()
             {
                 var table = await Database.GetTableAsync("table_that_doesnt_exist").ConfigureAwait(false);
-                Assert.IsNull(table);
+                Assert.IsTrue(table.IsNone);
             }
 
             [Test]
@@ -176,7 +177,7 @@ namespace SJP.Schematic.Oracle.Tests.Integration
             public void GetView_WhenViewPresent_ReturnsView()
             {
                 var view = Database.GetView("db_test_view_1");
-                Assert.NotNull(view);
+                Assert.IsTrue(view.IsSome);
             }
 
             [Test]
@@ -185,7 +186,7 @@ namespace SJP.Schematic.Oracle.Tests.Integration
                 var database = Database;
                 var viewName = new Identifier(database.ServerName, database.DatabaseName, database.DefaultSchema, "db_test_view_1");
                 var expectedViewName = new Identifier(database.ServerName, database.DatabaseName, database.DefaultSchema, "DB_TEST_VIEW_1");
-                var view = database.GetView(viewName);
+                var view = database.GetView(viewName).UnwrapSome();
 
                 Assert.AreEqual(expectedViewName, view.Name);
             }
@@ -197,7 +198,7 @@ namespace SJP.Schematic.Oracle.Tests.Integration
                 var viewName = new Identifier("DB_TEST_VIEW_1");
                 var expectedViewName = new Identifier(database.ServerName, database.DatabaseName, database.DefaultSchema, "DB_TEST_VIEW_1");
 
-                var view = database.GetView(viewName);
+                var view = database.GetView(viewName).UnwrapSome();
 
                 Assert.AreEqual(expectedViewName, view.Name);
             }
@@ -209,7 +210,7 @@ namespace SJP.Schematic.Oracle.Tests.Integration
                 var viewName = new Identifier(database.DefaultSchema, "DB_TEST_VIEW_1");
                 var expectedViewName = new Identifier(database.ServerName, database.DatabaseName, database.DefaultSchema, "DB_TEST_VIEW_1");
 
-                var view = database.GetView(viewName);
+                var view = database.GetView(viewName).UnwrapSome();
 
                 Assert.AreEqual(expectedViewName, view.Name);
             }
@@ -221,7 +222,7 @@ namespace SJP.Schematic.Oracle.Tests.Integration
                 var viewName = new Identifier(database.DatabaseName, database.DefaultSchema, "DB_TEST_VIEW_1");
                 var expectedViewName = new Identifier(database.ServerName, database.DatabaseName, database.DefaultSchema, "DB_TEST_VIEW_1");
 
-                var view = database.GetView(viewName);
+                var view = database.GetView(viewName).UnwrapSome();
 
                 Assert.AreEqual(expectedViewName, view.Name);
             }
@@ -232,16 +233,16 @@ namespace SJP.Schematic.Oracle.Tests.Integration
                 var database = Database;
                 var viewName = new Identifier(database.ServerName, database.DatabaseName, database.DefaultSchema, "DB_TEST_VIEW_1");
 
-                var view = database.GetView(viewName);
+                var view = database.GetView(viewName).UnwrapSome();
 
                 Assert.AreEqual(viewName, view.Name);
             }
 
             [Test]
-            public void GetView_WhenViewMissing_ReturnsNull()
+            public void GetView_WhenViewMissing_ReturnsNone()
             {
                 var view = Database.GetView("view_that_doesnt_exist");
-                Assert.IsNull(view);
+                Assert.IsTrue(view.IsNone);
             }
 
             [Test]
@@ -254,7 +255,7 @@ namespace SJP.Schematic.Oracle.Tests.Integration
             public async Task GetViewAsync_WhenViewPresent_ReturnsView()
             {
                 var view = await Database.GetViewAsync("db_test_view_1").ConfigureAwait(false);
-                Assert.NotNull(view);
+                Assert.IsTrue(view.IsSome);
             }
 
             [Test]
@@ -265,7 +266,7 @@ namespace SJP.Schematic.Oracle.Tests.Integration
                 var expectedViewName = new Identifier(database.ServerName, database.DatabaseName, database.DefaultSchema, "DB_TEST_VIEW_1");
                 var view = await database.GetViewAsync(viewName).ConfigureAwait(false);
 
-                Assert.AreEqual(expectedViewName, view.Name);
+                Assert.AreEqual(expectedViewName, view.UnwrapSome().Name);
             }
 
             [Test]
@@ -275,7 +276,8 @@ namespace SJP.Schematic.Oracle.Tests.Integration
                 var viewName = new Identifier("DB_TEST_VIEW_1");
                 var expectedViewName = new Identifier(database.ServerName, database.DatabaseName, database.DefaultSchema, "DB_TEST_VIEW_1");
 
-                var view = await database.GetViewAsync(viewName).ConfigureAwait(false);
+                var viewOption = await database.GetViewAsync(viewName).ConfigureAwait(false);
+                var view = viewOption.UnwrapSome();
 
                 Assert.AreEqual(expectedViewName, view.Name);
             }
@@ -287,7 +289,8 @@ namespace SJP.Schematic.Oracle.Tests.Integration
                 var viewName = new Identifier(database.DefaultSchema, "DB_TEST_VIEW_1");
                 var expectedViewName = new Identifier(database.ServerName, database.DatabaseName, database.DefaultSchema, "DB_TEST_VIEW_1");
 
-                var view = await database.GetViewAsync(viewName).ConfigureAwait(false);
+                var viewOption = await database.GetViewAsync(viewName).ConfigureAwait(false);
+                var view = viewOption.UnwrapSome();
 
                 Assert.AreEqual(expectedViewName, view.Name);
             }
@@ -299,7 +302,8 @@ namespace SJP.Schematic.Oracle.Tests.Integration
                 var viewName = new Identifier(database.DatabaseName, database.DefaultSchema, "DB_TEST_VIEW_1");
                 var expectedViewName = new Identifier(database.ServerName, database.DatabaseName, database.DefaultSchema, "DB_TEST_VIEW_1");
 
-                var view = await database.GetViewAsync(viewName).ConfigureAwait(false);
+                var viewOption = await database.GetViewAsync(viewName).ConfigureAwait(false);
+                var view = viewOption.UnwrapSome();
 
                 Assert.AreEqual(expectedViewName, view.Name);
             }
@@ -310,16 +314,17 @@ namespace SJP.Schematic.Oracle.Tests.Integration
                 var database = Database;
                 var viewName = new Identifier(database.ServerName, database.DatabaseName, database.DefaultSchema, "DB_TEST_VIEW_1");
 
-                var view = await database.GetViewAsync(viewName).ConfigureAwait(false);
+                var viewOption = await database.GetViewAsync(viewName).ConfigureAwait(false);
+                var view = viewOption.UnwrapSome();
 
                 Assert.AreEqual(viewName, view.Name);
             }
 
             [Test]
-            public async Task GetViewAsync_WhenViewMissing_ReturnsNull()
+            public async Task GetViewAsync_WhenViewMissing_ReturnsNone()
             {
                 var view = await Database.GetViewAsync("view_that_doesnt_exist").ConfigureAwait(false);
-                Assert.IsNull(view);
+                Assert.IsTrue(view.IsNone);
             }
 
             [Test]
@@ -385,7 +390,7 @@ namespace SJP.Schematic.Oracle.Tests.Integration
             public void GetSequence_WhenSequencePresent_ReturnsSequence()
             {
                 var sequence = Database.GetSequence("db_test_sequence_1");
-                Assert.NotNull(sequence);
+                Assert.IsTrue(sequence.IsSome);
             }
 
             [Test]
@@ -394,7 +399,7 @@ namespace SJP.Schematic.Oracle.Tests.Integration
                 const string sequenceName = "db_test_sequence_1";
                 const string expectedSequenceName = "DB_TEST_SEQUENCE_1";
 
-                var sequence = Database.GetSequence(sequenceName);
+                var sequence = Database.GetSequence(sequenceName).UnwrapSome();
 
                 Assert.AreEqual(expectedSequenceName, sequence.Name.LocalName);
             }
@@ -406,7 +411,7 @@ namespace SJP.Schematic.Oracle.Tests.Integration
                 var sequenceName = new Identifier("DB_TEST_SEQUENCE_1");
                 var expectedSequenceName = new Identifier(database.ServerName, database.DatabaseName, database.DefaultSchema, "DB_TEST_SEQUENCE_1");
 
-                var sequence = database.GetSequence(sequenceName);
+                var sequence = database.GetSequence(sequenceName).UnwrapSome();
 
                 Assert.AreEqual(expectedSequenceName, sequence.Name);
             }
@@ -418,7 +423,7 @@ namespace SJP.Schematic.Oracle.Tests.Integration
                 var sequenceName = new Identifier(database.DefaultSchema, "DB_TEST_SEQUENCE_1");
                 var expectedSequenceName = new Identifier(database.ServerName, database.DatabaseName, database.DefaultSchema, "DB_TEST_SEQUENCE_1");
 
-                var sequence = database.GetSequence(sequenceName);
+                var sequence = database.GetSequence(sequenceName).UnwrapSome();
 
                 Assert.AreEqual(expectedSequenceName, sequence.Name);
             }
@@ -430,7 +435,7 @@ namespace SJP.Schematic.Oracle.Tests.Integration
                 var sequenceName = new Identifier(database.DatabaseName, database.DefaultSchema, "DB_TEST_SEQUENCE_1");
                 var expectedSequenceName = new Identifier(database.ServerName, database.DatabaseName, database.DefaultSchema, "DB_TEST_SEQUENCE_1");
 
-                var sequence = database.GetSequence(sequenceName);
+                var sequence = database.GetSequence(sequenceName).UnwrapSome();
 
                 Assert.AreEqual(expectedSequenceName, sequence.Name);
             }
@@ -441,16 +446,16 @@ namespace SJP.Schematic.Oracle.Tests.Integration
                 var database = Database;
                 var sequenceName = new Identifier(database.ServerName, database.DatabaseName, database.DefaultSchema, "DB_TEST_SEQUENCE_1");
 
-                var sequence = database.GetSequence(sequenceName);
+                var sequence = database.GetSequence(sequenceName).UnwrapSome();
 
                 Assert.AreEqual(sequenceName, sequence.Name);
             }
 
             [Test]
-            public void GetSequence_WhenSequenceMissing_ReturnsNull()
+            public void GetSequence_WhenSequenceMissing_ReturnsNone()
             {
                 var sequence = Database.GetSequence("sequence_that_doesnt_exist");
-                Assert.IsNull(sequence);
+                Assert.IsTrue(sequence.IsNone);
             }
 
             [Test]
@@ -463,7 +468,7 @@ namespace SJP.Schematic.Oracle.Tests.Integration
             public async Task GetSequenceAsync_WhenSequencePresent_ReturnsSequence()
             {
                 var sequence = await Database.GetSequenceAsync("db_test_sequence_1").ConfigureAwait(false);
-                Assert.NotNull(sequence);
+                Assert.IsTrue(sequence.IsSome);
             }
 
             [Test]
@@ -472,7 +477,8 @@ namespace SJP.Schematic.Oracle.Tests.Integration
                 const string sequenceName = "db_test_sequence_1";
                 const string expectedSequenceName = "DB_TEST_SEQUENCE_1";
 
-                var sequence = await Database.GetSequenceAsync(sequenceName).ConfigureAwait(false);
+                var sequenceOption = await Database.GetSequenceAsync(sequenceName).ConfigureAwait(false);
+                var sequence = sequenceOption.UnwrapSome();
 
                 Assert.AreEqual(expectedSequenceName, sequence.Name.LocalName);
             }
@@ -484,7 +490,8 @@ namespace SJP.Schematic.Oracle.Tests.Integration
                 var sequenceName = new Identifier("DB_TEST_SEQUENCE_1");
                 var expectedSequenceName = new Identifier(database.ServerName, database.DatabaseName, database.DefaultSchema, "DB_TEST_SEQUENCE_1");
 
-                var sequence = await database.GetSequenceAsync(sequenceName).ConfigureAwait(false);
+                var sequenceOption = await database.GetSequenceAsync(sequenceName).ConfigureAwait(false);
+                var sequence = sequenceOption.UnwrapSome();
 
                 Assert.AreEqual(expectedSequenceName, sequence.Name);
             }
@@ -496,7 +503,8 @@ namespace SJP.Schematic.Oracle.Tests.Integration
                 var sequenceName = new Identifier(database.DefaultSchema, "DB_TEST_SEQUENCE_1");
                 var expectedSequenceName = new Identifier(database.ServerName, database.DatabaseName, database.DefaultSchema, "DB_TEST_SEQUENCE_1");
 
-                var sequence = await database.GetSequenceAsync(sequenceName).ConfigureAwait(false);
+                var sequenceOption = await database.GetSequenceAsync(sequenceName).ConfigureAwait(false);
+                var sequence = sequenceOption.UnwrapSome();
 
                 Assert.AreEqual(expectedSequenceName, sequence.Name);
             }
@@ -508,7 +516,8 @@ namespace SJP.Schematic.Oracle.Tests.Integration
                 var sequenceName = new Identifier(database.DatabaseName, database.DefaultSchema, "DB_TEST_SEQUENCE_1");
                 var expectedSequenceName = new Identifier(database.ServerName, database.DatabaseName, database.DefaultSchema, "DB_TEST_SEQUENCE_1");
 
-                var sequence = await database.GetSequenceAsync(sequenceName).ConfigureAwait(false);
+                var sequenceOption = await database.GetSequenceAsync(sequenceName).ConfigureAwait(false);
+                var sequence = sequenceOption.UnwrapSome();
 
                 Assert.AreEqual(expectedSequenceName, sequence.Name);
             }
@@ -519,16 +528,17 @@ namespace SJP.Schematic.Oracle.Tests.Integration
                 var database = Database;
                 var sequenceName = new Identifier(database.ServerName, database.DatabaseName, database.DefaultSchema, "DB_TEST_SEQUENCE_1");
 
-                var sequence = await database.GetSequenceAsync(sequenceName).ConfigureAwait(false);
+                var sequenceOption = await database.GetSequenceAsync(sequenceName).ConfigureAwait(false);
+                var sequence = sequenceOption.UnwrapSome();
 
                 Assert.AreEqual(sequenceName, sequence.Name);
             }
 
             [Test]
-            public async Task GetSequenceAsync_WhenSequenceMissing_ReturnsNull()
+            public async Task GetSequenceAsync_WhenSequenceMissing_ReturnsNone()
             {
                 var sequence = await Database.GetSequenceAsync("sequence_that_doesnt_exist").ConfigureAwait(false);
-                Assert.IsNull(sequence);
+                Assert.IsTrue(sequence.IsNone);
             }
 
             [Test]
@@ -608,7 +618,7 @@ namespace SJP.Schematic.Oracle.Tests.Integration
             public void GetSynonym_WhenSynonymPresent_ReturnsSynonym()
             {
                 var synonym = Database.GetSynonym("db_test_synonym_1");
-                Assert.NotNull(synonym);
+                Assert.IsTrue(synonym.IsSome);
             }
 
             [Test]
@@ -618,16 +628,16 @@ namespace SJP.Schematic.Oracle.Tests.Integration
 
                 var database = Database;
                 var synonymName = new Identifier(database.ServerName, database.DatabaseName, database.DefaultSchema, expectedSynonymName);
-                var synonym = database.GetSynonym(synonymName);
+                var synonym = database.GetSynonym(synonymName).UnwrapSome();
 
                 Assert.AreEqual(synonymName, synonym.Name);
             }
 
             [Test]
-            public void GetSynonym_WhenSynonymMissing_ReturnsNull()
+            public void GetSynonym_WhenSynonymMissing_ReturnsNone()
             {
                 var synonym = Database.GetSynonym("synonym_that_doesnt_exist");
-                Assert.IsNull(synonym);
+                Assert.IsTrue(synonym.IsNone);
             }
 
             [Test]
@@ -640,7 +650,7 @@ namespace SJP.Schematic.Oracle.Tests.Integration
             public async Task GetSynonymAsync_WhenSynonymPresent_ReturnsSynonym()
             {
                 var synonym = await Database.GetSynonymAsync("db_test_synonym_1").ConfigureAwait(false);
-                Assert.NotNull(synonym);
+                Assert.IsTrue(synonym.IsSome);
             }
 
             [Test]
@@ -649,16 +659,17 @@ namespace SJP.Schematic.Oracle.Tests.Integration
                 var database = Database;
                 const string synonymName = "db_test_synonym_1";
                 const string expectedSynonymName = "DB_TEST_SYNONYM_1";
-                var synonym = await database.GetSynonymAsync(synonymName).ConfigureAwait(false);
+                var synonymOption = await database.GetSynonymAsync(synonymName).ConfigureAwait(false);
+                var synonym = synonymOption.UnwrapSome();
 
                 Assert.AreEqual(expectedSynonymName, synonym.Name.LocalName);
             }
 
             [Test]
-            public async Task GetSynonymAsync_WhenSynonymMissing_ReturnsNull()
+            public async Task GetSynonymAsync_WhenSynonymMissing_ReturnsNone()
             {
                 var synonym = await Database.GetSynonymAsync("synonym_that_doesnt_exist").ConfigureAwait(false);
-                Assert.IsNull(synonym);
+                Assert.IsTrue(synonym.IsNone);
             }
 
             [Test]
@@ -702,7 +713,7 @@ namespace SJP.Schematic.Oracle.Tests.Integration
             {
                 var database = Database;
                 const string expectedTarget = "SYNONYM_TEST_VIEW_1";
-                var synonym = database.GetSynonym("synonym_test_synonym_1");
+                var synonym = database.GetSynonym("synonym_test_synonym_1").UnwrapSome();
 
                 Assert.AreEqual(expectedTarget, synonym.Target.LocalName);
             }
@@ -712,7 +723,7 @@ namespace SJP.Schematic.Oracle.Tests.Integration
             {
                 var database = Database;
                 const string expectedTarget = "SYNONYM_TEST_TABLE_1";
-                var synonym = database.GetSynonym("synonym_test_synonym_2");
+                var synonym = database.GetSynonym("synonym_test_synonym_2").UnwrapSome();
 
                 Assert.AreEqual(expectedTarget, synonym.Target.LocalName);
             }
@@ -722,7 +733,7 @@ namespace SJP.Schematic.Oracle.Tests.Integration
             {
                 var database = Database;
                 var expectedTarget = new Identifier(database.ServerName, database.DatabaseName, database.DefaultSchema, "NON_EXISTENT_TARGET");
-                var synonym = database.GetSynonym("SYNONYM_TEST_SYNONYM_3");
+                var synonym = database.GetSynonym("SYNONYM_TEST_SYNONYM_3").UnwrapSome();
 
                 Assert.AreEqual(expectedTarget, synonym.Target);
             }
@@ -732,7 +743,8 @@ namespace SJP.Schematic.Oracle.Tests.Integration
             {
                 var database = Database;
                 var expectedTarget = new Identifier(database.ServerName, database.DatabaseName, database.DefaultSchema, "SYNONYM_TEST_VIEW_1");
-                var synonym = await database.GetSynonymAsync("synonym_test_synonym_1").ConfigureAwait(false);
+                var synonymOption = await database.GetSynonymAsync("synonym_test_synonym_1").ConfigureAwait(false);
+                var synonym = synonymOption.UnwrapSome();
 
                 Assert.AreEqual(expectedTarget, synonym.Target);
             }
@@ -742,7 +754,8 @@ namespace SJP.Schematic.Oracle.Tests.Integration
             {
                 var database = Database;
                 var expectedTarget = new Identifier(database.ServerName, database.DatabaseName, database.DefaultSchema, "SYNONYM_TEST_TABLE_1");
-                var synonym = await database.GetSynonymAsync("synonym_test_synonym_2").ConfigureAwait(false);
+                var synonymOption = await database.GetSynonymAsync("synonym_test_synonym_2").ConfigureAwait(false);
+                var synonym = synonymOption.UnwrapSome();
 
                 Assert.AreEqual(expectedTarget, synonym.Target);
             }
@@ -752,7 +765,8 @@ namespace SJP.Schematic.Oracle.Tests.Integration
             {
                 var database = Database;
                 var expectedTarget = new Identifier(database.ServerName, database.DatabaseName, database.DefaultSchema, "NON_EXISTENT_TARGET");
-                var synonym = await database.GetSynonymAsync("synonym_test_synonym_3").ConfigureAwait(false);
+                var synonymOption = await database.GetSynonymAsync("synonym_test_synonym_3").ConfigureAwait(false);
+                var synonym = synonymOption.UnwrapSome();
 
                 Assert.AreEqual(expectedTarget, synonym.Target);
             }
