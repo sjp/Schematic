@@ -24,14 +24,14 @@ namespace SJP.Schematic.Reporting.Html.ViewModels.Mappers
             if (table == null)
                 throw new ArgumentNullException(nameof(table));
 
-            var parentKeyLookup = table.ParentKey;
-            var parentKeyCount = parentKeyLookup.UCount();
+            var parentKeys = table.ParentKeys;
+            var parentKeyCount = parentKeys.UCount();
 
             var childKeys = table.ChildKeys;
             var childKeyCount = childKeys.UCount();
 
-            var columnLookup = table.Column;
-            var columnCount = columnLookup.UCount();
+            var columns = table.Columns;
+            var columnCount = columns.UCount();
 
             var rowCount = Connection.GetRowCount(Database.Dialect, table.Name);
 
@@ -54,14 +54,14 @@ namespace SJP.Schematic.Reporting.Html.ViewModels.Mappers
 
         private async Task<Main.Table> MapAsyncCore(IRelationalDatabaseTable table)
         {
-            var parentKeyLookup = await table.ParentKeyAsync().ConfigureAwait(false);
-            var parentKeyCount = parentKeyLookup.UCount();
+            var parentKeys = await table.ParentKeysAsync().ConfigureAwait(false);
+            var parentKeyCount = parentKeys.UCount();
 
             var childKeys = await table.ChildKeysAsync().ConfigureAwait(false);
             var childKeyCount = childKeys.UCount();
 
-            var columnLookup = await table.ColumnAsync().ConfigureAwait(false);
-            var columnCount = columnLookup.UCount();
+            var columns = await table.ColumnsAsync().ConfigureAwait(false);
+            var columnCount = columns.UCount();
 
             var rowCount = await Connection.GetRowCountAsync(Database.Dialect, table.Name).ConfigureAwait(false);
 
@@ -79,8 +79,8 @@ namespace SJP.Schematic.Reporting.Html.ViewModels.Mappers
             if (view == null)
                 throw new ArgumentNullException(nameof(view));
 
-            var columnLookup = view.Column;
-            var columnCount = columnLookup.UCount();
+            var columns = view.Columns;
+            var columnCount = columns.UCount();
             var rowCount = Connection.GetRowCount(Database.Dialect, view.Name);
 
             return new Main.View(view.Name, columnCount, rowCount);
@@ -96,8 +96,8 @@ namespace SJP.Schematic.Reporting.Html.ViewModels.Mappers
 
         private async Task<Main.View> MapAsyncCore(IRelationalDatabaseView view)
         {
-            var columnLookup = await view.ColumnAsync().ConfigureAwait(false);
-            var columnCount = columnLookup.UCount();
+            var columns = await view.ColumnsAsync().ConfigureAwait(false);
+            var columnCount = columns.UCount();
             var rowCount = await Connection.GetRowCountAsync(Database.Dialect, view.Name).ConfigureAwait(false);
 
             return new Main.View(view.Name, columnCount, rowCount);

@@ -64,7 +64,7 @@ namespace SJP.Schematic.Sqlite
             if (pkColumns.Count == 0)
                 return null;
 
-            var tableColumn = Column;
+            var tableColumn = this.GetColumnLookup();
             var columns = pkColumns.Select(c => tableColumn[c.name]).ToList();
 
             var parser = ParsedDefinition;
@@ -88,7 +88,7 @@ namespace SJP.Schematic.Sqlite
             if (pkColumns.Count == 0)
                 return null;
 
-            var tableColumn = await ColumnAsync(cancellationToken).ConfigureAwait(false);
+            var tableColumn = await this.GetColumnLookupAsync(cancellationToken).ConfigureAwait(false);
             var columns = pkColumns.Select(c => tableColumn[c.name]).ToList();
 
             var parser = await ParsedDefinitionAsync(cancellationToken).ConfigureAwait(false);
@@ -99,37 +99,9 @@ namespace SJP.Schematic.Sqlite
             return new SqliteDatabaseKey(primaryKeyName, DatabaseKeyType.Primary, columns);
         }
 
-        public IReadOnlyDictionary<Identifier, IDatabaseIndex> Index => LoadIndexLookupSync();
-
-        public Task<IReadOnlyDictionary<Identifier, IDatabaseIndex>> IndexAsync(CancellationToken cancellationToken = default(CancellationToken)) => LoadIndexLookupAsync(cancellationToken);
-
         public IReadOnlyCollection<IDatabaseIndex> Indexes => LoadIndexesSync();
 
         public Task<IReadOnlyCollection<IDatabaseIndex>> IndexesAsync(CancellationToken cancellationToken = default(CancellationToken)) => LoadIndexesAsync(cancellationToken);
-
-        protected virtual IReadOnlyDictionary<Identifier, IDatabaseIndex> LoadIndexLookupSync()
-        {
-            var indexes = Indexes;
-            var result = new Dictionary<Identifier, IDatabaseIndex>(indexes.Count);
-
-            var namedIndexes = indexes.Where(i => i.Name != null);
-            foreach (var index in namedIndexes)
-                result[index.Name.LocalName] = index;
-
-            return result;
-        }
-
-        protected virtual async Task<IReadOnlyDictionary<Identifier, IDatabaseIndex>> LoadIndexLookupAsync(CancellationToken cancellationToken)
-        {
-            var indexes = await IndexesAsync(cancellationToken).ConfigureAwait(false);
-            var result = new Dictionary<Identifier, IDatabaseIndex>(indexes.Count);
-
-            var namedIndexes = indexes.Where(i => i.Name != null);
-            foreach (var index in namedIndexes)
-                result[index.Name.LocalName] = index;
-
-            return result;
-        }
 
         protected virtual IReadOnlyCollection<IDatabaseIndex> LoadIndexesSync()
         {
@@ -141,6 +113,7 @@ namespace SJP.Schematic.Sqlite
             if (nonConstraintIndexLists.Count == 0)
                 return Array.Empty<IDatabaseIndex>();
 
+            var tableColumn = this.GetColumnLookup();
             var result = new List<IDatabaseIndex>(nonConstraintIndexLists.Count);
 
             foreach (var indexList in nonConstraintIndexLists)
@@ -149,13 +122,13 @@ namespace SJP.Schematic.Sqlite
                 var indexColumns = indexInfo
                     .Where(i => i.key && i.cid >= 0)
                     .OrderBy(i => i.seqno)
-                    .Select(i => new DatabaseIndexColumn(Column[i.name], i.desc ? IndexColumnOrder.Descending : IndexColumnOrder.Ascending))
+                    .Select(i => new DatabaseIndexColumn(tableColumn[i.name], i.desc ? IndexColumnOrder.Descending : IndexColumnOrder.Ascending))
                     .ToList();
 
                 var includedColumns = indexInfo
                     .Where(i => !i.key && i.cid >= 0)
                     .OrderBy(i => i.name)
-                    .Select(i => Column[i.name])
+                    .Select(i => tableColumn[i.name])
                     .ToList();
 
                 var index = new SqliteDatabaseIndex(indexList.name, indexList.unique, indexColumns, includedColumns);
@@ -175,6 +148,7 @@ namespace SJP.Schematic.Sqlite
             if (nonConstraintIndexLists.Count == 0)
                 return Array.Empty<IDatabaseIndex>();
 
+            var tableColumn = await this.GetColumnLookupAsync(cancellationToken).ConfigureAwait(false);
             var result = new List<IDatabaseIndex>(nonConstraintIndexLists.Count);
 
             foreach (var indexList in nonConstraintIndexLists)
@@ -183,13 +157,13 @@ namespace SJP.Schematic.Sqlite
                 var indexColumns = indexInfo
                     .Where(i => i.key && i.cid >= 0)
                     .OrderBy(i => i.seqno)
-                    .Select(i => new DatabaseIndexColumn(Column[i.name], i.desc ? IndexColumnOrder.Descending : IndexColumnOrder.Ascending))
+                    .Select(i => new DatabaseIndexColumn(tableColumn[i.name], i.desc ? IndexColumnOrder.Descending : IndexColumnOrder.Ascending))
                     .ToList();
 
                 var includedColumns = indexInfo
                     .Where(i => !i.key && i.cid >= 0)
                     .OrderBy(i => i.name)
-                    .Select(i => Column[i.name])
+                    .Select(i => tableColumn[i.name])
                     .ToList();
 
                 var index = new SqliteDatabaseIndex(indexList.name, indexList.unique, indexColumns, includedColumns);
@@ -199,37 +173,9 @@ namespace SJP.Schematic.Sqlite
             return result;
         }
 
-        public IReadOnlyDictionary<Identifier, IDatabaseKey> UniqueKey => LoadUniqueKeyLookupSync();
-
-        public Task<IReadOnlyDictionary<Identifier, IDatabaseKey>> UniqueKeyAsync(CancellationToken cancellationToken = default(CancellationToken)) => LoadUniqueKeyLookupAsync(cancellationToken);
-
         public IReadOnlyCollection<IDatabaseKey> UniqueKeys => LoadUniqueKeysSync();
 
         public Task<IReadOnlyCollection<IDatabaseKey>> UniqueKeysAsync(CancellationToken cancellationToken = default(CancellationToken)) => LoadUniqueKeysAsync(cancellationToken);
-
-        protected virtual IReadOnlyDictionary<Identifier, IDatabaseKey> LoadUniqueKeyLookupSync()
-        {
-            var uniqueKeys = UniqueKeys;
-            var result = new Dictionary<Identifier, IDatabaseKey>(uniqueKeys.Count);
-
-            var namedUniqueKeys = uniqueKeys.Where(uk => uk.Name != null);
-            foreach (var uk in namedUniqueKeys)
-                result[uk.Name.LocalName] = uk;
-
-            return result;
-        }
-
-        protected virtual async Task<IReadOnlyDictionary<Identifier, IDatabaseKey>> LoadUniqueKeyLookupAsync(CancellationToken cancellationToken)
-        {
-            var uniqueKeys = await UniqueKeysAsync(cancellationToken).ConfigureAwait(false);
-            var result = new Dictionary<Identifier, IDatabaseKey>(uniqueKeys.Count);
-
-            var namedUniqueKeys = uniqueKeys.Where(uk => uk.Name != null);
-            foreach (var uk in namedUniqueKeys)
-                result[uk.Name.LocalName] = uk;
-
-            return result;
-        }
 
         protected virtual IReadOnlyCollection<IDatabaseKey> LoadUniqueKeysSync()
         {
@@ -248,7 +194,7 @@ namespace SJP.Schematic.Sqlite
             var parser = ParsedDefinition;
             var parsedUniqueConstraints = parser.UniqueKeys;
 
-            var tableColumn = Column;
+            var tableColumn = this.GetColumnLookup();
             foreach (var ukIndexList in ukIndexLists)
             {
                 var indexXInfos = Pragma.IndexXInfo(ukIndexList.name);
@@ -288,7 +234,7 @@ namespace SJP.Schematic.Sqlite
             var parser = await ParsedDefinitionAsync(cancellationToken).ConfigureAwait(false);
             var parsedUniqueConstraints = parser.UniqueKeys;
 
-            var tableColumn = await ColumnAsync(cancellationToken).ConfigureAwait(false);
+            var tableColumn = await this.GetColumnLookupAsync(cancellationToken).ConfigureAwait(false);
             foreach (var ukIndexList in ukIndexLists)
             {
                 var indexXInfos = await Pragma.IndexXInfoAsync(ukIndexList.name, cancellationToken).ConfigureAwait(false);
@@ -343,37 +289,9 @@ namespace SJP.Schematic.Sqlite
             return childKeys;
         }
 
-        public IReadOnlyDictionary<Identifier, IDatabaseCheckConstraint> Check => LoadCheckLookupSync();
-
-        public Task<IReadOnlyDictionary<Identifier, IDatabaseCheckConstraint>> CheckAsync(CancellationToken cancellationToken = default(CancellationToken)) => LoadCheckLookupAsync(cancellationToken);
-
         public IReadOnlyCollection<IDatabaseCheckConstraint> Checks => LoadChecksSync();
 
         public Task<IReadOnlyCollection<IDatabaseCheckConstraint>> ChecksAsync(CancellationToken cancellationToken = default(CancellationToken)) => LoadChecksAsync(cancellationToken);
-
-        protected virtual IReadOnlyDictionary<Identifier, IDatabaseCheckConstraint> LoadCheckLookupSync()
-        {
-            var checks = Checks;
-            var result = new Dictionary<Identifier, IDatabaseCheckConstraint>(checks.Count);
-
-            var namedChecks = checks.Where(c => c.Name != null);
-            foreach (var check in namedChecks)
-                result[check.Name.LocalName] = check;
-
-            return result;
-        }
-
-        protected virtual async Task<IReadOnlyDictionary<Identifier, IDatabaseCheckConstraint>> LoadCheckLookupAsync(CancellationToken cancellationToken)
-        {
-            var checks = await ChecksAsync(cancellationToken).ConfigureAwait(false);
-            var result = new Dictionary<Identifier, IDatabaseCheckConstraint>(checks.Count);
-
-            var namedChecks = checks.Where(c => c.Name != null);
-            foreach (var check in namedChecks)
-                result[check.Name.LocalName] = check;
-
-            return result;
-        }
 
         protected virtual IReadOnlyCollection<IDatabaseCheckConstraint> LoadChecksSync()
         {
@@ -421,37 +339,9 @@ namespace SJP.Schematic.Sqlite
             return result;
         }
 
-        public IReadOnlyDictionary<Identifier, IDatabaseRelationalKey> ParentKey => LoadParentKeyLookupSync();
-
-        public Task<IReadOnlyDictionary<Identifier, IDatabaseRelationalKey>> ParentKeyAsync(CancellationToken cancellationToken = default(CancellationToken)) => LoadParentKeyLookupAsync(cancellationToken);
-
         public IReadOnlyCollection<IDatabaseRelationalKey> ParentKeys => LoadParentKeysSync();
 
         public Task<IReadOnlyCollection<IDatabaseRelationalKey>> ParentKeysAsync(CancellationToken cancellationToken = default(CancellationToken)) => LoadParentKeysAsync(cancellationToken);
-
-        protected virtual IReadOnlyDictionary<Identifier, IDatabaseRelationalKey> LoadParentKeyLookupSync()
-        {
-            var parentKeys = ParentKeys;
-            var result = new Dictionary<Identifier, IDatabaseRelationalKey>(parentKeys.Count);
-
-            var namedParentKeys = parentKeys.Where(fk => fk.ChildKey.Name != null);
-            foreach (var parentKey in namedParentKeys)
-                result[parentKey.ChildKey.Name.LocalName] = parentKey;
-
-            return result;
-        }
-
-        protected virtual async Task<IReadOnlyDictionary<Identifier, IDatabaseRelationalKey>> LoadParentKeyLookupAsync(CancellationToken cancellationToken)
-        {
-            var parentKeys = await ParentKeysAsync(cancellationToken).ConfigureAwait(false);
-            var result = new Dictionary<Identifier, IDatabaseRelationalKey>(parentKeys.Count);
-
-            var namedParentKeys = parentKeys.Where(fk => fk.ChildKey.Name != null);
-            foreach (var parentKey in namedParentKeys)
-                result[parentKey.ChildKey.Name.LocalName] = parentKey;
-
-            return result;
-        }
 
         protected virtual IReadOnlyCollection<IDatabaseRelationalKey> LoadParentKeysSync()
         {
@@ -477,8 +367,8 @@ namespace SJP.Schematic.Sqlite
                     throw new Exception("Could not find parent table with name: " + parentTableName.ToString());
 
                 var parentTable = parentOption.UnwrapSome();
-                var parentColumns = parentTable.Columns;
-                parentColumns = rows.Select(row => parentTable.Column[row.to]).ToList();
+                var parentColumnLookup = parentTable.GetColumnLookup();
+                var parentColumns = rows.Select(row => parentColumnLookup[row.to]).ToList();
 
                 var parentPrimaryKey = parentTable.PrimaryKey;
                 var pkColumnsEqual = parentPrimaryKey.Columns.Select(col => col.Name)
@@ -504,7 +394,7 @@ namespace SJP.Schematic.Sqlite
                 var constraintStringName = parsedConstraint?.Name;
 
                 var childKeyName = !constraintStringName.IsNullOrWhiteSpace() ? Identifier.CreateQualifiedIdentifier(constraintStringName) : null;
-                var childKeyColumnLookup = Column;
+                var childKeyColumnLookup = this.GetColumnLookup();
                 var childKeyColumns = rows.Select(row => childKeyColumnLookup[row.from]).ToList();
 
                 var childKey = new SqliteDatabaseKey(childKeyName, DatabaseKeyType.Foreign, childKeyColumns);
@@ -543,8 +433,8 @@ namespace SJP.Schematic.Sqlite
                     throw new Exception("Could not find parent table with name: " + parentTableName.ToString());
 
                 var parentTable = parentOption.UnwrapSome();
-                var parentColumns = await parentTable.ColumnsAsync(cancellationToken).ConfigureAwait(false);
-                parentColumns = rows.Select(row => parentTable.Column[row.to]).ToList();
+                var parentColumnLookup = await parentTable.GetColumnLookupAsync(cancellationToken).ConfigureAwait(false);
+                var parentColumns = rows.Select(row => parentColumnLookup[row.to]).ToList();
 
                 var parentPrimaryKey = await parentTable.PrimaryKeyAsync(cancellationToken).ConfigureAwait(false);
                 var pkColumnsEqual = parentPrimaryKey.Columns.Select(col => col.Name)
@@ -570,7 +460,7 @@ namespace SJP.Schematic.Sqlite
                 var constraintStringName = parsedConstraint?.Name;
 
                 var childKeyName = !constraintStringName.IsNullOrWhiteSpace() ? Identifier.CreateQualifiedIdentifier(constraintStringName) : null;
-                var childKeyColumnLookup = await ColumnAsync(cancellationToken).ConfigureAwait(false);
+                var childKeyColumnLookup = await this.GetColumnLookupAsync(cancellationToken).ConfigureAwait(false);
                 var childKeyColumns = rows.Select(row => childKeyColumnLookup[row.from]).ToList();
 
                 var childKey = new SqliteDatabaseKey(childKeyName, DatabaseKeyType.Foreign, childKeyColumns);
@@ -588,34 +478,6 @@ namespace SJP.Schematic.Sqlite
         public IReadOnlyList<IDatabaseColumn> Columns => LoadColumnsSync();
 
         public Task<IReadOnlyList<IDatabaseColumn>> ColumnsAsync(CancellationToken cancellationToken = default(CancellationToken)) => LoadColumnsAsync(cancellationToken);
-
-        public IReadOnlyDictionary<Identifier, IDatabaseColumn> Column => LoadColumnLookupSync();
-
-        public Task<IReadOnlyDictionary<Identifier, IDatabaseColumn>> ColumnAsync(CancellationToken cancellationToken = default(CancellationToken)) => LoadColumnLookupAsync(cancellationToken);
-
-        protected virtual IReadOnlyDictionary<Identifier, IDatabaseColumn> LoadColumnLookupSync()
-        {
-            var columns = Columns;
-            var result = new Dictionary<Identifier, IDatabaseColumn>(columns.Count);
-
-            var namedColumns = columns.Where(c => c.Name != null);
-            foreach (var column in namedColumns)
-                result[column.Name.LocalName] = column;
-
-            return result;
-        }
-
-        protected virtual async Task<IReadOnlyDictionary<Identifier, IDatabaseColumn>> LoadColumnLookupAsync(CancellationToken cancellationToken)
-        {
-            var columns = await ColumnsAsync(cancellationToken).ConfigureAwait(false);
-            var result = new Dictionary<Identifier, IDatabaseColumn>(columns.Count);
-
-            var namedColumns = columns.Where(c => c.Name != null);
-            foreach (var column in namedColumns)
-                result[column.Name.LocalName] = column;
-
-            return result;
-        }
 
         protected virtual IReadOnlyList<IDatabaseColumn> LoadColumnsSync()
         {
@@ -679,35 +541,9 @@ namespace SJP.Schematic.Sqlite
             return result.AsReadOnly();
         }
 
-        public IReadOnlyDictionary<Identifier, IDatabaseTrigger> Trigger => LoadTriggerLookupSync();
-
-        public Task<IReadOnlyDictionary<Identifier, IDatabaseTrigger>> TriggerAsync(CancellationToken cancellationToken = default(CancellationToken)) => LoadTriggerLookupAsync(cancellationToken);
-
         public IReadOnlyCollection<IDatabaseTrigger> Triggers => LoadTriggersSync();
 
         public Task<IReadOnlyCollection<IDatabaseTrigger>> TriggersAsync(CancellationToken cancellationToken = default(CancellationToken)) => LoadTriggersAsync(cancellationToken);
-
-        protected virtual IReadOnlyDictionary<Identifier, IDatabaseTrigger> LoadTriggerLookupSync()
-        {
-            var triggers = Triggers;
-            var result = new Dictionary<Identifier, IDatabaseTrigger>(triggers.Count);
-
-            foreach (var trigger in triggers)
-                result[trigger.Name.LocalName] = trigger;
-
-            return result;
-        }
-
-        protected virtual async Task<IReadOnlyDictionary<Identifier, IDatabaseTrigger>> LoadTriggerLookupAsync(CancellationToken cancellationToken)
-        {
-            var triggers = await TriggersAsync(cancellationToken).ConfigureAwait(false);
-            var result = new Dictionary<Identifier, IDatabaseTrigger>(triggers.Count);
-
-            foreach (var trigger in triggers)
-                result[trigger.Name.LocalName] = trigger;
-
-            return result;
-        }
 
         protected virtual IReadOnlyCollection<IDatabaseTrigger> LoadTriggersSync()
         {

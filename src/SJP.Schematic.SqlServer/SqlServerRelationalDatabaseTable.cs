@@ -44,7 +44,7 @@ namespace SJP.Schematic.SqlServer
             var constraintName = firstRow.Key.ConstraintName;
             var isEnabled = !firstRow.Key.IsDisabled;
 
-            var tableColumns = Column;
+            var tableColumns = this.GetColumnLookup();
             var columns = groupedByName
                 .Where(row => row.Key.ConstraintName == constraintName)
                 .SelectMany(g => g.Select(row => tableColumns[row.ColumnName]))
@@ -64,7 +64,7 @@ namespace SJP.Schematic.SqlServer
             var constraintName = firstRow.Key.ConstraintName;
             var isEnabled = !firstRow.Key.IsDisabled;
 
-            var tableColumns = await ColumnAsync(cancellationToken).ConfigureAwait(false);
+            var tableColumns = await this.GetColumnLookupAsync(cancellationToken).ConfigureAwait(false);
             var columns = groupedByName
                 .Where(row => row.Key.ConstraintName == constraintName)
                 .SelectMany(g => g.Select(row => tableColumns[row.ColumnName]))
@@ -89,35 +89,9 @@ where schema_name(t.schema_id) = @SchemaName and t.name = @TableName
     and kc.type = 'PK' and ic.is_included_column = 0
 order by ic.key_ordinal";
 
-        public IReadOnlyDictionary<Identifier, IDatabaseIndex> Index => LoadIndexLookupSync();
-
-        public Task<IReadOnlyDictionary<Identifier, IDatabaseIndex>> IndexAsync(CancellationToken cancellationToken = default(CancellationToken)) => LoadIndexLookupAsync(cancellationToken);
-
         public IReadOnlyCollection<IDatabaseIndex> Indexes => LoadIndexesSync();
 
         public Task<IReadOnlyCollection<IDatabaseIndex>> IndexesAsync(CancellationToken cancellationToken = default(CancellationToken)) => LoadIndexesAsync(cancellationToken);
-
-        protected virtual IReadOnlyDictionary<Identifier, IDatabaseIndex> LoadIndexLookupSync()
-        {
-            var indexes = Indexes;
-            var result = new Dictionary<Identifier, IDatabaseIndex>(indexes.Count);
-
-            foreach (var index in indexes)
-                result[index.Name.LocalName] = index;
-
-            return result;
-        }
-
-        protected virtual async Task<IReadOnlyDictionary<Identifier, IDatabaseIndex>> LoadIndexLookupAsync(CancellationToken cancellationToken)
-        {
-            var indexes = await IndexesAsync(cancellationToken).ConfigureAwait(false);
-            var result = new Dictionary<Identifier, IDatabaseIndex>(indexes.Count);
-
-            foreach (var index in indexes)
-                result[index.Name.LocalName] = index;
-
-            return result;
-        }
 
         protected virtual IReadOnlyCollection<IDatabaseIndex> LoadIndexesSync()
         {
@@ -129,7 +103,7 @@ order by ic.key_ordinal";
             if (indexColumns.Count == 0)
                 return Array.Empty<IDatabaseIndex>();
 
-            var tableColumns = Column;
+            var tableColumns = this.GetColumnLookup();
             var result = new List<IDatabaseIndex>(indexColumns.Count);
             foreach (var indexInfo in indexColumns)
             {
@@ -169,7 +143,7 @@ order by ic.key_ordinal";
             if (indexColumns.Count == 0)
                 return Array.Empty<IDatabaseIndex>();
 
-            var tableColumns = await ColumnAsync(cancellationToken).ConfigureAwait(false);
+            var tableColumns = await this.GetColumnLookupAsync(cancellationToken).ConfigureAwait(false);
             var result = new List<IDatabaseIndex>(indexColumns.Count);
             foreach (var indexInfo in indexColumns)
             {
@@ -219,35 +193,9 @@ where schema_name(t.schema_id) = @SchemaName and t.name = @TableName
     and i.is_primary_key = 0 and i.is_unique_constraint = 0
 order by ic.index_id, ic.key_ordinal, ic.index_column_id";
 
-        public IReadOnlyDictionary<Identifier, IDatabaseKey> UniqueKey => LoadUniqueKeyLookupSync();
-
-        public Task<IReadOnlyDictionary<Identifier, IDatabaseKey>> UniqueKeyAsync(CancellationToken cancellationToken = default(CancellationToken)) => LoadUniqueKeyLookupAsync(cancellationToken);
-
         public IReadOnlyCollection<IDatabaseKey> UniqueKeys => LoadUniqueKeysSync();
 
         public Task<IReadOnlyCollection<IDatabaseKey>> UniqueKeysAsync(CancellationToken cancellationToken = default(CancellationToken)) => LoadUniqueKeysAsync(cancellationToken);
-
-        protected virtual IReadOnlyDictionary<Identifier, IDatabaseKey> LoadUniqueKeyLookupSync()
-        {
-            var uniqueKeys = UniqueKeys;
-            var result = new Dictionary<Identifier, IDatabaseKey>(uniqueKeys.Count);
-
-            foreach (var uk in uniqueKeys)
-                result[uk.Name.LocalName] = uk;
-
-            return result;
-        }
-
-        protected virtual async Task<IReadOnlyDictionary<Identifier, IDatabaseKey>> LoadUniqueKeyLookupAsync(CancellationToken cancellationToken)
-        {
-            var uniqueKeys = await UniqueKeysAsync(cancellationToken).ConfigureAwait(false);
-            var result = new Dictionary<Identifier, IDatabaseKey>(uniqueKeys.Count);
-
-            foreach (var uk in uniqueKeys)
-                result[uk.Name.LocalName] = uk;
-
-            return result;
-        }
 
         protected virtual IReadOnlyCollection<IDatabaseKey> LoadUniqueKeysSync()
         {
@@ -256,7 +204,7 @@ order by ic.index_id, ic.key_ordinal, ic.index_column_id";
                 return Array.Empty<IDatabaseKey>();
 
             var groupedByName = uniqueKeyColumns.GroupBy(row => new { row.ConstraintName, row.IsDisabled });
-            var tableColumns = Column;
+            var tableColumns = this.GetColumnLookup();
             var constraintColumns = groupedByName
                 .Select(g => new
                 {
@@ -284,7 +232,7 @@ order by ic.index_id, ic.key_ordinal, ic.index_column_id";
                 return Array.Empty<IDatabaseKey>();
 
             var groupedByName = uniqueKeyColumns.GroupBy(row => new { row.ConstraintName, row.IsDisabled });
-            var tableColumns = await ColumnAsync(cancellationToken).ConfigureAwait(false);
+            var tableColumns = await this.GetColumnLookupAsync(cancellationToken).ConfigureAwait(false);
             var constraintColumns = groupedByName
                 .Select(g => new
                 {
@@ -358,7 +306,7 @@ order by ic.key_ordinal";
                     throw new Exception("Could not find child table with name: " + childTableName.ToString());
 
                 var childTable = childOption.UnwrapSome();
-                var parentKeyLookup = childTable.ParentKey;
+                var parentKeyLookup = childTable.GetParentKeyLookup();
 
                 var childKey = parentKeyLookup[childKeyName.LocalName].ChildKey;
 
@@ -369,7 +317,7 @@ order by ic.key_ordinal";
                 }
                 else
                 {
-                    var uniqueKeyLookup = UniqueKey;
+                    var uniqueKeyLookup = this.GetUniqueKeyLookup();
                     parentKey = uniqueKeyLookup[groupedChildKey.Key.ParentKeyName];
                 }
 
@@ -414,7 +362,7 @@ order by ic.key_ordinal";
                     throw new Exception("Could not find child table with name: " + childTableName.ToString());
 
                 var childTable = childOption.UnwrapSome();
-                var parentKeyLookup = await childTable.ParentKeyAsync(cancellationToken).ConfigureAwait(false);
+                var parentKeyLookup = await childTable.GetParentKeyLookupAsync(cancellationToken).ConfigureAwait(false);
 
                 var childKey = parentKeyLookup[childKeyName.LocalName].ChildKey;
 
@@ -425,7 +373,7 @@ order by ic.key_ordinal";
                 }
                 else
                 {
-                    var uniqueKeyLookup = await UniqueKeyAsync(cancellationToken).ConfigureAwait(false);
+                    var uniqueKeyLookup = await this.GetUniqueKeyLookupAsync(cancellationToken).ConfigureAwait(false);
                     parentKey = uniqueKeyLookup[groupedChildKey.Key.ParentKeyName];
                 }
 
@@ -458,35 +406,9 @@ inner join sys.columns c on fkc.parent_column_id = c.column_id and c.object_id =
 inner join sys.key_constraints kc on kc.unique_index_id = fk.key_index_id and kc.parent_object_id = fk.referenced_object_id
 where schema_name(parent_t.schema_id) = @SchemaName and parent_t.name = @TableName";
 
-        public IReadOnlyDictionary<Identifier, IDatabaseCheckConstraint> Check => LoadCheckLookupSync();
-
-        public Task<IReadOnlyDictionary<Identifier, IDatabaseCheckConstraint>> CheckAsync(CancellationToken cancellationToken = default(CancellationToken)) => LoadCheckLookupAsync(cancellationToken);
-
         public IReadOnlyCollection<IDatabaseCheckConstraint> Checks => LoadChecksSync();
 
         public Task<IReadOnlyCollection<IDatabaseCheckConstraint>> ChecksAsync(CancellationToken cancellationToken = default(CancellationToken)) => LoadChecksAsync(cancellationToken);
-
-        protected virtual IReadOnlyDictionary<Identifier, IDatabaseCheckConstraint> LoadCheckLookupSync()
-        {
-            var checks = Checks;
-            var result = new Dictionary<Identifier, IDatabaseCheckConstraint>(checks.Count);
-
-            foreach (var check in checks)
-                result[check.Name.LocalName] = check;
-
-            return result;
-        }
-
-        protected virtual async Task<IReadOnlyDictionary<Identifier, IDatabaseCheckConstraint>> LoadCheckLookupAsync(CancellationToken cancellationToken)
-        {
-            var checks = await ChecksAsync(cancellationToken).ConfigureAwait(false);
-            var result = new Dictionary<Identifier, IDatabaseCheckConstraint>(checks.Count);
-
-            foreach (var check in checks)
-                result[check.Name.LocalName] = check;
-
-            return result;
-        }
 
         protected virtual IReadOnlyCollection<IDatabaseCheckConstraint> LoadChecksSync()
         {
@@ -541,35 +463,9 @@ from sys.tables t
 inner join sys.check_constraints cc on t.object_id = cc.parent_object_id
 where schema_name(t.schema_id) = @SchemaName and t.name = @TableName";
 
-        public IReadOnlyDictionary<Identifier, IDatabaseRelationalKey> ParentKey => LoadParentKeyLookupSync();
-
-        public Task<IReadOnlyDictionary<Identifier, IDatabaseRelationalKey>> ParentKeyAsync(CancellationToken cancellationToken = default(CancellationToken)) => LoadParentKeyLookupAsync(cancellationToken);
-
         public IReadOnlyCollection<IDatabaseRelationalKey> ParentKeys => LoadParentKeysSync();
 
         public Task<IReadOnlyCollection<IDatabaseRelationalKey>> ParentKeysAsync(CancellationToken cancellationToken = default(CancellationToken)) => LoadParentKeysAsync(cancellationToken);
-
-        protected virtual IReadOnlyDictionary<Identifier, IDatabaseRelationalKey> LoadParentKeyLookupSync()
-        {
-            var parentKeys = ParentKeys;
-            var result = new Dictionary<Identifier, IDatabaseRelationalKey>(parentKeys.Count);
-
-            foreach (var parentKey in parentKeys)
-                result[parentKey.ChildKey.Name.LocalName] = parentKey;
-
-            return result;
-        }
-
-        protected virtual async Task<IReadOnlyDictionary<Identifier, IDatabaseRelationalKey>> LoadParentKeyLookupAsync(CancellationToken cancellationToken)
-        {
-            var parentKeys = await ParentKeysAsync(cancellationToken).ConfigureAwait(false);
-            var result = new Dictionary<Identifier, IDatabaseRelationalKey>(parentKeys.Count);
-
-            foreach (var parentKey in parentKeys)
-                result[parentKey.ChildKey.Name.LocalName] = parentKey;
-
-            return result;
-        }
 
         protected virtual IReadOnlyCollection<IDatabaseRelationalKey> LoadParentKeysSync()
         {
@@ -609,12 +505,12 @@ where schema_name(t.schema_id) = @SchemaName and t.name = @TableName";
                 }
                 else
                 {
-                    var uniqueKeys = parentTable.UniqueKey;
+                    var uniqueKeys = parentTable.GetUniqueKeyLookup();
                     parentKey = uniqueKeys[parentKeyName.LocalName];
                 }
 
                 var childKeyName = Identifier.CreateQualifiedIdentifier(fkey.Key.ChildKeyName);
-                var childKeyColumnLookup = Column;
+                var childKeyColumnLookup = this.GetColumnLookup();
                 var childKeyColumns = fkey
                     .OrderBy(row => row.ConstraintColumnId)
                     .Select(row => childKeyColumnLookup[row.ColumnName])
@@ -671,12 +567,12 @@ where schema_name(t.schema_id) = @SchemaName and t.name = @TableName";
                 }
                 else
                 {
-                    var uniqueKeys = await parentTable.UniqueKeyAsync(cancellationToken).ConfigureAwait(false);
+                    var uniqueKeys = await parentTable.GetUniqueKeyLookupAsync(cancellationToken).ConfigureAwait(false);
                     parentKey = uniqueKeys[parentKeyName.LocalName];
                 }
 
                 var childKeyName = Identifier.CreateQualifiedIdentifier(fkey.Key.ChildKeyName);
-                var childKeyColumnLookup = await ColumnAsync(cancellationToken).ConfigureAwait(false);
+                var childKeyColumnLookup = await this.GetColumnLookupAsync(cancellationToken).ConfigureAwait(false);
                 var childKeyColumns = fkey
                     .OrderBy(row => row.ConstraintColumnId)
                     .Select(row => childKeyColumnLookup[row.ColumnName])
@@ -720,32 +616,6 @@ where schema_name(child_t.schema_id) = @SchemaName and child_t.name = @TableName
         public IReadOnlyList<IDatabaseColumn> Columns => LoadColumnsSync();
 
         public Task<IReadOnlyList<IDatabaseColumn>> ColumnsAsync(CancellationToken cancellationToken = default(CancellationToken)) => LoadColumnsAsync(cancellationToken);
-
-        public IReadOnlyDictionary<Identifier, IDatabaseColumn> Column => LoadColumnLookupSync();
-
-        public Task<IReadOnlyDictionary<Identifier, IDatabaseColumn>> ColumnAsync(CancellationToken cancellationToken = default(CancellationToken)) => LoadColumnLookupAsync(cancellationToken);
-
-        protected virtual IReadOnlyDictionary<Identifier, IDatabaseColumn> LoadColumnLookupSync()
-        {
-            var columns = Columns;
-            var result = new Dictionary<Identifier, IDatabaseColumn>(columns.Count);
-
-            foreach (var column in columns.Where(c => c.Name != null))
-                result[column.Name.LocalName] = column;
-
-            return result;
-        }
-
-        protected virtual async Task<IReadOnlyDictionary<Identifier, IDatabaseColumn>> LoadColumnLookupAsync(CancellationToken cancellationToken)
-        {
-            var columns = await ColumnsAsync(cancellationToken).ConfigureAwait(false);
-            var result = new Dictionary<Identifier, IDatabaseColumn>(columns.Count);
-
-            foreach (var column in columns.Where(c => c.Name != null))
-                result[column.Name.LocalName] = column;
-
-            return result;
-        }
 
         protected virtual IReadOnlyList<IDatabaseColumn> LoadColumnsSync()
         {
@@ -838,35 +708,9 @@ where schema_name(t.schema_id) = @SchemaName
     and t.name = @TableName
     order by c.column_id";
 
-        public IReadOnlyDictionary<Identifier, IDatabaseTrigger> Trigger => LoadTriggerLookupSync();
-
         public IReadOnlyCollection<IDatabaseTrigger> Triggers => LoadTriggersSync();
 
-        public Task<IReadOnlyDictionary<Identifier, IDatabaseTrigger>> TriggerAsync(CancellationToken cancellationToken = default(CancellationToken)) => LoadTriggerLookupAsync(cancellationToken);
-
         public Task<IReadOnlyCollection<IDatabaseTrigger>> TriggersAsync(CancellationToken cancellationToken = default(CancellationToken)) => LoadTriggersAsync(cancellationToken);
-
-        protected virtual IReadOnlyDictionary<Identifier, IDatabaseTrigger> LoadTriggerLookupSync()
-        {
-            var triggers = Triggers;
-            var result = new Dictionary<Identifier, IDatabaseTrigger>(triggers.Count);
-
-            foreach (var trigger in triggers)
-                result[trigger.Name.LocalName] = trigger;
-
-            return result;
-        }
-
-        protected virtual async Task<IReadOnlyDictionary<Identifier, IDatabaseTrigger>> LoadTriggerLookupAsync(CancellationToken cancellationToken)
-        {
-            var triggers = await TriggersAsync(cancellationToken).ConfigureAwait(false);
-            var result = new Dictionary<Identifier, IDatabaseTrigger>(triggers.Count);
-
-            foreach (var trigger in triggers)
-                result[trigger.Name.LocalName] = trigger;
-
-            return result;
-        }
 
         protected virtual IReadOnlyCollection<IDatabaseTrigger> LoadTriggersSync()
         {

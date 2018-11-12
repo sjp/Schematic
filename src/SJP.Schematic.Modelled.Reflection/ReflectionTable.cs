@@ -78,10 +78,11 @@ namespace SJP.Schematic.Modelled.Reflection
                 }
                 else if (keyObject.KeyType == DatabaseKeyType.Unique)
                 {
-                    if (!parent.UniqueKey.ContainsKey(parentKeyName))
+                    var uniqueKey = parent.UniqueKeys.FirstOrDefault(uk => uk.Name == parentKeyName);
+                    if (uniqueKey == null)
                         throw new Exception("Could not find matching parent key for foreign key."); // same goes for this...
 
-                    parentKey = parent.UniqueKey[parentKeyName];
+                    parentKey = uniqueKey;
                 }
                 else
                 {
@@ -201,39 +202,25 @@ namespace SJP.Schematic.Modelled.Reflection
             return result;
         }
 
-        public IReadOnlyDictionary<Identifier, IDatabaseCheckConstraint> Check => _checkLookup.Value;
-
         public IReadOnlyCollection<IDatabaseCheckConstraint> Checks => new ReadOnlyCollectionSlim<IDatabaseCheckConstraint>(_checkLookup.Value.Count, _checkLookup.Value.Values);
 
         public IReadOnlyCollection<IDatabaseRelationalKey> ChildKeys => _childKeys.Value;
-
-        public IReadOnlyDictionary<Identifier, IDatabaseColumn> Column => _columnLookup.Value;
 
         public IReadOnlyList<IDatabaseColumn> Columns => _columns.Value;
 
         protected IRelationalDatabase Database { get; }
 
-        public IReadOnlyDictionary<Identifier, IDatabaseIndex> Index => _indexLookup.Value;
-
         public IReadOnlyCollection<IDatabaseIndex> Indexes => new ReadOnlyCollectionSlim<IDatabaseIndex>(_indexLookup.Value.Count, _indexLookup.Value.Values);
 
         public Identifier Name { get; }
-
-        public IReadOnlyDictionary<Identifier, IDatabaseRelationalKey> ParentKey => _parentKeyLookup.Value;
 
         public IReadOnlyCollection<IDatabaseRelationalKey> ParentKeys => new ReadOnlyCollectionSlim<IDatabaseRelationalKey>(_parentKeyLookup.Value.Count, _parentKeyLookup.Value.Values);
 
         public IDatabaseKey PrimaryKey => _primaryKey.Value;
 
-        public IReadOnlyDictionary<Identifier, IDatabaseTrigger> Trigger { get; }
-
         public IReadOnlyCollection<IDatabaseTrigger> Triggers { get; }
 
-        public IReadOnlyDictionary<Identifier, IDatabaseKey> UniqueKey => _uniqueKeyLookup.Value;
-
         public IReadOnlyCollection<IDatabaseKey> UniqueKeys => new ReadOnlyCollectionSlim<IDatabaseKey>(_uniqueKeyLookup.Value.Count, _uniqueKeyLookup.Value.Values);
-
-        public Task<IReadOnlyDictionary<Identifier, IDatabaseCheckConstraint>> CheckAsync(CancellationToken cancellationToken = default(CancellationToken)) => Task.FromResult(_checkLookup.Value);
 
         public Task<IReadOnlyCollection<IDatabaseCheckConstraint>> ChecksAsync(CancellationToken cancellationToken = default(CancellationToken)) => Task.FromResult<IReadOnlyCollection<IDatabaseCheckConstraint>>(
             new ReadOnlyCollectionSlim<IDatabaseCheckConstraint>(_checkLookup.Value.Count, _checkLookup.Value.Values)
@@ -241,21 +228,15 @@ namespace SJP.Schematic.Modelled.Reflection
 
         public Task<IReadOnlyCollection<IDatabaseRelationalKey>> ChildKeysAsync(CancellationToken cancellationToken = default(CancellationToken)) => Task.FromResult(_childKeys.Value);
 
-        public Task<IReadOnlyDictionary<Identifier, IDatabaseColumn>> ColumnAsync(CancellationToken cancellationToken = default(CancellationToken)) => Task.FromResult(_columnLookup.Value);
-
         public Task<IReadOnlyList<IDatabaseColumn>> ColumnsAsync(CancellationToken cancellationToken = default(CancellationToken))
         {
             var result = _columnLookup.Value.Values.ToList().AsReadOnly();
             return Task.FromResult<IReadOnlyList<IDatabaseColumn>>(result);
         }
 
-        public Task<IReadOnlyDictionary<Identifier, IDatabaseIndex>> IndexAsync(CancellationToken cancellationToken = default(CancellationToken)) => Task.FromResult(_indexLookup.Value);
-
         public Task<IReadOnlyCollection<IDatabaseIndex>> IndexesAsync(CancellationToken cancellationToken = default(CancellationToken)) => Task.FromResult<IReadOnlyCollection<IDatabaseIndex>>(
             new ReadOnlyCollectionSlim<IDatabaseIndex>(_indexLookup.Value.Count, _indexLookup.Value.Values)
         );
-
-        public Task<IReadOnlyDictionary<Identifier, IDatabaseRelationalKey>> ParentKeyAsync(CancellationToken cancellationToken = default(CancellationToken)) => Task.FromResult(_parentKeyLookup.Value);
 
         public Task<IReadOnlyCollection<IDatabaseRelationalKey>> ParentKeysAsync(CancellationToken cancellationToken = default(CancellationToken)) => Task.FromResult<IReadOnlyCollection<IDatabaseRelationalKey>>(
             new ReadOnlyCollectionSlim<IDatabaseRelationalKey>(_parentKeyLookup.Value.Count, _parentKeyLookup.Value.Values)
@@ -263,17 +244,10 @@ namespace SJP.Schematic.Modelled.Reflection
 
         public Task<IDatabaseKey> PrimaryKeyAsync(CancellationToken cancellationToken = default(CancellationToken)) => Task.FromResult(_primaryKey.Value);
 
-        public Task<IReadOnlyDictionary<Identifier, IDatabaseTrigger>> TriggerAsync(CancellationToken cancellationToken = default(CancellationToken))
-        {
-            throw new NotImplementedException();
-        }
-
         public Task<IReadOnlyCollection<IDatabaseTrigger>> TriggersAsync(CancellationToken cancellationToken = default(CancellationToken))
         {
             throw new NotImplementedException();
         }
-
-        public Task<IReadOnlyDictionary<Identifier, IDatabaseKey>> UniqueKeyAsync(CancellationToken cancellationToken = default(CancellationToken)) => Task.FromResult(_uniqueKeyLookup.Value);
 
         public Task<IReadOnlyCollection<IDatabaseKey>> UniqueKeysAsync(CancellationToken cancellationToken = default(CancellationToken)) => Task.FromResult<IReadOnlyCollection<IDatabaseKey>>(
             new ReadOnlyCollectionSlim<IDatabaseKey>(_uniqueKeyLookup.Value.Count, _uniqueKeyLookup.Value.Values)

@@ -72,30 +72,6 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
         }
 
         [Test]
-        public void Index_WhenViewIsNotIndexed_ReturnsEmptyLookup()
-        {
-            var database = Database;
-            var viewName = new Identifier(database.DefaultSchema, "view_test_view_1");
-            var view = database.GetView(viewName).UnwrapSome();
-            var indexCount = view.Index.Count;
-
-            Assert.Zero(indexCount);
-        }
-
-        [Test]
-        public async Task IndexAsync_WhenViewIsNotIndexed_ReturnsEmptyLookup()
-        {
-            var database = Database;
-            var viewName = new Identifier(database.DefaultSchema, "view_test_view_1");
-            var viewOption = await database.GetViewAsync(viewName).ConfigureAwait(false);
-            var view = viewOption.UnwrapSome();
-            var indexes = await view.IndexAsync().ConfigureAwait(false);
-            var indexCount = indexes.Count;
-
-            Assert.Zero(indexCount);
-        }
-
-        [Test]
         public void Indexes_WhenViewIsNotIndexed_ReturnsEmptyCollection()
         {
             var database = Database;
@@ -120,28 +96,6 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
         }
 
         [Test]
-        public void Column_WhenViewContainsSingleColumn_ContainsOneValueOnly()
-        {
-            var database = Database;
-            var viewName = new Identifier(database.DefaultSchema, "view_test_view_1");
-            var view = database.GetView(viewName).UnwrapSome();
-            var columnCount = view.Column.Count;
-
-            Assert.AreEqual(1, columnCount);
-        }
-
-        [Test]
-        public void Column_WhenViewContainsSingleColumn_ContainsColumnName()
-        {
-            var database = Database;
-            var viewName = new Identifier(database.DefaultSchema, "view_test_view_1");
-            var view = database.GetView(viewName).UnwrapSome();
-            var containsColumn = view.Column.ContainsKey("test");
-
-            Assert.IsTrue(containsColumn);
-        }
-
-        [Test]
         public void Columns_WhenViewContainsSingleColumn_ContainsOneValueOnly()
         {
             var database = Database;
@@ -159,32 +113,6 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
             var viewName = new Identifier(database.DefaultSchema, "view_test_view_1");
             var view = database.GetView(viewName).UnwrapSome();
             var containsColumn = view.Columns.Any(c => c.Name == "test");
-
-            Assert.IsTrue(containsColumn);
-        }
-
-        [Test]
-        public async Task ColumnAsync_WhenViewContainsSingleColumn_ContainsOneValueOnly()
-        {
-            var database = Database;
-            var viewName = new Identifier(database.DefaultSchema, "view_test_view_1");
-            var viewOption = await database.GetViewAsync(viewName).ConfigureAwait(false);
-            var view = viewOption.UnwrapSome();
-            var columns = await view.ColumnAsync().ConfigureAwait(false);
-            var columnCount = columns.Count;
-
-            Assert.AreEqual(1, columnCount);
-        }
-
-        [Test]
-        public async Task ColumnAsync_WhenViewContainsSingleColumn_ContainsColumnName()
-        {
-            var database = Database;
-            var viewName = new Identifier(database.DefaultSchema, "view_test_view_1");
-            var viewOption = await database.GetViewAsync(viewName).ConfigureAwait(false);
-            var view = viewOption.UnwrapSome();
-            var columns = await view.ColumnAsync().ConfigureAwait(false);
-            var containsColumn = columns.ContainsKey("test");
 
             Assert.IsTrue(containsColumn);
         }
@@ -216,17 +144,6 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
         }
 
         [Test]
-        public void Column_WhenViewContainsUnnamedColumns_ReturnsNonEmptyLookup()
-        {
-            var database = Database;
-            var viewName = new Identifier(database.DefaultSchema, "view_test_view_2");
-            var view = database.GetView(viewName).UnwrapSome();
-            var columnCount = view.Column.Count;
-
-            Assert.AreEqual(4, columnCount);
-        }
-
-        [Test]
         public void Columns_WhenViewContainsUnnamedColumns_ContainsCorrectNumberOfColumns()
         {
             var database = Database;
@@ -248,19 +165,6 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
 
             var typesEqual = columnTypes.SequenceEqual(expectedTypes);
             Assert.IsTrue(typesEqual);
-        }
-
-        [Test]
-        public async Task ColumnAsync_WhenViewContainsUnnamedColumns_ReturnsNonEmptyLookup()
-        {
-            var database = Database;
-            var viewName = new Identifier(database.DefaultSchema, "view_test_view_2");
-            var viewOption = await database.GetViewAsync(viewName).ConfigureAwait(false);
-            var view = viewOption.UnwrapSome();
-            var columns = await view.ColumnAsync().ConfigureAwait(false);
-            var columnCount = columns.Count;
-
-            Assert.AreEqual(4, columnCount);
         }
 
         [Test]
@@ -292,17 +196,6 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
         }
 
         [Test]
-        public void Column_WhenViewContainsUnnamedColumnsAndTableColumn_ReturnsNonEmptyLookup()
-        {
-            var database = Database;
-            var viewName = new Identifier(database.DefaultSchema, "view_test_view_3");
-            var view = database.GetView(viewName).UnwrapSome();
-            var columnCount = view.Column.Count;
-
-            Assert.AreEqual(5, columnCount);
-        }
-
-        [Test]
         public void Columns_WhenViewContainsUnnamedColumnsAndTableColumn_ContainsCorrectNumberOfColumns()
         {
             var database = Database;
@@ -324,19 +217,6 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
 
             var typesEqual = columnTypes.SequenceEqual(expectedTypes);
             Assert.IsTrue(typesEqual);
-        }
-
-        [Test]
-        public async Task ColumnAsync_WhenViewContainsUnnamedColumnsAndTableColumn_ReturnsNonEmptyLookup()
-        {
-            var database = Database;
-            var viewName = new Identifier(database.DefaultSchema, "view_test_view_3");
-            var viewOption = await database.GetViewAsync(viewName).ConfigureAwait(false);
-            var view = viewOption.UnwrapSome();
-            var columns = await view.ColumnAsync().ConfigureAwait(false);
-            var columnCount = columns.Count;
-
-            Assert.AreEqual(5, columnCount);
         }
 
         [Test]
@@ -368,17 +248,6 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
         }
 
         [Test]
-        public void Column_WhenViewContainsDuplicatedUnnamedColumns_ReturnsNonEmptyLookup()
-        {
-            var database = Database;
-            var viewName = new Identifier(database.DefaultSchema, "view_test_view_4");
-            var view = database.GetView(viewName).UnwrapSome();
-            var columnCount = view.Column.Count;
-
-            Assert.AreEqual(4, columnCount);
-        }
-
-        [Test]
         public void Columns_WhenViewContainsDuplicatedUnnamedColumns_ContainsCorrectNumberOfColumns()
         {
             var database = Database;
@@ -400,19 +269,6 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
 
             var typesEqual = columnTypes.SequenceEqual(expectedTypes);
             Assert.IsTrue(typesEqual);
-        }
-
-        [Test]
-        public async Task ColumnAsync_WhenViewContainsDuplicatedUnnamedColumns_ReturnsNonEmptyLookup()
-        {
-            var database = Database;
-            var viewName = new Identifier(database.DefaultSchema, "view_test_view_4");
-            var viewOption = await database.GetViewAsync(viewName).ConfigureAwait(false);
-            var view = viewOption.UnwrapSome();
-            var columns = await view.ColumnAsync().ConfigureAwait(false);
-            var columnCount = columns.Count;
-
-            Assert.AreEqual(4, columnCount);
         }
 
         [Test]

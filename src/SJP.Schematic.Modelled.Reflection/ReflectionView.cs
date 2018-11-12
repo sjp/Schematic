@@ -20,23 +20,7 @@ namespace SJP.Schematic.Modelled.Reflection
 
         public Task<string> DefinitionAsync(CancellationToken cancellationToken = default(CancellationToken)) => throw new NotImplementedException();
 
-        public IReadOnlyDictionary<Identifier, IDatabaseColumn> Column
-        {
-            get
-            {
-                throw new NotImplementedException();
-            }
-        }
-
         public IReadOnlyList<IDatabaseColumn> Columns
-        {
-            get
-            {
-                throw new NotImplementedException();
-            }
-        }
-
-        public IReadOnlyDictionary<Identifier, IDatabaseIndex> Index
         {
             get
             {
@@ -62,17 +46,7 @@ namespace SJP.Schematic.Modelled.Reflection
 
         public Identifier Name { get; }
 
-        public Task<IReadOnlyDictionary<Identifier, IDatabaseColumn>> ColumnAsync(CancellationToken cancellationToken = default(CancellationToken))
-        {
-            throw new NotImplementedException();
-        }
-
         public Task<IReadOnlyList<IDatabaseColumn>> ColumnsAsync(CancellationToken cancellationToken = default(CancellationToken))
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task<IReadOnlyDictionary<Identifier, IDatabaseIndex>> IndexAsync(CancellationToken cancellationToken = default(CancellationToken))
         {
             throw new NotImplementedException();
         }

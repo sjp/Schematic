@@ -57,16 +57,6 @@ namespace SJP.Schematic.Modelled.Reflection.Tests
         }
 
         [Test]
-        public static void Column_GivenTableWithNoColumns_ReturnsEmptyResult()
-        {
-            var database = new ReflectionRelationalDatabase<TestDatabase2>(new FakeDialect());
-            var table = new ReflectionTable(database, typeof(TestTable2));
-            var columnLookup = table.Column;
-
-            Assert.Zero(columnLookup.Count);
-        }
-
-        [Test]
         public static void Columns_GivenTableWithNoColumns_ReturnsEmptyResult()
         {
             var database = new ReflectionRelationalDatabase<TestDatabase2>(new FakeDialect());
@@ -75,16 +65,6 @@ namespace SJP.Schematic.Modelled.Reflection.Tests
             var count = columns.Count;
 
             Assert.Zero(count);
-        }
-
-        [Test]
-        public static async Task ColumnAsync_GivenTableWithNoColumns_ReturnsEmptyResult()
-        {
-            var database = new ReflectionRelationalDatabase<TestDatabase2>(new FakeDialect());
-            var table = new ReflectionTable(database, typeof(TestTable2));
-            var columnLookup = await table.ColumnAsync().ConfigureAwait(false);
-
-            Assert.Zero(columnLookup.Count);
         }
 
         [Test]
@@ -99,16 +79,6 @@ namespace SJP.Schematic.Modelled.Reflection.Tests
         }
 
         [Test]
-        public static void Column_GivenTableWithOneColumn_ReturnsOneResult()
-        {
-            var database = new ReflectionRelationalDatabase<TestDatabase1>(new FakeDialect());
-            var table = new ReflectionTable(database, typeof(TestTable1));
-            var columnLookup = table.Column;
-
-            Assert.AreEqual(1, columnLookup.Count);
-        }
-
-        [Test]
         public static void Columns_GivenTableWithOneColumn_ReturnsOneResult()
         {
             var database = new ReflectionRelationalDatabase<TestDatabase1>(new FakeDialect());
@@ -117,16 +87,6 @@ namespace SJP.Schematic.Modelled.Reflection.Tests
             var count = columns.Count;
 
             Assert.AreEqual(1, count);
-        }
-
-        [Test]
-        public static async Task ColumnAsync_GivenTableWithOneColumn_ReturnsOneResult()
-        {
-            var database = new ReflectionRelationalDatabase<TestDatabase1>(new FakeDialect());
-            var table = new ReflectionTable(database, typeof(TestTable1));
-            var columnLookup = await table.ColumnAsync().ConfigureAwait(false);
-
-            Assert.AreEqual(1, columnLookup.Count);
         }
 
         [Test]
@@ -141,36 +101,12 @@ namespace SJP.Schematic.Modelled.Reflection.Tests
         }
 
         [Test]
-        public static void Column_GivenTableWithOneColumn_ReturnsColumnWithCorrectName()
-        {
-            var database = new ReflectionRelationalDatabase<TestDatabase1>(new FakeDialect());
-            var table = new ReflectionTable(database, typeof(TestTable1));
-            var columnLookup = table.Column;
-            var column = columnLookup.Values.Single();
-            Identifier expectedName = "TEST_COLUMN_1";
-
-            Assert.AreEqual(expectedName, column.Name);
-        }
-
-        [Test]
         public static void Columns_GivenTableWithOneColumn_ReturnsColumnWithCorrectName()
         {
             var database = new ReflectionRelationalDatabase<TestDatabase1>(new FakeDialect());
             var table = new ReflectionTable(database, typeof(TestTable1));
             var columns = table.Columns;
             var column = columns.Single();
-            Identifier expectedName = "TEST_COLUMN_1";
-
-            Assert.AreEqual(expectedName, column.Name);
-        }
-
-        [Test]
-        public static async Task ColumnAsync_GivenTableWithOneColumn_ReturnsColumnWithCorrectName()
-        {
-            var database = new ReflectionRelationalDatabase<TestDatabase1>(new FakeDialect());
-            var table = new ReflectionTable(database, typeof(TestTable1));
-            var columnLookup = await table.ColumnAsync().ConfigureAwait(false);
-            var column = columnLookup.Values.Single();
             Identifier expectedName = "TEST_COLUMN_1";
 
             Assert.AreEqual(expectedName, column.Name);

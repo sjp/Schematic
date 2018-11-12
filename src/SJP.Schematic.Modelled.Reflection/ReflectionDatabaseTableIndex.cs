@@ -28,6 +28,7 @@ namespace SJP.Schematic.Modelled.Reflection
                 .Select(p => new KeyValuePair<string, PropertyInfo>(p.Name, p))
                 .ToDictionary();
 
+            var tableColumnLookup = table.GetColumnLookup();
             var columns = new List<IDatabaseIndexColumn>();
             var includedColumns = new List<IDatabaseColumn>();
 
@@ -39,7 +40,7 @@ namespace SJP.Schematic.Modelled.Reflection
                 {
                     var expressionName = indexColumn.Expression.DependentNames.Single().LocalName;
                     var columnName = dialect.GetAliasOrDefault(propertyLookup[expressionName]);
-                    var tableColumns = new List<IDatabaseColumn> { table.Column[columnName] };
+                    var tableColumns = new List<IDatabaseColumn> { tableColumnLookup[columnName] };
                     var column = new ReflectionIndexColumn(indexColumn.Expression, tableColumns, indexColumn.Order);
                     columns.Add(column);
                 }
@@ -50,7 +51,7 @@ namespace SJP.Schematic.Modelled.Reflection
                         .Select(name => propertyLookup.ContainsKey(name.LocalName) ? propertyLookup[name.LocalName] : null)
                         .Where(prop => prop != null)
                         .Select(prop => dialect.GetAliasOrDefault(prop))
-                        .Select(name => table.Column[name])
+                        .Select(name => tableColumnLookup[name])
                         .ToList();
                     var column = new ReflectionIndexColumn(indexColumn.Expression, tableColumns, indexColumn.Order);
                     columns.Add(column);
@@ -60,7 +61,7 @@ namespace SJP.Schematic.Modelled.Reflection
             foreach (var includedColumn in index.IncludedColumns)
             {
                 var includedColumnName = dialect.GetAliasOrDefault(includedColumn.Property);
-                var column = table.Column[includedColumnName];
+                var column = tableColumnLookup[includedColumnName];
                 includedColumns.Add(column);
             }
 

@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using SJP.Schematic.Core;
+using SJP.Schematic.Core.Extensions;
 using SJP.Schematic.Reporting.Html.ViewModels;
 using SJP.Schematic.Reporting.Html.ViewModels.Mappers;
 
@@ -45,13 +46,13 @@ namespace SJP.Schematic.Reporting.Html.Renderers
             {
                 var renderTable = mapper.Map(table);
 
-                var uniqueKeyLookup = table.UniqueKey;
+                var uniqueKeyLookup = table.GetUniqueKeyLookup();
                 var uniqueKeyCount = uniqueKeyLookup.UCount();
 
-                var checksLookup = table.Check;
+                var checksLookup = table.GetCheckLookup();
                 var checksCount = checksLookup.UCount();
 
-                var indexesLookup = table.Index;
+                var indexesLookup = table.GetIndexLookup();
                 var indexCount = indexesLookup.UCount();
                 indexesCount += indexCount;
 
@@ -136,13 +137,13 @@ namespace SJP.Schematic.Reporting.Html.Renderers
             {
                 var renderTable = await mapper.MapAsync(table).ConfigureAwait(false);
 
-                var uniqueKeyLookup = await table.UniqueKeyAsync().ConfigureAwait(false);
+                var uniqueKeyLookup = await table.GetUniqueKeyLookupAsync().ConfigureAwait(false);
                 var uniqueKeyCount = uniqueKeyLookup.UCount();
 
-                var checksLookup = await table.CheckAsync().ConfigureAwait(false);
+                var checksLookup = await table.GetCheckLookupAsync().ConfigureAwait(false);
                 var checksCount = checksLookup.UCount();
 
-                var indexesLookup = await table.IndexAsync().ConfigureAwait(false);
+                var indexesLookup = await table.GetIndexLookupAsync().ConfigureAwait(false);
                 var indexCount = indexesLookup.UCount();
                 indexesCount += indexCount;
 

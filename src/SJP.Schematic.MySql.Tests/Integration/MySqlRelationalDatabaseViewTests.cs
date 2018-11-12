@@ -63,25 +63,6 @@ namespace SJP.Schematic.MySql.Tests.Integration
         }
 
         [Test]
-        public void Index_WhenViewIsNotIndexed_ReturnsEmptyLookup()
-        {
-            var view = Database.GetView("view_test_view_1").UnwrapSome();
-            var indexCount = view.Index.Count;
-
-            Assert.Zero(indexCount);
-        }
-
-        [Test]
-        public async Task IndexAsync_WhenViewIsNotIndexed_ReturnsEmptyLookup()
-        {
-            var viewOption = await Database.GetViewAsync("view_test_view_1").ConfigureAwait(false);
-            var indexes = await viewOption.UnwrapSome().IndexAsync().ConfigureAwait(false);
-            var indexCount = indexes.Count;
-
-            Assert.Zero(indexCount);
-        }
-
-        [Test]
         public void Indexes_WhenViewIsNotIndexed_ReturnsEmptyCollection()
         {
             var view = Database.GetView("view_test_view_1").UnwrapSome();
@@ -98,28 +79,6 @@ namespace SJP.Schematic.MySql.Tests.Integration
             var indexCount = indexes.Count;
 
             Assert.Zero(indexCount);
-        }
-
-        [Test]
-        public void Column_WhenViewContainsSingleColumn_ContainsOneValueOnly()
-        {
-            var database = Database;
-            var viewName = new Identifier(database.DefaultSchema, "view_test_view_1");
-            var view = database.GetView(viewName).UnwrapSome();
-            var columnCount = view.Column.Count;
-
-            Assert.AreEqual(1, columnCount);
-        }
-
-        [Test]
-        public void Column_WhenViewContainsSingleColumn_ContainsColumnName()
-        {
-            var database = Database;
-            var viewName = new Identifier(database.DefaultSchema, "view_test_view_1");
-            var view = database.GetView(viewName).UnwrapSome();
-            var containsColumn = view.Column.ContainsKey("test");
-
-            Assert.IsTrue(containsColumn);
         }
 
         [Test]
@@ -140,30 +99,6 @@ namespace SJP.Schematic.MySql.Tests.Integration
             var viewName = new Identifier(database.DefaultSchema, "view_test_view_1");
             var view = database.GetView(viewName).UnwrapSome();
             var containsColumn = view.Columns.Any(c => c.Name == "test");
-
-            Assert.IsTrue(containsColumn);
-        }
-
-        [Test]
-        public async Task ColumnAsync_WhenViewContainsSingleColumn_ContainsOneValueOnly()
-        {
-            var database = Database;
-            var viewName = new Identifier(database.DefaultSchema, "view_test_view_1");
-            var viewOption = await database.GetViewAsync(viewName).ConfigureAwait(false);
-            var columns = await viewOption.UnwrapSome().ColumnAsync().ConfigureAwait(false);
-            var columnCount = columns.Count;
-
-            Assert.AreEqual(1, columnCount);
-        }
-
-        [Test]
-        public async Task ColumnAsync_WhenViewContainsSingleColumn_ContainsColumnName()
-        {
-            var database = Database;
-            var viewName = new Identifier(database.DefaultSchema, "view_test_view_1");
-            var viewOption = await database.GetViewAsync(viewName).ConfigureAwait(false);
-            var columns = await viewOption.UnwrapSome().ColumnAsync().ConfigureAwait(false);
-            var containsColumn = columns.ContainsKey("test");
 
             Assert.IsTrue(containsColumn);
         }

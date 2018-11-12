@@ -64,26 +64,6 @@ namespace SJP.Schematic.SqlServer.Tests.Integration
         }
 
         [Test]
-        public void Index_WhenViewIsNotIndexed_ReturnsEmptyLookup()
-        {
-            var view = Database.GetView("view_test_view_1").UnwrapSome();
-            var indexCount = view.Index.Count;
-
-            Assert.Zero(indexCount);
-        }
-
-        [Test]
-        public async Task IndexAsync_WhenViewIsNotIndexed_ReturnsEmptyLookup()
-        {
-            var viewOption = await Database.GetViewAsync("view_test_view_1").ConfigureAwait(false);
-            var view = viewOption.UnwrapSome();
-            var indexes = await view.IndexAsync().ConfigureAwait(false);
-            var indexCount = indexes.Count;
-
-            Assert.Zero(indexCount);
-        }
-
-        [Test]
         public void Indexes_WhenViewIsNotIndexed_ReturnsEmptyCollection()
         {
             var view = Database.GetView("view_test_view_1").UnwrapSome();
@@ -104,28 +84,6 @@ namespace SJP.Schematic.SqlServer.Tests.Integration
         }
 
         [Test]
-        public void Column_WhenViewContainsSingleColumn_ContainsOneValueOnly()
-        {
-            var database = Database;
-            var viewName = new Identifier(database.DefaultSchema, "view_test_view_1");
-            var view = database.GetView(viewName).UnwrapSome();
-            var columnCount = view.Column.Count;
-
-            Assert.AreEqual(1, columnCount);
-        }
-
-        [Test]
-        public void Column_WhenViewContainsSingleColumn_ContainsColumnName()
-        {
-            var database = Database;
-            var viewName = new Identifier(database.DefaultSchema, "view_test_view_1");
-            var view = database.GetView(viewName).UnwrapSome();
-            var containsColumn = view.Column.ContainsKey("test");
-
-            Assert.IsTrue(containsColumn);
-        }
-
-        [Test]
         public void Columns_WhenViewContainsSingleColumn_ContainsOneValueOnly()
         {
             var viewName = new Identifier(Database.DefaultSchema, "view_test_view_1");
@@ -142,32 +100,6 @@ namespace SJP.Schematic.SqlServer.Tests.Integration
             var viewName = new Identifier(database.DefaultSchema, "view_test_view_1");
             var view = database.GetView(viewName).UnwrapSome();
             var containsColumn = view.Columns.Any(c => c.Name == "test");
-
-            Assert.IsTrue(containsColumn);
-        }
-
-        [Test]
-        public async Task ColumnAsync_WhenViewContainsSingleColumn_ContainsOneValueOnly()
-        {
-            var database = Database;
-            var viewName = new Identifier(database.DefaultSchema, "view_test_view_1");
-            var viewOption = await database.GetViewAsync(viewName).ConfigureAwait(false);
-            var view = viewOption.UnwrapSome();
-            var columns = await view.ColumnAsync().ConfigureAwait(false);
-            var columnCount = columns.Count;
-
-            Assert.AreEqual(1, columnCount);
-        }
-
-        [Test]
-        public async Task ColumnAsync_WhenViewContainsSingleColumn_ContainsColumnName()
-        {
-            var database = Database;
-            var viewName = new Identifier(database.DefaultSchema, "view_test_view_1");
-            var viewOption = await database.GetViewAsync(viewName).ConfigureAwait(false);
-            var view = viewOption.UnwrapSome();
-            var columns = await view.ColumnAsync().ConfigureAwait(false);
-            var containsColumn = columns.ContainsKey("test");
 
             Assert.IsTrue(containsColumn);
         }
@@ -209,30 +141,6 @@ namespace SJP.Schematic.SqlServer.Tests.Integration
         }
 
         [Test]
-        public void Index_WhenViewHasSingleIndex_ContainsOneValueOnly()
-        {
-            var database = Database;
-            var viewName = new Identifier(database.DefaultSchema, "view_test_view_2");
-            var view = database.GetView(viewName).UnwrapSome();
-            var indexCount = view.Index.Count;
-
-            Assert.AreEqual(1, indexCount);
-        }
-
-        [Test]
-        public async Task IndexAsync_WhenViewHasSingleIndex_ContainsOneValueOnly()
-        {
-            var database = Database;
-            var viewName = new Identifier(database.DefaultSchema, "view_test_view_2");
-            var viewOption = await database.GetViewAsync(viewName).ConfigureAwait(false);
-            var view = viewOption.UnwrapSome();
-            var indexes = await view.IndexAsync().ConfigureAwait(false);
-            var indexCount = indexes.Count;
-
-            Assert.AreEqual(1, indexCount);
-        }
-
-        [Test]
         public void Indexes_WhenViewHasSingleIndex_ContainsOneValueOnly()
         {
             var database = Database;
@@ -254,32 +162,6 @@ namespace SJP.Schematic.SqlServer.Tests.Integration
             var indexCount = indexes.Count;
 
             Assert.AreEqual(1, indexCount);
-        }
-
-        [Test]
-        public void Index_WhenViewHasSingleIndex_ContainsIndexName()
-        {
-            Identifier indexName = "ix_view_test_view_2";
-            var database = Database;
-            var viewName = new Identifier(database.DefaultSchema, "view_test_view_2");
-            var view = database.GetView(viewName).UnwrapSome();
-            var containsIndex = view.Index.ContainsKey(indexName);
-
-            Assert.IsTrue(containsIndex);
-        }
-
-        [Test]
-        public async Task IndexAsync_WhenViewHasSingleIndex_ContainsIndexName()
-        {
-            Identifier indexName = "ix_view_test_view_2";
-            var database = Database;
-            var viewName = new Identifier(database.DefaultSchema, "view_test_view_2");
-            var viewOption = await database.GetViewAsync(viewName).ConfigureAwait(false);
-            var view = viewOption.UnwrapSome();
-            var indexes = await view.IndexAsync().ConfigureAwait(false);
-            var containsIndex = indexes.ContainsKey(indexName);
-
-            Assert.IsTrue(containsIndex);
         }
 
         [Test]
