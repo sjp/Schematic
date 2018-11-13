@@ -14,8 +14,9 @@ namespace SJP.Schematic.SqlServer.Tests
         {
             var database = Mock.Of<IRelationalDatabase>();
             var typeProvider = Mock.Of<IDbTypeProvider>();
+            var tableName = new Identifier("test", "test_table");
 
-            Assert.Throws<ArgumentNullException>(() => new SqlServerRelationalDatabaseTable(null, database, typeProvider, "test"));
+            Assert.Throws<ArgumentNullException>(() => new SqlServerRelationalDatabaseTable(null, database, typeProvider, tableName));
         }
 
         [Test]
@@ -23,8 +24,9 @@ namespace SJP.Schematic.SqlServer.Tests
         {
             var connection = Mock.Of<IDbConnection>();
             var typeProvider = Mock.Of<IDbTypeProvider>();
+            var tableName = new Identifier("test", "test_table");
 
-            Assert.Throws<ArgumentNullException>(() => new SqlServerRelationalDatabaseTable(connection, null, typeProvider, "test"));
+            Assert.Throws<ArgumentNullException>(() => new SqlServerRelationalDatabaseTable(connection, null, typeProvider, tableName));
         }
 
         [Test]
@@ -32,8 +34,9 @@ namespace SJP.Schematic.SqlServer.Tests
         {
             var connection = Mock.Of<IDbConnection>();
             var database = Mock.Of<IRelationalDatabase>();
+            var tableName = new Identifier("test", "test_table");
 
-            Assert.Throws<ArgumentNullException>(() => new SqlServerRelationalDatabaseTable(connection, database, null, "test"));
+            Assert.Throws<ArgumentNullException>(() => new SqlServerRelationalDatabaseTable(connection, database, null, tableName));
         }
 
         [Test]
@@ -47,12 +50,23 @@ namespace SJP.Schematic.SqlServer.Tests
         }
 
         [Test]
+        public static void Ctor_GivenNameMissingSchema_ThrowsArgException()
+        {
+            var connection = Mock.Of<IDbConnection>();
+            var database = Mock.Of<IRelationalDatabase>();
+            var typeProvider = Mock.Of<IDbTypeProvider>();
+            const string tableName = "test_table";
+
+            Assert.Throws<ArgumentException>(() => new SqlServerRelationalDatabaseTable(connection, database, typeProvider, tableName));
+        }
+
+        [Test]
         public static void Name_PropertyGet_ShouldEqualCtorArg()
         {
             var connection = Mock.Of<IDbConnection>();
             var database = Mock.Of<IRelationalDatabase>();
             var typeProvider = Mock.Of<IDbTypeProvider>();
-            var tableName = new Identifier("table_test_table_1");
+            var tableName = new Identifier("test", "test_table");
 
             var table = new SqlServerRelationalDatabaseTable(connection, database, typeProvider, tableName);
 

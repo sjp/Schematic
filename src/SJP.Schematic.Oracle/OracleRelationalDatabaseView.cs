@@ -17,8 +17,14 @@ namespace SJP.Schematic.Oracle
         {
             Connection = connection ?? throw new ArgumentNullException(nameof(connection));
             TypeProvider = typeProvider ?? throw new ArgumentNullException(nameof(typeProvider));
-            Name = viewName ?? throw new ArgumentNullException(nameof(viewName));
             IdentifierResolver = identifierResolver ?? throw new ArgumentNullException(nameof(identifierResolver));
+
+            if (viewName == null)
+                throw new ArgumentNullException(nameof(viewName));
+            if (viewName.Schema == null)
+                throw new ArgumentException("The given view name is missing a required schema name.", nameof(viewName));
+
+            Name = viewName;
         }
 
         public Identifier Name { get; }

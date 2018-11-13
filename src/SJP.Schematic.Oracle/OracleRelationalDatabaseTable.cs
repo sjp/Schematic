@@ -18,8 +18,14 @@ namespace SJP.Schematic.Oracle
             Connection = connection ?? throw new ArgumentNullException(nameof(connection));
             Database = database ?? throw new ArgumentNullException(nameof(database));
             TypeProvider = typeProvider ?? throw new ArgumentNullException(nameof(typeProvider));
-            Name = tableName ?? throw new ArgumentNullException(nameof(tableName));
             IdentifierResolver = identifierResolver ?? throw new ArgumentNullException(nameof(identifierResolver));
+
+            if (tableName == null)
+                throw new ArgumentNullException(nameof(tableName));
+            if (tableName.Schema == null)
+                throw new ArgumentException("The given table name is missing a required schema name.", nameof(tableName));
+
+            Name = tableName;
         }
 
         public Identifier Name { get; }

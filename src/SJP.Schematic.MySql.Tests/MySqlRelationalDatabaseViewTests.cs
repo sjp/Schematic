@@ -13,16 +13,18 @@ namespace SJP.Schematic.MySql.Tests
         public static void Ctor_GivenNullConnection_ThrowsArgNullException()
         {
             var typeProvider = Mock.Of<IDbTypeProvider>();
+            var viewName = new Identifier("test", "test_view");
 
-            Assert.Throws<ArgumentNullException>(() => new MySqlRelationalDatabaseView(null, typeProvider, "test"));
+            Assert.Throws<ArgumentNullException>(() => new MySqlRelationalDatabaseView(null, typeProvider, viewName));
         }
 
         [Test]
         public static void Ctor_GivenNullTypeProvider_ThrowsArgNullException()
         {
             var connection = Mock.Of<IDbConnection>();
+            var viewName = new Identifier("test", "test_view");
 
-            Assert.Throws<ArgumentNullException>(() => new MySqlRelationalDatabaseView(connection, null, "test"));
+            Assert.Throws<ArgumentNullException>(() => new MySqlRelationalDatabaseView(connection, null, viewName));
         }
 
         [Test]
@@ -35,12 +37,22 @@ namespace SJP.Schematic.MySql.Tests
         }
 
         [Test]
+        public static void Ctor_GivenNameMissingSchema_ThrowsArgException()
+        {
+            var connection = Mock.Of<IDbConnection>();
+            var typeProvider = Mock.Of<IDbTypeProvider>();
+            const string viewName = "test_view";
+
+            Assert.Throws<ArgumentException>(() => new MySqlRelationalDatabaseView(connection, typeProvider, viewName));
+        }
+
+        [Test]
         public static void Name_PropertyGet_ShouldEqualCtorArg()
         {
             var connection = Mock.Of<IDbConnection>();
             var typeProvider = Mock.Of<IDbTypeProvider>();
+            var viewName = new Identifier("test", "test_view");
 
-            var viewName = new Identifier("view_test_view_1");
             var view = new MySqlRelationalDatabaseView(connection, typeProvider, viewName);
 
             Assert.AreEqual(viewName, view.Name);

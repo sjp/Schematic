@@ -12,7 +12,7 @@ namespace SJP.Schematic.SqlServer.Tests
         [Test]
         public static void Ctor_GivenNullConnection_ThrowsArgumentNullException()
         {
-            const string sequenceName = "test_sequence";
+            var sequenceName = new Identifier("test", "test_sequence");
 
             Assert.Throws<ArgumentNullException>(() => new SqlServerDatabaseSequence(null, sequenceName));
         }
@@ -26,10 +26,19 @@ namespace SJP.Schematic.SqlServer.Tests
         }
 
         [Test]
+        public static void Ctor_GivenNameMissingSchema_ThrowsArgumentException()
+        {
+            var connection = Mock.Of<IDbConnection>();
+            const string sequenceName = "test_sequence";
+
+            Assert.Throws<ArgumentException>(() => new SqlServerDatabaseSequence(connection, sequenceName));
+        }
+
+        [Test]
         public static void Name_PropertyGet_EqualsCtorArg()
         {
             var connection = Mock.Of<IDbConnection>();
-            var sequenceName = new Identifier("test_sequence");
+            var sequenceName = new Identifier("test", "test_sequence");
 
             var sequence = new SqlServerDatabaseSequence(connection, sequenceName);
 

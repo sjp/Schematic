@@ -12,7 +12,8 @@ namespace SJP.Schematic.PostgreSql.Tests
         [Test]
         public static void Ctor_GivenNullConnection_ThrowsArgNullException()
         {
-            Assert.Throws<ArgumentNullException>(() => new PostgreSqlDatabaseSequence(null, "test"));
+            var sequenceName = new Identifier("test", "test_sequence");
+            Assert.Throws<ArgumentNullException>(() => new PostgreSqlDatabaseSequence(null, sequenceName));
         }
 
         [Test]
@@ -23,10 +24,19 @@ namespace SJP.Schematic.PostgreSql.Tests
         }
 
         [Test]
+        public static void Ctor_GivenNameMissingSchema_ThrowsArgException()
+        {
+            var connection = Mock.Of<IDbConnection>();
+            const string sequenceName = "test_sequence";
+
+            Assert.Throws<ArgumentException>(() => new PostgreSqlDatabaseSequence(connection, sequenceName));
+        }
+
+        [Test]
         public static void Name_PropertyGet_EqualsCtorArg()
         {
             var connection = Mock.Of<IDbConnection>();
-            var sequenceName = new Identifier("test_sequence");
+            var sequenceName = new Identifier("test", "test_sequence");
 
             var sequence = new PostgreSqlDatabaseSequence(connection, sequenceName);
 

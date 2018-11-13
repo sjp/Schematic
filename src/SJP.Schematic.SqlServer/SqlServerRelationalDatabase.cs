@@ -257,7 +257,7 @@ where schema_id = schema_id(@SchemaName) and name = @ViewName";
 
             viewName = CreateQualifiedIdentifier(viewName);
             return GetResolvedViewName(viewName)
-                .Map<IRelationalDatabaseView>(name => new SqlServerRelationalDatabaseView(Connection, this, Dialect.TypeProvider, name));
+                .Map<IRelationalDatabaseView>(name => new SqlServerRelationalDatabaseView(Connection, Dialect.TypeProvider, name));
         }
 
         protected virtual Task<Option<IRelationalDatabaseView>> LoadViewAsync(Identifier viewName, CancellationToken cancellationToken = default(CancellationToken))
@@ -274,7 +274,7 @@ where schema_id = schema_id(@SchemaName) and name = @ViewName";
             var qualifiedName = await GetResolvedViewNameAsync(viewName, cancellationToken).ConfigureAwait(false);
 
             return qualifiedName
-                .Map<IRelationalDatabaseView>(name => new SqlServerRelationalDatabaseView(Connection, this, Dialect.TypeProvider, name));
+                .Map<IRelationalDatabaseView>(name => new SqlServerRelationalDatabaseView(Connection, Dialect.TypeProvider, name));
         }
 
         protected Option<Identifier> GetResolvedSequenceName(Identifier sequenceName)

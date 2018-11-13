@@ -13,7 +13,13 @@ namespace SJP.Schematic.Oracle
         public OracleDatabaseSequence(IDbConnection connection, Identifier sequenceName)
         {
             Connection = connection ?? throw new ArgumentNullException(nameof(connection));
-            Name = sequenceName ?? throw new ArgumentNullException(nameof(sequenceName));
+
+            if (sequenceName == null)
+                throw new ArgumentNullException(nameof(sequenceName));
+            if (sequenceName.Schema == null)
+                throw new ArgumentException("The given sequence name is missing a required schema name.", nameof(sequenceName));
+
+            Name = sequenceName;
 
             _dataLoader = new AsyncLazy<SequenceData>(LoadSequenceDataAsync);
         }

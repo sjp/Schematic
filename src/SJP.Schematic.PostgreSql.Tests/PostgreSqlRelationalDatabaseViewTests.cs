@@ -13,18 +13,20 @@ namespace SJP.Schematic.PostgreSql.Tests
         public static void Ctor_GivenNullConnection_ThrowsArgNullException()
         {
             var typeProvider = Mock.Of<IDbTypeProvider>();
+            var viewName = new Identifier("test", "test_view");
             var identifierResolver = new DefaultPostgreSqlIdentifierResolutionStrategy();
 
-            Assert.Throws<ArgumentNullException>(() => new PostgreSqlRelationalDatabaseView(null, typeProvider, "test", identifierResolver));
+            Assert.Throws<ArgumentNullException>(() => new PostgreSqlRelationalDatabaseView(null, typeProvider, viewName, identifierResolver));
         }
 
         [Test]
         public static void Ctor_GivenNullTypeProvider_ThrowsArgNullException()
         {
             var connection = Mock.Of<IDbConnection>();
+            var viewName = new Identifier("test", "test_view");
             var identifierResolver = new DefaultPostgreSqlIdentifierResolutionStrategy();
 
-            Assert.Throws<ArgumentNullException>(() => new PostgreSqlRelationalDatabaseView(connection, null, "test", identifierResolver));
+            Assert.Throws<ArgumentNullException>(() => new PostgreSqlRelationalDatabaseView(connection, null, viewName, identifierResolver));
         }
 
         [Test]
@@ -38,12 +40,24 @@ namespace SJP.Schematic.PostgreSql.Tests
         }
 
         [Test]
+        public static void Ctor_GivenNameMissingSchema_ThrowsArgException()
+        {
+            var connection = Mock.Of<IDbConnection>();
+            var typeProvider = Mock.Of<IDbTypeProvider>();
+            const string viewName = "test_view";
+            var identifierResolver = new DefaultPostgreSqlIdentifierResolutionStrategy();
+
+            Assert.Throws<ArgumentException>(() => new PostgreSqlRelationalDatabaseView(connection, typeProvider, viewName, identifierResolver));
+        }
+
+        [Test]
         public static void Ctor_GivenNullIdentifierResolver_ThrowsArgNullException()
         {
             var connection = Mock.Of<IDbConnection>();
             var typeProvider = Mock.Of<IDbTypeProvider>();
+            var viewName = new Identifier("test", "test_view");
 
-            Assert.Throws<ArgumentNullException>(() => new PostgreSqlRelationalDatabaseView(connection, typeProvider, "test", null));
+            Assert.Throws<ArgumentNullException>(() => new PostgreSqlRelationalDatabaseView(connection, typeProvider, viewName, null));
         }
 
         [Test]
@@ -51,9 +65,9 @@ namespace SJP.Schematic.PostgreSql.Tests
         {
             var connection = Mock.Of<IDbConnection>();
             var typeProvider = Mock.Of<IDbTypeProvider>();
+            var viewName = new Identifier("test", "test_view");
             var identifierResolver = new DefaultPostgreSqlIdentifierResolutionStrategy();
 
-            var viewName = new Identifier("view_test_view_1");
             var view = new PostgreSqlRelationalDatabaseView(connection, typeProvider, viewName, identifierResolver);
 
             Assert.AreEqual(viewName, view.Name);

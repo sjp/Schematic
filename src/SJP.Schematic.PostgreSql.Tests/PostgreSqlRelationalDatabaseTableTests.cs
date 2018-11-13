@@ -14,9 +14,10 @@ namespace SJP.Schematic.PostgreSql.Tests
         {
             var database = Mock.Of<IRelationalDatabase>();
             var typeProvider = Mock.Of<IDbTypeProvider>();
+            var tableName = new Identifier("test", "test_table");
             var identifierResolver = new DefaultPostgreSqlIdentifierResolutionStrategy();
 
-            Assert.Throws<ArgumentNullException>(() => new PostgreSqlRelationalDatabaseTable(null, database, typeProvider, "test", identifierResolver));
+            Assert.Throws<ArgumentNullException>(() => new PostgreSqlRelationalDatabaseTable(null, database, typeProvider, tableName, identifierResolver));
         }
 
         [Test]
@@ -24,9 +25,10 @@ namespace SJP.Schematic.PostgreSql.Tests
         {
             var connection = Mock.Of<IDbConnection>();
             var typeProvider = Mock.Of<IDbTypeProvider>();
+            var tableName = new Identifier("test", "test_table");
             var identifierResolver = new DefaultPostgreSqlIdentifierResolutionStrategy();
 
-            Assert.Throws<ArgumentNullException>(() => new PostgreSqlRelationalDatabaseTable(connection, null, typeProvider, "test", identifierResolver));
+            Assert.Throws<ArgumentNullException>(() => new PostgreSqlRelationalDatabaseTable(connection, null, typeProvider, tableName, identifierResolver));
         }
 
         [Test]
@@ -34,9 +36,10 @@ namespace SJP.Schematic.PostgreSql.Tests
         {
             var connection = Mock.Of<IDbConnection>();
             var database = Mock.Of<IRelationalDatabase>();
+            var tableName = new Identifier("test", "test_table");
             var identifierResolver = new DefaultPostgreSqlIdentifierResolutionStrategy();
 
-            Assert.Throws<ArgumentNullException>(() => new PostgreSqlRelationalDatabaseTable(connection, database, null, "test", identifierResolver));
+            Assert.Throws<ArgumentNullException>(() => new PostgreSqlRelationalDatabaseTable(connection, database, null, tableName, identifierResolver));
         }
 
         [Test]
@@ -51,13 +54,26 @@ namespace SJP.Schematic.PostgreSql.Tests
         }
 
         [Test]
+        public static void Ctor_GivenNameMissingSchema_ThrowsArgException()
+        {
+            var connection = Mock.Of<IDbConnection>();
+            var database = Mock.Of<IRelationalDatabase>();
+            var typeProvider = Mock.Of<IDbTypeProvider>();
+            const string tableName = "test_table";
+            var identifierResolver = new DefaultPostgreSqlIdentifierResolutionStrategy();
+
+            Assert.Throws<ArgumentException>(() => new PostgreSqlRelationalDatabaseTable(connection, database, typeProvider, tableName, identifierResolver));
+        }
+
+        [Test]
         public static void Ctor_GivenNullIdentifierResolver_ThrowsArgNullException()
         {
             var connection = Mock.Of<IDbConnection>();
             var database = Mock.Of<IRelationalDatabase>();
             var typeProvider = Mock.Of<IDbTypeProvider>();
+            var tableName = new Identifier("test", "test_table");
 
-            Assert.Throws<ArgumentNullException>(() => new PostgreSqlRelationalDatabaseTable(connection, database, typeProvider, "test", null));
+            Assert.Throws<ArgumentNullException>(() => new PostgreSqlRelationalDatabaseTable(connection, database, typeProvider, tableName, null));
         }
 
         [Test]
@@ -66,9 +82,9 @@ namespace SJP.Schematic.PostgreSql.Tests
             var connection = Mock.Of<IDbConnection>();
             var database = Mock.Of<IRelationalDatabase>();
             var typeProvider = Mock.Of<IDbTypeProvider>();
+            var tableName = new Identifier("test", "test_table");
             var identifierResolver = new DefaultPostgreSqlIdentifierResolutionStrategy();
 
-            var tableName = new Identifier("table_test_table_1");
             var table = new PostgreSqlRelationalDatabaseTable(connection, database, typeProvider, tableName, identifierResolver);
 
             Assert.AreEqual(tableName, table.Name);
