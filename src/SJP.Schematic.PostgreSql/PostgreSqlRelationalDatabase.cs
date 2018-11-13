@@ -40,14 +40,12 @@ namespace SJP.Schematic.PostgreSql
                 throw new ArgumentNullException(nameof(tableName));
 
             tableName = CreateQualifiedIdentifier(tableName);
-            var qualifiedTableName = Connection.QueryFirstOrDefault<QualifiedName>(
+            var qualifiedTableName = Connection.QueryFirstOrNone<QualifiedName>(
                 TableNameQuery,
                 new { SchemaName = tableName.Schema, TableName = tableName.LocalName }
             );
 
-            return qualifiedTableName != null
-                ? Option<Identifier>.Some(Identifier.CreateQualifiedIdentifier(ServerName, DatabaseName, qualifiedTableName.SchemaName, qualifiedTableName.ObjectName))
-                : Option<Identifier>.None;
+            return qualifiedTableName.Map(name => Identifier.CreateQualifiedIdentifier(tableName.Server, tableName.Database, name.SchemaName, name.ObjectName));
         }
 
         protected Task<Option<Identifier>> GetResolvedTableNameAsync(Identifier tableName, CancellationToken cancellationToken = default(CancellationToken))
@@ -62,14 +60,12 @@ namespace SJP.Schematic.PostgreSql
         {
             tableName = CreateQualifiedIdentifier(tableName);
 
-            var qualifiedTableName = await Connection.QueryFirstOrDefaultAsync<QualifiedName>(
+            var qualifiedTableName = await Connection.QueryFirstOrNoneAsync<QualifiedName>(
                 TableNameQuery,
                 new { SchemaName = tableName.Schema, TableName = tableName.LocalName }
             ).ConfigureAwait(false);
 
-            return qualifiedTableName != null
-                ? Option<Identifier>.Some(Identifier.CreateQualifiedIdentifier(ServerName, DatabaseName, qualifiedTableName.SchemaName, qualifiedTableName.ObjectName))
-                : Option<Identifier>.None;
+            return qualifiedTableName.Map(name => Identifier.CreateQualifiedIdentifier(tableName.Server, tableName.Database, name.SchemaName, name.ObjectName));
         }
 
         protected virtual string TableNameQuery => TableNameQuerySql;
@@ -171,15 +167,12 @@ where schemaname not in ('pg_catalog', 'information_schema')";
                 throw new ArgumentNullException(nameof(viewName));
 
             viewName = CreateQualifiedIdentifier(viewName);
-
-            var qualifiedViewName = Connection.QueryFirstOrDefault<QualifiedName>(
+            var qualifiedViewName = Connection.QueryFirstOrNone<QualifiedName>(
                 ViewNameQuery,
                 new { SchemaName = viewName.Schema, ViewName = viewName.LocalName }
             );
 
-            return qualifiedViewName != null
-                ? Option<Identifier>.Some(Identifier.CreateQualifiedIdentifier(ServerName, DatabaseName, qualifiedViewName.SchemaName, qualifiedViewName.ObjectName))
-                : Option<Identifier>.None;
+            return qualifiedViewName.Map(name => Identifier.CreateQualifiedIdentifier(viewName.Server, viewName.Database, name.SchemaName, name.ObjectName));
         }
 
         protected Task<Option<Identifier>> GetResolvedViewNameAsync(Identifier viewName, CancellationToken cancellationToken = default(CancellationToken))
@@ -194,14 +187,12 @@ where schemaname not in ('pg_catalog', 'information_schema')";
         {
             viewName = CreateQualifiedIdentifier(viewName);
 
-            var qualifiedViewName = await Connection.QueryFirstOrDefaultAsync<QualifiedName>(
+            var qualifiedViewName = await Connection.QueryFirstOrNoneAsync<QualifiedName>(
                 ViewNameQuery,
                 new { SchemaName = viewName.Schema, ViewName = viewName.LocalName }
             ).ConfigureAwait(false);
 
-            return qualifiedViewName != null
-                ? Option<Identifier>.Some(Identifier.CreateQualifiedIdentifier(ServerName, DatabaseName, qualifiedViewName.SchemaName, qualifiedViewName.ObjectName))
-                : Option<Identifier>.None;
+            return qualifiedViewName.Map(name => Identifier.CreateQualifiedIdentifier(viewName.Server, viewName.Database, name.SchemaName, name.ObjectName));
         }
 
         protected virtual string ViewNameQuery => ViewNameQuerySql;
@@ -303,14 +294,12 @@ where schemaname not in ('pg_catalog', 'information_schema')";
                 throw new ArgumentNullException(nameof(sequenceName));
 
             sequenceName = CreateQualifiedIdentifier(sequenceName);
-            var qualifiedSequenceName = Connection.QueryFirstOrDefault<QualifiedName>(
+            var qualifiedSequenceName = Connection.QueryFirstOrNone<QualifiedName>(
                 SequenceNameQuery,
                 new { SchemaName = sequenceName.Schema, SequenceName = sequenceName.LocalName }
             );
 
-            return qualifiedSequenceName != null
-                ? Option<Identifier>.Some(Identifier.CreateQualifiedIdentifier(ServerName, DatabaseName, qualifiedSequenceName.SchemaName, qualifiedSequenceName.ObjectName))
-                : Option<Identifier>.None;
+            return qualifiedSequenceName.Map(name => Identifier.CreateQualifiedIdentifier(sequenceName.Server, sequenceName.Database, name.SchemaName, name.ObjectName));
         }
 
         protected Task<Option<Identifier>> GetResolvedSequenceNameAsync(Identifier sequenceName, CancellationToken cancellationToken = default(CancellationToken))
@@ -325,14 +314,12 @@ where schemaname not in ('pg_catalog', 'information_schema')";
         {
             sequenceName = CreateQualifiedIdentifier(sequenceName);
 
-            var qualifiedSequenceName = await Connection.QueryFirstOrDefaultAsync<QualifiedName>(
+            var qualifiedSequenceName = await Connection.QueryFirstOrNoneAsync<QualifiedName>(
                 SequenceNameQuery,
                 new { SchemaName = sequenceName.Schema, SequenceName = sequenceName.LocalName }
             ).ConfigureAwait(false);
 
-            return qualifiedSequenceName != null
-                ? Option<Identifier>.Some(Identifier.CreateQualifiedIdentifier(ServerName, DatabaseName, qualifiedSequenceName.SchemaName, qualifiedSequenceName.ObjectName))
-                : Option<Identifier>.None;
+            return qualifiedSequenceName.Map(name => Identifier.CreateQualifiedIdentifier(sequenceName.Server, sequenceName.Database, name.SchemaName, name.ObjectName));
         }
 
         protected virtual string SequenceNameQuery => SequenceNameQuerySql;

@@ -37,15 +37,12 @@ namespace SJP.Schematic.MySql
                 throw new ArgumentNullException(nameof(tableName));
 
             tableName = CreateQualifiedIdentifier(tableName);
-
-            var qualifiedName = Connection.QueryFirstOrDefault<QualifiedName>(
+            var qualifiedTableName = Connection.QueryFirstOrNone<QualifiedName>(
                 TableNameQuery,
                 new { SchemaName = tableName.Schema, TableName = tableName.LocalName }
             );
 
-            return qualifiedName != null
-                ? Option<Identifier>.Some(Identifier.CreateQualifiedIdentifier(tableName.Server, tableName.Database, qualifiedName.SchemaName, qualifiedName.ObjectName))
-                : Option<Identifier>.None;
+            return qualifiedTableName.Map(name => Identifier.CreateQualifiedIdentifier(tableName.Server, tableName.Database, name.SchemaName, name.ObjectName));
         }
 
         protected Task<Option<Identifier>> GetResolvedTableNameAsync(Identifier tableName, CancellationToken cancellationToken = default(CancellationToken))
@@ -60,14 +57,12 @@ namespace SJP.Schematic.MySql
         {
             tableName = CreateQualifiedIdentifier(tableName);
 
-            var qualifiedName = await Connection.QueryFirstOrDefaultAsync<QualifiedName>(
+            var qualifiedTableName = await Connection.QueryFirstOrNoneAsync<QualifiedName>(
                 TableNameQuery,
                 new { SchemaName = tableName.Schema, TableName = tableName.LocalName }
             ).ConfigureAwait(false);
 
-            return qualifiedName != null
-                ? Option<Identifier>.Some(Identifier.CreateQualifiedIdentifier(tableName.Server, tableName.Database, qualifiedName.SchemaName, qualifiedName.ObjectName))
-                : Option<Identifier>.None;
+            return qualifiedTableName.Map(name => Identifier.CreateQualifiedIdentifier(tableName.Server, tableName.Database, name.SchemaName, name.ObjectName));
         }
 
         protected virtual string TableNameQuery => TableNameQuerySql;
@@ -168,14 +163,12 @@ where TABLE_SCHEMA = @SchemaName order by TABLE_NAME";
 
             viewName = CreateQualifiedIdentifier(viewName);
 
-            var qualifiedName = Connection.QueryFirstOrDefault<QualifiedName>(
+            var qualifiedViewName = Connection.QueryFirstOrNone<QualifiedName>(
                 ViewNameQuery,
                 new { SchemaName = viewName.Schema, ViewName = viewName.LocalName }
             );
 
-            return qualifiedName != null
-                ? Option<Identifier>.Some(Identifier.CreateQualifiedIdentifier(viewName.Server, viewName.Database, qualifiedName.SchemaName, qualifiedName.ObjectName))
-                : Option<Identifier>.None;
+            return qualifiedViewName.Map(name => Identifier.CreateQualifiedIdentifier(viewName.Server, viewName.Database, name.SchemaName, name.ObjectName));
         }
 
         protected Task<Option<Identifier>> GetResolvedViewNameAsync(Identifier viewName, CancellationToken cancellationToken = default(CancellationToken))
@@ -190,14 +183,12 @@ where TABLE_SCHEMA = @SchemaName order by TABLE_NAME";
         {
             viewName = CreateQualifiedIdentifier(viewName);
 
-            var qualifiedName = await Connection.QueryFirstOrDefaultAsync<QualifiedName>(
+            var qualifiedViewName = await Connection.QueryFirstOrNoneAsync<QualifiedName>(
                 ViewNameQuery,
                 new { SchemaName = viewName.Schema, ViewName = viewName.LocalName }
             ).ConfigureAwait(false);
 
-            return qualifiedName != null
-                ? Option<Identifier>.Some(Identifier.CreateQualifiedIdentifier(viewName.Server, viewName.Database, qualifiedName.SchemaName, qualifiedName.ObjectName))
-                : Option<Identifier>.None;
+            return qualifiedViewName.Map(name => Identifier.CreateQualifiedIdentifier(viewName.Server, viewName.Database, name.SchemaName, name.ObjectName));
         }
 
         protected virtual string ViewNameQuery => ViewNameQuerySql;

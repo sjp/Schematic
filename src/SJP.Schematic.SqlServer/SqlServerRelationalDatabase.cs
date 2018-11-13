@@ -37,14 +37,12 @@ namespace SJP.Schematic.SqlServer
                 throw new ArgumentNullException(nameof(tableName));
 
             tableName = CreateQualifiedIdentifier(tableName);
-            var qualifiedTableName = Connection.QueryFirstOrDefault<QualifiedName>(
+            var qualifiedTableName = Connection.QueryFirstOrNone<QualifiedName>(
                 TableNameQuery,
                 new { SchemaName = tableName.Schema, TableName = tableName.LocalName }
             );
 
-            return qualifiedTableName != null
-                ? Option<Identifier>.Some(Identifier.CreateQualifiedIdentifier(tableName.Server, tableName.Database, qualifiedTableName.SchemaName, qualifiedTableName.ObjectName))
-                : Option<Identifier>.None;
+            return qualifiedTableName.Map(name => Identifier.CreateQualifiedIdentifier(tableName.Server, tableName.Database, name.SchemaName, name.ObjectName));
         }
 
         protected Task<Option<Identifier>> GetResolvedTableNameAsync(Identifier tableName, CancellationToken cancellationToken = default(CancellationToken))
@@ -58,14 +56,12 @@ namespace SJP.Schematic.SqlServer
         private async Task<Option<Identifier>> GetResolvedTableNameAsyncCore(Identifier tableName, CancellationToken cancellationToken)
         {
             tableName = CreateQualifiedIdentifier(tableName);
-            var qualifiedTableName = await Connection.QueryFirstOrDefaultAsync<QualifiedName>(
+            var qualifiedTableName = await Connection.QueryFirstOrNoneAsync<QualifiedName>(
                 TableNameQuery,
                 new { SchemaName = tableName.Schema, TableName = tableName.LocalName }
             ).ConfigureAwait(false);
 
-            return qualifiedTableName != null
-                ? Option<Identifier>.Some(Identifier.CreateQualifiedIdentifier(tableName.Server, tableName.Database, qualifiedTableName.SchemaName, qualifiedTableName.ObjectName))
-                : Option<Identifier>.None;
+            return qualifiedTableName.Map(name => Identifier.CreateQualifiedIdentifier(tableName.Server, tableName.Database, name.SchemaName, name.ObjectName));
         }
 
         protected virtual string TableNameQuery => TableNameQuerySql;
@@ -160,14 +156,12 @@ where schema_id = schema_id(@SchemaName) and name = @TableName";
                 throw new ArgumentNullException(nameof(viewName));
 
             viewName = CreateQualifiedIdentifier(viewName);
-            var qualifiedViewName = Connection.QueryFirstOrDefault<QualifiedName>(
+            var qualifiedViewName = Connection.QueryFirstOrNone<QualifiedName>(
                 ViewNameQuery,
                 new { SchemaName = viewName.Schema, ViewName = viewName.LocalName }
             );
 
-            return qualifiedViewName != null
-                ? Option<Identifier>.Some(Identifier.CreateQualifiedIdentifier(viewName.Server, viewName.Database, qualifiedViewName.SchemaName, qualifiedViewName.ObjectName))
-                : Option<Identifier>.None;
+            return qualifiedViewName.Map(name => Identifier.CreateQualifiedIdentifier(viewName.Server, viewName.Database, name.SchemaName, name.ObjectName));
         }
 
         protected Task<Option<Identifier>> GetResolvedViewNameAsync(Identifier viewName, CancellationToken cancellationToken = default(CancellationToken))
@@ -181,14 +175,12 @@ where schema_id = schema_id(@SchemaName) and name = @TableName";
         private async Task<Option<Identifier>> GetResolvedViewNameAsyncCore(Identifier viewName, CancellationToken cancellationToken)
         {
             viewName = CreateQualifiedIdentifier(viewName);
-            var qualifiedViewName = await Connection.QueryFirstOrDefaultAsync<QualifiedName>(
+            var qualifiedViewName = await Connection.QueryFirstOrNoneAsync<QualifiedName>(
                 ViewNameQuery,
                 new { SchemaName = viewName.Schema, ViewName = viewName.LocalName }
             ).ConfigureAwait(false);
 
-            return qualifiedViewName != null
-                ? Option<Identifier>.Some(Identifier.CreateQualifiedIdentifier(viewName.Server, viewName.Database, qualifiedViewName.SchemaName, qualifiedViewName.ObjectName))
-                : Option<Identifier>.None;
+            return qualifiedViewName.Map(name => Identifier.CreateQualifiedIdentifier(viewName.Server, viewName.Database, name.SchemaName, name.ObjectName));
         }
 
         protected virtual string ViewNameQuery => ViewNameQuerySql;
@@ -283,14 +275,12 @@ where schema_id = schema_id(@SchemaName) and name = @ViewName";
                 throw new ArgumentNullException(nameof(sequenceName));
 
             sequenceName = CreateQualifiedIdentifier(sequenceName);
-            var qualifiedSequenceName = Connection.QueryFirstOrDefault<QualifiedName>(
+            var qualifiedSequenceName = Connection.QueryFirstOrNone<QualifiedName>(
                 SequenceNameQuery,
                 new { SchemaName = sequenceName.Schema, SequenceName = sequenceName.LocalName }
             );
 
-            return qualifiedSequenceName != null
-                ? Option<Identifier>.Some(Identifier.CreateQualifiedIdentifier(sequenceName.Server, sequenceName.Database, qualifiedSequenceName.SchemaName, qualifiedSequenceName.ObjectName))
-                : Option<Identifier>.None;
+            return qualifiedSequenceName.Map(name => Identifier.CreateQualifiedIdentifier(sequenceName.Server, sequenceName.Database, name.SchemaName, name.ObjectName));
         }
 
         protected Task<Option<Identifier>> GetResolvedSequenceNameAsync(Identifier sequenceName, CancellationToken cancellationToken = default(CancellationToken))
@@ -304,14 +294,12 @@ where schema_id = schema_id(@SchemaName) and name = @ViewName";
         private async Task<Option<Identifier>> GetResolvedSequenceNameAsyncCore(Identifier sequenceName, CancellationToken cancellationToken)
         {
             sequenceName = CreateQualifiedIdentifier(sequenceName);
-            var qualifiedSequenceName = await Connection.QueryFirstOrDefaultAsync<QualifiedName>(
+            var qualifiedSequenceName = await Connection.QueryFirstOrNoneAsync<QualifiedName>(
                 SequenceNameQuery,
                 new { SchemaName = sequenceName.Schema, SequenceName = sequenceName.LocalName }
             ).ConfigureAwait(false);
 
-            return qualifiedSequenceName != null
-                ? Option<Identifier>.Some(Identifier.CreateQualifiedIdentifier(sequenceName.Server, sequenceName.Database, qualifiedSequenceName.SchemaName, qualifiedSequenceName.ObjectName))
-                : Option<Identifier>.None;
+            return qualifiedSequenceName.Map(name => Identifier.CreateQualifiedIdentifier(sequenceName.Server, sequenceName.Database, name.SchemaName, name.ObjectName));
         }
 
         protected virtual string SequenceNameQuery => SequenceNameQuerySql;
@@ -406,14 +394,12 @@ where schema_id = schema_id(@SchemaName) and name = @SequenceName";
                 throw new ArgumentNullException(nameof(synonymName));
 
             synonymName = CreateQualifiedIdentifier(synonymName);
-            var qualifiedSynonymName = Connection.QueryFirstOrDefault<QualifiedName>(
+            var qualifiedSynonymName = Connection.QueryFirstOrNone<QualifiedName>(
                 SynonymNameQuery,
                 new { SchemaName = synonymName.Schema, SynonymName = synonymName.LocalName }
             );
 
-            return qualifiedSynonymName != null
-                ? Option<Identifier>.Some(Identifier.CreateQualifiedIdentifier(synonymName.Server, synonymName.Database, qualifiedSynonymName.SchemaName, qualifiedSynonymName.ObjectName))
-                : Option<Identifier>.None;
+            return qualifiedSynonymName.Map(name => Identifier.CreateQualifiedIdentifier(synonymName.Server, synonymName.Database, name.SchemaName, name.ObjectName));
         }
 
         protected Task<Option<Identifier>> GetResolvedSynonymNameAsync(Identifier synonymName, CancellationToken cancellationToken = default(CancellationToken))
@@ -427,14 +413,12 @@ where schema_id = schema_id(@SchemaName) and name = @SequenceName";
         private async Task<Option<Identifier>> GetResolvedSynonymNameAsyncCore(Identifier synonymName, CancellationToken cancellationToken)
         {
             synonymName = CreateQualifiedIdentifier(synonymName);
-            var qualifiedSynonymName = await Connection.QueryFirstOrDefaultAsync<QualifiedName>(
+            var qualifiedSynonymName = await Connection.QueryFirstOrNoneAsync<QualifiedName>(
                 SynonymNameQuery,
                 new { SchemaName = synonymName.Schema, SynonymName = synonymName.LocalName }
             ).ConfigureAwait(false);
 
-            return qualifiedSynonymName != null
-                ? Option<Identifier>.Some(Identifier.CreateQualifiedIdentifier(synonymName.Server, synonymName.Database, qualifiedSynonymName.SchemaName, qualifiedSynonymName.ObjectName))
-                : Option<Identifier>.None;
+            return qualifiedSynonymName.Map(name => Identifier.CreateQualifiedIdentifier(synonymName.Server, synonymName.Database, name.SchemaName, name.ObjectName));
         }
 
         protected virtual string SynonymNameQuery => SynonymNameQuerySql;
@@ -507,20 +491,23 @@ where schema_id = schema_id(@SchemaName) and name = @SynonymName";
                 return Option<IDatabaseSynonym>.None;
 
             var resolvedSynonymName = resolvedSynonymNameOption.UnwrapSome();
-            var queryResult = Connection.QuerySingle<SynonymData>(
+            var queryResult = Connection.QuerySingleOrNone<SynonymData>(
                 LoadSynonymQuery,
                 new { SchemaName = resolvedSynonymName.Schema, SynonymName = resolvedSynonymName.LocalName }
             );
 
-            var serverName = !queryResult.TargetServerName.IsNullOrWhiteSpace() ? queryResult.TargetServerName : null;
-            var databaseName = !queryResult.TargetDatabaseName.IsNullOrWhiteSpace() ? queryResult.TargetDatabaseName : null;
-            var schemaName = !queryResult.TargetSchemaName.IsNullOrWhiteSpace() ? queryResult.TargetSchemaName : null;
-            var localName = !queryResult.TargetObjectName.IsNullOrWhiteSpace() ? queryResult.TargetObjectName : null;
+            return queryResult.Map<IDatabaseSynonym>(synonymData =>
+            {
+                var serverName = !synonymData.TargetServerName.IsNullOrWhiteSpace() ? synonymData.TargetServerName : null;
+                var databaseName = !synonymData.TargetDatabaseName.IsNullOrWhiteSpace() ? synonymData.TargetDatabaseName : null;
+                var schemaName = !synonymData.TargetSchemaName.IsNullOrWhiteSpace() ? synonymData.TargetSchemaName : null;
+                var localName = !synonymData.TargetObjectName.IsNullOrWhiteSpace() ? synonymData.TargetObjectName : null;
 
-            var targetName = Identifier.CreateQualifiedIdentifier(serverName, databaseName, schemaName, localName);
-            targetName = CreateQualifiedIdentifier(targetName);
+                var targetName = Identifier.CreateQualifiedIdentifier(serverName, databaseName, schemaName, localName);
+                targetName = CreateQualifiedIdentifier(targetName);
 
-            return Option<IDatabaseSynonym>.Some(new DatabaseSynonym(resolvedSynonymName, targetName));
+                return new DatabaseSynonym(resolvedSynonymName, targetName);
+            });
         }
 
         protected virtual Task<Option<IDatabaseSynonym>> LoadSynonymAsync(Identifier synonymName, CancellationToken cancellationToken = default(CancellationToken))
@@ -540,20 +527,23 @@ where schema_id = schema_id(@SchemaName) and name = @SynonymName";
                 return Option<IDatabaseSynonym>.None;
 
             var resolvedSynonymName = resolvedSynonymNameOption.UnwrapSome();
-            var queryResult = await Connection.QueryFirstOrDefaultAsync<SynonymData>(
+            var queryResult = await Connection.QueryFirstOrNoneAsync<SynonymData>(
                 LoadSynonymQuery,
                 new { SchemaName = resolvedSynonymName.Schema, SynonymName = resolvedSynonymName.LocalName }
             ).ConfigureAwait(false);
 
-            var serverName = !queryResult.TargetServerName.IsNullOrWhiteSpace() ? queryResult.TargetServerName : null;
-            var databaseName = !queryResult.TargetDatabaseName.IsNullOrWhiteSpace() ? queryResult.TargetDatabaseName : null;
-            var schemaName = !queryResult.TargetSchemaName.IsNullOrWhiteSpace() ? queryResult.TargetSchemaName : null;
-            var localName = !queryResult.TargetObjectName.IsNullOrWhiteSpace() ? queryResult.TargetObjectName : null;
+            return queryResult.Map<IDatabaseSynonym>(synonymData =>
+            {
+                var serverName = !synonymData.TargetServerName.IsNullOrWhiteSpace() ? synonymData.TargetServerName : null;
+                var databaseName = !synonymData.TargetDatabaseName.IsNullOrWhiteSpace() ? synonymData.TargetDatabaseName : null;
+                var schemaName = !synonymData.TargetSchemaName.IsNullOrWhiteSpace() ? synonymData.TargetSchemaName : null;
+                var localName = !synonymData.TargetObjectName.IsNullOrWhiteSpace() ? synonymData.TargetObjectName : null;
 
-            var targetName = Identifier.CreateQualifiedIdentifier(serverName, databaseName, schemaName, localName);
-            targetName = CreateQualifiedIdentifier(targetName);
+                var targetName = Identifier.CreateQualifiedIdentifier(serverName, databaseName, schemaName, localName);
+                targetName = CreateQualifiedIdentifier(targetName);
 
-            return Option<IDatabaseSynonym>.Some(new DatabaseSynonym(resolvedSynonymName, targetName));
+                return new DatabaseSynonym(resolvedSynonymName, targetName);
+            });
         }
 
         protected virtual string LoadSynonymQuery => LoadSynonymQuerySql;
