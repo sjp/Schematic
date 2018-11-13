@@ -491,7 +491,7 @@ where schema_id = schema_id(@SchemaName) and name = @SynonymName";
                 return Option<IDatabaseSynonym>.None;
 
             var resolvedSynonymName = resolvedSynonymNameOption.UnwrapSome();
-            var queryResult = Connection.QuerySingleOrNone<SynonymData>(
+            var queryResult = Connection.QueryFirstOrNone<SynonymData>(
                 LoadSynonymQuery,
                 new { SchemaName = resolvedSynonymName.Schema, SynonymName = resolvedSynonymName.LocalName }
             );

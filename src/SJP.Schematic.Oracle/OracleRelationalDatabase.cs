@@ -643,7 +643,7 @@ order by s.DB_LINK, s.OWNER, s.SYNONYM_NAME";
             if (resolvedSynonymName.Database == DatabaseName && resolvedSynonymName.Schema == DefaultSchema)
                 return LoadUserSynonymSync(resolvedSynonymName.LocalName);
 
-            var queryResult = Connection.QuerySingleOrNone<SynonymData>(
+            var queryResult = Connection.QueryFirstOrNone<SynonymData>(
                 LoadSynonymQuery,
                 new { SchemaName = resolvedSynonymName.Schema, SynonymName = resolvedSynonymName.LocalName }
             );
@@ -664,7 +664,7 @@ order by s.DB_LINK, s.OWNER, s.SYNONYM_NAME";
 
         private Option<IDatabaseSynonym> LoadUserSynonymSync(string synonymName)
         {
-            var queryResult = Connection.QuerySingleOrNone<SynonymData>(
+            var queryResult = Connection.QueryFirstOrNone<SynonymData>(
                 LoadUserSynonymQuery,
                 new { SynonymName = synonymName }
             );
@@ -701,7 +701,7 @@ order by s.DB_LINK, s.OWNER, s.SYNONYM_NAME";
             if (resolvedSynonymName.Database == DatabaseName && resolvedSynonymName.Schema == DefaultSchema)
                 return await LoadUserSynonymAsyncCore(resolvedSynonymName.LocalName, cancellationToken).ConfigureAwait(false);
 
-            var queryResult = await Connection.QuerySingleOrNoneAsync<SynonymData>(
+            var queryResult = await Connection.QueryFirstOrNoneAsync<SynonymData>(
                 LoadSynonymQuery,
                 new { SchemaName = resolvedSynonymName.Schema, SynonymName = resolvedSynonymName.LocalName }
             ).ConfigureAwait(false);
@@ -722,7 +722,7 @@ order by s.DB_LINK, s.OWNER, s.SYNONYM_NAME";
 
         private async Task<Option<IDatabaseSynonym>> LoadUserSynonymAsyncCore(string synonymName, CancellationToken cancellationToken)
         {
-            var queryResult = await Connection.QuerySingleOrNoneAsync<SynonymData>(
+            var queryResult = await Connection.QueryFirstOrNoneAsync<SynonymData>(
                 LoadUserSynonymQuery,
                 new { SynonymName = synonymName }
             ).ConfigureAwait(false);
