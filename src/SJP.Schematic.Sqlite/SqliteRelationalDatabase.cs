@@ -209,8 +209,7 @@ namespace SJP.Schematic.Sqlite
 
                 var tables = qualifiedTableNames
                     .Select(LoadTableSync)
-                    .Where(t => t.IsSome)
-                    .Select(t => t.UnwrapSome());
+                    .Somes();
                 return new ReadOnlyCollectionSlim<IRelationalDatabaseTable>(qualifiedTableNames.Count, tables);
             }
         }
@@ -235,8 +234,7 @@ namespace SJP.Schematic.Sqlite
 
             var tables = qualifiedTableNames
                 .Select(name => LoadTableAsync(name, cancellationToken))
-                .Where(t => t.IsSome)
-                .Select(t => t.UnwrapSome());
+                .Somes();
             return new ReadOnlyCollectionSlim<Task<IRelationalDatabaseTable>>(qualifiedTableNames.Count, tables);
         }
 
@@ -464,8 +462,7 @@ namespace SJP.Schematic.Sqlite
 
                 var views = qualifiedViewNames
                     .Select(LoadViewSync)
-                    .Where(v => v.IsSome)
-                    .Select(v => v.UnwrapSome());
+                    .Somes();
                 return new ReadOnlyCollectionSlim<IRelationalDatabaseView>(qualifiedViewNames.Count, views);
             }
         }
@@ -490,8 +487,7 @@ namespace SJP.Schematic.Sqlite
 
             var views = qualifiedViewNames
                 .Select(name => LoadViewAsync(name, cancellationToken))
-                .Where(v => v.IsSome)
-                .Select(v => v.UnwrapSome());
+                .Somes();
             return new ReadOnlyCollectionSlim<Task<IRelationalDatabaseView>>(qualifiedViewNames.Count, views);
         }
 

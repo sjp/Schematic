@@ -101,8 +101,7 @@ limit 1";
 
                 var tables = tableNames
                     .Select(LoadTableSync)
-                    .Where(t => t.IsSome)
-                    .Select(t => t.UnwrapSome());
+                    .Somes();
                 return new ReadOnlyCollectionSlim<IRelationalDatabaseTable>(tableNames.Count, tables);
             }
         }
@@ -116,8 +115,7 @@ limit 1";
 
             var tables = tableNames
                 .Select(name => LoadTableAsync(name, cancellationToken))
-                .Where(t => t.IsSome)
-                .Select(t => t.UnwrapSome());
+                .Somes();
             return new ReadOnlyCollectionSlim<Task<IRelationalDatabaseTable>>(tableNames.Count, tables);
         }
 
@@ -227,8 +225,7 @@ limit 1";
 
                 var views = viewNames
                     .Select(LoadViewSync)
-                    .Where(v => v.IsSome)
-                    .Select(v => v.UnwrapSome());
+                    .Somes();
                 return new ReadOnlyCollectionSlim<IRelationalDatabaseView>(viewNames.Count, views);
             }
         }
@@ -242,8 +239,7 @@ limit 1";
 
             var views = viewNames
                 .Select(name => LoadViewAsync(name, cancellationToken))
-                .Where(v => v.IsSome)
-                .Select(v => v.UnwrapSome());
+                .Somes();
             return new ReadOnlyCollectionSlim<Task<IRelationalDatabaseView>>(viewNames.Count, views);
         }
 

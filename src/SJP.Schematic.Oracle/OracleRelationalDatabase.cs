@@ -124,8 +124,7 @@ where t.OWNER = :SchemaName and t.TABLE_NAME = :TableName and o.ORACLE_MAINTAINE
 
                 var tables = tableNames
                     .Select(LoadTableSync)
-                    .Where(t => t.IsSome)
-                    .Select(t => t.UnwrapSome());
+                    .Somes();
                 return new ReadOnlyCollectionSlim<IRelationalDatabaseTable>(tableNames.Count, tables);
             }
         }
@@ -139,8 +138,7 @@ where t.OWNER = :SchemaName and t.TABLE_NAME = :TableName and o.ORACLE_MAINTAINE
 
             var tables = tableNames
                 .Select(name => LoadTableAsync(name, cancellationToken))
-                .Where(t => t.IsSome)
-                .Select(t => t.UnwrapSome());
+                .Somes();
             return new ReadOnlyCollectionSlim<Task<IRelationalDatabaseTable>>(tableNames.Count, tables);
         }
 
@@ -271,8 +269,7 @@ where v.OWNER = :SchemaName and v.VIEW_NAME = :ViewName and o.ORACLE_MAINTAINED 
 
                 var views = viewNames
                     .Select(LoadViewSync)
-                    .Where(v => v.IsSome)
-                    .Select(v => v.UnwrapSome());
+                    .Somes();
                 return new ReadOnlyCollectionSlim<IRelationalDatabaseView>(viewNames.Count, views);
             }
         }
@@ -286,8 +283,7 @@ where v.OWNER = :SchemaName and v.VIEW_NAME = :ViewName and o.ORACLE_MAINTAINED 
 
             var views = viewNames
                 .Select(name => LoadViewAsync(name, cancellationToken))
-                .Where(v => v.IsSome)
-                .Select(v => v.UnwrapSome());
+                .Somes();
             return new ReadOnlyCollectionSlim<Task<IRelationalDatabaseView>>(viewNames.Count, views);
         }
 
@@ -418,8 +414,7 @@ where s.SEQUENCE_OWNER = :SchemaName and s.SEQUENCE_NAME = :SequenceName and o.O
 
                 var sequences = sequenceNames
                     .Select(LoadSequenceSync)
-                    .Where(s => s.IsSome)
-                    .Select(s => s.UnwrapSome());
+                    .Somes();
                 return new ReadOnlyCollectionSlim<IDatabaseSequence>(sequenceNames.Count, sequences);
             }
         }
@@ -433,8 +428,7 @@ where s.SEQUENCE_OWNER = :SchemaName and s.SEQUENCE_NAME = :SequenceName and o.O
 
             var sequences = sequenceNames
                 .Select(name => LoadSequenceAsync(name, cancellationToken))
-                .Where(s => s.IsSome)
-                .Select(s => s.UnwrapSome());
+                .Somes();
             return new ReadOnlyCollectionSlim<Task<IDatabaseSequence>>(sequenceNames.Count, sequences);
         }
 
@@ -598,8 +592,7 @@ where o.OWNER = SYS_CONTEXT('USERENV', 'CURRENT_USER') and s.SYNONYM_NAME = :Syn
 
                 var synonyms = synonymNames
                     .Select(LoadSynonymSync)
-                    .Where(s => s.IsSome)
-                    .Select(s => s.UnwrapSome());
+                    .Somes();
                 return new ReadOnlyCollectionSlim<IDatabaseSynonym>(synonymNames.Count, synonyms);
             }
         }
@@ -613,8 +606,7 @@ where o.OWNER = SYS_CONTEXT('USERENV', 'CURRENT_USER') and s.SYNONYM_NAME = :Syn
 
             var synonyms = synonymNames
                 .Select(name => LoadSynonymAsync(name, cancellationToken))
-                .Where(s => s.IsSome)
-                .Select(s => s.UnwrapSome());
+                .Somes();
             return new ReadOnlyCollectionSlim<Task<IDatabaseSynonym>>(synonymNames.Count, synonyms);
         }
 
