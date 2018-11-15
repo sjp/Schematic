@@ -21,13 +21,12 @@ namespace SJP.Schematic.Sqlite
             if (defaultSchema.IsNullOrWhiteSpace())
                 throw new ArgumentNullException(nameof(defaultSchema));
 
-            DatabaseName = Connection.Database;
             DefaultSchema = defaultSchema;
             _versionLoader = new AsyncLazy<string>(LoadDatabaseVersion);
             Pragma = new ConnectionPragma(Dialect, Connection);
         }
 
-        public string ServerName => null; // never not-null
+        public string ServerName { get; } // never not-null
 
         public string DatabaseName { get; }
 

@@ -122,6 +122,30 @@ namespace SJP.Schematic.MySql.Tests.Integration
             }
 
             [Test]
+            public void GetTable_WhenTablePresentGivenFullyQualifiedNameWithDifferentServer_ShouldBeQualifiedCorrectly()
+            {
+                var database = Database;
+                var tableName = new Identifier("A", database.DatabaseName, database.DefaultSchema, "db_test_table_1");
+                var expectedTableName = new Identifier(database.ServerName, database.DatabaseName, database.DefaultSchema, "db_test_table_1");
+
+                var table = database.GetTable(tableName).UnwrapSome();
+
+                Assert.AreEqual(expectedTableName, table.Name);
+            }
+
+            [Test]
+            public void GetTable_WhenTablePresentGivenFullyQualifiedNameWithDifferentServerAndDatabase_ShouldBeQualifiedCorrectly()
+            {
+                var database = Database;
+                var tableName = new Identifier("A", "B", database.DefaultSchema, "db_test_table_1");
+                var expectedTableName = new Identifier(database.ServerName, database.DatabaseName, database.DefaultSchema, "db_test_table_1");
+
+                var table = database.GetTable(tableName).UnwrapSome();
+
+                Assert.AreEqual(expectedTableName, table.Name);
+            }
+
+            [Test]
             public void GetTable_WhenTableMissing_ReturnsNone()
             {
                 var table = Database.GetTable("table_that_doesnt_exist");
@@ -200,6 +224,32 @@ namespace SJP.Schematic.MySql.Tests.Integration
                 var table = tableOption.UnwrapSome();
 
                 Assert.AreEqual(tableName, table.Name);
+            }
+
+            [Test]
+            public async Task GetTableAsync_WhenTablePresentGivenFullyQualifiedNameWithDifferentServer_ShouldBeQualifiedCorrectly()
+            {
+                var database = Database;
+                var tableName = new Identifier("A", database.DatabaseName, database.DefaultSchema, "db_test_table_1");
+                var expectedTableName = new Identifier(database.ServerName, database.DatabaseName, database.DefaultSchema, "db_test_table_1");
+
+                var tableOption = await database.GetTableAsync(tableName).ConfigureAwait(false);
+                var table = tableOption.UnwrapSome();
+
+                Assert.AreEqual(expectedTableName, table.Name);
+            }
+
+            [Test]
+            public async Task GetTableAsync_WhenTablePresentGivenFullyQualifiedNameWithDifferentServerAndDatabase_ShouldBeQualifiedCorrectly()
+            {
+                var database = Database;
+                var tableName = new Identifier("A", "B", database.DefaultSchema, "db_test_table_1");
+                var expectedTableName = new Identifier(database.ServerName, database.DatabaseName, database.DefaultSchema, "db_test_table_1");
+
+                var tableOption = await database.GetTableAsync(tableName).ConfigureAwait(false);
+                var table = tableOption.UnwrapSome();
+
+                Assert.AreEqual(expectedTableName, table.Name);
             }
 
             [Test]
@@ -331,6 +381,30 @@ namespace SJP.Schematic.MySql.Tests.Integration
             }
 
             [Test]
+            public void GetView_WhenViewPresentGivenFullyQualifiedNameWithDifferentServer_ShouldBeQualifiedCorrectly()
+            {
+                var database = Database;
+                var viewName = new Identifier("A", database.DatabaseName, database.DefaultSchema, "db_test_view_1");
+                var expectedViewName = new Identifier(database.ServerName, database.DatabaseName, database.DefaultSchema, "db_test_view_1");
+
+                var view = database.GetView(viewName).UnwrapSome();
+
+                Assert.AreEqual(expectedViewName, view.Name);
+            }
+
+            [Test]
+            public void GetView_WhenViewPresentGivenFullyQualifiedNameWithDifferentServerAndDatabase_ShouldBeQualifiedCorrectly()
+            {
+                var database = Database;
+                var viewName = new Identifier("A", "B", database.DefaultSchema, "db_test_view_1");
+                var expectedViewName = new Identifier(database.ServerName, database.DatabaseName, database.DefaultSchema, "db_test_view_1");
+
+                var view = database.GetView(viewName).UnwrapSome();
+
+                Assert.AreEqual(expectedViewName, view.Name);
+            }
+
+            [Test]
             public void GetView_WhenViewMissing_ReturnsNone()
             {
                 var view = Database.GetView("view_that_doesnt_exist");
@@ -410,6 +484,32 @@ namespace SJP.Schematic.MySql.Tests.Integration
                 var view = viewOption.UnwrapSome();
 
                 Assert.AreEqual(viewName, view.Name);
+            }
+
+            [Test]
+            public async Task GetViewAsync_WhenViewPresentGivenFullyQualifiedNameWithDifferentServer_ShouldBeQualifiedCorrectly()
+            {
+                var database = Database;
+                var viewName = new Identifier("A", database.DatabaseName, database.DefaultSchema, "db_test_view_1");
+                var expectedViewName = new Identifier(database.ServerName, database.DatabaseName, database.DefaultSchema, "db_test_view_1");
+
+                var viewOption = await database.GetViewAsync(viewName).ConfigureAwait(false);
+                var view = viewOption.UnwrapSome();
+
+                Assert.AreEqual(expectedViewName, view.Name);
+            }
+
+            [Test]
+            public async Task GetViewAsync_WhenViewPresentGivenFullyQualifiedNameWithDifferentServerAndDatabase_ShouldBeQualifiedCorrectly()
+            {
+                var database = Database;
+                var viewName = new Identifier("A", "B", database.DefaultSchema, "db_test_view_1");
+                var expectedViewName = new Identifier(database.ServerName, database.DatabaseName, database.DefaultSchema, "db_test_view_1");
+
+                var viewOption = await database.GetViewAsync(viewName).ConfigureAwait(false);
+                var view = viewOption.UnwrapSome();
+
+                Assert.AreEqual(expectedViewName, view.Name);
             }
 
             [Test]

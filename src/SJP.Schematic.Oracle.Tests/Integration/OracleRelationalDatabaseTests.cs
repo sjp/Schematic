@@ -78,6 +78,77 @@ namespace SJP.Schematic.Oracle.Tests.Integration
             }
 
             [Test]
+            public void GetTable_WhenTablePresentGivenLocalNameOnly_ShouldBeQualifiedCorrectly()
+            {
+                var database = Database;
+                var tableName = new Identifier("db_test_table_1");
+                var expectedTableName = new Identifier(database.ServerName, database.DatabaseName, database.DefaultSchema, "DB_TEST_TABLE_1");
+
+                var table = database.GetTable(tableName).UnwrapSome();
+
+                Assert.AreEqual(expectedTableName, table.Name);
+            }
+
+            [Test]
+            public void GetTable_WhenTablePresentGivenSchemaAndLocalNameOnly_ShouldBeQualifiedCorrectly()
+            {
+                var database = Database;
+                var tableName = new Identifier(database.DefaultSchema, "db_test_table_1");
+                var expectedTableName = new Identifier(database.ServerName, database.DatabaseName, database.DefaultSchema, "DB_TEST_TABLE_1");
+
+                var table = database.GetTable(tableName).UnwrapSome();
+
+                Assert.AreEqual(expectedTableName, table.Name);
+            }
+
+            [Test]
+            public void GetTable_WhenTablePresentGivenDatabaseAndSchemaAndLocalNameOnly_ShouldBeQualifiedCorrectly()
+            {
+                var database = Database;
+                var tableName = new Identifier(database.DatabaseName, database.DefaultSchema, "db_test_table_1");
+                var expectedTableName = new Identifier(database.ServerName, database.DatabaseName, database.DefaultSchema, "DB_TEST_TABLE_1");
+
+                var table = database.GetTable(tableName).UnwrapSome();
+
+                Assert.AreEqual(expectedTableName, table.Name);
+            }
+
+            [Test]
+            public void GetTable_WhenTablePresentGivenFullyQualifiedName_ShouldBeQualifiedCorrectly()
+            {
+                var database = Database;
+                var tableName = new Identifier(database.ServerName, database.DatabaseName, database.DefaultSchema, "DB_TEST_TABLE_1");
+
+                var table = database.GetTable(tableName).UnwrapSome();
+
+                Assert.AreEqual(tableName, table.Name);
+            }
+
+            [Test]
+            public void GetTable_WhenTablePresentGivenFullyQualifiedNameWithDifferentServer_ShouldBeQualifiedCorrectly()
+            {
+                var database = Database;
+                var tableName = new Identifier("A", database.DatabaseName, database.DefaultSchema, "db_test_table_1");
+                var expectedTableName = new Identifier(database.ServerName, database.DatabaseName, database.DefaultSchema, "DB_TEST_TABLE_1");
+
+                var table = database.GetTable(tableName).UnwrapSome();
+
+                Assert.AreEqual(expectedTableName, table.Name);
+            }
+
+            [Test]
+            public void GetTable_WhenTablePresentGivenFullyQualifiedNameWithDifferentServerAndDatabase_ShouldBeQualifiedCorrectly()
+            {
+                var database = Database;
+                var tableName = new Identifier("A", "B", database.DefaultSchema, "db_test_table_1");
+                var expectedTableName = new Identifier(database.ServerName, database.DatabaseName, database.DefaultSchema, "DB_TEST_TABLE_1");
+
+                var table = database.GetTable(tableName).UnwrapSome();
+
+                Assert.AreEqual(expectedTableName, table.Name);
+            }
+
+            [Test]
             public void GetTable_WhenTableMissing_ReturnsNone()
             {
                 var table = Database.GetTable("table_that_doesnt_exist");
@@ -105,6 +176,83 @@ namespace SJP.Schematic.Oracle.Tests.Integration
                 var table = await Database.GetTableAsync(tableName).ConfigureAwait(false);
 
                 Assert.AreEqual(expectedTableName, table.UnwrapSome().Name.LocalName);
+            }
+
+            [Test]
+            public async Task GetTableAsync_WhenTablePresentGivenLocalNameOnly_ShouldBeQualifiedCorrectly()
+            {
+                var database = Database;
+                var tableName = new Identifier("db_test_table_1");
+                var expectedTableName = new Identifier(database.ServerName, database.DatabaseName, database.DefaultSchema, "DB_TEST_TABLE_1");
+
+                var tableOption = await database.GetTableAsync(tableName).ConfigureAwait(false);
+                var table = tableOption.UnwrapSome();
+
+                Assert.AreEqual(expectedTableName, table.Name);
+            }
+
+            [Test]
+            public async Task GetTableAsync_WhenTablePresentGivenSchemaAndLocalNameOnly_ShouldBeQualifiedCorrectly()
+            {
+                var database = Database;
+                var tableName = new Identifier(database.DefaultSchema, "db_test_table_1");
+                var expectedTableName = new Identifier(database.ServerName, database.DatabaseName, database.DefaultSchema, "DB_TEST_TABLE_1");
+
+                var tableOption = await database.GetTableAsync(tableName).ConfigureAwait(false);
+                var table = tableOption.UnwrapSome();
+
+                Assert.AreEqual(expectedTableName, table.Name);
+            }
+
+            [Test]
+            public async Task GetTableAsync_WhenTablePresentGivenDatabaseAndSchemaAndLocalNameOnly_ShouldBeQualifiedCorrectly()
+            {
+                var database = Database;
+                var tableName = new Identifier(database.DatabaseName, database.DefaultSchema, "db_test_table_1");
+                var expectedTableName = new Identifier(database.ServerName, database.DatabaseName, database.DefaultSchema, "DB_TEST_TABLE_1");
+
+                var tableOption = await database.GetTableAsync(tableName).ConfigureAwait(false);
+                var table = tableOption.UnwrapSome();
+
+                Assert.AreEqual(expectedTableName, table.Name);
+            }
+
+            [Test]
+            public async Task GetTableAsync_WhenTablePresentGivenFullyQualifiedName_ShouldBeQualifiedCorrectly()
+            {
+                var database = Database;
+                var tableName = Identifier.CreateQualifiedIdentifier(database.ServerName, database.DatabaseName, database.DefaultSchema, "DB_TEST_TABLE_1");
+
+                var tableOption = await database.GetTableAsync(tableName).ConfigureAwait(false);
+                var table = tableOption.UnwrapSome();
+
+                Assert.AreEqual(tableName, table.Name);
+            }
+
+            [Test]
+            public async Task GetTableAsync_WhenTablePresentGivenFullyQualifiedNameWithDifferentServer_ShouldBeQualifiedCorrectly()
+            {
+                var database = Database;
+                var tableName = new Identifier("A", database.DatabaseName, database.DefaultSchema, "db_test_table_1");
+                var expectedTableName = new Identifier(database.ServerName, database.DatabaseName, database.DefaultSchema, "DB_TEST_TABLE_1");
+
+                var tableOption = await database.GetTableAsync(tableName).ConfigureAwait(false);
+                var table = tableOption.UnwrapSome();
+
+                Assert.AreEqual(expectedTableName, table.Name);
+            }
+
+            [Test]
+            public async Task GetTableAsync_WhenTablePresentGivenFullyQualifiedNameWithDifferentServerAndDatabase_ShouldBeQualifiedCorrectly()
+            {
+                var database = Database;
+                var tableName = new Identifier("A", "B", database.DefaultSchema, "db_test_table_1");
+                var expectedTableName = new Identifier(database.ServerName, database.DatabaseName, database.DefaultSchema, "DB_TEST_TABLE_1");
+
+                var tableOption = await database.GetTableAsync(tableName).ConfigureAwait(false);
+                var table = tableOption.UnwrapSome();
+
+                Assert.AreEqual(expectedTableName, table.Name);
             }
 
             [Test]
@@ -239,6 +387,30 @@ namespace SJP.Schematic.Oracle.Tests.Integration
             }
 
             [Test]
+            public void GetView_WhenViewPresentGivenFullyQualifiedNameWithDifferentServer_ShouldBeQualifiedCorrectly()
+            {
+                var database = Database;
+                var viewName = new Identifier("A", database.DatabaseName, database.DefaultSchema, "db_test_view_1");
+                var expectedViewName = new Identifier(database.ServerName, database.DatabaseName, database.DefaultSchema, "DB_TEST_VIEW_1");
+
+                var view = database.GetView(viewName).UnwrapSome();
+
+                Assert.AreEqual(expectedViewName, view.Name);
+            }
+
+            [Test]
+            public void GetView_WhenViewPresentGivenFullyQualifiedNameWithDifferentServerAndDatabase_ShouldBeQualifiedCorrectly()
+            {
+                var database = Database;
+                var viewName = new Identifier("A", "B", database.DefaultSchema, "db_test_view_1");
+                var expectedViewName = new Identifier(database.ServerName, database.DatabaseName, database.DefaultSchema, "DB_TEST_VIEW_1");
+
+                var view = database.GetView(viewName).UnwrapSome();
+
+                Assert.AreEqual(expectedViewName, view.Name);
+            }
+
+            [Test]
             public void GetView_WhenViewMissing_ReturnsNone()
             {
                 var view = Database.GetView("view_that_doesnt_exist");
@@ -318,6 +490,32 @@ namespace SJP.Schematic.Oracle.Tests.Integration
                 var view = viewOption.UnwrapSome();
 
                 Assert.AreEqual(viewName, view.Name);
+            }
+
+            [Test]
+            public async Task GetViewAsync_WhenViewPresentGivenFullyQualifiedNameWithDifferentServer_ShouldBeQualifiedCorrectly()
+            {
+                var database = Database;
+                var viewName = new Identifier("A", database.DatabaseName, database.DefaultSchema, "db_test_view_1");
+                var expectedViewName = new Identifier(database.ServerName, database.DatabaseName, database.DefaultSchema, "DB_TEST_VIEW_1");
+
+                var viewOption = await database.GetViewAsync(viewName).ConfigureAwait(false);
+                var view = viewOption.UnwrapSome();
+
+                Assert.AreEqual(expectedViewName, view.Name);
+            }
+
+            [Test]
+            public async Task GetViewAsync_WhenViewPresentGivenFullyQualifiedNameWithDifferentServerAndDatabase_ShouldBeQualifiedCorrectly()
+            {
+                var database = Database;
+                var viewName = new Identifier("A", "B", database.DefaultSchema, "db_test_view_1");
+                var expectedViewName = new Identifier(database.ServerName, database.DatabaseName, database.DefaultSchema, "DB_TEST_VIEW_1");
+
+                var viewOption = await database.GetViewAsync(viewName).ConfigureAwait(false);
+                var view = viewOption.UnwrapSome();
+
+                Assert.AreEqual(expectedViewName, view.Name);
             }
 
             [Test]
@@ -452,6 +650,32 @@ namespace SJP.Schematic.Oracle.Tests.Integration
             }
 
             [Test]
+            public void GetSequence_WhenSequencePresentGivenFullyQualifiedNameWithDifferentServer_ShouldBeQualifiedCorrectly()
+            {
+                var database = Database;
+                var sequenceName = new Identifier("A", database.DatabaseName, database.DefaultSchema, "db_test_sequence_1");
+                var expectedSequenceName = new Identifier(database.ServerName, database.DatabaseName, database.DefaultSchema, "DB_TEST_SEQUENCE_1");
+
+                var sequenceOption = database.GetSequence(sequenceName);
+                var sequence = sequenceOption.UnwrapSome();
+
+                Assert.AreEqual(expectedSequenceName, sequence.Name);
+            }
+
+            [Test]
+            public void GetSequence_WhenSequencePresentGivenFullyQualifiedNameWithDifferentServerAndDatabase_ShouldBeQualifiedCorrectly()
+            {
+                var database = Database;
+                var sequenceName = new Identifier("A", "B", database.DefaultSchema, "db_test_sequence_1");
+                var expectedSequenceName = new Identifier(database.ServerName, database.DatabaseName, database.DefaultSchema, "DB_TEST_SEQUENCE_1");
+
+                var sequenceOption = database.GetSequence(sequenceName);
+                var sequence = sequenceOption.UnwrapSome();
+
+                Assert.AreEqual(expectedSequenceName, sequence.Name);
+            }
+
+            [Test]
             public void GetSequence_WhenSequenceMissing_ReturnsNone()
             {
                 var sequence = Database.GetSequence("sequence_that_doesnt_exist");
@@ -532,6 +756,32 @@ namespace SJP.Schematic.Oracle.Tests.Integration
                 var sequence = sequenceOption.UnwrapSome();
 
                 Assert.AreEqual(sequenceName, sequence.Name);
+            }
+
+            [Test]
+            public async Task GetSequenceAsync_WhenSequencePresentGivenFullyQualifiedNameWithDifferentServer_ShouldBeQualifiedCorrectly()
+            {
+                var database = Database;
+                var sequenceName = new Identifier("A", database.DatabaseName, database.DefaultSchema, "db_test_sequence_1");
+                var expectedSequenceName = new Identifier(database.ServerName, database.DatabaseName, database.DefaultSchema, "DB_TEST_SEQUENCE_1");
+
+                var sequenceOption = await database.GetSequenceAsync(sequenceName).ConfigureAwait(false);
+                var sequence = sequenceOption.UnwrapSome();
+
+                Assert.AreEqual(expectedSequenceName, sequence.Name);
+            }
+
+            [Test]
+            public async Task GetSequenceAsync_WhenSequencePresentGivenFullyQualifiedNameWithDifferentServerAndDatabase_ShouldBeQualifiedCorrectly()
+            {
+                var database = Database;
+                var sequenceName = new Identifier("A", "B", database.DefaultSchema, "db_test_sequence_1");
+                var expectedSequenceName = new Identifier(database.ServerName, database.DatabaseName, database.DefaultSchema, "DB_TEST_SEQUENCE_1");
+
+                var sequenceOption = await database.GetSequenceAsync(sequenceName).ConfigureAwait(false);
+                var sequence = sequenceOption.UnwrapSome();
+
+                Assert.AreEqual(expectedSequenceName, sequence.Name);
             }
 
             [Test]
@@ -634,6 +884,83 @@ namespace SJP.Schematic.Oracle.Tests.Integration
             }
 
             [Test]
+            public void GetSynonym_WhenSynonymPresentGivenLocalNameOnly_ShouldBeQualifiedCorrectly()
+            {
+                var database = Database;
+                var synonymName = new Identifier("db_test_synonym_1");
+                var expectedSynonymName = new Identifier(database.ServerName, database.DatabaseName, database.DefaultSchema, "DB_TEST_SYNONYM_1");
+
+                var synonymOption = database.GetSynonym(synonymName);
+                var synonym = synonymOption.UnwrapSome();
+
+                Assert.AreEqual(expectedSynonymName, synonym.Name);
+            }
+
+            [Test]
+            public void GetSynonym_WhenSynonymPresentGivenSchemaAndLocalNameOnly_ShouldBeQualifiedCorrectly()
+            {
+                var database = Database;
+                var synonymName = new Identifier(database.DefaultSchema, "db_test_synonym_1");
+                var expectedSynonymName = new Identifier(database.ServerName, database.DatabaseName, database.DefaultSchema, "DB_TEST_SYNONYM_1");
+
+                var synonymOption = database.GetSynonym(synonymName);
+                var synonym = synonymOption.UnwrapSome();
+
+                Assert.AreEqual(expectedSynonymName, synonym.Name);
+            }
+
+            [Test]
+            public void GetSynonym_WhenSynonymPresentGivenDatabaseAndSchemaAndLocalNameOnly_ShouldBeQualifiedCorrectly()
+            {
+                var database = Database;
+                var synonymName = new Identifier(database.DatabaseName, database.DefaultSchema, "db_test_synonym_1");
+                var expectedSynonymName = new Identifier(database.ServerName, database.DatabaseName, database.DefaultSchema, "DB_TEST_SYNONYM_1");
+
+                var synonymOption = database.GetSynonym(synonymName);
+                var synonym = synonymOption.UnwrapSome();
+
+                Assert.AreEqual(expectedSynonymName, synonym.Name);
+            }
+
+            [Test]
+            public void GetSynonym_WhenSynonymPresentGivenFullyQualifiedName_ShouldBeQualifiedCorrectly()
+            {
+                var database = Database;
+                var synonymName = Identifier.CreateQualifiedIdentifier(database.ServerName, database.DatabaseName, database.DefaultSchema, "DB_TEST_SYNONYM_1");
+
+                var synonymOption = database.GetSynonym(synonymName);
+                var synonym = synonymOption.UnwrapSome();
+
+                Assert.AreEqual(synonymName, synonym.Name);
+            }
+
+            [Test]
+            public void GetSynonym_WhenSynonymPresentGivenFullyQualifiedNameWithDifferentServer_ShouldBeQualifiedCorrectly()
+            {
+                var database = Database;
+                var synonymName = new Identifier("A", database.DatabaseName, database.DefaultSchema, "db_test_synonym_1");
+                var expectedSynonymName = new Identifier(database.ServerName, database.DatabaseName, database.DefaultSchema, "DB_TEST_SYNONYM_1");
+
+                var synonymOption = database.GetSynonym(synonymName);
+                var synonym = synonymOption.UnwrapSome();
+
+                Assert.AreEqual(expectedSynonymName, synonym.Name);
+            }
+
+            [Test]
+            public void GetSynonym_WhenSynonymPresentGivenFullyQualifiedNameWithDifferentServerAndDatabase_ShouldBeQualifiedCorrectly()
+            {
+                var database = Database;
+                var synonymName = new Identifier("A", "B", database.DefaultSchema, "db_test_synonym_1");
+                var expectedSynonymName = new Identifier(database.ServerName, database.DatabaseName, database.DefaultSchema, "DB_TEST_SYNONYM_1");
+
+                var synonymOption = database.GetSynonym(synonymName);
+                var synonym = synonymOption.UnwrapSome();
+
+                Assert.AreEqual(expectedSynonymName, synonym.Name);
+            }
+
+            [Test]
             public void GetSynonym_WhenSynonymMissing_ReturnsNone()
             {
                 var synonym = Database.GetSynonym("synonym_that_doesnt_exist");
@@ -663,6 +990,83 @@ namespace SJP.Schematic.Oracle.Tests.Integration
                 var synonym = synonymOption.UnwrapSome();
 
                 Assert.AreEqual(expectedSynonymName, synonym.Name.LocalName);
+            }
+
+            [Test]
+            public async Task GetSynonymAsync_WhenSynonymPresentGivenLocalNameOnly_ShouldBeQualifiedCorrectly()
+            {
+                var database = Database;
+                var synonymName = new Identifier("db_test_synonym_1");
+                var expectedSynonymName = new Identifier(database.ServerName, database.DatabaseName, database.DefaultSchema, "DB_TEST_SYNONYM_1");
+
+                var synonymOption = await database.GetSynonymAsync(synonymName).ConfigureAwait(false);
+                var synonym = synonymOption.UnwrapSome();
+
+                Assert.AreEqual(expectedSynonymName, synonym.Name);
+            }
+
+            [Test]
+            public async Task GetSynonymAsync_WhenSynonymPresentGivenSchemaAndLocalNameOnly_ShouldBeQualifiedCorrectly()
+            {
+                var database = Database;
+                var synonymName = new Identifier(database.DefaultSchema, "db_test_synonym_1");
+                var expectedSynonymName = new Identifier(database.ServerName, database.DatabaseName, database.DefaultSchema, "DB_TEST_SYNONYM_1");
+
+                var synonymOption = await database.GetSynonymAsync(synonymName).ConfigureAwait(false);
+                var synonym = synonymOption.UnwrapSome();
+
+                Assert.AreEqual(expectedSynonymName, synonym.Name);
+            }
+
+            [Test]
+            public async Task GetSynonymAsync_WhenSynonymPresentGivenDatabaseAndSchemaAndLocalNameOnly_ShouldBeQualifiedCorrectly()
+            {
+                var database = Database;
+                var synonymName = new Identifier(database.DatabaseName, database.DefaultSchema, "db_test_synonym_1");
+                var expectedSynonymName = new Identifier(database.ServerName, database.DatabaseName, database.DefaultSchema, "DB_TEST_SYNONYM_1");
+
+                var synonymOption = await database.GetSynonymAsync(synonymName).ConfigureAwait(false);
+                var synonym = synonymOption.UnwrapSome();
+
+                Assert.AreEqual(expectedSynonymName, synonym.Name);
+            }
+
+            [Test]
+            public async Task GetSynonymAsync_WhenSynonymPresentGivenFullyQualifiedName_ShouldBeQualifiedCorrectly()
+            {
+                var database = Database;
+                var synonymName = Identifier.CreateQualifiedIdentifier(database.ServerName, database.DatabaseName, database.DefaultSchema, "DB_TEST_SYNONYM_1");
+
+                var synonymOption = await database.GetSynonymAsync(synonymName).ConfigureAwait(false);
+                var synonym = synonymOption.UnwrapSome();
+
+                Assert.AreEqual(synonymName, synonym.Name);
+            }
+
+            [Test]
+            public async Task GetSynonymAsync_WhenSynonymPresentGivenFullyQualifiedNameWithDifferentServer_ShouldBeQualifiedCorrectly()
+            {
+                var database = Database;
+                var synonymName = new Identifier("A", database.DatabaseName, database.DefaultSchema, "db_test_synonym_1");
+                var expectedSynonymName = new Identifier(database.ServerName, database.DatabaseName, database.DefaultSchema, "DB_TEST_SYNONYM_1");
+
+                var synonymOption = await database.GetSynonymAsync(synonymName).ConfigureAwait(false);
+                var synonym = synonymOption.UnwrapSome();
+
+                Assert.AreEqual(expectedSynonymName, synonym.Name);
+            }
+
+            [Test]
+            public async Task GetSynonymAsync_WhenSynonymPresentGivenFullyQualifiedNameWithDifferentServerAndDatabase_ShouldBeQualifiedCorrectly()
+            {
+                var database = Database;
+                var synonymName = new Identifier("A", "B", database.DefaultSchema, "db_test_synonym_1");
+                var expectedSynonymName = new Identifier(database.ServerName, database.DatabaseName, database.DefaultSchema, "DB_TEST_SYNONYM_1");
+
+                var synonymOption = await database.GetSynonymAsync(synonymName).ConfigureAwait(false);
+                var synonym = synonymOption.UnwrapSome();
+
+                Assert.AreEqual(expectedSynonymName, synonym.Name);
             }
 
             [Test]

@@ -14,15 +14,30 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
         private IRelationalDatabase Database => new SqliteRelationalDatabase(Dialect, Connection);
 
         [Test]
-        public void Database_PropertyGet_ShouldMatchConnectionDatabase()
+        public void ServerName_PropertyGet_ShouldBeNull()
         {
-            Assert.AreEqual(Database.DatabaseName, Connection.Database);
+            Assert.IsNull(Database.ServerName);
         }
 
         [Test]
-        public void DefaultSchema_PropertyGet_ShouldEqualMain()
+        public void Database_PropertyGet_ShouldBeNull()
+        {
+            Assert.IsNull(Database.DatabaseName);
+        }
+
+        [Test]
+        public void DefaultSchema_PropertyGetForDefaultCtor_ShouldEqualMain()
         {
             Assert.AreEqual("main", Database.DefaultSchema);
+        }
+
+        [Test]
+        public void DefaultSchema_PropertyGetWhenGivenNameInCtor_ShouldEqualCtorArg()
+        {
+            const string defaultSchema = "test_schema";
+            var database = new SqliteRelationalDatabase(Dialect, Connection, defaultSchema);
+
+            Assert.AreEqual(defaultSchema, database.DefaultSchema);
         }
 
         [Test]

@@ -456,11 +456,8 @@ select
             if (identifier == null)
                 throw new ArgumentNullException(nameof(identifier));
 
-            var serverName = identifier.Server ?? ServerName;
-            var databaseName = identifier.Database ?? DatabaseName;
             var schema = identifier.Schema ?? DefaultSchema;
-
-            return Identifier.CreateQualifiedIdentifier(serverName, databaseName, schema, identifier.LocalName);
+            return Identifier.CreateQualifiedIdentifier(ServerName, DatabaseName, schema, identifier.LocalName);
         }
 
         private readonly Lazy<DatabaseMetadata> _metadata;
