@@ -495,8 +495,7 @@ where schema_id = schema_id(@SchemaName) and name = @SynonymName";
                 var schemaName = !synonymData.TargetSchemaName.IsNullOrWhiteSpace() ? synonymData.TargetSchemaName : null;
                 var localName = !synonymData.TargetObjectName.IsNullOrWhiteSpace() ? synonymData.TargetObjectName : null;
 
-                var targetName = Identifier.CreateQualifiedIdentifier(serverName, databaseName, schemaName, localName);
-                targetName = CreateQualifiedIdentifier(targetName);
+                var targetName = Identifier.CreateQualifiedIdentifier(serverName ?? ServerName, databaseName ?? DatabaseName, schemaName ?? DefaultSchema, localName);
 
                 return new DatabaseSynonym(resolvedSynonymName, targetName);
             });
@@ -531,8 +530,7 @@ where schema_id = schema_id(@SchemaName) and name = @SynonymName";
                 var schemaName = !synonymData.TargetSchemaName.IsNullOrWhiteSpace() ? synonymData.TargetSchemaName : null;
                 var localName = !synonymData.TargetObjectName.IsNullOrWhiteSpace() ? synonymData.TargetObjectName : null;
 
-                var targetName = Identifier.CreateQualifiedIdentifier(serverName, databaseName, schemaName, localName);
-                targetName = CreateQualifiedIdentifier(targetName);
+                var targetName = Identifier.CreateQualifiedIdentifier(serverName ?? ServerName, databaseName ?? DatabaseName, schemaName ?? DefaultSchema, localName);
 
                 return new DatabaseSynonym(resolvedSynonymName, targetName);
             });

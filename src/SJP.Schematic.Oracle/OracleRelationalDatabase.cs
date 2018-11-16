@@ -668,10 +668,9 @@ order by s.DB_LINK, s.OWNER, s.SYNONYM_NAME";
                 var localName = !synonymData.TargetObjectName.IsNullOrWhiteSpace() ? synonymData.TargetObjectName : null;
 
                 var qualifiedSynonymName = CreateQualifiedIdentifier(synonymName);
-                var targetName = Identifier.CreateQualifiedIdentifier(databaseName, schemaName, localName);
-                var qualifiedTargetName = CreateQualifiedIdentifier(targetName);
+                var targetName = Identifier.CreateQualifiedIdentifier(ServerName, databaseName ?? DatabaseName, schemaName ?? DefaultSchema, localName);
 
-                return new DatabaseSynonym(qualifiedSynonymName, qualifiedTargetName);
+                return new DatabaseSynonym(qualifiedSynonymName, targetName);
             });
         }
 
@@ -705,10 +704,9 @@ order by s.DB_LINK, s.OWNER, s.SYNONYM_NAME";
                 var localName = !synonymData.TargetObjectName.IsNullOrWhiteSpace() ? synonymData.TargetObjectName : null;
 
                 var qualifiedSynonymName = CreateQualifiedIdentifier(synonymName);
-                var targetName = Identifier.CreateQualifiedIdentifier(databaseName, schemaName, localName);
-                var qualifiedTargetName = CreateQualifiedIdentifier(targetName);
+                var targetName = Identifier.CreateQualifiedIdentifier(ServerName, databaseName ?? DatabaseName, schemaName ?? DefaultSchema, localName);
 
-                return new DatabaseSynonym(qualifiedSynonymName, qualifiedTargetName);
+                return new DatabaseSynonym(qualifiedSynonymName, targetName);
             });
         }
 
@@ -726,10 +724,9 @@ order by s.DB_LINK, s.OWNER, s.SYNONYM_NAME";
                 var localName = !synonymData.TargetObjectName.IsNullOrWhiteSpace() ? synonymData.TargetObjectName : null;
 
                 var qualifiedSynonymName = CreateQualifiedIdentifier(synonymName);
-                var targetName = Identifier.CreateQualifiedIdentifier(databaseName, schemaName, localName);
-                var qualifiedTargetName = CreateQualifiedIdentifier(targetName);
+                var targetName = Identifier.CreateQualifiedIdentifier(ServerName, databaseName ?? DatabaseName, schemaName ?? DefaultSchema, localName);
 
-                return new DatabaseSynonym(qualifiedSynonymName, qualifiedTargetName);
+                return new DatabaseSynonym(qualifiedSynonymName, targetName);
             });
         }
 
