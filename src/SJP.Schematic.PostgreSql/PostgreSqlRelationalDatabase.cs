@@ -39,13 +39,7 @@ namespace SJP.Schematic.PostgreSql
             if (tableName == null)
                 throw new ArgumentNullException(nameof(tableName));
 
-            tableName = CreateQualifiedIdentifier(tableName);
-            var qualifiedTableName = Connection.QueryFirstOrNone<QualifiedName>(
-                TableNameQuery,
-                new { SchemaName = tableName.Schema, TableName = tableName.LocalName }
-            );
-
-            return qualifiedTableName.Map(name => Identifier.CreateQualifiedIdentifier(tableName.Server, tableName.Database, name.SchemaName, name.ObjectName));
+            return ResolveFirstExistingObjectName(tableName, GetResolvedTableNameStrict);
         }
 
         protected Task<Option<Identifier>> GetResolvedTableNameAsync(Identifier tableName, CancellationToken cancellationToken = default(CancellationToken))
@@ -56,10 +50,36 @@ namespace SJP.Schematic.PostgreSql
             return GetResolvedTableNameAsyncCore(tableName, cancellationToken);
         }
 
-        private async Task<Option<Identifier>> GetResolvedTableNameAsyncCore(Identifier tableName, CancellationToken cancellationToken)
+        private Task<Option<Identifier>> GetResolvedTableNameAsyncCore(Identifier tableName, CancellationToken cancellationToken)
+        {
+            return ResolveFirstExistingObjectNameAsync(tableName, GetResolvedTableNameStrictAsync, cancellationToken);
+        }
+
+        protected Option<Identifier> GetResolvedTableNameStrict(Identifier tableName)
+        {
+            if (tableName == null)
+                throw new ArgumentNullException(nameof(tableName));
+
+            tableName = CreateQualifiedIdentifier(tableName);
+            var qualifiedTableName = Connection.QueryFirstOrNone<QualifiedName>(
+                TableNameQuery,
+                new { SchemaName = tableName.Schema, TableName = tableName.LocalName }
+            );
+
+            return qualifiedTableName.Map(name => Identifier.CreateQualifiedIdentifier(tableName.Server, tableName.Database, name.SchemaName, name.ObjectName));
+        }
+
+        protected Task<Option<Identifier>> GetResolvedTableNameStrictAsync(Identifier tableName, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            if (tableName == null)
+                throw new ArgumentNullException(nameof(tableName));
+
+            return GetResolvedTableNameStrictAsyncCore(tableName, cancellationToken);
+        }
+
+        private async Task<Option<Identifier>> GetResolvedTableNameStrictAsyncCore(Identifier tableName, CancellationToken cancellationToken)
         {
             tableName = CreateQualifiedIdentifier(tableName);
-
             var qualifiedTableName = await Connection.QueryFirstOrNoneAsync<QualifiedName>(
                 TableNameQuery,
                 new { SchemaName = tableName.Schema, TableName = tableName.LocalName }
@@ -137,8 +157,8 @@ where schemaname not in ('pg_catalog', 'information_schema')";
             if (tableName == null)
                 throw new ArgumentNullException(nameof(tableName));
 
-            tableName = CreateQualifiedIdentifier(tableName);
-            return GetResolvedTableName(tableName)
+            var resolvedTableName = ResolveFirstExistingObjectName(tableName, GetResolvedTableName);
+            return resolvedTableName
                 .Map<IRelationalDatabaseTable>(name => new PostgreSqlRelationalDatabaseTable(Connection, this, Dialect.TypeProvider, name, IdentifierResolver));
         }
 
@@ -152,14 +172,33 @@ where schemaname not in ('pg_catalog', 'information_schema')";
 
         private async Task<Option<IRelationalDatabaseTable>> LoadTableAsyncCore(Identifier tableName, CancellationToken cancellationToken)
         {
-            tableName = CreateQualifiedIdentifier(tableName);
-            var qualifiedTableName = await GetResolvedTableNameAsync(tableName, cancellationToken).ConfigureAwait(false);
-
-            return qualifiedTableName
+            var resolvedTableName = await ResolveFirstExistingObjectNameAsync(tableName, GetResolvedTableNameAsync, cancellationToken).ConfigureAwait(false);
+            return resolvedTableName
                 .Map<IRelationalDatabaseTable>(name => new PostgreSqlRelationalDatabaseTable(Connection, this, Dialect.TypeProvider, name, IdentifierResolver));
         }
 
         protected Option<Identifier> GetResolvedViewName(Identifier viewName)
+        {
+            if (viewName == null)
+                throw new ArgumentNullException(nameof(viewName));
+
+            return ResolveFirstExistingObjectName(viewName, GetResolvedViewNameStrict);
+        }
+
+        protected Task<Option<Identifier>> GetResolvedViewNameAsync(Identifier viewName, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            if (viewName == null)
+                throw new ArgumentNullException(nameof(viewName));
+
+            return GetResolvedViewNameAsyncCore(viewName, cancellationToken);
+        }
+
+        private Task<Option<Identifier>> GetResolvedViewNameAsyncCore(Identifier viewName, CancellationToken cancellationToken)
+        {
+            return ResolveFirstExistingObjectNameAsync(viewName, GetResolvedViewNameStrictAsync, cancellationToken);
+        }
+
+        protected Option<Identifier> GetResolvedViewNameStrict(Identifier viewName)
         {
             if (viewName == null)
                 throw new ArgumentNullException(nameof(viewName));
@@ -173,15 +212,15 @@ where schemaname not in ('pg_catalog', 'information_schema')";
             return qualifiedViewName.Map(name => Identifier.CreateQualifiedIdentifier(viewName.Server, viewName.Database, name.SchemaName, name.ObjectName));
         }
 
-        protected Task<Option<Identifier>> GetResolvedViewNameAsync(Identifier viewName, CancellationToken cancellationToken = default(CancellationToken))
+        protected Task<Option<Identifier>> GetResolvedViewNameStrictAsync(Identifier viewName, CancellationToken cancellationToken = default(CancellationToken))
         {
             if (viewName == null)
                 throw new ArgumentNullException(nameof(viewName));
 
-            return GetResolvedViewNameAsyncCore(viewName, cancellationToken);
+            return GetResolvedViewNameStrictAsyncCore(viewName, cancellationToken);
         }
 
-        private async Task<Option<Identifier>> GetResolvedViewNameAsyncCore(Identifier viewName, CancellationToken cancellationToken)
+        private async Task<Option<Identifier>> GetResolvedViewNameStrictAsyncCore(Identifier viewName, CancellationToken cancellationToken)
         {
             viewName = CreateQualifiedIdentifier(viewName);
 
@@ -262,8 +301,8 @@ where schemaname not in ('pg_catalog', 'information_schema')";
             if (viewName == null)
                 throw new ArgumentNullException(nameof(viewName));
 
-            viewName = CreateQualifiedIdentifier(viewName);
-            return GetResolvedViewName(viewName)
+            var resolvedViewName = ResolveFirstExistingObjectName(viewName, GetResolvedViewName);
+            return resolvedViewName
                 .Map<IRelationalDatabaseView>(name => new PostgreSqlRelationalDatabaseView(Connection, Dialect.TypeProvider, name, IdentifierResolver));
         }
 
@@ -277,14 +316,33 @@ where schemaname not in ('pg_catalog', 'information_schema')";
 
         private async Task<Option<IRelationalDatabaseView>> LoadViewAsyncCore(Identifier viewName, CancellationToken cancellationToken)
         {
-            viewName = CreateQualifiedIdentifier(viewName);
-            var qualifiedViewName = await GetResolvedViewNameAsync(viewName, cancellationToken).ConfigureAwait(false);
-
-            return qualifiedViewName
+            var resolvedViewName = await ResolveFirstExistingObjectNameAsync(viewName, GetResolvedViewNameAsync, cancellationToken).ConfigureAwait(false);
+            return resolvedViewName
                 .Map<IRelationalDatabaseView>(name => new PostgreSqlRelationalDatabaseView(Connection, Dialect.TypeProvider, name, IdentifierResolver));
         }
 
-        protected Option<Identifier> GetResolvedSequenceName(Identifier sequenceName)
+        public Option<Identifier> GetResolvedSequenceName(Identifier sequenceName)
+        {
+            if (sequenceName == null)
+                throw new ArgumentNullException(nameof(sequenceName));
+
+            return ResolveFirstExistingObjectName(sequenceName, GetResolvedSequenceNameStrict);
+        }
+
+        public Task<Option<Identifier>> GetResolvedSequenceNameAsync(Identifier sequenceName, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            if (sequenceName == null)
+                throw new ArgumentNullException(nameof(sequenceName));
+
+            return GetResolvedSequenceNameAsyncCore(sequenceName, cancellationToken);
+        }
+
+        private Task<Option<Identifier>> GetResolvedSequenceNameAsyncCore(Identifier sequenceName, CancellationToken cancellationToken)
+        {
+            return ResolveFirstExistingObjectNameAsync(sequenceName, GetResolvedSequenceNameStrictAsync, cancellationToken);
+        }
+
+        protected Option<Identifier> GetResolvedSequenceNameStrict(Identifier sequenceName)
         {
             if (sequenceName == null)
                 throw new ArgumentNullException(nameof(sequenceName));
@@ -298,15 +356,15 @@ where schemaname not in ('pg_catalog', 'information_schema')";
             return qualifiedSequenceName.Map(name => Identifier.CreateQualifiedIdentifier(sequenceName.Server, sequenceName.Database, name.SchemaName, name.ObjectName));
         }
 
-        protected Task<Option<Identifier>> GetResolvedSequenceNameAsync(Identifier sequenceName, CancellationToken cancellationToken = default(CancellationToken))
+        protected Task<Option<Identifier>> GetResolvedSequenceNameStrictAsync(Identifier sequenceName, CancellationToken cancellationToken = default(CancellationToken))
         {
             if (sequenceName == null)
                 throw new ArgumentNullException(nameof(sequenceName));
 
-            return GetResolvedSequenceNameAsyncCore(sequenceName, cancellationToken);
+            return GetResolvedSequenceNameStrictAsyncCore(sequenceName, cancellationToken);
         }
 
-        private async Task<Option<Identifier>> GetResolvedSequenceNameAsyncCore(Identifier sequenceName, CancellationToken cancellationToken)
+        private async Task<Option<Identifier>> GetResolvedSequenceNameStrictAsyncCore(Identifier sequenceName, CancellationToken cancellationToken)
         {
             sequenceName = CreateQualifiedIdentifier(sequenceName);
 
@@ -387,8 +445,7 @@ where sequence_schema not in ('pg_catalog', 'information_schema')";
             if (sequenceName == null)
                 throw new ArgumentNullException(nameof(sequenceName));
 
-            sequenceName = CreateQualifiedIdentifier(sequenceName);
-            return GetResolvedSequenceName(sequenceName)
+            return ResolveFirstExistingObjectName(sequenceName, GetResolvedSequenceName)
                 .Map<IDatabaseSequence>(name => new PostgreSqlDatabaseSequence(Connection, name));
         }
 
@@ -402,10 +459,8 @@ where sequence_schema not in ('pg_catalog', 'information_schema')";
 
         private async Task<Option<IDatabaseSequence>> LoadSequenceAsyncCore(Identifier sequenceName, CancellationToken cancellationToken)
         {
-            sequenceName = CreateQualifiedIdentifier(sequenceName);
-            var qualifiedSequenceName = await GetResolvedSequenceNameAsync(sequenceName, cancellationToken).ConfigureAwait(false);
-
-            return qualifiedSequenceName
+            var resolvedSequenceName = await ResolveFirstExistingObjectNameAsync(sequenceName, GetResolvedSequenceNameAsync, cancellationToken).ConfigureAwait(false);
+            return resolvedSequenceName
                 .Map<IDatabaseSequence>(name => new PostgreSqlDatabaseSequence(Connection, name));
         }
 
@@ -428,6 +483,48 @@ where sequence_schema not in ('pg_catalog', 'information_schema')";
         public IReadOnlyCollection<IDatabaseSynonym> Synonyms { get; } = Array.Empty<IDatabaseSynonym>();
 
         public Task<IReadOnlyCollection<Task<IDatabaseSynonym>>> SynonymsAsync(CancellationToken cancellationToken = default(CancellationToken)) => _emptySynonyms;
+
+        protected Option<Identifier> ResolveFirstExistingObjectName(Identifier objectName, Func<Identifier, Option<Identifier>> objectExistsFunc)
+        {
+            if (objectName == null)
+                throw new ArgumentNullException(nameof(objectName));
+            if (objectExistsFunc == null)
+                throw new ArgumentNullException(nameof(objectExistsFunc));
+
+            var resolvedNames = IdentifierResolver
+                .GetResolutionOrder(objectName)
+                .Select(CreateQualifiedIdentifier);
+
+            return resolvedNames
+                .Select(objectExistsFunc)
+                .FirstOrDefault(name => name.IsSome);
+        }
+
+        protected Task<Option<Identifier>> ResolveFirstExistingObjectNameAsync(Identifier objectName, Func<Identifier, CancellationToken, Task<Option<Identifier>>> objectExistsFunc, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            if (objectName == null)
+                throw new ArgumentNullException(nameof(objectName));
+            if (objectExistsFunc == null)
+                throw new ArgumentNullException(nameof(objectExistsFunc));
+
+            return ResolveFirstExistingObjectNameAsyncCore(objectName, objectExistsFunc, cancellationToken);
+        }
+
+        private async Task<Option<Identifier>> ResolveFirstExistingObjectNameAsyncCore(Identifier objectName, Func<Identifier, CancellationToken, Task<Option<Identifier>>> objectExistsFunc, CancellationToken cancellationToken)
+        {
+            var resolvedNames = IdentifierResolver
+                .GetResolutionOrder(objectName)
+                .Select(CreateQualifiedIdentifier);
+
+            foreach (var resolvedName in resolvedNames)
+            {
+                var existingName = await objectExistsFunc(resolvedName, cancellationToken).ConfigureAwait(false);
+                if (existingName.IsSome)
+                    return existingName;
+            }
+
+            return Option<Identifier>.None;
+        }
 
         private DatabaseMetadata LoadDatabaseMetadata()
         {
