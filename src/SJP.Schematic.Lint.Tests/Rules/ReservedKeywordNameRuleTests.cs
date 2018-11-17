@@ -153,7 +153,6 @@ namespace SJP.Schematic.Lint.Tests.Rules
 
             var database = CreateFakeDatabase();
             var view = new RelationalDatabaseView(
-                database,
                 viewName,
                 "select 1",
                 new List<IDatabaseColumn>(),
@@ -174,7 +173,6 @@ namespace SJP.Schematic.Lint.Tests.Rules
 
             var database = CreateFakeDatabase();
             var view = new RelationalDatabaseView(
-                database,
                 viewName,
                 "select 1",
                 new List<IDatabaseColumn>(),
@@ -203,7 +201,6 @@ namespace SJP.Schematic.Lint.Tests.Rules
 
             var database = CreateFakeDatabase();
             var view = new RelationalDatabaseView(
-                database,
                 viewName,
                 "select 1",
                 new List<IDatabaseColumn> { testColumn },
@@ -232,7 +229,6 @@ namespace SJP.Schematic.Lint.Tests.Rules
 
             var database = CreateFakeDatabase();
             var view = new RelationalDatabaseView(
-                database,
                 viewName,
                 "select 1",
                 new List<IDatabaseColumn> { testColumn },

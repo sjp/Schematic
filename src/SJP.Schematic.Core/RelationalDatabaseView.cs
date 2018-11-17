@@ -9,7 +9,6 @@ namespace SJP.Schematic.Core
     public class RelationalDatabaseView : IRelationalDatabaseView
     {
         public RelationalDatabaseView(
-            IRelationalDatabase database,
             Identifier viewName,
             string definition,
             IReadOnlyList<IDatabaseColumn> columns,
@@ -18,7 +17,6 @@ namespace SJP.Schematic.Core
             if (definition.IsNullOrWhiteSpace())
                 throw new ArgumentNullException(nameof(definition));
 
-            Database = database ?? throw new ArgumentNullException(nameof(database));
             Name = viewName ?? throw new ArgumentNullException(nameof(viewName));
             Columns = columns ?? throw new ArgumentNullException(nameof(columns));
             Indexes = indexes ?? throw new ArgumentNullException(nameof(indexes));
@@ -27,10 +25,6 @@ namespace SJP.Schematic.Core
         }
 
         public Identifier Name { get; }
-
-        protected IRelationalDatabase Database { get; }
-
-        protected IEqualityComparer<Identifier> Comparer { get; }
 
         public string Definition { get; }
 
