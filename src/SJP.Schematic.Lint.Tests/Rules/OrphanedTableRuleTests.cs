@@ -52,7 +52,6 @@ namespace SJP.Schematic.Lint.Tests.Rules
                 System.Data.Rule.None
             );
             var childTable = new RelationalDatabaseTable(
-                database,
                 "test",
                 new List<IDatabaseColumn>(),
                 null,
@@ -95,7 +94,6 @@ namespace SJP.Schematic.Lint.Tests.Rules
                 System.Data.Rule.None
             );
             var parentTable = new RelationalDatabaseTable(
-                database,
                 "test",
                 new List<IDatabaseColumn>(),
                 null,
@@ -120,7 +118,6 @@ namespace SJP.Schematic.Lint.Tests.Rules
             var database = CreateFakeDatabase();
 
             var table = new RelationalDatabaseTable(
-                database,
                 "test",
                 new List<IDatabaseColumn>(),
                 null,

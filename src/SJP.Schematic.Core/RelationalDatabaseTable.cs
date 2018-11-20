@@ -9,7 +9,6 @@ namespace SJP.Schematic.Core
     public class RelationalDatabaseTable : IRelationalDatabaseTable
     {
         public RelationalDatabaseTable(
-            IRelationalDatabase database,
             Identifier tableName,
             IReadOnlyList<IDatabaseColumn> columns,
             IDatabaseKey primaryKey,
@@ -37,7 +36,6 @@ namespace SJP.Schematic.Core
             if (triggers == null || triggers.AnyNull())
                 throw new ArgumentNullException(nameof(triggers));
 
-            Database = database ?? throw new ArgumentNullException(nameof(database));
             Name = tableName ?? throw new ArgumentNullException(nameof(tableName));
             Columns = columns;
             PrimaryKey = primaryKey;
@@ -50,8 +48,6 @@ namespace SJP.Schematic.Core
         }
 
         public Identifier Name { get; }
-
-        protected IRelationalDatabase Database { get; }
 
         public IDatabaseKey PrimaryKey { get; }
 

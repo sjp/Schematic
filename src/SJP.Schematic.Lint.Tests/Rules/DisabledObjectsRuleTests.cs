@@ -34,7 +34,6 @@ namespace SJP.Schematic.Lint.Tests.Rules
 
             var database = CreateFakeDatabase();
             var table = new RelationalDatabaseTable(
-                database,
                 "test",
                 new List<IDatabaseColumn>(),
                 null,
@@ -73,7 +72,6 @@ namespace SJP.Schematic.Lint.Tests.Rules
             );
 
             var table = new RelationalDatabaseTable(
-                database,
                 "test",
                 new List<IDatabaseColumn>(),
                 testPrimaryKey,
@@ -126,7 +124,6 @@ namespace SJP.Schematic.Lint.Tests.Rules
             );
 
             var table = new RelationalDatabaseTable(
-                database,
                 "test",
                 new List<IDatabaseColumn>(),
                 null,
@@ -165,7 +162,6 @@ namespace SJP.Schematic.Lint.Tests.Rules
             );
 
             var table = new RelationalDatabaseTable(
-                database,
                 "test",
                 new List<IDatabaseColumn>(),
                 null,
@@ -205,7 +201,6 @@ namespace SJP.Schematic.Lint.Tests.Rules
             );
 
             var table = new RelationalDatabaseTable(
-                database,
                 "test",
                 new List<IDatabaseColumn>(),
                 null,
@@ -236,7 +231,6 @@ namespace SJP.Schematic.Lint.Tests.Rules
             );
 
             var table = new RelationalDatabaseTable(
-                database,
                 "test",
                 new List<IDatabaseColumn>(),
                 null,
@@ -269,7 +263,6 @@ namespace SJP.Schematic.Lint.Tests.Rules
             );
 
             var table = new RelationalDatabaseTable(
-                database,
                 "test",
                 new List<IDatabaseColumn>(),
                 null,

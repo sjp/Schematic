@@ -42,7 +42,6 @@ namespace SJP.Schematic.Lint.Tests.Rules
             );
 
             var table = new RelationalDatabaseTable(
-                database,
                 "test",
                 new List<IDatabaseColumn> { testColumn },
                 null,
@@ -75,7 +74,6 @@ namespace SJP.Schematic.Lint.Tests.Rules
             );
 
             var table = new RelationalDatabaseTable(
-                database,
                 "test",
                 new List<IDatabaseColumn> { testColumn },
                 null,
