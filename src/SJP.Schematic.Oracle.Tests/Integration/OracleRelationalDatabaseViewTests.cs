@@ -135,6 +135,8 @@ namespace SJP.Schematic.Oracle.Tests.Integration
             Assert.IsTrue(containsColumn);
         }
 
+        // TODO: uncomment when materialized view support is available
+        /*
         [Test]
         public void IsIndexed_WhenViewHasSingleIndex_ReturnsTrue()
         {
@@ -184,5 +186,6 @@ namespace SJP.Schematic.Oracle.Tests.Integration
 
             Assert.IsTrue(containsIndex);
         }
+        */
     }
 }
