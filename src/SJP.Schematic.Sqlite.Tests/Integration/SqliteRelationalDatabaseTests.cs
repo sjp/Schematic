@@ -240,8 +240,8 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
             [Test]
             public async Task GetTableAsync_WhenTablePresent_ReturnsTable()
             {
-                var table = await Database.GetTableAsync("db_test_table_1").ConfigureAwait(false);
-                Assert.IsTrue(table.IsSome);
+                var tableIsSome = await Database.GetTableAsync("db_test_table_1").IsSome.ConfigureAwait(false);
+                Assert.IsTrue(tableIsSome);
             }
 
             [Test]
@@ -251,8 +251,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
                 var tableName = new Identifier("db_test_table_1");
                 var expectedTableName = new Identifier(database.DefaultSchema, "db_test_table_1");
 
-                var tableOption = await database.GetTableAsync(tableName).ConfigureAwait(false);
-                var table = tableOption.UnwrapSome();
+                var table = await database.GetTableAsync(tableName).UnwrapSomeAsync().ConfigureAwait(false);
 
                 Assert.AreEqual(expectedTableName, table.Name);
             }
@@ -263,8 +262,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
                 var database = Database;
                 var expectedTableName = new Identifier(database.DefaultSchema, "db_test_table_1");
 
-                var tableOption = await database.GetTableAsync(expectedTableName).ConfigureAwait(false);
-                var table = tableOption.UnwrapSome();
+                var table = await database.GetTableAsync(expectedTableName).UnwrapSomeAsync().ConfigureAwait(false);
 
                 Assert.AreEqual(expectedTableName, table.Name);
             }
@@ -276,8 +274,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
                 var tableName = new Identifier("asd", database.DefaultSchema, "db_test_table_1");
                 var expectedTableName = new Identifier(database.DefaultSchema, "db_test_table_1");
 
-                var tableOption = await database.GetTableAsync(tableName).ConfigureAwait(false);
-                var table = tableOption.UnwrapSome();
+                var table = await database.GetTableAsync(tableName).UnwrapSomeAsync().ConfigureAwait(false);
 
                 Assert.AreEqual(expectedTableName, table.Name);
             }
@@ -285,16 +282,15 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
             [Test]
             public async Task GetTableAsync_WhenTableMissing_ReturnsNone()
             {
-                var table = await Database.GetTableAsync("table_that_doesnt_exist").ConfigureAwait(false);
-                Assert.IsTrue(table.IsNone);
+                var tableIsNone = await Database.GetTableAsync("table_that_doesnt_exist").IsNone.ConfigureAwait(false);
+                Assert.IsTrue(tableIsNone);
             }
 
             [Test]
             public async Task TableExistsAsync_WhenTablePresentGivenLocalNameNameWithDifferentCase_ReturnsMatchingName()
             {
                 var inputName = new Identifier("DB_TEST_table_1");
-                var tableOption = await Database.GetTableAsync(inputName).ConfigureAwait(false);
-                var table = tableOption.UnwrapSome();
+                var table = await Database.GetTableAsync(inputName).UnwrapSomeAsync().ConfigureAwait(false);
 
                 var equalNames = IdentifierComparer.OrdinalIgnoreCase.Equals(inputName, table.Name.LocalName);
                 Assert.IsTrue(equalNames);
@@ -304,8 +300,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
             public async Task TableExistsAsync_WhenTablePresentGivenQualifiedNameNameWithDifferentCase_ReturnsMatchingName()
             {
                 var inputName = new Identifier("Main", "DB_TEST_table_1");
-                var tableOption = await Database.GetTableAsync(inputName).ConfigureAwait(false);
-                var table = tableOption.UnwrapSome();
+                var table = await Database.GetTableAsync(inputName).UnwrapSomeAsync().ConfigureAwait(false);
 
                 var equalNames = IdentifierComparer.OrdinalIgnoreCase.Equals(inputName, table.Name);
                 Assert.IsTrue(equalNames);
@@ -412,8 +407,8 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
             [Test]
             public async Task GetViewAsync_WhenViewPresent_ReturnsView()
             {
-                var view = await Database.GetViewAsync("db_test_view_1").ConfigureAwait(false);
-                Assert.IsTrue(view.IsSome);
+                var viewIsSome = await Database.GetViewAsync("db_test_view_1").IsSome.ConfigureAwait(false);
+                Assert.IsTrue(viewIsSome);
             }
 
             [Test]
@@ -423,8 +418,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
                 var viewName = new Identifier("db_test_view_1");
                 var expectedViewName = new Identifier(database.DefaultSchema, "db_test_view_1");
 
-                var viewOption = await database.GetViewAsync(viewName).ConfigureAwait(false);
-                var view = viewOption.UnwrapSome();
+                var view = await database.GetViewAsync(viewName).UnwrapSomeAsync().ConfigureAwait(false);
 
                 Assert.AreEqual(expectedViewName, view.Name);
             }
@@ -435,8 +429,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
                 var database = Database;
                 var expectedViewName = new Identifier(database.DefaultSchema, "db_test_view_1");
 
-                var viewOption = await database.GetViewAsync(expectedViewName).ConfigureAwait(false);
-                var view = viewOption.UnwrapSome();
+                var view = await database.GetViewAsync(expectedViewName).UnwrapSomeAsync().ConfigureAwait(false);
 
                 Assert.AreEqual(expectedViewName, view.Name);
             }
@@ -448,8 +441,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
                 var viewName = new Identifier("asd", database.DefaultSchema, "db_test_view_1");
                 var expectedViewName = new Identifier(database.DefaultSchema, "db_test_view_1");
 
-                var viewOption = await database.GetViewAsync(viewName).ConfigureAwait(false);
-                var view = viewOption.UnwrapSome();
+                var view = await database.GetViewAsync(viewName).UnwrapSomeAsync().ConfigureAwait(false);
 
                 Assert.AreEqual(expectedViewName, view.Name);
             }
@@ -457,16 +449,15 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
             [Test]
             public async Task GetViewAsync_WhenViewMissing_ReturnsNone()
             {
-                var view = await Database.GetViewAsync("view_that_doesnt_exist").ConfigureAwait(false);
-                Assert.IsTrue(view.IsNone);
+                var viewIsNone = await Database.GetViewAsync("view_that_doesnt_exist").IsNone.ConfigureAwait(false);
+                Assert.IsTrue(viewIsNone);
             }
 
             [Test]
             public async Task GetViewAsync_WhenViewPresentGivenLocalNameNameWithDifferentCase_ReturnsMatchingName()
             {
                 var inputName = new Identifier("DB_TEST_view_1");
-                var viewOption = await Database.GetViewAsync(inputName).ConfigureAwait(false);
-                var view = viewOption.UnwrapSome();
+                var view = await Database.GetViewAsync(inputName).UnwrapSomeAsync().ConfigureAwait(false);
 
                 var equalNames = IdentifierComparer.OrdinalIgnoreCase.Equals(inputName, view.Name.LocalName);
                 Assert.IsTrue(equalNames);
@@ -476,8 +467,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
             public async Task GetViewAsync_WhenViewPresentGivenQualifiedNameNameWithDifferentCase_ReturnsMatchingName()
             {
                 var inputName = new Identifier("Main", "DB_TEST_view_1");
-                var viewOption = await Database.GetViewAsync(inputName).ConfigureAwait(false);
-                var view = viewOption.UnwrapSome();
+                var view = await Database.GetViewAsync(inputName).UnwrapSomeAsync().ConfigureAwait(false);
 
                 var equalNames = IdentifierComparer.OrdinalIgnoreCase.Equals(inputName, view.Name);
                 Assert.IsTrue(equalNames);
@@ -522,9 +512,9 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
             public async Task GetSequenceAsync_GivenValidSequenceName_ReturnsNone()
             {
                 var sequenceName = new Identifier("asd");
-                var sequence = await Database.GetSequenceAsync(sequenceName).ConfigureAwait(false);
+                var sequenceIsNone = await Database.GetSequenceAsync(sequenceName).IsNone.ConfigureAwait(false);
 
-                Assert.IsTrue(sequence.IsNone);
+                Assert.IsTrue(sequenceIsNone);
             }
 
             [Test]
@@ -574,9 +564,9 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
             public async Task GetSynonymAsync_GivenValidSynonymName_ReturnsNone()
             {
                 var synonymName = new Identifier("asd");
-                var synonym = await Database.GetSynonymAsync(synonymName).ConfigureAwait(false);
+                var synonymIsNone = await Database.GetSynonymAsync(synonymName).IsNone.ConfigureAwait(false);
 
-                Assert.IsTrue(synonym.IsNone);
+                Assert.IsTrue(synonymIsNone);
             }
 
             [Test]

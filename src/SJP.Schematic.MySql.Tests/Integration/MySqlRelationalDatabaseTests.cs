@@ -161,16 +161,15 @@ namespace SJP.Schematic.MySql.Tests.Integration
             [Test]
             public async Task GetTableAsync_WhenTablePresent_ReturnsTable()
             {
-                var table = await Database.GetTableAsync("db_test_table_1").ConfigureAwait(false);
-                Assert.IsTrue(table.IsSome);
+                var tableIsSome = await Database.GetTableAsync("db_test_table_1").IsSome.ConfigureAwait(false);
+                Assert.IsTrue(tableIsSome);
             }
 
             [Test]
             public async Task GetTableAsync_WhenTablePresent_ReturnsTableWithCorrectName()
             {
                 const string tableName = "db_test_table_1";
-                var tableOption = await Database.GetTableAsync(tableName).ConfigureAwait(false);
-                var table = tableOption.UnwrapSome();
+                var table = await Database.GetTableAsync(tableName).UnwrapSomeAsync().ConfigureAwait(false);
 
                 Assert.AreEqual(tableName, table.Name.LocalName);
             }
@@ -182,8 +181,7 @@ namespace SJP.Schematic.MySql.Tests.Integration
                 var tableName = new Identifier("db_test_table_1");
                 var expectedTableName = new Identifier(database.ServerName, database.DatabaseName, database.DefaultSchema, "db_test_table_1");
 
-                var tableOption = await database.GetTableAsync(tableName).ConfigureAwait(false);
-                var table = tableOption.UnwrapSome();
+                var table = await database.GetTableAsync(tableName).UnwrapSomeAsync().ConfigureAwait(false);
 
                 Assert.AreEqual(expectedTableName, table.Name);
             }
@@ -195,8 +193,7 @@ namespace SJP.Schematic.MySql.Tests.Integration
                 var tableName = new Identifier(database.DefaultSchema, "db_test_table_1");
                 var expectedTableName = new Identifier(database.ServerName, database.DatabaseName, database.DefaultSchema, "db_test_table_1");
 
-                var tableOption = await database.GetTableAsync(tableName).ConfigureAwait(false);
-                var table = tableOption.UnwrapSome();
+                var table = await database.GetTableAsync(tableName).UnwrapSomeAsync().ConfigureAwait(false);
 
                 Assert.AreEqual(expectedTableName, table.Name);
             }
@@ -208,8 +205,7 @@ namespace SJP.Schematic.MySql.Tests.Integration
                 var tableName = new Identifier(database.DatabaseName, database.DefaultSchema, "db_test_table_1");
                 var expectedTableName = new Identifier(database.ServerName, database.DatabaseName, database.DefaultSchema, "db_test_table_1");
 
-                var tableOption = await database.GetTableAsync(tableName).ConfigureAwait(false);
-                var table = tableOption.UnwrapSome();
+                var table = await database.GetTableAsync(tableName).UnwrapSomeAsync().ConfigureAwait(false);
 
                 Assert.AreEqual(expectedTableName, table.Name);
             }
@@ -220,8 +216,7 @@ namespace SJP.Schematic.MySql.Tests.Integration
                 var database = Database;
                 var tableName = Identifier.CreateQualifiedIdentifier(database.ServerName, database.DatabaseName, database.DefaultSchema, "db_test_table_1");
 
-                var tableOption = await database.GetTableAsync(tableName).ConfigureAwait(false);
-                var table = tableOption.UnwrapSome();
+                var table = await database.GetTableAsync(tableName).UnwrapSomeAsync().ConfigureAwait(false);
 
                 Assert.AreEqual(tableName, table.Name);
             }
@@ -233,8 +228,7 @@ namespace SJP.Schematic.MySql.Tests.Integration
                 var tableName = new Identifier("A", database.DatabaseName, database.DefaultSchema, "db_test_table_1");
                 var expectedTableName = new Identifier(database.ServerName, database.DatabaseName, database.DefaultSchema, "db_test_table_1");
 
-                var tableOption = await database.GetTableAsync(tableName).ConfigureAwait(false);
-                var table = tableOption.UnwrapSome();
+                var table = await database.GetTableAsync(tableName).UnwrapSomeAsync().ConfigureAwait(false);
 
                 Assert.AreEqual(expectedTableName, table.Name);
             }
@@ -246,8 +240,7 @@ namespace SJP.Schematic.MySql.Tests.Integration
                 var tableName = new Identifier("A", "B", database.DefaultSchema, "db_test_table_1");
                 var expectedTableName = new Identifier(database.ServerName, database.DatabaseName, database.DefaultSchema, "db_test_table_1");
 
-                var tableOption = await database.GetTableAsync(tableName).ConfigureAwait(false);
-                var table = tableOption.UnwrapSome();
+                var table = await database.GetTableAsync(tableName).UnwrapSomeAsync().ConfigureAwait(false);
 
                 Assert.AreEqual(expectedTableName, table.Name);
             }
@@ -255,8 +248,8 @@ namespace SJP.Schematic.MySql.Tests.Integration
             [Test]
             public async Task GetTableAsync_WhenTableMissing_ReturnsNone()
             {
-                var table = await Database.GetTableAsync("table_that_doesnt_exist").ConfigureAwait(false);
-                Assert.IsTrue(table.IsNone);
+                var tableIsNone = await Database.GetTableAsync("table_that_doesnt_exist").IsNone.ConfigureAwait(false);
+                Assert.IsTrue(tableIsNone);
             }
 
             [Test]
@@ -276,7 +269,7 @@ namespace SJP.Schematic.MySql.Tests.Integration
             }
 
             [Test]
-            public async Task TablesAsync_WhenSubscribed_ContainsTables()
+            public async Task TablesAsync_WhenEnumerated_ContainsTables()
             {
                 var tables = await Database.TablesAsync().ConfigureAwait(false);
 
@@ -284,10 +277,9 @@ namespace SJP.Schematic.MySql.Tests.Integration
             }
 
             [Test]
-            public async Task TablesAsync_WhenSubscribed_ContainsTestTable()
+            public async Task TablesAsync_WhenEnumerated_ContainsTestTable()
             {
-                var tableCollection = await Database.TablesAsync().ConfigureAwait(false);
-                var tables = await Task.WhenAll(tableCollection).ConfigureAwait(false);
+                var tables = await Database.TablesAsync().ConfigureAwait(false);
                 var containsTestTable = tables.Any(t => t.Name.LocalName == "db_test_table_1");
 
                 Assert.True(containsTestTable);
@@ -420,8 +412,8 @@ namespace SJP.Schematic.MySql.Tests.Integration
             [Test]
             public async Task GetViewAsync_WhenViewPresent_ReturnsView()
             {
-                var view = await Database.GetViewAsync("db_test_view_1").ConfigureAwait(false);
-                Assert.IsTrue(view.IsSome);
+                var viewIsSome = await Database.GetViewAsync("db_test_view_1").IsSome.ConfigureAwait(false);
+                Assert.IsTrue(viewIsSome);
             }
 
             [Test]
@@ -429,8 +421,7 @@ namespace SJP.Schematic.MySql.Tests.Integration
             {
                 var database = Database;
                 var viewName = new Identifier(database.ServerName, database.DatabaseName, database.DefaultSchema, "db_test_view_1");
-                var viewOption = await database.GetViewAsync(viewName).ConfigureAwait(false);
-                var view = viewOption.UnwrapSome();
+                var view = await database.GetViewAsync(viewName).UnwrapSomeAsync().ConfigureAwait(false);
 
                 Assert.AreEqual(viewName, view.Name);
             }
@@ -442,8 +433,7 @@ namespace SJP.Schematic.MySql.Tests.Integration
                 var viewName = new Identifier("db_test_view_1");
                 var expectedViewName = new Identifier(database.ServerName, database.DatabaseName, database.DefaultSchema, "db_test_view_1");
 
-                var viewOption = await database.GetViewAsync(viewName).ConfigureAwait(false);
-                var view = viewOption.UnwrapSome();
+                var view = await database.GetViewAsync(viewName).UnwrapSomeAsync().ConfigureAwait(false);
 
                 Assert.AreEqual(expectedViewName, view.Name);
             }
@@ -455,8 +445,7 @@ namespace SJP.Schematic.MySql.Tests.Integration
                 var viewName = new Identifier(database.DefaultSchema, "db_test_view_1");
                 var expectedViewName = new Identifier(database.ServerName, database.DatabaseName, database.DefaultSchema, "db_test_view_1");
 
-                var viewOption = await database.GetViewAsync(viewName).ConfigureAwait(false);
-                var view = viewOption.UnwrapSome();
+                var view = await database.GetViewAsync(viewName).UnwrapSomeAsync().ConfigureAwait(false);
 
                 Assert.AreEqual(expectedViewName, view.Name);
             }
@@ -468,8 +457,7 @@ namespace SJP.Schematic.MySql.Tests.Integration
                 var viewName = new Identifier(database.DatabaseName, database.DefaultSchema, "db_test_view_1");
                 var expectedViewName = new Identifier(database.ServerName, database.DatabaseName, database.DefaultSchema, "db_test_view_1");
 
-                var viewOption = await database.GetViewAsync(viewName).ConfigureAwait(false);
-                var view = viewOption.UnwrapSome();
+                var view = await database.GetViewAsync(viewName).UnwrapSomeAsync().ConfigureAwait(false);
 
                 Assert.AreEqual(expectedViewName, view.Name);
             }
@@ -480,8 +468,7 @@ namespace SJP.Schematic.MySql.Tests.Integration
                 var database = Database;
                 var viewName = new Identifier(database.ServerName, database.DatabaseName, database.DefaultSchema, "db_test_view_1");
 
-                var viewOption = await database.GetViewAsync(viewName).ConfigureAwait(false);
-                var view = viewOption.UnwrapSome();
+                var view = await database.GetViewAsync(viewName).UnwrapSomeAsync().ConfigureAwait(false);
 
                 Assert.AreEqual(viewName, view.Name);
             }
@@ -493,8 +480,7 @@ namespace SJP.Schematic.MySql.Tests.Integration
                 var viewName = new Identifier("A", database.DatabaseName, database.DefaultSchema, "db_test_view_1");
                 var expectedViewName = new Identifier(database.ServerName, database.DatabaseName, database.DefaultSchema, "db_test_view_1");
 
-                var viewOption = await database.GetViewAsync(viewName).ConfigureAwait(false);
-                var view = viewOption.UnwrapSome();
+                var view = await database.GetViewAsync(viewName).UnwrapSomeAsync().ConfigureAwait(false);
 
                 Assert.AreEqual(expectedViewName, view.Name);
             }
@@ -506,8 +492,7 @@ namespace SJP.Schematic.MySql.Tests.Integration
                 var viewName = new Identifier("A", "B", database.DefaultSchema, "db_test_view_1");
                 var expectedViewName = new Identifier(database.ServerName, database.DatabaseName, database.DefaultSchema, "db_test_view_1");
 
-                var viewOption = await database.GetViewAsync(viewName).ConfigureAwait(false);
-                var view = viewOption.UnwrapSome();
+                var view = await database.GetViewAsync(viewName).UnwrapSomeAsync().ConfigureAwait(false);
 
                 Assert.AreEqual(expectedViewName, view.Name);
             }
@@ -515,8 +500,8 @@ namespace SJP.Schematic.MySql.Tests.Integration
             [Test]
             public async Task GetViewAsync_WhenViewMissing_ReturnsNone()
             {
-                var view = await Database.GetViewAsync("view_that_doesnt_exist").ConfigureAwait(false);
-                Assert.IsTrue(view.IsNone);
+                var viewIsNone = await Database.GetViewAsync("view_that_doesnt_exist").IsNone.ConfigureAwait(false);
+                Assert.IsTrue(viewIsNone);
             }
 
             [Test]
@@ -537,7 +522,7 @@ namespace SJP.Schematic.MySql.Tests.Integration
             }
 
             [Test]
-            public async Task ViewsAsync_WhenSubscribed_ContainsViews()
+            public async Task ViewsAsync_WhenEnumerated_ContainsViews()
             {
                 var views = await Database.ViewsAsync().ConfigureAwait(false);
 
@@ -545,11 +530,10 @@ namespace SJP.Schematic.MySql.Tests.Integration
             }
 
             [Test]
-            public async Task ViewsAsync_WhenSubscribed_ContainsTestView()
+            public async Task ViewsAsync_WhenEnumerated_ContainsTestView()
             {
                 const string viewName = "db_test_view_1";
-                var viewCollection = await Database.ViewsAsync().ConfigureAwait(false);
-                var views = await Task.WhenAll(viewCollection).ConfigureAwait(false);
+                var views = await Database.ViewsAsync().ConfigureAwait(false);
                 var containsTestView = views.Any(v => v.Name.LocalName == viewName);
 
                 Assert.True(containsTestView);
@@ -594,9 +578,9 @@ namespace SJP.Schematic.MySql.Tests.Integration
             public async Task GetSequenceAsync_GivenValidSequenceName_ReturnsNone()
             {
                 var sequenceName = new Identifier("asd");
-                var sequence = await Database.GetSequenceAsync(sequenceName).ConfigureAwait(false);
+                var sequenceIsNone = await Database.GetSequenceAsync(sequenceName).IsNone.ConfigureAwait(false);
 
-                Assert.IsTrue(sequence.IsNone);
+                Assert.IsTrue(sequenceIsNone);
             }
 
             [Test]
@@ -646,9 +630,9 @@ namespace SJP.Schematic.MySql.Tests.Integration
             public async Task GetSynonymAsync_GivenValidSynonymName_ReturnsNone()
             {
                 var synonymName = new Identifier("asd");
-                var synonym = await Database.GetSynonymAsync(synonymName).ConfigureAwait(false);
+                var synonymIsNone = await Database.GetSynonymAsync(synonymName).IsNone.ConfigureAwait(false);
 
-                Assert.IsTrue(synonym.IsNone);
+                Assert.IsTrue(synonymIsNone);
             }
 
             [Test]

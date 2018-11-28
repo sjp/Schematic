@@ -182,16 +182,15 @@ namespace SJP.Schematic.SqlServer.Tests.Integration
             [Test]
             public async Task GetTableAsync_WhenTablePresent_ReturnsTable()
             {
-                var table = await Database.GetTableAsync("db_test_table_1").ConfigureAwait(false);
-                Assert.IsTrue(table.IsSome);
+                var tableIsSome = await Database.GetTableAsync("db_test_table_1").IsSome.ConfigureAwait(false);
+                Assert.IsTrue(tableIsSome);
             }
 
             [Test]
             public async Task GetTableAsync_WhenTablePresent_ReturnsTableWithCorrectName()
             {
                 const string tableName = "db_test_table_1";
-                var tableOption = await Database.GetTableAsync(tableName).ConfigureAwait(false);
-                var table = tableOption.UnwrapSome();
+                var table = await Database.GetTableAsync(tableName).UnwrapSomeAsync().ConfigureAwait(false);
 
                 Assert.AreEqual(tableName, table.Name.LocalName);
             }
@@ -203,8 +202,7 @@ namespace SJP.Schematic.SqlServer.Tests.Integration
                 var tableName = new Identifier("db_test_table_1");
                 var expectedTableName = new Identifier(database.ServerName, database.DatabaseName, database.DefaultSchema, "db_test_table_1");
 
-                var tableOption = await database.GetTableAsync(tableName).ConfigureAwait(false);
-                var table = tableOption.UnwrapSome();
+                var table = await database.GetTableAsync(tableName).UnwrapSomeAsync().ConfigureAwait(false);
 
                 Assert.AreEqual(expectedTableName, table.Name);
             }
@@ -216,8 +214,7 @@ namespace SJP.Schematic.SqlServer.Tests.Integration
                 var tableName = new Identifier(database.DefaultSchema, "db_test_table_1");
                 var expectedTableName = new Identifier(database.ServerName, database.DatabaseName, database.DefaultSchema, "db_test_table_1");
 
-                var tableOption = await database.GetTableAsync(tableName).ConfigureAwait(false);
-                var table = tableOption.UnwrapSome();
+                var table = await database.GetTableAsync(tableName).UnwrapSomeAsync().ConfigureAwait(false);
 
                 Assert.AreEqual(expectedTableName, table.Name);
             }
@@ -229,8 +226,7 @@ namespace SJP.Schematic.SqlServer.Tests.Integration
                 var tableName = new Identifier(database.DatabaseName, database.DefaultSchema, "db_test_table_1");
                 var expectedTableName = new Identifier(database.ServerName, database.DatabaseName, database.DefaultSchema, "db_test_table_1");
 
-                var tableOption = await database.GetTableAsync(tableName).ConfigureAwait(false);
-                var table = tableOption.UnwrapSome();
+                var table = await database.GetTableAsync(tableName).UnwrapSomeAsync().ConfigureAwait(false);
 
                 Assert.AreEqual(expectedTableName, table.Name);
             }
@@ -241,8 +237,7 @@ namespace SJP.Schematic.SqlServer.Tests.Integration
                 var database = Database;
                 var tableName = new Identifier(database.ServerName, database.DatabaseName, database.DefaultSchema, "db_test_table_1");
 
-                var tableOption = await database.GetTableAsync(tableName).ConfigureAwait(false);
-                var table = tableOption.UnwrapSome();
+                var table = await database.GetTableAsync(tableName).UnwrapSomeAsync().ConfigureAwait(false);
 
                 Assert.AreEqual(tableName, table.Name);
             }
@@ -254,8 +249,7 @@ namespace SJP.Schematic.SqlServer.Tests.Integration
                 var tableName = new Identifier("A", database.DatabaseName, database.DefaultSchema, "db_test_table_1");
                 var expectedTableName = new Identifier(database.ServerName, database.DatabaseName, database.DefaultSchema, "db_test_table_1");
 
-                var tableOption = await database.GetTableAsync(tableName).ConfigureAwait(false);
-                var table = tableOption.UnwrapSome();
+                var table = await database.GetTableAsync(tableName).UnwrapSomeAsync().ConfigureAwait(false);
 
                 Assert.AreEqual(expectedTableName, table.Name);
             }
@@ -267,8 +261,7 @@ namespace SJP.Schematic.SqlServer.Tests.Integration
                 var tableName = new Identifier("A", "B", database.DefaultSchema, "db_test_table_1");
                 var expectedTableName = new Identifier(database.ServerName, database.DatabaseName, database.DefaultSchema, "db_test_table_1");
 
-                var tableOption = await database.GetTableAsync(tableName).ConfigureAwait(false);
-                var table = tableOption.UnwrapSome();
+                var table = await database.GetTableAsync(tableName).UnwrapSomeAsync().ConfigureAwait(false);
 
                 Assert.AreEqual(expectedTableName, table.Name);
             }
@@ -276,16 +269,15 @@ namespace SJP.Schematic.SqlServer.Tests.Integration
             [Test]
             public async Task GetTableAsync_WhenTableMissing_ReturnsNone()
             {
-                var table = await Database.GetTableAsync("table_that_doesnt_exist").ConfigureAwait(false);
-                Assert.IsTrue(table.IsNone);
+                var tableIsNone = await Database.GetTableAsync("table_that_doesnt_exist").IsNone.ConfigureAwait(false);
+                Assert.IsTrue(tableIsNone);
             }
 
             [Test]
             public async Task GetTableAsync_WhenTablePresentGivenLocalNameWithDifferentCase_ReturnsMatchingName()
             {
                 var inputName = new Identifier("DB_TEST_table_1");
-                var tableOption = await Database.GetTableAsync(inputName).ConfigureAwait(false);
-                var table = tableOption.UnwrapSome();
+                var table = await Database.GetTableAsync(inputName).UnwrapSomeAsync().ConfigureAwait(false);
 
                 var equalNames = IdentifierComparer.OrdinalIgnoreCase.Equals(inputName, table.Name.LocalName);
                 Assert.IsTrue(equalNames);
@@ -295,8 +287,7 @@ namespace SJP.Schematic.SqlServer.Tests.Integration
             public async Task GetTableAsync_WhenTablePresentGivenSchemaAndLocalNameWithDifferentCase_ReturnsMatchingName()
             {
                 var inputName = new Identifier("Dbo", "DB_TEST_table_1");
-                var tableOption = await Database.GetTableAsync(inputName).ConfigureAwait(false);
-                var table = tableOption.UnwrapSome();
+                var table = await Database.GetTableAsync(inputName).UnwrapSomeAsync().ConfigureAwait(false);
 
                 var equalNames = IdentifierComparer.OrdinalIgnoreCase.Equals(inputName.Schema, table.Name.Schema)
                     && IdentifierComparer.OrdinalIgnoreCase.Equals(inputName.LocalName, table.Name.LocalName);
@@ -320,7 +311,7 @@ namespace SJP.Schematic.SqlServer.Tests.Integration
             }
 
             [Test]
-            public async Task TablesAsync_WhenSubscribed_ContainsTables()
+            public async Task TablesAsync_WhenEnumerated_ContainsTables()
             {
                 var tables = await Database.TablesAsync().ConfigureAwait(false);
 
@@ -328,10 +319,9 @@ namespace SJP.Schematic.SqlServer.Tests.Integration
             }
 
             [Test]
-            public async Task TablesAsync_WhenSubscribed_ContainsTestTable()
+            public async Task TablesAsync_WhenEnumerated_ContainsTestTable()
             {
-                var tableCollection = await Database.TablesAsync().ConfigureAwait(false);
-                var tables = await Task.WhenAll(tableCollection).ConfigureAwait(false);
+                var tables = await Database.TablesAsync().ConfigureAwait(false);
                 var containsTestTable = tables.Any(t => t.Name.LocalName == "db_test_table_1");
 
                 Assert.True(containsTestTable);
@@ -485,8 +475,8 @@ namespace SJP.Schematic.SqlServer.Tests.Integration
             [Test]
             public async Task GetViewAsync_WhenViewPresent_ReturnsView()
             {
-                var view = await Database.GetViewAsync("db_test_view_1").ConfigureAwait(false);
-                Assert.IsTrue(view.IsSome);
+                var viewIsSome = await Database.GetViewAsync("db_test_view_1").IsSome.ConfigureAwait(false);
+                Assert.IsTrue(viewIsSome);
             }
 
             [Test]
@@ -494,8 +484,7 @@ namespace SJP.Schematic.SqlServer.Tests.Integration
             {
                 var database = Database;
                 var viewName = new Identifier(database.ServerName, database.DatabaseName, database.DefaultSchema, "db_test_view_1");
-                var viewOption = await database.GetViewAsync(viewName).ConfigureAwait(false);
-                var view = viewOption.UnwrapSome();
+                var view = await database.GetViewAsync(viewName).UnwrapSomeAsync().ConfigureAwait(false);
 
                 Assert.AreEqual(viewName, view.Name);
             }
@@ -507,8 +496,7 @@ namespace SJP.Schematic.SqlServer.Tests.Integration
                 var viewName = new Identifier("db_test_view_1");
                 var expectedViewName = new Identifier(database.ServerName, database.DatabaseName, database.DefaultSchema, "db_test_view_1");
 
-                var viewOption = await database.GetViewAsync(viewName).ConfigureAwait(false);
-                var view = viewOption.UnwrapSome();
+                var view = await database.GetViewAsync(viewName).UnwrapSomeAsync().ConfigureAwait(false);
 
                 Assert.AreEqual(expectedViewName, view.Name);
             }
@@ -520,8 +508,7 @@ namespace SJP.Schematic.SqlServer.Tests.Integration
                 var viewName = new Identifier(Database.DefaultSchema, "db_test_view_1");
                 var expectedViewName = new Identifier(database.ServerName, database.DatabaseName, database.DefaultSchema, "db_test_view_1");
 
-                var viewOption = await database.GetViewAsync(viewName).ConfigureAwait(false);
-                var view = viewOption.UnwrapSome();
+                var view = await database.GetViewAsync(viewName).UnwrapSomeAsync().ConfigureAwait(false);
 
                 Assert.AreEqual(expectedViewName, view.Name);
             }
@@ -533,8 +520,7 @@ namespace SJP.Schematic.SqlServer.Tests.Integration
                 var viewName = new Identifier(database.DatabaseName, database.DefaultSchema, "db_test_view_1");
                 var expectedViewName = new Identifier(database.ServerName, database.DatabaseName, database.DefaultSchema, "db_test_view_1");
 
-                var viewOption = await database.GetViewAsync(viewName).ConfigureAwait(false);
-                var view = viewOption.UnwrapSome();
+                var view = await database.GetViewAsync(viewName).UnwrapSomeAsync().ConfigureAwait(false);
 
                 Assert.AreEqual(expectedViewName, view.Name);
             }
@@ -545,8 +531,7 @@ namespace SJP.Schematic.SqlServer.Tests.Integration
                 var database = Database;
                 var viewName = new Identifier(database.ServerName, database.DatabaseName, database.DefaultSchema, "db_test_view_1");
 
-                var viewOption = await database.GetViewAsync(viewName).ConfigureAwait(false);
-                var view = viewOption.UnwrapSome();
+                var view = await database.GetViewAsync(viewName).UnwrapSomeAsync().ConfigureAwait(false);
 
                 Assert.AreEqual(viewName, view.Name);
             }
@@ -558,8 +543,7 @@ namespace SJP.Schematic.SqlServer.Tests.Integration
                 var viewName = new Identifier("A", database.DatabaseName, database.DefaultSchema, "db_test_view_1");
                 var expectedViewName = new Identifier(database.ServerName, database.DatabaseName, database.DefaultSchema, "db_test_view_1");
 
-                var viewOption = await database.GetViewAsync(viewName).ConfigureAwait(false);
-                var view = viewOption.UnwrapSome();
+                var view = await database.GetViewAsync(viewName).UnwrapSomeAsync().ConfigureAwait(false);
 
                 Assert.AreEqual(expectedViewName, view.Name);
             }
@@ -571,8 +555,7 @@ namespace SJP.Schematic.SqlServer.Tests.Integration
                 var viewName = new Identifier("A", "B", database.DefaultSchema, "db_test_view_1");
                 var expectedViewName = new Identifier(database.ServerName, database.DatabaseName, database.DefaultSchema, "db_test_view_1");
 
-                var viewOption = await database.GetViewAsync(viewName).ConfigureAwait(false);
-                var view = viewOption.UnwrapSome();
+                var view = await database.GetViewAsync(viewName).UnwrapSomeAsync().ConfigureAwait(false);
 
                 Assert.AreEqual(expectedViewName, view.Name);
             }
@@ -580,16 +563,15 @@ namespace SJP.Schematic.SqlServer.Tests.Integration
             [Test]
             public async Task GetViewAsync_WhenViewMissing_ReturnsNone()
             {
-                var view = await Database.GetViewAsync("view_that_doesnt_exist").ConfigureAwait(false);
-                Assert.IsTrue(view.IsNone);
+                var viewIsNone = await Database.GetViewAsync("view_that_doesnt_exist").IsNone.ConfigureAwait(false);
+                Assert.IsTrue(viewIsNone);
             }
 
             [Test]
             public async Task GetViewAsync_WhenViewPresentGivenLocalNameWithDifferentCase_ReturnsMatchingName()
             {
                 var inputName = new Identifier("DB_TEST_view_1");
-                var viewOption = await Database.GetViewAsync(inputName).ConfigureAwait(false);
-                var view = viewOption.UnwrapSome();
+                var view = await Database.GetViewAsync(inputName).UnwrapSomeAsync().ConfigureAwait(false);
 
                 var equalNames = IdentifierComparer.OrdinalIgnoreCase.Equals(inputName, view.Name.LocalName);
                 Assert.IsTrue(equalNames);
@@ -599,8 +581,7 @@ namespace SJP.Schematic.SqlServer.Tests.Integration
             public async Task GetViewAsync_WhenViewPresentGivenSchemaAndLocalNameWithDifferentCase_ReturnsMatchingName()
             {
                 var inputName = new Identifier("Dbo", "DB_TEST_view_1");
-                var viewOption = await Database.GetViewAsync(inputName).ConfigureAwait(false);
-                var view = viewOption.UnwrapSome();
+                var view = await Database.GetViewAsync(inputName).UnwrapSomeAsync().ConfigureAwait(false);
 
                 var equalNames = IdentifierComparer.OrdinalIgnoreCase.Equals(inputName.Schema, view.Name.Schema)
                     && IdentifierComparer.OrdinalIgnoreCase.Equals(inputName.LocalName, view.Name.LocalName);
@@ -625,7 +606,7 @@ namespace SJP.Schematic.SqlServer.Tests.Integration
             }
 
             [Test]
-            public async Task ViewsAsync_WhenSubscribed_ContainsViews()
+            public async Task ViewsAsync_WhenEnumerated_ContainsViews()
             {
                 var views = await Database.ViewsAsync().ConfigureAwait(false);
 
@@ -633,11 +614,10 @@ namespace SJP.Schematic.SqlServer.Tests.Integration
             }
 
             [Test]
-            public async Task ViewsAsync_WhenSubscribed_ContainsTestView()
+            public async Task ViewsAsync_WhenEnumerated_ContainsTestView()
             {
                 const string viewName = "db_test_view_1";
-                var viewsCollection = await Database.ViewsAsync().ConfigureAwait(false);
-                var views = await Task.WhenAll(viewsCollection).ConfigureAwait(false);
+                var views = await Database.ViewsAsync().ConfigureAwait(false);
                 var containsTestView = views.Any(v => v.Name.LocalName == viewName);
 
                 Assert.True(containsTestView);
@@ -792,16 +772,15 @@ namespace SJP.Schematic.SqlServer.Tests.Integration
             [Test]
             public async Task GetSequenceAsync_WhenSequencePresent_ReturnsSequence()
             {
-                var sequence = await Database.GetSequenceAsync("db_test_sequence_1").ConfigureAwait(false);
-                Assert.IsTrue(sequence.IsSome);
+                var sequenceIsSome = await Database.GetSequenceAsync("db_test_sequence_1").IsSome.ConfigureAwait(false);
+                Assert.IsTrue(sequenceIsSome);
             }
 
             [Test]
             public async Task GetSequenceAsync_WhenSequencePresent_ReturnsSequenceWithCorrectName()
             {
                 const string sequenceName = "db_test_sequence_1";
-                var sequenceOption = await Database.GetSequenceAsync(sequenceName).ConfigureAwait(false);
-                var sequence = sequenceOption.UnwrapSome();
+                var sequence = await Database.GetSequenceAsync(sequenceName).UnwrapSomeAsync().ConfigureAwait(false);
 
                 Assert.AreEqual(sequenceName, sequence.Name.LocalName);
             }
@@ -813,8 +792,7 @@ namespace SJP.Schematic.SqlServer.Tests.Integration
                 var sequenceName = new Identifier("db_test_sequence_1");
                 var expectedSequenceName = new Identifier(database.ServerName, database.DatabaseName, database.DefaultSchema, "db_test_sequence_1");
 
-                var sequenceOption = await database.GetSequenceAsync(sequenceName).ConfigureAwait(false);
-                var sequence = sequenceOption.UnwrapSome();
+                var sequence = await database.GetSequenceAsync(sequenceName).UnwrapSomeAsync().ConfigureAwait(false);
 
                 Assert.AreEqual(expectedSequenceName, sequence.Name);
             }
@@ -826,8 +804,7 @@ namespace SJP.Schematic.SqlServer.Tests.Integration
                 var sequenceName = new Identifier(database.DefaultSchema, "db_test_sequence_1");
                 var expectedSequenceName = new Identifier(database.ServerName, database.DatabaseName, database.DefaultSchema, "db_test_sequence_1");
 
-                var sequenceOption = await database.GetSequenceAsync(sequenceName).ConfigureAwait(false);
-                var sequence = sequenceOption.UnwrapSome();
+                var sequence = await database.GetSequenceAsync(sequenceName).UnwrapSomeAsync().ConfigureAwait(false);
 
                 Assert.AreEqual(expectedSequenceName, sequence.Name);
             }
@@ -839,8 +816,7 @@ namespace SJP.Schematic.SqlServer.Tests.Integration
                 var sequenceName = new Identifier(database.DatabaseName, database.DefaultSchema, "db_test_sequence_1");
                 var expectedSequenceName = new Identifier(database.ServerName, database.DatabaseName, database.DefaultSchema, "db_test_sequence_1");
 
-                var sequenceOption = await database.GetSequenceAsync(sequenceName).ConfigureAwait(false);
-                var sequence = sequenceOption.UnwrapSome();
+                var sequence = await database.GetSequenceAsync(sequenceName).UnwrapSomeAsync().ConfigureAwait(false);
 
                 Assert.AreEqual(expectedSequenceName, sequence.Name);
             }
@@ -851,8 +827,7 @@ namespace SJP.Schematic.SqlServer.Tests.Integration
                 var database = Database;
                 var sequenceName = new Identifier(database.ServerName, database.DatabaseName, database.DefaultSchema, "db_test_sequence_1");
 
-                var sequenceOption = await database.GetSequenceAsync(sequenceName).ConfigureAwait(false);
-                var sequence = sequenceOption.UnwrapSome();
+                var sequence = await database.GetSequenceAsync(sequenceName).UnwrapSomeAsync().ConfigureAwait(false);
 
                 Assert.AreEqual(sequenceName, sequence.Name);
             }
@@ -864,8 +839,7 @@ namespace SJP.Schematic.SqlServer.Tests.Integration
                 var sequenceName = new Identifier("A", database.DatabaseName, database.DefaultSchema, "db_test_sequence_1");
                 var expectedSequenceName = new Identifier(database.ServerName, database.DatabaseName, database.DefaultSchema, "db_test_sequence_1");
 
-                var sequenceOption = await database.GetSequenceAsync(sequenceName).ConfigureAwait(false);
-                var sequence = sequenceOption.UnwrapSome();
+                var sequence = await database.GetSequenceAsync(sequenceName).UnwrapSomeAsync().ConfigureAwait(false);
 
                 Assert.AreEqual(expectedSequenceName, sequence.Name);
             }
@@ -877,8 +851,7 @@ namespace SJP.Schematic.SqlServer.Tests.Integration
                 var sequenceName = new Identifier("A", "B", database.DefaultSchema, "db_test_sequence_1");
                 var expectedSequenceName = new Identifier(database.ServerName, database.DatabaseName, database.DefaultSchema, "db_test_sequence_1");
 
-                var sequenceOption = await database.GetSequenceAsync(sequenceName).ConfigureAwait(false);
-                var sequence = sequenceOption.UnwrapSome();
+                var sequence = await database.GetSequenceAsync(sequenceName).UnwrapSomeAsync().ConfigureAwait(false);
 
                 Assert.AreEqual(expectedSequenceName, sequence.Name);
             }
@@ -886,16 +859,15 @@ namespace SJP.Schematic.SqlServer.Tests.Integration
             [Test]
             public async Task GetSequenceAsync_WhenSequenceMissing_ReturnsNone()
             {
-                var sequence = await Database.GetSequenceAsync("sequence_that_doesnt_exist").ConfigureAwait(false);
-                Assert.IsTrue(sequence.IsNone);
+                var sequenceIsNone = await Database.GetSequenceAsync("sequence_that_doesnt_exist").IsNone.ConfigureAwait(false);
+                Assert.IsTrue(sequenceIsNone);
             }
 
             [Test]
             public async Task GetSequenceAsync_WhenSequencePresentGivenLocalNameWithDifferentCase_ReturnsMatchingName()
             {
                 var inputName = new Identifier("DB_TEST_sequence_1");
-                var sequenceOption = await Database.GetSequenceAsync(inputName).ConfigureAwait(false);
-                var sequence = sequenceOption.UnwrapSome();
+                var sequence = await Database.GetSequenceAsync(inputName).UnwrapSomeAsync().ConfigureAwait(false);
 
                 var equalNames = IdentifierComparer.OrdinalIgnoreCase.Equals(inputName, sequence.Name.LocalName);
                 Assert.IsTrue(equalNames);
@@ -905,8 +877,7 @@ namespace SJP.Schematic.SqlServer.Tests.Integration
             public async Task GetSequenceAsync_WhenSequencePresentGivenSchemaAndLocalNameWithDifferentCase_ReturnsMatchingName()
             {
                 var inputName = new Identifier("Dbo", "DB_TEST_sequence_1");
-                var sequenceOption = await Database.GetSequenceAsync(inputName).ConfigureAwait(false);
-                var sequence = sequenceOption.UnwrapSome();
+                var sequence = await Database.GetSequenceAsync(inputName).UnwrapSomeAsync().ConfigureAwait(false);
 
                 var equalNames = IdentifierComparer.OrdinalIgnoreCase.Equals(inputName.Schema, sequence.Name.Schema)
                     && IdentifierComparer.OrdinalIgnoreCase.Equals(inputName.LocalName, sequence.Name.LocalName);
@@ -930,7 +901,7 @@ namespace SJP.Schematic.SqlServer.Tests.Integration
             }
 
             [Test]
-            public async Task SequencesAsync_WhenSubscribed_ContainsSequences()
+            public async Task SequencesAsync_WhenEnumerated_ContainsSequences()
             {
                 var sequences = await Database.SequencesAsync().ConfigureAwait(false);
 
@@ -938,10 +909,9 @@ namespace SJP.Schematic.SqlServer.Tests.Integration
             }
 
             [Test]
-            public async Task SequencesAsync_WhenSubscribed_ContainsTestSequence()
+            public async Task SequencesAsync_WhenEnumerated_ContainsTestSequence()
             {
-                var sequenceCollection = await Database.SequencesAsync().ConfigureAwait(false);
-                var sequences = await Task.WhenAll(sequenceCollection).ConfigureAwait(false);
+                var sequences = await Database.SequencesAsync().ConfigureAwait(false);
                 var containsTestSequence = sequences.Any(s => s.Name.LocalName == "db_test_sequence_1");
 
                 Assert.True(containsTestSequence);
@@ -1109,8 +1079,8 @@ namespace SJP.Schematic.SqlServer.Tests.Integration
             [Test]
             public async Task GetSynonymAsync_WhenSynonymPresent_ReturnsSynonym()
             {
-                var synonym = await Database.GetSynonymAsync("db_test_synonym_1").ConfigureAwait(false);
-                Assert.IsTrue(synonym.IsSome);
+                var synonymIsSome = await Database.GetSynonymAsync("db_test_synonym_1").IsSome.ConfigureAwait(false);
+                Assert.IsTrue(synonymIsSome);
             }
 
             [Test]
@@ -1118,8 +1088,7 @@ namespace SJP.Schematic.SqlServer.Tests.Integration
             {
                 var database = Database;
                 const string synonymName = "db_test_synonym_1";
-                var synonymOption = await database.GetSynonymAsync(synonymName).ConfigureAwait(false);
-                var synonym = synonymOption.UnwrapSome();
+                var synonym = await database.GetSynonymAsync(synonymName).UnwrapSomeAsync().ConfigureAwait(false);
 
                 Assert.AreEqual(synonymName, synonym.Name.LocalName);
             }
@@ -1131,8 +1100,7 @@ namespace SJP.Schematic.SqlServer.Tests.Integration
                 var synonymName = new Identifier("db_test_synonym_1");
                 var expectedSynonymName = new Identifier(database.ServerName, database.DatabaseName, database.DefaultSchema, "db_test_synonym_1");
 
-                var synonymOption = await database.GetSynonymAsync(synonymName).ConfigureAwait(false);
-                var synonym = synonymOption.UnwrapSome();
+                var synonym = await database.GetSynonymAsync(synonymName).UnwrapSomeAsync().ConfigureAwait(false);
 
                 Assert.AreEqual(expectedSynonymName, synonym.Name);
             }
@@ -1144,8 +1112,7 @@ namespace SJP.Schematic.SqlServer.Tests.Integration
                 var synonymName = new Identifier(database.DefaultSchema, "db_test_synonym_1");
                 var expectedSynonymName = new Identifier(database.ServerName, database.DatabaseName, database.DefaultSchema, "db_test_synonym_1");
 
-                var synonymOption = await database.GetSynonymAsync(synonymName).ConfigureAwait(false);
-                var synonym = synonymOption.UnwrapSome();
+                var synonym = await database.GetSynonymAsync(synonymName).UnwrapSomeAsync().ConfigureAwait(false);
 
                 Assert.AreEqual(expectedSynonymName, synonym.Name);
             }
@@ -1157,8 +1124,7 @@ namespace SJP.Schematic.SqlServer.Tests.Integration
                 var synonymName = new Identifier(database.DatabaseName, database.DefaultSchema, "db_test_synonym_1");
                 var expectedSynonymName = new Identifier(database.ServerName, database.DatabaseName, database.DefaultSchema, "db_test_synonym_1");
 
-                var synonymOption = await database.GetSynonymAsync(synonymName).ConfigureAwait(false);
-                var synonym = synonymOption.UnwrapSome();
+                var synonym = await database.GetSynonymAsync(synonymName).UnwrapSomeAsync().ConfigureAwait(false);
 
                 Assert.AreEqual(expectedSynonymName, synonym.Name);
             }
@@ -1169,8 +1135,7 @@ namespace SJP.Schematic.SqlServer.Tests.Integration
                 var database = Database;
                 var synonymName = new Identifier(database.ServerName, database.DatabaseName, database.DefaultSchema, "db_test_synonym_1");
 
-                var synonymOption = await database.GetSynonymAsync(synonymName).ConfigureAwait(false);
-                var synonym = synonymOption.UnwrapSome();
+                var synonym = await database.GetSynonymAsync(synonymName).UnwrapSomeAsync().ConfigureAwait(false);
 
                 Assert.AreEqual(synonymName, synonym.Name);
             }
@@ -1182,8 +1147,7 @@ namespace SJP.Schematic.SqlServer.Tests.Integration
                 var synonymName = new Identifier("A", database.DatabaseName, database.DefaultSchema, "db_test_synonym_1");
                 var expectedSynonymName = new Identifier(database.ServerName, database.DatabaseName, database.DefaultSchema, "db_test_synonym_1");
 
-                var synonymOption = await database.GetSynonymAsync(synonymName).ConfigureAwait(false);
-                var synonym = synonymOption.UnwrapSome();
+                var synonym = await database.GetSynonymAsync(synonymName).UnwrapSomeAsync().ConfigureAwait(false);
 
                 Assert.AreEqual(expectedSynonymName, synonym.Name);
             }
@@ -1195,8 +1159,7 @@ namespace SJP.Schematic.SqlServer.Tests.Integration
                 var synonymName = new Identifier("A", "B", database.DefaultSchema, "db_test_synonym_1");
                 var expectedSynonymName = new Identifier(database.ServerName, database.DatabaseName, database.DefaultSchema, "db_test_synonym_1");
 
-                var synonymOption = await database.GetSynonymAsync(synonymName).ConfigureAwait(false);
-                var synonym = synonymOption.UnwrapSome();
+                var synonym = await database.GetSynonymAsync(synonymName).UnwrapSomeAsync().ConfigureAwait(false);
 
                 Assert.AreEqual(expectedSynonymName, synonym.Name);
             }
@@ -1204,16 +1167,15 @@ namespace SJP.Schematic.SqlServer.Tests.Integration
             [Test]
             public async Task GetSynonymAsync_WhenSynonymMissing_ReturnsNone()
             {
-                var synonym = await Database.GetSynonymAsync("synonym_that_doesnt_exist").ConfigureAwait(false);
-                Assert.IsTrue(synonym.IsNone);
+                var synonymIsNone = await Database.GetSynonymAsync("synonym_that_doesnt_exist").IsNone.ConfigureAwait(false);
+                Assert.IsTrue(synonymIsNone);
             }
 
             [Test]
             public async Task GetSynonymAsync_WhenSynonymPresentGivenLocalNameWithDifferentCase_ReturnsMatchingName()
             {
                 var inputName = new Identifier("DB_TEST_synonym_1");
-                var synonymOption = await Database.GetSynonymAsync(inputName).ConfigureAwait(false);
-                var synonym = synonymOption.UnwrapSome();
+                var synonym = await Database.GetSynonymAsync(inputName).UnwrapSomeAsync().ConfigureAwait(false);
 
                 var equalNames = IdentifierComparer.OrdinalIgnoreCase.Equals(inputName, synonym.Name.LocalName);
                 Assert.IsTrue(equalNames);
@@ -1223,8 +1185,7 @@ namespace SJP.Schematic.SqlServer.Tests.Integration
             public async Task GetSynonymAsync_WhenSynonymPresentGivenSchemaAndLocalNameWithDifferentCase_ReturnsMatchingName()
             {
                 var inputName = new Identifier("Dbo", "DB_TEST_synonym_1");
-                var synonymOption = await Database.GetSynonymAsync(inputName).ConfigureAwait(false);
-                var synonym = synonymOption.UnwrapSome();
+                var synonym = await Database.GetSynonymAsync(inputName).UnwrapSomeAsync().ConfigureAwait(false);
 
                 var equalNames = IdentifierComparer.OrdinalIgnoreCase.Equals(inputName.Schema, synonym.Name.Schema)
                     && IdentifierComparer.OrdinalIgnoreCase.Equals(inputName.LocalName, synonym.Name.LocalName);
@@ -1248,7 +1209,7 @@ namespace SJP.Schematic.SqlServer.Tests.Integration
             }
 
             [Test]
-            public async Task SynonymsAsync_WhenSubscribed_ContainsSynonyms()
+            public async Task SynonymsAsync_WhenEnumerated_ContainsSynonyms()
             {
                 var synonyms = await Database.SynonymsAsync().ConfigureAwait(false);
 
@@ -1256,10 +1217,9 @@ namespace SJP.Schematic.SqlServer.Tests.Integration
             }
 
             [Test]
-            public async Task SynonymsAsync_WhenSubscribed_ContainsTestSynonym()
+            public async Task SynonymsAsync_WhenEnumerated_ContainsTestSynonym()
             {
-                var synonymCollection = await Database.SynonymsAsync().ConfigureAwait(false);
-                var synonyms = await Task.WhenAll(synonymCollection).ConfigureAwait(false);
+                var synonyms = await Database.SynonymsAsync().ConfigureAwait(false);
                 var containsTestSynonym = synonyms.Any(s => s.Name.LocalName == "db_test_synonym_1");
 
                 Assert.IsTrue(containsTestSynonym);
@@ -1300,8 +1260,7 @@ namespace SJP.Schematic.SqlServer.Tests.Integration
             {
                 var database = Database;
                 var expectedTarget = new Identifier(database.ServerName, database.DatabaseName, database.DefaultSchema, "synonym_test_view_1");
-                var synonymOption = await database.GetSynonymAsync("synonym_test_synonym_1").ConfigureAwait(false);
-                var synonym = synonymOption.UnwrapSome();
+                var synonym = await database.GetSynonymAsync("synonym_test_synonym_1").UnwrapSomeAsync().ConfigureAwait(false);
 
                 Assert.AreEqual(expectedTarget, synonym.Target);
             }
@@ -1311,8 +1270,7 @@ namespace SJP.Schematic.SqlServer.Tests.Integration
             {
                 var database = Database;
                 var expectedTarget = new Identifier(database.ServerName, database.DatabaseName, database.DefaultSchema, "synonym_test_table_1");
-                var synonymOption = await database.GetSynonymAsync("synonym_test_synonym_2").ConfigureAwait(false);
-                var synonym = synonymOption.UnwrapSome();
+                var synonym = await database.GetSynonymAsync("synonym_test_synonym_2").UnwrapSomeAsync().ConfigureAwait(false);
 
                 Assert.AreEqual(expectedTarget, synonym.Target);
             }
@@ -1322,8 +1280,7 @@ namespace SJP.Schematic.SqlServer.Tests.Integration
             {
                 var database = Database;
                 var expectedTarget = new Identifier(database.ServerName, database.DatabaseName, database.DefaultSchema, "non_existent_target");
-                var synonymOption = await database.GetSynonymAsync("synonym_test_synonym_3").ConfigureAwait(false);
-                var synonym = synonymOption.UnwrapSome();
+                var synonym = await database.GetSynonymAsync("synonym_test_synonym_3").UnwrapSomeAsync().ConfigureAwait(false);
 
                 Assert.AreEqual(expectedTarget, synonym.Target);
             }

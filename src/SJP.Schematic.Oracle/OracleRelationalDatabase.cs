@@ -42,16 +42,11 @@ namespace SJP.Schematic.Oracle
             return ResolveFirstExistingObjectName(tableName, GetResolvedTableNameStrict);
         }
 
-        protected Task<Option<Identifier>> GetResolvedTableNameAsync(Identifier tableName, CancellationToken cancellationToken = default(CancellationToken))
+        protected OptionAsync<Identifier> GetResolvedTableNameAsync(Identifier tableName, CancellationToken cancellationToken = default(CancellationToken))
         {
             if (tableName == null)
                 throw new ArgumentNullException(nameof(tableName));
 
-            return GetResolvedTableNameAsyncCore(tableName, cancellationToken);
-        }
-
-        private Task<Option<Identifier>> GetResolvedTableNameAsyncCore(Identifier tableName, CancellationToken cancellationToken)
-        {
             return ResolveFirstExistingObjectNameAsync(tableName, GetResolvedTableNameStrictAsync, cancellationToken);
         }
 
@@ -69,21 +64,16 @@ namespace SJP.Schematic.Oracle
             return qualifiedTableName.Map(name => Identifier.CreateQualifiedIdentifier(tableName.Server, tableName.Database, name.SchemaName, name.ObjectName));
         }
 
-        protected Task<Option<Identifier>> GetResolvedTableNameStrictAsync(Identifier tableName, CancellationToken cancellationToken = default(CancellationToken))
+        protected OptionAsync<Identifier> GetResolvedTableNameStrictAsync(Identifier tableName, CancellationToken cancellationToken = default(CancellationToken))
         {
             if (tableName == null)
                 throw new ArgumentNullException(nameof(tableName));
 
-            return GetResolvedTableNameStrictAsyncCore(tableName, cancellationToken);
-        }
-
-        private async Task<Option<Identifier>> GetResolvedTableNameStrictAsyncCore(Identifier tableName, CancellationToken cancellationToken)
-        {
             tableName = CreateQualifiedIdentifier(tableName);
-            var qualifiedTableName = await Connection.QueryFirstOrNoneAsync<QualifiedName>(
+            var qualifiedTableName = Connection.QueryFirstOrNoneAsync<QualifiedName>(
                 TableNameQuery,
                 new { SchemaName = tableName.Schema, TableName = tableName.LocalName }
-            ).ConfigureAwait(false);
+            );
 
             return qualifiedTableName.Map(name => Identifier.CreateQualifiedIdentifier(tableName.Server, tableName.Database, name.SchemaName, name.ObjectName));
         }
@@ -105,7 +95,7 @@ where t.OWNER = :SchemaName and t.TABLE_NAME = :TableName and o.ORACLE_MAINTAINE
             return LoadTableSync(tableName);
         }
 
-        public Task<Option<IRelationalDatabaseTable>> GetTableAsync(Identifier tableName, CancellationToken cancellationToken = default(CancellationToken))
+        public OptionAsync<IRelationalDatabaseTable> GetTableAsync(Identifier tableName, CancellationToken cancellationToken = default(CancellationToken))
         {
             if (tableName == null)
                 throw new ArgumentNullException(nameof(tableName));
@@ -129,17 +119,19 @@ where t.OWNER = :SchemaName and t.TABLE_NAME = :TableName and o.ORACLE_MAINTAINE
             }
         }
 
-        public async Task<IReadOnlyCollection<Task<IRelationalDatabaseTable>>> TablesAsync(CancellationToken cancellationToken = default(CancellationToken))
+        public async Task<IReadOnlyCollection<IRelationalDatabaseTable>> TablesAsync(CancellationToken cancellationToken = default(CancellationToken))
         {
             var queryResults = await Connection.QueryAsync<QualifiedName>(TablesQuery).ConfigureAwait(false);
             var tableNames = queryResults
                 .Select(dto => Identifier.CreateQualifiedIdentifier(dto.SchemaName, dto.ObjectName))
                 .ToList();
 
-            var tables = tableNames
+            var tables = await tableNames
                 .Select(name => LoadTableAsync(name, cancellationToken))
-                .Somes();
-            return new ReadOnlyCollectionSlim<Task<IRelationalDatabaseTable>>(tableNames.Count, tables);
+                .Somes()
+                .ConfigureAwait(false);
+
+            return tables.ToList();
         }
 
         protected virtual string TablesQuery => TablesQuerySql;
@@ -163,17 +155,12 @@ order by t.OWNER, t.TABLE_NAME";
                 .Map<IRelationalDatabaseTable>(name => new OracleRelationalDatabaseTable(Connection, this, Dialect.TypeProvider, name, IdentifierResolver));
         }
 
-        protected virtual Task<Option<IRelationalDatabaseTable>> LoadTableAsync(Identifier tableName, CancellationToken cancellationToken = default(CancellationToken))
+        protected virtual OptionAsync<IRelationalDatabaseTable> LoadTableAsync(Identifier tableName, CancellationToken cancellationToken = default(CancellationToken))
         {
             if (tableName == null)
                 throw new ArgumentNullException(nameof(tableName));
 
-            return LoadTableAsyncCore(tableName, cancellationToken);
-        }
-
-        private async Task<Option<IRelationalDatabaseTable>> LoadTableAsyncCore(Identifier tableName, CancellationToken cancellationToken)
-        {
-            var resolvedTableName = await ResolveFirstExistingObjectNameAsync(tableName, GetResolvedTableNameAsync, cancellationToken).ConfigureAwait(false);
+            var resolvedTableName = ResolveFirstExistingObjectNameAsync(tableName, GetResolvedTableNameAsync, cancellationToken);
             return resolvedTableName
                 .Map<IRelationalDatabaseTable>(name => new OracleRelationalDatabaseTable(Connection, this, Dialect.TypeProvider, name, IdentifierResolver));
         }
@@ -186,16 +173,11 @@ order by t.OWNER, t.TABLE_NAME";
             return ResolveFirstExistingObjectName(viewName, GetResolvedViewNameStrict);
         }
 
-        protected Task<Option<Identifier>> GetResolvedViewNameAsync(Identifier viewName, CancellationToken cancellationToken = default(CancellationToken))
+        protected OptionAsync<Identifier> GetResolvedViewNameAsync(Identifier viewName, CancellationToken cancellationToken = default(CancellationToken))
         {
             if (viewName == null)
                 throw new ArgumentNullException(nameof(viewName));
 
-            return GetResolvedViewNameAsyncCore(viewName, cancellationToken);
-        }
-
-        private Task<Option<Identifier>> GetResolvedViewNameAsyncCore(Identifier viewName, CancellationToken cancellationToken)
-        {
             return ResolveFirstExistingObjectNameAsync(viewName, GetResolvedViewNameStrictAsync, cancellationToken);
         }
 
@@ -213,22 +195,16 @@ order by t.OWNER, t.TABLE_NAME";
             return qualifiedViewName.Map(name => Identifier.CreateQualifiedIdentifier(viewName.Server, viewName.Database, name.SchemaName, name.ObjectName));
         }
 
-        protected Task<Option<Identifier>> GetResolvedViewNameStrictAsync(Identifier viewName, CancellationToken cancellationToken = default(CancellationToken))
+        protected OptionAsync<Identifier> GetResolvedViewNameStrictAsync(Identifier viewName, CancellationToken cancellationToken = default(CancellationToken))
         {
             if (viewName == null)
                 throw new ArgumentNullException(nameof(viewName));
 
-            return GetResolvedViewNameStrictAsyncCore(viewName, cancellationToken);
-        }
-
-        private async Task<Option<Identifier>> GetResolvedViewNameStrictAsyncCore(Identifier viewName, CancellationToken cancellationToken)
-        {
             viewName = CreateQualifiedIdentifier(viewName);
-
-            var qualifiedViewName = await Connection.QueryFirstOrNoneAsync<QualifiedName>(
+            var qualifiedViewName = Connection.QueryFirstOrNoneAsync<QualifiedName>(
                 ViewNameQuery,
                 new { SchemaName = viewName.Schema, ViewName = viewName.LocalName }
-            ).ConfigureAwait(false);
+            );
 
             return qualifiedViewName.Map(name => Identifier.CreateQualifiedIdentifier(viewName.Server, viewName.Database, name.SchemaName, name.ObjectName));
         }
@@ -250,7 +226,7 @@ where v.OWNER = :SchemaName and v.VIEW_NAME = :ViewName and o.ORACLE_MAINTAINED 
             return LoadViewSync(viewName);
         }
 
-        public Task<Option<IRelationalDatabaseView>> GetViewAsync(Identifier viewName, CancellationToken cancellationToken = default(CancellationToken))
+        public OptionAsync<IRelationalDatabaseView> GetViewAsync(Identifier viewName, CancellationToken cancellationToken = default(CancellationToken))
         {
             if (viewName == null)
                 throw new ArgumentNullException(nameof(viewName));
@@ -274,17 +250,19 @@ where v.OWNER = :SchemaName and v.VIEW_NAME = :ViewName and o.ORACLE_MAINTAINED 
             }
         }
 
-        public async Task<IReadOnlyCollection<Task<IRelationalDatabaseView>>> ViewsAsync(CancellationToken cancellationToken = default(CancellationToken))
+        public async Task<IReadOnlyCollection<IRelationalDatabaseView>> ViewsAsync(CancellationToken cancellationToken = default(CancellationToken))
         {
             var queryResult = await Connection.QueryAsync<QualifiedName>(ViewsQuery).ConfigureAwait(false);
             var viewNames = queryResult
                 .Select(dto => Identifier.CreateQualifiedIdentifier(dto.SchemaName, dto.ObjectName))
                 .ToList();
 
-            var views = viewNames
+            var views = await viewNames
                 .Select(name => LoadViewAsync(name, cancellationToken))
-                .Somes();
-            return new ReadOnlyCollectionSlim<Task<IRelationalDatabaseView>>(viewNames.Count, views);
+                .Somes()
+                .ConfigureAwait(false);
+
+            return views.ToList();
         }
 
         protected virtual string ViewsQuery => ViewsQuerySql;
@@ -308,17 +286,12 @@ order by v.OWNER, v.VIEW_NAME";
                 .Map<IRelationalDatabaseView>(name => new OracleRelationalDatabaseView(Connection, Dialect.TypeProvider, name, IdentifierResolver));
         }
 
-        protected virtual Task<Option<IRelationalDatabaseView>> LoadViewAsync(Identifier viewName, CancellationToken cancellationToken = default(CancellationToken))
+        protected virtual OptionAsync<IRelationalDatabaseView> LoadViewAsync(Identifier viewName, CancellationToken cancellationToken = default(CancellationToken))
         {
             if (viewName == null)
                 throw new ArgumentNullException(nameof(viewName));
 
-            return LoadViewAsyncCore(viewName, cancellationToken);
-        }
-
-        private async Task<Option<IRelationalDatabaseView>> LoadViewAsyncCore(Identifier viewName, CancellationToken cancellationToken)
-        {
-            var resolvedViewName = await ResolveFirstExistingObjectNameAsync(viewName, GetResolvedViewNameAsync, cancellationToken).ConfigureAwait(false);
+            var resolvedViewName = ResolveFirstExistingObjectNameAsync(viewName, GetResolvedViewNameAsync, cancellationToken);
             return resolvedViewName
                 .Map<IRelationalDatabaseView>(name => new OracleRelationalDatabaseView(Connection, Dialect.TypeProvider, name, IdentifierResolver));
         }
@@ -331,16 +304,11 @@ order by v.OWNER, v.VIEW_NAME";
             return ResolveFirstExistingObjectName(sequenceName, GetResolvedSequenceNameStrict);
         }
 
-        public Task<Option<Identifier>> GetResolvedSequenceNameAsync(Identifier sequenceName, CancellationToken cancellationToken = default(CancellationToken))
+        public OptionAsync<Identifier> GetResolvedSequenceNameAsync(Identifier sequenceName, CancellationToken cancellationToken = default(CancellationToken))
         {
             if (sequenceName == null)
                 throw new ArgumentNullException(nameof(sequenceName));
 
-            return GetResolvedSequenceNameAsyncCore(sequenceName, cancellationToken);
-        }
-
-        private Task<Option<Identifier>> GetResolvedSequenceNameAsyncCore(Identifier sequenceName, CancellationToken cancellationToken)
-        {
             return ResolveFirstExistingObjectNameAsync(sequenceName, GetResolvedSequenceNameStrictAsync, cancellationToken);
         }
 
@@ -358,22 +326,16 @@ order by v.OWNER, v.VIEW_NAME";
             return qualifiedSequenceName.Map(name => Identifier.CreateQualifiedIdentifier(sequenceName.Server, sequenceName.Database, name.SchemaName, name.ObjectName));
         }
 
-        protected Task<Option<Identifier>> GetResolvedSequenceNameStrictAsync(Identifier sequenceName, CancellationToken cancellationToken = default(CancellationToken))
+        protected OptionAsync<Identifier> GetResolvedSequenceNameStrictAsync(Identifier sequenceName, CancellationToken cancellationToken = default(CancellationToken))
         {
             if (sequenceName == null)
                 throw new ArgumentNullException(nameof(sequenceName));
 
-            return GetResolvedSequenceNameStrictAsyncCore(sequenceName, cancellationToken);
-        }
-
-        private async Task<Option<Identifier>> GetResolvedSequenceNameStrictAsyncCore(Identifier sequenceName, CancellationToken cancellationToken)
-        {
             sequenceName = CreateQualifiedIdentifier(sequenceName);
-
-            var qualifiedSequenceName = await Connection.QueryFirstOrNoneAsync<QualifiedName>(
+            var qualifiedSequenceName = Connection.QueryFirstOrNoneAsync<QualifiedName>(
                 SequenceNameQuery,
                 new { SchemaName = sequenceName.Schema, SequenceName = sequenceName.LocalName }
-            ).ConfigureAwait(false);
+            );
 
             return qualifiedSequenceName.Map(name => Identifier.CreateQualifiedIdentifier(sequenceName.Server, sequenceName.Database, name.SchemaName, name.ObjectName));
         }
@@ -395,7 +357,7 @@ where s.SEQUENCE_OWNER = :SchemaName and s.SEQUENCE_NAME = :SequenceName and o.O
             return LoadSequenceSync(sequenceName);
         }
 
-        public Task<Option<IDatabaseSequence>> GetSequenceAsync(Identifier sequenceName, CancellationToken cancellationToken = default(CancellationToken))
+        public OptionAsync<IDatabaseSequence> GetSequenceAsync(Identifier sequenceName, CancellationToken cancellationToken = default(CancellationToken))
         {
             if (sequenceName == null)
                 throw new ArgumentNullException(nameof(sequenceName));
@@ -419,17 +381,19 @@ where s.SEQUENCE_OWNER = :SchemaName and s.SEQUENCE_NAME = :SequenceName and o.O
             }
         }
 
-        public async Task<IReadOnlyCollection<Task<IDatabaseSequence>>> SequencesAsync(CancellationToken cancellationToken = default(CancellationToken))
+        public async Task<IReadOnlyCollection<IDatabaseSequence>> SequencesAsync(CancellationToken cancellationToken = default(CancellationToken))
         {
             var queryResult = await Connection.QueryAsync<QualifiedName>(SequencesQuery).ConfigureAwait(false);
             var sequenceNames = queryResult
                 .Select(dto => Identifier.CreateQualifiedIdentifier(dto.SchemaName, dto.ObjectName))
                 .ToList();
 
-            var sequences = sequenceNames
+            var sequences = await sequenceNames
                 .Select(name => LoadSequenceAsync(name, cancellationToken))
-                .Somes();
-            return new ReadOnlyCollectionSlim<Task<IDatabaseSequence>>(sequenceNames.Count, sequences);
+                .Somes()
+                .ConfigureAwait(false);
+
+            return sequences.ToList();
         }
 
         protected virtual string SequencesQuery => SequencesQuerySql;
@@ -452,17 +416,12 @@ order by s.SEQUENCE_OWNER, s.SEQUENCE_NAME";
                 .Map<IDatabaseSequence>(name => new OracleDatabaseSequence(Connection, name));
         }
 
-        protected virtual Task<Option<IDatabaseSequence>> LoadSequenceAsync(Identifier sequenceName, CancellationToken cancellationToken = default(CancellationToken))
+        protected virtual OptionAsync<IDatabaseSequence> LoadSequenceAsync(Identifier sequenceName, CancellationToken cancellationToken = default(CancellationToken))
         {
             if (sequenceName == null)
                 throw new ArgumentNullException(nameof(sequenceName));
 
-            return LoadSequenceAsyncCore(sequenceName, cancellationToken);
-        }
-
-        private async Task<Option<IDatabaseSequence>> LoadSequenceAsyncCore(Identifier sequenceName, CancellationToken cancellationToken)
-        {
-            var resolvedSequenceName = await ResolveFirstExistingObjectNameAsync(sequenceName, GetResolvedSequenceNameAsync, cancellationToken).ConfigureAwait(false);
+            var resolvedSequenceName = ResolveFirstExistingObjectNameAsync(sequenceName, GetResolvedSequenceNameAsync, cancellationToken);
             return resolvedSequenceName
                 .Map<IDatabaseSequence>(name => new OracleDatabaseSequence(Connection, name));
         }
@@ -475,16 +434,11 @@ order by s.SEQUENCE_OWNER, s.SEQUENCE_NAME";
             return ResolveFirstExistingObjectName(synonymName, GetResolvedSynonymNameStrict);
         }
 
-        public Task<Option<Identifier>> GetResolvedSynonymNameAsync(Identifier synonymName, CancellationToken cancellationToken = default(CancellationToken))
+        public OptionAsync<Identifier> GetResolvedSynonymNameAsync(Identifier synonymName, CancellationToken cancellationToken = default(CancellationToken))
         {
             if (synonymName == null)
                 throw new ArgumentNullException(nameof(synonymName));
 
-            return GetResolvedSynonymNameAsyncCore(synonymName, cancellationToken);
-        }
-
-        private Task<Option<Identifier>> GetResolvedSynonymNameAsyncCore(Identifier synonymName, CancellationToken cancellationToken)
-        {
             return ResolveFirstExistingObjectNameAsync(synonymName, GetResolvedSynonymNameStrictAsync, cancellationToken);
         }
 
@@ -515,37 +469,30 @@ order by s.SEQUENCE_OWNER, s.SEQUENCE_NAME";
             return name.Map(n => Identifier.CreateQualifiedIdentifier(ServerName, DatabaseName, DefaultSchema, n));
         }
 
-        protected Task<Option<Identifier>> GetResolvedSynonymNameStrictAsync(Identifier synonymName, CancellationToken cancellationToken = default(CancellationToken))
+        protected OptionAsync<Identifier> GetResolvedSynonymNameStrictAsync(Identifier synonymName, CancellationToken cancellationToken = default(CancellationToken))
         {
             if (synonymName == null)
                 throw new ArgumentNullException(nameof(synonymName));
 
-            return GetResolvedSynonymNameStrictAsyncCore(synonymName, cancellationToken);
-        }
-
-        private async Task<Option<Identifier>> GetResolvedSynonymNameStrictAsyncCore(Identifier synonymName, CancellationToken cancellationToken)
-        {
             synonymName = CreateQualifiedIdentifier(synonymName);
 
+            // fast path, ALL_SYNONYMS is much slower than USER_SYNONYMS so prefer the latter where possible
             if (synonymName.Database == DatabaseName && synonymName.Schema == DefaultSchema)
-                return await GetResolvedUserSynonymNameStrictAsyncCore(synonymName.LocalName, cancellationToken).ConfigureAwait(false);
+            {
+                var name = Connection.QueryFirstOrNoneAsync<string>(
+                    UserSynonymNameQuery,
+                    new { SynonymName = synonymName.LocalName }
+                );
 
-            var qualifiedSynonymName = await Connection.QueryFirstOrNoneAsync<QualifiedName>(
+                return name.Map(n => Identifier.CreateQualifiedIdentifier(ServerName, DatabaseName, DefaultSchema, n));
+            }
+
+            var qualifiedSynonymName = Connection.QueryFirstOrNoneAsync<QualifiedName>(
                 SynonymNameQuery,
                 new { SchemaName = synonymName.Schema, SynonymName = synonymName.LocalName }
-            ).ConfigureAwait(false);
+            );
 
             return qualifiedSynonymName.Map(name => Identifier.CreateQualifiedIdentifier(synonymName.Server, synonymName.Database, name.SchemaName, name.ObjectName));
-        }
-
-        private async Task<Option<Identifier>> GetResolvedUserSynonymNameStrictAsyncCore(string synonymName, CancellationToken cancellationToken)
-        {
-            var name = await Connection.QueryFirstOrNoneAsync<string>(
-                UserSynonymNameQuery,
-                new { SynonymName = synonymName }
-            ).ConfigureAwait(false);
-
-            return name.Map(n => Identifier.CreateQualifiedIdentifier(ServerName, DatabaseName, DefaultSchema, n));
         }
 
         protected virtual string SynonymNameQuery => SynonymNameQuerySql;
@@ -573,7 +520,7 @@ where o.OWNER = SYS_CONTEXT('USERENV', 'CURRENT_USER') and s.SYNONYM_NAME = :Syn
             return LoadSynonymSync(synonymName);
         }
 
-        public Task<Option<IDatabaseSynonym>> GetSynonymAsync(Identifier synonymName, CancellationToken cancellationToken = default(CancellationToken))
+        public OptionAsync<IDatabaseSynonym> GetSynonymAsync(Identifier synonymName, CancellationToken cancellationToken = default(CancellationToken))
         {
             if (synonymName == null)
                 throw new ArgumentNullException(nameof(synonymName));
@@ -597,17 +544,19 @@ where o.OWNER = SYS_CONTEXT('USERENV', 'CURRENT_USER') and s.SYNONYM_NAME = :Syn
             }
         }
 
-        public async Task<IReadOnlyCollection<Task<IDatabaseSynonym>>> SynonymsAsync(CancellationToken cancellationToken = default(CancellationToken))
+        public async Task<IReadOnlyCollection<IDatabaseSynonym>> SynonymsAsync(CancellationToken cancellationToken = default(CancellationToken))
         {
             var queryResult = await Connection.QueryAsync<QualifiedName>(SynonymsQuery).ConfigureAwait(false);
             var synonymNames = queryResult
                 .Select(dto => Identifier.CreateQualifiedIdentifier(dto.DatabaseName, dto.SchemaName, dto.ObjectName))
                 .ToList();
 
-            var synonyms = synonymNames
+            var synonyms = await synonymNames
                 .Select(name => LoadSynonymAsync(name, cancellationToken))
-                .Somes();
-            return new ReadOnlyCollectionSlim<Task<IDatabaseSynonym>>(synonymNames.Count, synonyms);
+                .Somes()
+                .ConfigureAwait(false);
+
+            return synonyms.ToList();
         }
 
         protected virtual string SynonymsQuery => SynonymsQuerySql;
@@ -674,30 +623,31 @@ order by s.DB_LINK, s.OWNER, s.SYNONYM_NAME";
             });
         }
 
-        protected virtual Task<Option<IDatabaseSynonym>> LoadSynonymAsync(Identifier synonymName, CancellationToken cancellationToken = default(CancellationToken))
+        protected virtual OptionAsync<IDatabaseSynonym> LoadSynonymAsync(Identifier synonymName, CancellationToken cancellationToken = default(CancellationToken))
         {
             if (synonymName == null)
                 throw new ArgumentNullException(nameof(synonymName));
 
-            return LoadSynonymAsyncCore(synonymName, cancellationToken);
+            return LoadSynonymAsyncCore(synonymName, cancellationToken).ToAsync();
         }
 
         private async Task<Option<IDatabaseSynonym>> LoadSynonymAsyncCore(Identifier synonymName, CancellationToken cancellationToken)
         {
-            var resolvedSynonymNameOption = await ResolveFirstExistingObjectNameAsync(synonymName, GetResolvedSynonymNameStrictAsync, cancellationToken).ConfigureAwait(false);
-            if (resolvedSynonymNameOption.IsNone)
+            var resolvedSynonymNameOption = ResolveFirstExistingObjectNameAsync(synonymName, GetResolvedSynonymNameStrictAsync, cancellationToken);
+            var resolvedNameIsNone = await resolvedSynonymNameOption.IsNone.ConfigureAwait(false);
+            if (resolvedNameIsNone)
                 return Option<IDatabaseSynonym>.None;
 
-            var resolvedSynonymName = resolvedSynonymNameOption.UnwrapSome();
+            var resolvedSynonymName = await resolvedSynonymNameOption.UnwrapSomeAsync().ConfigureAwait(false);
             if (resolvedSynonymName.Database == DatabaseName && resolvedSynonymName.Schema == DefaultSchema)
-                return await LoadUserSynonymAsyncCore(resolvedSynonymName.LocalName, cancellationToken).ConfigureAwait(false);
+                return await LoadUserSynonymAsyncCore(resolvedSynonymName.LocalName, cancellationToken).ToOption().ConfigureAwait(false);
 
-            var queryResult = await Connection.QueryFirstOrNoneAsync<SynonymData>(
+            var queryResult = Connection.QueryFirstOrNoneAsync<SynonymData>(
                 LoadSynonymQuery,
                 new { SchemaName = resolvedSynonymName.Schema, SynonymName = resolvedSynonymName.LocalName }
-            ).ConfigureAwait(false);
+            );
 
-            return queryResult.Map<IDatabaseSynonym>(synonymData =>
+            var synonym = queryResult.Map<IDatabaseSynonym>(synonymData =>
             {
                 var databaseName = !synonymData.TargetDatabaseName.IsNullOrWhiteSpace() ? synonymData.TargetDatabaseName : null;
                 var schemaName = !synonymData.TargetSchemaName.IsNullOrWhiteSpace() ? synonymData.TargetSchemaName : null;
@@ -708,14 +658,16 @@ order by s.DB_LINK, s.OWNER, s.SYNONYM_NAME";
 
                 return new DatabaseSynonym(qualifiedSynonymName, targetName);
             });
+
+            return await synonym.ToOption().ConfigureAwait(false);
         }
 
-        private async Task<Option<IDatabaseSynonym>> LoadUserSynonymAsyncCore(string synonymName, CancellationToken cancellationToken)
+        private OptionAsync<IDatabaseSynonym> LoadUserSynonymAsyncCore(string synonymName, CancellationToken cancellationToken)
         {
-            var queryResult = await Connection.QueryFirstOrNoneAsync<SynonymData>(
+            var queryResult = Connection.QueryFirstOrNoneAsync<SynonymData>(
                 LoadUserSynonymQuery,
                 new { SynonymName = synonymName }
-            ).ConfigureAwait(false);
+            );
 
             return queryResult.Map<IDatabaseSynonym>(synonymData =>
             {
@@ -768,17 +720,17 @@ where s.SYNONYM_NAME = :SynonymName and o.OWNER = SYS_CONTEXT('USERENV', 'CURREN
                 .FirstOrDefault(name => name.IsSome);
         }
 
-        protected Task<Option<Identifier>> ResolveFirstExistingObjectNameAsync(Identifier objectName, Func<Identifier, CancellationToken, Task<Option<Identifier>>> objectExistsFunc, CancellationToken cancellationToken = default(CancellationToken))
+        protected OptionAsync<Identifier> ResolveFirstExistingObjectNameAsync(Identifier objectName, Func<Identifier, CancellationToken, OptionAsync<Identifier>> objectExistsFunc, CancellationToken cancellationToken = default(CancellationToken))
         {
             if (objectName == null)
                 throw new ArgumentNullException(nameof(objectName));
             if (objectExistsFunc == null)
                 throw new ArgumentNullException(nameof(objectExistsFunc));
 
-            return ResolveFirstExistingObjectNameAsyncCore(objectName, objectExistsFunc, cancellationToken);
+            return ResolveFirstExistingObjectNameAsyncCore(objectName, objectExistsFunc, cancellationToken).ToAsync();
         }
 
-        private async Task<Option<Identifier>> ResolveFirstExistingObjectNameAsyncCore(Identifier objectName, Func<Identifier, CancellationToken, Task<Option<Identifier>>> objectExistsFunc, CancellationToken cancellationToken)
+        private async Task<Option<Identifier>> ResolveFirstExistingObjectNameAsyncCore(Identifier objectName, Func<Identifier, CancellationToken, OptionAsync<Identifier>> objectExistsFunc, CancellationToken cancellationToken)
         {
             var resolvedNames = IdentifierResolver
                 .GetResolutionOrder(objectName)
@@ -786,9 +738,11 @@ where s.SYNONYM_NAME = :SynonymName and o.OWNER = SYS_CONTEXT('USERENV', 'CURREN
 
             foreach (var resolvedName in resolvedNames)
             {
-                var existingName = await objectExistsFunc(resolvedName, cancellationToken).ConfigureAwait(false);
-                if (existingName.IsSome)
-                    return existingName;
+                var existingName = objectExistsFunc(resolvedName, cancellationToken);
+
+                var existingNameIsSome = await existingName.IsSome.ConfigureAwait(false);
+                if (existingNameIsSome)
+                    return await existingName.UnwrapSomeAsync().ConfigureAwait(false);
             }
 
             return Option<Identifier>.None;
@@ -818,7 +772,7 @@ select
     SYS_CONTEXT('USERENV', 'DB_NAME') as DatabaseName,
     SYS_CONTEXT('USERENV', 'CURRENT_USER') as DefaultSchema
 from DUAL";
-            var hostInfoTask = Connection.QueryFirstOrNoneAsync<DatabaseHost>(hostSql);
+            var hostInfoOption = Connection.QueryFirstOrNoneAsync<DatabaseHost>(hostSql);
 
             const string versionSql = @"
 select
@@ -826,23 +780,18 @@ select
     VERSION as VersionNumber
 from PRODUCT_COMPONENT_VERSION
 where PRODUCT like 'Oracle Database%'";
-            var versionInfoTask = Connection.QueryFirstOrNoneAsync<DatabaseVersion>(versionSql);
+            var versionInfoOption = Connection.QueryFirstOrNoneAsync<DatabaseVersion>(versionSql);
 
-            await Task.WhenAll(hostInfoTask, versionInfoTask).ConfigureAwait(false);
-
-            var hostInfo = hostInfoTask.GetAwaiter().GetResult();
-            var versionInfo = versionInfoTask.GetAwaiter().GetResult();
-
-            var qualifiedServerName = hostInfo.MatchUnsafe(
+            var qualifiedServerName = await hostInfoOption.MatchUnsafe(
                 dbHost => dbHost.ServerHost + "/" + dbHost.ServerSid,
                 () => null
-            );
-            var dbName = hostInfo.MatchUnsafe(h => h.DatabaseName, () => null);
-            var defaultSchema = hostInfo.MatchUnsafe(h => h.DefaultSchema, () => null);
-            var versionName = versionInfo.MatchUnsafe(
+            ).ConfigureAwait(false);
+            var dbName = await hostInfoOption.MatchUnsafe(h => h.DatabaseName, () => null).ConfigureAwait(false);
+            var defaultSchema = await hostInfoOption.MatchUnsafe(h => h.DefaultSchema, () => null).ConfigureAwait(false);
+            var versionName = await versionInfoOption.MatchUnsafe(
                 vInfo => vInfo.ProductName + vInfo.VersionNumber,
                 () => null
-            );
+            ).ConfigureAwait(false);
 
             return new DatabaseMetadata
             {

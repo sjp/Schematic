@@ -74,8 +74,8 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
         [Test]
         public async Task IndexesAsync_WhenGivenTableWithNoIndexes_ReturnsEmptyCollection()
         {
-            var tableOption = await Database.GetTableAsync("table_test_table_1").ConfigureAwait(false);
-            var indexes = await tableOption.UnwrapSome().IndexesAsync().ConfigureAwait(false);
+            var table = await Database.GetTableAsync("table_test_table_1").UnwrapSomeAsync().ConfigureAwait(false);
+            var indexes = await table.IndexesAsync().ConfigureAwait(false);
             var count = indexes.Count;
 
             Assert.AreEqual(0, count);
@@ -84,8 +84,8 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
         [Test]
         public async Task IndexesAsync_WhenGivenTableWithSingleColumnIndex_ReturnsIndexWithColumnOnly()
         {
-            var tableOption = await Database.GetTableAsync("table_test_table_8").ConfigureAwait(false);
-            var indexes = await tableOption.UnwrapSome().IndexesAsync().ConfigureAwait(false);
+            var table = await Database.GetTableAsync("table_test_table_8").UnwrapSomeAsync().ConfigureAwait(false);
+            var indexes = await table.IndexesAsync().ConfigureAwait(false);
             var index = indexes.Single();
             var indexColumns = index.Columns
                 .Select(c => c.DependentColumns.Single())
@@ -101,8 +101,8 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
         [Test]
         public async Task IndexesAsync_WhenGivenTableWithSingleColumnIndex_ReturnsIndexWithCorrectName()
         {
-            var tableOption = await Database.GetTableAsync("table_test_table_8").ConfigureAwait(false);
-            var indexes = await tableOption.UnwrapSome().IndexesAsync().ConfigureAwait(false);
+            var table = await Database.GetTableAsync("table_test_table_8").UnwrapSomeAsync().ConfigureAwait(false);
+            var indexes = await table.IndexesAsync().ConfigureAwait(false);
             var index = indexes.Single();
 
             Assert.AreEqual("ix_test_table_8", index.Name.LocalName);
@@ -113,8 +113,8 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
         {
             var expectedColumnNames = new[] { "first_name", "last_name", "middle_name" };
 
-            var tableOption = await Database.GetTableAsync("table_test_table_9").ConfigureAwait(false);
-            var indexes = await tableOption.UnwrapSome().IndexesAsync().ConfigureAwait(false);
+            var table = await Database.GetTableAsync("table_test_table_9").UnwrapSomeAsync().ConfigureAwait(false);
+            var indexes = await table.IndexesAsync().ConfigureAwait(false);
             var index = indexes.Single();
             var indexColumns = index.Columns
                 .Select(c => c.DependentColumns.Single())
@@ -133,8 +133,8 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
         [Test]
         public async Task IndexesAsync_WhenGivenTableWithMultiColumnIndex_ReturnsIndexWithCorrectName()
         {
-            var tableOption = await Database.GetTableAsync("table_test_table_9").ConfigureAwait(false);
-            var indexes = await tableOption.UnwrapSome().IndexesAsync().ConfigureAwait(false);
+            var table = await Database.GetTableAsync("table_test_table_9").UnwrapSomeAsync().ConfigureAwait(false);
+            var indexes = await table.IndexesAsync().ConfigureAwait(false);
             var index = indexes.Single();
 
             Assert.AreEqual("ix_test_table_9", index.Name.LocalName);
@@ -155,8 +155,8 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
         [Test]
         public async Task IndexesAsync_WhenGivenTableWithIndexContainingNoIncludedColumns_ReturnsIndexWithoutIncludedColumns()
         {
-            var tableOption = await Database.GetTableAsync("table_test_table_9").ConfigureAwait(false);
-            var indexes = await tableOption.UnwrapSome().IndexesAsync().ConfigureAwait(false);
+            var table = await Database.GetTableAsync("table_test_table_9").UnwrapSomeAsync().ConfigureAwait(false);
+            var indexes = await table.IndexesAsync().ConfigureAwait(false);
             var index = indexes.Single();
             var includedColumns = index.IncludedColumns
                 .Select(c => c.Name.LocalName)
@@ -177,8 +177,8 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
         [Test]
         public async Task IndexesAsync_WhenGivenTableWithNonUniqueIndex_ReturnsIndexWithIsUniqueFalse()
         {
-            var tableOption = await Database.GetTableAsync("table_test_table_9").ConfigureAwait(false);
-            var indexes = await tableOption.UnwrapSome().IndexesAsync().ConfigureAwait(false);
+            var table = await Database.GetTableAsync("table_test_table_9").UnwrapSomeAsync().ConfigureAwait(false);
+            var indexes = await table.IndexesAsync().ConfigureAwait(false);
             var index = indexes.Single();
 
             Assert.IsFalse(index.IsUnique);
@@ -196,8 +196,8 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
         [Test]
         public async Task IndexesAsync_WhenGivenTableWithUniqueIndex_ReturnsIndexWithIsUniqueTrue()
         {
-            var tableOption = await Database.GetTableAsync("table_test_table_13").ConfigureAwait(false);
-            var indexes = await tableOption.UnwrapSome().IndexesAsync().ConfigureAwait(false);
+            var table = await Database.GetTableAsync("table_test_table_13").UnwrapSomeAsync().ConfigureAwait(false);
+            var indexes = await table.IndexesAsync().ConfigureAwait(false);
             var index = indexes.Single();
 
             Assert.IsTrue(index.IsUnique);

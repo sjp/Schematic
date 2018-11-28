@@ -150,8 +150,8 @@ end;
         [Test]
         public async Task TriggersAsync_GivenTableWithNoTriggers_ReturnsEmptyCollection()
         {
-            var tableOption = await Database.GetTableAsync("trigger_test_table_2").ConfigureAwait(false);
-            var triggers = await tableOption.UnwrapSome().TriggersAsync().ConfigureAwait(false);
+            var table = await Database.GetTableAsync("trigger_test_table_2").UnwrapSomeAsync().ConfigureAwait(false);
+            var triggers = await table.TriggersAsync().ConfigureAwait(false);
 
             var count = triggers.Count;
 
@@ -161,8 +161,8 @@ end;
         [Test]
         public async Task TriggersAsync_GivenTableWithTrigger_ReturnsNonEmptyCollection()
         {
-            var tableOption = await Database.GetTableAsync("trigger_test_table_1").ConfigureAwait(false);
-            var trigger = await tableOption.UnwrapSome().TriggersAsync().ConfigureAwait(false);
+            var table = await Database.GetTableAsync("trigger_test_table_1").UnwrapSomeAsync().ConfigureAwait(false);
+            var trigger = await table.TriggersAsync().ConfigureAwait(false);
 
             Assert.NotZero(trigger.Count);
         }
@@ -172,8 +172,8 @@ end;
         {
             const string triggerName = "TRIGGER_TEST_TABLE_1_TRIGGER_1";
 
-            var tableOption = await Database.GetTableAsync("trigger_test_table_1").ConfigureAwait(false);
-            var triggers = await tableOption.UnwrapSome().TriggersAsync().ConfigureAwait(false);
+            var table = await Database.GetTableAsync("trigger_test_table_1").UnwrapSomeAsync().ConfigureAwait(false);
+            var triggers = await table.TriggersAsync().ConfigureAwait(false);
             var trigger = triggers.First(t => t.Name == triggerName);
 
             Assert.AreEqual(triggerName, trigger.Name.LocalName);
@@ -182,8 +182,8 @@ end;
         [Test]
         public async Task TriggersAsync_GivenTableWithTrigger_ReturnsCorrectDefinition()
         {
-            var tableOption = await Database.GetTableAsync("trigger_test_table_1").ConfigureAwait(false);
-            var triggers = await tableOption.UnwrapSome().TriggersAsync().ConfigureAwait(false);
+            var table = await Database.GetTableAsync("trigger_test_table_1").UnwrapSomeAsync().ConfigureAwait(false);
+            var triggers = await table.TriggersAsync().ConfigureAwait(false);
             var trigger = triggers.First(t => t.Name == "TRIGGER_TEST_TABLE_1_TRIGGER_1");
 
             const string expectedDefinition = @"begin
@@ -197,8 +197,8 @@ end;
         [Test]
         public async Task TriggersAsync_GivenTableWithTriggerForInsert_ReturnsCorrectEventAndTiming()
         {
-            var tableOption = await Database.GetTableAsync("trigger_test_table_1").ConfigureAwait(false);
-            var triggers = await tableOption.UnwrapSome().TriggersAsync().ConfigureAwait(false);
+            var table = await Database.GetTableAsync("trigger_test_table_1").UnwrapSomeAsync().ConfigureAwait(false);
+            var triggers = await table.TriggersAsync().ConfigureAwait(false);
             var trigger = triggers.First(t => t.Name == "TRIGGER_TEST_TABLE_1_TRIGGER_1");
 
             const TriggerQueryTiming timing = TriggerQueryTiming.Before;
@@ -214,8 +214,8 @@ end;
         [Test]
         public async Task TriggersAsync_GivenTableWithTriggerForUpdate_ReturnsCorrectEventAndTiming()
         {
-            var tableOption = await Database.GetTableAsync("trigger_test_table_1").ConfigureAwait(false);
-            var triggers = await tableOption.UnwrapSome().TriggersAsync().ConfigureAwait(false);
+            var table = await Database.GetTableAsync("trigger_test_table_1").UnwrapSomeAsync().ConfigureAwait(false);
+            var triggers = await table.TriggersAsync().ConfigureAwait(false);
             var trigger = triggers.First(t => t.Name == "TRIGGER_TEST_TABLE_1_TRIGGER_2");
 
             const TriggerQueryTiming timing = TriggerQueryTiming.Before;
@@ -231,8 +231,8 @@ end;
         [Test]
         public async Task TriggersAsync_GivenTableWithTriggerForDelete_ReturnsCorrectEventAndTiming()
         {
-            var tableOption = await Database.GetTableAsync("trigger_test_table_1").ConfigureAwait(false);
-            var triggers = await tableOption.UnwrapSome().TriggersAsync().ConfigureAwait(false);
+            var table = await Database.GetTableAsync("trigger_test_table_1").UnwrapSomeAsync().ConfigureAwait(false);
+            var triggers = await table.TriggersAsync().ConfigureAwait(false);
             var trigger = triggers.First(t => t.Name == "TRIGGER_TEST_TABLE_1_TRIGGER_3");
 
             const TriggerQueryTiming timing = TriggerQueryTiming.Before;
@@ -248,8 +248,8 @@ end;
         [Test]
         public async Task TriggersAsync_GivenTableWithTriggerAfterInsert_ReturnsCorrectEventAndTiming()
         {
-            var tableOption = await Database.GetTableAsync("trigger_test_table_1").ConfigureAwait(false);
-            var triggers = await tableOption.UnwrapSome().TriggersAsync().ConfigureAwait(false);
+            var table = await Database.GetTableAsync("trigger_test_table_1").UnwrapSomeAsync().ConfigureAwait(false);
+            var triggers = await table.TriggersAsync().ConfigureAwait(false);
             var trigger = triggers.First(t => t.Name == "TRIGGER_TEST_TABLE_1_TRIGGER_4");
 
             const TriggerQueryTiming timing = TriggerQueryTiming.After;
@@ -265,8 +265,8 @@ end;
         [Test]
         public async Task TriggersAsync_GivenTableWithTriggerAfterUpdate_ReturnsCorrectEventAndTiming()
         {
-            var tableOption = await Database.GetTableAsync("trigger_test_table_1").ConfigureAwait(false);
-            var triggers = await tableOption.UnwrapSome().TriggersAsync().ConfigureAwait(false);
+            var table = await Database.GetTableAsync("trigger_test_table_1").UnwrapSomeAsync().ConfigureAwait(false);
+            var triggers = await table.TriggersAsync().ConfigureAwait(false);
             var trigger = triggers.First(t => t.Name == "TRIGGER_TEST_TABLE_1_TRIGGER_5");
 
             const TriggerQueryTiming timing = TriggerQueryTiming.After;
@@ -282,8 +282,8 @@ end;
         [Test]
         public async Task TriggersAsync_GivenTableWithTriggerAfterDelete_ReturnsCorrectEventAndTiming()
         {
-            var tableOption = await Database.GetTableAsync("trigger_test_table_1").ConfigureAwait(false);
-            var triggers = await tableOption.UnwrapSome().TriggersAsync().ConfigureAwait(false);
+            var table = await Database.GetTableAsync("trigger_test_table_1").UnwrapSomeAsync().ConfigureAwait(false);
+            var triggers = await table.TriggersAsync().ConfigureAwait(false);
             var trigger = triggers.First(t => t.Name == "TRIGGER_TEST_TABLE_1_TRIGGER_6");
 
             const TriggerQueryTiming timing = TriggerQueryTiming.After;

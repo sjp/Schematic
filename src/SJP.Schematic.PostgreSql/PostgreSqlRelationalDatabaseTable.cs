@@ -361,11 +361,12 @@ where tc.table_schema = @SchemaName and tc.table_name = @TableName
                 var childKeyName = Identifier.CreateQualifiedIdentifier(groupedChildKey.Key.ChildKeyName);
 
                 var childTableName = Identifier.CreateQualifiedIdentifier(groupedChildKey.Key.ChildTableSchema, groupedChildKey.Key.ChildTableName);
-                var childOption = await Database.GetTableAsync(childTableName, cancellationToken).ConfigureAwait(false);
-                if (childOption.IsNone)
+                var childOption = Database.GetTableAsync(childTableName, cancellationToken);
+                var childIsNone = await childOption.IsNone.ConfigureAwait(false);
+                if (childIsNone)
                     throw new Exception("Could not find child table with name: " + childTableName.ToString());
 
-                var childTable = childOption.UnwrapSome();
+                var childTable = await childOption.UnwrapSomeAsync().ConfigureAwait(false);
                 var parentKeyLookup = await childTable.GetParentKeyLookupAsync(IdentifierResolver, cancellationToken).ConfigureAwait(false);
 
                 var childKey = parentKeyLookup[childKeyName.LocalName].ChildKey;
@@ -568,11 +569,12 @@ where
             foreach (var fkey in foreignKeys)
             {
                 var parentTableName = Identifier.CreateQualifiedIdentifier(fkey.Key.ParentSchemaName, fkey.Key.ParentTableName);
-                var parentOption = await Database.GetTableAsync(parentTableName, cancellationToken).ConfigureAwait(false);
-                if (parentOption.IsNone)
+                var parentOption = Database.GetTableAsync(parentTableName, cancellationToken);
+                var parentIsNone = await parentOption.IsNone.ConfigureAwait(false);
+                if (parentIsNone)
                     throw new Exception("Could not find parent table with name: " + parentTableName.ToString());
 
-                var parentTable = parentOption.UnwrapSome();
+                var parentTable = await parentOption.UnwrapSomeAsync().ConfigureAwait(false);
                 var parentKeyName = Identifier.CreateQualifiedIdentifier(fkey.Key.ParentKeyName);
 
                 IDatabaseKey parentKey;

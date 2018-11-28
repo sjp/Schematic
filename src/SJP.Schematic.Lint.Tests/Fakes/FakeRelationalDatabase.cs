@@ -33,34 +33,26 @@ namespace SJP.Schematic.Lint.Tests.Fakes
 
         public virtual Option<IDatabaseSequence> GetSequence(Identifier sequenceName) => null;
 
-        public virtual Task<Option<IDatabaseSequence>> GetSequenceAsync(Identifier sequenceName, CancellationToken cancellationToken = default(CancellationToken)) => Task.FromResult(Option<IDatabaseSequence>.None);
+        public virtual OptionAsync<IDatabaseSequence> GetSequenceAsync(Identifier sequenceName, CancellationToken cancellationToken = default(CancellationToken)) => OptionAsync<IDatabaseSequence>.None;
 
         public virtual Option<IDatabaseSynonym> GetSynonym(Identifier synonymName) => null;
 
-        public virtual Task<Option<IDatabaseSynonym>> GetSynonymAsync(Identifier synonymName, CancellationToken cancellationToken = default(CancellationToken)) => Task.FromResult(Option<IDatabaseSynonym>.None);
+        public virtual OptionAsync<IDatabaseSynonym> GetSynonymAsync(Identifier synonymName, CancellationToken cancellationToken = default(CancellationToken)) => OptionAsync<IDatabaseSynonym>.None;
 
         public virtual Option<IRelationalDatabaseTable> GetTable(Identifier tableName) => null;
 
-        public virtual Task<Option<IRelationalDatabaseTable>> GetTableAsync(Identifier tableName, CancellationToken cancellationToken = default(CancellationToken)) => Task.FromResult(Option<IRelationalDatabaseTable>.None);
+        public virtual OptionAsync<IRelationalDatabaseTable> GetTableAsync(Identifier tableName, CancellationToken cancellationToken = default(CancellationToken)) => OptionAsync<IRelationalDatabaseTable>.None;
 
         public virtual Option<IRelationalDatabaseView> GetView(Identifier viewName) => null;
 
-        public virtual Task<Option<IRelationalDatabaseView>> GetViewAsync(Identifier viewName, CancellationToken cancellationToken = default(CancellationToken)) => Task.FromResult(Option<IRelationalDatabaseView>.None);
+        public virtual OptionAsync<IRelationalDatabaseView> GetViewAsync(Identifier viewName, CancellationToken cancellationToken = default(CancellationToken)) => OptionAsync<IRelationalDatabaseView>.None;
 
-        public virtual Task<IReadOnlyCollection<Task<IDatabaseSequence>>> SequencesAsync(CancellationToken cancellationToken = default(CancellationToken)) => Task.FromResult<IReadOnlyCollection<Task<IDatabaseSequence>>>(
-            Sequences.Select(Task.FromResult).ToList()
-        );
+        public virtual Task<IReadOnlyCollection<IDatabaseSequence>> SequencesAsync(CancellationToken cancellationToken = default(CancellationToken)) => Task.FromResult(Sequences);
 
-        public virtual Task<IReadOnlyCollection<Task<IDatabaseSynonym>>> SynonymsAsync(CancellationToken cancellationToken = default(CancellationToken)) => Task.FromResult<IReadOnlyCollection<Task<IDatabaseSynonym>>>(
-            Synonyms.Select(Task.FromResult).ToList()
-        );
+        public virtual Task<IReadOnlyCollection<IDatabaseSynonym>> SynonymsAsync(CancellationToken cancellationToken = default(CancellationToken)) => Task.FromResult(Synonyms);
 
-        public virtual Task<IReadOnlyCollection<Task<IRelationalDatabaseTable>>> TablesAsync(CancellationToken cancellationToken = default(CancellationToken)) => Task.FromResult<IReadOnlyCollection<Task<IRelationalDatabaseTable>>>(
-            Tables.Select(Task.FromResult).ToList()
-        );
+        public virtual Task<IReadOnlyCollection<IRelationalDatabaseTable>> TablesAsync(CancellationToken cancellationToken = default(CancellationToken)) => Task.FromResult(Tables);
 
-        public virtual Task<IReadOnlyCollection<Task<IRelationalDatabaseView>>> ViewsAsync(CancellationToken cancellationToken = default(CancellationToken)) => Task.FromResult<IReadOnlyCollection<Task<IRelationalDatabaseView>>>(
-            Views.Select(Task.FromResult).ToList()
-        );
+        public virtual Task<IReadOnlyCollection<IRelationalDatabaseView>> ViewsAsync(CancellationToken cancellationToken = default(CancellationToken)) => Task.FromResult(Views);
     }
 }

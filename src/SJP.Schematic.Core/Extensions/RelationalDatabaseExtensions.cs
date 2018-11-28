@@ -70,10 +70,11 @@ namespace SJP.Schematic.Core.Extensions
 
         private static async Task<(bool exists, IRelationalDatabaseTable table)> TryGetTableAsyncCore(IRelationalDatabase database, Identifier tableName, CancellationToken cancellationToken)
         {
-            var tableOption = await database.GetTableAsync(tableName, cancellationToken).ConfigureAwait(false);
-            var exists = tableOption.IsSome;
+            var tableOption = database.GetTableAsync(tableName, cancellationToken);
+            var exists = await tableOption.IsSome.ConfigureAwait(false);
+            var table = await tableOption.IfNoneUnsafe(default(IRelationalDatabaseTable)).ConfigureAwait(false);
 
-            return (exists, tableOption.IfNoneUnsafe((IRelationalDatabaseTable)null));
+            return (exists, table);
         }
 
         public static Task<(bool exists, IRelationalDatabaseView view)> TryGetViewAsync(this IRelationalDatabase database, Identifier viewName, CancellationToken cancellationToken = default(CancellationToken))
@@ -88,10 +89,11 @@ namespace SJP.Schematic.Core.Extensions
 
         private static async Task<(bool exists, IRelationalDatabaseView view)> TryGetViewAsyncCore(IRelationalDatabase database, Identifier viewName, CancellationToken cancellationToken)
         {
-            var viewOption = await database.GetViewAsync(viewName, cancellationToken).ConfigureAwait(false);
-            var exists = viewOption.IsSome;
+            var viewOption = database.GetViewAsync(viewName, cancellationToken);
+            var exists = await viewOption.IsSome.ConfigureAwait(false);
+            var view = await viewOption.IfNoneUnsafe(default(IRelationalDatabaseView)).ConfigureAwait(false);
 
-            return (exists, viewOption.IfNoneUnsafe((IRelationalDatabaseView)null));
+            return (exists, view);
         }
 
         public static Task<(bool exists, IDatabaseSequence sequence)> TryGetSequenceAsync(this IRelationalDatabase database, Identifier sequenceName, CancellationToken cancellationToken = default(CancellationToken))
@@ -106,10 +108,11 @@ namespace SJP.Schematic.Core.Extensions
 
         private static async Task<(bool exists, IDatabaseSequence sequence)> TryGetSequenceAsyncCore(IRelationalDatabase database, Identifier sequenceName, CancellationToken cancellationToken)
         {
-            var sequenceOption = await database.GetSequenceAsync(sequenceName, cancellationToken).ConfigureAwait(false);
-            var exists = sequenceOption.IsSome;
+            var sequenceOption = database.GetSequenceAsync(sequenceName, cancellationToken);
+            var exists = await sequenceOption.IsSome.ConfigureAwait(false);
+            var sequence = await sequenceOption.IfNoneUnsafe(default(IDatabaseSequence)).ConfigureAwait(false);
 
-            return (exists, sequenceOption.IfNoneUnsafe((IDatabaseSequence)null));
+            return (exists, sequence);
         }
 
         public static Task<(bool exists, IDatabaseSynonym synonym)> TryGetSynonymAsync(this IRelationalDatabase database, Identifier synonymName, CancellationToken cancellationToken = default(CancellationToken))
@@ -124,10 +127,11 @@ namespace SJP.Schematic.Core.Extensions
 
         private static async Task<(bool exists, IDatabaseSynonym synonym)> TryGetSynonymAsyncCore(IRelationalDatabase database, Identifier synonymName, CancellationToken cancellationToken)
         {
-            var synonymOption = await database.GetSynonymAsync(synonymName, cancellationToken).ConfigureAwait(false);
-            var exists = synonymOption.IsSome;
+            var synonymOption = database.GetSynonymAsync(synonymName, cancellationToken);
+            var exists = await synonymOption.IsSome.ConfigureAwait(false);
+            var synonym = await synonymOption.IfNoneUnsafe(default(IDatabaseSynonym)).ConfigureAwait(false);
 
-            return (exists, synonymOption.IfNoneUnsafe((IDatabaseSynonym)null));
+            return (exists, synonym);
         }
     }
 }

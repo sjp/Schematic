@@ -91,8 +91,8 @@ namespace SJP.Schematic.MySql.Tests.Integration
         [Test]
         public async Task PrimaryKeyAsync_WhenGivenTableWithNoPrimaryKey_ReturnsNull()
         {
-            var tableOption = await Database.GetTableAsync("table_test_table_1").ConfigureAwait(false);
-            var pk = await tableOption.UnwrapSome().PrimaryKeyAsync().ConfigureAwait(false);
+            var table = await Database.GetTableAsync("table_test_table_1").UnwrapSomeAsync().ConfigureAwait(false);
+            var pk = await table.PrimaryKeyAsync().ConfigureAwait(false);
 
             Assert.IsNull(pk);
         }
@@ -100,8 +100,8 @@ namespace SJP.Schematic.MySql.Tests.Integration
         [Test]
         public async Task PrimaryKeyAsync_WhenGivenTableWithPrimaryKey_ReturnsCorrectKeyType()
         {
-            var tableOption = await Database.GetTableAsync("table_test_table_2").ConfigureAwait(false);
-            var keyType = tableOption.UnwrapSome().PrimaryKey.KeyType;
+            var table = await Database.GetTableAsync("table_test_table_2").UnwrapSomeAsync().ConfigureAwait(false);
+            var keyType = table.PrimaryKey.KeyType;
 
             Assert.AreEqual(DatabaseKeyType.Primary, keyType);
         }
@@ -109,8 +109,8 @@ namespace SJP.Schematic.MySql.Tests.Integration
         [Test]
         public async Task PrimaryKeyAsync_WhenGivenTableWithColumnAsPrimaryKey_ReturnsPrimaryKeyWithColumnOnly()
         {
-            var tableOption = await Database.GetTableAsync("table_test_table_2").ConfigureAwait(false);
-            var pk = await tableOption.UnwrapSome().PrimaryKeyAsync().ConfigureAwait(false);
+            var table = await Database.GetTableAsync("table_test_table_2").UnwrapSomeAsync().ConfigureAwait(false);
+            var pk = await table.PrimaryKeyAsync().ConfigureAwait(false);
             var pkColumns = pk.Columns.ToList();
 
             Assert.Multiple(() =>
@@ -123,8 +123,8 @@ namespace SJP.Schematic.MySql.Tests.Integration
         [Test]
         public async Task PrimaryKeyAsync_WhenGivenTableWithSingleColumnConstraintAsPrimaryKey_ReturnsPrimaryKeyWithColumnOnly()
         {
-            var tableOption = await Database.GetTableAsync("table_test_table_3").ConfigureAwait(false);
-            var pk = await tableOption.UnwrapSome().PrimaryKeyAsync().ConfigureAwait(false);
+            var table = await Database.GetTableAsync("table_test_table_3").UnwrapSomeAsync().ConfigureAwait(false);
+            var pk = await table.PrimaryKeyAsync().ConfigureAwait(false);
             var pkColumns = pk.Columns.ToList();
 
             Assert.Multiple(() =>
@@ -137,8 +137,8 @@ namespace SJP.Schematic.MySql.Tests.Integration
         [Test]
         public async Task PrimaryKeyAsync_WhenGivenTableWithSingleColumnConstraintAsPrimaryKey_ReturnsPrimaryKeyWithCorrectName()
         {
-            var tableOption = await Database.GetTableAsync("table_test_table_3").ConfigureAwait(false);
-            var pk = await tableOption.UnwrapSome().PrimaryKeyAsync().ConfigureAwait(false);
+            var table = await Database.GetTableAsync("table_test_table_3").UnwrapSomeAsync().ConfigureAwait(false);
+            var pk = await table.PrimaryKeyAsync().ConfigureAwait(false);
 
             Assert.AreEqual("PRIMARY", pk.Name.LocalName);
         }
@@ -148,8 +148,8 @@ namespace SJP.Schematic.MySql.Tests.Integration
         {
             var expectedColumnNames = new[] { "first_name", "last_name", "middle_name" };
 
-            var tableOption = await Database.GetTableAsync("table_test_table_4").ConfigureAwait(false);
-            var pk = await tableOption.UnwrapSome().PrimaryKeyAsync().ConfigureAwait(false);
+            var table = await Database.GetTableAsync("table_test_table_4").UnwrapSomeAsync().ConfigureAwait(false);
+            var pk = await table.PrimaryKeyAsync().ConfigureAwait(false);
             var pkColumns = pk.Columns.ToList();
 
             var columnsEqual = pkColumns.Select(c => c.Name.LocalName).SequenceEqual(expectedColumnNames);
@@ -164,8 +164,8 @@ namespace SJP.Schematic.MySql.Tests.Integration
         [Test]
         public async Task PrimaryKeyAsync_WhenGivenTableWithMultiColumnConstraintAsPrimaryKey_ReturnsPrimaryKeyWithCorrectName()
         {
-            var tableOption = await Database.GetTableAsync("table_test_table_4").ConfigureAwait(false);
-            var pk = await tableOption.UnwrapSome().PrimaryKeyAsync().ConfigureAwait(false);
+            var table = await Database.GetTableAsync("table_test_table_4").UnwrapSomeAsync().ConfigureAwait(false);
+            var pk = await table.PrimaryKeyAsync().ConfigureAwait(false);
 
             Assert.AreEqual("PRIMARY", pk.Name.LocalName);
         }

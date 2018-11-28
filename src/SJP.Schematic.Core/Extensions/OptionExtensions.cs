@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Threading.Tasks;
 using LanguageExt;
 
@@ -15,12 +14,13 @@ namespace SJP.Schematic.Core.Extensions
             return input.IfNoneUnsafe(default(T));
         }
 
-        public static IEnumerable<Task<T>> Somes<T>(this IEnumerable<Task<Option<T>>> input)
+        public static async Task<T> UnwrapSomeAsync<T>(this OptionAsync<T> input)
         {
-            if (input == null)
-                throw new ArgumentNullException(nameof(input));
+            var isNone = await input.IsNone.ConfigureAwait(false);
+            if (isNone)
+                throw new ArgumentException("The given optional object does not have a value.", nameof(input));
 
-            return input.Where(x => x.IsSome).Select(UnwrapSome);
+            return await input.IfNoneUnsafe(default(T)).ConfigureAwait(false);
         }
     }
 }

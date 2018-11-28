@@ -20,8 +20,8 @@ namespace SJP.Schematic.MySql.Tests.Integration
         [Test]
         public async Task ColumnsAsync_WhenGivenTableWithOneColumn_ReturnsColumnCollectionWithOneValue()
         {
-            var tableOption = await Database.GetTableAsync("table_test_table_1").ConfigureAwait(false);
-            var columns = await tableOption.UnwrapSome().ColumnsAsync().ConfigureAwait(false);
+            var table = await Database.GetTableAsync("table_test_table_1").UnwrapSomeAsync().ConfigureAwait(false);
+            var columns = await table.ColumnsAsync().ConfigureAwait(false);
             var count = columns.Count;
 
             Assert.AreEqual(1, count);
@@ -40,8 +40,8 @@ namespace SJP.Schematic.MySql.Tests.Integration
         [Test]
         public async Task ColumnsAsync_WhenGivenTableWithOneColumn_ReturnsColumnWithCorrectName()
         {
-            var tableOption = await Database.GetTableAsync("table_test_table_1").ConfigureAwait(false);
-            var columns = await tableOption.UnwrapSome().ColumnsAsync().ConfigureAwait(false);
+            var table = await Database.GetTableAsync("table_test_table_1").UnwrapSomeAsync().ConfigureAwait(false);
+            var columns = await table.ColumnsAsync().ConfigureAwait(false);
             var column = columns.Single();
             const string columnName = "test_column";
 
@@ -63,8 +63,8 @@ namespace SJP.Schematic.MySql.Tests.Integration
         public async Task ColumnsAsync_WhenGivenTableWithMultipleColumns_ReturnsColumnsInCorrectOrder()
         {
             var expectedColumnNames = new[] { "first_name", "middle_name", "last_name" };
-            var tableOption = await Database.GetTableAsync("table_test_table_4").ConfigureAwait(false);
-            var columns = await tableOption.UnwrapSome().ColumnsAsync().ConfigureAwait(false);
+            var table = await Database.GetTableAsync("table_test_table_4").UnwrapSomeAsync().ConfigureAwait(false);
+            var columns = await table.ColumnsAsync().ConfigureAwait(false);
             var columnNames = columns.Select(c => c.Name.LocalName);
 
             Assert.IsTrue(expectedColumnNames.SequenceEqual(columnNames));
@@ -84,8 +84,8 @@ namespace SJP.Schematic.MySql.Tests.Integration
         public async Task ColumnsAsync_WhenGivenTableWithNullableColumn_ColumnReturnsIsNullableTrue()
         {
             const string tableName = "table_test_table_1";
-            var tableOption = await Database.GetTableAsync(tableName).ConfigureAwait(false);
-            var columns = await tableOption.UnwrapSome().ColumnsAsync().ConfigureAwait(false);
+            var table = await Database.GetTableAsync(tableName).UnwrapSomeAsync().ConfigureAwait(false);
+            var columns = await table.ColumnsAsync().ConfigureAwait(false);
             var column = columns.Single();
 
             Assert.IsTrue(column.IsNullable);
@@ -105,8 +105,8 @@ namespace SJP.Schematic.MySql.Tests.Integration
         public async Task ColumnsAsync_WhenGivenTableWithNotNullableColumn_ColumnReturnsIsNullableFalse()
         {
             const string tableName = "table_test_table_2";
-            var tableOption = await Database.GetTableAsync(tableName).ConfigureAwait(false);
-            var columns = await tableOption.UnwrapSome().ColumnsAsync().ConfigureAwait(false);
+            var table = await Database.GetTableAsync(tableName).UnwrapSomeAsync().ConfigureAwait(false);
+            var columns = await table.ColumnsAsync().ConfigureAwait(false);
             var column = columns.Single();
 
             Assert.IsFalse(column.IsNullable);
@@ -126,8 +126,8 @@ namespace SJP.Schematic.MySql.Tests.Integration
         public async Task ColumnsAsync_WhenGivenTableWithColumnWithNoDefaultValue_ColumnReturnsNullDefaultValue()
         {
             const string tableName = "table_test_table_1";
-            var tableOption = await Database.GetTableAsync(tableName).ConfigureAwait(false);
-            var columns = await tableOption.UnwrapSome().ColumnsAsync().ConfigureAwait(false);
+            var table = await Database.GetTableAsync(tableName).UnwrapSomeAsync().ConfigureAwait(false);
+            var columns = await table.ColumnsAsync().ConfigureAwait(false);
             var column = columns.Single();
 
             Assert.IsNull(column.DefaultValue);
@@ -152,8 +152,8 @@ namespace SJP.Schematic.MySql.Tests.Integration
         //public async Task ColumnsAsync_WhenGivenTableWithColumnWithDefaultValue_ColumnReturnsCorrectDefaultValue()
         //{
         //    const string tableName = "table_test_table_33";
-        //    var tableOption = await Database.GetTableAsync(tableName).ConfigureAwait(false);
-        //    var columns = await tableOption.UnwrapSome().ColumnsAsync().ConfigureAwait(false);
+        //    var table = await Database.GetTableAsync(tableName).UnwrapSomeAsync().ConfigureAwait(false);
+        //    var columns = await table.ColumnsAsync().ConfigureAwait(false);
         //    var column = columns.Single();
         //
         //    const string defaultValue = "1";
@@ -177,8 +177,8 @@ namespace SJP.Schematic.MySql.Tests.Integration
         public async Task ColumnsAsync_WhenGivenTableWithNonComputedColumn_ReturnsIsComputedFalse()
         {
             const string tableName = "table_test_table_1";
-            var tableOption = await Database.GetTableAsync(tableName).ConfigureAwait(false);
-            var columns = await tableOption.UnwrapSome().ColumnsAsync().ConfigureAwait(false);
+            var table = await Database.GetTableAsync(tableName).UnwrapSomeAsync().ConfigureAwait(false);
+            var columns = await table.ColumnsAsync().ConfigureAwait(false);
             var column = columns.Single();
 
             Assert.IsFalse(column.IsComputed);
@@ -198,8 +198,8 @@ namespace SJP.Schematic.MySql.Tests.Integration
         public async Task ColumnsAsync_WhenGivenTableWithComputedColumn_ReturnsIsComputedTrue()
         {
             const string tableName = "table_test_table_34";
-            var tableOption = await Database.GetTableAsync(tableName).ConfigureAwait(false);
-            var columns = await tableOption.UnwrapSome().ColumnsAsync().ConfigureAwait(false);
+            var table = await Database.GetTableAsync(tableName).UnwrapSomeAsync().ConfigureAwait(false);
+            var columns = await table.ColumnsAsync().ConfigureAwait(false);
             var column = columns.Last();
 
             Assert.IsTrue(column.IsComputed);
@@ -220,8 +220,8 @@ namespace SJP.Schematic.MySql.Tests.Integration
         public async Task ColumnsAsync_WhenGivenTableWithComputedColumnCastedToInterface_ReturnsNotNullObject()
         {
             const string tableName = "table_test_table_34";
-            var tableOption = await Database.GetTableAsync(tableName).ConfigureAwait(false);
-            var columns = await tableOption.UnwrapSome().ColumnsAsync().ConfigureAwait(false);
+            var table = await Database.GetTableAsync(tableName).UnwrapSomeAsync().ConfigureAwait(false);
+            var columns = await table.ColumnsAsync().ConfigureAwait(false);
             var column = columns.Last();
 
             var computedColumn = column as IDatabaseComputedColumn;
@@ -247,8 +247,8 @@ namespace SJP.Schematic.MySql.Tests.Integration
             const string tableName = "table_test_table_34";
             const string expectedDefinition = "(`test_column_1` + `test_column_2`)";
 
-            var tableOption = await Database.GetTableAsync(tableName).ConfigureAwait(false);
-            var columns = await tableOption.UnwrapSome().ColumnsAsync().ConfigureAwait(false);
+            var table = await Database.GetTableAsync(tableName).UnwrapSomeAsync().ConfigureAwait(false);
+            var columns = await table.ColumnsAsync().ConfigureAwait(false);
             var column = columns.Last();
 
             var computedColumn = column as IDatabaseComputedColumn;
@@ -269,8 +269,8 @@ namespace SJP.Schematic.MySql.Tests.Integration
         public async Task ColumnsAsync_WhenGivenTableColumnWithoutIdentity_ReturnsNullAutoincrement()
         {
             const string tableName = "table_test_table_1";
-            var tableOption = await Database.GetTableAsync(tableName).ConfigureAwait(false);
-            var columns = await tableOption.UnwrapSome().ColumnsAsync().ConfigureAwait(false);
+            var table = await Database.GetTableAsync(tableName).UnwrapSomeAsync().ConfigureAwait(false);
+            var columns = await table.ColumnsAsync().ConfigureAwait(false);
             var column = columns.Single();
 
             Assert.IsNull(column.AutoIncrement);
@@ -290,8 +290,8 @@ namespace SJP.Schematic.MySql.Tests.Integration
         public async Task ColumnsAsync_WhenGivenTableColumnWithIdentity_ReturnsNotNullAutoincrement()
         {
             const string tableName = "table_test_table_35";
-            var tableOption = await Database.GetTableAsync(tableName).ConfigureAwait(false);
-            var columns = await tableOption.UnwrapSome().ColumnsAsync().ConfigureAwait(false);
+            var table = await Database.GetTableAsync(tableName).UnwrapSomeAsync().ConfigureAwait(false);
+            var columns = await table.ColumnsAsync().ConfigureAwait(false);
             var column = columns.Last();
 
             Assert.IsNotNull(column.AutoIncrement);
@@ -311,8 +311,8 @@ namespace SJP.Schematic.MySql.Tests.Integration
         public async Task ColumnsAsync_WhenGivenTableColumnWithIdentity_ReturnsCorrectInitialValue()
         {
             const string tableName = "table_test_table_35";
-            var tableOption = await Database.GetTableAsync(tableName).ConfigureAwait(false);
-            var columns = await tableOption.UnwrapSome().ColumnsAsync().ConfigureAwait(false);
+            var table = await Database.GetTableAsync(tableName).UnwrapSomeAsync().ConfigureAwait(false);
+            var columns = await table.ColumnsAsync().ConfigureAwait(false);
             var column = columns.Last();
 
             Assert.AreEqual(1, column.AutoIncrement.InitialValue);
@@ -332,8 +332,8 @@ namespace SJP.Schematic.MySql.Tests.Integration
         public async Task ColumnsAsync_WhenGivenTableColumnWithIdentity_ReturnsCorrectIncrement()
         {
             const string tableName = "table_test_table_35";
-            var tableOption = await Database.GetTableAsync(tableName).ConfigureAwait(false);
-            var columns = await tableOption.UnwrapSome().ColumnsAsync().ConfigureAwait(false);
+            var table = await Database.GetTableAsync(tableName).UnwrapSomeAsync().ConfigureAwait(false);
+            var columns = await table.ColumnsAsync().ConfigureAwait(false);
             var column = columns.Last();
 
             Assert.AreEqual(1, column.AutoIncrement.Increment);

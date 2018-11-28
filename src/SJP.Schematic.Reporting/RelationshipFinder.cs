@@ -112,8 +112,8 @@ namespace SJP.Schematic.Reporting
                     if (!isNewTable)
                         continue;
 
-                    var childTable = await Database.GetTableAsync(childTableName).ConfigureAwait(false);
-                    childTable.IfSome(t => addedTables[childTableName] = t);
+                    var childTable = Database.GetTableAsync(childTableName);
+                    await childTable.IfSome(t => addedTables[childTableName] = t).ConfigureAwait(false);
                 }
 
                 foreach (var parentKey in parentKeys)
@@ -123,8 +123,8 @@ namespace SJP.Schematic.Reporting
                     if (!isNewTable)
                         continue;
 
-                    var parentTable = await Database.GetTableAsync(parentTableName).ConfigureAwait(false);
-                    parentTable.IfSome(t => addedTables[parentTableName] = t);
+                    var parentTable = Database.GetTableAsync(parentTableName);
+                    await parentTable.IfSome(t => addedTables[parentTableName] = t).ConfigureAwait(false);
                 }
             }
 

@@ -19,8 +19,8 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
         [Test]
         public async Task ChecksAsync_WhenGivenTableWithNoChecks_ReturnsEmptyCollection()
         {
-            var tableOption = await Database.GetTableAsync("table_test_table_1").ConfigureAwait(false);
-            var checks = await tableOption.UnwrapSome().ChecksAsync().ConfigureAwait(false);
+            var table = await Database.GetTableAsync("table_test_table_1").UnwrapSomeAsync().ConfigureAwait(false);
+            var checks = await table.ChecksAsync().ConfigureAwait(false);
             var count = checks.Count;
 
             Assert.AreEqual(0, count);
@@ -38,8 +38,8 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
         [Test]
         public async Task ChecksAsync_WhenGivenTableWithCheck_ReturnsContraintWithCorrectName()
         {
-            var tableOption = await Database.GetTableAsync("table_test_table_14").ConfigureAwait(false);
-            var checks = await tableOption.UnwrapSome().ChecksAsync().ConfigureAwait(false);
+            var table = await Database.GetTableAsync("table_test_table_14").UnwrapSomeAsync().ConfigureAwait(false);
+            var checks = await table.ChecksAsync().ConfigureAwait(false);
             var check = checks.Single();
 
             Assert.AreEqual("ck_test_table_14", check.Name.LocalName);
@@ -64,8 +64,8 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
         {
             const string expectedDefinition = "([test_column]>(1))";
 
-            var tableOption = await Database.GetTableAsync("table_test_table_14").ConfigureAwait(false);
-            var checks = await tableOption.UnwrapSome().ChecksAsync().ConfigureAwait(false);
+            var table = await Database.GetTableAsync("table_test_table_14").UnwrapSomeAsync().ConfigureAwait(false);
+            var checks = await table.ChecksAsync().ConfigureAwait(false);
             var check = checks.Single();
 
             var comparer = new SqliteExpressionComparer();
@@ -86,8 +86,8 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
         [Test]
         public async Task ChecksAsync_WhenGivenTableWithEnabledCheck_ReturnsIsEnabledTrue()
         {
-            var tableOption = await Database.GetTableAsync("table_test_table_14").ConfigureAwait(false);
-            var checks = await tableOption.UnwrapSome().ChecksAsync().ConfigureAwait(false);
+            var table = await Database.GetTableAsync("table_test_table_14").UnwrapSomeAsync().ConfigureAwait(false);
+            var checks = await table.ChecksAsync().ConfigureAwait(false);
             var check = checks.Single();
 
             Assert.IsTrue(check.IsEnabled);

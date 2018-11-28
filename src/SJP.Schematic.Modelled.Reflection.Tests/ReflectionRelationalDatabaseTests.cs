@@ -63,16 +63,18 @@ namespace SJP.Schematic.Modelled.Reflection.Tests
         public static async Task GetTableAsync_WhenTablePresent_ReturnsTable()
         {
             var db = new ReflectionRelationalDatabase<SampleDatabase>(new FakeDialect());
-            var table = await db.GetTableAsync("TestTable1").ConfigureAwait(false);
-            Assert.IsTrue(table.IsSome);
+            var tableIsSome = await db.GetTableAsync("TestTable1").IsSome.ConfigureAwait(false);
+
+            Assert.IsTrue(tableIsSome);
         }
 
         [Test]
         public static async Task GetTableAsync_WhenTableMissing_ReturnsNone()
         {
             var db = new ReflectionRelationalDatabase<SampleDatabase>(new FakeDialect());
-            var table =  await db.GetTableAsync("table_that_doesnt_exist").ConfigureAwait(false);
-            Assert.IsTrue(table.IsNone);
+            var tableIsNone =  await db.GetTableAsync("table_that_doesnt_exist").IsNone.ConfigureAwait(false);
+
+            Assert.IsTrue(tableIsNone);
         }
 
         private class SampleDatabase

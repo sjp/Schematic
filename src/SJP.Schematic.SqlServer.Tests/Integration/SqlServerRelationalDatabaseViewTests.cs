@@ -46,8 +46,7 @@ namespace SJP.Schematic.SqlServer.Tests.Integration
         {
             var database = Database;
             var viewName = new Identifier(database.DefaultSchema, "view_test_view_1");
-            var viewOption = await database.GetViewAsync(viewName).ConfigureAwait(false);
-            var view = viewOption.UnwrapSome();
+            var view = await database.GetViewAsync(viewName).UnwrapSomeAsync().ConfigureAwait(false);
 
             var definition = await view.DefinitionAsync().ConfigureAwait(false);
             const string expected = "create view view_test_view_1 as select 1 as test";
@@ -75,8 +74,7 @@ namespace SJP.Schematic.SqlServer.Tests.Integration
         [Test]
         public async Task IndexesAsync_WhenViewIsNotIndexed_ReturnsEmptyCollection()
         {
-            var viewOption = await Database.GetViewAsync("view_test_view_1").ConfigureAwait(false);
-            var view = viewOption.UnwrapSome();
+            var view = await Database.GetViewAsync("view_test_view_1").UnwrapSomeAsync().ConfigureAwait(false);
             var indexes = await view.IndexesAsync().ConfigureAwait(false);
             var indexCount = indexes.Count;
 
@@ -109,8 +107,7 @@ namespace SJP.Schematic.SqlServer.Tests.Integration
         {
             var database = Database;
             var viewName = new Identifier(database.DefaultSchema, "view_test_view_1");
-            var viewOption = await database.GetViewAsync(viewName).ConfigureAwait(false);
-            var view = viewOption.UnwrapSome();
+            var view = await database.GetViewAsync(viewName).UnwrapSomeAsync().ConfigureAwait(false);
             var columns = await view.ColumnsAsync().ConfigureAwait(false);
             var columnCount = columns.Count;
 
@@ -122,8 +119,7 @@ namespace SJP.Schematic.SqlServer.Tests.Integration
         {
             var database = Database;
             var viewName = new Identifier(database.DefaultSchema, "view_test_view_1");
-            var viewOption = await database.GetViewAsync(viewName).ConfigureAwait(false);
-            var view = viewOption.UnwrapSome();
+            var view = await database.GetViewAsync(viewName).UnwrapSomeAsync().ConfigureAwait(false);
             var columns = await view.ColumnsAsync().ConfigureAwait(false);
             var containsColumn = columns.Any(c => c.Name == "test");
 
@@ -156,8 +152,7 @@ namespace SJP.Schematic.SqlServer.Tests.Integration
         {
             var database = Database;
             var viewName = new Identifier(database.DefaultSchema, "view_test_view_2");
-            var viewOption = await database.GetViewAsync(viewName).ConfigureAwait(false);
-            var view = viewOption.UnwrapSome();
+            var view = await database.GetViewAsync(viewName).UnwrapSomeAsync().ConfigureAwait(false);
             var indexes = await view.IndexesAsync().ConfigureAwait(false);
             var indexCount = indexes.Count;
 
@@ -182,8 +177,7 @@ namespace SJP.Schematic.SqlServer.Tests.Integration
             Identifier indexName = "ix_view_test_view_2";
             var database = Database;
             var viewName = new Identifier(database.DefaultSchema, "view_test_view_2");
-            var viewOption = await database.GetViewAsync(viewName).ConfigureAwait(false);
-            var view = viewOption.UnwrapSome();
+            var view = await database.GetViewAsync(viewName).UnwrapSomeAsync().ConfigureAwait(false);
             var indexes = await view.IndexesAsync().ConfigureAwait(false);
             var containsIndex = indexes.Any(i => i.Name == indexName);
 

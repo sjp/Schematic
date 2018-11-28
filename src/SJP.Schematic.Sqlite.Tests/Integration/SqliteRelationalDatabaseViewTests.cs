@@ -51,8 +51,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
         {
             var database = Database;
             var viewName = new Identifier(database.DefaultSchema, "view_test_view_1");
-            var viewOption = await database.GetViewAsync(viewName).ConfigureAwait(false);
-            var view = viewOption.UnwrapSome();
+            var view = await database.GetViewAsync(viewName).UnwrapSomeAsync().ConfigureAwait(false);
 
             var definition = await view.DefinitionAsync().ConfigureAwait(false);
             const string expected = "create view view_test_view_1 as select 1 as test";
@@ -87,8 +86,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
         {
             var database = Database;
             var viewName = new Identifier(database.DefaultSchema, "view_test_view_1");
-            var viewOption = await database.GetViewAsync(viewName).ConfigureAwait(false);
-            var view = viewOption.UnwrapSome();
+            var view = await database.GetViewAsync(viewName).UnwrapSomeAsync().ConfigureAwait(false);
             var indexes = await view.IndexesAsync().ConfigureAwait(false);
             var indexCount = indexes.Count;
 
@@ -122,8 +120,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
         {
             var database = Database;
             var viewName = new Identifier(database.DefaultSchema, "view_test_view_1");
-            var viewOption = await database.GetViewAsync(viewName).ConfigureAwait(false);
-            var view = viewOption.UnwrapSome();
+            var view = await database.GetViewAsync(viewName).UnwrapSomeAsync().ConfigureAwait(false);
             var columns = await view.ColumnsAsync().ConfigureAwait(false);
             var columnCount = columns.Count;
 
@@ -135,8 +132,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
         {
             var database = Database;
             var viewName = new Identifier(database.DefaultSchema, "view_test_view_1");
-            var viewOption = await database.GetViewAsync(viewName).ConfigureAwait(false);
-            var view = viewOption.UnwrapSome();
+            var view = await database.GetViewAsync(viewName).UnwrapSomeAsync().ConfigureAwait(false);
             var columns = await view.ColumnsAsync().ConfigureAwait(false);
             var containsColumn = columns.Any(c => c.Name == "test");
 
@@ -172,8 +168,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
         {
             var database = Database;
             var viewName = new Identifier(database.DefaultSchema, "view_test_view_2");
-            var viewOption = await database.GetViewAsync(viewName).ConfigureAwait(false);
-            var view = viewOption.UnwrapSome();
+            var view = await database.GetViewAsync(viewName).UnwrapSomeAsync().ConfigureAwait(false);
             var columns = await view.ColumnsAsync().ConfigureAwait(false);
             var columnCount = columns.Count;
 
@@ -185,8 +180,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
         {
             var database = Database;
             var viewName = new Identifier(database.DefaultSchema, "view_test_view_2");
-            var viewOption = await database.GetViewAsync(viewName).ConfigureAwait(false);
-            var view = viewOption.UnwrapSome();
+            var view = await database.GetViewAsync(viewName).UnwrapSomeAsync().ConfigureAwait(false);
             var columns = await view.ColumnsAsync().ConfigureAwait(false);
             var columnTypes = columns.Select(c => c.Type.DataType).ToList();
             var expectedTypes = new[] { DataType.BigInteger, DataType.Float, DataType.UnicodeText, DataType.LargeBinary };
@@ -224,8 +218,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
         {
             var database = Database;
             var viewName = new Identifier(database.DefaultSchema, "view_test_view_3");
-            var viewOption = await database.GetViewAsync(viewName).ConfigureAwait(false);
-            var view = viewOption.UnwrapSome();
+            var view = await database.GetViewAsync(viewName).UnwrapSomeAsync().ConfigureAwait(false);
             var columns = await view.ColumnsAsync().ConfigureAwait(false);
             var columnCount = columns.Count;
 
@@ -237,8 +230,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
         {
             var database = Database;
             var viewName = new Identifier(database.DefaultSchema, "view_test_view_3");
-            var viewOption = await database.GetViewAsync(viewName).ConfigureAwait(false);
-            var view = viewOption.UnwrapSome();
+            var view = await database.GetViewAsync(viewName).UnwrapSomeAsync().ConfigureAwait(false);
             var columns = await view.ColumnsAsync().ConfigureAwait(false);
             var columnTypes = columns.Select(c => c.Type.DataType).ToList();
             var expectedTypes = new[] { DataType.Numeric, DataType.Numeric, DataType.Numeric, DataType.Numeric, DataType.BigInteger };
@@ -276,8 +268,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
         {
             var database = Database;
             var viewName = new Identifier(database.DefaultSchema, "view_test_view_4");
-            var viewOption = await database.GetViewAsync(viewName).ConfigureAwait(false);
-            var view = viewOption.UnwrapSome();
+            var view = await database.GetViewAsync(viewName).UnwrapSomeAsync().ConfigureAwait(false);
             var columns = await view.ColumnsAsync().ConfigureAwait(false);
             var columnCount = columns.Count;
 
@@ -289,8 +280,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
         {
             var database = Database;
             var viewName = new Identifier(database.DefaultSchema, "view_test_view_4");
-            var viewOption = await database.GetViewAsync(viewName).ConfigureAwait(false);
-            var view = viewOption.UnwrapSome();
+            var view = await database.GetViewAsync(viewName).UnwrapSomeAsync().ConfigureAwait(false);
             var columns = await view.ColumnsAsync().ConfigureAwait(false);
             var columnTypes = columns.Select(c => c.Type.DataType).ToList();
             var expectedTypes = new[] { DataType.BigInteger, DataType.BigInteger, DataType.BigInteger, DataType.BigInteger };

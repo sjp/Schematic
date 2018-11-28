@@ -58,31 +58,27 @@ namespace SJP.Schematic.Modelled.Reflection
                 throw new ArgumentNullException(nameof(tableName));
 
             tableName = CreateQualifiedIdentifier(tableName);
-            var lookupResult = Table.TryGetValue(tableName, out var table)
+
+            return Table.TryGetValue(tableName, out var table)
                 ? Option<IRelationalDatabaseTable>.Some(table)
                 : Option<IRelationalDatabaseTable>.None;
-
-            return lookupResult;
         }
 
-        public Task<Option<IRelationalDatabaseTable>> GetTableAsync(Identifier tableName, CancellationToken cancellationToken = default(CancellationToken))
+        public OptionAsync<IRelationalDatabaseTable> GetTableAsync(Identifier tableName, CancellationToken cancellationToken = default(CancellationToken))
         {
             if (tableName == null)
                 throw new ArgumentNullException(nameof(tableName));
 
             tableName = CreateQualifiedIdentifier(tableName);
-            var lookupResult = Table.TryGetValue(tableName, out var table)
-                ? Option<IRelationalDatabaseTable>.Some(table)
-                : Option<IRelationalDatabaseTable>.None;
 
-            return Task.FromResult(lookupResult);
+            return Table.TryGetValue(tableName, out var table)
+                ? OptionAsync<IRelationalDatabaseTable>.Some(table)
+                : OptionAsync<IRelationalDatabaseTable>.None;
         }
 
         public IReadOnlyCollection<IRelationalDatabaseTable> Tables => new ReadOnlyCollectionSlim<IRelationalDatabaseTable>(Table.Count, Table.Values);
 
-        public Task<IReadOnlyCollection<Task<IRelationalDatabaseTable>>> TablesAsync(CancellationToken cancellationToken = default(CancellationToken)) => Task.FromResult<IReadOnlyCollection<Task<IRelationalDatabaseTable>>>(
-            Tables.Select(Task.FromResult).ToList()
-        );
+        public Task<IReadOnlyCollection<IRelationalDatabaseTable>> TablesAsync(CancellationToken cancellationToken = default(CancellationToken)) => Task.FromResult(Tables);
 
         protected IReadOnlyDictionary<Identifier, IRelationalDatabaseTable> Table => _tableLookup.Value;
 
@@ -92,19 +88,18 @@ namespace SJP.Schematic.Modelled.Reflection
                 throw new ArgumentNullException(nameof(tableType));
 
             // TODO: check whether this even exists...
-            return new ReflectionTable(this, tableType);
+            var table = new ReflectionTable(this, tableType);
+            return Option<IRelationalDatabaseTable>.Some(table);
         }
 
-        protected virtual Task<Option<IRelationalDatabaseTable>> LoadTableAsync(Type tableType)
+        protected virtual OptionAsync<IRelationalDatabaseTable> LoadTableAsync(Type tableType)
         {
             if (tableType == null)
                 throw new ArgumentNullException(nameof(tableType));
 
             // TODO: check whether this even exists...
             var table = new ReflectionTable(this, tableType);
-            var tableOption = Option<IRelationalDatabaseTable>.Some(table);
-
-            return Task.FromResult(tableOption);
+            return OptionAsync<IRelationalDatabaseTable>.Some(table);
         }
 
         protected virtual IReadOnlyDictionary<Identifier, IRelationalDatabaseTable> LoadTables()
@@ -129,31 +124,27 @@ namespace SJP.Schematic.Modelled.Reflection
                 throw new ArgumentNullException(nameof(viewName));
 
             viewName = CreateQualifiedIdentifier(viewName);
-            var lookupResult =  View.TryGetValue(viewName, out var view)
+
+            return View.TryGetValue(viewName, out var view)
                 ? Option<IRelationalDatabaseView>.Some(view)
                 : Option<IRelationalDatabaseView>.None;
-
-            return lookupResult;
         }
 
-        public Task<Option<IRelationalDatabaseView>> GetViewAsync(Identifier viewName, CancellationToken cancellationToken = default(CancellationToken))
+        public OptionAsync<IRelationalDatabaseView> GetViewAsync(Identifier viewName, CancellationToken cancellationToken = default(CancellationToken))
         {
             if (viewName == null)
                 throw new ArgumentNullException(nameof(viewName));
 
             viewName = CreateQualifiedIdentifier(viewName);
-            var lookupResult = View.TryGetValue(viewName, out var view)
-                ? Option<IRelationalDatabaseView>.Some(view)
-                : Option<IRelationalDatabaseView>.None;
 
-            return Task.FromResult(lookupResult);
+            return View.TryGetValue(viewName, out var view)
+                ? OptionAsync<IRelationalDatabaseView>.Some(view)
+                : OptionAsync<IRelationalDatabaseView>.None;
         }
 
         public IReadOnlyCollection<IRelationalDatabaseView> Views => new ReadOnlyCollectionSlim<IRelationalDatabaseView>(View.Count, View.Values);
 
-        public Task<IReadOnlyCollection<Task<IRelationalDatabaseView>>> ViewsAsync(CancellationToken cancellationToken = default(CancellationToken)) => Task.FromResult<IReadOnlyCollection<Task<IRelationalDatabaseView>>>(
-            Views.Select(Task.FromResult).ToList()
-        );
+        public Task<IReadOnlyCollection<IRelationalDatabaseView>> ViewsAsync(CancellationToken cancellationToken = default(CancellationToken)) => Task.FromResult(Views);
 
         protected IReadOnlyDictionary<Identifier, IRelationalDatabaseView> View => _viewLookup.Value;
 
@@ -162,19 +153,19 @@ namespace SJP.Schematic.Modelled.Reflection
             if (viewType == null)
                 throw new ArgumentNullException(nameof(viewType));
 
-            // TODO: check this exists...
-            return new ReflectionView(this, viewType);
+            // TODO: check whether this even exists...
+            var view = new ReflectionView(this, viewType);
+            return Option<IRelationalDatabaseView>.Some(view);
         }
 
-        protected virtual Task<Option<IRelationalDatabaseView>> LoadViewAsync(Type viewType)
+        protected virtual OptionAsync<IRelationalDatabaseView> LoadViewAsync(Type viewType)
         {
             if (viewType == null)
                 throw new ArgumentNullException(nameof(viewType));
 
+            // TODO: check whether this even exists...
             var view = new ReflectionView(this, viewType);
-            var viewOption = Option<IRelationalDatabaseView>.Some(view);
-
-            return Task.FromResult(viewOption);
+            return OptionAsync<IRelationalDatabaseView>.Some(view);
         }
 
         protected virtual IReadOnlyDictionary<Identifier, IRelationalDatabaseView> LoadViews()
@@ -199,31 +190,27 @@ namespace SJP.Schematic.Modelled.Reflection
                 throw new ArgumentNullException(nameof(sequenceName));
 
             sequenceName = CreateQualifiedIdentifier(sequenceName);
-            var lookupResult = Sequence.TryGetValue(sequenceName, out var sequence)
+
+            return Sequence.TryGetValue(sequenceName, out var sequence)
                 ? Option<IDatabaseSequence>.Some(sequence)
                 : Option<IDatabaseSequence>.None;
-
-            return lookupResult;
         }
 
-        public Task<Option<IDatabaseSequence>> GetSequenceAsync(Identifier sequenceName, CancellationToken cancellationToken = default(CancellationToken))
+        public OptionAsync<IDatabaseSequence> GetSequenceAsync(Identifier sequenceName, CancellationToken cancellationToken = default(CancellationToken))
         {
             if (sequenceName == null)
                 throw new ArgumentNullException(nameof(sequenceName));
 
             sequenceName = CreateQualifiedIdentifier(sequenceName);
-            var lookupResult = Sequence.TryGetValue(sequenceName, out var sequence)
-                ? Option<IDatabaseSequence>.Some(sequence)
-                : Option<IDatabaseSequence>.None;
 
-            return Task.FromResult(lookupResult);
+            return Sequence.TryGetValue(sequenceName, out var sequence)
+                ? OptionAsync<IDatabaseSequence>.Some(sequence)
+                : OptionAsync<IDatabaseSequence>.None;
         }
 
         public IReadOnlyCollection<IDatabaseSequence> Sequences => new ReadOnlyCollectionSlim<IDatabaseSequence>(Sequence.Count, Sequence.Values);
 
-        public Task<IReadOnlyCollection<Task<IDatabaseSequence>>> SequencesAsync(CancellationToken cancellationToken = default(CancellationToken)) => Task.FromResult<IReadOnlyCollection<Task<IDatabaseSequence>>>(
-            Sequences.Select(Task.FromResult).ToList()
-        );
+        public Task<IReadOnlyCollection<IDatabaseSequence>> SequencesAsync(CancellationToken cancellationToken = default(CancellationToken)) => Task.FromResult(Sequences);
 
         protected IReadOnlyDictionary<Identifier, IDatabaseSequence> Sequence => _sequenceLookup.Value;
 
@@ -232,18 +219,19 @@ namespace SJP.Schematic.Modelled.Reflection
             if (sequenceType == null)
                 throw new ArgumentNullException(nameof(sequenceType));
 
-            return new ReflectionSequence(this, sequenceType);
+            // TODO: check whether this even exists...
+            var sequence = new ReflectionSequence(this, sequenceType);
+            return Option<IDatabaseSequence>.Some(sequence);
         }
 
-        protected virtual Task<Option<IDatabaseSequence>> LoadSequenceAsync(Type sequenceType)
+        protected virtual OptionAsync<IDatabaseSequence> LoadSequenceAsync(Type sequenceType)
         {
             if (sequenceType == null)
                 throw new ArgumentNullException(nameof(sequenceType));
 
+            // TODO: check whether this even exists...
             var sequence = new ReflectionSequence(this, sequenceType);
-            var sequenceOption = Option<IDatabaseSequence>.Some(sequence);
-
-            return Task.FromResult(sequenceOption);
+            return OptionAsync<IDatabaseSequence>.Some(sequence);
         }
 
         protected virtual IReadOnlyDictionary<Identifier, IDatabaseSequence> LoadSequences()
@@ -268,31 +256,27 @@ namespace SJP.Schematic.Modelled.Reflection
                 throw new ArgumentNullException(nameof(synonymName));
 
             synonymName = CreateQualifiedIdentifier(synonymName);
-            var lookupResult = Synonym.TryGetValue(synonymName, out var synonym)
+
+            return Synonym.TryGetValue(synonymName, out var synonym)
                 ? Option<IDatabaseSynonym>.Some(synonym)
                 : Option<IDatabaseSynonym>.None;
-
-            return lookupResult;
         }
 
-        public Task<Option<IDatabaseSynonym>> GetSynonymAsync(Identifier synonymName, CancellationToken cancellationToken = default(CancellationToken))
+        public OptionAsync<IDatabaseSynonym> GetSynonymAsync(Identifier synonymName, CancellationToken cancellationToken = default(CancellationToken))
         {
             if (synonymName == null)
                 throw new ArgumentNullException(nameof(synonymName));
 
             synonymName = CreateQualifiedIdentifier(synonymName);
-            var lookupResult = Synonym.TryGetValue(synonymName, out var synonym)
-                ? Option<IDatabaseSynonym>.Some(synonym)
-                : Option<IDatabaseSynonym>.None;
 
-            return Task.FromResult(lookupResult);
+            return Synonym.TryGetValue(synonymName, out var synonym)
+                ? OptionAsync<IDatabaseSynonym>.Some(synonym)
+                : OptionAsync<IDatabaseSynonym>.None;
         }
 
         public IReadOnlyCollection<IDatabaseSynonym> Synonyms => new ReadOnlyCollectionSlim<IDatabaseSynonym>(Synonym.Count, Synonym.Values);
 
-        public Task<IReadOnlyCollection<Task<IDatabaseSynonym>>> SynonymsAsync(CancellationToken cancellationToken = default(CancellationToken)) => Task.FromResult<IReadOnlyCollection<Task<IDatabaseSynonym>>>(
-            Synonyms.Select(Task.FromResult).ToList()
-        );
+        public Task<IReadOnlyCollection<IDatabaseSynonym>> SynonymsAsync(CancellationToken cancellationToken = default(CancellationToken)) => Task.FromResult(Synonyms);
 
         protected IReadOnlyDictionary<Identifier, IDatabaseSynonym> Synonym => _synonymLookup.Value;
 
@@ -301,18 +285,19 @@ namespace SJP.Schematic.Modelled.Reflection
             if (synonymType == null)
                 throw new ArgumentNullException(nameof(synonymType));
 
-            return new ReflectionSynonym(this, synonymType);
+            // TODO: check whether this even exists...
+            var synonym = new ReflectionSynonym(this, synonymType);
+            return Option<IDatabaseSynonym>.Some(synonym);
         }
 
-        protected virtual Task<Option<IDatabaseSynonym>> LoadSynonymAsync(Type synonymType)
+        protected virtual OptionAsync<IDatabaseSynonym> LoadSynonymAsync(Type synonymType)
         {
             if (synonymType == null)
                 throw new ArgumentNullException(nameof(synonymType));
 
+            // TODO: check whether this even exists...
             var synonym = new ReflectionSynonym(this, synonymType);
-            var synonymOption = Option<IDatabaseSynonym>.Some(synonym);
-
-            return Task.FromResult<Option<IDatabaseSynonym>>(synonymOption);
+            return OptionAsync<IDatabaseSynonym>.Some(synonym);
         }
 
         protected virtual IReadOnlyDictionary<Identifier, IDatabaseSynonym> LoadSynonyms()

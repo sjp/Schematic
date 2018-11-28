@@ -63,8 +63,7 @@ namespace SJP.Schematic.Reporting.Html.Renderers
 
         public async Task RenderAsync()
         {
-            var tableCollection = await Database.TablesAsync().ConfigureAwait(false);
-            var tables = await Task.WhenAll(tableCollection).ConfigureAwait(false);
+            var tables = await Database.TablesAsync().ConfigureAwait(false);
 
             var primaryKeys = await tables.SelectNotNullAsync(async t => new { TableName = t.Name, PrimaryKey = await t.PrimaryKeyAsync().ConfigureAwait(false) }).ConfigureAwait(false);
             var uniqueKeys = await Task.WhenAll(tables.Select(async t => new { TableName = t.Name, UniqueKeys = await t.UniqueKeysAsync().ConfigureAwait(false) })).ConfigureAwait(false);

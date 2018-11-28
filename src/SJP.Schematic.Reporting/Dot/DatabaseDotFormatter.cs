@@ -187,9 +187,8 @@ namespace SJP.Schematic.Reporting.Dot
         public async Task<string> RenderDatabaseAsync()
         {
             var tables = await Database.TablesAsync().ConfigureAwait(false);
-            var tablesList = await Task.WhenAll(tables).ConfigureAwait(false);
 
-            return await RenderTablesAsync(tablesList, DotRenderOptions.Default).ConfigureAwait(false);
+            return await RenderTablesAsync(tables, DotRenderOptions.Default).ConfigureAwait(false);
         }
 
         public Task<string> RenderDatabaseAsync(DotRenderOptions options)
@@ -203,9 +202,8 @@ namespace SJP.Schematic.Reporting.Dot
         private async Task<string> RenderDatabaseAsyncCore(DotRenderOptions options)
         {
             var tables = await Database.TablesAsync().ConfigureAwait(false);
-            var tablesList = await Task.WhenAll(tables).ConfigureAwait(false);
 
-            return await RenderTablesAsyncCore(tablesList, options).ConfigureAwait(false);
+            return await RenderTablesAsyncCore(tables, options).ConfigureAwait(false);
         }
 
         public Task<string> RenderTablesAsync(IEnumerable<IRelationalDatabaseTable> tables)

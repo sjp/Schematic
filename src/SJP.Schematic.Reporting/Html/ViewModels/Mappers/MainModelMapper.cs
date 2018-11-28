@@ -162,15 +162,17 @@ namespace SJP.Schematic.Reporting.Html.ViewModels.Mappers
 
         private async Task<Option<Uri>> GetSynonymTargetUrlAsync(Identifier identifier)
         {
-            var table = await Database.GetTableAsync(identifier).ConfigureAwait(false);
-            var tableUri = table.Map(t => new Uri("tables/" + t.Name.ToSafeKey() + ".html", UriKind.Relative));
-            if (tableUri.IsSome)
-                return tableUri;
+            var tableOption = Database.GetTableAsync(identifier);
+            var tableUri = tableOption.Map(t => new Uri("tables/" + t.Name.ToSafeKey() + ".html", UriKind.Relative));
+            var tableUriIsSome = await tableUri.IsSome.ConfigureAwait(false);
+            if (tableUriIsSome)
+                return await tableUri.ToOption().ConfigureAwait(false);
 
-            var view = await Database.GetViewAsync(identifier).ConfigureAwait(false);
-            var viewUri = view.Map(v => new Uri("views/" + v.Name.ToSafeKey() + ".html", UriKind.Relative));
-            if (viewUri.IsSome)
-                return viewUri;
+            var viewOption = Database.GetViewAsync(identifier);
+            var viewUri = viewOption.Map(v => new Uri("views/" + v.Name.ToSafeKey() + ".html", UriKind.Relative));
+            var viewUriIsSome = await viewUri.IsSome.ConfigureAwait(false);
+            if (viewUriIsSome)
+                return await viewUri.ToOption().ConfigureAwait(false);
 
             return Option<Uri>.None;
         }

@@ -272,8 +272,7 @@ namespace SJP.Schematic.Sqlite
 
         protected virtual async Task<IReadOnlyCollection<IDatabaseRelationalKey>> LoadChildKeysAsync(CancellationToken cancellationToken)
         {
-            var dbTableCollections = await Database.TablesAsync(cancellationToken).ConfigureAwait(false);
-            var dbTables = await Task.WhenAll(dbTableCollections).ConfigureAwait(false);
+            var dbTables = await Database.TablesAsync(cancellationToken).ConfigureAwait(false);
 
             var parentKeyCollectionTasks = dbTables
                 .Where(t => string.Equals(t.Name.Schema, Name.Schema, StringComparison.OrdinalIgnoreCase))
@@ -428,11 +427,13 @@ namespace SJP.Schematic.Sqlite
                 var rows = fkey.OrderBy(row => row.seq);
 
                 var parentTableName = Identifier.CreateQualifiedIdentifier(Name.Schema, fkey.Key.ParentTableName);
-                var parentOption = await Database.GetTableAsync(parentTableName).ConfigureAwait(false);
-                if (parentOption.IsNone)
+                var parentOption = Database.GetTableAsync(parentTableName);
+
+                var parentIsNone = await parentOption.IsNone.ConfigureAwait(false);
+                if (parentIsNone)
                     throw new Exception("Could not find parent table with name: " + parentTableName.ToString());
 
-                var parentTable = parentOption.UnwrapSome();
+                var parentTable = await parentOption.UnwrapSomeAsync().ConfigureAwait(false);
                 var parentColumnLookup = await parentTable.GetColumnLookupAsync(cancellationToken).ConfigureAwait(false);
                 var parentColumns = rows.Select(row => parentColumnLookup[row.to]).ToList();
 

@@ -45,7 +45,7 @@ namespace SJP.Schematic.Modelled
             return LoadTableSync(tableName);
         }
 
-        public Task<Option<IRelationalDatabaseTable>> GetTableAsync(Identifier tableName, CancellationToken cancellationToken = default(CancellationToken))
+        public OptionAsync<IRelationalDatabaseTable> GetTableAsync(Identifier tableName, CancellationToken cancellationToken = default(CancellationToken))
         {
             if (tableName == null)
                 throw new ArgumentNullException(nameof(tableName));
@@ -59,16 +59,14 @@ namespace SJP.Schematic.Modelled
                 .DistinctBy(t => t.Name)
                 .ToList();
 
-        public async Task<IReadOnlyCollection<Task<IRelationalDatabaseTable>>> TablesAsync(CancellationToken cancellationToken = default(CancellationToken))
+        public async Task<IReadOnlyCollection<IRelationalDatabaseTable>> TablesAsync(CancellationToken cancellationToken = default(CancellationToken))
         {
             var tablesTasks = Databases.Select(d => d.TablesAsync(cancellationToken));
             var tableCollections = await Task.WhenAll(tablesTasks).ConfigureAwait(false);
-            var allTableTasks = tableCollections.SelectMany(t => t);
-            var allTables = await Task.WhenAll(allTableTasks).ConfigureAwait(false);
+            var allTables = tableCollections.SelectMany(t => t);
 
             return allTables
                 .DistinctBy(t => t.Name)
-                .Select(Task.FromResult)
                 .ToList();
         }
 
@@ -82,19 +80,22 @@ namespace SJP.Schematic.Modelled
                 .FirstOrDefault(t => t.IsSome);
         }
 
-        protected virtual Task<Option<IRelationalDatabaseTable>> LoadTableAsync(Identifier tableName, CancellationToken cancellationToken)
+        protected virtual OptionAsync<IRelationalDatabaseTable> LoadTableAsync(Identifier tableName, CancellationToken cancellationToken)
         {
             if (tableName == null)
                 throw new ArgumentNullException(nameof(tableName));
 
-            return LoadTableAsyncCore(tableName, cancellationToken);
+            return LoadTableAsyncCore(tableName, cancellationToken).ToAsync();
         }
 
         private async Task<Option<IRelationalDatabaseTable>> LoadTableAsyncCore(Identifier tableName, CancellationToken cancellationToken)
         {
-            var tables = Databases.Select(d => d.GetTableAsync(tableName, cancellationToken)).ToArray();
-            var tablesTask = await Task.WhenAll(tables).ConfigureAwait(false);
-            return Array.Find(tablesTask, t => t.IsSome);
+            var tables = await Databases
+                .Select(d => d.GetTableAsync(tableName, cancellationToken))
+                .Somes()
+                .ConfigureAwait(false);
+
+            return tables.HeadOrNone();
         }
 
         public Option<IRelationalDatabaseView> GetView(Identifier viewName)
@@ -105,7 +106,7 @@ namespace SJP.Schematic.Modelled
             return LoadViewSync(viewName);
         }
 
-        public Task<Option<IRelationalDatabaseView>> GetViewAsync(Identifier viewName, CancellationToken cancellationToken = default(CancellationToken))
+        public OptionAsync<IRelationalDatabaseView> GetViewAsync(Identifier viewName, CancellationToken cancellationToken = default(CancellationToken))
         {
             if (viewName == null)
                 throw new ArgumentNullException(nameof(viewName));
@@ -119,16 +120,14 @@ namespace SJP.Schematic.Modelled
                 .DistinctBy(t => t.Name)
                 .ToList();
 
-        public async Task<IReadOnlyCollection<Task<IRelationalDatabaseView>>> ViewsAsync(CancellationToken cancellationToken = default(CancellationToken))
+        public async Task<IReadOnlyCollection<IRelationalDatabaseView>> ViewsAsync(CancellationToken cancellationToken = default(CancellationToken))
         {
             var viewsTasks = Databases.Select(d => d.ViewsAsync(cancellationToken));
             var viewCollections = await Task.WhenAll(viewsTasks).ConfigureAwait(false);
-            var allViewTasks = viewCollections.SelectMany(v => v);
-            var allViews = await Task.WhenAll(allViewTasks).ConfigureAwait(false);
+            var allViews = viewCollections.SelectMany(v => v);
 
             return allViews
                 .DistinctBy(v => v.Name)
-                .Select(Task.FromResult)
                 .ToList();
         }
 
@@ -142,19 +141,22 @@ namespace SJP.Schematic.Modelled
                 .FirstOrDefault(v => v.IsSome);
         }
 
-        protected virtual Task<Option<IRelationalDatabaseView>> LoadViewAsync(Identifier viewName, CancellationToken cancellationToken)
+        protected virtual OptionAsync<IRelationalDatabaseView> LoadViewAsync(Identifier viewName, CancellationToken cancellationToken)
         {
             if (viewName == null)
                 throw new ArgumentNullException(nameof(viewName));
 
-            return LoadViewAsyncCore(viewName, cancellationToken);
+            return LoadViewAsyncCore(viewName, cancellationToken).ToAsync();
         }
 
         private async Task<Option<IRelationalDatabaseView>> LoadViewAsyncCore(Identifier viewName, CancellationToken cancellationToken)
         {
-            var views = Databases.Select(d => d.GetViewAsync(viewName, cancellationToken)).ToArray();
-            var viewsTask = await Task.WhenAll(views).ConfigureAwait(false);
-            return Array.Find(viewsTask, t => t.IsSome);
+            var views = await Databases
+                .Select(d => d.GetViewAsync(viewName, cancellationToken))
+                .Somes()
+                .ConfigureAwait(false);
+
+            return views.HeadOrNone();
         }
 
         public Option<IDatabaseSequence> GetSequence(Identifier sequenceName)
@@ -165,7 +167,7 @@ namespace SJP.Schematic.Modelled
             return LoadSequenceSync(sequenceName);
         }
 
-        public Task<Option<IDatabaseSequence>> GetSequenceAsync(Identifier sequenceName, CancellationToken cancellationToken = default(CancellationToken))
+        public OptionAsync<IDatabaseSequence> GetSequenceAsync(Identifier sequenceName, CancellationToken cancellationToken = default(CancellationToken))
         {
             if (sequenceName == null)
                 throw new ArgumentNullException(nameof(sequenceName));
@@ -179,16 +181,14 @@ namespace SJP.Schematic.Modelled
                 .DistinctBy(t => t.Name)
                 .ToList();
 
-        public async Task<IReadOnlyCollection<Task<IDatabaseSequence>>> SequencesAsync(CancellationToken cancellationToken = default(CancellationToken))
+        public async Task<IReadOnlyCollection<IDatabaseSequence>> SequencesAsync(CancellationToken cancellationToken = default(CancellationToken))
         {
             var sequencesTasks = Databases.Select(d => d.SequencesAsync(cancellationToken));
             var sequenceCollections = await Task.WhenAll(sequencesTasks).ConfigureAwait(false);
-            var allSequenceTasks = sequenceCollections.SelectMany(s => s);
-            var allSequences = await Task.WhenAll(allSequenceTasks).ConfigureAwait(false);
+            var allSequences = sequenceCollections.SelectMany(s => s);
 
             return allSequences
-                .DistinctBy(s => s.Name)
-                .Select(Task.FromResult)
+                .DistinctBy(v => v.Name)
                 .ToList();
         }
 
@@ -202,19 +202,22 @@ namespace SJP.Schematic.Modelled
                 .FirstOrDefault(s => s.IsSome);
         }
 
-        protected virtual Task<Option<IDatabaseSequence>> LoadSequenceAsync(Identifier sequenceName, CancellationToken cancellationToken)
+        protected virtual OptionAsync<IDatabaseSequence> LoadSequenceAsync(Identifier sequenceName, CancellationToken cancellationToken)
         {
             if (sequenceName == null)
                 throw new ArgumentNullException(nameof(sequenceName));
 
-            return LoadSequenceAsyncCore(sequenceName, cancellationToken);
+            return LoadSequenceAsyncCore(sequenceName, cancellationToken).ToAsync();
         }
 
         private async Task<Option<IDatabaseSequence>> LoadSequenceAsyncCore(Identifier sequenceName, CancellationToken cancellationToken)
         {
-            var sequences = Databases.Select(d => d.GetSequenceAsync(sequenceName, cancellationToken)).ToArray();
-            var sequencesTask = await Task.WhenAll(sequences).ConfigureAwait(false);
-            return Array.Find(sequencesTask, t => t.IsSome);
+            var sequences = await Databases
+                .Select(d => d.GetSequenceAsync(sequenceName, cancellationToken))
+                .Somes()
+                .ConfigureAwait(false);
+
+            return sequences.HeadOrNone();
         }
 
         public Option<IDatabaseSynonym> GetSynonym(Identifier synonymName)
@@ -225,7 +228,7 @@ namespace SJP.Schematic.Modelled
             return LoadSynonymSync(synonymName);
         }
 
-        public Task<Option<IDatabaseSynonym>> GetSynonymAsync(Identifier synonymName, CancellationToken cancellationToken = default(CancellationToken))
+        public OptionAsync<IDatabaseSynonym> GetSynonymAsync(Identifier synonymName, CancellationToken cancellationToken = default(CancellationToken))
         {
             if (synonymName == null)
                 throw new ArgumentNullException(nameof(synonymName));
@@ -239,16 +242,14 @@ namespace SJP.Schematic.Modelled
                 .DistinctBy(t => t.Name)
                 .ToList();
 
-        public async Task<IReadOnlyCollection<Task<IDatabaseSynonym>>> SynonymsAsync(CancellationToken cancellationToken = default(CancellationToken))
+        public async Task<IReadOnlyCollection<IDatabaseSynonym>> SynonymsAsync(CancellationToken cancellationToken = default(CancellationToken))
         {
             var synonymsTasks = Databases.Select(d => d.SynonymsAsync(cancellationToken));
             var synonymCollections = await Task.WhenAll(synonymsTasks).ConfigureAwait(false);
-            var allSynonymTasks = synonymCollections.SelectMany(s => s);
-            var allSynonyms = await Task.WhenAll(allSynonymTasks).ConfigureAwait(false);
+            var allSynonyms = synonymCollections.SelectMany(s => s);
 
             return allSynonyms
                 .DistinctBy(s => s.Name)
-                .Select(Task.FromResult)
                 .ToList();
         }
 
@@ -262,19 +263,22 @@ namespace SJP.Schematic.Modelled
                 .FirstOrDefault(s => s.IsSome);
         }
 
-        protected virtual Task<Option<IDatabaseSynonym>> LoadSynonymAsync(Identifier synonymName, CancellationToken cancellationToken)
+        protected virtual OptionAsync<IDatabaseSynonym> LoadSynonymAsync(Identifier synonymName, CancellationToken cancellationToken)
         {
             if (synonymName == null)
                 throw new ArgumentNullException(nameof(synonymName));
 
-            return LoadSynonymAsyncCore(synonymName, cancellationToken);
+            return LoadSynonymAsyncCore(synonymName, cancellationToken).ToAsync();
         }
 
         private async Task<Option<IDatabaseSynonym>> LoadSynonymAsyncCore(Identifier synonymName, CancellationToken cancellationToken)
         {
-            var synonyms = Databases.Select(d => d.GetSynonymAsync(synonymName, cancellationToken)).ToArray();
-            var synonymsTask = await Task.WhenAll(synonyms).ConfigureAwait(false);
-            return Array.Find(synonymsTask, t => t.IsSome);
+            var synonyms = await Databases
+                .Select(d => d.GetSynonymAsync(synonymName, cancellationToken))
+                .Somes()
+                .ConfigureAwait(false);
+
+            return synonyms.HeadOrNone();
         }
     }
 }

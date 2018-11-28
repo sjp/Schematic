@@ -22,7 +22,7 @@ namespace SJP.Schematic.Core.Extensions
                 : Option<T>.None;
         }
 
-        public static Task<Option<T>> QueryFirstOrNoneAsync<T>(this IDbConnection cnn, string sql, object param = null, IDbTransaction transaction = null, int? commandTimeout = null, CommandType? commandType = null)
+        public static OptionAsync<T> QueryFirstOrNoneAsync<T>(this IDbConnection cnn, string sql, object param = null, IDbTransaction transaction = null, int? commandTimeout = null, CommandType? commandType = null)
             where T : class
         {
             if (cnn == null)
@@ -30,7 +30,7 @@ namespace SJP.Schematic.Core.Extensions
             if (sql.IsNullOrWhiteSpace())
                 throw new ArgumentNullException(nameof(sql));
 
-            return QueryFirstOrNoneAsyncCore<T>(cnn, sql, param, transaction, commandTimeout, commandType);
+            return QueryFirstOrNoneAsyncCore<T>(cnn, sql, param, transaction, commandTimeout, commandType).ToAsync();
         }
 
         private static async Task<Option<T>> QueryFirstOrNoneAsyncCore<T>(IDbConnection cnn, string sql, object param, IDbTransaction transaction, int? commandTimeout, CommandType? commandType)
@@ -63,7 +63,7 @@ namespace SJP.Schematic.Core.Extensions
             }
         }
 
-        public static Task<Option<T>> QuerySingleOrNoneAsync<T>(this IDbConnection cnn, string sql, object param = null, IDbTransaction transaction = null, int? commandTimeout = null, CommandType? commandType = null)
+        public static OptionAsync<T> QuerySingleOrNoneAsync<T>(this IDbConnection cnn, string sql, object param = null, IDbTransaction transaction = null, int? commandTimeout = null, CommandType? commandType = null)
             where T : class
         {
             if (cnn == null)
@@ -71,7 +71,7 @@ namespace SJP.Schematic.Core.Extensions
             if (sql.IsNullOrWhiteSpace())
                 throw new ArgumentNullException(nameof(sql));
 
-            return QuerySingleOrNoneAsyncCore<T>(cnn, sql, param, transaction, commandTimeout, commandType);
+            return QuerySingleOrNoneAsyncCore<T>(cnn, sql, param, transaction, commandTimeout, commandType).ToAsync();
         }
 
         private static async Task<Option<T>> QuerySingleOrNoneAsyncCore<T>(IDbConnection cnn, string sql, object param, IDbTransaction transaction, int? commandTimeout, CommandType? commandType)

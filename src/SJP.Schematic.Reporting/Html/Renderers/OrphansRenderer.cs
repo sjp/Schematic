@@ -55,9 +55,8 @@ namespace SJP.Schematic.Reporting.Html.Renderers
 
         public async Task RenderAsync()
         {
-            var tablesCollection = await Database.TablesAsync().ConfigureAwait(false);
+            var tables = await Database.TablesAsync().ConfigureAwait(false);
 
-            var tables = await Task.WhenAll(tablesCollection).ConfigureAwait(false);
             var tableParentKeyCountTasks = tables.Select(t => t.ParentKeysAsync());
             var tableChildKeyCountTasks = tables.Select(t => t.ChildKeysAsync());
             var tableParentKeyCounts = await Task.WhenAll(tableParentKeyCountTasks).ConfigureAwait(false);

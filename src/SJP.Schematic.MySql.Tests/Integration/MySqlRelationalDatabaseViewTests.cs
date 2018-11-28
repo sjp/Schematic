@@ -45,8 +45,7 @@ namespace SJP.Schematic.MySql.Tests.Integration
         {
             var database = Database;
             var viewName = new Identifier(database.DefaultSchema, "view_test_view_1");
-            var viewOption = await database.GetViewAsync(viewName).ConfigureAwait(false);
-            var view = viewOption.UnwrapSome();
+            var view = await database.GetViewAsync(viewName).UnwrapSomeAsync().ConfigureAwait(false);
 
             var definition = await view.DefinitionAsync().ConfigureAwait(false);
             const string expected = "select 1 AS `test`";
@@ -74,8 +73,8 @@ namespace SJP.Schematic.MySql.Tests.Integration
         [Test]
         public async Task IndexesAsync_WhenViewIsNotIndexed_ReturnsEmptyCollection()
         {
-            var viewOption = await Database.GetViewAsync("view_test_view_1").ConfigureAwait(false);
-            var indexes = await viewOption.UnwrapSome().IndexesAsync().ConfigureAwait(false);
+            var view = await Database.GetViewAsync("view_test_view_1").UnwrapSomeAsync().ConfigureAwait(false);
+            var indexes = await view.IndexesAsync().ConfigureAwait(false);
             var indexCount = indexes.Count;
 
             Assert.Zero(indexCount);
@@ -108,8 +107,8 @@ namespace SJP.Schematic.MySql.Tests.Integration
         {
             var database = Database;
             var viewName = new Identifier(database.DefaultSchema, "view_test_view_1");
-            var viewOption = await database.GetViewAsync(viewName).ConfigureAwait(false);
-            var columns = await viewOption.UnwrapSome().ColumnsAsync().ConfigureAwait(false);
+            var view = await database.GetViewAsync(viewName).UnwrapSomeAsync().ConfigureAwait(false);
+            var columns = await view.ColumnsAsync().ConfigureAwait(false);
             var columnCount = columns.Count;
 
             Assert.AreEqual(1, columnCount);
@@ -120,8 +119,8 @@ namespace SJP.Schematic.MySql.Tests.Integration
         {
             var database = Database;
             var viewName = new Identifier(database.DefaultSchema, "view_test_view_1");
-            var viewOption = await database.GetViewAsync(viewName).ConfigureAwait(false);
-            var columns = await viewOption.UnwrapSome().ColumnsAsync().ConfigureAwait(false);
+            var view = await database.GetViewAsync(viewName).UnwrapSomeAsync().ConfigureAwait(false);
+            var columns = await view.ColumnsAsync().ConfigureAwait(false);
             var containsColumn = columns.Any(c => c.Name == "test");
 
             Assert.IsTrue(containsColumn);

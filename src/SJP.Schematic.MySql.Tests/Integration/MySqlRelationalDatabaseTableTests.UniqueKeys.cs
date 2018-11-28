@@ -93,8 +93,8 @@ namespace SJP.Schematic.MySql.Tests.Integration
         [Test]
         public async Task UniqueKeysAsync_WhenGivenTableWithSingleUniqueKey_ReturnsCorrectKeyType()
         {
-            var tableOption = await Database.GetTableAsync("table_test_table_5").ConfigureAwait(false);
-            var uniqueKeys = await tableOption.UnwrapSome().UniqueKeysAsync().ConfigureAwait(false);
+            var table = await Database.GetTableAsync("table_test_table_5").UnwrapSomeAsync().ConfigureAwait(false);
+            var uniqueKeys = await table.UniqueKeysAsync().ConfigureAwait(false);
             var uk = uniqueKeys.Single();
 
             Assert.AreEqual(DatabaseKeyType.Unique, uk.KeyType);
@@ -103,8 +103,8 @@ namespace SJP.Schematic.MySql.Tests.Integration
         [Test]
         public async Task UniqueKeysAsync_WhenGivenTableWithColumnAsUniqueKey_ReturnsUniqueKeyWithColumnOnly()
         {
-            var tableOption = await Database.GetTableAsync("table_test_table_5").ConfigureAwait(false);
-            var uniqueKeys = await tableOption.UnwrapSome().UniqueKeysAsync().ConfigureAwait(false);
+            var table = await Database.GetTableAsync("table_test_table_5").UnwrapSomeAsync().ConfigureAwait(false);
+            var uniqueKeys = await table.UniqueKeysAsync().ConfigureAwait(false);
             var uk = uniqueKeys.Single();
             var ukColumns = uk.Columns.ToList();
 
@@ -118,8 +118,8 @@ namespace SJP.Schematic.MySql.Tests.Integration
         [Test]
         public async Task UniqueKeysAsync_WhenGivenTableWithSingleColumnConstraintAsUniqueKey_ReturnsUniqueKeyWithColumnOnly()
         {
-            var tableOption = await Database.GetTableAsync("table_test_table_6").ConfigureAwait(false);
-            var uniqueKeys = await tableOption.UnwrapSome().UniqueKeysAsync().ConfigureAwait(false);
+            var table = await Database.GetTableAsync("table_test_table_6").UnwrapSomeAsync().ConfigureAwait(false);
+            var uniqueKeys = await table.UniqueKeysAsync().ConfigureAwait(false);
             var uk = uniqueKeys.Single();
             var ukColumns = uk.Columns.ToList();
 
@@ -133,8 +133,8 @@ namespace SJP.Schematic.MySql.Tests.Integration
         [Test]
         public async Task UniqueKeysAsync_WhenGivenTableWithSingleColumnConstraintAsUniqueKey_ReturnsUniqueKeyWithCorrectName()
         {
-            var tableOption = await Database.GetTableAsync("table_test_table_6").ConfigureAwait(false);
-            var uniqueKeys = await tableOption.UnwrapSome().UniqueKeysAsync().ConfigureAwait(false);
+            var table = await Database.GetTableAsync("table_test_table_6").UnwrapSomeAsync().ConfigureAwait(false);
+            var uniqueKeys = await table.UniqueKeysAsync().ConfigureAwait(false);
             var uk = uniqueKeys.Single();
 
             Assert.AreEqual("uk_test_table_6", uk.Name.LocalName);
@@ -145,8 +145,8 @@ namespace SJP.Schematic.MySql.Tests.Integration
         {
             var expectedColumnNames = new[] { "first_name", "last_name", "middle_name" };
 
-            var tableOption = await Database.GetTableAsync("table_test_table_7").ConfigureAwait(false);
-            var uniqueKeys = await tableOption.UnwrapSome().UniqueKeysAsync().ConfigureAwait(false);
+            var table = await Database.GetTableAsync("table_test_table_7").UnwrapSomeAsync().ConfigureAwait(false);
+            var uniqueKeys = await table.UniqueKeysAsync().ConfigureAwait(false);
             var uk = uniqueKeys.Single();
             var ukColumns = uk.Columns.ToList();
 
@@ -162,8 +162,8 @@ namespace SJP.Schematic.MySql.Tests.Integration
         [Test]
         public async Task UniqueKeysAsync_WhenGivenTableWithMultiColumnConstraintAsUniqueKey_ReturnsUniqueKeyWithCorrectName()
         {
-            var tableOption = await Database.GetTableAsync("table_test_table_7").ConfigureAwait(false);
-            var uniqueKeys = await tableOption.UnwrapSome().UniqueKeysAsync().ConfigureAwait(false);
+            var table = await Database.GetTableAsync("table_test_table_7").UnwrapSomeAsync().ConfigureAwait(false);
+            var uniqueKeys = await table.UniqueKeysAsync().ConfigureAwait(false);
             var uk = uniqueKeys.Single();
 
             Assert.AreEqual("uk_test_table_7", uk.Name.LocalName);

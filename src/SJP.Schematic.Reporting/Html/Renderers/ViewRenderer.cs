@@ -54,8 +54,7 @@ namespace SJP.Schematic.Reporting.Html.Renderers
 
         public async Task RenderAsync()
         {
-            var viewCollection = await Database.ViewsAsync().ConfigureAwait(false);
-            var views = await Task.WhenAll(viewCollection).ConfigureAwait(false);
+            var views = await Database.ViewsAsync().ConfigureAwait(false);
             var mapper = new ViewModelMapper(Connection, Database.Dialect);
 
             var viewTasks = views.Select(async view =>
