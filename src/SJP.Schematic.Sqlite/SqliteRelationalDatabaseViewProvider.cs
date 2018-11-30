@@ -1,0 +1,434 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Data;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
+using Dapper;
+using LanguageExt;
+using SJP.Schematic.Core;
+using SJP.Schematic.Core.Extensions;
+using SJP.Schematic.Core.Utilities;
+using SJP.Schematic.Sqlite.Pragma;
+
+namespace SJP.Schematic.Sqlite
+{
+    public class SqliteRelationalDatabaseViewProvider : IRelationalDatabaseViewProvider
+    {
+        public SqliteRelationalDatabaseViewProvider(IDbConnection connection, ISqliteConnectionPragma pragma, IDatabaseDialect dialect, IDatabaseIdentifierDefaults identifierDefaults, IDbTypeProvider typeProvider)
+        {
+            Connection = connection ?? throw new ArgumentNullException(nameof(connection));
+            ConnectionPragma = pragma ?? throw new ArgumentNullException(nameof(pragma));
+            Dialect = dialect ?? throw new ArgumentNullException(nameof(dialect));
+            IdentifierDefaults = identifierDefaults ?? throw new ArgumentNullException(nameof(identifierDefaults));
+            TypeProvider = typeProvider ?? throw new ArgumentNullException(nameof(typeProvider));
+        }
+
+        protected IDbConnection Connection { get; }
+
+        protected ISqliteConnectionPragma ConnectionPragma { get; }
+
+        protected IDatabaseDialect Dialect { get; }
+
+        protected IDatabaseIdentifierDefaults IdentifierDefaults { get; }
+
+        protected IDbTypeProvider TypeProvider { get; }
+
+        public IReadOnlyCollection<IRelationalDatabaseView> Views
+        {
+            get
+            {
+                var qualifiedViewNames = new List<Identifier>();
+
+                var dbNames = ConnectionPragma.DatabaseList.OrderBy(d => d.seq).Select(d => d.name).ToList();
+                foreach (var dbName in dbNames)
+                {
+                    var sql = ViewsQuery(dbName);
+                    var viewNames = Connection.Query<string>(sql)
+                        .Where(name => !IsReservedTableName(name))
+                        .Select(name => Identifier.CreateQualifiedIdentifier(dbName, name));
+
+                    qualifiedViewNames.AddRange(viewNames);
+                }
+
+                var views = qualifiedViewNames
+                    .Select(LoadViewSync)
+                    .Somes();
+                return new ReadOnlyCollectionSlim<IRelationalDatabaseView>(qualifiedViewNames.Count, views);
+            }
+        }
+
+        public async Task<IReadOnlyCollection<IRelationalDatabaseView>> ViewsAsync(CancellationToken cancellationToken = default(CancellationToken))
+        {
+            var dbNamesQuery = await ConnectionPragma.DatabaseListAsync().ConfigureAwait(false);
+            var dbNames = dbNamesQuery.OrderBy(d => d.seq).Select(l => l.name).ToList();
+
+            var qualifiedViewNames = new List<Identifier>();
+
+            foreach (var dbName in dbNames)
+            {
+                var sql = ViewsQuery(dbName);
+                var queryResult = await Connection.QueryAsync<string>(sql).ConfigureAwait(false);
+                var viewNames = queryResult
+                    .Where(name => !IsReservedTableName(name))
+                    .Select(name => Identifier.CreateQualifiedIdentifier(dbName, name));
+
+                qualifiedViewNames.AddRange(viewNames);
+            }
+
+            var views = await qualifiedViewNames
+                .Select(name => LoadViewAsync(name, cancellationToken))
+                .Somes()
+                .ConfigureAwait(false);
+
+            return views.ToList();
+        }
+
+        protected virtual string ViewsQuery(string schemaName)
+        {
+            if (schemaName.IsNullOrWhiteSpace())
+                throw new ArgumentNullException(nameof(schemaName));
+
+            return $"select name from { Dialect.QuoteIdentifier(schemaName) }.sqlite_master where type = 'view' order by name";
+        }
+
+        public Option<IRelationalDatabaseView> GetView(Identifier viewName)
+        {
+            if (viewName == null)
+                throw new ArgumentNullException(nameof(viewName));
+
+            if (viewName.Schema != null)
+                return LoadViewSync(viewName);
+
+            var dbNames = ConnectionPragma.DatabaseList.OrderBy(l => l.seq).Select(l => l.name).ToList();
+            foreach (var dbName in dbNames)
+            {
+                var qualifiedViewName = Identifier.CreateQualifiedIdentifier(dbName, viewName.LocalName);
+                var view = LoadViewSync(qualifiedViewName);
+
+                if (view.IsSome)
+                    return view;
+            }
+
+            return Option<IRelationalDatabaseView>.None;
+        }
+
+        public OptionAsync<IRelationalDatabaseView> GetViewAsync(Identifier viewName, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            if (viewName == null)
+                throw new ArgumentNullException(nameof(viewName));
+
+            return GetViewAsyncCore(viewName, cancellationToken).ToAsync();
+        }
+
+        private async Task<Option<IRelationalDatabaseView>> GetViewAsyncCore(Identifier viewName, CancellationToken cancellationToken)
+        {
+            if (viewName.Schema != null)
+            {
+                return await LoadViewAsync(viewName, cancellationToken)
+                    .ToOption()
+                    .ConfigureAwait(false);
+            }
+
+            var dbNamesResult = await ConnectionPragma.DatabaseListAsync().ConfigureAwait(false);
+            var dbNames = dbNamesResult.OrderBy(l => l.seq).Select(l => l.name).ToList();
+            foreach (var dbName in dbNames)
+            {
+                var qualifiedViewName = Identifier.CreateQualifiedIdentifier(dbName, viewName.LocalName);
+                var view = LoadViewAsync(qualifiedViewName, cancellationToken);
+
+                var viewIsSome = await view.IsSome.ConfigureAwait(false);
+                if (viewIsSome)
+                    return await view.ToOption().ConfigureAwait(false);
+            }
+
+            return Option<IRelationalDatabaseView>.None;
+        }
+
+        protected Option<Identifier> GetResolvedViewName(Identifier viewName)
+        {
+            if (viewName == null)
+                throw new ArgumentNullException(nameof(viewName));
+
+            if (viewName.Schema != null)
+            {
+                var sql = ViewNameQuery(viewName.Schema);
+                var viewLocalName = Connection.ExecuteScalar<string>(
+                    sql,
+                    new { ViewName = viewName.LocalName }
+                );
+
+                if (viewLocalName != null)
+                {
+                    var viewSchemaName = ConnectionPragma.DatabaseList
+                        .OrderBy(s => s.seq)
+                        .Select(s => s.name)
+                        .FirstOrDefault(s => string.Equals(s, viewName.Schema, StringComparison.OrdinalIgnoreCase));
+                    if (viewSchemaName == null)
+                        throw new InvalidOperationException("Unable to find a database matching the given schema name: " + viewName.Schema);
+
+                    return Option<Identifier>.Some(Identifier.CreateQualifiedIdentifier(viewSchemaName, viewLocalName));
+                }
+            }
+
+            var dbNames = ConnectionPragma.DatabaseList.OrderBy(l => l.seq).Select(l => l.name).ToList();
+            foreach (var dbName in dbNames)
+            {
+                var sql = ViewNameQuery(dbName);
+                var viewLocalName = Connection.ExecuteScalar<string>(sql, new { ViewName = viewName.LocalName });
+
+                if (viewLocalName != null)
+                    return Option<Identifier>.Some(Identifier.CreateQualifiedIdentifier(dbName, viewLocalName));
+            }
+
+            return Option<Identifier>.None;
+        }
+
+        protected OptionAsync<Identifier> GetResolvedViewNameAsync(Identifier viewName, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            if (viewName == null)
+                throw new ArgumentNullException(nameof(viewName));
+
+            return GetResolvedViewNameAsyncCore(viewName, cancellationToken).ToAsync();
+        }
+
+        private async Task<Option<Identifier>> GetResolvedViewNameAsyncCore(Identifier viewName, CancellationToken cancellationToken)
+        {
+            if (viewName.Schema != null)
+            {
+                var sql = ViewNameQuery(viewName.Schema);
+                var viewLocalName = await Connection.ExecuteScalarAsync<string>(
+                    sql,
+                    new { ViewName = viewName.LocalName }
+                ).ConfigureAwait(false);
+
+                if (viewLocalName != null)
+                {
+                    var dbList = await ConnectionPragma.DatabaseListAsync().ConfigureAwait(false);
+                    var viewSchemaName = dbList
+                        .OrderBy(s => s.seq)
+                        .Select(s => s.name)
+                        .FirstOrDefault(s => string.Equals(s, viewName.Schema, StringComparison.OrdinalIgnoreCase));
+                    if (viewSchemaName == null)
+                        throw new InvalidOperationException("Unable to find a database matching the given schema name: " + viewName.Schema);
+
+                    return Option<Identifier>.Some(Identifier.CreateQualifiedIdentifier(viewSchemaName, viewLocalName));
+                }
+            }
+
+            var dbNamesResult = await ConnectionPragma.DatabaseListAsync().ConfigureAwait(false);
+            var dbNames = dbNamesResult.OrderBy(l => l.seq).Select(l => l.name).ToList();
+            foreach (var dbName in dbNames)
+            {
+                var sql = ViewNameQuery(dbName);
+                var viewLocalName = await Connection.ExecuteScalarAsync<string>(sql, new { ViewName = viewName.LocalName }).ConfigureAwait(false);
+
+                if (viewLocalName != null)
+                    return Option<Identifier>.Some(Identifier.CreateQualifiedIdentifier(dbName, viewLocalName));
+            }
+
+            return Option<Identifier>.None;
+        }
+
+        protected virtual string ViewNameQuery(string schemaName)
+        {
+            if (schemaName.IsNullOrWhiteSpace())
+                throw new ArgumentNullException(nameof(schemaName));
+
+            return $"select name from { Dialect.QuoteIdentifier(schemaName) }.sqlite_master where type = 'view' and lower(name) = lower(@ViewName)";
+        }
+
+        protected virtual Option<IRelationalDatabaseView> LoadViewSync(Identifier viewName)
+        {
+            if (viewName == null)
+                throw new ArgumentNullException(nameof(viewName));
+
+            var candidateViewName = QualifyViewName(viewName);
+            var resolvedViewNameOption = GetResolvedViewName(candidateViewName);
+            if (resolvedViewNameOption.IsNone)
+                return Option<IRelationalDatabaseView>.None;
+
+            var resolvedViewName = resolvedViewNameOption.UnwrapSome();
+            var databasePragma = new DatabasePragma(Dialect, Connection, resolvedViewName.Schema);
+
+            var definition = LoadDefinitionSync(resolvedViewName);
+            var columns = LoadColumnsSync(databasePragma, resolvedViewName);
+            var indexes = Array.Empty<IDatabaseIndex>();
+
+            var view = new RelationalDatabaseView(resolvedViewName, definition, columns, indexes);
+            return Option<IRelationalDatabaseView>.Some(view);
+        }
+
+        protected virtual OptionAsync<IRelationalDatabaseView> LoadViewAsync(Identifier viewName, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            if (viewName == null)
+                throw new ArgumentNullException(nameof(viewName));
+
+            var candidateViewName = QualifyViewName(viewName);
+            return LoadViewAsyncCore(candidateViewName, cancellationToken).ToAsync();
+        }
+
+        private async Task<Option<IRelationalDatabaseView>> LoadViewAsyncCore(Identifier viewName, CancellationToken cancellationToken)
+        {
+            var candidateViewName = QualifyViewName(viewName);
+            var resolvedViewNameOption = GetResolvedViewNameAsync(candidateViewName, cancellationToken);
+            var resolvedViewNameOptionIsNone = await resolvedViewNameOption.IsNone.ConfigureAwait(false);
+            if (resolvedViewNameOptionIsNone)
+                return Option<IRelationalDatabaseView>.None;
+
+            var resolvedViewName = await resolvedViewNameOption.UnwrapSomeAsync().ConfigureAwait(false);
+            var databasePragma = new DatabasePragma(Dialect, Connection, resolvedViewName.Schema);
+
+            var columnsTask = LoadColumnsAsync(databasePragma, resolvedViewName, cancellationToken);
+            var definitionTask = LoadDefinitionAsync(resolvedViewName, cancellationToken);
+            await Task.WhenAll(columnsTask, definitionTask).ConfigureAwait(false);
+
+            var columns = columnsTask.Result;
+            var definition = definitionTask.Result;
+            var indexes = Array.Empty<IDatabaseIndex>();
+
+            var view = new RelationalDatabaseView(resolvedViewName, definition, columns, indexes);
+            return Option<IRelationalDatabaseView>.Some(view);
+        }
+
+        protected virtual string LoadDefinitionSync(Identifier viewName)
+        {
+            if (viewName == null)
+                throw new ArgumentNullException(nameof(viewName));
+
+            var sql = DefinitionQuery(viewName.Schema);
+            return Connection.ExecuteScalar<string>(sql, new { SchemaName = viewName.Schema, ViewName = viewName.LocalName });
+        }
+
+        protected virtual Task<string> LoadDefinitionAsync(Identifier viewName, CancellationToken cancellationToken)
+        {
+            if (viewName == null)
+                throw new ArgumentNullException(nameof(viewName));
+
+            var sql = DefinitionQuery(viewName.Schema);
+            return Connection.ExecuteScalarAsync<string>(sql, new { SchemaName = viewName.Schema, ViewName = viewName.LocalName });
+        }
+
+        protected virtual string DefinitionQuery(string schema)
+        {
+            if (schema.IsNullOrWhiteSpace())
+                throw new ArgumentNullException(nameof(schema));
+
+            return $"select sql from { Dialect.QuoteIdentifier(schema) }.sqlite_master where type = 'view' and tbl_name = @ViewName";
+        }
+
+        protected virtual IReadOnlyList<IDatabaseColumn> LoadColumnsSync(ISqliteDatabasePragma pragma, Identifier viewName)
+        {
+            if (pragma == null)
+                throw new ArgumentNullException(nameof(pragma));
+            if (viewName == null)
+                throw new ArgumentNullException(nameof(viewName));
+
+            var tableInfos = pragma.TableInfo(viewName);
+
+            var result = new List<IDatabaseColumn>();
+            if (tableInfos.Empty())
+                return result;
+
+            foreach (var tableInfo in tableInfos)
+            {
+                var columnTypeName = tableInfo.type;
+                if (columnTypeName.IsNullOrWhiteSpace())
+                    columnTypeName = GetTypeofColumn(viewName, tableInfo.name);
+
+                var affinity = _affinityParser.ParseTypeName(columnTypeName);
+                var columnType = new SqliteColumnType(affinity);
+
+                var column = new DatabaseColumn(tableInfo.name, columnType, !tableInfo.notnull, tableInfo.dflt_value, null);
+                result.Add(column);
+            }
+
+            return result.AsReadOnly();
+        }
+
+        protected virtual Task<IReadOnlyList<IDatabaseColumn>> LoadColumnsAsync(ISqliteDatabasePragma pragma, Identifier viewName, CancellationToken cancellationToken)
+        {
+            if (pragma == null)
+                throw new ArgumentNullException(nameof(pragma));
+            if (viewName == null)
+                throw new ArgumentNullException(nameof(viewName));
+
+            return LoadColumnsAsyncCore(pragma, viewName, cancellationToken);
+        }
+
+        private async Task<IReadOnlyList<IDatabaseColumn>> LoadColumnsAsyncCore(ISqliteDatabasePragma pragma, Identifier viewName, CancellationToken cancellationToken)
+        {
+            var tableInfos = await pragma.TableInfoAsync(viewName).ConfigureAwait(false);
+
+            var result = new List<IDatabaseColumn>();
+            if (tableInfos.Empty())
+                return result;
+
+            foreach (var tableInfo in tableInfos)
+            {
+                var columnTypeName = tableInfo.type;
+                if (columnTypeName.IsNullOrWhiteSpace())
+                    columnTypeName = await GetTypeofColumnAsync(viewName, tableInfo.name, cancellationToken).ConfigureAwait(false);
+
+                var affinity = _affinityParser.ParseTypeName(columnTypeName);
+                var columnType = new SqliteColumnType(affinity);
+
+                var column = new DatabaseColumn(tableInfo.name, columnType, !tableInfo.notnull, tableInfo.dflt_value, null);
+                result.Add(column);
+            }
+
+            return result.AsReadOnly();
+        }
+
+        protected virtual string GetTypeofColumn(Identifier viewName, Identifier columnName)
+        {
+            if (viewName == null)
+                throw new ArgumentNullException(nameof(viewName));
+            if (columnName == null)
+                throw new ArgumentNullException(nameof(columnName));
+
+            var sql = GetTypeofQuery(viewName, columnName.LocalName);
+            return Connection.ExecuteScalar<string>(sql);
+        }
+
+        protected virtual Task<string> GetTypeofColumnAsync(Identifier viewName, Identifier columnName, CancellationToken cancellationToken)
+        {
+            if (viewName == null)
+                throw new ArgumentNullException(nameof(viewName));
+            if (columnName == null)
+                throw new ArgumentNullException(nameof(columnName));
+
+            var sql = GetTypeofQuery(viewName, columnName.LocalName);
+            return Connection.ExecuteScalarAsync<string>(sql);
+        }
+
+        protected virtual string GetTypeofQuery(Identifier viewName, string columnName)
+        {
+            if (viewName == null)
+                throw new ArgumentNullException(nameof(viewName));
+            if (columnName.IsNullOrWhiteSpace())
+                throw new ArgumentNullException(nameof(columnName));
+
+            return $"select typeof({ Dialect.QuoteName(columnName) }) from { Dialect.QuoteName(viewName) } limit 1";
+        }
+
+        protected Identifier QualifyViewName(Identifier viewName)
+        {
+            if (viewName == null)
+                throw new ArgumentNullException(nameof(viewName));
+
+            var schema = viewName.Schema ?? IdentifierDefaults.Schema;
+            return Identifier.CreateQualifiedIdentifier(schema, viewName.LocalName);
+        }
+
+        protected static bool IsReservedTableName(Identifier tableName)
+        {
+            if (tableName == null)
+                throw new ArgumentNullException(nameof(tableName));
+
+            return tableName.LocalName.StartsWith("sqlite_", StringComparison.OrdinalIgnoreCase);
+        }
+
+        private readonly static SqliteTypeAffinityParser _affinityParser = new SqliteTypeAffinityParser();
+    }
+}
