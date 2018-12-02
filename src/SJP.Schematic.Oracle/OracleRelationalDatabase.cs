@@ -1,14 +1,11 @@
-﻿using Dapper;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Data;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using SJP.Schematic.Core;
 using SJP.Schematic.Oracle.Query;
 using SJP.Schematic.Core.Extensions;
-using SJP.Schematic.Core.Utilities;
 using LanguageExt;
 
 namespace SJP.Schematic.Oracle

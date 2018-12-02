@@ -2,14 +2,11 @@
 using System;
 using System.Collections.Generic;
 using System.Data;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using SJP.Schematic.Core;
-using SJP.Schematic.Core.Utilities;
 using SJP.Schematic.MySql.Query;
 using LanguageExt;
-using SJP.Schematic.Core.Extensions;
 
 namespace SJP.Schematic.MySql
 {
