@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using SJP.Schematic.Core;
+using SJP.Schematic.Core.Extensions;
 using SJP.Schematic.Modelled.Reflection.Model;
 
 namespace SJP.Schematic.Modelled.Reflection
@@ -132,7 +133,7 @@ namespace SJP.Schematic.Modelled.Reflection
                     primaryKeys.Add(keyValue);
             }
 
-            if (primaryKeys.Count == 0)
+            if (primaryKeys.Empty())
                 return null;
             if (primaryKeys.Count > 1)
                 throw new ArgumentException("More than one primary key provided to " + TableType.FullName);
@@ -143,7 +144,7 @@ namespace SJP.Schematic.Modelled.Reflection
         protected virtual IReadOnlyCollection<IModelledKey> LoadUniqueKeys()
         {
             var keyProperties = TableProperties.Where(IsKeyProperty).ToList();
-            if (keyProperties.Count == 0)
+            if (keyProperties.Empty())
                 return Array.Empty<IModelledKey>();
 
             var uniqueKeys = new List<IModelledKey>();
@@ -163,7 +164,7 @@ namespace SJP.Schematic.Modelled.Reflection
         protected virtual IReadOnlyCollection<IModelledRelationalKey> LoadParentKeys()
         {
             var keyProperties = TableProperties.Where(IsKeyProperty).ToList();
-            if (keyProperties.Count == 0)
+            if (keyProperties.Empty())
                 return Array.Empty<IModelledRelationalKey>();
 
             var foreignKeys = new List<IModelledRelationalKey>();

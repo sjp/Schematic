@@ -53,12 +53,15 @@ namespace SJP.Schematic.PostgreSql
                 .Select(dto => Identifier.CreateQualifiedIdentifier(dto.SchemaName, dto.ObjectName))
                 .ToList();
 
-            var views = await viewNames
-                .Select(name => LoadViewAsync(name, cancellationToken))
-                .Somes()
-                .ConfigureAwait(false);
+            var views = new List<IRelationalDatabaseView>();
 
-            return views.ToList();
+            foreach (var viewName in viewNames)
+            {
+                var view = LoadViewAsync(viewName, cancellationToken);
+                await view.IfSome(v => views.Add(v)).ConfigureAwait(false);
+            }
+
+            return views;
         }
 
         protected virtual string ViewsQuery => ViewsQuerySql;
@@ -192,12 +195,8 @@ limit 1";
 
             var resolvedViewName = await resolvedViewNameOption.UnwrapSomeAsync().ConfigureAwait(false);
 
-            var columnsTask = LoadColumnsAsync(resolvedViewName, cancellationToken);
-            var definitionTask = LoadDefinitionAsync(resolvedViewName, cancellationToken);
-            await Task.WhenAll(columnsTask, definitionTask).ConfigureAwait(false);
-
-            var columns = columnsTask.Result;
-            var definition = definitionTask.Result;
+            var columns = await LoadColumnsAsync(resolvedViewName, cancellationToken).ConfigureAwait(false);
+            var definition = await LoadDefinitionAsync(resolvedViewName, cancellationToken).ConfigureAwait(false);
             var indexes = Array.Empty<IDatabaseIndex>();
 
             var view = new RelationalDatabaseView(resolvedViewName, definition, columns, indexes);

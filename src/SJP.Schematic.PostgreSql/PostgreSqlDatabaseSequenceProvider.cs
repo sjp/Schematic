@@ -50,12 +50,15 @@ namespace SJP.Schematic.PostgreSql
                 .Select(dto => Identifier.CreateQualifiedIdentifier(dto.SchemaName, dto.ObjectName))
                 .ToList();
 
-            var sequences = await sequenceNames
-                .Select(name => LoadSequenceAsync(name, cancellationToken))
-                .Somes()
-                .ConfigureAwait(false);
+            var sequences = new List<IDatabaseSequence>();
 
-            return sequences.ToList();
+            foreach (var sequenceName in sequenceNames)
+            {
+                var sequence = LoadSequenceAsync(sequenceName, cancellationToken);
+                await sequence.IfSome(s => sequences.Add(s)).ConfigureAwait(false);
+            }
+
+            return sequences;
         }
 
         protected virtual string SequencesQuery => SequencesQuerySql;

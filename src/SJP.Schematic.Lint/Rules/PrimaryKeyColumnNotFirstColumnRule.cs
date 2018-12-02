@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using SJP.Schematic.Core;
+using SJP.Schematic.Core.Extensions;
 
 namespace SJP.Schematic.Lint.Rules
 {
@@ -34,7 +35,7 @@ namespace SJP.Schematic.Lint.Rules
                 return Array.Empty<IRuleMessage>();
 
             var tableColumns = table.Columns;
-            if (tableColumns.Count == 0)
+            if (tableColumns.Empty())
                 return Array.Empty<IRuleMessage>();
 
             var pkColumnName = pkColumns[0].Name;

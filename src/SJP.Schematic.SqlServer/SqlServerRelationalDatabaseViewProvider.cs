@@ -204,7 +204,7 @@ where schema_name(v.schema_id) = @SchemaName and v.name = @ViewName";
                 return Array.Empty<IDatabaseIndex>();
 
             var indexColumns = queryResult.GroupBy(row => new { row.IndexName, row.IsUnique, row.IsDisabled }).ToList();
-            if (indexColumns.Count == 0)
+            if (indexColumns.Empty())
                 return Array.Empty<IDatabaseIndex>();
 
             var result = new List<IDatabaseIndex>(indexColumns.Count);
@@ -253,7 +253,7 @@ where schema_name(v.schema_id) = @SchemaName and v.name = @ViewName";
                 return Array.Empty<IDatabaseIndex>();
 
             var indexColumns = queryResult.GroupBy(row => new { row.IndexName, row.IsUnique, row.IsDisabled }).ToList();
-            if (indexColumns.Count == 0)
+            if (indexColumns.Empty())
                 return Array.Empty<IDatabaseIndex>();
 
             var result = new List<IDatabaseIndex>(indexColumns.Count);

@@ -26,28 +26,6 @@ namespace SJP.Schematic.Oracle.Tests
         }
 
         [Test]
-        public static void Ctor_GivenNullDefinition_ThrowsArgumentNullException()
-        {
-            Assert.Throws<ArgumentNullException>(() => new OracleDatabaseComputedColumn("test_column", null, true, null));
-        }
-
-        [Test]
-        public static void Ctor_GivenEmptyDefinition_ThrowsArgumentNullException()
-        {
-            var definition = string.Empty;
-
-            Assert.Throws<ArgumentNullException>(() => new OracleDatabaseComputedColumn("test_column", null, true, definition));
-        }
-
-        [Test]
-        public static void Ctor_GivenWhiteSpaceDefinition_ThrowsArgumentNullException()
-        {
-            const string definition = "     ";
-
-            Assert.Throws<ArgumentNullException>(() => new OracleDatabaseComputedColumn("test_column", null, true, definition));
-        }
-
-        [Test]
         public static void Name_PropertyGet_EqualsCtorArg()
         {
             Identifier columnName = "test_column";

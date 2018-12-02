@@ -297,7 +297,7 @@ order by ic.key_ordinal";
                 return Array.Empty<IDatabaseIndex>();
 
             var indexColumns = queryResult.GroupBy(row => new { row.IndexName, row.IsUnique, row.IsDisabled }).ToList();
-            if (indexColumns.Count == 0)
+            if (indexColumns.Empty())
                 return Array.Empty<IDatabaseIndex>();
 
             var result = new List<IDatabaseIndex>(indexColumns.Count);
@@ -346,7 +346,7 @@ order by ic.key_ordinal";
                 return Array.Empty<IDatabaseIndex>();
 
             var indexColumns = queryResult.GroupBy(row => new { row.IndexName, row.IsUnique, row.IsDisabled }).ToList();
-            if (indexColumns.Count == 0)
+            if (indexColumns.Empty())
                 return Array.Empty<IDatabaseIndex>();
 
             var result = new List<IDatabaseIndex>(indexColumns.Count);
@@ -418,7 +418,7 @@ order by ic.index_id, ic.key_ordinal, ic.index_column_id";
                     IsEnabled = !g.Key.IsDisabled
                 })
                 .ToList();
-            if (constraintColumns.Count == 0)
+            if (constraintColumns.Empty())
                 return Array.Empty<IDatabaseKey>();
 
             var result = new List<IDatabaseKey>(constraintColumns.Count);
@@ -455,7 +455,7 @@ order by ic.index_id, ic.key_ordinal, ic.index_column_id";
                     IsEnabled = !g.Key.IsDisabled
                 })
                 .ToList();
-            if (constraintColumns.Count == 0)
+            if (constraintColumns.Empty())
                 return Array.Empty<IDatabaseKey>();
 
             var result = new List<IDatabaseKey>(constraintColumns.Count);
@@ -509,7 +509,7 @@ order by ic.key_ordinal";
                 row.DeleteRule,
                 row.UpdateRule
             }).ToList();
-            if (groupedChildKeys.Count == 0)
+            if (groupedChildKeys.Empty())
                 return Array.Empty<IDatabaseRelationalKey>();
 
             var columnLookupsCache = new Dictionary<Identifier, IReadOnlyDictionary<Identifier, IDatabaseColumn>> { [tableName] = columns };
@@ -584,7 +584,7 @@ order by ic.key_ordinal";
                 row.DeleteRule,
                 row.UpdateRule
             }).ToList();
-            if (groupedChildKeys.Count == 0)
+            if (groupedChildKeys.Empty())
                 return Array.Empty<IDatabaseRelationalKey>();
 
             var columnLookupsCache = new Dictionary<Identifier, IReadOnlyDictionary<Identifier, IDatabaseColumn>> { [tableName] = columns };
@@ -728,7 +728,7 @@ where schema_name(t.schema_id) = @SchemaName and t.name = @TableName";
                 row.UpdateRule,
                 row.IsDisabled
             }).ToList();
-            if (foreignKeys.Count == 0)
+            if (foreignKeys.Empty())
                 return Array.Empty<IDatabaseRelationalKey>();
 
             var columnLookupsCache = new Dictionary<Identifier, IReadOnlyDictionary<Identifier, IDatabaseColumn>> { [tableName] = columns };
@@ -835,7 +835,7 @@ where schema_name(t.schema_id) = @SchemaName and t.name = @TableName";
                 row.UpdateRule,
                 row.IsDisabled
             }).ToList();
-            if (foreignKeys.Count == 0)
+            if (foreignKeys.Empty())
                 return Array.Empty<IDatabaseRelationalKey>();
 
             var columnLookupsCache = new Dictionary<Identifier, IReadOnlyDictionary<Identifier, IDatabaseColumn>> { [tableName] = columns };
@@ -1056,7 +1056,7 @@ where schema_name(t.schema_id) = @SchemaName
                 row.IsInsteadOfTrigger,
                 row.IsDisabled
             }).ToList();
-            if (triggers.Count == 0)
+            if (triggers.Empty())
                 return Array.Empty<IDatabaseTrigger>();
 
             var result = new List<IDatabaseTrigger>(triggers.Count);
@@ -1108,7 +1108,7 @@ where schema_name(t.schema_id) = @SchemaName
                 row.IsInsteadOfTrigger,
                 row.IsDisabled
             }).ToList();
-            if (triggers.Count == 0)
+            if (triggers.Empty())
                 return Array.Empty<IDatabaseTrigger>();
 
             var result = new List<IDatabaseTrigger>(triggers.Count);

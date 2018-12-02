@@ -69,7 +69,10 @@ select
     t.TABLE_NAME as ObjectName
 from ALL_TABLES t
 inner join ALL_OBJECTS o on t.OWNER = o.OWNER and t.TABLE_NAME = o.OBJECT_NAME
-where o.ORACLE_MAINTAINED <> 'Y'
+where
+    o.ORACLE_MAINTAINED <> 'Y'
+    and o.GENERATED <> 'Y'
+    and o.SECONDARY <> 'Y'
 order by t.OWNER, t.TABLE_NAME";
 
         public Option<IRelationalDatabaseTable> GetTable(Identifier tableName)
@@ -152,7 +155,11 @@ order by t.OWNER, t.TABLE_NAME";
 select t.OWNER as SchemaName, t.TABLE_NAME as ObjectName
 from ALL_TABLES t
 inner join ALL_OBJECTS o on t.OWNER = o.OWNER and t.TABLE_NAME = o.OBJECT_NAME
-where t.OWNER = :SchemaName and t.TABLE_NAME = :TableName and o.ORACLE_MAINTAINED <> 'Y'";
+where
+    t.OWNER = :SchemaName and t.TABLE_NAME = :TableName
+    and o.ORACLE_MAINTAINED <> 'Y'
+    and o.GENERATED <> 'Y'
+    and o.SECONDARY <> 'Y'";
 
         protected virtual Option<IRelationalDatabaseTable> LoadTableSync(Identifier tableName)
         {
@@ -332,7 +339,7 @@ where ac.OWNER = :SchemaName and ac.TABLE_NAME = :TableName and ac.CONSTRAINT_TY
                 return Array.Empty<IDatabaseIndex>();
 
             var indexColumns = queryResult.GroupBy(row => new { row.IndexName, row.IndexProperty, row.Uniqueness }).ToList();
-            if (indexColumns.Count == 0)
+            if (indexColumns.Empty())
                 return Array.Empty<IDatabaseIndex>();
 
             var result = new List<IDatabaseIndex>(indexColumns.Count);
@@ -372,7 +379,7 @@ where ac.OWNER = :SchemaName and ac.TABLE_NAME = :TableName and ac.CONSTRAINT_TY
                 return Array.Empty<IDatabaseIndex>();
 
             var indexColumns = queryResult.GroupBy(row => new { row.IndexName, row.IndexProperty, row.Uniqueness }).ToList();
-            if (indexColumns.Count == 0)
+            if (indexColumns.Empty())
                 return Array.Empty<IDatabaseIndex>();
 
             var result = new List<IDatabaseIndex>(indexColumns.Count);
@@ -438,7 +445,7 @@ order by aic.COLUMN_POSITION";
                     IsEnabled = g.Key.EnabledStatus == "ENABLED"
                 })
                 .ToList();
-            if (constraintColumns.Count == 0)
+            if (constraintColumns.Empty())
                 return Array.Empty<IDatabaseKey>();
 
             var result = constraintColumns
@@ -475,7 +482,7 @@ order by aic.COLUMN_POSITION";
                     IsEnabled = g.Key.EnabledStatus == "ENABLED"
                 })
                 .ToList();
-            if (constraintColumns.Count == 0)
+            if (constraintColumns.Empty())
                 return Array.Empty<IDatabaseKey>();
 
             var result = constraintColumns
@@ -511,7 +518,7 @@ where ac.OWNER = :SchemaName and ac.TABLE_NAME = :TableName and ac.CONSTRAINT_TY
                 return Array.Empty<IDatabaseRelationalKey>();
 
             var childKeyRows = queryResult.ToList();
-            if (childKeyRows.Count == 0)
+            if (childKeyRows.Empty())
                 return Array.Empty<IDatabaseRelationalKey>();
 
             var columnLookupsCache = new Dictionary<Identifier, IReadOnlyDictionary<Identifier, IDatabaseColumn>> { [tableName] = columns };
@@ -575,7 +582,7 @@ where ac.OWNER = :SchemaName and ac.TABLE_NAME = :TableName and ac.CONSTRAINT_TY
                 return Array.Empty<IDatabaseRelationalKey>();
 
             var childKeyRows = queryResult.ToList();
-            if (childKeyRows.Count == 0)
+            if (childKeyRows.Empty())
                 return Array.Empty<IDatabaseRelationalKey>();
 
             var columnLookupsCache = new Dictionary<Identifier, IReadOnlyDictionary<Identifier, IDatabaseColumn>> { [tableName] = columns };
@@ -740,7 +747,7 @@ where OWNER = :SchemaName and TABLE_NAME = :TableName and CONSTRAINT_TYPE = 'C'"
                 row.ParentConstraintName,
                 KeyType = row.ParentKeyType
             }).ToList();
-            if (foreignKeys.Count == 0)
+            if (foreignKeys.Empty())
                 return Array.Empty<IDatabaseRelationalKey>();
 
             var columnLookupsCache = new Dictionary<Identifier, IReadOnlyDictionary<Identifier, IDatabaseColumn>> { [tableName] = columns };
@@ -759,7 +766,7 @@ where OWNER = :SchemaName and TABLE_NAME = :TableName and CONSTRAINT_TYPE = 'C'"
                 var parentKeyName = Identifier.CreateQualifiedIdentifier(fkey.Key.ParentConstraintName);
 
                 IDatabaseKey parentKey;
-                if (fkey.Key.KeyType == "PK")
+                if (fkey.Key.KeyType == "P")
                 {
                     if (primaryKeyCache.TryGetValue(parentTableName, out var pk))
                     {
@@ -844,7 +851,7 @@ where OWNER = :SchemaName and TABLE_NAME = :TableName and CONSTRAINT_TYPE = 'C'"
                 row.ParentConstraintName,
                 KeyType = row.ParentKeyType,
             }).ToList();
-            if (foreignKeys.Count == 0)
+            if (foreignKeys.Empty())
                 return Array.Empty<IDatabaseRelationalKey>();
 
             var columnLookupsCache = new Dictionary<Identifier, IReadOnlyDictionary<Identifier, IDatabaseColumn>> { [tableName] = columns };
@@ -864,7 +871,7 @@ where OWNER = :SchemaName and TABLE_NAME = :TableName and CONSTRAINT_TYPE = 'C'"
                 var parentKeyName = Identifier.CreateQualifiedIdentifier(fkey.Key.ParentConstraintName);
 
                 IDatabaseKey parentKey;
-                if (fkey.Key.KeyType == "PK")
+                if (fkey.Key.KeyType == "P")
                 {
                     if (primaryKeyCache.TryGetValue(parentTableName, out var pk))
                     {
@@ -1044,7 +1051,7 @@ order by COLUMN_ID";
                 return Array.Empty<IDatabaseTrigger>();
 
             var triggers = queryResult.ToList();
-            if (triggers.Count == 0)
+            if (triggers.Empty())
                 return Array.Empty<IDatabaseTrigger>();
 
             var result = new List<IDatabaseTrigger>(triggers.Count);
@@ -1092,7 +1099,7 @@ order by COLUMN_ID";
                 return Array.Empty<IDatabaseTrigger>();
 
             var triggers = queryResult.ToList();
-            if (triggers.Count == 0)
+            if (triggers.Empty())
                 return Array.Empty<IDatabaseTrigger>();
 
             var result = new List<IDatabaseTrigger>(triggers.Count);

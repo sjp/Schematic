@@ -55,7 +55,7 @@ namespace SJP.Schematic.DataAccess
                 return false;
 
             var restChars = identifier.Skip(1).ToList();
-            if (restChars.Count == 0)
+            if (restChars.Empty())
                 return true;
 
             return restChars

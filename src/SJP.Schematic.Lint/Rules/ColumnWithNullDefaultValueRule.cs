@@ -27,7 +27,7 @@ namespace SJP.Schematic.Lint.Rules
                 throw new ArgumentNullException(nameof(table));
 
             var nullableColumns = table.Columns.Where(c => c.IsNullable).ToList();
-            if (nullableColumns.Count == 0)
+            if (nullableColumns.Empty())
                 return Array.Empty<IRuleMessage>();
 
             var result = new List<IRuleMessage>();

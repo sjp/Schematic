@@ -373,7 +373,7 @@ namespace SJP.Schematic.Sqlite
                 .Where(ti => ti.pk > 0)
                 .OrderBy(ti => ti.pk)
                 .ToList();
-            if (pkColumns.Count == 0)
+            if (pkColumns.Empty())
                 return null;
 
             var keyColumns = pkColumns.Select(c => columns[c.name]).ToList();
@@ -408,7 +408,7 @@ namespace SJP.Schematic.Sqlite
                 .Where(ti => ti.pk > 0)
                 .OrderBy(ti => ti.pk)
                 .ToList();
-            if (pkColumns.Count == 0)
+            if (pkColumns.Empty())
                 return null;
 
             var keyColumns = pkColumns.Select(c => columns[c.name]).ToList();
@@ -433,7 +433,7 @@ namespace SJP.Schematic.Sqlite
                 return Array.Empty<IDatabaseIndex>();
 
             var nonConstraintIndexLists = indexLists.Where(i => i.origin == "c").ToList();
-            if (nonConstraintIndexLists.Count == 0)
+            if (nonConstraintIndexLists.Empty())
                 return Array.Empty<IDatabaseIndex>();
 
             var result = new List<IDatabaseIndex>(nonConstraintIndexLists.Count);
@@ -479,7 +479,7 @@ namespace SJP.Schematic.Sqlite
                 return Array.Empty<IDatabaseIndex>();
 
             var nonConstraintIndexLists = indexLists.Where(i => i.origin == "c").ToList();
-            if (nonConstraintIndexLists.Count == 0)
+            if (nonConstraintIndexLists.Empty())
                 return Array.Empty<IDatabaseIndex>();
 
             var result = new List<IDatabaseIndex>(nonConstraintIndexLists.Count);
@@ -522,7 +522,7 @@ namespace SJP.Schematic.Sqlite
             var ukIndexLists = indexLists
                 .Where(i => i.origin == "u" && i.unique)
                 .ToList();
-            if (ukIndexLists.Count == 0)
+            if (ukIndexLists.Empty())
                 return Array.Empty<IDatabaseKey>();
 
             var result = new List<IDatabaseKey>(ukIndexLists.Count);
@@ -571,7 +571,7 @@ namespace SJP.Schematic.Sqlite
             var ukIndexLists = indexLists
                 .Where(i => i.origin == "u" && i.unique)
                 .ToList();
-            if (ukIndexLists.Count == 0)
+            if (ukIndexLists.Empty())
                 return Array.Empty<IDatabaseKey>();
 
             var result = new List<IDatabaseKey>(ukIndexLists.Count);
@@ -636,7 +636,10 @@ namespace SJP.Schematic.Sqlite
             foreach (var childTableName in qualifiedChildTableNames)
             {
                 if (!dbPragmaLookup.TryGetValue(childTableName.Schema, out var dbPragma))
-                    dbPragmaLookup[childTableName.Schema] = new DatabasePragma(Dialect, Connection, childTableName.Schema);
+                {
+                    dbPragma = new DatabasePragma(Dialect, Connection, childTableName.Schema);
+                    dbPragmaLookup[childTableName.Schema] = dbPragma;
+                }
 
                 if (!tableParserLookup.TryGetValue(childTableName, out var childTableParser))
                 {
@@ -710,7 +713,10 @@ namespace SJP.Schematic.Sqlite
             foreach (var childTableName in qualifiedChildTableNames)
             {
                 if (!dbPragmaLookup.TryGetValue(childTableName.Schema, out var dbPragma))
-                    dbPragmaLookup[childTableName.Schema] = new DatabasePragma(Dialect, Connection, childTableName.Schema);
+                {
+                    dbPragma = new DatabasePragma(Dialect, Connection, childTableName.Schema);
+                    dbPragmaLookup[childTableName.Schema] = dbPragma;
+                }
 
                 if (!tableParserLookup.TryGetValue(childTableName, out var childTableParser))
                 {
@@ -747,7 +753,7 @@ namespace SJP.Schematic.Sqlite
                 throw new ArgumentNullException(nameof(parser));
 
             var checks = parser.Checks.ToList();
-            if (checks.Count == 0)
+            if (checks.Empty())
                 return Array.Empty<IDatabaseCheckConstraint>();
 
             var result = new List<IDatabaseCheckConstraint>(checks.Count);
@@ -790,10 +796,11 @@ namespace SJP.Schematic.Sqlite
                 return Array.Empty<IDatabaseRelationalKey>();
 
             var foreignKeys = queryResult.GroupBy(row => new { ForeignKeyId = row.id, ParentTableName = row.table, OnDelete = row.on_delete, OnUpdate = row.on_update }).ToList();
-            if (foreignKeys.Count == 0)
+            if (foreignKeys.Empty())
                 return Array.Empty<IDatabaseRelationalKey>();
 
             var columnLookupsCache = new Dictionary<Identifier, IReadOnlyDictionary<Identifier, IDatabaseColumn>> { [tableName] = columns };
+            var tableParserLookup = new Dictionary<Identifier, SqliteTableParser> { [tableName] = parser };
             var primaryKeyCache = new Dictionary<Identifier, IDatabaseKey>();
             var uniqueKeyLookupCache = new Dictionary<Identifier, IReadOnlyCollection<IDatabaseKey>>();
 
@@ -806,9 +813,15 @@ namespace SJP.Schematic.Sqlite
                     throw new Exception("Could not find parent table with name: " + candidateParentTableName.ToString());
 
                 var parentTableName = parentTableNameOption.UnwrapSome();
+                if (!tableParserLookup.TryGetValue(parentTableName, out var parentTableParser))
+                {
+                    parentTableParser = GetParsedTableDefinitionSync(parentTableName);
+                    tableParserLookup[parentTableName] = parentTableParser;
+                }
+
                 if (!columnLookupsCache.TryGetValue(parentTableName, out var parentTableColumnLookup))
                 {
-                    var parentTableColumns = LoadColumnsSync(pragma, parser, parentTableName);
+                    var parentTableColumns = LoadColumnsSync(pragma, parentTableParser, parentTableName);
                     parentTableColumnLookup = GetColumnLookup(parentTableColumns);
                     columnLookupsCache[parentTableName] = parentTableColumnLookup;
                 }
@@ -818,7 +831,7 @@ namespace SJP.Schematic.Sqlite
 
                 if (!primaryKeyCache.TryGetValue(parentTableName, out var parentPrimaryKey))
                 {
-                    parentPrimaryKey = LoadPrimaryKeySync(pragma, parser, parentTableName, parentTableColumnLookup);
+                    parentPrimaryKey = LoadPrimaryKeySync(pragma, parentTableParser, parentTableName, parentTableColumnLookup);
                     primaryKeyCache[parentTableName] = parentPrimaryKey;
                 }
 
@@ -834,7 +847,7 @@ namespace SJP.Schematic.Sqlite
                 {
                     if (!uniqueKeyLookupCache.TryGetValue(parentTableName, out var parentUniqueKeys))
                     {
-                        parentUniqueKeys = LoadUniqueKeysSync(pragma, parser, parentTableName, parentTableColumnLookup);
+                        parentUniqueKeys = LoadUniqueKeysSync(pragma, parentTableParser, parentTableName, parentTableColumnLookup);
                         uniqueKeyLookupCache[parentTableName] = parentUniqueKeys;
                     }
 
@@ -885,10 +898,11 @@ namespace SJP.Schematic.Sqlite
                 return Array.Empty<IDatabaseRelationalKey>();
 
             var foreignKeys = queryResult.GroupBy(row => new { ForeignKeyId = row.id, ParentTableName = row.table, OnDelete = row.on_delete, OnUpdate = row.on_update }).ToList();
-            if (foreignKeys.Count == 0)
+            if (foreignKeys.Empty())
                 return Array.Empty<IDatabaseRelationalKey>();
 
             var columnLookupsCache = new Dictionary<Identifier, IReadOnlyDictionary<Identifier, IDatabaseColumn>> { [tableName] = columns };
+            var tableParserLookup = new Dictionary<Identifier, SqliteTableParser> { [tableName] = parser };
             var primaryKeyCache = new Dictionary<Identifier, IDatabaseKey>();
             var uniqueKeyLookupCache = new Dictionary<Identifier, IReadOnlyCollection<IDatabaseKey>>();
 
@@ -902,9 +916,15 @@ namespace SJP.Schematic.Sqlite
                     throw new Exception("Could not find parent table with name: " + candidateParentTableName.ToString());
 
                 var parentTableName = await parentTableNameOption.UnwrapSomeAsync().ConfigureAwait(false);
+                if (!tableParserLookup.TryGetValue(parentTableName, out var parentTableParser))
+                {
+                    parentTableParser = await GetParsedTableDefinitionAsync(parentTableName, cancellationToken).ConfigureAwait(false);
+                    tableParserLookup[parentTableName] = parentTableParser;
+                }
+
                 if (!columnLookupsCache.TryGetValue(parentTableName, out var parentTableColumnLookup))
                 {
-                    var parentTableColumns = await LoadColumnsAsync(pragma, parser, parentTableName, cancellationToken).ConfigureAwait(false);
+                    var parentTableColumns = await LoadColumnsAsync(pragma, parentTableParser, parentTableName, cancellationToken).ConfigureAwait(false);
                     parentTableColumnLookup = GetColumnLookup(parentTableColumns);
                     columnLookupsCache[parentTableName] = parentTableColumnLookup;
                 }
@@ -914,7 +934,7 @@ namespace SJP.Schematic.Sqlite
 
                 if (!primaryKeyCache.TryGetValue(parentTableName, out var parentPrimaryKey))
                 {
-                    parentPrimaryKey = await LoadPrimaryKeyAsync(pragma, parser, parentTableName, parentTableColumnLookup, cancellationToken).ConfigureAwait(false);
+                    parentPrimaryKey = await LoadPrimaryKeyAsync(pragma, parentTableParser, parentTableName, parentTableColumnLookup, cancellationToken).ConfigureAwait(false);
                     primaryKeyCache[parentTableName] = parentPrimaryKey;
                 }
 
@@ -930,7 +950,7 @@ namespace SJP.Schematic.Sqlite
                 {
                     if (!uniqueKeyLookupCache.TryGetValue(parentTableName, out var parentUniqueKeys))
                     {
-                        parentUniqueKeys = await LoadUniqueKeysAsync(pragma, parser, parentTableName, parentTableColumnLookup, cancellationToken).ConfigureAwait(false);
+                        parentUniqueKeys = await LoadUniqueKeysAsync(pragma, parentTableParser, parentTableName, parentTableColumnLookup, cancellationToken).ConfigureAwait(false);
                         uniqueKeyLookupCache[parentTableName] = parentUniqueKeys;
                     }
 

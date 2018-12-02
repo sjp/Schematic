@@ -341,7 +341,7 @@ namespace SJP.Schematic.DataAccess.OrmLite
                 throw new ArgumentNullException(nameof(column));
 
             var foreignKeys = table.ParentKeys;
-            if (foreignKeys.Count == 0)
+            if (foreignKeys.Empty())
                 return false;
 
             foreach (var foreignKey in foreignKeys)
@@ -369,7 +369,7 @@ namespace SJP.Schematic.DataAccess.OrmLite
                 throw new ArgumentNullException(nameof(column));
 
             var foreignKeys = table.ParentKeys;
-            if (foreignKeys.Count == 0)
+            if (foreignKeys.Empty())
                 return null;
 
             foreach (var foreignKey in foreignKeys)
@@ -395,7 +395,7 @@ namespace SJP.Schematic.DataAccess.OrmLite
                 throw new ArgumentNullException(nameof(column));
 
             var indexes = table.Indexes.Where(i => !i.IsUnique).ToList();
-            if (indexes.Count == 0)
+            if (indexes.Empty())
                 return false;
 
             foreach (var index in indexes)
@@ -425,7 +425,7 @@ namespace SJP.Schematic.DataAccess.OrmLite
                 throw new ArgumentNullException(nameof(column));
 
             var indexes = table.Indexes.Where(i => i.IsUnique).ToList();
-            if (indexes.Count == 0)
+            if (indexes.Empty())
                 return false;
 
             foreach (var index in indexes)
@@ -455,7 +455,7 @@ namespace SJP.Schematic.DataAccess.OrmLite
                 throw new ArgumentNullException(nameof(column));
 
             var uniqueKeys = table.UniqueKeys;
-            if (uniqueKeys.Count == 0)
+            if (uniqueKeys.Empty())
                 return false;
 
             foreach (var uniqueKey in uniqueKeys)

@@ -80,7 +80,7 @@ namespace SJP.Schematic.Oracle
 
             // copy to mutable result set
             var result = new List<Token<OracleToken>>();
-            if (tokens.Count == 0)
+            if (tokens.Empty())
                 return result.AsReadOnly();
 
             foreach (var token in tokens)

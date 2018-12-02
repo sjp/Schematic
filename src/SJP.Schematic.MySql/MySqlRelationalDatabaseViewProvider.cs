@@ -8,11 +8,12 @@ using Dapper;
 using LanguageExt;
 using SJP.Schematic.Core;
 using SJP.Schematic.Core.Extensions;
+using SJP.Schematic.Core.Utilities;
 using SJP.Schematic.MySql.Query;
 
 namespace SJP.Schematic.MySql
 {
-    public class MySqlRelationalDatabaseViewProvider
+    public class MySqlRelationalDatabaseViewProvider : IRelationalDatabaseViewProvider
     {
         public MySqlRelationalDatabaseViewProvider(IDbConnection connection, IDatabaseIdentifierDefaults identifierDefaults, IDbTypeProvider typeProvider)
         {
@@ -26,6 +27,45 @@ namespace SJP.Schematic.MySql
         protected IDatabaseIdentifierDefaults IdentifierDefaults { get; }
 
         protected IDbTypeProvider TypeProvider { get; }
+
+        public IReadOnlyCollection<IRelationalDatabaseView> Views
+        {
+            get
+            {
+                var viewNames = Connection.Query<QualifiedName>(ViewsQuery, new { SchemaName = IdentifierDefaults.Schema })
+                    .Select(dto => Identifier.CreateQualifiedIdentifier(dto.SchemaName, dto.ObjectName))
+                    .ToList();
+
+                var views = viewNames
+                    .Select(LoadViewSync)
+                    .Somes();
+                return new ReadOnlyCollectionSlim<IRelationalDatabaseView>(viewNames.Count, views);
+            }
+        }
+
+        public async Task<IReadOnlyCollection<IRelationalDatabaseView>> ViewsAsync(CancellationToken cancellationToken = default(CancellationToken))
+        {
+            var queryResult = await Connection.QueryAsync<QualifiedName>(ViewsQuery, new { SchemaName = IdentifierDefaults.Schema }).ConfigureAwait(false);
+            var viewNames = queryResult
+                .Select(dto => Identifier.CreateQualifiedIdentifier(dto.SchemaName, dto.ObjectName))
+                .ToList();
+
+            var views = await viewNames
+                .Select(name => LoadViewAsync(name, cancellationToken))
+                .Somes()
+                .ConfigureAwait(false);
+
+            return views.ToList();
+        }
+
+        protected virtual string ViewsQuery => ViewsQuerySql;
+
+        private const string ViewsQuerySql = @"
+select
+    TABLE_SCHEMA as SchemaName,
+    TABLE_NAME as ObjectName
+from information_schema.views
+where TABLE_SCHEMA = @SchemaName order by TABLE_NAME";
 
         public Option<IRelationalDatabaseView> GetView(Identifier viewName)
         {
@@ -76,9 +116,10 @@ namespace SJP.Schematic.MySql
         protected virtual string ViewNameQuery => ViewNameQuerySql;
 
         private const string ViewNameQuerySql = @"
-select top 1 schema_name(schema_id) as SchemaName, name as ObjectName
-from sys.views
-where schema_id = schema_id(@SchemaName) and name = @ViewName";
+select table_schema as SchemaName, table_name as ObjectName
+from information_schema.views
+where table_schema = @SchemaName and table_name = @ViewName
+limit 1";
 
         protected virtual Option<IRelationalDatabaseView> LoadViewSync(Identifier viewName)
         {
@@ -119,12 +160,8 @@ where schema_id = schema_id(@SchemaName) and name = @ViewName";
 
             var resolvedViewName = await resolvedViewNameOption.UnwrapSomeAsync().ConfigureAwait(false);
 
-            var columnsTask = LoadColumnsAsync(resolvedViewName, cancellationToken);
-            var definitionTask = LoadDefinitionAsync(resolvedViewName, cancellationToken);
-            await Task.WhenAll(columnsTask, definitionTask).ConfigureAwait(false);
-
-            var columns = columnsTask.Result;
-            var definition = definitionTask.Result;
+            var columns = await LoadColumnsAsync(resolvedViewName, cancellationToken).ConfigureAwait(false);
+            var definition = await LoadDefinitionAsync(resolvedViewName, cancellationToken).ConfigureAwait(false);
             var indexes = Array.Empty<IDatabaseIndex>();
 
             var view = new RelationalDatabaseView(resolvedViewName, definition, columns, indexes);

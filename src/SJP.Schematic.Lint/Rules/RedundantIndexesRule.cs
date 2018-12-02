@@ -70,11 +70,11 @@ namespace SJP.Schematic.Lint.Rules
                 throw new ArgumentNullException(nameof(superSet));
 
             var prefixSetList = prefixSet.ToList();
-            if (prefixSetList.Count == 0)
+            if (prefixSetList.Empty())
                 throw new ArgumentException("The given prefix set contained no values.", nameof(prefixSet));
 
             var superSetList = superSet.ToList();
-            if (superSetList.Count == 0)
+            if (superSetList.Empty())
                 throw new ArgumentException("The given super set contained no values.", nameof(superSet));
 
             if (prefixSetList.Count > superSetList.Count)

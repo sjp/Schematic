@@ -331,7 +331,7 @@ order by atc.COLUMN_ID";
                 return Array.Empty<IDatabaseIndex>();
 
             var indexColumns = queryResult.GroupBy(row => new { row.IndexName, row.IndexProperty, row.Uniqueness }).ToList();
-            if (indexColumns.Count == 0)
+            if (indexColumns.Empty())
                 return Array.Empty<IDatabaseIndex>();
 
             var result = new List<IDatabaseIndex>(indexColumns.Count);
@@ -373,7 +373,7 @@ order by atc.COLUMN_ID";
                 return Array.Empty<IDatabaseIndex>();
 
             var indexColumns = queryResult.GroupBy(row => new { row.IndexName, row.IndexProperty, row.Uniqueness }).ToList();
-            if (indexColumns.Count == 0)
+            if (indexColumns.Empty())
                 return Array.Empty<IDatabaseIndex>();
 
             var result = new List<IDatabaseIndex>(indexColumns.Count);

@@ -721,6 +721,9 @@ where t.relname = @TableName and ns.nspname = @SchemaName";
 
         protected virtual string ColumnsQuery => ColumnsQuerySql;
 
+        // a little bit convoluted due to the quote_ident() being required.
+        // when missing, case folding will occur (we should have guaranteed that this is already done)
+        // additionally the default behaviour misses the schema which may be necessary
         private const string ColumnsQuerySql = @"
 select
     column_name,
@@ -745,8 +748,8 @@ select
     udt_schema,
     udt_name,
     dtd_identifier,
-    (pg_catalog.parse_ident(pg_catalog.pg_get_serial_sequence(table_name, column_name)))[1] as serial_sequence_schema_name,
-    (pg_catalog.parse_ident(pg_catalog.pg_get_serial_sequence(table_name, column_name)))[2] as serial_sequence_local_name
+    (pg_catalog.parse_ident(pg_catalog.pg_get_serial_sequence(quote_ident(table_schema) || '.' || quote_ident(table_name), column_name)))[1] as serial_sequence_schema_name,
+    (pg_catalog.parse_ident(pg_catalog.pg_get_serial_sequence(quote_ident(table_schema) || '.' || quote_ident(table_name), column_name)))[2] as serial_sequence_local_name
 from information_schema.columns
 where table_schema = @SchemaName and table_name = @TableName
 order by ordinal_position";

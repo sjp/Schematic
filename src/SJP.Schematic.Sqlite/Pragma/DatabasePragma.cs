@@ -156,9 +156,21 @@ namespace SJP.Schematic.Sqlite.Pragma
 
         protected virtual string ForeignKeyCheckDatabaseQuery => PragmaPrefix + "foreign_key_check";
 
-        public IEnumerable<pragma_foreign_key_check> ForeignKeyCheckTable(Identifier tableName) => Connection.Query<pragma_foreign_key_check>(ForeignKeyCheckTableQuery(tableName));
+        public IEnumerable<pragma_foreign_key_check> ForeignKeyCheckTable(Identifier tableName)
+        {
+            if (tableName == null)
+                throw new ArgumentNullException(nameof(tableName));
 
-        public Task<IEnumerable<pragma_foreign_key_check>> ForeignKeyCheckTableAsync(Identifier tableName, CancellationToken cancellationToken = default(CancellationToken)) => Connection.QueryAsync<pragma_foreign_key_check>(ForeignKeyCheckTableQuery(tableName));
+            return Connection.Query<pragma_foreign_key_check>(ForeignKeyCheckTableQuery(tableName));
+        }
+
+        public Task<IEnumerable<pragma_foreign_key_check>> ForeignKeyCheckTableAsync(Identifier tableName, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            if (tableName == null)
+                throw new ArgumentNullException(nameof(tableName));
+
+            return Connection.QueryAsync<pragma_foreign_key_check>(ForeignKeyCheckTableQuery(tableName));
+        }
 
         protected virtual string ForeignKeyCheckTableQuery(Identifier tableName)
         {
@@ -170,9 +182,21 @@ namespace SJP.Schematic.Sqlite.Pragma
             return PragmaPrefix + "foreign_key_check(" + Dialect.QuoteIdentifier(tableName.LocalName) + ")";
         }
 
-        public IEnumerable<pragma_foreign_key_list> ForeignKeyList(Identifier tableName) => Connection.Query<pragma_foreign_key_list>(ForeignKeyListQuery(tableName));
+        public IEnumerable<pragma_foreign_key_list> ForeignKeyList(Identifier tableName)
+        {
+            if (tableName == null)
+                throw new ArgumentNullException(nameof(tableName));
 
-        public Task<IEnumerable<pragma_foreign_key_list>> ForeignKeyListAsync(Identifier tableName, CancellationToken cancellationToken = default(CancellationToken)) => Connection.QueryAsync<pragma_foreign_key_list>(ForeignKeyListQuery(tableName));
+            return Connection.Query<pragma_foreign_key_list>(ForeignKeyListQuery(tableName));
+        }
+
+        public Task<IEnumerable<pragma_foreign_key_list>> ForeignKeyListAsync(Identifier tableName, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            if (tableName == null)
+                throw new ArgumentNullException(nameof(tableName));
+
+            return Connection.QueryAsync<pragma_foreign_key_list>(ForeignKeyListQuery(tableName));
+        }
 
         protected virtual string ForeignKeyListQuery(Identifier tableName)
         {
@@ -213,9 +237,21 @@ namespace SJP.Schematic.Sqlite.Pragma
             return PragmaPrefix + "index_info(" + Dialect.QuoteIdentifier(indexName) + ")";
         }
 
-        public IEnumerable<pragma_index_list> IndexList(Identifier tableName) => Connection.Query<pragma_index_list>(IndexListQuery(tableName));
+        public IEnumerable<pragma_index_list> IndexList(Identifier tableName)
+        {
+            if (tableName == null)
+                throw new ArgumentNullException(nameof(tableName));
 
-        public Task<IEnumerable<pragma_index_list>> IndexListAsync(Identifier tableName, CancellationToken cancellationToken = default(CancellationToken)) => Connection.QueryAsync<pragma_index_list>(IndexListQuery(tableName));
+            return Connection.Query<pragma_index_list>(IndexListQuery(tableName));
+        }
+
+        public Task<IEnumerable<pragma_index_list>> IndexListAsync(Identifier tableName, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            if (tableName == null)
+                throw new ArgumentNullException(nameof(tableName));
+
+            return Connection.QueryAsync<pragma_index_list>(IndexListQuery(tableName));
+        }
 
         protected virtual string IndexListQuery(Identifier tableName)
         {
@@ -227,9 +263,21 @@ namespace SJP.Schematic.Sqlite.Pragma
             return PragmaPrefix + "index_list(" + Dialect.QuoteIdentifier(tableName.LocalName) + ")";
         }
 
-        public IEnumerable<pragma_index_xinfo> IndexXInfo(string indexName) => Connection.Query<pragma_index_xinfo>(IndexXInfoQuery(indexName));
+        public IEnumerable<pragma_index_xinfo> IndexXInfo(string indexName)
+        {
+            if (indexName.IsNullOrWhiteSpace())
+                throw new ArgumentNullException(nameof(indexName));
 
-        public Task<IEnumerable<pragma_index_xinfo>> IndexXInfoAsync(string indexName, CancellationToken cancellationToken = default(CancellationToken)) => Connection.QueryAsync<pragma_index_xinfo>(IndexXInfoQuery(indexName));
+            return Connection.Query<pragma_index_xinfo>(IndexXInfoQuery(indexName));
+        }
+
+        public Task<IEnumerable<pragma_index_xinfo>> IndexXInfoAsync(string indexName, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            if (indexName.IsNullOrWhiteSpace())
+                throw new ArgumentNullException(nameof(indexName));
+
+            return Connection.QueryAsync<pragma_index_xinfo>(IndexXInfoQuery(indexName));
+        }
 
         protected virtual string IndexXInfoQuery(string indexName)
         {
@@ -534,9 +582,21 @@ namespace SJP.Schematic.Sqlite.Pragma
             return PragmaPrefix + "synchronous = " + value;
         }
 
-        public IEnumerable<pragma_table_info> TableInfo(Identifier tableName) => Connection.Query<pragma_table_info>(TableInfoQuery(tableName));
+        public IEnumerable<pragma_table_info> TableInfo(Identifier tableName)
+        {
+            if (tableName == null)
+                throw new ArgumentNullException(nameof(tableName));
 
-        public Task<IEnumerable<pragma_table_info>> TableInfoAsync(Identifier tableName, CancellationToken cancellationToken = default(CancellationToken)) => Connection.QueryAsync<pragma_table_info>(TableInfoQuery(tableName));
+            return Connection.Query<pragma_table_info>(TableInfoQuery(tableName));
+        }
+
+        public Task<IEnumerable<pragma_table_info>> TableInfoAsync(Identifier tableName, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            if (tableName == null)
+                throw new ArgumentNullException(nameof(tableName));
+
+            return Connection.QueryAsync<pragma_table_info>(TableInfoQuery(tableName));
+        }
 
         protected virtual string TableInfoQuery(Identifier tableName)
         {

@@ -105,7 +105,7 @@ namespace SJP.Schematic.Modelled.Reflection
         protected virtual IReadOnlyDictionary<Identifier, IRelationalDatabaseTable> LoadTables()
         {
             var tables = TypeProvider.Tables.Select(LoadTableSync).ToList();
-            if (tables.Count == 0)
+            if (tables.Empty())
                 return _emptyTableLookup;
 
             var (duplicateNames, lookup) = CreateLookup(tables);
@@ -171,7 +171,7 @@ namespace SJP.Schematic.Modelled.Reflection
         protected virtual IReadOnlyDictionary<Identifier, IRelationalDatabaseView> LoadViews()
         {
             var views = TypeProvider.Views.Select(LoadViewSync).ToList();
-            if (views.Count == 0)
+            if (views.Empty())
                 return _emptyViewLookup;
 
             var (duplicateNames, lookup) = CreateLookup(views);
@@ -237,7 +237,7 @@ namespace SJP.Schematic.Modelled.Reflection
         protected virtual IReadOnlyDictionary<Identifier, IDatabaseSequence> LoadSequences()
         {
             var sequences = TypeProvider.Sequences.Select(LoadSequenceSync).ToList();
-            if (sequences.Count == 0)
+            if (sequences.Empty())
                 return _emptySequenceLookup;
 
             var (duplicateNames, lookup) = CreateLookup(sequences);
@@ -303,7 +303,7 @@ namespace SJP.Schematic.Modelled.Reflection
         protected virtual IReadOnlyDictionary<Identifier, IDatabaseSynonym> LoadSynonyms()
         {
             var synonyms = TypeProvider.Synonyms.Select(LoadSynonymSync).ToList();
-            if (synonyms.Count == 0)
+            if (synonyms.Empty())
                 return _emptySynonymLookup;
 
             var (duplicateNames, lookup) = CreateLookup(synonyms);

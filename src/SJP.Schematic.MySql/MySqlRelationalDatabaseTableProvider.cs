@@ -8,11 +8,12 @@ using Dapper;
 using LanguageExt;
 using SJP.Schematic.Core;
 using SJP.Schematic.Core.Extensions;
+using SJP.Schematic.Core.Utilities;
 using SJP.Schematic.MySql.Query;
 
 namespace SJP.Schematic.MySql
 {
-    public class MySqlRelationalDatabaseTableProvider
+    public class MySqlRelationalDatabaseTableProvider : IRelationalDatabaseTableProvider
     {
         public MySqlRelationalDatabaseTableProvider(IDbConnection connection, IDatabaseIdentifierDefaults identifierDefaults, IDbTypeProvider typeProvider)
         {
@@ -26,6 +27,45 @@ namespace SJP.Schematic.MySql
         protected IDatabaseIdentifierDefaults IdentifierDefaults { get; }
 
         protected IDbTypeProvider TypeProvider { get; }
+
+        public IReadOnlyCollection<IRelationalDatabaseTable> Tables
+        {
+            get
+            {
+                var tableNames = Connection.Query<QualifiedName>(TablesQuery, new { SchemaName = IdentifierDefaults.Schema })
+                    .Select(dto => Identifier.CreateQualifiedIdentifier(dto.SchemaName, dto.ObjectName))
+                    .ToList();
+
+                var tables = tableNames
+                    .Select(LoadTableSync)
+                    .Somes();
+                return new ReadOnlyCollectionSlim<IRelationalDatabaseTable>(tableNames.Count, tables);
+            }
+        }
+
+        public async Task<IReadOnlyCollection<IRelationalDatabaseTable>> TablesAsync(CancellationToken cancellationToken = default(CancellationToken))
+        {
+            var queryResults = await Connection.QueryAsync<QualifiedName>(TablesQuery, new { SchemaName = IdentifierDefaults.Schema }).ConfigureAwait(false);
+            var tableNames = queryResults
+                .Select(dto => Identifier.CreateQualifiedIdentifier(dto.SchemaName, dto.ObjectName))
+                .ToList();
+
+            var tables = await tableNames
+                .Select(name => LoadTableAsync(name, cancellationToken))
+                .Somes()
+                .ConfigureAwait(false);
+
+            return tables.ToList();
+        }
+
+        protected virtual string TablesQuery => TablesQuerySql;
+
+        private const string TablesQuerySql = @"
+select
+    TABLE_SCHEMA as SchemaName,
+    TABLE_NAME as ObjectName
+from information_schema.tables
+where TABLE_SCHEMA = @SchemaName order by TABLE_NAME";
 
         public Option<IRelationalDatabaseTable> GetTable(Identifier tableName)
         {
@@ -139,33 +179,18 @@ limit 1";
 
             var resolvedTableName = await resolvedTableNameOption.UnwrapSomeAsync().ConfigureAwait(false);
 
-            var columnsTask = LoadColumnsAsync(resolvedTableName, cancellationToken);
-            var checksTask = LoadChecksAsync(resolvedTableName, cancellationToken);
-            var triggersTask = LoadTriggersAsync(resolvedTableName, cancellationToken);
-            await Task.WhenAll(columnsTask, checksTask, triggersTask).ConfigureAwait(false);
-
-            var columns = columnsTask.Result;
+            var columns = await LoadColumnsAsync(resolvedTableName, cancellationToken).ConfigureAwait(false);
             var columnLookup = GetColumnLookup(columns);
-            var checks = checksTask.Result;
-            var triggers = triggersTask.Result;
+            var checks = await LoadChecksAsync(resolvedTableName, cancellationToken).ConfigureAwait(false);
+            var triggers = await LoadTriggersAsync(resolvedTableName, cancellationToken).ConfigureAwait(false);
 
-            var primaryKeyTask = LoadPrimaryKeyAsync(resolvedTableName, columnLookup, cancellationToken);
-            var uniqueKeysTask = LoadUniqueKeysAsync(resolvedTableName, columnLookup, cancellationToken);
-            var indexesTask = LoadIndexesAsync(resolvedTableName, columnLookup, cancellationToken);
-            await Task.WhenAll(primaryKeyTask, uniqueKeysTask, indexesTask).ConfigureAwait(false);
-
-            var primaryKey = primaryKeyTask.Result;
-            var uniqueKeys = uniqueKeysTask.Result;
-            var indexes = indexesTask.Result;
-
+            var primaryKey = await LoadPrimaryKeyAsync(resolvedTableName, columnLookup, cancellationToken).ConfigureAwait(false);
+            var uniqueKeys = await LoadUniqueKeysAsync(resolvedTableName, columnLookup, cancellationToken).ConfigureAwait(false);
             var uniqueKeyLookup = GetDatabaseKeyLookup(uniqueKeys);
+            var indexes = await LoadIndexesAsync(resolvedTableName, columnLookup, cancellationToken).ConfigureAwait(false);
 
-            var childKeysTask = LoadChildKeysAsync(resolvedTableName, columnLookup, primaryKey, uniqueKeyLookup, cancellationToken);
-            var parentKeysTask = LoadParentKeysAsync(resolvedTableName, columnLookup, cancellationToken);
-            await Task.WhenAll(childKeysTask, parentKeysTask).ConfigureAwait(false);
-
-            var childKeys = childKeysTask.Result;
-            var parentKeys = parentKeysTask.Result;
+            var childKeys = await LoadChildKeysAsync(resolvedTableName, columnLookup, primaryKey, uniqueKeyLookup, cancellationToken).ConfigureAwait(false);
+            var parentKeys = await LoadParentKeysAsync(resolvedTableName, columnLookup, cancellationToken).ConfigureAwait(false);
 
             var table = new RelationalDatabaseTable(
                 resolvedTableName,
@@ -262,7 +287,7 @@ order by kc.ordinal_position";
                 return Array.Empty<IDatabaseIndex>();
 
             var indexColumns = queryResult.GroupBy(row => new { row.IndexName, row.IsNonUnique }).ToList();
-            if (indexColumns.Count == 0)
+            if (indexColumns.Empty())
                 return Array.Empty<IDatabaseIndex>();
 
             var result = new List<IDatabaseIndex>(indexColumns.Count);
@@ -301,7 +326,7 @@ order by kc.ordinal_position";
                 return Array.Empty<IDatabaseIndex>();
 
             var indexColumns = queryResult.GroupBy(row => new { row.IndexName, row.IsNonUnique }).ToList();
-            if (indexColumns.Count == 0)
+            if (indexColumns.Empty())
                 return Array.Empty<IDatabaseIndex>();
 
             var result = new List<IDatabaseIndex>(indexColumns.Count);
@@ -354,7 +379,7 @@ where table_schema = @SchemaName and table_name = @TableName";
                     Columns = g.Select(row => columns[row.ColumnName]).ToList(),
                 })
                 .ToList();
-            if (constraintColumns.Count == 0)
+            if (constraintColumns.Empty())
                 return Array.Empty<IDatabaseKey>();
 
             var result = new List<IDatabaseKey>(constraintColumns.Count);
@@ -390,7 +415,7 @@ where table_schema = @SchemaName and table_name = @TableName";
                     Columns = g.Select(row => columns[row.ColumnName]).ToList(),
                 })
                 .ToList();
-            if (constraintColumns.Count == 0)
+            if (constraintColumns.Empty())
                 return Array.Empty<IDatabaseKey>();
 
             var result = new List<IDatabaseKey>(constraintColumns.Count);
@@ -443,7 +468,7 @@ order by kc.ordinal_position";
                 row.DeleteRule,
                 row.UpdateRule
             }).ToList();
-            if (groupedChildKeys.Count == 0)
+            if (groupedChildKeys.Empty())
                 return Array.Empty<IDatabaseRelationalKey>();
 
             var columnLookupsCache = new Dictionary<Identifier, IReadOnlyDictionary<Identifier, IDatabaseColumn>> { [tableName] = columns };
@@ -518,7 +543,7 @@ order by kc.ordinal_position";
                 row.DeleteRule,
                 row.UpdateRule
             }).ToList();
-            if (groupedChildKeys.Count == 0)
+            if (groupedChildKeys.Empty())
                 return Array.Empty<IDatabaseRelationalKey>();
 
             var columnLookupsCache = new Dictionary<Identifier, IReadOnlyDictionary<Identifier, IDatabaseColumn>> { [tableName] = columns };
@@ -624,7 +649,7 @@ where pt.table_schema = @SchemaName and pt.table_name = @TableName";
                 row.DeleteRule,
                 row.UpdateRule,
             }).ToList();
-            if (foreignKeys.Count == 0)
+            if (foreignKeys.Empty())
                 return Array.Empty<IDatabaseRelationalKey>();
 
             var columnLookupsCache = new Dictionary<Identifier, IReadOnlyDictionary<Identifier, IDatabaseColumn>> { [tableName] = columns };
@@ -643,7 +668,7 @@ where pt.table_schema = @SchemaName and pt.table_name = @TableName";
                 var parentKeyName = Identifier.CreateQualifiedIdentifier(fkey.Key.ParentKeyName);
 
                 IDatabaseKey parentKey;
-                if (fkey.Key.KeyType == "PK")
+                if (fkey.Key.KeyType == "PRIMARY KEY")
                 {
                     if (primaryKeyCache.TryGetValue(parentTableName, out var pk))
                     {
@@ -729,7 +754,7 @@ where pt.table_schema = @SchemaName and pt.table_name = @TableName";
                 row.DeleteRule,
                 row.UpdateRule,
             }).ToList();
-            if (foreignKeys.Count == 0)
+            if (foreignKeys.Empty())
                 return Array.Empty<IDatabaseRelationalKey>();
 
             var columnLookupsCache = new Dictionary<Identifier, IReadOnlyDictionary<Identifier, IDatabaseColumn>> { [tableName] = columns };
@@ -749,7 +774,7 @@ where pt.table_schema = @SchemaName and pt.table_name = @TableName";
                 var parentKeyName = Identifier.CreateQualifiedIdentifier(fkey.Key.ParentKeyName);
 
                 IDatabaseKey parentKey;
-                if (fkey.Key.KeyType == "PK")
+                if (fkey.Key.KeyType == "PRIMARY KEY")
                 {
                     if (primaryKeyCache.TryGetValue(parentTableName, out var pk))
                     {
@@ -944,7 +969,7 @@ order by ordinal_position";
                 row.Definition,
                 row.Timing
             }).ToList();
-            if (triggers.Count == 0)
+            if (triggers.Empty())
                 return Array.Empty<IDatabaseTrigger>();
 
             var result = new List<IDatabaseTrigger>(triggers.Count);
@@ -994,7 +1019,7 @@ order by ordinal_position";
                 row.Definition,
                 row.Timing
             }).ToList();
-            if (triggers.Count == 0)
+            if (triggers.Empty())
                 return Array.Empty<IDatabaseTrigger>();
 
             var result = new List<IDatabaseTrigger>(triggers.Count);

@@ -28,7 +28,7 @@ namespace SJP.Schematic.Lint.Rules
                 throw new ArgumentNullException(nameof(table));
 
             var uniqueIndexes = table.Indexes.Where(i => i.IsUnique).ToList();
-            if (uniqueIndexes.Count == 0)
+            if (uniqueIndexes.Empty())
                 return Array.Empty<IRuleMessage>();
 
             var result = new List<IRuleMessage>();
@@ -40,7 +40,7 @@ namespace SJP.Schematic.Lint.Rules
                     .Where(c => c.IsNullable)
                     .ToList();
 
-                if (nullableColumns.Count == 0)
+                if (nullableColumns.Empty())
                     continue;
 
                 var columnNames = nullableColumns.Select(c => c.Name.LocalName).ToList();

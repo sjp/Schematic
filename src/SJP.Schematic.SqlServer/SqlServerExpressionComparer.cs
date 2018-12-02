@@ -80,7 +80,7 @@ namespace SJP.Schematic.SqlServer
 
             // copy to mutable result set
             var result = new List<Token<SqlServerToken>>();
-            if (tokens.Count == 0)
+            if (tokens.Empty())
                 return result.AsReadOnly();
 
             foreach (var token in tokens)

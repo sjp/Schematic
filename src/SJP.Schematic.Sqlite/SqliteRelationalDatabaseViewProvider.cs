@@ -6,6 +6,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Dapper;
 using LanguageExt;
+using Microsoft.Data.Sqlite;
 using SJP.Schematic.Core;
 using SJP.Schematic.Core.Extensions;
 using SJP.Schematic.Core.Utilities;
@@ -324,12 +325,21 @@ namespace SJP.Schematic.Sqlite
             if (viewName == null)
                 throw new ArgumentNullException(nameof(viewName));
 
-            var tableInfos = pragma.TableInfo(viewName);
+            IEnumerable<Pragma.Query.pragma_table_info> tableInfos;
+            try
+            {
+                // when the view is invalid, this may throw an exception, handle it
+                tableInfos = pragma.TableInfo(viewName);
+            }
+            catch (SqliteException ex) when (ex.SqliteErrorCode == SqliteError)
+            {
+                return Array.Empty<IDatabaseColumn>();
+            }
+
+            if (tableInfos.Empty())
+                return Array.Empty<IDatabaseColumn>();
 
             var result = new List<IDatabaseColumn>();
-            if (tableInfos.Empty())
-                return result;
-
             foreach (var tableInfo in tableInfos)
             {
                 var columnTypeName = tableInfo.type;
@@ -358,12 +368,21 @@ namespace SJP.Schematic.Sqlite
 
         private async Task<IReadOnlyList<IDatabaseColumn>> LoadColumnsAsyncCore(ISqliteDatabasePragma pragma, Identifier viewName, CancellationToken cancellationToken)
         {
-            var tableInfos = await pragma.TableInfoAsync(viewName).ConfigureAwait(false);
+            IEnumerable<Pragma.Query.pragma_table_info> tableInfos;
+            try
+            {
+                // when the view is invalid, this may throw an exception, handle it
+                tableInfos = await pragma.TableInfoAsync(viewName).ConfigureAwait(false);
+            }
+            catch (SqliteException ex) when (ex.SqliteErrorCode == SqliteError)
+            {
+                return Array.Empty<IDatabaseColumn>();
+            }
+
+            if (tableInfos.Empty())
+                return Array.Empty<IDatabaseColumn>();
 
             var result = new List<IDatabaseColumn>();
-            if (tableInfos.Empty())
-                return result;
-
             foreach (var tableInfo in tableInfos)
             {
                 var columnTypeName = tableInfo.type;
@@ -430,5 +449,7 @@ namespace SJP.Schematic.Sqlite
         }
 
         private readonly static SqliteTypeAffinityParser _affinityParser = new SqliteTypeAffinityParser();
+
+        private const int SqliteError = 1;
     }
 }
