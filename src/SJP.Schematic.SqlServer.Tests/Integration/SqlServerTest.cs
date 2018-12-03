@@ -25,5 +25,7 @@ namespace SJP.Schematic.SqlServer.Tests.Integration
         protected IDbConnection Connection { get; } = Config.Connection;
 
         protected IDatabaseDialect Dialect { get; } = new SqlServerDialect();
+
+        protected IDatabaseIdentifierDefaults IdentifierDefaults { get; } = new SqlServerDialect().GetIdentifierDefaults(Config.Connection);
     }
 }

@@ -9,18 +9,10 @@ namespace SJP.Schematic.Lint.Tests.Fakes
 {
     internal class FakeRelationalDatabase : RelationalDatabase, IRelationalDatabase
     {
-        public FakeRelationalDatabase(IDatabaseDialect dialect, IDbConnection connection)
-            : base(dialect, connection)
+        public FakeRelationalDatabase(IDatabaseDialect dialect, IDbConnection connection, IDatabaseIdentifierDefaults identifierDefaults)
+            : base(dialect, connection, identifierDefaults)
         {
         }
-
-        public virtual string ServerName { get; set; }
-
-        public virtual string DatabaseName { get; set; }
-
-        public virtual string DefaultSchema { get; set; }
-
-        public virtual string DatabaseVersion { get; set; }
 
         public virtual IReadOnlyCollection<IRelationalDatabaseTable> Tables { get; set; } = new List<IRelationalDatabaseTable>();
 

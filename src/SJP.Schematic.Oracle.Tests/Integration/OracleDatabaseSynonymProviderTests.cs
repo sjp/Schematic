@@ -10,20 +10,7 @@ namespace SJP.Schematic.Oracle.Tests.Integration
 {
     internal sealed class OracleDatabaseSynonymProviderTests : OracleTest
     {
-        public OracleDatabaseSynonymProviderTests()
-        {
-            var identifierResolver = new DefaultOracleIdentifierResolutionStrategy();
-            var database = new OracleRelationalDatabase(Dialect, Connection, identifierResolver);
-            IdentifierDefaults = new DatabaseIdentifierDefaultsBuilder()
-                .WithServer(database.ServerName)
-                .WithDatabase(database.DatabaseName)
-                .WithSchema(database.DefaultSchema)
-                .Build();
-            SynonymProvider = new OracleDatabaseSynonymProvider(Connection, IdentifierDefaults, identifierResolver);
-        }
-
-        private IDatabaseIdentifierDefaults IdentifierDefaults { get; }
-        private IDatabaseSynonymProvider SynonymProvider { get; }
+        private IDatabaseSynonymProvider SynonymProvider => new OracleDatabaseSynonymProvider(Connection, IdentifierDefaults, IdentifierResolver);
 
         [OneTimeSetUp]
         public async Task Init()

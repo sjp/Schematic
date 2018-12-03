@@ -13,34 +13,16 @@ namespace SJP.Schematic.PostgreSql
 {
     public class PostgreSqlRelationalDatabase : RelationalDatabase, IRelationalDatabase
     {
-        public PostgreSqlRelationalDatabase(IDatabaseDialect dialect, IDbConnection connection, IIdentifierResolutionStrategy identifierResolver)
-            : base(dialect, connection)
+        public PostgreSqlRelationalDatabase(IDatabaseDialect dialect, IDbConnection connection, IDatabaseIdentifierDefaults identifierDefaults, IIdentifierResolutionStrategy identifierResolver)
+            : base(dialect, connection, identifierDefaults)
         {
             IdentifierResolver = identifierResolver ?? throw new ArgumentNullException(nameof(identifierResolver));
-            _metadata = new Lazy<DatabaseMetadata>(LoadDatabaseMetadata);
-
-            var identifierDefaults = new DatabaseIdentifierDefaultsBuilder()
-                .WithServer(ServerName)
-                .WithDatabase(DatabaseName)
-                .WithSchema(DefaultSchema)
-                .Build();
-
             _tableProvider = new PostgreSqlRelationalDatabaseTableProvider(connection, identifierDefaults, identifierResolver, dialect.TypeProvider);
             _viewProvider = new PostgreSqlRelationalDatabaseViewProvider(connection, identifierDefaults, identifierResolver, dialect.TypeProvider);
             _sequenceProvider = new PostgreSqlDatabaseSequenceProvider(connection, identifierDefaults, identifierResolver);
         }
 
         protected IIdentifierResolutionStrategy IdentifierResolver { get; }
-
-        public string ServerName => Metadata.ServerName;
-
-        public string DatabaseName => Metadata.DatabaseName;
-
-        public string DefaultSchema => Metadata.DefaultSchema;
-
-        public string DatabaseVersion => Metadata.DatabaseVersion;
-
-        protected DatabaseMetadata Metadata => _metadata.Value;
 
         public IReadOnlyCollection<IRelationalDatabaseTable> Tables => _tableProvider.Tables;
 
@@ -133,24 +115,6 @@ namespace SJP.Schematic.PostgreSql
 
             return _synonymProvider.GetSynonymAsync(synonymName, cancellationToken);
         }
-
-        private DatabaseMetadata LoadDatabaseMetadata()
-        {
-            const string sql = @"
-select
-    pg_catalog.host(pg_catalog.inet_server_addr()) as ServerName,
-    pg_catalog.current_database() as DatabaseName,
-    pg_catalog.current_schema() as DefaultSchema,
-    pg_catalog.version() as DatabaseVersion";
-            var result = Connection.QuerySingle<DatabaseMetadata>(sql);
-
-            if (result.ServerName.IsNullOrWhiteSpace())
-                result.ServerName = "127.0.0.1";
-
-            return result;
-        }
-
-        private readonly Lazy<DatabaseMetadata> _metadata;
 
         private readonly IRelationalDatabaseTableProvider _tableProvider;
         private readonly IRelationalDatabaseViewProvider _viewProvider;

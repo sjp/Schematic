@@ -9,7 +9,7 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore.Tests.Integration
 {
     internal sealed class EFCoreModelBuilderTests : SqliteTest
     {
-        private IRelationalDatabase Database => new SqliteRelationalDatabase(Dialect, Connection);
+        private IRelationalDatabase Database => new SqliteRelationalDatabase(Dialect, Connection, IdentifierDefaults);
 
         private static EFCoreModelBuilder Builder => new EFCoreModelBuilder(new PascalCaseNameProvider(), "    ", "  ");
 

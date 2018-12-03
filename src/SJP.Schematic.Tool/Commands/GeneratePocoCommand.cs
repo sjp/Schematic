@@ -47,7 +47,8 @@ namespace SJP.Schematic.Tool
             try
             {
                 var cachedConnection = status.Connection.AsCachedConnection();
-                var database = databaseFactory.Invoke(dialect, cachedConnection);
+                var identifierDefaults = dialect.GetIdentifierDefaults(cachedConnection);
+                var database = databaseFactory.Invoke(dialect, cachedConnection, identifierDefaults);
 
                 var generator = new PocoDataAccessGenerator(database, nameProvider);
                 var fileSystem = new FileSystem();

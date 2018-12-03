@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Dapper;
 using Moq;
 using NUnit.Framework;
+using SJP.Schematic.Core;
 using SJP.Schematic.Core.Extensions;
 using SJP.Schematic.Lint.Rules;
 using SJP.Schematic.Lint.Tests.Fakes;
@@ -75,7 +76,7 @@ create table no_cycle_table_2 (
         {
             var rule = new ForeignKeyRelationshipCycleRule(RuleLevel.Error);
             var fakeDatabase = CreateFakeDatabase();
-            var database = new SqliteRelationalDatabase(Dialect, Connection);
+            var database = GetSqliteDatabase();
 
             fakeDatabase.Tables = new[]
             {
@@ -93,7 +94,7 @@ create table no_cycle_table_2 (
         {
             var rule = new ForeignKeyRelationshipCycleRule(RuleLevel.Error);
             var fakeDatabase = CreateFakeDatabase();
-            var database = new SqliteRelationalDatabase(Dialect, Connection);
+            var database = GetSqliteDatabase();
 
             fakeDatabase.Tables = new[]
             {
@@ -111,8 +112,9 @@ create table no_cycle_table_2 (
         {
             var dialect = new FakeDatabaseDialect();
             var connection = Mock.Of<IDbConnection>();
+            var identifierDefaults = Mock.Of<IDatabaseIdentifierDefaults>();
 
-            return new FakeRelationalDatabase(dialect, connection);
+            return new FakeRelationalDatabase(dialect, connection, identifierDefaults);
         }
     }
 }

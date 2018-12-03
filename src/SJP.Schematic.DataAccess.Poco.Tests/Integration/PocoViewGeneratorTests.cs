@@ -9,7 +9,7 @@ namespace SJP.Schematic.DataAccess.Poco.Tests.Integration
 {
     internal sealed class PocoViewGeneratorTests : SqliteTest
     {
-        private IRelationalDatabase Database => new SqliteRelationalDatabase(Dialect, Connection);
+        private IRelationalDatabase Database => new SqliteRelationalDatabase(Dialect, Connection, IdentifierDefaults);
 
         private IRelationalDatabaseView GetView(Identifier viewName) => Database.GetView(viewName).UnwrapSome();
 

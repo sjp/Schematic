@@ -10,19 +10,7 @@ namespace SJP.Schematic.SqlServer.Tests.Integration
 {
     internal sealed class SqlServerDatabaseSynonymProviderTests : SqlServerTest
     {
-        public SqlServerDatabaseSynonymProviderTests()
-        {
-            var database = new SqlServerRelationalDatabase(Dialect, Connection);
-            IdentifierDefaults = new DatabaseIdentifierDefaultsBuilder()
-                .WithServer(database.ServerName)
-                .WithDatabase(database.DatabaseName)
-                .WithSchema(database.DefaultSchema)
-                .Build();
-            SynonymProvider = new SqlServerDatabaseSynonymProvider(Connection, IdentifierDefaults);
-        }
-
-        private IDatabaseIdentifierDefaults IdentifierDefaults { get; }
-        private IDatabaseSynonymProvider SynonymProvider { get; }
+        private IDatabaseSynonymProvider SynonymProvider => new SqlServerDatabaseSynonymProvider(Connection, IdentifierDefaults);
 
         [OneTimeSetUp]
         public async Task Init()

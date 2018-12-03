@@ -47,5 +47,13 @@ namespace SJP.Schematic.Core
         public abstract bool IsReservedKeyword(string text);
 
         public abstract IDbTypeProvider TypeProvider { get; }
+
+        public abstract IDatabaseIdentifierDefaults GetIdentifierDefaults(IDbConnection connection);
+
+        public abstract Task<IDatabaseIdentifierDefaults> GetIdentifierDefaultsAsync(IDbConnection connection, CancellationToken cancellationToken = default(CancellationToken));
+
+        public abstract string GetDatabaseVersion(IDbConnection connection);
+
+        public abstract Task<string> GetDatabaseVersionAsync(IDbConnection connection, CancellationToken cancellationToken = default(CancellationToken));
     }
 }

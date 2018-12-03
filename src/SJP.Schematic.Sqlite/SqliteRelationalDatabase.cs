@@ -13,33 +13,13 @@ namespace SJP.Schematic.Sqlite
 {
     public class SqliteRelationalDatabase : RelationalDatabase, ISqliteDatabase
     {
-        public SqliteRelationalDatabase(IDatabaseDialect dialect, IDbConnection connection, string defaultSchema = "main")
-            : base(dialect, connection)
+        public SqliteRelationalDatabase(IDatabaseDialect dialect, IDbConnection connection, IDatabaseIdentifierDefaults identifierDefaults)
+            : base(dialect, connection, identifierDefaults)
         {
-            if (defaultSchema.IsNullOrWhiteSpace())
-                throw new ArgumentNullException(nameof(defaultSchema));
-
-            DefaultSchema = defaultSchema;
-            _versionLoader = new Lazy<string>(LoadDatabaseVersion);
-
-            Pragma = new ConnectionPragma(Dialect, Connection);
-
-            var identifierDefaults = new DatabaseIdentifierDefaultsBuilder()
-                .WithSchema(defaultSchema)
-                .Build();
-            _tableProvider = new SqliteRelationalDatabaseTableProvider(connection, Pragma, dialect, identifierDefaults, dialect.TypeProvider);
-            _viewProvider = new SqliteRelationalDatabaseViewProvider(connection, Pragma, dialect, identifierDefaults, dialect.TypeProvider);
+            var pragma = new ConnectionPragma(Dialect, Connection);
+            _tableProvider = new SqliteRelationalDatabaseTableProvider(connection, pragma, dialect, identifierDefaults, dialect.TypeProvider);
+            _viewProvider = new SqliteRelationalDatabaseViewProvider(connection, pragma, dialect, identifierDefaults, dialect.TypeProvider);
         }
-
-        public string ServerName { get; } // never not-null
-
-        public string DatabaseName { get; } // never not-null
-
-        public string DefaultSchema { get; }
-
-        public string DatabaseVersion => _versionLoader.Value;
-
-        protected ISqliteConnectionPragma Pragma { get; }
 
         public IReadOnlyCollection<IRelationalDatabaseTable> Tables => _tableProvider.Tables;
 
@@ -231,22 +211,6 @@ namespace SJP.Schematic.Sqlite
 
             return "vacuum " + Dialect.QuoteIdentifier(schemaName);
         }
-
-        protected static bool IsReservedTableName(Identifier tableName)
-        {
-            if (tableName == null)
-                throw new ArgumentNullException(nameof(tableName));
-
-            return tableName.LocalName.StartsWith("sqlite_", StringComparison.OrdinalIgnoreCase);
-        }
-
-        private string LoadDatabaseVersion()
-        {
-            var version = Connection.ExecuteScalar<string>("select sqlite_version()");
-            return "SQLite " + version;
-        }
-
-        private readonly Lazy<string> _versionLoader;
 
         private readonly IRelationalDatabaseTableProvider _tableProvider;
         private readonly IRelationalDatabaseViewProvider _viewProvider;

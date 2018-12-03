@@ -25,5 +25,7 @@ namespace SJP.Schematic.MySql.Tests.Integration
         protected IDbConnection Connection { get; } = Config.Connection;
 
         protected IDatabaseDialect Dialect { get; } = new MySqlDialect();
+
+        protected IDatabaseIdentifierDefaults IdentifierDefaults { get; } = new MySqlDialect().GetIdentifierDefaults(Config.Connection);
     }
 }

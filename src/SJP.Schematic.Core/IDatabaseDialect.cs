@@ -17,5 +17,13 @@ namespace SJP.Schematic.Core
         Task<IDbConnection> CreateConnectionAsync(string connectionString, CancellationToken cancellationToken = default(CancellationToken));
 
         IDbTypeProvider TypeProvider { get; }
+
+        IDatabaseIdentifierDefaults GetIdentifierDefaults(IDbConnection connection);
+
+        Task<IDatabaseIdentifierDefaults> GetIdentifierDefaultsAsync(IDbConnection connection, CancellationToken cancellationToken = default(CancellationToken));
+
+        string GetDatabaseVersion(IDbConnection connection);
+
+        Task<string> GetDatabaseVersionAsync(IDbConnection connection, CancellationToken cancellationToken = default(CancellationToken));
     }
 }

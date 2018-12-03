@@ -24,5 +24,7 @@ namespace SJP.Schematic.DataAccess.Poco.Tests
         protected IDbConnection Connection { get; } = Config.Connection;
 
         protected IDatabaseDialect Dialect { get; } = new SqliteDialect();
+
+        protected IDatabaseIdentifierDefaults IdentifierDefaults { get; } = new SqliteDialect().GetIdentifierDefaults(Config.Connection);
     }
 }

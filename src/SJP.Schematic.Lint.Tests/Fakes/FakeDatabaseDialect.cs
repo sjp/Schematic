@@ -18,5 +18,13 @@ namespace SJP.Schematic.Lint.Tests.Fakes
         public override bool IsReservedKeyword(string text) => ReservedKeywords.Contains(text);
 
         public IEnumerable<string> ReservedKeywords { get; set; } = new List<string>();
+
+        public override IDatabaseIdentifierDefaults GetIdentifierDefaults(IDbConnection connection) => null;
+
+        public override Task<IDatabaseIdentifierDefaults> GetIdentifierDefaultsAsync(IDbConnection connection, CancellationToken cancellationToken = default(CancellationToken)) => Task.FromResult<IDatabaseIdentifierDefaults>(null);
+
+        public override string GetDatabaseVersion(IDbConnection connection) => null;
+
+        public override Task<string> GetDatabaseVersionAsync(IDbConnection connection, CancellationToken cancellationToken = default(CancellationToken)) => Task.FromResult<string>(null);
     }
 }

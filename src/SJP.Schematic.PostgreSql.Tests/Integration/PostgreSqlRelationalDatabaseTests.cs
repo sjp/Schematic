@@ -10,7 +10,7 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration
 {
     internal sealed class PostgreSqlRelationalDatabaseTests : PostgreSqlTest
     {
-        private IRelationalDatabase Database => new PostgreSqlRelationalDatabase(Dialect, Connection, new DefaultPostgreSqlIdentifierResolutionStrategy());
+        private IRelationalDatabase Database => new PostgreSqlRelationalDatabase(Dialect, Connection, IdentifierDefaults, IdentifierResolver);
 
         [Test]
         public void Database_PropertyGet_ShouldMatchConnectionDatabase()
@@ -38,7 +38,7 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration
 
         internal sealed class SynonymTests : PostgreSqlTest
         {
-            private IRelationalDatabase Database => new PostgreSqlRelationalDatabase(Dialect, Connection, new DefaultPostgreSqlIdentifierResolutionStrategy());
+            private IRelationalDatabase Database => new PostgreSqlRelationalDatabase(Dialect, Connection, IdentifierDefaults, IdentifierResolver);
 
             [Test]
             public void GetSynonym_GivenNullName_ThrowsArgumentNullException()

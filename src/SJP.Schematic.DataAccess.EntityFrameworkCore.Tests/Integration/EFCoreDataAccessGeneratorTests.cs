@@ -12,7 +12,7 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore.Tests.Integration
 {
     internal sealed class EFCoreDataAccessGeneratorTests : SqliteTest
     {
-        private IRelationalDatabase Database => new SqliteRelationalDatabase(Dialect, Connection);
+        private IRelationalDatabase Database => new SqliteRelationalDatabase(Dialect, Connection, IdentifierDefaults);
 
         [OneTimeSetUp]
         public Task Init()

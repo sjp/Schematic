@@ -11,15 +11,9 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
     {
         public SqliteRelationalDatabaseTableProviderTests()
         {
-            const string defaultSchema = "main";
-            var pragma = new ConnectionPragma(Dialect, Connection);
-            IdentifierDefaults = new DatabaseIdentifierDefaultsBuilder()
-                .WithSchema(defaultSchema)
-                .Build();
-            TableProvider = new SqliteRelationalDatabaseTableProvider(Connection, pragma, Dialect, IdentifierDefaults, Dialect.TypeProvider);
+            TableProvider = new SqliteRelationalDatabaseTableProvider(Connection, Pragma, Dialect, IdentifierDefaults, Dialect.TypeProvider);
         }
 
-        private IDatabaseIdentifierDefaults IdentifierDefaults { get; }
         private IRelationalDatabaseTableProvider TableProvider { get; }
 
         [OneTimeSetUp]

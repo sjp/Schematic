@@ -10,7 +10,7 @@ namespace SJP.Schematic.SqlServer.Tests.Integration
 {
     internal sealed class SqlServerRelationalDatabaseTests : SqlServerTest
     {
-        private IRelationalDatabase Database => new SqlServerRelationalDatabase(Dialect, Connection);
+        private IRelationalDatabase Database => new SqlServerRelationalDatabase(Dialect, Connection, IdentifierDefaults);
 
         [Test]
         public void Database_PropertyGet_ShouldMatchConnectionDatabase()

@@ -4,6 +4,7 @@ using System.Data;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Dapper;
 using Microsoft.Data.Sqlite;
 using SJP.Schematic.Core;
 using SJP.Schematic.Core.Extensions;
@@ -36,6 +37,53 @@ namespace SJP.Schematic.Sqlite
             await connection.OpenAsync(cancellationToken).ConfigureAwait(false);
             return connection;
         }
+
+        public override IDatabaseIdentifierDefaults GetIdentifierDefaults(IDbConnection connection)
+        {
+            if (connection == null)
+                throw new ArgumentNullException(nameof(connection));
+
+            return new DatabaseIdentifierDefaultsBuilder()
+                .WithSchema(DefaultSchema)
+                .Build();
+        }
+
+        public override Task<IDatabaseIdentifierDefaults> GetIdentifierDefaultsAsync(IDbConnection connection, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            if (connection == null)
+                throw new ArgumentNullException(nameof(connection));
+
+            var identifierDefaults = new DatabaseIdentifierDefaultsBuilder()
+                .WithSchema(DefaultSchema)
+                .Build();
+            return Task.FromResult(identifierDefaults);
+        }
+
+        private const string DefaultSchema = "main";
+
+        public override string GetDatabaseVersion(IDbConnection connection)
+        {
+            if (connection == null)
+                throw new ArgumentNullException(nameof(connection));
+
+            return connection.ExecuteScalar<string>(DatabaseVersionQuerySql);
+        }
+
+        public override Task<string> GetDatabaseVersionAsync(IDbConnection connection, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            if (connection == null)
+                throw new ArgumentNullException(nameof(connection));
+
+            return GetDatabaseVersionAsyncCore(connection, cancellationToken);
+        }
+
+        private static async Task<string> GetDatabaseVersionAsyncCore(IDbConnection connection, CancellationToken cancellationToken)
+        {
+            var versionStr = await connection.ExecuteScalarAsync<string>(DatabaseVersionQuerySql).ConfigureAwait(false);
+            return "SQLite " + versionStr;
+        }
+
+        private const string DatabaseVersionQuerySql = "select sqlite_version()";
 
         public override bool IsReservedKeyword(string text)
         {

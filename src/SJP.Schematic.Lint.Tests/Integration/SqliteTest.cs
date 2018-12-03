@@ -24,5 +24,9 @@ namespace SJP.Schematic.Lint.Tests.Integration
         protected IDbConnection Connection { get; } = Config.Connection;
 
         protected IDatabaseDialect Dialect { get; } = new SqliteDialect();
+
+        protected IDatabaseIdentifierDefaults IdentifierDefaults { get; } = new SqliteDialect().GetIdentifierDefaults(Config.Connection);
+
+        protected IRelationalDatabase GetSqliteDatabase() => new SqliteRelationalDatabase(Dialect, Connection, IdentifierDefaults);
     }
 }

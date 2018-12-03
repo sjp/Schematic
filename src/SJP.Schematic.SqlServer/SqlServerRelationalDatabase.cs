@@ -12,32 +12,14 @@ namespace SJP.Schematic.SqlServer
 {
     public class SqlServerRelationalDatabase : RelationalDatabase, IRelationalDatabase
     {
-        public SqlServerRelationalDatabase(IDatabaseDialect dialect, IDbConnection connection)
-            : base(dialect, connection)
+        public SqlServerRelationalDatabase(IDatabaseDialect dialect, IDbConnection connection, IDatabaseIdentifierDefaults identifierDefaults)
+            : base(dialect, connection, identifierDefaults)
         {
-            _metadata = new Lazy<DatabaseMetadata>(LoadDatabaseMetadata);
-
-            var identifierDefaults = new DatabaseIdentifierDefaultsBuilder()
-                .WithServer(ServerName)
-                .WithDatabase(DatabaseName)
-                .WithSchema(DefaultSchema)
-                .Build();
-
             _tableProvider = new SqlServerRelationalDatabaseTableProvider(connection, identifierDefaults, dialect.TypeProvider);
             _viewProvider = new SqlServerRelationalDatabaseViewProvider(connection, identifierDefaults, dialect.TypeProvider);
             _sequenceProvider = new SqlServerDatabaseSequenceProvider(connection, identifierDefaults);
             _synonymProvider = new SqlServerDatabaseSynonymProvider(connection, identifierDefaults);
         }
-
-        public string ServerName => Metadata.ServerName;
-
-        public string DatabaseName => Metadata.DatabaseName;
-
-        public string DefaultSchema => Metadata.DefaultSchema;
-
-        public string DatabaseVersion => Metadata.DatabaseVersion;
-
-        protected DatabaseMetadata Metadata => _metadata.Value;
 
         public IReadOnlyCollection<IRelationalDatabaseTable> Tables => _tableProvider.Tables;
 
@@ -130,14 +112,6 @@ namespace SJP.Schematic.SqlServer
 
             return _synonymProvider.GetSynonymAsync(synonymName, cancellationToken);
         }
-
-        private DatabaseMetadata LoadDatabaseMetadata()
-        {
-            const string sql = "select @@SERVERNAME as ServerName, db_name() as DatabaseName, schema_name() as DefaultSchema, @@version as DatabaseVersion";
-            return Connection.QuerySingle<DatabaseMetadata>(sql);
-        }
-
-        private readonly Lazy<DatabaseMetadata> _metadata;
 
         private readonly IRelationalDatabaseTableProvider _tableProvider;
         private readonly IRelationalDatabaseViewProvider _viewProvider;

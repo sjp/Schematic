@@ -2,6 +2,7 @@
 using Microsoft.Extensions.Configuration;
 using NUnit.Framework;
 using SJP.Schematic.Core;
+using SJP.Schematic.Sqlite.Pragma;
 
 namespace SJP.Schematic.Sqlite.Tests.Integration
 {
@@ -25,5 +26,9 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
         protected IDbConnection Connection { get; } = Config.Connection;
 
         protected IDatabaseDialect Dialect { get; } = new SqliteDialect();
+
+        protected ISqliteConnectionPragma Pragma { get; } = new ConnectionPragma(new SqliteDialect(), Config.Connection);
+
+        protected IDatabaseIdentifierDefaults IdentifierDefaults { get; } = new SqliteDialect().GetIdentifierDefaults(Config.Connection);
     }
 }

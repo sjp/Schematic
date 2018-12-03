@@ -9,19 +9,7 @@ namespace SJP.Schematic.MySql.Tests.Integration
 {
     internal sealed class MySqlRelationalDatabaseViewProviderTests : MySqlTest
     {
-        public MySqlRelationalDatabaseViewProviderTests()
-        {
-            var database = new MySqlRelationalDatabase(Dialect, Connection);
-            IdentifierDefaults = new DatabaseIdentifierDefaultsBuilder()
-                .WithServer(database.ServerName)
-                .WithDatabase(database.DatabaseName)
-                .WithSchema(database.DefaultSchema)
-                .Build();
-            ViewProvider = new MySqlRelationalDatabaseViewProvider(Connection, IdentifierDefaults, Dialect.TypeProvider);
-        }
-
-        private IDatabaseIdentifierDefaults IdentifierDefaults { get; }
-        private IRelationalDatabaseViewProvider ViewProvider { get; }
+        private IRelationalDatabaseViewProvider ViewProvider => new MySqlRelationalDatabaseViewProvider(Connection, IdentifierDefaults, Dialect.TypeProvider);
 
         [OneTimeSetUp]
         public async Task Init()

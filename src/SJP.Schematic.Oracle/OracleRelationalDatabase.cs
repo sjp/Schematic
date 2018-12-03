@@ -12,17 +12,10 @@ namespace SJP.Schematic.Oracle
 {
     public class OracleRelationalDatabase : RelationalDatabase, IRelationalDatabase
     {
-        public OracleRelationalDatabase(IDatabaseDialect dialect, IDbConnection connection, IIdentifierResolutionStrategy identifierResolver)
-            : base(dialect, connection)
+        public OracleRelationalDatabase(IDatabaseDialect dialect, IDbConnection connection, IDatabaseIdentifierDefaults identifierDefaults, IIdentifierResolutionStrategy identifierResolver)
+            : base(dialect, connection, identifierDefaults)
         {
             IdentifierResolver = identifierResolver ?? throw new ArgumentNullException(nameof(identifierResolver));
-            _metadata = new Lazy<DatabaseMetadata>(LoadDatabaseMetadata);
-
-            var identifierDefaults = new DatabaseIdentifierDefaultsBuilder()
-                .WithServer(ServerName)
-                .WithDatabase(DatabaseName)
-                .WithSchema(DefaultSchema)
-                .Build();
 
             _tableProvider = new OracleRelationalDatabaseTableProvider(connection, identifierDefaults, identifierResolver, dialect.TypeProvider);
             _viewProvider = new OracleRelationalDatabaseViewProvider(connection, identifierDefaults, identifierResolver, dialect.TypeProvider);
@@ -31,16 +24,6 @@ namespace SJP.Schematic.Oracle
         }
 
         protected IIdentifierResolutionStrategy IdentifierResolver { get; }
-
-        public string ServerName => Metadata.ServerName;
-
-        public string DatabaseName => Metadata.DatabaseName;
-
-        public string DefaultSchema => Metadata.DefaultSchema;
-
-        public string DatabaseVersion => Metadata.DatabaseVersion;
-
-        protected DatabaseMetadata Metadata => _metadata.Value;
 
         public IReadOnlyCollection<IRelationalDatabaseTable> Tables => _tableProvider.Tables;
 
@@ -133,47 +116,6 @@ namespace SJP.Schematic.Oracle
 
             return _synonymProvider.GetSynonymAsync(synonymName, cancellationToken);
         }
-
-        private DatabaseMetadata LoadDatabaseMetadata()
-        {
-            const string hostSql = @"
-select
-    SYS_CONTEXT('USERENV', 'SERVER_HOST') as ServerHost,
-    SYS_CONTEXT('USERENV', 'INSTANCE_NAME') as ServerSid,
-    SYS_CONTEXT('USERENV', 'DB_NAME') as DatabaseName,
-    SYS_CONTEXT('USERENV', 'CURRENT_USER') as DefaultSchema
-from DUAL";
-            var hostInfoOption = Connection.QueryFirstOrNone<DatabaseHost>(hostSql);
-
-            const string versionSql = @"
-select
-    PRODUCT as ProductName,
-    VERSION as VersionNumber
-from PRODUCT_COMPONENT_VERSION
-where PRODUCT like 'Oracle Database%'";
-            var versionInfoOption = Connection.QueryFirstOrNone<DatabaseVersion>(versionSql);
-
-            var qualifiedServerName = hostInfoOption.MatchUnsafe(
-                dbHost => dbHost.ServerHost + "/" + dbHost.ServerSid,
-                () => null
-            );
-            var dbName = hostInfoOption.MatchUnsafe(h => h.DatabaseName, () => null);
-            var defaultSchema = hostInfoOption.MatchUnsafe(h => h.DefaultSchema, () => null);
-            var versionName = versionInfoOption.MatchUnsafe(
-                vInfo => vInfo.ProductName + vInfo.VersionNumber,
-                () => null
-            );
-
-            return new DatabaseMetadata
-            {
-                 ServerName = qualifiedServerName,
-                 DatabaseName = dbName,
-                 DefaultSchema = defaultSchema,
-                 DatabaseVersion = versionName
-            };
-        }
-
-        private readonly Lazy<DatabaseMetadata> _metadata;
 
         private readonly IRelationalDatabaseTableProvider _tableProvider;
         private readonly IRelationalDatabaseViewProvider _viewProvider;

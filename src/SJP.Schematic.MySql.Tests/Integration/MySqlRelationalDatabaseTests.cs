@@ -10,7 +10,7 @@ namespace SJP.Schematic.MySql.Tests.Integration
 {
     internal sealed class MySqlRelationalDatabaseTests : MySqlTest
     {
-        private IRelationalDatabase Database => new MySqlRelationalDatabase(Dialect, Connection);
+        private IRelationalDatabase Database => new MySqlRelationalDatabase(Dialect, Connection, IdentifierDefaults);
 
         [Test]
         public void Database_PropertyGet_ShouldMatchConnectionDatabase()
@@ -38,7 +38,7 @@ namespace SJP.Schematic.MySql.Tests.Integration
 
         internal sealed class SequenceTests : MySqlTest
         {
-            private IRelationalDatabase Database => new MySqlRelationalDatabase(Dialect, Connection);
+            private IRelationalDatabase Database => new MySqlRelationalDatabase(Dialect, Connection, IdentifierDefaults);
 
             [Test]
             public void GetSequence_GivenNullSequenceName_ThrowsArgumentNullException()
@@ -90,7 +90,7 @@ namespace SJP.Schematic.MySql.Tests.Integration
 
         internal sealed class SynonymTests : MySqlTest
         {
-            private IRelationalDatabase Database => new MySqlRelationalDatabase(Dialect, Connection);
+            private IRelationalDatabase Database => new MySqlRelationalDatabase(Dialect, Connection, IdentifierDefaults);
 
             [Test]
             public void GetSynonym_GivenNullSynonymName_ThrowsArgumentNullException()

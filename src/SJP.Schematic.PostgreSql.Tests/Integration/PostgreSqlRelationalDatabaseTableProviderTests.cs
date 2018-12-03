@@ -9,20 +9,7 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration
 {
     internal partial class PostgreSqlRelationalDatabaseTableProviderTests : PostgreSqlTest
     {
-        public PostgreSqlRelationalDatabaseTableProviderTests()
-        {
-            var identifierResolver = new DefaultPostgreSqlIdentifierResolutionStrategy();
-            var database = new PostgreSqlRelationalDatabase(Dialect, Connection, identifierResolver);
-            IdentifierDefaults = new DatabaseIdentifierDefaultsBuilder()
-                .WithServer(database.ServerName)
-                .WithDatabase(database.DatabaseName)
-                .WithSchema(database.DefaultSchema)
-                .Build();
-            TableProvider = new PostgreSqlRelationalDatabaseTableProvider(Connection, IdentifierDefaults, identifierResolver, Dialect.TypeProvider);
-        }
-
-        private IDatabaseIdentifierDefaults IdentifierDefaults { get; }
-        private IRelationalDatabaseTableProvider TableProvider { get; }
+        private IRelationalDatabaseTableProvider TableProvider => new PostgreSqlRelationalDatabaseTableProvider(Connection, IdentifierDefaults, IdentifierResolver, Dialect.TypeProvider);
 
         [OneTimeSetUp]
         public async Task Init()

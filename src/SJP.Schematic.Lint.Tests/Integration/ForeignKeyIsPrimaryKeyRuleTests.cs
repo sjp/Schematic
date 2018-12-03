@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Dapper;
 using Moq;
 using NUnit.Framework;
+using SJP.Schematic.Core;
 using SJP.Schematic.Core.Extensions;
 using SJP.Schematic.Lint.Rules;
 using SJP.Schematic.Lint.Tests.Fakes;
@@ -56,7 +57,7 @@ create table parent_table_with_pk_column_to_pk_column_1 (
         {
             var rule = new ForeignKeyIsPrimaryKeyRule(RuleLevel.Error);
             var fakeDatabase = CreateFakeDatabase();
-            var database = new SqliteRelationalDatabase(Dialect, Connection);
+            var database = GetSqliteDatabase();
 
             fakeDatabase.Tables = new[]
             {
@@ -73,7 +74,7 @@ create table parent_table_with_pk_column_to_pk_column_1 (
         {
             var rule = new ForeignKeyIsPrimaryKeyRule(RuleLevel.Error);
             var fakeDatabase = CreateFakeDatabase();
-            var database = new SqliteRelationalDatabase(Dialect, Connection);
+            var database = GetSqliteDatabase();
 
             fakeDatabase.Tables = new[] { database.GetTable("parent_table_with_pk_column_to_pk_column_1").UnwrapSome() };
 
@@ -86,8 +87,9 @@ create table parent_table_with_pk_column_to_pk_column_1 (
         {
             var dialect = new FakeDatabaseDialect();
             var connection = Mock.Of<IDbConnection>();
+            var identifierDefaults = Mock.Of<IDatabaseIdentifierDefaults>();
 
-            return new FakeRelationalDatabase(dialect, connection);
+            return new FakeRelationalDatabase(dialect, connection, identifierDefaults);
         }
     }
 }

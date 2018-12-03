@@ -12,7 +12,7 @@ namespace SJP.Schematic.DataAccess.Poco.Tests.Integration
 {
     internal sealed class PocoDataAccessGeneratorTests : SqliteTest
     {
-        private IRelationalDatabase Database => new SqliteRelationalDatabase(Dialect, Connection);
+        private IRelationalDatabase Database => new SqliteRelationalDatabase(Dialect, Connection, IdentifierDefaults);
 
         [OneTimeSetUp]
         public async Task Init()

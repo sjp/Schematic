@@ -5,8 +5,10 @@ using System.Data.SqlClient;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Dapper;
 using SJP.Schematic.Core;
 using SJP.Schematic.Core.Extensions;
+using SJP.Schematic.SqlServer.Query;
 
 namespace SJP.Schematic.SqlServer
 {
@@ -42,6 +44,51 @@ namespace SJP.Schematic.SqlServer
             await connection.OpenAsync(cancellationToken).ConfigureAwait(false);
             return connection;
         }
+
+        public override IDatabaseIdentifierDefaults GetIdentifierDefaults(IDbConnection connection)
+        {
+            if (connection == null)
+                throw new ArgumentNullException(nameof(connection));
+
+            return connection.QuerySingle<IdentifierDefaults>(IdentifierDefaultsQuerySql);
+        }
+
+        public override Task<IDatabaseIdentifierDefaults> GetIdentifierDefaultsAsync(IDbConnection connection, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            if (connection == null)
+                throw new ArgumentNullException(nameof(connection));
+
+            return GetIdentifierDefaultsAsyncCore(connection, cancellationToken);
+        }
+
+        private static async Task<IDatabaseIdentifierDefaults> GetIdentifierDefaultsAsyncCore(IDbConnection connection, CancellationToken cancellationToken)
+        {
+            return await connection.QuerySingleAsync<IdentifierDefaults>(IdentifierDefaultsQuerySql).ConfigureAwait(false);
+        }
+
+        private const string IdentifierDefaultsQuerySql = @"
+select
+    @@SERVERNAME as [Server],
+    db_name() as [Database],
+    schema_name() as [Schema]";
+
+        public override string GetDatabaseVersion(IDbConnection connection)
+        {
+            if (connection == null)
+                throw new ArgumentNullException(nameof(connection));
+
+            return connection.ExecuteScalar<string>(DatabaseVersionQuerySql);
+        }
+
+        public override Task<string> GetDatabaseVersionAsync(IDbConnection connection, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            if (connection == null)
+                throw new ArgumentNullException(nameof(connection));
+
+            return connection.ExecuteScalarAsync<string>(DatabaseVersionQuerySql);
+        }
+
+        private const string DatabaseVersionQuerySql = "select @@version as DatabaseVersion";
 
         public override bool IsReservedKeyword(string text)
         {

@@ -4,9 +4,11 @@ using System.Data;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Dapper;
 using Oracle.ManagedDataAccess.Client;
 using SJP.Schematic.Core;
 using SJP.Schematic.Core.Extensions;
+using SJP.Schematic.Oracle.Query;
 
 namespace SJP.Schematic.Oracle
 {
@@ -69,6 +71,90 @@ namespace SJP.Schematic.Oracle
 
             return pieces.Join(".");
         }
+
+        public override IDatabaseIdentifierDefaults GetIdentifierDefaults(IDbConnection connection)
+        {
+            if (connection == null)
+                throw new ArgumentNullException(nameof(connection));
+
+            var hostInfoOption = connection.QueryFirstOrNone<DatabaseHost>(IdentifierDefaultsQuerySql);
+            var qualifiedServerName = hostInfoOption.MatchUnsafe(
+                dbHost => dbHost.ServerHost + "/" + dbHost.ServerSid,
+                () => null
+            );
+            var dbName = hostInfoOption.MatchUnsafe(h => h.DatabaseName, () => null);
+            var defaultSchema = hostInfoOption.MatchUnsafe(h => h.DefaultSchema, () => null);
+
+            return new DatabaseIdentifierDefaultsBuilder()
+                .WithServer(qualifiedServerName)
+                .WithDatabase(dbName)
+                .WithSchema(defaultSchema)
+                .Build();
+        }
+
+        public override Task<IDatabaseIdentifierDefaults> GetIdentifierDefaultsAsync(IDbConnection connection, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            if (connection == null)
+                throw new ArgumentNullException(nameof(connection));
+
+            return GetIdentifierDefaultsAsyncCore(connection, cancellationToken);
+        }
+
+        private static async Task<IDatabaseIdentifierDefaults> GetIdentifierDefaultsAsyncCore(IDbConnection connection, CancellationToken cancellationToken)
+        {
+            var hostInfoOption = connection.QueryFirstOrNoneAsync<DatabaseHost>(IdentifierDefaultsQuerySql);
+            var qualifiedServerName = await hostInfoOption.MatchUnsafe(
+                dbHost => dbHost.ServerHost + "/" + dbHost.ServerSid,
+                () => null
+            ).ConfigureAwait(false);
+            var dbName = await hostInfoOption.MatchUnsafe(h => h.DatabaseName, () => null).ConfigureAwait(false);
+            var defaultSchema = await hostInfoOption.MatchUnsafe(h => h.DefaultSchema, () => null).ConfigureAwait(false);
+
+            return new DatabaseIdentifierDefaultsBuilder()
+                .WithServer(qualifiedServerName)
+                .WithDatabase(dbName)
+                .WithSchema(defaultSchema)
+                .Build();
+        }
+
+        private const string IdentifierDefaultsQuerySql = @"
+select
+    SYS_CONTEXT('USERENV', 'SERVER_HOST') as ServerHost,
+    SYS_CONTEXT('USERENV', 'INSTANCE_NAME') as ServerSid,
+    SYS_CONTEXT('USERENV', 'DB_NAME') as DatabaseName,
+    SYS_CONTEXT('USERENV', 'CURRENT_USER') as DefaultSchema
+from DUAL";
+
+        public override string GetDatabaseVersion(IDbConnection connection)
+        {
+            if (connection == null)
+                throw new ArgumentNullException(nameof(connection));
+
+            var versionInfoOption = connection.QueryFirstOrNone<DatabaseVersion>(DatabaseVersionQuerySql);
+            return versionInfoOption.MatchUnsafe(
+                vInfo => vInfo.ProductName + vInfo.VersionNumber,
+                () => null
+            );
+        }
+
+        public override Task<string> GetDatabaseVersionAsync(IDbConnection connection, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            if (connection == null)
+                throw new ArgumentNullException(nameof(connection));
+
+            var versionInfoOption = connection.QueryFirstOrNoneAsync<DatabaseVersion>(DatabaseVersionQuerySql);
+            return versionInfoOption.MatchUnsafe(
+                vInfo => vInfo.ProductName + vInfo.VersionNumber,
+                () => null
+            );
+        }
+
+        private const string DatabaseVersionQuerySql = @"
+select
+    PRODUCT as ProductName,
+    VERSION as VersionNumber
+from PRODUCT_COMPONENT_VERSION
+where PRODUCT like 'Oracle Database%'";
 
         public override bool IsReservedKeyword(string text)
         {

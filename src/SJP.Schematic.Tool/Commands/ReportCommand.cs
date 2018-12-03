@@ -36,7 +36,8 @@ namespace SJP.Schematic.Tool
                 try
                 {
                     var cachedConnection = status.Connection.AsCachedConnection();
-                    var database = databaseFactory.Invoke(dialect, cachedConnection);
+                    var identifierDefaults = dialect.GetIdentifierDefaults(cachedConnection);
+                    var database = databaseFactory.Invoke(dialect, cachedConnection, identifierDefaults);
 
                     var reportExporter = new ReportExporter(cachedConnection, database, ReportDirectory);
                     reportExporter.Export();

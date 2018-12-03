@@ -11,18 +11,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
 {
     internal sealed class SqliteRelationalDatabaseViewProviderTests : SqliteTest
     {
-        public SqliteRelationalDatabaseViewProviderTests()
-        {
-            const string defaultSchema = "main";
-            var pragma = new ConnectionPragma(Dialect, Connection);
-            IdentifierDefaults = new DatabaseIdentifierDefaultsBuilder()
-                .WithSchema(defaultSchema)
-                .Build();
-            ViewProvider = new SqliteRelationalDatabaseViewProvider(Connection, pragma, Dialect, IdentifierDefaults, Dialect.TypeProvider);
-        }
-
-        private IDatabaseIdentifierDefaults IdentifierDefaults { get; }
-        private IRelationalDatabaseViewProvider ViewProvider { get; }
+        private IRelationalDatabaseViewProvider ViewProvider => new SqliteRelationalDatabaseViewProvider(Connection, Pragma, Dialect, IdentifierDefaults, Dialect.TypeProvider);
 
         [OneTimeSetUp]
         public async Task Init()

@@ -9,19 +9,7 @@ namespace SJP.Schematic.MySql.Tests.Integration
 {
     internal partial class MySqlRelationalDatabaseTableProviderTests : MySqlTest
     {
-        public MySqlRelationalDatabaseTableProviderTests()
-        {
-            var database = new MySqlRelationalDatabase(Dialect, Connection);
-            IdentifierDefaults = new DatabaseIdentifierDefaultsBuilder()
-                .WithServer(database.ServerName)
-                .WithDatabase(database.DatabaseName)
-                .WithSchema(database.DefaultSchema)
-                .Build();
-            TableProvider = new MySqlRelationalDatabaseTableProvider(Connection, IdentifierDefaults, Dialect.TypeProvider);
-        }
-
-        private IDatabaseIdentifierDefaults IdentifierDefaults { get; }
-        private IRelationalDatabaseTableProvider TableProvider { get; }
+        private IRelationalDatabaseTableProvider TableProvider => new MySqlRelationalDatabaseTableProvider(Connection, IdentifierDefaults, Dialect.TypeProvider);
 
         [OneTimeSetUp]
         public async Task Init()

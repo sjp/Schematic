@@ -4,9 +4,11 @@ using System.Data;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Dapper;
 using Npgsql;
 using SJP.Schematic.Core;
 using SJP.Schematic.Core.Extensions;
+using SJP.Schematic.PostgreSql.Query;
 
 namespace SJP.Schematic.PostgreSql
 {
@@ -36,6 +38,62 @@ namespace SJP.Schematic.PostgreSql
             await connection.OpenAsync(cancellationToken).ConfigureAwait(false);
             return connection;
         }
+
+        public override IDatabaseIdentifierDefaults GetIdentifierDefaults(IDbConnection connection)
+        {
+            if (connection == null)
+                throw new ArgumentNullException(nameof(connection));
+
+            var result = connection.QuerySingle<IdentifierDefaults>(IdentifierDefaultsQuerySql);
+
+            if (result.Server.IsNullOrWhiteSpace())
+                result.Server = "127.0.0.1";
+
+            return result;
+        }
+
+        public override Task<IDatabaseIdentifierDefaults> GetIdentifierDefaultsAsync(IDbConnection connection, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            if (connection == null)
+                throw new ArgumentNullException(nameof(connection));
+
+            return GetIdentifierDefaultsAsyncCore(connection, cancellationToken);
+        }
+
+        private static async Task<IDatabaseIdentifierDefaults> GetIdentifierDefaultsAsyncCore(IDbConnection connection, CancellationToken cancellationToken)
+        {
+            var result = await connection.QuerySingleAsync<IdentifierDefaults>(IdentifierDefaultsQuerySql).ConfigureAwait(false);
+
+            if (result.Server.IsNullOrWhiteSpace())
+                result.Server = "127.0.0.1";
+
+            return result;
+        }
+
+        private const string IdentifierDefaultsQuerySql = @"
+select
+    pg_catalog.host(pg_catalog.inet_server_addr()) as Server,
+    pg_catalog.current_database() as Database,
+    pg_catalog.current_schema() as Schema";
+
+        public override string GetDatabaseVersion(IDbConnection connection)
+        {
+            if (connection == null)
+                throw new ArgumentNullException(nameof(connection));
+
+            return connection.ExecuteScalar<string>(DatabaseVersionQuerySql);
+        }
+
+        public override Task<string> GetDatabaseVersionAsync(IDbConnection connection, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            if (connection == null)
+                throw new ArgumentNullException(nameof(connection));
+
+            return connection.ExecuteScalarAsync<string>(DatabaseVersionQuerySql);
+        }
+
+        private const string DatabaseVersionQuerySql = "select pg_catalog.version() as DatabaseVersion";
+
 
         public override bool IsReservedKeyword(string text)
         {

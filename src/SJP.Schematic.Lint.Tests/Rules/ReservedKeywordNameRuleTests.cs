@@ -316,10 +316,10 @@ namespace SJP.Schematic.Lint.Tests.Rules
         private static FakeRelationalDatabase CreateFakeDatabase()
         {
             var dialect = new FakeDatabaseDialect { ReservedKeywords = new[] { "SELECT" } };
-
             var connection = Mock.Of<IDbConnection>();
+            var identifierDefaults = Mock.Of<IDatabaseIdentifierDefaults>();
 
-            return new FakeRelationalDatabase(dialect, connection);
+            return new FakeRelationalDatabase(dialect, connection, identifierDefaults);
         }
     }
 }

@@ -9,20 +9,7 @@ namespace SJP.Schematic.Oracle.Tests.Integration
 {
     internal sealed class OracleDatabaseSequenceProviderTests : OracleTest
     {
-        public OracleDatabaseSequenceProviderTests()
-        {
-            var identifierResolver = new DefaultOracleIdentifierResolutionStrategy();
-            var database = new OracleRelationalDatabase(Dialect, Connection, identifierResolver);
-            IdentifierDefaults = new DatabaseIdentifierDefaultsBuilder()
-                .WithServer(database.ServerName)
-                .WithDatabase(database.DatabaseName)
-                .WithSchema(database.DefaultSchema)
-                .Build();
-            SequenceProvider = new OracleDatabaseSequenceProvider(Connection, IdentifierDefaults, identifierResolver);
-        }
-
-        private IDatabaseIdentifierDefaults IdentifierDefaults { get; }
-        private IDatabaseSequenceProvider SequenceProvider { get; }
+        private IDatabaseSequenceProvider SequenceProvider => new OracleDatabaseSequenceProvider(Connection, IdentifierDefaults, IdentifierResolver);
 
         [OneTimeSetUp]
         public async Task Init()

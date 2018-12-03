@@ -9,19 +9,7 @@ namespace SJP.Schematic.SqlServer.Tests.Integration
 {
     internal partial class SqlServerRelationalDatabaseTableProviderTests : SqlServerTest
     {
-        public SqlServerRelationalDatabaseTableProviderTests()
-        {
-            var database = new SqlServerRelationalDatabase(Dialect, Connection);
-            IdentifierDefaults = new DatabaseIdentifierDefaultsBuilder()
-                .WithServer(database.ServerName)
-                .WithDatabase(database.DatabaseName)
-                .WithSchema(database.DefaultSchema)
-                .Build();
-            TableProvider = new SqlServerRelationalDatabaseTableProvider(Connection, IdentifierDefaults, Dialect.TypeProvider);
-        }
-
-        private IDatabaseIdentifierDefaults IdentifierDefaults { get; }
-        private IRelationalDatabaseTableProvider TableProvider { get; }
+        private IRelationalDatabaseTableProvider TableProvider => new SqlServerRelationalDatabaseTableProvider(Connection, IdentifierDefaults, Dialect.TypeProvider);
 
         [OneTimeSetUp]
         public async Task Init()

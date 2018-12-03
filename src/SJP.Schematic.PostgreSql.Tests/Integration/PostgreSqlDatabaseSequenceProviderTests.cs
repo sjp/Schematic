@@ -9,20 +9,7 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration
 {
     internal sealed class PostgreSqlDatabaseSequenceProviderTests : PostgreSqlTest
     {
-        public PostgreSqlDatabaseSequenceProviderTests()
-        {
-            var identifierResolver = new DefaultPostgreSqlIdentifierResolutionStrategy();
-            var database = new PostgreSqlRelationalDatabase(Dialect, Connection, identifierResolver);
-            IdentifierDefaults = new DatabaseIdentifierDefaultsBuilder()
-                .WithServer(database.ServerName)
-                .WithDatabase(database.DatabaseName)
-                .WithSchema(database.DefaultSchema)
-                .Build();
-            SequenceProvider = new PostgreSqlDatabaseSequenceProvider(Connection, IdentifierDefaults, identifierResolver);
-        }
-
-        private IDatabaseIdentifierDefaults IdentifierDefaults { get; }
-        private IDatabaseSequenceProvider SequenceProvider { get; }
+        private IDatabaseSequenceProvider SequenceProvider => new PostgreSqlDatabaseSequenceProvider(Connection, IdentifierDefaults, IdentifierResolver);
 
         [OneTimeSetUp]
         public async Task Init()

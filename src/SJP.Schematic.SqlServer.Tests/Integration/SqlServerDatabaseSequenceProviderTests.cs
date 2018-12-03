@@ -9,19 +9,7 @@ namespace SJP.Schematic.SqlServer.Tests.Integration
 {
     internal sealed class SqlServerDatabaseSequenceProviderTests : SqlServerTest
     {
-        public SqlServerDatabaseSequenceProviderTests()
-        {
-            var database = new SqlServerRelationalDatabase(Dialect, Connection);
-            IdentifierDefaults = new DatabaseIdentifierDefaultsBuilder()
-                .WithServer(database.ServerName)
-                .WithDatabase(database.DatabaseName)
-                .WithSchema(database.DefaultSchema)
-                .Build();
-            SequenceProvider = new SqlServerDatabaseSequenceProvider(Connection, IdentifierDefaults);
-        }
-
-        private IDatabaseIdentifierDefaults IdentifierDefaults { get; }
-        private IDatabaseSequenceProvider SequenceProvider { get; }
+        private IDatabaseSequenceProvider SequenceProvider => new SqlServerDatabaseSequenceProvider(Connection, IdentifierDefaults);
 
         [OneTimeSetUp]
         public async Task Init()

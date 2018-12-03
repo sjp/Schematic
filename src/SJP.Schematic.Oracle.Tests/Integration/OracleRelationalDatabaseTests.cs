@@ -10,7 +10,7 @@ namespace SJP.Schematic.Oracle.Tests.Integration
 {
     internal sealed class OracleRelationalDatabaseTests : OracleTest
     {
-        private IRelationalDatabase Database => new OracleRelationalDatabase(Dialect, Connection, new DefaultOracleIdentifierResolutionStrategy());
+        private IRelationalDatabase Database => new OracleRelationalDatabase(Dialect, Connection, IdentifierDefaults, IdentifierResolver);
 
         [Test]
         public void Database_PropertyGet_ShouldNotBeEmpty()

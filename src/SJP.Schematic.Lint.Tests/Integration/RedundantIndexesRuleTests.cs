@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Dapper;
 using Moq;
 using NUnit.Framework;
+using SJP.Schematic.Core;
 using SJP.Schematic.Core.Extensions;
 using SJP.Schematic.Lint.Rules;
 using SJP.Schematic.Lint.Tests.Fakes;
@@ -52,7 +53,7 @@ namespace SJP.Schematic.Lint.Tests.Integration
         {
             var rule = new RedundantIndexesRule(RuleLevel.Error);
             var fakeDatabase = CreateFakeDatabase();
-            var database = new SqliteRelationalDatabase(Dialect, Connection);
+            var database = GetSqliteDatabase();
 
             fakeDatabase.Tables = new[] { database.GetTable("valid_table_1").UnwrapSome() };
 
@@ -66,7 +67,7 @@ namespace SJP.Schematic.Lint.Tests.Integration
         {
             var rule = new RedundantIndexesRule(RuleLevel.Error);
             var fakeDatabase = CreateFakeDatabase();
-            var database = new SqliteRelationalDatabase(Dialect, Connection);
+            var database = GetSqliteDatabase();
 
             fakeDatabase.Tables = new[] { database.GetTable("valid_table_2").UnwrapSome() };
 
@@ -80,7 +81,7 @@ namespace SJP.Schematic.Lint.Tests.Integration
         {
             var rule = new RedundantIndexesRule(RuleLevel.Error);
             var fakeDatabase = CreateFakeDatabase();
-            var database = new SqliteRelationalDatabase(Dialect, Connection);
+            var database = GetSqliteDatabase();
 
             fakeDatabase.Tables = new[] { database.GetTable("valid_table_3").UnwrapSome() };
 
@@ -93,8 +94,9 @@ namespace SJP.Schematic.Lint.Tests.Integration
         {
             var dialect = new FakeDatabaseDialect();
             var connection = Mock.Of<IDbConnection>();
+            var identifierDefaults = Mock.Of<IDatabaseIdentifierDefaults>();
 
-            return new FakeRelationalDatabase(dialect, connection);
+            return new FakeRelationalDatabase(dialect, connection, identifierDefaults);
         }
     }
 }

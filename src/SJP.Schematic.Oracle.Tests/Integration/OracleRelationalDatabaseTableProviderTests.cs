@@ -9,20 +9,7 @@ namespace SJP.Schematic.Oracle.Tests.Integration
 {
     internal partial class OracleRelationalDatabaseTableProviderTests : OracleTest
     {
-        public OracleRelationalDatabaseTableProviderTests()
-        {
-            var identifierResolver = new DefaultOracleIdentifierResolutionStrategy();
-            var database = new OracleRelationalDatabase(Dialect, Connection, identifierResolver);
-            IdentifierDefaults = new DatabaseIdentifierDefaultsBuilder()
-                .WithServer(database.ServerName)
-                .WithDatabase(database.DatabaseName)
-                .WithSchema(database.DefaultSchema)
-                .Build();
-            TableProvider = new OracleRelationalDatabaseTableProvider(Connection, IdentifierDefaults, identifierResolver, Dialect.TypeProvider);
-        }
-
-        private IDatabaseIdentifierDefaults IdentifierDefaults { get; }
-        private IRelationalDatabaseTableProvider TableProvider { get; }
+        private IRelationalDatabaseTableProvider TableProvider => new OracleRelationalDatabaseTableProvider(Connection, IdentifierDefaults, IdentifierResolver, Dialect.TypeProvider);
 
         [OneTimeSetUp]
         public async Task Init()

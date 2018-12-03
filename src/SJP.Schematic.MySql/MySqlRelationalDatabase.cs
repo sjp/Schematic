@@ -1,41 +1,21 @@
-﻿using Dapper;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Threading;
 using System.Threading.Tasks;
 using SJP.Schematic.Core;
-using SJP.Schematic.MySql.Query;
 using LanguageExt;
 
 namespace SJP.Schematic.MySql
 {
     public class MySqlRelationalDatabase : RelationalDatabase, IRelationalDatabase
     {
-        public MySqlRelationalDatabase(IDatabaseDialect dialect, IDbConnection connection)
-            : base(dialect, connection)
+        public MySqlRelationalDatabase(IDatabaseDialect dialect, IDbConnection connection, IDatabaseIdentifierDefaults identifierDefaults)
+            : base(dialect, connection, identifierDefaults)
         {
-            _metadata = new Lazy<DatabaseMetadata>(LoadDatabaseMetadata);
-
-            var identifierDefaults = new DatabaseIdentifierDefaultsBuilder()
-                .WithServer(ServerName)
-                .WithDatabase(DatabaseName)
-                .WithSchema(DefaultSchema)
-                .Build();
-
             _tableProvider = new MySqlRelationalDatabaseTableProvider(connection, identifierDefaults, dialect.TypeProvider);
             _viewProvider = new MySqlRelationalDatabaseViewProvider(connection, identifierDefaults, dialect.TypeProvider);
         }
-
-        public string ServerName => Metadata.ServerName;
-
-        public string DatabaseName => Metadata.DatabaseName;
-
-        public string DefaultSchema => Metadata.DefaultSchema;
-
-        public string DatabaseVersion => Metadata.DatabaseVersion;
-
-        protected DatabaseMetadata Metadata => _metadata.Value;
 
         public IReadOnlyCollection<IRelationalDatabaseTable> Tables => _tableProvider.Tables;
 
@@ -128,21 +108,6 @@ namespace SJP.Schematic.MySql
 
             return _synonymProvider.GetSynonymAsync(synonymName, cancellationToken);
         }
-
-        private DatabaseMetadata LoadDatabaseMetadata()
-        {
-            const string sql = @"
-select
-    @@hostname as ServerName,
-    database() as DatabaseName,
-    schema() as DefaultSchema,
-    version() as DatabaseVersion";
-            var metadata = Connection.QuerySingle<DatabaseMetadata>(sql);
-            metadata.DatabaseVersion = "MySQL " + metadata.DatabaseVersion;
-            return metadata;
-        }
-
-        private readonly Lazy<DatabaseMetadata> _metadata;
 
         private readonly IRelationalDatabaseTableProvider _tableProvider;
         private readonly IRelationalDatabaseViewProvider _viewProvider;

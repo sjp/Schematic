@@ -9,7 +9,7 @@ namespace SJP.Schematic.DataAccess.OrmLite.Tests.Integration
 {
     internal sealed class OrmLiteTableGeneratorTests : SqliteTest
     {
-        private IRelationalDatabase Database => new SqliteRelationalDatabase(Dialect, Connection);
+        private IRelationalDatabase Database => new SqliteRelationalDatabase(Dialect, Connection, IdentifierDefaults);
 
         private IRelationalDatabaseTable GetTable(Identifier tableName) => Database.GetTable(tableName).UnwrapSome();
 

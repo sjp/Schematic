@@ -13,6 +13,14 @@ namespace SJP.Schematic.Modelled.Reflection.Tests.Fakes
 
         public override bool IsReservedKeyword(string text) => false;
 
+        public override IDatabaseIdentifierDefaults GetIdentifierDefaults(IDbConnection connection) => null;
+
+        public override Task<IDatabaseIdentifierDefaults> GetIdentifierDefaultsAsync(IDbConnection connection, CancellationToken cancellationToken = default(CancellationToken)) => Task.FromResult<IDatabaseIdentifierDefaults>(null);
+
+        public override string GetDatabaseVersion(IDbConnection connection) => null;
+
+        public override Task<string> GetDatabaseVersionAsync(IDbConnection connection, CancellationToken cancellationToken = default(CancellationToken)) => Task.FromResult<string>(null);
+
         public override IDbTypeProvider TypeProvider => _typeProvider;
 
         private readonly static IDbTypeProvider _typeProvider = new DbTypeProvider();

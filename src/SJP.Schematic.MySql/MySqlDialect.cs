@@ -4,9 +4,11 @@ using System.Data;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Dapper;
 using MySql.Data.MySqlClient;
 using SJP.Schematic.Core;
 using SJP.Schematic.Core.Extensions;
+using SJP.Schematic.MySql.Query;
 
 namespace SJP.Schematic.MySql
 {
@@ -44,6 +46,57 @@ namespace SJP.Schematic.MySql
 
             return _keywords.Contains(text);
         }
+
+        public override IDatabaseIdentifierDefaults GetIdentifierDefaults(IDbConnection connection)
+        {
+            if (connection == null)
+                throw new ArgumentNullException(nameof(connection));
+
+            return connection.QuerySingle<IdentifierDefaults>(IdentifierDefaultsQuerySql);
+        }
+
+        public override Task<IDatabaseIdentifierDefaults> GetIdentifierDefaultsAsync(IDbConnection connection, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            if (connection == null)
+                throw new ArgumentNullException(nameof(connection));
+
+            return GetIdentifierDefaultsAsyncCore(connection, cancellationToken);
+        }
+
+        private static async Task<IDatabaseIdentifierDefaults> GetIdentifierDefaultsAsyncCore(IDbConnection connection, CancellationToken cancellationToken)
+        {
+            return await connection.QuerySingleAsync<IdentifierDefaults>(IdentifierDefaultsQuerySql).ConfigureAwait(false);
+        }
+
+        private const string IdentifierDefaultsQuerySql = @"
+select
+    @@hostname as `Server`,
+    database() as `Database`,
+    schema() as `Schema`";
+
+        public override string GetDatabaseVersion(IDbConnection connection)
+        {
+            if (connection == null)
+                throw new ArgumentNullException(nameof(connection));
+
+            return connection.ExecuteScalar<string>(DatabaseVersionQuerySql);
+        }
+
+        public override Task<string> GetDatabaseVersionAsync(IDbConnection connection, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            if (connection == null)
+                throw new ArgumentNullException(nameof(connection));
+
+            return GetDatabaseVersionAsyncCore(connection, cancellationToken);
+        }
+
+        private static async Task<string> GetDatabaseVersionAsyncCore(IDbConnection connection, CancellationToken cancellationToken)
+        {
+            var versionStr = await connection.ExecuteScalarAsync<string>(DatabaseVersionQuerySql).ConfigureAwait(false);
+            return "MySQL " + versionStr;
+        }
+
+        private const string DatabaseVersionQuerySql = "select version() as DatabaseVersion";
 
         // https://dev.mysql.com/doc/refman/5.7/en/keywords.html
         private readonly static IEnumerable<string> _keywords = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
