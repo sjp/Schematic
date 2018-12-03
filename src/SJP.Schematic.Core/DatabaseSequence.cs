@@ -1,7 +1,11 @@
 ﻿using System;
+using System.Diagnostics;
+using SJP.Schematic.Core.Extensions;
+using SJP.Schematic.Core.Utilities;
 
 namespace SJP.Schematic.Core
 {
+    [DebuggerDisplay("{DebuggerDisplay,nq}")]
     public class DatabaseSequence : IDatabaseSequence
     {
         public DatabaseSequence(
@@ -60,5 +64,24 @@ namespace SJP.Schematic.Core
         public decimal Start { get; }
 
         public static int UnknownCacheSize { get; } = -1;
+
+        public override string ToString() => "Sequence: " + Name.ToString();
+
+        private string DebuggerDisplay
+        {
+            get
+            {
+                var builder = StringBuilderCache.Acquire();
+
+                builder.Append("Sequence: ");
+
+                if (!Name.Schema.IsNullOrWhiteSpace())
+                    builder.Append(Name.Schema).Append(".");
+
+                builder.Append(Name.LocalName);
+
+                return builder.GetStringAndRelease();
+            }
+        }
     }
 }

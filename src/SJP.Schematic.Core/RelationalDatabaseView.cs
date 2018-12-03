@@ -1,11 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
 using SJP.Schematic.Core.Extensions;
+using SJP.Schematic.Core.Utilities;
 
 namespace SJP.Schematic.Core
 {
+    [DebuggerDisplay("{DebuggerDisplay,nq}")]
     public class RelationalDatabaseView : IRelationalDatabaseView
     {
         public RelationalDatabaseView(
@@ -39,5 +42,24 @@ namespace SJP.Schematic.Core
         public IReadOnlyList<IDatabaseColumn> Columns { get; }
 
         public Task<IReadOnlyList<IDatabaseColumn>> ColumnsAsync(CancellationToken cancellationToken = default(CancellationToken)) => Task.FromResult(Columns);
+
+        public override string ToString() => "View: " + Name.ToString();
+
+        private string DebuggerDisplay
+        {
+            get
+            {
+                var builder = StringBuilderCache.Acquire();
+
+                builder.Append("View: ");
+
+                if (!Name.Schema.IsNullOrWhiteSpace())
+                    builder.Append(Name.Schema).Append(".");
+
+                builder.Append(Name.LocalName);
+
+                return builder.GetStringAndRelease();
+            }
+        }
     }
 }
