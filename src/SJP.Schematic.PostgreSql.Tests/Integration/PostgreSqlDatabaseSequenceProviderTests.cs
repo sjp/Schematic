@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System.Linq;
+using System.Threading.Tasks;
 using Dapper;
 using NUnit.Framework;
 using SJP.Schematic.Core;
@@ -12,14 +13,15 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration
         {
             var identifierResolver = new DefaultPostgreSqlIdentifierResolutionStrategy();
             var database = new PostgreSqlRelationalDatabase(Dialect, Connection, identifierResolver);
-            var identifierDefaults = new DatabaseIdentifierDefaultsBuilder()
+            IdentifierDefaults = new DatabaseIdentifierDefaultsBuilder()
                 .WithServer(database.ServerName)
                 .WithDatabase(database.DatabaseName)
                 .WithSchema(database.DefaultSchema)
                 .Build();
-            SequenceProvider = new PostgreSqlDatabaseSequenceProvider(Connection, identifierDefaults, identifierResolver);
+            SequenceProvider = new PostgreSqlDatabaseSequenceProvider(Connection, IdentifierDefaults, identifierResolver);
         }
 
+        private IDatabaseIdentifierDefaults IdentifierDefaults { get; }
         private IDatabaseSequenceProvider SequenceProvider { get; }
 
         [OneTimeSetUp]
@@ -52,6 +54,217 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration
             await Connection.ExecuteAsync("drop sequence db_test_sequence_9").ConfigureAwait(false);
             await Connection.ExecuteAsync("drop sequence db_test_sequence_10").ConfigureAwait(false);
             await Connection.ExecuteAsync("drop sequence db_test_sequence_11").ConfigureAwait(false);
+        }
+
+        [Test]
+        public void GetSequence_WhenSequencePresent_ReturnsSequence()
+        {
+            var sequence = SequenceProvider.GetSequence("db_test_sequence_1");
+            Assert.IsTrue(sequence.IsSome);
+        }
+
+        [Test]
+        public void GetSequence_WhenSequencePresent_ReturnsSequenceWithCorrectName()
+        {
+            const string sequenceName = "db_test_sequence_1";
+            var sequence = SequenceProvider.GetSequence(sequenceName).UnwrapSome();
+
+            Assert.AreEqual(sequenceName, sequence.Name.LocalName);
+        }
+
+        [Test]
+        public void GetSequence_WhenSequencePresentGivenLocalNameOnly_ShouldBeQualifiedCorrectly()
+        {
+            var sequenceName = new Identifier("db_test_sequence_1");
+            var expectedSequenceName = new Identifier(IdentifierDefaults.Server, IdentifierDefaults.Database, IdentifierDefaults.Schema, "db_test_sequence_1");
+
+            var sequence = SequenceProvider.GetSequence(sequenceName).UnwrapSome();
+
+            Assert.AreEqual(expectedSequenceName, sequence.Name);
+        }
+
+        [Test]
+        public void GetSequence_WhenSequencePresentGivenSchemaAndLocalNameOnly_ShouldBeQualifiedCorrectly()
+        {
+            var sequenceName = new Identifier(IdentifierDefaults.Schema, "db_test_sequence_1");
+            var expectedSequenceName = new Identifier(IdentifierDefaults.Server, IdentifierDefaults.Database, IdentifierDefaults.Schema, "db_test_sequence_1");
+
+            var sequence = SequenceProvider.GetSequence(sequenceName).UnwrapSome();
+
+            Assert.AreEqual(expectedSequenceName, sequence.Name);
+        }
+
+        [Test]
+        public void GetSequence_WhenSequencePresentGivenDatabaseAndSchemaAndLocalNameOnly_ShouldBeQualifiedCorrectly()
+        {
+            var sequenceName = new Identifier(IdentifierDefaults.Database, IdentifierDefaults.Schema, "db_test_sequence_1");
+            var expectedSequenceName = new Identifier(IdentifierDefaults.Server, IdentifierDefaults.Database, IdentifierDefaults.Schema, "db_test_sequence_1");
+
+            var sequence = SequenceProvider.GetSequence(sequenceName).UnwrapSome();
+
+            Assert.AreEqual(expectedSequenceName, sequence.Name);
+        }
+
+        [Test]
+        public void GetSequence_WhenSequencePresentGivenFullyQualifiedName_ShouldBeQualifiedCorrectly()
+        {
+            var sequenceName = new Identifier(IdentifierDefaults.Server, IdentifierDefaults.Database, IdentifierDefaults.Schema, "db_test_sequence_1");
+
+            var sequence = SequenceProvider.GetSequence(sequenceName).UnwrapSome();
+
+            Assert.AreEqual(sequenceName, sequence.Name);
+        }
+
+        [Test]
+        public void GetSequence_WhenSequencePresentGivenFullyQualifiedNameWithDifferentServer_ShouldBeQualifiedCorrectly()
+        {
+            var sequenceName = new Identifier("A", IdentifierDefaults.Database, IdentifierDefaults.Schema, "db_test_sequence_1");
+            var expectedSequenceName = new Identifier(IdentifierDefaults.Server, IdentifierDefaults.Database, IdentifierDefaults.Schema, "db_test_sequence_1");
+
+            var sequenceOption = SequenceProvider.GetSequence(sequenceName);
+            var sequence = sequenceOption.UnwrapSome();
+
+            Assert.AreEqual(expectedSequenceName, sequence.Name);
+        }
+
+        [Test]
+        public void GetSequence_WhenSequencePresentGivenFullyQualifiedNameWithDifferentServerAndDatabase_ShouldBeQualifiedCorrectly()
+        {
+            var sequenceName = new Identifier("A", "B", IdentifierDefaults.Schema, "db_test_sequence_1");
+            var expectedSequenceName = new Identifier(IdentifierDefaults.Server, IdentifierDefaults.Database, IdentifierDefaults.Schema, "db_test_sequence_1");
+
+            var sequenceOption = SequenceProvider.GetSequence(sequenceName);
+            var sequence = sequenceOption.UnwrapSome();
+
+            Assert.AreEqual(expectedSequenceName, sequence.Name);
+        }
+
+        [Test]
+        public void GetSequence_WhenSequenceMissing_ReturnsNone()
+        {
+            var sequence = SequenceProvider.GetSequence("sequence_that_doesnt_exist");
+            Assert.IsTrue(sequence.IsNone);
+        }
+
+        [Test]
+        public async Task GetSequenceAsync_WhenSequencePresent_ReturnsSequence()
+        {
+            var sequenceIsSome = await SequenceProvider.GetSequenceAsync("db_test_sequence_1").IsSome.ConfigureAwait(false);
+            Assert.IsTrue(sequenceIsSome);
+        }
+
+        [Test]
+        public async Task GetSequenceAsync_WhenSequencePresent_ReturnsSequenceWithCorrectName()
+        {
+            const string sequenceName = "db_test_sequence_1";
+            var sequence = await SequenceProvider.GetSequenceAsync(sequenceName).UnwrapSomeAsync().ConfigureAwait(false);
+
+            Assert.AreEqual(sequenceName, sequence.Name.LocalName);
+        }
+
+        [Test]
+        public async Task GetSequenceAsync_WhenSequencePresentGivenLocalNameOnly_ShouldBeQualifiedCorrectly()
+        {
+            var sequenceName = new Identifier("db_test_sequence_1");
+            var expectedSequenceName = new Identifier(IdentifierDefaults.Server, IdentifierDefaults.Database, IdentifierDefaults.Schema, "db_test_sequence_1");
+
+            var sequence = await SequenceProvider.GetSequenceAsync(sequenceName).UnwrapSomeAsync().ConfigureAwait(false);
+
+            Assert.AreEqual(expectedSequenceName, sequence.Name);
+        }
+
+        [Test]
+        public async Task GetSequenceAsync_WhenSequencePresentGivenSchemaAndLocalNameOnly_ShouldBeQualifiedCorrectly()
+        {
+            var sequenceName = new Identifier(IdentifierDefaults.Schema, "db_test_sequence_1");
+            var expectedSequenceName = new Identifier(IdentifierDefaults.Server, IdentifierDefaults.Database, IdentifierDefaults.Schema, "db_test_sequence_1");
+
+            var sequence = await SequenceProvider.GetSequenceAsync(sequenceName).UnwrapSomeAsync().ConfigureAwait(false);
+
+            Assert.AreEqual(expectedSequenceName, sequence.Name);
+        }
+
+        [Test]
+        public async Task GetSequenceAsync_WhenSequencePresentGivenDatabaseAndSchemaAndLocalNameOnly_ShouldBeQualifiedCorrectly()
+        {
+            var sequenceName = new Identifier(IdentifierDefaults.Database, IdentifierDefaults.Schema, "db_test_sequence_1");
+            var expectedSequenceName = new Identifier(IdentifierDefaults.Server, IdentifierDefaults.Database, IdentifierDefaults.Schema, "db_test_sequence_1");
+
+            var sequence = await SequenceProvider.GetSequenceAsync(sequenceName).UnwrapSomeAsync().ConfigureAwait(false);
+
+            Assert.AreEqual(expectedSequenceName, sequence.Name);
+        }
+
+        [Test]
+        public async Task GetSequenceAsync_WhenSequencePresentGivenFullyQualifiedName_ShouldBeQualifiedCorrectly()
+        {
+            var sequenceName = new Identifier(IdentifierDefaults.Server, IdentifierDefaults.Database, IdentifierDefaults.Schema, "db_test_sequence_1");
+
+            var sequence = await SequenceProvider.GetSequenceAsync(sequenceName).UnwrapSomeAsync().ConfigureAwait(false);
+
+            Assert.AreEqual(sequenceName, sequence.Name);
+        }
+
+        [Test]
+        public async Task GetSequenceAsync_WhenSequencePresentGivenFullyQualifiedNameWithDifferentServer_ShouldBeQualifiedCorrectly()
+        {
+            var sequenceName = new Identifier("A", IdentifierDefaults.Database, IdentifierDefaults.Schema, "db_test_sequence_1");
+            var expectedSequenceName = new Identifier(IdentifierDefaults.Server, IdentifierDefaults.Database, IdentifierDefaults.Schema, "db_test_sequence_1");
+
+            var sequence = await SequenceProvider.GetSequenceAsync(sequenceName).UnwrapSomeAsync().ConfigureAwait(false);
+
+            Assert.AreEqual(expectedSequenceName, sequence.Name);
+        }
+
+        [Test]
+        public async Task GetSequenceAsync_WhenSequencePresentGivenFullyQualifiedNameWithDifferentServerAndDatabase_ShouldBeQualifiedCorrectly()
+        {
+            var sequenceName = new Identifier("A", "B", IdentifierDefaults.Schema, "db_test_sequence_1");
+            var expectedSequenceName = new Identifier(IdentifierDefaults.Server, IdentifierDefaults.Database, IdentifierDefaults.Schema, "db_test_sequence_1");
+
+            var sequence = await SequenceProvider.GetSequenceAsync(sequenceName).UnwrapSomeAsync().ConfigureAwait(false);
+
+            Assert.AreEqual(expectedSequenceName, sequence.Name);
+        }
+
+        [Test]
+        public async Task GetSequenceAsync_WhenSequenceMissing_ReturnsNone()
+        {
+            var sequenceIsNone = await SequenceProvider.GetSequenceAsync("sequence_that_doesnt_exist").IsNone.ConfigureAwait(false);
+            Assert.IsTrue(sequenceIsNone);
+        }
+
+        [Test]
+        public void Sequences_WhenEnumerated_ContainsSequences()
+        {
+            var sequences = SequenceProvider.Sequences.ToList();
+
+            Assert.NotZero(sequences.Count);
+        }
+
+        [Test]
+        public void Sequences_WhenEnumerated_ContainsTestSequence()
+        {
+            var containsTestSequence = SequenceProvider.Sequences.Any(s => s.Name.LocalName == "db_test_sequence_1");
+
+            Assert.True(containsTestSequence);
+        }
+
+        [Test]
+        public async Task SequencesAsync_WhenEnumerated_ContainsSequences()
+        {
+            var sequences = await SequenceProvider.SequencesAsync().ConfigureAwait(false);
+
+            Assert.NotZero(sequences.Count);
+        }
+
+        [Test]
+        public async Task SequencesAsync_WhenEnumerated_ContainsTestSequence()
+        {
+            var sequences = await SequenceProvider.SequencesAsync().ConfigureAwait(false);
+            var containsTestSequence = sequences.Any(s => s.Name.LocalName == "db_test_sequence_1");
+
+            Assert.True(containsTestSequence);
         }
 
         [Test]

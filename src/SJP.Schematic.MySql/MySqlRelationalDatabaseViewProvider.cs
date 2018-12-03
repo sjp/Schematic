@@ -50,12 +50,15 @@ namespace SJP.Schematic.MySql
                 .Select(dto => Identifier.CreateQualifiedIdentifier(dto.SchemaName, dto.ObjectName))
                 .ToList();
 
-            var views = await viewNames
-                .Select(name => LoadViewAsync(name, cancellationToken))
-                .Somes()
-                .ConfigureAwait(false);
+            var views = new List<IRelationalDatabaseView>();
 
-            return views.ToList();
+            foreach (var viewName in viewNames)
+            {
+                var view = LoadViewAsync(viewName, cancellationToken);
+                await view.IfSome(v => views.Add(v)).ConfigureAwait(false);
+            }
+
+            return views;
         }
 
         protected virtual string ViewsQuery => ViewsQuerySql;

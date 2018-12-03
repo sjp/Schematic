@@ -50,12 +50,15 @@ namespace SJP.Schematic.MySql
                 .Select(dto => Identifier.CreateQualifiedIdentifier(dto.SchemaName, dto.ObjectName))
                 .ToList();
 
-            var tables = await tableNames
-                .Select(name => LoadTableAsync(name, cancellationToken))
-                .Somes()
-                .ConfigureAwait(false);
+            var tables = new List<IRelationalDatabaseTable>();
 
-            return tables.ToList();
+            foreach (var tableName in tableNames)
+            {
+                var table = LoadTableAsync(tableName, cancellationToken);
+                await table.IfSome(t => tables.Add(t)).ConfigureAwait(false);
+            }
+
+            return tables;
         }
 
         protected virtual string TablesQuery => TablesQuerySql;
