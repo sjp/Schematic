@@ -4,8 +4,6 @@ using System.Data;
 using System.Threading;
 using System.Threading.Tasks;
 using SJP.Schematic.Core;
-using SJP.Schematic.Oracle.Query;
-using SJP.Schematic.Core.Extensions;
 using LanguageExt;
 
 namespace SJP.Schematic.Oracle

@@ -94,7 +94,6 @@ select
 
         private const string DatabaseVersionQuerySql = "select pg_catalog.version() as DatabaseVersion";
 
-
         public override bool IsReservedKeyword(string text)
         {
             if (text.IsNullOrWhiteSpace())

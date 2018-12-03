@@ -9,7 +9,6 @@ using SJP.Schematic.Core;
 using SJP.Schematic.Core.Extensions;
 using SJP.Schematic.Lint.Rules;
 using SJP.Schematic.Lint.Tests.Fakes;
-using SJP.Schematic.Sqlite;
 
 namespace SJP.Schematic.Lint.Tests.Integration
 {

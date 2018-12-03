@@ -1,11 +1,9 @@
-﻿using Dapper;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Threading;
 using System.Threading.Tasks;
 using SJP.Schematic.Core;
-using SJP.Schematic.SqlServer.Query;
 using LanguageExt;
 
 namespace SJP.Schematic.SqlServer
