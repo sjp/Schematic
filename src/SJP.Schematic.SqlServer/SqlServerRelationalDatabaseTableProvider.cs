@@ -15,7 +15,7 @@ namespace SJP.Schematic.SqlServer
 {
     public class SqlServerRelationalDatabaseTableProvider : IRelationalDatabaseTableProvider
     {
-        public SqlServerRelationalDatabaseTableProvider(IDbConnection connection, IDatabaseIdentifierDefaults identifierDefaults, IDbTypeProvider typeProvider)
+        public SqlServerRelationalDatabaseTableProvider(IDbConnection connection, IIdentifierDefaults identifierDefaults, IDbTypeProvider typeProvider)
         {
             Connection = connection ?? throw new ArgumentNullException(nameof(connection));
             IdentifierDefaults = identifierDefaults ?? throw new ArgumentNullException(nameof(identifierDefaults));
@@ -24,7 +24,7 @@ namespace SJP.Schematic.SqlServer
 
         protected IDbConnection Connection { get; }
 
-        protected IDatabaseIdentifierDefaults IdentifierDefaults { get; }
+        protected IIdentifierDefaults IdentifierDefaults { get; }
 
         protected IDbTypeProvider TypeProvider { get; }
 

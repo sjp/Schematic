@@ -117,7 +117,7 @@ namespace SJP.Schematic.Lint.Tests.Rules
         {
             var dialect = new FakeDatabaseDialect();
             var connection = Mock.Of<IDbConnection>();
-            var identifierDefaults = Mock.Of<IDatabaseIdentifierDefaults>();
+            var identifierDefaults = Mock.Of<IIdentifierDefaults>();
 
             return new FakeRelationalDatabase(dialect, connection, identifierDefaults);
         }

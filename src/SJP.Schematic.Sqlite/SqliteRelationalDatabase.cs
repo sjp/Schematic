@@ -13,7 +13,7 @@ namespace SJP.Schematic.Sqlite
 {
     public class SqliteRelationalDatabase : RelationalDatabase, ISqliteDatabase
     {
-        public SqliteRelationalDatabase(IDatabaseDialect dialect, IDbConnection connection, IDatabaseIdentifierDefaults identifierDefaults)
+        public SqliteRelationalDatabase(IDatabaseDialect dialect, IDbConnection connection, IIdentifierDefaults identifierDefaults)
             : base(dialect, connection, identifierDefaults)
         {
             var pragma = new ConnectionPragma(Dialect, Connection);

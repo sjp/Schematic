@@ -87,7 +87,7 @@ create table parent_table_with_pk_column_to_pk_column_1 (
         {
             var dialect = new FakeDatabaseDialect();
             var connection = Mock.Of<IDbConnection>();
-            var identifierDefaults = Mock.Of<IDatabaseIdentifierDefaults>();
+            var identifierDefaults = Mock.Of<IIdentifierDefaults>();
 
             return new FakeRelationalDatabase(dialect, connection, identifierDefaults);
         }

@@ -39,7 +39,7 @@ namespace SJP.Schematic.PostgreSql
             return connection;
         }
 
-        public override IDatabaseIdentifierDefaults GetIdentifierDefaults(IDbConnection connection)
+        public override IIdentifierDefaults GetIdentifierDefaults(IDbConnection connection)
         {
             if (connection == null)
                 throw new ArgumentNullException(nameof(connection));
@@ -52,7 +52,7 @@ namespace SJP.Schematic.PostgreSql
             return result;
         }
 
-        public override Task<IDatabaseIdentifierDefaults> GetIdentifierDefaultsAsync(IDbConnection connection, CancellationToken cancellationToken = default(CancellationToken))
+        public override Task<IIdentifierDefaults> GetIdentifierDefaultsAsync(IDbConnection connection, CancellationToken cancellationToken = default(CancellationToken))
         {
             if (connection == null)
                 throw new ArgumentNullException(nameof(connection));
@@ -60,7 +60,7 @@ namespace SJP.Schematic.PostgreSql
             return GetIdentifierDefaultsAsyncCore(connection, cancellationToken);
         }
 
-        private static async Task<IDatabaseIdentifierDefaults> GetIdentifierDefaultsAsyncCore(IDbConnection connection, CancellationToken cancellationToken)
+        private static async Task<IIdentifierDefaults> GetIdentifierDefaultsAsyncCore(IDbConnection connection, CancellationToken cancellationToken)
         {
             var result = await connection.QuerySingleAsync<IdentifierDefaults>(IdentifierDefaultsQuerySql).ConfigureAwait(false);
 

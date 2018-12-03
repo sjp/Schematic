@@ -72,7 +72,7 @@ namespace SJP.Schematic.Oracle
             return pieces.Join(".");
         }
 
-        public override IDatabaseIdentifierDefaults GetIdentifierDefaults(IDbConnection connection)
+        public override IIdentifierDefaults GetIdentifierDefaults(IDbConnection connection)
         {
             if (connection == null)
                 throw new ArgumentNullException(nameof(connection));
@@ -85,14 +85,14 @@ namespace SJP.Schematic.Oracle
             var dbName = hostInfoOption.MatchUnsafe(h => h.DatabaseName, () => null);
             var defaultSchema = hostInfoOption.MatchUnsafe(h => h.DefaultSchema, () => null);
 
-            return new DatabaseIdentifierDefaultsBuilder()
+            return new IdentifierDefaultsBuilder()
                 .WithServer(qualifiedServerName)
                 .WithDatabase(dbName)
                 .WithSchema(defaultSchema)
                 .Build();
         }
 
-        public override Task<IDatabaseIdentifierDefaults> GetIdentifierDefaultsAsync(IDbConnection connection, CancellationToken cancellationToken = default(CancellationToken))
+        public override Task<IIdentifierDefaults> GetIdentifierDefaultsAsync(IDbConnection connection, CancellationToken cancellationToken = default(CancellationToken))
         {
             if (connection == null)
                 throw new ArgumentNullException(nameof(connection));
@@ -100,7 +100,7 @@ namespace SJP.Schematic.Oracle
             return GetIdentifierDefaultsAsyncCore(connection, cancellationToken);
         }
 
-        private static async Task<IDatabaseIdentifierDefaults> GetIdentifierDefaultsAsyncCore(IDbConnection connection, CancellationToken cancellationToken)
+        private static async Task<IIdentifierDefaults> GetIdentifierDefaultsAsyncCore(IDbConnection connection, CancellationToken cancellationToken)
         {
             var hostInfoOption = connection.QueryFirstOrNoneAsync<DatabaseHost>(IdentifierDefaultsQuerySql);
             var qualifiedServerName = await hostInfoOption.MatchUnsafe(
@@ -110,7 +110,7 @@ namespace SJP.Schematic.Oracle
             var dbName = await hostInfoOption.MatchUnsafe(h => h.DatabaseName, () => null).ConfigureAwait(false);
             var defaultSchema = await hostInfoOption.MatchUnsafe(h => h.DefaultSchema, () => null).ConfigureAwait(false);
 
-            return new DatabaseIdentifierDefaultsBuilder()
+            return new IdentifierDefaultsBuilder()
                 .WithServer(qualifiedServerName)
                 .WithDatabase(dbName)
                 .WithSchema(defaultSchema)

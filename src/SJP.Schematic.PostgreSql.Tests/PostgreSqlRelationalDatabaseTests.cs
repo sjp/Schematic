@@ -13,7 +13,7 @@ namespace SJP.Schematic.PostgreSql.Tests
         public static void Ctor_GivenNullDialect_ThrowsArgumentNullException()
         {
             var connection = Mock.Of<IDbConnection>();
-            var identifierDefaults = Mock.Of<IDatabaseIdentifierDefaults>();
+            var identifierDefaults = Mock.Of<IIdentifierDefaults>();
             var identifierResolver = new DefaultPostgreSqlIdentifierResolutionStrategy();
 
             Assert.Throws<ArgumentNullException>(() => new PostgreSqlRelationalDatabase(null, connection, identifierDefaults, identifierResolver));
@@ -22,7 +22,7 @@ namespace SJP.Schematic.PostgreSql.Tests
         [Test]
         public static void Ctor_GivenNullConnection_ThrowsArgumentNullException()
         {
-            var identifierDefaults = Mock.Of<IDatabaseIdentifierDefaults>();
+            var identifierDefaults = Mock.Of<IIdentifierDefaults>();
             var identifierResolver = new DefaultPostgreSqlIdentifierResolutionStrategy();
 
             Assert.Throws<ArgumentNullException>(() => new PostgreSqlRelationalDatabase(new PostgreSqlDialect(), null, identifierDefaults, identifierResolver));
@@ -41,7 +41,7 @@ namespace SJP.Schematic.PostgreSql.Tests
         public static void Ctor_GivenNullIdentifierResolver_ThrowsArgumentNullException()
         {
             var connection = Mock.Of<IDbConnection>();
-            var identifierDefaults = Mock.Of<IDatabaseIdentifierDefaults>();
+            var identifierDefaults = Mock.Of<IIdentifierDefaults>();
 
             Assert.Throws<ArgumentNullException>(() => new PostgreSqlRelationalDatabase(new PostgreSqlDialect(), connection, identifierDefaults, null));
         }

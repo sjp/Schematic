@@ -10,7 +10,7 @@ namespace SJP.Schematic.MySql
 {
     public class MySqlRelationalDatabase : RelationalDatabase, IRelationalDatabase
     {
-        public MySqlRelationalDatabase(IDatabaseDialect dialect, IDbConnection connection, IDatabaseIdentifierDefaults identifierDefaults)
+        public MySqlRelationalDatabase(IDatabaseDialect dialect, IDbConnection connection, IIdentifierDefaults identifierDefaults)
             : base(dialect, connection, identifierDefaults)
         {
             _tableProvider = new MySqlRelationalDatabaseTableProvider(connection, identifierDefaults, dialect.TypeProvider);

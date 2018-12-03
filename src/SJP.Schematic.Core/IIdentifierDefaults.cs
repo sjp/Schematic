@@ -1,6 +1,6 @@
 ﻿namespace SJP.Schematic.Core
 {
-    public interface IDatabaseIdentifierDefaults
+    public interface IIdentifierDefaults
     {
         /// <summary>
         /// A server name.

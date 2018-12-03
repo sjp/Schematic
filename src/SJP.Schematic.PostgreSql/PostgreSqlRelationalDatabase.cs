@@ -13,7 +13,7 @@ namespace SJP.Schematic.PostgreSql
 {
     public class PostgreSqlRelationalDatabase : RelationalDatabase, IRelationalDatabase
     {
-        public PostgreSqlRelationalDatabase(IDatabaseDialect dialect, IDbConnection connection, IDatabaseIdentifierDefaults identifierDefaults, IIdentifierResolutionStrategy identifierResolver)
+        public PostgreSqlRelationalDatabase(IDatabaseDialect dialect, IDbConnection connection, IIdentifierDefaults identifierDefaults, IIdentifierResolutionStrategy identifierResolver)
             : base(dialect, connection, identifierDefaults)
         {
             IdentifierResolver = identifierResolver ?? throw new ArgumentNullException(nameof(identifierResolver));

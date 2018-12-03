@@ -25,6 +25,6 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore.Tests
 
         protected IDatabaseDialect Dialect { get; } = new SqliteDialect();
 
-        protected IDatabaseIdentifierDefaults IdentifierDefaults { get; } = new SqliteDialect().GetIdentifierDefaults(Config.Connection);
+        protected IIdentifierDefaults IdentifierDefaults { get; } = new SqliteDialect().GetIdentifierDefaults(Config.Connection);
     }
 }

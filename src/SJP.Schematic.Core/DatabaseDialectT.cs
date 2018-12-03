@@ -48,9 +48,9 @@ namespace SJP.Schematic.Core
 
         public abstract IDbTypeProvider TypeProvider { get; }
 
-        public abstract IDatabaseIdentifierDefaults GetIdentifierDefaults(IDbConnection connection);
+        public abstract IIdentifierDefaults GetIdentifierDefaults(IDbConnection connection);
 
-        public abstract Task<IDatabaseIdentifierDefaults> GetIdentifierDefaultsAsync(IDbConnection connection, CancellationToken cancellationToken = default(CancellationToken));
+        public abstract Task<IIdentifierDefaults> GetIdentifierDefaultsAsync(IDbConnection connection, CancellationToken cancellationToken = default(CancellationToken));
 
         public abstract string GetDatabaseVersion(IDbConnection connection);
 

@@ -47,7 +47,7 @@ namespace SJP.Schematic.MySql
             return _keywords.Contains(text);
         }
 
-        public override IDatabaseIdentifierDefaults GetIdentifierDefaults(IDbConnection connection)
+        public override IIdentifierDefaults GetIdentifierDefaults(IDbConnection connection)
         {
             if (connection == null)
                 throw new ArgumentNullException(nameof(connection));
@@ -55,7 +55,7 @@ namespace SJP.Schematic.MySql
             return connection.QuerySingle<IdentifierDefaults>(IdentifierDefaultsQuerySql);
         }
 
-        public override Task<IDatabaseIdentifierDefaults> GetIdentifierDefaultsAsync(IDbConnection connection, CancellationToken cancellationToken = default(CancellationToken))
+        public override Task<IIdentifierDefaults> GetIdentifierDefaultsAsync(IDbConnection connection, CancellationToken cancellationToken = default(CancellationToken))
         {
             if (connection == null)
                 throw new ArgumentNullException(nameof(connection));
@@ -63,7 +63,7 @@ namespace SJP.Schematic.MySql
             return GetIdentifierDefaultsAsyncCore(connection, cancellationToken);
         }
 
-        private static async Task<IDatabaseIdentifierDefaults> GetIdentifierDefaultsAsyncCore(IDbConnection connection, CancellationToken cancellationToken)
+        private static async Task<IIdentifierDefaults> GetIdentifierDefaultsAsyncCore(IDbConnection connection, CancellationToken cancellationToken)
         {
             return await connection.QuerySingleAsync<IdentifierDefaults>(IdentifierDefaultsQuerySql).ConfigureAwait(false);
         }

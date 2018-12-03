@@ -95,7 +95,7 @@ create table child_table_with_text_key_column_1 (
         {
             var dialect = new FakeDatabaseDialect();
             var connection = Mock.Of<IDbConnection>();
-            var identifierDefaults = Mock.Of<IDatabaseIdentifierDefaults>();
+            var identifierDefaults = Mock.Of<IIdentifierDefaults>();
 
             return new FakeRelationalDatabase(dialect, connection, identifierDefaults);
         }

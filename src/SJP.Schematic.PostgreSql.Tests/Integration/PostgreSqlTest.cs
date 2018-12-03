@@ -26,7 +26,7 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration
 
         protected IDatabaseDialect Dialect { get; } = new PostgreSqlDialect();
 
-        protected IDatabaseIdentifierDefaults IdentifierDefaults { get; } = new PostgreSqlDialect().GetIdentifierDefaults(Config.Connection);
+        protected IIdentifierDefaults IdentifierDefaults { get; } = new PostgreSqlDialect().GetIdentifierDefaults(Config.Connection);
 
         protected IIdentifierResolutionStrategy IdentifierResolver { get; } = new DefaultPostgreSqlIdentifierResolutionStrategy();
     }

@@ -16,7 +16,7 @@ namespace SJP.Schematic.PostgreSql
 {
     public class PostgreSqlRelationalDatabaseTableProvider : IRelationalDatabaseTableProvider
     {
-        public PostgreSqlRelationalDatabaseTableProvider(IDbConnection connection, IDatabaseIdentifierDefaults identifierDefaults, IIdentifierResolutionStrategy identifierResolver, IDbTypeProvider typeProvider)
+        public PostgreSqlRelationalDatabaseTableProvider(IDbConnection connection, IIdentifierDefaults identifierDefaults, IIdentifierResolutionStrategy identifierResolver, IDbTypeProvider typeProvider)
         {
             Connection = connection ?? throw new ArgumentNullException(nameof(connection));
             IdentifierDefaults = identifierDefaults ?? throw new ArgumentNullException(nameof(identifierDefaults));
@@ -26,7 +26,7 @@ namespace SJP.Schematic.PostgreSql
 
         protected IDbConnection Connection { get; }
 
-        protected IDatabaseIdentifierDefaults IdentifierDefaults { get; }
+        protected IIdentifierDefaults IdentifierDefaults { get; }
 
         protected IIdentifierResolutionStrategy IdentifierResolver { get; }
 

@@ -122,7 +122,7 @@ namespace SJP.Schematic.Tool
             return dialect;
         }
 
-        public Func<IDatabaseDialect, IDbConnection, IDatabaseIdentifierDefaults, IRelationalDatabase> GetRelationalDatabaseFactory()
+        public Func<IDatabaseDialect, IDbConnection, IIdentifierDefaults, IRelationalDatabase> GetRelationalDatabaseFactory()
         {
             if (!_databaseFactories.TryGetValue(DatabaseDialect, out var factory))
                 throw new NotSupportedException("Unsupported dialect: " + DatabaseDialect);
@@ -138,8 +138,8 @@ namespace SJP.Schematic.Tool
             ["postgresql"] = new PostgreSqlDialect()
         };
 
-        private readonly static IReadOnlyDictionary<string, Func<IDatabaseDialect, IDbConnection, IDatabaseIdentifierDefaults, IRelationalDatabase>> _databaseFactories =
-            new Dictionary<string, Func<IDatabaseDialect, IDbConnection, IDatabaseIdentifierDefaults, IRelationalDatabase>>
+        private readonly static IReadOnlyDictionary<string, Func<IDatabaseDialect, IDbConnection, IIdentifierDefaults, IRelationalDatabase>> _databaseFactories =
+            new Dictionary<string, Func<IDatabaseDialect, IDbConnection, IIdentifierDefaults, IRelationalDatabase>>
             {
                 ["sqlite"] = (d, c, i) => new SqliteRelationalDatabase(d, c, i),
                 ["sqlserver"] = (d, c, i) => new SqlServerRelationalDatabase(d, c, i),

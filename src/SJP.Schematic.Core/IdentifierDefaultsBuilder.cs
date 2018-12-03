@@ -1,30 +1,30 @@
 ﻿namespace SJP.Schematic.Core
 {
-    public sealed class DatabaseIdentifierDefaultsBuilder
+    public sealed class IdentifierDefaultsBuilder
     {
-        public DatabaseIdentifierDefaultsBuilder WithServer(string server)
+        public IdentifierDefaultsBuilder WithServer(string server)
         {
             _defaults.Server = server;
             return this;
         }
 
-        public DatabaseIdentifierDefaultsBuilder WithDatabase(string database)
+        public IdentifierDefaultsBuilder WithDatabase(string database)
         {
             _defaults.Database = database;
             return this;
         }
 
-        public DatabaseIdentifierDefaultsBuilder WithSchema(string schema)
+        public IdentifierDefaultsBuilder WithSchema(string schema)
         {
             _defaults.Schema = schema;
             return this;
         }
 
-        public IDatabaseIdentifierDefaults Build() => _defaults;
+        public IIdentifierDefaults Build() => _defaults;
 
         private readonly IdentifierDefaults _defaults = new IdentifierDefaults();
 
-        private class IdentifierDefaults : IDatabaseIdentifierDefaults
+        private class IdentifierDefaults : IIdentifierDefaults
         {
             public string Server { get; set; }
 

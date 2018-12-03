@@ -13,7 +13,7 @@ namespace SJP.Schematic.Core.Tests
         {
             IDatabaseDialect dialect = null;
             var connection = Mock.Of<IDbConnection>();
-            var identifierDefaults = Mock.Of<IDatabaseIdentifierDefaults>();
+            var identifierDefaults = Mock.Of<IIdentifierDefaults>();
 
             Assert.Throws<ArgumentNullException>(() => new FakeRelationalDatabase(dialect, connection, identifierDefaults));
         }
@@ -23,7 +23,7 @@ namespace SJP.Schematic.Core.Tests
         {
             var dialect = Mock.Of<IDatabaseDialect>();
             IDbConnection connection = null;
-            var identifierDefaults = Mock.Of<IDatabaseIdentifierDefaults>();
+            var identifierDefaults = Mock.Of<IIdentifierDefaults>();
 
             Assert.Throws<ArgumentNullException>(() => new FakeRelationalDatabase(dialect, connection, identifierDefaults));
         }
@@ -33,7 +33,7 @@ namespace SJP.Schematic.Core.Tests
         {
             var dialect = Mock.Of<IDatabaseDialect>();
             var connection = Mock.Of<IDbConnection>();
-            IDatabaseIdentifierDefaults identifierDefaults = null;
+            IIdentifierDefaults identifierDefaults = null;
 
             Assert.Throws<ArgumentNullException>(() => new FakeRelationalDatabase(dialect, connection, identifierDefaults));
         }
@@ -43,14 +43,14 @@ namespace SJP.Schematic.Core.Tests
         {
             var dialect = Mock.Of<IDatabaseDialect>();
             var connection = Mock.Of<IDbConnection>();
-            var identifierDefaults = Mock.Of<IDatabaseIdentifierDefaults>();
+            var identifierDefaults = Mock.Of<IIdentifierDefaults>();
 
             Assert.DoesNotThrow(() => new FakeRelationalDatabase(dialect, connection, identifierDefaults));
         }
 
         private sealed class FakeRelationalDatabase : RelationalDatabase
         {
-            public FakeRelationalDatabase(IDatabaseDialect dialect, IDbConnection connection, IDatabaseIdentifierDefaults identifierDefaults)
+            public FakeRelationalDatabase(IDatabaseDialect dialect, IDbConnection connection, IIdentifierDefaults identifierDefaults)
                 : base(dialect, connection, identifierDefaults)
             {
             }

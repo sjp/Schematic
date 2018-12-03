@@ -29,6 +29,6 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
 
         protected ISqliteConnectionPragma Pragma { get; } = new ConnectionPragma(new SqliteDialect(), Config.Connection);
 
-        protected IDatabaseIdentifierDefaults IdentifierDefaults { get; } = new SqliteDialect().GetIdentifierDefaults(Config.Connection);
+        protected IIdentifierDefaults IdentifierDefaults { get; } = new SqliteDialect().GetIdentifierDefaults(Config.Connection);
     }
 }

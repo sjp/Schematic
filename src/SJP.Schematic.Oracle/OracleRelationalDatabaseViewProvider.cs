@@ -16,7 +16,7 @@ namespace SJP.Schematic.Oracle
 {
     public class OracleRelationalDatabaseViewProvider : IRelationalDatabaseViewProvider
     {
-        public OracleRelationalDatabaseViewProvider(IDbConnection connection, IDatabaseIdentifierDefaults identifierDefaults, IIdentifierResolutionStrategy identifierResolver, IDbTypeProvider typeProvider)
+        public OracleRelationalDatabaseViewProvider(IDbConnection connection, IIdentifierDefaults identifierDefaults, IIdentifierResolutionStrategy identifierResolver, IDbTypeProvider typeProvider)
         {
             Connection = connection ?? throw new ArgumentNullException(nameof(connection));
             IdentifierDefaults = identifierDefaults ?? throw new ArgumentNullException(nameof(identifierDefaults));
@@ -26,7 +26,7 @@ namespace SJP.Schematic.Oracle
 
         protected IDbConnection Connection { get; }
 
-        protected IDatabaseIdentifierDefaults IdentifierDefaults { get; }
+        protected IIdentifierDefaults IdentifierDefaults { get; }
 
         protected IIdentifierResolutionStrategy IdentifierResolver { get; }
 

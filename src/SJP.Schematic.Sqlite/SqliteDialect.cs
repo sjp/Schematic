@@ -38,22 +38,22 @@ namespace SJP.Schematic.Sqlite
             return connection;
         }
 
-        public override IDatabaseIdentifierDefaults GetIdentifierDefaults(IDbConnection connection)
+        public override IIdentifierDefaults GetIdentifierDefaults(IDbConnection connection)
         {
             if (connection == null)
                 throw new ArgumentNullException(nameof(connection));
 
-            return new DatabaseIdentifierDefaultsBuilder()
+            return new IdentifierDefaultsBuilder()
                 .WithSchema(DefaultSchema)
                 .Build();
         }
 
-        public override Task<IDatabaseIdentifierDefaults> GetIdentifierDefaultsAsync(IDbConnection connection, CancellationToken cancellationToken = default(CancellationToken))
+        public override Task<IIdentifierDefaults> GetIdentifierDefaultsAsync(IDbConnection connection, CancellationToken cancellationToken = default(CancellationToken))
         {
             if (connection == null)
                 throw new ArgumentNullException(nameof(connection));
 
-            var identifierDefaults = new DatabaseIdentifierDefaultsBuilder()
+            var identifierDefaults = new IdentifierDefaultsBuilder()
                 .WithSchema(DefaultSchema)
                 .Build();
             return Task.FromResult(identifierDefaults);

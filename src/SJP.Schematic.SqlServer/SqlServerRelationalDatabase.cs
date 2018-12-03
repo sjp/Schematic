@@ -12,7 +12,7 @@ namespace SJP.Schematic.SqlServer
 {
     public class SqlServerRelationalDatabase : RelationalDatabase, IRelationalDatabase
     {
-        public SqlServerRelationalDatabase(IDatabaseDialect dialect, IDbConnection connection, IDatabaseIdentifierDefaults identifierDefaults)
+        public SqlServerRelationalDatabase(IDatabaseDialect dialect, IDbConnection connection, IIdentifierDefaults identifierDefaults)
             : base(dialect, connection, identifierDefaults)
         {
             _tableProvider = new SqlServerRelationalDatabaseTableProvider(connection, identifierDefaults, dialect.TypeProvider);

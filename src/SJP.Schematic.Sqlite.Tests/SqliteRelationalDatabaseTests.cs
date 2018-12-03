@@ -13,7 +13,7 @@ namespace SJP.Schematic.Sqlite.Tests
         public static void Ctor_GivenNullDialect_ThrowsArgumentNullException()
         {
             var connection = Mock.Of<IDbConnection>();
-            var identifierDefaults = Mock.Of<IDatabaseIdentifierDefaults>();
+            var identifierDefaults = Mock.Of<IIdentifierDefaults>();
 
             Assert.Throws<ArgumentNullException>(() => new SqliteRelationalDatabase(null, connection, identifierDefaults));
         }
@@ -21,7 +21,7 @@ namespace SJP.Schematic.Sqlite.Tests
         [Test]
         public static void Ctor_GivenNullConnection_ThrowsArgumentNullException()
         {
-            var identifierDefaults = Mock.Of<IDatabaseIdentifierDefaults>();
+            var identifierDefaults = Mock.Of<IIdentifierDefaults>();
 
             Assert.Throws<ArgumentNullException>(() => new SqliteRelationalDatabase(new SqliteDialect(), null, identifierDefaults));
         }
@@ -40,7 +40,7 @@ namespace SJP.Schematic.Sqlite.Tests
             {
                 var dialect = new SqliteDialect();
                 var connection = Mock.Of<IDbConnection>();
-                var identifierDefaults = Mock.Of<IDatabaseIdentifierDefaults>();
+                var identifierDefaults = Mock.Of<IIdentifierDefaults>();
 
                 return new SqliteRelationalDatabase(dialect, connection, identifierDefaults);
             }

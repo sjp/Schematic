@@ -13,7 +13,7 @@ namespace SJP.Schematic.MySql.Tests
         public static void Ctor_GivenNullDialect_ThrowsArgumentNullException()
         {
             var connection = Mock.Of<IDbConnection>();
-            var identifierDefaults = Mock.Of<IDatabaseIdentifierDefaults>();
+            var identifierDefaults = Mock.Of<IIdentifierDefaults>();
 
             Assert.Throws<ArgumentNullException>(() => new MySqlRelationalDatabase(null, connection, identifierDefaults));
         }
@@ -21,7 +21,7 @@ namespace SJP.Schematic.MySql.Tests
         [Test]
         public static void Ctor_GivenNullConnection_ThrowsArgumentNullException()
         {
-            var identifierDefaults = Mock.Of<IDatabaseIdentifierDefaults>();
+            var identifierDefaults = Mock.Of<IIdentifierDefaults>();
 
             Assert.Throws<ArgumentNullException>(() => new MySqlRelationalDatabase(new MySqlDialect(), null, identifierDefaults));
         }

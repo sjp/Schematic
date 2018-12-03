@@ -5,7 +5,7 @@ namespace SJP.Schematic.Core
 {
     public abstract class RelationalDatabase
     {
-        protected RelationalDatabase(IDatabaseDialect dialect, IDbConnection connection, IDatabaseIdentifierDefaults identifierDefaults)
+        protected RelationalDatabase(IDatabaseDialect dialect, IDbConnection connection, IIdentifierDefaults identifierDefaults)
         {
             Dialect = dialect ?? throw new ArgumentNullException(nameof(dialect));
             Connection = connection ?? throw new ArgumentNullException(nameof(connection));
@@ -16,7 +16,7 @@ namespace SJP.Schematic.Core
 
         protected IDbConnection Connection { get; }
 
-        protected IDatabaseIdentifierDefaults IdentifierDefaults { get; }
+        protected IIdentifierDefaults IdentifierDefaults { get; }
 
         public string ServerName => IdentifierDefaults.Server;
 

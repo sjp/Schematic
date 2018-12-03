@@ -13,7 +13,7 @@ namespace SJP.Schematic.Oracle.Tests
         public static void Ctor_GivenNullDialect_ThrowsArgumentNullException()
         {
             var connection = Mock.Of<IDbConnection>();
-            var identifierDefaults = Mock.Of<IDatabaseIdentifierDefaults>();
+            var identifierDefaults = Mock.Of<IIdentifierDefaults>();
             var identifierResolver = new DefaultOracleIdentifierResolutionStrategy();
 
             Assert.Throws<ArgumentNullException>(() => new OracleRelationalDatabase(null, connection, identifierDefaults, identifierResolver));
@@ -22,7 +22,7 @@ namespace SJP.Schematic.Oracle.Tests
         [Test]
         public static void Ctor_GivenNullConnection_ThrowsArgumentNullException()
         {
-            var identifierDefaults = Mock.Of<IDatabaseIdentifierDefaults>();
+            var identifierDefaults = Mock.Of<IIdentifierDefaults>();
             var identifierResolver = new DefaultOracleIdentifierResolutionStrategy();
 
             Assert.Throws<ArgumentNullException>(() => new OracleRelationalDatabase(new OracleDialect(), null, identifierDefaults, identifierResolver));
@@ -41,7 +41,7 @@ namespace SJP.Schematic.Oracle.Tests
         public static void Ctor_GivenNullIdentifierResolver_ThrowsArgumentNullException()
         {
             var connection = Mock.Of<IDbConnection>();
-            var identifierDefaults = Mock.Of<IDatabaseIdentifierDefaults>();
+            var identifierDefaults = Mock.Of<IIdentifierDefaults>();
 
             Assert.Throws<ArgumentNullException>(() => new OracleRelationalDatabase(new OracleDialect(), connection, identifierDefaults, null));
         }

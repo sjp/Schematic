@@ -15,7 +15,7 @@ namespace SJP.Schematic.SqlServer
 {
     public class SqlServerDatabaseSynonymProvider : IDatabaseSynonymProvider
     {
-        public SqlServerDatabaseSynonymProvider(IDbConnection connection, IDatabaseIdentifierDefaults identifierDefaults)
+        public SqlServerDatabaseSynonymProvider(IDbConnection connection, IIdentifierDefaults identifierDefaults)
         {
             Connection = connection ?? throw new ArgumentNullException(nameof(connection));
             IdentifierDefaults = identifierDefaults ?? throw new ArgumentNullException(nameof(identifierDefaults));
@@ -23,7 +23,7 @@ namespace SJP.Schematic.SqlServer
 
         protected IDbConnection Connection { get; }
 
-        protected IDatabaseIdentifierDefaults IdentifierDefaults { get; }
+        protected IIdentifierDefaults IdentifierDefaults { get; }
 
         public IReadOnlyCollection<IDatabaseSynonym> Synonyms
         {

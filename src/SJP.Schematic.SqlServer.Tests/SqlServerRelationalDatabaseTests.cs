@@ -13,7 +13,7 @@ namespace SJP.Schematic.SqlServer.Tests
         public static void Ctor_GivenNullDialect_ThrowsArgumentNullException()
         {
             var connection = Mock.Of<IDbConnection>();
-            var identifierDefaults = Mock.Of<IDatabaseIdentifierDefaults>();
+            var identifierDefaults = Mock.Of<IIdentifierDefaults>();
 
             Assert.Throws<ArgumentNullException>(() => new SqlServerRelationalDatabase(null, connection, identifierDefaults));
         }
@@ -21,7 +21,7 @@ namespace SJP.Schematic.SqlServer.Tests
         [Test]
         public static void Ctor_GivenNullConnection_ThrowsArgumentNullException()
         {
-            var identifierDefaults = Mock.Of<IDatabaseIdentifierDefaults>();
+            var identifierDefaults = Mock.Of<IIdentifierDefaults>();
 
             Assert.Throws<ArgumentNullException>(() => new SqlServerRelationalDatabase(new SqlServerDialect(), null, identifierDefaults));
         }

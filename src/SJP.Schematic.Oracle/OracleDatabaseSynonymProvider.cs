@@ -15,7 +15,7 @@ namespace SJP.Schematic.Oracle
 {
     public class OracleDatabaseSynonymProvider : IDatabaseSynonymProvider
     {
-        public OracleDatabaseSynonymProvider(IDbConnection connection, IDatabaseIdentifierDefaults identifierDefaults, IIdentifierResolutionStrategy identifierResolver)
+        public OracleDatabaseSynonymProvider(IDbConnection connection, IIdentifierDefaults identifierDefaults, IIdentifierResolutionStrategy identifierResolver)
         {
             Connection = connection ?? throw new ArgumentNullException(nameof(connection));
             IdentifierDefaults = identifierDefaults ?? throw new ArgumentNullException(nameof(identifierDefaults));
@@ -24,7 +24,7 @@ namespace SJP.Schematic.Oracle
 
         protected IDbConnection Connection { get; }
 
-        protected IDatabaseIdentifierDefaults IdentifierDefaults { get; }
+        protected IIdentifierDefaults IdentifierDefaults { get; }
 
         protected IIdentifierResolutionStrategy IdentifierResolver { get; }
 

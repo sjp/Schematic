@@ -16,7 +16,7 @@ namespace SJP.Schematic.Sqlite
 {
     public class SqliteRelationalDatabaseViewProvider : IRelationalDatabaseViewProvider
     {
-        public SqliteRelationalDatabaseViewProvider(IDbConnection connection, ISqliteConnectionPragma pragma, IDatabaseDialect dialect, IDatabaseIdentifierDefaults identifierDefaults, IDbTypeProvider typeProvider)
+        public SqliteRelationalDatabaseViewProvider(IDbConnection connection, ISqliteConnectionPragma pragma, IDatabaseDialect dialect, IIdentifierDefaults identifierDefaults, IDbTypeProvider typeProvider)
         {
             Connection = connection ?? throw new ArgumentNullException(nameof(connection));
             ConnectionPragma = pragma ?? throw new ArgumentNullException(nameof(pragma));
@@ -31,7 +31,7 @@ namespace SJP.Schematic.Sqlite
 
         protected IDatabaseDialect Dialect { get; }
 
-        protected IDatabaseIdentifierDefaults IdentifierDefaults { get; }
+        protected IIdentifierDefaults IdentifierDefaults { get; }
 
         protected IDbTypeProvider TypeProvider { get; }
 

@@ -12,7 +12,7 @@ namespace SJP.Schematic.Oracle
 {
     public class OracleRelationalDatabase : RelationalDatabase, IRelationalDatabase
     {
-        public OracleRelationalDatabase(IDatabaseDialect dialect, IDbConnection connection, IDatabaseIdentifierDefaults identifierDefaults, IIdentifierResolutionStrategy identifierResolver)
+        public OracleRelationalDatabase(IDatabaseDialect dialect, IDbConnection connection, IIdentifierDefaults identifierDefaults, IIdentifierResolutionStrategy identifierResolver)
             : base(dialect, connection, identifierDefaults)
         {
             IdentifierResolver = identifierResolver ?? throw new ArgumentNullException(nameof(identifierResolver));

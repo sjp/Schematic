@@ -104,7 +104,7 @@ create table not_indexed_child_table_1 (
         {
             var dialect = new FakeDatabaseDialect();
             var connection = Mock.Of<IDbConnection>();
-            var identifierDefaults = Mock.Of<IDatabaseIdentifierDefaults>();
+            var identifierDefaults = Mock.Of<IIdentifierDefaults>();
 
             return new FakeRelationalDatabase(dialect, connection, identifierDefaults);
         }
