@@ -33,52 +33,5 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration
         {
             Assert.AreNotEqual(string.Empty, Database.DatabaseVersion);
         }
-
-        internal sealed class SynonymTests : PostgreSqlTest
-        {
-            private IRelationalDatabase Database => new PostgreSqlRelationalDatabase(Dialect, Connection, IdentifierDefaults, IdentifierResolver);
-
-            [Test]
-            public void GetSynonym_GivenNullName_ThrowsArgumentNullException()
-            {
-                Assert.Throws<ArgumentNullException>(() => Database.GetSynonym(null));
-            }
-
-            [Test]
-            public void GetSynonym_WhenSynonymMissing_ReturnsNone()
-            {
-                var synonym = Database.GetSynonym("synonym_that_doesnt_exist");
-                Assert.IsTrue(synonym.IsNone);
-            }
-
-            [Test]
-            public void GetSynonymAsync_GivenNullName_ThrowsArgumentNullException()
-            {
-                Assert.Throws<ArgumentNullException>(() => Database.GetSynonymAsync(null));
-            }
-
-            [Test]
-            public async Task GetSynonymAsync_WhenSynonymMissing_ReturnsNone()
-            {
-                var synonymIsNone = await Database.GetSynonymAsync("synonym_that_doesnt_exist").IsNone.ConfigureAwait(false);
-                Assert.IsTrue(synonymIsNone);
-            }
-
-            [Test]
-            public void Synonyms_WhenEnumerated_ContainsNoSynonyms()
-            {
-                var synonyms = Database.Synonyms.ToList();
-
-                Assert.Zero(synonyms.Count);
-            }
-
-            [Test]
-            public async Task SynonymsAsync_WhenEnumerated_ContainsNoSynonyms()
-            {
-                var synonyms = await Database.SynonymsAsync().ConfigureAwait(false);
-
-                Assert.Zero(synonyms.Count);
-            }
-        }
     }
 }

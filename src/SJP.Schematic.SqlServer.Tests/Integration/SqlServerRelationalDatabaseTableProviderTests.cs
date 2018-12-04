@@ -602,7 +602,5 @@ end
 
             Assert.True(containsTestTable);
         }
-
-
     }
 }

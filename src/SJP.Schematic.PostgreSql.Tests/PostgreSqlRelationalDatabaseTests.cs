@@ -1,7 +1,9 @@
 ﻿using System;
-using NUnit.Framework;
-using Moq;
 using System.Data;
+using System.Linq;
+using System.Threading.Tasks;
+using Moq;
+using NUnit.Framework;
 using SJP.Schematic.Core;
 
 namespace SJP.Schematic.PostgreSql.Tests
@@ -44,6 +46,87 @@ namespace SJP.Schematic.PostgreSql.Tests
             var identifierDefaults = Mock.Of<IIdentifierDefaults>();
 
             Assert.Throws<ArgumentNullException>(() => new PostgreSqlRelationalDatabase(new PostgreSqlDialect(), connection, identifierDefaults, null));
+        }
+
+        // testing that the behaviour is equivalent to an empty synonym provider
+        internal static class SynonymTests
+        {
+            private static IRelationalDatabase Database
+            {
+                get
+                {
+                    var dialect = new PostgreSqlDialect();
+                    var connection = Mock.Of<IDbConnection>();
+                    var identifierDefaults = Mock.Of<IIdentifierDefaults>();
+                    var identifierResolver = new DefaultPostgreSqlIdentifierResolutionStrategy();
+
+                    return new PostgreSqlRelationalDatabase(dialect, connection, identifierDefaults, identifierResolver);
+                }
+            }
+
+            [Test]
+            public static void GetSynonym_GivenNullSynonymName_ThrowsArgumentNullException()
+            {
+                Assert.Throws<ArgumentNullException>(() => Database.GetSynonym(null));
+            }
+
+            [Test]
+            public static void GetSynonym_GivenValidSynonymName_ReturnsNone()
+            {
+                var synonymName = new Identifier("asd");
+                var synonym = Database.GetSynonym(synonymName);
+
+                Assert.IsTrue(synonym.IsNone);
+            }
+
+            [Test]
+            public static void Synonyms_PropertyGet_ReturnsCountOfZero()
+            {
+                var count = Database.Synonyms.Count;
+
+                Assert.Zero(count);
+            }
+
+            [Test]
+            public static void Synonyms_WhenEnumerated_ContainsNoValues()
+            {
+                var synonyms = Database.Synonyms.ToList();
+                var count = synonyms.Count;
+
+                Assert.Zero(count);
+            }
+
+            [Test]
+            public static void GetSynonymAsync_GivenNullSynonymName_ThrowsArgumentNullException()
+            {
+                Assert.Throws<ArgumentNullException>(() => Database.GetSynonymAsync(null));
+            }
+
+            [Test]
+            public static async Task GetSynonymAsync_GivenValidSynonymName_ReturnsNone()
+            {
+                var synonymName = new Identifier("asd");
+                var synonymIsNone = await Database.GetSynonymAsync(synonymName).IsNone.ConfigureAwait(false);
+
+                Assert.IsTrue(synonymIsNone);
+            }
+
+            [Test]
+            public static async Task SynonymsAsync_PropertyGet_ReturnsCountOfZero()
+            {
+                var synonyms = await Database.SynonymsAsync().ConfigureAwait(false);
+
+                Assert.Zero(synonyms.Count);
+            }
+
+            [Test]
+            public static async Task SynonymsAsync_WhenEnumerated_ContainsNoValues()
+            {
+                var synonyms = await Database.SynonymsAsync().ConfigureAwait(false);
+                var count = synonyms.ToList().Count;
+
+                Assert.Zero(count);
+            }
         }
     }
 }
