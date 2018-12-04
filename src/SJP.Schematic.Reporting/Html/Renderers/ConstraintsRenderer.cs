@@ -31,7 +31,7 @@ namespace SJP.Schematic.Reporting.Html.Renderers
         {
             var tables = Database.Tables.ToList();
 
-            var primaryKeys = tables.SelectNotNull(t => new { TableName = t.Name, t.PrimaryKey }).ToList();
+            var primaryKeys = tables.SelectMany(t => t.PrimaryKey.Select(pk => new { TableName = t.Name, PrimaryKey = pk })).ToList();
             var uniqueKeys = tables.SelectMany(t => t.UniqueKeys.Select(uk => new { TableName = t.Name, UniqueKey = uk })).ToList();
             var foreignKeys = tables.SelectMany(t => t.ParentKeys).ToList();
             var checkConstraints = tables.SelectMany(t => t.Checks.Select(ck => new { TableName = t.Name, Check = ck })).ToList();
@@ -77,7 +77,7 @@ namespace SJP.Schematic.Reporting.Html.Renderers
         {
             var tables = await Database.TablesAsync().ConfigureAwait(false);
 
-            var primaryKeys = tables.SelectNotNull(t => new { TableName = t.Name, t.PrimaryKey }).ToList();
+            var primaryKeys = tables.SelectMany(t => t.PrimaryKey.Select(pk => new { TableName = t.Name, PrimaryKey = pk })).ToList();
             var uniqueKeys = tables.SelectMany(t => t.UniqueKeys.Select(uk => new { TableName = t.Name, UniqueKey = uk })).ToList();
             var foreignKeys = tables.SelectMany(t => t.ParentKeys).ToList();
             var checkConstraints = tables.SelectMany(t => t.Checks.Select(ck => new { TableName = t.Name, Check = ck })).ToList();

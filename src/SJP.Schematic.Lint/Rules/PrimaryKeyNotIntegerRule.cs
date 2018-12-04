@@ -25,16 +25,9 @@ namespace SJP.Schematic.Lint.Rules
             if (table == null)
                 throw new ArgumentNullException(nameof(table));
 
-            var primaryKey = table.PrimaryKey;
-            if (primaryKey == null)
-                return Array.Empty<IRuleMessage>();
-
-            var pkColumns = primaryKey.Columns.ToList();
-            if (pkColumns.Count == 1 && ColumnIsInteger(pkColumns[0]))
-                return Array.Empty<IRuleMessage>();
-
-            var message = BuildMessage(table.Name);
-            return new[] { message };
+            return table.PrimaryKey
+                .Where(pk => pk.Columns.Count != 1 || !ColumnIsInteger(pk.Columns.First()))
+                .Match(_ => new[] { BuildMessage(table.Name) }, Array.Empty<IRuleMessage>);
         }
 
         protected static bool ColumnIsInteger(IDatabaseColumn column)

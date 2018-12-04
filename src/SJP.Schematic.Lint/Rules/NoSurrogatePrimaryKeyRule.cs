@@ -25,12 +25,16 @@ namespace SJP.Schematic.Lint.Rules
             if (table == null)
                 throw new ArgumentNullException(nameof(table));
 
-            var primaryKey = table.PrimaryKey;
-            if (primaryKey == null || primaryKey.Columns.Count == 1)
-                return Array.Empty<IRuleMessage>();
-
-            var message = BuildMessage(table.Name);
-            return new[] { message };
+            return table.PrimaryKey
+                .Match(
+                    Some: pk =>
+                    {
+                        return pk.Columns.Count == 1
+                            ? Array.Empty<IRuleMessage>()
+                            : new[] { BuildMessage(table.Name) };
+                    },
+                    None: Array.Empty<IRuleMessage>
+                );
         }
 
         protected virtual IRuleMessage BuildMessage(Identifier tableName)

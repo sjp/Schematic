@@ -354,7 +354,7 @@ namespace SJP.Schematic.Sqlite
             return Option<IRelationalDatabaseTable>.Some(table);
         }
 
-        protected virtual IDatabaseKey LoadPrimaryKeySync(ISqliteDatabasePragma pragma, SqliteTableParser parser, Identifier tableName, IReadOnlyDictionary<Identifier, IDatabaseColumn> columns)
+        protected virtual Option<IDatabaseKey> LoadPrimaryKeySync(ISqliteDatabasePragma pragma, SqliteTableParser parser, Identifier tableName, IReadOnlyDictionary<Identifier, IDatabaseColumn> columns)
         {
             if (pragma == null)
                 throw new ArgumentNullException(nameof(pragma));
@@ -367,24 +367,26 @@ namespace SJP.Schematic.Sqlite
 
             var tableInfos = pragma.TableInfo(tableName);
             if (tableInfos.Empty())
-                return null;
+                return Option<IDatabaseKey>.None;
 
             var pkColumns = tableInfos
                 .Where(ti => ti.pk > 0)
                 .OrderBy(ti => ti.pk)
                 .ToList();
             if (pkColumns.Empty())
-                return null;
+                return Option<IDatabaseKey>.None;
 
             var keyColumns = pkColumns.Select(c => columns[c.name]).ToList();
 
             var pkConstraint = parser.PrimaryKey;
             var pkStringName = pkConstraint?.Name;
             var primaryKeyName = !pkStringName.IsNullOrWhiteSpace() ? Identifier.CreateQualifiedIdentifier(pkStringName) : null;
-            return new SqliteDatabaseKey(primaryKeyName, DatabaseKeyType.Primary, keyColumns);
+
+            var primaryKey = new SqliteDatabaseKey(primaryKeyName, DatabaseKeyType.Primary, keyColumns);
+            return Option<IDatabaseKey>.Some(primaryKey);
         }
 
-        protected virtual Task<IDatabaseKey> LoadPrimaryKeyAsync(ISqliteDatabasePragma pragma, SqliteTableParser parser, Identifier tableName, IReadOnlyDictionary<Identifier, IDatabaseColumn> columns, CancellationToken cancellationToken)
+        protected virtual Task<Option<IDatabaseKey>> LoadPrimaryKeyAsync(ISqliteDatabasePragma pragma, SqliteTableParser parser, Identifier tableName, IReadOnlyDictionary<Identifier, IDatabaseColumn> columns, CancellationToken cancellationToken)
         {
             if (pragma == null)
                 throw new ArgumentNullException(nameof(pragma));
@@ -398,25 +400,27 @@ namespace SJP.Schematic.Sqlite
             return LoadPrimaryKeyAsyncCore(pragma, parser, tableName, columns, cancellationToken);
         }
 
-        private async Task<IDatabaseKey> LoadPrimaryKeyAsyncCore(ISqliteDatabasePragma pragma, SqliteTableParser parser, Identifier tableName, IReadOnlyDictionary<Identifier, IDatabaseColumn> columns, CancellationToken cancellationToken)
+        private async Task<Option<IDatabaseKey>> LoadPrimaryKeyAsyncCore(ISqliteDatabasePragma pragma, SqliteTableParser parser, Identifier tableName, IReadOnlyDictionary<Identifier, IDatabaseColumn> columns, CancellationToken cancellationToken)
         {
             var tableInfos = await pragma.TableInfoAsync(tableName, cancellationToken).ConfigureAwait(false);
             if (tableInfos.Empty())
-                return null;
+                return Option<IDatabaseKey>.None;
 
             var pkColumns = tableInfos
                 .Where(ti => ti.pk > 0)
                 .OrderBy(ti => ti.pk)
                 .ToList();
             if (pkColumns.Empty())
-                return null;
+                return Option<IDatabaseKey>.None;
 
             var keyColumns = pkColumns.Select(c => columns[c.name]).ToList();
 
             var pkConstraint = parser.PrimaryKey;
             var pkStringName = pkConstraint?.Name;
             var primaryKeyName = !pkStringName.IsNullOrWhiteSpace() ? Identifier.CreateQualifiedIdentifier(pkStringName) : null;
-            return new SqliteDatabaseKey(primaryKeyName, DatabaseKeyType.Primary, keyColumns);
+
+            var primaryKey = new SqliteDatabaseKey(primaryKeyName, DatabaseKeyType.Primary, keyColumns);
+            return Option<IDatabaseKey>.Some(primaryKey);
         }
 
         protected virtual IReadOnlyCollection<IDatabaseIndex> LoadIndexesSync(ISqliteDatabasePragma pragma, Identifier tableName, IReadOnlyDictionary<Identifier, IDatabaseColumn> columns)
@@ -831,7 +835,8 @@ namespace SJP.Schematic.Sqlite
 
                 if (!primaryKeyCache.TryGetValue(parentTableName, out var parentPrimaryKey))
                 {
-                    parentPrimaryKey = LoadPrimaryKeySync(pragma, parentTableParser, parentTableName, parentTableColumnLookup);
+                    var parentPrimaryKeyOption = LoadPrimaryKeySync(pragma, parentTableParser, parentTableName, parentTableColumnLookup);
+                    parentPrimaryKey = parentPrimaryKeyOption.UnwrapSome();
                     primaryKeyCache[parentTableName] = parentPrimaryKey;
                 }
 
@@ -934,7 +939,8 @@ namespace SJP.Schematic.Sqlite
 
                 if (!primaryKeyCache.TryGetValue(parentTableName, out var parentPrimaryKey))
                 {
-                    parentPrimaryKey = await LoadPrimaryKeyAsync(pragma, parentTableParser, parentTableName, parentTableColumnLookup, cancellationToken).ConfigureAwait(false);
+                    var parentPrimaryKeyOption = await LoadPrimaryKeyAsync(pragma, parentTableParser, parentTableName, parentTableColumnLookup, cancellationToken).ConfigureAwait(false);
+                    parentPrimaryKey = parentPrimaryKeyOption.UnwrapSome();
                     primaryKeyCache[parentTableName] = parentPrimaryKey;
                 }
 

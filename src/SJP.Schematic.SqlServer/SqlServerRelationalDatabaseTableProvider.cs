@@ -216,7 +216,7 @@ where schema_id = schema_id(@SchemaName) and name = @TableName";
             return Option<IRelationalDatabaseTable>.Some(table);
         }
 
-        protected virtual IDatabaseKey LoadPrimaryKeySync(Identifier tableName, IReadOnlyDictionary<Identifier, IDatabaseColumn> columns)
+        protected virtual Option<IDatabaseKey> LoadPrimaryKeySync(Identifier tableName, IReadOnlyDictionary<Identifier, IDatabaseColumn> columns)
         {
             if (tableName == null)
                 throw new ArgumentNullException(nameof(tableName));
@@ -225,7 +225,7 @@ where schema_id = schema_id(@SchemaName) and name = @TableName";
 
             var primaryKeyColumns = Connection.Query<ConstraintColumnMapping>(PrimaryKeyQuery, new { SchemaName = tableName.Schema, TableName = tableName.LocalName });
             if (primaryKeyColumns.Empty())
-                return null;
+                return Option<IDatabaseKey>.None;
 
             var groupedByName = primaryKeyColumns.GroupBy(row => new { row.ConstraintName, row.IsDisabled } );
             var firstRow = groupedByName.First();
@@ -237,10 +237,11 @@ where schema_id = schema_id(@SchemaName) and name = @TableName";
                 .SelectMany(g => g.Select(row => columns[row.ColumnName]))
                 .ToList();
 
-            return new SqlServerDatabaseKey(constraintName, DatabaseKeyType.Primary, keyColumns, isEnabled);
+            var primaryKey = new SqlServerDatabaseKey(constraintName, DatabaseKeyType.Primary, keyColumns, isEnabled);
+            return Option<IDatabaseKey>.Some(primaryKey);
         }
 
-        protected virtual Task<IDatabaseKey> LoadPrimaryKeyAsync(Identifier tableName, IReadOnlyDictionary<Identifier, IDatabaseColumn> columns, CancellationToken cancellationToken)
+        protected virtual Task<Option<IDatabaseKey>> LoadPrimaryKeyAsync(Identifier tableName, IReadOnlyDictionary<Identifier, IDatabaseColumn> columns, CancellationToken cancellationToken)
         {
             if (tableName == null)
                 throw new ArgumentNullException(nameof(tableName));
@@ -250,11 +251,11 @@ where schema_id = schema_id(@SchemaName) and name = @TableName";
             return LoadPrimaryKeyAsyncCore(tableName, columns, cancellationToken);
         }
 
-        private async Task<IDatabaseKey> LoadPrimaryKeyAsyncCore(Identifier tableName, IReadOnlyDictionary<Identifier, IDatabaseColumn> columns, CancellationToken cancellationToken)
+        private async Task<Option<IDatabaseKey>> LoadPrimaryKeyAsyncCore(Identifier tableName, IReadOnlyDictionary<Identifier, IDatabaseColumn> columns, CancellationToken cancellationToken)
         {
             var primaryKeyColumns = await Connection.QueryAsync<ConstraintColumnMapping>(PrimaryKeyQuery, new { SchemaName = tableName.Schema, TableName = tableName.LocalName }).ConfigureAwait(false);
             if (primaryKeyColumns.Empty())
-                return null;
+                return Option<IDatabaseKey>.None;
 
             var groupedByName = primaryKeyColumns.GroupBy(row => new { row.ConstraintName, row.IsDisabled });
             var firstRow = groupedByName.First();
@@ -266,7 +267,8 @@ where schema_id = schema_id(@SchemaName) and name = @TableName";
                 .SelectMany(g => g.Select(row => columns[row.ColumnName]))
                 .ToList();
 
-            return new SqlServerDatabaseKey(constraintName, DatabaseKeyType.Primary, keyColumns, isEnabled);
+            var primaryKey = new SqlServerDatabaseKey(constraintName, DatabaseKeyType.Primary, keyColumns, isEnabled);
+            return Option<IDatabaseKey>.Some(primaryKey);
         }
 
         protected virtual string PrimaryKeyQuery => PrimaryKeyQuerySql;
@@ -485,7 +487,7 @@ where
     and ic.is_included_column = 0
 order by ic.key_ordinal";
 
-        protected virtual IReadOnlyCollection<IDatabaseRelationalKey> LoadChildKeysSync(Identifier tableName, IReadOnlyDictionary<Identifier, IDatabaseColumn> columns, IDatabaseKey primaryKey, IReadOnlyDictionary<Identifier, IDatabaseKey> uniqueKeys)
+        protected virtual IReadOnlyCollection<IDatabaseRelationalKey> LoadChildKeysSync(Identifier tableName, IReadOnlyDictionary<Identifier, IDatabaseColumn> columns, Option<IDatabaseKey> primaryKey, IReadOnlyDictionary<Identifier, IDatabaseKey> uniqueKeys)
         {
             if (tableName == null)
                 throw new ArgumentNullException(nameof(tableName));
@@ -542,7 +544,7 @@ order by ic.key_ordinal";
 
                 var childKey = parentKeyLookup[childKeyName];
                 var parentKey = groupedChildKey.Key.ParentKeyType == "PK"
-                    ? primaryKey
+                    ? primaryKey.UnwrapSome()
                     : uniqueKeys[groupedChildKey.Key.ParentKeyName];
 
                 var deleteRule = RelationalRuleMapping[groupedChildKey.Key.DeleteRule];
@@ -555,7 +557,7 @@ order by ic.key_ordinal";
             return result;
         }
 
-        protected virtual Task<IReadOnlyCollection<IDatabaseRelationalKey>> LoadChildKeysAsync(Identifier tableName, IReadOnlyDictionary<Identifier, IDatabaseColumn> columns, IDatabaseKey primaryKey, IReadOnlyDictionary<Identifier, IDatabaseKey> uniqueKeys, CancellationToken cancellationToken)
+        protected virtual Task<IReadOnlyCollection<IDatabaseRelationalKey>> LoadChildKeysAsync(Identifier tableName, IReadOnlyDictionary<Identifier, IDatabaseColumn> columns, Option<IDatabaseKey> primaryKey, IReadOnlyDictionary<Identifier, IDatabaseKey> uniqueKeys, CancellationToken cancellationToken)
         {
             if (tableName == null)
                 throw new ArgumentNullException(nameof(tableName));
@@ -567,7 +569,7 @@ order by ic.key_ordinal";
             return LoadChildKeysAsyncCore(tableName, columns, primaryKey, uniqueKeys, cancellationToken);
         }
 
-        private async Task<IReadOnlyCollection<IDatabaseRelationalKey>> LoadChildKeysAsyncCore(Identifier tableName, IReadOnlyDictionary<Identifier, IDatabaseColumn> columns, IDatabaseKey primaryKey, IReadOnlyDictionary<Identifier, IDatabaseKey> uniqueKeys, CancellationToken cancellationToken)
+        private async Task<IReadOnlyCollection<IDatabaseRelationalKey>> LoadChildKeysAsyncCore(Identifier tableName, IReadOnlyDictionary<Identifier, IDatabaseColumn> columns, Option<IDatabaseKey> primaryKey, IReadOnlyDictionary<Identifier, IDatabaseKey> uniqueKeys, CancellationToken cancellationToken)
         {
             var queryResult = await Connection.QueryAsync<ChildKeyData>(ChildKeysQuery, new { SchemaName = tableName.Schema, TableName = tableName.LocalName }).ConfigureAwait(false);
             if (queryResult.Empty())
@@ -618,7 +620,7 @@ order by ic.key_ordinal";
 
                 var childKey = parentKeyLookup[childKeyName.LocalName];
                 var parentKey = groupedChildKey.Key.ParentKeyType == "PK"
-                    ? primaryKey
+                    ? primaryKey.UnwrapSome()
                     : uniqueKeys[groupedChildKey.Key.ParentKeyName];
 
                 var deleteRule = RelationalRuleMapping[groupedChildKey.Key.DeleteRule];
@@ -762,7 +764,8 @@ where schema_name(t.schema_id) = @SchemaName and t.name = @TableName";
                             columnLookupsCache[parentTableName] = parentColumnLookup;
                         }
 
-                        parentKey = LoadPrimaryKeySync(parentTableName, parentColumnLookup);
+                        var parentKeyOption = LoadPrimaryKeySync(parentTableName, parentColumnLookup);
+                        parentKey = parentKeyOption.UnwrapSome();
                         primaryKeyCache[parentTableName] = parentKey;
                     }
                 }
@@ -870,7 +873,8 @@ where schema_name(t.schema_id) = @SchemaName and t.name = @TableName";
                             columnLookupsCache[parentTableName] = parentColumnLookup;
                         }
 
-                        parentKey = await LoadPrimaryKeyAsync(parentTableName, parentColumnLookup, cancellationToken).ConfigureAwait(false);
+                        var parentKeyOption = await LoadPrimaryKeyAsync(parentTableName, parentColumnLookup, cancellationToken).ConfigureAwait(false);
+                        parentKey = parentKeyOption.UnwrapSome();
                         primaryKeyCache[parentTableName] = parentKey;
                     }
                 }

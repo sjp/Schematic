@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using EnumsNET;
+using LanguageExt;
 using SJP.Schematic.Core;
 using SJP.Schematic.Core.Extensions;
 
@@ -13,7 +14,7 @@ namespace SJP.Schematic.Reporting.Html.ViewModels
         public Table(
             Identifier tableName,
             IEnumerable<Column> columns,
-            PrimaryKeyConstraint primaryKey,
+            Option<PrimaryKeyConstraint> primaryKey,
             IEnumerable<UniqueKey> uniqueKeys,
             IEnumerable<ForeignKey> foreignKeys,
             IEnumerable<CheckConstraint> checks,
@@ -34,9 +35,9 @@ namespace SJP.Schematic.Reporting.Html.ViewModels
             ColumnsCount = columns.UCount();
             ColumnsTableClass = ColumnsCount > 0 ? CssClasses.DataTableClass : string.Empty;
 
-            PrimaryKey = primaryKey;
-            PrimaryKeyExists = primaryKey != null;
-            PrimaryKeyTableClass = PrimaryKeyExists ? CssClasses.DataTableClass : string.Empty;
+            PrimaryKey = primaryKey.MatchUnsafe(pk => pk, () => null);
+            PrimaryKeyExists = primaryKey.IsSome;
+            PrimaryKeyTableClass = primaryKey.Match(_ => CssClasses.DataTableClass, () => string.Empty);
 
             UniqueKeys = uniqueKeys ?? throw new ArgumentNullException(nameof(uniqueKeys));
             UniqueKeysCount = uniqueKeys.UCount();

@@ -322,15 +322,10 @@ namespace SJP.Schematic.DataAccess.OrmLite
             if (column == null)
                 throw new ArgumentNullException(nameof(column));
 
-            var primaryKey = table?.PrimaryKey;
-            if (primaryKey == null)
-                return false;
-
-            var pkColumns = primaryKey.Columns;
-            if (pkColumns.Count != 1)
-                return false;
-
-            return column.Name.LocalName == pkColumns.First().Name.LocalName;
+            return table.PrimaryKey
+                .Where(pk => pk.Columns.Count == 1
+                    && column.Name.LocalName == pk.Columns.First().Name.LocalName)
+                .IsSome;
         }
 
         protected static bool ColumnIsForeignKey(IRelationalDatabaseTable table, IDatabaseColumn column)

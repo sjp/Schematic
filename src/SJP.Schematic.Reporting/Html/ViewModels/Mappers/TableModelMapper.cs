@@ -43,7 +43,7 @@ namespace SJP.Schematic.Reporting.Html.ViewModels.Mappers
                 var columnName = col.Name.LocalName;
                 var qualifiedColumnName = table.Name.ToVisibleName() + "." + columnName;
 
-                var isPrimaryKey = primaryKey != null && primaryKey.Columns.Any(c => c.Name.LocalName == columnName);
+                var isPrimaryKey = primaryKey.Match(pk => pk.Columns.Any(c => c.Name.LocalName == columnName), () => false);
                 var isUniqueKey = uniqueKeys.Any(uk => uk.Columns.Any(ukc => ukc.Name.LocalName == columnName));
                 var isParentKey = parentKeys.Any(fk => fk.ChildKey.Columns.Any(fkc => fkc.Name.LocalName == columnName));
 
@@ -122,12 +122,11 @@ namespace SJP.Schematic.Reporting.Html.ViewModels.Mappers
                     index.IncludedColumns.Select(c => c.Name.LocalName).ToList()
                 )).ToList();
 
-            var renderPrimaryKey = primaryKey != null
-                ? new Table.PrimaryKeyConstraint(
-                      primaryKey.Name?.LocalName,
-                      primaryKey.Columns.Select(c => c.Name.LocalName).ToList()
-                  )
-                : null;
+            var renderPrimaryKey = primaryKey
+                .Map(pk => new Table.PrimaryKeyConstraint(
+                    pk.Name?.LocalName,
+                    pk.Columns.Select(c => c.Name.LocalName).ToList()
+                ));
 
             var renderUniqueKeys = uniqueKeys
                 .Select(uk => new Table.UniqueKey(
@@ -206,7 +205,7 @@ namespace SJP.Schematic.Reporting.Html.ViewModels.Mappers
                 var columnName = col.Name.LocalName;
                 var qualifiedColumnName = table.Name.ToVisibleName() + "." + columnName;
 
-                var isPrimaryKey = primaryKey != null && primaryKey.Columns.Any(c => c.Name.LocalName == columnName);
+                var isPrimaryKey = primaryKey.Match(pk => pk.Columns.Any(c => c.Name.LocalName == columnName), () => false);
                 var isUniqueKey = uniqueKeys.Any(uk => uk.Columns.Any(ukc => ukc.Name.LocalName == columnName));
                 var isParentKey = parentKeys.Any(fk => fk.ChildKey.Columns.Any(fkc => fkc.Name.LocalName == columnName));
 
@@ -285,12 +284,11 @@ namespace SJP.Schematic.Reporting.Html.ViewModels.Mappers
                     index.IncludedColumns.Select(c => c.Name.LocalName).ToList()
                 )).ToList();
 
-            var renderPrimaryKey = primaryKey != null
-                ? new Table.PrimaryKeyConstraint(
-                      primaryKey.Name?.LocalName,
-                      primaryKey.Columns.Select(c => c.Name.LocalName).ToList()
-                  )
-                : null;
+            var renderPrimaryKey = primaryKey
+                .Map(pk => new Table.PrimaryKeyConstraint(
+                    pk.Name?.LocalName,
+                    pk.Columns.Select(c => c.Name.LocalName).ToList()
+                ));
 
             var renderUniqueKeys = uniqueKeys
                 .Select(uk => new Table.UniqueKey(

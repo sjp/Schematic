@@ -54,7 +54,7 @@ namespace SJP.Schematic.Reporting.Dot
 
                 var keyColumnNames = uniqueKeys
                     .Concat(parentKeys.Select(fk => fk.ChildKey))
-                    .Concat(primaryKey != null ? new[] { primaryKey } : Array.Empty<IDatabaseKey>())
+                    .Concat(primaryKey.Match(pk => new[] { pk }, Array.Empty<IDatabaseKey>))
                     .SelectMany(key => key.Columns.Select(c => c.Name.LocalName))
                     .Distinct()
                     .ToList();
@@ -78,21 +78,21 @@ namespace SJP.Schematic.Reporting.Dot
 
                 var tableConstraints = new List<TableConstraint>();
 
-                if (primaryKey != null)
+                primaryKey.IfSome(pk =>
                 {
-                    var primaryKeyNameText = primaryKey.Name == null
-                        ? primaryKey.GetKeyHash(table.Name).ToString()
-                        : primaryKey.Name.LocalName;
+                    var primaryKeyNameText = pk.Name == null
+                           ? pk.GetKeyHash(table.Name).ToString()
+                           : pk.Name.LocalName;
 
                     var primaryKeyConstraint = new TableConstraint(
                         primaryKeyNameText,
-                        primaryKey.KeyType,
-                        primaryKey.Name.LocalName,
-                        primaryKey.Columns.Select(c => c.Name.LocalName).ToList(),
-                        primaryKey.Columns.Select(c => c.Type.Definition).ToList()
+                        pk.KeyType,
+                        pk.Name.LocalName,
+                        pk.Columns.Select(c => c.Name.LocalName).ToList(),
+                        pk.Columns.Select(c => c.Type.Definition).ToList()
                     );
                     tableConstraints.Add(primaryKeyConstraint);
-                }
+                });
 
                 foreach (var uniqueKey in uniqueKeys)
                 {
@@ -248,7 +248,7 @@ namespace SJP.Schematic.Reporting.Dot
 
                 var keyColumnNames = uniqueKeys
                     .Concat(parentKeys.Select(fk => fk.ChildKey))
-                    .Concat(primaryKey != null ? new[] { primaryKey } : Array.Empty<IDatabaseKey>())
+                    .Concat(primaryKey.Match(pk => new[] { pk }, Array.Empty<IDatabaseKey>))
                     .SelectMany(key => key.Columns.Select(c => c.Name.LocalName))
                     .Distinct()
                     .ToList();
@@ -272,21 +272,21 @@ namespace SJP.Schematic.Reporting.Dot
 
                 var tableConstraints = new List<TableConstraint>();
 
-                if (primaryKey != null)
+                primaryKey.IfSome(pk =>
                 {
-                    var primaryKeyNameText = primaryKey.Name == null
-                        ? primaryKey.GetKeyHash(table.Name).ToString()
-                        : primaryKey.Name.LocalName;
+                    var primaryKeyNameText = pk.Name == null
+                        ? pk.GetKeyHash(table.Name).ToString()
+                        : pk.Name.LocalName;
 
                     var primaryKeyConstraint = new TableConstraint(
                         primaryKeyNameText,
-                        primaryKey.KeyType,
-                        primaryKey.Name.LocalName,
-                        primaryKey.Columns.Select(c => c.Name.LocalName).ToList(),
-                        primaryKey.Columns.Select(c => c.Type.Definition).ToList()
+                        pk.KeyType,
+                        pk.Name.LocalName,
+                        pk.Columns.Select(c => c.Name.LocalName).ToList(),
+                        pk.Columns.Select(c => c.Type.Definition).ToList()
                     );
                     tableConstraints.Add(primaryKeyConstraint);
-                }
+                });
 
                 foreach (var uniqueKey in uniqueKeys)
                 {

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using LanguageExt;
 using SJP.Schematic.Core.Extensions;
 using SJP.Schematic.Core.Utilities;
 
@@ -12,7 +13,7 @@ namespace SJP.Schematic.Core
         public RelationalDatabaseTable(
             Identifier tableName,
             IReadOnlyList<IDatabaseColumn> columns,
-            IDatabaseKey primaryKey,
+            Option<IDatabaseKey> primaryKey,
             IReadOnlyCollection<IDatabaseKey> uniqueKeys,
             IReadOnlyCollection<IDatabaseRelationalKey> parentKeys,
             IReadOnlyCollection<IDatabaseRelationalKey> childKeys,
@@ -50,7 +51,7 @@ namespace SJP.Schematic.Core
 
         public Identifier Name { get; }
 
-        public IDatabaseKey PrimaryKey { get; }
+        public Option<IDatabaseKey> PrimaryKey { get; }
 
         public IReadOnlyCollection<IDatabaseIndex> Indexes { get; }
 

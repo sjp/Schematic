@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
+using LanguageExt;
 using SJP.Schematic.Core;
 using SJP.Schematic.Core.Extensions;
 using SJP.Schematic.Core.Utilities;
@@ -25,7 +26,7 @@ namespace SJP.Schematic.Modelled.Reflection
             _indexLookup = new Lazy<IReadOnlyDictionary<Identifier, IDatabaseIndex>>(LoadIndexes);
             _parentKeyLookup = new Lazy<IReadOnlyDictionary<Identifier, IDatabaseRelationalKey>>(LoadParentKeys);
             _childKeys = new Lazy<IReadOnlyCollection<IDatabaseRelationalKey>>(LoadChildKeys);
-            _primaryKey = new Lazy<IDatabaseKey>(LoadPrimaryKey);
+            _primaryKey = new Lazy<Option<IDatabaseKey>>(LoadPrimaryKey);
         }
 
         protected IDatabaseDialect Dialect { get; }
@@ -69,9 +70,9 @@ namespace SJP.Schematic.Modelled.Reflection
                 IDatabaseKey parentKey;
                 if (keyObject.KeyType == DatabaseKeyType.Primary)
                 {
-                    parentKey = parent.PrimaryKey;
-                    if (parentKey == null)
-                        throw new Exception("Could not find matching parent key for foreign key."); // TODO: provide better error messaging, maybe to KeyNotFoundException too?
+                    // TODO: provide better error messaging, maybe to KeyNotFoundException too?
+                    parentKey = parent.PrimaryKey
+                        .Match(pk => pk, () => throw new Exception("Could not find matching parent key for foreign key."));
                 }
                 else if (keyObject.KeyType == DatabaseKeyType.Unique)
                 {
@@ -128,14 +129,15 @@ namespace SJP.Schematic.Modelled.Reflection
 
         protected Type InstanceType { get; }
 
-        private IDatabaseKey LoadPrimaryKey()
+        private Option<IDatabaseKey> LoadPrimaryKey()
         {
             var primaryKey = TypeProvider.PrimaryKey;
             var dialect = Database.Dialect;
             var pkColumns = primaryKey.Columns.Select(GetColumn).ToList();
 
             var keyName = dialect.GetAliasOrDefault(primaryKey.Property);
-            return new ReflectionKey(keyName, primaryKey.KeyType, pkColumns);
+            var dbKey = new ReflectionKey(keyName, primaryKey.KeyType, pkColumns);
+            return Option<IDatabaseKey>.Some(dbKey);
         }
 
         private IReadOnlyDictionary<Identifier, IDatabaseIndex> LoadIndexes()
@@ -200,7 +202,7 @@ namespace SJP.Schematic.Modelled.Reflection
 
         public IReadOnlyCollection<IDatabaseRelationalKey> ParentKeys => new ReadOnlyCollectionSlim<IDatabaseRelationalKey>(_parentKeyLookup.Value.Count, _parentKeyLookup.Value.Values);
 
-        public IDatabaseKey PrimaryKey => _primaryKey.Value;
+        public Option<IDatabaseKey> PrimaryKey => _primaryKey.Value;
 
         public IReadOnlyCollection<IDatabaseTrigger> Triggers { get; }
 
@@ -214,6 +216,6 @@ namespace SJP.Schematic.Modelled.Reflection
         // TODO: implement triggers
         //private readonly Lazy<IReadOnlyDictionary<string, IDatabaseTrigger>> _triggerLookup;
         private readonly Lazy<IReadOnlyCollection<IDatabaseRelationalKey>> _childKeys;
-        private readonly Lazy<IDatabaseKey> _primaryKey;
+        private readonly Lazy<Option<IDatabaseKey>> _primaryKey;
     }
 }

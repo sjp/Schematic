@@ -10,25 +10,6 @@ namespace SJP.Schematic.Reporting
 {
     internal static class CollectionExtensions
     {
-        public static IEnumerable<TResult> SelectNotNull<T, TResult>(this IEnumerable<T> input, Func<T, TResult> selector)
-        {
-            if (input == null)
-                throw new ArgumentNullException(nameof(input));
-            if (selector == null)
-                throw new ArgumentNullException(nameof(selector));
-
-            var result = new List<TResult>();
-
-            foreach (var item in input)
-            {
-                var mapResult = selector(item);
-                if (!ReferenceEquals(mapResult, null))
-                    result.Add(mapResult);
-            }
-
-            return result;
-        }
-
         public static uint UCount<T>(this IReadOnlyCollection<T> collection)
         {
             if (collection == null)

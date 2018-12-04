@@ -26,19 +26,23 @@ namespace SJP.Schematic.Lint.Rules
             if (table == null)
                 throw new ArgumentNullException(nameof(table));
 
-            var primaryKey = table.PrimaryKey;
-            if (primaryKey == null)
-                return Array.Empty<IRuleMessage>();
+            return table.PrimaryKey
+                .Where(pk => pk.Columns.Count == 1)
+                .Match(pk => AnalyseTable(table, pk), Array.Empty<IRuleMessage>);
+        }
 
-            var pkColumns = primaryKey.Columns.ToList();
-            if (pkColumns.Count != 1)
-                return Array.Empty<IRuleMessage>();
+        protected IEnumerable<IRuleMessage> AnalyseTable(IRelationalDatabaseTable table, IDatabaseKey primaryKey)
+        {
+            if (table == null)
+                throw new ArgumentNullException(nameof(table));
+            if (primaryKey == null)
+                throw new ArgumentNullException(nameof(primaryKey));
 
             var tableColumns = table.Columns;
             if (tableColumns.Empty())
                 return Array.Empty<IRuleMessage>();
 
-            var pkColumnName = pkColumns[0].Name;
+            var pkColumnName = primaryKey.Columns.Single().Name;
             var firstColumnName = table.Columns[0].Name;
             if (pkColumnName == firstColumnName)
                 return Array.Empty<IRuleMessage>();

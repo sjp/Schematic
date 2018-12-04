@@ -1,10 +1,11 @@
 ﻿using System.Collections.Generic;
+using LanguageExt;
 
 namespace SJP.Schematic.Core
 {
     public interface IRelationalDatabaseTable : IDatabaseQueryable
     {
-        IDatabaseKey PrimaryKey { get; }
+        Option<IDatabaseKey> PrimaryKey { get; }
 
         IReadOnlyList<IDatabaseColumn> Columns { get; }
 

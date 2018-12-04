@@ -78,10 +78,10 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore
             }
 
             var primaryKey = table.PrimaryKey;
-            if (primaryKey != null)
+            primaryKey.IfSome(pk =>
             {
-                var keyColumnSet = GenerateColumnSet(className, "t", primaryKey.Columns);
-                var keyNameLiteral = primaryKey.Name?.LocalName?.ToStringLiteral();
+                var keyColumnSet = GenerateColumnSet(className, "t", pk.Columns);
+                var keyNameLiteral = pk.Name?.LocalName?.ToStringLiteral();
 
                 _builder.Append(LineIndent)
                     .Append("modelBuilder.Entity<")
@@ -102,7 +102,7 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore
                 }
 
                 _builder.AppendLine(";");
-            }
+            });
 
             foreach (var uniqueKey in table.UniqueKeys)
             {

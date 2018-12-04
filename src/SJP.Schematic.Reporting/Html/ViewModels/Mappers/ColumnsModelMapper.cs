@@ -31,7 +31,7 @@ namespace SJP.Schematic.Reporting.Html.ViewModels.Mappers
 
             return columns.Select((column, i) =>
             {
-                var isPrimaryKeyColumn = primaryKey != null && primaryKey.Columns.Any(c => c.Name.LocalName == column.Name.LocalName);
+                var isPrimaryKeyColumn = primaryKey.Match(pk => pk.Columns.Any(c => c.Name.LocalName == column.Name.LocalName), () => false);
                 var isUniqueKeyColumn = uniqueKeys.Any(uk => uk.Columns.Any(ukc => ukc.Name.LocalName == column.Name.LocalName));
                 var isForeignKeyColumn = parentKeys.Any(fk => fk.ChildKey.Columns.Any(fkc => fkc.Name.LocalName == column.Name.LocalName));
 

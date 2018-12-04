@@ -38,11 +38,10 @@ namespace SJP.Schematic.Lint.Rules
             }
 
             var primaryKey = table.PrimaryKey;
-            if (primaryKey != null && !primaryKey.IsEnabled)
-            {
-                var ruleMessage = BuildDisabledPrimaryKeyMessage(table.Name, primaryKey.Name?.LocalName);
-                result.Add(ruleMessage);
-            }
+            primaryKey
+                .Where(pk => !pk.IsEnabled)
+                .Map(pk => BuildDisabledPrimaryKeyMessage(table.Name, pk.Name?.LocalName))
+                .IfSome(ruleMessage => result.Add(ruleMessage));
 
             var disabledUniqueKeys = table.UniqueKeys.Where(uk => !uk.IsEnabled);
             foreach (var uniqueKey in disabledUniqueKeys)
