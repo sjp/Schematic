@@ -56,8 +56,7 @@ namespace SJP.Schematic.Reporting.Html.Renderers
                 var indexCount = indexesLookup.UCount();
                 indexesCount += indexCount;
 
-                if (table.PrimaryKey != null)
-                    constraints++;
+                table.PrimaryKey.IfSome(_ => constraints++);
 
                 constraints += uniqueKeyCount;
                 constraints += renderTable.ParentsCount;
@@ -142,9 +141,7 @@ namespace SJP.Schematic.Reporting.Html.Renderers
                 var indexCount = indexesLookup.UCount();
                 indexesCount += indexCount;
 
-                var primaryKey = table.PrimaryKey;
-                if (primaryKey != null)
-                    constraints++;
+                table.PrimaryKey.IfSome(_ => constraints++);
 
                 constraints += uniqueKeyCount;
                 constraints += renderTable.ParentsCount;
