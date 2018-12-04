@@ -123,8 +123,8 @@ where schema_id = schema_id(@SchemaName) and name = @SequenceName";
                 sequenceName,
                 seqData.StartValue,
                 seqData.Increment,
-                seqData.MinValue,
-                seqData.MaxValue,
+                Option<decimal>.Some(seqData.MinValue),
+                Option<decimal>.Some(seqData.MaxValue),
                 seqData.Cycle,
                 seqData.IsCached ? seqData.CacheSize ?? -1 : 0 // -1 as unknown/database determined
             );

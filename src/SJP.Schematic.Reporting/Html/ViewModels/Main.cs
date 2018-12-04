@@ -153,8 +153,8 @@ namespace SJP.Schematic.Reporting.Html.ViewModels
                 Identifier sequenceName,
                 decimal start,
                 decimal increment,
-                decimal? minValue,
-                decimal? maxValue,
+                Option<decimal> minValue,
+                Option<decimal> maxValue,
                 int cache,
                 bool cycle
             )
@@ -165,8 +165,8 @@ namespace SJP.Schematic.Reporting.Html.ViewModels
                 Name = sequenceName.ToVisibleName();
                 Start = start;
                 Increment = increment;
-                MinValueText = minValue?.ToString() ?? string.Empty;
-                MaxValueText = maxValue?.ToString() ?? string.Empty;
+                MinValueText = minValue.Match(mv => mv.ToString(), () => string.Empty);
+                MaxValueText = maxValue.Match(mv => mv.ToString(), () => string.Empty);
                 Cache = cache;
                 CycleText = cycle ? "✓" : string.Empty;
             }

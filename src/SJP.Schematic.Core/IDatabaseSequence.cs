@@ -1,4 +1,6 @@
-﻿namespace SJP.Schematic.Core
+﻿using LanguageExt;
+
+namespace SJP.Schematic.Core
 {
     public interface IDatabaseSequence : IDatabaseEntity
     {
@@ -8,9 +10,9 @@
 
         decimal Increment { get; }
 
-        decimal? MaxValue { get; }
+        Option<decimal> MaxValue { get; }
 
-        decimal? MinValue { get; }
+        Option<decimal> MinValue { get; }
 
         decimal Start { get; }
     }

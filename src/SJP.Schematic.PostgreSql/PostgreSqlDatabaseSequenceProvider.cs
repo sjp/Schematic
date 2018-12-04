@@ -239,8 +239,8 @@ where c.relnamespace = nc.oid
                 sequenceName,
                 seqData.StartValue,
                 seqData.Increment,
-                seqData.MinValue,
-                seqData.MaxValue,
+                Option<decimal>.Some(seqData.MinValue),
+                Option<decimal>.Some(seqData.MaxValue),
                 seqData.Cycle,
                 seqData.CacheSize
             );

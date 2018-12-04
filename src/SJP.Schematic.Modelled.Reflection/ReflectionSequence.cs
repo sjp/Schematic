@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using System.Reflection;
+using LanguageExt;
 using SJP.Schematic.Core;
 
 namespace SJP.Schematic.Modelled.Reflection
@@ -25,13 +26,16 @@ namespace SJP.Schematic.Modelled.Reflection
             var dialect = database.Dialect;
             var sequenceName = dialect.GetQualifiedNameOrDefault(database, sequenceType);
 
+            var minValue = instance.MinValue.ToOption();
+            var maxValue = instance.MaxValue.ToOption();
+
             // create an inner sequence, which will perform validation
             var sequence = new DatabaseSequence(
                 sequenceName,
                 instance.Start,
                 instance.Increment,
-                instance.MinValue,
-                instance.MaxValue,
+                minValue,
+                maxValue,
                 instance.Cycle,
                 instance.Cache
             );
@@ -39,8 +43,8 @@ namespace SJP.Schematic.Modelled.Reflection
             Cache = sequence.Cache;
             Cycle = sequence.Cycle;
             Increment = sequence.Increment;
-            MaxValue = sequence.MaxValue;
-            MinValue = sequence.MinValue;
+            MaxValue = maxValue;
+            MinValue = minValue;
             Name = sequenceName;
             Start = sequence.Start;
         }
@@ -51,9 +55,9 @@ namespace SJP.Schematic.Modelled.Reflection
 
         public decimal Increment { get; }
 
-        public decimal? MaxValue { get; }
+        public Option<decimal> MaxValue { get; }
 
-        public decimal? MinValue { get; }
+        public Option<decimal> MinValue { get; }
 
         public Identifier Name { get; }
 

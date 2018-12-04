@@ -1,5 +1,7 @@
 ﻿using System;
+using LanguageExt;
 using NUnit.Framework;
+using SJP.Schematic.Core.Extensions;
 
 namespace SJP.Schematic.Core.Tests
 {
@@ -9,43 +11,43 @@ namespace SJP.Schematic.Core.Tests
         [Test]
         public static void Ctor_GivenNullName_ThrowsArgNullException()
         {
-            Assert.Throws<ArgumentNullException>(() => new DatabaseSequence(null, 1, 1, null, null, true, 0));
+            Assert.Throws<ArgumentNullException>(() => new DatabaseSequence(null, 1, 1, Option<decimal>.None, Option<decimal>.None, true, 0));
         }
 
         [Test]
         public static void Ctor_GivenZeroIncrement_ThrowsArgException()
         {
-            Assert.Throws<ArgumentException>(() => new DatabaseSequence("test", 1, 0, null, null, true, 0));
+            Assert.Throws<ArgumentException>(() => new DatabaseSequence("test", 1, 0, Option<decimal>.None, Option<decimal>.None, true, 0));
         }
 
         [Test]
         public static void Ctor_GivenPositiveIncrementAndMinValueLargerThanStart_ThrowsArgumentException()
         {
-            Assert.Throws<ArgumentException>(() => new DatabaseSequence("test", 1, 1, 2, null, true, 0));
+            Assert.Throws<ArgumentException>(() => new DatabaseSequence("test", 1, 1, Option<decimal>.Some(2), Option<decimal>.None, true, 0));
         }
 
         [Test]
         public static void Ctor_GivenPositiveIncrementAndMaxValueLessThanStart_ThrowsArgumentException()
         {
-            Assert.Throws<ArgumentException>(() => new DatabaseSequence("test", 1, 1, null, -1, true, 0));
+            Assert.Throws<ArgumentException>(() => new DatabaseSequence("test", 1, 1, Option<decimal>.None, Option<decimal>.Some(-1), true, 0));
         }
 
         [Test]
         public static void Ctor_GivenNegativeIncrementAndMinValueLessThanStart_ThrowsArgumentException()
         {
-            Assert.Throws<ArgumentException>(() => new DatabaseSequence("test", 1, -1, 0, null, true, 0));
+            Assert.Throws<ArgumentException>(() => new DatabaseSequence("test", 1, -1, Option<decimal>.Some(0), Option<decimal>.None, true, 0));
         }
 
         [Test]
         public static void Ctor_GivenNegativeIncrementAndMaxValueGreaterThanStart_ThrowsArgumentException()
         {
-            Assert.Throws<ArgumentException>(() => new DatabaseSequence("test", 1, -1, null, 2, true, 0));
+            Assert.Throws<ArgumentException>(() => new DatabaseSequence("test", 1, -1, Option<decimal>.None, Option<decimal>.Some(2), true, 0));
         }
 
         [Test]
         public static void Ctor_GivenNegativeCacheSize_SetsCacheSizeToUnknownValue()
         {
-            var sequence =  new DatabaseSequence("test", 1, -1, null, null, true, -3);
+            var sequence =  new DatabaseSequence("test", 1, -1, Option<decimal>.None, Option<decimal>.None, true, -3);
 
             Assert.AreEqual(DatabaseSequence.UnknownCacheSize, sequence.Cache);
         }
@@ -54,7 +56,7 @@ namespace SJP.Schematic.Core.Tests
         public static void Name_PropertyGet_MatchesCtorArg()
         {
             var sequenceName = new Identifier("test");
-            var sequence = new DatabaseSequence(sequenceName, 1, 1, null, null, true, 0);
+            var sequence = new DatabaseSequence(sequenceName, 1, 1, Option<decimal>.None, Option<decimal>.None, true, 0);
 
             Assert.AreEqual(sequenceName, sequence.Name);
         }
@@ -63,7 +65,7 @@ namespace SJP.Schematic.Core.Tests
         public static void Cache_PropertyGet_MatchesCtorArg()
         {
             const int cacheSize = 20;
-            var sequence = new DatabaseSequence("test", 1, 1, null, null, true, cacheSize);
+            var sequence = new DatabaseSequence("test", 1, 1, Option<decimal>.None, Option<decimal>.None, true, cacheSize);
 
             Assert.AreEqual(cacheSize, sequence.Cache);
         }
@@ -71,7 +73,7 @@ namespace SJP.Schematic.Core.Tests
         [Test]
         public static void Cycle_PropertyGet_MatchesCtorArg()
         {
-            var sequence = new DatabaseSequence("test", 1, 1, null, null, true, 1);
+            var sequence = new DatabaseSequence("test", 1, 1, Option<decimal>.None, Option<decimal>.None, true, 1);
 
             Assert.IsTrue(sequence.Cycle);
         }
@@ -80,7 +82,7 @@ namespace SJP.Schematic.Core.Tests
         public static void Increment_PropertyGet_MatchesCtorArg()
         {
             const int increment = 100;
-            var sequence = new DatabaseSequence("test", 1, increment, null, null, true, 1);
+            var sequence = new DatabaseSequence("test", 1, increment, Option<decimal>.None, Option<decimal>.None, true, 1);
 
             Assert.AreEqual(increment, sequence.Increment);
         }
@@ -89,25 +91,25 @@ namespace SJP.Schematic.Core.Tests
         public static void MaxValue_PropertyGet_MatchesCtorArg()
         {
             const int maxValue = 100;
-            var sequence = new DatabaseSequence("test", 1, 1, null, maxValue, true, 1);
+            var sequence = new DatabaseSequence("test", 1, 1, Option<decimal>.None, Option<decimal>.Some(maxValue), true, 1);
 
-            Assert.AreEqual(maxValue, sequence.MaxValue);
+            Assert.AreEqual(maxValue, sequence.MaxValue.UnwrapSome());
         }
 
         [Test]
         public static void MinValue_PropertyGet_MatchesCtorArg()
         {
             const int minValue = 100;
-            var sequence = new DatabaseSequence("test", minValue, 1, minValue, null, true, 1);
+            var sequence = new DatabaseSequence("test", minValue, 1, Option<decimal>.Some(minValue), Option<decimal>.None, true, 1);
 
-            Assert.AreEqual(minValue, sequence.MinValue);
+            Assert.AreEqual(minValue, sequence.MinValue.UnwrapSome());
         }
 
         [Test]
         public static void Start_PropertyGet_MatchesCtorArg()
         {
             const int start = 100;
-            var sequence = new DatabaseSequence("test", start, 1, null, null, true, 1);
+            var sequence = new DatabaseSequence("test", start, 1, Option<decimal>.None, Option<decimal>.None, true, 1);
 
             Assert.AreEqual(start, sequence.Start);
         }

@@ -291,7 +291,7 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration
         {
             var sequence = SequenceProvider.GetSequence("db_test_sequence_1").UnwrapSome();
 
-            Assert.AreEqual(1, sequence.MinValue);
+            Assert.AreEqual(1, sequence.MinValue.UnwrapSome());
         }
 
         [Test]
@@ -299,7 +299,7 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration
         {
             var sequence = SequenceProvider.GetSequence("db_test_sequence_4").UnwrapSome();
 
-            Assert.AreEqual(-99, sequence.MinValue);
+            Assert.AreEqual(-99, sequence.MinValue.UnwrapSome());
         }
 
         [Test]
@@ -307,7 +307,7 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration
         {
             var sequence = SequenceProvider.GetSequence("db_test_sequence_5").UnwrapSome();
 
-            Assert.AreEqual(1, sequence.MinValue);
+            Assert.AreEqual(1, sequence.MinValue.UnwrapSome());
         }
 
         [Test]
@@ -315,7 +315,7 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration
         {
             var sequence = SequenceProvider.GetSequence("db_test_sequence_1").UnwrapSome();
 
-            Assert.AreEqual(long.MaxValue, sequence.MaxValue);
+            Assert.AreEqual(long.MaxValue, sequence.MaxValue.UnwrapSome());
         }
 
         [Test]
@@ -323,7 +323,7 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration
         {
             var sequence = SequenceProvider.GetSequence("db_test_sequence_6").UnwrapSome();
 
-            Assert.AreEqual(333, sequence.MaxValue);
+            Assert.AreEqual(333, sequence.MaxValue.UnwrapSome());
         }
 
         [Test]
@@ -331,7 +331,7 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration
         {
             var sequence = SequenceProvider.GetSequence("db_test_sequence_7").UnwrapSome();
 
-            Assert.AreEqual(long.MaxValue, sequence.MaxValue);
+            Assert.AreEqual(long.MaxValue, sequence.MaxValue.UnwrapSome());
         }
 
         [Test]

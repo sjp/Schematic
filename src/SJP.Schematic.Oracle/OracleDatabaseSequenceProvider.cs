@@ -247,8 +247,8 @@ where SEQUENCE_OWNER = :SchemaName and SEQUENCE_NAME = :SequenceName";
                 sequenceName,
                 start,
                 seqData.Increment,
-                seqData.MinValue,
-                seqData.MaxValue,
+                Option<decimal>.Some(seqData.MinValue),
+                Option<decimal>.Some(seqData.MaxValue),
                 cycle,
                 seqData.CacheSize
             );

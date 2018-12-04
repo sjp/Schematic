@@ -302,7 +302,7 @@ namespace SJP.Schematic.Oracle.Tests.Integration
         {
             var sequence = SequenceProvider.GetSequence("DB_TEST_SEQUENCE_1").UnwrapSome();
 
-            Assert.AreEqual(SequenceDefaultMinValue, sequence.MinValue);
+            Assert.AreEqual(SequenceDefaultMinValue, sequence.MinValue.UnwrapSome());
         }
 
         [Test]
@@ -310,7 +310,7 @@ namespace SJP.Schematic.Oracle.Tests.Integration
         {
             var sequence = SequenceProvider.GetSequence("DB_TEST_SEQUENCE_4").UnwrapSome();
 
-            Assert.AreEqual(-99, sequence.MinValue);
+            Assert.AreEqual(-99, sequence.MinValue.UnwrapSome());
         }
 
         [Test]
@@ -318,7 +318,7 @@ namespace SJP.Schematic.Oracle.Tests.Integration
         {
             var sequence = SequenceProvider.GetSequence("DB_TEST_SEQUENCE_5").UnwrapSome();
 
-            Assert.AreEqual(1, sequence.MinValue);
+            Assert.AreEqual(1, sequence.MinValue.UnwrapSome());
         }
 
         [Test]
@@ -326,7 +326,7 @@ namespace SJP.Schematic.Oracle.Tests.Integration
         {
             var sequence = SequenceProvider.GetSequence("DB_TEST_SEQUENCE_1").UnwrapSome();
 
-            Assert.AreEqual(OracleNumberMaxValue, sequence.MaxValue);
+            Assert.AreEqual(OracleNumberMaxValue, sequence.MaxValue.UnwrapSome());
         }
 
         [Test]
@@ -334,7 +334,7 @@ namespace SJP.Schematic.Oracle.Tests.Integration
         {
             var sequence = SequenceProvider.GetSequence("DB_TEST_SEQUENCE_6").UnwrapSome();
 
-            Assert.AreEqual(333, sequence.MaxValue);
+            Assert.AreEqual(333, sequence.MaxValue.UnwrapSome());
         }
 
         [Test]
@@ -342,7 +342,7 @@ namespace SJP.Schematic.Oracle.Tests.Integration
         {
             var sequence = SequenceProvider.GetSequence("DB_TEST_SEQUENCE_7").UnwrapSome();
 
-            Assert.AreEqual(OracleNumberMaxValue, sequence.MaxValue);
+            Assert.AreEqual(OracleNumberMaxValue, sequence.MaxValue.UnwrapSome());
         }
 
         [Test]

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
+using LanguageExt;
 using SJP.Schematic.Core.Extensions;
 using SJP.Schematic.Core.Utilities;
 
@@ -12,8 +13,8 @@ namespace SJP.Schematic.Core
             Identifier sequenceName,
             decimal start,
             decimal increment,
-            decimal? minValue,
-            decimal? maxValue,
+            Option<decimal> minValue,
+            Option<decimal> maxValue,
             bool cycle,
             int cacheSize
         )
@@ -27,17 +28,23 @@ namespace SJP.Schematic.Core
 
             if (increment > 0)
             {
-                if (minValue.HasValue && minValue > start)
-                    throw new ArgumentException("When a minimum value and positive increment is provided, the minimum value must not be larger than the starting value.", nameof(minValue));
-                if (maxValue.HasValue && maxValue < start)
-                    throw new ArgumentException("When a maximum value and positive increment is provided, the maximum value must not be less than the starting value.", nameof(maxValue));
+                minValue
+                    .Where(mv => mv > start)
+                    .IfSome(_ => throw new ArgumentException("When a minimum value and positive increment is provided, the minimum value must not be larger than the starting value.", nameof(minValue)));
+
+                maxValue
+                    .Where(mv => mv < start)
+                    .IfSome(_ => throw new ArgumentException("When a maximum value and positive increment is provided, the maximum value must not be less than the starting value.", nameof(maxValue)));
             }
             else
             {
-                if (minValue.HasValue && minValue < start)
-                    throw new ArgumentException("When a minimum value and negative increment is provided, the minimum value must not be less than the starting value.", nameof(minValue));
-                if (maxValue.HasValue && maxValue > start)
-                    throw new ArgumentException("When a maximum value and negative increment is provided, the maximum value must not be larger than the starting value.", nameof(maxValue));
+                minValue
+                    .Where(mv => mv < start)
+                    .IfSome(_ => throw new ArgumentException("When a minimum value and negative increment is provided, the minimum value must not be less than the starting value.", nameof(minValue)));
+
+                maxValue
+                    .Where(mv => mv > start)
+                    .IfSome(_ => throw new ArgumentException("When a maximum value and negative increment is provided, the maximum value must not be larger than the starting value.", nameof(maxValue)));
             }
 
             if (cacheSize < 0)
@@ -57,9 +64,9 @@ namespace SJP.Schematic.Core
 
         public decimal Increment { get; }
 
-        public decimal? MaxValue { get; }
+        public Option<decimal> MaxValue { get; }
 
-        public decimal? MinValue { get; }
+        public Option<decimal> MinValue { get; }
 
         public decimal Start { get; }
 
