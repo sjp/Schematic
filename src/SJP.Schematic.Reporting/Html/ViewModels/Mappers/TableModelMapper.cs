@@ -192,14 +192,12 @@ namespace SJP.Schematic.Reporting.Html.ViewModels.Mappers
         private async Task<Table> MapAsyncCore(IRelationalDatabaseTable table)
         {
             var rowCount = await Connection.GetRowCountAsync(Dialect, table.Name).ConfigureAwait(false);
-            var dbColumns = await table.ColumnsAsync().ConfigureAwait(false);
-            var tableColumns = dbColumns.Select((c, i) => new { Column = c, Ordinal = i + 1 }).ToList();
-            var primaryKey = await table.PrimaryKeyAsync().ConfigureAwait(false);
-            var uniqueKeys = await table.UniqueKeysAsync().ConfigureAwait(false);
-            var parentKeys = await table.ParentKeysAsync().ConfigureAwait(false);
-            var childKeys = await table.ChildKeysAsync().ConfigureAwait(false);
-            var checks = await table.ChecksAsync().ConfigureAwait(false);
-            var tableIndexes = await table.IndexesAsync().ConfigureAwait(false);
+            var tableColumns = table.Columns.Select((c, i) => new { Column = c, Ordinal = i + 1 }).ToList();
+            var primaryKey = table.PrimaryKey;
+            var uniqueKeys = table.UniqueKeys.ToList();
+            var parentKeys = table.ParentKeys.ToList();
+            var childKeys = table.ChildKeys.ToList();
+            var checks = table.Checks.ToList();
 
             var columns = new List<Table.Column>();
             foreach (var tableColumn in tableColumns)
@@ -277,6 +275,7 @@ namespace SJP.Schematic.Reporting.Html.ViewModels.Mappers
                 columns.Add(column);
             }
 
+            var tableIndexes = table.Indexes.ToList();
             var mappedIndexes = tableIndexes.Select(index =>
                 new Table.Index(
                     index.Name?.LocalName,

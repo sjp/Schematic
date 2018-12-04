@@ -182,19 +182,6 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
         }
 
         [Test]
-        public async Task DefinitionAsync_PropertyGet_ReturnsCorrectDefinition()
-        {
-            var viewName = new Identifier(IdentifierDefaults.Schema, "view_test_view_1");
-            var view = await ViewProvider.GetViewAsync(viewName).UnwrapSomeAsync().ConfigureAwait(false);
-
-            var definition = await view.DefinitionAsync().ConfigureAwait(false);
-            const string expected = "create view view_test_view_1 as select 1 as test";
-
-            var definitionEqual = string.Equals(expected, definition, StringComparison.OrdinalIgnoreCase);
-            Assert.IsTrue(definitionEqual);
-        }
-
-        [Test]
         public void IsIndexed_WhenViewIsNotIndexed_ReturnsFalse()
         {
             var viewName = new Identifier(IdentifierDefaults.Schema, "view_test_view_1");
@@ -209,17 +196,6 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
             var viewName = new Identifier(IdentifierDefaults.Schema, "view_test_view_1");
             var view = ViewProvider.GetView(viewName).UnwrapSome();
             var indexCount = view.Indexes.Count;
-
-            Assert.Zero(indexCount);
-        }
-
-        [Test]
-        public async Task IndexesAsync_WhenViewIsNotIndexed_ReturnsEmptyCollection()
-        {
-            var viewName = new Identifier(IdentifierDefaults.Schema, "view_test_view_1");
-            var view = await ViewProvider.GetViewAsync(viewName).UnwrapSomeAsync().ConfigureAwait(false);
-            var indexes = await view.IndexesAsync().ConfigureAwait(false);
-            var indexCount = indexes.Count;
 
             Assert.Zero(indexCount);
         }
@@ -245,28 +221,6 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
         }
 
         [Test]
-        public async Task ColumnsAsync_WhenViewContainsSingleColumn_ContainsOneValueOnly()
-        {
-            var viewName = new Identifier(IdentifierDefaults.Schema, "view_test_view_1");
-            var view = await ViewProvider.GetViewAsync(viewName).UnwrapSomeAsync().ConfigureAwait(false);
-            var columns = await view.ColumnsAsync().ConfigureAwait(false);
-            var columnCount = columns.Count;
-
-            Assert.AreEqual(1, columnCount);
-        }
-
-        [Test]
-        public async Task ColumnsAsync_WhenViewContainsSingleColumn_ContainsColumnName()
-        {
-            var viewName = new Identifier(IdentifierDefaults.Schema, "view_test_view_1");
-            var view = await ViewProvider.GetViewAsync(viewName).UnwrapSomeAsync().ConfigureAwait(false);
-            var columns = await view.ColumnsAsync().ConfigureAwait(false);
-            var containsColumn = columns.Any(c => c.Name == "test");
-
-            Assert.IsTrue(containsColumn);
-        }
-
-        [Test]
         public void Columns_WhenViewContainsUnnamedColumns_ContainsCorrectNumberOfColumns()
         {
             var viewName = new Identifier(IdentifierDefaults.Schema, "view_test_view_2");
@@ -282,30 +236,6 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
             var viewName = new Identifier(IdentifierDefaults.Schema, "view_test_view_2");
             var view = ViewProvider.GetView(viewName).UnwrapSome();
             var columnTypes = view.Columns.Select(c => c.Type.DataType).ToList();
-            var expectedTypes = new[] { DataType.BigInteger, DataType.Float, DataType.UnicodeText, DataType.LargeBinary };
-
-            var typesEqual = columnTypes.SequenceEqual(expectedTypes);
-            Assert.IsTrue(typesEqual);
-        }
-
-        [Test]
-        public async Task ColumnsAsync_WhenViewContainsUnnamedColumns_ContainsCorrectNumberOfColumns()
-        {
-            var viewName = new Identifier(IdentifierDefaults.Schema, "view_test_view_2");
-            var view = await ViewProvider.GetViewAsync(viewName).UnwrapSomeAsync().ConfigureAwait(false);
-            var columns = await view.ColumnsAsync().ConfigureAwait(false);
-            var columnCount = columns.Count;
-
-            Assert.AreEqual(4, columnCount);
-        }
-
-        [Test]
-        public async Task ColumnsAsync_WhenViewContainsUnnamedColumns_ContainsCorrectTypesForColumns()
-        {
-            var viewName = new Identifier(IdentifierDefaults.Schema, "view_test_view_2");
-            var view = await ViewProvider.GetViewAsync(viewName).UnwrapSomeAsync().ConfigureAwait(false);
-            var columns = await view.ColumnsAsync().ConfigureAwait(false);
-            var columnTypes = columns.Select(c => c.Type.DataType).ToList();
             var expectedTypes = new[] { DataType.BigInteger, DataType.Float, DataType.UnicodeText, DataType.LargeBinary };
 
             var typesEqual = columnTypes.SequenceEqual(expectedTypes);
@@ -335,30 +265,6 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
         }
 
         [Test]
-        public async Task ColumnsAsync_WhenViewContainsUnnamedColumnsAndTableColumn_ContainsCorrectNumberOfColumns()
-        {
-            var viewName = new Identifier(IdentifierDefaults.Schema, "view_test_view_3");
-            var view = await ViewProvider.GetViewAsync(viewName).UnwrapSomeAsync().ConfigureAwait(false);
-            var columns = await view.ColumnsAsync().ConfigureAwait(false);
-            var columnCount = columns.Count;
-
-            Assert.AreEqual(5, columnCount);
-        }
-
-        [Test]
-        public async Task ColumnsAsync_WhenViewContainsUnnamedColumnsAndTableColumn_ContainsCorrectTypesForColumns()
-        {
-            var viewName = new Identifier(IdentifierDefaults.Schema, "view_test_view_3");
-            var view = await ViewProvider.GetViewAsync(viewName).UnwrapSomeAsync().ConfigureAwait(false);
-            var columns = await view.ColumnsAsync().ConfigureAwait(false);
-            var columnTypes = columns.Select(c => c.Type.DataType).ToList();
-            var expectedTypes = new[] { DataType.Numeric, DataType.Numeric, DataType.Numeric, DataType.Numeric, DataType.BigInteger };
-
-            var typesEqual = columnTypes.SequenceEqual(expectedTypes);
-            Assert.IsTrue(typesEqual);
-        }
-
-        [Test]
         public void Columns_WhenViewContainsDuplicatedUnnamedColumns_ContainsCorrectNumberOfColumns()
         {
             var viewName = new Identifier(IdentifierDefaults.Schema, "view_test_view_4");
@@ -374,30 +280,6 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
             var viewName = new Identifier(IdentifierDefaults.Schema, "view_test_view_4");
             var view = ViewProvider.GetView(viewName).UnwrapSome();
             var columnTypes = view.Columns.Select(c => c.Type.DataType).ToList();
-            var expectedTypes = new[] { DataType.BigInteger, DataType.BigInteger, DataType.BigInteger, DataType.BigInteger };
-
-            var typesEqual = columnTypes.SequenceEqual(expectedTypes);
-            Assert.IsTrue(typesEqual);
-        }
-
-        [Test]
-        public async Task ColumnsAsync_WhenViewContainsDuplicatedUnnamedColumns_ContainsCorrectNumberOfColumns()
-        {
-            var viewName = new Identifier(IdentifierDefaults.Schema, "view_test_view_4");
-            var view = await ViewProvider.GetViewAsync(viewName).UnwrapSomeAsync().ConfigureAwait(false);
-            var columns = await view.ColumnsAsync().ConfigureAwait(false);
-            var columnCount = columns.Count;
-
-            Assert.AreEqual(4, columnCount);
-        }
-
-        [Test]
-        public async Task ColumnsAsync_WhenViewContainsDuplicatedUnnamedColumns_ContainsCorrectTypesForColumns()
-        {
-            var viewName = new Identifier(IdentifierDefaults.Schema, "view_test_view_4");
-            var view = await ViewProvider.GetViewAsync(viewName).UnwrapSomeAsync().ConfigureAwait(false);
-            var columns = await view.ColumnsAsync().ConfigureAwait(false);
-            var columnTypes = columns.Select(c => c.Type.DataType).ToList();
             var expectedTypes = new[] { DataType.BigInteger, DataType.BigInteger, DataType.BigInteger, DataType.BigInteger };
 
             var typesEqual = columnTypes.SequenceEqual(expectedTypes);

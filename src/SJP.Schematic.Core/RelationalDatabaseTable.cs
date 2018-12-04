@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Threading;
-using System.Threading.Tasks;
 using SJP.Schematic.Core.Extensions;
 using SJP.Schematic.Core.Utilities;
 
@@ -54,35 +52,19 @@ namespace SJP.Schematic.Core
 
         public IDatabaseKey PrimaryKey { get; }
 
-        public Task<IDatabaseKey> PrimaryKeyAsync(CancellationToken cancellationToken = default(CancellationToken)) => Task.FromResult(PrimaryKey);
-
         public IReadOnlyCollection<IDatabaseIndex> Indexes { get; }
-
-        public Task<IReadOnlyCollection<IDatabaseIndex>> IndexesAsync(CancellationToken cancellationToken = default(CancellationToken)) => Task.FromResult(Indexes);
 
         public IReadOnlyCollection<IDatabaseKey> UniqueKeys { get; }
 
-        public Task<IReadOnlyCollection<IDatabaseKey>> UniqueKeysAsync(CancellationToken cancellationToken = default(CancellationToken)) => Task.FromResult(UniqueKeys);
-
         public IReadOnlyCollection<IDatabaseRelationalKey> ChildKeys { get; }
-
-        public Task<IReadOnlyCollection<IDatabaseRelationalKey>> ChildKeysAsync(CancellationToken cancellationToken = default(CancellationToken)) => Task.FromResult(ChildKeys);
 
         public IReadOnlyCollection<IDatabaseCheckConstraint> Checks { get; }
 
-        public Task<IReadOnlyCollection<IDatabaseCheckConstraint>> ChecksAsync(CancellationToken cancellationToken = default(CancellationToken)) => Task.FromResult(Checks);
-
         public IReadOnlyCollection<IDatabaseRelationalKey> ParentKeys { get; }
-
-        public Task<IReadOnlyCollection<IDatabaseRelationalKey>> ParentKeysAsync(CancellationToken cancellationToken = default(CancellationToken)) => Task.FromResult(ParentKeys);
 
         public IReadOnlyList<IDatabaseColumn> Columns { get; }
 
-        public Task<IReadOnlyList<IDatabaseColumn>> ColumnsAsync(CancellationToken cancellationToken = default(CancellationToken)) => Task.FromResult(Columns);
-
         public IReadOnlyCollection<IDatabaseTrigger> Triggers { get; }
-
-        public Task<IReadOnlyCollection<IDatabaseTrigger>> TriggersAsync(CancellationToken cancellationToken = default(CancellationToken)) => Task.FromResult(Triggers);
 
         public override string ToString() => "Table: " + Name.ToString();
 

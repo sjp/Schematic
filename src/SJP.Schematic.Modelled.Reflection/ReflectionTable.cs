@@ -2,8 +2,6 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 using SJP.Schematic.Core;
 using SJP.Schematic.Core.Extensions;
 using SJP.Schematic.Core.Utilities;
@@ -22,7 +20,6 @@ namespace SJP.Schematic.Modelled.Reflection
             TypeProvider = new ReflectionTableTypeProvider(Dialect, InstanceType);
 
             _columns = new Lazy<IReadOnlyList<IDatabaseColumn>>(LoadColumnList);
-            _columnLookup = new Lazy<IReadOnlyDictionary<Identifier, IDatabaseColumn>>(LoadColumns);
             _checkLookup = new Lazy<IReadOnlyDictionary<Identifier, IDatabaseCheckConstraint>>(LoadChecks);
             _uniqueKeyLookup = new Lazy<IReadOnlyDictionary<Identifier, IDatabaseKey>>(LoadUniqueKeys);
             _indexLookup = new Lazy<IReadOnlyDictionary<Identifier, IDatabaseIndex>>(LoadIndexes);
@@ -189,19 +186,6 @@ namespace SJP.Schematic.Modelled.Reflection
             return result;
         }
 
-        private IReadOnlyDictionary<Identifier, IDatabaseColumn> LoadColumns()
-        {
-            var result = new Dictionary<Identifier, IDatabaseColumn>();
-
-            foreach (var column in TypeProvider.Columns)
-            {
-                var col = GetColumn(column);
-                result[col.Name.LocalName] = col;
-            }
-
-            return result;
-        }
-
         public IReadOnlyCollection<IDatabaseCheckConstraint> Checks => new ReadOnlyCollectionSlim<IDatabaseCheckConstraint>(_checkLookup.Value.Count, _checkLookup.Value.Values);
 
         public IReadOnlyCollection<IDatabaseRelationalKey> ChildKeys => _childKeys.Value;
@@ -222,39 +206,7 @@ namespace SJP.Schematic.Modelled.Reflection
 
         public IReadOnlyCollection<IDatabaseKey> UniqueKeys => new ReadOnlyCollectionSlim<IDatabaseKey>(_uniqueKeyLookup.Value.Count, _uniqueKeyLookup.Value.Values);
 
-        public Task<IReadOnlyCollection<IDatabaseCheckConstraint>> ChecksAsync(CancellationToken cancellationToken = default(CancellationToken)) => Task.FromResult<IReadOnlyCollection<IDatabaseCheckConstraint>>(
-            new ReadOnlyCollectionSlim<IDatabaseCheckConstraint>(_checkLookup.Value.Count, _checkLookup.Value.Values)
-        );
-
-        public Task<IReadOnlyCollection<IDatabaseRelationalKey>> ChildKeysAsync(CancellationToken cancellationToken = default(CancellationToken)) => Task.FromResult(_childKeys.Value);
-
-        public Task<IReadOnlyList<IDatabaseColumn>> ColumnsAsync(CancellationToken cancellationToken = default(CancellationToken))
-        {
-            var result = _columnLookup.Value.Values.ToList().AsReadOnly();
-            return Task.FromResult<IReadOnlyList<IDatabaseColumn>>(result);
-        }
-
-        public Task<IReadOnlyCollection<IDatabaseIndex>> IndexesAsync(CancellationToken cancellationToken = default(CancellationToken)) => Task.FromResult<IReadOnlyCollection<IDatabaseIndex>>(
-            new ReadOnlyCollectionSlim<IDatabaseIndex>(_indexLookup.Value.Count, _indexLookup.Value.Values)
-        );
-
-        public Task<IReadOnlyCollection<IDatabaseRelationalKey>> ParentKeysAsync(CancellationToken cancellationToken = default(CancellationToken)) => Task.FromResult<IReadOnlyCollection<IDatabaseRelationalKey>>(
-            new ReadOnlyCollectionSlim<IDatabaseRelationalKey>(_parentKeyLookup.Value.Count, _parentKeyLookup.Value.Values)
-        );
-
-        public Task<IDatabaseKey> PrimaryKeyAsync(CancellationToken cancellationToken = default(CancellationToken)) => Task.FromResult(_primaryKey.Value);
-
-        public Task<IReadOnlyCollection<IDatabaseTrigger>> TriggersAsync(CancellationToken cancellationToken = default(CancellationToken))
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task<IReadOnlyCollection<IDatabaseKey>> UniqueKeysAsync(CancellationToken cancellationToken = default(CancellationToken)) => Task.FromResult<IReadOnlyCollection<IDatabaseKey>>(
-            new ReadOnlyCollectionSlim<IDatabaseKey>(_uniqueKeyLookup.Value.Count, _uniqueKeyLookup.Value.Values)
-        );
-
         private readonly Lazy<IReadOnlyList<IDatabaseColumn>> _columns;
-        private readonly Lazy<IReadOnlyDictionary<Identifier, IDatabaseColumn>> _columnLookup;
         private readonly Lazy<IReadOnlyDictionary<Identifier, IDatabaseKey>> _uniqueKeyLookup;
         private readonly Lazy<IReadOnlyDictionary<Identifier, IDatabaseCheckConstraint>> _checkLookup;
         private readonly Lazy<IReadOnlyDictionary<Identifier, IDatabaseIndex>> _indexLookup;

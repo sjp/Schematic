@@ -62,8 +62,7 @@ namespace SJP.Schematic.Reporting.Html.Renderers
 
             foreach (var table in tables)
             {
-                var tableIndexes = await table.IndexesAsync().ConfigureAwait(false);
-                var mappedIndexes = tableIndexes.Select(i => mapper.Map(table.Name, i));
+                var mappedIndexes = table.Indexes.Select(i => mapper.Map(table.Name, i));
                 allIndexes.AddRange(mappedIndexes);
             }
 

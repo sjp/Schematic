@@ -59,7 +59,7 @@ namespace SJP.Schematic.Reporting.Html.Renderers
 
             var viewTasks = views.Select(async view =>
             {
-                var viewModel = await mapper.MapAsync(view).ConfigureAwait(false);
+                var viewModel = mapper.Map(view);
                 var renderedView = Formatter.RenderTemplate(viewModel);
 
                 var viewContainer = new Container(renderedView, Database.DatabaseName, "../");

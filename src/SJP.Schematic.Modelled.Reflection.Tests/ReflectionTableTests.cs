@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Linq;
-using System.Threading.Tasks;
 using Moq;
 using NUnit.Framework;
 using SJP.Schematic.Core;
@@ -68,17 +67,6 @@ namespace SJP.Schematic.Modelled.Reflection.Tests
         }
 
         [Test]
-        public static async Task ColumnsAsync_GivenTableWithNoColumns_ReturnsEmptyResult()
-        {
-            var database = new ReflectionRelationalDatabase<TestDatabase2>(new FakeDialect());
-            var table = new ReflectionTable(database, typeof(TestTable2));
-            var columns = await table.ColumnsAsync().ConfigureAwait(false);
-            var count = columns.Count;
-
-            Assert.Zero(count);
-        }
-
-        [Test]
         public static void Columns_GivenTableWithOneColumn_ReturnsOneResult()
         {
             var database = new ReflectionRelationalDatabase<TestDatabase1>(new FakeDialect());
@@ -90,34 +78,11 @@ namespace SJP.Schematic.Modelled.Reflection.Tests
         }
 
         [Test]
-        public static async Task ColumnsAsync_GivenTableWithOneColumn_ReturnsOneResult()
-        {
-            var database = new ReflectionRelationalDatabase<TestDatabase1>(new FakeDialect());
-            var table = new ReflectionTable(database, typeof(TestTable1));
-            var columns = await table.ColumnsAsync().ConfigureAwait(false);
-            var count = columns.Count;
-
-            Assert.AreEqual(1, count);
-        }
-
-        [Test]
         public static void Columns_GivenTableWithOneColumn_ReturnsColumnWithCorrectName()
         {
             var database = new ReflectionRelationalDatabase<TestDatabase1>(new FakeDialect());
             var table = new ReflectionTable(database, typeof(TestTable1));
             var columns = table.Columns;
-            var column = columns.Single();
-            Identifier expectedName = "TEST_COLUMN_1";
-
-            Assert.AreEqual(expectedName, column.Name);
-        }
-
-        [Test]
-        public static async Task ColumnsAsync_GivenTableWithOneColumn_ReturnsColumnWithCorrectName()
-        {
-            var database = new ReflectionRelationalDatabase<TestDatabase1>(new FakeDialect());
-            var table = new ReflectionTable(database, typeof(TestTable1));
-            var columns = await table.ColumnsAsync().ConfigureAwait(false);
             var column = columns.Single();
             Identifier expectedName = "TEST_COLUMN_1";
 

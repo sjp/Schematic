@@ -386,7 +386,7 @@ end").ConfigureAwait(false);
         }
 
         [Test]
-        public async Task TableExistsAsync_WhenTablePresentGivenLocalNameNameWithDifferentCase_ReturnsMatchingName()
+        public async Task GetTableAsync_WhenTablePresentGivenLocalNameNameWithDifferentCase_ReturnsMatchingName()
         {
             var inputName = new Identifier("DB_TEST_table_1");
             var table = await TableProvider.GetTableAsync(inputName).UnwrapSomeAsync().ConfigureAwait(false);
@@ -396,7 +396,7 @@ end").ConfigureAwait(false);
         }
 
         [Test]
-        public async Task TableExistsAsync_WhenTablePresentGivenQualifiedNameNameWithDifferentCase_ReturnsMatchingName()
+        public async Task GetTableAsync_WhenTablePresentGivenQualifiedNameNameWithDifferentCase_ReturnsMatchingName()
         {
             var inputName = new Identifier("Main", "DB_TEST_table_1");
             var table = await TableProvider.GetTableAsync(inputName).UnwrapSomeAsync().ConfigureAwait(false);

@@ -237,14 +237,14 @@ namespace SJP.Schematic.Reporting.Dot
                 var tableName = table.Name.ToVisibleName();
                 var nodeIdentifier = new DotIdentifier(tableIdentifier);
 
-                var tableColumns = await table.ColumnsAsync().ConfigureAwait(false);
+                var tableColumns = table.Columns;
                 var columnNames = tableColumns.Select(c => c.Name.LocalName).ToList();
                 var columnTypes = tableColumns.Select(c => c.Type.Definition).ToList();
 
-                var primaryKey = await table.PrimaryKeyAsync().ConfigureAwait(false);
-                var uniqueKeys = await table.UniqueKeysAsync().ConfigureAwait(false);
-                var childKeys = await table.ChildKeysAsync().ConfigureAwait(false);
-                var parentKeys = await table.ParentKeysAsync().ConfigureAwait(false);
+                var primaryKey = table.PrimaryKey;
+                var uniqueKeys = table.UniqueKeys;
+                var childKeys = table.ChildKeys;
+                var parentKeys = table.ParentKeys;
 
                 var keyColumnNames = uniqueKeys
                     .Concat(parentKeys.Select(fk => fk.ChildKey))

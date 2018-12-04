@@ -1,7 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Threading;
-using System.Threading.Tasks;
 using SJP.Schematic.Core;
 
 namespace SJP.Schematic.Modelled.Reflection
@@ -17,8 +15,6 @@ namespace SJP.Schematic.Modelled.Reflection
         protected Type ViewType { get; }
 
         public string Definition => throw new NotImplementedException();
-
-        public Task<string> DefinitionAsync(CancellationToken cancellationToken = default(CancellationToken)) => throw new NotImplementedException();
 
         public IReadOnlyList<IDatabaseColumn> Columns
         {
@@ -45,15 +41,5 @@ namespace SJP.Schematic.Modelled.Reflection
         }
 
         public Identifier Name { get; }
-
-        public Task<IReadOnlyList<IDatabaseColumn>> ColumnsAsync(CancellationToken cancellationToken = default(CancellationToken))
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task<IReadOnlyCollection<IDatabaseIndex>> IndexesAsync(CancellationToken cancellationToken = default(CancellationToken))
-        {
-            throw new NotImplementedException();
-        }
     }
 }

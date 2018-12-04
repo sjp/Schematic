@@ -258,18 +258,6 @@ namespace SJP.Schematic.Oracle.Tests.Integration
         }
 
         [Test]
-        public async Task DefinitionAsync_PropertyGet_ReturnsCorrectDefinition()
-        {
-            var viewName = new Identifier(IdentifierDefaults.Schema, "VIEW_TEST_VIEW_1");
-            var view = await ViewProvider.GetViewAsync(viewName).UnwrapSomeAsync().ConfigureAwait(false);
-
-            var definition = await view.DefinitionAsync().ConfigureAwait(false);
-            const string expected = "select 1 as test from dual";
-
-            Assert.AreEqual(expected, definition);
-        }
-
-        [Test]
         public void IsIndexed_WhenViewIsNotIndexed_ReturnsFalse()
         {
             var view = ViewProvider.GetView("VIEW_TEST_VIEW_1").UnwrapSome();
@@ -282,16 +270,6 @@ namespace SJP.Schematic.Oracle.Tests.Integration
         {
             var view = ViewProvider.GetView("VIEW_TEST_VIEW_1").UnwrapSome();
             var indexCount = view.Indexes.Count;
-
-            Assert.Zero(indexCount);
-        }
-
-        [Test]
-        public async Task IndexesAsync_WhenViewIsNotIndexed_ReturnsEmptyCollection()
-        {
-            var view = await ViewProvider.GetViewAsync("VIEW_TEST_VIEW_1").UnwrapSomeAsync().ConfigureAwait(false);
-            var indexes = await view.IndexesAsync().ConfigureAwait(false);
-            var indexCount = indexes.Count;
 
             Assert.Zero(indexCount);
         }
@@ -318,30 +296,6 @@ namespace SJP.Schematic.Oracle.Tests.Integration
             Assert.IsTrue(containsColumn);
         }
 
-        [Test]
-        public async Task ColumnsAsync_WhenViewContainsSingleColumn_ContainsOneValueOnly()
-        {
-            var viewName = new Identifier(IdentifierDefaults.Schema, "VIEW_TEST_VIEW_1");
-            var view = await ViewProvider.GetViewAsync(viewName).UnwrapSomeAsync().ConfigureAwait(false);
-            var columns = await view.ColumnsAsync().ConfigureAwait(false);
-            var columnCount = columns.Count;
-
-            Assert.AreEqual(1, columnCount);
-        }
-
-        [Test]
-        public async Task ColumnsAsync_WhenViewContainsSingleColumn_ContainsColumnName()
-        {
-            const string expectedColumnName = "TEST";
-
-            var viewName = new Identifier(IdentifierDefaults.Schema, "VIEW_TEST_VIEW_1");
-            var view = await ViewProvider.GetViewAsync(viewName).UnwrapSomeAsync().ConfigureAwait(false);
-            var columns = await view.ColumnsAsync().ConfigureAwait(false);
-            var containsColumn = columns.Any(c => c.Name == expectedColumnName);
-
-            Assert.IsTrue(containsColumn);
-        }
-
         // TODO: uncomment when materialized view support is available
         /*
         [Test]
@@ -362,32 +316,11 @@ namespace SJP.Schematic.Oracle.Tests.Integration
         }
 
         [Test]
-        public async Task IndexesAsync_WhenViewHasSingleIndex_ContainsOneValueOnly()
-        {
-            var view = await ViewProvider.GetViewAsync("VIEW_TEST_VIEW_2").UnwrapSomeAsync().ConfigureAwait(false);
-            var indexes = await view.IndexesAsync().ConfigureAwait(false);
-            var indexCount = indexes.Count;
-
-            Assert.AreEqual(1, indexCount);
-        }
-
-        [Test]
         public void Indexes_WhenViewHasSingleIndex_ContainsIndexName()
         {
             const string indexName = "IX_VIEW_TEST_VIEW_2";
             var view = ViewProvider.GetView("VIEW_TEST_VIEW_2").UnwrapSome();
             var containsIndex = view.Indexes.Any(i => i.Name == indexName);
-
-            Assert.IsTrue(containsIndex);
-        }
-
-        [Test]
-        public async Task IndexesAsync_WhenViewHasSingleIndex_ContainsIndexName()
-        {
-            const string indexName = "IX_VIEW_TEST_VIEW_2";
-            var view = await ViewProvider.GetViewAsync("VIEW_TEST_VIEW_2").UnwrapSomeAsync().ConfigureAwait(false);
-            var indexes = await view.IndexesAsync().ConfigureAwait(false);
-            var containsIndex = indexes.Any(i => i.Name == indexName);
 
             Assert.IsTrue(containsIndex);
         }

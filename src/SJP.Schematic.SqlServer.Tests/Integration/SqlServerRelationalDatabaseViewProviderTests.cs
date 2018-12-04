@@ -298,18 +298,6 @@ namespace SJP.Schematic.SqlServer.Tests.Integration
         }
 
         [Test]
-        public async Task DefinitionAsync_PropertyGet_ReturnsCorrectDefinition()
-        {
-            var viewName = new Identifier(IdentifierDefaults.Schema, "view_test_view_1");
-            var view = await ViewProvider.GetViewAsync(viewName).UnwrapSomeAsync().ConfigureAwait(false);
-
-            var definition = await view.DefinitionAsync().ConfigureAwait(false);
-            const string expected = "create view view_test_view_1 as select 1 as test";
-
-            Assert.AreEqual(expected, definition);
-        }
-
-        [Test]
         public void IsIndexed_WhenViewIsNotIndexed_ReturnsFalse()
         {
             var view = ViewProvider.GetView("view_test_view_1").UnwrapSome();
@@ -322,16 +310,6 @@ namespace SJP.Schematic.SqlServer.Tests.Integration
         {
             var view = ViewProvider.GetView("view_test_view_1").UnwrapSome();
             var indexCount = view.Indexes.Count;
-
-            Assert.Zero(indexCount);
-        }
-
-        [Test]
-        public async Task IndexesAsync_WhenViewIsNotIndexed_ReturnsEmptyCollection()
-        {
-            var view = await ViewProvider.GetViewAsync("view_test_view_1").UnwrapSomeAsync().ConfigureAwait(false);
-            var indexes = await view.IndexesAsync().ConfigureAwait(false);
-            var indexCount = indexes.Count;
 
             Assert.Zero(indexCount);
         }
@@ -357,28 +335,6 @@ namespace SJP.Schematic.SqlServer.Tests.Integration
         }
 
         [Test]
-        public async Task ColumnsAsync_WhenViewContainsSingleColumn_ContainsOneValueOnly()
-        {
-            var viewName = new Identifier(IdentifierDefaults.Schema, "view_test_view_1");
-            var view = await ViewProvider.GetViewAsync(viewName).UnwrapSomeAsync().ConfigureAwait(false);
-            var columns = await view.ColumnsAsync().ConfigureAwait(false);
-            var columnCount = columns.Count;
-
-            Assert.AreEqual(1, columnCount);
-        }
-
-        [Test]
-        public async Task ColumnsAsync_WhenViewContainsSingleColumn_ContainsColumnName()
-        {
-            var viewName = new Identifier(IdentifierDefaults.Schema, "view_test_view_1");
-            var view = await ViewProvider.GetViewAsync(viewName).UnwrapSomeAsync().ConfigureAwait(false);
-            var columns = await view.ColumnsAsync().ConfigureAwait(false);
-            var containsColumn = columns.Any(c => c.Name == "test");
-
-            Assert.IsTrue(containsColumn);
-        }
-
-        [Test]
         public void IsIndexed_WhenViewHasSingleIndex_ReturnsTrue()
         {
             var viewName = new Identifier(IdentifierDefaults.Schema, "view_test_view_2");
@@ -398,35 +354,12 @@ namespace SJP.Schematic.SqlServer.Tests.Integration
         }
 
         [Test]
-        public async Task IndexesAsync_WhenViewHasSingleIndex_ContainsOneValueOnly()
-        {
-            var viewName = new Identifier(IdentifierDefaults.Schema, "view_test_view_2");
-            var view = await ViewProvider.GetViewAsync(viewName).UnwrapSomeAsync().ConfigureAwait(false);
-            var indexes = await view.IndexesAsync().ConfigureAwait(false);
-            var indexCount = indexes.Count;
-
-            Assert.AreEqual(1, indexCount);
-        }
-
-        [Test]
         public void Indexes_WhenViewHasSingleIndex_ContainsIndexName()
         {
             Identifier indexName = "ix_view_test_view_2";
             var viewName = new Identifier(IdentifierDefaults.Schema, "view_test_view_2");
             var view = ViewProvider.GetView(viewName).UnwrapSome();
             var containsIndex = view.Indexes.Any(i => i.Name == indexName);
-
-            Assert.IsTrue(containsIndex);
-        }
-
-        [Test]
-        public async Task IndexesAsync_WhenViewHasSingleIndex_ContainsIndexName()
-        {
-            Identifier indexName = "ix_view_test_view_2";
-            var viewName = new Identifier(IdentifierDefaults.Schema, "view_test_view_2");
-            var view = await ViewProvider.GetViewAsync(viewName).UnwrapSomeAsync().ConfigureAwait(false);
-            var indexes = await view.IndexesAsync().ConfigureAwait(false);
-            var containsIndex = indexes.Any(i => i.Name == indexName);
 
             Assert.IsTrue(containsIndex);
         }

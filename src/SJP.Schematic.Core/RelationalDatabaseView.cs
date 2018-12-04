@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Threading;
-using System.Threading.Tasks;
 using SJP.Schematic.Core.Extensions;
 using SJP.Schematic.Core.Utilities;
 
@@ -31,17 +29,11 @@ namespace SJP.Schematic.Core
 
         public string Definition { get; }
 
-        public Task<string> DefinitionAsync(CancellationToken cancellationToken = default(CancellationToken)) => Task.FromResult(Definition);
-
         public bool IsIndexed { get; }
 
         public IReadOnlyCollection<IDatabaseIndex> Indexes { get; }
 
-        public Task<IReadOnlyCollection<IDatabaseIndex>> IndexesAsync(CancellationToken cancellationToken = default(CancellationToken)) => Task.FromResult(Indexes);
-
         public IReadOnlyList<IDatabaseColumn> Columns { get; }
-
-        public Task<IReadOnlyList<IDatabaseColumn>> ColumnsAsync(CancellationToken cancellationToken = default(CancellationToken)) => Task.FromResult(Columns);
 
         public override string ToString() => "View: " + Name.ToString();
 

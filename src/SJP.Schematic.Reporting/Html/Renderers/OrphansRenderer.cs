@@ -56,14 +56,8 @@ namespace SJP.Schematic.Reporting.Html.Renderers
         public async Task RenderAsync()
         {
             var tables = await Database.TablesAsync().ConfigureAwait(false);
-
-            var tableParentKeyCountTasks = tables.Select(t => t.ParentKeysAsync());
-            var tableChildKeyCountTasks = tables.Select(t => t.ChildKeysAsync());
-            var tableParentKeyCounts = await Task.WhenAll(tableParentKeyCountTasks).ConfigureAwait(false);
-            var tableChildKeyCounts = await Task.WhenAll(tableChildKeyCountTasks).ConfigureAwait(false);
-
             var orphanedTables = tables
-                .Where((_, i) => tableParentKeyCounts[i].Empty() && tableChildKeyCounts[i].Empty())
+                .Where(t => t.ParentKeys.Empty() && t.ChildKeys.Empty())
                 .ToList();
 
             var mapper = new OrphansModelMapper(Connection, Database.Dialect);

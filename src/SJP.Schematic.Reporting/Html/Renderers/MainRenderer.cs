@@ -132,17 +132,17 @@ namespace SJP.Schematic.Reporting.Html.Renderers
             {
                 var renderTable = await mapper.MapAsync(table).ConfigureAwait(false);
 
-                var uniqueKeyLookup = await table.GetUniqueKeyLookupAsync().ConfigureAwait(false);
+                var uniqueKeyLookup = table.GetUniqueKeyLookup();
                 var uniqueKeyCount = uniqueKeyLookup.UCount();
 
-                var checksLookup = await table.GetCheckLookupAsync().ConfigureAwait(false);
+                var checksLookup = table.GetCheckLookup();
                 var checksCount = checksLookup.UCount();
 
-                var indexesLookup = await table.GetIndexLookupAsync().ConfigureAwait(false);
+                var indexesLookup = table.GetIndexLookup();
                 var indexCount = indexesLookup.UCount();
                 indexesCount += indexCount;
 
-                var primaryKey = await table.PrimaryKeyAsync().ConfigureAwait(false);
+                var primaryKey = table.PrimaryKey;
                 if (primaryKey != null)
                     constraints++;
 

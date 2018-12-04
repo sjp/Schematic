@@ -29,40 +29,6 @@ namespace SJP.Schematic.Reporting
             return result;
         }
 
-        public static Task<IEnumerable<TResult>> SelectNotNullAsync<T, TResult>(this IEnumerable<T> input, Func<T, Task<TResult>> selector)
-        {
-            if (input == null)
-                throw new ArgumentNullException(nameof(input));
-            if (selector == null)
-                throw new ArgumentNullException(nameof(selector));
-
-            return SelectNotNullAsyncCore(input, selector);
-        }
-
-        private static async Task<IEnumerable<TResult>> SelectNotNullAsyncCore<T, TResult>(IEnumerable<T> input, Func<T, Task<TResult>> selector)
-        {
-            var tasks = input.Select(selector).ToArray();
-            var completedTasks = await Task.WhenAll(tasks).ConfigureAwait(false);
-            return completedTasks.Where(item => !ReferenceEquals(item, null)).ToList();
-        }
-
-        public static Task<IEnumerable<TResult>> SelectManyAsync<T, TResult>(this IEnumerable<T> input, Func<T, Task<IEnumerable<TResult>>> selector)
-        {
-            if (input == null)
-                throw new ArgumentNullException(nameof(input));
-            if (selector == null)
-                throw new ArgumentNullException(nameof(selector));
-
-            return SelectManyAsyncCore(input, selector);
-        }
-
-        private static async Task<IEnumerable<TResult>> SelectManyAsyncCore<T, TResult>(IEnumerable<T> input, Func<T, Task<IEnumerable<TResult>>> selector)
-        {
-            var tasks = input.Select(selector).ToArray();
-            var completedTasks = await Task.WhenAll(tasks).ConfigureAwait(false);
-            return completedTasks.SelectMany(x => x).ToList();
-        }
-
         public static uint UCount<T>(this IReadOnlyCollection<T> collection)
         {
             if (collection == null)

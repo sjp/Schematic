@@ -38,7 +38,7 @@ namespace SJP.Schematic.Reporting.Html.ViewModels.Mappers
 
         private async Task<Orphans.Table> MapAsyncCore(IRelationalDatabaseTable table)
         {
-            var columns = await table.ColumnsAsync().ConfigureAwait(false);
+            var columns = table.Columns;
             var rowCount = await Connection.GetRowCountAsync(Dialect, table.Name).ConfigureAwait(false);
 
             return new Orphans.Table(table.Name, columns.UCount(), rowCount);

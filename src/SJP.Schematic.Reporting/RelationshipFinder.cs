@@ -102,8 +102,8 @@ namespace SJP.Schematic.Reporting
 
             foreach (var table in tables)
             {
-                var childKeys = await table.ChildKeysAsync().ConfigureAwait(false);
-                var parentKeys = await table.ParentKeysAsync().ConfigureAwait(false);
+                var childKeys = table.ChildKeys;
+                var parentKeys = table.ParentKeys;
 
                 foreach (var childKey in childKeys)
                 {
