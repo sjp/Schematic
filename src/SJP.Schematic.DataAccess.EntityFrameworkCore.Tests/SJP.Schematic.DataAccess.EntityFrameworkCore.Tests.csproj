@@ -4,6 +4,7 @@
     <TargetFramework>netcoreapp2.1</TargetFramework>
     <TreatWarningsAsErrors>True</TreatWarningsAsErrors>
     <TreatSpecificWarningsAsErrors />
+    <IsPackable>false</IsPackable>
   </PropertyGroup>
 
   <ItemGroup>
@@ -23,10 +24,6 @@
     <ProjectReference Include="..\SJP.Schematic.DataAccess\SJP.Schematic.DataAccess.csproj" />
     <ProjectReference Include="..\SJP.Schematic.DataAccess.EntityFrameworkCore\SJP.Schematic.DataAccess.EntityFrameworkCore.csproj" />
     <ProjectReference Include="..\SJP.Schematic.Sqlite\SJP.Schematic.Sqlite.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Service Include="{82a7f48d-3b50-4b1e-b82e-3ada8210c358}" />
   </ItemGroup>
 
   <ItemGroup>
