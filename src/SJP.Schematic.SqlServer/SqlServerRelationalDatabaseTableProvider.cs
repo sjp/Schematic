@@ -28,6 +28,8 @@ namespace SJP.Schematic.SqlServer
 
         protected IDbTypeProvider TypeProvider { get; }
 
+        protected IDatabaseDialect Dialect { get; } = new SqlServerDialect();
+
         public IReadOnlyCollection<IRelationalDatabaseTable> Tables
         {
             get
@@ -314,7 +316,13 @@ order by ic.key_ordinal";
                     .OrderBy(row => row.KeyOrdinal)
                     .ThenBy(row => row.IndexColumnId)
                     .Select(row => new { row.IsDescending, Column = columns[row.ColumnName] })
-                    .Select(row => new DatabaseIndexColumn(row.Column, row.IsDescending ? IndexColumnOrder.Descending : IndexColumnOrder.Ascending))
+                    .Select(row =>
+                    {
+                        var order = row.IsDescending ? IndexColumnOrder.Descending : IndexColumnOrder.Ascending;
+                        var column = row.Column;
+                        var expression = Dialect.QuoteName(column.Name);
+                        return new DatabaseIndexColumn(expression, column, order);
+                    })
                     .ToList();
 
                 var includedCols = indexInfo
@@ -363,7 +371,13 @@ order by ic.key_ordinal";
                     .OrderBy(row => row.KeyOrdinal)
                     .ThenBy(row => row.IndexColumnId)
                     .Select(row => new { row.IsDescending, Column = columns[row.ColumnName] })
-                    .Select(row => new DatabaseIndexColumn(row.Column, row.IsDescending ? IndexColumnOrder.Descending : IndexColumnOrder.Ascending))
+                    .Select(row =>
+                    {
+                        var order = row.IsDescending ? IndexColumnOrder.Descending : IndexColumnOrder.Ascending;
+                        var column = row.Column;
+                        var expression = Dialect.QuoteName(column.Name);
+                        return new DatabaseIndexColumn(expression, column, order);
+                    })
                     .ToList();
 
                 var includedCols = indexInfo

@@ -6,8 +6,8 @@ namespace SJP.Schematic.Core
     {
         IndexColumnOrder Order { get; }
 
-        IReadOnlyList<IDatabaseColumn> DependentColumns { get; }
+        string Expression { get; }
 
-        string GetExpression(IDatabaseDialect dialect);
+        IReadOnlyList<IDatabaseColumn> DependentColumns { get; }
     }
 }

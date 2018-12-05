@@ -68,7 +68,7 @@ namespace SJP.Schematic.Lint.Tests.Rules
             var index = new DatabaseIndex(
                 "test_index_name",
                 false,
-                new[] { new DatabaseIndexColumn(testColumn, IndexColumnOrder.Ascending) },
+                new[] { new DatabaseIndexColumn("test_column_1", testColumn, IndexColumnOrder.Ascending) },
                 Array.Empty<IDatabaseColumn>(),
                 true
             );
@@ -108,7 +108,7 @@ namespace SJP.Schematic.Lint.Tests.Rules
             var uniqueIndex = new DatabaseIndex(
                 "test_index_name",
                 true,
-                new[] { new DatabaseIndexColumn(testColumn, IndexColumnOrder.Ascending) },
+                new[] { new DatabaseIndexColumn("test_column_1", testColumn, IndexColumnOrder.Ascending) },
                 Array.Empty<IDatabaseColumn>(),
                 true
             );
@@ -148,7 +148,7 @@ namespace SJP.Schematic.Lint.Tests.Rules
             var uniqueIndex = new DatabaseIndex(
                 "test_index_name",
                 true,
-                new[] { new DatabaseIndexColumn(testColumn, IndexColumnOrder.Ascending) },
+                new[] { new DatabaseIndexColumn("test_column_1", testColumn, IndexColumnOrder.Ascending) },
                 Array.Empty<IDatabaseColumn>(),
                 true
             );

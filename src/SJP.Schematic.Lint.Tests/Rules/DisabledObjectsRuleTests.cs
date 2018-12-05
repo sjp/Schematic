@@ -195,7 +195,7 @@ namespace SJP.Schematic.Lint.Tests.Rules
             var testIndex = new DatabaseIndex(
                 "test_index",
                 true,
-                new[] { new DatabaseIndexColumn(testColumn, IndexColumnOrder.Ascending) },
+                new[] { new DatabaseIndexColumn("test_column", testColumn, IndexColumnOrder.Ascending) },
                 Array.Empty<IDatabaseColumn>(),
                 false
             );

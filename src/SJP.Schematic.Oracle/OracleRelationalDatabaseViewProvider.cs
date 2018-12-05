@@ -32,6 +32,8 @@ namespace SJP.Schematic.Oracle
 
         protected IDbTypeProvider TypeProvider { get; }
 
+        protected IDatabaseDialect Dialect { get; }
+
         public IReadOnlyCollection<IRelationalDatabaseView> Views
         {
             get
@@ -346,7 +348,12 @@ order by atc.COLUMN_ID";
                 var indexCols = indexInfo
                     .OrderBy(row => row.ColumnPosition)
                     .Select(row => new { row.IsDescending, Column = columns[row.ColumnName] })
-                    .Select(row => new DatabaseIndexColumn(row.Column, row.IsDescending == "Y" ? IndexColumnOrder.Descending : IndexColumnOrder.Ascending))
+                    .Select(row =>
+                    {
+                        var order = row.IsDescending == "Y" ? IndexColumnOrder.Descending : IndexColumnOrder.Ascending;
+                        var expression = Dialect.QuoteName(row.Column.Name);
+                        return new DatabaseIndexColumn(expression, row.Column, order);
+                    })
                     .ToList();
 
                 var index = new OracleDatabaseIndex(indexName, isUnique, indexCols, indexProperties);
@@ -388,7 +395,12 @@ order by atc.COLUMN_ID";
                 var indexCols = indexInfo
                     .OrderBy(row => row.ColumnPosition)
                     .Select(row => new { row.IsDescending, Column = columns[row.ColumnName] })
-                    .Select(row => new DatabaseIndexColumn(row.Column, row.IsDescending == "Y" ? IndexColumnOrder.Descending : IndexColumnOrder.Ascending))
+                    .Select(row =>
+                    {
+                        var order = row.IsDescending == "Y" ? IndexColumnOrder.Descending : IndexColumnOrder.Ascending;
+                        var expression = Dialect.QuoteName(row.Column.Name);
+                        return new DatabaseIndexColumn(expression, row.Column, order);
+                    })
                     .ToList();
 
                 var index = new OracleDatabaseIndex(indexName, isUnique, indexCols, indexProperties);

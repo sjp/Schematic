@@ -32,6 +32,8 @@ namespace SJP.Schematic.PostgreSql
 
         protected IDbTypeProvider TypeProvider { get; }
 
+        protected IDatabaseDialect Dialect { get; } = new PostgreSqlDialect();
+
         public IReadOnlyCollection<IRelationalDatabaseTable> Tables
         {
             get
@@ -341,9 +343,16 @@ where tc.table_schema = @SchemaName and tc.table_name = @TableName
                         Expression = row.IndexColumnExpression,
                         Column = columns.ContainsKey(row.IndexColumnExpression) ? columns[row.IndexColumnExpression] : null
                     })
-                    .Select(row => row.Column != null
-                        ? new PostgreSqlDatabaseIndexColumn(row.Column, row.IsDescending ? IndexColumnOrder.Descending : IndexColumnOrder.Ascending)
-                        : new PostgreSqlDatabaseIndexColumn(row.Expression, row.IsDescending ? IndexColumnOrder.Descending : IndexColumnOrder.Ascending))
+                    .Select(row =>
+                    {
+                        var order = row.IsDescending ? IndexColumnOrder.Descending : IndexColumnOrder.Ascending;
+                        var expression = row.Column != null
+                            ? Dialect.QuoteName(row.Column.Name)
+                            : row.Expression;
+                        return row.Column != null
+                            ? new PostgreSqlDatabaseIndexColumn(expression, row.Column, order)
+                            : new PostgreSqlDatabaseIndexColumn(expression, order);
+                    })
                     .ToList();
 
                 var index = new PostgreSqlDatabaseIndex(indexName, isUnique, indexCols);
@@ -387,9 +396,16 @@ where tc.table_schema = @SchemaName and tc.table_name = @TableName
                         Expression = row.IndexColumnExpression,
                         Column = columns.ContainsKey(row.IndexColumnExpression) ? columns[row.IndexColumnExpression] : null
                     })
-                    .Select(row => row.Column != null
-                        ? new PostgreSqlDatabaseIndexColumn(row.Column, row.IsDescending ? IndexColumnOrder.Descending : IndexColumnOrder.Ascending)
-                        : new PostgreSqlDatabaseIndexColumn(row.Expression, row.IsDescending ? IndexColumnOrder.Descending : IndexColumnOrder.Ascending))
+                    .Select(row =>
+                    {
+                        var order = row.IsDescending ? IndexColumnOrder.Descending : IndexColumnOrder.Ascending;
+                        var expression = row.Column != null
+                            ? Dialect.QuoteName(row.Column.Name)
+                            : row.Expression;
+                        return row.Column != null
+                            ? new PostgreSqlDatabaseIndexColumn(expression, row.Column, order)
+                            : new PostgreSqlDatabaseIndexColumn(expression, order);
+                    })
                     .ToList();
 
                 var index = new PostgreSqlDatabaseIndex(indexName, isUnique, indexCols);

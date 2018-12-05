@@ -28,6 +28,8 @@ namespace SJP.Schematic.MySql
 
         protected IDbTypeProvider TypeProvider { get; }
 
+        protected IDatabaseDialect Dialect { get; } = new MySqlDialect();
+
         public IReadOnlyCollection<IRelationalDatabaseTable> Tables
         {
             get
@@ -304,7 +306,11 @@ order by kc.ordinal_position";
                 var indexCols = indexInfo
                     .OrderBy(row => row.ColumnOrdinal)
                     .Select(row => columns[row.ColumnName])
-                    .Select(col => new MySqlDatabaseIndexColumn(col))
+                    .Select(col =>
+                    {
+                        var expression = Dialect.QuoteName(col.Name);
+                        return new MySqlDatabaseIndexColumn(expression, col);
+                    })
                     .ToList();
 
                 var index = new MySqlDatabaseIndex(indexName, isUnique, indexCols);
@@ -344,7 +350,11 @@ order by kc.ordinal_position";
                 var indexCols = indexInfo
                     .OrderBy(row => row.ColumnOrdinal)
                     .Select(row => columns[row.ColumnName])
-                    .Select(col => new MySqlDatabaseIndexColumn(col))
+                    .Select(col =>
+                    {
+                        var expression = Dialect.QuoteName(col.Name);
+                        return new MySqlDatabaseIndexColumn(expression, col);
+                    })
                     .ToList();
 
                 var index = new MySqlDatabaseIndex(indexName, isUnique, indexCols);

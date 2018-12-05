@@ -11,7 +11,7 @@ namespace SJP.Schematic.PostgreSql.Tests
         [Test]
         public static void Ctor_GivenNullExpression_ThrowsArgumentNullException()
         {
-            Assert.Throws<ArgumentNullException>(() => new PostgreSqlDatabaseIndexColumn((string)null, IndexColumnOrder.Ascending));
+            Assert.Throws<ArgumentNullException>(() => new PostgreSqlDatabaseIndexColumn(null, IndexColumnOrder.Ascending));
         }
 
         [Test]
@@ -29,23 +29,35 @@ namespace SJP.Schematic.PostgreSql.Tests
         [Test]
         public static void Ctor_GivenNullColumn_ThrowsArgumentNullException()
         {
-            Assert.Throws<ArgumentNullException>(() => new PostgreSqlDatabaseIndexColumn((IDatabaseColumn)null, IndexColumnOrder.Ascending));
+            Assert.Throws<ArgumentNullException>(() => new PostgreSqlDatabaseIndexColumn("test", null, IndexColumnOrder.Ascending));
         }
 
         [Test]
         public static void Ctor_GivenInvalidColumnOrder_ThrowsArgumentException()
         {
+            const string expression = "\"test\"";
             var column = Mock.Of<IDatabaseColumn>();
             const IndexColumnOrder order = (IndexColumnOrder)55;
 
-            Assert.Throws<ArgumentException>(() => new PostgreSqlDatabaseIndexColumn(column, order));
+            Assert.Throws<ArgumentException>(() => new PostgreSqlDatabaseIndexColumn(expression, column, order));
+        }
+
+        [Test]
+        public static void Expression_PropertyGet_EqualsCtorArg()
+        {
+            const string expression = "\"test\"";
+            var column = Mock.Of<IDatabaseColumn>();
+            var indexColumn = new PostgreSqlDatabaseIndexColumn(expression, column, IndexColumnOrder.Ascending);
+
+            Assert.AreEqual(expression, indexColumn.Expression);
         }
 
         [Test]
         public static void DependentColumns_PropertyGet_EqualsCtorArg()
         {
+            const string expression = "\"test\"";
             var column = Mock.Of<IDatabaseColumn>();
-            var indexColumn = new PostgreSqlDatabaseIndexColumn(column, IndexColumnOrder.Ascending);
+            var indexColumn = new PostgreSqlDatabaseIndexColumn(expression, column, IndexColumnOrder.Ascending);
 
             Assert.Multiple(() =>
             {
@@ -55,36 +67,11 @@ namespace SJP.Schematic.PostgreSql.Tests
         }
 
         [Test]
-        public static void GetExpression_GivenNullDialect_ThrowsArgumentNullException()
-        {
-            var column = Mock.Of<IDatabaseColumn>();
-            var indexColumn = new PostgreSqlDatabaseIndexColumn(column, IndexColumnOrder.Ascending);
-
-            Assert.Throws<ArgumentNullException>(() => indexColumn.GetExpression(null));
-        }
-
-        [Test]
-        public static void GetExpression_WhenInvoked_EqualsQuotedColumnName()
-        {
-            const string expectedExpression = "\"test\"";
-
-            var columnMock = new Mock<IDatabaseColumn>();
-            columnMock.SetupGet(c => c.Name).Returns("test");
-            var column = columnMock.Object;
-
-            var indexColumn = new PostgreSqlDatabaseIndexColumn(column, IndexColumnOrder.Ascending);
-
-            var dialect = new PostgreSqlDialect();
-            var result = indexColumn.GetExpression(dialect);
-
-            Assert.AreEqual(expectedExpression, result);
-        }
-
-        [Test]
         public static void Order_WithAscendingCtorArgPropertyGet_EqualsCtorArg()
         {
+            const string expression = "\"test\"";
             var column = Mock.Of<IDatabaseColumn>();
-            var indexColumn = new PostgreSqlDatabaseIndexColumn(column, IndexColumnOrder.Ascending);
+            var indexColumn = new PostgreSqlDatabaseIndexColumn(expression, column, IndexColumnOrder.Ascending);
 
             Assert.AreEqual(IndexColumnOrder.Ascending, indexColumn.Order);
         }
@@ -92,8 +79,9 @@ namespace SJP.Schematic.PostgreSql.Tests
         [Test]
         public static void Order_WithDescendingCtorArgPropertyGet_EqualsCtorArg()
         {
+            const string expression = "\"test\"";
             var column = Mock.Of<IDatabaseColumn>();
-            var indexColumn = new PostgreSqlDatabaseIndexColumn(column, IndexColumnOrder.Descending);
+            var indexColumn = new PostgreSqlDatabaseIndexColumn(expression, column, IndexColumnOrder.Descending);
 
             Assert.AreEqual(IndexColumnOrder.Descending, indexColumn.Order);
         }

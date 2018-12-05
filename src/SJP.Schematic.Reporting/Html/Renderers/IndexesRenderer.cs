@@ -30,7 +30,7 @@ namespace SJP.Schematic.Reporting.Html.Renderers
 
         public void Render()
         {
-            var mapper = new IndexesModelMapper(Database.Dialect);
+            var mapper = new IndexesModelMapper();
 
             var indexes = Database.Tables
                 .Select(t => new { TableName = t.Name, t.Indexes })
@@ -54,7 +54,7 @@ namespace SJP.Schematic.Reporting.Html.Renderers
 
         public async Task RenderAsync()
         {
-            var mapper = new IndexesModelMapper(Database.Dialect);
+            var mapper = new IndexesModelMapper();
 
             var tables = await Database.TablesAsync().ConfigureAwait(false);
 

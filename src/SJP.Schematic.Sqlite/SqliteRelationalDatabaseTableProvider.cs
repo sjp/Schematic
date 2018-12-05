@@ -448,7 +448,13 @@ namespace SJP.Schematic.Sqlite
                 var indexColumns = indexInfo
                     .Where(i => i.key && i.cid >= 0)
                     .OrderBy(i => i.seqno)
-                    .Select(i => new DatabaseIndexColumn(columns[i.name], i.desc ? IndexColumnOrder.Descending : IndexColumnOrder.Ascending))
+                    .Select(i =>
+                    {
+                        var order = i.desc ? IndexColumnOrder.Descending : IndexColumnOrder.Ascending;
+                        var column = columns[i.name];
+                        var expression = Dialect.QuoteName(column.Name);
+                        return new DatabaseIndexColumn(expression, column, order);
+                    })
                     .ToList();
 
                 var includedColumns = indexInfo
@@ -494,7 +500,13 @@ namespace SJP.Schematic.Sqlite
                 var indexColumns = indexInfo
                     .Where(i => i.key && i.cid >= 0)
                     .OrderBy(i => i.seqno)
-                    .Select(i => new DatabaseIndexColumn(columns[i.name], i.desc ? IndexColumnOrder.Descending : IndexColumnOrder.Ascending))
+                    .Select(i =>
+                    {
+                        var order = i.desc ? IndexColumnOrder.Descending : IndexColumnOrder.Ascending;
+                        var column = columns[i.name];
+                        var expression = Dialect.QuoteName(column.Name);
+                        return new DatabaseIndexColumn(expression, column, order);
+                    })
                     .ToList();
 
                 var includedColumns = indexInfo

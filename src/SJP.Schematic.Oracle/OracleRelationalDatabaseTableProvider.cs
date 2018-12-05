@@ -31,6 +31,8 @@ namespace SJP.Schematic.Oracle
 
         protected IDbTypeProvider TypeProvider { get; }
 
+        protected IDatabaseDialect Dialect { get; } = new OracleDialect();
+
         public IReadOnlyCollection<IRelationalDatabaseTable> Tables
         {
             get
@@ -354,7 +356,12 @@ where ac.OWNER = :SchemaName and ac.TABLE_NAME = :TableName and ac.CONSTRAINT_TY
                 var indexCols = indexInfo
                     .OrderBy(row => row.ColumnPosition)
                     .Select(row => new { row.IsDescending, Column = columns[row.ColumnName] })
-                    .Select(row => new DatabaseIndexColumn(row.Column, row.IsDescending == "Y" ? IndexColumnOrder.Descending : IndexColumnOrder.Ascending))
+                    .Select(row =>
+                    {
+                        var order = row.IsDescending == "Y" ? IndexColumnOrder.Descending : IndexColumnOrder.Ascending;
+                        var expression = Dialect.QuoteName(row.Column.Name);
+                        return new DatabaseIndexColumn(expression, row.Column, order);
+                    })
                     .ToList();
 
                 var index = new OracleDatabaseIndex(indexName, isUnique, indexCols, indexProperties);
@@ -394,7 +401,12 @@ where ac.OWNER = :SchemaName and ac.TABLE_NAME = :TableName and ac.CONSTRAINT_TY
                 var indexCols = indexInfo
                     .OrderBy(row => row.ColumnPosition)
                     .Select(row => new { row.IsDescending, Column = columns[row.ColumnName] })
-                    .Select(row => new DatabaseIndexColumn(row.Column, row.IsDescending == "Y" ? IndexColumnOrder.Descending : IndexColumnOrder.Ascending))
+                    .Select(row =>
+                    {
+                        var order = row.IsDescending == "Y" ? IndexColumnOrder.Descending : IndexColumnOrder.Ascending;
+                        var expression = Dialect.QuoteName(row.Column.Name);
+                        return new DatabaseIndexColumn(expression, row.Column, order);
+                    })
                     .ToList();
 
                 var index = new OracleDatabaseIndex(indexName, isUnique, indexCols, indexProperties);

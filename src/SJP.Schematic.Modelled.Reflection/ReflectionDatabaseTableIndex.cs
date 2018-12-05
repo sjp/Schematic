@@ -40,8 +40,9 @@ namespace SJP.Schematic.Modelled.Reflection
                 {
                     var expressionName = indexColumn.Expression.DependentNames.Single().LocalName;
                     var columnName = dialect.GetAliasOrDefault(propertyLookup[expressionName]);
-                    var tableColumns = new List<IDatabaseColumn> { tableColumnLookup[columnName] };
-                    var column = new ReflectionIndexColumn(indexColumn.Expression, tableColumns, indexColumn.Order);
+                    var tableColumn = tableColumnLookup[columnName];
+                    var textExpression = indexColumn.Expression.ToSql(dialect);
+                    var column = new DatabaseIndexColumn(textExpression, tableColumn, indexColumn.Order);
                     columns.Add(column);
                 }
                 else
@@ -53,7 +54,9 @@ namespace SJP.Schematic.Modelled.Reflection
                         .Select(prop => dialect.GetAliasOrDefault(prop))
                         .Select(name => tableColumnLookup[name])
                         .ToList();
-                    var column = new ReflectionIndexColumn(indexColumn.Expression, tableColumns, indexColumn.Order);
+
+                    var textExpression = indexColumn.Expression.ToSql(dialect);
+                    var column = new DatabaseIndexColumn(textExpression, tableColumns, indexColumn.Order);
                     columns.Add(column);
                 }
             }

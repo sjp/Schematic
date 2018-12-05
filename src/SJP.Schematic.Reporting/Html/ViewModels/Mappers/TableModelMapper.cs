@@ -117,7 +117,7 @@ namespace SJP.Schematic.Reporting.Html.ViewModels.Mappers
                 new Table.Index(
                     index.Name?.LocalName,
                     index.IsUnique,
-                    index.Columns.Select(c => c.GetExpression(Dialect)).ToList(),
+                    index.Columns.Select(c => c.Expression).ToList(),
                     index.Columns.Select(c => c.Order).ToList(),
                     index.IncludedColumns.Select(c => c.Name.LocalName).ToList()
                 )).ToList();
@@ -279,7 +279,7 @@ namespace SJP.Schematic.Reporting.Html.ViewModels.Mappers
                 new Table.Index(
                     index.Name?.LocalName,
                     index.IsUnique,
-                    index.Columns.Select(c => c.GetExpression(Dialect)).ToList(),
+                    index.Columns.Select(c => c.Expression).ToList(),
                     index.Columns.Select(c => c.Order).ToList(),
                     index.IncludedColumns.Select(c => c.Name.LocalName).ToList()
                 )).ToList();
