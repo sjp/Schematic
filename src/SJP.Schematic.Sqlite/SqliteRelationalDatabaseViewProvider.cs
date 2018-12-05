@@ -185,7 +185,7 @@ namespace SJP.Schematic.Sqlite
             return Option<Identifier>.None;
         }
 
-        protected OptionAsync<Identifier> GetResolvedViewNameAsync(Identifier viewName, CancellationToken cancellationToken = default(CancellationToken))
+        protected OptionAsync<Identifier> GetResolvedViewNameAsync(Identifier viewName, CancellationToken cancellationToken)
         {
             if (viewName == null)
                 throw new ArgumentNullException(nameof(viewName));
@@ -260,7 +260,7 @@ namespace SJP.Schematic.Sqlite
             return Option<IRelationalDatabaseView>.Some(view);
         }
 
-        protected virtual OptionAsync<IRelationalDatabaseView> LoadViewAsync(Identifier viewName, CancellationToken cancellationToken = default(CancellationToken))
+        protected virtual OptionAsync<IRelationalDatabaseView> LoadViewAsync(Identifier viewName, CancellationToken cancellationToken)
         {
             if (viewName == null)
                 throw new ArgumentNullException(nameof(viewName));

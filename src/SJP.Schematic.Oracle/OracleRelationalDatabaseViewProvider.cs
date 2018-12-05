@@ -107,7 +107,7 @@ order by v.OWNER, v.VIEW_NAME";
                 .FirstSome();
         }
 
-        protected OptionAsync<Identifier> GetResolvedViewNameAsync(Identifier viewName, CancellationToken cancellationToken = default(CancellationToken))
+        protected OptionAsync<Identifier> GetResolvedViewNameAsync(Identifier viewName, CancellationToken cancellationToken)
         {
             if (viewName == null)
                 throw new ArgumentNullException(nameof(viewName));
@@ -135,7 +135,7 @@ order by v.OWNER, v.VIEW_NAME";
             return qualifiedViewName.Map(name => Identifier.CreateQualifiedIdentifier(candidateViewName.Server, candidateViewName.Database, name.SchemaName, name.ObjectName));
         }
 
-        protected OptionAsync<Identifier> GetResolvedViewNameStrictAsync(Identifier viewName, CancellationToken cancellationToken = default(CancellationToken))
+        protected OptionAsync<Identifier> GetResolvedViewNameStrictAsync(Identifier viewName, CancellationToken cancellationToken)
         {
             if (viewName == null)
                 throw new ArgumentNullException(nameof(viewName));
@@ -143,7 +143,8 @@ order by v.OWNER, v.VIEW_NAME";
             var candidateViewName = QualifyViewName(viewName);
             var qualifiedViewName = Connection.QueryFirstOrNoneAsync<QualifiedName>(
                 ViewNameQuery,
-                new { SchemaName = candidateViewName.Schema, ViewName = candidateViewName.LocalName }
+                new { SchemaName = candidateViewName.Schema, ViewName = candidateViewName.LocalName },
+                cancellationToken
             );
 
             return qualifiedViewName.Map(name => Identifier.CreateQualifiedIdentifier(candidateViewName.Server, candidateViewName.Database, name.SchemaName, name.ObjectName));
@@ -177,7 +178,7 @@ where v.OWNER = :SchemaName and v.VIEW_NAME = :ViewName and o.ORACLE_MAINTAINED 
             return Option<IRelationalDatabaseView>.Some(view);
         }
 
-        protected virtual OptionAsync<IRelationalDatabaseView> LoadViewAsync(Identifier viewName, CancellationToken cancellationToken = default(CancellationToken))
+        protected virtual OptionAsync<IRelationalDatabaseView> LoadViewAsync(Identifier viewName, CancellationToken cancellationToken)
         {
             if (viewName == null)
                 throw new ArgumentNullException(nameof(viewName));

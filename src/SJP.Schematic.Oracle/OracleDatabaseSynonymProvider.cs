@@ -175,7 +175,7 @@ order by s.DB_LINK, s.OWNER, s.SYNONYM_NAME";
             return qualifiedSynonymName.Map(name => Identifier.CreateQualifiedIdentifier(candidateSynonymName.Server, candidateSynonymName.Database, name.SchemaName, name.ObjectName));
         }
 
-        protected OptionAsync<Identifier> GetResolvedSynonymNameStrictAsync(Identifier synonymName, CancellationToken cancellationToken = default(CancellationToken))
+        protected OptionAsync<Identifier> GetResolvedSynonymNameStrictAsync(Identifier synonymName, CancellationToken cancellationToken)
         {
             if (synonymName == null)
                 throw new ArgumentNullException(nameof(synonymName));
@@ -188,7 +188,8 @@ order by s.DB_LINK, s.OWNER, s.SYNONYM_NAME";
             {
                 var userSynonymName = Connection.QueryFirstOrNoneAsync<string>(
                     UserSynonymNameQuery,
-                    new { SynonymName = candidateSynonymName.LocalName }
+                    new { SynonymName = candidateSynonymName.LocalName },
+                    cancellationToken
                 );
 
                 return userSynonymName.Map(name => Identifier.CreateQualifiedIdentifier(IdentifierDefaults.Server, IdentifierDefaults.Database, IdentifierDefaults.Schema, name));
@@ -196,7 +197,8 @@ order by s.DB_LINK, s.OWNER, s.SYNONYM_NAME";
 
             var qualifiedSynonymName = Connection.QueryFirstOrNoneAsync<QualifiedName>(
                 SynonymNameQuery,
-                new { SchemaName = candidateSynonymName.Schema, SynonymName = candidateSynonymName.LocalName }
+                new { SchemaName = candidateSynonymName.Schema, SynonymName = candidateSynonymName.LocalName },
+                cancellationToken
             );
 
             return qualifiedSynonymName.Map(name => Identifier.CreateQualifiedIdentifier(candidateSynonymName.Server, candidateSynonymName.Database, name.SchemaName, name.ObjectName));
@@ -238,7 +240,7 @@ where o.OWNER = SYS_CONTEXT('USERENV', 'CURRENT_USER') and s.SYNONYM_NAME = :Syn
             return synonymData.Map(synData => BuildSynonymFromDto(resolvedSynonymName, synData));
         }
 
-        protected virtual OptionAsync<IDatabaseSynonym> LoadSynonymAsync(Identifier synonymName, CancellationToken cancellationToken = default(CancellationToken))
+        protected virtual OptionAsync<IDatabaseSynonym> LoadSynonymAsync(Identifier synonymName, CancellationToken cancellationToken)
         {
             if (synonymName == null)
                 throw new ArgumentNullException(nameof(synonymName));
@@ -306,7 +308,8 @@ where s.SYNONYM_NAME = :SynonymName and o.OWNER = SYS_CONTEXT('USERENV', 'CURREN
 
             return Connection.QueryFirstOrNoneAsync<TargetSynonymData>(
                 LoadSynonymQuery,
-                new { SchemaName = synonymName.Schema, SynonymName = synonymName.LocalName }
+                new { SchemaName = synonymName.Schema, SynonymName = synonymName.LocalName },
+                cancellationToken
             );
         }
 
@@ -328,7 +331,8 @@ where s.SYNONYM_NAME = :SynonymName and o.OWNER = SYS_CONTEXT('USERENV', 'CURREN
 
             return Connection.QueryFirstOrNoneAsync<TargetSynonymData>(
                 LoadUserSynonymQuery,
-                new { SynonymName = synonymName }
+                new { SynonymName = synonymName },
+                cancellationToken
             );
         }
 

@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using Dapper;
 using EnumsNET;
 using SJP.Schematic.Core;
+using SJP.Schematic.Core.Extensions;
 using SJP.Schematic.Sqlite.Pragma.Query;
 
 namespace SJP.Schematic.Sqlite.Pragma
@@ -47,9 +48,9 @@ namespace SJP.Schematic.Sqlite.Pragma
             set => Connection.Execute(AutomaticIndexSetQuery(value));
         }
 
-        public Task<bool> AutomaticIndexAsync(CancellationToken cancellationToken = default(CancellationToken)) => Connection.ExecuteScalarAsync<bool>(AutomaticIndexReadQuery);
+        public Task<bool> AutomaticIndexAsync(CancellationToken cancellationToken = default(CancellationToken)) => Connection.ExecuteScalarAsync<bool>(AutomaticIndexReadQuery, cancellationToken);
 
-        public Task AutomaticIndexAsync(bool enable, CancellationToken cancellationToken = default(CancellationToken)) => Connection.ExecuteAsync(AutomaticIndexSetQuery(enable));
+        public Task AutomaticIndexAsync(bool enable, CancellationToken cancellationToken = default(CancellationToken)) => Connection.ExecuteAsync(AutomaticIndexSetQuery(enable), cancellationToken);
 
         protected virtual string AutomaticIndexReadQuery => PragmaPrefix + "automatic_index";
 
@@ -67,11 +68,11 @@ namespace SJP.Schematic.Sqlite.Pragma
 
         public async Task<TimeSpan> BusyTimeoutAsync(CancellationToken cancellationToken = default(CancellationToken))
         {
-            var ms = await Connection.ExecuteScalarAsync<int>(BusyTimeoutReadQuery).ConfigureAwait(false);
+            var ms = await Connection.ExecuteScalarAsync<int>(BusyTimeoutReadQuery, cancellationToken).ConfigureAwait(false);
             return TimeSpan.FromMilliseconds(ms);
         }
 
-        public Task BusyTimeoutAsync(TimeSpan timeout, CancellationToken cancellationToken = default(CancellationToken)) => Connection.ExecuteAsync(BusyTimeoutSetQuery(timeout));
+        public Task BusyTimeoutAsync(TimeSpan timeout, CancellationToken cancellationToken = default(CancellationToken)) => Connection.ExecuteAsync(BusyTimeoutSetQuery(timeout), cancellationToken);
 
         protected virtual string BusyTimeoutReadQuery => PragmaPrefix + "busy_timeout";
 
@@ -83,7 +84,7 @@ namespace SJP.Schematic.Sqlite.Pragma
 
         public void CaseSensitiveLike(bool enable) => Connection.Execute(CaseSensitiveLikeSetQuery(enable));
 
-        public Task CaseSensitiveLikeAsync(bool enable, CancellationToken cancellationToken = default(CancellationToken)) => Connection.ExecuteAsync(CaseSensitiveLikeSetQuery(enable));
+        public Task CaseSensitiveLikeAsync(bool enable, CancellationToken cancellationToken = default(CancellationToken)) => Connection.ExecuteAsync(CaseSensitiveLikeSetQuery(enable), cancellationToken);
 
         protected virtual string CaseSensitiveLikeSetQuery(bool enable) => PragmaPrefix + "case_sensitive_like = " + Convert.ToInt32(enable).ToString(CultureInfo.InvariantCulture);
 
@@ -93,9 +94,9 @@ namespace SJP.Schematic.Sqlite.Pragma
             set => Connection.Execute(CellSizeCheckSetQuery(value));
         }
 
-        public Task<bool> CellSizeCheckAsync(CancellationToken cancellationToken = default(CancellationToken)) => Connection.ExecuteScalarAsync<bool>(CellSizeCheckReadQuery);
+        public Task<bool> CellSizeCheckAsync(CancellationToken cancellationToken = default(CancellationToken)) => Connection.ExecuteScalarAsync<bool>(CellSizeCheckReadQuery, cancellationToken);
 
-        public Task CellSizeCheckAsync(bool enable, CancellationToken cancellationToken = default(CancellationToken)) => Connection.ExecuteAsync(CellSizeCheckSetQuery(enable));
+        public Task CellSizeCheckAsync(bool enable, CancellationToken cancellationToken = default(CancellationToken)) => Connection.ExecuteAsync(CellSizeCheckSetQuery(enable), cancellationToken);
 
         protected virtual string CellSizeCheckReadQuery => PragmaPrefix + "cell_size_check";
 
@@ -107,9 +108,9 @@ namespace SJP.Schematic.Sqlite.Pragma
             set => Connection.Execute(CheckpointFullFsyncSetQuery(value));
         }
 
-        public Task<bool> CheckpointFullFsyncAsync(CancellationToken cancellationToken = default(CancellationToken)) => Connection.ExecuteScalarAsync<bool>(CheckpointFullFsyncReadQuery);
+        public Task<bool> CheckpointFullFsyncAsync(CancellationToken cancellationToken = default(CancellationToken)) => Connection.ExecuteScalarAsync<bool>(CheckpointFullFsyncReadQuery, cancellationToken);
 
-        public Task CheckpointFullFsyncAsync(bool enable, CancellationToken cancellationToken = default(CancellationToken)) => Connection.ExecuteAsync(CheckpointFullFsyncSetQuery(enable));
+        public Task CheckpointFullFsyncAsync(bool enable, CancellationToken cancellationToken = default(CancellationToken)) => Connection.ExecuteAsync(CheckpointFullFsyncSetQuery(enable), cancellationToken);
 
         protected virtual string CheckpointFullFsyncReadQuery => PragmaPrefix + "checkpoint_fullfsync";
 
@@ -117,25 +118,25 @@ namespace SJP.Schematic.Sqlite.Pragma
 
         public IEnumerable<pragma_collation_list> CollationList => Connection.Query<pragma_collation_list>(CollationListReadQuery);
 
-        public Task<IEnumerable<pragma_collation_list>> CollationListAsync(CancellationToken cancellationToken = default(CancellationToken)) => Connection.QueryAsync<pragma_collation_list>(CollationListReadQuery);
+        public Task<IEnumerable<pragma_collation_list>> CollationListAsync(CancellationToken cancellationToken = default(CancellationToken)) => Connection.QueryAsync<pragma_collation_list>(CollationListReadQuery, cancellationToken);
 
         protected virtual string CollationListReadQuery => PragmaPrefix + "collation_list";
 
         public IEnumerable<string> CompileOptions => Connection.Query<string>(CompileOptionsReadQuery);
 
-        public Task<IEnumerable<string>> CompileOptionsAsync(CancellationToken cancellationToken = default(CancellationToken)) => Connection.QueryAsync<string>(CompileOptionsReadQuery);
+        public Task<IEnumerable<string>> CompileOptionsAsync(CancellationToken cancellationToken = default(CancellationToken)) => Connection.QueryAsync<string>(CompileOptionsReadQuery, cancellationToken);
 
         protected virtual string CompileOptionsReadQuery => PragmaPrefix + "compile_options";
 
         public int DataVersion => Connection.ExecuteScalar<int>(DataVersionReadQuery);
 
-        public Task<int> DataVersionAsync(CancellationToken cancellationToken = default(CancellationToken)) => Connection.ExecuteScalarAsync<int>(DataVersionReadQuery);
+        public Task<int> DataVersionAsync(CancellationToken cancellationToken = default(CancellationToken)) => Connection.ExecuteScalarAsync<int>(DataVersionReadQuery, cancellationToken);
 
         protected virtual string DataVersionReadQuery => PragmaPrefix + "data_version";
 
         public IEnumerable<pragma_database_list> DatabaseList => Connection.Query<pragma_database_list>(DatabaseListReadQuery);
 
-        public Task<IEnumerable<pragma_database_list>> DatabaseListAsync(CancellationToken cancellationToken = default(CancellationToken)) => Connection.QueryAsync<pragma_database_list>(DatabaseListReadQuery);
+        public Task<IEnumerable<pragma_database_list>> DatabaseListAsync(CancellationToken cancellationToken = default(CancellationToken)) => Connection.QueryAsync<pragma_database_list>(DatabaseListReadQuery, cancellationToken);
 
         protected virtual string DatabaseListReadQuery => PragmaPrefix + "database_list";
 
@@ -145,9 +146,9 @@ namespace SJP.Schematic.Sqlite.Pragma
             set => Connection.Execute(DeferForeignKeysSetQuery(value));
         }
 
-        public Task<bool> DeferForeignKeysAsync(CancellationToken cancellationToken = default(CancellationToken)) => Connection.ExecuteScalarAsync<bool>(DeferForeignKeysReadQuery);
+        public Task<bool> DeferForeignKeysAsync(CancellationToken cancellationToken = default(CancellationToken)) => Connection.ExecuteScalarAsync<bool>(DeferForeignKeysReadQuery, cancellationToken);
 
-        public Task DeferForeignKeysAsync(bool enable, CancellationToken cancellationToken = default(CancellationToken)) => Connection.ExecuteAsync(DeferForeignKeysSetQuery(enable));
+        public Task DeferForeignKeysAsync(bool enable, CancellationToken cancellationToken = default(CancellationToken)) => Connection.ExecuteAsync(DeferForeignKeysSetQuery(enable), cancellationToken);
 
         protected virtual string DeferForeignKeysReadQuery => PragmaPrefix + "defer_foreign_keys";
 
@@ -168,14 +169,14 @@ namespace SJP.Schematic.Sqlite.Pragma
 
         public async Task<Encoding> EncodingAsync(CancellationToken cancellationToken = default(CancellationToken))
         {
-            var encodingName = await Connection.ExecuteScalarAsync<string>(EncodingReadQuery).ConfigureAwait(false);
+            var encodingName = await Connection.ExecuteScalarAsync<string>(EncodingReadQuery, cancellationToken).ConfigureAwait(false);
             if (!_nameEncodingMapping.ContainsKey(encodingName))
                 throw new InvalidOperationException("Unknown and unsupported encoding found: " + encodingName);
 
             return _nameEncodingMapping[encodingName];
         }
 
-        public Task EncodingAsync(Encoding encoding, CancellationToken cancellationToken = default(CancellationToken)) => Connection.ExecuteAsync(EncodingSetQuery(encoding));
+        public Task EncodingAsync(Encoding encoding, CancellationToken cancellationToken = default(CancellationToken)) => Connection.ExecuteAsync(EncodingSetQuery(encoding), cancellationToken);
 
         protected virtual string EncodingReadQuery => PragmaPrefix + "encoding";
 
@@ -194,9 +195,9 @@ namespace SJP.Schematic.Sqlite.Pragma
             set => Connection.Execute(ForeignKeysSetQuery(value));
         }
 
-        public Task<bool> ForeignKeysAsync(CancellationToken cancellationToken = default(CancellationToken)) => Connection.ExecuteScalarAsync<bool>(ForeignKeysReadQuery);
+        public Task<bool> ForeignKeysAsync(CancellationToken cancellationToken = default(CancellationToken)) => Connection.ExecuteScalarAsync<bool>(ForeignKeysReadQuery, cancellationToken);
 
-        public Task ForeignKeysAsync(bool enable, CancellationToken cancellationToken = default(CancellationToken)) => Connection.ExecuteAsync(ForeignKeysSetQuery(enable));
+        public Task ForeignKeysAsync(bool enable, CancellationToken cancellationToken = default(CancellationToken)) => Connection.ExecuteAsync(ForeignKeysSetQuery(enable), cancellationToken);
 
         protected virtual string ForeignKeysReadQuery => PragmaPrefix + "foreign_keys";
 
@@ -208,9 +209,9 @@ namespace SJP.Schematic.Sqlite.Pragma
             set => Connection.Execute(FullFsyncSetQuery(value));
         }
 
-        public Task<bool> FullFsyncAsync(CancellationToken cancellationToken = default(CancellationToken)) => Connection.ExecuteScalarAsync<bool>(FullFsyncReadQuery);
+        public Task<bool> FullFsyncAsync(CancellationToken cancellationToken = default(CancellationToken)) => Connection.ExecuteScalarAsync<bool>(FullFsyncReadQuery, cancellationToken);
 
-        public Task FullFsyncAsync(bool enable, CancellationToken cancellationToken = default(CancellationToken)) => Connection.ExecuteAsync(FullFsyncSetQuery(enable));
+        public Task FullFsyncAsync(bool enable, CancellationToken cancellationToken = default(CancellationToken)) => Connection.ExecuteAsync(FullFsyncSetQuery(enable), cancellationToken);
 
         protected virtual string FullFsyncReadQuery => PragmaPrefix + "fullfsync";
 
@@ -218,7 +219,7 @@ namespace SJP.Schematic.Sqlite.Pragma
 
         public void IgnoreCheckConstraints(bool enable) => Connection.Execute(IgnoreCheckConstraintsSetQuery(enable));
 
-        public Task IgnoreCheckConstraintsAsync(bool enable, CancellationToken cancellationToken = default(CancellationToken)) => Connection.ExecuteAsync(IgnoreCheckConstraintsSetQuery(enable));
+        public Task IgnoreCheckConstraintsAsync(bool enable, CancellationToken cancellationToken = default(CancellationToken)) => Connection.ExecuteAsync(IgnoreCheckConstraintsSetQuery(enable), cancellationToken);
 
         protected virtual string IgnoreCheckConstraintsSetQuery(bool enable) => PragmaPrefix + "ignore_check_constraints = " + Convert.ToInt32(enable).ToString(CultureInfo.InvariantCulture);
 
@@ -228,9 +229,9 @@ namespace SJP.Schematic.Sqlite.Pragma
             set => Connection.Execute(LegacyFileFormatSetQuery(value));
         }
 
-        public Task<bool> LegacyFileFormatAsync(CancellationToken cancellationToken = default(CancellationToken)) => Connection.ExecuteScalarAsync<bool>(LegacyFileFormatReadQuery);
+        public Task<bool> LegacyFileFormatAsync(CancellationToken cancellationToken = default(CancellationToken)) => Connection.ExecuteScalarAsync<bool>(LegacyFileFormatReadQuery, cancellationToken);
 
-        public Task LegacyFileFormatAsync(bool enable, CancellationToken cancellationToken = default(CancellationToken)) => Connection.ExecuteAsync(LegacyFileFormatSetQuery(enable));
+        public Task LegacyFileFormatAsync(bool enable, CancellationToken cancellationToken = default(CancellationToken)) => Connection.ExecuteAsync(LegacyFileFormatSetQuery(enable), cancellationToken);
 
         protected virtual string LegacyFileFormatReadQuery => PragmaPrefix + "legacy_file_format";
 
@@ -238,7 +239,7 @@ namespace SJP.Schematic.Sqlite.Pragma
 
         public IEnumerable<string> Optimize(OptimizeFeatures features = OptimizeFeatures.Analyze) => Connection.Query<string>(OptimizeSetQuery(features));
 
-        public Task<IEnumerable<string>> OptimizeAsync(OptimizeFeatures features = OptimizeFeatures.Analyze, CancellationToken cancellationToken = default(CancellationToken)) => Connection.QueryAsync<string>(OptimizeSetQuery(features));
+        public Task<IEnumerable<string>> OptimizeAsync(OptimizeFeatures features = OptimizeFeatures.Analyze, CancellationToken cancellationToken = default(CancellationToken)) => Connection.QueryAsync<string>(OptimizeSetQuery(features), cancellationToken);
 
         protected virtual string OptimizeSetQuery(OptimizeFeatures features)
         {
@@ -255,9 +256,9 @@ namespace SJP.Schematic.Sqlite.Pragma
             set => Connection.Execute(QueryOnlySetQuery(value));
         }
 
-        public Task<bool> QueryOnlyAsync(CancellationToken cancellationToken = default(CancellationToken)) => Connection.ExecuteScalarAsync<bool>(QueryOnlyReadQuery);
+        public Task<bool> QueryOnlyAsync(CancellationToken cancellationToken = default(CancellationToken)) => Connection.ExecuteScalarAsync<bool>(QueryOnlyReadQuery, cancellationToken);
 
-        public Task QueryOnlyAsync(bool enable, CancellationToken cancellationToken = default(CancellationToken)) => Connection.ExecuteAsync(QueryOnlySetQuery(enable));
+        public Task QueryOnlyAsync(bool enable, CancellationToken cancellationToken = default(CancellationToken)) => Connection.ExecuteAsync(QueryOnlySetQuery(enable), cancellationToken);
 
         protected virtual string QueryOnlyReadQuery => PragmaPrefix + "query_only";
 
@@ -269,9 +270,9 @@ namespace SJP.Schematic.Sqlite.Pragma
             set => Connection.Execute(ReadUncommittedSetQuery(value));
         }
 
-        public Task<bool> ReadUncommittedAsync(CancellationToken cancellationToken = default(CancellationToken)) => Connection.ExecuteScalarAsync<bool>(ReadUncommittedReadQuery);
+        public Task<bool> ReadUncommittedAsync(CancellationToken cancellationToken = default(CancellationToken)) => Connection.ExecuteScalarAsync<bool>(ReadUncommittedReadQuery, cancellationToken);
 
-        public Task ReadUncommittedAsync(bool enable, CancellationToken cancellationToken = default(CancellationToken)) => Connection.ExecuteAsync(ReadUncommittedSetQuery(enable));
+        public Task ReadUncommittedAsync(bool enable, CancellationToken cancellationToken = default(CancellationToken)) => Connection.ExecuteAsync(ReadUncommittedSetQuery(enable), cancellationToken);
 
         protected virtual string ReadUncommittedReadQuery => PragmaPrefix + "read_uncommitted";
 
@@ -283,9 +284,9 @@ namespace SJP.Schematic.Sqlite.Pragma
             set => Connection.Execute(RecursiveTriggersSetQuery(value));
         }
 
-        public Task<bool> RecursiveTriggersAsync(CancellationToken cancellationToken = default(CancellationToken)) => Connection.ExecuteScalarAsync<bool>(RecursiveTriggersReadQuery);
+        public Task<bool> RecursiveTriggersAsync(CancellationToken cancellationToken = default(CancellationToken)) => Connection.ExecuteScalarAsync<bool>(RecursiveTriggersReadQuery, cancellationToken);
 
-        public Task RecursiveTriggersAsync(bool enable, CancellationToken cancellationToken = default(CancellationToken)) => Connection.ExecuteAsync(RecursiveTriggersSetQuery(enable));
+        public Task RecursiveTriggersAsync(bool enable, CancellationToken cancellationToken = default(CancellationToken)) => Connection.ExecuteAsync(RecursiveTriggersSetQuery(enable), cancellationToken);
 
         protected virtual string RecursiveTriggersReadQuery => PragmaPrefix + "recursive_triggers";
 
@@ -297,9 +298,9 @@ namespace SJP.Schematic.Sqlite.Pragma
             set => Connection.Execute(ReverseUnorderedSelectsSetQuery(value));
         }
 
-        public Task<bool> ReverseUnorderedSelectsAsync(CancellationToken cancellationToken = default(CancellationToken)) => Connection.ExecuteScalarAsync<bool>(ReverseUnorderedSelectsReadQuery);
+        public Task<bool> ReverseUnorderedSelectsAsync(CancellationToken cancellationToken = default(CancellationToken)) => Connection.ExecuteScalarAsync<bool>(ReverseUnorderedSelectsReadQuery, cancellationToken);
 
-        public Task ReverseUnorderedSelectsAsync(bool enable, CancellationToken cancellationToken = default(CancellationToken)) => Connection.ExecuteAsync(ReverseUnorderedSelectsSetQuery(enable));
+        public Task ReverseUnorderedSelectsAsync(bool enable, CancellationToken cancellationToken = default(CancellationToken)) => Connection.ExecuteAsync(ReverseUnorderedSelectsSetQuery(enable), cancellationToken);
 
         protected virtual string ReverseUnorderedSelectsReadQuery => PragmaPrefix + "reverse_unordered_selects";
 
@@ -307,7 +308,7 @@ namespace SJP.Schematic.Sqlite.Pragma
 
         public void ShrinkMemory() => Connection.Execute(ShrinkMemoryQuery);
 
-        public Task ShrinkMemoryAsync(CancellationToken cancellationToken = default(CancellationToken)) => Connection.ExecuteAsync(ShrinkMemoryQuery);
+        public Task ShrinkMemoryAsync(CancellationToken cancellationToken = default(CancellationToken)) => Connection.ExecuteAsync(ShrinkMemoryQuery, cancellationToken);
 
         protected virtual string ShrinkMemoryQuery => PragmaPrefix + "shrink_memory";
 
@@ -317,9 +318,9 @@ namespace SJP.Schematic.Sqlite.Pragma
             set => Connection.Execute(SoftHeapLimitSetQuery(value));
         }
 
-        public Task<long> SoftHeapLimitAsync(CancellationToken cancellationToken = default(CancellationToken)) => Connection.ExecuteScalarAsync<long>(SoftHeapLimitReadQuery);
+        public Task<long> SoftHeapLimitAsync(CancellationToken cancellationToken = default(CancellationToken)) => Connection.ExecuteScalarAsync<long>(SoftHeapLimitReadQuery, cancellationToken);
 
-        public Task SoftHeapLimitAsync(long heapLimit, CancellationToken cancellationToken = default(CancellationToken)) => Connection.ExecuteAsync(SoftHeapLimitSetQuery(heapLimit));
+        public Task SoftHeapLimitAsync(long heapLimit, CancellationToken cancellationToken = default(CancellationToken)) => Connection.ExecuteAsync(SoftHeapLimitSetQuery(heapLimit), cancellationToken);
 
         protected virtual string SoftHeapLimitReadQuery => PragmaPrefix + "soft_heap_limit";
 
@@ -340,14 +341,14 @@ namespace SJP.Schematic.Sqlite.Pragma
 
         public async Task<TemporaryStoreLocation> TemporaryStoreAsync(CancellationToken cancellationToken = default(CancellationToken))
         {
-            var location = await Connection.ExecuteScalarAsync<int>(TemporaryStoreReadQuery).ConfigureAwait(false);
+            var location = await Connection.ExecuteScalarAsync<int>(TemporaryStoreReadQuery, cancellationToken).ConfigureAwait(false);
             if (!Enums.TryToObject(location, out TemporaryStoreLocation tempLocation))
                 throw new InvalidOperationException($"Unable to map the value '{ location.ToString() }' to a member of { nameof(TemporaryStoreLocation) }.");
 
             return tempLocation;
         }
 
-        public Task TemporaryStoreAsync(TemporaryStoreLocation tempLocation, CancellationToken cancellationToken = default(CancellationToken)) => Connection.ExecuteAsync(TemporaryStoreSetQuery(tempLocation));
+        public Task TemporaryStoreAsync(TemporaryStoreLocation tempLocation, CancellationToken cancellationToken = default(CancellationToken)) => Connection.ExecuteAsync(TemporaryStoreSetQuery(tempLocation), cancellationToken);
 
         protected virtual string TemporaryStoreReadQuery => PragmaPrefix + "temp_store";
 
@@ -366,9 +367,9 @@ namespace SJP.Schematic.Sqlite.Pragma
             set => Connection.Execute(ThreadsSetQuery(value));
         }
 
-        public Task<int> ThreadsAsync(CancellationToken cancellationToken = default(CancellationToken)) => Connection.ExecuteScalarAsync<int>(ThreadsReadQuery);
+        public Task<int> ThreadsAsync(CancellationToken cancellationToken = default(CancellationToken)) => Connection.ExecuteScalarAsync<int>(ThreadsReadQuery, cancellationToken);
 
-        public Task ThreadsAsync(int maxThreads, CancellationToken cancellationToken = default(CancellationToken)) => Connection.ExecuteAsync(ThreadsSetQuery(maxThreads));
+        public Task ThreadsAsync(int maxThreads, CancellationToken cancellationToken = default(CancellationToken)) => Connection.ExecuteAsync(ThreadsSetQuery(maxThreads), cancellationToken);
 
         protected virtual string ThreadsReadQuery => PragmaPrefix + "threads";
 
@@ -380,9 +381,9 @@ namespace SJP.Schematic.Sqlite.Pragma
             set => Connection.Execute(WalAutoCheckpointSetQuery(value));
         }
 
-        public Task<int> WalAutoCheckpointAsync(CancellationToken cancellationToken = default(CancellationToken)) => Connection.ExecuteScalarAsync<int>(WalAutoCheckpointReadQuery);
+        public Task<int> WalAutoCheckpointAsync(CancellationToken cancellationToken = default(CancellationToken)) => Connection.ExecuteScalarAsync<int>(WalAutoCheckpointReadQuery, cancellationToken);
 
-        public Task WalAutoCheckpointAsync(int maxPages, CancellationToken cancellationToken = default(CancellationToken)) => Connection.ExecuteAsync(WalAutoCheckpointSetQuery(maxPages));
+        public Task WalAutoCheckpointAsync(int maxPages, CancellationToken cancellationToken = default(CancellationToken)) => Connection.ExecuteAsync(WalAutoCheckpointSetQuery(maxPages), cancellationToken);
 
         protected virtual string WalAutoCheckpointReadQuery => PragmaPrefix + "wal_autocheckpoint";
 
@@ -394,9 +395,9 @@ namespace SJP.Schematic.Sqlite.Pragma
             set => Connection.Execute(WritableSchemaSetQuery(value));
         }
 
-        public Task<bool> WritableSchemaAsync(CancellationToken cancellationToken = default(CancellationToken)) => Connection.ExecuteScalarAsync<bool>(WritableSchemaReadQuery);
+        public Task<bool> WritableSchemaAsync(CancellationToken cancellationToken = default(CancellationToken)) => Connection.ExecuteScalarAsync<bool>(WritableSchemaReadQuery, cancellationToken);
 
-        public Task WritableSchemaAsync(bool enable, CancellationToken cancellationToken = default(CancellationToken)) => Connection.ExecuteAsync(WritableSchemaSetQuery(enable));
+        public Task WritableSchemaAsync(bool enable, CancellationToken cancellationToken = default(CancellationToken)) => Connection.ExecuteAsync(WritableSchemaSetQuery(enable), cancellationToken);
 
         protected virtual string WritableSchemaReadQuery => PragmaPrefix + "writable_schema";
 

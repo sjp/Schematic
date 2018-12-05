@@ -32,7 +32,7 @@ namespace SJP.Schematic.PostgreSql
             return CreateConnectionAsyncCore(connectionString, cancellationToken);
         }
 
-        private static async Task<IDbConnection> CreateConnectionAsyncCore(string connectionString, CancellationToken cancellationToken = default(CancellationToken))
+        private static async Task<IDbConnection> CreateConnectionAsyncCore(string connectionString, CancellationToken cancellationToken)
         {
             var connection = new NpgsqlConnection(connectionString);
             await connection.OpenAsync(cancellationToken).ConfigureAwait(false);

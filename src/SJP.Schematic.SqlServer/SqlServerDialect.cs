@@ -38,7 +38,7 @@ namespace SJP.Schematic.SqlServer
             return CreateConnectionAsyncCore(connWithMars, cancellationToken);
         }
 
-        private static async Task<IDbConnection> CreateConnectionAsyncCore(string connectionString, CancellationToken cancellationToken = default(CancellationToken))
+        private static async Task<IDbConnection> CreateConnectionAsyncCore(string connectionString, CancellationToken cancellationToken)
         {
             var connection = new SqlConnection(connectionString);
             await connection.OpenAsync(cancellationToken).ConfigureAwait(false);

@@ -102,7 +102,7 @@ where TABLE_SCHEMA = @SchemaName order by TABLE_NAME";
             return qualifiedViewName.Map(name => Identifier.CreateQualifiedIdentifier(candidateViewName.Server, candidateViewName.Database, name.SchemaName, name.ObjectName));
         }
 
-        protected OptionAsync<Identifier> GetResolvedViewNameAsync(Identifier viewName, CancellationToken cancellationToken = default(CancellationToken))
+        protected OptionAsync<Identifier> GetResolvedViewNameAsync(Identifier viewName, CancellationToken cancellationToken)
         {
             if (viewName == null)
                 throw new ArgumentNullException(nameof(viewName));
@@ -110,7 +110,8 @@ where TABLE_SCHEMA = @SchemaName order by TABLE_NAME";
             var candidateViewName = QualifyViewName(viewName);
             var qualifiedViewName = Connection.QueryFirstOrNoneAsync<QualifiedName>(
                 ViewNameQuery,
-                new { SchemaName = candidateViewName.Schema, ViewName = candidateViewName.LocalName }
+                new { SchemaName = candidateViewName.Schema, ViewName = candidateViewName.LocalName },
+                cancellationToken
             );
 
             return qualifiedViewName.Map(name => Identifier.CreateQualifiedIdentifier(candidateViewName.Server, candidateViewName.Database, name.SchemaName, name.ObjectName));
@@ -144,7 +145,7 @@ limit 1";
             return Option<IRelationalDatabaseView>.Some(view);
         }
 
-        protected virtual OptionAsync<IRelationalDatabaseView> LoadViewAsync(Identifier viewName, CancellationToken cancellationToken = default(CancellationToken))
+        protected virtual OptionAsync<IRelationalDatabaseView> LoadViewAsync(Identifier viewName, CancellationToken cancellationToken)
         {
             if (viewName == null)
                 throw new ArgumentNullException(nameof(viewName));

@@ -129,7 +129,7 @@ order by s.SEQUENCE_OWNER, s.SEQUENCE_NAME";
             return qualifiedSequenceName.Map(name => Identifier.CreateQualifiedIdentifier(candidateSequenceName.Server, candidateSequenceName.Database, name.SchemaName, name.ObjectName));
         }
 
-        protected OptionAsync<Identifier> GetResolvedSequenceNameStrictAsync(Identifier sequenceName, CancellationToken cancellationToken = default(CancellationToken))
+        protected OptionAsync<Identifier> GetResolvedSequenceNameStrictAsync(Identifier sequenceName, CancellationToken cancellationToken)
         {
             if (sequenceName == null)
                 throw new ArgumentNullException(nameof(sequenceName));
@@ -137,7 +137,8 @@ order by s.SEQUENCE_OWNER, s.SEQUENCE_NAME";
             var candidateSequenceName = QualifySequenceName(sequenceName);
             var qualifiedSequenceName = Connection.QueryFirstOrNoneAsync<QualifiedName>(
                 SequenceNameQuery,
-                new { SchemaName = candidateSequenceName.Schema, SequenceName = candidateSequenceName.LocalName }
+                new { SchemaName = candidateSequenceName.Schema, SequenceName = candidateSequenceName.LocalName },
+                cancellationToken
             );
 
             return qualifiedSequenceName.Map(name => Identifier.CreateQualifiedIdentifier(candidateSequenceName.Server, candidateSequenceName.Database, name.SchemaName, name.ObjectName));
@@ -177,7 +178,7 @@ where SEQUENCE_OWNER = :SchemaName and SEQUENCE_NAME = :SequenceName";
                 .Map(seqData => BuildSequenceFromDto(resolvedSequenceName, seqData));
         }
 
-        protected virtual OptionAsync<IDatabaseSequence> LoadSequenceAsync(Identifier sequenceName, CancellationToken cancellationToken = default(CancellationToken))
+        protected virtual OptionAsync<IDatabaseSequence> LoadSequenceAsync(Identifier sequenceName, CancellationToken cancellationToken)
         {
             if (sequenceName == null)
                 throw new ArgumentNullException(nameof(sequenceName));
@@ -194,7 +195,7 @@ where SEQUENCE_OWNER = :SchemaName and SEQUENCE_NAME = :SequenceName";
                 return Option<IDatabaseSequence>.None;
 
             var resolvedSequenceName = await resolvedSequenceNameOption.UnwrapSomeAsync().ConfigureAwait(false);
-            var sequence = LoadSequenceDataAsync(resolvedSequenceName)
+            var sequence = LoadSequenceDataAsync(resolvedSequenceName, cancellationToken)
                 .Map(seqData => BuildSequenceFromDto(resolvedSequenceName, seqData));
 
             return await sequence.ToOption().ConfigureAwait(false);
@@ -211,14 +212,15 @@ where SEQUENCE_OWNER = :SchemaName and SEQUENCE_NAME = :SequenceName";
             );
         }
 
-        protected virtual OptionAsync<SequenceData> LoadSequenceDataAsync(Identifier sequenceName)
+        protected virtual OptionAsync<SequenceData> LoadSequenceDataAsync(Identifier sequenceName, CancellationToken cancellationToken)
         {
             if (sequenceName == null)
                 throw new ArgumentNullException(nameof(sequenceName));
 
             return Connection.QueryFirstOrNoneAsync<SequenceData>(
                 SequenceQuery,
-                new { SchemaName = sequenceName.Schema, SequenceName = sequenceName.LocalName }
+                new { SchemaName = sequenceName.Schema, SequenceName = sequenceName.LocalName },
+                cancellationToken
             );
         }
 

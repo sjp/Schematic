@@ -31,7 +31,7 @@ namespace SJP.Schematic.Sqlite
             return CreateConnectionAsyncCore(connectionString, cancellationToken);
         }
 
-        private static async Task<IDbConnection> CreateConnectionAsyncCore(string connectionString, CancellationToken cancellationToken = default(CancellationToken))
+        private static async Task<IDbConnection> CreateConnectionAsyncCore(string connectionString, CancellationToken cancellationToken)
         {
             var connection = new SqliteConnection(connectionString);
             await connection.OpenAsync(cancellationToken).ConfigureAwait(false);

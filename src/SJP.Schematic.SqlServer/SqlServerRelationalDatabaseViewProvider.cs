@@ -96,7 +96,7 @@ namespace SJP.Schematic.SqlServer
             return qualifiedViewName.Map(name => Identifier.CreateQualifiedIdentifier(candidateViewName.Server, candidateViewName.Database, name.SchemaName, name.ObjectName));
         }
 
-        protected OptionAsync<Identifier> GetResolvedViewNameAsync(Identifier viewName, CancellationToken cancellationToken = default(CancellationToken))
+        protected OptionAsync<Identifier> GetResolvedViewNameAsync(Identifier viewName, CancellationToken cancellationToken)
         {
             if (viewName == null)
                 throw new ArgumentNullException(nameof(viewName));
@@ -104,7 +104,8 @@ namespace SJP.Schematic.SqlServer
             var candidateViewName = QualifyViewName(viewName);
             var qualifiedViewName = Connection.QueryFirstOrNoneAsync<QualifiedName>(
                 ViewNameQuery,
-                new { SchemaName = candidateViewName.Schema, ViewName = candidateViewName.LocalName }
+                new { SchemaName = candidateViewName.Schema, ViewName = candidateViewName.LocalName },
+                cancellationToken
             );
 
             return qualifiedViewName.Map(name => Identifier.CreateQualifiedIdentifier(candidateViewName.Server, candidateViewName.Database, name.SchemaName, name.ObjectName));
@@ -138,7 +139,7 @@ where schema_id = schema_id(@SchemaName) and name = @ViewName";
             return Option<IRelationalDatabaseView>.Some(view);
         }
 
-        protected virtual OptionAsync<IRelationalDatabaseView> LoadViewAsync(Identifier viewName, CancellationToken cancellationToken = default(CancellationToken))
+        protected virtual OptionAsync<IRelationalDatabaseView> LoadViewAsync(Identifier viewName, CancellationToken cancellationToken)
         {
             if (viewName == null)
                 throw new ArgumentNullException(nameof(viewName));
@@ -256,7 +257,12 @@ where schema_name(v.schema_id) = @SchemaName and v.name = @ViewName";
 
         private async Task<IReadOnlyCollection<IDatabaseIndex>> LoadIndexesAsyncCore(Identifier viewName, IReadOnlyDictionary<Identifier, IDatabaseColumn> columns, CancellationToken cancellationToken)
         {
-            var queryResult = await Connection.QueryAsync<IndexColumns>(IndexesQuery, new { SchemaName = viewName.Schema, ViewName = viewName.LocalName }).ConfigureAwait(false);
+            var queryResult = await Connection.QueryAsync<IndexColumns>(
+                IndexesQuery,
+                new { SchemaName = viewName.Schema, ViewName = viewName.LocalName },
+                cancellationToken
+            ).ConfigureAwait(false);
+
             if (queryResult.Empty())
                 return Array.Empty<IDatabaseIndex>();
 
@@ -362,7 +368,12 @@ order by ic.index_id, ic.key_ordinal, ic.index_column_id";
 
         private async Task<IReadOnlyList<IDatabaseColumn>> LoadColumnsAsyncCore(Identifier viewName, CancellationToken cancellationToken)
         {
-            var query = await Connection.QueryAsync<ColumnData>(ColumnsQuery, new { SchemaName = viewName.Schema, ViewName = viewName.LocalName }).ConfigureAwait(false);
+            var query = await Connection.QueryAsync<ColumnData>(
+                ColumnsQuery,
+                new { SchemaName = viewName.Schema, ViewName = viewName.LocalName },
+                cancellationToken
+            ).ConfigureAwait(false);
+
             var result = new List<IDatabaseColumn>();
 
             foreach (var row in query)

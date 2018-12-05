@@ -91,7 +91,7 @@ namespace SJP.Schematic.SqlServer
             return qualifiedSequenceName.Map(name => Identifier.CreateQualifiedIdentifier(candidateSequenceName.Server, candidateSequenceName.Database, name.SchemaName, name.ObjectName));
         }
 
-        protected OptionAsync<Identifier> GetResolvedSequenceNameAsync(Identifier sequenceName, CancellationToken cancellationToken = default(CancellationToken))
+        protected OptionAsync<Identifier> GetResolvedSequenceNameAsync(Identifier sequenceName, CancellationToken cancellationToken)
         {
             if (sequenceName == null)
                 throw new ArgumentNullException(nameof(sequenceName));
@@ -99,7 +99,8 @@ namespace SJP.Schematic.SqlServer
             var candidateSequenceName = QualifySequenceName(sequenceName);
             var qualifiedSequenceName = Connection.QueryFirstOrNoneAsync<QualifiedName>(
                 SequenceNameQuery,
-                new { SchemaName = candidateSequenceName.Schema, SequenceName = candidateSequenceName.LocalName }
+                new { SchemaName = candidateSequenceName.Schema, SequenceName = candidateSequenceName.LocalName },
+                cancellationToken
             );
 
             return qualifiedSequenceName.Map(name => Identifier.CreateQualifiedIdentifier(candidateSequenceName.Server, candidateSequenceName.Database, name.SchemaName, name.ObjectName));
@@ -158,7 +159,7 @@ where schema_name(schema_id) = @SchemaName and name = @SequenceName";
                 .Map(seqData => BuildSequenceFromDto(resolvedSequenceName, seqData));
         }
 
-        protected virtual OptionAsync<IDatabaseSequence> LoadSequenceAsync(Identifier sequenceName, CancellationToken cancellationToken = default(CancellationToken))
+        protected virtual OptionAsync<IDatabaseSequence> LoadSequenceAsync(Identifier sequenceName, CancellationToken cancellationToken)
         {
             if (sequenceName == null)
                 throw new ArgumentNullException(nameof(sequenceName));
@@ -169,13 +170,13 @@ where schema_name(schema_id) = @SchemaName and name = @SequenceName";
 
         private async Task<Option<IDatabaseSequence>> LoadSequenceAsyncCore(Identifier sequenceName, CancellationToken cancellationToken)
         {
-            var resolvedSequenceNameOption = GetResolvedSequenceNameAsync(sequenceName);
+            var resolvedSequenceNameOption = GetResolvedSequenceNameAsync(sequenceName, cancellationToken);
             var resolvedSequenceNameOptionIsNone = await resolvedSequenceNameOption.IsNone.ConfigureAwait(false);
             if (resolvedSequenceNameOptionIsNone)
                 return Option<IDatabaseSequence>.None;
 
             var resolvedSequenceName = await resolvedSequenceNameOption.UnwrapSomeAsync().ConfigureAwait(false);
-            var sequence = LoadSequenceDataAsync(resolvedSequenceName)
+            var sequence = LoadSequenceDataAsync(resolvedSequenceName, cancellationToken)
                 .Map(seqData => BuildSequenceFromDto(resolvedSequenceName, seqData));
 
             return await sequence.ToOption().ConfigureAwait(false);
@@ -192,14 +193,15 @@ where schema_name(schema_id) = @SchemaName and name = @SequenceName";
             );
         }
 
-        protected virtual OptionAsync<SequenceData> LoadSequenceDataAsync(Identifier sequenceName)
+        protected virtual OptionAsync<SequenceData> LoadSequenceDataAsync(Identifier sequenceName, CancellationToken cancellationToken)
         {
             if (sequenceName == null)
                 throw new ArgumentNullException(nameof(sequenceName));
 
             return Connection.QueryFirstOrNoneAsync<SequenceData>(
                 SequenceQuery,
-                new { SchemaName = sequenceName.Schema, SequenceName = sequenceName.LocalName }
+                new { SchemaName = sequenceName.Schema, SequenceName = sequenceName.LocalName },
+                cancellationToken
             );
         }
 

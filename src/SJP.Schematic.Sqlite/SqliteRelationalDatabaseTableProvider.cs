@@ -195,7 +195,7 @@ namespace SJP.Schematic.Sqlite
             return Option<Identifier>.None;
         }
 
-        protected OptionAsync<Identifier> GetResolvedTableNameAsync(Identifier tableName, CancellationToken cancellationToken = default(CancellationToken))
+        protected OptionAsync<Identifier> GetResolvedTableNameAsync(Identifier tableName, CancellationToken cancellationToken)
         {
             if (tableName == null)
                 throw new ArgumentNullException(nameof(tableName));
@@ -213,7 +213,8 @@ namespace SJP.Schematic.Sqlite
                 var sql = TableNameQuery(tableName.Schema);
                 var tableLocalName = await Connection.ExecuteScalarAsync<string>(
                     sql,
-                    new { TableName = tableName.LocalName }
+                    new { TableName = tableName.LocalName },
+                    cancellationToken
                 ).ConfigureAwait(false);
 
                 if (tableLocalName != null)
@@ -292,7 +293,7 @@ namespace SJP.Schematic.Sqlite
             return Option<IRelationalDatabaseTable>.Some(table);
         }
 
-        protected virtual OptionAsync<IRelationalDatabaseTable> LoadTableAsync(Identifier tableName, CancellationToken cancellationToken = default(CancellationToken))
+        protected virtual OptionAsync<IRelationalDatabaseTable> LoadTableAsync(Identifier tableName, CancellationToken cancellationToken)
         {
             if (tableName == null)
                 throw new ArgumentNullException(nameof(tableName));
@@ -304,7 +305,7 @@ namespace SJP.Schematic.Sqlite
         private async Task<Option<IRelationalDatabaseTable>> LoadTableAsyncCore(Identifier tableName, CancellationToken cancellationToken)
         {
             var candidateTableName = QualifyTableName(tableName);
-            var resolvedTableNameOption = GetResolvedTableNameAsync(candidateTableName);
+            var resolvedTableNameOption = GetResolvedTableNameAsync(candidateTableName, cancellationToken);
             var resolvedTableNameOptionIsNone = await resolvedTableNameOption.IsNone.ConfigureAwait(false);
             if (resolvedTableNameOptionIsNone)
                 return Option<IRelationalDatabaseTable>.None;
@@ -852,8 +853,8 @@ namespace SJP.Schematic.Sqlite
                     primaryKeyCache[parentTableName] = parentPrimaryKey;
                 }
 
-                var pkColumnsEqual = parentPrimaryKey != null &&
-                    parentPrimaryKey.Columns.Select(col => col.Name).SequenceEqual(parentColumns.Select(col => col.Name));
+                var pkColumnsEqual = parentPrimaryKey != null
+                    && parentPrimaryKey.Columns.Select(col => col.Name).SequenceEqual(parentColumns.Select(col => col.Name));
 
                 IDatabaseKey parentConstraint;
                 if (pkColumnsEqual)
@@ -927,7 +928,7 @@ namespace SJP.Schematic.Sqlite
             foreach (var fkey in foreignKeys)
             {
                 var candidateParentTableName = Identifier.CreateQualifiedIdentifier(tableName.Schema, fkey.Key.ParentTableName);
-                var parentTableNameOption = GetResolvedTableNameAsync(candidateParentTableName);
+                var parentTableNameOption = GetResolvedTableNameAsync(candidateParentTableName, cancellationToken);
                 var parentTableNameOptionIsNone = await parentTableNameOption.IsNone.ConfigureAwait(false);
                 if (parentTableNameOptionIsNone)
                     throw new Exception("Could not find parent table with name: " + candidateParentTableName.ToString());
@@ -956,8 +957,8 @@ namespace SJP.Schematic.Sqlite
                     primaryKeyCache[parentTableName] = parentPrimaryKey;
                 }
 
-                var pkColumnsEqual = parentPrimaryKey != null &&
-                    parentPrimaryKey.Columns.Select(col => col.Name).SequenceEqual(parentColumns.Select(col => col.Name));
+                var pkColumnsEqual = parentPrimaryKey != null
+                    && parentPrimaryKey.Columns.Select(col => col.Name).SequenceEqual(parentColumns.Select(col => col.Name));
 
                 IDatabaseKey parentConstraint;
                 if (pkColumnsEqual)
@@ -1113,7 +1114,11 @@ namespace SJP.Schematic.Sqlite
         private async Task<IReadOnlyCollection<IDatabaseTrigger>> LoadTriggersAsyncCore(Identifier tableName, CancellationToken cancellationToken)
         {
             var triggerQuery = TriggerDefinitionQuery(tableName.Schema);
-            var triggerInfos = await Connection.QueryAsync<SqliteMaster>(triggerQuery, new { TableName = tableName.LocalName }).ConfigureAwait(false);
+            var triggerInfos = await Connection.QueryAsync<SqliteMaster>(
+                triggerQuery,
+                new { TableName = tableName.LocalName },
+                cancellationToken
+            ).ConfigureAwait(false);
 
             var result = new List<IDatabaseTrigger>();
 
@@ -1182,7 +1187,11 @@ namespace SJP.Schematic.Sqlite
         private async Task<SqliteTableParser> GetParsedTableDefinitionAsyncCore(Identifier tableName, CancellationToken cancellationToken)
         {
             var definitionQuery = TableDefinitionQuery(tableName.Schema);
-            var tableSql = await Connection.ExecuteScalarAsync<string>(definitionQuery, new { TableName = tableName.LocalName }).ConfigureAwait(false);
+            var tableSql = await Connection.ExecuteScalarAsync<string>(
+                definitionQuery,
+                new { TableName = tableName.LocalName },
+                cancellationToken
+            ).ConfigureAwait(false);
             var tokenizer = new SqliteTokenizer();
             var tokenizeResult = tokenizer.TryTokenize(tableSql);
             if (!tokenizeResult.HasValue)

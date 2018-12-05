@@ -96,7 +96,7 @@ namespace SJP.Schematic.SqlServer
             return qualifiedTableName.Map(name => Identifier.CreateQualifiedIdentifier(tableName.Server, tableName.Database, name.SchemaName, name.ObjectName));
         }
 
-        protected OptionAsync<Identifier> GetResolvedTableNameAsync(Identifier tableName, CancellationToken cancellationToken = default(CancellationToken))
+        protected OptionAsync<Identifier> GetResolvedTableNameAsync(Identifier tableName, CancellationToken cancellationToken)
         {
             if (tableName == null)
                 throw new ArgumentNullException(nameof(tableName));
@@ -104,7 +104,8 @@ namespace SJP.Schematic.SqlServer
             tableName = QualifyTableName(tableName);
             var qualifiedTableName = Connection.QueryFirstOrNoneAsync<QualifiedName>(
                 TableNameQuery,
-                new { SchemaName = tableName.Schema, TableName = tableName.LocalName }
+                new { SchemaName = tableName.Schema, TableName = tableName.LocalName },
+                cancellationToken
             );
 
             return qualifiedTableName.Map(name => Identifier.CreateQualifiedIdentifier(tableName.Server, tableName.Database, name.SchemaName, name.ObjectName));
@@ -156,7 +157,7 @@ where schema_id = schema_id(@SchemaName) and name = @TableName";
             return Option<IRelationalDatabaseTable>.Some(table);
         }
 
-        protected virtual OptionAsync<IRelationalDatabaseTable> LoadTableAsync(Identifier tableName, CancellationToken cancellationToken = default(CancellationToken))
+        protected virtual OptionAsync<IRelationalDatabaseTable> LoadTableAsync(Identifier tableName, CancellationToken cancellationToken)
         {
             if (tableName == null)
                 throw new ArgumentNullException(nameof(tableName));
@@ -168,7 +169,7 @@ where schema_id = schema_id(@SchemaName) and name = @TableName";
         private async Task<Option<IRelationalDatabaseTable>> LoadTableAsyncCore(Identifier tableName, CancellationToken cancellationToken)
         {
             var candidateTableName = QualifyTableName(tableName);
-            var resolvedTableNameOption = GetResolvedTableNameAsync(candidateTableName);
+            var resolvedTableNameOption = GetResolvedTableNameAsync(candidateTableName, cancellationToken);
             var resolvedTableNameOptionIsNone = await resolvedTableNameOption.IsNone.ConfigureAwait(false);
             if (resolvedTableNameOptionIsNone)
                 return Option<IRelationalDatabaseTable>.None;
@@ -255,7 +256,12 @@ where schema_id = schema_id(@SchemaName) and name = @TableName";
 
         private async Task<Option<IDatabaseKey>> LoadPrimaryKeyAsyncCore(Identifier tableName, IReadOnlyDictionary<Identifier, IDatabaseColumn> columns, CancellationToken cancellationToken)
         {
-            var primaryKeyColumns = await Connection.QueryAsync<ConstraintColumnMapping>(PrimaryKeyQuery, new { SchemaName = tableName.Schema, TableName = tableName.LocalName }).ConfigureAwait(false);
+            var primaryKeyColumns = await Connection.QueryAsync<ConstraintColumnMapping>(
+                PrimaryKeyQuery,
+                new { SchemaName = tableName.Schema, TableName = tableName.LocalName },
+                cancellationToken
+            ).ConfigureAwait(false);
+
             if (primaryKeyColumns.Empty())
                 return Option<IDatabaseKey>.None;
 
@@ -351,7 +357,12 @@ order by ic.key_ordinal";
 
         private async Task<IReadOnlyCollection<IDatabaseIndex>> LoadIndexesAsyncCore(Identifier tableName, IReadOnlyDictionary<Identifier, IDatabaseColumn> columns, CancellationToken cancellationToken)
         {
-            var queryResult = await Connection.QueryAsync<IndexColumns>(IndexesQuery, new { SchemaName = tableName.Schema, TableName = tableName.LocalName }).ConfigureAwait(false);
+            var queryResult = await Connection.QueryAsync<IndexColumns>(
+                IndexesQuery,
+                new { SchemaName = tableName.Schema, TableName = tableName.LocalName },
+                cancellationToken
+            ).ConfigureAwait(false);
+
             if (queryResult.Empty())
                 return Array.Empty<IDatabaseIndex>();
 
@@ -458,7 +469,12 @@ order by ic.index_id, ic.key_ordinal, ic.index_column_id";
 
         private async Task<IReadOnlyCollection<IDatabaseKey>> LoadUniqueKeysAsyncCore(Identifier tableName, IReadOnlyDictionary<Identifier, IDatabaseColumn> columns, CancellationToken cancellationToken)
         {
-            var uniqueKeyColumns = await Connection.QueryAsync<ConstraintColumnMapping>(UniqueKeysQuery, new { SchemaName = tableName.Schema, TableName = tableName.LocalName }).ConfigureAwait(false);
+            var uniqueKeyColumns = await Connection.QueryAsync<ConstraintColumnMapping>(
+                UniqueKeysQuery,
+                new { SchemaName = tableName.Schema, TableName = tableName.LocalName },
+                cancellationToken
+            ).ConfigureAwait(false);
+
             if (uniqueKeyColumns.Empty())
                 return Array.Empty<IDatabaseKey>();
 
@@ -863,7 +879,7 @@ where schema_name(t.schema_id) = @SchemaName and t.name = @TableName";
             foreach (var fkey in foreignKeys)
             {
                 var candidateParentTableName = Identifier.CreateQualifiedIdentifier(fkey.Key.ParentTableSchema, fkey.Key.ParentTableName);
-                var parentTableNameOption = GetResolvedTableNameAsync(candidateParentTableName);
+                var parentTableNameOption = GetResolvedTableNameAsync(candidateParentTableName, cancellationToken);
                 var parentTableNameOptionIsNone = await parentTableNameOption.IsNone.ConfigureAwait(false);
                 if (parentTableNameOptionIsNone)
                     throw new Exception("Could not find parent table with name: " + candidateParentTableName.ToString());
@@ -1001,7 +1017,12 @@ where schema_name(child_t.schema_id) = @SchemaName and child_t.name = @TableName
 
         private async Task<IReadOnlyList<IDatabaseColumn>> LoadColumnsAsyncCore(Identifier tableName, CancellationToken cancellationToken)
         {
-            var query = await Connection.QueryAsync<ColumnData>(ColumnsQuery, new { SchemaName = tableName.Schema, TableName = tableName.LocalName }).ConfigureAwait(false);
+            var query = await Connection.QueryAsync<ColumnData>(
+                ColumnsQuery,
+                new { SchemaName = tableName.Schema, TableName = tableName.LocalName },
+                cancellationToken
+            ).ConfigureAwait(false);
+
             var result = new List<IDatabaseColumn>();
 
             foreach (var row in query)
@@ -1115,7 +1136,12 @@ where schema_name(t.schema_id) = @SchemaName
 
         private async Task<IReadOnlyCollection<IDatabaseTrigger>> LoadTriggersAsyncCore(Identifier tableName, CancellationToken cancellationToken)
         {
-            var queryResult = await Connection.QueryAsync<TriggerData>(TriggersQuery, new { SchemaName = tableName.Schema, TableName = tableName.LocalName }).ConfigureAwait(false);
+            var queryResult = await Connection.QueryAsync<TriggerData>(
+                TriggersQuery,
+                new { SchemaName = tableName.Schema, TableName = tableName.LocalName },
+                cancellationToken
+            ).ConfigureAwait(false);
+
             if (queryResult.Empty())
                 return Array.Empty<IDatabaseTrigger>();
 

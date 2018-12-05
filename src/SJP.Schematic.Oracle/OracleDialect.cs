@@ -31,7 +31,7 @@ namespace SJP.Schematic.Oracle
             return CreateConnectionAsyncCore(connectionString, cancellationToken);
         }
 
-        private static async Task<IDbConnection> CreateConnectionAsyncCore(string connectionString, CancellationToken cancellationToken = default(CancellationToken))
+        private static async Task<IDbConnection> CreateConnectionAsyncCore(string connectionString, CancellationToken cancellationToken)
         {
             var connection = new OracleConnection(connectionString);
             await connection.OpenAsync(cancellationToken).ConfigureAwait(false);
@@ -101,7 +101,7 @@ namespace SJP.Schematic.Oracle
 
         private static async Task<IIdentifierDefaults> GetIdentifierDefaultsAsyncCore(IDbConnection connection, CancellationToken cancellationToken)
         {
-            var hostInfoOption = connection.QueryFirstOrNoneAsync<DatabaseHost>(IdentifierDefaultsQuerySql);
+            var hostInfoOption = connection.QueryFirstOrNoneAsync<DatabaseHost>(IdentifierDefaultsQuerySql, cancellationToken);
             var qualifiedServerName = await hostInfoOption.MatchUnsafe(
                 dbHost => dbHost.ServerHost + "/" + dbHost.ServerSid,
                 () => null
@@ -141,7 +141,7 @@ from DUAL";
             if (connection == null)
                 throw new ArgumentNullException(nameof(connection));
 
-            var versionInfoOption = connection.QueryFirstOrNoneAsync<DatabaseVersion>(DatabaseVersionQuerySql);
+            var versionInfoOption = connection.QueryFirstOrNoneAsync<DatabaseVersion>(DatabaseVersionQuerySql, cancellationToken);
             return versionInfoOption.MatchUnsafe(
                 vInfo => vInfo.ProductName + vInfo.VersionNumber,
                 () => null

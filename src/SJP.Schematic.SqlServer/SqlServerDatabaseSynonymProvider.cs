@@ -91,7 +91,7 @@ namespace SJP.Schematic.SqlServer
             return qualifiedSynonymName.Map(name => Identifier.CreateQualifiedIdentifier(candidateSynonymName.Server, candidateSynonymName.Database, name.SchemaName, name.ObjectName));
         }
 
-        protected OptionAsync<Identifier> GetResolvedSynonymNameAsync(Identifier synonymName, CancellationToken cancellationToken = default(CancellationToken))
+        protected OptionAsync<Identifier> GetResolvedSynonymNameAsync(Identifier synonymName, CancellationToken cancellationToken)
         {
             if (synonymName == null)
                 throw new ArgumentNullException(nameof(synonymName));
@@ -99,7 +99,8 @@ namespace SJP.Schematic.SqlServer
             var candidateSynonymName = QualifySynonymName(synonymName);
             var qualifiedSynonymName = Connection.QueryFirstOrNoneAsync<QualifiedName>(
                 SynonymNameQuery,
-                new { SchemaName = candidateSynonymName.Schema, SynonymName = candidateSynonymName.LocalName }
+                new { SchemaName = candidateSynonymName.Schema, SynonymName = candidateSynonymName.LocalName },
+                cancellationToken
             );
 
             return qualifiedSynonymName.Map(name => Identifier.CreateQualifiedIdentifier(candidateSynonymName.Server, candidateSynonymName.Database, name.SchemaName, name.ObjectName));
@@ -138,7 +139,7 @@ where schema_id = schema_id(@SchemaName) and name = @SynonymName";
                 });
         }
 
-        protected virtual OptionAsync<IDatabaseSynonym> LoadSynonymAsync(Identifier synonymName, CancellationToken cancellationToken = default(CancellationToken))
+        protected virtual OptionAsync<IDatabaseSynonym> LoadSynonymAsync(Identifier synonymName, CancellationToken cancellationToken)
         {
             if (synonymName == null)
                 throw new ArgumentNullException(nameof(synonymName));
@@ -158,7 +159,8 @@ where schema_id = schema_id(@SchemaName) and name = @SynonymName";
             var resolvedSynonymName = await resolvedSynonymNameOption.UnwrapSomeAsync().ConfigureAwait(false);
             var queryResult = Connection.QueryFirstOrNoneAsync<SynonymData>(
                 LoadSynonymQuery,
-                new { SchemaName = resolvedSynonymName.Schema, SynonymName = resolvedSynonymName.LocalName }
+                new { SchemaName = resolvedSynonymName.Schema, SynonymName = resolvedSynonymName.LocalName },
+                cancellationToken
             );
 
             var synonymOption = queryResult.Map<IDatabaseSynonym>(synonymData =>
