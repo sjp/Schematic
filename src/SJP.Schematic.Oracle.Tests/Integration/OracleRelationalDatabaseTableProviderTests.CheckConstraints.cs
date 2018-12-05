@@ -1,6 +1,5 @@
 ﻿using System.Linq;
 using NUnit.Framework;
-using SJP.Schematic.Core.Extensions;
 
 namespace SJP.Schematic.Oracle.Tests.Integration
 {
@@ -9,7 +8,7 @@ namespace SJP.Schematic.Oracle.Tests.Integration
         [Test]
         public void Checks_WhenGivenTableWithNoChecks_ReturnsEmptyCollection()
         {
-            var table = TableProvider.GetTable("table_test_table_1").UnwrapSome();
+            var table = GetTable("table_test_table_1");
             var count = table.Checks.Count;
 
             Assert.AreEqual(0, count);
@@ -20,7 +19,7 @@ namespace SJP.Schematic.Oracle.Tests.Integration
         {
             const string expectedCheckName = "CK_TEST_TABLE_14";
 
-            var table = TableProvider.GetTable("table_test_table_14").UnwrapSome();
+            var table = GetTable("table_test_table_14");
             var check = table.Checks.Single();
 
             Assert.AreEqual(expectedCheckName, check.Name.LocalName);
@@ -29,7 +28,7 @@ namespace SJP.Schematic.Oracle.Tests.Integration
         [Test]
         public void Checks_WhenGivenTableWithCheck_ReturnsContraintWithDefinition()
         {
-            var table = TableProvider.GetTable("table_test_table_14").UnwrapSome();
+            var table = GetTable("table_test_table_14");
             var check = table.Checks.Single();
 
             Assert.AreEqual("test_column > 1", check.Definition);
@@ -38,7 +37,7 @@ namespace SJP.Schematic.Oracle.Tests.Integration
         [Test]
         public void Checks_WhenGivenTableWithEnabledCheck_ReturnsIsEnabledTrue()
         {
-            var table = TableProvider.GetTable("table_test_table_14").UnwrapSome();
+            var table = GetTable("table_test_table_14");
             var check = table.Checks.Single();
 
             Assert.IsTrue(check.IsEnabled);
@@ -47,7 +46,7 @@ namespace SJP.Schematic.Oracle.Tests.Integration
         [Test]
         public void Checks_WhenGivenTableWithDisabledCheck_ReturnsIsEnabledFalse()
         {
-            var table = TableProvider.GetTable("table_test_table_32").UnwrapSome();
+            var table = GetTable("table_test_table_32");
             var check = table.Checks.Single();
 
             Assert.IsFalse(check.IsEnabled);

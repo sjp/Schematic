@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Linq;
 using System.Threading.Tasks;
 using Dapper;
@@ -35,6 +36,21 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
             await Connection.ExecuteAsync("drop view view_test_view_2").ConfigureAwait(false);
             await Connection.ExecuteAsync("drop view view_test_view_4").ConfigureAwait(false);
         }
+        private IRelationalDatabaseView GetView(Identifier viewName)
+        {
+            if (viewName == null)
+                throw new ArgumentNullException(nameof(viewName));
+
+            if (_viewsCache.TryGetValue(viewName, out var view))
+                return view;
+
+            view = ViewProvider.GetView(viewName).UnwrapSome();
+            _viewsCache.TryAdd(viewName, view);
+
+            return view;
+        }
+
+        private readonly static ConcurrentDictionary<Identifier, IRelationalDatabaseView> _viewsCache = new ConcurrentDictionary<Identifier, IRelationalDatabaseView>();
 
         [Test]
         public void GetView_WhenViewPresent_ReturnsView()
@@ -172,7 +188,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
         public void Definition_PropertyGet_ReturnsCorrectDefinition()
         {
             var viewName = new Identifier(IdentifierDefaults.Schema, "view_test_view_1");
-            var view = ViewProvider.GetView(viewName).UnwrapSome();
+            var view = GetView(viewName);
 
             var definition = view.Definition;
             const string expected = "create view view_test_view_1 as select 1 as test";
@@ -185,7 +201,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
         public void IsIndexed_WhenViewIsNotIndexed_ReturnsFalse()
         {
             var viewName = new Identifier(IdentifierDefaults.Schema, "view_test_view_1");
-            var view = ViewProvider.GetView(viewName).UnwrapSome();
+            var view = GetView(viewName);
 
             Assert.IsFalse(view.IsIndexed);
         }
@@ -194,7 +210,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
         public void Indexes_WhenViewIsNotIndexed_ReturnsEmptyCollection()
         {
             var viewName = new Identifier(IdentifierDefaults.Schema, "view_test_view_1");
-            var view = ViewProvider.GetView(viewName).UnwrapSome();
+            var view = GetView(viewName);
             var indexCount = view.Indexes.Count;
 
             Assert.Zero(indexCount);
@@ -204,7 +220,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
         public void Columns_WhenViewContainsSingleColumn_ContainsOneValueOnly()
         {
             var viewName = new Identifier(IdentifierDefaults.Schema, "view_test_view_1");
-            var view = ViewProvider.GetView(viewName).UnwrapSome();
+            var view = GetView(viewName);
             var columnCount = view.Columns.Count;
 
             Assert.AreEqual(1, columnCount);
@@ -214,7 +230,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
         public void Columns_WhenViewContainsSingleColumn_ContainsColumnName()
         {
             var viewName = new Identifier(IdentifierDefaults.Schema, "view_test_view_1");
-            var view = ViewProvider.GetView(viewName).UnwrapSome();
+            var view = GetView(viewName);
             var containsColumn = view.Columns.Any(c => c.Name == "test");
 
             Assert.IsTrue(containsColumn);
@@ -224,7 +240,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
         public void Columns_WhenViewContainsUnnamedColumns_ContainsCorrectNumberOfColumns()
         {
             var viewName = new Identifier(IdentifierDefaults.Schema, "view_test_view_2");
-            var view = ViewProvider.GetView(viewName).UnwrapSome();
+            var view = GetView(viewName);
             var columnCount = view.Columns.Count;
 
             Assert.AreEqual(4, columnCount);
@@ -234,7 +250,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
         public void Columns_WhenViewContainsUnnamedColumns_ContainsCorrectTypesForColumns()
         {
             var viewName = new Identifier(IdentifierDefaults.Schema, "view_test_view_2");
-            var view = ViewProvider.GetView(viewName).UnwrapSome();
+            var view = GetView(viewName);
             var columnTypes = view.Columns.Select(c => c.Type.DataType).ToList();
             var expectedTypes = new[] { DataType.BigInteger, DataType.Float, DataType.UnicodeText, DataType.LargeBinary };
 
@@ -246,7 +262,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
         public void Columns_WhenViewContainsUnnamedColumnsAndTableColumn_ContainsCorrectNumberOfColumns()
         {
             var viewName = new Identifier(IdentifierDefaults.Schema, "view_test_view_3");
-            var view = ViewProvider.GetView(viewName).UnwrapSome();
+            var view = GetView(viewName);
             var columnCount = view.Columns.Count;
 
             Assert.AreEqual(5, columnCount);
@@ -256,7 +272,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
         public void Columns_WhenViewContainsUnnamedColumnsAndTableColumn_ContainsCorrectTypesForColumns()
         {
             var viewName = new Identifier(IdentifierDefaults.Schema, "view_test_view_3");
-            var view = ViewProvider.GetView(viewName).UnwrapSome();
+            var view = GetView(viewName);
             var columnTypes = view.Columns.Select(c => c.Type.DataType).ToList();
             var expectedTypes = new[] { DataType.Numeric, DataType.Numeric, DataType.Numeric, DataType.Numeric, DataType.BigInteger };
 
@@ -268,7 +284,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
         public void Columns_WhenViewContainsDuplicatedUnnamedColumns_ContainsCorrectNumberOfColumns()
         {
             var viewName = new Identifier(IdentifierDefaults.Schema, "view_test_view_4");
-            var view = ViewProvider.GetView(viewName).UnwrapSome();
+            var view = GetView(viewName);
             var columnCount = view.Columns.Count;
 
             Assert.AreEqual(4, columnCount);
@@ -278,7 +294,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
         public void Columns_WhenViewContainsDuplicatedUnnamedColumns_ContainsCorrectTypesForColumns()
         {
             var viewName = new Identifier(IdentifierDefaults.Schema, "view_test_view_4");
-            var view = ViewProvider.GetView(viewName).UnwrapSome();
+            var view = GetView(viewName);
             var columnTypes = view.Columns.Select(c => c.Type.DataType).ToList();
             var expectedTypes = new[] { DataType.BigInteger, DataType.BigInteger, DataType.BigInteger, DataType.BigInteger };
 

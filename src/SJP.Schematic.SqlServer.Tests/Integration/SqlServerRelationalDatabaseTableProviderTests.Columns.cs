@@ -1,7 +1,6 @@
 ﻿using System.Linq;
 using NUnit.Framework;
 using SJP.Schematic.Core;
-using SJP.Schematic.Core.Extensions;
 
 namespace SJP.Schematic.SqlServer.Tests.Integration
 {
@@ -10,7 +9,7 @@ namespace SJP.Schematic.SqlServer.Tests.Integration
         [Test]
         public void Columns_WhenGivenTableWithOneColumn_ReturnsColumnCollectionWithOneValue()
         {
-            var table = TableProvider.GetTable("table_test_table_1").UnwrapSome();
+            var table = GetTable("table_test_table_1");
             var count = table.Columns.Count;
 
             Assert.AreEqual(1, count);
@@ -19,7 +18,7 @@ namespace SJP.Schematic.SqlServer.Tests.Integration
         [Test]
         public void Columns_WhenGivenTableWithOneColumn_ReturnsColumnWithCorrectName()
         {
-            var table = TableProvider.GetTable("table_test_table_1").UnwrapSome();
+            var table = GetTable("table_test_table_1");
             var column = table.Columns.Single();
             const string columnName = "test_column";
 
@@ -30,7 +29,7 @@ namespace SJP.Schematic.SqlServer.Tests.Integration
         public void Columns_WhenGivenTableWithMultipleColumns_ReturnsColumnsInCorrectOrder()
         {
             var expectedColumnNames = new[] { "first_name", "middle_name", "last_name" };
-            var table = TableProvider.GetTable("table_test_table_4").UnwrapSome();
+            var table = GetTable("table_test_table_4");
             var columns = table.Columns;
             var columnNames = columns.Select(c => c.Name.LocalName);
 
@@ -41,7 +40,7 @@ namespace SJP.Schematic.SqlServer.Tests.Integration
         public void Columns_WhenGivenTableWithNullableColumn_ColumnReturnsIsNullableTrue()
         {
             const string tableName = "table_test_table_1";
-            var table = TableProvider.GetTable(tableName).UnwrapSome();
+            var table = GetTable(tableName);
             var column = table.Columns.Single();
 
             Assert.IsTrue(column.IsNullable);
@@ -51,7 +50,7 @@ namespace SJP.Schematic.SqlServer.Tests.Integration
         public void Columns_WhenGivenTableWithNotNullableColumn_ColumnReturnsIsNullableFalse()
         {
             const string tableName = "table_test_table_2";
-            var table = TableProvider.GetTable(tableName).UnwrapSome();
+            var table = GetTable(tableName);
             var column = table.Columns.Single();
 
             Assert.IsFalse(column.IsNullable);
@@ -61,7 +60,7 @@ namespace SJP.Schematic.SqlServer.Tests.Integration
         public void Columns_WhenGivenTableWithColumnWithNoDefaultValue_ColumnReturnsNullDefaultValue()
         {
             const string tableName = "table_test_table_1";
-            var table = TableProvider.GetTable(tableName).UnwrapSome();
+            var table = GetTable(tableName);
             var column = table.Columns.Single();
 
             Assert.IsNull(column.DefaultValue);
@@ -71,7 +70,7 @@ namespace SJP.Schematic.SqlServer.Tests.Integration
         public void Columns_WhenGivenTableWithColumnWithDefaultValue_ColumnReturnsCorrectDefaultValue()
         {
             const string tableName = "table_test_table_33";
-            var table = TableProvider.GetTable(tableName).UnwrapSome();
+            var table = GetTable(tableName);
             var column = table.Columns.Single();
 
             const string defaultValue = "1";
@@ -85,7 +84,7 @@ namespace SJP.Schematic.SqlServer.Tests.Integration
         public void Columns_WhenGivenTableWithNonComputedColumn_ReturnsIsComputedFalse()
         {
             const string tableName = "table_test_table_1";
-            var table = TableProvider.GetTable(tableName).UnwrapSome();
+            var table = GetTable(tableName);
             var column = table.Columns.Single();
 
             Assert.IsFalse(column.IsComputed);
@@ -95,7 +94,7 @@ namespace SJP.Schematic.SqlServer.Tests.Integration
         public void Columns_WhenGivenTableWithComputedColumn_ReturnsIsComputedTrue()
         {
             const string tableName = "table_test_table_34";
-            var table = TableProvider.GetTable(tableName).UnwrapSome();
+            var table = GetTable(tableName);
             var column = table.Columns.Last();
 
             Assert.IsTrue(column.IsComputed);
@@ -105,7 +104,7 @@ namespace SJP.Schematic.SqlServer.Tests.Integration
         public void Columns_WhenGivenTableWithComputedColumnCastedToInterface_ReturnsNotNullObject()
         {
             const string tableName = "table_test_table_34";
-            var table = TableProvider.GetTable(tableName).UnwrapSome();
+            var table = GetTable(tableName);
             var column = table.Columns.Last();
 
             var computedColumn = column as IDatabaseComputedColumn;
@@ -118,7 +117,7 @@ namespace SJP.Schematic.SqlServer.Tests.Integration
             const string tableName = "table_test_table_34";
             const string expectedDefinition = "([test_column_1]+[test_column_2])";
 
-            var table = TableProvider.GetTable(tableName).UnwrapSome();
+            var table = GetTable(tableName);
             var column = table.Columns.Last();
 
             var computedColumn = column as IDatabaseComputedColumn;
@@ -129,7 +128,7 @@ namespace SJP.Schematic.SqlServer.Tests.Integration
         public void Columns_WhenGivenTableColumnWithoutIdentity_ReturnsNullAutoincrement()
         {
             const string tableName = "table_test_table_1";
-            var table = TableProvider.GetTable(tableName).UnwrapSome();
+            var table = GetTable(tableName);
             var column = table.Columns.Single();
 
             Assert.IsNull(column.AutoIncrement);
@@ -139,7 +138,7 @@ namespace SJP.Schematic.SqlServer.Tests.Integration
         public void Columns_WhenGivenTableColumnWithIdentity_ReturnsNotNullAutoincrement()
         {
             const string tableName = "table_test_table_35";
-            var table = TableProvider.GetTable(tableName).UnwrapSome();
+            var table = GetTable(tableName);
             var column = table.Columns.Last();
 
             Assert.IsNotNull(column.AutoIncrement);
@@ -149,7 +148,7 @@ namespace SJP.Schematic.SqlServer.Tests.Integration
         public void Columns_WhenGivenTableColumnWithIdentity_ReturnsCorrectInitialValue()
         {
             const string tableName = "table_test_table_35";
-            var table = TableProvider.GetTable(tableName).UnwrapSome();
+            var table = GetTable(tableName);
             var column = table.Columns.Last();
 
             Assert.AreEqual(10, column.AutoIncrement.InitialValue);
@@ -159,7 +158,7 @@ namespace SJP.Schematic.SqlServer.Tests.Integration
         public void Columns_WhenGivenTableColumnWithIdentity_ReturnsCorrectIncrement()
         {
             const string tableName = "table_test_table_35";
-            var table = TableProvider.GetTable(tableName).UnwrapSome();
+            var table = GetTable(tableName);
             var column = table.Columns.Last();
 
             Assert.AreEqual(5, column.AutoIncrement.Increment);

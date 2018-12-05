@@ -8,9 +8,9 @@ namespace SJP.Schematic.MySql.Tests.Integration
     internal partial class MySqlRelationalDatabaseTableProviderTests : MySqlTest
     {
         [Test]
-        public void PrimaryKey_WhenGivenTableWithNoPrimaryKey_ReturnsNull()
+        public void PrimaryKey_WhenGivenTableWithNoPrimaryKey_ReturnsNone()
         {
-            var table = TableProvider.GetTable("table_test_table_1").UnwrapSome();
+            var table = GetTable("table_test_table_1");
             var pkIsNone = table.PrimaryKey.IsNone;
 
             Assert.IsTrue(pkIsNone);
@@ -19,7 +19,7 @@ namespace SJP.Schematic.MySql.Tests.Integration
         [Test]
         public void PrimaryKey_WhenGivenTableWithPrimaryKey_ReturnsCorrectKeyType()
         {
-            var table = TableProvider.GetTable("table_test_table_2").UnwrapSome();
+            var table = GetTable("table_test_table_2");
             var keyType = table.PrimaryKey.UnwrapSome().KeyType;
 
             Assert.AreEqual(DatabaseKeyType.Primary, keyType);
@@ -28,7 +28,7 @@ namespace SJP.Schematic.MySql.Tests.Integration
         [Test]
         public void PrimaryKey_WhenGivenTableWithColumnAsPrimaryKey_ReturnsPrimaryKeyWithColumnOnly()
         {
-            var table = TableProvider.GetTable("table_test_table_2").UnwrapSome();
+            var table = GetTable("table_test_table_2");
             var pk = table.PrimaryKey.UnwrapSome();
             var pkColumns = pk.Columns.ToList();
 
@@ -42,7 +42,7 @@ namespace SJP.Schematic.MySql.Tests.Integration
         [Test]
         public void PrimaryKey_WhenGivenTableWithSingleColumnConstraintAsPrimaryKey_ReturnsPrimaryKeyWithColumnOnly()
         {
-            var table = TableProvider.GetTable("table_test_table_3").UnwrapSome();
+            var table = GetTable("table_test_table_3");
             var pk = table.PrimaryKey.UnwrapSome();
             var pkColumns = pk.Columns.ToList();
 
@@ -56,7 +56,7 @@ namespace SJP.Schematic.MySql.Tests.Integration
         [Test]
         public void PrimaryKey_WhenGivenTableWithSingleColumnConstraintAsPrimaryKey_ReturnsPrimaryKeyWithCorrectName()
         {
-            var table = TableProvider.GetTable("table_test_table_3").UnwrapSome();
+            var table = GetTable("table_test_table_3");
             var pk = table.PrimaryKey.UnwrapSome();
 
             Assert.AreEqual("PRIMARY", pk.Name.LocalName);
@@ -67,7 +67,7 @@ namespace SJP.Schematic.MySql.Tests.Integration
         {
             var expectedColumnNames = new[] { "first_name", "last_name", "middle_name" };
 
-            var table = TableProvider.GetTable("table_test_table_4").UnwrapSome();
+            var table = GetTable("table_test_table_4");
             var pk = table.PrimaryKey.UnwrapSome();
             var pkColumns = pk.Columns.ToList();
 
@@ -83,7 +83,7 @@ namespace SJP.Schematic.MySql.Tests.Integration
         [Test]
         public void PrimaryKey_WhenGivenTableWithMultiColumnConstraintAsPrimaryKey_ReturnsPrimaryKeyWithCorrectName()
         {
-            var table = TableProvider.GetTable("table_test_table_4").UnwrapSome();
+            var table = GetTable("table_test_table_4");
             var pk = table.PrimaryKey.UnwrapSome();
 
             Assert.AreEqual("PRIMARY", pk.Name.LocalName);

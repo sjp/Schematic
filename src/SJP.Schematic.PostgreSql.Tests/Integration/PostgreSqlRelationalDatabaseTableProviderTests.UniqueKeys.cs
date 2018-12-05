@@ -1,7 +1,6 @@
 ﻿using System.Linq;
 using NUnit.Framework;
 using SJP.Schematic.Core;
-using SJP.Schematic.Core.Extensions;
 
 namespace SJP.Schematic.PostgreSql.Tests.Integration
 {
@@ -10,7 +9,7 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration
         [Test]
         public void UniqueKeys_WhenGivenTableWithNoUniqueKeys_ReturnsEmptyCollection()
         {
-            var table = TableProvider.GetTable("table_test_table_1").UnwrapSome();
+            var table = GetTable("table_test_table_1");
             var count = table.UniqueKeys.Count;
 
             Assert.AreEqual(0, count);
@@ -19,7 +18,7 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration
         [Test]
         public void UniqueKeys_WhenGivenTableWithSingleUniqueKey_ReturnsCorrectKeyType()
         {
-            var table = TableProvider.GetTable("table_test_table_5").UnwrapSome();
+            var table = GetTable("table_test_table_5");
             var uk = table.UniqueKeys.Single();
 
             Assert.AreEqual(DatabaseKeyType.Unique, uk.KeyType);
@@ -28,7 +27,7 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration
         [Test]
         public void UniqueKeys_WhenGivenTableWithColumnAsUniqueKey_ReturnsUniqueKeyWithColumnOnly()
         {
-            var table = TableProvider.GetTable("table_test_table_5").UnwrapSome();
+            var table = GetTable("table_test_table_5");
             var uk = table.UniqueKeys.Single();
             var ukColumns = uk.Columns.ToList();
 
@@ -42,7 +41,7 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration
         [Test]
         public void UniqueKeys_WhenGivenTableWithSingleColumnConstraintAsUniqueKey_ReturnsUniqueKeyWithColumnOnly()
         {
-            var table = TableProvider.GetTable("table_test_table_6").UnwrapSome();
+            var table = GetTable("table_test_table_6");
             var uk = table.UniqueKeys.Single();
             var ukColumns = uk.Columns.ToList();
 
@@ -56,7 +55,7 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration
         [Test]
         public void UniqueKeys_WhenGivenTableWithSingleColumnConstraintAsUniqueKey_ReturnsUniqueKeyWithCorrectName()
         {
-            var table = TableProvider.GetTable("table_test_table_6").UnwrapSome();
+            var table = GetTable("table_test_table_6");
             var uk = table.UniqueKeys.Single();
 
             Assert.AreEqual("uk_test_table_6", uk.Name.LocalName);
@@ -67,7 +66,7 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration
         {
             var expectedColumnNames = new[] { "first_name", "last_name", "middle_name" };
 
-            var table = TableProvider.GetTable("table_test_table_7").UnwrapSome();
+            var table = GetTable("table_test_table_7");
             var uk = table.UniqueKeys.Single();
             var ukColumns = uk.Columns.ToList();
 
@@ -83,7 +82,7 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration
         [Test]
         public void UniqueKeys_WhenGivenTableWithMultiColumnConstraintAsUniqueKey_ReturnsUniqueKeyWithCorrectName()
         {
-            var table = TableProvider.GetTable("table_test_table_7").UnwrapSome();
+            var table = GetTable("table_test_table_7");
             var uk = table.UniqueKeys.Single();
 
             Assert.AreEqual("uk_test_table_7", uk.Name.LocalName);

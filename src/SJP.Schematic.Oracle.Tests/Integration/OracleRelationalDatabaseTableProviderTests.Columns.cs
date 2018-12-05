@@ -1,7 +1,6 @@
 ﻿using System.Linq;
 using NUnit.Framework;
 using SJP.Schematic.Core;
-using SJP.Schematic.Core.Extensions;
 
 namespace SJP.Schematic.Oracle.Tests.Integration
 {
@@ -10,7 +9,7 @@ namespace SJP.Schematic.Oracle.Tests.Integration
         [Test]
         public void Columns_WhenGivenTableWithOneColumn_ReturnsColumnCollectionWithOneValue()
         {
-            var table = TableProvider.GetTable("table_test_table_1").UnwrapSome();
+            var table = GetTable("table_test_table_1");
             var count = table.Columns.Count;
 
             Assert.AreEqual(1, count);
@@ -19,7 +18,7 @@ namespace SJP.Schematic.Oracle.Tests.Integration
         [Test]
         public void Columns_WhenGivenTableWithOneColumn_ReturnsColumnWithCorrectName()
         {
-            var table = TableProvider.GetTable("table_test_table_1").UnwrapSome();
+            var table = GetTable("table_test_table_1");
             var column = table.Columns.Single();
             const string columnName = "TEST_COLUMN";
 
@@ -30,7 +29,7 @@ namespace SJP.Schematic.Oracle.Tests.Integration
         public void Columns_WhenGivenTableWithMultipleColumns_ReturnsColumnsInCorrectOrder()
         {
             var expectedColumnNames = new[] { "FIRST_NAME", "MIDDLE_NAME", "LAST_NAME" };
-            var table = TableProvider.GetTable("table_test_table_4").UnwrapSome();
+            var table = GetTable("table_test_table_4");
             var columns = table.Columns;
             var columnNames = columns.Select(c => c.Name.LocalName);
 
@@ -41,7 +40,7 @@ namespace SJP.Schematic.Oracle.Tests.Integration
         public void Columns_WhenGivenTableWithNullableColumn_ColumnReturnsIsNullableTrue()
         {
             const string tableName = "TABLE_TEST_TABLE_1";
-            var table = TableProvider.GetTable(tableName).UnwrapSome();
+            var table = GetTable(tableName);
             var column = table.Columns.Single();
 
             Assert.IsTrue(column.IsNullable);
@@ -51,7 +50,7 @@ namespace SJP.Schematic.Oracle.Tests.Integration
         public void Columns_WhenGivenTableWithNotNullableColumn_ColumnReturnsIsNullableFalse()
         {
             const string tableName = "TABLE_TEST_TABLE_2";
-            var table = TableProvider.GetTable(tableName).UnwrapSome();
+            var table = GetTable(tableName);
             var column = table.Columns.Single();
 
             Assert.IsFalse(column.IsNullable);
@@ -61,7 +60,7 @@ namespace SJP.Schematic.Oracle.Tests.Integration
         public void Columns_WhenGivenTableWithColumnWithNoDefaultValue_ColumnReturnsNullDefaultValue()
         {
             const string tableName = "TABLE_TEST_TABLE_1";
-            var table = TableProvider.GetTable(tableName).UnwrapSome();
+            var table = GetTable(tableName);
             var column = table.Columns.Single();
 
             Assert.IsNull(column.DefaultValue);
@@ -71,7 +70,7 @@ namespace SJP.Schematic.Oracle.Tests.Integration
         public void Columns_WhenGivenTableWithColumnWithDefaultValue_ColumnReturnsCorrectDefaultValue()
         {
             const string tableName = "TABLE_TEST_TABLE_33";
-            var table = TableProvider.GetTable(tableName).UnwrapSome();
+            var table = GetTable(tableName);
             var column = table.Columns.Single();
 
             const string defaultValue = "1";
@@ -85,7 +84,7 @@ namespace SJP.Schematic.Oracle.Tests.Integration
         public void Columns_WhenGivenTableWithNonComputedColumn_ReturnsIsComputedFalse()
         {
             const string tableName = "TABLE_TEST_TABLE_1";
-            var table = TableProvider.GetTable(tableName).UnwrapSome();
+            var table = GetTable(tableName);
             var column = table.Columns.Single();
 
             Assert.IsFalse(column.IsComputed);
@@ -95,7 +94,7 @@ namespace SJP.Schematic.Oracle.Tests.Integration
         public void Columns_WhenGivenTableWithComputedColumn_ReturnsIsComputedTrue()
         {
             const string tableName = "TABLE_TEST_TABLE_34";
-            var table = TableProvider.GetTable(tableName).UnwrapSome();
+            var table = GetTable(tableName);
             var column = table.Columns.Last();
 
             Assert.IsTrue(column.IsComputed);
@@ -105,7 +104,7 @@ namespace SJP.Schematic.Oracle.Tests.Integration
         public void Columns_WhenGivenTableWithComputedColumnCastedToInterface_ReturnsNotNullObject()
         {
             const string tableName = "TABLE_TEST_TABLE_34";
-            var table = TableProvider.GetTable(tableName).UnwrapSome();
+            var table = GetTable(tableName);
             var column = table.Columns.Last();
 
             var computedColumn = column as IDatabaseComputedColumn;
@@ -118,7 +117,7 @@ namespace SJP.Schematic.Oracle.Tests.Integration
             const string tableName = "TABLE_TEST_TABLE_34";
             const string expectedDefinition = "\"TEST_COLUMN_1\"+\"TEST_COLUMN_2\"";
 
-            var table = TableProvider.GetTable(tableName).UnwrapSome();
+            var table = GetTable(tableName);
             var column = table.Columns.Last();
 
             var computedColumn = column as IDatabaseComputedColumn;
@@ -129,7 +128,7 @@ namespace SJP.Schematic.Oracle.Tests.Integration
         public void Columns_WhenGivenTableColumnWithoutIdentity_ReturnsNullAutoincrement()
         {
             const string tableName = "TABLE_TEST_TABLE_1";
-            var table = TableProvider.GetTable(tableName).UnwrapSome();
+            var table = GetTable(tableName);
             var column = table.Columns.Single();
 
             Assert.IsNull(column.AutoIncrement);

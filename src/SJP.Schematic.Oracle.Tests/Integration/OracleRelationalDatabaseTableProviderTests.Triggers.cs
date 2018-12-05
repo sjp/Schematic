@@ -1,7 +1,6 @@
 ﻿using System.Linq;
 using NUnit.Framework;
 using SJP.Schematic.Core;
-using SJP.Schematic.Core.Extensions;
 
 namespace SJP.Schematic.Oracle.Tests.Integration
 {
@@ -10,7 +9,7 @@ namespace SJP.Schematic.Oracle.Tests.Integration
         [Test]
         public void Triggers_GivenTableWithNoTriggers_ReturnsEmptyCollection()
         {
-            var table = TableProvider.GetTable("trigger_test_table_2").UnwrapSome();
+            var table = GetTable("trigger_test_table_2");
             var count = table.Triggers.Count;
 
             Assert.Zero(count);
@@ -19,7 +18,7 @@ namespace SJP.Schematic.Oracle.Tests.Integration
         [Test]
         public void Triggers_GivenTableWithTrigger_ReturnsNonEmptyCollection()
         {
-            var table = TableProvider.GetTable("trigger_test_table_1").UnwrapSome();
+            var table = GetTable("trigger_test_table_1");
             var count = table.Triggers.Count;
 
             Assert.NotZero(count);
@@ -30,7 +29,7 @@ namespace SJP.Schematic.Oracle.Tests.Integration
         {
             const string triggerName = "TRIGGER_TEST_TABLE_1_TRIGGER_1";
 
-            var table = TableProvider.GetTable("trigger_test_table_1").UnwrapSome();
+            var table = GetTable("trigger_test_table_1");
             var trigger = table.Triggers.First(t => t.Name == triggerName);
 
             Assert.AreEqual(triggerName, trigger.Name.LocalName);
@@ -39,7 +38,7 @@ namespace SJP.Schematic.Oracle.Tests.Integration
         [Test]
         public void Triggers_GivenTableWithTrigger_ReturnsCorrectDefinition()
         {
-            var table = TableProvider.GetTable("trigger_test_table_1").UnwrapSome();
+            var table = GetTable("trigger_test_table_1");
             var trigger = table.Triggers.First(t => t.Name == "TRIGGER_TEST_TABLE_1_TRIGGER_1");
 
             const string expectedDefinition = @"begin
@@ -53,7 +52,7 @@ end;
         [Test]
         public void Triggers_GivenTableWithTriggerForInsert_ReturnsCorrectEventAndTiming()
         {
-            var table = TableProvider.GetTable("trigger_test_table_1").UnwrapSome();
+            var table = GetTable("trigger_test_table_1");
             var trigger = table.Triggers.First(t => t.Name == "TRIGGER_TEST_TABLE_1_TRIGGER_1");
 
             const TriggerQueryTiming timing = TriggerQueryTiming.Before;
@@ -69,7 +68,7 @@ end;
         [Test]
         public void Triggers_GivenTableWithTriggerForUpdate_ReturnsCorrectEventAndTiming()
         {
-            var table = TableProvider.GetTable("trigger_test_table_1").UnwrapSome();
+            var table = GetTable("trigger_test_table_1");
             var trigger = table.Triggers.First(t => t.Name == "TRIGGER_TEST_TABLE_1_TRIGGER_2");
 
             const TriggerQueryTiming timing = TriggerQueryTiming.Before;
@@ -85,7 +84,7 @@ end;
         [Test]
         public void Triggers_GivenTableWithTriggerForDelete_ReturnsCorrectEventAndTiming()
         {
-            var table = TableProvider.GetTable("trigger_test_table_1").UnwrapSome();
+            var table = GetTable("trigger_test_table_1");
             var trigger = table.Triggers.First(t => t.Name == "TRIGGER_TEST_TABLE_1_TRIGGER_3");
 
             const TriggerQueryTiming timing = TriggerQueryTiming.Before;
@@ -101,7 +100,7 @@ end;
         [Test]
         public void Triggers_GivenTableWithTriggerAfterInsert_ReturnsCorrectEventAndTiming()
         {
-            var table = TableProvider.GetTable("trigger_test_table_1").UnwrapSome();
+            var table = GetTable("trigger_test_table_1");
             var trigger = table.Triggers.First(t => t.Name == "TRIGGER_TEST_TABLE_1_TRIGGER_4");
 
             const TriggerQueryTiming timing = TriggerQueryTiming.After;
@@ -117,7 +116,7 @@ end;
         [Test]
         public void Triggers_GivenTableWithTriggerAfterUpdate_ReturnsCorrectEventAndTiming()
         {
-            var table = TableProvider.GetTable("trigger_test_table_1").UnwrapSome();
+            var table = GetTable("trigger_test_table_1");
             var trigger = table.Triggers.First(t => t.Name == "TRIGGER_TEST_TABLE_1_TRIGGER_5");
 
             const TriggerQueryTiming timing = TriggerQueryTiming.After;
@@ -133,7 +132,7 @@ end;
         [Test]
         public void Triggers_GivenTableWithTriggerAfterDelete_ReturnsCorrectEventAndTiming()
         {
-            var table = TableProvider.GetTable("trigger_test_table_1").UnwrapSome();
+            var table = GetTable("trigger_test_table_1");
             var trigger = table.Triggers.First(t => t.Name == "TRIGGER_TEST_TABLE_1_TRIGGER_6");
 
             const TriggerQueryTiming timing = TriggerQueryTiming.After;

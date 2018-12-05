@@ -1,4 +1,6 @@
-﻿using System.Linq;
+﻿using System;
+using System.Collections.Concurrent;
+using System.Linq;
 using System.Threading.Tasks;
 using Dapper;
 using NUnit.Framework;
@@ -42,6 +44,22 @@ namespace SJP.Schematic.Oracle.Tests.Integration
             await Connection.ExecuteAsync("drop sequence db_test_sequence_10").ConfigureAwait(false);
             await Connection.ExecuteAsync("drop sequence db_test_sequence_11").ConfigureAwait(false);
         }
+
+        private IDatabaseSequence GetSequence(Identifier sequenceName)
+        {
+            if (sequenceName == null)
+                throw new ArgumentNullException(nameof(sequenceName));
+
+            if (_sequencesCache.TryGetValue(sequenceName, out var sequence))
+                return sequence;
+
+            sequence = SequenceProvider.GetSequence(sequenceName).UnwrapSome();
+            _sequencesCache.TryAdd(sequenceName, sequence);
+
+            return sequence;
+        }
+
+        private readonly static ConcurrentDictionary<Identifier, IDatabaseSequence> _sequencesCache = new ConcurrentDictionary<Identifier, IDatabaseSequence>();
 
         private const int SequenceDefaultCache = 20;
         private const int SequenceDefaultMinValue = 1;
@@ -268,7 +286,7 @@ namespace SJP.Schematic.Oracle.Tests.Integration
         [Test]
         public void Start_GivenDefaultSequence_ReturnsOne()
         {
-            var sequence = SequenceProvider.GetSequence("DB_TEST_SEQUENCE_1").UnwrapSome();
+            var sequence = GetSequence("DB_TEST_SEQUENCE_1");
 
             Assert.AreEqual(1, sequence.Start);
         }
@@ -276,7 +294,7 @@ namespace SJP.Schematic.Oracle.Tests.Integration
         [Test]
         public void Start_GivenSequenceWithCustomStart_ReturnsCorrectValue()
         {
-            var sequence = SequenceProvider.GetSequence("DB_TEST_SEQUENCE_2").UnwrapSome();
+            var sequence = GetSequence("DB_TEST_SEQUENCE_2");
 
             Assert.AreEqual(1, sequence.Start);
         }
@@ -284,7 +302,7 @@ namespace SJP.Schematic.Oracle.Tests.Integration
         [Test]
         public void Increment_GivenDefaultSequence_ReturnsOne()
         {
-            var sequence = SequenceProvider.GetSequence("DB_TEST_SEQUENCE_1").UnwrapSome();
+            var sequence = GetSequence("DB_TEST_SEQUENCE_1");
 
             Assert.AreEqual(1, sequence.Increment);
         }
@@ -292,7 +310,7 @@ namespace SJP.Schematic.Oracle.Tests.Integration
         [Test]
         public void Increment_GivenSequenceWithCustomIncrement_ReturnsCorrectValue()
         {
-            var sequence = SequenceProvider.GetSequence("DB_TEST_SEQUENCE_3").UnwrapSome();
+            var sequence = GetSequence("DB_TEST_SEQUENCE_3");
 
             Assert.AreEqual(100, sequence.Increment);
         }
@@ -300,7 +318,7 @@ namespace SJP.Schematic.Oracle.Tests.Integration
         [Test]
         public void MinValue_GivenDefaultSequence_ReturnsOne()
         {
-            var sequence = SequenceProvider.GetSequence("DB_TEST_SEQUENCE_1").UnwrapSome();
+            var sequence = GetSequence("DB_TEST_SEQUENCE_1");
 
             Assert.AreEqual(SequenceDefaultMinValue, sequence.MinValue.UnwrapSome());
         }
@@ -308,7 +326,7 @@ namespace SJP.Schematic.Oracle.Tests.Integration
         [Test]
         public void MinValue_GivenSequenceWithCustomMinValue_ReturnsCorrectValue()
         {
-            var sequence = SequenceProvider.GetSequence("DB_TEST_SEQUENCE_4").UnwrapSome();
+            var sequence = GetSequence("DB_TEST_SEQUENCE_4");
 
             Assert.AreEqual(-99, sequence.MinValue.UnwrapSome());
         }
@@ -316,7 +334,7 @@ namespace SJP.Schematic.Oracle.Tests.Integration
         [Test]
         public void MinValue_GivenAscendingSequenceWithNoMinValue_ReturnsOne()
         {
-            var sequence = SequenceProvider.GetSequence("DB_TEST_SEQUENCE_5").UnwrapSome();
+            var sequence = GetSequence("DB_TEST_SEQUENCE_5");
 
             Assert.AreEqual(1, sequence.MinValue.UnwrapSome());
         }
@@ -324,7 +342,7 @@ namespace SJP.Schematic.Oracle.Tests.Integration
         [Test]
         public void MaxValue_GivenDefaultSequence_ReturnsOracleNumberMaxValue()
         {
-            var sequence = SequenceProvider.GetSequence("DB_TEST_SEQUENCE_1").UnwrapSome();
+            var sequence = GetSequence("DB_TEST_SEQUENCE_1");
 
             Assert.AreEqual(OracleNumberMaxValue, sequence.MaxValue.UnwrapSome());
         }
@@ -332,7 +350,7 @@ namespace SJP.Schematic.Oracle.Tests.Integration
         [Test]
         public void MaxValue_GivenSequenceWithCustomMaxValue_ReturnsCorrectValue()
         {
-            var sequence = SequenceProvider.GetSequence("DB_TEST_SEQUENCE_6").UnwrapSome();
+            var sequence = GetSequence("DB_TEST_SEQUENCE_6");
 
             Assert.AreEqual(333, sequence.MaxValue.UnwrapSome());
         }
@@ -340,7 +358,7 @@ namespace SJP.Schematic.Oracle.Tests.Integration
         [Test]
         public void MaxValue_GivenSequenceWithNoMaxValue_ReturnsOracleNumberMaxValue()
         {
-            var sequence = SequenceProvider.GetSequence("DB_TEST_SEQUENCE_7").UnwrapSome();
+            var sequence = GetSequence("DB_TEST_SEQUENCE_7");
 
             Assert.AreEqual(OracleNumberMaxValue, sequence.MaxValue.UnwrapSome());
         }
@@ -348,7 +366,7 @@ namespace SJP.Schematic.Oracle.Tests.Integration
         [Test]
         public void Cycle_GivenDefaultSequence_ReturnsTrue()
         {
-            var sequence = SequenceProvider.GetSequence("DB_TEST_SEQUENCE_1").UnwrapSome();
+            var sequence = GetSequence("DB_TEST_SEQUENCE_1");
 
             Assert.IsFalse(sequence.Cycle);
         }
@@ -356,7 +374,7 @@ namespace SJP.Schematic.Oracle.Tests.Integration
         [Test]
         public void Cycle_GivenSequenceWithCycle_ReturnsTrue()
         {
-            var sequence = SequenceProvider.GetSequence("DB_TEST_SEQUENCE_8").UnwrapSome();
+            var sequence = GetSequence("DB_TEST_SEQUENCE_8");
 
             Assert.IsTrue(sequence.Cycle);
         }
@@ -364,7 +382,7 @@ namespace SJP.Schematic.Oracle.Tests.Integration
         [Test]
         public void Cycle_GivenSequenceWithNoCycle_ReturnsTrue()
         {
-            var sequence = SequenceProvider.GetSequence("DB_TEST_SEQUENCE_9").UnwrapSome();
+            var sequence = GetSequence("DB_TEST_SEQUENCE_9");
 
             Assert.IsFalse(sequence.Cycle);
         }
@@ -372,7 +390,7 @@ namespace SJP.Schematic.Oracle.Tests.Integration
         [Test]
         public void Cache_GivenDefaultSequence_ReturnsDefaultCacheSize()
         {
-            var sequence = SequenceProvider.GetSequence("DB_TEST_SEQUENCE_1").UnwrapSome();
+            var sequence = GetSequence("DB_TEST_SEQUENCE_1");
 
             Assert.AreEqual(SequenceDefaultCache, sequence.Cache);
         }
@@ -380,7 +398,7 @@ namespace SJP.Schematic.Oracle.Tests.Integration
         [Test]
         public void Cache_GivenSequenceWithCacheSet_ReturnsCorrectValue()
         {
-            var sequence = SequenceProvider.GetSequence("DB_TEST_SEQUENCE_10").UnwrapSome();
+            var sequence = GetSequence("DB_TEST_SEQUENCE_10");
 
             Assert.AreEqual(10, sequence.Cache);
         }
@@ -388,7 +406,7 @@ namespace SJP.Schematic.Oracle.Tests.Integration
         [Test]
         public void Cache_GivenSequenceWithNoCacheSet_ReturnsCorrectValue()
         {
-            var sequence = SequenceProvider.GetSequence("DB_TEST_SEQUENCE_11").UnwrapSome();
+            var sequence = GetSequence("DB_TEST_SEQUENCE_11");
 
             Assert.AreEqual(0, sequence.Cache);
         }

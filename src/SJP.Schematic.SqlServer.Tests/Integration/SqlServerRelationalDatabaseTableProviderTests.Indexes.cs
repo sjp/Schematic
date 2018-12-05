@@ -1,6 +1,5 @@
 ﻿using System.Linq;
 using NUnit.Framework;
-using SJP.Schematic.Core.Extensions;
 
 namespace SJP.Schematic.SqlServer.Tests.Integration
 {
@@ -9,7 +8,7 @@ namespace SJP.Schematic.SqlServer.Tests.Integration
         [Test]
         public void Indexes_WhenGivenTableWithNoIndexes_ReturnsEmptyCollection()
         {
-            var table = TableProvider.GetTable("table_test_table_1").UnwrapSome();
+            var table = GetTable("table_test_table_1");
             var count = table.Indexes.Count;
 
             Assert.AreEqual(0, count);
@@ -18,7 +17,7 @@ namespace SJP.Schematic.SqlServer.Tests.Integration
         [Test]
         public void Indexes_WhenGivenTableWithSingleColumnIndex_ReturnsIndexWithColumnOnly()
         {
-            var table = TableProvider.GetTable("table_test_table_8").UnwrapSome();
+            var table = GetTable("table_test_table_8");
             var index = table.Indexes.Single();
             var indexColumns = index.Columns
                 .Select(c => c.DependentColumns.Single())
@@ -34,7 +33,7 @@ namespace SJP.Schematic.SqlServer.Tests.Integration
         [Test]
         public void Indexes_WhenGivenTableWithSingleColumnIndex_ReturnsIndexWithCorrectName()
         {
-            var table = TableProvider.GetTable("table_test_table_8").UnwrapSome();
+            var table = GetTable("table_test_table_8");
             var index = table.Indexes.Single();
 
             Assert.AreEqual("ix_test_table_8", index.Name.LocalName);
@@ -45,7 +44,7 @@ namespace SJP.Schematic.SqlServer.Tests.Integration
         {
             var expectedColumnNames = new[] { "first_name", "last_name", "middle_name" };
 
-            var table = TableProvider.GetTable("table_test_table_9").UnwrapSome();
+            var table = GetTable("table_test_table_9");
             var index = table.Indexes.Single();
             var indexColumns = index.Columns
                 .Select(c => c.DependentColumns.Single())
@@ -64,7 +63,7 @@ namespace SJP.Schematic.SqlServer.Tests.Integration
         [Test]
         public void Indexes_WhenGivenTableWithMultiColumnIndex_ReturnsIndexWithCorrectName()
         {
-            var table = TableProvider.GetTable("table_test_table_9").UnwrapSome();
+            var table = GetTable("table_test_table_9");
             var index = table.Indexes.Single();
 
             Assert.AreEqual("ix_test_table_9", index.Name.LocalName);
@@ -73,7 +72,7 @@ namespace SJP.Schematic.SqlServer.Tests.Integration
         [Test]
         public void Indexes_WhenGivenTableWithIndexContainingNoIncludedColumns_ReturnsIndexWithoutIncludedColumns()
         {
-            var table = TableProvider.GetTable("table_test_table_9").UnwrapSome();
+            var table = GetTable("table_test_table_9");
             var index = table.Indexes.Single();
             var includedColumns = index.IncludedColumns
                 .Select(c => c.Name.LocalName)
@@ -88,7 +87,7 @@ namespace SJP.Schematic.SqlServer.Tests.Integration
             var expectedColumnNames = new[] { "test_column" };
             var expectedIncludedColumnNames = new[] { "test_column_2" };
 
-            var table = TableProvider.GetTable("table_test_table_10").UnwrapSome();
+            var table = GetTable("table_test_table_10");
             var index = table.Indexes.Single();
             var indexColumns = index.Columns
                 .Select(c => c.DependentColumns.Single())
@@ -116,7 +115,7 @@ namespace SJP.Schematic.SqlServer.Tests.Integration
             var expectedColumnNames = new[] { "first_name" };
             var expectedIncludedColumnNames = new[] { "last_name", "middle_name" };
 
-            var table = TableProvider.GetTable("table_test_table_11").UnwrapSome();
+            var table = GetTable("table_test_table_11");
             var index = table.Indexes.Single();
             var indexColumns = index.Columns
                 .Select(c => c.DependentColumns.Single())
@@ -141,7 +140,7 @@ namespace SJP.Schematic.SqlServer.Tests.Integration
         [Test]
         public void Indexes_WhenGivenTableWithEnabledIndex_ReturnsIndexWithIsEnabledTrue()
         {
-            var table = TableProvider.GetTable("table_test_table_11").UnwrapSome();
+            var table = GetTable("table_test_table_11");
             var index = table.Indexes.Single();
 
             Assert.IsTrue(index.IsEnabled);
@@ -150,7 +149,7 @@ namespace SJP.Schematic.SqlServer.Tests.Integration
         [Test]
         public void Indexes_WhenGivenTableWithDisabledIndex_ReturnsIndexWithIsEnabledFalse()
         {
-            var table = TableProvider.GetTable("table_test_table_12").UnwrapSome();
+            var table = GetTable("table_test_table_12");
             var index = table.Indexes.Single();
 
             Assert.IsFalse(index.IsEnabled);
@@ -159,7 +158,7 @@ namespace SJP.Schematic.SqlServer.Tests.Integration
         [Test]
         public void Indexes_WhenGivenTableWithNonUniqueIndex_ReturnsIndexWithIsUniqueFalse()
         {
-            var table = TableProvider.GetTable("table_test_table_9").UnwrapSome();
+            var table = GetTable("table_test_table_9");
             var index = table.Indexes.Single();
 
             Assert.IsFalse(index.IsUnique);
@@ -168,7 +167,7 @@ namespace SJP.Schematic.SqlServer.Tests.Integration
         [Test]
         public void Indexes_WhenGivenTableWithUniqueIndex_ReturnsIndexWithIsUniqueTrue()
         {
-            var table = TableProvider.GetTable("table_test_table_13").UnwrapSome();
+            var table = GetTable("table_test_table_13");
             var index = table.Indexes.Single();
 
             Assert.IsTrue(index.IsUnique);

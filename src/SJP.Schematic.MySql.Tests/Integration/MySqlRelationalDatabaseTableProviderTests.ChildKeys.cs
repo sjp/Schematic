@@ -2,7 +2,6 @@
 using System.Linq;
 using NUnit.Framework;
 using SJP.Schematic.Core;
-using SJP.Schematic.Core.Extensions;
 
 namespace SJP.Schematic.MySql.Tests.Integration
 {
@@ -11,7 +10,7 @@ namespace SJP.Schematic.MySql.Tests.Integration
         [Test]
         public void ChildKeys_WhenGivenTableWithNoChildKeys_ReturnsEmptyCollection()
         {
-            var table = TableProvider.GetTable("table_test_table_2").UnwrapSome();
+            var table = GetTable("table_test_table_2");
             var count = table.ChildKeys.Count;
 
             Assert.AreEqual(0, count);
@@ -20,7 +19,7 @@ namespace SJP.Schematic.MySql.Tests.Integration
         [Test]
         public void ChildKeys_WhenGivenChildTableWithForeignKeyToPrimaryKey_ContainsConstraintWithCorrectNames()
         {
-            var table = TableProvider.GetTable("table_test_table_15").UnwrapSome();
+            var table = GetTable("table_test_table_15");
             var foreignKey = table.ChildKeys.Single(k => k.ChildTable.LocalName == "table_test_table_16");
 
             Assert.Multiple(() =>
@@ -33,7 +32,7 @@ namespace SJP.Schematic.MySql.Tests.Integration
         [Test]
         public void ChildKeys_WhenGivenChildTableWithForeignKeyToPrimaryKey_ContainsConstraintWithCorrectKeyTypes()
         {
-            var table = TableProvider.GetTable("table_test_table_15").UnwrapSome();
+            var table = GetTable("table_test_table_15");
             var foreignKey = table.ChildKeys.Single(k => k.ChildTable.LocalName == "table_test_table_16");
 
             Assert.Multiple(() =>
@@ -46,7 +45,7 @@ namespace SJP.Schematic.MySql.Tests.Integration
         [Test]
         public void ChildKeys_WhenGivenChildTableWithForeignKeyToPrimaryKey_ContainsConstraintWithCorrectTables()
         {
-            var table = TableProvider.GetTable("table_test_table_15").UnwrapSome();
+            var table = GetTable("table_test_table_15");
             var foreignKey = table.ChildKeys.Single(k => k.ChildTable.LocalName == "table_test_table_16");
 
             Assert.Multiple(() =>
@@ -59,7 +58,7 @@ namespace SJP.Schematic.MySql.Tests.Integration
         [Test]
         public void ChildKeys_WhenGivenChildTableWithForeignKeyToPrimaryKey_ContainsConstraintWithCorrectColumns()
         {
-            var table = TableProvider.GetTable("table_test_table_15").UnwrapSome();
+            var table = GetTable("table_test_table_15");
             var foreignKey = table.ChildKeys.Single(k => k.ChildTable.LocalName == "table_test_table_16");
 
             var childColumns = foreignKey.ChildKey.Columns.Select(c => c.Name.LocalName);
@@ -81,7 +80,7 @@ namespace SJP.Schematic.MySql.Tests.Integration
         [Test]
         public void ChildKeys_WhenGivenChildTableWithForeignKeyToPrimaryKeyWithDefaultUpdateRule_ReturnsUpdateRuleAsNoAction()
         {
-            var table = TableProvider.GetTable("table_test_table_15").UnwrapSome();
+            var table = GetTable("table_test_table_15");
             var childKeys = table.ChildKeys;
             var foreignKey = childKeys.Single(k => k.ChildTable.LocalName == "table_test_table_16");
 
@@ -91,7 +90,7 @@ namespace SJP.Schematic.MySql.Tests.Integration
         [Test]
         public void ChildKeys_WhenGivenChildTableWithForeignKeyToPrimaryKeyWithCascadeUpdateRule_ReturnsUpdateRuleAsCascade()
         {
-            var table = TableProvider.GetTable("table_test_table_15").UnwrapSome();
+            var table = GetTable("table_test_table_15");
             var childKeys = table.ChildKeys;
             var foreignKey = childKeys.Single(k => k.ChildTable.LocalName == "table_test_table_18");
 
@@ -101,7 +100,7 @@ namespace SJP.Schematic.MySql.Tests.Integration
         [Test]
         public void ChildKeys_WhenGivenChildTableWithForeignKeyToPrimaryKeyWithSetNullUpdateRule_ReturnsUpdateRuleAsSetNull()
         {
-            var table = TableProvider.GetTable("table_test_table_15").UnwrapSome();
+            var table = GetTable("table_test_table_15");
             var childKeys = table.ChildKeys;
             var foreignKey = childKeys.Single(k => k.ChildTable.LocalName == "table_test_table_19");
 
@@ -111,7 +110,7 @@ namespace SJP.Schematic.MySql.Tests.Integration
         [Test]
         public void ChildKeys_WhenGivenChildTableWithForeignKeyToPrimaryKeyWithDefaultDeleteRule_ReturnsDeleteRuleAsNoAction()
         {
-            var table = TableProvider.GetTable("table_test_table_15").UnwrapSome();
+            var table = GetTable("table_test_table_15");
             var childKeys = table.ChildKeys;
             var foreignKey = childKeys.Single(k => k.ChildTable.LocalName == "table_test_table_16");
 
@@ -121,7 +120,7 @@ namespace SJP.Schematic.MySql.Tests.Integration
         [Test]
         public void ChildKeys_WhenGivenChildTableWithForeignKeyToPrimaryKeyWithCascadeDeleteRule_ReturnsDeleteRuleAsCascade()
         {
-            var table = TableProvider.GetTable("table_test_table_15").UnwrapSome();
+            var table = GetTable("table_test_table_15");
             var childKeys = table.ChildKeys;
             var foreignKey = childKeys.Single(k => k.ChildTable.LocalName == "table_test_table_24");
 
@@ -131,7 +130,7 @@ namespace SJP.Schematic.MySql.Tests.Integration
         [Test]
         public void ChildKeys_WhenGivenChildTableWithForeignKeyToPrimaryKeyWithSetNullDeleteRule_ReturnsDeleteRuleAsSetNull()
         {
-            var table = TableProvider.GetTable("table_test_table_15").UnwrapSome();
+            var table = GetTable("table_test_table_15");
             var childKeys = table.ChildKeys;
             var foreignKey = childKeys.Single(k => k.ChildTable.LocalName == "table_test_table_25");
 
@@ -141,7 +140,7 @@ namespace SJP.Schematic.MySql.Tests.Integration
         [Test]
         public void ChildKeys_WhenGivenChildTableWithForeignKeyToPrimaryKey_ReturnsIsEnabledTrue()
         {
-            var table = TableProvider.GetTable("table_test_table_15").UnwrapSome();
+            var table = GetTable("table_test_table_15");
             var childKeys = table.ChildKeys;
             var foreignKey = childKeys.Single(k => k.ChildTable.LocalName == "table_test_table_16");
 
@@ -151,7 +150,7 @@ namespace SJP.Schematic.MySql.Tests.Integration
         [Test]
         public void ChildKeys_WhenGivenChildTableWithForeignKeyToUniqueKey_ContainsConstraintWithCorrectNames()
         {
-            var table = TableProvider.GetTable("table_test_table_15").UnwrapSome();
+            var table = GetTable("table_test_table_15");
             var foreignKey = table.ChildKeys.Single(k => k.ChildTable.LocalName == "table_test_table_17");
 
             Assert.Multiple(() =>
@@ -164,7 +163,7 @@ namespace SJP.Schematic.MySql.Tests.Integration
         [Test]
         public void ChildKeys_WhenGivenChildTableWithForeignKeyToUniqueKey_ContainsConstraintWithCorrectKeyTypes()
         {
-            var table = TableProvider.GetTable("table_test_table_15").UnwrapSome();
+            var table = GetTable("table_test_table_15");
             var foreignKey = table.ChildKeys.Single(k => k.ChildTable.LocalName == "table_test_table_17");
 
             Assert.Multiple(() =>
@@ -177,7 +176,7 @@ namespace SJP.Schematic.MySql.Tests.Integration
         [Test]
         public void ChildKeys_WhenGivenChildTableWithForeignKeyToUniqueKey_ContainsConstraintWithCorrectTables()
         {
-            var table = TableProvider.GetTable("table_test_table_15").UnwrapSome();
+            var table = GetTable("table_test_table_15");
             var foreignKey = table.ChildKeys.Single(k => k.ChildTable.LocalName == "table_test_table_17");
 
             Assert.Multiple(() =>
@@ -190,7 +189,7 @@ namespace SJP.Schematic.MySql.Tests.Integration
         [Test]
         public void ChildKeys_WhenGivenChildTableWithForeignKeyToUniqueKey_ContainsConstraintWithCorrectColumns()
         {
-            var table = TableProvider.GetTable("table_test_table_15").UnwrapSome();
+            var table = GetTable("table_test_table_15");
             var foreignKey = table.ChildKeys.Single(k => k.ChildTable.LocalName == "table_test_table_17");
 
             var childColumns = foreignKey.ChildKey.Columns.Select(c => c.Name.LocalName);
@@ -212,7 +211,7 @@ namespace SJP.Schematic.MySql.Tests.Integration
         [Test]
         public void ChildKeys_WhenGivenChildTableWithForeignKeyToUniqueKeyWithDefaultUpdateRule_ReturnsUpdateRuleAsNoAction()
         {
-            var table = TableProvider.GetTable("table_test_table_15").UnwrapSome();
+            var table = GetTable("table_test_table_15");
             var childKeys = table.ChildKeys;
             var foreignKey = childKeys.Single(k => k.ChildTable.LocalName == "table_test_table_17");
 
@@ -222,7 +221,7 @@ namespace SJP.Schematic.MySql.Tests.Integration
         [Test]
         public void ChildKeys_WhenGivenChildTableWithForeignKeyToUniqueKeyWithCascadeUpdateRule_ReturnsUpdateRuleAsCascade()
         {
-            var table = TableProvider.GetTable("table_test_table_15").UnwrapSome();
+            var table = GetTable("table_test_table_15");
             var childKeys = table.ChildKeys;
             var foreignKey = childKeys.Single(k => k.ChildTable.LocalName == "table_test_table_21");
 
@@ -232,7 +231,7 @@ namespace SJP.Schematic.MySql.Tests.Integration
         [Test]
         public void ChildKeys_WhenGivenChildTableWithForeignKeyToUniqueKeyWithSetNullUpdateRule_ReturnsUpdateRuleAsSetNull()
         {
-            var table = TableProvider.GetTable("table_test_table_15").UnwrapSome();
+            var table = GetTable("table_test_table_15");
             var childKeys = table.ChildKeys;
             var foreignKey = childKeys.Single(k => k.ChildTable.LocalName == "table_test_table_22");
 
@@ -242,7 +241,7 @@ namespace SJP.Schematic.MySql.Tests.Integration
         [Test]
         public void ChildKeys_WhenGivenChildTableWithForeignKeyToUniqueKeyWithDefaultDeleteRule_ReturnsDeleteRuleAsNoAction()
         {
-            var table = TableProvider.GetTable("table_test_table_15").UnwrapSome();
+            var table = GetTable("table_test_table_15");
             var childKeys = table.ChildKeys;
             var foreignKey = childKeys.Single(k => k.ChildTable.LocalName == "table_test_table_17");
 
@@ -252,7 +251,7 @@ namespace SJP.Schematic.MySql.Tests.Integration
         [Test]
         public void ChildKeys_WhenGivenChildTableWithForeignKeyToUniqueKeyWithCascadeDeleteRule_ReturnsDeleteRuleAsCascade()
         {
-            var table = TableProvider.GetTable("table_test_table_15").UnwrapSome();
+            var table = GetTable("table_test_table_15");
             var childKeys = table.ChildKeys;
             var foreignKey = childKeys.Single(k => k.ChildTable.LocalName == "table_test_table_27");
 
@@ -262,7 +261,7 @@ namespace SJP.Schematic.MySql.Tests.Integration
         [Test]
         public void ChildKeys_WhenGivenChildTableWithForeignKeyToUniqueKeyWithSetNullDeleteRule_ReturnsDeleteRuleAsSetNull()
         {
-            var table = TableProvider.GetTable("table_test_table_15").UnwrapSome();
+            var table = GetTable("table_test_table_15");
             var childKeys = table.ChildKeys;
             var foreignKey = childKeys.Single(k => k.ChildTable.LocalName == "table_test_table_28");
 
@@ -272,7 +271,7 @@ namespace SJP.Schematic.MySql.Tests.Integration
         [Test]
         public void ChildKeys_WhenGivenChildTableWithForeignKeyToUniqueKey_ReturnsIsEnabledTrue()
         {
-            var table = TableProvider.GetTable("table_test_table_15").UnwrapSome();
+            var table = GetTable("table_test_table_15");
             var childKeys = table.ChildKeys;
             var foreignKey = childKeys.Single(k => k.ChildTable.LocalName == "table_test_table_17");
 

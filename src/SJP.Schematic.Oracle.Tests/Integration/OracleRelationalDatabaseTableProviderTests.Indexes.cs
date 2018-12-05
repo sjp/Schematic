@@ -1,6 +1,5 @@
 ﻿using System.Linq;
 using NUnit.Framework;
-using SJP.Schematic.Core.Extensions;
 
 namespace SJP.Schematic.Oracle.Tests.Integration
 {
@@ -9,7 +8,7 @@ namespace SJP.Schematic.Oracle.Tests.Integration
         [Test]
         public void Indexes_WhenGivenTableWithNoIndexes_ReturnsEmptyCollection()
         {
-            var table = TableProvider.GetTable("table_test_table_1").UnwrapSome();
+            var table = GetTable("table_test_table_1");
             var count = table.Indexes.Count;
 
             Assert.AreEqual(0, count);
@@ -18,7 +17,7 @@ namespace SJP.Schematic.Oracle.Tests.Integration
         [Test]
         public void Indexes_WhenGivenTableWithSingleColumnIndex_ReturnsIndexWithColumnOnly()
         {
-            var table = TableProvider.GetTable("table_test_table_8").UnwrapSome();
+            var table = GetTable("table_test_table_8");
             var index = table.Indexes.Single();
             var indexColumns = index.Columns
                 .Select(c => c.DependentColumns.Single())
@@ -34,7 +33,7 @@ namespace SJP.Schematic.Oracle.Tests.Integration
         [Test]
         public void Indexes_WhenGivenTableWithSingleColumnIndex_ReturnsIndexWithCorrectName()
         {
-            var table = TableProvider.GetTable("table_test_table_8").UnwrapSome();
+            var table = GetTable("table_test_table_8");
             var index = table.Indexes.Single();
 
             Assert.AreEqual("IX_TEST_TABLE_8", index.Name.LocalName);
@@ -45,7 +44,7 @@ namespace SJP.Schematic.Oracle.Tests.Integration
         {
             var expectedColumnNames = new[] { "FIRST_NAME", "LAST_NAME", "MIDDLE_NAME" };
 
-            var table = TableProvider.GetTable("table_test_table_9").UnwrapSome();
+            var table = GetTable("table_test_table_9");
             var index = table.Indexes.Single();
             var indexColumns = index.Columns
                 .Select(c => c.DependentColumns.Single())
@@ -64,7 +63,7 @@ namespace SJP.Schematic.Oracle.Tests.Integration
         [Test]
         public void Indexes_WhenGivenTableWithMultiColumnIndex_ReturnsIndexWithCorrectName()
         {
-            var table = TableProvider.GetTable("table_test_table_9").UnwrapSome();
+            var table = GetTable("table_test_table_9");
             var index = table.Indexes.Single();
 
             Assert.AreEqual("IX_TEST_TABLE_9", index.Name.LocalName);
@@ -73,7 +72,7 @@ namespace SJP.Schematic.Oracle.Tests.Integration
         [Test]
         public void Indexes_WhenGivenTableWithIndexContainingNoIncludedColumns_ReturnsIndexWithoutIncludedColumns()
         {
-            var table = TableProvider.GetTable("table_test_table_9").UnwrapSome();
+            var table = GetTable("table_test_table_9");
             var index = table.Indexes.Single();
 
             Assert.AreEqual(0, index.IncludedColumns.Count);
@@ -82,7 +81,7 @@ namespace SJP.Schematic.Oracle.Tests.Integration
         [Test]
         public void Indexes_WhenGivenTableWithEnabledIndex_ReturnsIndexWithIsEnabledTrue()
         {
-            var table = TableProvider.GetTable("table_test_table_9").UnwrapSome();
+            var table = GetTable("table_test_table_9");
             var index = table.Indexes.Single();
 
             Assert.IsTrue(index.IsEnabled);
@@ -91,7 +90,7 @@ namespace SJP.Schematic.Oracle.Tests.Integration
         [Test]
         public void Indexes_WhenGivenTableWithNonUniqueIndex_ReturnsIndexWithIsUniqueFalse()
         {
-            var table = TableProvider.GetTable("table_test_table_9").UnwrapSome();
+            var table = GetTable("table_test_table_9");
             var index = table.Indexes.Single();
 
             Assert.IsFalse(index.IsUnique);
@@ -100,7 +99,7 @@ namespace SJP.Schematic.Oracle.Tests.Integration
         [Test]
         public void Indexes_WhenGivenTableWithUniqueIndex_ReturnsIndexWithIsUniqueTrue()
         {
-            var table = TableProvider.GetTable("table_test_table_13").UnwrapSome();
+            var table = GetTable("table_test_table_13");
             var index = table.Indexes.Single();
 
             Assert.IsTrue(index.IsUnique);

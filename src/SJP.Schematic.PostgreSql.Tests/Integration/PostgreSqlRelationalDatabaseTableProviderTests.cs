@@ -1,4 +1,6 @@
-﻿using System.Linq;
+﻿using System;
+using System.Collections.Concurrent;
+using System.Linq;
 using System.Threading.Tasks;
 using Dapper;
 using NUnit.Framework;
@@ -299,6 +301,22 @@ execute procedure test_trigger_fn()").ConfigureAwait(false);
             await Connection.ExecuteAsync("drop table trigger_test_table_2").ConfigureAwait(false);
             await Connection.ExecuteAsync("drop function test_trigger_fn()").ConfigureAwait(false);
         }
+
+        private IRelationalDatabaseTable GetTable(Identifier tableName)
+        {
+            if (tableName == null)
+                throw new ArgumentNullException(nameof(tableName));
+
+            if (_tablesCache.TryGetValue(tableName, out var table))
+                return table;
+
+            table = TableProvider.GetTable(tableName).UnwrapSome();
+            _tablesCache.TryAdd(tableName, table);
+
+            return table;
+        }
+
+        private readonly static ConcurrentDictionary<Identifier, IRelationalDatabaseTable> _tablesCache = new ConcurrentDictionary<Identifier, IRelationalDatabaseTable>();
 
         [Test]
         public void GetTable_WhenTablePresent_ReturnsTable()

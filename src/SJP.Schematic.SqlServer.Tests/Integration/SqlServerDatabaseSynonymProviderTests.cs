@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Linq;
 using System.Threading.Tasks;
 using Dapper;
@@ -36,11 +37,21 @@ namespace SJP.Schematic.SqlServer.Tests.Integration
             await Connection.ExecuteAsync("drop synonym synonym_test_synonym_3").ConfigureAwait(false);
         }
 
-        [Test]
-        public void GetSynonym_GivenNullName_ThrowsArgumentNullException()
+        private IDatabaseSynonym GetSynonym(Identifier synonymName)
         {
-            Assert.Throws<ArgumentNullException>(() => SynonymProvider.GetSynonym(null));
+            if (synonymName == null)
+                throw new ArgumentNullException(nameof(synonymName));
+
+            if (_synonymsCache.TryGetValue(synonymName, out var synonym))
+                return synonym;
+
+            synonym = SynonymProvider.GetSynonym(synonymName).UnwrapSome();
+            _synonymsCache.TryAdd(synonymName, synonym);
+
+            return synonym;
         }
+
+        private readonly static ConcurrentDictionary<Identifier, IDatabaseSynonym> _synonymsCache = new ConcurrentDictionary<Identifier, IDatabaseSynonym>();
 
         [Test]
         public void GetSynonym_WhenSynonymPresent_ReturnsSynonym()
@@ -151,12 +162,6 @@ namespace SJP.Schematic.SqlServer.Tests.Integration
             var equalNames = IdentifierComparer.OrdinalIgnoreCase.Equals(inputName.Schema, synonym.Name.Schema)
                 && IdentifierComparer.OrdinalIgnoreCase.Equals(inputName.LocalName, synonym.Name.LocalName);
             Assert.IsTrue(equalNames);
-        }
-
-        [Test]
-        public void GetSynonymAsync_GivenNullName_ThrowsArgumentNullException()
-        {
-            Assert.Throws<ArgumentNullException>(() => SynonymProvider.GetSynonymAsync(null));
         }
 
         [Test]
@@ -305,7 +310,7 @@ namespace SJP.Schematic.SqlServer.Tests.Integration
         public void GetSynonym_ForSynonymToView_ReturnsSynonymWithCorrectTarget()
         {
             const string expectedTarget = "synonym_test_view_1";
-            var synonym = SynonymProvider.GetSynonym("synonym_test_synonym_1").UnwrapSome();
+            var synonym = GetSynonym("synonym_test_synonym_1");
 
             Assert.AreEqual(expectedTarget, synonym.Target.LocalName);
         }
@@ -314,7 +319,7 @@ namespace SJP.Schematic.SqlServer.Tests.Integration
         public void GetSynonym_ForSynonymToTable_ReturnsSynonymWithCorrectTarget()
         {
             const string expectedTarget = "synonym_test_table_1";
-            var synonym = SynonymProvider.GetSynonym("synonym_test_synonym_2").UnwrapSome();
+            var synonym = GetSynonym("synonym_test_synonym_2");
 
             Assert.AreEqual(expectedTarget, synonym.Target.LocalName);
         }
@@ -323,7 +328,7 @@ namespace SJP.Schematic.SqlServer.Tests.Integration
         public void GetSynonym_ForSynonymToMissingObject_ReturnsSynonymWithMissingTarget()
         {
             var expectedTarget = new Identifier(IdentifierDefaults.Server, IdentifierDefaults.Database, IdentifierDefaults.Schema, "non_existent_target");
-            var synonym = SynonymProvider.GetSynonym("synonym_test_synonym_3").UnwrapSome();
+            var synonym = GetSynonym("synonym_test_synonym_3");
 
             Assert.AreEqual(expectedTarget, synonym.Target);
         }

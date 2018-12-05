@@ -2,7 +2,6 @@
 using System.Linq;
 using NUnit.Framework;
 using SJP.Schematic.Core;
-using SJP.Schematic.Core.Extensions;
 
 namespace SJP.Schematic.PostgreSql.Tests.Integration
 {
@@ -11,7 +10,7 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration
         [Test]
         public void ParentKeys_WhenGivenTableWithNoForeignKeys_ReturnsEmptyCollection()
         {
-            var table = TableProvider.GetTable("table_test_table_15").UnwrapSome();
+            var table = GetTable("table_test_table_15");
             var count = table.ParentKeys.Count;
 
             Assert.AreEqual(0, count);
@@ -20,7 +19,7 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration
         [Test]
         public void ParentKeys_WhenGivenTableWithForeignKeyToPrimaryKey_ContainsConstraintWithCorrectNames()
         {
-            var table = TableProvider.GetTable("table_test_table_16").UnwrapSome();
+            var table = GetTable("table_test_table_16");
             var foreignKey = table.ParentKeys.Single();
 
             Assert.Multiple(() =>
@@ -33,7 +32,7 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration
         [Test]
         public void ParentKeys_WhenGivenTableWithForeignKeyToPrimaryKey_ContainsConstraintWithCorrectKeyTypes()
         {
-            var table = TableProvider.GetTable("table_test_table_16").UnwrapSome();
+            var table = GetTable("table_test_table_16");
             var foreignKey = table.ParentKeys.Single();
 
             Assert.Multiple(() =>
@@ -46,7 +45,7 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration
         [Test]
         public void ParentKeys_WhenGivenTableWithForeignKeyToPrimaryKey_ContainsConstraintWithCorrectTables()
         {
-            var table = TableProvider.GetTable("table_test_table_16").UnwrapSome();
+            var table = GetTable("table_test_table_16");
             var foreignKey = table.ParentKeys.Single();
 
             Assert.Multiple(() =>
@@ -59,7 +58,7 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration
         [Test]
         public void ParentKeys_WhenGivenTableWithForeignKeyToPrimaryKey_ContainsConstraintWithCorrectColumns()
         {
-            var table = TableProvider.GetTable("table_test_table_16").UnwrapSome();
+            var table = GetTable("table_test_table_16");
             var foreignKey = table.ParentKeys.Single();
 
             var childColumns = foreignKey.ChildKey.Columns.Select(c => c.Name.LocalName);
@@ -81,7 +80,7 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration
         [Test]
         public void ParentKeys_WhenGivenTableWithForeignKeyToPrimaryKeyWithDefaultUpdateRule_ReturnsUpdateRuleAsNoAction()
         {
-            var table = TableProvider.GetTable("table_test_table_16").UnwrapSome();
+            var table = GetTable("table_test_table_16");
             var parentKeys = table.ParentKeys;
             var foreignKey = parentKeys.Single();
 
@@ -91,7 +90,7 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration
         [Test]
         public void ParentKeys_WhenGivenTableWithForeignKeyToPrimaryKeyWithCascadeUpdateRule_ReturnsUpdateRuleAsCascade()
         {
-            var table = TableProvider.GetTable("table_test_table_18").UnwrapSome();
+            var table = GetTable("table_test_table_18");
             var parentKeys = table.ParentKeys;
             var foreignKey = parentKeys.Single();
 
@@ -101,7 +100,7 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration
         [Test]
         public void ParentKeys_WhenGivenTableWithForeignKeyToPrimaryKeyWithSetNullUpdateRule_ReturnsUpdateRuleAsSetNull()
         {
-            var table = TableProvider.GetTable("table_test_table_19").UnwrapSome();
+            var table = GetTable("table_test_table_19");
             var parentKeys = table.ParentKeys;
             var foreignKey = parentKeys.Single();
 
@@ -111,7 +110,7 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration
         [Test]
         public void ParentKeys_WhenGivenTableWithForeignKeyToPrimaryKeyWithSetDefaultUpdateRule_ReturnsUpdateRuleAsSetDefault()
         {
-            var table = TableProvider.GetTable("table_test_table_20").UnwrapSome();
+            var table = GetTable("table_test_table_20");
             var parentKeys = table.ParentKeys;
             var foreignKey = parentKeys.Single();
 
@@ -121,7 +120,7 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration
         [Test]
         public void ParentKeys_WhenGivenTableWithForeignKeyToPrimaryKeyWithDefaultDeleteRule_ReturnsDeleteRuleAsNoAction()
         {
-            var table = TableProvider.GetTable("table_test_table_16").UnwrapSome();
+            var table = GetTable("table_test_table_16");
             var parentKeys = table.ParentKeys;
             var foreignKey = parentKeys.Single();
 
@@ -131,7 +130,7 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration
         [Test]
         public void ParentKeys_WhenGivenTableWithForeignKeyToPrimaryKeyWithCascadeDeleteRule_ReturnsDeleteRuleAsCascade()
         {
-            var table = TableProvider.GetTable("table_test_table_24").UnwrapSome();
+            var table = GetTable("table_test_table_24");
             var parentKeys = table.ParentKeys;
             var foreignKey = parentKeys.Single();
 
@@ -141,7 +140,7 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration
         [Test]
         public void ParentKeys_WhenGivenTableWithForeignKeyToPrimaryKeyWithSetNullDeleteRule_ReturnsDeleteRuleAsSetNull()
         {
-            var table = TableProvider.GetTable("table_test_table_25").UnwrapSome();
+            var table = GetTable("table_test_table_25");
             var parentKeys = table.ParentKeys;
             var foreignKey = parentKeys.Single();
 
@@ -151,7 +150,7 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration
         [Test]
         public void ParentKeys_WhenGivenTableWithForeignKeyToPrimaryKeyWithSetDefaultDeleteRule_ReturnsDeleteRuleAsSetDefault()
         {
-            var table = TableProvider.GetTable("table_test_table_26").UnwrapSome();
+            var table = GetTable("table_test_table_26");
             var parentKeys = table.ParentKeys;
             var foreignKey = parentKeys.Single();
 
@@ -161,7 +160,7 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration
         [Test]
         public void ParentKeys_WhenGivenTableWithForeignKeyToPrimaryKey_ReturnsIsEnabledTrue()
         {
-            var table = TableProvider.GetTable("table_test_table_16").UnwrapSome();
+            var table = GetTable("table_test_table_16");
             var parentKeys = table.ParentKeys;
             var foreignKey = parentKeys.Single();
 
@@ -171,7 +170,7 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration
         [Test]
         public void ParentKeys_WhenGivenTableWithForeignKeyToUniqueKey_ContainsConstraintWithCorrectNames()
         {
-            var table = TableProvider.GetTable("table_test_table_17").UnwrapSome();
+            var table = GetTable("table_test_table_17");
             var foreignKey = table.ParentKeys.Single();
 
             Assert.Multiple(() =>
@@ -184,7 +183,7 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration
         [Test]
         public void ParentKeys_WhenGivenTableWithForeignKeyToUniqueKey_ContainsConstraintWithCorrectKeyTypes()
         {
-            var table = TableProvider.GetTable("table_test_table_17").UnwrapSome();
+            var table = GetTable("table_test_table_17");
             var foreignKey = table.ParentKeys.Single();
 
             Assert.Multiple(() =>
@@ -197,7 +196,7 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration
         [Test]
         public void ParentKeys_WhenGivenTableWithForeignKeyToUniqueKey_ContainsConstraintWithCorrectTables()
         {
-            var table = TableProvider.GetTable("table_test_table_17").UnwrapSome();
+            var table = GetTable("table_test_table_17");
             var foreignKey = table.ParentKeys.Single();
 
             Assert.Multiple(() =>
@@ -210,7 +209,7 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration
         [Test]
         public void ParentKeys_WhenGivenTableWithForeignKeyToUniqueKey_ContainsConstraintWithCorrectColumns()
         {
-            var table = TableProvider.GetTable("table_test_table_17").UnwrapSome();
+            var table = GetTable("table_test_table_17");
             var foreignKey = table.ParentKeys.Single();
 
             var childColumns = foreignKey.ChildKey.Columns.Select(c => c.Name.LocalName);
@@ -232,7 +231,7 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration
         [Test]
         public void ParentKeys_WhenGivenTableWithForeignKeyToUniqueKeyWithDefaultUpdateRule_ReturnsUpdateRuleAsNoAction()
         {
-            var table = TableProvider.GetTable("table_test_table_17").UnwrapSome();
+            var table = GetTable("table_test_table_17");
             var parentKeys = table.ParentKeys;
             var foreignKey = parentKeys.Single();
 
@@ -242,7 +241,7 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration
         [Test]
         public void ParentKeys_WhenGivenTableWithForeignKeyToUniqueKeyWithCascadeUpdateRule_ReturnsUpdateRuleAsCascade()
         {
-            var table = TableProvider.GetTable("table_test_table_21").UnwrapSome();
+            var table = GetTable("table_test_table_21");
             var parentKeys = table.ParentKeys;
             var foreignKey = parentKeys.Single();
 
@@ -252,7 +251,7 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration
         [Test]
         public void ParentKeys_WhenGivenTableWithForeignKeyToUniqueKeyWithSetNullUpdateRule_ReturnsUpdateRuleAsSetNull()
         {
-            var table = TableProvider.GetTable("table_test_table_22").UnwrapSome();
+            var table = GetTable("table_test_table_22");
             var parentKeys = table.ParentKeys;
             var foreignKey = parentKeys.Single();
 
@@ -262,7 +261,7 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration
         [Test]
         public void ParentKeys_WhenGivenTableWithForeignKeyToUniqueKeyWithSetDefaultUpdateRule_ReturnsUpdateRuleAsSetDefault()
         {
-            var table = TableProvider.GetTable("table_test_table_23").UnwrapSome();
+            var table = GetTable("table_test_table_23");
             var parentKeys = table.ParentKeys;
             var foreignKey = parentKeys.Single();
 
@@ -272,7 +271,7 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration
         [Test]
         public void ParentKeys_WhenGivenTableWithForeignKeyToUniqueKeyWithDefaultDeleteRule_ReturnsDeleteRuleAsNoAction()
         {
-            var table = TableProvider.GetTable("table_test_table_17").UnwrapSome();
+            var table = GetTable("table_test_table_17");
             var parentKeys = table.ParentKeys;
             var foreignKey = parentKeys.Single();
 
@@ -282,7 +281,7 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration
         [Test]
         public void ParentKeys_WhenGivenTableWithForeignKeyToUniqueKeyWithCascadeDeleteRule_ReturnsDeleteRuleAsCascade()
         {
-            var table = TableProvider.GetTable("table_test_table_27").UnwrapSome();
+            var table = GetTable("table_test_table_27");
             var parentKeys = table.ParentKeys;
             var foreignKey = parentKeys.Single();
 
@@ -292,7 +291,7 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration
         [Test]
         public void ParentKeys_WhenGivenTableWithForeignKeyToUniqueKeyWithSetNullDeleteRule_ReturnsDeleteRuleAsSetNull()
         {
-            var table = TableProvider.GetTable("table_test_table_28").UnwrapSome();
+            var table = GetTable("table_test_table_28");
             var parentKeys = table.ParentKeys;
             var foreignKey = parentKeys.Single();
 
@@ -302,7 +301,7 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration
         [Test]
         public void ParentKeys_WhenGivenTableWithForeignKeyToUniqueKeyWithSetDefaultDeleteRule_ReturnsDeleteRuleAsSetDefault()
         {
-            var table = TableProvider.GetTable("table_test_table_29").UnwrapSome();
+            var table = GetTable("table_test_table_29");
             var parentKeys = table.ParentKeys;
             var foreignKey = parentKeys.Single();
 
@@ -312,7 +311,7 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration
         [Test]
         public void ParentKeys_WhenGivenTableWithForeignKeyToUniqueKey_ReturnsIsEnabledTrue()
         {
-            var table = TableProvider.GetTable("table_test_table_17").UnwrapSome();
+            var table = GetTable("table_test_table_17");
             var parentKeys = table.ParentKeys;
             var foreignKey = parentKeys.Single();
 

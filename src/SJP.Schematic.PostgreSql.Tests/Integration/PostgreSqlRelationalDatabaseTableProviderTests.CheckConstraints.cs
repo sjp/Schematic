@@ -1,6 +1,5 @@
 ﻿using System.Linq;
 using NUnit.Framework;
-using SJP.Schematic.Core.Extensions;
 
 namespace SJP.Schematic.PostgreSql.Tests.Integration
 {
@@ -9,7 +8,7 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration
         [Test]
         public void Checks_WhenGivenTableWithNoChecks_ReturnsEmptyCollection()
         {
-            var table = TableProvider.GetTable("table_test_table_1").UnwrapSome();
+            var table = GetTable("table_test_table_1");
             var count = table.Checks.Count;
 
             Assert.AreEqual(0, count);
@@ -18,7 +17,7 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration
         [Test]
         public void Checks_WhenGivenTableWithCheck_ReturnsContraintWithCorrectName()
         {
-            var table = TableProvider.GetTable("table_test_table_14").UnwrapSome();
+            var table = GetTable("table_test_table_14");
             var check = table.Checks.Single();
 
             Assert.AreEqual("ck_test_table_14", check.Name.LocalName);
@@ -27,7 +26,7 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration
         [Test]
         public void Checks_WhenGivenTableWithCheck_ReturnsContraintWithDefinition()
         {
-            var table = TableProvider.GetTable("table_test_table_14").UnwrapSome();
+            var table = GetTable("table_test_table_14");
             var check = table.Checks.Single();
 
             Assert.AreEqual("(test_column > 1)", check.Definition);
@@ -36,7 +35,7 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration
         [Test]
         public void Checks_WhenGivenTableWithEnabledCheck_ReturnsIsEnabledTrue()
         {
-            var table = TableProvider.GetTable("table_test_table_14").UnwrapSome();
+            var table = GetTable("table_test_table_14");
             var check = table.Checks.Single();
 
             Assert.IsTrue(check.IsEnabled);
