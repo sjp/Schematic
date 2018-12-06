@@ -1045,7 +1045,6 @@ where t.relname = @TableName and ns.nspname = @SchemaName";
 
             foreach (var row in query)
             {
-
                 var typeMetadata = new ColumnTypeMetadata
                 {
                     TypeName = Identifier.CreateQualifiedIdentifier("pg_catalog", row.data_type),
