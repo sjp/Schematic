@@ -17,11 +17,15 @@ namespace SJP.Schematic.Core
         {
             if (definition.IsNullOrWhiteSpace())
                 throw new ArgumentNullException(nameof(definition));
+            if (columns == null || columns.AnyNull())
+                throw new ArgumentNullException(nameof(columns));
+            if (indexes == null || indexes.AnyNull())
+                throw new ArgumentNullException(nameof(indexes));
 
             Name = viewName ?? throw new ArgumentNullException(nameof(viewName));
-            Columns = columns ?? throw new ArgumentNullException(nameof(columns));
-            Indexes = indexes ?? throw new ArgumentNullException(nameof(indexes));
-            IsIndexed = Indexes.Count > 0;
+            Columns = columns;
+            Indexes = indexes;
+            IsIndexed = indexes.Count > 0;
             Definition = definition;
         }
 

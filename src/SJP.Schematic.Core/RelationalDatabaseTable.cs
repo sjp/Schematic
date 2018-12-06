@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using LanguageExt;
 using SJP.Schematic.Core.Extensions;
 using SJP.Schematic.Core.Utilities;
@@ -37,6 +38,32 @@ namespace SJP.Schematic.Core
                 throw new ArgumentNullException(nameof(checks));
             if (triggers == null || triggers.AnyNull())
                 throw new ArgumentNullException(nameof(triggers));
+
+            primaryKey.IfSome(pk =>
+            {
+                if (pk.KeyType != DatabaseKeyType.Primary)
+                    throw new ArgumentException("The given primary key did not have a key type of 'Primary'", nameof(primaryKey));
+            });
+
+            var anyNonUniqueKey = uniqueKeys.Any(uk => uk.KeyType != DatabaseKeyType.Unique);
+            if (anyNonUniqueKey)
+                throw new ArgumentException("A given unique key did not have a key type of 'Unique'", nameof(uniqueKeys));
+
+            var anyNonForeignParentChildKey = parentKeys.Any(fk => fk.ChildKey.KeyType != DatabaseKeyType.Foreign);
+            if (anyNonForeignParentChildKey)
+                throw new ArgumentException("A given parent key did not have a child key with a key type of 'Foreign'", nameof(uniqueKeys));
+
+            var anyNonCandidateParentParentKey = parentKeys.Any(fk => fk.ParentKey.KeyType != DatabaseKeyType.Primary && fk.ParentKey.KeyType != DatabaseKeyType.Unique);
+            if (anyNonCandidateParentParentKey)
+                throw new ArgumentException("A given parent key did not have a parent key with a key type of 'Primary' or 'Unique'", nameof(uniqueKeys));
+
+            var anyNonForeignChildChildKey = childKeys.Any(ck => ck.ChildKey.KeyType != DatabaseKeyType.Foreign);
+            if (anyNonForeignChildChildKey)
+                throw new ArgumentException("A given child key did not have a child key with a key type of 'Foreign'", nameof(uniqueKeys));
+
+            var anyNonCandidateChildParentKey = childKeys.Any(ck => ck.ParentKey.KeyType != DatabaseKeyType.Primary && ck.ParentKey.KeyType != DatabaseKeyType.Unique);
+            if (anyNonCandidateChildParentKey)
+                throw new ArgumentException("A given child key did not have a parent key with a key type of 'Primary' or 'Unique'", nameof(uniqueKeys));
 
             Name = tableName ?? throw new ArgumentNullException(nameof(tableName));
             Columns = columns;
