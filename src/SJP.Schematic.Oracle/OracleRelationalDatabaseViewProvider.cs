@@ -51,7 +51,7 @@ namespace SJP.Schematic.Oracle
 
         public async Task<IReadOnlyCollection<IRelationalDatabaseView>> ViewsAsync(CancellationToken cancellationToken = default(CancellationToken))
         {
-            var queryResult = await Connection.QueryAsync<QualifiedName>(ViewsQuery).ConfigureAwait(false);
+            var queryResult = await Connection.QueryAsync<QualifiedName>(ViewsQuery, cancellationToken).ConfigureAwait(false);
             var viewNames = queryResult
                 .Select(dto => Identifier.CreateQualifiedIdentifier(dto.SchemaName, dto.ObjectName))
                 .ToList();
@@ -222,7 +222,11 @@ where v.OWNER = :SchemaName and v.VIEW_NAME = :ViewName and o.ORACLE_MAINTAINED 
             if (viewName == null)
                 throw new ArgumentNullException(nameof(viewName));
 
-            return Connection.ExecuteScalarAsync<string>(DefinitionQuery, new { SchemaName = viewName.Schema, ViewName = viewName.LocalName });
+            return Connection.ExecuteScalarAsync<string>(
+                DefinitionQuery,
+                new { SchemaName = viewName.Schema, ViewName = viewName.LocalName },
+                cancellationToken
+            );
         }
 
         protected virtual string DefinitionQuery => DefinitionQuerySql;
@@ -275,10 +279,14 @@ where OWNER = :SchemaName and VIEW_NAME = :ViewName";
 
         private async Task<IReadOnlyList<IDatabaseColumn>> LoadColumnsAsyncCore(Identifier viewName, CancellationToken cancellationToken)
         {
-            var query = await Connection.QueryAsync<ColumnData>(ColumnsQuery, new { SchemaName = viewName.Schema, ViewName = viewName.LocalName }).ConfigureAwait(false);
+            var query = await Connection.QueryAsync<ColumnData>(
+                ColumnsQuery,
+                new { SchemaName = viewName.Schema, ViewName = viewName.LocalName },
+                cancellationToken
+            ).ConfigureAwait(false);
 
             var columnNames = query.Select(row => row.ColumnName).ToList();
-            var notNullableColumnNames = await GetNotNullConstrainedColumnsAsync(viewName, columnNames).ConfigureAwait(false);
+            var notNullableColumnNames = await GetNotNullConstrainedColumnsAsync(viewName, columnNames, cancellationToken).ConfigureAwait(false);
             var result = new List<IDatabaseColumn>();
 
             foreach (var row in query)
@@ -376,7 +384,12 @@ order by atc.COLUMN_ID";
 
         private async Task<IReadOnlyCollection<IDatabaseIndex>> IndexesAsyncCore(Identifier viewName, IReadOnlyDictionary<Identifier, IDatabaseColumn> columns, CancellationToken cancellationToken)
         {
-            var queryResult = await Connection.QueryAsync<IndexColumns>(IndexesQuery, new { SchemaName = viewName.Schema, ViewName = viewName.LocalName }).ConfigureAwait(false);
+            var queryResult = await Connection.QueryAsync<IndexColumns>(
+                IndexesQuery,
+                new { SchemaName = viewName.Schema, ViewName = viewName.LocalName },
+                cancellationToken
+            ).ConfigureAwait(false);
+
             if (queryResult.Empty())
                 return Array.Empty<IDatabaseIndex>();
 
@@ -453,19 +466,24 @@ order by aic.COLUMN_POSITION";
                 .ToList();
         }
 
-        protected Task<IEnumerable<string>> GetNotNullConstrainedColumnsAsync(Identifier viewName, IEnumerable<string> columnNames)
+        protected Task<IEnumerable<string>> GetNotNullConstrainedColumnsAsync(Identifier viewName, IEnumerable<string> columnNames, CancellationToken cancellationToken)
         {
             if (viewName == null)
                 throw new ArgumentNullException(nameof(viewName));
             if (columnNames == null)
                 throw new ArgumentNullException(nameof(columnNames));
 
-            return GetNotNullConstrainedColumnsAsyncCore(viewName, columnNames);
+            return GetNotNullConstrainedColumnsAsyncCore(viewName, columnNames, cancellationToken);
         }
 
-        private async Task<IEnumerable<string>> GetNotNullConstrainedColumnsAsyncCore(Identifier viewName, IEnumerable<string> columnNames)
+        private async Task<IEnumerable<string>> GetNotNullConstrainedColumnsAsyncCore(Identifier viewName, IEnumerable<string> columnNames, CancellationToken cancellationToken)
         {
-            var checks = await Connection.QueryAsync<CheckConstraintData>(ChecksQuery, new { SchemaName = viewName.Schema, TableName = viewName.LocalName }).ConfigureAwait(false);
+            var checks = await Connection.QueryAsync<CheckConstraintData>(
+                ChecksQuery,
+                new { SchemaName = viewName.Schema, TableName = viewName.LocalName },
+                cancellationToken
+            ).ConfigureAwait(false);
+
             if (checks.Empty())
                 return Array.Empty<string>();
 

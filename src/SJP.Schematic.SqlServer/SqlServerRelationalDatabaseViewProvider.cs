@@ -47,7 +47,7 @@ namespace SJP.Schematic.SqlServer
 
         public async Task<IReadOnlyCollection<IRelationalDatabaseView>> ViewsAsync(CancellationToken cancellationToken = default(CancellationToken))
         {
-            var queryResult = await Connection.QueryAsync<QualifiedName>(ViewsQuery).ConfigureAwait(false);
+            var queryResult = await Connection.QueryAsync<QualifiedName>(ViewsQuery, cancellationToken).ConfigureAwait(false);
             var viewNames = queryResult
                 .Select(dto => Identifier.CreateQualifiedIdentifier(dto.SchemaName, dto.ObjectName))
                 .ToList();
@@ -184,7 +184,11 @@ where schema_id = schema_id(@SchemaName) and name = @ViewName";
             if (viewName == null)
                 throw new ArgumentNullException(nameof(viewName));
 
-            return Connection.ExecuteScalarAsync<string>(DefinitionQuery, new { SchemaName = viewName.Schema, ViewName = viewName.LocalName });
+            return Connection.ExecuteScalarAsync<string>(
+                DefinitionQuery,
+                new { SchemaName = viewName.Schema, ViewName = viewName.LocalName },
+                cancellationToken
+            );
         }
 
         protected virtual string DefinitionQuery => DefinitionQuerySql;

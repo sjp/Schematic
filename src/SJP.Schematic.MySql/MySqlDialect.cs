@@ -65,7 +65,7 @@ namespace SJP.Schematic.MySql
 
         private static async Task<IIdentifierDefaults> GetIdentifierDefaultsAsyncCore(IDbConnection connection, CancellationToken cancellationToken)
         {
-            return await connection.QuerySingleAsync<IdentifierDefaults>(IdentifierDefaultsQuerySql).ConfigureAwait(false);
+            return await connection.QuerySingleAsync<IdentifierDefaults>(IdentifierDefaultsQuerySql, cancellationToken).ConfigureAwait(false);
         }
 
         private const string IdentifierDefaultsQuerySql = @"
@@ -92,7 +92,7 @@ select
 
         private static async Task<string> GetDatabaseVersionAsyncCore(IDbConnection connection, CancellationToken cancellationToken)
         {
-            var versionStr = await connection.ExecuteScalarAsync<string>(DatabaseVersionQuerySql).ConfigureAwait(false);
+            var versionStr = await connection.ExecuteScalarAsync<string>(DatabaseVersionQuerySql, cancellationToken).ConfigureAwait(false);
             return "MySQL " + versionStr;
         }
 

@@ -51,7 +51,7 @@ namespace SJP.Schematic.PostgreSql
 
         public async Task<IReadOnlyCollection<IRelationalDatabaseTable>> TablesAsync(CancellationToken cancellationToken = default(CancellationToken))
         {
-            var queryResults = await Connection.QueryAsync<QualifiedName>(TablesQuery).ConfigureAwait(false);
+            var queryResults = await Connection.QueryAsync<QualifiedName>(TablesQuery, cancellationToken).ConfigureAwait(false);
             var tableNames = queryResults
                 .Select(dto => Identifier.CreateQualifiedIdentifier(dto.SchemaName, dto.ObjectName))
                 .ToList();
@@ -625,7 +625,12 @@ where tc.table_schema = @SchemaName and tc.table_name = @TableName
 
         private async Task<IReadOnlyCollection<IDatabaseRelationalKey>> LoadChildKeysAsyncCore(Identifier tableName, IReadOnlyDictionary<Identifier, IDatabaseColumn> columns, Option<IDatabaseKey> primaryKey, IReadOnlyDictionary<Identifier, IDatabaseKey> uniqueKeys, CancellationToken cancellationToken)
         {
-            var queryResult = await Connection.QueryAsync<ChildKeyData>(ChildKeysQuery, new { SchemaName = tableName.Schema, TableName = tableName.LocalName }).ConfigureAwait(false);
+            var queryResult = await Connection.QueryAsync<ChildKeyData>(
+                ChildKeysQuery,
+                new { SchemaName = tableName.Schema, TableName = tableName.LocalName },
+                cancellationToken
+            ).ConfigureAwait(false);
+
             if (queryResult.Empty())
                 return Array.Empty<IDatabaseRelationalKey>();
 
@@ -744,7 +749,12 @@ where pt.relname = @TableName and pns.nspname = @SchemaName";
 
         protected virtual async Task<IReadOnlyCollection<IDatabaseCheckConstraint>> LoadChecksAsync(Identifier tableName, CancellationToken cancellationToken)
         {
-            var checks = await Connection.QueryAsync<CheckConstraintData>(ChecksQuery, new { SchemaName = tableName.Schema, TableName = tableName.LocalName }).ConfigureAwait(false);
+            var checks = await Connection.QueryAsync<CheckConstraintData>(
+                ChecksQuery,
+                new { SchemaName = tableName.Schema, TableName = tableName.LocalName },
+                cancellationToken
+            ).ConfigureAwait(false);
+
             if (checks.Empty())
                 return Array.Empty<IDatabaseCheckConstraint>();
 
@@ -889,7 +899,12 @@ where
 
         private async Task<IReadOnlyCollection<IDatabaseRelationalKey>> LoadParentKeysAsyncCore(Identifier tableName, IReadOnlyDictionary<Identifier, IDatabaseColumn> columns, CancellationToken cancellationToken)
         {
-            var queryResult = await Connection.QueryAsync<ForeignKeyData>(ParentKeysQuery, new { SchemaName = tableName.Schema, TableName = tableName.LocalName }).ConfigureAwait(false);
+            var queryResult = await Connection.QueryAsync<ForeignKeyData>(
+                ParentKeysQuery,
+                new { SchemaName = tableName.Schema, TableName = tableName.LocalName },
+                cancellationToken
+            ).ConfigureAwait(false);
+
             if (queryResult.Empty())
                 return Array.Empty<IDatabaseRelationalKey>();
 
@@ -1030,13 +1045,14 @@ where t.relname = @TableName and ns.nspname = @SchemaName";
 
             foreach (var row in query)
             {
+
                 var typeMetadata = new ColumnTypeMetadata
                 {
                     TypeName = Identifier.CreateQualifiedIdentifier("pg_catalog", row.data_type),
                     Collation = row.collation_name.IsNullOrWhiteSpace() ? null : Identifier.CreateQualifiedIdentifier(row.collation_catalog, row.collation_schema, row.collation_name),
                     MaxLength = row.character_maximum_length > 0
                         ? row.character_maximum_length
-                        : row.numeric_precision > 0 ? CreatePrecisionFromBase(row.numeric_precision, row.numeric_precision_radix) : 0,
+                        : CreatePrecisionFromBase(row.numeric_precision, row.numeric_precision_radix),
                     NumericPrecision = row.numeric_precision_radix > 0
                         ? CreatePrecisionWithScaleFromBase(row.numeric_precision, row.numeric_scale, row.numeric_precision_radix)
                         : new NumericPrecision()
@@ -1085,7 +1101,7 @@ where t.relname = @TableName and ns.nspname = @SchemaName";
                     Collation = row.collation_name.IsNullOrWhiteSpace() ? null : Identifier.CreateQualifiedIdentifier(row.collation_catalog, row.collation_schema, row.collation_name),
                     MaxLength = row.character_maximum_length > 0
                         ? row.character_maximum_length
-                        : row.numeric_precision > 0 ? CreatePrecisionFromBase(row.numeric_precision, row.numeric_precision_radix) : 0,
+                        : CreatePrecisionFromBase(row.numeric_precision, row.numeric_precision_radix),
                     NumericPrecision = row.numeric_precision_radix > 0
                         ? CreatePrecisionWithScaleFromBase(row.numeric_precision, row.numeric_scale, row.numeric_precision_radix)
                         : new NumericPrecision()
@@ -1298,8 +1314,8 @@ where t.relkind = 'r'
 
         protected static int CreatePrecisionFromBase(int precision, int radix)
         {
-            if (precision < 0)
-                throw new ArgumentOutOfRangeException(nameof(precision));
+            if (precision <= 0)
+                return 0;
             if (radix < 0)
                 throw new ArgumentOutOfRangeException(nameof(radix));
 

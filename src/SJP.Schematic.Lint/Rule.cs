@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
 using EnumsNET;
 using SJP.Schematic.Core;
 using SJP.Schematic.Core.Extensions;
@@ -24,5 +26,7 @@ namespace SJP.Schematic.Lint
         public string Title { get; }
 
         public abstract IEnumerable<IRuleMessage> AnalyseDatabase(IRelationalDatabase database);
+
+        public abstract Task<IEnumerable<IRuleMessage>> AnalyseDatabaseAsync(IRelationalDatabase database, CancellationToken cancellationToken = default(CancellationToken));
     }
 }

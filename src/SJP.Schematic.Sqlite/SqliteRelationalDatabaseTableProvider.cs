@@ -70,7 +70,7 @@ namespace SJP.Schematic.Sqlite
             foreach (var dbName in dbNames)
             {
                 var sql = TablesQuery(dbName);
-                var queryResult = await Connection.QueryAsync<string>(sql).ConfigureAwait(false);
+                var queryResult = await Connection.QueryAsync<string>(sql, cancellationToken).ConfigureAwait(false);
                 var tableNames = queryResult
                     .Where(name => !IsReservedTableName(name))
                     .Select(name => Identifier.CreateQualifiedIdentifier(dbName, name));
@@ -236,7 +236,11 @@ namespace SJP.Schematic.Sqlite
             foreach (var dbName in dbNames)
             {
                 var sql = TableNameQuery(dbName);
-                var tableLocalName = await Connection.ExecuteScalarAsync<string>(sql, new { TableName = tableName.LocalName }).ConfigureAwait(false);
+                var tableLocalName = await Connection.ExecuteScalarAsync<string>(
+                    sql,
+                    new { TableName = tableName.LocalName },
+                    cancellationToken
+                ).ConfigureAwait(false);
 
                 if (tableLocalName != null)
                     return Option<Identifier>.Some(Identifier.CreateQualifiedIdentifier(dbName, tableLocalName));
@@ -713,7 +717,7 @@ namespace SJP.Schematic.Sqlite
             foreach (var dbName in dbNames)
             {
                 var sql = TablesQuery(dbName);
-                var queryResult = await Connection.QueryAsync<string>(sql).ConfigureAwait(false);
+                var queryResult = await Connection.QueryAsync<string>(sql, cancellationToken).ConfigureAwait(false);
                 var tableNames = queryResult
                     .Where(name => !IsReservedTableName(name))
                     .Select(name => Identifier.CreateQualifiedIdentifier(dbName, name));

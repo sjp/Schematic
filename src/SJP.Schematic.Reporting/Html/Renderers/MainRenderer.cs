@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.IO;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using SJP.Schematic.Core;
 using SJP.Schematic.Core.Extensions;
@@ -114,12 +115,12 @@ namespace SJP.Schematic.Reporting.Html.Renderers
             File.WriteAllText(outputPath, renderedPage);
         }
 
-        public async Task RenderAsync()
+        public async Task RenderAsync(CancellationToken cancellationToken = default(CancellationToken))
         {
-            var tables = await Database.TablesAsync().ConfigureAwait(false);
-            var views = await Database.ViewsAsync().ConfigureAwait(false);
-            var sequences = await Database.SequencesAsync().ConfigureAwait(false);
-            var synonyms = await Database.SynonymsAsync().ConfigureAwait(false);
+            var tables = await Database.TablesAsync(cancellationToken).ConfigureAwait(false);
+            var views = await Database.ViewsAsync(cancellationToken).ConfigureAwait(false);
+            var sequences = await Database.SequencesAsync(cancellationToken).ConfigureAwait(false);
+            var synonyms = await Database.SynonymsAsync(cancellationToken).ConfigureAwait(false);
 
             var mapper = new MainModelMapper(Connection, Database);
 
@@ -129,7 +130,7 @@ namespace SJP.Schematic.Reporting.Html.Renderers
             var tableViewModels = new List<Main.Table>();
             foreach (var table in tables)
             {
-                var renderTable = await mapper.MapAsync(table).ConfigureAwait(false);
+                var renderTable = await mapper.MapAsync(table, cancellationToken).ConfigureAwait(false);
 
                 var uniqueKeyLookup = table.GetUniqueKeyLookup();
                 var uniqueKeyCount = uniqueKeyLookup.UCount();
@@ -155,7 +156,7 @@ namespace SJP.Schematic.Reporting.Html.Renderers
             var viewViewModels = new List<Main.View>();
             foreach (var view in views)
             {
-                var renderView = await mapper.MapAsync(view).ConfigureAwait(false);
+                var renderView = await mapper.MapAsync(view, cancellationToken).ConfigureAwait(false);
                 columns += renderView.ColumnCount;
 
                 viewViewModels.Add(renderView);
@@ -163,7 +164,7 @@ namespace SJP.Schematic.Reporting.Html.Renderers
 
             var sequenceViewModels = sequences.Select(mapper.Map).ToList();
 
-            var synonymTasks = synonyms.Select(mapper.MapAsync).ToArray();
+            var synonymTasks = synonyms.Select(s => mapper.MapAsync(s, cancellationToken)).ToArray();
             var synonymViewModels = await Task.WhenAll(synonymTasks).ConfigureAwait(false);
 
             var schemas = tables.Select(t => t.Name)

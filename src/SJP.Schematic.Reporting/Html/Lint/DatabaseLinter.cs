@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using EnumsNET;
 using SJP.Schematic.Core;
 using SJP.Schematic.Lint;
@@ -27,8 +29,21 @@ namespace SJP.Schematic.Reporting.Html.Lint
 
         private RuleLevel Level { get; }
 
-        public IEnumerable<IRuleMessage> AnalyzeDatabase() =>
+        public IEnumerable<IRuleMessage> AnalyseDatabase() =>
             Rules.SelectMany(rule => rule.AnalyseDatabase(Database)).ToList();
+
+        public async Task<IEnumerable<IRuleMessage>> AnalyseDatabaseAsync(CancellationToken cancellationToken)
+        {
+            var result = new List<IRuleMessage>();
+
+            foreach (var rule in Rules)
+            {
+                var messages = await rule.AnalyseDatabaseAsync(Database, cancellationToken).ConfigureAwait(false);
+                result.AddRange(messages);
+            }
+
+            return result;
+        }
 
         private IEnumerable<IRule> Rules => new IRule[]
         {

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Data;
 using System.IO;
+using System.Threading;
 using System.Threading.Tasks;
 using SJP.Schematic.Core;
 using SJP.Schematic.Reporting.Html.ViewModels;
@@ -42,10 +43,10 @@ namespace SJP.Schematic.Reporting.Html.Renderers
             File.WriteAllText(outputPath, renderedPage);
         }
 
-        public async Task RenderAsync()
+        public async Task RenderAsync(CancellationToken cancellationToken = default(CancellationToken))
         {
             var mapper = new RelationshipsModelMapper(Connection);
-            var templateParameter = await mapper.MapAsync(Database).ConfigureAwait(false);
+            var templateParameter = await mapper.MapAsync(Database, cancellationToken).ConfigureAwait(false);
             var renderedRelationships = Formatter.RenderTemplate(templateParameter);
 
             var relationshipContainer = new Container(renderedRelationships, Database.DatabaseName, string.Empty);

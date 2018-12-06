@@ -63,7 +63,7 @@ namespace SJP.Schematic.SqlServer
 
         private static async Task<IIdentifierDefaults> GetIdentifierDefaultsAsyncCore(IDbConnection connection, CancellationToken cancellationToken)
         {
-            return await connection.QuerySingleAsync<IdentifierDefaults>(IdentifierDefaultsQuerySql).ConfigureAwait(false);
+            return await connection.QuerySingleAsync<IdentifierDefaults>(IdentifierDefaultsQuerySql, cancellationToken).ConfigureAwait(false);
         }
 
         private const string IdentifierDefaultsQuerySql = @"
@@ -85,7 +85,7 @@ select
             if (connection == null)
                 throw new ArgumentNullException(nameof(connection));
 
-            return connection.ExecuteScalarAsync<string>(DatabaseVersionQuerySql);
+            return connection.ExecuteScalarAsync<string>(DatabaseVersionQuerySql, cancellationToken);
         }
 
         private const string DatabaseVersionQuerySql = "select @@version as DatabaseVersion";

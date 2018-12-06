@@ -318,7 +318,7 @@ namespace SJP.Schematic.Modelled.Reflection.Tests
         public static void GetCommentByIdentifier_GivenImplicitOperator_ReturnsCorrectIdentifier()
         {
             var type = typeof(TestClass);
-            var method = type.GetMethod("op_Implicit" , new[] { typeof(string) });
+            var method = type.GetMethod("op_Implicit", new[] { typeof(string) });
             const string expected = "M:SJP.Schematic.Modelled.Reflection.Tests.ReflectionCommentProviderTests.TestClass.op_Implicit(System.String)~SJP.Schematic.Modelled.Reflection.Tests.ReflectionCommentProviderTests.TestClass";
             var identifier = FakeProvider.GetIdentifier(method);
 

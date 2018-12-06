@@ -47,7 +47,7 @@ namespace SJP.Schematic.SqlServer
 
         public async Task<IReadOnlyCollection<IRelationalDatabaseTable>> TablesAsync(CancellationToken cancellationToken = default(CancellationToken))
         {
-            var queryResults = await Connection.QueryAsync<QualifiedName>(TablesQuery).ConfigureAwait(false);
+            var queryResults = await Connection.QueryAsync<QualifiedName>(TablesQuery, cancellationToken).ConfigureAwait(false);
             var tableNames = queryResults
                 .Select(dto => Identifier.CreateQualifiedIdentifier(dto.SchemaName, dto.ObjectName))
                 .ToList();
@@ -601,7 +601,12 @@ order by ic.key_ordinal";
 
         private async Task<IReadOnlyCollection<IDatabaseRelationalKey>> LoadChildKeysAsyncCore(Identifier tableName, IReadOnlyDictionary<Identifier, IDatabaseColumn> columns, Option<IDatabaseKey> primaryKey, IReadOnlyDictionary<Identifier, IDatabaseKey> uniqueKeys, CancellationToken cancellationToken)
         {
-            var queryResult = await Connection.QueryAsync<ChildKeyData>(ChildKeysQuery, new { SchemaName = tableName.Schema, TableName = tableName.LocalName }).ConfigureAwait(false);
+            var queryResult = await Connection.QueryAsync<ChildKeyData>(
+                ChildKeysQuery,
+                new { SchemaName = tableName.Schema, TableName = tableName.LocalName },
+                cancellationToken
+            ).ConfigureAwait(false);
+
             if (queryResult.Empty())
                 return Array.Empty<IDatabaseRelationalKey>();
 
@@ -708,7 +713,12 @@ where schema_name(parent_t.schema_id) = @SchemaName and parent_t.name = @TableNa
 
         protected virtual async Task<IReadOnlyCollection<IDatabaseCheckConstraint>> LoadChecksAsync(Identifier tableName, CancellationToken cancellationToken)
         {
-            var checks = await Connection.QueryAsync<CheckConstraintData>(ChecksQuery, new { SchemaName = tableName.Schema, TableName = tableName.LocalName }).ConfigureAwait(false);
+            var checks = await Connection.QueryAsync<CheckConstraintData>(
+                ChecksQuery,
+                new { SchemaName = tableName.Schema, TableName = tableName.LocalName },
+                cancellationToken
+            ).ConfigureAwait(false);
+
             if (checks.Empty())
                 return Array.Empty<IDatabaseCheckConstraint>();
 
@@ -853,7 +863,12 @@ where schema_name(t.schema_id) = @SchemaName and t.name = @TableName";
 
         private async Task<IReadOnlyCollection<IDatabaseRelationalKey>> LoadParentKeysAsyncCore(Identifier tableName, IReadOnlyDictionary<Identifier, IDatabaseColumn> columns, CancellationToken cancellationToken)
         {
-            var queryResult = await Connection.QueryAsync<ForeignKeyData>(ParentKeysQuery, new { SchemaName = tableName.Schema, TableName = tableName.LocalName }).ConfigureAwait(false);
+            var queryResult = await Connection.QueryAsync<ForeignKeyData>(
+                ParentKeysQuery,
+                new { SchemaName = tableName.Schema, TableName = tableName.LocalName },
+                cancellationToken
+            ).ConfigureAwait(false);
+
             if (queryResult.Empty())
                 return Array.Empty<IDatabaseRelationalKey>();
 

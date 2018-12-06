@@ -62,7 +62,7 @@ namespace SJP.Schematic.PostgreSql
 
         private static async Task<IIdentifierDefaults> GetIdentifierDefaultsAsyncCore(IDbConnection connection, CancellationToken cancellationToken)
         {
-            var result = await connection.QuerySingleAsync<IdentifierDefaults>(IdentifierDefaultsQuerySql).ConfigureAwait(false);
+            var result = await connection.QuerySingleAsync<IdentifierDefaults>(IdentifierDefaultsQuerySql, cancellationToken).ConfigureAwait(false);
 
             if (result.Server.IsNullOrWhiteSpace())
                 result.Server = "127.0.0.1";
@@ -89,7 +89,7 @@ select
             if (connection == null)
                 throw new ArgumentNullException(nameof(connection));
 
-            return connection.ExecuteScalarAsync<string>(DatabaseVersionQuerySql);
+            return connection.ExecuteScalarAsync<string>(DatabaseVersionQuerySql, cancellationToken);
         }
 
         private const string DatabaseVersionQuerySql = "select pg_catalog.version() as DatabaseVersion";

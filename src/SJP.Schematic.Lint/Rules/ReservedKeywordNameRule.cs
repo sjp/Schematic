@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using SJP.Schematic.Core;
 using SJP.Schematic.Core.Extensions;
 
@@ -26,6 +28,39 @@ namespace SJP.Schematic.Lint.Rules
                 .Concat(database.Views.SelectMany(v => AnalyseView(dialect, v)))
                 .Concat(database.Sequences.SelectMany(s => AnalyseSequence(dialect, s)))
                 .Concat(database.Synonyms.SelectMany(s => AnalyseSynonym(dialect, s)))
+                .ToList();
+        }
+
+        public override Task<IEnumerable<IRuleMessage>> AnalyseDatabaseAsync(IRelationalDatabase database, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            if (database == null)
+                throw new ArgumentNullException(nameof(database));
+            if (database.Dialect == null)
+                throw new ArgumentException("The dialect on the given database is null.", nameof(database));
+
+            return AnalyseDatabaseAsyncCore(database, cancellationToken);
+        }
+
+        private async Task<IEnumerable<IRuleMessage>> AnalyseDatabaseAsyncCore(IRelationalDatabase database, CancellationToken cancellationToken)
+        {
+            var dialect = database.Dialect;
+
+            var tables = await database.TablesAsync(cancellationToken).ConfigureAwait(false);
+            var tableMessages = tables.SelectMany(t => AnalyseTable(dialect, t));
+
+            var views = await database.ViewsAsync(cancellationToken).ConfigureAwait(false);
+            var viewMessages = views.SelectMany(v => AnalyseView(dialect, v));
+
+            var sequences = await database.SequencesAsync(cancellationToken).ConfigureAwait(false);
+            var sequenceMessages = sequences.SelectMany(s => AnalyseSequence(dialect, s));
+
+            var synonyms = await database.SynonymsAsync(cancellationToken).ConfigureAwait(false);
+            var synonymMessages = synonyms.SelectMany(s => AnalyseSynonym(dialect, s));
+
+            return tableMessages
+                .Concat(viewMessages)
+                .Concat(sequenceMessages)
+                .Concat(synonymMessages)
                 .ToList();
         }
 

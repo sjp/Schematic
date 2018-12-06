@@ -69,7 +69,7 @@ namespace SJP.Schematic.Sqlite
             foreach (var dbName in dbNames)
             {
                 var sql = ViewsQuery(dbName);
-                var queryResult = await Connection.QueryAsync<string>(sql).ConfigureAwait(false);
+                var queryResult = await Connection.QueryAsync<string>(sql, cancellationToken).ConfigureAwait(false);
                 var viewNames = queryResult
                     .Where(name => !IsReservedTableName(name))
                     .Select(name => Identifier.CreateQualifiedIdentifier(dbName, name));
@@ -200,7 +200,8 @@ namespace SJP.Schematic.Sqlite
                 var sql = ViewNameQuery(viewName.Schema);
                 var viewLocalName = await Connection.ExecuteScalarAsync<string>(
                     sql,
-                    new { ViewName = viewName.LocalName }
+                    new { ViewName = viewName.LocalName },
+                    cancellationToken
                 ).ConfigureAwait(false);
 
                 if (viewLocalName != null)
@@ -222,7 +223,11 @@ namespace SJP.Schematic.Sqlite
             foreach (var dbName in dbNames)
             {
                 var sql = ViewNameQuery(dbName);
-                var viewLocalName = await Connection.ExecuteScalarAsync<string>(sql, new { ViewName = viewName.LocalName }).ConfigureAwait(false);
+                var viewLocalName = await Connection.ExecuteScalarAsync<string>(
+                    sql,
+                    new { ViewName = viewName.LocalName },
+                    cancellationToken
+                ).ConfigureAwait(false);
 
                 if (viewLocalName != null)
                     return Option<Identifier>.Some(Identifier.CreateQualifiedIdentifier(dbName, viewLocalName));
@@ -307,7 +312,11 @@ namespace SJP.Schematic.Sqlite
                 throw new ArgumentNullException(nameof(viewName));
 
             var sql = DefinitionQuery(viewName.Schema);
-            return Connection.ExecuteScalarAsync<string>(sql, new { SchemaName = viewName.Schema, ViewName = viewName.LocalName });
+            return Connection.ExecuteScalarAsync<string>(
+                sql,
+                new { SchemaName = viewName.Schema, ViewName = viewName.LocalName },
+                cancellationToken
+            );
         }
 
         protected virtual string DefinitionQuery(string schema)
@@ -418,7 +427,7 @@ namespace SJP.Schematic.Sqlite
                 throw new ArgumentNullException(nameof(columnName));
 
             var sql = GetTypeofQuery(viewName, columnName.LocalName);
-            return Connection.ExecuteScalarAsync<string>(sql);
+            return Connection.ExecuteScalarAsync<string>(sql, cancellationToken);
         }
 
         protected virtual string GetTypeofQuery(Identifier viewName, string columnName)

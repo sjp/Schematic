@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
+using System.Threading;
+using System.Threading.Tasks;
 using SJP.Schematic.Core;
 using SJP.Schematic.Core.Extensions;
 
@@ -20,6 +22,20 @@ namespace SJP.Schematic.Lint.Rules
                 throw new ArgumentNullException(nameof(database));
 
             return database.Tables.SelectMany(AnalyseTable).ToList();
+        }
+
+        public override Task<IEnumerable<IRuleMessage>> AnalyseDatabaseAsync(IRelationalDatabase database, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            if (database == null)
+                throw new ArgumentNullException(nameof(database));
+
+            return AnalyseDatabaseAsyncCore(database, cancellationToken);
+        }
+
+        private async Task<IEnumerable<IRuleMessage>> AnalyseDatabaseAsyncCore(IRelationalDatabase database, CancellationToken cancellationToken)
+        {
+            var tables = await database.TablesAsync(cancellationToken).ConfigureAwait(false);
+            return tables.SelectMany(AnalyseTable).ToList();
         }
 
         protected IEnumerable<IRuleMessage> AnalyseTable(IRelationalDatabaseTable table)

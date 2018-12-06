@@ -2,6 +2,7 @@
 using System.Data;
 using System.IO;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using SJP.Schematic.Core;
 using SJP.Schematic.Reporting.Html.ViewModels;
@@ -73,9 +74,9 @@ namespace SJP.Schematic.Reporting.Html.Renderers
             File.WriteAllText(outputPath, renderedPage);
         }
 
-        public async Task RenderAsync()
+        public async Task RenderAsync(CancellationToken cancellationToken = default(CancellationToken))
         {
-            var tables = await Database.TablesAsync().ConfigureAwait(false);
+            var tables = await Database.TablesAsync(cancellationToken).ConfigureAwait(false);
 
             var primaryKeys = tables.SelectMany(t => t.PrimaryKey.Select(pk => new { TableName = t.Name, PrimaryKey = pk })).ToList();
             var uniqueKeys = tables.SelectMany(t => t.UniqueKeys.Select(uk => new { TableName = t.Name, UniqueKey = uk })).ToList();

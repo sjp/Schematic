@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace SJP.Schematic.Reporting.Dot
@@ -184,47 +185,47 @@ namespace SJP.Schematic.Reporting.Dot
             return graph.ToString();
         }
 
-        public async Task<string> RenderDatabaseAsync()
+        public async Task<string> RenderDatabaseAsync(CancellationToken cancellationToken)
         {
-            var tables = await Database.TablesAsync().ConfigureAwait(false);
+            var tables = await Database.TablesAsync(cancellationToken).ConfigureAwait(false);
 
-            return await RenderTablesAsync(tables, DotRenderOptions.Default).ConfigureAwait(false);
+            return await RenderTablesAsync(tables, DotRenderOptions.Default, cancellationToken).ConfigureAwait(false);
         }
 
-        public Task<string> RenderDatabaseAsync(DotRenderOptions options)
+        public Task<string> RenderDatabaseAsync(DotRenderOptions options, CancellationToken cancellationToken)
         {
             if (options == null)
                 throw new ArgumentNullException(nameof(options));
 
-            return RenderDatabaseAsyncCore(options);
+            return RenderDatabaseAsyncCore(options, cancellationToken);
         }
 
-        private async Task<string> RenderDatabaseAsyncCore(DotRenderOptions options)
+        private async Task<string> RenderDatabaseAsyncCore(DotRenderOptions options, CancellationToken cancellationToken)
         {
-            var tables = await Database.TablesAsync().ConfigureAwait(false);
+            var tables = await Database.TablesAsync(cancellationToken).ConfigureAwait(false);
 
-            return await RenderTablesAsyncCore(tables, options).ConfigureAwait(false);
+            return await RenderTablesAsyncCore(tables, options, cancellationToken).ConfigureAwait(false);
         }
 
-        public Task<string> RenderTablesAsync(IEnumerable<IRelationalDatabaseTable> tables)
+        public Task<string> RenderTablesAsync(IEnumerable<IRelationalDatabaseTable> tables, CancellationToken cancellationToken)
         {
             if (tables == null)
                 throw new ArgumentNullException(nameof(tables));
 
-            return RenderTablesAsync(tables, DotRenderOptions.Default);
+            return RenderTablesAsync(tables, DotRenderOptions.Default, cancellationToken);
         }
 
-        public Task<string> RenderTablesAsync(IEnumerable<IRelationalDatabaseTable> tables, DotRenderOptions options)
+        public Task<string> RenderTablesAsync(IEnumerable<IRelationalDatabaseTable> tables, DotRenderOptions options, CancellationToken cancellationToken)
         {
             if (tables == null)
                 throw new ArgumentNullException(nameof(tables));
             if (options == null)
                 throw new ArgumentNullException(nameof(options));
 
-            return RenderTablesAsyncCore(tables, options);
+            return RenderTablesAsyncCore(tables, options, cancellationToken);
         }
 
-        private async Task<string> RenderTablesAsyncCore(IEnumerable<IRelationalDatabaseTable> tables, DotRenderOptions options)
+        private async Task<string> RenderTablesAsyncCore(IEnumerable<IRelationalDatabaseTable> tables, DotRenderOptions options, CancellationToken cancellationToken)
         {
             var tableNames = tables.Select(t => t.Name).ToList();
 
@@ -255,7 +256,7 @@ namespace SJP.Schematic.Reporting.Dot
 
                 var childKeysCount = childKeys.ToList().UCount();
                 var parentKeysCount = parentKeys.ToList().UCount();
-                var rowCount = await Connection.GetRowCountAsync(Database.Dialect, table.Name).ConfigureAwait(false);
+                var rowCount = await Connection.GetRowCountAsync(Database.Dialect, table.Name, cancellationToken).ConfigureAwait(false);
 
                 var tableUri = new Uri(options.RootPath + "tables/" + table.Name.ToSafeKey() + ".html", UriKind.Relative);
                 var tableNodeAttrs = new[]

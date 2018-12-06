@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
 using NUnit.Framework;
 using SJP.Schematic.Core;
 
@@ -65,6 +67,9 @@ namespace SJP.Schematic.Lint.Tests
             }
 
             public override IEnumerable<IRuleMessage> AnalyseDatabase(IRelationalDatabase database) => Array.Empty<IRuleMessage>();
+
+            public override Task<IEnumerable<IRuleMessage>> AnalyseDatabaseAsync(IRelationalDatabase database, CancellationToken cancellationToken = default(CancellationToken))
+                => Task.FromResult<IEnumerable<IRuleMessage>>(Array.Empty<IRuleMessage>());
         }
     }
 }

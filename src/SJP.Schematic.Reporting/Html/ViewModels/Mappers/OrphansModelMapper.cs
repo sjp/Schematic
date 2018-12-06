@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Data;
+using System.Threading;
 using System.Threading.Tasks;
 using SJP.Schematic.Core;
 
@@ -28,18 +29,18 @@ namespace SJP.Schematic.Reporting.Html.ViewModels.Mappers
             return new Orphans.Table(table.Name, columnCount, rowCount);
         }
 
-        public Task<Orphans.Table> MapAsync(IRelationalDatabaseTable table)
+        public Task<Orphans.Table> MapAsync(IRelationalDatabaseTable table, CancellationToken cancellationToken)
         {
             if (table == null)
                 throw new ArgumentNullException(nameof(table));
 
-            return MapAsyncCore(table);
+            return MapAsyncCore(table, cancellationToken);
         }
 
-        private async Task<Orphans.Table> MapAsyncCore(IRelationalDatabaseTable table)
+        private async Task<Orphans.Table> MapAsyncCore(IRelationalDatabaseTable table, CancellationToken cancellationToken)
         {
             var columns = table.Columns;
-            var rowCount = await Connection.GetRowCountAsync(Dialect, table.Name).ConfigureAwait(false);
+            var rowCount = await Connection.GetRowCountAsync(Dialect, table.Name, cancellationToken).ConfigureAwait(false);
 
             return new Orphans.Table(table.Name, columns.UCount(), rowCount);
         }

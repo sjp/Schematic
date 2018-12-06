@@ -2,6 +2,7 @@
 using System.Data;
 using System.IO;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using SJP.Schematic.Core;
 using SJP.Schematic.Reporting.Html.Lint;
@@ -30,7 +31,7 @@ namespace SJP.Schematic.Reporting.Html.Renderers
         public void Render()
         {
             var linter = new DatabaseLinter(Connection, Database);
-            var messages = linter.AnalyzeDatabase();
+            var messages = linter.AnalyseDatabase();
 
             var groupedRules = messages
                 .GroupBy(m => m.Title)
@@ -50,10 +51,10 @@ namespace SJP.Schematic.Reporting.Html.Renderers
             File.WriteAllText(outputPath, renderedPage);
         }
 
-        public async Task RenderAsync()
+        public async Task RenderAsync(CancellationToken cancellationToken = default(CancellationToken))
         {
             var linter = new DatabaseLinter(Connection, Database);
-            var messages = linter.AnalyzeDatabase();
+            var messages = linter.AnalyseDatabase();
 
             var groupedRules = messages
                 .GroupBy(m => m.Title)

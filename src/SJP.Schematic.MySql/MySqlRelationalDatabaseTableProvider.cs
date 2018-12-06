@@ -47,7 +47,7 @@ namespace SJP.Schematic.MySql
 
         public async Task<IReadOnlyCollection<IRelationalDatabaseTable>> TablesAsync(CancellationToken cancellationToken = default(CancellationToken))
         {
-            var queryResults = await Connection.QueryAsync<QualifiedName>(TablesQuery, new { SchemaName = IdentifierDefaults.Schema }).ConfigureAwait(false);
+            var queryResults = await Connection.QueryAsync<QualifiedName>(TablesQuery, new { SchemaName = IdentifierDefaults.Schema }, cancellationToken).ConfigureAwait(false);
             var tableNames = queryResults
                 .Select(dto => Identifier.CreateQualifiedIdentifier(dto.SchemaName, dto.ObjectName))
                 .ToList();
@@ -559,7 +559,12 @@ order by kc.ordinal_position";
 
         private async Task<IReadOnlyCollection<IDatabaseRelationalKey>> LoadChildKeysAsyncCore(Identifier tableName, IReadOnlyDictionary<Identifier, IDatabaseColumn> columns, Option<IDatabaseKey> primaryKey, IReadOnlyDictionary<Identifier, IDatabaseKey> uniqueKeys, CancellationToken cancellationToken)
         {
-            var queryResult = await Connection.QueryAsync<ChildKeyData>(ChildKeysQuery, new { SchemaName = tableName.Schema, TableName = tableName.LocalName }).ConfigureAwait(false);
+            var queryResult = await Connection.QueryAsync<ChildKeyData>(
+                ChildKeysQuery,
+                new { SchemaName = tableName.Schema, TableName = tableName.LocalName },
+                cancellationToken
+            ).ConfigureAwait(false);
+
             if (queryResult.Empty())
                 return Array.Empty<IDatabaseRelationalKey>();
 
@@ -772,7 +777,12 @@ where pt.table_schema = @SchemaName and pt.table_name = @TableName";
 
         private async Task<IReadOnlyCollection<IDatabaseRelationalKey>> LoadParentKeysAsyncCore(Identifier tableName, IReadOnlyDictionary<Identifier, IDatabaseColumn> columns, CancellationToken cancellationToken)
         {
-            var queryResult = await Connection.QueryAsync<ForeignKeyData>(ParentKeysQuery, new { SchemaName = tableName.Schema, TableName = tableName.LocalName }).ConfigureAwait(false);
+            var queryResult = await Connection.QueryAsync<ForeignKeyData>(
+                ParentKeysQuery,
+                new { SchemaName = tableName.Schema, TableName = tableName.LocalName },
+                cancellationToken
+            ).ConfigureAwait(false);
+
             if (queryResult.Empty())
                 return Array.Empty<IDatabaseRelationalKey>();
 

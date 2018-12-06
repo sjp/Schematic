@@ -48,7 +48,7 @@ namespace SJP.Schematic.PostgreSql
 
         public async Task<IReadOnlyCollection<IRelationalDatabaseView>> ViewsAsync(CancellationToken cancellationToken = default(CancellationToken))
         {
-            var queryResult = await Connection.QueryAsync<QualifiedName>(ViewsQuery).ConfigureAwait(false);
+            var queryResult = await Connection.QueryAsync<QualifiedName>(ViewsQuery, cancellationToken).ConfigureAwait(false);
             var viewNames = queryResult
                 .Select(dto => Identifier.CreateQualifiedIdentifier(dto.SchemaName, dto.ObjectName))
                 .ToList();
@@ -217,7 +217,11 @@ limit 1";
             if (viewName == null)
                 throw new ArgumentNullException(nameof(viewName));
 
-            return Connection.ExecuteScalarAsync<string>(DefinitionQuery, new { SchemaName = viewName.Schema, ViewName = viewName.LocalName });
+            return Connection.ExecuteScalarAsync<string>(
+                DefinitionQuery,
+                new { SchemaName = viewName.Schema, ViewName = viewName.LocalName },
+                cancellationToken
+            );
         }
 
         protected virtual string DefinitionQuery => DefinitionQuerySql;
@@ -268,7 +272,12 @@ where table_schema = @SchemaName and table_name = @ViewName";
 
         private async Task<IReadOnlyList<IDatabaseColumn>> LoadColumnsAsyncCore(Identifier viewName, CancellationToken cancellationToken)
         {
-            var query = await Connection.QueryAsync<ColumnData>(ColumnsQuery, new { SchemaName = viewName.Schema, ViewName = viewName.LocalName }).ConfigureAwait(false);
+            var query = await Connection.QueryAsync<ColumnData>(
+                ColumnsQuery,
+                new { SchemaName = viewName.Schema, ViewName = viewName.LocalName },
+                cancellationToken
+            ).ConfigureAwait(false);
+
             var result = new List<IDatabaseColumn>();
 
             foreach (var row in query)

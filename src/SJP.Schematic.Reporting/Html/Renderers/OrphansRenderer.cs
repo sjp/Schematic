@@ -2,6 +2,7 @@
 using System.Data;
 using System.IO;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using SJP.Schematic.Core;
 using SJP.Schematic.Core.Extensions;
@@ -53,15 +54,15 @@ namespace SJP.Schematic.Reporting.Html.Renderers
             File.WriteAllText(outputPath, renderedPage);
         }
 
-        public async Task RenderAsync()
+        public async Task RenderAsync(CancellationToken cancellationToken = default(CancellationToken))
         {
-            var tables = await Database.TablesAsync().ConfigureAwait(false);
+            var tables = await Database.TablesAsync(cancellationToken).ConfigureAwait(false);
             var orphanedTables = tables
                 .Where(t => t.ParentKeys.Empty() && t.ChildKeys.Empty())
                 .ToList();
 
             var mapper = new OrphansModelMapper(Connection, Database.Dialect);
-            var mappingTasks = orphanedTables.Select(mapper.MapAsync).ToArray();
+            var mappingTasks = orphanedTables.Select(t => mapper.MapAsync(t, cancellationToken)).ToArray();
             var orphanedTableViewModels = await Task.WhenAll(mappingTasks).ConfigureAwait(false);
 
             var templateParameter = new Orphans(orphanedTableViewModels);

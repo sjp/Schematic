@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using SJP.Schematic.Core;
 using SJP.Schematic.Reporting.Dot;
@@ -180,17 +181,17 @@ namespace SJP.Schematic.Reporting.Html.ViewModels.Mappers
             );
         }
 
-        public Task<Table> MapAsync(IRelationalDatabaseTable table)
+        public Task<Table> MapAsync(IRelationalDatabaseTable table, CancellationToken cancellationToken)
         {
             if (table == null)
                 throw new ArgumentNullException(nameof(table));
 
-            return MapAsyncCore(table);
+            return MapAsyncCore(table, cancellationToken);
         }
 
-        private async Task<Table> MapAsyncCore(IRelationalDatabaseTable table)
+        private async Task<Table> MapAsyncCore(IRelationalDatabaseTable table, CancellationToken cancellationToken)
         {
-            var rowCount = await Connection.GetRowCountAsync(Dialect, table.Name).ConfigureAwait(false);
+            var rowCount = await Connection.GetRowCountAsync(Dialect, table.Name, cancellationToken).ConfigureAwait(false);
             var tableColumns = table.Columns.Select((c, i) => new { Column = c, Ordinal = i + 1 }).ToList();
             var primaryKey = table.PrimaryKey;
             var uniqueKeys = table.UniqueKeys.ToList();
@@ -314,13 +315,13 @@ namespace SJP.Schematic.Reporting.Html.ViewModels.Mappers
                 )).ToList();
 
             var relationshipBuilder = new RelationshipFinder(Database);
-            var oneDegreeTables = await relationshipBuilder.GetTablesByDegreesAsync(table, 1).ConfigureAwait(false);
-            var twoDegreeTables = await relationshipBuilder.GetTablesByDegreesAsync(table, 2).ConfigureAwait(false);
+            var oneDegreeTables = await relationshipBuilder.GetTablesByDegreesAsync(table, 1, cancellationToken).ConfigureAwait(false);
+            var twoDegreeTables = await relationshipBuilder.GetTablesByDegreesAsync(table, 2, cancellationToken).ConfigureAwait(false);
 
             var dotFormatter = new DatabaseDotFormatter(Connection, Database);
             var renderOptions = new DotRenderOptions { HighlightedTable = table.Name };
-            var oneDegreeDot = await dotFormatter.RenderTablesAsync(oneDegreeTables, renderOptions).ConfigureAwait(false);
-            var twoDegreeDot = await dotFormatter.RenderTablesAsync(twoDegreeTables, renderOptions).ConfigureAwait(false);
+            var oneDegreeDot = await dotFormatter.RenderTablesAsync(oneDegreeTables, renderOptions, cancellationToken).ConfigureAwait(false);
+            var twoDegreeDot = await dotFormatter.RenderTablesAsync(twoDegreeTables, renderOptions, cancellationToken).ConfigureAwait(false);
 
             var diagrams = new[]
             {

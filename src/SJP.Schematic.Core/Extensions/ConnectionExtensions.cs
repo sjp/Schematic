@@ -158,6 +158,32 @@ namespace SJP.Schematic.Core.Extensions
                 : Option<T>.None;
         }
 
+        public static Task<T> QuerySingleAsync<T>(this IDbConnection connection, string sql, CancellationToken cancellationToken)
+            where T : class
+        {
+            if (connection == null)
+                throw new ArgumentNullException(nameof(connection));
+            if (sql.IsNullOrWhiteSpace())
+                throw new ArgumentNullException(nameof(sql));
+
+            var command = new CommandDefinition(sql, cancellationToken: cancellationToken);
+            return connection.QuerySingleAsync<T>(command);
+        }
+
+        public static Task<T> QuerySingleAsync<T>(this IDbConnection connection, string sql, object parameters, CancellationToken cancellationToken)
+            where T : class
+        {
+            if (connection == null)
+                throw new ArgumentNullException(nameof(connection));
+            if (sql.IsNullOrWhiteSpace())
+                throw new ArgumentNullException(nameof(sql));
+            if (parameters == null)
+                throw new ArgumentNullException(nameof(parameters));
+
+            var command = new CommandDefinition(sql, parameters, cancellationToken: cancellationToken);
+            return connection.QuerySingleAsync<T>(command);
+        }
+
         public static Option<T> QuerySingleOrNone<T>(this IDbConnection connection, string sql)
             where T : class
         {

@@ -2,8 +2,11 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using Dapper;
 using SJP.Schematic.Core;
+using SJP.Schematic.Core.Extensions;
 
 namespace SJP.Schematic.Lint.Rules
 {
@@ -29,6 +32,33 @@ namespace SJP.Schematic.Lint.Rules
             return database.Views.SelectMany(v => AnalyseView(dialect, v)).ToList();
         }
 
+        public override Task<IEnumerable<IRuleMessage>> AnalyseDatabaseAsync(IRelationalDatabase database, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            if (database == null)
+                throw new ArgumentNullException(nameof(database));
+
+            if (database.Dialect == null)
+                throw new ArgumentException("The dialect on the given database is null.", nameof(database));
+
+            return AnalyseDatabaseAsyncCore(database, cancellationToken);
+        }
+
+        private async Task<IEnumerable<IRuleMessage>> AnalyseDatabaseAsyncCore(IRelationalDatabase database, CancellationToken cancellationToken)
+        {
+            var views = await database.ViewsAsync(cancellationToken).ConfigureAwait(false);
+            if (views.Empty())
+                return Array.Empty<IRuleMessage>();
+
+            var result = new List<IRuleMessage>();
+            foreach (var view in views)
+            {
+                var messages = await AnalyseViewAsync(database.Dialect, view, cancellationToken).ConfigureAwait(false);
+                result.AddRange(messages);
+            }
+
+            return result;
+        }
+
         protected IEnumerable<IRuleMessage> AnalyseView(IDatabaseDialect dialect, IRelationalDatabaseView view)
         {
             if (dialect == null)
@@ -38,9 +68,38 @@ namespace SJP.Schematic.Lint.Rules
 
             try
             {
-                var quotedViewName = dialect.QuoteName(view.Name);
+                var simpleViewName = Identifier.CreateQualifiedIdentifier(view.Name.Schema, view.Name.LocalName);
+                var quotedViewName = dialect.QuoteName(simpleViewName);
                 var query = "select 1 as tmp from " + quotedViewName;
                 Connection.ExecuteScalar<long>(query);
+
+                return Array.Empty<IRuleMessage>();
+            }
+            catch
+            {
+                var message = BuildMessage(view.Name);
+                return new[] { message };
+            }
+        }
+
+        protected Task<IEnumerable<IRuleMessage>> AnalyseViewAsync(IDatabaseDialect dialect, IRelationalDatabaseView view, CancellationToken cancellationToken)
+        {
+            if (dialect == null)
+                throw new ArgumentNullException(nameof(dialect));
+            if (view == null)
+                throw new ArgumentNullException(nameof(view));
+
+            return AnalyseViewAsyncCore(dialect, view, cancellationToken);
+        }
+
+        private async Task<IEnumerable<IRuleMessage>> AnalyseViewAsyncCore(IDatabaseDialect dialect, IRelationalDatabaseView view, CancellationToken cancellationToken)
+        {
+            try
+            {
+                var simpleViewName = Identifier.CreateQualifiedIdentifier(view.Name.Schema, view.Name.LocalName);
+                var quotedViewName = dialect.QuoteName(simpleViewName);
+                var query = "select 1 as tmp from " + quotedViewName;
+                await Connection.ExecuteScalarAsync<long>(query, cancellationToken).ConfigureAwait(false);
 
                 return Array.Empty<IRuleMessage>();
             }

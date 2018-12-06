@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using SJP.Schematic.Core;
 using SJP.Schematic.Core.Extensions;
 using System.Threading.Tasks;
+using System.Threading;
 
 namespace SJP.Schematic.Reporting
 {
@@ -28,19 +29,19 @@ namespace SJP.Schematic.Reporting
             return result.Values;
         }
 
-        public Task<IEnumerable<IRelationalDatabaseTable>> GetTablesByDegreesAsync(IRelationalDatabaseTable table, uint degrees)
+        public Task<IEnumerable<IRelationalDatabaseTable>> GetTablesByDegreesAsync(IRelationalDatabaseTable table, uint degrees, CancellationToken cancellationToken)
         {
             if (table == null)
                 throw new ArgumentNullException(nameof(table));
 
-            return GetTablesByDegreesCore(table, degrees);
+            return GetTablesByDegreesCore(table, degrees, cancellationToken);
         }
 
-        private async Task<IEnumerable<IRelationalDatabaseTable>> GetTablesByDegreesCore(IRelationalDatabaseTable table, uint degrees)
+        private async Task<IEnumerable<IRelationalDatabaseTable>> GetTablesByDegreesCore(IRelationalDatabaseTable table, uint degrees, CancellationToken cancellationToken)
         {
             var result = new Dictionary<Identifier, IRelationalDatabaseTable> { [table.Name] = table };
 
-            await AddRelatedTablesAsync(result, new[] { table }, degrees).ConfigureAwait(false);
+            await AddRelatedTablesAsync(result, new[] { table }, degrees, cancellationToken).ConfigureAwait(false);
 
             return result.Values;
         }
@@ -93,7 +94,7 @@ namespace SJP.Schematic.Reporting
             AddRelatedTables(tableLookup, addedTables.Values, newDegree);
         }
 
-        private async Task AddRelatedTablesAsync(IDictionary<Identifier, IRelationalDatabaseTable> tableLookup, IEnumerable<IRelationalDatabaseTable> tables, uint degree)
+        private async Task AddRelatedTablesAsync(IDictionary<Identifier, IRelationalDatabaseTable> tableLookup, IEnumerable<IRelationalDatabaseTable> tables, uint degree, CancellationToken cancellationToken)
         {
             if (tables.Empty() || degree == 0)
                 return;
@@ -112,7 +113,7 @@ namespace SJP.Schematic.Reporting
                     if (!isNewTable)
                         continue;
 
-                    var childTable = Database.GetTableAsync(childTableName);
+                    var childTable = Database.GetTableAsync(childTableName, cancellationToken);
                     await childTable.IfSome(t => addedTables[childTableName] = t).ConfigureAwait(false);
                 }
 
@@ -123,7 +124,7 @@ namespace SJP.Schematic.Reporting
                     if (!isNewTable)
                         continue;
 
-                    var parentTable = Database.GetTableAsync(parentTableName);
+                    var parentTable = Database.GetTableAsync(parentTableName, cancellationToken);
                     await parentTable.IfSome(t => addedTables[parentTableName] = t).ConfigureAwait(false);
                 }
             }
@@ -132,7 +133,7 @@ namespace SJP.Schematic.Reporting
                 tableLookup[addedTable.Key] = addedTable.Value;
 
             var newDegree = degree - 1;
-            await AddRelatedTablesAsync(tableLookup, addedTables.Values, newDegree).ConfigureAwait(false);
+            await AddRelatedTablesAsync(tableLookup, addedTables.Values, newDegree, cancellationToken).ConfigureAwait(false);
         }
     }
 }

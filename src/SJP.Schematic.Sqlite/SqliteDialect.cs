@@ -79,7 +79,7 @@ namespace SJP.Schematic.Sqlite
 
         private static async Task<string> GetDatabaseVersionAsyncCore(IDbConnection connection, CancellationToken cancellationToken)
         {
-            var versionStr = await connection.ExecuteScalarAsync<string>(DatabaseVersionQuerySql).ConfigureAwait(false);
+            var versionStr = await connection.ExecuteScalarAsync<string>(DatabaseVersionQuerySql, cancellationToken).ConfigureAwait(false);
             return "SQLite " + versionStr;
         }
 

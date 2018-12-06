@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System.Threading;
+using System.Threading.Tasks;
 
 namespace SJP.Schematic.Reporting.Html
 {
@@ -6,6 +7,6 @@ namespace SJP.Schematic.Reporting.Html
     {
         void Render();
 
-        Task RenderAsync();
+        Task RenderAsync(CancellationToken cancellationToken = default(CancellationToken));
     }
 }

@@ -3,8 +3,10 @@ using System.Linq;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using SJP.Schematic.Core;
+using SJP.Schematic.Core.Extensions;
 using System.Data;
 using Dapper;
+using System.Threading;
 
 namespace SJP.Schematic.Reporting
 {
@@ -65,7 +67,7 @@ namespace SJP.Schematic.Reporting
             return connection.ExecuteScalar<ulong>(query);
         }
 
-        public static Task<ulong> GetRowCountAsync(this IDbConnection connection, IDatabaseDialect dialect, Identifier tableName)
+        public static Task<ulong> GetRowCountAsync(this IDbConnection connection, IDatabaseDialect dialect, Identifier tableName, CancellationToken cancellationToken)
         {
             if (connection == null)
                 throw new ArgumentNullException(nameof(connection));
@@ -78,7 +80,7 @@ namespace SJP.Schematic.Reporting
             var quotedName = dialect.QuoteName(name);
 
             var query = "SELECT COUNT(*) FROM " + quotedName;
-            return connection.ExecuteScalarAsync<ulong>(query);
+            return connection.ExecuteScalarAsync<ulong>(query, cancellationToken);
         }
     }
 

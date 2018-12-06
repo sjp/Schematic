@@ -45,7 +45,7 @@ namespace SJP.Schematic.Oracle
 
         public async Task<IReadOnlyCollection<IDatabaseSequence>> SequencesAsync(CancellationToken cancellationToken = default(CancellationToken))
         {
-            var queryResult = await Connection.QueryAsync<QualifiedName>(SequencesQuery).ConfigureAwait(false);
+            var queryResult = await Connection.QueryAsync<QualifiedName>(SequencesQuery, cancellationToken).ConfigureAwait(false);
             var sequenceNames = queryResult
                 .Select(dto => Identifier.CreateQualifiedIdentifier(dto.SchemaName, dto.ObjectName))
                 .ToList();

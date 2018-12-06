@@ -2,6 +2,7 @@
 using System.Data;
 using System.IO;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using SJP.Schematic.Core;
 using SJP.Schematic.Reporting.Html.ViewModels;
@@ -52,14 +53,14 @@ namespace SJP.Schematic.Reporting.Html.Renderers
             }
         }
 
-        public async Task RenderAsync()
+        public async Task RenderAsync(CancellationToken cancellationToken = default(CancellationToken))
         {
-            var tables = await Database.TablesAsync().ConfigureAwait(false);
+            var tables = await Database.TablesAsync(cancellationToken).ConfigureAwait(false);
             var mapper = new TableModelMapper(Connection, Database, Database.Dialect);
 
             var tableTasks = tables.Select(async table =>
             {
-                var tableModel = await mapper.MapAsync(table).ConfigureAwait(false);
+                var tableModel = await mapper.MapAsync(table, cancellationToken).ConfigureAwait(false);
                 var renderedTable = Formatter.RenderTemplate(tableModel);
 
                 var tableContainer = new Container(renderedTable, Database.DatabaseName, "../");

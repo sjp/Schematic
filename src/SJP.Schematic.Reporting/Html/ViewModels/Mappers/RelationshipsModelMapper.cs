@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Data;
+using System.Threading;
 using System.Threading.Tasks;
 using SJP.Schematic.Core;
 using SJP.Schematic.Reporting.Dot;
@@ -46,15 +47,15 @@ namespace SJP.Schematic.Reporting.Html.ViewModels.Mappers
             return new Relationships(diagrams);
         }
 
-        public Task<Relationships> MapAsync(IRelationalDatabase database)
+        public Task<Relationships> MapAsync(IRelationalDatabase database, CancellationToken cancellationToken)
         {
             if (database == null)
                 throw new ArgumentNullException(nameof(database));
 
-            return MapAsyncCore(database);
+            return MapAsyncCore(database, cancellationToken);
         }
 
-        private async Task<Relationships> MapAsyncCore(IRelationalDatabase database)
+        private async Task<Relationships> MapAsyncCore(IRelationalDatabase database, CancellationToken cancellationToken)
         {
             var dotFormatter = new DatabaseDotFormatter(Connection, database);
 
@@ -64,14 +65,14 @@ namespace SJP.Schematic.Reporting.Html.ViewModels.Mappers
                 IsReducedColumnSet = true,
                 RootPath = rootPath
             };
-            var compactDot = await dotFormatter.RenderDatabaseAsync(compactOptions).ConfigureAwait(false);
+            var compactDot = await dotFormatter.RenderDatabaseAsync(compactOptions, cancellationToken).ConfigureAwait(false);
 
             var largeOptions = new DotRenderOptions
             {
                 IsReducedColumnSet = false,
                 RootPath = rootPath
             };
-            var largeDot = await dotFormatter.RenderDatabaseAsync(largeOptions).ConfigureAwait(false);
+            var largeDot = await dotFormatter.RenderDatabaseAsync(largeOptions, cancellationToken).ConfigureAwait(false);
 
             var diagrams = new[]
             {

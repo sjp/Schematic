@@ -2,6 +2,7 @@
 using System.Data;
 using System.IO;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using SJP.Schematic.Core;
 using SJP.Schematic.Reporting.Html.ViewModels;
@@ -37,7 +38,8 @@ namespace SJP.Schematic.Reporting.Html.Renderers
             var tableColumnViewModels = tables.SelectMany(mapper.Map).Select(vm => vm as Columns.Column);
             var viewColumnViewModels = views.SelectMany(mapper.Map).Select(vm => vm as Columns.Column);
 
-            var orderedColumns = tableColumnViewModels.Concat(viewColumnViewModels)
+            var orderedColumns = tableColumnViewModels
+                .Concat(viewColumnViewModels)
                 .OrderBy(c => c.Name)
                 .ThenBy(c => c.Ordinal)
                 .ToList();
@@ -55,17 +57,18 @@ namespace SJP.Schematic.Reporting.Html.Renderers
             File.WriteAllText(outputPath, renderedPage);
         }
 
-        public async Task RenderAsync()
+        public async Task RenderAsync(CancellationToken cancellationToken = default(CancellationToken))
         {
-            var tables = await Database.TablesAsync().ConfigureAwait(false);
-            var views = await Database.ViewsAsync().ConfigureAwait(false);
+            var tables = await Database.TablesAsync(cancellationToken).ConfigureAwait(false);
+            var views = await Database.ViewsAsync(cancellationToken).ConfigureAwait(false);
 
             var mapper = new ColumnsModelMapper(Connection, Database.Dialect);
 
             var tableColumnViewModels = tables.SelectMany(mapper.Map).Select(vm => vm as Columns.Column);
             var viewColumnViewModels = views.SelectMany(mapper.Map).Select(vm => vm as Columns.Column);
 
-            var orderedColumns = tableColumnViewModels.Concat(viewColumnViewModels)
+            var orderedColumns = tableColumnViewModels
+                .Concat(viewColumnViewModels)
                 .OrderBy(c => c.Name)
                 .ThenBy(c => c.Ordinal)
                 .ToList();

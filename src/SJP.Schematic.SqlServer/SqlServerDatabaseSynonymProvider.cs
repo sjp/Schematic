@@ -42,7 +42,7 @@ namespace SJP.Schematic.SqlServer
 
         public async Task<IReadOnlyCollection<IDatabaseSynonym>> SynonymsAsync(CancellationToken cancellationToken = default(CancellationToken))
         {
-            var queryResult = await Connection.QueryAsync<QualifiedName>(SynonymsQuery).ConfigureAwait(false);
+            var queryResult = await Connection.QueryAsync<QualifiedName>(SynonymsQuery, cancellationToken).ConfigureAwait(false);
             var synonymNames = queryResult
                 .Select(dto => Identifier.CreateQualifiedIdentifier(dto.SchemaName, dto.ObjectName))
                 .ToList();

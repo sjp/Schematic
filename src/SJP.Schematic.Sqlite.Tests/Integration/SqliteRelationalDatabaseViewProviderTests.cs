@@ -36,6 +36,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
             await Connection.ExecuteAsync("drop view view_test_view_2").ConfigureAwait(false);
             await Connection.ExecuteAsync("drop view view_test_view_4").ConfigureAwait(false);
         }
+
         private IRelationalDatabaseView GetView(Identifier viewName)
         {
             if (viewName == null)
