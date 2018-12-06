@@ -52,8 +52,12 @@ namespace SJP.Schematic.Core
 
         public abstract Task<IIdentifierDefaults> GetIdentifierDefaultsAsync(IDbConnection connection, CancellationToken cancellationToken = default(CancellationToken));
 
-        public abstract string GetDatabaseVersion(IDbConnection connection);
+        public abstract string GetDatabaseDisplayVersion(IDbConnection connection);
 
-        public abstract Task<string> GetDatabaseVersionAsync(IDbConnection connection, CancellationToken cancellationToken = default(CancellationToken));
+        public abstract Task<string> GetDatabaseDisplayVersionAsync(IDbConnection connection, CancellationToken cancellationToken = default(CancellationToken));
+
+        public abstract Version GetDatabaseVersion(IDbConnection connection);
+
+        public abstract Task<Version> GetDatabaseVersionAsync(IDbConnection connection, CancellationToken cancellationToken = default(CancellationToken));
     }
 }

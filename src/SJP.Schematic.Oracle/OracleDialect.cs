@@ -4,6 +4,7 @@ using System.Data;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using LanguageExt;
 using Oracle.ManagedDataAccess.Client;
 using SJP.Schematic.Core;
 using SJP.Schematic.Core.Extensions;
@@ -124,7 +125,7 @@ select
     SYS_CONTEXT('USERENV', 'CURRENT_USER') as DefaultSchema
 from DUAL";
 
-        public override string GetDatabaseVersion(IDbConnection connection)
+        public override string GetDatabaseDisplayVersion(IDbConnection connection)
         {
             if (connection == null)
                 throw new ArgumentNullException(nameof(connection));
@@ -136,7 +137,7 @@ from DUAL";
             );
         }
 
-        public override Task<string> GetDatabaseVersionAsync(IDbConnection connection, CancellationToken cancellationToken = default(CancellationToken))
+        public override Task<string> GetDatabaseDisplayVersionAsync(IDbConnection connection, CancellationToken cancellationToken = default(CancellationToken))
         {
             if (connection == null)
                 throw new ArgumentNullException(nameof(connection));
@@ -146,6 +147,57 @@ from DUAL";
                 vInfo => vInfo.ProductName + vInfo.VersionNumber,
                 () => null
             );
+        }
+
+        public override Version GetDatabaseVersion(IDbConnection connection)
+        {
+            if (connection == null)
+                throw new ArgumentNullException(nameof(connection));
+
+            var versionInfoOption = connection.QueryFirstOrNone<DatabaseVersion>(DatabaseVersionQuerySql);
+            return versionInfoOption
+                .Bind(dbv => TryParseLongVersionString(dbv.VersionNumber))
+                .MatchUnsafe(
+                    v => v,
+                    () => null
+                );
+        }
+
+        public override Task<Version> GetDatabaseVersionAsync(IDbConnection connection, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            if (connection == null)
+                throw new ArgumentNullException(nameof(connection));
+
+            var versionInfoOption = connection.QueryFirstOrNoneAsync<DatabaseVersion>(DatabaseVersionQuerySql, cancellationToken);
+            return versionInfoOption
+                .Bind(dbv => TryParseLongVersionString(dbv.VersionNumber).ToAsync())
+                .MatchUnsafeAsync(
+                    v => v,
+                    () => Task.FromResult<Version>(null)
+                );
+        }
+
+        private static Option<Version> TryParseLongVersionString(string version)
+        {
+            if (version.IsNullOrWhiteSpace())
+                return Option<Version>.None;
+
+            var dotCount = version.Count(c => c == '.');
+            if (dotCount < 4)
+            {
+                return Version.TryParse(version, out var validVersion)
+                    ? Option<Version>.Some(validVersion)
+                    : Option<Version>.None;
+            }
+
+            // only take the first 4 version numbers and try again
+            var versionStr = version
+                .Split(new[] { '.' }, StringSplitOptions.RemoveEmptyEntries)
+                .Take(4)
+                .Join(".");
+            return Version.TryParse(versionStr, out var v)
+                    ? Option<Version>.Some(v)
+                    : Option<Version>.None;
         }
 
         private const string DatabaseVersionQuerySql = @"
@@ -168,7 +220,7 @@ where PRODUCT like 'Oracle Database%'";
         private readonly static IDbTypeProvider _typeProvider = new OracleDbTypeProvider();
 
         // https://docs.oracle.com/database/121/SQLRF/ap_keywd.htm#SQLRF022
-        private readonly static IEnumerable<string> _keywords = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+        private readonly static IEnumerable<string> _keywords = new System.Collections.Generic.HashSet<string>(StringComparer.OrdinalIgnoreCase)
         {
             "ACCESS",
             "ADD",

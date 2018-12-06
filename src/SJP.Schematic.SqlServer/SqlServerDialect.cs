@@ -72,23 +72,48 @@ select
     db_name() as [Database],
     schema_name() as [Schema]";
 
-        public override string GetDatabaseVersion(IDbConnection connection)
+        public override string GetDatabaseDisplayVersion(IDbConnection connection)
         {
             if (connection == null)
                 throw new ArgumentNullException(nameof(connection));
 
-            return connection.ExecuteScalar<string>(DatabaseVersionQuerySql);
+            return connection.ExecuteScalar<string>(DatabaseDisplayVersionQuerySql);
         }
 
-        public override Task<string> GetDatabaseVersionAsync(IDbConnection connection, CancellationToken cancellationToken = default(CancellationToken))
+        public override Task<string> GetDatabaseDisplayVersionAsync(IDbConnection connection, CancellationToken cancellationToken = default(CancellationToken))
         {
             if (connection == null)
                 throw new ArgumentNullException(nameof(connection));
 
-            return connection.ExecuteScalarAsync<string>(DatabaseVersionQuerySql, cancellationToken);
+            return connection.ExecuteScalarAsync<string>(DatabaseDisplayVersionQuerySql, cancellationToken);
         }
 
-        private const string DatabaseVersionQuerySql = "select @@version as DatabaseVersion";
+        private const string DatabaseDisplayVersionQuerySql = "select @@version as DatabaseVersion";
+
+        public override Version GetDatabaseVersion(IDbConnection connection)
+        {
+            if (connection == null)
+                throw new ArgumentNullException(nameof(connection));
+
+            var versionStr = connection.ExecuteScalar<string>(DatabaseVersionQuerySql);
+            return Version.Parse(versionStr);
+        }
+
+        public override Task<Version> GetDatabaseVersionAsync(IDbConnection connection, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            if (connection == null)
+                throw new ArgumentNullException(nameof(connection));
+
+            return GetDatabaseVersionAsyncCore(connection, cancellationToken);
+        }
+
+        private async Task<Version> GetDatabaseVersionAsyncCore(IDbConnection connection, CancellationToken cancellationToken)
+        {
+            var versionStr = await connection.ExecuteScalarAsync<string>(DatabaseVersionQuerySql, cancellationToken).ConfigureAwait(false);
+            return Version.Parse(versionStr);
+        }
+
+        private const string DatabaseVersionQuerySql = "select SERVERPROPERTY('ProductVersion') as DatabaseVersion";
 
         public override bool IsReservedKeyword(string text)
         {

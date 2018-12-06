@@ -143,5 +143,37 @@ namespace SJP.Schematic.Oracle.Tests
             var dialect = new OracleDialect();
             Assert.Throws<ArgumentException>(() => dialect.QuoteIdentifier(input));
         }
+
+        [Test]
+        public static void GetDatabaseDisplayVersion_GivenNullConnection_ThrowsArgumentNullException()
+        {
+            var dialect = new OracleDialect();
+
+            Assert.Throws<ArgumentNullException>(() => dialect.GetDatabaseDisplayVersion(null));
+        }
+
+        [Test]
+        public static void GetDatabaseDisplayVersionAsync_GivenNullConnection_ThrowsArgumentNullException()
+        {
+            var dialect = new OracleDialect();
+
+            Assert.Throws<ArgumentNullException>(() => dialect.GetDatabaseDisplayVersionAsync(null));
+        }
+
+        [Test]
+        public static void GetDatabaseVersion_GivenNullConnection_ThrowsArgumentNullException()
+        {
+            var dialect = new OracleDialect();
+
+            Assert.Throws<ArgumentNullException>(() => dialect.GetDatabaseVersion(null));
+        }
+
+        [Test]
+        public static void GetDatabaseVersionAsync_GivenNullConnection_ThrowsArgumentNullException()
+        {
+            var dialect = new OracleDialect();
+
+            Assert.Throws<ArgumentNullException>(() => dialect.GetDatabaseVersionAsync(null));
+        }
     }
 }

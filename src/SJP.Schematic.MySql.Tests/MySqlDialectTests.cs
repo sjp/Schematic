@@ -137,5 +137,37 @@ namespace SJP.Schematic.MySql.Tests
 
             Assert.AreEqual(expected, result);
         }
+
+        [Test]
+        public static void GetDatabaseDisplayVersion_GivenNullConnection_ThrowsArgumentNullException()
+        {
+            var dialect = new MySqlDialect();
+
+            Assert.Throws<ArgumentNullException>(() => dialect.GetDatabaseDisplayVersion(null));
+        }
+
+        [Test]
+        public static void GetDatabaseDisplayVersionAsync_GivenNullConnection_ThrowsArgumentNullException()
+        {
+            var dialect = new MySqlDialect();
+
+            Assert.Throws<ArgumentNullException>(() => dialect.GetDatabaseDisplayVersionAsync(null));
+        }
+
+        [Test]
+        public static void GetDatabaseVersion_GivenNullConnection_ThrowsArgumentNullException()
+        {
+            var dialect = new MySqlDialect();
+
+            Assert.Throws<ArgumentNullException>(() => dialect.GetDatabaseVersion(null));
+        }
+
+        [Test]
+        public static void GetDatabaseVersionAsync_GivenNullConnection_ThrowsArgumentNullException()
+        {
+            var dialect = new MySqlDialect();
+
+            Assert.Throws<ArgumentNullException>(() => dialect.GetDatabaseVersionAsync(null));
+        }
     }
 }

@@ -61,15 +61,38 @@ namespace SJP.Schematic.Sqlite
 
         private const string DefaultSchema = "main";
 
-        public override string GetDatabaseVersion(IDbConnection connection)
+        public override string GetDatabaseDisplayVersion(IDbConnection connection)
         {
             if (connection == null)
                 throw new ArgumentNullException(nameof(connection));
 
-            return connection.ExecuteScalar<string>(DatabaseVersionQuerySql);
+            return connection.ExecuteScalar<string>(DatabaseDisplayVersionQuerySql);
         }
 
-        public override Task<string> GetDatabaseVersionAsync(IDbConnection connection, CancellationToken cancellationToken = default(CancellationToken))
+        public override Task<string> GetDatabaseDisplayVersionAsync(IDbConnection connection, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            if (connection == null)
+                throw new ArgumentNullException(nameof(connection));
+
+            return GetDatabaseDisplayVersionAsyncCore(connection, cancellationToken);
+        }
+
+        private static async Task<string> GetDatabaseDisplayVersionAsyncCore(IDbConnection connection, CancellationToken cancellationToken)
+        {
+            var versionStr = await connection.ExecuteScalarAsync<string>(DatabaseDisplayVersionQuerySql, cancellationToken).ConfigureAwait(false);
+            return "SQLite " + versionStr;
+        }
+
+        public override Version GetDatabaseVersion(IDbConnection connection)
+        {
+            if (connection == null)
+                throw new ArgumentNullException(nameof(connection));
+
+            var versionStr = connection.ExecuteScalar<string>(DatabaseDisplayVersionQuerySql);
+            return Version.Parse(versionStr);
+        }
+
+        public override Task<Version> GetDatabaseVersionAsync(IDbConnection connection, CancellationToken cancellationToken = default(CancellationToken))
         {
             if (connection == null)
                 throw new ArgumentNullException(nameof(connection));
@@ -77,13 +100,13 @@ namespace SJP.Schematic.Sqlite
             return GetDatabaseVersionAsyncCore(connection, cancellationToken);
         }
 
-        private static async Task<string> GetDatabaseVersionAsyncCore(IDbConnection connection, CancellationToken cancellationToken)
+        private static async Task<Version> GetDatabaseVersionAsyncCore(IDbConnection connection, CancellationToken cancellationToken)
         {
-            var versionStr = await connection.ExecuteScalarAsync<string>(DatabaseVersionQuerySql, cancellationToken).ConfigureAwait(false);
-            return "SQLite " + versionStr;
+            var versionStr = await connection.ExecuteScalarAsync<string>(DatabaseDisplayVersionQuerySql, cancellationToken).ConfigureAwait(false);
+            return Version.Parse(versionStr);
         }
 
-        private const string DatabaseVersionQuerySql = "select sqlite_version()";
+        private const string DatabaseDisplayVersionQuerySql = "select sqlite_version()";
 
         public override bool IsReservedKeyword(string text)
         {

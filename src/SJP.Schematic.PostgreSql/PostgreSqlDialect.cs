@@ -76,23 +76,96 @@ select
     pg_catalog.current_database() as Database,
     pg_catalog.current_schema() as Schema";
 
-        public override string GetDatabaseVersion(IDbConnection connection)
+        public override string GetDatabaseDisplayVersion(IDbConnection connection)
         {
             if (connection == null)
                 throw new ArgumentNullException(nameof(connection));
 
-            return connection.ExecuteScalar<string>(DatabaseVersionQuerySql);
+            return connection.ExecuteScalar<string>(DatabaseDisplayVersionQuerySql);
         }
 
-        public override Task<string> GetDatabaseVersionAsync(IDbConnection connection, CancellationToken cancellationToken = default(CancellationToken))
+        public override Task<string> GetDatabaseDisplayVersionAsync(IDbConnection connection, CancellationToken cancellationToken = default(CancellationToken))
         {
             if (connection == null)
                 throw new ArgumentNullException(nameof(connection));
 
-            return connection.ExecuteScalarAsync<string>(DatabaseVersionQuerySql, cancellationToken);
+            return connection.ExecuteScalarAsync<string>(DatabaseDisplayVersionQuerySql, cancellationToken);
         }
 
-        private const string DatabaseVersionQuerySql = "select pg_catalog.version() as DatabaseVersion";
+        private const string DatabaseDisplayVersionQuerySql = "select pg_catalog.version() as DatabaseVersion";
+
+        public override Version GetDatabaseVersion(IDbConnection connection)
+        {
+            if (connection == null)
+                throw new ArgumentNullException(nameof(connection));
+
+            var versionStr = connection.ExecuteScalar<string>(DatabaseVersionQuerySql);
+            return ParsePostgresVersionString(versionStr);
+        }
+
+        public override Task<Version> GetDatabaseVersionAsync(IDbConnection connection, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            if (connection == null)
+                throw new ArgumentNullException(nameof(connection));
+
+            return GetDatabaseVersionAsyncCore(connection, cancellationToken);
+        }
+
+        private static async Task<Version> GetDatabaseVersionAsyncCore(IDbConnection connection, CancellationToken cancellationToken)
+        {
+            var versionStr = await connection.ExecuteScalarAsync<string>(DatabaseVersionQuerySql, cancellationToken).ConfigureAwait(false);
+            return ParsePostgresVersionString(versionStr);
+        }
+
+        private const string DatabaseVersionQuerySql = "select current_setting('server_version_num') as DatabaseVersion";
+
+        private static Version ParsePostgresVersionString(string versionStr)
+        {
+            if (versionStr.IsNullOrWhiteSpace())
+                throw new ArgumentNullException(nameof(versionStr));
+
+            return versionStr.Length >= 6
+                ? ParseNewPostgresVersionString(versionStr)
+                : ParseOldPostgresVersionString(versionStr);
+        }
+
+        // for v10 or newer
+        private static Version ParseNewPostgresVersionString(string versionStr)
+        {
+            if (versionStr.IsNullOrWhiteSpace())
+                throw new ArgumentNullException(nameof(versionStr));
+            if (versionStr.Length != 6)
+                throw new ArgumentException("The version string must be 6 characters long", nameof(versionStr));
+
+            var majorVersionStr = versionStr.Substring(0, 2);
+            var minorVersionStr = versionStr.Substring(4, 2);
+            var parsedMajor = int.TryParse(majorVersionStr, out var majorVersion);
+            var parsedMinor = int.TryParse(minorVersionStr, out var minorVersion);
+
+            return parsedMajor && parsedMinor
+                ? new Version(majorVersion, minorVersion)
+                : null;
+        }
+
+        // for v9 or older
+        private static Version ParseOldPostgresVersionString(string versionStr)
+        {
+            if (versionStr.IsNullOrWhiteSpace())
+                throw new ArgumentNullException(nameof(versionStr));
+            if (versionStr.Length != 5)
+                throw new ArgumentException("The version string must be 5 characters long", nameof(versionStr));
+
+            var majorVersionStr = versionStr.Substring(0, 1);
+            var minorVersionStr = versionStr.Substring(1, 2);
+            var patchVersionStr = versionStr.Substring(3, 2);
+            var parsedMajorVersion = int.TryParse(majorVersionStr, out var majorVersion);
+            var parsedMinorVersion = int.TryParse(minorVersionStr, out var minorVersion);
+            var parsedPatchVersion = int.TryParse(patchVersionStr, out var patchVersion);
+
+            return parsedMajorVersion && parsedMinorVersion && parsedPatchVersion
+                ? new Version(majorVersion, minorVersion, patchVersion)
+                : null;
+        }
 
         public override bool IsReservedKeyword(string text)
         {

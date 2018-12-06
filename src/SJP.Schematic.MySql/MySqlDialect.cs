@@ -74,7 +74,7 @@ select
     database() as `Database`,
     schema() as `Schema`";
 
-        public override string GetDatabaseVersion(IDbConnection connection)
+        public override string GetDatabaseDisplayVersion(IDbConnection connection)
         {
             if (connection == null)
                 throw new ArgumentNullException(nameof(connection));
@@ -82,7 +82,30 @@ select
             return connection.ExecuteScalar<string>(DatabaseVersionQuerySql);
         }
 
-        public override Task<string> GetDatabaseVersionAsync(IDbConnection connection, CancellationToken cancellationToken = default(CancellationToken))
+        public override Task<string> GetDatabaseDisplayVersionAsync(IDbConnection connection, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            if (connection == null)
+                throw new ArgumentNullException(nameof(connection));
+
+            return GetDatabaseDisplayVersionAsyncCore(connection, cancellationToken);
+        }
+
+        private static async Task<string> GetDatabaseDisplayVersionAsyncCore(IDbConnection connection, CancellationToken cancellationToken)
+        {
+            var versionStr = await connection.ExecuteScalarAsync<string>(DatabaseVersionQuerySql, cancellationToken).ConfigureAwait(false);
+            return "MySQL " + versionStr;
+        }
+
+        public override Version GetDatabaseVersion(IDbConnection connection)
+        {
+            if (connection == null)
+                throw new ArgumentNullException(nameof(connection));
+
+            var versionStr = connection.ExecuteScalar<string>(DatabaseVersionQuerySql);
+            return ParseMySqlVersion(versionStr);
+        }
+
+        public override Task<Version> GetDatabaseVersionAsync(IDbConnection connection, CancellationToken cancellationToken = default(CancellationToken))
         {
             if (connection == null)
                 throw new ArgumentNullException(nameof(connection));
@@ -90,10 +113,22 @@ select
             return GetDatabaseVersionAsyncCore(connection, cancellationToken);
         }
 
-        private static async Task<string> GetDatabaseVersionAsyncCore(IDbConnection connection, CancellationToken cancellationToken)
+        private static async Task<Version> GetDatabaseVersionAsyncCore(IDbConnection connection, CancellationToken cancellationToken)
         {
             var versionStr = await connection.ExecuteScalarAsync<string>(DatabaseVersionQuerySql, cancellationToken).ConfigureAwait(false);
-            return "MySQL " + versionStr;
+            return ParseMySqlVersion(versionStr);
+        }
+
+        private static Version ParseMySqlVersion(string versionStr)
+        {
+            if (versionStr.IsNullOrWhiteSpace())
+                throw new ArgumentNullException(nameof(versionStr));
+
+            var filteredVersion = versionStr.Replace("-", ".");
+            if (Version.TryParse(filteredVersion, out var version))
+                return version;
+
+            throw new Exception("Could not parse '" + versionStr + "' to a version");
         }
 
         private const string DatabaseVersionQuerySql = "select version() as DatabaseVersion";

@@ -24,6 +24,6 @@ namespace SJP.Schematic.Core
 
         public string DefaultSchema => IdentifierDefaults.Schema;
 
-        public string DatabaseVersion => Dialect.GetDatabaseVersion(Connection);
+        public string DatabaseVersion => Dialect.GetDatabaseDisplayVersion(Connection);
     }
 }

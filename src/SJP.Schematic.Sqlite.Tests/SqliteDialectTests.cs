@@ -84,10 +84,42 @@ namespace SJP.Schematic.Sqlite.Tests
         }
 
         [Test]
-        public static void QuoteName_GivenWhiteSpcae_ThrowsArgumentNullException()
+        public static void QuoteName_GivenWhiteSpace_ThrowsArgumentNullException()
         {
             var dialect = new SqliteDialect();
             Assert.Throws<ArgumentNullException>(() => dialect.QuoteName("    "));
+        }
+
+        [Test]
+        public static void GetDatabaseDisplayVersion_GivenNullConnection_ThrowsArgumentNullException()
+        {
+            var dialect = new SqliteDialect();
+
+            Assert.Throws<ArgumentNullException>(() => dialect.GetDatabaseDisplayVersion(null));
+        }
+
+        [Test]
+        public static void GetDatabaseDisplayVersionAsync_GivenNullConnection_ThrowsArgumentNullException()
+        {
+            var dialect = new SqliteDialect();
+
+            Assert.Throws<ArgumentNullException>(() => dialect.GetDatabaseDisplayVersionAsync(null));
+        }
+
+        [Test]
+        public static void GetDatabaseVersion_GivenNullConnection_ThrowsArgumentNullException()
+        {
+            var dialect = new SqliteDialect();
+
+            Assert.Throws<ArgumentNullException>(() => dialect.GetDatabaseVersion(null));
+        }
+
+        [Test]
+        public static void GetDatabaseVersionAsync_GivenNullConnection_ThrowsArgumentNullException()
+        {
+            var dialect = new SqliteDialect();
+
+            Assert.Throws<ArgumentNullException>(() => dialect.GetDatabaseVersionAsync(null));
         }
     }
 }
