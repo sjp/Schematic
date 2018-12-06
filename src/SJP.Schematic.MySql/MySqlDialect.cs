@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Globalization;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -124,11 +125,12 @@ select
             if (versionStr.IsNullOrWhiteSpace())
                 throw new ArgumentNullException(nameof(versionStr));
 
-            var filteredVersion = versionStr.Replace("-", ".");
-            if (Version.TryParse(filteredVersion, out var version))
-                return version;
+            var versionPieces = versionStr
+                .Split(new[] { '.', '-' }, StringSplitOptions.RemoveEmptyEntries)
+                .Where(piece => int.TryParse(piece, NumberStyles.Integer, CultureInfo.InvariantCulture, out var _));
 
-            throw new Exception("Could not parse '" + versionStr + "' to a version");
+            var saferVersionStr = versionPieces.Join(".");
+            return Version.Parse(saferVersionStr);
         }
 
         private const string DatabaseVersionQuerySql = "select version() as DatabaseVersion";
