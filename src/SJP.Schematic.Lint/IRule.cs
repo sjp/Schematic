@@ -11,8 +11,6 @@ namespace SJP.Schematic.Lint
 
         string Title { get; }
 
-        IEnumerable<IRuleMessage> AnalyseDatabase(IRelationalDatabase database);
-
         Task<IEnumerable<IRuleMessage>> AnalyseDatabaseAsync(IRelationalDatabase database, CancellationToken cancellationToken = default(CancellationToken));
     }
 }

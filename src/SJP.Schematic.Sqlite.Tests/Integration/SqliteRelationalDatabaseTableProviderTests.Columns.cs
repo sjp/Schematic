@@ -1,4 +1,5 @@
 ﻿using System.Linq;
+using System.Threading.Tasks;
 using NUnit.Framework;
 
 namespace SJP.Schematic.Sqlite.Tests.Integration
@@ -6,18 +7,18 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
     internal partial class SqliteRelationalDatabaseTableProviderTests : SqliteTest
     {
         [Test]
-        public void Columns_WhenGivenTableWithOneColumn_ReturnsColumnCollectionWithOneValue()
+        public async Task Columns_WhenGivenTableWithOneColumn_ReturnsColumnCollectionWithOneValue()
         {
-            var table = GetTable("table_test_table_1");
+            var table = await GetTableAsync("table_test_table_1").ConfigureAwait(false);
             var count = table.Columns.Count;
 
             Assert.AreEqual(1, count);
         }
 
         [Test]
-        public void Columns_WhenGivenTableWithOneColumn_ReturnsColumnWithCorrectName()
+        public async Task Columns_WhenGivenTableWithOneColumn_ReturnsColumnWithCorrectName()
         {
-            var table = GetTable("table_test_table_1");
+            var table = await GetTableAsync("table_test_table_1").ConfigureAwait(false);
             var column = table.Columns.Single();
             const string columnName = "test_column";
 
@@ -25,10 +26,10 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
         }
 
         [Test]
-        public void Columns_WhenGivenTableWithMultipleColumns_ReturnsColumnsInCorrectOrder()
+        public async Task Columns_WhenGivenTableWithMultipleColumns_ReturnsColumnsInCorrectOrder()
         {
             var expectedColumnNames = new[] { "first_name", "middle_name", "last_name" };
-            var table = GetTable("table_test_table_4");
+            var table = await GetTableAsync("table_test_table_4").ConfigureAwait(false);
             var columns = table.Columns;
             var columnNames = columns.Select(c => c.Name.LocalName);
 
@@ -36,40 +37,40 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
         }
 
         [Test]
-        public void Columns_WhenGivenTableWithNullableColumn_ColumnReturnsIsNullableTrue()
+        public async Task Columns_WhenGivenTableWithNullableColumn_ColumnReturnsIsNullableTrue()
         {
             const string tableName = "table_test_table_1";
-            var table = GetTable(tableName);
+            var table = await GetTableAsync(tableName).ConfigureAwait(false);
             var column = table.Columns.Single();
 
             Assert.IsTrue(column.IsNullable);
         }
 
         [Test]
-        public void Columns_WhenGivenTableWithNotNullableColumn_ColumnReturnsIsNullableFalse()
+        public async Task Columns_WhenGivenTableWithNotNullableColumn_ColumnReturnsIsNullableFalse()
         {
             const string tableName = "table_test_table_2";
-            var table = GetTable(tableName);
+            var table = await GetTableAsync(tableName).ConfigureAwait(false);
             var column = table.Columns.Single();
 
             Assert.IsFalse(column.IsNullable);
         }
 
         [Test]
-        public void Columns_WhenGivenTableWithColumnWithNoDefaultValue_ColumnReturnsNullDefaultValue()
+        public async Task Columns_WhenGivenTableWithColumnWithNoDefaultValue_ColumnReturnsNullDefaultValue()
         {
             const string tableName = "table_test_table_1";
-            var table = GetTable(tableName);
+            var table = await GetTableAsync(tableName).ConfigureAwait(false);
             var column = table.Columns.Single();
 
             Assert.IsNull(column.DefaultValue);
         }
 
         [Test]
-        public void Columns_WhenGivenTableWithColumnWithDefaultValue_ColumnReturnsCorrectDefaultValue()
+        public async Task Columns_WhenGivenTableWithColumnWithDefaultValue_ColumnReturnsCorrectDefaultValue()
         {
             const string tableName = "table_test_table_33";
-            var table = GetTable(tableName);
+            var table = await GetTableAsync(tableName).ConfigureAwait(false);
             var column = table.Columns.Single();
 
             const string defaultValue = "1";
@@ -77,20 +78,20 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
         }
 
         [Test]
-        public void Columns_WhenGivenTableWithNonComputedColumn_ReturnsIsComputedFalse()
+        public async Task Columns_WhenGivenTableWithNonComputedColumn_ReturnsIsComputedFalse()
         {
             const string tableName = "table_test_table_1";
-            var table = GetTable(tableName);
+            var table = await GetTableAsync(tableName).ConfigureAwait(false);
             var column = table.Columns.Single();
 
             Assert.IsFalse(column.IsComputed);
         }
 
         [Test]
-        public void Columns_WhenGivenTableColumnWithoutIdentity_ReturnsNullAutoincrement()
+        public async Task Columns_WhenGivenTableColumnWithoutIdentity_ReturnsNullAutoincrement()
         {
             const string tableName = "table_test_table_1";
-            var table = GetTable(tableName);
+            var table = await GetTableAsync(tableName).ConfigureAwait(false);
             var column = table.Columns.Single();
 
             Assert.IsNull(column.AutoIncrement);

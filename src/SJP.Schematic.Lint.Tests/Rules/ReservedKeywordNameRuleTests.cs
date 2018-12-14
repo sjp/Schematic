@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
+using System.Threading.Tasks;
 using Moq;
 using NUnit.Framework;
 using SJP.Schematic.Core;
@@ -21,14 +22,14 @@ namespace SJP.Schematic.Lint.Tests.Rules
         }
 
         [Test]
-        public static void AnalyseDatabase_GivenNullDatabase_ThrowsArgumentNullException()
+        public static void AnalyseDatabaseAsync_GivenNullDatabase_ThrowsArgumentNullException()
         {
             var rule = new ReservedKeywordNameRule(RuleLevel.Error);
-            Assert.Throws<ArgumentNullException>(() => rule.AnalyseDatabase(null));
+            Assert.Throws<ArgumentNullException>(() => rule.AnalyseDatabaseAsync(null));
         }
 
         [Test]
-        public static void AnalyseDatabase_GivenTableWithRegularName_ProducesNoMessages()
+        public static async Task AnalyseDatabaseAsync_GivenTableWithRegularName_ProducesNoMessages()
         {
             var rule = new ReservedKeywordNameRule(RuleLevel.Error);
             var tableName = new Identifier("test");
@@ -47,13 +48,13 @@ namespace SJP.Schematic.Lint.Tests.Rules
             );
             database.Tables = new[] { table };
 
-            var messages = rule.AnalyseDatabase(database);
+            var messages = await rule.AnalyseDatabaseAsync(database).ConfigureAwait(false);
 
             Assert.Zero(messages.Count());
         }
 
         [Test]
-        public static void AnalyseDatabase_GivenTableWithNameContainingReservedKeyword_ProducesMessages()
+        public static async Task AnalyseDatabaseAsync_GivenTableWithNameContainingReservedKeyword_ProducesMessages()
         {
             var rule = new ReservedKeywordNameRule(RuleLevel.Error);
             var tableName = new Identifier("SELECT");
@@ -72,13 +73,13 @@ namespace SJP.Schematic.Lint.Tests.Rules
             );
             database.Tables = new[] { table };
 
-            var messages = rule.AnalyseDatabase(database);
+            var messages = await rule.AnalyseDatabaseAsync(database).ConfigureAwait(false);
 
             Assert.NotZero(messages.Count());
         }
 
         [Test]
-        public static void AnalyseDatabase_GivenTableWithRegularColumnNames_ProducesNoMessages()
+        public static async Task AnalyseDatabaseAsync_GivenTableWithRegularColumnNames_ProducesNoMessages()
         {
             var rule = new ReservedKeywordNameRule(RuleLevel.Error);
             var database = CreateFakeDatabase();
@@ -104,13 +105,13 @@ namespace SJP.Schematic.Lint.Tests.Rules
             );
             database.Tables = new[] { table };
 
-            var messages = rule.AnalyseDatabase(database);
+            var messages = await rule.AnalyseDatabaseAsync(database).ConfigureAwait(false);
 
             Assert.Zero(messages.Count());
         }
 
         [Test]
-        public static void AnalyseDatabase_GivenTableWithColumnNameContainingReservedKeyword_ProducesMessages()
+        public static async Task AnalyseDatabaseAsync_GivenTableWithColumnNameContainingReservedKeyword_ProducesMessages()
         {
             var rule = new ReservedKeywordNameRule(RuleLevel.Error);
             var database = CreateFakeDatabase();
@@ -136,13 +137,13 @@ namespace SJP.Schematic.Lint.Tests.Rules
             );
             database.Tables = new[] { table };
 
-            var messages = rule.AnalyseDatabase(database);
+            var messages = await rule.AnalyseDatabaseAsync(database).ConfigureAwait(false);
 
             Assert.NotZero(messages.Count());
         }
 
         [Test]
-        public static void AnalyseDatabase_GivenViewWithRegularName_ProducesNoMessages()
+        public static async Task AnalyseDatabaseAsync_GivenViewWithRegularName_ProducesNoMessages()
         {
             var rule = new ReservedKeywordNameRule(RuleLevel.Error);
             var viewName = new Identifier("test");
@@ -156,13 +157,13 @@ namespace SJP.Schematic.Lint.Tests.Rules
             );
             database.Views = new[] { view };
 
-            var messages = rule.AnalyseDatabase(database);
+            var messages = await rule.AnalyseDatabaseAsync(database).ConfigureAwait(false);
 
             Assert.Zero(messages.Count());
         }
 
         [Test]
-        public static void AnalyseDatabase_GivenViewWithNameContainingReservedKeyword_ProducesMessages()
+        public static async Task AnalyseDatabaseAsync_GivenViewWithNameContainingReservedKeyword_ProducesMessages()
         {
             var rule = new ReservedKeywordNameRule(RuleLevel.Error);
             var viewName = new Identifier("SELECT");
@@ -176,13 +177,13 @@ namespace SJP.Schematic.Lint.Tests.Rules
             );
             database.Views = new[] { view };
 
-            var messages = rule.AnalyseDatabase(database);
+            var messages = await rule.AnalyseDatabaseAsync(database).ConfigureAwait(false);
 
             Assert.NotZero(messages.Count());
         }
 
         [Test]
-        public static void AnalyseDatabase_GivenViewWithRegularColumnNames_ProducesNoMessages()
+        public static async Task AnalyseDatabaseAsync_GivenViewWithRegularColumnNames_ProducesNoMessages()
         {
             var rule = new ReservedKeywordNameRule(RuleLevel.Error);
             var viewName = new Identifier("test");
@@ -204,13 +205,13 @@ namespace SJP.Schematic.Lint.Tests.Rules
             );
             database.Views = new[] { view };
 
-            var messages = rule.AnalyseDatabase(database);
+            var messages = await rule.AnalyseDatabaseAsync(database).ConfigureAwait(false);
 
             Assert.Zero(messages.Count());
         }
 
         [Test]
-        public static void AnalyseDatabase_GivenViewWithColumnNameContainingReservedKeyword_ProducesMessages()
+        public static async Task AnalyseDatabaseAsync_GivenViewWithColumnNameContainingReservedKeyword_ProducesMessages()
         {
             var rule = new ReservedKeywordNameRule(RuleLevel.Error);
             var viewName = new Identifier("test");
@@ -232,13 +233,13 @@ namespace SJP.Schematic.Lint.Tests.Rules
             );
             database.Views = new[] { view };
 
-            var messages = rule.AnalyseDatabase(database);
+            var messages = await rule.AnalyseDatabaseAsync(database).ConfigureAwait(false);
 
             Assert.NotZero(messages.Count());
         }
 
         [Test]
-        public static void AnalyseDatabase_GivenSequenceWithRegularName_ProducesNoMessages()
+        public static async Task AnalyseDatabaseAsync_GivenSequenceWithRegularName_ProducesNoMessages()
         {
             var rule = new ReservedKeywordNameRule(RuleLevel.Error);
             var sequenceName = new Identifier("test");
@@ -255,13 +256,13 @@ namespace SJP.Schematic.Lint.Tests.Rules
             );
             database.Sequences = new[] { sequence };
 
-            var messages = rule.AnalyseDatabase(database);
+            var messages = await rule.AnalyseDatabaseAsync(database).ConfigureAwait(false);
 
             Assert.Zero(messages.Count());
         }
 
         [Test]
-        public static void AnalyseDatabase_GivenSequenceWithNameContainingReservedKeyword_ProducesMessages()
+        public static async Task AnalyseDatabaseAsync_GivenSequenceWithNameContainingReservedKeyword_ProducesMessages()
         {
             var rule = new ReservedKeywordNameRule(RuleLevel.Error);
             var sequenceName = new Identifier("SELECT");
@@ -278,13 +279,13 @@ namespace SJP.Schematic.Lint.Tests.Rules
             );
             database.Sequences = new[] { sequence };
 
-            var messages = rule.AnalyseDatabase(database);
+            var messages = await rule.AnalyseDatabaseAsync(database).ConfigureAwait(false);
 
             Assert.NotZero(messages.Count());
         }
 
         [Test]
-        public static void AnalyseDatabase_GivenSynonymWithRegularName_ProducesNoMessages()
+        public static async Task AnalyseDatabaseAsync_GivenSynonymWithRegularName_ProducesNoMessages()
         {
             var rule = new ReservedKeywordNameRule(RuleLevel.Error);
             var synonymName = new Identifier("test");
@@ -293,13 +294,13 @@ namespace SJP.Schematic.Lint.Tests.Rules
             var synonym = new DatabaseSynonym(synonymName, "target");
             database.Synonyms = new[] { synonym };
 
-            var messages = rule.AnalyseDatabase(database);
+            var messages = await rule.AnalyseDatabaseAsync(database).ConfigureAwait(false);
 
             Assert.Zero(messages.Count());
         }
 
         [Test]
-        public static void AnalyseDatabase_GivenSynonymWithNameContainingReservedKeyword_ProducesMessages()
+        public static async Task AnalyseDatabaseAsync_GivenSynonymWithNameContainingReservedKeyword_ProducesMessages()
         {
             var rule = new ReservedKeywordNameRule(RuleLevel.Error);
             var synonymName = new Identifier("SELECT");
@@ -308,7 +309,7 @@ namespace SJP.Schematic.Lint.Tests.Rules
             var synonym = new DatabaseSynonym(synonymName, "target");
             database.Synonyms = new[] { synonym };
 
-            var messages = rule.AnalyseDatabase(database);
+            var messages = await rule.AnalyseDatabaseAsync(database).ConfigureAwait(false);
 
             Assert.NotZero(messages.Count());
         }

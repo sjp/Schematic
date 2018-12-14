@@ -1,16 +1,18 @@
 ﻿using SJP.Schematic.Core;
 using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace SJP.Schematic.Reporting.Dot
 {
     public interface IDatabaseDotFormatter
     {
-        string RenderDatabase();
+        Task<string> RenderDatabaseAsync(CancellationToken cancellationToken);
 
-        string RenderDatabase(DotRenderOptions options);
+        Task<string> RenderDatabaseAsync(DotRenderOptions options, CancellationToken cancellationToken);
 
-        string RenderTables(IEnumerable<IRelationalDatabaseTable> tables);
+        Task<string> RenderTablesAsync(IEnumerable<IRelationalDatabaseTable> tables, CancellationToken cancellationToken);
 
-        string RenderTables(IEnumerable<IRelationalDatabaseTable> tables, DotRenderOptions options);
+        Task<string> RenderTablesAsync(IEnumerable<IRelationalDatabaseTable> tables, DotRenderOptions options, CancellationToken cancellationToken);
     }
 }

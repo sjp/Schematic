@@ -8,19 +8,9 @@ namespace SJP.Schematic.Core
 {
     public sealed class EmptyDatabaseSynonymProvider : IDatabaseSynonymProvider
     {
-        public IReadOnlyCollection<IDatabaseSynonym> Synonyms { get; } = Array.Empty<IDatabaseSynonym>();
-
         public Task<IReadOnlyCollection<IDatabaseSynonym>> SynonymsAsync(CancellationToken cancellationToken = default(CancellationToken)) => _emptySynonyms;
 
         private readonly static Task<IReadOnlyCollection<IDatabaseSynonym>> _emptySynonyms = Task.FromResult<IReadOnlyCollection<IDatabaseSynonym>>(Array.Empty<IDatabaseSynonym>());
-
-        public Option<IDatabaseSynonym> GetSynonym(Identifier synonymName)
-        {
-            if (synonymName == null)
-                throw new ArgumentNullException(nameof(synonymName));
-
-            return Option<IDatabaseSynonym>.None;
-        }
 
         public OptionAsync<IDatabaseSynonym> GetSynonymAsync(Identifier synonymName, CancellationToken cancellationToken = default(CancellationToken))
         {

@@ -8,7 +8,6 @@ using Dapper;
 using LanguageExt;
 using SJP.Schematic.Core;
 using SJP.Schematic.Core.Extensions;
-using SJP.Schematic.Core.Utilities;
 using SJP.Schematic.MySql.Query;
 
 namespace SJP.Schematic.MySql
@@ -27,21 +26,6 @@ namespace SJP.Schematic.MySql
         protected IIdentifierDefaults IdentifierDefaults { get; }
 
         protected IDbTypeProvider TypeProvider { get; }
-
-        public IReadOnlyCollection<IRelationalDatabaseView> Views
-        {
-            get
-            {
-                var viewNames = Connection.Query<QualifiedName>(ViewsQuery, new { SchemaName = IdentifierDefaults.Schema })
-                    .Select(dto => Identifier.CreateQualifiedIdentifier(dto.SchemaName, dto.ObjectName))
-                    .ToList();
-
-                var views = viewNames
-                    .Select(LoadViewSync)
-                    .Somes();
-                return new ReadOnlyCollectionSlim<IRelationalDatabaseView>(viewNames.Count, views);
-            }
-        }
 
         public async Task<IReadOnlyCollection<IRelationalDatabaseView>> ViewsAsync(CancellationToken cancellationToken = default(CancellationToken))
         {
@@ -75,15 +59,6 @@ select
 from information_schema.views
 where TABLE_SCHEMA = @SchemaName order by TABLE_NAME";
 
-        public Option<IRelationalDatabaseView> GetView(Identifier viewName)
-        {
-            if (viewName == null)
-                throw new ArgumentNullException(nameof(viewName));
-
-            var candidateViewName = QualifyViewName(viewName);
-            return LoadViewSync(candidateViewName);
-        }
-
         public OptionAsync<IRelationalDatabaseView> GetViewAsync(Identifier viewName, CancellationToken cancellationToken = default(CancellationToken))
         {
             if (viewName == null)
@@ -91,20 +66,6 @@ where TABLE_SCHEMA = @SchemaName order by TABLE_NAME";
 
             var candidateViewName = QualifyViewName(viewName);
             return LoadViewAsync(candidateViewName, cancellationToken);
-        }
-
-        protected Option<Identifier> GetResolvedViewName(Identifier viewName)
-        {
-            if (viewName == null)
-                throw new ArgumentNullException(nameof(viewName));
-
-            var candidateViewName = QualifyViewName(viewName);
-            var qualifiedViewName = Connection.QueryFirstOrNone<QualifiedName>(
-                ViewNameQuery,
-                new { SchemaName = candidateViewName.Schema, ViewName = candidateViewName.LocalName }
-            );
-
-            return qualifiedViewName.Map(name => Identifier.CreateQualifiedIdentifier(candidateViewName.Server, candidateViewName.Database, name.SchemaName, name.ObjectName));
         }
 
         protected OptionAsync<Identifier> GetResolvedViewNameAsync(Identifier viewName, CancellationToken cancellationToken)
@@ -129,26 +90,6 @@ select table_schema as SchemaName, table_name as ObjectName
 from information_schema.views
 where table_schema = @SchemaName and table_name = @ViewName
 limit 1";
-
-        protected virtual Option<IRelationalDatabaseView> LoadViewSync(Identifier viewName)
-        {
-            if (viewName == null)
-                throw new ArgumentNullException(nameof(viewName));
-
-            var candidateViewName = QualifyViewName(viewName);
-            var resolvedViewNameOption = GetResolvedViewName(candidateViewName);
-            if (resolvedViewNameOption.IsNone)
-                return Option<IRelationalDatabaseView>.None;
-
-            var resolvedViewName = resolvedViewNameOption.UnwrapSome();
-
-            var definition = LoadDefinitionSync(resolvedViewName);
-            var columns = LoadColumnsSync(resolvedViewName);
-            var indexes = Array.Empty<IDatabaseIndex>();
-
-            var view = new RelationalDatabaseView(resolvedViewName, definition, columns, indexes);
-            return Option<IRelationalDatabaseView>.Some(view);
-        }
 
         protected virtual OptionAsync<IRelationalDatabaseView> LoadViewAsync(Identifier viewName, CancellationToken cancellationToken)
         {
@@ -177,14 +118,6 @@ limit 1";
             return Option<IRelationalDatabaseView>.Some(view);
         }
 
-        protected virtual string LoadDefinitionSync(Identifier viewName)
-        {
-            if (viewName == null)
-                throw new ArgumentNullException(nameof(viewName));
-
-            return Connection.ExecuteScalar<string>(DefinitionQuery, new { SchemaName = viewName.Schema, ViewName = viewName.LocalName });
-        }
-
         protected virtual Task<string> LoadDefinitionAsync(Identifier viewName, CancellationToken cancellationToken)
         {
             if (viewName == null)
@@ -203,41 +136,6 @@ limit 1";
 select view_definition
 from information_schema.views
 where table_schema = @SchemaName and table_name = @ViewName";
-
-        protected virtual IReadOnlyList<IDatabaseColumn> LoadColumnsSync(Identifier viewName)
-        {
-            if (viewName == null)
-                throw new ArgumentNullException(nameof(viewName));
-
-            var query = Connection.Query<ColumnData>(ColumnsQuery, new { SchemaName = viewName.Schema, ViewName = viewName.LocalName });
-            var result = new List<IDatabaseColumn>();
-
-            foreach (var row in query)
-            {
-                var precision = row.DateTimePrecision > 0
-                    ? new NumericPrecision(row.DateTimePrecision, 0)
-                    : new NumericPrecision(row.Precision, row.Scale);
-
-                var typeMetadata = new ColumnTypeMetadata
-                {
-                    TypeName = Identifier.CreateQualifiedIdentifier(row.DataTypeName),
-                    Collation = row.Collation.IsNullOrWhiteSpace() ? null : Identifier.CreateQualifiedIdentifier(row.Collation),
-                    MaxLength = row.CharacterMaxLength,
-                    NumericPrecision = precision
-                };
-                var columnType = TypeProvider.CreateColumnType(typeMetadata);
-
-                var columnName = Identifier.CreateQualifiedIdentifier(row.ColumnName);
-                var isAutoIncrement = row.ExtraInformation.Contains("auto_increment", StringComparison.OrdinalIgnoreCase);
-                var autoIncrement = isAutoIncrement ? new AutoIncrement(1, 1) : (IAutoIncrement)null;
-                var isNullable = !string.Equals(row.IsNullable, "NO", StringComparison.OrdinalIgnoreCase);
-
-                var column = new DatabaseColumn(columnName, columnType, isNullable, row.DefaultValue, autoIncrement);
-                result.Add(column);
-            }
-
-            return result.AsReadOnly();
-        }
 
         protected virtual Task<IReadOnlyList<IDatabaseColumn>> LoadColumnsAsync(Identifier viewName, CancellationToken cancellationToken)
         {

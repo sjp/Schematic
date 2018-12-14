@@ -45,14 +45,14 @@ create table parent_table_with_pk_column_to_pk_column_1 (
         }
 
         [Test]
-        public static void AnalyseDatabase_GivenNullDatabase_ThrowsArgumentNullException()
+        public static void AnalyseDatabaseAsync_GivenNullDatabase_ThrowsArgumentNullException()
         {
             var rule = new ForeignKeyIsPrimaryKeyRule(RuleLevel.Error);
-            Assert.Throws<ArgumentNullException>(() => rule.AnalyseDatabase(null));
+            Assert.Throws<ArgumentNullException>(() => rule.AnalyseDatabaseAsync(null));
         }
 
         [Test]
-        public void AnalyseDatabase_GivenDatabaseWithDifferentColumnToPrimaryKey_ProducesNoMessages()
+        public async Task AnalyseDatabaseAsync_GivenDatabaseWithDifferentColumnToPrimaryKey_ProducesNoMessages()
         {
             var rule = new ForeignKeyIsPrimaryKeyRule(RuleLevel.Error);
             var fakeDatabase = CreateFakeDatabase();
@@ -60,24 +60,27 @@ create table parent_table_with_pk_column_to_pk_column_1 (
 
             fakeDatabase.Tables = new[]
             {
-                database.GetTable("parent_table_with_different_column_to_pk_column_1").UnwrapSome()
+                await database.GetTableAsync("parent_table_with_different_column_to_pk_column_1").UnwrapSomeAsync().ConfigureAwait(false)
             };
 
-            var messages = rule.AnalyseDatabase(fakeDatabase);
+            var messages = await rule.AnalyseDatabaseAsync(fakeDatabase).ConfigureAwait(false);
 
             Assert.Zero(messages.Count());
         }
 
         [Test]
-        public void AnalyseDatabase_GivenDatabaseWithSameColumnToPrimaryKey_ProducesNoMessages()
+        public async Task AnalyseDatabaseAsync_GivenDatabaseWithSameColumnToPrimaryKey_ProducesNoMessages()
         {
             var rule = new ForeignKeyIsPrimaryKeyRule(RuleLevel.Error);
             var fakeDatabase = CreateFakeDatabase();
             var database = GetSqliteDatabase();
 
-            fakeDatabase.Tables = new[] { database.GetTable("parent_table_with_pk_column_to_pk_column_1").UnwrapSome() };
+            fakeDatabase.Tables = new[]
+            {
+                await database.GetTableAsync("parent_table_with_pk_column_to_pk_column_1").UnwrapSomeAsync().ConfigureAwait(false)
+            };
 
-            var messages = rule.AnalyseDatabase(fakeDatabase);
+            var messages = await rule.AnalyseDatabaseAsync(fakeDatabase).ConfigureAwait(false);
 
             Assert.NotZero(messages.Count());
         }

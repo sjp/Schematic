@@ -28,52 +28,6 @@ namespace SJP.Schematic.Reporting.Html.Renderers
 
         private DirectoryInfo ExportDirectory { get; }
 
-        public void Render()
-        {
-            var tables = Database.Tables.ToList();
-
-            var primaryKeys = tables.SelectMany(t => t.PrimaryKey.Select(pk => new { TableName = t.Name, PrimaryKey = pk })).ToList();
-            var uniqueKeys = tables.SelectMany(t => t.UniqueKeys.Select(uk => new { TableName = t.Name, UniqueKey = uk })).ToList();
-            var foreignKeys = tables.SelectMany(t => t.ParentKeys).ToList();
-            var checkConstraints = tables.SelectMany(t => t.Checks.Select(ck => new { TableName = t.Name, Check = ck })).ToList();
-
-            var mapper = new ConstraintsModelMapper();
-
-            var primaryKeyViewModels = primaryKeys
-                .Select(pk => mapper.MapPrimaryKey(pk.TableName, pk.PrimaryKey))
-                .OrderBy(pk => pk.TableName)
-                .ToList();
-            var uniqueKeyViewModels = uniqueKeys
-                .Select(uk => mapper.MapUniqueKey(uk.TableName, uk.UniqueKey))
-                .OrderBy(uk => uk.TableName)
-                .ToList();
-            var foreignKeyViewModels = foreignKeys
-                .Select(mapper.MapForeignKey)
-                .OrderBy(fk => fk.TableName)
-                .ToList();
-            var checkConstraintViewModels = checkConstraints
-                .Select(ck => mapper.MapCheckConstraint(ck.TableName, ck.Check))
-                .OrderBy(ck => ck.TableName)
-                .ToList();
-
-            var templateParameter = new Constraints(
-                primaryKeyViewModels,
-                uniqueKeyViewModels,
-                foreignKeyViewModels,
-                checkConstraintViewModels
-            );
-            var renderedConstraints = Formatter.RenderTemplate(templateParameter);
-
-            var constraintsContainer = new Container(renderedConstraints, Database.DatabaseName, string.Empty);
-            var renderedPage = Formatter.RenderTemplate(constraintsContainer);
-
-            if (!ExportDirectory.Exists)
-                ExportDirectory.Create();
-            var outputPath = Path.Combine(ExportDirectory.FullName, "constraints.html");
-
-            File.WriteAllText(outputPath, renderedPage);
-        }
-
         public async Task RenderAsync(CancellationToken cancellationToken = default(CancellationToken))
         {
             var tables = await Database.TablesAsync(cancellationToken).ConfigureAwait(false);

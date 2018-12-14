@@ -8,7 +8,6 @@ using Dapper;
 using LanguageExt;
 using SJP.Schematic.Core;
 using SJP.Schematic.Core.Extensions;
-using SJP.Schematic.Core.Utilities;
 using SJP.Schematic.SqlServer.Query;
 
 namespace SJP.Schematic.SqlServer
@@ -30,21 +29,6 @@ namespace SJP.Schematic.SqlServer
 
         protected IDatabaseDialect Dialect { get; } = new SqlServerDialect();
 
-        public IReadOnlyCollection<IRelationalDatabaseView> Views
-        {
-            get
-            {
-                var viewNames = Connection.Query<QualifiedName>(ViewsQuery)
-                    .Select(dto => Identifier.CreateQualifiedIdentifier(dto.SchemaName, dto.ObjectName))
-                    .ToList();
-
-                var views = viewNames
-                    .Select(LoadViewSync)
-                    .Somes();
-                return new ReadOnlyCollectionSlim<IRelationalDatabaseView>(viewNames.Count, views);
-            }
-        }
-
         public async Task<IReadOnlyCollection<IRelationalDatabaseView>> ViewsAsync(CancellationToken cancellationToken = default(CancellationToken))
         {
             var queryResult = await Connection.QueryAsync<QualifiedName>(ViewsQuery, cancellationToken).ConfigureAwait(false);
@@ -64,15 +48,6 @@ namespace SJP.Schematic.SqlServer
 
         private const string ViewsQuerySql = "select schema_name(schema_id) as SchemaName, name as ObjectName from sys.views order by schema_name(schema_id), name";
 
-        public Option<IRelationalDatabaseView> GetView(Identifier viewName)
-        {
-            if (viewName == null)
-                throw new ArgumentNullException(nameof(viewName));
-
-            var candidateViewName = QualifyViewName(viewName);
-            return LoadViewSync(candidateViewName);
-        }
-
         public OptionAsync<IRelationalDatabaseView> GetViewAsync(Identifier viewName, CancellationToken cancellationToken = default(CancellationToken))
         {
             if (viewName == null)
@@ -80,20 +55,6 @@ namespace SJP.Schematic.SqlServer
 
             var candidateViewName = QualifyViewName(viewName);
             return LoadViewAsync(candidateViewName, cancellationToken);
-        }
-
-        protected Option<Identifier> GetResolvedViewName(Identifier viewName)
-        {
-            if (viewName == null)
-                throw new ArgumentNullException(nameof(viewName));
-
-            var candidateViewName = QualifyViewName(viewName);
-            var qualifiedViewName = Connection.QueryFirstOrNone<QualifiedName>(
-                ViewNameQuery,
-                new { SchemaName = candidateViewName.Schema, ViewName = candidateViewName.LocalName }
-            );
-
-            return qualifiedViewName.Map(name => Identifier.CreateQualifiedIdentifier(candidateViewName.Server, candidateViewName.Database, name.SchemaName, name.ObjectName));
         }
 
         protected OptionAsync<Identifier> GetResolvedViewNameAsync(Identifier viewName, CancellationToken cancellationToken)
@@ -117,27 +78,6 @@ namespace SJP.Schematic.SqlServer
 select top 1 schema_name(schema_id) as SchemaName, name as ObjectName
 from sys.views
 where schema_id = schema_id(@SchemaName) and name = @ViewName";
-
-        protected virtual Option<IRelationalDatabaseView> LoadViewSync(Identifier viewName)
-        {
-            if (viewName == null)
-                throw new ArgumentNullException(nameof(viewName));
-
-            var candidateViewName = QualifyViewName(viewName);
-            var resolvedViewNameOption = GetResolvedViewName(candidateViewName);
-            if (resolvedViewNameOption.IsNone)
-                return Option<IRelationalDatabaseView>.None;
-
-            var resolvedViewName = resolvedViewNameOption.UnwrapSome();
-
-            var definition = LoadDefinitionSync(resolvedViewName);
-            var columns = LoadColumnsSync(resolvedViewName);
-            var columnLookup = GetColumnLookup(columns);
-            var indexes = LoadIndexesSync(resolvedViewName, columnLookup);
-
-            var view = new RelationalDatabaseView(resolvedViewName, definition, columns, indexes);
-            return Option<IRelationalDatabaseView>.Some(view);
-        }
 
         protected virtual OptionAsync<IRelationalDatabaseView> LoadViewAsync(Identifier viewName, CancellationToken cancellationToken)
         {
@@ -171,14 +111,6 @@ where schema_id = schema_id(@SchemaName) and name = @ViewName";
             return Option<IRelationalDatabaseView>.Some(view);
         }
 
-        protected virtual string LoadDefinitionSync(Identifier viewName)
-        {
-            if (viewName == null)
-                throw new ArgumentNullException(nameof(viewName));
-
-            return Connection.ExecuteScalar<string>(DefinitionQuery, new { SchemaName = viewName.Schema, ViewName = viewName.LocalName });
-        }
-
         protected virtual Task<string> LoadDefinitionAsync(Identifier viewName, CancellationToken cancellationToken)
         {
             if (viewName == null)
@@ -198,56 +130,6 @@ select sm.definition
 from sys.sql_modules sm
 inner join sys.views v on sm.object_id = v.object_id
 where schema_name(v.schema_id) = @SchemaName and v.name = @ViewName";
-
-        protected virtual IReadOnlyCollection<IDatabaseIndex> LoadIndexesSync(Identifier viewName, IReadOnlyDictionary<Identifier, IDatabaseColumn> columns)
-        {
-            if (viewName == null)
-                throw new ArgumentNullException(nameof(viewName));
-            if (columns == null)
-                throw new ArgumentNullException(nameof(columns));
-
-            var queryResult = Connection.Query<IndexColumns>(IndexesQuery, new { SchemaName = viewName.Schema, ViewName = viewName.LocalName });
-            if (queryResult.Empty())
-                return Array.Empty<IDatabaseIndex>();
-
-            var indexColumns = queryResult.GroupBy(row => new { row.IndexName, row.IsUnique, row.IsDisabled }).ToList();
-            if (indexColumns.Empty())
-                return Array.Empty<IDatabaseIndex>();
-
-            var result = new List<IDatabaseIndex>(indexColumns.Count);
-            foreach (var indexInfo in indexColumns)
-            {
-                var isUnique = indexInfo.Key.IsUnique;
-                var indexName = Identifier.CreateQualifiedIdentifier(indexInfo.Key.IndexName);
-                var isEnabled = !indexInfo.Key.IsDisabled;
-
-                var indexCols = indexInfo
-                    .Where(row => !row.IsIncludedColumn)
-                    .OrderBy(row => row.KeyOrdinal)
-                    .ThenBy(row => row.IndexColumnId)
-                    .Select(row => new { row.IsDescending, Column = columns[row.ColumnName] })
-                    .Select(row =>
-                    {
-                        var order = row.IsDescending ? IndexColumnOrder.Descending : IndexColumnOrder.Ascending;
-                        var column = row.Column;
-                        var expression = Dialect.QuoteName(column.Name);
-                        return new DatabaseIndexColumn(expression, column, order);
-                    })
-                    .ToList();
-
-                var includedCols = indexInfo
-                    .Where(row => row.IsIncludedColumn)
-                    .OrderBy(row => row.KeyOrdinal)
-                    .ThenBy(row => row.IndexColumnId)
-                    .Select(row => columns[row.ColumnName])
-                    .ToList();
-
-                var index = new DatabaseIndex(indexName, isUnique, indexCols, includedCols, isEnabled);
-                result.Add(index);
-            }
-
-            return result;
-        }
 
         protected virtual Task<IReadOnlyCollection<IDatabaseIndex>> LoadIndexesAsync(Identifier viewName, IReadOnlyDictionary<Identifier, IDatabaseColumn> columns, CancellationToken cancellationToken)
         {
@@ -328,39 +210,6 @@ inner join sys.columns c on ic.object_id = c.object_id and ic.column_id = c.colu
 where schema_name(v.schema_id) = @SchemaName and v.name = @ViewName
     and i.is_primary_key = 0 and i.is_unique_constraint = 0
 order by ic.index_id, ic.key_ordinal, ic.index_column_id";
-
-        protected virtual IReadOnlyList<IDatabaseColumn> LoadColumnsSync(Identifier viewName)
-        {
-            if (viewName == null)
-                throw new ArgumentNullException(nameof(viewName));
-
-            var query = Connection.Query<ColumnData>(ColumnsQuery, new { SchemaName = viewName.Schema, ViewName = viewName.LocalName });
-            var result = new List<IDatabaseColumn>();
-
-            foreach (var row in query)
-            {
-                var typeMetadata = new ColumnTypeMetadata
-                {
-                    TypeName = Identifier.CreateQualifiedIdentifier(row.ColumnTypeSchema, row.ColumnTypeName),
-                    Collation = row.Collation.IsNullOrWhiteSpace() ? null : Identifier.CreateQualifiedIdentifier(row.Collation),
-                    MaxLength = row.MaxLength,
-                    NumericPrecision = new NumericPrecision(row.Precision, row.Scale)
-                };
-                var columnType = TypeProvider.CreateColumnType(typeMetadata);
-
-                var columnName = Identifier.CreateQualifiedIdentifier(row.ColumnName);
-                var isAutoIncrement = row.IdentitySeed.HasValue && row.IdentityIncrement.HasValue;
-                var autoIncrement = isAutoIncrement
-                    ? new AutoIncrement(row.IdentitySeed.Value, row.IdentityIncrement.Value)
-                    : (IAutoIncrement)null;
-
-                var column = new DatabaseColumn(columnName, columnType, row.IsNullable, row.DefaultValue, autoIncrement);
-
-                result.Add(column);
-            }
-
-            return result.AsReadOnly();
-        }
 
         protected virtual Task<IReadOnlyList<IDatabaseColumn>> LoadColumnsAsync(Identifier viewName, CancellationToken cancellationToken)
         {

@@ -6,6 +6,7 @@ using Dapper;
 using NUnit.Framework;
 using SJP.Schematic.Core;
 using SJP.Schematic.Core.Extensions;
+using SJP.Schematic.Core.Utilities;
 
 namespace SJP.Schematic.SqlServer.Tests.Integration
 {
@@ -34,130 +35,25 @@ namespace SJP.Schematic.SqlServer.Tests.Integration
             await Connection.ExecuteAsync("drop table view_test_table_1").ConfigureAwait(false);
         }
 
-        private IRelationalDatabaseView GetView(Identifier viewName)
+        private Task<IRelationalDatabaseView> GetViewAsync(Identifier viewName)
         {
             if (viewName == null)
                 throw new ArgumentNullException(nameof(viewName));
 
-            if (_viewsCache.TryGetValue(viewName, out var view))
-                return view;
+            lock (_lock)
+            {
+                if (!_viewsCache.TryGetValue(viewName, out var lazyView))
+                {
+                    lazyView = new AsyncLazy<IRelationalDatabaseView>(() => ViewProvider.GetViewAsync(viewName).UnwrapSomeAsync());
+                    _viewsCache[viewName] = lazyView;
+                }
 
-            view = ViewProvider.GetView(viewName).UnwrapSome();
-            _viewsCache.TryAdd(viewName, view);
-
-            return view;
+                return lazyView.Task;
+            }
         }
 
-        private readonly static ConcurrentDictionary<Identifier, IRelationalDatabaseView> _viewsCache = new ConcurrentDictionary<Identifier, IRelationalDatabaseView>();
-
-        [Test]
-        public void GetView_WhenViewPresent_ReturnsView()
-        {
-            var view = ViewProvider.GetView("db_test_view_1");
-            Assert.IsTrue(view.IsSome);
-        }
-
-        [Test]
-        public void GetView_WhenViewPresent_ReturnsViewWithCorrectName()
-        {
-            var viewName = new Identifier(IdentifierDefaults.Server, IdentifierDefaults.Database, IdentifierDefaults.Schema, "db_test_view_1");
-            var view = ViewProvider.GetView(viewName).UnwrapSome();
-
-            Assert.AreEqual(viewName, view.Name);
-        }
-
-        [Test]
-        public void GetView_WhenViewPresentGivenLocalNameOnly_ShouldBeQualifiedCorrectly()
-        {
-            var viewName = new Identifier("db_test_view_1");
-            var expectedViewName = new Identifier(IdentifierDefaults.Server, IdentifierDefaults.Database, IdentifierDefaults.Schema, "db_test_view_1");
-
-            var view = ViewProvider.GetView(viewName).UnwrapSome();
-
-            Assert.AreEqual(expectedViewName, view.Name);
-        }
-
-        [Test]
-        public void GetView_WhenViewPresentGivenSchemaAndLocalNameOnly_ShouldBeQualifiedCorrectly()
-        {
-            var viewName = new Identifier(IdentifierDefaults.Schema, "db_test_view_1");
-            var expectedViewName = new Identifier(IdentifierDefaults.Server, IdentifierDefaults.Database, IdentifierDefaults.Schema, "db_test_view_1");
-
-            var view = ViewProvider.GetView(viewName).UnwrapSome();
-
-            Assert.AreEqual(expectedViewName, view.Name);
-        }
-
-        [Test]
-        public void GetView_WhenViewPresentGivenDatabaseAndSchemaAndLocalNameOnly_ShouldBeQualifiedCorrectly()
-        {
-            var viewName = new Identifier(IdentifierDefaults.Database, IdentifierDefaults.Schema, "db_test_view_1");
-            var expectedViewName = new Identifier(IdentifierDefaults.Server, IdentifierDefaults.Database, IdentifierDefaults.Schema, "db_test_view_1");
-
-            var view = ViewProvider.GetView(viewName).UnwrapSome();
-
-            Assert.AreEqual(expectedViewName, view.Name);
-        }
-
-        [Test]
-        public void GetView_WhenViewPresentGivenFullyQualifiedName_ShouldBeQualifiedCorrectly()
-        {
-            var viewName = new Identifier(IdentifierDefaults.Server, IdentifierDefaults.Database, IdentifierDefaults.Schema, "db_test_view_1");
-
-            var view = ViewProvider.GetView(viewName).UnwrapSome();
-
-            Assert.AreEqual(viewName, view.Name);
-        }
-
-        [Test]
-        public void GetView_WhenViewPresentGivenFullyQualifiedNameWithDifferentServer_ShouldBeQualifiedCorrectly()
-        {
-            var viewName = new Identifier("A", IdentifierDefaults.Database, IdentifierDefaults.Schema, "db_test_view_1");
-            var expectedViewName = new Identifier(IdentifierDefaults.Server, IdentifierDefaults.Database, IdentifierDefaults.Schema, "db_test_view_1");
-
-            var view = ViewProvider.GetView(viewName).UnwrapSome();
-
-            Assert.AreEqual(expectedViewName, view.Name);
-        }
-
-        [Test]
-        public void GetView_WhenViewPresentGivenFullyQualifiedNameWithDifferentServerAndDatabase_ShouldBeQualifiedCorrectly()
-        {
-            var viewName = new Identifier("A", "B", IdentifierDefaults.Schema, "db_test_view_1");
-            var expectedViewName = new Identifier(IdentifierDefaults.Server, IdentifierDefaults.Database, IdentifierDefaults.Schema, "db_test_view_1");
-
-            var view = ViewProvider.GetView(viewName).UnwrapSome();
-
-            Assert.AreEqual(expectedViewName, view.Name);
-        }
-
-        [Test]
-        public void GetView_WhenViewMissing_ReturnsNone()
-        {
-            var view = ViewProvider.GetView("view_that_doesnt_exist");
-            Assert.IsTrue(view.IsNone);
-        }
-
-        [Test]
-        public void GetView_WhenViewPresentGivenLocalNameWithDifferentCase_ReturnsMatchingName()
-        {
-            var inputName = new Identifier("DB_TEST_view_1");
-            var view = ViewProvider.GetView(inputName).UnwrapSome();
-
-            var equalNames = IdentifierComparer.OrdinalIgnoreCase.Equals(inputName, view.Name.LocalName);
-            Assert.IsTrue(equalNames);
-        }
-
-        [Test]
-        public void GetView_WhenViewPresentGivenSchemaAndLocalNameWithDifferentCase_ReturnsMatchingName()
-        {
-            var inputName = new Identifier("Dbo", "DB_TEST_view_1");
-            var view = ViewProvider.GetView(inputName).UnwrapSome();
-
-            var equalNames = IdentifierComparer.OrdinalIgnoreCase.Equals(inputName.Schema, view.Name.Schema)
-                && IdentifierComparer.OrdinalIgnoreCase.Equals(inputName.LocalName, view.Name.LocalName);
-            Assert.IsTrue(equalNames);
-        }
+        private readonly static object _lock = new object();
+        private readonly static ConcurrentDictionary<Identifier, AsyncLazy<IRelationalDatabaseView>> _viewsCache = new ConcurrentDictionary<Identifier, AsyncLazy<IRelationalDatabaseView>>();
 
         [Test]
         public async Task GetViewAsync_WhenViewPresent_ReturnsView()
@@ -269,23 +165,6 @@ namespace SJP.Schematic.SqlServer.Tests.Integration
         }
 
         [Test]
-        public void Views_WhenEnumerated_ContainsViews()
-        {
-            var views = ViewProvider.Views.ToList();
-
-            Assert.NotZero(views.Count);
-        }
-
-        [Test]
-        public void Views_WhenEnumerated_ContainsTestView()
-        {
-            const string viewName = "db_test_view_1";
-            var containsTestView = ViewProvider.Views.Any(v => v.Name.LocalName == viewName);
-
-            Assert.True(containsTestView);
-        }
-
-        [Test]
         public async Task ViewsAsync_WhenEnumerated_ContainsViews()
         {
             var views = await ViewProvider.ViewsAsync().ConfigureAwait(false);
@@ -304,9 +183,9 @@ namespace SJP.Schematic.SqlServer.Tests.Integration
         }
 
         [Test]
-        public void Definition_PropertyGet_ReturnsCorrectDefinition()
+        public async Task Definition_PropertyGet_ReturnsCorrectDefinition()
         {
-            var view = GetView("view_test_view_1");
+            var view = await GetViewAsync("view_test_view_1").ConfigureAwait(false);
 
             var definition = view.Definition;
             const string expected = "create view view_test_view_1 as select 1 as test";
@@ -315,62 +194,62 @@ namespace SJP.Schematic.SqlServer.Tests.Integration
         }
 
         [Test]
-        public void IsIndexed_WhenViewIsNotIndexed_ReturnsFalse()
+        public async Task IsIndexed_WhenViewIsNotIndexed_ReturnsFalse()
         {
-            var view = GetView("view_test_view_1");
+            var view = await GetViewAsync("view_test_view_1").ConfigureAwait(false);
 
             Assert.IsFalse(view.IsIndexed);
         }
 
         [Test]
-        public void Indexes_WhenViewIsNotIndexed_ReturnsEmptyCollection()
+        public async Task Indexes_WhenViewIsNotIndexed_ReturnsEmptyCollection()
         {
-            var view = GetView("view_test_view_1");
+            var view = await GetViewAsync("view_test_view_1").ConfigureAwait(false);
             var indexCount = view.Indexes.Count;
 
             Assert.Zero(indexCount);
         }
 
         [Test]
-        public void Columns_WhenViewContainsSingleColumn_ContainsOneValueOnly()
+        public async Task Columns_WhenViewContainsSingleColumn_ContainsOneValueOnly()
         {
-            var view = GetView("view_test_view_1");
+            var view = await GetViewAsync("view_test_view_1").ConfigureAwait(false);
             var columnCount = view.Columns.Count;
 
             Assert.AreEqual(1, columnCount);
         }
 
         [Test]
-        public void Columns_WhenViewContainsSingleColumn_ContainsColumnName()
+        public async Task Columns_WhenViewContainsSingleColumn_ContainsColumnName()
         {
-            var view = GetView("view_test_view_1");
+            var view = await GetViewAsync("view_test_view_1").ConfigureAwait(false);
             var containsColumn = view.Columns.Any(c => c.Name == "test");
 
             Assert.IsTrue(containsColumn);
         }
 
         [Test]
-        public void IsIndexed_WhenViewHasSingleIndex_ReturnsTrue()
+        public async Task IsIndexed_WhenViewHasSingleIndex_ReturnsTrue()
         {
-            var view = GetView("view_test_view_2");
+            var view = await GetViewAsync("view_test_view_2").ConfigureAwait(false);
 
             Assert.IsTrue(view.IsIndexed);
         }
 
         [Test]
-        public void Indexes_WhenViewHasSingleIndex_ContainsOneValueOnly()
+        public async Task Indexes_WhenViewHasSingleIndex_ContainsOneValueOnly()
         {
-            var view = GetView("view_test_view_2");
+            var view = await GetViewAsync("view_test_view_2").ConfigureAwait(false);
             var indexCount = view.Indexes.Count;
 
             Assert.AreEqual(1, indexCount);
         }
 
         [Test]
-        public void Indexes_WhenViewHasSingleIndex_ContainsIndexName()
+        public async Task Indexes_WhenViewHasSingleIndex_ContainsIndexName()
         {
             Identifier indexName = "ix_view_test_view_2";
-            var view = GetView("view_test_view_2");
+            var view = await GetViewAsync("view_test_view_2").ConfigureAwait(false);
             var containsIndex = view.Indexes.Any(i => i.Name == indexName);
 
             Assert.IsTrue(containsIndex);

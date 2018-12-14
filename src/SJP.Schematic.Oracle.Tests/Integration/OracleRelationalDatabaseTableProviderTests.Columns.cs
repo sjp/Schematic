@@ -1,4 +1,5 @@
 ﻿using System.Linq;
+using System.Threading.Tasks;
 using NUnit.Framework;
 using SJP.Schematic.Core;
 
@@ -7,18 +8,18 @@ namespace SJP.Schematic.Oracle.Tests.Integration
     internal partial class OracleRelationalDatabaseTableProviderTests : OracleTest
     {
         [Test]
-        public void Columns_WhenGivenTableWithOneColumn_ReturnsColumnCollectionWithOneValue()
+        public async Task Columns_WhenGivenTableWithOneColumn_ReturnsColumnCollectionWithOneValue()
         {
-            var table = GetTable("table_test_table_1");
+            var table = await GetTableAsync("table_test_table_1").ConfigureAwait(false);
             var count = table.Columns.Count;
 
             Assert.AreEqual(1, count);
         }
 
         [Test]
-        public void Columns_WhenGivenTableWithOneColumn_ReturnsColumnWithCorrectName()
+        public async Task Columns_WhenGivenTableWithOneColumn_ReturnsColumnWithCorrectName()
         {
-            var table = GetTable("table_test_table_1");
+            var table = await GetTableAsync("table_test_table_1").ConfigureAwait(false);
             var column = table.Columns.Single();
             const string columnName = "TEST_COLUMN";
 
@@ -26,10 +27,10 @@ namespace SJP.Schematic.Oracle.Tests.Integration
         }
 
         [Test]
-        public void Columns_WhenGivenTableWithMultipleColumns_ReturnsColumnsInCorrectOrder()
+        public async Task Columns_WhenGivenTableWithMultipleColumns_ReturnsColumnsInCorrectOrder()
         {
             var expectedColumnNames = new[] { "FIRST_NAME", "MIDDLE_NAME", "LAST_NAME" };
-            var table = GetTable("table_test_table_4");
+            var table = await GetTableAsync("table_test_table_4").ConfigureAwait(false);
             var columns = table.Columns;
             var columnNames = columns.Select(c => c.Name.LocalName);
 
@@ -37,40 +38,40 @@ namespace SJP.Schematic.Oracle.Tests.Integration
         }
 
         [Test]
-        public void Columns_WhenGivenTableWithNullableColumn_ColumnReturnsIsNullableTrue()
+        public async Task Columns_WhenGivenTableWithNullableColumn_ColumnReturnsIsNullableTrue()
         {
             const string tableName = "TABLE_TEST_TABLE_1";
-            var table = GetTable(tableName);
+            var table = await GetTableAsync(tableName).ConfigureAwait(false);
             var column = table.Columns.Single();
 
             Assert.IsTrue(column.IsNullable);
         }
 
         [Test]
-        public void Columns_WhenGivenTableWithNotNullableColumn_ColumnReturnsIsNullableFalse()
+        public async Task Columns_WhenGivenTableWithNotNullableColumn_ColumnReturnsIsNullableFalse()
         {
             const string tableName = "TABLE_TEST_TABLE_2";
-            var table = GetTable(tableName);
+            var table = await GetTableAsync(tableName).ConfigureAwait(false);
             var column = table.Columns.Single();
 
             Assert.IsFalse(column.IsNullable);
         }
 
         [Test]
-        public void Columns_WhenGivenTableWithColumnWithNoDefaultValue_ColumnReturnsNullDefaultValue()
+        public async Task Columns_WhenGivenTableWithColumnWithNoDefaultValue_ColumnReturnsNullDefaultValue()
         {
             const string tableName = "TABLE_TEST_TABLE_1";
-            var table = GetTable(tableName);
+            var table = await GetTableAsync(tableName).ConfigureAwait(false);
             var column = table.Columns.Single();
 
             Assert.IsNull(column.DefaultValue);
         }
 
         [Test]
-        public void Columns_WhenGivenTableWithColumnWithDefaultValue_ColumnReturnsCorrectDefaultValue()
+        public async Task Columns_WhenGivenTableWithColumnWithDefaultValue_ColumnReturnsCorrectDefaultValue()
         {
             const string tableName = "TABLE_TEST_TABLE_33";
-            var table = GetTable(tableName);
+            var table = await GetTableAsync(tableName).ConfigureAwait(false);
             var column = table.Columns.Single();
 
             const string defaultValue = "1";
@@ -81,30 +82,30 @@ namespace SJP.Schematic.Oracle.Tests.Integration
         }
 
         [Test]
-        public void Columns_WhenGivenTableWithNonComputedColumn_ReturnsIsComputedFalse()
+        public async Task Columns_WhenGivenTableWithNonComputedColumn_ReturnsIsComputedFalse()
         {
             const string tableName = "TABLE_TEST_TABLE_1";
-            var table = GetTable(tableName);
+            var table = await GetTableAsync(tableName).ConfigureAwait(false);
             var column = table.Columns.Single();
 
             Assert.IsFalse(column.IsComputed);
         }
 
         [Test]
-        public void Columns_WhenGivenTableWithComputedColumn_ReturnsIsComputedTrue()
+        public async Task Columns_WhenGivenTableWithComputedColumn_ReturnsIsComputedTrue()
         {
             const string tableName = "TABLE_TEST_TABLE_34";
-            var table = GetTable(tableName);
+            var table = await GetTableAsync(tableName).ConfigureAwait(false);
             var column = table.Columns.Last();
 
             Assert.IsTrue(column.IsComputed);
         }
 
         [Test]
-        public void Columns_WhenGivenTableWithComputedColumnCastedToInterface_ReturnsNotNullObject()
+        public async Task Columns_WhenGivenTableWithComputedColumnCastedToInterface_ReturnsNotNullObject()
         {
             const string tableName = "TABLE_TEST_TABLE_34";
-            var table = GetTable(tableName);
+            var table = await GetTableAsync(tableName).ConfigureAwait(false);
             var column = table.Columns.Last();
 
             var computedColumn = column as IDatabaseComputedColumn;
@@ -112,12 +113,12 @@ namespace SJP.Schematic.Oracle.Tests.Integration
         }
 
         [Test]
-        public void Columns_WhenGivenTableWithComputedColumnCastedToInterface_ReturnsCorrectDefinition()
+        public async Task Columns_WhenGivenTableWithComputedColumnCastedToInterface_ReturnsCorrectDefinition()
         {
             const string tableName = "TABLE_TEST_TABLE_34";
             const string expectedDefinition = "\"TEST_COLUMN_1\"+\"TEST_COLUMN_2\"";
 
-            var table = GetTable(tableName);
+            var table = await GetTableAsync(tableName).ConfigureAwait(false);
             var column = table.Columns.Last();
 
             var computedColumn = column as IDatabaseComputedColumn;
@@ -125,10 +126,10 @@ namespace SJP.Schematic.Oracle.Tests.Integration
         }
 
         [Test]
-        public void Columns_WhenGivenTableColumnWithoutIdentity_ReturnsNullAutoincrement()
+        public async Task Columns_WhenGivenTableColumnWithoutIdentity_ReturnsNullAutoincrement()
         {
             const string tableName = "TABLE_TEST_TABLE_1";
-            var table = GetTable(tableName);
+            var table = await GetTableAsync(tableName).ConfigureAwait(false);
             var column = table.Columns.Single();
 
             Assert.IsNull(column.AutoIncrement);

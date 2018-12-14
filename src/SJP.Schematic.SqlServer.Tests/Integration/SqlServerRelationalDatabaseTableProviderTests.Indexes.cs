@@ -1,4 +1,5 @@
 ﻿using System.Linq;
+using System.Threading.Tasks;
 using NUnit.Framework;
 
 namespace SJP.Schematic.SqlServer.Tests.Integration
@@ -6,18 +7,18 @@ namespace SJP.Schematic.SqlServer.Tests.Integration
     internal partial class SqlServerRelationalDatabaseTableProviderTests : SqlServerTest
     {
         [Test]
-        public void Indexes_WhenGivenTableWithNoIndexes_ReturnsEmptyCollection()
+        public async Task Indexes_WhenGivenTableWithNoIndexes_ReturnsEmptyCollection()
         {
-            var table = GetTable("table_test_table_1");
+            var table = await GetTableAsync("table_test_table_1").ConfigureAwait(false);
             var count = table.Indexes.Count;
 
             Assert.AreEqual(0, count);
         }
 
         [Test]
-        public void Indexes_WhenGivenTableWithSingleColumnIndex_ReturnsIndexWithColumnOnly()
+        public async Task Indexes_WhenGivenTableWithSingleColumnIndex_ReturnsIndexWithColumnOnly()
         {
-            var table = GetTable("table_test_table_8");
+            var table = await GetTableAsync("table_test_table_8").ConfigureAwait(false);
             var index = table.Indexes.Single();
             var indexColumns = index.Columns
                 .Select(c => c.DependentColumns.Single())
@@ -31,20 +32,20 @@ namespace SJP.Schematic.SqlServer.Tests.Integration
         }
 
         [Test]
-        public void Indexes_WhenGivenTableWithSingleColumnIndex_ReturnsIndexWithCorrectName()
+        public async Task Indexes_WhenGivenTableWithSingleColumnIndex_ReturnsIndexWithCorrectName()
         {
-            var table = GetTable("table_test_table_8");
+            var table = await GetTableAsync("table_test_table_8").ConfigureAwait(false);
             var index = table.Indexes.Single();
 
             Assert.AreEqual("ix_test_table_8", index.Name.LocalName);
         }
 
         [Test]
-        public void Indexes_WhenGivenTableWithMultiColumnIndex_ReturnsIndexWithColumnsInCorrectOrder()
+        public async Task Indexes_WhenGivenTableWithMultiColumnIndex_ReturnsIndexWithColumnsInCorrectOrder()
         {
             var expectedColumnNames = new[] { "first_name", "last_name", "middle_name" };
 
-            var table = GetTable("table_test_table_9");
+            var table = await GetTableAsync("table_test_table_9").ConfigureAwait(false);
             var index = table.Indexes.Single();
             var indexColumns = index.Columns
                 .Select(c => c.DependentColumns.Single())
@@ -61,18 +62,18 @@ namespace SJP.Schematic.SqlServer.Tests.Integration
         }
 
         [Test]
-        public void Indexes_WhenGivenTableWithMultiColumnIndex_ReturnsIndexWithCorrectName()
+        public async Task Indexes_WhenGivenTableWithMultiColumnIndex_ReturnsIndexWithCorrectName()
         {
-            var table = GetTable("table_test_table_9");
+            var table = await GetTableAsync("table_test_table_9").ConfigureAwait(false);
             var index = table.Indexes.Single();
 
             Assert.AreEqual("ix_test_table_9", index.Name.LocalName);
         }
 
         [Test]
-        public void Indexes_WhenGivenTableWithIndexContainingNoIncludedColumns_ReturnsIndexWithoutIncludedColumns()
+        public async Task Indexes_WhenGivenTableWithIndexContainingNoIncludedColumns_ReturnsIndexWithoutIncludedColumns()
         {
-            var table = GetTable("table_test_table_9");
+            var table = await GetTableAsync("table_test_table_9").ConfigureAwait(false);
             var index = table.Indexes.Single();
             var includedColumns = index.IncludedColumns
                 .Select(c => c.Name.LocalName)
@@ -82,12 +83,12 @@ namespace SJP.Schematic.SqlServer.Tests.Integration
         }
 
         [Test]
-        public void Indexes_WhenGivenTableWithIndexContainingSingleIncludedColumn_ReturnsIndexWithIncludedColumn()
+        public async Task Indexes_WhenGivenTableWithIndexContainingSingleIncludedColumn_ReturnsIndexWithIncludedColumn()
         {
             var expectedColumnNames = new[] { "test_column" };
             var expectedIncludedColumnNames = new[] { "test_column_2" };
 
-            var table = GetTable("table_test_table_10");
+            var table = await GetTableAsync("table_test_table_10").ConfigureAwait(false);
             var index = table.Indexes.Single();
             var indexColumns = index.Columns
                 .Select(c => c.DependentColumns.Single())
@@ -110,12 +111,12 @@ namespace SJP.Schematic.SqlServer.Tests.Integration
         }
 
         [Test]
-        public void Indexes_WhenGivenTableWithIndexContainingMultipleIncludedColumns_ReturnsIndexWithAllColumnsInCorrectOrder()
+        public async Task Indexes_WhenGivenTableWithIndexContainingMultipleIncludedColumns_ReturnsIndexWithAllColumnsInCorrectOrder()
         {
             var expectedColumnNames = new[] { "first_name" };
             var expectedIncludedColumnNames = new[] { "last_name", "middle_name" };
 
-            var table = GetTable("table_test_table_11");
+            var table = await GetTableAsync("table_test_table_11").ConfigureAwait(false);
             var index = table.Indexes.Single();
             var indexColumns = index.Columns
                 .Select(c => c.DependentColumns.Single())
@@ -138,36 +139,36 @@ namespace SJP.Schematic.SqlServer.Tests.Integration
         }
 
         [Test]
-        public void Indexes_WhenGivenTableWithEnabledIndex_ReturnsIndexWithIsEnabledTrue()
+        public async Task Indexes_WhenGivenTableWithEnabledIndex_ReturnsIndexWithIsEnabledTrue()
         {
-            var table = GetTable("table_test_table_11");
+            var table = await GetTableAsync("table_test_table_11").ConfigureAwait(false);
             var index = table.Indexes.Single();
 
             Assert.IsTrue(index.IsEnabled);
         }
 
         [Test]
-        public void Indexes_WhenGivenTableWithDisabledIndex_ReturnsIndexWithIsEnabledFalse()
+        public async Task Indexes_WhenGivenTableWithDisabledIndex_ReturnsIndexWithIsEnabledFalse()
         {
-            var table = GetTable("table_test_table_12");
+            var table = await GetTableAsync("table_test_table_12").ConfigureAwait(false);
             var index = table.Indexes.Single();
 
             Assert.IsFalse(index.IsEnabled);
         }
 
         [Test]
-        public void Indexes_WhenGivenTableWithNonUniqueIndex_ReturnsIndexWithIsUniqueFalse()
+        public async Task Indexes_WhenGivenTableWithNonUniqueIndex_ReturnsIndexWithIsUniqueFalse()
         {
-            var table = GetTable("table_test_table_9");
+            var table = await GetTableAsync("table_test_table_9").ConfigureAwait(false);
             var index = table.Indexes.Single();
 
             Assert.IsFalse(index.IsUnique);
         }
 
         [Test]
-        public void Indexes_WhenGivenTableWithUniqueIndex_ReturnsIndexWithIsUniqueTrue()
+        public async Task Indexes_WhenGivenTableWithUniqueIndex_ReturnsIndexWithIsUniqueTrue()
         {
-            var table = GetTable("table_test_table_13");
+            var table = await GetTableAsync("table_test_table_13").ConfigureAwait(false);
             var index = table.Indexes.Single();
 
             Assert.IsTrue(index.IsUnique);

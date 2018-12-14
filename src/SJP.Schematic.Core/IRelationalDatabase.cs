@@ -18,23 +18,6 @@ namespace SJP.Schematic.Core
 
         string DefaultSchema { get; }
 
-        Option<IRelationalDatabaseTable> GetTable(Identifier tableName);
-
-        IReadOnlyCollection<IRelationalDatabaseTable> Tables { get; }
-
-        Option<IRelationalDatabaseView> GetView(Identifier viewName);
-
-        IReadOnlyCollection<IRelationalDatabaseView> Views { get; }
-
-        Option<IDatabaseSequence> GetSequence(Identifier sequenceName);
-
-        IReadOnlyCollection<IDatabaseSequence> Sequences { get; }
-
-        Option<IDatabaseSynonym> GetSynonym(Identifier synonymName);
-
-        IReadOnlyCollection<IDatabaseSynonym> Synonyms { get; }
-
-        // async
         OptionAsync<IRelationalDatabaseTable> GetTableAsync(Identifier tableName, CancellationToken cancellationToken = default(CancellationToken));
 
         Task<IReadOnlyCollection<IRelationalDatabaseTable>> TablesAsync(CancellationToken cancellationToken = default(CancellationToken));

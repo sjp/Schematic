@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
+using System.Threading.Tasks;
 using Moq;
 using NUnit.Framework;
 using SJP.Schematic.Core;
@@ -21,14 +22,14 @@ namespace SJP.Schematic.Lint.Tests.Rules
         }
 
         [Test]
-        public static void AnalyseDatabase_GivenNullDatabase_ThrowsArgumentNullException()
+        public static void AnalyseDatabaseAsync_GivenNullDatabase_ThrowsArgumentNullException()
         {
             var rule = new ColumnWithNullDefaultValueRule(RuleLevel.Error);
-            Assert.Throws<ArgumentNullException>(() => rule.AnalyseDatabase(null));
+            Assert.Throws<ArgumentNullException>(() => rule.AnalyseDatabaseAsync(null));
         }
 
         [Test]
-        public static void AnalyseDatabase_GivenTableWithoutColumnsContainingDefaultValues_ProducesNoMessages()
+        public static async Task AnalyseDatabaseAsync_GivenTableWithoutColumnsContainingDefaultValues_ProducesNoMessages()
         {
             var rule = new ColumnWithNullDefaultValueRule(RuleLevel.Error);
             var database = CreateFakeDatabase();
@@ -54,13 +55,13 @@ namespace SJP.Schematic.Lint.Tests.Rules
             );
             database.Tables = new[] { table };
 
-            var messages = rule.AnalyseDatabase(database);
+            var messages = await rule.AnalyseDatabaseAsync(database).ConfigureAwait(false);
 
             Assert.Zero(messages.Count());
         }
 
         [Test]
-        public static void AnalyseDatabase_GivenTableWithColumnsContainingDefaultValues_ProducesMessages()
+        public static async Task AnalyseDatabaseAsync_GivenTableWithColumnsContainingDefaultValues_ProducesMessages()
         {
             var rule = new ColumnWithNullDefaultValueRule(RuleLevel.Error);
             var database = CreateFakeDatabase();
@@ -86,7 +87,7 @@ namespace SJP.Schematic.Lint.Tests.Rules
             );
             database.Tables = new[] { table };
 
-            var messages = rule.AnalyseDatabase(database);
+            var messages = await rule.AnalyseDatabaseAsync(database).ConfigureAwait(false);
 
             Assert.NotZero(messages.Count());
         }

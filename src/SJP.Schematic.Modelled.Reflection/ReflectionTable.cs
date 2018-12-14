@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
+using System.Threading;
 using LanguageExt;
 using SJP.Schematic.Core;
 using SJP.Schematic.Core.Extensions;
@@ -35,7 +36,8 @@ namespace SJP.Schematic.Modelled.Reflection
 
         private IReadOnlyCollection<IDatabaseRelationalKey> LoadChildKeys()
         {
-            return Database.Tables
+            var tables = Database.TablesAsync(CancellationToken.None).ConfigureAwait(false).GetAwaiter().GetResult();
+            return tables
                 .SelectMany(t => t.ParentKeys)
                 .Where(fk => fk.ParentTable == Name)
                 .ToList();
@@ -56,11 +58,11 @@ namespace SJP.Schematic.Modelled.Reflection
                 var fkColumns = declaredParentKey.Columns.Select(GetColumn).ToList();
 
                 var parentName = Dialect.GetQualifiedNameOrDefault(Database, declaredParentKey.TargetType);
-                var parentOption = Database.GetTable(parentName);
-                if (parentOption.IsNone)
+                var parentOption = Database.GetTableAsync(parentName);
+                if (parentOption.IsNone.ConfigureAwait(false).GetAwaiter().GetResult())
                     throw new Exception("Could not find parent table with name: " + parentName.ToString());
 
-                var parent = parentOption.UnwrapSome();
+                var parent = parentOption.UnwrapSomeAsync().ConfigureAwait(false).GetAwaiter().GetResult();
 
                 var parentTypeProvider = new ReflectionTableTypeProvider(Dialect, declaredParentKey.TargetType);
                 var parentInstance = parentTypeProvider.TableInstance;

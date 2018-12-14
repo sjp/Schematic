@@ -30,29 +30,6 @@ namespace SJP.Schematic.Modelled.Reflection.Tests
         }
 
         [Test]
-        public static void GetTable_GivenNullName_ThrowsArgumentNullException()
-        {
-            var db = new ReflectionRelationalDatabase<SampleDatabase>(new FakeDialect());
-            Assert.Throws<ArgumentNullException>(() => db.GetTable(null));
-        }
-
-        [Test]
-        public static void GetTable_WhenTablePresent_ReturnsTable()
-        {
-            var db = new ReflectionRelationalDatabase<SampleDatabase>(new FakeDialect());
-            var table = db.GetTable("TestTable1");
-            Assert.IsTrue(table.IsSome);
-        }
-
-        [Test]
-        public static void GetTable_WhenTableMissing_ReturnsNone()
-        {
-            var db = new ReflectionRelationalDatabase<SampleDatabase>(new FakeDialect());
-            var table = db.GetTable("table_that_doesnt_exist");
-            Assert.IsTrue(table.IsNone);
-        }
-
-        [Test]
         public static void GetTableAsync_GivenNullName_ThrowsArgumentNullException()
         {
             var db = new ReflectionRelationalDatabase<SampleDatabase>(new FakeDialect());

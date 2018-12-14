@@ -6,6 +6,7 @@ using Dapper;
 using NUnit.Framework;
 using SJP.Schematic.Core;
 using SJP.Schematic.Core.Extensions;
+using SJP.Schematic.Core.Utilities;
 
 namespace SJP.Schematic.PostgreSql.Tests.Integration
 {
@@ -45,111 +46,25 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration
             await Connection.ExecuteAsync("drop sequence db_test_sequence_11").ConfigureAwait(false);
         }
 
-        private IDatabaseSequence GetSequence(Identifier sequenceName)
+        private Task<IDatabaseSequence> GetSequenceAsync(Identifier sequenceName)
         {
             if (sequenceName == null)
                 throw new ArgumentNullException(nameof(sequenceName));
 
-            if (_sequencesCache.TryGetValue(sequenceName, out var sequence))
-                return sequence;
+            lock (_lock)
+            {
+                if (!_sequencesCache.TryGetValue(sequenceName, out var lazySequence))
+                {
+                    lazySequence = new AsyncLazy<IDatabaseSequence>(() => SequenceProvider.GetSequenceAsync(sequenceName).UnwrapSomeAsync());
+                    _sequencesCache[sequenceName] = lazySequence;
+                }
 
-            sequence = SequenceProvider.GetSequence(sequenceName).UnwrapSome();
-            _sequencesCache.TryAdd(sequenceName, sequence);
-
-            return sequence;
+                return lazySequence.Task;
+            }
         }
 
-        private readonly static ConcurrentDictionary<Identifier, IDatabaseSequence> _sequencesCache = new ConcurrentDictionary<Identifier, IDatabaseSequence>();
-
-        [Test]
-        public void GetSequence_WhenSequencePresent_ReturnsSequence()
-        {
-            var sequence = SequenceProvider.GetSequence("db_test_sequence_1");
-            Assert.IsTrue(sequence.IsSome);
-        }
-
-        [Test]
-        public void GetSequence_WhenSequencePresent_ReturnsSequenceWithCorrectName()
-        {
-            const string sequenceName = "db_test_sequence_1";
-            var sequence = SequenceProvider.GetSequence(sequenceName).UnwrapSome();
-
-            Assert.AreEqual(sequenceName, sequence.Name.LocalName);
-        }
-
-        [Test]
-        public void GetSequence_WhenSequencePresentGivenLocalNameOnly_ShouldBeQualifiedCorrectly()
-        {
-            var sequenceName = new Identifier("db_test_sequence_1");
-            var expectedSequenceName = new Identifier(IdentifierDefaults.Server, IdentifierDefaults.Database, IdentifierDefaults.Schema, "db_test_sequence_1");
-
-            var sequence = SequenceProvider.GetSequence(sequenceName).UnwrapSome();
-
-            Assert.AreEqual(expectedSequenceName, sequence.Name);
-        }
-
-        [Test]
-        public void GetSequence_WhenSequencePresentGivenSchemaAndLocalNameOnly_ShouldBeQualifiedCorrectly()
-        {
-            var sequenceName = new Identifier(IdentifierDefaults.Schema, "db_test_sequence_1");
-            var expectedSequenceName = new Identifier(IdentifierDefaults.Server, IdentifierDefaults.Database, IdentifierDefaults.Schema, "db_test_sequence_1");
-
-            var sequence = SequenceProvider.GetSequence(sequenceName).UnwrapSome();
-
-            Assert.AreEqual(expectedSequenceName, sequence.Name);
-        }
-
-        [Test]
-        public void GetSequence_WhenSequencePresentGivenDatabaseAndSchemaAndLocalNameOnly_ShouldBeQualifiedCorrectly()
-        {
-            var sequenceName = new Identifier(IdentifierDefaults.Database, IdentifierDefaults.Schema, "db_test_sequence_1");
-            var expectedSequenceName = new Identifier(IdentifierDefaults.Server, IdentifierDefaults.Database, IdentifierDefaults.Schema, "db_test_sequence_1");
-
-            var sequence = SequenceProvider.GetSequence(sequenceName).UnwrapSome();
-
-            Assert.AreEqual(expectedSequenceName, sequence.Name);
-        }
-
-        [Test]
-        public void GetSequence_WhenSequencePresentGivenFullyQualifiedName_ShouldBeQualifiedCorrectly()
-        {
-            var sequenceName = new Identifier(IdentifierDefaults.Server, IdentifierDefaults.Database, IdentifierDefaults.Schema, "db_test_sequence_1");
-
-            var sequence = SequenceProvider.GetSequence(sequenceName).UnwrapSome();
-
-            Assert.AreEqual(sequenceName, sequence.Name);
-        }
-
-        [Test]
-        public void GetSequence_WhenSequencePresentGivenFullyQualifiedNameWithDifferentServer_ShouldBeQualifiedCorrectly()
-        {
-            var sequenceName = new Identifier("A", IdentifierDefaults.Database, IdentifierDefaults.Schema, "db_test_sequence_1");
-            var expectedSequenceName = new Identifier(IdentifierDefaults.Server, IdentifierDefaults.Database, IdentifierDefaults.Schema, "db_test_sequence_1");
-
-            var sequenceOption = SequenceProvider.GetSequence(sequenceName);
-            var sequence = sequenceOption.UnwrapSome();
-
-            Assert.AreEqual(expectedSequenceName, sequence.Name);
-        }
-
-        [Test]
-        public void GetSequence_WhenSequencePresentGivenFullyQualifiedNameWithDifferentServerAndDatabase_ShouldBeQualifiedCorrectly()
-        {
-            var sequenceName = new Identifier("A", "B", IdentifierDefaults.Schema, "db_test_sequence_1");
-            var expectedSequenceName = new Identifier(IdentifierDefaults.Server, IdentifierDefaults.Database, IdentifierDefaults.Schema, "db_test_sequence_1");
-
-            var sequenceOption = SequenceProvider.GetSequence(sequenceName);
-            var sequence = sequenceOption.UnwrapSome();
-
-            Assert.AreEqual(expectedSequenceName, sequence.Name);
-        }
-
-        [Test]
-        public void GetSequence_WhenSequenceMissing_ReturnsNone()
-        {
-            var sequence = SequenceProvider.GetSequence("sequence_that_doesnt_exist");
-            Assert.IsTrue(sequence.IsNone);
-        }
+        private readonly static object _lock = new object();
+        private readonly static ConcurrentDictionary<Identifier, AsyncLazy<IDatabaseSequence>> _sequencesCache = new ConcurrentDictionary<Identifier, AsyncLazy<IDatabaseSequence>>();
 
         [Test]
         public async Task GetSequenceAsync_WhenSequencePresent_ReturnsSequence()
@@ -240,22 +155,6 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration
         }
 
         [Test]
-        public void Sequences_WhenEnumerated_ContainsSequences()
-        {
-            var sequences = SequenceProvider.Sequences.ToList();
-
-            Assert.NotZero(sequences.Count);
-        }
-
-        [Test]
-        public void Sequences_WhenEnumerated_ContainsTestSequence()
-        {
-            var containsTestSequence = SequenceProvider.Sequences.Any(s => s.Name.LocalName == "db_test_sequence_1");
-
-            Assert.True(containsTestSequence);
-        }
-
-        [Test]
         public async Task SequencesAsync_WhenEnumerated_ContainsSequences()
         {
             var sequences = await SequenceProvider.SequencesAsync().ConfigureAwait(false);
@@ -273,121 +172,121 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration
         }
 
         [Test]
-        public void Start_GivenDefaultSequence_ReturnsOne()
+        public async Task Start_GivenDefaultSequence_ReturnsOne()
         {
-            var sequence = GetSequence("db_test_sequence_1");
+            var sequence = await GetSequenceAsync("db_test_sequence_1").ConfigureAwait(false);
 
             Assert.AreEqual(1, sequence.Start);
         }
 
         [Test]
-        public void Start_GivenSequenceWithCustomStart_ReturnsCorrectValue()
+        public async Task Start_GivenSequenceWithCustomStart_ReturnsCorrectValue()
         {
-            var sequence = GetSequence("db_test_sequence_2");
+            var sequence = await GetSequenceAsync("db_test_sequence_2").ConfigureAwait(false);
 
             Assert.AreEqual(20, sequence.Start);
         }
 
         [Test]
-        public void Increment_GivenDefaultSequence_ReturnsOne()
+        public async Task Increment_GivenDefaultSequence_ReturnsOne()
         {
-            var sequence = GetSequence("db_test_sequence_1");
+            var sequence = await GetSequenceAsync("db_test_sequence_1").ConfigureAwait(false);
 
             Assert.AreEqual(1, sequence.Increment);
         }
 
         [Test]
-        public void Increment_GivenSequenceWithCustomIncrement_ReturnsCorrectValue()
+        public async Task Increment_GivenSequenceWithCustomIncrement_ReturnsCorrectValue()
         {
-            var sequence = GetSequence("db_test_sequence_3");
+            var sequence = await GetSequenceAsync("db_test_sequence_3").ConfigureAwait(false);
 
             Assert.AreEqual(100, sequence.Increment);
         }
 
         [Test]
-        public void MinValue_GivenDefaultSequence_ReturnsOne()
+        public async Task MinValue_GivenDefaultSequence_ReturnsOne()
         {
-            var sequence = GetSequence("db_test_sequence_1");
+            var sequence = await GetSequenceAsync("db_test_sequence_1").ConfigureAwait(false);
 
             Assert.AreEqual(1, sequence.MinValue.UnwrapSome());
         }
 
         [Test]
-        public void MinValue_GivenSequenceWithCustomMinValue_ReturnsCorrectValue()
+        public async Task MinValue_GivenSequenceWithCustomMinValue_ReturnsCorrectValue()
         {
-            var sequence = GetSequence("db_test_sequence_4");
+            var sequence = await GetSequenceAsync("db_test_sequence_4").ConfigureAwait(false);
 
             Assert.AreEqual(-99, sequence.MinValue.UnwrapSome());
         }
 
         [Test]
-        public void MinValue_GivenSequenceWithNoMinValue_ReturnsOne()
+        public async Task MinValue_GivenSequenceWithNoMinValue_ReturnsOne()
         {
-            var sequence = GetSequence("db_test_sequence_5");
+            var sequence = await GetSequenceAsync("db_test_sequence_5").ConfigureAwait(false);
 
             Assert.AreEqual(1, sequence.MinValue.UnwrapSome());
         }
 
         [Test]
-        public void MaxValue_GivenDefaultSequence_ReturnsLongMaxValue()
+        public async Task MaxValue_GivenDefaultSequence_ReturnsLongMaxValue()
         {
-            var sequence = GetSequence("db_test_sequence_1");
+            var sequence = await GetSequenceAsync("db_test_sequence_1").ConfigureAwait(false);
 
             Assert.AreEqual(long.MaxValue, sequence.MaxValue.UnwrapSome());
         }
 
         [Test]
-        public void MaxValue_GivenSequenceWithCustomMaxValue_ReturnsCorrectValue()
+        public async Task MaxValue_GivenSequenceWithCustomMaxValue_ReturnsCorrectValue()
         {
-            var sequence = GetSequence("db_test_sequence_6");
+            var sequence = await GetSequenceAsync("db_test_sequence_6").ConfigureAwait(false);
 
             Assert.AreEqual(333, sequence.MaxValue.UnwrapSome());
         }
 
         [Test]
-        public void MaxValue_GivenSequenceWithNoMaxValue_ReturnsLongMaxValue()
+        public async Task MaxValue_GivenSequenceWithNoMaxValue_ReturnsLongMaxValue()
         {
-            var sequence = GetSequence("db_test_sequence_7");
+            var sequence = await GetSequenceAsync("db_test_sequence_7").ConfigureAwait(false);
 
             Assert.AreEqual(long.MaxValue, sequence.MaxValue.UnwrapSome());
         }
 
         [Test]
-        public void Cycle_GivenDefaultSequence_ReturnsTrue()
+        public async Task Cycle_GivenDefaultSequence_ReturnsTrue()
         {
-            var sequence = GetSequence("db_test_sequence_1");
+            var sequence = await GetSequenceAsync("db_test_sequence_1").ConfigureAwait(false);
 
             Assert.IsFalse(sequence.Cycle);
         }
 
         [Test]
-        public void Cycle_GivenSequenceWithCycle_ReturnsTrue()
+        public async Task Cycle_GivenSequenceWithCycle_ReturnsTrue()
         {
-            var sequence = GetSequence("db_test_sequence_8");
+            var sequence = await GetSequenceAsync("db_test_sequence_8").ConfigureAwait(false);
 
             Assert.IsTrue(sequence.Cycle);
         }
 
         [Test]
-        public void Cycle_GivenSequenceWithNoCycle_ReturnsTrue()
+        public async Task Cycle_GivenSequenceWithNoCycle_ReturnsTrue()
         {
-            var sequence = GetSequence("db_test_sequence_9");
+            var sequence = await GetSequenceAsync("db_test_sequence_9").ConfigureAwait(false);
 
             Assert.IsFalse(sequence.Cycle);
         }
 
         [Test]
-        public void Cache_GivenDefaultSequence_ReturnsOne()
+        public async Task Cache_GivenDefaultSequence_ReturnsOne()
         {
-            var sequence = GetSequence("db_test_sequence_1");
+            var sequence = await GetSequenceAsync("db_test_sequence_1").ConfigureAwait(false);
 
             Assert.AreEqual(1, sequence.Cache);
         }
 
         [Test]
-        public void Cache_GivenSequenceWithCacheSet_ReturnsCorrectValue()
+        public async Task Cache_GivenSequenceWithCacheSet_ReturnsCorrectValue()
         {
-            var sequence = GetSequence("db_test_sequence_10");
+            var sequence = await GetSequenceAsync("db_test_sequence_10").ConfigureAwait(false);
 
             // TODO: when checks for Postgres >= 10 are available, uncomment this line
             //Assert.AreEqual(10, sequence.Cache);
@@ -395,9 +294,9 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration
         }
 
         [Test]
-        public void Cache_GivenSequenceWithNoCacheSet_ReturnsCorrectValue()
+        public async Task Cache_GivenSequenceWithNoCacheSet_ReturnsCorrectValue()
         {
-            var sequence = GetSequence("db_test_sequence_11");
+            var sequence = await GetSequenceAsync("db_test_sequence_11").ConfigureAwait(false);
 
             Assert.AreEqual(1, sequence.Cache);
         }

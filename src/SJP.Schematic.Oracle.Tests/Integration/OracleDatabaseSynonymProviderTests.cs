@@ -6,6 +6,7 @@ using Dapper;
 using NUnit.Framework;
 using SJP.Schematic.Core;
 using SJP.Schematic.Core.Extensions;
+using SJP.Schematic.Core.Utilities;
 
 namespace SJP.Schematic.Oracle.Tests.Integration
 {
@@ -35,118 +36,6 @@ namespace SJP.Schematic.Oracle.Tests.Integration
             await Connection.ExecuteAsync("drop synonym synonym_test_synonym_1").ConfigureAwait(false);
             await Connection.ExecuteAsync("drop synonym synonym_test_synonym_2").ConfigureAwait(false);
             await Connection.ExecuteAsync("drop synonym synonym_test_synonym_3").ConfigureAwait(false);
-        }
-
-        private IDatabaseSynonym GetSynonym(Identifier synonymName)
-        {
-            if (synonymName == null)
-                throw new ArgumentNullException(nameof(synonymName));
-
-            if (_synonymsCache.TryGetValue(synonymName, out var synonym))
-                return synonym;
-
-            synonym = SynonymProvider.GetSynonym(synonymName).UnwrapSome();
-            _synonymsCache.TryAdd(synonymName, synonym);
-
-            return synonym;
-        }
-
-        private readonly static ConcurrentDictionary<Identifier, IDatabaseSynonym> _synonymsCache = new ConcurrentDictionary<Identifier, IDatabaseSynonym>();
-
-        [Test]
-        public void GetSynonym_WhenSynonymPresent_ReturnsSynonym()
-        {
-            var synonym = SynonymProvider.GetSynonym("db_test_synonym_1");
-            Assert.IsTrue(synonym.IsSome);
-        }
-
-        [Test]
-        public void GetSynonym_WhenSynonymPresent_ReturnsSynonymWithCorrectName()
-        {
-            const string expectedSynonymName = "DB_TEST_SYNONYM_1";
-
-            var synonymName = new Identifier(IdentifierDefaults.Server, IdentifierDefaults.Database, IdentifierDefaults.Schema, expectedSynonymName);
-            var synonym = SynonymProvider.GetSynonym(synonymName).UnwrapSome();
-
-            Assert.AreEqual(synonymName, synonym.Name);
-        }
-
-        [Test]
-        public void GetSynonym_WhenSynonymPresentGivenLocalNameOnly_ShouldBeQualifiedCorrectly()
-        {
-            var synonymName = new Identifier("db_test_synonym_1");
-            var expectedSynonymName = new Identifier(IdentifierDefaults.Server, IdentifierDefaults.Database, IdentifierDefaults.Schema, "DB_TEST_SYNONYM_1");
-
-            var synonymOption = SynonymProvider.GetSynonym(synonymName);
-            var synonym = synonymOption.UnwrapSome();
-
-            Assert.AreEqual(expectedSynonymName, synonym.Name);
-        }
-
-        [Test]
-        public void GetSynonym_WhenSynonymPresentGivenSchemaAndLocalNameOnly_ShouldBeQualifiedCorrectly()
-        {
-            var synonymName = new Identifier(IdentifierDefaults.Schema, "db_test_synonym_1");
-            var expectedSynonymName = new Identifier(IdentifierDefaults.Server, IdentifierDefaults.Database, IdentifierDefaults.Schema, "DB_TEST_SYNONYM_1");
-
-            var synonymOption = SynonymProvider.GetSynonym(synonymName);
-            var synonym = synonymOption.UnwrapSome();
-
-            Assert.AreEqual(expectedSynonymName, synonym.Name);
-        }
-
-        [Test]
-        public void GetSynonym_WhenSynonymPresentGivenDatabaseAndSchemaAndLocalNameOnly_ShouldBeQualifiedCorrectly()
-        {
-            var synonymName = new Identifier(IdentifierDefaults.Database, IdentifierDefaults.Schema, "db_test_synonym_1");
-            var expectedSynonymName = new Identifier(IdentifierDefaults.Server, IdentifierDefaults.Database, IdentifierDefaults.Schema, "DB_TEST_SYNONYM_1");
-
-            var synonymOption = SynonymProvider.GetSynonym(synonymName);
-            var synonym = synonymOption.UnwrapSome();
-
-            Assert.AreEqual(expectedSynonymName, synonym.Name);
-        }
-
-        [Test]
-        public void GetSynonym_WhenSynonymPresentGivenFullyQualifiedName_ShouldBeQualifiedCorrectly()
-        {
-            var synonymName = Identifier.CreateQualifiedIdentifier(IdentifierDefaults.Server, IdentifierDefaults.Database, IdentifierDefaults.Schema, "DB_TEST_SYNONYM_1");
-
-            var synonymOption = SynonymProvider.GetSynonym(synonymName);
-            var synonym = synonymOption.UnwrapSome();
-
-            Assert.AreEqual(synonymName, synonym.Name);
-        }
-
-        [Test]
-        public void GetSynonym_WhenSynonymPresentGivenFullyQualifiedNameWithDifferentServer_ShouldBeQualifiedCorrectly()
-        {
-            var synonymName = new Identifier("A", IdentifierDefaults.Database, IdentifierDefaults.Schema, "db_test_synonym_1");
-            var expectedSynonymName = new Identifier(IdentifierDefaults.Server, IdentifierDefaults.Database, IdentifierDefaults.Schema, "DB_TEST_SYNONYM_1");
-
-            var synonymOption = SynonymProvider.GetSynonym(synonymName);
-            var synonym = synonymOption.UnwrapSome();
-
-            Assert.AreEqual(expectedSynonymName, synonym.Name);
-        }
-
-        [Test]
-        public void GetSynonym_WhenSynonymPresentGivenFullyQualifiedNameWithDifferentServerAndDatabase_ShouldBeQualifiedCorrectly()
-        {
-            var synonymName = new Identifier("A", "B", IdentifierDefaults.Schema, "db_test_synonym_1");
-            var expectedSynonymName = new Identifier(IdentifierDefaults.Server, IdentifierDefaults.Database, IdentifierDefaults.Schema, "DB_TEST_SYNONYM_1");
-
-            var synonymOption = SynonymProvider.GetSynonym(synonymName);
-            var synonym = synonymOption.UnwrapSome();
-
-            Assert.AreEqual(expectedSynonymName, synonym.Name);
-        }
-
-        [Test]
-        public void GetSynonym_WhenSynonymMissing_ReturnsNone()
-        {
-            var synonym = SynonymProvider.GetSynonym("synonym_that_doesnt_exist");
-            Assert.IsTrue(synonym.IsNone);
         }
 
         [Test]
@@ -239,23 +128,6 @@ namespace SJP.Schematic.Oracle.Tests.Integration
         }
 
         [Test]
-        public void Synonyms_WhenEnumerated_ContainsSynonyms()
-        {
-            var synonyms = SynonymProvider.Synonyms.ToList();
-
-            Assert.NotZero(synonyms.Count);
-        }
-
-        [Test]
-        public void Synonyms_WhenEnumerated_ContainsTestSynonym()
-        {
-            const string expectedSynonymName = "DB_TEST_SYNONYM_1";
-            var containsTestSynonym = SynonymProvider.Synonyms.Any(s => s.Name.LocalName == expectedSynonymName);
-
-            Assert.True(containsTestSynonym);
-        }
-
-        [Test]
         public async Task SynonymsAsync_WhenEnumerated_ContainsSynonyms()
         {
             var synonyms = await SynonymProvider.SynonymsAsync().ConfigureAwait(false);
@@ -271,33 +143,6 @@ namespace SJP.Schematic.Oracle.Tests.Integration
             var containsTestSynonym = synonyms.Any(s => s.Name.LocalName == expectedSynonymName);
 
             Assert.True(containsTestSynonym);
-        }
-
-        [Test]
-        public void GetSynonym_ForSynonymToView_ReturnsSynonymWithCorrectTarget()
-        {
-            const string expectedTarget = "SYNONYM_TEST_VIEW_1";
-            var synonym = GetSynonym("SYNONYM_TEST_SYNONYM_1");
-
-            Assert.AreEqual(expectedTarget, synonym.Target.LocalName);
-        }
-
-        [Test]
-        public void GetSynonym_ForSynonymToTable_ReturnsSynonymWithCorrectTarget()
-        {
-            const string expectedTarget = "SYNONYM_TEST_TABLE_1";
-            var synonym = GetSynonym("SYNONYM_TEST_SYNONYM_2");
-
-            Assert.AreEqual(expectedTarget, synonym.Target.LocalName);
-        }
-
-        [Test]
-        public void GetSynonym_ForSynonymToMissingObject_ReturnsSynonymWithMissingTarget()
-        {
-            var expectedTarget = new Identifier(IdentifierDefaults.Server, IdentifierDefaults.Database, IdentifierDefaults.Schema, "NON_EXISTENT_TARGET");
-            var synonym = GetSynonym("SYNONYM_TEST_SYNONYM_3");
-
-            Assert.AreEqual(expectedTarget, synonym.Target);
         }
 
         [Test]

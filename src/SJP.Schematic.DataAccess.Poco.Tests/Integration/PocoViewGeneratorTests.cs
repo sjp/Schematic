@@ -11,7 +11,7 @@ namespace SJP.Schematic.DataAccess.Poco.Tests.Integration
     {
         private IRelationalDatabase Database => new SqliteRelationalDatabase(Dialect, Connection, IdentifierDefaults);
 
-        private IRelationalDatabaseView GetView(Identifier viewName) => Database.GetView(viewName).UnwrapSome();
+        private Task<IRelationalDatabaseView> GetView(Identifier viewName) => Database.GetViewAsync(viewName).UnwrapSomeAsync();
 
         private static IDatabaseViewGenerator ViewGenerator => new PocoViewGenerator(new PascalCaseNameProvider(), TestNamespace);
 
@@ -46,9 +46,9 @@ select
         }
 
         [Test]
-        public void Generate_GivenViewWithLiteralColumnTypes_GeneratesExpectedOutput()
+        public async Task Generate_GivenViewWithLiteralColumnTypes_GeneratesExpectedOutput()
         {
-            var view = GetView("test_view_1");
+            var view = await GetView("test_view_1").ConfigureAwait(false);
             var generator = ViewGenerator;
 
             const string expected = TestView1Output;
@@ -58,9 +58,9 @@ select
         }
 
         [Test]
-        public void Generate_GivenViewSelectingFromTable_GeneratesExpectedOutput()
+        public async Task Generate_GivenViewSelectingFromTable_GeneratesExpectedOutput()
         {
-            var view = GetView("test_view_2");
+            var view = await GetView("test_view_2").ConfigureAwait(false);
             var generator = ViewGenerator;
 
             const string expected = TestView2Output;

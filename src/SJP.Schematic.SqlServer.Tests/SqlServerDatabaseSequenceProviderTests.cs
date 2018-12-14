@@ -26,17 +26,6 @@ namespace SJP.Schematic.SqlServer.Tests
         }
 
         [Test]
-        public static void GetSequence_GivenNullSequenceName_ThrowsArgNullException()
-        {
-            var connection = Mock.Of<IDbConnection>();
-            var identifierDefaults = Mock.Of<IIdentifierDefaults>();
-
-            var sequenceProvider = new SqlServerDatabaseSequenceProvider(connection, identifierDefaults);
-
-            Assert.Throws<ArgumentNullException>(() => sequenceProvider.GetSequence(null));
-        }
-
-        [Test]
         public static void GetSequenceAsync_GivenNullSequenceName_ThrowsArgNullException()
         {
             var connection = Mock.Of<IDbConnection>();

@@ -19,31 +19,6 @@ namespace SJP.Schematic.Reporting.Html.ViewModels.Mappers
 
         private IRelationalDatabase Database { get; }
 
-        public Main.Table Map(IRelationalDatabaseTable table)
-        {
-            if (table == null)
-                throw new ArgumentNullException(nameof(table));
-
-            var parentKeys = table.ParentKeys;
-            var parentKeyCount = parentKeys.UCount();
-
-            var childKeys = table.ChildKeys;
-            var childKeyCount = childKeys.UCount();
-
-            var columns = table.Columns;
-            var columnCount = columns.UCount();
-
-            var rowCount = Connection.GetRowCount(Database.Dialect, table.Name);
-
-            return new Main.Table(
-                table.Name,
-                parentKeyCount,
-                childKeyCount,
-                columnCount,
-                rowCount
-            );
-        }
-
         public Task<Main.Table> MapAsync(IRelationalDatabaseTable table, CancellationToken cancellationToken)
         {
             if (table == null)
@@ -67,18 +42,6 @@ namespace SJP.Schematic.Reporting.Html.ViewModels.Mappers
                 columnCount,
                 rowCount
             );
-        }
-
-        public Main.View Map(IRelationalDatabaseView view)
-        {
-            if (view == null)
-                throw new ArgumentNullException(nameof(view));
-
-            var columns = view.Columns;
-            var columnCount = columns.UCount();
-            var rowCount = Connection.GetRowCount(Database.Dialect, view.Name);
-
-            return new Main.View(view.Name, columnCount, rowCount);
         }
 
         public Task<Main.View> MapAsync(IRelationalDatabaseView view, CancellationToken cancellationToken)
@@ -113,15 +76,6 @@ namespace SJP.Schematic.Reporting.Html.ViewModels.Mappers
             );
         }
 
-        public Main.Synonym Map(IDatabaseSynonym synonym)
-        {
-            if (synonym == null)
-                throw new ArgumentNullException(nameof(synonym));
-
-            var targetUrl = GetSynonymTargetUrl(synonym.Target);
-            return new Main.Synonym(synonym.Name, synonym.Target, targetUrl);
-        }
-
         public Task<Main.Synonym> MapAsync(IDatabaseSynonym synonym, CancellationToken cancellationToken)
         {
             if (synonym == null)
@@ -134,24 +88,6 @@ namespace SJP.Schematic.Reporting.Html.ViewModels.Mappers
         {
             var targetUrl = await GetSynonymTargetUrlAsync(synonym.Target, cancellationToken).ConfigureAwait(false);
             return new Main.Synonym(synonym.Name, synonym.Target, targetUrl);
-        }
-
-        private Option<Uri> GetSynonymTargetUrl(Identifier identifier)
-        {
-            if (identifier == null)
-                throw new ArgumentNullException(nameof(identifier));
-
-            var table = Database.GetTable(identifier);
-            var tableUri = table.Map(t => new Uri("tables/" + t.Name.ToSafeKey() + ".html", UriKind.Relative));
-            if (tableUri.IsSome)
-                return tableUri;
-
-            var view = Database.GetView(identifier);
-            var viewUri = view.Map(v => new Uri("views/" + v.Name.ToSafeKey() + ".html", UriKind.Relative));
-            if (viewUri.IsSome)
-                return viewUri;
-
-            return Option<Uri>.None;
         }
 
         private async Task<Option<Uri>> GetSynonymTargetUrlAsync(Identifier identifier, CancellationToken cancellationToken)

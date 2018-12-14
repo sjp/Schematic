@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using EnumsNET;
@@ -28,9 +27,6 @@ namespace SJP.Schematic.Reporting.Html.Lint
         private IRelationalDatabase Database { get; }
 
         private RuleLevel Level { get; }
-
-        public IEnumerable<IRuleMessage> AnalyseDatabase() =>
-            Rules.SelectMany(rule => rule.AnalyseDatabase(Database)).ToList();
 
         public async Task<IEnumerable<IRuleMessage>> AnalyseDatabaseAsync(CancellationToken cancellationToken)
         {

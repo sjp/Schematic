@@ -18,17 +18,6 @@ namespace SJP.Schematic.Reporting.Html.ViewModels.Mappers
 
         private IDatabaseDialect Dialect { get; }
 
-        public Orphans.Table Map(IRelationalDatabaseTable table)
-        {
-            if (table == null)
-                throw new ArgumentNullException(nameof(table));
-
-            var columnCount = table.Columns.UCount();
-            var rowCount = Connection.GetRowCount(Dialect, table.Name);
-
-            return new Orphans.Table(table.Name, columnCount, rowCount);
-        }
-
         public Task<Orphans.Table> MapAsync(IRelationalDatabaseTable table, CancellationToken cancellationToken)
         {
             if (table == null)

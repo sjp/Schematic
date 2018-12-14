@@ -66,20 +66,6 @@ namespace SJP.Schematic.Sqlite.Tests
         }
 
         [Test]
-        public static void GetView_GivenNullViewName_ThrowsArgNullException()
-        {
-            var connection = Mock.Of<IDbConnection>();
-            var pragma = Mock.Of<ISqliteConnectionPragma>();
-            var dialect = Mock.Of<IDatabaseDialect>();
-            var identifierDefaults = Mock.Of<IIdentifierDefaults>();
-            var typeProvider = Mock.Of<IDbTypeProvider>();
-
-            var viewProvider = new SqliteRelationalDatabaseViewProvider(connection, pragma, dialect, identifierDefaults, typeProvider);
-
-            Assert.Throws<ArgumentNullException>(() => viewProvider.GetView(null));
-        }
-
-        [Test]
         public static void GetViewAsync_GivenNullViewName_ThrowsArgNullException()
         {
             var connection = Mock.Of<IDbConnection>();

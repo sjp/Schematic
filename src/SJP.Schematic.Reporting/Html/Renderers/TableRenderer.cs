@@ -32,27 +32,6 @@ namespace SJP.Schematic.Reporting.Html.Renderers
 
         private DirectoryInfo ExportDirectory { get; }
 
-        public void Render()
-        {
-            var tables = Database.Tables.ToList();
-            var mapper = new TableModelMapper(Connection, Database, Database.Dialect);
-
-            foreach (var table in tables)
-            {
-                var tableModel = mapper.Map(table);
-                var renderedTable = Formatter.RenderTemplate(tableModel);
-
-                var tableContainer = new Container(renderedTable, Database.DatabaseName, "../");
-                var renderedPage = Formatter.RenderTemplate(tableContainer);
-
-                var outputPath = Path.Combine(ExportDirectory.FullName, table.Name.ToSafeKey() + ".html");
-                if (!ExportDirectory.Exists)
-                    ExportDirectory.Create();
-
-                File.WriteAllText(outputPath, renderedPage);
-            }
-        }
-
         public async Task RenderAsync(CancellationToken cancellationToken = default(CancellationToken))
         {
             var tables = await Database.TablesAsync(cancellationToken).ConfigureAwait(false);

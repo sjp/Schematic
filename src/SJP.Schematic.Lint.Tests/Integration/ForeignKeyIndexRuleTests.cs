@@ -57,14 +57,14 @@ create table not_indexed_child_table_1 (
         }
 
         [Test]
-        public static void AnalyseDatabase_GivenNullDatabase_ThrowsArgumentNullException()
+        public static void AnalyseDatabaseAsync_GivenNullDatabase_ThrowsArgumentNullException()
         {
             var rule = new ForeignKeyIndexRule(RuleLevel.Error);
-            Assert.Throws<ArgumentNullException>(() => rule.AnalyseDatabase(null));
+            Assert.Throws<ArgumentNullException>(() => rule.AnalyseDatabaseAsync(null));
         }
 
         [Test]
-        public void AnalyseDatabase_GivenDatabaseWithTableWithIndexOnForeignKey_ProducesMessages()
+        public async Task AnalyseDatabaseAsync_GivenDatabaseWithTableWithIndexOnForeignKey_ProducesMessages()
         {
             var rule = new ForeignKeyIndexRule(RuleLevel.Error);
             var fakeDatabase = CreateFakeDatabase();
@@ -72,17 +72,17 @@ create table not_indexed_child_table_1 (
 
             fakeDatabase.Tables = new[]
             {
-                database.GetTable("no_index_parent_table_1").UnwrapSome(),
-                database.GetTable("indexed_child_table_1").UnwrapSome()
+                await database.GetTableAsync("no_index_parent_table_1").UnwrapSomeAsync().ConfigureAwait(false),
+                await database.GetTableAsync("indexed_child_table_1").UnwrapSomeAsync().ConfigureAwait(false)
             };
 
-            var messages = rule.AnalyseDatabase(fakeDatabase);
+            var messages = await rule.AnalyseDatabaseAsync(fakeDatabase).ConfigureAwait(false);
 
             Assert.Zero(messages.Count());
         }
 
         [Test]
-        public void AnalyseDatabase_GivenDatabaseWithTableWithoutIndexOnForeignKey_ProducesMessages()
+        public async Task AnalyseDatabaseAsync_GivenDatabaseWithTableWithoutIndexOnForeignKey_ProducesMessages()
         {
             var rule = new ForeignKeyIndexRule(RuleLevel.Error);
             var fakeDatabase = CreateFakeDatabase();
@@ -90,11 +90,11 @@ create table not_indexed_child_table_1 (
 
             fakeDatabase.Tables = new[]
             {
-                database.GetTable("no_index_parent_table_1").UnwrapSome(),
-                database.GetTable("not_indexed_child_table_1").UnwrapSome()
+                await database.GetTableAsync("no_index_parent_table_1").UnwrapSomeAsync().ConfigureAwait(false),
+                await database.GetTableAsync("not_indexed_child_table_1").UnwrapSomeAsync().ConfigureAwait(false)
             };
 
-            var messages = rule.AnalyseDatabase(fakeDatabase);
+            var messages = await rule.AnalyseDatabaseAsync(fakeDatabase).ConfigureAwait(false);
 
             Assert.NotZero(messages.Count());
         }

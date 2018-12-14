@@ -8,7 +8,6 @@ using Dapper;
 using LanguageExt;
 using SJP.Schematic.Core;
 using SJP.Schematic.Core.Extensions;
-using SJP.Schematic.Core.Utilities;
 using SJP.Schematic.SqlServer.Query;
 
 namespace SJP.Schematic.SqlServer
@@ -24,21 +23,6 @@ namespace SJP.Schematic.SqlServer
         protected IDbConnection Connection { get; }
 
         protected IIdentifierDefaults IdentifierDefaults { get; }
-
-        public IReadOnlyCollection<IDatabaseSynonym> Synonyms
-        {
-            get
-            {
-                var synonymNames = Connection.Query<QualifiedName>(SynonymsQuery)
-                    .Select(dto => Identifier.CreateQualifiedIdentifier(dto.SchemaName, dto.ObjectName))
-                    .ToList();
-
-                var synonyms = synonymNames
-                    .Select(LoadSynonymSync)
-                    .Somes();
-                return new ReadOnlyCollectionSlim<IDatabaseSynonym>(synonymNames.Count, synonyms);
-            }
-        }
 
         public async Task<IReadOnlyCollection<IDatabaseSynonym>> SynonymsAsync(CancellationToken cancellationToken = default(CancellationToken))
         {
@@ -59,15 +43,6 @@ namespace SJP.Schematic.SqlServer
 
         private const string SynonymsQuerySql = "select schema_name(schema_id) as SchemaName, name as ObjectName from sys.synonyms order by schema_name(schema_id), name";
 
-        public Option<IDatabaseSynonym> GetSynonym(Identifier synonymName)
-        {
-            if (synonymName == null)
-                throw new ArgumentNullException(nameof(synonymName));
-
-            var candidateSynonymName = QualifySynonymName(synonymName);
-            return LoadSynonymSync(candidateSynonymName);
-        }
-
         public OptionAsync<IDatabaseSynonym> GetSynonymAsync(Identifier synonymName, CancellationToken cancellationToken = default(CancellationToken))
         {
             if (synonymName == null)
@@ -75,20 +50,6 @@ namespace SJP.Schematic.SqlServer
 
             var candidateSynonymName = QualifySynonymName(synonymName);
             return LoadSynonymAsync(candidateSynonymName, cancellationToken);
-        }
-
-        protected Option<Identifier> GetResolvedSynonymName(Identifier synonymName)
-        {
-            if (synonymName == null)
-                throw new ArgumentNullException(nameof(synonymName));
-
-            var candidateSynonymName = QualifySynonymName(synonymName);
-            var qualifiedSynonymName = Connection.QueryFirstOrNone<QualifiedName>(
-                SynonymNameQuery,
-                new { SchemaName = candidateSynonymName.Schema, SynonymName = candidateSynonymName.LocalName }
-            );
-
-            return qualifiedSynonymName.Map(name => Identifier.CreateQualifiedIdentifier(candidateSynonymName.Server, candidateSynonymName.Database, name.SchemaName, name.ObjectName));
         }
 
         protected OptionAsync<Identifier> GetResolvedSynonymNameAsync(Identifier synonymName, CancellationToken cancellationToken)
@@ -112,32 +73,6 @@ namespace SJP.Schematic.SqlServer
 select top 1 schema_name(schema_id) as SchemaName, name as ObjectName
 from sys.synonyms
 where schema_id = schema_id(@SchemaName) and name = @SynonymName";
-
-        protected virtual Option<IDatabaseSynonym> LoadSynonymSync(Identifier synonymName)
-        {
-            if (synonymName == null)
-                throw new ArgumentNullException(nameof(synonymName));
-
-            var candidateSynonymName = QualifySynonymName(synonymName);
-
-            return GetResolvedSynonymName(candidateSynonymName)
-                .Bind(name => Connection.QueryFirstOrNone<SynonymData>(
-                    LoadSynonymQuery,
-                    new { SchemaName = name.Schema, SynonymName = name.LocalName }
-                ))
-                .Map<IDatabaseSynonym>(synonymData =>
-                {
-                    var serverName = !synonymData.TargetServerName.IsNullOrWhiteSpace() ? synonymData.TargetServerName : null;
-                    var databaseName = !synonymData.TargetDatabaseName.IsNullOrWhiteSpace() ? synonymData.TargetDatabaseName : null;
-                    var schemaName = !synonymData.TargetSchemaName.IsNullOrWhiteSpace() ? synonymData.TargetSchemaName : null;
-                    var localName = !synonymData.TargetObjectName.IsNullOrWhiteSpace() ? synonymData.TargetObjectName : null;
-
-                    var targetName = Identifier.CreateQualifiedIdentifier(serverName, databaseName, schemaName, localName);
-                    var qualifiedTargetName = QualifySynonymTargetName(targetName);
-
-                    return new DatabaseSynonym(candidateSynonymName, qualifiedTargetName);
-                });
-        }
 
         protected virtual OptionAsync<IDatabaseSynonym> LoadSynonymAsync(Identifier synonymName, CancellationToken cancellationToken)
         {

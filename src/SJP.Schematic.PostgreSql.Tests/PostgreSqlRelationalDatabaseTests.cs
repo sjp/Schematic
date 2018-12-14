@@ -65,38 +65,6 @@ namespace SJP.Schematic.PostgreSql.Tests
             }
 
             [Test]
-            public static void GetSynonym_GivenNullSynonymName_ThrowsArgumentNullException()
-            {
-                Assert.Throws<ArgumentNullException>(() => Database.GetSynonym(null));
-            }
-
-            [Test]
-            public static void GetSynonym_GivenValidSynonymName_ReturnsNone()
-            {
-                var synonymName = new Identifier("asd");
-                var synonym = Database.GetSynonym(synonymName);
-
-                Assert.IsTrue(synonym.IsNone);
-            }
-
-            [Test]
-            public static void Synonyms_PropertyGet_ReturnsCountOfZero()
-            {
-                var count = Database.Synonyms.Count;
-
-                Assert.Zero(count);
-            }
-
-            [Test]
-            public static void Synonyms_WhenEnumerated_ContainsNoValues()
-            {
-                var synonyms = Database.Synonyms.ToList();
-                var count = synonyms.Count;
-
-                Assert.Zero(count);
-            }
-
-            [Test]
             public static void GetSynonymAsync_GivenNullSynonymName_ThrowsArgumentNullException()
             {
                 Assert.Throws<ArgumentNullException>(() => Database.GetSynonymAsync(null));

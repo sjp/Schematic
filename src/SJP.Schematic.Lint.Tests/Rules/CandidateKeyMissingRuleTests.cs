@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
+using System.Threading.Tasks;
 using Moq;
 using NUnit.Framework;
 using SJP.Schematic.Core;
@@ -21,14 +22,14 @@ namespace SJP.Schematic.Lint.Tests.Rules
         }
 
         [Test]
-        public static void AnalyseDatabase_GivenNullDatabase_ThrowsArgumentNullException()
+        public static void AnalyseDatabaseAsync_GivenNullDatabase_ThrowsArgumentNullException()
         {
             var rule = new CandidateKeyMissingRule(RuleLevel.Error);
-            Assert.Throws<ArgumentNullException>(() => rule.AnalyseDatabase(null));
+            Assert.Throws<ArgumentNullException>(() => rule.AnalyseDatabaseAsync(null));
         }
 
         [Test]
-        public static void AnalyseDatabase_GivenTableWithMissingPrimaryKeyAndNoUniqueKeys_ProducesMessages()
+        public static async Task AnalyseDatabaseAsync_GivenTableWithMissingPrimaryKeyAndNoUniqueKeys_ProducesMessages()
         {
             var rule = new CandidateKeyMissingRule(RuleLevel.Error);
 
@@ -46,13 +47,13 @@ namespace SJP.Schematic.Lint.Tests.Rules
             );
             database.Tables = new[] { table };
 
-            var messages = rule.AnalyseDatabase(database);
+            var messages = await rule.AnalyseDatabaseAsync(database).ConfigureAwait(false);
 
             Assert.NotZero(messages.Count());
         }
 
         [Test]
-        public static void AnalyseDatabase_GivenTableWithPrimaryKey_ProducesNoMessages()
+        public static async Task AnalyseDatabaseAsync_GivenTableWithPrimaryKey_ProducesNoMessages()
         {
             var rule = new CandidateKeyMissingRule(RuleLevel.Error);
             var database = CreateFakeDatabase();
@@ -84,13 +85,13 @@ namespace SJP.Schematic.Lint.Tests.Rules
             );
             database.Tables = new[] { table };
 
-            var messages = rule.AnalyseDatabase(database);
+            var messages = await rule.AnalyseDatabaseAsync(database).ConfigureAwait(false);
 
             Assert.Zero(messages.Count());
         }
 
         [Test]
-        public static void AnalyseDatabase_GivenTableWithMultiColumnPrimaryKey_ProducesMessages()
+        public static async Task AnalyseDatabaseAsync_GivenTableWithMultiColumnPrimaryKey_ProducesMessages()
         {
             var rule = new CandidateKeyMissingRule(RuleLevel.Error);
             var database = CreateFakeDatabase();
@@ -122,7 +123,7 @@ namespace SJP.Schematic.Lint.Tests.Rules
             );
             database.Tables = new[] { table };
 
-            var messages = rule.AnalyseDatabase(database);
+            var messages = await rule.AnalyseDatabaseAsync(database).ConfigureAwait(false);
 
             Assert.Zero(messages.Count());
         }

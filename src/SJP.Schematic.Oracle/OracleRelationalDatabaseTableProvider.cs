@@ -8,7 +8,6 @@ using Dapper;
 using LanguageExt;
 using SJP.Schematic.Core;
 using SJP.Schematic.Core.Extensions;
-using SJP.Schematic.Core.Utilities;
 using SJP.Schematic.Oracle.Query;
 
 namespace SJP.Schematic.Oracle
@@ -32,21 +31,6 @@ namespace SJP.Schematic.Oracle
         protected IDbTypeProvider TypeProvider { get; }
 
         protected IDatabaseDialect Dialect { get; } = new OracleDialect();
-
-        public IReadOnlyCollection<IRelationalDatabaseTable> Tables
-        {
-            get
-            {
-                var tableNames = Connection.Query<QualifiedName>(TablesQuery)
-                    .Select(dto => Identifier.CreateQualifiedIdentifier(dto.SchemaName, dto.ObjectName))
-                    .ToList();
-
-                var tables = tableNames
-                    .Select(LoadTableSync)
-                    .Somes();
-                return new ReadOnlyCollectionSlim<IRelationalDatabaseTable>(tableNames.Count, tables);
-            }
-        }
 
         public async Task<IReadOnlyCollection<IRelationalDatabaseTable>> TablesAsync(CancellationToken cancellationToken = default(CancellationToken))
         {
@@ -77,15 +61,6 @@ where
     and o.SECONDARY <> 'Y'
 order by t.OWNER, t.TABLE_NAME";
 
-        public Option<IRelationalDatabaseTable> GetTable(Identifier tableName)
-        {
-            if (tableName == null)
-                throw new ArgumentNullException(nameof(tableName));
-
-            var candidateTableName = QualifyTableName(tableName);
-            return LoadTableSync(candidateTableName);
-        }
-
         public OptionAsync<IRelationalDatabaseTable> GetTableAsync(Identifier tableName, CancellationToken cancellationToken = default(CancellationToken))
         {
             if (tableName == null)
@@ -93,20 +68,6 @@ order by t.OWNER, t.TABLE_NAME";
 
             var candidateTableName = QualifyTableName(tableName);
             return LoadTableAsync(candidateTableName, cancellationToken);
-        }
-
-        public Option<Identifier> GetResolvedTableName(Identifier tableName)
-        {
-            if (tableName == null)
-                throw new ArgumentNullException(nameof(tableName));
-
-            var resolvedNames = IdentifierResolver
-                .GetResolutionOrder(tableName)
-                .Select(QualifyTableName);
-
-            return resolvedNames
-                .Select(GetResolvedTableNameStrict)
-                .FirstSome();
         }
 
         public OptionAsync<Identifier> GetResolvedTableNameAsync(Identifier tableName, CancellationToken cancellationToken = default(CancellationToken))
@@ -121,20 +82,6 @@ order by t.OWNER, t.TABLE_NAME";
             return resolvedNames
                 .Select(name => GetResolvedTableNameStrictAsync(name, cancellationToken))
                 .FirstSomeAsync(cancellationToken);
-        }
-
-        protected Option<Identifier> GetResolvedTableNameStrict(Identifier tableName)
-        {
-            if (tableName == null)
-                throw new ArgumentNullException(nameof(tableName));
-
-            var candidateTableName = QualifyTableName(tableName);
-            var qualifiedTableName = Connection.QueryFirstOrNone<QualifiedName>(
-                TableNameQuery,
-                new { SchemaName = candidateTableName.Schema, TableName = candidateTableName.LocalName }
-            );
-
-            return qualifiedTableName.Map(name => Identifier.CreateQualifiedIdentifier(candidateTableName.Server, candidateTableName.Database, name.SchemaName, name.ObjectName));
         }
 
         protected OptionAsync<Identifier> GetResolvedTableNameStrictAsync(Identifier tableName, CancellationToken cancellationToken)
@@ -163,45 +110,6 @@ where
     and o.ORACLE_MAINTAINED <> 'Y'
     and o.GENERATED <> 'Y'
     and o.SECONDARY <> 'Y'";
-
-        protected virtual Option<IRelationalDatabaseTable> LoadTableSync(Identifier tableName)
-        {
-            if (tableName == null)
-                throw new ArgumentNullException(nameof(tableName));
-
-            var candidateTableName = QualifyTableName(tableName);
-            var resolvedTableNameOption = GetResolvedTableName(candidateTableName);
-            if (resolvedTableNameOption.IsNone)
-                return Option<IRelationalDatabaseTable>.None;
-
-            var resolvedTableName = resolvedTableNameOption.UnwrapSome();
-
-            var columns = LoadColumnsSync(resolvedTableName);
-            var columnLookup = GetColumnLookup(columns);
-            var primaryKey = LoadPrimaryKeySync(resolvedTableName, columnLookup);
-            var uniqueKeys = LoadUniqueKeysSync(resolvedTableName, columnLookup);
-            var indexes = LoadIndexesSync(resolvedTableName, columnLookup);
-            var checks = LoadChecksSync(resolvedTableName, columnLookup);
-            var triggers = LoadTriggersSync(resolvedTableName);
-
-            var uniqueKeyLookup = GetDatabaseKeyLookup(uniqueKeys);
-            var childKeys = LoadChildKeysSync(resolvedTableName, columnLookup, primaryKey, uniqueKeyLookup);
-            var parentKeys = LoadParentKeysSync(resolvedTableName, columnLookup);
-
-            var table = new RelationalDatabaseTable(
-                resolvedTableName,
-                columns,
-                primaryKey,
-                uniqueKeys,
-                parentKeys,
-                childKeys,
-                indexes,
-                checks,
-                triggers
-            );
-
-            return Option<IRelationalDatabaseTable>.Some(table);
-        }
 
         protected virtual OptionAsync<IRelationalDatabaseTable> LoadTableAsync(Identifier tableName, CancellationToken cancellationToken)
         {
@@ -265,31 +173,6 @@ where
             return Option<IRelationalDatabaseTable>.Some(table);
         }
 
-        protected virtual Option<IDatabaseKey> LoadPrimaryKeySync(Identifier tableName, IReadOnlyDictionary<Identifier, IDatabaseColumn> columns)
-        {
-            if (tableName == null)
-                throw new ArgumentNullException(nameof(tableName));
-            if (columns == null)
-                throw new ArgumentNullException(nameof(columns));
-
-            var primaryKeyColumns = Connection.Query<ConstraintColumnMapping>(PrimaryKeyQuery, new { SchemaName = tableName.Schema, TableName = tableName.LocalName });
-            if (primaryKeyColumns.Empty())
-                return Option<IDatabaseKey>.None;
-
-            var groupedByName = primaryKeyColumns.GroupBy(row => new { row.ConstraintName, row.EnabledStatus });
-            var firstRow = groupedByName.First();
-            var constraintName = firstRow.Key.ConstraintName;
-            var isEnabled = firstRow.Key.EnabledStatus == "ENABLED";
-
-            var keyColumns = firstRow
-                .OrderBy(row => row.ColumnPosition)
-                .Select(row => columns[row.ColumnName])
-                .ToList();
-
-            var primaryKey = new OracleDatabaseKey(constraintName, DatabaseKeyType.Primary, keyColumns, isEnabled);
-            return Option<IDatabaseKey>.Some(primaryKey);
-        }
-
         protected virtual Task<Option<IDatabaseKey>> LoadPrimaryKeyAsync(Identifier tableName, IReadOnlyDictionary<Identifier, IDatabaseColumn> columns, CancellationToken cancellationToken)
         {
             if (tableName == null)
@@ -336,46 +219,6 @@ select
 from ALL_CONSTRAINTS ac
 inner join ALL_CONS_COLUMNS acc on ac.OWNER = acc.OWNER and ac.CONSTRAINT_NAME = acc.CONSTRAINT_NAME and ac.TABLE_NAME = acc.TABLE_NAME
 where ac.OWNER = :SchemaName and ac.TABLE_NAME = :TableName and ac.CONSTRAINT_TYPE = 'P'";
-
-        protected virtual IReadOnlyCollection<IDatabaseIndex> LoadIndexesSync(Identifier tableName, IReadOnlyDictionary<Identifier, IDatabaseColumn> columns)
-        {
-            if (tableName == null)
-                throw new ArgumentNullException(nameof(tableName));
-            if (columns == null)
-                throw new ArgumentNullException(nameof(columns));
-
-            var queryResult = Connection.Query<IndexColumns>(IndexesQuery, new { SchemaName = tableName.Schema, TableName = tableName.LocalName });
-            if (queryResult.Empty())
-                return Array.Empty<IDatabaseIndex>();
-
-            var indexColumns = queryResult.GroupBy(row => new { row.IndexName, row.IndexProperty, row.Uniqueness }).ToList();
-            if (indexColumns.Empty())
-                return Array.Empty<IDatabaseIndex>();
-
-            var result = new List<IDatabaseIndex>(indexColumns.Count);
-            foreach (var indexInfo in indexColumns)
-            {
-                var indexProperties = (OracleIndexProperties)indexInfo.Key.IndexProperty;
-                var isUnique = indexInfo.Key.Uniqueness == "UNIQUE";
-                var indexName = Identifier.CreateQualifiedIdentifier(indexInfo.Key.IndexName);
-
-                var indexCols = indexInfo
-                    .OrderBy(row => row.ColumnPosition)
-                    .Select(row => new { row.IsDescending, Column = columns[row.ColumnName] })
-                    .Select(row =>
-                    {
-                        var order = row.IsDescending == "Y" ? IndexColumnOrder.Descending : IndexColumnOrder.Ascending;
-                        var expression = Dialect.QuoteName(row.Column.Name);
-                        return new DatabaseIndexColumn(expression, row.Column, order);
-                    })
-                    .ToList();
-
-                var index = new OracleDatabaseIndex(indexName, isUnique, indexCols, indexProperties);
-                result.Add(index);
-            }
-
-            return result;
-        }
 
         protected virtual Task<IReadOnlyCollection<IDatabaseIndex>> LoadIndexesAsync(Identifier tableName, IReadOnlyDictionary<Identifier, IDatabaseColumn> columns, CancellationToken cancellationToken)
         {
@@ -448,38 +291,6 @@ where ai.TABLE_OWNER = :SchemaName and ai.TABLE_NAME = :TableName
     and ao.OBJECT_TYPE = 'INDEX'
 order by aic.COLUMN_POSITION";
 
-        protected virtual IReadOnlyCollection<IDatabaseKey> LoadUniqueKeysSync(Identifier tableName, IReadOnlyDictionary<Identifier, IDatabaseColumn> columns)
-        {
-            if (tableName == null)
-                throw new ArgumentNullException(nameof(tableName));
-            if (columns == null)
-                throw new ArgumentNullException(nameof(columns));
-
-            var uniqueKeyColumns = Connection.Query<ConstraintColumnMapping>(UniqueKeysQuery, new { SchemaName = tableName.Schema, TableName = tableName.LocalName });
-            if (uniqueKeyColumns.Empty())
-                return Array.Empty<IDatabaseKey>();
-
-            var groupedByName = uniqueKeyColumns.GroupBy(row => new { row.ConstraintName, row.EnabledStatus });
-            var constraintColumns = groupedByName
-                .Select(g => new
-                {
-                    g.Key.ConstraintName,
-                    Columns = g.OrderBy(row => row.ColumnPosition)
-                        .Select(row => columns[row.ColumnName])
-                        .ToList(),
-                    IsEnabled = g.Key.EnabledStatus == "ENABLED"
-                })
-                .ToList();
-            if (constraintColumns.Empty())
-                return Array.Empty<IDatabaseKey>();
-
-            var result = constraintColumns
-                .Select(uk => new OracleDatabaseKey(uk.ConstraintName, DatabaseKeyType.Unique, uk.Columns, uk.IsEnabled))
-                .ToList();
-
-            return result;
-        }
-
         protected virtual Task<IReadOnlyCollection<IDatabaseKey>> LoadUniqueKeysAsync(Identifier tableName, IReadOnlyDictionary<Identifier, IDatabaseColumn> columns, CancellationToken cancellationToken)
         {
             if (tableName == null)
@@ -533,65 +344,6 @@ select
 from ALL_CONSTRAINTS ac
 inner join ALL_CONS_COLUMNS acc on ac.OWNER = acc.OWNER and ac.CONSTRAINT_NAME = acc.CONSTRAINT_NAME and ac.TABLE_NAME = acc.TABLE_NAME
 where ac.OWNER = :SchemaName and ac.TABLE_NAME = :TableName and ac.CONSTRAINT_TYPE = 'U'";
-
-        protected virtual IReadOnlyCollection<IDatabaseRelationalKey> LoadChildKeysSync(Identifier tableName, IReadOnlyDictionary<Identifier, IDatabaseColumn> columns, Option<IDatabaseKey> primaryKey, IReadOnlyDictionary<Identifier, IDatabaseKey> uniqueKeys)
-        {
-            if (tableName == null)
-                throw new ArgumentNullException(nameof(tableName));
-            if (columns == null)
-                throw new ArgumentNullException(nameof(columns));
-            if (uniqueKeys == null)
-                throw new ArgumentNullException(nameof(uniqueKeys));
-
-            var queryResult = Connection.Query<ChildKeyData>(ChildKeysQuery, new { SchemaName = tableName.Schema, TableName = tableName.LocalName });
-            if (queryResult.Empty())
-                return Array.Empty<IDatabaseRelationalKey>();
-
-            var childKeyRows = queryResult.ToList();
-            if (childKeyRows.Empty())
-                return Array.Empty<IDatabaseRelationalKey>();
-
-            var columnLookupsCache = new Dictionary<Identifier, IReadOnlyDictionary<Identifier, IDatabaseColumn>> { [tableName] = columns };
-            var foreignKeyLookupCache = new Dictionary<Identifier, IReadOnlyDictionary<Identifier, IDatabaseKey>>();
-            var result = new List<IDatabaseRelationalKey>(childKeyRows.Count);
-
-            foreach (var childKeyRow in childKeyRows)
-            {
-                var candidateChildTableName = Identifier.CreateQualifiedIdentifier(childKeyRow.ChildTableSchema, childKeyRow.ChildTableName);
-                var childTableNameOption = GetResolvedTableName(candidateChildTableName);
-                if (childTableNameOption.IsNone)
-                    throw new Exception("Could not find child table with name: " + candidateChildTableName.ToString());
-
-                var childTableName = childTableNameOption.UnwrapSome();
-                var childKeyName = Identifier.CreateQualifiedIdentifier(childKeyRow.ChildKeyName);
-
-                if (!columnLookupsCache.TryGetValue(childTableName, out var childKeyColumnLookup))
-                {
-                    var childKeyColumns = LoadColumnsSync(childTableName);
-                    childKeyColumnLookup = GetColumnLookup(childKeyColumns);
-                    columnLookupsCache[childTableName] = childKeyColumnLookup;
-                }
-
-                if (!foreignKeyLookupCache.TryGetValue(childTableName, out var parentKeyLookup))
-                {
-                    var parentKeys = LoadParentKeysSync(childTableName, childKeyColumnLookup);
-                    parentKeyLookup = GetDatabaseKeyLookup(parentKeys.Select(fk => fk.ChildKey).ToList());
-                    foreignKeyLookupCache[childTableName] = parentKeyLookup;
-                }
-
-                var childKey = parentKeyLookup[childKeyName];
-                var parentKey = childKeyRow.ParentKeyType == "P"
-                    ? primaryKey.UnwrapSome()
-                    : uniqueKeys[childKeyRow.ParentKeyName];
-
-                var deleteRule = RelationalRuleMapping[childKeyRow.DeleteRule];
-
-                var relationalKey = new OracleRelationalKey(childTableName, childKey, tableName, parentKey, deleteRule);
-                result.Add(relationalKey);
-            }
-
-            return result;
-        }
 
         protected virtual Task<IReadOnlyCollection<IDatabaseRelationalKey>> LoadChildKeysAsync(Identifier tableName, IReadOnlyDictionary<Identifier, IDatabaseColumn> columns, Option<IDatabaseKey> primaryKey, IReadOnlyDictionary<Identifier, IDatabaseKey> uniqueKeys, CancellationToken cancellationToken)
         {
@@ -673,40 +425,6 @@ from ALL_CONSTRAINTS ac
 inner join ALL_CONSTRAINTS pac on pac.OWNER = ac.R_OWNER and pac.CONSTRAINT_NAME = ac.R_CONSTRAINT_NAME
 where pac.OWNER = :SchemaName and pac.TABLE_NAME = :TableName and ac.CONSTRAINT_TYPE = 'R' and pac.CONSTRAINT_TYPE in ('P', 'U')";
 
-        protected virtual IReadOnlyCollection<IDatabaseCheckConstraint> LoadChecksSync(Identifier tableName, IReadOnlyDictionary<Identifier, IDatabaseColumn> columns)
-        {
-            if (tableName == null)
-                throw new ArgumentNullException(nameof(tableName));
-            if (columns == null)
-                throw new ArgumentNullException(nameof(columns));
-
-            var checks = Connection.Query<CheckConstraintData>(ChecksQuery, new { SchemaName = tableName.Schema, TableName = tableName.LocalName });
-            if (checks.Empty())
-                return Array.Empty<IDatabaseCheckConstraint>();
-
-            var columnNotNullConstraints = columns.Keys
-                .Select(k => k.LocalName)
-                .Select(GenerateNotNullDefinition)
-                .ToList();
-
-            var result = new List<IDatabaseCheckConstraint>();
-
-            foreach (var checkRow in checks)
-            {
-                if (columnNotNullConstraints.Contains(checkRow.Definition))
-                    continue;
-
-                var constraintName = Identifier.CreateQualifiedIdentifier(checkRow.ConstraintName);
-                var definition = checkRow.Definition;
-                var isEnabled = checkRow.EnabledStatus == "ENABLED";
-
-                var check = new DatabaseCheckConstraint(constraintName, definition, isEnabled);
-                result.Add(check);
-            }
-
-            return result;
-        }
-
         protected virtual Task<IReadOnlyCollection<IDatabaseCheckConstraint>> LoadChecksAsync(Identifier tableName, IReadOnlyDictionary<Identifier, IDatabaseColumn> columns, CancellationToken cancellationToken)
         {
             if (tableName == null)
@@ -760,106 +478,6 @@ select
     STATUS as EnabledStatus
 from ALL_CONSTRAINTS
 where OWNER = :SchemaName and TABLE_NAME = :TableName and CONSTRAINT_TYPE = 'C'";
-
-        protected virtual IReadOnlyCollection<IDatabaseRelationalKey> LoadParentKeysSync(Identifier tableName, IReadOnlyDictionary<Identifier, IDatabaseColumn> columns)
-        {
-            if (tableName == null)
-                throw new ArgumentNullException(nameof(tableName));
-            if (columns == null)
-                throw new ArgumentNullException(nameof(columns));
-
-            var queryResult = Connection.Query<ForeignKeyData>(ParentKeysQuery, new { SchemaName = tableName.Schema, TableName = tableName.LocalName });
-            if (queryResult.Empty())
-                return Array.Empty<IDatabaseRelationalKey>();
-
-            var foreignKeys = queryResult.GroupBy(row => new
-            {
-                row.ConstraintName,
-                row.EnabledStatus,
-                row.DeleteRule,
-                row.ParentTableSchema,
-                row.ParentTableName,
-                row.ParentConstraintName,
-                KeyType = row.ParentKeyType
-            }).ToList();
-            if (foreignKeys.Empty())
-                return Array.Empty<IDatabaseRelationalKey>();
-
-            var columnLookupsCache = new Dictionary<Identifier, IReadOnlyDictionary<Identifier, IDatabaseColumn>> { [tableName] = columns };
-            var primaryKeyCache = new Dictionary<Identifier, IDatabaseKey>();
-            var uniqueKeyLookupCache = new Dictionary<Identifier, IReadOnlyDictionary<Identifier, IDatabaseKey>>();
-
-            var result = new List<IDatabaseRelationalKey>(foreignKeys.Count);
-            foreach (var fkey in foreignKeys)
-            {
-                var candidateParentTableName = Identifier.CreateQualifiedIdentifier(fkey.Key.ParentTableSchema, fkey.Key.ParentTableName);
-                var parentTableNameOption = GetResolvedTableName(candidateParentTableName);
-                if (parentTableNameOption.IsNone)
-                    throw new Exception("Could not find parent table with name: " + candidateParentTableName.ToString());
-
-                var parentTableName = parentTableNameOption.UnwrapSome();
-                var parentKeyName = Identifier.CreateQualifiedIdentifier(fkey.Key.ParentConstraintName);
-
-                IDatabaseKey parentKey;
-                if (fkey.Key.KeyType == "P")
-                {
-                    if (primaryKeyCache.TryGetValue(parentTableName, out var pk))
-                    {
-                        parentKey = pk;
-                    }
-                    else
-                    {
-                        if (!columnLookupsCache.TryGetValue(parentTableName, out var parentColumnLookup))
-                        {
-                            var parentColumns = LoadColumnsSync(parentTableName);
-                            parentColumnLookup = GetColumnLookup(parentColumns);
-                            columnLookupsCache[parentTableName] = parentColumnLookup;
-                        }
-
-                        var parentKeyOption = LoadPrimaryKeySync(parentTableName, parentColumnLookup);
-                        parentKey = parentKeyOption.UnwrapSome();
-                        primaryKeyCache[parentTableName] = parentKey;
-                    }
-                }
-                else
-                {
-                    if (uniqueKeyLookupCache.TryGetValue(parentTableName, out var uks))
-                    {
-                        parentKey = uks[parentKeyName.LocalName];
-                    }
-                    else
-                    {
-                        if (!columnLookupsCache.TryGetValue(parentTableName, out var parentColumnLookup))
-                        {
-                            var parentColumns = LoadColumnsSync(parentTableName);
-                            parentColumnLookup = GetColumnLookup(parentColumns);
-                            columnLookupsCache[parentTableName] = parentColumnLookup;
-                        }
-
-                        var parentUniqueKeys = LoadUniqueKeysSync(parentTableName, parentColumnLookup);
-                        var parentUniqueKeyLookup = GetDatabaseKeyLookup(parentUniqueKeys);
-                        uniqueKeyLookupCache[parentTableName] = parentUniqueKeyLookup;
-
-                        parentKey = parentUniqueKeyLookup[parentKeyName.LocalName];
-                    }
-                }
-
-                var childKeyName = Identifier.CreateQualifiedIdentifier(fkey.Key.ConstraintName);
-                var childKeyColumns = fkey
-                    .OrderBy(row => row.ColumnPosition)
-                    .Select(row => columns[row.ColumnName])
-                    .ToList();
-
-                var isEnabled = fkey.Key.EnabledStatus == "ENABLED";
-                var childKey = new OracleDatabaseKey(childKeyName, DatabaseKeyType.Foreign, childKeyColumns, isEnabled);
-
-                var deleteRule = RelationalRuleMapping[fkey.Key.DeleteRule];
-                var relationalKey = new OracleRelationalKey(tableName, childKey, parentTableName, parentKey, deleteRule);
-                result.Add(relationalKey);
-            }
-
-            return result;
-        }
 
         protected virtual Task<IReadOnlyCollection<IDatabaseRelationalKey>> LoadParentKeysAsync(Identifier tableName, IReadOnlyDictionary<Identifier, IDatabaseColumn> columns, CancellationToken cancellationToken)
         {
@@ -990,41 +608,6 @@ inner join ALL_CONS_COLUMNS acc on ac.OWNER = acc.OWNER and ac.CONSTRAINT_NAME =
 inner join ALL_CONSTRAINTS pac on pac.OWNER = ac.R_OWNER and pac.CONSTRAINT_NAME = ac.R_CONSTRAINT_NAME
 where ac.OWNER = :SchemaName and ac.TABLE_NAME = :TableName and ac.CONSTRAINT_TYPE = 'R' and pac.CONSTRAINT_TYPE in ('P', 'U')";
 
-        protected virtual IReadOnlyList<IDatabaseColumn> LoadColumnsSync(Identifier tableName)
-        {
-            if (tableName == null)
-                throw new ArgumentNullException(nameof(tableName));
-
-            var query = Connection.Query<ColumnData>(ColumnsQuery, new { SchemaName = tableName.Schema, TableName = tableName.LocalName });
-
-            var columnNames = query.Select(row => row.ColumnName).ToList();
-            var notNullableColumnNames = GetNotNullConstrainedColumns(tableName, columnNames);
-            var result = new List<IDatabaseColumn>();
-
-            foreach (var row in query)
-            {
-                var typeMetadata = new ColumnTypeMetadata
-                {
-                    TypeName = Identifier.CreateQualifiedIdentifier(row.ColumnTypeSchema, row.ColumnTypeName),
-                    Collation = row.Collation.IsNullOrWhiteSpace() ? null : Identifier.CreateQualifiedIdentifier(row.Collation),
-                    MaxLength = row.DataLength,
-                    NumericPrecision = new NumericPrecision(row.Precision, row.Scale)
-                };
-                var columnType = TypeProvider.CreateColumnType(typeMetadata);
-
-                var isNullable = !notNullableColumnNames.Contains(row.ColumnName);
-                var columnName = Identifier.CreateQualifiedIdentifier(row.ColumnName);
-
-                var column = row.IsComputed == "YES"
-                    ? new OracleDatabaseComputedColumn(columnName, columnType, isNullable, row.DefaultValue)
-                    : new OracleDatabaseColumn(columnName, columnType, isNullable, row.DefaultValue);
-
-                result.Add(column);
-            }
-
-            return result.AsReadOnly();
-        }
-
         protected virtual Task<IReadOnlyList<IDatabaseColumn>> LoadColumnsAsync(Identifier tableName, CancellationToken cancellationToken)
         {
             if (tableName == null)
@@ -1086,49 +669,6 @@ select
 from ALL_TAB_COLS
 where OWNER = :SchemaName and TABLE_NAME = :TableName
 order by COLUMN_ID";
-
-        protected virtual IReadOnlyCollection<IDatabaseTrigger> LoadTriggersSync(Identifier tableName)
-        {
-            if (tableName == null)
-                throw new ArgumentNullException(nameof(tableName));
-
-            var queryResult = Connection.Query<TriggerData>(TriggersQuery, new { SchemaName = tableName.Schema, TableName = tableName.LocalName });
-            if (queryResult.Empty())
-                return Array.Empty<IDatabaseTrigger>();
-
-            var triggers = queryResult.ToList();
-            if (triggers.Empty())
-                return Array.Empty<IDatabaseTrigger>();
-
-            var result = new List<IDatabaseTrigger>(triggers.Count);
-            foreach (var triggerRow in triggers)
-            {
-                var triggerName = Identifier.CreateQualifiedIdentifier(triggerRow.TriggerSchema, triggerRow.TriggerName);
-                var queryTiming = TimingMapping[triggerRow.TriggerType];
-                var definition = triggerRow.Definition;
-                var isEnabled = triggerRow.EnabledStatus == "ENABLED";
-
-                var events = TriggerEvent.None;
-                var triggerEventPieces = triggerRow.TriggerEvent.Split(new[] { " OR " }, StringSplitOptions.RemoveEmptyEntries);
-
-                foreach (var triggerEventPiece in triggerEventPieces)
-                {
-                    if (triggerEventPiece == "INSERT")
-                        events |= TriggerEvent.Insert;
-                    else if (triggerEventPiece == "UPDATE")
-                        events |= TriggerEvent.Update;
-                    else if (triggerEventPiece == "DELETE")
-                        events |= TriggerEvent.Delete;
-                    else
-                        throw new Exception("Found an unsupported trigger event name. Expected one of INSERT, UPDATE, DELETE, got: " + triggerEventPiece);
-                }
-
-                var trigger = new DatabaseTrigger(triggerName, definition, queryTiming, events, isEnabled);
-                result.Add(trigger);
-            }
-
-            return result;
-        }
 
         protected virtual Task<IReadOnlyCollection<IDatabaseTrigger>> LoadTriggersAsync(Identifier tableName, CancellationToken cancellationToken)
         {

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Security;
 using System.Text;
+using System.Threading;
 using Humanizer;
 using SJP.Schematic.Core;
 using SJP.Schematic.Core.Extensions;
@@ -47,7 +48,8 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore
             var modelBuilder = new EFCoreModelBuilder(NameProvider, contextIndent, IndentLevel);
 
             var missingFirstLine = true;
-            foreach (var table in Database.Tables)
+            var tables = Database.TablesAsync(CancellationToken.None).GetAwaiter().GetResult();
+            foreach (var table in tables)
             {
                 if (!missingFirstLine)
                     builder.AppendLine();
@@ -77,7 +79,8 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore
                 modelBuilder.AddTable(table);
             }
 
-            foreach (var sequence in Database.Sequences)
+            var sequences = Database.SequencesAsync(CancellationToken.None).GetAwaiter().GetResult();
+            foreach (var sequence in sequences)
             {
                 modelBuilder.AddSequence(sequence);
             }

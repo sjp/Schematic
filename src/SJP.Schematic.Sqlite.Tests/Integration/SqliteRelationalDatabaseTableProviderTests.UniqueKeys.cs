@@ -1,4 +1,5 @@
 ﻿using System.Linq;
+using System.Threading.Tasks;
 using NUnit.Framework;
 using SJP.Schematic.Core;
 
@@ -7,27 +8,27 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
     internal partial class SqliteRelationalDatabaseTableProviderTests : SqliteTest
     {
         [Test]
-        public void UniqueKeys_WhenGivenTableWithNoUniqueKeys_ReturnsEmptyCollection()
+        public async Task UniqueKeys_WhenGivenTableWithNoUniqueKeys_ReturnsEmptyCollection()
         {
-            var table = GetTable("table_test_table_1");
+            var table = await GetTableAsync("table_test_table_1").ConfigureAwait(false);
             var count = table.UniqueKeys.Count;
 
             Assert.AreEqual(0, count);
         }
 
         [Test]
-        public void UniqueKeys_WhenGivenTableWithSingleUniqueKey_ReturnsCorrectKeyType()
+        public async Task UniqueKeys_WhenGivenTableWithSingleUniqueKey_ReturnsCorrectKeyType()
         {
-            var table = GetTable("table_test_table_5");
+            var table = await GetTableAsync("table_test_table_5").ConfigureAwait(false);
             var uk = table.UniqueKeys.Single();
 
             Assert.AreEqual(DatabaseKeyType.Unique, uk.KeyType);
         }
 
         [Test]
-        public void UniqueKeys_WhenGivenTableWithColumnAsUniqueKey_ReturnsUniqueKeyWithColumnOnly()
+        public async Task UniqueKeys_WhenGivenTableWithColumnAsUniqueKey_ReturnsUniqueKeyWithColumnOnly()
         {
-            var table = GetTable("table_test_table_5");
+            var table = await GetTableAsync("table_test_table_5").ConfigureAwait(false);
             var uk = table.UniqueKeys.Single();
             var ukColumns = uk.Columns.ToList();
 
@@ -39,9 +40,9 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
         }
 
         [Test]
-        public void UniqueKeys_WhenGivenTableWithSingleColumnConstraintAsUniqueKey_ReturnsUniqueKeyWithColumnOnly()
+        public async Task UniqueKeys_WhenGivenTableWithSingleColumnConstraintAsUniqueKey_ReturnsUniqueKeyWithColumnOnly()
         {
-            var table = GetTable("table_test_table_6");
+            var table = await GetTableAsync("table_test_table_6").ConfigureAwait(false);
             var uk = table.UniqueKeys.Single();
             var ukColumns = uk.Columns.ToList();
 
@@ -53,20 +54,20 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
         }
 
         [Test]
-        public void UniqueKeys_WhenGivenTableWithSingleColumnConstraintAsUniqueKey_ReturnsUniqueKeyWithCorrectName()
+        public async Task UniqueKeys_WhenGivenTableWithSingleColumnConstraintAsUniqueKey_ReturnsUniqueKeyWithCorrectName()
         {
-            var table = GetTable("table_test_table_6");
+            var table = await GetTableAsync("table_test_table_6").ConfigureAwait(false);
             var uk = table.UniqueKeys.Single();
 
             Assert.AreEqual("uk_test_table_6", uk.Name.LocalName);
         }
 
         [Test]
-        public void UniqueKeys_WhenGivenTableWithMultiColumnConstraintAsUniqueKey_ReturnsUniqueKeyWithColumnsInCorrectOrder()
+        public async Task UniqueKeys_WhenGivenTableWithMultiColumnConstraintAsUniqueKey_ReturnsUniqueKeyWithColumnsInCorrectOrder()
         {
             var expectedColumnNames = new[] { "first_name", "last_name", "middle_name" };
 
-            var table = GetTable("table_test_table_7");
+            var table = await GetTableAsync("table_test_table_7").ConfigureAwait(false);
             var uk = table.UniqueKeys.Single();
             var ukColumns = uk.Columns.ToList();
 
@@ -80,9 +81,9 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
         }
 
         [Test]
-        public void UniqueKeys_WhenGivenTableWithMultiColumnConstraintAsUniqueKey_ReturnsUniqueKeyWithCorrectName()
+        public async Task UniqueKeys_WhenGivenTableWithMultiColumnConstraintAsUniqueKey_ReturnsUniqueKeyWithCorrectName()
         {
-            var table = GetTable("table_test_table_7");
+            var table = await GetTableAsync("table_test_table_7").ConfigureAwait(false);
             var uk = table.UniqueKeys.Single();
 
             Assert.AreEqual("uk_test_table_7", uk.Name.LocalName);

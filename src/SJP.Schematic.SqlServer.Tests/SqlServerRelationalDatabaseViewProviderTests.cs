@@ -37,18 +37,6 @@ namespace SJP.Schematic.SqlServer.Tests
         }
 
         [Test]
-        public static void GetView_GivenNullViewName_ThrowsArgNullException()
-        {
-            var connection = Mock.Of<IDbConnection>();
-            var identifierDefaults = Mock.Of<IIdentifierDefaults>();
-            var typeProvider = Mock.Of<IDbTypeProvider>();
-
-            var viewProvider = new SqlServerRelationalDatabaseViewProvider(connection, identifierDefaults, typeProvider);
-
-            Assert.Throws<ArgumentNullException>(() => viewProvider.GetView(null));
-        }
-
-        [Test]
         public static void GetViewAsync_GivenNullViewName_ThrowsArgNullException()
         {
             var connection = Mock.Of<IDbConnection>();

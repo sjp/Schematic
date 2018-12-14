@@ -87,10 +87,11 @@ create table test_table_4 (
         }
 
         [Test]
-        public void AddTable_GivenTable_ReturnsNotNullBuilder()
+        public async Task AddTable_GivenTable_ReturnsNotNullBuilder()
         {
             var database = Database;
-            var table = database.Tables.First();
+            var tables = await database.TablesAsync().ConfigureAwait(false);
+            var table = tables.First();
 
             var builder = Builder;
             var result = builder.AddTable(table);
@@ -107,10 +108,11 @@ create table test_table_4 (
         }
 
         [Test]
-        public void HasRecords_AddTableGivenTableRequiringAnnotation_ReturnsTrue()
+        public async Task HasRecords_AddTableGivenTableRequiringAnnotation_ReturnsTrue()
         {
             var database = Database;
-            var table = database.Tables.First();
+            var tables = await database.TablesAsync().ConfigureAwait(false);
+            var table = tables.First();
 
             var builder = Builder;
             builder.AddTable(table);
@@ -119,12 +121,13 @@ create table test_table_4 (
         }
 
         [Test]
-        public void ToString_GivenTablesWithVariousAnnotationsRequired_GeneratesExpectedOutput()
+        public async Task ToString_GivenTablesWithVariousAnnotationsRequired_GeneratesExpectedOutput()
         {
             var database = Database;
 
             var builder = Builder;
-            foreach (var table in database.Tables)
+            var tables = await database.TablesAsync().ConfigureAwait(false);
+            foreach (var table in tables)
                 builder.AddTable(table);
 
             var expected = TestModelBuilderOutput;

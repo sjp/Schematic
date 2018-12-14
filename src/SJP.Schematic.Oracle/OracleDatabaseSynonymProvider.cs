@@ -30,35 +30,6 @@ namespace SJP.Schematic.Oracle
         // collections create directly instead of via LoadSynonym() methods
         // the main reason is to avoid queries where possible, especially when
         // the ALL_SYNONYMS data dictionary view is very slow
-        public IReadOnlyCollection<IDatabaseSynonym> Synonyms
-        {
-            get
-            {
-                var synonymQueryRows = Connection.Query<SynonymData>(SynonymsQuery).ToList();
-
-                var result = new List<IDatabaseSynonym>(synonymQueryRows.Count);
-                foreach (var synonymRow in synonymQueryRows)
-                {
-                    var synonymSchema = !synonymRow.SchemaName.IsNullOrWhiteSpace() ? synonymRow.SchemaName : null;
-                    var synonymName = !synonymRow.SynonymName.IsNullOrWhiteSpace() ? synonymRow.SynonymName : null;
-
-                    var targetDatabaseName = !synonymRow.TargetDatabaseName.IsNullOrWhiteSpace() ? synonymRow.TargetDatabaseName : null;
-                    var targetSchemaName = !synonymRow.TargetSchemaName.IsNullOrWhiteSpace() ? synonymRow.TargetSchemaName : null;
-                    var targetLocalName = !synonymRow.TargetObjectName.IsNullOrWhiteSpace() ? synonymRow.TargetObjectName : null;
-
-                    var fullSynonymName = Identifier.CreateQualifiedIdentifier(synonymSchema, synonymName);
-                    var targetName = Identifier.CreateQualifiedIdentifier(targetDatabaseName, targetSchemaName, targetLocalName);
-
-                    var qualifiedSynonymName = QualifySynonymName(fullSynonymName);
-                    var qualifiedTargetName = QualifySynonymTargetName(targetName);
-
-                    var synonym = new DatabaseSynonym(qualifiedSynonymName, qualifiedTargetName);
-                    result.Add(synonym);
-                }
-
-                return result;
-            }
-        }
 
         public async Task<IReadOnlyCollection<IDatabaseSynonym>> SynonymsAsync(CancellationToken cancellationToken = default(CancellationToken))
         {
@@ -102,15 +73,6 @@ inner join ALL_OBJECTS o on s.OWNER = o.OWNER and s.SYNONYM_NAME = o.OBJECT_NAME
 where o.ORACLE_MAINTAINED <> 'Y'
 order by s.DB_LINK, s.OWNER, s.SYNONYM_NAME";
 
-        public Option<IDatabaseSynonym> GetSynonym(Identifier synonymName)
-        {
-            if (synonymName == null)
-                throw new ArgumentNullException(nameof(synonymName));
-
-            var candidateSynonymName = QualifySynonymName(synonymName);
-            return LoadSynonymSync(candidateSynonymName);
-        }
-
         public OptionAsync<IDatabaseSynonym> GetSynonymAsync(Identifier synonymName, CancellationToken cancellationToken = default(CancellationToken))
         {
             if (synonymName == null)
@@ -118,20 +80,6 @@ order by s.DB_LINK, s.OWNER, s.SYNONYM_NAME";
 
             var candidateSynonymName = QualifySynonymName(synonymName);
             return LoadSynonymAsync(candidateSynonymName, cancellationToken);
-        }
-
-        public Option<Identifier> GetResolvedSynonymName(Identifier synonymName)
-        {
-            if (synonymName == null)
-                throw new ArgumentNullException(nameof(synonymName));
-
-            var resolvedNames = IdentifierResolver
-                .GetResolutionOrder(synonymName)
-                .Select(QualifySynonymName);
-
-            return resolvedNames
-                .Select(GetResolvedSynonymNameStrict)
-                .FirstSome();
         }
 
         public OptionAsync<Identifier> GetResolvedSynonymNameAsync(Identifier synonymName, CancellationToken cancellationToken = default(CancellationToken))
@@ -146,33 +94,6 @@ order by s.DB_LINK, s.OWNER, s.SYNONYM_NAME";
             return resolvedNames
                 .Select(name => GetResolvedSynonymNameStrictAsync(name, cancellationToken))
                 .FirstSomeAsync(cancellationToken);
-        }
-
-        protected Option<Identifier> GetResolvedSynonymNameStrict(Identifier synonymName)
-        {
-            if (synonymName == null)
-                throw new ArgumentNullException(nameof(synonymName));
-
-            var candidateSynonymName = QualifySynonymName(synonymName);
-
-            // fast path, ALL_SYNONYMS is much slower than USER_SYNONYMS so prefer the latter where possible
-            var isUserSynonym = candidateSynonymName.Database == IdentifierDefaults.Database && candidateSynonymName.Schema == IdentifierDefaults.Schema;
-            if (isUserSynonym)
-            {
-                var userSynonymName = Connection.QueryFirstOrNone<string>(
-                    UserSynonymNameQuery,
-                    new { SynonymName = candidateSynonymName.LocalName }
-                );
-
-                return userSynonymName.Map(name => Identifier.CreateQualifiedIdentifier(IdentifierDefaults.Server, IdentifierDefaults.Database, IdentifierDefaults.Schema, name));
-            }
-
-            var qualifiedSynonymName = Connection.QueryFirstOrNone<QualifiedName>(
-                SynonymNameQuery,
-                new { SchemaName = candidateSynonymName.Schema, SynonymName = candidateSynonymName.LocalName }
-            );
-
-            return qualifiedSynonymName.Map(name => Identifier.CreateQualifiedIdentifier(candidateSynonymName.Server, candidateSynonymName.Database, name.SchemaName, name.ObjectName));
         }
 
         protected OptionAsync<Identifier> GetResolvedSynonymNameStrictAsync(Identifier synonymName, CancellationToken cancellationToken)
@@ -219,26 +140,6 @@ select s.SYNONYM_NAME
 from USER_SYNONYMS s
 inner join ALL_OBJECTS o on s.SYNONYM_NAME = o.OBJECT_NAME
 where o.OWNER = SYS_CONTEXT('USERENV', 'CURRENT_USER') and s.SYNONYM_NAME = :SynonymName and o.ORACLE_MAINTAINED <> 'Y'";
-
-        protected virtual Option<IDatabaseSynonym> LoadSynonymSync(Identifier synonymName)
-        {
-            if (synonymName == null)
-                throw new ArgumentNullException(nameof(synonymName));
-
-            var resolvedSynonymNameOption = GetResolvedSynonymName(synonymName);
-            if (resolvedSynonymNameOption.IsNone)
-                return Option<IDatabaseSynonym>.None;
-
-            var resolvedSynonymName = resolvedSynonymNameOption.UnwrapSome();
-
-            // ALL_SYNONYMS is much slower than USER_SYNONYMS so prefer the latter where possible
-            var isUserSynonym = resolvedSynonymName.Database == IdentifierDefaults.Database && resolvedSynonymName.Schema == IdentifierDefaults.Schema;
-            var synonymData = isUserSynonym
-                ? LoadUserSynonymDataSync(resolvedSynonymName.LocalName)
-                : LoadSynonymDataSync(resolvedSynonymName);
-
-            return synonymData.Map(synData => BuildSynonymFromDto(resolvedSynonymName, synData));
-        }
 
         protected virtual OptionAsync<IDatabaseSynonym> LoadSynonymAsync(Identifier synonymName, CancellationToken cancellationToken)
         {
@@ -290,17 +191,6 @@ from USER_SYNONYMS s
 inner join ALL_OBJECTS o on s.SYNONYM_NAME = o.OBJECT_NAME
 where s.SYNONYM_NAME = :SynonymName and o.OWNER = SYS_CONTEXT('USERENV', 'CURRENT_USER') and o.ORACLE_MAINTAINED <> 'Y'";
 
-        protected virtual Option<TargetSynonymData> LoadSynonymDataSync(Identifier synonymName)
-        {
-            if (synonymName == null)
-                throw new ArgumentNullException(nameof(synonymName));
-
-            return Connection.QueryFirstOrNone<TargetSynonymData>(
-                LoadSynonymQuery,
-                new { SchemaName = synonymName.Schema, SynonymName = synonymName.LocalName }
-            );
-        }
-
         protected virtual OptionAsync<TargetSynonymData> LoadSynonymDataAsync(Identifier synonymName, CancellationToken cancellationToken)
         {
             if (synonymName == null)
@@ -310,17 +200,6 @@ where s.SYNONYM_NAME = :SynonymName and o.OWNER = SYS_CONTEXT('USERENV', 'CURREN
                 LoadSynonymQuery,
                 new { SchemaName = synonymName.Schema, SynonymName = synonymName.LocalName },
                 cancellationToken
-            );
-        }
-
-        protected virtual Option<TargetSynonymData> LoadUserSynonymDataSync(string synonymName)
-        {
-            if (synonymName.IsNullOrWhiteSpace())
-                throw new ArgumentNullException(nameof(synonymName));
-
-            return Connection.QueryFirstOrNone<TargetSynonymData>(
-                LoadUserSynonymQuery,
-                new { SynonymName = synonymName }
             );
         }
 

@@ -9,26 +9,10 @@ namespace SJP.Schematic.Core.Tests
     internal static class EmptyRelationalDatabaseViewProviderTests
     {
         [Test]
-        public static void GetView_GivenNullName_ThrowsArgumentNullException()
-        {
-            var provider = new EmptyRelationalDatabaseViewProvider();
-            Assert.Throws<ArgumentNullException>(() => provider.GetView(null));
-        }
-
-        [Test]
         public static void GetViewAsync_GivenNullName_ThrowsArgumentNullException()
         {
             var provider = new EmptyRelationalDatabaseViewProvider();
             Assert.Throws<ArgumentNullException>(() => provider.GetViewAsync(null));
-        }
-
-        [Test]
-        public static void GetView_GivenValidName_ReturnsNone()
-        {
-            var provider = new EmptyRelationalDatabaseViewProvider();
-            var view = provider.GetView("view_name");
-
-            Assert.IsTrue(view.IsNone);
         }
 
         [Test]
@@ -39,24 +23,6 @@ namespace SJP.Schematic.Core.Tests
             var viewIsNone = await view.IsNone.ConfigureAwait(false);
 
             Assert.IsTrue(viewIsNone);
-        }
-
-        [Test]
-        public static void Views_PropertyGet_HasCountOfZero()
-        {
-            var provider = new EmptyRelationalDatabaseViewProvider();
-            var views = provider.Views;
-
-            Assert.Zero(views.Count);
-        }
-
-        [Test]
-        public static void Views_WhenEnumerated_ContainsNoValues()
-        {
-            var provider = new EmptyRelationalDatabaseViewProvider();
-            var views = provider.Views.ToList();
-
-            Assert.Zero(views.Count);
         }
 
         [Test]

@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Data;
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using SJP.Schematic.Core;
 
 namespace SJP.Schematic.Reporting.Html.ViewModels.Mappers
@@ -17,12 +19,17 @@ namespace SJP.Schematic.Reporting.Html.ViewModels.Mappers
 
         private IDatabaseDialect Dialect { get; }
 
-        public View Map(IRelationalDatabaseView view)
+        public Task<View> MapAsync(IRelationalDatabaseView view, CancellationToken cancellationToken)
         {
             if (view == null)
                 throw new ArgumentNullException(nameof(view));
 
-            var rowCount = Connection.GetRowCount(Dialect, view.Name);
+            return MapAsyncCore(view, cancellationToken);
+        }
+
+        public async Task<View> MapAsyncCore(IRelationalDatabaseView view, CancellationToken cancellationToken)
+        {
+            var rowCount = await Connection.GetRowCountAsync(Dialect, view.Name, cancellationToken).ConfigureAwait(false);
             var viewColumns = view.Columns.ToList();
 
             var columns = viewColumns.Select((vc, i) =>

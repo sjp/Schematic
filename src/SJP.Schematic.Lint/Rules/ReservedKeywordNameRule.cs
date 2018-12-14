@@ -15,22 +15,6 @@ namespace SJP.Schematic.Lint.Rules
         {
         }
 
-        public override IEnumerable<IRuleMessage> AnalyseDatabase(IRelationalDatabase database)
-        {
-            if (database == null)
-                throw new ArgumentNullException(nameof(database));
-
-            var dialect = database.Dialect;
-            if (dialect == null)
-                throw new ArgumentException("The dialect on the given database is null.", nameof(database));
-
-            return database.Tables.SelectMany(t => AnalyseTable(dialect, t))
-                .Concat(database.Views.SelectMany(v => AnalyseView(dialect, v)))
-                .Concat(database.Sequences.SelectMany(s => AnalyseSequence(dialect, s)))
-                .Concat(database.Synonyms.SelectMany(s => AnalyseSynonym(dialect, s)))
-                .ToList();
-        }
-
         public override Task<IEnumerable<IRuleMessage>> AnalyseDatabaseAsync(IRelationalDatabase database, CancellationToken cancellationToken = default(CancellationToken))
         {
             if (database == null)

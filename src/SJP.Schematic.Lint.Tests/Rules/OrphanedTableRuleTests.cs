@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
+using System.Threading.Tasks;
 using Moq;
 using NUnit.Framework;
 using SJP.Schematic.Core;
@@ -21,14 +22,14 @@ namespace SJP.Schematic.Lint.Tests.Rules
         }
 
         [Test]
-        public static void AnalyseDatabase_GivenNullDatabase_ThrowsArgumentNullException()
+        public static void AnalyseDatabaseAsync_GivenNullDatabase_ThrowsArgumentNullException()
         {
             var rule = new OrphanedTableRule(RuleLevel.Error);
-            Assert.Throws<ArgumentNullException>(() => rule.AnalyseDatabase(null));
+            Assert.Throws<ArgumentNullException>(() => rule.AnalyseDatabaseAsync(null));
         }
 
         [Test]
-        public static void AnalyseDatabase_GivenTableWithParentKeys_ProducesNoMessages()
+        public static async Task AnalyseDatabaseAsync_GivenTableWithParentKeys_ProducesNoMessages()
         {
             var rule = new OrphanedTableRule(RuleLevel.Error);
 
@@ -64,13 +65,13 @@ namespace SJP.Schematic.Lint.Tests.Rules
             );
             database.Tables = new[] { childTable };
 
-            var messages = rule.AnalyseDatabase(database);
+            var messages = await rule.AnalyseDatabaseAsync(database).ConfigureAwait(false);
 
             Assert.Zero(messages.Count());
         }
 
         [Test]
-        public static void AnalyseDatabase_GivenTableWithChildKeys_ProducesNoMessages()
+        public static async Task AnalyseDatabaseAsync_GivenTableWithChildKeys_ProducesNoMessages()
         {
             var rule = new OrphanedTableRule(RuleLevel.Error);
 
@@ -106,13 +107,13 @@ namespace SJP.Schematic.Lint.Tests.Rules
             );
             database.Tables = new[] { parentTable };
 
-            var messages = rule.AnalyseDatabase(database);
+            var messages = await rule.AnalyseDatabaseAsync(database).ConfigureAwait(false);
 
             Assert.Zero(messages.Count());
         }
 
         [Test]
-        public static void AnalyseDatabase_GivenTableWithNoRelations_ProducesMessages()
+        public static async Task AnalyseDatabaseAsync_GivenTableWithNoRelations_ProducesMessages()
         {
             var rule = new OrphanedTableRule(RuleLevel.Error);
             var database = CreateFakeDatabase();
@@ -130,7 +131,7 @@ namespace SJP.Schematic.Lint.Tests.Rules
             );
             database.Tables = new[] { table };
 
-            var messages = rule.AnalyseDatabase(database);
+            var messages = await rule.AnalyseDatabaseAsync(database).ConfigureAwait(false);
 
             Assert.NotZero(messages.Count());
         }

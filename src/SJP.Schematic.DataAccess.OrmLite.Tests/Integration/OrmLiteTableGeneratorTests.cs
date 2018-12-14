@@ -11,7 +11,7 @@ namespace SJP.Schematic.DataAccess.OrmLite.Tests.Integration
     {
         private IRelationalDatabase Database => new SqliteRelationalDatabase(Dialect, Connection, IdentifierDefaults);
 
-        private IRelationalDatabaseTable GetTable(Identifier tableName) => Database.GetTable(tableName).UnwrapSome();
+        private Task<IRelationalDatabaseTable> GetTable(Identifier tableName) => Database.GetTableAsync(tableName).UnwrapSomeAsync();
 
         private static IDatabaseTableGenerator TableGenerator => new OrmLiteTableGenerator(new PascalCaseNameProvider(), TestNamespace);
 
@@ -90,9 +90,9 @@ create table test_table_4 (
         }
 
         [Test]
-        public void Generate_GivenTableWithVariousColumnTypes_GeneratesExpectedOutput()
+        public async Task Generate_GivenTableWithVariousColumnTypes_GeneratesExpectedOutput()
         {
-            var table = GetTable("test_table_1");
+            var table = await GetTable("test_table_1").ConfigureAwait(false);
             var generator = TableGenerator;
 
             var expected = TestTable1Output;
@@ -102,9 +102,9 @@ create table test_table_4 (
         }
 
         [Test]
-        public void Generate_GivenTableWithVariousIndexesAndConstraints_GeneratesExpectedOutput()
+        public async Task Generate_GivenTableWithVariousIndexesAndConstraints_GeneratesExpectedOutput()
         {
-            var table = GetTable("test_table_2");
+            var table = await GetTable("test_table_2").ConfigureAwait(false);
             var generator = TableGenerator;
 
             var expected = TestTable2Output;
@@ -114,9 +114,9 @@ create table test_table_4 (
         }
 
         [Test]
-        public void Generate_GivenTableWithForeignKeys_GeneratesExpectedOutput()
+        public async Task Generate_GivenTableWithForeignKeys_GeneratesExpectedOutput()
         {
-            var table = GetTable("test_table_4");
+            var table = await GetTable("test_table_4").ConfigureAwait(false);
             var generator = TableGenerator;
 
             var expected = TestTable4Output;

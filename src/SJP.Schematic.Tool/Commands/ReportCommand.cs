@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading.Tasks;
 using McMaster.Extensions.CommandLineUtils;
 using SJP.Schematic.Core.Caching;
 using SJP.Schematic.Reporting.Html;
@@ -40,7 +41,7 @@ namespace SJP.Schematic.Tool
                     var database = databaseFactory.Invoke(dialect, cachedConnection, identifierDefaults);
 
                     var reportExporter = new ReportExporter(cachedConnection, database, ReportDirectory);
-                    reportExporter.Export();
+                    reportExporter.ExportAsync().GetAwaiter().GetResult();
 
                     application.Out.WriteLine("The database report has been exported to: " + ReportDirectory);
                     return 0;

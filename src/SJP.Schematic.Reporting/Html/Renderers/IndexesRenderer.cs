@@ -29,30 +29,6 @@ namespace SJP.Schematic.Reporting.Html.Renderers
 
         private DirectoryInfo ExportDirectory { get; }
 
-        public void Render()
-        {
-            var mapper = new IndexesModelMapper();
-
-            var indexes = Database.Tables
-                .Select(t => new { TableName = t.Name, t.Indexes })
-                .SelectMany(t => t.Indexes.Select(i => mapper.Map(t.TableName, i)))
-                .OrderBy(i => i.TableName)
-                .ThenBy(i => i.Name)
-                .ToList();
-
-            var templateParameter = new Indexes(indexes, string.Empty);
-            var renderedIndexes = Formatter.RenderTemplate(templateParameter);
-
-            var indexesContainer = new Container(renderedIndexes, Database.DatabaseName, string.Empty);
-            var renderedPage = Formatter.RenderTemplate(indexesContainer);
-
-            if (!ExportDirectory.Exists)
-                ExportDirectory.Create();
-            var outputPath = Path.Combine(ExportDirectory.FullName, "indexes.html");
-
-            File.WriteAllText(outputPath, renderedPage);
-        }
-
         public async Task RenderAsync(CancellationToken cancellationToken = default(CancellationToken))
         {
             var tables = await Database.TablesAsync(cancellationToken).ConfigureAwait(false);

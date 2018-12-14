@@ -37,18 +37,6 @@ namespace SJP.Schematic.PostgreSql.Tests
         }
 
         [Test]
-        public static void GetSequence_GivenNullSequenceName_ThrowsArgNullException()
-        {
-            var connection = Mock.Of<IDbConnection>();
-            var identifierDefaults = Mock.Of<IIdentifierDefaults>();
-            var identifierResolver = Mock.Of<IIdentifierResolutionStrategy>();
-
-            var sequenceProvider = new PostgreSqlDatabaseSequenceProvider(connection, identifierDefaults, identifierResolver);
-
-            Assert.Throws<ArgumentNullException>(() => sequenceProvider.GetSequence(null));
-        }
-
-        [Test]
         public static void GetSequenceAsync_GivenNullSequenceName_ThrowsArgNullException()
         {
             var connection = Mock.Of<IDbConnection>();

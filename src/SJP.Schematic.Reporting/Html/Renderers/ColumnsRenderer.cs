@@ -28,35 +28,6 @@ namespace SJP.Schematic.Reporting.Html.Renderers
 
         private DirectoryInfo ExportDirectory { get; }
 
-        public void Render()
-        {
-            var tables = Database.Tables.ToList();
-            var views = Database.Views.ToList();
-
-            var mapper = new ColumnsModelMapper(Connection, Database.Dialect);
-
-            var tableColumnViewModels = tables.SelectMany(mapper.Map).Select(vm => vm as Columns.Column);
-            var viewColumnViewModels = views.SelectMany(mapper.Map).Select(vm => vm as Columns.Column);
-
-            var orderedColumns = tableColumnViewModels
-                .Concat(viewColumnViewModels)
-                .OrderBy(c => c.Name)
-                .ThenBy(c => c.Ordinal)
-                .ToList();
-
-            var templateParameter = new Columns(orderedColumns);
-            var renderedColumns = Formatter.RenderTemplate(templateParameter);
-
-            var columnsContainer = new Container(renderedColumns, Database.DatabaseName, string.Empty);
-            var renderedPage = Formatter.RenderTemplate(columnsContainer);
-
-            if (!ExportDirectory.Exists)
-                ExportDirectory.Create();
-            var outputPath = Path.Combine(ExportDirectory.FullName, "columns.html");
-
-            File.WriteAllText(outputPath, renderedPage);
-        }
-
         public async Task RenderAsync(CancellationToken cancellationToken = default(CancellationToken))
         {
             var tables = await Database.TablesAsync(cancellationToken).ConfigureAwait(false);

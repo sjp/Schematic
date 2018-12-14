@@ -1,4 +1,5 @@
 ﻿using System.Linq;
+using System.Threading.Tasks;
 using NUnit.Framework;
 using SJP.Schematic.Core;
 
@@ -7,38 +8,38 @@ namespace SJP.Schematic.MySql.Tests.Integration
     internal partial class MySqlRelationalDatabaseTableProviderTests : MySqlTest
     {
         [Test]
-        public void Triggers_GivenTableWithNoTriggers_ReturnsEmptyCollection()
+        public async Task Triggers_GivenTableWithNoTriggers_ReturnsEmptyCollection()
         {
-            var table = GetTable("trigger_test_table_2");
+            var table = await GetTableAsync("trigger_test_table_2").ConfigureAwait(false);
             var count = table.Triggers.Count;
 
             Assert.Zero(count);
         }
 
         [Test]
-        public void Triggers_GivenTableWithTrigger_ReturnsNonEmptyCollection()
+        public async Task Triggers_GivenTableWithTrigger_ReturnsNonEmptyCollection()
         {
-            var table = GetTable("trigger_test_table_1");
+            var table = await GetTableAsync("trigger_test_table_1").ConfigureAwait(false);
             var count = table.Triggers.Count;
 
             Assert.NotZero(count);
         }
 
         [Test]
-        public void Triggers_GivenTableWithTrigger_ReturnsCorrectName()
+        public async Task Triggers_GivenTableWithTrigger_ReturnsCorrectName()
         {
             Identifier triggerName = "trigger_test_table_1_trigger_1";
 
-            var table = GetTable("trigger_test_table_1");
+            var table = await GetTableAsync("trigger_test_table_1").ConfigureAwait(false);
             var trigger = table.Triggers.First(t => t.Name == triggerName);
 
             Assert.AreEqual(triggerName, trigger.Name);
         }
 
         [Test]
-        public void Triggers_GivenTableWithTrigger_ReturnsCorrectDefinition()
+        public async Task Triggers_GivenTableWithTrigger_ReturnsCorrectDefinition()
         {
-            var table = GetTable("trigger_test_table_1");
+            var table = await GetTableAsync("trigger_test_table_1").ConfigureAwait(false);
             var trigger = table.Triggers.First(t => t.Name == "trigger_test_table_1_trigger_1");
 
             const string expectedDefinition = @"begin
@@ -49,9 +50,9 @@ end";
         }
 
         [Test]
-        public void Triggers_GivenTableWithTriggerForInsert_ReturnsCorrectEventAndTiming()
+        public async Task Triggers_GivenTableWithTriggerForInsert_ReturnsCorrectEventAndTiming()
         {
-            var table = GetTable("trigger_test_table_1");
+            var table = await GetTableAsync("trigger_test_table_1").ConfigureAwait(false);
             var trigger = table.Triggers.First(t => t.Name == "trigger_test_table_1_trigger_1");
 
             const TriggerQueryTiming timing = TriggerQueryTiming.Before;
@@ -65,9 +66,9 @@ end";
         }
 
         [Test]
-        public void Triggers_GivenTableWithTriggerForUpdate_ReturnsCorrectEventAndTiming()
+        public async Task Triggers_GivenTableWithTriggerForUpdate_ReturnsCorrectEventAndTiming()
         {
-            var table = GetTable("trigger_test_table_1");
+            var table = await GetTableAsync("trigger_test_table_1").ConfigureAwait(false);
             var trigger = table.Triggers.First(t => t.Name == "trigger_test_table_1_trigger_2");
 
             const TriggerQueryTiming timing = TriggerQueryTiming.Before;
@@ -81,9 +82,9 @@ end";
         }
 
         [Test]
-        public void Triggers_GivenTableWithTriggerForDelete_ReturnsCorrectEventAndTiming()
+        public async Task Triggers_GivenTableWithTriggerForDelete_ReturnsCorrectEventAndTiming()
         {
-            var table = GetTable("trigger_test_table_1");
+            var table = await GetTableAsync("trigger_test_table_1").ConfigureAwait(false);
             var trigger = table.Triggers.First(t => t.Name == "trigger_test_table_1_trigger_3");
 
             const TriggerQueryTiming timing = TriggerQueryTiming.Before;
@@ -97,9 +98,9 @@ end";
         }
 
         [Test]
-        public void Triggers_GivenTableWithTriggerAfterInsert_ReturnsCorrectEventAndTiming()
+        public async Task Triggers_GivenTableWithTriggerAfterInsert_ReturnsCorrectEventAndTiming()
         {
-            var table = GetTable("trigger_test_table_1");
+            var table = await GetTableAsync("trigger_test_table_1").ConfigureAwait(false);
             var trigger = table.Triggers.First(t => t.Name == "trigger_test_table_1_trigger_4");
 
             const TriggerQueryTiming timing = TriggerQueryTiming.After;
@@ -113,9 +114,9 @@ end";
         }
 
         [Test]
-        public void Triggers_GivenTableWithTriggerAfterUpdate_ReturnsCorrectEventAndTiming()
+        public async Task Triggers_GivenTableWithTriggerAfterUpdate_ReturnsCorrectEventAndTiming()
         {
-            var table = GetTable("trigger_test_table_1");
+            var table = await GetTableAsync("trigger_test_table_1").ConfigureAwait(false);
             var trigger = table.Triggers.First(t => t.Name == "trigger_test_table_1_trigger_5");
 
             const TriggerQueryTiming timing = TriggerQueryTiming.After;
@@ -129,9 +130,9 @@ end";
         }
 
         [Test]
-        public void Triggers_GivenTableWithTriggerAfterDelete_ReturnsCorrectEventAndTiming()
+        public async Task Triggers_GivenTableWithTriggerAfterDelete_ReturnsCorrectEventAndTiming()
         {
-            var table = GetTable("trigger_test_table_1");
+            var table = await GetTableAsync("trigger_test_table_1").ConfigureAwait(false);
             var trigger = table.Triggers.First(t => t.Name == "trigger_test_table_1_trigger_6");
 
             const TriggerQueryTiming timing = TriggerQueryTiming.After;

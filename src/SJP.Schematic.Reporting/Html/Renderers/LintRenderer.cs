@@ -28,33 +28,10 @@ namespace SJP.Schematic.Reporting.Html.Renderers
 
         private DirectoryInfo ExportDirectory { get; }
 
-        public void Render()
-        {
-            var linter = new DatabaseLinter(Connection, Database);
-            var messages = linter.AnalyseDatabase();
-
-            var groupedRules = messages
-                .GroupBy(m => m.Title)
-                .Select(m => new LintResults.LintRule(m.Key, m.Select(r => r.Message).ToList()))
-                .ToList();
-
-            var templateParameter = new LintResults(groupedRules);
-            var renderedLint = Formatter.RenderTemplate(templateParameter);
-
-            var lintContainer = new Container(renderedLint, Database.DatabaseName, string.Empty);
-            var renderedPage = Formatter.RenderTemplate(lintContainer);
-
-            if (!ExportDirectory.Exists)
-                ExportDirectory.Create();
-            var outputPath = Path.Combine(ExportDirectory.FullName, "lint.html");
-
-            File.WriteAllText(outputPath, renderedPage);
-        }
-
         public async Task RenderAsync(CancellationToken cancellationToken = default(CancellationToken))
         {
             var linter = new DatabaseLinter(Connection, Database);
-            var messages = linter.AnalyseDatabase();
+            var messages = await linter.AnalyseDatabaseAsync(cancellationToken).ConfigureAwait(false);
 
             var groupedRules = messages
                 .GroupBy(m => m.Title)

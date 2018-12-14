@@ -52,38 +52,6 @@ namespace SJP.Schematic.MySql.Tests
             }
 
             [Test]
-            public static void GetSequence_GivenNullSequenceName_ThrowsArgumentNullException()
-            {
-                Assert.Throws<ArgumentNullException>(() => Database.GetSequence(null));
-            }
-
-            [Test]
-            public static void GetSequence_GivenValidSequenceName_ReturnsNone()
-            {
-                var sequenceName = new Identifier("asd");
-                var sequence = Database.GetSequence(sequenceName);
-
-                Assert.IsTrue(sequence.IsNone);
-            }
-
-            [Test]
-            public static void Sequences_PropertyGet_ReturnsCountOfZero()
-            {
-                var count = Database.Sequences.Count;
-
-                Assert.Zero(count);
-            }
-
-            [Test]
-            public static void Sequences_PropertyGet_ReturnsEmptyCollection()
-            {
-                var sequences = Database.Sequences.ToList();
-                var count = sequences.Count;
-
-                Assert.Zero(count);
-            }
-
-            [Test]
             public static void GetSequenceAsync_GivenNullSequenceName_ThrowsArgumentNullException()
             {
                 Assert.Throws<ArgumentNullException>(() => Database.GetSequenceAsync(null));
@@ -129,38 +97,6 @@ namespace SJP.Schematic.MySql.Tests
 
                     return new MySqlRelationalDatabase(dialect, connection, identifierDefaults);
                 }
-            }
-
-            [Test]
-            public static void GetSynonym_GivenNullSynonymName_ThrowsArgumentNullException()
-            {
-                Assert.Throws<ArgumentNullException>(() => Database.GetSynonym(null));
-            }
-
-            [Test]
-            public static void GetSynonym_GivenValidSynonymName_ReturnsNone()
-            {
-                var synonymName = new Identifier("asd");
-                var synonym = Database.GetSynonym(synonymName);
-
-                Assert.IsTrue(synonym.IsNone);
-            }
-
-            [Test]
-            public static void Synonyms_PropertyGet_ReturnsCountOfZero()
-            {
-                var count = Database.Synonyms.Count;
-
-                Assert.Zero(count);
-            }
-
-            [Test]
-            public static void Synonyms_WhenEnumerated_ContainsNoValues()
-            {
-                var synonyms = Database.Synonyms.ToList();
-                var count = synonyms.Count;
-
-                Assert.Zero(count);
             }
 
             [Test]

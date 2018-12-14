@@ -52,18 +52,6 @@ namespace SJP.Schematic.Modelled.Reflection
 
         protected ReflectionTypeProvider TypeProvider { get; }
 
-        public Option<IRelationalDatabaseTable> GetTable(Identifier tableName)
-        {
-            if (tableName == null)
-                throw new ArgumentNullException(nameof(tableName));
-
-            tableName = CreateQualifiedIdentifier(tableName);
-
-            return Table.TryGetValue(tableName, out var table)
-                ? Option<IRelationalDatabaseTable>.Some(table)
-                : Option<IRelationalDatabaseTable>.None;
-        }
-
         public OptionAsync<IRelationalDatabaseTable> GetTableAsync(Identifier tableName, CancellationToken cancellationToken = default(CancellationToken))
         {
             if (tableName == null)
@@ -116,18 +104,6 @@ namespace SJP.Schematic.Modelled.Reflection
             }
 
             return lookup;
-        }
-
-        public Option<IRelationalDatabaseView> GetView(Identifier viewName)
-        {
-            if (viewName == null)
-                throw new ArgumentNullException(nameof(viewName));
-
-            viewName = CreateQualifiedIdentifier(viewName);
-
-            return View.TryGetValue(viewName, out var view)
-                ? Option<IRelationalDatabaseView>.Some(view)
-                : Option<IRelationalDatabaseView>.None;
         }
 
         public OptionAsync<IRelationalDatabaseView> GetViewAsync(Identifier viewName, CancellationToken cancellationToken = default(CancellationToken))
@@ -184,18 +160,6 @@ namespace SJP.Schematic.Modelled.Reflection
             return lookup;
         }
 
-        public Option<IDatabaseSequence> GetSequence(Identifier sequenceName)
-        {
-            if (sequenceName == null)
-                throw new ArgumentNullException(nameof(sequenceName));
-
-            sequenceName = CreateQualifiedIdentifier(sequenceName);
-
-            return Sequence.TryGetValue(sequenceName, out var sequence)
-                ? Option<IDatabaseSequence>.Some(sequence)
-                : Option<IDatabaseSequence>.None;
-        }
-
         public OptionAsync<IDatabaseSequence> GetSequenceAsync(Identifier sequenceName, CancellationToken cancellationToken = default(CancellationToken))
         {
             if (sequenceName == null)
@@ -248,18 +212,6 @@ namespace SJP.Schematic.Modelled.Reflection
             }
 
             return lookup;
-        }
-
-        public Option<IDatabaseSynonym> GetSynonym(Identifier synonymName)
-        {
-            if (synonymName == null)
-                throw new ArgumentNullException(nameof(synonymName));
-
-            synonymName = CreateQualifiedIdentifier(synonymName);
-
-            return Synonym.TryGetValue(synonymName, out var synonym)
-                ? Option<IDatabaseSynonym>.Some(synonym)
-                : Option<IDatabaseSynonym>.None;
         }
 
         public OptionAsync<IDatabaseSynonym> GetSynonymAsync(Identifier synonymName, CancellationToken cancellationToken = default(CancellationToken))

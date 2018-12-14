@@ -37,18 +37,6 @@ namespace SJP.Schematic.MySql.Tests
         }
 
         [Test]
-        public static void GetTable_GivenNullTableName_ThrowsArgNullException()
-        {
-            var connection = Mock.Of<IDbConnection>();
-            var identifierDefaults = Mock.Of<IIdentifierDefaults>();
-            var typeProvider = Mock.Of<IDbTypeProvider>();
-
-            var tableProvider = new MySqlRelationalDatabaseTableProvider(connection, identifierDefaults, typeProvider);
-
-            Assert.Throws<ArgumentNullException>(() => tableProvider.GetTable(null));
-        }
-
-        [Test]
         public static void GetTableAsync_GivenNullTableName_ThrowsArgNullException()
         {
             var connection = Mock.Of<IDbConnection>();

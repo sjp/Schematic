@@ -27,22 +27,6 @@ namespace SJP.Schematic.Reporting.Html.Renderers
 
         private DirectoryInfo ExportDirectory { get; }
 
-        public void Render()
-        {
-            var mapper = new RelationshipsModelMapper(Connection);
-            var templateParameter = mapper.Map(Database);
-            var renderedRelationships = Formatter.RenderTemplate(templateParameter);
-
-            var relationshipContainer = new Container(renderedRelationships, Database.DatabaseName, string.Empty);
-            var renderedPage = Formatter.RenderTemplate(relationshipContainer);
-
-            if (!ExportDirectory.Exists)
-                ExportDirectory.Create();
-            var outputPath = Path.Combine(ExportDirectory.FullName, "relationships.html");
-
-            File.WriteAllText(outputPath, renderedPage);
-        }
-
         public async Task RenderAsync(CancellationToken cancellationToken = default(CancellationToken))
         {
             var mapper = new RelationshipsModelMapper(Connection);

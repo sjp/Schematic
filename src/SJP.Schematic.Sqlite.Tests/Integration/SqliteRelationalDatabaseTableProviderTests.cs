@@ -5,6 +5,7 @@ using Dapper;
 using NUnit.Framework;
 using SJP.Schematic.Core;
 using SJP.Schematic.Core.Extensions;
+using SJP.Schematic.Core.Utilities;
 
 namespace SJP.Schematic.Sqlite.Tests.Integration
 {
@@ -275,87 +276,25 @@ end").ConfigureAwait(false);
             await Connection.ExecuteAsync("drop table trigger_test_table_2").ConfigureAwait(false);
         }
 
-        private IRelationalDatabaseTable GetTable(Identifier tableName)
+        private Task<IRelationalDatabaseTable> GetTableAsync(Identifier tableName)
         {
             if (tableName == null)
                 throw new ArgumentNullException(nameof(tableName));
 
-            if (_tablesCache.TryGetValue(tableName, out var table))
-                return table;
+            lock (_lock)
+            {
+                if (!_tablesCache.TryGetValue(tableName, out var lazyTable))
+                {
+                    lazyTable = new AsyncLazy<IRelationalDatabaseTable>(() => TableProvider.GetTableAsync(tableName).UnwrapSomeAsync());
+                    _tablesCache[tableName] = lazyTable;
+                }
 
-            table = TableProvider.GetTable(tableName).UnwrapSome();
-            _tablesCache.TryAdd(tableName, table);
-
-            return table;
+                return lazyTable.Task;
+            }
         }
 
-        private readonly static ConcurrentDictionary<Identifier, IRelationalDatabaseTable> _tablesCache = new ConcurrentDictionary<Identifier, IRelationalDatabaseTable>();
-
-        [Test]
-        public void GetTable_WhenTablePresent_ReturnsTable()
-        {
-            var table = TableProvider.GetTable("db_test_table_1");
-            Assert.IsTrue(table.IsSome);
-        }
-
-        [Test]
-        public void GetTable_WhenTablePresentGivenLocalNameOnly_ShouldBeQualifiedCorrectly()
-        {
-            var tableName = new Identifier("db_test_table_1");
-            var expectedTableName = new Identifier(IdentifierDefaults.Schema, "db_test_table_1");
-
-            var table = TableProvider.GetTable(tableName).UnwrapSome();
-
-            Assert.AreEqual(expectedTableName, table.Name);
-        }
-
-        [Test]
-        public void GetTable_WhenTablePresentGivenSchemaAndLocalName_ShouldBeQualifiedCorrectly()
-        {
-            var expectedTableName = new Identifier(IdentifierDefaults.Schema, "db_test_table_1");
-
-            var table = TableProvider.GetTable(expectedTableName).UnwrapSome();
-
-            Assert.AreEqual(expectedTableName, table.Name);
-        }
-
-        [Test]
-        public void GetTable_WhenTablePresentGivenOverlyQualifiedName_ShouldBeQualifiedCorrectly()
-        {
-            var tableName = new Identifier(IdentifierDefaults.Schema, "main", "db_test_table_1");
-            var expectedTableName = new Identifier(IdentifierDefaults.Schema, "db_test_table_1");
-
-            var table = TableProvider.GetTable(tableName).UnwrapSome();
-
-            Assert.AreEqual(expectedTableName, table.Name);
-        }
-
-        [Test]
-        public void GetTable_WhenTableMissing_ReturnsNone()
-        {
-            var table = TableProvider.GetTable("table_that_doesnt_exist");
-            Assert.IsTrue(table.IsNone);
-        }
-
-        [Test]
-        public void GetTable_WhenTablePresentGivenLocalNameWithDifferentCase_ReturnsMatchingName()
-        {
-            var inputName = new Identifier("DB_TEST_table_1");
-            var table = TableProvider.GetTable(inputName).UnwrapSome();
-
-            var equalNames = IdentifierComparer.OrdinalIgnoreCase.Equals(inputName, table.Name.LocalName);
-            Assert.IsTrue(equalNames);
-        }
-
-        [Test]
-        public void GetTable_WhenTablePresentGivenQualifiedNameWithDifferentCase_ReturnsMatchingName()
-        {
-            var inputName = new Identifier("Main", "DB_TEST_table_1");
-            var table = TableProvider.GetTable(inputName).UnwrapSome();
-
-            var equalNames = IdentifierComparer.OrdinalIgnoreCase.Equals(inputName, table.Name);
-            Assert.IsTrue(equalNames);
-        }
+        private readonly static object _lock = new object();
+        private readonly static ConcurrentDictionary<Identifier, AsyncLazy<IRelationalDatabaseTable>> _tablesCache = new ConcurrentDictionary<Identifier, AsyncLazy<IRelationalDatabaseTable>>();
 
         [Test]
         public async Task GetTableAsync_WhenTablePresent_ReturnsTable()

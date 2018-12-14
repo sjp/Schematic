@@ -13,10 +13,10 @@ namespace SJP.Schematic.Core.Extensions
             if (tableName == null)
                 throw new ArgumentNullException(nameof(tableName));
 
-            var tableOption = database.GetTable(tableName);
-            table = tableOption.IfNoneUnsafe((IRelationalDatabaseTable)null);
+            var tableOption = database.TryGetTableAsync(tableName, CancellationToken.None).GetAwaiter().GetResult();
+            table = tableOption.table;
 
-            return tableOption.IsSome;
+            return tableOption.exists;
         }
 
         public static bool TryGetView(this IRelationalDatabase database, Identifier viewName, out IRelationalDatabaseView view)
@@ -26,10 +26,10 @@ namespace SJP.Schematic.Core.Extensions
             if (viewName == null)
                 throw new ArgumentNullException(nameof(viewName));
 
-            var viewOption = database.GetView(viewName);
-            view = viewOption.IfNoneUnsafe((IRelationalDatabaseView)null);
+            var viewOption = database.TryGetViewAsync(viewName, CancellationToken.None).GetAwaiter().GetResult();
+            view = viewOption.view;
 
-            return viewOption.IsSome;
+            return viewOption.exists;
         }
 
         public static bool TryGetSequence(this IRelationalDatabase database, Identifier sequenceName, out IDatabaseSequence sequence)
@@ -39,10 +39,10 @@ namespace SJP.Schematic.Core.Extensions
             if (sequenceName == null)
                 throw new ArgumentNullException(nameof(sequenceName));
 
-            var sequenceOption = database.GetSequence(sequenceName);
-            sequence = sequenceOption.IfNoneUnsafe((IDatabaseSequence)null);
+            var sequenceOption = database.TryGetSequenceAsync(sequenceName, CancellationToken.None).GetAwaiter().GetResult();
+            sequence = sequenceOption.sequence;
 
-            return sequenceOption.IsSome;
+            return sequenceOption.exists;
         }
 
         public static bool TryGetSynonym(this IRelationalDatabase database, Identifier synonymName, out IDatabaseSynonym synonym)
@@ -52,10 +52,10 @@ namespace SJP.Schematic.Core.Extensions
             if (synonymName == null)
                 throw new ArgumentNullException(nameof(synonymName));
 
-            var synonymOption = database.GetSynonym(synonymName);
-            synonym = synonymOption.IfNoneUnsafe((IDatabaseSynonym)null);
+            var synonymOption = database.TryGetSynonymAsync(synonymName, CancellationToken.None).GetAwaiter().GetResult();
+            synonym = synonymOption.synonym;
 
-            return synonymOption.IsSome;
+            return synonymOption.exists;
         }
 
         public static Task<(bool exists, IRelationalDatabaseTable table)> TryGetTableAsync(this IRelationalDatabase database, Identifier tableName, CancellationToken cancellationToken = default(CancellationToken))

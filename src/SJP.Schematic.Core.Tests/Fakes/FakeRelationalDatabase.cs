@@ -3,9 +3,8 @@ using System.Data;
 using System.Threading;
 using System.Threading.Tasks;
 using LanguageExt;
-using SJP.Schematic.Core;
 
-namespace SJP.Schematic.Lint.Tests.Fakes
+namespace SJP.Schematic.Core.Tests.Fakes
 {
     internal class FakeRelationalDatabase : RelationalDatabase, IRelationalDatabase
     {
@@ -22,13 +21,25 @@ namespace SJP.Schematic.Lint.Tests.Fakes
 
         public virtual IReadOnlyCollection<IDatabaseSynonym> Synonyms { get; set; } = new List<IDatabaseSynonym>();
 
-        public virtual OptionAsync<IDatabaseSequence> GetSequenceAsync(Identifier sequenceName, CancellationToken cancellationToken = default(CancellationToken)) => OptionAsync<IDatabaseSequence>.None;
+        public virtual OptionAsync<IDatabaseSequence> GetSequenceAsync(Identifier sequenceName, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            return Sequences.Find(s => s.Name == sequenceName).ToAsync();
+        }
 
-        public virtual OptionAsync<IDatabaseSynonym> GetSynonymAsync(Identifier synonymName, CancellationToken cancellationToken = default(CancellationToken)) => OptionAsync<IDatabaseSynonym>.None;
+        public virtual OptionAsync<IDatabaseSynonym> GetSynonymAsync(Identifier synonymName, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            return Synonyms.Find(s => s.Name == synonymName).ToAsync();
+        }
 
-        public virtual OptionAsync<IRelationalDatabaseTable> GetTableAsync(Identifier tableName, CancellationToken cancellationToken = default(CancellationToken)) => OptionAsync<IRelationalDatabaseTable>.None;
+        public virtual OptionAsync<IRelationalDatabaseTable> GetTableAsync(Identifier tableName, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            return Tables.Find(t => t.Name == tableName).ToAsync();
+        }
 
-        public virtual OptionAsync<IRelationalDatabaseView> GetViewAsync(Identifier viewName, CancellationToken cancellationToken = default(CancellationToken)) => OptionAsync<IRelationalDatabaseView>.None;
+        public virtual OptionAsync<IRelationalDatabaseView> GetViewAsync(Identifier viewName, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            return Views.Find(v => v.Name == viewName).ToAsync();
+        }
 
         public virtual Task<IReadOnlyCollection<IDatabaseSequence>> SequencesAsync(CancellationToken cancellationToken = default(CancellationToken)) => Task.FromResult(Sequences);
 

@@ -32,27 +32,6 @@ namespace SJP.Schematic.Reporting.Html.Renderers
 
         private DirectoryInfo ExportDirectory { get; }
 
-        public void Render()
-        {
-            var views = Database.Views.ToList();
-            var mapper = new ViewModelMapper(Connection, Database.Dialect);
-
-            foreach (var view in views)
-            {
-                var viewModel = mapper.Map(view);
-                var renderedView = Formatter.RenderTemplate(viewModel);
-
-                var viewContainer = new Container(renderedView, Database.DatabaseName, "../");
-                var renderedPage = Formatter.RenderTemplate(viewContainer);
-
-                var outputPath = Path.Combine(ExportDirectory.FullName, view.Name.ToSafeKey() + ".html");
-                if (!ExportDirectory.Exists)
-                    ExportDirectory.Create();
-
-                File.WriteAllText(outputPath, renderedPage);
-            }
-        }
-
         public async Task RenderAsync(CancellationToken cancellationToken = default(CancellationToken))
         {
             var views = await Database.ViewsAsync(cancellationToken).ConfigureAwait(false);
@@ -60,7 +39,7 @@ namespace SJP.Schematic.Reporting.Html.Renderers
 
             var viewTasks = views.Select(async view =>
             {
-                var viewModel = mapper.Map(view);
+                var viewModel = await mapper.MapAsync(view, cancellationToken).ConfigureAwait(false);
                 var renderedView = Formatter.RenderTemplate(viewModel);
 
                 var viewContainer = new Container(renderedView, Database.DatabaseName, "../");

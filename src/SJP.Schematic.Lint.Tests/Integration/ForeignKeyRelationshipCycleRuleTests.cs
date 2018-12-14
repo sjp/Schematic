@@ -64,14 +64,14 @@ create table no_cycle_table_2 (
         }
 
         [Test]
-        public static void AnalyseDatabase_GivenNullDatabase_ThrowsArgumentNullException()
+        public static void AnalyseDatabaseAsync_GivenNullDatabase_ThrowsArgumentNullException()
         {
             var rule = new ForeignKeyRelationshipCycleRule(RuleLevel.Error);
-            Assert.Throws<ArgumentNullException>(() => rule.AnalyseDatabase(null));
+            Assert.Throws<ArgumentNullException>(() => rule.AnalyseDatabaseAsync(null));
         }
 
         [Test]
-        public void AnalyseDatabase_GivenDatabaseWithNoRelationshipCycle_ProducesNoMessages()
+        public async Task AnalyseDatabaseAsync_GivenDatabaseWithNoRelationshipCycle_ProducesNoMessages()
         {
             var rule = new ForeignKeyRelationshipCycleRule(RuleLevel.Error);
             var fakeDatabase = CreateFakeDatabase();
@@ -79,17 +79,17 @@ create table no_cycle_table_2 (
 
             fakeDatabase.Tables = new[]
             {
-                database.GetTable("no_cycle_table_1").UnwrapSome(),
-                database.GetTable("no_cycle_table_2").UnwrapSome()
+                await database.GetTableAsync("no_cycle_table_1").UnwrapSomeAsync().ConfigureAwait(false),
+                await database.GetTableAsync("no_cycle_table_2").UnwrapSomeAsync().ConfigureAwait(false)
             };
 
-            var messages = rule.AnalyseDatabase(fakeDatabase);
+            var messages = await rule.AnalyseDatabaseAsync(fakeDatabase).ConfigureAwait(false);
 
             Assert.Zero(messages.Count());
         }
 
         [Test]
-        public void AnalyseDatabase_GivenDatabaseWithRelationshipCycle_ProducesMessages()
+        public async Task AnalyseDatabaseAsync_GivenDatabaseWithRelationshipCycle_ProducesMessages()
         {
             var rule = new ForeignKeyRelationshipCycleRule(RuleLevel.Error);
             var fakeDatabase = CreateFakeDatabase();
@@ -97,12 +97,12 @@ create table no_cycle_table_2 (
 
             fakeDatabase.Tables = new[]
             {
-                database.GetTable("cycle_table_1").UnwrapSome(),
-                database.GetTable("cycle_table_2").UnwrapSome(),
-                database.GetTable("cycle_table_3").UnwrapSome()
+                await database.GetTableAsync("cycle_table_1").UnwrapSomeAsync().ConfigureAwait(false),
+                await database.GetTableAsync("cycle_table_2").UnwrapSomeAsync().ConfigureAwait(false),
+                await database.GetTableAsync("cycle_table_3").UnwrapSomeAsync().ConfigureAwait(false)
             };
 
-            var messages = rule.AnalyseDatabase(fakeDatabase);
+            var messages = await rule.AnalyseDatabaseAsync(fakeDatabase).ConfigureAwait(false);
 
             Assert.NotZero(messages.Count());
         }

@@ -1,4 +1,5 @@
 ﻿using System.Linq;
+using System.Threading.Tasks;
 using NUnit.Framework;
 
 namespace SJP.Schematic.SqlServer.Tests.Integration
@@ -6,45 +7,45 @@ namespace SJP.Schematic.SqlServer.Tests.Integration
     internal partial class SqlServerRelationalDatabaseTableProviderTests : SqlServerTest
     {
         [Test]
-        public void Checks_WhenGivenTableWithNoChecks_ReturnsEmptyCollection()
+        public async Task Checks_WhenGivenTableWithNoChecks_ReturnsEmptyCollection()
         {
-            var table = GetTable("table_test_table_1");
+            var table = await GetTableAsync("table_test_table_1").ConfigureAwait(false);
             var count = table.Checks.Count;
 
             Assert.AreEqual(0, count);
         }
 
         [Test]
-        public void Checks_WhenGivenTableWithCheck_ReturnsContraintWithCorrectName()
+        public async Task Checks_WhenGivenTableWithCheck_ReturnsContraintWithCorrectName()
         {
-            var table = GetTable("table_test_table_14");
+            var table = await GetTableAsync("table_test_table_14").ConfigureAwait(false);
             var check = table.Checks.Single();
 
             Assert.AreEqual("ck_test_table_14", check.Name.LocalName);
         }
 
         [Test]
-        public void Checks_WhenGivenTableWithCheck_ReturnsContraintWithDefinition()
+        public async Task Checks_WhenGivenTableWithCheck_ReturnsContraintWithDefinition()
         {
-            var table = GetTable("table_test_table_14");
+            var table = await GetTableAsync("table_test_table_14").ConfigureAwait(false);
             var check = table.Checks.Single();
 
             Assert.AreEqual("([test_column]>(1))", check.Definition);
         }
 
         [Test]
-        public void Checks_WhenGivenTableWithEnabledCheck_ReturnsIsEnabledTrue()
+        public async Task Checks_WhenGivenTableWithEnabledCheck_ReturnsIsEnabledTrue()
         {
-            var table = GetTable("table_test_table_14");
+            var table = await GetTableAsync("table_test_table_14").ConfigureAwait(false);
             var check = table.Checks.Single();
 
             Assert.IsTrue(check.IsEnabled);
         }
 
         [Test]
-        public void Checks_WhenGivenTableWithDisabledCheck_ReturnsIsEnabledFalse()
+        public async Task Checks_WhenGivenTableWithDisabledCheck_ReturnsIsEnabledFalse()
         {
-            var table = GetTable("table_test_table_32");
+            var table = await GetTableAsync("table_test_table_32").ConfigureAwait(false);
             var check = table.Checks.Single();
 
             Assert.IsFalse(check.IsEnabled);

@@ -31,16 +31,6 @@ namespace SJP.Schematic.Reporting.Html
 
         protected static IHtmlFormatter TemplateFormatter { get; } = new HtmlFormatter(new TemplateProvider());
 
-        public void Export()
-        {
-            var renderers = GetRenderers();
-            foreach (var renderer in renderers)
-                renderer.Render();
-
-            var assetExporter = new AssetExporter();
-            assetExporter.SaveAssets(ExportDirectory);
-        }
-
         public async Task ExportAsync()
         {
             var renderers = GetRenderers();

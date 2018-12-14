@@ -1,4 +1,5 @@
 ﻿using System.Linq;
+using System.Threading.Tasks;
 using NUnit.Framework;
 using SJP.Schematic.Core;
 using SJP.Schematic.Core.Extensions;
@@ -8,27 +9,27 @@ namespace SJP.Schematic.MySql.Tests.Integration
     internal partial class MySqlRelationalDatabaseTableProviderTests : MySqlTest
     {
         [Test]
-        public void PrimaryKey_WhenGivenTableWithNoPrimaryKey_ReturnsNone()
+        public async Task PrimaryKey_WhenGivenTableWithNoPrimaryKey_ReturnsNone()
         {
-            var table = GetTable("table_test_table_1");
+            var table = await GetTableAsync("table_test_table_1").ConfigureAwait(false);
             var pkIsNone = table.PrimaryKey.IsNone;
 
             Assert.IsTrue(pkIsNone);
         }
 
         [Test]
-        public void PrimaryKey_WhenGivenTableWithPrimaryKey_ReturnsCorrectKeyType()
+        public async Task PrimaryKey_WhenGivenTableWithPrimaryKey_ReturnsCorrectKeyType()
         {
-            var table = GetTable("table_test_table_2");
+            var table = await GetTableAsync("table_test_table_2").ConfigureAwait(false);
             var keyType = table.PrimaryKey.UnwrapSome().KeyType;
 
             Assert.AreEqual(DatabaseKeyType.Primary, keyType);
         }
 
         [Test]
-        public void PrimaryKey_WhenGivenTableWithColumnAsPrimaryKey_ReturnsPrimaryKeyWithColumnOnly()
+        public async Task PrimaryKey_WhenGivenTableWithColumnAsPrimaryKey_ReturnsPrimaryKeyWithColumnOnly()
         {
-            var table = GetTable("table_test_table_2");
+            var table = await GetTableAsync("table_test_table_2").ConfigureAwait(false);
             var pk = table.PrimaryKey.UnwrapSome();
             var pkColumns = pk.Columns.ToList();
 
@@ -40,9 +41,9 @@ namespace SJP.Schematic.MySql.Tests.Integration
         }
 
         [Test]
-        public void PrimaryKey_WhenGivenTableWithSingleColumnConstraintAsPrimaryKey_ReturnsPrimaryKeyWithColumnOnly()
+        public async Task PrimaryKey_WhenGivenTableWithSingleColumnConstraintAsPrimaryKey_ReturnsPrimaryKeyWithColumnOnly()
         {
-            var table = GetTable("table_test_table_3");
+            var table = await GetTableAsync("table_test_table_3").ConfigureAwait(false);
             var pk = table.PrimaryKey.UnwrapSome();
             var pkColumns = pk.Columns.ToList();
 
@@ -54,20 +55,20 @@ namespace SJP.Schematic.MySql.Tests.Integration
         }
 
         [Test]
-        public void PrimaryKey_WhenGivenTableWithSingleColumnConstraintAsPrimaryKey_ReturnsPrimaryKeyWithCorrectName()
+        public async Task PrimaryKey_WhenGivenTableWithSingleColumnConstraintAsPrimaryKey_ReturnsPrimaryKeyWithCorrectName()
         {
-            var table = GetTable("table_test_table_3");
+            var table = await GetTableAsync("table_test_table_3").ConfigureAwait(false);
             var pk = table.PrimaryKey.UnwrapSome();
 
             Assert.AreEqual("PRIMARY", pk.Name.LocalName);
         }
 
         [Test]
-        public void PrimaryKey_WhenGivenTableWithMultiColumnConstraintAsPrimaryKey_ReturnsPrimaryKeyWithColumnsInCorrectOrder()
+        public async Task PrimaryKey_WhenGivenTableWithMultiColumnConstraintAsPrimaryKey_ReturnsPrimaryKeyWithColumnsInCorrectOrder()
         {
             var expectedColumnNames = new[] { "first_name", "last_name", "middle_name" };
 
-            var table = GetTable("table_test_table_4");
+            var table = await GetTableAsync("table_test_table_4").ConfigureAwait(false);
             var pk = table.PrimaryKey.UnwrapSome();
             var pkColumns = pk.Columns.ToList();
 
@@ -81,9 +82,9 @@ namespace SJP.Schematic.MySql.Tests.Integration
         }
 
         [Test]
-        public void PrimaryKey_WhenGivenTableWithMultiColumnConstraintAsPrimaryKey_ReturnsPrimaryKeyWithCorrectName()
+        public async Task PrimaryKey_WhenGivenTableWithMultiColumnConstraintAsPrimaryKey_ReturnsPrimaryKeyWithCorrectName()
         {
-            var table = GetTable("table_test_table_4");
+            var table = await GetTableAsync("table_test_table_4").ConfigureAwait(false);
             var pk = table.PrimaryKey.UnwrapSome();
 
             Assert.AreEqual("PRIMARY", pk.Name.LocalName);

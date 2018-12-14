@@ -29,31 +29,6 @@ namespace SJP.Schematic.Reporting.Html.Renderers
 
         private DirectoryInfo ExportDirectory { get; }
 
-        public void Render()
-        {
-            var orphanedTables = Database.Tables
-                .Where(t => t.ParentKeys.Empty() && t.ChildKeys.Empty())
-                .ToList();
-
-            var mapper = new OrphansModelMapper(Connection, Database.Dialect);
-            var orphanedTableViewModels = orphanedTables
-                .Select(mapper.Map)
-                .OrderBy(vm => vm.Name)
-                .ToList();
-
-            var templateParameter = new Orphans(orphanedTableViewModels);
-            var renderedOrphans = Formatter.RenderTemplate(templateParameter);
-
-            var orphansContainer = new Container(renderedOrphans, Database.DatabaseName, string.Empty);
-            var renderedPage = Formatter.RenderTemplate(orphansContainer);
-
-            if (!ExportDirectory.Exists)
-                ExportDirectory.Create();
-            var outputPath = Path.Combine(ExportDirectory.FullName, "orphans.html");
-
-            File.WriteAllText(outputPath, renderedPage);
-        }
-
         public async Task RenderAsync(CancellationToken cancellationToken = default(CancellationToken))
         {
             var tables = await Database.TablesAsync(cancellationToken).ConfigureAwait(false);

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.IO.Abstractions;
+using System.Threading;
 using SJP.Schematic.Core;
 using SJP.Schematic.Core.Extensions;
 
@@ -42,7 +43,8 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore
             var dbContextGenerator = new EFCoreDbContextBuilder(Database, NameProvider, baseNamespace);
             var tableGenerator = new EFCoreTableGenerator(NameProvider, baseNamespace);
 
-            foreach (var table in Database.Tables)
+            var tables = Database.TablesAsync(CancellationToken.None).GetAwaiter().GetResult();
+            foreach (var table in tables)
             {
                 var tableClass = tableGenerator.Generate(table);
                 var tablePath = tableGenerator.GetFilePath(projectFileInfo.Directory, table.Name);

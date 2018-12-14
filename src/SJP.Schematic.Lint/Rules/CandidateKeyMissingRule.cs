@@ -14,14 +14,6 @@ namespace SJP.Schematic.Lint.Rules
         {
         }
 
-        public override IEnumerable<IRuleMessage> AnalyseDatabase(IRelationalDatabase database)
-        {
-            if (database == null)
-                throw new ArgumentNullException(nameof(database));
-
-            return database.Tables.SelectMany(AnalyseTable).ToList();
-        }
-
         public override Task<IEnumerable<IRuleMessage>> AnalyseDatabaseAsync(IRelationalDatabase database, CancellationToken cancellationToken = default(CancellationToken))
         {
             if (database == null)

@@ -50,19 +50,6 @@ namespace SJP.Schematic.PostgreSql.Tests
         }
 
         [Test]
-        public static void GetTable_GivenNullTableName_ThrowsArgNullException()
-        {
-            var connection = Mock.Of<IDbConnection>();
-            var identifierDefaults = Mock.Of<IIdentifierDefaults>();
-            var identifierResolver = Mock.Of<IIdentifierResolutionStrategy>();
-            var typeProvider = Mock.Of<IDbTypeProvider>();
-
-            var tableProvider = new PostgreSqlRelationalDatabaseTableProvider(connection, identifierDefaults, identifierResolver, typeProvider);
-
-            Assert.Throws<ArgumentNullException>(() => tableProvider.GetTable(null));
-        }
-
-        [Test]
         public static void GetTableAsync_GivenNullTableName_ThrowsArgNullException()
         {
             var connection = Mock.Of<IDbConnection>();

@@ -1,5 +1,6 @@
 ﻿using System.Data;
 using System.Linq;
+using System.Threading.Tasks;
 using NUnit.Framework;
 using SJP.Schematic.Core;
 
@@ -8,18 +9,18 @@ namespace SJP.Schematic.SqlServer.Tests.Integration
     internal partial class SqlServerRelationalDatabaseTableProviderTests : SqlServerTest
     {
         [Test]
-        public void ParentKeys_WhenGivenTableWithNoForeignKeys_ReturnsEmptyCollection()
+        public async Task ParentKeys_WhenGivenTableWithNoForeignKeys_ReturnsEmptyCollection()
         {
-            var table = GetTable("table_test_table_15");
+            var table = await GetTableAsync("table_test_table_15").ConfigureAwait(false);
             var count = table.ParentKeys.Count;
 
             Assert.AreEqual(0, count);
         }
 
         [Test]
-        public void ParentKeys_WhenGivenTableWithForeignKeyToPrimaryKey_ContainsConstraintWithCorrectNames()
+        public async Task ParentKeys_WhenGivenTableWithForeignKeyToPrimaryKey_ContainsConstraintWithCorrectNames()
         {
-            var table = GetTable("table_test_table_16");
+            var table = await GetTableAsync("table_test_table_16").ConfigureAwait(false);
             var foreignKey = table.ParentKeys.Single();
 
             Assert.Multiple(() =>
@@ -30,9 +31,9 @@ namespace SJP.Schematic.SqlServer.Tests.Integration
         }
 
         [Test]
-        public void ParentKeys_WhenGivenTableWithForeignKeyToPrimaryKey_ContainsConstraintWithCorrectKeyTypes()
+        public async Task ParentKeys_WhenGivenTableWithForeignKeyToPrimaryKey_ContainsConstraintWithCorrectKeyTypes()
         {
-            var table = GetTable("table_test_table_16");
+            var table = await GetTableAsync("table_test_table_16").ConfigureAwait(false);
             var foreignKey = table.ParentKeys.Single();
 
             Assert.Multiple(() =>
@@ -43,9 +44,9 @@ namespace SJP.Schematic.SqlServer.Tests.Integration
         }
 
         [Test]
-        public void ParentKeys_WhenGivenTableWithForeignKeyToPrimaryKey_ContainsConstraintWithCorrectTables()
+        public async Task ParentKeys_WhenGivenTableWithForeignKeyToPrimaryKey_ContainsConstraintWithCorrectTables()
         {
-            var table = GetTable("table_test_table_16");
+            var table = await GetTableAsync("table_test_table_16").ConfigureAwait(false);
             var foreignKey = table.ParentKeys.Single();
 
             Assert.Multiple(() =>
@@ -56,9 +57,9 @@ namespace SJP.Schematic.SqlServer.Tests.Integration
         }
 
         [Test]
-        public void ParentKeys_WhenGivenTableWithForeignKeyToPrimaryKey_ContainsConstraintWithCorrectColumns()
+        public async Task ParentKeys_WhenGivenTableWithForeignKeyToPrimaryKey_ContainsConstraintWithCorrectColumns()
         {
-            var table = GetTable("table_test_table_16");
+            var table = await GetTableAsync("table_test_table_16").ConfigureAwait(false);
             var foreignKey = table.ParentKeys.Single();
 
             var childColumns = foreignKey.ChildKey.Columns.Select(c => c.Name.LocalName);
@@ -78,9 +79,9 @@ namespace SJP.Schematic.SqlServer.Tests.Integration
         }
 
         [Test]
-        public void ParentKeys_WhenGivenTableWithForeignKeyToPrimaryKeyWithDefaultUpdateRule_ReturnsUpdateRuleAsNoAction()
+        public async Task ParentKeys_WhenGivenTableWithForeignKeyToPrimaryKeyWithDefaultUpdateRule_ReturnsUpdateRuleAsNoAction()
         {
-            var table = GetTable("table_test_table_16");
+            var table = await GetTableAsync("table_test_table_16").ConfigureAwait(false);
             var parentKeys = table.ParentKeys;
             var foreignKey = parentKeys.Single();
 
@@ -88,9 +89,9 @@ namespace SJP.Schematic.SqlServer.Tests.Integration
         }
 
         [Test]
-        public void ParentKeys_WhenGivenTableWithForeignKeyToPrimaryKeyWithCascadeUpdateRule_ReturnsUpdateRuleAsCascade()
+        public async Task ParentKeys_WhenGivenTableWithForeignKeyToPrimaryKeyWithCascadeUpdateRule_ReturnsUpdateRuleAsCascade()
         {
-            var table = GetTable("table_test_table_18");
+            var table = await GetTableAsync("table_test_table_18").ConfigureAwait(false);
             var parentKeys = table.ParentKeys;
             var foreignKey = parentKeys.Single();
 
@@ -98,9 +99,9 @@ namespace SJP.Schematic.SqlServer.Tests.Integration
         }
 
         [Test]
-        public void ParentKeys_WhenGivenTableWithForeignKeyToPrimaryKeyWithSetNullUpdateRule_ReturnsUpdateRuleAsSetNull()
+        public async Task ParentKeys_WhenGivenTableWithForeignKeyToPrimaryKeyWithSetNullUpdateRule_ReturnsUpdateRuleAsSetNull()
         {
-            var table = GetTable("table_test_table_19");
+            var table = await GetTableAsync("table_test_table_19").ConfigureAwait(false);
             var parentKeys = table.ParentKeys;
             var foreignKey = parentKeys.Single();
 
@@ -108,9 +109,9 @@ namespace SJP.Schematic.SqlServer.Tests.Integration
         }
 
         [Test]
-        public void ParentKeys_WhenGivenTableWithForeignKeyToPrimaryKeyWithSetDefaultUpdateRule_ReturnsUpdateRuleAsSetDefault()
+        public async Task ParentKeys_WhenGivenTableWithForeignKeyToPrimaryKeyWithSetDefaultUpdateRule_ReturnsUpdateRuleAsSetDefault()
         {
-            var table = GetTable("table_test_table_20");
+            var table = await GetTableAsync("table_test_table_20").ConfigureAwait(false);
             var parentKeys = table.ParentKeys;
             var foreignKey = parentKeys.Single();
 
@@ -118,9 +119,9 @@ namespace SJP.Schematic.SqlServer.Tests.Integration
         }
 
         [Test]
-        public void ParentKeys_WhenGivenTableWithForeignKeyToPrimaryKeyWithDefaultDeleteRule_ReturnsDeleteRuleAsNoAction()
+        public async Task ParentKeys_WhenGivenTableWithForeignKeyToPrimaryKeyWithDefaultDeleteRule_ReturnsDeleteRuleAsNoAction()
         {
-            var table = GetTable("table_test_table_16");
+            var table = await GetTableAsync("table_test_table_16").ConfigureAwait(false);
             var parentKeys = table.ParentKeys;
             var foreignKey = parentKeys.Single();
 
@@ -128,9 +129,9 @@ namespace SJP.Schematic.SqlServer.Tests.Integration
         }
 
         [Test]
-        public void ParentKeys_WhenGivenTableWithForeignKeyToPrimaryKeyWithCascadeDeleteRule_ReturnsDeleteRuleAsCascade()
+        public async Task ParentKeys_WhenGivenTableWithForeignKeyToPrimaryKeyWithCascadeDeleteRule_ReturnsDeleteRuleAsCascade()
         {
-            var table = GetTable("table_test_table_24");
+            var table = await GetTableAsync("table_test_table_24").ConfigureAwait(false);
             var parentKeys = table.ParentKeys;
             var foreignKey = parentKeys.Single();
 
@@ -138,9 +139,9 @@ namespace SJP.Schematic.SqlServer.Tests.Integration
         }
 
         [Test]
-        public void ParentKeys_WhenGivenTableWithForeignKeyToPrimaryKeyWithSetNullDeleteRule_ReturnsDeleteRuleAsSetNull()
+        public async Task ParentKeys_WhenGivenTableWithForeignKeyToPrimaryKeyWithSetNullDeleteRule_ReturnsDeleteRuleAsSetNull()
         {
-            var table = GetTable("table_test_table_25");
+            var table = await GetTableAsync("table_test_table_25").ConfigureAwait(false);
             var parentKeys = table.ParentKeys;
             var foreignKey = parentKeys.Single();
 
@@ -148,9 +149,9 @@ namespace SJP.Schematic.SqlServer.Tests.Integration
         }
 
         [Test]
-        public void ParentKeys_WhenGivenTableWithForeignKeyToPrimaryKeyWithSetDefaultDeleteRule_ReturnsDeleteRuleAsSetDefault()
+        public async Task ParentKeys_WhenGivenTableWithForeignKeyToPrimaryKeyWithSetDefaultDeleteRule_ReturnsDeleteRuleAsSetDefault()
         {
-            var table = GetTable("table_test_table_26");
+            var table = await GetTableAsync("table_test_table_26").ConfigureAwait(false);
             var parentKeys = table.ParentKeys;
             var foreignKey = parentKeys.Single();
 
@@ -158,9 +159,9 @@ namespace SJP.Schematic.SqlServer.Tests.Integration
         }
 
         [Test]
-        public void ParentKeys_WhenGivenTableWithForeignKeyToPrimaryKey_ReturnsIsEnabledTrue()
+        public async Task ParentKeys_WhenGivenTableWithForeignKeyToPrimaryKey_ReturnsIsEnabledTrue()
         {
-            var table = GetTable("table_test_table_16");
+            var table = await GetTableAsync("table_test_table_16").ConfigureAwait(false);
             var parentKeys = table.ParentKeys;
             var foreignKey = parentKeys.Single();
 
@@ -168,9 +169,9 @@ namespace SJP.Schematic.SqlServer.Tests.Integration
         }
 
         [Test]
-        public void ParentKeys_WhenGivenTableWithDisabledForeignKeyToPrimaryKey_ReturnsIsEnabledFalse()
+        public async Task ParentKeys_WhenGivenTableWithDisabledForeignKeyToPrimaryKey_ReturnsIsEnabledFalse()
         {
-            var table = GetTable("table_test_table_30");
+            var table = await GetTableAsync("table_test_table_30").ConfigureAwait(false);
             var parentKeys = table.ParentKeys;
             var foreignKey = parentKeys.Single();
 
@@ -178,9 +179,9 @@ namespace SJP.Schematic.SqlServer.Tests.Integration
         }
 
         [Test]
-        public void ParentKeys_WhenGivenTableWithForeignKeyToUniqueKey_ContainsConstraintWithCorrectNames()
+        public async Task ParentKeys_WhenGivenTableWithForeignKeyToUniqueKey_ContainsConstraintWithCorrectNames()
         {
-            var table = GetTable("table_test_table_17");
+            var table = await GetTableAsync("table_test_table_17").ConfigureAwait(false);
             var foreignKey = table.ParentKeys.Single();
 
             Assert.Multiple(() =>
@@ -191,9 +192,9 @@ namespace SJP.Schematic.SqlServer.Tests.Integration
         }
 
         [Test]
-        public void ParentKeys_WhenGivenTableWithForeignKeyToUniqueKey_ContainsConstraintWithCorrectKeyTypes()
+        public async Task ParentKeys_WhenGivenTableWithForeignKeyToUniqueKey_ContainsConstraintWithCorrectKeyTypes()
         {
-            var table = GetTable("table_test_table_17");
+            var table = await GetTableAsync("table_test_table_17").ConfigureAwait(false);
             var foreignKey = table.ParentKeys.Single();
 
             Assert.Multiple(() =>
@@ -204,9 +205,9 @@ namespace SJP.Schematic.SqlServer.Tests.Integration
         }
 
         [Test]
-        public void ParentKeys_WhenGivenTableWithForeignKeyToUniqueKey_ContainsConstraintWithCorrectTables()
+        public async Task ParentKeys_WhenGivenTableWithForeignKeyToUniqueKey_ContainsConstraintWithCorrectTables()
         {
-            var table = GetTable("table_test_table_17");
+            var table = await GetTableAsync("table_test_table_17").ConfigureAwait(false);
             var foreignKey = table.ParentKeys.Single();
 
             Assert.Multiple(() =>
@@ -217,9 +218,9 @@ namespace SJP.Schematic.SqlServer.Tests.Integration
         }
 
         [Test]
-        public void ParentKeys_WhenGivenTableWithForeignKeyToUniqueKey_ContainsConstraintWithCorrectColumns()
+        public async Task ParentKeys_WhenGivenTableWithForeignKeyToUniqueKey_ContainsConstraintWithCorrectColumns()
         {
-            var table = GetTable("table_test_table_17");
+            var table = await GetTableAsync("table_test_table_17").ConfigureAwait(false);
             var foreignKey = table.ParentKeys.Single();
 
             var childColumns = foreignKey.ChildKey.Columns.Select(c => c.Name.LocalName);
@@ -239,9 +240,9 @@ namespace SJP.Schematic.SqlServer.Tests.Integration
         }
 
         [Test]
-        public void ParentKeys_WhenGivenTableWithForeignKeyToUniqueKeyWithDefaultUpdateRule_ReturnsUpdateRuleAsNoAction()
+        public async Task ParentKeys_WhenGivenTableWithForeignKeyToUniqueKeyWithDefaultUpdateRule_ReturnsUpdateRuleAsNoAction()
         {
-            var table = GetTable("table_test_table_17");
+            var table = await GetTableAsync("table_test_table_17").ConfigureAwait(false);
             var parentKeys = table.ParentKeys;
             var foreignKey = parentKeys.Single();
 
@@ -249,9 +250,9 @@ namespace SJP.Schematic.SqlServer.Tests.Integration
         }
 
         [Test]
-        public void ParentKeys_WhenGivenTableWithForeignKeyToUniqueKeyWithCascadeUpdateRule_ReturnsUpdateRuleAsCascade()
+        public async Task ParentKeys_WhenGivenTableWithForeignKeyToUniqueKeyWithCascadeUpdateRule_ReturnsUpdateRuleAsCascade()
         {
-            var table = GetTable("table_test_table_21");
+            var table = await GetTableAsync("table_test_table_21").ConfigureAwait(false);
             var parentKeys = table.ParentKeys;
             var foreignKey = parentKeys.Single();
 
@@ -259,9 +260,9 @@ namespace SJP.Schematic.SqlServer.Tests.Integration
         }
 
         [Test]
-        public void ParentKeys_WhenGivenTableWithForeignKeyToUniqueKeyWithSetNullUpdateRule_ReturnsUpdateRuleAsSetNull()
+        public async Task ParentKeys_WhenGivenTableWithForeignKeyToUniqueKeyWithSetNullUpdateRule_ReturnsUpdateRuleAsSetNull()
         {
-            var table = GetTable("table_test_table_22");
+            var table = await GetTableAsync("table_test_table_22").ConfigureAwait(false);
             var parentKeys = table.ParentKeys;
             var foreignKey = parentKeys.Single();
 
@@ -269,9 +270,9 @@ namespace SJP.Schematic.SqlServer.Tests.Integration
         }
 
         [Test]
-        public void ParentKeys_WhenGivenTableWithForeignKeyToUniqueKeyWithSetDefaultUpdateRule_ReturnsUpdateRuleAsSetDefault()
+        public async Task ParentKeys_WhenGivenTableWithForeignKeyToUniqueKeyWithSetDefaultUpdateRule_ReturnsUpdateRuleAsSetDefault()
         {
-            var table = GetTable("table_test_table_23");
+            var table = await GetTableAsync("table_test_table_23").ConfigureAwait(false);
             var parentKeys = table.ParentKeys;
             var foreignKey = parentKeys.Single();
 
@@ -279,9 +280,9 @@ namespace SJP.Schematic.SqlServer.Tests.Integration
         }
 
         [Test]
-        public void ParentKeys_WhenGivenTableWithForeignKeyToUniqueKeyWithDefaultDeleteRule_ReturnsDeleteRuleAsNoAction()
+        public async Task ParentKeys_WhenGivenTableWithForeignKeyToUniqueKeyWithDefaultDeleteRule_ReturnsDeleteRuleAsNoAction()
         {
-            var table = GetTable("table_test_table_17");
+            var table = await GetTableAsync("table_test_table_17").ConfigureAwait(false);
             var parentKeys = table.ParentKeys;
             var foreignKey = parentKeys.Single();
 
@@ -289,9 +290,9 @@ namespace SJP.Schematic.SqlServer.Tests.Integration
         }
 
         [Test]
-        public void ParentKeys_WhenGivenTableWithForeignKeyToUniqueKeyWithCascadeDeleteRule_ReturnsDeleteRuleAsCascade()
+        public async Task ParentKeys_WhenGivenTableWithForeignKeyToUniqueKeyWithCascadeDeleteRule_ReturnsDeleteRuleAsCascade()
         {
-            var table = GetTable("table_test_table_27");
+            var table = await GetTableAsync("table_test_table_27").ConfigureAwait(false);
             var parentKeys = table.ParentKeys;
             var foreignKey = parentKeys.Single();
 
@@ -299,9 +300,9 @@ namespace SJP.Schematic.SqlServer.Tests.Integration
         }
 
         [Test]
-        public void ParentKeys_WhenGivenTableWithForeignKeyToUniqueKeyWithSetNullDeleteRule_ReturnsDeleteRuleAsSetNull()
+        public async Task ParentKeys_WhenGivenTableWithForeignKeyToUniqueKeyWithSetNullDeleteRule_ReturnsDeleteRuleAsSetNull()
         {
-            var table = GetTable("table_test_table_28");
+            var table = await GetTableAsync("table_test_table_28").ConfigureAwait(false);
             var parentKeys = table.ParentKeys;
             var foreignKey = parentKeys.Single();
 
@@ -309,9 +310,9 @@ namespace SJP.Schematic.SqlServer.Tests.Integration
         }
 
         [Test]
-        public void ParentKeys_WhenGivenTableWithForeignKeyToUniqueKeyWithSetDefaultDeleteRule_ReturnsDeleteRuleAsSetDefault()
+        public async Task ParentKeys_WhenGivenTableWithForeignKeyToUniqueKeyWithSetDefaultDeleteRule_ReturnsDeleteRuleAsSetDefault()
         {
-            var table = GetTable("table_test_table_29");
+            var table = await GetTableAsync("table_test_table_29").ConfigureAwait(false);
             var parentKeys = table.ParentKeys;
             var foreignKey = parentKeys.Single();
 
@@ -319,9 +320,9 @@ namespace SJP.Schematic.SqlServer.Tests.Integration
         }
 
         [Test]
-        public void ParentKeys_WhenGivenTableWithForeignKeyToUniqueKey_ReturnsIsEnabledTrue()
+        public async Task ParentKeys_WhenGivenTableWithForeignKeyToUniqueKey_ReturnsIsEnabledTrue()
         {
-            var table = GetTable("table_test_table_17");
+            var table = await GetTableAsync("table_test_table_17").ConfigureAwait(false);
             var parentKeys = table.ParentKeys;
             var foreignKey = parentKeys.Single();
 
@@ -329,9 +330,9 @@ namespace SJP.Schematic.SqlServer.Tests.Integration
         }
 
         [Test]
-        public void ParentKeys_WhenGivenTableWithDisabledForeignKeyToUniqueKey_ReturnsIsEnabledFalse()
+        public async Task ParentKeys_WhenGivenTableWithDisabledForeignKeyToUniqueKey_ReturnsIsEnabledFalse()
         {
-            var table = GetTable("table_test_table_31");
+            var table = await GetTableAsync("table_test_table_31").ConfigureAwait(false);
             var parentKeys = table.ParentKeys;
             var foreignKey = parentKeys.Single();
 

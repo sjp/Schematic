@@ -11,7 +11,7 @@ namespace SJP.Schematic.DataAccess.Poco.Tests.Integration
     {
         private IRelationalDatabase Database => new SqliteRelationalDatabase(Dialect, Connection, IdentifierDefaults);
 
-        private IRelationalDatabaseTable GetTable(Identifier tableName) => Database.GetTable(tableName).UnwrapSome();
+        private Task<IRelationalDatabaseTable> GetTable(Identifier tableName) => Database.GetTableAsync(tableName).UnwrapSomeAsync();
 
         private static IDatabaseTableGenerator TableGenerator => new PocoTableGenerator(new PascalCaseNameProvider(), TestNamespace);
 
@@ -34,9 +34,9 @@ namespace SJP.Schematic.DataAccess.Poco.Tests.Integration
         }
 
         [Test]
-        public void Generate_GivenTableWithVariousColumnTypes_GeneratesExpectedOutput()
+        public async Task Generate_GivenTableWithVariousColumnTypes_GeneratesExpectedOutput()
         {
-            var view = GetTable("test_table_1");
+            var view = await GetTable("test_table_1").ConfigureAwait(false);
             var generator = TableGenerator;
 
             const string expected = TestTable1Output;

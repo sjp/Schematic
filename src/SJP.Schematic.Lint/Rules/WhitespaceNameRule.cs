@@ -15,18 +15,6 @@ namespace SJP.Schematic.Lint.Rules
         {
         }
 
-        public override IEnumerable<IRuleMessage> AnalyseDatabase(IRelationalDatabase database)
-        {
-            if (database == null)
-                throw new ArgumentNullException(nameof(database));
-
-            return database.Tables.SelectMany(AnalyseTable)
-                .Concat(database.Views.SelectMany(AnalyseView))
-                .Concat(database.Sequences.SelectMany(AnalyseSequence))
-                .Concat(database.Synonyms.SelectMany(AnalyseSynonym))
-                .ToList();
-        }
-
         public override Task<IEnumerable<IRuleMessage>> AnalyseDatabaseAsync(IRelationalDatabase database, CancellationToken cancellationToken = default(CancellationToken))
         {
             if (database == null)
@@ -38,7 +26,15 @@ namespace SJP.Schematic.Lint.Rules
         private async Task<IEnumerable<IRuleMessage>> AnalyseDatabaseAsyncCore(IRelationalDatabase database, CancellationToken cancellationToken)
         {
             var tables = await database.TablesAsync(cancellationToken).ConfigureAwait(false);
-            return tables.SelectMany(AnalyseTable).ToList();
+            var views = await database.ViewsAsync(cancellationToken).ConfigureAwait(false);
+            var sequences = await database.SequencesAsync(cancellationToken).ConfigureAwait(false);
+            var synonyms = await database.SynonymsAsync(cancellationToken).ConfigureAwait(false);
+
+            return tables.SelectMany(AnalyseTable)
+                .Concat(views.SelectMany(AnalyseView))
+                .Concat(sequences.SelectMany(AnalyseSequence))
+                .Concat(synonyms.SelectMany(AnalyseSynonym))
+                .ToList();
         }
 
         protected IEnumerable<IRuleMessage> AnalyseTable(IRelationalDatabaseTable table)
