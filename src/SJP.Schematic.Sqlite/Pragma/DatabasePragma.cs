@@ -608,6 +608,32 @@ namespace SJP.Schematic.Sqlite.Pragma
             return PragmaPrefix + "table_info(" + Dialect.QuoteIdentifier(tableName.LocalName) + ")";
         }
 
+        public IEnumerable<pragma_table_xinfo> TableXInfo(Identifier tableName)
+        {
+            if (tableName == null)
+                throw new ArgumentNullException(nameof(tableName));
+
+            return Connection.Query<pragma_table_xinfo>(TableXInfoQuery(tableName));
+        }
+
+        public Task<IEnumerable<pragma_table_xinfo>> TableXInfoAsync(Identifier tableName, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            if (tableName == null)
+                throw new ArgumentNullException(nameof(tableName));
+
+            return Connection.QueryAsync<pragma_table_xinfo>(TableXInfoQuery(tableName), cancellationToken);
+        }
+
+        protected virtual string TableXInfoQuery(Identifier tableName)
+        {
+            if (tableName == null)
+                throw new ArgumentNullException(nameof(tableName));
+            if (tableName.Schema != null && !string.Equals(tableName.Schema, SchemaName, StringComparison.OrdinalIgnoreCase))
+                throw new ArgumentException($"The given table name's does not match the current schema. Given '{ tableName.Schema }', expected '{ SchemaName }'", nameof(tableName));
+
+            return PragmaPrefix + "table_xinfo(" + Dialect.QuoteIdentifier(tableName.LocalName) + ")";
+        }
+
         public int UserVersion
         {
             get => Connection.ExecuteScalar<int>(UserVersionReadQuery);

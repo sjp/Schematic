@@ -606,6 +606,42 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
         }
 
         [Test]
+        [Ignore("Disabled until SQLite driver has been updated to v3.26.0.")]
+        public static void LegacyAlterTable_PropertyGetAndSet_ReadsAndWritesCorrectly()
+        {
+            using (var connection = CreateConnection())
+            {
+                var dialect = Mock.Of<IDatabaseDialect>();
+                var connPragma = new ConnectionPragma(dialect, connection);
+
+                var legacyAlterTable = connPragma.LegacyAlterTable;
+                var newValue = !legacyAlterTable;
+                connPragma.LegacyAlterTable = newValue;
+                var readOfNewValue = connPragma.LegacyAlterTable;
+
+                Assert.AreEqual(newValue, readOfNewValue);
+            }
+        }
+
+        [Test]
+        [Ignore("Disabled until SQLite driver has been updated to v3.26.0.")]
+        public static async Task LegacyAlterTableAsync_GetAndSet_ReadsAndWritesCorrectly()
+        {
+            using (var connection = CreateConnection())
+            {
+                var dialect = Mock.Of<IDatabaseDialect>();
+                var connPragma = new ConnectionPragma(dialect, connection);
+
+                var legacyAlterTable = await connPragma.LegacyAlterTableAsync().ConfigureAwait(false);
+                var newValue = !legacyAlterTable;
+                await connPragma.LegacyAlterTableAsync(newValue).ConfigureAwait(false);
+                var readOfNewValue = await connPragma.LegacyAlterTableAsync().ConfigureAwait(false);
+
+                Assert.AreEqual(newValue, readOfNewValue);
+            }
+        }
+
+        [Test]
         public static void LegacyFileFormat_PropertyGetAndSet_ReadsAndWritesCorrectly()
         {
             using (var connection = CreateConnection())

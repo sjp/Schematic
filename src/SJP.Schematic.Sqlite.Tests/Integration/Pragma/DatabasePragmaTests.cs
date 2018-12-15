@@ -1410,6 +1410,84 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
         }
 
         [Test]
+        [Ignore("Disabled until SQLite driver has been updated to v3.26.0.")]
+        public void TableXInfo_WhenTableExists_ReadsValuesCorrectly()
+        {
+            using (var connection = CreateConnection())
+            {
+                var dbPragma = new DatabasePragma(Dialect, connection, MainSchema);
+
+                connection.Execute("create table test_table ( id int primary key, val text )");
+
+                var tableInfo = dbPragma.TableXInfo("test_table").ToList();
+                Assert.NotZero(tableInfo.Count);
+            }
+        }
+
+        [Test]
+        [Ignore("Disabled until SQLite driver has been updated to v3.26.0.")]
+        public async Task TableXInfoAsync_WhenTableExists_ReadsValuesCorrectly()
+        {
+            using (var connection = CreateConnection())
+            {
+                var dbPragma = new DatabasePragma(Dialect, connection, MainSchema);
+
+                connection.Execute("create table test_table ( id int primary key, val text )");
+
+                var tableInfo = await dbPragma.TableXInfoAsync("test_table").ConfigureAwait(false);
+                var tableInfoCount = tableInfo.Count();
+
+                Assert.NotZero(tableInfoCount);
+            }
+        }
+
+        [Test]
+        public void TableXInfo_WhenGivenNullLocalName_ThrowsArgumentNullException()
+        {
+            using (var connection = CreateConnection())
+            {
+                var dbPragma = new DatabasePragma(Dialect, connection, MainSchema);
+
+                Assert.Throws<ArgumentNullException>(() => dbPragma.TableXInfo(null));
+            }
+        }
+
+        [Test]
+        public void TableXInfo_WhenGivenMismatchingSchemaName_ThrowsArgumentException()
+        {
+            using (var connection = CreateConnection())
+            {
+                var dbPragma = new DatabasePragma(Dialect, connection, MainSchema);
+
+                var name = new Identifier("aksldjaslk", "asjdkas");
+                Assert.Throws<ArgumentException>(() => dbPragma.TableXInfo(name));
+            }
+        }
+
+        [Test]
+        public void TableXInfoAsync_WhenGivenNullLocalName_ThrowsArgumentNullException()
+        {
+            using (var connection = CreateConnection())
+            {
+                var dbPragma = new DatabasePragma(Dialect, connection, MainSchema);
+
+                Assert.Throws<ArgumentNullException>(() => dbPragma.TableXInfoAsync(null));
+            }
+        }
+
+        [Test]
+        public void TableXInfoAsync_WhenGivenMismatchingSchemaName_ThrowsArgumentException()
+        {
+            using (var connection = CreateConnection())
+            {
+                var dbPragma = new DatabasePragma(Dialect, connection, MainSchema);
+
+                var name = new Identifier("aksldjaslk", "asjdkas");
+                Assert.Throws<ArgumentException>(() => dbPragma.TableXInfoAsync(name));
+            }
+        }
+
+        [Test]
         public void UserVersion_PropertyGetAndSet_ReadsAndWritesCorrectly()
         {
             using (var connection = CreateConnection())

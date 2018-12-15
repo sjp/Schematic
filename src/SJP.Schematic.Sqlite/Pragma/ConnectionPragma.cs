@@ -223,6 +223,20 @@ namespace SJP.Schematic.Sqlite.Pragma
 
         protected virtual string IgnoreCheckConstraintsSetQuery(bool enable) => PragmaPrefix + "ignore_check_constraints = " + Convert.ToInt32(enable).ToString(CultureInfo.InvariantCulture);
 
+        public bool LegacyAlterTable
+        {
+            get => Connection.ExecuteScalar<bool>(LegacyAlterTableReadQuery);
+            set => Connection.Execute(LegacyAlterTableSetQuery(value));
+        }
+
+        public Task<bool> LegacyAlterTableAsync(CancellationToken cancellationToken = default(CancellationToken)) => Connection.ExecuteScalarAsync<bool>(LegacyAlterTableReadQuery, cancellationToken);
+
+        public Task LegacyAlterTableAsync(bool enable, CancellationToken cancellationToken = default(CancellationToken)) => Connection.ExecuteAsync(LegacyAlterTableSetQuery(enable), cancellationToken);
+
+        protected virtual string LegacyAlterTableReadQuery => PragmaPrefix + "legacy_alter_table";
+
+        protected virtual string LegacyAlterTableSetQuery(bool enable) => PragmaPrefix + "legacy_alter_table = " + Convert.ToInt32(enable).ToString(CultureInfo.InvariantCulture);
+
         public bool LegacyFileFormat
         {
             get => Connection.ExecuteScalar<bool>(LegacyFileFormatReadQuery);

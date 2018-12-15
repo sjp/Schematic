@@ -81,6 +81,8 @@ namespace SJP.Schematic.Sqlite.Pragma
         Task SynchronousAsync(SynchronousLevel synchronousLevel, CancellationToken cancellationToken = default(CancellationToken));
         IEnumerable<pragma_table_info> TableInfo(Identifier tableName);
         Task<IEnumerable<pragma_table_info>> TableInfoAsync(Identifier tableName, CancellationToken cancellationToken = default(CancellationToken));
+        IEnumerable<pragma_table_xinfo> TableXInfo(Identifier tableName);
+        Task<IEnumerable<pragma_table_xinfo>> TableXInfoAsync(Identifier tableName, CancellationToken cancellationToken = default(CancellationToken));
         Task<int> UserVersionAsync(CancellationToken cancellationToken = default(CancellationToken));
         Task UserVersionAsync(int userVersion, CancellationToken cancellationToken = default(CancellationToken));
         pragma_wal_checkpoint WalCheckpoint(WalCheckpointMode checkpointMode = WalCheckpointMode.Passive);

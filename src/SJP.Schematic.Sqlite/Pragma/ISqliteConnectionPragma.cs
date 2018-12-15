@@ -21,6 +21,7 @@ namespace SJP.Schematic.Sqlite.Pragma
         Encoding Encoding { get; set; }
         bool ForeignKeys { get; set; }
         bool FullFsync { get; set; }
+        bool LegacyAlterTable { get; set; }
         bool LegacyFileFormat { get; set; }
         bool QueryOnly { get; set; }
         bool ReadUncommitted { get; set; }
@@ -57,6 +58,8 @@ namespace SJP.Schematic.Sqlite.Pragma
         Task FullFsyncAsync(bool enable, CancellationToken cancellationToken = default(CancellationToken));
         void IgnoreCheckConstraints(bool enable);
         Task IgnoreCheckConstraintsAsync(bool enable, CancellationToken cancellationToken = default(CancellationToken));
+        Task<bool> LegacyAlterTableAsync(CancellationToken cancellationToken = default(CancellationToken));
+        Task LegacyAlterTableAsync(bool enable, CancellationToken cancellationToken = default(CancellationToken));
         Task<bool> LegacyFileFormatAsync(CancellationToken cancellationToken = default(CancellationToken));
         Task LegacyFileFormatAsync(bool enable, CancellationToken cancellationToken = default(CancellationToken));
         IEnumerable<string> Optimize(OptimizeFeatures features = OptimizeFeatures.Analyze);
