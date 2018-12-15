@@ -10,6 +10,7 @@ using SJP.Schematic.Core.Tests.Fakes;
 
 namespace SJP.Schematic.Core.Tests.Extensions
 {
+    // NOTE: these test the various object provider extension methods via a database instead of separate providers
     [TestFixture]
     internal static class RelationalDatabaseExtensionsTests
     {

@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Threading.Tasks;
 using McMaster.Extensions.CommandLineUtils;
 using SJP.Schematic.Core.Caching;
 using SJP.Schematic.Reporting.Html;
