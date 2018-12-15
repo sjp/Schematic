@@ -66,7 +66,7 @@ namespace SJP.Schematic.Sqlite.Tests
         }
 
         [Test]
-        public static void GetTableAsync_GivenNullTableName_ThrowsArgNullException()
+        public static void GetTable_GivenNullTableName_ThrowsArgNullException()
         {
             var connection = Mock.Of<IDbConnection>();
             var pragma = Mock.Of<ISqliteConnectionPragma>();
@@ -76,7 +76,7 @@ namespace SJP.Schematic.Sqlite.Tests
 
             var tableProvider = new SqliteRelationalDatabaseTableProvider(connection, pragma, dialect, identifierDefaults, typeProvider);
 
-            Assert.Throws<ArgumentNullException>(() => tableProvider.GetTableAsync(null));
+            Assert.Throws<ArgumentNullException>(() => tableProvider.GetTable(null));
         }
     }
 }

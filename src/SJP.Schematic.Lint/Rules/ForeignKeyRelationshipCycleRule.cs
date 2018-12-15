@@ -27,7 +27,7 @@ namespace SJP.Schematic.Lint.Rules
         private async Task<IEnumerable<IRuleMessage>> AnalyseDatabaseAsyncCore(IRelationalDatabase database, CancellationToken cancellationToken)
         {
             var graph = new Multigraph<Identifier, IDatabaseRelationalKey>();
-            var tables = await database.TablesAsync(cancellationToken).ConfigureAwait(false);
+            var tables = await database.GetAllTables(cancellationToken).ConfigureAwait(false);
             graph.AddVertices(tables.Select(t => t.Name));
 
             var foreignKeys = tables

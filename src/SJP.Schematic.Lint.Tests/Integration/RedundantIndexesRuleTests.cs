@@ -56,7 +56,7 @@ namespace SJP.Schematic.Lint.Tests.Integration
 
             fakeDatabase.Tables = new[]
             {
-                await database.GetTableAsync("valid_table_1").UnwrapSomeAsync().ConfigureAwait(false)
+                await database.GetTable("valid_table_1").UnwrapSomeAsync().ConfigureAwait(false)
             };
 
             var messages = await rule.AnalyseDatabaseAsync(fakeDatabase).ConfigureAwait(false);
@@ -73,7 +73,7 @@ namespace SJP.Schematic.Lint.Tests.Integration
 
             fakeDatabase.Tables = new[]
             {
-                await database.GetTableAsync("valid_table_2").UnwrapSomeAsync().ConfigureAwait(false)
+                await database.GetTable("valid_table_2").UnwrapSomeAsync().ConfigureAwait(false)
             };
 
             var messages = await rule.AnalyseDatabaseAsync(fakeDatabase).ConfigureAwait(false);
@@ -90,7 +90,7 @@ namespace SJP.Schematic.Lint.Tests.Integration
 
             fakeDatabase.Tables = new[]
             {
-                await database.GetTableAsync("valid_table_3").UnwrapSomeAsync().ConfigureAwait(false)
+                await database.GetTable("valid_table_3").UnwrapSomeAsync().ConfigureAwait(false)
             };
 
             var messages = await rule.AnalyseDatabaseAsync(fakeDatabase).ConfigureAwait(false);

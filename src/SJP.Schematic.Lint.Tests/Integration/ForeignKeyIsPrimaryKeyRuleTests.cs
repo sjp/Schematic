@@ -60,7 +60,7 @@ create table parent_table_with_pk_column_to_pk_column_1 (
 
             fakeDatabase.Tables = new[]
             {
-                await database.GetTableAsync("parent_table_with_different_column_to_pk_column_1").UnwrapSomeAsync().ConfigureAwait(false)
+                await database.GetTable("parent_table_with_different_column_to_pk_column_1").UnwrapSomeAsync().ConfigureAwait(false)
             };
 
             var messages = await rule.AnalyseDatabaseAsync(fakeDatabase).ConfigureAwait(false);
@@ -77,7 +77,7 @@ create table parent_table_with_pk_column_to_pk_column_1 (
 
             fakeDatabase.Tables = new[]
             {
-                await database.GetTableAsync("parent_table_with_pk_column_to_pk_column_1").UnwrapSomeAsync().ConfigureAwait(false)
+                await database.GetTable("parent_table_with_pk_column_to_pk_column_1").UnwrapSomeAsync().ConfigureAwait(false)
             };
 
             var messages = await rule.AnalyseDatabaseAsync(fakeDatabase).ConfigureAwait(false);

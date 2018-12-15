@@ -23,7 +23,7 @@ namespace SJP.Schematic.Reporting.Dot
 
         public async Task<string> RenderDatabaseAsync(CancellationToken cancellationToken)
         {
-            var tables = await Database.TablesAsync(cancellationToken).ConfigureAwait(false);
+            var tables = await Database.GetAllTables(cancellationToken).ConfigureAwait(false);
 
             return await RenderTablesAsync(tables, DotRenderOptions.Default, cancellationToken).ConfigureAwait(false);
         }
@@ -38,7 +38,7 @@ namespace SJP.Schematic.Reporting.Dot
 
         private async Task<string> RenderDatabaseAsyncCore(DotRenderOptions options, CancellationToken cancellationToken)
         {
-            var tables = await Database.TablesAsync(cancellationToken).ConfigureAwait(false);
+            var tables = await Database.GetAllTables(cancellationToken).ConfigureAwait(false);
 
             return await RenderTablesAsyncCore(tables, options, cancellationToken).ConfigureAwait(false);
         }

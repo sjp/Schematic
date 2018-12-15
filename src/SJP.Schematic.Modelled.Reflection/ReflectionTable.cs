@@ -36,7 +36,7 @@ namespace SJP.Schematic.Modelled.Reflection
 
         private IReadOnlyCollection<IDatabaseRelationalKey> LoadChildKeys()
         {
-            var tables = Database.TablesAsync(CancellationToken.None).ConfigureAwait(false).GetAwaiter().GetResult();
+            var tables = Database.GetAllTables(CancellationToken.None).ConfigureAwait(false).GetAwaiter().GetResult();
             return tables
                 .SelectMany(t => t.ParentKeys)
                 .Where(fk => fk.ParentTable == Name)
@@ -58,7 +58,7 @@ namespace SJP.Schematic.Modelled.Reflection
                 var fkColumns = declaredParentKey.Columns.Select(GetColumn).ToList();
 
                 var parentName = Dialect.GetQualifiedNameOrDefault(Database, declaredParentKey.TargetType);
-                var parentOption = Database.GetTableAsync(parentName);
+                var parentOption = Database.GetTable(parentName);
                 if (parentOption.IsNone.ConfigureAwait(false).GetAwaiter().GetResult())
                     throw new Exception("Could not find parent table with name: " + parentName.ToString());
 

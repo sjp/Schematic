@@ -37,7 +37,7 @@ namespace SJP.Schematic.Oracle.Tests
         }
 
         [Test]
-        public static void GetSequenceAsync_GivenNullSequenceName_ThrowsArgNullException()
+        public static void GetSequence_GivenNullSequenceName_ThrowsArgNullException()
         {
             var connection = Mock.Of<IDbConnection>();
             var identifierDefaults = Mock.Of<IIdentifierDefaults>();
@@ -45,7 +45,7 @@ namespace SJP.Schematic.Oracle.Tests
 
             var sequenceProvider = new OracleDatabaseSequenceProvider(connection, identifierDefaults, identifierResolver);
 
-            Assert.Throws<ArgumentNullException>(() => sequenceProvider.GetSequenceAsync(null));
+            Assert.Throws<ArgumentNullException>(() => sequenceProvider.GetSequence(null));
         }
     }
 }

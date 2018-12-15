@@ -24,7 +24,7 @@ namespace SJP.Schematic.Lint.Rules
 
         private async Task<IEnumerable<IRuleMessage>> AnalyseDatabaseAsyncCore(IRelationalDatabase database, CancellationToken cancellationToken)
         {
-            var tables = await database.TablesAsync(cancellationToken).ConfigureAwait(false);
+            var tables = await database.GetAllTables(cancellationToken).ConfigureAwait(false);
             return tables.SelectMany(AnalyseTable).ToList();
         }
 

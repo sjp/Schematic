@@ -25,10 +25,10 @@ namespace SJP.Schematic.Lint.Rules
 
         private async Task<IEnumerable<IRuleMessage>> AnalyseDatabaseAsyncCore(IRelationalDatabase database, CancellationToken cancellationToken)
         {
-            var tables = await database.TablesAsync(cancellationToken).ConfigureAwait(false);
-            var views = await database.ViewsAsync(cancellationToken).ConfigureAwait(false);
-            var sequences = await database.SequencesAsync(cancellationToken).ConfigureAwait(false);
-            var synonyms = await database.SynonymsAsync(cancellationToken).ConfigureAwait(false);
+            var tables = await database.GetAllTables(cancellationToken).ConfigureAwait(false);
+            var views = await database.GetAllViews(cancellationToken).ConfigureAwait(false);
+            var sequences = await database.GetAllSequences(cancellationToken).ConfigureAwait(false);
+            var synonyms = await database.GetAllSynonyms(cancellationToken).ConfigureAwait(false);
 
             return tables.SelectMany(AnalyseTable)
                 .Concat(views.SelectMany(AnalyseView))

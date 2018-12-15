@@ -60,7 +60,7 @@ namespace SJP.Schematic.Lint.Tests.Integration
 
             fakeDatabase.Views = new[]
             {
-                await database.GetViewAsync("valid_view_1").UnwrapSomeAsync().ConfigureAwait(false)
+                await database.GetView("valid_view_1").UnwrapSomeAsync().ConfigureAwait(false)
             };
 
             var messages = await rule.AnalyseDatabaseAsync(fakeDatabase).ConfigureAwait(false);
@@ -77,7 +77,7 @@ namespace SJP.Schematic.Lint.Tests.Integration
 
             fakeDatabase.Views = new[]
             {
-                await database.GetViewAsync("invalid_view_1").UnwrapSomeAsync().ConfigureAwait(false)
+                await database.GetView("invalid_view_1").UnwrapSomeAsync().ConfigureAwait(false)
             };
 
             var messages = await rule.AnalyseDatabaseAsync(fakeDatabase).ConfigureAwait(false);
@@ -94,8 +94,8 @@ namespace SJP.Schematic.Lint.Tests.Integration
 
             fakeDatabase.Views = new[]
             {
-                await database.GetViewAsync("valid_view_1").UnwrapSomeAsync().ConfigureAwait(false),
-                await database.GetViewAsync("invalid_view_1").UnwrapSomeAsync().ConfigureAwait(false)
+                await database.GetView("valid_view_1").UnwrapSomeAsync().ConfigureAwait(false),
+                await database.GetView("invalid_view_1").UnwrapSomeAsync().ConfigureAwait(false)
             };
 
             var messages = await rule.AnalyseDatabaseAsync(fakeDatabase).ConfigureAwait(false);

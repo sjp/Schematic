@@ -37,7 +37,7 @@ namespace SJP.Schematic.Oracle.Tests
         }
 
         [Test]
-        public static void GetSynonymAsync_GivenNullSynonymName_ThrowsArgNullException()
+        public static void GetSynonym_GivenNullSynonymName_ThrowsArgNullException()
         {
             var connection = Mock.Of<IDbConnection>();
             var identifierDefaults = Mock.Of<IIdentifierDefaults>();
@@ -45,7 +45,7 @@ namespace SJP.Schematic.Oracle.Tests
 
             var synonymProvider = new OracleDatabaseSynonymProvider(connection, identifierDefaults, identifierResolver);
 
-            Assert.Throws<ArgumentNullException>(() => synonymProvider.GetSynonymAsync(null));
+            Assert.Throws<ArgumentNullException>(() => synonymProvider.GetSynonym(null));
         }
     }
 }

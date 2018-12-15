@@ -411,7 +411,7 @@ namespace SJP.Schematic.Core.Tests.Extensions
         {
             var databaseMock = new Mock<IRelationalDatabase>();
             var sequenceName = new Identifier("A");
-            databaseMock.Setup(db => db.GetSequenceAsync(sequenceName, CancellationToken.None)).Returns(OptionAsync<IDatabaseSequence>.None);
+            databaseMock.Setup(db => db.GetSequence(sequenceName, CancellationToken.None)).Returns(OptionAsync<IDatabaseSequence>.None);
             var database = databaseMock.Object;
 
             var (exists, sequence) = await database.TryGetSequenceAsync(sequenceName, CancellationToken.None).ConfigureAwait(false);
@@ -423,7 +423,7 @@ namespace SJP.Schematic.Core.Tests.Extensions
         {
             var databaseMock = new Mock<IRelationalDatabase>();
             var sequenceName = new Identifier("A");
-            databaseMock.Setup(db => db.GetSequenceAsync(sequenceName, CancellationToken.None)).Returns(OptionAsync<IDatabaseSequence>.None);
+            databaseMock.Setup(db => db.GetSequence(sequenceName, CancellationToken.None)).Returns(OptionAsync<IDatabaseSequence>.None);
             var database = databaseMock.Object;
 
             var (exists, sequence) = await database.TryGetSequenceAsync(sequenceName, CancellationToken.None).ConfigureAwait(false);
@@ -540,7 +540,7 @@ namespace SJP.Schematic.Core.Tests.Extensions
         {
             var databaseMock = new Mock<IRelationalDatabase>();
             var synonymName = new Identifier("A");
-            databaseMock.Setup(db => db.GetSynonymAsync(synonymName, CancellationToken.None)).Returns(OptionAsync<IDatabaseSynonym>.None);
+            databaseMock.Setup(db => db.GetSynonym(synonymName, CancellationToken.None)).Returns(OptionAsync<IDatabaseSynonym>.None);
             var database = databaseMock.Object;
 
             var (exists, synonym) = await database.TryGetSynonymAsync(synonymName, CancellationToken.None).ConfigureAwait(false);
@@ -552,7 +552,7 @@ namespace SJP.Schematic.Core.Tests.Extensions
         {
             var databaseMock = new Mock<IRelationalDatabase>();
             var synonymName = new Identifier("A");
-            databaseMock.Setup(db => db.GetSynonymAsync(synonymName, CancellationToken.None)).Returns(OptionAsync<IDatabaseSynonym>.None);
+            databaseMock.Setup(db => db.GetSynonym(synonymName, CancellationToken.None)).Returns(OptionAsync<IDatabaseSynonym>.None);
             var database = databaseMock.Object;
 
             var (exists, synonym) = await database.TryGetSynonymAsync(synonymName, CancellationToken.None).ConfigureAwait(false);

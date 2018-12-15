@@ -42,7 +42,7 @@ namespace SJP.Schematic.DataAccess.OrmLite
             var tableGenerator = new OrmLiteTableGenerator(NameProvider, baseNamespace);
             var viewGenerator = new OrmLiteViewGenerator(NameProvider, baseNamespace);
 
-            var tables = Database.TablesAsync(CancellationToken.None).GetAwaiter().GetResult();
+            var tables = Database.GetAllTables(CancellationToken.None).GetAwaiter().GetResult();
             foreach (var table in tables)
             {
                 var tableClass = tableGenerator.Generate(table);
@@ -57,7 +57,7 @@ namespace SJP.Schematic.DataAccess.OrmLite
                 fileSystem.File.WriteAllText(tablePath.FullName, tableClass);
             }
 
-            var views = Database.ViewsAsync(CancellationToken.None).GetAwaiter().GetResult();
+            var views = Database.GetAllViews(CancellationToken.None).GetAwaiter().GetResult();
             foreach (var view in views)
             {
                 var viewClass = viewGenerator.Generate(view);

@@ -30,26 +30,26 @@ namespace SJP.Schematic.Modelled.Reflection.Tests
         }
 
         [Test]
-        public static void GetTableAsync_GivenNullName_ThrowsArgumentNullException()
+        public static void GetTable_GivenNullName_ThrowsArgumentNullException()
         {
             var db = new ReflectionRelationalDatabase<SampleDatabase>(new FakeDialect());
-            Assert.Throws<ArgumentNullException>(() => db.GetTableAsync(null));
+            Assert.Throws<ArgumentNullException>(() => db.GetTable(null));
         }
 
         [Test]
-        public static async Task GetTableAsync_WhenTablePresent_ReturnsTable()
+        public static async Task GetTable_WhenTablePresent_ReturnsTable()
         {
             var db = new ReflectionRelationalDatabase<SampleDatabase>(new FakeDialect());
-            var tableIsSome = await db.GetTableAsync("TestTable1").IsSome.ConfigureAwait(false);
+            var tableIsSome = await db.GetTable("TestTable1").IsSome.ConfigureAwait(false);
 
             Assert.IsTrue(tableIsSome);
         }
 
         [Test]
-        public static async Task GetTableAsync_WhenTableMissing_ReturnsNone()
+        public static async Task GetTable_WhenTableMissing_ReturnsNone()
         {
             var db = new ReflectionRelationalDatabase<SampleDatabase>(new FakeDialect());
-            var tableIsNone =  await db.GetTableAsync("table_that_doesnt_exist").IsNone.ConfigureAwait(false);
+            var tableIsNone =  await db.GetTable("table_that_doesnt_exist").IsNone.ConfigureAwait(false);
 
             Assert.IsTrue(tableIsNone);
         }

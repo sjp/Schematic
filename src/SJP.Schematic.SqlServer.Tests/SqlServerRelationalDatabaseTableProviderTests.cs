@@ -37,7 +37,7 @@ namespace SJP.Schematic.SqlServer.Tests
         }
 
         [Test]
-        public static void GetTableAsync_GivenNullTableName_ThrowsArgNullException()
+        public static void GetTable_GivenNullTableName_ThrowsArgNullException()
         {
             var connection = Mock.Of<IDbConnection>();
             var identifierDefaults = Mock.Of<IIdentifierDefaults>();
@@ -45,7 +45,7 @@ namespace SJP.Schematic.SqlServer.Tests
 
             var tableProvider = new SqlServerRelationalDatabaseTableProvider(connection, identifierDefaults, typeProvider);
 
-            Assert.Throws<ArgumentNullException>(() => tableProvider.GetTableAsync(null));
+            Assert.Throws<ArgumentNullException>(() => tableProvider.GetTable(null));
         }
     }
 }

@@ -70,7 +70,7 @@ namespace SJP.Schematic.Core.Extensions
 
         private static async Task<(bool exists, IRelationalDatabaseTable table)> TryGetTableAsyncCore(IRelationalDatabase database, Identifier tableName, CancellationToken cancellationToken)
         {
-            var tableOption = database.GetTableAsync(tableName, cancellationToken);
+            var tableOption = database.GetTable(tableName, cancellationToken);
             var exists = await tableOption.IsSome.ConfigureAwait(false);
             var table = await tableOption.IfNoneUnsafe(default(IRelationalDatabaseTable)).ConfigureAwait(false);
 
@@ -89,7 +89,7 @@ namespace SJP.Schematic.Core.Extensions
 
         private static async Task<(bool exists, IRelationalDatabaseView view)> TryGetViewAsyncCore(IRelationalDatabase database, Identifier viewName, CancellationToken cancellationToken)
         {
-            var viewOption = database.GetViewAsync(viewName, cancellationToken);
+            var viewOption = database.GetView(viewName, cancellationToken);
             var exists = await viewOption.IsSome.ConfigureAwait(false);
             var view = await viewOption.IfNoneUnsafe(default(IRelationalDatabaseView)).ConfigureAwait(false);
 
@@ -108,7 +108,7 @@ namespace SJP.Schematic.Core.Extensions
 
         private static async Task<(bool exists, IDatabaseSequence sequence)> TryGetSequenceAsyncCore(IRelationalDatabase database, Identifier sequenceName, CancellationToken cancellationToken)
         {
-            var sequenceOption = database.GetSequenceAsync(sequenceName, cancellationToken);
+            var sequenceOption = database.GetSequence(sequenceName, cancellationToken);
             var exists = await sequenceOption.IsSome.ConfigureAwait(false);
             var sequence = await sequenceOption.IfNoneUnsafe(default(IDatabaseSequence)).ConfigureAwait(false);
 
@@ -127,7 +127,7 @@ namespace SJP.Schematic.Core.Extensions
 
         private static async Task<(bool exists, IDatabaseSynonym synonym)> TryGetSynonymAsyncCore(IRelationalDatabase database, Identifier synonymName, CancellationToken cancellationToken)
         {
-            var synonymOption = database.GetSynonymAsync(synonymName, cancellationToken);
+            var synonymOption = database.GetSynonym(synonymName, cancellationToken);
             var exists = await synonymOption.IsSome.ConfigureAwait(false);
             var synonym = await synonymOption.IfNoneUnsafe(default(IDatabaseSynonym)).ConfigureAwait(false);
 

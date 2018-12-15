@@ -11,7 +11,7 @@ namespace SJP.Schematic.DataAccess.OrmLite.Tests.Integration
     {
         private IRelationalDatabase Database => new SqliteRelationalDatabase(Dialect, Connection, IdentifierDefaults);
 
-        private Task<IRelationalDatabaseView> GetView(Identifier viewName) => Database.GetViewAsync(viewName).UnwrapSomeAsync();
+        private Task<IRelationalDatabaseView> GetView(Identifier viewName) => Database.GetView(viewName).UnwrapSomeAsync();
 
         private static IDatabaseViewGenerator ViewGenerator => new OrmLiteViewGenerator(new PascalCaseNameProvider(), TestNamespace);
 

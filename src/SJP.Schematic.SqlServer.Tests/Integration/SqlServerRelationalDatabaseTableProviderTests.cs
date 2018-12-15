@@ -364,7 +364,7 @@ end
             {
                 if (!_tablesCache.TryGetValue(tableName, out var lazyTable))
                 {
-                    lazyTable = new AsyncLazy<IRelationalDatabaseTable>(() => TableProvider.GetTableAsync(tableName).UnwrapSomeAsync());
+                    lazyTable = new AsyncLazy<IRelationalDatabaseTable>(() => TableProvider.GetTable(tableName).UnwrapSomeAsync());
                     _tablesCache[tableName] = lazyTable;
                 }
 
@@ -376,108 +376,108 @@ end
         private readonly static ConcurrentDictionary<Identifier, AsyncLazy<IRelationalDatabaseTable>> _tablesCache = new ConcurrentDictionary<Identifier, AsyncLazy<IRelationalDatabaseTable>>();
 
         [Test]
-        public async Task GetTableAsync_WhenTablePresent_ReturnsTable()
+        public async Task GetTable_WhenTablePresent_ReturnsTable()
         {
-            var tableIsSome = await TableProvider.GetTableAsync("db_test_table_1").IsSome.ConfigureAwait(false);
+            var tableIsSome = await TableProvider.GetTable("db_test_table_1").IsSome.ConfigureAwait(false);
             Assert.IsTrue(tableIsSome);
         }
 
         [Test]
-        public async Task GetTableAsync_WhenTablePresent_ReturnsTableWithCorrectName()
+        public async Task GetTable_WhenTablePresent_ReturnsTableWithCorrectName()
         {
             const string tableName = "db_test_table_1";
-            var table = await TableProvider.GetTableAsync(tableName).UnwrapSomeAsync().ConfigureAwait(false);
+            var table = await TableProvider.GetTable(tableName).UnwrapSomeAsync().ConfigureAwait(false);
 
             Assert.AreEqual(tableName, table.Name.LocalName);
         }
 
         [Test]
-        public async Task GetTableAsync_WhenTablePresentGivenLocalNameOnly_ShouldBeQualifiedCorrectly()
+        public async Task GetTable_WhenTablePresentGivenLocalNameOnly_ShouldBeQualifiedCorrectly()
         {
             var tableName = new Identifier("db_test_table_1");
             var expectedTableName = new Identifier(IdentifierDefaults.Server, IdentifierDefaults.Database, IdentifierDefaults.Schema, "db_test_table_1");
 
-            var table = await TableProvider.GetTableAsync(tableName).UnwrapSomeAsync().ConfigureAwait(false);
+            var table = await TableProvider.GetTable(tableName).UnwrapSomeAsync().ConfigureAwait(false);
 
             Assert.AreEqual(expectedTableName, table.Name);
         }
 
         [Test]
-        public async Task GetTableAsync_WhenTablePresentGivenSchemaAndLocalNameOnly_ShouldBeQualifiedCorrectly()
+        public async Task GetTable_WhenTablePresentGivenSchemaAndLocalNameOnly_ShouldBeQualifiedCorrectly()
         {
             var tableName = new Identifier(IdentifierDefaults.Schema, "db_test_table_1");
             var expectedTableName = new Identifier(IdentifierDefaults.Server, IdentifierDefaults.Database, IdentifierDefaults.Schema, "db_test_table_1");
 
-            var table = await TableProvider.GetTableAsync(tableName).UnwrapSomeAsync().ConfigureAwait(false);
+            var table = await TableProvider.GetTable(tableName).UnwrapSomeAsync().ConfigureAwait(false);
 
             Assert.AreEqual(expectedTableName, table.Name);
         }
 
         [Test]
-        public async Task GetTableAsync_WhenTablePresentGivenDatabaseAndSchemaAndLocalNameOnly_ShouldBeQualifiedCorrectly()
+        public async Task GetTable_WhenTablePresentGivenDatabaseAndSchemaAndLocalNameOnly_ShouldBeQualifiedCorrectly()
         {
             var tableName = new Identifier(IdentifierDefaults.Database, IdentifierDefaults.Schema, "db_test_table_1");
             var expectedTableName = new Identifier(IdentifierDefaults.Server, IdentifierDefaults.Database, IdentifierDefaults.Schema, "db_test_table_1");
 
-            var table = await TableProvider.GetTableAsync(tableName).UnwrapSomeAsync().ConfigureAwait(false);
+            var table = await TableProvider.GetTable(tableName).UnwrapSomeAsync().ConfigureAwait(false);
 
             Assert.AreEqual(expectedTableName, table.Name);
         }
 
         [Test]
-        public async Task GetTableAsync_WhenTablePresentGivenFullyQualifiedName_ShouldBeQualifiedCorrectly()
+        public async Task GetTable_WhenTablePresentGivenFullyQualifiedName_ShouldBeQualifiedCorrectly()
         {
             var tableName = new Identifier(IdentifierDefaults.Server, IdentifierDefaults.Database, IdentifierDefaults.Schema, "db_test_table_1");
 
-            var table = await TableProvider.GetTableAsync(tableName).UnwrapSomeAsync().ConfigureAwait(false);
+            var table = await TableProvider.GetTable(tableName).UnwrapSomeAsync().ConfigureAwait(false);
 
             Assert.AreEqual(tableName, table.Name);
         }
 
         [Test]
-        public async Task GetTableAsync_WhenTablePresentGivenFullyQualifiedNameWithDifferentServer_ShouldBeQualifiedCorrectly()
+        public async Task GetTable_WhenTablePresentGivenFullyQualifiedNameWithDifferentServer_ShouldBeQualifiedCorrectly()
         {
             var tableName = new Identifier("A", IdentifierDefaults.Database, IdentifierDefaults.Schema, "db_test_table_1");
             var expectedTableName = new Identifier(IdentifierDefaults.Server, IdentifierDefaults.Database, IdentifierDefaults.Schema, "db_test_table_1");
 
-            var table = await TableProvider.GetTableAsync(tableName).UnwrapSomeAsync().ConfigureAwait(false);
+            var table = await TableProvider.GetTable(tableName).UnwrapSomeAsync().ConfigureAwait(false);
 
             Assert.AreEqual(expectedTableName, table.Name);
         }
 
         [Test]
-        public async Task GetTableAsync_WhenTablePresentGivenFullyQualifiedNameWithDifferentServerAndDatabase_ShouldBeQualifiedCorrectly()
+        public async Task GetTable_WhenTablePresentGivenFullyQualifiedNameWithDifferentServerAndDatabase_ShouldBeQualifiedCorrectly()
         {
             var tableName = new Identifier("A", "B", IdentifierDefaults.Schema, "db_test_table_1");
             var expectedTableName = new Identifier(IdentifierDefaults.Server, IdentifierDefaults.Database, IdentifierDefaults.Schema, "db_test_table_1");
 
-            var table = await TableProvider.GetTableAsync(tableName).UnwrapSomeAsync().ConfigureAwait(false);
+            var table = await TableProvider.GetTable(tableName).UnwrapSomeAsync().ConfigureAwait(false);
 
             Assert.AreEqual(expectedTableName, table.Name);
         }
 
         [Test]
-        public async Task GetTableAsync_WhenTableMissing_ReturnsNone()
+        public async Task GetTable_WhenTableMissing_ReturnsNone()
         {
-            var tableIsNone = await TableProvider.GetTableAsync("table_that_doesnt_exist").IsNone.ConfigureAwait(false);
+            var tableIsNone = await TableProvider.GetTable("table_that_doesnt_exist").IsNone.ConfigureAwait(false);
             Assert.IsTrue(tableIsNone);
         }
 
         [Test]
-        public async Task GetTableAsync_WhenTablePresentGivenLocalNameWithDifferentCase_ReturnsMatchingName()
+        public async Task GetTable_WhenTablePresentGivenLocalNameWithDifferentCase_ReturnsMatchingName()
         {
             var inputName = new Identifier("DB_TEST_table_1");
-            var table = await TableProvider.GetTableAsync(inputName).UnwrapSomeAsync().ConfigureAwait(false);
+            var table = await TableProvider.GetTable(inputName).UnwrapSomeAsync().ConfigureAwait(false);
 
             var equalNames = IdentifierComparer.OrdinalIgnoreCase.Equals(inputName, table.Name.LocalName);
             Assert.IsTrue(equalNames);
         }
 
         [Test]
-        public async Task GetTableAsync_WhenTablePresentGivenSchemaAndLocalNameWithDifferentCase_ReturnsMatchingName()
+        public async Task GetTable_WhenTablePresentGivenSchemaAndLocalNameWithDifferentCase_ReturnsMatchingName()
         {
             var inputName = new Identifier("Dbo", "DB_TEST_table_1");
-            var table = await TableProvider.GetTableAsync(inputName).UnwrapSomeAsync().ConfigureAwait(false);
+            var table = await TableProvider.GetTable(inputName).UnwrapSomeAsync().ConfigureAwait(false);
 
             var equalNames = IdentifierComparer.OrdinalIgnoreCase.Equals(inputName.Schema, table.Name.Schema)
                 && IdentifierComparer.OrdinalIgnoreCase.Equals(inputName.LocalName, table.Name.LocalName);
@@ -485,17 +485,17 @@ end
         }
 
         [Test]
-        public async Task TablesAsync_WhenEnumerated_ContainsTables()
+        public async Task GetAllTables_WhenEnumerated_ContainsTables()
         {
-            var tables = await TableProvider.TablesAsync().ConfigureAwait(false);
+            var tables = await TableProvider.GetAllTables().ConfigureAwait(false);
 
             Assert.NotZero(tables.Count);
         }
 
         [Test]
-        public async Task TablesAsync_WhenEnumerated_ContainsTestTable()
+        public async Task GetAllTables_WhenEnumerated_ContainsTestTable()
         {
-            var tables = await TableProvider.TablesAsync().ConfigureAwait(false);
+            var tables = await TableProvider.GetAllTables().ConfigureAwait(false);
             var containsTestTable = tables.Any(t => t.Name.LocalName == "db_test_table_1");
 
             Assert.True(containsTestTable);

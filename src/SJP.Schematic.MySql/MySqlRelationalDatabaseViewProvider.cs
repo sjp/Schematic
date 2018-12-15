@@ -27,7 +27,7 @@ namespace SJP.Schematic.MySql
 
         protected IDbTypeProvider TypeProvider { get; }
 
-        public async Task<IReadOnlyCollection<IRelationalDatabaseView>> ViewsAsync(CancellationToken cancellationToken = default(CancellationToken))
+        public async Task<IReadOnlyCollection<IRelationalDatabaseView>> GetAllViews(CancellationToken cancellationToken = default(CancellationToken))
         {
             var queryResult = await Connection.QueryAsync<QualifiedName>(
                 ViewsQuery,
@@ -59,7 +59,7 @@ select
 from information_schema.views
 where TABLE_SCHEMA = @SchemaName order by TABLE_NAME";
 
-        public OptionAsync<IRelationalDatabaseView> GetViewAsync(Identifier viewName, CancellationToken cancellationToken = default(CancellationToken))
+        public OptionAsync<IRelationalDatabaseView> GetView(Identifier viewName, CancellationToken cancellationToken = default(CancellationToken))
         {
             if (viewName == null)
                 throw new ArgumentNullException(nameof(viewName));

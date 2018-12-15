@@ -43,7 +43,7 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration
             {
                 if (!_viewsCache.TryGetValue(viewName, out var lazyView))
                 {
-                    lazyView = new AsyncLazy<IRelationalDatabaseView>(() => ViewProvider.GetViewAsync(viewName).UnwrapSomeAsync());
+                    lazyView = new AsyncLazy<IRelationalDatabaseView>(() => ViewProvider.GetView(viewName).UnwrapSomeAsync());
                     _viewsCache[viewName] = lazyView;
                 }
 
@@ -55,106 +55,106 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration
         private readonly static ConcurrentDictionary<Identifier, AsyncLazy<IRelationalDatabaseView>> _viewsCache = new ConcurrentDictionary<Identifier, AsyncLazy<IRelationalDatabaseView>>();
 
         [Test]
-        public async Task GetViewAsync_WhenViewPresent_ReturnsView()
+        public async Task GetView_WhenViewPresent_ReturnsView()
         {
-            var viewIsSome = await ViewProvider.GetViewAsync("db_test_view_1").IsSome.ConfigureAwait(false);
+            var viewIsSome = await ViewProvider.GetView("db_test_view_1").IsSome.ConfigureAwait(false);
             Assert.IsTrue(viewIsSome);
         }
 
         [Test]
-        public async Task GetViewAsync_WhenViewPresent_ReturnsViewWithCorrectName()
+        public async Task GetView_WhenViewPresent_ReturnsViewWithCorrectName()
         {
             var viewName = new Identifier(IdentifierDefaults.Server, IdentifierDefaults.Database, IdentifierDefaults.Schema, "db_test_view_1");
-            var view = await ViewProvider.GetViewAsync(viewName).UnwrapSomeAsync().ConfigureAwait(false);
+            var view = await ViewProvider.GetView(viewName).UnwrapSomeAsync().ConfigureAwait(false);
 
             Assert.AreEqual(viewName, view.Name);
         }
 
         [Test]
-        public async Task GetViewAsync_WhenViewPresentGivenLocalNameOnly_ShouldBeQualifiedCorrectly()
+        public async Task GetView_WhenViewPresentGivenLocalNameOnly_ShouldBeQualifiedCorrectly()
         {
             var viewName = new Identifier("db_test_view_1");
             var expectedViewName = new Identifier(IdentifierDefaults.Server, IdentifierDefaults.Database, IdentifierDefaults.Schema, "db_test_view_1");
 
-            var view = await ViewProvider.GetViewAsync(viewName).UnwrapSomeAsync().ConfigureAwait(false);
+            var view = await ViewProvider.GetView(viewName).UnwrapSomeAsync().ConfigureAwait(false);
 
             Assert.AreEqual(expectedViewName, view.Name);
         }
 
         [Test]
-        public async Task GetViewAsync_WhenViewPresentGivenSchemaAndLocalNameOnly_ShouldBeQualifiedCorrectly()
+        public async Task GetView_WhenViewPresentGivenSchemaAndLocalNameOnly_ShouldBeQualifiedCorrectly()
         {
             var viewName = new Identifier(IdentifierDefaults.Schema, "db_test_view_1");
             var expectedViewName = new Identifier(IdentifierDefaults.Server, IdentifierDefaults.Database, IdentifierDefaults.Schema, "db_test_view_1");
 
-            var view = await ViewProvider.GetViewAsync(viewName).UnwrapSomeAsync().ConfigureAwait(false);
+            var view = await ViewProvider.GetView(viewName).UnwrapSomeAsync().ConfigureAwait(false);
 
             Assert.AreEqual(expectedViewName, view.Name);
         }
 
         [Test]
-        public async Task GetViewAsync_WhenViewPresentGivenDatabaseAndSchemaAndLocalNameOnly_ShouldBeQualifiedCorrectly()
+        public async Task GetView_WhenViewPresentGivenDatabaseAndSchemaAndLocalNameOnly_ShouldBeQualifiedCorrectly()
         {
             var viewName = new Identifier(IdentifierDefaults.Database, IdentifierDefaults.Schema, "db_test_view_1");
             var expectedViewName = new Identifier(IdentifierDefaults.Server, IdentifierDefaults.Database, IdentifierDefaults.Schema, "db_test_view_1");
 
-            var view = await ViewProvider.GetViewAsync(viewName).UnwrapSomeAsync().ConfigureAwait(false);
+            var view = await ViewProvider.GetView(viewName).UnwrapSomeAsync().ConfigureAwait(false);
 
             Assert.AreEqual(expectedViewName, view.Name);
         }
 
         [Test]
-        public async Task GetViewAsync_WhenViewPresentGivenFullyQualifiedName_ShouldBeQualifiedCorrectly()
+        public async Task GetView_WhenViewPresentGivenFullyQualifiedName_ShouldBeQualifiedCorrectly()
         {
             var viewName = new Identifier(IdentifierDefaults.Server, IdentifierDefaults.Database, IdentifierDefaults.Schema, "db_test_view_1");
 
-            var view = await ViewProvider.GetViewAsync(viewName).UnwrapSomeAsync().ConfigureAwait(false);
+            var view = await ViewProvider.GetView(viewName).UnwrapSomeAsync().ConfigureAwait(false);
 
             Assert.AreEqual(viewName, view.Name);
         }
 
         [Test]
-        public async Task GetViewAsync_WhenViewPresentGivenFullyQualifiedNameWithDifferentServer_ShouldBeQualifiedCorrectly()
+        public async Task GetView_WhenViewPresentGivenFullyQualifiedNameWithDifferentServer_ShouldBeQualifiedCorrectly()
         {
             var viewName = new Identifier("A", IdentifierDefaults.Database, IdentifierDefaults.Schema, "db_test_view_1");
             var expectedViewName = new Identifier(IdentifierDefaults.Server, IdentifierDefaults.Database, IdentifierDefaults.Schema, "db_test_view_1");
 
-            var view = await ViewProvider.GetViewAsync(viewName).UnwrapSomeAsync().ConfigureAwait(false);
+            var view = await ViewProvider.GetView(viewName).UnwrapSomeAsync().ConfigureAwait(false);
 
             Assert.AreEqual(expectedViewName, view.Name);
         }
 
         [Test]
-        public async Task GetViewAsync_WhenViewPresentGivenFullyQualifiedNameWithDifferentServerAndDatabase_ShouldBeQualifiedCorrectly()
+        public async Task GetView_WhenViewPresentGivenFullyQualifiedNameWithDifferentServerAndDatabase_ShouldBeQualifiedCorrectly()
         {
             var viewName = new Identifier("A", "B", IdentifierDefaults.Schema, "db_test_view_1");
             var expectedViewName = new Identifier(IdentifierDefaults.Server, IdentifierDefaults.Database, IdentifierDefaults.Schema, "db_test_view_1");
 
-            var view = await ViewProvider.GetViewAsync(viewName).UnwrapSomeAsync().ConfigureAwait(false);
+            var view = await ViewProvider.GetView(viewName).UnwrapSomeAsync().ConfigureAwait(false);
 
             Assert.AreEqual(expectedViewName, view.Name);
         }
 
         [Test]
-        public async Task GetViewAsync_WhenViewMissing_ReturnsNone()
+        public async Task GetView_WhenViewMissing_ReturnsNone()
         {
-            var viewIsNone = await ViewProvider.GetViewAsync("view_that_doesnt_exist").IsNone.ConfigureAwait(false);
+            var viewIsNone = await ViewProvider.GetView("view_that_doesnt_exist").IsNone.ConfigureAwait(false);
             Assert.IsTrue(viewIsNone);
         }
 
         [Test]
-        public async Task ViewsAsync_WhenEnumerated_ContainsViews()
+        public async Task GetAllViews_WhenEnumerated_ContainsViews()
         {
-            var views = await ViewProvider.ViewsAsync().ConfigureAwait(false);
+            var views = await ViewProvider.GetAllViews().ConfigureAwait(false);
 
             Assert.NotZero(views.Count);
         }
 
         [Test]
-        public async Task ViewsAsync_WhenEnumerated_ContainsTestView()
+        public async Task GetAllViews_WhenEnumerated_ContainsTestView()
         {
             const string viewName = "db_test_view_1";
-            var views = await ViewProvider.ViewsAsync().ConfigureAwait(false);
+            var views = await ViewProvider.GetAllViews().ConfigureAwait(false);
             var containsTestView = views.Any(v => v.Name.LocalName == viewName);
 
             Assert.True(containsTestView);

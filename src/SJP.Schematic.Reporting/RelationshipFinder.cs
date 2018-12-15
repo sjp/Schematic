@@ -52,7 +52,7 @@ namespace SJP.Schematic.Reporting
                     if (!isNewTable)
                         continue;
 
-                    var childTable = Database.GetTableAsync(childTableName, cancellationToken);
+                    var childTable = Database.GetTable(childTableName, cancellationToken);
                     await childTable.IfSome(t => addedTables[childTableName] = t).ConfigureAwait(false);
                 }
 
@@ -63,7 +63,7 @@ namespace SJP.Schematic.Reporting
                     if (!isNewTable)
                         continue;
 
-                    var parentTable = Database.GetTableAsync(parentTableName, cancellationToken);
+                    var parentTable = Database.GetTable(parentTableName, cancellationToken);
                     await parentTable.IfSome(t => addedTables[parentTableName] = t).ConfigureAwait(false);
                 }
             }

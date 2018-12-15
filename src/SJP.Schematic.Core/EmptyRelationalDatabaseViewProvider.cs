@@ -8,11 +8,11 @@ namespace SJP.Schematic.Core
 {
     public sealed class EmptyRelationalDatabaseViewProvider : IRelationalDatabaseViewProvider
     {
-        public Task<IReadOnlyCollection<IRelationalDatabaseView>> ViewsAsync(CancellationToken cancellationToken = default(CancellationToken)) => _emptyViews;
+        public Task<IReadOnlyCollection<IRelationalDatabaseView>> GetAllViews(CancellationToken cancellationToken = default(CancellationToken)) => _emptyViews;
 
         private readonly static Task<IReadOnlyCollection<IRelationalDatabaseView>> _emptyViews = Task.FromResult<IReadOnlyCollection<IRelationalDatabaseView>>(Array.Empty<IRelationalDatabaseView>());
 
-        public OptionAsync<IRelationalDatabaseView> GetViewAsync(Identifier viewName, CancellationToken cancellationToken = default(CancellationToken))
+        public OptionAsync<IRelationalDatabaseView> GetView(Identifier viewName, CancellationToken cancellationToken = default(CancellationToken))
         {
             if (viewName == null)
                 throw new ArgumentNullException(nameof(viewName));

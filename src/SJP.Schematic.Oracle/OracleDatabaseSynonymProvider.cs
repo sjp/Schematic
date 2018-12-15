@@ -31,7 +31,7 @@ namespace SJP.Schematic.Oracle
         // the main reason is to avoid queries where possible, especially when
         // the ALL_SYNONYMS data dictionary view is very slow
 
-        public async Task<IReadOnlyCollection<IDatabaseSynonym>> SynonymsAsync(CancellationToken cancellationToken = default(CancellationToken))
+        public async Task<IReadOnlyCollection<IDatabaseSynonym>> GetAllSynonyms(CancellationToken cancellationToken = default(CancellationToken))
         {
             var queryResult = await Connection.QueryAsync<SynonymData>(SynonymsQuery).ConfigureAwait(false);
             var synonymQueryRows = queryResult.ToList();
@@ -73,7 +73,7 @@ inner join ALL_OBJECTS o on s.OWNER = o.OWNER and s.SYNONYM_NAME = o.OBJECT_NAME
 where o.ORACLE_MAINTAINED <> 'Y'
 order by s.DB_LINK, s.OWNER, s.SYNONYM_NAME";
 
-        public OptionAsync<IDatabaseSynonym> GetSynonymAsync(Identifier synonymName, CancellationToken cancellationToken = default(CancellationToken))
+        public OptionAsync<IDatabaseSynonym> GetSynonym(Identifier synonymName, CancellationToken cancellationToken = default(CancellationToken))
         {
             if (synonymName == null)
                 throw new ArgumentNullException(nameof(synonymName));

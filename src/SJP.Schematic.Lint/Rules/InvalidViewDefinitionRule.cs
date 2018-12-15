@@ -32,7 +32,7 @@ namespace SJP.Schematic.Lint.Rules
 
         private async Task<IEnumerable<IRuleMessage>> AnalyseDatabaseAsyncCore(IRelationalDatabase database, CancellationToken cancellationToken)
         {
-            var views = await database.ViewsAsync(cancellationToken).ConfigureAwait(false);
+            var views = await database.GetAllViews(cancellationToken).ConfigureAwait(false);
             if (views.Empty())
                 return Array.Empty<IRuleMessage>();
 

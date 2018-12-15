@@ -38,108 +38,108 @@ namespace SJP.Schematic.SqlServer.Tests.Integration
         }
 
         [Test]
-        public async Task GetSynonymAsync_WhenSynonymPresent_ReturnsSynonym()
+        public async Task GetSynonym_WhenSynonymPresent_ReturnsSynonym()
         {
-            var synonymIsSome = await SynonymProvider.GetSynonymAsync("db_test_synonym_1").IsSome.ConfigureAwait(false);
+            var synonymIsSome = await SynonymProvider.GetSynonym("db_test_synonym_1").IsSome.ConfigureAwait(false);
             Assert.IsTrue(synonymIsSome);
         }
 
         [Test]
-        public async Task GetSynonymAsync_WhenSynonymPresent_ReturnsSynonymWithCorrectName()
+        public async Task GetSynonym_WhenSynonymPresent_ReturnsSynonymWithCorrectName()
         {
             const string synonymName = "db_test_synonym_1";
-            var synonym = await SynonymProvider.GetSynonymAsync(synonymName).UnwrapSomeAsync().ConfigureAwait(false);
+            var synonym = await SynonymProvider.GetSynonym(synonymName).UnwrapSomeAsync().ConfigureAwait(false);
 
             Assert.AreEqual(synonymName, synonym.Name.LocalName);
         }
 
         [Test]
-        public async Task GetSynonymAsync_WhenSynonymExistsGivenLocalNameOnly_ShouldBeQualifiedCorrectly()
+        public async Task GetSynonym_WhenSynonymExistsGivenLocalNameOnly_ShouldBeQualifiedCorrectly()
         {
             var synonymName = new Identifier("db_test_synonym_1");
             var expectedSynonymName = new Identifier(IdentifierDefaults.Server, IdentifierDefaults.Database, IdentifierDefaults.Schema, "db_test_synonym_1");
 
-            var synonym = await SynonymProvider.GetSynonymAsync(synonymName).UnwrapSomeAsync().ConfigureAwait(false);
+            var synonym = await SynonymProvider.GetSynonym(synonymName).UnwrapSomeAsync().ConfigureAwait(false);
 
             Assert.AreEqual(expectedSynonymName, synonym.Name);
         }
 
         [Test]
-        public async Task GetSynonymAsync_WhenSynonymExistsGivenSchemaAndLocalNameOnly_ShouldBeQualifiedCorrectly()
+        public async Task GetSynonym_WhenSynonymExistsGivenSchemaAndLocalNameOnly_ShouldBeQualifiedCorrectly()
         {
             var synonymName = new Identifier(IdentifierDefaults.Schema, "db_test_synonym_1");
             var expectedSynonymName = new Identifier(IdentifierDefaults.Server, IdentifierDefaults.Database, IdentifierDefaults.Schema, "db_test_synonym_1");
 
-            var synonym = await SynonymProvider.GetSynonymAsync(synonymName).UnwrapSomeAsync().ConfigureAwait(false);
+            var synonym = await SynonymProvider.GetSynonym(synonymName).UnwrapSomeAsync().ConfigureAwait(false);
 
             Assert.AreEqual(expectedSynonymName, synonym.Name);
         }
 
         [Test]
-        public async Task GetSynonymAsync_WhenSynonymExistsGivenDatabaseAndSchemaAndLocalNameOnly_ShouldBeQualifiedCorrectly()
+        public async Task GetSynonym_WhenSynonymExistsGivenDatabaseAndSchemaAndLocalNameOnly_ShouldBeQualifiedCorrectly()
         {
             var synonymName = new Identifier(IdentifierDefaults.Database, IdentifierDefaults.Schema, "db_test_synonym_1");
             var expectedSynonymName = new Identifier(IdentifierDefaults.Server, IdentifierDefaults.Database, IdentifierDefaults.Schema, "db_test_synonym_1");
 
-            var synonym = await SynonymProvider.GetSynonymAsync(synonymName).UnwrapSomeAsync().ConfigureAwait(false);
+            var synonym = await SynonymProvider.GetSynonym(synonymName).UnwrapSomeAsync().ConfigureAwait(false);
 
             Assert.AreEqual(expectedSynonymName, synonym.Name);
         }
 
         [Test]
-        public async Task GetSynonymAsync_WhenSynonymExistsGivenFullyQualifiedName_ShouldBeQualifiedCorrectly()
+        public async Task GetSynonym_WhenSynonymExistsGivenFullyQualifiedName_ShouldBeQualifiedCorrectly()
         {
             var synonymName = new Identifier(IdentifierDefaults.Server, IdentifierDefaults.Database, IdentifierDefaults.Schema, "db_test_synonym_1");
 
-            var synonym = await SynonymProvider.GetSynonymAsync(synonymName).UnwrapSomeAsync().ConfigureAwait(false);
+            var synonym = await SynonymProvider.GetSynonym(synonymName).UnwrapSomeAsync().ConfigureAwait(false);
 
             Assert.AreEqual(synonymName, synonym.Name);
         }
 
         [Test]
-        public async Task GetSynonymAsync_WhenSynonymPresentGivenFullyQualifiedNameWithDifferentServer_ShouldBeQualifiedCorrectly()
+        public async Task GetSynonym_WhenSynonymPresentGivenFullyQualifiedNameWithDifferentServer_ShouldBeQualifiedCorrectly()
         {
             var synonymName = new Identifier("A", IdentifierDefaults.Database, IdentifierDefaults.Schema, "db_test_synonym_1");
             var expectedSynonymName = new Identifier(IdentifierDefaults.Server, IdentifierDefaults.Database, IdentifierDefaults.Schema, "db_test_synonym_1");
 
-            var synonym = await SynonymProvider.GetSynonymAsync(synonymName).UnwrapSomeAsync().ConfigureAwait(false);
+            var synonym = await SynonymProvider.GetSynonym(synonymName).UnwrapSomeAsync().ConfigureAwait(false);
 
             Assert.AreEqual(expectedSynonymName, synonym.Name);
         }
 
         [Test]
-        public async Task GetSynonymAsync_WhenSynonymPresentGivenFullyQualifiedNameWithDifferentServerAndDatabase_ShouldBeQualifiedCorrectly()
+        public async Task GetSynonym_WhenSynonymPresentGivenFullyQualifiedNameWithDifferentServerAndDatabase_ShouldBeQualifiedCorrectly()
         {
             var synonymName = new Identifier("A", "B", IdentifierDefaults.Schema, "db_test_synonym_1");
             var expectedSynonymName = new Identifier(IdentifierDefaults.Server, IdentifierDefaults.Database, IdentifierDefaults.Schema, "db_test_synonym_1");
 
-            var synonym = await SynonymProvider.GetSynonymAsync(synonymName).UnwrapSomeAsync().ConfigureAwait(false);
+            var synonym = await SynonymProvider.GetSynonym(synonymName).UnwrapSomeAsync().ConfigureAwait(false);
 
             Assert.AreEqual(expectedSynonymName, synonym.Name);
         }
 
         [Test]
-        public async Task GetSynonymAsync_WhenSynonymMissing_ReturnsNone()
+        public async Task GetSynonym_WhenSynonymMissing_ReturnsNone()
         {
-            var synonymIsNone = await SynonymProvider.GetSynonymAsync("synonym_that_doesnt_exist").IsNone.ConfigureAwait(false);
+            var synonymIsNone = await SynonymProvider.GetSynonym("synonym_that_doesnt_exist").IsNone.ConfigureAwait(false);
             Assert.IsTrue(synonymIsNone);
         }
 
         [Test]
-        public async Task GetSynonymAsync_WhenSynonymPresentGivenLocalNameWithDifferentCase_ReturnsMatchingName()
+        public async Task GetSynonym_WhenSynonymPresentGivenLocalNameWithDifferentCase_ReturnsMatchingName()
         {
             var inputName = new Identifier("DB_TEST_synonym_1");
-            var synonym = await SynonymProvider.GetSynonymAsync(inputName).UnwrapSomeAsync().ConfigureAwait(false);
+            var synonym = await SynonymProvider.GetSynonym(inputName).UnwrapSomeAsync().ConfigureAwait(false);
 
             var equalNames = IdentifierComparer.OrdinalIgnoreCase.Equals(inputName, synonym.Name.LocalName);
             Assert.IsTrue(equalNames);
         }
 
         [Test]
-        public async Task GetSynonymAsync_WhenSynonymPresentGivenSchemaAndLocalNameWithDifferentCase_ReturnsMatchingName()
+        public async Task GetSynonym_WhenSynonymPresentGivenSchemaAndLocalNameWithDifferentCase_ReturnsMatchingName()
         {
             var inputName = new Identifier("Dbo", "DB_TEST_synonym_1");
-            var synonym = await SynonymProvider.GetSynonymAsync(inputName).UnwrapSomeAsync().ConfigureAwait(false);
+            var synonym = await SynonymProvider.GetSynonym(inputName).UnwrapSomeAsync().ConfigureAwait(false);
 
             var equalNames = IdentifierComparer.OrdinalIgnoreCase.Equals(inputName.Schema, synonym.Name.Schema)
                 && IdentifierComparer.OrdinalIgnoreCase.Equals(inputName.LocalName, synonym.Name.LocalName);
@@ -147,45 +147,45 @@ namespace SJP.Schematic.SqlServer.Tests.Integration
         }
 
         [Test]
-        public async Task SynonymsAsync_WhenEnumerated_ContainsSynonyms()
+        public async Task GetAllSynonyms_WhenEnumerated_ContainsSynonyms()
         {
-            var synonyms = await SynonymProvider.SynonymsAsync().ConfigureAwait(false);
+            var synonyms = await SynonymProvider.GetAllSynonyms().ConfigureAwait(false);
 
             Assert.NotZero(synonyms.Count);
         }
 
         [Test]
-        public async Task SynonymsAsync_WhenEnumerated_ContainsTestSynonym()
+        public async Task GetAllSynonyms_WhenEnumerated_ContainsTestSynonym()
         {
-            var synonyms = await SynonymProvider.SynonymsAsync().ConfigureAwait(false);
+            var synonyms = await SynonymProvider.GetAllSynonyms().ConfigureAwait(false);
             var containsTestSynonym = synonyms.Any(s => s.Name.LocalName == "db_test_synonym_1");
 
             Assert.IsTrue(containsTestSynonym);
         }
 
         [Test]
-        public async Task GetSynonymAsync_ForSynonymToView_ReturnsSynonymWithCorrectTarget()
+        public async Task GetSynonym_ForSynonymToView_ReturnsSynonymWithCorrectTarget()
         {
             var expectedTarget = new Identifier(IdentifierDefaults.Server, IdentifierDefaults.Database, IdentifierDefaults.Schema, "synonym_test_view_1");
-            var synonym = await SynonymProvider.GetSynonymAsync("synonym_test_synonym_1").UnwrapSomeAsync().ConfigureAwait(false);
+            var synonym = await SynonymProvider.GetSynonym("synonym_test_synonym_1").UnwrapSomeAsync().ConfigureAwait(false);
 
             Assert.AreEqual(expectedTarget, synonym.Target);
         }
 
         [Test]
-        public async Task GetSynonymAsync_ForSynonymToTable_ReturnsSynonymWithCorrectTarget()
+        public async Task GetSynonym_ForSynonymToTable_ReturnsSynonymWithCorrectTarget()
         {
             var expectedTarget = new Identifier(IdentifierDefaults.Server, IdentifierDefaults.Database, IdentifierDefaults.Schema, "synonym_test_table_1");
-            var synonym = await SynonymProvider.GetSynonymAsync("synonym_test_synonym_2").UnwrapSomeAsync().ConfigureAwait(false);
+            var synonym = await SynonymProvider.GetSynonym("synonym_test_synonym_2").UnwrapSomeAsync().ConfigureAwait(false);
 
             Assert.AreEqual(expectedTarget, synonym.Target);
         }
 
         [Test]
-        public async Task GetSynonymAsync_ForSynonymToMissingObject_ReturnsSynonymWithMissingTarget()
+        public async Task GetSynonym_ForSynonymToMissingObject_ReturnsSynonymWithMissingTarget()
         {
             var expectedTarget = new Identifier(IdentifierDefaults.Server, IdentifierDefaults.Database, IdentifierDefaults.Schema, "non_existent_target");
-            var synonym = await SynonymProvider.GetSynonymAsync("synonym_test_synonym_3").UnwrapSomeAsync().ConfigureAwait(false);
+            var synonym = await SynonymProvider.GetSynonym("synonym_test_synonym_3").UnwrapSomeAsync().ConfigureAwait(false);
 
             Assert.AreEqual(expectedTarget, synonym.Target);
         }

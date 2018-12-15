@@ -63,8 +63,8 @@ create table child_table_with_text_key_column_1 (
 
             fakeDatabase.Tables = new[]
             {
-                await database.GetTableAsync("parent_table_with_int_key_column_1").UnwrapSomeAsync().ConfigureAwait(false),
-                await database.GetTableAsync("child_table_with_int_key_column_1").UnwrapSomeAsync().ConfigureAwait(false)
+                await database.GetTable("parent_table_with_int_key_column_1").UnwrapSomeAsync().ConfigureAwait(false),
+                await database.GetTable("child_table_with_int_key_column_1").UnwrapSomeAsync().ConfigureAwait(false)
             };
 
             var messages = await rule.AnalyseDatabaseAsync(fakeDatabase).ConfigureAwait(false);
@@ -81,8 +81,8 @@ create table child_table_with_text_key_column_1 (
 
             fakeDatabase.Tables = new[]
             {
-                await database.GetTableAsync("parent_table_with_int_key_column_1").UnwrapSomeAsync().ConfigureAwait(false),
-                await database.GetTableAsync("child_table_with_text_key_column_1").UnwrapSomeAsync().ConfigureAwait(false)
+                await database.GetTable("parent_table_with_int_key_column_1").UnwrapSomeAsync().ConfigureAwait(false),
+                await database.GetTable("child_table_with_text_key_column_1").UnwrapSomeAsync().ConfigureAwait(false)
             };
 
             var messages = await rule.AnalyseDatabaseAsync(fakeDatabase).ConfigureAwait(false);

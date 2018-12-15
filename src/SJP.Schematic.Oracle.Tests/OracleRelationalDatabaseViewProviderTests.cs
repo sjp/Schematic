@@ -50,7 +50,7 @@ namespace SJP.Schematic.Oracle.Tests
         }
 
         [Test]
-        public static void GetViewAsync_GivenNullViewName_ThrowsArgNullException()
+        public static void GetView_GivenNullViewName_ThrowsArgNullException()
         {
             var connection = Mock.Of<IDbConnection>();
             var identifierDefaults = Mock.Of<IIdentifierDefaults>();
@@ -59,7 +59,7 @@ namespace SJP.Schematic.Oracle.Tests
 
             var viewProvider = new OracleRelationalDatabaseViewProvider(connection, identifierDefaults, identifierResolver, typeProvider);
 
-            Assert.Throws<ArgumentNullException>(() => viewProvider.GetViewAsync(null));
+            Assert.Throws<ArgumentNullException>(() => viewProvider.GetView(null));
         }
     }
 }

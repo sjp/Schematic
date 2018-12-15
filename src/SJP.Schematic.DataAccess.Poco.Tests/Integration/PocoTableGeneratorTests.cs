@@ -11,7 +11,7 @@ namespace SJP.Schematic.DataAccess.Poco.Tests.Integration
     {
         private IRelationalDatabase Database => new SqliteRelationalDatabase(Dialect, Connection, IdentifierDefaults);
 
-        private Task<IRelationalDatabaseTable> GetTable(Identifier tableName) => Database.GetTableAsync(tableName).UnwrapSomeAsync();
+        private Task<IRelationalDatabaseTable> GetTable(Identifier tableName) => Database.GetTable(tableName).UnwrapSomeAsync();
 
         private static IDatabaseTableGenerator TableGenerator => new PocoTableGenerator(new PascalCaseNameProvider(), TestNamespace);
 

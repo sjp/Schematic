@@ -26,14 +26,14 @@ namespace SJP.Schematic.SqlServer.Tests
         }
 
         [Test]
-        public static void GetSynonymAsync_GivenNullSynonymName_ThrowsArgNullException()
+        public static void GetSynonym_GivenNullSynonymName_ThrowsArgNullException()
         {
             var connection = Mock.Of<IDbConnection>();
             var identifierDefaults = Mock.Of<IIdentifierDefaults>();
 
             var synonymProvider = new SqlServerDatabaseSynonymProvider(connection, identifierDefaults);
 
-            Assert.Throws<ArgumentNullException>(() => synonymProvider.GetSynonymAsync(null));
+            Assert.Throws<ArgumentNullException>(() => synonymProvider.GetSynonym(null));
         }
     }
 }

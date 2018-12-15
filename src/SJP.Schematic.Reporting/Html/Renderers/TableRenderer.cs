@@ -34,7 +34,7 @@ namespace SJP.Schematic.Reporting.Html.Renderers
 
         public async Task RenderAsync(CancellationToken cancellationToken = default(CancellationToken))
         {
-            var tables = await Database.TablesAsync(cancellationToken).ConfigureAwait(false);
+            var tables = await Database.GetAllTables(cancellationToken).ConfigureAwait(false);
             var mapper = new TableModelMapper(Connection, Database, Database.Dialect);
 
             var tableTasks = tables.Select(async table =>

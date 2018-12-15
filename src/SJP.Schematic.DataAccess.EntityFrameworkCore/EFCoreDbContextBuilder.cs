@@ -48,7 +48,7 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore
             var modelBuilder = new EFCoreModelBuilder(NameProvider, contextIndent, IndentLevel);
 
             var missingFirstLine = true;
-            var tables = Database.TablesAsync(CancellationToken.None).GetAwaiter().GetResult();
+            var tables = Database.GetAllTables(CancellationToken.None).GetAwaiter().GetResult();
             foreach (var table in tables)
             {
                 if (!missingFirstLine)
@@ -79,7 +79,7 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore
                 modelBuilder.AddTable(table);
             }
 
-            var sequences = Database.SequencesAsync(CancellationToken.None).GetAwaiter().GetResult();
+            var sequences = Database.GetAllSequences(CancellationToken.None).GetAwaiter().GetResult();
             foreach (var sequence in sequences)
             {
                 modelBuilder.AddSequence(sequence);

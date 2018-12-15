@@ -92,13 +92,13 @@ namespace SJP.Schematic.Reporting.Html.ViewModels.Mappers
 
         private async Task<Option<Uri>> GetSynonymTargetUrlAsync(Identifier identifier, CancellationToken cancellationToken)
         {
-            var tableOption = Database.GetTableAsync(identifier, cancellationToken);
+            var tableOption = Database.GetTable(identifier, cancellationToken);
             var tableUri = tableOption.Map(t => new Uri("tables/" + t.Name.ToSafeKey() + ".html", UriKind.Relative));
             var tableUriIsSome = await tableUri.IsSome.ConfigureAwait(false);
             if (tableUriIsSome)
                 return await tableUri.ToOption().ConfigureAwait(false);
 
-            var viewOption = Database.GetViewAsync(identifier, cancellationToken);
+            var viewOption = Database.GetView(identifier, cancellationToken);
             var viewUri = viewOption.Map(v => new Uri("views/" + v.Name.ToSafeKey() + ".html", UriKind.Relative));
             var viewUriIsSome = await viewUri.IsSome.ConfigureAwait(false);
             if (viewUriIsSome)

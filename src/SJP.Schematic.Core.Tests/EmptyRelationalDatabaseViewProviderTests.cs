@@ -9,36 +9,36 @@ namespace SJP.Schematic.Core.Tests
     internal static class EmptyRelationalDatabaseViewProviderTests
     {
         [Test]
-        public static void GetViewAsync_GivenNullName_ThrowsArgumentNullException()
+        public static void GetView_GivenNullName_ThrowsArgumentNullException()
         {
             var provider = new EmptyRelationalDatabaseViewProvider();
-            Assert.Throws<ArgumentNullException>(() => provider.GetViewAsync(null));
+            Assert.Throws<ArgumentNullException>(() => provider.GetView(null));
         }
 
         [Test]
-        public static async Task GetViewAsync_GivenValidName_ReturnsNone()
+        public static async Task GetView_GivenValidName_ReturnsNone()
         {
             var provider = new EmptyRelationalDatabaseViewProvider();
-            var view = provider.GetViewAsync("view_name");
+            var view = provider.GetView("view_name");
             var viewIsNone = await view.IsNone.ConfigureAwait(false);
 
             Assert.IsTrue(viewIsNone);
         }
 
         [Test]
-        public static async Task ViewsAsync_PropertyGet_HasCountOfZero()
+        public static async Task GetAllViews_PropertyGet_HasCountOfZero()
         {
             var provider = new EmptyRelationalDatabaseViewProvider();
-            var views = await provider.ViewsAsync().ConfigureAwait(false);
+            var views = await provider.GetAllViews().ConfigureAwait(false);
 
             Assert.Zero(views.Count);
         }
 
         [Test]
-        public static async Task ViewsAsync_WhenEnumerated_ContainsNoValues()
+        public static async Task GetAllViews_WhenEnumerated_ContainsNoValues()
         {
             var provider = new EmptyRelationalDatabaseViewProvider();
-            var views = await provider.ViewsAsync().ConfigureAwait(false);
+            var views = await provider.GetAllViews().ConfigureAwait(false);
             var viewsList = views.ToList();
 
             Assert.Zero(viewsList.Count);

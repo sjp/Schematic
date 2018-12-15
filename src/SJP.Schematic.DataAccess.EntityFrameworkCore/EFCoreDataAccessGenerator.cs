@@ -43,7 +43,7 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore
             var dbContextGenerator = new EFCoreDbContextBuilder(Database, NameProvider, baseNamespace);
             var tableGenerator = new EFCoreTableGenerator(NameProvider, baseNamespace);
 
-            var tables = Database.TablesAsync(CancellationToken.None).GetAwaiter().GetResult();
+            var tables = Database.GetAllTables(CancellationToken.None).GetAwaiter().GetResult();
             foreach (var table in tables)
             {
                 var tableClass = tableGenerator.Generate(table);
