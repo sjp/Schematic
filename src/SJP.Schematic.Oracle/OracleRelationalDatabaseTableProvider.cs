@@ -55,10 +55,12 @@ select
     t.TABLE_NAME as ObjectName
 from ALL_TABLES t
 inner join ALL_OBJECTS o on t.OWNER = o.OWNER and t.TABLE_NAME = o.OBJECT_NAME
+left join ALL_MVIEWS mv on t.OWNER = mv.OWNER and t.TABLE_NAME = mv.MVIEW_NAME
 where
     o.ORACLE_MAINTAINED <> 'Y'
     and o.GENERATED <> 'Y'
     and o.SECONDARY <> 'Y'
+    and mv.MVIEW_NAME is null
 order by t.OWNER, t.TABLE_NAME";
 
         public OptionAsync<IRelationalDatabaseTable> GetTable(Identifier tableName, CancellationToken cancellationToken = default(CancellationToken))
@@ -105,11 +107,13 @@ order by t.OWNER, t.TABLE_NAME";
 select t.OWNER as SchemaName, t.TABLE_NAME as ObjectName
 from ALL_TABLES t
 inner join ALL_OBJECTS o on t.OWNER = o.OWNER and t.TABLE_NAME = o.OBJECT_NAME
+left join ALL_MVIEWS mv on t.OWNER = mv.OWNER and t.TABLE_NAME = mv.MVIEW_NAME
 where
     t.OWNER = :SchemaName and t.TABLE_NAME = :TableName
     and o.ORACLE_MAINTAINED <> 'Y'
     and o.GENERATED <> 'Y'
-    and o.SECONDARY <> 'Y'";
+    and o.SECONDARY <> 'Y'
+    and mv.MVIEW_NAME is null";
 
         protected virtual OptionAsync<IRelationalDatabaseTable> LoadTableAsync(Identifier tableName, CancellationToken cancellationToken)
         {
