@@ -72,7 +72,7 @@ order by t.OWNER, t.TABLE_NAME";
             return LoadTableAsync(candidateTableName, cancellationToken);
         }
 
-        public OptionAsync<Identifier> GetResolvedTableNameAsync(Identifier tableName, CancellationToken cancellationToken = default(CancellationToken))
+        protected OptionAsync<Identifier> GetResolvedTableNameAsync(Identifier tableName, CancellationToken cancellationToken = default(CancellationToken))
         {
             if (tableName == null)
                 throw new ArgumentNullException(nameof(tableName));

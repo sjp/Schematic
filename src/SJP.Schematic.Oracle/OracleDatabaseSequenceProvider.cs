@@ -62,7 +62,7 @@ order by s.SEQUENCE_OWNER, s.SEQUENCE_NAME";
             return LoadSequenceAsync(candidateSequenceName, cancellationToken);
         }
 
-        public OptionAsync<Identifier> GetResolvedSequenceNameAsync(Identifier sequenceName, CancellationToken cancellationToken = default(CancellationToken))
+        protected OptionAsync<Identifier> GetResolvedSequenceNameAsync(Identifier sequenceName, CancellationToken cancellationToken = default(CancellationToken))
         {
             if (sequenceName == null)
                 throw new ArgumentNullException(nameof(sequenceName));

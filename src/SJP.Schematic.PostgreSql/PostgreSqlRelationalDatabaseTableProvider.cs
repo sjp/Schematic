@@ -69,7 +69,7 @@ where schemaname not in ('pg_catalog', 'information_schema')";
             return LoadTableAsync(candidateTableName, cancellationToken);
         }
 
-        public OptionAsync<Identifier> GetResolvedTableNameAsync(Identifier tableName, CancellationToken cancellationToken = default(CancellationToken))
+        protected OptionAsync<Identifier> GetResolvedTableNameAsync(Identifier tableName, CancellationToken cancellationToken = default(CancellationToken))
         {
             if (tableName == null)
                 throw new ArgumentNullException(nameof(tableName));
