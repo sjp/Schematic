@@ -10,9 +10,9 @@ using SJP.Schematic.Core.Utilities;
 
 namespace SJP.Schematic.Sqlite.Tests.Integration
 {
-    internal sealed class SqliteRelationalDatabaseViewProviderTests : SqliteTest
+    internal sealed class SqliteDatabaseViewProviderTests : SqliteTest
     {
-        private IRelationalDatabaseViewProvider ViewProvider => new SqliteRelationalDatabaseViewProvider(Connection, Pragma, Dialect, IdentifierDefaults, Dialect.TypeProvider);
+        private IDatabaseViewProvider ViewProvider => new SqliteDatabaseViewProvider(Connection, Pragma, Dialect, IdentifierDefaults, Dialect.TypeProvider);
 
         [OneTimeSetUp]
         public async Task Init()
@@ -38,7 +38,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
             await Connection.ExecuteAsync("drop view view_test_view_4").ConfigureAwait(false);
         }
 
-        private Task<IRelationalDatabaseView> GetViewAsync(Identifier viewName)
+        private Task<IDatabaseView> GetViewAsync(Identifier viewName)
         {
             if (viewName == null)
                 throw new ArgumentNullException(nameof(viewName));
@@ -47,7 +47,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
             {
                 if (!_viewsCache.TryGetValue(viewName, out var lazyView))
                 {
-                    lazyView = new AsyncLazy<IRelationalDatabaseView>(() => ViewProvider.GetView(viewName).UnwrapSomeAsync());
+                    lazyView = new AsyncLazy<IDatabaseView>(() => ViewProvider.GetView(viewName).UnwrapSomeAsync());
                     _viewsCache[viewName] = lazyView;
                 }
 
@@ -56,7 +56,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
         }
 
         private readonly static object _lock = new object();
-        private readonly static ConcurrentDictionary<Identifier, AsyncLazy<IRelationalDatabaseView>> _viewsCache = new ConcurrentDictionary<Identifier, AsyncLazy<IRelationalDatabaseView>>();
+        private readonly static ConcurrentDictionary<Identifier, AsyncLazy<IDatabaseView>> _viewsCache = new ConcurrentDictionary<Identifier, AsyncLazy<IDatabaseView>>();
 
         [Test]
         public async Task GetView_WhenViewPresent_ReturnsView()
@@ -138,22 +138,12 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
         }
 
         [Test]
-        public async Task IsIndexed_WhenViewIsNotIndexed_ReturnsFalse()
+        public async Task IsMaterialized_WhenViewIsNotMaterialized_ReturnsFalse()
         {
             var viewName = new Identifier(IdentifierDefaults.Schema, "view_test_view_1");
             var view = await GetViewAsync(viewName).ConfigureAwait(false);
 
-            Assert.IsFalse(view.IsIndexed);
-        }
-
-        [Test]
-        public async Task Indexes_WhenViewIsNotIndexed_ReturnsEmptyCollection()
-        {
-            var viewName = new Identifier(IdentifierDefaults.Schema, "view_test_view_1");
-            var view = await GetViewAsync(viewName).ConfigureAwait(false);
-            var indexCount = view.Indexes.Count;
-
-            Assert.Zero(indexCount);
+            Assert.IsFalse(view.IsMaterialized);
         }
 
         [Test]

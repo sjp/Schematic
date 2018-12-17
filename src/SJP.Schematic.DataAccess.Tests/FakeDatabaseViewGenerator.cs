@@ -10,7 +10,7 @@ namespace SJP.Schematic.DataAccess.Tests
         {
         }
 
-        public override string Generate(IRelationalDatabaseView view) => string.Empty;
+        public override string Generate(IDatabaseView view) => string.Empty;
 
         public FileInfoBase InnerGetFilePath(DirectoryInfoBase baseDirectory, Identifier objectName) => GetFilePath(baseDirectory, objectName);
     }

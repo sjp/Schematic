@@ -149,11 +149,10 @@ namespace SJP.Schematic.Lint.Tests.Rules
             var viewName = new Identifier("test");
 
             var database = CreateFakeDatabase();
-            var view = new RelationalDatabaseView(
+            var view = new DatabaseView(
                 viewName,
                 "select 1",
-                new List<IDatabaseColumn>(),
-                Array.Empty<IDatabaseIndex>()
+                Array.Empty<IDatabaseColumn>()
             );
             database.Views = new[] { view };
 
@@ -169,11 +168,10 @@ namespace SJP.Schematic.Lint.Tests.Rules
             var viewName = new Identifier("SELECT");
 
             var database = CreateFakeDatabase();
-            var view = new RelationalDatabaseView(
+            var view = new DatabaseView(
                 viewName,
                 "select 1",
-                new List<IDatabaseColumn>(),
-                Array.Empty<IDatabaseIndex>()
+                Array.Empty<IDatabaseColumn>()
             );
             database.Views = new[] { view };
 
@@ -197,11 +195,10 @@ namespace SJP.Schematic.Lint.Tests.Rules
             );
 
             var database = CreateFakeDatabase();
-            var view = new RelationalDatabaseView(
+            var view = new DatabaseView(
                 viewName,
                 "select 1",
-                new List<IDatabaseColumn> { testColumn },
-                Array.Empty<IDatabaseIndex>()
+                new List<IDatabaseColumn> { testColumn }
             );
             database.Views = new[] { view };
 
@@ -225,11 +222,10 @@ namespace SJP.Schematic.Lint.Tests.Rules
             );
 
             var database = CreateFakeDatabase();
-            var view = new RelationalDatabaseView(
+            var view = new DatabaseView(
                 viewName,
                 "select 1",
-                new List<IDatabaseColumn> { testColumn },
-                Array.Empty<IDatabaseIndex>()
+                new List<IDatabaseColumn> { testColumn }
             );
             database.Views = new[] { view };
 

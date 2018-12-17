@@ -7,7 +7,7 @@ using System.Data;
 namespace SJP.Schematic.MySql.Tests
 {
     [TestFixture]
-    internal static class MySqlRelationalDatabaseViewProviderTests
+    internal static class MySqlDatabaseViewProviderTests
     {
         [Test]
         public static void Ctor_GivenNullConnection_ThrowsArgNullException()
@@ -15,7 +15,7 @@ namespace SJP.Schematic.MySql.Tests
             var identifierDefaults = Mock.Of<IIdentifierDefaults>();
             var typeProvider = Mock.Of<IDbTypeProvider>();
 
-            Assert.Throws<ArgumentNullException>(() => new MySqlRelationalDatabaseViewProvider(null, identifierDefaults, typeProvider));
+            Assert.Throws<ArgumentNullException>(() => new MySqlDatabaseViewProvider(null, identifierDefaults, typeProvider));
         }
 
         [Test]
@@ -24,7 +24,7 @@ namespace SJP.Schematic.MySql.Tests
             var connection = Mock.Of<IDbConnection>();
             var typeProvider = Mock.Of<IDbTypeProvider>();
 
-            Assert.Throws<ArgumentNullException>(() => new MySqlRelationalDatabaseViewProvider(connection, null, typeProvider));
+            Assert.Throws<ArgumentNullException>(() => new MySqlDatabaseViewProvider(connection, null, typeProvider));
         }
 
         [Test]
@@ -33,7 +33,7 @@ namespace SJP.Schematic.MySql.Tests
             var connection = Mock.Of<IDbConnection>();
             var identifierDefaults = Mock.Of<IIdentifierDefaults>();
 
-            Assert.Throws<ArgumentNullException>(() => new MySqlRelationalDatabaseViewProvider(connection, identifierDefaults, null));
+            Assert.Throws<ArgumentNullException>(() => new MySqlDatabaseViewProvider(connection, identifierDefaults, null));
         }
 
         [Test]
@@ -43,7 +43,7 @@ namespace SJP.Schematic.MySql.Tests
             var identifierDefaults = Mock.Of<IIdentifierDefaults>();
             var typeProvider = Mock.Of<IDbTypeProvider>();
 
-            var viewProvider = new MySqlRelationalDatabaseViewProvider(connection, identifierDefaults, typeProvider);
+            var viewProvider = new MySqlDatabaseViewProvider(connection, identifierDefaults, typeProvider);
 
             Assert.Throws<ArgumentNullException>(() => viewProvider.GetView(null));
         }

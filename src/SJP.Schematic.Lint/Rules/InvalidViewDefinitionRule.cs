@@ -46,7 +46,7 @@ namespace SJP.Schematic.Lint.Rules
             return result;
         }
 
-        protected IEnumerable<IRuleMessage> AnalyseView(IDatabaseDialect dialect, IRelationalDatabaseView view)
+        protected IEnumerable<IRuleMessage> AnalyseView(IDatabaseDialect dialect, IDatabaseView view)
         {
             if (dialect == null)
                 throw new ArgumentNullException(nameof(dialect));
@@ -69,7 +69,7 @@ namespace SJP.Schematic.Lint.Rules
             }
         }
 
-        protected Task<IEnumerable<IRuleMessage>> AnalyseViewAsync(IDatabaseDialect dialect, IRelationalDatabaseView view, CancellationToken cancellationToken)
+        protected Task<IEnumerable<IRuleMessage>> AnalyseViewAsync(IDatabaseDialect dialect, IDatabaseView view, CancellationToken cancellationToken)
         {
             if (dialect == null)
                 throw new ArgumentNullException(nameof(dialect));
@@ -79,7 +79,7 @@ namespace SJP.Schematic.Lint.Rules
             return AnalyseViewAsyncCore(dialect, view, cancellationToken);
         }
 
-        private async Task<IEnumerable<IRuleMessage>> AnalyseViewAsyncCore(IDatabaseDialect dialect, IRelationalDatabaseView view, CancellationToken cancellationToken)
+        private async Task<IEnumerable<IRuleMessage>> AnalyseViewAsyncCore(IDatabaseDialect dialect, IDatabaseView view, CancellationToken cancellationToken)
         {
             try
             {

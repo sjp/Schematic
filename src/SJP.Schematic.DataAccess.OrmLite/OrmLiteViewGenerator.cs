@@ -23,7 +23,7 @@ namespace SJP.Schematic.DataAccess.OrmLite
 
         protected string Namespace { get; }
 
-        public override string Generate(IRelationalDatabaseView view)
+        public override string Generate(IDatabaseView view)
         {
             if (view == null)
                 throw new ArgumentNullException(nameof(view));

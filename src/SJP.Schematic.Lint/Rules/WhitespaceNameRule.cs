@@ -64,7 +64,7 @@ namespace SJP.Schematic.Lint.Rules
             return result;
         }
 
-        protected IEnumerable<IRuleMessage> AnalyseView(IRelationalDatabaseView view)
+        protected IEnumerable<IRuleMessage> AnalyseView(IDatabaseView view)
         {
             if (view == null)
                 throw new ArgumentNullException(nameof(view));

@@ -13,9 +13,9 @@ using SJP.Schematic.Sqlite.Pragma;
 
 namespace SJP.Schematic.Sqlite
 {
-    public class SqliteRelationalDatabaseViewProvider : IRelationalDatabaseViewProvider
+    public class SqliteDatabaseViewProvider : IDatabaseViewProvider
     {
-        public SqliteRelationalDatabaseViewProvider(IDbConnection connection, ISqliteConnectionPragma pragma, IDatabaseDialect dialect, IIdentifierDefaults identifierDefaults, IDbTypeProvider typeProvider)
+        public SqliteDatabaseViewProvider(IDbConnection connection, ISqliteConnectionPragma pragma, IDatabaseDialect dialect, IIdentifierDefaults identifierDefaults, IDbTypeProvider typeProvider)
         {
             Connection = connection ?? throw new ArgumentNullException(nameof(connection));
             ConnectionPragma = pragma ?? throw new ArgumentNullException(nameof(pragma));
@@ -34,7 +34,7 @@ namespace SJP.Schematic.Sqlite
 
         protected IDbTypeProvider TypeProvider { get; }
 
-        public async Task<IReadOnlyCollection<IRelationalDatabaseView>> GetAllViews(CancellationToken cancellationToken = default(CancellationToken))
+        public async Task<IReadOnlyCollection<IDatabaseView>> GetAllViews(CancellationToken cancellationToken = default(CancellationToken))
         {
             var dbNamesQuery = await ConnectionPragma.DatabaseListAsync().ConfigureAwait(false);
             var dbNames = dbNamesQuery.OrderBy(d => d.seq).Select(l => l.name).ToList();
@@ -68,7 +68,7 @@ namespace SJP.Schematic.Sqlite
             return $"select name from { Dialect.QuoteIdentifier(schemaName) }.sqlite_master where type = 'view' order by name";
         }
 
-        public OptionAsync<IRelationalDatabaseView> GetView(Identifier viewName, CancellationToken cancellationToken = default(CancellationToken))
+        public OptionAsync<IDatabaseView> GetView(Identifier viewName, CancellationToken cancellationToken = default(CancellationToken))
         {
             if (viewName == null)
                 throw new ArgumentNullException(nameof(viewName));
@@ -76,7 +76,7 @@ namespace SJP.Schematic.Sqlite
             return GetViewAsyncCore(viewName, cancellationToken).ToAsync();
         }
 
-        private async Task<Option<IRelationalDatabaseView>> GetViewAsyncCore(Identifier viewName, CancellationToken cancellationToken)
+        private async Task<Option<IDatabaseView>> GetViewAsyncCore(Identifier viewName, CancellationToken cancellationToken)
         {
             if (viewName.Schema != null)
             {
@@ -97,7 +97,7 @@ namespace SJP.Schematic.Sqlite
                     return await view.ToOption().ConfigureAwait(false);
             }
 
-            return Option<IRelationalDatabaseView>.None;
+            return Option<IDatabaseView>.None;
         }
 
         protected OptionAsync<Identifier> GetResolvedViewNameAsync(Identifier viewName, CancellationToken cancellationToken)
@@ -159,7 +159,7 @@ namespace SJP.Schematic.Sqlite
             return $"select name from { Dialect.QuoteIdentifier(schemaName) }.sqlite_master where type = 'view' and lower(name) = lower(@ViewName)";
         }
 
-        protected virtual OptionAsync<IRelationalDatabaseView> LoadViewAsync(Identifier viewName, CancellationToken cancellationToken)
+        protected virtual OptionAsync<IDatabaseView> LoadViewAsync(Identifier viewName, CancellationToken cancellationToken)
         {
             if (viewName == null)
                 throw new ArgumentNullException(nameof(viewName));
@@ -168,13 +168,13 @@ namespace SJP.Schematic.Sqlite
             return LoadViewAsyncCore(candidateViewName, cancellationToken).ToAsync();
         }
 
-        private async Task<Option<IRelationalDatabaseView>> LoadViewAsyncCore(Identifier viewName, CancellationToken cancellationToken)
+        private async Task<Option<IDatabaseView>> LoadViewAsyncCore(Identifier viewName, CancellationToken cancellationToken)
         {
             var candidateViewName = QualifyViewName(viewName);
             var resolvedViewNameOption = GetResolvedViewNameAsync(candidateViewName, cancellationToken);
             var resolvedViewNameOptionIsNone = await resolvedViewNameOption.IsNone.ConfigureAwait(false);
             if (resolvedViewNameOptionIsNone)
-                return Option<IRelationalDatabaseView>.None;
+                return Option<IDatabaseView>.None;
 
             var resolvedViewName = await resolvedViewNameOption.UnwrapSomeAsync().ConfigureAwait(false);
             var databasePragma = new DatabasePragma(Dialect, Connection, resolvedViewName.Schema);
@@ -185,10 +185,9 @@ namespace SJP.Schematic.Sqlite
 
             var columns = columnsTask.Result;
             var definition = definitionTask.Result;
-            var indexes = Array.Empty<IDatabaseIndex>();
 
-            var view = new RelationalDatabaseView(resolvedViewName, definition, columns, indexes);
-            return Option<IRelationalDatabaseView>.Some(view);
+            var view = new DatabaseView(resolvedViewName, definition, columns);
+            return Option<IDatabaseView>.Some(view);
         }
 
         protected virtual Task<string> LoadDefinitionAsync(Identifier viewName, CancellationToken cancellationToken)

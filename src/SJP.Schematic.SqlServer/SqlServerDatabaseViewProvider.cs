@@ -12,9 +12,9 @@ using SJP.Schematic.SqlServer.Query;
 
 namespace SJP.Schematic.SqlServer
 {
-    public class SqlServerRelationalDatabaseViewProvider : IRelationalDatabaseViewProvider
+    public class SqlServerDatabaseViewProvider : IDatabaseViewProvider
     {
-        public SqlServerRelationalDatabaseViewProvider(IDbConnection connection, IIdentifierDefaults identifierDefaults, IDbTypeProvider typeProvider)
+        public SqlServerDatabaseViewProvider(IDbConnection connection, IIdentifierDefaults identifierDefaults, IDbTypeProvider typeProvider)
         {
             Connection = connection ?? throw new ArgumentNullException(nameof(connection));
             IdentifierDefaults = identifierDefaults ?? throw new ArgumentNullException(nameof(identifierDefaults));
@@ -29,7 +29,7 @@ namespace SJP.Schematic.SqlServer
 
         protected IDatabaseDialect Dialect { get; } = new SqlServerDialect();
 
-        public async Task<IReadOnlyCollection<IRelationalDatabaseView>> GetAllViews(CancellationToken cancellationToken = default(CancellationToken))
+        public async Task<IReadOnlyCollection<IDatabaseView>> GetAllViews(CancellationToken cancellationToken = default(CancellationToken))
         {
             var queryResult = await Connection.QueryAsync<QualifiedName>(ViewsQuery, cancellationToken).ConfigureAwait(false);
             var viewNames = queryResult
@@ -48,7 +48,7 @@ namespace SJP.Schematic.SqlServer
 
         private const string ViewsQuerySql = "select schema_name(schema_id) as SchemaName, name as ObjectName from sys.views order by schema_name(schema_id), name";
 
-        public OptionAsync<IRelationalDatabaseView> GetView(Identifier viewName, CancellationToken cancellationToken = default(CancellationToken))
+        public OptionAsync<IDatabaseView> GetView(Identifier viewName, CancellationToken cancellationToken = default(CancellationToken))
         {
             if (viewName == null)
                 throw new ArgumentNullException(nameof(viewName));
@@ -79,7 +79,7 @@ select top 1 schema_name(schema_id) as SchemaName, name as ObjectName
 from sys.views
 where schema_id = schema_id(@SchemaName) and name = @ViewName";
 
-        protected virtual OptionAsync<IRelationalDatabaseView> LoadViewAsync(Identifier viewName, CancellationToken cancellationToken)
+        protected virtual OptionAsync<IDatabaseView> LoadViewAsync(Identifier viewName, CancellationToken cancellationToken)
         {
             if (viewName == null)
                 throw new ArgumentNullException(nameof(viewName));
@@ -88,13 +88,13 @@ where schema_id = schema_id(@SchemaName) and name = @ViewName";
             return LoadViewAsyncCore(candidateViewName, cancellationToken).ToAsync();
         }
 
-        private async Task<Option<IRelationalDatabaseView>> LoadViewAsyncCore(Identifier viewName, CancellationToken cancellationToken)
+        private async Task<Option<IDatabaseView>> LoadViewAsyncCore(Identifier viewName, CancellationToken cancellationToken)
         {
             var candidateViewName = QualifyViewName(viewName);
             var resolvedViewNameOption = GetResolvedViewNameAsync(candidateViewName, cancellationToken);
             var resolvedViewNameOptionIsNone = await resolvedViewNameOption.IsNone.ConfigureAwait(false);
             if (resolvedViewNameOptionIsNone)
-                return Option<IRelationalDatabaseView>.None;
+                return Option<IDatabaseView>.None;
 
             var resolvedViewName = await resolvedViewNameOption.UnwrapSomeAsync().ConfigureAwait(false);
 
@@ -107,8 +107,10 @@ where schema_id = schema_id(@SchemaName) and name = @ViewName";
             var definition = definitionTask.Result;
             var indexes = await LoadIndexesAsync(resolvedViewName, columnLookup, cancellationToken).ConfigureAwait(false);
 
-            var view = new RelationalDatabaseView(resolvedViewName, definition, columns, indexes);
-            return Option<IRelationalDatabaseView>.Some(view);
+            var view = indexes.Count > 0
+                ? new DatabaseMaterializedView(resolvedViewName, definition, columns)
+                : new DatabaseView(resolvedViewName, definition, columns);
+            return Option<IDatabaseView>.Some(view);
         }
 
         protected virtual Task<string> LoadDefinitionAsync(Identifier viewName, CancellationToken cancellationToken)

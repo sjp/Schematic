@@ -8,11 +8,11 @@ using SJP.Schematic.Core;
 using SJP.Schematic.Core.Extensions;
 using SJP.Schematic.Core.Utilities;
 
-namespace SJP.Schematic.MySql.Tests.Integration
+namespace SJP.Schematic.PostgreSql.Tests.Integration
 {
-    internal sealed class MySqlRelationalDatabaseViewProviderTests : MySqlTest
+    internal sealed class PostgreSqlDatabaseViewProviderTests : PostgreSqlTest
     {
-        private IRelationalDatabaseViewProvider ViewProvider => new MySqlRelationalDatabaseViewProvider(Connection, IdentifierDefaults, Dialect.TypeProvider);
+        private IDatabaseViewProvider ViewProvider => new PostgreSqlDatabaseViewProvider(Connection, IdentifierDefaults, IdentifierResolver, Dialect.TypeProvider);
 
         [OneTimeSetUp]
         public async Task Init()
@@ -34,7 +34,7 @@ namespace SJP.Schematic.MySql.Tests.Integration
             await Connection.ExecuteAsync("drop table view_test_table_1").ConfigureAwait(false);
         }
 
-        private Task<IRelationalDatabaseView> GetViewAsync(Identifier viewName)
+        private Task<IDatabaseView> GetViewAsync(Identifier viewName)
         {
             if (viewName == null)
                 throw new ArgumentNullException(nameof(viewName));
@@ -43,7 +43,7 @@ namespace SJP.Schematic.MySql.Tests.Integration
             {
                 if (!_viewsCache.TryGetValue(viewName, out var lazyView))
                 {
-                    lazyView = new AsyncLazy<IRelationalDatabaseView>(() => ViewProvider.GetView(viewName).UnwrapSomeAsync());
+                    lazyView = new AsyncLazy<IDatabaseView>(() => ViewProvider.GetView(viewName).UnwrapSomeAsync());
                     _viewsCache[viewName] = lazyView;
                 }
 
@@ -52,7 +52,7 @@ namespace SJP.Schematic.MySql.Tests.Integration
         }
 
         private readonly static object _lock = new object();
-        private readonly static ConcurrentDictionary<Identifier, AsyncLazy<IRelationalDatabaseView>> _viewsCache = new ConcurrentDictionary<Identifier, AsyncLazy<IRelationalDatabaseView>>();
+        private readonly static ConcurrentDictionary<Identifier, AsyncLazy<IDatabaseView>> _viewsCache = new ConcurrentDictionary<Identifier, AsyncLazy<IDatabaseView>>();
 
         [Test]
         public async Task GetView_WhenViewPresent_ReturnsView()
@@ -82,7 +82,7 @@ namespace SJP.Schematic.MySql.Tests.Integration
         }
 
         [Test]
-        public async Task GetView_GivenSchemaAndLocalNameOnly_ShouldBeQualifiedCorrectly()
+        public async Task GetView_WhenViewPresentGivenSchemaAndLocalNameOnly_ShouldBeQualifiedCorrectly()
         {
             var viewName = new Identifier(IdentifierDefaults.Schema, "db_test_view_1");
             var expectedViewName = new Identifier(IdentifierDefaults.Server, IdentifierDefaults.Database, IdentifierDefaults.Schema, "db_test_view_1");
@@ -163,29 +163,21 @@ namespace SJP.Schematic.MySql.Tests.Integration
         [Test]
         public async Task Definition_PropertyGet_ReturnsCorrectDefinition()
         {
-            var view = await GetViewAsync("view_test_view_1").ConfigureAwait(false);
+            var viewName = new Identifier(IdentifierDefaults.Schema, "view_test_view_1");
+            var view = await GetViewAsync(viewName).ConfigureAwait(false);
 
             var definition = view.Definition;
-            const string expected = "select 1 AS `test`";
+            const string expected = " SELECT 1 AS test;";
 
             Assert.AreEqual(expected, definition);
         }
 
         [Test]
-        public async Task IsIndexed_WhenViewIsNotIndexed_ReturnsFalse()
+        public async Task IsMaterialized_WhenViewIsNotMaterialized_ReturnsFalse()
         {
             var view = await GetViewAsync("view_test_view_1").ConfigureAwait(false);
 
-            Assert.IsFalse(view.IsIndexed);
-        }
-
-        [Test]
-        public async Task Indexes_WhenViewIsNotIndexed_ReturnsEmptyCollection()
-        {
-            var view = await GetViewAsync("view_test_view_1").ConfigureAwait(false);
-            var indexCount = view.Indexes.Count;
-
-            Assert.Zero(indexCount);
+            Assert.IsFalse(view.IsMaterialized);
         }
 
         [Test]

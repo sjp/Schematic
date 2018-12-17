@@ -4,6 +4,6 @@ namespace SJP.Schematic.DataAccess
 {
     public interface IDatabaseViewGenerator : IDatabaseEntityGenerator
     {
-        string Generate(IRelationalDatabaseView view);
+        string Generate(IDatabaseView view);
     }
 }

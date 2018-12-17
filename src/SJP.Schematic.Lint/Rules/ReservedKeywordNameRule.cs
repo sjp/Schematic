@@ -77,7 +77,7 @@ namespace SJP.Schematic.Lint.Rules
             return result;
         }
 
-        protected IEnumerable<IRuleMessage> AnalyseView(IDatabaseDialect dialect, IRelationalDatabaseView view)
+        protected IEnumerable<IRuleMessage> AnalyseView(IDatabaseDialect dialect, IDatabaseView view)
         {
             if (dialect == null)
                 throw new ArgumentNullException(nameof(dialect));

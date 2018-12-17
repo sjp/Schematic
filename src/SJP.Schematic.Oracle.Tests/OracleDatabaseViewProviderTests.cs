@@ -4,10 +4,10 @@ using Moq;
 using SJP.Schematic.Core;
 using System.Data;
 
-namespace SJP.Schematic.PostgreSql.Tests
+namespace SJP.Schematic.Oracle.Tests
 {
     [TestFixture]
-    internal static class PostgreSqlRelationalDatabaseViewProviderTests
+    internal static class OracleDatabaseViewProviderTests
     {
         [Test]
         public static void Ctor_GivenNullConnection_ThrowsArgNullException()
@@ -16,7 +16,7 @@ namespace SJP.Schematic.PostgreSql.Tests
             var identifierResolver = Mock.Of<IIdentifierResolutionStrategy>();
             var typeProvider = Mock.Of<IDbTypeProvider>();
 
-            Assert.Throws<ArgumentNullException>(() => new PostgreSqlRelationalDatabaseViewProvider(null, identifierDefaults, identifierResolver, typeProvider));
+            Assert.Throws<ArgumentNullException>(() => new OracleDatabaseViewProvider(null, identifierDefaults, identifierResolver, typeProvider));
         }
 
         [Test]
@@ -26,7 +26,7 @@ namespace SJP.Schematic.PostgreSql.Tests
             var identifierResolver = Mock.Of<IIdentifierResolutionStrategy>();
             var typeProvider = Mock.Of<IDbTypeProvider>();
 
-            Assert.Throws<ArgumentNullException>(() => new PostgreSqlRelationalDatabaseViewProvider(connection, null, identifierResolver, typeProvider));
+            Assert.Throws<ArgumentNullException>(() => new OracleDatabaseViewProvider(connection, null, identifierResolver, typeProvider));
         }
 
         [Test]
@@ -36,7 +36,7 @@ namespace SJP.Schematic.PostgreSql.Tests
             var identifierDefaults = Mock.Of<IIdentifierDefaults>();
             var typeProvider = Mock.Of<IDbTypeProvider>();
 
-            Assert.Throws<ArgumentNullException>(() => new PostgreSqlRelationalDatabaseViewProvider(connection, identifierDefaults, null, typeProvider));
+            Assert.Throws<ArgumentNullException>(() => new OracleDatabaseViewProvider(connection, identifierDefaults, null, typeProvider));
         }
 
         [Test]
@@ -46,7 +46,7 @@ namespace SJP.Schematic.PostgreSql.Tests
             var identifierDefaults = Mock.Of<IIdentifierDefaults>();
             var identifierResolver = Mock.Of<IIdentifierResolutionStrategy>();
 
-            Assert.Throws<ArgumentNullException>(() => new PostgreSqlRelationalDatabaseViewProvider(connection, identifierDefaults, identifierResolver, null));
+            Assert.Throws<ArgumentNullException>(() => new OracleDatabaseViewProvider(connection, identifierDefaults, identifierResolver, null));
         }
 
         [Test]
@@ -57,7 +57,7 @@ namespace SJP.Schematic.PostgreSql.Tests
             var identifierResolver = Mock.Of<IIdentifierResolutionStrategy>();
             var typeProvider = Mock.Of<IDbTypeProvider>();
 
-            var viewProvider = new PostgreSqlRelationalDatabaseViewProvider(connection, identifierDefaults, identifierResolver, typeProvider);
+            var viewProvider = new OracleDatabaseViewProvider(connection, identifierDefaults, identifierResolver, typeProvider);
 
             Assert.Throws<ArgumentNullException>(() => viewProvider.GetView(null));
         }

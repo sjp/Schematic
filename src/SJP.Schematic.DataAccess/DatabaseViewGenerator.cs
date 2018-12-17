@@ -15,7 +15,7 @@ namespace SJP.Schematic.DataAccess
 
         protected INameProvider NameProvider { get; }
 
-        public abstract string Generate(IRelationalDatabaseView view);
+        public abstract string Generate(IDatabaseView view);
 
         public virtual FileInfoBase GetFilePath(DirectoryInfoBase baseDirectory, Identifier objectName)
         {

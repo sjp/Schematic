@@ -31,9 +31,9 @@ namespace SJP.Schematic.Core.Tests.Extensions
             return tableMock.Object;
         }
 
-        private static IRelationalDatabaseView GetMockView(Identifier viewName)
+        private static IDatabaseView GetMockView(Identifier viewName)
         {
-            var viewMock = new Mock<IRelationalDatabaseView>();
+            var viewMock = new Mock<IDatabaseView>();
             viewMock.SetupGet(v => v.Name).Returns(viewName);
 
             return viewMock.Object;

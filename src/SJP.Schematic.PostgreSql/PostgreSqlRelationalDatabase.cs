@@ -15,7 +15,7 @@ namespace SJP.Schematic.PostgreSql
         {
             IdentifierResolver = identifierResolver ?? throw new ArgumentNullException(nameof(identifierResolver));
             _tableProvider = new PostgreSqlRelationalDatabaseTableProvider(connection, identifierDefaults, identifierResolver, dialect.TypeProvider);
-            _viewProvider = new PostgreSqlRelationalDatabaseViewProvider(connection, identifierDefaults, identifierResolver, dialect.TypeProvider);
+            _viewProvider = new PostgreSqlDatabaseViewProvider(connection, identifierDefaults, identifierResolver, dialect.TypeProvider);
             _sequenceProvider = new PostgreSqlDatabaseSequenceProvider(connection, identifierDefaults, identifierResolver);
         }
 
@@ -34,12 +34,12 @@ namespace SJP.Schematic.PostgreSql
             return _tableProvider.GetTable(tableName, cancellationToken);
         }
 
-        public Task<IReadOnlyCollection<IRelationalDatabaseView>> GetAllViews(CancellationToken cancellationToken = default(CancellationToken))
+        public Task<IReadOnlyCollection<IDatabaseView>> GetAllViews(CancellationToken cancellationToken = default(CancellationToken))
         {
             return _viewProvider.GetAllViews(cancellationToken);
         }
 
-        public OptionAsync<IRelationalDatabaseView> GetView(Identifier viewName, CancellationToken cancellationToken = default(CancellationToken))
+        public OptionAsync<IDatabaseView> GetView(Identifier viewName, CancellationToken cancellationToken = default(CancellationToken))
         {
             if (viewName == null)
                 throw new ArgumentNullException(nameof(viewName));
@@ -74,7 +74,7 @@ namespace SJP.Schematic.PostgreSql
         }
 
         private readonly IRelationalDatabaseTableProvider _tableProvider;
-        private readonly IRelationalDatabaseViewProvider _viewProvider;
+        private readonly IDatabaseViewProvider _viewProvider;
         private readonly IDatabaseSequenceProvider _sequenceProvider;
         private readonly static IDatabaseSynonymProvider _synonymProvider = new EmptyDatabaseSynonymProvider();
     }

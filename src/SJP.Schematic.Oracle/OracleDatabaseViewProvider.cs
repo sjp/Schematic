@@ -13,9 +13,9 @@ using SJP.Schematic.Oracle.Query;
 
 namespace SJP.Schematic.Oracle
 {
-    public class OracleRelationalDatabaseViewProvider : IRelationalDatabaseViewProvider
+    public class OracleDatabaseViewProvider : IDatabaseViewProvider
     {
-        public OracleRelationalDatabaseViewProvider(IDbConnection connection, IIdentifierDefaults identifierDefaults, IIdentifierResolutionStrategy identifierResolver, IDbTypeProvider typeProvider)
+        public OracleDatabaseViewProvider(IDbConnection connection, IIdentifierDefaults identifierDefaults, IIdentifierResolutionStrategy identifierResolver, IDbTypeProvider typeProvider)
         {
             Connection = connection ?? throw new ArgumentNullException(nameof(connection));
             IdentifierDefaults = identifierDefaults ?? throw new ArgumentNullException(nameof(identifierDefaults));
@@ -33,7 +33,7 @@ namespace SJP.Schematic.Oracle
 
         protected IDatabaseDialect Dialect { get; }
 
-        public async Task<IReadOnlyCollection<IRelationalDatabaseView>> GetAllViews(CancellationToken cancellationToken = default(CancellationToken))
+        public async Task<IReadOnlyCollection<IDatabaseView>> GetAllViews(CancellationToken cancellationToken = default(CancellationToken))
         {
             var queryResult = await Connection.QueryAsync<QualifiedName>(ViewsQuery, cancellationToken).ConfigureAwait(false);
             var viewNames = queryResult
@@ -59,7 +59,7 @@ inner join ALL_OBJECTS o on v.OWNER = o.OWNER and v.VIEW_NAME = o.OBJECT_NAME
 where o.ORACLE_MAINTAINED <> 'Y'
 order by v.OWNER, v.VIEW_NAME";
 
-        public OptionAsync<IRelationalDatabaseView> GetView(Identifier viewName, CancellationToken cancellationToken = default(CancellationToken))
+        public OptionAsync<IDatabaseView> GetView(Identifier viewName, CancellationToken cancellationToken = default(CancellationToken))
         {
             if (viewName == null)
                 throw new ArgumentNullException(nameof(viewName));
@@ -105,7 +105,7 @@ from ALL_VIEWS v
 inner join ALL_OBJECTS o on v.OWNER = o.OWNER and v.VIEW_NAME = o.OBJECT_NAME
 where v.OWNER = :SchemaName and v.VIEW_NAME = :ViewName and o.ORACLE_MAINTAINED <> 'Y'";
 
-        protected virtual OptionAsync<IRelationalDatabaseView> LoadViewAsync(Identifier viewName, CancellationToken cancellationToken)
+        protected virtual OptionAsync<IDatabaseView> LoadViewAsync(Identifier viewName, CancellationToken cancellationToken)
         {
             if (viewName == null)
                 throw new ArgumentNullException(nameof(viewName));
@@ -114,13 +114,13 @@ where v.OWNER = :SchemaName and v.VIEW_NAME = :ViewName and o.ORACLE_MAINTAINED 
             return LoadViewAsyncCore(candidateViewName, cancellationToken).ToAsync();
         }
 
-        private async Task<Option<IRelationalDatabaseView>> LoadViewAsyncCore(Identifier viewName, CancellationToken cancellationToken)
+        private async Task<Option<IDatabaseView>> LoadViewAsyncCore(Identifier viewName, CancellationToken cancellationToken)
         {
             var candidateViewName = QualifyViewName(viewName);
             var resolvedViewNameOption = GetResolvedViewNameAsync(candidateViewName, cancellationToken);
             var resolvedViewNameOptionIsNone = await resolvedViewNameOption.IsNone.ConfigureAwait(false);
             if (resolvedViewNameOptionIsNone)
-                return Option<IRelationalDatabaseView>.None;
+                return Option<IDatabaseView>.None;
 
             var resolvedViewName = await resolvedViewNameOption.UnwrapSomeAsync().ConfigureAwait(false);
 
@@ -130,10 +130,9 @@ where v.OWNER = :SchemaName and v.VIEW_NAME = :ViewName and o.ORACLE_MAINTAINED 
 
             var columns = columnsTask.Result;
             var definition = definitionTask.Result;
-            var indexes = Array.Empty<IDatabaseIndex>();
 
-            var view = new RelationalDatabaseView(resolvedViewName, definition, columns, indexes);
-            return Option<IRelationalDatabaseView>.Some(view);
+            var view = new DatabaseView(resolvedViewName, definition, columns);
+            return Option<IDatabaseView>.Some(view);
         }
 
         protected virtual Task<string> LoadDefinitionAsync(Identifier viewName, CancellationToken cancellationToken)

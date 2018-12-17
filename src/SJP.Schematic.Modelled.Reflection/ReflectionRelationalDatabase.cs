@@ -33,7 +33,7 @@ namespace SJP.Schematic.Modelled.Reflection
             EnsureUniqueTypes(DatabaseDefinitionType, TypeProvider);
 
             _tableLookup = new Lazy<IReadOnlyDictionary<Identifier, IRelationalDatabaseTable>>(LoadTables);
-            _viewLookup = new Lazy<IReadOnlyDictionary<Identifier, IRelationalDatabaseView>>(LoadViews);
+            _viewLookup = new Lazy<IReadOnlyDictionary<Identifier, IDatabaseView>>(LoadViews);
             _sequenceLookup = new Lazy<IReadOnlyDictionary<Identifier, IDatabaseSequence>>(LoadSequences);
             _synonymLookup = new Lazy<IReadOnlyDictionary<Identifier, IDatabaseSynonym>>(LoadSynonyms);
         }
@@ -106,7 +106,7 @@ namespace SJP.Schematic.Modelled.Reflection
             return lookup;
         }
 
-        public OptionAsync<IRelationalDatabaseView> GetView(Identifier viewName, CancellationToken cancellationToken = default(CancellationToken))
+        public OptionAsync<IDatabaseView> GetView(Identifier viewName, CancellationToken cancellationToken = default(CancellationToken))
         {
             if (viewName == null)
                 throw new ArgumentNullException(nameof(viewName));
@@ -114,37 +114,37 @@ namespace SJP.Schematic.Modelled.Reflection
             viewName = CreateQualifiedIdentifier(viewName);
 
             return View.TryGetValue(viewName, out var view)
-                ? OptionAsync<IRelationalDatabaseView>.Some(view)
-                : OptionAsync<IRelationalDatabaseView>.None;
+                ? OptionAsync<IDatabaseView>.Some(view)
+                : OptionAsync<IDatabaseView>.None;
         }
 
-        public IReadOnlyCollection<IRelationalDatabaseView> Views => new ReadOnlyCollectionSlim<IRelationalDatabaseView>(View.Count, View.Values);
+        public IReadOnlyCollection<IDatabaseView> Views => new ReadOnlyCollectionSlim<IDatabaseView>(View.Count, View.Values);
 
-        public Task<IReadOnlyCollection<IRelationalDatabaseView>> GetAllViews(CancellationToken cancellationToken = default(CancellationToken)) => Task.FromResult(Views);
+        public Task<IReadOnlyCollection<IDatabaseView>> GetAllViews(CancellationToken cancellationToken = default(CancellationToken)) => Task.FromResult(Views);
 
-        protected IReadOnlyDictionary<Identifier, IRelationalDatabaseView> View => _viewLookup.Value;
+        protected IReadOnlyDictionary<Identifier, IDatabaseView> View => _viewLookup.Value;
 
-        protected virtual Option<IRelationalDatabaseView> LoadViewSync(Type viewType)
+        protected virtual Option<IDatabaseView> LoadViewSync(Type viewType)
         {
             if (viewType == null)
                 throw new ArgumentNullException(nameof(viewType));
 
             // TODO: check whether this even exists...
             var view = new ReflectionView(this, viewType);
-            return Option<IRelationalDatabaseView>.Some(view);
+            return Option<IDatabaseView>.Some(view);
         }
 
-        protected virtual OptionAsync<IRelationalDatabaseView> LoadViewAsync(Type viewType)
+        protected virtual OptionAsync<IDatabaseView> LoadViewAsync(Type viewType)
         {
             if (viewType == null)
                 throw new ArgumentNullException(nameof(viewType));
 
             // TODO: check whether this even exists...
             var view = new ReflectionView(this, viewType);
-            return OptionAsync<IRelationalDatabaseView>.Some(view);
+            return OptionAsync<IDatabaseView>.Some(view);
         }
 
-        protected virtual IReadOnlyDictionary<Identifier, IRelationalDatabaseView> LoadViews()
+        protected virtual IReadOnlyDictionary<Identifier, IDatabaseView> LoadViews()
         {
             var views = TypeProvider.Views.Select(LoadViewSync).ToList();
             if (views.Empty())
@@ -328,12 +328,12 @@ namespace SJP.Schematic.Modelled.Reflection
         }
 
         private readonly Lazy<IReadOnlyDictionary<Identifier, IRelationalDatabaseTable>> _tableLookup;
-        private readonly Lazy<IReadOnlyDictionary<Identifier, IRelationalDatabaseView>> _viewLookup;
+        private readonly Lazy<IReadOnlyDictionary<Identifier, IDatabaseView>> _viewLookup;
         private readonly Lazy<IReadOnlyDictionary<Identifier, IDatabaseSequence>> _sequenceLookup;
         private readonly Lazy<IReadOnlyDictionary<Identifier, IDatabaseSynonym>> _synonymLookup;
 
         private readonly static IReadOnlyDictionary<Identifier, IRelationalDatabaseTable> _emptyTableLookup = new Dictionary<Identifier, IRelationalDatabaseTable>();
-        private readonly static IReadOnlyDictionary<Identifier, IRelationalDatabaseView> _emptyViewLookup = new Dictionary<Identifier, IRelationalDatabaseView>();
+        private readonly static IReadOnlyDictionary<Identifier, IDatabaseView> _emptyViewLookup = new Dictionary<Identifier, IDatabaseView>();
         private readonly static IReadOnlyDictionary<Identifier, IDatabaseSequence> _emptySequenceLookup = new Dictionary<Identifier, IDatabaseSequence>();
         private readonly static IReadOnlyDictionary<Identifier, IDatabaseSynonym> _emptySynonymLookup = new Dictionary<Identifier, IDatabaseSynonym>();
     }

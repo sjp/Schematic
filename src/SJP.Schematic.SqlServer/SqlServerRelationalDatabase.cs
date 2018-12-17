@@ -14,7 +14,7 @@ namespace SJP.Schematic.SqlServer
             : base(dialect, connection, identifierDefaults)
         {
             _tableProvider = new SqlServerRelationalDatabaseTableProvider(connection, identifierDefaults, dialect.TypeProvider);
-            _viewProvider = new SqlServerRelationalDatabaseViewProvider(connection, identifierDefaults, dialect.TypeProvider);
+            _viewProvider = new SqlServerDatabaseViewProvider(connection, identifierDefaults, dialect.TypeProvider);
             _sequenceProvider = new SqlServerDatabaseSequenceProvider(connection, identifierDefaults);
             _synonymProvider = new SqlServerDatabaseSynonymProvider(connection, identifierDefaults);
         }
@@ -32,12 +32,12 @@ namespace SJP.Schematic.SqlServer
             return _tableProvider.GetTable(tableName, cancellationToken);
         }
 
-        public Task<IReadOnlyCollection<IRelationalDatabaseView>> GetAllViews(CancellationToken cancellationToken = default(CancellationToken))
+        public Task<IReadOnlyCollection<IDatabaseView>> GetAllViews(CancellationToken cancellationToken = default(CancellationToken))
         {
             return _viewProvider.GetAllViews(cancellationToken);
         }
 
-        public OptionAsync<IRelationalDatabaseView> GetView(Identifier viewName, CancellationToken cancellationToken = default(CancellationToken))
+        public OptionAsync<IDatabaseView> GetView(Identifier viewName, CancellationToken cancellationToken = default(CancellationToken))
         {
             if (viewName == null)
                 throw new ArgumentNullException(nameof(viewName));
@@ -72,7 +72,7 @@ namespace SJP.Schematic.SqlServer
         }
 
         private readonly IRelationalDatabaseTableProvider _tableProvider;
-        private readonly IRelationalDatabaseViewProvider _viewProvider;
+        private readonly IDatabaseViewProvider _viewProvider;
         private readonly IDatabaseSequenceProvider _sequenceProvider;
         private readonly IDatabaseSynonymProvider _synonymProvider;
     }

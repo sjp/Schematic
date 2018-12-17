@@ -4,7 +4,7 @@ using SJP.Schematic.Core;
 
 namespace SJP.Schematic.Modelled.Reflection
 {
-    public class ReflectionView : IRelationalDatabaseView
+    public class ReflectionView : IDatabaseView
     {
         public ReflectionView(IRelationalDatabase database, Type viewType)
         {
@@ -24,22 +24,8 @@ namespace SJP.Schematic.Modelled.Reflection
             }
         }
 
-        public IReadOnlyCollection<IDatabaseIndex> Indexes
-        {
-            get
-            {
-                throw new NotImplementedException();
-            }
-        }
-
-        public bool IsIndexed
-        {
-            get
-            {
-                throw new NotImplementedException();
-            }
-        }
-
         public Identifier Name { get; }
+
+        public bool IsMaterialized => throw new NotImplementedException();
     }
 }

@@ -16,7 +16,7 @@ namespace SJP.Schematic.Oracle
             IdentifierResolver = identifierResolver ?? throw new ArgumentNullException(nameof(identifierResolver));
 
             _tableProvider = new OracleRelationalDatabaseTableProvider(connection, identifierDefaults, identifierResolver, dialect.TypeProvider);
-            _viewProvider = new OracleRelationalDatabaseViewProvider(connection, identifierDefaults, identifierResolver, dialect.TypeProvider);
+            _viewProvider = new OracleDatabaseViewProvider(connection, identifierDefaults, identifierResolver, dialect.TypeProvider);
             _sequenceProvider = new OracleDatabaseSequenceProvider(connection, identifierDefaults, identifierResolver);
             _synonymProvider = new OracleDatabaseSynonymProvider(connection, identifierDefaults, identifierResolver);
         }
@@ -36,12 +36,12 @@ namespace SJP.Schematic.Oracle
             return _tableProvider.GetTable(tableName, cancellationToken);
         }
 
-        public Task<IReadOnlyCollection<IRelationalDatabaseView>> GetAllViews(CancellationToken cancellationToken = default(CancellationToken))
+        public Task<IReadOnlyCollection<IDatabaseView>> GetAllViews(CancellationToken cancellationToken = default(CancellationToken))
         {
             return _viewProvider.GetAllViews(cancellationToken);
         }
 
-        public OptionAsync<IRelationalDatabaseView> GetView(Identifier viewName, CancellationToken cancellationToken = default(CancellationToken))
+        public OptionAsync<IDatabaseView> GetView(Identifier viewName, CancellationToken cancellationToken = default(CancellationToken))
         {
             if (viewName == null)
                 throw new ArgumentNullException(nameof(viewName));
@@ -76,7 +76,7 @@ namespace SJP.Schematic.Oracle
         }
 
         private readonly IRelationalDatabaseTableProvider _tableProvider;
-        private readonly IRelationalDatabaseViewProvider _viewProvider;
+        private readonly IDatabaseViewProvider _viewProvider;
         private readonly IDatabaseSequenceProvider _sequenceProvider;
         private readonly IDatabaseSynonymProvider _synonymProvider;
     }

@@ -18,7 +18,7 @@ namespace SJP.Schematic.Sqlite
         {
             var pragma = new ConnectionPragma(Dialect, Connection);
             _tableProvider = new SqliteRelationalDatabaseTableProvider(connection, pragma, dialect, identifierDefaults, dialect.TypeProvider);
-            _viewProvider = new SqliteRelationalDatabaseViewProvider(connection, pragma, dialect, identifierDefaults, dialect.TypeProvider);
+            _viewProvider = new SqliteDatabaseViewProvider(connection, pragma, dialect, identifierDefaults, dialect.TypeProvider);
         }
 
         public Task<IReadOnlyCollection<IRelationalDatabaseTable>> GetAllTables(CancellationToken cancellationToken = default(CancellationToken))
@@ -34,12 +34,12 @@ namespace SJP.Schematic.Sqlite
             return _tableProvider.GetTable(tableName, cancellationToken);
         }
 
-        public Task<IReadOnlyCollection<IRelationalDatabaseView>> GetAllViews(CancellationToken cancellationToken = default(CancellationToken))
+        public Task<IReadOnlyCollection<IDatabaseView>> GetAllViews(CancellationToken cancellationToken = default(CancellationToken))
         {
             return _viewProvider.GetAllViews(cancellationToken);
         }
 
-        public OptionAsync<IRelationalDatabaseView> GetView(Identifier viewName, CancellationToken cancellationToken = default(CancellationToken))
+        public OptionAsync<IDatabaseView> GetView(Identifier viewName, CancellationToken cancellationToken = default(CancellationToken))
         {
             if (viewName == null)
                 throw new ArgumentNullException(nameof(viewName));
@@ -173,7 +173,7 @@ namespace SJP.Schematic.Sqlite
         }
 
         private readonly IRelationalDatabaseTableProvider _tableProvider;
-        private readonly IRelationalDatabaseViewProvider _viewProvider;
+        private readonly IDatabaseViewProvider _viewProvider;
         private readonly static IDatabaseSequenceProvider _sequenceProvider = new EmptyDatabaseSequenceProvider();
         private readonly static IDatabaseSynonymProvider _synonymProvider = new EmptyDatabaseSynonymProvider();
     }

@@ -74,7 +74,7 @@ namespace SJP.Schematic.Modelled
             return tables.HeadOrNone();
         }
 
-        public OptionAsync<IRelationalDatabaseView> GetView(Identifier viewName, CancellationToken cancellationToken = default(CancellationToken))
+        public OptionAsync<IDatabaseView> GetView(Identifier viewName, CancellationToken cancellationToken = default(CancellationToken))
         {
             if (viewName == null)
                 throw new ArgumentNullException(nameof(viewName));
@@ -82,7 +82,7 @@ namespace SJP.Schematic.Modelled
             return LoadViewAsync(viewName, cancellationToken);
         }
 
-        public async Task<IReadOnlyCollection<IRelationalDatabaseView>> GetAllViews(CancellationToken cancellationToken = default(CancellationToken))
+        public async Task<IReadOnlyCollection<IDatabaseView>> GetAllViews(CancellationToken cancellationToken = default(CancellationToken))
         {
             var viewsTasks = Databases.Select(d => d.GetAllViews(cancellationToken));
             var viewCollections = await Task.WhenAll(viewsTasks).ConfigureAwait(false);
@@ -93,7 +93,7 @@ namespace SJP.Schematic.Modelled
                 .ToList();
         }
 
-        protected virtual OptionAsync<IRelationalDatabaseView> LoadViewAsync(Identifier viewName, CancellationToken cancellationToken)
+        protected virtual OptionAsync<IDatabaseView> LoadViewAsync(Identifier viewName, CancellationToken cancellationToken)
         {
             if (viewName == null)
                 throw new ArgumentNullException(nameof(viewName));
@@ -101,7 +101,7 @@ namespace SJP.Schematic.Modelled
             return LoadViewAsyncCore(viewName, cancellationToken).ToAsync();
         }
 
-        private async Task<Option<IRelationalDatabaseView>> LoadViewAsyncCore(Identifier viewName, CancellationToken cancellationToken)
+        private async Task<Option<IDatabaseView>> LoadViewAsyncCore(Identifier viewName, CancellationToken cancellationToken)
         {
             var views = await Databases
                 .Select(d => d.GetView(viewName, cancellationToken))

@@ -7,7 +7,7 @@ using System.Data;
 namespace SJP.Schematic.SqlServer.Tests
 {
     [TestFixture]
-    internal static class SqlServerRelationalDatabaseViewProviderTests
+    internal static class SqlServerDatabaseViewProviderTests
     {
         [Test]
         public static void Ctor_GivenNullConnection_ThrowsArgNullException()
@@ -15,7 +15,7 @@ namespace SJP.Schematic.SqlServer.Tests
             var identifierDefaults = Mock.Of<IIdentifierDefaults>();
             var typeProvider = Mock.Of<IDbTypeProvider>();
 
-            Assert.Throws<ArgumentNullException>(() => new SqlServerRelationalDatabaseViewProvider(null, identifierDefaults, typeProvider));
+            Assert.Throws<ArgumentNullException>(() => new SqlServerDatabaseViewProvider(null, identifierDefaults, typeProvider));
         }
 
         [Test]
@@ -24,7 +24,7 @@ namespace SJP.Schematic.SqlServer.Tests
             var connection = Mock.Of<IDbConnection>();
             var typeProvider = Mock.Of<IDbTypeProvider>();
 
-            Assert.Throws<ArgumentNullException>(() => new SqlServerRelationalDatabaseViewProvider(connection, null, typeProvider));
+            Assert.Throws<ArgumentNullException>(() => new SqlServerDatabaseViewProvider(connection, null, typeProvider));
         }
 
         [Test]
@@ -33,7 +33,7 @@ namespace SJP.Schematic.SqlServer.Tests
             var connection = Mock.Of<IDbConnection>();
             var identifierDefaults = Mock.Of<IIdentifierDefaults>();
 
-            Assert.Throws<ArgumentNullException>(() => new SqlServerRelationalDatabaseViewProvider(connection, identifierDefaults, null));
+            Assert.Throws<ArgumentNullException>(() => new SqlServerDatabaseViewProvider(connection, identifierDefaults, null));
         }
 
         [Test]
@@ -43,7 +43,7 @@ namespace SJP.Schematic.SqlServer.Tests
             var identifierDefaults = Mock.Of<IIdentifierDefaults>();
             var typeProvider = Mock.Of<IDbTypeProvider>();
 
-            var viewProvider = new SqlServerRelationalDatabaseViewProvider(connection, identifierDefaults, typeProvider);
+            var viewProvider = new SqlServerDatabaseViewProvider(connection, identifierDefaults, typeProvider);
 
             Assert.Throws<ArgumentNullException>(() => viewProvider.GetView(null));
         }

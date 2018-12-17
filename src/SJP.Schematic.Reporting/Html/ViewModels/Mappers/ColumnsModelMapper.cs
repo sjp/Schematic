@@ -49,7 +49,7 @@ namespace SJP.Schematic.Reporting.Html.ViewModels.Mappers
             }).ToList();
         }
 
-        public IEnumerable<Columns.ViewColumn> Map(IRelationalDatabaseView view)
+        public IEnumerable<Columns.ViewColumn> Map(IDatabaseView view)
         {
             if (view == null)
                 throw new ArgumentNullException(nameof(view));

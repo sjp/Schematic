@@ -2,7 +2,7 @@
 {
     public interface IRelationalDatabase
         : IRelationalDatabaseTableProvider,
-          IRelationalDatabaseViewProvider,
+          IDatabaseViewProvider,
           IDatabaseSequenceProvider,
           IDatabaseSynonymProvider
     {

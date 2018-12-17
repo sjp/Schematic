@@ -15,7 +15,7 @@ namespace SJP.Schematic.Core.Tests.Fakes
 
         public virtual IReadOnlyCollection<IRelationalDatabaseTable> Tables { get; set; } = new List<IRelationalDatabaseTable>();
 
-        public virtual IReadOnlyCollection<IRelationalDatabaseView> Views { get; set; } = new List<IRelationalDatabaseView>();
+        public virtual IReadOnlyCollection<IDatabaseView> Views { get; set; } = new List<IDatabaseView>();
 
         public virtual IReadOnlyCollection<IDatabaseSequence> Sequences { get; set; } = new List<IDatabaseSequence>();
 
@@ -36,7 +36,7 @@ namespace SJP.Schematic.Core.Tests.Fakes
             return Tables.Find(t => t.Name == tableName).ToAsync();
         }
 
-        public virtual OptionAsync<IRelationalDatabaseView> GetView(Identifier viewName, CancellationToken cancellationToken = default(CancellationToken))
+        public virtual OptionAsync<IDatabaseView> GetView(Identifier viewName, CancellationToken cancellationToken = default(CancellationToken))
         {
             return Views.Find(v => v.Name == viewName).ToAsync();
         }
@@ -47,6 +47,6 @@ namespace SJP.Schematic.Core.Tests.Fakes
 
         public virtual Task<IReadOnlyCollection<IRelationalDatabaseTable>> GetAllTables(CancellationToken cancellationToken = default(CancellationToken)) => Task.FromResult(Tables);
 
-        public virtual Task<IReadOnlyCollection<IRelationalDatabaseView>> GetAllViews(CancellationToken cancellationToken = default(CancellationToken)) => Task.FromResult(Views);
+        public virtual Task<IReadOnlyCollection<IDatabaseView>> GetAllViews(CancellationToken cancellationToken = default(CancellationToken)) => Task.FromResult(Views);
     }
 }

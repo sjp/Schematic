@@ -44,7 +44,7 @@ namespace SJP.Schematic.Reporting.Html.ViewModels.Mappers
             );
         }
 
-        public Task<Main.View> MapAsync(IRelationalDatabaseView view, CancellationToken cancellationToken)
+        public Task<Main.View> MapAsync(IDatabaseView view, CancellationToken cancellationToken)
         {
             if (view == null)
                 throw new ArgumentNullException(nameof(view));
@@ -52,7 +52,7 @@ namespace SJP.Schematic.Reporting.Html.ViewModels.Mappers
             return MapAsyncCore(view, cancellationToken);
         }
 
-        private async Task<Main.View> MapAsyncCore(IRelationalDatabaseView view, CancellationToken cancellationToken)
+        private async Task<Main.View> MapAsyncCore(IDatabaseView view, CancellationToken cancellationToken)
         {
             var columnCount = view.Columns.UCount();
             var rowCount = await Connection.GetRowCountAsync(Database.Dialect, view.Name, cancellationToken).ConfigureAwait(false);

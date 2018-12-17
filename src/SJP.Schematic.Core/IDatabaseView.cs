@@ -1,5 +1,13 @@
-﻿namespace SJP.Schematic.Core
+﻿using System.Collections.Generic;
+
+namespace SJP.Schematic.Core
 {
-    // TODO: Push relational into this?
-    public interface IDatabaseView : IDatabaseEntity { }
+    public interface IDatabaseView : IDatabaseQueryable
+    {
+        string Definition { get; }
+
+        IReadOnlyList<IDatabaseColumn> Columns { get; }
+
+        bool IsMaterialized { get; }
+    }
 }
