@@ -103,11 +103,10 @@ where schema_id = schema_id(@SchemaName) and name = @ViewName";
             await Task.WhenAll(columnsTask, definitionTask).ConfigureAwait(false);
 
             var columns = columnsTask.Result;
-            var columnLookup = GetColumnLookup(columns);
             var definition = definitionTask.Result;
-            var indexes = await LoadIndexesAsync(resolvedViewName, columnLookup, cancellationToken).ConfigureAwait(false);
+            var isMaterialized = await LoadIndexExistsAsync(resolvedViewName, cancellationToken).ConfigureAwait(false);
 
-            var view = indexes.Count > 0
+            var view = isMaterialized
                 ? new DatabaseMaterializedView(resolvedViewName, definition, columns)
                 : new DatabaseView(resolvedViewName, definition, columns);
             return Option<IDatabaseView>.Some(view);
@@ -133,85 +132,25 @@ from sys.sql_modules sm
 inner join sys.views v on sm.object_id = v.object_id
 where schema_name(v.schema_id) = @SchemaName and v.name = @ViewName";
 
-        protected virtual Task<IReadOnlyCollection<IDatabaseIndex>> LoadIndexesAsync(Identifier viewName, IReadOnlyDictionary<Identifier, IDatabaseColumn> columns, CancellationToken cancellationToken)
+        protected virtual Task<bool> LoadIndexExistsAsync(Identifier viewName, CancellationToken cancellationToken)
         {
             if (viewName == null)
                 throw new ArgumentNullException(nameof(viewName));
-            if (columns == null)
-                throw new ArgumentNullException(nameof(columns));
 
-            return LoadIndexesAsyncCore(viewName, columns, cancellationToken);
-        }
-
-        private async Task<IReadOnlyCollection<IDatabaseIndex>> LoadIndexesAsyncCore(Identifier viewName, IReadOnlyDictionary<Identifier, IDatabaseColumn> columns, CancellationToken cancellationToken)
-        {
-            var queryResult = await Connection.QueryAsync<IndexColumns>(
-                IndexesQuery,
+            return Connection.ExecuteScalarAsync<bool>(
+                IndexExistsQuery,
                 new { SchemaName = viewName.Schema, ViewName = viewName.LocalName },
                 cancellationToken
-            ).ConfigureAwait(false);
-
-            if (queryResult.Empty())
-                return Array.Empty<IDatabaseIndex>();
-
-            var indexColumns = queryResult.GroupBy(row => new { row.IndexName, row.IsUnique, row.IsDisabled }).ToList();
-            if (indexColumns.Empty())
-                return Array.Empty<IDatabaseIndex>();
-
-            var result = new List<IDatabaseIndex>(indexColumns.Count);
-            foreach (var indexInfo in indexColumns)
-            {
-                var isUnique = indexInfo.Key.IsUnique;
-                var indexName = Identifier.CreateQualifiedIdentifier(indexInfo.Key.IndexName);
-                var isEnabled = !indexInfo.Key.IsDisabled;
-
-                var indexCols = indexInfo
-                    .Where(row => !row.IsIncludedColumn)
-                    .OrderBy(row => row.KeyOrdinal)
-                    .ThenBy(row => row.IndexColumnId)
-                    .Select(row => new { row.IsDescending, Column = columns[row.ColumnName] })
-                    .Select(row =>
-                    {
-                        var order = row.IsDescending ? IndexColumnOrder.Descending : IndexColumnOrder.Ascending;
-                        var column = row.Column;
-                        var expression = Dialect.QuoteName(column.Name);
-                        return new DatabaseIndexColumn(expression, column, order);
-                    })
-                    .ToList();
-
-                var includedCols = indexInfo
-                    .Where(row => row.IsIncludedColumn)
-                    .OrderBy(row => row.KeyOrdinal)
-                    .ThenBy(row => row.IndexColumnId)
-                    .Select(row => columns[row.ColumnName])
-                    .ToList();
-
-                var index = new DatabaseIndex(indexName, isUnique, indexCols, includedCols, isEnabled);
-                result.Add(index);
-            }
-
-            return result;
+            );
         }
 
-        protected virtual string IndexesQuery => IndexesQuerySql;
+        protected virtual string IndexExistsQuery => IndexExistsQuerySql;
 
-        private const string IndexesQuerySql = @"
-select
-    i.name as IndexName,
-    i.is_unique as IsUnique,
-    ic.key_ordinal as KeyOrdinal,
-    ic.index_column_id as IndexColumnId,
-    ic.is_included_column as IsIncludedColumn,
-    ic.is_descending_key as IsDescending,
-    c.name as ColumnName,
-    i.is_disabled as IsDisabled
+        private const string IndexExistsQuerySql = @"
+select top 1 1
 from sys.views v
 inner join sys.indexes i on v.object_id = i.object_id
-inner join sys.index_columns ic on i.object_id = ic.object_id and i.index_id = ic.index_id
-inner join sys.columns c on ic.object_id = c.object_id and ic.column_id = c.column_id
-where schema_name(v.schema_id) = @SchemaName and v.name = @ViewName
-    and i.is_primary_key = 0 and i.is_unique_constraint = 0
-order by ic.index_id, ic.key_ordinal, ic.index_column_id";
+where schema_name(v.schema_id) = @SchemaName and v.name = @ViewName";
 
         protected virtual Task<IReadOnlyList<IDatabaseColumn>> LoadColumnsAsync(Identifier viewName, CancellationToken cancellationToken)
         {
@@ -290,22 +229,6 @@ order by c.column_id";
 
             var schema = viewName.Schema ?? IdentifierDefaults.Schema;
             return Identifier.CreateQualifiedIdentifier(IdentifierDefaults.Server, IdentifierDefaults.Database, schema, viewName.LocalName);
-        }
-
-        private static IReadOnlyDictionary<Identifier, IDatabaseColumn> GetColumnLookup(IReadOnlyCollection<IDatabaseColumn> columns)
-        {
-            if (columns == null)
-                throw new ArgumentNullException(nameof(columns));
-
-            var result = new Dictionary<Identifier, IDatabaseColumn>(columns.Count);
-
-            foreach (var column in columns)
-            {
-                if (column.Name != null)
-                    result[column.Name.LocalName] = column;
-            }
-
-            return result;
         }
     }
 }
