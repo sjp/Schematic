@@ -58,20 +58,5 @@ namespace SJP.Schematic.Oracle
             return QueryViewProvider.GetView(viewName, cancellationToken)
                  | MaterializedViewProvider.GetView(viewName, cancellationToken);
         }
-
-        // This is equivalent to the '|' operator on OptionAsync<T> objects.
-        // However, this method is necessary because we need to set ConfigureAwait(false)
-        // on the async task, which the built-in '|' operator does not do.
-        // Without this method we get InProgressException errors...
-        //private async Task<Option<IDatabaseView>> GetViewAsyncCore(Identifier viewName, CancellationToken cancellationToken)
-        //{
-        //    var queryView = QueryViewProvider.GetView(viewName, cancellationToken);
-        //    var queryViewIsSome = await queryView.IsSome.ConfigureAwait(false);
-        //    if (queryViewIsSome)
-        //        return await queryView.ToOption().ConfigureAwait(false);
-        //
-        //    var materializedView = MaterializedViewProvider.GetView(viewName, cancellationToken);
-        //    return await materializedView.ToOption().ConfigureAwait(false);
-        //}
     }
 }

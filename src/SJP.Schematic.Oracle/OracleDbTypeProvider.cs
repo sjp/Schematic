@@ -141,10 +141,6 @@ namespace SJP.Schematic.Oracle
             }
             else if (typeMetadata.MaxLength > 0)
             {
-                //var maxLength = typeMetadata.DataType == DataType.Unicode || typeMetadata.DataType == DataType.UnicodeText
-                //    ? typeMetadata.MaxLength / 2
-                //    : typeMetadata.MaxLength;
-
                 builder.Append("(");
                 var maxLength = typeMetadata.MaxLength;
                 builder.Append(maxLength.ToString(CultureInfo.InvariantCulture));
