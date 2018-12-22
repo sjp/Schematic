@@ -22,6 +22,7 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration
             await Connection.ExecuteAsync("create view view_test_view_1 as select 1 as test").ConfigureAwait(false);
             await Connection.ExecuteAsync("create table view_test_table_1 (table_id int primary key not null)").ConfigureAwait(false);
             await Connection.ExecuteAsync("create view view_test_view_2 as select table_id as test from view_test_table_1").ConfigureAwait(false);
+            await Connection.ExecuteAsync("create materialized view view_test_matview_1 as select table_id as test from view_test_table_1").ConfigureAwait(false);
         }
 
         [OneTimeTearDown]
@@ -31,6 +32,7 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration
 
             await Connection.ExecuteAsync("drop view view_test_view_1").ConfigureAwait(false);
             await Connection.ExecuteAsync("drop view view_test_view_2").ConfigureAwait(false);
+            await Connection.ExecuteAsync("drop materialized view view_test_matview_1").ConfigureAwait(false);
             await Connection.ExecuteAsync("drop table view_test_table_1").ConfigureAwait(false);
         }
 
@@ -194,6 +196,61 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration
         public async Task Columns_WhenViewContainsSingleColumn_ContainsColumnName()
         {
             var viewName = new Identifier(IdentifierDefaults.Schema, "view_test_view_1");
+            var view = await GetViewAsync(viewName).ConfigureAwait(false);
+            var containsColumn = view.Columns.Any(c => c.Name == "test");
+
+            Assert.IsTrue(containsColumn);
+        }
+
+        [Test]
+        public async Task GetAllViews_WhenEnumerated_ContainsTestMaterializedView()
+        {
+            const string viewName = "view_test_matview_1";
+            var views = await ViewProvider.GetAllViews().ConfigureAwait(false);
+            var containsTestView = views.Any(v => v.Name.LocalName == viewName);
+
+            Assert.True(containsTestView);
+        }
+
+        [Test]
+        public async Task Definition_PropertyGet_ReturnsCorrectDefinitionForMaterializedView()
+        {
+            var viewName = new Identifier(IdentifierDefaults.Schema, "view_test_matview_1");
+            var view = await GetViewAsync(viewName).ConfigureAwait(false);
+
+            var definition = view.Definition;
+            const string expected = @" SELECT view_test_table_1.table_id AS test
+   FROM view_test_table_1;";
+
+            // line endings may differ depending on platform, ignore them
+            var cleanedDefinition = definition.Replace("\r", string.Empty).Replace("\n", string.Empty);
+            var cleanedExpected = expected.Replace("\r", string.Empty).Replace("\n", string.Empty);
+
+            Assert.AreEqual(cleanedExpected, cleanedDefinition);
+        }
+
+        [Test]
+        public async Task IsMaterialized_WhenViewIsMaterialized_ReturnsTrue()
+        {
+            var view = await GetViewAsync("view_test_matview_1").ConfigureAwait(false);
+
+            Assert.IsTrue(view.IsMaterialized);
+        }
+
+        [Test]
+        public async Task Columns_WhenMaterializedViewContainsSingleColumn_ContainsOneValueOnly()
+        {
+            var viewName = new Identifier(IdentifierDefaults.Schema, "view_test_matview_1");
+            var view = await GetViewAsync(viewName).ConfigureAwait(false);
+            var columnCount = view.Columns.Count;
+
+            Assert.AreEqual(1, columnCount);
+        }
+
+        [Test]
+        public async Task Columns_WhenMaterializedViewContainsSingleColumn_ContainsColumnName()
+        {
+            var viewName = new Identifier(IdentifierDefaults.Schema, "view_test_matview_1");
             var view = await GetViewAsync(viewName).ConfigureAwait(false);
             var containsColumn = view.Columns.Any(c => c.Name == "test");
 

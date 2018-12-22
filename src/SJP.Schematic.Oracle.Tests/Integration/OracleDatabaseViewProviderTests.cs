@@ -22,7 +22,6 @@ namespace SJP.Schematic.Oracle.Tests.Integration
             await Connection.ExecuteAsync("create view view_test_view_1 as select 1 as test from dual").ConfigureAwait(false);
             await Connection.ExecuteAsync("create table view_test_table_1 (table_id number)").ConfigureAwait(false);
             await Connection.ExecuteAsync("create materialized view view_test_view_2 as select table_id as test from view_test_table_1").ConfigureAwait(false);
-            await Connection.ExecuteAsync("create unique index ix_view_test_view_2 on view_test_view_2 (test)").ConfigureAwait(false);
         }
 
         [OneTimeTearDown]
@@ -35,7 +34,7 @@ namespace SJP.Schematic.Oracle.Tests.Integration
             await Connection.ExecuteAsync("drop table view_test_table_1").ConfigureAwait(false);
         }
 
-        private Task<IDatabaseView> GetView(Identifier viewName)
+        private Task<IDatabaseView> GetViewAsync(Identifier viewName)
         {
             if (viewName == null)
                 throw new ArgumentNullException(nameof(viewName));
@@ -165,7 +164,7 @@ namespace SJP.Schematic.Oracle.Tests.Integration
         [Test]
         public async Task Definition_PropertyGet_ReturnsCorrectDefinition()
         {
-            var view = await GetView("VIEW_TEST_VIEW_1").ConfigureAwait(false);
+            var view = await GetViewAsync("VIEW_TEST_VIEW_1").ConfigureAwait(false);
 
             var definition = view.Definition;
             const string expected = "select 1 as test from dual";
@@ -176,7 +175,7 @@ namespace SJP.Schematic.Oracle.Tests.Integration
         [Test]
         public async Task IsMaterialized_WhenViewIsNotMaterialized_ReturnsFalse()
         {
-            var view = await GetView("VIEW_TEST_VIEW_1").ConfigureAwait(false);
+            var view = await GetViewAsync("VIEW_TEST_VIEW_1").ConfigureAwait(false);
 
             Assert.IsFalse(view.IsMaterialized);
         }
@@ -184,7 +183,7 @@ namespace SJP.Schematic.Oracle.Tests.Integration
         [Test]
         public async Task Columns_WhenViewContainsSingleColumn_ContainsOneValueOnly()
         {
-            var view = await GetView("VIEW_TEST_VIEW_1").ConfigureAwait(false);
+            var view = await GetViewAsync("VIEW_TEST_VIEW_1").ConfigureAwait(false);
             var columnCount = view.Columns.Count;
 
             Assert.AreEqual(1, columnCount);
@@ -194,8 +193,58 @@ namespace SJP.Schematic.Oracle.Tests.Integration
         public async Task Columns_WhenViewContainsSingleColumn_ContainsColumnName()
         {
             const string expectedColumnName = "TEST";
-            var view = await GetView("VIEW_TEST_VIEW_1").ConfigureAwait(false);
+            var view = await GetViewAsync("VIEW_TEST_VIEW_1").ConfigureAwait(false);
             var containsColumn = view.Columns.Any(c => c.Name == expectedColumnName);
+
+            Assert.IsTrue(containsColumn);
+        }
+
+        [Test]
+        public async Task GetAllViews_WhenEnumerated_ContainsTestMaterializedView()
+        {
+            const string viewName = "VIEW_TEST_VIEW_2";
+            var views = await ViewProvider.GetAllViews().ConfigureAwait(false);
+            var containsTestView = views.Any(v => v.Name.LocalName == viewName);
+
+            Assert.True(containsTestView);
+        }
+
+        [Test]
+        public async Task Definition_PropertyGet_ReturnsCorrectDefinitionForMaterializedView()
+        {
+            var viewName = new Identifier(IdentifierDefaults.Schema, "VIEW_TEST_VIEW_2");
+            var view = await GetViewAsync(viewName).ConfigureAwait(false);
+
+            var definition = view.Definition;
+            const string expected = "select table_id as test from view_test_table_1";
+
+            Assert.AreEqual(expected, definition);
+        }
+
+        [Test]
+        public async Task IsMaterialized_WhenViewIsMaterialized_ReturnsTrue()
+        {
+            var view = await GetViewAsync("VIEW_TEST_VIEW_2").ConfigureAwait(false);
+
+            Assert.IsTrue(view.IsMaterialized);
+        }
+
+        [Test]
+        public async Task Columns_WhenMaterializedViewContainsSingleColumn_ContainsOneValueOnly()
+        {
+            var viewName = new Identifier(IdentifierDefaults.Schema, "VIEW_TEST_VIEW_2");
+            var view = await GetViewAsync(viewName).ConfigureAwait(false);
+            var columnCount = view.Columns.Count;
+
+            Assert.AreEqual(1, columnCount);
+        }
+
+        [Test]
+        public async Task Columns_WhenMaterializedViewContainsSingleColumn_ContainsColumnName()
+        {
+            var viewName = new Identifier(IdentifierDefaults.Schema, "VIEW_TEST_VIEW_2");
+            var view = await GetViewAsync(viewName).ConfigureAwait(false);
+            var containsColumn = view.Columns.Any(c => c.Name == "TEST");
 
             Assert.IsTrue(containsColumn);
         }
