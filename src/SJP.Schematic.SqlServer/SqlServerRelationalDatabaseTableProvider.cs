@@ -37,7 +37,7 @@ namespace SJP.Schematic.SqlServer
                 .ToList();
 
             var tables = await tableNames
-                .Select(name => LoadTableAsync(name, cancellationToken))
+                .Select(name => LoadTable(name, cancellationToken))
                 .Somes()
                 .ConfigureAwait(false);
 
@@ -54,16 +54,16 @@ namespace SJP.Schematic.SqlServer
                 throw new ArgumentNullException(nameof(tableName));
 
             var candidateTableName = QualifyTableName(tableName);
-            return LoadTableAsync(candidateTableName, cancellationToken);
+            return LoadTable(candidateTableName, cancellationToken);
         }
 
-        protected OptionAsync<Identifier> GetResolvedTableNameAsync(Identifier tableName, CancellationToken cancellationToken)
+        protected OptionAsync<Identifier> GetResolvedTableName(Identifier tableName, CancellationToken cancellationToken)
         {
             if (tableName == null)
                 throw new ArgumentNullException(nameof(tableName));
 
             tableName = QualifyTableName(tableName);
-            var qualifiedTableName = Connection.QueryFirstOrNoneAsync<QualifiedName>(
+            var qualifiedTableName = Connection.QueryFirstOrNone<QualifiedName>(
                 TableNameQuery,
                 new { SchemaName = tableName.Schema, TableName = tableName.LocalName },
                 cancellationToken
@@ -79,7 +79,7 @@ select top 1 schema_name(schema_id) as SchemaName, name as ObjectName
 from sys.tables
 where schema_id = schema_id(@SchemaName) and name = @TableName";
 
-        protected virtual OptionAsync<IRelationalDatabaseTable> LoadTableAsync(Identifier tableName, CancellationToken cancellationToken)
+        protected virtual OptionAsync<IRelationalDatabaseTable> LoadTable(Identifier tableName, CancellationToken cancellationToken)
         {
             if (tableName == null)
                 throw new ArgumentNullException(nameof(tableName));
@@ -91,7 +91,7 @@ where schema_id = schema_id(@SchemaName) and name = @TableName";
         private async Task<Option<IRelationalDatabaseTable>> LoadTableAsyncCore(Identifier tableName, CancellationToken cancellationToken)
         {
             var candidateTableName = QualifyTableName(tableName);
-            var resolvedTableNameOption = GetResolvedTableNameAsync(candidateTableName, cancellationToken);
+            var resolvedTableNameOption = GetResolvedTableName(candidateTableName, cancellationToken);
             var resolvedTableNameOptionIsNone = await resolvedTableNameOption.IsNone.ConfigureAwait(false);
             if (resolvedTableNameOptionIsNone)
                 return Option<IRelationalDatabaseTable>.None;
@@ -376,7 +376,7 @@ order by ic.key_ordinal";
             foreach (var groupedChildKey in groupedChildKeys)
             {
                 var candidateChildTableName = Identifier.CreateQualifiedIdentifier(groupedChildKey.Key.ChildTableSchema, groupedChildKey.Key.ChildTableName);
-                var childTableNameOption = GetResolvedTableNameAsync(candidateChildTableName, cancellationToken);
+                var childTableNameOption = GetResolvedTableName(candidateChildTableName, cancellationToken);
                 var childTableNameOptionIsNone = await childTableNameOption.IsNone.ConfigureAwait(false);
                 if (childTableNameOptionIsNone)
                     throw new Exception("Could not find child table with name: " + candidateChildTableName.ToString());
@@ -512,7 +512,7 @@ where schema_name(t.schema_id) = @SchemaName and t.name = @TableName";
             foreach (var fkey in foreignKeys)
             {
                 var candidateParentTableName = Identifier.CreateQualifiedIdentifier(fkey.Key.ParentTableSchema, fkey.Key.ParentTableName);
-                var parentTableNameOption = GetResolvedTableNameAsync(candidateParentTableName, cancellationToken);
+                var parentTableNameOption = GetResolvedTableName(candidateParentTableName, cancellationToken);
                 var parentTableNameOptionIsNone = await parentTableNameOption.IsNone.ConfigureAwait(false);
                 if (parentTableNameOptionIsNone)
                     throw new Exception("Could not find parent table with name: " + candidateParentTableName.ToString());

@@ -37,7 +37,7 @@ namespace SJP.Schematic.SqlServer
                 .ToList();
 
             var views = await viewNames
-                .Select(name => LoadViewAsync(name, cancellationToken))
+                .Select(name => LoadView(name, cancellationToken))
                 .Somes()
                 .ConfigureAwait(false);
 
@@ -54,16 +54,16 @@ namespace SJP.Schematic.SqlServer
                 throw new ArgumentNullException(nameof(viewName));
 
             var candidateViewName = QualifyViewName(viewName);
-            return LoadViewAsync(candidateViewName, cancellationToken);
+            return LoadView(candidateViewName, cancellationToken);
         }
 
-        protected OptionAsync<Identifier> GetResolvedViewNameAsync(Identifier viewName, CancellationToken cancellationToken)
+        protected OptionAsync<Identifier> GetResolvedViewName(Identifier viewName, CancellationToken cancellationToken)
         {
             if (viewName == null)
                 throw new ArgumentNullException(nameof(viewName));
 
             var candidateViewName = QualifyViewName(viewName);
-            var qualifiedViewName = Connection.QueryFirstOrNoneAsync<QualifiedName>(
+            var qualifiedViewName = Connection.QueryFirstOrNone<QualifiedName>(
                 ViewNameQuery,
                 new { SchemaName = candidateViewName.Schema, ViewName = candidateViewName.LocalName },
                 cancellationToken
@@ -79,7 +79,7 @@ select top 1 schema_name(schema_id) as SchemaName, name as ObjectName
 from sys.views
 where schema_id = schema_id(@SchemaName) and name = @ViewName";
 
-        protected virtual OptionAsync<IDatabaseView> LoadViewAsync(Identifier viewName, CancellationToken cancellationToken)
+        protected virtual OptionAsync<IDatabaseView> LoadView(Identifier viewName, CancellationToken cancellationToken)
         {
             if (viewName == null)
                 throw new ArgumentNullException(nameof(viewName));
@@ -91,7 +91,7 @@ where schema_id = schema_id(@SchemaName) and name = @ViewName";
         private async Task<Option<IDatabaseView>> LoadViewAsyncCore(Identifier viewName, CancellationToken cancellationToken)
         {
             var candidateViewName = QualifyViewName(viewName);
-            var resolvedViewNameOption = GetResolvedViewNameAsync(candidateViewName, cancellationToken);
+            var resolvedViewNameOption = GetResolvedViewName(candidateViewName, cancellationToken);
             var resolvedViewNameOptionIsNone = await resolvedViewNameOption.IsNone.ConfigureAwait(false);
             if (resolvedViewNameOptionIsNone)
                 return Option<IDatabaseView>.None;

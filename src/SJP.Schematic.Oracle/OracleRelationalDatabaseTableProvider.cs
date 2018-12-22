@@ -40,7 +40,7 @@ namespace SJP.Schematic.Oracle
                 .ToList();
 
             var tables = await tableNames
-                .Select(name => LoadTableAsync(name, cancellationToken))
+                .Select(name => LoadTable(name, cancellationToken))
                 .Somes()
                 .ConfigureAwait(false);
 
@@ -69,10 +69,10 @@ order by t.OWNER, t.TABLE_NAME";
                 throw new ArgumentNullException(nameof(tableName));
 
             var candidateTableName = QualifyTableName(tableName);
-            return LoadTableAsync(candidateTableName, cancellationToken);
+            return LoadTable(candidateTableName, cancellationToken);
         }
 
-        protected OptionAsync<Identifier> GetResolvedTableNameAsync(Identifier tableName, CancellationToken cancellationToken = default(CancellationToken))
+        protected OptionAsync<Identifier> GetResolvedTableName(Identifier tableName, CancellationToken cancellationToken = default(CancellationToken))
         {
             if (tableName == null)
                 throw new ArgumentNullException(nameof(tableName));
@@ -82,17 +82,17 @@ order by t.OWNER, t.TABLE_NAME";
                 .Select(QualifyTableName);
 
             return resolvedNames
-                .Select(name => GetResolvedTableNameStrictAsync(name, cancellationToken))
-                .FirstSomeAsync(cancellationToken);
+                .Select(name => GetResolvedTableNameStrict(name, cancellationToken))
+                .FirstSome(cancellationToken);
         }
 
-        protected OptionAsync<Identifier> GetResolvedTableNameStrictAsync(Identifier tableName, CancellationToken cancellationToken)
+        protected OptionAsync<Identifier> GetResolvedTableNameStrict(Identifier tableName, CancellationToken cancellationToken)
         {
             if (tableName == null)
                 throw new ArgumentNullException(nameof(tableName));
 
             var candidateTableName = QualifyTableName(tableName);
-            var qualifiedTableName = Connection.QueryFirstOrNoneAsync<QualifiedName>(
+            var qualifiedTableName = Connection.QueryFirstOrNone<QualifiedName>(
                 TableNameQuery,
                 new { SchemaName = candidateTableName.Schema, TableName = candidateTableName.LocalName },
                 cancellationToken
@@ -115,7 +115,7 @@ where
     and o.SECONDARY <> 'Y'
     and mv.MVIEW_NAME is null";
 
-        protected virtual OptionAsync<IRelationalDatabaseTable> LoadTableAsync(Identifier tableName, CancellationToken cancellationToken)
+        protected virtual OptionAsync<IRelationalDatabaseTable> LoadTable(Identifier tableName, CancellationToken cancellationToken)
         {
             if (tableName == null)
                 throw new ArgumentNullException(nameof(tableName));
@@ -127,7 +127,7 @@ where
         private async Task<Option<IRelationalDatabaseTable>> LoadTableAsyncCore(Identifier tableName, CancellationToken cancellationToken)
         {
             var candidateTableName = QualifyTableName(tableName);
-            var resolvedTableNameOption = GetResolvedTableNameAsync(candidateTableName);
+            var resolvedTableNameOption = GetResolvedTableName(candidateTableName);
             var resolvedTableNameOptionIsNone = await resolvedTableNameOption.IsNone.ConfigureAwait(false);
             if (resolvedTableNameOptionIsNone)
                 return Option<IRelationalDatabaseTable>.None;
@@ -378,7 +378,7 @@ where ac.OWNER = :SchemaName and ac.TABLE_NAME = :TableName and ac.CONSTRAINT_TY
             foreach (var childKeyRow in childKeyRows)
             {
                 var candidateChildTableName = Identifier.CreateQualifiedIdentifier(childKeyRow.ChildTableSchema, childKeyRow.ChildTableName);
-                var childTableNameOption = GetResolvedTableNameAsync(candidateChildTableName);
+                var childTableNameOption = GetResolvedTableName(candidateChildTableName);
                 var childTableNameOptionIsNone = await childTableNameOption.IsNone.ConfigureAwait(false);
                 if (childTableNameOptionIsNone)
                     throw new Exception("Could not find child table with name: " + candidateChildTableName.ToString());
@@ -525,7 +525,7 @@ where OWNER = :SchemaName and TABLE_NAME = :TableName and CONSTRAINT_TYPE = 'C'"
             foreach (var fkey in foreignKeys)
             {
                 var candidateParentTableName = Identifier.CreateQualifiedIdentifier(fkey.Key.ParentTableSchema, fkey.Key.ParentTableName);
-                var parentTableNameOption = GetResolvedTableNameAsync(candidateParentTableName);
+                var parentTableNameOption = GetResolvedTableName(candidateParentTableName);
                 var parentTableNameOptionIsNone = await parentTableNameOption.IsNone.ConfigureAwait(false);
                 if (parentTableNameOptionIsNone)
                     throw new Exception("Could not find parent table with name: " + candidateParentTableName.ToString());

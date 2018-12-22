@@ -54,7 +54,7 @@ namespace SJP.Schematic.Sqlite
             }
 
             var tables = await qualifiedTableNames
-                .Select(name => LoadTableAsync(name, cancellationToken))
+                .Select(name => LoadTable(name, cancellationToken))
                 .Somes()
                 .ConfigureAwait(false);
 
@@ -84,7 +84,7 @@ namespace SJP.Schematic.Sqlite
 
             if (tableName.Schema != null)
             {
-                return await LoadTableAsync(tableName, cancellationToken)
+                return await LoadTable(tableName, cancellationToken)
                     .ToOption()
                     .ConfigureAwait(false);
             }
@@ -94,7 +94,7 @@ namespace SJP.Schematic.Sqlite
             foreach (var dbName in dbNames)
             {
                 var qualifiedTableName = Identifier.CreateQualifiedIdentifier(dbName, tableName.LocalName);
-                var table = LoadTableAsync(qualifiedTableName, cancellationToken);
+                var table = LoadTable(qualifiedTableName, cancellationToken);
 
                 var tableIsSome = await table.IsSome.ConfigureAwait(false);
                 if (tableIsSome)
@@ -104,7 +104,7 @@ namespace SJP.Schematic.Sqlite
             return Option<IRelationalDatabaseTable>.None;
         }
 
-        protected OptionAsync<Identifier> GetResolvedTableNameAsync(Identifier tableName, CancellationToken cancellationToken)
+        protected OptionAsync<Identifier> GetResolvedTableName(Identifier tableName, CancellationToken cancellationToken)
         {
             if (tableName == null)
                 throw new ArgumentNullException(nameof(tableName));
@@ -166,7 +166,7 @@ namespace SJP.Schematic.Sqlite
             return $"select name from { Dialect.QuoteIdentifier(schemaName) }.sqlite_master where type = 'table' and lower(name) = lower(@TableName)";
         }
 
-        protected virtual OptionAsync<IRelationalDatabaseTable> LoadTableAsync(Identifier tableName, CancellationToken cancellationToken)
+        protected virtual OptionAsync<IRelationalDatabaseTable> LoadTable(Identifier tableName, CancellationToken cancellationToken)
         {
             if (tableName == null)
                 throw new ArgumentNullException(nameof(tableName));
@@ -178,7 +178,7 @@ namespace SJP.Schematic.Sqlite
         private async Task<Option<IRelationalDatabaseTable>> LoadTableAsyncCore(Identifier tableName, CancellationToken cancellationToken)
         {
             var candidateTableName = QualifyTableName(tableName);
-            var resolvedTableNameOption = GetResolvedTableNameAsync(candidateTableName, cancellationToken);
+            var resolvedTableNameOption = GetResolvedTableName(candidateTableName, cancellationToken);
             var resolvedTableNameOptionIsNone = await resolvedTableNameOption.IsNone.ConfigureAwait(false);
             if (resolvedTableNameOptionIsNone)
                 return Option<IRelationalDatabaseTable>.None;
@@ -526,7 +526,7 @@ namespace SJP.Schematic.Sqlite
             foreach (var fkey in foreignKeys)
             {
                 var candidateParentTableName = Identifier.CreateQualifiedIdentifier(tableName.Schema, fkey.Key.ParentTableName);
-                var parentTableNameOption = GetResolvedTableNameAsync(candidateParentTableName, cancellationToken);
+                var parentTableNameOption = GetResolvedTableName(candidateParentTableName, cancellationToken);
                 var parentTableNameOptionIsNone = await parentTableNameOption.IsNone.ConfigureAwait(false);
                 if (parentTableNameOptionIsNone)
                     throw new Exception("Could not find parent table with name: " + candidateParentTableName.ToString());

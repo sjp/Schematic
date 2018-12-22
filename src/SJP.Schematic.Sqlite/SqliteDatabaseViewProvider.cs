@@ -53,7 +53,7 @@ namespace SJP.Schematic.Sqlite
             }
 
             var views = await qualifiedViewNames
-                .Select(name => LoadViewAsync(name, cancellationToken))
+                .Select(name => LoadView(name, cancellationToken))
                 .Somes()
                 .ConfigureAwait(false);
 
@@ -80,7 +80,7 @@ namespace SJP.Schematic.Sqlite
         {
             if (viewName.Schema != null)
             {
-                return await LoadViewAsync(viewName, cancellationToken)
+                return await LoadView(viewName, cancellationToken)
                     .ToOption()
                     .ConfigureAwait(false);
             }
@@ -90,7 +90,7 @@ namespace SJP.Schematic.Sqlite
             foreach (var dbName in dbNames)
             {
                 var qualifiedViewName = Identifier.CreateQualifiedIdentifier(dbName, viewName.LocalName);
-                var view = LoadViewAsync(qualifiedViewName, cancellationToken);
+                var view = LoadView(qualifiedViewName, cancellationToken);
 
                 var viewIsSome = await view.IsSome.ConfigureAwait(false);
                 if (viewIsSome)
@@ -100,7 +100,7 @@ namespace SJP.Schematic.Sqlite
             return Option<IDatabaseView>.None;
         }
 
-        protected OptionAsync<Identifier> GetResolvedViewNameAsync(Identifier viewName, CancellationToken cancellationToken)
+        protected OptionAsync<Identifier> GetResolvedViewName(Identifier viewName, CancellationToken cancellationToken)
         {
             if (viewName == null)
                 throw new ArgumentNullException(nameof(viewName));
@@ -159,7 +159,7 @@ namespace SJP.Schematic.Sqlite
             return $"select name from { Dialect.QuoteIdentifier(schemaName) }.sqlite_master where type = 'view' and lower(name) = lower(@ViewName)";
         }
 
-        protected virtual OptionAsync<IDatabaseView> LoadViewAsync(Identifier viewName, CancellationToken cancellationToken)
+        protected virtual OptionAsync<IDatabaseView> LoadView(Identifier viewName, CancellationToken cancellationToken)
         {
             if (viewName == null)
                 throw new ArgumentNullException(nameof(viewName));
@@ -171,7 +171,7 @@ namespace SJP.Schematic.Sqlite
         private async Task<Option<IDatabaseView>> LoadViewAsyncCore(Identifier viewName, CancellationToken cancellationToken)
         {
             var candidateViewName = QualifyViewName(viewName);
-            var resolvedViewNameOption = GetResolvedViewNameAsync(candidateViewName, cancellationToken);
+            var resolvedViewNameOption = GetResolvedViewName(candidateViewName, cancellationToken);
             var resolvedViewNameOptionIsNone = await resolvedViewNameOption.IsNone.ConfigureAwait(false);
             if (resolvedViewNameOptionIsNone)
                 return Option<IDatabaseView>.None;

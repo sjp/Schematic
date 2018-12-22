@@ -41,7 +41,7 @@ namespace SJP.Schematic.PostgreSql
 
             foreach (var viewName in viewNames)
             {
-                var view = LoadViewAsync(viewName, cancellationToken);
+                var view = LoadView(viewName, cancellationToken);
                 await view.IfSome(v => views.Add(v)).ConfigureAwait(false);
             }
 
@@ -61,10 +61,10 @@ where schemaname not in ('pg_catalog', 'information_schema')";
                 throw new ArgumentNullException(nameof(viewName));
 
             var candidateViewName = QualifyViewName(viewName);
-            return LoadViewAsync(candidateViewName, cancellationToken);
+            return LoadView(candidateViewName, cancellationToken);
         }
 
-        protected OptionAsync<Identifier> GetResolvedViewNameAsync(Identifier viewName, CancellationToken cancellationToken)
+        protected OptionAsync<Identifier> GetResolvedViewName(Identifier viewName, CancellationToken cancellationToken)
         {
             if (viewName == null)
                 throw new ArgumentNullException(nameof(viewName));
@@ -74,17 +74,17 @@ where schemaname not in ('pg_catalog', 'information_schema')";
                 .Select(QualifyViewName);
 
             return resolvedNames
-                .Select(name => GetResolvedViewNameStrictAsync(name, cancellationToken))
-                .FirstSomeAsync(cancellationToken);
+                .Select(name => GetResolvedViewNameStrict(name, cancellationToken))
+                .FirstSome(cancellationToken);
         }
 
-        protected OptionAsync<Identifier> GetResolvedViewNameStrictAsync(Identifier viewName, CancellationToken cancellationToken)
+        protected OptionAsync<Identifier> GetResolvedViewNameStrict(Identifier viewName, CancellationToken cancellationToken)
         {
             if (viewName == null)
                 throw new ArgumentNullException(nameof(viewName));
 
             var candidateViewName = QualifyViewName(viewName);
-            var qualifiedViewName = Connection.QueryFirstOrNoneAsync<QualifiedName>(
+            var qualifiedViewName = Connection.QueryFirstOrNone<QualifiedName>(
                 ViewNameQuery,
                 new { SchemaName = candidateViewName.Schema, ViewName = candidateViewName.LocalName },
                 cancellationToken
@@ -102,7 +102,7 @@ where schemaname = @SchemaName and matviewname = @ViewName
     and schemaname not in ('pg_catalog', 'information_schema')
 limit 1";
 
-        protected virtual OptionAsync<IDatabaseView> LoadViewAsync(Identifier viewName, CancellationToken cancellationToken)
+        protected virtual OptionAsync<IDatabaseView> LoadView(Identifier viewName, CancellationToken cancellationToken)
         {
             if (viewName == null)
                 throw new ArgumentNullException(nameof(viewName));
@@ -114,7 +114,7 @@ limit 1";
         private async Task<Option<IDatabaseView>> LoadViewAsyncCore(Identifier viewName, CancellationToken cancellationToken)
         {
             var candidateViewName = QualifyViewName(viewName);
-            var resolvedViewNameOption = GetResolvedViewNameAsync(candidateViewName, cancellationToken);
+            var resolvedViewNameOption = GetResolvedViewName(candidateViewName, cancellationToken);
             var resolvedViewNameOptionIsNone = await resolvedViewNameOption.IsNone.ConfigureAwait(false);
             if (resolvedViewNameOptionIsNone)
                 return Option<IDatabaseView>.None;

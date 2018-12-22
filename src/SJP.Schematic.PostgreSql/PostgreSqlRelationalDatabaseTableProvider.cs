@@ -44,7 +44,7 @@ namespace SJP.Schematic.PostgreSql
 
             foreach (var tableName in tableNames)
             {
-                var table = LoadTableAsync(tableName, cancellationToken);
+                var table = LoadTable(tableName, cancellationToken);
                 await table.IfSome(t => tables.Add(t)).ConfigureAwait(false);
             }
 
@@ -66,10 +66,10 @@ where schemaname not in ('pg_catalog', 'information_schema')";
                 throw new ArgumentNullException(nameof(tableName));
 
             var candidateTableName = QualifyTableName(tableName);
-            return LoadTableAsync(candidateTableName, cancellationToken);
+            return LoadTable(candidateTableName, cancellationToken);
         }
 
-        protected OptionAsync<Identifier> GetResolvedTableNameAsync(Identifier tableName, CancellationToken cancellationToken = default(CancellationToken))
+        protected OptionAsync<Identifier> GetResolvedTableName(Identifier tableName, CancellationToken cancellationToken = default(CancellationToken))
         {
             if (tableName == null)
                 throw new ArgumentNullException(nameof(tableName));
@@ -79,17 +79,17 @@ where schemaname not in ('pg_catalog', 'information_schema')";
                 .Select(QualifyTableName);
 
             return resolvedNames
-                .Select(name => GetResolvedTableNameStrictAsync(name, cancellationToken))
-                .FirstSomeAsync(cancellationToken);
+                .Select(name => GetResolvedTableNameStrict(name, cancellationToken))
+                .FirstSome(cancellationToken);
         }
 
-        protected OptionAsync<Identifier> GetResolvedTableNameStrictAsync(Identifier tableName, CancellationToken cancellationToken)
+        protected OptionAsync<Identifier> GetResolvedTableNameStrict(Identifier tableName, CancellationToken cancellationToken)
         {
             if (tableName == null)
                 throw new ArgumentNullException(nameof(tableName));
 
             var candidateTableName = QualifyTableName(tableName);
-            var qualifiedTableName = Connection.QueryFirstOrNoneAsync<QualifiedName>(
+            var qualifiedTableName = Connection.QueryFirstOrNone<QualifiedName>(
                 TableNameQuery,
                 new { SchemaName = candidateTableName.Schema, TableName = candidateTableName.LocalName },
                 cancellationToken
@@ -107,7 +107,7 @@ where schemaname = @SchemaName and tablename = @TableName
     and schemaname not in ('pg_catalog', 'information_schema')
 limit 1";
 
-        protected virtual OptionAsync<IRelationalDatabaseTable> LoadTableAsync(Identifier tableName, CancellationToken cancellationToken)
+        protected virtual OptionAsync<IRelationalDatabaseTable> LoadTable(Identifier tableName, CancellationToken cancellationToken)
         {
             if (tableName == null)
                 throw new ArgumentNullException(nameof(tableName));
@@ -119,7 +119,7 @@ limit 1";
         private async Task<Option<IRelationalDatabaseTable>> LoadTableAsyncCore(Identifier tableName, CancellationToken cancellationToken)
         {
             var candidateTableName = QualifyTableName(tableName);
-            var resolvedTableNameOption = GetResolvedTableNameAsync(candidateTableName);
+            var resolvedTableNameOption = GetResolvedTableName(candidateTableName);
             var resolvedTableNameOptionIsNone = await resolvedTableNameOption.IsNone.ConfigureAwait(false);
             if (resolvedTableNameOptionIsNone)
                 return Option<IRelationalDatabaseTable>.None;
@@ -390,7 +390,7 @@ where tc.table_schema = @SchemaName and tc.table_name = @TableName
             foreach (var groupedChildKey in groupedChildKeys)
             {
                 var candidateChildTableName = Identifier.CreateQualifiedIdentifier(groupedChildKey.Key.ChildTableSchema, groupedChildKey.Key.ChildTableName);
-                var childTableNameOption = GetResolvedTableNameAsync(candidateChildTableName);
+                var childTableNameOption = GetResolvedTableName(candidateChildTableName);
                 var childTableNameOptionIsNone = await childTableNameOption.IsNone.ConfigureAwait(false);
                 if (childTableNameOptionIsNone)
                     throw new Exception("Could not find child table with name: " + candidateChildTableName.ToString());
@@ -540,7 +540,7 @@ where
             foreach (var fkey in foreignKeys)
             {
                 var candidateParentTableName = Identifier.CreateQualifiedIdentifier(fkey.Key.ParentSchemaName, fkey.Key.ParentTableName);
-                var parentOption = GetResolvedTableNameAsync(candidateParentTableName);
+                var parentOption = GetResolvedTableName(candidateParentTableName);
                 var parentOptionIsNone = await parentOption.IsNone.ConfigureAwait(false);
                 if (parentOptionIsNone)
                     throw new Exception("Could not find parent table with name: " + candidateParentTableName.ToString());

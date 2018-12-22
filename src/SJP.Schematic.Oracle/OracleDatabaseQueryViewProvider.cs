@@ -41,7 +41,7 @@ namespace SJP.Schematic.Oracle
                 .ToList();
 
             var views = await viewNames
-                .Select(name => LoadViewAsync(name, cancellationToken))
+                .Select(name => LoadView(name, cancellationToken))
                 .Somes()
                 .ConfigureAwait(false);
 
@@ -65,10 +65,10 @@ order by v.OWNER, v.VIEW_NAME";
                 throw new ArgumentNullException(nameof(viewName));
 
             var candidateViewName = QualifyViewName(viewName);
-            return LoadViewAsync(candidateViewName, cancellationToken);
+            return LoadView(candidateViewName, cancellationToken);
         }
 
-        protected OptionAsync<Identifier> GetResolvedViewNameAsync(Identifier viewName, CancellationToken cancellationToken)
+        protected OptionAsync<Identifier> GetResolvedViewName(Identifier viewName, CancellationToken cancellationToken)
         {
             if (viewName == null)
                 throw new ArgumentNullException(nameof(viewName));
@@ -78,17 +78,17 @@ order by v.OWNER, v.VIEW_NAME";
                 .Select(QualifyViewName);
 
             return resolvedNames
-                .Select(name => GetResolvedViewNameStrictAsync(name, cancellationToken))
-                .FirstSomeAsync(cancellationToken);
+                .Select(name => GetResolvedViewNameStrict(name, cancellationToken))
+                .FirstSome(cancellationToken);
         }
 
-        protected OptionAsync<Identifier> GetResolvedViewNameStrictAsync(Identifier viewName, CancellationToken cancellationToken)
+        protected OptionAsync<Identifier> GetResolvedViewNameStrict(Identifier viewName, CancellationToken cancellationToken)
         {
             if (viewName == null)
                 throw new ArgumentNullException(nameof(viewName));
 
             var candidateViewName = QualifyViewName(viewName);
-            var qualifiedViewName = Connection.QueryFirstOrNoneAsync<QualifiedName>(
+            var qualifiedViewName = Connection.QueryFirstOrNone<QualifiedName>(
                 ViewNameQuery,
                 new { SchemaName = candidateViewName.Schema, ViewName = candidateViewName.LocalName },
                 cancellationToken
@@ -105,7 +105,7 @@ from ALL_VIEWS v
 inner join ALL_OBJECTS o on v.OWNER = o.OWNER and v.VIEW_NAME = o.OBJECT_NAME
 where v.OWNER = :SchemaName and v.VIEW_NAME = :ViewName and o.ORACLE_MAINTAINED <> 'Y'";
 
-        protected virtual OptionAsync<IDatabaseView> LoadViewAsync(Identifier viewName, CancellationToken cancellationToken)
+        protected virtual OptionAsync<IDatabaseView> LoadView(Identifier viewName, CancellationToken cancellationToken)
         {
             if (viewName == null)
                 throw new ArgumentNullException(nameof(viewName));
@@ -117,7 +117,7 @@ where v.OWNER = :SchemaName and v.VIEW_NAME = :ViewName and o.ORACLE_MAINTAINED 
         private async Task<Option<IDatabaseView>> LoadViewAsyncCore(Identifier viewName, CancellationToken cancellationToken)
         {
             var candidateViewName = QualifyViewName(viewName);
-            var resolvedViewNameOption = GetResolvedViewNameAsync(candidateViewName, cancellationToken);
+            var resolvedViewNameOption = GetResolvedViewName(candidateViewName, cancellationToken);
             var resolvedViewNameOptionIsNone = await resolvedViewNameOption.IsNone.ConfigureAwait(false);
             if (resolvedViewNameOptionIsNone)
                 return Option<IDatabaseView>.None;

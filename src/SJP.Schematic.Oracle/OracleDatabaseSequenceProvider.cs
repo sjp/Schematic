@@ -35,7 +35,7 @@ namespace SJP.Schematic.Oracle
                 .ToList();
 
             var sequences = await sequenceNames
-                .Select(name => LoadSequenceAsync(name, cancellationToken))
+                .Select(name => LoadSequence(name, cancellationToken))
                 .Somes()
                 .ConfigureAwait(false);
 
@@ -59,10 +59,10 @@ order by s.SEQUENCE_OWNER, s.SEQUENCE_NAME";
                 throw new ArgumentNullException(nameof(sequenceName));
 
             var candidateSequenceName = QualifySequenceName(sequenceName);
-            return LoadSequenceAsync(candidateSequenceName, cancellationToken);
+            return LoadSequence(candidateSequenceName, cancellationToken);
         }
 
-        protected OptionAsync<Identifier> GetResolvedSequenceNameAsync(Identifier sequenceName, CancellationToken cancellationToken = default(CancellationToken))
+        protected OptionAsync<Identifier> GetResolvedSequenceName(Identifier sequenceName, CancellationToken cancellationToken = default(CancellationToken))
         {
             if (sequenceName == null)
                 throw new ArgumentNullException(nameof(sequenceName));
@@ -72,17 +72,17 @@ order by s.SEQUENCE_OWNER, s.SEQUENCE_NAME";
                 .Select(QualifySequenceName);
 
             return resolvedNames
-                .Select(name => GetResolvedSequenceNameStrictAsync(name, cancellationToken))
-                .FirstSomeAsync(cancellationToken);
+                .Select(name => GetResolvedSequenceNameStrict(name, cancellationToken))
+                .FirstSome(cancellationToken);
         }
 
-        protected OptionAsync<Identifier> GetResolvedSequenceNameStrictAsync(Identifier sequenceName, CancellationToken cancellationToken)
+        protected OptionAsync<Identifier> GetResolvedSequenceNameStrict(Identifier sequenceName, CancellationToken cancellationToken)
         {
             if (sequenceName == null)
                 throw new ArgumentNullException(nameof(sequenceName));
 
             var candidateSequenceName = QualifySequenceName(sequenceName);
-            var qualifiedSequenceName = Connection.QueryFirstOrNoneAsync<QualifiedName>(
+            var qualifiedSequenceName = Connection.QueryFirstOrNone<QualifiedName>(
                 SequenceNameQuery,
                 new { SchemaName = candidateSequenceName.Schema, SequenceName = candidateSequenceName.LocalName },
                 cancellationToken
@@ -111,7 +111,7 @@ select
 from ALL_SEQUENCES
 where SEQUENCE_OWNER = :SchemaName and SEQUENCE_NAME = :SequenceName";
 
-        protected virtual OptionAsync<IDatabaseSequence> LoadSequenceAsync(Identifier sequenceName, CancellationToken cancellationToken)
+        protected virtual OptionAsync<IDatabaseSequence> LoadSequence(Identifier sequenceName, CancellationToken cancellationToken)
         {
             if (sequenceName == null)
                 throw new ArgumentNullException(nameof(sequenceName));
@@ -122,24 +122,24 @@ where SEQUENCE_OWNER = :SchemaName and SEQUENCE_NAME = :SequenceName";
 
         private async Task<Option<IDatabaseSequence>> LoadSequenceAsyncCore(Identifier sequenceName, CancellationToken cancellationToken)
         {
-            var resolvedSequenceNameOption = GetResolvedSequenceNameAsync(sequenceName);
+            var resolvedSequenceNameOption = GetResolvedSequenceName(sequenceName);
             var resolvedSequenceNameOptionIsNone = await resolvedSequenceNameOption.IsNone.ConfigureAwait(false);
             if (resolvedSequenceNameOptionIsNone)
                 return Option<IDatabaseSequence>.None;
 
             var resolvedSequenceName = await resolvedSequenceNameOption.UnwrapSomeAsync().ConfigureAwait(false);
-            var sequence = LoadSequenceDataAsync(resolvedSequenceName, cancellationToken)
+            var sequence = LoadSequenceData(resolvedSequenceName, cancellationToken)
                 .Map(seqData => BuildSequenceFromDto(resolvedSequenceName, seqData));
 
             return await sequence.ToOption().ConfigureAwait(false);
         }
 
-        protected virtual OptionAsync<SequenceData> LoadSequenceDataAsync(Identifier sequenceName, CancellationToken cancellationToken)
+        protected virtual OptionAsync<SequenceData> LoadSequenceData(Identifier sequenceName, CancellationToken cancellationToken)
         {
             if (sequenceName == null)
                 throw new ArgumentNullException(nameof(sequenceName));
 
-            return Connection.QueryFirstOrNoneAsync<SequenceData>(
+            return Connection.QueryFirstOrNone<SequenceData>(
                 SequenceQuery,
                 new { SchemaName = sequenceName.Schema, SequenceName = sequenceName.LocalName },
                 cancellationToken

@@ -42,7 +42,7 @@ namespace SJP.Schematic.Modelled
             if (tableName == null)
                 throw new ArgumentNullException(nameof(tableName));
 
-            return LoadTableAsync(tableName, cancellationToken);
+            return LoadTable(tableName, cancellationToken);
         }
 
         public async Task<IReadOnlyCollection<IRelationalDatabaseTable>> GetAllTables(CancellationToken cancellationToken = default(CancellationToken))
@@ -56,7 +56,7 @@ namespace SJP.Schematic.Modelled
                 .ToList();
         }
 
-        protected virtual OptionAsync<IRelationalDatabaseTable> LoadTableAsync(Identifier tableName, CancellationToken cancellationToken)
+        protected virtual OptionAsync<IRelationalDatabaseTable> LoadTable(Identifier tableName, CancellationToken cancellationToken)
         {
             if (tableName == null)
                 throw new ArgumentNullException(nameof(tableName));
@@ -79,7 +79,7 @@ namespace SJP.Schematic.Modelled
             if (viewName == null)
                 throw new ArgumentNullException(nameof(viewName));
 
-            return LoadViewAsync(viewName, cancellationToken);
+            return LoadView(viewName, cancellationToken);
         }
 
         public async Task<IReadOnlyCollection<IDatabaseView>> GetAllViews(CancellationToken cancellationToken = default(CancellationToken))
@@ -93,7 +93,7 @@ namespace SJP.Schematic.Modelled
                 .ToList();
         }
 
-        protected virtual OptionAsync<IDatabaseView> LoadViewAsync(Identifier viewName, CancellationToken cancellationToken)
+        protected virtual OptionAsync<IDatabaseView> LoadView(Identifier viewName, CancellationToken cancellationToken)
         {
             if (viewName == null)
                 throw new ArgumentNullException(nameof(viewName));
@@ -116,7 +116,7 @@ namespace SJP.Schematic.Modelled
             if (sequenceName == null)
                 throw new ArgumentNullException(nameof(sequenceName));
 
-            return LoadSequenceAsync(sequenceName, cancellationToken);
+            return LoadSequence(sequenceName, cancellationToken);
         }
 
         public async Task<IReadOnlyCollection<IDatabaseSequence>> GetAllSequences(CancellationToken cancellationToken = default(CancellationToken))
@@ -130,7 +130,7 @@ namespace SJP.Schematic.Modelled
                 .ToList();
         }
 
-        protected virtual OptionAsync<IDatabaseSequence> LoadSequenceAsync(Identifier sequenceName, CancellationToken cancellationToken)
+        protected virtual OptionAsync<IDatabaseSequence> LoadSequence(Identifier sequenceName, CancellationToken cancellationToken)
         {
             if (sequenceName == null)
                 throw new ArgumentNullException(nameof(sequenceName));
@@ -153,7 +153,7 @@ namespace SJP.Schematic.Modelled
             if (synonymName == null)
                 throw new ArgumentNullException(nameof(synonymName));
 
-            return LoadSynonymAsync(synonymName, cancellationToken);
+            return LoadSynonym(synonymName, cancellationToken);
         }
 
         public async Task<IReadOnlyCollection<IDatabaseSynonym>> GetAllSynonyms(CancellationToken cancellationToken = default(CancellationToken))
@@ -167,7 +167,7 @@ namespace SJP.Schematic.Modelled
                 .ToList();
         }
 
-        protected virtual OptionAsync<IDatabaseSynonym> LoadSynonymAsync(Identifier synonymName, CancellationToken cancellationToken)
+        protected virtual OptionAsync<IDatabaseSynonym> LoadSynonym(Identifier synonymName, CancellationToken cancellationToken)
         {
             if (synonymName == null)
                 throw new ArgumentNullException(nameof(synonymName));

@@ -34,7 +34,7 @@ namespace SJP.Schematic.Core.Extensions
             return input.FirstOrDefault(x => x.IsSome);
         }
 
-        public static OptionAsync<T> FirstSomeAsync<T>(this IEnumerable<OptionAsync<T>> input, CancellationToken cancellationToken = default(CancellationToken))
+        public static OptionAsync<T> FirstSome<T>(this IEnumerable<OptionAsync<T>> input, CancellationToken cancellationToken = default(CancellationToken))
         {
             if (input == null)
                 throw new ArgumentNullException(nameof(input));

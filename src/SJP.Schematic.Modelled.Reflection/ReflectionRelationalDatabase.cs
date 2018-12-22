@@ -80,7 +80,7 @@ namespace SJP.Schematic.Modelled.Reflection
             return Option<IRelationalDatabaseTable>.Some(table);
         }
 
-        protected virtual OptionAsync<IRelationalDatabaseTable> LoadTableAsync(Type tableType)
+        protected virtual OptionAsync<IRelationalDatabaseTable> LoadTable(Type tableType)
         {
             if (tableType == null)
                 throw new ArgumentNullException(nameof(tableType));
@@ -134,7 +134,7 @@ namespace SJP.Schematic.Modelled.Reflection
             return Option<IDatabaseView>.Some(view);
         }
 
-        protected virtual OptionAsync<IDatabaseView> LoadViewAsync(Type viewType)
+        protected virtual OptionAsync<IDatabaseView> LoadView(Type viewType)
         {
             if (viewType == null)
                 throw new ArgumentNullException(nameof(viewType));
@@ -188,7 +188,7 @@ namespace SJP.Schematic.Modelled.Reflection
             return Option<IDatabaseSequence>.Some(sequence);
         }
 
-        protected virtual OptionAsync<IDatabaseSequence> LoadSequenceAsync(Type sequenceType)
+        protected virtual OptionAsync<IDatabaseSequence> LoadSequence(Type sequenceType)
         {
             if (sequenceType == null)
                 throw new ArgumentNullException(nameof(sequenceType));
@@ -242,7 +242,7 @@ namespace SJP.Schematic.Modelled.Reflection
             return Option<IDatabaseSynonym>.Some(synonym);
         }
 
-        protected virtual OptionAsync<IDatabaseSynonym> LoadSynonymAsync(Type synonymType)
+        protected virtual OptionAsync<IDatabaseSynonym> LoadSynonym(Type synonymType)
         {
             if (synonymType == null)
                 throw new ArgumentNullException(nameof(synonymType));

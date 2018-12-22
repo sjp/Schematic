@@ -32,7 +32,7 @@ namespace SJP.Schematic.SqlServer
                 .ToList();
 
             var synonyms = await synonymNames
-                .Select(name => LoadSynonymAsync(name, cancellationToken))
+                .Select(name => LoadSynonym(name, cancellationToken))
                 .Somes()
                 .ConfigureAwait(false);
 
@@ -49,16 +49,16 @@ namespace SJP.Schematic.SqlServer
                 throw new ArgumentNullException(nameof(synonymName));
 
             var candidateSynonymName = QualifySynonymName(synonymName);
-            return LoadSynonymAsync(candidateSynonymName, cancellationToken);
+            return LoadSynonym(candidateSynonymName, cancellationToken);
         }
 
-        protected OptionAsync<Identifier> GetResolvedSynonymNameAsync(Identifier synonymName, CancellationToken cancellationToken)
+        protected OptionAsync<Identifier> GetResolvedSynonymName(Identifier synonymName, CancellationToken cancellationToken)
         {
             if (synonymName == null)
                 throw new ArgumentNullException(nameof(synonymName));
 
             var candidateSynonymName = QualifySynonymName(synonymName);
-            var qualifiedSynonymName = Connection.QueryFirstOrNoneAsync<QualifiedName>(
+            var qualifiedSynonymName = Connection.QueryFirstOrNone<QualifiedName>(
                 SynonymNameQuery,
                 new { SchemaName = candidateSynonymName.Schema, SynonymName = candidateSynonymName.LocalName },
                 cancellationToken
@@ -74,7 +74,7 @@ select top 1 schema_name(schema_id) as SchemaName, name as ObjectName
 from sys.synonyms
 where schema_id = schema_id(@SchemaName) and name = @SynonymName";
 
-        protected virtual OptionAsync<IDatabaseSynonym> LoadSynonymAsync(Identifier synonymName, CancellationToken cancellationToken)
+        protected virtual OptionAsync<IDatabaseSynonym> LoadSynonym(Identifier synonymName, CancellationToken cancellationToken)
         {
             if (synonymName == null)
                 throw new ArgumentNullException(nameof(synonymName));
@@ -86,13 +86,13 @@ where schema_id = schema_id(@SchemaName) and name = @SynonymName";
         private async Task<Option<IDatabaseSynonym>> LoadSynonymAsyncCore(Identifier synonymName, CancellationToken cancellationToken)
         {
             var candidateSynonymName = QualifySynonymName(synonymName);
-            var resolvedSynonymNameOption = GetResolvedSynonymNameAsync(candidateSynonymName, cancellationToken);
+            var resolvedSynonymNameOption = GetResolvedSynonymName(candidateSynonymName, cancellationToken);
             var resolvedSynonymNameOptionIsNone = await resolvedSynonymNameOption.IsNone.ConfigureAwait(false);
             if (resolvedSynonymNameOptionIsNone)
                 return Option<IDatabaseSynonym>.None;
 
             var resolvedSynonymName = await resolvedSynonymNameOption.UnwrapSomeAsync().ConfigureAwait(false);
-            var queryResult = Connection.QueryFirstOrNoneAsync<SynonymData>(
+            var queryResult = Connection.QueryFirstOrNone<SynonymData>(
                 LoadSynonymQuery,
                 new { SchemaName = resolvedSynonymName.Schema, SynonymName = resolvedSynonymName.LocalName },
                 cancellationToken

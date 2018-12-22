@@ -114,7 +114,7 @@ namespace SJP.Schematic.Core.Extensions
                 : Option<T>.None;
         }
 
-        public static OptionAsync<T> QueryFirstOrNoneAsync<T>(this IDbConnection connection, string sql, CancellationToken cancellationToken)
+        public static OptionAsync<T> QueryFirstOrNone<T>(this IDbConnection connection, string sql, CancellationToken cancellationToken)
             where T : class
         {
             if (connection == null)
@@ -135,7 +135,7 @@ namespace SJP.Schematic.Core.Extensions
                 : Option<T>.None;
         }
 
-        public static OptionAsync<T> QueryFirstOrNoneAsync<T>(this IDbConnection connection, string sql, object parameters, CancellationToken cancellationToken)
+        public static OptionAsync<T> QueryFirstOrNone<T>(this IDbConnection connection, string sql, object parameters, CancellationToken cancellationToken)
             where T : class
         {
             if (connection == null)
@@ -228,7 +228,7 @@ namespace SJP.Schematic.Core.Extensions
             }
         }
 
-        public static OptionAsync<T> QuerySingleOrNoneAsync<T>(this IDbConnection connection, string sql, CancellationToken cancellationToken)
+        public static OptionAsync<T> QuerySingleOrNone<T>(this IDbConnection connection, string sql, CancellationToken cancellationToken)
             where T : class
         {
             if (connection == null)
@@ -256,7 +256,7 @@ namespace SJP.Schematic.Core.Extensions
             }
         }
 
-        public static OptionAsync<T> QuerySingleOrNoneAsync<T>(this IDbConnection connection, string sql, object parameters, CancellationToken cancellationToken)
+        public static OptionAsync<T> QuerySingleOrNone<T>(this IDbConnection connection, string sql, object parameters, CancellationToken cancellationToken)
             where T : class
         {
             if (connection == null)
