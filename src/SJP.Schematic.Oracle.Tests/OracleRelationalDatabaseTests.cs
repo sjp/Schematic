@@ -45,5 +45,53 @@ namespace SJP.Schematic.Oracle.Tests
 
             Assert.Throws<ArgumentNullException>(() => new OracleRelationalDatabase(new OracleDialect(), connection, identifierDefaults, null));
         }
+
+        [Test]
+        public static void GetTable_GivenNullIdentifier_ThrowsArgumentNullException()
+        {
+            var connection = Mock.Of<IDbConnection>();
+            var identifierDefaults = Mock.Of<IIdentifierDefaults>();
+            var identifierResolver = new DefaultOracleIdentifierResolutionStrategy();
+
+            var database = new OracleRelationalDatabase(new OracleDialect(), connection, identifierDefaults, identifierResolver);
+
+            Assert.Throws<ArgumentNullException>(() => database.GetTable(null));
+        }
+
+        [Test]
+        public static void GetView_GivenNullIdentifier_ThrowsArgumentNullException()
+        {
+            var connection = Mock.Of<IDbConnection>();
+            var identifierDefaults = Mock.Of<IIdentifierDefaults>();
+            var identifierResolver = new DefaultOracleIdentifierResolutionStrategy();
+
+            var database = new OracleRelationalDatabase(new OracleDialect(), connection, identifierDefaults, identifierResolver);
+
+            Assert.Throws<ArgumentNullException>(() => database.GetView(null));
+        }
+
+        [Test]
+        public static void GetSequence_GivenNullIdentifier_ThrowsArgumentNullException()
+        {
+            var connection = Mock.Of<IDbConnection>();
+            var identifierDefaults = Mock.Of<IIdentifierDefaults>();
+            var identifierResolver = new DefaultOracleIdentifierResolutionStrategy();
+
+            var database = new OracleRelationalDatabase(new OracleDialect(), connection, identifierDefaults, identifierResolver);
+
+            Assert.Throws<ArgumentNullException>(() => database.GetSequence(null));
+        }
+
+        [Test]
+        public static void GetSynonym_GivenNullIdentifier_ThrowsArgumentNullException()
+        {
+            var connection = Mock.Of<IDbConnection>();
+            var identifierDefaults = Mock.Of<IIdentifierDefaults>();
+            var identifierResolver = new DefaultOracleIdentifierResolutionStrategy();
+
+            var database = new OracleRelationalDatabase(new OracleDialect(), connection, identifierDefaults, identifierResolver);
+
+            Assert.Throws<ArgumentNullException>(() => database.GetSynonym(null));
+        }
     }
 }

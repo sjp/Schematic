@@ -13,13 +13,10 @@ namespace SJP.Schematic.PostgreSql
         public PostgreSqlRelationalDatabase(IDatabaseDialect dialect, IDbConnection connection, IIdentifierDefaults identifierDefaults, IIdentifierResolutionStrategy identifierResolver)
             : base(dialect, connection, identifierDefaults)
         {
-            IdentifierResolver = identifierResolver ?? throw new ArgumentNullException(nameof(identifierResolver));
             _tableProvider = new PostgreSqlRelationalDatabaseTableProvider(connection, identifierDefaults, identifierResolver, dialect.TypeProvider);
             _viewProvider = new PostgreSqlDatabaseViewProvider(connection, identifierDefaults, identifierResolver, dialect.TypeProvider);
             _sequenceProvider = new PostgreSqlDatabaseSequenceProvider(connection, identifierDefaults, identifierResolver);
         }
-
-        protected IIdentifierResolutionStrategy IdentifierResolver { get; }
 
         public Task<IReadOnlyCollection<IRelationalDatabaseTable>> GetAllTables(CancellationToken cancellationToken = default(CancellationToken))
         {

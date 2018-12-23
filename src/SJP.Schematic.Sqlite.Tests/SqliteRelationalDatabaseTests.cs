@@ -36,6 +36,28 @@ namespace SJP.Schematic.Sqlite.Tests
             Assert.Throws<ArgumentNullException>(() => new SqliteRelationalDatabase(new SqliteDialect(), connection, null));
         }
 
+        [Test]
+        public static void GetTable_GivenNullIdentifier_ThrowsArgumentNullException()
+        {
+            var connection = Mock.Of<IDbConnection>();
+            var identifierDefaults = Mock.Of<IIdentifierDefaults>();
+
+            var database = new SqliteRelationalDatabase(new SqliteDialect(), connection, identifierDefaults);
+
+            Assert.Throws<ArgumentNullException>(() => database.GetTable(null));
+        }
+
+        [Test]
+        public static void GetView_GivenNullIdentifier_ThrowsArgumentNullException()
+        {
+            var connection = Mock.Of<IDbConnection>();
+            var identifierDefaults = Mock.Of<IIdentifierDefaults>();
+
+            var database = new SqliteRelationalDatabase(new SqliteDialect(), connection, identifierDefaults);
+
+            Assert.Throws<ArgumentNullException>(() => database.GetView(null));
+        }
+
         // testing that the behaviour is equivalent to an empty sequence provider
         internal static class SequenceTests
         {

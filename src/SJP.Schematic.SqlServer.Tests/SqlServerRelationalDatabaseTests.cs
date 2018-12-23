@@ -33,5 +33,49 @@ namespace SJP.Schematic.SqlServer.Tests
 
             Assert.Throws<ArgumentNullException>(() => new SqlServerRelationalDatabase(new SqlServerDialect(), connection, null));
         }
+
+        [Test]
+        public static void GetTable_GivenNullIdentifier_ThrowsArgumentNullException()
+        {
+            var connection = Mock.Of<IDbConnection>();
+            var identifierDefaults = Mock.Of<IIdentifierDefaults>();
+
+            var database = new SqlServerRelationalDatabase(new SqlServerDialect(), connection, identifierDefaults);
+
+            Assert.Throws<ArgumentNullException>(() => database.GetTable(null));
+        }
+
+        [Test]
+        public static void GetView_GivenNullIdentifier_ThrowsArgumentNullException()
+        {
+            var connection = Mock.Of<IDbConnection>();
+            var identifierDefaults = Mock.Of<IIdentifierDefaults>();
+
+            var database = new SqlServerRelationalDatabase(new SqlServerDialect(), connection, identifierDefaults);
+
+            Assert.Throws<ArgumentNullException>(() => database.GetView(null));
+        }
+
+        [Test]
+        public static void GetSequence_GivenNullIdentifier_ThrowsArgumentNullException()
+        {
+            var connection = Mock.Of<IDbConnection>();
+            var identifierDefaults = Mock.Of<IIdentifierDefaults>();
+
+            var database = new SqlServerRelationalDatabase(new SqlServerDialect(), connection, identifierDefaults);
+
+            Assert.Throws<ArgumentNullException>(() => database.GetSequence(null));
+        }
+
+        [Test]
+        public static void GetSynonym_GivenNullIdentifier_ThrowsArgumentNullException()
+        {
+            var connection = Mock.Of<IDbConnection>();
+            var identifierDefaults = Mock.Of<IIdentifierDefaults>();
+
+            var database = new SqlServerRelationalDatabase(new SqlServerDialect(), connection, identifierDefaults);
+
+            Assert.Throws<ArgumentNullException>(() => database.GetSynonym(null));
+        }
     }
 }
