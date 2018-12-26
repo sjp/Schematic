@@ -20,7 +20,7 @@
       </div>
     </div>
     <div class="box-body">
-      <table class="@Model.ColumnsTableClass table table-bordered table-striped dataTable" role="grid">
+      <table class="@Raw(@Model.ColumnsTableClass.ToHtmlString()) table table-bordered table-striped dataTable" role="grid">
         <thead align="left">
           <tr>
             <th>Ordinal Position</th>

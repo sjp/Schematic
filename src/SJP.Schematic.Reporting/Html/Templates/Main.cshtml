@@ -145,7 +145,7 @@
       </span>
     </div>
     <div class="box-body">
-      <table class="@Model.TablesTableClass table table-bordered table-striped dataTable" role="grid">
+      <table class="@Raw(@Model.TablesTableClass.ToHtmlString()) table table-bordered table-striped dataTable" role="grid">
         <thead>
           <tr>
             <th valign="bottom">Table</th>
@@ -189,7 +189,7 @@
       </span>
     </div>
     <div class="box-body">
-      <table class="@Model.ViewsTableClass table table-bordered table-striped dataTable" role="grid">
+      <table class="@Raw(@Model.ViewsTableClass.ToHtmlString()) table table-bordered table-striped dataTable" role="grid">
         <thead>
           <tr>
             <th valign="bottom">View</th>
@@ -229,7 +229,7 @@
       </span>
     </div>
     <div class="box-body">
-      <table class="@Model.SequencesTableClass table table-bordered table-striped dataTable" role="grid">
+      <table class="@Raw(@Model.SequencesTableClass.ToHtmlString()) table table-bordered table-striped dataTable" role="grid">
         <thead>
           <tr>
             <th>Sequence</th>
@@ -275,7 +275,7 @@
       </span>
     </div>
     <div class="box-body">
-      <table class="@Model.SynonymsTableClass table table-bordered table-striped dataTable" role="grid">
+      <table class="@Raw(@Model.SynonymsTableClass.ToHtmlString()) table table-bordered table-striped dataTable" role="grid">
         <thead>
           <tr>
             <th>Synonym</th>
@@ -289,7 +289,7 @@
           {
           <tr class="tbl even">
             <td class="detail">@synonym.Name</td>
-            <td class="detail">@synonym.TargetText</td>
+            <td class="detail">@Raw(@synonym.TargetText.ToHtmlString())</td>
           </tr>
           }
           }

@@ -1,12 +1,7 @@
 ﻿using System;
-using System.Collections.Concurrent;
-using System.Linq;
-using System.Reflection;
 using EnumsNET;
-using Scriban;
-using Scriban.Runtime;
-using SJP.Schematic.Core.Extensions;
 using RazorLight;
+using Microsoft.CodeAnalysis;
 
 namespace SJP.Schematic.Reporting.Html
 {
@@ -14,12 +9,18 @@ namespace SJP.Schematic.Reporting.Html
     {
         public HtmlFormatter(ITemplateProvider templateProvider)
         {
-            TemplateProvider = templateProvider ?? throw new ArgumentNullException(nameof(templateProvider));
+            if (templateProvider == null)
+                throw new ArgumentNullException(nameof(templateProvider));
+
+            var project = new ReportingRazorProject(templateProvider);
+            _engine = new RazorLightEngineBuilder()
+                .UseProject(project)
+                .SetOperatingAssembly(typeof(HtmlFormatter).Assembly)
+                .UseMemoryCachingProvider()
+                .Build();
         }
 
-        protected ITemplateProvider TemplateProvider { get; }
-
-        public string RenderTemplate(ITemplateParameter templateParameter)
+        public string RenderTemplate<T>(T templateParameter) where T : ITemplateParameter
         {
             if (templateParameter == null)
                 throw new ArgumentNullException(nameof(templateParameter));
@@ -28,72 +29,10 @@ namespace SJP.Schematic.Reporting.Html
             if (!template.IsValid())
                 throw new ArgumentException($"The { nameof(ReportTemplate) } provided in the template parameter must be a valid enum.", nameof(templateParameter));
 
-            var parsedTemplate = GetTemplate(template);
-            if (parsedTemplate.HasErrors)
-            {
-                var message = parsedTemplate.Messages.Select(m => m.Message).Join(", ");
-                throw new InvalidOperationException("Unable to render the template as it is not valid. Error messages: " + message);
-            }
-
-            var scriptObject = new ScriptObject();
-            scriptObject.Import(templateParameter, renamer: MemberRenamer);
-
-            var context = new TemplateContext
-            {
-                LoopLimit = int.MaxValue,
-                MemberRenamer = MemberRenamer,
-                StrictVariables = true
-            };
-            context.PushGlobal(scriptObject);
-
-            return parsedTemplate.Render(context);
-        }
-
-        protected Template GetTemplate(ReportTemplate template)
-        {
-            if (!template.IsValid())
-                throw new ArgumentException($"The { nameof(ReportTemplate) } provided must be a valid enum.", nameof(template));
-
-            if (_templateCache.TryGetValue(template, out var result))
-                return result;
-
-            var templateText = TemplateProvider.GetTemplate(template);
-            var parsedTemplate = Template.Parse(templateText);
-            _templateCache.TryAdd(template, parsedTemplate);
-
-            return parsedTemplate;
-        }
-
-        private static string MemberRenamer(MemberInfo member) => member.Name;
-
-        private readonly ConcurrentDictionary<ReportTemplate, Template> _templateCache = new ConcurrentDictionary<ReportTemplate, Template>();
-    }
-
-    public class HtmlFormatter2 : IHtmlFormatter
-    {
-        public HtmlFormatter2()
-        {
-        }
-
-        public string RenderTemplate(ITemplateParameter templateParameter)
-        {
-            if (templateParameter == null)
-                throw new ArgumentNullException(nameof(templateParameter));
-
-            var template = templateParameter.Template;
-            if (!template.IsValid())
-                throw new ArgumentException($"The { nameof(ReportTemplate) } provided in the template parameter must be a valid enum.", nameof(templateParameter));
-
-            var path = GetTemplatePath(template);
+            var path = template.ToString();
             return _engine.CompileRenderAsync(path, templateParameter).GetAwaiter().GetResult();
         }
 
-        private static string GetTemplatePath(ReportTemplate template) => "Templates." + template.ToString() + ".cshtml";
-
-        private readonly static RazorLightEngine _engine = new RazorLightEngineBuilder()
-            .UseEmbeddedResourcesProject(typeof(HtmlFormatter2))
-            .SetOperatingAssembly(typeof(HtmlFormatter2).Assembly)
-            .UseMemoryCachingProvider()
-            .Build();
+        private readonly RazorLightEngine _engine;
     }
 }

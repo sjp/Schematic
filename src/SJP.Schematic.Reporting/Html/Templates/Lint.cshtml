@@ -47,7 +47,7 @@
           @foreach (var message in lintRule.Messages)
           {
           <tr>
-            <td class="detail">@message</td>
+            <td class="detail">@Raw(@message.ToHtmlString())</td>
           </tr>
           }
           }

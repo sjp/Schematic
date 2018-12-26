@@ -17,15 +17,15 @@
         <ul class="nav nav-tabs pull-left ui-sortable-handle">
           @foreach (var diagram in Model.Diagrams)
           {
-          <li @Raw(@diagram.ActiveClass)>
-            <a href="#@diagram.ContainerId" data-toggle="tab" aria-expanded="true">@diagram.Name</a>
+          <li @Raw(@diagram.ActiveClass.ToHtmlString())>
+            <a href="#@Raw(@diagram.ContainerId.ToHtmlString())" data-toggle="tab" aria-expanded="true">@diagram.Name</a>
           </li>
           }
         </ul>
         <div class="tab-content no-padding">
           @foreach (var diagram in Model.Diagrams)
           {
-          <div class="chart tab-pane @diagram.ActiveText" id="@diagram.ContainerId" style="position: relative; overflow-x:auto; height:0;padding-bottom:100%;width:100%;">
+          <div class="chart tab-pane @Raw(@diagram.ActiveText.ToHtmlString())" id="@Raw(@diagram.ContainerId.ToHtmlString())" style="position: relative; overflow-x:auto; height:0;padding-bottom:100%;width:100%;">
           </div>
           }
         </div>
@@ -35,7 +35,7 @@
 </section>
 @foreach (var diagram in Model.Diagrams)
 {
-<script type="text/vnd.graphviz" data-graph-id="@diagram.ContainerId">
-@diagram.Dot
+<script type="text/vnd.graphviz" data-graph-id="@Raw(@diagram.ContainerId.ToHtmlString())">
+@Raw(@diagram.Dot.ToHtmlString())
 </script>
 }

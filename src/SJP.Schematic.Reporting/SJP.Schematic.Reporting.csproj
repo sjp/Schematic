@@ -16,13 +16,11 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.Extensions.FileProviders.Embedded" Version="2.2.0" />
-    <PackageReference Include="RazorLight" Version="2.0.0-beta1" />
-    <PackageReference Include="Scriban" Version="1.2.8" />
+    <PackageReference Include="RazorLight.Unofficial" Version="2.0.0-beta1.3" />
     <PackageReference Include="System.Text.Encodings.Web" Version="4.5.0" />
   </ItemGroup>
 
   <ItemGroup>
-    <EmbeddedResource Include="Html\Templates\*.scriban" />
     <EmbeddedResource Include="Html\Templates\*.cshtml" />
     <EmbeddedResource Include="assets\**\*.*" />
   </ItemGroup>

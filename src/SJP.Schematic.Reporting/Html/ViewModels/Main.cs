@@ -6,7 +6,7 @@ using SJP.Schematic.Core;
 
 namespace SJP.Schematic.Reporting.Html.ViewModels
 {
-    internal sealed class Main : ITemplateParameter
+    public sealed class Main : ITemplateParameter
     {
         public Main(
             string databaseName,
@@ -70,27 +70,27 @@ namespace SJP.Schematic.Reporting.Html.ViewModels
 
         public uint TablesCount { get; }
 
-        public string TablesTableClass { get; }
+        public HtmlString TablesTableClass { get; }
 
         public IEnumerable<View> Views { get; }
 
         public uint ViewsCount { get; }
 
-        public string ViewsTableClass { get; }
+        public HtmlString ViewsTableClass { get; }
 
         public IEnumerable<Sequence> Sequences { get; }
 
         public uint SequencesCount { get; }
 
-        public string SequencesTableClass { get; }
+        public HtmlString SequencesTableClass { get; }
 
         public IEnumerable<Synonym> Synonyms { get; }
 
         public uint SynonymsCount { get; }
 
-        public string SynonymsTableClass { get; }
+        public HtmlString SynonymsTableClass { get; }
 
-        internal sealed class Table
+        public sealed class Table
         {
             public Table(
                 Identifier tableName,
@@ -125,7 +125,7 @@ namespace SJP.Schematic.Reporting.Html.ViewModels
             public ulong RowCount { get; }
         }
 
-        internal sealed class View
+        public sealed class View
         {
             public View(Identifier viewName, uint columnCount, ulong rowCount)
             {
@@ -147,7 +147,7 @@ namespace SJP.Schematic.Reporting.Html.ViewModels
             public ulong RowCount { get; }
         }
 
-        internal sealed class Sequence
+        public sealed class Sequence
         {
             public Sequence(
                 Identifier sequenceName,
@@ -186,7 +186,7 @@ namespace SJP.Schematic.Reporting.Html.ViewModels
             public string CycleText { get; }
         }
 
-        internal sealed class Synonym
+        public sealed class Synonym
         {
             public Synonym(Identifier synonymName, Identifier target, Option<Uri> targetUrl)
             {
@@ -206,7 +206,7 @@ namespace SJP.Schematic.Reporting.Html.ViewModels
 
             public string Name { get; }
 
-            public string TargetText { get; }
+            public HtmlString TargetText { get; }
         }
     }
 }

@@ -4,7 +4,7 @@ using SJP.Schematic.Core;
 
 namespace SJP.Schematic.Reporting.Html.ViewModels
 {
-    internal sealed class Orphans : ITemplateParameter
+    public sealed class Orphans : ITemplateParameter
     {
         public Orphans(IEnumerable<Table> tables)
         {
@@ -19,9 +19,9 @@ namespace SJP.Schematic.Reporting.Html.ViewModels
 
         public uint TablesCount { get; }
 
-        public string TablesTableClass { get; }
+        public HtmlString TablesTableClass { get; }
 
-        internal sealed class Table
+        public sealed class Table
         {
             public Table(Identifier tableName, uint columnCount, ulong rowCount)
             {

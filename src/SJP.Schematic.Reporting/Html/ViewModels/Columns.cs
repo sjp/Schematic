@@ -6,7 +6,7 @@ using SJP.Schematic.Core.Extensions;
 
 namespace SJP.Schematic.Reporting.Html.ViewModels
 {
-    internal sealed class Columns : ITemplateParameter
+    public sealed class Columns : ITemplateParameter
     {
         public Columns(IEnumerable<Column> columns)
         {
@@ -21,9 +21,9 @@ namespace SJP.Schematic.Reporting.Html.ViewModels
 
         public uint ColumnsCount { get; }
 
-        public string ColumnsTableClass { get; }
+        public HtmlString ColumnsTableClass { get; }
 
-        internal abstract class Column
+        public abstract class Column
         {
             protected Column(
                 Identifier tableName,
@@ -71,9 +71,9 @@ namespace SJP.Schematic.Reporting.Html.ViewModels
 
             public virtual string DefaultValue { get; }
 
-            public virtual string ColumnClass => @"class=""detail""";
+            public virtual HtmlString ColumnClass => @"class=""detail""";
 
-            public virtual string ColumnIcon { get; } = string.Empty;
+            public virtual HtmlString ColumnIcon { get; } = string.Empty;
 
             public virtual string ColumnTitle { get; } = string.Empty;
 
@@ -85,7 +85,7 @@ namespace SJP.Schematic.Reporting.Html.ViewModels
             }
         }
 
-        internal sealed class TableColumn : Column
+        public sealed class TableColumn : Column
         {
             public TableColumn(
                 Identifier tableName,
@@ -117,9 +117,9 @@ namespace SJP.Schematic.Reporting.Html.ViewModels
 
             public override ParentObjectType ParentType { get; } = ParentObjectType.Table;
 
-            public override string ColumnClass { get; }
+            public override HtmlString ColumnClass { get; }
 
-            public override string ColumnIcon { get; }
+            public override HtmlString ColumnIcon { get; }
 
             public override string ColumnTitle { get; }
 
@@ -163,7 +163,7 @@ namespace SJP.Schematic.Reporting.Html.ViewModels
             }
         }
 
-        internal sealed class ViewColumn : Column
+        public sealed class ViewColumn : Column
         {
             public ViewColumn(
                 Identifier viewName,

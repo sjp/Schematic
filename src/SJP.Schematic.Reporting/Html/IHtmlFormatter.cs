@@ -2,6 +2,6 @@
 {
     public interface IHtmlFormatter
     {
-        string RenderTemplate(ITemplateParameter templateParameter);
+        string RenderTemplate<T>(T templateParameter) where T : ITemplateParameter;
     }
 }

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace SJP.Schematic.Reporting.Html.ViewModels
 {
-    internal sealed class LintResults : ITemplateParameter
+    public sealed class LintResults : ITemplateParameter
     {
         public LintResults(IEnumerable<LintRule> lintRules)
         {
@@ -17,9 +17,9 @@ namespace SJP.Schematic.Reporting.Html.ViewModels
 
         public uint LintRulesCount { get; }
 
-        internal sealed class LintRule
+        public sealed class LintRule
         {
-            public LintRule(string ruleTitle, IEnumerable<string> messages)
+            public LintRule(string ruleTitle, IEnumerable<HtmlString> messages)
             {
                 RuleTitle = ruleTitle ?? throw new ArgumentNullException(nameof(ruleTitle));
                 Messages = messages ?? throw new ArgumentNullException(nameof(messages));
@@ -28,7 +28,7 @@ namespace SJP.Schematic.Reporting.Html.ViewModels
 
             public string RuleTitle { get; }
 
-            public IEnumerable<string> Messages { get; }
+            public IEnumerable<HtmlString> Messages { get; }
 
             public uint MessageCount { get; }
         }

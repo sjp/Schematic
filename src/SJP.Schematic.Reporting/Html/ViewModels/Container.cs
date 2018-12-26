@@ -4,7 +4,7 @@ using SJP.Schematic.Core.Extensions;
 
 namespace SJP.Schematic.Reporting.Html.ViewModels
 {
-    internal sealed class Container : ITemplateParameter
+    public sealed class Container : ITemplateParameter
     {
         public Container(
             string content,
@@ -25,7 +25,7 @@ namespace SJP.Schematic.Reporting.Html.ViewModels
 
         public string DatabaseName { get; }
 
-        public string Content { get; }
+        public HtmlString Content { get; }
 
         public string ProjectVersion => _projectVersion;
 

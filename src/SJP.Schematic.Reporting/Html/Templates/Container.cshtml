@@ -37,7 +37,7 @@
     </nav>
   </header>
   <div class="content-wrapper">
-    @Model.Content
+    @Raw(@Model.Content.ToHtmlString())
   </div>
   <footer class="main-footer">
     <div>

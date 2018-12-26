@@ -46,6 +46,6 @@ namespace SJP.Schematic.Reporting.Html
         }
 
         private readonly static IFileProvider _fileProvider = new EmbeddedFileProvider(Assembly.GetExecutingAssembly(), Assembly.GetExecutingAssembly().GetName().Name + ".Html.Templates");
-        private const string TemplateExtension = ".scriban";
+        private const string TemplateExtension = ".cshtml"; // ".scriban";
     }
 }

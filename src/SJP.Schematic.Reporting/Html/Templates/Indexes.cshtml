@@ -20,7 +20,7 @@
       </div>
     </div>
     <div class="box-body">
-      <table class="@Model.IndexesTableClass table table-bordered table-striped dataTable" role="grid">
+      <table class="@Raw(@Model.IndexesTableClass.ToHtmlString()) table table-bordered table-striped dataTable" role="grid">
         <thead>
           <tr>
             <th>Index Name</th>

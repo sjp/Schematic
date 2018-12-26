@@ -19,7 +19,7 @@
       </div>
     </div>
     <div class="box-body">
-      <table class="@Model.TablesTableClass table table-bordered table-striped dataTable" role="grid">
+      <table class="@Raw(@Model.TablesTableClass.ToHtmlString()) table table-bordered table-striped dataTable" role="grid">
         <thead>
           <tr>
             <th valign="bottom">Table</th>

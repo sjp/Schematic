@@ -8,7 +8,7 @@ using SJP.Schematic.Core.Extensions;
 
 namespace SJP.Schematic.Reporting.Html.ViewModels
 {
-    internal sealed class Constraints : ITemplateParameter
+    public sealed class Constraints : ITemplateParameter
     {
         public Constraints(
             IEnumerable<PrimaryKeyConstraint> primaryKeys,
@@ -41,27 +41,27 @@ namespace SJP.Schematic.Reporting.Html.ViewModels
 
         public uint PrimaryKeysCount { get; }
 
-        public string PrimaryKeysTableClass { get; }
+        public HtmlString PrimaryKeysTableClass { get; }
 
         public IEnumerable<UniqueKey> UniqueKeys { get; }
 
         public uint UniqueKeysCount { get; }
 
-        public string UniqueKeysTableClass { get; }
+        public HtmlString UniqueKeysTableClass { get; }
 
         public IEnumerable<ForeignKey> ForeignKeys { get; }
 
         public uint ForeignKeysCount { get; }
 
-        public string ForeignKeysTableClass { get; }
+        public HtmlString ForeignKeysTableClass { get; }
 
         public IEnumerable<CheckConstraint> CheckConstraints { get; }
 
         public uint CheckConstraintsCount { get; }
 
-        public string CheckConstraintsTableClass { get; }
+        public HtmlString CheckConstraintsTableClass { get; }
 
-        internal abstract class TableConstraint
+        public abstract class TableConstraint
         {
             protected TableConstraint(Identifier tableName, string constraintName)
             {
@@ -80,7 +80,7 @@ namespace SJP.Schematic.Reporting.Html.ViewModels
             public string ConstraintName { get; }
         }
 
-        internal sealed class PrimaryKeyConstraint : TableConstraint
+        public sealed class PrimaryKeyConstraint : TableConstraint
         {
             public PrimaryKeyConstraint(Identifier tableName, string constraintName, IEnumerable<string> columnNames)
                 : base(tableName, constraintName)
@@ -94,7 +94,7 @@ namespace SJP.Schematic.Reporting.Html.ViewModels
             public string ColumnNames { get; }
         }
 
-        internal sealed class UniqueKey : TableConstraint
+        public sealed class UniqueKey : TableConstraint
         {
             public UniqueKey(Identifier tableName, string constraintName, IEnumerable<string> columnNames)
                 : base(tableName, constraintName)
@@ -108,7 +108,7 @@ namespace SJP.Schematic.Reporting.Html.ViewModels
             public string ColumnNames { get; }
         }
 
-        internal sealed class ForeignKey : TableConstraint
+        public sealed class ForeignKey : TableConstraint
         {
             public ForeignKey(
                 Identifier childTableName,
@@ -167,7 +167,7 @@ namespace SJP.Schematic.Reporting.Html.ViewModels
             };
         }
 
-        internal sealed class CheckConstraint : TableConstraint
+        public sealed class CheckConstraint : TableConstraint
         {
             public CheckConstraint(Identifier tableName, string constraintName, string definition)
                 : base(tableName, constraintName)

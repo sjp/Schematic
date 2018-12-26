@@ -20,7 +20,7 @@
       </div>
     </div>
     <div class="box-body">
-      <table class="@Model.PrimaryKeysTableClass table table-bordered table-striped dataTable" role="grid">
+      <table class="@Raw(@Model.PrimaryKeysTableClass.ToHtmlString()) table table-bordered table-striped dataTable" role="grid">
         <thead align="left">
           <tr>
             <th>Constraint Name</th>
@@ -66,7 +66,7 @@
       </div>
     </div>
     <div class="box-body">
-      <table class="@Model.UniqueKeysTableClass table table-bordered table-striped dataTable" role="grid">
+      <table class="@Raw(@Model.UniqueKeysTableClass.ToHtmlString()) table table-bordered table-striped dataTable" role="grid">
         <thead align="left">
           <tr>
             <th>Constraint Name</th>
@@ -112,7 +112,7 @@
       </div>
     </div>
     <div class="box-body">
-      <table class="@Model.ForeignKeysTableClass table table-bordered table-striped dataTable" role="grid">
+      <table class="@Raw(@Model.ForeignKeysTableClass.ToHtmlString()) table table-bordered table-striped dataTable" role="grid">
         <thead align="left">
           <tr>
             <th>Child Constraint Name</th>
@@ -170,7 +170,7 @@
       </div>
     </div>
     <div class="box-body">
-      <table class="@Model.CheckConstraintsTableClass table table-bordered table-striped dataTable" role="grid">
+      <table class="@Raw(@Model.CheckConstraintsTableClass.ToHtmlString()) table table-bordered table-striped dataTable" role="grid">
         <thead align="left">
           <tr>
             <th>Constraint Name</th>

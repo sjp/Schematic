@@ -118,7 +118,7 @@ namespace SJP.Schematic.Reporting.Dot
                     var primaryKeyConstraint = new TableConstraint(
                         primaryKeyNameText,
                         pk.KeyType,
-                        pk.Name.LocalName,
+                        pk.Name?.LocalName,
                         pk.Columns.Select(c => c.Name.LocalName).ToList(),
                         pk.Columns.Select(c => c.Type.Definition).ToList()
                     );
@@ -134,7 +134,7 @@ namespace SJP.Schematic.Reporting.Dot
                     var uniqueKeyConstraint = new TableConstraint(
                         uniqueKeyNameText,
                         uniqueKey.KeyType,
-                        uniqueKey.Name.LocalName,
+                        uniqueKey.Name?.LocalName,
                         uniqueKey.Columns.Select(c => c.Name.LocalName).ToList(),
                         uniqueKey.Columns.Select(c => c.Type.Definition).ToList()
                     );
@@ -172,7 +172,7 @@ namespace SJP.Schematic.Reporting.Dot
                     var tableConstraint = new TableConstraint(
                         childKeyName,
                         childKey.KeyType,
-                        childKey.Name.LocalName,
+                        childKey.Name?.LocalName,
                         childKey.Columns.Select(c => c.Name.LocalName).ToList(),
                         childKey.Columns.Select(c => c.Type.Definition).ToList()
                     );

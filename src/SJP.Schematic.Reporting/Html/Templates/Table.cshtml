@@ -20,7 +20,7 @@
       </div>
     </div>
     <div class="box-body">
-      <table class="@Model.ColumnsTableClass table table-bordered table-striped dataTable" role="grid">
+      <table class="@Raw(@Model.ColumnsTableClass.ToHtmlString()) table table-bordered table-striped dataTable" role="grid">
         <thead align="left">
           <tr>
             <th>Ordinal Position</th>
@@ -39,7 +39,7 @@
           {
           <tr>
             <td>@column.Ordinal</td>
-            <td @Raw(@column.ColumnClass)>@column.ColumnIcon@column.ColumnName</td>
+            <td @Raw(@column.ColumnClass.ToHtmlString())>@Raw(@column.ColumnIcon.ToHtmlString())@column.ColumnName</td>
             <td>@column.Type</td>
             <td title="@column.TitleNullable">@column.NullableText</td>
             <td>@column.DefaultValue</td>
@@ -103,7 +103,7 @@
       </div>
     </div>
     <div class="box-body">
-      <table class="@Model.PrimaryKeyTableClass table table-bordered table-striped dataTable" role="grid">
+      <table class="@Raw(@Model.PrimaryKeyTableClass.ToHtmlString()) table table-bordered table-striped dataTable" role="grid">
         <thead align="left">
           <tr>
             <th>Constraint Name</th>
@@ -142,7 +142,7 @@
       </div>
     </div>
     <div class="box-body">
-      <table class="@Model.UniqueKeysTableClass table table-bordered table-striped dataTable" role="grid">
+      <table class="@Raw(@Model.UniqueKeysTableClass.ToHtmlString()) table table-bordered table-striped dataTable" role="grid">
         <thead align="left">
           <tr>
             <th>Constraint Name</th>
@@ -184,7 +184,7 @@
       </div>
     </div>
     <div class="box-body">
-      <table class="@Model.ForeignKeysTableClass table table-bordered table-striped dataTable" role="grid">
+      <table class="@Raw(@Model.ForeignKeysTableClass.ToHtmlString()) table table-bordered table-striped dataTable" role="grid">
         <thead align="left">
           <tr>
             <th>Constraint Name</th>
@@ -242,7 +242,7 @@
       </div>
     </div>
     <div class="box-body">
-      <table class="@Model.CheckConstraintsTableClass table table-bordered table-striped dataTable" role="grid">
+      <table class="@Raw(@Model.CheckConstraintsTableClass.ToHtmlString()) table table-bordered table-striped dataTable" role="grid">
         <thead align="left">
           <tr>
             <th>Constraint Name</th>
@@ -286,7 +286,7 @@
       </div>
     </div>
     <div class="box-body">
-      <table class="@Model.IndexesTableClass table table-bordered table-striped dataTable" role="grid">
+      <table class="@Raw(@Model.IndexesTableClass.ToHtmlString()) table table-bordered table-striped dataTable" role="grid">
         <thead>
           <tr>
             <th>Index Name</th>
@@ -337,15 +337,15 @@
         <ul class="nav nav-tabs pull-left ui-sortable-handle">
           @foreach (var diagram in Model.Diagrams)
           {
-          <li @Raw(diagram.ActiveClass)>
-            <a href="#@diagram.ContainerId" data-toggle="tab" aria-expanded="true">@diagram.Name</a>
+          <li @Raw(diagram.ActiveClass.ToHtmlString())>
+            <a href="#@Raw(@diagram.ContainerId.ToHtmlString())" data-toggle="tab" aria-expanded="true">@diagram.Name</a>
           </li>
           }
         </ul>
         <div class="tab-content no-padding">
           @foreach (var diagram in Model.Diagrams)
           {
-          <div class="chart tab-pane @diagram.ActiveText" id="@diagram.ContainerId" style="position: relative; overflow-x:auto;">
+          <div class="chart tab-pane @Raw(@diagram.ActiveText.ToHtmlString())" id="@Raw(@diagram.ContainerId.ToHtmlString())" style="position: relative; overflow-x:auto;">
           </div>
           }
         </div>
@@ -355,7 +355,7 @@
 </section>
 @foreach (var diagram in Model.Diagrams)
 {
-<script type="text/vnd.graphviz" data-graph-id="@diagram.ContainerId">
-@diagram.Dot
+<script type="text/vnd.graphviz" data-graph-id="@Raw(@diagram.ContainerId.ToHtmlString())">
+@Raw(@diagram.Dot.ToHtmlString())
 </script>
 }

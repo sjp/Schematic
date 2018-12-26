@@ -9,7 +9,7 @@ using SJP.Schematic.Core.Extensions;
 
 namespace SJP.Schematic.Reporting.Html.ViewModels
 {
-    internal sealed class Table : ITemplateParameter
+    public sealed class Table : ITemplateParameter
     {
         public Table(
             Identifier tableName,
@@ -74,41 +74,41 @@ namespace SJP.Schematic.Reporting.Html.ViewModels
 
         public uint ColumnsCount { get; }
 
-        public string ColumnsTableClass { get; }
+        public HtmlString ColumnsTableClass { get; }
 
         public PrimaryKeyConstraint PrimaryKey { get; }
 
         public bool PrimaryKeyExists { get; }
 
-        public string PrimaryKeyTableClass { get; }
+        public HtmlString PrimaryKeyTableClass { get; }
 
         public IEnumerable<UniqueKey> UniqueKeys { get; }
 
         public uint UniqueKeysCount { get; }
 
-        public string UniqueKeysTableClass { get; }
+        public HtmlString UniqueKeysTableClass { get; }
 
         public IEnumerable<ForeignKey> ForeignKeys { get; }
 
         public uint ForeignKeysCount { get; }
 
-        public string ForeignKeysTableClass { get; }
+        public HtmlString ForeignKeysTableClass { get; }
 
         public IEnumerable<CheckConstraint> CheckConstraints { get; }
 
         public uint CheckConstraintsCount { get; }
 
-        public string CheckConstraintsTableClass { get; }
+        public HtmlString CheckConstraintsTableClass { get; }
 
         public IEnumerable<Index> Indexes { get; }
 
         public uint IndexesCount { get; }
 
-        public string IndexesTableClass { get; }
+        public HtmlString IndexesTableClass { get; }
 
         public IEnumerable<Diagram> Diagrams { get; }
 
-        internal sealed class Column
+        public sealed class Column
         {
             public Column(
                 string columnName,
@@ -153,9 +153,9 @@ namespace SJP.Schematic.Reporting.Html.ViewModels
 
             public string DefaultValue { get; }
 
-            public string ColumnClass { get; }
+            public HtmlString ColumnClass { get; }
 
-            public string ColumnIcon { get; }
+            public HtmlString ColumnIcon { get; }
 
             public string ColumnTitle { get; }
 
@@ -167,13 +167,13 @@ namespace SJP.Schematic.Reporting.Html.ViewModels
 
             public uint ChildKeysCount { get; }
 
-            private static string BuildColumnClass(bool isPrimaryKeyColumn, bool isUniqueKeyColumn, bool isForeignKeyColumn)
+            private static HtmlString BuildColumnClass(bool isPrimaryKeyColumn, bool isUniqueKeyColumn, bool isForeignKeyColumn)
             {
                 var isKey = isPrimaryKeyColumn || isUniqueKeyColumn || isForeignKeyColumn;
                 return isKey ? @"class=""detail keyColumn""" : string.Empty;
             }
 
-            private static string BuildColumnIcon(bool isPrimaryKeyColumn, bool isUniqueKeyColumn, bool isForeignKeyColumn)
+            private static HtmlString BuildColumnIcon(bool isPrimaryKeyColumn, bool isUniqueKeyColumn, bool isForeignKeyColumn)
             {
                 var iconPieces = new List<string>();
 
@@ -213,7 +213,7 @@ namespace SJP.Schematic.Reporting.Html.ViewModels
             }
         }
 
-        internal abstract class TableConstraint
+        public abstract class TableConstraint
         {
             protected TableConstraint(string constraintName)
             {
@@ -223,7 +223,7 @@ namespace SJP.Schematic.Reporting.Html.ViewModels
             public string ConstraintName { get; }
         }
 
-        internal sealed class PrimaryKeyConstraint : TableConstraint
+        public sealed class PrimaryKeyConstraint : TableConstraint
         {
             public PrimaryKeyConstraint(string constraintName, IEnumerable<string> columns)
                 : base(constraintName)
@@ -237,7 +237,7 @@ namespace SJP.Schematic.Reporting.Html.ViewModels
             public string ColumnNames { get; }
         }
 
-        internal sealed class UniqueKey : TableConstraint
+        public sealed class UniqueKey : TableConstraint
         {
             public UniqueKey(string constraintName, IEnumerable<string> columns)
                 : base(constraintName)
@@ -251,7 +251,7 @@ namespace SJP.Schematic.Reporting.Html.ViewModels
             public string ColumnNames { get; }
         }
 
-        internal sealed class ForeignKey : TableConstraint
+        public sealed class ForeignKey : TableConstraint
         {
             public ForeignKey(
                 string constraintName,
@@ -307,7 +307,7 @@ namespace SJP.Schematic.Reporting.Html.ViewModels
             };
         }
 
-        internal sealed class CheckConstraint : TableConstraint
+        public sealed class CheckConstraint : TableConstraint
         {
             public CheckConstraint(string constraintName, string definition)
                 : base(constraintName)
@@ -321,7 +321,7 @@ namespace SJP.Schematic.Reporting.Html.ViewModels
             public string Definition { get; }
         }
 
-        internal sealed class Index
+        public sealed class Index
         {
             public Index(
                 string indexName,
@@ -357,7 +357,7 @@ namespace SJP.Schematic.Reporting.Html.ViewModels
             }
         }
 
-        internal sealed class ParentKey
+        public sealed class ParentKey
         {
             public ParentKey(string constraintName, Identifier parentTableName, string parentColumnName, string qualifiedChildColumnName)
             {
@@ -388,7 +388,7 @@ namespace SJP.Schematic.Reporting.Html.ViewModels
             public string ParentColumnName { get; }
         }
 
-        internal sealed class ChildKey
+        public sealed class ChildKey
         {
             public ChildKey(string constraintName, Identifier childTableName, string childColumnName, string qualifiedParentColumnName)
             {
@@ -419,7 +419,7 @@ namespace SJP.Schematic.Reporting.Html.ViewModels
             public string ChildColumnName { get; }
         }
 
-        internal sealed class Diagram
+        public sealed class Diagram
         {
             public Diagram(Identifier tableName, string diagramName, string dotDefinition, bool isActive)
             {
@@ -441,13 +441,13 @@ namespace SJP.Schematic.Reporting.Html.ViewModels
 
             public string Name { get; }
 
-            public string ContainerId { get; }
+            public HtmlString ContainerId { get; }
 
-            public string ActiveClass { get; }
+            public HtmlString ActiveClass { get; }
 
-            public string ActiveText { get; }
+            public HtmlString ActiveText { get; }
 
-            public string Dot { get; }
+            public HtmlString Dot { get; }
         }
     }
 }

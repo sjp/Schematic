@@ -29,6 +29,7 @@ namespace SJP.Schematic.Reporting.Html
 
         protected DirectoryInfo ExportDirectory { get; }
 
+        //protected static IHtmlFormatter TemplateFormatter { get; } = new HtmlFormatter(new TemplateProvider());
         protected static IHtmlFormatter TemplateFormatter { get; } = new HtmlFormatter(new TemplateProvider());
 
         public async Task ExportAsync()

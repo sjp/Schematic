@@ -4,7 +4,7 @@ using SJP.Schematic.Core.Extensions;
 
 namespace SJP.Schematic.Reporting.Html.ViewModels
 {
-    internal sealed class Relationships : ITemplateParameter
+    public sealed class Relationships : ITemplateParameter
     {
         public Relationships(IEnumerable<Diagram> diagrams)
         {
@@ -15,7 +15,7 @@ namespace SJP.Schematic.Reporting.Html.ViewModels
 
         public IEnumerable<Diagram> Diagrams { get; }
 
-        internal sealed class Diagram
+        public sealed class Diagram
         {
             public Diagram(string diagramName, string dotDefinition, bool isActive)
             {
@@ -34,13 +34,13 @@ namespace SJP.Schematic.Reporting.Html.ViewModels
 
             public string Name { get; }
 
-            public string ContainerId { get; }
+            public HtmlString ContainerId { get; }
 
-            public string ActiveClass { get; }
+            public HtmlString ActiveClass { get; }
 
-            public string ActiveText { get; }
+            public HtmlString ActiveText { get; }
 
-            public string Dot { get; }
+            public HtmlString Dot { get; }
         }
     }
 }
