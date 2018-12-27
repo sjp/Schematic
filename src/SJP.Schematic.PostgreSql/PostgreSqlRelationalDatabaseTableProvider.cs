@@ -683,8 +683,8 @@ where t.relname = @TableName and ns.nspname = @SchemaName";
 
                 var isAutoIncrement = !row.serial_sequence_schema_name.IsNullOrWhiteSpace() && !row.serial_sequence_local_name.IsNullOrWhiteSpace();
                 var autoIncrement = isAutoIncrement
-                    ? new AutoIncrement(1, 1)
-                    : (IAutoIncrement)null;
+                    ? Option<IAutoIncrement>.Some(new AutoIncrement(1, 1))
+                    : Option<IAutoIncrement>.None;
 
                 var isNullable = row.is_nullable == "YES";
 

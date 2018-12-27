@@ -578,8 +578,9 @@ where t.table_schema = @SchemaName and t.table_name = @TableName";
 
                 var columnName = Identifier.CreateQualifiedIdentifier(row.ColumnName);
                 var isAutoIncrement = row.ExtraInformation.Contains("auto_increment", StringComparison.OrdinalIgnoreCase);
-                var autoIncrement = isAutoIncrement ? new AutoIncrement(1, 1) : (IAutoIncrement)null;
-
+                var autoIncrement = isAutoIncrement
+                    ? Option<IAutoIncrement>.Some(new AutoIncrement(1, 1))
+                    : Option<IAutoIncrement>.None;
                 var isComputed = !row.ComputedColumnDefinition.IsNullOrWhiteSpace();
                 var isNullable = !string.Equals(row.IsNullable, "NO", StringComparison.OrdinalIgnoreCase);
 

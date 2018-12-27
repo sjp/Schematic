@@ -92,14 +92,14 @@ namespace SJP.Schematic.Oracle.Tests
         }
 
         [Test]
-        public static void AutoIncrement_PropertyGet_ReturnsNull()
+        public static void AutoIncrement_PropertyGet_ReturnsNone()
         {
             Identifier columnName = "test_column";
             var columnType = Mock.Of<IDbType>();
             const string definition = "test";
             var column = new OracleDatabaseComputedColumn(columnName, columnType, true, definition);
 
-            Assert.IsNull(column.AutoIncrement);
+            Assert.IsTrue(column.AutoIncrement.IsNone);
         }
     }
 }

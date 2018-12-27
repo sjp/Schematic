@@ -2,6 +2,7 @@
 using System.Threading.Tasks;
 using NUnit.Framework;
 using SJP.Schematic.Core;
+using SJP.Schematic.Core.Extensions;
 
 namespace SJP.Schematic.MySql.Tests.Integration
 {
@@ -127,23 +128,23 @@ namespace SJP.Schematic.MySql.Tests.Integration
         }
 
         [Test]
-        public async Task Columns_WhenGivenTableColumnWithoutIdentity_ReturnsNullAutoincrement()
+        public async Task Columns_WhenGivenTableColumnWithoutIdentity_ReturnsNoneAutoincrement()
         {
             const string tableName = "table_test_table_1";
             var table = await GetTableAsync(tableName).ConfigureAwait(false);
             var column = table.Columns.Single();
 
-            Assert.IsNull(column.AutoIncrement);
+            Assert.IsTrue(column.AutoIncrement.IsNone);
         }
 
         [Test]
-        public async Task Columns_WhenGivenTableColumnWithIdentity_ReturnsNotNullAutoincrement()
+        public async Task Columns_WhenGivenTableColumnWithIdentity_ReturnsSomeAutoincrement()
         {
             const string tableName = "table_test_table_35";
             var table = await GetTableAsync(tableName).ConfigureAwait(false);
             var column = table.Columns.Last();
 
-            Assert.IsNotNull(column.AutoIncrement);
+            Assert.IsTrue(column.AutoIncrement.IsSome);
         }
 
         [Test]
@@ -153,7 +154,7 @@ namespace SJP.Schematic.MySql.Tests.Integration
             var table = await GetTableAsync(tableName).ConfigureAwait(false);
             var column = table.Columns.Last();
 
-            Assert.AreEqual(1, column.AutoIncrement.InitialValue);
+            Assert.AreEqual(1, column.AutoIncrement.UnwrapSome().InitialValue);
         }
 
         [Test]
@@ -163,7 +164,7 @@ namespace SJP.Schematic.MySql.Tests.Integration
             var table = await GetTableAsync(tableName).ConfigureAwait(false);
             var column = table.Columns.Last();
 
-            Assert.AreEqual(1, column.AutoIncrement.Increment);
+            Assert.AreEqual(1, column.AutoIncrement.UnwrapSome().Increment);
         }
     }
 }

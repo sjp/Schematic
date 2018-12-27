@@ -1,4 +1,6 @@
-﻿namespace SJP.Schematic.Core
+﻿using LanguageExt;
+
+namespace SJP.Schematic.Core
 {
     public interface IDatabaseColumn
     {
@@ -16,6 +18,6 @@
 
         IDbType Type { get; }
 
-        IAutoIncrement AutoIncrement { get; }
+        Option<IAutoIncrement> AutoIncrement { get; }
     }
 }

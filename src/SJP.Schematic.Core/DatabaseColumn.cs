@@ -1,10 +1,11 @@
 ﻿using System;
+using LanguageExt;
 
 namespace SJP.Schematic.Core
 {
     public class DatabaseColumn : IDatabaseColumn
     {
-        public DatabaseColumn(Identifier columnName, IDbType type, bool isNullable, string defaultValue, IAutoIncrement autoIncrement)
+        public DatabaseColumn(Identifier columnName, IDbType type, bool isNullable, string defaultValue, Option<IAutoIncrement> autoIncrement)
         {
             if (columnName == null)
                 throw new ArgumentNullException(nameof(columnName));
@@ -26,6 +27,6 @@ namespace SJP.Schematic.Core
 
         public bool IsNullable { get; }
 
-        public IAutoIncrement AutoIncrement { get; }
+        public Option<IAutoIncrement> AutoIncrement { get; }
     }
 }

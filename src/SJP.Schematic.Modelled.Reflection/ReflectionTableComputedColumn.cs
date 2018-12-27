@@ -1,4 +1,5 @@
 ﻿using System;
+using LanguageExt;
 using SJP.Schematic.Core;
 using SJP.Schematic.Core.Extensions;
 
@@ -28,7 +29,7 @@ namespace SJP.Schematic.Modelled.Reflection
 
         public string DefaultValue { get; }
 
-        public IAutoIncrement AutoIncrement { get; }
+        public Option<IAutoIncrement> AutoIncrement { get; }
 
         public bool IsComputed { get; } = true;
 

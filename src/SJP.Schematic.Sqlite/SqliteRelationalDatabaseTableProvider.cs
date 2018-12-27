@@ -606,8 +606,8 @@ namespace SJP.Schematic.Sqlite
 
                 var isAutoIncrement = parsedColumnInfo.IsAutoIncrement;
                 var autoIncrement = isAutoIncrement
-                    ? new AutoIncrement(1, 1)
-                    : (IAutoIncrement)null;
+                    ? Option<IAutoIncrement>.Some(new AutoIncrement(1, 1))
+                    : Option<IAutoIncrement>.None;
 
                 var column = new DatabaseColumn(tableInfo.name, columnType, !tableInfo.notnull, tableInfo.dflt_value, autoIncrement);
                 result.Add(column);

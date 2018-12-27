@@ -184,8 +184,8 @@ where schema_name(v.schema_id) = @SchemaName and v.name = @ViewName";
                 var columnName = Identifier.CreateQualifiedIdentifier(row.ColumnName);
                 var isAutoIncrement = row.IdentitySeed.HasValue && row.IdentityIncrement.HasValue;
                 var autoIncrement = isAutoIncrement
-                    ? new AutoIncrement(row.IdentitySeed.Value, row.IdentityIncrement.Value)
-                    : (IAutoIncrement)null;
+                    ? Option<IAutoIncrement>.Some(new AutoIncrement(row.IdentitySeed.Value, row.IdentityIncrement.Value))
+                    : Option<IAutoIncrement>.None;
 
                 var column = new DatabaseColumn(columnName, columnType, row.IsNullable, row.DefaultValue, autoIncrement);
 

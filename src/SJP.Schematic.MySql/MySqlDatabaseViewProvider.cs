@@ -171,7 +171,9 @@ where table_schema = @SchemaName and table_name = @ViewName";
 
                 var columnName = Identifier.CreateQualifiedIdentifier(row.ColumnName);
                 var isAutoIncrement = row.ExtraInformation.Contains("auto_increment", StringComparison.OrdinalIgnoreCase);
-                var autoIncrement = isAutoIncrement ? new AutoIncrement(1, 1) : (IAutoIncrement)null;
+                var autoIncrement = isAutoIncrement
+                    ? Option<IAutoIncrement>.Some(new AutoIncrement(1, 1))
+                    : Option<IAutoIncrement>.None;
                 var isNullable = !string.Equals(row.IsNullable, "NO", StringComparison.OrdinalIgnoreCase);
 
                 var column = new DatabaseColumn(columnName, columnType, isNullable, row.DefaultValue, autoIncrement);

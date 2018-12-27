@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using LanguageExt;
 using SJP.Schematic.Core;
 using SJP.Schematic.Modelled.Reflection.Model;
 
@@ -48,7 +49,7 @@ namespace SJP.Schematic.Modelled.Reflection
 
         public string DefaultValue { get; }
 
-        public IAutoIncrement AutoIncrement { get; }
+        public Option<IAutoIncrement> AutoIncrement { get; }
 
         public bool IsComputed { get; }
 
@@ -70,7 +71,7 @@ namespace SJP.Schematic.Modelled.Reflection
 
         protected static Type ModelledTypeInterface { get; } = typeof(IDbType<>);
 
-        protected static IEnumerable<DataType> ValidAutoIncrementTypes { get; } = new HashSet<DataType>
+        protected static IEnumerable<DataType> ValidAutoIncrementTypes { get; } = new System.Collections.Generic.HashSet<DataType>
         {
             DataType.BigInteger,
             DataType.Integer,

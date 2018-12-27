@@ -88,13 +88,13 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
         }
 
         [Test]
-        public async Task Columns_WhenGivenTableColumnWithoutIdentity_ReturnsNullAutoincrement()
+        public async Task Columns_WhenGivenTableColumnWithoutIdentity_ReturnsNoneAutoIncrement()
         {
             const string tableName = "table_test_table_1";
             var table = await GetTableAsync(tableName).ConfigureAwait(false);
             var column = table.Columns.Single();
 
-            Assert.IsNull(column.AutoIncrement);
+            Assert.IsTrue(column.AutoIncrement.IsNone);
         }
     }
 }

@@ -179,7 +179,7 @@ where schemaname = @SchemaName and matviewname = @ViewName";
 
                 var columnType = TypeProvider.CreateColumnType(typeMetadata);
                 var columnName = Identifier.CreateQualifiedIdentifier(row.column_name);
-                IAutoIncrement autoIncrement = null;
+                var autoIncrement = Option<IAutoIncrement>.None;
 
                 var column = new DatabaseColumn(columnName, columnType, row.is_nullable == "YES", row.column_default, autoIncrement);
                 result.Add(column);

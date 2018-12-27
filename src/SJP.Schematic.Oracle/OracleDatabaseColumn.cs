@@ -1,4 +1,5 @@
 ﻿using System;
+using LanguageExt;
 using SJP.Schematic.Core;
 
 namespace SJP.Schematic.Oracle
@@ -26,6 +27,6 @@ namespace SJP.Schematic.Oracle
 
         public bool IsNullable { get; }
 
-        public IAutoIncrement AutoIncrement { get; }
+        public Option<IAutoIncrement> AutoIncrement { get; } = Option<IAutoIncrement>.None;
     }
 }

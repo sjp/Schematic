@@ -637,8 +637,8 @@ where schema_name(child_t.schema_id) = @SchemaName and child_t.name = @TableName
                 var columnName = Identifier.CreateQualifiedIdentifier(row.ColumnName);
                 var isAutoIncrement = row.IdentitySeed.HasValue && row.IdentityIncrement.HasValue;
                 var autoIncrement = isAutoIncrement
-                    ? new AutoIncrement(row.IdentitySeed.Value, row.IdentityIncrement.Value)
-                    : (IAutoIncrement)null;
+                    ? Option<IAutoIncrement>.Some(new AutoIncrement(row.IdentitySeed.Value, row.IdentityIncrement.Value))
+                    : Option<IAutoIncrement>.None;
 
                 var column = row.IsComputed
                     ? new DatabaseComputedColumn(columnName, columnType, row.IsNullable, row.DefaultValue, row.ComputedColumnDefinition)
