@@ -3,6 +3,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using NUnit.Framework;
 using SJP.Schematic.Core;
+using SJP.Schematic.Core.Extensions;
 
 namespace SJP.Schematic.PostgreSql.Tests.Integration
 {
@@ -25,8 +26,8 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration
 
             Assert.Multiple(() =>
             {
-                Assert.AreEqual("fk_test_table_16", foreignKey.ChildKey.Name.LocalName);
-                Assert.AreEqual("pk_test_table_15", foreignKey.ParentKey.Name.LocalName);
+                Assert.AreEqual("fk_test_table_16", foreignKey.ChildKey.Name.UnwrapSome().LocalName);
+                Assert.AreEqual("pk_test_table_15", foreignKey.ParentKey.Name.UnwrapSome().LocalName);
             });
         }
 
@@ -176,8 +177,8 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration
 
             Assert.Multiple(() =>
             {
-                Assert.AreEqual("fk_test_table_17", foreignKey.ChildKey.Name.LocalName);
-                Assert.AreEqual("uk_test_table_15", foreignKey.ParentKey.Name.LocalName);
+                Assert.AreEqual("fk_test_table_17", foreignKey.ChildKey.Name.UnwrapSome().LocalName);
+                Assert.AreEqual("uk_test_table_15", foreignKey.ParentKey.Name.UnwrapSome().LocalName);
             });
         }
 

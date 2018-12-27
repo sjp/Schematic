@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using LanguageExt;
 using SJP.Schematic.Core;
 using SJP.Schematic.Core.Extensions;
 using SJP.Schematic.Core.Utilities;
@@ -48,7 +49,7 @@ namespace SJP.Schematic.Lint.Rules
                 if (!isIndexedKey)
                 {
                     var columnNames = columns.Select(c => c.Name.LocalName).ToList();
-                    var message = BuildMessage(foreignKey.Name?.LocalName, table.Name, columnNames);
+                    var message = BuildMessage(foreignKey.Name, table.Name, columnNames);
                     result.Add(message);
                 }
             }
@@ -100,7 +101,7 @@ namespace SJP.Schematic.Lint.Rules
             return prefixSetList.SequenceEqual(superSetList);
         }
 
-        protected virtual IRuleMessage BuildMessage(string foreignKeyName, Identifier tableName, IEnumerable<string> columnNames)
+        protected virtual IRuleMessage BuildMessage(Option<Identifier> foreignKeyName, Identifier tableName, IEnumerable<string> columnNames)
         {
             if (tableName == null)
                 throw new ArgumentNullException(nameof(tableName));
@@ -112,12 +113,12 @@ namespace SJP.Schematic.Lint.Rules
                 .Append(tableName.ToString())
                 .Append(" has a foreign key ");
 
-            if (!foreignKeyName.IsNullOrWhiteSpace())
+            foreignKeyName.IfSome(name =>
             {
                 builder.Append("'")
-                    .Append(foreignKeyName)
+                    .Append(name.LocalName)
                     .Append("' ");
-            }
+            });
 
             builder.Append("which is missing an index on the column");
 

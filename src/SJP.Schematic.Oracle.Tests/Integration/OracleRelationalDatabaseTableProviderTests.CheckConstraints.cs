@@ -1,6 +1,7 @@
 ﻿using System.Linq;
 using System.Threading.Tasks;
 using NUnit.Framework;
+using SJP.Schematic.Core.Extensions;
 
 namespace SJP.Schematic.Oracle.Tests.Integration
 {
@@ -23,7 +24,7 @@ namespace SJP.Schematic.Oracle.Tests.Integration
             var table = await GetTableAsync("table_test_table_14").ConfigureAwait(false);
             var check = table.Checks.Single();
 
-            Assert.AreEqual(expectedCheckName, check.Name.LocalName);
+            Assert.AreEqual(expectedCheckName, check.Name.UnwrapSome().LocalName);
         }
 
         [Test]

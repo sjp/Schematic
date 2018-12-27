@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Web;
+using LanguageExt;
 using SJP.Schematic.Core;
 using SJP.Schematic.Core.Extensions;
 using SJP.Schematic.Core.Utilities;
@@ -14,7 +15,7 @@ namespace SJP.Schematic.Reporting.Html.Lint.Rules
         {
         }
 
-        protected override IRuleMessage BuildMessage(string foreignKeyName, Identifier childTableName, Identifier parentTableName)
+        protected override IRuleMessage BuildMessage(Option<Identifier> foreignKeyName, Identifier childTableName, Identifier parentTableName)
         {
             if (childTableName == null)
                 throw new ArgumentNullException(nameof(childTableName));
@@ -23,12 +24,13 @@ namespace SJP.Schematic.Reporting.Html.Lint.Rules
 
             var builder = StringBuilderCache.Acquire();
             builder.Append("A foreign key");
-            if (!foreignKeyName.IsNullOrWhiteSpace())
+
+            foreignKeyName.IfSome(fkName =>
             {
                 builder.Append(" <code>")
-                    .Append(HttpUtility.HtmlEncode(foreignKeyName))
+                    .Append(HttpUtility.HtmlEncode(fkName))
                     .Append("</code>");
-            }
+            });
 
             var childTableLink = $"<a href=\"tables/{ childTableName.ToSafeKey() }.html\">{ HttpUtility.HtmlEncode(childTableName.ToVisibleName()) }</a>";
             var parentTableLink = $"<a href=\"tables/{ parentTableName.ToSafeKey() }.html\">{ HttpUtility.HtmlEncode(parentTableName.ToVisibleName()) }</a>";

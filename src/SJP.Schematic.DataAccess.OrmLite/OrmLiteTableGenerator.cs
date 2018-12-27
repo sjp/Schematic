@@ -239,12 +239,12 @@ namespace SJP.Schematic.DataAccess.OrmLite
                     .Append(parentClassName)
                     .Append(")");
 
-                var fkName = relationalKey.ChildKey.Name.LocalName.ToStringLiteral();
-                if (!fkName.IsNullOrWhiteSpace())
+                relationalKey.ChildKey.Name.IfSome(fkName =>
                 {
+                    var fkNameLiteral = fkName.LocalName.ToStringLiteral();
                     builder.Append("), ForeignKeyName = ")
-                        .Append(fkName);
-                }
+                        .Append(fkNameLiteral);
+                });
 
                 if (relationalKey.DeleteRule != Rule.None)
                 {

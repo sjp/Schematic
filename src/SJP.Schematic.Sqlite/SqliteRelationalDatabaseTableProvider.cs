@@ -443,31 +443,6 @@ namespace SJP.Schematic.Sqlite
             return result;
         }
 
-        protected virtual IReadOnlyCollection<IDatabaseCheckConstraint> LoadChecksSync(SqliteTableParser parser)
-        {
-            if (parser == null)
-                throw new ArgumentNullException(nameof(parser));
-
-            var checks = parser.Checks.ToList();
-            if (checks.Empty())
-                return Array.Empty<IDatabaseCheckConstraint>();
-
-            var result = new List<IDatabaseCheckConstraint>(checks.Count);
-
-            foreach (var ck in checks)
-            {
-                var startIndex = ck.Definition.First().Position.Absolute;
-                var lastToken = ck.Definition.Last();
-                var endIndex = lastToken.Position.Absolute + lastToken.ToStringValue().Length;
-
-                var definition = parser.Definition.Substring(startIndex, endIndex - startIndex);
-                var check = new SqliteCheckConstraint(ck.Name, definition);
-                result.Add(check);
-            }
-
-            return result;
-        }
-
         protected virtual Task<IReadOnlyCollection<IDatabaseCheckConstraint>> LoadChecksAsync(SqliteTableParser parser, CancellationToken cancellationToken)
         {
             if (parser == null)
@@ -486,7 +461,10 @@ namespace SJP.Schematic.Sqlite
                 var endIndex = lastToken.Position.Absolute + lastToken.ToStringValue().Length;
 
                 var definition = parser.Definition.Substring(startIndex, endIndex - startIndex);
-                var check = new SqliteCheckConstraint(ck.Name, definition);
+                var checkName = ck.Name != null
+                    ? Option<Identifier>.Some(ck.Name)
+                    : Option<Identifier>.None;
+                var check = new SqliteCheckConstraint(checkName, definition);
                 result.Add(check);
             }
 
@@ -696,19 +674,6 @@ namespace SJP.Schematic.Sqlite
             }
 
             return result;
-        }
-
-        protected virtual SqliteTableParser GetParsedTableDefinitionSync(Identifier tableName)
-        {
-            var definitionQuery = TableDefinitionQuery(tableName.Schema);
-            var tableSql = Connection.ExecuteScalar<string>(definitionQuery, new { TableName = tableName.LocalName });
-            var tokenizer = new SqliteTokenizer();
-            var tokenizeResult = tokenizer.TryTokenize(tableSql);
-            if (!tokenizeResult.HasValue)
-                throw new Exception("Unable to parse the CREATE TABLE statement: " + tableSql);
-
-            var tokens = tokenizeResult.Value;
-            return new SqliteTableParser(tokens, tableSql);
         }
 
         protected virtual Task<SqliteTableParser> GetParsedTableDefinitionAsync(Identifier tableName, CancellationToken cancellationToken)

@@ -13,11 +13,12 @@ namespace SJP.Schematic.Reporting.Html.ViewModels.Mappers
             if (primaryKey == null)
                 throw new ArgumentNullException(nameof(primaryKey));
 
+            var pkConstraintName = primaryKey.Name.Match(pkName => pkName.LocalName, () => string.Empty);
             var columnNames = primaryKey.Columns.Select(c => c.Name.LocalName).ToList();
 
             return new Constraints.PrimaryKeyConstraint(
                 tableName,
-                primaryKey.Name?.LocalName,
+                pkConstraintName,
                 columnNames
             );
         }
@@ -29,11 +30,12 @@ namespace SJP.Schematic.Reporting.Html.ViewModels.Mappers
             if (uniqueKey == null)
                 throw new ArgumentNullException(nameof(uniqueKey));
 
+            var ukConstraintName = uniqueKey.Name.Match(ukName => ukName.LocalName, () => string.Empty);
             var columnNames = uniqueKey.Columns.Select(c => c.Name.LocalName).ToList();
 
             return new Constraints.UniqueKey(
                 tableName,
-                uniqueKey.Name?.LocalName,
+                ukConstraintName,
                 columnNames
             );
         }
@@ -43,15 +45,17 @@ namespace SJP.Schematic.Reporting.Html.ViewModels.Mappers
             if (foreignKey == null)
                 throw new ArgumentNullException(nameof(foreignKey));
 
+            var childKeyName = foreignKey.ChildKey.Name.Match(fkName => fkName.LocalName, () => string.Empty);
             var childColumnNames = foreignKey.ChildKey.Columns.Select(c => c.Name.LocalName).ToList();
+            var parentKeyName = foreignKey.ParentKey.Name.Match(pkName => pkName.LocalName, () => string.Empty);
             var parentColumnNames = foreignKey.ParentKey.Columns.Select(c => c.Name.LocalName).ToList();
 
             return new Constraints.ForeignKey(
                 foreignKey.ChildTable,
-                foreignKey.ChildKey.Name?.LocalName,
+                childKeyName,
                 childColumnNames,
                 foreignKey.ParentTable,
-                foreignKey.ParentKey.Name?.LocalName,
+                parentKeyName,
                 parentColumnNames,
                 foreignKey.DeleteRule,
                 foreignKey.UpdateRule
@@ -65,9 +69,11 @@ namespace SJP.Schematic.Reporting.Html.ViewModels.Mappers
             if (check == null)
                 throw new ArgumentNullException(nameof(check));
 
+            var constraintName = check.Name.Match(name => name.LocalName, () => string.Empty);
+
             return new Constraints.CheckConstraint(
                 tableName,
-                check.Name?.LocalName,
+                constraintName,
                 check.Definition
             );
         }

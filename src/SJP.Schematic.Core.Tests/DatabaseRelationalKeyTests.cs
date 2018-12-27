@@ -2,6 +2,7 @@
 using NUnit.Framework;
 using Moq;
 using System.Data;
+using SJP.Schematic.Core.Extensions;
 
 namespace SJP.Schematic.Core.Tests
 {
@@ -125,7 +126,7 @@ namespace SJP.Schematic.Core.Tests
 
             Assert.Multiple(() =>
             {
-                Assert.AreEqual(keyName, relationalKey.ChildKey.Name);
+                Assert.AreEqual(keyName, relationalKey.ChildKey.Name.UnwrapSome());
                 Assert.AreSame(childKey, relationalKey.ChildKey);
             });
         }
@@ -173,7 +174,7 @@ namespace SJP.Schematic.Core.Tests
 
             Assert.Multiple(() =>
             {
-                Assert.AreEqual(keyName, relationalKey.ParentKey.Name);
+                Assert.AreEqual(keyName, relationalKey.ParentKey.Name.UnwrapSome());
                 Assert.AreSame(parentKeyArg, relationalKey.ParentKey);
             });
         }

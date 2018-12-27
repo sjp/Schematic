@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using LanguageExt;
 using SJP.Schematic.Core;
 using SJP.Schematic.Core.Extensions;
 using SJP.Schematic.Core.Utilities;
@@ -50,16 +51,14 @@ namespace SJP.Schematic.Lint.Rules
                 if (columnsEqual)
                     continue;
 
-                var fkName = foreignKey.ChildKey.Name?.ToString() ?? string.Empty;
-                var ruleMessage = BuildMessage(fkName, foreignKey.ChildTable, foreignKey.ParentTable);
-
+                var ruleMessage = BuildMessage(foreignKey.ChildKey.Name, foreignKey.ChildTable, foreignKey.ParentTable);
                 result.Add(ruleMessage);
             }
 
             return result;
         }
 
-        protected virtual IRuleMessage BuildMessage(string foreignKeyName, Identifier childTableName, Identifier parentTableName)
+        protected virtual IRuleMessage BuildMessage(Option<Identifier> foreignKeyName, Identifier childTableName, Identifier parentTableName)
         {
             if (childTableName == null)
                 throw new ArgumentNullException(nameof(childTableName));
@@ -68,12 +67,12 @@ namespace SJP.Schematic.Lint.Rules
 
             var builder = StringBuilderCache.Acquire();
             builder.Append("A foreign key");
-            if (!foreignKeyName.IsNullOrWhiteSpace())
+            foreignKeyName.IfSome(name =>
             {
                 builder.Append(" '")
-                    .Append(foreignKeyName)
+                    .Append(name.LocalName)
                     .Append("'");
-            }
+            });
 
             builder.Append(" from ")
                 .Append(childTableName)

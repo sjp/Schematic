@@ -791,8 +791,7 @@ where schema_name(t.schema_id) = @SchemaName and t.name = @TableName";
 
             foreach (var key in keys)
             {
-                if (key.Name != null)
-                    result[key.Name.LocalName] = key;
+                key.Name.IfSome(name => result[name.LocalName] = key);
             }
 
             return result;

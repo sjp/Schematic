@@ -1,4 +1,5 @@
 ﻿using System;
+using LanguageExt;
 using SJP.Schematic.Core;
 using SJP.Schematic.Core.Extensions;
 
@@ -6,18 +7,16 @@ namespace SJP.Schematic.Sqlite
 {
     public class SqliteCheckConstraint : IDatabaseCheckConstraint
     {
-        public SqliteCheckConstraint(Identifier checkName, string definition)
+        public SqliteCheckConstraint(Option<Identifier> checkName, string definition)
         {
             if (definition.IsNullOrWhiteSpace())
                 throw new ArgumentNullException(nameof(definition));
-            if (checkName == null)
-                throw new ArgumentNullException(nameof(checkName));
 
-            Name = checkName.LocalName;
+            Name = checkName.Map(name => new Identifier(name.LocalName));
             Definition = definition;
         }
 
-        public Identifier Name { get; }
+        public Option<Identifier> Name { get; }
 
         public string Definition { get; }
 

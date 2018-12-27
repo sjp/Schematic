@@ -1,6 +1,7 @@
 ﻿using System.Linq;
 using System.Threading.Tasks;
 using NUnit.Framework;
+using SJP.Schematic.Core.Extensions;
 
 namespace SJP.Schematic.SqlServer.Tests.Integration
 {
@@ -21,7 +22,7 @@ namespace SJP.Schematic.SqlServer.Tests.Integration
             var table = await GetTableAsync("table_test_table_14").ConfigureAwait(false);
             var check = table.Checks.Single();
 
-            Assert.AreEqual("ck_test_table_14", check.Name.LocalName);
+            Assert.AreEqual("ck_test_table_14", check.Name.UnwrapSome().LocalName);
         }
 
         [Test]

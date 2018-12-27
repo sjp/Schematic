@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
+using LanguageExt;
 using Moq;
 using NUnit.Framework;
 using SJP.Schematic.Core;
@@ -37,14 +38,14 @@ namespace SJP.Schematic.Lint.Tests.Rules
             var parentKey = new DatabaseRelationalKey(
                 "child_table",
                 new DatabaseKey(
-                    "child_key",
+                    Option<Identifier>.Some("child_key"),
                     DatabaseKeyType.Foreign,
                     new[] { Mock.Of<IDatabaseColumn>() },
                     true
                 ),
                 "parent_table",
                 new DatabaseKey(
-                    "parent_key",
+                    Option<Identifier>.Some("parent_key"),
                     DatabaseKeyType.Primary,
                     new[] { Mock.Of<IDatabaseColumn>() },
                     true
@@ -79,14 +80,14 @@ namespace SJP.Schematic.Lint.Tests.Rules
             var childKey = new DatabaseRelationalKey(
                 "child_table",
                 new DatabaseKey(
-                    "child_key",
+                    Option<Identifier>.Some("child_key"),
                     DatabaseKeyType.Foreign,
                     new[] { Mock.Of<IDatabaseColumn>() },
                     true
                 ),
                 "parent_table",
                 new DatabaseKey(
-                    "parent_key",
+                    Option<Identifier>.Some("parent_key"),
                     DatabaseKeyType.Primary,
                     new[] { Mock.Of<IDatabaseColumn>() },
                     true

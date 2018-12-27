@@ -67,9 +67,10 @@ namespace SJP.Schematic.Reporting.Html.ViewModels.Mappers
                         .Select(c => c.Name.LocalName)
                         .ToList();
 
+                    var childKeyName = parentKey.ChildKey.Name.Match(name => name.LocalName, () => string.Empty);
                     var columnFks = parentColumnNames.Select(colName =>
                         new Table.ParentKey(
-                            parentKey.ChildKey.Name?.LocalName,
+                            childKeyName,
                             parentKey.ParentTable,
                             colName,
                             qualifiedColumnName
@@ -92,9 +93,10 @@ namespace SJP.Schematic.Reporting.Html.ViewModels.Mappers
                         .Select(c => c.Name.LocalName)
                         .ToList();
 
+                    var childKeyName = childKey.ChildKey.Name.Match(name => name.LocalName, () => string.Empty);
                     var columnFks = childColumnNames.Select(colName =>
                         new Table.ChildKey(
-                            childKey.ChildKey.Name?.LocalName,
+                            childKeyName,
                             childKey.ChildTable,
                             colName,
                             qualifiedColumnName
@@ -130,22 +132,22 @@ namespace SJP.Schematic.Reporting.Html.ViewModels.Mappers
 
             var renderPrimaryKey = primaryKey
                 .Map(pk => new Table.PrimaryKeyConstraint(
-                    pk.Name?.LocalName,
+                    pk.Name.Match(name => name.LocalName, () => string.Empty),
                     pk.Columns.Select(c => c.Name.LocalName).ToList()
                 ));
 
             var renderUniqueKeys = uniqueKeys
                 .Select(uk => new Table.UniqueKey(
-                    uk.Name?.LocalName,
+                    uk.Name.Match(name => name.LocalName, () => string.Empty),
                     uk.Columns.Select(c => c.Name.LocalName).ToList()
                 )).ToList();
 
             var renderParentKeys = parentKeys.Select(pk =>
                 new Table.ForeignKey(
-                    pk.ChildKey.Name?.LocalName,
+                    pk.ChildKey.Name.Match(name => name.LocalName, () => string.Empty),
                     pk.ChildKey.Columns.Select(c => c.Name.LocalName).ToList(),
                     pk.ParentTable,
-                    pk.ParentKey.Name?.LocalName,
+                    pk.ParentKey.Name.Match(name => name.LocalName, () => string.Empty),
                     pk.ParentKey.Columns.Select(c => c.Name.LocalName).ToList(),
                     pk.DeleteRule,
                     pk.UpdateRule
@@ -153,7 +155,7 @@ namespace SJP.Schematic.Reporting.Html.ViewModels.Mappers
 
             var renderChecks = checks.Select(c =>
                 new Table.CheckConstraint(
-                    c.Name?.LocalName,
+                    c.Name.Match(name => name.LocalName, () => string.Empty),
                     c.Definition
                 )).ToList();
 

@@ -1,10 +1,11 @@
 ﻿using System.Collections.Generic;
+using LanguageExt;
 
 namespace SJP.Schematic.Core
 {
     public interface IDatabaseKey : IDatabaseOptional
     {
-        Identifier Name { get; }
+        Option<Identifier> Name { get; }
 
         IReadOnlyCollection<IDatabaseColumn> Columns { get; }
 

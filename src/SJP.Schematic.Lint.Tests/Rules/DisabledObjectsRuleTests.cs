@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
+using LanguageExt;
 using Moq;
 using NUnit.Framework;
 using SJP.Schematic.Core;
@@ -66,7 +67,7 @@ namespace SJP.Schematic.Lint.Tests.Rules
                 null
             );
             var testPrimaryKey = new DatabaseKey(
-                "test_primary_key",
+                Option<Identifier>.Some("test_primary_key"),
                 DatabaseKeyType.Primary,
                 new[] { testColumn },
                 false
@@ -104,13 +105,13 @@ namespace SJP.Schematic.Lint.Tests.Rules
                 null
             );
             var testForeignKey = new DatabaseKey(
-                "test_foreign_key",
+                Option<Identifier>.Some("test_foreign_key"),
                 DatabaseKeyType.Foreign,
                 new[] { testColumn },
                 false
             );
             var testPrimaryKey = new DatabaseKey(
-                "test_primary_key",
+                Option<Identifier>.Some("test_primary_key"),
                 DatabaseKeyType.Primary,
                 new[] { testColumn },
                 false
@@ -156,7 +157,7 @@ namespace SJP.Schematic.Lint.Tests.Rules
                 null
             );
             var testUniqueKey = new DatabaseKey(
-                "test_unique_key",
+                Option<Identifier>.Some("test_unique_key"),
                 DatabaseKeyType.Unique,
                 new[] { testColumn },
                 false
@@ -226,7 +227,7 @@ namespace SJP.Schematic.Lint.Tests.Rules
             var database = CreateFakeDatabase();
 
             var testCheck = new DatabaseCheckConstraint(
-                "test_check",
+                Option<Identifier>.Some("test_check"),
                 "test_check_definition",
                 false
             );

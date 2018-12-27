@@ -3,6 +3,7 @@ using System.Data;
 using NUnit.Framework;
 using Moq;
 using SJP.Schematic.Core;
+using SJP.Schematic.Core.Extensions;
 
 namespace SJP.Schematic.MySql.Tests
 {
@@ -126,7 +127,7 @@ namespace SJP.Schematic.MySql.Tests
 
             Assert.Multiple(() =>
             {
-                Assert.AreEqual(keyName, relationalKey.ChildKey.Name);
+                Assert.AreEqual(keyName, relationalKey.ChildKey.Name.UnwrapSome());
                 Assert.AreSame(childKey, relationalKey.ChildKey);
             });
         }
@@ -174,7 +175,7 @@ namespace SJP.Schematic.MySql.Tests
 
             Assert.Multiple(() =>
             {
-                Assert.AreEqual(keyName, relationalKey.ParentKey.Name);
+                Assert.AreEqual(keyName, relationalKey.ParentKey.Name.UnwrapSome());
                 Assert.AreSame(parentKey, relationalKey.ParentKey);
             });
         }

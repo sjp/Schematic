@@ -2,6 +2,7 @@
 using NUnit.Framework;
 using Moq;
 using SJP.Schematic.Core;
+using SJP.Schematic.Core.Extensions;
 
 namespace SJP.Schematic.Oracle.Tests
 {
@@ -74,7 +75,7 @@ namespace SJP.Schematic.Oracle.Tests
 
             var key = new OracleDatabaseKey(keyName, keyType, columns, enabled);
 
-            Assert.AreEqual(keyName, key.Name);
+            Assert.AreEqual(keyName, key.Name.UnwrapSome());
         }
 
         [Test]

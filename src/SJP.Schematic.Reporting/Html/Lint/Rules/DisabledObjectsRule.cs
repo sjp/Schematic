@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Web;
+using LanguageExt;
 using SJP.Schematic.Core;
 using SJP.Schematic.Core.Extensions;
 using SJP.Schematic.Lint;
@@ -13,56 +14,51 @@ namespace SJP.Schematic.Reporting.Html.Lint.Rules
         {
         }
 
-        protected override IRuleMessage BuildDisabledForeignKeyMessage(Identifier tableName, string foreignKeyName)
+        protected override IRuleMessage BuildDisabledForeignKeyMessage(Identifier tableName, Option<Identifier> foreignKeyName)
         {
-            if (tableName == null)
-                throw new ArgumentNullException(nameof(tableName));
-
-            var messageKeyName = !foreignKeyName.IsNullOrWhiteSpace()
-                ? " <code>" + HttpUtility.HtmlEncode(foreignKeyName) + "</code>"
-                : string.Empty;
+            var messageKeyName = foreignKeyName.Match(
+                name => " <code>" + HttpUtility.HtmlEncode(name.LocalName) + "</code>",
+                () => string.Empty
+            );
 
             var tableLink = $"<a href=\"tables/{ tableName.ToSafeKey() }.html\">{ HttpUtility.HtmlEncode(tableName.ToVisibleName()) }</a>";
             var messageText = $"The table '{ tableLink }' contains a disabled foreign key{ messageKeyName }. Consider enabling or removing the foreign key.";
             return new RuleMessage(RuleTitle, Level, messageText);
         }
 
-        protected override IRuleMessage BuildDisabledPrimaryKeyMessage(Identifier tableName, string primaryKeyName)
+        protected override IRuleMessage BuildDisabledPrimaryKeyMessage(Identifier tableName, Option<Identifier> primaryKeyName)
         {
-            if (tableName == null)
-                throw new ArgumentNullException(nameof(tableName));
-
-            var messageKeyName = !primaryKeyName.IsNullOrWhiteSpace()
-                ? " <code>" + HttpUtility.HtmlEncode(primaryKeyName) + "</code>"
-                : string.Empty;
+            var messageKeyName = primaryKeyName.Match(
+                   name => " <code>" + HttpUtility.HtmlEncode(name.LocalName) + "</code>",
+                   () => string.Empty
+               );
 
             var tableLink = $"<a href=\"tables/{ tableName.ToSafeKey() }.html\">{ HttpUtility.HtmlEncode(tableName.ToVisibleName()) }</a>";
             var messageText = $"The table '{ tableLink }' contains a disabled primary key{ messageKeyName }. Consider enabling or removing the primary key.";
             return new RuleMessage(RuleTitle, Level, messageText);
         }
 
-        protected override IRuleMessage BuildDisabledUniqueKeyMessage(Identifier tableName, string uniqueKeyName)
+        protected override IRuleMessage BuildDisabledUniqueKeyMessage(Identifier tableName, Option<Identifier> uniqueKeyName)
         {
-            if (tableName == null)
-                throw new ArgumentNullException(nameof(tableName));
-
-            var messageKeyName = !uniqueKeyName.IsNullOrWhiteSpace()
-                ? " <code>" + HttpUtility.HtmlEncode(uniqueKeyName) + "</code>"
-                : string.Empty;
+            var messageKeyName = uniqueKeyName.Match(
+                name => " <code>" + HttpUtility.HtmlEncode(name.LocalName) + "</code>",
+                () => string.Empty
+            );
 
             var tableLink = $"<a href=\"tables/{ tableName.ToSafeKey() }.html\">{ HttpUtility.HtmlEncode(tableName.ToVisibleName()) }</a>";
             var messageText = $"The table '{ tableLink }' contains a disabled unique key{ messageKeyName }. Consider enabling or removing the unique key.";
             return new RuleMessage(RuleTitle, Level, messageText);
         }
 
-        protected override IRuleMessage BuildDisabledCheckConstraintMessage(Identifier tableName, string checkName)
+        protected override IRuleMessage BuildDisabledCheckConstraintMessage(Identifier tableName, Option<Identifier> checkName)
         {
             if (tableName == null)
                 throw new ArgumentNullException(nameof(tableName));
 
-            var messageCheckName = !checkName.IsNullOrWhiteSpace()
-                ? " <code>" + HttpUtility.HtmlEncode(checkName) + "</code>"
-                : string.Empty;
+            var messageCheckName = checkName.Match(
+                name => " <code>" + HttpUtility.HtmlEncode(name.LocalName) + "</code>",
+                () => string.Empty
+            );
 
             var tableLink = $"<a href=\"tables/{ tableName.ToSafeKey() }.html\">{ HttpUtility.HtmlEncode(tableName.ToVisibleName()) }</a>";
             var messageText = $"The table '{ tableLink }' contains a disabled check constraint{ messageCheckName }. Consider enabling or removing the check constraint.";

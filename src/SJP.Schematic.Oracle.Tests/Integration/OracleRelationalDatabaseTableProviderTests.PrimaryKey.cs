@@ -60,7 +60,7 @@ namespace SJP.Schematic.Oracle.Tests.Integration
             var table = await GetTableAsync("table_test_table_3").ConfigureAwait(false);
             var pk = table.PrimaryKey.UnwrapSome();
 
-            Assert.AreEqual("PK_TEST_TABLE_3", pk.Name.LocalName);
+            Assert.AreEqual("PK_TEST_TABLE_3", pk.Name.UnwrapSome().LocalName);
         }
 
         [Test]
@@ -87,7 +87,7 @@ namespace SJP.Schematic.Oracle.Tests.Integration
             var table = await GetTableAsync("table_test_table_4").ConfigureAwait(false);
             var pk = table.PrimaryKey.UnwrapSome();
 
-            Assert.AreEqual("PK_TEST_TABLE_4", pk.Name.LocalName);
+            Assert.AreEqual("PK_TEST_TABLE_4", pk.Name.UnwrapSome().LocalName);
         }
     }
 }

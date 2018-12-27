@@ -111,14 +111,16 @@ namespace SJP.Schematic.Reporting.Dot
 
                 primaryKey.IfSome(pk =>
                 {
-                    var primaryKeyNameText = pk.Name == null
-                        ? pk.GetKeyHash(table.Name).ToString()
-                        : pk.Name.LocalName;
+                    var primaryKeyNameText = pk.Name.Match(
+                        pkName => pkName.LocalName,
+                        () => pk.GetKeyHash(table.Name).ToString()
+                    );
+                    var primaryKeyName = pk.Name.Match(pkName => pkName.LocalName, () => string.Empty);
 
                     var primaryKeyConstraint = new TableConstraint(
                         primaryKeyNameText,
                         pk.KeyType,
-                        pk.Name?.LocalName,
+                        primaryKeyName,
                         pk.Columns.Select(c => c.Name.LocalName).ToList(),
                         pk.Columns.Select(c => c.Type.Definition).ToList()
                     );
@@ -127,14 +129,16 @@ namespace SJP.Schematic.Reporting.Dot
 
                 foreach (var uniqueKey in uniqueKeys)
                 {
-                    var uniqueKeyNameText = uniqueKey.Name == null
-                        ? uniqueKey.GetKeyHash(table.Name).ToString()
-                        : uniqueKey.Name.LocalName;
+                    var uniqueKeyNameText = uniqueKey.Name.Match(
+                        ukName => ukName.LocalName,
+                        () => uniqueKey.GetKeyHash(table.Name).ToString()
+                    );
+                    var uniqueKeyName = uniqueKey.Name.Match(pkName => pkName.LocalName, () => string.Empty);
 
                     var uniqueKeyConstraint = new TableConstraint(
                         uniqueKeyNameText,
                         uniqueKey.KeyType,
-                        uniqueKey.Name?.LocalName,
+                        uniqueKeyName,
                         uniqueKey.Columns.Select(c => c.Name.LocalName).ToList(),
                         uniqueKey.Columns.Select(c => c.Type.Definition).ToList()
                     );
@@ -151,14 +155,16 @@ namespace SJP.Schematic.Reporting.Dot
                         continue;
 
                     var childKeyTableName = relationalKey.ChildTable.ToSafeKey();
-                    var childKeyName = childKey.Name == null
-                        ? childKey.GetKeyHash(relationalKey.ChildTable).ToString()
-                        : childKey.Name.LocalName;
+                    var childKeyName = childKey.Name.Match(
+                        ckName => ckName.LocalName,
+                        () => childKey.GetKeyHash(relationalKey.ChildTable).ToString()
+                    );
 
                     var parentKeyTableName = relationalKey.ParentTable.ToSafeKey();
-                    var parentKeyName = parentKey.Name == null
-                        ? parentKey.GetKeyHash(relationalKey.ParentTable).ToString()
-                        : parentKey.Name.LocalName;
+                    var parentKeyName = parentKey.Name.Match(
+                        fkName => fkName.LocalName,
+                        () => parentKey.GetKeyHash(relationalKey.ParentTable).ToString()
+                    );
 
                     var childKeyToParentKeyEdge = new DotEdge(
                         new DotIdentifier(childKeyTableName),
@@ -169,10 +175,11 @@ namespace SJP.Schematic.Reporting.Dot
                     );
                     edges.Add(childKeyToParentKeyEdge);
 
+                    var childKeyConstraintName = childKey.Name.Match(name => name.LocalName, () => string.Empty);
                     var tableConstraint = new TableConstraint(
                         childKeyName,
                         childKey.KeyType,
-                        childKey.Name?.LocalName,
+                        childKeyConstraintName,
                         childKey.Columns.Select(c => c.Name.LocalName).ToList(),
                         childKey.Columns.Select(c => c.Type.Definition).ToList()
                     );

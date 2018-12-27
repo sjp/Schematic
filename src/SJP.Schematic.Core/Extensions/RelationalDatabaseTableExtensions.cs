@@ -16,8 +16,7 @@ namespace SJP.Schematic.Core.Extensions
 
             foreach (var check in checks)
             {
-                if (check.Name != null)
-                    result[check.Name.LocalName] = check;
+                check.Name.IfSome(name => result[name.LocalName] = check);
             }
 
             return result;
@@ -100,8 +99,7 @@ namespace SJP.Schematic.Core.Extensions
 
             foreach (var parentKey in parentKeys)
             {
-                if (parentKey.ChildKey.Name != null)
-                    result[parentKey.ChildKey.Name.LocalName] = parentKey;
+                parentKey.ChildKey.Name.IfSome(name => result[name.LocalName] = parentKey);
             }
 
             return result;
@@ -156,8 +154,7 @@ namespace SJP.Schematic.Core.Extensions
 
             foreach (var key in uniqueKeys)
             {
-                if (key.Name != null)
-                    result[key.Name.LocalName] = key;
+                key.Name.IfSome(name => result[name.LocalName] = key);
             }
 
             return result;

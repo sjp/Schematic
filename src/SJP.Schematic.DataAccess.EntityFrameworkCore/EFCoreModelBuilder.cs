@@ -81,7 +81,6 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore
             primaryKey.IfSome(pk =>
             {
                 var keyColumnSet = GenerateColumnSet(className, "t", pk.Columns);
-                var keyNameLiteral = pk.Name?.LocalName?.ToStringLiteral();
 
                 _builder.Append(LineIndent)
                     .Append("modelBuilder.Entity<")
@@ -92,14 +91,15 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore
                     .Append(keyColumnSet)
                     .Append(")");
 
-                if (!keyNameLiteral.IsNullOrWhiteSpace())
+                pk.Name.IfSome(pkName =>
                 {
+                    var pkNameLiteral = pkName.LocalName.ToStringLiteral();
                     _builder.AppendLine()
                         .Append(chainIndent)
                         .Append(".HasName(")
-                        .Append(keyNameLiteral)
+                        .Append(pkNameLiteral)
                         .Append(")");
-                }
+                });
 
                 _builder.AppendLine(";");
             });
@@ -107,7 +107,6 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore
             foreach (var uniqueKey in table.UniqueKeys)
             {
                 var keyColumnSet = GenerateColumnSet(className, "t", uniqueKey.Columns);
-                var keyNameLiteral = uniqueKey.Name?.LocalName?.ToStringLiteral();
 
                 _builder.Append(LineIndent)
                     .Append("modelBuilder.Entity<")
@@ -118,14 +117,15 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore
                     .Append(keyColumnSet)
                     .Append(")");
 
-                if (!keyNameLiteral.IsNullOrWhiteSpace())
+                uniqueKey.Name.IfSome(ukName =>
                 {
+                    var ukNameLiteral = ukName.LocalName.ToStringLiteral();
                     _builder.AppendLine()
                         .Append(chainIndent)
                         .Append(".HasName(")
-                        .Append(keyNameLiteral)
+                        .Append(ukNameLiteral)
                         .Append(")");
-                }
+                });
 
                 _builder.AppendLine(";");
             }
@@ -193,15 +193,15 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore
                     .Append(parentColumnSet)
                     .Append(")");
 
-                var keyNameLiteral = relationalKey.ChildKey.Name?.LocalName?.ToStringLiteral();
-                if (!keyNameLiteral.IsNullOrWhiteSpace())
+                relationalKey.ChildKey.Name.IfSome(childKeyName =>
                 {
+                    var keyNameLiteral = childKeyName.LocalName.ToStringLiteral();
                     _builder.AppendLine()
                         .Append(chainIndent)
                         .Append(".HasConstraintName(")
                         .Append(keyNameLiteral)
                         .Append(")");
-                }
+                });
 
                 _builder.AppendLine(";");
             }

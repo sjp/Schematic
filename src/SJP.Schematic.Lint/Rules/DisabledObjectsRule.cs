@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using LanguageExt;
 using SJP.Schematic.Core;
 using SJP.Schematic.Core.Extensions;
 
@@ -41,27 +42,27 @@ namespace SJP.Schematic.Lint.Rules
                 .Where(fk => !fk.IsEnabled);
             foreach (var foreignKey in disabledForeignKeys)
             {
-                var ruleMessage = BuildDisabledForeignKeyMessage(table.Name, foreignKey.Name?.LocalName);
+                var ruleMessage = BuildDisabledForeignKeyMessage(table.Name, foreignKey.Name);
                 result.Add(ruleMessage);
             }
 
             var primaryKey = table.PrimaryKey;
             primaryKey
                 .Where(pk => !pk.IsEnabled)
-                .Map(pk => BuildDisabledPrimaryKeyMessage(table.Name, pk.Name?.LocalName))
+                .Map(pk => BuildDisabledPrimaryKeyMessage(table.Name, pk.Name))
                 .IfSome(ruleMessage => result.Add(ruleMessage));
 
             var disabledUniqueKeys = table.UniqueKeys.Where(uk => !uk.IsEnabled);
             foreach (var uniqueKey in disabledUniqueKeys)
             {
-                var ruleMessage = BuildDisabledUniqueKeyMessage(table.Name, uniqueKey.Name?.LocalName);
+                var ruleMessage = BuildDisabledUniqueKeyMessage(table.Name, uniqueKey.Name);
                 result.Add(ruleMessage);
             }
 
             var disabledChecks = table.Checks.Where(ck => !ck.IsEnabled);
             foreach (var check in disabledChecks)
             {
-                var ruleMessage = BuildDisabledCheckConstraintMessage(table.Name, check.Name?.LocalName);
+                var ruleMessage = BuildDisabledCheckConstraintMessage(table.Name, check.Name);
                 result.Add(ruleMessage);
             }
 
@@ -82,53 +83,57 @@ namespace SJP.Schematic.Lint.Rules
             return result;
         }
 
-        protected virtual IRuleMessage BuildDisabledForeignKeyMessage(Identifier tableName, string foreignKeyName)
+        protected virtual IRuleMessage BuildDisabledForeignKeyMessage(Identifier tableName, Option<Identifier> foreignKeyName)
         {
             if (tableName == null)
                 throw new ArgumentNullException(nameof(tableName));
 
-            var messageKeyName = !foreignKeyName.IsNullOrWhiteSpace()
-                ? " '" + foreignKeyName + "'"
-                : string.Empty;
+            var messageKeyName = foreignKeyName.Match(
+                name => " '" + name.LocalName + "'",
+                () => string.Empty
+            );
 
             var messageText = $"The table '{ tableName }' contains a disabled foreign key{ messageKeyName }. Consider enabling or removing the foreign key.";
             return new RuleMessage(RuleTitle, Level, messageText);
         }
 
-        protected virtual IRuleMessage BuildDisabledPrimaryKeyMessage(Identifier tableName, string primaryKeyName)
+        protected virtual IRuleMessage BuildDisabledPrimaryKeyMessage(Identifier tableName, Option<Identifier> primaryKeyName)
         {
             if (tableName == null)
                 throw new ArgumentNullException(nameof(tableName));
 
-            var messageKeyName = !primaryKeyName.IsNullOrWhiteSpace()
-                ? " '" + primaryKeyName + "'"
-                : string.Empty;
+            var messageKeyName = primaryKeyName.Match(
+                name => " '" + name.LocalName + "'",
+                () => string.Empty
+            );
 
             var messageText = $"The table '{ tableName }' contains a disabled primary key{ messageKeyName }. Consider enabling or removing the primary key.";
             return new RuleMessage(RuleTitle, Level, messageText);
         }
 
-        protected virtual IRuleMessage BuildDisabledUniqueKeyMessage(Identifier tableName, string uniqueKeyName)
+        protected virtual IRuleMessage BuildDisabledUniqueKeyMessage(Identifier tableName, Option<Identifier> uniqueKeyName)
         {
             if (tableName == null)
                 throw new ArgumentNullException(nameof(tableName));
 
-            var messageKeyName = !uniqueKeyName.IsNullOrWhiteSpace()
-                ? " '" + uniqueKeyName + "'"
-                : string.Empty;
+            var messageKeyName = uniqueKeyName.Match(
+                name => " '" + name.LocalName + "'",
+                () => string.Empty
+            );
 
             var messageText = $"The table '{ tableName }' contains a disabled unique key{ messageKeyName }. Consider enabling or removing the unique key.";
             return new RuleMessage(RuleTitle, Level, messageText);
         }
 
-        protected virtual IRuleMessage BuildDisabledCheckConstraintMessage(Identifier tableName, string checkName)
+        protected virtual IRuleMessage BuildDisabledCheckConstraintMessage(Identifier tableName, Option<Identifier> checkName)
         {
             if (tableName == null)
                 throw new ArgumentNullException(nameof(tableName));
 
-            var messageCheckName = !checkName.IsNullOrWhiteSpace()
-                ? " '" + checkName + "'"
-                : string.Empty;
+            var messageCheckName = checkName.Match(
+                name => " '" + name.LocalName + "'",
+                () => string.Empty
+            );
 
             var messageText = $"The table '{ tableName }' contains a disabled check constraint{ messageCheckName }. Consider enabling or removing the check constraint.";
             return new RuleMessage(RuleTitle, Level, messageText);

@@ -60,7 +60,7 @@ namespace SJP.Schematic.MySql.Tests.Integration
             var table = await GetTableAsync("table_test_table_3").ConfigureAwait(false);
             var pk = table.PrimaryKey.UnwrapSome();
 
-            Assert.AreEqual("PRIMARY", pk.Name.LocalName);
+            Assert.AreEqual("PRIMARY", pk.Name.UnwrapSome().LocalName);
         }
 
         [Test]
@@ -87,7 +87,7 @@ namespace SJP.Schematic.MySql.Tests.Integration
             var table = await GetTableAsync("table_test_table_4").ConfigureAwait(false);
             var pk = table.PrimaryKey.UnwrapSome();
 
-            Assert.AreEqual("PRIMARY", pk.Name.LocalName);
+            Assert.AreEqual("PRIMARY", pk.Name.UnwrapSome().LocalName);
         }
     }
 }

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using EnumsNET;
+using LanguageExt;
 using SJP.Schematic.Core;
 using SJP.Schematic.Core.Extensions;
 
@@ -17,13 +18,13 @@ namespace SJP.Schematic.MySql
             if (!keyType.IsValid())
                 throw new ArgumentException($"The { nameof(DatabaseKeyType) } provided must be a valid enum.", nameof(keyType));
 
-            Name = name.LocalName;
+            Name = Option<Identifier>.Some(name.LocalName);
             KeyType = keyType;
             Columns = columns;
             IsEnabled = true;
         }
 
-        public Identifier Name { get; }
+        public Option<Identifier> Name { get; }
 
         public DatabaseKeyType KeyType { get; }
 

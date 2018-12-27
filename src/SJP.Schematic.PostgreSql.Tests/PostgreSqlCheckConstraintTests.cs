@@ -1,6 +1,7 @@
 ﻿using System;
 using NUnit.Framework;
 using SJP.Schematic.Core;
+using SJP.Schematic.Core.Extensions;
 
 namespace SJP.Schematic.PostgreSql.Tests
 {
@@ -37,7 +38,7 @@ namespace SJP.Schematic.PostgreSql.Tests
             Identifier checkName = "test_check";
             var check = new PostgreSqlCheckConstraint(checkName, "test_check");
 
-            Assert.AreEqual(checkName, check.Name);
+            Assert.AreEqual(checkName, check.Name.UnwrapSome());
         }
 
         [Test]

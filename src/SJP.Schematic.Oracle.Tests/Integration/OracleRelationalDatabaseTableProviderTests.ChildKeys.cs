@@ -3,6 +3,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using NUnit.Framework;
 using SJP.Schematic.Core;
+using SJP.Schematic.Core.Extensions;
 
 namespace SJP.Schematic.Oracle.Tests.Integration
 {
@@ -25,8 +26,8 @@ namespace SJP.Schematic.Oracle.Tests.Integration
 
             Assert.Multiple(() =>
             {
-                Assert.AreEqual("FK_TEST_TABLE_16", foreignKey.ChildKey.Name.LocalName);
-                Assert.AreEqual("PK_TEST_TABLE_15", foreignKey.ParentKey.Name.LocalName);
+                Assert.AreEqual("FK_TEST_TABLE_16", foreignKey.ChildKey.Name.UnwrapSome().LocalName);
+                Assert.AreEqual("PK_TEST_TABLE_15", foreignKey.ParentKey.Name.UnwrapSome().LocalName);
             });
         }
 
@@ -146,8 +147,8 @@ namespace SJP.Schematic.Oracle.Tests.Integration
 
             Assert.Multiple(() =>
             {
-                Assert.AreEqual("FK_TEST_TABLE_17", foreignKey.ChildKey.Name.LocalName);
-                Assert.AreEqual("UK_TEST_TABLE_15", foreignKey.ParentKey.Name.LocalName);
+                Assert.AreEqual("FK_TEST_TABLE_17", foreignKey.ChildKey.Name.UnwrapSome().LocalName);
+                Assert.AreEqual("UK_TEST_TABLE_15", foreignKey.ParentKey.Name.UnwrapSome().LocalName);
             });
         }
 

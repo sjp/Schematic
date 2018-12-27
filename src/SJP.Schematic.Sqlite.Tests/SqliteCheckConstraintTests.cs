@@ -1,6 +1,8 @@
 ﻿using System;
+using LanguageExt;
 using NUnit.Framework;
 using SJP.Schematic.Core;
+using SJP.Schematic.Core.Extensions;
 
 namespace SJP.Schematic.Sqlite.Tests
 {
@@ -8,43 +10,37 @@ namespace SJP.Schematic.Sqlite.Tests
     internal static class SqliteCheckConstraintTests
     {
         [Test]
-        public static void Ctor_GivenNullName_ThrowsArgumentNullException()
-        {
-            Assert.Throws<ArgumentNullException>(() => new SqliteCheckConstraint(null, "test_check"));
-        }
-
-        [Test]
         public static void Ctor_GivenNullDefinition_ThrowsArgumentNullException()
         {
-            Assert.Throws<ArgumentNullException>(() => new SqliteCheckConstraint("test_check", null));
+            Assert.Throws<ArgumentNullException>(() => new SqliteCheckConstraint(Option<Identifier>.Some("test_check"), null));
         }
 
         [Test]
         public static void Ctor_GivenEmptyDefinition_ThrowsArgumentNullException()
         {
-            Assert.Throws<ArgumentNullException>(() => new SqliteCheckConstraint("test_check", string.Empty));
+            Assert.Throws<ArgumentNullException>(() => new SqliteCheckConstraint(Option<Identifier>.Some("test_check"), string.Empty));
         }
 
         [Test]
         public static void Ctor_GivenWhiteSpaceDefinition_ThrowsArgumentNullException()
         {
-            Assert.Throws<ArgumentNullException>(() => new SqliteCheckConstraint("test_check", "      "));
+            Assert.Throws<ArgumentNullException>(() => new SqliteCheckConstraint(Option<Identifier>.Some("test_check"), "      "));
         }
 
         [Test]
         public static void Name_PropertyGet_EqualsCtorArg()
         {
             Identifier checkName = "test_check";
-            var check = new SqliteCheckConstraint(checkName, "test_check");
+            var check = new SqliteCheckConstraint(checkName, "test_check_definition");
 
-            Assert.AreEqual(checkName, check.Name);
+            Assert.AreEqual(checkName, check.Name.UnwrapSome());
         }
 
         [Test]
         public static void Definition_PropertyGet_EqualsCtorArg()
         {
             const string checkDefinition = "test_check_definition";
-            var check = new SqliteCheckConstraint("test_check", checkDefinition);
+            var check = new SqliteCheckConstraint(Option<Identifier>.Some("test_check"), checkDefinition);
 
             Assert.AreEqual(checkDefinition, check.Definition);
         }
@@ -52,7 +48,7 @@ namespace SJP.Schematic.Sqlite.Tests
         [Test]
         public static void IsEnabled_PropertyGet_ReturnsTrue()
         {
-            var check = new SqliteCheckConstraint("test_check", "test_check_definition");
+            var check = new SqliteCheckConstraint(Option<Identifier>.Some("test_check"), "test_check_definition");
 
             Assert.IsTrue(check.IsEnabled);
         }

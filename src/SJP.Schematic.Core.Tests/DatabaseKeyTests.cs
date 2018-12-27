@@ -1,6 +1,7 @@
 ﻿using System;
 using NUnit.Framework;
 using Moq;
+using SJP.Schematic.Core.Extensions;
 
 namespace SJP.Schematic.Core.Tests
 {
@@ -67,7 +68,7 @@ namespace SJP.Schematic.Core.Tests
 
             var key = new DatabaseKey(keyName, keyType, columns, true);
 
-            Assert.AreEqual(keyName, key.Name);
+            Assert.AreEqual(keyName, key.Name.UnwrapSome());
         }
 
         [Test]

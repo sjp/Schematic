@@ -248,11 +248,13 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore
             if (relationalKey == null)
                 throw new ArgumentNullException(nameof(relationalKey));
 
-            var escapedForeignKeyName = SecurityElement.Escape(relationalKey.ChildKey.Name.LocalName ?? string.Empty);
-            var escapedChildTableName = SecurityElement.Escape(relationalKey.ChildTable.LocalName);
+            var escapedForeignKeyName = relationalKey.ChildKey.Name.Match(
+                name => "<c>" + SecurityElement.Escape(name.LocalName) + "</c> ",
+                () => string.Empty
+            ); var escapedChildTableName = SecurityElement.Escape(relationalKey.ChildTable.LocalName);
             var escapedParentTableName = SecurityElement.Escape(relationalKey.ParentTable.LocalName);
 
-            return "The <c>" + escapedForeignKeyName + "</c> foreign key. Navigates from <c>" + escapedChildTableName + "</c> to <c>" + escapedParentTableName + "</c>.";
+            return "The " + escapedForeignKeyName + "foreign key. Navigates from <c>" + escapedChildTableName + "</c> to <c>" + escapedParentTableName + "</c>.";
         }
 
         protected virtual string GenerateChildKeyComment(IDatabaseRelationalKey relationalKey)
@@ -260,11 +262,14 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore
             if (relationalKey == null)
                 throw new ArgumentNullException(nameof(relationalKey));
 
-            var escapedForeignKeyName = SecurityElement.Escape(relationalKey.ChildKey.Name.LocalName ?? string.Empty);
+            var escapedForeignKeyName = relationalKey.ChildKey.Name.Match(
+                name => "<c>" + SecurityElement.Escape(name.LocalName) + "</c> ",
+                () => string.Empty
+            );
             var escapedChildTableName = SecurityElement.Escape(relationalKey.ChildTable.LocalName);
             var escapedParentTableName = SecurityElement.Escape(relationalKey.ParentTable.LocalName);
 
-            return "The <c>" + escapedForeignKeyName + "</c> child key. Navigates from <c>" + escapedParentTableName + "</c> to <c>" + escapedChildTableName + "</c> entities.";
+            return "The " + escapedForeignKeyName + "child key. Navigates from <c>" + escapedParentTableName + "</c> to <c>" + escapedChildTableName + "</c> entities.";
         }
 
         private const string IndentLevel = "    ";

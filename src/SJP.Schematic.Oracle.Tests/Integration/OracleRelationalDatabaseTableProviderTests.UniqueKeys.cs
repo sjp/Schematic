@@ -2,6 +2,7 @@
 using System.Threading.Tasks;
 using NUnit.Framework;
 using SJP.Schematic.Core;
+using SJP.Schematic.Core.Extensions;
 
 namespace SJP.Schematic.Oracle.Tests.Integration
 {
@@ -59,7 +60,7 @@ namespace SJP.Schematic.Oracle.Tests.Integration
             var table = await GetTableAsync("table_test_table_6").ConfigureAwait(false);
             var uk = table.UniqueKeys.Single();
 
-            Assert.AreEqual("UK_TEST_TABLE_6", uk.Name.LocalName);
+            Assert.AreEqual("UK_TEST_TABLE_6", uk.Name.UnwrapSome().LocalName);
         }
 
         [Test]
@@ -86,7 +87,7 @@ namespace SJP.Schematic.Oracle.Tests.Integration
             var table = await GetTableAsync("table_test_table_7").ConfigureAwait(false);
             var uk = table.UniqueKeys.Single();
 
-            Assert.AreEqual("UK_TEST_TABLE_7", uk.Name.LocalName);
+            Assert.AreEqual("UK_TEST_TABLE_7", uk.Name.UnwrapSome().LocalName);
         }
     }
 }

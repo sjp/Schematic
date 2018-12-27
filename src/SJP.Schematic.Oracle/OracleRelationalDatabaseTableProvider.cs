@@ -852,8 +852,7 @@ where TABLE_OWNER = :SchemaName and TABLE_NAME = :TableName and BASE_OBJECT_TYPE
 
             foreach (var key in keys)
             {
-                if (key.Name != null)
-                    result[key.Name.LocalName] = key;
+                key.Name.IfSome(name => result[name.LocalName] = key);
             }
 
             return result;

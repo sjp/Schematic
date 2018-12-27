@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
+using LanguageExt;
 using SJP.Schematic.Core;
 using SJP.Schematic.Core.Extensions;
 using SJP.Schematic.Core.Utilities;
@@ -16,7 +17,7 @@ namespace SJP.Schematic.Reporting.Html.Lint.Rules
         {
         }
 
-        protected override IRuleMessage BuildMessage(string foreignKeyName, Identifier tableName, IEnumerable<string> columnNames)
+        protected override IRuleMessage BuildMessage(Option<Identifier> foreignKeyName, Identifier tableName, IEnumerable<string> columnNames)
         {
             if (tableName == null)
                 throw new ArgumentNullException(nameof(tableName));
@@ -29,12 +30,12 @@ namespace SJP.Schematic.Reporting.Html.Lint.Rules
                 .Append(tableLink)
                 .Append(" has a foreign key");
 
-            if (!foreignKeyName.IsNullOrWhiteSpace())
+            foreignKeyName.IfSome(fkName =>
             {
                 builder.Append(" <code>")
-                    .Append(HttpUtility.HtmlEncode(foreignKeyName))
+                    .Append(HttpUtility.HtmlEncode(fkName))
                     .Append("</code>");
-            }
+            });
 
             builder.Append(" which is missing an index on the column");
 

@@ -78,11 +78,10 @@ namespace SJP.Schematic.Modelled.Reflection
                 }
                 else if (keyObject.KeyType == DatabaseKeyType.Unique)
                 {
-                    var uniqueKey = parent.UniqueKeys.FirstOrDefault(uk => uk.Name == parentKeyName);
-                    if (uniqueKey == null)
-                        throw new Exception("Could not find matching parent key for foreign key."); // same goes for this...
-
-                    parentKey = uniqueKey;
+                    var uniqueKey = parent.UniqueKeys.FirstOrDefault(uk =>
+                        uk.Name.Where(ukName => ukName.LocalName == parentKeyName).IsSome
+                    );
+                    parentKey = uniqueKey ?? throw new Exception("Could not find matching parent key for foreign key.");
                 }
                 else
                 {
@@ -101,7 +100,7 @@ namespace SJP.Schematic.Modelled.Reflection
                 var updateAttr = Dialect.GetDialectAttribute<OnUpdateRuleAttribute>(declaredParentKey.Property);
                 var updateRule = updateAttr?.Rule ?? Rule.None;
 
-                result[childKey.Name.LocalName] = new ReflectionRelationalKey(Name, childKey, parent.Name, parentKey, deleteRule, updateRule);
+                childKey.Name.IfSome(name => result[name.LocalName] = new ReflectionRelationalKey(Name, childKey, parent.Name, parentKey, deleteRule, updateRule));
             }
 
             return result;
@@ -168,7 +167,7 @@ namespace SJP.Schematic.Modelled.Reflection
                 var ukColumns = uniqueKey.Columns.Select(GetColumn).ToList();
                 var keyName = Dialect.GetAliasOrDefault(uniqueKey.Property);
                 var uk = new ReflectionKey(keyName, uniqueKey.KeyType, ukColumns);
-                result[uk.Name.LocalName] = uk;
+                uk.Name.IfSome(name => result[name.LocalName] = uk);
             }
 
             return result;
@@ -184,7 +183,7 @@ namespace SJP.Schematic.Modelled.Reflection
                 var definition = modelledCheck.Expression.ToSql(dialect);
                 var checkName = dialect.GetAliasOrDefault(modelledCheck.Property);
                 var check = new ReflectionCheckConstraint(checkName, definition);
-                result[check.Name.LocalName] = check;
+                check.Name.IfSome(name => result[name.LocalName] = check);
             }
 
             return result;

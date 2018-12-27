@@ -1,8 +1,10 @@
-﻿namespace SJP.Schematic.Core
+﻿using LanguageExt;
+
+namespace SJP.Schematic.Core
 {
     public interface IDatabaseCheckConstraint : IDatabaseOptional
     {
-        Identifier Name { get; }
+        Option<Identifier> Name { get; }
 
         string Definition { get; }
     }

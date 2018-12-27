@@ -2,6 +2,7 @@
 using NUnit.Framework;
 using Moq;
 using SJP.Schematic.Core;
+using SJP.Schematic.Core.Extensions;
 
 namespace SJP.Schematic.Sqlite.Tests
 {
@@ -68,7 +69,7 @@ namespace SJP.Schematic.Sqlite.Tests
 
             var key = new SqliteDatabaseKey(keyName, keyType, columns);
 
-            Assert.AreEqual(keyName, key.Name);
+            Assert.AreEqual(keyName, key.Name.UnwrapSome());
         }
 
         [Test]

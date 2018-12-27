@@ -1,4 +1,5 @@
 ﻿using System;
+using LanguageExt;
 using SJP.Schematic.Core;
 using SJP.Schematic.Core.Extensions;
 
@@ -13,11 +14,11 @@ namespace SJP.Schematic.PostgreSql
             if (definition.IsNullOrWhiteSpace())
                 throw new ArgumentNullException(nameof(definition));
 
-            Name = checkName.LocalName;
+            Name = Option<Identifier>.Some(checkName.LocalName);
             Definition = definition;
         }
 
-        public Identifier Name { get; }
+        public Option<Identifier> Name { get; }
 
         public string Definition { get; }
 

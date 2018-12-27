@@ -721,8 +721,7 @@ where tr.event_object_schema = @SchemaName and tr.event_object_table = @TableNam
 
             foreach (var key in keys)
             {
-                if (key.Name != null)
-                    result[key.Name.LocalName] = key;
+                key.Name.IfSome(name => result[name.LocalName] = key);
             }
 
             return result;
