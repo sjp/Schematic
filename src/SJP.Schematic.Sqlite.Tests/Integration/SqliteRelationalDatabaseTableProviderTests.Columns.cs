@@ -1,6 +1,7 @@
 ﻿using System.Linq;
 using System.Threading.Tasks;
 using NUnit.Framework;
+using SJP.Schematic.Core.Extensions;
 
 namespace SJP.Schematic.Sqlite.Tests.Integration
 {
@@ -57,13 +58,13 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
         }
 
         [Test]
-        public async Task Columns_WhenGivenTableWithColumnWithNoDefaultValue_ColumnReturnsNullDefaultValue()
+        public async Task Columns_WhenGivenTableWithColumnWithNoDefaultValue_ColumnReturnsNoneDefaultValue()
         {
             const string tableName = "table_test_table_1";
             var table = await GetTableAsync(tableName).ConfigureAwait(false);
             var column = table.Columns.Single();
 
-            Assert.IsNull(column.DefaultValue);
+            Assert.IsTrue(column.DefaultValue.IsNone);
         }
 
         [Test]
@@ -74,7 +75,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
             var column = table.Columns.Single();
 
             const string defaultValue = "1";
-            Assert.AreEqual(defaultValue, column.DefaultValue);
+            Assert.AreEqual(defaultValue, column.DefaultValue.UnwrapSome());
         }
 
         [Test]

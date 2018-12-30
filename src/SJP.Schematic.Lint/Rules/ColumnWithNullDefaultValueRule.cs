@@ -42,11 +42,13 @@ namespace SJP.Schematic.Lint.Rules
 
             foreach (var nullableColumn in nullableColumns)
             {
-                if (!IsNullDefaultValue(nullableColumn.DefaultValue))
-                    continue;
-
-                var ruleMessage = BuildMessage(table.Name, nullableColumn.Name.LocalName);
-                result.Add(ruleMessage);
+                nullableColumn.DefaultValue
+                    .Where(IsNullDefaultValue)
+                    .IfSome(_ =>
+                {
+                    var ruleMessage = BuildMessage(table.Name, nullableColumn.Name.LocalName);
+                    result.Add(ruleMessage);
+                });
             }
 
             return result;

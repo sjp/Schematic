@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using LanguageExt;
 using SJP.Schematic.Core;
 
 namespace SJP.Schematic.Reporting.Html.ViewModels
@@ -53,7 +54,7 @@ namespace SJP.Schematic.Reporting.Html.ViewModels
                 int ordinal,
                 bool isNullable,
                 string typeDefinition,
-                string defaultValue
+                Option<string> defaultValue
             )
             {
                 ColumnName = columnName ?? throw new ArgumentNullException(nameof(columnName));
@@ -61,7 +62,7 @@ namespace SJP.Schematic.Reporting.Html.ViewModels
                 TitleNullable = isNullable ? "Nullable" : string.Empty;
                 NullableText = isNullable ? "✓" : string.Empty;
                 Type = typeDefinition ?? string.Empty;
-                DefaultValue = defaultValue ?? string.Empty;
+                DefaultValue = defaultValue.Match(def => def ?? string.Empty, () => string.Empty);
             }
 
             public int Ordinal { get; }

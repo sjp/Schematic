@@ -213,14 +213,14 @@ namespace SJP.Schematic.DataAccess.OrmLite
                     .AppendLine("[Unique]");
             }
 
-            if (column.DefaultValue != null)
+            column.DefaultValue.IfSome(def =>
             {
-                var literal = column.DefaultValue.ToStringLiteral();
+                var literal = def.ToStringLiteral();
                 builder.Append(columnIndent)
                     .Append("[Default(")
                     .Append(literal)
                     .AppendLine(")]");
-            }
+            });
 
             var isForeignKey = ColumnIsForeignKey(table, column);
             if (isForeignKey)
@@ -271,11 +271,14 @@ namespace SJP.Schematic.DataAccess.OrmLite
 
             if (column.IsComputed && column is IDatabaseComputedColumn computedColumn)
             {
-                var expression = computedColumn.Definition.ToStringLiteral();
-                builder.Append(columnIndent)
-                    .Append("[Compute(")
-                    .Append(expression)
-                    .AppendLine(")]");
+                computedColumn.Definition.IfSome(def =>
+                {
+                    var expression = def.ToStringLiteral();
+                    builder.Append(columnIndent)
+                        .Append("[Compute(")
+                        .Append(expression)
+                        .AppendLine(")]");
+                });
             }
 
             var propertyName = NameProvider.ColumnToPropertyName(className, column.Name.LocalName);

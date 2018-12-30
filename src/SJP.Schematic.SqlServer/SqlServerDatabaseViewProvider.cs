@@ -186,8 +186,11 @@ where schema_name(v.schema_id) = @SchemaName and v.name = @ViewName";
                 var autoIncrement = isAutoIncrement
                     ? Option<IAutoIncrement>.Some(new AutoIncrement(row.IdentitySeed.Value, row.IdentityIncrement.Value))
                     : Option<IAutoIncrement>.None;
+                var defaultValue = row.HasDefaultValue
+                    ? Option<string>.Some(row.DefaultValue)
+                    : Option<string>.None;
 
-                var column = new DatabaseColumn(columnName, columnType, row.IsNullable, row.DefaultValue, autoIncrement);
+                var column = new DatabaseColumn(columnName, columnType, row.IsNullable, defaultValue, autoIncrement);
 
                 result.Add(column);
             }
@@ -208,6 +211,7 @@ select
     c.collation_name as Collation,
     c.is_computed as IsComputed,
     c.is_nullable as IsNullable,
+    dc.parent_column_id as HasDefaultValue,
     dc.definition as DefaultValue,
     cc.definition as ComputedColumnDefinition,
     (convert(bigint, ic.seed_value)) as IdentitySeed,

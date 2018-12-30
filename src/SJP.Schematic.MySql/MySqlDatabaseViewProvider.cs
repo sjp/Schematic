@@ -175,8 +175,11 @@ where table_schema = @SchemaName and table_name = @ViewName";
                     ? Option<IAutoIncrement>.Some(new AutoIncrement(1, 1))
                     : Option<IAutoIncrement>.None;
                 var isNullable = !string.Equals(row.IsNullable, "NO", StringComparison.OrdinalIgnoreCase);
+                var defaultValue = !row.DefaultValue.IsNullOrWhiteSpace()
+                    ? Option<string>.Some(row.DefaultValue)
+                    : Option<string>.None;
 
-                var column = new DatabaseColumn(columnName, columnType, isNullable, row.DefaultValue, autoIncrement);
+                var column = new DatabaseColumn(columnName, columnType, isNullable, defaultValue, autoIncrement);
                 result.Add(column);
             }
 

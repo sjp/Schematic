@@ -1,20 +1,22 @@
 ﻿using System;
-using SJP.Schematic.Core.Extensions;
+using LanguageExt;
 
 namespace SJP.Schematic.Core
 {
     public class DatabaseComputedColumn : DatabaseColumn, IDatabaseComputedColumn
     {
-        public DatabaseComputedColumn(Identifier columnName, IDbType type, bool isNullable, string defaultValue, string definition)
-            : base(columnName, type, isNullable, defaultValue, null)
+        public DatabaseComputedColumn(
+            Identifier columnName,
+            IDbType type,
+            bool isNullable,
+            Option<string> defaultValue,
+            Option<string> definition
+        ) : base(columnName, type, isNullable, defaultValue, Option<IAutoIncrement>.None)
         {
-            if (definition.IsNullOrWhiteSpace())
-                throw new ArgumentNullException(nameof(definition));
-
             Definition = definition;
         }
 
-        public string Definition { get; }
+        public Option<string> Definition { get; }
 
         public override bool IsComputed { get; } = true;
     }

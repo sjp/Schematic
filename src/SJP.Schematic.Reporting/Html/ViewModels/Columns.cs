@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using LanguageExt;
 using SJP.Schematic.Core;
 using SJP.Schematic.Core.Extensions;
 
@@ -31,7 +32,7 @@ namespace SJP.Schematic.Reporting.Html.ViewModels
                 string columnName,
                 string typeDefinition,
                 bool isNullable,
-                string defaultValue
+                Option<string> defaultValue
             )
             {
                 if (tableName == null)
@@ -46,7 +47,7 @@ namespace SJP.Schematic.Reporting.Html.ViewModels
                 TitleNullable = isNullable ? "Nullable" : string.Empty;
                 NullableText = isNullable ? "✓" : string.Empty;
                 Type = typeDefinition ?? string.Empty;
-                DefaultValue = defaultValue ?? string.Empty;
+                DefaultValue = defaultValue.Match(def => def ?? string.Empty, () => string.Empty);
             }
 
             public string Name { get; }
@@ -93,7 +94,7 @@ namespace SJP.Schematic.Reporting.Html.ViewModels
                 string columnName,
                 string typeDefinition,
                 bool isNullable,
-                string defaultValue,
+                Option<string> defaultValue,
                 bool isPrimaryKeyColumn,
                 bool isUniqueKeyColumn,
                 bool isForeignKeyColumn

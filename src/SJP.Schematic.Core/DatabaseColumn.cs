@@ -5,7 +5,13 @@ namespace SJP.Schematic.Core
 {
     public class DatabaseColumn : IDatabaseColumn
     {
-        public DatabaseColumn(Identifier columnName, IDbType type, bool isNullable, string defaultValue, Option<IAutoIncrement> autoIncrement)
+        public DatabaseColumn(
+            Identifier columnName,
+            IDbType type,
+            bool isNullable,
+            Option<string> defaultValue,
+            Option<IAutoIncrement> autoIncrement
+        )
         {
             if (columnName == null)
                 throw new ArgumentNullException(nameof(columnName));
@@ -17,7 +23,7 @@ namespace SJP.Schematic.Core
             AutoIncrement = autoIncrement;
         }
 
-        public string DefaultValue { get; }
+        public Option<string> DefaultValue { get; }
 
         public virtual bool IsComputed { get; }
 

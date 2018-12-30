@@ -583,10 +583,17 @@ where t.table_schema = @SchemaName and t.table_name = @TableName";
                     : Option<IAutoIncrement>.None;
                 var isComputed = !row.ComputedColumnDefinition.IsNullOrWhiteSpace();
                 var isNullable = !string.Equals(row.IsNullable, "NO", StringComparison.OrdinalIgnoreCase);
+                var defaultValue = !row.DefaultValue.IsNullOrWhiteSpace()
+                    ? Option<string>.Some(row.ComputedColumnDefinition)
+                    : Option<string>.None;
+                var computedColumnDefinition = isComputed
+                    ? Option<string>.Some(row.ComputedColumnDefinition)
+                    : Option<string>.None;
+
 
                 var column = isComputed
-                    ? new DatabaseComputedColumn(columnName, columnType, isNullable, row.DefaultValue, row.ComputedColumnDefinition)
-                    : new DatabaseColumn(columnName, columnType, isNullable, row.DefaultValue, autoIncrement);
+                    ? new DatabaseComputedColumn(columnName, columnType, isNullable, defaultValue, computedColumnDefinition)
+                    : new DatabaseColumn(columnName, columnType, isNullable, defaultValue, autoIncrement);
 
                 result.Add(column);
             }

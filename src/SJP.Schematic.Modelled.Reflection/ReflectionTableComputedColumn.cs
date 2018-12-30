@@ -27,13 +27,13 @@ namespace SJP.Schematic.Modelled.Reflection
 
         public IDbType Type => _unknownType;
 
-        public string DefaultValue { get; }
+        public Option<string> DefaultValue { get; }
 
         public Option<IAutoIncrement> AutoIncrement { get; }
 
         public bool IsComputed { get; } = true;
 
-        public string Definition { get; }
+        public Option<string> Definition { get; }
 
         protected IDatabaseDialect Dialect { get; }
 

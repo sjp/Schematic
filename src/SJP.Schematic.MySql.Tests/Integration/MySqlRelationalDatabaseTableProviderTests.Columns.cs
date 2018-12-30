@@ -59,13 +59,13 @@ namespace SJP.Schematic.MySql.Tests.Integration
         }
 
         [Test]
-        public async Task Columns_WhenGivenTableWithColumnWithNoDefaultValue_ColumnReturnsNullDefaultValue()
+        public async Task Columns_WhenGivenTableWithColumnWithNoDefaultValue_ColumnReturnsNoneDefaultValue()
         {
             const string tableName = "table_test_table_1";
             var table = await GetTableAsync(tableName).ConfigureAwait(false);
             var column = table.Columns.Single();
 
-            Assert.IsNull(column.DefaultValue);
+            Assert.IsTrue(column.DefaultValue.IsNone);
         }
 
         // TODO: uncomment when the default value tokens can be parsed
@@ -124,7 +124,7 @@ namespace SJP.Schematic.MySql.Tests.Integration
             var column = table.Columns.Last();
 
             var computedColumn = column as IDatabaseComputedColumn;
-            Assert.AreEqual(expectedDefinition, computedColumn.Definition);
+            Assert.AreEqual(expectedDefinition, computedColumn.Definition.UnwrapSome());
         }
 
         [Test]

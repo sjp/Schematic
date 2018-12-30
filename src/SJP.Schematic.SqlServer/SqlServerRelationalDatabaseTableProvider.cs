@@ -639,10 +639,16 @@ where schema_name(child_t.schema_id) = @SchemaName and child_t.name = @TableName
                 var autoIncrement = isAutoIncrement
                     ? Option<IAutoIncrement>.Some(new AutoIncrement(row.IdentitySeed.Value, row.IdentityIncrement.Value))
                     : Option<IAutoIncrement>.None;
+                var defaultValue = row.HasDefaultValue
+                    ? Option<string>.Some(row.DefaultValue)
+                    : Option<string>.None;
+                var computedColumnDefinition = !row.ComputedColumnDefinition.IsNullOrWhiteSpace()
+                    ? Option<string>.Some(row.ComputedColumnDefinition)
+                    : Option<string>.None;
 
                 var column = row.IsComputed
-                    ? new DatabaseComputedColumn(columnName, columnType, row.IsNullable, row.DefaultValue, row.ComputedColumnDefinition)
-                    : new DatabaseColumn(columnName, columnType, row.IsNullable, row.DefaultValue, autoIncrement);
+                    ? new DatabaseComputedColumn(columnName, columnType, row.IsNullable, defaultValue, computedColumnDefinition)
+                    : new DatabaseColumn(columnName, columnType, row.IsNullable, defaultValue, autoIncrement);
 
                 result.Add(column);
             }
@@ -663,6 +669,7 @@ select
     c.collation_name as Collation,
     c.is_computed as IsComputed,
     c.is_nullable as IsNullable,
+    dc.parent_column_id as HasDefaultValue,
     dc.definition as DefaultValue,
     cc.definition as ComputedColumnDefinition,
     (convert(bigint, ic.seed_value)) as IdentitySeed,

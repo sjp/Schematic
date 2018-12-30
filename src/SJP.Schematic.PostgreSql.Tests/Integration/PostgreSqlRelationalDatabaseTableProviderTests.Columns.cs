@@ -58,13 +58,13 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration
         }
 
         [Test]
-        public async Task Columns_WhenGivenTableWithColumnWithNoDefaultValue_ColumnReturnsNullDefaultValue()
+        public async Task Columns_WhenGivenTableWithColumnWithNoDefaultValue_ColumnReturnsNoneDefaultValue()
         {
             const string tableName = "table_test_table_1";
             var table = await GetTableAsync(tableName).ConfigureAwait(false);
             var column = table.Columns.Single();
 
-            Assert.IsNull(column.DefaultValue);
+            Assert.IsTrue(column.DefaultValue.IsNone);
         }
 
         [Test]

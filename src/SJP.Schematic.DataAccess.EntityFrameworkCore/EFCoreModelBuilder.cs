@@ -41,7 +41,7 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore
 
             foreach (var column in table.Columns)
             {
-                var requiresBuilder = !column.DefaultValue.IsNullOrWhiteSpace() || column.IsComputed;
+                var requiresBuilder = column.DefaultValue.IsSome || column.IsComputed;
                 if (!requiresBuilder)
                     continue;
 
@@ -56,22 +56,25 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore
                     .Append(columnName)
                     .AppendLine(")");
 
-                if (!column.DefaultValue.IsNullOrWhiteSpace())
+                column.DefaultValue.IfSome(def =>
                 {
-                    var defaultLiteral = column.DefaultValue.ToStringLiteral();
+                    var defaultLiteral = def.ToStringLiteral();
                     _builder.Append(chainIndent)
                         .Append(".HasDefaultValue(")
                         .Append(defaultLiteral)
                         .Append(")");
-                }
+                });
 
                 if (column.IsComputed && column is IDatabaseComputedColumn computedColumn)
                 {
-                    var computedDefinition = computedColumn.Definition.ToStringLiteral();
-                    _builder.Append(chainIndent)
-                        .Append(".HasComputedColumnSql(")
-                        .Append(computedDefinition)
-                        .Append(")");
+                    computedColumn.Definition.IfSome(def =>
+                    {
+                        var computedDefinition = def.ToStringLiteral();
+                        _builder.Append(chainIndent)
+                            .Append(".HasComputedColumnSql(")
+                            .Append(computedDefinition)
+                            .Append(")");
+                    });
                 }
 
                 _builder.AppendLine(";");

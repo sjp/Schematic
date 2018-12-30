@@ -608,8 +608,11 @@ namespace SJP.Schematic.Sqlite
                 var autoIncrement = isAutoIncrement
                     ? Option<IAutoIncrement>.Some(new AutoIncrement(1, 1))
                     : Option<IAutoIncrement>.None;
+                var defaultValue = !tableInfo.dflt_value.IsNullOrWhiteSpace()
+                    ? Option<string>.Some(tableInfo.dflt_value)
+                    : Option<string>.None;
 
-                var column = new DatabaseColumn(tableInfo.name, columnType, !tableInfo.notnull, tableInfo.dflt_value, autoIncrement);
+                var column = new DatabaseColumn(tableInfo.name, columnType, !tableInfo.notnull, defaultValue, autoIncrement);
                 result.Add(column);
             }
 

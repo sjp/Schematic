@@ -115,7 +115,7 @@ namespace SJP.Schematic.Reporting.Html.ViewModels
                 int ordinal,
                 bool isNullable,
                 string typeDefinition,
-                string defaultValue,
+                Option<string> defaultValue,
                 bool isPrimaryKeyColumn,
                 bool isUniqueKeyColumn,
                 bool isForeignKeyColumn,
@@ -128,7 +128,7 @@ namespace SJP.Schematic.Reporting.Html.ViewModels
                 TitleNullable = isNullable ? "Nullable" : string.Empty;
                 NullableText = isNullable ? "✓" : string.Empty;
                 Type = typeDefinition ?? string.Empty;
-                DefaultValue = defaultValue ?? string.Empty;
+                DefaultValue = defaultValue.Match(def => def ?? string.Empty, () => string.Empty);
 
                 ColumnClass = BuildColumnClass(isPrimaryKeyColumn, isUniqueKeyColumn, isForeignKeyColumn);
                 ColumnIcon = BuildColumnIcon(isPrimaryKeyColumn, isUniqueKeyColumn, isForeignKeyColumn);

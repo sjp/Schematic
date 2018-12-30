@@ -178,16 +178,23 @@ where OWNER = :SchemaName and MVIEW_NAME = :ViewName";
                 var typeMetadata = new ColumnTypeMetadata
                 {
                     TypeName = Identifier.CreateQualifiedIdentifier(row.ColumnTypeSchema, row.ColumnTypeName),
-                    Collation = row.Collation.IsNullOrWhiteSpace() ? null : Identifier.CreateQualifiedIdentifier(row.Collation),
+                    Collation = !row.Collation.IsNullOrWhiteSpace()
+                        ? Option<Identifier>.Some(Identifier.CreateQualifiedIdentifier(row.Collation))
+                        : Option<Identifier>.None,
                     MaxLength = row.DataLength,
-                    NumericPrecision = new NumericPrecision(row.Precision, row.Scale)
+                    NumericPrecision = row.Precision > 0 || row.Scale > 0
+                        ? Option<NumericPrecision>.Some(new NumericPrecision(row.Precision, row.Scale))
+                        : Option<NumericPrecision>.None
                 };
                 var columnType = TypeProvider.CreateColumnType(typeMetadata);
 
                 var isNullable = !notNullableColumnNames.Contains(row.ColumnName);
                 var columnName = Identifier.CreateQualifiedIdentifier(row.ColumnName);
+                var defaultValue = !row.DefaultValue.IsNullOrWhiteSpace()
+                    ? Option<string>.Some(row.DefaultValue)
+                    : Option<string>.None;
 
-                var column = new OracleDatabaseColumn(columnName, columnType, isNullable, row.DefaultValue);
+                var column = new OracleDatabaseColumn(columnName, columnType, isNullable, defaultValue);
 
                 result.Add(column);
             }

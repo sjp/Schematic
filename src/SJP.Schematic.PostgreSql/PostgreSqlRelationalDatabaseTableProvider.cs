@@ -685,10 +685,12 @@ where t.relname = @TableName and ns.nspname = @SchemaName";
                 var autoIncrement = isAutoIncrement
                     ? Option<IAutoIncrement>.Some(new AutoIncrement(1, 1))
                     : Option<IAutoIncrement>.None;
-
+                var defaultValue = !row.column_default.IsNullOrWhiteSpace()
+                    ? Option<string>.Some(row.column_default)
+                    : Option<string>.None;
                 var isNullable = row.is_nullable == "YES";
 
-                var column = new DatabaseColumn(columnName, columnType, isNullable, row.column_default, autoIncrement);
+                var column = new DatabaseColumn(columnName, columnType, isNullable, defaultValue, autoIncrement);
                 result.Add(column);
             }
 

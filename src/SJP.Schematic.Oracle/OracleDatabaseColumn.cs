@@ -6,7 +6,7 @@ namespace SJP.Schematic.Oracle
 {
     public class OracleDatabaseColumn : IDatabaseColumn
     {
-        public OracleDatabaseColumn(Identifier columnName, IDbType type, bool isNullable, string defaultValue)
+        public OracleDatabaseColumn(Identifier columnName, IDbType type, bool isNullable, Option<string> defaultValue)
         {
             if (columnName == null)
                 throw new ArgumentNullException(nameof(columnName));
@@ -17,7 +17,7 @@ namespace SJP.Schematic.Oracle
             DefaultValue = defaultValue;
         }
 
-        public string DefaultValue { get; }
+        public Option<string> DefaultValue { get; }
 
         public virtual bool IsComputed { get; }
 

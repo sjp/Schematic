@@ -180,8 +180,11 @@ where schemaname = @SchemaName and matviewname = @ViewName";
                 var columnType = TypeProvider.CreateColumnType(typeMetadata);
                 var columnName = Identifier.CreateQualifiedIdentifier(row.column_name);
                 var autoIncrement = Option<IAutoIncrement>.None;
+                var defaultValue = !row.column_default.IsNullOrWhiteSpace()
+                    ? Option<string>.Some(row.column_default)
+                    : Option<string>.None;
 
-                var column = new DatabaseColumn(columnName, columnType, row.is_nullable == "YES", row.column_default, autoIncrement);
+                var column = new DatabaseColumn(columnName, columnType, row.is_nullable == "YES", defaultValue, autoIncrement);
                 result.Add(column);
             }
 

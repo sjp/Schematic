@@ -637,18 +637,29 @@ where ac.OWNER = :SchemaName and ac.TABLE_NAME = :TableName and ac.CONSTRAINT_TY
                 var typeMetadata = new ColumnTypeMetadata
                 {
                     TypeName = Identifier.CreateQualifiedIdentifier(row.ColumnTypeSchema, row.ColumnTypeName),
-                    Collation = row.Collation.IsNullOrWhiteSpace() ? null : Identifier.CreateQualifiedIdentifier(row.Collation),
+                    Collation = !row.Collation.IsNullOrWhiteSpace()
+                        ? Option<Identifier>.Some(Identifier.CreateQualifiedIdentifier(row.Collation))
+                        : Option<Identifier>.None,
                     MaxLength = row.DataLength,
-                    NumericPrecision = new NumericPrecision(row.Precision, row.Scale)
+                    NumericPrecision = row.Precision > 0 || row.Scale > 0
+                        ? Option<NumericPrecision>.Some(new NumericPrecision(row.Precision, row.Scale))
+                        : Option<NumericPrecision>.None
                 };
                 var columnType = TypeProvider.CreateColumnType(typeMetadata);
 
                 var isNullable = !notNullableColumnNames.Contains(row.ColumnName);
+                var isComputed = row.IsComputed == "YES";
                 var columnName = Identifier.CreateQualifiedIdentifier(row.ColumnName);
+                var computedColumnDefinition = isComputed
+                    ? Option<string>.Some(row.DefaultValue)
+                    : Option<string>.None;
+                var defaultValue = !row.DefaultValue.IsNullOrWhiteSpace()
+                    ? Option<string>.Some(row.DefaultValue)
+                    : Option<string>.None;
 
-                var column = row.IsComputed == "YES"
-                    ? new OracleDatabaseComputedColumn(columnName, columnType, isNullable, row.DefaultValue)
-                    : new OracleDatabaseColumn(columnName, columnType, isNullable, row.DefaultValue);
+                var column = isComputed
+                    ? new OracleDatabaseComputedColumn(columnName, columnType, isNullable, computedColumnDefinition)
+                    : new OracleDatabaseColumn(columnName, columnType, isNullable, defaultValue);
 
                 result.Add(column);
             }

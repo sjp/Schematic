@@ -2,6 +2,7 @@
 using NUnit.Framework;
 using Moq;
 using SJP.Schematic.Core;
+using SJP.Schematic.Core.Extensions;
 
 namespace SJP.Schematic.Oracle.Tests
 {
@@ -71,7 +72,7 @@ namespace SJP.Schematic.Oracle.Tests
             const string defaultValue = "1";
             var column = new OracleDatabaseColumn(columnName, columnType, true, defaultValue);
 
-            Assert.AreEqual(defaultValue, column.DefaultValue);
+            Assert.AreEqual(defaultValue, column.DefaultValue.UnwrapSome());
         }
 
         [Test]

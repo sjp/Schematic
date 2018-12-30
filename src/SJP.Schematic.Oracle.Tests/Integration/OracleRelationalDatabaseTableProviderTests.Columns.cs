@@ -2,6 +2,7 @@
 using System.Threading.Tasks;
 using NUnit.Framework;
 using SJP.Schematic.Core;
+using SJP.Schematic.Core.Extensions;
 
 namespace SJP.Schematic.Oracle.Tests.Integration
 {
@@ -58,13 +59,13 @@ namespace SJP.Schematic.Oracle.Tests.Integration
         }
 
         [Test]
-        public async Task Columns_WhenGivenTableWithColumnWithNoDefaultValue_ColumnReturnsNullDefaultValue()
+        public async Task Columns_WhenGivenTableWithColumnWithNoDefaultValue_ColumnReturnsNoneDefaultValue()
         {
             const string tableName = "TABLE_TEST_TABLE_1";
             var table = await GetTableAsync(tableName).ConfigureAwait(false);
             var column = table.Columns.Single();
 
-            Assert.IsNull(column.DefaultValue);
+            Assert.IsTrue(column.DefaultValue.IsNone);
         }
 
         [Test]
@@ -76,7 +77,7 @@ namespace SJP.Schematic.Oracle.Tests.Integration
 
             const string defaultValue = "1";
             var comparer = new OracleExpressionComparer();
-            var equals = comparer.Equals(defaultValue, column.DefaultValue);
+            var equals = comparer.Equals(defaultValue, column.DefaultValue.UnwrapSome());
 
             Assert.IsTrue(equals);
         }
@@ -122,7 +123,7 @@ namespace SJP.Schematic.Oracle.Tests.Integration
             var column = table.Columns.Last();
 
             var computedColumn = column as IDatabaseComputedColumn;
-            Assert.AreEqual(expectedDefinition, computedColumn.Definition);
+            Assert.AreEqual(expectedDefinition, computedColumn.Definition.UnwrapSome());
         }
 
         [Test]

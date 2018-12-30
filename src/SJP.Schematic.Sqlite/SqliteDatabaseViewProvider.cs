@@ -226,7 +226,9 @@ namespace SJP.Schematic.Sqlite
             IEnumerable<Pragma.Query.pragma_table_info> tableInfos;
             try
             {
-                // when the view is invalid, this may throw an exception, handle it
+                // When the view is invalid, this may throw an exception so we catch it.
+                // This does mean that we are in a partial state, but if the definition is corrected
+                // and the view is queried again then we'll end up with something correct.
                 tableInfos = await pragma.TableInfoAsync(viewName).ConfigureAwait(false);
             }
             catch (SqliteException ex) when (ex.SqliteErrorCode == SqliteError)
@@ -246,8 +248,11 @@ namespace SJP.Schematic.Sqlite
 
                 var affinity = _affinityParser.ParseTypeName(columnTypeName);
                 var columnType = new SqliteColumnType(affinity);
+                var defaultValue = !tableInfo.dflt_value.IsNullOrWhiteSpace()
+                    ? Option<string>.Some(tableInfo.dflt_value)
+                    : Option<string>.None;
 
-                var column = new DatabaseColumn(tableInfo.name, columnType, !tableInfo.notnull, tableInfo.dflt_value, null);
+                var column = new DatabaseColumn(tableInfo.name, columnType, !tableInfo.notnull, defaultValue, Option<IAutoIncrement>.None);
                 result.Add(column);
             }
 

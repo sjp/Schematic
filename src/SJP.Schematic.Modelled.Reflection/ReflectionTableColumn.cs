@@ -47,7 +47,7 @@ namespace SJP.Schematic.Modelled.Reflection
 
         public IDbType Type { get; }
 
-        public string DefaultValue { get; }
+        public Option<string> DefaultValue { get; }
 
         public Option<IAutoIncrement> AutoIncrement { get; }
 

@@ -20,6 +20,8 @@
 
         public bool IsNullable { get; set; }
 
+        public bool HasDefaultValue { get; set; }
+
         public string DefaultValue { get; set; }
 
         public string ComputedColumnDefinition { get; set; }

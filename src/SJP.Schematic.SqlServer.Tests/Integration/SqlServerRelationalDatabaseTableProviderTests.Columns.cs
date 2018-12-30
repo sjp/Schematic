@@ -59,13 +59,13 @@ namespace SJP.Schematic.SqlServer.Tests.Integration
         }
 
         [Test]
-        public async Task Columns_WhenGivenTableWithColumnWithNoDefaultValue_ColumnReturnsNullDefaultValue()
+        public async Task Columns_WhenGivenTableWithColumnWithNoDefaultValue_ColumnReturnsNoneDefaultValue()
         {
             const string tableName = "table_test_table_1";
             var table = await GetTableAsync(tableName).ConfigureAwait(false);
             var column = table.Columns.Single();
 
-            Assert.IsNull(column.DefaultValue);
+            Assert.IsTrue(column.DefaultValue.IsNone);
         }
 
         [Test]
@@ -77,7 +77,7 @@ namespace SJP.Schematic.SqlServer.Tests.Integration
 
             const string defaultValue = "1";
             var comparer = new SqlServerExpressionComparer();
-            var equals = comparer.Equals(defaultValue, column.DefaultValue);
+            var equals = comparer.Equals(defaultValue, column.DefaultValue.UnwrapSome());
 
             Assert.IsTrue(equals);
         }
@@ -123,7 +123,7 @@ namespace SJP.Schematic.SqlServer.Tests.Integration
             var column = table.Columns.Last();
 
             var computedColumn = column as IDatabaseComputedColumn;
-            Assert.AreEqual(expectedDefinition, computedColumn.Definition);
+            Assert.AreEqual(expectedDefinition, computedColumn.Definition.UnwrapSome());
         }
 
         [Test]
