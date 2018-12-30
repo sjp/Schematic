@@ -48,9 +48,9 @@ namespace SJP.Schematic.Modelled.Reflection
 
             public string Definition { get; }
 
-            public NumericPrecision NumericPrecision { get; }
+            public Option<NumericPrecision> NumericPrecision { get; } = Option<NumericPrecision>.None;
 
-            public Identifier Collation { get; }
+            public Option<Identifier> Collation { get; } = Option<Identifier>.None;
 
             public bool IsFixedLength { get; }
 

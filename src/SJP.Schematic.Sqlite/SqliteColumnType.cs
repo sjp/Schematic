@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using EnumsNET;
+using LanguageExt;
 using SJP.Schematic.Core;
 using SJP.Schematic.Sqlite.Parsing;
 
@@ -32,8 +33,8 @@ namespace SJP.Schematic.Sqlite
                 throw new ArgumentException("The type affinity must be a text type when a collation has been provided.", nameof(typeAffinity));
 
             Collation = collation != SqliteCollation.None
-                ? collation.ToString().ToUpperInvariant()
-                : null;
+                ? Option<Identifier>.Some(collation.ToString().ToUpperInvariant())
+                : Option<Identifier>.None;
         }
 
         public Identifier TypeName { get; }
@@ -48,9 +49,9 @@ namespace SJP.Schematic.Sqlite
 
         public Type ClrType { get; }
 
-        public NumericPrecision NumericPrecision { get; } = new NumericPrecision();
+        public Option<NumericPrecision> NumericPrecision { get; } = Option<NumericPrecision>.None;
 
-        public Identifier Collation { get; }
+        public Option<Identifier> Collation { get; }
 
         private readonly IReadOnlyDictionary<SqliteTypeAffinity, DataType> _affinityTypeMap = new Dictionary<SqliteTypeAffinity, DataType>
         {

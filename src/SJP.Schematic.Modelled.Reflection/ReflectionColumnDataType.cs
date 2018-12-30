@@ -1,4 +1,5 @@
 ﻿using System;
+using LanguageExt;
 using SJP.Schematic.Core;
 using SJP.Schematic.Modelled.Reflection.Model;
 
@@ -58,8 +59,8 @@ namespace SJP.Schematic.Modelled.Reflection
 
         public Type ClrType { get; }
 
-        public NumericPrecision NumericPrecision { get; }
+        public Option<NumericPrecision> NumericPrecision { get; }
 
-        public Identifier Collation { get; }
+        public Option<Identifier> Collation { get; }
     }
 }

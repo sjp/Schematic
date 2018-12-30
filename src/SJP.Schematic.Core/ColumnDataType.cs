@@ -1,5 +1,6 @@
 ﻿using System;
 using EnumsNET;
+using LanguageExt;
 using SJP.Schematic.Core.Extensions;
 
 namespace SJP.Schematic.Core
@@ -13,8 +14,8 @@ namespace SJP.Schematic.Core
             Type clrType,
             bool isFixedLength,
             int maxLength,
-            NumericPrecision numericPrecision,
-            Identifier collation
+            Option<NumericPrecision> numericPrecision,
+            Option<Identifier> collation
         )
         {
             if (!dataType.IsValid())
@@ -44,8 +45,8 @@ namespace SJP.Schematic.Core
 
         public Type ClrType { get; }
 
-        public NumericPrecision NumericPrecision { get; }
+        public Option<NumericPrecision> NumericPrecision { get; }
 
-        public Identifier Collation { get; }
+        public Option<Identifier> Collation { get; }
     }
 }

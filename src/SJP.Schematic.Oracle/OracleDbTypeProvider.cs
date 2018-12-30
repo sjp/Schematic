@@ -128,16 +128,19 @@ namespace SJP.Schematic.Oracle
             if (_typeNamesWithNoLengthAnnotation.Contains(typeName.LocalName))
                 return builder.GetStringAndRelease();
 
-            if (typeMetadata.NumericPrecision.Precision > 0)
+            if (typeMetadata.NumericPrecision.IsSome)
             {
-                builder.Append("(");
-                builder.Append(typeMetadata.NumericPrecision.Precision.ToString(CultureInfo.InvariantCulture));
-                if (typeMetadata.NumericPrecision.Scale > 0)
+                typeMetadata.NumericPrecision.Where(np => np.Precision > 0).IfSome(precision =>
                 {
-                    builder.Append(", ");
-                    builder.Append(typeMetadata.NumericPrecision.Scale.ToString(CultureInfo.InvariantCulture));
-                }
-                builder.Append(")");
+                    builder.Append("(");
+                    builder.Append(precision.Precision.ToString(CultureInfo.InvariantCulture));
+                    if (precision.Scale > 0)
+                    {
+                        builder.Append(", ");
+                        builder.Append(precision.Scale.ToString(CultureInfo.InvariantCulture));
+                    }
+                    builder.Append(")");
+                });
             }
             else if (typeMetadata.MaxLength > 0)
             {

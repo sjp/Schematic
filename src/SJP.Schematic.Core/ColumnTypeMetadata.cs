@@ -1,4 +1,5 @@
 ﻿using System;
+using LanguageExt;
 
 namespace SJP.Schematic.Core
 {
@@ -14,8 +15,8 @@ namespace SJP.Schematic.Core
 
         public Type ClrType { get; set; }
 
-        public Identifier Collation { get; set; }
+        public Option<Identifier> Collation { get; set; }
 
-        public NumericPrecision NumericPrecision { get; set; }
+        public Option<NumericPrecision> NumericPrecision { get; set; }
     }
 }
