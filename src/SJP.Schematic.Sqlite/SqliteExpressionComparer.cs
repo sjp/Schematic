@@ -20,9 +20,9 @@ namespace SJP.Schematic.Sqlite
 
         public bool Equals(string x, string y)
         {
-            if (ReferenceEquals(x, y))
+            if (x is null && y is null)
                 return true;
-            if (ReferenceEquals(x, null) ^ ReferenceEquals(y, null))
+            if (x is null ^ y is null)
                 return false;
 
             var tokenizer = new SqliteTokenizer();

@@ -14,17 +14,19 @@ namespace SJP.Schematic.Sqlite
             if (typeName.Contains("INT", StringComparison.OrdinalIgnoreCase))
                 return SqliteTypeAffinity.Integer;
 
-            if (typeName.Contains("CHAR", StringComparison.OrdinalIgnoreCase)
+            var isText = typeName.Contains("CHAR", StringComparison.OrdinalIgnoreCase)
                 || typeName.Contains("CLOB", StringComparison.OrdinalIgnoreCase)
-                || typeName.Contains("TEXT", StringComparison.OrdinalIgnoreCase))
+                || typeName.Contains("TEXT", StringComparison.OrdinalIgnoreCase);
+            if (isText)
                 return SqliteTypeAffinity.Text;
 
             if (typeName.Contains("BLOB", StringComparison.OrdinalIgnoreCase))
                 return SqliteTypeAffinity.Blob;
 
-            if (typeName.Contains("REAL", StringComparison.OrdinalIgnoreCase)
+            var isReal = typeName.Contains("REAL", StringComparison.OrdinalIgnoreCase)
                 || typeName.Contains("FLOA", StringComparison.OrdinalIgnoreCase)
-                || typeName.Contains("DOUB", StringComparison.OrdinalIgnoreCase))
+                || typeName.Contains("DOUB", StringComparison.OrdinalIgnoreCase);
+            if (isReal)
                 return SqliteTypeAffinity.Real;
 
             return SqliteTypeAffinity.Numeric;

@@ -60,37 +60,47 @@ namespace SJP.Schematic.Modelled.Reflection.Model
                 var sourceTypeDefinition = sourceAsmDefinition.MainModule.GetType(sourceSearchTypeName);
                 var sourceProperty = sourceTypeDefinition.Properties.SingleOrDefault(p => p.Name == Property.Name && !p.HasParameters);
                 if (sourceProperty == null)
+                {
                     throw new ArgumentException(
-                        $"Could not find the source property { Property.ReflectedType.FullName }.{ Property.Name }. Check that assemblies are up to date.",
-                        $"{ Property.ReflectedType.FullName }.{ Property.Name }."
-                    );
+                       "Could not find the source property "
+                       + Property.ReflectedType.FullName + "." + Property.Name
+                       + ". Check that assemblies are up to date.",
+                       Property.ReflectedType.FullName + "." + Property.Name
+                   );
+                }
 
                 var sourcePropInstructions = sourceProperty.GetMethod.Body.Instructions;
                 var fnInstruction = sourcePropInstructions.FirstOrDefault(i => i.OpCode.Code == Code.Ldftn);
                 if (fnInstruction == null)
+                {
                     throw new ArgumentException(
-                        "Could not find function pointer instruction in the get method of the source property " +
-                        $"{ Property.ReflectedType.FullName }.{ Property.Name }. " +
-                        "Is the key selector method a simple lambda expression?",
-                        $"{ Property.ReflectedType.FullName }.{ Property.Name }."
-                    );
+                       "Could not find function pointer instruction in the get method of the source property "
+                       + Property.ReflectedType.FullName + "." + Property.Name
+                       + ". Is the key selector method a simple lambda expression?",
+                       Property.ReflectedType.FullName + "." + Property.Name
+                   );
+                }
 
                 if (!(fnInstruction.Operand is MethodDefinition fnOperand))
+                {
                     throw new ArgumentException(
-                        "Expected to find a method definition associated with a function pointer instruction but could not find one for " +
-                        $"{ Property.ReflectedType.FullName }.{ Property.Name }.",
-                        $"{ Property.ReflectedType.FullName }.{ Property.Name }."
-                    );
+                       "Expected to find a method definition associated with a function pointer instruction but could not find one for "
+                       + Property.ReflectedType.FullName + "." + Property.Name + ".",
+                       Property.ReflectedType.FullName + "." + Property.Name
+                   );
+                }
 
                 var operandInstructions = fnOperand.Body.Instructions;
                 var bodyCallInstr = operandInstructions.FirstOrDefault(i => i.OpCode.Code == Code.Callvirt || i.OpCode.Code == Code.Call);
                 if (bodyCallInstr == null)
+                {
                     throw new ArgumentException(
-                        "Could not find call or virtual call instruction in the key selector function that was provided to " +
-                        $"{ Property.ReflectedType.FullName }.{ Property.Name }. " +
-                        "Is the key selector method a simple lambda expression?",
-                        $"{ Property.ReflectedType.FullName }.{ Property.Name }."
-                    );
+                       "Could not find call or virtual call instruction in the key selector function that was provided to "
+                       + Property.ReflectedType.FullName + "." + Property.Name
+                       + ". Is the key selector method a simple lambda expression?",
+                       Property.ReflectedType.FullName + "." + Property.Name
+                   );
+                }
 
                 if (!(bodyCallInstr.Operand is MethodDefinition bodyMethodDef))
                     throw new ArgumentException("Expected to find a method definition associated with the call or virtual call instruction but could not find one in the key selector.");
@@ -98,10 +108,12 @@ namespace SJP.Schematic.Modelled.Reflection.Model
                 var targetPropertyName = bodyMethodDef.Name;
                 var targetProp = TargetType.GetTypeInfo().GetProperties().SingleOrDefault(p => p.GetGetMethod().Name == targetPropertyName && p.GetIndexParameters().Length == 0);
                 if (targetProp == null)
+                {
                     throw new ArgumentException(
-                        $"Expected to find a property named { targetPropertyName } in { TargetType.FullName } but could not find one.",
-                        $"{ Property.ReflectedType.FullName }.{ Property.Name }."
-                    );
+                       $"Expected to find a property named { targetPropertyName } in { TargetType.FullName } but could not find one.",
+                       Property.ReflectedType.FullName + "." + Property.Name
+                   );
+                }
 
                 return targetProp;
             }

@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using Dapper;
 using LanguageExt;
 using SJP.Schematic.Core;
+using SJP.Schematic.Core.Exceptions;
 using SJP.Schematic.Core.Extensions;
 using SJP.Schematic.PostgreSql.Query;
 
@@ -393,7 +394,7 @@ where tc.table_schema = @SchemaName and tc.table_name = @TableName
                 var childTableNameOption = GetResolvedTableName(candidateChildTableName);
                 var childTableNameOptionIsNone = await childTableNameOption.IsNone.ConfigureAwait(false);
                 if (childTableNameOptionIsNone)
-                    throw new Exception("Could not find child table with name: " + candidateChildTableName.ToString());
+                    throw new MissingChildTableException(tableName, candidateChildTableName);
 
                 var childTableName = await childTableNameOption.UnwrapSomeAsync().ConfigureAwait(false);
                 var childKeyName = Identifier.CreateQualifiedIdentifier(groupedChildKey.Key.ChildKeyName);
@@ -543,7 +544,7 @@ where
                 var parentOption = GetResolvedTableName(candidateParentTableName);
                 var parentOptionIsNone = await parentOption.IsNone.ConfigureAwait(false);
                 if (parentOptionIsNone)
-                    throw new Exception("Could not find parent table with name: " + candidateParentTableName.ToString());
+                    throw new MissingParentTableException(tableName, candidateParentTableName);
 
                 var parentTableName = await parentOption.UnwrapSomeAsync().ConfigureAwait(false);
                 var parentKeyName = Identifier.CreateQualifiedIdentifier(fkey.Key.ParentKeyName);
@@ -778,7 +779,7 @@ order by ordinal_position";
                     else if (trigEvent.TriggerEvent == "DELETE")
                         events |= TriggerEvent.Delete;
                     else
-                        throw new Exception("Found an unsupported trigger event name. Expected one of INSERT, UPDATE, DELETE, got: " + trigEvent.TriggerEvent);
+                        throw new UnsupportedTriggerEventException(tableName, trigEvent.TriggerEvent);
                 }
 
                 var isEnabled = trig.Key.EnabledFlag != "D";

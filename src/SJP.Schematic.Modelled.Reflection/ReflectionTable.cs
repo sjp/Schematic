@@ -214,8 +214,6 @@ namespace SJP.Schematic.Modelled.Reflection
         private readonly Lazy<IReadOnlyDictionary<Identifier, IDatabaseCheckConstraint>> _checkLookup;
         private readonly Lazy<IReadOnlyDictionary<Identifier, IDatabaseIndex>> _indexLookup;
         private readonly Lazy<IReadOnlyDictionary<Identifier, IDatabaseRelationalKey>> _parentKeyLookup;
-        // TODO: implement triggers
-        //private readonly Lazy<IReadOnlyDictionary<string, IDatabaseTrigger>> _triggerLookup;
         private readonly Lazy<IReadOnlyCollection<IDatabaseRelationalKey>> _childKeys;
         private readonly Lazy<Option<IDatabaseKey>> _primaryKey;
     }

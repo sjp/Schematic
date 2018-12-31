@@ -400,7 +400,7 @@ namespace SJP.Schematic.Modelled.Reflection.Tests
 
             public T1 Identity<T1, T2>(T1 t1, T2 t2, int x, T1 t1_1)
             {
-                return ReferenceEquals(t1, null) || ReferenceEquals(t2, null) || ReferenceEquals(t1_1, null) || x > 1
+                return ReferenceEquals(t1, t2) || ReferenceEquals(t2, t1_1) || ReferenceEquals(t1_1, t1) || x > 1
                     ? t1
                     : t1_1;
             }
@@ -432,7 +432,7 @@ namespace SJP.Schematic.Modelled.Reflection.Tests
 
         private sealed class TestGenericClass<T>
         {
-            public int IdentityTest(T t) => ReferenceEquals(t, null) ? 0 : 1;
+            public int IdentityTest(T t) => ReferenceEquals(t, t) ? 0 : 1;
         }
     }
 }

@@ -1,4 +1,4 @@
-﻿#pragma warning disable IDE1006 // Naming Styles
+﻿#pragma warning disable IDE1006, S101 // Naming Styles
 namespace SJP.Schematic.Sqlite.Pragma.Query
 {
     /// <summary>
@@ -37,4 +37,4 @@ namespace SJP.Schematic.Sqlite.Pragma.Query
         public int pk { get; set; }
     }
 }
-#pragma warning restore IDE1006 // Naming Styles
+#pragma warning restore IDE1006, S101 // Naming Styles

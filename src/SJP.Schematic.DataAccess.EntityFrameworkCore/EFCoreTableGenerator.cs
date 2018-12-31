@@ -195,11 +195,11 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore
             if (clrType.Namespace == "System" && _typeNameMap.ContainsKey(typeName))
                 typeName = _typeNameMap[typeName];
 
-            if (column.AutoIncrement != null)
+            column.AutoIncrement.IfSome(_ =>
             {
                 builder.Append(columnIndent)
                     .AppendLine("[DatabaseGenerated(DatabaseGeneratedOption.Identity)]");
-            }
+            });
 
             var propertyName = NameProvider.ColumnToPropertyName(className, column.Name.LocalName);
             builder.Append(columnIndent)

@@ -20,7 +20,7 @@ namespace SJP.Schematic.Oracle
 
         public bool Equals(string x, string y)
         {
-            if (ReferenceEquals(x, y))
+            if (x is null && y is null)
                 return true;
             if (x is null ^ y is null)
                 return false;

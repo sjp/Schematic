@@ -229,7 +229,7 @@ namespace SJP.Schematic.Core
         /// <returns><c>true</c> if all components of an identifier are equal; otherwise <c>false</c>.</returns>
         public static bool operator ==(Identifier a, Identifier b)
         {
-            if (ReferenceEquals(a, b))
+            if (a is null && b is null)
                 return true;
             if (a is null ^ b is null)
                 return false;
@@ -245,7 +245,7 @@ namespace SJP.Schematic.Core
         /// <returns><c>false</c> if all components of an identifier are equal; otherwise <c>true</c>.</returns>
         public static bool operator !=(Identifier a, Identifier b)
         {
-            if (ReferenceEquals(a, b))
+            if (a is null && b is null)
                 return false;
             if (a is null ^ b is null)
                 return true;

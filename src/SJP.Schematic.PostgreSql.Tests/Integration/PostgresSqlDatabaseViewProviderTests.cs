@@ -109,10 +109,11 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration
         public async Task GetView_WhenViewPresentGivenFullyQualifiedName_ShouldBeQualifiedCorrectly()
         {
             var viewName = new Identifier(IdentifierDefaults.Server, IdentifierDefaults.Database, IdentifierDefaults.Schema, "db_test_view_1");
+            var expectedViewName = new Identifier(IdentifierDefaults.Server, IdentifierDefaults.Database, IdentifierDefaults.Schema, "db_test_view_1");
 
             var view = await ViewProvider.GetView(viewName).UnwrapSomeAsync().ConfigureAwait(false);
 
-            Assert.AreEqual(viewName, view.Name);
+            Assert.AreEqual(expectedViewName, view.Name);
         }
 
         [Test]

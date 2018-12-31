@@ -6,6 +6,7 @@ using SJP.Schematic.Core.Utilities;
 
 namespace SJP.Schematic.Core
 {
+#pragma warning disable S3928 // Parameter names used into ArgumentException constructors should match an existing one
     [DebuggerDisplay("{DebuggerDisplay,nq}")]
     public class DatabaseSequence : IDatabaseSequence
     {
@@ -91,4 +92,5 @@ namespace SJP.Schematic.Core
             }
         }
     }
+#pragma warning restore S3928 // Parameter names used into ArgumentException constructors should match an existing one
 }

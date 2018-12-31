@@ -263,11 +263,11 @@ namespace SJP.Schematic.DataAccess.OrmLite
                 builder.AppendLine(")]");
             }
 
-            if (column.AutoIncrement != null)
+            column.AutoIncrement.IfSome(_ =>
             {
                 builder.Append(columnIndent)
                     .AppendLine("[AutoIncrement]");
-            }
+            });
 
             if (column.IsComputed && column is IDatabaseComputedColumn computedColumn)
             {

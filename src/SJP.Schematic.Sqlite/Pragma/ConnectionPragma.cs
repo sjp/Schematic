@@ -30,8 +30,7 @@ namespace SJP.Schematic.Sqlite.Pragma
         public IEnumerable<ISqliteDatabasePragma> DatabasePragmas =>
             DatabaseList
                 .OrderBy(d => d.seq)
-                .Select(d => new DatabasePragma(Dialect, Connection, d.name))
-                .ToList();
+                .Select(d => new DatabasePragma(Dialect, Connection, d.name));
 
         public async Task<IEnumerable<ISqliteDatabasePragma>> DatabasePragmasAsync(CancellationToken cancellationToken = default(CancellationToken))
         {

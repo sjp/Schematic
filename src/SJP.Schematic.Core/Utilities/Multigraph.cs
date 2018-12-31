@@ -11,6 +11,8 @@ namespace SJP.Schematic.Core.Utilities
     /// <typeparam name="TVertex">The type of the graph vertex.</typeparam>
     /// <typeparam name="TEdge">The type of the graph edge.</typeparam>
     public class Multigraph<TVertex, TEdge> : Graph<TVertex>
+        where TVertex : class
+        where TEdge : class
     {
         /// <summary>
         /// Internal. Not to be consumed externally.
@@ -20,7 +22,7 @@ namespace SJP.Schematic.Core.Utilities
         /// <exception cref="ArgumentNullException"><paramref name="vertex"/> is <c>null</c>.</exception>
         protected virtual string ToString(TVertex vertex)
         {
-            if (ReferenceEquals(vertex, null))
+            if (vertex is null)
                 throw new ArgumentNullException(nameof(vertex));
 
             return vertex.ToString();
@@ -39,9 +41,9 @@ namespace SJP.Schematic.Core.Utilities
         /// <exception cref="ArgumentNullException"><paramref name="from"/> or <paramref name="to"/> is <c>null</c>.</exception>
         public virtual IEnumerable<TEdge> GetEdges(TVertex from, TVertex to)
         {
-            if (ReferenceEquals(from, null))
+            if (from is null)
                 throw new ArgumentNullException(nameof(from));
-            if (ReferenceEquals(to, null))
+            if (to is null)
                 throw new ArgumentNullException(nameof(to));
 
             return _successorMap.TryGetValue(from, out var successorSet) && successorSet.TryGetValue(to, out var edgeList)
@@ -56,7 +58,7 @@ namespace SJP.Schematic.Core.Utilities
         /// <exception cref="ArgumentNullException"><paramref name="vertex"/> is <c>null</c>.</exception>
         public virtual void AddVertex(TVertex vertex)
         {
-            if (ReferenceEquals(vertex, null))
+            if (vertex is null)
                 throw new ArgumentNullException(nameof(vertex));
 
             _vertices.Add(vertex);
@@ -84,11 +86,11 @@ namespace SJP.Schematic.Core.Utilities
         /// <exception cref="ArgumentNullException"><paramref name="from"/>, <paramref name="to"/> or <paramref name="edge"/> is <c>null</c>.</exception>
         public virtual void AddEdge(TVertex from, TVertex to, TEdge edge)
         {
-            if (ReferenceEquals(from, null))
+            if (from is null)
                 throw new ArgumentNullException(nameof(from));
-            if (ReferenceEquals(to, null))
+            if (to is null)
                 throw new ArgumentNullException(nameof(to));
-            if (ReferenceEquals(edge, null))
+            if (edge is null)
                 throw new ArgumentNullException(nameof(edge));
 
             AddEdges(from, to, new[] { edge });
@@ -103,9 +105,9 @@ namespace SJP.Schematic.Core.Utilities
         /// <exception cref="ArgumentNullException"><paramref name="from"/>, <paramref name="to"/> or <paramref name="edges"/> is <c>null</c>.</exception>
         public virtual void AddEdges(TVertex from, TVertex to, IEnumerable<TEdge> edges)
         {
-            if (ReferenceEquals(from, null))
+            if (from is null)
                 throw new ArgumentNullException(nameof(from));
-            if (ReferenceEquals(to, null))
+            if (to is null)
                 throw new ArgumentNullException(nameof(to));
             if (edges == null)
                 throw new ArgumentNullException(nameof(edges));
@@ -449,7 +451,7 @@ namespace SJP.Schematic.Core.Utilities
         /// <exception cref="ArgumentNullException"><paramref name="from"/> is <c>null</c>.</exception>
         public override IEnumerable<TVertex> GetOutgoingNeighbours(TVertex from)
         {
-            if (ReferenceEquals(from, null))
+            if (from is null)
                 throw new ArgumentNullException(nameof(from));
 
             return _successorMap.TryGetValue(from, out var successorSet)
@@ -464,7 +466,7 @@ namespace SJP.Schematic.Core.Utilities
         /// <exception cref="ArgumentNullException"><paramref name="to"/> is <c>null</c>.</exception>
         public override IEnumerable<TVertex> GetIncomingNeighbours(TVertex to)
         {
-            if (ReferenceEquals(to, null))
+            if (to is null)
                 throw new ArgumentNullException(nameof(to));
 
             return _successorMap.Where(kvp => kvp.Value.ContainsKey(to)).Select(kvp => kvp.Key);

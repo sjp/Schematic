@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using Dapper;
 using LanguageExt;
 using SJP.Schematic.Core;
+using SJP.Schematic.Core.Exceptions;
 using SJP.Schematic.Core.Extensions;
 using SJP.Schematic.Sqlite.Parsing;
 using SJP.Schematic.Sqlite.Pragma;
@@ -507,7 +508,7 @@ namespace SJP.Schematic.Sqlite
                 var parentTableNameOption = GetResolvedTableName(candidateParentTableName, cancellationToken);
                 var parentTableNameOptionIsNone = await parentTableNameOption.IsNone.ConfigureAwait(false);
                 if (parentTableNameOptionIsNone)
-                    throw new Exception("Could not find parent table with name: " + candidateParentTableName.ToString());
+                    throw new MissingParentTableException(tableName, candidateParentTableName);
 
                 var parentTableName = await parentTableNameOption.UnwrapSomeAsync().ConfigureAwait(false);
                 if (!tableParserLookup.TryGetValue(parentTableName, out var parentTableParser))
@@ -643,7 +644,7 @@ namespace SJP.Schematic.Sqlite
                 var tokenizer = new SqliteTokenizer();
                 var tokenizeResult = tokenizer.TryTokenize(triggerInfo.sql);
                 if (!tokenizeResult.HasValue)
-                    throw new Exception("Unable to parse the TRIGGER statement: " + triggerInfo.sql);
+                    throw new SqliteTriggerParsingException(tableName, triggerInfo.sql, tokenizeResult.ErrorMessage + " at " + tokenizeResult.ErrorPosition.ToString());
 
                 var tokens = tokenizeResult.Value;
                 var parser = new SqliteTriggerParser(tokens);
@@ -698,7 +699,7 @@ namespace SJP.Schematic.Sqlite
             var tokenizer = new SqliteTokenizer();
             var tokenizeResult = tokenizer.TryTokenize(tableSql);
             if (!tokenizeResult.HasValue)
-                throw new Exception("Unable to parse the CREATE TABLE statement: " + tableSql);
+                throw new SqliteTableParsingException(tableName, tableSql, tokenizeResult.ErrorMessage + " at " + tokenizeResult.ErrorPosition.ToString());
 
             var tokens = tokenizeResult.Value;
             return new SqliteTableParser(tokens, tableSql);

@@ -16,22 +16,32 @@ namespace SJP.Schematic.Core
                 throw new ArgumentException($"The { nameof(StringComparison) } provided must be a valid enum.", nameof(comparison));
 
             _comparer = _stringComparerLookup[comparison];
+
             _defaultServer = defaultServer.IsNullOrWhiteSpace() ? null : defaultServer;
             _defaultDatabase = defaultDatabase.IsNullOrWhiteSpace() ? null : defaultDatabase;
             _defaultSchema = defaultSchema.IsNullOrWhiteSpace() ? null : defaultSchema;
+
+            _defaultServerHash = _defaultServer != null ? _comparer.GetHashCode(_defaultServer) : 0;
+            _defaultDatabaseHash = _defaultDatabase != null ? _comparer.GetHashCode(_defaultDatabase) : 0;
+            _defaultSchemaHash = _defaultSchema != null ? _comparer.GetHashCode(_defaultSchema) : 0;
         }
 
         public IdentifierComparer(StringComparer comparer, string defaultServer = null, string defaultDatabase = null, string defaultSchema = null) // can't use IComparer or IEqualityComparer because we need both
         {
             _comparer = comparer ?? throw new ArgumentNullException(nameof(comparer));
+
             _defaultServer = defaultServer.IsNullOrWhiteSpace() ? null : defaultServer;
             _defaultDatabase = defaultDatabase.IsNullOrWhiteSpace() ? null : defaultDatabase;
             _defaultSchema = defaultSchema.IsNullOrWhiteSpace() ? null : defaultSchema;
+
+            _defaultServerHash = _defaultServer != null ? _comparer.GetHashCode(_defaultServer) : 0;
+            _defaultDatabaseHash = _defaultDatabase != null ? _comparer.GetHashCode(_defaultDatabase) : 0;
+            _defaultSchemaHash = _defaultSchema != null ? _comparer.GetHashCode(_defaultSchema) : 0;
         }
 
         public bool Equals(Identifier x, Identifier y)
         {
-            if (ReferenceEquals(x, y))
+            if (x is null && y is null)
                 return true;
             if (x is null ^ y is null)
                 return false;
@@ -51,9 +61,9 @@ namespace SJP.Schematic.Core
             unchecked
             {
                 var hash = 17;
-                hash = (hash * 23) + (obj.Server != null ? _comparer.GetHashCode(obj.Server) : _defaultServer != null ? _comparer.GetHashCode(_defaultServer) : 0);
-                hash = (hash * 23) + (obj.Database != null ? _comparer.GetHashCode(obj.Database) : _defaultDatabase != null ? _comparer.GetHashCode(_defaultDatabase) : 0);
-                hash = (hash * 23) + (obj.Schema != null ? _comparer.GetHashCode(obj.Schema) : _defaultSchema != null ? _comparer.GetHashCode(_defaultSchema) : 0);
+                hash = (hash * 23) + (obj.Server != null ? _comparer.GetHashCode(obj.Server) : _defaultServerHash);
+                hash = (hash * 23) + (obj.Database != null ? _comparer.GetHashCode(obj.Database) : _defaultDatabaseHash);
+                hash = (hash * 23) + (obj.Schema != null ? _comparer.GetHashCode(obj.Schema) : _defaultSchemaHash);
                 return (hash * 23) + (obj.LocalName != null ? _comparer.GetHashCode(obj.LocalName) : 0);
             }
         }
@@ -97,6 +107,9 @@ namespace SJP.Schematic.Core
         private readonly string _defaultSchema;
         private readonly string _defaultDatabase;
         private readonly string _defaultServer;
+        private readonly int _defaultSchemaHash;
+        private readonly int _defaultDatabaseHash;
+        private readonly int _defaultServerHash;
         private readonly StringComparer _comparer;
 
         private readonly static IReadOnlyDictionary<StringComparison, StringComparer> _stringComparerLookup = new Dictionary<StringComparison, StringComparer>

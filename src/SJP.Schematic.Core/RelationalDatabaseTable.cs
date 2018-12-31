@@ -41,8 +41,10 @@ namespace SJP.Schematic.Core
 
             primaryKey.IfSome(pk =>
             {
+#pragma warning disable S3928 // Parameter names used into ArgumentException constructors should match an existing one
                 if (pk.KeyType != DatabaseKeyType.Primary)
                     throw new ArgumentException("The given primary key did not have a key type of 'Primary'", nameof(primaryKey));
+#pragma warning restore S3928 // Parameter names used into ArgumentException constructors should match an existing one
             });
 
             var anyNonUniqueKey = uniqueKeys.Any(uk => uk.KeyType != DatabaseKeyType.Unique);

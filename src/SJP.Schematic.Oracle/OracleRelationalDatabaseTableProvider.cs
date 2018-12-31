@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using Dapper;
 using LanguageExt;
 using SJP.Schematic.Core;
+using SJP.Schematic.Core.Exceptions;
 using SJP.Schematic.Core.Extensions;
 using SJP.Schematic.Oracle.Query;
 
@@ -381,7 +382,7 @@ where ac.OWNER = :SchemaName and ac.TABLE_NAME = :TableName and ac.CONSTRAINT_TY
                 var childTableNameOption = GetResolvedTableName(candidateChildTableName);
                 var childTableNameOptionIsNone = await childTableNameOption.IsNone.ConfigureAwait(false);
                 if (childTableNameOptionIsNone)
-                    throw new Exception("Could not find child table with name: " + candidateChildTableName.ToString());
+                    throw new MissingChildTableException(tableName, candidateChildTableName);
 
                 var childTableName = await childTableNameOption.UnwrapSomeAsync().ConfigureAwait(false);
                 var childKeyName = Identifier.CreateQualifiedIdentifier(childKeyRow.ChildKeyName);
@@ -528,7 +529,7 @@ where OWNER = :SchemaName and TABLE_NAME = :TableName and CONSTRAINT_TYPE = 'C'"
                 var parentTableNameOption = GetResolvedTableName(candidateParentTableName);
                 var parentTableNameOptionIsNone = await parentTableNameOption.IsNone.ConfigureAwait(false);
                 if (parentTableNameOptionIsNone)
-                    throw new Exception("Could not find parent table with name: " + candidateParentTableName.ToString());
+                    throw new MissingParentTableException(tableName, candidateParentTableName);
 
                 var parentTableName = await parentTableNameOption.UnwrapSomeAsync().ConfigureAwait(false);
                 var parentKeyName = Identifier.CreateQualifiedIdentifier(fkey.Key.ParentConstraintName);
@@ -728,7 +729,7 @@ order by COLUMN_ID";
                     else if (triggerEventPiece == "DELETE")
                         events |= TriggerEvent.Delete;
                     else
-                        throw new Exception("Found an unsupported trigger event name. Expected one of INSERT, UPDATE, DELETE, got: " + triggerEventPiece);
+                        throw new UnsupportedTriggerEventException(tableName, triggerEventPiece);
                 }
 
                 var trigger = new DatabaseTrigger(triggerName, definition, queryTiming, events, isEnabled);

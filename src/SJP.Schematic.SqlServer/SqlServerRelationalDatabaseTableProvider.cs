@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using Dapper;
 using LanguageExt;
 using SJP.Schematic.Core;
+using SJP.Schematic.Core.Exceptions;
 using SJP.Schematic.Core.Extensions;
 using SJP.Schematic.SqlServer.Query;
 
@@ -379,7 +380,7 @@ order by ic.key_ordinal";
                 var childTableNameOption = GetResolvedTableName(candidateChildTableName, cancellationToken);
                 var childTableNameOptionIsNone = await childTableNameOption.IsNone.ConfigureAwait(false);
                 if (childTableNameOptionIsNone)
-                    throw new Exception("Could not find child table with name: " + candidateChildTableName.ToString());
+                    throw new MissingChildTableException(tableName, candidateChildTableName);
 
                 var childTableName = await childTableNameOption.UnwrapSomeAsync().ConfigureAwait(false);
                 var childKeyName = Identifier.CreateQualifiedIdentifier(groupedChildKey.Key.ChildKeyName);
@@ -515,7 +516,7 @@ where schema_name(t.schema_id) = @SchemaName and t.name = @TableName";
                 var parentTableNameOption = GetResolvedTableName(candidateParentTableName, cancellationToken);
                 var parentTableNameOptionIsNone = await parentTableNameOption.IsNone.ConfigureAwait(false);
                 if (parentTableNameOptionIsNone)
-                    throw new Exception("Could not find parent table with name: " + candidateParentTableName.ToString());
+                    throw new MissingParentTableException(tableName, candidateParentTableName);
 
                 var parentTableName = await parentTableNameOption.UnwrapSomeAsync().ConfigureAwait(false);
                 var parentKeyName = Identifier.CreateQualifiedIdentifier(fkey.Key.ParentKeyName);
@@ -731,7 +732,7 @@ where schema_name(t.schema_id) = @SchemaName
                     else if (trigEvent.TriggerEvent == "DELETE")
                         events |= TriggerEvent.Delete;
                     else
-                        throw new Exception("Found an unsupported trigger event name. Expected one of INSERT, UPDATE, DELETE, got: " + trigEvent.TriggerEvent);
+                        throw new UnsupportedTriggerEventException(tableName, trigEvent.TriggerEvent);
                 }
 
                 var trigger = new DatabaseTrigger(triggerName, definition, queryTiming, events, isEnabled);
