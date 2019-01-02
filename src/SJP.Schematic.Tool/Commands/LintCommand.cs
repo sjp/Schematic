@@ -13,7 +13,6 @@ namespace SJP.Schematic.Tool
             if (application == null)
                 throw new ArgumentNullException(nameof(application));
 
-            var dialect = Parent.GetDatabaseDialect();
             var hasConnectionString = Parent.TryGetConnectionString(out var connectionString);
             if (!hasConnectionString)
             {
@@ -22,7 +21,7 @@ namespace SJP.Schematic.Tool
                 return 1;
             }
 
-            var status = DatabaseCommand.GetConnectionStatus(dialect, connectionString);
+            var status = Parent.GetConnectionStatus(connectionString);
             if (status.IsConnected)
             {
                 application.Out.WriteLine("Successfully connected to the database.");

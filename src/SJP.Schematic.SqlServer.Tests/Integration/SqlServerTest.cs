@@ -7,7 +7,7 @@ namespace SJP.Schematic.SqlServer.Tests.Integration
 {
     internal static class Config
     {
-        public static IDbConnection Connection { get; } = new SqlServerDialect().CreateConnection(ConnectionString);
+        public static IDbConnection Connection { get; } = SqlServerDialect.CreateConnectionAsync(ConnectionString).GetAwaiter().GetResult();
 
         private static string ConnectionString => Configuration.GetConnectionString("TestDb");
 
@@ -24,8 +24,8 @@ namespace SJP.Schematic.SqlServer.Tests.Integration
     {
         protected IDbConnection Connection { get; } = Config.Connection;
 
-        protected IDatabaseDialect Dialect { get; } = new SqlServerDialect();
+        protected IDatabaseDialect Dialect { get; } = new SqlServerDialect(Config.Connection);
 
-        protected IIdentifierDefaults IdentifierDefaults { get; } = new SqlServerDialect().GetIdentifierDefaults(Config.Connection);
+        protected IIdentifierDefaults IdentifierDefaults { get; } = new SqlServerDialect(Config.Connection).GetIdentifierDefaultsAsync().GetAwaiter().GetResult();
     }
 }

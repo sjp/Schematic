@@ -11,6 +11,7 @@ using SJP.Schematic.PostgreSql;
 using SJP.Schematic.Sqlite;
 using SJP.Schematic.SqlServer;
 using System.Data;
+using System.Threading.Tasks;
 
 namespace SJP.Schematic.Tool
 {
@@ -44,16 +45,16 @@ namespace SJP.Schematic.Tool
         [Option(Description = "The name of the connection string in a configuration file", LongName = "connection-config-name", ShortName = "csname")]
         public string ConnectionConfigName { get; set; }
 
-        public static ConnectionStatus GetConnectionStatus(IDatabaseDialect dialect, string connectionString)
+        public ConnectionStatus GetConnectionStatus(string connectionString)
         {
-            if (dialect == null)
-                throw new ArgumentNullException(nameof(dialect));
             if (connectionString.IsNullOrWhiteSpace())
                 throw new ArgumentNullException(nameof(connectionString));
+            if (!_connectionFactories.TryGetValue(DatabaseDialect, out var factory))
+                throw new NotSupportedException("Unsupported dialect: " + DatabaseDialect);
 
             try
             {
-                var connection = dialect.CreateConnection(connectionString);
+                var connection = factory.Invoke(connectionString).GetAwaiter().GetResult();
                 return ConnectionStatus.Success(connection);
             }
             catch (Exception ex)
@@ -114,12 +115,12 @@ namespace SJP.Schematic.Tool
             return false;
         }
 
-        public IDatabaseDialect GetDatabaseDialect()
+        public IDatabaseDialect GetDatabaseDialect(IDbConnection connection)
         {
-            if (!_dialects.TryGetValue(DatabaseDialect, out var dialect))
+            if (!_dialectFactories.TryGetValue(DatabaseDialect, out var dialect))
                 throw new NotSupportedException("Unsupported dialect: " + DatabaseDialect);
 
-            return dialect;
+            return dialect.Invoke(connection);
         }
 
         public Func<IDatabaseDialect, IDbConnection, IIdentifierDefaults, IRelationalDatabase> GetRelationalDatabaseFactory()
@@ -130,12 +131,20 @@ namespace SJP.Schematic.Tool
             return factory;
         }
 
-        private readonly static IReadOnlyDictionary<string, IDatabaseDialect> _dialects = new Dictionary<string, IDatabaseDialect>
+        private readonly static IReadOnlyDictionary<string, Func<string, Task<IDbConnection>>> _connectionFactories = new Dictionary<string, Func<string, Task<IDbConnection>>>
         {
-            ["sqlite"] = new SqliteDialect(),
-            ["sqlserver"] = new SqlServerDialect(),
-            ["mysql"] = new MySqlDialect(),
-            ["postgresql"] = new PostgreSqlDialect()
+            ["sqlite"] = cs => SqliteDialect.CreateConnectionAsync(cs),
+            ["sqlserver"] = cs => SqlServerDialect.CreateConnectionAsync(cs),
+            ["mysql"] = cs => MySqlDialect.CreateConnectionAsync(cs),
+            ["postgresql"] = cs => PostgreSqlDialect.CreateConnectionAsync(cs)
+        };
+
+        private readonly static IReadOnlyDictionary<string, Func<IDbConnection, IDatabaseDialect>> _dialectFactories = new Dictionary<string, Func<IDbConnection, IDatabaseDialect>>
+        {
+            ["sqlite"] = c => new SqliteDialect(c),
+            ["sqlserver"] = c => new SqlServerDialect(c),
+            ["mysql"] = c => new MySqlDialect(c),
+            ["postgresql"] = c => new PostgreSqlDialect(c)
         };
 
         private readonly static IReadOnlyDictionary<string, Func<IDatabaseDialect, IDbConnection, IIdentifierDefaults, IRelationalDatabase>> _databaseFactories =

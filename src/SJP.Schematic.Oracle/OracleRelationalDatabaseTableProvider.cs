@@ -21,6 +21,7 @@ namespace SJP.Schematic.Oracle
             IdentifierDefaults = identifierDefaults ?? throw new ArgumentNullException(nameof(identifierDefaults));
             IdentifierResolver = identifierResolver ?? throw new ArgumentNullException(nameof(identifierResolver));
             TypeProvider = typeProvider ?? throw new ArgumentNullException(nameof(typeProvider));
+            Dialect = new OracleDialect(connection);
         }
 
         protected IDbConnection Connection { get; }
@@ -31,7 +32,7 @@ namespace SJP.Schematic.Oracle
 
         protected IDbTypeProvider TypeProvider { get; }
 
-        protected IDatabaseDialect Dialect { get; } = new OracleDialect();
+        protected IDatabaseDialect Dialect { get; }
 
         public async Task<IReadOnlyCollection<IRelationalDatabaseTable>> GetAllTables(CancellationToken cancellationToken = default(CancellationToken))
         {

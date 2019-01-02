@@ -7,7 +7,7 @@ namespace SJP.Schematic.Oracle.Tests.Integration
 {
     internal static class Config
     {
-        public static IDbConnection Connection { get; } = new OracleDialect().CreateConnection(ConnectionString);
+        public static IDbConnection Connection { get; } = OracleDialect.CreateConnectionAsync(ConnectionString).GetAwaiter().GetResult();
 
         private static string ConnectionString => Configuration.GetConnectionString("TestDb");
 
@@ -24,9 +24,9 @@ namespace SJP.Schematic.Oracle.Tests.Integration
     {
         protected IDbConnection Connection { get; } = Config.Connection;
 
-        protected IDatabaseDialect Dialect { get; } = new OracleDialect();
+        protected IDatabaseDialect Dialect { get; } = new OracleDialect(Config.Connection);
 
-        protected IIdentifierDefaults IdentifierDefaults { get; } = new OracleDialect().GetIdentifierDefaults(Config.Connection);
+        protected IIdentifierDefaults IdentifierDefaults { get; } = new OracleDialect(Config.Connection).GetIdentifierDefaultsAsync().GetAwaiter().GetResult();
 
         protected IIdentifierResolutionStrategy IdentifierResolver { get; } = new DefaultOracleIdentifierResolutionStrategy();
     }

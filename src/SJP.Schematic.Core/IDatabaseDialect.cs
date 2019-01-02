@@ -13,22 +13,12 @@ namespace SJP.Schematic.Core
 
         bool IsReservedKeyword(string text);
 
-        IDbConnection CreateConnection(string connectionString);
-
-        Task<IDbConnection> CreateConnectionAsync(string connectionString, CancellationToken cancellationToken = default(CancellationToken));
-
         IDbTypeProvider TypeProvider { get; }
 
-        IIdentifierDefaults GetIdentifierDefaults(IDbConnection connection);
+        Task<IIdentifierDefaults> GetIdentifierDefaultsAsync(CancellationToken cancellationToken = default(CancellationToken));
 
-        Task<IIdentifierDefaults> GetIdentifierDefaultsAsync(IDbConnection connection, CancellationToken cancellationToken = default(CancellationToken));
+        Task<Version> GetDatabaseVersionAsync(CancellationToken cancellationToken = default(CancellationToken));
 
-        string GetDatabaseDisplayVersion(IDbConnection connection);
-
-        Task<string> GetDatabaseDisplayVersionAsync(IDbConnection connection, CancellationToken cancellationToken = default(CancellationToken));
-
-        Version GetDatabaseVersion(IDbConnection connection);
-
-        Task<Version> GetDatabaseVersionAsync(IDbConnection connection, CancellationToken cancellationToken = default(CancellationToken));
+        Task<string> GetDatabaseDisplayVersionAsync(CancellationToken cancellationToken = default(CancellationToken));
     }
 }

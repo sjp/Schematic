@@ -20,6 +20,7 @@ namespace SJP.Schematic.SqlServer
             Connection = connection ?? throw new ArgumentNullException(nameof(connection));
             IdentifierDefaults = identifierDefaults ?? throw new ArgumentNullException(nameof(identifierDefaults));
             TypeProvider = typeProvider ?? throw new ArgumentNullException(nameof(typeProvider));
+            Dialect = new SqlServerDialect(connection);
         }
 
         protected IDbConnection Connection { get; }
@@ -28,7 +29,7 @@ namespace SJP.Schematic.SqlServer
 
         protected IDbTypeProvider TypeProvider { get; }
 
-        protected IDatabaseDialect Dialect { get; } = new SqlServerDialect();
+        protected IDatabaseDialect Dialect { get; }
 
         public async Task<IReadOnlyCollection<IRelationalDatabaseTable>> GetAllTables(CancellationToken cancellationToken = default(CancellationToken))
         {

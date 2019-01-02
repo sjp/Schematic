@@ -8,7 +8,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
 {
     internal static class Config
     {
-        public static IDbConnection Connection => new SqliteDialect().CreateConnection(ConnectionString);
+        public static IDbConnection Connection => SqliteDialect.CreateConnectionAsync(ConnectionString).GetAwaiter().GetResult();
 
         private static string ConnectionString => Configuration.GetConnectionString("TestDb");
 
@@ -25,10 +25,10 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
     {
         protected IDbConnection Connection { get; } = Config.Connection;
 
-        protected IDatabaseDialect Dialect { get; } = new SqliteDialect();
+        protected IDatabaseDialect Dialect { get; } = new SqliteDialect(Config.Connection);
 
-        protected ISqliteConnectionPragma Pragma { get; } = new ConnectionPragma(new SqliteDialect(), Config.Connection);
+        protected ISqliteConnectionPragma Pragma { get; } = new ConnectionPragma(new SqliteDialect(Config.Connection), Config.Connection);
 
-        protected IIdentifierDefaults IdentifierDefaults { get; } = new SqliteDialect().GetIdentifierDefaults(Config.Connection);
+        protected IIdentifierDefaults IdentifierDefaults { get; } = new SqliteDialect(Config.Connection).GetIdentifierDefaultsAsync().GetAwaiter().GetResult();
     }
 }

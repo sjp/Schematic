@@ -19,7 +19,6 @@ namespace SJP.Schematic.Tool
             if (application == null)
                 throw new ArgumentNullException(nameof(application));
 
-            var dialect = DatabaseParent.GetDatabaseDialect();
             var hasConnectionString = DatabaseParent.TryGetConnectionString(out var connectionString);
             if (!hasConnectionString)
             {
@@ -28,7 +27,7 @@ namespace SJP.Schematic.Tool
                 return 1;
             }
 
-            var status = DatabaseCommand.GetConnectionStatus(dialect, connectionString);
+            var status = DatabaseParent.GetConnectionStatus(connectionString);
             if (!status.IsConnected)
             {
                 application.Error.WriteLine("Could not connect to the database.");
@@ -47,7 +46,8 @@ namespace SJP.Schematic.Tool
             try
             {
                 var cachedConnection = status.Connection.AsCachedConnection();
-                var identifierDefaults = dialect.GetIdentifierDefaults(cachedConnection);
+                var dialect = DatabaseParent.GetDatabaseDialect(cachedConnection);
+                var identifierDefaults = dialect.GetIdentifierDefaultsAsync().GetAwaiter().GetResult();
                 var database = databaseFactory.Invoke(dialect, cachedConnection, identifierDefaults);
 
                 var generator = new EFCoreDataAccessGenerator(database, nameProvider);

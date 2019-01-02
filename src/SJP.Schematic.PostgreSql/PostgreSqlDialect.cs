@@ -12,19 +12,14 @@ using SJP.Schematic.PostgreSql.Query;
 
 namespace SJP.Schematic.PostgreSql
 {
-    public class PostgreSqlDialect : DatabaseDialect<PostgreSqlDialect>
+    public class PostgreSqlDialect : DatabaseDialect
     {
-        public override IDbConnection CreateConnection(string connectionString)
+        public PostgreSqlDialect(IDbConnection connection)
+            : base(connection)
         {
-            if (connectionString.IsNullOrWhiteSpace())
-                throw new ArgumentNullException(nameof(connectionString));
-
-            var connection = new NpgsqlConnection(connectionString);
-            connection.Open();
-            return connection;
         }
 
-        public override Task<IDbConnection> CreateConnectionAsync(string connectionString, CancellationToken cancellationToken = default(CancellationToken))
+        public static Task<IDbConnection> CreateConnectionAsync(string connectionString, CancellationToken cancellationToken = default(CancellationToken))
         {
             if (connectionString.IsNullOrWhiteSpace())
                 throw new ArgumentNullException(nameof(connectionString));
@@ -39,30 +34,9 @@ namespace SJP.Schematic.PostgreSql
             return connection;
         }
 
-        public override IIdentifierDefaults GetIdentifierDefaults(IDbConnection connection)
+        public override async Task<IIdentifierDefaults> GetIdentifierDefaultsAsync(CancellationToken cancellationToken = default(CancellationToken))
         {
-            if (connection == null)
-                throw new ArgumentNullException(nameof(connection));
-
-            var result = connection.QuerySingle<IdentifierDefaults>(IdentifierDefaultsQuerySql);
-
-            if (result.Server.IsNullOrWhiteSpace())
-                result.Server = "127.0.0.1";
-
-            return result;
-        }
-
-        public override Task<IIdentifierDefaults> GetIdentifierDefaultsAsync(IDbConnection connection, CancellationToken cancellationToken = default(CancellationToken))
-        {
-            if (connection == null)
-                throw new ArgumentNullException(nameof(connection));
-
-            return GetIdentifierDefaultsAsyncCore(connection, cancellationToken);
-        }
-
-        private static async Task<IIdentifierDefaults> GetIdentifierDefaultsAsyncCore(IDbConnection connection, CancellationToken cancellationToken)
-        {
-            var result = await connection.QuerySingleAsync<IdentifierDefaults>(IdentifierDefaultsQuerySql, cancellationToken).ConfigureAwait(false);
+            var result = await Connection.QuerySingleAsync<IdentifierDefaults>(IdentifierDefaultsQuerySql, cancellationToken).ConfigureAwait(false);
 
             if (result.Server.IsNullOrWhiteSpace())
                 result.Server = "127.0.0.1";
@@ -76,44 +50,16 @@ select
     pg_catalog.current_database() as Database,
     pg_catalog.current_schema() as Schema";
 
-        public override string GetDatabaseDisplayVersion(IDbConnection connection)
+        public override Task<string> GetDatabaseDisplayVersionAsync(CancellationToken cancellationToken = default(CancellationToken))
         {
-            if (connection == null)
-                throw new ArgumentNullException(nameof(connection));
-
-            return connection.ExecuteScalar<string>(DatabaseDisplayVersionQuerySql);
-        }
-
-        public override Task<string> GetDatabaseDisplayVersionAsync(IDbConnection connection, CancellationToken cancellationToken = default(CancellationToken))
-        {
-            if (connection == null)
-                throw new ArgumentNullException(nameof(connection));
-
-            return connection.ExecuteScalarAsync<string>(DatabaseDisplayVersionQuerySql, cancellationToken);
+            return Connection.ExecuteScalarAsync<string>(DatabaseDisplayVersionQuerySql, cancellationToken);
         }
 
         private const string DatabaseDisplayVersionQuerySql = "select pg_catalog.version() as DatabaseVersion";
 
-        public override Version GetDatabaseVersion(IDbConnection connection)
+        public override async Task<Version> GetDatabaseVersionAsync(CancellationToken cancellationToken = default(CancellationToken))
         {
-            if (connection == null)
-                throw new ArgumentNullException(nameof(connection));
-
-            var versionStr = connection.ExecuteScalar<string>(DatabaseVersionQuerySql);
-            return ParsePostgresVersionString(versionStr);
-        }
-
-        public override Task<Version> GetDatabaseVersionAsync(IDbConnection connection, CancellationToken cancellationToken = default(CancellationToken))
-        {
-            if (connection == null)
-                throw new ArgumentNullException(nameof(connection));
-
-            return GetDatabaseVersionAsyncCore(connection, cancellationToken);
-        }
-
-        private static async Task<Version> GetDatabaseVersionAsyncCore(IDbConnection connection, CancellationToken cancellationToken)
-        {
-            var versionStr = await connection.ExecuteScalarAsync<string>(DatabaseVersionQuerySql, cancellationToken).ConfigureAwait(false);
+            var versionStr = await Connection.ExecuteScalarAsync<string>(DatabaseVersionQuerySql, cancellationToken).ConfigureAwait(false);
             return ParsePostgresVersionString(versionStr);
         }
 

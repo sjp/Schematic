@@ -7,7 +7,7 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration
 {
     internal static class Config
     {
-        public static IDbConnection Connection { get; } = new PostgreSqlDialect().CreateConnection(ConnectionString);
+        public static IDbConnection Connection { get; } = PostgreSqlDialect.CreateConnectionAsync(ConnectionString).GetAwaiter().GetResult();
 
         private static string ConnectionString => Configuration.GetConnectionString("TestDb");
 
@@ -24,9 +24,9 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration
     {
         protected IDbConnection Connection { get; } = Config.Connection;
 
-        protected IDatabaseDialect Dialect { get; } = new PostgreSqlDialect();
+        protected IDatabaseDialect Dialect { get; } = new PostgreSqlDialect(Config.Connection);
 
-        protected IIdentifierDefaults IdentifierDefaults { get; } = new PostgreSqlDialect().GetIdentifierDefaults(Config.Connection);
+        protected IIdentifierDefaults IdentifierDefaults { get; } = new PostgreSqlDialect(Config.Connection).GetIdentifierDefaultsAsync().GetAwaiter().GetResult();
 
         protected IIdentifierResolutionStrategy IdentifierResolver { get; } = new DefaultPostgreSqlIdentifierResolutionStrategy();
     }

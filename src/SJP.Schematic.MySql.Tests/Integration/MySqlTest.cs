@@ -7,7 +7,7 @@ namespace SJP.Schematic.MySql.Tests.Integration
 {
     internal static class Config
     {
-        public static IDbConnection Connection { get; } = new MySqlDialect().CreateConnection(ConnectionString);
+        public static IDbConnection Connection { get; } = MySqlDialect.CreateConnectionAsync(ConnectionString).GetAwaiter().GetResult();
 
         private static string ConnectionString => Configuration.GetConnectionString("TestDb");
 
@@ -24,8 +24,8 @@ namespace SJP.Schematic.MySql.Tests.Integration
     {
         protected IDbConnection Connection { get; } = Config.Connection;
 
-        protected IDatabaseDialect Dialect { get; } = new MySqlDialect();
+        protected IDatabaseDialect Dialect { get; } = new MySqlDialect(Config.Connection);
 
-        protected IIdentifierDefaults IdentifierDefaults { get; } = new MySqlDialect().GetIdentifierDefaults(Config.Connection);
+        protected IIdentifierDefaults IdentifierDefaults { get; } = new MySqlDialect(Config.Connection).GetIdentifierDefaultsAsync().GetAwaiter().GetResult();
     }
 }

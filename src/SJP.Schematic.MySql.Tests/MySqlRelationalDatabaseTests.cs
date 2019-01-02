@@ -23,26 +23,29 @@ namespace SJP.Schematic.MySql.Tests
         [Test]
         public static void Ctor_GivenNullConnection_ThrowsArgumentNullException()
         {
+            var dialect = Mock.Of<IDatabaseDialect>();
             var identifierDefaults = Mock.Of<IIdentifierDefaults>();
 
-            Assert.Throws<ArgumentNullException>(() => new MySqlRelationalDatabase(new MySqlDialect(), null, identifierDefaults));
+            Assert.Throws<ArgumentNullException>(() => new MySqlRelationalDatabase(dialect, null, identifierDefaults));
         }
 
         [Test]
         public static void Ctor_GivenNullIdentifierDefaults_ThrowsArgumentNullException()
         {
             var connection = Mock.Of<IDbConnection>();
+            var dialect = new MySqlDialect(connection);
 
-            Assert.Throws<ArgumentNullException>(() => new MySqlRelationalDatabase(new MySqlDialect(), connection, null));
+            Assert.Throws<ArgumentNullException>(() => new MySqlRelationalDatabase(dialect, connection, null));
         }
 
         [Test]
         public static void GetTable_GivenNullIdentifier_ThrowsArgumentNullException()
         {
             var connection = Mock.Of<IDbConnection>();
+            var dialect = new MySqlDialect(connection);
             var identifierDefaults = Mock.Of<IIdentifierDefaults>();
 
-            var database = new MySqlRelationalDatabase(new MySqlDialect(), connection, identifierDefaults);
+            var database = new MySqlRelationalDatabase(dialect, connection, identifierDefaults);
 
             Assert.Throws<ArgumentNullException>(() => database.GetTable(null));
         }
@@ -51,9 +54,10 @@ namespace SJP.Schematic.MySql.Tests
         public static void GetView_GivenNullIdentifier_ThrowsArgumentNullException()
         {
             var connection = Mock.Of<IDbConnection>();
+            var dialect = new MySqlDialect(connection);
             var identifierDefaults = Mock.Of<IIdentifierDefaults>();
 
-            var database = new MySqlRelationalDatabase(new MySqlDialect(), connection, identifierDefaults);
+            var database = new MySqlRelationalDatabase(dialect, connection, identifierDefaults);
 
             Assert.Throws<ArgumentNullException>(() => database.GetView(null));
         }
@@ -65,8 +69,8 @@ namespace SJP.Schematic.MySql.Tests
             {
                 get
                 {
-                    var dialect = new MySqlDialect();
                     var connection = Mock.Of<IDbConnection>();
+                    var dialect = new MySqlDialect(connection);
                     var identifierDefaults = Mock.Of<IIdentifierDefaults>();
 
                     return new MySqlRelationalDatabase(dialect, connection, identifierDefaults);
@@ -113,8 +117,8 @@ namespace SJP.Schematic.MySql.Tests
             {
                 get
                 {
-                    var dialect = new MySqlDialect();
                     var connection = Mock.Of<IDbConnection>();
+                    var dialect = new MySqlDialect(connection);
                     var identifierDefaults = Mock.Of<IIdentifierDefaults>();
 
                     return new MySqlRelationalDatabase(dialect, connection, identifierDefaults);

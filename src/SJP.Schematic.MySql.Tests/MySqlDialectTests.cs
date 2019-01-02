@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Data;
+using Moq;
 using NUnit.Framework;
 
 namespace SJP.Schematic.MySql.Tests
@@ -7,86 +9,74 @@ namespace SJP.Schematic.MySql.Tests
     internal static class MySqlDialectTests
     {
         [Test]
-        public static void CreateConnection_GivenNull_ThrowsArgumentNullException()
-        {
-            var dialect = new MySqlDialect();
-            Assert.Throws<ArgumentNullException>(() => dialect.CreateConnection(null));
-        }
-
-        [Test]
-        public static void CreateConnection_GivenEmptyString_ThrowsArgumentNullException()
-        {
-            var dialect = new MySqlDialect();
-            Assert.Throws<ArgumentNullException>(() => dialect.CreateConnection(string.Empty));
-        }
-
-        [Test]
-        public static void CreateConnection_GivenWhiteSpaceString_ThrowsArgumentNullException()
-        {
-            var dialect = new MySqlDialect();
-            Assert.Throws<ArgumentNullException>(() => dialect.CreateConnection("   "));
-        }
-
-        [Test]
         public static void CreateConnectionAsync_GivenNull_ThrowsArgumentNullException()
         {
-            var dialect = new MySqlDialect();
-            Assert.Throws<ArgumentNullException>(() => dialect.CreateConnectionAsync(null));
+            Assert.Throws<ArgumentNullException>(() => MySqlDialect.CreateConnectionAsync(null));
         }
 
         [Test]
         public static void CreateConnectionAsync_GivenEmptyString_ThrowsArgumentNullException()
         {
-            var dialect = new MySqlDialect();
-            Assert.Throws<ArgumentNullException>(() => dialect.CreateConnectionAsync(string.Empty));
+            Assert.Throws<ArgumentNullException>(() => MySqlDialect.CreateConnectionAsync(string.Empty));
         }
 
         [Test]
         public static void CreateConnectionAsync_GivenWhiteSpaceString_ThrowsArgumentNullException()
         {
-            var dialect = new MySqlDialect();
-            Assert.Throws<ArgumentNullException>(() => dialect.CreateConnectionAsync("   "));
+            Assert.Throws<ArgumentNullException>(() => MySqlDialect.CreateConnectionAsync("   "));
         }
 
         [Test]
         public static void QuoteIdentifier_GivenNull_ThrowsArgumentNullException()
         {
-            var dialect = new MySqlDialect();
+            var connection = Mock.Of<IDbConnection>();
+            var dialect = new MySqlDialect(connection);
+
             Assert.Throws<ArgumentNullException>(() => dialect.QuoteIdentifier(null));
         }
 
         [Test]
         public static void QuoteIdentifier_GivenEmptyString_ThrowsArgumentNullException()
         {
-            var dialect = new MySqlDialect();
+            var connection = Mock.Of<IDbConnection>();
+            var dialect = new MySqlDialect(connection);
+
             Assert.Throws<ArgumentNullException>(() => dialect.QuoteIdentifier(string.Empty));
         }
 
         [Test]
         public static void QuoteIdentifier_GivenWhiteSpace_ThrowsArgumentNullException()
         {
-            var dialect = new MySqlDialect();
+            var connection = Mock.Of<IDbConnection>();
+            var dialect = new MySqlDialect(connection);
+
             Assert.Throws<ArgumentNullException>(() => dialect.QuoteIdentifier("    "));
         }
 
         [Test]
         public static void QuoteName_GivenNull_ThrowsArgumentNullException()
         {
-            var dialect = new MySqlDialect();
+            var connection = Mock.Of<IDbConnection>();
+            var dialect = new MySqlDialect(connection);
+
             Assert.Throws<ArgumentNullException>(() => dialect.QuoteName(null));
         }
 
         [Test]
         public static void QuoteName_GivenEmptyString_ThrowsArgumentNullException()
         {
-            var dialect = new MySqlDialect();
+            var connection = Mock.Of<IDbConnection>();
+            var dialect = new MySqlDialect(connection);
+
             Assert.Throws<ArgumentNullException>(() => dialect.QuoteName(string.Empty));
         }
 
         [Test]
         public static void QuoteName_GivenWhiteSpace_ThrowsArgumentNullException()
         {
-            var dialect = new MySqlDialect();
+            var connection = Mock.Of<IDbConnection>();
+            var dialect = new MySqlDialect(connection);
+
             Assert.Throws<ArgumentNullException>(() => dialect.QuoteName("    "));
         }
 
@@ -96,7 +86,9 @@ namespace SJP.Schematic.MySql.Tests
             const string input = "test_table";
             const string expected = "`test_table`";
 
-            var dialect = new MySqlDialect();
+            var connection = Mock.Of<IDbConnection>();
+            var dialect = new MySqlDialect(connection);
+
             var result = dialect.QuoteIdentifier(input);
 
             Assert.AreEqual(expected, result);
@@ -108,7 +100,9 @@ namespace SJP.Schematic.MySql.Tests
             const string input = "test table name";
             const string expected = "`test table name`";
 
-            var dialect = new MySqlDialect();
+            var connection = Mock.Of<IDbConnection>();
+            var dialect = new MySqlDialect(connection);
+
             var result = dialect.QuoteIdentifier(input);
 
             Assert.AreEqual(expected, result);
@@ -120,7 +114,9 @@ namespace SJP.Schematic.MySql.Tests
             const string input = "test.table.name";
             const string expected = "`test.table.name`";
 
-            var dialect = new MySqlDialect();
+            var connection = Mock.Of<IDbConnection>();
+            var dialect = new MySqlDialect(connection);
+
             var result = dialect.QuoteIdentifier(input);
 
             Assert.AreEqual(expected, result);
@@ -132,42 +128,12 @@ namespace SJP.Schematic.MySql.Tests
             const string input = "test`table";
             const string expected = "`test``table`";
 
-            var dialect = new MySqlDialect();
+            var connection = Mock.Of<IDbConnection>();
+            var dialect = new MySqlDialect(connection);
+
             var result = dialect.QuoteIdentifier(input);
 
             Assert.AreEqual(expected, result);
-        }
-
-        [Test]
-        public static void GetDatabaseDisplayVersion_GivenNullConnection_ThrowsArgumentNullException()
-        {
-            var dialect = new MySqlDialect();
-
-            Assert.Throws<ArgumentNullException>(() => dialect.GetDatabaseDisplayVersion(null));
-        }
-
-        [Test]
-        public static void GetDatabaseDisplayVersionAsync_GivenNullConnection_ThrowsArgumentNullException()
-        {
-            var dialect = new MySqlDialect();
-
-            Assert.Throws<ArgumentNullException>(() => dialect.GetDatabaseDisplayVersionAsync(null));
-        }
-
-        [Test]
-        public static void GetDatabaseVersion_GivenNullConnection_ThrowsArgumentNullException()
-        {
-            var dialect = new MySqlDialect();
-
-            Assert.Throws<ArgumentNullException>(() => dialect.GetDatabaseVersion(null));
-        }
-
-        [Test]
-        public static void GetDatabaseVersionAsync_GivenNullConnection_ThrowsArgumentNullException()
-        {
-            var dialect = new MySqlDialect();
-
-            Assert.Throws<ArgumentNullException>(() => dialect.GetDatabaseVersionAsync(null));
         }
     }
 }

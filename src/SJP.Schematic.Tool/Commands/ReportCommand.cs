@@ -19,7 +19,6 @@ namespace SJP.Schematic.Tool
             if (application == null)
                 throw new ArgumentNullException(nameof(application));
 
-            var dialect = Parent.GetDatabaseDialect();
             var hasConnectionString = Parent.TryGetConnectionString(out var connectionString);
             if (!hasConnectionString)
             {
@@ -28,7 +27,7 @@ namespace SJP.Schematic.Tool
                 return 1;
             }
 
-            var status = DatabaseCommand.GetConnectionStatus(dialect, connectionString);
+            var status = Parent.GetConnectionStatus(connectionString);
             if (status.IsConnected)
             {
                 var databaseFactory = Parent.GetRelationalDatabaseFactory();
@@ -36,7 +35,8 @@ namespace SJP.Schematic.Tool
                 try
                 {
                     var cachedConnection = status.Connection.AsCachedConnection();
-                    var identifierDefaults = dialect.GetIdentifierDefaults(cachedConnection);
+                    var dialect = Parent.GetDatabaseDialect(cachedConnection);
+                    var identifierDefaults = dialect.GetIdentifierDefaultsAsync().GetAwaiter().GetResult();
                     var database = databaseFactory.Invoke(dialect, cachedConnection, identifierDefaults);
 
                     var reportExporter = new ReportExporter(cachedConnection, database, ReportDirectory);

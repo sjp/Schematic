@@ -1,35 +1,52 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Data;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using SJP.Schematic.Core;
+using SJP.Schematic.Core.Extensions;
 
 namespace SJP.Schematic.Lint.Tests.Fakes
 {
-    internal sealed class FakeDatabaseDialect : DatabaseDialect<FakeDatabaseDialect>
+    internal sealed class FakeDatabaseDialect : IDatabaseDialect
     {
-        public override IDbTypeProvider TypeProvider => null;
+        public IDbTypeProvider TypeProvider => null;
 
-        public override IDbConnection CreateConnection(string connectionString) => null;
-
-        public override Task<IDbConnection> CreateConnectionAsync(string connectionString, CancellationToken cancellationToken = default(CancellationToken)) => Task.FromResult<IDbConnection>(null);
-
-        public override bool IsReservedKeyword(string text) => ReservedKeywords.Contains(text);
+        public bool IsReservedKeyword(string text) => ReservedKeywords.Contains(text);
 
         public IEnumerable<string> ReservedKeywords { get; set; } = new List<string>();
 
-        public override IIdentifierDefaults GetIdentifierDefaults(IDbConnection connection) => null;
+        public Task<IIdentifierDefaults> GetIdentifierDefaultsAsync(CancellationToken cancellationToken = default(CancellationToken)) => Task.FromResult<IIdentifierDefaults>(null);
 
-        public override Task<IIdentifierDefaults> GetIdentifierDefaultsAsync(IDbConnection connection, CancellationToken cancellationToken = default(CancellationToken)) => Task.FromResult<IIdentifierDefaults>(null);
+        public Task<string> GetDatabaseDisplayVersionAsync(CancellationToken cancellationToken = default(CancellationToken)) => Task.FromResult<string>(null);
 
-        public override string GetDatabaseDisplayVersion(IDbConnection connection) => null;
+        public Task<Version> GetDatabaseVersionAsync(CancellationToken cancellationToken = default(CancellationToken)) => Task.FromResult<Version>(null);
 
-        public override Task<string> GetDatabaseDisplayVersionAsync(IDbConnection connection, CancellationToken cancellationToken = default(CancellationToken)) => Task.FromResult<string>(null);
+        public string QuoteName(Identifier name)
+        {
+            if (name == null)
+                throw new ArgumentNullException(nameof(name));
 
-        public override Version GetDatabaseVersion(IDbConnection connection) => null;
+            var pieces = new List<string>();
 
-        public override Task<Version> GetDatabaseVersionAsync(IDbConnection connection, CancellationToken cancellationToken = default(CancellationToken)) => Task.FromResult<Version>(null);
+            if (name.Server != null)
+                pieces.Add(QuoteIdentifier(name.Server));
+            if (name.Database != null)
+                pieces.Add(QuoteIdentifier(name.Database));
+            if (name.Schema != null)
+                pieces.Add(QuoteIdentifier(name.Schema));
+            if (name.LocalName != null)
+                pieces.Add(QuoteIdentifier(name.LocalName));
+
+            return pieces.Join(".");
+        }
+
+        public string QuoteIdentifier(string identifier)
+        {
+            if (identifier.IsNullOrWhiteSpace())
+                throw new ArgumentNullException(nameof(identifier));
+
+            return $"\"{ identifier.Replace("\"", "\"\"") }\"";
+        }
     }
 }

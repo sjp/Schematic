@@ -12,22 +12,14 @@ using SJP.Schematic.SqlServer.Query;
 
 namespace SJP.Schematic.SqlServer
 {
-    public class SqlServerDialect : DatabaseDialect<SqlServerDialect>
+    public class SqlServerDialect : DatabaseDialect
     {
-        public override IDbConnection CreateConnection(string connectionString)
+        public SqlServerDialect(IDbConnection connection)
+            : base(connection)
         {
-            if (connectionString.IsNullOrWhiteSpace())
-                throw new ArgumentNullException(nameof(connectionString));
-
-            var builder = new SqlConnectionStringBuilder(connectionString) { MultipleActiveResultSets = true };
-            var connWithMars = builder.ConnectionString;
-
-            var connection = new SqlConnection(connWithMars);
-            connection.Open();
-            return connection;
         }
 
-        public override Task<IDbConnection> CreateConnectionAsync(string connectionString, CancellationToken cancellationToken = default(CancellationToken))
+        public static Task<IDbConnection> CreateConnectionAsync(string connectionString, CancellationToken cancellationToken = default(CancellationToken))
         {
             if (connectionString.IsNullOrWhiteSpace())
                 throw new ArgumentNullException(nameof(connectionString));
@@ -45,25 +37,9 @@ namespace SJP.Schematic.SqlServer
             return connection;
         }
 
-        public override IIdentifierDefaults GetIdentifierDefaults(IDbConnection connection)
+        public override async Task<IIdentifierDefaults> GetIdentifierDefaultsAsync(CancellationToken cancellationToken = default(CancellationToken))
         {
-            if (connection == null)
-                throw new ArgumentNullException(nameof(connection));
-
-            return connection.QuerySingle<IdentifierDefaults>(IdentifierDefaultsQuerySql);
-        }
-
-        public override Task<IIdentifierDefaults> GetIdentifierDefaultsAsync(IDbConnection connection, CancellationToken cancellationToken = default(CancellationToken))
-        {
-            if (connection == null)
-                throw new ArgumentNullException(nameof(connection));
-
-            return GetIdentifierDefaultsAsyncCore(connection, cancellationToken);
-        }
-
-        private static async Task<IIdentifierDefaults> GetIdentifierDefaultsAsyncCore(IDbConnection connection, CancellationToken cancellationToken)
-        {
-            return await connection.QuerySingleAsync<IdentifierDefaults>(IdentifierDefaultsQuerySql, cancellationToken).ConfigureAwait(false);
+            return await Connection.QuerySingleAsync<IdentifierDefaults>(IdentifierDefaultsQuerySql, cancellationToken).ConfigureAwait(false);
         }
 
         private const string IdentifierDefaultsQuerySql = @"
@@ -72,44 +48,16 @@ select
     db_name() as [Database],
     schema_name() as [Schema]";
 
-        public override string GetDatabaseDisplayVersion(IDbConnection connection)
+        public override Task<string> GetDatabaseDisplayVersionAsync(CancellationToken cancellationToken = default(CancellationToken))
         {
-            if (connection == null)
-                throw new ArgumentNullException(nameof(connection));
-
-            return connection.ExecuteScalar<string>(DatabaseDisplayVersionQuerySql);
-        }
-
-        public override Task<string> GetDatabaseDisplayVersionAsync(IDbConnection connection, CancellationToken cancellationToken = default(CancellationToken))
-        {
-            if (connection == null)
-                throw new ArgumentNullException(nameof(connection));
-
-            return connection.ExecuteScalarAsync<string>(DatabaseDisplayVersionQuerySql, cancellationToken);
+            return Connection.ExecuteScalarAsync<string>(DatabaseDisplayVersionQuerySql, cancellationToken);
         }
 
         private const string DatabaseDisplayVersionQuerySql = "select @@version as DatabaseVersion";
 
-        public override Version GetDatabaseVersion(IDbConnection connection)
+        public override async Task<Version> GetDatabaseVersionAsync(CancellationToken cancellationToken = default(CancellationToken))
         {
-            if (connection == null)
-                throw new ArgumentNullException(nameof(connection));
-
-            var versionStr = connection.ExecuteScalar<string>(DatabaseVersionQuerySql);
-            return Version.Parse(versionStr);
-        }
-
-        public override Task<Version> GetDatabaseVersionAsync(IDbConnection connection, CancellationToken cancellationToken = default(CancellationToken))
-        {
-            if (connection == null)
-                throw new ArgumentNullException(nameof(connection));
-
-            return GetDatabaseVersionAsyncCore(connection, cancellationToken);
-        }
-
-        private async Task<Version> GetDatabaseVersionAsyncCore(IDbConnection connection, CancellationToken cancellationToken)
-        {
-            var versionStr = await connection.ExecuteScalarAsync<string>(DatabaseVersionQuerySql, cancellationToken).ConfigureAwait(false);
+            var versionStr = await Connection.ExecuteScalarAsync<string>(DatabaseVersionQuerySql, cancellationToken).ConfigureAwait(false);
             return Version.Parse(versionStr);
         }
 

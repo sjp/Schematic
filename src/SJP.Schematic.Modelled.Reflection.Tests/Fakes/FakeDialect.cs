@@ -1,32 +1,25 @@
 ﻿using System;
-using System.Data;
 using System.Threading;
 using System.Threading.Tasks;
 using SJP.Schematic.Core;
 
 namespace SJP.Schematic.Modelled.Reflection.Tests.Fakes
 {
-    internal sealed class FakeDialect : DatabaseDialect<FakeDialect>
+    internal sealed class FakeDialect : IDatabaseDialect
     {
-        public override IDbConnection CreateConnection(string connectionString) => null;
+        public bool IsReservedKeyword(string text) => false;
 
-        public override Task<IDbConnection> CreateConnectionAsync(string connectionString, CancellationToken cancellationToken = default(CancellationToken)) => Task.FromResult<IDbConnection>(null);
+        public Task<IIdentifierDefaults> GetIdentifierDefaultsAsync(CancellationToken cancellationToken = default(CancellationToken)) => Task.FromResult<IIdentifierDefaults>(null);
 
-        public override bool IsReservedKeyword(string text) => false;
+        public Task<string> GetDatabaseDisplayVersionAsync(CancellationToken cancellationToken = default(CancellationToken)) => Task.FromResult<string>(null);
 
-        public override IIdentifierDefaults GetIdentifierDefaults(IDbConnection connection) => null;
+        public Task<Version> GetDatabaseVersionAsync(CancellationToken cancellationToken = default(CancellationToken)) => Task.FromResult<Version>(null);
 
-        public override Task<IIdentifierDefaults> GetIdentifierDefaultsAsync(IDbConnection connection, CancellationToken cancellationToken = default(CancellationToken)) => Task.FromResult<IIdentifierDefaults>(null);
+        public string QuoteIdentifier(string identifier) => null;
 
-        public override string GetDatabaseDisplayVersion(IDbConnection connection) => null;
+        public string QuoteName(Identifier name) => null;
 
-        public override Task<string> GetDatabaseDisplayVersionAsync(IDbConnection connection, CancellationToken cancellationToken = default(CancellationToken)) => Task.FromResult<string>(null);
-
-        public override Version GetDatabaseVersion(IDbConnection connection) => null;
-
-        public override Task<Version> GetDatabaseVersionAsync(IDbConnection connection, CancellationToken cancellationToken = default(CancellationToken)) => Task.FromResult<Version>(null);
-
-        public override IDbTypeProvider TypeProvider => _typeProvider;
+        public IDbTypeProvider TypeProvider => _typeProvider;
 
         private readonly static IDbTypeProvider _typeProvider = new DbTypeProvider();
 

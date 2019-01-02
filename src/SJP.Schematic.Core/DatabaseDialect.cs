@@ -7,15 +7,14 @@ using SJP.Schematic.Core.Extensions;
 
 namespace SJP.Schematic.Core
 {
-    public abstract class DatabaseDialect<TDialect> : IDatabaseDialect where TDialect : IDatabaseDialect
+    public abstract class DatabaseDialect : IDatabaseDialect
     {
-        protected DatabaseDialect()
+        protected DatabaseDialect(IDbConnection connection)
         {
+            Connection = connection ?? throw new ArgumentNullException(nameof(connection));
         }
 
-        public abstract IDbConnection CreateConnection(string connectionString);
-
-        public abstract Task<IDbConnection> CreateConnectionAsync(string connectionString, CancellationToken cancellationToken = default(CancellationToken));
+        protected IDbConnection Connection { get; }
 
         public virtual string QuoteName(Identifier name)
         {
@@ -48,16 +47,10 @@ namespace SJP.Schematic.Core
 
         public abstract IDbTypeProvider TypeProvider { get; }
 
-        public abstract IIdentifierDefaults GetIdentifierDefaults(IDbConnection connection);
+        public abstract Task<IIdentifierDefaults> GetIdentifierDefaultsAsync(CancellationToken cancellationToken = default(CancellationToken));
 
-        public abstract Task<IIdentifierDefaults> GetIdentifierDefaultsAsync(IDbConnection connection, CancellationToken cancellationToken = default(CancellationToken));
+        public abstract Task<Version> GetDatabaseVersionAsync(CancellationToken cancellationToken = default(CancellationToken));
 
-        public abstract string GetDatabaseDisplayVersion(IDbConnection connection);
-
-        public abstract Task<string> GetDatabaseDisplayVersionAsync(IDbConnection connection, CancellationToken cancellationToken = default(CancellationToken));
-
-        public abstract Version GetDatabaseVersion(IDbConnection connection);
-
-        public abstract Task<Version> GetDatabaseVersionAsync(IDbConnection connection, CancellationToken cancellationToken = default(CancellationToken));
+        public abstract Task<string> GetDatabaseDisplayVersionAsync(CancellationToken cancellationToken = default(CancellationToken));
     }
 }

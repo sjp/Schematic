@@ -12,19 +12,14 @@ using SJP.Schematic.Oracle.Query;
 
 namespace SJP.Schematic.Oracle
 {
-    public class OracleDialect : DatabaseDialect<OracleDialect>
+    public class OracleDialect : DatabaseDialect
     {
-        public override IDbConnection CreateConnection(string connectionString)
+        public OracleDialect(IDbConnection connection)
+            : base(connection)
         {
-            if (connectionString.IsNullOrWhiteSpace())
-                throw new ArgumentNullException(nameof(connectionString));
-
-            var connection = new OracleConnection(connectionString);
-            connection.Open();
-            return connection;
         }
 
-        public override Task<IDbConnection> CreateConnectionAsync(string connectionString, CancellationToken cancellationToken = default(CancellationToken))
+        public static Task<IDbConnection> CreateConnectionAsync(string connectionString, CancellationToken cancellationToken = default(CancellationToken))
         {
             if (connectionString.IsNullOrWhiteSpace())
                 throw new ArgumentNullException(nameof(connectionString));
@@ -72,37 +67,9 @@ namespace SJP.Schematic.Oracle
             return pieces.Join(".");
         }
 
-        public override IIdentifierDefaults GetIdentifierDefaults(IDbConnection connection)
+        public override async Task<IIdentifierDefaults> GetIdentifierDefaultsAsync(CancellationToken cancellationToken = default(CancellationToken))
         {
-            if (connection == null)
-                throw new ArgumentNullException(nameof(connection));
-
-            var hostInfoOption = connection.QueryFirstOrNone<DatabaseHost>(IdentifierDefaultsQuerySql);
-            var qualifiedServerName = hostInfoOption.MatchUnsafe(
-                dbHost => dbHost.ServerHost + "/" + dbHost.ServerSid,
-                () => null
-            );
-            var dbName = hostInfoOption.MatchUnsafe(h => h.DatabaseName, () => null);
-            var defaultSchema = hostInfoOption.MatchUnsafe(h => h.DefaultSchema, () => null);
-
-            return new IdentifierDefaultsBuilder()
-                .WithServer(qualifiedServerName)
-                .WithDatabase(dbName)
-                .WithSchema(defaultSchema)
-                .Build();
-        }
-
-        public override Task<IIdentifierDefaults> GetIdentifierDefaultsAsync(IDbConnection connection, CancellationToken cancellationToken = default(CancellationToken))
-        {
-            if (connection == null)
-                throw new ArgumentNullException(nameof(connection));
-
-            return GetIdentifierDefaultsAsyncCore(connection, cancellationToken);
-        }
-
-        private static async Task<IIdentifierDefaults> GetIdentifierDefaultsAsyncCore(IDbConnection connection, CancellationToken cancellationToken)
-        {
-            var hostInfoOption = connection.QueryFirstOrNone<DatabaseHost>(IdentifierDefaultsQuerySql, cancellationToken);
+            var hostInfoOption = Connection.QueryFirstOrNone<DatabaseHost>(IdentifierDefaultsQuerySql, cancellationToken);
             var qualifiedServerName = await hostInfoOption.MatchUnsafe(
                 dbHost => dbHost.ServerHost + "/" + dbHost.ServerSid,
                 () => null
@@ -125,50 +92,18 @@ select
     SYS_CONTEXT('USERENV', 'CURRENT_USER') as DefaultSchema
 from DUAL";
 
-        public override string GetDatabaseDisplayVersion(IDbConnection connection)
+        public override Task<string> GetDatabaseDisplayVersionAsync(CancellationToken cancellationToken = default(CancellationToken))
         {
-            if (connection == null)
-                throw new ArgumentNullException(nameof(connection));
-
-            var versionInfoOption = connection.QueryFirstOrNone<DatabaseVersion>(DatabaseVersionQuerySql);
+            var versionInfoOption = Connection.QueryFirstOrNone<DatabaseVersion>(DatabaseVersionQuerySql, cancellationToken);
             return versionInfoOption.MatchUnsafe(
                 vInfo => vInfo.ProductName + vInfo.VersionNumber,
-                () => null
+                () => string.Empty
             );
         }
 
-        public override Task<string> GetDatabaseDisplayVersionAsync(IDbConnection connection, CancellationToken cancellationToken = default(CancellationToken))
+        public override Task<Version> GetDatabaseVersionAsync(CancellationToken cancellationToken = default(CancellationToken))
         {
-            if (connection == null)
-                throw new ArgumentNullException(nameof(connection));
-
-            var versionInfoOption = connection.QueryFirstOrNone<DatabaseVersion>(DatabaseVersionQuerySql, cancellationToken);
-            return versionInfoOption.MatchUnsafe(
-                vInfo => vInfo.ProductName + vInfo.VersionNumber,
-                () => null
-            );
-        }
-
-        public override Version GetDatabaseVersion(IDbConnection connection)
-        {
-            if (connection == null)
-                throw new ArgumentNullException(nameof(connection));
-
-            var versionInfoOption = connection.QueryFirstOrNone<DatabaseVersion>(DatabaseVersionQuerySql);
-            return versionInfoOption
-                .Bind(dbv => TryParseLongVersionString(dbv.VersionNumber))
-                .MatchUnsafe(
-                    v => v,
-                    () => null
-                );
-        }
-
-        public override Task<Version> GetDatabaseVersionAsync(IDbConnection connection, CancellationToken cancellationToken = default(CancellationToken))
-        {
-            if (connection == null)
-                throw new ArgumentNullException(nameof(connection));
-
-            var versionInfoOption = connection.QueryFirstOrNone<DatabaseVersion>(DatabaseVersionQuerySql, cancellationToken);
+            var versionInfoOption = Connection.QueryFirstOrNone<DatabaseVersion>(DatabaseVersionQuerySql, cancellationToken);
             return versionInfoOption
                 .Bind(dbv => TryParseLongVersionString(dbv.VersionNumber).ToAsync())
                 .MatchUnsafeAsync(

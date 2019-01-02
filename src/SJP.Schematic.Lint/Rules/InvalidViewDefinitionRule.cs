@@ -46,29 +46,6 @@ namespace SJP.Schematic.Lint.Rules
             return result;
         }
 
-        protected IEnumerable<IRuleMessage> AnalyseView(IDatabaseDialect dialect, IDatabaseView view)
-        {
-            if (dialect == null)
-                throw new ArgumentNullException(nameof(dialect));
-            if (view == null)
-                throw new ArgumentNullException(nameof(view));
-
-            try
-            {
-                var simpleViewName = Identifier.CreateQualifiedIdentifier(view.Name.Schema, view.Name.LocalName);
-                var quotedViewName = dialect.QuoteName(simpleViewName);
-                var query = "select 1 as tmp from " + quotedViewName;
-                Connection.ExecuteScalar<long>(query);
-
-                return Array.Empty<IRuleMessage>();
-            }
-            catch
-            {
-                var message = BuildMessage(view.Name);
-                return new[] { message };
-            }
-        }
-
         protected Task<IEnumerable<IRuleMessage>> AnalyseViewAsync(IDatabaseDialect dialect, IDatabaseView view, CancellationToken cancellationToken)
         {
             if (dialect == null)
