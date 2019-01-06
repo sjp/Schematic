@@ -7,12 +7,13 @@ using NUnit.Framework;
 using SJP.Schematic.Core;
 using SJP.Schematic.Core.Extensions;
 using SJP.Schematic.Core.Utilities;
+using PgSequenceProvider = SJP.Schematic.PostgreSql.Versions.V9_4.PostgreSqlDatabaseSequenceProvider;
 
-namespace SJP.Schematic.PostgreSql.Tests.Integration
+namespace SJP.Schematic.PostgreSql.Tests.Integration.Versions.V9_4
 {
     internal sealed class PostgreSqlDatabaseSequenceProviderTests : PostgreSqlTest
     {
-        private IDatabaseSequenceProvider SequenceProvider => new PostgreSqlDatabaseSequenceProvider(Dialect, Connection, IdentifierDefaults, IdentifierResolver);
+        private IDatabaseSequenceProvider SequenceProvider => new PgSequenceProvider(Connection, IdentifierDefaults, IdentifierResolver);
 
         [OneTimeSetUp]
         public async Task Init()
@@ -286,11 +287,8 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration
         [Test]
         public async Task Cache_GivenSequenceWithCacheSet_ReturnsCorrectValue()
         {
+            const int expectedCache = 1; // cache not supported so take 1
             var sequence = await GetSequenceAsync("db_test_sequence_10").ConfigureAwait(false);
-
-            // v10 introduced support for getting the cache value
-            var version = await Dialect.GetDatabaseVersionAsync().ConfigureAwait(false);
-            var expectedCache = version >= new Version(10, 0) ? 10 : 1;
 
             Assert.AreEqual(expectedCache, sequence.Cache);
         }
