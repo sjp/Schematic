@@ -6,30 +6,30 @@ using SJP.Schematic.Core.Utilities;
 namespace SJP.Schematic.Core.Tests.Utilities
 {
     [TestFixture]
-    internal static class VersionResolvingDictionaryTests
+    internal static class VersionResolvingFactoryTests
     {
         [Test]
         public static void Ctor_GivenNullDictionary_ThrowsArgumentNullException()
         {
-            Assert.Throws<ArgumentNullException>(() => new VersionResolvingDictionary<int>(null));
+            Assert.Throws<ArgumentNullException>(() => new VersionResolvingFactory<int>(null));
         }
 
         [Test]
         public static void Ctor_GivenEmptyDictionary_ThrowsArgumentException()
         {
-            var dictionary = new Dictionary<Version, int>();
-            Assert.Throws<ArgumentException>(() => new VersionResolvingDictionary<int>(dictionary));
+            var dictionary = new Dictionary<Version, Func<int>>();
+            Assert.Throws<ArgumentException>(() => new VersionResolvingFactory<int>(dictionary));
         }
 
         [Test]
         public static void GetValue_GivenNullVersion_ThrowsArgmentNullException()
         {
-            var dictionary = new Dictionary<Version, int>
+            var dictionary = new Dictionary<Version, Func<int>>
             {
-                [new Version(1, 0)] = 1,
-                [new Version(1, 1)] = 2
+                [new Version(1, 0)] = () => 1,
+                [new Version(1, 1)] = () => 2
             };
-            var versionDictionary = new VersionResolvingDictionary<int>(dictionary);
+            var versionDictionary = new VersionResolvingFactory<int>(dictionary);
 
             Assert.Throws<ArgumentNullException>(() => versionDictionary.GetValue(null));
         }
@@ -37,12 +37,12 @@ namespace SJP.Schematic.Core.Tests.Utilities
         [Test]
         public static void GetValue_GivenVersionLessThanLowestInCtor_ReturnsLowestInCtor()
         {
-            var dictionary = new Dictionary<Version, int>
+            var dictionary = new Dictionary<Version, Func<int>>
             {
-                [new Version(1, 0)] = 1,
-                [new Version(1, 1)] = 2
+                [new Version(1, 0)] = () => 1,
+                [new Version(1, 1)] = () => 2
             };
-            var versionDictionary = new VersionResolvingDictionary<int>(dictionary);
+            var versionDictionary = new VersionResolvingFactory<int>(dictionary);
 
             var value = versionDictionary.GetValue(new Version(0, 1));
 
@@ -52,12 +52,12 @@ namespace SJP.Schematic.Core.Tests.Utilities
         [Test]
         public static void GetValue_GivenVersionMoreThanHighestInCtor_ReturnsHighestInCtor()
         {
-            var dictionary = new Dictionary<Version, int>
+            var dictionary = new Dictionary<Version, Func<int>>
             {
-                [new Version(1, 0)] = 1,
-                [new Version(1, 1)] = 2
+                [new Version(1, 0)] = () => 1,
+                [new Version(1, 1)] = () => 2
             };
-            var versionDictionary = new VersionResolvingDictionary<int>(dictionary);
+            var versionDictionary = new VersionResolvingFactory<int>(dictionary);
 
             var value = versionDictionary.GetValue(new Version(2, 0));
 
@@ -67,13 +67,13 @@ namespace SJP.Schematic.Core.Tests.Utilities
         [Test]
         public static void GetValue_GivenVersionEqualToMiddle_ReturnsValueFromMiddleVersion()
         {
-            var dictionary = new Dictionary<Version, int>
+            var dictionary = new Dictionary<Version, Func<int>>
             {
-                [new Version(1, 0)] = 1,
-                [new Version(1, 1)] = 2,
-                [new Version(2, 0)] = 3
+                [new Version(1, 0)] = () => 1,
+                [new Version(1, 1)] = () => 2,
+                [new Version(2, 0)] = () => 3
             };
-            var versionDictionary = new VersionResolvingDictionary<int>(dictionary);
+            var versionDictionary = new VersionResolvingFactory<int>(dictionary);
 
             var value = versionDictionary.GetValue(new Version(1, 1));
 
@@ -83,13 +83,13 @@ namespace SJP.Schematic.Core.Tests.Utilities
         [Test]
         public static void GetValue_GivenVersionAboveMiddle_ReturnsValueFromMiddleVersion()
         {
-            var dictionary = new Dictionary<Version, int>
+            var dictionary = new Dictionary<Version, Func<int>>
             {
-                [new Version(1, 0)] = 1,
-                [new Version(1, 1)] = 2,
-                [new Version(2, 0)] = 3
+                [new Version(1, 0)] = () => 1,
+                [new Version(1, 1)] = () => 2,
+                [new Version(2, 0)] = () => 3
             };
-            var versionDictionary = new VersionResolvingDictionary<int>(dictionary);
+            var versionDictionary = new VersionResolvingFactory<int>(dictionary);
 
             var value = versionDictionary.GetValue(new Version(1, 5));
 

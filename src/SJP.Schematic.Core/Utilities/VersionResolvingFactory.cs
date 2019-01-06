@@ -5,9 +5,9 @@ using SJP.Schematic.Core.Extensions;
 
 namespace SJP.Schematic.Core.Utilities
 {
-    public class VersionResolvingDictionary<T> : IVersionedLookup<T>
+    public class VersionResolvingFactory<T> : IVersionedLookup<T>
     {
-        public VersionResolvingDictionary(IReadOnlyDictionary<Version, T> lookup)
+        public VersionResolvingFactory(IReadOnlyDictionary<Version, Func<T>> lookup)
         {
             if (lookup == null)
                 throw new ArgumentNullException(nameof(lookup));
@@ -25,16 +25,20 @@ namespace SJP.Schematic.Core.Utilities
             var versionKeys = _lookup.Keys.OrderBy(x => x).ToList();
             var firstVersion = versionKeys[0];
             if (version <= firstVersion)
-                return _lookup[firstVersion];
+            {
+                var resultFactory = _lookup[firstVersion];
+                return resultFactory.Invoke();
+            }
 
             // we want to find the version that's *at least* the version
             // but we want to use the highest version possible
             versionKeys.Reverse();
 
             var matchingVersion = versionKeys.Find(v => version >= v);
-            return _lookup[matchingVersion];
+            var result = _lookup[matchingVersion];
+            return result.Invoke();
         }
 
-        private readonly IReadOnlyDictionary<Version, T> _lookup;
+        private readonly IReadOnlyDictionary<Version, Func<T>> _lookup;
     }
 }
