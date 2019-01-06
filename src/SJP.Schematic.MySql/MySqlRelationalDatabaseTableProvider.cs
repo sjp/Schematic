@@ -9,6 +9,7 @@ using LanguageExt;
 using SJP.Schematic.Core;
 using SJP.Schematic.Core.Exceptions;
 using SJP.Schematic.Core.Extensions;
+using SJP.Schematic.Core.Utilities;
 using SJP.Schematic.MySql.Query;
 
 namespace SJP.Schematic.MySql
@@ -412,10 +413,8 @@ where pt.table_schema = @SchemaName and pt.table_name = @TableName";
             if (tableName == null)
                 throw new ArgumentNullException(nameof(tableName));
 
-            return _emptyChecks;
+            return Empty.Checks;
         }
-
-        private readonly static Task<IReadOnlyCollection<IDatabaseCheckConstraint>> _emptyChecks = Task.FromResult<IReadOnlyCollection<IDatabaseCheckConstraint>>(Array.Empty<IDatabaseCheckConstraint>());
 
         protected virtual Task<IReadOnlyCollection<IDatabaseRelationalKey>> LoadParentKeysAsync(Identifier tableName, IReadOnlyDictionary<Identifier, IDatabaseColumn> columns, CancellationToken cancellationToken)
         {

@@ -3,14 +3,13 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using LanguageExt;
+using SJP.Schematic.Core.Utilities;
 
 namespace SJP.Schematic.Core
 {
     public sealed class EmptyDatabaseSynonymProvider : IDatabaseSynonymProvider
     {
-        public Task<IReadOnlyCollection<IDatabaseSynonym>> GetAllSynonyms(CancellationToken cancellationToken = default(CancellationToken)) => _emptySynonyms;
-
-        private readonly static Task<IReadOnlyCollection<IDatabaseSynonym>> _emptySynonyms = Task.FromResult<IReadOnlyCollection<IDatabaseSynonym>>(Array.Empty<IDatabaseSynonym>());
+        public Task<IReadOnlyCollection<IDatabaseSynonym>> GetAllSynonyms(CancellationToken cancellationToken = default(CancellationToken)) => Empty.Synonyms;
 
         public OptionAsync<IDatabaseSynonym> GetSynonym(Identifier synonymName, CancellationToken cancellationToken = default(CancellationToken))
         {

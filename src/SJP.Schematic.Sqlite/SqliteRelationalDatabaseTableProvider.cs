@@ -9,6 +9,7 @@ using LanguageExt;
 using SJP.Schematic.Core;
 using SJP.Schematic.Core.Exceptions;
 using SJP.Schematic.Core.Extensions;
+using SJP.Schematic.Core.Utilities;
 using SJP.Schematic.Sqlite.Parsing;
 using SJP.Schematic.Sqlite.Pragma;
 using SJP.Schematic.Sqlite.Query;
@@ -451,7 +452,7 @@ namespace SJP.Schematic.Sqlite
 
             var checks = parser.Checks.ToList();
             if (checks.Empty())
-                return Task.FromResult<IReadOnlyCollection<IDatabaseCheckConstraint>>(Array.Empty<IDatabaseCheckConstraint>());
+                return Empty.Checks;
 
             var result = new List<IDatabaseCheckConstraint>(checks.Count);
 
