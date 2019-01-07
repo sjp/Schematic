@@ -19,7 +19,7 @@ namespace SJP.Schematic.SqlServer.Tests.Integration.Versions.V2008R2
 
     [Category("SqlServerDatabase")]
     [Category("SkipWhenLiveUnitTesting")]
-    [TestFixture]
+    [TestFixture(Ignore = "No CI 2008R2 DB available")]
     internal abstract class SqlServer2008R2Test
     {
         protected IDbConnection Connection { get; } = Config2008R2.Connection;

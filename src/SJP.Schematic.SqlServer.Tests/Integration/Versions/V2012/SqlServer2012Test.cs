@@ -19,7 +19,7 @@ namespace SJP.Schematic.SqlServer.Tests.Integration.Versions.V2012
 
     [Category("SqlServerDatabase")]
     [Category("SkipWhenLiveUnitTesting")]
-    [TestFixture]
+    [TestFixture(Ignore = "No CI 2012 DB available")]
     internal abstract class SqlServer2012Test
     {
         protected IDbConnection Connection { get; } = Config2012.Connection;
