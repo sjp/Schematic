@@ -24,7 +24,7 @@ namespace SJP.Schematic.SqlServer.Tests.Integration.Versions.V2016
     {
         protected IDbConnection Connection { get; } = Config2016.Connection;
 
-        protected IDatabaseDialect Dialect { get; } = new SqlServerDialect(Config2016.Connection);
+        protected ISqlServerDialect Dialect { get; } = new SqlServerDialect(Config2016.Connection);
 
         protected IIdentifierDefaults IdentifierDefaults { get; } = new SqlServerDialect(Config2016.Connection).GetIdentifierDefaultsAsync().GetAwaiter().GetResult();
     }

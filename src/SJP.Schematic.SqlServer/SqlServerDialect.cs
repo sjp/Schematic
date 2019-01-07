@@ -12,7 +12,7 @@ using SJP.Schematic.SqlServer.Query;
 
 namespace SJP.Schematic.SqlServer
 {
-    public class SqlServerDialect : DatabaseDialect
+    public class SqlServerDialect : DatabaseDialect, ISqlServerDialect
     {
         public SqlServerDialect(IDbConnection connection)
             : base(connection)
@@ -62,6 +62,47 @@ select
         }
 
         private const string DatabaseVersionQuerySql = "select SERVERPROPERTY('ProductVersion') as DatabaseVersion";
+
+        public Task<IServerProperties2008> GetServerProperties2008(CancellationToken cancellationToken = default(CancellationToken))
+        {
+            var query = BuildServerPropertiesQuery<Query.ServerProperties2008>();
+            return Connection.QueryFirstOrNone<Query.ServerProperties2008>(query, cancellationToken)
+                .Map<IServerProperties2008>(row => new ServerProperties2008(row))
+                .IfNoneUnsafe(() => null);
+        }
+
+        public Task<IServerProperties2012> GetServerProperties2012(CancellationToken cancellationToken = default(CancellationToken))
+        {
+            var query = BuildServerPropertiesQuery<Query.ServerProperties2012>();
+            return Connection.QueryFirstOrNone<Query.ServerProperties2012>(query, cancellationToken)
+                .Map<IServerProperties2012>(row => new ServerProperties2012(row))
+                .IfNoneUnsafe(() => null);
+        }
+
+        public Task<IServerProperties2014> GetServerProperties2014(CancellationToken cancellationToken = default(CancellationToken))
+        {
+            var query = BuildServerPropertiesQuery<Query.ServerProperties2014>();
+            return Connection.QueryFirstOrNone<Query.ServerProperties2014>(query, cancellationToken)
+                .Map<IServerProperties2014>(row => new ServerProperties2014(row))
+                .IfNoneUnsafe(() => null);
+        }
+
+        public Task<IServerProperties2017> GetServerProperties2017(CancellationToken cancellationToken = default(CancellationToken))
+        {
+            var query = BuildServerPropertiesQuery<Query.ServerProperties2017>();
+            return Connection.QueryFirstOrNone<Query.ServerProperties2017>(query, cancellationToken)
+                .Map<IServerProperties2017>(row => new ServerProperties2017(row))
+                .IfNoneUnsafe(() => null);
+        }
+
+        private static string BuildServerPropertiesQuery<T>()
+        {
+            var propNames = typeof(T).GetProperties()
+                .Select(pi => "    SERVERPROPERTY('" + pi.Name + "') AS [" + pi.Name + "]")
+                .Join("," + Environment.NewLine);
+
+            return "SELECT " + propNames;
+        }
 
         public override bool IsReservedKeyword(string text)
         {
