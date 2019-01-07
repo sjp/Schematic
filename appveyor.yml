@@ -22,9 +22,22 @@ environment:
 
 init:
   - SET PATH=%POSTGRES_PATH%\bin;%MYSQL_PATH%\bin;%PATH%
+  - ps: Get-ChildItem -Path 'HKLM:\SOFTWARE\Microsoft\Microsoft SQL Server\' |
+   Where-Object {
+        $_.Name -imatch 'MSSQL[_\d]+\.SQL.*'
+    } |
+    ForEach-Object {
+        Write-Host "Setting $((Get-ItemProperty $_.PSPath).'(default)') to dynamic ports"
+        Set-ItemProperty (Join-Path $_.PSPath 'mssqlserver\supersocketnetlib\tcp\ipall') -Name TcpDynamicPorts -Value '0'
+        Set-ItemProperty (Join-Path $_.PSPath 'mssqlserver\supersocketnetlib\tcp\ipall') -Name TcpPort -Value ([string]::Empty)
+    }
 
 services:
+  - mssql2008r2sp2
+  - mssql2012sp1
+  - mssql2014
   - mssql2016
+  - mssql2017
   - postgresql96
   - mysql
 
