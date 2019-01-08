@@ -34,7 +34,7 @@ namespace SJP.Schematic.Tool
                 return 1;
             }
 
-            var nameProvider = GenerateParent.GetNameProvider();
+            var nameProvider = GenerateParent.GetNameTranslator();
             if (nameProvider == null)
             {
                 application.Error.WriteLine("Unknown or unsupported database name translator: " + GenerateParent.Translator);

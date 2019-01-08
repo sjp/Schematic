@@ -26,14 +26,14 @@ namespace SJP.Schematic.Tool
         [Required]
         public string BaseNamespace { get; set; }
 
-        public INameProvider GetNameProvider() => _nameProviders.GetValueOrDefault(Translator);
+        public INameTranslator GetNameTranslator() => _nameTranslators.GetValueOrDefault(Translator);
 
-        private readonly static IReadOnlyDictionary<string, INameProvider> _nameProviders = new Dictionary<string, INameProvider>
+        private readonly static IReadOnlyDictionary<string, INameTranslator> _nameTranslators = new Dictionary<string, INameTranslator>
         {
-            ["camelcase"] = new CamelCaseNameProvider(),
-            ["snakecase"] = new SnakeCaseNameProvider(),
-            ["pascalcase"] = new PascalCaseNameProvider(),
-            ["verbatim"] = new VerbatimNameProvider()
+            ["camelcase"] = new CamelCaseNameTranslator(),
+            ["snakecase"] = new SnakeCaseNameTranslator(),
+            ["pascalcase"] = new PascalCaseNameTranslator(),
+            ["verbatim"] = new VerbatimNameTranslator()
         };
 
         private int OnExecute(CommandLineApplication application)
