@@ -68,20 +68,18 @@ namespace SJP.Schematic.MySql.Tests.Integration
             Assert.IsTrue(column.DefaultValue.IsNone);
         }
 
-        // TODO: uncomment when the default value tokens can be parsed
-        //[Test]
-        //public async Task Columns_WhenGivenTableWithColumnWithDefaultValue_ColumnReturnsCorrectDefaultValue()
-        //{
-        //    const string tableName = "table_test_table_33";
-        //    var table = await GetTableAsync(tableName).ConfigureAwait(false);
-        //    var column = table.Columns.Single();
-        //
-        //    const string defaultValue = "1";
-        //    var comparer = new SqlServerExpressionComparer();
-        //    var equals = comparer.Equals(defaultValue, column.DefaultValue);
-        //
-        //    Assert.IsTrue(equals);
-        //}
+        [Test]
+        public async Task Columns_WhenGivenTableWithColumnWithDefaultValue_ColumnReturnsCorrectDefaultValue()
+        {
+            const string tableName = "table_test_table_33";
+            var table = await GetTableAsync(tableName).ConfigureAwait(false);
+            var column = table.Columns.Single();
+
+            const string defaultValue = "1";
+            var equals = column.DefaultValue.Match(dv => dv == defaultValue, () => false);
+
+            Assert.IsTrue(equals);
+        }
 
         [Test]
         public async Task Columns_WhenGivenTableWithNonComputedColumn_ReturnsIsComputedFalse()
