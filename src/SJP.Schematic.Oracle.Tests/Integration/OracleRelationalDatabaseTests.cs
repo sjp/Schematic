@@ -17,8 +17,7 @@ namespace SJP.Schematic.Oracle.Tests.Integration
         [Test]
         public void DefaultSchema_PropertyGet_ShouldEqualConnectionDefaultSchema()
         {
-            // FIXME this could change when connected to a different database
-            Assert.AreEqual("SYSTEM", Database.DefaultSchema);
+            Assert.IsNotNull(Database.DefaultSchema);
         }
 
         [Test]

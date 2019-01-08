@@ -2,7 +2,7 @@
 
 namespace SJP.Schematic.Core.Utilities
 {
-    public interface IVersionedLookup<T>
+    public interface IVersionedLookup<out T>
     {
         T GetValue(Version version);
     }
