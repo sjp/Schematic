@@ -8,15 +8,18 @@ namespace SJP.Schematic.DataAccess.Poco
 {
     public class PocoDataAccessGenerator
     {
-        public PocoDataAccessGenerator(IRelationalDatabase database, INameProvider nameProvider)
+        public PocoDataAccessGenerator(IRelationalDatabase database, INameProvider nameProvider, string indent = "    ")
         {
             Database = database ?? throw new ArgumentNullException(nameof(database));
             NameProvider = nameProvider ?? throw new ArgumentNullException(nameof(nameProvider));
+            Indent = indent ?? throw new ArgumentNullException(nameof(indent));
         }
 
         protected IRelationalDatabase Database { get; }
 
         protected INameProvider NameProvider { get; }
+
+        protected string Indent { get; }
 
         public void Generate(IFileSystem fileSystem, string projectPath, string baseNamespace)
         {
@@ -39,8 +42,8 @@ namespace SJP.Schematic.DataAccess.Poco
 
             fileSystem.File.WriteAllText(projectPath, ProjectDefinition);
 
-            var tableGenerator = new PocoTableGenerator(NameProvider, baseNamespace);
-            var viewGenerator = new PocoViewGenerator(NameProvider, baseNamespace);
+            var tableGenerator = new PocoTableGenerator(NameProvider, baseNamespace, Indent);
+            var viewGenerator = new PocoViewGenerator(NameProvider, baseNamespace, Indent);
 
             var tables = Database.GetAllTables(CancellationToken.None).GetAwaiter().GetResult();
             foreach (var table in tables)

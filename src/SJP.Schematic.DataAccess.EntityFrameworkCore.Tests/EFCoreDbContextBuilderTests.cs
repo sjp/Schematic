@@ -31,6 +31,14 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore.Tests
         }
 
         [Test]
+        public static void Ctor_GivenNullIndent_ThrowsArgumentNullException()
+        {
+            var database = Mock.Of<IRelationalDatabase>();
+            var nameProvider = new VerbatimNameProvider();
+            Assert.Throws<ArgumentNullException>(() => new EFCoreDbContextBuilder(database, nameProvider, "testns", null));
+        }
+
+        [Test]
         public static void Ctor_GivenEmptyNamespace_ThrowsArgumentNullException()
         {
             var database = Mock.Of<IRelationalDatabase>();

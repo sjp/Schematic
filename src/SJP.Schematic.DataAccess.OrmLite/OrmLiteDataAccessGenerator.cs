@@ -8,15 +8,18 @@ namespace SJP.Schematic.DataAccess.OrmLite
 {
     public class OrmLiteDataAccessGenerator : IDataAccessGenerator
     {
-        public OrmLiteDataAccessGenerator(IRelationalDatabase database, INameProvider nameProvider)
+        public OrmLiteDataAccessGenerator(IRelationalDatabase database, INameProvider nameProvider, string indent = "    ")
         {
             Database = database ?? throw new ArgumentNullException(nameof(database));
             NameProvider = nameProvider ?? throw new ArgumentNullException(nameof(nameProvider));
+            Indent = indent ?? throw new ArgumentNullException(nameof(indent));
         }
 
         protected IRelationalDatabase Database { get; }
 
         protected INameProvider NameProvider { get; }
+
+        protected string Indent { get; }
 
         public void Generate(IFileSystem fileSystem, string projectPath, string baseNamespace)
         {

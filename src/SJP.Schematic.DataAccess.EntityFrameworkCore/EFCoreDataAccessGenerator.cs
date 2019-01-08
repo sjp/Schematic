@@ -9,15 +9,18 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore
 {
     public class EFCoreDataAccessGenerator : IDataAccessGenerator
     {
-        public EFCoreDataAccessGenerator(IRelationalDatabase database, INameProvider nameProvider)
+        public EFCoreDataAccessGenerator(IRelationalDatabase database, INameProvider nameProvider, string indent = "    ")
         {
             Database = database ?? throw new ArgumentNullException(nameof(database));
             NameProvider = nameProvider ?? throw new ArgumentNullException(nameof(nameProvider));
+            Indent = indent ?? throw new ArgumentNullException(nameof(indent));
         }
 
         protected IRelationalDatabase Database { get; }
 
         protected INameProvider NameProvider { get; }
+
+        protected string Indent { get; }
 
         public void Generate(IFileSystem fileSystem, string projectPath, string baseNamespace)
         {
@@ -41,7 +44,7 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore
             fileSystem.File.WriteAllText(projectPath, ProjectDefinition);
 
             var dbContextGenerator = new EFCoreDbContextBuilder(Database, NameProvider, baseNamespace);
-            var tableGenerator = new EFCoreTableGenerator(NameProvider, baseNamespace);
+            var tableGenerator = new EFCoreTableGenerator(NameProvider, baseNamespace, Indent);
 
             var tables = Database.GetAllTables(CancellationToken.None).GetAwaiter().GetResult();
             foreach (var table in tables)

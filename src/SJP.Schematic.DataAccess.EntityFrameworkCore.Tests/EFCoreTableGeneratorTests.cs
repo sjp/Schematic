@@ -36,6 +36,13 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore.Tests
         }
 
         [Test]
+        public static void Ctor_GivenNullIndent_ThrowsArgumentNullException()
+        {
+            var nameProvider = new VerbatimNameProvider();
+            Assert.Throws<ArgumentNullException>(() => new EFCoreTableGenerator(nameProvider, "testns", null));
+        }
+
+        [Test]
         public static void GetFilePath_GivenNullDirectory_ThrowsArgumentNullException()
         {
             var nameProvider = new VerbatimNameProvider();

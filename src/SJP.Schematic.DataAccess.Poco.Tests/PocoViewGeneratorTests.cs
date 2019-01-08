@@ -36,6 +36,13 @@ namespace SJP.Schematic.DataAccess.Poco.Tests
         }
 
         [Test]
+        public static void Ctor_GivenNullIndent_ThrowsArgumentNullException()
+        {
+            var nameProvider = new VerbatimNameProvider();
+            Assert.Throws<ArgumentNullException>(() => new PocoViewGenerator(nameProvider, "testns", null));
+        }
+
+        [Test]
         public static void GetFilePath_GivenNullObjectName_ThrowsArgumentNullException()
         {
             var nameProvider = new VerbatimNameProvider();

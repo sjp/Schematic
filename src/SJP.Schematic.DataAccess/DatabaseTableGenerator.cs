@@ -8,12 +8,15 @@ namespace SJP.Schematic.DataAccess
 {
     public abstract class DatabaseTableGenerator : IDatabaseTableGenerator
     {
-        protected DatabaseTableGenerator(INameProvider nameProvider)
+        protected DatabaseTableGenerator(INameProvider nameProvider, string indent = "    ")
         {
             NameProvider = nameProvider ?? throw new ArgumentNullException(nameof(nameProvider));
+            Indent = indent ?? throw new ArgumentNullException(nameof(indent));
         }
 
         protected INameProvider NameProvider { get; }
+
+        protected string Indent { get; }
 
         public abstract string Generate(IRelationalDatabaseTable table);
 

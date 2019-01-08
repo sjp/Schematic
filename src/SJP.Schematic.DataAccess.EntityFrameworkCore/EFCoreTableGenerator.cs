@@ -13,8 +13,8 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore
 {
     public class EFCoreTableGenerator : DatabaseTableGenerator
     {
-        public EFCoreTableGenerator(INameProvider nameProvider, string baseNamespace)
-            : base(nameProvider)
+        public EFCoreTableGenerator(INameProvider nameProvider, string baseNamespace, string indent = "    ")
+            : base(nameProvider, indent)
         {
             if (baseNamespace.IsNullOrWhiteSpace())
                 throw new ArgumentNullException(nameof(baseNamespace));
@@ -60,17 +60,14 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore
                 .AppendLine(tableNamespace)
                 .AppendLine("{");
 
-            // TODO configure for tabs?
-            const string tableIndent = IndentLevel;
-
             var tableComment = GenerateTableComment(table.Name.LocalName);
-            builder.AppendComment(tableIndent, tableComment);
+            builder.AppendComment(Indent, tableComment);
 
             var className = NameProvider.TableToClassName(table.Name);
             if (className != table.Name.LocalName)
             {
                 var aliasName = table.Name.LocalName.ToStringLiteral();
-                builder.Append(tableIndent)
+                builder.Append(Indent)
                     .Append("[Table(")
                     .Append(aliasName);
 
@@ -85,13 +82,13 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore
                 builder.AppendLine(")]");
             }
 
-            builder.Append(tableIndent)
+            builder.Append(Indent)
                 .Append("public class ")
                 .AppendLine(className)
-                .Append(tableIndent)
+                .Append(Indent)
                 .AppendLine("{");
 
-            const string columnIndent = tableIndent + IndentLevel;
+            var columnIndent = Indent + Indent;
             var hasFirstLine = false;
             foreach (var column in table.Columns)
             {
@@ -155,7 +152,7 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore
                     .AppendLine(" { get; set; }");
             }
 
-            builder.Append(tableIndent)
+            builder.Append(Indent)
                 .AppendLine("}")
                 .Append("}");
 
@@ -271,8 +268,6 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore
 
             return "The " + escapedForeignKeyName + "child key. Navigates from <c>" + escapedParentTableName + "</c> to <c>" + escapedChildTableName + "</c> entities.";
         }
-
-        private const string IndentLevel = "    ";
 
         private readonly static IReadOnlyDictionary<string, string> _typeNameMap = new Dictionary<string, string>
         {

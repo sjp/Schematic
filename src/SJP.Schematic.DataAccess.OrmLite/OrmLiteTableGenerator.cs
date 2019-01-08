@@ -14,8 +14,8 @@ namespace SJP.Schematic.DataAccess.OrmLite
 {
     public class OrmLiteTableGenerator : DatabaseTableGenerator
     {
-        public OrmLiteTableGenerator(INameProvider nameProvider, string baseNamespace)
-            : base(nameProvider)
+        public OrmLiteTableGenerator(INameProvider nameProvider, string baseNamespace, string indent = "    ")
+            : base(nameProvider, indent)
         {
             if (baseNamespace.IsNullOrWhiteSpace())
                 throw new ArgumentNullException(nameof(baseNamespace));
@@ -59,17 +59,14 @@ namespace SJP.Schematic.DataAccess.OrmLite
                 .AppendLine(tableNamespace)
                 .AppendLine("{");
 
-            // TODO configure for tabs?
-            const string tableIndent = IndentLevel;
-
             var tableComment = GenerateTableComment(table.Name.LocalName);
-            builder.AppendComment(tableIndent, tableComment);
+            builder.AppendComment(Indent, tableComment);
 
             var schemaName = table.Name.Schema;
             if (!schemaName.IsNullOrWhiteSpace())
             {
                 var schemaNameLiteral = schemaName.ToStringLiteral();
-                builder.Append(tableIndent)
+                builder.Append(Indent)
                     .Append("[Schema(")
                     .Append(schemaNameLiteral)
                     .AppendLine(")]");
@@ -79,7 +76,7 @@ namespace SJP.Schematic.DataAccess.OrmLite
             if (className != table.Name.LocalName)
             {
                 var aliasName = table.Name.LocalName.ToStringLiteral();
-                builder.Append(tableIndent)
+                builder.Append(Indent)
                     .Append("[Alias(")
                     .Append(aliasName)
                     .AppendLine(")]");
@@ -94,7 +91,7 @@ namespace SJP.Schematic.DataAccess.OrmLite
                     .ToList();
                 var fieldNames = string.Join(", ", columnNames);
 
-                builder.Append(tableIndent)
+                builder.Append(Indent)
                     .Append("[UniqueConstraint(")
                     .Append(fieldNames)
                     .AppendLine(")]");
@@ -114,7 +111,7 @@ namespace SJP.Schematic.DataAccess.OrmLite
                     .ToList();
                 var fieldNames = string.Join(", ", columnNames);
 
-                builder.Append(tableIndent)
+                builder.Append(Indent)
                     .Append("[CompositeIndex(");
 
                 if (index.IsUnique)
@@ -124,13 +121,13 @@ namespace SJP.Schematic.DataAccess.OrmLite
                     .AppendLine(")]");
             }
 
-            builder.Append(tableIndent)
+            builder.Append(Indent)
                 .Append("public class ")
                 .AppendLine(className)
-                .Append(tableIndent)
+                .Append(Indent)
                 .AppendLine("{");
 
-            const string columnIndent = tableIndent + IndentLevel;
+            var columnIndent = Indent + Indent;
             var hasFirstLine = false;
             foreach (var column in table.Columns)
             {
@@ -144,7 +141,7 @@ namespace SJP.Schematic.DataAccess.OrmLite
                 hasFirstLine = true;
             }
 
-            builder.Append(tableIndent)
+            builder.Append(Indent)
                 .AppendLine("}")
                 .Append("}");
 
@@ -469,8 +466,6 @@ namespace SJP.Schematic.DataAccess.OrmLite
 
             return false;
         }
-
-        private const string IndentLevel = "    ";
 
         private readonly static IReadOnlyDictionary<string, string> _typeNameMap = new Dictionary<string, string>
         {

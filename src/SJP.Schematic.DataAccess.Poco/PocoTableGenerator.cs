@@ -12,8 +12,8 @@ namespace SJP.Schematic.DataAccess.Poco
 {
     public class PocoTableGenerator : DatabaseTableGenerator
     {
-        public PocoTableGenerator(INameProvider nameProvider, string baseNamespace)
-            : base(nameProvider)
+        public PocoTableGenerator(INameProvider nameProvider, string baseNamespace, string indent = "    ")
+            : base(nameProvider, indent)
         {
             if (baseNamespace.IsNullOrWhiteSpace())
                 throw new ArgumentNullException(nameof(baseNamespace));
@@ -55,20 +55,17 @@ namespace SJP.Schematic.DataAccess.Poco
                 .AppendLine(tableNamespace)
                 .AppendLine("{");
 
-            // todo configure for tabs?
-            const string tableIndent = IndentLevel;
-
             var tableComment = GenerateTableComment(table.Name.LocalName);
-            builder.AppendComment(tableIndent, tableComment);
+            builder.AppendComment(Indent, tableComment);
 
             var className = NameProvider.TableToClassName(table.Name);
-            builder.Append(tableIndent)
+            builder.Append(Indent)
                 .Append("public class ")
                 .AppendLine(className)
-                .Append(tableIndent)
+                .Append(Indent)
                 .AppendLine("{");
 
-            const string columnIndent = tableIndent + IndentLevel;
+            var columnIndent = Indent + Indent;
             var hasFirstLine = false;
             foreach (var column in table.Columns)
             {
@@ -83,7 +80,7 @@ namespace SJP.Schematic.DataAccess.Poco
                 hasFirstLine = true;
             }
 
-            builder.Append(tableIndent)
+            builder.Append(Indent)
                 .AppendLine("}")
                 .Append("}");
 
@@ -135,8 +132,6 @@ namespace SJP.Schematic.DataAccess.Poco
             var escapedColumnName = SecurityElement.Escape(columnName);
             return "The <c>" + escapedColumnName + "</c> column.";
         }
-
-        private const string IndentLevel = "    ";
 
         private readonly static IReadOnlyDictionary<string, string> _typeNameMap = new Dictionary<string, string>
         {

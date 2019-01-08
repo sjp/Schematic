@@ -11,7 +11,7 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore
 {
     public class EFCoreDbContextBuilder
     {
-        public EFCoreDbContextBuilder(IRelationalDatabase database, INameProvider nameProvider, string baseNamespace)
+        public EFCoreDbContextBuilder(IRelationalDatabase database, INameProvider nameProvider, string baseNamespace, string indent = "    ")
         {
             if (baseNamespace.IsNullOrWhiteSpace())
                 throw new ArgumentNullException(nameof(baseNamespace));
@@ -19,6 +19,7 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore
             Database = database ?? throw new ArgumentNullException(nameof(database));
             NameProvider = nameProvider ?? throw new ArgumentNullException(nameof(nameProvider));
             Namespace = baseNamespace;
+            Indent = indent ?? throw new ArgumentNullException(nameof(indent));
         }
 
         protected IRelationalDatabase Database { get; }
@@ -26,6 +27,8 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore
         protected INameProvider NameProvider { get; }
 
         protected string Namespace { get; }
+
+        protected string Indent { get; }
 
         public string Generate()
         {
@@ -38,14 +41,14 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore
                 .Append("namespace ")
                 .AppendLine(Namespace)
                 .AppendLine("{")
-                .Append(IndentLevel)
+                .Append(Indent)
                 .AppendLine("public class AppContext : DbContext")
-                .Append(IndentLevel)
+                .Append(Indent)
                 .AppendLine("{");
 
-            const string tableIndent = IndentLevel + IndentLevel;
-            const string contextIndent = tableIndent + IndentLevel;
-            var modelBuilder = new EFCoreModelBuilder(NameProvider, contextIndent, IndentLevel);
+            var tableIndent = Indent + Indent;
+            var contextIndent = tableIndent + Indent;
+            var modelBuilder = new EFCoreModelBuilder(NameProvider, contextIndent, Indent);
 
             var missingFirstLine = true;
             var tables = Database.GetAllTables(CancellationToken.None).GetAwaiter().GetResult();
@@ -102,7 +105,7 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore
                     .AppendLine("}");
             }
 
-            builder.Append(IndentLevel)
+            builder.Append(Indent)
                 .AppendLine("}")
                 .Append("}");
 
@@ -136,7 +139,6 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore
                 .AppendLine("</param>");
         }
 
-        private const string IndentLevel = "    ";
         private const string ModelBuilderMethodSummaryComment = "Configure the model that was discovered by convention from the defined entity types.";
         private const string ModelBuilderMethodParamComment = "The builder being used to construct the model for this context.";
     }

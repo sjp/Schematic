@@ -12,8 +12,8 @@ namespace SJP.Schematic.DataAccess.OrmLite
 {
     public class OrmLiteViewGenerator : DatabaseViewGenerator
     {
-        public OrmLiteViewGenerator(INameProvider nameProvider, string baseNamespace)
-            : base(nameProvider)
+        public OrmLiteViewGenerator(INameProvider nameProvider, string baseNamespace, string indent = "    ")
+            : base(nameProvider, indent)
         {
             if (baseNamespace.IsNullOrWhiteSpace())
                 throw new ArgumentNullException(nameof(baseNamespace));
@@ -57,17 +57,14 @@ namespace SJP.Schematic.DataAccess.OrmLite
                 .AppendLine(viewNamespace)
                 .AppendLine("{");
 
-            // todo configure for tabs?
-            const string viewIndent = IndentLevel;
-
             var viewComment = GenerateViewComment(view.Name.LocalName);
-            builder.AppendComment(viewIndent, viewComment);
+            builder.AppendComment(Indent, viewComment);
 
             var schemaName = view.Name.Schema;
             if (!schemaName.IsNullOrWhiteSpace())
             {
                 var schemaNameLiteral = schemaName.ToStringLiteral();
-                builder.Append(viewIndent)
+                builder.Append(Indent)
                     .Append("[Schema(")
                     .Append(schemaNameLiteral)
                     .AppendLine(")]");
@@ -77,19 +74,19 @@ namespace SJP.Schematic.DataAccess.OrmLite
             if (className != view.Name.LocalName)
             {
                 var aliasName = view.Name.LocalName.ToStringLiteral();
-                builder.Append(viewIndent)
+                builder.Append(Indent)
                     .Append("[Alias(")
                     .Append(aliasName)
                     .AppendLine(")]");
             }
 
-            builder.Append(viewIndent)
+            builder.Append(Indent)
                 .Append("public class ")
                 .AppendLine(className)
-                .Append(viewIndent)
+                .Append(Indent)
                 .AppendLine("{");
 
-            const string columnIndent = viewIndent + IndentLevel;
+            var columnIndent = Indent + Indent;
             var hasFirstLine = false;
             foreach (var column in view.Columns)
             {
@@ -100,7 +97,7 @@ namespace SJP.Schematic.DataAccess.OrmLite
                 hasFirstLine = true;
             }
 
-            builder.Append(viewIndent)
+            builder.Append(Indent)
                 .AppendLine("}")
                 .Append("}");
 
@@ -164,8 +161,6 @@ namespace SJP.Schematic.DataAccess.OrmLite
                 .Append(propertyName)
                 .AppendLine(" { get; set; }");
         }
-
-        private const string IndentLevel = "    ";
 
         private readonly static IReadOnlyDictionary<string, string> _typeNameMap = new Dictionary<string, string>
         {
