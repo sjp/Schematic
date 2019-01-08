@@ -47,8 +47,8 @@ select
         [Test]
         public void Generate_GivenDatabaseWithTablesAndViews_GeneratesFilesInExpectedLocations()
         {
-            var nameProvider = new PascalCaseNameProvider();
-            var generator = new OrmLiteDataAccessGenerator(Database, nameProvider);
+            var nameTranslator = new PascalCaseNameTranslator();
+            var generator = new OrmLiteDataAccessGenerator(Database, nameTranslator);
 
             var testProjectDir = Path.Combine(Environment.CurrentDirectory, "ormlitetest");
 

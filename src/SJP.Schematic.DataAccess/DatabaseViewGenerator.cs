@@ -8,13 +8,13 @@ namespace SJP.Schematic.DataAccess
 {
     public abstract class DatabaseViewGenerator : IDatabaseViewGenerator
     {
-        protected DatabaseViewGenerator(INameProvider nameProvider, string indent = "    ")
+        protected DatabaseViewGenerator(INameTranslator nameTranslator, string indent = "    ")
         {
-            NameProvider = nameProvider ?? throw new ArgumentNullException(nameof(nameProvider));
+            NameTranslator = nameTranslator ?? throw new ArgumentNullException(nameof(nameTranslator));
             Indent = indent ?? throw new ArgumentNullException(nameof(indent));
         }
 
-        protected INameProvider NameProvider { get; }
+        protected INameTranslator NameTranslator { get; }
 
         protected string Indent { get; }
 
@@ -30,11 +30,11 @@ namespace SJP.Schematic.DataAccess
             var paths = new List<string> { baseDirectory.FullName, "Views" };
             if (objectName.Schema != null)
             {
-                var schemaName = NameProvider.SchemaToNamespace(objectName);
+                var schemaName = NameTranslator.SchemaToNamespace(objectName);
                 paths.Add(schemaName);
             }
 
-            var viewName = NameProvider.ViewToClassName(objectName);
+            var viewName = NameTranslator.ViewToClassName(objectName);
             paths.Add(viewName + ".cs");
 
             var viewPath = Path.Combine(paths.ToArray());

@@ -10,7 +10,7 @@ namespace SJP.Schematic.DataAccess
     /// <summary>
     /// A set of rules for determining the class and property names for a database mapping object.
     /// </summary>
-    public abstract class NameProvider : INameProvider
+    public abstract class NameTranslator : INameTranslator
     {
         /// <summary>
         /// Return a namespace name for a schema qualified object name.

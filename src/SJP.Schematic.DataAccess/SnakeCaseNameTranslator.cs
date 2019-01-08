@@ -8,7 +8,7 @@ namespace SJP.Schematic.DataAccess
     /// <summary>
     /// A set of rules for determining the class and property names for a database mapping object.
     /// </summary>
-    public class PascalCaseNameProvider : NameProvider
+    public class SnakeCaseNameTranslator : NameTranslator
     {
         /// <summary>
         /// Return a namespace name for a schema qualified object name.
@@ -23,7 +23,7 @@ namespace SJP.Schematic.DataAccess
                 return null;
 
             var schemaIdentifier = CreateValidIdentifier(objectName.Schema);
-            return schemaIdentifier?.Pascalize();
+            return schemaIdentifier?.Underscore();
         }
 
         /// <summary>
@@ -37,7 +37,7 @@ namespace SJP.Schematic.DataAccess
                 throw new ArgumentNullException(nameof(tableName));
 
             var tableIdentifier = CreateValidIdentifier(tableName.LocalName);
-            return tableIdentifier.Pascalize();
+            return tableIdentifier.Underscore();
         }
 
         /// <summary>
@@ -51,7 +51,7 @@ namespace SJP.Schematic.DataAccess
                 throw new ArgumentNullException(nameof(viewName));
 
             var viewIdentifier = CreateValidIdentifier(viewName.LocalName);
-            return viewIdentifier.Pascalize();
+            return viewIdentifier.Underscore();
         }
 
         /// <summary>
@@ -72,7 +72,7 @@ namespace SJP.Schematic.DataAccess
                 ? columnName
                 : CreateValidIdentifier(className, columnName);
 
-            var result = columnIdentifier.Pascalize();
+            var result = columnIdentifier.Underscore();
             return result == className
                 ? result + "_"
                 : result;

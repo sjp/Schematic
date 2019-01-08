@@ -11,20 +11,20 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore
 {
     public class EFCoreDbContextBuilder
     {
-        public EFCoreDbContextBuilder(IRelationalDatabase database, INameProvider nameProvider, string baseNamespace, string indent = "    ")
+        public EFCoreDbContextBuilder(IRelationalDatabase database, INameTranslator nameTranslator, string baseNamespace, string indent = "    ")
         {
             if (baseNamespace.IsNullOrWhiteSpace())
                 throw new ArgumentNullException(nameof(baseNamespace));
 
             Database = database ?? throw new ArgumentNullException(nameof(database));
-            NameProvider = nameProvider ?? throw new ArgumentNullException(nameof(nameProvider));
+            NameTranslator = nameTranslator ?? throw new ArgumentNullException(nameof(nameTranslator));
             Namespace = baseNamespace;
             Indent = indent ?? throw new ArgumentNullException(nameof(indent));
         }
 
         protected IRelationalDatabase Database { get; }
 
-        protected INameProvider NameProvider { get; }
+        protected INameTranslator NameTranslator { get; }
 
         protected string Namespace { get; }
 
@@ -48,7 +48,7 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore
 
             var tableIndent = Indent + Indent;
             var contextIndent = tableIndent + Indent;
-            var modelBuilder = new EFCoreModelBuilder(NameProvider, contextIndent, Indent);
+            var modelBuilder = new EFCoreModelBuilder(NameTranslator, contextIndent, Indent);
 
             var missingFirstLine = true;
             var tables = Database.GetAllTables(CancellationToken.None).GetAwaiter().GetResult();
@@ -58,8 +58,8 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore
                     builder.AppendLine();
                 missingFirstLine = false;
 
-                var schemaNamespace = NameProvider.SchemaToNamespace(table.Name);
-                var className = NameProvider.TableToClassName(table.Name);
+                var schemaNamespace = NameTranslator.SchemaToNamespace(table.Name);
+                var className = NameTranslator.TableToClassName(table.Name);
                 var qualifiedClassName = !schemaNamespace.IsNullOrWhiteSpace()
                     ? schemaNamespace + "." + className
                     : className;

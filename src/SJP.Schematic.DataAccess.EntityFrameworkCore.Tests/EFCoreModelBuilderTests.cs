@@ -7,7 +7,7 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore.Tests
     internal static class EFCoreModelBuilderTests
     {
         [Test]
-        public static void Ctor_GivenNullNameProvider_ThrowsArgumentNullException()
+        public static void Ctor_GivenNullNameTranslator_ThrowsArgumentNullException()
         {
             Assert.Throws<ArgumentNullException>(() => new EFCoreModelBuilder(null, " ", " "));
         }
@@ -15,22 +15,22 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore.Tests
         [Test]
         public static void Ctor_GivenNullLineIndent_ThrowsArgumentNullException()
         {
-            var nameProvider = new VerbatimNameProvider();
-            Assert.Throws<ArgumentNullException>(() => new EFCoreModelBuilder(nameProvider, null, " "));
+            var nameTranslator = new VerbatimNameTranslator();
+            Assert.Throws<ArgumentNullException>(() => new EFCoreModelBuilder(nameTranslator, null, " "));
         }
 
         [Test]
         public static void Ctor_GivenNullIndentLevel_ThrowsArgumentNullException()
         {
-            var nameProvider = new VerbatimNameProvider();
-            Assert.Throws<ArgumentNullException>(() => new EFCoreModelBuilder(nameProvider, " ", null));
+            var nameTranslator = new VerbatimNameTranslator();
+            Assert.Throws<ArgumentNullException>(() => new EFCoreModelBuilder(nameTranslator, " ", null));
         }
 
         [Test]
         public static void AddTable_GivenNullTable_ThrowsArgumentNullException()
         {
-            var nameProvider = new VerbatimNameProvider();
-            var modelBuilder = new EFCoreModelBuilder(nameProvider, " ", " ");
+            var nameTranslator = new VerbatimNameTranslator();
+            var modelBuilder = new EFCoreModelBuilder(nameTranslator, " ", " ");
 
             Assert.Throws<ArgumentNullException>(() => modelBuilder.AddTable(null));
         }
@@ -38,8 +38,8 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore.Tests
         [Test]
         public static void AddSequence_GivenNullTable_ThrowsArgumentNullException()
         {
-            var nameProvider = new VerbatimNameProvider();
-            var modelBuilder = new EFCoreModelBuilder(nameProvider, " ", " ");
+            var nameTranslator = new VerbatimNameTranslator();
+            var modelBuilder = new EFCoreModelBuilder(nameTranslator, " ", " ");
 
             Assert.Throws<ArgumentNullException>(() => modelBuilder.AddSequence(null));
         }

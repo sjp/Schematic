@@ -12,8 +12,8 @@ namespace SJP.Schematic.DataAccess.Poco
 {
     public class PocoTableGenerator : DatabaseTableGenerator
     {
-        public PocoTableGenerator(INameProvider nameProvider, string baseNamespace, string indent = "    ")
-            : base(nameProvider, indent)
+        public PocoTableGenerator(INameTranslator nameTranslator, string baseNamespace, string indent = "    ")
+            : base(nameTranslator, indent)
         {
             if (baseNamespace.IsNullOrWhiteSpace())
                 throw new ArgumentNullException(nameof(baseNamespace));
@@ -28,7 +28,7 @@ namespace SJP.Schematic.DataAccess.Poco
             if (table == null)
                 throw new ArgumentNullException(nameof(table));
 
-            var schemaNamespace = NameProvider.SchemaToNamespace(table.Name);
+            var schemaNamespace = NameTranslator.SchemaToNamespace(table.Name);
             var tableNamespace = schemaNamespace != null
                 ? Namespace + "." + schemaNamespace
                 : Namespace;
@@ -58,7 +58,7 @@ namespace SJP.Schematic.DataAccess.Poco
             var tableComment = GenerateTableComment(table.Name.LocalName);
             builder.AppendComment(Indent, tableComment);
 
-            var className = NameProvider.TableToClassName(table.Name);
+            var className = NameTranslator.TableToClassName(table.Name);
             builder.Append(Indent)
                 .Append("public class ")
                 .AppendLine(className)
@@ -105,7 +105,7 @@ namespace SJP.Schematic.DataAccess.Poco
             if (clrType.Namespace == "System" && _typeNameMap.ContainsKey(typeName))
                 typeName = _typeNameMap[typeName];
 
-            var propertyName = NameProvider.ColumnToPropertyName(className, column.Name.LocalName);
+            var propertyName = NameTranslator.ColumnToPropertyName(className, column.Name.LocalName);
 
             builder.Append("public ")
                 .Append(typeName)

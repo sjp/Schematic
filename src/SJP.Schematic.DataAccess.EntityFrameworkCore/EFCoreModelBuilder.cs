@@ -12,14 +12,14 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore
 {
     public class EFCoreModelBuilder
     {
-        public EFCoreModelBuilder(INameProvider nameProvider, string lineIndent, string indentLevel)
+        public EFCoreModelBuilder(INameTranslator nameTranslator, string lineIndent, string indentLevel)
         {
-            NameProvider = nameProvider ?? throw new ArgumentNullException(nameof(nameProvider));
+            NameTranslator = nameTranslator ?? throw new ArgumentNullException(nameof(nameTranslator));
             LineIndent = lineIndent ?? throw new ArgumentNullException(nameof(lineIndent));
             IndentLevel = indentLevel ?? throw new ArgumentNullException(nameof(indentLevel));
         }
 
-        protected INameProvider NameProvider { get; }
+        protected INameTranslator NameTranslator { get; }
 
         protected string LineIndent { get; }
 
@@ -30,8 +30,8 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore
             if (table == null)
                 throw new ArgumentNullException(nameof(table));
 
-            var schemaNamespace = NameProvider.SchemaToNamespace(table.Name);
-            var className = NameProvider.TableToClassName(table.Name);
+            var schemaNamespace = NameTranslator.SchemaToNamespace(table.Name);
+            var className = NameTranslator.TableToClassName(table.Name);
             var qualifiedClassName = !schemaNamespace.IsNullOrWhiteSpace()
                 ? schemaNamespace + "." + className
                 : className;
@@ -50,7 +50,7 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore
                     .Append(qualifiedClassName)
                     .AppendLine(">()");
 
-                var columnName = NameProvider.ColumnToPropertyName(className, column.Name.LocalName);
+                var columnName = NameTranslator.ColumnToPropertyName(className, column.Name.LocalName);
                 _builder.Append(chainIndent)
                     .Append(".Property(t => t.")
                     .Append(columnName)
@@ -171,7 +171,7 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore
             {
                 var childKey = relationalKey.ChildKey;
                 var parentKey = relationalKey.ParentKey;
-                var parentPropertyName = NameProvider.TableToClassName(relationalKey.ParentTable);
+                var parentPropertyName = NameTranslator.TableToClassName(relationalKey.ParentTable);
                 var childColumnSet = GenerateColumnSet(className, "t", childKey.Columns);
                 var parentColumnSet = GenerateColumnSet(className, "t", parentKey.Columns);
 
@@ -254,7 +254,7 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore
                 throw new ArgumentNullException(nameof(columns));
 
             var columnNames = columns
-                .Select(c => classPrefix + "." + NameProvider.ColumnToPropertyName(className, c.Name.LocalName))
+                .Select(c => classPrefix + "." + NameTranslator.ColumnToPropertyName(className, c.Name.LocalName))
                 .ToList();
 
             return columnNames.Count > 1

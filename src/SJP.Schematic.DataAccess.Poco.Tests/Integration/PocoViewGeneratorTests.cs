@@ -13,7 +13,7 @@ namespace SJP.Schematic.DataAccess.Poco.Tests.Integration
 
         private Task<IDatabaseView> GetView(Identifier viewName) => Database.GetView(viewName).UnwrapSomeAsync();
 
-        private static IDatabaseViewGenerator ViewGenerator => new PocoViewGenerator(new PascalCaseNameProvider(), TestNamespace);
+        private static IDatabaseViewGenerator ViewGenerator => new PocoViewGenerator(new PascalCaseNameTranslator(), TestNamespace);
 
         [OneTimeSetUp]
         public async Task Init()

@@ -10,7 +10,7 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore.Tests.Integration
     {
         private IRelationalDatabase Database => new SqliteRelationalDatabase(Dialect, Connection, IdentifierDefaults);
 
-        private EFCoreDbContextBuilder Builder => new EFCoreDbContextBuilder(Database, new PascalCaseNameProvider(), "EFCoreTestNamespace");
+        private EFCoreDbContextBuilder Builder => new EFCoreDbContextBuilder(Database, new PascalCaseNameTranslator(), "EFCoreTestNamespace");
 
         [OneTimeSetUp]
         public async Task Init()

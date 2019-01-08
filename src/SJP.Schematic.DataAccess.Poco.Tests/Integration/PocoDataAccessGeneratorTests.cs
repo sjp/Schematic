@@ -47,8 +47,8 @@ select
         [Test]
         public void Generate_GivenDatabaseWithTablesAndViews_GeneratesFilesInExpectedLocations()
         {
-            var nameProvider = new PascalCaseNameProvider();
-            var generator = new PocoDataAccessGenerator(Database, nameProvider);
+            var nameTranslator = new PascalCaseNameTranslator();
+            var generator = new PocoDataAccessGenerator(Database, nameTranslator);
 
             var testProjectDir = Path.Combine(Environment.CurrentDirectory, "pocotest");
 

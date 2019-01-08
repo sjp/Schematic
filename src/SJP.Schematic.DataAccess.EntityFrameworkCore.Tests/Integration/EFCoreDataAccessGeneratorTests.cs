@@ -35,8 +35,8 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore.Tests.Integration
         [Test]
         public void Generate_GivenDatabaseWithTables_GeneratesFilesInExpectedLocations()
         {
-            var nameProvider = new PascalCaseNameProvider();
-            var generator = new EFCoreDataAccessGenerator(Database, nameProvider);
+            var nameTranslator = new PascalCaseNameTranslator();
+            var generator = new EFCoreDataAccessGenerator(Database, nameTranslator);
 
             var testProjectDir = Path.Combine(Environment.CurrentDirectory, "efcoretest");
 

@@ -1,5 +1,4 @@
 ﻿using System;
-using Humanizer;
 using SJP.Schematic.Core;
 using SJP.Schematic.Core.Extensions;
 
@@ -8,7 +7,7 @@ namespace SJP.Schematic.DataAccess
     /// <summary>
     /// A set of rules for determining the class and property names for a database mapping object.
     /// </summary>
-    public class SnakeCaseNameProvider : NameProvider
+    public class VerbatimNameTranslator : NameTranslator
     {
         /// <summary>
         /// Return a namespace name for a schema qualified object name.
@@ -22,8 +21,7 @@ namespace SJP.Schematic.DataAccess
             if (objectName.Schema == null)
                 return null;
 
-            var schemaIdentifier = CreateValidIdentifier(objectName.Schema);
-            return schemaIdentifier?.Underscore();
+            return CreateValidIdentifier(objectName.Schema);
         }
 
         /// <summary>
@@ -36,8 +34,7 @@ namespace SJP.Schematic.DataAccess
             if (tableName == null)
                 throw new ArgumentNullException(nameof(tableName));
 
-            var tableIdentifier = CreateValidIdentifier(tableName.LocalName);
-            return tableIdentifier.Underscore();
+            return CreateValidIdentifier(tableName.LocalName);
         }
 
         /// <summary>
@@ -50,8 +47,7 @@ namespace SJP.Schematic.DataAccess
             if (viewName == null)
                 throw new ArgumentNullException(nameof(viewName));
 
-            var viewIdentifier = CreateValidIdentifier(viewName.LocalName);
-            return viewIdentifier.Underscore();
+            return CreateValidIdentifier(viewName.LocalName);
         }
 
         /// <summary>
@@ -72,10 +68,9 @@ namespace SJP.Schematic.DataAccess
                 ? columnName
                 : CreateValidIdentifier(className, columnName);
 
-            var result = columnIdentifier.Underscore();
-            return result == className
-                ? result + "_"
-                : result;
+            return columnIdentifier == className
+                ? columnIdentifier + "_"
+                : columnIdentifier;
         }
     }
 }

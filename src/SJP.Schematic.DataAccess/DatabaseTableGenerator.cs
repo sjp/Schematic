@@ -8,13 +8,13 @@ namespace SJP.Schematic.DataAccess
 {
     public abstract class DatabaseTableGenerator : IDatabaseTableGenerator
     {
-        protected DatabaseTableGenerator(INameProvider nameProvider, string indent = "    ")
+        protected DatabaseTableGenerator(INameTranslator nameTranslator, string indent = "    ")
         {
-            NameProvider = nameProvider ?? throw new ArgumentNullException(nameof(nameProvider));
+            NameTranslator = nameTranslator ?? throw new ArgumentNullException(nameof(nameTranslator));
             Indent = indent ?? throw new ArgumentNullException(nameof(indent));
         }
 
-        protected INameProvider NameProvider { get; }
+        protected INameTranslator NameTranslator { get; }
 
         protected string Indent { get; }
 
@@ -30,11 +30,11 @@ namespace SJP.Schematic.DataAccess
             var paths = new List<string> { baseDirectory.FullName, "Tables" };
             if (objectName.Schema != null)
             {
-                var schemaName = NameProvider.SchemaToNamespace(objectName);
+                var schemaName = NameTranslator.SchemaToNamespace(objectName);
                 paths.Add(schemaName);
             }
 
-            var tableName = NameProvider.TableToClassName(objectName);
+            var tableName = NameTranslator.TableToClassName(objectName);
             paths.Add(tableName + ".cs");
 
             var tablePath = Path.Combine(paths.ToArray());

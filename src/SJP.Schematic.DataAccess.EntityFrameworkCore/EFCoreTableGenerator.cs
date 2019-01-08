@@ -13,8 +13,8 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore
 {
     public class EFCoreTableGenerator : DatabaseTableGenerator
     {
-        public EFCoreTableGenerator(INameProvider nameProvider, string baseNamespace, string indent = "    ")
-            : base(nameProvider, indent)
+        public EFCoreTableGenerator(INameTranslator nameTranslator, string baseNamespace, string indent = "    ")
+            : base(nameTranslator, indent)
         {
             if (baseNamespace.IsNullOrWhiteSpace())
                 throw new ArgumentNullException(nameof(baseNamespace));
@@ -29,7 +29,7 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore
             if (table == null)
                 throw new ArgumentNullException(nameof(table));
 
-            var schemaNamespace = NameProvider.SchemaToNamespace(table.Name);
+            var schemaNamespace = NameTranslator.SchemaToNamespace(table.Name);
             var tableNamespace = schemaNamespace != null
                 ? Namespace + "." + schemaNamespace
                 : Namespace;
@@ -63,7 +63,7 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore
             var tableComment = GenerateTableComment(table.Name.LocalName);
             builder.AppendComment(Indent, tableComment);
 
-            var className = NameProvider.TableToClassName(table.Name);
+            var className = NameTranslator.TableToClassName(table.Name);
             if (className != table.Name.LocalName)
             {
                 var aliasName = table.Name.LocalName.ToStringLiteral();
@@ -110,7 +110,7 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore
                 var parentTable = relationalKey.ParentTable;
 
                 var parentSchemaName = parentTable.Schema;
-                var parentClassName = NameProvider.TableToClassName(parentTable);
+                var parentClassName = NameTranslator.TableToClassName(parentTable);
                 var qualifiedParentName = !parentSchemaName.IsNullOrWhiteSpace()
                     ? parentSchemaName + "." + parentClassName
                     : parentClassName;
@@ -134,7 +134,7 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore
                 var childTable = relationalKey.ChildTable;
 
                 var childSchemaName = childTable.Schema;
-                var childClassName = NameProvider.TableToClassName(childTable);
+                var childClassName = NameTranslator.TableToClassName(childTable);
                 var qualifiedChildName = !childSchemaName.IsNullOrWhiteSpace()
                     ? childSchemaName + "." + childClassName
                     : childClassName;
@@ -198,7 +198,7 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore
                     .AppendLine("[DatabaseGenerated(DatabaseGeneratedOption.Identity)]");
             });
 
-            var propertyName = NameProvider.ColumnToPropertyName(className, column.Name.LocalName);
+            var propertyName = NameTranslator.ColumnToPropertyName(className, column.Name.LocalName);
             builder.Append(columnIndent)
                 .Append("[Column(");
 

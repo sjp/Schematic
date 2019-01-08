@@ -14,8 +14,8 @@ namespace SJP.Schematic.DataAccess.OrmLite
 {
     public class OrmLiteTableGenerator : DatabaseTableGenerator
     {
-        public OrmLiteTableGenerator(INameProvider nameProvider, string baseNamespace, string indent = "    ")
-            : base(nameProvider, indent)
+        public OrmLiteTableGenerator(INameTranslator nameTranslator, string baseNamespace, string indent = "    ")
+            : base(nameTranslator, indent)
         {
             if (baseNamespace.IsNullOrWhiteSpace())
                 throw new ArgumentNullException(nameof(baseNamespace));
@@ -30,7 +30,7 @@ namespace SJP.Schematic.DataAccess.OrmLite
             if (table == null)
                 throw new ArgumentNullException(nameof(table));
 
-            var schemaNamespace = NameProvider.SchemaToNamespace(table.Name);
+            var schemaNamespace = NameTranslator.SchemaToNamespace(table.Name);
             var tableNamespace = schemaNamespace != null
                 ? Namespace + "." + schemaNamespace
                 : Namespace;
@@ -72,7 +72,7 @@ namespace SJP.Schematic.DataAccess.OrmLite
                     .AppendLine(")]");
             }
 
-            var className = NameProvider.TableToClassName(table.Name);
+            var className = NameTranslator.TableToClassName(table.Name);
             if (className != table.Name.LocalName)
             {
                 var aliasName = table.Name.LocalName.ToStringLiteral();
@@ -86,7 +86,7 @@ namespace SJP.Schematic.DataAccess.OrmLite
             foreach (var uniqueKey in multiColumnUniqueKeys)
             {
                 var columnNames = uniqueKey.Columns
-                    .Select(c => NameProvider.ColumnToPropertyName(className, c.Name.LocalName))
+                    .Select(c => NameTranslator.ColumnToPropertyName(className, c.Name.LocalName))
                     .Select(p => "nameof(" + p + ")")
                     .ToList();
                 var fieldNames = string.Join(", ", columnNames);
@@ -106,7 +106,7 @@ namespace SJP.Schematic.DataAccess.OrmLite
                     continue;
 
                 var columnNames = dependentColumns
-                    .Select(c => NameProvider.ColumnToPropertyName(className, c.Name.LocalName))
+                    .Select(c => NameTranslator.ColumnToPropertyName(className, c.Name.LocalName))
                     .Select(p => "nameof(" + p + ")")
                     .ToList();
                 var fieldNames = string.Join(", ", columnNames);
@@ -227,7 +227,7 @@ namespace SJP.Schematic.DataAccess.OrmLite
                     throw new InvalidOperationException("Could not find parent key for foreign key relationship. Expected to find one for " + column.Name.LocalName + "." + column.Name.LocalName);
 
                 var parentTable = relationalKey.ParentTable;
-                var parentClassName = NameProvider.TableToClassName(parentTable);
+                var parentClassName = NameTranslator.TableToClassName(parentTable);
                 // TODO check that this is not implicit -- i.e. there is a naming convention applied
                 //      so explicitly declaring via [References(...)] may not be necessary
 
@@ -278,7 +278,7 @@ namespace SJP.Schematic.DataAccess.OrmLite
                 });
             }
 
-            var propertyName = NameProvider.ColumnToPropertyName(className, column.Name.LocalName);
+            var propertyName = NameTranslator.ColumnToPropertyName(className, column.Name.LocalName);
             if (propertyName != column.Name.LocalName)
             {
                 var aliasName = column.Name.LocalName.ToStringLiteral();

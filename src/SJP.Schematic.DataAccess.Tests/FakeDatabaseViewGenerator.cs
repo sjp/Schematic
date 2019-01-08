@@ -5,8 +5,8 @@ namespace SJP.Schematic.DataAccess.Tests
 {
     internal sealed class FakeDatabaseViewGenerator : DatabaseViewGenerator
     {
-        public FakeDatabaseViewGenerator(INameProvider nameProvider, string indent)
-            : base(nameProvider, indent)
+        public FakeDatabaseViewGenerator(INameTranslator nameTranslator, string indent)
+            : base(nameTranslator, indent)
         {
         }
 

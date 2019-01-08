@@ -5,8 +5,8 @@ namespace SJP.Schematic.DataAccess.Tests
 {
     internal sealed class FakeDatabaseTableGenerator : DatabaseTableGenerator
     {
-        public FakeDatabaseTableGenerator(INameProvider nameProvider, string indent)
-            : base(nameProvider, indent)
+        public FakeDatabaseTableGenerator(INameTranslator nameTranslator, string indent)
+            : base(nameTranslator, indent)
         {
         }
 

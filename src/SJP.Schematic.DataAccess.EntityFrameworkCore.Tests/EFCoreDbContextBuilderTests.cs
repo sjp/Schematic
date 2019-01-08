@@ -11,12 +11,12 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore.Tests
         [Test]
         public static void Ctor_GivenNullDatabase_ThrowsArgumentNullException()
         {
-            var nameProvider = new VerbatimNameProvider();
-            Assert.Throws<ArgumentNullException>(() => new EFCoreDbContextBuilder(null, nameProvider, "testns"));
+            var nameTranslator = new VerbatimNameTranslator();
+            Assert.Throws<ArgumentNullException>(() => new EFCoreDbContextBuilder(null, nameTranslator, "testns"));
         }
 
         [Test]
-        public static void Ctor_GivenNullNameProvider_ThrowsArgumentNullException()
+        public static void Ctor_GivenNullNameTranslator_ThrowsArgumentNullException()
         {
             var database = Mock.Of<IRelationalDatabase>();
             Assert.Throws<ArgumentNullException>(() => new EFCoreDbContextBuilder(database, null, "testns"));
@@ -26,32 +26,32 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore.Tests
         public static void Ctor_GivenNullNamespace_ThrowsArgumentNullException()
         {
             var database = Mock.Of<IRelationalDatabase>();
-            var nameProvider = new VerbatimNameProvider();
-            Assert.Throws<ArgumentNullException>(() => new EFCoreDbContextBuilder(database, nameProvider, null));
+            var nameTranslator = new VerbatimNameTranslator();
+            Assert.Throws<ArgumentNullException>(() => new EFCoreDbContextBuilder(database, nameTranslator, null));
         }
 
         [Test]
         public static void Ctor_GivenNullIndent_ThrowsArgumentNullException()
         {
             var database = Mock.Of<IRelationalDatabase>();
-            var nameProvider = new VerbatimNameProvider();
-            Assert.Throws<ArgumentNullException>(() => new EFCoreDbContextBuilder(database, nameProvider, "testns", null));
+            var nameTranslator = new VerbatimNameTranslator();
+            Assert.Throws<ArgumentNullException>(() => new EFCoreDbContextBuilder(database, nameTranslator, "testns", null));
         }
 
         [Test]
         public static void Ctor_GivenEmptyNamespace_ThrowsArgumentNullException()
         {
             var database = Mock.Of<IRelationalDatabase>();
-            var nameProvider = new VerbatimNameProvider();
-            Assert.Throws<ArgumentNullException>(() => new EFCoreDbContextBuilder(database, nameProvider, string.Empty));
+            var nameTranslator = new VerbatimNameTranslator();
+            Assert.Throws<ArgumentNullException>(() => new EFCoreDbContextBuilder(database, nameTranslator, string.Empty));
         }
 
         [Test]
         public static void Ctor_GivenWhiteSpaceNamespace_ThrowsArgumentNullException()
         {
             var database = Mock.Of<IRelationalDatabase>();
-            var nameProvider = new VerbatimNameProvider();
-            Assert.Throws<ArgumentNullException>(() => new EFCoreDbContextBuilder(database, nameProvider, "   "));
+            var nameTranslator = new VerbatimNameTranslator();
+            Assert.Throws<ArgumentNullException>(() => new EFCoreDbContextBuilder(database, nameTranslator, "   "));
         }
     }
 }

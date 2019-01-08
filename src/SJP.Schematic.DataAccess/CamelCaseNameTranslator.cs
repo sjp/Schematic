@@ -1,4 +1,5 @@
 ﻿using System;
+using Humanizer;
 using SJP.Schematic.Core;
 using SJP.Schematic.Core.Extensions;
 
@@ -7,7 +8,7 @@ namespace SJP.Schematic.DataAccess
     /// <summary>
     /// A set of rules for determining the class and property names for a database mapping object.
     /// </summary>
-    public class VerbatimNameProvider : NameProvider
+    public class CamelCaseNameTranslator : NameTranslator
     {
         /// <summary>
         /// Return a namespace name for a schema qualified object name.
@@ -21,7 +22,8 @@ namespace SJP.Schematic.DataAccess
             if (objectName.Schema == null)
                 return null;
 
-            return CreateValidIdentifier(objectName.Schema);
+            var schemaIdentifier = CreateValidIdentifier(objectName.Schema);
+            return schemaIdentifier?.Camelize();
         }
 
         /// <summary>
@@ -34,7 +36,8 @@ namespace SJP.Schematic.DataAccess
             if (tableName == null)
                 throw new ArgumentNullException(nameof(tableName));
 
-            return CreateValidIdentifier(tableName.LocalName);
+            var tableIdentifier = CreateValidIdentifier(tableName.LocalName);
+            return tableIdentifier.Camelize();
         }
 
         /// <summary>
@@ -47,7 +50,8 @@ namespace SJP.Schematic.DataAccess
             if (viewName == null)
                 throw new ArgumentNullException(nameof(viewName));
 
-            return CreateValidIdentifier(viewName.LocalName);
+            var viewIdentifier = CreateValidIdentifier(viewName.LocalName);
+            return viewIdentifier.Camelize();
         }
 
         /// <summary>
@@ -68,9 +72,10 @@ namespace SJP.Schematic.DataAccess
                 ? columnName
                 : CreateValidIdentifier(className, columnName);
 
-            return columnIdentifier == className
-                ? columnIdentifier + "_"
-                : columnIdentifier;
+            var result = columnIdentifier.Camelize();
+            return result == className
+                ? result + "_"
+                : result;
         }
     }
 }

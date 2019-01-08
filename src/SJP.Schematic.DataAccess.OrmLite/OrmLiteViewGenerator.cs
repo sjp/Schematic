@@ -12,8 +12,8 @@ namespace SJP.Schematic.DataAccess.OrmLite
 {
     public class OrmLiteViewGenerator : DatabaseViewGenerator
     {
-        public OrmLiteViewGenerator(INameProvider nameProvider, string baseNamespace, string indent = "    ")
-            : base(nameProvider, indent)
+        public OrmLiteViewGenerator(INameTranslator nameTranslator, string baseNamespace, string indent = "    ")
+            : base(nameTranslator, indent)
         {
             if (baseNamespace.IsNullOrWhiteSpace())
                 throw new ArgumentNullException(nameof(baseNamespace));
@@ -28,7 +28,7 @@ namespace SJP.Schematic.DataAccess.OrmLite
             if (view == null)
                 throw new ArgumentNullException(nameof(view));
 
-            var schemaNamespace = NameProvider.SchemaToNamespace(view.Name);
+            var schemaNamespace = NameTranslator.SchemaToNamespace(view.Name);
             var viewNamespace = !schemaNamespace.IsNullOrWhiteSpace()
                 ? Namespace + "." + schemaNamespace
                 : Namespace;
@@ -70,7 +70,7 @@ namespace SJP.Schematic.DataAccess.OrmLite
                     .AppendLine(")]");
             }
 
-            var className = NameProvider.ViewToClassName(view.Name);
+            var className = NameTranslator.ViewToClassName(view.Name);
             if (className != view.Name.LocalName)
             {
                 var aliasName = view.Name.LocalName.ToStringLiteral();
@@ -143,7 +143,7 @@ namespace SJP.Schematic.DataAccess.OrmLite
             var columnComment = GenerateColumnComment(column.Name.LocalName);
             builder.AppendComment(columnIndent, columnComment);
 
-            var propertyName = NameProvider.ColumnToPropertyName(className, column.Name.LocalName);
+            var propertyName = NameTranslator.ColumnToPropertyName(className, column.Name.LocalName);
             if (propertyName != column.Name.LocalName)
             {
                 var aliasName = column.Name.LocalName.ToStringLiteral();

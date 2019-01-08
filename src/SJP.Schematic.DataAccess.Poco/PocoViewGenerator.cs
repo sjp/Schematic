@@ -12,8 +12,8 @@ namespace SJP.Schematic.DataAccess.Poco
 {
     public class PocoViewGenerator : DatabaseViewGenerator
     {
-        public PocoViewGenerator(INameProvider nameProvider, string baseNamespace, string indent = "    ")
-            : base(nameProvider, indent)
+        public PocoViewGenerator(INameTranslator nameTranslator, string baseNamespace, string indent = "    ")
+            : base(nameTranslator, indent)
         {
             if (baseNamespace.IsNullOrWhiteSpace())
                 throw new ArgumentNullException(nameof(baseNamespace));
@@ -28,7 +28,7 @@ namespace SJP.Schematic.DataAccess.Poco
             if (view == null)
                 throw new ArgumentNullException(nameof(view));
 
-            var schemaNamespace = NameProvider.SchemaToNamespace(view.Name);
+            var schemaNamespace = NameTranslator.SchemaToNamespace(view.Name);
             var viewNamespace = !schemaNamespace.IsNullOrWhiteSpace()
                 ? Namespace + "." + schemaNamespace
                 : Namespace;
@@ -58,7 +58,7 @@ namespace SJP.Schematic.DataAccess.Poco
             var tableComment = GenerateViewComment(view.Name.LocalName);
             builder.AppendComment(Indent, tableComment);
 
-            var className = NameProvider.ViewToClassName(view.Name);
+            var className = NameTranslator.ViewToClassName(view.Name);
 
             builder.Append(Indent)
                 .Append("public class ")
@@ -105,7 +105,7 @@ namespace SJP.Schematic.DataAccess.Poco
             if (clrType.Namespace == "System" && _typeNameMap.ContainsKey(typeName))
                 typeName = _typeNameMap[typeName];
 
-            var propertyName = NameProvider.ColumnToPropertyName(className, column.Name.LocalName);
+            var propertyName = NameTranslator.ColumnToPropertyName(className, column.Name.LocalName);
 
             builder.Append(columnIndent)
                 .Append("public ")

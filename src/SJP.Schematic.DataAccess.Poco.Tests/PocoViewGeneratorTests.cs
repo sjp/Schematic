@@ -9,7 +9,7 @@ namespace SJP.Schematic.DataAccess.Poco.Tests
     internal static class PocoViewGeneratorTests
     {
         [Test]
-        public static void Ctor_GivenNullNameProvider_ThrowsArgumentNullException()
+        public static void Ctor_GivenNullNameTranslator_ThrowsArgumentNullException()
         {
             Assert.Throws<ArgumentNullException>(() => new PocoViewGenerator(null, "testns"));
         }
@@ -17,37 +17,37 @@ namespace SJP.Schematic.DataAccess.Poco.Tests
         [Test]
         public static void Ctor_GivenNullNamespace_ThrowsArgumentNullException()
         {
-            var nameProvider = new VerbatimNameProvider();
-            Assert.Throws<ArgumentNullException>(() => new PocoViewGenerator(nameProvider, null));
+            var nameTranslator = new VerbatimNameTranslator();
+            Assert.Throws<ArgumentNullException>(() => new PocoViewGenerator(nameTranslator, null));
         }
 
         [Test]
         public static void Ctor_GivenEmptyNamespace_ThrowsArgumentNullException()
         {
-            var nameProvider = new VerbatimNameProvider();
-            Assert.Throws<ArgumentNullException>(() => new PocoViewGenerator(nameProvider, string.Empty));
+            var nameTranslator = new VerbatimNameTranslator();
+            Assert.Throws<ArgumentNullException>(() => new PocoViewGenerator(nameTranslator, string.Empty));
         }
 
         [Test]
         public static void Ctor_GivenWhiteSpaceNamespace_ThrowsArgumentNullException()
         {
-            var nameProvider = new VerbatimNameProvider();
-            Assert.Throws<ArgumentNullException>(() => new PocoViewGenerator(nameProvider, "   "));
+            var nameTranslator = new VerbatimNameTranslator();
+            Assert.Throws<ArgumentNullException>(() => new PocoViewGenerator(nameTranslator, "   "));
         }
 
         [Test]
         public static void Ctor_GivenNullIndent_ThrowsArgumentNullException()
         {
-            var nameProvider = new VerbatimNameProvider();
-            Assert.Throws<ArgumentNullException>(() => new PocoViewGenerator(nameProvider, "testns", null));
+            var nameTranslator = new VerbatimNameTranslator();
+            Assert.Throws<ArgumentNullException>(() => new PocoViewGenerator(nameTranslator, "testns", null));
         }
 
         [Test]
         public static void GetFilePath_GivenNullObjectName_ThrowsArgumentNullException()
         {
-            var nameProvider = new VerbatimNameProvider();
+            var nameTranslator = new VerbatimNameTranslator();
             const string testNs = "SJP.Schematic.Test";
-            var generator = new PocoViewGenerator(nameProvider, testNs);
+            var generator = new PocoViewGenerator(nameTranslator, testNs);
             var baseDir = new DirectoryInfo(Environment.CurrentDirectory);
 
             Assert.Throws<ArgumentNullException>(() => generator.GetFilePath(baseDir, null));
@@ -56,9 +56,9 @@ namespace SJP.Schematic.DataAccess.Poco.Tests
         [Test]
         public static void GetFilePath_GivenNameWithOnlyLocalName_ReturnsExpectedPath()
         {
-            var nameProvider = new VerbatimNameProvider();
+            var nameTranslator = new VerbatimNameTranslator();
             const string testNs = "SJP.Schematic.Test";
-            var generator = new PocoViewGenerator(nameProvider, testNs);
+            var generator = new PocoViewGenerator(nameTranslator, testNs);
             var baseDir = new DirectoryInfo(Environment.CurrentDirectory);
             const string testViewName = "view_name";
             var expectedPath = Path.Combine(Environment.CurrentDirectory, "Views", testViewName + ".cs");
@@ -71,9 +71,9 @@ namespace SJP.Schematic.DataAccess.Poco.Tests
         [Test]
         public static void GetFilePath_GivenNameWithSchemaAndLocalName_ReturnsExpectedPath()
         {
-            var nameProvider = new VerbatimNameProvider();
+            var nameTranslator = new VerbatimNameTranslator();
             const string testNs = "SJP.Schematic.Test";
-            var generator = new PocoViewGenerator(nameProvider, testNs);
+            var generator = new PocoViewGenerator(nameTranslator, testNs);
             var baseDir = new DirectoryInfo(Environment.CurrentDirectory);
             const string testViewSchema = "view_schema";
             const string testViewName = "view_name";
@@ -87,9 +87,9 @@ namespace SJP.Schematic.DataAccess.Poco.Tests
         [Test]
         public static void Generate_GivenNullView_ThrowsArgumentNullException()
         {
-            var nameProvider = new VerbatimNameProvider();
+            var nameTranslator = new VerbatimNameTranslator();
             const string testNs = "SJP.Schematic.Test";
-            var generator = new PocoViewGenerator(nameProvider, testNs);
+            var generator = new PocoViewGenerator(nameTranslator, testNs);
 
             Assert.Throws<ArgumentNullException>(() => generator.Generate(null));
         }
