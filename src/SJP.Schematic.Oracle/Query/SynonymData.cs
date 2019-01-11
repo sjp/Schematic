@@ -1,6 +1,6 @@
 ﻿namespace SJP.Schematic.Oracle.Query
 {
-    public class SynonymData
+    internal class SynonymData
     {
         public string SchemaName { get; set; }
 

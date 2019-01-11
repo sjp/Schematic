@@ -1,6 +1,6 @@
 ﻿namespace SJP.Schematic.PostgreSql.Query
 {
-    public class CheckConstraintData
+    internal class CheckConstraintData
     {
         public string ConstraintName { get; set; }
 

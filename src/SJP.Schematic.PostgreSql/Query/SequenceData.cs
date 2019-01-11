@@ -1,6 +1,6 @@
 ﻿namespace SJP.Schematic.PostgreSql.Query
 {
-    public class SequenceData
+    internal class SequenceData
     {
         public int CacheSize { get; set; }
 

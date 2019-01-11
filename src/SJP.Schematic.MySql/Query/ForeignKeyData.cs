@@ -1,6 +1,6 @@
 ﻿namespace SJP.Schematic.MySql.Query
 {
-    public class ForeignKeyData
+    internal class ForeignKeyData
     {
         public string ParentTableSchema { get; set; }
 

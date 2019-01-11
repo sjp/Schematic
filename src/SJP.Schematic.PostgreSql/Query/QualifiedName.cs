@@ -1,6 +1,6 @@
 ﻿namespace SJP.Schematic.PostgreSql.Query
 {
-    public class QualifiedName
+    internal class QualifiedName
     {
         public string SchemaName { get; set; }
 

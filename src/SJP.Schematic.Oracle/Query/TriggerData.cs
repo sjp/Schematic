@@ -1,6 +1,6 @@
 ﻿namespace SJP.Schematic.Oracle.Query
 {
-    public class TriggerData
+    internal class TriggerData
     {
         public string TriggerSchema { get; set; }
 

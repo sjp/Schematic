@@ -1,6 +1,6 @@
 ﻿namespace SJP.Schematic.Oracle.Query
 {
-    public class DatabaseMetadata
+    internal class DatabaseMetadata
     {
         public string ServerName { get; set; }
 

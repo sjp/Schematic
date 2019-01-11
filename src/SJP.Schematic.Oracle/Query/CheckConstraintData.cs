@@ -1,6 +1,6 @@
 ﻿namespace SJP.Schematic.Oracle.Query
 {
-    public class CheckConstraintData
+    internal class CheckConstraintData
     {
         public string ConstraintName { get; set; }
 

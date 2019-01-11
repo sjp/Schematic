@@ -2,7 +2,7 @@
 
 namespace SJP.Schematic.SqlServer.Query
 {
-    public class ServerProperties2008
+    internal class ServerProperties2008
     {
         /// <summary>
         /// <para>Version of the Microsoft .NET Framework common language runtime (CLR) that was used while building the instance of SQL Server.</para>

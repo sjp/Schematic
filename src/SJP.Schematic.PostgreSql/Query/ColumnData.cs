@@ -1,6 +1,6 @@
 ﻿namespace SJP.Schematic.PostgreSql.Query
 {
-    public class ColumnData
+    internal class ColumnData
     {
         /// <summary>
         /// Name of the column

@@ -1,6 +1,6 @@
 ﻿namespace SJP.Schematic.Sqlite.Query
 {
-    public class SqliteMaster
+    internal class SqliteMaster
     {
         public string type { get; set; }
 

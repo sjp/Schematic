@@ -140,7 +140,7 @@ where c.relnamespace = nc.oid
             return await sequence.ToOption().ConfigureAwait(false);
         }
 
-        protected virtual OptionAsync<SequenceData> LoadSequenceData(Identifier sequenceName, CancellationToken cancellationToken)
+        private OptionAsync<SequenceData> LoadSequenceData(Identifier sequenceName, CancellationToken cancellationToken)
         {
             if (sequenceName == null)
                 throw new ArgumentNullException(nameof(sequenceName));

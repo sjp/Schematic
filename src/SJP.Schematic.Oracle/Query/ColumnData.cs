@@ -1,6 +1,6 @@
 ﻿namespace SJP.Schematic.Oracle.Query
 {
-    public class ColumnData
+    internal class ColumnData
     {
         public string ColumnName { get; set; }
 

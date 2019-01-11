@@ -1,6 +1,6 @@
 ﻿namespace SJP.Schematic.Oracle.Query
 {
-    public class IndexColumns
+    internal class IndexColumns
     {
         public string IndexOwner { get; set; }
 

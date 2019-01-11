@@ -1,6 +1,6 @@
 ﻿namespace SJP.Schematic.PostgreSql.Query
 {
-    public class ConstraintColumnMapping
+    internal class ConstraintColumnMapping
     {
         public string ConstraintName { get; set; }
 

@@ -191,7 +191,7 @@ from SYS.USER_SYNONYMS s
 inner join SYS.ALL_OBJECTS o on s.SYNONYM_NAME = o.OBJECT_NAME
 where s.SYNONYM_NAME = :SynonymName and o.OWNER = SYS_CONTEXT('USERENV', 'CURRENT_USER') and o.ORACLE_MAINTAINED <> 'Y'";
 
-        protected virtual OptionAsync<TargetSynonymData> LoadSynonymData(Identifier synonymName, CancellationToken cancellationToken)
+        private OptionAsync<TargetSynonymData> LoadSynonymData(Identifier synonymName, CancellationToken cancellationToken)
         {
             if (synonymName == null)
                 throw new ArgumentNullException(nameof(synonymName));
@@ -203,7 +203,7 @@ where s.SYNONYM_NAME = :SynonymName and o.OWNER = SYS_CONTEXT('USERENV', 'CURREN
             );
         }
 
-        protected virtual OptionAsync<TargetSynonymData> LoadUserSynonymData(string synonymName, CancellationToken cancellationToken)
+        private OptionAsync<TargetSynonymData> LoadUserSynonymData(string synonymName, CancellationToken cancellationToken)
         {
             if (synonymName.IsNullOrWhiteSpace())
                 throw new ArgumentNullException(nameof(synonymName));

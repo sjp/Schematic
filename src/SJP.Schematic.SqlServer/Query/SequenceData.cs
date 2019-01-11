@@ -1,6 +1,6 @@
 ﻿namespace SJP.Schematic.SqlServer.Query
 {
-    public class SequenceData
+    internal class SequenceData
     {
         public bool IsCached { get; set; }
 

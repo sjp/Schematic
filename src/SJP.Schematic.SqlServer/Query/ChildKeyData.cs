@@ -1,6 +1,6 @@
 ﻿namespace SJP.Schematic.SqlServer.Query
 {
-    public class ChildKeyData
+    internal class ChildKeyData
     {
         public string ChildTableSchema { get; set; }
 

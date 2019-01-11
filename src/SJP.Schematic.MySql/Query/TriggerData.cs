@@ -1,6 +1,6 @@
 ﻿namespace SJP.Schematic.MySql.Query
 {
-    public class TriggerData
+    internal class TriggerData
     {
         public string TriggerName { get; set; }
 

@@ -1,6 +1,6 @@
 ﻿namespace SJP.Schematic.SqlServer.Query
 {
-    public class SynonymData
+    internal class SynonymData
     {
         public string TargetServerName { get; set; }
 

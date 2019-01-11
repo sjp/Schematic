@@ -1,6 +1,6 @@
 ﻿namespace SJP.Schematic.Oracle.Query
 {
-    public class TargetSynonymData
+    internal class TargetSynonymData
     {
         public string TargetDatabaseName { get; set; }
 
