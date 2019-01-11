@@ -3,9 +3,6 @@
 * Simplify type declarations and descriptions as much as possible. Want it to be
   painless and easy.
 
-* Fix generic types for queryables and indexes? Do we want them to be dependent
-  on a type such as table/view or generic?
-
 * Split into multiple assemblies. This is mostly done but perhaps split further for
   migrations assemblies.
 
