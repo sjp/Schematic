@@ -1,5 +1,3 @@
-using System;
-using System.Text;
 using NUnit.Framework;
 using SJP.Schematic.DataAccess.Extensions;
 
