@@ -176,7 +176,7 @@ namespace SJP.Schematic.Oracle.Tests.Integration
             var sequences = await SequenceProvider.GetAllSequences().ConfigureAwait(false);
             var containsTestSequence = sequences.Any(s => s.Name.LocalName == expectedSequenceName);
 
-            Assert.True(containsTestSequence);
+            Assert.IsTrue(containsTestSequence);
         }
 
         [Test]

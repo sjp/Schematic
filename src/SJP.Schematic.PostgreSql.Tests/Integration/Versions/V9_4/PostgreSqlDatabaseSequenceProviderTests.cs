@@ -169,7 +169,7 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration.Versions.V9_4
             var sequences = await SequenceProvider.GetAllSequences().ConfigureAwait(false);
             var containsTestSequence = sequences.Any(s => s.Name.LocalName == "db_test_sequence_1");
 
-            Assert.True(containsTestSequence);
+            Assert.IsTrue(containsTestSequence);
         }
 
         [Test]

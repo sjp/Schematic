@@ -167,7 +167,7 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration
             var views = await ViewProvider.GetAllViews().ConfigureAwait(false);
             var containsTestView = views.Any(v => v.Name.LocalName == viewName);
 
-            Assert.True(containsTestView);
+            Assert.IsTrue(containsTestView);
         }
 
         [Test]

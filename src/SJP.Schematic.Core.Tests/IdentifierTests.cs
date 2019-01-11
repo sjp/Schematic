@@ -222,7 +222,7 @@ namespace SJP.Schematic.Core.Tests
                 Assert.IsNull(identifier.Server);
                 Assert.IsNull(identifier.Database);
                 Assert.IsNull(identifier.Schema);
-                Assert.NotNull(identifier.LocalName);
+                Assert.IsNotNull(identifier.LocalName);
             });
         }
 

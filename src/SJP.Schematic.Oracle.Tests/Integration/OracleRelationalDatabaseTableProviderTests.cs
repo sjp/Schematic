@@ -363,7 +363,7 @@ end;
             var tables = await TableProvider.GetAllTables().ConfigureAwait(false);
             var containsTestTable = tables.Any(t => t.Name.LocalName == expectedTableName);
 
-            Assert.True(containsTestTable);
+            Assert.IsTrue(containsTestTable);
         }
     }
 }

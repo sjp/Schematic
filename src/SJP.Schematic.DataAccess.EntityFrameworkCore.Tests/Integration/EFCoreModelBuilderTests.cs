@@ -96,7 +96,7 @@ create table test_table_4 (
             var builder = Builder;
             var result = builder.AddTable(table);
 
-            Assert.NotNull(result);
+            Assert.IsNotNull(result);
         }
 
         [Test]

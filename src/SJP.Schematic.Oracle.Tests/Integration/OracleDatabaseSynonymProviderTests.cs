@@ -139,7 +139,7 @@ namespace SJP.Schematic.Oracle.Tests.Integration
             var synonyms = await SynonymProvider.GetAllSynonyms().ConfigureAwait(false);
             var containsTestSynonym = synonyms.Any(s => s.Name.LocalName == expectedSynonymName);
 
-            Assert.True(containsTestSynonym);
+            Assert.IsTrue(containsTestSynonym);
         }
 
         [Test]

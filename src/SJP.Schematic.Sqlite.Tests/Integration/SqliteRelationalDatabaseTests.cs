@@ -30,7 +30,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
         [Test]
         public void DatabaseVersion_PropertyGet_ShouldBeNonNull()
         {
-            Assert.NotNull(Database.DatabaseVersion);
+            Assert.IsNotNull(Database.DatabaseVersion);
         }
 
         [Test]

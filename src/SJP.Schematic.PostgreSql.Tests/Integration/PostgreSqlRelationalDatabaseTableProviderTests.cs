@@ -425,7 +425,7 @@ execute procedure test_trigger_fn()").ConfigureAwait(false);
             var tables = await TableProvider.GetAllTables().ConfigureAwait(false);
             var containsTestTable = tables.Any(t => t.Name.LocalName == "db_test_table_1");
 
-            Assert.True(containsTestTable);
+            Assert.IsTrue(containsTestTable);
         }
     }
 }

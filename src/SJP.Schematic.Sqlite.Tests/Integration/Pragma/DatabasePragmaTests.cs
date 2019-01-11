@@ -523,7 +523,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
 
                 Assert.Multiple(() =>
                 {
-                    Assert.NotNull(indexInfo);
+                    Assert.IsNotNull(indexInfo);
                     Assert.AreEqual("val", indexInfo.name); // first column
                 });
             }
@@ -544,7 +544,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
 
                 Assert.Multiple(() =>
                 {
-                    Assert.NotNull(indexInfo);
+                    Assert.IsNotNull(indexInfo);
                     Assert.AreEqual("val", indexInfo.name); // first column
                 });
             }
@@ -565,7 +565,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
 
                 Assert.Multiple(() =>
                 {
-                    Assert.NotNull(firstIndex);
+                    Assert.IsNotNull(firstIndex);
                     Assert.AreEqual("ix_test_index", firstIndex.name);
                 });
             }
@@ -586,7 +586,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
 
                 Assert.Multiple(() =>
                 {
-                    Assert.NotNull(firstIndex);
+                    Assert.IsNotNull(firstIndex);
                     Assert.AreEqual("ix_test_index", firstIndex.name);
                 });
             }
@@ -652,7 +652,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
 
                 Assert.Multiple(() =>
                 {
-                    Assert.NotNull(indexXInfo);
+                    Assert.IsNotNull(indexXInfo);
                     Assert.AreEqual("val", indexXInfo.name); // first column
                 });
             }
@@ -673,7 +673,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
 
                 Assert.Multiple(() =>
                 {
-                    Assert.NotNull(indexXInfo);
+                    Assert.IsNotNull(indexXInfo);
                     Assert.AreEqual("val", indexXInfo.name); // first column
                 });
             }
