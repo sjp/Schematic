@@ -53,8 +53,8 @@ namespace SJP.Schematic.Oracle
 select
     v.OWNER as SchemaName,
     v.VIEW_NAME as ObjectName
-from ALL_VIEWS v
-inner join ALL_OBJECTS o on v.OWNER = o.OWNER and v.VIEW_NAME = o.OBJECT_NAME
+from SYS.ALL_VIEWS v
+inner join SYS.ALL_OBJECTS o on v.OWNER = o.OWNER and v.VIEW_NAME = o.OBJECT_NAME
 where o.ORACLE_MAINTAINED <> 'Y'
 order by v.OWNER, v.VIEW_NAME";
 
@@ -100,8 +100,8 @@ order by v.OWNER, v.VIEW_NAME";
 
         private const string ViewNameQuerySql = @"
 select v.OWNER as SchemaName, v.VIEW_NAME as ObjectName
-from ALL_VIEWS v
-inner join ALL_OBJECTS o on v.OWNER = o.OWNER and v.VIEW_NAME = o.OBJECT_NAME
+from SYS.ALL_VIEWS v
+inner join SYS.ALL_OBJECTS o on v.OWNER = o.OWNER and v.VIEW_NAME = o.OBJECT_NAME
 where v.OWNER = :SchemaName and v.VIEW_NAME = :ViewName and o.ORACLE_MAINTAINED <> 'Y'";
 
         protected virtual OptionAsync<IDatabaseView> LoadView(Identifier viewName, CancellationToken cancellationToken)
@@ -150,7 +150,7 @@ where v.OWNER = :SchemaName and v.VIEW_NAME = :ViewName and o.ORACLE_MAINTAINED 
 
         private const string DefinitionQuerySql = @"
 select TEXT
-from ALL_VIEWS
+from SYS.ALL_VIEWS
 where OWNER = :SchemaName and VIEW_NAME = :ViewName";
 
         protected virtual Task<IReadOnlyList<IDatabaseColumn>> LoadColumnsAsync(Identifier viewName, CancellationToken cancellationToken)
@@ -217,7 +217,7 @@ select
     atc.CHAR_LENGTH as CharacterLength,
     atc.CHARACTER_SET_NAME as Collation,
     atc.VIRTUAL_COLUMN as IsComputed
-from ALL_TAB_COLS atc
+from SYS.ALL_TAB_COLS atc
 where OWNER = :SchemaName and TABLE_NAME = :ViewName
 order by atc.COLUMN_ID";
 
@@ -259,7 +259,7 @@ select
     CONSTRAINT_NAME as ConstraintName,
     SEARCH_CONDITION as Definition,
     STATUS as EnabledStatus
-from ALL_CONSTRAINTS
+from SYS.ALL_CONSTRAINTS
 where OWNER = :SchemaName and TABLE_NAME = :ViewName and CONSTRAINT_TYPE = 'C'";
 
         private static string GenerateNotNullDefinition(string columnName)

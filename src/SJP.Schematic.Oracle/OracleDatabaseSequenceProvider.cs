@@ -48,8 +48,8 @@ namespace SJP.Schematic.Oracle
 select
     s.SEQUENCE_OWNER as SchemaName,
     s.SEQUENCE_NAME as ObjectName
-from ALL_SEQUENCES s
-inner join ALL_OBJECTS o on s.SEQUENCE_OWNER = o.OWNER and s.SEQUENCE_NAME = o.OBJECT_NAME
+from SYS.ALL_SEQUENCES s
+inner join SYS.ALL_OBJECTS o on s.SEQUENCE_OWNER = o.OWNER and s.SEQUENCE_NAME = o.OBJECT_NAME
 where o.ORACLE_MAINTAINED <> 'Y'
 order by s.SEQUENCE_OWNER, s.SEQUENCE_NAME";
 
@@ -95,8 +95,8 @@ order by s.SEQUENCE_OWNER, s.SEQUENCE_NAME";
 
         private const string SequenceNameQuerySql = @"
 select s.SEQUENCE_OWNER as SchemaName, s.SEQUENCE_NAME as ObjectName
-from ALL_SEQUENCES s
-inner join ALL_OBJECTS o on s.SEQUENCE_OWNER = o.OWNER and s.SEQUENCE_NAME = o.OBJECT_NAME
+from SYS.ALL_SEQUENCES s
+inner join SYS.ALL_OBJECTS o on s.SEQUENCE_OWNER = o.OWNER and s.SEQUENCE_NAME = o.OBJECT_NAME
 where s.SEQUENCE_OWNER = :SchemaName and s.SEQUENCE_NAME = :SequenceName and o.ORACLE_MAINTAINED <> 'Y'";
 
         protected virtual string SequenceQuery => SequenceQuerySql;
@@ -108,7 +108,7 @@ select
     MAX_VALUE as ""MaxValue"",
     CYCLE_FLAG as ""Cycle"",
     CACHE_SIZE as CacheSize
-from ALL_SEQUENCES
+from SYS.ALL_SEQUENCES
 where SEQUENCE_OWNER = :SchemaName and SEQUENCE_NAME = :SequenceName";
 
         protected virtual OptionAsync<IDatabaseSequence> LoadSequence(Identifier sequenceName, CancellationToken cancellationToken)

@@ -55,9 +55,9 @@ namespace SJP.Schematic.Oracle
 select
     t.OWNER as SchemaName,
     t.TABLE_NAME as ObjectName
-from ALL_TABLES t
-inner join ALL_OBJECTS o on t.OWNER = o.OWNER and t.TABLE_NAME = o.OBJECT_NAME
-left join ALL_MVIEWS mv on t.OWNER = mv.OWNER and t.TABLE_NAME = mv.MVIEW_NAME
+from SYS.ALL_TABLES t
+inner join SYS.ALL_OBJECTS o on t.OWNER = o.OWNER and t.TABLE_NAME = o.OBJECT_NAME
+left join SYS.ALL_MVIEWS mv on t.OWNER = mv.OWNER and t.TABLE_NAME = mv.MVIEW_NAME
 where
     o.ORACLE_MAINTAINED <> 'Y'
     and o.GENERATED <> 'Y'
@@ -107,9 +107,9 @@ order by t.OWNER, t.TABLE_NAME";
 
         private const string TableNameQuerySql = @"
 select t.OWNER as SchemaName, t.TABLE_NAME as ObjectName
-from ALL_TABLES t
-inner join ALL_OBJECTS o on t.OWNER = o.OWNER and t.TABLE_NAME = o.OBJECT_NAME
-left join ALL_MVIEWS mv on t.OWNER = mv.OWNER and t.TABLE_NAME = mv.MVIEW_NAME
+from SYS.ALL_TABLES t
+inner join SYS.ALL_OBJECTS o on t.OWNER = o.OWNER and t.TABLE_NAME = o.OBJECT_NAME
+left join SYS.ALL_MVIEWS mv on t.OWNER = mv.OWNER and t.TABLE_NAME = mv.MVIEW_NAME
 where
     t.OWNER = :SchemaName and t.TABLE_NAME = :TableName
     and o.ORACLE_MAINTAINED <> 'Y'
@@ -222,8 +222,8 @@ select
     ac.STATUS as EnabledStatus,
     acc.COLUMN_NAME as ColumnName,
     acc.POSITION as ColumnPosition
-from ALL_CONSTRAINTS ac
-inner join ALL_CONS_COLUMNS acc on ac.OWNER = acc.OWNER and ac.CONSTRAINT_NAME = acc.CONSTRAINT_NAME and ac.TABLE_NAME = acc.TABLE_NAME
+from SYS.ALL_CONSTRAINTS ac
+inner join SYS.ALL_CONS_COLUMNS acc on ac.OWNER = acc.OWNER and ac.CONSTRAINT_NAME = acc.CONSTRAINT_NAME and ac.TABLE_NAME = acc.TABLE_NAME
 where ac.OWNER = :SchemaName and ac.TABLE_NAME = :TableName and ac.CONSTRAINT_TYPE = 'P'";
 
         protected virtual Task<IReadOnlyCollection<IDatabaseIndex>> LoadIndexesAsync(Identifier tableName, IReadOnlyDictionary<Identifier, IDatabaseColumn> columns, CancellationToken cancellationToken)
@@ -287,10 +287,10 @@ select
     aic.COLUMN_NAME as ColumnName,
     aic.COLUMN_POSITION as ColumnPosition,
     aic.DESCEND as IsDescending
-from ALL_INDEXES ai
-inner join ALL_OBJECTS ao on ai.OWNER = ao.OWNER and ai.INDEX_NAME = ao.OBJECT_NAME
+from SYS.ALL_INDEXES ai
+inner join SYS.ALL_OBJECTS ao on ai.OWNER = ao.OWNER and ai.INDEX_NAME = ao.OBJECT_NAME
 inner join SYS.IND$ ind on ao.OBJECT_ID = ind.OBJ#
-inner join ALL_IND_COLUMNS aic
+inner join SYS.ALL_IND_COLUMNS aic
     on ai.OWNER = aic.INDEX_OWNER and ai.INDEX_NAME = aic.INDEX_NAME
 where ai.TABLE_OWNER = :SchemaName and ai.TABLE_NAME = :TableName
     and aic.TABLE_OWNER = :SchemaName and aic.TABLE_NAME = :TableName
@@ -347,8 +347,8 @@ select
     ac.STATUS as EnabledStatus,
     acc.COLUMN_NAME as ColumnName,
     acc.POSITION as ColumnPosition
-from ALL_CONSTRAINTS ac
-inner join ALL_CONS_COLUMNS acc on ac.OWNER = acc.OWNER and ac.CONSTRAINT_NAME = acc.CONSTRAINT_NAME and ac.TABLE_NAME = acc.TABLE_NAME
+from SYS.ALL_CONSTRAINTS ac
+inner join SYS.ALL_CONS_COLUMNS acc on ac.OWNER = acc.OWNER and ac.CONSTRAINT_NAME = acc.CONSTRAINT_NAME and ac.TABLE_NAME = acc.TABLE_NAME
 where ac.OWNER = :SchemaName and ac.TABLE_NAME = :TableName and ac.CONSTRAINT_TYPE = 'U'";
 
         protected virtual Task<IReadOnlyCollection<IDatabaseRelationalKey>> LoadChildKeysAsync(Identifier tableName, IReadOnlyDictionary<Identifier, IDatabaseColumn> columns, Option<IDatabaseKey> primaryKey, IReadOnlyDictionary<Identifier, IDatabaseKey> uniqueKeys, CancellationToken cancellationToken)
@@ -427,8 +427,8 @@ select
     ac.DELETE_RULE as DeleteRule,
     pac.CONSTRAINT_NAME as ParentKeyName,
     pac.CONSTRAINT_TYPE as ParentKeyType
-from ALL_CONSTRAINTS ac
-inner join ALL_CONSTRAINTS pac on pac.OWNER = ac.R_OWNER and pac.CONSTRAINT_NAME = ac.R_CONSTRAINT_NAME
+from SYS.ALL_CONSTRAINTS ac
+inner join SYS.ALL_CONSTRAINTS pac on pac.OWNER = ac.R_OWNER and pac.CONSTRAINT_NAME = ac.R_CONSTRAINT_NAME
 where pac.OWNER = :SchemaName and pac.TABLE_NAME = :TableName and ac.CONSTRAINT_TYPE = 'R' and pac.CONSTRAINT_TYPE in ('P', 'U')";
 
         protected virtual Task<IReadOnlyCollection<IDatabaseCheckConstraint>> LoadChecksAsync(Identifier tableName, IReadOnlyDictionary<Identifier, IDatabaseColumn> columns, CancellationToken cancellationToken)
@@ -482,7 +482,7 @@ select
     CONSTRAINT_NAME as ConstraintName,
     SEARCH_CONDITION as Definition,
     STATUS as EnabledStatus
-from ALL_CONSTRAINTS
+from SYS.ALL_CONSTRAINTS
 where OWNER = :SchemaName and TABLE_NAME = :TableName and CONSTRAINT_TYPE = 'C'";
 
         protected virtual Task<IReadOnlyCollection<IDatabaseRelationalKey>> LoadParentKeysAsync(Identifier tableName, IReadOnlyDictionary<Identifier, IDatabaseColumn> columns, CancellationToken cancellationToken)
@@ -609,9 +609,9 @@ select
     pac.CONSTRAINT_TYPE as ParentKeyType,
     acc.COLUMN_NAME as ColumnName,
     acc.POSITION as ColumnPosition
-from ALL_CONSTRAINTS ac
-inner join ALL_CONS_COLUMNS acc on ac.OWNER = acc.OWNER and ac.CONSTRAINT_NAME = acc.CONSTRAINT_NAME and ac.TABLE_NAME = acc.TABLE_NAME
-inner join ALL_CONSTRAINTS pac on pac.OWNER = ac.R_OWNER and pac.CONSTRAINT_NAME = ac.R_CONSTRAINT_NAME
+from SYS.ALL_CONSTRAINTS ac
+inner join SYS.ALL_CONS_COLUMNS acc on ac.OWNER = acc.OWNER and ac.CONSTRAINT_NAME = acc.CONSTRAINT_NAME and ac.TABLE_NAME = acc.TABLE_NAME
+inner join SYS.ALL_CONSTRAINTS pac on pac.OWNER = ac.R_OWNER and pac.CONSTRAINT_NAME = ac.R_CONSTRAINT_NAME
 where ac.OWNER = :SchemaName and ac.TABLE_NAME = :TableName and ac.CONSTRAINT_TYPE = 'R' and pac.CONSTRAINT_TYPE in ('P', 'U')";
 
         protected virtual Task<IReadOnlyList<IDatabaseColumn>> LoadColumnsAsync(Identifier tableName, CancellationToken cancellationToken)
@@ -683,7 +683,7 @@ select
     CHAR_LENGTH as CharacterLength,
     CHARACTER_SET_NAME as Collation,
     VIRTUAL_COLUMN as IsComputed
-from ALL_TAB_COLS
+from SYS.ALL_TAB_COLS
 where OWNER = :SchemaName and TABLE_NAME = :TableName
 order by COLUMN_ID";
 
@@ -750,7 +750,7 @@ select
     TRIGGERING_EVENT as TriggerEvent,
     TRIGGER_BODY as Definition,
     STATUS as EnabledStatus
-from ALL_TRIGGERS
+from SYS.ALL_TRIGGERS
 where TABLE_OWNER = :SchemaName and TABLE_NAME = :TableName and BASE_OBJECT_TYPE = 'TABLE'";
 
         protected IEnumerable<string> GetNotNullConstrainedColumns(Identifier tableName, IEnumerable<string> columnNames)

@@ -14,7 +14,7 @@ namespace SJP.Schematic.Oracle.Tests.Integration
         [OneTimeSetUp]
         public async Task Init()
         {
-            await Connection.ExecuteAsync("create synonym db_test_synonym_1 for user_tables").ConfigureAwait(false);
+            await Connection.ExecuteAsync("create synonym db_test_synonym_1 for sys.user_tables").ConfigureAwait(false);
 
             await Connection.ExecuteAsync("create view synonym_test_view_1 as select 1 as test from dual").ConfigureAwait(false);
             await Connection.ExecuteAsync("create table synonym_test_table_1 (table_id number primary key not null)").ConfigureAwait(false);

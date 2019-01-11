@@ -29,7 +29,7 @@ namespace SJP.Schematic.Oracle
 
         // collections create directly instead of via LoadSynonym() methods
         // the main reason is to avoid queries where possible, especially when
-        // the ALL_SYNONYMS data dictionary view is very slow
+        // the SYS.ALL_SYNONYMS data dictionary view is very slow
 
         public async Task<IReadOnlyCollection<IDatabaseSynonym>> GetAllSynonyms(CancellationToken cancellationToken = default(CancellationToken))
         {
@@ -68,8 +68,8 @@ select distinct
     s.DB_LINK as TargetDatabaseName,
     s.TABLE_OWNER as TargetSchemaName,
     s.TABLE_NAME as TargetObjectName
-from ALL_SYNONYMS s
-inner join ALL_OBJECTS o on s.OWNER = o.OWNER and s.SYNONYM_NAME = o.OBJECT_NAME
+from SYS.ALL_SYNONYMS s
+inner join SYS.ALL_OBJECTS o on s.OWNER = o.OWNER and s.SYNONYM_NAME = o.OBJECT_NAME
 where o.ORACLE_MAINTAINED <> 'Y'
 order by s.DB_LINK, s.OWNER, s.SYNONYM_NAME";
 
@@ -103,7 +103,7 @@ order by s.DB_LINK, s.OWNER, s.SYNONYM_NAME";
 
             var candidateSynonymName = QualifySynonymName(synonymName);
 
-            // fast path, ALL_SYNONYMS is much slower than USER_SYNONYMS so prefer the latter where possible
+            // fast path, SYS.ALL_SYNONYMS is much slower than SYS.USER_SYNONYMS so prefer the latter where possible
             var isUserSynonym = candidateSynonymName.Database == IdentifierDefaults.Database && candidateSynonymName.Schema == IdentifierDefaults.Schema;
             if (isUserSynonym)
             {
@@ -129,16 +129,16 @@ order by s.DB_LINK, s.OWNER, s.SYNONYM_NAME";
 
         private const string SynonymNameQuerySql = @"
 select s.OWNER as SchemaName, s.SYNONYM_NAME as ObjectName
-from ALL_SYNONYMS s
-inner join ALL_OBJECTS o on s.OWNER = o.OWNER and s.SYNONYM_NAME = o.OBJECT_NAME
+from SYS.ALL_SYNONYMS s
+inner join SYS.ALL_OBJECTS o on s.OWNER = o.OWNER and s.SYNONYM_NAME = o.OBJECT_NAME
 where s.OWNER = :SchemaName and s.SYNONYM_NAME = :SynonymName and o.ORACLE_MAINTAINED <> 'Y'";
 
         protected virtual string UserSynonymNameQuery => UserSynonymNameQuerySql;
 
         private const string UserSynonymNameQuerySql = @"
 select s.SYNONYM_NAME
-from USER_SYNONYMS s
-inner join ALL_OBJECTS o on s.SYNONYM_NAME = o.OBJECT_NAME
+from SYS.USER_SYNONYMS s
+inner join SYS.ALL_OBJECTS o on s.SYNONYM_NAME = o.OBJECT_NAME
 where o.OWNER = SYS_CONTEXT('USERENV', 'CURRENT_USER') and s.SYNONYM_NAME = :SynonymName and o.ORACLE_MAINTAINED <> 'Y'";
 
         protected virtual OptionAsync<IDatabaseSynonym> LoadSynonym(Identifier synonymName, CancellationToken cancellationToken)
@@ -159,7 +159,7 @@ where o.OWNER = SYS_CONTEXT('USERENV', 'CURRENT_USER') and s.SYNONYM_NAME = :Syn
 
             var resolvedSynonymName = await resolvedSynonymNameOption.UnwrapSomeAsync().ConfigureAwait(false);
 
-            // ALL_SYNONYMS is much slower than USER_SYNONYMS so prefer the latter where possible
+            // SYS.ALL_SYNONYMS is much slower than SYS.USER_SYNONYMS so prefer the latter where possible
             var isUserSynonym = resolvedSynonymName.Database == IdentifierDefaults.Database && resolvedSynonymName.Schema == IdentifierDefaults.Schema;
             var synonymData = isUserSynonym
                 ? LoadUserSynonymData(resolvedSynonymName.LocalName, cancellationToken)
@@ -176,8 +176,8 @@ select distinct
     s.DB_LINK as TargetDatabaseName,
     s.TABLE_OWNER as TargetSchemaName,
     s.TABLE_NAME as TargetObjectName
-from ALL_SYNONYMS s
-inner join ALL_OBJECTS o on s.OWNER = o.OWNER and s.SYNONYM_NAME = o.OBJECT_NAME
+from SYS.ALL_SYNONYMS s
+inner join SYS.ALL_OBJECTS o on s.OWNER = o.OWNER and s.SYNONYM_NAME = o.OBJECT_NAME
 where s.OWNER = :SchemaName and s.SYNONYM_NAME = :SynonymName and o.ORACLE_MAINTAINED <> 'Y'";
 
         protected virtual string LoadUserSynonymQuery => LoadUserSynonymQuerySql;
@@ -187,8 +187,8 @@ select distinct
     s.DB_LINK as TargetDatabaseName,
     s.TABLE_OWNER as TargetSchemaName,
     s.TABLE_NAME as TargetObjectName
-from USER_SYNONYMS s
-inner join ALL_OBJECTS o on s.SYNONYM_NAME = o.OBJECT_NAME
+from SYS.USER_SYNONYMS s
+inner join SYS.ALL_OBJECTS o on s.SYNONYM_NAME = o.OBJECT_NAME
 where s.SYNONYM_NAME = :SynonymName and o.OWNER = SYS_CONTEXT('USERENV', 'CURRENT_USER') and o.ORACLE_MAINTAINED <> 'Y'";
 
         protected virtual OptionAsync<TargetSynonymData> LoadSynonymData(Identifier synonymName, CancellationToken cancellationToken)
