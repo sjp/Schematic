@@ -259,17 +259,6 @@ namespace SJP.Schematic.Sqlite
             return result.AsReadOnly();
         }
 
-        protected virtual string GetTypeofColumn(Identifier viewName, Identifier columnName)
-        {
-            if (viewName == null)
-                throw new ArgumentNullException(nameof(viewName));
-            if (columnName == null)
-                throw new ArgumentNullException(nameof(columnName));
-
-            var sql = GetTypeofQuery(viewName, columnName.LocalName);
-            return Connection.ExecuteScalar<string>(sql);
-        }
-
         protected virtual Task<string> GetTypeofColumnAsync(Identifier viewName, Identifier columnName, CancellationToken cancellationToken)
         {
             if (viewName == null)
