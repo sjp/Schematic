@@ -42,8 +42,8 @@ namespace SJP.Schematic.DataAccess.OrmLite
 
             fileSystem.File.WriteAllText(projectPath, ProjectDefinition);
 
-            var tableGenerator = new OrmLiteTableGenerator(NameTranslator, baseNamespace);
-            var viewGenerator = new OrmLiteViewGenerator(NameTranslator, baseNamespace);
+            var tableGenerator = new OrmLiteTableGenerator(NameTranslator, baseNamespace, Indent);
+            var viewGenerator = new OrmLiteViewGenerator(NameTranslator, baseNamespace, Indent);
 
             var tables = Database.GetAllTables(CancellationToken.None).GetAwaiter().GetResult();
             foreach (var table in tables)
