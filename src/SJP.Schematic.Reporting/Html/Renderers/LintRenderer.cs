@@ -41,7 +41,7 @@ namespace SJP.Schematic.Reporting.Html.Renderers
             var templateParameter = new LintResults(groupedRules);
             var renderedLint = Formatter.RenderTemplate(templateParameter);
 
-            var lintContainer = new Container(renderedLint, Database.DatabaseName, string.Empty);
+            var lintContainer = new Container(renderedLint, Database.IdentifierDefaults.Database, string.Empty);
             var renderedPage = Formatter.RenderTemplate(lintContainer);
 
             if (!ExportDirectory.Exists)

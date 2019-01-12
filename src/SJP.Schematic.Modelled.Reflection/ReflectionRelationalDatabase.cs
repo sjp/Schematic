@@ -17,17 +17,17 @@ namespace SJP.Schematic.Modelled.Reflection
             Dialect = dialect ?? throw new ArgumentNullException(nameof(dialect));
             DatabaseDefinitionType = databaseDefinitionType ?? throw new ArgumentNullException(nameof(databaseDefinitionType));
 
-            if (serverName.IsNullOrWhiteSpace())
-                serverName = null;
-            ServerName = serverName;
+            var defaultsBuilder = new IdentifierDefaultsBuilder();
+            if (!serverName.IsNullOrWhiteSpace())
+                defaultsBuilder = defaultsBuilder.WithServer(serverName);
 
-            if (databaseName.IsNullOrWhiteSpace())
-                databaseName = null;
-            DatabaseName = databaseName;
+            if (!databaseName.IsNullOrWhiteSpace())
+                defaultsBuilder = defaultsBuilder.WithDatabase(databaseName);
 
-            if (defaultSchema.IsNullOrWhiteSpace())
-                defaultSchema = null;
-            DefaultSchema = defaultSchema;
+            if (!defaultSchema.IsNullOrWhiteSpace())
+                defaultsBuilder = defaultsBuilder.WithSchema(defaultSchema);
+
+            IdentifierDefaults = defaultsBuilder.Build();
 
             TypeProvider = new ReflectionTypeProvider(dialect, databaseDefinitionType);
             EnsureUniqueTypes(DatabaseDefinitionType, TypeProvider);
@@ -40,13 +40,7 @@ namespace SJP.Schematic.Modelled.Reflection
 
         public IDatabaseDialect Dialect { get; }
 
-        public string ServerName { get; }
-
-        public string DatabaseName { get; }
-
-        public string DefaultSchema { get; }
-
-        public string DatabaseVersion { get; } = string.Empty;
+        public IIdentifierDefaults IdentifierDefaults { get; }
 
         protected Type DatabaseDefinitionType { get; }
 
@@ -273,9 +267,9 @@ namespace SJP.Schematic.Modelled.Reflection
             if (identifier == null)
                 throw new ArgumentNullException(nameof(identifier));
 
-            var serverName = identifier.Server ?? ServerName;
-            var databaseName = identifier.Database ?? DatabaseName;
-            var schema = identifier.Schema ?? DefaultSchema;
+            var serverName = identifier.Server ?? IdentifierDefaults.Server;
+            var databaseName = identifier.Database ?? IdentifierDefaults.Database;
+            var schema = identifier.Schema ?? IdentifierDefaults.Schema;
 
             return Identifier.CreateQualifiedIdentifier(serverName, databaseName, schema, identifier.LocalName);
         }

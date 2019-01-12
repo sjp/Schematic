@@ -64,7 +64,7 @@ namespace SJP.Schematic.Reporting.Html.Renderers
             );
             var renderedConstraints = Formatter.RenderTemplate(templateParameter);
 
-            var constraintsContainer = new Container(renderedConstraints, Database.DatabaseName, string.Empty);
+            var constraintsContainer = new Container(renderedConstraints, Database.IdentifierDefaults.Database, string.Empty);
             var renderedPage = Formatter.RenderTemplate(constraintsContainer);
 
             if (!ExportDirectory.Exists)

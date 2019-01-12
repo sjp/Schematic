@@ -11,36 +11,6 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
         private IRelationalDatabase Database => new SqliteRelationalDatabase(Dialect, Connection, IdentifierDefaults);
 
         [Test]
-        public void ServerName_PropertyGet_ShouldBeNull()
-        {
-            Assert.IsNull(Database.ServerName);
-        }
-
-        [Test]
-        public void Database_PropertyGet_ShouldBeNull()
-        {
-            Assert.IsNull(Database.DatabaseName);
-        }
-
-        [Test]
-        public void DefaultSchema_PropertyGet_ShouldEqualMain()
-        {
-            Assert.AreEqual("main", Database.DefaultSchema);
-        }
-
-        [Test]
-        public void DatabaseVersion_PropertyGet_ShouldBeNonNull()
-        {
-            Assert.IsNotNull(Database.DatabaseVersion);
-        }
-
-        [Test]
-        public void DatabaseVersion_PropertyGet_ShouldBeNonEmpty()
-        {
-            Assert.AreNotEqual(string.Empty, Database.DatabaseVersion);
-        }
-
-        [Test]
         public Task VacuumAsync_WhenInvoked_RunsWithoutError()
         {
             var sqliteDb = new SqliteRelationalDatabase(Dialect, Connection, IdentifierDefaults);

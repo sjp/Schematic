@@ -50,7 +50,7 @@ namespace SJP.Schematic.Reporting.Html.Renderers
             var templateParameter = new Indexes(indexes, string.Empty);
             var renderedIndexes = Formatter.RenderTemplate(templateParameter);
 
-            var indexesContainer = new Container(renderedIndexes, Database.DatabaseName, string.Empty);
+            var indexesContainer = new Container(renderedIndexes, Database.IdentifierDefaults.Database, string.Empty);
             var renderedPage = Formatter.RenderTemplate(indexesContainer);
 
             if (!ExportDirectory.Exists)

@@ -47,7 +47,7 @@ namespace SJP.Schematic.Reporting.Html.Renderers
             var templateParameter = new Columns(orderedColumns);
             var renderedColumns = Formatter.RenderTemplate(templateParameter);
 
-            var columnsContainer = new Container(renderedColumns, Database.DatabaseName, string.Empty);
+            var columnsContainer = new Container(renderedColumns, Database.IdentifierDefaults.Database, string.Empty);
             var renderedPage = Formatter.RenderTemplate(columnsContainer);
 
             if (!ExportDirectory.Exists)

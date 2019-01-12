@@ -206,8 +206,8 @@ namespace SJP.Schematic.Reporting.Dot
                 .OrderBy(node => node.Identifier.ToString())
                 .ToList();
 
-            var graphName = !Database.DatabaseName.IsNullOrWhiteSpace()
-                ? Database.DatabaseName
+            var graphName = !Database.IdentifierDefaults.Database.IsNullOrWhiteSpace()
+                ? Database.IdentifierDefaults.Database
                 : "unnamed graph";
             var graph = new DotGraph(
                 new DotIdentifier(graphName),

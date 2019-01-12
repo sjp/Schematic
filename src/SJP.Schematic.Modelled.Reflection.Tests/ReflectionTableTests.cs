@@ -32,6 +32,7 @@ namespace SJP.Schematic.Modelled.Reflection.Tests
         {
             var databaseMock = new Mock<IRelationalDatabase>();
             databaseMock.Setup(db => db.Dialect).Returns(new FakeDialect());
+            databaseMock.Setup(db => db.IdentifierDefaults).Returns(new IdentifierDefaultsBuilder().Build());
 
             Assert.Throws<ArgumentException>(() => new ReflectionTable(databaseMock.Object, typeof(TableTypeWithBadCtor)));
         }
@@ -41,6 +42,7 @@ namespace SJP.Schematic.Modelled.Reflection.Tests
         {
             var databaseMock = new Mock<IRelationalDatabase>();
             databaseMock.Setup(db => db.Dialect).Returns(new FakeDialect());
+            databaseMock.Setup(db => db.IdentifierDefaults).Returns(new IdentifierDefaultsBuilder().Build());
 
             Assert.Throws<ArgumentException>(() => new ReflectionTable(databaseMock.Object, typeof(TableTypeWithBadColumns)));
         }

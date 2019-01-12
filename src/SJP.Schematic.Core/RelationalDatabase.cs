@@ -16,14 +16,6 @@ namespace SJP.Schematic.Core
 
         protected IDbConnection Connection { get; }
 
-        protected IIdentifierDefaults IdentifierDefaults { get; }
-
-        public string ServerName => IdentifierDefaults.Server;
-
-        public string DatabaseName => IdentifierDefaults.Database;
-
-        public string DefaultSchema => IdentifierDefaults.Schema;
-
-        public string DatabaseVersion => Dialect.GetDatabaseDisplayVersionAsync().GetAwaiter().GetResult();
+        public IIdentifierDefaults IdentifierDefaults { get; }
     }
 }

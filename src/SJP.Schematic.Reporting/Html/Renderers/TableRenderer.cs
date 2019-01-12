@@ -42,7 +42,7 @@ namespace SJP.Schematic.Reporting.Html.Renderers
                 var tableModel = await mapper.MapAsync(table, cancellationToken).ConfigureAwait(false);
                 var renderedTable = Formatter.RenderTemplate(tableModel);
 
-                var tableContainer = new Container(renderedTable, Database.DatabaseName, "../");
+                var tableContainer = new Container(renderedTable, Database.IdentifierDefaults.Database, "../");
                 var renderedPage = Formatter.RenderTemplate(tableContainer);
 
                 var outputPath = Path.Combine(ExportDirectory.FullName, table.Name.ToSafeKey() + ".html");

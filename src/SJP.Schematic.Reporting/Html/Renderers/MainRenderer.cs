@@ -92,9 +92,10 @@ namespace SJP.Schematic.Reporting.Html.Renderers
                 .OrderBy(n => n)
                 .ToList();
 
+            var dbVersion = await Database.Dialect.GetDatabaseDisplayVersionAsync(cancellationToken).ConfigureAwait(false);
             var templateParameter = new Main(
-                Database.DatabaseName,
-                Database.DatabaseVersion,
+                Database.IdentifierDefaults.Database,
+                dbVersion,
                 columns,
                 constraints,
                 indexesCount,
@@ -107,7 +108,7 @@ namespace SJP.Schematic.Reporting.Html.Renderers
 
             var renderedMain = Formatter.RenderTemplate(templateParameter);
 
-            var mainContainer = new Container(renderedMain, Database.DatabaseName, string.Empty);
+            var mainContainer = new Container(renderedMain, Database.IdentifierDefaults.Database, string.Empty);
             var renderedPage = Formatter.RenderTemplate(mainContainer);
 
             if (!ExportDirectory.Exists)

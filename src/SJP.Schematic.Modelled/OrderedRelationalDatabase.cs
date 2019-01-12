@@ -25,17 +25,11 @@ namespace SJP.Schematic.Modelled
 
         public IDatabaseDialect Dialect => BaseDatabase.Dialect;
 
+        public IIdentifierDefaults IdentifierDefaults => BaseDatabase.IdentifierDefaults;
+
         protected IRelationalDatabase BaseDatabase { get; }
 
         protected IEnumerable<IRelationalDatabase> Databases { get; }
-
-        public string DefaultSchema => BaseDatabase.DefaultSchema;
-
-        public string ServerName => BaseDatabase.ServerName;
-
-        public string DatabaseName => BaseDatabase.DatabaseName;
-
-        public string DatabaseVersion => BaseDatabase.DatabaseVersion;
 
         public OptionAsync<IRelationalDatabaseTable> GetTable(Identifier tableName, CancellationToken cancellationToken = default(CancellationToken))
         {

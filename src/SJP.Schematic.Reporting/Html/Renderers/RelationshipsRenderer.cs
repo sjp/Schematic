@@ -33,7 +33,7 @@ namespace SJP.Schematic.Reporting.Html.Renderers
             var templateParameter = await mapper.MapAsync(Database, cancellationToken).ConfigureAwait(false);
             var renderedRelationships = Formatter.RenderTemplate(templateParameter);
 
-            var relationshipContainer = new Container(renderedRelationships, Database.DatabaseName, string.Empty);
+            var relationshipContainer = new Container(renderedRelationships, Database.IdentifierDefaults.Database, string.Empty);
             var renderedPage = Formatter.RenderTemplate(relationshipContainer);
 
             if (!ExportDirectory.Exists)
