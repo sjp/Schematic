@@ -172,24 +172,6 @@ namespace SJP.Schematic.Sqlite.Tests
         }
 
         [Test]
-        public static void Vacuum_GivenNullSchemaName_ThrowsArgumentNullException()
-        {
-            Assert.Throws<ArgumentNullException>(() => SqliteDatabase.Vacuum(null));
-        }
-
-        [Test]
-        public static void Vacuum_GivenEmptySchemaName_ThrowsArgumentNullException()
-        {
-            Assert.Throws<ArgumentNullException>(() => SqliteDatabase.Vacuum(string.Empty));
-        }
-
-        [Test]
-        public static void Vacuum_GivenWhiteSpaceSchemaName_ThrowsArgumentNullException()
-        {
-            Assert.Throws<ArgumentNullException>(() => SqliteDatabase.Vacuum("   "));
-        }
-
-        [Test]
         public static void VacuumAsync_WhenGivenNullSchemaName_ThrowsArgumentNullException()
         {
             Assert.Throws<ArgumentNullException>(() => SqliteDatabase.VacuumAsync(null));
@@ -205,42 +187,6 @@ namespace SJP.Schematic.Sqlite.Tests
         public static void VacuumAsync_WhenGivenWhiteSpaceSchemaName_ThrowsArgumentNullException()
         {
             Assert.Throws<ArgumentNullException>(() => SqliteDatabase.VacuumAsync("   "));
-        }
-
-        [Test]
-        public static void AttachDatabase_WhenGivenNullSchemaName_ThrowsArgumentNullException()
-        {
-            Assert.Throws<ArgumentNullException>(() => SqliteDatabase.AttachDatabase(null, ":memory:"));
-        }
-
-        [Test]
-        public static void AttachDatabase_WhenGivenEmptySchemaName_ThrowsArgumentNullException()
-        {
-            Assert.Throws<ArgumentNullException>(() => SqliteDatabase.AttachDatabase(string.Empty, ":memory:"));
-        }
-
-        [Test]
-        public static void AttachDatabase_WhenGivenWhiteSpaceSchemaName_ThrowsArgumentNullException()
-        {
-            Assert.Throws<ArgumentNullException>(() => SqliteDatabase.AttachDatabase("   ", ":memory:"));
-        }
-
-        [Test]
-        public static void AttachDatabase_WhenGivenNullFileName_ThrowsArgumentNullException()
-        {
-            Assert.Throws<ArgumentNullException>(() => SqliteDatabase.AttachDatabase("test", null));
-        }
-
-        [Test]
-        public static void AttachDatabase_WhenGivenEmptyFileName_ThrowsArgumentNullException()
-        {
-            Assert.Throws<ArgumentNullException>(() => SqliteDatabase.AttachDatabase("test", string.Empty));
-        }
-
-        [Test]
-        public static void AttachDatabase_WhenGivenWhiteSpaceFileName_ThrowsArgumentNullException()
-        {
-            Assert.Throws<ArgumentNullException>(() => SqliteDatabase.AttachDatabase("test", "   "));
         }
 
         [Test]
@@ -280,21 +226,9 @@ namespace SJP.Schematic.Sqlite.Tests
         }
 
         [Test]
-        public static void DetachDatabase_WhenGivenNullSchemaName_ThrowsArgumentNullException()
+        public static void AttachDatabaseAsync_WhenGivenMainSchemaName_ThrowsArgumentException()
         {
-            Assert.Throws<ArgumentNullException>(() => SqliteDatabase.DetachDatabase(null));
-        }
-
-        [Test]
-        public static void DetachDatabase_WhenGivenEmptySchemaName_ThrowsArgumentNullException()
-        {
-            Assert.Throws<ArgumentNullException>(() => SqliteDatabase.DetachDatabase(string.Empty));
-        }
-
-        [Test]
-        public static void DetachDatabase_WhenGivenWhiteSpaceSchemaName_ThrowsArgumentNullException()
-        {
-            Assert.Throws<ArgumentNullException>(() => SqliteDatabase.DetachDatabase("   "));
+            Assert.Throws<ArgumentException>(() => SqliteDatabase.AttachDatabaseAsync("main", ":memory:"));
         }
 
         [Test]
@@ -313,6 +247,12 @@ namespace SJP.Schematic.Sqlite.Tests
         public static void DetachDatabaseAsync_WhenGivenWhiteSpaceSchemaName_ThrowsArgumentNullException()
         {
             Assert.Throws<ArgumentNullException>(() => SqliteDatabase.DetachDatabaseAsync("   "));
+        }
+
+        [Test]
+        public static void DetachDatabaseAsync_WhenGivenMainSchemaName_ThrowsArgumentException()
+        {
+            Assert.Throws<ArgumentException>(() => SqliteDatabase.DetachDatabaseAsync("main"));
         }
     }
 }

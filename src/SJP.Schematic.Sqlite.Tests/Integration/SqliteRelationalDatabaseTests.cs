@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Threading.Tasks;
 using Microsoft.Data.Sqlite;
 using NUnit.Framework;
 using SJP.Schematic.Core;
@@ -40,31 +41,10 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
         }
 
         [Test]
-        public void Vacuum_WhenInvoked_RunsWithoutError()
-        {
-            var sqliteDb = new SqliteRelationalDatabase(Dialect, Connection, IdentifierDefaults);
-            sqliteDb.Vacuum();
-        }
-
-        [Test]
         public Task VacuumAsync_WhenInvoked_RunsWithoutError()
         {
             var sqliteDb = new SqliteRelationalDatabase(Dialect, Connection, IdentifierDefaults);
             return sqliteDb.VacuumAsync();
-        }
-
-        [Test]
-        public void Vacuum_WhenGivenValidSchemaName_RunsWithoutError()
-        {
-            var sqliteDb = new SqliteRelationalDatabase(Dialect, Connection, IdentifierDefaults);
-            sqliteDb.Vacuum("main");
-        }
-
-        [Test]
-        public void Vacuum_WhenGivenUnknownSchemaName_ThrowsSqliteException()
-        {
-            var sqliteDb = new SqliteRelationalDatabase(Dialect, Connection, IdentifierDefaults);
-            Assert.Throws<SqliteException>(() => sqliteDb.Vacuum("asdas"));
         }
 
         [Test]
@@ -82,25 +62,10 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
         }
 
         [Test]
-        public void AttachDatabase_WhenGivenValidSchemaAndFileNames_RunsWithoutError()
-        {
-            var sqliteDb = new SqliteRelationalDatabase(Dialect, Config.Connection, IdentifierDefaults);
-            sqliteDb.AttachDatabase("test", ":memory:");
-        }
-
-        [Test]
         public Task AttachDatabaseAsync_WhenGivenValidSchemaAndFileNames_RunsWithoutError()
         {
             var sqliteDb = new SqliteRelationalDatabase(Dialect, Config.Connection, IdentifierDefaults);
             return sqliteDb.AttachDatabaseAsync("test", ":memory:");
-        }
-
-        [Test]
-        public void DetachDatabase_WhenGivenValidSchemaName_RunsWithoutError()
-        {
-            var sqliteDb = new SqliteRelationalDatabase(Dialect, Config.Connection, IdentifierDefaults);
-            sqliteDb.AttachDatabase("test", ":memory:");
-            sqliteDb.DetachDatabase("test");
         }
 
         [Test]
@@ -109,13 +74,6 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
             var sqliteDb = new SqliteRelationalDatabase(Dialect, Config.Connection, IdentifierDefaults);
             await sqliteDb.AttachDatabaseAsync("test", ":memory:").ConfigureAwait(false);
             await sqliteDb.DetachDatabaseAsync("test").ConfigureAwait(false);
-        }
-
-        [Test]
-        public void DetachDatabase_WhenGivenUnknownSchemaName_ThrowsSqliteException()
-        {
-            var sqliteDb = new SqliteRelationalDatabase(Dialect, Config.Connection, IdentifierDefaults);
-            Assert.Throws<SqliteException>(() => sqliteDb.DetachDatabase("test"));
         }
 
         [Test]
