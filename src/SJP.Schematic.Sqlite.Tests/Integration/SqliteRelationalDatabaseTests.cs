@@ -8,8 +8,6 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
 {
     internal sealed class SqliteRelationalDatabaseTests : SqliteTest
     {
-        private IRelationalDatabase Database => new SqliteRelationalDatabase(Dialect, Connection, IdentifierDefaults);
-
         [Test]
         public Task VacuumAsync_WhenInvoked_RunsWithoutError()
         {

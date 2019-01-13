@@ -105,6 +105,7 @@ namespace SJP.Schematic.PostgreSql.Tests
         }
 
         // testing that the behaviour is equivalent to an empty synonym provider
+        [TestFixture]
         internal static class SynonymTests
         {
             private static IRelationalDatabase Database

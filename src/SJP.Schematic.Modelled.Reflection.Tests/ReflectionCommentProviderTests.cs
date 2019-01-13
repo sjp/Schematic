@@ -432,7 +432,7 @@ namespace SJP.Schematic.Modelled.Reflection.Tests
 
         private sealed class TestGenericClass<T>
         {
-            public int IdentityTest(T t) => ReferenceEquals(t, t) ? 0 : 1;
+            public int IdentityTest(T t) => ReferenceEquals(t, 1) ? 0 : 1;
         }
     }
 }

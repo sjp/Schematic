@@ -63,7 +63,7 @@ namespace SJP.Schematic.Sqlite.Pragma
             var size = await Connection.ExecuteScalarAsync<long>(CacheSizeInPagesReadQuery, cancellationToken).ConfigureAwait(false);
             if (size < 0)
             {
-                var pageSize = await PageSizeAsync(cancellationToken);
+                var pageSize = await PageSizeAsync(cancellationToken).ConfigureAwait(false);
                 size /= -pageSize / 1024;
             }
 

@@ -63,6 +63,7 @@ namespace SJP.Schematic.MySql.Tests
         }
 
         // testing that the behaviour is equivalent to an empty sequence provider
+        [TestFixture]
         internal static class SequenceTests
         {
             private static IRelationalDatabase Database
@@ -111,6 +112,7 @@ namespace SJP.Schematic.MySql.Tests
         }
 
         // testing that the behaviour is equivalent to an empty synonym provider
+        [TestFixture]
         internal static class SynonymTests
         {
             private static IRelationalDatabase Database
