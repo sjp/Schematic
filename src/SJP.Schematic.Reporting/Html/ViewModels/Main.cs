@@ -18,7 +18,8 @@ namespace SJP.Schematic.Reporting.Html.ViewModels
             IEnumerable<Table> tables,
             IEnumerable<View> views,
             IEnumerable<Sequence> sequences,
-            IEnumerable<Synonym> synonyms
+            IEnumerable<Synonym> synonyms,
+            IEnumerable<Routine> routines
         )
         {
             DatabaseName = databaseName ?? string.Empty;
@@ -46,6 +47,10 @@ namespace SJP.Schematic.Reporting.Html.ViewModels
             Synonyms = synonyms ?? throw new ArgumentNullException(nameof(synonyms));
             SynonymsCount = synonyms.UCount();
             SynonymsTableClass = SynonymsCount > 0 ? CssClasses.DataTableClass : string.Empty;
+
+            Routines = routines ?? throw new ArgumentNullException(nameof(routines));
+            RoutinesCount = routines.UCount();
+            RoutinesTableClass = RoutinesCount > 0 ? CssClasses.DataTableClass : string.Empty;
         }
 
         public ReportTemplate Template { get; } = ReportTemplate.Main;
@@ -89,6 +94,12 @@ namespace SJP.Schematic.Reporting.Html.ViewModels
         public uint SynonymsCount { get; }
 
         public HtmlString SynonymsTableClass { get; }
+
+        public IEnumerable<Routine> Routines { get; }
+
+        public uint RoutinesCount { get; }
+
+        public HtmlString RoutinesTableClass { get; }
 
         public sealed class Table
         {
@@ -207,6 +218,22 @@ namespace SJP.Schematic.Reporting.Html.ViewModels
             public string Name { get; }
 
             public HtmlString TargetText { get; }
+        }
+
+        public sealed class Routine
+        {
+            public Routine(Identifier routineName)
+            {
+                if (routineName == null)
+                    throw new ArgumentNullException(nameof(routineName));
+
+                Name = routineName.ToVisibleName();
+                RoutineUrl = routineName.ToSafeKey();
+            }
+
+            public string Name { get; }
+
+            public string RoutineUrl { get; }
         }
     }
 }

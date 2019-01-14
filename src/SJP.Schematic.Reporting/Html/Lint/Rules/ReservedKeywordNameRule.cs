@@ -74,5 +74,14 @@ namespace SJP.Schematic.Reporting.Html.Lint.Rules
             var messageText = $"The synonym { HttpUtility.HtmlEncode(synonymName.ToVisibleName()) } is also a database keyword and may require quoting to be used. Consider renaming to a non-keyword name.";
             return new RuleMessage(RuleTitle, Level, messageText);
         }
+
+        protected override IRuleMessage BuildRoutineMessage(Identifier routineName)
+        {
+            if (routineName == null)
+                throw new ArgumentNullException(nameof(routineName));
+
+            var messageText = $"The routine { HttpUtility.HtmlEncode(routineName.ToVisibleName()) } is also a database keyword and may require quoting to be used. Consider renaming to a non-keyword name.";
+            return new RuleMessage(RuleTitle, Level, messageText);
+        }
     }
 }

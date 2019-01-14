@@ -74,5 +74,14 @@ namespace SJP.Schematic.Reporting.Html.Lint.Rules
             var messageText = $"The synonym { HttpUtility.HtmlEncode(synonymName.ToVisibleName()) } contains whitespace and requires quoting to be used. Consider renaming to remove any whitespace.";
             return new RuleMessage(RuleTitle, Level, messageText);
         }
+
+        protected override IRuleMessage BuildRoutineMessage(Identifier routineName)
+        {
+            if (routineName == null)
+                throw new ArgumentNullException(nameof(routineName));
+
+            var messageText = $"The routine { HttpUtility.HtmlEncode(routineName.ToVisibleName()) } contains whitespace and requires quoting to be used. Consider renaming to remove any whitespace.";
+            return new RuleMessage(RuleTitle, Level, messageText);
+        }
     }
 }

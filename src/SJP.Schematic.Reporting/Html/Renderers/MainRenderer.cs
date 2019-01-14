@@ -36,6 +36,7 @@ namespace SJP.Schematic.Reporting.Html.Renderers
             var views = await Database.GetAllViews(cancellationToken).ConfigureAwait(false);
             var sequences = await Database.GetAllSequences(cancellationToken).ConfigureAwait(false);
             var synonyms = await Database.GetAllSynonyms(cancellationToken).ConfigureAwait(false);
+            var routines = await Database.GetAllRoutines(cancellationToken).ConfigureAwait(false);
 
             var mapper = new MainModelMapper(Connection, Database);
 
@@ -82,6 +83,8 @@ namespace SJP.Schematic.Reporting.Html.Renderers
             var synonymTasks = synonyms.Select(s => mapper.MapAsync(s, cancellationToken)).ToArray();
             var synonymViewModels = await Task.WhenAll(synonymTasks).ConfigureAwait(false);
 
+            var routineViewModels = routines.Select(mapper.Map).ToList();
+
             var schemas = tables.Select(t => t.Name)
                 .Union(views.Select(v => v.Name))
                 .Union(sequences.Select(s => s.Name))
@@ -103,7 +106,8 @@ namespace SJP.Schematic.Reporting.Html.Renderers
                 tableViewModels,
                 viewViewModels,
                 sequenceViewModels,
-                synonymViewModels
+                synonymViewModels,
+                routineViewModels
             );
 
             var renderedMain = Formatter.RenderTemplate(templateParameter);

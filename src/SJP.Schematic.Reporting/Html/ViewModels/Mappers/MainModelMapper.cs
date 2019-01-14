@@ -106,5 +106,13 @@ namespace SJP.Schematic.Reporting.Html.ViewModels.Mappers
 
             return Option<Uri>.None;
         }
+
+        public Main.Routine Map(IDatabaseRoutine routine)
+        {
+            if (routine == null)
+                throw new ArgumentNullException(nameof(routine));
+
+            return new Main.Routine(routine.Name);
+        }
     }
 }

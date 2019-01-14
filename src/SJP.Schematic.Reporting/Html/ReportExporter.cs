@@ -54,7 +54,8 @@ namespace SJP.Schematic.Reporting.Html
                 new OrphansRenderer(Connection, Database, TemplateFormatter, ExportDirectory),
                 new RelationshipsRenderer(Connection, Database, TemplateFormatter, ExportDirectory),
                 new TableRenderer(Connection, Database, TemplateFormatter, ExportDirectory),
-                new ViewRenderer(Connection, Database, TemplateFormatter, ExportDirectory)
+                new ViewRenderer(Connection, Database, TemplateFormatter, ExportDirectory),
+                new RoutineRenderer(Connection, Database, TemplateFormatter, ExportDirectory)
             };
         }
     }

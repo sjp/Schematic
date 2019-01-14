@@ -12,6 +12,7 @@
         Orphans,
         Relationships,
         Table,
-        View
+        View,
+        Routine
     }
 }
