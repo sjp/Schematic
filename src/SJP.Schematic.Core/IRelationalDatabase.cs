@@ -4,7 +4,8 @@
         : IRelationalDatabaseTableProvider,
           IDatabaseViewProvider,
           IDatabaseSequenceProvider,
-          IDatabaseSynonymProvider
+          IDatabaseSynonymProvider,
+          IDatabaseRoutineProvider
     {
         IDatabaseDialect Dialect { get; }
 

@@ -17,6 +17,7 @@ namespace SJP.Schematic.SqlServer
             _viewProvider = new SqlServerDatabaseViewProvider(connection, identifierDefaults, dialect.TypeProvider);
             _sequenceProvider = new SqlServerDatabaseSequenceProvider(connection, identifierDefaults);
             _synonymProvider = new SqlServerDatabaseSynonymProvider(connection, identifierDefaults);
+            _routineProvider = new SqlServerDatabaseRoutineProvider(connection, identifierDefaults);
         }
 
         public Task<IReadOnlyCollection<IRelationalDatabaseTable>> GetAllTables(CancellationToken cancellationToken = default(CancellationToken))
@@ -71,9 +72,23 @@ namespace SJP.Schematic.SqlServer
             return _synonymProvider.GetSynonym(synonymName, cancellationToken);
         }
 
+        public Task<IReadOnlyCollection<IDatabaseRoutine>> GetAllRoutines(CancellationToken cancellationToken = default(CancellationToken))
+        {
+            return _routineProvider.GetAllRoutines(cancellationToken);
+        }
+
+        public OptionAsync<IDatabaseRoutine> GetRoutine(Identifier routineName, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            if (routineName == null)
+                throw new ArgumentNullException(nameof(routineName));
+
+            return _routineProvider.GetRoutine(routineName, cancellationToken);
+        }
+
         private readonly IRelationalDatabaseTableProvider _tableProvider;
         private readonly IDatabaseViewProvider _viewProvider;
         private readonly IDatabaseSequenceProvider _sequenceProvider;
         private readonly IDatabaseSynonymProvider _synonymProvider;
+        private readonly IDatabaseRoutineProvider _routineProvider;
     }
 }

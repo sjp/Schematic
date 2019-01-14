@@ -1,8 +1,6 @@
-﻿using System;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using Microsoft.Data.Sqlite;
 using NUnit.Framework;
-using SJP.Schematic.Core;
 
 namespace SJP.Schematic.Sqlite.Tests.Integration
 {

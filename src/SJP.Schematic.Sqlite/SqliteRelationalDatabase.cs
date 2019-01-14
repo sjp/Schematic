@@ -83,6 +83,19 @@ namespace SJP.Schematic.Sqlite
             return _synonymProvider.GetSynonym(synonymName, cancellationToken);
         }
 
+        public Task<IReadOnlyCollection<IDatabaseRoutine>> GetAllRoutines(CancellationToken cancellationToken = default(CancellationToken))
+        {
+            return _routineProvider.GetAllRoutines(cancellationToken);
+        }
+
+        public OptionAsync<IDatabaseRoutine> GetRoutine(Identifier routineName, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            if (routineName == null)
+                throw new ArgumentNullException(nameof(routineName));
+
+            return _routineProvider.GetRoutine(routineName, cancellationToken);
+        }
+
         /// <summary>
         /// Adds another database file to the current database connection.
         /// </summary>
@@ -209,5 +222,6 @@ namespace SJP.Schematic.Sqlite
         private readonly IDatabaseViewProvider _viewProvider;
         private readonly static IDatabaseSequenceProvider _sequenceProvider = new EmptyDatabaseSequenceProvider();
         private readonly static IDatabaseSynonymProvider _synonymProvider = new EmptyDatabaseSynonymProvider();
+        private readonly static IDatabaseRoutineProvider _routineProvider = new EmptyDatabaseRoutineProvider();
     }
 }

@@ -21,6 +21,8 @@ namespace SJP.Schematic.Core.Tests.Fakes
 
         public virtual IReadOnlyCollection<IDatabaseSynonym> Synonyms { get; set; } = new List<IDatabaseSynonym>();
 
+        public virtual IReadOnlyCollection<IDatabaseRoutine> Routines { get; set; } = new List<IDatabaseRoutine>();
+
         public virtual OptionAsync<IDatabaseSequence> GetSequence(Identifier sequenceName, CancellationToken cancellationToken = default(CancellationToken))
         {
             return Sequences.Find(s => s.Name == sequenceName).ToAsync();
@@ -41,6 +43,11 @@ namespace SJP.Schematic.Core.Tests.Fakes
             return Views.Find(v => v.Name == viewName).ToAsync();
         }
 
+        public virtual OptionAsync<IDatabaseRoutine> GetRoutine(Identifier routineName, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            return Routines.Find(r => r.Name == routineName).ToAsync();
+        }
+
         public virtual Task<IReadOnlyCollection<IDatabaseSequence>> GetAllSequences(CancellationToken cancellationToken = default(CancellationToken)) => Task.FromResult(Sequences);
 
         public virtual Task<IReadOnlyCollection<IDatabaseSynonym>> GetAllSynonyms(CancellationToken cancellationToken = default(CancellationToken)) => Task.FromResult(Synonyms);
@@ -48,5 +55,7 @@ namespace SJP.Schematic.Core.Tests.Fakes
         public virtual Task<IReadOnlyCollection<IRelationalDatabaseTable>> GetAllTables(CancellationToken cancellationToken = default(CancellationToken)) => Task.FromResult(Tables);
 
         public virtual Task<IReadOnlyCollection<IDatabaseView>> GetAllViews(CancellationToken cancellationToken = default(CancellationToken)) => Task.FromResult(Views);
+
+        public virtual Task<IReadOnlyCollection<IDatabaseRoutine>> GetAllRoutines(CancellationToken cancellationToken = default(CancellationToken)) => Task.FromResult(Routines);
     }
 }

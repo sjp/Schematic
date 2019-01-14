@@ -15,5 +15,7 @@ namespace SJP.Schematic.Core.Utilities
         public static Task<IReadOnlyCollection<IDatabaseSequence>> Sequences { get; } = Task.FromResult<IReadOnlyCollection<IDatabaseSequence>>(Array.Empty<IDatabaseSequence>());
 
         public static Task<IReadOnlyCollection<IDatabaseSynonym>> Synonyms { get; } = Task.FromResult<IReadOnlyCollection<IDatabaseSynonym>>(Array.Empty<IDatabaseSynonym>());
+
+        public static Task<IReadOnlyCollection<IDatabaseRoutine>> Routines { get; } = Task.FromResult<IReadOnlyCollection<IDatabaseRoutine>>(Array.Empty<IDatabaseRoutine>());
     }
 }

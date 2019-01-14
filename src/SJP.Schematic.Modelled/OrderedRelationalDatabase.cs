@@ -178,5 +178,42 @@ namespace SJP.Schematic.Modelled
 
             return synonyms.HeadOrNone();
         }
+
+        public OptionAsync<IDatabaseRoutine> GetRoutine(Identifier routineName, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            if (routineName == null)
+                throw new ArgumentNullException(nameof(routineName));
+
+            return LoadRoutine(routineName, cancellationToken);
+        }
+
+        public async Task<IReadOnlyCollection<IDatabaseRoutine>> GetAllRoutines(CancellationToken cancellationToken = default(CancellationToken))
+        {
+            var routinesTasks = Databases.Select(d => d.GetAllRoutines(cancellationToken));
+            var routineCollections = await Task.WhenAll(routinesTasks).ConfigureAwait(false);
+            var allRoutines = routineCollections.SelectMany(s => s);
+
+            return allRoutines
+                .DistinctBy(r => r.Name)
+                .ToList();
+        }
+
+        protected virtual OptionAsync<IDatabaseRoutine> LoadRoutine(Identifier routineName, CancellationToken cancellationToken)
+        {
+            if (routineName == null)
+                throw new ArgumentNullException(nameof(routineName));
+
+            return LoadRoutineAsyncCore(routineName, cancellationToken).ToAsync();
+        }
+
+        private async Task<Option<IDatabaseRoutine>> LoadRoutineAsyncCore(Identifier routineName, CancellationToken cancellationToken)
+        {
+            var routines = await Databases
+                .Select(d => d.GetRoutine(routineName, cancellationToken))
+                .Somes()
+                .ConfigureAwait(false);
+
+            return routines.HeadOrNone();
+        }
     }
 }

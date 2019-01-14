@@ -41,7 +41,10 @@ namespace SJP.Schematic.SqlServer
 
         protected virtual string SequencesQuery => SequencesQuerySql;
 
-        private const string SequencesQuerySql = "select schema_name(schema_id) as SchemaName, name as ObjectName from sys.sequences order by schema_name(schema_id), name";
+        private const string SequencesQuerySql = @"
+select schema_name(schema_id) as SchemaName, name as ObjectName
+from sys.sequences
+order by schema_name(schema_id), name";
 
         public OptionAsync<IDatabaseSequence> GetSequence(Identifier sequenceName, CancellationToken cancellationToken = default(CancellationToken))
         {

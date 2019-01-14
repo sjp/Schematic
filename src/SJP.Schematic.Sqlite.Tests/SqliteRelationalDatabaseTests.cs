@@ -161,6 +161,55 @@ namespace SJP.Schematic.Sqlite.Tests
             }
         }
 
+        // testing that the behaviour is equivalent to an empty routines provider
+        [TestFixture]
+        internal static class RoutineTests
+        {
+            private static IRelationalDatabase Database
+            {
+                get
+                {
+                    var connection = Mock.Of<IDbConnection>();
+                    var dialect = new SqliteDialect(connection);
+                    var identifierDefaults = Mock.Of<IIdentifierDefaults>();
+
+                    return new SqliteRelationalDatabase(dialect, connection, identifierDefaults);
+                }
+            }
+
+            [Test]
+            public static void GetRoutine_GivenNullRoutineName_ThrowsArgumentNullException()
+            {
+                Assert.Throws<ArgumentNullException>(() => Database.GetRoutine(null));
+            }
+
+            [Test]
+            public static async Task GetRoutine_GivenValidRoutineName_ReturnsNone()
+            {
+                var routineName = new Identifier("asd");
+                var routineIsNone = await Database.GetRoutine(routineName).IsNone.ConfigureAwait(false);
+
+                Assert.IsTrue(routineIsNone);
+            }
+
+            [Test]
+            public static async Task GetAllRoutines_PropertyGet_ReturnsCountOfZero()
+            {
+                var routines = await Database.GetAllRoutines().ConfigureAwait(false);
+
+                Assert.Zero(routines.Count);
+            }
+
+            [Test]
+            public static async Task GetAllRoutines_WhenEnumerated_ContainsNoValues()
+            {
+                var routines = await Database.GetAllRoutines().ConfigureAwait(false);
+                var count = routines.ToList().Count;
+
+                Assert.Zero(count);
+            }
+        }
+
         private static ISqliteDatabase SqliteDatabase
         {
             get

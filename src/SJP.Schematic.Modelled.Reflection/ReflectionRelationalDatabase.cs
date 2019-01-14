@@ -36,6 +36,7 @@ namespace SJP.Schematic.Modelled.Reflection
             _viewLookup = new Lazy<IReadOnlyDictionary<Identifier, IDatabaseView>>(LoadViews);
             _sequenceLookup = new Lazy<IReadOnlyDictionary<Identifier, IDatabaseSequence>>(LoadSequences);
             _synonymLookup = new Lazy<IReadOnlyDictionary<Identifier, IDatabaseSynonym>>(LoadSynonyms);
+            _routineLookup = new Lazy<IReadOnlyDictionary<Identifier, IDatabaseRoutine>>(LoadRoutines);
         }
 
         public IDatabaseDialect Dialect { get; }
@@ -262,6 +263,42 @@ namespace SJP.Schematic.Modelled.Reflection
             return lookup;
         }
 
+        public OptionAsync<IDatabaseRoutine> GetRoutine(Identifier routineName, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            if (routineName == null)
+                throw new ArgumentNullException(nameof(routineName));
+
+            routineName = CreateQualifiedIdentifier(routineName);
+
+            return Routine.TryGetValue(routineName, out var routine)
+                ? OptionAsync<IDatabaseRoutine>.Some(routine)
+                : OptionAsync<IDatabaseRoutine>.None;
+        }
+
+        public IReadOnlyCollection<IDatabaseRoutine> Routines => new ReadOnlyCollectionSlim<IDatabaseRoutine>(Routine.Count, Routine.Values);
+
+        public Task<IReadOnlyCollection<IDatabaseRoutine>> GetAllRoutines(CancellationToken cancellationToken = default(CancellationToken)) => Task.FromResult(Routines);
+
+        protected IReadOnlyDictionary<Identifier, IDatabaseRoutine> Routine => _routineLookup.Value;
+
+        protected virtual Option<IDatabaseRoutine> LoadRoutineSync(Type routineType)
+        {
+            if (routineType == null)
+                throw new ArgumentNullException(nameof(routineType));
+
+            return Option<IDatabaseRoutine>.None;
+        }
+
+        protected virtual OptionAsync<IDatabaseRoutine> LoadRoutine(Type routineType)
+        {
+            if (routineType == null)
+                throw new ArgumentNullException(nameof(routineType));
+
+            return OptionAsync<IDatabaseRoutine>.None;
+        }
+
+        protected virtual IReadOnlyDictionary<Identifier, IDatabaseRoutine> LoadRoutines() => _emptyRoutineLookup;
+
         protected Identifier CreateQualifiedIdentifier(Identifier identifier)
         {
             if (identifier == null)
@@ -325,10 +362,12 @@ namespace SJP.Schematic.Modelled.Reflection
         private readonly Lazy<IReadOnlyDictionary<Identifier, IDatabaseView>> _viewLookup;
         private readonly Lazy<IReadOnlyDictionary<Identifier, IDatabaseSequence>> _sequenceLookup;
         private readonly Lazy<IReadOnlyDictionary<Identifier, IDatabaseSynonym>> _synonymLookup;
+        private readonly Lazy<IReadOnlyDictionary<Identifier, IDatabaseRoutine>> _routineLookup;
 
         private readonly static IReadOnlyDictionary<Identifier, IRelationalDatabaseTable> _emptyTableLookup = new Dictionary<Identifier, IRelationalDatabaseTable>();
         private readonly static IReadOnlyDictionary<Identifier, IDatabaseView> _emptyViewLookup = new Dictionary<Identifier, IDatabaseView>();
         private readonly static IReadOnlyDictionary<Identifier, IDatabaseSequence> _emptySequenceLookup = new Dictionary<Identifier, IDatabaseSequence>();
         private readonly static IReadOnlyDictionary<Identifier, IDatabaseSynonym> _emptySynonymLookup = new Dictionary<Identifier, IDatabaseSynonym>();
+        private readonly static IReadOnlyDictionary<Identifier, IDatabaseRoutine> _emptyRoutineLookup = new Dictionary<Identifier, IDatabaseRoutine>();
     }
 }

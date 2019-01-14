@@ -1,0 +1,43 @@
+﻿using System;
+using System.Diagnostics;
+using SJP.Schematic.Core.Extensions;
+using SJP.Schematic.Core.Utilities;
+
+namespace SJP.Schematic.Core
+{
+    [DebuggerDisplay("{DebuggerDisplay,nq}")]
+    public class DatabaseRoutine : IDatabaseRoutine
+    {
+        public DatabaseRoutine(Identifier routineName, string definition)
+        {
+            if (definition.IsNullOrWhiteSpace())
+                throw new ArgumentNullException(nameof(definition));
+
+            Name = routineName ?? throw new ArgumentNullException(nameof(routineName));
+            Definition = definition;
+        }
+
+        public Identifier Name { get; }
+
+        public string Definition { get; }
+
+        public override string ToString() => "Routine: " + Name.ToString();
+
+        private string DebuggerDisplay
+        {
+            get
+            {
+                var builder = StringBuilderCache.Acquire();
+
+                builder.Append("Routine: ");
+
+                if (!Name.Schema.IsNullOrWhiteSpace())
+                    builder.Append(Name.Schema).Append(".");
+
+                builder.Append(Name.LocalName);
+
+                return builder.GetStringAndRelease();
+            }
+        }
+    }
+}

@@ -17,6 +17,7 @@ namespace SJP.Schematic.Oracle
             _viewProvider = new OracleDatabaseViewProvider(connection, identifierDefaults, identifierResolver, dialect.TypeProvider);
             _sequenceProvider = new OracleDatabaseSequenceProvider(connection, identifierDefaults, identifierResolver);
             _synonymProvider = new OracleDatabaseSynonymProvider(connection, identifierDefaults, identifierResolver);
+            _routineProvider = new OracleDatabaseRoutineProvider(connection, identifierDefaults, identifierResolver);
         }
 
         public Task<IReadOnlyCollection<IRelationalDatabaseTable>> GetAllTables(CancellationToken cancellationToken = default(CancellationToken))
@@ -71,9 +72,23 @@ namespace SJP.Schematic.Oracle
             return _synonymProvider.GetSynonym(synonymName, cancellationToken);
         }
 
+        public Task<IReadOnlyCollection<IDatabaseRoutine>> GetAllRoutines(CancellationToken cancellationToken = default(CancellationToken))
+        {
+            return _routineProvider.GetAllRoutines(cancellationToken);
+        }
+
+        public OptionAsync<IDatabaseRoutine> GetRoutine(Identifier routineName, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            if (routineName == null)
+                throw new ArgumentNullException(nameof(routineName));
+
+            return _routineProvider.GetRoutine(routineName, cancellationToken);
+        }
+
         private readonly IRelationalDatabaseTableProvider _tableProvider;
         private readonly IDatabaseViewProvider _viewProvider;
         private readonly IDatabaseSequenceProvider _sequenceProvider;
         private readonly IDatabaseSynonymProvider _synonymProvider;
+        private readonly IDatabaseRoutineProvider _routineProvider;
     }
 }
