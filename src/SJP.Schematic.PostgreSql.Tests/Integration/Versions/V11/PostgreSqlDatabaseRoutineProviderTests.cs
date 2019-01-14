@@ -8,27 +8,36 @@ using SJP.Schematic.Core;
 using SJP.Schematic.Core.Extensions;
 using SJP.Schematic.Core.Utilities;
 
-namespace SJP.Schematic.PostgreSql.Tests.Integration
+namespace SJP.Schematic.PostgreSql.Tests.Integration.Versions.V11
 {
-    internal sealed class PostgreSqlDatabaseRoutineProviderTests : PostgreSqlTest
+    internal sealed class PostgreSqlDatabaseRoutineProviderTests : PostgreSql11Test
     {
         private IDatabaseRoutineProvider RoutineProvider => new PostgreSqlDatabaseRoutineProvider(Connection, IdentifierDefaults, IdentifierResolver);
 
         [OneTimeSetUp]
         public async Task Init()
         {
+            // func
             await Connection.ExecuteAsync(@"CREATE FUNCTION db_test_routine_1(val integer)
 RETURNS integer AS $$
 BEGIN
     RETURN val + 1;
 END; $$
 LANGUAGE PLPGSQL").ConfigureAwait(false);
+            // stored proc
+            await Connection.ExecuteAsync(@"CREATE PROCEDURE db_test_routine_2()
+LANGUAGE PLPGSQL
+AS $$
+BEGIN
+    COMMIT;
+END $$").ConfigureAwait(false);
         }
 
         [OneTimeTearDown]
         public async Task CleanUp()
         {
             await Connection.ExecuteAsync("drop function db_test_routine_1").ConfigureAwait(false);
+            await Connection.ExecuteAsync("drop procedure db_test_routine_2").ConfigureAwait(false);
         }
 
         private Task<IDatabaseRoutine> GetRoutineAsync(Identifier routineName)
@@ -165,6 +174,19 @@ LANGUAGE PLPGSQL").ConfigureAwait(false);
 BEGIN
     RETURN val + 1;
 END; ";
+
+            Assert.AreEqual(expectedDefinition, routine.Definition);
+        }
+
+        [Test]
+        public async Task Definition_ForStoredProcedure_ReturnsCorrectDefinition()
+        {
+            var routine = await GetRoutineAsync("db_test_routine_2").ConfigureAwait(false);
+
+            const string expectedDefinition = @"
+BEGIN
+    COMMIT;
+END ";
 
             Assert.AreEqual(expectedDefinition, routine.Definition);
         }
