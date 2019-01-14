@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Dapper;
@@ -13,10 +14,14 @@ namespace SJP.Schematic.Oracle.Tests.Integration
     internal sealed class OracleDatabasePackageProviderTests : OracleTest
     {
         private IOracleDatabasePackageProvider PackageProvider => new OracleDatabasePackageProvider(Connection, IdentifierDefaults, IdentifierResolver);
+        private AsyncLazy<IReadOnlyCollection<IOracleDatabasePackage>> _packages;
+        private Task<IReadOnlyCollection<IOracleDatabasePackage>> GetAllPackages() => _packages.Task;
 
         [OneTimeSetUp]
         public async Task Init()
         {
+            _packages = new AsyncLazy<IReadOnlyCollection<IOracleDatabasePackage>>(() => PackageProvider.GetAllPackages());
+
             await Connection.ExecuteAsync(@"CREATE PACKAGE db_test_package_1 AS
     PROCEDURE test_proc();
 END db_test_package_1").ConfigureAwait(false);
@@ -151,7 +156,7 @@ END db_test_package_2").ConfigureAwait(false);
         [Test]
         public async Task GetAllPackages_WhenEnumerated_ContainsPackages()
         {
-            var packages = await PackageProvider.GetAllPackages().ConfigureAwait(false);
+            var packages = await GetAllPackages().ConfigureAwait(false);
 
             Assert.NotZero(packages.Count);
         }
@@ -161,7 +166,7 @@ END db_test_package_2").ConfigureAwait(false);
         {
             const string expectedPackageName = "DB_TEST_PACKAGE_1";
 
-            var packages = await PackageProvider.GetAllPackages().ConfigureAwait(false);
+            var packages = await GetAllPackages().ConfigureAwait(false);
             var containsTestPackage = packages.Any(s => s.Name.LocalName == expectedPackageName);
 
             Assert.IsTrue(containsTestPackage);

@@ -144,6 +144,20 @@ where OWNER = :SchemaName and OBJECT_NAME = :PackageName
 
         private async Task<string> LoadPackageSpecificationAsyncCore(Identifier packageName, CancellationToken cancellationToken)
         {
+            // fast path
+            if (packageName.Schema == IdentifierDefaults.Schema)
+            {
+                var userLines = await Connection.QueryAsync<string>(
+                    UserPackageSpecificationQuery,
+                    new { PackageName = packageName.LocalName },
+                    cancellationToken
+                ).ConfigureAwait(false);
+
+                return !userLines.Empty()
+                    ? userLines.Join(string.Empty)
+                    : null;
+            }
+
             var lines = await Connection.QueryAsync<string>(
                 PackageSpecificationQuery,
                 new { SchemaName = packageName.Schema, PackageName = packageName.LocalName },
@@ -165,6 +179,20 @@ where OWNER = :SchemaName and OBJECT_NAME = :PackageName
 
         private async Task<Option<string>> LoadPackageBodyAsyncCore(Identifier packageName, CancellationToken cancellationToken)
         {
+            // fast path
+            if (packageName.Schema == IdentifierDefaults.Schema)
+            {
+                var userLines = await Connection.QueryAsync<string>(
+                    UserPackageBodyQuery,
+                    new { PackageName = packageName.LocalName },
+                    cancellationToken
+                ).ConfigureAwait(false);
+
+                return !userLines.Empty()
+                    ? Option<string>.Some(userLines.Join(string.Empty))
+                    : Option<string>.None;
+            }
+
             var lines = await Connection.QueryAsync<string>(
                 PackageBodyQuery,
                 new { SchemaName = packageName.Schema, PackageName = packageName.LocalName },
@@ -190,6 +218,22 @@ order by LINE";
 select TEXT
 from SYS.ALL_SOURCE
 where OWNER = :SchemaName and NAME = :PackageName AND TYPE = 'PACKAGE BODY'
+order by LINE";
+
+        protected virtual string UserPackageSpecificationQuery => UserPackageSpecificationQuerySql;
+
+        private const string UserPackageSpecificationQuerySql = @"
+select TEXT
+from SYS.USER_SOURCE
+where NAME = :PackageName AND TYPE = 'PACKAGE'
+order by LINE";
+
+        protected virtual string UserPackageBodyQuery => UserPackageBodyQuerySql;
+
+        private const string UserPackageBodyQuerySql = @"
+select TEXT
+from SYS.USER_SOURCE
+where NAME = :PackageName AND TYPE = 'PACKAGE BODY'
 order by LINE";
 
         protected Identifier QualifyPackageName(Identifier packageName)

@@ -143,6 +143,20 @@ where OWNER = :SchemaName and OBJECT_NAME = :RoutineName
 
         private async Task<string> LoadDefinitionAsyncCore(Identifier routineName, CancellationToken cancellationToken)
         {
+            // fast path
+            if (routineName.Schema == IdentifierDefaults.Schema)
+            {
+                var userLines = await Connection.QueryAsync<string>(
+                    UserDefinitionQuery,
+                    new { RoutineName = routineName.LocalName },
+                    cancellationToken
+                ).ConfigureAwait(false);
+
+                return !userLines.Empty()
+                    ? userLines.Join(string.Empty)
+                    : null;
+            }
+
             var lines = await Connection.QueryAsync<string>(
                 DefinitionQuery,
                 new { SchemaName = routineName.Schema, RoutineName = routineName.LocalName },
@@ -161,6 +175,14 @@ select TEXT
 from SYS.ALL_SOURCE
 where OWNER = :SchemaName and NAME = :RoutineName
     AND TYPE IN ('FUNCTION', 'PROCEDURE')
+order by LINE";
+
+        protected virtual string UserDefinitionQuery => UserDefinitionQuerySql;
+
+        private const string UserDefinitionQuerySql = @"
+select TEXT
+from SYS.USER_SOURCE
+where NAME = :RoutineName AND TYPE IN ('FUNCTION', 'PROCEDURE')
 order by LINE";
 
         protected Identifier QualifyRoutineName(Identifier routineName)

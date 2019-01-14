@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Dapper;
@@ -13,10 +14,14 @@ namespace SJP.Schematic.Oracle.Tests.Integration
     internal partial class OracleRelationalDatabaseTableProviderTests : OracleTest
     {
         private IRelationalDatabaseTableProvider TableProvider => new OracleRelationalDatabaseTableProvider(Connection, IdentifierDefaults, IdentifierResolver, Dialect.TypeProvider);
+        private AsyncLazy<IReadOnlyCollection<IRelationalDatabaseTable>> _tables;
+        private Task<IReadOnlyCollection<IRelationalDatabaseTable>> GetAllTables() => _tables.Task;
 
         [OneTimeSetUp]
         public async Task Init()
         {
+            _tables = new AsyncLazy<IReadOnlyCollection<IRelationalDatabaseTable>>(() => TableProvider.GetAllTables());
+
             await Connection.ExecuteAsync("create table db_test_table_1 ( title varchar2(200) )").ConfigureAwait(false);
 
             await Connection.ExecuteAsync("create table table_test_table_1 ( test_column number )").ConfigureAwait(false);
@@ -351,7 +356,7 @@ end;
         [Test]
         public async Task GetAllTables_WhenEnumerated_ContainsTables()
         {
-            var tables = await TableProvider.GetAllTables().ConfigureAwait(false);
+            var tables = await GetAllTables().ConfigureAwait(false);
 
             Assert.NotZero(tables.Count);
         }
@@ -360,7 +365,7 @@ end;
         public async Task GetAllTables_WhenEnumerated_ContainsTestTable()
         {
             const string expectedTableName = "DB_TEST_TABLE_1";
-            var tables = await TableProvider.GetAllTables().ConfigureAwait(false);
+            var tables = await GetAllTables().ConfigureAwait(false);
             var containsTestTable = tables.Any(t => t.Name.LocalName == expectedTableName);
 
             Assert.IsTrue(containsTestTable);
