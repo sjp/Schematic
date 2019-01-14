@@ -135,18 +135,12 @@ namespace SJP.Schematic.Sqlite.Parsing
             {
                 if (columns == null || columns.Empty())
                     throw new ArgumentNullException(nameof(columns));
-                if (uniqueKeys == null)
-                    throw new ArgumentNullException(nameof(uniqueKeys));
-                if (checks == null)
-                    throw new ArgumentNullException(nameof(checks));
-                if (parentKeys == null)
-                    throw new ArgumentNullException(nameof(parentKeys));
 
                 Columns = columns;
                 PrimaryKey = primaryKey;
-                UniqueKeys = uniqueKeys;
-                Checks = checks;
-                ParentKeys = parentKeys;
+                UniqueKeys = uniqueKeys ?? throw new ArgumentNullException(nameof(uniqueKeys));
+                Checks = checks ?? throw new ArgumentNullException(nameof(checks));
+                ParentKeys = parentKeys ?? throw new ArgumentNullException(nameof(parentKeys));
             }
 
             private ParsedTable()
