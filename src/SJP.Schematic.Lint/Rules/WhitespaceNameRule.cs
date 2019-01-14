@@ -29,11 +29,13 @@ namespace SJP.Schematic.Lint.Rules
             var views = await database.GetAllViews(cancellationToken).ConfigureAwait(false);
             var sequences = await database.GetAllSequences(cancellationToken).ConfigureAwait(false);
             var synonyms = await database.GetAllSynonyms(cancellationToken).ConfigureAwait(false);
+            var routines = await database.GetAllRoutines(cancellationToken).ConfigureAwait(false);
 
             return tables.SelectMany(AnalyseTable)
                 .Concat(views.SelectMany(AnalyseView))
                 .Concat(sequences.SelectMany(AnalyseSequence))
                 .Concat(synonyms.SelectMany(AnalyseSynonym))
+                .Concat(routines.SelectMany(AnalyseRoutine))
                 .ToList();
         }
 
@@ -125,6 +127,23 @@ namespace SJP.Schematic.Lint.Rules
             return result;
         }
 
+        protected IEnumerable<IRuleMessage> AnalyseRoutine(IDatabaseRoutine routine)
+        {
+            if (routine == null)
+                throw new ArgumentNullException(nameof(routine));
+
+            var result = new List<IRuleMessage>();
+
+            var routineNameHasWs = HasWhiteSpace(routine.Name.LocalName);
+            if (routineNameHasWs)
+            {
+                var message = BuildRoutineMessage(routine.Name);
+                result.Add(message);
+            }
+
+            return result;
+        }
+
         private static bool HasWhiteSpace(string input)
         {
             if (input == null)
@@ -188,6 +207,15 @@ namespace SJP.Schematic.Lint.Rules
                 throw new ArgumentNullException(nameof(synonymName));
 
             var messageText = $"The synonym '{ synonymName }' contains whitespace and requires quoting to be used. Consider renaming to remove any whitespace.";
+            return new RuleMessage(RuleTitle, Level, messageText);
+        }
+
+        protected virtual IRuleMessage BuildRoutineMessage(Identifier routineName)
+        {
+            if (routineName == null)
+                throw new ArgumentNullException(nameof(routineName));
+
+            var messageText = $"The routine '{ routineName }' contains whitespace and requires quoting to be used. Consider renaming to remove any whitespace.";
             return new RuleMessage(RuleTitle, Level, messageText);
         }
 

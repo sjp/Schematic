@@ -41,10 +41,14 @@ namespace SJP.Schematic.Lint.Rules
             var synonyms = await database.GetAllSynonyms(cancellationToken).ConfigureAwait(false);
             var synonymMessages = synonyms.SelectMany(s => AnalyseSynonym(dialect, s));
 
+            var routines = await database.GetAllRoutines(cancellationToken).ConfigureAwait(false);
+            var routineMessages = routines.SelectMany(r => AnalyseRoutine(dialect, r));
+
             return tableMessages
                 .Concat(viewMessages)
                 .Concat(sequenceMessages)
                 .Concat(synonymMessages)
+                .Concat(routineMessages)
                 .ToList();
         }
 
@@ -144,6 +148,25 @@ namespace SJP.Schematic.Lint.Rules
             return result;
         }
 
+        protected IEnumerable<IRuleMessage> AnalyseRoutine(IDatabaseDialect dialect, IDatabaseRoutine routine)
+        {
+            if (dialect == null)
+                throw new ArgumentNullException(nameof(dialect));
+            if (routine == null)
+                throw new ArgumentNullException(nameof(routine));
+
+            var result = new List<IRuleMessage>();
+
+            var routineNameIsKeyword = dialect.IsReservedKeyword(routine.Name.LocalName);
+            if (routineNameIsKeyword)
+            {
+                var message = BuildRoutineMessage(routine.Name);
+                result.Add(message);
+            }
+
+            return result;
+        }
+
         protected virtual IRuleMessage BuildTableMessage(Identifier tableName)
         {
             if (tableName == null)
@@ -199,6 +222,15 @@ namespace SJP.Schematic.Lint.Rules
                 throw new ArgumentNullException(nameof(synonymName));
 
             var messageText = $"The synonym '{ synonymName }' is also a database keyword and may require quoting to be used. Consider renaming to a non-keyword name.";
+            return new RuleMessage(RuleTitle, Level, messageText);
+        }
+
+        protected virtual IRuleMessage BuildRoutineMessage(Identifier routineName)
+        {
+            if (routineName == null)
+                throw new ArgumentNullException(nameof(routineName));
+
+            var messageText = $"The routine '{ routineName }' is also a database keyword and may require quoting to be used. Consider renaming to a non-keyword name.";
             return new RuleMessage(RuleTitle, Level, messageText);
         }
 

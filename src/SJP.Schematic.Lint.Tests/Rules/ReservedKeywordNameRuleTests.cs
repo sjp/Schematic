@@ -310,6 +310,36 @@ namespace SJP.Schematic.Lint.Tests.Rules
             Assert.NotZero(messages.Count());
         }
 
+        [Test]
+        public static async Task AnalyseDatabaseAsync_GivenRoutineWithRegularName_ProducesNoMessages()
+        {
+            var rule = new ReservedKeywordNameRule(RuleLevel.Error);
+            var routineName = new Identifier("test");
+
+            var database = CreateFakeDatabase();
+            var routine = new DatabaseRoutine(routineName, "routine_definition");
+            database.Routines = new[] { routine };
+
+            var messages = await rule.AnalyseDatabaseAsync(database).ConfigureAwait(false);
+
+            Assert.Zero(messages.Count());
+        }
+
+        [Test]
+        public static async Task AnalyseDatabaseAsync_GivenRoutineWithNameContainingReservedKeyword_ProducesMessages()
+        {
+            var rule = new ReservedKeywordNameRule(RuleLevel.Error);
+            var routineName = new Identifier("SELECT");
+
+            var database = CreateFakeDatabase();
+            var routine = new DatabaseRoutine(routineName, "routine_definition");
+            database.Routines = new[] { routine };
+
+            var messages = await rule.AnalyseDatabaseAsync(database).ConfigureAwait(false);
+
+            Assert.NotZero(messages.Count());
+        }
+
         private static FakeRelationalDatabase CreateFakeDatabase()
         {
             var dialect = new FakeDatabaseDialect { ReservedKeywords = new[] { "SELECT" } };
