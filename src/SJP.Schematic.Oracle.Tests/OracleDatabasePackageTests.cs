@@ -78,7 +78,7 @@ namespace SJP.Schematic.Oracle.Tests
 
             var package = new OracleDatabasePackage(packageName, specification, body);
 
-            Assert.AreEqual(specification, package.Body);
+            Assert.AreEqual(body, package.Body);
         }
 
         [Test]
