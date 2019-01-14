@@ -29,37 +29,43 @@ namespace SJP.Schematic.Oracle
 
         public async Task<IReadOnlyCollection<IDatabaseRoutine>> GetAllRoutines(CancellationToken cancellationToken = default(CancellationToken))
         {
-            var queryResult = await Connection.QueryAsync<QualifiedName>(
-                RoutinesQuery,
-                new { SchemaName = IdentifierDefaults.Schema },
+            var queryResult = await Connection.QueryAsync<RoutineData>(
+                AllSourcesQuery,
                 cancellationToken
             ).ConfigureAwait(false);
 
-            var routineNames = queryResult
-                .Select(dto => Identifier.CreateQualifiedIdentifier(dto.SchemaName, dto.ObjectName))
-                .ToList();
+            if (queryResult.Empty())
+                return Array.Empty<IDatabaseRoutine>();
 
-            var routines = new List<IDatabaseRoutine>();
+            var result = new List<IDatabaseRoutine>();
 
-            foreach (var routineName in routineNames)
+            var namedRoutines = queryResult.GroupBy(r => new { r.SchemaName, r.RoutineName });
+            foreach (var namedRoutine in namedRoutines)
             {
-                var routine = LoadRoutine(routineName, cancellationToken);
-                await routine.IfSome(r => routines.Add(r)).ConfigureAwait(false);
+                var name = Identifier.CreateQualifiedIdentifier(IdentifierDefaults.Server, IdentifierDefaults.Database, namedRoutine.Key.SchemaName, namedRoutine.Key.RoutineName);
+
+                var lines = namedRoutine.OrderBy(r => r.LineNumber).Select(r => r.Text);
+                var definition = lines.Join(string.Empty);
+
+                var routine = new DatabaseRoutine(name, definition);
+                result.Add(routine);
             }
 
-            return routines;
+            return result;
         }
 
-        protected virtual string RoutinesQuery => RoutinesQuerySql;
+        protected virtual string AllSourcesQuery => AllSourcesQuerySql;
 
-        private const string RoutinesQuerySql = @"
-select
+        private const string AllSourcesQuerySql = @"
+SELECT
     OWNER as SchemaName,
-    OBJECT_NAME as ObjectName
-from SYS.ALL_OBJECTS
-where OWNER = :SchemaName
-    and ORACLE_MAINTAINED <> 'Y' and OBJECT_TYPE in ('FUNCTION', 'PROCEDURE')
-order by OWNER, OBJECT_NAME";
+    NAME as RoutineName,
+    TYPE as RoutineType,
+    LINE as LineNumber,
+    TEXT as Text
+FROM SYS.ALL_SOURCE
+    WHERE TYPE in ('FUNCTION', 'PROCEDURE')
+ORDER BY OWNER, NAME, LINE";
 
         public OptionAsync<IDatabaseRoutine> GetRoutine(Identifier routineName, CancellationToken cancellationToken = default(CancellationToken))
         {

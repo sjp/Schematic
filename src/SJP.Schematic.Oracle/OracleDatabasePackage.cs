@@ -1,10 +1,13 @@
 ﻿using System;
+using System.Diagnostics;
 using LanguageExt;
 using SJP.Schematic.Core;
 using SJP.Schematic.Core.Extensions;
+using SJP.Schematic.Core.Utilities;
 
 namespace SJP.Schematic.Oracle
 {
+    [DebuggerDisplay("{DebuggerDisplay,nq}")]
     public class OracleDatabasePackage : IOracleDatabasePackage
     {
         public OracleDatabasePackage(Identifier name, string specification, Option<string> body)
@@ -27,8 +30,27 @@ namespace SJP.Schematic.Oracle
         {
             get
             {
-                var bodyText = Body.Match(b => b, () => string.Empty);
+                var bodyText = Body.Match(b => Environment.NewLine + b, () => string.Empty);
                 return Specification + bodyText;
+            }
+        }
+
+        public override string ToString() => "Package: " + Name.ToString();
+
+        private string DebuggerDisplay
+        {
+            get
+            {
+                var builder = StringBuilderCache.Acquire();
+
+                builder.Append("Package: ");
+
+                if (!Name.Schema.IsNullOrWhiteSpace())
+                    builder.Append(Name.Schema).Append(".");
+
+                builder.Append(Name.LocalName);
+
+                return builder.GetStringAndRelease();
             }
         }
     }

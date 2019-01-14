@@ -29,36 +29,54 @@ namespace SJP.Schematic.Oracle
 
         public async Task<IReadOnlyCollection<IOracleDatabasePackage>> GetAllPackages(CancellationToken cancellationToken = default(CancellationToken))
         {
-            var queryResult = await Connection.QueryAsync<QualifiedName>(
-                PackagesQuery,
-                new { SchemaName = IdentifierDefaults.Schema },
+            var queryResult = await Connection.QueryAsync<RoutineData>(
+                AllSourcesQuery,
                 cancellationToken
             ).ConfigureAwait(false);
 
-            var packageNames = queryResult
-                .Select(dto => Identifier.CreateQualifiedIdentifier(dto.SchemaName, dto.ObjectName))
-                .ToList();
+            if (queryResult.Empty())
+                return Array.Empty<IOracleDatabasePackage>();
 
             var packages = new List<IOracleDatabasePackage>();
 
-            foreach (var packageName in packageNames)
+            var namedPackages = queryResult.GroupBy(r => new { r.SchemaName, r.RoutineName });
+            foreach (var namedPackage in namedPackages)
             {
-                var package = LoadPackage(packageName, cancellationToken);
-                await package.IfSome(p => packages.Add(p)).ConfigureAwait(false);
+                var name = Identifier.CreateQualifiedIdentifier(IdentifierDefaults.Server, IdentifierDefaults.Database, namedPackage.Key.SchemaName, namedPackage.Key.RoutineName);
+
+                var specLines = namedPackage
+                    .Where(p => p.RoutineType == "PACKAGE")
+                    .OrderBy(p => p.LineNumber)
+                    .Select(p => p.Text);
+                var bodyLines = namedPackage
+                    .Where(p => p.RoutineType == "PACKAGE BODY")
+                    .OrderBy(p => p.LineNumber)
+                    .Select(p => p.Text);
+
+                var spec = specLines.Join(string.Empty);
+                var body = bodyLines.Any()
+                    ? Option<string>.Some(bodyLines.Join(string.Empty))
+                    : Option<string>.None;
+
+                var package = new OracleDatabasePackage(name, spec, body);
+                packages.Add(package);
             }
 
             return packages;
         }
 
-        protected virtual string PackagesQuery => PackagesQuerySql;
+        protected virtual string AllSourcesQuery => AllSourcesQuerySql;
 
-        private const string PackagesQuerySql = @"
-select
+        private const string AllSourcesQuerySql = @"
+SELECT
     OWNER as SchemaName,
-    OBJECT_NAME as ObjectName
-from SYS.ALL_OBJECTS
-where ORACLE_MAINTAINED <> 'Y' and OBJECT_TYPE = 'PACKAGE'
-order by OWNER, OBJECT_NAME";
+    NAME as RoutineName,
+    TYPE as RoutineType,
+    LINE as LineNumber,
+    TEXT as Text
+FROM SYS.ALL_SOURCE
+    WHERE TYPE in ('PACKAGE', 'PACKAGE BODY')
+ORDER BY OWNER, NAME, LINE";
 
         public OptionAsync<IOracleDatabasePackage> GetPackage(Identifier packageName, CancellationToken cancellationToken = default(CancellationToken))
         {
@@ -126,114 +144,80 @@ where OWNER = :SchemaName and OBJECT_NAME = :PackageName
                 return Option<IOracleDatabasePackage>.None;
 
             var resolvedPackageName = await resolvedPackageNameOption.UnwrapSomeAsync().ConfigureAwait(false);
-            var packageSpec = await LoadPackageSpecificationAsync(resolvedPackageName, cancellationToken).ConfigureAwait(false);
-            var packageBodyOption = LoadPackageBody(resolvedPackageName, cancellationToken);
-            var packageBody = await packageBodyOption.ToOption().ConfigureAwait(false);
 
-            var package = new OracleDatabasePackage(resolvedPackageName, packageSpec, packageBody);
-            return Option<IOracleDatabasePackage>.Some(package);
-        }
-
-        protected virtual Task<string> LoadPackageSpecificationAsync(Identifier packageName, CancellationToken cancellationToken)
-        {
-            if (packageName == null)
-                throw new ArgumentNullException(nameof(packageName));
-
-            return LoadPackageSpecificationAsyncCore(packageName, cancellationToken);
-        }
-
-        private async Task<string> LoadPackageSpecificationAsyncCore(Identifier packageName, CancellationToken cancellationToken)
-        {
             // fast path
-            if (packageName.Schema == IdentifierDefaults.Schema)
+            if (resolvedPackageName.Schema == IdentifierDefaults.Schema)
             {
-                var userLines = await Connection.QueryAsync<string>(
-                    UserPackageSpecificationQuery,
-                    new { PackageName = packageName.LocalName },
+                var lines = await Connection.QueryAsync<PackageData>(
+                    UserPackageDefinitionQuery,
+                    new { PackageName = resolvedPackageName.LocalName },
                     cancellationToken
                 ).ConfigureAwait(false);
 
-                return !userLines.Empty()
-                    ? userLines.Join(string.Empty)
-                    : null;
-            }
+                var spec = lines
+                    .Where(p => p.SourceType == "PACKAGE")
+                    .OrderBy(p => p.LineNumber)
+                    .Select(p => p.Text)
+                    .Join(string.Empty);
+                var bodyLines = lines
+                    .Where(p => p.SourceType == "PACKAGE BODY")
+                    .OrderBy(p => p.LineNumber)
+                    .Select(p => p.Text);
 
-            var lines = await Connection.QueryAsync<string>(
-                PackageSpecificationQuery,
-                new { SchemaName = packageName.Schema, PackageName = packageName.LocalName },
-                cancellationToken
-            ).ConfigureAwait(false);
-
-            return !lines.Empty()
-                ? lines.Join(string.Empty)
-                : null;
-        }
-
-        protected virtual OptionAsync<string> LoadPackageBody(Identifier packageName, CancellationToken cancellationToken)
-        {
-            if (packageName == null)
-                throw new ArgumentNullException(nameof(packageName));
-
-            return LoadPackageBodyAsyncCore(packageName, cancellationToken).ToAsync();
-        }
-
-        private async Task<Option<string>> LoadPackageBodyAsyncCore(Identifier packageName, CancellationToken cancellationToken)
-        {
-            // fast path
-            if (packageName.Schema == IdentifierDefaults.Schema)
-            {
-                var userLines = await Connection.QueryAsync<string>(
-                    UserPackageBodyQuery,
-                    new { PackageName = packageName.LocalName },
-                    cancellationToken
-                ).ConfigureAwait(false);
-
-                return !userLines.Empty()
-                    ? Option<string>.Some(userLines.Join(string.Empty))
+                var body = bodyLines.Any()
+                    ? Option<string>.Some(bodyLines.Join(string.Empty))
                     : Option<string>.None;
+
+                var package = new OracleDatabasePackage(resolvedPackageName, spec, body);
+                return Option<IOracleDatabasePackage>.Some(package);
             }
+            else
+            {
+                var lines = await Connection.QueryAsync<PackageData>(
+                    PackageDefinitionQuery,
+                    new { SchemaName = resolvedPackageName.Schema, PackageName = resolvedPackageName.LocalName },
+                    cancellationToken
+                ).ConfigureAwait(false);
 
-            var lines = await Connection.QueryAsync<string>(
-                PackageBodyQuery,
-                new { SchemaName = packageName.Schema, PackageName = packageName.LocalName },
-                cancellationToken
-            ).ConfigureAwait(false);
+                var spec = lines
+                    .Where(p => p.SourceType == "PACKAGE")
+                    .OrderBy(p => p.LineNumber)
+                    .Select(p => p.Text)
+                    .Join(string.Empty);
+                var bodyLines = lines
+                    .Where(p => p.SourceType == "PACKAGE BODY")
+                    .OrderBy(p => p.LineNumber)
+                    .Select(p => p.Text);
 
-            return !lines.Empty()
-                ? Option<string>.Some(lines.Join(string.Empty))
-                : Option<string>.None;
+                var body = bodyLines.Any()
+                    ? Option<string>.Some(bodyLines.Join(string.Empty))
+                    : Option<string>.None;
+
+                var package = new OracleDatabasePackage(resolvedPackageName, spec, body);
+                return Option<IOracleDatabasePackage>.Some(package);
+            }
         }
 
-        protected virtual string PackageSpecificationQuery => PackageSpecificationQuerySql;
+        protected virtual string PackageDefinitionQuery => PackageDefinitionQuerySql;
 
-        private const string PackageSpecificationQuerySql = @"
-select TEXT
+        private const string PackageDefinitionQuerySql = @"
+select
+    TYPE as SourceType,
+    LINE as LineNumber,
+    TEXT as Text
 from SYS.ALL_SOURCE
-where OWNER = :SchemaName and NAME = :PackageName AND TYPE = 'PACKAGE'
+where OWNER = :SchemaName and NAME = :PackageName and TYPE in ('PACKAGE', 'PACKAGE BODY')
 order by LINE";
 
-        protected virtual string PackageBodyQuery => PackageBodyQuerySql;
+        protected virtual string UserPackageDefinitionQuery => UserPackageDefinitionQuerySql;
 
-        private const string PackageBodyQuerySql = @"
-select TEXT
-from SYS.ALL_SOURCE
-where OWNER = :SchemaName and NAME = :PackageName AND TYPE = 'PACKAGE BODY'
-order by LINE";
-
-        protected virtual string UserPackageSpecificationQuery => UserPackageSpecificationQuerySql;
-
-        private const string UserPackageSpecificationQuerySql = @"
-select TEXT
+        private const string UserPackageDefinitionQuerySql = @"
+select
+    TYPE as SourceType,
+    LINE as LineNumber,
+    TEXT as Text
 from SYS.USER_SOURCE
-where NAME = :PackageName AND TYPE = 'PACKAGE'
-order by LINE";
-
-        protected virtual string UserPackageBodyQuery => UserPackageBodyQuerySql;
-
-        private const string UserPackageBodyQuerySql = @"
-select TEXT
-from SYS.USER_SOURCE
-where NAME = :PackageName AND TYPE = 'PACKAGE BODY'
+where NAME = :PackageName and TYPE in ('PACKAGE', 'PACKAGE BODY')
 order by LINE";
 
         protected Identifier QualifyPackageName(Identifier packageName)
