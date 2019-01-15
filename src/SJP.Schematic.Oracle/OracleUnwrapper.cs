@@ -12,9 +12,57 @@ using SJP.Schematic.Oracle.Parsing;
 
 namespace SJP.Schematic.Oracle
 {
+    /// <summary>
+    /// Contains routines used to unwrap obfuscated routines in Oracle.
+    /// </summary>
     public static class OracleUnwrapper
     {
+        /// <summary>
+        /// This will attempt to return an unwrapped definition of an obfuscated routine.
+        /// </summary>
+        /// <param name="input">A potentially wrapped routine definition.</param>
+        /// <param name="unwrapped">If successful, the unwrapped routine definition.</param>
+        /// <returns><code>true</code> if unwrapping was successful, <code>false</code> otherwise.</returns>
+        public static bool TryUnwrap(string input, out string unwrapped)
+        {
+            if (input == null || !IsWrappedDefinition(input))
+            {
+                unwrapped = null;
+                return false;
+            }
+
+            try
+            {
+                unwrapped = UnwrapUnsafe(input);
+                return true;
+            }
+            catch (InvalidDataException)
+            {
+                unwrapped = null;
+                return false;
+            }
+        }
+
+        /// <summary>
+        /// This will attempt to return an unwrapped definition of an obfuscated routine, or leave the input unchanged otherwise.
+        /// </summary>
+        /// <param name="input">A potentially wrapped routine definition.</param>
+        /// <returns>An unwrapped routine definition if the input is valid.</returns>
         public static string Unwrap(string input)
+        {
+            return TryUnwrap(input, out var unwrapped)
+                ? unwrapped
+                : input;
+        }
+
+        /// <summary>
+        /// This will unwrap the definition of an obfuscated routine. The input must be wrapped.
+        /// </summary>
+        /// <param name="input">A wrapped routine definition.</param>
+        /// <returns>An unwrapped routine definition.</returns>
+        /// <exception cref="ArgumentNullException">Thrown when <paramref name="input"/> is <code>null</code>.</exception>
+        /// <exception cref="InvalidDataException">Thrown when the data is not able to be unwrapped successfully. This is likely because the data is not wrapped or because it is not valid.</exception>
+        public static string UnwrapUnsafe(string input)
         {
             if (input == null)
                 throw new ArgumentNullException(nameof(input));
@@ -54,6 +102,13 @@ namespace SJP.Schematic.Oracle
         // HEX#
         // HEX# HEX# (second one represents the length of the base64 string
         // A base64 string over multiple lines (wrapped at 72 chars)
+        /// <summary>
+        /// Determines whether the given input is a valid wrapped routine definition.
+        /// </summary>
+        /// <param name="input">A potentially wrapped routine definition.</param>
+        /// <returns><code>true</code> if the input appears to be a valid wrapped routine definition.</returns>
+        /// <remarks>This does not guarantee that unwrapping is successful, only that the input appears to be correct. For example, the obfuscated input may not pass a checksum.</remarks>
+        /// <exception cref="ArgumentNullException">Thrown when <paramref name="input"/> is <code>null</code>.</exception>
         public static bool IsWrappedDefinition(string input)
         {
             if (input == null)

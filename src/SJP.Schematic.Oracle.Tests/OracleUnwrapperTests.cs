@@ -9,13 +9,66 @@ namespace SJP.Schematic.Oracle.Tests
     internal static class OracleUnwrapperTests
     {
         [Test]
-        public static void Unwrap_GivenNullInput_ThrowsArgumentNullException()
+        public static void TryUnwrap_GivenNullInput_ReturnsFalse()
         {
-            Assert.Throws<ArgumentNullException>(() => OracleUnwrapper.Unwrap(null));
+            var result = OracleUnwrapper.TryUnwrap(null, out var _);
+
+            Assert.IsFalse(result);
         }
 
         [Test]
-        public static void Unwrap_GivenEncryptedInput_ReturnsExpectedResult()
+        public static void TryUnwrap_GivenNullInput_ReturnsExpectedValue()
+        {
+            var _ = OracleUnwrapper.TryUnwrap(null, out var unwrapped);
+
+            Assert.IsNull(unwrapped);
+        }
+
+        [Test]
+        public static void TryUnwrap_GivenValidInput_ReturnsTrue()
+        {
+            var result = OracleUnwrapper.TryUnwrap(WrappedExample, out var _);
+
+            Assert.IsTrue(result);
+        }
+
+        [Test]
+        public static void TryUnwrap_GivenValidInput_ReturnsExpectedValue()
+        {
+            var _ = OracleUnwrapper.TryUnwrap(WrappedExample, out var unwrapped);
+
+            var cleanExpected = TrimNewlines(ExpectedUnwrappedExample);
+            var cleanResult = TrimNewlines(unwrapped);
+
+            Assert.AreEqual(cleanExpected, cleanResult);
+        }
+
+        [Test]
+        public static void TryUnwrap_GivenInvalidInput_ReturnsFalse()
+        {
+            var result = OracleUnwrapper.TryUnwrap(MissingMagicPrefixExample, out var _);
+
+            Assert.IsFalse(result);
+        }
+
+        [Test]
+        public static void TryUnwrap_GivenInvalidInput_ReturnsExpectedValue()
+        {
+            var _ = OracleUnwrapper.TryUnwrap(MissingMagicPrefixExample, out var unwrapped);
+
+            Assert.IsNull(unwrapped);
+        }
+
+        [Test]
+        public static void Unwrap_GivenNullInput_ReturnsNull()
+        {
+            var result = OracleUnwrapper.Unwrap(null);
+
+            Assert.IsNull(result);
+        }
+
+        [Test]
+        public static void Unwrap_GivenValidInput_ReturnsUnwrappedInput()
         {
             var result = OracleUnwrapper.Unwrap(WrappedExample);
 
@@ -26,15 +79,40 @@ namespace SJP.Schematic.Oracle.Tests
         }
 
         [Test]
-        public static void Unwrap_GivenInvalidInput_ThrowsInvalidDataException()
+        public static void Unwrap_GivenInvalidInput_ReturnsInputUnchanged()
         {
-            Assert.Throws<InvalidDataException>(() => OracleUnwrapper.Unwrap(MissingMagicPrefixExample));
+            var result = OracleUnwrapper.Unwrap(MissingMagicPrefixExample);
+
+            Assert.AreEqual(MissingMagicPrefixExample, result);
         }
 
         [Test]
-        public static void Unwrap_GivenInputWithIncorrectHash_ThrowsInvalidDataException()
+        public static void UnwrapUnsafe_GivenNullInput_ThrowsArgumentNullException()
         {
-            Assert.Throws<InvalidDataException>(() => OracleUnwrapper.Unwrap(InvalidHashExample));
+            Assert.Throws<ArgumentNullException>(() => OracleUnwrapper.UnwrapUnsafe(null));
+        }
+
+        [Test]
+        public static void UnwrapUnsafe_GivenEncryptedInput_ReturnsExpectedResult()
+        {
+            var result = OracleUnwrapper.UnwrapUnsafe(WrappedExample);
+
+            var cleanExpected = TrimNewlines(ExpectedUnwrappedExample);
+            var cleanResult = TrimNewlines(result);
+
+            Assert.AreEqual(cleanExpected, cleanResult);
+        }
+
+        [Test]
+        public static void UnwrapUnsafe_GivenInvalidInput_ThrowsInvalidDataException()
+        {
+            Assert.Throws<InvalidDataException>(() => OracleUnwrapper.UnwrapUnsafe(MissingMagicPrefixExample));
+        }
+
+        [Test]
+        public static void UnwrapUnsafe_GivenInputWithIncorrectHash_ThrowsInvalidDataException()
+        {
+            Assert.Throws<InvalidDataException>(() => OracleUnwrapper.UnwrapUnsafe(InvalidHashExample));
         }
 
         [Test]

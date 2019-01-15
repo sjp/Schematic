@@ -46,8 +46,9 @@ namespace SJP.Schematic.Oracle
 
                 var lines = namedRoutine.OrderBy(r => r.LineNumber).Select(r => r.Text);
                 var definition = lines.Join(string.Empty);
+                var unwrappedDefinition = OracleUnwrapper.Unwrap(definition);
 
-                var routine = new DatabaseRoutine(name, definition);
+                var routine = new DatabaseRoutine(name, unwrappedDefinition);
                 result.Add(routine);
             }
 
@@ -158,9 +159,11 @@ where OWNER = :SchemaName and OBJECT_NAME = :RoutineName
                     cancellationToken
                 ).ConfigureAwait(false);
 
-                return !userLines.Empty()
-                    ? userLines.Join(string.Empty)
-                    : null;
+                if (userLines.Empty())
+                    return null;
+
+                var userDefinition = userLines.Join(string.Empty);
+                return OracleUnwrapper.Unwrap(userDefinition);
             }
 
             var lines = await Connection.QueryAsync<string>(
@@ -169,9 +172,11 @@ where OWNER = :SchemaName and OBJECT_NAME = :RoutineName
                 cancellationToken
             ).ConfigureAwait(false);
 
-            return !lines.Empty()
-                ? lines.Join(string.Empty)
-                : null;
+            if (lines.Empty())
+                return null;
+
+            var definition = lines.Join(string.Empty);
+            return OracleUnwrapper.Unwrap(definition);
         }
 
         protected virtual string DefinitionQuery => DefinitionQuerySql;

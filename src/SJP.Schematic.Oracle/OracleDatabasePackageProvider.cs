@@ -58,7 +58,10 @@ namespace SJP.Schematic.Oracle
                     ? Option<string>.Some(bodyLines.Join(string.Empty))
                     : Option<string>.None;
 
-                var package = new OracleDatabasePackage(name, spec, body);
+                var specification = OracleUnwrapper.Unwrap(spec);
+                var packageBody = body.Map(OracleUnwrapper.Unwrap);
+
+                var package = new OracleDatabasePackage(name, specification, packageBody);
                 packages.Add(package);
             }
 
@@ -168,7 +171,10 @@ where OWNER = :SchemaName and OBJECT_NAME = :PackageName
                     ? Option<string>.Some(bodyLines.Join(string.Empty))
                     : Option<string>.None;
 
-                var package = new OracleDatabasePackage(resolvedPackageName, spec, body);
+                var specification = OracleUnwrapper.Unwrap(spec);
+                var packageBody = body.Map(OracleUnwrapper.Unwrap);
+
+                var package = new OracleDatabasePackage(resolvedPackageName, specification, packageBody);
                 return Option<IOracleDatabasePackage>.Some(package);
             }
             else
@@ -193,7 +199,10 @@ where OWNER = :SchemaName and OBJECT_NAME = :PackageName
                     ? Option<string>.Some(bodyLines.Join(string.Empty))
                     : Option<string>.None;
 
-                var package = new OracleDatabasePackage(resolvedPackageName, spec, body);
+                var specification = OracleUnwrapper.Unwrap(spec);
+                var packageBody = body.Map(OracleUnwrapper.Unwrap);
+
+                var package = new OracleDatabasePackage(resolvedPackageName, specification, packageBody);
                 return Option<IOracleDatabasePackage>.Some(package);
             }
         }
