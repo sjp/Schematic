@@ -66,6 +66,9 @@ namespace SJP.Schematic.Oracle.Parsing
         [Token(Example = "*")]
         Asterisk,
 
+        [Token(Category = "operator", Example = "||")]
+        StringConcat,
+
         [Token(Category = "operator", Example = "*=")]
         MultiplyEquals,
 
@@ -161,6 +164,9 @@ namespace SJP.Schematic.Oracle.Parsing
 
         [Token(Category = "keyword", Example = "between")]
         Between,
+
+        [Token(Category = "keyword", Example = "body")]
+        Body,
 
         [Token(Category = "keyword", Example = "break")]
         Break,
@@ -480,6 +486,9 @@ namespace SJP.Schematic.Oracle.Parsing
         [Token(Category = "keyword", Example = "over")]
         Over,
 
+        [Token(Category = "keyword", Example = "package")]
+        Package,
+
         [Token(Category = "keyword", Example = "percent")]
         Percent,
 
@@ -521,6 +530,9 @@ namespace SJP.Schematic.Oracle.Parsing
 
         [Token(Category = "keyword", Example = "references")]
         References,
+
+        [Token(Category = "keyword", Example = "replace")]
+        Replace,
 
         [Token(Category = "keyword", Example = "replication")]
         Replication,

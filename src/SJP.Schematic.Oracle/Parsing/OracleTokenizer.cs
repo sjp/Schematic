@@ -101,9 +101,9 @@ namespace SJP.Schematic.Oracle.Parsing
                         yield return Result.Value(OracleToken.BuiltInIdentifier, beginIdentifier, next.Location);
                     }
                 }
-                else if (next.Value == '"' || next.Value == '[')
+                else if (next.Value == '"')
                 {
-                    var endChar = next.Value == '[' ? ']' : next.Value;
+                    var endChar = next.Value;
 
                     var beginIdentifier = next.Location;
                     do
@@ -139,7 +139,7 @@ namespace SJP.Schematic.Oracle.Parsing
                         yield return Result.Value(OracleToken.Identifier, beginIdentifier, next.Location);
                     }
                 }
-                else if (next.Value == '-' || next.Value == '/')
+                else if (next.Value == '-' || next.Value == '/' || next.Value == '|')
                 {
                     var sqlComment = OracleTextParsers.SqlComment(next.Location);
                     var compoundOp = OracleTextParsers.CompoundOperator(next.Location);
@@ -218,6 +218,7 @@ namespace SJP.Schematic.Oracle.Parsing
             new OracleKeyword("backup", OracleToken.Backup),
             new OracleKeyword("begin", OracleToken.Begin),
             new OracleKeyword("between", OracleToken.Between),
+            new OracleKeyword("body", OracleToken.Body),
             new OracleKeyword("break", OracleToken.Break),
             new OracleKeyword("browse", OracleToken.Browse),
             new OracleKeyword("bulk", OracleToken.Bulk),
@@ -324,6 +325,7 @@ namespace SJP.Schematic.Oracle.Parsing
             new OracleKeyword("order", OracleToken.Order),
             new OracleKeyword("outer", OracleToken.Outer),
             new OracleKeyword("over", OracleToken.Over),
+            new OracleKeyword("package", OracleToken.Package),
             new OracleKeyword("percent", OracleToken.Percent),
             new OracleKeyword("pivot", OracleToken.Pivot),
             new OracleKeyword("plan", OracleToken.Plan),
@@ -338,6 +340,7 @@ namespace SJP.Schematic.Oracle.Parsing
             new OracleKeyword("readtext", OracleToken.ReadText),
             new OracleKeyword("reconfigure", OracleToken.Reconfigure),
             new OracleKeyword("references", OracleToken.References),
+            new OracleKeyword("replace", OracleToken.Replace),
             new OracleKeyword("replication", OracleToken.Replication),
             new OracleKeyword("restore", OracleToken.Restore),
             new OracleKeyword("restrict", OracleToken.Restrict),

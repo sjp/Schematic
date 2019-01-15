@@ -29,6 +29,7 @@ namespace SJP.Schematic.Oracle.Parsing
             Character.EqualTo('$')
                 .IgnoreThen(Numerics.Decimal);
 
+        private readonly static TextParser<OracleToken> StringConcat = Span.EqualTo("||").Value(OracleToken.StringConcat);
         private readonly static TextParser<OracleToken> LessOrEqual = Span.EqualTo("<=").Value(OracleToken.LessThanOrEqual);
         private readonly static TextParser<OracleToken> GreaterOrEqual = Span.EqualTo(">=").Value(OracleToken.GreaterThanOrEqual);
         private readonly static TextParser<OracleToken> NotEqual = Span.EqualTo("<>").Value(OracleToken.NotEqual);
@@ -47,6 +48,7 @@ namespace SJP.Schematic.Oracle.Parsing
         public static TextParser<OracleToken> CompoundOperator { get; } =
             GreaterOrEqual
                 .Try().Or(LessOrEqual)
+                .Try().Or(StringConcat)
                 .Try().Or(NotEqual)
                 .Try().Or(PlusEqual)
                 .Try().Or(MinusEqual)
