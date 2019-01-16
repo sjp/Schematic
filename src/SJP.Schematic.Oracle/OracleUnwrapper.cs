@@ -56,7 +56,8 @@ namespace SJP.Schematic.Oracle
         }
 
         /// <summary>
-        /// This will unwrap the definition of an obfuscated routine. The input must be wrapped.
+        /// <para>This will unwrap the definition of an obfuscated routine. The input must be wrapped.</para>
+        /// <para>Not intended to be used directly as it will throw exceptions on invalid input. <see cref="TryUnwrap(string, out string)"/> or <see cref="Unwrap(string)"/> should be preferred instead.</para>
         /// </summary>
         /// <param name="input">A wrapped routine definition.</param>
         /// <returns>An unwrapped routine definition.</returns>
