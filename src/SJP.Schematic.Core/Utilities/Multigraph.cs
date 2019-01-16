@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using SJP.Schematic.Core.Extensions;
@@ -22,7 +22,7 @@ namespace SJP.Schematic.Core.Utilities
         /// <exception cref="ArgumentNullException"><paramref name="vertex"/> is <c>null</c>.</exception>
         protected virtual string ToString(TVertex vertex)
         {
-            if (vertex is null)
+            if (vertex == null)
                 throw new ArgumentNullException(nameof(vertex));
 
             return vertex.ToString();
@@ -41,9 +41,9 @@ namespace SJP.Schematic.Core.Utilities
         /// <exception cref="ArgumentNullException"><paramref name="from"/> or <paramref name="to"/> is <c>null</c>.</exception>
         public virtual IEnumerable<TEdge> GetEdges(TVertex from, TVertex to)
         {
-            if (from is null)
+            if (from == null)
                 throw new ArgumentNullException(nameof(from));
-            if (to is null)
+            if (to == null)
                 throw new ArgumentNullException(nameof(to));
 
             return _successorMap.TryGetValue(from, out var successorSet) && successorSet.TryGetValue(to, out var edgeList)
@@ -58,7 +58,7 @@ namespace SJP.Schematic.Core.Utilities
         /// <exception cref="ArgumentNullException"><paramref name="vertex"/> is <c>null</c>.</exception>
         public virtual void AddVertex(TVertex vertex)
         {
-            if (vertex is null)
+            if (vertex == null)
                 throw new ArgumentNullException(nameof(vertex));
 
             _vertices.Add(vertex);
@@ -86,11 +86,11 @@ namespace SJP.Schematic.Core.Utilities
         /// <exception cref="ArgumentNullException"><paramref name="from"/>, <paramref name="to"/> or <paramref name="edge"/> is <c>null</c>.</exception>
         public virtual void AddEdge(TVertex from, TVertex to, TEdge edge)
         {
-            if (from is null)
+            if (from == null)
                 throw new ArgumentNullException(nameof(from));
-            if (to is null)
+            if (to == null)
                 throw new ArgumentNullException(nameof(to));
-            if (edge is null)
+            if (edge == null)
                 throw new ArgumentNullException(nameof(edge));
 
             AddEdges(from, to, new[] { edge });
@@ -105,9 +105,9 @@ namespace SJP.Schematic.Core.Utilities
         /// <exception cref="ArgumentNullException"><paramref name="from"/>, <paramref name="to"/> or <paramref name="edges"/> is <c>null</c>.</exception>
         public virtual void AddEdges(TVertex from, TVertex to, IEnumerable<TEdge> edges)
         {
-            if (from is null)
+            if (from == null)
                 throw new ArgumentNullException(nameof(from));
-            if (to is null)
+            if (to == null)
                 throw new ArgumentNullException(nameof(to));
             if (edges == null)
                 throw new ArgumentNullException(nameof(edges));
@@ -142,29 +142,17 @@ namespace SJP.Schematic.Core.Utilities
         /// Internal. Not to be consumed externally.
         /// </summary>
         /// <param name="canBreakEdge">A function that determines whether it is permitted to break the edge in order to sort the graph.</param>
-        /// <exception cref="ArgumentNullException"><paramref name="canBreakEdge"/> is <c>null</c>.</exception>
         public virtual IReadOnlyList<TVertex> TopologicalSort(
             Func<TVertex, TVertex, IEnumerable<TEdge>, bool> canBreakEdge)
-        {
-            if (canBreakEdge == null)
-                throw new ArgumentNullException(nameof(canBreakEdge));
-
-            return TopologicalSort(canBreakEdge, null);
-        }
+            => TopologicalSort(canBreakEdge, null);
 
         /// <summary>
         /// Internal. Not to be consumed externally.
         /// </summary>
         /// <param name="formatCycle">A function which determines how to display a cycle.</param>
-        /// <exception cref="ArgumentNullException"><paramref name="formatCycle"/> is <c>null</c>.</exception>
         public virtual IReadOnlyList<TVertex> TopologicalSort(
             Func<IEnumerable<Tuple<TVertex, TVertex, IEnumerable<TEdge>>>, string> formatCycle)
-        {
-            if (formatCycle == null)
-                throw new ArgumentNullException(nameof(formatCycle));
-
-            return TopologicalSort(null, formatCycle);
-        }
+            => TopologicalSort(null, formatCycle);
 
         /// <summary>
         /// Internal. Not to be consumed externally.
@@ -173,7 +161,7 @@ namespace SJP.Schematic.Core.Utilities
         /// <param name="formatCycle">A function which determines how to display a cycle.</param>
         public virtual IReadOnlyList<TVertex> TopologicalSort(
             Func<TVertex, TVertex, IEnumerable<TEdge>, bool> canBreakEdge,
-            Func<IEnumerable<Tuple<TVertex, TVertex, IEnumerable<TEdge>>>, string> formatCycle)
+            Func<IReadOnlyList<Tuple<TVertex, TVertex, IEnumerable<TEdge>>>, string> formatCycle)
         {
             var sortedQueue = new List<TVertex>();
             var predecessorCounts = new Dictionary<TVertex, int>();
@@ -218,6 +206,7 @@ namespace SJP.Schematic.Core.Utilities
                             predecessorCounts.Remove(successor);
                         }
                     }
+
                     index++;
                 }
 
@@ -231,8 +220,8 @@ namespace SJP.Schematic.Core.Utilities
 
                     // Iterate over the unsorted vertices
                     while ((candidateIndex < candidateVertices.Count)
-                            && !broken
-                            && (canBreakEdge != null))
+                           && !broken
+                           && (canBreakEdge != null))
                     {
                         var candidateVertex = candidateVertices[candidateIndex];
 
@@ -255,8 +244,10 @@ namespace SJP.Schematic.Core.Utilities
                                 }
                             }
                         }
+
                         candidateIndex++;
                     }
+
                     if (!broken)
                     {
                         // Failed to break the cycle
@@ -280,27 +271,40 @@ namespace SJP.Schematic.Core.Utilities
                                 }
                             }
                         }
+
                         cycle.Reverse();
 
-                        // Throw an exception
-                        if (formatCycle == null)
-                        {
-                            throw new InvalidOperationException($"Unable to add relationship because a circular dependency was detected: '{ cycle.Select(ToString).Join(" -> ") }'.");
-                        }
-                        // Build the cycle message data
-                        currentCycleVertex = cycle[0];
-                        var cycleData = new List<Tuple<TVertex, TVertex, IEnumerable<TEdge>>>();
-
-                        foreach (var vertex in cycle.Skip(1))
-                        {
-                            cycleData.Add(Tuple.Create(currentCycleVertex, vertex, GetEdges(currentCycleVertex, vertex)));
-                            currentCycleVertex = vertex;
-                        }
-                        throw new InvalidOperationException($"Unable to add relationship because a circular dependency was detected: '{ formatCycle(cycleData) }'.");
+                        ThrowCycle(cycle, formatCycle);
                     }
                 }
             }
+
             return sortedQueue;
+        }
+
+        private void ThrowCycle(List<TVertex> cycle, Func<IReadOnlyList<Tuple<TVertex, TVertex, IEnumerable<TEdge>>>, string> formatCycle)
+        {
+            string cycleString;
+            if (formatCycle == null)
+            {
+                cycleString = cycle.Select(ToString).Join(" -> ");
+            }
+            else
+            {
+                var currentCycleVertex = cycle[0];
+                var cycleData = new List<Tuple<TVertex, TVertex, IEnumerable<TEdge>>>();
+
+                foreach (var vertex in cycle.Skip(1))
+                {
+                    cycleData.Add(Tuple.Create(currentCycleVertex, vertex, GetEdges(currentCycleVertex, vertex)));
+                    currentCycleVertex = vertex;
+                }
+
+                cycleString = formatCycle(cycleData);
+            }
+
+            var message = "Unable to save changes because a circular dependency was detected in the data to be saved: '" + cycleString + "'";
+            throw new InvalidOperationException(message);
         }
 
         /// <summary>
@@ -314,7 +318,7 @@ namespace SJP.Schematic.Core.Utilities
         /// </summary>
         /// <param name="formatCycle">A function which determines how to display a cycle.</param>
         public virtual IReadOnlyList<List<TVertex>> BatchingTopologicalSort(
-            Func<IEnumerable<Tuple<TVertex, TVertex, IEnumerable<TEdge>>>, string> formatCycle)
+            Func<IReadOnlyList<Tuple<TVertex, TVertex, IEnumerable<TEdge>>>, string> formatCycle)
         {
             var currentRootsQueue = new List<TVertex>();
             var predecessorCounts = new Dictionary<TVertex, int>();
@@ -378,8 +382,6 @@ namespace SJP.Schematic.Core.Utilities
 
             if (result.Sum(b => b.Count) != _vertices.Count)
             {
-                // TODO: Support cycle-breaking?
-
                 var currentCycleVertex = _vertices.First(v => predecessorCounts.TryGetValue(v, out var predecessorNumber) && predecessorNumber != 0);
                 var cyclicWalk = new List<TVertex> { currentCycleVertex };
                 var finished = false;
@@ -401,6 +403,7 @@ namespace SJP.Schematic.Core.Utilities
                         }
                     }
                 }
+
                 cyclicWalk.Reverse();
 
                 var cycle = new List<TVertex>();
@@ -417,23 +420,10 @@ namespace SJP.Schematic.Core.Utilities
                         break;
                     }
                 }
+
                 cycle.Add(startingVertex);
 
-                // Throw an exception
-                if (formatCycle == null)
-                {
-                    throw new InvalidOperationException($"Unable to add relationship because a circular dependency was detected: '{ cycle.Select(ToString).Join(" -> ") }'.");
-                }
-                // Build the cycle message data
-                currentCycleVertex = cycle[0];
-                var cycleData = new List<Tuple<TVertex, TVertex, IEnumerable<TEdge>>>();
-
-                foreach (var vertex in cycle.Skip(1))
-                {
-                    cycleData.Add(Tuple.Create(currentCycleVertex, vertex, GetEdges(currentCycleVertex, vertex)));
-                    currentCycleVertex = vertex;
-                }
-                throw new InvalidOperationException($"Unable to add relationship because a circular dependency was detected: '{ formatCycle(cycleData) }'.");
+                ThrowCycle(cycle, formatCycle);
             }
 
             return result;
@@ -451,7 +441,7 @@ namespace SJP.Schematic.Core.Utilities
         /// <exception cref="ArgumentNullException"><paramref name="from"/> is <c>null</c>.</exception>
         public override IEnumerable<TVertex> GetOutgoingNeighbours(TVertex from)
         {
-            if (from is null)
+            if (from == null)
                 throw new ArgumentNullException(nameof(from));
 
             return _successorMap.TryGetValue(from, out var successorSet)
@@ -466,7 +456,7 @@ namespace SJP.Schematic.Core.Utilities
         /// <exception cref="ArgumentNullException"><paramref name="to"/> is <c>null</c>.</exception>
         public override IEnumerable<TVertex> GetIncomingNeighbours(TVertex to)
         {
-            if (to is null)
+            if (to == null)
                 throw new ArgumentNullException(nameof(to));
 
             return _successorMap.Where(kvp => kvp.Value.ContainsKey(to)).Select(kvp => kvp.Key);
