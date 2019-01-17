@@ -103,18 +103,21 @@ namespace SJP.Schematic.Sqlite.Parsing
             Token.EqualTo(SqliteToken.Constraint)
                 .Then(_ => Token.EqualTo(SqliteToken.Identifier).Select(ident => new SqlIdentifier(ident)));
 
-        private static TokenListParser<SqliteToken, IEnumerable<Token<SqliteToken>>> TypeName =>
-            Token.EqualTo(SqliteToken.Identifier).Select(ident => ident.ToEnumerable())
-                .Or(
-                    Token.EqualTo(SqliteToken.Identifier)
-                        .Then(ident => Token.EqualTo(SqliteToken.Identifier).Select(ident2 => new[] { ident, ident2 }.AsEnumerable()))
-                );
-
         private static TokenListParser<SqliteToken, IEnumerable<Token<SqliteToken>>> TypeDefinition =>
-            TypeName
-                .Then(prev =>
-                    Expression.Select(_ => prev.Concat(_.Tokens))
-                        .Or(Parse.Return<SqliteToken, IEnumerable<Token<SqliteToken>>>(prev)));
+            Token.EqualTo(SqliteToken.Identifier)
+                .AtLeastOnce()
+                .Then(idents =>
+                    NumericTypeLengthConstraint.Select(c => idents.Concat(c))
+                        .Try().Or(TypeLengthConstraint.Select(c => idents.Concat(c)))
+                        .Try().Or(Parse.Return<SqliteToken, IEnumerable<Token<SqliteToken>>>(idents)));
+
+        private static TokenListParser<SqliteToken, IEnumerable<Token<SqliteToken>>> TypeLengthConstraint =>
+            Token.Sequence(SqliteToken.LParen, SqliteToken.Number, SqliteToken.RParen)
+                .Select(_ => _.AsEnumerable());
+
+        private static TokenListParser<SqliteToken, IEnumerable<Token<SqliteToken>>> NumericTypeLengthConstraint =>
+            Token.Sequence(SqliteToken.LParen, SqliteToken.Number, SqliteToken.Comma, SqliteToken.Number, SqliteToken.RParen)
+                .Select(_ => _.AsEnumerable());
 
         private static TokenListParser<SqliteToken, IndexColumnOrder> ColumnOrdering =>
             Token.EqualTo(SqliteToken.Ascending).Select(_ => IndexColumnOrder.Ascending)

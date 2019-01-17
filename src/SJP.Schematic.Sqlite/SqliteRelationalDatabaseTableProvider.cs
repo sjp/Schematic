@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
@@ -208,7 +209,7 @@ namespace SJP.Schematic.Sqlite
             var uniqueKeys = uniqueKeysTask.Result;
             var indexes = indexesTask.Result;
 
-            var childKeysTask = LoadChildKeysAsync(resolvedTableName, columnLookup, parser, cancellationToken);
+            var childKeysTask = LoadChildKeysAsync(resolvedTableName, columnLookup, cancellationToken);
             var parentKeysTask = LoadParentKeysAsync(pragma, parser, resolvedTableName, columnLookup, cancellationToken);
             await Task.WhenAll(childKeysTask, parentKeysTask).ConfigureAwait(false);
 
@@ -368,19 +369,17 @@ namespace SJP.Schematic.Sqlite
             return result;
         }
 
-        protected virtual Task<IReadOnlyCollection<IDatabaseRelationalKey>> LoadChildKeysAsync(Identifier tableName, IReadOnlyDictionary<Identifier, IDatabaseColumn> columns, SqliteTableParser parser, CancellationToken cancellationToken)
+        protected virtual Task<IReadOnlyCollection<IDatabaseRelationalKey>> LoadChildKeysAsync(Identifier tableName, IReadOnlyDictionary<Identifier, IDatabaseColumn> columns, CancellationToken cancellationToken)
         {
             if (tableName == null)
                 throw new ArgumentNullException(nameof(tableName));
             if (columns == null)
                 throw new ArgumentNullException(nameof(columns));
-            if (parser == null)
-                throw new ArgumentNullException(nameof(parser));
 
-            return LoadChildKeysAsyncCore(tableName, columns, parser, cancellationToken);
+            return LoadChildKeysAsyncCore(tableName, columns, cancellationToken);
         }
 
-        private async Task<IReadOnlyCollection<IDatabaseRelationalKey>> LoadChildKeysAsyncCore(Identifier tableName, IReadOnlyDictionary<Identifier, IDatabaseColumn> columns, SqliteTableParser parser, CancellationToken cancellationToken)
+        private async Task<IReadOnlyCollection<IDatabaseRelationalKey>> LoadChildKeysAsyncCore(Identifier tableName, IReadOnlyDictionary<Identifier, IDatabaseColumn> columns, CancellationToken cancellationToken)
         {
             var dbList = await ConnectionPragma.DatabaseListAsync(cancellationToken).ConfigureAwait(false);
             var dbNames = dbList
@@ -403,7 +402,6 @@ namespace SJP.Schematic.Sqlite
             }
 
             var dbPragmaLookup = new Dictionary<string, ISqliteDatabasePragma>();
-            var tableParserLookup = new Dictionary<Identifier, SqliteTableParser> { [tableName] = parser };
             var columnLookupsCache = new Dictionary<Identifier, IReadOnlyDictionary<Identifier, IDatabaseColumn>> { [tableName] = columns };
             var foreignKeysCache = new Dictionary<Identifier, IReadOnlyCollection<IDatabaseRelationalKey>>();
             var result = new List<IDatabaseRelationalKey>();
@@ -416,11 +414,7 @@ namespace SJP.Schematic.Sqlite
                     dbPragmaLookup[childTableName.Schema] = dbPragma;
                 }
 
-                if (!tableParserLookup.TryGetValue(childTableName, out var childTableParser))
-                {
-                    childTableParser = await GetParsedTableDefinitionAsync(childTableName, cancellationToken).ConfigureAwait(false);
-                    tableParserLookup[childTableName] = childTableParser;
-                }
+                var childTableParser = await GetParsedTableDefinitionAsync(childTableName, cancellationToken).ConfigureAwait(false);
 
                 if (!columnLookupsCache.TryGetValue(childTableName, out var childKeyColumnLookup))
                 {
@@ -498,7 +492,6 @@ namespace SJP.Schematic.Sqlite
                 return Array.Empty<IDatabaseRelationalKey>();
 
             var columnLookupsCache = new Dictionary<Identifier, IReadOnlyDictionary<Identifier, IDatabaseColumn>> { [tableName] = columns };
-            var tableParserLookup = new Dictionary<Identifier, SqliteTableParser> { [tableName] = parser };
             var primaryKeyCache = new Dictionary<Identifier, IDatabaseKey>();
             var uniqueKeyLookupCache = new Dictionary<Identifier, IReadOnlyCollection<IDatabaseKey>>();
 
@@ -512,11 +505,7 @@ namespace SJP.Schematic.Sqlite
                     throw new MissingParentTableException(tableName, candidateParentTableName);
 
                 var parentTableName = await parentTableNameOption.UnwrapSomeAsync().ConfigureAwait(false);
-                if (!tableParserLookup.TryGetValue(parentTableName, out var parentTableParser))
-                {
-                    parentTableParser = await GetParsedTableDefinitionAsync(parentTableName, cancellationToken).ConfigureAwait(false);
-                    tableParserLookup[parentTableName] = parentTableParser;
-                }
+                var parentTableParser = await GetParsedTableDefinitionAsync(parentTableName, cancellationToken).ConfigureAwait(false);
 
                 if (!columnLookupsCache.TryGetValue(parentTableName, out var parentTableColumnLookup))
                 {
@@ -600,7 +589,7 @@ namespace SJP.Schematic.Sqlite
 
             foreach (var tableInfo in tableInfos)
             {
-                var parsedColumnInfo = parsedColumns.FirstOrDefault(col => string.Equals(col.Name, tableInfo.name, StringComparison.OrdinalIgnoreCase));
+                var parsedColumnInfo = parsedColumns.First(col => string.Equals(col.Name, tableInfo.name, StringComparison.OrdinalIgnoreCase));
                 var columnTypeName = tableInfo.type;
 
                 var affinity = _affinityParser.ParseTypeName(columnTypeName);
@@ -642,16 +631,30 @@ namespace SJP.Schematic.Sqlite
 
             foreach (var triggerInfo in triggerInfos)
             {
-                var tokenizer = new SqliteTokenizer();
-                var tokenizeResult = tokenizer.TryTokenize(triggerInfo.sql);
-                if (!tokenizeResult.HasValue)
-                    throw new SqliteTriggerParsingException(tableName, triggerInfo.sql, tokenizeResult.ErrorMessage + " at " + tokenizeResult.ErrorPosition.ToString());
+                var triggerSql = triggerInfo.sql;
 
-                var tokens = tokenizeResult.Value;
-                var parser = new SqliteTriggerParser(tokens);
+                _triggerRwLock.EnterReadLock();
+                try
+                {
+                    if (!_triggerParserCache.TryGetValue(triggerSql, out var parser))
+                    {
+                        var tokenizeResult = _tokenizer.TryTokenize(triggerSql);
+                        if (!tokenizeResult.HasValue)
+                            throw new SqliteTriggerParsingException(tableName, triggerInfo.sql, tokenizeResult.ErrorMessage + " at " + tokenizeResult.ErrorPosition.ToString());
 
-                var trigger = new SqliteDatabaseTrigger(triggerInfo.name, triggerInfo.sql, parser.Timing, parser.Event);
-                result.Add(trigger);
+                        var tokens = tokenizeResult.Value;
+                        parser = new SqliteTriggerParser(tokens);
+
+                        _triggerParserCache.TryAdd(triggerSql, parser);
+                    }
+
+                    var trigger = new SqliteDatabaseTrigger(triggerInfo.name, triggerSql, parser.Timing, parser.Event);
+                    result.Add(trigger);
+                }
+                finally
+                {
+                    _triggerRwLock.ExitReadLock();
+                }
             }
 
             return result;
@@ -697,13 +700,28 @@ namespace SJP.Schematic.Sqlite
                 new { TableName = tableName.LocalName },
                 cancellationToken
             ).ConfigureAwait(false);
-            var tokenizer = new SqliteTokenizer();
-            var tokenizeResult = tokenizer.TryTokenize(tableSql);
-            if (!tokenizeResult.HasValue)
-                throw new SqliteTableParsingException(tableName, tableSql, tokenizeResult.ErrorMessage + " at " + tokenizeResult.ErrorPosition.ToString());
 
-            var tokens = tokenizeResult.Value;
-            return new SqliteTableParser(tokens, tableSql);
+            _tableRwLock.EnterReadLock();
+            try
+            {
+                if (!_tableParserCache.TryGetValue(tableSql, out var parser))
+                {
+                    var tokenizeResult = _tokenizer.TryTokenize(tableSql);
+                    if (!tokenizeResult.HasValue)
+                        throw new SqliteTableParsingException(tableName, tableSql, tokenizeResult.ErrorMessage + " at " + tokenizeResult.ErrorPosition.ToString());
+
+                    var tokens = tokenizeResult.Value;
+                    parser = new SqliteTableParser(tokens, tableSql);
+
+                    _tableParserCache.TryAdd(tableSql, parser);
+                }
+
+                return parser;
+            }
+            finally
+            {
+                _tableRwLock.ExitReadLock();
+            }
         }
 
         protected virtual string TableDefinitionQuery(string schema)
@@ -741,6 +759,11 @@ namespace SJP.Schematic.Sqlite
                 : Rule.None;
         }
 
+        private readonly ConcurrentDictionary<string, SqliteTableParser> _tableParserCache = new ConcurrentDictionary<string, SqliteTableParser>();
+        private readonly ConcurrentDictionary<string, SqliteTriggerParser> _triggerParserCache = new ConcurrentDictionary<string, SqliteTriggerParser>();
+        private readonly ReaderWriterLockSlim _tableRwLock = new ReaderWriterLockSlim();
+        private readonly ReaderWriterLockSlim _triggerRwLock = new ReaderWriterLockSlim();
+
         private readonly static IReadOnlyDictionary<string, Rule> _relationalUpdateMapping = new Dictionary<string, Rule>(StringComparer.OrdinalIgnoreCase)
         {
             ["NO ACTION"] = Rule.None,
@@ -751,5 +774,6 @@ namespace SJP.Schematic.Sqlite
         };
 
         private readonly static SqliteTypeAffinityParser _affinityParser = new SqliteTypeAffinityParser();
+        private readonly static SqliteTokenizer _tokenizer = new SqliteTokenizer();
     }
 }
