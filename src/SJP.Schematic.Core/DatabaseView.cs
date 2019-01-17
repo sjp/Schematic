@@ -33,7 +33,7 @@ namespace SJP.Schematic.Core
 
         public virtual bool IsMaterialized { get; }
 
-        public override string ToString() => "View: " + Name.ToString();
+        public override string ToString() => DebuggerDisplay;
 
         private string DebuggerDisplay
         {

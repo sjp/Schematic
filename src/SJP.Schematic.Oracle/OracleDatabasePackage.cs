@@ -35,7 +35,7 @@ namespace SJP.Schematic.Oracle
             }
         }
 
-        public override string ToString() => "Package: " + Name.ToString();
+        public override string ToString() => DebuggerDisplay;
 
         private string DebuggerDisplay
         {

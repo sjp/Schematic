@@ -73,7 +73,7 @@ namespace SJP.Schematic.Core
 
         public static int UnknownCacheSize { get; } = -1;
 
-        public override string ToString() => "Sequence: " + Name.ToString();
+        public override string ToString() => DebuggerDisplay;
 
         private string DebuggerDisplay
         {

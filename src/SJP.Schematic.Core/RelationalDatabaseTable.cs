@@ -96,7 +96,7 @@ namespace SJP.Schematic.Core
 
         public IReadOnlyCollection<IDatabaseTrigger> Triggers { get; }
 
-        public override string ToString() => "Table: " + Name.ToString();
+        public override string ToString() => DebuggerDisplay;
 
         private string DebuggerDisplay
         {

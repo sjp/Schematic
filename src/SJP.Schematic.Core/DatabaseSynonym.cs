@@ -18,7 +18,7 @@ namespace SJP.Schematic.Core
 
         public Identifier Target { get; }
 
-        public override string ToString() => "Synonym: " + Name.ToString();
+        public override string ToString() => DebuggerDisplay;
 
         private string DebuggerDisplay
         {

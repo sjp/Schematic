@@ -21,7 +21,7 @@ namespace SJP.Schematic.Core
 
         public string Definition { get; }
 
-        public override string ToString() => "Routine: " + Name.ToString();
+        public override string ToString() => DebuggerDisplay;
 
         private string DebuggerDisplay
         {

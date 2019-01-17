@@ -18,7 +18,7 @@ namespace SJP.Schematic.Core
 
         public override bool IsMaterialized { get; } = true;
 
-        public override string ToString() => "Materialized View: " + Name.ToString();
+        public override string ToString() => DebuggerDisplay;
 
         private string DebuggerDisplay
         {
