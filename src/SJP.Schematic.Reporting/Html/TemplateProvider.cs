@@ -8,7 +8,7 @@ using Microsoft.Extensions.FileProviders;
 
 namespace SJP.Schematic.Reporting.Html
 {
-    public class TemplateProvider : ITemplateProvider
+    internal class TemplateProvider : ITemplateProvider
     {
         public string GetTemplate(ReportTemplate template)
         {

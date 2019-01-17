@@ -9,7 +9,7 @@ using SJP.Schematic.Core.Extensions;
 
 namespace SJP.Schematic.Reporting.Html
 {
-    public class AssetExporter
+    internal class AssetExporter
     {
         public void SaveAssets(string directory, bool overwrite = true)
         {

@@ -5,7 +5,7 @@ using Microsoft.CodeAnalysis;
 
 namespace SJP.Schematic.Reporting.Html
 {
-    public class HtmlFormatter : IHtmlFormatter
+    internal class HtmlFormatter : IHtmlFormatter
     {
         public HtmlFormatter(ITemplateProvider templateProvider)
         {

@@ -6,7 +6,7 @@ using SJP.Schematic.Lint;
 
 namespace SJP.Schematic.Reporting.Html.Lint.Rules
 {
-    public class ColumnWithNumericSuffix : Schematic.Lint.Rules.ColumnWithNumericSuffix
+    internal class ColumnWithNumericSuffix : Schematic.Lint.Rules.ColumnWithNumericSuffix
     {
         public ColumnWithNumericSuffix(RuleLevel level)
             : base(level)
