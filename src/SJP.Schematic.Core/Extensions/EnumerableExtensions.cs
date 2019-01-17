@@ -39,7 +39,7 @@ namespace SJP.Schematic.Core.Extensions
             if (keySelector == null)
                 throw new ArgumentNullException(nameof(keySelector));
 
-            return source.DistinctBy(keySelector, null);
+            return source.DistinctBy(keySelector, EqualityComparer<TKey>.Default);
         }
 
         public static IEnumerable<TSource> DistinctBy<TSource, TKey>(this IEnumerable<TSource> source,
