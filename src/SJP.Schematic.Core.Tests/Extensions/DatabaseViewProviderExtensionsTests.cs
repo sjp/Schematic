@@ -2,7 +2,6 @@
 using System.Data;
 using System.Threading;
 using System.Threading.Tasks;
-using LanguageExt;
 using Moq;
 using NUnit.Framework;
 using SJP.Schematic.Core.Extensions;
