@@ -161,6 +161,29 @@ namespace SJP.Schematic.Core.Tests
         }
 
         [Test]
+        public static void Equals_GivenDifferentIdentifierAsObject_ReturnsFalse()
+        {
+            const string name = "abc";
+            const string otherName = "def";
+            var identifier = new Identifier(name, name);
+            object otherIdentifier = new Identifier(otherName, name);
+
+            Assert.AreNotEqual(identifier, otherIdentifier);
+        }
+
+        [Test]
+        public static void Equals_GivenDifferentIdentifierAsObject_ReturnsTrue()
+        {
+            const string name = "abc";
+            var identifier = new Identifier(name, name);
+            object otherIdentifier = new Identifier(name, name);
+
+            var areEqual = identifier.Equals(otherIdentifier);
+
+            Assert.IsTrue(areEqual);
+        }
+
+        [Test]
         public static void EqualsOp_GivenEqualIdentifiers_ReturnsTrue()
         {
             const string name = "abc";
@@ -406,6 +429,158 @@ namespace SJP.Schematic.Core.Tests
         public static void CreateQualifiedIdentifier_GivenOnlySchema_ThrowsArgumentNullException()
         {
             Assert.Throws<ArgumentNullException>(() => Identifier.CreateQualifiedIdentifier(null, null, "c", null));
+        }
+
+        [Test]
+        public static void CompareTo_GivenSameIdentifier_ReturnsZero()
+        {
+            var identifier = new Identifier("dbo", "dbo", "dbo", "abc");
+
+            var compareResult = identifier.CompareTo(identifier);
+
+            Assert.Zero(compareResult);
+        }
+
+        [Test]
+        public static void CompareTo_GivenNullIdentifier_ReturnsNonZero()
+        {
+            var identifier = new Identifier("dbo", "dbo", "dbo", "abc");
+
+            var compareResult = identifier.CompareTo(null);
+
+            Assert.NotZero(compareResult);
+        }
+
+        [Test]
+        public static void CompareTo_GivenEqualIdentifiers_ReturnsZero()
+        {
+            var identifier = new Identifier("dbo", "dbo", "dbo", "abc");
+            var otherIdentifier = new Identifier("dbo", "dbo", "dbo", "abc");
+
+            var compareResult = identifier.CompareTo(otherIdentifier);
+
+            Assert.Zero(compareResult);
+        }
+
+        [Test]
+        public static void CompareTo_GivenDifferentIdentifiers_ReturnsNonZero()
+        {
+            var identifier = new Identifier("dbo", "dbo", "dbo", "abc");
+            var otherIdentifier = new Identifier("dbo", "dbo", "dbo", "dbo");
+
+            var compareResult = identifier.CompareTo(otherIdentifier);
+
+            Assert.NotZero(compareResult);
+        }
+
+        [Test]
+        public static void GtOp_GivenDifferentServer_ReturnsTrueWhenExpected()
+        {
+            var identifier = new Identifier("z", "dbo", "dbo", "dbo");
+            var otherIdentifier = new Identifier("dbo", "dbo", "dbo", "dbo");
+
+            var isGt = identifier > otherIdentifier;
+
+            Assert.IsTrue(isGt);
+        }
+
+        [Test]
+        public static void GtOp_GivenDifferentServer_ReturnsFalseWhenExpected()
+        {
+            var identifier = new Identifier("dbo", "dbo", "dbo", "dbo");
+            var otherIdentifier = new Identifier("z", "dbo", "dbo", "dbo");
+
+            var isGt = identifier > otherIdentifier;
+
+            Assert.IsFalse(isGt);
+        }
+
+        [Test]
+        public static void GteOp_GivenDifferentServer_ReturnsTrueWhenExpected()
+        {
+            var identifier = new Identifier("z", "dbo", "dbo", "dbo");
+            var otherIdentifier = new Identifier("dbo", "dbo", "dbo", "dbo");
+
+            var isGte = identifier >= otherIdentifier;
+
+            Assert.IsTrue(isGte);
+        }
+
+        [Test]
+        public static void GteOp_GivenDifferentServer_ReturnsFalseWhenExpected()
+        {
+            var identifier = new Identifier("dbo", "dbo", "dbo", "dbo");
+            var otherIdentifier = new Identifier("z", "dbo", "dbo", "dbo");
+
+            var isGte = identifier >= otherIdentifier;
+
+            Assert.IsFalse(isGte);
+        }
+
+        [Test]
+        public static void GteOp_GivenSameIdentifiers_ReturnsTrue()
+        {
+            var identifier = new Identifier("dbo", "dbo", "dbo", "dbo");
+            var otherIdentifier = new Identifier("dbo", "dbo", "dbo", "dbo");
+
+            var isGte = identifier >= otherIdentifier;
+
+            Assert.IsTrue(isGte);
+        }
+
+        [Test]
+        public static void LtOp_GivenDifferentServer_ReturnsFalseWhenExpected()
+        {
+            var identifier = new Identifier("z", "dbo", "dbo", "dbo");
+            var otherIdentifier = new Identifier("dbo", "dbo", "dbo", "dbo");
+
+            var isLt = identifier < otherIdentifier;
+
+            Assert.IsFalse(isLt);
+        }
+
+        [Test]
+        public static void LtOp_GivenDifferentServer_ReturnsTrueWhenExpected()
+        {
+            var identifier = new Identifier("dbo", "dbo", "dbo", "dbo");
+            var otherIdentifier = new Identifier("z", "dbo", "dbo", "dbo");
+
+            var isLt = identifier < otherIdentifier;
+
+            Assert.IsTrue(isLt);
+        }
+
+        [Test]
+        public static void LteOp_GivenDifferentServer_ReturnsFalseWhenExpected()
+        {
+            var identifier = new Identifier("z", "dbo", "dbo", "dbo");
+            var otherIdentifier = new Identifier("dbo", "dbo", "dbo", "dbo");
+
+            var isLte = identifier <= otherIdentifier;
+
+            Assert.IsFalse(isLte);
+        }
+
+        [Test]
+        public static void LteOp_GivenDifferentServer_ReturnsTrueWhenExpected()
+        {
+            var identifier = new Identifier("dbo", "dbo", "dbo", "dbo");
+            var otherIdentifier = new Identifier("z", "dbo", "dbo", "dbo");
+
+            var isLte = identifier <= otherIdentifier;
+
+            Assert.IsTrue(isLte);
+        }
+
+        [Test]
+        public static void LteOp_GivenSameIdentifiers_ReturnsTrue()
+        {
+            var identifier = new Identifier("dbo", "dbo", "dbo", "dbo");
+            var otherIdentifier = new Identifier("dbo", "dbo", "dbo", "dbo");
+
+            var isLte = identifier <= otherIdentifier;
+
+            Assert.IsTrue(isLte);
         }
     }
 }

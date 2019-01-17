@@ -68,7 +68,7 @@ namespace SJP.Schematic.Core.Tests
         }
 
         [Test]
-        //[SetCulture("en-US")] // uncomment when supported .NET Standard
+        [SetCulture("en-US")]
         public static void Equals_GivenCurrentCultureWithDifferentCasesOnly_ReturnsFalse()
         {
             var identifier = new Identifier("abc");
@@ -79,7 +79,7 @@ namespace SJP.Schematic.Core.Tests
         }
 
         [Test]
-        //[SetCulture("en-US")] // uncomment when supported in .NET Standard
+        [SetCulture("en-US")]
         public static void Equals_GivenCurrentCultureIgnoreCaseWithDifferentCasesOnly_ReturnsTrue()
         {
             var identifier = new Identifier("abc");
@@ -257,6 +257,97 @@ namespace SJP.Schematic.Core.Tests
             var comparer = new IdentifierComparer(StringComparison.CurrentCulture);
 
             Assert.IsTrue(comparer.Equals(identifier, otherIdentifier));
+        }
+
+        [Test]
+        public static void Compare_GivenSameIdentifier_ReturnsZero()
+        {
+            var identifier = new Identifier("dbo", "dbo", "dbo", "abc");
+            var comparer = new IdentifierComparer(StringComparison.CurrentCulture);
+
+            var compareResult = comparer.Compare(identifier, identifier);
+
+            Assert.Zero(compareResult);
+        }
+
+        [Test]
+        public static void Compare_GivenTwoNullIdentifiers_ReturnsZero()
+        {
+            var comparer = new IdentifierComparer(StringComparison.CurrentCulture);
+
+            var compareResult = comparer.Compare(null, null);
+
+            Assert.Zero(compareResult);
+        }
+
+        [Test]
+        public static void Compare_GivenLeftNullIdentifier_ReturnsNonZero()
+        {
+            var identifier = new Identifier("dbo", "dbo", "dbo", "abc");
+            var comparer = new IdentifierComparer(StringComparison.CurrentCulture);
+
+            var compareResult = comparer.Compare(null, identifier);
+
+            Assert.NotZero(compareResult);
+        }
+
+        [Test]
+        public static void Compare_GivenRightNullIdentifier_ReturnsNonZero()
+        {
+            var identifier = new Identifier("dbo", "dbo", "dbo", "abc");
+            var comparer = new IdentifierComparer(StringComparison.CurrentCulture);
+
+            var compareResult = comparer.Compare(identifier, null);
+
+            Assert.NotZero(compareResult);
+        }
+
+        [Test]
+        public static void Compare_GivenDifferentServer_ReturnsNonZero()
+        {
+            var identifier = new Identifier("dbo", "dbo", "dbo", "dbo");
+            var otherIdentifier = new Identifier("z", "dbo", "dbo", "dbo");
+            var comparer = new IdentifierComparer(StringComparison.CurrentCulture);
+
+            var compareResult = comparer.Compare(identifier, otherIdentifier);
+
+            Assert.NotZero(compareResult);
+        }
+
+        [Test]
+        public static void Compare_GivenDifferentDatabase_ReturnsNonZero()
+        {
+            var identifier = new Identifier("dbo", "dbo", "dbo", "dbo");
+            var otherIdentifier = new Identifier("dbo", "z", "dbo", "dbo");
+            var comparer = new IdentifierComparer(StringComparison.CurrentCulture);
+
+            var compareResult = comparer.Compare(identifier, otherIdentifier);
+
+            Assert.NotZero(compareResult);
+        }
+
+        [Test]
+        public static void Compare_GivenDifferentSchema_ReturnsNonZero()
+        {
+            var identifier = new Identifier("dbo", "dbo", "dbo", "dbo");
+            var otherIdentifier = new Identifier("dbo", "dbo", "z", "dbo");
+            var comparer = new IdentifierComparer(StringComparison.CurrentCulture);
+
+            var compareResult = comparer.Compare(identifier, otherIdentifier);
+
+            Assert.NotZero(compareResult);
+        }
+
+        [Test]
+        public static void Compare_GivenDifferentLocalName_ReturnsNonZero()
+        {
+            var identifier = new Identifier("dbo", "dbo", "dbo", "dbo");
+            var otherIdentifier = new Identifier("dbo", "dbo", "dbo", "z");
+            var comparer = new IdentifierComparer(StringComparison.CurrentCulture);
+
+            var compareResult = comparer.Compare(identifier, otherIdentifier);
+
+            Assert.NotZero(compareResult);
         }
     }
 }

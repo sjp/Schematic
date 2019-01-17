@@ -8,17 +8,8 @@ namespace SJP.Schematic.Core
     public class DatabaseIndexColumn : IDatabaseIndexColumn
     {
         public DatabaseIndexColumn(string expression, IDatabaseColumn column, IndexColumnOrder order)
+            : this(expression, new[] { column }, order)
         {
-            if (expression.IsNullOrWhiteSpace())
-                throw new ArgumentNullException(nameof(expression));
-            if (column == null)
-                throw new ArgumentNullException(nameof(column));
-            if (!order.IsValid())
-                throw new ArgumentException($"The { nameof(IndexColumnOrder) } provided must be a valid enum.", nameof(order));
-
-            Expression = expression;
-            DependentColumns = new List<IDatabaseColumn> { column }.AsReadOnly();
-            Order = order;
         }
 
         public DatabaseIndexColumn(string expression, IEnumerable<IDatabaseColumn> dependentColumns, IndexColumnOrder order)
