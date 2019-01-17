@@ -19,7 +19,7 @@ namespace SJP.Schematic.Core.Tests.Extensions
                 typeof(int),
                 false,
                 10,
-                Option<NumericPrecision>.None,
+                Option<INumericPrecision>.None,
                 Option<Identifier>.None
             );
             var columns = new[]

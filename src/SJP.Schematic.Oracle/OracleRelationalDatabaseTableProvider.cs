@@ -644,8 +644,8 @@ where ac.OWNER = :SchemaName and ac.TABLE_NAME = :TableName and ac.CONSTRAINT_TY
                         : Option<Identifier>.None,
                     MaxLength = row.DataLength,
                     NumericPrecision = row.Precision > 0 || row.Scale > 0
-                        ? Option<NumericPrecision>.Some(new NumericPrecision(row.Precision, row.Scale))
-                        : Option<NumericPrecision>.None
+                        ? Option<INumericPrecision>.Some(new NumericPrecision(row.Precision, row.Scale))
+                        : Option<INumericPrecision>.None
                 };
                 var columnType = TypeProvider.CreateColumnType(typeMetadata);
 

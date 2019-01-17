@@ -14,7 +14,7 @@ namespace SJP.Schematic.Core
             Type clrType,
             bool isFixedLength,
             int maxLength,
-            Option<NumericPrecision> numericPrecision,
+            Option<INumericPrecision> numericPrecision,
             Option<Identifier> collation
         )
         {
@@ -45,7 +45,7 @@ namespace SJP.Schematic.Core
 
         public Type ClrType { get; }
 
-        public Option<NumericPrecision> NumericPrecision { get; }
+        public Option<INumericPrecision> NumericPrecision { get; }
 
         public Option<Identifier> Collation { get; }
     }

@@ -17,7 +17,7 @@ namespace SJP.Schematic.Core
 
         Type ClrType { get; }
 
-        Option<NumericPrecision> NumericPrecision { get; }
+        Option<INumericPrecision> NumericPrecision { get; }
 
         Option<Identifier> Collation { get; }
     }

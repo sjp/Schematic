@@ -49,7 +49,7 @@ namespace SJP.Schematic.Sqlite
 
         public Type ClrType { get; }
 
-        public Option<NumericPrecision> NumericPrecision { get; } = Option<NumericPrecision>.None;
+        public Option<INumericPrecision> NumericPrecision { get; } = Option<INumericPrecision>.None;
 
         public Option<Identifier> Collation { get; }
 

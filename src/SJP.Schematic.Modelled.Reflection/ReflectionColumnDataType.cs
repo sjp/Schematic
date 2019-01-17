@@ -32,7 +32,9 @@ namespace SJP.Schematic.Modelled.Reflection
                 DataType = attr.DataType,
                 IsFixedLength = attr.IsFixedLength,
                 MaxLength = attr.Length,
-                NumericPrecision = new NumericPrecision(attr.Precision, attr.Scale),
+                NumericPrecision = attr.Precision > 0 && attr.Scale > 0
+                    ? Option<INumericPrecision>.Some(new NumericPrecision(attr.Precision, attr.Scale))
+                    : Option<INumericPrecision>.None,
             };
             var dbType = typeProvider.CreateColumnType(typeMetadata);
 
@@ -59,7 +61,7 @@ namespace SJP.Schematic.Modelled.Reflection
 
         public Type ClrType { get; }
 
-        public Option<NumericPrecision> NumericPrecision { get; }
+        public Option<INumericPrecision> NumericPrecision { get; }
 
         public Option<Identifier> Collation { get; }
     }

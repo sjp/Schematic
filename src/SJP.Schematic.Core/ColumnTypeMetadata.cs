@@ -17,6 +17,6 @@ namespace SJP.Schematic.Core
 
         public Option<Identifier> Collation { get; set; }
 
-        public Option<NumericPrecision> NumericPrecision { get; set; }
+        public Option<INumericPrecision> NumericPrecision { get; set; }
     }
 }
