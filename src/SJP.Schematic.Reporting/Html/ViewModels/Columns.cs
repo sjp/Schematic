@@ -7,6 +7,9 @@ using SJP.Schematic.Core.Extensions;
 
 namespace SJP.Schematic.Reporting.Html.ViewModels
 {
+    /// <summary>
+    /// Internal. Not intended to be used outside of this assembly. Only required for templating.
+    /// </summary>
     public sealed class Columns : ITemplateParameter
     {
         public Columns(IEnumerable<Column> columns)
@@ -86,6 +89,9 @@ namespace SJP.Schematic.Reporting.Html.ViewModels
             }
         }
 
+        /// <summary>
+        /// Internal. Not intended to be used outside of this assembly. Only required for templating.
+        /// </summary>
         public sealed class TableColumn : Column
         {
             public TableColumn(
@@ -164,6 +170,9 @@ namespace SJP.Schematic.Reporting.Html.ViewModels
             }
         }
 
+        /// <summary>
+        /// Internal. Not intended to be used outside of this assembly. Only required for templating.
+        /// </summary>
         public sealed class ViewColumn : Column
         {
             public ViewColumn(

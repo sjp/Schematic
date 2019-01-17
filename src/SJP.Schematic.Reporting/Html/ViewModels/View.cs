@@ -5,6 +5,9 @@ using SJP.Schematic.Core;
 
 namespace SJP.Schematic.Reporting.Html.ViewModels
 {
+    /// <summary>
+    /// Internal. Not intended to be used outside of this assembly. Only required for templating.
+    /// </summary>
     public sealed class View : ITemplateParameter
     {
         public View(
@@ -47,6 +50,9 @@ namespace SJP.Schematic.Reporting.Html.ViewModels
 
         public HtmlString ColumnsTableClass { get; }
 
+        /// <summary>
+        /// Internal. Not intended to be used outside of this assembly. Only required for templating.
+        /// </summary>
         public sealed class Column
         {
             public Column(

@@ -8,6 +8,9 @@ using SJP.Schematic.Core.Extensions;
 
 namespace SJP.Schematic.Reporting.Html.ViewModels
 {
+    /// <summary>
+    /// Internal. Not intended to be used outside of this assembly. Only required for templating.
+    /// </summary>
     public sealed class Constraints : ITemplateParameter
     {
         public Constraints(
@@ -61,6 +64,9 @@ namespace SJP.Schematic.Reporting.Html.ViewModels
 
         public HtmlString CheckConstraintsTableClass { get; }
 
+        /// <summary>
+        /// Internal. Not intended to be used outside of this assembly. Only required for templating.
+        /// </summary>
         public abstract class TableConstraint
         {
             protected TableConstraint(Identifier tableName, string constraintName)
@@ -80,6 +86,9 @@ namespace SJP.Schematic.Reporting.Html.ViewModels
             public string ConstraintName { get; }
         }
 
+        /// <summary>
+        /// Internal. Not intended to be used outside of this assembly. Only required for templating.
+        /// </summary>
         public sealed class PrimaryKeyConstraint : TableConstraint
         {
             public PrimaryKeyConstraint(Identifier tableName, string constraintName, IEnumerable<string> columnNames)
@@ -94,6 +103,9 @@ namespace SJP.Schematic.Reporting.Html.ViewModels
             public string ColumnNames { get; }
         }
 
+        /// <summary>
+        /// Internal. Not intended to be used outside of this assembly. Only required for templating.
+        /// </summary>
         public sealed class UniqueKey : TableConstraint
         {
             public UniqueKey(Identifier tableName, string constraintName, IEnumerable<string> columnNames)
@@ -108,6 +120,9 @@ namespace SJP.Schematic.Reporting.Html.ViewModels
             public string ColumnNames { get; }
         }
 
+        /// <summary>
+        /// Internal. Not intended to be used outside of this assembly. Only required for templating.
+        /// </summary>
         public sealed class ForeignKey : TableConstraint
         {
             public ForeignKey(
@@ -167,6 +182,9 @@ namespace SJP.Schematic.Reporting.Html.ViewModels
             };
         }
 
+        /// <summary>
+        /// Internal. Not intended to be used outside of this assembly. Only required for templating.
+        /// </summary>
         public sealed class CheckConstraint : TableConstraint
         {
             public CheckConstraint(Identifier tableName, string constraintName, string definition)

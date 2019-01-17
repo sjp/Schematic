@@ -4,6 +4,9 @@ using SJP.Schematic.Core.Extensions;
 
 namespace SJP.Schematic.Reporting.Html.ViewModels
 {
+    /// <summary>
+    /// Internal. Not intended to be used outside of this assembly. Only required for templating.
+    /// </summary>
     public sealed class Relationships : ITemplateParameter
     {
         public Relationships(IEnumerable<Diagram> diagrams)
@@ -15,6 +18,9 @@ namespace SJP.Schematic.Reporting.Html.ViewModels
 
         public IEnumerable<Diagram> Diagrams { get; }
 
+        /// <summary>
+        /// Internal. Not intended to be used outside of this assembly. Only required for templating.
+        /// </summary>
         public sealed class Diagram
         {
             public Diagram(string diagramName, string dotDefinition, bool isActive)

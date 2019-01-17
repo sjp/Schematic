@@ -9,6 +9,9 @@ using SJP.Schematic.Core.Extensions;
 
 namespace SJP.Schematic.Reporting.Html.ViewModels
 {
+    /// <summary>
+    /// Internal. Not intended to be used outside of this assembly. Only required for templating.
+    /// </summary>
     public sealed class Table : ITemplateParameter
     {
         public Table(
@@ -108,6 +111,9 @@ namespace SJP.Schematic.Reporting.Html.ViewModels
 
         public IEnumerable<Diagram> Diagrams { get; }
 
+        /// <summary>
+        /// Internal. Not intended to be used outside of this assembly. Only required for templating.
+        /// </summary>
         public sealed class Column
         {
             public Column(
@@ -213,6 +219,9 @@ namespace SJP.Schematic.Reporting.Html.ViewModels
             }
         }
 
+        /// <summary>
+        /// Internal. Not intended to be used outside of this assembly. Only required for templating.
+        /// </summary>
         public abstract class TableConstraint
         {
             protected TableConstraint(string constraintName)
@@ -223,6 +232,9 @@ namespace SJP.Schematic.Reporting.Html.ViewModels
             public string ConstraintName { get; }
         }
 
+        /// <summary>
+        /// Internal. Not intended to be used outside of this assembly. Only required for templating.
+        /// </summary>
         public sealed class PrimaryKeyConstraint : TableConstraint
         {
             public PrimaryKeyConstraint(string constraintName, IEnumerable<string> columns)
@@ -237,6 +249,9 @@ namespace SJP.Schematic.Reporting.Html.ViewModels
             public string ColumnNames { get; }
         }
 
+        /// <summary>
+        /// Internal. Not intended to be used outside of this assembly. Only required for templating.
+        /// </summary>
         public sealed class UniqueKey : TableConstraint
         {
             public UniqueKey(string constraintName, IEnumerable<string> columns)
@@ -251,6 +266,9 @@ namespace SJP.Schematic.Reporting.Html.ViewModels
             public string ColumnNames { get; }
         }
 
+        /// <summary>
+        /// Internal. Not intended to be used outside of this assembly. Only required for templating.
+        /// </summary>
         public sealed class ForeignKey : TableConstraint
         {
             public ForeignKey(
@@ -307,6 +325,9 @@ namespace SJP.Schematic.Reporting.Html.ViewModels
             };
         }
 
+        /// <summary>
+        /// Internal. Not intended to be used outside of this assembly. Only required for templating.
+        /// </summary>
         public sealed class CheckConstraint : TableConstraint
         {
             public CheckConstraint(string constraintName, string definition)
@@ -321,6 +342,9 @@ namespace SJP.Schematic.Reporting.Html.ViewModels
             public string Definition { get; }
         }
 
+        /// <summary>
+        /// Internal. Not intended to be used outside of this assembly. Only required for templating.
+        /// </summary>
         public sealed class Index
         {
             public Index(
@@ -357,6 +381,9 @@ namespace SJP.Schematic.Reporting.Html.ViewModels
             }
         }
 
+        /// <summary>
+        /// Internal. Not intended to be used outside of this assembly. Only required for templating.
+        /// </summary>
         public sealed class ParentKey
         {
             public ParentKey(string constraintName, Identifier parentTableName, string parentColumnName, string qualifiedChildColumnName)
@@ -388,6 +415,9 @@ namespace SJP.Schematic.Reporting.Html.ViewModels
             public string ParentColumnName { get; }
         }
 
+        /// <summary>
+        /// Internal. Not intended to be used outside of this assembly. Only required for templating.
+        /// </summary>
         public sealed class ChildKey
         {
             public ChildKey(string constraintName, Identifier childTableName, string childColumnName, string qualifiedParentColumnName)
@@ -419,6 +449,9 @@ namespace SJP.Schematic.Reporting.Html.ViewModels
             public string ChildColumnName { get; }
         }
 
+        /// <summary>
+        /// Internal. Not intended to be used outside of this assembly. Only required for templating.
+        /// </summary>
         public sealed class Diagram
         {
             public Diagram(Identifier tableName, string diagramName, string dotDefinition, bool isActive)

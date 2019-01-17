@@ -6,6 +6,9 @@ using SJP.Schematic.Core.Extensions;
 
 namespace SJP.Schematic.Reporting.Html.ViewModels
 {
+    /// <summary>
+    /// Internal. Not intended to be used outside of this assembly. Only required for templating.
+    /// </summary>
     public sealed class Indexes : ITemplateParameter
     {
         public Indexes(IEnumerable<Index> indexes, string rootPath)
@@ -27,6 +30,9 @@ namespace SJP.Schematic.Reporting.Html.ViewModels
 
         public HtmlString IndexesTableClass { get; }
 
+        /// <summary>
+        /// Internal. Not intended to be used outside of this assembly. Only required for templating.
+        /// </summary>
         public sealed class Index
         {
             public Index(

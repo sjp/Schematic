@@ -4,6 +4,9 @@ using SJP.Schematic.Core;
 
 namespace SJP.Schematic.Reporting.Html.ViewModels
 {
+    /// <summary>
+    /// Internal. Not intended to be used outside of this assembly. Only required for templating.
+    /// </summary>
     public sealed class Orphans : ITemplateParameter
     {
         public Orphans(IEnumerable<Table> tables)
@@ -21,6 +24,9 @@ namespace SJP.Schematic.Reporting.Html.ViewModels
 
         public HtmlString TablesTableClass { get; }
 
+        /// <summary>
+        /// Internal. Not intended to be used outside of this assembly. Only required for templating.
+        /// </summary>
         public sealed class Table
         {
             public Table(Identifier tableName, uint columnCount, ulong rowCount)

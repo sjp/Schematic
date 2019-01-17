@@ -3,6 +3,9 @@ using System.Collections.Generic;
 
 namespace SJP.Schematic.Reporting.Html.ViewModels
 {
+    /// <summary>
+    /// Internal. Not intended to be used outside of this assembly. Only required for templating.
+    /// </summary>
     public sealed class LintResults : ITemplateParameter
     {
         public LintResults(IEnumerable<LintRule> lintRules)
@@ -17,6 +20,9 @@ namespace SJP.Schematic.Reporting.Html.ViewModels
 
         public uint LintRulesCount { get; }
 
+        /// <summary>
+        /// Internal. Not intended to be used outside of this assembly. Only required for templating.
+        /// </summary>
         public sealed class LintRule
         {
             public LintRule(string ruleTitle, IEnumerable<HtmlString> messages)

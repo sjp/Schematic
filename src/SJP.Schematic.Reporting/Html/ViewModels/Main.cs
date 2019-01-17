@@ -6,6 +6,9 @@ using SJP.Schematic.Core;
 
 namespace SJP.Schematic.Reporting.Html.ViewModels
 {
+    /// <summary>
+    /// Internal. Not intended to be used outside of this assembly. Only required for templating.
+    /// </summary>
     public sealed class Main : ITemplateParameter
     {
         public Main(
@@ -101,6 +104,9 @@ namespace SJP.Schematic.Reporting.Html.ViewModels
 
         public HtmlString RoutinesTableClass { get; }
 
+        /// <summary>
+        /// Internal. Not intended to be used outside of this assembly. Only required for templating.
+        /// </summary>
         public sealed class Table
         {
             public Table(
@@ -136,6 +142,9 @@ namespace SJP.Schematic.Reporting.Html.ViewModels
             public ulong RowCount { get; }
         }
 
+        /// <summary>
+        /// Internal. Not intended to be used outside of this assembly. Only required for templating.
+        /// </summary>
         public sealed class View
         {
             public View(Identifier viewName, uint columnCount, ulong rowCount)
@@ -158,6 +167,9 @@ namespace SJP.Schematic.Reporting.Html.ViewModels
             public ulong RowCount { get; }
         }
 
+        /// <summary>
+        /// Internal. Not intended to be used outside of this assembly. Only required for templating.
+        /// </summary>
         public sealed class Sequence
         {
             public Sequence(
@@ -197,6 +209,9 @@ namespace SJP.Schematic.Reporting.Html.ViewModels
             public string CycleText { get; }
         }
 
+        /// <summary>
+        /// Internal. Not intended to be used outside of this assembly. Only required for templating.
+        /// </summary>
         public sealed class Synonym
         {
             public Synonym(Identifier synonymName, Identifier target, Option<Uri> targetUrl)
@@ -220,6 +235,9 @@ namespace SJP.Schematic.Reporting.Html.ViewModels
             public HtmlString TargetText { get; }
         }
 
+        /// <summary>
+        /// Internal. Not intended to be used outside of this assembly. Only required for templating.
+        /// </summary>
         public sealed class Routine
         {
             public Routine(Identifier routineName)

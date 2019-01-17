@@ -2,6 +2,10 @@
 
 namespace SJP.Schematic.Reporting.Html
 {
+    /// <summary>
+    /// <para>Internal. Not intended to be used outside of this assembly.</para>
+    /// <para>Ensures that pre-rendered text is explicitly used so that rendering errors are more difficult.</para>
+    /// </summary>
     public sealed class HtmlString
     {
         public HtmlString(string encodedText)
