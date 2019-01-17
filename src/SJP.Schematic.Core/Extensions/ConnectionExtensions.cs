@@ -84,36 +84,6 @@ namespace SJP.Schematic.Core.Extensions
             return connection.ExecuteAsync(command);
         }
 
-        public static Option<T> QueryFirstOrNone<T>(this IDbConnection connection, string sql)
-            where T : class
-        {
-            if (connection == null)
-                throw new ArgumentNullException(nameof(connection));
-            if (sql.IsNullOrWhiteSpace())
-                throw new ArgumentNullException(nameof(sql));
-
-            var result = connection.QueryFirstOrDefault<T>(sql);
-            return result != null
-                ? Option<T>.Some(result)
-                : Option<T>.None;
-        }
-
-        public static Option<T> QueryFirstOrNone<T>(this IDbConnection connection, string sql, object parameters)
-            where T : class
-        {
-            if (connection == null)
-                throw new ArgumentNullException(nameof(connection));
-            if (sql.IsNullOrWhiteSpace())
-                throw new ArgumentNullException(nameof(sql));
-            if (parameters == null)
-                throw new ArgumentNullException(nameof(parameters));
-
-            var result = connection.QueryFirstOrDefault<T>(sql, param: parameters);
-            return result != null
-                ? Option<T>.Some(result)
-                : Option<T>.None;
-        }
-
         public static OptionAsync<T> QueryFirstOrNone<T>(this IDbConnection connection, string sql, CancellationToken cancellationToken)
             where T : class
         {
@@ -182,50 +152,6 @@ namespace SJP.Schematic.Core.Extensions
 
             var command = new CommandDefinition(sql, parameters, cancellationToken: cancellationToken);
             return connection.QuerySingleAsync<T>(command);
-        }
-
-        public static Option<T> QuerySingleOrNone<T>(this IDbConnection connection, string sql)
-            where T : class
-        {
-            if (connection == null)
-                throw new ArgumentNullException(nameof(connection));
-            if (sql.IsNullOrWhiteSpace())
-                throw new ArgumentNullException(nameof(sql));
-
-            try
-            {
-                var result = connection.QuerySingleOrDefault<T>(sql);
-                return result != null
-                    ? Option<T>.Some(result)
-                    : Option<T>.None;
-            }
-            catch (InvalidOperationException) // for > 1 case
-            {
-                return Option<T>.None;
-            }
-        }
-
-        public static Option<T> QuerySingleOrNone<T>(this IDbConnection connection, string sql, object parameters)
-            where T : class
-        {
-            if (connection == null)
-                throw new ArgumentNullException(nameof(connection));
-            if (sql.IsNullOrWhiteSpace())
-                throw new ArgumentNullException(nameof(sql));
-            if (parameters == null)
-                throw new ArgumentNullException(nameof(parameters));
-
-            try
-            {
-                var result = connection.QuerySingleOrDefault<T>(sql, param: parameters);
-                return result != null
-                    ? Option<T>.Some(result)
-                    : Option<T>.None;
-            }
-            catch (InvalidOperationException) // for > 1 case
-            {
-                return Option<T>.None;
-            }
         }
 
         public static OptionAsync<T> QuerySingleOrNone<T>(this IDbConnection connection, string sql, CancellationToken cancellationToken)
