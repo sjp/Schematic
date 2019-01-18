@@ -36,8 +36,8 @@ END $$").ConfigureAwait(false);
         [OneTimeTearDown]
         public async Task CleanUp()
         {
-            await Connection.ExecuteAsync("drop function db_test_routine_1").ConfigureAwait(false);
-            await Connection.ExecuteAsync("drop procedure db_test_routine_2").ConfigureAwait(false);
+            await Connection.ExecuteAsync("drop function db_test_routine_1(integer)").ConfigureAwait(false);
+            await Connection.ExecuteAsync("drop procedure db_test_routine_2()").ConfigureAwait(false);
         }
 
         private Task<IDatabaseRoutine> GetRoutineAsync(Identifier routineName)
