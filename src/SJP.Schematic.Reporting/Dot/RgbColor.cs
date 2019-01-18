@@ -17,6 +17,7 @@ namespace SJP.Schematic.Reporting.Dot
             var b = Convert.ToByte(hexOnly.Substring(4, 2), 16);
 
             _hex = ToRgbHex(r, g, b);
+            _hashCode = _hex.GetHashCode();
         }
 
         private static string ToRgbHex(byte red, byte green, byte blue)
@@ -30,7 +31,7 @@ namespace SJP.Schematic.Reporting.Dot
 
         public override string ToString() => _hex;
 
-        public override int GetHashCode() => _hex.GetHashCode();
+        public override int GetHashCode() => _hashCode;
 
         public override bool Equals(object obj)
         {
@@ -53,5 +54,6 @@ namespace SJP.Schematic.Reporting.Dot
         }
 
         private readonly string _hex;
+        private readonly int _hashCode;
     }
 }

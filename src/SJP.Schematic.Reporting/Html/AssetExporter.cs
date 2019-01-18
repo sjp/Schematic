@@ -11,45 +11,9 @@ namespace SJP.Schematic.Reporting.Html
 {
     internal class AssetExporter
     {
-        public void SaveAssets(string directory, bool overwrite = true)
-        {
-            if (string.IsNullOrWhiteSpace(directory))
-                throw new ArgumentNullException(nameof(directory));
-
-            var dirInfo = new DirectoryInfo(directory);
-            SaveAssets(dirInfo, overwrite);
-        }
-
-        public void SaveAssets(DirectoryInfo directory, bool overwrite = true)
-        {
-            if (directory == null)
-                throw new ArgumentNullException(nameof(directory));
-
-            if (!directory.Exists)
-                directory.Create();
-
-            var resourceFiles = _fileProvider.GetDirectoryContents("/");
-            foreach (var resourceFile in resourceFiles)
-            {
-                var relativePath = FileNameToRelativePath(resourceFile.Name);
-                var qualifiedPath = Path.Combine(directory.FullName, relativePath);
-                var targetFile = new FileInfo(qualifiedPath);
-
-                if (targetFile.Exists && overwrite)
-                    targetFile.Delete();
-
-                if (!targetFile.Directory.Exists)
-                    targetFile.Directory.Create();
-
-                using (var stream = targetFile.OpenWrite())
-                using (var resourceStream = resourceFile.CreateReadStream())
-                    resourceStream.CopyTo(stream);
-            }
-        }
-
         public Task SaveAssetsAsync(string directory, bool overwrite = true)
         {
-            if (string.IsNullOrWhiteSpace(directory))
+            if (directory.IsNullOrWhiteSpace())
                 throw new ArgumentNullException(nameof(directory));
 
             var dirInfo = new DirectoryInfo(directory);

@@ -104,6 +104,12 @@ namespace SJP.Schematic.Reporting.Html.ViewModels.Mappers
             if (viewUriIsSome)
                 return await viewUri.ToOption().ConfigureAwait(false);
 
+            var routineOption = Database.GetRoutine(identifier, cancellationToken);
+            var routineUri = routineOption.Map(r => new Uri("routines/" + r.Name.ToSafeKey() + ".html", UriKind.Relative));
+            var routineIsSome = await routineUri.IsSome.ConfigureAwait(false);
+            if (routineIsSome)
+                return await routineUri.ToOption().ConfigureAwait(false);
+
             return Option<Uri>.None;
         }
 

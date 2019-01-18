@@ -14,11 +14,12 @@ namespace SJP.Schematic.Reporting.Dot
                 throw new ArgumentNullException(nameof(attrValue));
 
             _attr = attrName + "=" + attrValue;
+            _hashCode = _attr.GetHashCode();
         }
 
         public override string ToString() => _attr;
 
-        public override int GetHashCode() => _attr.GetHashCode();
+        public override int GetHashCode() => _hashCode;
 
         public override bool Equals(object obj)
         {
@@ -67,5 +68,6 @@ namespace SJP.Schematic.Reporting.Dot
         }
 
         private readonly string _attr;
+        private readonly int _hashCode;
     }
 }

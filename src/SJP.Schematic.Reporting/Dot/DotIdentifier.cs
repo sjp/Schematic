@@ -1,4 +1,5 @@
 ﻿using System;
+using SJP.Schematic.Core.Extensions;
 
 namespace SJP.Schematic.Reporting.Dot
 {
@@ -6,7 +7,7 @@ namespace SJP.Schematic.Reporting.Dot
     {
         public DotIdentifier(string identifier)
         {
-            if (string.IsNullOrWhiteSpace(identifier))
+            if (identifier.IsNullOrWhiteSpace())
                 throw new ArgumentNullException(nameof(identifier));
 
             _identifier = "\"" + identifier.Replace("\"", "\\\"") + "\"";
