@@ -4,39 +4,19 @@ using Superpower;
 using Superpower.Model;
 using System.Linq;
 using SJP.Schematic.Core.Extensions;
+using LanguageExt;
 
 namespace SJP.Schematic.Sqlite.Parsing
 {
     public class SqliteTableParser
     {
-        public SqliteTableParser(TokenList<SqliteToken> tokens, string definition)
+        public ParsedTableData ParseTokens(string definition, TokenList<SqliteToken> tokens)
         {
+            if (definition.IsNullOrWhiteSpace())
+                throw new ArgumentNullException(nameof(definition));
             if (tokens == default(TokenList<SqliteToken>) || tokens.Empty())
                 throw new ArgumentNullException(nameof(tokens));
 
-            Definition = definition ?? throw new ArgumentNullException(nameof(definition));
-            var parsedTable = ParseTokens(tokens);
-            Columns = parsedTable.Columns;
-            PrimaryKey = parsedTable.PrimaryKey;
-            UniqueKeys = parsedTable.UniqueKeys;
-            ParentKeys = parsedTable.ParentKeys;
-            Checks = parsedTable.Checks;
-        }
-
-        public string Definition { get; }
-
-        public IEnumerable<Column> Columns { get; }
-
-        public PrimaryKey PrimaryKey { get; }
-
-        public IEnumerable<UniqueKey> UniqueKeys { get; }
-
-        public IEnumerable<ForeignKey> ParentKeys { get; }
-
-        public IEnumerable<Check> Checks { get; }
-
-        private static ParsedTable ParseTokens(TokenList<SqliteToken> tokens)
-        {
             var next = tokens.ConsumeToken();
             var createTablePrefix = SqliteTokenParsers.CreateTablePrefix(next.Location);
             if (!createTablePrefix.HasValue)
@@ -56,7 +36,7 @@ namespace SJP.Schematic.Sqlite.Parsing
 
             // skipping because we cannot parse extra information from a select-based table
             if (isSelectBasedTable)
-                return ParsedTable.Empty;
+                return ParsedTableData.Empty(definition);
 
             next = next.Remainder.ConsumeToken(); // consume LParen
 
@@ -68,7 +48,7 @@ namespace SJP.Schematic.Sqlite.Parsing
             }
 
             var columns = new List<Column>();
-            PrimaryKey primaryKey = null;
+            var primaryKey = Option<PrimaryKey>.None;
             var uniqueKeys = new List<UniqueKey>();
             var foreignKeys = new List<ForeignKey>();
             var checks = new List<Check>();
@@ -89,9 +69,10 @@ namespace SJP.Schematic.Sqlite.Parsing
 
                 columns.Add(column);
 
-                primaryKey = primaryKey ?? parsedColumn.PrimaryKey;
-                if (parsedColumn.UniqueKey != null)
-                    uniqueKeys.Add(parsedColumn.UniqueKey);
+                if (primaryKey.IsNone && parsedColumn.PrimaryKey.IsSome)
+                    primaryKey = parsedColumn.PrimaryKey;
+
+                parsedColumn.UniqueKey.IfSome(uk => uniqueKeys.Add(uk));
                 foreignKeys.AddRange(parsedColumn.ForeignKeys);
                 checks.AddRange(parsedColumn.Checks);
             }
@@ -119,49 +100,14 @@ namespace SJP.Schematic.Sqlite.Parsing
                 }
             }
 
-            return new ParsedTable(columns, primaryKey, uniqueKeys, foreignKeys, checks);
-        }
-
-        // only used for structured return from ParseTokens()
-        private sealed class ParsedTable
-        {
-            public ParsedTable(
-                IReadOnlyCollection<Column> columns,
-                PrimaryKey primaryKey,
-                IReadOnlyCollection<UniqueKey> uniqueKeys,
-                IReadOnlyCollection<ForeignKey> parentKeys,
-                IReadOnlyCollection<Check> checks
-            )
-            {
-                if (columns == null || columns.Empty())
-                    throw new ArgumentNullException(nameof(columns));
-
-                Columns = columns;
-                PrimaryKey = primaryKey;
-                UniqueKeys = uniqueKeys ?? throw new ArgumentNullException(nameof(uniqueKeys));
-                Checks = checks ?? throw new ArgumentNullException(nameof(checks));
-                ParentKeys = parentKeys ?? throw new ArgumentNullException(nameof(parentKeys));
-            }
-
-            private ParsedTable()
-            {
-                Columns = Array.Empty<Column>();
-                UniqueKeys = Array.Empty<UniqueKey>();
-                Checks = Array.Empty<Check>();
-                ParentKeys = Array.Empty<ForeignKey>();
-            }
-
-            public IEnumerable<Column> Columns { get; }
-
-            public PrimaryKey PrimaryKey { get; }
-
-            public IEnumerable<UniqueKey> UniqueKeys { get; }
-
-            public IEnumerable<Check> Checks { get; }
-
-            public IEnumerable<ForeignKey> ParentKeys { get; }
-
-            public static ParsedTable Empty => new ParsedTable();
+            return new ParsedTableData(
+                definition,
+                columns,
+                primaryKey,
+                uniqueKeys,
+                foreignKeys,
+                checks
+            );
         }
     }
 }

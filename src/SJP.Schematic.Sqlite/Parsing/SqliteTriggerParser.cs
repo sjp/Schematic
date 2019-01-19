@@ -7,7 +7,7 @@ namespace SJP.Schematic.Sqlite.Parsing
 {
     public class SqliteTriggerParser
     {
-        public SqliteTriggerParser(TokenList<SqliteToken> tokens)
+        public ParsedTriggerData ParseTokens(TokenList<SqliteToken> tokens)
         {
             if (tokens == default(TokenList<SqliteToken>) || tokens.Empty())
                 throw new ArgumentNullException(nameof(tokens));
@@ -22,8 +22,7 @@ namespace SJP.Schematic.Sqlite.Parsing
                 evt = triggerDef.Value.evt;
             }
 
-            Timing = timing;
-            Event = evt;
+            return new ParsedTriggerData(timing, evt);
         }
 
         public TriggerQueryTiming Timing { get; }

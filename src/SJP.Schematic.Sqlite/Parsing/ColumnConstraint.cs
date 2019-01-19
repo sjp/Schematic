@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using EnumsNET;
+using LanguageExt;
 using SJP.Schematic.Core;
 using SJP.Schematic.Core.Extensions;
 using Superpower.Model;
@@ -29,13 +30,16 @@ namespace SJP.Schematic.Sqlite.Parsing
             ConstraintType = constraintType;
         }
 
-        public string Name { get; protected set; }
+        public Option<string> Name { get; protected set; }
 
         public ColumnConstraintType ConstraintType { get; }
 
         public ColumnConstraint WithName(SqlIdentifier identifier)
         {
-            Name = identifier?.Value?.LocalName ?? throw new ArgumentNullException(nameof(identifier));
+            if (identifier == null)
+                throw new ArgumentNullException(nameof(identifier));
+
+            Name = Option<string>.Some(identifier.Value.LocalName);
             return this;
         }
 

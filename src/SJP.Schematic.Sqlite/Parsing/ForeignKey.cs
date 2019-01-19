@@ -3,17 +3,18 @@ using System.Collections.Generic;
 using SJP.Schematic.Core;
 using System.Linq;
 using SJP.Schematic.Core.Extensions;
+using LanguageExt;
 
 namespace SJP.Schematic.Sqlite.Parsing
 {
     public class ForeignKey
     {
-        public ForeignKey(string constraintName, string columnName, Identifier parentTable, IReadOnlyCollection<string> parentColumnNames)
+        public ForeignKey(Option<string> constraintName, string columnName, Identifier parentTable, IReadOnlyCollection<string> parentColumnNames)
             : this(constraintName, new[] { columnName }, parentTable, parentColumnNames)
         {
         }
 
-        public ForeignKey(string constraintName, IReadOnlyCollection<string> columnNames, Identifier parentTable, IReadOnlyCollection<string> parentColumnNames)
+        public ForeignKey(Option<string> constraintName, IReadOnlyCollection<string> columnNames, Identifier parentTable, IReadOnlyCollection<string> parentColumnNames)
         {
             if (columnNames == null || columnNames.Empty() || columnNames.Any(c => c.IsNullOrWhiteSpace()))
                 throw new ArgumentNullException(nameof(columnNames));
@@ -28,7 +29,7 @@ namespace SJP.Schematic.Sqlite.Parsing
             ParentColumns = parentColumnNames;
         }
 
-        public string Name { get; }
+        public Option<string> Name { get; }
 
         public IEnumerable<string> Columns { get; }
 

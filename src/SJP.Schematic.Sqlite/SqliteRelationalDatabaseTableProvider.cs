@@ -188,10 +188,10 @@ namespace SJP.Schematic.Sqlite
 
             var resolvedTableName = await resolvedTableNameOption.UnwrapSomeAsync().ConfigureAwait(false);
             var pragma = new DatabasePragma(Dialect, Connection, resolvedTableName.Schema);
-            var parser = await GetParsedTableDefinitionAsync(resolvedTableName, cancellationToken).ConfigureAwait(false);
+            var parsedTable = await GetParsedTableDefinitionAsync(resolvedTableName, cancellationToken).ConfigureAwait(false);
 
-            var columnsTask = LoadColumnsAsync(pragma, parser, resolvedTableName, cancellationToken);
-            var checksTask = LoadChecksAsync(parser, cancellationToken);
+            var columnsTask = LoadColumnsAsync(pragma, parsedTable, resolvedTableName, cancellationToken);
+            var checksTask = LoadChecksAsync(parsedTable, cancellationToken);
             var triggersTask = LoadTriggersAsync(resolvedTableName, cancellationToken);
             await Task.WhenAll(columnsTask, checksTask, triggersTask).ConfigureAwait(false);
 
@@ -200,8 +200,8 @@ namespace SJP.Schematic.Sqlite
             var checks = checksTask.Result;
             var triggers = triggersTask.Result;
 
-            var primaryKeyTask = LoadPrimaryKeyAsync(pragma, parser, resolvedTableName, columnLookup, cancellationToken);
-            var uniqueKeysTask = LoadUniqueKeysAsync(pragma, parser, resolvedTableName, columnLookup, cancellationToken);
+            var primaryKeyTask = LoadPrimaryKeyAsync(pragma, parsedTable, resolvedTableName, columnLookup, cancellationToken);
+            var uniqueKeysTask = LoadUniqueKeysAsync(pragma, parsedTable, resolvedTableName, columnLookup, cancellationToken);
             var indexesTask = LoadIndexesAsync(pragma, resolvedTableName, columnLookup, cancellationToken);
             await Task.WhenAll(primaryKeyTask, uniqueKeysTask, indexesTask).ConfigureAwait(false);
 
@@ -210,7 +210,7 @@ namespace SJP.Schematic.Sqlite
             var indexes = indexesTask.Result;
 
             var childKeysTask = LoadChildKeysAsync(resolvedTableName, columnLookup, cancellationToken);
-            var parentKeysTask = LoadParentKeysAsync(pragma, parser, resolvedTableName, columnLookup, cancellationToken);
+            var parentKeysTask = LoadParentKeysAsync(pragma, parsedTable, resolvedTableName, columnLookup, cancellationToken);
             await Task.WhenAll(childKeysTask, parentKeysTask).ConfigureAwait(false);
 
             var childKeys = childKeysTask.Result;
@@ -231,21 +231,21 @@ namespace SJP.Schematic.Sqlite
             return Option<IRelationalDatabaseTable>.Some(table);
         }
 
-        protected virtual Task<Option<IDatabaseKey>> LoadPrimaryKeyAsync(ISqliteDatabasePragma pragma, SqliteTableParser parser, Identifier tableName, IReadOnlyDictionary<Identifier, IDatabaseColumn> columns, CancellationToken cancellationToken)
+        protected virtual Task<Option<IDatabaseKey>> LoadPrimaryKeyAsync(ISqliteDatabasePragma pragma, ParsedTableData parsedTable, Identifier tableName, IReadOnlyDictionary<Identifier, IDatabaseColumn> columns, CancellationToken cancellationToken)
         {
             if (pragma == null)
                 throw new ArgumentNullException(nameof(pragma));
-            if (parser == null)
-                throw new ArgumentNullException(nameof(parser));
+            if (parsedTable == null)
+                throw new ArgumentNullException(nameof(parsedTable));
             if (tableName == null)
                 throw new ArgumentNullException(nameof(tableName));
             if (columns == null)
                 throw new ArgumentNullException(nameof(columns));
 
-            return LoadPrimaryKeyAsyncCore(pragma, parser, tableName, columns, cancellationToken);
+            return LoadPrimaryKeyAsyncCore(pragma, parsedTable, tableName, columns, cancellationToken);
         }
 
-        private async Task<Option<IDatabaseKey>> LoadPrimaryKeyAsyncCore(ISqliteDatabasePragma pragma, SqliteTableParser parser, Identifier tableName, IReadOnlyDictionary<Identifier, IDatabaseColumn> columns, CancellationToken cancellationToken)
+        private async Task<Option<IDatabaseKey>> LoadPrimaryKeyAsyncCore(ISqliteDatabasePragma pragma, ParsedTableData parsedTable, Identifier tableName, IReadOnlyDictionary<Identifier, IDatabaseColumn> columns, CancellationToken cancellationToken)
         {
             var tableInfos = await pragma.TableInfoAsync(tableName, cancellationToken).ConfigureAwait(false);
             if (tableInfos.Empty())
@@ -260,9 +260,7 @@ namespace SJP.Schematic.Sqlite
 
             var keyColumns = pkColumns.Select(c => columns[c.name]).ToList();
 
-            var pkConstraint = parser.PrimaryKey;
-            var pkStringName = pkConstraint?.Name;
-            var primaryKeyName = !pkStringName.IsNullOrWhiteSpace() ? Identifier.CreateQualifiedIdentifier(pkStringName) : null;
+            var primaryKeyName = parsedTable.PrimaryKey.Bind(c => c.Name.Map(Identifier.CreateQualifiedIdentifier));
 
             var primaryKey = new SqliteDatabaseKey(primaryKeyName, DatabaseKeyType.Primary, keyColumns);
             return Option<IDatabaseKey>.Some(primaryKey);
@@ -320,7 +318,7 @@ namespace SJP.Schematic.Sqlite
             return result;
         }
 
-        protected virtual Task<IReadOnlyCollection<IDatabaseKey>> LoadUniqueKeysAsync(ISqliteDatabasePragma pragma, SqliteTableParser parser, Identifier tableName, IReadOnlyDictionary<Identifier, IDatabaseColumn> columns, CancellationToken cancellationToken)
+        protected virtual Task<IReadOnlyCollection<IDatabaseKey>> LoadUniqueKeysAsync(ISqliteDatabasePragma pragma, ParsedTableData parsedTable, Identifier tableName, IReadOnlyDictionary<Identifier, IDatabaseColumn> columns, CancellationToken cancellationToken)
         {
             if (pragma == null)
                 throw new ArgumentNullException(nameof(pragma));
@@ -329,10 +327,10 @@ namespace SJP.Schematic.Sqlite
             if (columns == null)
                 throw new ArgumentNullException(nameof(columns));
 
-            return LoadUniqueKeysAsyncCore(pragma, parser, tableName, columns, cancellationToken);
+            return LoadUniqueKeysAsyncCore(pragma, parsedTable, tableName, columns, cancellationToken);
         }
 
-        private async Task<IReadOnlyCollection<IDatabaseKey>> LoadUniqueKeysAsyncCore(ISqliteDatabasePragma pragma, SqliteTableParser parser, Identifier tableName, IReadOnlyDictionary<Identifier, IDatabaseColumn> columns, CancellationToken cancellationToken)
+        private async Task<IReadOnlyCollection<IDatabaseKey>> LoadUniqueKeysAsyncCore(ISqliteDatabasePragma pragma, ParsedTableData parsedTable, Identifier tableName, IReadOnlyDictionary<Identifier, IDatabaseColumn> columns, CancellationToken cancellationToken)
         {
             var indexLists = await pragma.IndexListAsync(tableName, cancellationToken).ConfigureAwait(false);
             if (indexLists.Empty())
@@ -345,7 +343,7 @@ namespace SJP.Schematic.Sqlite
                 return Array.Empty<IDatabaseKey>();
 
             var result = new List<IDatabaseKey>(ukIndexLists.Count);
-            var parsedUniqueConstraints = parser.UniqueKeys;
+            var parsedUniqueConstraints = parsedTable.UniqueKeys;
 
             foreach (var ukIndexList in ukIndexLists)
             {
@@ -357,11 +355,13 @@ namespace SJP.Schematic.Sqlite
                 var columnNames = orderedColumns.Select(i => i.name).ToList();
                 var keyColumns = orderedColumns.Select(i => columns[i.name]).ToList();
 
-                var uniqueConstraint = parsedUniqueConstraints
+                var parsedUniqueConstraint = parsedUniqueConstraints
                     .FirstOrDefault(constraint => constraint.Columns.Select(c => c.Name).SequenceEqual(columnNames));
-                var stringConstraintName = uniqueConstraint?.Name;
+                var uniqueConstraint = parsedUniqueConstraint != null
+                    ? Option<UniqueKey>.Some(parsedUniqueConstraint)
+                    : Option<UniqueKey>.None;
+                var keyName = uniqueConstraint.Bind(uc => uc.Name.Map(Identifier.CreateQualifiedIdentifier));
 
-                var keyName = !stringConstraintName.IsNullOrWhiteSpace() ? Identifier.CreateQualifiedIdentifier(stringConstraintName) : null;
                 var uniqueKey = new SqliteDatabaseKey(keyName, DatabaseKeyType.Unique, keyColumns);
                 result.Add(uniqueKey);
             }
@@ -439,12 +439,12 @@ namespace SJP.Schematic.Sqlite
             return result;
         }
 
-        protected virtual Task<IReadOnlyCollection<IDatabaseCheckConstraint>> LoadChecksAsync(SqliteTableParser parser, CancellationToken cancellationToken)
+        protected virtual Task<IReadOnlyCollection<IDatabaseCheckConstraint>> LoadChecksAsync(ParsedTableData parsedTable, CancellationToken cancellationToken)
         {
-            if (parser == null)
-                throw new ArgumentNullException(nameof(parser));
+            if (parsedTable == null)
+                throw new ArgumentNullException(nameof(parsedTable));
 
-            var checks = parser.Checks.ToList();
+            var checks = parsedTable.Checks.ToList();
             if (checks.Empty())
                 return Empty.Checks;
 
@@ -456,10 +456,8 @@ namespace SJP.Schematic.Sqlite
                 var lastToken = ck.Definition.Last();
                 var endIndex = lastToken.Position.Absolute + lastToken.ToStringValue().Length;
 
-                var definition = parser.Definition.Substring(startIndex, endIndex - startIndex);
-                var checkName = ck.Name != null
-                    ? Option<Identifier>.Some(ck.Name)
-                    : Option<Identifier>.None;
+                var definition = parsedTable.Definition.Substring(startIndex, endIndex - startIndex);
+                var checkName = ck.Name.Map(Identifier.CreateQualifiedIdentifier);
                 var check = new SqliteCheckConstraint(checkName, definition);
                 result.Add(check);
             }
@@ -467,21 +465,21 @@ namespace SJP.Schematic.Sqlite
             return Task.FromResult<IReadOnlyCollection<IDatabaseCheckConstraint>>(result);
         }
 
-        protected virtual Task<IReadOnlyCollection<IDatabaseRelationalKey>> LoadParentKeysAsync(ISqliteDatabasePragma pragma, SqliteTableParser parser, Identifier tableName, IReadOnlyDictionary<Identifier, IDatabaseColumn> columns, CancellationToken cancellationToken)
+        protected virtual Task<IReadOnlyCollection<IDatabaseRelationalKey>> LoadParentKeysAsync(ISqliteDatabasePragma pragma, ParsedTableData parsedTable, Identifier tableName, IReadOnlyDictionary<Identifier, IDatabaseColumn> columns, CancellationToken cancellationToken)
         {
             if (pragma == null)
                 throw new ArgumentNullException(nameof(pragma));
-            if (parser == null)
-                throw new ArgumentNullException(nameof(parser));
+            if (parsedTable == null)
+                throw new ArgumentNullException(nameof(parsedTable));
             if (tableName == null)
                 throw new ArgumentNullException(nameof(tableName));
             if (columns == null)
                 throw new ArgumentNullException(nameof(columns));
 
-            return LoadParentKeysAsyncCore(pragma, parser, tableName, columns, cancellationToken);
+            return LoadParentKeysAsyncCore(pragma, parsedTable, tableName, columns, cancellationToken);
         }
 
-        private async Task<IReadOnlyCollection<IDatabaseRelationalKey>> LoadParentKeysAsyncCore(ISqliteDatabasePragma pragma, SqliteTableParser parser, Identifier tableName, IReadOnlyDictionary<Identifier, IDatabaseColumn> columns, CancellationToken cancellationToken)
+        private async Task<IReadOnlyCollection<IDatabaseRelationalKey>> LoadParentKeysAsyncCore(ISqliteDatabasePragma pragma, ParsedTableData parsedTable, Identifier tableName, IReadOnlyDictionary<Identifier, IDatabaseColumn> columns, CancellationToken cancellationToken)
         {
             var queryResult = await pragma.ForeignKeyListAsync(tableName, cancellationToken).ConfigureAwait(false);
             if (queryResult.Empty())
@@ -546,12 +544,14 @@ namespace SJP.Schematic.Sqlite
                 }
 
                 // don't need to check for the parent schema as cross-schema references are not supported
-                var parsedConstraint = parser.ParentKeys
+                var parsedConstraint = parsedTable.ParentKeys
                     .Where(fkc => string.Equals(fkc.ParentTable.LocalName, fkey.Key.ParentTableName, StringComparison.OrdinalIgnoreCase))
                     .FirstOrDefault(fkc => fkc.ParentColumns.SequenceEqual(rows.Select(row => row.to), StringComparer.OrdinalIgnoreCase));
-                var constraintStringName = parsedConstraint?.Name;
+                var parsedConstraintOption = parsedConstraint != null
+                    ? Option<ForeignKey>.Some(parsedConstraint)
+                    : Option<ForeignKey>.None;
 
-                var childKeyName = !constraintStringName.IsNullOrWhiteSpace() ? Identifier.CreateQualifiedIdentifier(constraintStringName) : null;
+                var childKeyName = parsedConstraintOption.Bind(fk => fk.Name.Map(Identifier.CreateQualifiedIdentifier));
                 var childKeyColumns = rows.Select(row => columns[row.from]).ToList();
 
                 var childKey = new SqliteDatabaseKey(childKeyName, DatabaseKeyType.Foreign, childKeyColumns);
@@ -566,26 +566,26 @@ namespace SJP.Schematic.Sqlite
             return result;
         }
 
-        protected virtual Task<IReadOnlyList<IDatabaseColumn>> LoadColumnsAsync(ISqliteDatabasePragma pragma, SqliteTableParser parser, Identifier tableName, CancellationToken cancellationToken)
+        protected virtual Task<IReadOnlyList<IDatabaseColumn>> LoadColumnsAsync(ISqliteDatabasePragma pragma, ParsedTableData parsedTable, Identifier tableName, CancellationToken cancellationToken)
         {
             if (pragma == null)
                 throw new ArgumentNullException(nameof(pragma));
-            if (parser == null)
-                throw new ArgumentNullException(nameof(parser));
+            if (parsedTable == null)
+                throw new ArgumentNullException(nameof(parsedTable));
             if (tableName == null)
                 throw new ArgumentNullException(nameof(tableName));
 
-            return LoadColumnsAsyncCore(pragma, parser, tableName, cancellationToken);
+            return LoadColumnsAsyncCore(pragma, parsedTable, tableName, cancellationToken);
         }
 
-        private async Task<IReadOnlyList<IDatabaseColumn>> LoadColumnsAsyncCore(ISqliteDatabasePragma pragma, SqliteTableParser parser, Identifier tableName, CancellationToken cancellationToken)
+        private async Task<IReadOnlyList<IDatabaseColumn>> LoadColumnsAsyncCore(ISqliteDatabasePragma pragma, ParsedTableData parsedTable, Identifier tableName, CancellationToken cancellationToken)
         {
             var tableInfos = await pragma.TableInfoAsync(tableName, cancellationToken).ConfigureAwait(false);
             if (tableInfos.Empty())
                 return Array.Empty<IDatabaseColumn>();
 
             var result = new List<IDatabaseColumn>();
-            var parsedColumns = parser.Columns;
+            var parsedColumns = parsedTable.Columns;
 
             foreach (var tableInfo in tableInfos)
             {
@@ -636,19 +636,19 @@ namespace SJP.Schematic.Sqlite
                 _triggerRwLock.EnterReadLock();
                 try
                 {
-                    if (!_triggerParserCache.TryGetValue(triggerSql, out var parser))
+                    if (!_triggerParserCache.TryGetValue(triggerSql, out var parsedTrigger))
                     {
                         var tokenizeResult = _tokenizer.TryTokenize(triggerSql);
                         if (!tokenizeResult.HasValue)
                             throw new SqliteTriggerParsingException(tableName, triggerInfo.sql, tokenizeResult.ErrorMessage + " at " + tokenizeResult.ErrorPosition.ToString());
 
                         var tokens = tokenizeResult.Value;
-                        parser = new SqliteTriggerParser(tokens);
+                        parsedTrigger = _triggerParser.ParseTokens(tokens);
 
-                        _triggerParserCache.TryAdd(triggerSql, parser);
+                        _triggerParserCache.TryAdd(triggerSql, parsedTrigger);
                     }
 
-                    var trigger = new SqliteDatabaseTrigger(triggerInfo.name, triggerSql, parser.Timing, parser.Event);
+                    var trigger = new SqliteDatabaseTrigger(triggerInfo.name, triggerSql, parsedTrigger.Timing, parsedTrigger.Event);
                     result.Add(trigger);
                 }
                 finally
@@ -684,7 +684,7 @@ namespace SJP.Schematic.Sqlite
             return result;
         }
 
-        protected virtual Task<SqliteTableParser> GetParsedTableDefinitionAsync(Identifier tableName, CancellationToken cancellationToken)
+        protected virtual Task<ParsedTableData> GetParsedTableDefinitionAsync(Identifier tableName, CancellationToken cancellationToken)
         {
             if (tableName == null)
                 throw new ArgumentNullException(nameof(tableName));
@@ -692,7 +692,7 @@ namespace SJP.Schematic.Sqlite
             return GetParsedTableDefinitionAsyncCore(tableName, cancellationToken);
         }
 
-        private async Task<SqliteTableParser> GetParsedTableDefinitionAsyncCore(Identifier tableName, CancellationToken cancellationToken)
+        private async Task<ParsedTableData> GetParsedTableDefinitionAsyncCore(Identifier tableName, CancellationToken cancellationToken)
         {
             var definitionQuery = TableDefinitionQuery(tableName.Schema);
             var tableSql = await Connection.ExecuteScalarAsync<string>(
@@ -704,19 +704,19 @@ namespace SJP.Schematic.Sqlite
             _tableRwLock.EnterReadLock();
             try
             {
-                if (!_tableParserCache.TryGetValue(tableSql, out var parser))
+                if (!_tableParserCache.TryGetValue(tableSql, out var parsedTable))
                 {
                     var tokenizeResult = _tokenizer.TryTokenize(tableSql);
                     if (!tokenizeResult.HasValue)
                         throw new SqliteTableParsingException(tableName, tableSql, tokenizeResult.ErrorMessage + " at " + tokenizeResult.ErrorPosition.ToString());
 
                     var tokens = tokenizeResult.Value;
-                    parser = new SqliteTableParser(tokens, tableSql);
+                    parsedTable = _tableParser.ParseTokens(tableSql, tokens);
 
-                    _tableParserCache.TryAdd(tableSql, parser);
+                    _tableParserCache.TryAdd(tableSql, parsedTable);
                 }
 
-                return parser;
+                return parsedTable;
             }
             finally
             {
@@ -759,8 +759,8 @@ namespace SJP.Schematic.Sqlite
                 : Rule.None;
         }
 
-        private readonly ConcurrentDictionary<string, SqliteTableParser> _tableParserCache = new ConcurrentDictionary<string, SqliteTableParser>();
-        private readonly ConcurrentDictionary<string, SqliteTriggerParser> _triggerParserCache = new ConcurrentDictionary<string, SqliteTriggerParser>();
+        private readonly ConcurrentDictionary<string, ParsedTableData> _tableParserCache = new ConcurrentDictionary<string, ParsedTableData>();
+        private readonly ConcurrentDictionary<string, ParsedTriggerData> _triggerParserCache = new ConcurrentDictionary<string, ParsedTriggerData>();
         private readonly ReaderWriterLockSlim _tableRwLock = new ReaderWriterLockSlim();
         private readonly ReaderWriterLockSlim _triggerRwLock = new ReaderWriterLockSlim();
 
@@ -775,5 +775,7 @@ namespace SJP.Schematic.Sqlite
 
         private readonly static SqliteTypeAffinityParser _affinityParser = new SqliteTypeAffinityParser();
         private readonly static SqliteTokenizer _tokenizer = new SqliteTokenizer();
+        private readonly static SqliteTableParser _tableParser = new SqliteTableParser();
+        private readonly static SqliteTriggerParser _triggerParser = new SqliteTriggerParser();
     }
 }

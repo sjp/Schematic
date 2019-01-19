@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using LanguageExt;
 using SJP.Schematic.Core.Extensions;
 using Superpower.Model;
 
@@ -97,9 +98,9 @@ namespace SJP.Schematic.Sqlite.Parsing
 
         public SqliteCollation Collation { get; }
 
-        public PrimaryKey PrimaryKey { get; }
+        public Option<PrimaryKey> PrimaryKey { get; }
 
-        public UniqueKey UniqueKey { get; }
+        public Option<UniqueKey> UniqueKey { get; }
 
         public IEnumerable<ForeignKey> ForeignKeys { get; }
 
