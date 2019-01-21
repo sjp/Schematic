@@ -62,6 +62,18 @@ namespace SJP.Schematic.MySql.Tests
             Assert.Throws<ArgumentNullException>(() => database.GetView(null));
         }
 
+        [Test]
+        public static void GetRoutine_GivenNullIdentifier_ThrowsArgumentNullException()
+        {
+            var connection = Mock.Of<IDbConnection>();
+            var dialect = new MySqlDialect(connection);
+            var identifierDefaults = Mock.Of<IIdentifierDefaults>();
+
+            var database = new MySqlRelationalDatabase(dialect, connection, identifierDefaults);
+
+            Assert.Throws<ArgumentNullException>(() => database.GetRoutine(null));
+        }
+
         // testing that the behaviour is equivalent to an empty sequence provider
         [TestFixture]
         internal static class SequenceTests

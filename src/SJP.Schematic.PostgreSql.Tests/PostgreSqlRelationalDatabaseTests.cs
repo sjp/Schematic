@@ -104,6 +104,19 @@ namespace SJP.Schematic.PostgreSql.Tests
             Assert.Throws<ArgumentNullException>(() => database.GetSynonym(null));
         }
 
+        [Test]
+        public static void GetRoutine_GivenNullIdentifier_ThrowsArgumentNullException()
+        {
+            var connection = Mock.Of<IDbConnection>();
+            var dialect = new PostgreSqlDialect(connection);
+            var identifierDefaults = Mock.Of<IIdentifierDefaults>();
+            var identifierResolver = new DefaultPostgreSqlIdentifierResolutionStrategy();
+
+            var database = new PostgreSqlRelationalDatabase(dialect, connection, identifierDefaults, identifierResolver);
+
+            Assert.Throws<ArgumentNullException>(() => database.GetRoutine(null));
+        }
+
         // testing that the behaviour is equivalent to an empty synonym provider
         [TestFixture]
         internal static class SynonymTests

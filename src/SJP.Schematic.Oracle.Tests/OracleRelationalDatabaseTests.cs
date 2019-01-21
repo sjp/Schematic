@@ -101,5 +101,18 @@ namespace SJP.Schematic.Oracle.Tests
 
             Assert.Throws<ArgumentNullException>(() => database.GetSynonym(null));
         }
+
+        [Test]
+        public static void GetRoutine_GivenNullIdentifier_ThrowsArgumentNullException()
+        {
+            var connection = Mock.Of<IDbConnection>();
+            var dialect = new OracleDialect(connection);
+            var identifierDefaults = Mock.Of<IIdentifierDefaults>();
+            var identifierResolver = new DefaultOracleIdentifierResolutionStrategy();
+
+            var database = new OracleRelationalDatabase(dialect, connection, identifierDefaults, identifierResolver);
+
+            Assert.Throws<ArgumentNullException>(() => database.GetRoutine(null));
+        }
     }
 }

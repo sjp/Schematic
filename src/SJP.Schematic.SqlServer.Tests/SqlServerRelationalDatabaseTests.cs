@@ -84,5 +84,17 @@ namespace SJP.Schematic.SqlServer.Tests
 
             Assert.Throws<ArgumentNullException>(() => database.GetSynonym(null));
         }
+
+        [Test]
+        public static void GetRoutine_GivenNullIdentifier_ThrowsArgumentNullException()
+        {
+            var connection = Mock.Of<IDbConnection>();
+            var dialect = new SqlServerDialect(connection);
+            var identifierDefaults = Mock.Of<IIdentifierDefaults>();
+
+            var database = new SqlServerRelationalDatabase(dialect, connection, identifierDefaults);
+
+            Assert.Throws<ArgumentNullException>(() => database.GetRoutine(null));
+        }
     }
 }
