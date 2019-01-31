@@ -8,7 +8,7 @@ using SJP.Schematic.Core.Utilities;
 
 namespace SJP.Schematic.Core
 {
-    [DebuggerDisplay("{DebuggerDisplay,nq}")]
+    [DebuggerDisplay("{" + nameof(DebuggerDisplay) + ",nq}")]
     public class RelationalDatabaseTable : IRelationalDatabaseTable
     {
         public RelationalDatabaseTable(
@@ -43,29 +43,29 @@ namespace SJP.Schematic.Core
             {
 #pragma warning disable S3928 // Parameter names used into ArgumentException constructors should match an existing one
                 if (pk.KeyType != DatabaseKeyType.Primary)
-                    throw new ArgumentException("The given primary key did not have a key type of 'Primary'", nameof(primaryKey));
+                    throw new ArgumentException("The given primary key did not have a key type of '" + nameof(DatabaseKeyType.Primary) + "'", nameof(primaryKey));
 #pragma warning restore S3928 // Parameter names used into ArgumentException constructors should match an existing one
             });
 
             var anyNonUniqueKey = uniqueKeys.Any(uk => uk.KeyType != DatabaseKeyType.Unique);
             if (anyNonUniqueKey)
-                throw new ArgumentException("A given unique key did not have a key type of 'Unique'", nameof(uniqueKeys));
+                throw new ArgumentException("A given unique key did not have a key type of '" + nameof(DatabaseKeyType.Unique) + "'", nameof(uniqueKeys));
 
             var anyNonForeignParentChildKey = parentKeys.Any(fk => fk.ChildKey.KeyType != DatabaseKeyType.Foreign);
             if (anyNonForeignParentChildKey)
-                throw new ArgumentException("A given parent key did not have a child key with a key type of 'Foreign'", nameof(uniqueKeys));
+                throw new ArgumentException("A given parent key did not have a child key with a key type of '" + nameof(DatabaseKeyType.Foreign) + "'", nameof(uniqueKeys));
 
             var anyNonCandidateParentParentKey = parentKeys.Any(fk => fk.ParentKey.KeyType != DatabaseKeyType.Primary && fk.ParentKey.KeyType != DatabaseKeyType.Unique);
             if (anyNonCandidateParentParentKey)
-                throw new ArgumentException("A given parent key did not have a parent key with a key type of 'Primary' or 'Unique'", nameof(uniqueKeys));
+                throw new ArgumentException("A given parent key did not have a parent key with a key type of '" + nameof(DatabaseKeyType.Primary) + "' or '" + nameof(DatabaseKeyType.Unique) + "'", nameof(uniqueKeys));
 
             var anyNonForeignChildChildKey = childKeys.Any(ck => ck.ChildKey.KeyType != DatabaseKeyType.Foreign);
             if (anyNonForeignChildChildKey)
-                throw new ArgumentException("A given child key did not have a child key with a key type of 'Foreign'", nameof(uniqueKeys));
+                throw new ArgumentException("A given child key did not have a child key with a key type of '" + nameof(DatabaseKeyType.Foreign) + "'", nameof(uniqueKeys));
 
             var anyNonCandidateChildParentKey = childKeys.Any(ck => ck.ParentKey.KeyType != DatabaseKeyType.Primary && ck.ParentKey.KeyType != DatabaseKeyType.Unique);
             if (anyNonCandidateChildParentKey)
-                throw new ArgumentException("A given child key did not have a parent key with a key type of 'Primary' or 'Unique'", nameof(uniqueKeys));
+                throw new ArgumentException("A given child key did not have a parent key with a key type of '" + nameof(DatabaseKeyType.Primary) + "' or '" + nameof(DatabaseKeyType.Unique) + "'", nameof(uniqueKeys));
 
             Name = tableName ?? throw new ArgumentNullException(nameof(tableName));
             Columns = columns;

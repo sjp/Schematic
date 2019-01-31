@@ -5,7 +5,7 @@ using SJP.Schematic.Core.Utilities;
 
 namespace SJP.Schematic.Core
 {
-    [DebuggerDisplay("{DebuggerDisplay,nq}")]
+    [DebuggerDisplay("{" + nameof(DebuggerDisplay) + ",nq}")]
     public class DatabaseSynonym : IDatabaseSynonym
     {
         public DatabaseSynonym(Identifier synonymName, Identifier targetName)

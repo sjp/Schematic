@@ -9,7 +9,7 @@ namespace SJP.Schematic.Core
     /// <summary>
     /// Describes an identifier which represents any object with a database. In particular it enables behaviour such a scoping an object name to a schema.
     /// </summary>
-    [DebuggerDisplay("{DebuggerDisplay,nq}")]
+    [DebuggerDisplay("{" + nameof(DebuggerDisplay) + ",nq}")]
     public sealed class Identifier : IEquatable<Identifier>, IComparable<Identifier>
     {
         /// <summary>

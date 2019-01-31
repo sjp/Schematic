@@ -7,7 +7,7 @@ using SJP.Schematic.Core.Utilities;
 namespace SJP.Schematic.Core
 {
 #pragma warning disable S3928 // Parameter names used into ArgumentException constructors should match an existing one
-    [DebuggerDisplay("{DebuggerDisplay,nq}")]
+    [DebuggerDisplay("{" + nameof(DebuggerDisplay) + ",nq}")]
     public class DatabaseSequence : IDatabaseSequence
     {
         public DatabaseSequence(

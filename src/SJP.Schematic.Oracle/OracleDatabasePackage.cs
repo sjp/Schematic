@@ -7,7 +7,7 @@ using SJP.Schematic.Core.Utilities;
 
 namespace SJP.Schematic.Oracle
 {
-    [DebuggerDisplay("{DebuggerDisplay,nq}")]
+    [DebuggerDisplay("{" + nameof(DebuggerDisplay) + ",nq}")]
     public class OracleDatabasePackage : IOracleDatabasePackage
     {
         public OracleDatabasePackage(Identifier name, string specification, Option<string> body)

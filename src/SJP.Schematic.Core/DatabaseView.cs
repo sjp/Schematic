@@ -6,7 +6,7 @@ using SJP.Schematic.Core.Utilities;
 
 namespace SJP.Schematic.Core
 {
-    [DebuggerDisplay("{DebuggerDisplay,nq}")]
+    [DebuggerDisplay("{" + nameof(DebuggerDisplay) + ",nq}")]
     public class DatabaseView : IDatabaseView
     {
         public DatabaseView(
