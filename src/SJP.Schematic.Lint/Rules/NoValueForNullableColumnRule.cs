@@ -10,56 +10,66 @@ using SJP.Schematic.Core.Extensions;
 
 namespace SJP.Schematic.Lint.Rules
 {
-    public class NoValueForNullableColumnRule : Rule
+    public class NoValueForNullableColumnRule : Rule, ITableRule
     {
-        public NoValueForNullableColumnRule(IDbConnection connection, RuleLevel level)
+        public NoValueForNullableColumnRule(IDbConnection connection, IDatabaseDialect dialect, RuleLevel level)
             : base(RuleTitle, level)
         {
             Connection = connection ?? throw new ArgumentNullException(nameof(connection));
+            Dialect = dialect ?? throw new ArgumentNullException(nameof(dialect));
         }
 
         protected IDbConnection Connection { get; }
 
-        public override Task<IEnumerable<IRuleMessage>> AnalyseDatabaseAsync(IRelationalDatabase database, CancellationToken cancellationToken = default(CancellationToken))
-        {
-            if (database == null)
-                throw new ArgumentNullException(nameof(database));
+        protected IDatabaseDialect Dialect { get; }
 
-            return AnalyseDatabaseAsyncCore(database, cancellationToken);
+        public IEnumerable<IRuleMessage> AnalyseTables(IEnumerable<IRelationalDatabaseTable> tables)
+        {
+            if (tables == null)
+                throw new ArgumentNullException(nameof(tables));
+
+            return tables.SelectMany(AnalyseTable).ToList();
         }
 
-        private async Task<IEnumerable<IRuleMessage>> AnalyseDatabaseAsyncCore(IRelationalDatabase database, CancellationToken cancellationToken)
+        public Task<IEnumerable<IRuleMessage>> AnalyseTablesAsync(IEnumerable<IRelationalDatabaseTable> tables, CancellationToken cancellationToken = default(CancellationToken))
         {
-            var tables = await database.GetAllTables(cancellationToken).ConfigureAwait(false);
+            if (tables == null)
+                throw new ArgumentNullException(nameof(tables));
+
+            return AnalyseTablesAsyncCore(tables, cancellationToken);
+        }
+
+        private async Task<IEnumerable<IRuleMessage>> AnalyseTablesAsyncCore(IEnumerable<IRelationalDatabaseTable> tables, CancellationToken cancellationToken = default(CancellationToken))
+        {
             if (tables.Empty())
                 return Array.Empty<IRuleMessage>();
 
             var result = new List<IRuleMessage>();
+
             foreach (var table in tables)
             {
-                var messages = await AnalyseTableAsync(database.Dialect, table, cancellationToken).ConfigureAwait(false);
+                var messages = await AnalyseTableAsync(table, cancellationToken).ConfigureAwait(false);
                 result.AddRange(messages);
             }
+
             return result;
         }
 
-        protected Task<IEnumerable<IRuleMessage>> AnalyseTableAsync(IDatabaseDialect dialect, IRelationalDatabaseTable table, CancellationToken cancellationToken)
+        protected Task<IEnumerable<IRuleMessage>> AnalyseTableAsync(IRelationalDatabaseTable table, CancellationToken cancellationToken)
         {
-            if (dialect == null)
-                throw new ArgumentNullException(nameof(dialect));
             if (table == null)
                 throw new ArgumentNullException(nameof(table));
 
-            return AnalyseTableAsyncCore(dialect, table, cancellationToken);
+            return AnalyseTableAsyncCore(table, cancellationToken);
         }
 
-        private async Task<IEnumerable<IRuleMessage>> AnalyseTableAsyncCore(IDatabaseDialect dialect, IRelationalDatabaseTable table, CancellationToken cancellationToken)
+        private async Task<IEnumerable<IRuleMessage>> AnalyseTableAsyncCore(IRelationalDatabaseTable table, CancellationToken cancellationToken)
         {
             var nullableColumns = table.Columns.Where(c => c.IsNullable).ToList();
             if (nullableColumns.Empty())
                 return Array.Empty<IRuleMessage>();
 
-            var tableRowCount = await GetRowCountAsync(dialect, table, cancellationToken).ConfigureAwait(false);
+            var tableRowCount = await GetRowCountAsync(table, cancellationToken).ConfigureAwait(false);
             if (tableRowCount == 0)
                 return Array.Empty<IRuleMessage>();
 
@@ -67,7 +77,7 @@ namespace SJP.Schematic.Lint.Rules
 
             foreach (var nullableColumn in nullableColumns)
             {
-                var nullableRowCount = await GetColumnNullableRowCountAsync(dialect, table, nullableColumn, cancellationToken).ConfigureAwait(false);
+                var nullableRowCount = await GetColumnNullableRowCountAsync(table, nullableColumn, cancellationToken).ConfigureAwait(false);
                 if (nullableRowCount != tableRowCount)
                     continue;
 
@@ -78,30 +88,76 @@ namespace SJP.Schematic.Lint.Rules
             return result;
         }
 
-        protected Task<long> GetRowCountAsync(IDatabaseDialect dialect, IRelationalDatabaseTable table, CancellationToken cancellationToken)
+        protected IEnumerable<IRuleMessage> AnalyseTable(IRelationalDatabaseTable table)
         {
-            if (dialect == null)
-                throw new ArgumentNullException(nameof(dialect));
+            if (table == null)
+                throw new ArgumentNullException(nameof(table));
+
+            var nullableColumns = table.Columns.Where(c => c.IsNullable).ToList();
+            if (nullableColumns.Empty())
+                return Array.Empty<IRuleMessage>();
+
+            var tableRowCount = GetRowCount(table);
+            if (tableRowCount == 0)
+                return Array.Empty<IRuleMessage>();
+
+            var result = new List<IRuleMessage>();
+
+            foreach (var nullableColumn in nullableColumns)
+            {
+                var nullableRowCount = GetColumnNullableRowCount(table, nullableColumn);
+                if (nullableRowCount != tableRowCount)
+                    continue;
+
+                var message = BuildMessage(table.Name, nullableColumn.Name.LocalName);
+                result.Add(message);
+            }
+
+            return result;
+        }
+
+        protected Task<long> GetRowCountAsync(IRelationalDatabaseTable table, CancellationToken cancellationToken)
+        {
             if (table == null)
                 throw new ArgumentNullException(nameof(table));
 
             var tableName = Identifier.CreateQualifiedIdentifier(table.Name.Schema, table.Name.LocalName);
-            var sql = $"select count(*) from { dialect.QuoteName(tableName) }";
+            var sql = $"select count(*) from { Dialect.QuoteName(tableName) }";
             return Connection.ExecuteScalarAsync<long>(sql, cancellationToken);
         }
 
-        protected Task<long> GetColumnNullableRowCountAsync(IDatabaseDialect dialect, IRelationalDatabaseTable table, IDatabaseColumn column, CancellationToken cancellationToken)
+        protected Task<long> GetColumnNullableRowCountAsync(IRelationalDatabaseTable table, IDatabaseColumn column, CancellationToken cancellationToken)
         {
-            if (dialect == null)
-                throw new ArgumentNullException(nameof(dialect));
             if (table == null)
                 throw new ArgumentNullException(nameof(table));
             if (column == null)
                 throw new ArgumentNullException(nameof(column));
 
             var tableName = Identifier.CreateQualifiedIdentifier(table.Name.Schema, table.Name.LocalName);
-            var sql = $"select count(*) from { dialect.QuoteName(tableName) } where { dialect.QuoteIdentifier(column.Name.LocalName) } is null";
+            var sql = $"select count(*) from { Dialect.QuoteName(tableName) } where { Dialect.QuoteIdentifier(column.Name.LocalName) } is null";
             return Connection.ExecuteScalarAsync<long>(sql, cancellationToken);
+        }
+
+        protected long GetRowCount(IRelationalDatabaseTable table)
+        {
+            if (table == null)
+                throw new ArgumentNullException(nameof(table));
+
+            var tableName = Identifier.CreateQualifiedIdentifier(table.Name.Schema, table.Name.LocalName);
+            var sql = $"select count(*) from { Dialect.QuoteName(tableName) }";
+            return Connection.ExecuteScalar<long>(sql);
+        }
+
+        protected long GetColumnNullableRowCount(IRelationalDatabaseTable table, IDatabaseColumn column)
+        {
+            if (table == null)
+                throw new ArgumentNullException(nameof(table));
+            if (column == null)
+                throw new ArgumentNullException(nameof(column));
+
+            var tableName = Identifier.CreateQualifiedIdentifier(table.Name.Schema, table.Name.LocalName);
+            var sql = $"select count(*) from { Dialect.QuoteName(tableName) } where { Dialect.QuoteIdentifier(column.Name.LocalName) } is null";
+            return Connection.ExecuteScalar<long>(sql);
         }
 
         protected virtual IRuleMessage BuildMessage(Identifier tableName, string columnName)

@@ -8,8 +8,8 @@ namespace SJP.Schematic.Reporting.Html.Lint.Rules
 {
     internal sealed class InvalidViewDefinitionRule : Schematic.Lint.Rules.InvalidViewDefinitionRule
     {
-        public InvalidViewDefinitionRule(IDbConnection connection, RuleLevel level)
-            : base(connection, level)
+        public InvalidViewDefinitionRule(IDbConnection connection, IDatabaseDialect dialect, RuleLevel level)
+            : base(connection, dialect, level)
         {
         }
 

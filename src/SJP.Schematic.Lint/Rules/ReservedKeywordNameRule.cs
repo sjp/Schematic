@@ -8,60 +8,109 @@ using SJP.Schematic.Core.Extensions;
 
 namespace SJP.Schematic.Lint.Rules
 {
-    public class ReservedKeywordNameRule : Rule
+    public class ReservedKeywordNameRule : Rule, ITableRule, IViewRule, ISequenceRule, ISynonymRule, IRoutineRule
     {
-        public ReservedKeywordNameRule(RuleLevel level)
+        public ReservedKeywordNameRule(IDatabaseDialect dialect, RuleLevel level)
             : base(RuleTitle, level)
         {
+            Dialect = dialect ?? throw new ArgumentNullException(nameof(dialect));
         }
 
-        public override Task<IEnumerable<IRuleMessage>> AnalyseDatabaseAsync(IRelationalDatabase database, CancellationToken cancellationToken = default(CancellationToken))
-        {
-            if (database == null)
-                throw new ArgumentNullException(nameof(database));
-            if (database.Dialect == null)
-                throw new ArgumentException("The dialect on the given database is null.", nameof(database));
+        protected IDatabaseDialect Dialect { get; }
 
-            return AnalyseDatabaseAsyncCore(database, cancellationToken);
+        public IEnumerable<IRuleMessage> AnalyseTables(IEnumerable<IRelationalDatabaseTable> tables)
+        {
+            if (tables == null)
+                throw new ArgumentNullException(nameof(tables));
+
+            return tables.SelectMany(AnalyseTable).ToList();
         }
 
-        private async Task<IEnumerable<IRuleMessage>> AnalyseDatabaseAsyncCore(IRelationalDatabase database, CancellationToken cancellationToken)
+        public Task<IEnumerable<IRuleMessage>> AnalyseTablesAsync(IEnumerable<IRelationalDatabaseTable> tables, CancellationToken cancellationToken = default(CancellationToken))
         {
-            var dialect = database.Dialect;
+            if (tables == null)
+                throw new ArgumentNullException(nameof(tables));
 
-            var tables = await database.GetAllTables(cancellationToken).ConfigureAwait(false);
-            var tableMessages = tables.SelectMany(t => AnalyseTable(dialect, t));
-
-            var views = await database.GetAllViews(cancellationToken).ConfigureAwait(false);
-            var viewMessages = views.SelectMany(v => AnalyseView(dialect, v));
-
-            var sequences = await database.GetAllSequences(cancellationToken).ConfigureAwait(false);
-            var sequenceMessages = sequences.SelectMany(s => AnalyseSequence(dialect, s));
-
-            var synonyms = await database.GetAllSynonyms(cancellationToken).ConfigureAwait(false);
-            var synonymMessages = synonyms.SelectMany(s => AnalyseSynonym(dialect, s));
-
-            var routines = await database.GetAllRoutines(cancellationToken).ConfigureAwait(false);
-            var routineMessages = routines.SelectMany(r => AnalyseRoutine(dialect, r));
-
-            return tableMessages
-                .Concat(viewMessages)
-                .Concat(sequenceMessages)
-                .Concat(synonymMessages)
-                .Concat(routineMessages)
-                .ToList();
+            var messages = AnalyseTables(tables);
+            return Task.FromResult(messages);
         }
 
-        protected IEnumerable<IRuleMessage> AnalyseTable(IDatabaseDialect dialect, IRelationalDatabaseTable table)
+        public IEnumerable<IRuleMessage> AnalyseViews(IEnumerable<IDatabaseView> views)
         {
-            if (dialect == null)
-                throw new ArgumentNullException(nameof(dialect));
+            if (views == null)
+                throw new ArgumentNullException(nameof(views));
+
+            return views.SelectMany(AnalyseView).ToList();
+        }
+
+        public Task<IEnumerable<IRuleMessage>> AnalyseViewsAsync(IEnumerable<IDatabaseView> views, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            if (views == null)
+                throw new ArgumentNullException(nameof(views));
+
+            var messages = AnalyseViews(views);
+            return Task.FromResult(messages);
+        }
+
+        public IEnumerable<IRuleMessage> AnalyseSequences(IEnumerable<IDatabaseSequence> sequences)
+        {
+            if (sequences == null)
+                throw new ArgumentNullException(nameof(sequences));
+
+            return sequences.SelectMany(AnalyseSequence).ToList();
+        }
+
+        public Task<IEnumerable<IRuleMessage>> AnalyseSequencesAsync(IEnumerable<IDatabaseSequence> sequences, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            if (sequences == null)
+                throw new ArgumentNullException(nameof(sequences));
+
+            var messages = AnalyseSequences(sequences);
+            return Task.FromResult(messages);
+        }
+
+        public IEnumerable<IRuleMessage> AnalyseSynonyms(IEnumerable<IDatabaseSynonym> synonyms)
+        {
+            if (synonyms == null)
+                throw new ArgumentNullException(nameof(synonyms));
+
+            return synonyms.SelectMany(AnalyseSynonym).ToList();
+        }
+
+        public Task<IEnumerable<IRuleMessage>> AnalyseSynonymsAsync(IEnumerable<IDatabaseSynonym> synonyms, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            if (synonyms == null)
+                throw new ArgumentNullException(nameof(synonyms));
+
+            var messages = AnalyseSynonyms(synonyms);
+            return Task.FromResult(messages);
+        }
+
+        public IEnumerable<IRuleMessage> AnalyseRoutines(IEnumerable<IDatabaseRoutine> routines)
+        {
+            if (routines == null)
+                throw new ArgumentNullException(nameof(routines));
+
+            return routines.SelectMany(AnalyseRoutine).ToList();
+        }
+
+        public Task<IEnumerable<IRuleMessage>> AnalyseRoutinesAsync(IEnumerable<IDatabaseRoutine> routines, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            if (routines == null)
+                throw new ArgumentNullException(nameof(routines));
+
+            var messages = AnalyseRoutines(routines);
+            return Task.FromResult(messages);
+        }
+
+        protected IEnumerable<IRuleMessage> AnalyseTable(IRelationalDatabaseTable table)
+        {
             if (table == null)
                 throw new ArgumentNullException(nameof(table));
 
             var result = new List<IRuleMessage>();
 
-            var tableNameIsKeyword = dialect.IsReservedKeyword(table.Name.LocalName);
+            var tableNameIsKeyword = Dialect.IsReservedKeyword(table.Name.LocalName);
             if (tableNameIsKeyword)
             {
                 var message = BuildTableMessage(table.Name);
@@ -70,7 +119,7 @@ namespace SJP.Schematic.Lint.Rules
 
             var keywordColumnNames = table.Columns
                 .Select(c => c.Name.LocalName)
-                .Where(dialect.IsReservedKeyword);
+                .Where(Dialect.IsReservedKeyword);
 
             foreach (var kwColumnName in keywordColumnNames)
             {
@@ -81,16 +130,14 @@ namespace SJP.Schematic.Lint.Rules
             return result;
         }
 
-        protected IEnumerable<IRuleMessage> AnalyseView(IDatabaseDialect dialect, IDatabaseView view)
+        protected IEnumerable<IRuleMessage> AnalyseView(IDatabaseView view)
         {
-            if (dialect == null)
-                throw new ArgumentNullException(nameof(dialect));
             if (view == null)
                 throw new ArgumentNullException(nameof(view));
 
             var result = new List<IRuleMessage>();
 
-            var viewNameIsKeyword = dialect.IsReservedKeyword(view.Name.LocalName);
+            var viewNameIsKeyword = Dialect.IsReservedKeyword(view.Name.LocalName);
             if (viewNameIsKeyword)
             {
                 var message = BuildViewMessage(view.Name);
@@ -99,7 +146,7 @@ namespace SJP.Schematic.Lint.Rules
 
             var keywordColumnNames = view.Columns
                 .Select(c => c.Name.LocalName)
-                .Where(dialect.IsReservedKeyword);
+                .Where(Dialect.IsReservedKeyword);
 
             foreach (var kwColumnName in keywordColumnNames)
             {
@@ -110,16 +157,14 @@ namespace SJP.Schematic.Lint.Rules
             return result;
         }
 
-        protected IEnumerable<IRuleMessage> AnalyseSequence(IDatabaseDialect dialect, IDatabaseSequence sequence)
+        protected IEnumerable<IRuleMessage> AnalyseSequence(IDatabaseSequence sequence)
         {
-            if (dialect == null)
-                throw new ArgumentNullException(nameof(dialect));
             if (sequence == null)
                 throw new ArgumentNullException(nameof(sequence));
 
             var result = new List<IRuleMessage>();
 
-            var sequenceNameIsKeyword = dialect.IsReservedKeyword(sequence.Name.LocalName);
+            var sequenceNameIsKeyword = Dialect.IsReservedKeyword(sequence.Name.LocalName);
             if (sequenceNameIsKeyword)
             {
                 var message = BuildSequenceMessage(sequence.Name);
@@ -129,16 +174,14 @@ namespace SJP.Schematic.Lint.Rules
             return result;
         }
 
-        protected IEnumerable<IRuleMessage> AnalyseSynonym(IDatabaseDialect dialect, IDatabaseSynonym synonym)
+        protected IEnumerable<IRuleMessage> AnalyseSynonym(IDatabaseSynonym synonym)
         {
-            if (dialect == null)
-                throw new ArgumentNullException(nameof(dialect));
             if (synonym == null)
                 throw new ArgumentNullException(nameof(synonym));
 
             var result = new List<IRuleMessage>();
 
-            var synonymNameIsKeyword = dialect.IsReservedKeyword(synonym.Name.LocalName);
+            var synonymNameIsKeyword = Dialect.IsReservedKeyword(synonym.Name.LocalName);
             if (synonymNameIsKeyword)
             {
                 var message = BuildSynonymMessage(synonym.Name);
@@ -148,16 +191,14 @@ namespace SJP.Schematic.Lint.Rules
             return result;
         }
 
-        protected IEnumerable<IRuleMessage> AnalyseRoutine(IDatabaseDialect dialect, IDatabaseRoutine routine)
+        protected IEnumerable<IRuleMessage> AnalyseRoutine(IDatabaseRoutine routine)
         {
-            if (dialect == null)
-                throw new ArgumentNullException(nameof(dialect));
             if (routine == null)
                 throw new ArgumentNullException(nameof(routine));
 
             var result = new List<IRuleMessage>();
 
-            var routineNameIsKeyword = dialect.IsReservedKeyword(routine.Name.LocalName);
+            var routineNameIsKeyword = Dialect.IsReservedKeyword(routine.Name.LocalName);
             if (routineNameIsKeyword)
             {
                 var message = BuildRoutineMessage(routine.Name);

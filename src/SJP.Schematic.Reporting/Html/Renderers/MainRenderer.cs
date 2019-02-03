@@ -14,8 +14,34 @@ namespace SJP.Schematic.Reporting.Html.Renderers
 {
     internal sealed class MainRenderer : ITemplateRenderer
     {
-        public MainRenderer(IDbConnection connection, IRelationalDatabase database, IHtmlFormatter formatter, DirectoryInfo exportDirectory)
+        public MainRenderer(
+            IDbConnection connection,
+            IRelationalDatabase database,
+            IHtmlFormatter formatter,
+            IReadOnlyCollection<IRelationalDatabaseTable> tables,
+            IReadOnlyCollection<IDatabaseView> views,
+            IReadOnlyCollection<IDatabaseSequence> sequences,
+            IReadOnlyCollection<IDatabaseSynonym> synonyms,
+            IReadOnlyCollection<IDatabaseRoutine> routines,
+            DirectoryInfo exportDirectory)
         {
+            if (tables == null || tables.AnyNull())
+                throw new ArgumentNullException(nameof(tables));
+            if (views == null || views.AnyNull())
+                throw new ArgumentNullException(nameof(views));
+            if (sequences == null || sequences.AnyNull())
+                throw new ArgumentNullException(nameof(sequences));
+            if (synonyms == null || synonyms.AnyNull())
+                throw new ArgumentNullException(nameof(synonyms));
+            if (routines == null || routines.AnyNull())
+                throw new ArgumentNullException(nameof(routines));
+
+            Tables = tables;
+            Views = views;
+            Sequences = sequences;
+            Synonyms = synonyms;
+            Routines = routines;
+
             Connection = connection ?? throw new ArgumentNullException(nameof(connection));
             Database = database ?? throw new ArgumentNullException(nameof(database));
             Formatter = formatter ?? throw new ArgumentNullException(nameof(formatter));
@@ -28,23 +54,27 @@ namespace SJP.Schematic.Reporting.Html.Renderers
 
         private IHtmlFormatter Formatter { get; }
 
+        private IReadOnlyCollection<IRelationalDatabaseTable> Tables { get; }
+
+        private IReadOnlyCollection<IDatabaseView> Views { get; }
+
+        private IReadOnlyCollection<IDatabaseSequence> Sequences { get; }
+
+        private IReadOnlyCollection<IDatabaseSynonym> Synonyms { get; }
+
+        private IReadOnlyCollection<IDatabaseRoutine> Routines { get; }
+
         private DirectoryInfo ExportDirectory { get; }
 
         public async Task RenderAsync(CancellationToken cancellationToken = default(CancellationToken))
         {
-            var tables = await Database.GetAllTables(cancellationToken).ConfigureAwait(false);
-            var views = await Database.GetAllViews(cancellationToken).ConfigureAwait(false);
-            var sequences = await Database.GetAllSequences(cancellationToken).ConfigureAwait(false);
-            var synonyms = await Database.GetAllSynonyms(cancellationToken).ConfigureAwait(false);
-            var routines = await Database.GetAllRoutines(cancellationToken).ConfigureAwait(false);
-
             var mapper = new MainModelMapper(Connection, Database);
 
             var columns = 0U;
             var constraints = 0U;
             var indexesCount = 0U;
             var tableViewModels = new List<Main.Table>();
-            foreach (var table in tables)
+            foreach (var table in Tables)
             {
                 var renderTable = await mapper.MapAsync(table, cancellationToken).ConfigureAwait(false);
 
@@ -70,7 +100,7 @@ namespace SJP.Schematic.Reporting.Html.Renderers
             }
 
             var viewViewModels = new List<Main.View>();
-            foreach (var view in views)
+            foreach (var view in Views)
             {
                 var renderView = await mapper.MapAsync(view, cancellationToken).ConfigureAwait(false);
                 columns += renderView.ColumnCount;
@@ -78,17 +108,18 @@ namespace SJP.Schematic.Reporting.Html.Renderers
                 viewViewModels.Add(renderView);
             }
 
-            var sequenceViewModels = sequences.Select(mapper.Map).ToList();
+            var sequenceViewModels = Sequences.Select(mapper.Map).ToList();
 
-            var synonymTasks = synonyms.Select(s => mapper.MapAsync(s, cancellationToken)).ToArray();
+            var synonymTasks = Synonyms.Select(s => mapper.MapAsync(s, cancellationToken)).ToArray();
             var synonymViewModels = await Task.WhenAll(synonymTasks).ConfigureAwait(false);
 
-            var routineViewModels = routines.Select(mapper.Map).ToList();
+            var routineViewModels = Routines.Select(mapper.Map).ToList();
 
-            var schemas = tables.Select(t => t.Name)
-                .Union(views.Select(v => v.Name))
-                .Union(sequences.Select(s => s.Name))
-                .Union(synonyms.Select(s => s.Name))
+            var schemas = Tables.Select(t => t.Name)
+                .Union(Views.Select(v => v.Name))
+                .Union(Sequences.Select(s => s.Name))
+                .Union(Synonyms.Select(s => s.Name))
+                .Union(Routines.Select(r => r.Name))
                 .Select(n => n.Schema)
                 .Where(n => n != null)
                 .Distinct()

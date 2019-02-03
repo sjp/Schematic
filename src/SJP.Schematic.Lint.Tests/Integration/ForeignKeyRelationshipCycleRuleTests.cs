@@ -1,14 +1,10 @@
 ﻿using System;
-using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
 using Dapper;
-using Moq;
 using NUnit.Framework;
-using SJP.Schematic.Core;
 using SJP.Schematic.Core.Extensions;
 using SJP.Schematic.Lint.Rules;
-using SJP.Schematic.Lint.Tests.Fakes;
 
 namespace SJP.Schematic.Lint.Tests.Integration
 {
@@ -64,56 +60,87 @@ create table no_cycle_table_2 (
         }
 
         [Test]
-        public static void AnalyseDatabaseAsync_GivenNullDatabase_ThrowsArgumentNullException()
+        public static void AnalyseTables_GivenNullTables_ThrowsArgumentNullException()
         {
             var rule = new ForeignKeyRelationshipCycleRule(RuleLevel.Error);
-            Assert.Throws<ArgumentNullException>(() => rule.AnalyseDatabaseAsync(null));
+            Assert.Throws<ArgumentNullException>(() => rule.AnalyseTables(null));
         }
 
         [Test]
-        public async Task AnalyseDatabaseAsync_GivenDatabaseWithNoRelationshipCycle_ProducesNoMessages()
+        public static void AnalyseTablesAsync_GivenNullTables_ThrowsArgumentNullException()
         {
             var rule = new ForeignKeyRelationshipCycleRule(RuleLevel.Error);
-            var fakeDatabase = CreateFakeDatabase();
+            Assert.Throws<ArgumentNullException>(() => rule.AnalyseTablesAsync(null));
+        }
+
+        [Test]
+        public void AnalyseTables_GivenTablesWithNoRelationshipCycle_ProducesNoMessages()
+        {
+            var rule = new ForeignKeyRelationshipCycleRule(RuleLevel.Error);
             var database = GetSqliteDatabase();
 
-            fakeDatabase.Tables = new[]
+            var tables = new[]
             {
-                await database.GetTable("no_cycle_table_1").UnwrapSomeAsync().ConfigureAwait(false),
-                await database.GetTable("no_cycle_table_2").UnwrapSomeAsync().ConfigureAwait(false)
+                database.GetTable("no_cycle_table_1").UnwrapSomeAsync().GetAwaiter().GetResult(),
+                database.GetTable("no_cycle_table_2").UnwrapSomeAsync().GetAwaiter().GetResult()
             };
 
-            var messages = await rule.AnalyseDatabaseAsync(fakeDatabase).ConfigureAwait(false);
+            var messages = rule.AnalyseTables(tables);
 
             Assert.Zero(messages.Count());
         }
 
         [Test]
-        public async Task AnalyseDatabaseAsync_GivenDatabaseWithRelationshipCycle_ProducesMessages()
+        public async Task AnalyseTablesAsync_GivenTablesWithNoRelationshipCycle_ProducesNoMessages()
         {
             var rule = new ForeignKeyRelationshipCycleRule(RuleLevel.Error);
-            var fakeDatabase = CreateFakeDatabase();
             var database = GetSqliteDatabase();
 
-            fakeDatabase.Tables = new[]
+            var tables = new[]
+            {
+                await database.GetTable("no_cycle_table_1").UnwrapSomeAsync().ConfigureAwait(false),
+                await database.GetTable("no_cycle_table_2").UnwrapSomeAsync().ConfigureAwait(false)
+            };
+
+            var messages = await rule.AnalyseTablesAsync(tables).ConfigureAwait(false);
+
+            Assert.Zero(messages.Count());
+        }
+
+        [Test]
+        public void AnalyseTables_GivenTablesWithRelationshipCycle_ProducesMessages()
+        {
+            var rule = new ForeignKeyRelationshipCycleRule(RuleLevel.Error);
+            var database = GetSqliteDatabase();
+
+            var tables = new[]
+            {
+                database.GetTable("cycle_table_1").UnwrapSomeAsync().GetAwaiter().GetResult(),
+                database.GetTable("cycle_table_2").UnwrapSomeAsync().GetAwaiter().GetResult(),
+                database.GetTable("cycle_table_3").UnwrapSomeAsync().GetAwaiter().GetResult()
+            };
+
+            var messages = rule.AnalyseTables(tables);
+
+            Assert.NotZero(messages.Count());
+        }
+
+        [Test]
+        public async Task AnalyseTablesAsync_GivenTablesWithRelationshipCycle_ProducesMessages()
+        {
+            var rule = new ForeignKeyRelationshipCycleRule(RuleLevel.Error);
+            var database = GetSqliteDatabase();
+
+            var tables = new[]
             {
                 await database.GetTable("cycle_table_1").UnwrapSomeAsync().ConfigureAwait(false),
                 await database.GetTable("cycle_table_2").UnwrapSomeAsync().ConfigureAwait(false),
                 await database.GetTable("cycle_table_3").UnwrapSomeAsync().ConfigureAwait(false)
             };
 
-            var messages = await rule.AnalyseDatabaseAsync(fakeDatabase).ConfigureAwait(false);
+            var messages = await rule.AnalyseTablesAsync(tables).ConfigureAwait(false);
 
             Assert.NotZero(messages.Count());
-        }
-
-        private static FakeRelationalDatabase CreateFakeDatabase()
-        {
-            var dialect = new FakeDatabaseDialect();
-            var connection = Mock.Of<IDbConnection>();
-            var identifierDefaults = Mock.Of<IIdentifierDefaults>();
-
-            return new FakeRelationalDatabase(dialect, connection, identifierDefaults);
         }
     }
 }

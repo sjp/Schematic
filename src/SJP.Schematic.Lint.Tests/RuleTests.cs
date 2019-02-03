@@ -65,9 +65,6 @@ namespace SJP.Schematic.Lint.Tests
                 : base(title, level)
             {
             }
-
-            public override Task<IEnumerable<IRuleMessage>> AnalyseDatabaseAsync(IRelationalDatabase database, CancellationToken cancellationToken = default(CancellationToken))
-                => Task.FromResult<IEnumerable<IRuleMessage>>(Array.Empty<IRuleMessage>());
         }
     }
 }

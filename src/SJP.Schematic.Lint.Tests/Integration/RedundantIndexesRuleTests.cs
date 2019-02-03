@@ -1,14 +1,10 @@
 ﻿using System;
-using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
 using Dapper;
-using Moq;
 using NUnit.Framework;
-using SJP.Schematic.Core;
 using SJP.Schematic.Core.Extensions;
 using SJP.Schematic.Lint.Rules;
-using SJP.Schematic.Lint.Tests.Fakes;
 
 namespace SJP.Schematic.Lint.Tests.Integration
 {
@@ -41,70 +37,113 @@ namespace SJP.Schematic.Lint.Tests.Integration
         }
 
         [Test]
-        public static void AnalyseDatabaseAsync_GivenNullDatabase_ThrowsArgumentNullException()
+        public static void AnalyseTables_GivenNullTables_ThrowsArgumentNullException()
         {
             var rule = new RedundantIndexesRule(RuleLevel.Error);
-            Assert.Throws<ArgumentNullException>(() => rule.AnalyseDatabaseAsync(null));
+            Assert.Throws<ArgumentNullException>(() => rule.AnalyseTables(null));
         }
 
         [Test]
-        public async Task AnalyseDatabaseAsync_GivenDatabaseWithOnlyTablesWithoutIndexes_ProducesNoMessages()
+        public static void AnalyseTablesAsync_GivenNullTables_ThrowsArgumentNullException()
         {
             var rule = new RedundantIndexesRule(RuleLevel.Error);
-            var fakeDatabase = CreateFakeDatabase();
+            Assert.Throws<ArgumentNullException>(() => rule.AnalyseTablesAsync(null));
+        }
+
+        [Test]
+        public void AnalyseTables_GivenTablesWithOnlyTablesWithoutIndexes_ProducesNoMessages()
+        {
+            var rule = new RedundantIndexesRule(RuleLevel.Error);
             var database = GetSqliteDatabase();
 
-            fakeDatabase.Tables = new[]
+            var tables = new[]
+            {
+                database.GetTable("valid_table_1").UnwrapSomeAsync().GetAwaiter().GetResult()
+            };
+
+            var messages = rule.AnalyseTables(tables);
+
+            Assert.Zero(messages.Count());
+        }
+
+        [Test]
+        public async Task AnalyseTablesAsync_GivenTablesWithOnlyTablesWithoutIndexes_ProducesNoMessages()
+        {
+            var rule = new RedundantIndexesRule(RuleLevel.Error);
+            var database = GetSqliteDatabase();
+
+            var tables = new[]
             {
                 await database.GetTable("valid_table_1").UnwrapSomeAsync().ConfigureAwait(false)
             };
 
-            var messages = await rule.AnalyseDatabaseAsync(fakeDatabase).ConfigureAwait(false);
+            var messages = await rule.AnalyseTablesAsync(tables).ConfigureAwait(false);
 
             Assert.Zero(messages.Count());
         }
 
         [Test]
-        public async Task AnalyseDatabaseAsync_GivenDatabaseWithOnlyTablesWithoutRedundantIndexes_ProducesNoMessages()
+        public void AnalyseTables_GivenTablesWithOnlyTablesWithoutRedundantIndexes_ProducesNoMessages()
         {
             var rule = new RedundantIndexesRule(RuleLevel.Error);
-            var fakeDatabase = CreateFakeDatabase();
             var database = GetSqliteDatabase();
 
-            fakeDatabase.Tables = new[]
+            var tables = new[]
+            {
+                database.GetTable("valid_table_2").UnwrapSomeAsync().GetAwaiter().GetResult()
+            };
+
+            var messages = rule.AnalyseTables(tables);
+
+            Assert.Zero(messages.Count());
+        }
+
+        [Test]
+        public async Task AnalyseTablesAsync_GivenTablesWithOnlyTablesWithoutRedundantIndexes_ProducesNoMessages()
+        {
+            var rule = new RedundantIndexesRule(RuleLevel.Error);
+            var database = GetSqliteDatabase();
+
+            var tables = new[]
             {
                 await database.GetTable("valid_table_2").UnwrapSomeAsync().ConfigureAwait(false)
             };
 
-            var messages = await rule.AnalyseDatabaseAsync(fakeDatabase).ConfigureAwait(false);
+            var messages = await rule.AnalyseTablesAsync(tables).ConfigureAwait(false);
 
             Assert.Zero(messages.Count());
         }
 
         [Test]
-        public async Task AnalyseDatabaseAsync_GivenDatabaseWithOnlyTablesWithRedundantIndexes_ProducesMessages()
+        public void AnalyseTables_GivenTablesWithOnlyTablesWithRedundantIndexes_ProducesMessages()
         {
             var rule = new RedundantIndexesRule(RuleLevel.Error);
-            var fakeDatabase = CreateFakeDatabase();
             var database = GetSqliteDatabase();
 
-            fakeDatabase.Tables = new[]
+            var tables = new[]
             {
-                await database.GetTable("valid_table_3").UnwrapSomeAsync().ConfigureAwait(false)
+                database.GetTable("valid_table_3").UnwrapSomeAsync().GetAwaiter().GetResult()
             };
 
-            var messages = await rule.AnalyseDatabaseAsync(fakeDatabase).ConfigureAwait(false);
+            var messages = rule.AnalyseTables(tables);
 
             Assert.NotZero(messages.Count());
         }
 
-        private static FakeRelationalDatabase CreateFakeDatabase()
+        [Test]
+        public async Task AnalyseTablesAsync_GivenTablesWithOnlyTablesWithRedundantIndexes_ProducesMessages()
         {
-            var dialect = new FakeDatabaseDialect();
-            var connection = Mock.Of<IDbConnection>();
-            var identifierDefaults = Mock.Of<IIdentifierDefaults>();
+            var rule = new RedundantIndexesRule(RuleLevel.Error);
+            var database = GetSqliteDatabase();
 
-            return new FakeRelationalDatabase(dialect, connection, identifierDefaults);
+            var tables = new[]
+            {
+                await database.GetTable("valid_table_3").UnwrapSomeAsync().ConfigureAwait(false)
+            };
+
+            var messages = await rule.AnalyseTablesAsync(tables).ConfigureAwait(false);
+
+            Assert.NotZero(messages.Count());
         }
     }
 }

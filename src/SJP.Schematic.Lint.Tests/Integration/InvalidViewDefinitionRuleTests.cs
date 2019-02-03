@@ -8,7 +8,6 @@ using NUnit.Framework;
 using SJP.Schematic.Core;
 using SJP.Schematic.Core.Extensions;
 using SJP.Schematic.Lint.Rules;
-using SJP.Schematic.Lint.Tests.Fakes;
 
 namespace SJP.Schematic.Lint.Tests.Integration
 {
@@ -32,84 +31,139 @@ namespace SJP.Schematic.Lint.Tests.Integration
         public static void Ctor_GivenNullConnection_ThrowsArgumentNullException()
         {
             IDbConnection connection = null;
+            var dialect = Mock.Of<IDatabaseDialect>();
             const RuleLevel level = RuleLevel.Error;
-            Assert.Throws<ArgumentNullException>(() => new InvalidViewDefinitionRule(connection, level));
+            Assert.Throws<ArgumentNullException>(() => new InvalidViewDefinitionRule(connection, dialect, level));
+        }
+
+        [Test]
+        public static void Ctor_GivenNullDialect_ThrowsArgumentNullException()
+        {
+            var connection = Mock.Of<IDbConnection>();
+            IDatabaseDialect dialect = null;
+            const RuleLevel level = RuleLevel.Error;
+            Assert.Throws<ArgumentNullException>(() => new InvalidViewDefinitionRule(connection, dialect, level));
         }
 
         [Test]
         public static void Ctor_GivenInvalidLevel_ThrowsArgumentException()
         {
             var connection = Mock.Of<IDbConnection>();
+            var dialect = Mock.Of<IDatabaseDialect>();
             const RuleLevel level = (RuleLevel)999;
-            Assert.Throws<ArgumentException>(() => new InvalidViewDefinitionRule(connection, level));
+            Assert.Throws<ArgumentException>(() => new InvalidViewDefinitionRule(connection, dialect, level));
         }
 
         [Test]
-        public void AnalyseDatabaseAsync_GivenNullDatabase_ThrowsArgumentNullException()
+        public void AnalyseViews_GivenNullViews_ThrowsArgumentNullException()
         {
-            var rule = new InvalidViewDefinitionRule(Connection, RuleLevel.Error);
-            Assert.Throws<ArgumentNullException>(() => rule.AnalyseDatabaseAsync(null));
+            var rule = new InvalidViewDefinitionRule(Connection, Dialect, RuleLevel.Error);
+            Assert.Throws<ArgumentNullException>(() => rule.AnalyseViews(null));
         }
 
         [Test]
-        public async Task AnalyseDatabaseAsync_GivenDatabaseWithOnlyValidViews_ProducesNoMessages()
+        public void AnalyseViewsAsync_GivenNullViews_ThrowsArgumentNullException()
         {
-            var rule = new InvalidViewDefinitionRule(Connection, RuleLevel.Error);
-            var fakeDatabase = CreateFakeDatabase();
+            var rule = new InvalidViewDefinitionRule(Connection, Dialect, RuleLevel.Error);
+            Assert.Throws<ArgumentNullException>(() => rule.AnalyseViewsAsync(null));
+        }
+
+        [Test]
+        public void AnalyseViews_GivenDatabaseWithOnlyValidViews_ProducesNoMessages()
+        {
+            var rule = new InvalidViewDefinitionRule(Connection, Dialect, RuleLevel.Error);
             var database = GetSqliteDatabase();
 
-            fakeDatabase.Views = new[]
+            var views = new[]
             {
-                await database.GetView("valid_view_1").UnwrapSomeAsync().ConfigureAwait(false)
+                database.GetView("valid_view_1").UnwrapSomeAsync().GetAwaiter().GetResult()
             };
 
-            var messages = await rule.AnalyseDatabaseAsync(fakeDatabase).ConfigureAwait(false);
+            var messages = rule.AnalyseViews(views);
 
             Assert.Zero(messages.Count());
         }
 
         [Test]
-        public async Task AnalyseDatabaseAsync_GivenDatabaseWithOnlyInvalidViews_ProducesMessages()
+        public async Task AnalyseViewsAsync_GivenDatabaseWithOnlyValidViews_ProducesNoMessages()
         {
-            var rule = new InvalidViewDefinitionRule(Connection, RuleLevel.Error);
-            var fakeDatabase = CreateFakeDatabase();
+            var rule = new InvalidViewDefinitionRule(Connection, Dialect, RuleLevel.Error);
             var database = GetSqliteDatabase();
 
-            fakeDatabase.Views = new[]
+            var views = new[]
             {
-                await database.GetView("invalid_view_1").UnwrapSomeAsync().ConfigureAwait(false)
+                await database.GetView("valid_view_1").UnwrapSomeAsync().ConfigureAwait(false)
             };
 
-            var messages = await rule.AnalyseDatabaseAsync(fakeDatabase).ConfigureAwait(false);
+            var messages = await rule.AnalyseViewsAsync(views).ConfigureAwait(false);
+
+            Assert.Zero(messages.Count());
+        }
+
+        [Test]
+        public void AnalyseViews_GivenViewsWithOnlyInvalidViews_ProducesMessages()
+        {
+            var rule = new InvalidViewDefinitionRule(Connection, Dialect, RuleLevel.Error);
+            var database = GetSqliteDatabase();
+
+            var views = new[]
+            {
+                database.GetView("invalid_view_1").UnwrapSomeAsync().GetAwaiter().GetResult()
+            };
+
+            var messages = rule.AnalyseViews(views);
 
             Assert.NotZero(messages.Count());
         }
 
         [Test]
-        public async Task AnalyseDatabaseAsync_GivenDatabaseWithValidAndInvalidViews_ProducesMessages()
+        public async Task AnalyseViewsAsync_GivenViewsWithOnlyInvalidViews_ProducesMessages()
         {
-            var rule = new InvalidViewDefinitionRule(Connection, RuleLevel.Error);
-            var fakeDatabase = CreateFakeDatabase();
+            var rule = new InvalidViewDefinitionRule(Connection, Dialect, RuleLevel.Error);
             var database = GetSqliteDatabase();
 
-            fakeDatabase.Views = new[]
+            var views = new[]
+            {
+                await database.GetView("invalid_view_1").UnwrapSomeAsync().ConfigureAwait(false)
+            };
+
+            var messages = await rule.AnalyseViewsAsync(views).ConfigureAwait(false);
+
+            Assert.NotZero(messages.Count());
+        }
+
+        [Test]
+        public void AnalyseViews_GivenViewsWithValidAndInvalidViews_ProducesMessages()
+        {
+            var rule = new InvalidViewDefinitionRule(Connection, Dialect, RuleLevel.Error);
+            var database = GetSqliteDatabase();
+
+            var views = new[]
+            {
+                database.GetView("valid_view_1").UnwrapSomeAsync().GetAwaiter().GetResult(),
+                database.GetView("invalid_view_1").UnwrapSomeAsync().GetAwaiter().GetResult()
+            };
+
+            var messages = rule.AnalyseViews(views);
+
+            Assert.NotZero(messages.Count());
+        }
+
+        [Test]
+        public async Task AnalyseViewsAsync_GivenViewsWithValidAndInvalidViews_ProducesMessages()
+        {
+            var rule = new InvalidViewDefinitionRule(Connection, Dialect, RuleLevel.Error);
+            var database = GetSqliteDatabase();
+
+            var views = new[]
             {
                 await database.GetView("valid_view_1").UnwrapSomeAsync().ConfigureAwait(false),
                 await database.GetView("invalid_view_1").UnwrapSomeAsync().ConfigureAwait(false)
             };
 
-            var messages = await rule.AnalyseDatabaseAsync(fakeDatabase).ConfigureAwait(false);
+            var messages = await rule.AnalyseViewsAsync(views).ConfigureAwait(false);
 
             Assert.NotZero(messages.Count());
-        }
-
-        private static FakeRelationalDatabase CreateFakeDatabase()
-        {
-            var dialect = new FakeDatabaseDialect();
-            var connection = Mock.Of<IDbConnection>();
-            var identifierDefaults = Mock.Of<IIdentifierDefaults>();
-
-            return new FakeRelationalDatabase(dialect, connection, identifierDefaults);
         }
     }
 }

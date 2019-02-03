@@ -1,10 +1,12 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Data;
 using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using SJP.Schematic.Core;
+using SJP.Schematic.Core.Extensions;
 using SJP.Schematic.Reporting.Html.ViewModels;
 using SJP.Schematic.Reporting.Html.ViewModels.Mappers;
 
@@ -12,31 +14,49 @@ namespace SJP.Schematic.Reporting.Html.Renderers
 {
     internal sealed class ColumnsRenderer : ITemplateRenderer
     {
-        public ColumnsRenderer(IDbConnection connection, IRelationalDatabase database, IHtmlFormatter formatter, DirectoryInfo exportDirectory)
+        public ColumnsRenderer(
+            IDbConnection connection,
+            IDatabaseDialect dialect,
+            IIdentifierDefaults identifierDefaults,
+            IHtmlFormatter formatter,
+            IReadOnlyCollection<IRelationalDatabaseTable> tables,
+            IReadOnlyCollection<IDatabaseView> views,
+            DirectoryInfo exportDirectory)
         {
+            if (tables == null || tables.AnyNull())
+                throw new ArgumentNullException(nameof(tables));
+            if (views == null || views.AnyNull())
+                throw new ArgumentNullException(nameof(views));
+
             Connection = connection ?? throw new ArgumentNullException(nameof(connection));
-            Database = database ?? throw new ArgumentNullException(nameof(database));
+            Dialect = dialect ?? throw new ArgumentNullException(nameof(dialect));
+            IdentifierDefaults = identifierDefaults ?? throw new ArgumentNullException(nameof(identifierDefaults));
             Formatter = formatter ?? throw new ArgumentNullException(nameof(formatter));
+            Tables = tables;
+            Views = views;
             ExportDirectory = exportDirectory ?? throw new ArgumentNullException(nameof(exportDirectory));
         }
 
         private IDbConnection Connection { get; }
 
-        private IRelationalDatabase Database { get; }
+        private IDatabaseDialect Dialect { get; }
+
+        private IIdentifierDefaults IdentifierDefaults { get; }
 
         private IHtmlFormatter Formatter { get; }
+
+        private IReadOnlyCollection<IRelationalDatabaseTable> Tables { get; }
+
+        private IReadOnlyCollection<IDatabaseView> Views { get; }
 
         private DirectoryInfo ExportDirectory { get; }
 
         public async Task RenderAsync(CancellationToken cancellationToken = default(CancellationToken))
         {
-            var tables = await Database.GetAllTables(cancellationToken).ConfigureAwait(false);
-            var views = await Database.GetAllViews(cancellationToken).ConfigureAwait(false);
+            var mapper = new ColumnsModelMapper(Connection, Dialect);
 
-            var mapper = new ColumnsModelMapper(Connection, Database.Dialect);
-
-            var tableColumnViewModels = tables.SelectMany(mapper.Map).Select(vm => vm as Columns.Column);
-            var viewColumnViewModels = views.SelectMany(mapper.Map).Select(vm => vm as Columns.Column);
+            var tableColumnViewModels = Tables.SelectMany(mapper.Map).Select(vm => vm as Columns.Column);
+            var viewColumnViewModels = Views.SelectMany(mapper.Map).Select(vm => vm as Columns.Column);
 
             var orderedColumns = tableColumnViewModels
                 .Concat(viewColumnViewModels)
@@ -47,7 +67,7 @@ namespace SJP.Schematic.Reporting.Html.Renderers
             var templateParameter = new Columns(orderedColumns);
             var renderedColumns = Formatter.RenderTemplate(templateParameter);
 
-            var columnsContainer = new Container(renderedColumns, Database.IdentifierDefaults.Database, string.Empty);
+            var columnsContainer = new Container(renderedColumns, IdentifierDefaults.Database, string.Empty);
             var renderedPage = Formatter.RenderTemplate(columnsContainer);
 
             if (!ExportDirectory.Exists)

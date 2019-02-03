@@ -9,8 +9,8 @@ namespace SJP.Schematic.Reporting.Html.Lint.Rules
 {
     internal sealed class NoValueForNullableColumnRule : Schematic.Lint.Rules.NoValueForNullableColumnRule
     {
-        public NoValueForNullableColumnRule(IDbConnection connection, RuleLevel level)
-            : base(connection, level)
+        public NoValueForNullableColumnRule(IDbConnection connection, IDatabaseDialect dialect, RuleLevel level)
+            : base(connection, dialect, level)
         {
         }
 

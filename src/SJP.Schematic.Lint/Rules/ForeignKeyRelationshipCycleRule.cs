@@ -9,25 +9,19 @@ using SJP.Schematic.Core.Utilities;
 
 namespace SJP.Schematic.Lint.Rules
 {
-    public class ForeignKeyRelationshipCycleRule : Rule
+    public class ForeignKeyRelationshipCycleRule : Rule, ITableRule
     {
         public ForeignKeyRelationshipCycleRule(RuleLevel level)
             : base(RuleTitle, level)
         {
         }
 
-        public override Task<IEnumerable<IRuleMessage>> AnalyseDatabaseAsync(IRelationalDatabase database, CancellationToken cancellationToken = default(CancellationToken))
+        public IEnumerable<IRuleMessage> AnalyseTables(IEnumerable<IRelationalDatabaseTable> tables)
         {
-            if (database == null)
-                throw new ArgumentNullException(nameof(database));
+            if (tables == null)
+                throw new ArgumentNullException(nameof(tables));
 
-            return AnalyseDatabaseAsyncCore(database, cancellationToken);
-        }
-
-        private async Task<IEnumerable<IRuleMessage>> AnalyseDatabaseAsyncCore(IRelationalDatabase database, CancellationToken cancellationToken)
-        {
             var graph = new Multigraph<Identifier, IDatabaseRelationalKey>();
-            var tables = await database.GetAllTables(cancellationToken).ConfigureAwait(false);
             graph.AddVertices(tables.Select(t => t.Name));
 
             var foreignKeys = tables
@@ -47,6 +41,15 @@ namespace SJP.Schematic.Lint.Rules
                 var message = BuildMessage(ex.Message);
                 return new[] { message };
             }
+        }
+
+        public Task<IEnumerable<IRuleMessage>> AnalyseTablesAsync(IEnumerable<IRelationalDatabaseTable> tables, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            if (tables == null)
+                throw new ArgumentNullException(nameof(tables));
+
+            var messages = AnalyseTables(tables);
+            return Task.FromResult(messages);
         }
 
         protected virtual IRuleMessage BuildMessage(string exceptionMessage)

@@ -1,10 +1,11 @@
 ﻿using System;
-using System.Data;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using SJP.Schematic.Core;
+using SJP.Schematic.Core.Extensions;
 using SJP.Schematic.Reporting.Html.ViewModels;
 using SJP.Schematic.Reporting.Html.ViewModels.Mappers;
 
@@ -12,30 +13,36 @@ namespace SJP.Schematic.Reporting.Html.Renderers
 {
     internal sealed class ConstraintsRenderer : ITemplateRenderer
     {
-        public ConstraintsRenderer(IDbConnection connection, IRelationalDatabase database, IHtmlFormatter formatter, DirectoryInfo exportDirectory)
+        public ConstraintsRenderer(
+            IIdentifierDefaults identifierDefaults,
+            IHtmlFormatter formatter,
+            IReadOnlyCollection<IRelationalDatabaseTable> tables,
+            DirectoryInfo exportDirectory
+        )
         {
-            Connection = connection ?? throw new ArgumentNullException(nameof(connection));
-            Database = database ?? throw new ArgumentNullException(nameof(database));
+            if (tables == null || tables.AnyNull())
+                throw new ArgumentNullException(nameof(tables));
+
+            Tables = tables;
+            IdentifierDefaults = identifierDefaults ?? throw new ArgumentNullException(nameof(identifierDefaults));
             Formatter = formatter ?? throw new ArgumentNullException(nameof(formatter));
             ExportDirectory = exportDirectory ?? throw new ArgumentNullException(nameof(exportDirectory));
         }
 
-        private IDbConnection Connection { get; }
-
-        private IRelationalDatabase Database { get; }
+        private IIdentifierDefaults IdentifierDefaults { get; }
 
         private IHtmlFormatter Formatter { get; }
+
+        private IReadOnlyCollection<IRelationalDatabaseTable> Tables { get; }
 
         private DirectoryInfo ExportDirectory { get; }
 
         public async Task RenderAsync(CancellationToken cancellationToken = default(CancellationToken))
         {
-            var tables = await Database.GetAllTables(cancellationToken).ConfigureAwait(false);
-
-            var primaryKeys = tables.SelectMany(t => t.PrimaryKey.Select(pk => new { TableName = t.Name, PrimaryKey = pk })).ToList();
-            var uniqueKeys = tables.SelectMany(t => t.UniqueKeys.Select(uk => new { TableName = t.Name, UniqueKey = uk })).ToList();
-            var foreignKeys = tables.SelectMany(t => t.ParentKeys).ToList();
-            var checkConstraints = tables.SelectMany(t => t.Checks.Select(ck => new { TableName = t.Name, Check = ck })).ToList();
+            var primaryKeys = Tables.SelectMany(t => t.PrimaryKey.Select(pk => new { TableName = t.Name, PrimaryKey = pk })).ToList();
+            var uniqueKeys = Tables.SelectMany(t => t.UniqueKeys.Select(uk => new { TableName = t.Name, UniqueKey = uk })).ToList();
+            var foreignKeys = Tables.SelectMany(t => t.ParentKeys).ToList();
+            var checkConstraints = Tables.SelectMany(t => t.Checks.Select(ck => new { TableName = t.Name, Check = ck })).ToList();
 
             var mapper = new ConstraintsModelMapper();
 
@@ -64,7 +71,7 @@ namespace SJP.Schematic.Reporting.Html.Renderers
             );
             var renderedConstraints = Formatter.RenderTemplate(templateParameter);
 
-            var constraintsContainer = new Container(renderedConstraints, Database.IdentifierDefaults.Database, string.Empty);
+            var constraintsContainer = new Container(renderedConstraints, IdentifierDefaults.Database, string.Empty);
             var renderedPage = Formatter.RenderTemplate(constraintsContainer);
 
             if (!ExportDirectory.Exists)

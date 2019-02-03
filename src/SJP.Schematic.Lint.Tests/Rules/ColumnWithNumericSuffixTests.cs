@@ -1,13 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
 using Moq;
 using NUnit.Framework;
 using SJP.Schematic.Core;
 using SJP.Schematic.Lint.Rules;
-using SJP.Schematic.Lint.Tests.Fakes;
 
 namespace SJP.Schematic.Lint.Tests.Rules
 {
@@ -22,17 +20,23 @@ namespace SJP.Schematic.Lint.Tests.Rules
         }
 
         [Test]
-        public static void AnalyseDatabaseAsync_GivenNullDatabase_ThrowsArgumentNullException()
+        public static void AnalyseTables_GivenNullTables_ThrowsArgumentNullException()
         {
             var rule = new ColumnWithNumericSuffix(RuleLevel.Error);
-            Assert.Throws<ArgumentNullException>(() => rule.AnalyseDatabaseAsync(null));
+            Assert.Throws<ArgumentNullException>(() => rule.AnalyseTables(null));
         }
 
         [Test]
-        public static async Task AnalyseDatabaseAsync_GivenTableWithoutColumnsContainingNumericSuffix_ProducesNoMessages()
+        public static void AnalyseTablesAsync_GivenNullTables_ThrowsArgumentNullException()
+        {
+            var rule = new ColumnWithNumericSuffix(RuleLevel.Error);
+            Assert.Throws<ArgumentNullException>(() => rule.AnalyseTablesAsync(null));
+        }
+
+        [Test]
+        public static void AnalyseTables_GivenTableWithoutColumnsContainingNumericSuffix_ProducesNoMessages()
         {
             var rule = new ColumnWithNullDefaultValueRule(RuleLevel.Error);
-            var database = CreateFakeDatabase();
 
             var testColumn = new DatabaseColumn(
                 "test_column",
@@ -53,18 +57,48 @@ namespace SJP.Schematic.Lint.Tests.Rules
                 Array.Empty<IDatabaseCheckConstraint>(),
                 Array.Empty<IDatabaseTrigger>()
             );
-            database.Tables = new[] { table };
+            var tables = new[] { table };
 
-            var messages = await rule.AnalyseDatabaseAsync(database).ConfigureAwait(false);
+            var messages = rule.AnalyseTables(tables);
 
             Assert.Zero(messages.Count());
         }
 
         [Test]
-        public static async Task AnalyseDatabaseAsync_GivenTableWithColumnsContainingNumericSuffix_ProducesMessages()
+        public static async Task AnalyseTablesAsync_GivenTableWithoutColumnsContainingNumericSuffix_ProducesNoMessages()
         {
             var rule = new ColumnWithNullDefaultValueRule(RuleLevel.Error);
-            var database = CreateFakeDatabase();
+
+            var testColumn = new DatabaseColumn(
+                "test_column",
+                Mock.Of<IDbType>(),
+                true,
+                null,
+                null
+            );
+
+            var table = new RelationalDatabaseTable(
+                "test",
+                new List<IDatabaseColumn> { testColumn },
+                null,
+                Array.Empty<IDatabaseKey>(),
+                Array.Empty<IDatabaseRelationalKey>(),
+                Array.Empty<IDatabaseRelationalKey>(),
+                Array.Empty<IDatabaseIndex>(),
+                Array.Empty<IDatabaseCheckConstraint>(),
+                Array.Empty<IDatabaseTrigger>()
+            );
+            var tables = new[] { table };
+
+            var messages = await rule.AnalyseTablesAsync(tables).ConfigureAwait(false);
+
+            Assert.Zero(messages.Count());
+        }
+
+        [Test]
+        public static void AnalyseTables_GivenTableWithColumnsContainingNumericSuffix_ProducesMessages()
+        {
+            var rule = new ColumnWithNullDefaultValueRule(RuleLevel.Error);
 
             var testColumn = new DatabaseColumn(
                 "test_column_1",
@@ -85,20 +119,42 @@ namespace SJP.Schematic.Lint.Tests.Rules
                 Array.Empty<IDatabaseCheckConstraint>(),
                 Array.Empty<IDatabaseTrigger>()
             );
-            database.Tables = new[] { table };
+            var tables = new[] { table };
 
-            var messages = await rule.AnalyseDatabaseAsync(database).ConfigureAwait(false);
+            var messages = rule.AnalyseTables(tables);
 
             Assert.NotZero(messages.Count());
         }
 
-        private static FakeRelationalDatabase CreateFakeDatabase()
+        [Test]
+        public static async Task AnalyseTablesAsync_GivenTableWithColumnsContainingNumericSuffix_ProducesMessages()
         {
-            var dialect = new FakeDatabaseDialect();
-            var connection = Mock.Of<IDbConnection>();
-            var identifierDefaults = Mock.Of<IIdentifierDefaults>();
+            var rule = new ColumnWithNullDefaultValueRule(RuleLevel.Error);
 
-            return new FakeRelationalDatabase(dialect, connection, identifierDefaults);
+            var testColumn = new DatabaseColumn(
+                "test_column_1",
+                Mock.Of<IDbType>(),
+                true,
+                "null",
+                null
+            );
+
+            var table = new RelationalDatabaseTable(
+                "test",
+                new List<IDatabaseColumn> { testColumn },
+                null,
+                Array.Empty<IDatabaseKey>(),
+                Array.Empty<IDatabaseRelationalKey>(),
+                Array.Empty<IDatabaseRelationalKey>(),
+                Array.Empty<IDatabaseIndex>(),
+                Array.Empty<IDatabaseCheckConstraint>(),
+                Array.Empty<IDatabaseTrigger>()
+            );
+            var tables = new[] { table };
+
+            var messages = await rule.AnalyseTablesAsync(tables).ConfigureAwait(false);
+
+            Assert.NotZero(messages.Count());
         }
     }
 }

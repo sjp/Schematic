@@ -8,8 +8,8 @@ namespace SJP.Schematic.Reporting.Html.Lint.Rules
 {
     internal sealed class ReservedKeywordNameRule : Schematic.Lint.Rules.ReservedKeywordNameRule
     {
-        public ReservedKeywordNameRule(RuleLevel level)
-            : base(level)
+        public ReservedKeywordNameRule(IDatabaseDialect dialect, RuleLevel level)
+            : base(dialect, level)
         {
         }
 

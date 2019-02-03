@@ -9,25 +9,28 @@ using SJP.Schematic.Core.Extensions;
 
 namespace SJP.Schematic.Lint.Rules
 {
-    public class ColumnWithNumericSuffix : Rule
+    public class ColumnWithNumericSuffix : Rule, ITableRule
     {
         public ColumnWithNumericSuffix(RuleLevel level)
             : base(RuleTitle, level)
         {
         }
 
-        public override Task<IEnumerable<IRuleMessage>> AnalyseDatabaseAsync(IRelationalDatabase database, CancellationToken cancellationToken = default(CancellationToken))
+        public IEnumerable<IRuleMessage> AnalyseTables(IEnumerable<IRelationalDatabaseTable> tables)
         {
-            if (database == null)
-                throw new ArgumentNullException(nameof(database));
+            if (tables == null)
+                throw new ArgumentNullException(nameof(tables));
 
-            return AnalyseDatabaseAsyncCore(database, cancellationToken);
+            return tables.SelectMany(AnalyseTable).ToList();
         }
 
-        private async Task<IEnumerable<IRuleMessage>> AnalyseDatabaseAsyncCore(IRelationalDatabase database, CancellationToken cancellationToken)
+        public Task<IEnumerable<IRuleMessage>> AnalyseTablesAsync(IEnumerable<IRelationalDatabaseTable> tables, CancellationToken cancellationToken = default(CancellationToken))
         {
-            var tables = await database.GetAllTables(cancellationToken).ConfigureAwait(false);
-            return tables.SelectMany(AnalyseTable).ToList();
+            if (tables == null)
+                throw new ArgumentNullException(nameof(tables));
+
+            var messages = AnalyseTables(tables);
+            return Task.FromResult(messages);
         }
 
         protected IEnumerable<IRuleMessage> AnalyseTable(IRelationalDatabaseTable table)

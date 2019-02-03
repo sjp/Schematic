@@ -8,35 +8,96 @@ using SJP.Schematic.Core.Extensions;
 
 namespace SJP.Schematic.Lint.Rules
 {
-    public class WhitespaceNameRule : Rule
+    public class WhitespaceNameRule : Rule, ITableRule, IViewRule, ISequenceRule, ISynonymRule, IRoutineRule
     {
         public WhitespaceNameRule(RuleLevel level)
             : base(RuleTitle, level)
         {
         }
 
-        public override Task<IEnumerable<IRuleMessage>> AnalyseDatabaseAsync(IRelationalDatabase database, CancellationToken cancellationToken = default(CancellationToken))
+        public IEnumerable<IRuleMessage> AnalyseTables(IEnumerable<IRelationalDatabaseTable> tables)
         {
-            if (database == null)
-                throw new ArgumentNullException(nameof(database));
+            if (tables == null)
+                throw new ArgumentNullException(nameof(tables));
 
-            return AnalyseDatabaseAsyncCore(database, cancellationToken);
+            return tables.SelectMany(AnalyseTable).ToList();
         }
 
-        private async Task<IEnumerable<IRuleMessage>> AnalyseDatabaseAsyncCore(IRelationalDatabase database, CancellationToken cancellationToken)
+        public Task<IEnumerable<IRuleMessage>> AnalyseTablesAsync(IEnumerable<IRelationalDatabaseTable> tables, CancellationToken cancellationToken = default(CancellationToken))
         {
-            var tables = await database.GetAllTables(cancellationToken).ConfigureAwait(false);
-            var views = await database.GetAllViews(cancellationToken).ConfigureAwait(false);
-            var sequences = await database.GetAllSequences(cancellationToken).ConfigureAwait(false);
-            var synonyms = await database.GetAllSynonyms(cancellationToken).ConfigureAwait(false);
-            var routines = await database.GetAllRoutines(cancellationToken).ConfigureAwait(false);
+            if (tables == null)
+                throw new ArgumentNullException(nameof(tables));
 
-            return tables.SelectMany(AnalyseTable)
-                .Concat(views.SelectMany(AnalyseView))
-                .Concat(sequences.SelectMany(AnalyseSequence))
-                .Concat(synonyms.SelectMany(AnalyseSynonym))
-                .Concat(routines.SelectMany(AnalyseRoutine))
-                .ToList();
+            var messages = AnalyseTables(tables);
+            return Task.FromResult(messages);
+        }
+
+        public IEnumerable<IRuleMessage> AnalyseViews(IEnumerable<IDatabaseView> views)
+        {
+            if (views == null)
+                throw new ArgumentNullException(nameof(views));
+
+            return views.SelectMany(AnalyseView).ToList();
+        }
+
+        public Task<IEnumerable<IRuleMessage>> AnalyseViewsAsync(IEnumerable<IDatabaseView> views, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            if (views == null)
+                throw new ArgumentNullException(nameof(views));
+
+            var messages = AnalyseViews(views);
+            return Task.FromResult(messages);
+        }
+
+        public IEnumerable<IRuleMessage> AnalyseSequences(IEnumerable<IDatabaseSequence> sequences)
+        {
+            if (sequences == null)
+                throw new ArgumentNullException(nameof(sequences));
+
+            return sequences.SelectMany(AnalyseSequence).ToList();
+        }
+
+        public Task<IEnumerable<IRuleMessage>> AnalyseSequencesAsync(IEnumerable<IDatabaseSequence> sequences, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            if (sequences == null)
+                throw new ArgumentNullException(nameof(sequences));
+
+            var messages = AnalyseSequences(sequences);
+            return Task.FromResult(messages);
+        }
+
+        public IEnumerable<IRuleMessage> AnalyseSynonyms(IEnumerable<IDatabaseSynonym> synonyms)
+        {
+            if (synonyms == null)
+                throw new ArgumentNullException(nameof(synonyms));
+
+            return synonyms.SelectMany(AnalyseSynonym).ToList();
+        }
+
+        public Task<IEnumerable<IRuleMessage>> AnalyseSynonymsAsync(IEnumerable<IDatabaseSynonym> synonyms, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            if (synonyms == null)
+                throw new ArgumentNullException(nameof(synonyms));
+
+            var messages = AnalyseSynonyms(synonyms);
+            return Task.FromResult(messages);
+        }
+
+        public IEnumerable<IRuleMessage> AnalyseRoutines(IEnumerable<IDatabaseRoutine> routines)
+        {
+            if (routines == null)
+                throw new ArgumentNullException(nameof(routines));
+
+            return routines.SelectMany(AnalyseRoutine).ToList();
+        }
+
+        public Task<IEnumerable<IRuleMessage>> AnalyseRoutinesAsync(IEnumerable<IDatabaseRoutine> routines, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            if (routines == null)
+                throw new ArgumentNullException(nameof(routines));
+
+            var messages = AnalyseRoutines(routines);
+            return Task.FromResult(messages);
         }
 
         protected IEnumerable<IRuleMessage> AnalyseTable(IRelationalDatabaseTable table)

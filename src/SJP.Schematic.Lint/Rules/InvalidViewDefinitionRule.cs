@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Dapper;
@@ -9,61 +10,85 @@ using SJP.Schematic.Core.Extensions;
 
 namespace SJP.Schematic.Lint.Rules
 {
-    public class InvalidViewDefinitionRule : Rule
+    public class InvalidViewDefinitionRule : Rule, IViewRule
     {
-        public InvalidViewDefinitionRule(IDbConnection connection, RuleLevel level)
+        public InvalidViewDefinitionRule(IDbConnection connection, IDatabaseDialect dialect, RuleLevel level)
             : base(RuleTitle, level)
         {
             Connection = connection ?? throw new ArgumentNullException(nameof(connection));
+            Dialect = dialect ?? throw new ArgumentNullException(nameof(dialect));
         }
 
         protected IDbConnection Connection { get; }
 
-        public override Task<IEnumerable<IRuleMessage>> AnalyseDatabaseAsync(IRelationalDatabase database, CancellationToken cancellationToken = default(CancellationToken))
+        protected IDatabaseDialect Dialect { get; }
+
+        public IEnumerable<IRuleMessage> AnalyseViews(IEnumerable<IDatabaseView> views)
         {
-            if (database == null)
-                throw new ArgumentNullException(nameof(database));
+            if (views == null)
+                throw new ArgumentNullException(nameof(views));
 
-            if (database.Dialect == null)
-                throw new ArgumentException("The dialect on the given database is null.", nameof(database));
-
-            return AnalyseDatabaseAsyncCore(database, cancellationToken);
+            return views.SelectMany(AnalyseView).ToList();
         }
 
-        private async Task<IEnumerable<IRuleMessage>> AnalyseDatabaseAsyncCore(IRelationalDatabase database, CancellationToken cancellationToken)
+        public Task<IEnumerable<IRuleMessage>> AnalyseViewsAsync(IEnumerable<IDatabaseView> views, CancellationToken cancellationToken = default(CancellationToken))
         {
-            var views = await database.GetAllViews(cancellationToken).ConfigureAwait(false);
+            if (views == null)
+                throw new ArgumentNullException(nameof(views));
+
+            return AnalyseViewsAsyncCore(views, cancellationToken);
+        }
+
+        private async Task<IEnumerable<IRuleMessage>> AnalyseViewsAsyncCore(IEnumerable<IDatabaseView> views, CancellationToken cancellationToken)
+        {
             if (views.Empty())
                 return Array.Empty<IRuleMessage>();
 
             var result = new List<IRuleMessage>();
+
             foreach (var view in views)
             {
-                var messages = await AnalyseViewAsync(database.Dialect, view, cancellationToken).ConfigureAwait(false);
+                var messages = await AnalyseViewAsync(view, cancellationToken).ConfigureAwait(false);
                 result.AddRange(messages);
             }
 
             return result;
         }
 
-        protected Task<IEnumerable<IRuleMessage>> AnalyseViewAsync(IDatabaseDialect dialect, IDatabaseView view, CancellationToken cancellationToken)
+        protected Task<IEnumerable<IRuleMessage>> AnalyseViewAsync(IDatabaseView view, CancellationToken cancellationToken)
         {
-            if (dialect == null)
-                throw new ArgumentNullException(nameof(dialect));
             if (view == null)
                 throw new ArgumentNullException(nameof(view));
 
-            return AnalyseViewAsyncCore(dialect, view, cancellationToken);
+            return AnalyseViewAsyncCore(view, cancellationToken);
         }
 
-        private async Task<IEnumerable<IRuleMessage>> AnalyseViewAsyncCore(IDatabaseDialect dialect, IDatabaseView view, CancellationToken cancellationToken)
+        private async Task<IEnumerable<IRuleMessage>> AnalyseViewAsyncCore(IDatabaseView view, CancellationToken cancellationToken)
         {
             try
             {
                 var simpleViewName = Identifier.CreateQualifiedIdentifier(view.Name.Schema, view.Name.LocalName);
-                var quotedViewName = dialect.QuoteName(simpleViewName);
+                var quotedViewName = Dialect.QuoteName(simpleViewName);
                 var query = "select 1 as tmp from " + quotedViewName;
                 await Connection.ExecuteScalarAsync<long>(query, cancellationToken).ConfigureAwait(false);
+
+                return Array.Empty<IRuleMessage>();
+            }
+            catch
+            {
+                var message = BuildMessage(view.Name);
+                return new[] { message };
+            }
+        }
+
+        private IEnumerable<IRuleMessage> AnalyseView(IDatabaseView view)
+        {
+            try
+            {
+                var simpleViewName = Identifier.CreateQualifiedIdentifier(view.Name.Schema, view.Name.LocalName);
+                var quotedViewName = Dialect.QuoteName(simpleViewName);
+                var query = "select 1 as tmp from " + quotedViewName;
+                _ = Connection.ExecuteScalar<long>(query);
 
                 return Array.Empty<IRuleMessage>();
             }
