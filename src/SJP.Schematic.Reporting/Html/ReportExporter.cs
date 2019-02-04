@@ -79,7 +79,7 @@ namespace SJP.Schematic.Reporting.Html
                 new LintRenderer(linter, Database.IdentifierDefaults, TemplateFormatter, tables, views, sequences, synonyms, routines, ExportDirectory),
                 new MainRenderer(Connection, Database, TemplateFormatter, tables, views, sequences, synonyms, routines, ExportDirectory),
                 new OrphansRenderer(Connection, Database.Dialect, Database.IdentifierDefaults, TemplateFormatter, tables, ExportDirectory),
-                new RelationshipsRenderer(Connection, Database, TemplateFormatter, ExportDirectory),
+                new RelationshipsRenderer(Connection, Database.Dialect, Database.IdentifierDefaults, TemplateFormatter, tables, ExportDirectory),
                 new TableRenderer(Connection, Database, TemplateFormatter, tables, ExportDirectory),
                 new ViewRenderer(Connection, Database, TemplateFormatter, views, ExportDirectory),
                 new RoutineRenderer(Connection, Database, TemplateFormatter, routines, ExportDirectory)

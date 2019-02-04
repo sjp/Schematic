@@ -163,7 +163,7 @@ namespace SJP.Schematic.Reporting.Html.ViewModels.Mappers
             var oneDegreeTables = await relationshipBuilder.GetTablesByDegreesAsync(table, 1, cancellationToken).ConfigureAwait(false);
             var twoDegreeTables = await relationshipBuilder.GetTablesByDegreesAsync(table, 2, cancellationToken).ConfigureAwait(false);
 
-            var dotFormatter = new DatabaseDotFormatter(Connection, Database);
+            var dotFormatter = new DatabaseDotFormatter(Connection, Database.Dialect, Database.IdentifierDefaults);
             var renderOptions = new DotRenderOptions { HighlightedTable = table.Name };
             var oneDegreeDot = await dotFormatter.RenderTablesAsync(oneDegreeTables, renderOptions, cancellationToken).ConfigureAwait(false);
             var twoDegreeDot = await dotFormatter.RenderTablesAsync(twoDegreeTables, renderOptions, cancellationToken).ConfigureAwait(false);

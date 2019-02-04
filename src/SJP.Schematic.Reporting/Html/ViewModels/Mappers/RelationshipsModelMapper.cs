@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Data;
 using System.Threading;
 using System.Threading.Tasks;
@@ -9,24 +10,30 @@ namespace SJP.Schematic.Reporting.Html.ViewModels.Mappers
 {
     internal sealed class RelationshipsModelMapper
     {
-        public RelationshipsModelMapper(IDbConnection connection)
+        public RelationshipsModelMapper(IDbConnection connection, IDatabaseDialect dialect, IIdentifierDefaults identifierDefaults)
         {
             Connection = connection ?? throw new ArgumentNullException(nameof(connection));
+            Dialect = dialect ?? throw new ArgumentNullException(nameof(dialect));
+            IdentifierDefaults = identifierDefaults ?? throw new ArgumentNullException(nameof(identifierDefaults));
         }
 
         private IDbConnection Connection { get; }
 
-        public Task<Relationships> MapAsync(IRelationalDatabase database, CancellationToken cancellationToken)
-        {
-            if (database == null)
-                throw new ArgumentNullException(nameof(database));
+        private IDatabaseDialect Dialect { get; }
 
-            return MapAsyncCore(database, cancellationToken);
+        private IIdentifierDefaults IdentifierDefaults { get; }
+
+        public Task<Relationships> MapAsync(IEnumerable<IRelationalDatabaseTable> tables, CancellationToken cancellationToken)
+        {
+            if (tables == null)
+                throw new ArgumentNullException(nameof(tables));
+
+            return MapAsyncCore(tables, cancellationToken);
         }
 
-        private async Task<Relationships> MapAsyncCore(IRelationalDatabase database, CancellationToken cancellationToken)
+        private async Task<Relationships> MapAsyncCore(IEnumerable<IRelationalDatabaseTable> tables, CancellationToken cancellationToken)
         {
-            var dotFormatter = new DatabaseDotFormatter(Connection, database);
+            var dotFormatter = new DatabaseDotFormatter(Connection, Dialect, IdentifierDefaults);
 
             var rootPath = string.Empty;
             var compactOptions = new DotRenderOptions
@@ -34,14 +41,14 @@ namespace SJP.Schematic.Reporting.Html.ViewModels.Mappers
                 IsReducedColumnSet = true,
                 RootPath = rootPath
             };
-            var compactDot = await dotFormatter.RenderDatabaseAsync(compactOptions, cancellationToken).ConfigureAwait(false);
+            var compactDot = await dotFormatter.RenderTablesAsync(tables, compactOptions, cancellationToken).ConfigureAwait(false);
 
             var largeOptions = new DotRenderOptions
             {
                 IsReducedColumnSet = false,
                 RootPath = rootPath
             };
-            var largeDot = await dotFormatter.RenderDatabaseAsync(largeOptions, cancellationToken).ConfigureAwait(false);
+            var largeDot = await dotFormatter.RenderTablesAsync(tables, largeOptions, cancellationToken).ConfigureAwait(false);
 
             var diagrams = new[]
             {

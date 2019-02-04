@@ -7,10 +7,6 @@ namespace SJP.Schematic.Reporting.Dot
 {
     public interface IDatabaseDotFormatter
     {
-        Task<string> RenderDatabaseAsync(CancellationToken cancellationToken);
-
-        Task<string> RenderDatabaseAsync(DotRenderOptions options, CancellationToken cancellationToken);
-
         Task<string> RenderTablesAsync(IEnumerable<IRelationalDatabaseTable> tables, CancellationToken cancellationToken);
 
         Task<string> RenderTablesAsync(IEnumerable<IRelationalDatabaseTable> tables, DotRenderOptions options, CancellationToken cancellationToken);

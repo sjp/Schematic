@@ -11,37 +11,18 @@ namespace SJP.Schematic.Reporting.Dot
 {
     public class DatabaseDotFormatter : IDatabaseDotFormatter
     {
-        public DatabaseDotFormatter(IDbConnection connection, IRelationalDatabase database)
+        public DatabaseDotFormatter(IDbConnection connection, IDatabaseDialect dialect, IIdentifierDefaults identifierDefaults)
         {
             Connection = connection ?? throw new ArgumentNullException(nameof(connection));
-            Database = database ?? throw new ArgumentNullException(nameof(database));
+            Dialect = dialect ?? throw new ArgumentNullException(nameof(dialect));
+            IdentifierDefaults = identifierDefaults ?? throw new ArgumentNullException(nameof(identifierDefaults));
         }
 
         protected IDbConnection Connection { get; }
 
-        protected IRelationalDatabase Database { get; }
+        protected IDatabaseDialect Dialect { get; }
 
-        public async Task<string> RenderDatabaseAsync(CancellationToken cancellationToken)
-        {
-            var tables = await Database.GetAllTables(cancellationToken).ConfigureAwait(false);
-
-            return await RenderTablesAsync(tables, DotRenderOptions.Default, cancellationToken).ConfigureAwait(false);
-        }
-
-        public Task<string> RenderDatabaseAsync(DotRenderOptions options, CancellationToken cancellationToken)
-        {
-            if (options == null)
-                throw new ArgumentNullException(nameof(options));
-
-            return RenderDatabaseAsyncCore(options, cancellationToken);
-        }
-
-        private async Task<string> RenderDatabaseAsyncCore(DotRenderOptions options, CancellationToken cancellationToken)
-        {
-            var tables = await Database.GetAllTables(cancellationToken).ConfigureAwait(false);
-
-            return await RenderTablesAsyncCore(tables, options, cancellationToken).ConfigureAwait(false);
-        }
+        protected IIdentifierDefaults IdentifierDefaults { get; }
 
         public Task<string> RenderTablesAsync(IEnumerable<IRelationalDatabaseTable> tables, CancellationToken cancellationToken)
         {
@@ -92,7 +73,7 @@ namespace SJP.Schematic.Reporting.Dot
 
                 var childKeysCount = childKeys.ToList().UCount();
                 var parentKeysCount = parentKeys.ToList().UCount();
-                var rowCount = await Connection.GetRowCountAsync(Database.Dialect, table.Name, cancellationToken).ConfigureAwait(false);
+                var rowCount = await Connection.GetRowCountAsync(Dialect, table.Name, cancellationToken).ConfigureAwait(false);
 
                 var tableUri = new Uri(options.RootPath + "tables/" + table.Name.ToSafeKey() + ".html", UriKind.Relative);
                 var tableNodeAttrs = new[]
@@ -206,8 +187,8 @@ namespace SJP.Schematic.Reporting.Dot
                 .OrderBy(node => node.Identifier.ToString())
                 .ToList();
 
-            var graphName = !Database.IdentifierDefaults.Database.IsNullOrWhiteSpace()
-                ? Database.IdentifierDefaults.Database
+            var graphName = !IdentifierDefaults.Database.IsNullOrWhiteSpace()
+                ? IdentifierDefaults.Database
                 : "unnamed graph";
             var graph = new DotGraph(
                 new DotIdentifier(graphName),
