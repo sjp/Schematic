@@ -55,7 +55,7 @@ select
     mv.MVIEW_NAME as ObjectName
 from SYS.ALL_MVIEWS mv
 inner join SYS.ALL_OBJECTS o on mv.OWNER = o.OWNER and mv.MVIEW_NAME = o.OBJECT_NAME
-where o.ORACLE_MAINTAINED <> 'Y'
+where o.ORACLE_MAINTAINED <> 'Y' and o.OBJECT_TYPE <> 'TABLE'
 order by mv.OWNER, mv.MVIEW_NAME";
 
         public OptionAsync<IDatabaseView> GetView(Identifier viewName, CancellationToken cancellationToken = default(CancellationToken))
@@ -102,7 +102,8 @@ order by mv.OWNER, mv.MVIEW_NAME";
 select mv.OWNER as SchemaName, mv.MVIEW_NAME as ObjectName
 from SYS.ALL_MVIEWS mv
 inner join SYS.ALL_OBJECTS o on mv.OWNER = o.OWNER and mv.MVIEW_NAME = o.OBJECT_NAME
-where mv.OWNER = :SchemaName and mv.MVIEW_NAME = :ViewName and o.ORACLE_MAINTAINED <> 'Y'";
+where mv.OWNER = :SchemaName and mv.MVIEW_NAME = :ViewName
+    and o.ORACLE_MAINTAINED <> 'Y' and o.OBJECT_TYPE <> 'TABLE'";
 
         protected virtual OptionAsync<IDatabaseView> LoadView(Identifier viewName, CancellationToken cancellationToken)
         {
