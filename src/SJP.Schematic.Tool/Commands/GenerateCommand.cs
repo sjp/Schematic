@@ -8,9 +8,7 @@ using SJP.Schematic.DataAccess;
 namespace SJP.Schematic.Tool
 {
     [Command(Name = "generate", Description = "Generate ORM classes to interact with the database.")]
-    [Subcommand("ef", typeof(GenerateEfCommand))]
-    [Subcommand("ormlite", typeof(GenerateOrmLiteCommand))]
-    [Subcommand("poco", typeof(GeneratePocoCommand))]
+    [Subcommand(typeof(GenerateEfCommand), typeof(GenerateOrmLiteCommand), typeof(GeneratePocoCommand))]
     internal sealed class GenerateCommand
     {
         [Option(Description = "How database object names will be translated", LongName = "translator", ShortName = "t", Inherited = true)]

@@ -4,10 +4,7 @@ using McMaster.Extensions.CommandLineUtils;
 namespace SJP.Schematic.Tool
 {
     [VersionOptionFromMember(MemberName = nameof(Version))]
-    [Subcommand("test", typeof(TestCommand))]
-    [Subcommand("lint", typeof(LintCommand))]
-    [Subcommand("generate", typeof(GenerateCommand))]
-    [Subcommand("report", typeof(ReportCommand))]
+    [Subcommand(typeof(TestCommand), typeof(LintCommand), typeof(GenerateCommand), typeof(ReportCommand))]
     internal sealed class Program
     {
         public static int Main(string[] args) => CommandLineApplication.Execute<Program>(args);
