@@ -12,8 +12,8 @@ namespace SJP.Schematic.Oracle.Tests.Integration
         private static string ConnectionString => Configuration.GetConnectionString("TestDb");
 
         private static IConfigurationRoot Configuration => new ConfigurationBuilder()
-            .AddJsonFile("oracle-test.json.config")
-            .AddJsonFile("oracle-test.json.config.local", optional: true)
+            .AddJsonFile("oracle-test.config.json")
+            .AddJsonFile("oracle-test.local.config.json", optional: true)
             .Build();
     }
 

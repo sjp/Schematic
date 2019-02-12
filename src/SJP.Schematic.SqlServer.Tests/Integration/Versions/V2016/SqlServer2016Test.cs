@@ -12,8 +12,8 @@ namespace SJP.Schematic.SqlServer.Tests.Integration.Versions.V2016
         private static string ConnectionString => Configuration.GetConnectionString("TestDb");
 
         private static IConfigurationRoot Configuration => new ConfigurationBuilder()
-            .AddJsonFile("sqlserver-test-2016.json.config")
-            .AddJsonFile("sqlserver-test-2016.json.config.local", optional: true)
+            .AddJsonFile("sqlserver-test-2016.config.json")
+            .AddJsonFile("sqlserver-test-2016.local.config.json", optional: true)
             .Build();
     }
 

@@ -13,8 +13,8 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
         private static string ConnectionString => Configuration.GetConnectionString("TestDb");
 
         private static IConfigurationRoot Configuration => new ConfigurationBuilder()
-            .AddJsonFile("sqlite-test.json.config")
-            .AddJsonFile("sqlite-test.json.config.local", optional: true)
+            .AddJsonFile("sqlite-test.config.json")
+            .AddJsonFile("sqlite-test.local.config.json", optional: true)
             .Build();
     }
 

@@ -12,14 +12,14 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration.Versions.V9_6
         private static string ConnectionString => Configuration.GetConnectionString("TestDb");
 
         private static IConfigurationRoot Configuration => new ConfigurationBuilder()
-            .AddJsonFile("postgresql-test-96.json.config")
-            .AddJsonFile("postgresql-test-96.json.config.local", optional: true)
+            .AddJsonFile("postgresql-test-96.config.json")
+            .AddJsonFile("postgresql-test-96.local.config.json", optional: true)
             .Build();
     }
 
     [Category("PostgreSqlDatabase")]
     [Category("SkipWhenLiveUnitTesting")]
-    [TestFixture]
+    [TestFixture(Ignore = "Multiple Postgres CI DB not available")]
     internal abstract class PostgreSql96Test
     {
         protected IDbConnection Connection { get; } = Config96.Connection;

@@ -12,8 +12,8 @@ namespace SJP.Schematic.MySql.Tests.Integration
         private static string ConnectionString => Configuration.GetConnectionString("TestDb");
 
         private static IConfigurationRoot Configuration => new ConfigurationBuilder()
-            .AddJsonFile("mysql-test.json.config")
-            .AddJsonFile("mysql-test.json.config.local", optional: true)
+            .AddJsonFile("mysql-test.config.json")
+            .AddJsonFile("mysql-test.local.config.json", optional: true)
             .Build();
     }
 

@@ -26,40 +26,40 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Update="sqlserver-test.json.config">
+    <None Update="sqlserver-test.config.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Update="sqlserver-test.json.config.local">
+    <None Update="sqlserver-test.local.config.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Update="sqlserver-test-2008R2.json.config">
+    <None Update="sqlserver-test-2008R2.config.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Update="sqlserver-test-2008R2.json.config.local">
+    <None Update="sqlserver-test-2008R2.local.config.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Update="sqlserver-test-2012.json.config">
+    <None Update="sqlserver-test-2012.config.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Update="sqlserver-test-2012.json.config.local">
+    <None Update="sqlserver-test-2012.local.config.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Update="sqlserver-test-2014.json.config">
+    <None Update="sqlserver-test-2014.config.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Update="sqlserver-test-2014.json.config.local">
+    <None Update="sqlserver-test-2014.local.config.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Update="sqlserver-test-2016.json.config">
+    <None Update="sqlserver-test-2016.config.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Update="sqlserver-test-2016.json.config.local">
+    <None Update="sqlserver-test-2016.local.config.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Update="sqlserver-test-2017.json.config">
+    <None Update="sqlserver-test-2017.config.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Update="sqlserver-test-2017.json.config.local">
+    <None Update="sqlserver-test-2017.local.config.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>

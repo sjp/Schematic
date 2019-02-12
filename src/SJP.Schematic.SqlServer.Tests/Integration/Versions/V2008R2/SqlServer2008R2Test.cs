@@ -12,8 +12,8 @@ namespace SJP.Schematic.SqlServer.Tests.Integration.Versions.V2008R2
         private static string ConnectionString => Configuration.GetConnectionString("TestDb");
 
         private static IConfigurationRoot Configuration => new ConfigurationBuilder()
-            .AddJsonFile("sqlserver-test-2008R2.json.config")
-            .AddJsonFile("sqlserver-test-2008R2.json.config.local", optional: true)
+            .AddJsonFile("sqlserver-test-2008R2.config.json")
+            .AddJsonFile("sqlserver-test-2008R2.local.config.json", optional: true)
             .Build();
     }
 

@@ -26,40 +26,40 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Update="postgresql-test.json.config">
+    <None Update="postgresql-test.config.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Update="postgresql-test.json.config.local">
+    <None Update="postgresql-test.local.config.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Update="postgresql-test-94.json.config">
+    <None Update="postgresql-test-94.config.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Update="postgresql-test-94.json.config.local">
+    <None Update="postgresql-test-94.local.config.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Update="postgresql-test-95.json.config">
+    <None Update="postgresql-test-95.config.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Update="postgresql-test-95.json.config.local">
+    <None Update="postgresql-test-95.local.config.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Update="postgresql-test-96.json.config">
+    <None Update="postgresql-test-96.config.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Update="postgresql-test-96.json.config.local">
+    <None Update="postgresql-test-96.local.config.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Update="postgresql-test-10.json.config">
+    <None Update="postgresql-test-10.config.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Update="postgresql-test-10.json.config.local">
+    <None Update="postgresql-test-10.local.config.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Update="postgresql-test-11.json.config">
+    <None Update="postgresql-test-11.config.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Update="postgresql-test-11.json.config.local">
+    <None Update="postgresql-test-11.local.config.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>

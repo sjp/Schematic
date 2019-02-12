@@ -12,8 +12,8 @@ namespace SJP.Schematic.SqlServer.Tests.Integration
         private static string ConnectionString => Configuration.GetConnectionString("TestDb");
 
         private static IConfigurationRoot Configuration => new ConfigurationBuilder()
-            .AddJsonFile("sqlserver-test.json.config")
-            .AddJsonFile("sqlserver-test.json.config.local", optional: true)
+            .AddJsonFile("sqlserver-test.config.json")
+            .AddJsonFile("sqlserver-test.local.config.json", optional: true)
             .Build();
     }
 

@@ -12,8 +12,8 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration.Versions.V9_5
         private static string ConnectionString => Configuration.GetConnectionString("TestDb");
 
         private static IConfigurationRoot Configuration => new ConfigurationBuilder()
-            .AddJsonFile("postgresql-test-95.json.config")
-            .AddJsonFile("postgresql-test-95.json.config.local", optional: true)
+            .AddJsonFile("postgresql-test-95.config.json")
+            .AddJsonFile("postgresql-test-95.local.config.json", optional: true)
             .Build();
     }
 

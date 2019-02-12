@@ -12,14 +12,14 @@ namespace SJP.Schematic.SqlServer.Tests.Integration.Versions.V2014
         private static string ConnectionString => Configuration.GetConnectionString("TestDb");
 
         private static IConfigurationRoot Configuration => new ConfigurationBuilder()
-            .AddJsonFile("sqlserver-test-2014.json.config")
-            .AddJsonFile("sqlserver-test-2014.json.config.local", optional: true)
+            .AddJsonFile("sqlserver-test-2014.config.json")
+            .AddJsonFile("sqlserver-test-2014.local.config.json", optional: true)
             .Build();
     }
 
     [Category("SqlServerDatabase")]
     [Category("SkipWhenLiveUnitTesting")]
-    [TestFixture]
+    [TestFixture(Ignore = "asd")]
     internal abstract class SqlServer2014Test
     {
         protected IDbConnection Connection { get; } = Config2014.Connection;

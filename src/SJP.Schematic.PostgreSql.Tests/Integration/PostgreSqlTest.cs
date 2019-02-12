@@ -12,8 +12,8 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration
         private static string ConnectionString => Configuration.GetConnectionString("TestDb");
 
         private static IConfigurationRoot Configuration => new ConfigurationBuilder()
-            .AddJsonFile("postgresql-test.json.config")
-            .AddJsonFile("postgresql-test.json.config.local", optional: true)
+            .AddJsonFile("postgresql-test.config.json")
+            .AddJsonFile("postgresql-test.local.config.json", optional: true)
             .Build();
     }
 
