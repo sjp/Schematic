@@ -217,7 +217,7 @@ namespace SJP.Schematic.Core.Tests.Utilities
             var resolver = new FakeIdentifierResolver();
             var resolvingDictionary = new IdentifierResolvingDictionary<string>(dictionary, resolver);
 
-            Assert.Throws<ArgumentNullException>(() => { var _ = resolvingDictionary[null]; });
+            Assert.Throws<ArgumentNullException>(() => { _ = resolvingDictionary[null]; });
         }
 
         [Test]
@@ -262,7 +262,7 @@ namespace SJP.Schematic.Core.Tests.Utilities
             var resolver = new FakeIdentifierResolver();
             var resolvingDictionary = new IdentifierResolvingDictionary<string>(dictionary, resolver);
 
-            Assert.Throws<KeyNotFoundException>(() => { var _ = resolvingDictionary["B"]; });
+            Assert.Throws<KeyNotFoundException>(() => { _ = resolvingDictionary["B"]; });
         }
 
         private sealed class FakeIdentifierResolver : IIdentifierResolutionStrategy

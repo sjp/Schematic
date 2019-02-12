@@ -376,7 +376,7 @@ namespace SJP.Schematic.Modelled.Reflection.Tests
 
             static TestClass() { }
 
-            public TestClass(int i) { i++; }
+            public TestClass(int i) { _ = i; }
 
             public string Q = "1";
 
@@ -392,7 +392,7 @@ namespace SJP.Schematic.Modelled.Reflection.Tests
 
             public int Cc(string s, ref int y, out string z)
             {
-                s = "a";
+                _ = s;
                 y = 13;
                 z = "1";
                 return 1;
@@ -411,11 +411,15 @@ namespace SJP.Schematic.Modelled.Reflection.Tests
 
             public static TestClass operator +(TestClass x, TestClass xx) { return x; }
 
-            public int Prop { get { return 1; } set { } }
+            public int Prop
+            {
+                get => 1;
+                set => _ = value;
+            }
 
-#pragma warning disable 67 // unused event, just for testing
+#pragma warning disable 67, S3264 // unused event, just for testing
             public event D EventD;
-#pragma warning restore 67
+#pragma warning restore 67, S3264
 
             public int this[string s] => s.Length;
 

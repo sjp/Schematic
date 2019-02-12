@@ -46,7 +46,7 @@ namespace SJP.Schematic.Core.Tests.Caching
         {
             var mock = CommandMock;
             var adapter = new FakeDbCommandAdapter(Connection, mock.Object);
-            var connection = adapter.InnerConnection;
+            _ = adapter.InnerConnection;
 
             mock.VerifyGet(c => c.Connection);
         }
@@ -56,7 +56,7 @@ namespace SJP.Schematic.Core.Tests.Caching
         {
             var connection = Connection;
             var mock = CommandMock;
-            var adapter = new FakeDbCommandAdapter(connection, mock.Object)
+            _ = new FakeDbCommandAdapter(connection, mock.Object)
             {
                 InnerConnection = connection
             };
@@ -69,7 +69,7 @@ namespace SJP.Schematic.Core.Tests.Caching
         {
             var mock = CommandMock;
             var adapter = new FakeDbCommandAdapter(Connection, mock.Object);
-            var transaction = adapter.InnerTransaction;
+            _ = adapter.InnerTransaction;
 
             mock.VerifyGet(c => c.Transaction);
         }
@@ -80,7 +80,7 @@ namespace SJP.Schematic.Core.Tests.Caching
             var connection = Connection;
             var mock = CommandMock;
             DbTransaction transaction = null;
-            var adapter = new FakeDbCommandAdapter(connection, mock.Object)
+            _ = new FakeDbCommandAdapter(connection, mock.Object)
             {
                 InnerTransaction = transaction
             };
@@ -93,7 +93,7 @@ namespace SJP.Schematic.Core.Tests.Caching
         {
             var mock = CommandMock;
             var adapter = new DbCommandAdapter(Connection, mock.Object);
-            var commandText = adapter.CommandText;
+            _ = adapter.CommandText;
 
             mock.VerifyGet(c => c.CommandText);
         }
@@ -103,8 +103,8 @@ namespace SJP.Schematic.Core.Tests.Caching
         {
             var connection = Connection;
             var mock = CommandMock;
-            const string commandText = "asd";
-            var adapter = new DbCommandAdapter(connection, mock.Object)
+            const string commandText = "test";
+            _ = new DbCommandAdapter(connection, mock.Object)
             {
                 CommandText = commandText
             };
@@ -117,7 +117,7 @@ namespace SJP.Schematic.Core.Tests.Caching
         {
             var mock = CommandMock;
             var adapter = new DbCommandAdapter(Connection, mock.Object);
-            var commandTimeout = adapter.CommandTimeout;
+            _ = adapter.CommandTimeout;
 
             mock.VerifyGet(c => c.CommandTimeout);
         }
@@ -128,7 +128,7 @@ namespace SJP.Schematic.Core.Tests.Caching
             var connection = Connection;
             var mock = CommandMock;
             const int commandTimeout = 123;
-            var adapter = new DbCommandAdapter(connection, mock.Object)
+            _ = new DbCommandAdapter(connection, mock.Object)
             {
                 CommandTimeout = commandTimeout
             };
@@ -141,7 +141,7 @@ namespace SJP.Schematic.Core.Tests.Caching
         {
             var mock = CommandMock;
             var adapter = new DbCommandAdapter(Connection, mock.Object);
-            var commandType = adapter.CommandType;
+            _ = adapter.CommandType;
 
             mock.VerifyGet(c => c.CommandType);
         }
@@ -152,7 +152,7 @@ namespace SJP.Schematic.Core.Tests.Caching
             var connection = Connection;
             var mock = CommandMock;
             const CommandType commandType = CommandType.Text;
-            var adapter = new DbCommandAdapter(connection, mock.Object)
+            _ = new DbCommandAdapter(connection, mock.Object)
             {
                 CommandType = commandType
             };
@@ -188,7 +188,7 @@ namespace SJP.Schematic.Core.Tests.Caching
         {
             var mock = CommandMock;
             var adapter = new DbCommandAdapter(Connection, mock.Object);
-            var commandText = adapter.UpdatedRowSource;
+            _ = adapter.UpdatedRowSource;
 
             mock.VerifyGet(c => c.UpdatedRowSource);
         }
@@ -199,7 +199,7 @@ namespace SJP.Schematic.Core.Tests.Caching
             var connection = Connection;
             var mock = CommandMock;
             const UpdateRowSource updatedRowSource = UpdateRowSource.FirstReturnedRecord;
-            var adapter = new DbCommandAdapter(connection, mock.Object)
+            _ = new DbCommandAdapter(connection, mock.Object)
             {
                 UpdatedRowSource = updatedRowSource
             };
@@ -255,7 +255,7 @@ namespace SJP.Schematic.Core.Tests.Caching
             mock.Setup(c => c.CreateParameter()).Returns(mockParameter);
 
             var adapter = new DbCommandAdapter(Connection, mock.Object);
-            var parameter = adapter.CreateParameter();
+            _ = adapter.CreateParameter();
 
             mock.Verify(c => c.CreateParameter());
         }
@@ -269,7 +269,7 @@ namespace SJP.Schematic.Core.Tests.Caching
 
             var adapter = new DbCommandAdapter(Connection, mock.Object);
             const CommandBehavior behavior = CommandBehavior.Default;
-            var reader = adapter.ExecuteReader(behavior);
+            _ = adapter.ExecuteReader(behavior);
 
             mock.Verify(c => c.ExecuteReader(behavior));
         }

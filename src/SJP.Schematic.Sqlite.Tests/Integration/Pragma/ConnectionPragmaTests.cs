@@ -98,7 +98,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
                 var dialect = Mock.Of<IDatabaseDialect>();
                 var connPragma = new ConnectionPragma(dialect, connection);
 
-                var busyTimeout = await connPragma.BusyTimeoutAsync().ConfigureAwait(false);
+                _ = await connPragma.BusyTimeoutAsync().ConfigureAwait(false);
                 var newValue = new TimeSpan(0, 0, 23);
                 await connPragma.BusyTimeoutAsync(newValue).ConfigureAwait(false);
                 var readOfNewValue = await connPragma.BusyTimeoutAsync().ConfigureAwait(false);

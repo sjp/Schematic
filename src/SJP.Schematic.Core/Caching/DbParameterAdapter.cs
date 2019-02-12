@@ -48,7 +48,7 @@ namespace SJP.Schematic.Core.Caching
         public override bool IsNullable
         {
             get => Parameter.IsNullable;
-            set { }
+            set => _ = value;
         }
 
         /// <summary>
@@ -84,7 +84,7 @@ namespace SJP.Schematic.Core.Caching
         public override bool SourceColumnNullMapping
         {
             get => Parameter.IsNullable;
-            set { }
+            set => _ = value;
         }
 
         /// <summary>

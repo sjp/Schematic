@@ -98,7 +98,7 @@ namespace SJP.Schematic.Core.Caching
         public override bool DesignTimeVisible
         {
             get => false;
-            set { }
+            set => _ = value;
         }
 
         /// <summary>

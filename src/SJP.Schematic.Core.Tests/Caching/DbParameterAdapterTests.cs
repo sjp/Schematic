@@ -22,7 +22,7 @@ namespace SJP.Schematic.Core.Tests.Caching
         {
             var mock = ParameterMock;
             var adapter = new DbParameterAdapter(mock.Object);
-            var dbType = adapter.DbType;
+            _ = adapter.DbType;
 
             mock.VerifyGet(p => p.DbType);
         }
@@ -43,7 +43,7 @@ namespace SJP.Schematic.Core.Tests.Caching
         {
             var mock = ParameterMock;
             var adapter = new DbParameterAdapter(mock.Object);
-            var direction = adapter.Direction;
+            _ = adapter.Direction;
 
             mock.VerifyGet(p => p.Direction);
         }
@@ -64,7 +64,7 @@ namespace SJP.Schematic.Core.Tests.Caching
         {
             var mock = ParameterMock;
             var adapter = new DbParameterAdapter(mock.Object);
-            var nullable = adapter.IsNullable;
+            _ = adapter.IsNullable;
 
             mock.VerifyGet(p => p.IsNullable);
         }
@@ -74,7 +74,7 @@ namespace SJP.Schematic.Core.Tests.Caching
         {
             var mock = ParameterMock;
             var adapter = new DbParameterAdapter(mock.Object);
-            var paramName = adapter.ParameterName;
+            _ = adapter.ParameterName;
 
             mock.VerifyGet(p => p.ParameterName);
         }
@@ -84,7 +84,7 @@ namespace SJP.Schematic.Core.Tests.Caching
         {
             var mock = ParameterMock;
             var adapter = new DbParameterAdapter(mock.Object);
-            const string paramName = "abc";
+            const string paramName = "test";
             adapter.ParameterName = paramName;
 
             mock.VerifySet(p => p.ParameterName = paramName);
@@ -95,7 +95,7 @@ namespace SJP.Schematic.Core.Tests.Caching
         {
             var mock = ParameterMock;
             var adapter = new DbParameterAdapter(mock.Object);
-            var size = adapter.Size;
+            _ = adapter.Size;
 
             mock.VerifyGet(p => p.Size);
         }
@@ -116,7 +116,7 @@ namespace SJP.Schematic.Core.Tests.Caching
         {
             var mock = ParameterMock;
             var adapter = new DbParameterAdapter(mock.Object);
-            var columnName = adapter.SourceColumn;
+            _ = adapter.SourceColumn;
 
             mock.VerifyGet(p => p.SourceColumn);
         }
@@ -126,7 +126,7 @@ namespace SJP.Schematic.Core.Tests.Caching
         {
             var mock = ParameterMock;
             var adapter = new DbParameterAdapter(mock.Object);
-            const string columnName = "abc";
+            const string columnName = "test";
             adapter.SourceColumn = columnName;
 
             mock.VerifySet(p => p.SourceColumn = columnName);
@@ -137,7 +137,7 @@ namespace SJP.Schematic.Core.Tests.Caching
         {
             var mock = ParameterMock;
             var adapter = new DbParameterAdapter(mock.Object);
-            var value = adapter.Value;
+            _ = adapter.Value;
 
             mock.VerifyGet(p => p.Value);
         }
@@ -147,7 +147,7 @@ namespace SJP.Schematic.Core.Tests.Caching
         {
             var mock = ParameterMock;
             var adapter = new DbParameterAdapter(mock.Object);
-            const string value = "abc";
+            const string value = "test";
             adapter.Value = value;
 
             mock.VerifySet(p => p.Value = value);

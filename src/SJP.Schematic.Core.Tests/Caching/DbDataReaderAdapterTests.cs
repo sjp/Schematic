@@ -23,7 +23,7 @@ namespace SJP.Schematic.Core.Tests.Caching
             var mock = ReaderMock;
             var adapter = new DbDataReaderAdapter(mock.Object, CommandBehavior.Default);
             const int index = 1;
-            var value = adapter[index];
+            _ = adapter[index];
 
             mock.Verify(c => c[index]);
         }
@@ -33,8 +33,8 @@ namespace SJP.Schematic.Core.Tests.Caching
         {
             var mock = ReaderMock;
             var adapter = new DbDataReaderAdapter(mock.Object, CommandBehavior.Default);
-            const string name = "asd";
-            var value = adapter[name];
+            const string name = "test";
+            _ = adapter[name];
 
             mock.Verify(c => c[name]);
         }
@@ -44,7 +44,7 @@ namespace SJP.Schematic.Core.Tests.Caching
         {
             var mock = ReaderMock;
             var adapter = new DbDataReaderAdapter(mock.Object, CommandBehavior.Default);
-            var depth = adapter.Depth;
+            _ = adapter.Depth;
 
             mock.VerifyGet(r => r.Depth);
         }
@@ -54,7 +54,7 @@ namespace SJP.Schematic.Core.Tests.Caching
         {
             var mock = ReaderMock;
             var adapter = new DbDataReaderAdapter(mock.Object, CommandBehavior.Default);
-            var fieldCount = adapter.FieldCount;
+            _ = adapter.FieldCount;
 
             mock.VerifyGet(r => r.FieldCount);
         }
@@ -64,7 +64,7 @@ namespace SJP.Schematic.Core.Tests.Caching
         {
             var mock = ReaderMock;
             var adapter = new DbDataReaderAdapter(mock.Object, CommandBehavior.Default);
-            var isClosed = adapter.IsClosed;
+            _ = adapter.IsClosed;
 
             mock.VerifyGet(r => r.IsClosed);
         }
@@ -74,7 +74,7 @@ namespace SJP.Schematic.Core.Tests.Caching
         {
             var mock = ReaderMock;
             var adapter = new DbDataReaderAdapter(mock.Object, CommandBehavior.Default);
-            var affected = adapter.RecordsAffected;
+            _ = adapter.RecordsAffected;
 
             mock.VerifyGet(r => r.RecordsAffected);
         }
@@ -85,7 +85,7 @@ namespace SJP.Schematic.Core.Tests.Caching
             var mock = ReaderMock;
             var adapter = new DbDataReaderAdapter(mock.Object, CommandBehavior.Default);
             const int index = 1;
-            var result = adapter.GetBoolean(index);
+            _ = adapter.GetBoolean(index);
 
             mock.Verify(r => r.GetBoolean(index));
         }
@@ -96,7 +96,7 @@ namespace SJP.Schematic.Core.Tests.Caching
             var mock = ReaderMock;
             var adapter = new DbDataReaderAdapter(mock.Object, CommandBehavior.Default);
             const int index = 1;
-            var result = adapter.GetByte(index);
+            _ = adapter.GetByte(index);
 
             mock.Verify(r => r.GetByte(index));
         }
@@ -111,7 +111,7 @@ namespace SJP.Schematic.Core.Tests.Caching
             var buffer = Array.Empty<byte>();
             const int bufferOffset = 1;
             const int length = 10;
-            var result = adapter.GetBytes(index, offset, buffer, bufferOffset, length);
+            _ = adapter.GetBytes(index, offset, buffer, bufferOffset, length);
 
             mock.Verify(r => r.GetBytes(index, offset, buffer, bufferOffset, length));
         }
@@ -122,7 +122,7 @@ namespace SJP.Schematic.Core.Tests.Caching
             var mock = ReaderMock;
             var adapter = new DbDataReaderAdapter(mock.Object, CommandBehavior.Default);
             const int index = 1;
-            var result = adapter.GetChar(index);
+            _ = adapter.GetChar(index);
 
             mock.Verify(r => r.GetChar(index));
         }
@@ -137,7 +137,7 @@ namespace SJP.Schematic.Core.Tests.Caching
             var buffer = Array.Empty<char>();
             const int bufferOffset = 1;
             const int length = 10;
-            var result = adapter.GetChars(index, offset, buffer, bufferOffset, length);
+            _ = adapter.GetChars(index, offset, buffer, bufferOffset, length);
 
             mock.Verify(r => r.GetChars(index, offset, buffer, bufferOffset, length));
         }
@@ -148,7 +148,7 @@ namespace SJP.Schematic.Core.Tests.Caching
             var mock = ReaderMock;
             var adapter = new DbDataReaderAdapter(mock.Object, CommandBehavior.Default);
             const int index = 1;
-            var result = adapter.GetDataTypeName(index);
+            _ = adapter.GetDataTypeName(index);
 
             mock.Verify(r => r.GetDataTypeName(index));
         }
@@ -159,7 +159,7 @@ namespace SJP.Schematic.Core.Tests.Caching
             var mock = ReaderMock;
             var adapter = new DbDataReaderAdapter(mock.Object, CommandBehavior.Default);
             const int index = 1;
-            var result = adapter.GetDateTime(index);
+            _ = adapter.GetDateTime(index);
 
             mock.Verify(r => r.GetDateTime(index));
         }
@@ -170,7 +170,7 @@ namespace SJP.Schematic.Core.Tests.Caching
             var mock = ReaderMock;
             var adapter = new DbDataReaderAdapter(mock.Object, CommandBehavior.Default);
             const int index = 1;
-            var result = adapter.GetDecimal(index);
+            _ = adapter.GetDecimal(index);
 
             mock.Verify(r => r.GetDecimal(index));
         }
@@ -181,7 +181,7 @@ namespace SJP.Schematic.Core.Tests.Caching
             var mock = ReaderMock;
             var adapter = new DbDataReaderAdapter(mock.Object, CommandBehavior.Default);
             const int index = 1;
-            var result = adapter.GetDouble(index);
+            _ = adapter.GetDouble(index);
 
             mock.Verify(r => r.GetDouble(index));
         }
@@ -192,7 +192,7 @@ namespace SJP.Schematic.Core.Tests.Caching
             var mock = ReaderMock;
             var adapter = new DbDataReaderAdapter(mock.Object, CommandBehavior.Default);
             const int index = 1;
-            var result = adapter.GetFieldType(index);
+            _ = adapter.GetFieldType(index);
 
             mock.Verify(r => r.GetFieldType(index));
         }
@@ -203,7 +203,7 @@ namespace SJP.Schematic.Core.Tests.Caching
             var mock = ReaderMock;
             var adapter = new DbDataReaderAdapter(mock.Object, CommandBehavior.Default);
             const int index = 1;
-            var result = adapter.GetFloat(index);
+            _ = adapter.GetFloat(index);
 
             mock.Verify(r => r.GetFloat(index));
         }
@@ -214,7 +214,7 @@ namespace SJP.Schematic.Core.Tests.Caching
             var mock = ReaderMock;
             var adapter = new DbDataReaderAdapter(mock.Object, CommandBehavior.Default);
             const int index = 1;
-            var result = adapter.GetGuid(index);
+            _ = adapter.GetGuid(index);
 
             mock.Verify(r => r.GetGuid(index));
         }
@@ -225,7 +225,7 @@ namespace SJP.Schematic.Core.Tests.Caching
             var mock = ReaderMock;
             var adapter = new DbDataReaderAdapter(mock.Object, CommandBehavior.Default);
             const int index = 1;
-            var result = adapter.GetInt16(index);
+            _ = adapter.GetInt16(index);
 
             mock.Verify(r => r.GetInt16(index));
         }
@@ -236,7 +236,7 @@ namespace SJP.Schematic.Core.Tests.Caching
             var mock = ReaderMock;
             var adapter = new DbDataReaderAdapter(mock.Object, CommandBehavior.Default);
             const int index = 1;
-            var result = adapter.GetInt32(index);
+            _ = adapter.GetInt32(index);
 
             mock.Verify(r => r.GetInt32(index));
         }
@@ -247,7 +247,7 @@ namespace SJP.Schematic.Core.Tests.Caching
             var mock = ReaderMock;
             var adapter = new DbDataReaderAdapter(mock.Object, CommandBehavior.Default);
             const int index = 1;
-            var result = adapter.GetInt64(index);
+            _ = adapter.GetInt64(index);
 
             mock.Verify(r => r.GetInt64(index));
         }
@@ -258,7 +258,7 @@ namespace SJP.Schematic.Core.Tests.Caching
             var mock = ReaderMock;
             var adapter = new DbDataReaderAdapter(mock.Object, CommandBehavior.Default);
             const int index = 1;
-            var result = adapter.GetName(index);
+            _ = adapter.GetName(index);
 
             mock.Verify(r => r.GetName(index));
         }
@@ -268,8 +268,8 @@ namespace SJP.Schematic.Core.Tests.Caching
         {
             var mock = ReaderMock;
             var adapter = new DbDataReaderAdapter(mock.Object, CommandBehavior.Default);
-            const string paramName = "asd";
-            var result = adapter.GetOrdinal(paramName);
+            const string paramName = "test";
+            _ = adapter.GetOrdinal(paramName);
 
             mock.Verify(r => r.GetOrdinal(paramName));
         }
@@ -280,7 +280,7 @@ namespace SJP.Schematic.Core.Tests.Caching
             var mock = ReaderMock;
             var adapter = new DbDataReaderAdapter(mock.Object, CommandBehavior.Default);
             const int index = 1;
-            var result = adapter.GetString(index);
+            _ = adapter.GetString(index);
 
             mock.Verify(r => r.GetString(index));
         }
@@ -291,7 +291,7 @@ namespace SJP.Schematic.Core.Tests.Caching
             var mock = ReaderMock;
             var adapter = new DbDataReaderAdapter(mock.Object, CommandBehavior.Default);
             const int index = 1;
-            var result = adapter.GetValue(index);
+            _ = adapter.GetValue(index);
 
             mock.Verify(r => r.GetValue(index));
         }
@@ -302,7 +302,7 @@ namespace SJP.Schematic.Core.Tests.Caching
             var mock = ReaderMock;
             var adapter = new DbDataReaderAdapter(mock.Object, CommandBehavior.Default);
             var values = Array.Empty<object>();
-            var result = adapter.GetValues(values);
+            _ = adapter.GetValues(values);
 
             mock.Verify(r => r.GetValues(values));
         }
@@ -313,7 +313,7 @@ namespace SJP.Schematic.Core.Tests.Caching
             var mock = ReaderMock;
             var adapter = new DbDataReaderAdapter(mock.Object, CommandBehavior.Default);
             const int index = 1;
-            var result = adapter.IsDBNull(index);
+            _ = adapter.IsDBNull(index);
 
             mock.Verify(r => r.IsDBNull(index));
         }
@@ -355,7 +355,7 @@ namespace SJP.Schematic.Core.Tests.Caching
             mock.Setup(m => m.Read()).Returns(true);
 
             var adapter = new DbDataReaderAdapter(mock.Object, CommandBehavior.Default);
-            var hasRead = adapter.Read();
+            _ = adapter.Read();
 
             Assert.IsTrue(adapter.HasRows);
         }
@@ -367,7 +367,7 @@ namespace SJP.Schematic.Core.Tests.Caching
             mock.Setup(m => m.Read()).Returns(false);
 
             var adapter = new DbDataReaderAdapter(mock.Object, CommandBehavior.Default);
-            var hasRead = adapter.Read();
+            _ = adapter.Read();
 
             Assert.IsFalse(adapter.HasRows);
         }

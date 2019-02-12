@@ -446,10 +446,10 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
             {
                 var dbPragma = new DatabasePragma(Dialect, connection, MainSchema);
 
-                var lockingMode = await dbPragma.LockingModeAsync().ConfigureAwait(false); // should be normal
+                _ = await dbPragma.LockingModeAsync().ConfigureAwait(false); // should be normal
                 const LockingMode newValue = LockingMode.Exclusive;
                 await dbPragma.LockingModeAsync(newValue).ConfigureAwait(false);
-                var readOfNewValue = await dbPragma.LockingModeAsync().ConfigureAwait(false);
+                _ = await dbPragma.LockingModeAsync().ConfigureAwait(false);
 
                 Assert.Pass(); // not checking value as it's a once-only effect
             }

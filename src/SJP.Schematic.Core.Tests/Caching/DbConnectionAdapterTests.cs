@@ -22,7 +22,7 @@ namespace SJP.Schematic.Core.Tests.Caching
         {
             var mock = ConnectionMock;
             var adapter = new DbConnectionAdapter(mock.Object);
-            var connectionString = adapter.ConnectionString;
+            _ = adapter.ConnectionString;
 
             mock.VerifyGet(c => c.ConnectionString);
         }
@@ -32,7 +32,7 @@ namespace SJP.Schematic.Core.Tests.Caching
         {
             var mock = ConnectionMock;
             var adapter = new DbConnectionAdapter(mock.Object);
-            const string testConnectionString = "asd";
+            const string testConnectionString = "test";
             adapter.ConnectionString = testConnectionString;
 
             mock.VerifySet(c => c.ConnectionString = testConnectionString);
@@ -43,7 +43,7 @@ namespace SJP.Schematic.Core.Tests.Caching
         {
             var mock = ConnectionMock;
             var adapter = new DbConnectionAdapter(mock.Object);
-            var database = adapter.Database;
+            _ = adapter.Database;
 
             mock.VerifyGet(c => c.Database);
         }
@@ -53,7 +53,7 @@ namespace SJP.Schematic.Core.Tests.Caching
         {
             var mock = ConnectionMock;
             var adapter = new DbConnectionAdapter(mock.Object);
-            var connectionString = adapter.ConnectionString;
+            _ = adapter.ConnectionString;
 
             Assert.AreEqual(string.Empty, adapter.DataSource);
         }
@@ -72,7 +72,7 @@ namespace SJP.Schematic.Core.Tests.Caching
         {
             var mock = ConnectionMock;
             var adapter = new DbConnectionAdapter(mock.Object);
-            var state = adapter.State;
+            _ = adapter.State;
 
             mock.VerifyGet(c => c.State);
         }
@@ -82,7 +82,7 @@ namespace SJP.Schematic.Core.Tests.Caching
         {
             var mock = ConnectionMock;
             var adapter = new DbConnectionAdapter(mock.Object);
-            const string databaseName = "asd";
+            const string databaseName = "test";
             adapter.ChangeDatabase(databaseName);
 
             mock.Verify(c => c.ChangeDatabase(databaseName));
@@ -117,7 +117,7 @@ namespace SJP.Schematic.Core.Tests.Caching
 
             var adapter = new DbConnectionAdapter(mock.Object);
             const IsolationLevel isolationLevel = IsolationLevel.ReadCommitted;
-            var transaction = adapter.BeginTransaction(isolationLevel);
+            _ = adapter.BeginTransaction(isolationLevel);
 
             mock.Verify(c => c.BeginTransaction(isolationLevel));
         }
@@ -132,7 +132,7 @@ namespace SJP.Schematic.Core.Tests.Caching
             mock.Setup(c => c.CreateCommand()).Returns(mockCommand.Object);
 
             var adapter = new DbConnectionAdapter(mock.Object);
-            var command = adapter.CreateCommand();
+            _ = adapter.CreateCommand();
 
             mock.Verify(c => c.CreateCommand());
         }

@@ -37,7 +37,7 @@ namespace SJP.Schematic.Core.Tests.Caching
         {
             var mock = TransactionMock;
             var adapter = new DbTransactionAdapter(Connection, mock.Object);
-            var isolationLevel = adapter.IsolationLevel;
+            _ = adapter.IsolationLevel;
 
             mock.VerifyGet(t => t.IsolationLevel);
         }

@@ -51,7 +51,7 @@ namespace SJP.Schematic.Core.Tests.Caching
             var mock = CommandMock;
             var command = new DbCommandAdapter(Connection, mock.Object);
             var cachingCommand = new CachingCommand(command, CacheMock.Object);
-            var commandText = cachingCommand.CommandText;
+            _ = cachingCommand.CommandText;
 
             mock.VerifyGet(c => c.CommandText);
         }
@@ -61,7 +61,7 @@ namespace SJP.Schematic.Core.Tests.Caching
         {
             var mock = CommandMock;
             var command = new DbCommandAdapter(Connection, mock.Object);
-            const string commandText = "asd";
+            const string commandText = "test";
             new CachingCommand(command, CacheMock.Object) { CommandText = commandText };
 
             mock.VerifySet(c => c.CommandText = commandText);
@@ -73,7 +73,7 @@ namespace SJP.Schematic.Core.Tests.Caching
             var mock = CommandMock;
             var command = new DbCommandAdapter(Connection, mock.Object);
             var cachingCommand = new CachingCommand(command, CacheMock.Object);
-            var commandTimeout = cachingCommand.CommandTimeout;
+            _ = cachingCommand.CommandTimeout;
 
             mock.VerifyGet(c => c.CommandTimeout);
         }
@@ -84,7 +84,7 @@ namespace SJP.Schematic.Core.Tests.Caching
             var mock = CommandMock;
             var command = new DbCommandAdapter(Connection, mock.Object);
             const int commandTimeout = 123;
-            var cachingCommand = new CachingCommand(command, CacheMock.Object)
+            _ = new CachingCommand(command, CacheMock.Object)
             {
                 CommandTimeout = commandTimeout
             };
@@ -98,7 +98,7 @@ namespace SJP.Schematic.Core.Tests.Caching
             var mock = CommandMock;
             var command = new DbCommandAdapter(Connection, mock.Object);
             var cachingCommand = new CachingCommand(command, CacheMock.Object);
-            var commandType = cachingCommand.CommandType;
+            _ = cachingCommand.CommandType;
 
             mock.VerifyGet(c => c.CommandType);
         }
@@ -109,7 +109,7 @@ namespace SJP.Schematic.Core.Tests.Caching
             var mock = CommandMock;
             var command = new DbCommandAdapter(Connection, mock.Object);
             const CommandType commandType = CommandType.Text;
-            var cachingCommand = new CachingCommand(command, CacheMock.Object)
+            _ = new CachingCommand(command, CacheMock.Object)
             {
                 CommandType = commandType
             };
@@ -122,7 +122,7 @@ namespace SJP.Schematic.Core.Tests.Caching
         {
             var mock = CommandMock;
             var adapter = new DbCommandAdapter(Connection, mock.Object);
-            var commandText = adapter.UpdatedRowSource;
+            _ = adapter.UpdatedRowSource;
 
             mock.VerifyGet(c => c.UpdatedRowSource);
         }
@@ -133,7 +133,7 @@ namespace SJP.Schematic.Core.Tests.Caching
             var mock = CommandMock;
             var command = new DbCommandAdapter(Connection, mock.Object);
             const UpdateRowSource updatedRowSource = UpdateRowSource.FirstReturnedRecord;
-            var cachingCommand = new CachingCommand(command, CacheMock.Object)
+            _ = new CachingCommand(command, CacheMock.Object)
             {
                 UpdatedRowSource = updatedRowSource
             };

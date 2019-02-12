@@ -19,7 +19,7 @@ namespace SJP.Schematic.Oracle.Tests
         [Test]
         public static void TryUnwrap_GivenNullInput_ReturnsExpectedValue()
         {
-            var _ = OracleUnwrapper.TryUnwrap(null, out var unwrapped);
+            _ = OracleUnwrapper.TryUnwrap(null, out var unwrapped);
 
             Assert.IsNull(unwrapped);
         }
@@ -35,7 +35,7 @@ namespace SJP.Schematic.Oracle.Tests
         [Test]
         public static void TryUnwrap_GivenValidInput_ReturnsExpectedValue()
         {
-            var _ = OracleUnwrapper.TryUnwrap(WrappedExample, out var unwrapped);
+            _ = OracleUnwrapper.TryUnwrap(WrappedExample, out var unwrapped);
 
             var cleanExpected = TrimNewlines(ExpectedUnwrappedExample);
             var cleanResult = TrimNewlines(unwrapped);
@@ -54,7 +54,7 @@ namespace SJP.Schematic.Oracle.Tests
         [Test]
         public static void TryUnwrap_GivenInvalidInput_ReturnsExpectedValue()
         {
-            var _ = OracleUnwrapper.TryUnwrap(MissingMagicPrefixExample, out var unwrapped);
+            _ = OracleUnwrapper.TryUnwrap(MissingMagicPrefixExample, out var unwrapped);
 
             Assert.IsNull(unwrapped);
         }

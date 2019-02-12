@@ -24,7 +24,7 @@ namespace SJP.Schematic.Core.Tests.Caching
         {
             var mock = CollectionMock;
             var adapter = new DbParameterCollectionAdapter(mock.Object);
-            var index = adapter[1];
+            _ = adapter[1];
 
             mock.Verify(c => c[1]);
         }
@@ -34,7 +34,7 @@ namespace SJP.Schematic.Core.Tests.Caching
         {
             var mock = CollectionMock;
             var adapter = new DbParameterCollectionAdapter(mock.Object);
-            var count = adapter.Count;
+            _ = adapter.Count;
 
             mock.Verify(c => c.Count);
         }
@@ -44,7 +44,7 @@ namespace SJP.Schematic.Core.Tests.Caching
         {
             var mock = CollectionMock;
             var adapter = new DbParameterCollectionAdapter(mock.Object);
-            var dbType = adapter.SyncRoot;
+            _ = adapter.SyncRoot;
 
             mock.Verify(p => p.SyncRoot);
         }
@@ -97,7 +97,7 @@ namespace SJP.Schematic.Core.Tests.Caching
             var mock = CollectionMock;
             var adapter = new DbParameterCollectionAdapter(mock.Object);
             var value = new object();
-            var contains = adapter.Contains(value);
+            _ = adapter.Contains(value);
 
             mock.Verify(p => p.Contains(value));
         }
@@ -107,8 +107,8 @@ namespace SJP.Schematic.Core.Tests.Caching
         {
             var mock = CollectionMock;
             var adapter = new DbParameterCollectionAdapter(mock.Object);
-            const string paramName = "asd";
-            var contains = adapter.Contains(paramName);
+            const string paramName = "test";
+            _ = adapter.Contains(paramName);
 
             mock.Verify(p => p.Contains(paramName));
         }
@@ -130,7 +130,7 @@ namespace SJP.Schematic.Core.Tests.Caching
         {
             var mock = CollectionMock;
             var adapter = new DbParameterCollectionAdapter(mock.Object);
-            var enumerator = adapter.GetEnumerator();
+            _ = adapter.GetEnumerator();
 
             mock.Verify(p => p.GetEnumerator());
         }
@@ -141,7 +141,7 @@ namespace SJP.Schematic.Core.Tests.Caching
             var mock = CollectionMock;
             var adapter = new DbParameterCollectionAdapter(mock.Object);
             var arg = new object();
-            var index = adapter.IndexOf(arg);
+            _ = adapter.IndexOf(arg);
 
             mock.Verify(p => p.IndexOf(arg));
         }
@@ -151,8 +151,8 @@ namespace SJP.Schematic.Core.Tests.Caching
         {
             var mock = CollectionMock;
             var adapter = new DbParameterCollectionAdapter(mock.Object);
-            const string paramName = "abc";
-            var index = adapter.IndexOf(paramName);
+            const string paramName = "test";
+            _ = adapter.IndexOf(paramName);
 
             mock.Verify(p => p.IndexOf(paramName));
         }
@@ -196,7 +196,7 @@ namespace SJP.Schematic.Core.Tests.Caching
         {
             var mock = CollectionMock;
             var adapter = new DbParameterCollectionAdapter(mock.Object);
-            const string columnName = "abc";
+            const string columnName = "test";
             adapter.RemoveAt(columnName);
 
             mock.Verify(p => p.RemoveAt(columnName));
@@ -208,7 +208,7 @@ namespace SJP.Schematic.Core.Tests.Caching
             var mock = CollectionMock;
             var adapter = new FakeDbParameterCollectionAdapter(mock.Object);
             const int index = 1;
-            var value = adapter.GetInnerParameter(index);
+            _ = adapter.GetInnerParameter(index);
 
             mock.Verify(p => p[index]);
         }
@@ -216,13 +216,13 @@ namespace SJP.Schematic.Core.Tests.Caching
         [Test]
         public static void GetParameter_WhenInvokedByName_CallsProvidedCollectionIndexer()
         {
-            const string paramName = "asd";
+            const string paramName = "test";
             const int index = 3;
             var mock = CollectionMock;
             mock.Setup(m => m.IndexOf(paramName)).Returns(index);
 
             var adapter = new FakeDbParameterCollectionAdapter(mock.Object);
-            var value = adapter.GetInnerParameter(paramName);
+            _ = adapter.GetInnerParameter(paramName);
 
             mock.Verify(p => p[index]);
         }
@@ -230,7 +230,7 @@ namespace SJP.Schematic.Core.Tests.Caching
         [Test]
         public static void GetParameter_WhenInvokedByNameAndNotFound_ThrowsKeyNotFoundException()
         {
-            const string paramName = "asd";
+            const string paramName = "test";
             const int index = -1;
             var mock = CollectionMock;
             mock.Setup(m => m.IndexOf(paramName)).Returns(index);
@@ -255,7 +255,7 @@ namespace SJP.Schematic.Core.Tests.Caching
         [Test]
         public static void SetParameter_WhenInvokedByName_CallsProvidedCollectionIndexer()
         {
-            const string paramName = "asd";
+            const string paramName = "test";
             const int index = 3;
             var mock = CollectionMock;
             mock.Setup(m => m.IndexOf(paramName)).Returns(index);
@@ -271,7 +271,7 @@ namespace SJP.Schematic.Core.Tests.Caching
         [Test]
         public static void SetParameter_WhenInvokedByNameAndNotFound_ThrowsKeyNotFoundException()
         {
-            const string paramName = "asd";
+            const string paramName = "test";
             const int index = -1;
             var mock = CollectionMock;
             mock.Setup(m => m.IndexOf(paramName)).Returns(index);
