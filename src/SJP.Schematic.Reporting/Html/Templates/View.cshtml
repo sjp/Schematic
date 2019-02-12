@@ -20,7 +20,7 @@
       </div>
     </div>
     <div class="box-body">
-      <table class="@Raw(@Model.ColumnsTableClass.ToHtmlString()) table table-bordered table-striped dataTable" role="grid">
+      <table class="@Raw(Model.ColumnsTableClass.ToHtmlString()) table table-bordered table-striped dataTable" role="grid">
         <thead align="left">
           <tr>
             <th>Ordinal Position</th>
@@ -33,7 +33,7 @@
         <tbody>
           @if (Model.ColumnsCount > 0)
           {
-          @foreach (var column in Model.Columns)
+          foreach (var column in Model.Columns)
           {
           <tr>
             <td>@column.Ordinal</td>

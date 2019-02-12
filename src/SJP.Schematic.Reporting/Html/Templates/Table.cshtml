@@ -20,7 +20,7 @@
       </div>
     </div>
     <div class="box-body">
-      <table class="@Raw(@Model.ColumnsTableClass.ToHtmlString()) table table-bordered table-striped dataTable" role="grid">
+      <table class="@Raw(Model.ColumnsTableClass.ToHtmlString()) table table-bordered table-striped dataTable" role="grid">
         <thead align="left">
           <tr>
             <th>Ordinal Position</th>
@@ -35,11 +35,11 @@
         <tbody>
           @if (Model.ColumnsCount > 0)
           {
-          @foreach (var column in Model.Columns)
+          foreach (var column in Model.Columns)
           {
           <tr>
             <td>@column.Ordinal</td>
-            <td @Raw(@column.ColumnClass.ToHtmlString())>@Raw(@column.ColumnIcon.ToHtmlString())@column.ColumnName</td>
+            <td @Raw(column.ColumnClass.ToHtmlString())>@Raw(column.ColumnIcon.ToHtmlString())@column.ColumnName</td>
             <td>@column.Type</td>
             <td title="@column.TitleNullable">@column.NullableText</td>
             <td>@column.DefaultValue</td>
@@ -103,7 +103,7 @@
       </div>
     </div>
     <div class="box-body">
-      <table class="@Raw(@Model.PrimaryKeyTableClass.ToHtmlString()) table table-bordered table-striped dataTable" role="grid">
+      <table class="@Raw(Model.PrimaryKeyTableClass.ToHtmlString()) table table-bordered table-striped dataTable" role="grid">
         <thead align="left">
           <tr>
             <th>Constraint Name</th>
@@ -142,7 +142,7 @@
       </div>
     </div>
     <div class="box-body">
-      <table class="@Raw(@Model.UniqueKeysTableClass.ToHtmlString()) table table-bordered table-striped dataTable" role="grid">
+      <table class="@Raw(Model.UniqueKeysTableClass.ToHtmlString()) table table-bordered table-striped dataTable" role="grid">
         <thead align="left">
           <tr>
             <th>Constraint Name</th>
@@ -152,7 +152,7 @@
         <tbody>
           @if (Model.UniqueKeysCount > 0)
           {
-          @foreach (var uniqueKey in Model.UniqueKeys)
+          foreach (var uniqueKey in Model.UniqueKeys)
           {
           <tr>
             <td class="detail">@uniqueKey.ConstraintName</td>
@@ -184,7 +184,7 @@
       </div>
     </div>
     <div class="box-body">
-      <table class="@Raw(@Model.ForeignKeysTableClass.ToHtmlString()) table table-bordered table-striped dataTable" role="grid">
+      <table class="@Raw(Model.ForeignKeysTableClass.ToHtmlString()) table table-bordered table-striped dataTable" role="grid">
         <thead align="left">
           <tr>
             <th>Constraint Name</th>
@@ -199,7 +199,7 @@
         <tbody>
           @if (Model.ForeignKeysCount > 0)
           {
-          @foreach (var foreignKey in Model.ForeignKeys)
+          foreach (var foreignKey in Model.ForeignKeys)
           {
           <tr>
             <td class="detail">@foreignKey.ConstraintName</td>
@@ -242,7 +242,7 @@
       </div>
     </div>
     <div class="box-body">
-      <table class="@Raw(@Model.CheckConstraintsTableClass.ToHtmlString()) table table-bordered table-striped dataTable" role="grid">
+      <table class="@Raw(Model.CheckConstraintsTableClass.ToHtmlString()) table table-bordered table-striped dataTable" role="grid">
         <thead align="left">
           <tr>
             <th>Constraint Name</th>
@@ -252,7 +252,7 @@
         <tbody>
           @if (Model.CheckConstraintsCount > 0)
           {
-          @foreach (var check in Model.CheckConstraints)
+          foreach (var check in Model.CheckConstraints)
           {
           <tr>
             <td class="detail">@check.ConstraintName</td>
@@ -286,7 +286,7 @@
       </div>
     </div>
     <div class="box-body">
-      <table class="@Raw(@Model.IndexesTableClass.ToHtmlString()) table table-bordered table-striped dataTable" role="grid">
+      <table class="@Raw(Model.IndexesTableClass.ToHtmlString()) table table-bordered table-striped dataTable" role="grid">
         <thead>
           <tr>
             <th>Index Name</th>
@@ -298,7 +298,7 @@
         <tbody>
           @if (Model.IndexesCount > 0)
           {
-          @foreach (var index in Model.Indexes)
+          foreach (var index in Model.Indexes)
           {
           <tr>
             <td>@index.Name</td>
@@ -338,14 +338,14 @@
           @foreach (var diagram in Model.Diagrams)
           {
           <li @Raw(diagram.ActiveClass.ToHtmlString())>
-            <a href="#@Raw(@diagram.ContainerId.ToHtmlString())" data-toggle="tab" aria-expanded="true">@diagram.Name</a>
+            <a href="#@Raw(diagram.ContainerId.ToHtmlString())" data-toggle="tab" aria-expanded="true">@diagram.Name</a>
           </li>
           }
         </ul>
         <div class="tab-content no-padding">
           @foreach (var diagram in Model.Diagrams)
           {
-          <div class="chart tab-pane @Raw(@diagram.ActiveText.ToHtmlString())" id="@Raw(@diagram.ContainerId.ToHtmlString())" style="position: relative; overflow-x:auto;">
+          <div class="chart tab-pane @Raw(diagram.ActiveText.ToHtmlString())" id="@Raw(diagram.ContainerId.ToHtmlString())" style="position: relative; overflow-x:auto;">
           </div>
           }
         </div>
@@ -355,7 +355,7 @@
 </section>
 @foreach (var diagram in Model.Diagrams)
 {
-<script type="text/vnd.graphviz" data-graph-id="@Raw(@diagram.ContainerId.ToHtmlString())">
-@Raw(@diagram.Dot.ToHtmlString())
+<script type="text/vnd.graphviz" data-graph-id="@Raw(diagram.ContainerId.ToHtmlString())">
+@Raw(diagram.Dot.ToHtmlString())
 </script>
 }

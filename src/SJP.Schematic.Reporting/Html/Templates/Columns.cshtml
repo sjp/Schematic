@@ -12,7 +12,7 @@
       <h3 class="box-title">Columns</h3>
     </div>
     <div class="box-body">
-      <table class="@Raw(@Model.ColumnsTableClass.ToHtmlString()) table table-bordered table-striped dataTable" role="grid">
+      <table class="@Raw(Model.ColumnsTableClass.ToHtmlString()) table table-bordered table-striped dataTable" role="grid">
         <thead align="left">
           <tr>
             <th>Table</th>
@@ -27,12 +27,12 @@
         <tbody>
           @if (Model.ColumnsCount > 0)
           {
-          @foreach (var column in Model.TableColumns)
+          foreach (var column in Model.TableColumns)
           {
           <tr>
             <td class="detail"><a href="@column.TableFolder/@(column.TableUrl).html">@column.Name</a></td>
             <td class="detail">@column.TableType</td>
-            <td @Raw(column.ColumnClass.ToHtmlString())>@Raw(@column.ColumnIcon.ToHtmlString())@column.ColumnName</td>
+            <td @Raw(column.ColumnClass.ToHtmlString())>@Raw(column.ColumnIcon.ToHtmlString())@column.ColumnName</td>
             <td class="detail">@column.Ordinal</td>
             <td class="detail">@column.Type</td>
             <td class="detail" title="@column.TitleNullable">@column.NullableText</td>

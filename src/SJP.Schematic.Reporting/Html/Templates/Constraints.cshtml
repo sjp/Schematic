@@ -20,7 +20,7 @@
       </div>
     </div>
     <div class="box-body">
-      <table class="@Raw(@Model.PrimaryKeysTableClass.ToHtmlString()) table table-bordered table-striped dataTable" role="grid">
+      <table class="@Raw(Model.PrimaryKeysTableClass.ToHtmlString()) table table-bordered table-striped dataTable" role="grid">
         <thead align="left">
           <tr>
             <th>Constraint Name</th>
@@ -31,7 +31,7 @@
         <tbody>
           @if (Model.PrimaryKeysCount > 0)
           {
-          @foreach (var primaryKey in Model.PrimaryKeys)
+          foreach (var primaryKey in Model.PrimaryKeys)
           {
           <tr>
             <td class="detail">@primaryKey.ConstraintName</td>
@@ -66,7 +66,7 @@
       </div>
     </div>
     <div class="box-body">
-      <table class="@Raw(@Model.UniqueKeysTableClass.ToHtmlString()) table table-bordered table-striped dataTable" role="grid">
+      <table class="@Raw(Model.UniqueKeysTableClass.ToHtmlString()) table table-bordered table-striped dataTable" role="grid">
         <thead align="left">
           <tr>
             <th>Constraint Name</th>
@@ -77,7 +77,7 @@
         <tbody>
           @if (Model.UniqueKeysCount > 0)
           {
-          @foreach (var uniqueKey in Model.UniqueKeys)
+          foreach (var uniqueKey in Model.UniqueKeys)
           {
           <tr>
             <td class="detail">@uniqueKey.ConstraintName</td>
@@ -112,7 +112,7 @@
       </div>
     </div>
     <div class="box-body">
-      <table class="@Raw(@Model.ForeignKeysTableClass.ToHtmlString()) table table-bordered table-striped dataTable" role="grid">
+      <table class="@Raw(Model.ForeignKeysTableClass.ToHtmlString()) table table-bordered table-striped dataTable" role="grid">
         <thead align="left">
           <tr>
             <th>Child Constraint Name</th>
@@ -128,7 +128,7 @@
         <tbody>
           @if (Model.ForeignKeysCount > 0)
           {
-          @foreach (var foreignKey in Model.ForeignKeys)
+          foreach (var foreignKey in Model.ForeignKeys)
           {
           <tr>
             <td class="detail">@foreignKey.ConstraintName</td>
@@ -170,7 +170,7 @@
       </div>
     </div>
     <div class="box-body">
-      <table class="@Raw(@Model.CheckConstraintsTableClass.ToHtmlString()) table table-bordered table-striped dataTable" role="grid">
+      <table class="@Raw(Model.CheckConstraintsTableClass.ToHtmlString()) table table-bordered table-striped dataTable" role="grid">
         <thead align="left">
           <tr>
             <th>Constraint Name</th>
@@ -181,7 +181,7 @@
         <tbody>
           @if (Model.CheckConstraintsCount > 0)
           {
-          @foreach (var check in Model.CheckConstraints)
+          foreach (var check in Model.CheckConstraints)
           {
           <tr>
             <td class="detail">@check.ConstraintName</td>

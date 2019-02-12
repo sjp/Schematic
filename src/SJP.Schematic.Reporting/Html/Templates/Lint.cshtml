@@ -44,10 +44,10 @@
         <tbody>
           @if (lintRule.MessageCount > 0)
           {
-          @foreach (var message in lintRule.Messages)
+          foreach (var message in lintRule.Messages)
           {
           <tr>
-            <td class="detail">@Raw(@message.ToHtmlString())</td>
+            <td class="detail">@Raw(message.ToHtmlString())</td>
           </tr>
           }
           }

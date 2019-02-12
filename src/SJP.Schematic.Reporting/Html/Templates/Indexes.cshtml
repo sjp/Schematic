@@ -20,7 +20,7 @@
       </div>
     </div>
     <div class="box-body">
-      <table class="@Raw(@Model.IndexesTableClass.ToHtmlString()) table table-bordered table-striped dataTable" role="grid">
+      <table class="@Raw(Model.IndexesTableClass.ToHtmlString()) table table-bordered table-striped dataTable" role="grid">
         <thead>
           <tr>
             <th>Index Name</th>
@@ -33,7 +33,7 @@
         <tbody>
           @if (Model.IndexesCount > 0)
           {
-          @foreach (var index in Model.TableIndexes)
+          foreach (var index in Model.TableIndexes)
           {
           <tr>
             <td>@index.Name</td>

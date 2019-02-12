@@ -131,7 +131,7 @@
         <tbody>
           @if (Model.SchemasCount > 0)
           {
-          @foreach (var schema in Model.Schemas)
+          foreach (var schema in Model.Schemas)
           {
           <tr class="tbl even">
             <td class="detail">@schema</td>
@@ -156,7 +156,7 @@
       </span>
     </div>
     <div class="box-body">
-      <table class="@Raw(@Model.TablesTableClass.ToHtmlString()) table table-bordered table-striped dataTable" role="grid">
+      <table class="@Raw(Model.TablesTableClass.ToHtmlString()) table table-bordered table-striped dataTable" role="grid">
         <thead>
           <tr>
             <th valign="bottom">Table</th>
@@ -169,7 +169,7 @@
         <tbody>
           @if (Model.TablesCount > 0)
           {
-          @foreach (var table in Model.Tables)
+          foreach (var table in Model.Tables)
           {
           <tr class="tbl even" valign="top">
             <td class="detail">
@@ -200,7 +200,7 @@
       </span>
     </div>
     <div class="box-body">
-      <table class="@Raw(@Model.ViewsTableClass.ToHtmlString()) table table-bordered table-striped dataTable" role="grid">
+      <table class="@Raw(Model.ViewsTableClass.ToHtmlString()) table table-bordered table-striped dataTable" role="grid">
         <thead>
           <tr>
             <th valign="bottom">View</th>
@@ -211,7 +211,7 @@
         <tbody>
           @if (Model.ViewsCount > 0)
           {
-          @foreach (var view in Model.Views)
+          foreach (var view in Model.Views)
           {
           <tr class="tbl even" valign="top">
             <td class="detail">
@@ -240,7 +240,7 @@
       </span>
     </div>
     <div class="box-body">
-      <table class="@Raw(@Model.SequencesTableClass.ToHtmlString()) table table-bordered table-striped dataTable" role="grid">
+      <table class="@Raw(Model.SequencesTableClass.ToHtmlString()) table table-bordered table-striped dataTable" role="grid">
         <thead>
           <tr>
             <th>Sequence</th>
@@ -255,7 +255,7 @@
         <tbody>
           @if (Model.SequencesCount > 0)
           {
-          @foreach (var sequence in Model.Sequences)
+          foreach (var sequence in Model.Sequences)
           {
           <tr class="tbl even">
             <td class="detail">@sequence.Name</td>
@@ -286,7 +286,7 @@
       </span>
     </div>
     <div class="box-body">
-      <table class="@Raw(@Model.SynonymsTableClass.ToHtmlString()) table table-bordered table-striped dataTable" role="grid">
+      <table class="@Raw(Model.SynonymsTableClass.ToHtmlString()) table table-bordered table-striped dataTable" role="grid">
         <thead>
           <tr>
             <th>Synonym</th>
@@ -296,11 +296,11 @@
         <tbody>
           @if (Model.SynonymsCount > 0)
           {
-          @foreach (var synonym in Model.Synonyms)
+          foreach (var synonym in Model.Synonyms)
           {
           <tr class="tbl even">
             <td class="detail">@synonym.Name</td>
-            <td class="detail">@Raw(@synonym.TargetText.ToHtmlString())</td>
+            <td class="detail">@Raw(synonym.TargetText.ToHtmlString())</td>
           </tr>
           }
           }
@@ -322,7 +322,7 @@
       </span>
     </div>
     <div class="box-body">
-      <table class="@Raw(@Model.RoutinesTableClass.ToHtmlString()) table table-bordered table-striped dataTable" role="grid">
+      <table class="@Raw(Model.RoutinesTableClass.ToHtmlString()) table table-bordered table-striped dataTable" role="grid">
         <thead>
           <tr>
             <th>Routine</th>
@@ -331,7 +331,7 @@
         <tbody>
           @if (Model.RoutinesCount > 0)
           {
-          @foreach (var routine in Model.Routines)
+          foreach (var routine in Model.Routines)
           {
           <tr class="tbl even">
             <td class="detail">

@@ -19,7 +19,7 @@
       </div>
     </div>
     <div class="box-body">
-      <table class="@Raw(@Model.TablesTableClass.ToHtmlString()) table table-bordered table-striped dataTable" role="grid">
+      <table class="@Raw(Model.TablesTableClass.ToHtmlString()) table table-bordered table-striped dataTable" role="grid">
         <thead>
           <tr>
             <th valign="bottom">Table</th>
@@ -30,7 +30,7 @@
         <tbody>
          @if (Model.TablesCount > 0)
          {
-         @foreach (var table in Model.Tables)
+         foreach (var table in Model.Tables)
          {
           <tr class="tbl even" valign="top">
             <td class="detail">
