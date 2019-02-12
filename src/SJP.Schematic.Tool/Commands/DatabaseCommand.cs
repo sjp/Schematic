@@ -131,7 +131,7 @@ namespace SJP.Schematic.Tool
             return factory;
         }
 
-        private readonly static IReadOnlyDictionary<string, Func<string, Task<IDbConnection>>> _connectionFactories = new Dictionary<string, Func<string, Task<IDbConnection>>>
+        private static readonly IReadOnlyDictionary<string, Func<string, Task<IDbConnection>>> _connectionFactories = new Dictionary<string, Func<string, Task<IDbConnection>>>
         {
             ["sqlite"] = cs => SqliteDialect.CreateConnectionAsync(cs),
             ["sqlserver"] = cs => SqlServerDialect.CreateConnectionAsync(cs),
@@ -139,7 +139,7 @@ namespace SJP.Schematic.Tool
             ["postgresql"] = cs => PostgreSqlDialect.CreateConnectionAsync(cs)
         };
 
-        private readonly static IReadOnlyDictionary<string, Func<IDbConnection, IDatabaseDialect>> _dialectFactories = new Dictionary<string, Func<IDbConnection, IDatabaseDialect>>
+        private static readonly IReadOnlyDictionary<string, Func<IDbConnection, IDatabaseDialect>> _dialectFactories = new Dictionary<string, Func<IDbConnection, IDatabaseDialect>>
         {
             ["sqlite"] = c => new SqliteDialect(c),
             ["sqlserver"] = c => new SqlServerDialect(c),
@@ -147,7 +147,7 @@ namespace SJP.Schematic.Tool
             ["postgresql"] = c => new PostgreSqlDialect(c)
         };
 
-        private readonly static IReadOnlyDictionary<string, Func<IDatabaseDialect, IDbConnection, IIdentifierDefaults, IRelationalDatabase>> _databaseFactories =
+        private static readonly IReadOnlyDictionary<string, Func<IDatabaseDialect, IDbConnection, IIdentifierDefaults, IRelationalDatabase>> _databaseFactories =
             new Dictionary<string, Func<IDatabaseDialect, IDbConnection, IIdentifierDefaults, IRelationalDatabase>>
             {
                 ["sqlite"] = (d, c, i) => new SqliteRelationalDatabase(d, c, i),

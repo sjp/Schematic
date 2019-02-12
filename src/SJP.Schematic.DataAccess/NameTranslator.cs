@@ -104,7 +104,7 @@ namespace SJP.Schematic.DataAccess
             return new string(chars.ToArray());
         }
 
-        private readonly static IEnumerable<UnicodeCategory> _validPartCategories = new HashSet<UnicodeCategory>
+        private static readonly IEnumerable<UnicodeCategory> _validPartCategories = new HashSet<UnicodeCategory>
         {
             // letter character
             UnicodeCategory.UppercaseLetter,
@@ -128,7 +128,7 @@ namespace SJP.Schematic.DataAccess
             UnicodeCategory.Format
         };
 
-        private readonly static IEnumerable<string> _keywords = new HashSet<string>
+        private static readonly IEnumerable<string> _keywords = new HashSet<string>
         {
             "abstract",
             "as",

@@ -220,8 +220,8 @@ namespace SJP.Schematic.Sqlite
 
         private readonly IRelationalDatabaseTableProvider _tableProvider;
         private readonly IDatabaseViewProvider _viewProvider;
-        private readonly static IDatabaseSequenceProvider _sequenceProvider = new EmptyDatabaseSequenceProvider();
-        private readonly static IDatabaseSynonymProvider _synonymProvider = new EmptyDatabaseSynonymProvider();
-        private readonly static IDatabaseRoutineProvider _routineProvider = new EmptyDatabaseRoutineProvider();
+        private static readonly IDatabaseSequenceProvider _sequenceProvider = new EmptyDatabaseSequenceProvider();
+        private static readonly IDatabaseSynonymProvider _synonymProvider = new EmptyDatabaseSynonymProvider();
+        private static readonly IDatabaseRoutineProvider _routineProvider = new EmptyDatabaseRoutineProvider();
     }
 }

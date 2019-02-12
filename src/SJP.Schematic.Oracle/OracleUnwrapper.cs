@@ -261,7 +261,7 @@ namespace SJP.Schematic.Oracle
                 .ToArray();
         }
 
-        private readonly static byte[] _charMap = new byte[]
+        private static readonly byte[] _charMap = new byte[]
         {
             0x3D, 0x65, 0x85, 0xB3, 0x18, 0xDB, 0xE2, 0x87, 0xF1, 0x52, 0xAB, 0x63, 0x4B, 0xB5, 0xA0, 0x5F,
             0x7D, 0x68, 0x7B, 0x9B, 0x24, 0xC2, 0x28, 0x67, 0x8A, 0xDE, 0xA4, 0x26, 0x1E, 0x03, 0xEB, 0x17,
@@ -281,10 +281,10 @@ namespace SJP.Schematic.Oracle
             0x8D, 0x92, 0x4A, 0x11, 0x89, 0x74, 0x6B, 0x91, 0xFB, 0xFE, 0xC9, 0x01, 0xEA, 0x1B, 0xF7, 0xCE
         };
 
-        private readonly static Regex _base64Header = new Regex("^[0-9a-f]+ ([0-9a-f]+)$", RegexOptions.Compiled);
-        private readonly static char[] _spaceChar = new[] { ' ' };
-        private readonly static char[] _newlineChars = new[] { '\r', '\n' };
-        private readonly static Regex _base64Matcher = new Regex("^[a-zA-Z0-9\\+/]*={0,3}$", RegexOptions.None);
-        private readonly static OracleTokenizer _tokenizer = new OracleTokenizer();
+        private static readonly Regex _base64Header = new Regex("^[0-9a-f]+ ([0-9a-f]+)$", RegexOptions.Compiled);
+        private static readonly char[] _spaceChar = new[] { ' ' };
+        private static readonly char[] _newlineChars = new[] { '\r', '\n' };
+        private static readonly Regex _base64Matcher = new Regex("^[a-zA-Z0-9\\+/]*={0,3}$", RegexOptions.None);
+        private static readonly OracleTokenizer _tokenizer = new OracleTokenizer();
     }
 }

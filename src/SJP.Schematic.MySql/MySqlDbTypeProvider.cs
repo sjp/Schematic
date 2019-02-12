@@ -167,13 +167,13 @@ namespace SJP.Schematic.MySql
                 : typeof(object);
         }
 
-        private readonly static IEnumerable<string> _fixedLengthTypes = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+        private static readonly IEnumerable<string> _fixedLengthTypes = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
         {
             "char",
             "binary"
         };
 
-        private readonly static IEnumerable<string> _typeNamesWithNoLengthAnnotation = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+        private static readonly IEnumerable<string> _typeNamesWithNoLengthAnnotation = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
         {
             "bit",
             "tinyint",
@@ -192,7 +192,7 @@ namespace SJP.Schematic.MySql
             "longtext"
         };
 
-        private readonly static IReadOnlyDictionary<string, DataType> _stringToDataTypeMap = new Dictionary<string, DataType>(StringComparer.OrdinalIgnoreCase)
+        private static readonly IReadOnlyDictionary<string, DataType> _stringToDataTypeMap = new Dictionary<string, DataType>(StringComparer.OrdinalIgnoreCase)
         {
             ["bit"] = DataType.Boolean,
             ["tinyint"] = DataType.Integer,
@@ -223,7 +223,7 @@ namespace SJP.Schematic.MySql
             ["longtext"] = DataType.UnicodeText
         };
 
-        private readonly static IReadOnlyDictionary<string, Type> _stringToClrTypeMap = new Dictionary<string, Type>(StringComparer.OrdinalIgnoreCase)
+        private static readonly IReadOnlyDictionary<string, Type> _stringToClrTypeMap = new Dictionary<string, Type>(StringComparer.OrdinalIgnoreCase)
         {
             ["bit"] = typeof(bool),
             ["tinyint"] = typeof(byte),

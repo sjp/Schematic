@@ -66,7 +66,7 @@ namespace SJP.Schematic.Sqlite
         }
 
         // https://www.sqlite.org/lang_keywords.html
-        private readonly static IEnumerable<string> _keywords = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+        private static readonly IEnumerable<string> _keywords = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
         {
             "ABORT",
             "ACTION",
@@ -213,6 +213,6 @@ namespace SJP.Schematic.Sqlite
 
         public override IDbTypeProvider TypeProvider => _typeProvider;
 
-        private readonly static IDbTypeProvider _typeProvider = new SqliteDbTypeProvider();
+        private static readonly IDbTypeProvider _typeProvider = new SqliteDbTypeProvider();
     }
 }

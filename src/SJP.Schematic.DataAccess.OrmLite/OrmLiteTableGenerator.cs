@@ -467,7 +467,7 @@ namespace SJP.Schematic.DataAccess.OrmLite
             return false;
         }
 
-        private readonly static IReadOnlyDictionary<string, string> _typeNameMap = new Dictionary<string, string>
+        private static readonly IReadOnlyDictionary<string, string> _typeNameMap = new Dictionary<string, string>
         {
             ["Boolean"] = "bool",
             ["Byte"] = "byte",
@@ -487,7 +487,7 @@ namespace SJP.Schematic.DataAccess.OrmLite
             ["String"] = "string"
         };
 
-        private readonly static IReadOnlyDictionary<Rule, string> _foreignKeyRule = new Dictionary<Rule, string>
+        private static readonly IReadOnlyDictionary<Rule, string> _foreignKeyRule = new Dictionary<Rule, string>
         {
             [Rule.None] = "NO ACTION",
             [Rule.Cascade] = "CASCADE",

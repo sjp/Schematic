@@ -202,20 +202,20 @@ namespace SJP.Schematic.Reporting.Dot
             return graph.ToString();
         }
 
-        private readonly static IEnumerable<GraphAttribute> _globalGraphAttrs = new[]
+        private static readonly IEnumerable<GraphAttribute> _globalGraphAttrs = new[]
         {
             GraphAttribute.BackgroundColor(new RgbColor("#FFFFFF")),
             GraphAttribute.RankDirection(RankDirection.RL),
             GraphAttribute.Ratio(GraphRatio.Compress)
         };
 
-        private readonly static IEnumerable<NodeAttribute> _globalNodeAttrs = new[]
+        private static readonly IEnumerable<NodeAttribute> _globalNodeAttrs = new[]
         {
             NodeAttribute.FontFace(FontFace.Courier),
             NodeAttribute.EmptyNodeShape()
         };
 
-        private readonly static IEnumerable<EdgeAttribute> _globalEdgeAttrs = new[]
+        private static readonly IEnumerable<EdgeAttribute> _globalEdgeAttrs = new[]
         {
             EdgeAttribute.ArrowHead(ArrowStyleName.Open)
         };

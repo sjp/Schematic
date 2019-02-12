@@ -86,7 +86,7 @@ namespace SJP.Schematic.MySql
         private readonly IRelationalDatabaseTableProvider _tableProvider;
         private readonly IDatabaseViewProvider _viewProvider;
         private readonly IDatabaseRoutineProvider _routineProvider;
-        private readonly static IDatabaseSequenceProvider _sequenceProvider = new EmptyDatabaseSequenceProvider();
-        private readonly static IDatabaseSynonymProvider _synonymProvider = new EmptyDatabaseSynonymProvider();
+        private static readonly IDatabaseSequenceProvider _sequenceProvider = new EmptyDatabaseSequenceProvider();
+        private static readonly IDatabaseSynonymProvider _synonymProvider = new EmptyDatabaseSynonymProvider();
     }
 }

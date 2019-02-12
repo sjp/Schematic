@@ -88,6 +88,6 @@ namespace SJP.Schematic.PostgreSql
         private readonly IDatabaseViewProvider _viewProvider;
         private readonly IDatabaseSequenceProvider _sequenceProvider;
         private readonly IDatabaseRoutineProvider _routineProvider;
-        private readonly static IDatabaseSynonymProvider _synonymProvider = new EmptyDatabaseSynonymProvider();
+        private static readonly IDatabaseSynonymProvider _synonymProvider = new EmptyDatabaseSynonymProvider();
     }
 }

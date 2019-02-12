@@ -176,9 +176,9 @@ namespace SJP.Schematic.Sqlite.Parsing
             return false;
         }
 
-        private readonly static SqliteToken[] SimpleOps = new SqliteToken[128];
+        private static readonly SqliteToken[] SimpleOps = new SqliteToken[128];
 
-        private readonly static SqliteKeyword[] SqlKeywords =
+        private static readonly SqliteKeyword[] SqlKeywords =
         {
             new SqliteKeyword("and", SqliteToken.And),
             new SqliteKeyword("is", SqliteToken.Is),

@@ -29,21 +29,21 @@ namespace SJP.Schematic.Oracle.Parsing
             Character.EqualTo('$')
                 .IgnoreThen(Numerics.Decimal);
 
-        private readonly static TextParser<OracleToken> StringConcat = Span.EqualTo("||").Value(OracleToken.StringConcat);
-        private readonly static TextParser<OracleToken> LessOrEqual = Span.EqualTo("<=").Value(OracleToken.LessThanOrEqual);
-        private readonly static TextParser<OracleToken> GreaterOrEqual = Span.EqualTo(">=").Value(OracleToken.GreaterThanOrEqual);
-        private readonly static TextParser<OracleToken> NotEqual = Span.EqualTo("<>").Value(OracleToken.NotEqual);
-        private readonly static TextParser<OracleToken> PlusEqual = Span.EqualTo("+=").Value(OracleToken.PlusEquals);
-        private readonly static TextParser<OracleToken> MinusEqual = Span.EqualTo("-=").Value(OracleToken.MinusEquals);
-        private readonly static TextParser<OracleToken> MultiplyEqual = Span.EqualTo("*=").Value(OracleToken.MultiplyEquals);
-        private readonly static TextParser<OracleToken> DivideEqual = Span.EqualTo("/=").Value(OracleToken.DivideEquals);
-        private readonly static TextParser<OracleToken> NonStandardNotEqual = Span.EqualTo("!=").Value(OracleToken.NonStandardNotEqual);
-        private readonly static TextParser<OracleToken> NotLessThan = Span.EqualTo("!<").Value(OracleToken.NonStandardNotLessThan);
-        private readonly static TextParser<OracleToken> NotGreaterThan = Span.EqualTo("!>").Value(OracleToken.NonStandardNotGreaterThan);
-        private readonly static TextParser<OracleToken> BitwiseAndEqual = Span.EqualTo("&=").Value(OracleToken.BitwiseAndEqual);
-        private readonly static TextParser<OracleToken> BitwiseOrEqual = Span.EqualTo("|=").Value(OracleToken.BitwiseOrEqual);
-        private readonly static TextParser<OracleToken> BitwiseXorEqual = Span.EqualTo("^=").Value(OracleToken.BitwiseXorEqual);
-        private readonly static TextParser<OracleToken> Scope = Span.EqualTo("::").Value(OracleToken.Scope);
+        private static readonly TextParser<OracleToken> StringConcat = Span.EqualTo("||").Value(OracleToken.StringConcat);
+        private static readonly TextParser<OracleToken> LessOrEqual = Span.EqualTo("<=").Value(OracleToken.LessThanOrEqual);
+        private static readonly TextParser<OracleToken> GreaterOrEqual = Span.EqualTo(">=").Value(OracleToken.GreaterThanOrEqual);
+        private static readonly TextParser<OracleToken> NotEqual = Span.EqualTo("<>").Value(OracleToken.NotEqual);
+        private static readonly TextParser<OracleToken> PlusEqual = Span.EqualTo("+=").Value(OracleToken.PlusEquals);
+        private static readonly TextParser<OracleToken> MinusEqual = Span.EqualTo("-=").Value(OracleToken.MinusEquals);
+        private static readonly TextParser<OracleToken> MultiplyEqual = Span.EqualTo("*=").Value(OracleToken.MultiplyEquals);
+        private static readonly TextParser<OracleToken> DivideEqual = Span.EqualTo("/=").Value(OracleToken.DivideEquals);
+        private static readonly TextParser<OracleToken> NonStandardNotEqual = Span.EqualTo("!=").Value(OracleToken.NonStandardNotEqual);
+        private static readonly TextParser<OracleToken> NotLessThan = Span.EqualTo("!<").Value(OracleToken.NonStandardNotLessThan);
+        private static readonly TextParser<OracleToken> NotGreaterThan = Span.EqualTo("!>").Value(OracleToken.NonStandardNotGreaterThan);
+        private static readonly TextParser<OracleToken> BitwiseAndEqual = Span.EqualTo("&=").Value(OracleToken.BitwiseAndEqual);
+        private static readonly TextParser<OracleToken> BitwiseOrEqual = Span.EqualTo("|=").Value(OracleToken.BitwiseOrEqual);
+        private static readonly TextParser<OracleToken> BitwiseXorEqual = Span.EqualTo("^=").Value(OracleToken.BitwiseXorEqual);
+        private static readonly TextParser<OracleToken> Scope = Span.EqualTo("::").Value(OracleToken.Scope);
 
         public static TextParser<OracleToken> CompoundOperator { get; } =
             GreaterOrEqual

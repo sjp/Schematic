@@ -32,6 +32,6 @@ namespace SJP.Schematic.Reporting.Html.ViewModels
 
         public string ProjectVersion => _projectVersion;
 
-        private readonly static string _projectVersion = FileVersionInfo.GetVersionInfo(Assembly.GetExecutingAssembly().Location).FileVersion;
+        private static readonly string _projectVersion = FileVersionInfo.GetVersionInfo(Assembly.GetExecutingAssembly().Location).FileVersion;
     }
 }

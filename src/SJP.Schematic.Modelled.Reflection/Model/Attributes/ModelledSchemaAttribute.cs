@@ -53,6 +53,6 @@ namespace SJP.Schematic.Modelled.Reflection.Model
 
         private bool AffectsAllDialects { get; }
 
-        private readonly static Type _dialectInterface = typeof(IDatabaseDialect);
+        private static readonly Type _dialectInterface = typeof(IDatabaseDialect);
     }
 }

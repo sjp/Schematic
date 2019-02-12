@@ -82,7 +82,7 @@ select
         private const string DatabaseVersionQuerySql = "select version() as DatabaseVersion";
 
         // https://dev.mysql.com/doc/refman/5.7/en/keywords.html
-        private readonly static IEnumerable<string> _keywords = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+        private static readonly IEnumerable<string> _keywords = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
         {
             "ACCESSIBLE",
             "ACCOUNT",
@@ -737,6 +737,6 @@ select
 
         public override IDbTypeProvider TypeProvider => _typeProvider;
 
-        private readonly static IDbTypeProvider _typeProvider = new MySqlDbTypeProvider();
+        private static readonly IDbTypeProvider _typeProvider = new MySqlDbTypeProvider();
     }
 }

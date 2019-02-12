@@ -203,9 +203,9 @@ namespace SJP.Schematic.SqlServer.Parsing
             return false;
         }
 
-        private readonly static SqlServerToken[] SimpleOps = new SqlServerToken[128];
+        private static readonly SqlServerToken[] SimpleOps = new SqlServerToken[128];
 
-        private readonly static SqlServerKeyword[] SqlKeywords =
+        private static readonly SqlServerKeyword[] SqlKeywords =
         {
             new SqlServerKeyword("add", SqlServerToken.Add),
             new SqlServerKeyword("all", SqlServerToken.All),

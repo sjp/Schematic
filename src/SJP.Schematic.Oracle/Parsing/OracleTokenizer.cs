@@ -203,9 +203,9 @@ namespace SJP.Schematic.Oracle.Parsing
             return false;
         }
 
-        private readonly static OracleToken[] SimpleOps = new OracleToken[128];
+        private static readonly OracleToken[] SimpleOps = new OracleToken[128];
 
-        private readonly static OracleKeyword[] SqlKeywords =
+        private static readonly OracleKeyword[] SqlKeywords =
         {
             new OracleKeyword("add", OracleToken.Add),
             new OracleKeyword("all", OracleToken.All),

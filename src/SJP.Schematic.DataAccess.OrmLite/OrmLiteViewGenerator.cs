@@ -162,7 +162,7 @@ namespace SJP.Schematic.DataAccess.OrmLite
                 .AppendLine(" { get; set; }");
         }
 
-        private readonly static IReadOnlyDictionary<string, string> _typeNameMap = new Dictionary<string, string>
+        private static readonly IReadOnlyDictionary<string, string> _typeNameMap = new Dictionary<string, string>
         {
             ["Boolean"] = "bool",
             ["Byte"] = "byte",

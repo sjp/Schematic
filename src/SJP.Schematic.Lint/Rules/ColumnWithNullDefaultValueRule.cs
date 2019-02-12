@@ -75,6 +75,6 @@ namespace SJP.Schematic.Lint.Rules
         }
 
         protected static string RuleTitle { get; } = "Null default values assigned to column.";
-        private readonly static IEnumerable<string> _nullValues = new HashSet<string>(StringComparer.OrdinalIgnoreCase) { "null", "(null)" };
+        private static readonly IEnumerable<string> _nullValues = new HashSet<string>(StringComparer.OrdinalIgnoreCase) { "null", "(null)" };
     }
 }

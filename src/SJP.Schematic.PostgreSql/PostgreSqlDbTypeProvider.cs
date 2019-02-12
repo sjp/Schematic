@@ -203,13 +203,13 @@ namespace SJP.Schematic.PostgreSql
             return pieces.Join(".");
         }
 
-        private readonly static IEnumerable<Identifier> _fixedLengthTypes = new HashSet<Identifier>(IdentifierComparer.Ordinal)
+        private static readonly IEnumerable<Identifier> _fixedLengthTypes = new HashSet<Identifier>(IdentifierComparer.Ordinal)
         {
             new Identifier("pg_catalog", "bit"),
             new Identifier("pg_catalog", "char"),
         };
 
-        private readonly static IEnumerable<Identifier> _typeNamesWithNoLengthAnnotation = new HashSet<Identifier>(IdentifierComparer.Ordinal)
+        private static readonly IEnumerable<Identifier> _typeNamesWithNoLengthAnnotation = new HashSet<Identifier>(IdentifierComparer.Ordinal)
         {
             new Identifier("pg_catalog", "bigint"),
             new Identifier("pg_catalog", "int8"),
@@ -254,7 +254,7 @@ namespace SJP.Schematic.PostgreSql
             new Identifier("pg_catalog", "xml")
         };
 
-        private readonly static IReadOnlyDictionary<Identifier, DataType> _stringToDataTypeMap = new Dictionary<Identifier, DataType>(IdentifierComparer.Ordinal)
+        private static readonly IReadOnlyDictionary<Identifier, DataType> _stringToDataTypeMap = new Dictionary<Identifier, DataType>(IdentifierComparer.Ordinal)
         {
             [new Identifier("pg_catalog", "bigint")] = DataType.BigInteger,
             [new Identifier("pg_catalog", "int8")] = DataType.BigInteger,
@@ -315,7 +315,7 @@ namespace SJP.Schematic.PostgreSql
             [new Identifier("pg_catalog", "uuid")] = DataType.Unknown
         };
 
-        private readonly static IReadOnlyDictionary<Identifier, Type> _stringToClrTypeMap = new Dictionary<Identifier, Type>(IdentifierComparer.Ordinal)
+        private static readonly IReadOnlyDictionary<Identifier, Type> _stringToClrTypeMap = new Dictionary<Identifier, Type>(IdentifierComparer.Ordinal)
         {
             [new Identifier("pg_catalog", "bigint")] = typeof(long),
             [new Identifier("pg_catalog", "int8")] = typeof(long),

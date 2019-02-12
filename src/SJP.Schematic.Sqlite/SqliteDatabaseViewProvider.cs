@@ -297,7 +297,7 @@ namespace SJP.Schematic.Sqlite
             return tableName.LocalName.StartsWith("sqlite_", StringComparison.OrdinalIgnoreCase);
         }
 
-        private readonly static SqliteTypeAffinityParser _affinityParser = new SqliteTypeAffinityParser();
+        private static readonly SqliteTypeAffinityParser _affinityParser = new SqliteTypeAffinityParser();
 
         private const int SqliteError = 1;
     }

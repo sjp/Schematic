@@ -173,7 +173,7 @@ namespace SJP.Schematic.Reporting.Html.ViewModels
 
             public string UpdateRuleDescription { get; }
 
-            private readonly static IReadOnlyDictionary<Rule, string> _ruleDescription = new Dictionary<Rule, string>
+            private static readonly IReadOnlyDictionary<Rule, string> _ruleDescription = new Dictionary<Rule, string>
             {
                 [Rule.None] = "NONE",
                 [Rule.Cascade] = "CASCADE",

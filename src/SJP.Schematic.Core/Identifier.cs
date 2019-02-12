@@ -364,8 +364,8 @@ namespace SJP.Schematic.Core
             }
         }
 
-        private readonly static TimeSpan _cacheLength = TimeSpan.FromMinutes(2); // only cache identifiers for two minutes
-        private readonly static IMemoryCache _cache = new MemoryCache(new MemoryCacheOptions());
-        private readonly static StringComparer _comparer = StringComparer.Ordinal;
+        private static readonly TimeSpan _cacheLength = TimeSpan.FromMinutes(2); // only cache identifiers for two minutes
+        private static readonly IMemoryCache _cache = new MemoryCache(new MemoryCacheOptions());
+        private static readonly StringComparer _comparer = StringComparer.Ordinal;
     }
 }

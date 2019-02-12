@@ -60,8 +60,8 @@ END db_test_package_2").ConfigureAwait(false);
             }
         }
 
-        private readonly static object _lock = new object();
-        private readonly static ConcurrentDictionary<Identifier, AsyncLazy<IOracleDatabasePackage>> _packagesCache = new ConcurrentDictionary<Identifier, AsyncLazy<IOracleDatabasePackage>>();
+        private static readonly object _lock = new object();
+        private static readonly ConcurrentDictionary<Identifier, AsyncLazy<IOracleDatabasePackage>> _packagesCache = new ConcurrentDictionary<Identifier, AsyncLazy<IOracleDatabasePackage>>();
 
         [Test]
         public async Task GetPackage_WhenPackagePresent_ReturnsPackage()

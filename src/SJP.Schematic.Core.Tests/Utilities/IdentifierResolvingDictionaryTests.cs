@@ -269,7 +269,7 @@ namespace SJP.Schematic.Core.Tests.Utilities
         {
             public IEnumerable<Identifier> GetResolutionOrder(Identifier identifier) => _identifiers;
 
-            private readonly static IEnumerable<Identifier> _identifiers = new[]
+            private static readonly IEnumerable<Identifier> _identifiers = new[]
             {
                 new Identifier("A"),
                 new Identifier("B"),

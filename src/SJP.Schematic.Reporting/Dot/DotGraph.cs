@@ -125,6 +125,6 @@ namespace SJP.Schematic.Reporting.Dot
         private static string GetIndentForLevel(uint level) => new string(' ', (int)(level * 2));
 
         private readonly Lazy<string> _dotBuilder;
-        private readonly static string _fileVersion = FileVersionInfo.GetVersionInfo(Assembly.GetExecutingAssembly().Location).FileVersion;
+        private static readonly string _fileVersion = FileVersionInfo.GetVersionInfo(Assembly.GetExecutingAssembly().Location).FileVersion;
     }
 }

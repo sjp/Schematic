@@ -63,8 +63,8 @@ namespace SJP.Schematic.Oracle.Tests.Integration
             }
         }
 
-        private readonly static object _lock = new object();
-        private readonly static ConcurrentDictionary<Identifier, AsyncLazy<IDatabaseSequence>> _sequencesCache = new ConcurrentDictionary<Identifier, AsyncLazy<IDatabaseSequence>>();
+        private static readonly object _lock = new object();
+        private static readonly ConcurrentDictionary<Identifier, AsyncLazy<IDatabaseSequence>> _sequencesCache = new ConcurrentDictionary<Identifier, AsyncLazy<IDatabaseSequence>>();
 
         private const int SequenceDefaultCache = 20;
         private const int SequenceDefaultMinValue = 1;

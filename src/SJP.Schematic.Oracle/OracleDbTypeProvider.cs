@@ -200,14 +200,14 @@ namespace SJP.Schematic.Oracle
             return builder.GetStringAndRelease();
         }
 
-        private readonly static IEnumerable<string> _fixedLengthTypes = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+        private static readonly IEnumerable<string> _fixedLengthTypes = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
         {
             "CHAR",
             "NCHAR",
             "RAW"
         };
 
-        private readonly static IEnumerable<string> _typeNamesWithNoLengthAnnotation = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+        private static readonly IEnumerable<string> _typeNamesWithNoLengthAnnotation = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
         {
             "BFILE",
             "BINARY_FLOAT",
@@ -221,7 +221,7 @@ namespace SJP.Schematic.Oracle
             "ROWID"
         };
 
-        private readonly static IReadOnlyDictionary<string, DataType> _stringToDataTypeMap = new Dictionary<string, DataType>(StringComparer.OrdinalIgnoreCase)
+        private static readonly IReadOnlyDictionary<string, DataType> _stringToDataTypeMap = new Dictionary<string, DataType>(StringComparer.OrdinalIgnoreCase)
         {
             ["BFILE"] = DataType.LargeBinary,
             ["BINARY_DOUBLE"] = DataType.Float,
@@ -255,7 +255,7 @@ namespace SJP.Schematic.Oracle
             ["XMLTYPE"] = DataType.Unicode
         };
 
-        private readonly static IReadOnlyDictionary<string, Type> _stringToClrTypeMap = new Dictionary<string, Type>(StringComparer.OrdinalIgnoreCase)
+        private static readonly IReadOnlyDictionary<string, Type> _stringToClrTypeMap = new Dictionary<string, Type>(StringComparer.OrdinalIgnoreCase)
         {
             ["BFILE"] = typeof(byte[]),
             ["BINARY_DOUBLE"] = typeof(double),

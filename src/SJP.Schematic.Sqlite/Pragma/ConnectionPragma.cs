@@ -263,7 +263,7 @@ namespace SJP.Schematic.Sqlite.Pragma
 
         protected virtual string WritableSchemaSetQuery(bool enable) => PragmaPrefix + "writable_schema = " + Convert.ToInt32(enable).ToString(CultureInfo.InvariantCulture);
 
-        private readonly static IReadOnlyDictionary<Encoding, string> _encodingNameMapping = new Dictionary<Encoding, string>
+        private static readonly IReadOnlyDictionary<Encoding, string> _encodingNameMapping = new Dictionary<Encoding, string>
         {
             [Encoding.Utf8] = "UTF-8",
             [Encoding.Utf16] = "UTF-16",
@@ -271,7 +271,7 @@ namespace SJP.Schematic.Sqlite.Pragma
             [Encoding.Utf16be] = "UTF-16be"
         };
 
-        private readonly static IReadOnlyDictionary<string, Encoding> _nameEncodingMapping = new Dictionary<string, Encoding>
+        private static readonly IReadOnlyDictionary<string, Encoding> _nameEncodingMapping = new Dictionary<string, Encoding>
         {
             ["UTF-8"] = Encoding.Utf8,
             ["UTF-16"] = Encoding.Utf16,

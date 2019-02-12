@@ -112,7 +112,7 @@ namespace SJP.Schematic.Core
         private readonly int _defaultServerHash;
         private readonly StringComparer _comparer;
 
-        private readonly static IReadOnlyDictionary<StringComparison, StringComparer> _stringComparerLookup = new Dictionary<StringComparison, StringComparer>
+        private static readonly IReadOnlyDictionary<StringComparison, StringComparer> _stringComparerLookup = new Dictionary<StringComparison, StringComparer>
         {
             [StringComparison.CurrentCulture] = StringComparer.CurrentCulture,
             [StringComparison.CurrentCultureIgnoreCase] = StringComparer.CurrentCultureIgnoreCase,

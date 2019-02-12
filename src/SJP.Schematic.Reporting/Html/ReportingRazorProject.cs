@@ -28,6 +28,6 @@ namespace SJP.Schematic.Reporting.Html
             return Task.FromResult<RazorLightProjectItem>(projectItem);
         }
 
-        private readonly static Task<IEnumerable<RazorLightProjectItem>> _emptyItems = Task.FromResult(Enumerable.Empty<RazorLightProjectItem>());
+        private static readonly Task<IEnumerable<RazorLightProjectItem>> _emptyItems = Task.FromResult(Enumerable.Empty<RazorLightProjectItem>());
     }
 }

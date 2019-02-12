@@ -46,7 +46,7 @@ namespace SJP.Schematic.Reporting.Dot
 
         public IReadOnlyList<string> ColumnTypes { get; }
 
-        private readonly static IReadOnlyDictionary<DatabaseKeyType, string> _keyTypeTitles = new Dictionary<DatabaseKeyType, string>
+        private static readonly IReadOnlyDictionary<DatabaseKeyType, string> _keyTypeTitles = new Dictionary<DatabaseKeyType, string>
         {
             [DatabaseKeyType.Foreign] = "Foreign Key",
             [DatabaseKeyType.Unique] = "Unique Key",

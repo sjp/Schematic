@@ -133,7 +133,7 @@ namespace SJP.Schematic.DataAccess.Poco
             return "The <c>" + escapedColumnName + "</c> column.";
         }
 
-        private readonly static IReadOnlyDictionary<string, string> _typeNameMap = new Dictionary<string, string>
+        private static readonly IReadOnlyDictionary<string, string> _typeNameMap = new Dictionary<string, string>
         {
             ["Boolean"] = "bool",
             ["Byte"] = "byte",

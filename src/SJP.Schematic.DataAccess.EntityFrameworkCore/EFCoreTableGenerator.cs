@@ -269,7 +269,7 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore
             return "The " + escapedForeignKeyName + "child key. Navigates from <c>" + escapedParentTableName + "</c> to <c>" + escapedChildTableName + "</c> entities.";
         }
 
-        private readonly static IReadOnlyDictionary<string, string> _typeNameMap = new Dictionary<string, string>
+        private static readonly IReadOnlyDictionary<string, string> _typeNameMap = new Dictionary<string, string>
         {
             ["Boolean"] = "bool",
             ["Byte"] = "byte",

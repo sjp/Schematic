@@ -113,7 +113,7 @@ select
         }
 
         // https://docs.microsoft.com/en-us/sql/t-sql/language-elements/reserved-keywords-transact-sql
-        private readonly static IEnumerable<string> _keywords = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+        private static readonly IEnumerable<string> _keywords = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
         {
             "ABSOLUTE",
             "ACTION",
@@ -458,6 +458,6 @@ select
 
         public override IDbTypeProvider TypeProvider => _typeProvider;
 
-        private readonly static IDbTypeProvider _typeProvider = new SqlServerDbTypeProvider();
+        private static readonly IDbTypeProvider _typeProvider = new SqlServerDbTypeProvider();
     }
 }

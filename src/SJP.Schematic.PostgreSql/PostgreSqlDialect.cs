@@ -122,7 +122,7 @@ select
         }
 
         // https://www.postgresql.org/docs/current/static/sql-keywords-appendix.html
-        private readonly static IEnumerable<string> _keywords = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+        private static readonly IEnumerable<string> _keywords = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
         {
             "A",
             "ABORT",
@@ -912,6 +912,6 @@ select
 
         public override IDbTypeProvider TypeProvider => _typeProvider;
 
-        private readonly static IDbTypeProvider _typeProvider = new PostgreSqlDbTypeProvider();
+        private static readonly IDbTypeProvider _typeProvider = new PostgreSqlDbTypeProvider();
     }
 }

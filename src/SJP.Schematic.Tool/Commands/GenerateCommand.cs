@@ -26,7 +26,7 @@ namespace SJP.Schematic.Tool
 
         public INameTranslator GetNameTranslator() => _nameTranslators.GetValueOrDefault(Translator);
 
-        private readonly static IReadOnlyDictionary<string, INameTranslator> _nameTranslators = new Dictionary<string, INameTranslator>
+        private static readonly IReadOnlyDictionary<string, INameTranslator> _nameTranslators = new Dictionary<string, INameTranslator>
         {
             ["camelcase"] = new CamelCaseNameTranslator(),
             ["snakecase"] = new SnakeCaseNameTranslator(),

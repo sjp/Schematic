@@ -207,14 +207,14 @@ namespace SJP.Schematic.SqlServer
             return pieces.Join(".");
         }
 
-        private readonly static IEnumerable<Identifier> _fixedLengthTypes = new HashSet<Identifier>(IdentifierComparer.OrdinalIgnoreCase)
+        private static readonly IEnumerable<Identifier> _fixedLengthTypes = new HashSet<Identifier>(IdentifierComparer.OrdinalIgnoreCase)
         {
             new Identifier("sys", "char"),
             new Identifier("sys", "nchar"),
             new Identifier("sys", "binary")
         };
 
-        private readonly static IEnumerable<Identifier> _typeNamesWithNoLengthAnnotation = new HashSet<Identifier>(IdentifierComparer.OrdinalIgnoreCase)
+        private static readonly IEnumerable<Identifier> _typeNamesWithNoLengthAnnotation = new HashSet<Identifier>(IdentifierComparer.OrdinalIgnoreCase)
         {
             new Identifier("sys", "bigint"),
             new Identifier("sys", "bit"),
@@ -236,7 +236,7 @@ namespace SJP.Schematic.SqlServer
             new Identifier("sys", "xml")
         };
 
-        private readonly static IReadOnlyDictionary<Identifier, DataType> _stringToDataTypeMap = new Dictionary<Identifier, DataType>(IdentifierComparer.OrdinalIgnoreCase)
+        private static readonly IReadOnlyDictionary<Identifier, DataType> _stringToDataTypeMap = new Dictionary<Identifier, DataType>(IdentifierComparer.OrdinalIgnoreCase)
         {
             [new Identifier("sys", "bigint")] = DataType.BigInteger,
             [new Identifier("sys", "binary")] = DataType.Binary,
@@ -271,7 +271,7 @@ namespace SJP.Schematic.SqlServer
             [new Identifier("sys", "xml")] = DataType.Unicode
         };
 
-        private readonly static IReadOnlyDictionary<Identifier, Type> _stringToClrTypeMap = new Dictionary<Identifier, Type>(IdentifierComparer.OrdinalIgnoreCase)
+        private static readonly IReadOnlyDictionary<Identifier, Type> _stringToClrTypeMap = new Dictionary<Identifier, Type>(IdentifierComparer.OrdinalIgnoreCase)
         {
             [new Identifier("sys", "bigint")] = typeof(long),
             [new Identifier("sys", "binary")] = typeof(byte[]),

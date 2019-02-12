@@ -152,10 +152,10 @@ where PRODUCT like 'Oracle Database%'";
 
         public override IDbTypeProvider TypeProvider => _typeProvider;
 
-        private readonly static IDbTypeProvider _typeProvider = new OracleDbTypeProvider();
+        private static readonly IDbTypeProvider _typeProvider = new OracleDbTypeProvider();
 
         // https://docs.oracle.com/database/121/SQLRF/ap_keywd.htm#SQLRF022
-        private readonly static IEnumerable<string> _keywords = new System.Collections.Generic.HashSet<string>(StringComparer.OrdinalIgnoreCase)
+        private static readonly IEnumerable<string> _keywords = new System.Collections.Generic.HashSet<string>(StringComparer.OrdinalIgnoreCase)
         {
             "ACCESS",
             "ADD",

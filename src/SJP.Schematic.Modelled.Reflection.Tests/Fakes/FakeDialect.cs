@@ -21,7 +21,7 @@ namespace SJP.Schematic.Modelled.Reflection.Tests.Fakes
 
         public IDbTypeProvider TypeProvider => _typeProvider;
 
-        private readonly static IDbTypeProvider _typeProvider = new DbTypeProvider();
+        private static readonly IDbTypeProvider _typeProvider = new DbTypeProvider();
 
         private sealed class DbTypeProvider : IDbTypeProvider
         {

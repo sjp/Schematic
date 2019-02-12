@@ -57,8 +57,8 @@ END $$").ConfigureAwait(false);
             }
         }
 
-        private readonly static object _lock = new object();
-        private readonly static ConcurrentDictionary<Identifier, AsyncLazy<IDatabaseRoutine>> _routinesCache = new ConcurrentDictionary<Identifier, AsyncLazy<IDatabaseRoutine>>();
+        private static readonly object _lock = new object();
+        private static readonly ConcurrentDictionary<Identifier, AsyncLazy<IDatabaseRoutine>> _routinesCache = new ConcurrentDictionary<Identifier, AsyncLazy<IDatabaseRoutine>>();
 
         [Test]
         public async Task GetRoutine_WhenRoutinePresent_ReturnsRoutine()

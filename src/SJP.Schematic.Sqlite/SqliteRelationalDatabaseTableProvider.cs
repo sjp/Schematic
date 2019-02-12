@@ -764,7 +764,7 @@ namespace SJP.Schematic.Sqlite
         private readonly ReaderWriterLockSlim _tableRwLock = new ReaderWriterLockSlim();
         private readonly ReaderWriterLockSlim _triggerRwLock = new ReaderWriterLockSlim();
 
-        private readonly static IReadOnlyDictionary<string, Rule> _relationalUpdateMapping = new Dictionary<string, Rule>(StringComparer.OrdinalIgnoreCase)
+        private static readonly IReadOnlyDictionary<string, Rule> _relationalUpdateMapping = new Dictionary<string, Rule>(StringComparer.OrdinalIgnoreCase)
         {
             ["NO ACTION"] = Rule.None,
             ["RESTRICT"] = Rule.None,
@@ -773,9 +773,9 @@ namespace SJP.Schematic.Sqlite
             ["CASCADE"] = Rule.Cascade
         };
 
-        private readonly static SqliteTypeAffinityParser _affinityParser = new SqliteTypeAffinityParser();
-        private readonly static SqliteTokenizer _tokenizer = new SqliteTokenizer();
-        private readonly static SqliteTableParser _tableParser = new SqliteTableParser();
-        private readonly static SqliteTriggerParser _triggerParser = new SqliteTriggerParser();
+        private static readonly SqliteTypeAffinityParser _affinityParser = new SqliteTypeAffinityParser();
+        private static readonly SqliteTokenizer _tokenizer = new SqliteTokenizer();
+        private static readonly SqliteTableParser _tableParser = new SqliteTableParser();
+        private static readonly SqliteTriggerParser _triggerParser = new SqliteTriggerParser();
     }
 }

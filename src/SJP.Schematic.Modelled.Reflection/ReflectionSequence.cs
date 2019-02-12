@@ -63,6 +63,6 @@ namespace SJP.Schematic.Modelled.Reflection
 
         public decimal Start { get; }
 
-        private readonly static TypeInfo _iSequenceType = typeof(ISequence).GetTypeInfo();
+        private static readonly TypeInfo _iSequenceType = typeof(ISequence).GetTypeInfo();
     }
 }
