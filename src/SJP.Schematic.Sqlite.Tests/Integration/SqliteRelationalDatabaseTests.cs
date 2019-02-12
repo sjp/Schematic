@@ -10,14 +10,14 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
         public async Task VacuumAsync_WhenInvoked_RunsWithoutError()
         {
             var sqliteDb = new SqliteRelationalDatabase(Dialect, Connection, IdentifierDefaults);
-            await sqliteDb.VacuumAsync();
+            await sqliteDb.VacuumAsync().ConfigureAwait(false);
         }
 
         [Test]
         public async Task VacuumAsync_WhenGivenValidSchemaName_RunsWithoutError()
         {
             var sqliteDb = new SqliteRelationalDatabase(Dialect, Connection, IdentifierDefaults);
-            await sqliteDb.VacuumAsync("main");
+            await sqliteDb.VacuumAsync("main").ConfigureAwait(false);
         }
 
         [Test]
@@ -31,7 +31,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
         public async Task AttachDatabaseAsync_WhenGivenValidSchemaAndFileNames_RunsWithoutError()
         {
             var sqliteDb = new SqliteRelationalDatabase(Dialect, Config.Connection, IdentifierDefaults);
-            await sqliteDb.AttachDatabaseAsync("test", ":memory:");
+            await sqliteDb.AttachDatabaseAsync("test", ":memory:").ConfigureAwait(false);
         }
 
         [Test]
