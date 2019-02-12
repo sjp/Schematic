@@ -19,7 +19,7 @@ namespace SJP.Schematic.Oracle.Tests.Integration
 
     [Category("OracleDatabase")]
     [Category("SkipWhenLiveUnitTesting")]
-    [TestFixture]
+    [TestFixture(Ignore = "No CI Oracle DB available")]
     internal abstract class OracleTest
     {
         protected IDbConnection Connection { get; } = Config.Connection;
