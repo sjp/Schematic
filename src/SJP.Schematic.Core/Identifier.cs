@@ -96,7 +96,7 @@ namespace SJP.Schematic.Core
         /// <param name="schema">The name of a schema.</param>
         /// <param name="localName">An object name.</param>
         /// <exception cref="ArgumentNullException">Thrown when a parent component name is specified, but not one of its children.</exception>
-        /// <remarks>This enables easy creation of identifiers when only a subset may be known in advance. For example, if only a schema and local name exists, the server and database name can be ommitted (by providing <c>null</c>) arguments.</remarks>
+        /// <remarks>This enables easy creation of identifiers when only a subset may be known in advance. For example, if only a schema and local name exists, the server and database name can be omitted (by providing <c>null</c>) arguments.</remarks>
         public static Identifier CreateQualifiedIdentifier(string server, string database, string schema, string localName)
         {
             var serverPresent = !server.IsNullOrWhiteSpace();
@@ -156,7 +156,7 @@ namespace SJP.Schematic.Core
         /// <param name="schema">The name of a schema.</param>
         /// <param name="localName">An object name.</param>
         /// <exception cref="ArgumentNullException">Thrown when a parent component name is specified, but not one of its children.</exception>
-        /// <remarks>This enables easy creation of identifiers when only a subset may be known in advance. For example, if only a schema and local name exists, the server and database name can be ommitted (by providing <c>null</c>) arguments.</remarks>
+        /// <remarks>This enables easy creation of identifiers when only a subset may be known in advance. For example, if only a schema and local name exists, the server and database name can be omitted (by providing <c>null</c>) arguments.</remarks>
         public static Identifier CreateQualifiedIdentifier(string database, string schema, string localName) => CreateQualifiedIdentifier(null, database, schema, localName);
 
         /// <summary>
@@ -165,7 +165,7 @@ namespace SJP.Schematic.Core
         /// <param name="schema">The name of a schema.</param>
         /// <param name="localName">An object name.</param>
         /// <exception cref="ArgumentNullException">Thrown when a parent component name is specified, but not one of its children.</exception>
-        /// <remarks>This enables easy creation of identifiers when only a subset may be known in advance. For example, if only a schema and local name exists, the server and database name can be ommitted (by providing <c>null</c>) arguments.</remarks>
+        /// <remarks>This enables easy creation of identifiers when only a subset may be known in advance. For example, if only a schema and local name exists, the server and database name can be omitted (by providing <c>null</c>) arguments.</remarks>
         public static Identifier CreateQualifiedIdentifier(string schema, string localName) => CreateQualifiedIdentifier(null, null, schema, localName);
 
         /// <summary>

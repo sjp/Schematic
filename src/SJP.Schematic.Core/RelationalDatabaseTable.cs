@@ -22,8 +22,6 @@ namespace SJP.Schematic.Core
             IReadOnlyCollection<IDatabaseCheckConstraint> checks,
             IReadOnlyCollection<IDatabaseTrigger> triggers)
         {
-            if (tableName == null)
-                throw new ArgumentNullException(nameof(tableName));
             if (columns == null || columns.AnyNull())
                 throw new ArgumentNullException(nameof(columns));
             if (uniqueKeys == null || uniqueKeys.AnyNull())

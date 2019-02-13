@@ -113,7 +113,7 @@ namespace SJP.Schematic.Lint.Rules
 
             var builder = StringBuilderCache.Acquire();
             builder.Append("The table ")
-                .Append(tableName.ToString())
+                .Append(tableName)
                 .Append(" has a foreign key ");
 
             foreignKeyName.IfSome(name =>

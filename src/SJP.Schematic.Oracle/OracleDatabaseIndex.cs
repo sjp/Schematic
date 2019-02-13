@@ -21,7 +21,7 @@ namespace SJP.Schematic.Oracle
             IsUnique = isUnique;
             Columns = columns;
 
-            GeneratedByConstraint = (properties & _constraintGeneratedProps) == _constraintGeneratedProps;
+            GeneratedByConstraint = (properties & ConstraintGeneratedProps) == ConstraintGeneratedProps;
         }
 
         public Identifier Name { get; }
@@ -36,6 +36,6 @@ namespace SJP.Schematic.Oracle
 
         public bool GeneratedByConstraint { get; }
 
-        private const OracleIndexProperties _constraintGeneratedProps = OracleIndexProperties.Unique | OracleIndexProperties.CreatedByConstraint;
+        private const OracleIndexProperties ConstraintGeneratedProps = OracleIndexProperties.Unique | OracleIndexProperties.CreatedByConstraint;
     }
 }

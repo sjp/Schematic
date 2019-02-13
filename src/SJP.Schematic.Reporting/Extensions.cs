@@ -5,7 +5,6 @@ using System.Threading.Tasks;
 using SJP.Schematic.Core;
 using SJP.Schematic.Core.Extensions;
 using System.Data;
-using Dapper;
 using System.Threading;
 
 namespace SJP.Schematic.Reporting

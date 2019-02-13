@@ -30,6 +30,7 @@ namespace SJP.Schematic.Core.Exceptions
                 + triggerEvent;
 
             TableName = tableName;
+            TriggerEvent = triggerEvent;
         }
 
         public Identifier TableName { get; }

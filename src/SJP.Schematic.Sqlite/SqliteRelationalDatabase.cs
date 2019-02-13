@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Data;
 using System.Threading;
 using System.Threading.Tasks;
-using Dapper;
 using SJP.Schematic.Core;
 using SJP.Schematic.Sqlite.Pragma;
 using SJP.Schematic.Core.Extensions;
@@ -115,7 +114,7 @@ namespace SJP.Schematic.Sqlite
                 throw new ArgumentException("'main' is not a valid name to assign to an attached database. It will always be present.", nameof(schemaName));
 
             var sql = AttachDatabaseQuery(schemaName, fileName);
-            return Connection.ExecuteAsync(sql);
+            return Connection.ExecuteAsync(sql, cancellationToken);
         }
 
         /// <summary>
@@ -157,7 +156,7 @@ namespace SJP.Schematic.Sqlite
                 throw new ArgumentException("'main' is not a valid database name to remove. It must always be present.", nameof(schemaName));
 
             var sql = DetachDatabaseQuery(schemaName);
-            return Connection.ExecuteAsync(sql);
+            return Connection.ExecuteAsync(sql, cancellationToken);
         }
 
         /// <summary>
@@ -185,7 +184,7 @@ namespace SJP.Schematic.Sqlite
         public Task VacuumAsync(CancellationToken cancellationToken = default(CancellationToken))
         {
             const string sql = "VACUUM";
-            return Connection.ExecuteAsync(sql);
+            return Connection.ExecuteAsync(sql, cancellationToken);
         }
 
         /// <summary>
@@ -201,7 +200,7 @@ namespace SJP.Schematic.Sqlite
                 throw new ArgumentNullException(nameof(schemaName));
 
             var sql = VacuumQuery(schemaName);
-            return Connection.ExecuteAsync(sql);
+            return Connection.ExecuteAsync(sql, cancellationToken);
         }
 
         /// <summary>

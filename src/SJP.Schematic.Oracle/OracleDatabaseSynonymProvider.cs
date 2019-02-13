@@ -4,7 +4,6 @@ using System.Data;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Dapper;
 using LanguageExt;
 using SJP.Schematic.Core;
 using SJP.Schematic.Core.Extensions;
@@ -33,7 +32,7 @@ namespace SJP.Schematic.Oracle
 
         public async Task<IReadOnlyCollection<IDatabaseSynonym>> GetAllSynonyms(CancellationToken cancellationToken = default(CancellationToken))
         {
-            var queryResult = await Connection.QueryAsync<SynonymData>(SynonymsQuery).ConfigureAwait(false);
+            var queryResult = await Connection.QueryAsync<SynonymData>(SynonymsQuery, cancellationToken).ConfigureAwait(false);
             var synonymQueryRows = queryResult.ToList();
 
             var result = new List<IDatabaseSynonym>(synonymQueryRows.Count);

@@ -4,7 +4,6 @@ using System.Data;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Dapper;
 using LanguageExt;
 using SJP.Schematic.Core;
 using SJP.Schematic.Core.Exceptions;
@@ -365,7 +364,11 @@ where ac.OWNER = :SchemaName and ac.TABLE_NAME = :TableName and ac.CONSTRAINT_TY
 
         private async Task<IReadOnlyCollection<IDatabaseRelationalKey>> LoadChildKeysAsyncCore(Identifier tableName, IReadOnlyDictionary<Identifier, IDatabaseColumn> columns, Option<IDatabaseKey> primaryKey, IReadOnlyDictionary<Identifier, IDatabaseKey> uniqueKeys, CancellationToken cancellationToken)
         {
-            var queryResult = Connection.Query<ChildKeyData>(ChildKeysQuery, new { SchemaName = tableName.Schema, TableName = tableName.LocalName });
+            var queryResult = await Connection.QueryAsync<ChildKeyData>(
+                ChildKeysQuery,
+                new { SchemaName = tableName.Schema, TableName = tableName.LocalName },
+                cancellationToken
+            ).ConfigureAwait(false);
             if (queryResult.Empty())
                 return Array.Empty<IDatabaseRelationalKey>();
 
@@ -752,27 +755,6 @@ select
     STATUS as EnabledStatus
 from SYS.ALL_TRIGGERS
 where TABLE_OWNER = :SchemaName and TABLE_NAME = :TableName and BASE_OBJECT_TYPE = 'TABLE'";
-
-        protected IEnumerable<string> GetNotNullConstrainedColumns(Identifier tableName, IEnumerable<string> columnNames)
-        {
-            if (tableName == null)
-                throw new ArgumentNullException(nameof(tableName));
-            if (columnNames == null)
-                throw new ArgumentNullException(nameof(columnNames));
-
-            var checks = Connection.Query<CheckConstraintData>(ChecksQuery, new { SchemaName = tableName.Schema, TableName = tableName.LocalName });
-            if (checks.Empty())
-                return Array.Empty<string>();
-
-            var columnNotNullConstraints = columnNames
-                .Select(name => new KeyValuePair<string, string>(GenerateNotNullDefinition(name), name))
-                .ToDictionary();
-
-            return checks
-                .Where(c => columnNotNullConstraints.ContainsKey(c.Definition) && c.EnabledStatus == "ENABLED")
-                .Select(c => columnNotNullConstraints[c.Definition])
-                .ToList();
-        }
 
         protected Task<IEnumerable<string>> GetNotNullConstrainedColumnsAsync(Identifier tableName, IEnumerable<string> columnNames, CancellationToken cancellationToken)
         {

@@ -4,7 +4,6 @@ using System.Data;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Dapper;
 using Npgsql;
 using SJP.Schematic.Core;
 using SJP.Schematic.Core.Extensions;
