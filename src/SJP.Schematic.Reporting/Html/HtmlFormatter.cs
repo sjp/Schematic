@@ -1,7 +1,6 @@
 ﻿using System;
 using EnumsNET;
 using RazorLight;
-using Microsoft.CodeAnalysis;
 
 namespace SJP.Schematic.Reporting.Html
 {

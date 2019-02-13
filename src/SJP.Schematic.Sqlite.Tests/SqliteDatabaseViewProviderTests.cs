@@ -16,9 +16,8 @@ namespace SJP.Schematic.Sqlite.Tests
             var pragma = Mock.Of<ISqliteConnectionPragma>();
             var dialect = Mock.Of<IDatabaseDialect>();
             var identifierDefaults = Mock.Of<IIdentifierDefaults>();
-            var typeProvider = Mock.Of<IDbTypeProvider>();
 
-            Assert.Throws<ArgumentNullException>(() => new SqliteDatabaseViewProvider(null, pragma, dialect, identifierDefaults, typeProvider));
+            Assert.Throws<ArgumentNullException>(() => new SqliteDatabaseViewProvider(null, pragma, dialect, identifierDefaults));
         }
 
         [Test]
@@ -27,9 +26,8 @@ namespace SJP.Schematic.Sqlite.Tests
             var connection = Mock.Of<IDbConnection>();
             var dialect = Mock.Of<IDatabaseDialect>();
             var identifierDefaults = Mock.Of<IIdentifierDefaults>();
-            var typeProvider = Mock.Of<IDbTypeProvider>();
 
-            Assert.Throws<ArgumentNullException>(() => new SqliteDatabaseViewProvider(connection, null, dialect, identifierDefaults, typeProvider));
+            Assert.Throws<ArgumentNullException>(() => new SqliteDatabaseViewProvider(connection, null, dialect, identifierDefaults));
         }
 
         [Test]
@@ -38,9 +36,8 @@ namespace SJP.Schematic.Sqlite.Tests
             var connection = Mock.Of<IDbConnection>();
             var pragma = Mock.Of<ISqliteConnectionPragma>();
             var identifierDefaults = Mock.Of<IIdentifierDefaults>();
-            var typeProvider = Mock.Of<IDbTypeProvider>();
 
-            Assert.Throws<ArgumentNullException>(() => new SqliteDatabaseViewProvider(connection, pragma, null, identifierDefaults, typeProvider));
+            Assert.Throws<ArgumentNullException>(() => new SqliteDatabaseViewProvider(connection, pragma, null, identifierDefaults));
         }
 
         [Test]
@@ -49,20 +46,8 @@ namespace SJP.Schematic.Sqlite.Tests
             var connection = Mock.Of<IDbConnection>();
             var pragma = Mock.Of<ISqliteConnectionPragma>();
             var dialect = Mock.Of<IDatabaseDialect>();
-            var typeProvider = Mock.Of<IDbTypeProvider>();
 
-            Assert.Throws<ArgumentNullException>(() => new SqliteDatabaseViewProvider(connection, pragma, dialect, null, typeProvider));
-        }
-
-        [Test]
-        public static void Ctor_GivenNullTypeProvider_ThrowsArgNullException()
-        {
-            var connection = Mock.Of<IDbConnection>();
-            var pragma = Mock.Of<ISqliteConnectionPragma>();
-            var dialect = Mock.Of<IDatabaseDialect>();
-            var identifierDefaults = Mock.Of<IIdentifierDefaults>();
-
-            Assert.Throws<ArgumentNullException>(() => new SqliteDatabaseViewProvider(connection, pragma, dialect, identifierDefaults, null));
+            Assert.Throws<ArgumentNullException>(() => new SqliteDatabaseViewProvider(connection, pragma, dialect, null));
         }
 
         [Test]
@@ -72,9 +57,8 @@ namespace SJP.Schematic.Sqlite.Tests
             var pragma = Mock.Of<ISqliteConnectionPragma>();
             var dialect = Mock.Of<IDatabaseDialect>();
             var identifierDefaults = Mock.Of<IIdentifierDefaults>();
-            var typeProvider = Mock.Of<IDbTypeProvider>();
 
-            var viewProvider = new SqliteDatabaseViewProvider(connection, pragma, dialect, identifierDefaults, typeProvider);
+            var viewProvider = new SqliteDatabaseViewProvider(connection, pragma, dialect, identifierDefaults);
 
             Assert.Throws<ArgumentNullException>(() => viewProvider.GetView(null));
         }

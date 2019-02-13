@@ -18,13 +18,12 @@ namespace SJP.Schematic.Sqlite
 {
     public class SqliteRelationalDatabaseTableProvider : IRelationalDatabaseTableProvider
     {
-        public SqliteRelationalDatabaseTableProvider(IDbConnection connection, ISqliteConnectionPragma pragma, IDatabaseDialect dialect, IIdentifierDefaults identifierDefaults, IDbTypeProvider typeProvider)
+        public SqliteRelationalDatabaseTableProvider(IDbConnection connection, ISqliteConnectionPragma pragma, IDatabaseDialect dialect, IIdentifierDefaults identifierDefaults)
         {
             Connection = connection ?? throw new ArgumentNullException(nameof(connection));
             ConnectionPragma = pragma ?? throw new ArgumentNullException(nameof(pragma));
             Dialect = dialect ?? throw new ArgumentNullException(nameof(dialect));
             IdentifierDefaults = identifierDefaults ?? throw new ArgumentNullException(nameof(identifierDefaults));
-            TypeProvider = typeProvider ?? throw new ArgumentNullException(nameof(typeProvider));
         }
 
         protected IDbConnection Connection { get; }
@@ -34,8 +33,6 @@ namespace SJP.Schematic.Sqlite
         protected IDatabaseDialect Dialect { get; }
 
         protected IIdentifierDefaults IdentifierDefaults { get; }
-
-        protected IDbTypeProvider TypeProvider { get; }
 
         public async Task<IReadOnlyCollection<IRelationalDatabaseTable>> GetAllTables(CancellationToken cancellationToken = default(CancellationToken))
         {

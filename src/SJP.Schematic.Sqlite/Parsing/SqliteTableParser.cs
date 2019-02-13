@@ -1,8 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using Superpower;
-using Superpower.Model;
 using System.Linq;
+using Superpower.Model;
 using SJP.Schematic.Core.Extensions;
 using LanguageExt;
 

@@ -12,7 +12,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
 {
     internal sealed class SqliteDatabaseViewProviderTests : SqliteTest
     {
-        private IDatabaseViewProvider ViewProvider => new SqliteDatabaseViewProvider(Connection, Pragma, Dialect, IdentifierDefaults, Dialect.TypeProvider);
+        private IDatabaseViewProvider ViewProvider => new SqliteDatabaseViewProvider(Connection, Pragma, Dialect, IdentifierDefaults);
 
         [OneTimeSetUp]
         public async Task Init()

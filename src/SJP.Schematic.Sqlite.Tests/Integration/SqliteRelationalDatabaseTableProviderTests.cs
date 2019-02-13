@@ -13,7 +13,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
     {
         public SqliteRelationalDatabaseTableProviderTests()
         {
-            TableProvider = new SqliteRelationalDatabaseTableProvider(Connection, Pragma, Dialect, IdentifierDefaults, Dialect.TypeProvider);
+            TableProvider = new SqliteRelationalDatabaseTableProvider(Connection, Pragma, Dialect, IdentifierDefaults);
         }
 
         private IRelationalDatabaseTableProvider TableProvider { get; }

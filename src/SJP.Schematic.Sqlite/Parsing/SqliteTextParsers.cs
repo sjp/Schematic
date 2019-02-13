@@ -1,5 +1,4 @@
-﻿using System.Linq;
-using Superpower;
+﻿using Superpower;
 using Superpower.Model;
 using Superpower.Parsers;
 

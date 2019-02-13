@@ -26,8 +26,8 @@ namespace SJP.Schematic.Sqlite
             : base(dialect, connection, identifierDefaults)
         {
             var pragma = new ConnectionPragma(Dialect, Connection);
-            _tableProvider = new SqliteRelationalDatabaseTableProvider(connection, pragma, dialect, identifierDefaults, dialect.TypeProvider);
-            _viewProvider = new SqliteDatabaseViewProvider(connection, pragma, dialect, identifierDefaults, dialect.TypeProvider);
+            _tableProvider = new SqliteRelationalDatabaseTableProvider(connection, pragma, dialect, identifierDefaults);
+            _viewProvider = new SqliteDatabaseViewProvider(connection, pragma, dialect, identifierDefaults);
         }
 
         public Task<IReadOnlyCollection<IRelationalDatabaseTable>> GetAllTables(CancellationToken cancellationToken = default(CancellationToken))
