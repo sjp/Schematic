@@ -5,7 +5,7 @@
     <TreatWarningsAsErrors>True</TreatWarningsAsErrors>
     <TreatSpecificWarningsAsErrors />
     <Description>Core components for database modelling and migrations in .NET</Description>
-    <Copyright>Copyright © Simon Potter 2018</Copyright>
+    <Copyright>Copyright © Simon Potter 2019</Copyright>
     <RepositoryUrl>https://github.com/sjp/Schematic</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <NeutralLanguage>en-US</NeutralLanguage>
