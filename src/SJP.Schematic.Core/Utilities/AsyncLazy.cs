@@ -33,7 +33,7 @@ namespace SJP.Schematic.Core.Utilities
     /// Provides support for asynchronous lazy initialization. This type is fully threadsafe.
     /// </summary>
     /// <typeparam name="T">The type of object that is being asynchronously initialized.</typeparam>
-    [DebuggerDisplay("Id = {Id}, State = {GetStateForDebugger}")]
+    [DebuggerDisplay("State = {" + nameof(GetStateForDebugger) + "}")]
     [DebuggerTypeProxy(typeof(AsyncLazy<>.DebugView))]
     public sealed class AsyncLazy<T>
     {

@@ -6,7 +6,7 @@ using System.Diagnostics;
 namespace SJP.Schematic.Core.Utilities
 {
     [DebuggerTypeProxy(typeof(CollectionDebugView<>))]
-    [DebuggerDisplay("Count = {Count}")]
+    [DebuggerDisplay("Count = {" + nameof(Count) + "}")]
     public sealed class ReadOnlyCollectionSlim<T> : IReadOnlyCollection<T>
     {
         public ReadOnlyCollectionSlim(int count, IEnumerable<T> collection)
