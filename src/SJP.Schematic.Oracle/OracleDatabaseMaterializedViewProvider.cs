@@ -29,8 +29,6 @@ namespace SJP.Schematic.Oracle
 
         protected IDbTypeProvider TypeProvider { get; }
 
-        protected IDatabaseDialect Dialect { get; }
-
         public async Task<IReadOnlyCollection<IDatabaseView>> GetAllViews(CancellationToken cancellationToken = default(CancellationToken))
         {
             var queryResult = await Connection.QueryAsync<QualifiedName>(ViewsQuery, cancellationToken).ConfigureAwait(false);

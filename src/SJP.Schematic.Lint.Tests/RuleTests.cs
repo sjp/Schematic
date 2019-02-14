@@ -1,9 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Threading;
-using System.Threading.Tasks;
 using NUnit.Framework;
-using SJP.Schematic.Core;
 
 namespace SJP.Schematic.Lint.Tests
 {
