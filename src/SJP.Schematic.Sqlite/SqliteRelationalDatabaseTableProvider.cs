@@ -588,7 +588,7 @@ namespace SJP.Schematic.Sqlite
                 var parsedColumnInfo = parsedColumns.First(col => string.Equals(col.Name, tableInfo.name, StringComparison.OrdinalIgnoreCase));
                 var columnTypeName = tableInfo.type;
 
-                var affinity = _affinityParser.ParseTypeName(columnTypeName);
+                var affinity = AffinityParser.ParseTypeName(columnTypeName);
                 var columnType = new SqliteColumnType(affinity);
 
                 var isAutoIncrement = parsedColumnInfo.IsAutoIncrement;
@@ -634,12 +634,12 @@ namespace SJP.Schematic.Sqlite
                 {
                     if (!_triggerParserCache.TryGetValue(triggerSql, out var parsedTrigger))
                     {
-                        var tokenizeResult = _tokenizer.TryTokenize(triggerSql);
+                        var tokenizeResult = Tokenizer.TryTokenize(triggerSql);
                         if (!tokenizeResult.HasValue)
                             throw new SqliteTriggerParsingException(tableName, triggerInfo.sql, tokenizeResult.ErrorMessage + " at " + tokenizeResult.ErrorPosition.ToString());
 
                         var tokens = tokenizeResult.Value;
-                        parsedTrigger = _triggerParser.ParseTokens(tokens);
+                        parsedTrigger = TriggerParser.ParseTokens(tokens);
 
                         _triggerParserCache.TryAdd(triggerSql, parsedTrigger);
                     }
@@ -702,12 +702,12 @@ namespace SJP.Schematic.Sqlite
             {
                 if (!_tableParserCache.TryGetValue(tableSql, out var parsedTable))
                 {
-                    var tokenizeResult = _tokenizer.TryTokenize(tableSql);
+                    var tokenizeResult = Tokenizer.TryTokenize(tableSql);
                     if (!tokenizeResult.HasValue)
                         throw new SqliteTableParsingException(tableName, tableSql, tokenizeResult.ErrorMessage + " at " + tokenizeResult.ErrorPosition.ToString());
 
                     var tokens = tokenizeResult.Value;
-                    parsedTable = _tableParser.ParseTokens(tableSql, tokens);
+                    parsedTable = TableParser.ParseTokens(tableSql, tokens);
 
                     _tableParserCache.TryAdd(tableSql, parsedTable);
                 }
@@ -750,8 +750,8 @@ namespace SJP.Schematic.Sqlite
             if (pragmaUpdateRule.IsNullOrWhiteSpace())
                 throw new ArgumentNullException(nameof(pragmaUpdateRule));
 
-            return _relationalUpdateMapping.ContainsKey(pragmaUpdateRule)
-                ? _relationalUpdateMapping[pragmaUpdateRule]
+            return RelationalUpdateMapping.ContainsKey(pragmaUpdateRule)
+                ? RelationalUpdateMapping[pragmaUpdateRule]
                 : Rule.None;
         }
 
@@ -760,7 +760,7 @@ namespace SJP.Schematic.Sqlite
         private readonly ReaderWriterLockSlim _tableRwLock = new ReaderWriterLockSlim();
         private readonly ReaderWriterLockSlim _triggerRwLock = new ReaderWriterLockSlim();
 
-        private static readonly IReadOnlyDictionary<string, Rule> _relationalUpdateMapping = new Dictionary<string, Rule>(StringComparer.OrdinalIgnoreCase)
+        private static readonly IReadOnlyDictionary<string, Rule> RelationalUpdateMapping = new Dictionary<string, Rule>(StringComparer.OrdinalIgnoreCase)
         {
             ["NO ACTION"] = Rule.None,
             ["RESTRICT"] = Rule.None,
@@ -769,9 +769,9 @@ namespace SJP.Schematic.Sqlite
             ["CASCADE"] = Rule.Cascade
         };
 
-        private static readonly SqliteTypeAffinityParser _affinityParser = new SqliteTypeAffinityParser();
-        private static readonly SqliteTokenizer _tokenizer = new SqliteTokenizer();
-        private static readonly SqliteTableParser _tableParser = new SqliteTableParser();
-        private static readonly SqliteTriggerParser _triggerParser = new SqliteTriggerParser();
+        private static readonly SqliteTypeAffinityParser AffinityParser = new SqliteTypeAffinityParser();
+        private static readonly SqliteTokenizer Tokenizer = new SqliteTokenizer();
+        private static readonly SqliteTableParser TableParser = new SqliteTableParser();
+        private static readonly SqliteTriggerParser TriggerParser = new SqliteTriggerParser();
     }
 }

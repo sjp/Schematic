@@ -61,11 +61,11 @@ namespace SJP.Schematic.Sqlite
             if (text.IsNullOrWhiteSpace())
                 throw new ArgumentNullException(nameof(text));
 
-            return _keywords.Contains(text);
+            return Keywords.Contains(text);
         }
 
         // https://www.sqlite.org/lang_keywords.html
-        private static readonly IEnumerable<string> _keywords = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+        private static readonly IEnumerable<string> Keywords = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
         {
             "ABORT",
             "ACTION",
@@ -210,8 +210,8 @@ namespace SJP.Schematic.Sqlite
             }
         }
 
-        public override IDbTypeProvider TypeProvider => _typeProvider;
+        public override IDbTypeProvider TypeProvider => InnerTypeProvider;
 
-        private static readonly IDbTypeProvider _typeProvider = new SqliteDbTypeProvider();
+        private static readonly IDbTypeProvider InnerTypeProvider = new SqliteDbTypeProvider();
     }
 }

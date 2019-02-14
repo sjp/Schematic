@@ -60,7 +60,7 @@ namespace SJP.Schematic.PostgreSql
             if (typeName == null)
                 throw new ArgumentNullException(nameof(typeName));
 
-            return _fixedLengthTypes.Contains(typeName);
+            return FixedLengthTypes.Contains(typeName);
         }
 
         protected static Identifier GetDefaultTypeName(ColumnTypeMetadata typeMetadata)
@@ -125,7 +125,7 @@ namespace SJP.Schematic.PostgreSql
             else
                 builder.Append(QuoteName(typeName));
 
-            if (_typeNamesWithNoLengthAnnotation.Contains(typeName))
+            if (TypeNamesWithNoLengthAnnotation.Contains(typeName))
                 return builder.GetStringAndRelease();
 
             builder.Append("(");
@@ -161,8 +161,8 @@ namespace SJP.Schematic.PostgreSql
             if (typeName == null)
                 throw new ArgumentNullException(nameof(typeName));
 
-            return _stringToDataTypeMap.ContainsKey(typeName)
-                ? _stringToDataTypeMap[typeName]
+            return StringToDataTypeMap.ContainsKey(typeName)
+                ? StringToDataTypeMap[typeName]
                 : DataType.Unknown;
         }
 
@@ -171,8 +171,8 @@ namespace SJP.Schematic.PostgreSql
             if (typeName == null)
                 throw new ArgumentNullException(nameof(typeName));
 
-            return _stringToClrTypeMap.ContainsKey(typeName)
-                ? _stringToClrTypeMap[typeName]
+            return StringToClrTypeMap.ContainsKey(typeName)
+                ? StringToClrTypeMap[typeName]
                 : typeof(object);
         }
 
@@ -203,13 +203,13 @@ namespace SJP.Schematic.PostgreSql
             return pieces.Join(".");
         }
 
-        private static readonly IEnumerable<Identifier> _fixedLengthTypes = new HashSet<Identifier>(IdentifierComparer.Ordinal)
+        private static readonly IEnumerable<Identifier> FixedLengthTypes = new HashSet<Identifier>(IdentifierComparer.Ordinal)
         {
             new Identifier("pg_catalog", "bit"),
             new Identifier("pg_catalog", "char"),
         };
 
-        private static readonly IEnumerable<Identifier> _typeNamesWithNoLengthAnnotation = new HashSet<Identifier>(IdentifierComparer.Ordinal)
+        private static readonly IEnumerable<Identifier> TypeNamesWithNoLengthAnnotation = new HashSet<Identifier>(IdentifierComparer.Ordinal)
         {
             new Identifier("pg_catalog", "bigint"),
             new Identifier("pg_catalog", "int8"),
@@ -254,7 +254,7 @@ namespace SJP.Schematic.PostgreSql
             new Identifier("pg_catalog", "xml")
         };
 
-        private static readonly IReadOnlyDictionary<Identifier, DataType> _stringToDataTypeMap = new Dictionary<Identifier, DataType>(IdentifierComparer.Ordinal)
+        private static readonly IReadOnlyDictionary<Identifier, DataType> StringToDataTypeMap = new Dictionary<Identifier, DataType>(IdentifierComparer.Ordinal)
         {
             [new Identifier("pg_catalog", "bigint")] = DataType.BigInteger,
             [new Identifier("pg_catalog", "int8")] = DataType.BigInteger,
@@ -315,7 +315,7 @@ namespace SJP.Schematic.PostgreSql
             [new Identifier("pg_catalog", "uuid")] = DataType.Unknown
         };
 
-        private static readonly IReadOnlyDictionary<Identifier, Type> _stringToClrTypeMap = new Dictionary<Identifier, Type>(IdentifierComparer.Ordinal)
+        private static readonly IReadOnlyDictionary<Identifier, Type> StringToClrTypeMap = new Dictionary<Identifier, Type>(IdentifierComparer.Ordinal)
         {
             [new Identifier("pg_catalog", "bigint")] = typeof(long),
             [new Identifier("pg_catalog", "int8")] = typeof(long),

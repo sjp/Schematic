@@ -19,9 +19,9 @@ namespace SJP.Schematic.Modelled.Reflection.Tests.Fakes
 
         public string QuoteName(Identifier name) => null;
 
-        public IDbTypeProvider TypeProvider => _typeProvider;
+        public IDbTypeProvider TypeProvider => InnerTypeProvider;
 
-        private static readonly IDbTypeProvider _typeProvider = new DbTypeProvider();
+        private static readonly IDbTypeProvider InnerTypeProvider = new DbTypeProvider();
 
         private sealed class DbTypeProvider : IDbTypeProvider
         {

@@ -106,10 +106,10 @@ namespace SJP.Schematic.Sqlite.Pragma
         public async Task<Encoding> EncodingAsync(CancellationToken cancellationToken = default(CancellationToken))
         {
             var encodingName = await Connection.ExecuteScalarAsync<string>(EncodingReadQuery, cancellationToken).ConfigureAwait(false);
-            if (!_nameEncodingMapping.ContainsKey(encodingName))
+            if (!NameEncodingMapping.ContainsKey(encodingName))
                 throw new InvalidOperationException("Unknown and unsupported encoding found: " + encodingName);
 
-            return _nameEncodingMapping[encodingName];
+            return NameEncodingMapping[encodingName];
         }
 
         public Task EncodingAsync(Encoding encoding, CancellationToken cancellationToken = default(CancellationToken)) => Connection.ExecuteAsync(EncodingSetQuery(encoding), cancellationToken);
@@ -121,7 +121,7 @@ namespace SJP.Schematic.Sqlite.Pragma
             if (!encoding.IsValid())
                 throw new ArgumentException($"The { nameof(Encoding) } provided must be a valid enum.", nameof(encoding));
 
-            var value = _encodingNameMapping[encoding];
+            var value = EncodingNameMapping[encoding];
             return PragmaPrefix + "encoding = '" + value + "'";
         }
 
@@ -262,7 +262,7 @@ namespace SJP.Schematic.Sqlite.Pragma
 
         protected virtual string WritableSchemaSetQuery(bool enable) => PragmaPrefix + "writable_schema = " + Convert.ToInt32(enable).ToString(CultureInfo.InvariantCulture);
 
-        private static readonly IReadOnlyDictionary<Encoding, string> _encodingNameMapping = new Dictionary<Encoding, string>
+        private static readonly IReadOnlyDictionary<Encoding, string> EncodingNameMapping = new Dictionary<Encoding, string>
         {
             [Encoding.Utf8] = "UTF-8",
             [Encoding.Utf16] = "UTF-16",
@@ -270,7 +270,7 @@ namespace SJP.Schematic.Sqlite.Pragma
             [Encoding.Utf16be] = "UTF-16be"
         };
 
-        private static readonly IReadOnlyDictionary<string, Encoding> _nameEncodingMapping = new Dictionary<string, Encoding>
+        private static readonly IReadOnlyDictionary<string, Encoding> NameEncodingMapping = new Dictionary<string, Encoding>
         {
             ["UTF-8"] = Encoding.Utf8,
             ["UTF-16"] = Encoding.Utf16,

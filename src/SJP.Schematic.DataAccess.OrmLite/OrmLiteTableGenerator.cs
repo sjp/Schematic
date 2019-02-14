@@ -179,8 +179,8 @@ namespace SJP.Schematic.DataAccess.OrmLite
             }
 
             var typeName = clrType.Name;
-            if (clrType.Namespace == "System" && _typeNameMap.ContainsKey(typeName))
-                typeName = _typeNameMap[typeName];
+            if (clrType.Namespace == "System" && TypeNameMap.ContainsKey(typeName))
+                typeName = TypeNameMap[typeName];
 
             var isPrimaryKey = ColumnIsPrimaryKey(table, column);
             if (isPrimaryKey)
@@ -245,14 +245,14 @@ namespace SJP.Schematic.DataAccess.OrmLite
 
                 if (relationalKey.DeleteRule != Rule.None)
                 {
-                    var ruleLiteral = _foreignKeyRule[relationalKey.DeleteRule].ToStringLiteral();
+                    var ruleLiteral = ForeignKeyRule[relationalKey.DeleteRule].ToStringLiteral();
                     builder.Append(", OnDelete = ")
                        .Append(ruleLiteral);
                 }
 
                 if (relationalKey.UpdateRule != Rule.None)
                 {
-                    var ruleLiteral = _foreignKeyRule[relationalKey.UpdateRule].ToStringLiteral();
+                    var ruleLiteral = ForeignKeyRule[relationalKey.UpdateRule].ToStringLiteral();
                     builder.Append(", OnUpdate = ")
                        .Append(ruleLiteral);
                 }
@@ -467,7 +467,7 @@ namespace SJP.Schematic.DataAccess.OrmLite
             return false;
         }
 
-        private static readonly IReadOnlyDictionary<string, string> _typeNameMap = new Dictionary<string, string>
+        private static readonly IReadOnlyDictionary<string, string> TypeNameMap = new Dictionary<string, string>
         {
             ["Boolean"] = "bool",
             ["Byte"] = "byte",
@@ -487,7 +487,7 @@ namespace SJP.Schematic.DataAccess.OrmLite
             ["String"] = "string"
         };
 
-        private static readonly IReadOnlyDictionary<Rule, string> _foreignKeyRule = new Dictionary<Rule, string>
+        private static readonly IReadOnlyDictionary<Rule, string> ForeignKeyRule = new Dictionary<Rule, string>
         {
             [Rule.None] = "NO ACTION",
             [Rule.Cascade] = "CASCADE",

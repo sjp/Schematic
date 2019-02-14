@@ -77,7 +77,7 @@ namespace SJP.Schematic.Oracle
                 string line;
                 while ((line = reader.ReadLine()) != null)
                 {
-                    var match = _base64Header.Match(line);
+                    var match = Base64Header.Match(line);
                     if (!match.Success)
                         continue;
 
@@ -121,7 +121,7 @@ namespace SJP.Schematic.Oracle
                 return false;
 
             var textToTokenize = input.Substring(0, lastIndex + wrappedKeyword.Length);
-            var tokens = _tokenizer.TryTokenize(textToTokenize);
+            var tokens = Tokenizer.TryTokenize(textToTokenize);
 
             // Note that currently we are not validating the object type.
             // Valid object types are: FUNCTION, PROCEDURE, PACKAGE, PACKAGE BODY, TYPE, TYPE BODY
@@ -141,7 +141,7 @@ namespace SJP.Schematic.Oracle
                 return false;
 
             currentIndex = magicPrefixIndex + magicPrefix.Length;
-            using (var reader = new StringReader(input.Substring(currentIndex).TrimStart(_newlineChars)))
+            using (var reader = new StringReader(input.Substring(currentIndex).TrimStart(NewlineChars)))
             {
                 var numberLine = reader.ReadLine();
                 if (numberLine == null)
@@ -164,7 +164,7 @@ namespace SJP.Schematic.Oracle
                 currentIndex = fillerIndex + magicFiller.Length;
             }
 
-            var remainder = input.Substring(currentIndex).TrimStart(_newlineChars);
+            var remainder = input.Substring(currentIndex).TrimStart(NewlineChars);
             using (var reader = new StringReader(remainder))
             {
                 var numberLine = reader.ReadLine();
@@ -178,7 +178,7 @@ namespace SJP.Schematic.Oracle
                 if (lengthLine == null)
                     return false;
 
-                var lengthPieces = lengthLine.Split(_spaceChar, StringSplitOptions.RemoveEmptyEntries);
+                var lengthPieces = lengthLine.Split(SpaceChar, StringSplitOptions.RemoveEmptyEntries);
                 if (lengthPieces.Length != 2)
                     return false;
 
@@ -204,7 +204,7 @@ namespace SJP.Schematic.Oracle
                 throw new ArgumentNullException(nameof(base64Input));
 
             var bytes = Convert.FromBase64String(base64Input);
-            var mappedBytes = bytes.Select(b => _charMap[b]).ToArray();
+            var mappedBytes = bytes.Select(b => CharMap[b]).ToArray();
 
             var hashBytes = mappedBytes.Take(20).ToArray();
             var dataBytes = mappedBytes.Skip(20).ToArray();
@@ -245,7 +245,7 @@ namespace SJP.Schematic.Oracle
             if (!validLength)
                 return false;
 
-            return _base64Matcher.IsMatch(trimmed);
+            return Base64Matcher.IsMatch(trimmed);
         }
 
         private static byte[] ZlibToDeflate(byte[] bytes)
@@ -261,7 +261,7 @@ namespace SJP.Schematic.Oracle
                 .ToArray();
         }
 
-        private static readonly byte[] _charMap = new byte[]
+        private static readonly byte[] CharMap = new byte[]
         {
             0x3D, 0x65, 0x85, 0xB3, 0x18, 0xDB, 0xE2, 0x87, 0xF1, 0x52, 0xAB, 0x63, 0x4B, 0xB5, 0xA0, 0x5F,
             0x7D, 0x68, 0x7B, 0x9B, 0x24, 0xC2, 0x28, 0x67, 0x8A, 0xDE, 0xA4, 0x26, 0x1E, 0x03, 0xEB, 0x17,
@@ -281,10 +281,10 @@ namespace SJP.Schematic.Oracle
             0x8D, 0x92, 0x4A, 0x11, 0x89, 0x74, 0x6B, 0x91, 0xFB, 0xFE, 0xC9, 0x01, 0xEA, 0x1B, 0xF7, 0xCE
         };
 
-        private static readonly Regex _base64Header = new Regex("^[0-9a-f]+ ([0-9a-f]+)$", RegexOptions.Compiled);
-        private static readonly char[] _spaceChar = new[] { ' ' };
-        private static readonly char[] _newlineChars = new[] { '\r', '\n' };
-        private static readonly Regex _base64Matcher = new Regex("^[a-zA-Z0-9\\+/]*={0,3}$", RegexOptions.None);
-        private static readonly OracleTokenizer _tokenizer = new OracleTokenizer();
+        private static readonly Regex Base64Header = new Regex("^[0-9a-f]+ ([0-9a-f]+)$", RegexOptions.Compiled);
+        private static readonly char[] SpaceChar = new[] { ' ' };
+        private static readonly char[] NewlineChars = new[] { '\r', '\n' };
+        private static readonly Regex Base64Matcher = new Regex("^[a-zA-Z0-9\\+/]*={0,3}$", RegexOptions.None);
+        private static readonly OracleTokenizer Tokenizer = new OracleTokenizer();
     }
 }

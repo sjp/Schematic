@@ -60,7 +60,7 @@ namespace SJP.Schematic.PostgreSql
 
         public Task<IReadOnlyCollection<IDatabaseSynonym>> GetAllSynonyms(CancellationToken cancellationToken = default(CancellationToken))
         {
-            return _synonymProvider.GetAllSynonyms(cancellationToken);
+            return SynonymProvider.GetAllSynonyms(cancellationToken);
         }
 
         public OptionAsync<IDatabaseSynonym> GetSynonym(Identifier synonymName, CancellationToken cancellationToken = default(CancellationToken))
@@ -68,7 +68,7 @@ namespace SJP.Schematic.PostgreSql
             if (synonymName == null)
                 throw new ArgumentNullException(nameof(synonymName));
 
-            return _synonymProvider.GetSynonym(synonymName, cancellationToken);
+            return SynonymProvider.GetSynonym(synonymName, cancellationToken);
         }
 
         public Task<IReadOnlyCollection<IDatabaseRoutine>> GetAllRoutines(CancellationToken cancellationToken = default(CancellationToken))
@@ -88,6 +88,6 @@ namespace SJP.Schematic.PostgreSql
         private readonly IDatabaseViewProvider _viewProvider;
         private readonly IDatabaseSequenceProvider _sequenceProvider;
         private readonly IDatabaseRoutineProvider _routineProvider;
-        private static readonly IDatabaseSynonymProvider _synonymProvider = new EmptyDatabaseSynonymProvider();
+        private static readonly IDatabaseSynonymProvider SynonymProvider = new EmptyDatabaseSynonymProvider();
     }
 }

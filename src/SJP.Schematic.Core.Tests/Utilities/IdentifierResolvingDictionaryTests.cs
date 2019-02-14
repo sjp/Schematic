@@ -267,9 +267,9 @@ namespace SJP.Schematic.Core.Tests.Utilities
 
         private sealed class FakeIdentifierResolver : IIdentifierResolutionStrategy
         {
-            public IEnumerable<Identifier> GetResolutionOrder(Identifier identifier) => _identifiers;
+            public IEnumerable<Identifier> GetResolutionOrder(Identifier identifier) => Identifiers;
 
-            private static readonly IEnumerable<Identifier> _identifiers = new[]
+            private static readonly IEnumerable<Identifier> Identifiers = new[]
             {
                 new Identifier("A"),
                 new Identifier("B"),

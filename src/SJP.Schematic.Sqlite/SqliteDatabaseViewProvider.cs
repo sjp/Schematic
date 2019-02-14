@@ -242,7 +242,7 @@ namespace SJP.Schematic.Sqlite
                 if (columnTypeName.IsNullOrWhiteSpace())
                     columnTypeName = await GetTypeofColumnAsync(viewName, tableInfo.name, cancellationToken).ConfigureAwait(false);
 
-                var affinity = _affinityParser.ParseTypeName(columnTypeName);
+                var affinity = AffinityParser.ParseTypeName(columnTypeName);
                 var columnType = new SqliteColumnType(affinity);
                 var defaultValue = !tableInfo.dflt_value.IsNullOrWhiteSpace()
                     ? Option<string>.Some(tableInfo.dflt_value)
@@ -293,7 +293,7 @@ namespace SJP.Schematic.Sqlite
             return tableName.LocalName.StartsWith("sqlite_", StringComparison.OrdinalIgnoreCase);
         }
 
-        private static readonly SqliteTypeAffinityParser _affinityParser = new SqliteTypeAffinityParser();
+        private static readonly SqliteTypeAffinityParser AffinityParser = new SqliteTypeAffinityParser();
 
         private const int SqliteError = 1;
     }

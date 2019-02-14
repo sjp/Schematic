@@ -89,7 +89,7 @@ namespace SJP.Schematic.Modelled.Reflection
         {
             var tables = TypeProvider.Tables.Select(LoadTableSync).ToList();
             if (tables.Empty())
-                return _emptyTableLookup;
+                return EmptyTableLookup;
 
             var (duplicateNames, lookup) = CreateLookup(tables);
             if (duplicateNames.Any())
@@ -143,7 +143,7 @@ namespace SJP.Schematic.Modelled.Reflection
         {
             var views = TypeProvider.Views.Select(LoadViewSync).ToList();
             if (views.Empty())
-                return _emptyViewLookup;
+                return EmptyViewLookup;
 
             var (duplicateNames, lookup) = CreateLookup(views);
             if (duplicateNames.Any())
@@ -197,7 +197,7 @@ namespace SJP.Schematic.Modelled.Reflection
         {
             var sequences = TypeProvider.Sequences.Select(LoadSequenceSync).ToList();
             if (sequences.Empty())
-                return _emptySequenceLookup;
+                return EmptySequenceLookup;
 
             var (duplicateNames, lookup) = CreateLookup(sequences);
             if (duplicateNames.Any())
@@ -251,7 +251,7 @@ namespace SJP.Schematic.Modelled.Reflection
         {
             var synonyms = TypeProvider.Synonyms.Select(LoadSynonymSync).ToList();
             if (synonyms.Empty())
-                return _emptySynonymLookup;
+                return EmptySynonymLookup;
 
             var (duplicateNames, lookup) = CreateLookup(synonyms);
             if (duplicateNames.Any())
@@ -297,7 +297,7 @@ namespace SJP.Schematic.Modelled.Reflection
             return OptionAsync<IDatabaseRoutine>.None;
         }
 
-        protected virtual IReadOnlyDictionary<Identifier, IDatabaseRoutine> LoadRoutines() => _emptyRoutineLookup;
+        protected virtual IReadOnlyDictionary<Identifier, IDatabaseRoutine> LoadRoutines() => EmptyRoutineLookup;
 
         protected Identifier CreateQualifiedIdentifier(Identifier identifier)
         {
@@ -364,10 +364,10 @@ namespace SJP.Schematic.Modelled.Reflection
         private readonly Lazy<IReadOnlyDictionary<Identifier, IDatabaseSynonym>> _synonymLookup;
         private readonly Lazy<IReadOnlyDictionary<Identifier, IDatabaseRoutine>> _routineLookup;
 
-        private static readonly IReadOnlyDictionary<Identifier, IRelationalDatabaseTable> _emptyTableLookup = new Dictionary<Identifier, IRelationalDatabaseTable>();
-        private static readonly IReadOnlyDictionary<Identifier, IDatabaseView> _emptyViewLookup = new Dictionary<Identifier, IDatabaseView>();
-        private static readonly IReadOnlyDictionary<Identifier, IDatabaseSequence> _emptySequenceLookup = new Dictionary<Identifier, IDatabaseSequence>();
-        private static readonly IReadOnlyDictionary<Identifier, IDatabaseSynonym> _emptySynonymLookup = new Dictionary<Identifier, IDatabaseSynonym>();
-        private static readonly IReadOnlyDictionary<Identifier, IDatabaseRoutine> _emptyRoutineLookup = new Dictionary<Identifier, IDatabaseRoutine>();
+        private static readonly IReadOnlyDictionary<Identifier, IRelationalDatabaseTable> EmptyTableLookup = new Dictionary<Identifier, IRelationalDatabaseTable>();
+        private static readonly IReadOnlyDictionary<Identifier, IDatabaseView> EmptyViewLookup = new Dictionary<Identifier, IDatabaseView>();
+        private static readonly IReadOnlyDictionary<Identifier, IDatabaseSequence> EmptySequenceLookup = new Dictionary<Identifier, IDatabaseSequence>();
+        private static readonly IReadOnlyDictionary<Identifier, IDatabaseSynonym> EmptySynonymLookup = new Dictionary<Identifier, IDatabaseSynonym>();
+        private static readonly IReadOnlyDictionary<Identifier, IDatabaseRoutine> EmptyRoutineLookup = new Dictionary<Identifier, IDatabaseRoutine>();
     }
 }

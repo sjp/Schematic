@@ -39,7 +39,7 @@ namespace SJP.Schematic.MySql
             if (text.IsNullOrWhiteSpace())
                 throw new ArgumentNullException(nameof(text));
 
-            return _keywords.Contains(text);
+            return Keywords.Contains(text);
         }
 
         public override async Task<IIdentifierDefaults> GetIdentifierDefaultsAsync(CancellationToken cancellationToken = default(CancellationToken))
@@ -81,7 +81,7 @@ select
         private const string DatabaseVersionQuerySql = "select version() as DatabaseVersion";
 
         // https://dev.mysql.com/doc/refman/5.7/en/keywords.html
-        private static readonly IEnumerable<string> _keywords = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+        private static readonly IEnumerable<string> Keywords = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
         {
             "ACCESSIBLE",
             "ACCOUNT",
@@ -734,8 +734,8 @@ select
             return pieces.Join(".");
         }
 
-        public override IDbTypeProvider TypeProvider => _typeProvider;
+        public override IDbTypeProvider TypeProvider => InnerTypeProvider;
 
-        private static readonly IDbTypeProvider _typeProvider = new MySqlDbTypeProvider();
+        private static readonly IDbTypeProvider InnerTypeProvider = new MySqlDbTypeProvider();
     }
 }

@@ -60,7 +60,7 @@ namespace SJP.Schematic.MySql
             if (typeName.IsNullOrWhiteSpace())
                 throw new ArgumentNullException(nameof(typeName));
 
-            return _fixedLengthTypes.Contains(typeName);
+            return FixedLengthTypes.Contains(typeName);
         }
 
         protected static Identifier GetDefaultTypeName(ColumnTypeMetadata typeMetadata)
@@ -119,7 +119,7 @@ namespace SJP.Schematic.MySql
 
             builder.Append(typeName);
 
-            if (_typeNamesWithNoLengthAnnotation.Contains(typeName))
+            if (TypeNamesWithNoLengthAnnotation.Contains(typeName))
                 return builder.GetStringAndRelease();
 
             builder.Append("(");
@@ -152,8 +152,8 @@ namespace SJP.Schematic.MySql
             if (typeName.IsNullOrWhiteSpace())
                 throw new ArgumentNullException(nameof(typeName));
 
-            return _stringToDataTypeMap.ContainsKey(typeName)
-                ? _stringToDataTypeMap[typeName]
+            return StringToDataTypeMap.ContainsKey(typeName)
+                ? StringToDataTypeMap[typeName]
                 : DataType.Unknown;
         }
 
@@ -162,18 +162,18 @@ namespace SJP.Schematic.MySql
             if (typeName.IsNullOrWhiteSpace())
                 throw new ArgumentNullException(nameof(typeName));
 
-            return _stringToClrTypeMap.ContainsKey(typeName)
-                ? _stringToClrTypeMap[typeName]
+            return StringToClrTypeMap.ContainsKey(typeName)
+                ? StringToClrTypeMap[typeName]
                 : typeof(object);
         }
 
-        private static readonly IEnumerable<string> _fixedLengthTypes = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+        private static readonly IEnumerable<string> FixedLengthTypes = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
         {
             "char",
             "binary"
         };
 
-        private static readonly IEnumerable<string> _typeNamesWithNoLengthAnnotation = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+        private static readonly IEnumerable<string> TypeNamesWithNoLengthAnnotation = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
         {
             "bit",
             "tinyint",
@@ -192,7 +192,7 @@ namespace SJP.Schematic.MySql
             "longtext"
         };
 
-        private static readonly IReadOnlyDictionary<string, DataType> _stringToDataTypeMap = new Dictionary<string, DataType>(StringComparer.OrdinalIgnoreCase)
+        private static readonly IReadOnlyDictionary<string, DataType> StringToDataTypeMap = new Dictionary<string, DataType>(StringComparer.OrdinalIgnoreCase)
         {
             ["bit"] = DataType.Boolean,
             ["tinyint"] = DataType.Integer,
@@ -223,7 +223,7 @@ namespace SJP.Schematic.MySql
             ["longtext"] = DataType.UnicodeText
         };
 
-        private static readonly IReadOnlyDictionary<string, Type> _stringToClrTypeMap = new Dictionary<string, Type>(StringComparer.OrdinalIgnoreCase)
+        private static readonly IReadOnlyDictionary<string, Type> StringToClrTypeMap = new Dictionary<string, Type>(StringComparer.OrdinalIgnoreCase)
         {
             ["bit"] = typeof(bool),
             ["tinyint"] = typeof(byte),

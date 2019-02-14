@@ -51,8 +51,8 @@ namespace SJP.Schematic.Oracle.Tests.Integration
             }
         }
 
-        private static readonly object _lock = new object();
-        private static readonly ConcurrentDictionary<Identifier, AsyncLazy<IDatabaseView>> _viewsCache = new ConcurrentDictionary<Identifier, AsyncLazy<IDatabaseView>>();
+        private readonly object _lock = new object();
+        private readonly ConcurrentDictionary<Identifier, AsyncLazy<IDatabaseView>> _viewsCache = new ConcurrentDictionary<Identifier, AsyncLazy<IDatabaseView>>();
 
         [Test]
         public async Task GetView_WhenViewPresent_ReturnsView()

@@ -105,13 +105,13 @@ namespace SJP.Schematic.Core
             var localNamePresent = !localName.IsNullOrWhiteSpace();
 
             var identifierKey = GetHashCode(server, database, schema, localName);
-            if (_cache.TryGetValue(identifierKey, out Identifier identifier))
+            if (Cache.TryGetValue(identifierKey, out Identifier identifier))
                 return identifier;
 
             if (serverPresent && databasePresent && schemaPresent && localNamePresent)
             {
                 var result = new Identifier(server, database, schema, localName);
-                _cache.Set(identifierKey, result, _cacheLength);
+                Cache.Set(identifierKey, result, CacheLength);
                 return result;
             }
             else if (serverPresent)
@@ -122,7 +122,7 @@ namespace SJP.Schematic.Core
             if (databasePresent && schemaPresent && localNamePresent)
             {
                 var result = new Identifier(database, schema, localName);
-                _cache.Set(identifierKey, result, _cacheLength);
+                Cache.Set(identifierKey, result, CacheLength);
                 return result;
             }
             else if (databasePresent)
@@ -133,7 +133,7 @@ namespace SJP.Schematic.Core
             if (schemaPresent && localNamePresent)
             {
                 var result = new Identifier(schema, localName);
-                _cache.Set(identifierKey, result, _cacheLength);
+                Cache.Set(identifierKey, result, CacheLength);
                 return result;
             }
             else if (schemaPresent)
@@ -145,7 +145,7 @@ namespace SJP.Schematic.Core
                 throw new ArgumentNullException(nameof(localName), "At least one component of an identifier must be provided.");
 
             var localIdentifier = new Identifier(localName);
-            _cache.Set(identifierKey, localIdentifier, _cacheLength);
+            Cache.Set(identifierKey, localIdentifier, CacheLength);
             return localIdentifier;
         }
 
@@ -182,11 +182,11 @@ namespace SJP.Schematic.Core
         public static implicit operator Identifier(string localName)
         {
             var identifierKey = GetHashCode(null, null, null, localName);
-            if (_cache.TryGetValue(identifierKey, out Identifier identifier))
+            if (Cache.TryGetValue(identifierKey, out Identifier identifier))
                 return identifier;
 
             identifier = new Identifier(localName);
-            _cache.Set(identifierKey, identifier);
+            Cache.Set(identifierKey, identifier);
 
             return identifier;
         }
@@ -357,15 +357,15 @@ namespace SJP.Schematic.Core
             unchecked
             {
                 var hash = 17;
-                hash = (hash * 23) + (server != null ? _comparer.GetHashCode(server) : 0);
-                hash = (hash * 23) + (database != null ? _comparer.GetHashCode(database) : 0);
-                hash = (hash * 23) + (schema != null ? _comparer.GetHashCode(schema) : 0);
-                return (hash * 23) + (localName != null ? _comparer.GetHashCode(localName) : 0);
+                hash = (hash * 23) + (server != null ? Comparer.GetHashCode(server) : 0);
+                hash = (hash * 23) + (database != null ? Comparer.GetHashCode(database) : 0);
+                hash = (hash * 23) + (schema != null ? Comparer.GetHashCode(schema) : 0);
+                return (hash * 23) + (localName != null ? Comparer.GetHashCode(localName) : 0);
             }
         }
 
-        private static readonly TimeSpan _cacheLength = TimeSpan.FromMinutes(2); // only cache identifiers for two minutes
-        private static readonly IMemoryCache _cache = new MemoryCache(new MemoryCacheOptions());
-        private static readonly StringComparer _comparer = StringComparer.Ordinal;
+        private static readonly TimeSpan CacheLength = TimeSpan.FromMinutes(2); // only cache identifiers for two minutes
+        private static readonly IMemoryCache Cache = new MemoryCache(new MemoryCacheOptions());
+        private static readonly StringComparer Comparer = StringComparer.Ordinal;
     }
 }

@@ -58,7 +58,7 @@ namespace SJP.Schematic.Sqlite
 
         public Task<IReadOnlyCollection<IDatabaseSequence>> GetAllSequences(CancellationToken cancellationToken = default(CancellationToken))
         {
-            return _sequenceProvider.GetAllSequences(cancellationToken);
+            return SequenceProvider.GetAllSequences(cancellationToken);
         }
 
         public OptionAsync<IDatabaseSequence> GetSequence(Identifier sequenceName, CancellationToken cancellationToken = default(CancellationToken))
@@ -66,12 +66,12 @@ namespace SJP.Schematic.Sqlite
             if (sequenceName == null)
                 throw new ArgumentNullException(nameof(sequenceName));
 
-            return _sequenceProvider.GetSequence(sequenceName, cancellationToken);
+            return SequenceProvider.GetSequence(sequenceName, cancellationToken);
         }
 
         public Task<IReadOnlyCollection<IDatabaseSynonym>> GetAllSynonyms(CancellationToken cancellationToken = default(CancellationToken))
         {
-            return _synonymProvider.GetAllSynonyms(cancellationToken);
+            return SynonymProvider.GetAllSynonyms(cancellationToken);
         }
 
         public OptionAsync<IDatabaseSynonym> GetSynonym(Identifier synonymName, CancellationToken cancellationToken = default(CancellationToken))
@@ -79,12 +79,12 @@ namespace SJP.Schematic.Sqlite
             if (synonymName == null)
                 throw new ArgumentNullException(nameof(synonymName));
 
-            return _synonymProvider.GetSynonym(synonymName, cancellationToken);
+            return SynonymProvider.GetSynonym(synonymName, cancellationToken);
         }
 
         public Task<IReadOnlyCollection<IDatabaseRoutine>> GetAllRoutines(CancellationToken cancellationToken = default(CancellationToken))
         {
-            return _routineProvider.GetAllRoutines(cancellationToken);
+            return RoutineProvider.GetAllRoutines(cancellationToken);
         }
 
         public OptionAsync<IDatabaseRoutine> GetRoutine(Identifier routineName, CancellationToken cancellationToken = default(CancellationToken))
@@ -92,7 +92,7 @@ namespace SJP.Schematic.Sqlite
             if (routineName == null)
                 throw new ArgumentNullException(nameof(routineName));
 
-            return _routineProvider.GetRoutine(routineName, cancellationToken);
+            return RoutineProvider.GetRoutine(routineName, cancellationToken);
         }
 
         /// <summary>
@@ -219,8 +219,8 @@ namespace SJP.Schematic.Sqlite
 
         private readonly IRelationalDatabaseTableProvider _tableProvider;
         private readonly IDatabaseViewProvider _viewProvider;
-        private static readonly IDatabaseSequenceProvider _sequenceProvider = new EmptyDatabaseSequenceProvider();
-        private static readonly IDatabaseSynonymProvider _synonymProvider = new EmptyDatabaseSynonymProvider();
-        private static readonly IDatabaseRoutineProvider _routineProvider = new EmptyDatabaseRoutineProvider();
+        private static readonly IDatabaseSequenceProvider SequenceProvider = new EmptyDatabaseSequenceProvider();
+        private static readonly IDatabaseSynonymProvider SynonymProvider = new EmptyDatabaseSynonymProvider();
+        private static readonly IDatabaseRoutineProvider RoutineProvider = new EmptyDatabaseRoutineProvider();
     }
 }

@@ -179,6 +179,26 @@ namespace SJP.Schematic.Oracle.Tests
         }
 
         [Test]
+        public static void UpdateRule_PropertyGet_EqualsNone()
+        {
+            const string childTableName = "child_table";
+            const string parentTableName = "parent_table";
+            const Rule deleteRule = Rule.Cascade;
+
+            var childKeyMock = new Mock<IDatabaseKey>();
+            childKeyMock.Setup(k => k.KeyType).Returns(DatabaseKeyType.Foreign);
+            var childKey = childKeyMock.Object;
+
+            var parentKeyMock = new Mock<IDatabaseKey>();
+            parentKeyMock.Setup(k => k.KeyType).Returns(DatabaseKeyType.Primary);
+            var parentKey = parentKeyMock.Object;
+
+            var relationalKey = new OracleRelationalKey(childTableName, childKey, parentTableName, parentKey, deleteRule);
+
+            Assert.AreEqual(Rule.None, relationalKey.UpdateRule);
+        }
+
+        [Test]
         public static void Ctor_GivenChildKeyNotForeignKey_ThrowsArgumentException()
         {
             const string childTableName = "child_table";

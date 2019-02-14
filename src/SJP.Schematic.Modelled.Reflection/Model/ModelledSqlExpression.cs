@@ -249,9 +249,9 @@ namespace SJP.Schematic.Modelled.Reflection.Model
                     .Then(s => Character.EqualTo('}').Value(new string(s)));
 
             private static bool IsValidIdentifierPartCharacter(char c) =>
-                c.IsLetterOrDigit() || _validIdentifierCategories.Contains(c.GetUnicodeCategory());
+                c.IsLetterOrDigit() || ValidIdentifierCategories.Contains(c.GetUnicodeCategory());
 
-            private static readonly IEnumerable<UnicodeCategory> _validIdentifierCategories =
+            private static readonly IEnumerable<UnicodeCategory> ValidIdentifierCategories =
                 new HashSet<UnicodeCategory>(new[] { UnicodeCategory.ConnectorPunctuation, UnicodeCategory.Format, UnicodeCategory.SpacingCombiningMark, UnicodeCategory.NonSpacingMark });
         }
     }

@@ -46,7 +46,7 @@ namespace SJP.Schematic.DataAccess
             if (identifier.IsNullOrWhiteSpace())
                 throw new ArgumentNullException(nameof(identifier));
 
-            if (_keywords.Contains(identifier))
+            if (Keywords.Contains(identifier))
                 return false;
 
             var firstChar = identifier[0];
@@ -60,7 +60,7 @@ namespace SJP.Schematic.DataAccess
 
             return restChars
                 .Select(c => c.GetUnicodeCategory())
-                .All(_validPartCategories.Contains);
+                .All(ValidPartCategories.Contains);
         }
 
         protected static string CreateValidIdentifier(string objectName)
@@ -75,7 +75,7 @@ namespace SJP.Schematic.DataAccess
 
             var chars = objectName
                 .Select(c => new { NameChar = c, CharCategory = c.GetUnicodeCategory() })
-                .Where(cc => _validPartCategories.Contains(cc.CharCategory))
+                .Where(cc => ValidPartCategories.Contains(cc.CharCategory))
                 .Select(cc => cc.NameChar);
 
             return new string(chars.ToArray());
@@ -98,13 +98,13 @@ namespace SJP.Schematic.DataAccess
 
             var chars = columnName
                 .Select(c => new { NameChar = c, CharCategory = c.GetUnicodeCategory() })
-                .Where(cc => _validPartCategories.Contains(cc.CharCategory))
+                .Where(cc => ValidPartCategories.Contains(cc.CharCategory))
                 .Select(cc => cc.NameChar);
 
             return new string(chars.ToArray());
         }
 
-        private static readonly IEnumerable<UnicodeCategory> _validPartCategories = new HashSet<UnicodeCategory>
+        private static readonly IEnumerable<UnicodeCategory> ValidPartCategories = new HashSet<UnicodeCategory>
         {
             // letter character
             UnicodeCategory.UppercaseLetter,
@@ -128,7 +128,7 @@ namespace SJP.Schematic.DataAccess
             UnicodeCategory.Format
         };
 
-        private static readonly IEnumerable<string> _keywords = new HashSet<string>
+        private static readonly IEnumerable<string> Keywords = new HashSet<string>
         {
             "abstract",
             "as",

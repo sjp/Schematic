@@ -189,8 +189,8 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore
             }
 
             var typeName = clrType.Name;
-            if (clrType.Namespace == "System" && _typeNameMap.ContainsKey(typeName))
-                typeName = _typeNameMap[typeName];
+            if (clrType.Namespace == "System" && TypeNameMap.ContainsKey(typeName))
+                typeName = TypeNameMap[typeName];
 
             column.AutoIncrement.IfSome(_ =>
             {
@@ -269,7 +269,7 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore
             return "The " + escapedForeignKeyName + "child key. Navigates from <c>" + escapedParentTableName + "</c> to <c>" + escapedChildTableName + "</c> entities.";
         }
 
-        private static readonly IReadOnlyDictionary<string, string> _typeNameMap = new Dictionary<string, string>
+        private static readonly IReadOnlyDictionary<string, string> TypeNameMap = new Dictionary<string, string>
         {
             ["Boolean"] = "bool",
             ["Byte"] = "byte",

@@ -15,7 +15,7 @@ namespace SJP.Schematic.Core
             if (!comparison.IsValid())
                 throw new ArgumentException($"The { nameof(StringComparison) } provided must be a valid enum.", nameof(comparison));
 
-            _comparer = _stringComparerLookup[comparison];
+            _comparer = StringComparerLookup[comparison];
 
             _defaultServer = defaultServer.IsNullOrWhiteSpace() ? null : defaultServer;
             _defaultDatabase = defaultDatabase.IsNullOrWhiteSpace() ? null : defaultDatabase;
@@ -112,7 +112,7 @@ namespace SJP.Schematic.Core
         private readonly int _defaultServerHash;
         private readonly StringComparer _comparer;
 
-        private static readonly IReadOnlyDictionary<StringComparison, StringComparer> _stringComparerLookup = new Dictionary<StringComparison, StringComparer>
+        private static readonly IReadOnlyDictionary<StringComparison, StringComparer> StringComparerLookup = new Dictionary<StringComparison, StringComparer>
         {
             [StringComparison.CurrentCulture] = StringComparer.CurrentCulture,
             [StringComparison.CurrentCultureIgnoreCase] = StringComparer.CurrentCultureIgnoreCase,

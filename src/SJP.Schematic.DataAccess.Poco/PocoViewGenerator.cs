@@ -102,8 +102,8 @@ namespace SJP.Schematic.DataAccess.Poco
             var nullableSuffix = clrType.IsValueType && column.IsNullable ? "?" : string.Empty;
 
             var typeName = clrType.Name;
-            if (clrType.Namespace == "System" && _typeNameMap.ContainsKey(typeName))
-                typeName = _typeNameMap[typeName];
+            if (clrType.Namespace == "System" && TypeNameMap.ContainsKey(typeName))
+                typeName = TypeNameMap[typeName];
 
             var propertyName = NameTranslator.ColumnToPropertyName(className, column.Name.LocalName);
 
@@ -134,7 +134,7 @@ namespace SJP.Schematic.DataAccess.Poco
             return "The <c>" + escapedColumnName + "</c> column.";
         }
 
-        private static readonly IReadOnlyDictionary<string, string> _typeNameMap = new Dictionary<string, string>
+        private static readonly IReadOnlyDictionary<string, string> TypeNameMap = new Dictionary<string, string>
         {
             ["Boolean"] = "bool",
             ["Byte"] = "byte",

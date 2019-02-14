@@ -63,8 +63,8 @@ namespace SJP.Schematic.SqlServer.Tests.Integration
             }
         }
 
-        private static readonly object _lock = new object();
-        private static readonly ConcurrentDictionary<Identifier, AsyncLazy<IDatabaseSequence>> _sequencesCache = new ConcurrentDictionary<Identifier, AsyncLazy<IDatabaseSequence>>();
+        private readonly object _lock = new object();
+        private readonly ConcurrentDictionary<Identifier, AsyncLazy<IDatabaseSequence>> _sequencesCache = new ConcurrentDictionary<Identifier, AsyncLazy<IDatabaseSequence>>();
 
         [Test]
         public async Task GetSequence_WhenSequencePresent_ReturnsSequence()

@@ -16,8 +16,8 @@ namespace SJP.Schematic.Modelled.Reflection
                 throw new ArgumentNullException(nameof(sequenceType));
 
             var typeInfo = sequenceType.GetTypeInfo();
-            if (!typeInfo.ImplementedInterfaces.Contains(_iSequenceType))
-                throw new ArgumentException($"The sequence type { typeInfo.FullName } must implement the { _iSequenceType.FullName } interface.", nameof(sequenceType));
+            if (!typeInfo.ImplementedInterfaces.Contains(ISequenceType))
+                throw new ArgumentException($"The sequence type { typeInfo.FullName } must implement the { ISequenceType.FullName } interface.", nameof(sequenceType));
             var ctor = sequenceType.GetDefaultConstructor();
             if (ctor == null)
                 throw new ArgumentException($"The sequence type { typeInfo.FullName } does not contain a default constructor.", nameof(sequenceType));
@@ -63,6 +63,6 @@ namespace SJP.Schematic.Modelled.Reflection
 
         public decimal Start { get; }
 
-        private static readonly TypeInfo _iSequenceType = typeof(ISequence).GetTypeInfo();
+        private static readonly TypeInfo ISequenceType = typeof(ISequence).GetTypeInfo();
     }
 }

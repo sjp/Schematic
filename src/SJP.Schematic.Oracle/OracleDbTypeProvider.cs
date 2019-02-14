@@ -60,7 +60,7 @@ namespace SJP.Schematic.Oracle
             if (typeName == null)
                 throw new ArgumentNullException(nameof(typeName));
 
-            return _fixedLengthTypes.Contains(typeName.LocalName);
+            return FixedLengthTypes.Contains(typeName.LocalName);
         }
 
         protected static Identifier GetDefaultTypeName(ColumnTypeMetadata typeMetadata)
@@ -125,7 +125,7 @@ namespace SJP.Schematic.Oracle
             else
                 builder.Append(QuoteName(typeName));
 
-            if (_typeNamesWithNoLengthAnnotation.Contains(typeName.LocalName))
+            if (TypeNamesWithNoLengthAnnotation.Contains(typeName.LocalName))
                 return builder.GetStringAndRelease();
 
             if (typeMetadata.NumericPrecision.IsSome)
@@ -158,8 +158,8 @@ namespace SJP.Schematic.Oracle
             if (typeName == null)
                 throw new ArgumentNullException(nameof(typeName));
 
-            return _stringToDataTypeMap.ContainsKey(typeName.LocalName)
-                ? _stringToDataTypeMap[typeName.LocalName]
+            return StringToDataTypeMap.ContainsKey(typeName.LocalName)
+                ? StringToDataTypeMap[typeName.LocalName]
                 : DataType.Unknown;
         }
 
@@ -168,8 +168,8 @@ namespace SJP.Schematic.Oracle
             if (typeName == null)
                 throw new ArgumentNullException(nameof(typeName));
 
-            return _stringToClrTypeMap.ContainsKey(typeName.LocalName)
-                ? _stringToClrTypeMap[typeName.LocalName]
+            return StringToClrTypeMap.ContainsKey(typeName.LocalName)
+                ? StringToClrTypeMap[typeName.LocalName]
                 : typeof(object);
         }
 
@@ -200,14 +200,14 @@ namespace SJP.Schematic.Oracle
             return builder.GetStringAndRelease();
         }
 
-        private static readonly IEnumerable<string> _fixedLengthTypes = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+        private static readonly IEnumerable<string> FixedLengthTypes = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
         {
             "CHAR",
             "NCHAR",
             "RAW"
         };
 
-        private static readonly IEnumerable<string> _typeNamesWithNoLengthAnnotation = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+        private static readonly IEnumerable<string> TypeNamesWithNoLengthAnnotation = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
         {
             "BFILE",
             "BINARY_FLOAT",
@@ -221,7 +221,7 @@ namespace SJP.Schematic.Oracle
             "ROWID"
         };
 
-        private static readonly IReadOnlyDictionary<string, DataType> _stringToDataTypeMap = new Dictionary<string, DataType>(StringComparer.OrdinalIgnoreCase)
+        private static readonly IReadOnlyDictionary<string, DataType> StringToDataTypeMap = new Dictionary<string, DataType>(StringComparer.OrdinalIgnoreCase)
         {
             ["BFILE"] = DataType.LargeBinary,
             ["BINARY_DOUBLE"] = DataType.Float,
@@ -255,7 +255,7 @@ namespace SJP.Schematic.Oracle
             ["XMLTYPE"] = DataType.Unicode
         };
 
-        private static readonly IReadOnlyDictionary<string, Type> _stringToClrTypeMap = new Dictionary<string, Type>(StringComparer.OrdinalIgnoreCase)
+        private static readonly IReadOnlyDictionary<string, Type> StringToClrTypeMap = new Dictionary<string, Type>(StringComparer.OrdinalIgnoreCase)
         {
             ["BFILE"] = typeof(byte[]),
             ["BINARY_DOUBLE"] = typeof(double),

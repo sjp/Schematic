@@ -147,15 +147,15 @@ where PRODUCT like 'Oracle Database%'";
             if (text.IsNullOrWhiteSpace())
                 throw new ArgumentNullException(nameof(text));
 
-            return _keywords.Contains(text);
+            return Keywords.Contains(text);
         }
 
-        public override IDbTypeProvider TypeProvider => _typeProvider;
+        public override IDbTypeProvider TypeProvider => InnerTypeProvider;
 
-        private static readonly IDbTypeProvider _typeProvider = new OracleDbTypeProvider();
+        private static readonly IDbTypeProvider InnerTypeProvider = new OracleDbTypeProvider();
 
         // https://docs.oracle.com/database/121/SQLRF/ap_keywd.htm#SQLRF022
-        private static readonly IEnumerable<string> _keywords = new System.Collections.Generic.HashSet<string>(StringComparer.OrdinalIgnoreCase)
+        private static readonly IEnumerable<string> Keywords = new System.Collections.Generic.HashSet<string>(StringComparer.OrdinalIgnoreCase)
         {
             "ACCESS",
             "ADD",

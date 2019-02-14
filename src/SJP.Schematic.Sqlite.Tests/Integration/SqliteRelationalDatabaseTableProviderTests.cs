@@ -293,8 +293,8 @@ end").ConfigureAwait(false);
             }
         }
 
-        private static readonly object _lock = new object();
-        private static readonly ConcurrentDictionary<Identifier, AsyncLazy<IRelationalDatabaseTable>> _tablesCache = new ConcurrentDictionary<Identifier, AsyncLazy<IRelationalDatabaseTable>>();
+        private readonly object _lock = new object();
+        private readonly ConcurrentDictionary<Identifier, AsyncLazy<IRelationalDatabaseTable>> _tablesCache = new ConcurrentDictionary<Identifier, AsyncLazy<IRelationalDatabaseTable>>();
 
         [Test]
         public async Task GetTable_WhenTablePresent_ReturnsTable()

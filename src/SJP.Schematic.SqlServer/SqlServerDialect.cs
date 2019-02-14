@@ -108,11 +108,11 @@ select
             if (text.IsNullOrWhiteSpace())
                 throw new ArgumentNullException(nameof(text));
 
-            return _keywords.Contains(text);
+            return Keywords.Contains(text);
         }
 
         // https://docs.microsoft.com/en-us/sql/t-sql/language-elements/reserved-keywords-transact-sql
-        private static readonly IEnumerable<string> _keywords = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+        private static readonly IEnumerable<string> Keywords = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
         {
             "ABSOLUTE",
             "ACTION",
@@ -455,8 +455,8 @@ select
             return pieces.Join(".");
         }
 
-        public override IDbTypeProvider TypeProvider => _typeProvider;
+        public override IDbTypeProvider TypeProvider => InnerTypeProvider;
 
-        private static readonly IDbTypeProvider _typeProvider = new SqlServerDbTypeProvider();
+        private static readonly IDbTypeProvider InnerTypeProvider = new SqlServerDbTypeProvider();
     }
 }

@@ -137,8 +137,8 @@ namespace SJP.Schematic.DataAccess.OrmLite
             var nullableSuffix = clrType.IsValueType && column.IsNullable ? "?" : string.Empty;
 
             var typeName = clrType.Name;
-            if (clrType.Namespace == "System" && _typeNameMap.ContainsKey(typeName))
-                typeName = _typeNameMap[typeName];
+            if (clrType.Namespace == "System" && TypeNameMap.ContainsKey(typeName))
+                typeName = TypeNameMap[typeName];
 
             var columnComment = GenerateColumnComment(column.Name.LocalName);
             builder.AppendComment(columnIndent, columnComment);
@@ -162,7 +162,7 @@ namespace SJP.Schematic.DataAccess.OrmLite
                 .AppendLine(" { get; set; }");
         }
 
-        private static readonly IReadOnlyDictionary<string, string> _typeNameMap = new Dictionary<string, string>
+        private static readonly IReadOnlyDictionary<string, string> TypeNameMap = new Dictionary<string, string>
         {
             ["Boolean"] = "bool",
             ["Byte"] = "byte",

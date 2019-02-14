@@ -72,8 +72,8 @@ namespace SJP.Schematic.Sqlite
             }
         }
 
-        protected static SqliteTypeAffinity GetAffinity(string typeName) => _affinityParser.ParseTypeName(typeName);
+        protected static SqliteTypeAffinity GetAffinity(string typeName) => AffinityParser.ParseTypeName(typeName);
 
-        private static readonly SqliteTypeAffinityParser _affinityParser = new SqliteTypeAffinityParser();
+        private static readonly SqliteTypeAffinityParser AffinityParser = new SqliteTypeAffinityParser();
     }
 }

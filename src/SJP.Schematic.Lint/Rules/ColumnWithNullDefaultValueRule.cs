@@ -60,7 +60,7 @@ namespace SJP.Schematic.Lint.Rules
         protected static bool IsNullDefaultValue(string defaultValue)
         {
             return !defaultValue.IsNullOrWhiteSpace()
-                && _nullValues.Contains(defaultValue);
+                && NullValues.Contains(defaultValue);
         }
 
         protected virtual IRuleMessage BuildMessage(Identifier tableName, string columnName)
@@ -75,6 +75,6 @@ namespace SJP.Schematic.Lint.Rules
         }
 
         protected static string RuleTitle { get; } = "Null default values assigned to column.";
-        private static readonly IEnumerable<string> _nullValues = new HashSet<string>(StringComparer.OrdinalIgnoreCase) { "null", "(null)" };
+        private static readonly IEnumerable<string> NullValues = new HashSet<string>(StringComparer.OrdinalIgnoreCase) { "null", "(null)" };
     }
 }

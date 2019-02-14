@@ -60,7 +60,7 @@ namespace SJP.Schematic.SqlServer
             if (typeName == null)
                 throw new ArgumentNullException(nameof(typeName));
 
-            return _fixedLengthTypes.Contains(typeName);
+            return FixedLengthTypes.Contains(typeName);
         }
 
         protected static Identifier GetDefaultTypeName(ColumnTypeMetadata typeMetadata)
@@ -125,7 +125,7 @@ namespace SJP.Schematic.SqlServer
             else
                 builder.Append(QuoteName(typeName));
 
-            if (_typeNamesWithNoLengthAnnotation.Contains(typeName))
+            if (TypeNamesWithNoLengthAnnotation.Contains(typeName))
                 return builder.GetStringAndRelease();
 
             builder.Append("(");
@@ -165,8 +165,8 @@ namespace SJP.Schematic.SqlServer
             if (typeName == null)
                 throw new ArgumentNullException(nameof(typeName));
 
-            return _stringToDataTypeMap.ContainsKey(typeName)
-                ? _stringToDataTypeMap[typeName]
+            return StringToDataTypeMap.ContainsKey(typeName)
+                ? StringToDataTypeMap[typeName]
                 : DataType.Unknown;
         }
 
@@ -175,8 +175,8 @@ namespace SJP.Schematic.SqlServer
             if (typeName == null)
                 throw new ArgumentNullException(nameof(typeName));
 
-            return _stringToClrTypeMap.ContainsKey(typeName)
-                ? _stringToClrTypeMap[typeName]
+            return StringToClrTypeMap.ContainsKey(typeName)
+                ? StringToClrTypeMap[typeName]
                 : typeof(object);
         }
 
@@ -207,14 +207,14 @@ namespace SJP.Schematic.SqlServer
             return pieces.Join(".");
         }
 
-        private static readonly IEnumerable<Identifier> _fixedLengthTypes = new HashSet<Identifier>(IdentifierComparer.OrdinalIgnoreCase)
+        private static readonly IEnumerable<Identifier> FixedLengthTypes = new HashSet<Identifier>(IdentifierComparer.OrdinalIgnoreCase)
         {
             new Identifier("sys", "char"),
             new Identifier("sys", "nchar"),
             new Identifier("sys", "binary")
         };
 
-        private static readonly IEnumerable<Identifier> _typeNamesWithNoLengthAnnotation = new HashSet<Identifier>(IdentifierComparer.OrdinalIgnoreCase)
+        private static readonly IEnumerable<Identifier> TypeNamesWithNoLengthAnnotation = new HashSet<Identifier>(IdentifierComparer.OrdinalIgnoreCase)
         {
             new Identifier("sys", "bigint"),
             new Identifier("sys", "bit"),
@@ -236,7 +236,7 @@ namespace SJP.Schematic.SqlServer
             new Identifier("sys", "xml")
         };
 
-        private static readonly IReadOnlyDictionary<Identifier, DataType> _stringToDataTypeMap = new Dictionary<Identifier, DataType>(IdentifierComparer.OrdinalIgnoreCase)
+        private static readonly IReadOnlyDictionary<Identifier, DataType> StringToDataTypeMap = new Dictionary<Identifier, DataType>(IdentifierComparer.OrdinalIgnoreCase)
         {
             [new Identifier("sys", "bigint")] = DataType.BigInteger,
             [new Identifier("sys", "binary")] = DataType.Binary,
@@ -271,7 +271,7 @@ namespace SJP.Schematic.SqlServer
             [new Identifier("sys", "xml")] = DataType.Unicode
         };
 
-        private static readonly IReadOnlyDictionary<Identifier, Type> _stringToClrTypeMap = new Dictionary<Identifier, Type>(IdentifierComparer.OrdinalIgnoreCase)
+        private static readonly IReadOnlyDictionary<Identifier, Type> StringToClrTypeMap = new Dictionary<Identifier, Type>(IdentifierComparer.OrdinalIgnoreCase)
         {
             [new Identifier("sys", "bigint")] = typeof(long),
             [new Identifier("sys", "binary")] = typeof(byte[]),

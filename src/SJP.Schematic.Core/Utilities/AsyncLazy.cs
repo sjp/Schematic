@@ -30,7 +30,7 @@ namespace SJP.Schematic.Core.Utilities
     }
 
     /// <summary>
-    /// Provides support for asynchronous lazy initialization. This type is fully threadsafe.
+    /// Provides support for asynchronous lazy initialization. This type is fully thread-safe.
     /// </summary>
     /// <typeparam name="T">The type of object that is being asynchronously initialized.</typeparam>
     [DebuggerDisplay("State = {" + nameof(GetStateForDebugger) + "}")]
@@ -88,7 +88,7 @@ namespace SJP.Schematic.Core.Utilities
         }
 
         /// <summary>
-        /// Asynchronous infrastructure support. This method permits instances of <see cref="AsyncLazy&lt;T&gt;"/> to be await'ed.
+        /// Asynchronous infrastructure support. This method permits instances of <see cref="AsyncLazy&lt;T&gt;"/> to be awaited.
         /// </summary>
         [EditorBrowsable(EditorBrowsableState.Never)]
         public TaskAwaiter<T> GetAwaiter()
@@ -97,7 +97,7 @@ namespace SJP.Schematic.Core.Utilities
         }
 
         /// <summary>
-        /// Asynchronous infrastructure support. This method permits instances of <see cref="AsyncLazy&lt;T&gt;"/> to be await'ed.
+        /// Asynchronous infrastructure support. This method permits instances of <see cref="AsyncLazy&lt;T&gt;"/> to be awaited.
         /// </summary>
         /// <param name="continueOnCapturedContext"><c>true</c> to attempt to marshal the continuation back to the original context captured; otherwise, <c>false</c>.</param>
         [EditorBrowsable(EditorBrowsableState.Never)]
@@ -107,7 +107,7 @@ namespace SJP.Schematic.Core.Utilities
         }
 
         [DebuggerNonUserCode]
-        internal LazyState GetStateForDebugger
+        private LazyState GetStateForDebugger
         {
             get
             {
@@ -154,7 +154,7 @@ namespace SJP.Schematic.Core.Utilities
         /// </summary>
         private readonly Func<Task<T>> _factory;
 
-        internal enum LazyState
+        private enum LazyState
         {
             NotStarted,
             Executing,
@@ -162,7 +162,7 @@ namespace SJP.Schematic.Core.Utilities
         }
 
         [DebuggerNonUserCode]
-        internal sealed class DebugView
+        private sealed class DebugView
         {
             public DebugView(AsyncLazy<T> lazy)
             {
