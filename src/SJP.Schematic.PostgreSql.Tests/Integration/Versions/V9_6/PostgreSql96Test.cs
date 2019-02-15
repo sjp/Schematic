@@ -19,7 +19,7 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration.Versions.V9_6
 
     [Category("PostgreSqlDatabase")]
     [Category("SkipWhenLiveUnitTesting")]
-    [TestFixture(Ignore = "Multiple Postgres CI DB not available")]
+    [TestFixture]
     internal abstract class PostgreSql96Test
     {
         protected IDbConnection Connection { get; } = Config96.Connection;

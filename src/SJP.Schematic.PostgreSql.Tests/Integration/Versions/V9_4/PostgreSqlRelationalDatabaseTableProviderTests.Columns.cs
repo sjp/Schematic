@@ -3,14 +3,14 @@ using System.Threading.Tasks;
 using NUnit.Framework;
 using SJP.Schematic.Core.Extensions;
 
-namespace SJP.Schematic.PostgreSql.Tests.Integration
+namespace SJP.Schematic.PostgreSql.Tests.Integration.Versions.V9_4
 {
-    internal partial class PostgreSqlRelationalDatabaseTableProviderTests : PostgreSqlTest
+    internal partial class PostgreSqlRelationalDatabaseTableProviderTests : PostgreSql94Test
     {
         [Test]
         public async Task Columns_WhenGivenTableWithOneColumn_ReturnsColumnCollectionWithOneValue()
         {
-            var table = await GetTableAsync("table_test_table_1").ConfigureAwait(false);
+            var table = await GetTableAsync("v94_table_test_table_1").ConfigureAwait(false);
             var count = table.Columns.Count;
 
             Assert.AreEqual(1, count);
@@ -19,7 +19,7 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration
         [Test]
         public async Task Columns_WhenGivenTableWithOneColumn_ReturnsColumnWithCorrectName()
         {
-            var table = await GetTableAsync("table_test_table_1").ConfigureAwait(false);
+            var table = await GetTableAsync("v94_table_test_table_1").ConfigureAwait(false);
             var column = table.Columns.Single();
             const string columnName = "test_column";
 
@@ -30,7 +30,7 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration
         public async Task Columns_WhenGivenTableWithMultipleColumns_ReturnsColumnsInCorrectOrder()
         {
             var expectedColumnNames = new[] { "first_name", "middle_name", "last_name" };
-            var table = await GetTableAsync("table_test_table_4").ConfigureAwait(false);
+            var table = await GetTableAsync("v94_table_test_table_4").ConfigureAwait(false);
             var columns = table.Columns;
             var columnNames = columns.Select(c => c.Name.LocalName);
 
@@ -40,7 +40,7 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration
         [Test]
         public async Task Columns_WhenGivenTableWithNullableColumn_ColumnReturnsIsNullableTrue()
         {
-            const string tableName = "table_test_table_1";
+            const string tableName = "v94_table_test_table_1";
             var table = await GetTableAsync(tableName).ConfigureAwait(false);
             var column = table.Columns.Single();
 
@@ -50,7 +50,7 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration
         [Test]
         public async Task Columns_WhenGivenTableWithNotNullableColumn_ColumnReturnsIsNullableFalse()
         {
-            const string tableName = "table_test_table_2";
+            const string tableName = "v94_table_test_table_2";
             var table = await GetTableAsync(tableName).ConfigureAwait(false);
             var column = table.Columns.Single();
 
@@ -60,7 +60,7 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration
         [Test]
         public async Task Columns_WhenGivenTableWithColumnWithNoDefaultValue_ColumnReturnsNoneDefaultValue()
         {
-            const string tableName = "table_test_table_1";
+            const string tableName = "v94_table_test_table_1";
             var table = await GetTableAsync(tableName).ConfigureAwait(false);
             var column = table.Columns.Single();
 
@@ -70,7 +70,7 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration
         [Test]
         public async Task Columns_WhenGivenTableWithNonComputedColumn_ReturnsIsComputedFalse()
         {
-            const string tableName = "table_test_table_1";
+            const string tableName = "v94_table_test_table_1";
             var table = await GetTableAsync(tableName).ConfigureAwait(false);
             var column = table.Columns.Single();
 
@@ -80,7 +80,7 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration
         [Test]
         public async Task Columns_WhenGivenTableColumnWithoutIdentity_ReturnsNoneAutoincrement()
         {
-            const string tableName = "table_test_table_1";
+            const string tableName = "v94_table_test_table_1";
             var table = await GetTableAsync(tableName).ConfigureAwait(false);
             var column = table.Columns.Single();
 
@@ -90,7 +90,7 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration
         [Test]
         public async Task Columns_WhenGivenTableColumnWithIdentity_ReturnsSomeAutoincrement()
         {
-            const string tableName = "table_test_table_35";
+            const string tableName = "v94_table_test_table_35";
             var table = await GetTableAsync(tableName).ConfigureAwait(false);
             var column = table.Columns.Last();
 
@@ -100,7 +100,7 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration
         [Test]
         public async Task Columns_WhenGivenTableColumnWithIdentity_ReturnsCorrectInitialValue()
         {
-            const string tableName = "table_test_table_35";
+            const string tableName = "v94_table_test_table_35";
             var table = await GetTableAsync(tableName).ConfigureAwait(false);
             var column = table.Columns.Last();
 
@@ -110,7 +110,7 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration
         [Test]
         public async Task Columns_WhenGivenTableColumnWithIdentity_ReturnsCorrectIncrement()
         {
-            const string tableName = "table_test_table_35";
+            const string tableName = "v94_table_test_table_35";
             var table = await GetTableAsync(tableName).ConfigureAwait(false);
             var column = table.Columns.Last();
 

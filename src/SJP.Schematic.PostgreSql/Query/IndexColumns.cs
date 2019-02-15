@@ -8,6 +8,8 @@
 
         public bool IsPrimary { get; set; }
 
+        public int KeyColumnCount { get; set; }
+
         public int IndexColumnId { get; set; }
 
         public string IndexColumnExpression { get; set; }

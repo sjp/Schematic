@@ -4,14 +4,14 @@ using NUnit.Framework;
 using SJP.Schematic.Core;
 using SJP.Schematic.Core.Extensions;
 
-namespace SJP.Schematic.PostgreSql.Tests.Integration
+namespace SJP.Schematic.PostgreSql.Tests.Integration.Versions.V10
 {
-    internal partial class PostgreSqlRelationalDatabaseTableProviderTests : PostgreSqlTest
+    internal partial class PostgreSqlRelationalDatabaseTableProviderTests : PostgreSql10Test
     {
         [Test]
         public async Task PrimaryKey_WhenGivenTableWithNoPrimaryKey_ReturnsNone()
         {
-            var table = await GetTableAsync("table_test_table_1").ConfigureAwait(false);
+            var table = await GetTableAsync("v10_table_test_table_1").ConfigureAwait(false);
             var pkIsNone = table.PrimaryKey.IsNone;
 
             Assert.IsTrue(pkIsNone);
@@ -20,7 +20,7 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration
         [Test]
         public async Task PrimaryKey_WhenGivenTableWithPrimaryKey_ReturnsCorrectKeyType()
         {
-            var table = await GetTableAsync("table_test_table_2").ConfigureAwait(false);
+            var table = await GetTableAsync("v10_table_test_table_2").ConfigureAwait(false);
             var keyType = table.PrimaryKey.UnwrapSome().KeyType;
 
             Assert.AreEqual(DatabaseKeyType.Primary, keyType);
@@ -29,7 +29,7 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration
         [Test]
         public async Task PrimaryKey_WhenGivenTableWithColumnAsPrimaryKey_ReturnsPrimaryKeyWithColumnOnly()
         {
-            var table = await GetTableAsync("table_test_table_2").ConfigureAwait(false);
+            var table = await GetTableAsync("v10_table_test_table_2").ConfigureAwait(false);
             var pk = table.PrimaryKey.UnwrapSome();
             var pkColumns = pk.Columns.ToList();
 
@@ -43,7 +43,7 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration
         [Test]
         public async Task PrimaryKey_WhenGivenTableWithSingleColumnConstraintAsPrimaryKey_ReturnsPrimaryKeyWithColumnOnly()
         {
-            var table = await GetTableAsync("table_test_table_3").ConfigureAwait(false);
+            var table = await GetTableAsync("v10_table_test_table_3").ConfigureAwait(false);
             var pk = table.PrimaryKey.UnwrapSome();
             var pkColumns = pk.Columns.ToList();
 
@@ -57,7 +57,7 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration
         [Test]
         public async Task PrimaryKey_WhenGivenTableWithSingleColumnConstraintAsPrimaryKey_ReturnsPrimaryKeyWithCorrectName()
         {
-            var table = await GetTableAsync("table_test_table_3").ConfigureAwait(false);
+            var table = await GetTableAsync("v10_table_test_table_3").ConfigureAwait(false);
             var pk = table.PrimaryKey.UnwrapSome();
 
             Assert.AreEqual("pk_test_table_3", pk.Name.UnwrapSome().LocalName);
@@ -68,7 +68,7 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration
         {
             var expectedColumnNames = new[] { "first_name", "last_name", "middle_name" };
 
-            var table = await GetTableAsync("table_test_table_4").ConfigureAwait(false);
+            var table = await GetTableAsync("v10_table_test_table_4").ConfigureAwait(false);
             var pk = table.PrimaryKey.UnwrapSome();
             var pkColumns = pk.Columns.ToList();
 
@@ -84,7 +84,7 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration
         [Test]
         public async Task PrimaryKey_WhenGivenTableWithMultiColumnConstraintAsPrimaryKey_ReturnsPrimaryKeyWithCorrectName()
         {
-            var table = await GetTableAsync("table_test_table_4").ConfigureAwait(false);
+            var table = await GetTableAsync("v10_table_test_table_4").ConfigureAwait(false);
             var pk = table.PrimaryKey.UnwrapSome();
 
             Assert.AreEqual("pk_test_table_4", pk.Name.UnwrapSome().LocalName);

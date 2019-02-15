@@ -1,12 +1,9 @@
-﻿using System;
-using System.Collections.Concurrent;
-using System.Linq;
+﻿using System.Linq;
 using System.Threading.Tasks;
 using Dapper;
 using NUnit.Framework;
 using SJP.Schematic.Core;
 using SJP.Schematic.Core.Extensions;
-using SJP.Schematic.Core.Utilities;
 
 namespace SJP.Schematic.PostgreSql.Tests.Integration
 {
@@ -18,53 +15,13 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration
         public async Task Init()
         {
             await Connection.ExecuteAsync("create sequence db_test_sequence_1").ConfigureAwait(false);
-            await Connection.ExecuteAsync("create sequence db_test_sequence_2 start with 20").ConfigureAwait(false);
-            await Connection.ExecuteAsync("create sequence db_test_sequence_3 start with 100 increment by 100").ConfigureAwait(false);
-            await Connection.ExecuteAsync("create sequence db_test_sequence_4 start with 1000 minvalue -99").ConfigureAwait(false);
-            await Connection.ExecuteAsync("create sequence db_test_sequence_5 start with 1000 no minvalue").ConfigureAwait(false);
-            await Connection.ExecuteAsync("create sequence db_test_sequence_6 start with 1 maxvalue 333").ConfigureAwait(false);
-            await Connection.ExecuteAsync("create sequence db_test_sequence_7 start with 1 no maxvalue").ConfigureAwait(false);
-            await Connection.ExecuteAsync("create sequence db_test_sequence_8 cycle").ConfigureAwait(false);
-            await Connection.ExecuteAsync("create sequence db_test_sequence_9 no cycle").ConfigureAwait(false);
-            await Connection.ExecuteAsync("create sequence db_test_sequence_10 cache 10").ConfigureAwait(false);
-            await Connection.ExecuteAsync("create sequence db_test_sequence_11 cache 1").ConfigureAwait(false);
         }
 
         [OneTimeTearDown]
         public async Task CleanUp()
         {
             await Connection.ExecuteAsync("drop sequence db_test_sequence_1").ConfigureAwait(false);
-            await Connection.ExecuteAsync("drop sequence db_test_sequence_2").ConfigureAwait(false);
-            await Connection.ExecuteAsync("drop sequence db_test_sequence_3").ConfigureAwait(false);
-            await Connection.ExecuteAsync("drop sequence db_test_sequence_4").ConfigureAwait(false);
-            await Connection.ExecuteAsync("drop sequence db_test_sequence_5").ConfigureAwait(false);
-            await Connection.ExecuteAsync("drop sequence db_test_sequence_6").ConfigureAwait(false);
-            await Connection.ExecuteAsync("drop sequence db_test_sequence_7").ConfigureAwait(false);
-            await Connection.ExecuteAsync("drop sequence db_test_sequence_8").ConfigureAwait(false);
-            await Connection.ExecuteAsync("drop sequence db_test_sequence_9").ConfigureAwait(false);
-            await Connection.ExecuteAsync("drop sequence db_test_sequence_10").ConfigureAwait(false);
-            await Connection.ExecuteAsync("drop sequence db_test_sequence_11").ConfigureAwait(false);
         }
-
-        private Task<IDatabaseSequence> GetSequenceAsync(Identifier sequenceName)
-        {
-            if (sequenceName == null)
-                throw new ArgumentNullException(nameof(sequenceName));
-
-            lock (_lock)
-            {
-                if (!_sequencesCache.TryGetValue(sequenceName, out var lazySequence))
-                {
-                    lazySequence = new AsyncLazy<IDatabaseSequence>(() => SequenceProvider.GetSequence(sequenceName).UnwrapSomeAsync());
-                    _sequencesCache[sequenceName] = lazySequence;
-                }
-
-                return lazySequence.Task;
-            }
-        }
-
-        private readonly object _lock = new object();
-        private readonly ConcurrentDictionary<Identifier, AsyncLazy<IDatabaseSequence>> _sequencesCache = new ConcurrentDictionary<Identifier, AsyncLazy<IDatabaseSequence>>();
 
         [Test]
         public async Task GetSequence_WhenSequencePresent_ReturnsSequence()
@@ -169,138 +126,6 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration
             var containsTestSequence = sequences.Any(s => s.Name.LocalName == "db_test_sequence_1");
 
             Assert.IsTrue(containsTestSequence);
-        }
-
-        [Test]
-        public async Task Start_GivenDefaultSequence_ReturnsOne()
-        {
-            var sequence = await GetSequenceAsync("db_test_sequence_1").ConfigureAwait(false);
-
-            Assert.AreEqual(1, sequence.Start);
-        }
-
-        [Test]
-        public async Task Start_GivenSequenceWithCustomStart_ReturnsCorrectValue()
-        {
-            var sequence = await GetSequenceAsync("db_test_sequence_2").ConfigureAwait(false);
-
-            Assert.AreEqual(20, sequence.Start);
-        }
-
-        [Test]
-        public async Task Increment_GivenDefaultSequence_ReturnsOne()
-        {
-            var sequence = await GetSequenceAsync("db_test_sequence_1").ConfigureAwait(false);
-
-            Assert.AreEqual(1, sequence.Increment);
-        }
-
-        [Test]
-        public async Task Increment_GivenSequenceWithCustomIncrement_ReturnsCorrectValue()
-        {
-            var sequence = await GetSequenceAsync("db_test_sequence_3").ConfigureAwait(false);
-
-            Assert.AreEqual(100, sequence.Increment);
-        }
-
-        [Test]
-        public async Task MinValue_GivenDefaultSequence_ReturnsOne()
-        {
-            var sequence = await GetSequenceAsync("db_test_sequence_1").ConfigureAwait(false);
-
-            Assert.AreEqual(1, sequence.MinValue.UnwrapSome());
-        }
-
-        [Test]
-        public async Task MinValue_GivenSequenceWithCustomMinValue_ReturnsCorrectValue()
-        {
-            var sequence = await GetSequenceAsync("db_test_sequence_4").ConfigureAwait(false);
-
-            Assert.AreEqual(-99, sequence.MinValue.UnwrapSome());
-        }
-
-        [Test]
-        public async Task MinValue_GivenSequenceWithNoMinValue_ReturnsOne()
-        {
-            var sequence = await GetSequenceAsync("db_test_sequence_5").ConfigureAwait(false);
-
-            Assert.AreEqual(1, sequence.MinValue.UnwrapSome());
-        }
-
-        [Test]
-        public async Task MaxValue_GivenDefaultSequence_ReturnsLongMaxValue()
-        {
-            var sequence = await GetSequenceAsync("db_test_sequence_1").ConfigureAwait(false);
-
-            Assert.AreEqual(long.MaxValue, sequence.MaxValue.UnwrapSome());
-        }
-
-        [Test]
-        public async Task MaxValue_GivenSequenceWithCustomMaxValue_ReturnsCorrectValue()
-        {
-            var sequence = await GetSequenceAsync("db_test_sequence_6").ConfigureAwait(false);
-
-            Assert.AreEqual(333, sequence.MaxValue.UnwrapSome());
-        }
-
-        [Test]
-        public async Task MaxValue_GivenSequenceWithNoMaxValue_ReturnsLongMaxValue()
-        {
-            var sequence = await GetSequenceAsync("db_test_sequence_7").ConfigureAwait(false);
-
-            Assert.AreEqual(long.MaxValue, sequence.MaxValue.UnwrapSome());
-        }
-
-        [Test]
-        public async Task Cycle_GivenDefaultSequence_ReturnsTrue()
-        {
-            var sequence = await GetSequenceAsync("db_test_sequence_1").ConfigureAwait(false);
-
-            Assert.IsFalse(sequence.Cycle);
-        }
-
-        [Test]
-        public async Task Cycle_GivenSequenceWithCycle_ReturnsTrue()
-        {
-            var sequence = await GetSequenceAsync("db_test_sequence_8").ConfigureAwait(false);
-
-            Assert.IsTrue(sequence.Cycle);
-        }
-
-        [Test]
-        public async Task Cycle_GivenSequenceWithNoCycle_ReturnsTrue()
-        {
-            var sequence = await GetSequenceAsync("db_test_sequence_9").ConfigureAwait(false);
-
-            Assert.IsFalse(sequence.Cycle);
-        }
-
-        [Test]
-        public async Task Cache_GivenDefaultSequence_ReturnsOne()
-        {
-            var sequence = await GetSequenceAsync("db_test_sequence_1").ConfigureAwait(false);
-
-            Assert.AreEqual(1, sequence.Cache);
-        }
-
-        [Test]
-        public async Task Cache_GivenSequenceWithCacheSet_ReturnsCorrectValue()
-        {
-            var sequence = await GetSequenceAsync("db_test_sequence_10").ConfigureAwait(false);
-
-            // v10 introduced support for getting the cache value
-            var version = await Dialect.GetDatabaseVersionAsync().ConfigureAwait(false);
-            var expectedCache = version >= new Version(10, 0) ? 10 : 1;
-
-            Assert.AreEqual(expectedCache, sequence.Cache);
-        }
-
-        [Test]
-        public async Task Cache_GivenSequenceWithNoCacheSet_ReturnsCorrectValue()
-        {
-            var sequence = await GetSequenceAsync("db_test_sequence_11").ConfigureAwait(false);
-
-            Assert.AreEqual(1, sequence.Cache);
         }
     }
 }

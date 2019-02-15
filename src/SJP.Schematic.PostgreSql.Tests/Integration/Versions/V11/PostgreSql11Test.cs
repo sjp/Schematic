@@ -19,7 +19,7 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration.Versions.V11
 
     [Category("PostgreSqlDatabase")]
     [Category("SkipWhenLiveUnitTesting")]
-    [TestFixture(Ignore = "No v11 Postgres CI DB available")]
+    [TestFixture(Ignore = "No CI v11 DB available")]
     internal abstract class PostgreSql11Test
     {
         protected IDbConnection Connection { get; } = Config11.Connection;

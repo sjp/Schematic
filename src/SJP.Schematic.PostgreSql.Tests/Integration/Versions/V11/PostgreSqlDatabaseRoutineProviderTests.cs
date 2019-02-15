@@ -18,14 +18,14 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration.Versions.V11
         public async Task Init()
         {
             // func
-            await Connection.ExecuteAsync(@"CREATE FUNCTION db_test_routine_1(val integer)
+            await Connection.ExecuteAsync(@"CREATE FUNCTION v11_db_test_routine_1(val integer)
 RETURNS integer AS $$
 BEGIN
     RETURN val + 1;
 END; $$
 LANGUAGE PLPGSQL").ConfigureAwait(false);
             // stored proc
-            await Connection.ExecuteAsync(@"CREATE PROCEDURE db_test_routine_2()
+            await Connection.ExecuteAsync(@"CREATE PROCEDURE v11_db_test_routine_2()
 LANGUAGE PLPGSQL
 AS $$
 BEGIN
@@ -36,8 +36,8 @@ END $$").ConfigureAwait(false);
         [OneTimeTearDown]
         public async Task CleanUp()
         {
-            await Connection.ExecuteAsync("drop function db_test_routine_1(integer)").ConfigureAwait(false);
-            await Connection.ExecuteAsync("drop procedure db_test_routine_2()").ConfigureAwait(false);
+            await Connection.ExecuteAsync("drop function v11_db_test_routine_1(integer)").ConfigureAwait(false);
+            await Connection.ExecuteAsync("drop procedure v11_db_test_routine_2()").ConfigureAwait(false);
         }
 
         private Task<IDatabaseRoutine> GetRoutineAsync(Identifier routineName)
@@ -63,14 +63,14 @@ END $$").ConfigureAwait(false);
         [Test]
         public async Task GetRoutine_WhenRoutinePresent_ReturnsRoutine()
         {
-            var routineIsSome = await RoutineProvider.GetRoutine("db_test_routine_1").IsSome.ConfigureAwait(false);
+            var routineIsSome = await RoutineProvider.GetRoutine("v11_db_test_routine_1").IsSome.ConfigureAwait(false);
             Assert.IsTrue(routineIsSome);
         }
 
         [Test]
         public async Task GetRoutine_WhenRoutinePresent_ReturnsRoutineWithCorrectName()
         {
-            const string routineName = "db_test_routine_1";
+            const string routineName = "v11_db_test_routine_1";
             var routine = await RoutineProvider.GetRoutine(routineName).UnwrapSomeAsync().ConfigureAwait(false);
 
             Assert.AreEqual(routineName, routine.Name.LocalName);
@@ -79,8 +79,8 @@ END $$").ConfigureAwait(false);
         [Test]
         public async Task GetRoutine_WhenRoutinePresentGivenLocalNameOnly_ShouldBeQualifiedCorrectly()
         {
-            var routineName = new Identifier("db_test_routine_1");
-            var expectedRoutineName = new Identifier(IdentifierDefaults.Server, IdentifierDefaults.Database, IdentifierDefaults.Schema, "db_test_routine_1");
+            var routineName = new Identifier("v11_db_test_routine_1");
+            var expectedRoutineName = new Identifier(IdentifierDefaults.Server, IdentifierDefaults.Database, IdentifierDefaults.Schema, "v11_db_test_routine_1");
 
             var routine = await RoutineProvider.GetRoutine(routineName).UnwrapSomeAsync().ConfigureAwait(false);
 
@@ -90,8 +90,8 @@ END $$").ConfigureAwait(false);
         [Test]
         public async Task GetRoutine_WhenRoutinePresentGivenSchemaAndLocalNameOnly_ShouldBeQualifiedCorrectly()
         {
-            var routineName = new Identifier(IdentifierDefaults.Schema, "db_test_routine_1");
-            var expectedRoutineName = new Identifier(IdentifierDefaults.Server, IdentifierDefaults.Database, IdentifierDefaults.Schema, "db_test_routine_1");
+            var routineName = new Identifier(IdentifierDefaults.Schema, "v11_db_test_routine_1");
+            var expectedRoutineName = new Identifier(IdentifierDefaults.Server, IdentifierDefaults.Database, IdentifierDefaults.Schema, "v11_db_test_routine_1");
 
             var routine = await RoutineProvider.GetRoutine(routineName).UnwrapSomeAsync().ConfigureAwait(false);
 
@@ -101,8 +101,8 @@ END $$").ConfigureAwait(false);
         [Test]
         public async Task GetRoutine_WhenRoutinePresentGivenDatabaseAndSchemaAndLocalNameOnly_ShouldBeQualifiedCorrectly()
         {
-            var routineName = new Identifier(IdentifierDefaults.Database, IdentifierDefaults.Schema, "db_test_routine_1");
-            var expectedRoutineName = new Identifier(IdentifierDefaults.Server, IdentifierDefaults.Database, IdentifierDefaults.Schema, "db_test_routine_1");
+            var routineName = new Identifier(IdentifierDefaults.Database, IdentifierDefaults.Schema, "v11_db_test_routine_1");
+            var expectedRoutineName = new Identifier(IdentifierDefaults.Server, IdentifierDefaults.Database, IdentifierDefaults.Schema, "v11_db_test_routine_1");
 
             var routine = await RoutineProvider.GetRoutine(routineName).UnwrapSomeAsync().ConfigureAwait(false);
 
@@ -112,7 +112,7 @@ END $$").ConfigureAwait(false);
         [Test]
         public async Task GetRoutine_WhenRoutinePresentGivenFullyQualifiedName_ShouldBeQualifiedCorrectly()
         {
-            var routineName = new Identifier(IdentifierDefaults.Server, IdentifierDefaults.Database, IdentifierDefaults.Schema, "db_test_routine_1");
+            var routineName = new Identifier(IdentifierDefaults.Server, IdentifierDefaults.Database, IdentifierDefaults.Schema, "v11_db_test_routine_1");
 
             var routine = await RoutineProvider.GetRoutine(routineName).UnwrapSomeAsync().ConfigureAwait(false);
 
@@ -122,8 +122,8 @@ END $$").ConfigureAwait(false);
         [Test]
         public async Task GetRoutine_WhenRoutinePresentGivenFullyQualifiedNameWithDifferentServer_ShouldBeQualifiedCorrectly()
         {
-            var routineName = new Identifier("A", IdentifierDefaults.Database, IdentifierDefaults.Schema, "db_test_routine_1");
-            var expectedRoutineName = new Identifier(IdentifierDefaults.Server, IdentifierDefaults.Database, IdentifierDefaults.Schema, "db_test_routine_1");
+            var routineName = new Identifier("A", IdentifierDefaults.Database, IdentifierDefaults.Schema, "v11_db_test_routine_1");
+            var expectedRoutineName = new Identifier(IdentifierDefaults.Server, IdentifierDefaults.Database, IdentifierDefaults.Schema, "v11_db_test_routine_1");
 
             var routine = await RoutineProvider.GetRoutine(routineName).UnwrapSomeAsync().ConfigureAwait(false);
 
@@ -133,8 +133,8 @@ END $$").ConfigureAwait(false);
         [Test]
         public async Task GetRoutine_WhenRoutinePresentGivenFullyQualifiedNameWithDifferentServerAndDatabase_ShouldBeQualifiedCorrectly()
         {
-            var routineName = new Identifier("A", "B", IdentifierDefaults.Schema, "db_test_routine_1");
-            var expectedRoutineName = new Identifier(IdentifierDefaults.Server, IdentifierDefaults.Database, IdentifierDefaults.Schema, "db_test_routine_1");
+            var routineName = new Identifier("A", "B", IdentifierDefaults.Schema, "v11_db_test_routine_1");
+            var expectedRoutineName = new Identifier(IdentifierDefaults.Server, IdentifierDefaults.Database, IdentifierDefaults.Schema, "v11_db_test_routine_1");
 
             var routine = await RoutineProvider.GetRoutine(routineName).UnwrapSomeAsync().ConfigureAwait(false);
 
@@ -160,7 +160,7 @@ END $$").ConfigureAwait(false);
         public async Task GetAllRoutines_WhenEnumerated_ContainsTestRoutine()
         {
             var routines = await RoutineProvider.GetAllRoutines().ConfigureAwait(false);
-            var containsTestRoutine = routines.Any(r => r.Name.LocalName == "db_test_routine_1");
+            var containsTestRoutine = routines.Any(r => r.Name.LocalName == "v11_db_test_routine_1");
 
             Assert.IsTrue(containsTestRoutine);
         }
@@ -168,7 +168,7 @@ END $$").ConfigureAwait(false);
         [Test]
         public async Task Definition_ForFunction_ReturnsCorrectDefinition()
         {
-            var routine = await GetRoutineAsync("db_test_routine_1").ConfigureAwait(false);
+            var routine = await GetRoutineAsync("v11_db_test_routine_1").ConfigureAwait(false);
 
             const string expectedDefinition = @"
 BEGIN
@@ -181,7 +181,7 @@ END; ";
         [Test]
         public async Task Definition_ForStoredProcedure_ReturnsCorrectDefinition()
         {
-            var routine = await GetRoutineAsync("db_test_routine_2").ConfigureAwait(false);
+            var routine = await GetRoutineAsync("v11_db_test_routine_2").ConfigureAwait(false);
 
             const string expectedDefinition = @"
 BEGIN

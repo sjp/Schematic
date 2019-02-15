@@ -19,7 +19,7 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration.Versions.V10
 
     [Category("PostgreSqlDatabase")]
     [Category("SkipWhenLiveUnitTesting")]
-    [TestFixture(Ignore = "asd")]
+    [TestFixture(Ignore = "No CI v10 DB available")]
     internal abstract class PostgreSql10Test
     {
         protected IDbConnection Connection { get; } = Config10.Connection;

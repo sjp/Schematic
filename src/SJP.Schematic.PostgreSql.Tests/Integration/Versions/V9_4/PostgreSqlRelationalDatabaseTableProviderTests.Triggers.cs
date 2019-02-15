@@ -3,14 +3,14 @@ using System.Threading.Tasks;
 using NUnit.Framework;
 using SJP.Schematic.Core;
 
-namespace SJP.Schematic.PostgreSql.Tests.Integration
+namespace SJP.Schematic.PostgreSql.Tests.Integration.Versions.V9_4
 {
-    internal partial class PostgreSqlRelationalDatabaseTableProviderTests : PostgreSqlTest
+    internal partial class PostgreSqlRelationalDatabaseTableProviderTests : PostgreSql94Test
     {
         [Test]
         public async Task Triggers_GivenTableWithNoTriggers_ReturnsEmptyCollection()
         {
-            var table = await GetTableAsync("trigger_test_table_2").ConfigureAwait(false);
+            var table = await GetTableAsync("v94_trigger_test_table_2").ConfigureAwait(false);
             var count = table.Triggers.Count;
 
             Assert.Zero(count);
@@ -19,7 +19,7 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration
         [Test]
         public async Task Triggers_GivenTableWithTrigger_ReturnsNonEmptyCollection()
         {
-            var table = await GetTableAsync("trigger_test_table_1").ConfigureAwait(false);
+            var table = await GetTableAsync("v94_trigger_test_table_1").ConfigureAwait(false);
             var count = table.Triggers.Count;
 
             Assert.NotZero(count);
@@ -28,9 +28,9 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration
         [Test]
         public async Task Triggers_GivenTableWithTrigger_ReturnsCorrectName()
         {
-            Identifier triggerName = "trigger_test_table_1_trigger_1";
+            Identifier triggerName = "v94_trigger_test_table_1_trigger_1";
 
-            var table = await GetTableAsync("trigger_test_table_1").ConfigureAwait(false);
+            var table = await GetTableAsync("v94_trigger_test_table_1").ConfigureAwait(false);
             var trigger = table.Triggers.First(t => t.Name == triggerName);
 
             Assert.AreEqual(triggerName, trigger.Name);
@@ -39,10 +39,10 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration
         [Test]
         public async Task Triggers_GivenTableWithTrigger_ReturnsCorrectDefinition()
         {
-            var table = await GetTableAsync("trigger_test_table_1").ConfigureAwait(false);
-            var trigger = table.Triggers.First(t => t.Name == "trigger_test_table_1_trigger_1");
+            var table = await GetTableAsync("v94_trigger_test_table_1").ConfigureAwait(false);
+            var trigger = table.Triggers.First(t => t.Name == "v94_trigger_test_table_1_trigger_1");
 
-            const string expectedDefinition = "EXECUTE PROCEDURE test_trigger_fn()";
+            const string expectedDefinition = "EXECUTE PROCEDURE v94_test_trigger_fn()";
 
             Assert.AreEqual(expectedDefinition, trigger.Definition);
         }
@@ -50,8 +50,8 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration
         [Test]
         public async Task Triggers_GivenTableWithTriggerForInsert_ReturnsCorrectEventAndTiming()
         {
-            var table = await GetTableAsync("trigger_test_table_1").ConfigureAwait(false);
-            var trigger = table.Triggers.First(t => t.Name == "trigger_test_table_1_trigger_1");
+            var table = await GetTableAsync("v94_trigger_test_table_1").ConfigureAwait(false);
+            var trigger = table.Triggers.First(t => t.Name == "v94_trigger_test_table_1_trigger_1");
 
             const TriggerQueryTiming timing = TriggerQueryTiming.Before;
             const TriggerEvent events = TriggerEvent.Insert;
@@ -66,8 +66,8 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration
         [Test]
         public async Task Triggers_GivenTableWithTriggerForUpdate_ReturnsCorrectEventAndTiming()
         {
-            var table = await GetTableAsync("trigger_test_table_1").ConfigureAwait(false);
-            var trigger = table.Triggers.First(t => t.Name == "trigger_test_table_1_trigger_2");
+            var table = await GetTableAsync("v94_trigger_test_table_1").ConfigureAwait(false);
+            var trigger = table.Triggers.First(t => t.Name == "v94_trigger_test_table_1_trigger_2");
 
             const TriggerQueryTiming timing = TriggerQueryTiming.Before;
             const TriggerEvent events = TriggerEvent.Update;
@@ -82,8 +82,8 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration
         [Test]
         public async Task Triggers_GivenTableWithTriggerForDelete_ReturnsCorrectEventAndTiming()
         {
-            var table = await GetTableAsync("trigger_test_table_1").ConfigureAwait(false);
-            var trigger = table.Triggers.First(t => t.Name == "trigger_test_table_1_trigger_3");
+            var table = await GetTableAsync("v94_trigger_test_table_1").ConfigureAwait(false);
+            var trigger = table.Triggers.First(t => t.Name == "v94_trigger_test_table_1_trigger_3");
 
             const TriggerQueryTiming timing = TriggerQueryTiming.Before;
             const TriggerEvent events = TriggerEvent.Delete;
@@ -98,8 +98,8 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration
         [Test]
         public async Task Triggers_GivenTableWithTriggerAfterInsert_ReturnsCorrectEventAndTiming()
         {
-            var table = await GetTableAsync("trigger_test_table_1").ConfigureAwait(false);
-            var trigger = table.Triggers.First(t => t.Name == "trigger_test_table_1_trigger_4");
+            var table = await GetTableAsync("v94_trigger_test_table_1").ConfigureAwait(false);
+            var trigger = table.Triggers.First(t => t.Name == "v94_trigger_test_table_1_trigger_4");
 
             const TriggerQueryTiming timing = TriggerQueryTiming.After;
             const TriggerEvent events = TriggerEvent.Insert;
@@ -114,8 +114,8 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration
         [Test]
         public async Task Triggers_GivenTableWithTriggerAfterUpdate_ReturnsCorrectEventAndTiming()
         {
-            var table = await GetTableAsync("trigger_test_table_1").ConfigureAwait(false);
-            var trigger = table.Triggers.First(t => t.Name == "trigger_test_table_1_trigger_5");
+            var table = await GetTableAsync("v94_trigger_test_table_1").ConfigureAwait(false);
+            var trigger = table.Triggers.First(t => t.Name == "v94_trigger_test_table_1_trigger_5");
 
             const TriggerQueryTiming timing = TriggerQueryTiming.After;
             const TriggerEvent events = TriggerEvent.Update;
@@ -130,8 +130,8 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration
         [Test]
         public async Task Triggers_GivenTableWithTriggerAfterDelete_ReturnsCorrectEventAndTiming()
         {
-            var table = await GetTableAsync("trigger_test_table_1").ConfigureAwait(false);
-            var trigger = table.Triggers.First(t => t.Name == "trigger_test_table_1_trigger_6");
+            var table = await GetTableAsync("v94_trigger_test_table_1").ConfigureAwait(false);
+            var trigger = table.Triggers.First(t => t.Name == "v94_trigger_test_table_1_trigger_6");
 
             const TriggerQueryTiming timing = TriggerQueryTiming.After;
             const TriggerEvent events = TriggerEvent.Delete;

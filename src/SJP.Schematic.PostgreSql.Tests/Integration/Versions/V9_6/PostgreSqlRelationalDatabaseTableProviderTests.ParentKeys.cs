@@ -5,14 +5,14 @@ using NUnit.Framework;
 using SJP.Schematic.Core;
 using SJP.Schematic.Core.Extensions;
 
-namespace SJP.Schematic.PostgreSql.Tests.Integration
+namespace SJP.Schematic.PostgreSql.Tests.Integration.Versions.V9_6
 {
-    internal partial class PostgreSqlRelationalDatabaseTableProviderTests : PostgreSqlTest
+    internal partial class PostgreSqlRelationalDatabaseTableProviderTests : PostgreSql96Test
     {
         [Test]
         public async Task ParentKeys_WhenGivenTableWithNoForeignKeys_ReturnsEmptyCollection()
         {
-            var table = await GetTableAsync("table_test_table_15").ConfigureAwait(false);
+            var table = await GetTableAsync("v96_table_test_table_15").ConfigureAwait(false);
             var count = table.ParentKeys.Count;
 
             Assert.AreEqual(0, count);
@@ -21,7 +21,7 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration
         [Test]
         public async Task ParentKeys_WhenGivenTableWithForeignKeyToPrimaryKey_ContainsConstraintWithCorrectNames()
         {
-            var table = await GetTableAsync("table_test_table_16").ConfigureAwait(false);
+            var table = await GetTableAsync("v96_table_test_table_16").ConfigureAwait(false);
             var foreignKey = table.ParentKeys.Single();
 
             Assert.Multiple(() =>
@@ -34,7 +34,7 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration
         [Test]
         public async Task ParentKeys_WhenGivenTableWithForeignKeyToPrimaryKey_ContainsConstraintWithCorrectKeyTypes()
         {
-            var table = await GetTableAsync("table_test_table_16").ConfigureAwait(false);
+            var table = await GetTableAsync("v96_table_test_table_16").ConfigureAwait(false);
             var foreignKey = table.ParentKeys.Single();
 
             Assert.Multiple(() =>
@@ -47,20 +47,20 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration
         [Test]
         public async Task ParentKeys_WhenGivenTableWithForeignKeyToPrimaryKey_ContainsConstraintWithCorrectTables()
         {
-            var table = await GetTableAsync("table_test_table_16").ConfigureAwait(false);
+            var table = await GetTableAsync("v96_table_test_table_16").ConfigureAwait(false);
             var foreignKey = table.ParentKeys.Single();
 
             Assert.Multiple(() =>
             {
-                Assert.AreEqual("table_test_table_16", foreignKey.ChildTable.LocalName);
-                Assert.AreEqual("table_test_table_15", foreignKey.ParentTable.LocalName);
+                Assert.AreEqual("v96_table_test_table_16", foreignKey.ChildTable.LocalName);
+                Assert.AreEqual("v96_table_test_table_15", foreignKey.ParentTable.LocalName);
             });
         }
 
         [Test]
         public async Task ParentKeys_WhenGivenTableWithForeignKeyToPrimaryKey_ContainsConstraintWithCorrectColumns()
         {
-            var table = await GetTableAsync("table_test_table_16").ConfigureAwait(false);
+            var table = await GetTableAsync("v96_table_test_table_16").ConfigureAwait(false);
             var foreignKey = table.ParentKeys.Single();
 
             var childColumns = foreignKey.ChildKey.Columns.Select(c => c.Name.LocalName);
@@ -82,7 +82,7 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration
         [Test]
         public async Task ParentKeys_WhenGivenTableWithForeignKeyToPrimaryKeyWithDefaultUpdateRule_ReturnsUpdateRuleAsNoAction()
         {
-            var table = await GetTableAsync("table_test_table_16").ConfigureAwait(false);
+            var table = await GetTableAsync("v96_table_test_table_16").ConfigureAwait(false);
             var parentKeys = table.ParentKeys;
             var foreignKey = parentKeys.Single();
 
@@ -92,7 +92,7 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration
         [Test]
         public async Task ParentKeys_WhenGivenTableWithForeignKeyToPrimaryKeyWithCascadeUpdateRule_ReturnsUpdateRuleAsCascade()
         {
-            var table = await GetTableAsync("table_test_table_18").ConfigureAwait(false);
+            var table = await GetTableAsync("v96_table_test_table_18").ConfigureAwait(false);
             var parentKeys = table.ParentKeys;
             var foreignKey = parentKeys.Single();
 
@@ -102,7 +102,7 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration
         [Test]
         public async Task ParentKeys_WhenGivenTableWithForeignKeyToPrimaryKeyWithSetNullUpdateRule_ReturnsUpdateRuleAsSetNull()
         {
-            var table = await GetTableAsync("table_test_table_19").ConfigureAwait(false);
+            var table = await GetTableAsync("v96_table_test_table_19").ConfigureAwait(false);
             var parentKeys = table.ParentKeys;
             var foreignKey = parentKeys.Single();
 
@@ -112,7 +112,7 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration
         [Test]
         public async Task ParentKeys_WhenGivenTableWithForeignKeyToPrimaryKeyWithSetDefaultUpdateRule_ReturnsUpdateRuleAsSetDefault()
         {
-            var table = await GetTableAsync("table_test_table_20").ConfigureAwait(false);
+            var table = await GetTableAsync("v96_table_test_table_20").ConfigureAwait(false);
             var parentKeys = table.ParentKeys;
             var foreignKey = parentKeys.Single();
 
@@ -122,7 +122,7 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration
         [Test]
         public async Task ParentKeys_WhenGivenTableWithForeignKeyToPrimaryKeyWithDefaultDeleteRule_ReturnsDeleteRuleAsNoAction()
         {
-            var table = await GetTableAsync("table_test_table_16").ConfigureAwait(false);
+            var table = await GetTableAsync("v96_table_test_table_16").ConfigureAwait(false);
             var parentKeys = table.ParentKeys;
             var foreignKey = parentKeys.Single();
 
@@ -132,7 +132,7 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration
         [Test]
         public async Task ParentKeys_WhenGivenTableWithForeignKeyToPrimaryKeyWithCascadeDeleteRule_ReturnsDeleteRuleAsCascade()
         {
-            var table = await GetTableAsync("table_test_table_24").ConfigureAwait(false);
+            var table = await GetTableAsync("v96_table_test_table_24").ConfigureAwait(false);
             var parentKeys = table.ParentKeys;
             var foreignKey = parentKeys.Single();
 
@@ -142,7 +142,7 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration
         [Test]
         public async Task ParentKeys_WhenGivenTableWithForeignKeyToPrimaryKeyWithSetNullDeleteRule_ReturnsDeleteRuleAsSetNull()
         {
-            var table = await GetTableAsync("table_test_table_25").ConfigureAwait(false);
+            var table = await GetTableAsync("v96_table_test_table_25").ConfigureAwait(false);
             var parentKeys = table.ParentKeys;
             var foreignKey = parentKeys.Single();
 
@@ -152,7 +152,7 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration
         [Test]
         public async Task ParentKeys_WhenGivenTableWithForeignKeyToPrimaryKeyWithSetDefaultDeleteRule_ReturnsDeleteRuleAsSetDefault()
         {
-            var table = await GetTableAsync("table_test_table_26").ConfigureAwait(false);
+            var table = await GetTableAsync("v96_table_test_table_26").ConfigureAwait(false);
             var parentKeys = table.ParentKeys;
             var foreignKey = parentKeys.Single();
 
@@ -162,7 +162,7 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration
         [Test]
         public async Task ParentKeys_WhenGivenTableWithForeignKeyToPrimaryKey_ReturnsIsEnabledTrue()
         {
-            var table = await GetTableAsync("table_test_table_16").ConfigureAwait(false);
+            var table = await GetTableAsync("v96_table_test_table_16").ConfigureAwait(false);
             var parentKeys = table.ParentKeys;
             var foreignKey = parentKeys.Single();
 
@@ -172,7 +172,7 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration
         [Test]
         public async Task ParentKeys_WhenGivenTableWithForeignKeyToUniqueKey_ContainsConstraintWithCorrectNames()
         {
-            var table = await GetTableAsync("table_test_table_17").ConfigureAwait(false);
+            var table = await GetTableAsync("v96_table_test_table_17").ConfigureAwait(false);
             var foreignKey = table.ParentKeys.Single();
 
             Assert.Multiple(() =>
@@ -185,7 +185,7 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration
         [Test]
         public async Task ParentKeys_WhenGivenTableWithForeignKeyToUniqueKey_ContainsConstraintWithCorrectKeyTypes()
         {
-            var table = await GetTableAsync("table_test_table_17").ConfigureAwait(false);
+            var table = await GetTableAsync("v96_table_test_table_17").ConfigureAwait(false);
             var foreignKey = table.ParentKeys.Single();
 
             Assert.Multiple(() =>
@@ -198,20 +198,20 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration
         [Test]
         public async Task ParentKeys_WhenGivenTableWithForeignKeyToUniqueKey_ContainsConstraintWithCorrectTables()
         {
-            var table = await GetTableAsync("table_test_table_17").ConfigureAwait(false);
+            var table = await GetTableAsync("v96_table_test_table_17").ConfigureAwait(false);
             var foreignKey = table.ParentKeys.Single();
 
             Assert.Multiple(() =>
             {
-                Assert.AreEqual("table_test_table_17", foreignKey.ChildTable.LocalName);
-                Assert.AreEqual("table_test_table_15", foreignKey.ParentTable.LocalName);
+                Assert.AreEqual("v96_table_test_table_17", foreignKey.ChildTable.LocalName);
+                Assert.AreEqual("v96_table_test_table_15", foreignKey.ParentTable.LocalName);
             });
         }
 
         [Test]
         public async Task ParentKeys_WhenGivenTableWithForeignKeyToUniqueKey_ContainsConstraintWithCorrectColumns()
         {
-            var table = await GetTableAsync("table_test_table_17").ConfigureAwait(false);
+            var table = await GetTableAsync("v96_table_test_table_17").ConfigureAwait(false);
             var foreignKey = table.ParentKeys.Single();
 
             var childColumns = foreignKey.ChildKey.Columns.Select(c => c.Name.LocalName);
@@ -233,7 +233,7 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration
         [Test]
         public async Task ParentKeys_WhenGivenTableWithForeignKeyToUniqueKeyWithDefaultUpdateRule_ReturnsUpdateRuleAsNoAction()
         {
-            var table = await GetTableAsync("table_test_table_17").ConfigureAwait(false);
+            var table = await GetTableAsync("v96_table_test_table_17").ConfigureAwait(false);
             var parentKeys = table.ParentKeys;
             var foreignKey = parentKeys.Single();
 
@@ -243,7 +243,7 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration
         [Test]
         public async Task ParentKeys_WhenGivenTableWithForeignKeyToUniqueKeyWithCascadeUpdateRule_ReturnsUpdateRuleAsCascade()
         {
-            var table = await GetTableAsync("table_test_table_21").ConfigureAwait(false);
+            var table = await GetTableAsync("v96_table_test_table_21").ConfigureAwait(false);
             var parentKeys = table.ParentKeys;
             var foreignKey = parentKeys.Single();
 
@@ -253,7 +253,7 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration
         [Test]
         public async Task ParentKeys_WhenGivenTableWithForeignKeyToUniqueKeyWithSetNullUpdateRule_ReturnsUpdateRuleAsSetNull()
         {
-            var table = await GetTableAsync("table_test_table_22").ConfigureAwait(false);
+            var table = await GetTableAsync("v96_table_test_table_22").ConfigureAwait(false);
             var parentKeys = table.ParentKeys;
             var foreignKey = parentKeys.Single();
 
@@ -263,7 +263,7 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration
         [Test]
         public async Task ParentKeys_WhenGivenTableWithForeignKeyToUniqueKeyWithSetDefaultUpdateRule_ReturnsUpdateRuleAsSetDefault()
         {
-            var table = await GetTableAsync("table_test_table_23").ConfigureAwait(false);
+            var table = await GetTableAsync("v96_table_test_table_23").ConfigureAwait(false);
             var parentKeys = table.ParentKeys;
             var foreignKey = parentKeys.Single();
 
@@ -273,7 +273,7 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration
         [Test]
         public async Task ParentKeys_WhenGivenTableWithForeignKeyToUniqueKeyWithDefaultDeleteRule_ReturnsDeleteRuleAsNoAction()
         {
-            var table = await GetTableAsync("table_test_table_17").ConfigureAwait(false);
+            var table = await GetTableAsync("v96_table_test_table_17").ConfigureAwait(false);
             var parentKeys = table.ParentKeys;
             var foreignKey = parentKeys.Single();
 
@@ -283,7 +283,7 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration
         [Test]
         public async Task ParentKeys_WhenGivenTableWithForeignKeyToUniqueKeyWithCascadeDeleteRule_ReturnsDeleteRuleAsCascade()
         {
-            var table = await GetTableAsync("table_test_table_27").ConfigureAwait(false);
+            var table = await GetTableAsync("v96_table_test_table_27").ConfigureAwait(false);
             var parentKeys = table.ParentKeys;
             var foreignKey = parentKeys.Single();
 
@@ -293,7 +293,7 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration
         [Test]
         public async Task ParentKeys_WhenGivenTableWithForeignKeyToUniqueKeyWithSetNullDeleteRule_ReturnsDeleteRuleAsSetNull()
         {
-            var table = await GetTableAsync("table_test_table_28").ConfigureAwait(false);
+            var table = await GetTableAsync("v96_table_test_table_28").ConfigureAwait(false);
             var parentKeys = table.ParentKeys;
             var foreignKey = parentKeys.Single();
 
@@ -303,7 +303,7 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration
         [Test]
         public async Task ParentKeys_WhenGivenTableWithForeignKeyToUniqueKeyWithSetDefaultDeleteRule_ReturnsDeleteRuleAsSetDefault()
         {
-            var table = await GetTableAsync("table_test_table_29").ConfigureAwait(false);
+            var table = await GetTableAsync("v96_table_test_table_29").ConfigureAwait(false);
             var parentKeys = table.ParentKeys;
             var foreignKey = parentKeys.Single();
 
@@ -313,7 +313,7 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration
         [Test]
         public async Task ParentKeys_WhenGivenTableWithForeignKeyToUniqueKey_ReturnsIsEnabledTrue()
         {
-            var table = await GetTableAsync("table_test_table_17").ConfigureAwait(false);
+            var table = await GetTableAsync("v96_table_test_table_17").ConfigureAwait(false);
             var parentKeys = table.ParentKeys;
             var foreignKey = parentKeys.Single();
 

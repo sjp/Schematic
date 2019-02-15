@@ -48,6 +48,29 @@ namespace SJP.Schematic.PostgreSql.Tests
         }
 
         [Test]
+        public static void Ctor_GivenNullIncludedColumnSet_ThrowsArgumentNullException()
+        {
+            Identifier indexName = "test_index";
+            const bool isUnique = true;
+            var column = Mock.Of<IDatabaseIndexColumn>();
+            var columns = new[] { column };
+
+            Assert.Throws<ArgumentNullException>(() => new PostgreSqlDatabaseIndex(indexName, isUnique, columns, null));
+        }
+
+        [Test]
+        public static void Ctor_GivenIncludedColumnSetContainingNullColumn_ThrowsArgumentNullException()
+        {
+            Identifier indexName = "test_index";
+            const bool isUnique = true;
+            var column = Mock.Of<IDatabaseIndexColumn>();
+            var columns = new[] { column };
+            var includedColumns = new IDatabaseColumn[] { null };
+
+            Assert.Throws<ArgumentNullException>(() => new PostgreSqlDatabaseIndex(indexName, isUnique, columns, includedColumns));
+        }
+
+        [Test]
         public static void Name_PropertyGet_EqualsCtorArg()
         {
             Identifier indexName = "test_index";
@@ -100,7 +123,7 @@ namespace SJP.Schematic.PostgreSql.Tests
         }
 
         [Test]
-        public static void IncludedColumns_PropertyGet_AreEmpty()
+        public static void IncludedColumns_PropertyGetWhenNotProvidedInCtor_IsEmpty()
         {
             Identifier indexName = "test_index";
             const bool isUnique = true;
@@ -110,6 +133,21 @@ namespace SJP.Schematic.PostgreSql.Tests
             var index = new PostgreSqlDatabaseIndex(indexName, isUnique, columns);
 
             Assert.Zero(index.IncludedColumns.Count);
+        }
+
+        [Test]
+        public static void IncludedColumns_PropertyGet_EqualsCtorArg()
+        {
+            Identifier indexName = "test_index";
+            const bool isUnique = true;
+            var column = Mock.Of<IDatabaseIndexColumn>();
+            var columns = new[] { column };
+            var includedColumn = Mock.Of<IDatabaseColumn>();
+            var includedColumns = new[] { includedColumn };
+
+            var index = new PostgreSqlDatabaseIndex(indexName, isUnique, columns, includedColumns);
+
+            Assert.AreEqual(includedColumns, index.IncludedColumns);
         }
 
         [Test]

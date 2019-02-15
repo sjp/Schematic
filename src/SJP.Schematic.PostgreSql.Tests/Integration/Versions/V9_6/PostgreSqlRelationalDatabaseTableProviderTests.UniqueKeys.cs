@@ -4,14 +4,14 @@ using NUnit.Framework;
 using SJP.Schematic.Core;
 using SJP.Schematic.Core.Extensions;
 
-namespace SJP.Schematic.PostgreSql.Tests.Integration
+namespace SJP.Schematic.PostgreSql.Tests.Integration.Versions.V9_6
 {
-    internal partial class PostgreSqlRelationalDatabaseTableProviderTests : PostgreSqlTest
+    internal partial class PostgreSqlRelationalDatabaseTableProviderTests : PostgreSql96Test
     {
         [Test]
         public async Task UniqueKeys_WhenGivenTableWithNoUniqueKeys_ReturnsEmptyCollection()
         {
-            var table = await GetTableAsync("table_test_table_1").ConfigureAwait(false);
+            var table = await GetTableAsync("v96_table_test_table_1").ConfigureAwait(false);
             var count = table.UniqueKeys.Count;
 
             Assert.AreEqual(0, count);
@@ -20,7 +20,7 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration
         [Test]
         public async Task UniqueKeys_WhenGivenTableWithSingleUniqueKey_ReturnsCorrectKeyType()
         {
-            var table = await GetTableAsync("table_test_table_5").ConfigureAwait(false);
+            var table = await GetTableAsync("v96_table_test_table_5").ConfigureAwait(false);
             var uk = table.UniqueKeys.Single();
 
             Assert.AreEqual(DatabaseKeyType.Unique, uk.KeyType);
@@ -29,7 +29,7 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration
         [Test]
         public async Task UniqueKeys_WhenGivenTableWithColumnAsUniqueKey_ReturnsUniqueKeyWithColumnOnly()
         {
-            var table = await GetTableAsync("table_test_table_5").ConfigureAwait(false);
+            var table = await GetTableAsync("v96_table_test_table_5").ConfigureAwait(false);
             var uk = table.UniqueKeys.Single();
             var ukColumns = uk.Columns.ToList();
 
@@ -43,7 +43,7 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration
         [Test]
         public async Task UniqueKeys_WhenGivenTableWithSingleColumnConstraintAsUniqueKey_ReturnsUniqueKeyWithColumnOnly()
         {
-            var table = await GetTableAsync("table_test_table_6").ConfigureAwait(false);
+            var table = await GetTableAsync("v96_table_test_table_6").ConfigureAwait(false);
             var uk = table.UniqueKeys.Single();
             var ukColumns = uk.Columns.ToList();
 
@@ -57,7 +57,7 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration
         [Test]
         public async Task UniqueKeys_WhenGivenTableWithSingleColumnConstraintAsUniqueKey_ReturnsUniqueKeyWithCorrectName()
         {
-            var table = await GetTableAsync("table_test_table_6").ConfigureAwait(false);
+            var table = await GetTableAsync("v96_table_test_table_6").ConfigureAwait(false);
             var uk = table.UniqueKeys.Single();
 
             Assert.AreEqual("uk_test_table_6", uk.Name.UnwrapSome().LocalName);
@@ -68,7 +68,7 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration
         {
             var expectedColumnNames = new[] { "first_name", "last_name", "middle_name" };
 
-            var table = await GetTableAsync("table_test_table_7").ConfigureAwait(false);
+            var table = await GetTableAsync("v96_table_test_table_7").ConfigureAwait(false);
             var uk = table.UniqueKeys.Single();
             var ukColumns = uk.Columns.ToList();
 
@@ -84,7 +84,7 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration
         [Test]
         public async Task UniqueKeys_WhenGivenTableWithMultiColumnConstraintAsUniqueKey_ReturnsUniqueKeyWithCorrectName()
         {
-            var table = await GetTableAsync("table_test_table_7").ConfigureAwait(false);
+            var table = await GetTableAsync("v96_table_test_table_7").ConfigureAwait(false);
             var uk = table.UniqueKeys.Single();
 
             Assert.AreEqual("uk_test_table_7", uk.Name.UnwrapSome().LocalName);
