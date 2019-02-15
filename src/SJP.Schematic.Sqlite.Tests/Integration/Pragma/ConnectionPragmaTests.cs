@@ -316,7 +316,6 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
         }
 
         [Test]
-        [Ignore("Disabled until SQLite driver has been updated to v3.26.0.")]
         public static async Task LegacyAlterTableAsync_GetAndSet_ReadsAndWritesCorrectly()
         {
             using (var connection = CreateConnection())

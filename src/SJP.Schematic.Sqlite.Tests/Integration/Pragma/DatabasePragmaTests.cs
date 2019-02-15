@@ -715,7 +715,6 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
         }
 
         [Test]
-        [Ignore("Disabled until SQLite driver has been updated to v3.26.0.")]
         public async Task TableXInfoAsync_WhenTableExists_ReadsValuesCorrectly()
         {
             using (var connection = CreateConnection())
