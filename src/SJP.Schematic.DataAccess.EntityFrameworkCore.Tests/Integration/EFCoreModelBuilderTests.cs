@@ -26,7 +26,7 @@ create table test_table_1 (
     test_blob blob not null,
     test_datetime datetime default CURRENT_TIMESTAMP,
     test_string text,
-    test_string_with_default default 'asd'
+    test_string_with_default default 'test'
 )").ConfigureAwait(false);
             await Connection.ExecuteAsync(@"
 create table test_table_2 (
@@ -53,7 +53,7 @@ create table test_table_3 (
     test_blob blob not null,
     test_datetime datetime default CURRENT_TIMESTAMP,
     test_string text,
-    test_string_with_default default 'asd'
+    test_string_with_default default 'test'
 )").ConfigureAwait(false);
             await Connection.ExecuteAsync(@"
 create table test_table_4 (
@@ -65,7 +65,7 @@ create table test_table_4 (
     test_blob blob not null,
     test_datetime datetime default CURRENT_TIMESTAMP,
     test_string text,
-    test_string_with_default default 'asd',
+    test_string_with_default default 'test',
     test_table_3_fk1 integer,
     test_table_3_fk2 integer,
     test_table_3_fk3 integer,
@@ -141,7 +141,7 @@ create table test_table_4 (
       .HasDefaultValue(""CURRENT_TIMESTAMP"");
     modelBuilder.Entity<Main.TestTable1>()
       .Property(t => t.TestStringWithDefault)
-      .HasDefaultValue(""'asd'"");
+      .HasDefaultValue(""'test'"");
     modelBuilder.Entity<Main.TestTable1>()
       .HasKey(t => t.TestPk);
     modelBuilder.Entity<Main.TestTable2>()
@@ -169,7 +169,7 @@ create table test_table_4 (
       .HasDefaultValue(""CURRENT_TIMESTAMP"");
     modelBuilder.Entity<Main.TestTable3>()
       .Property(t => t.TestStringWithDefault)
-      .HasDefaultValue(""'asd'"");
+      .HasDefaultValue(""'test'"");
     modelBuilder.Entity<Main.TestTable3>()
       .HasKey(t => t.TestPk);
     modelBuilder.Entity<Main.TestTable4>()
@@ -177,7 +177,7 @@ create table test_table_4 (
       .HasDefaultValue(""CURRENT_TIMESTAMP"");
     modelBuilder.Entity<Main.TestTable4>()
       .Property(t => t.TestStringWithDefault)
-      .HasDefaultValue(""'asd'"");
+      .HasDefaultValue(""'test'"");
     modelBuilder.Entity<Main.TestTable4>()
       .HasKey(t => t.TestPk);
     modelBuilder.Entity<Main.TestTable4>()

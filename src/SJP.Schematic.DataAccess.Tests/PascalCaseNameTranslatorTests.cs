@@ -18,7 +18,7 @@ namespace SJP.Schematic.DataAccess.Tests
         public static void SchemaToNamespace_GivenNullSchema_ReturnsNull()
         {
             var nameTranslator = new PascalCaseNameTranslator();
-            var testName = new Identifier("asd");
+            var testName = new Identifier("test");
 
             var result = nameTranslator.SchemaToNamespace(testName);
             Assert.IsNull(result);
@@ -28,7 +28,7 @@ namespace SJP.Schematic.DataAccess.Tests
         public static void SchemaToNamespace_GivenSpaceSeparatedSchemaName_ReturnsSpaceRemovedText()
         {
             var nameTranslator = new PascalCaseNameTranslator();
-            var testName = new Identifier("first second", "asd");
+            var testName = new Identifier("first second", "test");
             const string expected = "Firstsecond";
 
             var result = nameTranslator.SchemaToNamespace(testName);
@@ -39,7 +39,7 @@ namespace SJP.Schematic.DataAccess.Tests
         public static void SchemaToNamespace_GivenUnderscoreSeparatedSchemaName_ReturnsPascalCasedText()
         {
             var nameTranslator = new PascalCaseNameTranslator();
-            var testName = new Identifier("first_second", "asd");
+            var testName = new Identifier("first_second", "test");
             const string expected = "FirstSecond";
 
             var result = nameTranslator.SchemaToNamespace(testName);
@@ -50,7 +50,7 @@ namespace SJP.Schematic.DataAccess.Tests
         public static void SchemaToNamespace_GivenCamelCasedSchemaName_ReturnsPascalCasedText()
         {
             var nameTranslator = new PascalCaseNameTranslator();
-            var testName = new Identifier("FirstSecond", "asd");
+            var testName = new Identifier("FirstSecond", "test");
             const string expected = "FirstSecond";
 
             var result = nameTranslator.SchemaToNamespace(testName);

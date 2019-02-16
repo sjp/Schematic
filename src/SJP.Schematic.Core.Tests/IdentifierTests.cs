@@ -20,7 +20,7 @@ namespace SJP.Schematic.Core.Tests
         [Test]
         public static void LocalName_PropertyGet_EqualsCtorArgument()
         {
-            const string name = "abc";
+            const string name = "test";
             var identifier = new Identifier(name);
             Assert.AreEqual(identifier.LocalName, name);
         }
@@ -43,8 +43,8 @@ namespace SJP.Schematic.Core.Tests
         [Test]
         public static void SchemaAndLocalName_PropertyGets_MatchCtorArguments()
         {
-            const string localName = "abc";
-            const string schema = "def";
+            const string localName = "local";
+            const string schema = "schema";
             var identifier = new Identifier(schema, localName);
 
             Assert.Multiple(() =>
@@ -76,9 +76,9 @@ namespace SJP.Schematic.Core.Tests
         [Test]
         public static void DatabaseAndSchemaAndLocalName_PropertyGets_MatchCtorArguments()
         {
-            const string localName = "abc";
-            const string schema = "def";
-            const string database = "ghi";
+            const string localName = "local";
+            const string schema = "schema";
+            const string database = "database";
             var identifier = new Identifier(database, schema, localName);
 
             Assert.Multiple(() =>
@@ -115,10 +115,10 @@ namespace SJP.Schematic.Core.Tests
         [Test]
         public static void ServerAndDatabaseAndSchemaAndLocalName_PropertyGets_MatchCtorArguments()
         {
-            const string localName = "abc";
-            const string schema = "def";
-            const string database = "ghi";
-            const string server = "jkl";
+            const string localName = "local";
+            const string schema = "schema";
+            const string database = "database";
+            const string server = "server";
             var identifier = new Identifier(server, database, schema, localName);
 
             Assert.Multiple(() =>
@@ -144,7 +144,7 @@ namespace SJP.Schematic.Core.Tests
         [Test]
         public static void Equals_GivenEqualIdentifiers_ReturnsTrue()
         {
-            const string name = "abc";
+            const string name = "test";
             var identifier = new Identifier(name, name);
             var otherIdentifier = new Identifier(name, name);
             Assert.AreEqual(identifier, otherIdentifier);
@@ -153,8 +153,8 @@ namespace SJP.Schematic.Core.Tests
         [Test]
         public static void Equals_GivenDifferentIdentifiers_ReturnsFalse()
         {
-            const string name = "abc";
-            const string otherName = "def";
+            const string name = "test";
+            const string otherName = "another";
             var identifier = new Identifier(name, name);
             var otherIdentifier = new Identifier(otherName, name);
             Assert.AreNotEqual(identifier, otherIdentifier);
@@ -163,8 +163,8 @@ namespace SJP.Schematic.Core.Tests
         [Test]
         public static void Equals_GivenDifferentIdentifierAsObject_ReturnsFalse()
         {
-            const string name = "abc";
-            const string otherName = "def";
+            const string name = "test";
+            const string otherName = "another";
             var identifier = new Identifier(name, name);
             object otherIdentifier = new Identifier(otherName, name);
 
@@ -174,7 +174,7 @@ namespace SJP.Schematic.Core.Tests
         [Test]
         public static void Equals_GivenDifferentIdentifierAsObject_ReturnsTrue()
         {
-            const string name = "abc";
+            const string name = "test";
             var identifier = new Identifier(name, name);
             object otherIdentifier = new Identifier(name, name);
 
@@ -186,7 +186,7 @@ namespace SJP.Schematic.Core.Tests
         [Test]
         public static void EqualsOp_GivenEqualIdentifiers_ReturnsTrue()
         {
-            const string name = "abc";
+            const string name = "test";
             var identifier = new Identifier(name, name);
             var otherIdentifier = new Identifier(name, name);
             var isEqual = identifier == otherIdentifier;
@@ -196,8 +196,8 @@ namespace SJP.Schematic.Core.Tests
         [Test]
         public static void EqualsOp_GivenDifferentIdentifiers_ReturnsFalse()
         {
-            const string name = "abc";
-            const string otherName = "def";
+            const string name = "test";
+            const string otherName = "alternative";
             var identifier = new Identifier(name, name);
             var otherIdentifier = new Identifier(otherName, name);
             var isNotEqual = identifier != otherIdentifier;
@@ -207,7 +207,7 @@ namespace SJP.Schematic.Core.Tests
         [Test]
         public static void ObjectsEquals_GivenEqualIdentifiers_ReturnsTrue()
         {
-            const string name = "abc";
+            const string name = "test";
             object identifier = new Identifier(name, name);
             object otherIdentifier = new Identifier(name, name);
 
@@ -221,8 +221,8 @@ namespace SJP.Schematic.Core.Tests
         [Test]
         public static void ObjectsEquals_GivenDifferentObjects_ReturnsFalse()
         {
-            const string name = "abc";
-            const string otherName = "def";
+            const string name = "test";
+            const string otherName = "another";
             object identifier = new Identifier(name, name);
             object otherIdentifier = new Identifier(otherName, name);
 
@@ -238,7 +238,7 @@ namespace SJP.Schematic.Core.Tests
         [Test]
         public static void Identifier_WhenOnlyLocalNameProvided_OnlyHasLocalNamePropertySet()
         {
-            var identifier = new Identifier("abc");
+            var identifier = new Identifier("test");
 
             Assert.Multiple(() =>
             {
@@ -434,7 +434,7 @@ namespace SJP.Schematic.Core.Tests
         [Test]
         public static void CompareTo_GivenSameIdentifier_ReturnsZero()
         {
-            var identifier = new Identifier("dbo", "dbo", "dbo", "abc");
+            var identifier = new Identifier("name", "name", "name", "test");
 
             var compareResult = identifier.CompareTo(identifier);
 
@@ -444,7 +444,7 @@ namespace SJP.Schematic.Core.Tests
         [Test]
         public static void CompareTo_GivenNullIdentifier_ReturnsNonZero()
         {
-            var identifier = new Identifier("dbo", "dbo", "dbo", "abc");
+            var identifier = new Identifier("name", "name", "name", "test");
 
             var compareResult = identifier.CompareTo(null);
 
@@ -454,8 +454,8 @@ namespace SJP.Schematic.Core.Tests
         [Test]
         public static void CompareTo_GivenEqualIdentifiers_ReturnsZero()
         {
-            var identifier = new Identifier("dbo", "dbo", "dbo", "abc");
-            var otherIdentifier = new Identifier("dbo", "dbo", "dbo", "abc");
+            var identifier = new Identifier("name", "name", "name", "test");
+            var otherIdentifier = new Identifier("name", "name", "name", "test");
 
             var compareResult = identifier.CompareTo(otherIdentifier);
 
@@ -465,8 +465,8 @@ namespace SJP.Schematic.Core.Tests
         [Test]
         public static void CompareTo_GivenDifferentIdentifiers_ReturnsNonZero()
         {
-            var identifier = new Identifier("dbo", "dbo", "dbo", "abc");
-            var otherIdentifier = new Identifier("dbo", "dbo", "dbo", "dbo");
+            var identifier = new Identifier("name", "name", "name", "test");
+            var otherIdentifier = new Identifier("name", "name", "name", "name");
 
             var compareResult = identifier.CompareTo(otherIdentifier);
 
@@ -476,8 +476,8 @@ namespace SJP.Schematic.Core.Tests
         [Test]
         public static void GtOp_GivenDifferentServer_ReturnsTrueWhenExpected()
         {
-            var identifier = new Identifier("z", "dbo", "dbo", "dbo");
-            var otherIdentifier = new Identifier("dbo", "dbo", "dbo", "dbo");
+            var identifier = new Identifier("z", "name", "name", "name");
+            var otherIdentifier = new Identifier("name", "name", "name", "name");
 
             var isGt = identifier > otherIdentifier;
 
@@ -487,8 +487,8 @@ namespace SJP.Schematic.Core.Tests
         [Test]
         public static void GtOp_GivenDifferentServer_ReturnsFalseWhenExpected()
         {
-            var identifier = new Identifier("dbo", "dbo", "dbo", "dbo");
-            var otherIdentifier = new Identifier("z", "dbo", "dbo", "dbo");
+            var identifier = new Identifier("name", "name", "name", "name");
+            var otherIdentifier = new Identifier("z", "name", "name", "name");
 
             var isGt = identifier > otherIdentifier;
 
@@ -498,8 +498,8 @@ namespace SJP.Schematic.Core.Tests
         [Test]
         public static void GteOp_GivenDifferentServer_ReturnsTrueWhenExpected()
         {
-            var identifier = new Identifier("z", "dbo", "dbo", "dbo");
-            var otherIdentifier = new Identifier("dbo", "dbo", "dbo", "dbo");
+            var identifier = new Identifier("z", "name", "name", "name");
+            var otherIdentifier = new Identifier("name", "name", "name", "name");
 
             var isGte = identifier >= otherIdentifier;
 
@@ -509,8 +509,8 @@ namespace SJP.Schematic.Core.Tests
         [Test]
         public static void GteOp_GivenDifferentServer_ReturnsFalseWhenExpected()
         {
-            var identifier = new Identifier("dbo", "dbo", "dbo", "dbo");
-            var otherIdentifier = new Identifier("z", "dbo", "dbo", "dbo");
+            var identifier = new Identifier("name", "name", "name", "name");
+            var otherIdentifier = new Identifier("z", "name", "name", "name");
 
             var isGte = identifier >= otherIdentifier;
 
@@ -520,8 +520,8 @@ namespace SJP.Schematic.Core.Tests
         [Test]
         public static void GteOp_GivenSameIdentifiers_ReturnsTrue()
         {
-            var identifier = new Identifier("dbo", "dbo", "dbo", "dbo");
-            var otherIdentifier = new Identifier("dbo", "dbo", "dbo", "dbo");
+            var identifier = new Identifier("name", "name", "name", "name");
+            var otherIdentifier = new Identifier("name", "name", "name", "name");
 
             var isGte = identifier >= otherIdentifier;
 
@@ -531,8 +531,8 @@ namespace SJP.Schematic.Core.Tests
         [Test]
         public static void LtOp_GivenDifferentServer_ReturnsFalseWhenExpected()
         {
-            var identifier = new Identifier("z", "dbo", "dbo", "dbo");
-            var otherIdentifier = new Identifier("dbo", "dbo", "dbo", "dbo");
+            var identifier = new Identifier("z", "name", "name", "name");
+            var otherIdentifier = new Identifier("name", "name", "name", "name");
 
             var isLt = identifier < otherIdentifier;
 
@@ -542,8 +542,8 @@ namespace SJP.Schematic.Core.Tests
         [Test]
         public static void LtOp_GivenDifferentServer_ReturnsTrueWhenExpected()
         {
-            var identifier = new Identifier("dbo", "dbo", "dbo", "dbo");
-            var otherIdentifier = new Identifier("z", "dbo", "dbo", "dbo");
+            var identifier = new Identifier("name", "name", "name", "name");
+            var otherIdentifier = new Identifier("z", "name", "name", "name");
 
             var isLt = identifier < otherIdentifier;
 
@@ -553,8 +553,8 @@ namespace SJP.Schematic.Core.Tests
         [Test]
         public static void LteOp_GivenDifferentServer_ReturnsFalseWhenExpected()
         {
-            var identifier = new Identifier("z", "dbo", "dbo", "dbo");
-            var otherIdentifier = new Identifier("dbo", "dbo", "dbo", "dbo");
+            var identifier = new Identifier("z", "name", "name", "name");
+            var otherIdentifier = new Identifier("name", "name", "name", "name");
 
             var isLte = identifier <= otherIdentifier;
 
@@ -564,8 +564,8 @@ namespace SJP.Schematic.Core.Tests
         [Test]
         public static void LteOp_GivenDifferentServer_ReturnsTrueWhenExpected()
         {
-            var identifier = new Identifier("dbo", "dbo", "dbo", "dbo");
-            var otherIdentifier = new Identifier("z", "dbo", "dbo", "dbo");
+            var identifier = new Identifier("name", "name", "name", "name");
+            var otherIdentifier = new Identifier("z", "name", "name", "name");
 
             var isLte = identifier <= otherIdentifier;
 
@@ -575,8 +575,8 @@ namespace SJP.Schematic.Core.Tests
         [Test]
         public static void LteOp_GivenSameIdentifiers_ReturnsTrue()
         {
-            var identifier = new Identifier("dbo", "dbo", "dbo", "dbo");
-            var otherIdentifier = new Identifier("dbo", "dbo", "dbo", "dbo");
+            var identifier = new Identifier("name", "name", "name", "name");
+            var otherIdentifier = new Identifier("name", "name", "name", "name");
 
             var isLte = identifier <= otherIdentifier;
 

@@ -28,7 +28,7 @@ create table test_table_1 (
     test_blob blob not null,
     test_datetime datetime default CURRENT_TIMESTAMP,
     test_string text,
-    test_string_with_default default 'asd'
+    test_string_with_default default 'test'
 )").ConfigureAwait(false);
             await Connection.ExecuteAsync(@"
 create table test_table_2 (
@@ -56,7 +56,7 @@ create table test_table_3 (
     test_blob blob not null,
     test_datetime datetime default CURRENT_TIMESTAMP,
     test_string text,
-    test_string_with_default default 'asd'
+    test_string_with_default default 'test'
 )").ConfigureAwait(false);
             await Connection.ExecuteAsync(@"
 create table test_table_4 (
@@ -68,7 +68,7 @@ create table test_table_4 (
     test_blob blob not null,
     test_datetime datetime default CURRENT_TIMESTAMP,
     test_string text,
-    test_string_with_default default 'asd',
+    test_string_with_default default 'test',
     test_table_3_fk1 integer,
     test_table_3_fk2 integer,
     test_table_3_fk3 integer,
@@ -194,7 +194,7 @@ namespace OrmLiteTestNamespace.Main
         /// <summary>
         /// The <c>test_string_with_default</c> column.
         /// </summary>
-        [Default(""'asd'"")]
+        [Default(""'test'"")]
         [Alias(""test_string_with_default"")]
         public decimal? TestStringWithDefault { get; set; }
     }
@@ -326,7 +326,7 @@ namespace OrmLiteTestNamespace.Main
         /// <summary>
         /// The <c>test_string_with_default</c> column.
         /// </summary>
-        [Default(""'asd'"")]
+        [Default(""'test'"")]
         [Alias(""test_string_with_default"")]
         public decimal? TestStringWithDefault { get; set; }
 

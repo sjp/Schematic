@@ -9,7 +9,7 @@ namespace SJP.Schematic.Core.Tests.Caching
     [TestFixture]
     internal static class CacheStoreTests
     {
-        // only going to be testing basics of ctors, as this is just a wrapper for ConcurrentDictionary<TKey, TValue>
+        // only going to be testing basics of constructors, as this is just a wrapper for ConcurrentDictionary<TKey, TValue>
         [Test]
         public static void Ctor_WhenDefaultConstructorInvoked_CreatesSuccessfully()
         {

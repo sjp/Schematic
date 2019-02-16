@@ -19,7 +19,7 @@ namespace SJP.Schematic.SqlServer.Tests.Integration.Versions.V2017
 
     [Category("SqlServerDatabase")]
     [Category("SkipWhenLiveUnitTesting")]
-    [TestFixture(Ignore = "asd")]
+    [TestFixture]
     internal abstract class SqlServer2017Test
     {
         protected IDbConnection Connection { get; } = Config2017.Connection;

@@ -7,31 +7,31 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
     internal sealed class SqliteRelationalDatabaseTests : SqliteTest
     {
         [Test]
-        public async Task VacuumAsync_WhenInvoked_RunsWithoutError()
+        public Task VacuumAsync_WhenInvoked_RunsWithoutError()
         {
             var sqliteDb = new SqliteRelationalDatabase(Dialect, Connection, IdentifierDefaults);
-            await sqliteDb.VacuumAsync().ConfigureAwait(false);
+            return sqliteDb.VacuumAsync();
         }
 
         [Test]
-        public async Task VacuumAsync_WhenGivenValidSchemaName_RunsWithoutError()
+        public Task VacuumAsync_WhenGivenValidSchemaName_RunsWithoutError()
         {
             var sqliteDb = new SqliteRelationalDatabase(Dialect, Connection, IdentifierDefaults);
-            await sqliteDb.VacuumAsync("main").ConfigureAwait(false);
+            return sqliteDb.VacuumAsync("main");
         }
 
         [Test]
         public void VacuumAsync_WhenGivenUnknownSchemaName_ThrowsSqliteException()
         {
             var sqliteDb = new SqliteRelationalDatabase(Dialect, Connection, IdentifierDefaults);
-            Assert.ThrowsAsync<SqliteException>(async () => await sqliteDb.VacuumAsync("asdas").ConfigureAwait(false));
+            Assert.ThrowsAsync<SqliteException>(async () => await sqliteDb.VacuumAsync("test").ConfigureAwait(false));
         }
 
         [Test]
-        public async Task AttachDatabaseAsync_WhenGivenValidSchemaAndFileNames_RunsWithoutError()
+        public Task AttachDatabaseAsync_WhenGivenValidSchemaAndFileNames_RunsWithoutError()
         {
             var sqliteDb = new SqliteRelationalDatabase(Dialect, Config.Connection, IdentifierDefaults);
-            await sqliteDb.AttachDatabaseAsync("test", ":memory:").ConfigureAwait(false);
+            return sqliteDb.AttachDatabaseAsync("test", ":memory:");
         }
 
         [Test]

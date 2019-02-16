@@ -22,7 +22,7 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore.Tests.Integration
     testdecimal numeric default 2.45,
     testblob blob default X'DEADBEEF',
     testdatetime datetime default CURRENT_TIMESTAMP,
-    teststring text default 'asd'
+    teststring text default 'test'
 )");
         }
 
@@ -38,7 +38,7 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore.Tests.Integration
             var nameTranslator = new PascalCaseNameTranslator();
             var generator = new EFCoreDataAccessGenerator(Database, nameTranslator);
 
-            var testProjectDir = Path.Combine(Environment.CurrentDirectory, "efcoretest");
+            var testProjectDir = Path.Combine(Environment.CurrentDirectory, "EntityFrameworkTest");
 
             var projectPath = Path.Combine(testProjectDir, "DataAccessGeneratorTest.csproj");
             var tablesDir = Path.Combine(testProjectDir, "Tables");

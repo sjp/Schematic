@@ -143,7 +143,7 @@ namespace SJP.Schematic.PostgreSql.Tests
             [Test]
             public static async Task GetSynonym_GivenValidSynonymName_ReturnsNone()
             {
-                var synonymName = new Identifier("asd");
+                var synonymName = new Identifier("test");
                 var synonymIsNone = await Database.GetSynonym(synonymName).IsNone.ConfigureAwait(false);
 
                 Assert.IsTrue(synonymIsNone);

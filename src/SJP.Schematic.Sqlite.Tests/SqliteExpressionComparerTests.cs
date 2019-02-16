@@ -29,7 +29,7 @@ namespace SJP.Schematic.Sqlite.Tests
         [Test]
         public static void Equals_GivenEqualSqlStringArguments_ReturnsTrue()
         {
-            const string input = "'abc'";
+            const string input = "'test'";
             var comparer = new SqliteExpressionComparer();
 
             var equals = comparer.Equals(input, input);
@@ -40,8 +40,8 @@ namespace SJP.Schematic.Sqlite.Tests
         [Test]
         public static void Equals_GivenDifferentSqlStringArguments_ReturnsFalse()
         {
-            const string inputX = "'abc'";
-            const string inputY = "'zxc'";
+            const string inputX = "'test'";
+            const string inputY = "'alternative'";
             var comparer = new SqliteExpressionComparer();
 
             var equals = comparer.Equals(inputX, inputY);
@@ -98,7 +98,7 @@ namespace SJP.Schematic.Sqlite.Tests
         [Test]
         public static void Equals_GivenEqualComplexExpressions_ReturnsTrue()
         {
-            const string input = "[test_column_1] > len(left([abc], 50))";
+            const string input = "[test_column_1] > len(left([test], 50))";
             var comparer = new SqliteExpressionComparer();
 
             var equals = comparer.Equals(input, input);
@@ -109,8 +109,8 @@ namespace SJP.Schematic.Sqlite.Tests
         [Test]
         public static void Equals_GivenDifferentComplexExpressions_ReturnsFalse()
         {
-            const string inputX = "[test_column_1] > len(left([abc], 50))";
-            const string inputY = "[test_column_2] < len(left([abc], 50))";
+            const string inputX = "[test_column_1] > len(left([test], 50))";
+            const string inputY = "[test_column_2] < len(left([test], 50))";
             var comparer = new SqliteExpressionComparer();
 
             var equals = comparer.Equals(inputX, inputY);
@@ -121,8 +121,8 @@ namespace SJP.Schematic.Sqlite.Tests
         [Test]
         public static void Equals_GivenDefaultTextComparerAndEqualComplexExpressionsButDifferentCase_ReturnsFalse()
         {
-            const string inputX = "([test_column_1] > len(left([abc], (50))))";
-            const string inputY = "([TEST_Column_1] > len(left([abc], (50))))";
+            const string inputX = "([test_column_1] > len(left([test], (50))))";
+            const string inputY = "([TEST_Column_1] > len(left([test], (50))))";
             var comparer = new SqliteExpressionComparer();
 
             var equals = comparer.Equals(inputX, inputY);
@@ -133,8 +133,8 @@ namespace SJP.Schematic.Sqlite.Tests
         [Test]
         public static void Equals_GivenIgnoreCaseTextComparerAndEqualComplexExpressionsButDifferentCase_ReturnsTrue()
         {
-            const string inputX = "([test_column_1] > len(left([abc], (50))))";
-            const string inputY = "([TEST_Column_1] > len(left([abc], (50))))";
+            const string inputX = "([test_column_1] > len(left([test], (50))))";
+            const string inputY = "([TEST_Column_1] > len(left([test], (50))))";
             var comparer = new SqliteExpressionComparer(StringComparer.OrdinalIgnoreCase);
 
             var equals = comparer.Equals(inputX, inputY);
@@ -145,8 +145,8 @@ namespace SJP.Schematic.Sqlite.Tests
         [Test]
         public static void Equals_GivenDefaultTextComparerAndEqualComplexExpressionsButDifferentStringCase_ReturnsFalse()
         {
-            const string inputX = "([test_column_1] > len(left('asd', (50))))";
-            const string inputY = "([test_column_1] > len(left('ASD', (50))))";
+            const string inputX = "([test_column_1] > len(left('test', (50))))";
+            const string inputY = "([test_column_1] > len(left('TEST', (50))))";
             var comparer = new SqliteExpressionComparer();
 
             var equals = comparer.Equals(inputX, inputY);
@@ -157,8 +157,8 @@ namespace SJP.Schematic.Sqlite.Tests
         [Test]
         public static void Equals_GivenIgnoreCaseTextComparerAndEqualComplexExpressionsButDifferentStringCase_ReturnsTrue()
         {
-            const string inputX = "([test_column_1] > len(left('asd', (50))))";
-            const string inputY = "([test_column_1] > len(left('ASD', (50))))";
+            const string inputX = "([test_column_1] > len(left('test', (50))))";
+            const string inputY = "([test_column_1] > len(left('TEST', (50))))";
             var comparer = new SqliteExpressionComparer(sqlStringComparer: StringComparer.OrdinalIgnoreCase);
 
             var equals = comparer.Equals(inputX, inputY);

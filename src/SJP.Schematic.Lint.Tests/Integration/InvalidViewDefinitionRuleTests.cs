@@ -16,7 +16,7 @@ namespace SJP.Schematic.Lint.Tests.Integration
         [OneTimeSetUp]
         public async Task Init()
         {
-            await Connection.ExecuteAsync("create view valid_view_1 as select 1 as asd").ConfigureAwait(false);
+            await Connection.ExecuteAsync("create view valid_view_1 as select 1 as dummy").ConfigureAwait(false);
             await Connection.ExecuteAsync("create view invalid_view_1 as select x from unknown_table").ConfigureAwait(false);
         }
 

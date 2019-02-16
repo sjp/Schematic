@@ -12,14 +12,14 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore.Tests
         public static void Ctor_GivenNullDatabase_ThrowsArgumentNullException()
         {
             var nameTranslator = new VerbatimNameTranslator();
-            Assert.Throws<ArgumentNullException>(() => new EFCoreDbContextBuilder(null, nameTranslator, "testns"));
+            Assert.Throws<ArgumentNullException>(() => new EFCoreDbContextBuilder(null, nameTranslator, "test"));
         }
 
         [Test]
         public static void Ctor_GivenNullNameTranslator_ThrowsArgumentNullException()
         {
             var database = Mock.Of<IRelationalDatabase>();
-            Assert.Throws<ArgumentNullException>(() => new EFCoreDbContextBuilder(database, null, "testns"));
+            Assert.Throws<ArgumentNullException>(() => new EFCoreDbContextBuilder(database, null, "test"));
         }
 
         [Test]
@@ -35,7 +35,7 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore.Tests
         {
             var database = Mock.Of<IRelationalDatabase>();
             var nameTranslator = new VerbatimNameTranslator();
-            Assert.Throws<ArgumentNullException>(() => new EFCoreDbContextBuilder(database, nameTranslator, "testns", null));
+            Assert.Throws<ArgumentNullException>(() => new EFCoreDbContextBuilder(database, nameTranslator, "test", null));
         }
 
         [Test]

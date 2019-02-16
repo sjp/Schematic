@@ -25,14 +25,14 @@ select
     2.45 as testdouble,
     X'DEADBEEF' as testblob,
     CURRENT_TIMESTAMP as testdatetime,
-    'asd' as teststring
+    'test' as teststring
 ").ConfigureAwait(false);
             await Connection.ExecuteAsync(@"create table view_test_table_1 (
     testint integer not null primary key autoincrement,
     testdecimal numeric default 2.45,
     testblob blob default X'DEADBEEF',
     testdatetime datetime default CURRENT_TIMESTAMP,
-    teststring text default 'asd'
+    teststring text default 'test'
 )").ConfigureAwait(false);
             await Connection.ExecuteAsync("create view test_view_2 as select * from view_test_table_1").ConfigureAwait(false);
         }

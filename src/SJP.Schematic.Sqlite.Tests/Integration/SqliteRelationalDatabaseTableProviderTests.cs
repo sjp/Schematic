@@ -327,7 +327,7 @@ end").ConfigureAwait(false);
         [Test]
         public async Task GetTable_WhenTablePresentGivenOverlyQualifiedName_ShouldBeQualifiedCorrectly()
         {
-            var tableName = new Identifier("asd", IdentifierDefaults.Schema, "db_test_table_1");
+            var tableName = new Identifier("test", IdentifierDefaults.Schema, "db_test_table_1");
             var expectedTableName = new Identifier(IdentifierDefaults.Schema, "db_test_table_1");
 
             var table = await TableProvider.GetTable(tableName).UnwrapSomeAsync().ConfigureAwait(false);

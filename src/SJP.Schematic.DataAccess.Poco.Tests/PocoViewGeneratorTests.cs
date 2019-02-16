@@ -11,7 +11,7 @@ namespace SJP.Schematic.DataAccess.Poco.Tests
         [Test]
         public static void Ctor_GivenNullNameTranslator_ThrowsArgumentNullException()
         {
-            Assert.Throws<ArgumentNullException>(() => new PocoViewGenerator(null, "testns"));
+            Assert.Throws<ArgumentNullException>(() => new PocoViewGenerator(null, "test"));
         }
 
         [Test]
@@ -39,7 +39,7 @@ namespace SJP.Schematic.DataAccess.Poco.Tests
         public static void Ctor_GivenNullIndent_ThrowsArgumentNullException()
         {
             var nameTranslator = new VerbatimNameTranslator();
-            Assert.Throws<ArgumentNullException>(() => new PocoViewGenerator(nameTranslator, "testns", null));
+            Assert.Throws<ArgumentNullException>(() => new PocoViewGenerator(nameTranslator, "test", null));
         }
 
         [Test]

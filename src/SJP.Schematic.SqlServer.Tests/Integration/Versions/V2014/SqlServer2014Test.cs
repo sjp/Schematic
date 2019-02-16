@@ -19,7 +19,7 @@ namespace SJP.Schematic.SqlServer.Tests.Integration.Versions.V2014
 
     [Category("SqlServerDatabase")]
     [Category("SkipWhenLiveUnitTesting")]
-    [TestFixture(Ignore = "asd")]
+    [TestFixture]
     internal abstract class SqlServer2014Test
     {
         protected IDbConnection Connection { get; } = Config2014.Connection;

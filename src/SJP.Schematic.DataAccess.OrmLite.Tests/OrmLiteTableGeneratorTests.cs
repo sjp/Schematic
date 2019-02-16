@@ -11,7 +11,7 @@ namespace SJP.Schematic.DataAccess.OrmLite.Tests
         [Test]
         public static void Ctor_GivenNullNameTranslator_ThrowsArgumentNullException()
         {
-            Assert.Throws<ArgumentNullException>(() => new OrmLiteTableGenerator(null, "testns"));
+            Assert.Throws<ArgumentNullException>(() => new OrmLiteTableGenerator(null, "test"));
         }
 
         [Test]
@@ -39,15 +39,15 @@ namespace SJP.Schematic.DataAccess.OrmLite.Tests
         public static void Ctor_GivenNullIndent_ThrowsArgumentNullException()
         {
             var nameTranslator = new VerbatimNameTranslator();
-            Assert.Throws<ArgumentNullException>(() => new OrmLiteTableGenerator(nameTranslator, "testns", null));
+            Assert.Throws<ArgumentNullException>(() => new OrmLiteTableGenerator(nameTranslator, "test", null));
         }
 
         [Test]
         public static void GetFilePath_GivenNullDirectory_ThrowsArgumentNullException()
         {
             var nameTranslator = new VerbatimNameTranslator();
-            const string testNs = "SJP.Schematic.Test";
-            var generator = new OrmLiteTableGenerator(nameTranslator, testNs);
+            const string test = "SJP.Schematic.Test";
+            var generator = new OrmLiteTableGenerator(nameTranslator, test);
 
             Assert.Throws<ArgumentNullException>(() => generator.GetFilePath(null, "test"));
         }
@@ -56,8 +56,8 @@ namespace SJP.Schematic.DataAccess.OrmLite.Tests
         public static void GetFilePath_GivenNullObjectName_ThrowsArgumentNullException()
         {
             var nameTranslator = new VerbatimNameTranslator();
-            const string testNs = "SJP.Schematic.Test";
-            var generator = new OrmLiteTableGenerator(nameTranslator, testNs);
+            const string test = "SJP.Schematic.Test";
+            var generator = new OrmLiteTableGenerator(nameTranslator, test);
             var baseDir = new DirectoryInfo(Environment.CurrentDirectory);
 
             Assert.Throws<ArgumentNullException>(() => generator.GetFilePath(baseDir, null));
@@ -67,8 +67,8 @@ namespace SJP.Schematic.DataAccess.OrmLite.Tests
         public static void GetFilePath_GivenNameWithOnlyLocalName_ReturnsExpectedPath()
         {
             var nameTranslator = new VerbatimNameTranslator();
-            const string testNs = "SJP.Schematic.Test";
-            var generator = new OrmLiteTableGenerator(nameTranslator, testNs);
+            const string test = "SJP.Schematic.Test";
+            var generator = new OrmLiteTableGenerator(nameTranslator, test);
             var baseDir = new DirectoryInfo(Environment.CurrentDirectory);
             const string testTableName = "table_name";
             var expectedPath = Path.Combine(Environment.CurrentDirectory, "Tables", testTableName + ".cs");
@@ -82,8 +82,8 @@ namespace SJP.Schematic.DataAccess.OrmLite.Tests
         public static void GetFilePath_GivenNameWithSchemaAndLocalName_ReturnsExpectedPath()
         {
             var nameTranslator = new VerbatimNameTranslator();
-            const string testNs = "SJP.Schematic.Test";
-            var generator = new OrmLiteTableGenerator(nameTranslator, testNs);
+            const string test = "SJP.Schematic.Test";
+            var generator = new OrmLiteTableGenerator(nameTranslator, test);
             var baseDir = new DirectoryInfo(Environment.CurrentDirectory);
             const string testTableSchema = "table_schema";
             const string testTableName = "table_name";
@@ -98,8 +98,8 @@ namespace SJP.Schematic.DataAccess.OrmLite.Tests
         public static void Generate_GivenNullTable_ThrowsArgumentNullException()
         {
             var nameTranslator = new VerbatimNameTranslator();
-            const string testNs = "SJP.Schematic.Test";
-            var generator = new OrmLiteTableGenerator(nameTranslator, testNs);
+            const string test = "SJP.Schematic.Test";
+            var generator = new OrmLiteTableGenerator(nameTranslator, test);
 
             Assert.Throws<ArgumentNullException>(() => generator.Generate(null));
         }

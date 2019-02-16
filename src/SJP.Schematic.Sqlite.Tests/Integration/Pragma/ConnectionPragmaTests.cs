@@ -116,11 +116,11 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
                 var connPragma = new ConnectionPragma(dialect, connection);
 
                 await connection.ExecuteAsync("create table test ( col text )").ConfigureAwait(false);
-                await connection.ExecuteAsync("insert into test (col) values ('asdf')").ConfigureAwait(false);
-                await connection.ExecuteAsync("insert into test (col) values ('ASDASDASD')").ConfigureAwait(false);
-                await connection.ExecuteAsync("insert into test (col) values ('ASDASDA')").ConfigureAwait(false);
+                await connection.ExecuteAsync("insert into test (col) values ('dummy')").ConfigureAwait(false);
+                await connection.ExecuteAsync("insert into test (col) values ('DUMMY_DUMMY')").ConfigureAwait(false);
+                await connection.ExecuteAsync("insert into test (col) values ('DUMMY')").ConfigureAwait(false);
 
-                const string query = "select count(*) from test where col like 'ASD%'";
+                const string query = "select count(*) from test where col like 'DUMMY%'";
                 const int expectedInsensitive = 3;
                 const int expectedSensitive = 2;
 
@@ -305,13 +305,13 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
                 var dialect = Mock.Of<IDatabaseDialect>();
                 var connPragma = new ConnectionPragma(dialect, connection);
 
-                await connection.ExecuteAsync("create table test ( col text, constraint col_ck check (col <> 'asdf') )").ConfigureAwait(false);
+                await connection.ExecuteAsync("create table test ( col text, constraint col_ck check (col <> 'test') )").ConfigureAwait(false);
 
                 await connPragma.IgnoreCheckConstraintsAsync(true).ConfigureAwait(false);
-                await connection.ExecuteAsync("insert into test (col) values ('asdf')").ConfigureAwait(false);
+                await connection.ExecuteAsync("insert into test (col) values ('test')").ConfigureAwait(false);
 
                 await connPragma.IgnoreCheckConstraintsAsync(false).ConfigureAwait(false);
-                Assert.ThrowsAsync<SqliteException>(async () => await connection.ExecuteAsync("insert into test (col) values ('asdf')").ConfigureAwait(false));
+                Assert.ThrowsAsync<SqliteException>(async () => await connection.ExecuteAsync("insert into test (col) values ('test')").ConfigureAwait(false));
             }
         }
 

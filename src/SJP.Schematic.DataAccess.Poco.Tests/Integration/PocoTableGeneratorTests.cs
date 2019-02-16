@@ -23,7 +23,7 @@ namespace SJP.Schematic.DataAccess.Poco.Tests.Integration
     testdecimal numeric default 2.45,
     testblob blob default X'DEADBEEF',
     testdatetime datetime default CURRENT_TIMESTAMP,
-    teststring text default 'asd'
+    teststring text default 'test'
 )");
         }
 

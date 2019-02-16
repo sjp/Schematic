@@ -21,8 +21,8 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
 
             await Connection.ExecuteAsync("create view view_test_view_1 as select 1 as test").ConfigureAwait(false);
             await Connection.ExecuteAsync("create table view_test_table_1 (table_id int primary key not null)").ConfigureAwait(false);
-            await Connection.ExecuteAsync("create view view_test_view_2 as select 1, 2.345, 'asd', X'DEADBEEF'").ConfigureAwait(false);
-            await Connection.ExecuteAsync("create view view_test_view_3 as select 1, 2.345, 'asd', X'DEADBEEF', table_id from view_test_table_1").ConfigureAwait(false);
+            await Connection.ExecuteAsync("create view view_test_view_2 as select 1, 2.345, 'test', X'DEADBEEF'").ConfigureAwait(false);
+            await Connection.ExecuteAsync("create view view_test_view_3 as select 1, 2.345, 'test', X'DEADBEEF', table_id from view_test_table_1").ConfigureAwait(false);
             await Connection.ExecuteAsync("create view view_test_view_4 as select 1, 1, 1, 1").ConfigureAwait(false);
         }
 
@@ -89,7 +89,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
         [Test]
         public async Task GetView_WhenViewPresentGivenOverlyQualifiedName_ShouldBeQualifiedCorrectly()
         {
-            var viewName = new Identifier("asd", IdentifierDefaults.Schema, "db_test_view_1");
+            var viewName = new Identifier("test", IdentifierDefaults.Schema, "db_test_view_1");
             var expectedViewName = new Identifier(IdentifierDefaults.Schema, "db_test_view_1");
 
             var view = await ViewProvider.GetView(viewName).UnwrapSomeAsync().ConfigureAwait(false);

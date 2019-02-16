@@ -22,7 +22,7 @@ create or replace FUNCTION db_test_routine_1()
    RETURN NUMBER(1)
    IS test_col NUMBER(1);
    BEGIN
-      SELECT 1 as tmp
+      SELECT 1 as dummy
       INTO test_col
       FROM dual;
       RETURN(test_col);
@@ -195,7 +195,7 @@ END;").ConfigureAwait(false);
    RETURN NUMBER(1)
    IS test_col NUMBER(1);
    BEGIN
-      SELECT 1 as tmp
+      SELECT 1 as dummy
       INTO test_col
       FROM dual;
       RETURN(test_col);

@@ -41,7 +41,7 @@ namespace SJP.Schematic.DataAccess.OrmLite.Tests
             var generator = new OrmLiteDataAccessGenerator(database, nameTranslator);
             var projectPath = Path.Combine(Environment.CurrentDirectory, "DataAccessGeneratorTest.csproj");
 
-            Assert.Throws<ArgumentNullException>(() => generator.Generate(null, projectPath, "testns"));
+            Assert.Throws<ArgumentNullException>(() => generator.Generate(null, projectPath, "test"));
         }
 
         [Test]
@@ -52,7 +52,7 @@ namespace SJP.Schematic.DataAccess.OrmLite.Tests
             var generator = new OrmLiteDataAccessGenerator(database, nameTranslator);
             var mockFs = new MockFileSystem();
 
-            Assert.Throws<ArgumentNullException>(() => generator.Generate(mockFs, null, "testns"));
+            Assert.Throws<ArgumentNullException>(() => generator.Generate(mockFs, null, "test"));
         }
 
         [Test]
@@ -63,7 +63,7 @@ namespace SJP.Schematic.DataAccess.OrmLite.Tests
             var generator = new OrmLiteDataAccessGenerator(database, nameTranslator);
             var mockFs = new MockFileSystem();
 
-            Assert.Throws<ArgumentNullException>(() => generator.Generate(mockFs, string.Empty, "testns"));
+            Assert.Throws<ArgumentNullException>(() => generator.Generate(mockFs, string.Empty, "test"));
         }
 
         [Test]
@@ -74,7 +74,7 @@ namespace SJP.Schematic.DataAccess.OrmLite.Tests
             var generator = new OrmLiteDataAccessGenerator(database, nameTranslator);
             var mockFs = new MockFileSystem();
 
-            Assert.Throws<ArgumentNullException>(() => generator.Generate(mockFs, "    ", "testns"));
+            Assert.Throws<ArgumentNullException>(() => generator.Generate(mockFs, "    ", "test"));
         }
 
         [Test]
@@ -122,7 +122,7 @@ namespace SJP.Schematic.DataAccess.OrmLite.Tests
             var mockFs = new MockFileSystem();
             var projectPath = Path.Combine(Environment.CurrentDirectory, "DataAccessGeneratorTest.vbproj");
 
-            Assert.Throws<ArgumentException>(() => generator.Generate(mockFs, projectPath, "testns"));
+            Assert.Throws<ArgumentException>(() => generator.Generate(mockFs, projectPath, "test"));
         }
     }
 }

@@ -99,7 +99,7 @@ namespace SJP.Schematic.MySql.Tests
             [Test]
             public static async Task GetSequence_GivenValidSequenceName_ReturnsNone()
             {
-                var sequenceName = new Identifier("asd");
+                var sequenceName = new Identifier("test");
                 var sequenceIsNone = await Database.GetSequence(sequenceName).IsNone.ConfigureAwait(false);
 
                 Assert.IsTrue(sequenceIsNone);
@@ -148,7 +148,7 @@ namespace SJP.Schematic.MySql.Tests
             [Test]
             public static async Task GetSynonym_GivenValidSynonymName_ReturnsNone()
             {
-                var synonymName = new Identifier("asd");
+                var synonymName = new Identifier("test");
                 var synonymIsNone = await Database.GetSynonym(synonymName).IsNone.ConfigureAwait(false);
 
                 Assert.IsTrue(synonymIsNone);

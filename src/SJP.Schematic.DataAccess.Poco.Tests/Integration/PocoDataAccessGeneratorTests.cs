@@ -24,14 +24,14 @@ select
     2.45 as testdouble,
     X'DEADBEEF' as testblob,
     CURRENT_TIMESTAMP as testdatetime,
-    'asd' as teststring
+    'test' as teststring
 ").ConfigureAwait(false);
             await Connection.ExecuteAsync(@"create table view_test_table_1 (
     testint integer not null primary key autoincrement,
     testdecimal numeric default 2.45,
     testblob blob default X'DEADBEEF',
     testdatetime datetime default CURRENT_TIMESTAMP,
-    teststring text default 'asd'
+    teststring text default 'test'
 )").ConfigureAwait(false);
             await Connection.ExecuteAsync("create view test_view_2 as select * from view_test_table_1").ConfigureAwait(false);
         }
@@ -50,7 +50,7 @@ select
             var nameTranslator = new PascalCaseNameTranslator();
             var generator = new PocoDataAccessGenerator(Database, nameTranslator);
 
-            var testProjectDir = Path.Combine(Environment.CurrentDirectory, "pocotest");
+            var testProjectDir = Path.Combine(Environment.CurrentDirectory, "PocoTest");
 
             var projectPath = Path.Combine(testProjectDir, "DataAccessGeneratorTest.csproj");
             var tablesDir = Path.Combine(testProjectDir, "Tables");
@@ -81,6 +81,6 @@ select
             });
         }
 
-        private const string TestNamespace = "OrmLiteTestNamespace";
+        private const string TestNamespace = "PocoTestNamespace";
     }
 }

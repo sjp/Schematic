@@ -136,7 +136,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
 
                 await connection.ExecuteAsync("create table test_parent ( id int primary key, val text )").ConfigureAwait(false);
                 await connection.ExecuteAsync("create table test_child ( id int, parent_id int constraint fk_test_parent references test_parent (id) )").ConfigureAwait(false);
-                await connection.ExecuteAsync("insert into test_parent (id, val) values (1, 'asd')").ConfigureAwait(false);
+                await connection.ExecuteAsync("insert into test_parent (id, val) values (1, 'test')").ConfigureAwait(false);
                 await connection.ExecuteAsync("insert into test_child (id, parent_id) values (1, 2)").ConfigureAwait(false);
 
                 var fkCheck = await dbPragma.ForeignKeyCheckDatabaseAsync().ConfigureAwait(false);
@@ -158,7 +158,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
 
                 await connection.ExecuteAsync("create table test_parent ( id int primary key, val text )").ConfigureAwait(false);
                 await connection.ExecuteAsync("create table test_child ( id int, parent_id int constraint fk_test_parent references test_parent (id) )").ConfigureAwait(false);
-                await connection.ExecuteAsync("insert into test_parent (id, val) values (1, 'asd')").ConfigureAwait(false);
+                await connection.ExecuteAsync("insert into test_parent (id, val) values (1, 'test')").ConfigureAwait(false);
                 await connection.ExecuteAsync("insert into test_child (id, parent_id) values (1, 2)").ConfigureAwait(false);
 
                 var fkCheck = await dbPragma.ForeignKeyCheckTableAsync("test_child").ConfigureAwait(false);
@@ -186,7 +186,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
             {
                 var dbPragma = new DatabasePragma(Dialect, connection, MainSchema);
 
-                var name = new Identifier("aksldjaslk", "asjdkas");
+                var name = new Identifier("test", "test");
                 Assert.Throws<ArgumentException>(() => dbPragma.ForeignKeyCheckTableAsync(name));
             }
         }
@@ -200,7 +200,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
 
                 await connection.ExecuteAsync("create table test_parent ( id int primary key, val text )").ConfigureAwait(false);
                 await connection.ExecuteAsync("create table test_child ( id int, parent_id int constraint fk_test_parent references test_parent (id) )").ConfigureAwait(false);
-                await connection.ExecuteAsync("insert into test_parent (id, val) values (1, 'asd')").ConfigureAwait(false);
+                await connection.ExecuteAsync("insert into test_parent (id, val) values (1, 'test')").ConfigureAwait(false);
                 await connection.ExecuteAsync("insert into test_child (id, parent_id) values (1, 1)").ConfigureAwait(false);
 
                 var fkList = await dbPragma.ForeignKeyListAsync("test_child").ConfigureAwait(false);
@@ -228,7 +228,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
             {
                 var dbPragma = new DatabasePragma(Dialect, connection, MainSchema);
 
-                var name = new Identifier("aksldjaslk", "asjdkas");
+                var name = new Identifier("test", "test");
                 Assert.Throws<ArgumentException>(() => dbPragma.ForeignKeyListAsync(name));
             }
         }
@@ -328,7 +328,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
             {
                 var dbPragma = new DatabasePragma(Dialect, connection, MainSchema);
 
-                var name = new Identifier("aksldjaslk", "asjdkas");
+                var name = new Identifier("test", "test");
                 Assert.Throws<ArgumentException>(() => dbPragma.IndexListAsync(name));
             }
         }
@@ -709,7 +709,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
             {
                 var dbPragma = new DatabasePragma(Dialect, connection, MainSchema);
 
-                var name = new Identifier("aksldjaslk", "asjdkas");
+                var name = new Identifier("test", "test");
                 Assert.Throws<ArgumentException>(() => dbPragma.TableInfoAsync(name));
             }
         }
@@ -748,7 +748,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
             {
                 var dbPragma = new DatabasePragma(Dialect, connection, MainSchema);
 
-                var name = new Identifier("aksldjaslk", "asjdkas");
+                var name = new Identifier("test", "test");
                 Assert.Throws<ArgumentException>(() => dbPragma.TableXInfoAsync(name));
             }
         }

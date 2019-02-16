@@ -69,7 +69,7 @@ namespace SJP.Schematic.Lint.Rules
             {
                 var simpleViewName = Identifier.CreateQualifiedIdentifier(view.Name.Schema, view.Name.LocalName);
                 var quotedViewName = Dialect.QuoteName(simpleViewName);
-                var query = "select 1 as tmp from " + quotedViewName;
+                var query = "select 1 as dummy from " + quotedViewName;
                 await Connection.ExecuteScalarAsync<long>(query, cancellationToken).ConfigureAwait(false);
 
                 return Array.Empty<IRuleMessage>();
@@ -87,7 +87,7 @@ namespace SJP.Schematic.Lint.Rules
             {
                 var simpleViewName = Identifier.CreateQualifiedIdentifier(view.Name.Schema, view.Name.LocalName);
                 var quotedViewName = Dialect.QuoteName(simpleViewName);
-                var query = "select 1 as tmp from " + quotedViewName;
+                var query = "select 1 as dummy from " + quotedViewName;
                 _ = Connection.ExecuteScalar<long>(query);
 
                 return Array.Empty<IRuleMessage>();

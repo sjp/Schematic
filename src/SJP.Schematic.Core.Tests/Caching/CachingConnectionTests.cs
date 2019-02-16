@@ -46,7 +46,7 @@ namespace SJP.Schematic.Core.Tests.Caching
             var mock = ConnectionMock;
             var adapter = new DbConnectionAdapter(mock.Object);
             var cachingConnection = new CachingConnection(adapter);
-            const string testConnectionString = "asd";
+            const string testConnectionString = "test";
             cachingConnection.ConnectionString = testConnectionString;
 
             mock.VerifySet(c => c.ConnectionString = testConnectionString);

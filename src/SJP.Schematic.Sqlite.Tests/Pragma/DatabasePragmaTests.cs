@@ -54,7 +54,7 @@ namespace SJP.Schematic.Sqlite.Tests.Pragma
             var dialect = Mock.Of<IDatabaseDialect>();
             var connection = Mock.Of<IDbConnection>();
 
-            const string schemaName = "asd";
+            const string schemaName = "test";
             var dbPragma = new DatabasePragma(dialect, connection, schemaName);
 
             Assert.AreEqual(schemaName, dbPragma.SchemaName);
