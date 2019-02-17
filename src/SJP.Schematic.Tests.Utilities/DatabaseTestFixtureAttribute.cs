@@ -3,9 +3,8 @@ using System.Collections.Concurrent;
 using System.Data;
 using System.Reflection;
 using NUnit.Framework;
-using SJP.Schematic.Core.Extensions;
 
-namespace SJP.Schematic.Core.Tests
+namespace SJP.Schematic.Tests.Utilities
 {
     /// <summary>
     /// Annotates a type as being a test fixture conditional on a connection being available.
@@ -21,7 +20,7 @@ namespace SJP.Schematic.Core.Tests
         /// <param name="ignoreMessage">The message to display when a test has been skipped due a missing connection.</param>
         public DatabaseTestFixtureAttribute(Type target, string propertyName, string ignoreMessage)
         {
-            if (target == null || propertyName.IsNullOrWhiteSpace() || ignoreMessage.IsNullOrWhiteSpace())
+            if (target == null || string.IsNullOrWhiteSpace(propertyName) || string.IsNullOrWhiteSpace(ignoreMessage))
                 return;
 
             if (!TypeCache.TryGetValue(target, out var propCache))
