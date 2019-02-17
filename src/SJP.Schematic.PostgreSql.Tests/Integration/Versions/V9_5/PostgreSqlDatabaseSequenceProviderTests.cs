@@ -1,5 +1,5 @@
 ﻿using System;
-using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Dapper;
@@ -64,7 +64,7 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration.Versions.V9_5
         }
 
         private readonly object _lock = new object();
-        private readonly ConcurrentDictionary<Identifier, AsyncLazy<IDatabaseSequence>> _sequencesCache = new ConcurrentDictionary<Identifier, AsyncLazy<IDatabaseSequence>>();
+        private readonly Dictionary<Identifier, AsyncLazy<IDatabaseSequence>> _sequencesCache = new Dictionary<Identifier, AsyncLazy<IDatabaseSequence>>();
 
         [Test]
         public async Task GetSequence_WhenSequencePresent_ReturnsSequence()

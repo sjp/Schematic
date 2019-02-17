@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -61,7 +60,7 @@ END db_test_package_2").ConfigureAwait(false);
         }
 
         private readonly object _lock = new object();
-        private readonly ConcurrentDictionary<Identifier, AsyncLazy<IOracleDatabasePackage>> _packagesCache = new ConcurrentDictionary<Identifier, AsyncLazy<IOracleDatabasePackage>>();
+        private readonly Dictionary<Identifier, AsyncLazy<IOracleDatabasePackage>> _packagesCache = new Dictionary<Identifier, AsyncLazy<IOracleDatabasePackage>>();
 
         [Test]
         public async Task GetPackage_WhenPackagePresent_ReturnsPackage()

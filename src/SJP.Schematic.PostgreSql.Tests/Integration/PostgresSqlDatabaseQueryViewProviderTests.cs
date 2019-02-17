@@ -1,5 +1,5 @@
 ﻿using System;
-using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Dapper;
@@ -54,7 +54,7 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration
         }
 
         private readonly object _lock = new object();
-        private readonly ConcurrentDictionary<Identifier, AsyncLazy<IDatabaseView>> _viewsCache = new ConcurrentDictionary<Identifier, AsyncLazy<IDatabaseView>>();
+        private readonly Dictionary<Identifier, AsyncLazy<IDatabaseView>> _viewsCache = new Dictionary<Identifier, AsyncLazy<IDatabaseView>>();
 
         [Test]
         public async Task GetView_WhenViewPresent_ReturnsView()

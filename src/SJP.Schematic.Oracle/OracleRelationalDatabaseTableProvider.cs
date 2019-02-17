@@ -793,13 +793,7 @@ where TABLE_OWNER = :SchemaName and TABLE_NAME = :TableName and BASE_OBJECT_TYPE
             if (columnName.IsNullOrWhiteSpace())
                 throw new ArgumentNullException(nameof(columnName));
 
-            if (!_notNullDefinitions.TryGetValue(columnName, out var definition))
-            {
-                definition = "\"" + columnName + "\" IS NOT NULL";
-                _notNullDefinitions.TryAdd(columnName, definition);
-            }
-
-            return definition;
+            return _notNullDefinitions.GetOrAdd(columnName, colName => "\"" + colName + "\" IS NOT NULL");
         }
 
         protected IReadOnlyDictionary<string, Rule> RelationalRuleMapping { get; } = new Dictionary<string, Rule>(StringComparer.OrdinalIgnoreCase)

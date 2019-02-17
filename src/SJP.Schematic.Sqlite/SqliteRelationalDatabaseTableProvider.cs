@@ -632,17 +632,15 @@ namespace SJP.Schematic.Sqlite
                 _triggerRwLock.EnterReadLock();
                 try
                 {
-                    if (!_triggerParserCache.TryGetValue(triggerSql, out var parsedTrigger))
+                    var parsedTrigger = _triggerParserCache.GetOrAdd(triggerSql, sql => new Lazy<ParsedTriggerData>(() =>
                     {
-                        var tokenizeResult = Tokenizer.TryTokenize(triggerSql);
+                        var tokenizeResult = Tokenizer.TryTokenize(sql);
                         if (!tokenizeResult.HasValue)
                             throw new SqliteTriggerParsingException(tableName, triggerInfo.sql, tokenizeResult.ErrorMessage + " at " + tokenizeResult.ErrorPosition.ToString());
 
                         var tokens = tokenizeResult.Value;
-                        parsedTrigger = TriggerParser.ParseTokens(tokens);
-
-                        _triggerParserCache.TryAdd(triggerSql, parsedTrigger);
-                    }
+                        return TriggerParser.ParseTokens(tokens);
+                    })).Value;
 
                     var trigger = new SqliteDatabaseTrigger(triggerInfo.name, triggerSql, parsedTrigger.Timing, parsedTrigger.Event);
                     result.Add(trigger);
@@ -700,19 +698,15 @@ namespace SJP.Schematic.Sqlite
             _tableRwLock.EnterReadLock();
             try
             {
-                if (!_tableParserCache.TryGetValue(tableSql, out var parsedTable))
+                return _tableParserCache.GetOrAdd(tableSql, sql => new Lazy<ParsedTableData>(() =>
                 {
-                    var tokenizeResult = Tokenizer.TryTokenize(tableSql);
+                    var tokenizeResult = Tokenizer.TryTokenize(sql);
                     if (!tokenizeResult.HasValue)
                         throw new SqliteTableParsingException(tableName, tableSql, tokenizeResult.ErrorMessage + " at " + tokenizeResult.ErrorPosition.ToString());
 
                     var tokens = tokenizeResult.Value;
-                    parsedTable = TableParser.ParseTokens(tableSql, tokens);
-
-                    _tableParserCache.TryAdd(tableSql, parsedTable);
-                }
-
-                return parsedTable;
+                    return TableParser.ParseTokens(sql, tokens);
+                })).Value;
             }
             finally
             {
@@ -755,8 +749,8 @@ namespace SJP.Schematic.Sqlite
                 : Rule.None;
         }
 
-        private readonly ConcurrentDictionary<string, ParsedTableData> _tableParserCache = new ConcurrentDictionary<string, ParsedTableData>();
-        private readonly ConcurrentDictionary<string, ParsedTriggerData> _triggerParserCache = new ConcurrentDictionary<string, ParsedTriggerData>();
+        private readonly ConcurrentDictionary<string, Lazy<ParsedTableData>> _tableParserCache = new ConcurrentDictionary<string, Lazy<ParsedTableData>>();
+        private readonly ConcurrentDictionary<string, Lazy<ParsedTriggerData>> _triggerParserCache = new ConcurrentDictionary<string, Lazy<ParsedTriggerData>>();
         private readonly ReaderWriterLockSlim _tableRwLock = new ReaderWriterLockSlim();
         private readonly ReaderWriterLockSlim _triggerRwLock = new ReaderWriterLockSlim();
 

@@ -23,31 +23,21 @@ namespace SJP.Schematic.Tests.Utilities
             if (target == null || string.IsNullOrWhiteSpace(propertyName) || string.IsNullOrWhiteSpace(ignoreMessage))
                 return;
 
-            if (!TypeCache.TryGetValue(target, out var propCache))
-            {
-                propCache = new ConcurrentDictionary<string, MethodInfo>();
-                TypeCache.TryAdd(target, propCache);
-            }
+            var propCache = TypeCache.GetOrAdd(target, new ConcurrentDictionary<string, MethodInfo>());
 
-            if (!propCache.TryGetValue(propertyName, out var getMethod))
+            var getMethod = propCache.GetOrAdd(propertyName, propName =>
             {
-                var propInfo = target.GetProperty(propertyName, SearchFlags);
+                var propInfo = target.GetProperty(propName, SearchFlags);
                 if (propInfo != null && (!IDbConnectionType.IsAssignableFrom(propInfo.PropertyType) || propInfo.GetGetMethod() == null))
                     propInfo = null;
 
-                getMethod = propInfo?.GetGetMethod();
-                propCache.TryAdd(propertyName, getMethod);
-            }
+                return propInfo?.GetGetMethod();
+            });
 
             if (getMethod == null)
                 return;
 
-            if (!ResultCache.TryGetValue(getMethod, out var isEnabled))
-            {
-                isEnabled = (IDbConnection)getMethod.Invoke(null, Array.Empty<object>()) != null;
-                ResultCache.TryAdd(getMethod, isEnabled);
-            }
-
+            var isEnabled = ResultCache.GetOrAdd(getMethod, method => (IDbConnection)method.Invoke(null, Array.Empty<object>()) != null);
             if (!isEnabled)
                 Ignore = ignoreMessage;
         }

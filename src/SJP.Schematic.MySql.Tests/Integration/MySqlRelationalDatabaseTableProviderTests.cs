@@ -1,5 +1,5 @@
 ﻿using System;
-using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Dapper;
@@ -275,7 +275,7 @@ end
         }
 
         private readonly object _lock = new object();
-        private readonly ConcurrentDictionary<Identifier, AsyncLazy<IRelationalDatabaseTable>> _tablesCache = new ConcurrentDictionary<Identifier, AsyncLazy<IRelationalDatabaseTable>>();
+        private readonly Dictionary<Identifier, AsyncLazy<IRelationalDatabaseTable>> _tablesCache = new Dictionary<Identifier, AsyncLazy<IRelationalDatabaseTable>>();
 
         [Test]
         public async Task GetTable_WhenTablePresent_ReturnsTable()

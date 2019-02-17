@@ -1,5 +1,5 @@
 ﻿using System;
-using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Dapper;
@@ -49,7 +49,7 @@ LANGUAGE PLPGSQL").ConfigureAwait(false);
         }
 
         private readonly object _lock = new object();
-        private readonly ConcurrentDictionary<Identifier, AsyncLazy<IDatabaseRoutine>> _routinesCache = new ConcurrentDictionary<Identifier, AsyncLazy<IDatabaseRoutine>>();
+        private readonly Dictionary<Identifier, AsyncLazy<IDatabaseRoutine>> _routinesCache = new Dictionary<Identifier, AsyncLazy<IDatabaseRoutine>>();
 
         [Test]
         public async Task GetRoutine_WhenRoutinePresent_ReturnsRoutine()

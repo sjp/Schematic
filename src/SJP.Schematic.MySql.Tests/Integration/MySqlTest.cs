@@ -14,6 +14,7 @@ namespace SJP.Schematic.MySql.Tests.Integration
             ? MySqlDialect.CreateConnectionAsync(ConnectionString).GetAwaiter().GetResult()
             : null)
             .Match(c => c, _ => null);
+
         private static string ConnectionString => Configuration.GetConnectionString("TestDb");
 
         private static IConfigurationRoot Configuration => new ConfigurationBuilder()

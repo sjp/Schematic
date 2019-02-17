@@ -265,13 +265,7 @@ where OWNER = :SchemaName and TABLE_NAME = :ViewName and CONSTRAINT_TYPE = 'C'";
             if (columnName.IsNullOrWhiteSpace())
                 throw new ArgumentNullException(nameof(columnName));
 
-            if (!_notNullDefinitions.TryGetValue(columnName, out var definition))
-            {
-                definition = "\"" + columnName + "\" IS NOT NULL";
-                _notNullDefinitions.TryAdd(columnName, definition);
-            }
-
-            return definition;
+            return _notNullDefinitions.GetOrAdd(columnName, colName => "\"" + colName + "\" IS NOT NULL");
         }
 
         protected Identifier QualifyViewName(Identifier viewName)

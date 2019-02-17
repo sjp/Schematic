@@ -49,11 +49,7 @@ namespace SJP.Schematic.Modelled.Reflection.Model
                 var sourceAsm = sourceType.GetTypeInfo().Assembly;
                 var sourceAsmName = sourceAsm.GetName();
 
-                if (!AssemblyCache.TryGetValue(sourceAsmName, out var sourceAsmDefinition))
-                {
-                    sourceAsmDefinition = AssemblyDefinition.ReadAssembly(sourceAsm.Location);
-                    AssemblyCache.TryAdd(sourceAsmName, sourceAsmDefinition);
-                }
+                var sourceAsmDefinition = AssemblyCache.GetOrAdd(sourceAsmName, _ => new Lazy<AssemblyDefinition>(() => AssemblyDefinition.ReadAssembly(sourceAsm.Location))).Value;
 
                 // Mono.Cecil uses '/' to declare nested type names instead of '+'
                 var sourceSearchTypeName = sourceType.FullName.Replace('+', '/');
@@ -121,6 +117,6 @@ namespace SJP.Schematic.Modelled.Reflection.Model
             private readonly Func<T, Key> _keySelector;
         }
 
-        private static ConcurrentDictionary<AssemblyName, AssemblyDefinition> AssemblyCache { get; } = new ConcurrentDictionary<AssemblyName, AssemblyDefinition>();
+        private static ConcurrentDictionary<AssemblyName, Lazy<AssemblyDefinition>> AssemblyCache { get; } = new ConcurrentDictionary<AssemblyName, Lazy<AssemblyDefinition>>();
     }
 }
