@@ -44,11 +44,11 @@ namespace SJP.Schematic.Oracle
                 var name = Identifier.CreateQualifiedIdentifier(IdentifierDefaults.Server, IdentifierDefaults.Database, namedPackage.Key.SchemaName, namedPackage.Key.RoutineName);
 
                 var specLines = namedPackage
-                    .Where(p => p.RoutineType == "PACKAGE")
+                    .Where(p => p.RoutineType == PackageObjectType)
                     .OrderBy(p => p.LineNumber)
                     .Select(p => p.Text);
                 var bodyLines = namedPackage
-                    .Where(p => p.RoutineType == "PACKAGE BODY")
+                    .Where(p => p.RoutineType == PackageBodyObjectType)
                     .OrderBy(p => p.LineNumber)
                     .Select(p => p.Text);
 
@@ -157,12 +157,12 @@ where OWNER = :SchemaName and OBJECT_NAME = :PackageName
                 ).ConfigureAwait(false);
 
                 var spec = lines
-                    .Where(p => p.SourceType == "PACKAGE")
+                    .Where(p => p.SourceType == PackageObjectType)
                     .OrderBy(p => p.LineNumber)
                     .Select(p => p.Text)
                     .Join(string.Empty);
                 var bodyLines = lines
-                    .Where(p => p.SourceType == "PACKAGE BODY")
+                    .Where(p => p.SourceType == PackageBodyObjectType)
                     .OrderBy(p => p.LineNumber)
                     .Select(p => p.Text);
 
@@ -185,12 +185,12 @@ where OWNER = :SchemaName and OBJECT_NAME = :PackageName
                 ).ConfigureAwait(false);
 
                 var spec = lines
-                    .Where(p => p.SourceType == "PACKAGE")
+                    .Where(p => p.SourceType == PackageObjectType)
                     .OrderBy(p => p.LineNumber)
                     .Select(p => p.Text)
                     .Join(string.Empty);
                 var bodyLines = lines
-                    .Where(p => p.SourceType == "PACKAGE BODY")
+                    .Where(p => p.SourceType == PackageBodyObjectType)
                     .OrderBy(p => p.LineNumber)
                     .Select(p => p.Text);
 
@@ -236,5 +236,8 @@ order by LINE";
             var schema = packageName.Schema ?? IdentifierDefaults.Schema;
             return Identifier.CreateQualifiedIdentifier(IdentifierDefaults.Server, IdentifierDefaults.Database, schema, packageName.LocalName);
         }
+
+        private static readonly string PackageObjectType = "PACKAGE";
+        private static readonly string PackageBodyObjectType = "PACKAGE BODY";
     }
 }

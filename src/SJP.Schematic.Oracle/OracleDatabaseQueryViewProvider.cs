@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
@@ -244,7 +245,7 @@ order by atc.COLUMN_ID";
                 .ToDictionary();
 
             return checks
-                .Where(c => columnNotNullConstraints.ContainsKey(c.Definition) && c.EnabledStatus == "ENABLED")
+                .Where(c => columnNotNullConstraints.ContainsKey(c.Definition) && c.EnabledStatus == EnabledValue)
                 .Select(c => columnNotNullConstraints[c.Definition])
                 .ToList();
         }
@@ -259,12 +260,18 @@ select
 from SYS.ALL_CONSTRAINTS
 where OWNER = :SchemaName and TABLE_NAME = :ViewName and CONSTRAINT_TYPE = 'C'";
 
-        private static string GenerateNotNullDefinition(string columnName)
+        protected string GenerateNotNullDefinition(string columnName)
         {
             if (columnName.IsNullOrWhiteSpace())
                 throw new ArgumentNullException(nameof(columnName));
 
-            return "\"" + columnName + "\" IS NOT NULL";
+            if (!_notNullDefinitions.TryGetValue(columnName, out var definition))
+            {
+                definition = "\"" + columnName + "\" IS NOT NULL";
+                _notNullDefinitions.TryAdd(columnName, definition);
+            }
+
+            return definition;
         }
 
         protected Identifier QualifyViewName(Identifier viewName)
@@ -275,5 +282,9 @@ where OWNER = :SchemaName and TABLE_NAME = :ViewName and CONSTRAINT_TYPE = 'C'";
             var schema = viewName.Schema ?? IdentifierDefaults.Schema;
             return Identifier.CreateQualifiedIdentifier(IdentifierDefaults.Server, IdentifierDefaults.Database, schema, viewName.LocalName);
         }
+
+        private readonly ConcurrentDictionary<string, string> _notNullDefinitions = new ConcurrentDictionary<string, string>();
+
+        private const string EnabledValue = "ENABLED";
     }
 }
