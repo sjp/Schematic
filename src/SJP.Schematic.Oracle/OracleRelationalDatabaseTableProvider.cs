@@ -727,11 +727,11 @@ order by COLUMN_ID";
 
                 foreach (var triggerEventPiece in triggerEventPieces)
                 {
-                    if (triggerEventPiece == "INSERT")
+                    if (triggerEventPiece == Constants.Insert)
                         events |= TriggerEvent.Insert;
-                    else if (triggerEventPiece == "UPDATE")
+                    else if (triggerEventPiece == Constants.Update)
                         events |= TriggerEvent.Update;
-                    else if (triggerEventPiece == "DELETE")
+                    else if (triggerEventPiece == Constants.Delete)
                         events |= TriggerEvent.Delete;
                     else
                         throw new UnsupportedTriggerEventException(tableName, triggerEventPiece);
@@ -862,11 +862,17 @@ where TABLE_OWNER = :SchemaName and TABLE_NAME = :TableName and BASE_OBJECT_TYPE
 
         private static class Constants
         {
+            public const string Delete = "DELETE";
+
             public const string Enabled = "ENABLED";
+
+            public const string Insert = "INSERT";
 
             public const string PrimaryKeyType = "P";
 
             public const string Unique = "UNIQUE";
+
+            public const string Update = "UPDATE";
 
             public const string Y = "Y";
 

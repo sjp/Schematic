@@ -657,11 +657,11 @@ order by ordinal_position";
                 var events = TriggerEvent.None;
                 foreach (var trigEvent in trig)
                 {
-                    if (trigEvent.TriggerEvent == "INSERT")
+                    if (trigEvent.TriggerEvent == Constants.Insert)
                         events |= TriggerEvent.Insert;
-                    else if (trigEvent.TriggerEvent == "UPDATE")
+                    else if (trigEvent.TriggerEvent == Constants.Update)
                         events |= TriggerEvent.Update;
-                    else if (trigEvent.TriggerEvent == "DELETE")
+                    else if (trigEvent.TriggerEvent == Constants.Delete)
                         events |= TriggerEvent.Delete;
                     else
                         throw new UnsupportedTriggerEventException(tableName, trigEvent.TriggerEvent);
@@ -738,9 +738,15 @@ where tr.event_object_schema = @SchemaName and tr.event_object_table = @TableNam
         {
             public const string AutoIncrement = "auto_increment";
 
+            public const string Delete = "DELETE";
+
+            public const string Insert = "INSERT";
+
             public const string No = "NO";
 
             public const string PrimaryKey = "PRIMARY KEY";
+
+            public const string Update = "UPDATE";
         }
     }
 }

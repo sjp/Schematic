@@ -772,11 +772,11 @@ order by ordinal_position";
                 var events = TriggerEvent.None;
                 foreach (var trigEvent in trig)
                 {
-                    if (trigEvent.TriggerEvent == "INSERT")
+                    if (trigEvent.TriggerEvent == Constants.Insert)
                         events |= TriggerEvent.Insert;
-                    else if (trigEvent.TriggerEvent == "UPDATE")
+                    else if (trigEvent.TriggerEvent == Constants.Update)
                         events |= TriggerEvent.Update;
-                    else if (trigEvent.TriggerEvent == "DELETE")
+                    else if (trigEvent.TriggerEvent == Constants.Delete)
                         events |= TriggerEvent.Delete;
                     else
                         throw new UnsupportedTriggerEventException(tableName, trigEvent.TriggerEvent);
@@ -889,11 +889,17 @@ where t.relkind = 'r'
 
         private static class Constants
         {
+            public const string Delete = "DELETE";
+
             public const string DisabledFlag = "D";
+
+            public const string Insert = "INSERT";
 
             public const string PgCatalog = "pg_catalog";
 
             public const string PrimaryKeyType = "p";
+
+            public const string Update = "UPDATE";
 
             public const string Yes = "YES";
         }
