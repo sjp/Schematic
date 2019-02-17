@@ -237,7 +237,7 @@ order by LINE";
             return Identifier.CreateQualifiedIdentifier(IdentifierDefaults.Server, IdentifierDefaults.Database, schema, packageName.LocalName);
         }
 
-        private static readonly string PackageObjectType = "PACKAGE";
-        private static readonly string PackageBodyObjectType = "PACKAGE BODY";
+        private const string PackageObjectType = "PACKAGE";
+        private const string PackageBodyObjectType = "PACKAGE BODY";
     }
 }
