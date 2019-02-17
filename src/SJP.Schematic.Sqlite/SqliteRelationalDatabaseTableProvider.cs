@@ -280,7 +280,7 @@ namespace SJP.Schematic.Sqlite
             if (indexLists.Empty())
                 return Array.Empty<IDatabaseIndex>();
 
-            var nonConstraintIndexLists = indexLists.Where(i => i.origin == "c").ToList();
+            var nonConstraintIndexLists = indexLists.Where(i => i.origin == Constants.Constraint).ToList();
             if (nonConstraintIndexLists.Empty())
                 return Array.Empty<IDatabaseIndex>();
 
@@ -333,7 +333,7 @@ namespace SJP.Schematic.Sqlite
                 return Array.Empty<IDatabaseKey>();
 
             var ukIndexLists = indexLists
-                .Where(i => i.origin == "u" && i.unique)
+                .Where(i => i.origin == Constants.Unique && i.unique)
                 .ToList();
             if (ukIndexLists.Empty())
                 return Array.Empty<IDatabaseKey>();
@@ -773,5 +773,12 @@ namespace SJP.Schematic.Sqlite
         private static readonly SqliteTokenizer Tokenizer = new SqliteTokenizer();
         private static readonly SqliteTableParser TableParser = new SqliteTableParser();
         private static readonly SqliteTriggerParser TriggerParser = new SqliteTriggerParser();
+
+        private static class Constants
+        {
+            public const string Constraint = "c";
+
+            public const string Unique = "u";
+        }
     }
 }
