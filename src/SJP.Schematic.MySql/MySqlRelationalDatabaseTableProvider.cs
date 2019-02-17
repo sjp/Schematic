@@ -373,7 +373,7 @@ order by kc.ordinal_position";
                 }
 
                 var childKey = parentKeyLookup[childKeyName];
-                var parentKey = groupedChildKey.Key.ParentKeyType == "PRIMARY KEY"
+                var parentKey = groupedChildKey.Key.ParentKeyType == Constants.PrimaryKey
                     ? primaryKey.UnwrapSome()
                     : uniqueKeys[groupedChildKey.Key.ParentKeyName];
 
@@ -466,7 +466,7 @@ where pt.table_schema = @SchemaName and pt.table_name = @TableName";
                 var parentKeyName = Identifier.CreateQualifiedIdentifier(fkey.Key.ParentKeyName);
 
                 IDatabaseKey parentKey;
-                if (fkey.Key.KeyType == "PRIMARY KEY")
+                if (fkey.Key.KeyType == Constants.PrimaryKey)
                 {
                     if (primaryKeyCache.TryGetValue(parentTableName, out var pk))
                     {
@@ -577,12 +577,12 @@ where t.table_schema = @SchemaName and t.table_name = @TableName";
                 var columnType = TypeProvider.CreateColumnType(typeMetadata);
 
                 var columnName = Identifier.CreateQualifiedIdentifier(row.ColumnName);
-                var isAutoIncrement = row.ExtraInformation.Contains("auto_increment", StringComparison.OrdinalIgnoreCase);
+                var isAutoIncrement = row.ExtraInformation.Contains(Constants.AutoIncrement, StringComparison.OrdinalIgnoreCase);
                 var autoIncrement = isAutoIncrement
                     ? Option<IAutoIncrement>.Some(new AutoIncrement(1, 1))
                     : Option<IAutoIncrement>.None;
                 var isComputed = !row.ComputedColumnDefinition.IsNullOrWhiteSpace();
-                var isNullable = !string.Equals(row.IsNullable, "NO", StringComparison.OrdinalIgnoreCase);
+                var isNullable = !string.Equals(row.IsNullable, Constants.No, StringComparison.OrdinalIgnoreCase);
                 var defaultValue = !row.DefaultValue.IsNullOrWhiteSpace()
                     ? Option<string>.Some(row.DefaultValue)
                     : Option<string>.None;
@@ -732,6 +732,15 @@ where tr.event_object_schema = @SchemaName and tr.event_object_table = @TableNam
             }
 
             return result;
+        }
+
+        private static class Constants
+        {
+            public const string AutoIncrement = "auto_increment";
+
+            public const string No = "NO";
+
+            public const string PrimaryKey = "PRIMARY KEY";
         }
     }
 }

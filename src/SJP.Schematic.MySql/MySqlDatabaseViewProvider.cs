@@ -169,11 +169,11 @@ where table_schema = @SchemaName and table_name = @ViewName";
                 var columnType = TypeProvider.CreateColumnType(typeMetadata);
 
                 var columnName = Identifier.CreateQualifiedIdentifier(row.ColumnName);
-                var isAutoIncrement = row.ExtraInformation.Contains("auto_increment", StringComparison.OrdinalIgnoreCase);
+                var isAutoIncrement = row.ExtraInformation.Contains(Constants.AutoIncrement, StringComparison.OrdinalIgnoreCase);
                 var autoIncrement = isAutoIncrement
                     ? Option<IAutoIncrement>.Some(new AutoIncrement(1, 1))
                     : Option<IAutoIncrement>.None;
-                var isNullable = !string.Equals(row.IsNullable, "NO", StringComparison.OrdinalIgnoreCase);
+                var isNullable = !string.Equals(row.IsNullable, Constants.No, StringComparison.OrdinalIgnoreCase);
                 var defaultValue = !row.DefaultValue.IsNullOrWhiteSpace()
                     ? Option<string>.Some(row.DefaultValue)
                     : Option<string>.None;
@@ -211,6 +211,13 @@ order by ordinal_position";
 
             var schema = viewName.Schema ?? IdentifierDefaults.Schema;
             return Identifier.CreateQualifiedIdentifier(IdentifierDefaults.Server, IdentifierDefaults.Database, schema, viewName.LocalName);
+        }
+
+        private static class Constants
+        {
+            public const string AutoIncrement = "auto_increment";
+
+            public const string No = "NO";
         }
     }
 }

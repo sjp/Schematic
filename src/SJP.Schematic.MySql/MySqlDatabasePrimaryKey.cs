@@ -6,8 +6,10 @@ namespace SJP.Schematic.MySql
     public class MySqlDatabasePrimaryKey : MySqlDatabaseKey
     {
         public MySqlDatabasePrimaryKey(IReadOnlyCollection<IDatabaseColumn> columns)
-            : base(Identifier.CreateQualifiedIdentifier("PRIMARY"), DatabaseKeyType.Primary, columns)
+            : base(PrimaryKeyName, DatabaseKeyType.Primary, columns)
         {
         }
+
+        private static readonly Identifier PrimaryKeyName = Identifier.CreateQualifiedIdentifier("PRIMARY");
     }
 }
