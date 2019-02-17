@@ -1,14 +1,19 @@
 ﻿using System.Data;
+using LanguageExt;
+using Microsoft.Extensions.Configuration;
 using NUnit.Framework;
 using SJP.Schematic.Core;
-using Microsoft.Extensions.Configuration;
+using SJP.Schematic.Core.Extensions;
+using SJP.Schematic.Core.Tests;
 
 namespace SJP.Schematic.MySql.Tests.Integration
 {
     internal static class Config
     {
-        public static IDbConnection Connection { get; } = MySqlDialect.CreateConnectionAsync(ConnectionString).GetAwaiter().GetResult();
-
+        public static IDbConnection Connection { get; } = Prelude.Try(() => !ConnectionString.IsNullOrWhiteSpace()
+            ? MySqlDialect.CreateConnectionAsync(ConnectionString).GetAwaiter().GetResult()
+            : null)
+            .Match(c => c, _ => null);
         private static string ConnectionString => Configuration.GetConnectionString("TestDb");
 
         private static IConfigurationRoot Configuration => new ConfigurationBuilder()
@@ -19,7 +24,7 @@ namespace SJP.Schematic.MySql.Tests.Integration
 
     [Category("MySqlDatabase")]
     [Category("SkipWhenLiveUnitTesting")]
-    [TestFixture]
+    [DatabaseTestFixture(typeof(Config), nameof(Config.Connection), "No MySQL DB available")]
     internal abstract class MySqlTest
     {
         protected IDbConnection Connection { get; } = Config.Connection;

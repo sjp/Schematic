@@ -21,6 +21,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\SJP.Schematic.Core.Tests\SJP.Schematic.Core.Tests.csproj" />
     <ProjectReference Include="..\SJP.Schematic.Core\SJP.Schematic.Core.csproj" />
     <ProjectReference Include="..\SJP.Schematic.Oracle\SJP.Schematic.Oracle.csproj" />
   </ItemGroup>

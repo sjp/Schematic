@@ -1,13 +1,19 @@
 ﻿using System.Data;
+using LanguageExt;
+using Microsoft.Extensions.Configuration;
 using NUnit.Framework;
 using SJP.Schematic.Core;
-using Microsoft.Extensions.Configuration;
+using SJP.Schematic.Core.Extensions;
+using SJP.Schematic.Core.Tests;
 
 namespace SJP.Schematic.PostgreSql.Tests.Integration.Versions.V9_5
 {
     internal static class Config95
     {
-        public static IDbConnection Connection { get; } = PostgreSqlDialect.CreateConnectionAsync(ConnectionString).GetAwaiter().GetResult();
+        public static IDbConnection Connection { get; } = Prelude.Try(() => !ConnectionString.IsNullOrWhiteSpace()
+            ? PostgreSqlDialect.CreateConnectionAsync(ConnectionString).GetAwaiter().GetResult()
+            : null)
+            .Match(c => c, _ => null);
 
         private static string ConnectionString => Configuration.GetConnectionString("TestDb");
 
@@ -19,7 +25,7 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration.Versions.V9_5
 
     [Category("PostgreSqlDatabase")]
     [Category("SkipWhenLiveUnitTesting")]
-    [TestFixture(Ignore = "No CI v9.5 DB available")]
+    [DatabaseTestFixture(typeof(Config95), nameof(Config95.Connection), "No PostgreSQL v9.5 DB available")]
     internal abstract class PostgreSql95Test
     {
         protected IDbConnection Connection { get; } = Config95.Connection;

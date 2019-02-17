@@ -1,5 +1,5 @@
 ﻿{
   "ConnectionStrings": {
-    "TestDb": "Server=localhost; Port=3306; Database=schematic; Uid=root; Pwd=Password12!;"
+    "TestDb": "Server=localhost; Port=3306; Database=schematic; Uid=root; Pwd=Password12!; ConnectionTimeout=2"
   }
 }

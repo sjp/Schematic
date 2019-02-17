@@ -1,5 +1,5 @@
 ﻿{
   "ConnectionStrings": {
-    "TestDb": "Data Source=...; User Id=...; Password=..."
+    "TestDb": "Data Source=...; User Id=...; Password=...; Connection Timeout=2"
   }
 }

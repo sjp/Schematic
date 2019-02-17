@@ -1,13 +1,19 @@
 ﻿using System.Data;
+using LanguageExt;
+using Microsoft.Extensions.Configuration;
 using NUnit.Framework;
 using SJP.Schematic.Core;
-using Microsoft.Extensions.Configuration;
+using SJP.Schematic.Core.Extensions;
+using SJP.Schematic.Core.Tests;
 
 namespace SJP.Schematic.Oracle.Tests.Integration
 {
     internal static class Config
     {
-        public static IDbConnection Connection { get; } = OracleDialect.CreateConnectionAsync(ConnectionString).GetAwaiter().GetResult();
+        public static IDbConnection Connection { get; } = Prelude.Try(() => !ConnectionString.IsNullOrWhiteSpace()
+            ? OracleDialect.CreateConnectionAsync(ConnectionString).GetAwaiter().GetResult()
+            : null)
+            .Match(c => c, _ => null);
 
         private static string ConnectionString => Configuration.GetConnectionString("TestDb");
 
@@ -19,7 +25,7 @@ namespace SJP.Schematic.Oracle.Tests.Integration
 
     [Category("OracleDatabase")]
     [Category("SkipWhenLiveUnitTesting")]
-    [TestFixture(Ignore = "No CI Oracle DB available")]
+    [DatabaseTestFixture(typeof(Config), nameof(Config.Connection), "No Oracle DB available")]
     internal abstract class OracleTest
     {
         protected IDbConnection Connection { get; } = Config.Connection;

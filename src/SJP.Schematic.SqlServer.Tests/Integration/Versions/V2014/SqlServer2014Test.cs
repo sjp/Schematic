@@ -1,13 +1,19 @@
 ﻿using System.Data;
+using LanguageExt;
+using Microsoft.Extensions.Configuration;
 using NUnit.Framework;
 using SJP.Schematic.Core;
-using Microsoft.Extensions.Configuration;
+using SJP.Schematic.Core.Extensions;
+using SJP.Schematic.Core.Tests;
 
 namespace SJP.Schematic.SqlServer.Tests.Integration.Versions.V2014
 {
     internal static class Config2014
     {
-        public static IDbConnection Connection { get; } = SqlServerDialect.CreateConnectionAsync(ConnectionString).GetAwaiter().GetResult();
+        public static IDbConnection Connection { get; } = Prelude.Try(() => !ConnectionString.IsNullOrWhiteSpace()
+            ? SqlServerDialect.CreateConnectionAsync(ConnectionString).GetAwaiter().GetResult()
+            : null)
+            .Match(c => c, _ => null);
 
         private static string ConnectionString => Configuration.GetConnectionString("TestDb");
 
@@ -19,7 +25,7 @@ namespace SJP.Schematic.SqlServer.Tests.Integration.Versions.V2014
 
     [Category("SqlServerDatabase")]
     [Category("SkipWhenLiveUnitTesting")]
-    [TestFixture]
+    [DatabaseTestFixture(typeof(Config2014), nameof(Config2014.Connection), "No SQL Server 2014 DB available")]
     internal abstract class SqlServer2014Test
     {
         protected IDbConnection Connection { get; } = Config2014.Connection;
