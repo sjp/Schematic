@@ -400,7 +400,7 @@ order by ic.key_ordinal";
                 }
 
                 var childKey = parentKeyLookup[childKeyName.LocalName];
-                var parentKey = groupedChildKey.Key.ParentKeyType == "PK"
+                var parentKey = groupedChildKey.Key.ParentKeyType == Constants.PrimaryKeyType
                     ? primaryKey.UnwrapSome()
                     : uniqueKeys[groupedChildKey.Key.ParentKeyName];
 
@@ -522,7 +522,7 @@ where schema_name(t.schema_id) = @SchemaName and t.name = @TableName";
                 var parentKeyName = Identifier.CreateQualifiedIdentifier(fkey.Key.ParentKeyName);
 
                 IDatabaseKey parentKey;
-                if (fkey.Key.KeyType == "PK")
+                if (fkey.Key.KeyType == Constants.PrimaryKeyType)
                 {
                     if (primaryKeyCache.TryGetValue(parentTableName, out var pk))
                     {
@@ -798,11 +798,14 @@ where schema_name(t.schema_id) = @SchemaName and t.name = @TableName";
             var result = new Dictionary<Identifier, IDatabaseKey>(keys.Count);
 
             foreach (var key in keys)
-            {
                 key.Name.IfSome(name => result[name.LocalName] = key);
-            }
 
             return result;
+        }
+
+        private static class Constants
+        {
+            public const string PrimaryKeyType = "PK";
         }
     }
 }
