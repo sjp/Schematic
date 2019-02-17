@@ -629,26 +629,18 @@ namespace SJP.Schematic.Sqlite
             {
                 var triggerSql = triggerInfo.sql;
 
-                _triggerRwLock.EnterReadLock();
-                try
+                var parsedTrigger = _triggerParserCache.GetOrAdd(triggerSql, sql => new Lazy<ParsedTriggerData>(() =>
                 {
-                    var parsedTrigger = _triggerParserCache.GetOrAdd(triggerSql, sql => new Lazy<ParsedTriggerData>(() =>
-                    {
-                        var tokenizeResult = Tokenizer.TryTokenize(sql);
-                        if (!tokenizeResult.HasValue)
-                            throw new SqliteTriggerParsingException(tableName, triggerInfo.sql, tokenizeResult.ErrorMessage + " at " + tokenizeResult.ErrorPosition.ToString());
+                    var tokenizeResult = Tokenizer.TryTokenize(sql);
+                    if (!tokenizeResult.HasValue)
+                        throw new SqliteTriggerParsingException(tableName, triggerInfo.sql, tokenizeResult.ErrorMessage + " at " + tokenizeResult.ErrorPosition.ToString());
 
-                        var tokens = tokenizeResult.Value;
-                        return TriggerParser.ParseTokens(tokens);
-                    })).Value;
+                    var tokens = tokenizeResult.Value;
+                    return TriggerParser.ParseTokens(tokens);
+                })).Value;
 
-                    var trigger = new SqliteDatabaseTrigger(triggerInfo.name, triggerSql, parsedTrigger.Timing, parsedTrigger.Event);
-                    result.Add(trigger);
-                }
-                finally
-                {
-                    _triggerRwLock.ExitReadLock();
-                }
+                var trigger = new SqliteDatabaseTrigger(triggerInfo.name, triggerSql, parsedTrigger.Timing, parsedTrigger.Event);
+                result.Add(trigger);
             }
 
             return result;
@@ -695,23 +687,15 @@ namespace SJP.Schematic.Sqlite
                 cancellationToken
             ).ConfigureAwait(false);
 
-            _tableRwLock.EnterReadLock();
-            try
+            return _tableParserCache.GetOrAdd(tableSql, sql => new Lazy<ParsedTableData>(() =>
             {
-                return _tableParserCache.GetOrAdd(tableSql, sql => new Lazy<ParsedTableData>(() =>
-                {
-                    var tokenizeResult = Tokenizer.TryTokenize(sql);
-                    if (!tokenizeResult.HasValue)
-                        throw new SqliteTableParsingException(tableName, tableSql, tokenizeResult.ErrorMessage + " at " + tokenizeResult.ErrorPosition.ToString());
+                var tokenizeResult = Tokenizer.TryTokenize(sql);
+                if (!tokenizeResult.HasValue)
+                    throw new SqliteTableParsingException(tableName, tableSql, tokenizeResult.ErrorMessage + " at " + tokenizeResult.ErrorPosition.ToString());
 
-                    var tokens = tokenizeResult.Value;
-                    return TableParser.ParseTokens(sql, tokens);
-                })).Value;
-            }
-            finally
-            {
-                _tableRwLock.ExitReadLock();
-            }
+                var tokens = tokenizeResult.Value;
+                return TableParser.ParseTokens(sql, tokens);
+            })).Value;
         }
 
         protected virtual string TableDefinitionQuery(string schema)
@@ -751,8 +735,6 @@ namespace SJP.Schematic.Sqlite
 
         private readonly ConcurrentDictionary<string, Lazy<ParsedTableData>> _tableParserCache = new ConcurrentDictionary<string, Lazy<ParsedTableData>>();
         private readonly ConcurrentDictionary<string, Lazy<ParsedTriggerData>> _triggerParserCache = new ConcurrentDictionary<string, Lazy<ParsedTriggerData>>();
-        private readonly ReaderWriterLockSlim _tableRwLock = new ReaderWriterLockSlim();
-        private readonly ReaderWriterLockSlim _triggerRwLock = new ReaderWriterLockSlim();
 
         private static readonly IReadOnlyDictionary<string, Rule> RelationalUpdateMapping = new Dictionary<string, Rule>(StringComparer.OrdinalIgnoreCase)
         {
