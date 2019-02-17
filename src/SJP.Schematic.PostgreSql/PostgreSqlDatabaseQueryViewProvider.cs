@@ -183,7 +183,7 @@ where table_schema = @SchemaName and table_name = @ViewName";
                      ? Option<string>.Some(row.column_default)
                      : Option<string>.None;
 
-                var column = new DatabaseColumn(columnName, columnType, row.is_nullable == "YES", defaultValue, autoIncrement);
+                var column = new DatabaseColumn(columnName, columnType, row.is_nullable == Constants.Yes, defaultValue, autoIncrement);
                 result.Add(column);
             }
 
@@ -227,6 +227,11 @@ order by ordinal_position";
 
             var schema = viewName.Schema ?? IdentifierDefaults.Schema;
             return Identifier.CreateQualifiedIdentifier(IdentifierDefaults.Server, IdentifierDefaults.Database, schema, viewName.LocalName);
+        }
+
+        private static class Constants
+        {
+            public const string Yes = "YES";
         }
     }
 }

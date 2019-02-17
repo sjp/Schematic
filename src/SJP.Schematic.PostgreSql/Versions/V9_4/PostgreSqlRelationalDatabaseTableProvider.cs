@@ -414,7 +414,7 @@ where tc.table_schema = @SchemaName and tc.table_name = @TableName
                 }
 
                 var childKey = parentKeyLookup[childKeyName.LocalName];
-                var parentKey = groupedChildKey.Key.ParentKeyType == "p"
+                var parentKey = groupedChildKey.Key.ParentKeyType == Constants.PrimaryKeyType
                     ? primaryKey.UnwrapSome()
                     : uniqueKeys[groupedChildKey.Key.ParentKeyName];
 
@@ -550,7 +550,7 @@ where
                 var parentKeyName = Identifier.CreateQualifiedIdentifier(fkey.Key.ParentKeyName);
 
                 IDatabaseKey parentKey;
-                if (fkey.Key.KeyType == "p")
+                if (fkey.Key.KeyType == Constants.PrimaryKeyType)
                 {
                     if (primaryKeyCache.TryGetValue(parentTableName, out var pk))
                     {
@@ -669,7 +669,7 @@ where t.relname = @TableName and ns.nspname = @SchemaName";
             {
                 var typeMetadata = new ColumnTypeMetadata
                 {
-                    TypeName = Identifier.CreateQualifiedIdentifier("pg_catalog", row.data_type),
+                    TypeName = Identifier.CreateQualifiedIdentifier(Constants.PgCatalog, row.data_type),
                     Collation = row.collation_name.IsNullOrWhiteSpace() ? null : Identifier.CreateQualifiedIdentifier(row.collation_catalog, row.collation_schema, row.collation_name),
                     MaxLength = row.character_maximum_length > 0
                         ? row.character_maximum_length
@@ -689,7 +689,7 @@ where t.relname = @TableName and ns.nspname = @SchemaName";
                 var defaultValue = !row.column_default.IsNullOrWhiteSpace()
                     ? Option<string>.Some(row.column_default)
                     : Option<string>.None;
-                var isNullable = row.is_nullable == "YES";
+                var isNullable = row.is_nullable == Constants.Yes;
 
                 var column = new DatabaseColumn(columnName, columnType, isNullable, defaultValue, autoIncrement);
                 result.Add(column);
@@ -782,7 +782,7 @@ order by ordinal_position";
                         throw new UnsupportedTriggerEventException(tableName, trigEvent.TriggerEvent);
                 }
 
-                var isEnabled = trig.Key.EnabledFlag != "D";
+                var isEnabled = trig.Key.EnabledFlag != Constants.DisabledFlag;
                 var trigger = new PostgreSqlDatabaseTrigger(triggerName, definition, queryTiming, events, isEnabled);
                 result.Add(trigger);
             }
@@ -885,6 +885,17 @@ where t.relkind = 'r'
 
             var schema = tableName.Schema ?? IdentifierDefaults.Schema;
             return Identifier.CreateQualifiedIdentifier(IdentifierDefaults.Server, IdentifierDefaults.Database, schema, tableName.LocalName);
+        }
+
+        private static class Constants
+        {
+            public const string DisabledFlag = "D";
+
+            public const string PgCatalog = "pg_catalog";
+
+            public const string PrimaryKeyType = "p";
+
+            public const string Yes = "YES";
         }
     }
 }

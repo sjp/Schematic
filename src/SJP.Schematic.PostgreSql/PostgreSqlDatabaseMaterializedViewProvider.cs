@@ -183,7 +183,7 @@ where schemaname = @SchemaName and matviewname = @ViewName";
                     ? Option<string>.Some(row.column_default)
                     : Option<string>.None;
 
-                var column = new DatabaseColumn(columnName, columnType, row.is_nullable == "YES", defaultValue, autoIncrement);
+                var column = new DatabaseColumn(columnName, columnType, row.is_nullable == Constants.Yes, defaultValue, autoIncrement);
                 result.Add(column);
             }
 
@@ -347,5 +347,10 @@ ORDER BY a.attnum -- ordinal_position";
            THEN pg_catalog.upper(substring(pg_catalog.format_type(" + PgTrueTypId + ", " + PgTrueTypMod + @") from 'interval[()0-9]* #"" %#""' for '#'))
        ELSE null
   END";
+
+        private static class Constants
+        {
+            public const string Yes = "YES";
+        }
     }
 }
