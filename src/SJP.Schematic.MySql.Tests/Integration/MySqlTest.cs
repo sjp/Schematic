@@ -24,7 +24,6 @@ namespace SJP.Schematic.MySql.Tests.Integration
     }
 
     [Category("MySqlDatabase")]
-    [Category("SkipWhenLiveUnitTesting")]
     [DatabaseTestFixture(typeof(Config), nameof(Config.Connection), "No MySQL DB available")]
     internal abstract class MySqlTest
     {

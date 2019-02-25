@@ -9,6 +9,7 @@ namespace SJP.Schematic.Tests.Utilities
     /// <summary>
     /// Annotates a type as being a test fixture conditional on a connection being available.
     /// </summary>
+    [Category("SkipWhenLiveUnitTesting")]
     [AttributeUsage(AttributeTargets.Class, AllowMultiple = false, Inherited = true)]
     public sealed class DatabaseTestFixtureAttribute : TestFixtureAttribute
     {

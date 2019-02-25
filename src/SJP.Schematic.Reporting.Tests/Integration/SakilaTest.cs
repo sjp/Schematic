@@ -7,6 +7,7 @@ using NUnit.Framework;
 using SJP.Schematic.Core;
 using SJP.Schematic.Sqlite;
 using SJP.Schematic.Sqlite.Pragma;
+using SJP.Schematic.Tests.Utilities;
 
 namespace SJP.Schematic.Reporting.Tests.Integration
 {
@@ -43,8 +44,8 @@ namespace SJP.Schematic.Reporting.Tests.Integration
         private static string CurrentDirectory => Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
     }
 
-    [Category("SkipWhenLiveUnitTesting")]
     [TestFixture]
+    [DatabaseTestFixture(typeof(Config), nameof(Config.Connection), "No Reporting DB available")]
     internal abstract class SakilaTest
     {
         protected IDbConnection Connection { get; } = Config.Connection;

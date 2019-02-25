@@ -24,7 +24,6 @@ namespace SJP.Schematic.SqlServer.Tests.Integration.Versions.V2016
     }
 
     [Category("SqlServerDatabase")]
-    [Category("SkipWhenLiveUnitTesting")]
     [DatabaseTestFixture(typeof(Config2016), nameof(Config2016.Connection), "No SQL Server 2016 DB available")]
     internal abstract class SqlServer2016Test
     {

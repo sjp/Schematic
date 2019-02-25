@@ -24,7 +24,6 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration.Versions.V9_5
     }
 
     [Category("PostgreSqlDatabase")]
-    [Category("SkipWhenLiveUnitTesting")]
     [DatabaseTestFixture(typeof(Config95), nameof(Config95.Connection), "No PostgreSQL v9.5 DB available")]
     internal abstract class PostgreSql95Test
     {

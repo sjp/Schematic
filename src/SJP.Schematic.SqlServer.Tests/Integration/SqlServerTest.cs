@@ -24,7 +24,6 @@ namespace SJP.Schematic.SqlServer.Tests.Integration
     }
 
     [Category("SqlServerDatabase")]
-    [Category("SkipWhenLiveUnitTesting")]
     [DatabaseTestFixture(typeof(Config), nameof(Config.Connection), "No SQL Server DB available")]
     internal abstract class SqlServerTest
     {

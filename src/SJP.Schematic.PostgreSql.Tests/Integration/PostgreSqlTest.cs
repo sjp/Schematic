@@ -24,7 +24,6 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration
     }
 
     [Category("PostgreSqlDatabase")]
-    [Category("SkipWhenLiveUnitTesting")]
     [DatabaseTestFixture(typeof(Config), nameof(Config.Connection), "No PostgreSQL DB available")]
     internal abstract class PostgreSqlTest
     {

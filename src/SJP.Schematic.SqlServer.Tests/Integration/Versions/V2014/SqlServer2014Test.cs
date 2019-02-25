@@ -24,7 +24,6 @@ namespace SJP.Schematic.SqlServer.Tests.Integration.Versions.V2014
     }
 
     [Category("SqlServerDatabase")]
-    [Category("SkipWhenLiveUnitTesting")]
     [DatabaseTestFixture(typeof(Config2014), nameof(Config2014.Connection), "No SQL Server 2014 DB available")]
     internal abstract class SqlServer2014Test
     {

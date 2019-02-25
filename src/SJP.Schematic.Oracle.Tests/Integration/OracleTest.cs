@@ -24,7 +24,6 @@ namespace SJP.Schematic.Oracle.Tests.Integration
     }
 
     [Category("OracleDatabase")]
-    [Category("SkipWhenLiveUnitTesting")]
     [DatabaseTestFixture(typeof(Config), nameof(Config.Connection), "No Oracle DB available")]
     internal abstract class OracleTest
     {

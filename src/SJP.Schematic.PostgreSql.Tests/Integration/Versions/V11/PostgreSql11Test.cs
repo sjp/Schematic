@@ -24,7 +24,6 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration.Versions.V11
     }
 
     [Category("PostgreSqlDatabase")]
-    [Category("SkipWhenLiveUnitTesting")]
     [DatabaseTestFixture(typeof(Config11), nameof(Config11.Connection), "No PostgreSQL v11 DB available")]
     internal abstract class PostgreSql11Test
     {

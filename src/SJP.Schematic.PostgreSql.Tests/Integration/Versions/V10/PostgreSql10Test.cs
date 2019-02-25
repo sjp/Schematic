@@ -24,7 +24,6 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration.Versions.V10
     }
 
     [Category("PostgreSqlDatabase")]
-    [Category("SkipWhenLiveUnitTesting")]
     [DatabaseTestFixture(typeof(Config10), nameof(Config10.Connection), "No PostgreSQL v10 DB available")]
     internal abstract class PostgreSql10Test
     {
