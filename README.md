@@ -39,4 +39,4 @@ We are also able to generate code to access a database using commonly available 
 
 ## Icon
 
-Original icon made by [Madebyoliver](https://dribbble.com/olivers) from [www.flaticon.com](http://www.flaticon.com). Modifications created by myself.
+Original icon made by [Madebyoliver](https://dribbble.com/olivers) from [www.flaticon.com](https://www.flaticon.com). Modifications created by myself.
