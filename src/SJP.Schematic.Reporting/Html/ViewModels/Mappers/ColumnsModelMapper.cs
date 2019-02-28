@@ -8,16 +8,6 @@ namespace SJP.Schematic.Reporting.Html.ViewModels.Mappers
 {
     internal sealed class ColumnsModelMapper
     {
-        public ColumnsModelMapper(IDbConnection connection, IDatabaseDialect dialect)
-        {
-            Connection = connection ?? throw new ArgumentNullException(nameof(connection));
-            Dialect = dialect ?? throw new ArgumentNullException(nameof(dialect));
-        }
-
-        private IDbConnection Connection { get; }
-
-        private IDatabaseDialect Dialect { get; }
-
         public IEnumerable<Columns.TableColumn> Map(IRelationalDatabaseTable table)
         {
             if (table == null)

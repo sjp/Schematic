@@ -110,8 +110,8 @@ namespace SJP.Schematic.Reporting.Html.Renderers
 
             var sequenceViewModels = Sequences.Select(mapper.Map).ToList();
 
-            var synonymTasks = Synonyms.Select(s => mapper.MapAsync(s, cancellationToken)).ToArray();
-            var synonymViewModels = await Task.WhenAll(synonymTasks).ConfigureAwait(false);
+            var synonymTargets = new MainModelMapper.SynonymTargets(Tables, Views, Routines);
+            var synonymViewModels = Synonyms.Select(s => mapper.Map(s, synonymTargets)).ToList();
 
             var routineViewModels = Routines.Select(mapper.Map).ToList();
 

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Data;
 using System.Threading;
 using System.Threading.Tasks;
@@ -76,39 +77,27 @@ namespace SJP.Schematic.Reporting.Html.ViewModels.Mappers
             );
         }
 
-        public Task<Main.Synonym> MapAsync(IDatabaseSynonym synonym, CancellationToken cancellationToken)
+        public Main.Synonym Map(IDatabaseSynonym synonym, SynonymTargets targets)
         {
             if (synonym == null)
                 throw new ArgumentNullException(nameof(synonym));
+            if (targets == null)
+                throw new ArgumentNullException(nameof(targets));
 
-            return MapAsyncCore(synonym, cancellationToken);
-        }
-
-        private async Task<Main.Synonym> MapAsyncCore(IDatabaseSynonym synonym, CancellationToken cancellationToken)
-        {
-            var targetUrl = await GetSynonymTargetUrlAsync(synonym.Target, cancellationToken).ConfigureAwait(false);
+            var targetUrl = GetSynonymTargetUrl(synonym.Target, targets);
             return new Main.Synonym(synonym.Name, synonym.Target, targetUrl);
         }
 
-        private async Task<Option<Uri>> GetSynonymTargetUrlAsync(Identifier identifier, CancellationToken cancellationToken)
+        private Option<Uri> GetSynonymTargetUrl(Identifier identifier, SynonymTargets targets)
         {
-            var tableOption = Database.GetTable(identifier, cancellationToken);
-            var tableUri = tableOption.Map(t => new Uri("tables/" + t.Name.ToSafeKey() + ".html", UriKind.Relative));
-            var tableUriIsSome = await tableUri.IsSome.ConfigureAwait(false);
-            if (tableUriIsSome)
-                return await tableUri.ToOption().ConfigureAwait(false);
+            if (targets.Tables.ContainsKey(identifier))
+                return new Uri("tables/" + identifier.ToSafeKey() + ".html", UriKind.Relative);
 
-            var viewOption = Database.GetView(identifier, cancellationToken);
-            var viewUri = viewOption.Map(v => new Uri("views/" + v.Name.ToSafeKey() + ".html", UriKind.Relative));
-            var viewUriIsSome = await viewUri.IsSome.ConfigureAwait(false);
-            if (viewUriIsSome)
-                return await viewUri.ToOption().ConfigureAwait(false);
+            if (targets.Views.ContainsKey(identifier))
+                return new Uri("views/" + identifier.ToSafeKey() + ".html", UriKind.Relative);
 
-            var routineOption = Database.GetRoutine(identifier, cancellationToken);
-            var routineUri = routineOption.Map(r => new Uri("routines/" + r.Name.ToSafeKey() + ".html", UriKind.Relative));
-            var routineIsSome = await routineUri.IsSome.ConfigureAwait(false);
-            if (routineIsSome)
-                return await routineUri.ToOption().ConfigureAwait(false);
+            if (targets.Routines.ContainsKey(identifier))
+                return new Uri("routines/" + identifier.ToSafeKey() + ".html", UriKind.Relative);
 
             return Option<Uri>.None;
         }
@@ -119,6 +108,45 @@ namespace SJP.Schematic.Reporting.Html.ViewModels.Mappers
                 throw new ArgumentNullException(nameof(routine));
 
             return new Main.Routine(routine.Name);
+        }
+
+        public class SynonymTargets
+        {
+            public SynonymTargets(
+                IReadOnlyCollection<IRelationalDatabaseTable> tables,
+                IReadOnlyCollection<IDatabaseView> views,
+                IReadOnlyCollection<IDatabaseRoutine> routines
+            )
+            {
+                if (tables == null)
+                    throw new ArgumentNullException(nameof(tables));
+                if (views == null)
+                    throw new ArgumentNullException(nameof(views));
+                if (routines == null)
+                    throw new ArgumentNullException(nameof(routines));
+
+                var tableLookup = new Dictionary<Identifier, IRelationalDatabaseTable>();
+                foreach (var table in tables)
+                    tableLookup[table.Name] = table;
+
+                var viewLookup = new Dictionary<Identifier, IDatabaseView>();
+                foreach (var view in views)
+                    viewLookup[view.Name] = view;
+
+                var routineLookup = new Dictionary<Identifier, IDatabaseRoutine>();
+                foreach (var routine in routines)
+                    routineLookup[routine.Name] = routine;
+
+                Tables = tableLookup;
+                Views = viewLookup;
+                Routines = routineLookup;
+            }
+
+            public IReadOnlyDictionary<Identifier, IRelationalDatabaseTable> Tables { get; }
+
+            public IReadOnlyDictionary<Identifier, IDatabaseView> Views { get; }
+
+            public IReadOnlyDictionary<Identifier, IDatabaseRoutine> Routines { get; }
         }
     }
 }

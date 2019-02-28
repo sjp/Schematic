@@ -27,7 +27,6 @@ namespace SJP.Schematic.Reporting.Html.Renderers
 
             Routines = routines;
 
-            Connection = connection ?? throw new ArgumentNullException(nameof(connection));
             Database = database ?? throw new ArgumentNullException(nameof(database));
             Formatter = formatter ?? throw new ArgumentNullException(nameof(formatter));
 
@@ -36,8 +35,6 @@ namespace SJP.Schematic.Reporting.Html.Renderers
 
             ExportDirectory = new DirectoryInfo(Path.Combine(exportDirectory.FullName, "routines"));
         }
-
-        private IDbConnection Connection { get; }
 
         private IRelationalDatabase Database { get; }
 

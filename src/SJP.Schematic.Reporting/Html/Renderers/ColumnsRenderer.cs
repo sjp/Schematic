@@ -28,18 +28,12 @@ namespace SJP.Schematic.Reporting.Html.Renderers
             if (views == null || views.AnyNull())
                 throw new ArgumentNullException(nameof(views));
 
-            Connection = connection ?? throw new ArgumentNullException(nameof(connection));
-            Dialect = dialect ?? throw new ArgumentNullException(nameof(dialect));
             IdentifierDefaults = identifierDefaults ?? throw new ArgumentNullException(nameof(identifierDefaults));
             Formatter = formatter ?? throw new ArgumentNullException(nameof(formatter));
             Tables = tables;
             Views = views;
             ExportDirectory = exportDirectory ?? throw new ArgumentNullException(nameof(exportDirectory));
         }
-
-        private IDbConnection Connection { get; }
-
-        private IDatabaseDialect Dialect { get; }
 
         private IIdentifierDefaults IdentifierDefaults { get; }
 
@@ -53,7 +47,7 @@ namespace SJP.Schematic.Reporting.Html.Renderers
 
         public async Task RenderAsync(CancellationToken cancellationToken = default(CancellationToken))
         {
-            var mapper = new ColumnsModelMapper(Connection, Dialect);
+            var mapper = new ColumnsModelMapper();
 
             var tableColumnViewModels = Tables.SelectMany(mapper.Map).Select(vm => vm as Columns.Column);
             var viewColumnViewModels = Views.SelectMany(mapper.Map).Select(vm => vm as Columns.Column);
