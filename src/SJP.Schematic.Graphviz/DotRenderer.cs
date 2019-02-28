@@ -53,8 +53,10 @@ namespace SJP.Schematic.Graphviz
             }
             finally
             {
-                File.Delete(tmpInputFilePath);
-                File.Delete(tmpOutputFilePath);
+                if (File.Exists(tmpInputFilePath))
+                    File.Delete(tmpInputFilePath);
+                if (File.Exists(tmpOutputFilePath))
+                    File.Delete(tmpOutputFilePath);
             }
         }
 
