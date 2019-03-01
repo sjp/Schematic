@@ -2,6 +2,7 @@
 using System.Threading;
 using System.Threading.Tasks;
 using SJP.Schematic.Core;
+using SJP.Schematic.Core.Comments;
 
 namespace SJP.Schematic.Modelled.Reflection.Tests.Fakes
 {
@@ -38,5 +39,11 @@ namespace SJP.Schematic.Modelled.Reflection.Tests.Fakes
 
             public IDbType GetComparableColumnType(IDbType otherType) => CreateColumnType(null);
         }
+
+        public Task<IRelationalDatabase> GetRelationalDatabaseAsync(CancellationToken cancellationToken = default(CancellationToken))
+            => Task.FromResult<IRelationalDatabase>(null);
+
+        public Task<IRelationalDatabaseCommentProvider> GetRelationalDatabaseCommentProviderAsync(CancellationToken cancellationToken = default(CancellationToken))
+            => Task.FromResult<IRelationalDatabaseCommentProvider>(new EmptyRelationalDatabaseCommentProvider());
     }
 }

@@ -6,6 +6,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Data.Sqlite;
 using SJP.Schematic.Core;
+using SJP.Schematic.Core.Comments;
 using SJP.Schematic.Core.Extensions;
 
 namespace SJP.Schematic.Sqlite
@@ -55,6 +56,15 @@ namespace SJP.Schematic.Sqlite
         }
 
         private const string DatabaseDisplayVersionQuerySql = "select sqlite_version()";
+
+        public override async Task<IRelationalDatabase> GetRelationalDatabaseAsync(CancellationToken cancellationToken = default(CancellationToken))
+        {
+            var identifierDefaults = await GetIdentifierDefaultsAsync(cancellationToken).ConfigureAwait(false);
+            return new SqliteRelationalDatabase(this, Connection, identifierDefaults);
+        }
+
+        public override Task<IRelationalDatabaseCommentProvider> GetRelationalDatabaseCommentProviderAsync(CancellationToken cancellationToken = default(CancellationToken))
+            => Task.FromResult<IRelationalDatabaseCommentProvider>(new EmptyRelationalDatabaseCommentProvider());
 
         public override bool IsReservedKeyword(string text)
         {

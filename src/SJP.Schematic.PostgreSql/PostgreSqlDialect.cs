@@ -6,6 +6,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Npgsql;
 using SJP.Schematic.Core;
+using SJP.Schematic.Core.Comments;
 using SJP.Schematic.Core.Extensions;
 using SJP.Schematic.PostgreSql.Query;
 
@@ -111,6 +112,16 @@ select
                 ? new Version(majorVersion, minorVersion, patchVersion)
                 : null;
         }
+
+        public override async Task<IRelationalDatabase> GetRelationalDatabaseAsync(CancellationToken cancellationToken = default(CancellationToken))
+        {
+            var identifierDefaults = await GetIdentifierDefaultsAsync(cancellationToken).ConfigureAwait(false);
+            var identifierResolver = new DefaultPostgreSqlIdentifierResolutionStrategy();
+            return new PostgreSqlRelationalDatabase(this, Connection, identifierDefaults, identifierResolver);
+        }
+
+        public override Task<IRelationalDatabaseCommentProvider> GetRelationalDatabaseCommentProviderAsync(CancellationToken cancellationToken = default(CancellationToken))
+            => Task.FromResult<IRelationalDatabaseCommentProvider>(new EmptyRelationalDatabaseCommentProvider());
 
         public override bool IsReservedKeyword(string text)
         {

@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using LanguageExt;
 using Oracle.ManagedDataAccess.Client;
 using SJP.Schematic.Core;
+using SJP.Schematic.Core.Comments;
 using SJP.Schematic.Core.Extensions;
 using SJP.Schematic.Oracle.Query;
 
@@ -141,6 +142,16 @@ select
     VERSION as VersionNumber
 from PRODUCT_COMPONENT_VERSION
 where PRODUCT like 'Oracle Database%'";
+
+        public override async Task<IRelationalDatabase> GetRelationalDatabaseAsync(CancellationToken cancellationToken = default(CancellationToken))
+        {
+            var identifierDefaults = await GetIdentifierDefaultsAsync(cancellationToken).ConfigureAwait(false);
+            var identifierResolver = new DefaultOracleIdentifierResolutionStrategy();
+            return new OracleRelationalDatabase(this, Connection, identifierDefaults, identifierResolver);
+        }
+
+        public override Task<IRelationalDatabaseCommentProvider> GetRelationalDatabaseCommentProviderAsync(CancellationToken cancellationToken = default(CancellationToken))
+            => Task.FromResult<IRelationalDatabaseCommentProvider>(new EmptyRelationalDatabaseCommentProvider());
 
         public override bool IsReservedKeyword(string text)
         {

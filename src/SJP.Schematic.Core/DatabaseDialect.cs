@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Threading;
 using System.Threading.Tasks;
+using SJP.Schematic.Core.Comments;
 using SJP.Schematic.Core.Extensions;
 
 namespace SJP.Schematic.Core
@@ -52,5 +53,9 @@ namespace SJP.Schematic.Core
         public abstract Task<Version> GetDatabaseVersionAsync(CancellationToken cancellationToken = default(CancellationToken));
 
         public abstract Task<string> GetDatabaseDisplayVersionAsync(CancellationToken cancellationToken = default(CancellationToken));
+
+        public abstract Task<IRelationalDatabase> GetRelationalDatabaseAsync(CancellationToken cancellationToken = default(CancellationToken));
+
+        public abstract Task<IRelationalDatabaseCommentProvider> GetRelationalDatabaseCommentProviderAsync(CancellationToken cancellationToken = default(CancellationToken));
     }
 }

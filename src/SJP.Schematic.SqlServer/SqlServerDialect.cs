@@ -6,6 +6,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using SJP.Schematic.Core;
+using SJP.Schematic.Core.Comments;
 using SJP.Schematic.Core.Extensions;
 using SJP.Schematic.SqlServer.Query;
 
@@ -61,6 +62,15 @@ select
         }
 
         private const string DatabaseVersionQuerySql = "select SERVERPROPERTY('ProductVersion') as DatabaseVersion";
+
+        public override async Task<IRelationalDatabase> GetRelationalDatabaseAsync(CancellationToken cancellationToken = default(CancellationToken))
+        {
+            var identifierDefaults = await GetIdentifierDefaultsAsync(cancellationToken).ConfigureAwait(false);
+            return new SqlServerRelationalDatabase(this, Connection, identifierDefaults);
+        }
+
+        public override Task<IRelationalDatabaseCommentProvider> GetRelationalDatabaseCommentProviderAsync(CancellationToken cancellationToken = default(CancellationToken))
+            => Task.FromResult<IRelationalDatabaseCommentProvider>(new EmptyRelationalDatabaseCommentProvider());
 
         public Task<IServerProperties2008> GetServerProperties2008(CancellationToken cancellationToken = default(CancellationToken))
         {

@@ -7,6 +7,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using MySql.Data.MySqlClient;
 using SJP.Schematic.Core;
+using SJP.Schematic.Core.Comments;
 using SJP.Schematic.Core.Extensions;
 using SJP.Schematic.MySql.Query;
 
@@ -64,6 +65,15 @@ select
             var versionStr = await Connection.ExecuteScalarAsync<string>(DatabaseVersionQuerySql, cancellationToken).ConfigureAwait(false);
             return ParseMySqlVersion(versionStr);
         }
+
+        public override async Task<IRelationalDatabase> GetRelationalDatabaseAsync(CancellationToken cancellationToken = default(CancellationToken))
+        {
+            var identifierDefaults = await GetIdentifierDefaultsAsync(cancellationToken).ConfigureAwait(false);
+            return new MySqlRelationalDatabase(this, Connection, identifierDefaults);
+        }
+
+        public override Task<IRelationalDatabaseCommentProvider> GetRelationalDatabaseCommentProviderAsync(CancellationToken cancellationToken = default(CancellationToken))
+            => Task.FromResult<IRelationalDatabaseCommentProvider>(new EmptyRelationalDatabaseCommentProvider());
 
         private static Version ParseMySqlVersion(string versionStr)
         {

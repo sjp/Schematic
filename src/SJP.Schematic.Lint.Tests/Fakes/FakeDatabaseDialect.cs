@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using SJP.Schematic.Core;
+using SJP.Schematic.Core.Comments;
 using SJP.Schematic.Core.Extensions;
 
 namespace SJP.Schematic.Lint.Tests.Fakes
@@ -48,5 +49,11 @@ namespace SJP.Schematic.Lint.Tests.Fakes
 
             return $"\"{ identifier.Replace("\"", "\"\"") }\"";
         }
+
+        public Task<IRelationalDatabase> GetRelationalDatabaseAsync(CancellationToken cancellationToken = default(CancellationToken))
+            => Task.FromResult<IRelationalDatabase>(null);
+
+        public Task<IRelationalDatabaseCommentProvider> GetRelationalDatabaseCommentProviderAsync(CancellationToken cancellationToken = default(CancellationToken))
+            => Task.FromResult<IRelationalDatabaseCommentProvider>(new EmptyRelationalDatabaseCommentProvider());
     }
 }
