@@ -2,7 +2,6 @@ using System;
 using System.IO;
 using System.Xml.Linq;
 using NUnit.Framework;
-using SJP.Schematic.Graphviz;
 
 namespace SJP.Schematic.Graphviz.Tests
 {
