@@ -191,6 +191,7 @@ inner join sys.index_columns ic on i.object_id = ic.object_id and i.index_id = i
 inner join sys.columns c on ic.object_id = c.object_id and ic.column_id = c.column_id
 where schema_name(t.schema_id) = @SchemaName and t.name = @TableName
     and kc.type = 'PK' and ic.is_included_column = 0
+    and i.is_hypothetical = 0 and i.type <> 0 -- type = 0 is a heap, ignore
 order by ic.key_ordinal";
 
         protected virtual Task<IReadOnlyCollection<IDatabaseIndex>> LoadIndexesAsync(Identifier tableName, IReadOnlyDictionary<Identifier, IDatabaseColumn> columns, CancellationToken cancellationToken)
@@ -271,6 +272,7 @@ inner join sys.index_columns ic on i.object_id = ic.object_id and i.index_id = i
 inner join sys.columns c on ic.object_id = c.object_id and ic.column_id = c.column_id
 where schema_name(t.schema_id) = @SchemaName and t.name = @TableName
     and i.is_primary_key = 0 and i.is_unique_constraint = 0
+    and i.is_hypothetical = 0 and i.type <> 0 -- type = 0 is a heap, ignore
 order by ic.index_id, ic.key_ordinal, ic.index_column_id";
 
         protected virtual Task<IReadOnlyCollection<IDatabaseKey>> LoadUniqueKeysAsync(Identifier tableName, IReadOnlyDictionary<Identifier, IDatabaseColumn> columns, CancellationToken cancellationToken)
@@ -331,6 +333,7 @@ where
     schema_name(t.schema_id) = @SchemaName and t.name = @TableName
     and kc.type = 'UQ'
     and ic.is_included_column = 0
+    and i.is_hypothetical = 0 and i.type <> 0 -- type = 0 is a heap, ignore
 order by ic.key_ordinal";
 
         protected virtual Task<IReadOnlyCollection<IDatabaseRelationalKey>> LoadChildKeysAsync(Identifier tableName, IReadOnlyDictionary<Identifier, IDatabaseColumn> columns, Option<IDatabaseKey> primaryKey, IReadOnlyDictionary<Identifier, IDatabaseKey> uniqueKeys, CancellationToken cancellationToken)
