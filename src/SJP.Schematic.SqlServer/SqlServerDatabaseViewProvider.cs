@@ -43,7 +43,11 @@ namespace SJP.Schematic.SqlServer
 
         protected virtual string ViewsQuery => ViewsQuerySql;
 
-        private const string ViewsQuerySql = "select schema_name(schema_id) as SchemaName, name as ObjectName from sys.views order by schema_name(schema_id), name";
+        private const string ViewsQuerySql = @"
+select schema_name(schema_id) as SchemaName, name as ObjectName
+from sys.views
+where is_ms_shipped = 0
+order by schema_name(schema_id), name";
 
         public OptionAsync<IDatabaseView> GetView(Identifier viewName, CancellationToken cancellationToken = default(CancellationToken))
         {
@@ -74,7 +78,7 @@ namespace SJP.Schematic.SqlServer
         private const string ViewNameQuerySql = @"
 select top 1 schema_name(schema_id) as SchemaName, name as ObjectName
 from sys.views
-where schema_id = schema_id(@SchemaName) and name = @ViewName";
+where schema_id = schema_id(@SchemaName) and name = @ViewName and is_ms_shipped = 0";
 
         protected virtual OptionAsync<IDatabaseView> LoadView(Identifier viewName, CancellationToken cancellationToken)
         {
@@ -127,7 +131,7 @@ where schema_id = schema_id(@SchemaName) and name = @ViewName";
 select sm.definition
 from sys.sql_modules sm
 inner join sys.views v on sm.object_id = v.object_id
-where schema_name(v.schema_id) = @SchemaName and v.name = @ViewName";
+where schema_name(v.schema_id) = @SchemaName and v.name = @ViewName and v.is_ms_shipped = 0";
 
         protected virtual Task<bool> LoadIndexExistsAsync(Identifier viewName, CancellationToken cancellationToken)
         {
@@ -147,7 +151,8 @@ where schema_name(v.schema_id) = @SchemaName and v.name = @ViewName";
 select top 1 1
 from sys.views v
 inner join sys.indexes i on v.object_id = i.object_id
-where schema_name(v.schema_id) = @SchemaName and v.name = @ViewName";
+where schema_name(v.schema_id) = @SchemaName and v.name = @ViewName and v.is_ms_shipped = 0
+    and i.is_hypothetical = 0 and i.type <> 0 -- type = 0 is a heap, ignore";
 
         protected virtual Task<IReadOnlyList<IDatabaseColumn>> LoadColumnsAsync(Identifier viewName, CancellationToken cancellationToken)
         {
@@ -219,8 +224,7 @@ left join sys.default_constraints dc on c.object_id = dc.parent_object_id and c.
 left join sys.computed_columns cc on c.object_id = cc.object_id and c.column_id = cc.column_id
 left join sys.identity_columns ic on c.object_id = ic.object_id and c.column_id = ic.column_id
 left join sys.types st on c.user_type_id = st.user_type_id
-where schema_name(v.schema_id) = @SchemaName
-    and v.name = @ViewName
+where schema_name(v.schema_id) = @SchemaName and v.name = @ViewName and v.is_ms_shipped = 0
 order by c.column_id";
 
         protected Identifier QualifyViewName(Identifier viewName)

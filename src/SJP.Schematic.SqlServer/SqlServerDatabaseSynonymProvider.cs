@@ -40,7 +40,11 @@ namespace SJP.Schematic.SqlServer
 
         protected virtual string SynonymsQuery => SynonymsQuerySql;
 
-        private const string SynonymsQuerySql = "select schema_name(schema_id) as SchemaName, name as ObjectName from sys.synonyms order by schema_name(schema_id), name";
+        private const string SynonymsQuerySql = @"
+select schema_name(schema_id) as SchemaName, name as ObjectName
+from sys.synonyms
+where is_ms_shipped = 0
+order by schema_name(schema_id), name";
 
         public OptionAsync<IDatabaseSynonym> GetSynonym(Identifier synonymName, CancellationToken cancellationToken = default(CancellationToken))
         {
@@ -71,7 +75,7 @@ namespace SJP.Schematic.SqlServer
         private const string SynonymNameQuerySql = @"
 select top 1 schema_name(schema_id) as SchemaName, name as ObjectName
 from sys.synonyms
-where schema_id = schema_id(@SchemaName) and name = @SynonymName";
+where schema_id = schema_id(@SchemaName) and name = @SynonymName and is_ms_shipped = 0";
 
         protected virtual OptionAsync<IDatabaseSynonym> LoadSynonym(Identifier synonymName, CancellationToken cancellationToken)
         {
@@ -122,7 +126,7 @@ select
     PARSENAME(base_object_name, 2) as TargetSchemaName,
     PARSENAME(base_object_name, 1) as TargetObjectName
 from sys.synonyms
-where schema_id = schema_id(@SchemaName) and name = @SynonymName";
+where schema_id = schema_id(@SchemaName) and name = @SynonymName and is_ms_shipped = 0";
 
         protected Identifier QualifySynonymName(Identifier synonymName)
         {

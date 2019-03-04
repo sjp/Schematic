@@ -43,6 +43,7 @@ namespace SJP.Schematic.SqlServer
         private const string SequencesQuerySql = @"
 select schema_name(schema_id) as SchemaName, name as ObjectName
 from sys.sequences
+where is_ms_shipped = 0
 order by schema_name(schema_id), name";
 
         public OptionAsync<IDatabaseSequence> GetSequence(Identifier sequenceName, CancellationToken cancellationToken = default(CancellationToken))
@@ -74,7 +75,7 @@ order by schema_name(schema_id), name";
         private const string SequenceNameQuerySql = @"
 select top 1 schema_name(schema_id) as SchemaName, name as ObjectName
 from sys.sequences
-where schema_id = schema_id(@SchemaName) and name = @SequenceName";
+where schema_id = schema_id(@SchemaName) and name = @SequenceName and is_ms_shipped = 0";
 
         private static IDatabaseSequence BuildSequenceFromDto(Identifier sequenceName, SequenceData seqData)
         {
@@ -106,7 +107,7 @@ select
     is_cached as IsCached,
     cache_size as CacheSize
 from sys.sequences
-where schema_name(schema_id) = @SchemaName and name = @SequenceName";
+where schema_name(schema_id) = @SchemaName and name = @SequenceName and is_ms_shipped = 0";
 
         protected virtual OptionAsync<IDatabaseSequence> LoadSequence(Identifier sequenceName, CancellationToken cancellationToken)
         {

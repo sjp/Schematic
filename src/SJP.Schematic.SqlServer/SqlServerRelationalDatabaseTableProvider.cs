@@ -47,7 +47,11 @@ namespace SJP.Schematic.SqlServer
 
         protected virtual string TablesQuery => TablesQuerySql;
 
-        private const string TablesQuerySql = "select schema_name(schema_id) as SchemaName, name as ObjectName from sys.tables order by schema_name(schema_id), name";
+        private const string TablesQuerySql = @"
+select schema_name(schema_id) as SchemaName, name as ObjectName
+from sys.tables
+where is_ms_shipped = 0
+order by schema_name(schema_id), name";
 
         public OptionAsync<IRelationalDatabaseTable> GetTable(Identifier tableName, CancellationToken cancellationToken = default(CancellationToken))
         {
@@ -78,7 +82,7 @@ namespace SJP.Schematic.SqlServer
         private const string TableNameQuerySql = @"
 select top 1 schema_name(schema_id) as SchemaName, name as ObjectName
 from sys.tables
-where schema_id = schema_id(@SchemaName) and name = @TableName";
+where schema_id = schema_id(@SchemaName) and name = @TableName and is_ms_shipped = 0";
 
         protected virtual OptionAsync<IRelationalDatabaseTable> LoadTable(Identifier tableName, CancellationToken cancellationToken)
         {
@@ -189,7 +193,7 @@ inner join sys.key_constraints kc on t.object_id = kc.parent_object_id
 inner join sys.indexes i on kc.parent_object_id = i.object_id and kc.unique_index_id = i.index_id
 inner join sys.index_columns ic on i.object_id = ic.object_id and i.index_id = ic.index_id
 inner join sys.columns c on ic.object_id = c.object_id and ic.column_id = c.column_id
-where schema_name(t.schema_id) = @SchemaName and t.name = @TableName
+where schema_name(t.schema_id) = @SchemaName and t.name = @TableName and t.is_ms_shipped = 0
     and kc.type = 'PK' and ic.is_included_column = 0
     and i.is_hypothetical = 0 and i.type <> 0 -- type = 0 is a heap, ignore
 order by ic.key_ordinal";
@@ -270,7 +274,7 @@ from sys.tables t
 inner join sys.indexes i on t.object_id = i.object_id
 inner join sys.index_columns ic on i.object_id = ic.object_id and i.index_id = ic.index_id
 inner join sys.columns c on ic.object_id = c.object_id and ic.column_id = c.column_id
-where schema_name(t.schema_id) = @SchemaName and t.name = @TableName
+where schema_name(t.schema_id) = @SchemaName and t.name = @TableName and t.is_ms_shipped = 0
     and i.is_primary_key = 0 and i.is_unique_constraint = 0
     and i.is_hypothetical = 0 and i.type <> 0 -- type = 0 is a heap, ignore
 order by ic.index_id, ic.key_ordinal, ic.index_column_id";
@@ -330,7 +334,7 @@ inner join sys.indexes i on kc.parent_object_id = i.object_id and kc.unique_inde
 inner join sys.index_columns ic on i.object_id = ic.object_id and i.index_id = ic.index_id
 inner join sys.columns c on ic.object_id = c.object_id and ic.column_id = c.column_id
 where
-    schema_name(t.schema_id) = @SchemaName and t.name = @TableName
+    schema_name(t.schema_id) = @SchemaName and t.name = @TableName and t.is_ms_shipped = 0
     and kc.type = 'UQ'
     and ic.is_included_column = 0
     and i.is_hypothetical = 0 and i.type <> 0 -- type = 0 is a heap, ignore
@@ -434,7 +438,8 @@ inner join sys.tables child_t on fk.parent_object_id = child_t.object_id
 inner join sys.foreign_key_columns fkc on fk.object_id = fkc.constraint_object_id
 inner join sys.columns c on fkc.parent_column_id = c.column_id and c.object_id = fkc.parent_object_id
 inner join sys.key_constraints kc on kc.unique_index_id = fk.key_index_id and kc.parent_object_id = fk.referenced_object_id
-where schema_name(parent_t.schema_id) = @SchemaName and parent_t.name = @TableName";
+where schema_name(parent_t.schema_id) = @SchemaName and parent_t.name = @TableName
+    and child_t.is_ms_shipped = 0 and parent_t.is_ms_shipped = 0";
 
         protected virtual async Task<IReadOnlyCollection<IDatabaseCheckConstraint>> LoadChecksAsync(Identifier tableName, CancellationToken cancellationToken)
         {
@@ -471,7 +476,7 @@ select
     cc.is_disabled as IsDisabled
 from sys.tables t
 inner join sys.check_constraints cc on t.object_id = cc.parent_object_id
-where schema_name(t.schema_id) = @SchemaName and t.name = @TableName";
+where schema_name(t.schema_id) = @SchemaName and t.name = @TableName and t.is_ms_shipped = 0";
 
         protected virtual Task<IReadOnlyCollection<IDatabaseRelationalKey>> LoadParentKeysAsync(Identifier tableName, IReadOnlyDictionary<Identifier, IDatabaseColumn> columns, CancellationToken cancellationToken)
         {
@@ -607,7 +612,8 @@ inner join sys.tables child_t on fk.parent_object_id = child_t.object_id
 inner join sys.foreign_key_columns fkc on fk.object_id = fkc.constraint_object_id
 inner join sys.columns c on fkc.parent_column_id = c.column_id and c.object_id = fkc.parent_object_id
 inner join sys.key_constraints kc on kc.unique_index_id = fk.key_index_id and kc.parent_object_id = fk.referenced_object_id
-where schema_name(child_t.schema_id) = @SchemaName and child_t.name = @TableName";
+where schema_name(child_t.schema_id) = @SchemaName and child_t.name = @TableName
+     and child_t.is_ms_shipped = 0 and parent_t.is_ms_shipped = 0";
 
         protected virtual Task<IReadOnlyList<IDatabaseColumn>> LoadColumnsAsync(Identifier tableName, CancellationToken cancellationToken)
         {
@@ -684,9 +690,8 @@ left join sys.default_constraints dc on c.object_id = dc.parent_object_id and c.
 left join sys.computed_columns cc on c.object_id = cc.object_id and c.column_id = cc.column_id
 left join sys.identity_columns ic on c.object_id = ic.object_id and c.column_id = ic.column_id
 left join sys.types st on c.user_type_id = st.user_type_id
-where schema_name(t.schema_id) = @SchemaName
-    and t.name = @TableName
-    order by c.column_id";
+where schema_name(t.schema_id) = @SchemaName and t.name = @TableName and t.is_ms_shipped = 0
+order by c.column_id";
 
         protected virtual Task<IReadOnlyCollection<IDatabaseTrigger>> LoadTriggersAsync(Identifier tableName, CancellationToken cancellationToken)
         {
@@ -758,7 +763,7 @@ from sys.tables t
 inner join sys.triggers st on t.object_id = st.parent_id
 inner join sys.sql_modules sm on st.object_id = sm.object_id
 inner join sys.trigger_events te on st.object_id = te.object_id
-where schema_name(t.schema_id) = @SchemaName and t.name = @TableName";
+where schema_name(t.schema_id) = @SchemaName and t.name = @TableName and t.is_ms_shipped = 0";
 
         protected Identifier QualifyTableName(Identifier tableName)
         {

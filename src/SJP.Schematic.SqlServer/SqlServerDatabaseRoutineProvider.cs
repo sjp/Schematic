@@ -43,7 +43,7 @@ namespace SJP.Schematic.SqlServer
         private const string RoutinesQuerySql = @"
 select schema_name(schema_id) as SchemaName, name as ObjectName
 from sys.objects
-where type in ('P', 'FN', 'IF', 'TF')
+where type in ('P', 'FN', 'IF', 'TF') and is_ms_shipped = 0
 order by schema_name(schema_id), name";
 
         public OptionAsync<IDatabaseRoutine> GetRoutine(Identifier routineName, CancellationToken cancellationToken = default(CancellationToken))
@@ -76,7 +76,7 @@ order by schema_name(schema_id), name";
 select top 1 schema_name(schema_id) as SchemaName, name as ObjectName
 from sys.objects
 where schema_id = schema_id(@SchemaName) and name = @RoutineName
-    and type in ('P', 'FN', 'IF', 'TF')";
+    and type in ('P', 'FN', 'IF', 'TF') and is_ms_shipped = 0";
 
         protected virtual OptionAsync<IDatabaseRoutine> LoadRoutine(Identifier routineName, CancellationToken cancellationToken)
         {
@@ -107,7 +107,7 @@ where schema_id = schema_id(@SchemaName) and name = @RoutineName
 select m.definition
 from sys.sql_modules m
 inner join sys.objects o on o.object_id = m.object_id
-where schema_name(o.schema_id) = @SchemaName and o.name = @RoutineName";
+where schema_name(o.schema_id) = @SchemaName and o.name = @RoutineName and o.is_ms_shipped = 0";
 
         protected virtual Task<string> LoadDefinitionAsync(Identifier routineName, CancellationToken cancellationToken)
         {
