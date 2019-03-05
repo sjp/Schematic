@@ -31,7 +31,7 @@ namespace SJP.Schematic.SqlServer.Comments
             var result = new List<IRelationalDatabaseTableComments>();
 
             var allCommentsData = await Connection.QueryAsync<TableCommentsData>(
-                AllTableCommentsSql,
+                AllTableCommentsQuery,
                 new { CommentProperty },
                 cancellationToken
             ).ConfigureAwait(false);
@@ -74,14 +74,6 @@ namespace SJP.Schematic.SqlServer.Comments
                 .ThenBy(c => c.TableName.LocalName)
                 .ToList();
         }
-
-        protected virtual string TablesQuery => TablesQuerySql;
-
-        private const string TablesQuerySql = @"
-select schema_name(schema_id) as SchemaName, name as ObjectName
-from sys.tables
-where is_ms_shipped = 0
-order by schema_name(schema_id), name";
 
         protected OptionAsync<Identifier> GetResolvedTableName(Identifier tableName, CancellationToken cancellationToken)
         {
@@ -135,7 +127,7 @@ where schema_id = schema_id(@SchemaName) and name = @TableName
             var resolvedTableName = await resolvedTableNameOption.UnwrapSomeAsync().ConfigureAwait(false);
 
             var commentsData = await Connection.QueryAsync<TableCommentsData>(
-                TableCommentsSql,
+                TableCommentsQuery,
                 new { SchemaName = tableName.Schema, TableName = tableName.LocalName, CommentProperty },
                 cancellationToken
             ).ConfigureAwait(false);
@@ -165,7 +157,9 @@ where schema_id = schema_id(@SchemaName) and name = @TableName
             return Option<IRelationalDatabaseTableComments>.Some(comments);
         }
 
-        private const string AllTableCommentsSql = @"
+        protected virtual string AllTableCommentsQuery => AllTableCommentsQuerySql;
+
+        private const string AllTableCommentsQuerySql = @"
 -- table
 select SCHEMA_NAME(t.schema_id) as SchemaName, t.name as TableName, 'TABLE' as ObjectType, t.name as ObjectName, ep.value as Comment
 from sys.tables t
@@ -237,7 +231,9 @@ left join sys.extended_properties ep on t.object_id = ep.major_id and tr.object_
 where t.is_ms_shipped = 0
 ";
 
-        private const string TableCommentsSql = @"
+        protected virtual string TableCommentsQuery => TableCommentsQuerySql;
+
+        private const string TableCommentsQuerySql = @"
 -- table
 select 'TABLE' as ObjectType, t.name as ObjectName, ep.value as Comment
 from sys.tables t
