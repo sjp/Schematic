@@ -227,7 +227,7 @@ union
 select SCHEMA_NAME(t.schema_id) as SchemaName, t.name as TableName, 'TRIGGER' as ObjectType, tr.name as ObjectName, ep.value as Comment
 from sys.tables t
 inner join sys.triggers tr on t.object_id = tr.parent_id
-left join sys.extended_properties ep on t.object_id = ep.major_id and tr.object_id = ep.minor_id and ep.name = @CommentProperty
+left join sys.extended_properties ep on tr.object_id = ep.major_id and ep.name = @CommentProperty
 where t.is_ms_shipped = 0
 ";
 
@@ -304,7 +304,7 @@ union
 select 'TRIGGER' as ObjectType, tr.name as ObjectName, ep.value as Comment
 from sys.tables t
 inner join sys.triggers tr on t.object_id = tr.parent_id
-left join sys.extended_properties ep on t.object_id = ep.major_id and tr.object_id = ep.minor_id and ep.name = @CommentProperty
+left join sys.extended_properties ep on tr.object_id = ep.major_id and ep.name = @CommentProperty
 where t.schema_id = SCHEMA_ID(@SchemaName) and t.name = @TableName and t.is_ms_shipped = 0
 ";
 
