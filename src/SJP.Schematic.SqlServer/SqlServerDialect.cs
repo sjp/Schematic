@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using SJP.Schematic.Core;
 using SJP.Schematic.Core.Comments;
 using SJP.Schematic.Core.Extensions;
+using SJP.Schematic.SqlServer.Comments;
 using SJP.Schematic.SqlServer.Query;
 
 namespace SJP.Schematic.SqlServer
@@ -69,8 +70,11 @@ select
             return new SqlServerRelationalDatabase(this, Connection, identifierDefaults);
         }
 
-        public override Task<IRelationalDatabaseCommentProvider> GetRelationalDatabaseCommentProviderAsync(CancellationToken cancellationToken = default(CancellationToken))
-            => Task.FromResult<IRelationalDatabaseCommentProvider>(new EmptyRelationalDatabaseCommentProvider());
+        public override async Task<IRelationalDatabaseCommentProvider> GetRelationalDatabaseCommentProviderAsync(CancellationToken cancellationToken = default(CancellationToken))
+        {
+            var identifierDefaults = await GetIdentifierDefaultsAsync(cancellationToken).ConfigureAwait(false);
+            return new SqlServerDatabaseCommentProvider(Connection, identifierDefaults);
+        }
 
         public Task<IServerProperties2008> GetServerProperties2008(CancellationToken cancellationToken = default(CancellationToken))
         {
