@@ -30,7 +30,7 @@ namespace SJP.Schematic.SqlServer.Comments
         {
             var result = new List<IRelationalDatabaseTableComments>();
 
-            var allCommentsData = await Connection.QueryAsync<TableCommentsData>(
+            var allCommentsData = await Connection.QueryAsync<CommentsData>(
                 AllTableCommentsQuery,
                 new { CommentProperty },
                 cancellationToken
@@ -126,7 +126,7 @@ where schema_id = schema_id(@SchemaName) and name = @TableName
 
             var resolvedTableName = await resolvedTableNameOption.UnwrapSomeAsync().ConfigureAwait(false);
 
-            var commentsData = await Connection.QueryAsync<TableCommentsData>(
+            var commentsData = await Connection.QueryAsync<CommentsData>(
                 TableCommentsQuery,
                 new { SchemaName = tableName.Schema, TableName = tableName.LocalName, CommentProperty },
                 cancellationToken
@@ -308,7 +308,7 @@ left join sys.extended_properties ep on tr.object_id = ep.major_id and ep.name =
 where t.schema_id = SCHEMA_ID(@SchemaName) and t.name = @TableName and t.is_ms_shipped = 0
 ";
 
-        private static Option<string> GetFirstCommentByType(IEnumerable<TableCommentsData> commentsData, string objectType)
+        private static Option<string> GetFirstCommentByType(IEnumerable<CommentsData> commentsData, string objectType)
         {
             if (commentsData == null)
                 throw new ArgumentNullException(nameof(commentsData));
@@ -321,7 +321,7 @@ where t.schema_id = SCHEMA_ID(@SchemaName) and t.name = @TableName and t.is_ms_s
                 .FirstOrDefault();
         }
 
-        private static IReadOnlyDictionary<Identifier, Option<string>> GetCommentLookupByType(IEnumerable<TableCommentsData> commentsData, string objectType)
+        private static IReadOnlyDictionary<Identifier, Option<string>> GetCommentLookupByType(IEnumerable<CommentsData> commentsData, string objectType)
         {
             if (commentsData == null)
                 throw new ArgumentNullException(nameof(commentsData));

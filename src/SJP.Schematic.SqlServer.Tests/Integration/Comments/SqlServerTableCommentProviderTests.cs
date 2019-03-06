@@ -133,7 +133,7 @@ EXEC sys.sp_addextendedproperty @name = N'MS_Description',
         private readonly Dictionary<Identifier, AsyncLazy<IRelationalDatabaseTableComments>> _commentsCache = new Dictionary<Identifier, AsyncLazy<IRelationalDatabaseTableComments>>();
 
         [Test]
-        public async Task GetTableComments_WhenTablePresent_ReturnsTable()
+        public async Task GetTableComments_WhenTablePresent_ReturnsTableComment()
         {
             var tableIsSome = await TableCommentProvider.GetTableComments("table_comment_table_1").IsSome.ConfigureAwait(false);
             Assert.IsTrue(tableIsSome);
@@ -203,7 +203,7 @@ EXEC sys.sp_addextendedproperty @name = N'MS_Description',
         }
 
         [Test]
-        public async Task GetTable_WhenTablePresentGivenFullyQualifiedNameWithDifferentServerAndDatabase_ShouldBeQualifiedCorrectly()
+        public async Task GetTableComments_WhenTablePresentGivenFullyQualifiedNameWithDifferentServerAndDatabase_ShouldBeQualifiedCorrectly()
         {
             var tableName = new Identifier("A", "B", IdentifierDefaults.Schema, "table_comment_table_1");
             var expectedTableName = new Identifier(IdentifierDefaults.Server, IdentifierDefaults.Database, IdentifierDefaults.Schema, "table_comment_table_1");
@@ -252,8 +252,8 @@ EXEC sys.sp_addextendedproperty @name = N'MS_Description',
         [Test]
         public async Task GetAllTableComments_WhenEnumerated_ContainsTestTableComment()
         {
-            var tables = await TableCommentProvider.GetAllTableComments().ConfigureAwait(false);
-            var containsTestTable = tables.Any(t => t.TableName.LocalName == "table_comment_table_1");
+            var tableComments = await TableCommentProvider.GetAllTableComments().ConfigureAwait(false);
+            var containsTestTable = tableComments.Any(t => t.TableName.LocalName == "table_comment_table_1");
 
             Assert.IsTrue(containsTestTable);
         }
@@ -344,6 +344,17 @@ EXEC sys.sp_addextendedproperty @name = N'MS_Description',
             var foreignKeyCommentsCount = comments.ForeignKeyComments.Count;
 
             Assert.Zero(foreignKeyCommentsCount);
+        }
+
+        [Test]
+        public async Task GetTableComments_WhenTableContainsComment_ReturnsExpectedValue()
+        {
+            const string expectedComment = "This is a test table comment.";
+            var comments = await GetTableCommentsAsync("table_comment_table_3").ConfigureAwait(false);
+
+            var tableComment = comments.Comment.UnwrapSome();
+
+            Assert.AreEqual(expectedComment, tableComment);
         }
 
         [Test]
