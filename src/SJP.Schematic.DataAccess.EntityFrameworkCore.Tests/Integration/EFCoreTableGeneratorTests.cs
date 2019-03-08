@@ -1,7 +1,10 @@
-﻿using System.Threading.Tasks;
+﻿using System.Collections.Generic;
+using System.Threading.Tasks;
 using Dapper;
+using LanguageExt;
 using NUnit.Framework;
 using SJP.Schematic.Core;
+using SJP.Schematic.Core.Comments;
 using SJP.Schematic.Core.Extensions;
 using SJP.Schematic.Sqlite;
 
@@ -77,6 +80,18 @@ create table test_table_4 (
     constraint fk_test_table_4_test_table_3_fk3 foreign key (test_table_3_fk3) references test_table_3 (test_pk) on delete set null,
     constraint fk_test_table_4_test_table_3_fk4 foreign key (test_table_3_fk4) references test_table_3 (test_pk) on update set null on delete cascade
 )").ConfigureAwait(false);
+            await Connection.ExecuteAsync("create table test_table_5 ( test_column_1 integer )").ConfigureAwait(false);
+            await Connection.ExecuteAsync(@"
+create table test_table_6 (
+    test_pk integer not null primary key autoincrement,
+    test_int integer not null
+)").ConfigureAwait(false);
+            await Connection.ExecuteAsync(@"
+create table test_table_7 (
+    test_pk integer not null primary key autoincrement,
+    test_table_6_fk1 integer not null,
+    constraint fk_test_table_7_test_table_6_fk1 foreign key (test_table_6_fk1) references test_table_6 (test_pk)
+)").ConfigureAwait(false);
         }
 
         [OneTimeTearDown]
@@ -86,6 +101,7 @@ create table test_table_4 (
             await Connection.ExecuteAsync("drop table test_table_2").ConfigureAwait(false);
             await Connection.ExecuteAsync("drop table test_table_4").ConfigureAwait(false);
             await Connection.ExecuteAsync("drop table test_table_3").ConfigureAwait(false);
+            await Connection.ExecuteAsync("drop table test_table_5").ConfigureAwait(false);
         }
 
         [Test]
@@ -95,7 +111,7 @@ create table test_table_4 (
             var generator = TableGenerator;
 
             var expected = TestTable1Output;
-            var result = generator.Generate(table);
+            var result = generator.Generate(table, Option<IRelationalDatabaseTableComments>.None);
 
             Assert.AreEqual(expected, result);
         }
@@ -107,7 +123,7 @@ create table test_table_4 (
             var generator = TableGenerator;
 
             var expected = TestTable2Output;
-            var result = generator.Generate(table);
+            var result = generator.Generate(table, Option<IRelationalDatabaseTableComments>.None);
 
             Assert.AreEqual(expected, result);
         }
@@ -119,8 +135,116 @@ create table test_table_4 (
             var generator = TableGenerator;
 
             var expected = TestTable4Output;
-            var result = generator.Generate(table);
+            var result = generator.Generate(table, Option<IRelationalDatabaseTableComments>.None);
 
+            Assert.AreEqual(expected, result);
+        }
+
+        [Test]
+        public async Task Generate_GivenTableWithTableAndColumnComments_GeneratesExpectedOutput()
+        {
+            const string tableComment = "This is a test table comment for EF Core";
+            const string columnComment = "This is a test column comment for EF Core";
+
+            var table = await GetTable("test_table_5").ConfigureAwait(false);
+            var generator = TableGenerator;
+
+            var comment = new RelationalDatabaseTableComments("test_table_5",
+                Option<string>.Some(tableComment),
+                Option<string>.None,
+                new Dictionary<Identifier, Option<string>> { ["test_column_1"] = Option<string>.Some(columnComment) },
+                new Dictionary<Identifier, Option<string>>(),
+                new Dictionary<Identifier, Option<string>>(),
+                new Dictionary<Identifier, Option<string>>(),
+                new Dictionary<Identifier, Option<string>>(),
+                new Dictionary<Identifier, Option<string>>()
+            );
+            var result = generator.Generate(table, comment);
+
+            var expected = TestTable5Output;
+            Assert.AreEqual(expected, result);
+        }
+
+        [Test]
+        public async Task Generate_GivenMultiLineTableWithTableAndColumnComments_GeneratesExpectedOutput()
+        {
+            const string tableComment = @"This is a test table comment for EF Core.
+
+This is a second line for it.";
+            const string columnComment = @"This is a test column comment for EF Core.
+
+This is a second line for it.";
+
+            var table = await GetTable("test_table_5").ConfigureAwait(false);
+            var generator = TableGenerator;
+
+            var comment = new RelationalDatabaseTableComments("test_table_5",
+                Option<string>.Some(tableComment),
+                Option<string>.None,
+                new Dictionary<Identifier, Option<string>> { ["test_column_1"] = Option<string>.Some(columnComment) },
+                new Dictionary<Identifier, Option<string>>(),
+                new Dictionary<Identifier, Option<string>>(),
+                new Dictionary<Identifier, Option<string>>(),
+                new Dictionary<Identifier, Option<string>>(),
+                new Dictionary<Identifier, Option<string>>()
+            );
+            var result = generator.Generate(table, comment);
+
+            var expected = TestTable5MultiLineOutput;
+            Assert.AreEqual(expected, result);
+        }
+
+        [Test]
+        public async Task Generate_GivenTableWithForeignKeyComments_GeneratesExpectedOutput()
+        {
+            const string tableComment = "This is a test table comment for EF Core";
+            const string foreignKeyComment = "This is a test foreign key comment for EF Core";
+
+            var table = await GetTable("test_table_7").ConfigureAwait(false);
+            var generator = TableGenerator;
+
+            var comment = new RelationalDatabaseTableComments("test_table_7",
+                Option<string>.Some(tableComment),
+                Option<string>.None,
+                new Dictionary<Identifier, Option<string>>(),
+                new Dictionary<Identifier, Option<string>>(),
+                new Dictionary<Identifier, Option<string>>(),
+                new Dictionary<Identifier, Option<string>> { ["fk_test_table_7_test_table_6_fk1"] = Option<string>.Some(foreignKeyComment) },
+                new Dictionary<Identifier, Option<string>>(),
+                new Dictionary<Identifier, Option<string>>()
+            );
+            var result = generator.Generate(table, comment);
+
+            var expected = TestTable7Output;
+            Assert.AreEqual(expected, result);
+        }
+
+        [Test]
+        public async Task Generate_GivenMultiLineTableWithForeignKeyComments_GeneratesExpectedOutput()
+        {
+            const string tableComment = @"This is a test table comment for EF Core.
+
+This is a second line for it.";
+            const string foreignKeyComment = @"This is a test foreign key comment for EF Core.
+
+This is a second line for it.";
+
+            var table = await GetTable("test_table_7").ConfigureAwait(false);
+            var generator = TableGenerator;
+
+            var comment = new RelationalDatabaseTableComments("test_table_7",
+                Option<string>.Some(tableComment),
+                Option<string>.None,
+                new Dictionary<Identifier, Option<string>>(),
+                new Dictionary<Identifier, Option<string>>(),
+                new Dictionary<Identifier, Option<string>>(),
+                new Dictionary<Identifier, Option<string>> { ["fk_test_table_7_test_table_6_fk1"] = Option<string>.Some(foreignKeyComment) },
+                new Dictionary<Identifier, Option<string>>(),
+                new Dictionary<Identifier, Option<string>>()
+            );
+            var result = generator.Generate(table, comment);
+
+            var expected = TestTable7MultiLineOutput;
             Assert.AreEqual(expected, result);
         }
 
@@ -363,6 +487,118 @@ namespace EFCoreTestNamespace.Main
         /// The <c>fk_test_table_4_test_table_3_fk1</c> foreign key. Navigates from <c>test_table_4</c> to <c>test_table_3</c>.
         /// </summary>
         public main.TestTable3 TestTable3 { get; set; }
+    }
+}";
+
+        private readonly string TestTable5Output = @"using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+
+namespace EFCoreTestNamespace.Main
+{
+    /// <summary>
+    /// This is a test table comment for EF Core
+    /// </summary>
+    [Table(""test_table_5"", Schema = ""main"")]
+    public class TestTable5
+    {
+        /// <summary>
+        /// This is a test column comment for EF Core
+        /// </summary>
+        [Column(""test_column_1"", TypeName = ""INTEGER"")]
+        public long? TestColumn1 { get; set; }
+    }
+}";
+
+        private readonly string TestTable5MultiLineOutput = @"using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+
+namespace EFCoreTestNamespace.Main
+{
+    /// <summary>
+    /// <para>This is a test table comment for EF Core.</para>
+    /// <para>This is a second line for it.</para>
+    /// </summary>
+    [Table(""test_table_5"", Schema = ""main"")]
+    public class TestTable5
+    {
+        /// <summary>
+        /// <para>This is a test column comment for EF Core.</para>
+        /// <para>This is a second line for it.</para>
+        /// </summary>
+        [Column(""test_column_1"", TypeName = ""INTEGER"")]
+        public long? TestColumn1 { get; set; }
+    }
+}";
+
+        private readonly string TestTable7Output = @"using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+
+namespace EFCoreTestNamespace.Main
+{
+    /// <summary>
+    /// This is a test table comment for EF Core
+    /// </summary>
+    [Table(""test_table_7"", Schema = ""main"")]
+    public class TestTable7
+    {
+        /// <summary>
+        /// The <c>test_pk</c> column.
+        /// </summary>
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+        [Column(""test_pk"", TypeName = ""INTEGER"")]
+        public long TestPk { get; set; }
+
+        /// <summary>
+        /// The <c>test_table_6_fk1</c> column.
+        /// </summary>
+        [Column(""test_table_6_fk1"", TypeName = ""INTEGER"")]
+        public long TestTable6Fk1 { get; set; }
+
+        /// <summary>
+        /// This is a test foreign key comment for EF Core
+        /// </summary>
+        public main.TestTable6 TestTable6 { get; set; }
+    }
+}";
+
+        private readonly string TestTable7MultiLineOutput = @"using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+
+namespace EFCoreTestNamespace.Main
+{
+    /// <summary>
+    /// <para>This is a test table comment for EF Core.</para>
+    /// <para>This is a second line for it.</para>
+    /// </summary>
+    [Table(""test_table_7"", Schema = ""main"")]
+    public class TestTable7
+    {
+        /// <summary>
+        /// The <c>test_pk</c> column.
+        /// </summary>
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+        [Column(""test_pk"", TypeName = ""INTEGER"")]
+        public long TestPk { get; set; }
+
+        /// <summary>
+        /// The <c>test_table_6_fk1</c> column.
+        /// </summary>
+        [Column(""test_table_6_fk1"", TypeName = ""INTEGER"")]
+        public long TestTable6Fk1 { get; set; }
+
+        /// <summary>
+        /// <para>This is a test foreign key comment for EF Core.</para>
+        /// <para>This is a second line for it.</para>
+        /// </summary>
+        public main.TestTable6 TestTable6 { get; set; }
     }
 }";
     }

@@ -1,7 +1,9 @@
 using System;
 using System.IO;
+using LanguageExt;
 using NUnit.Framework;
 using SJP.Schematic.Core;
+using SJP.Schematic.Core.Comments;
 
 namespace SJP.Schematic.DataAccess.Poco.Tests
 {
@@ -91,7 +93,7 @@ namespace SJP.Schematic.DataAccess.Poco.Tests
             const string testNs = "SJP.Schematic.Test";
             var generator = new PocoViewGenerator(nameTranslator, testNs);
 
-            Assert.Throws<ArgumentNullException>(() => generator.Generate(null));
+            Assert.Throws<ArgumentNullException>(() => generator.Generate(null, Option<IDatabaseViewComments>.None));
         }
     }
 }

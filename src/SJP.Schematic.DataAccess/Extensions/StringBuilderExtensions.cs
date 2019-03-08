@@ -19,7 +19,7 @@ namespace SJP.Schematic.DataAccess.Extensions
 
             var commentLines = GetLines(comment);
             var summaryContent = commentLines.Count > 1
-                ? commentLines.Select(l => "/// <para>" + l + "</para>").Join(indent + Environment.NewLine)
+                ? commentLines.Select(l => "/// <para>" + l + "</para>").Join(Environment.NewLine + indent)
                 : "/// " + commentLines.Single();
 
             return builder.Append(indent)

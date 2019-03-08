@@ -1,7 +1,10 @@
-﻿using System.Threading.Tasks;
+﻿using System.Collections.Generic;
+using System.Threading.Tasks;
 using Dapper;
+using LanguageExt;
 using NUnit.Framework;
 using SJP.Schematic.Core;
+using SJP.Schematic.Core.Comments;
 using SJP.Schematic.Core.Extensions;
 using SJP.Schematic.Sqlite;
 
@@ -78,6 +81,7 @@ create table test_table_4 (
     constraint fk_test_table_4_test_table_3_fk3 foreign key (test_table_3_fk3) references test_table_3 (test_pk) on delete set null,
     constraint fk_test_table_4_test_table_3_fk4 foreign key (test_table_3_fk4) references test_table_3 (test_pk) on update set null on delete cascade
 )").ConfigureAwait(false);
+            await Connection.ExecuteAsync("create table test_table_5 ( test_column_1 integer )").ConfigureAwait(false);
         }
 
         [OneTimeTearDown]
@@ -87,6 +91,7 @@ create table test_table_4 (
             await Connection.ExecuteAsync("drop table test_table_2").ConfigureAwait(false);
             await Connection.ExecuteAsync("drop table test_table_4").ConfigureAwait(false);
             await Connection.ExecuteAsync("drop table test_table_3").ConfigureAwait(false);
+            await Connection.ExecuteAsync("drop table test_table_5").ConfigureAwait(false);
         }
 
         [Test]
@@ -96,7 +101,7 @@ create table test_table_4 (
             var generator = TableGenerator;
 
             var expected = TestTable1Output;
-            var result = generator.Generate(table);
+            var result = generator.Generate(table, Option<IRelationalDatabaseTableComments>.None);
 
             Assert.AreEqual(expected, result);
         }
@@ -108,7 +113,7 @@ create table test_table_4 (
             var generator = TableGenerator;
 
             var expected = TestTable2Output;
-            var result = generator.Generate(table);
+            var result = generator.Generate(table, Option<IRelationalDatabaseTableComments>.None);
 
             Assert.AreEqual(expected, result);
         }
@@ -120,8 +125,62 @@ create table test_table_4 (
             var generator = TableGenerator;
 
             var expected = TestTable4Output;
-            var result = generator.Generate(table);
+            var result = generator.Generate(table, Option<IRelationalDatabaseTableComments>.None);
 
+            Assert.AreEqual(expected, result);
+        }
+
+        [Test]
+        public async Task Generate_GivenTableWithTableAndColumnComments_GeneratesExpectedOutput()
+        {
+            const string tableComment = "This is a test table comment for OrmLite";
+            const string columnComment = "This is a test column comment for OrmLite";
+
+            var table = await GetTable("test_table_5").ConfigureAwait(false);
+            var generator = TableGenerator;
+
+            var comment = new RelationalDatabaseTableComments("test_table_5",
+                Option<string>.Some(tableComment),
+                Option<string>.None,
+                new Dictionary<Identifier, Option<string>> { ["test_column_1"] = Option<string>.Some(columnComment) },
+                new Dictionary<Identifier, Option<string>>(),
+                new Dictionary<Identifier, Option<string>>(),
+                new Dictionary<Identifier, Option<string>>(),
+                new Dictionary<Identifier, Option<string>>(),
+                new Dictionary<Identifier, Option<string>>()
+            );
+            var result = generator.Generate(table, comment);
+
+            var expected = TestTable5Output;
+            Assert.AreEqual(expected, result);
+        }
+
+        [Test]
+        public async Task Generate_GivenMultiLineTableWithTableAndColumnComments_GeneratesExpectedOutput()
+        {
+            const string tableComment = @"This is a test table comment for OrmLite.
+
+This is a second line for it.";
+            const string columnComment = @"This is a test column comment for OrmLite.
+
+This is a second line for it.";
+
+            var table = await GetTable("test_table_5").ConfigureAwait(false);
+            var generator = TableGenerator;
+
+            var comment = new RelationalDatabaseTableComments("test_table_5",
+                Option<string>.Some(tableComment),
+                Option<string>.None,
+                new Dictionary<Identifier, Option<string>> { ["test_column_1"] = Option<string>.Some(columnComment) },
+                new Dictionary<Identifier, Option<string>>(),
+                new Dictionary<Identifier, Option<string>>(),
+                new Dictionary<Identifier, Option<string>>(),
+                new Dictionary<Identifier, Option<string>>(),
+                new Dictionary<Identifier, Option<string>>()
+            );
+            var result = generator.Generate(table, comment);
+
+            var expected = TestTable5MultiLineOutput;
             Assert.AreEqual(expected, result);
         }
 
@@ -357,6 +416,48 @@ namespace OrmLiteTestNamespace.Main
         [ForeignKey(typeof(TestTable3)), ForeignKeyName = ""fk_test_table_4_test_table_3_fk1"", OnDelete = ""CASCADE"", OnUpdate = ""SET NULL"")]
         [Alias(""test_table_3_fk4"")]
         public long? TestTable3Fk4 { get; set; }
+    }
+}";
+
+        private readonly string TestTable5Output = @"using System;
+using ServiceStack.DataAnnotations;
+
+namespace OrmLiteTestNamespace.Main
+{
+    /// <summary>
+    /// This is a test table comment for OrmLite
+    /// </summary>
+    [Schema(""main"")]
+    [Alias(""test_table_5"")]
+    public class TestTable5
+    {
+        /// <summary>
+        /// This is a test column comment for OrmLite
+        /// </summary>
+        [Alias(""test_column_1"")]
+        public long? TestColumn1 { get; set; }
+    }
+}";
+
+        private readonly string TestTable5MultiLineOutput = @"using System;
+using ServiceStack.DataAnnotations;
+
+namespace OrmLiteTestNamespace.Main
+{
+    /// <summary>
+    /// <para>This is a test table comment for OrmLite.</para>
+    /// <para>This is a second line for it.</para>
+    /// </summary>
+    [Schema(""main"")]
+    [Alias(""test_table_5"")]
+    public class TestTable5
+    {
+        /// <summary>
+        /// <para>This is a test column comment for OrmLite.</para>
+        /// <para>This is a second line for it.</para>
+        /// </summary>
+        [Alias(""test_column_1"")]
+        public long? TestColumn1 { get; set; }
     }
 }";
     }

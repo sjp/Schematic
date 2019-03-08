@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Dapper;
 using NUnit.Framework;
 using SJP.Schematic.Core;
+using SJP.Schematic.Core.Comments;
 using SJP.Schematic.Sqlite;
 
 namespace SJP.Schematic.DataAccess.Poco.Tests.Integration
@@ -48,7 +49,8 @@ select
         public void Generate_GivenDatabaseWithTablesAndViews_GeneratesFilesInExpectedLocations()
         {
             var nameTranslator = new PascalCaseNameTranslator();
-            var generator = new PocoDataAccessGenerator(Database, nameTranslator);
+            var commentProvider = new EmptyRelationalDatabaseCommentProvider();
+            var generator = new PocoDataAccessGenerator(Database, commentProvider, nameTranslator);
 
             var testProjectDir = Path.Combine(Environment.CurrentDirectory, "PocoTest");
 

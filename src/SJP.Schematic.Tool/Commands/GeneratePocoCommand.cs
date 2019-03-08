@@ -41,16 +41,14 @@ namespace SJP.Schematic.Tool
                 return 1;
             }
 
-            var databaseFactory = DatabaseParent.GetRelationalDatabaseFactory();
-
             try
             {
                 var cachedConnection = status.Connection.AsCachedConnection();
                 var dialect = DatabaseParent.GetDatabaseDialect(cachedConnection);
-                var identifierDefaults = dialect.GetIdentifierDefaultsAsync().GetAwaiter().GetResult();
-                var database = databaseFactory.Invoke(dialect, cachedConnection, identifierDefaults);
+                var database = dialect.GetRelationalDatabaseAsync().GetAwaiter().GetResult();
+                var commentProvider = dialect.GetRelationalDatabaseCommentProviderAsync().GetAwaiter().GetResult();
 
-                var generator = new PocoDataAccessGenerator(database, nameProvider);
+                var generator = new PocoDataAccessGenerator(database, commentProvider, nameProvider);
                 var fileSystem = new FileSystem();
                 generator.Generate(fileSystem, GenerateParent.ProjectPath, GenerateParent.BaseNamespace);
 

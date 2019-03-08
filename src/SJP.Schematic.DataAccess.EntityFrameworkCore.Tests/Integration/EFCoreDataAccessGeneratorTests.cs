@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Dapper;
 using NUnit.Framework;
 using SJP.Schematic.Core;
+using SJP.Schematic.Core.Comments;
 using SJP.Schematic.Sqlite;
 
 namespace SJP.Schematic.DataAccess.EntityFrameworkCore.Tests.Integration
@@ -36,7 +37,7 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore.Tests.Integration
         public void Generate_GivenDatabaseWithTables_GeneratesFilesInExpectedLocations()
         {
             var nameTranslator = new PascalCaseNameTranslator();
-            var generator = new EFCoreDataAccessGenerator(Database, nameTranslator);
+            var generator = new EFCoreDataAccessGenerator(Database, new EmptyRelationalDatabaseCommentProvider(), nameTranslator);
 
             var testProjectDir = Path.Combine(Environment.CurrentDirectory, "EntityFrameworkTest");
 

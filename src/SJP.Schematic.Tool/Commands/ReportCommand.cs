@@ -30,14 +30,11 @@ namespace SJP.Schematic.Tool
             var status = Parent.GetConnectionStatus(connectionString);
             if (status.IsConnected)
             {
-                var databaseFactory = Parent.GetRelationalDatabaseFactory();
-
                 try
                 {
                     var cachedConnection = status.Connection.AsCachedConnection();
                     var dialect = Parent.GetDatabaseDialect(cachedConnection);
-                    var identifierDefaults = dialect.GetIdentifierDefaultsAsync().GetAwaiter().GetResult();
-                    var database = databaseFactory.Invoke(dialect, cachedConnection, identifierDefaults);
+                    var database = dialect.GetRelationalDatabaseAsync().GetAwaiter().GetResult();
 
                     var reportExporter = new ReportExporter(cachedConnection, database, ReportDirectory);
                     reportExporter.ExportAsync().GetAwaiter().GetResult();

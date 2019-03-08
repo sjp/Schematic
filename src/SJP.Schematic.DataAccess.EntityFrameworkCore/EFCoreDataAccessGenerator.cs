@@ -1,22 +1,32 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.IO.Abstractions;
 using System.Threading;
+using LanguageExt;
 using SJP.Schematic.Core;
+using SJP.Schematic.Core.Comments;
 using SJP.Schematic.Core.Extensions;
 
 namespace SJP.Schematic.DataAccess.EntityFrameworkCore
 {
     public class EFCoreDataAccessGenerator : IDataAccessGenerator
     {
-        public EFCoreDataAccessGenerator(IRelationalDatabase database, INameTranslator nameTranslator, string indent = "    ")
+        public EFCoreDataAccessGenerator(
+            IRelationalDatabase database,
+            IRelationalDatabaseCommentProvider commentProvider,
+            INameTranslator nameTranslator,
+            string indent = "    ")
         {
             Database = database ?? throw new ArgumentNullException(nameof(database));
+            CommentProvider = commentProvider ?? throw new ArgumentNullException(nameof(commentProvider));
             NameTranslator = nameTranslator ?? throw new ArgumentNullException(nameof(nameTranslator));
             Indent = indent ?? throw new ArgumentNullException(nameof(indent));
         }
 
         protected IRelationalDatabase Database { get; }
+
+        protected IRelationalDatabaseCommentProvider CommentProvider { get; }
 
         protected INameTranslator NameTranslator { get; }
 
@@ -47,9 +57,19 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore
             var tableGenerator = new EFCoreTableGenerator(NameTranslator, baseNamespace, Indent);
 
             var tables = Database.GetAllTables(CancellationToken.None).GetAwaiter().GetResult();
+            var comments = CommentProvider.GetAllTableComments(CancellationToken.None).GetAwaiter().GetResult();
+
+            var commentsLookup = new Dictionary<Identifier, IRelationalDatabaseTableComments>();
+            foreach (var comment in comments)
+                commentsLookup[comment.TableName] = comment;
+
             foreach (var table in tables)
             {
-                var tableClass = tableGenerator.Generate(table);
+                var tableComment = commentsLookup.ContainsKey(table.Name)
+                    ? Option<IRelationalDatabaseTableComments>.Some(commentsLookup[table.Name])
+                    : Option<IRelationalDatabaseTableComments>.None;
+
+                var tableClass = tableGenerator.Generate(table, tableComment);
                 var tablePath = tableGenerator.GetFilePath(projectFileInfo.Directory, table.Name);
 
                 if (!tablePath.Directory.Exists)

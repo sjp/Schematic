@@ -1,7 +1,9 @@
 using System;
 using System.IO;
+using LanguageExt;
 using NUnit.Framework;
 using SJP.Schematic.Core;
+using SJP.Schematic.Core.Comments;
 
 namespace SJP.Schematic.DataAccess.EntityFrameworkCore.Tests
 {
@@ -98,10 +100,11 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore.Tests
         public static void Generate_GivenNullTable_ThrowsArgumentNullException()
         {
             var nameTranslator = new VerbatimNameTranslator();
+            var comment = Option<IRelationalDatabaseTableComments>.None;
             const string testNs = "SJP.Schematic.Test";
             var generator = new EFCoreTableGenerator(nameTranslator, testNs);
 
-            Assert.Throws<ArgumentNullException>(() => generator.Generate(null));
+            Assert.Throws<ArgumentNullException>(() => generator.Generate(null, comment));
         }
     }
 }

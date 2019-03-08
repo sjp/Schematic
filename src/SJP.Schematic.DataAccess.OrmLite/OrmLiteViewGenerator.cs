@@ -3,7 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Security;
 using System.Text;
+using LanguageExt;
 using SJP.Schematic.Core;
+using SJP.Schematic.Core.Comments;
 using SJP.Schematic.Core.Extensions;
 using SJP.Schematic.Core.Utilities;
 using SJP.Schematic.DataAccess.Extensions;
@@ -23,7 +25,7 @@ namespace SJP.Schematic.DataAccess.OrmLite
 
         protected string Namespace { get; }
 
-        public override string Generate(IDatabaseView view)
+        public override string Generate(IDatabaseView view, Option<IDatabaseViewComments> comment)
         {
             if (view == null)
                 throw new ArgumentNullException(nameof(view));
@@ -57,7 +59,9 @@ namespace SJP.Schematic.DataAccess.OrmLite
                 .AppendLine(viewNamespace)
                 .AppendLine("{");
 
-            var viewComment = GenerateViewComment(view.Name.LocalName);
+            var viewComment = comment
+                .Bind(c => c.Comment)
+                .IfNone(GenerateViewComment(view.Name.LocalName));
             builder.AppendComment(Indent, viewComment);
 
             var schemaName = view.Name.Schema;
@@ -93,7 +97,11 @@ namespace SJP.Schematic.DataAccess.OrmLite
                 if (hasFirstLine)
                     builder.AppendLine();
 
-                AppendColumn(builder, columnIndent, className, column);
+                var columnComment = comment
+                    .Bind(c => c.ColumnComments.TryGetValue(column.Name, out var cc) ? cc : Option<string>.None)
+                    .IfNone(GenerateColumnComment(column.Name.LocalName));
+
+                AppendColumn(builder, columnIndent, className, column, columnComment);
                 hasFirstLine = true;
             }
 
@@ -122,7 +130,7 @@ namespace SJP.Schematic.DataAccess.OrmLite
             return "The <c>" + escapedColumnName + "</c> column.";
         }
 
-        private void AppendColumn(StringBuilder builder, string columnIndent, string className, IDatabaseColumn column)
+        private void AppendColumn(StringBuilder builder, string columnIndent, string className, IDatabaseColumn column, string comment)
         {
             if (builder == null)
                 throw new ArgumentNullException(nameof(builder));
@@ -132,6 +140,8 @@ namespace SJP.Schematic.DataAccess.OrmLite
                 throw new ArgumentNullException(nameof(className));
             if (column == null)
                 throw new ArgumentNullException(nameof(column));
+            if (comment.IsNullOrWhiteSpace())
+                throw new ArgumentNullException(nameof(comment));
 
             var clrType = column.Type.ClrType;
             var nullableSuffix = clrType.IsValueType && column.IsNullable ? "?" : string.Empty;
@@ -140,8 +150,7 @@ namespace SJP.Schematic.DataAccess.OrmLite
             if (clrType.Namespace == "System" && TypeNameMap.ContainsKey(typeName))
                 typeName = TypeNameMap[typeName];
 
-            var columnComment = GenerateColumnComment(column.Name.LocalName);
-            builder.AppendComment(columnIndent, columnComment);
+            builder.AppendComment(columnIndent, comment);
 
             var propertyName = NameTranslator.ColumnToPropertyName(className, column.Name.LocalName);
             if (propertyName != column.Name.LocalName)

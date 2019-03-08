@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.Data;
 using System.Linq;
+using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
 using McMaster.Extensions.CommandLineUtils;
 using SJP.Schematic.Core;
@@ -10,8 +12,7 @@ using SJP.Schematic.MySql;
 using SJP.Schematic.PostgreSql;
 using SJP.Schematic.Sqlite;
 using SJP.Schematic.SqlServer;
-using System.Data;
-using System.Threading.Tasks;
+using SJP.Schematic.Oracle;
 
 namespace SJP.Schematic.Tool
 {
@@ -123,19 +124,12 @@ namespace SJP.Schematic.Tool
             return dialect.Invoke(connection);
         }
 
-        public Func<IDatabaseDialect, IDbConnection, IIdentifierDefaults, IRelationalDatabase> GetRelationalDatabaseFactory()
-        {
-            if (!_databaseFactories.TryGetValue(DatabaseDialect, out var factory))
-                throw new NotSupportedException("Unsupported dialect: " + DatabaseDialect);
-
-            return factory;
-        }
-
         private static readonly IReadOnlyDictionary<string, Func<string, Task<IDbConnection>>> _connectionFactories = new Dictionary<string, Func<string, Task<IDbConnection>>>
         {
             ["sqlite"] = cs => SqliteDialect.CreateConnectionAsync(cs),
             ["sqlserver"] = cs => SqlServerDialect.CreateConnectionAsync(cs),
             ["mysql"] = cs => MySqlDialect.CreateConnectionAsync(cs),
+            ["oracle"] = cs => OracleDialect.CreateConnectionAsync(cs),
             ["postgresql"] = cs => PostgreSqlDialect.CreateConnectionAsync(cs)
         };
 
@@ -144,17 +138,9 @@ namespace SJP.Schematic.Tool
             ["sqlite"] = c => new SqliteDialect(c),
             ["sqlserver"] = c => new SqlServerDialect(c),
             ["mysql"] = c => new MySqlDialect(c),
+            ["oracle"] = c => new OracleDialect(c),
             ["postgresql"] = c => new PostgreSqlDialect(c)
         };
-
-        private static readonly IReadOnlyDictionary<string, Func<IDatabaseDialect, IDbConnection, IIdentifierDefaults, IRelationalDatabase>> _databaseFactories =
-            new Dictionary<string, Func<IDatabaseDialect, IDbConnection, IIdentifierDefaults, IRelationalDatabase>>
-            {
-                ["sqlite"] = (d, c, i) => new SqliteRelationalDatabase(d, c, i),
-                ["sqlserver"] = (d, c, i) => new SqlServerRelationalDatabase(d, c, i),
-                ["mysql"] = (d, c, i) => new MySqlRelationalDatabase(d, c, i),
-                ["postgresql"] = (d, c, i) => new PostgreSqlRelationalDatabase(d, c, i, new DefaultPostgreSqlIdentifierResolutionStrategy())
-            };
 
         public sealed class ConnectionStatus
         {

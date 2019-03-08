@@ -1,5 +1,7 @@
 using System.IO.Abstractions;
+using LanguageExt;
 using SJP.Schematic.Core;
+using SJP.Schematic.Core.Comments;
 
 namespace SJP.Schematic.DataAccess.Tests
 {
@@ -10,7 +12,7 @@ namespace SJP.Schematic.DataAccess.Tests
         {
         }
 
-        public override string Generate(IDatabaseView view) => string.Empty;
+        public override string Generate(IDatabaseView view, Option<IDatabaseViewComments> comment) => string.Empty;
 
         public FileInfoBase InnerGetFilePath(DirectoryInfoBase baseDirectory, Identifier objectName) => GetFilePath(baseDirectory, objectName);
     }

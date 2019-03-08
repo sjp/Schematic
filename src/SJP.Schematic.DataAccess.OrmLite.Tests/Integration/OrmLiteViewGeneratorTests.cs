@@ -1,7 +1,10 @@
-﻿using System.Threading.Tasks;
+﻿using System.Collections.Generic;
+using System.Threading.Tasks;
 using Dapper;
+using LanguageExt;
 using NUnit.Framework;
 using SJP.Schematic.Core;
+using SJP.Schematic.Core.Comments;
 using SJP.Schematic.Core.Extensions;
 using SJP.Schematic.Sqlite;
 
@@ -35,6 +38,7 @@ select
     teststring text default 'test'
 )").ConfigureAwait(false);
             await Connection.ExecuteAsync("create view test_view_2 as select * from view_test_table_1").ConfigureAwait(false);
+            await Connection.ExecuteAsync("create view test_view_3 as select 1 as test_column_1").ConfigureAwait(false);
         }
 
         [OneTimeTearDown]
@@ -43,6 +47,7 @@ select
             await Connection.ExecuteAsync("drop view test_view_1").ConfigureAwait(false);
             await Connection.ExecuteAsync("drop view test_view_2").ConfigureAwait(false);
             await Connection.ExecuteAsync("drop table view_test_table_1").ConfigureAwait(false);
+            await Connection.ExecuteAsync("drop view test_view_3").ConfigureAwait(false);
         }
 
         [Test]
@@ -52,7 +57,7 @@ select
             var generator = ViewGenerator;
 
             var expected = TestView1Output;
-            var result = generator.Generate(view);
+            var result = generator.Generate(view, Option<IDatabaseViewComments>.None);
 
             Assert.AreEqual(expected, result);
         }
@@ -64,8 +69,50 @@ select
             var generator = ViewGenerator;
 
             var expected = TestView2Output;
-            var result = generator.Generate(view);
+            var result = generator.Generate(view, Option<IDatabaseViewComments>.None);
 
+            Assert.AreEqual(expected, result);
+        }
+
+        [Test]
+        public async Task Generate_GivenViewWithViewAndColumnComments_GeneratesExpectedOutput()
+        {
+            const string viewComment = "This is a test view comment for OrmLite";
+            const string columnComment = "This is a test column comment for OrmLite";
+
+            var view = await GetView("test_view_3").ConfigureAwait(false);
+            var generator = ViewGenerator;
+
+            var comment = new DatabaseViewComments("test_view_3",
+                Option<string>.Some(viewComment),
+                new Dictionary<Identifier, Option<string>> { ["test_column_1"] = Option<string>.Some(columnComment) }
+            );
+            var result = generator.Generate(view, comment);
+
+            var expected = TestView3Output;
+            Assert.AreEqual(expected, result);
+        }
+
+        [Test]
+        public async Task Generate_GivenMultiLineViewWithViewAndColumnComments_GeneratesExpectedOutput()
+        {
+            const string viewComment = @"This is a test view comment for OrmLite.
+
+This is a second line for it.";
+            const string columnComment = @"This is a test column comment for OrmLite.
+
+This is a second line for it.";
+
+            var view = await GetView("test_view_3").ConfigureAwait(false);
+            var generator = ViewGenerator;
+
+            var comment = new DatabaseViewComments("test_view_3",
+                Option<string>.Some(viewComment),
+                new Dictionary<Identifier, Option<string>> { ["test_column_1"] = Option<string>.Some(columnComment) }
+            );
+            var result = generator.Generate(view, comment);
+
+            var expected = TestView3MultiLineOutput;
             Assert.AreEqual(expected, result);
         }
 
@@ -156,6 +203,48 @@ namespace OrmLiteTestNamespace.Main
         /// </summary>
         [Alias(""teststring"")]
         public string Teststring { get; set; }
+    }
+}";
+
+        private readonly string TestView3Output = @"using System;
+using ServiceStack.DataAnnotations;
+
+namespace OrmLiteTestNamespace.Main
+{
+    /// <summary>
+    /// This is a test view comment for OrmLite
+    /// </summary>
+    [Schema(""main"")]
+    [Alias(""test_view_3"")]
+    public class TestView3
+    {
+        /// <summary>
+        /// This is a test column comment for OrmLite
+        /// </summary>
+        [Alias(""test_column_1"")]
+        public long? TestColumn1 { get; set; }
+    }
+}";
+
+        private readonly string TestView3MultiLineOutput = @"using System;
+using ServiceStack.DataAnnotations;
+
+namespace OrmLiteTestNamespace.Main
+{
+    /// <summary>
+    /// <para>This is a test view comment for OrmLite.</para>
+    /// <para>This is a second line for it.</para>
+    /// </summary>
+    [Schema(""main"")]
+    [Alias(""test_view_3"")]
+    public class TestView3
+    {
+        /// <summary>
+        /// <para>This is a test column comment for OrmLite.</para>
+        /// <para>This is a second line for it.</para>
+        /// </summary>
+        [Alias(""test_column_1"")]
+        public long? TestColumn1 { get; set; }
     }
 }";
     }

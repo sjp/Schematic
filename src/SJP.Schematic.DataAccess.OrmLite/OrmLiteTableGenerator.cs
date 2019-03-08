@@ -5,7 +5,9 @@ using System.Globalization;
 using System.Linq;
 using System.Security;
 using System.Text;
+using LanguageExt;
 using SJP.Schematic.Core;
+using SJP.Schematic.Core.Comments;
 using SJP.Schematic.Core.Extensions;
 using SJP.Schematic.Core.Utilities;
 using SJP.Schematic.DataAccess.Extensions;
@@ -25,7 +27,7 @@ namespace SJP.Schematic.DataAccess.OrmLite
 
         protected string Namespace { get; }
 
-        public override string Generate(IRelationalDatabaseTable table)
+        public override string Generate(IRelationalDatabaseTable table, Option<IRelationalDatabaseTableComments> comment)
         {
             if (table == null)
                 throw new ArgumentNullException(nameof(table));
@@ -59,7 +61,9 @@ namespace SJP.Schematic.DataAccess.OrmLite
                 .AppendLine(tableNamespace)
                 .AppendLine("{");
 
-            var tableComment = GenerateTableComment(table.Name.LocalName);
+            var tableComment = comment
+                .Bind(c => c.Comment)
+                .IfNone(GenerateTableComment(table.Name.LocalName));
             builder.AppendComment(Indent, tableComment);
 
             var schemaName = table.Name.Schema;
@@ -134,7 +138,9 @@ namespace SJP.Schematic.DataAccess.OrmLite
                 if (hasFirstLine)
                     builder.AppendLine();
 
-                var columnComment = GenerateColumnComment(column.Name.LocalName);
+                var columnComment = comment
+                    .Bind(c => c.ColumnComments.TryGetValue(column.Name, out var cc) ? cc : Option<string>.None)
+                    .IfNone(GenerateColumnComment(column.Name.LocalName));
                 builder.AppendComment(columnIndent, columnComment);
 
                 AppendColumn(builder, columnIndent, className, table, column);

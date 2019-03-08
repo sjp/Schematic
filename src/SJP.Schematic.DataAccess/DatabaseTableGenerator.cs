@@ -2,7 +2,9 @@
 using System.Collections.Generic;
 using System.IO;
 using System.IO.Abstractions;
+using LanguageExt;
 using SJP.Schematic.Core;
+using SJP.Schematic.Core.Comments;
 
 namespace SJP.Schematic.DataAccess
 {
@@ -18,7 +20,7 @@ namespace SJP.Schematic.DataAccess
 
         protected string Indent { get; }
 
-        public abstract string Generate(IRelationalDatabaseTable table);
+        public abstract string Generate(IRelationalDatabaseTable table, Option<IRelationalDatabaseTableComments> comment);
 
         public virtual FileInfoBase GetFilePath(DirectoryInfoBase baseDirectory, Identifier objectName)
         {

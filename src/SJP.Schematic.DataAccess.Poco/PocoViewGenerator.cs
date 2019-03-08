@@ -3,7 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Security;
 using System.Text;
+using LanguageExt;
 using SJP.Schematic.Core;
+using SJP.Schematic.Core.Comments;
 using SJP.Schematic.Core.Extensions;
 using SJP.Schematic.Core.Utilities;
 using SJP.Schematic.DataAccess.Extensions;
@@ -23,7 +25,7 @@ namespace SJP.Schematic.DataAccess.Poco
 
         protected string Namespace { get; }
 
-        public override string Generate(IDatabaseView view)
+        public override string Generate(IDatabaseView view, Option<IDatabaseViewComments> comment)
         {
             if (view == null)
                 throw new ArgumentNullException(nameof(view));
@@ -55,8 +57,10 @@ namespace SJP.Schematic.DataAccess.Poco
                 .AppendLine(viewNamespace)
                 .AppendLine("{");
 
-            var tableComment = GenerateViewComment(view.Name.LocalName);
-            builder.AppendComment(Indent, tableComment);
+            var viewComment = comment
+                .Bind(c => c.Comment)
+                .IfNone(GenerateViewComment(view.Name.LocalName));
+            builder.AppendComment(Indent, viewComment);
 
             var className = NameTranslator.ViewToClassName(view.Name);
 
@@ -73,7 +77,9 @@ namespace SJP.Schematic.DataAccess.Poco
                 if (hasFirstLine)
                     builder.AppendLine();
 
-                var columnComment = GenerateColumnComment(column.Name.LocalName);
+                var columnComment = comment
+                    .Bind(c => c.ColumnComments.TryGetValue(column.Name, out var cc) ? cc : Option<string>.None)
+                    .IfNone(GenerateColumnComment(column.Name.LocalName));
                 builder.AppendComment(columnIndent, columnComment);
 
                 AppendColumn(builder, columnIndent, className, column);

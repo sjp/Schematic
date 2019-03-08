@@ -19,6 +19,7 @@
     <ProjectReference Include="..\SJP.Schematic.DataAccess.Poco\SJP.Schematic.DataAccess.Poco.csproj" />
     <ProjectReference Include="..\SJP.Schematic.Lint\SJP.Schematic.Lint.csproj" />
     <ProjectReference Include="..\SJP.Schematic.MySql\SJP.Schematic.MySql.csproj" />
+    <ProjectReference Include="..\SJP.Schematic.Oracle\SJP.Schematic.Oracle.csproj" />
     <ProjectReference Include="..\SJP.Schematic.PostgreSql\SJP.Schematic.PostgreSql.csproj" />
     <ProjectReference Include="..\SJP.Schematic.Reporting\SJP.Schematic.Reporting.csproj" />
     <ProjectReference Include="..\SJP.Schematic.Sqlite\SJP.Schematic.Sqlite.csproj" />

@@ -1,7 +1,9 @@
 using System;
 using System.IO;
+using LanguageExt;
 using NUnit.Framework;
 using SJP.Schematic.Core;
+using SJP.Schematic.Core.Comments;
 
 namespace SJP.Schematic.DataAccess.OrmLite.Tests
 {
@@ -101,7 +103,7 @@ namespace SJP.Schematic.DataAccess.OrmLite.Tests
             const string test = "SJP.Schematic.Test";
             var generator = new OrmLiteTableGenerator(nameTranslator, test);
 
-            Assert.Throws<ArgumentNullException>(() => generator.Generate(null));
+            Assert.Throws<ArgumentNullException>(() => generator.Generate(null, Option<IRelationalDatabaseTableComments>.None));
         }
     }
 }

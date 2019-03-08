@@ -1,7 +1,10 @@
-﻿using System.Threading.Tasks;
+﻿using System.Collections.Generic;
+using System.Threading.Tasks;
 using Dapper;
+using LanguageExt;
 using NUnit.Framework;
 using SJP.Schematic.Core;
+using SJP.Schematic.Core.Comments;
 using SJP.Schematic.Core.Extensions;
 using SJP.Schematic.Sqlite;
 
@@ -16,32 +19,88 @@ namespace SJP.Schematic.DataAccess.Poco.Tests.Integration
         private static IDatabaseTableGenerator TableGenerator => new PocoTableGenerator(new PascalCaseNameTranslator(), TestNamespace);
 
         [OneTimeSetUp]
-        public Task Init()
+        public async Task Init()
         {
-            return Connection.ExecuteAsync(@"create table test_table_1 (
+            await Connection.ExecuteAsync(@"create table test_table_1 (
     testint integer not null primary key autoincrement,
     testdecimal numeric default 2.45,
     testblob blob default X'DEADBEEF',
     testdatetime datetime default CURRENT_TIMESTAMP,
     teststring text default 'test'
-)");
+)").ConfigureAwait(false);
+            await Connection.ExecuteAsync("create table test_table_2 ( test_column_1 integer )").ConfigureAwait(false);
         }
 
         [OneTimeTearDown]
-        public Task CleanUp()
+        public async Task CleanUp()
         {
-            return Connection.ExecuteAsync("drop table test_table_1");
+            await Connection.ExecuteAsync("drop table test_table_1");
+            await Connection.ExecuteAsync("drop table test_table_2");
         }
 
         [Test]
         public async Task Generate_GivenTableWithVariousColumnTypes_GeneratesExpectedOutput()
         {
-            var view = await GetTable("test_table_1").ConfigureAwait(false);
+            var table = await GetTable("test_table_1").ConfigureAwait(false);
             var generator = TableGenerator;
 
             const string expected = TestTable1Output;
-            var result = generator.Generate(view);
+            var result = generator.Generate(table, Option<IRelationalDatabaseTableComments>.None);
 
+            Assert.AreEqual(expected, result);
+        }
+
+        [Test]
+        public async Task Generate_GivenTableWithTableAndColumnComments_GeneratesExpectedOutput()
+        {
+            const string tableComment = "This is a test table comment for Poco";
+            const string columnComment = "This is a test column comment for Poco";
+
+            var table = await GetTable("test_table_2").ConfigureAwait(false);
+            var generator = TableGenerator;
+
+            var comment = new RelationalDatabaseTableComments("test_table_2",
+                Option<string>.Some(tableComment),
+                Option<string>.None,
+                new Dictionary<Identifier, Option<string>> { ["test_column_1"] = Option<string>.Some(columnComment) },
+                new Dictionary<Identifier, Option<string>>(),
+                new Dictionary<Identifier, Option<string>>(),
+                new Dictionary<Identifier, Option<string>>(),
+                new Dictionary<Identifier, Option<string>>(),
+                new Dictionary<Identifier, Option<string>>()
+            );
+            var result = generator.Generate(table, comment);
+
+            var expected = TestTable2Output;
+            Assert.AreEqual(expected, result);
+        }
+
+        [Test]
+        public async Task Generate_GivenMultiLineTableWithTableAndColumnComments_GeneratesExpectedOutput()
+        {
+            const string tableComment = @"This is a test table comment for Poco.
+
+This is a second line for it.";
+            const string columnComment = @"This is a test column comment for Poco.
+
+This is a second line for it.";
+
+            var table = await GetTable("test_table_2").ConfigureAwait(false);
+            var generator = TableGenerator;
+
+            var comment = new RelationalDatabaseTableComments("test_table_2",
+                Option<string>.Some(tableComment),
+                Option<string>.None,
+                new Dictionary<Identifier, Option<string>> { ["test_column_1"] = Option<string>.Some(columnComment) },
+                new Dictionary<Identifier, Option<string>>(),
+                new Dictionary<Identifier, Option<string>>(),
+                new Dictionary<Identifier, Option<string>>(),
+                new Dictionary<Identifier, Option<string>>(),
+                new Dictionary<Identifier, Option<string>>()
+            );
+            var result = generator.Generate(table, comment);
+
+            var expected = TestTable2MultiLineOutput;
             Assert.AreEqual(expected, result);
         }
 
@@ -80,6 +139,40 @@ namespace PocoTestNamespace.Main
         /// The <c>teststring</c> column.
         /// </summary>
         public string Teststring { get; set; }
+    }
+}";
+
+        private readonly string TestTable2Output = @"using System;
+
+namespace PocoTestNamespace.Main
+{
+    /// <summary>
+    /// This is a test table comment for Poco
+    /// </summary>
+    public class TestTable2
+    {
+        /// <summary>
+        /// This is a test column comment for Poco
+        /// </summary>
+        public long? TestColumn1 { get; set; }
+    }
+}";
+
+        private readonly string TestTable2MultiLineOutput = @"using System;
+
+namespace PocoTestNamespace.Main
+{
+    /// <summary>
+    /// <para>This is a test table comment for Poco.</para>
+    /// <para>This is a second line for it.</para>
+    /// </summary>
+    public class TestTable2
+    {
+        /// <summary>
+        /// <para>This is a test column comment for Poco.</para>
+        /// <para>This is a second line for it.</para>
+        /// </summary>
+        public long? TestColumn1 { get; set; }
     }
 }";
     }
