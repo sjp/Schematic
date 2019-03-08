@@ -144,5 +144,105 @@ namespace SJP.Schematic.DataAccess.Poco.Tests
 
             Assert.Throws<ArgumentException>(() => generator.Generate(mockFs, projectPath, "test"));
         }
+
+        [Test]
+        public static void GenerateAsync_GivenNullFileSystem_ThrowsArgumentNullException()
+        {
+            var database = Mock.Of<IRelationalDatabase>();
+            var commentProvider = new EmptyRelationalDatabaseCommentProvider();
+            var nameTranslator = new VerbatimNameTranslator();
+            var generator = new PocoDataAccessGenerator(database, commentProvider, nameTranslator);
+            var projectPath = Path.Combine(Environment.CurrentDirectory, "DataAccessGeneratorTest.csproj");
+
+            Assert.Throws<ArgumentNullException>(() => generator.GenerateAsync(null, projectPath, "test"));
+        }
+
+        [Test]
+        public static void GenerateAsync_GivenNullProjectPath_ThrowsArgumentNullException()
+        {
+            var database = Mock.Of<IRelationalDatabase>();
+            var commentProvider = new EmptyRelationalDatabaseCommentProvider();
+            var nameTranslator = new VerbatimNameTranslator();
+            var generator = new PocoDataAccessGenerator(database, commentProvider, nameTranslator);
+            var mockFs = new MockFileSystem();
+
+            Assert.Throws<ArgumentNullException>(() => generator.GenerateAsync(mockFs, null, "test"));
+        }
+
+        [Test]
+        public static void GenerateAsync_GivenEmptyProjectPath_ThrowsArgumentNullException()
+        {
+            var database = Mock.Of<IRelationalDatabase>();
+            var commentProvider = new EmptyRelationalDatabaseCommentProvider();
+            var nameTranslator = new VerbatimNameTranslator();
+            var generator = new PocoDataAccessGenerator(database, commentProvider, nameTranslator);
+            var mockFs = new MockFileSystem();
+
+            Assert.Throws<ArgumentNullException>(() => generator.GenerateAsync(mockFs, string.Empty, "test"));
+        }
+
+        [Test]
+        public static void GenerateAsync_GivenWhiteSpaceProjectPath_ThrowsArgumentNullException()
+        {
+            var database = Mock.Of<IRelationalDatabase>();
+            var commentProvider = new EmptyRelationalDatabaseCommentProvider();
+            var nameTranslator = new VerbatimNameTranslator();
+            var generator = new PocoDataAccessGenerator(database, commentProvider, nameTranslator);
+            var mockFs = new MockFileSystem();
+
+            Assert.Throws<ArgumentNullException>(() => generator.GenerateAsync(mockFs, "    ", "test"));
+        }
+
+        [Test]
+        public static void GenerateAsync_GivenNullNamespace_ThrowsArgumentNullException()
+        {
+            var database = Mock.Of<IRelationalDatabase>();
+            var commentProvider = new EmptyRelationalDatabaseCommentProvider();
+            var nameTranslator = new VerbatimNameTranslator();
+            var generator = new PocoDataAccessGenerator(database, commentProvider, nameTranslator);
+            var mockFs = new MockFileSystem();
+            var projectPath = Path.Combine(Environment.CurrentDirectory, "DataAccessGeneratorTest.csproj");
+
+            Assert.Throws<ArgumentNullException>(() => generator.GenerateAsync(mockFs, projectPath, null));
+        }
+
+        [Test]
+        public static void GenerateAsync_GivenEmptyNamespace_ThrowsArgumentNullException()
+        {
+            var database = Mock.Of<IRelationalDatabase>();
+            var commentProvider = new EmptyRelationalDatabaseCommentProvider();
+            var nameTranslator = new VerbatimNameTranslator();
+            var generator = new PocoDataAccessGenerator(database, commentProvider, nameTranslator);
+            var mockFs = new MockFileSystem();
+            var projectPath = Path.Combine(Environment.CurrentDirectory, "DataAccessGeneratorTest.csproj");
+
+            Assert.Throws<ArgumentNullException>(() => generator.GenerateAsync(mockFs, projectPath, string.Empty));
+        }
+
+        [Test]
+        public static void GenerateAsync_GivenWhiteSpaceNamespace_ThrowsArgumentNullException()
+        {
+            var database = Mock.Of<IRelationalDatabase>();
+            var commentProvider = new EmptyRelationalDatabaseCommentProvider();
+            var nameTranslator = new VerbatimNameTranslator();
+            var generator = new PocoDataAccessGenerator(database, commentProvider, nameTranslator);
+            var mockFs = new MockFileSystem();
+            var projectPath = Path.Combine(Environment.CurrentDirectory, "DataAccessGeneratorTest.csproj");
+
+            Assert.Throws<ArgumentNullException>(() => generator.GenerateAsync(mockFs, projectPath, "    "));
+        }
+
+        [Test]
+        public static void GenerateAsync_GivenProjectPathNotACsproj_ThrowsArgumentException()
+        {
+            var database = Mock.Of<IRelationalDatabase>();
+            var commentProvider = new EmptyRelationalDatabaseCommentProvider();
+            var nameTranslator = new VerbatimNameTranslator();
+            var generator = new PocoDataAccessGenerator(database, commentProvider, nameTranslator);
+            var mockFs = new MockFileSystem();
+            var projectPath = Path.Combine(Environment.CurrentDirectory, "DataAccessGeneratorTest.vbproj");
+
+            Assert.Throws<ArgumentException>(() => generator.GenerateAsync(mockFs, projectPath, "test"));
+        }
     }
 }

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.IO.Abstractions;
 using System.Threading;
+using System.Threading.Tasks;
 using LanguageExt;
 using SJP.Schematic.Core;
 using SJP.Schematic.Core.Comments;
@@ -45,6 +46,10 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore
             if (!string.Equals(projectFileInfo.Extension, ".csproj", StringComparison.OrdinalIgnoreCase))
                 throw new ArgumentException("The given path to a project must be a csproj file.", nameof(projectPath));
 
+            var tables = Database.GetAllTables(CancellationToken.None).GetAwaiter().GetResult();
+            var sequences = Database.GetAllSequences(CancellationToken.None).GetAwaiter().GetResult();
+            var comments = CommentProvider.GetAllTableComments(CancellationToken.None).GetAwaiter().GetResult();
+
             if (projectFileInfo.Exists)
                 projectFileInfo.Delete();
 
@@ -53,11 +58,8 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore
 
             fileSystem.File.WriteAllText(projectPath, ProjectDefinition);
 
-            var dbContextGenerator = new EFCoreDbContextBuilder(Database, NameTranslator, baseNamespace);
+            var dbContextGenerator = new EFCoreDbContextBuilder(NameTranslator, baseNamespace);
             var tableGenerator = new EFCoreTableGenerator(NameTranslator, baseNamespace, Indent);
-
-            var tables = Database.GetAllTables(CancellationToken.None).GetAwaiter().GetResult();
-            var comments = CommentProvider.GetAllTableComments(CancellationToken.None).GetAwaiter().GetResult();
 
             var commentsLookup = new Dictionary<Identifier, IRelationalDatabaseTableComments>();
             foreach (var comment in comments)
@@ -81,7 +83,69 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore
                 fileSystem.File.WriteAllText(tablePath.FullName, tableClass);
             }
 
-            var dbContextText = dbContextGenerator.Generate();
+            var dbContextText = dbContextGenerator.Generate(tables, sequences);
+            var dbContextPath = Path.Combine(projectFileInfo.Directory.FullName, "AppContext.cs");
+
+            fileSystem.File.WriteAllText(dbContextPath, dbContextText);
+        }
+
+        public Task GenerateAsync(IFileSystem fileSystem, string projectPath, string baseNamespace, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            if (fileSystem == null)
+                throw new ArgumentNullException(nameof(fileSystem));
+            if (projectPath.IsNullOrWhiteSpace())
+                throw new ArgumentNullException(nameof(projectPath));
+            if (baseNamespace.IsNullOrWhiteSpace())
+                throw new ArgumentNullException(nameof(baseNamespace));
+
+            var projectFileInfo = fileSystem.FileInfo.FromFileName(projectPath);
+            if (!string.Equals(projectFileInfo.Extension, ".csproj", StringComparison.OrdinalIgnoreCase))
+                throw new ArgumentException("The given path to a project must be a csproj file.", nameof(projectPath));
+
+            return GenerateAsyncCore(fileSystem, projectPath, baseNamespace, cancellationToken);
+        }
+
+        private async Task GenerateAsyncCore(IFileSystem fileSystem, string projectPath, string baseNamespace, CancellationToken cancellationToken)
+        {
+            var projectFileInfo = fileSystem.FileInfo.FromFileName(projectPath);
+            if (projectFileInfo.Exists)
+                projectFileInfo.Delete();
+
+            if (!projectFileInfo.Directory.Exists)
+                projectFileInfo.Directory.Create();
+
+            fileSystem.File.WriteAllText(projectPath, ProjectDefinition);
+
+            var dbContextGenerator = new EFCoreDbContextBuilder(NameTranslator, baseNamespace);
+            var tableGenerator = new EFCoreTableGenerator(NameTranslator, baseNamespace, Indent);
+
+            var tables = await Database.GetAllTables(cancellationToken).ConfigureAwait(false);
+            var sequences = await Database.GetAllSequences(cancellationToken).ConfigureAwait(false);
+            var comments = await CommentProvider.GetAllTableComments(cancellationToken).ConfigureAwait(false);
+
+            var commentsLookup = new Dictionary<Identifier, IRelationalDatabaseTableComments>();
+            foreach (var comment in comments)
+                commentsLookup[comment.TableName] = comment;
+
+            foreach (var table in tables)
+            {
+                var tableComment = commentsLookup.ContainsKey(table.Name)
+                    ? Option<IRelationalDatabaseTableComments>.Some(commentsLookup[table.Name])
+                    : Option<IRelationalDatabaseTableComments>.None;
+
+                var tableClass = tableGenerator.Generate(table, tableComment);
+                var tablePath = tableGenerator.GetFilePath(projectFileInfo.Directory, table.Name);
+
+                if (!tablePath.Directory.Exists)
+                    tablePath.Directory.Create();
+
+                if (tablePath.Exists)
+                    tablePath.Delete();
+
+                fileSystem.File.WriteAllText(tablePath.FullName, tableClass);
+            }
+
+            var dbContextText = dbContextGenerator.Generate(tables, sequences);
             var dbContextPath = Path.Combine(projectFileInfo.Directory.FullName, "AppContext.cs");
 
             fileSystem.File.WriteAllText(dbContextPath, dbContextText);

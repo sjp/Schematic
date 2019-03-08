@@ -34,8 +34,8 @@ namespace SJP.Schematic.DataAccess.Poco.Tests.Integration
         [OneTimeTearDown]
         public async Task CleanUp()
         {
-            await Connection.ExecuteAsync("drop table test_table_1");
-            await Connection.ExecuteAsync("drop table test_table_2");
+            await Connection.ExecuteAsync("drop table test_table_1").ConfigureAwait(false);
+            await Connection.ExecuteAsync("drop table test_table_2").ConfigureAwait(false);
         }
 
         [Test]

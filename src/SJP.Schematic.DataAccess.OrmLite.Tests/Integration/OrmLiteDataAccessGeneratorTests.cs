@@ -82,6 +82,43 @@ select
             });
         }
 
+        [Test]
+        public async Task GenerateAsync_GivenDatabaseWithTablesAndViews_GeneratesFilesInExpectedLocations()
+        {
+            var nameTranslator = new PascalCaseNameTranslator();
+            var generator = new OrmLiteDataAccessGenerator(Database, new EmptyRelationalDatabaseCommentProvider(), nameTranslator);
+
+            var testProjectDir = Path.Combine(Environment.CurrentDirectory, "OrmLiteTestAsync");
+
+            var projectPath = Path.Combine(testProjectDir, "DataAccessGeneratorTest.csproj");
+            var tablesDir = Path.Combine(testProjectDir, "Tables");
+            var viewsDir = Path.Combine(testProjectDir, "Views");
+
+            var expectedTable1Path = Path.Combine(tablesDir, "Main", "ViewTestTable1.cs");
+            var expectedView1Path = Path.Combine(viewsDir, "Main", "TestView1.cs");
+            var expectedView2Path = Path.Combine(viewsDir, "Main", "TestView2.cs");
+
+            var mockFs = new MockFileSystem(new Dictionary<string, MockFileData>
+            {
+                [testProjectDir + "\\"] = new MockDirectoryData(),
+                [expectedTable1Path] = MockFileData.NullObject,
+                [expectedView1Path] = MockFileData.NullObject,
+                [expectedView2Path] = MockFileData.NullObject
+            });
+
+            await generator.GenerateAsync(mockFs, projectPath, TestNamespace).ConfigureAwait(false);
+
+            Assert.Multiple(() =>
+            {
+                Assert.IsTrue(mockFs.FileExists(projectPath));
+                Assert.IsTrue(mockFs.Directory.Exists(tablesDir));
+                Assert.IsTrue(mockFs.Directory.Exists(viewsDir));
+                Assert.IsTrue(mockFs.FileExists(expectedTable1Path));
+                Assert.IsTrue(mockFs.FileExists(expectedView1Path));
+                Assert.IsTrue(mockFs.FileExists(expectedView2Path));
+            });
+        }
+
         private const string TestNamespace = "OrmLiteTestNamespace";
     }
 }

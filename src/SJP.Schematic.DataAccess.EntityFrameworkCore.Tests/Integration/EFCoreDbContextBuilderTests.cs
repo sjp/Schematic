@@ -10,7 +10,7 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore.Tests.Integration
     {
         private IRelationalDatabase Database => new SqliteRelationalDatabase(Dialect, Connection, IdentifierDefaults);
 
-        private EFCoreDbContextBuilder Builder => new EFCoreDbContextBuilder(Database, new PascalCaseNameTranslator(), "EFCoreTestNamespace");
+        private EFCoreDbContextBuilder Builder => new EFCoreDbContextBuilder(new PascalCaseNameTranslator(), "EFCoreTestNamespace");
 
         [OneTimeSetUp]
         public async Task Init()
@@ -86,12 +86,14 @@ create table test_table_4 (
         }
 
         [Test]
-        public void ToString_GivenVariousTablesWithAnnotationsRequired_GeneratesExpectedOutput()
+        public async Task ToString_GivenVariousTablesWithAnnotationsRequired_GeneratesExpectedOutput()
         {
             var builder = Builder;
+            var tables = await Database.GetAllTables().ConfigureAwait(false);
+            var sequences = await Database.GetAllSequences().ConfigureAwait(false);
 
             var expected = TestAppContextOutput;
-            var result = builder.Generate();
+            var result = builder.Generate(tables, sequences);
 
             Assert.AreEqual(expected, result);
         }

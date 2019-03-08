@@ -65,6 +65,38 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore.Tests.Integration
             });
         }
 
+        [Test]
+        public async Task GenerateAsync_GivenDatabaseWithTables_GeneratesFilesInExpectedLocations()
+        {
+            var nameTranslator = new PascalCaseNameTranslator();
+            var generator = new EFCoreDataAccessGenerator(Database, new EmptyRelationalDatabaseCommentProvider(), nameTranslator);
+
+            var testProjectDir = Path.Combine(Environment.CurrentDirectory, "EntityFrameworkTestAsync");
+
+            var projectPath = Path.Combine(testProjectDir, "DataAccessGeneratorTest.csproj");
+            var tablesDir = Path.Combine(testProjectDir, "Tables");
+
+            var expectedAppContextPath = Path.Combine(testProjectDir, "AppContext.cs");
+            var expectedTable1Path = Path.Combine(tablesDir, "Main", "DalTestTable1.cs");
+
+            var mockFs = new MockFileSystem(new Dictionary<string, MockFileData>
+            {
+                [testProjectDir + "\\"] = new MockDirectoryData(),
+                [expectedAppContextPath] = MockFileData.NullObject,
+                [expectedTable1Path] = MockFileData.NullObject
+            });
+
+            await generator.GenerateAsync(mockFs, projectPath, TestNamespace).ConfigureAwait(false);
+
+            Assert.Multiple(() =>
+            {
+                Assert.IsTrue(mockFs.FileExists(projectPath));
+                Assert.IsTrue(mockFs.FileExists(expectedAppContextPath));
+                Assert.IsTrue(mockFs.Directory.Exists(tablesDir));
+                Assert.IsTrue(mockFs.FileExists(expectedTable1Path));
+            });
+        }
+
         private const string TestNamespace = "OrmLiteTestNamespace";
     }
 }

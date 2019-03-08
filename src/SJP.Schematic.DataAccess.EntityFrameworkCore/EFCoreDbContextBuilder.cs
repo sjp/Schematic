@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Security;
 using System.Text;
 using System.Threading;
@@ -11,18 +12,15 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore
 {
     public class EFCoreDbContextBuilder
     {
-        public EFCoreDbContextBuilder(IRelationalDatabase database, INameTranslator nameTranslator, string baseNamespace, string indent = "    ")
+        public EFCoreDbContextBuilder(INameTranslator nameTranslator, string baseNamespace, string indent = "    ")
         {
             if (baseNamespace.IsNullOrWhiteSpace())
                 throw new ArgumentNullException(nameof(baseNamespace));
 
-            Database = database ?? throw new ArgumentNullException(nameof(database));
             NameTranslator = nameTranslator ?? throw new ArgumentNullException(nameof(nameTranslator));
             Namespace = baseNamespace;
             Indent = indent ?? throw new ArgumentNullException(nameof(indent));
         }
-
-        protected IRelationalDatabase Database { get; }
 
         protected INameTranslator NameTranslator { get; }
 
@@ -30,8 +28,13 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore
 
         protected string Indent { get; }
 
-        public string Generate()
+        public string Generate(IEnumerable<IRelationalDatabaseTable> tables, IEnumerable<IDatabaseSequence> sequences)
         {
+            if (tables == null)
+                throw new ArgumentNullException(nameof(tables));
+            if (sequences == null)
+                throw new ArgumentNullException(nameof(sequences));
+
             var builder = new StringBuilder();
 
             builder
@@ -51,7 +54,6 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore
             var modelBuilder = new EFCoreModelBuilder(NameTranslator, contextIndent, Indent);
 
             var missingFirstLine = true;
-            var tables = Database.GetAllTables(CancellationToken.None).GetAwaiter().GetResult();
             foreach (var table in tables)
             {
                 if (!missingFirstLine)
@@ -82,7 +84,6 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore
                 modelBuilder.AddTable(table);
             }
 
-            var sequences = Database.GetAllSequences(CancellationToken.None).GetAwaiter().GetResult();
             foreach (var sequence in sequences)
             {
                 modelBuilder.AddSequence(sequence);
