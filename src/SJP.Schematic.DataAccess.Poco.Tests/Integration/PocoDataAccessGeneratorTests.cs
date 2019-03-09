@@ -48,10 +48,6 @@ select
         [Test]
         public void Generate_GivenDatabaseWithTablesAndViews_GeneratesFilesInExpectedLocations()
         {
-            var nameTranslator = new PascalCaseNameTranslator();
-            var commentProvider = new EmptyRelationalDatabaseCommentProvider();
-            var generator = new PocoDataAccessGenerator(Database, commentProvider, nameTranslator);
-
             var testProjectDir = Path.Combine(Environment.CurrentDirectory, "PocoTest");
 
             var projectPath = Path.Combine(testProjectDir, "DataAccessGeneratorTest.csproj");
@@ -70,7 +66,10 @@ select
                 [expectedView2Path] = MockFileData.NullObject
             });
 
-            generator.Generate(mockFs, projectPath, TestNamespace);
+            var nameTranslator = new PascalCaseNameTranslator();
+            var commentProvider = new EmptyRelationalDatabaseCommentProvider();
+            var generator = new PocoDataAccessGenerator(mockFs, Database, commentProvider, nameTranslator);
+            generator.Generate(projectPath, TestNamespace);
 
             Assert.Multiple(() =>
             {
@@ -86,10 +85,6 @@ select
         [Test]
         public async Task GenerateAsync_GivenDatabaseWithTablesAndViews_GeneratesFilesInExpectedLocations()
         {
-            var nameTranslator = new PascalCaseNameTranslator();
-            var commentProvider = new EmptyRelationalDatabaseCommentProvider();
-            var generator = new PocoDataAccessGenerator(Database, commentProvider, nameTranslator);
-
             var testProjectDir = Path.Combine(Environment.CurrentDirectory, "PocoTestAsync");
 
             var projectPath = Path.Combine(testProjectDir, "DataAccessGeneratorTest.csproj");
@@ -108,7 +103,10 @@ select
                 [expectedView2Path] = MockFileData.NullObject
             });
 
-            await generator.GenerateAsync(mockFs, projectPath, TestNamespace).ConfigureAwait(false);
+            var nameTranslator = new PascalCaseNameTranslator();
+            var commentProvider = new EmptyRelationalDatabaseCommentProvider();
+            var generator = new PocoDataAccessGenerator(mockFs, Database, commentProvider, nameTranslator);
+            await generator.GenerateAsync(projectPath, TestNamespace).ConfigureAwait(false);
 
             Assert.Multiple(() =>
             {

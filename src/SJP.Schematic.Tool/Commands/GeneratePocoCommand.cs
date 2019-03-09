@@ -48,9 +48,9 @@ namespace SJP.Schematic.Tool
                 var database = dialect.GetRelationalDatabaseAsync().GetAwaiter().GetResult();
                 var commentProvider = dialect.GetRelationalDatabaseCommentProviderAsync().GetAwaiter().GetResult();
 
-                var generator = new PocoDataAccessGenerator(database, commentProvider, nameProvider);
                 var fileSystem = new FileSystem();
-                generator.Generate(fileSystem, GenerateParent.ProjectPath, GenerateParent.BaseNamespace);
+                var generator = new PocoDataAccessGenerator(fileSystem, database, commentProvider, nameProvider);
+                generator.Generate(GenerateParent.ProjectPath, GenerateParent.BaseNamespace);
 
                 var dirName = Path.GetDirectoryName(GenerateParent.ProjectPath);
                 application.Out.WriteLine("The OrmLite project has been exported to: " + dirName);

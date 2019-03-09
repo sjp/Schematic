@@ -14,16 +14,20 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore
     public class EFCoreDataAccessGenerator : IDataAccessGenerator
     {
         public EFCoreDataAccessGenerator(
+            IFileSystem fileSystem,
             IRelationalDatabase database,
             IRelationalDatabaseCommentProvider commentProvider,
             INameTranslator nameTranslator,
             string indent = "    ")
         {
+            FileSystem = fileSystem ?? throw new ArgumentNullException(nameof(fileSystem));
             Database = database ?? throw new ArgumentNullException(nameof(database));
             CommentProvider = commentProvider ?? throw new ArgumentNullException(nameof(commentProvider));
             NameTranslator = nameTranslator ?? throw new ArgumentNullException(nameof(nameTranslator));
             Indent = indent ?? throw new ArgumentNullException(nameof(indent));
         }
+
+        protected IFileSystem FileSystem { get; }
 
         protected IRelationalDatabase Database { get; }
 
@@ -33,16 +37,14 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore
 
         protected string Indent { get; }
 
-        public void Generate(IFileSystem fileSystem, string projectPath, string baseNamespace)
+        public void Generate(string projectPath, string baseNamespace)
         {
-            if (fileSystem == null)
-                throw new ArgumentNullException(nameof(fileSystem));
             if (projectPath.IsNullOrWhiteSpace())
                 throw new ArgumentNullException(nameof(projectPath));
             if (baseNamespace.IsNullOrWhiteSpace())
                 throw new ArgumentNullException(nameof(baseNamespace));
 
-            var projectFileInfo = fileSystem.FileInfo.FromFileName(projectPath);
+            var projectFileInfo = FileSystem.FileInfo.FromFileName(projectPath);
             if (!string.Equals(projectFileInfo.Extension, ".csproj", StringComparison.OrdinalIgnoreCase))
                 throw new ArgumentException("The given path to a project must be a csproj file.", nameof(projectPath));
 
@@ -56,7 +58,7 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore
             if (!projectFileInfo.Directory.Exists)
                 projectFileInfo.Directory.Create();
 
-            fileSystem.File.WriteAllText(projectPath, ProjectDefinition);
+            FileSystem.File.WriteAllText(projectPath, ProjectDefinition);
 
             var dbContextGenerator = new EFCoreDbContextBuilder(NameTranslator, baseNamespace);
             var tableGenerator = new EFCoreTableGenerator(NameTranslator, baseNamespace, Indent);
@@ -80,41 +82,39 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore
                 if (tablePath.Exists)
                     tablePath.Delete();
 
-                fileSystem.File.WriteAllText(tablePath.FullName, tableClass);
+                FileSystem.File.WriteAllText(tablePath.FullName, tableClass);
             }
 
             var dbContextText = dbContextGenerator.Generate(tables, sequences);
             var dbContextPath = Path.Combine(projectFileInfo.Directory.FullName, "AppContext.cs");
 
-            fileSystem.File.WriteAllText(dbContextPath, dbContextText);
+            FileSystem.File.WriteAllText(dbContextPath, dbContextText);
         }
 
-        public Task GenerateAsync(IFileSystem fileSystem, string projectPath, string baseNamespace, CancellationToken cancellationToken = default(CancellationToken))
+        public Task GenerateAsync(string projectPath, string baseNamespace, CancellationToken cancellationToken = default(CancellationToken))
         {
-            if (fileSystem == null)
-                throw new ArgumentNullException(nameof(fileSystem));
             if (projectPath.IsNullOrWhiteSpace())
                 throw new ArgumentNullException(nameof(projectPath));
             if (baseNamespace.IsNullOrWhiteSpace())
                 throw new ArgumentNullException(nameof(baseNamespace));
 
-            var projectFileInfo = fileSystem.FileInfo.FromFileName(projectPath);
+            var projectFileInfo = FileSystem.FileInfo.FromFileName(projectPath);
             if (!string.Equals(projectFileInfo.Extension, ".csproj", StringComparison.OrdinalIgnoreCase))
                 throw new ArgumentException("The given path to a project must be a csproj file.", nameof(projectPath));
 
-            return GenerateAsyncCore(fileSystem, projectPath, baseNamespace, cancellationToken);
+            return GenerateAsyncCore(projectPath, baseNamespace, cancellationToken);
         }
 
-        private async Task GenerateAsyncCore(IFileSystem fileSystem, string projectPath, string baseNamespace, CancellationToken cancellationToken)
+        private async Task GenerateAsyncCore(string projectPath, string baseNamespace, CancellationToken cancellationToken)
         {
-            var projectFileInfo = fileSystem.FileInfo.FromFileName(projectPath);
+            var projectFileInfo = FileSystem.FileInfo.FromFileName(projectPath);
             if (projectFileInfo.Exists)
                 projectFileInfo.Delete();
 
             if (!projectFileInfo.Directory.Exists)
                 projectFileInfo.Directory.Create();
 
-            fileSystem.File.WriteAllText(projectPath, ProjectDefinition);
+            FileSystem.File.WriteAllText(projectPath, ProjectDefinition);
 
             var dbContextGenerator = new EFCoreDbContextBuilder(NameTranslator, baseNamespace);
             var tableGenerator = new EFCoreTableGenerator(NameTranslator, baseNamespace, Indent);
@@ -142,13 +142,13 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore
                 if (tablePath.Exists)
                     tablePath.Delete();
 
-                fileSystem.File.WriteAllText(tablePath.FullName, tableClass);
+                FileSystem.File.WriteAllText(tablePath.FullName, tableClass);
             }
 
             var dbContextText = dbContextGenerator.Generate(tables, sequences);
             var dbContextPath = Path.Combine(projectFileInfo.Directory.FullName, "AppContext.cs");
 
-            fileSystem.File.WriteAllText(dbContextPath, dbContextText);
+            FileSystem.File.WriteAllText(dbContextPath, dbContextText);
         }
 
         protected const string ProjectDefinition = @"<Project Sdk=""Microsoft.NET.Sdk"">

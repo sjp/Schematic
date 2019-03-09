@@ -36,9 +36,6 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore.Tests.Integration
         [Test]
         public void Generate_GivenDatabaseWithTables_GeneratesFilesInExpectedLocations()
         {
-            var nameTranslator = new PascalCaseNameTranslator();
-            var generator = new EFCoreDataAccessGenerator(Database, new EmptyRelationalDatabaseCommentProvider(), nameTranslator);
-
             var testProjectDir = Path.Combine(Environment.CurrentDirectory, "EntityFrameworkTest");
 
             var projectPath = Path.Combine(testProjectDir, "DataAccessGeneratorTest.csproj");
@@ -54,7 +51,9 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore.Tests.Integration
                 [expectedTable1Path] = MockFileData.NullObject
             });
 
-            generator.Generate(mockFs, projectPath, TestNamespace);
+            var nameTranslator = new PascalCaseNameTranslator();
+            var generator = new EFCoreDataAccessGenerator(mockFs, Database, new EmptyRelationalDatabaseCommentProvider(), nameTranslator);
+            generator.Generate(projectPath, TestNamespace);
 
             Assert.Multiple(() =>
             {
@@ -68,9 +67,6 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore.Tests.Integration
         [Test]
         public async Task GenerateAsync_GivenDatabaseWithTables_GeneratesFilesInExpectedLocations()
         {
-            var nameTranslator = new PascalCaseNameTranslator();
-            var generator = new EFCoreDataAccessGenerator(Database, new EmptyRelationalDatabaseCommentProvider(), nameTranslator);
-
             var testProjectDir = Path.Combine(Environment.CurrentDirectory, "EntityFrameworkTestAsync");
 
             var projectPath = Path.Combine(testProjectDir, "DataAccessGeneratorTest.csproj");
@@ -86,7 +82,9 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore.Tests.Integration
                 [expectedTable1Path] = MockFileData.NullObject
             });
 
-            await generator.GenerateAsync(mockFs, projectPath, TestNamespace).ConfigureAwait(false);
+            var nameTranslator = new PascalCaseNameTranslator();
+            var generator = new EFCoreDataAccessGenerator(mockFs, Database, new EmptyRelationalDatabaseCommentProvider(), nameTranslator);
+            await generator.GenerateAsync(projectPath, TestNamespace).ConfigureAwait(false);
 
             Assert.Multiple(() =>
             {

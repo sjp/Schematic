@@ -48,9 +48,6 @@ select
         [Test]
         public void Generate_GivenDatabaseWithTablesAndViews_GeneratesFilesInExpectedLocations()
         {
-            var nameTranslator = new PascalCaseNameTranslator();
-            var generator = new OrmLiteDataAccessGenerator(Database, new EmptyRelationalDatabaseCommentProvider(), nameTranslator);
-
             var testProjectDir = Path.Combine(Environment.CurrentDirectory, "OrmLiteTest");
 
             var projectPath = Path.Combine(testProjectDir, "DataAccessGeneratorTest.csproj");
@@ -69,7 +66,9 @@ select
                 [expectedView2Path] = MockFileData.NullObject
             });
 
-            generator.Generate(mockFs, projectPath, TestNamespace);
+            var nameTranslator = new PascalCaseNameTranslator();
+            var generator = new OrmLiteDataAccessGenerator(mockFs, Database, new EmptyRelationalDatabaseCommentProvider(), nameTranslator);
+            generator.Generate(projectPath, TestNamespace);
 
             Assert.Multiple(() =>
             {
@@ -85,9 +84,6 @@ select
         [Test]
         public async Task GenerateAsync_GivenDatabaseWithTablesAndViews_GeneratesFilesInExpectedLocations()
         {
-            var nameTranslator = new PascalCaseNameTranslator();
-            var generator = new OrmLiteDataAccessGenerator(Database, new EmptyRelationalDatabaseCommentProvider(), nameTranslator);
-
             var testProjectDir = Path.Combine(Environment.CurrentDirectory, "OrmLiteTestAsync");
 
             var projectPath = Path.Combine(testProjectDir, "DataAccessGeneratorTest.csproj");
@@ -106,7 +102,9 @@ select
                 [expectedView2Path] = MockFileData.NullObject
             });
 
-            await generator.GenerateAsync(mockFs, projectPath, TestNamespace).ConfigureAwait(false);
+            var nameTranslator = new PascalCaseNameTranslator();
+            var generator = new OrmLiteDataAccessGenerator(mockFs, Database, new EmptyRelationalDatabaseCommentProvider(), nameTranslator);
+            await generator.GenerateAsync(projectPath, TestNamespace).ConfigureAwait(false);
 
             Assert.Multiple(() =>
             {
