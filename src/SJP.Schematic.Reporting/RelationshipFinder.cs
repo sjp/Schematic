@@ -2,38 +2,37 @@
 using System.Collections.Generic;
 using SJP.Schematic.Core;
 using SJP.Schematic.Core.Extensions;
-using System.Threading.Tasks;
-using System.Threading;
 
 namespace SJP.Schematic.Reporting
 {
     internal sealed class RelationshipFinder
     {
-        public RelationshipFinder(IRelationalDatabase database)
+        public RelationshipFinder(IEnumerable<IRelationalDatabaseTable> tables)
         {
-            Database = database ?? throw new ArgumentNullException(nameof(database));
+            if (tables == null)
+                throw new ArgumentNullException(nameof(tables));
+
+            var tableLookup = new Dictionary<Identifier, IRelationalDatabaseTable>();
+            foreach (var table in tables)
+                tableLookup[table.Name] = table;
+
+            Tables = tableLookup;
         }
 
-        private IRelationalDatabase Database { get; }
+        private IReadOnlyDictionary<Identifier, IRelationalDatabaseTable> Tables { get; }
 
-        public Task<IEnumerable<IRelationalDatabaseTable>> GetTablesByDegreesAsync(IRelationalDatabaseTable table, uint degrees, CancellationToken cancellationToken)
+        public IEnumerable<IRelationalDatabaseTable> GetTablesByDegrees(IRelationalDatabaseTable table, uint degrees)
         {
             if (table == null)
                 throw new ArgumentNullException(nameof(table));
 
-            return GetTablesByDegreesCore(table, degrees, cancellationToken);
-        }
-
-        private async Task<IEnumerable<IRelationalDatabaseTable>> GetTablesByDegreesCore(IRelationalDatabaseTable table, uint degrees, CancellationToken cancellationToken)
-        {
             var result = new Dictionary<Identifier, IRelationalDatabaseTable> { [table.Name] = table };
-
-            await AddRelatedTablesAsync(result, new[] { table }, degrees, cancellationToken).ConfigureAwait(false);
+            AddRelatedTables(result, new[] { table }, degrees);
 
             return result.Values;
         }
 
-        private async Task AddRelatedTablesAsync(IDictionary<Identifier, IRelationalDatabaseTable> tableLookup, IEnumerable<IRelationalDatabaseTable> tables, uint degree, CancellationToken cancellationToken)
+        private void AddRelatedTables(IDictionary<Identifier, IRelationalDatabaseTable> tableLookup, IEnumerable<IRelationalDatabaseTable> tables, uint degree)
         {
             if (tables.Empty() || degree == 0)
                 return;
@@ -52,8 +51,8 @@ namespace SJP.Schematic.Reporting
                     if (!isNewTable)
                         continue;
 
-                    var childTable = Database.GetTable(childTableName, cancellationToken);
-                    await childTable.IfSome(t => addedTables[childTableName] = t).ConfigureAwait(false);
+                    if (Tables.TryGetValue(childTableName, out var childTable))
+                        addedTables[childTableName] = childTable;
                 }
 
                 foreach (var parentKey in parentKeys)
@@ -63,8 +62,8 @@ namespace SJP.Schematic.Reporting
                     if (!isNewTable)
                         continue;
 
-                    var parentTable = Database.GetTable(parentTableName, cancellationToken);
-                    await parentTable.IfSome(t => addedTables[parentTableName] = t).ConfigureAwait(false);
+                    if (Tables.TryGetValue(parentTableName, out var parentTable))
+                        addedTables[parentTableName] = parentTable;
                 }
             }
 
@@ -72,7 +71,7 @@ namespace SJP.Schematic.Reporting
                 tableLookup[addedTable.Key] = addedTable.Value;
 
             var newDegree = degree - 1;
-            await AddRelatedTablesAsync(tableLookup, addedTables.Values, newDegree, cancellationToken).ConfigureAwait(false);
+            AddRelatedTables(tableLookup, addedTables.Values, newDegree);
         }
     }
 }

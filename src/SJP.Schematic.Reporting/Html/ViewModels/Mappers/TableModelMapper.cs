@@ -11,11 +11,17 @@ namespace SJP.Schematic.Reporting.Html.ViewModels.Mappers
 {
     internal sealed class TableModelMapper
     {
-        public TableModelMapper(IDbConnection connection, IRelationalDatabase database, IDatabaseDialect dialect)
+        public TableModelMapper(
+            IDbConnection connection,
+            IRelationalDatabase database,
+            IDatabaseDialect dialect,
+            RelationshipFinder relationship
+        )
         {
             Connection = connection ?? throw new ArgumentNullException(nameof(connection));
             Database = database ?? throw new ArgumentNullException(nameof(database));
             Dialect = dialect ?? throw new ArgumentNullException(nameof(dialect));
+            RelationshipFinder = relationship ?? throw new ArgumentNullException(nameof(relationship));
         }
 
         private IDbConnection Connection { get; }
@@ -23,6 +29,8 @@ namespace SJP.Schematic.Reporting.Html.ViewModels.Mappers
         private IRelationalDatabase Database { get; }
 
         private IDatabaseDialect Dialect { get; }
+
+        private RelationshipFinder RelationshipFinder { get; }
 
         public Task<Table> MapAsync(IRelationalDatabaseTable table, CancellationToken cancellationToken)
         {
@@ -159,9 +167,8 @@ namespace SJP.Schematic.Reporting.Html.ViewModels.Mappers
                     c.Definition
                 )).ToList();
 
-            var relationshipBuilder = new RelationshipFinder(Database);
-            var oneDegreeTables = await relationshipBuilder.GetTablesByDegreesAsync(table, 1, cancellationToken).ConfigureAwait(false);
-            var twoDegreeTables = await relationshipBuilder.GetTablesByDegreesAsync(table, 2, cancellationToken).ConfigureAwait(false);
+            var oneDegreeTables = RelationshipFinder.GetTablesByDegrees(table, 1);
+            var twoDegreeTables = RelationshipFinder.GetTablesByDegrees(table, 2);
 
             var dotFormatter = new DatabaseDotFormatter(Connection, Database.Dialect, Database.IdentifierDefaults);
             var renderOptions = new DotRenderOptions { HighlightedTable = table.Name };

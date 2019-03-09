@@ -49,7 +49,8 @@ namespace SJP.Schematic.Reporting.Html.Renderers
 
         public async Task RenderAsync(CancellationToken cancellationToken = default(CancellationToken))
         {
-            var mapper = new TableModelMapper(Connection, Database, Database.Dialect);
+            var relationshipFinder = new RelationshipFinder(Tables);
+            var mapper = new TableModelMapper(Connection, Database, Database.Dialect, relationshipFinder);
 
             var tableTasks = Tables.Select(async table =>
             {
