@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Security;
 using System.Text;
-using System.Threading;
 using Humanizer;
 using SJP.Schematic.Core;
 using SJP.Schematic.Core.Extensions;
