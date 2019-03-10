@@ -15,6 +15,8 @@
     <RepositoryType>git</RepositoryType>
     <PackageIconUrl>https://raw.github.com/sjp/Schematic/master/database.svg</PackageIconUrl>
     <CheckForOverflowUnderflow>true</CheckForOverflowUnderflow>
+    <IncludeSymbols>true</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
   </PropertyGroup>
 
   <ItemGroup>
