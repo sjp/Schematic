@@ -4,6 +4,17 @@
     <OutputType>Exe</OutputType>
     <TargetFramework>netcoreapp2.1</TargetFramework>
     <AssemblyName>schematic</AssemblyName>
+    <Description>Tool for accessing and running Schematic functionality</Description>
+    <Copyright>Copyright © Simon Potter 2019</Copyright>
+    <RepositoryUrl>https://github.com/sjp/Schematic</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <NeutralLanguage>en-US</NeutralLanguage>
+    <PackageLicenseUrl>https://raw.github.com/sjp/Schematic/master/LICENSE</PackageLicenseUrl>
+    <Authors>Simon Potter</Authors>
+    <Company></Company>
+    <Product />
+    <PackageProjectUrl>https://github.com/sjp/Schematic</PackageProjectUrl>
+    <PackageIconUrl>https://raw.github.com/sjp/Schematic/master/database.svg</PackageIconUrl>
     <IncludeSymbols>true</IncludeSymbols>
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
   </PropertyGroup>
