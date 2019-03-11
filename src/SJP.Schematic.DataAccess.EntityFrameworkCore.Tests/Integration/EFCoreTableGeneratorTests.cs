@@ -129,6 +129,18 @@ create table test_table_7 (
         }
 
         [Test]
+        public async Task Generate_GivenTableWithChildKeys_GeneratesExpectedOutput()
+        {
+            var table = await GetTable("test_table_3").ConfigureAwait(false);
+            var generator = TableGenerator;
+
+            var expected = TestTable3Output;
+            var result = generator.Generate(table, Option<IRelationalDatabaseTableComments>.None);
+
+            Assert.AreEqual(expected, result);
+        }
+
+        [Test]
         public async Task Generate_GivenTableWithForeignKeys_GeneratesExpectedOutput()
         {
             var table = await GetTable("test_table_4").ConfigureAwait(false);
@@ -375,6 +387,97 @@ namespace EFCoreTestNamespace.Main
     }
 }";
 
+        private readonly string TestTable3Output = @"using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+
+namespace EFCoreTestNamespace.Main
+{
+    /// <summary>
+    /// A mapping class to query the <c>test_table_3</c> table.
+    /// </summary>
+    [Table(""test_table_3"", Schema = ""main"")]
+    public class TestTable3
+    {
+        /// <summary>
+        /// The <c>test_pk</c> column.
+        /// </summary>
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+        [Column(""test_pk"", TypeName = ""INTEGER"")]
+        public long TestPk { get; set; }
+
+        /// <summary>
+        /// The <c>test_int</c> column.
+        /// </summary>
+        [Column(""test_int"", TypeName = ""INTEGER"")]
+        public long TestInt { get; set; }
+
+        /// <summary>
+        /// The <c>test_nullable_int</c> column.
+        /// </summary>
+        [Column(""test_nullable_int"", TypeName = ""INTEGER"")]
+        public long? TestNullableInt { get; set; }
+
+        /// <summary>
+        /// The <c>test_numeric</c> column.
+        /// </summary>
+        [Column(""test_numeric"", TypeName = ""NUMERIC"")]
+        public decimal TestNumeric { get; set; }
+
+        /// <summary>
+        /// The <c>test_nullable_numeric</c> column.
+        /// </summary>
+        [Column(""test_nullable_numeric"", TypeName = ""NUMERIC"")]
+        public decimal? TestNullableNumeric { get; set; }
+
+        /// <summary>
+        /// The <c>test_blob</c> column.
+        /// </summary>
+        [Required]
+        [Column(""test_blob"", TypeName = ""BLOB"")]
+        public byte[] TestBlob { get; set; }
+
+        /// <summary>
+        /// The <c>test_datetime</c> column.
+        /// </summary>
+        [Column(""test_datetime"", TypeName = ""NUMERIC"")]
+        public decimal? TestDatetime { get; set; }
+
+        /// <summary>
+        /// The <c>test_string</c> column.
+        /// </summary>
+        [Column(""test_string"", TypeName = ""TEXT"")]
+        public string TestString { get; set; }
+
+        /// <summary>
+        /// The <c>test_string_with_default</c> column.
+        /// </summary>
+        [Column(""test_string_with_default"", TypeName = ""NUMERIC"")]
+        public decimal? TestStringWithDefault { get; set; }
+
+        /// <summary>
+        /// The <c>fk_test_table_4_test_table_3_fk1</c> child key. Navigates from <c>test_table_3</c> to <c>test_table_4</c> entities.
+        /// </summary>
+        public virtual ICollection<main.TestTable4> TestTable4s { get; set; } = new HashSet<main.TestTable4>();
+
+        /// <summary>
+        /// The <c>fk_test_table_4_test_table_3_fk1</c> child key. Navigates from <c>test_table_3</c> to <c>test_table_4</c> entities.
+        /// </summary>
+        public virtual ICollection<main.TestTable4> TestTable4s { get; set; } = new HashSet<main.TestTable4>();
+
+        /// <summary>
+        /// The <c>fk_test_table_4_test_table_3_fk1</c> child key. Navigates from <c>test_table_3</c> to <c>test_table_4</c> entities.
+        /// </summary>
+        public virtual ICollection<main.TestTable4> TestTable4s { get; set; } = new HashSet<main.TestTable4>();
+
+        /// <summary>
+        /// The <c>fk_test_table_4_test_table_3_fk1</c> child key. Navigates from <c>test_table_3</c> to <c>test_table_4</c> entities.
+        /// </summary>
+        public virtual ICollection<main.TestTable4> TestTable4s { get; set; } = new HashSet<main.TestTable4>();
+    }
+}";
+
         private readonly string TestTable4Output = @"using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -471,22 +574,22 @@ namespace EFCoreTestNamespace.Main
         /// <summary>
         /// The <c>fk_test_table_4_test_table_3_fk1</c> foreign key. Navigates from <c>test_table_4</c> to <c>test_table_3</c>.
         /// </summary>
-        public main.TestTable3 TestTable3 { get; set; }
+        public virtual main.TestTable3 TestTable3 { get; set; }
 
         /// <summary>
         /// The <c>fk_test_table_4_test_table_3_fk1</c> foreign key. Navigates from <c>test_table_4</c> to <c>test_table_3</c>.
         /// </summary>
-        public main.TestTable3 TestTable3 { get; set; }
+        public virtual main.TestTable3 TestTable3 { get; set; }
 
         /// <summary>
         /// The <c>fk_test_table_4_test_table_3_fk1</c> foreign key. Navigates from <c>test_table_4</c> to <c>test_table_3</c>.
         /// </summary>
-        public main.TestTable3 TestTable3 { get; set; }
+        public virtual main.TestTable3 TestTable3 { get; set; }
 
         /// <summary>
         /// The <c>fk_test_table_4_test_table_3_fk1</c> foreign key. Navigates from <c>test_table_4</c> to <c>test_table_3</c>.
         /// </summary>
-        public main.TestTable3 TestTable3 { get; set; }
+        public virtual main.TestTable3 TestTable3 { get; set; }
     }
 }";
 
@@ -563,7 +666,7 @@ namespace EFCoreTestNamespace.Main
         /// <summary>
         /// This is a test foreign key comment for EF Core
         /// </summary>
-        public main.TestTable6 TestTable6 { get; set; }
+        public virtual main.TestTable6 TestTable6 { get; set; }
     }
 }";
 
@@ -598,7 +701,7 @@ namespace EFCoreTestNamespace.Main
         /// <para>This is a test foreign key comment for EF Core.</para>
         /// <para>This is a second line for it.</para>
         /// </summary>
-        public main.TestTable6 TestTable6 { get; set; }
+        public virtual main.TestTable6 TestTable6 { get; set; }
     }
 }";
     }

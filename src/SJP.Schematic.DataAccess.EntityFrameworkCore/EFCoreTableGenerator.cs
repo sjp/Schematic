@@ -129,7 +129,7 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore
                 builder.AppendComment(columnIndent, foreignKeyComment);
 
                 builder.Append(columnIndent)
-                    .Append("public ")
+                    .Append("public virtual ")
                     .Append(qualifiedParentName)
                     .Append(" ")
                     .Append(parentClassName)
@@ -155,11 +155,13 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore
                 builder.AppendComment(columnIndent, childKeyComment);
 
                 builder.Append(columnIndent)
-                    .Append("public List<")
+                    .Append("public virtual ICollection<")
                     .Append(qualifiedChildName)
                     .Append("> ")
                     .Append(childSetName)
-                    .AppendLine(" { get; set; }");
+                    .Append(" { get; set; } = new HashSet<")
+                    .Append(qualifiedChildName)
+                    .AppendLine(">();");
             }
 
             builder.Append(Indent)
