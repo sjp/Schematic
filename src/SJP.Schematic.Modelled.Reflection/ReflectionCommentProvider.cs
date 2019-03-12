@@ -162,7 +162,11 @@ namespace SJP.Schematic.Modelled.Reflection
                 return null;
 
             var summaryNode = memberNode.Descendants("summary").FirstOrDefault();
-            return summaryNode?.Value;
+            var summaryText = summaryNode?.Value;
+            if (summaryText == null)
+                return null;
+
+            return XmlCommentsTextHelper.Humanize(summaryText);
         }
 
         /// <summary>

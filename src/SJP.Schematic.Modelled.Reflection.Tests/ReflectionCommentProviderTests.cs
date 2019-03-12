@@ -122,6 +122,21 @@ namespace SJP.Schematic.Modelled.Reflection.Tests
         }
 
         [Test]
+        public static void GetComment_WhenMemberAndSummaryPresentWithCodeElement_ReturnsCorrectSummaryValue()
+        {
+            var type = typeof(ReflectionCommentProvider);
+            var fakeProvider = new FakeReflectionCommentProvider();
+            var identifier = fakeProvider.GetIdentifier(type);
+            const string testSummary = "this is a <c>test</c> comment";
+            const string expecteResultSummary = "this is a test comment";
+            var doc = XDocument.Parse($"<doc><member name=\"{ identifier }\"><summary>{ testSummary }</summary></member></doc>");
+            var provider = new ReflectionCommentProvider(doc);
+            var comment = provider.GetComment(type);
+
+            Assert.AreEqual(expecteResultSummary, comment);
+        }
+
+        [Test]
         public static void GetCommentByIdentifier_GivenPlainType_ReturnsCorrectIdentifier()
         {
             var type = typeof(TestClass);
