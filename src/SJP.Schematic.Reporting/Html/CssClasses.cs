@@ -2,6 +2,6 @@
 {
     internal static class CssClasses
     {
-        internal static string DataTableClass { get; } = "database_objects";
+        internal static string DataTableClass { get; } = "db-objects-table";
     }
 }

@@ -1,17 +1,17 @@
 @using RazorLight
 @using SJP.Schematic.Reporting.Html.ViewModels
-@inherits TemplatePage<Orphans>
+@inherits TemplatePage<Views>
 
 <section class="content-header">
     <div class="container-fluid">
         <div class="row mb-2">
             <div class="col-sm-6">
-                <h1>Orphan Tables</h1>
+                <h1>Views</h1>
             </div>
             <div class="col-sm-6">
                 <ol class="breadcrumb float-sm-right">
                     <li class="breadcrumb-item"><a href="index.html">Home</a></li>
-                    <li class="breadcrumb-item active">Orphan Tables</li>
+                    <li class="breadcrumb-item active">Views</li>
                 </ol>
             </div>
         </div>
@@ -22,40 +22,35 @@
         <div class="col-12">
             <div class="card">
                 <div class="card-header">
-                    <h3 class="card-title"><i class="fa fa-table">&nbsp;&nbsp;</i>Orphan Tables</h3>
-                    <div class="card-tools">
-                        <button type="button" class="btn btn-tool" data-widget="collapse">
-                            <i class="fa fa-minus"></i>
-                        </button>
-                    </div>
+                    <h3 class="card-title"><i class="fa fa-search-plus">&nbsp;&nbsp;</i>Views</h3>
                 </div>
                 <div class="card-body">
-                    <table class="@Raw(Model.TablesTableClass.ToHtmlString()) table table-bordered table-hover" role="grid">
+                    <table class="@Raw(Model.ViewsTableClass.ToHtmlString()) table table-bordered table-hover" role="grid">
                         <thead>
                             <tr>
-                                <th valign="bottom">Table</th>
+                                <th valign="bottom">View</th>
                                 <th align="right" valign="bottom">Columns</th>
                                 <th align="right" valign="bottom">Rows</th>
                             </tr>
                         </thead>
                         <tbody>
-                            @if (Model.TablesCount > 0)
+                            @if (Model.ViewsCount > 0)
                             {
-                                foreach (var table in Model.Tables)
+                                foreach (var view in Model.AllViews)
                                 {
                                     <tr class="tbl even" valign="top">
                                         <td>
-                                            <a href="tables/@(table.TableUrl).html">@table.Name</a>
+                                            <a href="views/@(view.ViewUrl).html">@view.Name</a>
                                         </td>
-                                        <td align="right">@table.ColumnCount</td>
-                                        <td align="right">@table.RowCount</td>
+                                        <td align="right">@view.ColumnCount</td>
+                                        <td align="right">@view.RowCount</td>
                                     </tr>
                                 }
                             }
                             else
                             {
-                                <tr class="tbl even" valign="top">
-                                    <td colspan="3">No orphan tables present.</td>
+                                <tr class="tbl even">
+                                    <td colspan="3">No views present.</td>
                                 </tr>
                             }
                         </tbody>

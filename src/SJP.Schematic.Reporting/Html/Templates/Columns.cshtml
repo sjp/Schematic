@@ -3,51 +3,67 @@
 @inherits TemplatePage<Columns>
 
 <section class="content-header">
-  <h1>Columns</h1>
+    <div class="container-fluid">
+        <div class="row mb-2">
+            <div class="col-sm-6">
+                <h1>Columns</h1>
+            </div>
+            <div class="col-sm-6">
+                <ol class="breadcrumb float-sm-right">
+                    <li class="breadcrumb-item"><a href="index.html">Home</a></li>
+                    <li class="breadcrumb-item active">Columns</li>
+                </ol>
+            </div>
+        </div>
+    </div>
 </section>
 <section class="content">
-  <div class="box box-primary">
-    <div class="box-header with-border">
-      <span class="glyphicon glyphicon-list-alt" aria-hidden="true"></span>
-      <h3 class="box-title">Columns</h3>
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <span class="glyphicon glyphicon-list-alt" aria-hidden="true"></span>
+                    <h3 class="card-title">Columns</h3>
+                </div>
+                <div class="card-body">
+                    <table class="@Raw(Model.ColumnsTableClass.ToHtmlString()) table table-bordered table-hover" role="grid">
+                        <thead align="left">
+                            <tr>
+                                <th>Table</th>
+                                <th>Type</th>
+                                <th>Column</th>
+                                <th>Ordinal Position</th>
+                                <th>Type</th>
+                                <th title="Are nulls allowed?">Nullable</th>
+                                <th title="Default value">Default</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @if (Model.ColumnsCount > 0)
+                            {
+                                foreach (var column in Model.TableColumns)
+                                {
+                                    <tr>
+                                        <td><a href="@column.TableFolder/@(column.TableUrl).html">@column.Name</a></td>
+                                        <td>@column.TableType</td>
+                                        <td @Raw(column.ColumnClass.ToHtmlString())>@Raw(column.ColumnIcon.ToHtmlString())@column.ColumnName</td>
+                                        <td>@column.Ordinal</td>
+                                        <td>@column.Type</td>
+                                        <td title="@column.TitleNullable">@column.NullableText</td>
+                                        <td><code>@column.DefaultValue</code></td>
+                                    </tr>
+                                }
+                            }
+                            else
+                            {
+                                <tr>
+                                    <td colspan="7">No columns present.</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
     </div>
-    <div class="box-body">
-      <table class="@Raw(Model.ColumnsTableClass.ToHtmlString()) table table-bordered table-striped dataTable" role="grid">
-        <thead align="left">
-          <tr>
-            <th>Table</th>
-            <th>Type</th>
-            <th>Column</th>
-            <th>Ordinal Position</th>
-            <th>Type</th>
-            <th title="Are nulls allowed?">Nullable</th>
-            <th title="Default value">Default</th>
-          </tr>
-        </thead>
-        <tbody>
-          @if (Model.ColumnsCount > 0)
-          {
-          foreach (var column in Model.TableColumns)
-          {
-          <tr>
-            <td class="detail"><a href="@column.TableFolder/@(column.TableUrl).html">@column.Name</a></td>
-            <td class="detail">@column.TableType</td>
-            <td @Raw(column.ColumnClass.ToHtmlString())>@Raw(column.ColumnIcon.ToHtmlString())@column.ColumnName</td>
-            <td class="detail">@column.Ordinal</td>
-            <td class="detail">@column.Type</td>
-            <td class="detail" title="@column.TitleNullable">@column.NullableText</td>
-            <td class="detail">@column.DefaultValue</td>
-          </tr>
-          }
-          }
-          else
-          {
-          <tr>
-            <td class="detail" colspan="7">No columns present.</td>
-          </tr>
-          }
-        </tbody>
-      </table>
-    </div>
-  </div>
 </section>

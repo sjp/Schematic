@@ -96,6 +96,12 @@ namespace SJP.Schematic.Reporting.Html.ViewModels.Mappers
             if (targets.Views.ContainsKey(identifier))
                 return new Uri("views/" + identifier.ToSafeKey() + ".html", UriKind.Relative);
 
+            if (targets.Sequences.ContainsKey(identifier))
+                return new Uri("sequences/" + identifier.ToSafeKey() + ".html", UriKind.Relative);
+
+            if (targets.Synonyms.ContainsKey(identifier))
+                return new Uri("synonyms/" + identifier.ToSafeKey() + ".html", UriKind.Relative);
+
             if (targets.Routines.ContainsKey(identifier))
                 return new Uri("routines/" + identifier.ToSafeKey() + ".html", UriKind.Relative);
 
@@ -108,45 +114,6 @@ namespace SJP.Schematic.Reporting.Html.ViewModels.Mappers
                 throw new ArgumentNullException(nameof(routine));
 
             return new Main.Routine(routine.Name);
-        }
-
-        public class SynonymTargets
-        {
-            public SynonymTargets(
-                IReadOnlyCollection<IRelationalDatabaseTable> tables,
-                IReadOnlyCollection<IDatabaseView> views,
-                IReadOnlyCollection<IDatabaseRoutine> routines
-            )
-            {
-                if (tables == null)
-                    throw new ArgumentNullException(nameof(tables));
-                if (views == null)
-                    throw new ArgumentNullException(nameof(views));
-                if (routines == null)
-                    throw new ArgumentNullException(nameof(routines));
-
-                var tableLookup = new Dictionary<Identifier, IRelationalDatabaseTable>();
-                foreach (var table in tables)
-                    tableLookup[table.Name] = table;
-
-                var viewLookup = new Dictionary<Identifier, IDatabaseView>();
-                foreach (var view in views)
-                    viewLookup[view.Name] = view;
-
-                var routineLookup = new Dictionary<Identifier, IDatabaseRoutine>();
-                foreach (var routine in routines)
-                    routineLookup[routine.Name] = routine;
-
-                Tables = tableLookup;
-                Views = viewLookup;
-                Routines = routineLookup;
-            }
-
-            public IReadOnlyDictionary<Identifier, IRelationalDatabaseTable> Tables { get; }
-
-            public IReadOnlyDictionary<Identifier, IDatabaseView> Views { get; }
-
-            public IReadOnlyDictionary<Identifier, IDatabaseRoutine> Routines { get; }
         }
     }
 }

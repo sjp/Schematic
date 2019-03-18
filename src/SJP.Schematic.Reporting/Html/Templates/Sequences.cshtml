@@ -1,0 +1,68 @@
+@using RazorLight
+@using SJP.Schematic.Reporting.Html.ViewModels
+@inherits TemplatePage<Sequences>
+
+<section class="content-header">
+    <div class="container-fluid">
+        <div class="row mb-2">
+            <div class="col-sm-6">
+                <h1>Sequences</h1>
+            </div>
+            <div class="col-sm-6">
+                <ol class="breadcrumb float-sm-right">
+                    <li class="breadcrumb-item"><a href="index.html">Home</a></li>
+                    <li class="breadcrumb-item active">Sequences</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+</section>
+<section class="content">
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title"><i class="fa fa-sort-numeric-asc">&nbsp;&nbsp;</i>Sequences</h3>
+                </div>
+                <div class="card-body">
+                    <table class="@Raw(Model.SequencesTableClass.ToHtmlString()) table table-bordered table-hover" role="grid">
+                        <thead>
+                            <tr>
+                                <th>Sequence</th>
+                                <th>Start</th>
+                                <th>Increment</th>
+                                <th>Minimum Value</th>
+                                <th>Maximum Value</th>
+                                <th>Cache</th>
+                                <th>Cycle</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @if (Model.SequencesCount > 0)
+                            {
+                                foreach (var sequence in Model.AllSequences)
+                                {
+                                    <tr class="tbl even">
+                                        <td><a href="sequences/@(sequence.SequenceUrl).html">@sequence.Name</a></td>
+                                        <td>@sequence.Start</td>
+                                        <td>@sequence.Increment</td>
+                                        <td>@sequence.MinValueText</td>
+                                        <td>@sequence.MaxValueText</td>
+                                        <td>@sequence.Cache</td>
+                                        <td>@sequence.CycleText</td>
+                                    </tr>
+                                }
+                            }
+                            else
+                            {
+                                <tr class="tbl even">
+                                    <td colspan="7">No sequences present.</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>

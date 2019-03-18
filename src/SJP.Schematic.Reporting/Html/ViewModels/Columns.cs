@@ -75,7 +75,7 @@ namespace SJP.Schematic.Reporting.Html.ViewModels
 
             public virtual string DefaultValue { get; }
 
-            public virtual HtmlString ColumnClass => @"class=""detail""";
+            public virtual HtmlString ColumnClass => string.Empty;
 
             public virtual HtmlString ColumnIcon { get; } = string.Empty;
 
@@ -114,7 +114,7 @@ namespace SJP.Schematic.Reporting.Html.ViewModels
             )
             {
                 var isKey = isPrimaryKeyColumn || isUniqueKeyColumn || isForeignKeyColumn;
-                ColumnClass = isKey ? @"class=""detail keyColumn""" : string.Empty;
+                ColumnClass = isKey ? @"class=""keyColumn""" : string.Empty;
 
                 ColumnIcon = BuildColumnIcon(isPrimaryKeyColumn, isUniqueKeyColumn, isForeignKeyColumn);
                 ColumnTitle = BuildColumnTitle(isPrimaryKeyColumn, isUniqueKeyColumn, isForeignKeyColumn);

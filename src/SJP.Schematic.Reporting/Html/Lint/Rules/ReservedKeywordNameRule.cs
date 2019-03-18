@@ -62,7 +62,8 @@ namespace SJP.Schematic.Reporting.Html.Lint.Rules
             if (sequenceName == null)
                 throw new ArgumentNullException(nameof(sequenceName));
 
-            var messageText = $"The sequence { HttpUtility.HtmlEncode(sequenceName.ToVisibleName()) } is also a database keyword and may require quoting to be used. Consider renaming to a non-keyword name.";
+            var sequenceLink = $"<a href=\"sequences/{ sequenceName.ToSafeKey() }.html\">{ HttpUtility.HtmlEncode(sequenceName.ToVisibleName()) }</a>";
+            var messageText = $"The sequence { sequenceLink } is also a database keyword and may require quoting to be used. Consider renaming to a non-keyword name.";
             return new RuleMessage(RuleTitle, Level, messageText);
         }
 
@@ -71,7 +72,8 @@ namespace SJP.Schematic.Reporting.Html.Lint.Rules
             if (synonymName == null)
                 throw new ArgumentNullException(nameof(synonymName));
 
-            var messageText = $"The synonym { HttpUtility.HtmlEncode(synonymName.ToVisibleName()) } is also a database keyword and may require quoting to be used. Consider renaming to a non-keyword name.";
+            var synonymLink = $"<a href=\"synonyms/{ synonymName.ToSafeKey() }.html\">{ HttpUtility.HtmlEncode(synonymName.ToVisibleName()) }</a>";
+            var messageText = $"The synonym { synonymLink } is also a database keyword and may require quoting to be used. Consider renaming to a non-keyword name.";
             return new RuleMessage(RuleTitle, Level, messageText);
         }
 
@@ -80,7 +82,8 @@ namespace SJP.Schematic.Reporting.Html.Lint.Rules
             if (routineName == null)
                 throw new ArgumentNullException(nameof(routineName));
 
-            var messageText = $"The routine { HttpUtility.HtmlEncode(routineName.ToVisibleName()) } is also a database keyword and may require quoting to be used. Consider renaming to a non-keyword name.";
+            var routineLink = $"<a href=\"routines/{ routineName.ToSafeKey() }.html\">{ HttpUtility.HtmlEncode(routineName.ToVisibleName()) }</a>";
+            var messageText = $"The routine { routineLink } is also a database keyword and may require quoting to be used. Consider renaming to a non-keyword name.";
             return new RuleMessage(RuleTitle, Level, messageText);
         }
     }

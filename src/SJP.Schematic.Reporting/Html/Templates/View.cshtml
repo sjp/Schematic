@@ -3,75 +3,88 @@
 @inherits TemplatePage<View>
 
 <section class="content-header">
-  <h1>@Model.Name</h1>
+    <div class="container-fluid">
+        <div class="row mb-2">
+            <div class="col-sm-6">
+                <h1>@Model.Name</h1>
+            </div>
+            <div class="col-sm-6">
+                <ol class="breadcrumb float-sm-right">
+                    <li class="breadcrumb-item"><a href="@(Model.RootPath)/index.html">Home</a></li>
+                    <li class="breadcrumb-item"><a href="@(Model.RootPath)/views.html">Views</a></li>
+                    <li class="breadcrumb-item active">@Model.Name</li>
+                </ol>
+            </div>
+        </div>
+    </div>
 </section>
 <section class="content">
-  <div class="box box-primary">
-    <div class="box-header with-border">
-      <span class="glyphicon glyphicon-list-alt" aria-hidden="true"></span>
-      <h3 class="box-title">Columns</h3>
-      <div class="box-tools pull-right">
-        <button type="button" class="btn btn-box-tool" data-widget="collapse">
-          <i class="fa fa-minus"></i>
-        </button>
-        <button type="button" class="btn btn-box-tool" data-widget="remove">
-          <i class="fa fa-times"></i>
-        </button>
-      </div>
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title"><i class="fa fa-columns" aria-hidden="true">&nbsp;&nbsp;</i>Columns</h3>
+                    <div class="card-tools">
+                        <button type="button" class="btn btn-tool" data-widget="collapse">
+                            <i class="fa fa-minus"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <table class="@Raw(Model.ColumnsTableClass.ToHtmlString()) table table-bordered table-hover" role="grid">
+                        <thead align="left">
+                            <tr>
+                                <th>Ordinal Position</th>
+                                <th>Column</th>
+                                <th>Type</th>
+                                <th title="Are nulls allowed?">Nullable</th>
+                                <th title="Default value">Default</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @if (Model.ColumnsCount > 0)
+                            {
+                                foreach (var column in Model.Columns)
+                                {
+                                    <tr>
+                                        <td>@column.Ordinal</td>
+                                        <td>@column.ColumnName</td>
+                                        <td>@column.Type</td>
+                                        <td title="@column.TitleNullable">@column.NullableText</td>
+                                        <td>@column.DefaultValue</td>
+                                    </tr>
+                                }
+                            }
+                            else
+                            {
+                                <tr>
+                                    <td colspan="5">No columns present.</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                    <div class="card-footer">
+                        View contained @Model.RowCount rows.
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
-    <div class="box-body">
-      <table class="@Raw(Model.ColumnsTableClass.ToHtmlString()) table table-bordered table-striped dataTable" role="grid">
-        <thead align="left">
-          <tr>
-            <th>Ordinal Position</th>
-            <th>Column</th>
-            <th>Type</th>
-            <th title="Are nulls allowed?">Nullable</th>
-            <th title="Default value">Default</th>
-          </tr>
-        </thead>
-        <tbody>
-          @if (Model.ColumnsCount > 0)
-          {
-          foreach (var column in Model.Columns)
-          {
-          <tr>
-            <td>@column.Ordinal</td>
-            <td>@column.ColumnName</td>
-            <td>@column.Type</td>
-            <td title="@column.TitleNullable">@column.NullableText</td>
-            <td>@column.DefaultValue</td>
-          </tr>
-          }
-          }
-          else
-          {
-          <tr>
-            <td class="detail" colspan="5">No columns present.</td>
-          </tr>
-          }
-        </tbody>
-      </table>
-      <p title="@Model.ColumnsCount columns">
-        View contained <span id="recordNumber">@Model.RowCount</span> rows.
-      </p>
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title"><i class="fa fa-file-code-o" aria-hidden="true">&nbsp;&nbsp;</i>View Definition</h3>
+                    <div class="card-tools">
+                        <button type="button" class="btn btn-tool" data-widget="collapse">
+                            <i class="fa fa-minus"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <textarea id="sql-script-codemirror" name="sql-script-codemirror" style="display: none">@Model.Definition</textarea>
+                </div>
+            </div>
+        </div>
     </div>
-  </div>
-  <div class="box box-primary">
-    <div class="box-header with-border">
-      <i class="fa fa-file-code-o"></i>
-      <h3 class="box-title">View Definition</h3>
-      <div class="box-tools pull-right">
-        <button type="button" class="btn btn-box-tool" data-widget="collapse">
-          <i class="fa fa-minus"></i>
-        </button>
-        <button type="button" class="btn btn-box-tool" data-widget="remove">
-          <i class="fa fa-times"></i>
-        </button>
-      </div>
-    </div>
-    <div class="box-body">
-      <textarea id="sql-script-codemirror" name="sql-script-codemirror" rows="" style="display: none;">@Model.Definition</textarea>
-    </div>
-  </div>
 </section>

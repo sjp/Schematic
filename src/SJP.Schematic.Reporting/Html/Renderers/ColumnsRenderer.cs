@@ -15,8 +15,6 @@ namespace SJP.Schematic.Reporting.Html.Renderers
     internal sealed class ColumnsRenderer : ITemplateRenderer
     {
         public ColumnsRenderer(
-            IDbConnection connection,
-            IDatabaseDialect dialect,
             IIdentifierDefaults identifierDefaults,
             IHtmlFormatter formatter,
             IReadOnlyCollection<IRelationalDatabaseTable> tables,

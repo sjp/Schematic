@@ -12,9 +12,9 @@ using SJP.Schematic.Reporting.Html.ViewModels.Mappers;
 
 namespace SJP.Schematic.Reporting.Html.Renderers
 {
-    internal sealed class MainRenderer : ITemplateRenderer
+    internal sealed class SynonymsRenderer : ITemplateRenderer
     {
-        public MainRenderer(
+        public SynonymsRenderer(
             IDbConnection connection,
             IRelationalDatabase database,
             IHtmlFormatter formatter,
@@ -70,85 +70,18 @@ namespace SJP.Schematic.Reporting.Html.Renderers
         {
             var mapper = new MainModelMapper(Connection, Database);
 
-            var columns = 0U;
-            var constraints = 0U;
-            var indexesCount = 0U;
-            var tableViewModels = new List<Main.Table>();
-            foreach (var table in Tables)
-            {
-                var renderTable = await mapper.MapAsync(table, cancellationToken).ConfigureAwait(false);
-
-                var uniqueKeyLookup = table.GetUniqueKeyLookup();
-                var uniqueKeyCount = uniqueKeyLookup.UCount();
-
-                var checksLookup = table.GetCheckLookup();
-                var checksCount = checksLookup.UCount();
-
-                var indexesLookup = table.GetIndexLookup();
-                var indexCount = indexesLookup.UCount();
-                indexesCount += indexCount;
-
-                table.PrimaryKey.IfSome(_ => constraints++);
-
-                constraints += uniqueKeyCount;
-                constraints += renderTable.ParentsCount;
-                constraints += checksCount;
-
-                columns += renderTable.ColumnCount;
-
-                tableViewModels.Add(renderTable);
-            }
-
-            var viewViewModels = new List<Main.View>();
-            foreach (var view in Views)
-            {
-                var renderView = await mapper.MapAsync(view, cancellationToken).ConfigureAwait(false);
-                columns += renderView.ColumnCount;
-
-                viewViewModels.Add(renderView);
-            }
-
-            var sequenceViewModels = Sequences.Select(mapper.Map).ToList();
-
             var synonymTargets = new SynonymTargets(Tables, Views, Sequences, Synonyms, Routines);
             var synonymViewModels = Synonyms.Select(s => mapper.Map(s, synonymTargets)).ToList();
+            var synonymsVm = new Synonyms(synonymViewModels);
 
-            var routineViewModels = Routines.Select(mapper.Map).ToList();
-
-            var schemas = Tables.Select(t => t.Name)
-                .Union(Views.Select(v => v.Name))
-                .Union(Sequences.Select(s => s.Name))
-                .Union(Synonyms.Select(s => s.Name))
-                .Union(Routines.Select(r => r.Name))
-                .Select(n => n.Schema)
-                .Where(n => n != null)
-                .Distinct()
-                .OrderBy(n => n)
-                .ToList();
-
-            var dbVersion = await Database.Dialect.GetDatabaseDisplayVersionAsync(cancellationToken).ConfigureAwait(false);
-            var templateParameter = new Main(
-                Database.IdentifierDefaults.Database,
-                dbVersion,
-                columns,
-                constraints,
-                indexesCount,
-                schemas,
-                tableViewModels,
-                viewViewModels,
-                sequenceViewModels,
-                synonymViewModels,
-                routineViewModels
-            );
-
-            var renderedMain = Formatter.RenderTemplate(templateParameter);
+            var renderedMain = Formatter.RenderTemplate(synonymsVm);
 
             var mainContainer = new Container(renderedMain, Database.IdentifierDefaults.Database, string.Empty);
             var renderedPage = Formatter.RenderTemplate(mainContainer);
 
             if (!ExportDirectory.Exists)
                 ExportDirectory.Create();
-            var outputPath = Path.Combine(ExportDirectory.FullName, "index.html");
+            var outputPath = Path.Combine(ExportDirectory.FullName, "synonyms.html");
 
             using (var writer = File.CreateText(outputPath))
                 await writer.WriteAsync(renderedPage).ConfigureAwait(false);

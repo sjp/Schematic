@@ -11,45 +11,111 @@
   <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
   <link rel="stylesheet" href="@(Model.RootPath)css/reporting-app.css">
 </head>
-<body class="hold-transition skin-blue layout-top-nav">
-<div class="wrapper">
-  <header class="main-header">
-    <nav class="navbar navbar-static-top">
-      <div class="container">
-        <div class="navbar-header">
-          <a href="@(Model.RootPath)index.html" class="navbar-brand"><b>@Model.DatabaseName</b></a>
-          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar-collapse">
-            <i class="fa fa-bars"></i>
-          </button>
+<body class="hold-transition sidebar-mini">
+    <div class="wrapper">
+        <nav class="main-header navbar navbar-expand bg-white navbar-light border-bottom">
+            <ul class="navbar-nav">
+                <li class="nav-item">
+                    <a class="nav-link" data-widget="pushmenu" href="#"><i class="fa fa-bars"></i></a>
+                </li>
+                <li class="nav-item d-none d-sm-inline-block">
+                    <a href="@(Model.RootPath)index.html" class="nav-link">Home</a>
+                </li>
+                <li class="nav-item d-none d-sm-inline-block">
+                    <a href="https://github.com/sjp/Schematic" class="nav-link" target="_blank" rel="noopener noreferrer">Contact</a>
+                </li>
+            </ul>
+        </nav>
+        <aside class="main-sidebar sidebar-dark-primary elevation-4">
+            <div class="sidebar">
+                <nav class="mt-2">
+                    <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false">
+                        <li class="nav-item">
+                            <a href="@(Model.RootPath)index.html" class="nav-link" title="All objects in the database">
+                                <i class="nav-icon fa fa-home" aria-hidden="true"></i>
+                                <p>Home</p>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="@(Model.RootPath)tables.html" class="nav-link" title="All tables in the database">
+                                <i class="nav-icon fa fa-table" aria-hidden="true"></i>
+                                <p>Tables</p>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="@(Model.RootPath)views.html" class="nav-link" title="All views in the database">
+                                <i class="nav-icon fa fa-search-plus" aria-hidden="true"></i>
+                                <p>Views</p>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="@(Model.RootPath)sequences.html" class="nav-link" title="All sequences in the database">
+                                <i class="nav-icon fa fa-sort-numeric-asc" aria-hidden="true"></i>
+                                <p>Sequences</p>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="@(Model.RootPath)synonyms.html" class="nav-link" title="All synonyms in the database">
+                                <i class="nav-icon fa fa-share" aria-hidden="true"></i>
+                                <p>Synonyms</p>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="@(Model.RootPath)routines.html" class="nav-link" title="All routines in the database">
+                                <i class="nav-icon fa fa-code" aria-hidden="true"></i>
+                                <p>Routines</p>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="@(Model.RootPath)columns.html" class="nav-link" title="All of the columns in the database">
+                                <i class="nav-icon fa fa-columns" aria-hidden="true"></i>
+                                <p>Columns</p>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="@(Model.RootPath)constraints.html" class="nav-link" title="Useful for diagnosing error messages that just give a constraint name or number">
+                                <i class="nav-icon fa fa-key" aria-hidden="true"></i>
+                                <p>Constraints</p>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="@(Model.RootPath)indexes.html" class="nav-link" title="Useful for diagnosing error messages that just give an index name or number">
+                                <i class="nav-icon fa fa-sitemap" aria-hidden="true"></i>
+                                <p>Indexes</p>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="@(Model.RootPath)relationships.html" class="nav-link" title="Diagram of table relationships">
+                                <i class="nav-icon fa fa-code-fork" aria-hidden="true"></i>
+                                <p>Relationships</p>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="@(Model.RootPath)orphans.html" class="nav-link" title="Tables with neither parents nor children">
+                                <i class="nav-icon fa fa-chain-broken" aria-hidden="true"></i>
+                                <p>Orphaned Tables</p>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="@(Model.RootPath)lint.html" class="nav-link" title="Potential issues detected in the database">
+                                <i class="nav-icon fa fa-exclamation-triangle" aria-hidden="true"></i>
+                                <p>Lint</p>
+                            </a>
+                        </li>
+                    </ul>
+                </nav>
+            </div>
+        </aside>
+        <div class="content-wrapper">
+            @Raw(Model.Content.ToHtmlString())
         </div>
-        <div class="collapse navbar-collapse pull-left" id="navbar-collapse">
-          <ul class="nav navbar-nav">
-            <li><a href="@(Model.RootPath)index.html">Overview</a></li>
-            <li><a href="@(Model.RootPath)columns.html" title="All of the columns in the schema">Columns</a></li>
-            <li><a href="@(Model.RootPath)constraints.html" title="Useful for diagnosing error messages that just give a constraint name or number">Constraints</a></li>
-            <li><a href="@(Model.RootPath)indexes.html" title="Useful for diagnosing error messages that just give an index name or number">Indexes</a></li>
-            <li><a href="@(Model.RootPath)relationships.html" title="Diagram of table relationships">Relationships</a></li>
-            <li><a href="@(Model.RootPath)orphans.html" title="Tables with neither parents nor children">Orphan&nbsp;Tables</a></li>
-            <li><a href="@(Model.RootPath)lint.html" title="Potential issues detected in the database">Lint</a></li>
-          </ul>
-        </div>
-      </div>
-    </nav>
-  </header>
-  <div class="content-wrapper">
-    @Raw(Model.Content.ToHtmlString())
-  </div>
-  <footer class="main-footer">
-    <div>
-      <div class="pull-right hidden-xs">
-        <a href="https://github.com/sjp/Schematic" title="GitHub for Schematic"><i class="fa fa-github-square fa-2x"></i></a>
-      </div>
-      <strong>Generated by <a href="https://github.com/sjp/Schematic" class="logo-text"><i class="fa fa-database"></i> Schematic @Model.ProjectVersion</a></strong>
+        <footer class="main-footer">
+            <div class="float-right d-none d-sm-block">
+                <b>Version</b> @Model.ProjectVersion
+            </div>
+            <strong>Generated by <a href="https://github.com/sjp/Schematic" target="_blank" rel="noopener noreferrer"><i class="fa fa-database" aria-hidden="true">&nbsp;&nbsp;</i>Schematic</a></strong>
+        </footer>
     </div>
-  </footer>
-</div>
-<script src="@(Model.RootPath)js/viz.js"></script>
-<script src="@(Model.RootPath)js/full.render.js"></script>
 <script src="@(Model.RootPath)js/reporting-app.js"></script>
 </body>
 </html>

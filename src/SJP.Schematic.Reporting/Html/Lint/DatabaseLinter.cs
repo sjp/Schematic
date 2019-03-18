@@ -144,6 +144,7 @@ namespace SJP.Schematic.Reporting.Html.Lint
             new ForeignKeyIsPrimaryKeyRule(Level),
             new ForeignKeyRelationshipCycleRule(Level),
             new InvalidViewDefinitionRule(Connection, Dialect, Level),
+            new NoIndexesPresentOnTableRule(Level),
             new NoNonNullableColumnsPresentRule(Level),
             new NoSurrogatePrimaryKeyRule(Level),
             new NoValueForNullableColumnRule(Connection, Dialect, Level),

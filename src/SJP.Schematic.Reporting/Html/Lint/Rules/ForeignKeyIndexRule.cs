@@ -33,7 +33,7 @@ namespace SJP.Schematic.Reporting.Html.Lint.Rules
             foreignKeyName.IfSome(fkName =>
             {
                 builder.Append(" <code>")
-                    .Append(HttpUtility.HtmlEncode(fkName))
+                    .Append(HttpUtility.HtmlEncode(fkName.LocalName))
                     .Append("</code>");
             });
 

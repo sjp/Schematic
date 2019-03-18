@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data;
 using System.IO;
 using System.Linq;
 using System.Threading;
@@ -11,25 +12,29 @@ using SJP.Schematic.Reporting.Html.ViewModels.Mappers;
 
 namespace SJP.Schematic.Reporting.Html.Renderers
 {
-    internal sealed class IndexesRenderer : ITemplateRenderer
+    internal sealed class TablesRenderer : ITemplateRenderer
     {
-        public IndexesRenderer(
-            IIdentifierDefaults identifierDefaults,
+        public TablesRenderer(
+            IDbConnection connection,
+            IRelationalDatabase database,
             IHtmlFormatter formatter,
             IReadOnlyCollection<IRelationalDatabaseTable> tables,
-            DirectoryInfo exportDirectory
-        )
+            DirectoryInfo exportDirectory)
         {
             if (tables == null || tables.AnyNull())
                 throw new ArgumentNullException(nameof(tables));
 
             Tables = tables;
-            IdentifierDefaults = identifierDefaults ?? throw new ArgumentNullException(nameof(identifierDefaults));
+
+            Connection = connection ?? throw new ArgumentNullException(nameof(connection));
+            Database = database ?? throw new ArgumentNullException(nameof(database));
             Formatter = formatter ?? throw new ArgumentNullException(nameof(formatter));
             ExportDirectory = exportDirectory ?? throw new ArgumentNullException(nameof(exportDirectory));
         }
 
-        private IIdentifierDefaults IdentifierDefaults { get; }
+        private IDbConnection Connection { get; }
+
+        private IRelationalDatabase Database { get; }
 
         private IHtmlFormatter Formatter { get; }
 
@@ -39,29 +44,24 @@ namespace SJP.Schematic.Reporting.Html.Renderers
 
         public async Task RenderAsync(CancellationToken cancellationToken = default(CancellationToken))
         {
-            var mapper = new IndexesModelMapper();
-            var allIndexes = new List<Indexes.Index>();
+            var mapper = new MainModelMapper(Connection, Database);
 
+            var tableViewModels = new List<Main.Table>();
             foreach (var table in Tables)
             {
-                var mappedIndexes = table.Indexes.Select(i => mapper.Map(table.Name, i));
-                allIndexes.AddRange(mappedIndexes);
+                var renderTable = await mapper.MapAsync(table, cancellationToken).ConfigureAwait(false);
+                tableViewModels.Add(renderTable);
             }
 
-            var indexes = allIndexes
-                .OrderBy(i => i.TableName)
-                .ThenBy(i => i.Name)
-                .ToList();
+            var tablesVm = new Tables(tableViewModels);
+            var renderedMain = Formatter.RenderTemplate(tablesVm);
 
-            var templateParameter = new Indexes(indexes);
-            var renderedIndexes = Formatter.RenderTemplate(templateParameter);
-
-            var indexesContainer = new Container(renderedIndexes, IdentifierDefaults.Database, string.Empty);
-            var renderedPage = Formatter.RenderTemplate(indexesContainer);
+            var mainContainer = new Container(renderedMain, Database.IdentifierDefaults.Database, string.Empty);
+            var renderedPage = Formatter.RenderTemplate(mainContainer);
 
             if (!ExportDirectory.Exists)
                 ExportDirectory.Create();
-            var outputPath = Path.Combine(ExportDirectory.FullName, "indexes.html");
+            var outputPath = Path.Combine(ExportDirectory.FullName, "tables.html");
 
             using (var writer = File.CreateText(outputPath))
                 await writer.WriteAsync(renderedPage).ConfigureAwait(false);

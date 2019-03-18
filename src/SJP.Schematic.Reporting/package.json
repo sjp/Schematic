@@ -18,13 +18,11 @@
     "url": "https://github.com/sjp/Schematic/issues"
   },
   "devDependencies": {
-    "admin-lte": "^2.4.3",
-    "anchor-js": "^4.1.0",
+    "admin-lte": "^3.0.0-alpha.2",
+    "bootstrap": "^4.1.2",
     "codemirror": "^5.36.0",
-    "datatables": "^1.10.13",
-    "datatables.net-bs": "^1.10.16",
-    "datatables.net-buttons": "^1.5.1",
-    "datatables.net-buttons-bs": "^1.5.1",
+    "datatables.net": "^1.10.19",
+    "datatables.net-bs4": "^1.10.19",
     "del": "^3.0.0",
     "font-awesome": "^4.7.0",
     "gulp": "^3.9.1",
@@ -43,7 +41,6 @@
     "postcss-cssnext": "^3.1.0",
     "salvattore": "^1.0.9",
     "source-sans-pro": "^2.20.2",
-    "svg-pan-zoom": "^3.5.3",
-    "viz.js": "^2.0.0"
+    "svg-pan-zoom": "^3.5.3"
   }
 }

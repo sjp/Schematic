@@ -186,6 +186,8 @@ namespace SJP.Schematic.Reporting.Html.ViewModels
                     throw new ArgumentNullException(nameof(sequenceName));
 
                 Name = sequenceName.ToVisibleName();
+                SequenceUrl = sequenceName.ToSafeKey();
+
                 Start = start;
                 Increment = increment;
                 MinValueText = minValue.Match(mv => mv.ToString(), () => string.Empty);
@@ -206,6 +208,8 @@ namespace SJP.Schematic.Reporting.Html.ViewModels
 
             public string Name { get; }
 
+            public string SequenceUrl { get; }
+
             public string CycleText { get; }
         }
 
@@ -222,6 +226,7 @@ namespace SJP.Schematic.Reporting.Html.ViewModels
                     throw new ArgumentNullException(nameof(target));
 
                 Name = synonymName.ToVisibleName();
+                SynonymUrl = synonymName.ToSafeKey();
 
                 var targetName = target.ToVisibleName();
                 TargetText = targetUrl.Match(
@@ -231,6 +236,8 @@ namespace SJP.Schematic.Reporting.Html.ViewModels
             }
 
             public string Name { get; }
+
+            public string SynonymUrl { get; }
 
             public HtmlString TargetText { get; }
         }

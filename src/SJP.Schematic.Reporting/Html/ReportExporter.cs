@@ -73,7 +73,7 @@ namespace SJP.Schematic.Reporting.Html
 
             return new ITemplateRenderer[]
             {
-                new ColumnsRenderer(Connection, Database.Dialect, Database.IdentifierDefaults, TemplateFormatter, tables, views, ExportDirectory),
+                new ColumnsRenderer(Database.IdentifierDefaults, TemplateFormatter, tables, views, ExportDirectory),
                 new ConstraintsRenderer(Database.IdentifierDefaults, TemplateFormatter, tables, ExportDirectory),
                 new IndexesRenderer(Database.IdentifierDefaults, TemplateFormatter, tables, ExportDirectory),
                 new LintRenderer(linter, Database.IdentifierDefaults, TemplateFormatter, tables, views, sequences, synonyms, routines, ExportDirectory),
@@ -82,7 +82,14 @@ namespace SJP.Schematic.Reporting.Html
                 new RelationshipsRenderer(Connection, Database.Dialect, Database.IdentifierDefaults, TemplateFormatter, tables, ExportDirectory),
                 new TableRenderer(Connection, Database, TemplateFormatter, tables, ExportDirectory),
                 new ViewRenderer(Connection, Database, TemplateFormatter, views, ExportDirectory),
-                new RoutineRenderer(Connection, Database, TemplateFormatter, routines, ExportDirectory)
+                new SequenceRenderer(Database, TemplateFormatter, sequences, ExportDirectory),
+                new SynonymRenderer(Database, TemplateFormatter, tables, views, sequences, synonyms, routines, ExportDirectory),
+                new RoutineRenderer(Database, TemplateFormatter, routines, ExportDirectory),
+                new TablesRenderer(Connection, Database, TemplateFormatter, tables, ExportDirectory),
+                new ViewsRenderer(Connection, Database, TemplateFormatter, views, ExportDirectory),
+                new SequencesRenderer(Connection, Database, TemplateFormatter, sequences, ExportDirectory),
+                new SynonymsRenderer(Connection, Database, TemplateFormatter, tables, views, sequences, synonyms, routines, ExportDirectory),
+                new RoutinesRenderer(Connection, Database, TemplateFormatter, routines, ExportDirectory)
             };
         }
     }

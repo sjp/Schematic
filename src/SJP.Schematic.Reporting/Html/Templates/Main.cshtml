@@ -3,351 +3,346 @@
 @inherits TemplatePage<Main>
 
 <section class="content-header">
-  <div class="row">
-    <div class="col-md-12">
-      <div class="callout callout-info">
-        <h4>Analysis of @Model.DatabaseName</h4>
-        <p>Generated on @Model.GenerationTime</p>
-      </div>
+    <div class="row">
+        <div class="col-md-12">
+            <div class="callout callout-info">
+                <h4>Analysis of @Model.DatabaseName</h4>
+                <p>Generated on @Model.GenerationTime</p>
+            </div>
+        </div>
     </div>
-  </div>
 </section>
 <section class="content">
     <div class="row">
-        <div class="col-md-2 col-sm-4 col-xs-12">
-            <div class="info-box">
-                <span class="info-box-icon bg-aqua">
+        <div class="col-lg-3 col-6">
+            <div class="small-box bg-aqua">
+                <div class="inner">
+                    <h3>@Model.TablesCount</h3>
+                    <p>Tables</p>
+                </div>
+                <div class="icon">
                     <i class="fa fa-table"></i>
-                </span>
-                <div class="info-box-content">
-                    <span class="info-box-text">Tables</span>
-                    <span class="info-box-number">@Model.TablesCount</span>
                 </div>
             </div>
         </div>
-        <div class="col-md-2 col-sm-4 col-xs-12">
-            <div class="info-box">
-                <span class="info-box-icon bg-teal">
-                    <i class="fa fa-table"></i>
-                </span>
-                <div class="info-box-content">
-                    <span class="info-box-text">Views</span>
-                    <span class="info-box-number">@Model.ViewsCount</span>
+        <div class="col-lg-3 col-6">
+            <div class="small-box bg-aqua">
+                <div class="inner">
+                    <h3>@Model.ViewsCount</h3>
+                    <p>Views</p>
+                </div>
+                <div class="icon">
+                    <i class="fa fa-search-plus"></i>
                 </div>
             </div>
         </div>
-        <div class="col-md-2 col-sm-4 col-xs-12">
-            <div class="info-box">
-                <span class="info-box-icon bg-teal">
-                    <i class="fa fa-table"></i>
-                </span>
-                <div class="info-box-content">
-                    <span class="info-box-text">Sequences</span>
-                    <span class="info-box-number">@Model.SequencesCount</span>
+        <div class="col-lg-3 col-6">
+            <div class="small-box bg-aqua">
+                <div class="inner">
+                    <h3>@Model.SequencesCount</h3>
+                    <p>Sequences</p>
+                </div>
+                <div class="icon">
+                    <i class="fa fa-sort-numeric-asc"></i>
                 </div>
             </div>
         </div>
-        <div class="col-md-2 col-sm-4 col-xs-12">
-            <div class="info-box">
-                <span class="info-box-icon bg-teal">
-                    <i class="fa fa-table"></i>
-                </span>
-                <div class="info-box-content">
-                    <span class="info-box-text">Synonyms</span>
-                    <span class="info-box-number">@Model.SynonymsCount</span>
+        <div class="col-lg-3 col-6">
+            <div class="small-box bg-aqua">
+                <div class="inner">
+                    <h3>@Model.SynonymsCount</h3>
+                    <p>Synonyms</p>
+                </div>
+                <div class="icon">
+                    <i class="fa fa-share"></i>
                 </div>
             </div>
         </div>
-        <div class="col-md-2 col-sm-4 col-xs-12">
-            <div class="info-box">
-                <span class="info-box-icon bg-teal">
-                    <i class="fa fa-table"></i>
-                </span>
-                <div class="info-box-content">
-                    <span class="info-box-text">Routines</span>
-                    <span class="info-box-number">@Model.RoutinesCount</span>
+        <div class="col-lg-3 col-6">
+            <div class="small-box bg-aqua">
+                <div class="inner">
+                    <h3>@Model.RoutinesCount</h3>
+                    <p>Routines</p>
+                </div>
+                <div class="icon">
+                    <i class="fa fa-code"></i>
                 </div>
             </div>
         </div>
-        <div class="col-md-2 col-sm-4 col-xs-12">
-            <div class="info-box">
-                <span class="info-box-icon bg-green">
-                    <span class="glyphicon glyphicon-list-alt" aria-hidden="true"></span>
-                </span>
-                <div class="info-box-content">
-                    <span class="info-box-text">Columns</span>
-                    <span class="info-box-number">@Model.ColumnsCount</span>
+        <div class="col-lg-3 col-6">
+            <div class="small-box bg-aqua">
+                <div class="inner">
+                    <h3>@Model.ColumnsCount</h3>
+                    <p>Columns</p>
+                </div>
+                <div class="icon">
+                    <i class="fa fa-columns"></i>
                 </div>
             </div>
         </div>
-        <div class="col-md-2 col-sm-4 col-xs-12">
-            <div class="info-box">
-                <span class="info-box-icon bg-yellow">
+        <div class="col-lg-3 col-6">
+            <div class="small-box bg-aqua">
+                <div class="inner">
+                    <h3>@Model.ConstraintsCount</h3>
+                    <p>Constraints</p>
+                </div>
+                <div class="icon">
                     <i class="fa fa-key"></i>
-                </span>
-                <div class="info-box-content">
-                    <span class="info-box-text">Constraints</span>
-                    <span class="info-box-number">@Model.ConstraintsCount</span>
                 </div>
             </div>
         </div>
-        <div class="col-md-2 col-sm-4 col-xs-12">
-            <div class="info-box">
-                <span class="info-box-icon bg-gray">
-                    <span class="glyphicon glyphicon-list-alt" aria-hidden="true"></span>
-                </span>
-                <div class="info-box-content">
-                    <span class="info-box-text">Indexes</span>
-                    <span class="info-box-number">@Model.IndexesCount</span>
+        <div class="col-lg-3 col-6">
+            <div class="small-box bg-aqua">
+                <div class="inner">
+                    <h3>@Model.IndexesCount</h3>
+                    <p>Indexes</p>
+                </div>
+                <div class="icon">
+                    <i class="fa fa-sitemap"></i>
                 </div>
             </div>
         </div>
     </div>
-  <div class="box box-primary">
-    <div class="box-header with-border">
-      <h3 class="box-title">Database Properties</h3>
-      <span class="label label-primary pull-right">
-        <i class="fa fa-cog fa-2x"></i>
-      </span>
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title"><i class="fa fa-cog">&nbsp;&nbsp;</i>Schemas</h3>
+                </div>
+                <div class="card-body">
+                    <table class="table table-bordered table-hover" role="grid">
+                        <thead>
+                            <tr>
+                                <th>Schema</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @if (Model.SchemasCount > 0)
+                            {
+                                foreach (var schema in Model.Schemas)
+                                {
+                                    <tr class="tbl even">
+                                        <td>@schema</td>
+                                    </tr>
+                                }
+                            }
+                            else
+                            {
+                                <tr class="tbl even">
+                                    <td colspan="1">No schemas present.</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
     </div>
-    <div class="box-body">
-      <p>Database: @Model.DatabaseVersion</p>
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title"><i class="fa fa-table">&nbsp;&nbsp;</i>Tables</h3>
+                </div>
+                <div class="card-body">
+                    <table class="@Raw(Model.TablesTableClass.ToHtmlString()) table table-bordered table-hover" role="grid">
+                        <thead>
+                            <tr>
+                                <th valign="bottom">Table</th>
+                                <th align="right" valign="bottom">Children</th>
+                                <th align="right" valign="bottom">Parents</th>
+                                <th align="right" valign="bottom">Columns</th>
+                                <th align="right" valign="bottom">Rows</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @if (Model.TablesCount > 0)
+                            {
+                                foreach (var table in Model.Tables)
+                                {
+                                    <tr class="tbl even" valign="top">
+                                        <td>
+                                            <a href="tables/@(table.TableUrl).html">@table.Name</a>
+                                        </td>
+                                        <td align="right">@table.ParentsCount</td>
+                                        <td align="right">@table.ChildrenCount</td>
+                                        <td align="right">@table.ColumnCount</td>
+                                        <td align="right">@table.RowCount</td>
+                                    </tr>
+                                }
+                            }
+                            else
+                            {
+                                <tr class="tbl even" colspan="6">
+                                    <td colspan="3">No tables present.</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
     </div>
-  </div>
-  <div class="box box-primary">
-    <div class="box-header with-border">
-      <h3 class="box-title">Schemas</h3>
-      <span class="label label-primary pull-right">
-        <i class="fa fa-cog fa-2x"></i>
-      </span>
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title"><i class="fa fa-search-plus">&nbsp;&nbsp;</i>Views</h3>
+                </div>
+                <div class="card-body">
+                    <table class="@Raw(Model.ViewsTableClass.ToHtmlString()) table table-bordered table-hover" role="grid">
+                        <thead>
+                            <tr>
+                                <th valign="bottom">View</th>
+                                <th align="right" valign="bottom">Columns</th>
+                                <th align="right" valign="bottom">Rows</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @if (Model.ViewsCount > 0)
+                            {
+                                foreach (var view in Model.Views)
+                                {
+                                    <tr class="tbl even" valign="top">
+                                        <td>
+                                            <a href="views/@(view.ViewUrl).html">@view.Name</a>
+                                        </td>
+                                        <td align="right">@view.ColumnCount</td>
+                                        <td align="right">@view.RowCount</td>
+                                    </tr>
+                                }
+                            }
+                            else
+                            {
+                                <tr class="tbl even">
+                                    <td colspan="3">No views present.</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
     </div>
-    <div class="box-body">
-      <table class="table table-bordered table-striped dataTable" role="grid">
-        <thead>
-          <tr>
-            <th>Schema</th>
-          </tr>
-        </thead>
-        <tbody>
-          @if (Model.SchemasCount > 0)
-          {
-          foreach (var schema in Model.Schemas)
-          {
-          <tr class="tbl even">
-            <td class="detail">@schema</td>
-          </tr>
-          }
-          }
-          else
-          {
-          <tr class="tbl even">
-            <td class="detail" colspan="1">No schemas present.</td>
-          </tr>
-          }
-        </tbody>
-      </table>
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title"><i class="fa fa-sort-numeric-asc">&nbsp;&nbsp;</i>Sequences</h3>
+                </div>
+                <div class="card-body">
+                    <table class="@Raw(Model.SequencesTableClass.ToHtmlString()) table table-bordered table-hover" role="grid">
+                        <thead>
+                            <tr>
+                                <th>Sequence</th>
+                                <th>Start</th>
+                                <th>Increment</th>
+                                <th>Minimum Value</th>
+                                <th>Maximum Value</th>
+                                <th>Cache</th>
+                                <th>Cycle</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @if (Model.SequencesCount > 0)
+                            {
+                                foreach (var sequence in Model.Sequences)
+                                {
+                                    <tr class="tbl even">
+                                        <td><a href="sequences/@(sequence.SequenceUrl).html">@sequence.Name</a></td>
+                                        <td>@sequence.Start</td>
+                                        <td>@sequence.Increment</td>
+                                        <td>@sequence.MinValueText</td>
+                                        <td>@sequence.MaxValueText</td>
+                                        <td>@sequence.Cache</td>
+                                        <td>@sequence.CycleText</td>
+                                    </tr>
+                                }
+                            }
+                            else
+                            {
+                                <tr class="tbl even">
+                                    <td colspan="7">No sequences present.</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
     </div>
-  </div>
-  <div class="box box-primary">
-    <div class="box-header with-border">
-      <h3 class="box-title">Tables</h3>
-      <span class="label label-primary pull-right">
-        <i class="fa fa-database fa-2x"></i>
-      </span>
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title"><i class="fa fa-share">&nbsp;&nbsp;</i>Synonyms</h3>
+                </div>
+                <div class="card-body">
+                    <table class="@Raw(Model.SynonymsTableClass.ToHtmlString()) table table-bordered table-hover" role="grid">
+                        <thead>
+                            <tr>
+                                <th>Synonym</th>
+                                <th>Target</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @if (Model.SynonymsCount > 0)
+                            {
+                                foreach (var synonym in Model.Synonyms)
+                                {
+                                    <tr class="tbl even">
+                                        <td><a href="synonyms/@(synonym.SynonymUrl).html">@synonym.Name</a></td>
+                                        <td>@Raw(synonym.TargetText.ToHtmlString())</td>
+                                    </tr>
+                                }
+                            }
+                            else
+                            {
+                                <tr class="tbl even">
+                                    <td colspan="2">No synonyms present.</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
     </div>
-    <div class="box-body">
-      <table class="@Raw(Model.TablesTableClass.ToHtmlString()) table table-bordered table-striped dataTable" role="grid">
-        <thead>
-          <tr>
-            <th valign="bottom">Table</th>
-            <th align="right" valign="bottom">Children</th>
-            <th align="right" valign="bottom">Parents</th>
-            <th align="right" valign="bottom">Columns</th>
-            <th align="right" valign="bottom">Rows</th>
-          </tr>
-        </thead>
-        <tbody>
-          @if (Model.TablesCount > 0)
-          {
-          foreach (var table in Model.Tables)
-          {
-          <tr class="tbl even" valign="top">
-            <td class="detail">
-              <a href="tables/@(table.TableUrl).html">@table.Name</a>
-            </td>
-            <td class="detail" align="right">@table.ParentsCount</td>
-            <td class="detail" align="right">@table.ChildrenCount</td>
-            <td class="detail" align="right">@table.ColumnCount</td>
-            <td class="detail" align="right">@table.RowCount</td>
-          </tr>
-          }
-          }
-          else
-          {
-          <tr class="tbl even" colspan="6">
-            <td class="detail" colspan="3">No tables present.</td>
-          </tr>
-          }
-        </tbody>
-      </table>
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title"><i class="fa fa-code">&nbsp;&nbsp;</i>Routines</h3>
+                </div>
+                <div class="card-body">
+                    <table class="@Raw(Model.RoutinesTableClass.ToHtmlString()) table table-bordered table-hover" role="grid">
+                        <thead>
+                            <tr>
+                                <th>Routine</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @if (Model.RoutinesCount > 0)
+                            {
+                                foreach (var routine in Model.Routines)
+                                {
+                                    <tr class="tbl even">
+                                        <td>
+                                            <a href="routines/@(routine.RoutineUrl).html">@routine.Name</a>
+                                        </td>
+                                    </tr>
+                                }
+                            }
+                            else
+                            {
+                                <tr class="tbl even">
+                                    <td>No routines present.</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
     </div>
-  </div>
-  <div class="box box-primary">
-    <div class="box-header with-border">
-      <h3 class="box-title">Views</h3>
-      <span class="label label-primary pull-right">
-        <i class="fa fa-database fa-2x"></i>
-      </span>
-    </div>
-    <div class="box-body">
-      <table class="@Raw(Model.ViewsTableClass.ToHtmlString()) table table-bordered table-striped dataTable" role="grid">
-        <thead>
-          <tr>
-            <th valign="bottom">View</th>
-            <th align="right" valign="bottom">Columns</th>
-            <th align="right" valign="bottom">Rows</th>
-          </tr>
-        </thead>
-        <tbody>
-          @if (Model.ViewsCount > 0)
-          {
-          foreach (var view in Model.Views)
-          {
-          <tr class="tbl even" valign="top">
-            <td class="detail">
-              <a href="views/@(view.ViewUrl).html">@view.Name</a>
-            </td>
-            <td class="detail" align="right">@view.ColumnCount</td>
-            <td class="detail" align="right">@view.RowCount</td>
-          </tr>
-          }
-          }
-          else
-          {
-          <tr class="tbl even">
-            <td class="detail" colspan="3">No views present.</td>
-          </tr>
-          }
-        </tbody>
-      </table>
-    </div>
-  </div>
-  <div class="box box-primary">
-    <div class="box-header with-border">
-      <h3 class="box-title">Sequences</h3>
-      <span class="label label-primary pull-right">
-        <i class="fa fa-database fa-2x"></i>
-      </span>
-    </div>
-    <div class="box-body">
-      <table class="@Raw(Model.SequencesTableClass.ToHtmlString()) table table-bordered table-striped dataTable" role="grid">
-        <thead>
-          <tr>
-            <th>Sequence</th>
-            <th>Start</th>
-            <th>Increment</th>
-            <th>Minimum Value</th>
-            <th>Maximum Value</th>
-            <th>Cache</th>
-            <th>Cycle</th>
-          </tr>
-        </thead>
-        <tbody>
-          @if (Model.SequencesCount > 0)
-          {
-          foreach (var sequence in Model.Sequences)
-          {
-          <tr class="tbl even">
-            <td class="detail">@sequence.Name</td>
-            <td class="detail">@sequence.Start</td>
-            <td class="detail">@sequence.Increment</td>
-            <td class="detail">@sequence.MinValueText</td>
-            <td class="detail">@sequence.MaxValueText</td>
-            <td class="detail">@sequence.Cache</td>
-            <td class="detail">@sequence.CycleText</td>
-          </tr>
-          }
-          }
-          else
-          {
-          <tr class="tbl even">
-            <td class="detail" colspan="7">No sequences present.</td>
-          </tr>
-          }
-        </tbody>
-      </table>
-    </div>
-  </div>
-  <div class="box box-primary">
-    <div class="box-header with-border">
-      <h3 class="box-title">Synonyms</h3>
-      <span class="label label-primary pull-right">
-        <i class="fa fa-database fa-2x"></i>
-      </span>
-    </div>
-    <div class="box-body">
-      <table class="@Raw(Model.SynonymsTableClass.ToHtmlString()) table table-bordered table-striped dataTable" role="grid">
-        <thead>
-          <tr>
-            <th>Synonym</th>
-            <th>Target</th>
-          </tr>
-        </thead>
-        <tbody>
-          @if (Model.SynonymsCount > 0)
-          {
-          foreach (var synonym in Model.Synonyms)
-          {
-          <tr class="tbl even">
-            <td class="detail">@synonym.Name</td>
-            <td class="detail">@Raw(synonym.TargetText.ToHtmlString())</td>
-          </tr>
-          }
-          }
-          else
-          {
-          <tr class="tbl even">
-            <td class="detail" colspan="2">No synonyms present.</td>
-          </tr>
-          }
-        </tbody>
-      </table>
-    </div>
-  </div>
-  <div class="box box-primary">
-    <div class="box-header with-border">
-      <h3 class="box-title">Routines</h3>
-      <span class="label label-primary pull-right">
-        <i class="fa fa-database fa-2x"></i>
-      </span>
-    </div>
-    <div class="box-body">
-      <table class="@Raw(Model.RoutinesTableClass.ToHtmlString()) table table-bordered table-striped dataTable" role="grid">
-        <thead>
-          <tr>
-            <th>Routine</th>
-          </tr>
-        </thead>
-        <tbody>
-          @if (Model.RoutinesCount > 0)
-          {
-          foreach (var routine in Model.Routines)
-          {
-          <tr class="tbl even">
-            <td class="detail">
-              <a href="routines/@(routine.RoutineUrl).html">@routine.Name</a>
-            </td>
-          </tr>
-          }
-          }
-          else
-          {
-          <tr class="tbl even">
-            <td class="detail">No routines present.</td>
-          </tr>
-          }
-        </tbody>
-      </table>
-    </div>
-  </div>
 </section>

@@ -12,19 +12,19 @@ using SJP.Schematic.Reporting.Html.ViewModels.Mappers;
 
 namespace SJP.Schematic.Reporting.Html.Renderers
 {
-    internal sealed class RoutineRenderer : ITemplateRenderer
+    internal sealed class SequenceRenderer : ITemplateRenderer
     {
-        public RoutineRenderer(
+        public SequenceRenderer(
             IRelationalDatabase database,
             IHtmlFormatter formatter,
-            IReadOnlyCollection<IDatabaseRoutine> routines,
+            IReadOnlyCollection<IDatabaseSequence> sequences,
             DirectoryInfo exportDirectory
         )
         {
-            if (routines == null || routines.AnyNull())
-                throw new ArgumentNullException(nameof(routines));
+            if (sequences == null || sequences.AnyNull())
+                throw new ArgumentNullException(nameof(sequences));
 
-            Routines = routines;
+            Sequences = sequences;
 
             Database = database ?? throw new ArgumentNullException(nameof(database));
             Formatter = formatter ?? throw new ArgumentNullException(nameof(formatter));
@@ -32,37 +32,37 @@ namespace SJP.Schematic.Reporting.Html.Renderers
             if (exportDirectory == null)
                 throw new ArgumentNullException(nameof(exportDirectory));
 
-            ExportDirectory = new DirectoryInfo(Path.Combine(exportDirectory.FullName, "routines"));
+            ExportDirectory = new DirectoryInfo(Path.Combine(exportDirectory.FullName, "sequences"));
         }
 
         private IRelationalDatabase Database { get; }
 
         private IHtmlFormatter Formatter { get; }
 
-        private IReadOnlyCollection<IDatabaseRoutine> Routines { get; }
+        private IReadOnlyCollection<IDatabaseSequence> Sequences { get; }
 
         private DirectoryInfo ExportDirectory { get; }
 
         public async Task RenderAsync(CancellationToken cancellationToken = default(CancellationToken))
         {
-            var mapper = new RoutineModelMapper();
+            var mapper = new SequenceModelMapper();
 
-            var routineTasks = Routines.Select(async routine =>
+            var sequenceTasks = Sequences.Select(async sequence =>
             {
-                var viewModel = mapper.Map(routine);
-                var renderedRoutine = Formatter.RenderTemplate(viewModel);
+                var viewModel = mapper.Map(sequence);
+                var renderedSequence = Formatter.RenderTemplate(viewModel);
 
-                var routineContainer = new Container(renderedRoutine, Database.IdentifierDefaults.Database, "../");
-                var renderedPage = Formatter.RenderTemplate(routineContainer);
+                var sequenceContainer = new Container(renderedSequence, Database.IdentifierDefaults.Database, "../");
+                var renderedPage = Formatter.RenderTemplate(sequenceContainer);
 
-                var outputPath = Path.Combine(ExportDirectory.FullName, routine.Name.ToSafeKey() + ".html");
+                var outputPath = Path.Combine(ExportDirectory.FullName, sequence.Name.ToSafeKey() + ".html");
                 if (!ExportDirectory.Exists)
                     ExportDirectory.Create();
 
                 using (var writer = File.CreateText(outputPath))
                     await writer.WriteAsync(renderedPage).ConfigureAwait(false);
             });
-            await Task.WhenAll(routineTasks).ConfigureAwait(false);
+            await Task.WhenAll(sequenceTasks).ConfigureAwait(false);
         }
     }
 }

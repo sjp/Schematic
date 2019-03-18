@@ -18,18 +18,10 @@
     color: #538DAC;
 }
 
-.detail {
-    padding: 0px 4px;
-}
-
 .impliedRelationship {
     display: none;
     font-style: italic;
     color: #183118
-}
-
-.dataTable > tbody > tr > td, .dataTable > tfoot > tr > td, .dataTable > thead > tr > td {
-    padding: 6px;
 }
 
 .description {
@@ -58,32 +50,10 @@
     padding: 0px 4px;
 }
 
-.excludedRelationship {
-    font-size: 85%;
-}
-
-.viewDefinition {
-    font-size: 90%;
-    background-color: #ffffff;
-    border-style: solid;
-    border-width: 1px;
-    float: left;
-    padding: 4px;
-    font-family: "Courier New", Courier, monospace
+.table-cell-no-border {
+    border: none;
 }
 
 .CodeMirror {
     height: auto;
-}
-
-.dataTables_filter {
-    padding-top: 4px;
-}
-
-.dataTables_filter .input-sm {
-    padding-left: 13px;
-}
-
-.chart {
-    max-height: 1000px;
 }

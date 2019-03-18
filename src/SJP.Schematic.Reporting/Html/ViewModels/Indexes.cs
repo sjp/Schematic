@@ -11,18 +11,14 @@ namespace SJP.Schematic.Reporting.Html.ViewModels
     /// </summary>
     public sealed class Indexes : ITemplateParameter
     {
-        public Indexes(IEnumerable<Index> indexes, string rootPath)
+        public Indexes(IEnumerable<Index> indexes)
         {
             TableIndexes = indexes ?? throw new ArgumentNullException(nameof(indexes));
             IndexesCount = indexes.UCount();
             IndexesTableClass = IndexesCount > 0 ? CssClasses.DataTableClass : string.Empty;
-
-            RootPath = rootPath ?? throw new ArgumentNullException(nameof(rootPath));
         }
 
         public ReportTemplate Template { get; } = ReportTemplate.Indexes;
-
-        public string RootPath { get; }
 
         public IEnumerable<Index> TableIndexes { get; }
 

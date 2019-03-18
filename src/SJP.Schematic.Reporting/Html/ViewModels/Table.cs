@@ -176,7 +176,7 @@ namespace SJP.Schematic.Reporting.Html.ViewModels
             private static HtmlString BuildColumnClass(bool isPrimaryKeyColumn, bool isUniqueKeyColumn, bool isForeignKeyColumn)
             {
                 var isKey = isPrimaryKeyColumn || isUniqueKeyColumn || isForeignKeyColumn;
-                return isKey ? @"class=""detail keyColumn""" : string.Empty;
+                return isKey ? @"class=""keyColumn""" : string.Empty;
             }
 
             private static HtmlString BuildColumnIcon(bool isPrimaryKeyColumn, bool isUniqueKeyColumn, bool isForeignKeyColumn)
@@ -468,19 +468,19 @@ namespace SJP.Schematic.Reporting.Html.ViewModels
                 Dot = dotDefinition;
 
                 ContainerId = tableName.ToSafeKey() + "-" + Name.ToLowerInvariant() + "-chart";
-                ActiveClass = isActive ? "class=\"active\"" : string.Empty;
-                ActiveText = isActive ? "active" : string.Empty;
+                ActiveClass = isActive ? "active" : string.Empty;
+                Selected = isActive ? "true" : "false";
             }
 
             public string Name { get; }
 
-            public HtmlString ContainerId { get; }
+            public string ContainerId { get; }
 
-            public HtmlString ActiveClass { get; }
+            public string ActiveClass { get; }
 
-            public HtmlString ActiveText { get; }
+            public string Selected { get; }
 
-            public HtmlString Dot { get; }
+            public string Dot { get; }
         }
     }
 }

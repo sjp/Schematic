@@ -13,6 +13,13 @@
         Relationships,
         Table,
         View,
-        Routine
+        Sequence,
+        Synonym,
+        Routine,
+        Tables,
+        Views,
+        Sequences,
+        Synonyms,
+        Routines
     }
 }
