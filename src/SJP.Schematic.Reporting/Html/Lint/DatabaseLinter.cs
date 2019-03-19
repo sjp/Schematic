@@ -142,6 +142,7 @@ namespace SJP.Schematic.Reporting.Html.Lint
             new ForeignKeyColumnTypeMismatchRule(Level),
             new ForeignKeyIndexRule(Level),
             new ForeignKeyIsPrimaryKeyRule(Level),
+            new ForeignKeyMissingRule(Level),
             new ForeignKeyRelationshipCycleRule(Level),
             new InvalidViewDefinitionRule(Connection, Dialect, Level),
             new NoIndexesPresentOnTableRule(Level),

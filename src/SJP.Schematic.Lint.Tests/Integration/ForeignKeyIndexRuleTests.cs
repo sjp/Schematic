@@ -67,7 +67,7 @@ create table not_indexed_child_table_1 (
         }
 
         [Test]
-        public void AnalyseTables_GivenTablesWithTableWithIndexOnForeignKey_ProducesMessages()
+        public void AnalyseTables_GivenTablesWithTableWithIndexOnForeignKey_ProducesNoMessages()
         {
             var rule = new ForeignKeyIndexRule(RuleLevel.Error);
             var database = GetSqliteDatabase();
@@ -84,7 +84,7 @@ create table not_indexed_child_table_1 (
         }
 
         [Test]
-        public async Task AnalyseTablesAsync_GivenTablesWithTableWithIndexOnForeignKey_ProducesMessages()
+        public async Task AnalyseTablesAsync_GivenTablesWithTableWithIndexOnForeignKey_ProducesNoMessages()
         {
             var rule = new ForeignKeyIndexRule(RuleLevel.Error);
             var database = GetSqliteDatabase();
