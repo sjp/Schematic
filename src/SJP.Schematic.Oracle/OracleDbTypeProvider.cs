@@ -18,7 +18,25 @@ namespace SJP.Schematic.Oracle
             if (typeMetadata.TypeName == null)
                 typeMetadata.TypeName = GetDefaultTypeName(typeMetadata);
             if (typeMetadata.DataType == DataType.Unknown)
+            {
                 typeMetadata.DataType = GetDataType(typeMetadata.TypeName);
+                if (typeMetadata.DataType == DataType.Numeric)
+                {
+                    var numericPrecision = typeMetadata.NumericPrecision.Filter(np => np.Scale == 0);
+                    numericPrecision.IfSome(np =>
+                    {
+                        typeMetadata.DataType = np.Precision < 8
+                            ? DataType.Integer     // 2^32
+                            : DataType.BigInteger; // note: could require storing in a decimal instead of long
+                    });
+                    if (typeMetadata.NumericPrecision.IsNone)
+                    {
+                        typeMetadata.DataType = typeMetadata.MaxLength < 8
+                            ? DataType.Integer     // 2^32
+                            : DataType.BigInteger; // note: could require storing in a decimal instead of long
+                    }
+                }
+            }
             if (typeMetadata.ClrType == null)
                 typeMetadata.ClrType = GetClrType(typeMetadata.TypeName);
             typeMetadata.IsFixedLength = GetIsFixedLength(typeMetadata.TypeName);
