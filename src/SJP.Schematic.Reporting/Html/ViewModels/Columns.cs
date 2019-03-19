@@ -114,7 +114,7 @@ namespace SJP.Schematic.Reporting.Html.ViewModels
             )
             {
                 var isKey = isPrimaryKeyColumn || isUniqueKeyColumn || isForeignKeyColumn;
-                ColumnClass = isKey ? @"class=""keyColumn""" : string.Empty;
+                ColumnClass = isKey ? @"class=""is-key-column""" : string.Empty;
 
                 ColumnIcon = BuildColumnIcon(isPrimaryKeyColumn, isUniqueKeyColumn, isForeignKeyColumn);
                 ColumnTitle = BuildColumnTitle(isPrimaryKeyColumn, isUniqueKeyColumn, isForeignKeyColumn);
@@ -150,19 +150,19 @@ namespace SJP.Schematic.Reporting.Html.ViewModels
 
                 if (isPrimaryKeyColumn)
                 {
-                    const string iconText = @"<i title=""Primary Key"" class=""fa fa-key primaryKeyIcon"" style=""padding-left: 5px; padding-right: 5px;""></i>";
+                    const string iconText = @"<i title=""Primary Key"" class=""fa fa-key primaryKeyIcon"" style=""padding-left: 5px; padding-right: 5px;"" aria-hidden=""true""></i>";
                     iconPieces.Add(iconText);
                 }
 
                 if (isUniqueKeyColumn)
                 {
-                    const string iconText = @"<i title=""Unique Key"" class=""fa fa-key uniqueKeyIcon"" style=""padding-left: 5px; padding-right: 5px;""></i>";
+                    const string iconText = @"<i title=""Unique Key"" class=""fa fa-key uniqueKeyIcon"" style=""padding-left: 5px; padding-right: 5px;"" aria-hidden=""true""></i>";
                     iconPieces.Add(iconText);
                 }
 
                 if (isForeignKeyColumn)
                 {
-                    const string iconText = @"<i title=""Foreign Key"" class=""fa fa-key foreignKeyIcon"" style=""padding-left: 5px; padding-right: 5px;""></i>";
+                    const string iconText = @"<i title=""Foreign Key"" class=""fa fa-key foreignKeyIcon"" style=""padding-left: 5px; padding-right: 5px;"" aria-hidden=""true""></i>";
                     iconPieces.Add(iconText);
                 }
 
