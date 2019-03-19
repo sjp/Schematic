@@ -25,7 +25,7 @@ namespace SJP.Schematic.Reporting.Html.ViewModels
             IEnumerable<Routine> routines
         )
         {
-            DatabaseName = databaseName ?? string.Empty;
+            DatabaseName = databaseName ?? "Unnamed Database";
             DatabaseVersion = databaseVersion ?? string.Empty;
 
             ColumnsCount = columnsCount;
