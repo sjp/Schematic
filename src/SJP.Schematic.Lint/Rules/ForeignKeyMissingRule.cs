@@ -54,7 +54,8 @@ namespace SJP.Schematic.Lint.Rules
             foreach (var column in table.Columns)
             {
                 var impliedTable = GetImpliedTableName(column.Name.LocalName);
-                var targetTableName = tableNames.FirstOrDefault(t => string.Equals(impliedTable, t.LocalName, StringComparison.OrdinalIgnoreCase));
+                var targetTableName = tableNames.FirstOrDefault(t => string.Equals(impliedTable, t.LocalName, StringComparison.OrdinalIgnoreCase)
+                    && !string.Equals(impliedTable, table.Name.LocalName, StringComparison.OrdinalIgnoreCase));
                 if (targetTableName == null)
                     continue;
 

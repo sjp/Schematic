@@ -33,9 +33,9 @@ namespace SJP.Schematic.Reporting.Html.Lint.Rules
 
             builder.Append("The table ")
                 .Append(tableLink)
-                .Append(" has a column ")
+                .Append(" has a column <code>")
                 .Append(columnName)
-                .Append(" implying a relationship to ")
+                .Append("</code> implying a relationship to ")
                 .Append(targetTableLink)
                 .Append(" which is missing a foreign key constraint.");
 
