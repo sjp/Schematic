@@ -1,5 +1,5 @@
 $(document).ready(function () {
-    $('.database_objects').each(function (_, el) {
+    $('.table-db-objects').each(function (_, el) {
         $(el).DataTable({
             lengthChange: false,
             paging: true,

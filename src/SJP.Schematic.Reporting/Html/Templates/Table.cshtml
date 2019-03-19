@@ -10,9 +10,9 @@
             </div>
             <div class="col-sm-6">
                 <ol class="breadcrumb float-sm-right">
-                    <li class="breadcrumb-item"><a href="@(Model.RootPath)/index.html">Home</a></li>
-                    <li class="breadcrumb-item"><a href="@(Model.RootPath)/tables.html">Tables</a></li>
-                    <li class="breadcrumb-item active">@Model.Name</li>
+                    <li class="breadcrumb-item"><a href="@(Model.RootPath)index.html">Home</a></li>
+                    <li class="breadcrumb-item"><a href="@(Model.RootPath)tables.html">Tables</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">@Model.Name</li>
                 </ol>
             </div>
         </div>
@@ -26,21 +26,21 @@
                     <h3 class="card-title"><i class="fa fa-columns" aria-hidden="true">&nbsp;&nbsp;</i>Columns</h3>
                     <div class="card-tools">
                         <button type="button" class="btn btn-tool" data-widget="collapse">
-                            <i class="fa fa-minus"></i>
+                            <i class="fa fa-minus" aria-hidden="true"></i>
                         </button>
                     </div>
                 </div>
                 <div class="card-body">
                     <table class="@Raw(Model.ColumnsTableClass.ToHtmlString()) table table-bordered table-hover" role="grid">
-                        <thead align="left">
+                        <thead>
                             <tr>
-                                <th>Ordinal Position</th>
-                                <th>Column</th>
-                                <th>Type</th>
-                                <th title="Are nulls allowed?">Nullable</th>
-                                <th title="Default value">Default</th>
-                                <th title="Columns in tables that reference this column">Children</th>
-                                <th title="Columns in tables that are referenced by this column">Parents</th>
+                                <th scope="col">Ordinal Position</th>
+                                <th scope="col">Column</th>
+                                <th scope="col">Type</th>
+                                <th scope="col" title="Are nulls allowed?">Nullable</th>
+                                <th scope="col" title="Default value">Default</th>
+                                <th scope="col" title="Columns in tables that reference this column">Children</th>
+                                <th scope="col" title="Columns in tables that are referenced by this column">Parents</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -58,6 +58,7 @@
                                             @if (column.ChildKeysCount > 0)
                                             {
                                                 <table>
+                                                    <tbody>
                                                     @foreach (var childKey in column.ChildKeys)
                                                     {
                                                         <tr>
@@ -66,6 +67,7 @@
                                                             </td>
                                                         </tr>
                                                     }
+                                                    </tbody>
                                                 </table>
                                             }
                                         </td>
@@ -73,6 +75,7 @@
                                             @if (column.ParentKeysCount > 0)
                                             {
                                                 <table>
+                                                    <tbody>
                                                     @foreach (var parentKey in column.ParentKeys)
                                                     {
                                                         <tr>
@@ -81,6 +84,7 @@
                                                             </td>
                                                         </tr>
                                                     }
+                                                    </tbody>
                                                 </table>
                                             }
                                         </td>
@@ -109,16 +113,16 @@
                     <h3 class="card-title"><i class="fa fa-key" aria-hidden="true">&nbsp;&nbsp;</i>Primary Key Constraint</h3>
                     <div class="card-tools">
                         <button type="button" class="btn btn-tool" data-widget="collapse">
-                            <i class="fa fa-minus"></i>
+                            <i class="fa fa-minus" aria-hidden="true"></i>
                         </button>
                     </div>
                 </div>
                 <div class="card-body">
                     <table class="@Raw(Model.PrimaryKeyTableClass.ToHtmlString()) table table-bordered table-hover" role="grid">
-                        <thead align="left">
+                        <thead>
                             <tr>
-                                <th>Constraint Name</th>
-                                <th>Columns</th>
+                                <th scope="col">Constraint Name</th>
+                                <th scope="col">Columns</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -148,16 +152,16 @@
                     <h3 class="card-title"><i class="fa fa-key" aria-hidden="true">&nbsp;&nbsp;</i>@Model.UniqueKeysCount Unique Key Constraints</h3>
                     <div class="card-tools">
                         <button type="button" class="btn btn-tool" data-widget="collapse">
-                            <i class="fa fa-minus"></i>
+                            <i class="fa fa-minus" aria-hidden="true"></i>
                         </button>
                     </div>
                 </div>
                 <div class="card-body">
                     <table class="@Raw(Model.UniqueKeysTableClass.ToHtmlString()) table table-bordered table-hover" role="grid">
-                        <thead align="left">
+                        <thead>
                             <tr>
-                                <th>Constraint Name</th>
-                                <th>Columns</th>
+                                <th scope="col">Constraint Name</th>
+                                <th scope="col">Columns</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -190,21 +194,21 @@
                     <h3 class="card-title"><i class="fa fa-key" aria-hidden="true">&nbsp;&nbsp;</i>@Model.ForeignKeysCount Foreign Key Constraints</h3>
                     <div class="card-tools">
                         <button type="button" class="btn btn-tool" data-widget="collapse">
-                            <i class="fa fa-minus"></i>
+                            <i class="fa fa-minus" aria-hidden="true"></i>
                         </button>
                     </div>
                 </div>
                 <div class="card-body">
                     <table class="@Raw(Model.ForeignKeysTableClass.ToHtmlString()) table table-bordered table-hover" role="grid">
-                        <thead align="left">
+                        <thead>
                             <tr>
-                                <th>Constraint Name</th>
-                                <th>Columns</th>
-                                <th>Parent Constraint Name</th>
-                                <th>Parent Table</th>
-                                <th>Parent Columns</th>
-                                <th>Delete Rule</th>
-                                <th>Update Rule</th>
+                                <th scope="col">Constraint Name</th>
+                                <th scope="col">Columns</th>
+                                <th scope="col">Parent Constraint Name</th>
+                                <th scope="col">Parent Table</th>
+                                <th scope="col">Parent Columns</th>
+                                <th scope="col">Delete Rule</th>
+                                <th scope="col">Update Rule</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -248,16 +252,16 @@
                     <h3 class="card-title"><i class="fa fa-check" aria-hidden="true">&nbsp;&nbsp;</i>@Model.CheckConstraintsCount Check Constraints</h3>
                     <div class="card-tools">
                         <button type="button" class="btn btn-tool" data-widget="collapse">
-                            <i class="fa fa-minus"></i>
+                            <i class="fa fa-minus" aria-hidden="true"></i>
                         </button>
                     </div>
                 </div>
                 <div class="card-body">
                     <table class="@Raw(Model.CheckConstraintsTableClass.ToHtmlString()) table table-bordered table-hover" role="grid">
-                        <thead align="left">
+                        <thead>
                             <tr>
-                                <th>Constraint Name</th>
-                                <th>Definition</th>
+                                <th scope="col">Constraint Name</th>
+                                <th scope="col">Definition</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -292,7 +296,7 @@
                     <h3 class="card-title"><i class="fa fa-sitemap" aria-hidden="true">&nbsp;&nbsp;</i>@Model.IndexesCount Indexes</h3>
                     <div class="card-tools">
                         <button type="button" class="btn btn-tool" data-widget="collapse">
-                            <i class="fa fa-minus"></i>
+                            <i class="fa fa-minus" aria-hidden="true"></i>
                         </button>
                     </div>
                 </div>
@@ -300,10 +304,10 @@
                     <table class="@Raw(Model.IndexesTableClass.ToHtmlString()) table table-bordered table-hover" role="grid">
                         <thead>
                             <tr>
-                                <th>Index Name</th>
-                                <th>Unique</th>
-                                <th>Columns</th>
-                                <th>Included Columns</th>
+                                <th scope="col">Index Name</th>
+                                <th scope="col">Unique</th>
+                                <th scope="col">Columns</th>
+                                <th scope="col">Included Columns</th>
                             </tr>
                         </thead>
                         <tbody>

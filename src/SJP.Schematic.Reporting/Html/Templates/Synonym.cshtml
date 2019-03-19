@@ -10,9 +10,9 @@
             </div>
             <div class="col-sm-6">
                 <ol class="breadcrumb float-sm-right">
-                    <li class="breadcrumb-item"><a href="@(Model.RootPath)/index.html">Home</a></li>
-                    <li class="breadcrumb-item"><a href="@(Model.RootPath)/synonyms.html">Synonyms</a></li>
-                    <li class="breadcrumb-item active">@Model.Name</li>
+                    <li class="breadcrumb-item"><a href="@(Model.RootPath)index.html">Home</a></li>
+                    <li class="breadcrumb-item"><a href="@(Model.RootPath)synonyms.html">Synonyms</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">@Model.Name</li>
                 </ol>
             </div>
         </div>
@@ -26,32 +26,22 @@
                     <h3 class="card-title"><i class="fa fa-share" aria-hidden="true">&nbsp;&nbsp;</i>Synonym Definition</h3>
                     <div class="card-tools">
                         <button type="button" class="btn btn-tool" data-widget="collapse">
-                            <i class="fa fa-minus"></i>
+                            <i class="fa fa-minus" aria-hidden="true"></i>
                         </button>
                     </div>
                 </div>
                 <div class="card-body">
-                    <table class="db-objects-table table table-bordered table-hover" role="grid">
+                    <table class="table-db-objects table table-bordered table-hover" role="grid">
                         <thead>
                             <tr>
-                                <th>Sequence</th>
-                                <th>Start</th>
-                                <th>Increment</th>
-                                <th>Minimum Value</th>
-                                <th>Maximum Value</th>
-                                <th>Cache</th>
-                                <th>Cycle</th>
+                                <th scope="col">Synonym</th>
+                                <th scope="col">Target</th>
                             </tr>
                         </thead>
                         <tbody>
-                            <tr class="tbl">
+                            <tr>
                                 <td>@Model.Name</td>
-                                <td>@Model.Start</td>
-                                <td>@Model.Increment</td>
-                                <td>@Model.MinValueText</td>
-                                <td>@Model.MaxValueText</td>
-                                <td>@Model.Cache</td>
-                                <td>@Model.CycleText</td>
+                                <td>@Raw(Model.TargetText.ToHtmlString())</td>
                             </tr>
                         </tbody>
                     </table>

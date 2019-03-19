@@ -11,7 +11,7 @@
             <div class="col-sm-6">
                 <ol class="breadcrumb float-sm-right">
                     <li class="breadcrumb-item"><a href="index.html">Home</a></li>
-                    <li class="breadcrumb-item active">Routines</li>
+                    <li class="breadcrumb-item active" aria-current="page">Routines</li>
                 </ol>
             </div>
         </div>
@@ -22,13 +22,13 @@
         <div class="col-12">
             <div class="card">
                 <div class="card-header">
-                    <h3 class="card-title"><i class="fa fa-code">&nbsp;&nbsp;</i>Routines</h3>
+                    <h3 class="card-title"><i class="fa fa-code" aria-hidden="true">&nbsp;&nbsp;</i>Routines</h3>
                 </div>
                 <div class="card-body">
                     <table class="@Raw(Model.RoutinesTableClass.ToHtmlString()) table table-bordered table-hover" role="grid">
                         <thead>
                             <tr>
-                                <th>Routine</th>
+                                <th scope="col">Routine</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -36,7 +36,7 @@
                             {
                                 foreach (var routine in Model.AllRoutines)
                                 {
-                                    <tr class="tbl even">
+                                    <tr>
                                         <td>
                                             <a href="routines/@(routine.RoutineUrl).html">@routine.Name</a>
                                         </td>
@@ -45,7 +45,7 @@
                             }
                             else
                             {
-                                <tr class="tbl even">
+                                <tr>
                                     <td>No routines present.</td>
                                 </tr>
                             }

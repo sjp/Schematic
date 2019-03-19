@@ -11,7 +11,7 @@
             <div class="col-sm-6">
                 <ol class="breadcrumb float-sm-right">
                     <li class="breadcrumb-item"><a href="index.html">Home</a></li>
-                    <li class="breadcrumb-item active">Columns</li>
+                    <li class="breadcrumb-item active" aria-current="page">Columns</li>
                 </ol>
             </div>
         </div>
@@ -27,15 +27,15 @@
                 </div>
                 <div class="card-body">
                     <table class="@Raw(Model.ColumnsTableClass.ToHtmlString()) table table-bordered table-hover" role="grid">
-                        <thead align="left">
+                        <thead>
                             <tr>
-                                <th>Table</th>
-                                <th>Type</th>
-                                <th>Column</th>
-                                <th>Ordinal Position</th>
-                                <th>Type</th>
-                                <th title="Are nulls allowed?">Nullable</th>
-                                <th title="Default value">Default</th>
+                                <th scope="row">Table</th>
+                                <th scope="row">Type</th>
+                                <th scope="row">Column</th>
+                                <th scope="row">Ordinal Position</th>
+                                <th scope="row">Type</th>
+                                <th scope="row" title="Are nulls allowed?">Nullable</th>
+                                <th scope="row" title="Default value">Default</th>
                             </tr>
                         </thead>
                         <tbody>

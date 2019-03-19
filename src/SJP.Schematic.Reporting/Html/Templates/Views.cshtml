@@ -11,7 +11,7 @@
             <div class="col-sm-6">
                 <ol class="breadcrumb float-sm-right">
                     <li class="breadcrumb-item"><a href="index.html">Home</a></li>
-                    <li class="breadcrumb-item active">Views</li>
+                    <li class="breadcrumb-item active" aria-current="page">Views</li>
                 </ol>
             </div>
         </div>
@@ -22,15 +22,15 @@
         <div class="col-12">
             <div class="card">
                 <div class="card-header">
-                    <h3 class="card-title"><i class="fa fa-search-plus">&nbsp;&nbsp;</i>Views</h3>
+                    <h3 class="card-title"><i class="fa fa-search-plus" aria-hidden="true">&nbsp;&nbsp;</i>Views</h3>
                 </div>
                 <div class="card-body">
                     <table class="@Raw(Model.ViewsTableClass.ToHtmlString()) table table-bordered table-hover" role="grid">
                         <thead>
                             <tr>
-                                <th valign="bottom">View</th>
-                                <th align="right" valign="bottom">Columns</th>
-                                <th align="right" valign="bottom">Rows</th>
+                                <th scope="col">View</th>
+                                <th scope="col">Columns</th>
+                                <th scope="col">Rows</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -38,18 +38,16 @@
                             {
                                 foreach (var view in Model.AllViews)
                                 {
-                                    <tr class="tbl even" valign="top">
-                                        <td>
-                                            <a href="views/@(view.ViewUrl).html">@view.Name</a>
-                                        </td>
-                                        <td align="right">@view.ColumnCount</td>
-                                        <td align="right">@view.RowCount</td>
+                                    <tr>
+                                        <td><a href="views/@(view.ViewUrl).html">@view.Name</a></td>
+                                        <td>@view.ColumnCount</td>
+                                        <td>@view.RowCount</td>
                                     </tr>
                                 }
                             }
                             else
                             {
-                                <tr class="tbl even">
+                                <tr>
                                     <td colspan="3">No views present.</td>
                                 </tr>
                             }

@@ -176,7 +176,7 @@ namespace SJP.Schematic.Reporting.Html.ViewModels
             private static HtmlString BuildColumnClass(bool isPrimaryKeyColumn, bool isUniqueKeyColumn, bool isForeignKeyColumn)
             {
                 var isKey = isPrimaryKeyColumn || isUniqueKeyColumn || isForeignKeyColumn;
-                return isKey ? @"class=""keyColumn""" : string.Empty;
+                return isKey ? @"class=""is-key-column""" : string.Empty;
             }
 
             private static HtmlString BuildColumnIcon(bool isPrimaryKeyColumn, bool isUniqueKeyColumn, bool isForeignKeyColumn)
@@ -185,19 +185,19 @@ namespace SJP.Schematic.Reporting.Html.ViewModels
 
                 if (isPrimaryKeyColumn)
                 {
-                    const string iconText = @"<i title=""Primary Key"" class=""fa fa-key primaryKeyIcon"" style=""padding-left: 5px; padding-right: 5px;""></i>";
+                    const string iconText = @"<i title=""Primary Key"" class=""fa fa-key icon-primary-key"" style=""padding-left: 5px; padding-right: 5px;"" aria-hidden=""true""></i>";
                     iconPieces.Add(iconText);
                 }
 
                 if (isUniqueKeyColumn)
                 {
-                    const string iconText = @"<i title=""Unique Key"" class=""fa fa-key uniqueKeyIcon"" style=""padding-left: 5px; padding-right: 5px;""></i>";
+                    const string iconText = @"<i title=""Unique Key"" class=""fa fa-key icon-unique-key"" style=""padding-left: 5px; padding-right: 5px;"" aria-hidden=""true""></i>";
                     iconPieces.Add(iconText);
                 }
 
                 if (isForeignKeyColumn)
                 {
-                    const string iconText = @"<i title=""Foreign Key"" class=""fa fa-key foreignKeyIcon"" style=""padding-left: 5px; padding-right: 5px;""></i>";
+                    const string iconText = @"<i title=""Foreign Key"" class=""fa fa-key icon-foreign-key"" style=""padding-left: 5px; padding-right: 5px;"" aria-hidden=""true""></i>";
                     iconPieces.Add(iconText);
                 }
 

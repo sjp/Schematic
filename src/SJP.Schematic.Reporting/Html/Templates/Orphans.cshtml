@@ -11,7 +11,7 @@
             <div class="col-sm-6">
                 <ol class="breadcrumb float-sm-right">
                     <li class="breadcrumb-item"><a href="index.html">Home</a></li>
-                    <li class="breadcrumb-item active">Orphan Tables</li>
+                    <li class="breadcrumb-item active" aria-current="page">Orphan Tables</li>
                 </ol>
             </div>
         </div>
@@ -22,10 +22,10 @@
         <div class="col-12">
             <div class="card">
                 <div class="card-header">
-                    <h3 class="card-title"><i class="fa fa-table">&nbsp;&nbsp;</i>Orphan Tables</h3>
+                    <h3 class="card-title"><i class="fa fa-table" aria-hidden="true">&nbsp;&nbsp;</i>Orphan Tables</h3>
                     <div class="card-tools">
                         <button type="button" class="btn btn-tool" data-widget="collapse">
-                            <i class="fa fa-minus"></i>
+                            <i class="fa fa-minus" aria-hidden="true"></i>
                         </button>
                     </div>
                 </div>
@@ -33,9 +33,9 @@
                     <table class="@Raw(Model.TablesTableClass.ToHtmlString()) table table-bordered table-hover" role="grid">
                         <thead>
                             <tr>
-                                <th valign="bottom">Table</th>
-                                <th align="right" valign="bottom">Columns</th>
-                                <th align="right" valign="bottom">Rows</th>
+                                <th scope="row">Table</th>
+                                <th scope="row">Columns</th>
+                                <th scope="row">Rows</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -43,18 +43,18 @@
                             {
                                 foreach (var table in Model.Tables)
                                 {
-                                    <tr class="tbl even" valign="top">
+                                    <tr>
                                         <td>
                                             <a href="tables/@(table.TableUrl).html">@table.Name</a>
                                         </td>
-                                        <td align="right">@table.ColumnCount</td>
-                                        <td align="right">@table.RowCount</td>
+                                        <td>@table.ColumnCount</td>
+                                        <td>@table.RowCount</td>
                                     </tr>
                                 }
                             }
                             else
                             {
-                                <tr class="tbl even" valign="top">
+                                <tr>
                                     <td colspan="3">No orphan tables present.</td>
                                 </tr>
                             }

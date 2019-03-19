@@ -10,9 +10,9 @@
             </div>
             <div class="col-sm-6">
                 <ol class="breadcrumb float-sm-right">
-                    <li class="breadcrumb-item"><a href="@(Model.RootPath)/index.html">Home</a></li>
-                    <li class="breadcrumb-item"><a href="@(Model.RootPath)/views.html">Views</a></li>
-                    <li class="breadcrumb-item active">@Model.Name</li>
+                    <li class="breadcrumb-item"><a href="@(Model.RootPath)index.html">Home</a></li>
+                    <li class="breadcrumb-item"><a href="@(Model.RootPath)views.html">Views</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">@Model.Name</li>
                 </ol>
             </div>
         </div>
@@ -26,19 +26,19 @@
                     <h3 class="card-title"><i class="fa fa-columns" aria-hidden="true">&nbsp;&nbsp;</i>Columns</h3>
                     <div class="card-tools">
                         <button type="button" class="btn btn-tool" data-widget="collapse">
-                            <i class="fa fa-minus"></i>
+                            <i class="fa fa-minus" aria-hidden="true"></i>
                         </button>
                     </div>
                 </div>
                 <div class="card-body">
                     <table class="@Raw(Model.ColumnsTableClass.ToHtmlString()) table table-bordered table-hover" role="grid">
-                        <thead align="left">
+                        <thead>
                             <tr>
-                                <th>Ordinal Position</th>
-                                <th>Column</th>
-                                <th>Type</th>
-                                <th title="Are nulls allowed?">Nullable</th>
-                                <th title="Default value">Default</th>
+                                <th scope="col">Ordinal Position</th>
+                                <th scope="col">Column</th>
+                                <th scope="col">Type</th>
+                                <th scope="col" title="Are nulls allowed?">Nullable</th>
+                                <th scope="col" title="Default value">Default</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -77,7 +77,7 @@
                     <h3 class="card-title"><i class="fa fa-file-code-o" aria-hidden="true">&nbsp;&nbsp;</i>View Definition</h3>
                     <div class="card-tools">
                         <button type="button" class="btn btn-tool" data-widget="collapse">
-                            <i class="fa fa-minus"></i>
+                            <i class="fa fa-minus" aria-hidden="true"></i>
                         </button>
                     </div>
                 </div>

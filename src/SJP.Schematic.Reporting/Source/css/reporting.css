@@ -1,53 +1,21 @@
-.keyColumn {
+.is-key-column {
     font-weight: bold;
     white-space: nowrap;
 }
 
-.primaryKeyIcon {
+.icon-primary-key {
     display: inline-block;
     color: #D7CD28;
 }
 
-.foreignKeyIcon {
+.icon-foreign-key {
     display: inline-block;
     color: #808080;
 }
 
-.uniqueKeyIcon {
+.icon-unique-key {
     display: inline-block;
     color: #538DAC;
-}
-
-.impliedRelationship {
-    display: none;
-    font-style: italic;
-    color: #183118
-}
-
-.description {
-    display: block;
-    padding: 8px 0px;
-}
-
-.signature {
-    font-size: 105%;
-    font-weight: bold;
-    font-style: italic;
-}
-
-.relatedTable {
-    padding: 0px 4px;
-}
-
-.relatedKey {
-    display: none;
-    padding: 0px -4px 0px 4px;
-}
-
-.constraint {
-    display: none;
-    text-align: right;
-    padding: 0px 4px;
 }
 
 .table-cell-no-border {

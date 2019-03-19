@@ -11,7 +11,7 @@
             <div class="col-sm-6">
                 <ol class="breadcrumb float-sm-right">
                     <li class="breadcrumb-item"><a href="index.html">Home</a></li>
-                    <li class="breadcrumb-item active">Lint Issues</li>
+                    <li class="breadcrumb-item active" aria-current="page">Lint Issues</li>
                 </ol>
             </div>
         </div>
@@ -40,19 +40,18 @@
             <div class="col-12">
                 <div class="card">
                     <div class="card-header">
-                        <h3 class="card-title"><i class="fa fa-exclamation-circle">&nbsp;&nbsp;</i>@lintRule.RuleTitle</h3>
+                        <h3 class="card-title"><i class="fa fa-exclamation-circle" aria-hidden="true">&nbsp;&nbsp;</i>@lintRule.RuleTitle</h3>
                         <div class="card-tools">
                             <button type="button" class="btn btn-tool" data-widget="collapse">
-                                <i class="fa fa-minus"></i>
+                                <i class="fa fa-minus" aria-hidden="true"></i>
                             </button>
                         </div>
                     </div>
-
                     <div class="card-body">
                         <table class="table table-bordered table-hover" role="grid">
                             <thead>
                                 <tr>
-                                    <th>Message</th>
+                                    <th scope="row">Message</th>
                                 </tr>
                             </thead>
                             <tbody>

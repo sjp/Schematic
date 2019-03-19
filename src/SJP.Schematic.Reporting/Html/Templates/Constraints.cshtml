@@ -12,7 +12,7 @@
             <div class="col-sm-6">
                 <ol class="breadcrumb float-sm-right">
                     <li class="breadcrumb-item"><a href="index.html">Home</a></li>
-                    <li class="breadcrumb-item active">Constraints</li>
+                    <li class="breadcrumb-item active" aria-current="page">Constraints</li>
                 </ol>
             </div>
         </div>
@@ -23,20 +23,20 @@
         <div class="col-12">
             <div class="card">
                 <div class="card-header">
-                    <h3 class="card-title"><i class="fa fa-key">&nbsp;&nbsp;</i>@Model.PrimaryKeysCount Primary Key Constraints</h3>
+                    <h3 class="card-title"><i class="fa fa-key" aria-hidden="true">&nbsp;&nbsp;</i>@Model.PrimaryKeysCount Primary Key Constraints</h3>
                     <div class="card-tools">
                         <button type="button" class="btn btn-tool" data-widget="collapse">
-                            <i class="fa fa-minus"></i>
+                            <i class="fa fa-minus" aria-hidden="true"></i>
                         </button>
                     </div>
                 </div>
                 <div class="card-body">
                     <table class="@Raw(Model.PrimaryKeysTableClass.ToHtmlString()) table table-bordered table-hover" role="grid">
-                        <thead align="left">
+                        <thead>
                             <tr>
-                                <th>Constraint Name</th>
-                                <th>Table</th>
-                                <th>Columns</th>
+                                <th scope="row">Constraint Name</th>
+                                <th scope="row">Table</th>
+                                <th scope="row">Columns</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -69,19 +69,19 @@
         <div class="col-12">
             <div class="card">
                 <div class="card-header">
-                    <h3 class="card-title"><i class="fa fa-key">&nbsp;&nbsp;</i>@Model.UniqueKeysCount Unique Key Constraints</h3>
+                    <h3 class="card-title"><i class="fa fa-key" aria-hidden="true">&nbsp;&nbsp;</i>@Model.UniqueKeysCount Unique Key Constraints</h3>
                     <div class="card-tools">
                         <button type="button" class="btn btn-tool" data-widget="collapse">
-                            <i class="fa fa-minus"></i>
+                            <i class="fa fa-minus" aria-hidden="true"></i>
                         </button>
                     </div>
                 </div>
                 <div class="card-body">
                     <table class="@Raw(Model.UniqueKeysTableClass.ToHtmlString()) table table-bordered table-hover" role="grid">
-                        <thead align="left">
+                        <thead>
                             <tr>
-                                <th>Constraint Name</th>
-                                <th>Columns</th>
+                                <th scope="row">Constraint Name</th>
+                                <th scope="row">Columns</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -111,24 +111,24 @@
         <div class="col-12">
             <div class="card">
                 <div class="card-header">
-                    <h3 class="card-title"><i class="fa fa-key">&nbsp;&nbsp;</i>@Model.ForeignKeysCount Foreign Key Constraints</h3>
+                    <h3 class="card-title"><i class="fa fa-key" aria-hidden="true">&nbsp;&nbsp;</i>@Model.ForeignKeysCount Foreign Key Constraints</h3>
                     <div class="card-tools">
                         <button type="button" class="btn btn-tool" data-widget="collapse">
-                            <i class="fa fa-minus"></i>
+                            <i class="fa fa-minus" aria-hidden="true"></i>
                         </button>
                     </div>
                 </div>
                 <div class="card-body">
                     <table class="@Raw(Model.ForeignKeysTableClass.ToHtmlString()) table table-bordered table-hover" role="grid">
-                        <thead align="left">
+                        <thead>
                             <tr>
-                                <th>Constraint Name</th>
-                                <th>Columns</th>
-                                <th>Parent Constraint Name</th>
-                                <th>Parent Table</th>
-                                <th>Parent Columns</th>
-                                <th>Delete Rule</th>
-                                <th>Update Rule</th>
+                                <th scope="row">Constraint Name</th>
+                                <th scope="row">Columns</th>
+                                <th scope="row">Parent Constraint Name</th>
+                                <th scope="row">Parent Table</th>
+                                <th scope="row">Parent Columns</th>
+                                <th scope="row">Delete Rule</th>
+                                <th scope="row">Update Rule</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -169,19 +169,19 @@
         <div class="col-12">
             <div class="card">
                 <div class="card-header">
-                    <h3 class="card-title"><i class="fa fa-check">&nbsp;&nbsp;</i>@Model.CheckConstraintsCount Check Constraints</h3>
+                    <h3 class="card-title"><i class="fa fa-check" aria-hidden="true">&nbsp;&nbsp;</i>@Model.CheckConstraintsCount Check Constraints</h3>
                     <div class="card-tools">
                         <button type="button" class="btn btn-tool" data-widget="collapse">
-                            <i class="fa fa-minus"></i>
+                            <i class="fa fa-minus" aria-hidden="true"></i>
                         </button>
                     </div>
                 </div>
                 <div class="card-body">
                     <table class="@Raw(Model.CheckConstraintsTableClass.ToHtmlString()) table table-bordered table-hover" role="grid">
-                        <thead align="left">
+                        <thead>
                             <tr>
-                                <th>Constraint Name</th>
-                                <th>Definition</th>
+                                <th scope="row">Constraint Name</th>
+                                <th scope="row">Definition</th>
                             </tr>
                         </thead>
                         <tbody>

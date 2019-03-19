@@ -11,7 +11,7 @@
             <div class="col-sm-6">
                 <ol class="breadcrumb float-sm-right">
                     <li class="breadcrumb-item"><a href="index.html">Home</a></li>
-                    <li class="breadcrumb-item active">Sequences</li>
+                    <li class="breadcrumb-item active" aria-current="page">Sequences</li>
                 </ol>
             </div>
         </div>
@@ -22,19 +22,19 @@
         <div class="col-12">
             <div class="card">
                 <div class="card-header">
-                    <h3 class="card-title"><i class="fa fa-sort-numeric-asc">&nbsp;&nbsp;</i>Sequences</h3>
+                    <h3 class="card-title"><i class="fa fa-sort-numeric-asc" aria-hidden="true">&nbsp;&nbsp;</i>Sequences</h3>
                 </div>
                 <div class="card-body">
                     <table class="@Raw(Model.SequencesTableClass.ToHtmlString()) table table-bordered table-hover" role="grid">
                         <thead>
                             <tr>
-                                <th>Sequence</th>
-                                <th>Start</th>
-                                <th>Increment</th>
-                                <th>Minimum Value</th>
-                                <th>Maximum Value</th>
-                                <th>Cache</th>
-                                <th>Cycle</th>
+                                <th scope="col">Sequence</th>
+                                <th scope="col">Start</th>
+                                <th scope="col">Increment</th>
+                                <th scope="col">Minimum Value</th>
+                                <th scope="col">Maximum Value</th>
+                                <th scope="col">Cache</th>
+                                <th scope="col">Cycle</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -42,7 +42,7 @@
                             {
                                 foreach (var sequence in Model.AllSequences)
                                 {
-                                    <tr class="tbl even">
+                                    <tr>
                                         <td><a href="sequences/@(sequence.SequenceUrl).html">@sequence.Name</a></td>
                                         <td>@sequence.Start</td>
                                         <td>@sequence.Increment</td>
@@ -55,7 +55,7 @@
                             }
                             else
                             {
-                                <tr class="tbl even">
+                                <tr>
                                     <td colspan="7">No sequences present.</td>
                                 </tr>
                             }
