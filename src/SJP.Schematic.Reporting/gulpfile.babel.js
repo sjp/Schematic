@@ -1,66 +1,59 @@
 'use strict';
 
-const gulp = require('gulp');
-const newer = require('gulp-newer');
-const uglify = require('gulp-uglify');
-const concat = require('gulp-concat');
-const cssnano = require('gulp-cssnano');
-const postcss = require('gulp-postcss');
-const cssnext = require('postcss-cssnext');
-const del = require('del');
+import { src, dest, parallel } from 'gulp';
+import newer from 'gulp-newer';
+import uglify from 'gulp-uglify';
+import concat from 'gulp-concat';
+import cssnano from 'gulp-cssnano';
+import postcss from 'gulp-postcss';
+import cssnext from 'postcss-cssnext';
+import del from 'del';
 
-gulp.task('clean', function () {
-    return del([
+export const clean = () => 
+    del([
         'assets/**/*.*'
     ]);
-});
 
-gulp.task('source-sans-font', function () {
-    return gulp.src('node_modules/source-sans-pro/**/*.{eot,woff,woff2,otf,ttf,svg}')
+const sourceSansFont = () => {
+    return src('node_modules/source-sans-pro/**/*.{eot,woff,woff2,otf,ttf,svg}')
         .pipe(newer('assets/fonts'))
-        .pipe(gulp.dest('assets/fonts'));
-});
+        .pipe(dest('assets/fonts'));
+}
 
-gulp.task('fontawesome-font', function () {
-    return gulp.src('node_modules/font-awesome/fonts/*-webfont.{eot,woff,woff2,otf,ttf,svg}')
+const fontAwesomeFont = () => {
+    return src('node_modules/font-awesome/fonts/*-webfont.{eot,woff,woff2,otf,ttf,svg}')
         .pipe(newer('assets/fonts'))
-        .pipe(gulp.dest('assets/fonts'));
-});
+        .pipe(dest('assets/fonts'));
+}
 
-gulp.task('glyphicons-font', function () {
-    return gulp.src('node_modules/bootstrap/dist/fonts/*.{eot,woff,woff2,otf,ttf,svg}')
+const glyphiconsFont = () => {
+    return src('node_modules/bootstrap/dist/fonts/*.{eot,woff,woff2,otf,ttf,svg}')
         .pipe(newer('assets/fonts'))
-        .pipe(gulp.dest('assets/fonts'));
-});
+        .pipe(dest('assets/fonts'));
+}
 
-gulp.task('fonts', ['source-sans-font', 'fontawesome-font', 'glyphicons-font'], function () {
-});
+const fonts = parallel(sourceSansFont, fontAwesomeFont, glyphiconsFont);
 
-gulp.task('copy-assets', ['fonts'], function () {
-});
-
-gulp.task('styles:dev', ['copy-assets'], function () {
-    return gulp.src(
+const stylesDev = () => {
+    return src(
         [
             'node_modules/bootstrap/dist/css/bootstrap.css',
             'node_modules/font-awesome/css/font-awesome.css',
-            'node_modules/ionicons/dist/css/ionicons.css',
             'node_modules/datatables.net-bs4/css/dataTables.bootstrap4.css',
             'node_modules/codemirror/lib/codemirror.css',
             'node_modules/codemirror/theme/material.css',
             'node_modules/admin-lte/dist/css/adminlte.css',
-            'node_modules/admin-lte/dist/css/skins/_all-skins.css',
             'Source/css/source-sans-pro.css',
             'Source/css/reporting.css'
         ])
         .pipe(newer('assets/css/reporting-app.css'))
         .pipe(concat('reporting-app.css'))
         .pipe(postcss([cssnext]))
-        .pipe(gulp.dest('assets/'));
-});
+        .pipe(dest('assets/'));
+}
 
-gulp.task('scripts:dev', function () {
-    return gulp.src(
+const scriptsDev = () => {
+    return src(
         [
             'node_modules/jquery/dist/jquery.js',
             'node_modules/jquery-ui-dist/jquery-ui.js',
@@ -77,24 +70,18 @@ gulp.task('scripts:dev', function () {
         .pipe(newer('assets/js/reporting-app.js'))
         .pipe(concat('reporting-app.js'))
         .pipe(eslint())
-        .pipe(gulp.dest('assets/'));
-});
+        .pipe(dest('assets/'));
+}
 
-gulp.task('build:dev', ['styles:dev', 'scripts:dev'], function () {
-
-});
-
-gulp.task('styles:prod', ['copy-assets'], function () {
-    return gulp.src(
+const stylesProd = () => {
+    return src(
         [
             'node_modules/bootstrap/dist/css/bootstrap.min.css',
             'node_modules/font-awesome/css/font-awesome.min.css',
-            'node_modules/ionicons/dist/css/ionicons.min.css',
             'node_modules/datatables.net-bs4/css/dataTables.bootstrap4.css',
             'node_modules/codemirror/lib/codemirror.css',
             'node_modules/codemirror/theme/material.css',
             'node_modules/admin-lte/dist/css/adminlte.min.css',
-            'node_modules/admin-lte/dist/css/skins/_all-skins.min.css',
             'Source/css/source-sans-pro.css',
             'Source/css/reporting.css'
         ])
@@ -102,11 +89,11 @@ gulp.task('styles:prod', ['copy-assets'], function () {
         .pipe(concat('reporting-app.css'))
         .pipe(postcss([cssnext]))
         .pipe(cssnano())
-        .pipe(gulp.dest('assets/css'));
-});
+        .pipe(dest('assets/css'));
+}
 
-gulp.task('scripts:prod', function () {
-    return gulp.src(
+const scriptsProd = () => {
+    return src(
         [
             'node_modules/jquery/dist/jquery.min.js',
             'node_modules/jquery-ui-dist/jquery-ui.min.js',
@@ -114,7 +101,6 @@ gulp.task('scripts:prod', function () {
             'node_modules/datatables.net/js/jquery.dataTables.min.js',
             'node_modules/datatables.net-bs4/js/dataTables.bootstrap4.min.js',
             'node_modules/salvattore/dist/salvattore.min.js',
-            'node_modules/anchor-js/anchor.min.js',
             'node_modules/codemirror/lib/codemirror.js',
             'node_modules/codemirror/mode/sql/sql.js',
             'node_modules/admin-lte/dist/js/adminlte.min.js',
@@ -124,13 +110,11 @@ gulp.task('scripts:prod', function () {
         .pipe(newer('assets/js/reporting-app.js'))
         .pipe(concat('reporting-app.js'))
         .pipe(uglify())
-        .pipe(gulp.dest('assets/js'));
-});
+        .pipe(dest('assets/js'));
+}
 
-gulp.task('build:prod', ['styles:prod', 'scripts:prod'], function () {
+export const buildDev = parallel(fonts, scriptsDev, stylesDev);
 
-});
+export const buildProd = parallel(fonts, scriptsProd, stylesProd);
 
-gulp.task('default', ['build:prod'], function () {
-
-});
+export default buildProd;
