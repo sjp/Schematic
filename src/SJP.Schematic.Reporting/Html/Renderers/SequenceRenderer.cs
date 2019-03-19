@@ -52,7 +52,11 @@ namespace SJP.Schematic.Reporting.Html.Renderers
                 var viewModel = mapper.Map(sequence);
                 var renderedSequence = Formatter.RenderTemplate(viewModel);
 
-                var sequenceContainer = new Container(renderedSequence, Database.IdentifierDefaults.Database, "../");
+                var databaseName = !Database.IdentifierDefaults.Database.IsNullOrWhiteSpace()
+                    ? Database.IdentifierDefaults.Database + " Database"
+                    : "Database";
+                var pageTitle = sequence.Name.ToVisibleName() + " — Sequence — " + databaseName;
+                var sequenceContainer = new Container(renderedSequence, pageTitle, "../");
                 var renderedPage = Formatter.RenderTemplate(sequenceContainer);
 
                 var outputPath = Path.Combine(ExportDirectory.FullName, sequence.Name.ToSafeKey() + ".html");

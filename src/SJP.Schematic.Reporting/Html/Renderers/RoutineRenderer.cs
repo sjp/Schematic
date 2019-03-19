@@ -52,7 +52,11 @@ namespace SJP.Schematic.Reporting.Html.Renderers
                 var viewModel = mapper.Map(routine);
                 var renderedRoutine = Formatter.RenderTemplate(viewModel);
 
-                var routineContainer = new Container(renderedRoutine, Database.IdentifierDefaults.Database, "../");
+                var databaseName = !Database.IdentifierDefaults.Database.IsNullOrWhiteSpace()
+                    ? Database.IdentifierDefaults.Database + " Database"
+                    : "Database";
+                var pageTitle = routine.Name.ToVisibleName() + " — Routine — " + databaseName;
+                var routineContainer = new Container(renderedRoutine, pageTitle, "../");
                 var renderedPage = Formatter.RenderTemplate(routineContainer);
 
                 var outputPath = Path.Combine(ExportDirectory.FullName, routine.Name.ToSafeKey() + ".html");

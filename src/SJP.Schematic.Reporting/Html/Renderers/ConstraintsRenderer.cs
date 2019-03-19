@@ -71,7 +71,11 @@ namespace SJP.Schematic.Reporting.Html.Renderers
             );
             var renderedConstraints = Formatter.RenderTemplate(templateParameter);
 
-            var constraintsContainer = new Container(renderedConstraints, IdentifierDefaults.Database, string.Empty);
+            var databaseName = !IdentifierDefaults.Database.IsNullOrWhiteSpace()
+                ? IdentifierDefaults.Database + " Database"
+                : "Database";
+            var pageTitle = "Constraints — " + databaseName;
+            var constraintsContainer = new Container(renderedConstraints, pageTitle, string.Empty);
             var renderedPage = Formatter.RenderTemplate(constraintsContainer);
 
             if (!ExportDirectory.Exists)

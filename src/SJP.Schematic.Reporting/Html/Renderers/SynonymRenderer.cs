@@ -83,7 +83,11 @@ namespace SJP.Schematic.Reporting.Html.Renderers
                 var viewModel = mapper.Map(synonym, synonymTargets);
                 var renderedSynonym = Formatter.RenderTemplate(viewModel);
 
-                var synonymContainer = new Container(renderedSynonym, Database.IdentifierDefaults.Database, "../");
+                var databaseName = !Database.IdentifierDefaults.Database.IsNullOrWhiteSpace()
+                    ? Database.IdentifierDefaults.Database + " Database"
+                    : "Database";
+                var pageTitle = synonym.Name.ToVisibleName() + " — Synonym — " + databaseName;
+                var synonymContainer = new Container(renderedSynonym, pageTitle, "../");
                 var renderedPage = Formatter.RenderTemplate(synonymContainer);
 
                 var outputPath = Path.Combine(ExportDirectory.FullName, synonym.Name.ToSafeKey() + ".html");

@@ -60,7 +60,11 @@ namespace SJP.Schematic.Reporting.Html.Renderers
             var templateParameter = new Orphans(orphanedTableViewModels);
             var renderedOrphans = Formatter.RenderTemplate(templateParameter);
 
-            var orphansContainer = new Container(renderedOrphans, IdentifierDefaults.Database, string.Empty);
+            var databaseName = !IdentifierDefaults.Database.IsNullOrWhiteSpace()
+                ? IdentifierDefaults.Database + " Database"
+                : "Database";
+            var pageTitle = "Orphan Tables — " + databaseName;
+            var orphansContainer = new Container(renderedOrphans, pageTitle, string.Empty);
             var renderedPage = Formatter.RenderTemplate(orphansContainer);
 
             if (!ExportDirectory.Exists)

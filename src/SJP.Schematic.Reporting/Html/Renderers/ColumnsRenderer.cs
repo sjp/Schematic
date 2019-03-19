@@ -59,7 +59,11 @@ namespace SJP.Schematic.Reporting.Html.Renderers
             var templateParameter = new Columns(orderedColumns);
             var renderedColumns = Formatter.RenderTemplate(templateParameter);
 
-            var columnsContainer = new Container(renderedColumns, IdentifierDefaults.Database, string.Empty);
+            var databaseName = !IdentifierDefaults.Database.IsNullOrWhiteSpace()
+                ? IdentifierDefaults.Database + " Database"
+                : "Database";
+            var pageTitle = "Columns — " + databaseName;
+            var columnsContainer = new Container(renderedColumns, pageTitle, string.Empty);
             var renderedPage = Formatter.RenderTemplate(columnsContainer);
 
             if (!ExportDirectory.Exists)

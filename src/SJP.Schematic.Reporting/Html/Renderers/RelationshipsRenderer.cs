@@ -6,6 +6,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Xml.Linq;
 using SJP.Schematic.Core;
+using SJP.Schematic.Core.Extensions;
 using SJP.Schematic.Graphviz;
 using SJP.Schematic.Reporting.Html.ViewModels;
 using SJP.Schematic.Reporting.Html.ViewModels.Mappers;
@@ -48,7 +49,11 @@ namespace SJP.Schematic.Reporting.Html.Renderers
             var viewModel = await mapper.MapAsync(Tables, cancellationToken).ConfigureAwait(false);
             var renderedRelationships = Formatter.RenderTemplate(viewModel);
 
-            var relationshipContainer = new Container(renderedRelationships, IdentifierDefaults.Database, string.Empty);
+            var databaseName = !IdentifierDefaults.Database.IsNullOrWhiteSpace()
+                ? IdentifierDefaults.Database + " Database"
+                : "Database";
+            var pageTitle = "Relationships — " + databaseName;
+            var relationshipContainer = new Container(renderedRelationships, pageTitle, string.Empty);
             var renderedPage = Formatter.RenderTemplate(relationshipContainer);
 
             if (!ExportDirectory.Exists)

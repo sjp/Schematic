@@ -61,7 +61,11 @@ namespace SJP.Schematic.Reporting.Html.Renderers
                     var tableModel = await mapper.MapAsync(table, cancellationToken).ConfigureAwait(false);
                     var renderedTable = Formatter.RenderTemplate(tableModel);
 
-                    var tableContainer = new Container(renderedTable, Database.IdentifierDefaults.Database, "../");
+                    var databaseName = !Database.IdentifierDefaults.Database.IsNullOrWhiteSpace()
+                        ? Database.IdentifierDefaults.Database + " Database"
+                        : "Database";
+                    var pageTitle = table.Name.ToVisibleName() + " — Table — " + databaseName;
+                    var tableContainer = new Container(renderedTable, pageTitle, "../");
                     var renderedPage = Formatter.RenderTemplate(tableContainer);
 
                     var outputPath = Path.Combine(ExportDirectory.FullName, table.Name.ToSafeKey() + ".html");

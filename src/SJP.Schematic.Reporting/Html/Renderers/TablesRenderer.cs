@@ -56,7 +56,11 @@ namespace SJP.Schematic.Reporting.Html.Renderers
             var tablesVm = new Tables(tableViewModels);
             var renderedMain = Formatter.RenderTemplate(tablesVm);
 
-            var mainContainer = new Container(renderedMain, Database.IdentifierDefaults.Database, string.Empty);
+            var databaseName = !Database.IdentifierDefaults.Database.IsNullOrWhiteSpace()
+                ? Database.IdentifierDefaults.Database + " Database"
+                : "Database";
+            var pageTitle = "Tables — " + databaseName;
+            var mainContainer = new Container(renderedMain, pageTitle, string.Empty);
             var renderedPage = Formatter.RenderTemplate(mainContainer);
 
             if (!ExportDirectory.Exists)

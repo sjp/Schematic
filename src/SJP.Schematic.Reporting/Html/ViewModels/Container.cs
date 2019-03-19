@@ -11,14 +11,12 @@ namespace SJP.Schematic.Reporting.Html.ViewModels
     {
         public Container(
             string content,
-            string databaseName,
+            string pageTitle,
             string rootPath
         )
         {
             Content = content ?? string.Empty;
-            DatabaseName = !databaseName.IsNullOrWhiteSpace()
-                ? databaseName + " Database"
-                : "Database";
+            PageTitle = pageTitle ?? string.Empty;
             RootPath = rootPath ?? string.Empty;
         }
 
@@ -26,7 +24,7 @@ namespace SJP.Schematic.Reporting.Html.ViewModels
 
         public string RootPath { get; }
 
-        public string DatabaseName { get; }
+        public string PageTitle { get; }
 
         public HtmlString Content { get; }
 

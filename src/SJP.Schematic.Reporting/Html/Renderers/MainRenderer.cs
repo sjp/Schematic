@@ -143,7 +143,11 @@ namespace SJP.Schematic.Reporting.Html.Renderers
 
             var renderedMain = Formatter.RenderTemplate(templateParameter);
 
-            var mainContainer = new Container(renderedMain, Database.IdentifierDefaults.Database, string.Empty);
+            var databaseName = !Database.IdentifierDefaults.Database.IsNullOrWhiteSpace()
+                ? Database.IdentifierDefaults.Database + " Database"
+                : "Database";
+            var pageTitle = "Home — " + databaseName;
+            var mainContainer = new Container(renderedMain, pageTitle, string.Empty);
             var renderedPage = Formatter.RenderTemplate(mainContainer);
 
             if (!ExportDirectory.Exists)
