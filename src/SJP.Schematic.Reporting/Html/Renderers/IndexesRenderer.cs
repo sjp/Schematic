@@ -59,7 +59,7 @@ namespace SJP.Schematic.Reporting.Html.Renderers
             var databaseName = !IdentifierDefaults.Database.IsNullOrWhiteSpace()
                 ? IdentifierDefaults.Database + " Database"
                 : "Database";
-            var pageTitle = "Indexes — " + databaseName;
+            var pageTitle = "Indexes · " + databaseName;
             var indexesContainer = new Container(renderedIndexes, pageTitle, string.Empty);
             var renderedPage = Formatter.RenderTemplate(indexesContainer);
 

@@ -74,7 +74,7 @@ namespace SJP.Schematic.Reporting.Html.Renderers
             var databaseName = !IdentifierDefaults.Database.IsNullOrWhiteSpace()
                 ? IdentifierDefaults.Database + " Database"
                 : "Database";
-            var pageTitle = "Synonyms — " + databaseName;
+            var pageTitle = "Synonyms · " + databaseName;
             var mainContainer = new Container(renderedMain, pageTitle, string.Empty);
             var renderedPage = Formatter.RenderTemplate(mainContainer);
 

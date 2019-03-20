@@ -74,7 +74,7 @@ namespace SJP.Schematic.Reporting.Html.Renderers
             var databaseName = !IdentifierDefaults.Database.IsNullOrWhiteSpace()
                 ? IdentifierDefaults.Database + " Database"
                 : "Database";
-            var pageTitle = "Constraints — " + databaseName;
+            var pageTitle = "Constraints · " + databaseName;
             var constraintsContainer = new Container(renderedConstraints, pageTitle, string.Empty);
             var renderedPage = Formatter.RenderTemplate(constraintsContainer);
 

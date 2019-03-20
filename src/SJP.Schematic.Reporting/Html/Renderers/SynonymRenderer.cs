@@ -85,7 +85,7 @@ namespace SJP.Schematic.Reporting.Html.Renderers
                 var databaseName = !IdentifierDefaults.Database.IsNullOrWhiteSpace()
                     ? IdentifierDefaults.Database + " Database"
                     : "Database";
-                var pageTitle = synonym.Name.ToVisibleName() + " — Synonym — " + databaseName;
+                var pageTitle = synonym.Name.ToVisibleName() + " · Synonym · " + databaseName;
                 var synonymContainer = new Container(renderedSynonym, pageTitle, "../");
                 var renderedPage = Formatter.RenderTemplate(synonymContainer);
 

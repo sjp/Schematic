@@ -91,7 +91,7 @@ namespace SJP.Schematic.Reporting.Html.Renderers
             var databaseName = !IdentifierDefaults.Database.IsNullOrWhiteSpace()
                 ? IdentifierDefaults.Database + " Database"
                 : "Database";
-            var pageTitle = "Lint — " + databaseName;
+            var pageTitle = "Lint · " + databaseName;
             var lintContainer = new Container(renderedLint, pageTitle, string.Empty);
             var renderedPage = Formatter.RenderTemplate(lintContainer);
 

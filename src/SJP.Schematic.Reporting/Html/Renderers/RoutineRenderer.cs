@@ -54,7 +54,7 @@ namespace SJP.Schematic.Reporting.Html.Renderers
                 var databaseName = !IdentifierDefaults.Database.IsNullOrWhiteSpace()
                     ? IdentifierDefaults.Database + " Database"
                     : "Database";
-                var pageTitle = routine.Name.ToVisibleName() + " — Routine — " + databaseName;
+                var pageTitle = routine.Name.ToVisibleName() + " · Routine · " + databaseName;
                 var routineContainer = new Container(renderedRoutine, pageTitle, "../");
                 var renderedPage = Formatter.RenderTemplate(routineContainer);
 

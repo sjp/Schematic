@@ -63,7 +63,7 @@ namespace SJP.Schematic.Reporting.Html.Renderers
             var databaseName = !IdentifierDefaults.Database.IsNullOrWhiteSpace()
                 ? IdentifierDefaults.Database + " Database"
                 : "Database";
-            var pageTitle = "Orphan Tables — " + databaseName;
+            var pageTitle = "Orphan Tables · " + databaseName;
             var orphansContainer = new Container(renderedOrphans, pageTitle, string.Empty);
             var renderedPage = Formatter.RenderTemplate(orphansContainer);
 

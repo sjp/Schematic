@@ -47,7 +47,7 @@ namespace SJP.Schematic.Reporting.Html.Renderers
             var databaseName = !IdentifierDefaults.Database.IsNullOrWhiteSpace()
                 ? IdentifierDefaults.Database + " Database"
                 : "Database";
-            var pageTitle = "Relationships — " + databaseName;
+            var pageTitle = "Relationships · " + databaseName;
             var relationshipContainer = new Container(renderedRelationships, pageTitle, string.Empty);
             var renderedPage = Formatter.RenderTemplate(relationshipContainer);
 

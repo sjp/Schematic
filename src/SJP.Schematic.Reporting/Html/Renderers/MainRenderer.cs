@@ -151,7 +151,7 @@ namespace SJP.Schematic.Reporting.Html.Renderers
             var databaseName = !Database.IdentifierDefaults.Database.IsNullOrWhiteSpace()
                 ? Database.IdentifierDefaults.Database + " Database"
                 : "Database";
-            var pageTitle = "Home — " + databaseName;
+            var pageTitle = "Home · " + databaseName;
             var mainContainer = new Container(renderedMain, pageTitle, string.Empty);
             var renderedPage = Formatter.RenderTemplate(mainContainer);
 
