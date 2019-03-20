@@ -311,7 +311,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
                 await connection.ExecuteAsync("insert into test (col) values ('test')").ConfigureAwait(false);
 
                 await connPragma.IgnoreCheckConstraintsAsync(false).ConfigureAwait(false);
-                Assert.ThrowsAsync<SqliteException>(async () => await connection.ExecuteAsync("insert into test (col) values ('test')").ConfigureAwait(false));
+                Assert.ThrowsAsync<SqliteException>(() => connection.ExecuteAsync("insert into test (col) values ('test')"));
             }
         }
 

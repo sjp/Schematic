@@ -24,7 +24,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
         public void VacuumAsync_WhenGivenUnknownSchemaName_ThrowsSqliteException()
         {
             var sqliteDb = new SqliteRelationalDatabase(Dialect, Connection, IdentifierDefaults);
-            Assert.ThrowsAsync<SqliteException>(async () => await sqliteDb.VacuumAsync("test").ConfigureAwait(false));
+            Assert.ThrowsAsync<SqliteException>(() => sqliteDb.VacuumAsync("test"));
         }
 
         [Test]
@@ -46,7 +46,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
         public void DetachDatabaseAsync_WhenGivenUnknownSchemaName_ThrowsSqliteException()
         {
             var sqliteDb = new SqliteRelationalDatabase(Dialect, Config.Connection, IdentifierDefaults);
-            Assert.ThrowsAsync<SqliteException>(async () => await sqliteDb.DetachDatabaseAsync("test").ConfigureAwait(false));
+            Assert.ThrowsAsync<SqliteException>(() => sqliteDb.DetachDatabaseAsync("test"));
         }
     }
 }
