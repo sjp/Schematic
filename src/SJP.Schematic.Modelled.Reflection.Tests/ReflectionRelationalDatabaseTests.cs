@@ -2,7 +2,6 @@
 using System.Threading.Tasks;
 using LanguageExt;
 using NUnit.Framework;
-using SJP.Schematic.Core.Extensions;
 using SJP.Schematic.Modelled.Reflection.Model;
 using SJP.Schematic.Modelled.Reflection.Tests.Fakes;
 using SJP.Schematic.Modelled.Reflection.Tests.Fakes.ColumnTypes;
