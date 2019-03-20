@@ -121,8 +121,11 @@ namespace SJP.Schematic.Lint.Rules
                 throw new ArgumentNullException(nameof(table));
 
             var tableName = Identifier.CreateQualifiedIdentifier(table.Name.Schema, table.Name.LocalName);
-            var filterSql = $"select 1 as dummy_col from { Dialect.QuoteName(tableName) }";
-            var sql = $"select case when exists ({ filterSql }) then 1 else 0 end as dummy";
+            var quotedTableName = Dialect.QuoteName(tableName);
+
+            var filterSql = "select 1 as dummy_col from " + quotedTableName;
+            var sql = $"select case when exists ({ filterSql }) then 1 else 0 end as dummy from " + quotedTableName;
+
             return Connection.ExecuteScalarAsync<bool>(sql, cancellationToken);
         }
 
@@ -135,8 +138,11 @@ namespace SJP.Schematic.Lint.Rules
                 throw new ArgumentNullException(nameof(column));
 
             var tableName = Identifier.CreateQualifiedIdentifier(table.Name.Schema, table.Name.LocalName);
-            var filterSql = $"select * from { Dialect.QuoteName(tableName) } where { Dialect.QuoteIdentifier(column.Name.LocalName) } is not null";
-            var sql = $"select case when exists ({ filterSql }) then 1 else 0 end as dummy";
+            var quotedTableName = Dialect.QuoteName(tableName);
+
+            var filterSql = $"select * from { quotedTableName } where { Dialect.QuoteIdentifier(column.Name.LocalName) } is not null";
+            var sql = $"select case when exists ({ filterSql }) then 1 else 0 end as dummy from " + quotedTableName;
+
             return Connection.ExecuteScalarAsync<bool>(sql, cancellationToken);
         }
 
@@ -146,8 +152,11 @@ namespace SJP.Schematic.Lint.Rules
                 throw new ArgumentNullException(nameof(table));
 
             var tableName = Identifier.CreateQualifiedIdentifier(table.Name.Schema, table.Name.LocalName);
-            var filterSql = $"select 1 as dummy_col from { Dialect.QuoteName(tableName) }";
-            var sql = $"select case when exists ({ filterSql }) then 1 else 0 end as dummy";
+            var quotedTableName = Dialect.QuoteName(tableName);
+
+            var filterSql = "select 1 as dummy_col from " + quotedTableName;
+            var sql = $"select case when exists ({ filterSql }) then 1 else 0 end as dummy from " + quotedTableName;
+
             return Connection.ExecuteScalar<bool>(sql);
         }
 
@@ -159,8 +168,11 @@ namespace SJP.Schematic.Lint.Rules
                 throw new ArgumentNullException(nameof(column));
 
             var tableName = Identifier.CreateQualifiedIdentifier(table.Name.Schema, table.Name.LocalName);
-            var filterSql = $"select * from { Dialect.QuoteName(tableName) } where { Dialect.QuoteIdentifier(column.Name.LocalName) } is not null";
-            var sql = $"select case when exists ({ filterSql }) then 1 else 0 end as dummy";
+            var quotedTableName = Dialect.QuoteName(tableName);
+
+            var filterSql = $"select * from { quotedTableName } where { Dialect.QuoteIdentifier(column.Name.LocalName) } is not null";
+            var sql = $"select case when exists ({ filterSql }) then 1 else 0 end as dummy from " + quotedTableName;
+
             return Connection.ExecuteScalar<bool>(sql);
         }
 
