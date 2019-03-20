@@ -4,6 +4,7 @@ using System.Reflection;
 using SJP.Schematic.Core;
 using SJP.Schematic.Modelled.Reflection.Model;
 using EnumsNET;
+using LanguageExt;
 using SJP.Schematic.Core.Extensions;
 
 namespace SJP.Schematic.Modelled.Reflection
@@ -29,7 +30,7 @@ namespace SJP.Schematic.Modelled.Reflection
                 throw new ArgumentException($"The { nameof(BindingFlags) } provided must be a valid enum.", nameof(bindingFlags));
 
             var backingFieldName = $"<{ property.Name }>k__BackingField";
-            return property.DeclaringType.GetTypeInfo().GetField(backingFieldName, bindingFlags);
+            return property.DeclaringType.GetField(backingFieldName, bindingFlags);
         }
 
         /// <summary>
@@ -43,8 +44,7 @@ namespace SJP.Schematic.Modelled.Reflection
             if (type == null)
                 throw new ArgumentNullException(nameof(type));
 
-            var typeInfo = type.GetTypeInfo();
-            return typeInfo.GetConstructor(Type.EmptyTypes);
+            return type.GetConstructor(Type.EmptyTypes);
         }
 
         /// <summary>
@@ -91,7 +91,7 @@ namespace SJP.Schematic.Modelled.Reflection
                 throw new ArgumentNullException(nameof(type));
 
             var dialectType = dialect.GetType();
-            var attrs = type.GetTypeInfo().GetCustomAttributes<T>(true)
+            var attrs = type.GetCustomAttributes<T>(true)
                 .Where(attr => attr.SupportsDialect(dialectType))
                 .ToList();
 
@@ -179,5 +179,15 @@ namespace SJP.Schematic.Modelled.Reflection
             var localName = dialect.GetAliasOrDefault(type);
             return Identifier.CreateQualifiedIdentifier(schemaName, localName);
         }
+
+        public static bool IsOptionType(this Type type)
+        {
+            if (type == null)
+                throw new ArgumentNullException(nameof(type));
+
+            return type.IsGenericType && type.GetGenericTypeDefinition() == OptionDefinition;
+        }
+
+        private static readonly Type OptionDefinition = typeof(Option<>);
     }
 }

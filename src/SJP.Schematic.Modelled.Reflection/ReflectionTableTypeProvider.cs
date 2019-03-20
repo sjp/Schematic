@@ -24,7 +24,7 @@ namespace SJP.Schematic.Modelled.Reflection
             _parentKeys = new Lazy<IReadOnlyCollection<IModelledRelationalKey>>(LoadParentKeys);
             _indexes = new Lazy<IReadOnlyCollection<IModelledIndex>>(LoadIndexes);
 
-            TableProperties = TableType.GetTypeInfo().GetProperties();
+            TableProperties = TableType.GetProperties();
             TableInstance = CreateTableInstance();
         }
 
@@ -75,9 +75,7 @@ namespace SJP.Schematic.Modelled.Reflection
                     throw new ArgumentException($"The column property { TableType.FullName }.{ prop.Name } must be an auto-implemented property. For example: Column<T> { prop.Name } {{ get; }}");
 
                 var columnDbType = field.FieldType;
-                var columnPropertyProp = columnDbType.GetTypeInfo().GetProperty(nameof(IModelledColumn.Property), BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.FlattenHierarchy);
                 var columnInstance = Activator.CreateInstance(columnDbType);
-                columnPropertyProp.SetValue(columnInstance, prop);
                 field.SetValue(tableInstance, columnInstance);
             }
 
@@ -88,7 +86,12 @@ namespace SJP.Schematic.Modelled.Reflection
         {
             return TableProperties
                 .Where(p => IsColumnProperty(p) || IsComputedColumnProperty(p))
-                .Select(p => p.GetValue(TableInstance) as IModelledColumn)
+                .Select(p =>
+                {
+                    var column = p.GetValue(TableInstance) as IModelledColumn;
+                    column.Property = p;
+                    return column;
+                })
                 .ToList();
         }
 
@@ -182,20 +185,20 @@ namespace SJP.Schematic.Modelled.Reflection
         }
 
         protected static bool IsColumnProperty(PropertyInfo prop) =>
-            prop.PropertyType.GetTypeInfo().IsGenericType
-            && prop.PropertyType.GetGenericTypeDefinition().GetTypeInfo().IsAssignableFrom(ColumnType.GetTypeInfo());
+            prop.PropertyType.IsGenericType
+            && prop.PropertyType.GetGenericTypeDefinition().IsAssignableFrom(ColumnType);
 
         protected static bool IsComputedColumnProperty(PropertyInfo prop) =>
-            prop.PropertyType.GetTypeInfo().IsAssignableFrom(ComputedColumnType.GetTypeInfo());
+            prop.PropertyType.IsAssignableFrom(ComputedColumnType);
 
         protected static bool IsIndexProperty(PropertyInfo prop) =>
-            prop.PropertyType.GetTypeInfo().IsAssignableFrom(IndexType.GetTypeInfo());
+            prop.PropertyType.IsAssignableFrom(IndexType);
 
         protected static bool IsKeyProperty(PropertyInfo prop) =>
-            prop.PropertyType.GetTypeInfo().IsAssignableFrom(KeyType.GetTypeInfo());
+            prop.PropertyType.IsAssignableFrom(KeyType);
 
         protected static bool IsCheckProperty(PropertyInfo prop) =>
-            prop.PropertyType.GetTypeInfo().IsAssignableFrom(CheckType.GetTypeInfo());
+            prop.PropertyType.IsAssignableFrom(CheckType);
 
         protected static Type ColumnType { get; } = typeof(Column<>);
 

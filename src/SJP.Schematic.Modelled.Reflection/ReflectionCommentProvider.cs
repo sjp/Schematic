@@ -391,7 +391,7 @@ namespace SJP.Schematic.Modelled.Reflection
             if (type == null)
                 throw new ArgumentNullException(nameof(type));
 
-            if (type.GetTypeInfo().IsGenericType)
+            if (type.IsGenericType)
             {
                 var genericArgsBuilder = StringBuilderCache.Acquire();
                 genericArgsBuilder.Append("{");

@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Threading.Tasks;
+using LanguageExt;
 using NUnit.Framework;
+using SJP.Schematic.Core.Extensions;
 using SJP.Schematic.Modelled.Reflection.Model;
 using SJP.Schematic.Modelled.Reflection.Tests.Fakes;
 using SJP.Schematic.Modelled.Reflection.Tests.Fakes.ColumnTypes;
@@ -40,7 +42,7 @@ namespace SJP.Schematic.Modelled.Reflection.Tests
         public static async Task GetTable_WhenTablePresent_ReturnsTable()
         {
             var db = new ReflectionRelationalDatabase<SampleDatabase>(new FakeDialect());
-            var tableIsSome = await db.GetTable("TestTable1").IsSome.ConfigureAwait(false);
+            var tableIsSome = await db.GetTable(nameof(SampleDatabase.TestTable1)).IsSome.ConfigureAwait(false);
 
             Assert.IsTrue(tableIsSome);
         }
@@ -62,7 +64,7 @@ namespace SJP.Schematic.Modelled.Reflection.Tests
             {
                 public Column<BigInteger> TEST_TABLE_ID { get; }
 
-                public Column<Varchar200> TEST_STRING { get; }
+                public Column<Option<Varchar200>> TEST_STRING { get; }
 
                 public Key PK_TEST_TABLE => new Key.Primary(TEST_TABLE_ID);
 

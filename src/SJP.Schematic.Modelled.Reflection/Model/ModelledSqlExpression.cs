@@ -24,13 +24,13 @@ namespace SJP.Schematic.Modelled.Reflection.Model
 
             var parser = new ExpressionParser();
             Tokens = parser.Tokenize(expression).ToList();
-            var lookup = ObjectToDictionary(param);
+            Parameters = ObjectToDictionary(param);
 
             var tokenVarNames = new HashSet<string>(Tokens.Select(UnwrapTokenValue));
-            var lookupNames = new HashSet<string>(lookup.Keys);
+            var lookupNames = new HashSet<string>(Parameters.Keys);
 
-            var unboundVariables = tokenVarNames.Where(v => !lookupNames.Contains(v));
-            if (unboundVariables.Any())
+            var unboundVariables = tokenVarNames.Where(v => !lookupNames.Contains(v)).ToList();
+            if (unboundVariables.Count > 0)
                 throw new ArgumentException("The expression contains references to the following variables which are not present in the parameter object: " + unboundVariables.Join(", "), nameof(expression));
         }
 
@@ -61,7 +61,7 @@ namespace SJP.Schematic.Modelled.Reflection.Model
 
             var builder = StringBuilderCache.Acquire(ExpressionText.Length);
 
-            var tokenValues = GetTokenValues(dialect);
+            var tokenValues = GetTokenValues(dialect).ToList();
             var tokenInfo = Tokens.Zip(tokenValues, (t, v) =>
             {
                 var startPos = t.Position.Absolute;
@@ -84,9 +84,10 @@ namespace SJP.Schematic.Modelled.Reflection.Model
                 }
 
                 builder.Append(info.Value);
+                prevEnd = info.End;
             }
 
-            if (prevEnd < (ExpressionText.Length - 1))
+            if (prevEnd < ExpressionText.Length - 1)
                 builder.Append(ExpressionText.Substring(prevEnd + 1));
 
             return builder.GetStringAndRelease();
@@ -134,7 +135,7 @@ namespace SJP.Schematic.Modelled.Reflection.Model
             var result = new Dictionary<string, object>();
 
             var objType = param.GetType();
-            var properties = objType.GetTypeInfo().GetProperties(BindingFlags.Public | BindingFlags.Instance | BindingFlags.FlattenHierarchy);
+            var properties = objType.GetProperties(BindingFlags.Public | BindingFlags.Instance | BindingFlags.FlattenHierarchy);
             if (properties.Empty())
                 throw new ArgumentException("The given object should be an anonymous object with at least one property set", nameof(param));
 

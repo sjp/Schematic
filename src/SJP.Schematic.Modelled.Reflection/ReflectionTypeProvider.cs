@@ -19,7 +19,7 @@ namespace SJP.Schematic.Modelled.Reflection
             _sequences = new Lazy<IEnumerable<Type>>(LoadSequences);
             _synonyms = new Lazy<IEnumerable<Type>>(LoadSynonyms);
 
-            _dbProperties = DatabaseDefinitionType.GetTypeInfo().GetProperties();
+            _dbProperties = DatabaseDefinitionType.GetProperties();
         }
 
         protected IDatabaseDialect Dialect { get; }
@@ -56,13 +56,13 @@ namespace SJP.Schematic.Modelled.Reflection
                 throw new ArgumentNullException(nameof(objectType));
 
             return _dbProperties
-                .Where(pi => pi.PropertyType.GetGenericTypeDefinition().GetTypeInfo().IsAssignableFrom(objectType.GetTypeInfo()))
+                .Where(pi => pi.PropertyType.GetGenericTypeDefinition().IsAssignableFrom(objectType))
                 .Select(pi => UnwrapGenericParameter(pi.PropertyType))
                 .Where(t => !t.IsAbstract)
                 .ToList();
         }
 
-        protected static Type UnwrapGenericParameter(Type inputType) => inputType.GetTypeInfo().GetGenericArguments().Single();
+        protected static Type UnwrapGenericParameter(Type inputType) => inputType.GetGenericArguments().Single();
 
         private readonly Lazy<IEnumerable<Type>> _tables;
         private readonly Lazy<IEnumerable<Type>> _views;

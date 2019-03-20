@@ -24,6 +24,6 @@ namespace SJP.Schematic.Modelled.Reflection.Model
 
         public virtual bool IsNullable { get; } = true;
 
-        public PropertyInfo Property { get; internal set; }
+        public PropertyInfo Property { get; set; }
     }
 }

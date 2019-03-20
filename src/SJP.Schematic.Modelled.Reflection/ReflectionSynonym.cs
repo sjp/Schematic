@@ -31,11 +31,11 @@ namespace SJP.Schematic.Modelled.Reflection
             var originalType = synonymType;
             var type = synonymType;
 
-            while (type.GetTypeInfo().BaseType != null)
+            while (type.BaseType != null)
             {
-                type = type.GetTypeInfo().BaseType;
-                if (type.GetTypeInfo().IsGenericType && type.GetGenericTypeDefinition() == GenericSynonymType)
-                    return type.GetTypeInfo().GetGenericArguments().Single();
+                type = type.BaseType;
+                if (type.IsGenericType && type.GetGenericTypeDefinition() == GenericSynonymType)
+                    return type.GetGenericArguments().Single();
             }
 
             throw new Exception($"Expected to find a synonym type that derived from Synonym<T>, but found that { originalType.FullName } does not derive from it.");

@@ -46,7 +46,7 @@ namespace SJP.Schematic.Modelled.Reflection.Model
             private PropertyInfo GetTargetProperty()
             {
                 var sourceType = Property.ReflectedType;
-                var sourceAsm = sourceType.GetTypeInfo().Assembly;
+                var sourceAsm = sourceType.Assembly;
                 var sourceAsmName = sourceAsm.GetName();
 
                 var sourceAsmDefinition = AssemblyCache.GetOrAdd(sourceAsmName, _ => new Lazy<AssemblyDefinition>(() => AssemblyDefinition.ReadAssembly(sourceAsm.Location))).Value;
@@ -102,7 +102,7 @@ namespace SJP.Schematic.Modelled.Reflection.Model
                     throw new ArgumentException("Expected to find a method definition associated with the call or virtual call instruction but could not find one in the key selector.");
 
                 var targetPropertyName = bodyMethodDef.Name;
-                var targetProp = TargetType.GetTypeInfo().GetProperties().SingleOrDefault(p => p.GetGetMethod().Name == targetPropertyName && p.GetIndexParameters().Length == 0);
+                var targetProp = TargetType.GetProperties().SingleOrDefault(p => p.GetGetMethod().Name == targetPropertyName && p.GetIndexParameters().Length == 0);
                 if (targetProp == null)
                 {
                     throw new ArgumentException(

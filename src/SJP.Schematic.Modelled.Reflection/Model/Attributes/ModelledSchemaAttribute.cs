@@ -48,7 +48,7 @@ namespace SJP.Schematic.Modelled.Reflection.Model
             if (!dialectTypeInfo.ImplementedInterfaces.Contains(DialectInterface))
                 throw new ArgumentException($"The given type { dialect.FullName } is not a dialect type.", nameof(dialect));
 
-            return AffectsAllDialects || Dialects.Any(d => d.GetTypeInfo().IsAssignableFrom(dialect));
+            return AffectsAllDialects || Dialects.Any(d => d.IsAssignableFrom(dialect));
         }
 
         private bool AffectsAllDialects { get; }
