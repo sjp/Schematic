@@ -146,9 +146,10 @@ namespace SJP.Schematic.Oracle
             if (TypeNamesWithNoLengthAnnotation.Contains(typeName.LocalName))
                 return builder.GetStringAndRelease();
 
-            if (typeMetadata.NumericPrecision.IsSome)
+            var npWithPrecisionOrScale = typeMetadata.NumericPrecision.Filter(np => np.Precision > 0 || np.Scale > 0);
+            if (npWithPrecisionOrScale.IsSome)
             {
-                typeMetadata.NumericPrecision.Where(np => np.Precision > 0).IfSome(precision =>
+                npWithPrecisionOrScale.IfSome(precision =>
                 {
                     builder.Append("(");
                     builder.Append(precision.Precision.ToString(CultureInfo.InvariantCulture));

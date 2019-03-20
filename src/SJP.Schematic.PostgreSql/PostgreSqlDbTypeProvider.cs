@@ -130,9 +130,10 @@ namespace SJP.Schematic.PostgreSql
 
             builder.Append("(");
 
-            if (typeMetadata.NumericPrecision.IsSome)
+            var npWithPrecisionOrScale = typeMetadata.NumericPrecision.Filter(np => np.Precision > 0 || np.Scale > 0);
+            if (npWithPrecisionOrScale.IsSome)
             {
-                typeMetadata.NumericPrecision.Where(np => np.Precision > 0).IfSome(precision =>
+                npWithPrecisionOrScale.IfSome(precision =>
                 {
                     builder.Append(precision.Precision.ToString(CultureInfo.InvariantCulture));
                     if (precision.Scale > 0)
