@@ -28,30 +28,34 @@ namespace SJP.Schematic.PostgreSql.Versions.V9_4
 
         public async Task<IReadOnlyCollection<IDatabaseSequence>> GetAllSequences(CancellationToken cancellationToken = default(CancellationToken))
         {
-            var queryResult = await Connection.QueryAsync<QualifiedName>(SequencesQuery, cancellationToken).ConfigureAwait(false);
-            var sequenceNames = queryResult
-                .Select(dto => Identifier.CreateQualifiedIdentifier(dto.SchemaName, dto.ObjectName))
+            var queryResult = await Connection.QueryAsync<SequenceData>(SequencesQuery, cancellationToken).ConfigureAwait(false);
+            if (queryResult.Empty())
+                return Array.Empty<IDatabaseSequence>();
+
+            return queryResult
+                .Select(row =>
+                {
+                    var sequenceName = QualifySequenceName(Identifier.CreateQualifiedIdentifier(row.SchemaName, row.SequenceName));
+                    return BuildSequenceFromDto(sequenceName, row);
+                })
                 .ToList();
-
-            var sequences = new List<IDatabaseSequence>();
-
-            foreach (var sequenceName in sequenceNames)
-            {
-                var sequence = LoadSequence(sequenceName, cancellationToken);
-                await sequence.IfSome(s => sequences.Add(s)).ConfigureAwait(false);
-            }
-
-            return sequences;
         }
 
         protected virtual string SequencesQuery => SequencesQuerySql;
 
         private const string SequencesQuerySql = @"
 select
-    sequence_schema as SchemaName,
-    sequence_name as ObjectName
-from information_schema.sequences
-where sequence_schema not in ('pg_catalog', 'information_schema')";
+    nc.nspname as SchemaName,
+    c.relname as SequenceName,
+    p.start_value as StartValue,
+    p.minimum_value as MinValue,
+    p.maximum_value as MaxValue,
+    p.increment as Increment,
+    1 as CacheSize,
+    p.cycle_option as Cycle
+from pg_namespace nc, pg_class c, lateral pg_sequence_parameters(c.oid) p
+where c.relnamespace = nc.oid and c.relkind = 'S'
+order by nc.nspname, c.relname";
 
         public OptionAsync<IDatabaseSequence> GetSequence(Identifier sequenceName, CancellationToken cancellationToken = default(CancellationToken))
         {

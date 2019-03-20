@@ -2,6 +2,10 @@
 {
     internal class SequenceData
     {
+        public string SchemaName { get; set; }
+
+        public string ObjectName { get; set; }
+
         public int CacheSize { get; set; }
 
         public string Cycle { get; set; }

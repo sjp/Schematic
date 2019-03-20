@@ -2,6 +2,10 @@
 {
     internal class SynonymData
     {
+        public string SchemaName { get; set; }
+
+        public string ObjectName { get; set; }
+
         public string TargetServerName { get; set; }
 
         public string TargetDatabaseName { get; set; }

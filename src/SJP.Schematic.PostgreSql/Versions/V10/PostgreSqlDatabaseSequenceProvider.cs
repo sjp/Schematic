@@ -10,6 +10,21 @@ namespace SJP.Schematic.PostgreSql.Versions.V10
         {
         }
 
+        protected override string SequencesQuery => SequencesQuerySql;
+
+        private const string SequencesQuerySql = @"
+select
+    schemaname as SchemaName,
+    sequencename as SequenceName,
+    start_value as StartValue,
+    min_value as MinValue,
+    max_value as MaxValue,
+    increment_by as Increment,
+    cycle as Cycle,
+    cache_size as CacheSize
+from pg_sequences
+order by schemaname, sequencename";
+
         protected override string SequenceQuery => SequenceQuerySql;
 
         private const string SequenceQuerySql = @"

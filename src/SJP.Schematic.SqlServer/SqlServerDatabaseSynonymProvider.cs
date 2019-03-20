@@ -25,23 +25,38 @@ namespace SJP.Schematic.SqlServer
 
         public async Task<IReadOnlyCollection<IDatabaseSynonym>> GetAllSynonyms(CancellationToken cancellationToken = default(CancellationToken))
         {
-            var queryResult = await Connection.QueryAsync<QualifiedName>(SynonymsQuery, cancellationToken).ConfigureAwait(false);
-            var synonymNames = queryResult
-                .Select(dto => Identifier.CreateQualifiedIdentifier(dto.SchemaName, dto.ObjectName))
+            var queryResult = await Connection.QueryAsync<SynonymData>(SynonymsQuery, cancellationToken).ConfigureAwait(false);
+            if (queryResult.Empty())
+                return Array.Empty<IDatabaseSynonym>();
+
+            return queryResult
+                .Select(row =>
+                {
+                    var synonymName = QualifySynonymName(Identifier.CreateQualifiedIdentifier(row.SchemaName, row.ObjectName));
+
+                    var serverName = !row.TargetServerName.IsNullOrWhiteSpace() ? row.TargetServerName : null;
+                    var databaseName = !row.TargetDatabaseName.IsNullOrWhiteSpace() ? row.TargetDatabaseName : null;
+                    var schemaName = !row.TargetSchemaName.IsNullOrWhiteSpace() ? row.TargetSchemaName : null;
+                    var localName = !row.TargetObjectName.IsNullOrWhiteSpace() ? row.TargetObjectName : null;
+
+                    var targetName = Identifier.CreateQualifiedIdentifier(serverName, databaseName, schemaName, localName);
+                    var qualifiedTargetName = QualifySynonymTargetName(targetName);
+
+                    return new DatabaseSynonym(synonymName, qualifiedTargetName);
+                })
                 .ToList();
-
-            var synonyms = await synonymNames
-                .Select(name => LoadSynonym(name, cancellationToken))
-                .Somes()
-                .ConfigureAwait(false);
-
-            return synonyms.ToList();
         }
 
         protected virtual string SynonymsQuery => SynonymsQuerySql;
 
         private const string SynonymsQuerySql = @"
-select schema_name(schema_id) as SchemaName, name as ObjectName
+select
+    schema_name(schema_id) as SchemaName,
+    name as ObjectName,
+    PARSENAME(base_object_name, 4) as TargetServerName,
+    PARSENAME(base_object_name, 3) as TargetDatabaseName,
+    PARSENAME(base_object_name, 2) as TargetSchemaName,
+    PARSENAME(base_object_name, 1) as TargetObjectName
 from sys.synonyms
 where is_ms_shipped = 0
 order by schema_name(schema_id), name";

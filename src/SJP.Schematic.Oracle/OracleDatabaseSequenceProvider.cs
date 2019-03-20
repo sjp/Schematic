@@ -28,17 +28,17 @@ namespace SJP.Schematic.Oracle
 
         public async Task<IReadOnlyCollection<IDatabaseSequence>> GetAllSequences(CancellationToken cancellationToken = default(CancellationToken))
         {
-            var queryResult = await Connection.QueryAsync<QualifiedName>(SequencesQuery, cancellationToken).ConfigureAwait(false);
-            var sequenceNames = queryResult
-                .Select(dto => Identifier.CreateQualifiedIdentifier(dto.SchemaName, dto.ObjectName))
+            var queryResult = await Connection.QueryAsync<SequenceData>(SequencesQuery, cancellationToken).ConfigureAwait(false);
+            if (queryResult.Empty())
+                return Array.Empty<IDatabaseSequence>();
+
+            return queryResult
+                .Select(row =>
+                {
+                    var sequenceName = QualifySequenceName(Identifier.CreateQualifiedIdentifier(row.SchemaName, row.ObjectName));
+                    return BuildSequenceFromDto(sequenceName, row);
+                })
                 .ToList();
-
-            var sequences = await sequenceNames
-                .Select(name => LoadSequence(name, cancellationToken))
-                .Somes()
-                .ConfigureAwait(false);
-
-            return sequences.ToList();
         }
 
         protected virtual string SequencesQuery => SequencesQuerySql;
@@ -46,7 +46,12 @@ namespace SJP.Schematic.Oracle
         private const string SequencesQuerySql = @"
 select
     s.SEQUENCE_OWNER as SchemaName,
-    s.SEQUENCE_NAME as ObjectName
+    s.SEQUENCE_NAME as ObjectName,
+    INCREMENT_BY as ""Increment"",
+    MIN_VALUE as ""MinValue"",
+    MAX_VALUE as ""MaxValue"",
+    CYCLE_FLAG as ""Cycle"",
+    CACHE_SIZE as CacheSize
 from SYS.ALL_SEQUENCES s
 inner join SYS.ALL_OBJECTS o on s.SEQUENCE_OWNER = o.OWNER and s.SEQUENCE_NAME = o.OBJECT_NAME
 where o.ORACLE_MAINTAINED <> 'Y'

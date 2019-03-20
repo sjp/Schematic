@@ -25,25 +25,21 @@ namespace SJP.Schematic.MySql
 
         public async Task<IReadOnlyCollection<IDatabaseRoutine>> GetAllRoutines(CancellationToken cancellationToken = default(CancellationToken))
         {
-            var queryResult = await Connection.QueryAsync<QualifiedName>(
+            var queryResult = await Connection.QueryAsync<RoutineData>(
                 RoutinesQuery,
                 new { SchemaName = IdentifierDefaults.Schema },
                 cancellationToken
             ).ConfigureAwait(false);
+            if (queryResult.Empty())
+                return Array.Empty<IDatabaseRoutine>();
 
-            var routineNames = queryResult
-                .Select(dto => Identifier.CreateQualifiedIdentifier(dto.SchemaName, dto.ObjectName))
+            return queryResult
+                .Select(row =>
+                {
+                    var routineName = QualifyRoutineName(Identifier.CreateQualifiedIdentifier(row.SchemaName, row.ObjectName));
+                    return new DatabaseRoutine(routineName, row.Definition);
+                })
                 .ToList();
-
-            var routines = new List<IDatabaseRoutine>();
-
-            foreach (var routineName in routineNames)
-            {
-                var routine = LoadRoutine(routineName, cancellationToken);
-                await routine.IfSome(v => routines.Add(v)).ConfigureAwait(false);
-            }
-
-            return routines;
         }
 
         protected virtual string RoutinesQuery => RoutinesQuerySql;
@@ -51,10 +47,11 @@ namespace SJP.Schematic.MySql
         private const string RoutinesQuerySql = @"
 select
     ROUTINE_SCHEMA as SchemaName,
-    ROUTINE_NAME as ObjectName
+    ROUTINE_NAME as ObjectName,
+    ROUTINE_DEFINITION as Definition
 from information_schema.routines
 where ROUTINE_SCHEMA = @SchemaName
-order by ROUTINE_NAME";
+order by ROUTINE_SCHEMA, ROUTINE_NAME";
 
         public OptionAsync<IDatabaseRoutine> GetRoutine(Identifier routineName, CancellationToken cancellationToken = default(CancellationToken))
         {

@@ -25,23 +25,32 @@ namespace SJP.Schematic.SqlServer
 
         public async Task<IReadOnlyCollection<IDatabaseSequence>> GetAllSequences(CancellationToken cancellationToken = default(CancellationToken))
         {
-            var queryResult = await Connection.QueryAsync<QualifiedName>(SequencesQuery, cancellationToken).ConfigureAwait(false);
-            var sequenceNames = queryResult
-                .Select(dto => Identifier.CreateQualifiedIdentifier(dto.SchemaName, dto.ObjectName))
+            var queryResult = await Connection.QueryAsync<SequenceData>(SequencesQuery, cancellationToken).ConfigureAwait(false);
+            if (queryResult.Empty())
+                return Array.Empty<IDatabaseSequence>();
+
+            return queryResult
+                .Select(row =>
+                {
+                    var sequenceName = QualifySequenceName(Identifier.CreateQualifiedIdentifier(row.SchemaName, row.ObjectName));
+                    return BuildSequenceFromDto(sequenceName, row);
+                })
                 .ToList();
-
-            var sequences = await sequenceNames
-                .Select(name => LoadSequence(name, cancellationToken))
-                .Somes()
-                .ConfigureAwait(false);
-
-            return sequences.ToList();
         }
 
         protected virtual string SequencesQuery => SequencesQuerySql;
 
         private const string SequencesQuerySql = @"
-select schema_name(schema_id) as SchemaName, name as ObjectName
+select
+    schema_name(schema_id) as SchemaName,
+    name as ObjectName,
+    start_value as StartValue,
+    increment as Increment,
+    minimum_value as MinValue,
+    maximum_value as MaxValue,
+    is_cycling as Cycle,
+    is_cached as IsCached,
+    cache_size as CacheSize
 from sys.sequences
 where is_ms_shipped = 0
 order by schema_name(schema_id), name";
