@@ -108,11 +108,14 @@ namespace SJP.Schematic.Reporting.Html.Renderers
                     }
 
                     using (var writer = File.CreateText(outputPath))
+                    {
                         await writer.WriteAsync(renderedPage).ConfigureAwait(false);
+                        await writer.FlushAsync().ConfigureAwait(false);
+                    }
                 });
+
                 await Task.WhenAll(tableTasks).ConfigureAwait(false);
             }
-
         }
     }
 }

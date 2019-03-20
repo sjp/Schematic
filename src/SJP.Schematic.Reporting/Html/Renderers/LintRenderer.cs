@@ -100,7 +100,10 @@ namespace SJP.Schematic.Reporting.Html.Renderers
             var outputPath = Path.Combine(ExportDirectory.FullName, "lint.html");
 
             using (var writer = File.CreateText(outputPath))
+            {
                 await writer.WriteAsync(renderedPage).ConfigureAwait(false);
+                await writer.FlushAsync().ConfigureAwait(false);
+            }
         }
     }
 }

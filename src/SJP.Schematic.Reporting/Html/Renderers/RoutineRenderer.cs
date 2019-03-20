@@ -43,7 +43,7 @@ namespace SJP.Schematic.Reporting.Html.Renderers
 
         private DirectoryInfo ExportDirectory { get; }
 
-        public async Task RenderAsync(CancellationToken cancellationToken = default(CancellationToken))
+        public Task RenderAsync(CancellationToken cancellationToken = default(CancellationToken))
         {
             var mapper = new RoutineModelMapper();
 
@@ -64,9 +64,13 @@ namespace SJP.Schematic.Reporting.Html.Renderers
                     ExportDirectory.Create();
 
                 using (var writer = File.CreateText(outputPath))
+                {
                     await writer.WriteAsync(renderedPage).ConfigureAwait(false);
+                    await writer.FlushAsync().ConfigureAwait(false);
+                }
             });
-            await Task.WhenAll(routineTasks).ConfigureAwait(false);
+
+            return Task.WhenAll(routineTasks);
         }
     }
 }
