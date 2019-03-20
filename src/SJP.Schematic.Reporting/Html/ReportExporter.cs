@@ -42,7 +42,20 @@ namespace SJP.Schematic.Reporting.Html
             var synonyms = await Database.GetAllSynonyms(cancellationToken).ConfigureAwait(false);
             var routines = await Database.GetAllRoutines(cancellationToken).ConfigureAwait(false);
 
-            var renderers = GetRenderers(tables, views, sequences, synonyms, routines);
+            var rowCounts = new Dictionary<Identifier, ulong>();
+            foreach (var table in tables)
+            {
+                var count = await Connection.GetRowCountAsync(Database.Dialect, table.Name, cancellationToken).ConfigureAwait(false);
+                rowCounts[table.Name] = count;
+            }
+
+            foreach (var view in views)
+            {
+                var count = await Connection.GetRowCountAsync(Database.Dialect, view.Name, cancellationToken).ConfigureAwait(false);
+                rowCounts[view.Name] = count;
+            }
+
+            var renderers = GetRenderers(tables, views, sequences, synonyms, routines, rowCounts);
             var renderTasks = renderers.Select(r => r.RenderAsync(cancellationToken)).ToArray();
             await Task.WhenAll(renderTasks).ConfigureAwait(false);
 
@@ -55,7 +68,8 @@ namespace SJP.Schematic.Reporting.Html
             IReadOnlyCollection<IDatabaseView> views,
             IReadOnlyCollection<IDatabaseSequence> sequences,
             IReadOnlyCollection<IDatabaseSynonym> synonyms,
-            IReadOnlyCollection<IDatabaseRoutine> routines
+            IReadOnlyCollection<IDatabaseRoutine> routines,
+            IReadOnlyDictionary<Identifier, ulong> rowCounts
         )
         {
             if (tables == null || tables.AnyNull())
@@ -68,6 +82,8 @@ namespace SJP.Schematic.Reporting.Html
                 throw new ArgumentNullException(nameof(synonyms));
             if (routines == null || routines.AnyNull())
                 throw new ArgumentNullException(nameof(routines));
+            if (rowCounts == null)
+                throw new ArgumentNullException(nameof(rowCounts));
 
             var linter = new DatabaseLinter(Connection, Database.Dialect);
 
@@ -77,19 +93,19 @@ namespace SJP.Schematic.Reporting.Html
                 new ConstraintsRenderer(Database.IdentifierDefaults, TemplateFormatter, tables, ExportDirectory),
                 new IndexesRenderer(Database.IdentifierDefaults, TemplateFormatter, tables, ExportDirectory),
                 new LintRenderer(linter, Database.IdentifierDefaults, TemplateFormatter, tables, views, sequences, synonyms, routines, ExportDirectory),
-                new MainRenderer(Connection, Database, TemplateFormatter, tables, views, sequences, synonyms, routines, ExportDirectory),
-                new OrphansRenderer(Connection, Database.Dialect, Database.IdentifierDefaults, TemplateFormatter, tables, ExportDirectory),
-                new RelationshipsRenderer(Connection, Database.Dialect, Database.IdentifierDefaults, TemplateFormatter, tables, ExportDirectory),
-                new TableRenderer(Connection, Database, TemplateFormatter, tables, ExportDirectory),
-                new ViewRenderer(Connection, Database, TemplateFormatter, views, ExportDirectory),
-                new SequenceRenderer(Database, TemplateFormatter, sequences, ExportDirectory),
-                new SynonymRenderer(Database, TemplateFormatter, tables, views, sequences, synonyms, routines, ExportDirectory),
-                new RoutineRenderer(Database, TemplateFormatter, routines, ExportDirectory),
-                new TablesRenderer(Connection, Database, TemplateFormatter, tables, ExportDirectory),
-                new ViewsRenderer(Connection, Database, TemplateFormatter, views, ExportDirectory),
-                new SequencesRenderer(Connection, Database, TemplateFormatter, sequences, ExportDirectory),
-                new SynonymsRenderer(Connection, Database, TemplateFormatter, tables, views, sequences, synonyms, routines, ExportDirectory),
-                new RoutinesRenderer(Connection, Database, TemplateFormatter, routines, ExportDirectory)
+                new MainRenderer(Database, TemplateFormatter, tables, views, sequences, synonyms, routines, rowCounts, ExportDirectory),
+                new OrphansRenderer(Database.IdentifierDefaults, TemplateFormatter, tables, rowCounts, ExportDirectory),
+                new RelationshipsRenderer(Database.IdentifierDefaults, TemplateFormatter, tables, rowCounts, ExportDirectory),
+                new TableRenderer(Database.IdentifierDefaults, TemplateFormatter, tables, rowCounts, ExportDirectory),
+                new ViewRenderer(Database.IdentifierDefaults, TemplateFormatter, views, rowCounts, ExportDirectory),
+                new SequenceRenderer(Database.IdentifierDefaults, TemplateFormatter, sequences, ExportDirectory),
+                new SynonymRenderer(Database.IdentifierDefaults, TemplateFormatter, tables, views, sequences, synonyms, routines, ExportDirectory),
+                new RoutineRenderer(Database.IdentifierDefaults, TemplateFormatter, routines, ExportDirectory),
+                new TablesRenderer(Database.IdentifierDefaults, TemplateFormatter, tables, rowCounts, ExportDirectory),
+                new ViewsRenderer(Database.IdentifierDefaults, TemplateFormatter, views, rowCounts, ExportDirectory),
+                new SequencesRenderer(Database.IdentifierDefaults, TemplateFormatter, sequences, ExportDirectory),
+                new SynonymsRenderer(Database.IdentifierDefaults, TemplateFormatter, tables, views, sequences, synonyms, routines, ExportDirectory),
+                new RoutinesRenderer(Database.IdentifierDefaults, TemplateFormatter, routines, ExportDirectory)
             };
         }
     }

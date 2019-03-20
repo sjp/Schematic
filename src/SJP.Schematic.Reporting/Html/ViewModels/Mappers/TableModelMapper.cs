@@ -1,11 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Data;
 using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 using SJP.Schematic.Core;
-using SJP.Schematic.Graphviz;
 using SJP.Schematic.Reporting.Dot;
 
 namespace SJP.Schematic.Reporting.Html.ViewModels.Mappers
@@ -13,37 +9,27 @@ namespace SJP.Schematic.Reporting.Html.ViewModels.Mappers
     internal sealed class TableModelMapper
     {
         public TableModelMapper(
-            IDbConnection connection,
-            IRelationalDatabase database,
-            IDatabaseDialect dialect,
+            IIdentifierDefaults identifierDefaults,
+            IReadOnlyDictionary<Identifier, ulong> rowCounts,
             RelationshipFinder relationship
         )
         {
-            Connection = connection ?? throw new ArgumentNullException(nameof(connection));
-            Database = database ?? throw new ArgumentNullException(nameof(database));
-            Dialect = dialect ?? throw new ArgumentNullException(nameof(dialect));
+            IdentifierDefaults = identifierDefaults ?? throw new ArgumentNullException(nameof(identifierDefaults));
+            RowCounts = rowCounts ?? throw new ArgumentNullException(nameof(rowCounts));
             RelationshipFinder = relationship ?? throw new ArgumentNullException(nameof(relationship));
         }
 
-        private IDbConnection Connection { get; }
+        private IIdentifierDefaults IdentifierDefaults { get; }
 
-        private IRelationalDatabase Database { get; }
-
-        private IDatabaseDialect Dialect { get; }
+        private IReadOnlyDictionary<Identifier, ulong> RowCounts { get; }
 
         private RelationshipFinder RelationshipFinder { get; }
 
-        public Task<Table> MapAsync(IRelationalDatabaseTable table, CancellationToken cancellationToken)
+        public Table Map(IRelationalDatabaseTable table)
         {
             if (table == null)
                 throw new ArgumentNullException(nameof(table));
 
-            return MapAsyncCore(table, cancellationToken);
-        }
-
-        private async Task<Table> MapAsyncCore(IRelationalDatabaseTable table, CancellationToken cancellationToken)
-        {
-            var rowCount = await Connection.GetRowCountAsync(Dialect, table.Name, cancellationToken).ConfigureAwait(false);
             var tableColumns = table.Columns.Select((c, i) => new { Column = c, Ordinal = i + 1 }).ToList();
             var primaryKey = table.PrimaryKey;
             var uniqueKeys = table.UniqueKeys.ToList();
@@ -171,16 +157,19 @@ namespace SJP.Schematic.Reporting.Html.ViewModels.Mappers
             var oneDegreeTables = RelationshipFinder.GetTablesByDegrees(table, 1);
             var twoDegreeTables = RelationshipFinder.GetTablesByDegrees(table, 2);
 
-            var dotFormatter = new DatabaseDotFormatter(Connection, Database.Dialect, Database.IdentifierDefaults);
+            var dotFormatter = new DatabaseDotFormatter(IdentifierDefaults);
             var renderOptions = new DotRenderOptions { HighlightedTable = table.Name };
-            var oneDegreeDot = await dotFormatter.RenderTablesAsync(oneDegreeTables, renderOptions, cancellationToken).ConfigureAwait(false);
-            var twoDegreeDot = await dotFormatter.RenderTablesAsync(twoDegreeTables, renderOptions, cancellationToken).ConfigureAwait(false);
+            var oneDegreeDot = dotFormatter.RenderTables(oneDegreeTables, RowCounts, renderOptions);
+            var twoDegreeDot = dotFormatter.RenderTables(twoDegreeTables, RowCounts, renderOptions);
 
             var diagrams = new[]
             {
                 new Table.Diagram(table.Name, "One", oneDegreeDot, true),
                 new Table.Diagram(table.Name, "Two", twoDegreeDot, false)
             };
+
+            if (!RowCounts.TryGetValue(table.Name, out var rowCount))
+                rowCount = 0;
 
             return new Table(
                 table.Name,

@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Data;
 using System.IO;
 using System.Linq;
 using System.Threading;
@@ -15,11 +14,10 @@ namespace SJP.Schematic.Reporting.Html.Renderers
     internal sealed class OrphansRenderer : ITemplateRenderer
     {
         public OrphansRenderer(
-            IDbConnection connection,
-            IDatabaseDialect dialect,
             IIdentifierDefaults identifierDefaults,
             IHtmlFormatter formatter,
             IReadOnlyCollection<IRelationalDatabaseTable> tables,
+            IReadOnlyDictionary<Identifier, ulong> rowCounts,
             DirectoryInfo exportDirectory
         )
         {
@@ -27,23 +25,19 @@ namespace SJP.Schematic.Reporting.Html.Renderers
                 throw new ArgumentNullException(nameof(tables));
 
             Tables = tables;
-
-            Connection = connection ?? throw new ArgumentNullException(nameof(connection));
-            Dialect = dialect ?? throw new ArgumentNullException(nameof(dialect));
+            RowCounts = rowCounts ?? throw new ArgumentNullException(nameof(rowCounts));
             IdentifierDefaults = identifierDefaults ?? throw new ArgumentNullException(nameof(identifierDefaults));
             Formatter = formatter ?? throw new ArgumentNullException(nameof(formatter));
             ExportDirectory = exportDirectory ?? throw new ArgumentNullException(nameof(exportDirectory));
         }
-
-        private IDbConnection Connection { get; }
-
-        private IDatabaseDialect Dialect { get; }
 
         private IIdentifierDefaults IdentifierDefaults { get; }
 
         private IHtmlFormatter Formatter { get; }
 
         private IReadOnlyCollection<IRelationalDatabaseTable> Tables { get; }
+
+        private IReadOnlyDictionary<Identifier, ulong> RowCounts { get; }
 
         private DirectoryInfo ExportDirectory { get; }
 
@@ -53,9 +47,15 @@ namespace SJP.Schematic.Reporting.Html.Renderers
                 .Where(t => t.ParentKeys.Empty() && t.ChildKeys.Empty())
                 .ToList();
 
-            var mapper = new OrphansModelMapper(Connection, Dialect);
-            var mappingTasks = orphanedTables.Select(t => mapper.MapAsync(t, cancellationToken)).ToArray();
-            var orphanedTableViewModels = await Task.WhenAll(mappingTasks).ConfigureAwait(false);
+            var mapper = new OrphansModelMapper();
+            var orphanedTableViewModels = orphanedTables
+                .Select(t =>
+                {
+                    if (!RowCounts.TryGetValue(t.Name, out var rowCount))
+                        rowCount = 0;
+                    return mapper.Map(t, rowCount);
+                })
+                .ToList();
 
             var templateParameter = new Orphans(orphanedTableViewModels);
             var renderedOrphans = Formatter.RenderTemplate(templateParameter);

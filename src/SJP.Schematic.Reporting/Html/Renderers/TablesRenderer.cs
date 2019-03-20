@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Data;
 using System.IO;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using SJP.Schematic.Core;
@@ -15,10 +13,10 @@ namespace SJP.Schematic.Reporting.Html.Renderers
     internal sealed class TablesRenderer : ITemplateRenderer
     {
         public TablesRenderer(
-            IDbConnection connection,
-            IRelationalDatabase database,
+            IIdentifierDefaults identifierDefaults,
             IHtmlFormatter formatter,
             IReadOnlyCollection<IRelationalDatabaseTable> tables,
+            IReadOnlyDictionary<Identifier, ulong> rowCounts,
             DirectoryInfo exportDirectory)
         {
             if (tables == null || tables.AnyNull())
@@ -26,38 +24,41 @@ namespace SJP.Schematic.Reporting.Html.Renderers
 
             Tables = tables;
 
-            Connection = connection ?? throw new ArgumentNullException(nameof(connection));
-            Database = database ?? throw new ArgumentNullException(nameof(database));
+            IdentifierDefaults = identifierDefaults ?? throw new ArgumentNullException(nameof(identifierDefaults));
             Formatter = formatter ?? throw new ArgumentNullException(nameof(formatter));
+            RowCounts = rowCounts ?? throw new ArgumentNullException(nameof(rowCounts));
             ExportDirectory = exportDirectory ?? throw new ArgumentNullException(nameof(exportDirectory));
         }
 
-        private IDbConnection Connection { get; }
-
-        private IRelationalDatabase Database { get; }
+        private IIdentifierDefaults IdentifierDefaults { get; }
 
         private IHtmlFormatter Formatter { get; }
 
         private IReadOnlyCollection<IRelationalDatabaseTable> Tables { get; }
 
+        private IReadOnlyDictionary<Identifier, ulong> RowCounts { get; }
+
         private DirectoryInfo ExportDirectory { get; }
 
         public async Task RenderAsync(CancellationToken cancellationToken = default(CancellationToken))
         {
-            var mapper = new MainModelMapper(Connection, Database);
+            var mapper = new MainModelMapper();
 
             var tableViewModels = new List<Main.Table>();
             foreach (var table in Tables)
             {
-                var renderTable = await mapper.MapAsync(table, cancellationToken).ConfigureAwait(false);
+                if (!RowCounts.TryGetValue(table.Name, out var rowCount))
+                    rowCount = 0;
+
+                var renderTable = mapper.Map(table, rowCount);
                 tableViewModels.Add(renderTable);
             }
 
             var tablesVm = new Tables(tableViewModels);
             var renderedMain = Formatter.RenderTemplate(tablesVm);
 
-            var databaseName = !Database.IdentifierDefaults.Database.IsNullOrWhiteSpace()
-                ? Database.IdentifierDefaults.Database + " Database"
+            var databaseName = !IdentifierDefaults.Database.IsNullOrWhiteSpace()
+                ? IdentifierDefaults.Database + " Database"
                 : "Database";
             var pageTitle = "Tables — " + databaseName;
             var mainContainer = new Container(renderedMain, pageTitle, string.Empty);

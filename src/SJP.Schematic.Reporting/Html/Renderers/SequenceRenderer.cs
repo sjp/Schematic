@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Data;
 using System.IO;
 using System.Linq;
 using System.Threading;
@@ -15,7 +14,7 @@ namespace SJP.Schematic.Reporting.Html.Renderers
     internal sealed class SequenceRenderer : ITemplateRenderer
     {
         public SequenceRenderer(
-            IRelationalDatabase database,
+            IIdentifierDefaults identifierDefaults,
             IHtmlFormatter formatter,
             IReadOnlyCollection<IDatabaseSequence> sequences,
             DirectoryInfo exportDirectory
@@ -26,7 +25,7 @@ namespace SJP.Schematic.Reporting.Html.Renderers
 
             Sequences = sequences;
 
-            Database = database ?? throw new ArgumentNullException(nameof(database));
+            IdentifierDefaults = identifierDefaults ?? throw new ArgumentNullException(nameof(identifierDefaults));
             Formatter = formatter ?? throw new ArgumentNullException(nameof(formatter));
 
             if (exportDirectory == null)
@@ -35,7 +34,7 @@ namespace SJP.Schematic.Reporting.Html.Renderers
             ExportDirectory = new DirectoryInfo(Path.Combine(exportDirectory.FullName, "sequences"));
         }
 
-        private IRelationalDatabase Database { get; }
+        private IIdentifierDefaults IdentifierDefaults { get; }
 
         private IHtmlFormatter Formatter { get; }
 
@@ -52,8 +51,8 @@ namespace SJP.Schematic.Reporting.Html.Renderers
                 var viewModel = mapper.Map(sequence);
                 var renderedSequence = Formatter.RenderTemplate(viewModel);
 
-                var databaseName = !Database.IdentifierDefaults.Database.IsNullOrWhiteSpace()
-                    ? Database.IdentifierDefaults.Database + " Database"
+                var databaseName = !IdentifierDefaults.Database.IsNullOrWhiteSpace()
+                    ? IdentifierDefaults.Database + " Database"
                     : "Database";
                 var pageTitle = sequence.Name.ToVisibleName() + " — Sequence — " + databaseName;
                 var sequenceContainer = new Container(renderedSequence, pageTitle, "../");

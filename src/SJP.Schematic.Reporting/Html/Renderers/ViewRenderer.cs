@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Data;
 using System.IO;
 using System.Linq;
 using System.Threading;
@@ -15,10 +14,10 @@ namespace SJP.Schematic.Reporting.Html.Renderers
     internal sealed class ViewRenderer : ITemplateRenderer
     {
         public ViewRenderer(
-            IDbConnection connection,
-            IRelationalDatabase database,
+            IIdentifierDefaults identifierDefaults,
             IHtmlFormatter formatter,
             IReadOnlyCollection<IDatabaseView> views,
+            IReadOnlyDictionary<Identifier, ulong> rowCounts,
             DirectoryInfo exportDirectory
         )
         {
@@ -27,9 +26,9 @@ namespace SJP.Schematic.Reporting.Html.Renderers
 
             Views = views;
 
-            Connection = connection ?? throw new ArgumentNullException(nameof(connection));
-            Database = database ?? throw new ArgumentNullException(nameof(database));
+            IdentifierDefaults = identifierDefaults ?? throw new ArgumentNullException(nameof(identifierDefaults));
             Formatter = formatter ?? throw new ArgumentNullException(nameof(formatter));
+            RowCounts = rowCounts ?? throw new ArgumentNullException(nameof(rowCounts));
 
             if (exportDirectory == null)
                 throw new ArgumentNullException(nameof(exportDirectory));
@@ -37,27 +36,30 @@ namespace SJP.Schematic.Reporting.Html.Renderers
             ExportDirectory = new DirectoryInfo(Path.Combine(exportDirectory.FullName, "views"));
         }
 
-        private IDbConnection Connection { get; }
-
-        private IRelationalDatabase Database { get; }
+        private IIdentifierDefaults IdentifierDefaults { get; }
 
         private IHtmlFormatter Formatter { get; }
 
         private IReadOnlyCollection<IDatabaseView> Views { get; }
 
+        private IReadOnlyDictionary<Identifier, ulong> RowCounts { get; }
+
         private DirectoryInfo ExportDirectory { get; }
 
         public Task RenderAsync(CancellationToken cancellationToken = default(CancellationToken))
         {
-            var mapper = new ViewModelMapper(Connection, Database.Dialect);
+            var mapper = new ViewModelMapper();
 
             var viewTasks = Views.Select(async view =>
             {
-                var viewModel = await mapper.MapAsync(view, cancellationToken).ConfigureAwait(false);
+                if (!RowCounts.TryGetValue(view.Name, out var rowCount))
+                    rowCount = 0;
+
+                var viewModel = mapper.Map(view, rowCount);
                 var renderedView = Formatter.RenderTemplate(viewModel);
 
-                var databaseName = !Database.IdentifierDefaults.Database.IsNullOrWhiteSpace()
-                    ? Database.IdentifierDefaults.Database + " Database"
+                var databaseName = !IdentifierDefaults.Database.IsNullOrWhiteSpace()
+                    ? IdentifierDefaults.Database + " Database"
                     : "Database";
                 var pageTitle = view.Name.ToVisibleName() + " — View — " + databaseName;
                 var viewContainer = new Container(renderedView, pageTitle, "../");

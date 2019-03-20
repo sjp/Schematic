@@ -1,6 +1,6 @@
-﻿using EnumsNET;
+﻿using System;
+using EnumsNET;
 using SJP.Schematic.Core.Extensions;
-using System;
 
 namespace SJP.Schematic.Reporting.Dot
 {

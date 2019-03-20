@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Data;
 using System.IO;
 using System.Linq;
 using System.Threading;
@@ -15,8 +14,7 @@ namespace SJP.Schematic.Reporting.Html.Renderers
     internal sealed class SynonymsRenderer : ITemplateRenderer
     {
         public SynonymsRenderer(
-            IDbConnection connection,
-            IRelationalDatabase database,
+            IIdentifierDefaults identifierDefaults,
             IHtmlFormatter formatter,
             IReadOnlyCollection<IRelationalDatabaseTable> tables,
             IReadOnlyCollection<IDatabaseView> views,
@@ -42,15 +40,12 @@ namespace SJP.Schematic.Reporting.Html.Renderers
             Synonyms = synonyms;
             Routines = routines;
 
-            Connection = connection ?? throw new ArgumentNullException(nameof(connection));
-            Database = database ?? throw new ArgumentNullException(nameof(database));
+            IdentifierDefaults = identifierDefaults ?? throw new ArgumentNullException(nameof(identifierDefaults));
             Formatter = formatter ?? throw new ArgumentNullException(nameof(formatter));
             ExportDirectory = exportDirectory ?? throw new ArgumentNullException(nameof(exportDirectory));
         }
 
-        private IDbConnection Connection { get; }
-
-        private IRelationalDatabase Database { get; }
+        private IIdentifierDefaults IdentifierDefaults { get; }
 
         private IHtmlFormatter Formatter { get; }
 
@@ -68,7 +63,7 @@ namespace SJP.Schematic.Reporting.Html.Renderers
 
         public async Task RenderAsync(CancellationToken cancellationToken = default(CancellationToken))
         {
-            var mapper = new MainModelMapper(Connection, Database);
+            var mapper = new MainModelMapper();
 
             var synonymTargets = new SynonymTargets(Tables, Views, Sequences, Synonyms, Routines);
             var synonymViewModels = Synonyms.Select(s => mapper.Map(s, synonymTargets)).ToList();
@@ -76,8 +71,8 @@ namespace SJP.Schematic.Reporting.Html.Renderers
 
             var renderedMain = Formatter.RenderTemplate(synonymsVm);
 
-            var databaseName = !Database.IdentifierDefaults.Database.IsNullOrWhiteSpace()
-                ? Database.IdentifierDefaults.Database + " Database"
+            var databaseName = !IdentifierDefaults.Database.IsNullOrWhiteSpace()
+                ? IdentifierDefaults.Database + " Database"
                 : "Database";
             var pageTitle = "Synonyms — " + databaseName;
             var mainContainer = new Container(renderedMain, pageTitle, string.Empty);

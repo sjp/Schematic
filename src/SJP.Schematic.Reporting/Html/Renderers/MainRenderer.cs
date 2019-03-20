@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Data;
 using System.IO;
 using System.Linq;
 using System.Threading;
@@ -15,7 +14,6 @@ namespace SJP.Schematic.Reporting.Html.Renderers
     internal sealed class MainRenderer : ITemplateRenderer
     {
         public MainRenderer(
-            IDbConnection connection,
             IRelationalDatabase database,
             IHtmlFormatter formatter,
             IReadOnlyCollection<IRelationalDatabaseTable> tables,
@@ -23,6 +21,7 @@ namespace SJP.Schematic.Reporting.Html.Renderers
             IReadOnlyCollection<IDatabaseSequence> sequences,
             IReadOnlyCollection<IDatabaseSynonym> synonyms,
             IReadOnlyCollection<IDatabaseRoutine> routines,
+            IReadOnlyDictionary<Identifier, ulong> rowCounts,
             DirectoryInfo exportDirectory)
         {
             if (tables == null || tables.AnyNull())
@@ -42,13 +41,11 @@ namespace SJP.Schematic.Reporting.Html.Renderers
             Synonyms = synonyms;
             Routines = routines;
 
-            Connection = connection ?? throw new ArgumentNullException(nameof(connection));
             Database = database ?? throw new ArgumentNullException(nameof(database));
             Formatter = formatter ?? throw new ArgumentNullException(nameof(formatter));
+            RowCounts = rowCounts ?? throw new ArgumentNullException(nameof(rowCounts));
             ExportDirectory = exportDirectory ?? throw new ArgumentNullException(nameof(exportDirectory));
         }
-
-        private IDbConnection Connection { get; }
 
         private IRelationalDatabase Database { get; }
 
@@ -64,11 +61,13 @@ namespace SJP.Schematic.Reporting.Html.Renderers
 
         private IReadOnlyCollection<IDatabaseRoutine> Routines { get; }
 
+        private IReadOnlyDictionary<Identifier, ulong> RowCounts { get; }
+
         private DirectoryInfo ExportDirectory { get; }
 
         public async Task RenderAsync(CancellationToken cancellationToken = default(CancellationToken))
         {
-            var mapper = new MainModelMapper(Connection, Database);
+            var mapper = new MainModelMapper();
 
             var columns = 0U;
             var constraints = 0U;
@@ -76,7 +75,10 @@ namespace SJP.Schematic.Reporting.Html.Renderers
             var tableViewModels = new List<Main.Table>();
             foreach (var table in Tables)
             {
-                var renderTable = await mapper.MapAsync(table, cancellationToken).ConfigureAwait(false);
+                if (!RowCounts.TryGetValue(table.Name, out var rowCount))
+                    rowCount = 0;
+
+                var renderTable = mapper.Map(table, rowCount);
 
                 var uniqueKeyLookup = table.GetUniqueKeyLookup();
                 var uniqueKeyCount = uniqueKeyLookup.UCount();
@@ -102,7 +104,10 @@ namespace SJP.Schematic.Reporting.Html.Renderers
             var viewViewModels = new List<Main.View>();
             foreach (var view in Views)
             {
-                var renderView = await mapper.MapAsync(view, cancellationToken).ConfigureAwait(false);
+                if (!RowCounts.TryGetValue(view.Name, out var rowCount))
+                    rowCount = 0;
+
+                var renderView = mapper.Map(view, rowCount);
                 columns += renderView.ColumnCount;
 
                 viewViewModels.Add(renderView);

@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Data;
 using System.IO;
 using System.Linq;
 using System.Threading;
@@ -15,7 +14,7 @@ namespace SJP.Schematic.Reporting.Html.Renderers
     internal sealed class SynonymRenderer : ITemplateRenderer
     {
         public SynonymRenderer(
-            IRelationalDatabase database,
+            IIdentifierDefaults identifierDefaults,
             IHtmlFormatter formatter,
             IReadOnlyCollection<IRelationalDatabaseTable> tables,
             IReadOnlyCollection<IDatabaseView> views,
@@ -42,7 +41,7 @@ namespace SJP.Schematic.Reporting.Html.Renderers
             Synonyms = synonyms;
             Routines = routines;
 
-            Database = database ?? throw new ArgumentNullException(nameof(database));
+            IdentifierDefaults = identifierDefaults ?? throw new ArgumentNullException(nameof(identifierDefaults));
             Formatter = formatter ?? throw new ArgumentNullException(nameof(formatter));
 
             if (exportDirectory == null)
@@ -51,7 +50,7 @@ namespace SJP.Schematic.Reporting.Html.Renderers
             ExportDirectory = new DirectoryInfo(Path.Combine(exportDirectory.FullName, "synonyms"));
         }
 
-        private IRelationalDatabase Database { get; }
+        private IIdentifierDefaults IdentifierDefaults { get; }
 
         private IHtmlFormatter Formatter { get; }
 
@@ -83,8 +82,8 @@ namespace SJP.Schematic.Reporting.Html.Renderers
                 var viewModel = mapper.Map(synonym, synonymTargets);
                 var renderedSynonym = Formatter.RenderTemplate(viewModel);
 
-                var databaseName = !Database.IdentifierDefaults.Database.IsNullOrWhiteSpace()
-                    ? Database.IdentifierDefaults.Database + " Database"
+                var databaseName = !IdentifierDefaults.Database.IsNullOrWhiteSpace()
+                    ? IdentifierDefaults.Database + " Database"
                     : "Database";
                 var pageTitle = synonym.Name.ToVisibleName() + " — Synonym — " + databaseName;
                 var synonymContainer = new Container(renderedSynonym, pageTitle, "../");

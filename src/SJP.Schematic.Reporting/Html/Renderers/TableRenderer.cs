@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Data;
 using System.IO;
 using System.Linq;
 using System.Threading;
@@ -17,10 +16,10 @@ namespace SJP.Schematic.Reporting.Html.Renderers
     internal sealed class TableRenderer : ITemplateRenderer
     {
         public TableRenderer(
-            IDbConnection connection,
-            IRelationalDatabase database,
+            IIdentifierDefaults identifierDefaults,
             IHtmlFormatter formatter,
             IReadOnlyCollection<IRelationalDatabaseTable> tables,
+            IReadOnlyDictionary<Identifier, ulong> rowCounts,
             DirectoryInfo exportDirectory
         )
         {
@@ -29,9 +28,9 @@ namespace SJP.Schematic.Reporting.Html.Renderers
 
             Tables = tables;
 
-            Connection = connection ?? throw new ArgumentNullException(nameof(connection));
-            Database = database ?? throw new ArgumentNullException(nameof(database));
+            IdentifierDefaults = identifierDefaults ?? throw new ArgumentNullException(nameof(identifierDefaults));
             Formatter = formatter ?? throw new ArgumentNullException(nameof(formatter));
+            RowCounts = rowCounts ?? throw new ArgumentNullException(nameof(rowCounts));
 
             if (exportDirectory == null)
                 throw new ArgumentNullException(nameof(exportDirectory));
@@ -39,30 +38,30 @@ namespace SJP.Schematic.Reporting.Html.Renderers
             ExportDirectory = new DirectoryInfo(Path.Combine(exportDirectory.FullName, "tables"));
         }
 
-        private IDbConnection Connection { get; }
-
-        private IRelationalDatabase Database { get; }
+        private IIdentifierDefaults IdentifierDefaults { get; }
 
         private IHtmlFormatter Formatter { get; }
 
         private IReadOnlyCollection<IRelationalDatabaseTable> Tables { get; }
+
+        private IReadOnlyDictionary<Identifier, ulong> RowCounts { get; }
 
         private DirectoryInfo ExportDirectory { get; }
 
         public async Task RenderAsync(CancellationToken cancellationToken = default(CancellationToken))
         {
             var relationshipFinder = new RelationshipFinder(Tables);
-            var mapper = new TableModelMapper(Connection, Database, Database.Dialect, relationshipFinder);
+            var mapper = new TableModelMapper(IdentifierDefaults, RowCounts, relationshipFinder);
 
             using (var dot = new GraphvizTemporaryExecutable())
             {
                 var tableTasks = Tables.Select(async table =>
                 {
-                    var tableModel = await mapper.MapAsync(table, cancellationToken).ConfigureAwait(false);
+                    var tableModel = mapper.Map(table);
                     var renderedTable = Formatter.RenderTemplate(tableModel);
 
-                    var databaseName = !Database.IdentifierDefaults.Database.IsNullOrWhiteSpace()
-                        ? Database.IdentifierDefaults.Database + " Database"
+                    var databaseName = !IdentifierDefaults.Database.IsNullOrWhiteSpace()
+                        ? IdentifierDefaults.Database + " Database"
                         : "Database";
                     var pageTitle = table.Name.ToVisibleName() + " — Table — " + databaseName;
                     var tableContainer = new Container(renderedTable, pageTitle, "../");

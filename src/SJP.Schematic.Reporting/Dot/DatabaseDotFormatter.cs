@@ -2,48 +2,38 @@
 using SJP.Schematic.Core.Extensions;
 using System;
 using System.Collections.Generic;
-using System.Data;
 using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace SJP.Schematic.Reporting.Dot
 {
     public class DatabaseDotFormatter : IDatabaseDotFormatter
     {
-        public DatabaseDotFormatter(IDbConnection connection, IDatabaseDialect dialect, IIdentifierDefaults identifierDefaults)
+        public DatabaseDotFormatter(IIdentifierDefaults identifierDefaults)
         {
-            Connection = connection ?? throw new ArgumentNullException(nameof(connection));
-            Dialect = dialect ?? throw new ArgumentNullException(nameof(dialect));
             IdentifierDefaults = identifierDefaults ?? throw new ArgumentNullException(nameof(identifierDefaults));
         }
 
-        protected IDbConnection Connection { get; }
-
-        protected IDatabaseDialect Dialect { get; }
-
         protected IIdentifierDefaults IdentifierDefaults { get; }
 
-        public Task<string> RenderTablesAsync(IEnumerable<IRelationalDatabaseTable> tables, CancellationToken cancellationToken)
+        public string RenderTables(IEnumerable<IRelationalDatabaseTable> tables, IReadOnlyDictionary<Identifier, ulong> rowCounts)
         {
             if (tables == null)
                 throw new ArgumentNullException(nameof(tables));
+            if (rowCounts == null)
+                throw new ArgumentNullException(nameof(rowCounts));
 
-            return RenderTablesAsync(tables, DotRenderOptions.Default, cancellationToken);
+            return RenderTables(tables, rowCounts, DotRenderOptions.Default);
         }
 
-        public Task<string> RenderTablesAsync(IEnumerable<IRelationalDatabaseTable> tables, DotRenderOptions options, CancellationToken cancellationToken)
+        public string RenderTables(IEnumerable<IRelationalDatabaseTable> tables, IReadOnlyDictionary<Identifier, ulong> rowCounts, DotRenderOptions options)
         {
             if (tables == null)
                 throw new ArgumentNullException(nameof(tables));
+            if (rowCounts == null)
+                throw new ArgumentNullException(nameof(rowCounts));
             if (options == null)
                 throw new ArgumentNullException(nameof(options));
 
-            return RenderTablesAsyncCore(tables, options, cancellationToken);
-        }
-
-        private async Task<string> RenderTablesAsyncCore(IEnumerable<IRelationalDatabaseTable> tables, DotRenderOptions options, CancellationToken cancellationToken)
-        {
             var tableNames = tables.Select(t => t.Name).ToList();
 
             var tableNodes = new Dictionary<DotIdentifier, DotNode>();
@@ -73,7 +63,9 @@ namespace SJP.Schematic.Reporting.Dot
 
                 var childKeysCount = childKeys.ToList().UCount();
                 var parentKeysCount = parentKeys.ToList().UCount();
-                var rowCount = await Connection.GetRowCountAsync(Dialect, table.Name, cancellationToken).ConfigureAwait(false);
+
+                if (!rowCounts.TryGetValue(table.Name, out var rowCount))
+                    rowCount = 0;
 
                 var tableUri = new Uri(options.RootPath + "tables/" + table.Name.ToSafeKey() + ".html", UriKind.Relative);
                 var tableNodeAttrs = new[]

@@ -1,8 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Data;
-using System.Threading;
-using System.Threading.Tasks;
 using LanguageExt;
 using SJP.Schematic.Core;
 
@@ -10,31 +6,14 @@ namespace SJP.Schematic.Reporting.Html.ViewModels.Mappers
 {
     internal sealed class MainModelMapper
     {
-        public MainModelMapper(IDbConnection connection, IRelationalDatabase database)
-        {
-            Connection = connection ?? throw new ArgumentNullException(nameof(connection));
-            Database = database ?? throw new ArgumentNullException(nameof(database));
-        }
-
-        private IDbConnection Connection { get; }
-
-        private IRelationalDatabase Database { get; }
-
-        public Task<Main.Table> MapAsync(IRelationalDatabaseTable table, CancellationToken cancellationToken)
+        public Main.Table Map(IRelationalDatabaseTable table, ulong rowCount)
         {
             if (table == null)
                 throw new ArgumentNullException(nameof(table));
 
-            return MapAsyncCore(table, cancellationToken);
-        }
-
-        private async Task<Main.Table> MapAsyncCore(IRelationalDatabaseTable table, CancellationToken cancellationToken)
-        {
             var parentKeyCount = table.ParentKeys.UCount();
             var childKeyCount = table.ChildKeys.UCount();
             var columnCount = table.Columns.UCount();
-
-            var rowCount = await Connection.GetRowCountAsync(Database.Dialect, table.Name, cancellationToken).ConfigureAwait(false);
 
             return new Main.Table(
                 table.Name,
@@ -45,19 +24,12 @@ namespace SJP.Schematic.Reporting.Html.ViewModels.Mappers
             );
         }
 
-        public Task<Main.View> MapAsync(IDatabaseView view, CancellationToken cancellationToken)
+        public Main.View Map(IDatabaseView view, ulong rowCount)
         {
             if (view == null)
                 throw new ArgumentNullException(nameof(view));
 
-            return MapAsyncCore(view, cancellationToken);
-        }
-
-        private async Task<Main.View> MapAsyncCore(IDatabaseView view, CancellationToken cancellationToken)
-        {
             var columnCount = view.Columns.UCount();
-            var rowCount = await Connection.GetRowCountAsync(Database.Dialect, view.Name, cancellationToken).ConfigureAwait(false);
-
             return new Main.View(view.Name, columnCount, rowCount);
         }
 

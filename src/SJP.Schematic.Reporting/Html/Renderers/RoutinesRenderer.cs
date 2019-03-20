@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Data;
 using System.IO;
 using System.Linq;
 using System.Threading;
@@ -15,8 +14,7 @@ namespace SJP.Schematic.Reporting.Html.Renderers
     internal sealed class RoutinesRenderer : ITemplateRenderer
     {
         public RoutinesRenderer(
-            IDbConnection connection,
-            IRelationalDatabase database,
+            IIdentifierDefaults identifierDefaults,
             IHtmlFormatter formatter,
             IReadOnlyCollection<IDatabaseRoutine> routines,
             DirectoryInfo exportDirectory)
@@ -26,15 +24,12 @@ namespace SJP.Schematic.Reporting.Html.Renderers
 
             Routines = routines;
 
-            Connection = connection ?? throw new ArgumentNullException(nameof(connection));
-            Database = database ?? throw new ArgumentNullException(nameof(database));
+            IdentifierDefaults = identifierDefaults ?? throw new ArgumentNullException(nameof(identifierDefaults));
             Formatter = formatter ?? throw new ArgumentNullException(nameof(formatter));
             ExportDirectory = exportDirectory ?? throw new ArgumentNullException(nameof(exportDirectory));
         }
 
-        private IDbConnection Connection { get; }
-
-        private IRelationalDatabase Database { get; }
+        private IIdentifierDefaults IdentifierDefaults { get; }
 
         private IHtmlFormatter Formatter { get; }
 
@@ -44,15 +39,15 @@ namespace SJP.Schematic.Reporting.Html.Renderers
 
         public async Task RenderAsync(CancellationToken cancellationToken = default(CancellationToken))
         {
-            var mapper = new MainModelMapper(Connection, Database);
+            var mapper = new MainModelMapper();
 
             var routineViewModels = Routines.Select(mapper.Map).ToList();
             var routinesVm = new Routines(routineViewModels);
 
             var renderedMain = Formatter.RenderTemplate(routinesVm);
 
-            var databaseName = !Database.IdentifierDefaults.Database.IsNullOrWhiteSpace()
-                ? Database.IdentifierDefaults.Database + " Database"
+            var databaseName = !IdentifierDefaults.Database.IsNullOrWhiteSpace()
+                ? IdentifierDefaults.Database + " Database"
                 : "Database";
             var pageTitle = "Routines — " + databaseName;
             var mainContainer = new Container(renderedMain, pageTitle, string.Empty);

@@ -69,16 +69,16 @@ namespace SJP.Schematic.Lint.Rules
             if (nullableColumns.Empty())
                 return Array.Empty<IRuleMessage>();
 
-            var tableRowCount = await GetRowCountAsync(table, cancellationToken).ConfigureAwait(false);
-            if (tableRowCount == 0)
+            var tableHasRows = await TableHasRowsAsync(table, cancellationToken).ConfigureAwait(false);
+            if (!tableHasRows)
                 return Array.Empty<IRuleMessage>();
 
             var result = new List<IRuleMessage>();
 
             foreach (var nullableColumn in nullableColumns)
             {
-                var nullableRowCount = await GetColumnNullableRowCountAsync(table, nullableColumn, cancellationToken).ConfigureAwait(false);
-                if (nullableRowCount != tableRowCount)
+                var hasValue = await NullableColumnHasValueAsync(table, nullableColumn, cancellationToken).ConfigureAwait(false);
+                if (hasValue)
                     continue;
 
                 var message = BuildMessage(table.Name, nullableColumn.Name.LocalName);
@@ -97,16 +97,15 @@ namespace SJP.Schematic.Lint.Rules
             if (nullableColumns.Empty())
                 return Array.Empty<IRuleMessage>();
 
-            var tableRowCount = GetRowCount(table);
-            if (tableRowCount == 0)
+            var tableHasRows = TableHasRows(table);
+            if (!tableHasRows)
                 return Array.Empty<IRuleMessage>();
 
             var result = new List<IRuleMessage>();
 
             foreach (var nullableColumn in nullableColumns)
             {
-                var nullableRowCount = GetColumnNullableRowCount(table, nullableColumn);
-                if (nullableRowCount != tableRowCount)
+                if (NullableColumnHasValue(table, nullableColumn))
                     continue;
 
                 var message = BuildMessage(table.Name, nullableColumn.Name.LocalName);
@@ -116,17 +115,19 @@ namespace SJP.Schematic.Lint.Rules
             return result;
         }
 
-        protected Task<long> GetRowCountAsync(IRelationalDatabaseTable table, CancellationToken cancellationToken)
+        protected Task<bool> TableHasRowsAsync(IRelationalDatabaseTable table, CancellationToken cancellationToken)
         {
             if (table == null)
                 throw new ArgumentNullException(nameof(table));
 
             var tableName = Identifier.CreateQualifiedIdentifier(table.Name.Schema, table.Name.LocalName);
-            var sql = $"select count(*) from { Dialect.QuoteName(tableName) }";
-            return Connection.ExecuteScalarAsync<long>(sql, cancellationToken);
+            var filterSql = $"select 1 as dummy_col from { Dialect.QuoteName(tableName) }";
+            var sql = $"select case when exists ({ filterSql }) then 1 else 0 end as dummy";
+            return Connection.ExecuteScalarAsync<bool>(sql, cancellationToken);
         }
 
-        protected Task<long> GetColumnNullableRowCountAsync(IRelationalDatabaseTable table, IDatabaseColumn column, CancellationToken cancellationToken)
+        protected Task<bool> NullableColumnHasValueAsync(IRelationalDatabaseTable table, IDatabaseColumn column,
+            CancellationToken cancellationToken)
         {
             if (table == null)
                 throw new ArgumentNullException(nameof(table));
@@ -134,21 +135,23 @@ namespace SJP.Schematic.Lint.Rules
                 throw new ArgumentNullException(nameof(column));
 
             var tableName = Identifier.CreateQualifiedIdentifier(table.Name.Schema, table.Name.LocalName);
-            var sql = $"select count(*) from { Dialect.QuoteName(tableName) } where { Dialect.QuoteIdentifier(column.Name.LocalName) } is null";
-            return Connection.ExecuteScalarAsync<long>(sql, cancellationToken);
+            var filterSql = $"select * from { Dialect.QuoteName(tableName) } where { Dialect.QuoteIdentifier(column.Name.LocalName) } is not null";
+            var sql = $"select case when exists ({ filterSql }) then 1 else 0 end as dummy";
+            return Connection.ExecuteScalarAsync<bool>(sql, cancellationToken);
         }
 
-        protected long GetRowCount(IRelationalDatabaseTable table)
+        protected bool TableHasRows(IRelationalDatabaseTable table)
         {
             if (table == null)
                 throw new ArgumentNullException(nameof(table));
 
             var tableName = Identifier.CreateQualifiedIdentifier(table.Name.Schema, table.Name.LocalName);
-            var sql = $"select count(*) from { Dialect.QuoteName(tableName) }";
-            return Connection.ExecuteScalar<long>(sql);
+            var filterSql = $"select 1 as dummy_col from { Dialect.QuoteName(tableName) }";
+            var sql = $"select case when exists ({ filterSql }) then 1 else 0 end as dummy";
+            return Connection.ExecuteScalar<bool>(sql);
         }
 
-        protected long GetColumnNullableRowCount(IRelationalDatabaseTable table, IDatabaseColumn column)
+        protected bool NullableColumnHasValue(IRelationalDatabaseTable table, IDatabaseColumn column)
         {
             if (table == null)
                 throw new ArgumentNullException(nameof(table));
@@ -156,8 +159,9 @@ namespace SJP.Schematic.Lint.Rules
                 throw new ArgumentNullException(nameof(column));
 
             var tableName = Identifier.CreateQualifiedIdentifier(table.Name.Schema, table.Name.LocalName);
-            var sql = $"select count(*) from { Dialect.QuoteName(tableName) } where { Dialect.QuoteIdentifier(column.Name.LocalName) } is null";
-            return Connection.ExecuteScalar<long>(sql);
+            var filterSql = $"select * from { Dialect.QuoteName(tableName) } where { Dialect.QuoteIdentifier(column.Name.LocalName) } is not null";
+            var sql = $"select case when exists ({ filterSql }) then 1 else 0 end as dummy";
+            return Connection.ExecuteScalar<bool>(sql);
         }
 
         protected virtual IRuleMessage BuildMessage(Identifier tableName, string columnName)
