@@ -27,7 +27,7 @@
 }
 
 .tab-pane svg {
-    max-height: 60vh;
+    height: 60vh;
     width: 100%;
     overflow: scroll;
 }

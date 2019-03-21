@@ -24,7 +24,6 @@ $(document).ready(function () {
     $('a[data-toggle="pill"]').on('shown.bs.tab', function (e) {
         var target = $(e.target).attr('href'); // activated tab
         var objElementSelector = target + ' > svg';
-        console.log(objElementSelector);
 
         svgPanZoom(objElementSelector, {
             controlIconsEnabled: true,
