@@ -42,14 +42,6 @@ namespace SJP.Schematic.Reporting.Html.Renderers
         {
             var mapper = new RelationshipsModelMapper(IdentifierDefaults);
             var viewModel = mapper.Map(Tables, RowCounts);
-            var renderedRelationships = Formatter.RenderTemplate(viewModel);
-
-            var databaseName = !IdentifierDefaults.Database.IsNullOrWhiteSpace()
-                ? IdentifierDefaults.Database + " Database"
-                : "Database";
-            var pageTitle = "Relationships · " + databaseName;
-            var relationshipContainer = new Container(renderedRelationships, pageTitle, string.Empty);
-            var renderedPage = Formatter.RenderTemplate(relationshipContainer);
 
             if (!ExportDirectory.Exists)
                 ExportDirectory.Create();
@@ -68,7 +60,7 @@ namespace SJP.Schematic.Reporting.Html.Renderers
                     var svg = dotRenderer.RenderToSvg(diagram.Dot);
 
                     // ensure links open in new window with right attrs
-                    var doc = XDocument.Parse(svg);
+                    var doc = XDocument.Parse(svg, LoadOptions.PreserveWhitespace);
                     var linkNodes = doc.Descendants(svgNs + "a");
                     foreach (var linkNode in linkNodes)
                     {
@@ -79,6 +71,21 @@ namespace SJP.Schematic.Reporting.Html.Renderers
 
                     using (var writer = File.CreateText(svgLinkedFilePath))
                         doc.Save(writer, SaveOptions.DisableFormatting);
+
+                    var renderedLinkedSvgText = File.ReadAllText(svgLinkedFilePath);
+                    var renderedLinkedSvgDoc = XDocument.Parse(renderedLinkedSvgText, LoadOptions.PreserveWhitespace);
+                    using (var writer = new StringWriter())
+                    {
+                        var svgRoot = renderedLinkedSvgDoc.Root;
+                        svgRoot.Attribute("width")?.Remove();
+                        svgRoot.Attribute("height")?.Remove();
+
+                        svgRoot.Save(writer, SaveOptions.DisableFormatting);
+                        var svgText = writer.ToString();
+                        if (svgText.StartsWith(XmlDeclaration))
+                            svgText = svgText.Substring(XmlDeclaration.Length);
+                        diagram.Svg = svgText;
+                    }
 
                     // disable links, replace them with a <g>, i.e. a dummy element
                     linkNodes = doc.Descendants(svgNs + "a");
@@ -93,6 +100,15 @@ namespace SJP.Schematic.Reporting.Html.Renderers
                 }
             }
 
+            var renderedRelationships = Formatter.RenderTemplate(viewModel);
+
+            var databaseName = !IdentifierDefaults.Database.IsNullOrWhiteSpace()
+                ? IdentifierDefaults.Database + " Database"
+                : "Database";
+            var pageTitle = "Relationships · " + databaseName;
+            var relationshipContainer = new Container(renderedRelationships, pageTitle, string.Empty);
+            var renderedPage = Formatter.RenderTemplate(relationshipContainer);
+
             var outputPath = Path.Combine(ExportDirectory.FullName, "relationships.html");
 
             using (var writer = File.CreateText(outputPath))
@@ -101,5 +117,7 @@ namespace SJP.Schematic.Reporting.Html.Renderers
                 await writer.FlushAsync().ConfigureAwait(false);
             }
         }
+
+        private const string XmlDeclaration = @"<?xml version=""1.0"" encoding=""utf-16""?>";
     }
 }

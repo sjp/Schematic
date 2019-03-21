@@ -467,7 +467,7 @@ namespace SJP.Schematic.Reporting.Html.ViewModels
                     throw new ArgumentNullException(nameof(dotDefinition));
                 Dot = dotDefinition;
 
-                ContainerId = tableName.ToSafeKey() + "-" + Name.ToLowerInvariant() + "-chart";
+                ContainerId = tableName.ToSafeKey() + "-" + Name.ToLowerInvariant().Replace(' ', '-') + "-chart";
                 ActiveClass = isActive ? "active" : string.Empty;
                 Selected = isActive ? "true" : "false";
             }
@@ -481,6 +481,9 @@ namespace SJP.Schematic.Reporting.Html.ViewModels
             public string Selected { get; }
 
             public string Dot { get; }
+
+            // a bit hacky, needed to render image directly instead of via file
+            public string Svg { get; set; }
         }
     }
 }

@@ -164,8 +164,8 @@ namespace SJP.Schematic.Reporting.Html.ViewModels.Mappers
 
             var diagrams = new[]
             {
-                new Table.Diagram(table.Name, "One", oneDegreeDot, true),
-                new Table.Diagram(table.Name, "Two", twoDegreeDot, false)
+                new Table.Diagram(table.Name, "One Degree", oneDegreeDot, true),
+                new Table.Diagram(table.Name, "Two Degrees", twoDegreeDot, false)
             };
 
             if (!RowCounts.TryGetValue(table.Name, out var rowCount))

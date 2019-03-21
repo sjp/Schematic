@@ -354,7 +354,7 @@
                         @foreach (var diagram in Model.Diagrams)
                         {
                             <div class="tab-pane @diagram.ActiveClass" id="@diagram.ContainerId">
-                                <object class="img-fluid img-relationship-diagram" type="image/svg+xml" data="@(diagram.ContainerId)-linked.svg"></object>
+                                @Raw(diagram.Svg)
                             </div>
                         }
                     </div>

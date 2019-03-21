@@ -21,25 +21,25 @@ $(document).ready(function () {
         });
     }
 
-    //$('a[data-toggle="pill"]').on('shown.bs.tab', function (e) {
-    //    var target = $(e.target).attr('href'); // activated tab
-    //    var objElementSelector = target + ' > object';
-    //    console.log(objElementSelector);
-    //
-    //    svgPanZoom(objElementSelector, {
-    //        controlIconsEnabled: true,
-    //        maxZoom: 10.0,
-    //        minZoom: 0.1,
-    //        zoomEnabled: true
-    //    });
-    //});
+    $('a[data-toggle="pill"]').on('shown.bs.tab', function (e) {
+        var target = $(e.target).attr('href'); // activated tab
+        var objElementSelector = target + ' > svg';
+        console.log(objElementSelector);
 
-    //$('object.img-relationship-diagram').each(function (_, el) {
-    //    svgPanZoom(el, {
-    //        controlIconsEnabled: true,
-    //        maxZoom: 10.0,
-    //        minZoom: 0.1,
-    //        zoomEnabled: true
-    //    });
-    //});
+        svgPanZoom(objElementSelector, {
+            controlIconsEnabled: true,
+            maxZoom: 10.0,
+            minZoom: 0.1,
+            zoomEnabled: true
+        });
+    });
+
+    $('.tab-pane.active svg').each(function (_, e) {
+        svgPanZoom(e, {
+            controlIconsEnabled: true,
+            maxZoom: 10.0,
+            minZoom: 0.1,
+            zoomEnabled: true
+        });
+    });
 });
