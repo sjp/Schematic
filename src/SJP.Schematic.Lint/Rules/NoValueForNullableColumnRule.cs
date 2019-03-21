@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using Dapper;
 using SJP.Schematic.Core;
 using SJP.Schematic.Core.Extensions;
+using SJP.Schematic.Core.Utilities;
 
 namespace SJP.Schematic.Lint.Rules
 {
@@ -17,6 +18,9 @@ namespace SJP.Schematic.Lint.Rules
         {
             Connection = connection ?? throw new ArgumentNullException(nameof(connection));
             Dialect = dialect ?? throw new ArgumentNullException(nameof(dialect));
+
+            _fromQuerySuffix = new Lazy<string>(GetFromQuerySuffix);
+            _fromQuerySuffixAsync = new AsyncLazy<string>(GetFromQuerySuffixAsync);
         }
 
         protected IDbConnection Connection { get; }
@@ -120,13 +124,13 @@ namespace SJP.Schematic.Lint.Rules
             if (table == null)
                 throw new ArgumentNullException(nameof(table));
 
-            var tableName = Identifier.CreateQualifiedIdentifier(table.Name.Schema, table.Name.LocalName);
-            var quotedTableName = Dialect.QuoteName(tableName);
+            return TableHasRowsAsyncCore(table, cancellationToken);
+        }
 
-            var filterSql = "select 1 as dummy_col from " + quotedTableName;
-            var sql = $"select case when exists ({ filterSql }) then 1 else 0 end as dummy from " + quotedTableName;
-
-            return Connection.ExecuteScalarAsync<bool>(sql, cancellationToken);
+        private async Task<bool> TableHasRowsAsyncCore(IRelationalDatabaseTable table, CancellationToken cancellationToken)
+        {
+            var sql = await GetTableHasRowsQueryAsync(table.Name).ConfigureAwait(false);
+            return await Connection.ExecuteScalarAsync<bool>(sql, cancellationToken).ConfigureAwait(false);
         }
 
         protected Task<bool> NullableColumnHasValueAsync(IRelationalDatabaseTable table, IDatabaseColumn column,
@@ -137,13 +141,14 @@ namespace SJP.Schematic.Lint.Rules
             if (column == null)
                 throw new ArgumentNullException(nameof(column));
 
-            var tableName = Identifier.CreateQualifiedIdentifier(table.Name.Schema, table.Name.LocalName);
-            var quotedTableName = Dialect.QuoteName(tableName);
+            return NullableColumnHasValueAsyncCore(table, column, cancellationToken);
+        }
 
-            var filterSql = $"select * from { quotedTableName } where { Dialect.QuoteIdentifier(column.Name.LocalName) } is not null";
-            var sql = $"select case when exists ({ filterSql }) then 1 else 0 end as dummy from " + quotedTableName;
-
-            return Connection.ExecuteScalarAsync<bool>(sql, cancellationToken);
+        private async Task<bool> NullableColumnHasValueAsyncCore(IRelationalDatabaseTable table, IDatabaseColumn column,
+            CancellationToken cancellationToken)
+        {
+            var sql = await GetNullableColumnHasValueQueryAsync(table.Name, column.Name).ConfigureAwait(false);
+            return await Connection.ExecuteScalarAsync<bool>(sql, cancellationToken).ConfigureAwait(false);
         }
 
         protected bool TableHasRows(IRelationalDatabaseTable table)
@@ -151,12 +156,7 @@ namespace SJP.Schematic.Lint.Rules
             if (table == null)
                 throw new ArgumentNullException(nameof(table));
 
-            var tableName = Identifier.CreateQualifiedIdentifier(table.Name.Schema, table.Name.LocalName);
-            var quotedTableName = Dialect.QuoteName(tableName);
-
-            var filterSql = "select 1 as dummy_col from " + quotedTableName;
-            var sql = $"select case when exists ({ filterSql }) then 1 else 0 end as dummy from " + quotedTableName;
-
+            var sql = GetTableHasRowsQuery(table.Name);
             return Connection.ExecuteScalar<bool>(sql);
         }
 
@@ -167,12 +167,7 @@ namespace SJP.Schematic.Lint.Rules
             if (column == null)
                 throw new ArgumentNullException(nameof(column));
 
-            var tableName = Identifier.CreateQualifiedIdentifier(table.Name.Schema, table.Name.LocalName);
-            var quotedTableName = Dialect.QuoteName(tableName);
-
-            var filterSql = $"select * from { quotedTableName } where { Dialect.QuoteIdentifier(column.Name.LocalName) } is not null";
-            var sql = $"select case when exists ({ filterSql }) then 1 else 0 end as dummy from " + quotedTableName;
-
+            var sql = GetNullableColumnHasValueQuery(table.Name, column.Name);
             return Connection.ExecuteScalar<bool>(sql);
         }
 
@@ -187,6 +182,141 @@ namespace SJP.Schematic.Lint.Rules
             return new RuleMessage(RuleTitle, Level, messageText);
         }
 
+        private string GetTableHasRowsQuery(Identifier tableName)
+        {
+            if (tableName == null)
+                throw new ArgumentNullException(nameof(tableName));
+
+            var quotedTableName = Dialect.QuoteName(Identifier.CreateQualifiedIdentifier(tableName.Schema, tableName.LocalName));
+            var filterSql = "select 1 as dummy_col from " + quotedTableName;
+            var sql = $"select case when exists ({ filterSql }) then 1 else 0 end as dummy";
+
+            var suffix = _fromQuerySuffix.Value;
+            return suffix.IsNullOrWhiteSpace()
+                ? sql
+                : sql + " from " + suffix;
+        }
+
+        private Task<string> GetTableHasRowsQueryAsync(Identifier tableName)
+        {
+            if (tableName == null)
+                throw new ArgumentNullException(nameof(tableName));
+
+            return GetTableHasRowsQueryAsyncCore(tableName);
+        }
+
+        private async Task<string> GetTableHasRowsQueryAsyncCore(Identifier tableName)
+        {
+            var quotedTableName = Dialect.QuoteName(Identifier.CreateQualifiedIdentifier(tableName.Schema, tableName.LocalName));
+            var filterSql = "select 1 as dummy_col from " + quotedTableName;
+            var sql = $"select case when exists ({ filterSql }) then 1 else 0 end as dummy";
+
+            var suffix = await _fromQuerySuffixAsync.ConfigureAwait(false);
+            return suffix.IsNullOrWhiteSpace()
+                ? sql
+                : sql + " from " + suffix;
+        }
+
+        private string GetNullableColumnHasValueQuery(Identifier tableName, Identifier columnName)
+        {
+            if (tableName == null)
+                throw new ArgumentNullException(nameof(tableName));
+            if (columnName == null)
+                throw new ArgumentNullException(nameof(columnName));
+
+            var quotedTableName = Dialect.QuoteName(Identifier.CreateQualifiedIdentifier(tableName.Schema, tableName.LocalName));
+            var quotedColumnName = Dialect.QuoteIdentifier(columnName.LocalName);
+            var filterSql = $"select * from { quotedTableName } where { quotedColumnName } is not null";
+            var sql = $"select case when exists ({ filterSql }) then 1 else 0 end as dummy";
+
+            var suffix = _fromQuerySuffix.Value;
+            return suffix.IsNullOrWhiteSpace()
+                ? sql
+                : sql + " from " + suffix;
+        }
+
+        private Task<string> GetNullableColumnHasValueQueryAsync(Identifier tableName, Identifier columnName)
+        {
+            if (tableName == null)
+                throw new ArgumentNullException(nameof(tableName));
+            if (columnName == null)
+                throw new ArgumentNullException(nameof(columnName));
+
+            return GetNullableColumnHasValueQueryCore(tableName, columnName);
+        }
+
+        private async Task<string> GetNullableColumnHasValueQueryCore(Identifier tableName, Identifier columnName)
+        {
+            var quotedTableName = Dialect.QuoteName(Identifier.CreateQualifiedIdentifier(tableName.Schema, tableName.LocalName));
+            var quotedColumnName = Dialect.QuoteIdentifier(columnName.LocalName);
+            var filterSql = $"select * from { quotedTableName } where { quotedColumnName } is not null";
+            var sql = $"select case when exists ({ filterSql }) then 1 else 0 end as dummy";
+
+            var suffix = await _fromQuerySuffixAsync.ConfigureAwait(false);
+            return suffix.IsNullOrWhiteSpace()
+                ? sql
+                : sql + " from " + suffix;
+        }
+
+        private string GetFromQuerySuffix()
+        {
+            try
+            {
+                _ = Connection.ExecuteScalar<bool>(TestQueryNoTable);
+                return string.Empty;
+            }
+            catch
+            {
+                // Deliberately ignoring because we are testing functionality
+            }
+
+            try
+            {
+                _ = Connection.ExecuteScalar<bool>(TestQueryFromSysDual);
+                return "SYS.DUAL";
+            }
+            catch
+            {
+                // Deliberately ignoring because we are testing functionality
+            }
+
+            _ = Connection.ExecuteScalar<bool>(TestQueryFromDual);
+            return "DUAL";
+        }
+
+        private async Task<string> GetFromQuerySuffixAsync()
+        {
+            try
+            {
+                _ = await Connection.ExecuteScalarAsync<bool>(TestQueryNoTable).ConfigureAwait(false);
+                return string.Empty;
+            }
+            catch
+            {
+                // Deliberately ignoring because we are testing functionality
+            }
+
+            try
+            {
+                _ = await Connection.ExecuteScalarAsync<bool>(TestQueryFromSysDual).ConfigureAwait(false);
+                return "SYS.DUAL";
+            }
+            catch
+            {
+                // Deliberately ignoring because we are testing functionality
+            }
+
+            _ = await Connection.ExecuteScalarAsync<bool>(TestQueryFromDual).ConfigureAwait(false);
+            return "DUAL";
+        }
+
         protected static string RuleTitle { get; } = "No not-null values exist for a nullable column.";
+
+        private const string TestQueryNoTable = "select 1 as dummy";
+        private const string TestQueryFromDual = "select 1 as dummy from DUAL";
+        private const string TestQueryFromSysDual = "select 1 as dummy from SYS.DUAL";
+
+        private readonly Lazy<string> _fromQuerySuffix;
+        private readonly AsyncLazy<string> _fromQuerySuffixAsync;
     }
 }
