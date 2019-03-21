@@ -31,6 +31,7 @@
                                 <th scope="col">View</th>
                                 <th scope="col">Columns</th>
                                 <th scope="col">Rows</th>
+                                <th scope="col">Materialized</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -42,13 +43,14 @@
                                         <td><a href="views/@(view.ViewUrl).html">@view.Name</a></td>
                                         <td>@view.ColumnCount</td>
                                         <td>@view.RowCount</td>
+                                        <td>@view.MaterializedText</td>
                                     </tr>
                                 }
                             }
                             else
                             {
                                 <tr>
-                                    <td colspan="3">No views present.</td>
+                                    <td colspan="4">No views present.</td>
                                 </tr>
                             }
                         </tbody>

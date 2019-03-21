@@ -53,7 +53,7 @@ namespace SJP.Schematic.Reporting.Html.ViewModels
                 TableName = tableName.ToVisibleName();
                 TableUrl = tableName.ToSafeKey();
 
-                UniqueText = isUnique ? "✓" : string.Empty;
+                UniqueText = isUnique ? "✓" : "✗";
 
                 ColumnsText = columnNames.Zip(
                     columnSorts.Select(SortToString),

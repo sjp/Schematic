@@ -47,7 +47,7 @@ namespace SJP.Schematic.Reporting.Html.ViewModels
                 TableUrl = tableName.ToSafeKey();
                 Ordinal = ordinalPosition;
                 TitleNullable = isNullable ? "Nullable" : string.Empty;
-                NullableText = isNullable ? "✓" : string.Empty;
+                NullableText = isNullable ? "✓" : "✗";
                 Type = typeDefinition ?? string.Empty;
                 DefaultValue = defaultValue.Match(def => def ?? string.Empty, () => string.Empty);
             }

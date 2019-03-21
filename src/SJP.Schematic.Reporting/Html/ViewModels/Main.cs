@@ -147,7 +147,7 @@ namespace SJP.Schematic.Reporting.Html.ViewModels
         /// </summary>
         public sealed class View
         {
-            public View(Identifier viewName, uint columnCount, ulong rowCount)
+            public View(Identifier viewName, uint columnCount, ulong rowCount, bool isMaterialized)
             {
                 if (viewName == null)
                     throw new ArgumentNullException(nameof(viewName));
@@ -156,6 +156,7 @@ namespace SJP.Schematic.Reporting.Html.ViewModels
                 ViewUrl = viewName.ToSafeKey();
                 ColumnCount = columnCount;
                 RowCount = rowCount;
+                MaterializedText = isMaterialized ? "✓" : "✗";
             }
 
             public string Name { get; }
@@ -165,6 +166,8 @@ namespace SJP.Schematic.Reporting.Html.ViewModels
             public uint ColumnCount { get; }
 
             public ulong RowCount { get; }
+
+            public string MaterializedText { get; }
         }
 
         /// <summary>
@@ -193,7 +196,7 @@ namespace SJP.Schematic.Reporting.Html.ViewModels
                 MinValueText = minValue.Match(mv => mv.ToString(), () => string.Empty);
                 MaxValueText = maxValue.Match(mv => mv.ToString(), () => string.Empty);
                 Cache = cache;
-                CycleText = cycle ? "✓" : string.Empty;
+                CycleText = cycle ? "✓" : "✗";
             }
 
             public decimal Start { get; }

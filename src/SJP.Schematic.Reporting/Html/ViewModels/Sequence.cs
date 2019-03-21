@@ -30,7 +30,7 @@ namespace SJP.Schematic.Reporting.Html.ViewModels
             MinValueText = minValue.Match(mv => mv.ToString(), () => string.Empty);
             MaxValueText = maxValue.Match(mv => mv.ToString(), () => string.Empty);
             Cache = cache;
-            CycleText = cycle ? "✓" : string.Empty;
+            CycleText = cycle ? "✓" : "✗";
         }
 
         public ReportTemplate Template { get; } = ReportTemplate.Sequence;
