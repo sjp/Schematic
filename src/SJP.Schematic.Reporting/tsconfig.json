@@ -1,0 +1,14 @@
+{
+  "compilerOptions": {
+    "allowJs": true,
+    "allowSyntheticDefaultImports": true,
+    "maxNodeModuleJsDepth": 2,
+    "noEmit": true,
+    "skipLibCheck": true
+  },
+  "exclude": [
+    "**/bin",
+    "**/node_modules",
+    "**/obj"
+  ]
+}

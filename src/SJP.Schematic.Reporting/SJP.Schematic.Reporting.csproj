@@ -31,6 +31,12 @@
     <EmbeddedResource Include="assets\**\*.*" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Compile Remove="node_modules\**" />
+    <EmbeddedResource Remove="node_modules\**" />
+    <None Remove="node_modules\**" />
+  </ItemGroup>
+
   <Target Name="NpmClean" BeforeTargets="BeforeClean">
     <Exec Command="npm install" WorkingDirectory="$(MSBuildThisFileDirectory)" />
     <Exec Command="npm run clean" WorkingDirectory="$(MSBuildThisFileDirectory)" />
