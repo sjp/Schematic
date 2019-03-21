@@ -24,19 +24,19 @@ namespace SJP.Schematic.Core.Exceptions
 
         public MissingChildTableException(Identifier tableName, Identifier childTableName)
         {
-            Message = "Unable to find the child table '"
-                + (childTableName?.ToString() ?? string.Empty)
-                + "' for the table '"
-                + (tableName?.ToString() ?? string.Empty)
-                + "'";
+            ChildTableName = childTableName?.ToString() ?? string.Empty;
+            TableName = tableName?.ToString() ?? string.Empty;
 
-            TableName = tableName;
-            ChildTableName = childTableName;
+            Message = "Unable to find the child table '"
+                + ChildTableName
+                + "' for the table '"
+                + TableName
+                + "'";
         }
 
-        public Identifier TableName { get; }
+        public string TableName { get; }
 
-        public Identifier ChildTableName { get; }
+        public string ChildTableName { get; }
 
         public override string Message { get; }
     }

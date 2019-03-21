@@ -24,19 +24,19 @@ namespace SJP.Schematic.Core.Exceptions
 
         public MissingParentTableException(Identifier tableName, Identifier parentTableName)
         {
-            Message = "Unable to find the parent table '"
-                + (parentTableName?.ToString() ?? string.Empty)
-                + "' for the table '"
-                + (tableName?.ToString() ?? string.Empty)
-                + "'";
+            ParentTableName = parentTableName?.ToString() ?? string.Empty;
+            TableName = tableName?.ToString() ?? string.Empty;
 
-            TableName = tableName;
-            ParentTableName = parentTableName;
+            Message = "Unable to find the parent table '"
+                + ParentTableName
+                + "' for the table '"
+                + TableName
+                + "'";
         }
 
-        public Identifier TableName { get; }
+        public string TableName { get; }
 
-        public Identifier ParentTableName { get; }
+        public string ParentTableName { get; }
 
         public override string Message { get; }
     }

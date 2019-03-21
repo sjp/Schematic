@@ -24,16 +24,16 @@ namespace SJP.Schematic.Core.Exceptions
 
         public UnsupportedTriggerEventException(Identifier tableName, string triggerEvent)
         {
+            TableName = tableName?.ToString() ?? string.Empty;
+            TriggerEvent = triggerEvent;
+
             Message = "Found an unsupported trigger event name for a trigger on the table '"
-                + (tableName?.ToString() ?? string.Empty)
+                + TableName
                 + "'. Expected one of INSERT, UPDATE, DELETE, got: "
                 + triggerEvent;
-
-            TableName = tableName;
-            TriggerEvent = triggerEvent;
         }
 
-        public Identifier TableName { get; }
+        public string TableName { get; }
 
         public string TriggerEvent { get; }
 
