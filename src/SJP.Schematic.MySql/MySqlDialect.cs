@@ -9,6 +9,7 @@ using MySql.Data.MySqlClient;
 using SJP.Schematic.Core;
 using SJP.Schematic.Core.Comments;
 using SJP.Schematic.Core.Extensions;
+using SJP.Schematic.MySql.Comments;
 using SJP.Schematic.MySql.Query;
 
 namespace SJP.Schematic.MySql
@@ -72,8 +73,11 @@ select
             return new MySqlRelationalDatabase(this, Connection, identifierDefaults);
         }
 
-        public override Task<IRelationalDatabaseCommentProvider> GetRelationalDatabaseCommentProviderAsync(CancellationToken cancellationToken = default(CancellationToken))
-            => Task.FromResult<IRelationalDatabaseCommentProvider>(new EmptyRelationalDatabaseCommentProvider());
+        public override async Task<IRelationalDatabaseCommentProvider> GetRelationalDatabaseCommentProviderAsync(CancellationToken cancellationToken = default(CancellationToken))
+        {
+            var identifierDefaults = await GetIdentifierDefaultsAsync(cancellationToken).ConfigureAwait(false);
+            return new MySqlDatabaseCommentProvider(Connection, identifierDefaults);
+        }
 
         private static Version ParseMySqlVersion(string versionStr)
         {
