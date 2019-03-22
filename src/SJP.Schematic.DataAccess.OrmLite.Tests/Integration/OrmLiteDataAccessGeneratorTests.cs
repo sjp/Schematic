@@ -220,7 +220,7 @@ select
                 var generator = new OrmLiteDataAccessGenerator(fileSystem, database, commentProvider, nameTranslator);
                 await generator.GenerateAsync(projectPath, TestNamespace).ConfigureAwait(false);
 
-                var buildsSuccessfully = ProjectBuildsSuccessfully(projectPath);
+                var buildsSuccessfully = await ProjectBuildsSuccessfullyAsync(projectPath).ConfigureAwait(false);
                 Assert.IsTrue(buildsSuccessfully);
             }
             finally
@@ -248,7 +248,7 @@ select
                 var generator = new OrmLiteDataAccessGenerator(fileSystem, Database, commentProvider, nameTranslator);
                 await generator.GenerateAsync(projectPath, TestNamespace).ConfigureAwait(false);
 
-                var buildsSuccessfully = ProjectBuildsSuccessfully(projectPath);
+                var buildsSuccessfully = await ProjectBuildsSuccessfullyAsync(projectPath).ConfigureAwait(false);
                 Assert.IsTrue(buildsSuccessfully);
             }
             finally
@@ -276,13 +276,44 @@ select
                 WindowStyle = ProcessWindowStyle.Hidden,
                 WorkingDirectory = projectDir
             };
-            using (var process = new Process())
+            using (var process = new Process { StartInfo = startInfo })
             {
-                process.StartInfo = startInfo;
                 process.Start();
                 process.WaitForExit();
 
                 return process.ExitCode == ExitSuccess;
+            }
+        }
+
+        private static Task<bool> ProjectBuildsSuccessfullyAsync(string projectPath)
+        {
+            if (projectPath.IsNullOrWhiteSpace())
+                throw new ArgumentNullException(nameof(projectPath));
+            if (!File.Exists(projectPath))
+                throw new FileNotFoundException("Expected to find a csproj at: " + projectPath, projectPath);
+
+            return ProjectBuildsSuccessfullyAsyncCore(projectPath);
+        }
+
+        private static async Task<bool> ProjectBuildsSuccessfullyAsyncCore(string projectPath)
+        {
+            var projectDir = Path.GetDirectoryName(projectPath);
+            var escapedProjectPath = projectPath.Replace("\"", "\\\"");
+
+            var startInfo = new ProcessStartInfo
+            {
+                ArgumentList = { "build", escapedProjectPath },
+                CreateNoWindow = true,
+                FileName = "dotnet",
+                WindowStyle = ProcessWindowStyle.Hidden,
+                WorkingDirectory = projectDir
+            };
+            using (var process = new Process { StartInfo = startInfo })
+            {
+                process.Start();
+                var exitCode = await process.WaitForExitAsync().ConfigureAwait(false);
+
+                return exitCode == ExitSuccess;
             }
         }
 
