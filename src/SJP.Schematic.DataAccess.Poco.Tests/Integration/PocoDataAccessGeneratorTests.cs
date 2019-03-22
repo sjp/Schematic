@@ -1,12 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
+using System.IO.Abstractions;
 using System.IO.Abstractions.TestingHelpers;
 using System.Threading.Tasks;
 using Dapper;
 using NUnit.Framework;
 using SJP.Schematic.Core;
 using SJP.Schematic.Core.Comments;
+using SJP.Schematic.Core.Extensions;
 using SJP.Schematic.Sqlite;
 
 namespace SJP.Schematic.DataAccess.Poco.Tests.Integration
@@ -48,77 +51,244 @@ select
         [Test]
         public void Generate_GivenDatabaseWithTablesAndViews_GeneratesFilesInExpectedLocations()
         {
-            var testProjectDir = Path.Combine(Environment.CurrentDirectory, "PocoTest");
+            var testProjectDir = Path.Combine(Environment.CurrentDirectory, "PocoMockTest");
 
-            var projectPath = Path.Combine(testProjectDir, "DataAccessGeneratorTest.csproj");
-            var tablesDir = Path.Combine(testProjectDir, "Tables");
-            var viewsDir = Path.Combine(testProjectDir, "Views");
-
-            var expectedTable1Path = Path.Combine(tablesDir, "Main", "ViewTestTable1.cs");
-            var expectedView1Path = Path.Combine(viewsDir, "Main", "TestView1.cs");
-            var expectedView2Path = Path.Combine(viewsDir, "Main", "TestView2.cs");
-
-            var mockFs = new MockFileSystem(new Dictionary<string, MockFileData>
+            try
             {
-                [testProjectDir + "\\"] = new MockDirectoryData(),
-                [expectedTable1Path] = MockFileData.NullObject,
-                [expectedView1Path] = MockFileData.NullObject,
-                [expectedView2Path] = MockFileData.NullObject
-            });
+                if (Directory.Exists(testProjectDir))
+                    Directory.Delete(testProjectDir, true);
 
-            var nameTranslator = new PascalCaseNameTranslator();
-            var commentProvider = new EmptyRelationalDatabaseCommentProvider();
-            var generator = new PocoDataAccessGenerator(mockFs, Database, commentProvider, nameTranslator);
-            generator.Generate(projectPath, TestNamespace);
+                var projectPath = Path.Combine(testProjectDir, "DataAccessGeneratorTest.csproj");
+                var tablesDir = Path.Combine(testProjectDir, "Tables");
+                var viewsDir = Path.Combine(testProjectDir, "Views");
 
-            Assert.Multiple(() =>
+                var expectedTable1Path = Path.Combine(tablesDir, "Main", "ViewTestTable1.cs");
+                var expectedView1Path = Path.Combine(viewsDir, "Main", "TestView1.cs");
+                var expectedView2Path = Path.Combine(viewsDir, "Main", "TestView2.cs");
+
+                var mockFs = new MockFileSystem(new Dictionary<string, MockFileData>
+                {
+                    [testProjectDir + "\\"] = new MockDirectoryData(),
+                    [expectedTable1Path] = MockFileData.NullObject,
+                    [expectedView1Path] = MockFileData.NullObject,
+                    [expectedView2Path] = MockFileData.NullObject
+                });
+
+                var nameTranslator = new PascalCaseNameTranslator();
+                var commentProvider = new EmptyRelationalDatabaseCommentProvider();
+                var generator = new PocoDataAccessGenerator(mockFs, Database, commentProvider, nameTranslator);
+                generator.Generate(projectPath, TestNamespace);
+
+                Assert.Multiple(() =>
+                {
+                    Assert.IsTrue(mockFs.FileExists(projectPath));
+                    Assert.IsTrue(mockFs.Directory.Exists(tablesDir));
+                    Assert.IsTrue(mockFs.Directory.Exists(viewsDir));
+                    Assert.IsTrue(mockFs.FileExists(expectedTable1Path));
+                    Assert.IsTrue(mockFs.FileExists(expectedView1Path));
+                    Assert.IsTrue(mockFs.FileExists(expectedView2Path));
+                });
+            }
+            finally
             {
-                Assert.IsTrue(mockFs.FileExists(projectPath));
-                Assert.IsTrue(mockFs.Directory.Exists(tablesDir));
-                Assert.IsTrue(mockFs.Directory.Exists(viewsDir));
-                Assert.IsTrue(mockFs.FileExists(expectedTable1Path));
-                Assert.IsTrue(mockFs.FileExists(expectedView1Path));
-                Assert.IsTrue(mockFs.FileExists(expectedView2Path));
-            });
+                if (Directory.Exists(testProjectDir))
+                    Directory.Delete(testProjectDir, true);
+            }
         }
 
         [Test]
         public async Task GenerateAsync_GivenDatabaseWithTablesAndViews_GeneratesFilesInExpectedLocations()
         {
+            var testProjectDir = Path.Combine(Environment.CurrentDirectory, "PocoMockTestAsync");
+
+            try
+            {
+                if (Directory.Exists(testProjectDir))
+                    Directory.Delete(testProjectDir, true);
+
+                var projectPath = Path.Combine(testProjectDir, "DataAccessGeneratorTest.csproj");
+                var tablesDir = Path.Combine(testProjectDir, "Tables");
+                var viewsDir = Path.Combine(testProjectDir, "Views");
+
+                var expectedTable1Path = Path.Combine(tablesDir, "Main", "ViewTestTable1.cs");
+                var expectedView1Path = Path.Combine(viewsDir, "Main", "TestView1.cs");
+                var expectedView2Path = Path.Combine(viewsDir, "Main", "TestView2.cs");
+
+                var mockFs = new MockFileSystem(new Dictionary<string, MockFileData>
+                {
+                    [testProjectDir + "\\"] = new MockDirectoryData(),
+                    [expectedTable1Path] = MockFileData.NullObject,
+                    [expectedView1Path] = MockFileData.NullObject,
+                    [expectedView2Path] = MockFileData.NullObject
+                });
+
+                var nameTranslator = new PascalCaseNameTranslator();
+                var commentProvider = new EmptyRelationalDatabaseCommentProvider();
+                var generator = new PocoDataAccessGenerator(mockFs, Database, commentProvider, nameTranslator);
+                await generator.GenerateAsync(projectPath, TestNamespace).ConfigureAwait(false);
+
+                Assert.Multiple(() =>
+                {
+                    Assert.IsTrue(mockFs.FileExists(projectPath));
+                    Assert.IsTrue(mockFs.Directory.Exists(tablesDir));
+                    Assert.IsTrue(mockFs.Directory.Exists(viewsDir));
+                    Assert.IsTrue(mockFs.FileExists(expectedTable1Path));
+                    Assert.IsTrue(mockFs.FileExists(expectedView1Path));
+                    Assert.IsTrue(mockFs.FileExists(expectedView2Path));
+                });
+            }
+            finally
+            {
+                if (Directory.Exists(testProjectDir))
+                    Directory.Delete(testProjectDir, true);
+            }
+        }
+
+        [Test]
+        public void Generate_GivenDatabaseWithoutTables_BuildsProjectSuccessfully()
+        {
+            var testProjectDir = Path.Combine(Environment.CurrentDirectory, "PocoTestEmpty");
+
+            try
+            {
+                if (Directory.Exists(testProjectDir))
+                    Directory.Delete(testProjectDir, true);
+
+                var projectPath = Path.Combine(testProjectDir, "DataAccessGeneratorTest.csproj");
+
+                var database = new EmptyRelationalDatabase(Database.Dialect, Database.IdentifierDefaults);
+
+                var fileSystem = new FileSystem();
+                var commentProvider = new EmptyRelationalDatabaseCommentProvider();
+                var nameTranslator = new PascalCaseNameTranslator();
+                var generator = new PocoDataAccessGenerator(fileSystem, database, commentProvider, nameTranslator);
+                generator.Generate(projectPath, TestNamespace);
+
+                var buildsSuccessfully = ProjectBuildsSuccessfully(projectPath);
+                Assert.IsTrue(buildsSuccessfully);
+            }
+            finally
+            {
+                if (Directory.Exists(testProjectDir))
+                    Directory.Delete(testProjectDir, true);
+            }
+        }
+
+        [Test]
+        public void Generate_GivenDatabaseWithTables_BuildsProjectSuccessfully()
+        {
+            var testProjectDir = Path.Combine(Environment.CurrentDirectory, "PocoTest");
+
+            try
+            {
+                if (Directory.Exists(testProjectDir))
+                    Directory.Delete(testProjectDir, true);
+
+                var projectPath = Path.Combine(testProjectDir, "DataAccessGeneratorTest.csproj");
+
+                var fileSystem = new FileSystem();
+                var commentProvider = new EmptyRelationalDatabaseCommentProvider();
+                var nameTranslator = new PascalCaseNameTranslator();
+                var generator = new PocoDataAccessGenerator(fileSystem, Database, commentProvider, nameTranslator);
+                generator.Generate(projectPath, TestNamespace);
+
+                var buildsSuccessfully = ProjectBuildsSuccessfully(projectPath);
+                Assert.IsTrue(buildsSuccessfully);
+            }
+            finally
+            {
+                if (Directory.Exists(testProjectDir))
+                    Directory.Delete(testProjectDir, true);
+            }
+        }
+
+        [Test]
+        public async Task GenerateAsync_GivenDatabaseWithoutTables_BuildsProjectSuccessfully()
+        {
+            var testProjectDir = Path.Combine(Environment.CurrentDirectory, "PocoTestEmptyAsync");
+
+            try
+            {
+                if (Directory.Exists(testProjectDir))
+                    Directory.Delete(testProjectDir, true);
+
+                var projectPath = Path.Combine(testProjectDir, "DataAccessGeneratorTest.csproj");
+
+                var database = new EmptyRelationalDatabase(Database.Dialect, Database.IdentifierDefaults);
+
+                var fileSystem = new FileSystem();
+                var commentProvider = new EmptyRelationalDatabaseCommentProvider();
+                var nameTranslator = new PascalCaseNameTranslator();
+                var generator = new PocoDataAccessGenerator(fileSystem, database, commentProvider, nameTranslator);
+                await generator.GenerateAsync(projectPath, TestNamespace).ConfigureAwait(false);
+
+                var buildsSuccessfully = ProjectBuildsSuccessfully(projectPath);
+                Assert.IsTrue(buildsSuccessfully);
+            }
+            finally
+            {
+                if (Directory.Exists(testProjectDir))
+                    Directory.Delete(testProjectDir, true);
+            }
+        }
+
+        [Test]
+        public async Task GenerateAsync_GivenDatabaseWithTables_BuildsProjectSuccessfully()
+        {
             var testProjectDir = Path.Combine(Environment.CurrentDirectory, "PocoTestAsync");
 
-            var projectPath = Path.Combine(testProjectDir, "DataAccessGeneratorTest.csproj");
-            var tablesDir = Path.Combine(testProjectDir, "Tables");
-            var viewsDir = Path.Combine(testProjectDir, "Views");
-
-            var expectedTable1Path = Path.Combine(tablesDir, "Main", "ViewTestTable1.cs");
-            var expectedView1Path = Path.Combine(viewsDir, "Main", "TestView1.cs");
-            var expectedView2Path = Path.Combine(viewsDir, "Main", "TestView2.cs");
-
-            var mockFs = new MockFileSystem(new Dictionary<string, MockFileData>
+            try
             {
-                [testProjectDir + "\\"] = new MockDirectoryData(),
-                [expectedTable1Path] = MockFileData.NullObject,
-                [expectedView1Path] = MockFileData.NullObject,
-                [expectedView2Path] = MockFileData.NullObject
-            });
+                if (Directory.Exists(testProjectDir))
+                    Directory.Delete(testProjectDir, true);
 
-            var nameTranslator = new PascalCaseNameTranslator();
-            var commentProvider = new EmptyRelationalDatabaseCommentProvider();
-            var generator = new PocoDataAccessGenerator(mockFs, Database, commentProvider, nameTranslator);
-            await generator.GenerateAsync(projectPath, TestNamespace).ConfigureAwait(false);
+                var projectPath = Path.Combine(testProjectDir, "DataAccessGeneratorTest.csproj");
 
-            Assert.Multiple(() =>
+                var fileSystem = new FileSystem();
+                var commentProvider = new EmptyRelationalDatabaseCommentProvider();
+                var nameTranslator = new PascalCaseNameTranslator();
+                var generator = new PocoDataAccessGenerator(fileSystem, Database, commentProvider, nameTranslator);
+                await generator.GenerateAsync(projectPath, TestNamespace).ConfigureAwait(false);
+
+                var buildsSuccessfully = ProjectBuildsSuccessfully(projectPath);
+                Assert.IsTrue(buildsSuccessfully);
+            }
+            finally
             {
-                Assert.IsTrue(mockFs.FileExists(projectPath));
-                Assert.IsTrue(mockFs.Directory.Exists(tablesDir));
-                Assert.IsTrue(mockFs.Directory.Exists(viewsDir));
-                Assert.IsTrue(mockFs.FileExists(expectedTable1Path));
-                Assert.IsTrue(mockFs.FileExists(expectedView1Path));
-                Assert.IsTrue(mockFs.FileExists(expectedView2Path));
-            });
+                if (Directory.Exists(testProjectDir))
+                    Directory.Delete(testProjectDir, true);
+            }
+        }
+
+        private static bool ProjectBuildsSuccessfully(string projectPath)
+        {
+            if (projectPath.IsNullOrWhiteSpace())
+                throw new ArgumentNullException(nameof(projectPath));
+            if (!File.Exists(projectPath))
+                throw new FileNotFoundException("Expected to find a csproj at: " + projectPath, projectPath);
+
+            var projectDir = Path.GetDirectoryName(projectPath);
+            var escapedProjectPath = projectPath.Replace("\"", "\\\"");
+
+            var startInfo = new ProcessStartInfo
+            {
+                ArgumentList = { "build", escapedProjectPath },
+                CreateNoWindow = true,
+                FileName = "dotnet",
+                WindowStyle = ProcessWindowStyle.Hidden,
+                WorkingDirectory = projectDir
+            };
+            using (var process = new Process())
+            {
+                process.StartInfo = startInfo;
+                process.Start();
+                process.WaitForExit();
+
+                return process.ExitCode == ExitSuccess;
+            }
         }
 
         private const string TestNamespace = "PocoTestNamespace";
+        private const int ExitSuccess = 0;
     }
 }
