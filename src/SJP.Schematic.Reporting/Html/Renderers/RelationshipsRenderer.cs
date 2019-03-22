@@ -51,13 +51,13 @@ namespace SJP.Schematic.Reporting.Html.Renderers
 
             using (var dot = new GraphvizTemporaryExecutable())
             {
-                var dotRenderer = new DotRenderer(dot.DotExecutablePath);
+                var dotRenderer = new DotSvgRenderer(dot.DotExecutablePath);
 
                 foreach (var diagram in viewModel.Diagrams)
                 {
                     var svgFilePath = Path.Combine(ExportDirectory.FullName, diagram.ContainerId + ".svg");
                     var svgLinkedFilePath = Path.Combine(ExportDirectory.FullName, diagram.ContainerId + "-linked.svg");
-                    var svg = dotRenderer.RenderToSvg(diagram.Dot);
+                    var svg = await dotRenderer.RenderToSvgAsync(diagram.Dot, cancellationToken).ConfigureAwait(false);
 
                     // ensure links open in new window with right attrs
                     var doc = XDocument.Parse(svg, LoadOptions.PreserveWhitespace);

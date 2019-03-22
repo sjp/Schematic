@@ -31,4 +31,8 @@
     </PackageReference>
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\SJP.Schematic.Core\SJP.Schematic.Core.csproj" />
+  </ItemGroup>
+
 </Project>
