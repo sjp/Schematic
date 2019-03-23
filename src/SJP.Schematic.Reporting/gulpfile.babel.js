@@ -1,6 +1,7 @@
 'use strict';
 
 import { src, dest, parallel } from 'gulp';
+import gzip from 'gulp-gzip';
 import newer from 'gulp-newer';
 import uglify from 'gulp-uglify';
 import concat from 'gulp-concat';
@@ -15,7 +16,7 @@ export const clean = () =>
     ]);
 
 const sourceSansFont = () => {
-    return src('node_modules/source-sans-pro/**/*.{woff}')
+    return src('node_modules/source-sans-pro/**/*.otf.woff')
         .pipe(newer('assets/fonts'))
         .pipe(dest('assets/fonts'));
 }
@@ -82,6 +83,7 @@ const stylesProd = () => {
         .pipe(concat('reporting-app.css'))
         .pipe(postcss([cssnext]))
         .pipe(cssnano())
+        .pipe(gzip({ append: true, gzipOptions: { level: 9 } }))
         .pipe(dest('assets/css'));
 }
 
@@ -102,6 +104,7 @@ const scriptsProd = () => {
         .pipe(newer('assets/js/reporting-app.js'))
         .pipe(concat('reporting-app.js'))
         .pipe(uglify())
+        .pipe(gzip({ append: true, gzipOptions: { level: 9 } }))
         .pipe(dest('assets/js'));
 }
 

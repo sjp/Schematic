@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.IO.Compression;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
@@ -39,6 +40,14 @@ namespace SJP.Schematic.Reporting.Html
                 var relativePath = FileNameToRelativePath(resourceFile.Name);
                 var qualifiedPath = Path.Combine(directory.FullName, relativePath);
                 var targetFile = new FileInfo(qualifiedPath);
+                var isGzipped = targetFile.Extension == ".gz";
+                if (isGzipped)
+                {
+                    var gzRemovedFileName = Path.GetFileNameWithoutExtension(targetFile.Name);
+                    var dirName = Path.GetDirectoryName(targetFile.FullName);
+                    var fullPath = Path.Combine(dirName, gzRemovedFileName);
+                    targetFile = new FileInfo(fullPath);
+                }
 
                 if (targetFile.Exists && overwrite)
                     targetFile.Delete();
@@ -46,9 +55,24 @@ namespace SJP.Schematic.Reporting.Html
                 if (!targetFile.Directory.Exists)
                     targetFile.Directory.Create();
 
+
                 using (var stream = targetFile.OpenWrite())
                 using (var resourceStream = resourceFile.CreateReadStream())
-                    await resourceStream.CopyToAsync(stream).ConfigureAwait(false);
+                {
+                    if (isGzipped)
+                    {
+                        using (var gzipStream = new GZipStream(resourceStream, CompressionMode.Decompress))
+                        {
+                            await gzipStream.CopyToAsync(stream).ConfigureAwait(false);
+                            await stream.FlushAsync().ConfigureAwait(false);
+                        }
+                    }
+                    else
+                    {
+                        await resourceStream.CopyToAsync(stream).ConfigureAwait(false);
+                        await stream.FlushAsync().ConfigureAwait(false);
+                    }
+                }
             }
         }
 
@@ -84,7 +108,9 @@ namespace SJP.Schematic.Reporting.Html
             ".otf.woff",
             ".ttf.woff",
             ".otf.woff2",
-            ".ttf.woff2"
+            ".ttf.woff2",
+            ".css.gz",
+            ".js.gz"
         };
 
         private static readonly IFileProvider _fileProvider = new EmbeddedFileProvider(Assembly.GetExecutingAssembly(), Assembly.GetExecutingAssembly().GetName().Name + ".assets");
