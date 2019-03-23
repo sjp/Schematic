@@ -19,11 +19,11 @@
   },
   "devDependencies": {
     "@babel/core": "^7.3.4",
-    "@babel/preset-env": "^7.3.4",
+    "@babel/preset-env": "^7.4.2",
     "@babel/register": "^7.0.0",
     "admin-lte": "^3.0.0-alpha.2",
     "bootstrap": "^4.1.2",
-    "codemirror": "^5.36.0",
+    "codemirror": "^5.45.0",
     "datatables.net": "^1.10.19",
     "datatables.net-bs4": "^1.10.19",
     "del": "^4.0.0",
@@ -35,15 +35,15 @@
     "gulp-gzip": "^1.4.2",
     "gulp-newer": "^1.4.0",
     "gulp-postcss": "^8.0.0",
-    "gulp-rename": "^1.2.2",
-    "gulp-sass": "^4.0.1",
-    "gulp-uglify": "^3.0.0",
+    "gulp-rename": "^1.4.0",
+    "gulp-sass": "^4.0.2",
+    "gulp-uglify": "^3.0.2",
     "jquery": "^3.3.1",
     "jquery-ui-dist": "^1.12.1",
     "natives": "^1.1.6",
-    "node-sass": "^4.8.3",
+    "node-sass": "^4.11.0",
     "postcss-cssnext": "^3.1.0",
-    "source-sans-pro": "^2.20.2",
-    "svg-pan-zoom": "^3.5.3"
+    "source-sans-pro": "^2.45.0",
+    "svg-pan-zoom": "^3.6.0"
   }
 }
