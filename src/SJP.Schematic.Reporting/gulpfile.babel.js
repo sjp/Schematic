@@ -9,40 +9,34 @@ import postcss from 'gulp-postcss';
 import cssnext from 'postcss-cssnext';
 import del from 'del';
 
-export const clean = () => 
+export const clean = () =>
     del([
         'assets/**/*.*'
     ]);
 
 const sourceSansFont = () => {
-    return src('node_modules/source-sans-pro/**/*.{eot,woff,woff2,otf,ttf,svg}')
+    return src('node_modules/source-sans-pro/**/*.{woff}')
         .pipe(newer('assets/fonts'))
         .pipe(dest('assets/fonts'));
 }
 
 const fontAwesomeFont = () => {
-    return src('node_modules/font-awesome/fonts/*-webfont.{eot,woff,woff2,otf,ttf,svg}')
+    return src('node_modules/font-awesome/fonts/*-webfont.woff')
         .pipe(newer('assets/fonts'))
         .pipe(dest('assets/fonts'));
 }
 
-const glyphiconsFont = () => {
-    return src('node_modules/bootstrap/dist/fonts/*.{eot,woff,woff2,otf,ttf,svg}')
-        .pipe(newer('assets/fonts'))
-        .pipe(dest('assets/fonts'));
-}
-
-const fonts = parallel(sourceSansFont, fontAwesomeFont, glyphiconsFont);
+const fonts = parallel(sourceSansFont, fontAwesomeFont);
 
 const stylesDev = () => {
     return src(
         [
             'node_modules/bootstrap/dist/css/bootstrap.css',
-            'node_modules/font-awesome/css/font-awesome.css',
             'node_modules/datatables.net-bs4/css/dataTables.bootstrap4.css',
             'node_modules/codemirror/lib/codemirror.css',
             'node_modules/codemirror/theme/material.css',
             'node_modules/admin-lte/dist/css/adminlte.css',
+            'Source/css/font-awesome.css',
             'Source/css/source-sans-pro.css',
             'Source/css/reporting.css'
         ])
@@ -76,11 +70,11 @@ const stylesProd = () => {
     return src(
         [
             'node_modules/bootstrap/dist/css/bootstrap.min.css',
-            'node_modules/font-awesome/css/font-awesome.min.css',
             'node_modules/datatables.net-bs4/css/dataTables.bootstrap4.css',
             'node_modules/codemirror/lib/codemirror.css',
             'node_modules/codemirror/theme/material.css',
             'node_modules/admin-lte/dist/css/adminlte.min.css',
+            'Source/css/font-awesome.css',
             'Source/css/source-sans-pro.css',
             'Source/css/reporting.css'
         ])
