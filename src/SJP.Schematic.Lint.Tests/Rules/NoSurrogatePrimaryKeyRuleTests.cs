@@ -241,5 +241,81 @@ namespace SJP.Schematic.Lint.Tests.Rules
 
             Assert.NotZero(messages.Count());
         }
+
+
+
+        [Test]
+        public static async Task AnalyseTablesAsync_GivenTableWithMultiColumnPrimaryKeyContainingAllForeignKeyColumns_ProducesNoMessages()
+        {
+            var rule = new NoSurrogatePrimaryKeyRule(RuleLevel.Error);
+
+            var testColumnA = new DatabaseColumn(
+                "test_column_a",
+                Mock.Of<IDbType>(),
+                false,
+                null,
+                null
+            );
+            var testColumnB = new DatabaseColumn(
+                "test_column_b",
+                Mock.Of<IDbType>(),
+                false,
+                null,
+                null
+            );
+            var testPrimaryKey = new DatabaseKey(
+                Option<Identifier>.Some("test_primary_key"),
+                DatabaseKeyType.Primary,
+                new[] { testColumnA, testColumnB },
+                true
+            );
+
+            var testForeignKey1 = new DatabaseKey(
+                Option<Identifier>.Some("test_fk1"),
+                DatabaseKeyType.Foreign,
+                new[] { testColumnA },
+                true
+            );
+            var testForeignKey2 = new DatabaseKey(
+                Option<Identifier>.Some("test_fk2"),
+                DatabaseKeyType.Foreign,
+                new[] { testColumnB },
+                true
+            );
+
+            var relationalKey1 = new DatabaseRelationalKey(
+                "test",
+                testForeignKey1,
+                "test",
+                testPrimaryKey,
+                System.Data.Rule.Cascade,
+                System.Data.Rule.Cascade
+            );
+            var relationalKey2 = new DatabaseRelationalKey(
+                "test",
+                testForeignKey2,
+                "test",
+                testPrimaryKey,
+                System.Data.Rule.Cascade,
+                System.Data.Rule.Cascade
+            );
+
+            var table = new RelationalDatabaseTable(
+                "test",
+                new List<IDatabaseColumn>(),
+                testPrimaryKey,
+                Array.Empty<IDatabaseKey>(),
+                new[] { relationalKey1, relationalKey2 },
+                Array.Empty<IDatabaseRelationalKey>(),
+                Array.Empty<IDatabaseIndex>(),
+                Array.Empty<IDatabaseCheckConstraint>(),
+                Array.Empty<IDatabaseTrigger>()
+            );
+            var tables = new[] { table };
+
+            var messages = await rule.AnalyseTablesAsync(tables).ConfigureAwait(false);
+
+            Assert.Zero(messages.Count());
+        }
     }
 }
