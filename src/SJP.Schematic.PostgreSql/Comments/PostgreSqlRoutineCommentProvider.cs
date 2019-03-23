@@ -1,0 +1,148 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Data;
+using System.Threading;
+using System.Threading.Tasks;
+using LanguageExt;
+using SJP.Schematic.Core;
+using SJP.Schematic.Core.Comments;
+using SJP.Schematic.Core.Extensions;
+using SJP.Schematic.PostgreSql.Query;
+
+namespace SJP.Schematic.PostgreSql.Comments
+{
+    public class PostgreSqlRoutineCommentProvider : IDatabaseRoutineCommentProvider
+    {
+        public PostgreSqlRoutineCommentProvider(IDbConnection connection, IIdentifierDefaults identifierDefaults)
+        {
+            Connection = connection ?? throw new ArgumentNullException(nameof(connection));
+            IdentifierDefaults = identifierDefaults ?? throw new ArgumentNullException(nameof(identifierDefaults));
+        }
+
+        protected IDbConnection Connection { get; }
+
+        protected IIdentifierDefaults IdentifierDefaults { get; }
+
+        public async Task<IReadOnlyCollection<IDatabaseRoutineComments>> GetAllRoutineComments(CancellationToken cancellationToken = default(CancellationToken))
+        {
+            var allCommentsData = await Connection.QueryAsync<CommentsData>(AllRoutineCommentsQuery, cancellationToken).ConfigureAwait(false);
+
+            var result = new List<IDatabaseRoutineComments>();
+
+            foreach (var commentData in allCommentsData)
+            {
+                var tmpIdentifier = Identifier.CreateQualifiedIdentifier(commentData.SchemaName, commentData.ObjectName);
+                var qualifiedName = QualifyRoutineName(tmpIdentifier);
+
+                var routineComment = !commentData.Comment.IsNullOrWhiteSpace()
+                    ? Option<string>.Some(commentData.Comment)
+                    : Option<string>.None;
+                var comments = new DatabaseRoutineComments(qualifiedName, routineComment);
+                result.Add(comments);
+            }
+
+            return result;
+        }
+
+        protected OptionAsync<Identifier> GetResolvedRoutineName(Identifier routineName, CancellationToken cancellationToken)
+        {
+            if (routineName == null)
+                throw new ArgumentNullException(nameof(routineName));
+
+            routineName = QualifyRoutineName(routineName);
+            var qualifiedRoutineName = Connection.QueryFirstOrNone<QualifiedName>(
+                RoutineNameQuery,
+                new { SchemaName = routineName.Schema, RoutineName = routineName.LocalName },
+                cancellationToken
+            );
+
+            return qualifiedRoutineName.Map(name => Identifier.CreateQualifiedIdentifier(routineName.Server, routineName.Database, name.SchemaName, name.ObjectName));
+        }
+
+        protected virtual string RoutineNameQuery => RoutineNameQuerySql;
+
+        private const string RoutineNameQuerySql = @"
+select
+    ROUTINE_SCHEMA as SchemaName,
+    ROUTINE_NAME as ObjectName
+from information_schema.routines
+where ROUTINE_SCHEMA = @SchemaName and ROUTINE_NAME = @RoutineName
+    and ROUTINE_SCHEMA not in ('pg_catalog', 'information_schema')
+limit 1";
+
+        public OptionAsync<IDatabaseRoutineComments> GetRoutineComments(Identifier routineName, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            if (routineName == null)
+                throw new ArgumentNullException(nameof(routineName));
+
+            var candidateRoutineName = QualifyRoutineName(routineName);
+            return LoadRoutineComments(candidateRoutineName, cancellationToken);
+        }
+
+        protected virtual OptionAsync<IDatabaseRoutineComments> LoadRoutineComments(Identifier routineName, CancellationToken cancellationToken)
+        {
+            if (routineName == null)
+                throw new ArgumentNullException(nameof(routineName));
+
+            var candidateRoutineName = QualifyRoutineName(routineName);
+            return LoadRoutineCommentsAsyncCore(candidateRoutineName, cancellationToken).ToAsync();
+        }
+
+        private async Task<Option<IDatabaseRoutineComments>> LoadRoutineCommentsAsyncCore(Identifier routineName, CancellationToken cancellationToken)
+        {
+            var candidateRoutineName = QualifyRoutineName(routineName);
+            var resolvedRoutineNameOption = GetResolvedRoutineName(candidateRoutineName, cancellationToken);
+            var resolvedRoutineNameOptionIsNone = await resolvedRoutineNameOption.IsNone.ConfigureAwait(false);
+            if (resolvedRoutineNameOptionIsNone)
+                return Option<IDatabaseRoutineComments>.None;
+
+            var resolvedRoutineName = await resolvedRoutineNameOption.UnwrapSomeAsync().ConfigureAwait(false);
+
+            var commentsData = Connection.QueryFirstOrNone<CommentsData>(
+                RoutineCommentsQuery,
+                new { SchemaName = routineName.Schema, RoutineName = routineName.LocalName },
+                cancellationToken
+            ).Map<IDatabaseRoutineComments>(c =>
+            {
+                var routineComment = !c.Comment.IsNullOrWhiteSpace()
+                    ? Option<string>.Some(c.Comment)
+                    : Option<string>.None;
+
+                return new DatabaseRoutineComments(resolvedRoutineName, routineComment);
+            });
+
+            return await commentsData.ToOption().ConfigureAwait(false);
+        }
+
+        protected virtual string AllRoutineCommentsQuery => AllRoutineCommentsQuerySql;
+
+        private const string AllRoutineCommentsQuerySql = @"
+select n.nspname as SchemaName, p.proname as ObjectName, d.description as Comment
+from pg_catalog.pg_proc p
+inner join pg_namespace n on n.oid = p.pronamespace
+left join pg_catalog.pg_description d on p.oid = d.objoid
+where n.nspname not in ('pg_catalog', 'information_schema')
+order by n.nspname, p.proname
+";
+
+        protected virtual string RoutineCommentsQuery => RoutineCommentsQuerySql;
+
+        private const string RoutineCommentsQuerySql = @"
+select n.nspname as SchemaName, p.proname as ObjectName, d.description as Comment
+from pg_catalog.pg_proc p
+inner join pg_namespace n on n.oid = p.pronamespace
+left join pg_catalog.pg_description d on p.oid = d.objoid
+where n.nspname = @SchemaName and p.proname = @RoutineName
+    and n.nspname not in ('pg_catalog', 'information_schema')
+";
+
+        protected Identifier QualifyRoutineName(Identifier routineName)
+        {
+            if (routineName == null)
+                throw new ArgumentNullException(nameof(routineName));
+
+            var schema = routineName.Schema ?? IdentifierDefaults.Schema;
+            return Identifier.CreateQualifiedIdentifier(IdentifierDefaults.Server, IdentifierDefaults.Database, schema, routineName.LocalName);
+        }
+    }
+}

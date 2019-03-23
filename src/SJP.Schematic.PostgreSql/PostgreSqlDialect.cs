@@ -8,6 +8,7 @@ using Npgsql;
 using SJP.Schematic.Core;
 using SJP.Schematic.Core.Comments;
 using SJP.Schematic.Core.Extensions;
+using SJP.Schematic.PostgreSql.Comments;
 using SJP.Schematic.PostgreSql.Query;
 
 namespace SJP.Schematic.PostgreSql
@@ -120,8 +121,11 @@ select
             return new PostgreSqlRelationalDatabase(this, Connection, identifierDefaults, identifierResolver);
         }
 
-        public override Task<IRelationalDatabaseCommentProvider> GetRelationalDatabaseCommentProviderAsync(CancellationToken cancellationToken = default(CancellationToken))
-            => Task.FromResult<IRelationalDatabaseCommentProvider>(new EmptyRelationalDatabaseCommentProvider());
+        public override async Task<IRelationalDatabaseCommentProvider> GetRelationalDatabaseCommentProviderAsync(CancellationToken cancellationToken = default(CancellationToken))
+        {
+            var identifierDefaults = await GetIdentifierDefaultsAsync(cancellationToken).ConfigureAwait(false);
+            return new PostgreSqlDatabaseCommentProvider(Connection, identifierDefaults);
+        }
 
         public override bool IsReservedKeyword(string text)
         {

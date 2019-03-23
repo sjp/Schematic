@@ -22,7 +22,7 @@ select
     increment_by as Increment,
     cycle as Cycle,
     cache_size as CacheSize
-from pg_sequences
+from pg_catalog.pg_sequences
 order by schemaname, sequencename";
 
         protected override string SequenceQuery => SequenceQuerySql;
@@ -35,7 +35,7 @@ select
     increment_by as Increment,
     cycle as Cycle,
     cache_size as CacheSize
-from pg_sequences
+from pg_catalog.pg_sequences
 where schemaname = @SchemaName and sequencename = @SequenceName";
     }
 }

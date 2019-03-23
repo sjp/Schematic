@@ -53,7 +53,7 @@ select
     p.increment as Increment,
     1 as CacheSize,
     p.cycle_option as Cycle
-from pg_namespace nc, pg_class c, lateral pg_sequence_parameters(c.oid) p
+from pg_catalog.pg_namespace nc, pg_catalog.pg_class c, lateral pg_catalog.pg_sequence_parameters(c.oid) p
 where c.relnamespace = nc.oid and c.relkind = 'S'
 order by nc.nspname, c.relname";
 
@@ -114,7 +114,7 @@ select
     p.increment as Increment,
     1 as CacheSize,
     p.cycle_option as Cycle
-from pg_namespace nc, pg_class c, lateral pg_sequence_parameters(c.oid) p
+from pg_catalog.pg_namespace nc, pg_catalog.pg_class c, lateral pg_catalog.pg_sequence_parameters(c.oid) p
 where c.relnamespace = nc.oid
     and c.relkind = 'S'
     and nc.nspname = @SchemaName

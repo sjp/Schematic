@@ -197,7 +197,7 @@ where schemaname = @SchemaName and matviewname = @ViewName";
 SELECT
     a.attname AS column_name,
     a.attnum AS ordinal_position,
-    pg_get_expr(ad.adbin, ad.adrelid) AS column_default,
+    pg_catalog.pg_get_expr(ad.adbin, ad.adrelid) AS column_default,
     CASE WHEN a.attnotnull OR (t.typtype = 'd' AND t.typnotnull) THEN 'NO' ELSE 'YES' END
         AS is_nullable,
 
@@ -251,20 +251,20 @@ SELECT
 
     a.attnum AS dtd_identifier
 
-FROM (pg_attribute a LEFT JOIN pg_attrdef ad ON attrelid = adrelid AND attnum = adnum)
-    JOIN (pg_class c JOIN pg_namespace nc ON (c.relnamespace = nc.oid)) ON a.attrelid = c.oid
-    JOIN (pg_type t JOIN pg_namespace nt ON (t.typnamespace = nt.oid)) ON a.atttypid = t.oid
-    LEFT JOIN (pg_type bt JOIN pg_namespace nbt ON (bt.typnamespace = nbt.oid))
+FROM (pg_catalog.pg_attribute a LEFT JOIN pg_catalog.pg_attrdef ad ON attrelid = adrelid AND attnum = adnum)
+    JOIN (pg_catalog.pg_class c JOIN pg_catalog.pg_namespace nc ON (c.relnamespace = nc.oid)) ON a.attrelid = c.oid
+    JOIN (pg_catalog.pg_type t JOIN pg_catalog.pg_namespace nt ON (t.typnamespace = nt.oid)) ON a.atttypid = t.oid
+    LEFT JOIN (pg_catalog.pg_type bt JOIN pg_catalog.pg_namespace nbt ON (bt.typnamespace = nbt.oid))
     ON (t.typtype = 'd' AND t.typbasetype = bt.oid)
-    LEFT JOIN (pg_collation co JOIN pg_namespace nco ON (co.collnamespace = nco.oid))
+    LEFT JOIN (pg_catalog.pg_collation co JOIN pg_catalog.pg_namespace nco ON (co.collnamespace = nco.oid))
     ON a.attcollation = co.oid AND (nco.nspname, co.collname) <> ('pg_catalog', 'default')
 
-WHERE (NOT pg_is_other_temp_schema(nc.oid))
+WHERE (NOT pg_catalog.pg_is_other_temp_schema(nc.oid))
 
         AND a.attnum > 0 AND NOT a.attisdropped
         AND c.relkind = 'm' -- m = matview
 
-        AND (pg_has_role(c.relowner, 'USAGE')
+        AND (pg_catalog.pg_has_role(c.relowner, 'USAGE')
             OR has_column_privilege(c.oid, a.attnum,
                                     'SELECT, INSERT, UPDATE, REFERENCES'))
         AND nc.nspname = @SchemaName and c.relname = @ViewName
