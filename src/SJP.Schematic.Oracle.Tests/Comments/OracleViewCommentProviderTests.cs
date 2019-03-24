@@ -14,16 +14,27 @@ namespace SJP.Schematic.Oracle.Tests.Comments
         public static void Ctor_GivenNullConnection_ThrowsArgNullException()
         {
             var identifierDefaults = Mock.Of<IIdentifierDefaults>();
+            var identifierResolver = new DefaultOracleIdentifierResolutionStrategy();
 
-            Assert.Throws<ArgumentNullException>(() => new OracleViewCommentProvider(null, identifierDefaults));
+            Assert.Throws<ArgumentNullException>(() => new OracleViewCommentProvider(null, identifierDefaults, identifierResolver));
         }
 
         [Test]
         public static void Ctor_GivenNullIdentifierDefaults_ThrowsArgNullException()
         {
             var connection = Mock.Of<IDbConnection>();
+            var identifierResolver = new DefaultOracleIdentifierResolutionStrategy();
 
-            Assert.Throws<ArgumentNullException>(() => new OracleViewCommentProvider(connection, null));
+            Assert.Throws<ArgumentNullException>(() => new OracleViewCommentProvider(connection, null, identifierResolver));
+        }
+
+        [Test]
+        public static void Ctor_GivenNullIdentifierResolver_ThrowsArgNullException()
+        {
+            var connection = Mock.Of<IDbConnection>();
+            var identifierDefaults = Mock.Of<IIdentifierDefaults>();
+
+            Assert.Throws<ArgumentNullException>(() => new OracleViewCommentProvider(connection, identifierDefaults, null));
         }
 
         [Test]
@@ -31,8 +42,9 @@ namespace SJP.Schematic.Oracle.Tests.Comments
         {
             var connection = Mock.Of<IDbConnection>();
             var identifierDefaults = Mock.Of<IIdentifierDefaults>();
+            var identifierResolver = new DefaultOracleIdentifierResolutionStrategy();
 
-            var commentProvider = new OracleViewCommentProvider(connection, identifierDefaults);
+            var commentProvider = new OracleViewCommentProvider(connection, identifierDefaults, identifierResolver);
 
             Assert.Throws<ArgumentNullException>(() => commentProvider.GetViewComments(null));
         }

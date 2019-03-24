@@ -14,7 +14,7 @@ namespace SJP.Schematic.Oracle.Tests.Integration.Comments
 {
     internal sealed class OracleViewCommentProviderTests : OracleTest
     {
-        private IDatabaseViewCommentProvider ViewCommentProvider => new OracleViewCommentProvider(Connection, IdentifierDefaults);
+        private IDatabaseViewCommentProvider ViewCommentProvider => new OracleViewCommentProvider(Connection, IdentifierDefaults, IdentifierResolver);
 
         [OneTimeSetUp]
         public async Task Init()
@@ -84,7 +84,7 @@ namespace SJP.Schematic.Oracle.Tests.Integration.Comments
         [Test]
         public async Task GetViewComments_WhenViewPresentGivenLocalNameOnly_ShouldBeQualifiedCorrectly()
         {
-            var viewName = new Identifier("WRAPPER_VIEW_COMMENT_VIEW_1");
+            var viewName = new Identifier("wrapper_view_comment_view_1");
             var expectedViewName = new Identifier(IdentifierDefaults.Server, IdentifierDefaults.Database, IdentifierDefaults.Schema, "WRAPPER_VIEW_COMMENT_VIEW_1");
 
             var viewComments = await ViewCommentProvider.GetViewComments(viewName).UnwrapSomeAsync().ConfigureAwait(false);
@@ -95,7 +95,7 @@ namespace SJP.Schematic.Oracle.Tests.Integration.Comments
         [Test]
         public async Task GetViewComments_WhenViewPresentGivenSchemaAndLocalNameOnly_ShouldBeQualifiedCorrectly()
         {
-            var viewName = new Identifier(IdentifierDefaults.Schema, "WRAPPER_VIEW_COMMENT_VIEW_1");
+            var viewName = new Identifier(IdentifierDefaults.Schema, "wrapper_view_comment_view_1");
             var expectedViewName = new Identifier(IdentifierDefaults.Server, IdentifierDefaults.Database, IdentifierDefaults.Schema, "WRAPPER_VIEW_COMMENT_VIEW_1");
 
             var viewComments = await ViewCommentProvider.GetViewComments(viewName).UnwrapSomeAsync().ConfigureAwait(false);
@@ -106,7 +106,7 @@ namespace SJP.Schematic.Oracle.Tests.Integration.Comments
         [Test]
         public async Task GetViewComments_WhenViewPresentGivenDatabaseAndSchemaAndLocalNameOnly_ShouldBeQualifiedCorrectly()
         {
-            var viewName = new Identifier(IdentifierDefaults.Database, IdentifierDefaults.Schema, "WRAPPER_VIEW_COMMENT_VIEW_1");
+            var viewName = new Identifier(IdentifierDefaults.Database, IdentifierDefaults.Schema, "wrapper_view_comment_view_1");
             var expectedViewName = new Identifier(IdentifierDefaults.Server, IdentifierDefaults.Database, IdentifierDefaults.Schema, "WRAPPER_VIEW_COMMENT_VIEW_1");
 
             var viewComments = await ViewCommentProvider.GetViewComments(viewName).UnwrapSomeAsync().ConfigureAwait(false);
@@ -127,7 +127,7 @@ namespace SJP.Schematic.Oracle.Tests.Integration.Comments
         [Test]
         public async Task GetViewComments_WhenViewPresentGivenFullyQualifiedNameWithDifferentServer_ShouldBeQualifiedCorrectly()
         {
-            var viewName = new Identifier("A", IdentifierDefaults.Database, IdentifierDefaults.Schema, "WRAPPER_VIEW_COMMENT_VIEW_1");
+            var viewName = new Identifier("A", IdentifierDefaults.Database, IdentifierDefaults.Schema, "wrapper_view_comment_view_1");
             var expectedViewName = new Identifier(IdentifierDefaults.Server, IdentifierDefaults.Database, IdentifierDefaults.Schema, "WRAPPER_VIEW_COMMENT_VIEW_1");
 
             var viewComments = await ViewCommentProvider.GetViewComments(viewName).UnwrapSomeAsync().ConfigureAwait(false);
@@ -138,7 +138,7 @@ namespace SJP.Schematic.Oracle.Tests.Integration.Comments
         [Test]
         public async Task GetViewComments_WhenViewPresentGivenFullyQualifiedNameWithDifferentServerAndDatabase_ShouldBeQualifiedCorrectly()
         {
-            var viewName = new Identifier("A", "B", IdentifierDefaults.Schema, "WRAPPER_VIEW_COMMENT_VIEW_1");
+            var viewName = new Identifier("A", "B", IdentifierDefaults.Schema, "wrapper_view_comment_view_1");
             var expectedViewName = new Identifier(IdentifierDefaults.Server, IdentifierDefaults.Database, IdentifierDefaults.Schema, "WRAPPER_VIEW_COMMENT_VIEW_1");
 
             var viewComments = await ViewCommentProvider.GetViewComments(viewName).UnwrapSomeAsync().ConfigureAwait(false);
@@ -273,7 +273,7 @@ namespace SJP.Schematic.Oracle.Tests.Integration.Comments
         [Test]
         public async Task GetViewComments_WhenMatViewPresent_ReturnsMatViewComment()
         {
-            var viewIsSome = await ViewCommentProvider.GetViewComments("WRAPPER_VIEW_COMMENT_MVIEW_1").IsSome.ConfigureAwait(false);
+            var viewIsSome = await ViewCommentProvider.GetViewComments("wrapper_view_comment_mview_1").IsSome.ConfigureAwait(false);
             Assert.IsTrue(viewIsSome);
         }
 
@@ -289,7 +289,7 @@ namespace SJP.Schematic.Oracle.Tests.Integration.Comments
         [Test]
         public async Task GetViewComments_WhenMatViewPresentGivenLocalNameOnly_ShouldBeQualifiedCorrectly()
         {
-            var viewName = new Identifier("WRAPPER_VIEW_COMMENT_MVIEW_1");
+            var viewName = new Identifier("wrapper_view_comment_mview_1");
             var expectedViewName = new Identifier(IdentifierDefaults.Server, IdentifierDefaults.Database, IdentifierDefaults.Schema, "WRAPPER_VIEW_COMMENT_MVIEW_1");
 
             var viewComments = await ViewCommentProvider.GetViewComments(viewName).UnwrapSomeAsync().ConfigureAwait(false);
@@ -300,7 +300,7 @@ namespace SJP.Schematic.Oracle.Tests.Integration.Comments
         [Test]
         public async Task GetViewComments_WhenMatViewPresentGivenSchemaAndLocalNameOnly_ShouldBeQualifiedCorrectly()
         {
-            var viewName = new Identifier(IdentifierDefaults.Schema, "WRAPPER_VIEW_COMMENT_MVIEW_1");
+            var viewName = new Identifier(IdentifierDefaults.Schema, "wrapper_view_comment_mview_1");
             var expectedViewName = new Identifier(IdentifierDefaults.Server, IdentifierDefaults.Database, IdentifierDefaults.Schema, "WRAPPER_VIEW_COMMENT_MVIEW_1");
 
             var viewComments = await ViewCommentProvider.GetViewComments(viewName).UnwrapSomeAsync().ConfigureAwait(false);
@@ -311,7 +311,7 @@ namespace SJP.Schematic.Oracle.Tests.Integration.Comments
         [Test]
         public async Task GetViewComments_WhenMatViewPresentGivenDatabaseAndSchemaAndLocalNameOnly_ShouldBeQualifiedCorrectly()
         {
-            var viewName = new Identifier(IdentifierDefaults.Database, IdentifierDefaults.Schema, "WRAPPER_VIEW_COMMENT_MVIEW_1");
+            var viewName = new Identifier(IdentifierDefaults.Database, IdentifierDefaults.Schema, "wrapper_view_comment_mview_1");
             var expectedViewName = new Identifier(IdentifierDefaults.Server, IdentifierDefaults.Database, IdentifierDefaults.Schema, "WRAPPER_VIEW_COMMENT_MVIEW_1");
 
             var viewComments = await ViewCommentProvider.GetViewComments(viewName).UnwrapSomeAsync().ConfigureAwait(false);
@@ -332,7 +332,7 @@ namespace SJP.Schematic.Oracle.Tests.Integration.Comments
         [Test]
         public async Task GetViewComments_WhenMatViewPresentGivenFullyQualifiedNameWithDifferentServer_ShouldBeQualifiedCorrectly()
         {
-            var viewName = new Identifier("A", IdentifierDefaults.Database, IdentifierDefaults.Schema, "WRAPPER_VIEW_COMMENT_MVIEW_1");
+            var viewName = new Identifier("A", IdentifierDefaults.Database, IdentifierDefaults.Schema, "wrapper_view_comment_mview_1");
             var expectedViewName = new Identifier(IdentifierDefaults.Server, IdentifierDefaults.Database, IdentifierDefaults.Schema, "WRAPPER_VIEW_COMMENT_MVIEW_1");
 
             var viewComments = await ViewCommentProvider.GetViewComments(viewName).UnwrapSomeAsync().ConfigureAwait(false);
@@ -343,7 +343,7 @@ namespace SJP.Schematic.Oracle.Tests.Integration.Comments
         [Test]
         public async Task GetViewComments_WhenMatViewPresentGivenFullyQualifiedNameWithDifferentServerAndDatabase_ShouldBeQualifiedCorrectly()
         {
-            var viewName = new Identifier("A", "B", IdentifierDefaults.Schema, "WRAPPER_VIEW_COMMENT_MVIEW_1");
+            var viewName = new Identifier("A", "B", IdentifierDefaults.Schema, "wrapper_view_comment_mview_1");
             var expectedViewName = new Identifier(IdentifierDefaults.Server, IdentifierDefaults.Database, IdentifierDefaults.Schema, "WRAPPER_VIEW_COMMENT_MVIEW_1");
 
             var viewComments = await ViewCommentProvider.GetViewComments(viewName).UnwrapSomeAsync().ConfigureAwait(false);

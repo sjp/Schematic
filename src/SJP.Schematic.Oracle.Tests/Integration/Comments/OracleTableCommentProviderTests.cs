@@ -14,7 +14,7 @@ namespace SJP.Schematic.Oracle.Tests.Integration.Comments
 {
     internal sealed class OracleTableCommentProviderTests : OracleTest
     {
-        private IRelationalDatabaseTableCommentProvider TableCommentProvider => new OracleTableCommentProvider(Connection, IdentifierDefaults);
+        private IRelationalDatabaseTableCommentProvider TableCommentProvider => new OracleTableCommentProvider(Connection, IdentifierDefaults, IdentifierResolver);
 
         [OneTimeSetUp]
         public async Task Init()
@@ -56,7 +56,7 @@ namespace SJP.Schematic.Oracle.Tests.Integration.Comments
         [Test]
         public async Task GetTableComments_WhenTablePresent_ReturnsTableComment()
         {
-            var tableIsSome = await TableCommentProvider.GetTableComments("TABLE_COMMENT_TABLE_1").IsSome.ConfigureAwait(false);
+            var tableIsSome = await TableCommentProvider.GetTableComments("table_comment_table_1").IsSome.ConfigureAwait(false);
             Assert.IsTrue(tableIsSome);
         }
 
@@ -72,7 +72,7 @@ namespace SJP.Schematic.Oracle.Tests.Integration.Comments
         [Test]
         public async Task GetTableComments_WhenTablePresentGivenLocalNameOnly_ShouldBeQualifiedCorrectly()
         {
-            var tableName = new Identifier("TABLE_COMMENT_TABLE_1");
+            var tableName = new Identifier("table_comment_table_1");
             var expectedTableName = new Identifier(IdentifierDefaults.Server, IdentifierDefaults.Database, IdentifierDefaults.Schema, "TABLE_COMMENT_TABLE_1");
 
             var tableComments = await TableCommentProvider.GetTableComments(tableName).UnwrapSomeAsync().ConfigureAwait(false);
@@ -83,7 +83,7 @@ namespace SJP.Schematic.Oracle.Tests.Integration.Comments
         [Test]
         public async Task GetTableComments_WhenTablePresentGivenSchemaAndLocalNameOnly_ShouldBeQualifiedCorrectly()
         {
-            var tableName = new Identifier(IdentifierDefaults.Schema, "TABLE_COMMENT_TABLE_1");
+            var tableName = new Identifier(IdentifierDefaults.Schema, "table_comment_table_1");
             var expectedTableName = new Identifier(IdentifierDefaults.Server, IdentifierDefaults.Database, IdentifierDefaults.Schema, "TABLE_COMMENT_TABLE_1");
 
             var tableComments = await TableCommentProvider.GetTableComments(tableName).UnwrapSomeAsync().ConfigureAwait(false);
@@ -94,7 +94,7 @@ namespace SJP.Schematic.Oracle.Tests.Integration.Comments
         [Test]
         public async Task GetTableComments_WhenTablePresentGivenDatabaseAndSchemaAndLocalNameOnly_ShouldBeQualifiedCorrectly()
         {
-            var tableName = new Identifier(IdentifierDefaults.Database, IdentifierDefaults.Schema, "TABLE_COMMENT_TABLE_1");
+            var tableName = new Identifier(IdentifierDefaults.Database, IdentifierDefaults.Schema, "table_comment_table_1");
             var expectedTableName = new Identifier(IdentifierDefaults.Server, IdentifierDefaults.Database, IdentifierDefaults.Schema, "TABLE_COMMENT_TABLE_1");
 
             var tableComments = await TableCommentProvider.GetTableComments(tableName).UnwrapSomeAsync().ConfigureAwait(false);
@@ -115,7 +115,7 @@ namespace SJP.Schematic.Oracle.Tests.Integration.Comments
         [Test]
         public async Task GetTableComments_WhenTablePresentGivenFullyQualifiedNameWithDifferentServer_ShouldBeQualifiedCorrectly()
         {
-            var tableName = new Identifier("A", IdentifierDefaults.Database, IdentifierDefaults.Schema, "TABLE_COMMENT_TABLE_1");
+            var tableName = new Identifier("A", IdentifierDefaults.Database, IdentifierDefaults.Schema, "table_comment_table_1");
             var expectedTableName = new Identifier(IdentifierDefaults.Server, IdentifierDefaults.Database, IdentifierDefaults.Schema, "TABLE_COMMENT_TABLE_1");
 
             var tableComments = await TableCommentProvider.GetTableComments(tableName).UnwrapSomeAsync().ConfigureAwait(false);
@@ -126,7 +126,7 @@ namespace SJP.Schematic.Oracle.Tests.Integration.Comments
         [Test]
         public async Task GetTableComments_WhenTablePresentGivenFullyQualifiedNameWithDifferentServerAndDatabase_ShouldBeQualifiedCorrectly()
         {
-            var tableName = new Identifier("A", "B", IdentifierDefaults.Schema, "TABLE_COMMENT_TABLE_1");
+            var tableName = new Identifier("A", "B", IdentifierDefaults.Schema, "table_comment_table_1");
             var expectedTableName = new Identifier(IdentifierDefaults.Server, IdentifierDefaults.Database, IdentifierDefaults.Schema, "TABLE_COMMENT_TABLE_1");
 
             var tableComments = await TableCommentProvider.GetTableComments(tableName).UnwrapSomeAsync().ConfigureAwait(false);

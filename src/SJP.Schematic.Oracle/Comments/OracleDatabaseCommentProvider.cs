@@ -11,15 +11,17 @@ namespace SJP.Schematic.Oracle.Comments
 {
     public class OracleDatabaseCommentProvider : IRelationalDatabaseCommentProvider
     {
-        public OracleDatabaseCommentProvider(IDbConnection connection, IIdentifierDefaults identifierDefaults)
+        public OracleDatabaseCommentProvider(IDbConnection connection, IIdentifierDefaults identifierDefaults, IIdentifierResolutionStrategy identifierResolver)
         {
             if (connection == null)
                 throw new ArgumentNullException(nameof(connection));
             if (identifierDefaults == null)
                 throw new ArgumentNullException(nameof(identifierDefaults));
+            if (identifierResolver == null)
+                throw new ArgumentNullException(nameof(identifierResolver));
 
-            _tableCommentProvider = new OracleTableCommentProvider(connection, identifierDefaults);
-            _viewCommentProvider = new OracleViewCommentProvider(connection, identifierDefaults);
+            _tableCommentProvider = new OracleTableCommentProvider(connection, identifierDefaults, identifierResolver);
+            _viewCommentProvider = new OracleViewCommentProvider(connection, identifierDefaults, identifierResolver);
         }
 
         public OptionAsync<IRelationalDatabaseTableComments> GetTableComments(Identifier tableName, CancellationToken cancellationToken = default(CancellationToken))

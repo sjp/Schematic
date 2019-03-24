@@ -12,15 +12,17 @@ namespace SJP.Schematic.Oracle.Comments
 {
     public class OracleViewCommentProvider : IDatabaseViewCommentProvider
     {
-        public OracleViewCommentProvider(IDbConnection connection, IIdentifierDefaults identifierDefaults)
+        public OracleViewCommentProvider(IDbConnection connection, IIdentifierDefaults identifierDefaults, IIdentifierResolutionStrategy identifierResolver)
         {
             if (connection == null)
                 throw new ArgumentNullException(nameof(connection));
             if (identifierDefaults == null)
                 throw new ArgumentNullException(nameof(identifierDefaults));
+            if (identifierResolver == null)
+                throw new ArgumentNullException(nameof(identifierResolver));
 
-            QueryViewCommentProvider = new OracleQueryViewCommentProvider(connection, identifierDefaults);
-            MaterializedViewCommentProvider = new OracleMaterializedViewCommentProvider(connection, identifierDefaults);
+            QueryViewCommentProvider = new OracleQueryViewCommentProvider(connection, identifierDefaults, identifierResolver);
+            MaterializedViewCommentProvider = new OracleMaterializedViewCommentProvider(connection, identifierDefaults, identifierResolver);
         }
 
         protected IDatabaseViewCommentProvider QueryViewCommentProvider { get; }

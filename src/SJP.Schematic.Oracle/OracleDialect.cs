@@ -9,6 +9,7 @@ using Oracle.ManagedDataAccess.Client;
 using SJP.Schematic.Core;
 using SJP.Schematic.Core.Comments;
 using SJP.Schematic.Core.Extensions;
+using SJP.Schematic.Oracle.Comments;
 using SJP.Schematic.Oracle.Query;
 
 namespace SJP.Schematic.Oracle
@@ -150,8 +151,12 @@ where PRODUCT like 'Oracle Database%'";
             return new OracleRelationalDatabase(this, Connection, identifierDefaults, identifierResolver);
         }
 
-        public override Task<IRelationalDatabaseCommentProvider> GetRelationalDatabaseCommentProviderAsync(CancellationToken cancellationToken = default(CancellationToken))
-            => Task.FromResult<IRelationalDatabaseCommentProvider>(new EmptyRelationalDatabaseCommentProvider());
+        public override async Task<IRelationalDatabaseCommentProvider> GetRelationalDatabaseCommentProviderAsync(CancellationToken cancellationToken = default(CancellationToken))
+        {
+            var identifierDefaults = await GetIdentifierDefaultsAsync(cancellationToken).ConfigureAwait(false);
+            var identifierResolver = new DefaultOracleIdentifierResolutionStrategy();
+            return new OracleDatabaseCommentProvider(Connection, identifierDefaults, identifierResolver);
+        }
 
         public override bool IsReservedKeyword(string text)
         {

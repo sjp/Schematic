@@ -14,15 +14,18 @@ namespace SJP.Schematic.Oracle.Comments
 {
     public class OracleTableCommentProvider : IRelationalDatabaseTableCommentProvider
     {
-        public OracleTableCommentProvider(IDbConnection connection, IIdentifierDefaults identifierDefaults)
+        public OracleTableCommentProvider(IDbConnection connection, IIdentifierDefaults identifierDefaults, IIdentifierResolutionStrategy identifierResolver)
         {
             Connection = connection ?? throw new ArgumentNullException(nameof(connection));
             IdentifierDefaults = identifierDefaults ?? throw new ArgumentNullException(nameof(identifierDefaults));
+            IdentifierResolver = identifierResolver ?? throw new ArgumentNullException(nameof(identifierResolver));
         }
 
         protected IDbConnection Connection { get; }
 
         protected IIdentifierDefaults IdentifierDefaults { get; }
+
+        protected IIdentifierResolutionStrategy IdentifierResolver { get; }
 
         public async Task<IReadOnlyCollection<IRelationalDatabaseTableComments>> GetAllTableComments(CancellationToken cancellationToken = default(CancellationToken))
         {
@@ -69,19 +72,33 @@ namespace SJP.Schematic.Oracle.Comments
                 .ToList();
         }
 
-        protected OptionAsync<Identifier> GetResolvedTableName(Identifier tableName, CancellationToken cancellationToken)
+        protected OptionAsync<Identifier> GetResolvedTableName(Identifier tableName, CancellationToken cancellationToken = default(CancellationToken))
         {
             if (tableName == null)
                 throw new ArgumentNullException(nameof(tableName));
 
-            tableName = QualifyTableName(tableName);
+            var resolvedNames = IdentifierResolver
+                .GetResolutionOrder(tableName)
+                .Select(QualifyTableName);
+
+            return resolvedNames
+                .Select(name => GetResolvedTableNameStrict(name, cancellationToken))
+                .FirstSome(cancellationToken);
+        }
+
+        protected OptionAsync<Identifier> GetResolvedTableNameStrict(Identifier tableName, CancellationToken cancellationToken)
+        {
+            if (tableName == null)
+                throw new ArgumentNullException(nameof(tableName));
+
+            var candidateTableName = QualifyTableName(tableName);
             var qualifiedTableName = Connection.QueryFirstOrNone<QualifiedName>(
                 TableNameQuery,
-                new { SchemaName = tableName.Schema, TableName = tableName.LocalName },
+                new { SchemaName = candidateTableName.Schema, TableName = candidateTableName.LocalName },
                 cancellationToken
             );
 
-            return qualifiedTableName.Map(name => Identifier.CreateQualifiedIdentifier(tableName.Server, tableName.Database, name.SchemaName, name.ObjectName));
+            return qualifiedTableName.Map(name => Identifier.CreateQualifiedIdentifier(candidateTableName.Server, candidateTableName.Database, name.SchemaName, name.ObjectName));
         }
 
         protected virtual string TableNameQuery => TableNameQuerySql;
@@ -126,11 +143,23 @@ where
 
             var resolvedTableName = await resolvedTableNameOption.UnwrapSomeAsync().ConfigureAwait(false);
 
-            var commentsData = await Connection.QueryAsync<TableCommentsData>(
-                TableCommentsQuery,
-                new { SchemaName = tableName.Schema, TableName = tableName.LocalName },
-                cancellationToken
-            ).ConfigureAwait(false);
+            IEnumerable<TableCommentsData> commentsData;
+            if (resolvedTableName.Schema == IdentifierDefaults.Schema) // fast path
+            {
+                commentsData = await Connection.QueryAsync<TableCommentsData>(
+                    UserTableCommentsQuery,
+                    new { SchemaName = tableName.Schema, TableName = tableName.LocalName },
+                    cancellationToken
+                ).ConfigureAwait(false);
+            }
+            else
+            {
+                commentsData = await Connection.QueryAsync<TableCommentsData>(
+                    TableCommentsQuery,
+                    new { SchemaName = tableName.Schema, TableName = tableName.LocalName },
+                    cancellationToken
+                ).ConfigureAwait(false);
+            }
 
             var tableComment = GetTableComment(commentsData);
             var primaryKeyComment = Option<string>.None;
@@ -215,6 +244,27 @@ where t.OWNER = :SchemaName and t.TABLE_NAME = :TableName
     and o.GENERATED <> 'Y'
     and o.SECONDARY <> 'Y'
     and mv.MVIEW_NAME is null
+";
+
+        protected virtual string UserTableCommentsQuery => UserTableCommentsQuerySql;
+
+        private const string UserTableCommentsQuerySql = @"
+-- table
+select 'TABLE' as ObjectType, NULL as ColumnName, c.COMMENTS as ""Comment""
+from SYS.USER_TABLES t
+left join SYS.USER_MVIEWS mv on t.TABLE_NAME = mv.MVIEW_NAME
+left join SYS.USER_TAB_COMMENTS c on t.TABLE_NAME = c.TABLE_NAME and c.TABLE_TYPE = 'TABLE'
+where t.TABLE_NAME = :TableName and mv.MVIEW_NAME is null
+
+union
+
+-- columns
+select 'COLUMN' as ObjectType, tc.COLUMN_NAME as ColumnName, c.COMMENTS as ""Comment""
+from SYS.USER_TABLES t
+left join SYS.USER_MVIEWS mv on t.TABLE_NAME = mv.MVIEW_NAME
+inner join SYS.USER_TAB_COLS tc on tc.TABLE_NAME = t.TABLE_NAME
+left join SYS.USER_COL_COMMENTS c on c.TABLE_NAME = tc.TABLE_NAME and c.COLUMN_NAME = tc.COLUMN_NAME
+where t.TABLE_NAME = :TableName and mv.MVIEW_NAME is null
 ";
 
         private static Option<string> GetTableComment(IEnumerable<TableCommentsData> commentsData)

@@ -14,15 +14,18 @@ namespace SJP.Schematic.Oracle.Comments
 {
     public class OracleQueryViewCommentProvider : IDatabaseViewCommentProvider
     {
-        public OracleQueryViewCommentProvider(IDbConnection connection, IIdentifierDefaults identifierDefaults)
+        public OracleQueryViewCommentProvider(IDbConnection connection, IIdentifierDefaults identifierDefaults, IIdentifierResolutionStrategy identifierResolver)
         {
             Connection = connection ?? throw new ArgumentNullException(nameof(connection));
             IdentifierDefaults = identifierDefaults ?? throw new ArgumentNullException(nameof(identifierDefaults));
+            IdentifierResolver = identifierResolver ?? throw new ArgumentNullException(nameof(identifierResolver));
         }
 
         protected IDbConnection Connection { get; }
 
         protected IIdentifierDefaults IdentifierDefaults { get; }
+
+        protected IIdentifierResolutionStrategy IdentifierResolver { get; }
 
         public async Task<IReadOnlyCollection<IDatabaseViewComments>> GetAllViewComments(CancellationToken cancellationToken = default(CancellationToken))
         {
@@ -56,14 +59,28 @@ namespace SJP.Schematic.Oracle.Comments
             if (viewName == null)
                 throw new ArgumentNullException(nameof(viewName));
 
-            viewName = QualifyViewName(viewName);
+            var resolvedNames = IdentifierResolver
+                .GetResolutionOrder(viewName)
+                .Select(QualifyViewName);
+
+            return resolvedNames
+                .Select(name => GetResolvedViewNameStrict(name, cancellationToken))
+                .FirstSome(cancellationToken);
+        }
+
+        protected OptionAsync<Identifier> GetResolvedViewNameStrict(Identifier viewName, CancellationToken cancellationToken)
+        {
+            if (viewName == null)
+                throw new ArgumentNullException(nameof(viewName));
+
+            var candidateViewName = QualifyViewName(viewName);
             var qualifiedViewName = Connection.QueryFirstOrNone<QualifiedName>(
                 ViewNameQuery,
-                new { SchemaName = viewName.Schema, ViewName = viewName.LocalName },
+                new { SchemaName = candidateViewName.Schema, ViewName = candidateViewName.LocalName },
                 cancellationToken
             );
 
-            return qualifiedViewName.Map(name => Identifier.CreateQualifiedIdentifier(viewName.Server, viewName.Database, name.SchemaName, name.ObjectName));
+            return qualifiedViewName.Map(name => Identifier.CreateQualifiedIdentifier(candidateViewName.Server, candidateViewName.Database, name.SchemaName, name.ObjectName));
         }
 
         protected virtual string ViewNameQuery => ViewNameQuerySql;
@@ -102,11 +119,23 @@ where v.OWNER = :SchemaName and v.VIEW_NAME = :ViewName and o.ORACLE_MAINTAINED 
 
             var resolvedViewName = await resolvedViewNameOption.UnwrapSomeAsync().ConfigureAwait(false);
 
-            var commentsData = await Connection.QueryAsync<TableCommentsData>(
-                ViewCommentsQuery,
-                new { SchemaName = viewName.Schema, ViewName = viewName.LocalName },
-                cancellationToken
-            ).ConfigureAwait(false);
+            IEnumerable<TableCommentsData> commentsData;
+            if (resolvedViewName.Schema == IdentifierDefaults.Schema) // fast path
+            {
+                commentsData = await Connection.QueryAsync<TableCommentsData>(
+                    UserViewCommentsQuery,
+                    new { ViewName = viewName.LocalName },
+                    cancellationToken
+                ).ConfigureAwait(false);
+            }
+            else
+            {
+                commentsData = await Connection.QueryAsync<TableCommentsData>(
+                    ViewCommentsQuery,
+                    new { SchemaName = viewName.Schema, ViewName = viewName.LocalName },
+                    cancellationToken
+                ).ConfigureAwait(false);
+            }
 
             var viewComment = GetViewComment(commentsData);
             var columnComments = GetColumnComments(commentsData);
@@ -155,6 +184,24 @@ inner join SYS.ALL_OBJECTS o on v.OWNER = o.OWNER and v.VIEW_NAME = o.OBJECT_NAM
 inner join SYS.ALL_TAB_COLS vc on vc.OWNER = v.OWNER and vc.TABLE_NAME = v.VIEW_NAME
 left join SYS.ALL_COL_COMMENTS c on c.OWNER = vc.OWNER and c.TABLE_NAME = vc.TABLE_NAME and c.COLUMN_NAME = vc.COLUMN_NAME
 where v.OWNER = :SchemaName and v.VIEW_NAME = :ViewName and o.ORACLE_MAINTAINED <> 'Y'
+";
+
+        protected virtual string UserViewCommentsQuery => UserViewCommentsQuerySql;
+
+        private const string UserViewCommentsQuerySql = @"
+-- view
+select 'VIEW' as ObjectType, NULL as ColumnName, c.COMMENTS as ""Comment""
+from SYS.USER_VIEWS v
+left join SYS.USER_TAB_COMMENTS c on v.VIEW_NAME = c.TABLE_NAME and c.TABLE_TYPE = 'VIEW'
+where v.VIEW_NAME = :ViewName
+union
+
+-- columns
+select 'COLUMN' as ObjectType, vc.COLUMN_NAME as ColumnName, c.COMMENTS as ""Comment""
+from SYS.USER_VIEWS v
+inner join SYS.USER_TAB_COLS vc on vc.TABLE_NAME = v.VIEW_NAME
+left join SYS.USER_COL_COMMENTS c on c.TABLE_NAME = vc.TABLE_NAME and c.COLUMN_NAME = vc.COLUMN_NAME
+where v.VIEW_NAME = :ViewName
 ";
 
         private static Option<string> GetViewComment(IEnumerable<TableCommentsData> commentsData)
