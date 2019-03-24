@@ -148,7 +148,7 @@ where
             {
                 commentsData = await Connection.QueryAsync<TableCommentsData>(
                     UserTableCommentsQuery,
-                    new { SchemaName = tableName.Schema, TableName = tableName.LocalName },
+                    new { TableName = resolvedTableName.LocalName },
                     cancellationToken
                 ).ConfigureAwait(false);
             }
@@ -156,7 +156,7 @@ where
             {
                 commentsData = await Connection.QueryAsync<TableCommentsData>(
                     TableCommentsQuery,
-                    new { SchemaName = tableName.Schema, TableName = tableName.LocalName },
+                    new { SchemaName = resolvedTableName.Schema, TableName = resolvedTableName.LocalName },
                     cancellationToken
                 ).ConfigureAwait(false);
             }

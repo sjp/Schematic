@@ -124,7 +124,7 @@ where v.OWNER = :SchemaName and v.VIEW_NAME = :ViewName and o.ORACLE_MAINTAINED 
             {
                 commentsData = await Connection.QueryAsync<TableCommentsData>(
                     UserViewCommentsQuery,
-                    new { ViewName = viewName.LocalName },
+                    new { ViewName = resolvedViewName.LocalName },
                     cancellationToken
                 ).ConfigureAwait(false);
             }
@@ -132,7 +132,7 @@ where v.OWNER = :SchemaName and v.VIEW_NAME = :ViewName and o.ORACLE_MAINTAINED 
             {
                 commentsData = await Connection.QueryAsync<TableCommentsData>(
                     ViewCommentsQuery,
-                    new { SchemaName = viewName.Schema, ViewName = viewName.LocalName },
+                    new { SchemaName = resolvedViewName.Schema, ViewName = resolvedViewName.LocalName },
                     cancellationToken
                 ).ConfigureAwait(false);
             }

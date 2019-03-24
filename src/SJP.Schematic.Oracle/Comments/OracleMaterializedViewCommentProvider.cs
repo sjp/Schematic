@@ -125,7 +125,7 @@ where mv.OWNER = :SchemaName and mv.MVIEW_NAME = :ViewName
             {
                 commentsData = await Connection.QueryAsync<TableCommentsData>(
                     UserViewCommentsQuery,
-                    new { ViewName = viewName.LocalName },
+                    new { ViewName = resolvedViewName.LocalName },
                     cancellationToken
                 ).ConfigureAwait(false);
             }
@@ -133,7 +133,7 @@ where mv.OWNER = :SchemaName and mv.MVIEW_NAME = :ViewName
             {
                 commentsData = await Connection.QueryAsync<TableCommentsData>(
                     ViewCommentsQuery,
-                    new { SchemaName = viewName.Schema, ViewName = viewName.LocalName },
+                    new { SchemaName = resolvedViewName.Schema, ViewName = resolvedViewName.LocalName },
                     cancellationToken
                 ).ConfigureAwait(false);
             }
