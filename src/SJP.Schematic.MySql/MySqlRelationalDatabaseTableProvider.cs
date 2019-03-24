@@ -21,6 +21,8 @@ namespace SJP.Schematic.MySql
             IdentifierDefaults = identifierDefaults ?? throw new ArgumentNullException(nameof(identifierDefaults));
             TypeProvider = typeProvider ?? throw new ArgumentNullException(nameof(typeProvider));
             Dialect = new MySqlDialect(connection);
+
+            _supportsChecks = new AsyncLazy<bool>(LoadHasCheckSupport);
         }
 
         protected IDbConnection Connection { get; }
@@ -30,6 +32,8 @@ namespace SJP.Schematic.MySql
         protected IDbTypeProvider TypeProvider { get; }
 
         protected IDatabaseDialect Dialect { get; }
+
+        protected Task<bool> HasCheckSupport => _supportsChecks.Task;
 
         public async Task<IReadOnlyCollection<IRelationalDatabaseTable>> GetAllTables(CancellationToken cancellationToken = default(CancellationToken))
         {
@@ -415,6 +419,44 @@ where pt.table_schema = @SchemaName and pt.table_name = @TableName";
             return Empty.Checks;
         }
 
+        protected async Task<IReadOnlyCollection<IDatabaseCheckConstraint>> LoadChecksAsyncCore(Identifier tableName, CancellationToken cancellationToken)
+        {
+            var hasCheckSupport = await HasCheckSupport.ConfigureAwait(false);
+            if (!hasCheckSupport)
+                return Array.Empty<IDatabaseCheckConstraint>();
+
+            var queryResult = await Connection.QueryAsync<CheckData>(
+                ChecksQuery,
+                new { SchemaName = tableName.Schema, TableName = tableName.LocalName },
+                cancellationToken
+            ).ConfigureAwait(false);
+            if (queryResult.Empty())
+                return Array.Empty<IDatabaseCheckConstraint>();
+
+            var result = new List<IDatabaseCheckConstraint>();
+
+            foreach (var row in queryResult)
+            {
+                var checkName = Identifier.CreateQualifiedIdentifier(row.ConstraintName);
+                var isEnabled = string.Equals("YES", row.Enforced, StringComparison.OrdinalIgnoreCase);
+                var check = new MySqlCheckConstraint(checkName, row.Definition, isEnabled);
+                result.Add(check);
+            }
+
+            return result;
+        }
+
+        protected virtual string ChecksQuery => ChecksQuerySql;
+
+        private const string ChecksQuerySql = @"
+select
+    cc.constraint_name as ConstraintName,
+    cc.check_clause as Definition,
+    tc.enforced as Enforced
+from information_schema.table_constraints tc
+inner join information_schema.check_constraints cc on tc.table_schema = cc.constraint_schema and tc.constraint_name = cc.constraint_name
+where tc.table_schema = @SchemaName and tc.table_name = @TableName and tc.constraint_type = 'CHECK'";
+
         protected virtual Task<IReadOnlyCollection<IDatabaseRelationalKey>> LoadParentKeysAsync(Identifier tableName, IReadOnlyDictionary<Identifier, IDatabaseColumn> columns, CancellationToken cancellationToken)
         {
             if (tableName == null)
@@ -733,6 +775,14 @@ where tr.event_object_schema = @SchemaName and tr.event_object_table = @TableNam
 
             return result;
         }
+
+        private Task<bool> LoadHasCheckSupport()
+        {
+            const string sql = "select count(*) from information_schema.tables where table_schema = 'information_schema' and table_name = 'CHECK_CONSTRAINTS'";
+            return Connection.ExecuteScalarAsync<bool>(sql, CancellationToken.None);
+        }
+
+        private readonly AsyncLazy<bool> _supportsChecks;
 
         private static class Constants
         {
