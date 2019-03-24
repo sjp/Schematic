@@ -3,7 +3,7 @@ using System.IO;
 
 namespace SJP.Schematic.Graphviz
 {
-    public class GraphvizTemporaryExecutable : IDisposable
+    public sealed class GraphvizTemporaryExecutable : IDisposable
     {
         public GraphvizTemporaryExecutable()
         {

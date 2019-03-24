@@ -10,6 +10,18 @@ namespace SJP.Schematic.Graphviz
             ExitCode = exitCode;
         }
 
+        public GraphvizException()
+        {
+        }
+
+        public GraphvizException(string message) : base(message)
+        {
+        }
+
+        public GraphvizException(string message, Exception innerException) : base(message, innerException)
+        {
+        }
+
         public int ExitCode { get; }
     }
 }
