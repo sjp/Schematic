@@ -69,7 +69,6 @@ namespace SJP.Schematic.Reporting.Html.Renderers
                     foreach (var diagram in tableModel.Diagrams)
                     {
                         var svgFilePath = Path.Combine(ExportDirectory.FullName, diagram.ContainerId + ".svg");
-                        var svgLinkedFilePath = Path.Combine(ExportDirectory.FullName, diagram.ContainerId + "-linked.svg");
                         var svg = await dotRenderer.RenderToSvgAsync(diagram.Dot, cancellationToken).ConfigureAwait(false);
 
                         // ensure links open in new window with right attrs
@@ -82,14 +81,9 @@ namespace SJP.Schematic.Reporting.Html.Renderers
                             linkNode.SetAttributeValue(xlinkNs + "show", "new");
                         }
 
-                        using (var writer = File.CreateText(svgLinkedFilePath))
-                            doc.Save(writer, SaveOptions.DisableFormatting);
-
-                        var renderedLinkedSvgText = File.ReadAllText(svgLinkedFilePath);
-                        var renderedLinkedSvgDoc = XDocument.Parse(renderedLinkedSvgText, LoadOptions.PreserveWhitespace);
                         using (var writer = new StringWriter())
                         {
-                            var svgRoot = renderedLinkedSvgDoc.Root;
+                            var svgRoot = doc.Root;
                             svgRoot.Attribute("width")?.Remove();
                             svgRoot.Attribute("height")?.Remove();
 
