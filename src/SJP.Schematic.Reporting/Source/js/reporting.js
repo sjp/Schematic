@@ -3,7 +3,8 @@ $(document).ready(function () {
         $(el).DataTable({
             lengthChange: false,
             paging: true,
-            pageLength: 50
+            pageLength: 50,
+            scrollX: true
         });
     });
 

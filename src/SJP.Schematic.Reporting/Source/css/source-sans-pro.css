@@ -3,7 +3,7 @@
     font-weight: 200;
     font-style: normal;
     font-stretch: normal;
-    src: url('../fonts/WOFF/OTF/SourceSansPro-ExtraLight.otf.woff') format('woff');
+    src: url('../fonts/SourceSansPro-ExtraLight.otf.woff') format('woff');
 }
 
 @font-face{
@@ -11,7 +11,7 @@
     font-weight: 200;
     font-style: italic;
     font-stretch: normal;
-    src: url('../fonts/WOFF/OTF/SourceSansPro-ExtraLightIt.otf.woff') format('woff');
+    src: url('../fonts/SourceSansPro-ExtraLightIt.otf.woff') format('woff');
 }
 
 @font-face{
@@ -19,7 +19,7 @@
     font-weight: 300;
     font-style: normal;
     font-stretch: normal;
-    src: url('../fonts/WOFF/OTF/SourceSansPro-Light.otf.woff') format('woff');
+    src: url('../fonts/SourceSansPro-Light.otf.woff') format('woff');
 }
 
 @font-face{
@@ -27,7 +27,7 @@
     font-weight: 300;
     font-style: italic;
     font-stretch: normal;
-    src: url('../fonts/WOFF/OTF/SourceSansPro-LightIt.otf.woff') format('woff');
+    src: url('../fonts/SourceSansPro-LightIt.otf.woff') format('woff');
 }
 
 @font-face{
@@ -35,7 +35,7 @@
     font-weight: 400;
     font-style: normal;
     font-stretch: normal;
-    src: url('../fonts/WOFF/OTF/SourceSansPro-Regular.otf.woff') format('woff');
+    src: url('../fonts/SourceSansPro-Regular.otf.woff') format('woff');
 }
 
 @font-face{
@@ -43,7 +43,7 @@
     font-weight: 400;
     font-style: italic;
     font-stretch: normal;
-    src: url('../fonts/WOFF/OTF/SourceSansPro-It.otf.woff') format('woff');
+    src: url('../fonts/SourceSansPro-It.otf.woff') format('woff');
 }
 
 @font-face{
@@ -51,7 +51,7 @@
     font-weight: 600;
     font-style: normal;
     font-stretch: normal;
-    src: url('../fonts/WOFF/OTF/SourceSansPro-Semibold.otf.woff') format('woff');
+    src: url('../fonts/SourceSansPro-Semibold.otf.woff') format('woff');
 }
 
 @font-face{
@@ -59,7 +59,7 @@
     font-weight: 600;
     font-style: italic;
     font-stretch: normal;
-    src: url('../fonts/WOFF/OTF/SourceSansPro-SemiboldIt.otf.woff') format('woff');
+    src: url('../fonts/SourceSansPro-SemiboldIt.otf.woff') format('woff');
 }
 
 @font-face{
@@ -67,7 +67,7 @@
     font-weight: 700;
     font-style: normal;
     font-stretch: normal;
-    src: url('../fonts/WOFF/OTF/SourceSansPro-Bold.otf.woff') format('woff');
+    src: url('../fonts/SourceSansPro-Bold.otf.woff') format('woff');
 }
 
 @font-face{
@@ -75,7 +75,7 @@
     font-weight: 700;
     font-style: italic;
     font-stretch: normal;
-    src: url('../fonts/WOFF/OTF/SourceSansPro-BoldIt.otf.woff') format('woff');
+    src: url('../fonts/SourceSansPro-BoldIt.otf.woff') format('woff');
 }
 
 @font-face{
@@ -83,7 +83,7 @@
     font-weight: 900;
     font-style: normal;
     font-stretch: normal;
-    src: url('../fonts/WOFF/OTF/SourceSansPro-Black.otf.woff') format('woff');
+    src: url('../fonts/SourceSansPro-Black.otf.woff') format('woff');
 }
 
 @font-face{
@@ -91,5 +91,5 @@
     font-weight: 900;
     font-style: italic;
     font-stretch: normal;
-    src: url('../fonts/WOFF/OTF/SourceSansPro-BlackIt.otf.woff') format('woff');
+    src: url('../fonts/SourceSansPro-BlackIt.otf.woff') format('woff');
 }
