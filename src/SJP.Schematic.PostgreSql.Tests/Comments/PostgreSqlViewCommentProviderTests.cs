@@ -14,16 +14,27 @@ namespace SJP.Schematic.PostgreSql.Tests.Comments
         public static void Ctor_GivenNullConnection_ThrowsArgNullException()
         {
             var identifierDefaults = Mock.Of<IIdentifierDefaults>();
+            var identifierResolver = new DefaultPostgreSqlIdentifierResolutionStrategy();
 
-            Assert.Throws<ArgumentNullException>(() => new PostgreSqlViewCommentProvider(null, identifierDefaults));
+            Assert.Throws<ArgumentNullException>(() => new PostgreSqlViewCommentProvider(null, identifierDefaults, identifierResolver));
         }
 
         [Test]
         public static void Ctor_GivenNullIdentifierDefaults_ThrowsArgNullException()
         {
             var connection = Mock.Of<IDbConnection>();
+            var identifierResolver = new DefaultPostgreSqlIdentifierResolutionStrategy();
 
-            Assert.Throws<ArgumentNullException>(() => new PostgreSqlViewCommentProvider(connection, null));
+            Assert.Throws<ArgumentNullException>(() => new PostgreSqlViewCommentProvider(connection, null, identifierResolver));
+        }
+
+        [Test]
+        public static void Ctor_GivenNullIdentifierResolver_ThrowsArgNullException()
+        {
+            var connection = Mock.Of<IDbConnection>();
+            var identifierDefaults = Mock.Of<IIdentifierDefaults>();
+
+            Assert.Throws<ArgumentNullException>(() => new PostgreSqlViewCommentProvider(connection, identifierDefaults, null));
         }
 
         [Test]
@@ -31,8 +42,9 @@ namespace SJP.Schematic.PostgreSql.Tests.Comments
         {
             var connection = Mock.Of<IDbConnection>();
             var identifierDefaults = Mock.Of<IIdentifierDefaults>();
+            var identifierResolver = new DefaultPostgreSqlIdentifierResolutionStrategy();
 
-            var commentProvider = new PostgreSqlViewCommentProvider(connection, identifierDefaults);
+            var commentProvider = new PostgreSqlViewCommentProvider(connection, identifierDefaults, identifierResolver);
 
             Assert.Throws<ArgumentNullException>(() => commentProvider.GetViewComments(null));
         }

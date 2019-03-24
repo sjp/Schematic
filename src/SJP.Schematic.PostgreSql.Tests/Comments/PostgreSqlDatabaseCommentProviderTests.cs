@@ -14,16 +14,27 @@ namespace SJP.Schematic.PostgreSql.Tests.Comments
         public static void Ctor_GivenNullConnection_ThrowsArgNullException()
         {
             var identifierDefaults = Mock.Of<IIdentifierDefaults>();
+            var identifierResolver = new DefaultPostgreSqlIdentifierResolutionStrategy();
 
-            Assert.Throws<ArgumentNullException>(() => new PostgreSqlDatabaseCommentProvider(null, identifierDefaults));
+            Assert.Throws<ArgumentNullException>(() => new PostgreSqlDatabaseCommentProvider(null, identifierDefaults, identifierResolver));
         }
 
         [Test]
         public static void Ctor_GivenNullIdentifierDefaults_ThrowsArgNullException()
         {
             var connection = Mock.Of<IDbConnection>();
+            var identifierResolver = new DefaultPostgreSqlIdentifierResolutionStrategy();
 
-            Assert.Throws<ArgumentNullException>(() => new PostgreSqlDatabaseCommentProvider(connection, null));
+            Assert.Throws<ArgumentNullException>(() => new PostgreSqlDatabaseCommentProvider(connection, null, identifierResolver));
+        }
+
+        [Test]
+        public static void Ctor_GivenNullIdentifierResolver_ThrowsArgNullException()
+        {
+            var connection = Mock.Of<IDbConnection>();
+            var identifierDefaults = Mock.Of<IIdentifierDefaults>();
+
+            Assert.Throws<ArgumentNullException>(() => new PostgreSqlDatabaseCommentProvider(connection, identifierDefaults, null));
         }
 
         [Test]
@@ -31,8 +42,9 @@ namespace SJP.Schematic.PostgreSql.Tests.Comments
         {
             var connection = Mock.Of<IDbConnection>();
             var identifierDefaults = Mock.Of<IIdentifierDefaults>();
+            var identifierResolver = new DefaultPostgreSqlIdentifierResolutionStrategy();
 
-            var commentProvider = new PostgreSqlDatabaseCommentProvider(connection, identifierDefaults);
+            var commentProvider = new PostgreSqlDatabaseCommentProvider(connection, identifierDefaults, identifierResolver);
 
             Assert.Throws<ArgumentNullException>(() => commentProvider.GetTableComments(null));
         }
@@ -42,8 +54,9 @@ namespace SJP.Schematic.PostgreSql.Tests.Comments
         {
             var connection = Mock.Of<IDbConnection>();
             var identifierDefaults = Mock.Of<IIdentifierDefaults>();
+            var identifierResolver = new DefaultPostgreSqlIdentifierResolutionStrategy();
 
-            var commentProvider = new PostgreSqlDatabaseCommentProvider(connection, identifierDefaults);
+            var commentProvider = new PostgreSqlDatabaseCommentProvider(connection, identifierDefaults, identifierResolver);
 
             Assert.Throws<ArgumentNullException>(() => commentProvider.GetViewComments(null));
         }
@@ -53,8 +66,9 @@ namespace SJP.Schematic.PostgreSql.Tests.Comments
         {
             var connection = Mock.Of<IDbConnection>();
             var identifierDefaults = Mock.Of<IIdentifierDefaults>();
+            var identifierResolver = new DefaultPostgreSqlIdentifierResolutionStrategy();
 
-            var commentProvider = new PostgreSqlDatabaseCommentProvider(connection, identifierDefaults);
+            var commentProvider = new PostgreSqlDatabaseCommentProvider(connection, identifierDefaults, identifierResolver);
 
             Assert.Throws<ArgumentNullException>(() => commentProvider.GetSequenceComments(null));
         }
@@ -64,8 +78,9 @@ namespace SJP.Schematic.PostgreSql.Tests.Comments
         {
             var connection = Mock.Of<IDbConnection>();
             var identifierDefaults = Mock.Of<IIdentifierDefaults>();
+            var identifierResolver = new DefaultPostgreSqlIdentifierResolutionStrategy();
 
-            var commentProvider = new PostgreSqlDatabaseCommentProvider(connection, identifierDefaults);
+            var commentProvider = new PostgreSqlDatabaseCommentProvider(connection, identifierDefaults, identifierResolver);
 
             Assert.Throws<ArgumentNullException>(() => commentProvider.GetSynonymComments(null));
         }
@@ -75,8 +90,9 @@ namespace SJP.Schematic.PostgreSql.Tests.Comments
         {
             var connection = Mock.Of<IDbConnection>();
             var identifierDefaults = Mock.Of<IIdentifierDefaults>();
+            var identifierResolver = new DefaultPostgreSqlIdentifierResolutionStrategy();
 
-            var commentProvider = new PostgreSqlDatabaseCommentProvider(connection, identifierDefaults);
+            var commentProvider = new PostgreSqlDatabaseCommentProvider(connection, identifierDefaults, identifierResolver);
 
             Assert.Throws<ArgumentNullException>(() => commentProvider.GetRoutineComments(null));
         }

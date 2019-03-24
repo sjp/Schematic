@@ -14,7 +14,7 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration.Versions.V10.Comments
 {
     internal sealed class PostgreSqlRoutineCommentProviderTests : PostgreSql10Test
     {
-        private IDatabaseRoutineCommentProvider RoutineCommentProvider => new PostgreSqlRoutineCommentProvider(Connection, IdentifierDefaults);
+        private IDatabaseRoutineCommentProvider RoutineCommentProvider => new PostgreSqlRoutineCommentProvider(Connection, IdentifierDefaults, IdentifierResolver);
 
         [OneTimeSetUp]
         public async Task Init()
@@ -136,6 +136,17 @@ LANGUAGE PLPGSQL").ConfigureAwait(false);
         public async Task GetRoutineComments_WhenRoutinePresentGivenFullyQualifiedNameWithDifferentServerAndDatabase_ShouldBeQualifiedCorrectly()
         {
             var routineName = new Identifier("A", "B", IdentifierDefaults.Schema, "v10_comment_test_routine_1");
+            var expectedRoutineName = new Identifier(IdentifierDefaults.Server, IdentifierDefaults.Database, IdentifierDefaults.Schema, "v10_comment_test_routine_1");
+
+            var routineComments = await RoutineCommentProvider.GetRoutineComments(routineName).UnwrapSomeAsync().ConfigureAwait(false);
+
+            Assert.AreEqual(expectedRoutineName, routineComments.RoutineName);
+        }
+
+        [Test]
+        public async Task GetRoutineComments_WhenRoutinePresentGivenDifferentCasedName_ShouldBeResolvedCorrectly()
+        {
+            var routineName = new Identifier(IdentifierDefaults.Server, IdentifierDefaults.Database, IdentifierDefaults.Schema, "V10_COMMENT_TEST_ROUTINE_1");
             var expectedRoutineName = new Identifier(IdentifierDefaults.Server, IdentifierDefaults.Database, IdentifierDefaults.Schema, "v10_comment_test_routine_1");
 
             var routineComments = await RoutineCommentProvider.GetRoutineComments(routineName).UnwrapSomeAsync().ConfigureAwait(false);

@@ -14,7 +14,7 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration.Comments
 {
     internal sealed class PostgreSqlSequenceCommentProviderTests : PostgreSqlTest
     {
-        private IDatabaseSequenceCommentProvider SequenceCommentProvider => new PostgreSqlSequenceCommentProvider(Connection, IdentifierDefaults);
+        private IDatabaseSequenceCommentProvider SequenceCommentProvider => new PostgreSqlSequenceCommentProvider(Connection, IdentifierDefaults, IdentifierResolver);
 
         [OneTimeSetUp]
         public async Task Init()
@@ -126,6 +126,17 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration.Comments
         public async Task GetSequenceComments_WhenSequencePresentGivenFullyQualifiedNameWithDifferentServerAndDatabase_ShouldBeQualifiedCorrectly()
         {
             var sequenceName = new Identifier("A", "B", IdentifierDefaults.Schema, "comment_test_sequence_1");
+            var expectedSequenceName = new Identifier(IdentifierDefaults.Server, IdentifierDefaults.Database, IdentifierDefaults.Schema, "comment_test_sequence_1");
+
+            var sequenceComments = await SequenceCommentProvider.GetSequenceComments(sequenceName).UnwrapSomeAsync().ConfigureAwait(false);
+
+            Assert.AreEqual(expectedSequenceName, sequenceComments.SequenceName);
+        }
+
+        [Test]
+        public async Task GetSequenceComments_WhenSequencePresentGivenDifferentCasedName_ShouldBeResolvedCorrectly()
+        {
+            var sequenceName = new Identifier(IdentifierDefaults.Server, IdentifierDefaults.Database, IdentifierDefaults.Schema, "COMMENT_TEST_SEQUENCE_1");
             var expectedSequenceName = new Identifier(IdentifierDefaults.Server, IdentifierDefaults.Database, IdentifierDefaults.Schema, "comment_test_sequence_1");
 
             var sequenceComments = await SequenceCommentProvider.GetSequenceComments(sequenceName).UnwrapSomeAsync().ConfigureAwait(false);

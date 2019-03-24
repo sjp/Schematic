@@ -14,7 +14,7 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration.Comments
 {
     internal sealed class PostgreSqlTableCommentProviderTests : PostgreSqlTest
     {
-        private IRelationalDatabaseTableCommentProvider TableCommentProvider => new PostgreSqlTableCommentProvider(Connection, IdentifierDefaults);
+        private IRelationalDatabaseTableCommentProvider TableCommentProvider => new PostgreSqlTableCommentProvider(Connection, IdentifierDefaults, IdentifierResolver);
 
         [OneTimeSetUp]
         public async Task Init()
@@ -37,7 +37,6 @@ CREATE TABLE table_comment_table_3
 )").ConfigureAwait(false);
             await Connection.ExecuteAsync("create index table_comment_table_3_ix_1 on table_comment_table_3 (test_column_2)").ConfigureAwait(false);
             await Connection.ExecuteAsync("create index table_comment_table_3_ix_2 on table_comment_table_3 (test_column_3)").ConfigureAwait(false);
-
 
             await Connection.ExecuteAsync(@"create function table_comment_table_3_trigger_fn_1()
 returns trigger as
@@ -172,6 +171,17 @@ execute procedure table_comment_table_3_trigger_fn_1()").ConfigureAwait(false);
         public async Task GetTableComments_WhenTablePresentGivenFullyQualifiedNameWithDifferentServerAndDatabase_ShouldBeQualifiedCorrectly()
         {
             var tableName = new Identifier("A", "B", IdentifierDefaults.Schema, "table_comment_table_1");
+            var expectedTableName = new Identifier(IdentifierDefaults.Server, IdentifierDefaults.Database, IdentifierDefaults.Schema, "table_comment_table_1");
+
+            var tableComments = await TableCommentProvider.GetTableComments(tableName).UnwrapSomeAsync().ConfigureAwait(false);
+
+            Assert.AreEqual(expectedTableName, tableComments.TableName);
+        }
+
+        [Test]
+        public async Task GetTableComments_WhenTablePresentGivenDifferentCasedName_ShouldBeResolvedCorrectly()
+        {
+            var tableName = new Identifier(IdentifierDefaults.Server, IdentifierDefaults.Database, IdentifierDefaults.Schema, "TABLE_COMMENT_TABLE_1");
             var expectedTableName = new Identifier(IdentifierDefaults.Server, IdentifierDefaults.Database, IdentifierDefaults.Schema, "table_comment_table_1");
 
             var tableComments = await TableCommentProvider.GetTableComments(tableName).UnwrapSomeAsync().ConfigureAwait(false);

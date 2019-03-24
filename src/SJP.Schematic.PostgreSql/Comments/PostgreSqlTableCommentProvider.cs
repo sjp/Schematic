@@ -14,15 +14,18 @@ namespace SJP.Schematic.PostgreSql.Comments
 {
     public class PostgreSqlTableCommentProvider : IRelationalDatabaseTableCommentProvider
     {
-        public PostgreSqlTableCommentProvider(IDbConnection connection, IIdentifierDefaults identifierDefaults)
+        public PostgreSqlTableCommentProvider(IDbConnection connection, IIdentifierDefaults identifierDefaults, IIdentifierResolutionStrategy identifierResolver)
         {
             Connection = connection ?? throw new ArgumentNullException(nameof(connection));
             IdentifierDefaults = identifierDefaults ?? throw new ArgumentNullException(nameof(identifierDefaults));
+            IdentifierResolver = identifierResolver ?? throw new ArgumentNullException(nameof(identifierResolver));
         }
 
         protected IDbConnection Connection { get; }
 
         protected IIdentifierDefaults IdentifierDefaults { get; }
+
+        protected IIdentifierResolutionStrategy IdentifierResolver { get; }
 
         public async Task<IReadOnlyCollection<IRelationalDatabaseTableComments>> GetAllTableComments(CancellationToken cancellationToken = default(CancellationToken))
         {
@@ -69,19 +72,33 @@ namespace SJP.Schematic.PostgreSql.Comments
                 .ToList();
         }
 
-        protected OptionAsync<Identifier> GetResolvedTableName(Identifier tableName, CancellationToken cancellationToken)
+        protected OptionAsync<Identifier> GetResolvedTableName(Identifier tableName, CancellationToken cancellationToken = default(CancellationToken))
         {
             if (tableName == null)
                 throw new ArgumentNullException(nameof(tableName));
 
-            tableName = QualifyTableName(tableName);
+            var resolvedNames = IdentifierResolver
+                .GetResolutionOrder(tableName)
+                .Select(QualifyTableName);
+
+            return resolvedNames
+                .Select(name => GetResolvedTableNameStrict(name, cancellationToken))
+                .FirstSome(cancellationToken);
+        }
+
+        protected OptionAsync<Identifier> GetResolvedTableNameStrict(Identifier tableName, CancellationToken cancellationToken)
+        {
+            if (tableName == null)
+                throw new ArgumentNullException(nameof(tableName));
+
+            var candidateTableName = QualifyTableName(tableName);
             var qualifiedTableName = Connection.QueryFirstOrNone<QualifiedName>(
                 TableNameQuery,
-                new { SchemaName = tableName.Schema, TableName = tableName.LocalName },
+                new { SchemaName = candidateTableName.Schema, TableName = candidateTableName.LocalName },
                 cancellationToken
             );
 
-            return qualifiedTableName.Map(name => Identifier.CreateQualifiedIdentifier(tableName.Server, tableName.Database, name.SchemaName, name.ObjectName));
+            return qualifiedTableName.Map(name => Identifier.CreateQualifiedIdentifier(candidateTableName.Server, candidateTableName.Database, name.SchemaName, name.ObjectName));
         }
 
         protected virtual string TableNameQuery => TableNameQuerySql;
@@ -123,7 +140,7 @@ limit 1";
 
             var commentsData = await Connection.QueryAsync<TableCommentsData>(
                 TableCommentsQuery,
-                new { SchemaName = tableName.Schema, TableName = tableName.LocalName },
+                new { SchemaName = resolvedTableName.Schema, TableName = resolvedTableName.LocalName },
                 cancellationToken
             ).ConfigureAwait(false);
 

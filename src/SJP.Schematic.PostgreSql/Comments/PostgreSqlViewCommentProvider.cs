@@ -12,10 +12,17 @@ namespace SJP.Schematic.PostgreSql.Comments
 {
     public class PostgreSqlViewCommentProvider : IDatabaseViewCommentProvider
     {
-        public PostgreSqlViewCommentProvider(IDbConnection connection, IIdentifierDefaults identifierDefaults)
+        public PostgreSqlViewCommentProvider(IDbConnection connection, IIdentifierDefaults identifierDefaults, IIdentifierResolutionStrategy identifierResolver)
         {
-            QueryViewCommentProvider = new PostgreSqlQueryViewCommentProvider(connection, identifierDefaults);
-            MaterializedViewCommentProvider = new PostgreSqlMaterializedViewCommentProvider(connection, identifierDefaults);
+            if (connection == null)
+                throw new ArgumentNullException(nameof(connection));
+            if (identifierDefaults == null)
+                throw new ArgumentNullException(nameof(identifierDefaults));
+            if (identifierResolver == null)
+                throw new ArgumentNullException(nameof(identifierResolver));
+
+            QueryViewCommentProvider = new PostgreSqlQueryViewCommentProvider(connection, identifierDefaults, identifierResolver);
+            MaterializedViewCommentProvider = new PostgreSqlMaterializedViewCommentProvider(connection, identifierDefaults, identifierResolver);
         }
 
         protected IDatabaseViewCommentProvider QueryViewCommentProvider { get; }

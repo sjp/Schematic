@@ -14,7 +14,7 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration.Comments
 {
     internal sealed class PostgreSqlQueryViewCommentProviderTests : PostgreSqlTest
     {
-        private IDatabaseViewCommentProvider ViewCommentProvider => new PostgreSqlQueryViewCommentProvider(Connection, IdentifierDefaults);
+        private IDatabaseViewCommentProvider ViewCommentProvider => new PostgreSqlQueryViewCommentProvider(Connection, IdentifierDefaults, IdentifierResolver);
 
         [OneTimeSetUp]
         public async Task Init()
@@ -130,6 +130,17 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration.Comments
         public async Task GetViewComments_WhenViewPresentGivenFullyQualifiedNameWithDifferentServerAndDatabase_ShouldBeQualifiedCorrectly()
         {
             var viewName = new Identifier("A", "B", IdentifierDefaults.Schema, "view_comment_view_1");
+            var expectedViewName = new Identifier(IdentifierDefaults.Server, IdentifierDefaults.Database, IdentifierDefaults.Schema, "view_comment_view_1");
+
+            var viewComments = await ViewCommentProvider.GetViewComments(viewName).UnwrapSomeAsync().ConfigureAwait(false);
+
+            Assert.AreEqual(expectedViewName, viewComments.ViewName);
+        }
+
+        [Test]
+        public async Task GetViewComments_WhenViewPresentGivenDifferenceCaseName_ShouldBeResolvedCorrectly()
+        {
+            var viewName = new Identifier(IdentifierDefaults.Server, IdentifierDefaults.Database, IdentifierDefaults.Schema, "VIEW_COMMENT_VIEW_1");
             var expectedViewName = new Identifier(IdentifierDefaults.Server, IdentifierDefaults.Database, IdentifierDefaults.Schema, "view_comment_view_1");
 
             var viewComments = await ViewCommentProvider.GetViewComments(viewName).UnwrapSomeAsync().ConfigureAwait(false);

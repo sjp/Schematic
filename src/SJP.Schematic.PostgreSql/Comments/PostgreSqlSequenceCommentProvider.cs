@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using LanguageExt;
@@ -13,15 +14,18 @@ namespace SJP.Schematic.PostgreSql.Comments
 {
     public class PostgreSqlSequenceCommentProvider : IDatabaseSequenceCommentProvider
     {
-        public PostgreSqlSequenceCommentProvider(IDbConnection connection, IIdentifierDefaults identifierDefaults)
+        public PostgreSqlSequenceCommentProvider(IDbConnection connection, IIdentifierDefaults identifierDefaults, IIdentifierResolutionStrategy identifierResolver)
         {
             Connection = connection ?? throw new ArgumentNullException(nameof(connection));
             IdentifierDefaults = identifierDefaults ?? throw new ArgumentNullException(nameof(identifierDefaults));
+            IdentifierResolver = identifierResolver ?? throw new ArgumentNullException(nameof(identifierResolver));
         }
 
         protected IDbConnection Connection { get; }
 
         protected IIdentifierDefaults IdentifierDefaults { get; }
+
+        protected IIdentifierResolutionStrategy IdentifierResolver { get; }
 
         public async Task<IReadOnlyCollection<IDatabaseSequenceComments>> GetAllSequenceComments(CancellationToken cancellationToken = default(CancellationToken))
         {
@@ -45,19 +49,33 @@ namespace SJP.Schematic.PostgreSql.Comments
             return result;
         }
 
-        protected OptionAsync<Identifier> GetResolvedSequenceName(Identifier sequenceName, CancellationToken cancellationToken)
+        protected OptionAsync<Identifier> GetResolvedSequenceName(Identifier sequenceName, CancellationToken cancellationToken = default(CancellationToken))
         {
             if (sequenceName == null)
                 throw new ArgumentNullException(nameof(sequenceName));
 
-            sequenceName = QualifySequenceName(sequenceName);
+            var resolvedNames = IdentifierResolver
+                .GetResolutionOrder(sequenceName)
+                .Select(QualifySequenceName);
+
+            return resolvedNames
+                .Select(name => GetResolvedSequenceNameStrict(name, cancellationToken))
+                .FirstSome(cancellationToken);
+        }
+
+        protected OptionAsync<Identifier> GetResolvedSequenceNameStrict(Identifier sequenceName, CancellationToken cancellationToken)
+        {
+            if (sequenceName == null)
+                throw new ArgumentNullException(nameof(sequenceName));
+
+            var candidateSequenceName = QualifySequenceName(sequenceName);
             var qualifiedSequenceName = Connection.QueryFirstOrNone<QualifiedName>(
                 SequenceNameQuery,
-                new { SchemaName = sequenceName.Schema, SequenceName = sequenceName.LocalName },
+                new { SchemaName = candidateSequenceName.Schema, SequenceName = candidateSequenceName.LocalName },
                 cancellationToken
             );
 
-            return qualifiedSequenceName.Map(name => Identifier.CreateQualifiedIdentifier(sequenceName.Server, sequenceName.Database, name.SchemaName, name.ObjectName));
+            return qualifiedSequenceName.Map(name => Identifier.CreateQualifiedIdentifier(candidateSequenceName.Server, candidateSequenceName.Database, name.SchemaName, name.ObjectName));
         }
 
         protected virtual string SequenceNameQuery => SequenceNameQuerySql;
@@ -99,7 +117,7 @@ limit 1";
 
             var commentsData = Connection.QueryFirstOrNone<CommentsData>(
                 SequenceCommentsQuery,
-                new { SchemaName = sequenceName.Schema, SequenceName = sequenceName.LocalName },
+                new { SchemaName = resolvedSequenceName.Schema, SequenceName = resolvedSequenceName.LocalName },
                 cancellationToken
             ).Map<IDatabaseSequenceComments>(c =>
             {

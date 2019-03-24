@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using LanguageExt;
@@ -13,15 +14,18 @@ namespace SJP.Schematic.PostgreSql.Comments
 {
     public class PostgreSqlRoutineCommentProvider : IDatabaseRoutineCommentProvider
     {
-        public PostgreSqlRoutineCommentProvider(IDbConnection connection, IIdentifierDefaults identifierDefaults)
+        public PostgreSqlRoutineCommentProvider(IDbConnection connection, IIdentifierDefaults identifierDefaults, IIdentifierResolutionStrategy identifierResolver)
         {
             Connection = connection ?? throw new ArgumentNullException(nameof(connection));
             IdentifierDefaults = identifierDefaults ?? throw new ArgumentNullException(nameof(identifierDefaults));
+            IdentifierResolver = identifierResolver ?? throw new ArgumentNullException(nameof(identifierResolver));
         }
 
         protected IDbConnection Connection { get; }
 
         protected IIdentifierDefaults IdentifierDefaults { get; }
+
+        protected IIdentifierResolutionStrategy IdentifierResolver { get; }
 
         public async Task<IReadOnlyCollection<IDatabaseRoutineComments>> GetAllRoutineComments(CancellationToken cancellationToken = default(CancellationToken))
         {
@@ -44,19 +48,33 @@ namespace SJP.Schematic.PostgreSql.Comments
             return result;
         }
 
-        protected OptionAsync<Identifier> GetResolvedRoutineName(Identifier routineName, CancellationToken cancellationToken)
+        protected OptionAsync<Identifier> GetResolvedRoutineName(Identifier routineName, CancellationToken cancellationToken = default(CancellationToken))
         {
             if (routineName == null)
                 throw new ArgumentNullException(nameof(routineName));
 
-            routineName = QualifyRoutineName(routineName);
+            var resolvedNames = IdentifierResolver
+                .GetResolutionOrder(routineName)
+                .Select(QualifyRoutineName);
+
+            return resolvedNames
+                .Select(name => GetResolvedRoutineNameStrict(name, cancellationToken))
+                .FirstSome(cancellationToken);
+        }
+
+        protected OptionAsync<Identifier> GetResolvedRoutineNameStrict(Identifier routineName, CancellationToken cancellationToken)
+        {
+            if (routineName == null)
+                throw new ArgumentNullException(nameof(routineName));
+
+            var candidateRoutineName = QualifyRoutineName(routineName);
             var qualifiedRoutineName = Connection.QueryFirstOrNone<QualifiedName>(
                 RoutineNameQuery,
-                new { SchemaName = routineName.Schema, RoutineName = routineName.LocalName },
+                new { SchemaName = candidateRoutineName.Schema, RoutineName = candidateRoutineName.LocalName },
                 cancellationToken
             );
 
-            return qualifiedRoutineName.Map(name => Identifier.CreateQualifiedIdentifier(routineName.Server, routineName.Database, name.SchemaName, name.ObjectName));
+            return qualifiedRoutineName.Map(name => Identifier.CreateQualifiedIdentifier(candidateRoutineName.Server, candidateRoutineName.Database, name.SchemaName, name.ObjectName));
         }
 
         protected virtual string RoutineNameQuery => RoutineNameQuerySql;
@@ -100,7 +118,7 @@ limit 1";
 
             var commentsData = Connection.QueryFirstOrNone<CommentsData>(
                 RoutineCommentsQuery,
-                new { SchemaName = routineName.Schema, RoutineName = routineName.LocalName },
+                new { SchemaName = resolvedRoutineName.Schema, RoutineName = resolvedRoutineName.LocalName },
                 cancellationToken
             ).Map<IDatabaseRoutineComments>(c =>
             {

@@ -124,7 +124,8 @@ select
         public override async Task<IRelationalDatabaseCommentProvider> GetRelationalDatabaseCommentProviderAsync(CancellationToken cancellationToken = default(CancellationToken))
         {
             var identifierDefaults = await GetIdentifierDefaultsAsync(cancellationToken).ConfigureAwait(false);
-            return new PostgreSqlDatabaseCommentProvider(Connection, identifierDefaults);
+            var identifierResolver = new DefaultPostgreSqlIdentifierResolutionStrategy();
+            return new PostgreSqlDatabaseCommentProvider(Connection, identifierDefaults, identifierResolver);
         }
 
         public override bool IsReservedKeyword(string text)

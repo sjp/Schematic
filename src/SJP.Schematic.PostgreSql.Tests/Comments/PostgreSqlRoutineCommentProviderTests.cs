@@ -14,16 +14,27 @@ namespace SJP.Schematic.PostgreSql.Tests.Comments
         public static void Ctor_GivenNullConnection_ThrowsArgNullException()
         {
             var identifierDefaults = Mock.Of<IIdentifierDefaults>();
+            var identifierResolver = new DefaultPostgreSqlIdentifierResolutionStrategy();
 
-            Assert.Throws<ArgumentNullException>(() => new PostgreSqlRoutineCommentProvider(null, identifierDefaults));
+            Assert.Throws<ArgumentNullException>(() => new PostgreSqlRoutineCommentProvider(null, identifierDefaults, identifierResolver));
         }
 
         [Test]
         public static void Ctor_GivenNullIdentifierDefaults_ThrowsArgNullException()
         {
             var connection = Mock.Of<IDbConnection>();
+            var identifierResolver = new DefaultPostgreSqlIdentifierResolutionStrategy();
 
-            Assert.Throws<ArgumentNullException>(() => new PostgreSqlRoutineCommentProvider(connection, null));
+            Assert.Throws<ArgumentNullException>(() => new PostgreSqlRoutineCommentProvider(connection, null, identifierResolver));
+        }
+
+        [Test]
+        public static void Ctor_GivenNullIdentifierResolver_ThrowsArgNullException()
+        {
+            var connection = Mock.Of<IDbConnection>();
+            var identifierDefaults = Mock.Of<IIdentifierDefaults>();
+
+            Assert.Throws<ArgumentNullException>(() => new PostgreSqlRoutineCommentProvider(connection, identifierDefaults, null));
         }
 
         [Test]
@@ -31,8 +42,9 @@ namespace SJP.Schematic.PostgreSql.Tests.Comments
         {
             var connection = Mock.Of<IDbConnection>();
             var identifierDefaults = Mock.Of<IIdentifierDefaults>();
+            var identifierResolver = new DefaultPostgreSqlIdentifierResolutionStrategy();
 
-            var commentProvider = new PostgreSqlRoutineCommentProvider(connection, identifierDefaults);
+            var commentProvider = new PostgreSqlRoutineCommentProvider(connection, identifierDefaults, identifierResolver);
 
             Assert.Throws<ArgumentNullException>(() => commentProvider.GetRoutineComments(null));
         }

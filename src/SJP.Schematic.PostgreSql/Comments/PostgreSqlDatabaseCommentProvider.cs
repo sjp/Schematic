@@ -11,17 +11,19 @@ namespace SJP.Schematic.PostgreSql.Comments
 {
     public class PostgreSqlDatabaseCommentProvider : IRelationalDatabaseCommentProvider
     {
-        public PostgreSqlDatabaseCommentProvider(IDbConnection connection, IIdentifierDefaults identifierDefaults)
+        public PostgreSqlDatabaseCommentProvider(IDbConnection connection, IIdentifierDefaults identifierDefaults, IIdentifierResolutionStrategy identifierResolver)
         {
             if (connection == null)
                 throw new ArgumentNullException(nameof(connection));
             if (identifierDefaults == null)
                 throw new ArgumentNullException(nameof(identifierDefaults));
+            if (identifierResolver == null)
+                throw new ArgumentNullException(nameof(identifierResolver));
 
-            _tableCommentProvider = new PostgreSqlTableCommentProvider(connection, identifierDefaults);
-            _viewCommentProvider = new PostgreSqlViewCommentProvider(connection, identifierDefaults);
-            _sequenceCommentProvider = new PostgreSqlSequenceCommentProvider(connection, identifierDefaults);
-            _routineCommentProvider = new PostgreSqlRoutineCommentProvider(connection, identifierDefaults);
+            _tableCommentProvider = new PostgreSqlTableCommentProvider(connection, identifierDefaults, identifierResolver);
+            _viewCommentProvider = new PostgreSqlViewCommentProvider(connection, identifierDefaults, identifierResolver);
+            _sequenceCommentProvider = new PostgreSqlSequenceCommentProvider(connection, identifierDefaults, identifierResolver);
+            _routineCommentProvider = new PostgreSqlRoutineCommentProvider(connection, identifierDefaults, identifierResolver);
         }
 
         public OptionAsync<IRelationalDatabaseTableComments> GetTableComments(Identifier tableName, CancellationToken cancellationToken = default(CancellationToken))

@@ -14,15 +14,18 @@ namespace SJP.Schematic.PostgreSql.Comments
 {
     public class PostgreSqlQueryViewCommentProvider : IDatabaseViewCommentProvider
     {
-        public PostgreSqlQueryViewCommentProvider(IDbConnection connection, IIdentifierDefaults identifierDefaults)
+        public PostgreSqlQueryViewCommentProvider(IDbConnection connection, IIdentifierDefaults identifierDefaults, IIdentifierResolutionStrategy identifierResolver)
         {
             Connection = connection ?? throw new ArgumentNullException(nameof(connection));
             IdentifierDefaults = identifierDefaults ?? throw new ArgumentNullException(nameof(identifierDefaults));
+            IdentifierResolver = identifierResolver ?? throw new ArgumentNullException(nameof(identifierResolver));
         }
 
         protected IDbConnection Connection { get; }
 
         protected IIdentifierDefaults IdentifierDefaults { get; }
+
+        protected IIdentifierResolutionStrategy IdentifierResolver { get; }
 
         public async Task<IReadOnlyCollection<IDatabaseViewComments>> GetAllViewComments(CancellationToken cancellationToken = default(CancellationToken))
         {
@@ -53,14 +56,28 @@ namespace SJP.Schematic.PostgreSql.Comments
             if (viewName == null)
                 throw new ArgumentNullException(nameof(viewName));
 
-            viewName = QualifyViewName(viewName);
+            var resolvedNames = IdentifierResolver
+                .GetResolutionOrder(viewName)
+                .Select(QualifyViewName);
+
+            return resolvedNames
+                .Select(name => GetResolvedViewNameStrict(name, cancellationToken))
+                .FirstSome(cancellationToken);
+        }
+
+        protected OptionAsync<Identifier> GetResolvedViewNameStrict(Identifier viewName, CancellationToken cancellationToken)
+        {
+            if (viewName == null)
+                throw new ArgumentNullException(nameof(viewName));
+
+            var candidateViewName = QualifyViewName(viewName);
             var qualifiedViewName = Connection.QueryFirstOrNone<QualifiedName>(
                 ViewNameQuery,
-                new { SchemaName = viewName.Schema, ViewName = viewName.LocalName },
+                new { SchemaName = candidateViewName.Schema, ViewName = candidateViewName.LocalName },
                 cancellationToken
             );
 
-            return qualifiedViewName.Map(name => Identifier.CreateQualifiedIdentifier(viewName.Server, viewName.Database, name.SchemaName, name.ObjectName));
+            return qualifiedViewName.Map(name => Identifier.CreateQualifiedIdentifier(candidateViewName.Server, candidateViewName.Database, name.SchemaName, name.ObjectName));
         }
 
         protected virtual string ViewNameQuery => ViewNameQuerySql;
@@ -102,7 +119,7 @@ limit 1";
 
             var commentsData = await Connection.QueryAsync<ViewCommentsData>(
                 ViewCommentsQuery,
-                new { SchemaName = viewName.Schema, ViewName = viewName.LocalName },
+                new { SchemaName = resolvedViewName.Schema, ViewName = resolvedViewName.LocalName },
                 cancellationToken
             ).ConfigureAwait(false);
 
