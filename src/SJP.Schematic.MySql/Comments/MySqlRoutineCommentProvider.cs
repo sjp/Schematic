@@ -89,19 +89,12 @@ limit 1";
                 throw new ArgumentNullException(nameof(routineName));
 
             var candidateRoutineName = QualifyRoutineName(routineName);
-            return LoadRoutineCommentsAsyncCore(candidateRoutineName, cancellationToken).ToAsync();
+            return GetResolvedRoutineName(candidateRoutineName, cancellationToken)
+                .MapAsync(name => LoadRoutineCommentsAsyncCore(name, cancellationToken));
         }
 
-        private async Task<Option<IDatabaseRoutineComments>> LoadRoutineCommentsAsyncCore(Identifier routineName, CancellationToken cancellationToken)
+        private async Task<IDatabaseRoutineComments> LoadRoutineCommentsAsyncCore(Identifier routineName, CancellationToken cancellationToken)
         {
-            var candidateRoutineName = QualifyRoutineName(routineName);
-            var resolvedRoutineNameOption = GetResolvedRoutineName(candidateRoutineName, cancellationToken);
-            var resolvedRoutineNameOptionIsNone = await resolvedRoutineNameOption.IsNone.ConfigureAwait(false);
-            if (resolvedRoutineNameOptionIsNone)
-                return Option<IDatabaseRoutineComments>.None;
-
-            var resolvedRoutineName = await resolvedRoutineNameOption.UnwrapSomeAsync().ConfigureAwait(false);
-
             var comment = await Connection.ExecuteScalarAsync<string>(
                 RoutineCommentQuery,
                 new { SchemaName = routineName.Schema, RoutineName = routineName.LocalName },
@@ -112,8 +105,7 @@ limit 1";
                 ? Option<string>.Some(comment)
                 : Option<string>.None;
 
-            var comments = new DatabaseRoutineComments(resolvedRoutineName, routineComment);
-            return Option<IDatabaseRoutineComments>.Some(comments);
+            return new DatabaseRoutineComments(routineName, routineComment);
         }
 
         protected virtual string AllRoutineCommentsQuery => AllRoutineCommentsQuerySql;
