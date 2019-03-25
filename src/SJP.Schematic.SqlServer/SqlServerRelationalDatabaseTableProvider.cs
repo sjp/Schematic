@@ -377,6 +377,7 @@ order by ic.key_ordinal";
             if (groupedChildKeys.Empty())
                 return Array.Empty<IDatabaseRelationalKey>();
 
+            var tableNameCache = new Dictionary<Identifier, Identifier> { [Identifier.CreateQualifiedIdentifier(tableName.Schema, tableName.LocalName)] = tableName };
             var columnLookupsCache = new Dictionary<Identifier, IReadOnlyDictionary<Identifier, IDatabaseColumn>> { [tableName] = columns };
             var foreignKeyLookupCache = new Dictionary<Identifier, IReadOnlyDictionary<Identifier, IDatabaseKey>>();
             var result = new List<IDatabaseRelationalKey>(groupedChildKeys.Count);
@@ -393,12 +394,15 @@ order by ic.key_ordinal";
                     continue;
 
                 var candidateChildTableName = Identifier.CreateQualifiedIdentifier(groupedChildKey.Key.ChildTableSchema, groupedChildKey.Key.ChildTableName);
-                var childTableNameOption = GetResolvedTableName(candidateChildTableName, cancellationToken);
+                var childTableNameOption = tableNameCache.ContainsKey(candidateChildTableName)
+                    ? OptionAsync<Identifier>.Some(tableNameCache[candidateChildTableName])
+                    : GetResolvedTableName(candidateChildTableName, cancellationToken);
                 var childTableNameOptionIsNone = await childTableNameOption.IsNone.ConfigureAwait(false);
                 if (childTableNameOptionIsNone)
                     continue;
 
                 var childTableName = await childTableNameOption.UnwrapSomeAsync().ConfigureAwait(false);
+                tableNameCache[candidateChildTableName] = childTableName;
                 var childKeyName = Identifier.CreateQualifiedIdentifier(groupedChildKey.Key.ChildKeyName);
 
                 if (!columnLookupsCache.TryGetValue(childTableName, out var childKeyColumnLookup))
@@ -520,6 +524,7 @@ where schema_name(t.schema_id) = @SchemaName and t.name = @TableName and t.is_ms
             if (foreignKeys.Empty())
                 return Array.Empty<IDatabaseRelationalKey>();
 
+            var tableNameCache = new Dictionary<Identifier, Identifier> { [Identifier.CreateQualifiedIdentifier(tableName.Schema, tableName.LocalName)] = tableName };
             var columnLookupsCache = new Dictionary<Identifier, IReadOnlyDictionary<Identifier, IDatabaseColumn>> { [tableName] = columns };
             var primaryKeyCache = new Dictionary<Identifier, Option<IDatabaseKey>>();
             var uniqueKeyLookupCache = new Dictionary<Identifier, IReadOnlyDictionary<Identifier, IDatabaseKey>>();
@@ -528,12 +533,15 @@ where schema_name(t.schema_id) = @SchemaName and t.name = @TableName and t.is_ms
             foreach (var fkey in foreignKeys)
             {
                 var candidateParentTableName = Identifier.CreateQualifiedIdentifier(fkey.Key.ParentTableSchema, fkey.Key.ParentTableName);
-                var parentTableNameOption = GetResolvedTableName(candidateParentTableName, cancellationToken);
+                var parentTableNameOption = tableNameCache.ContainsKey(candidateParentTableName)
+                    ? OptionAsync<Identifier>.Some(tableNameCache[candidateParentTableName])
+                    : GetResolvedTableName(candidateParentTableName, cancellationToken);
                 var parentTableNameOptionIsNone = await parentTableNameOption.IsNone.ConfigureAwait(false);
                 if (parentTableNameOptionIsNone)
                     continue;
 
                 var parentTableName = await parentTableNameOption.UnwrapSomeAsync().ConfigureAwait(false);
+                tableNameCache[candidateParentTableName] = parentTableName;
                 var parentKeyName = Identifier.CreateQualifiedIdentifier(fkey.Key.ParentKeyName);
 
                 IDatabaseKey parentKey = null;
