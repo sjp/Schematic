@@ -85,21 +85,14 @@ where schema_id = schema_id(@SchemaName) and name = @RoutineName
                 throw new ArgumentNullException(nameof(routineName));
 
             var candidateRoutineName = QualifyRoutineName(routineName);
-            return LoadRoutineAsyncCore(candidateRoutineName, cancellationToken).ToAsync();
+            return GetResolvedRoutineName(candidateRoutineName, cancellationToken)
+                .MapAsync(name => LoadRoutineAsyncCore(name, cancellationToken));
         }
 
-        private async Task<Option<IDatabaseRoutine>> LoadRoutineAsyncCore(Identifier routineName, CancellationToken cancellationToken)
+        private async Task<IDatabaseRoutine> LoadRoutineAsyncCore(Identifier routineName, CancellationToken cancellationToken)
         {
-            var resolvedRoutineNameOption = GetResolvedRoutineName(routineName, cancellationToken);
-            var resolvedRoutineNameOptionIsNone = await resolvedRoutineNameOption.IsNone.ConfigureAwait(false);
-            if (resolvedRoutineNameOptionIsNone)
-                return Option<IDatabaseRoutine>.None;
-
-            var resolvedRoutineName = await resolvedRoutineNameOption.UnwrapSomeAsync().ConfigureAwait(false);
-            var definition = await LoadDefinitionAsync(resolvedRoutineName, cancellationToken).ConfigureAwait(false);
-
-            var routine = new DatabaseRoutine(resolvedRoutineName, definition);
-            return Option<IDatabaseRoutine>.Some(routine);
+            var definition = await LoadDefinitionAsync(routineName, cancellationToken).ConfigureAwait(false);
+            return new DatabaseRoutine(routineName, definition);
         }
 
         protected virtual string DefinitionQuery => DefinitionQuerySql;

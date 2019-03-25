@@ -86,31 +86,23 @@ where schema_id = schema_id(@SchemaName) and name = @ViewName and is_ms_shipped 
                 throw new ArgumentNullException(nameof(viewName));
 
             var candidateViewName = QualifyViewName(viewName);
-            return LoadViewAsyncCore(candidateViewName, cancellationToken).ToAsync();
+            return GetResolvedViewName(candidateViewName, cancellationToken)
+                .MapAsync(name => LoadViewAsyncCore(name, cancellationToken));
         }
 
-        private async Task<Option<IDatabaseView>> LoadViewAsyncCore(Identifier viewName, CancellationToken cancellationToken)
+        private async Task<IDatabaseView> LoadViewAsyncCore(Identifier viewName, CancellationToken cancellationToken)
         {
-            var candidateViewName = QualifyViewName(viewName);
-            var resolvedViewNameOption = GetResolvedViewName(candidateViewName, cancellationToken);
-            var resolvedViewNameOptionIsNone = await resolvedViewNameOption.IsNone.ConfigureAwait(false);
-            if (resolvedViewNameOptionIsNone)
-                return Option<IDatabaseView>.None;
-
-            var resolvedViewName = await resolvedViewNameOption.UnwrapSomeAsync().ConfigureAwait(false);
-
-            var columnsTask = LoadColumnsAsync(resolvedViewName, cancellationToken);
-            var definitionTask = LoadDefinitionAsync(resolvedViewName, cancellationToken);
+            var columnsTask = LoadColumnsAsync(viewName, cancellationToken);
+            var definitionTask = LoadDefinitionAsync(viewName, cancellationToken);
             await Task.WhenAll(columnsTask, definitionTask).ConfigureAwait(false);
 
             var columns = columnsTask.Result;
             var definition = definitionTask.Result;
-            var isMaterialized = await LoadIndexExistsAsync(resolvedViewName, cancellationToken).ConfigureAwait(false);
+            var isMaterialized = await LoadIndexExistsAsync(viewName, cancellationToken).ConfigureAwait(false);
 
-            var view = isMaterialized
-                ? new DatabaseMaterializedView(resolvedViewName, definition, columns)
-                : new DatabaseView(resolvedViewName, definition, columns);
-            return Option<IDatabaseView>.Some(view);
+            return isMaterialized
+                ? new DatabaseMaterializedView(viewName, definition, columns)
+                : new DatabaseView(viewName, definition, columns);
         }
 
         protected virtual Task<string> LoadDefinitionAsync(Identifier viewName, CancellationToken cancellationToken)

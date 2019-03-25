@@ -124,21 +124,9 @@ where schema_name(schema_id) = @SchemaName and name = @SequenceName and is_ms_sh
                 throw new ArgumentNullException(nameof(sequenceName));
 
             var candidateSequenceName = QualifySequenceName(sequenceName);
-            return LoadSequenceAsyncCore(candidateSequenceName, cancellationToken).ToAsync();
-        }
-
-        private async Task<Option<IDatabaseSequence>> LoadSequenceAsyncCore(Identifier sequenceName, CancellationToken cancellationToken)
-        {
-            var resolvedSequenceNameOption = GetResolvedSequenceName(sequenceName, cancellationToken);
-            var resolvedSequenceNameOptionIsNone = await resolvedSequenceNameOption.IsNone.ConfigureAwait(false);
-            if (resolvedSequenceNameOptionIsNone)
-                return Option<IDatabaseSequence>.None;
-
-            var resolvedSequenceName = await resolvedSequenceNameOption.UnwrapSomeAsync().ConfigureAwait(false);
-            var sequence = LoadSequenceData(resolvedSequenceName, cancellationToken)
-                .Map(seqData => BuildSequenceFromDto(resolvedSequenceName, seqData));
-
-            return await sequence.ToOption().ConfigureAwait(false);
+            return GetResolvedSequenceName(candidateSequenceName, cancellationToken)
+                .Bind(name => LoadSequenceData(name, cancellationToken)
+                    .Map(seq => BuildSequenceFromDto(name, seq)));
         }
 
         private OptionAsync<SequenceData> LoadSequenceData(Identifier sequenceName, CancellationToken cancellationToken)

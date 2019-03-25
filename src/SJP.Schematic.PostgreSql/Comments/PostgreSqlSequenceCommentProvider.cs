@@ -102,32 +102,21 @@ limit 1";
                 throw new ArgumentNullException(nameof(sequenceName));
 
             var candidateSequenceName = QualifySequenceName(sequenceName);
-            return LoadSequenceCommentsAsyncCore(candidateSequenceName, cancellationToken).ToAsync();
-        }
-
-        private async Task<Option<IDatabaseSequenceComments>> LoadSequenceCommentsAsyncCore(Identifier sequenceName, CancellationToken cancellationToken)
-        {
-            var candidateSequenceName = QualifySequenceName(sequenceName);
-            var resolvedSequenceNameOption = GetResolvedSequenceName(candidateSequenceName, cancellationToken);
-            var resolvedSequenceNameOptionIsNone = await resolvedSequenceNameOption.IsNone.ConfigureAwait(false);
-            if (resolvedSequenceNameOptionIsNone)
-                return Option<IDatabaseSequenceComments>.None;
-
-            var resolvedSequenceName = await resolvedSequenceNameOption.UnwrapSomeAsync().ConfigureAwait(false);
-
-            var commentsData = Connection.QueryFirstOrNone<CommentsData>(
-                SequenceCommentsQuery,
-                new { SchemaName = resolvedSequenceName.Schema, SequenceName = resolvedSequenceName.LocalName },
-                cancellationToken
-            ).Map<IDatabaseSequenceComments>(c =>
-            {
-                var comment = !c.Comment.IsNullOrWhiteSpace()
-                    ? Option<string>.Some(c.Comment)
-                    : Option<string>.None;
-                return new DatabaseSequenceComments(resolvedSequenceName, comment);
-            });
-
-            return await commentsData.ToOption().ConfigureAwait(false);
+            return GetResolvedSequenceName(candidateSequenceName, cancellationToken)
+                .Bind(name =>
+                {
+                    return Connection.QueryFirstOrNone<CommentsData>(
+                        SequenceCommentsQuery,
+                        new { SchemaName = name.Schema, SequenceName = name.LocalName },
+                        cancellationToken
+                    ).Map<IDatabaseSequenceComments>(c =>
+                    {
+                        var comment = !c.Comment.IsNullOrWhiteSpace()
+                            ? Option<string>.Some(c.Comment)
+                            : Option<string>.None;
+                        return new DatabaseSequenceComments(name, comment);
+                    });
+                });
         }
 
         protected virtual string AllSequenceCommentsQuery => AllSequenceCommentsQuerySql;

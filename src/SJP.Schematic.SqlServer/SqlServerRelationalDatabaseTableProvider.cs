@@ -90,22 +90,15 @@ where schema_id = schema_id(@SchemaName) and name = @TableName and is_ms_shipped
                 throw new ArgumentNullException(nameof(tableName));
 
             var candidateTableName = QualifyTableName(tableName);
-            return LoadTableAsyncCore(candidateTableName, cancellationToken).ToAsync();
+            return GetResolvedTableName(candidateTableName, cancellationToken)
+                .MapAsync(name => LoadTableAsyncCore(name, cancellationToken));
         }
 
-        private async Task<Option<IRelationalDatabaseTable>> LoadTableAsyncCore(Identifier tableName, CancellationToken cancellationToken)
+        private async Task<IRelationalDatabaseTable> LoadTableAsyncCore(Identifier tableName, CancellationToken cancellationToken)
         {
-            var candidateTableName = QualifyTableName(tableName);
-            var resolvedTableNameOption = GetResolvedTableName(candidateTableName, cancellationToken);
-            var resolvedTableNameOptionIsNone = await resolvedTableNameOption.IsNone.ConfigureAwait(false);
-            if (resolvedTableNameOptionIsNone)
-                return Option<IRelationalDatabaseTable>.None;
-
-            var resolvedTableName = await resolvedTableNameOption.UnwrapSomeAsync().ConfigureAwait(false);
-
-            var columnsTask = LoadColumnsAsync(resolvedTableName, cancellationToken);
-            var checksTask = LoadChecksAsync(resolvedTableName, cancellationToken);
-            var triggersTask = LoadTriggersAsync(resolvedTableName, cancellationToken);
+            var columnsTask = LoadColumnsAsync(tableName, cancellationToken);
+            var checksTask = LoadChecksAsync(tableName, cancellationToken);
+            var triggersTask = LoadTriggersAsync(tableName, cancellationToken);
             await Task.WhenAll(columnsTask, checksTask, triggersTask).ConfigureAwait(false);
 
             var columns = columnsTask.Result;
@@ -113,9 +106,9 @@ where schema_id = schema_id(@SchemaName) and name = @TableName and is_ms_shipped
             var checks = checksTask.Result;
             var triggers = triggersTask.Result;
 
-            var primaryKeyTask = LoadPrimaryKeyAsync(resolvedTableName, columnLookup, cancellationToken);
-            var uniqueKeysTask = LoadUniqueKeysAsync(resolvedTableName, columnLookup, cancellationToken);
-            var indexesTask = LoadIndexesAsync(resolvedTableName, columnLookup, cancellationToken);
+            var primaryKeyTask = LoadPrimaryKeyAsync(tableName, columnLookup, cancellationToken);
+            var uniqueKeysTask = LoadUniqueKeysAsync(tableName, columnLookup, cancellationToken);
+            var indexesTask = LoadIndexesAsync(tableName, columnLookup, cancellationToken);
             await Task.WhenAll(primaryKeyTask, uniqueKeysTask, indexesTask).ConfigureAwait(false);
 
             var primaryKey = primaryKeyTask.Result;
@@ -124,15 +117,15 @@ where schema_id = schema_id(@SchemaName) and name = @TableName and is_ms_shipped
 
             var uniqueKeyLookup = GetDatabaseKeyLookup(uniqueKeys);
 
-            var childKeysTask = LoadChildKeysAsync(resolvedTableName, columnLookup, primaryKey, uniqueKeyLookup, cancellationToken);
-            var parentKeysTask = LoadParentKeysAsync(resolvedTableName, columnLookup, cancellationToken);
+            var childKeysTask = LoadChildKeysAsync(tableName, columnLookup, primaryKey, uniqueKeyLookup, cancellationToken);
+            var parentKeysTask = LoadParentKeysAsync(tableName, columnLookup, cancellationToken);
             await Task.WhenAll(childKeysTask, parentKeysTask).ConfigureAwait(false);
 
             var childKeys = childKeysTask.Result;
             var parentKeys = parentKeysTask.Result;
 
-            var table = new RelationalDatabaseTable(
-                resolvedTableName,
+            return new RelationalDatabaseTable(
+                tableName,
                 columns,
                 primaryKey,
                 uniqueKeys,
@@ -142,8 +135,6 @@ where schema_id = schema_id(@SchemaName) and name = @TableName and is_ms_shipped
                 checks,
                 triggers
             );
-
-            return Option<IRelationalDatabaseTable>.Some(table);
         }
 
         protected virtual Task<Option<IDatabaseKey>> LoadPrimaryKeyAsync(Identifier tableName, IReadOnlyDictionary<Identifier, IDatabaseColumn> columns, CancellationToken cancellationToken)

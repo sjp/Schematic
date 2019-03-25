@@ -107,24 +107,16 @@ limit 1";
                 throw new ArgumentNullException(nameof(viewName));
 
             var candidateViewName = QualifyViewName(viewName);
-            return LoadViewAsyncCore(candidateViewName, cancellationToken).ToAsync();
+            return GetResolvedViewName(candidateViewName, cancellationToken)
+                .MapAsync(name => LoadViewAsyncCore(name, cancellationToken));
         }
 
-        private async Task<Option<IDatabaseView>> LoadViewAsyncCore(Identifier viewName, CancellationToken cancellationToken)
+        private async Task<IDatabaseView> LoadViewAsyncCore(Identifier viewName, CancellationToken cancellationToken)
         {
-            var candidateViewName = QualifyViewName(viewName);
-            var resolvedViewNameOption = GetResolvedViewName(candidateViewName, cancellationToken);
-            var resolvedViewNameOptionIsNone = await resolvedViewNameOption.IsNone.ConfigureAwait(false);
-            if (resolvedViewNameOptionIsNone)
-                return Option<IDatabaseView>.None;
+            var columns = await LoadColumnsAsync(viewName, cancellationToken).ConfigureAwait(false);
+            var definition = await LoadDefinitionAsync(viewName, cancellationToken).ConfigureAwait(false);
 
-            var resolvedViewName = await resolvedViewNameOption.UnwrapSomeAsync().ConfigureAwait(false);
-
-            var columns = await LoadColumnsAsync(resolvedViewName, cancellationToken).ConfigureAwait(false);
-            var definition = await LoadDefinitionAsync(resolvedViewName, cancellationToken).ConfigureAwait(false);
-
-            var view = new DatabaseMaterializedView(resolvedViewName, definition, columns);
-            return Option<IDatabaseView>.Some(view);
+            return new DatabaseMaterializedView(viewName, definition, columns);
         }
 
         protected virtual Task<string> LoadDefinitionAsync(Identifier viewName, CancellationToken cancellationToken)

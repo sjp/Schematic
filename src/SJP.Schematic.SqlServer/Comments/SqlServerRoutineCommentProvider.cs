@@ -94,19 +94,12 @@ where schema_id = schema_id(@SchemaName) and name = @RoutineName
                 throw new ArgumentNullException(nameof(routineName));
 
             var candidateRoutineName = QualifyRoutineName(routineName);
-            return LoadRoutineCommentsAsyncCore(candidateRoutineName, cancellationToken).ToAsync();
+            return GetResolvedRoutineName(candidateRoutineName, cancellationToken)
+                .MapAsync(name => LoadRoutineCommentsAsyncCore(name, cancellationToken));
         }
 
-        private async Task<Option<IDatabaseRoutineComments>> LoadRoutineCommentsAsyncCore(Identifier routineName, CancellationToken cancellationToken)
+        private async Task<IDatabaseRoutineComments> LoadRoutineCommentsAsyncCore(Identifier routineName, CancellationToken cancellationToken)
         {
-            var candidateRoutineName = QualifyRoutineName(routineName);
-            var resolvedRoutineNameOption = GetResolvedRoutineName(candidateRoutineName, cancellationToken);
-            var resolvedRoutineNameOptionIsNone = await resolvedRoutineNameOption.IsNone.ConfigureAwait(false);
-            if (resolvedRoutineNameOptionIsNone)
-                return Option<IDatabaseRoutineComments>.None;
-
-            var resolvedRoutineName = await resolvedRoutineNameOption.UnwrapSomeAsync().ConfigureAwait(false);
-
             var commentsData = await Connection.QueryAsync<CommentsData>(
                 RoutineCommentsQuery,
                 new { SchemaName = routineName.Schema, RoutineName = routineName.LocalName, CommentProperty },
@@ -115,8 +108,7 @@ where schema_id = schema_id(@SchemaName) and name = @RoutineName
 
             var routineComment = GetFirstCommentByType(commentsData, Constants.Routine);
 
-            var comments = new DatabaseRoutineComments(resolvedRoutineName, routineComment);
-            return Option<IDatabaseRoutineComments>.Some(comments);
+            return new DatabaseRoutineComments(routineName, routineComment);
         }
 
         protected virtual string AllRoutineCommentsQuery => AllRoutineCommentsQuerySql;

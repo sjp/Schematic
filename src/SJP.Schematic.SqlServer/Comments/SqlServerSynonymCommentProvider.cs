@@ -93,19 +93,12 @@ where schema_id = schema_id(@SchemaName) and name = @SynonymName and is_ms_shipp
                 throw new ArgumentNullException(nameof(synonymName));
 
             var candidateSynonymName = QualifySynonymName(synonymName);
-            return LoadSynonymCommentsAsyncCore(candidateSynonymName, cancellationToken).ToAsync();
+            return GetResolvedSynonymName(candidateSynonymName, cancellationToken)
+                .MapAsync(name => LoadSynonymCommentsAsyncCore(name, cancellationToken));
         }
 
-        private async Task<Option<IDatabaseSynonymComments>> LoadSynonymCommentsAsyncCore(Identifier synonymName, CancellationToken cancellationToken)
+        private async Task<IDatabaseSynonymComments> LoadSynonymCommentsAsyncCore(Identifier synonymName, CancellationToken cancellationToken)
         {
-            var candidateSynonymName = QualifySynonymName(synonymName);
-            var resolvedSynonymNameOption = GetResolvedSynonymName(candidateSynonymName, cancellationToken);
-            var resolvedSynonymNameOptionIsNone = await resolvedSynonymNameOption.IsNone.ConfigureAwait(false);
-            if (resolvedSynonymNameOptionIsNone)
-                return Option<IDatabaseSynonymComments>.None;
-
-            var resolvedSynonymName = await resolvedSynonymNameOption.UnwrapSomeAsync().ConfigureAwait(false);
-
             var commentsData = await Connection.QueryAsync<CommentsData>(
                 SynonymCommentsQuery,
                 new { SchemaName = synonymName.Schema, SynonymName = synonymName.LocalName, CommentProperty },
@@ -114,8 +107,7 @@ where schema_id = schema_id(@SchemaName) and name = @SynonymName and is_ms_shipp
 
             var synonymComment = GetFirstCommentByType(commentsData, Constants.Synonym);
 
-            var comments = new DatabaseSynonymComments(resolvedSynonymName, synonymComment);
-            return Option<IDatabaseSynonymComments>.Some(comments);
+            return new DatabaseSynonymComments(synonymName, synonymComment);
         }
 
         protected virtual string AllSynonymCommentsQuery => AllSynonymCommentsQuerySql;

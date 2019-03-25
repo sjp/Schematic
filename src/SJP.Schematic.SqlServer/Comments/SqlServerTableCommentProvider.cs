@@ -113,19 +113,12 @@ where schema_id = schema_id(@SchemaName) and name = @TableName
                 throw new ArgumentNullException(nameof(tableName));
 
             var candidateTableName = QualifyTableName(tableName);
-            return LoadTableCommentsAsyncCore(candidateTableName, cancellationToken).ToAsync();
+            return GetResolvedTableName(candidateTableName, cancellationToken)
+                .MapAsync(name => LoadTableCommentsAsyncCore(name, cancellationToken));
         }
 
-        private async Task<Option<IRelationalDatabaseTableComments>> LoadTableCommentsAsyncCore(Identifier tableName, CancellationToken cancellationToken)
+        private async Task<IRelationalDatabaseTableComments> LoadTableCommentsAsyncCore(Identifier tableName, CancellationToken cancellationToken)
         {
-            var candidateTableName = QualifyTableName(tableName);
-            var resolvedTableNameOption = GetResolvedTableName(candidateTableName, cancellationToken);
-            var resolvedTableNameOptionIsNone = await resolvedTableNameOption.IsNone.ConfigureAwait(false);
-            if (resolvedTableNameOptionIsNone)
-                return Option<IRelationalDatabaseTableComments>.None;
-
-            var resolvedTableName = await resolvedTableNameOption.UnwrapSomeAsync().ConfigureAwait(false);
-
             var commentsData = await Connection.QueryAsync<CommentsData>(
                 TableCommentsQuery,
                 new { SchemaName = tableName.Schema, TableName = tableName.LocalName, CommentProperty },
@@ -142,8 +135,8 @@ where schema_id = schema_id(@SchemaName) and name = @TableName
             var indexComments = GetCommentLookupByType(commentsData, Constants.Index);
             var triggerComments = GetCommentLookupByType(commentsData, Constants.Trigger);
 
-            var comments = new RelationalDatabaseTableComments(
-                resolvedTableName,
+            return new RelationalDatabaseTableComments(
+                tableName,
                 tableComment,
                 primaryKeyComment,
                 columnComments,
@@ -153,8 +146,6 @@ where schema_id = schema_id(@SchemaName) and name = @TableName
                 indexComments,
                 triggerComments
             );
-
-            return Option<IRelationalDatabaseTableComments>.Some(comments);
         }
 
         protected virtual string AllTableCommentsQuery => AllTableCommentsQuerySql;

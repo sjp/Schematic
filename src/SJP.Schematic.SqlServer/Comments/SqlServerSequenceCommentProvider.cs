@@ -93,19 +93,12 @@ where schema_id = schema_id(@SchemaName) and name = @SequenceName and is_ms_ship
                 throw new ArgumentNullException(nameof(sequenceName));
 
             var candidateSequenceName = QualifySequenceName(sequenceName);
-            return LoadSequenceCommentsAsyncCore(candidateSequenceName, cancellationToken).ToAsync();
+            return GetResolvedSequenceName(candidateSequenceName, cancellationToken)
+                .MapAsync(name => LoadSequenceCommentsAsyncCore(name, cancellationToken));
         }
 
-        private async Task<Option<IDatabaseSequenceComments>> LoadSequenceCommentsAsyncCore(Identifier sequenceName, CancellationToken cancellationToken)
+        private async Task<IDatabaseSequenceComments> LoadSequenceCommentsAsyncCore(Identifier sequenceName, CancellationToken cancellationToken)
         {
-            var candidateSequenceName = QualifySequenceName(sequenceName);
-            var resolvedSequenceNameOption = GetResolvedSequenceName(candidateSequenceName, cancellationToken);
-            var resolvedSequenceNameOptionIsNone = await resolvedSequenceNameOption.IsNone.ConfigureAwait(false);
-            if (resolvedSequenceNameOptionIsNone)
-                return Option<IDatabaseSequenceComments>.None;
-
-            var resolvedSequenceName = await resolvedSequenceNameOption.UnwrapSomeAsync().ConfigureAwait(false);
-
             var commentsData = await Connection.QueryAsync<CommentsData>(
                 SequenceCommentsQuery,
                 new { SchemaName = sequenceName.Schema, SequenceName = sequenceName.LocalName, CommentProperty },
@@ -114,8 +107,7 @@ where schema_id = schema_id(@SchemaName) and name = @SequenceName and is_ms_ship
 
             var sequenceComment = GetFirstCommentByType(commentsData, Constants.Sequence);
 
-            var comments = new DatabaseSequenceComments(resolvedSequenceName, sequenceComment);
-            return Option<IDatabaseSequenceComments>.Some(comments);
+            return new DatabaseSequenceComments(sequenceName, sequenceComment);
         }
 
         protected virtual string AllSequenceCommentsQuery => AllSequenceCommentsQuerySql;

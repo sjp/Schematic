@@ -125,22 +125,15 @@ limit 1";
                 throw new ArgumentNullException(nameof(tableName));
 
             var candidateTableName = QualifyTableName(tableName);
-            return LoadTableCommentsAsyncCore(candidateTableName, cancellationToken).ToAsync();
+            return GetResolvedTableName(candidateTableName, cancellationToken)
+                .MapAsync(name => LoadTableCommentsAsyncCore(name, cancellationToken));
         }
 
-        private async Task<Option<IRelationalDatabaseTableComments>> LoadTableCommentsAsyncCore(Identifier tableName, CancellationToken cancellationToken)
+        private async Task<IRelationalDatabaseTableComments> LoadTableCommentsAsyncCore(Identifier tableName, CancellationToken cancellationToken)
         {
-            var candidateTableName = QualifyTableName(tableName);
-            var resolvedTableNameOption = GetResolvedTableName(candidateTableName, cancellationToken);
-            var resolvedTableNameOptionIsNone = await resolvedTableNameOption.IsNone.ConfigureAwait(false);
-            if (resolvedTableNameOptionIsNone)
-                return Option<IRelationalDatabaseTableComments>.None;
-
-            var resolvedTableName = await resolvedTableNameOption.UnwrapSomeAsync().ConfigureAwait(false);
-
             var commentsData = await Connection.QueryAsync<TableCommentsData>(
                 TableCommentsQuery,
-                new { SchemaName = resolvedTableName.Schema, TableName = resolvedTableName.LocalName },
+                new { SchemaName = tableName.Schema, TableName = tableName.LocalName },
                 cancellationToken
             ).ConfigureAwait(false);
 
@@ -154,8 +147,8 @@ limit 1";
             var indexComments = GetCommentLookupByType(commentsData, Constants.Index);
             var triggerComments = GetCommentLookupByType(commentsData, Constants.Trigger);
 
-            var comments = new RelationalDatabaseTableComments(
-                resolvedTableName,
+            return new RelationalDatabaseTableComments(
+                tableName,
                 tableComment,
                 primaryKeyComment,
                 columnComments,
@@ -165,8 +158,6 @@ limit 1";
                 indexComments,
                 triggerComments
             );
-
-            return Option<IRelationalDatabaseTableComments>.Some(comments);
         }
 
         protected virtual string AllTableCommentsQuery => AllTableCommentsQuerySql;

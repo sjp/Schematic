@@ -98,38 +98,26 @@ where schema_id = schema_id(@SchemaName) and name = @SynonymName and is_ms_shipp
                 throw new ArgumentNullException(nameof(synonymName));
 
             var candidateSynonymName = QualifySynonymName(synonymName);
-            return LoadSynonymAsyncCore(candidateSynonymName, cancellationToken).ToAsync();
-        }
+            return GetResolvedSynonymName(candidateSynonymName, cancellationToken)
+                .Bind(name =>
+                {
+                    return Connection.QueryFirstOrNone<SynonymData>(
+                        LoadSynonymQuery,
+                        new { SchemaName = synonymName.Schema, SynonymName = synonymName.LocalName },
+                        cancellationToken
+                    ).Map<IDatabaseSynonym>(synonymData =>
+                    {
+                        var serverName = !synonymData.TargetServerName.IsNullOrWhiteSpace() ? synonymData.TargetServerName : null;
+                        var databaseName = !synonymData.TargetDatabaseName.IsNullOrWhiteSpace() ? synonymData.TargetDatabaseName : null;
+                        var schemaName = !synonymData.TargetSchemaName.IsNullOrWhiteSpace() ? synonymData.TargetSchemaName : null;
+                        var localName = !synonymData.TargetObjectName.IsNullOrWhiteSpace() ? synonymData.TargetObjectName : null;
 
-        private async Task<Option<IDatabaseSynonym>> LoadSynonymAsyncCore(Identifier synonymName, CancellationToken cancellationToken)
-        {
-            var candidateSynonymName = QualifySynonymName(synonymName);
-            var resolvedSynonymNameOption = GetResolvedSynonymName(candidateSynonymName, cancellationToken);
-            var resolvedSynonymNameOptionIsNone = await resolvedSynonymNameOption.IsNone.ConfigureAwait(false);
-            if (resolvedSynonymNameOptionIsNone)
-                return Option<IDatabaseSynonym>.None;
+                        var targetName = Identifier.CreateQualifiedIdentifier(serverName, databaseName, schemaName, localName);
+                        var qualifiedTargetName = QualifySynonymTargetName(targetName);
 
-            var resolvedSynonymName = await resolvedSynonymNameOption.UnwrapSomeAsync().ConfigureAwait(false);
-            var queryResult = Connection.QueryFirstOrNone<SynonymData>(
-                LoadSynonymQuery,
-                new { SchemaName = resolvedSynonymName.Schema, SynonymName = resolvedSynonymName.LocalName },
-                cancellationToken
-            );
-
-            var synonymOption = queryResult.Map<IDatabaseSynonym>(synonymData =>
-            {
-                var serverName = !synonymData.TargetServerName.IsNullOrWhiteSpace() ? synonymData.TargetServerName : null;
-                var databaseName = !synonymData.TargetDatabaseName.IsNullOrWhiteSpace() ? synonymData.TargetDatabaseName : null;
-                var schemaName = !synonymData.TargetSchemaName.IsNullOrWhiteSpace() ? synonymData.TargetSchemaName : null;
-                var localName = !synonymData.TargetObjectName.IsNullOrWhiteSpace() ? synonymData.TargetObjectName : null;
-
-                var targetName = Identifier.CreateQualifiedIdentifier(serverName, databaseName, schemaName, localName);
-                var qualifiedTargetName = QualifySynonymTargetName(targetName);
-
-                return new DatabaseSynonym(resolvedSynonymName, qualifiedTargetName);
-            });
-
-            return await synonymOption.ToOption().ConfigureAwait(false);
+                        return new DatabaseSynonym(name, qualifiedTargetName);
+                    });
+                });
         }
 
         protected virtual string LoadSynonymQuery => LoadSynonymQuerySql;

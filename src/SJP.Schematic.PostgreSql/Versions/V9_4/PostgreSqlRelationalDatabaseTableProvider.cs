@@ -114,35 +114,28 @@ limit 1";
                 throw new ArgumentNullException(nameof(tableName));
 
             var candidateTableName = QualifyTableName(tableName);
-            return LoadTableAsyncCore(candidateTableName, cancellationToken).ToAsync();
+            return GetResolvedTableName(candidateTableName)
+                .MapAsync(name => LoadTableAsyncCore(name, cancellationToken));
         }
 
-        private async Task<Option<IRelationalDatabaseTable>> LoadTableAsyncCore(Identifier tableName, CancellationToken cancellationToken)
+        private async Task<IRelationalDatabaseTable> LoadTableAsyncCore(Identifier tableName, CancellationToken cancellationToken)
         {
-            var candidateTableName = QualifyTableName(tableName);
-            var resolvedTableNameOption = GetResolvedTableName(candidateTableName);
-            var resolvedTableNameOptionIsNone = await resolvedTableNameOption.IsNone.ConfigureAwait(false);
-            if (resolvedTableNameOptionIsNone)
-                return Option<IRelationalDatabaseTable>.None;
-
-            var resolvedTableName = await resolvedTableNameOption.UnwrapSomeAsync().ConfigureAwait(false);
-
-            var columns = await LoadColumnsAsync(resolvedTableName, cancellationToken).ConfigureAwait(false);
+            var columns = await LoadColumnsAsync(tableName, cancellationToken).ConfigureAwait(false);
             var columnLookup = GetColumnLookup(columns);
-            var checks = await LoadChecksAsync(resolvedTableName, cancellationToken).ConfigureAwait(false);
-            var triggers = await LoadTriggersAsync(resolvedTableName, cancellationToken).ConfigureAwait(false);
+            var checks = await LoadChecksAsync(tableName, cancellationToken).ConfigureAwait(false);
+            var triggers = await LoadTriggersAsync(tableName, cancellationToken).ConfigureAwait(false);
 
-            var primaryKey = await LoadPrimaryKeyAsync(resolvedTableName, columnLookup, cancellationToken).ConfigureAwait(false);
-            var uniqueKeys = await LoadUniqueKeysAsync(resolvedTableName, columnLookup, cancellationToken).ConfigureAwait(false);
-            var indexes = await LoadIndexesAsync(resolvedTableName, columnLookup, cancellationToken).ConfigureAwait(false);
+            var primaryKey = await LoadPrimaryKeyAsync(tableName, columnLookup, cancellationToken).ConfigureAwait(false);
+            var uniqueKeys = await LoadUniqueKeysAsync(tableName, columnLookup, cancellationToken).ConfigureAwait(false);
+            var indexes = await LoadIndexesAsync(tableName, columnLookup, cancellationToken).ConfigureAwait(false);
 
             var uniqueKeyLookup = GetDatabaseKeyLookup(uniqueKeys);
 
-            var childKeys = await LoadChildKeysAsync(resolvedTableName, columnLookup, primaryKey, uniqueKeyLookup, cancellationToken).ConfigureAwait(false);
-            var parentKeys = await LoadParentKeysAsync(resolvedTableName, columnLookup, cancellationToken).ConfigureAwait(false);
+            var childKeys = await LoadChildKeysAsync(tableName, columnLookup, primaryKey, uniqueKeyLookup, cancellationToken).ConfigureAwait(false);
+            var parentKeys = await LoadParentKeysAsync(tableName, columnLookup, cancellationToken).ConfigureAwait(false);
 
-            var table = new RelationalDatabaseTable(
-                resolvedTableName,
+            return new RelationalDatabaseTable(
+                tableName,
                 columns,
                 primaryKey,
                 uniqueKeys,
@@ -152,8 +145,6 @@ limit 1";
                 checks,
                 triggers
             );
-
-            return Option<IRelationalDatabaseTable>.Some(table);
         }
 
         protected virtual Task<Option<IDatabaseKey>> LoadPrimaryKeyAsync(Identifier tableName, IReadOnlyDictionary<Identifier, IDatabaseColumn> columns, CancellationToken cancellationToken)

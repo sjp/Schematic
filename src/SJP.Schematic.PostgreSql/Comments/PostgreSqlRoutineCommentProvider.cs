@@ -103,33 +103,22 @@ limit 1";
                 throw new ArgumentNullException(nameof(routineName));
 
             var candidateRoutineName = QualifyRoutineName(routineName);
-            return LoadRoutineCommentsAsyncCore(candidateRoutineName, cancellationToken).ToAsync();
-        }
+            return GetResolvedRoutineName(candidateRoutineName, cancellationToken)
+                .Bind(name =>
+                {
+                    return Connection.QueryFirstOrNone<CommentsData>(
+                        RoutineCommentsQuery,
+                        new { SchemaName = name.Schema, RoutineName = name.LocalName },
+                        cancellationToken
+                    ).Map<IDatabaseRoutineComments>(c =>
+                    {
+                        var routineComment = !c.Comment.IsNullOrWhiteSpace()
+                            ? Option<string>.Some(c.Comment)
+                            : Option<string>.None;
 
-        private async Task<Option<IDatabaseRoutineComments>> LoadRoutineCommentsAsyncCore(Identifier routineName, CancellationToken cancellationToken)
-        {
-            var candidateRoutineName = QualifyRoutineName(routineName);
-            var resolvedRoutineNameOption = GetResolvedRoutineName(candidateRoutineName, cancellationToken);
-            var resolvedRoutineNameOptionIsNone = await resolvedRoutineNameOption.IsNone.ConfigureAwait(false);
-            if (resolvedRoutineNameOptionIsNone)
-                return Option<IDatabaseRoutineComments>.None;
-
-            var resolvedRoutineName = await resolvedRoutineNameOption.UnwrapSomeAsync().ConfigureAwait(false);
-
-            var commentsData = Connection.QueryFirstOrNone<CommentsData>(
-                RoutineCommentsQuery,
-                new { SchemaName = resolvedRoutineName.Schema, RoutineName = resolvedRoutineName.LocalName },
-                cancellationToken
-            ).Map<IDatabaseRoutineComments>(c =>
-            {
-                var routineComment = !c.Comment.IsNullOrWhiteSpace()
-                    ? Option<string>.Some(c.Comment)
-                    : Option<string>.None;
-
-                return new DatabaseRoutineComments(resolvedRoutineName, routineComment);
-            });
-
-            return await commentsData.ToOption().ConfigureAwait(false);
+                        return new DatabaseRoutineComments(name, routineComment);
+                    });
+                });
         }
 
         protected virtual string AllRoutineCommentsQuery => AllRoutineCommentsQuerySql;

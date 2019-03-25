@@ -95,19 +95,12 @@ where schema_id = schema_id(@SchemaName) and name = @ViewName
                 throw new ArgumentNullException(nameof(viewName));
 
             var candidateViewName = QualifyViewName(viewName);
-            return LoadViewCommentsAsyncCore(candidateViewName, cancellationToken).ToAsync();
+            return GetResolvedViewName(candidateViewName, cancellationToken)
+                .MapAsync(name => LoadViewCommentsAsyncCore(name, cancellationToken));
         }
 
-        private async Task<Option<IDatabaseViewComments>> LoadViewCommentsAsyncCore(Identifier viewName, CancellationToken cancellationToken)
+        private async Task<IDatabaseViewComments> LoadViewCommentsAsyncCore(Identifier viewName, CancellationToken cancellationToken)
         {
-            var candidateViewName = QualifyViewName(viewName);
-            var resolvedViewNameOption = GetResolvedViewName(candidateViewName, cancellationToken);
-            var resolvedViewNameOptionIsNone = await resolvedViewNameOption.IsNone.ConfigureAwait(false);
-            if (resolvedViewNameOptionIsNone)
-                return Option<IDatabaseViewComments>.None;
-
-            var resolvedViewName = await resolvedViewNameOption.UnwrapSomeAsync().ConfigureAwait(false);
-
             var commentsData = await Connection.QueryAsync<CommentsData>(
                 ViewCommentsQuery,
                 new { SchemaName = viewName.Schema, ViewName = viewName.LocalName, CommentProperty },
@@ -117,8 +110,7 @@ where schema_id = schema_id(@SchemaName) and name = @ViewName
             var viewComment = GetFirstCommentByType(commentsData, Constants.View);
             var columnComments = GetCommentLookupByType(commentsData, Constants.Column);
 
-            var comments = new DatabaseViewComments(resolvedViewName, viewComment, columnComments);
-            return Option<IDatabaseViewComments>.Some(comments);
+            return new DatabaseViewComments(viewName, viewComment, columnComments);
         }
 
         protected virtual string AllViewCommentsQuery => AllViewCommentsQuerySql;
