@@ -171,24 +171,18 @@ namespace SJP.Schematic.Sqlite
                 throw new ArgumentNullException(nameof(tableName));
 
             var candidateTableName = QualifyTableName(tableName);
-            return LoadTableAsyncCore(candidateTableName, cancellationToken).ToAsync();
+            return GetResolvedTableName(candidateTableName, cancellationToken)
+                .MapAsync(name => LoadTableAsyncCore(name, cancellationToken));
         }
 
-        private async Task<Option<IRelationalDatabaseTable>> LoadTableAsyncCore(Identifier tableName, CancellationToken cancellationToken)
+        private async Task<IRelationalDatabaseTable> LoadTableAsyncCore(Identifier tableName, CancellationToken cancellationToken)
         {
-            var candidateTableName = QualifyTableName(tableName);
-            var resolvedTableNameOption = GetResolvedTableName(candidateTableName, cancellationToken);
-            var resolvedTableNameOptionIsNone = await resolvedTableNameOption.IsNone.ConfigureAwait(false);
-            if (resolvedTableNameOptionIsNone)
-                return Option<IRelationalDatabaseTable>.None;
+            var pragma = new DatabasePragma(Dialect, Connection, tableName.Schema);
+            var parsedTable = await GetParsedTableDefinitionAsync(tableName, cancellationToken).ConfigureAwait(false);
 
-            var resolvedTableName = await resolvedTableNameOption.UnwrapSomeAsync().ConfigureAwait(false);
-            var pragma = new DatabasePragma(Dialect, Connection, resolvedTableName.Schema);
-            var parsedTable = await GetParsedTableDefinitionAsync(resolvedTableName, cancellationToken).ConfigureAwait(false);
-
-            var columnsTask = LoadColumnsAsync(pragma, parsedTable, resolvedTableName, cancellationToken);
+            var columnsTask = LoadColumnsAsync(pragma, parsedTable, tableName, cancellationToken);
             var checksTask = LoadChecksAsync(parsedTable, cancellationToken);
-            var triggersTask = LoadTriggersAsync(resolvedTableName, cancellationToken);
+            var triggersTask = LoadTriggersAsync(tableName, cancellationToken);
             await Task.WhenAll(columnsTask, checksTask, triggersTask).ConfigureAwait(false);
 
             var columns = columnsTask.Result;
@@ -196,24 +190,24 @@ namespace SJP.Schematic.Sqlite
             var checks = checksTask.Result;
             var triggers = triggersTask.Result;
 
-            var primaryKeyTask = LoadPrimaryKeyAsync(pragma, parsedTable, resolvedTableName, columnLookup, cancellationToken);
-            var uniqueKeysTask = LoadUniqueKeysAsync(pragma, parsedTable, resolvedTableName, columnLookup, cancellationToken);
-            var indexesTask = LoadIndexesAsync(pragma, resolvedTableName, columnLookup, cancellationToken);
+            var primaryKeyTask = LoadPrimaryKeyAsync(pragma, parsedTable, tableName, columnLookup, cancellationToken);
+            var uniqueKeysTask = LoadUniqueKeysAsync(pragma, parsedTable, tableName, columnLookup, cancellationToken);
+            var indexesTask = LoadIndexesAsync(pragma, tableName, columnLookup, cancellationToken);
             await Task.WhenAll(primaryKeyTask, uniqueKeysTask, indexesTask).ConfigureAwait(false);
 
             var primaryKey = primaryKeyTask.Result;
             var uniqueKeys = uniqueKeysTask.Result;
             var indexes = indexesTask.Result;
 
-            var childKeysTask = LoadChildKeysAsync(resolvedTableName, columnLookup, cancellationToken);
-            var parentKeysTask = LoadParentKeysAsync(pragma, parsedTable, resolvedTableName, columnLookup, cancellationToken);
+            var childKeysTask = LoadChildKeysAsync(tableName, columnLookup, cancellationToken);
+            var parentKeysTask = LoadParentKeysAsync(pragma, parsedTable, tableName, columnLookup, cancellationToken);
             await Task.WhenAll(childKeysTask, parentKeysTask).ConfigureAwait(false);
 
             var childKeys = childKeysTask.Result;
             var parentKeys = parentKeysTask.Result;
 
-            var table = new RelationalDatabaseTable(
-                resolvedTableName,
+            return new RelationalDatabaseTable(
+                tableName,
                 columns,
                 primaryKey,
                 uniqueKeys,
@@ -223,8 +217,6 @@ namespace SJP.Schematic.Sqlite
                 checks,
                 triggers
             );
-
-            return Option<IRelationalDatabaseTable>.Some(table);
         }
 
         protected virtual Task<Option<IDatabaseKey>> LoadPrimaryKeyAsync(ISqliteDatabasePragma pragma, ParsedTableData parsedTable, Identifier tableName, IReadOnlyDictionary<Identifier, IDatabaseColumn> columns, CancellationToken cancellationToken)
@@ -492,76 +484,76 @@ namespace SJP.Schematic.Sqlite
             var result = new List<IDatabaseRelationalKey>(foreignKeys.Count);
             foreach (var fkey in foreignKeys)
             {
+
                 var candidateParentTableName = Identifier.CreateQualifiedIdentifier(tableName.Schema, fkey.Key.ParentTableName);
-                var parentTableNameOption = GetResolvedTableName(candidateParentTableName, cancellationToken);
-                var parentTableNameOptionIsNone = await parentTableNameOption.IsNone.ConfigureAwait(false);
-                if (parentTableNameOptionIsNone)
-                    continue;
-
-                var parentTableName = await parentTableNameOption.UnwrapSomeAsync().ConfigureAwait(false);
-                var parentTableParser = await GetParsedTableDefinitionAsync(parentTableName, cancellationToken).ConfigureAwait(false);
-
-                if (!columnLookupsCache.TryGetValue(parentTableName, out var parentTableColumnLookup))
-                {
-                    var parentTableColumns = await LoadColumnsAsync(pragma, parentTableParser, parentTableName, cancellationToken).ConfigureAwait(false);
-                    parentTableColumnLookup = GetColumnLookup(parentTableColumns);
-                    columnLookupsCache[parentTableName] = parentTableColumnLookup;
-                }
-
-                var rows = fkey.OrderBy(row => row.seq).ToList();
-                var parentColumns = rows.Select(row => parentTableColumnLookup[row.to]).ToList();
-
-                if (!primaryKeyCache.TryGetValue(parentTableName, out var parentPrimaryKey))
-                {
-                    parentPrimaryKey = await LoadPrimaryKeyAsync(pragma, parentTableParser, parentTableName, parentTableColumnLookup, cancellationToken).ConfigureAwait(false);
-                    primaryKeyCache[parentTableName] = parentPrimaryKey;
-                }
-
-                var pkColumnsEqual = parentPrimaryKey
-                    .Match(
-                        k => k.Columns.Select(col => col.Name).SequenceEqual(parentColumns.Select(col => col.Name)),
-                        () => false
-                    );
-
-                IDatabaseKey parentConstraint = null;
-                if (pkColumnsEqual)
-                {
-                    parentPrimaryKey.IfSome(k => parentConstraint = k);
-                }
-                else
-                {
-                    if (!uniqueKeyLookupCache.TryGetValue(parentTableName, out var parentUniqueKeys))
+                Identifier parentTableName = null;
+                await GetResolvedTableName(candidateParentTableName, cancellationToken)
+                    .BindAsync(async name =>
                     {
-                        parentUniqueKeys = await LoadUniqueKeysAsync(pragma, parentTableParser, parentTableName, parentTableColumnLookup, cancellationToken).ConfigureAwait(false);
-                        uniqueKeyLookupCache[parentTableName] = parentUniqueKeys;
-                    }
+                        parentTableName = name;
+                        var parentTableParser = await GetParsedTableDefinitionAsync(name, cancellationToken).ConfigureAwait(false);
 
-                    parentConstraint = parentUniqueKeys.FirstOrDefault(uk =>
-                        uk.Columns.Select(ukCol => ukCol.Name)
-                            .SequenceEqual(parentColumns.Select(pc => pc.Name)));
-                }
+                        if (!columnLookupsCache.TryGetValue(name, out var parentTableColumnLookup))
+                        {
+                            var parentTableColumns = await LoadColumnsAsync(pragma, parentTableParser, name, cancellationToken).ConfigureAwait(false);
+                            parentTableColumnLookup = GetColumnLookup(parentTableColumns);
+                            columnLookupsCache[name] = parentTableColumnLookup;
+                        }
 
-                if (parentConstraint == null)
-                    continue;
+                        var rows = fkey.OrderBy(row => row.seq).ToList();
+                        var parentColumns = rows.Select(row => parentTableColumnLookup[row.to]).ToList();
 
-                // don't need to check for the parent schema as cross-schema references are not supported
-                var parsedConstraint = parsedTable.ParentKeys
-                    .Where(fkc => string.Equals(fkc.ParentTable.LocalName, fkey.Key.ParentTableName, StringComparison.OrdinalIgnoreCase))
-                    .FirstOrDefault(fkc => fkc.ParentColumns.SequenceEqual(rows.Select(row => row.to), StringComparer.OrdinalIgnoreCase));
-                var parsedConstraintOption = parsedConstraint != null
-                    ? Option<ForeignKey>.Some(parsedConstraint)
-                    : Option<ForeignKey>.None;
+                        if (!primaryKeyCache.TryGetValue(name, out var parentPrimaryKey))
+                        {
+                            parentPrimaryKey = await LoadPrimaryKeyAsync(pragma, parentTableParser, name, parentTableColumnLookup, cancellationToken).ConfigureAwait(false);
+                            primaryKeyCache[name] = parentPrimaryKey;
+                        }
 
-                var childKeyName = parsedConstraintOption.Bind(fk => fk.Name.Map(Identifier.CreateQualifiedIdentifier));
-                var childKeyColumns = rows.Select(row => columns[row.from]).ToList();
+                        var pkColumnsEqual = parentPrimaryKey
+                            .Match(
+                                k => k.Columns.Select(col => col.Name).SequenceEqual(parentColumns.Select(col => col.Name)),
+                                () => false
+                            );
+                        if (pkColumnsEqual)
+                            return parentPrimaryKey.ToAsync();
 
-                var childKey = new SqliteDatabaseKey(childKeyName, DatabaseKeyType.Foreign, childKeyColumns);
+                        if (!uniqueKeyLookupCache.TryGetValue(name, out var parentUniqueKeys))
+                        {
+                            parentUniqueKeys = await LoadUniqueKeysAsync(pragma, parentTableParser, name, parentTableColumnLookup, cancellationToken).ConfigureAwait(false);
+                            uniqueKeyLookupCache[name] = parentUniqueKeys;
+                        }
 
-                var deleteRule = GetRelationalUpdateRule(fkey.Key.OnDelete);
-                var updateRule = GetRelationalUpdateRule(fkey.Key.OnUpdate);
+                        var parentUniqueKey = parentUniqueKeys.FirstOrDefault(uk =>
+                            uk.Columns.Select(ukCol => ukCol.Name)
+                                .SequenceEqual(parentColumns.Select(pc => pc.Name)));
+                        return parentUniqueKey != null
+                            ? OptionAsync<IDatabaseKey>.Some(parentUniqueKey)
+                            : OptionAsync<IDatabaseKey>.None;
+                    })
+                    .Map(key =>
+                    {
+                        var rows = fkey.OrderBy(row => row.seq).ToList();
 
-                var relationalKey = new DatabaseRelationalKey(tableName, childKey, parentTableName, parentConstraint, deleteRule, updateRule);
-                result.Add(relationalKey);
+                        // don't need to check for the parent schema as cross-schema references are not supported
+                        var parsedConstraint = parsedTable.ParentKeys
+                            .Where(fkc => string.Equals(fkc.ParentTable.LocalName, fkey.Key.ParentTableName, StringComparison.OrdinalIgnoreCase))
+                            .FirstOrDefault(fkc => fkc.ParentColumns.SequenceEqual(rows.Select(row => row.to), StringComparer.OrdinalIgnoreCase));
+                        var parsedConstraintOption = parsedConstraint != null
+                            ? Option<ForeignKey>.Some(parsedConstraint)
+                            : Option<ForeignKey>.None;
+
+                        var childKeyName = parsedConstraintOption.Bind(fk => fk.Name.Map(Identifier.CreateQualifiedIdentifier));
+                        var childKeyColumns = rows.Select(row => columns[row.from]).ToList();
+
+                        var childKey = new SqliteDatabaseKey(childKeyName, DatabaseKeyType.Foreign, childKeyColumns);
+
+                        var deleteRule = GetRelationalUpdateRule(fkey.Key.OnDelete);
+                        var updateRule = GetRelationalUpdateRule(fkey.Key.OnUpdate);
+
+                        return new DatabaseRelationalKey(tableName, childKey, parentTableName, key, deleteRule, updateRule);
+                    })
+                    .IfSome(key => result.Add(key))
+                    .ConfigureAwait(false);
             }
 
             return result;
