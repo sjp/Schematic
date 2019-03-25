@@ -383,11 +383,20 @@ where ac.OWNER = :SchemaName and ac.TABLE_NAME = :TableName and ac.CONSTRAINT_TY
 
             foreach (var childKeyRow in childKeyRows)
             {
+                // ensure we have a key to begin with
+                IDatabaseKey parentKey = null;
+                if (childKeyRow.ParentKeyType == Constants.PrimaryKeyType)
+                    primaryKey.IfSome(k => parentKey = k);
+                else if (uniqueKeys.ContainsKey(childKeyRow.ParentKeyName))
+                    parentKey = uniqueKeys[childKeyRow.ParentKeyName];
+                if (parentKey == null)
+                    continue;
+
                 var candidateChildTableName = Identifier.CreateQualifiedIdentifier(childKeyRow.ChildTableSchema, childKeyRow.ChildTableName);
                 var childTableNameOption = GetResolvedTableName(candidateChildTableName);
                 var childTableNameOptionIsNone = await childTableNameOption.IsNone.ConfigureAwait(false);
                 if (childTableNameOptionIsNone)
-                    throw new MissingChildTableException(tableName, candidateChildTableName);
+                    continue;
 
                 var childTableName = await childTableNameOption.UnwrapSomeAsync().ConfigureAwait(false);
                 var childKeyName = Identifier.CreateQualifiedIdentifier(childKeyRow.ChildKeyName);
@@ -406,10 +415,8 @@ where ac.OWNER = :SchemaName and ac.TABLE_NAME = :TableName and ac.CONSTRAINT_TY
                     foreignKeyLookupCache[childTableName] = parentKeyLookup;
                 }
 
-                var childKey = parentKeyLookup[childKeyName];
-                var parentKey = childKeyRow.ParentKeyType == Constants.PrimaryKeyType
-                    ? primaryKey.UnwrapSome()
-                    : uniqueKeys[childKeyRow.ParentKeyName];
+                if (!parentKeyLookup.TryGetValue(childKeyName, out var childKey))
+                    continue;
 
                 var deleteRule = RelationalRuleMapping[childKeyRow.DeleteRule];
 
@@ -524,7 +531,7 @@ where OWNER = :SchemaName and TABLE_NAME = :TableName and CONSTRAINT_TYPE = 'C'"
                 return Array.Empty<IDatabaseRelationalKey>();
 
             var columnLookupsCache = new Dictionary<Identifier, IReadOnlyDictionary<Identifier, IDatabaseColumn>> { [tableName] = columns };
-            var primaryKeyCache = new Dictionary<Identifier, IDatabaseKey>();
+            var primaryKeyCache = new Dictionary<Identifier, Option<IDatabaseKey>>();
             var uniqueKeyLookupCache = new Dictionary<Identifier, IReadOnlyDictionary<Identifier, IDatabaseKey>>();
 
             var result = new List<IDatabaseRelationalKey>(foreignKeys.Count);
@@ -534,17 +541,17 @@ where OWNER = :SchemaName and TABLE_NAME = :TableName and CONSTRAINT_TYPE = 'C'"
                 var parentTableNameOption = GetResolvedTableName(candidateParentTableName);
                 var parentTableNameOptionIsNone = await parentTableNameOption.IsNone.ConfigureAwait(false);
                 if (parentTableNameOptionIsNone)
-                    throw new MissingParentTableException(tableName, candidateParentTableName);
+                    continue;
 
                 var parentTableName = await parentTableNameOption.UnwrapSomeAsync().ConfigureAwait(false);
                 var parentKeyName = Identifier.CreateQualifiedIdentifier(fkey.Key.ParentConstraintName);
 
-                IDatabaseKey parentKey;
+                IDatabaseKey parentKey = null;
                 if (fkey.Key.KeyType == Constants.PrimaryKeyType)
                 {
                     if (primaryKeyCache.TryGetValue(parentTableName, out var pk))
                     {
-                        parentKey = pk;
+                        pk.IfSome(k => parentKey = k);
                     }
                     else
                     {
@@ -556,13 +563,13 @@ where OWNER = :SchemaName and TABLE_NAME = :TableName and CONSTRAINT_TYPE = 'C'"
                         }
 
                         var parentKeyOption = await LoadPrimaryKeyAsync(parentTableName, parentColumnLookup, cancellationToken).ConfigureAwait(false);
-                        parentKey = parentKeyOption.UnwrapSome();
-                        primaryKeyCache[parentTableName] = parentKey;
+                        primaryKeyCache[parentTableName] = parentKeyOption;
+                        parentKeyOption.IfSome(k => parentKey = k);
                     }
                 }
                 else
                 {
-                    if (uniqueKeyLookupCache.TryGetValue(parentTableName, out var uks))
+                    if (uniqueKeyLookupCache.TryGetValue(parentTableName, out var uks) && uks.ContainsKey(parentKeyName.LocalName))
                     {
                         parentKey = uks[parentKeyName.LocalName];
                     }
@@ -578,10 +585,15 @@ where OWNER = :SchemaName and TABLE_NAME = :TableName and CONSTRAINT_TYPE = 'C'"
                         var parentUniqueKeys = await LoadUniqueKeysAsync(parentTableName, parentColumnLookup, cancellationToken).ConfigureAwait(false);
                         var parentUniqueKeyLookup = GetDatabaseKeyLookup(parentUniqueKeys);
                         uniqueKeyLookupCache[parentTableName] = parentUniqueKeyLookup;
+                        if (!parentUniqueKeyLookup.ContainsKey(parentKeyName.LocalName))
+                            continue;
 
                         parentKey = parentUniqueKeyLookup[parentKeyName.LocalName];
                     }
                 }
+
+                if (parentKey == null)
+                    continue;
 
                 var childKeyName = Identifier.CreateQualifiedIdentifier(fkey.Key.ConstraintName);
                 var childKeyColumns = fkey

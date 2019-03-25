@@ -390,11 +390,20 @@ where tc.table_schema = @SchemaName and tc.table_name = @TableName
 
             foreach (var groupedChildKey in groupedChildKeys)
             {
+                // ensure we have a key to begin with
+                IDatabaseKey parentKey = null;
+                if (groupedChildKey.Key.ParentKeyType == Constants.PrimaryKeyType)
+                    primaryKey.IfSome(k => parentKey = k);
+                else if (uniqueKeys.ContainsKey(groupedChildKey.Key.ParentKeyName))
+                    parentKey = uniqueKeys[groupedChildKey.Key.ParentKeyName];
+                if (parentKey == null)
+                    continue;
+
                 var candidateChildTableName = Identifier.CreateQualifiedIdentifier(groupedChildKey.Key.ChildTableSchema, groupedChildKey.Key.ChildTableName);
                 var childTableNameOption = GetResolvedTableName(candidateChildTableName);
                 var childTableNameOptionIsNone = await childTableNameOption.IsNone.ConfigureAwait(false);
                 if (childTableNameOptionIsNone)
-                    throw new MissingChildTableException(tableName, candidateChildTableName);
+                    continue;
 
                 var childTableName = await childTableNameOption.UnwrapSomeAsync().ConfigureAwait(false);
                 var childKeyName = Identifier.CreateQualifiedIdentifier(groupedChildKey.Key.ChildKeyName);
@@ -413,10 +422,8 @@ where tc.table_schema = @SchemaName and tc.table_name = @TableName
                     foreignKeyLookupCache[tableName] = parentKeyLookup;
                 }
 
-                var childKey = parentKeyLookup[childKeyName.LocalName];
-                var parentKey = groupedChildKey.Key.ParentKeyType == Constants.PrimaryKeyType
-                    ? primaryKey.UnwrapSome()
-                    : uniqueKeys[groupedChildKey.Key.ParentKeyName];
+                if (!parentKeyLookup.TryGetValue(childKeyName, out var childKey))
+                    continue;
 
                 var deleteRule = RelationalRuleMapping[groupedChildKey.Key.DeleteRule];
                 var updateRule = RelationalRuleMapping[groupedChildKey.Key.UpdateRule];
@@ -534,7 +541,7 @@ where
                 return Array.Empty<IDatabaseRelationalKey>();
 
             var columnLookupsCache = new Dictionary<Identifier, IReadOnlyDictionary<Identifier, IDatabaseColumn>> { [tableName] = columns };
-            var primaryKeyCache = new Dictionary<Identifier, IDatabaseKey>();
+            var primaryKeyCache = new Dictionary<Identifier, Option<IDatabaseKey>>();
             var uniqueKeyLookupCache = new Dictionary<Identifier, IReadOnlyDictionary<Identifier, IDatabaseKey>>();
 
             var result = new List<IDatabaseRelationalKey>(foreignKeys.Count);
@@ -544,17 +551,17 @@ where
                 var parentOption = GetResolvedTableName(candidateParentTableName);
                 var parentOptionIsNone = await parentOption.IsNone.ConfigureAwait(false);
                 if (parentOptionIsNone)
-                    throw new MissingParentTableException(tableName, candidateParentTableName);
+                    continue;
 
                 var parentTableName = await parentOption.UnwrapSomeAsync().ConfigureAwait(false);
                 var parentKeyName = Identifier.CreateQualifiedIdentifier(fkey.Key.ParentKeyName);
 
-                IDatabaseKey parentKey;
+                IDatabaseKey parentKey = null;
                 if (fkey.Key.KeyType == Constants.PrimaryKeyType)
                 {
                     if (primaryKeyCache.TryGetValue(parentTableName, out var pk))
                     {
-                        parentKey = pk;
+                        pk.IfSome(k => parentKey = k);
                     }
                     else
                     {
@@ -566,13 +573,13 @@ where
                         }
 
                         var parentKeyOption = await LoadPrimaryKeyAsync(parentTableName, parentColumnLookup, cancellationToken).ConfigureAwait(false);
-                        parentKey = parentKeyOption.UnwrapSome();
-                        primaryKeyCache[parentTableName] = parentKey;
+                        primaryKeyCache[parentTableName] = parentKeyOption;
+                        parentKeyOption.IfSome(k => parentKey = k);
                     }
                 }
                 else
                 {
-                    if (uniqueKeyLookupCache.TryGetValue(parentTableName, out var uks))
+                    if (uniqueKeyLookupCache.TryGetValue(parentTableName, out var uks) && uks.ContainsKey(parentKeyName.LocalName))
                     {
                         parentKey = uks[parentKeyName.LocalName];
                     }
@@ -588,10 +595,15 @@ where
                         var parentUniqueKeys = await LoadUniqueKeysAsync(parentTableName, parentColumnLookup, cancellationToken).ConfigureAwait(false);
                         var parentUniqueKeyLookup = GetDatabaseKeyLookup(parentUniqueKeys);
                         uniqueKeyLookupCache[parentTableName] = parentUniqueKeyLookup;
+                        if (!parentUniqueKeyLookup.ContainsKey(parentKeyName.LocalName))
+                            continue;
 
                         parentKey = parentUniqueKeyLookup[parentKeyName.LocalName];
                     }
                 }
+
+                if (parentKey == null)
+                    continue;
 
                 var childKeyName = Identifier.CreateQualifiedIdentifier(fkey.Key.ChildKeyName);
                 var childKeyColumns = fkey

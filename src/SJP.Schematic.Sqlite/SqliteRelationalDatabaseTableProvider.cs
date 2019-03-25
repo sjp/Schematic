@@ -486,7 +486,7 @@ namespace SJP.Schematic.Sqlite
                 return Array.Empty<IDatabaseRelationalKey>();
 
             var columnLookupsCache = new Dictionary<Identifier, IReadOnlyDictionary<Identifier, IDatabaseColumn>> { [tableName] = columns };
-            var primaryKeyCache = new Dictionary<Identifier, IDatabaseKey>();
+            var primaryKeyCache = new Dictionary<Identifier, Option<IDatabaseKey>>();
             var uniqueKeyLookupCache = new Dictionary<Identifier, IReadOnlyCollection<IDatabaseKey>>();
 
             var result = new List<IDatabaseRelationalKey>(foreignKeys.Count);
@@ -496,7 +496,7 @@ namespace SJP.Schematic.Sqlite
                 var parentTableNameOption = GetResolvedTableName(candidateParentTableName, cancellationToken);
                 var parentTableNameOptionIsNone = await parentTableNameOption.IsNone.ConfigureAwait(false);
                 if (parentTableNameOptionIsNone)
-                    throw new MissingParentTableException(tableName, candidateParentTableName);
+                    continue;
 
                 var parentTableName = await parentTableNameOption.UnwrapSomeAsync().ConfigureAwait(false);
                 var parentTableParser = await GetParsedTableDefinitionAsync(parentTableName, cancellationToken).ConfigureAwait(false);
@@ -508,23 +508,25 @@ namespace SJP.Schematic.Sqlite
                     columnLookupsCache[parentTableName] = parentTableColumnLookup;
                 }
 
-                var rows = fkey.OrderBy(row => row.seq);
+                var rows = fkey.OrderBy(row => row.seq).ToList();
                 var parentColumns = rows.Select(row => parentTableColumnLookup[row.to]).ToList();
 
                 if (!primaryKeyCache.TryGetValue(parentTableName, out var parentPrimaryKey))
                 {
-                    var parentPrimaryKeyOption = await LoadPrimaryKeyAsync(pragma, parentTableParser, parentTableName, parentTableColumnLookup, cancellationToken).ConfigureAwait(false);
-                    parentPrimaryKey = parentPrimaryKeyOption.UnwrapSome();
+                    parentPrimaryKey = await LoadPrimaryKeyAsync(pragma, parentTableParser, parentTableName, parentTableColumnLookup, cancellationToken).ConfigureAwait(false);
                     primaryKeyCache[parentTableName] = parentPrimaryKey;
                 }
 
-                var pkColumnsEqual = parentPrimaryKey != null
-                    && parentPrimaryKey.Columns.Select(col => col.Name).SequenceEqual(parentColumns.Select(col => col.Name));
+                var pkColumnsEqual = parentPrimaryKey
+                    .Match(
+                        k => k.Columns.Select(col => col.Name).SequenceEqual(parentColumns.Select(col => col.Name)),
+                        () => false
+                    );
 
-                IDatabaseKey parentConstraint;
+                IDatabaseKey parentConstraint = null;
                 if (pkColumnsEqual)
                 {
-                    parentConstraint = parentPrimaryKey;
+                    parentPrimaryKey.IfSome(k => parentConstraint = k);
                 }
                 else
                 {
@@ -538,6 +540,9 @@ namespace SJP.Schematic.Sqlite
                         uk.Columns.Select(ukCol => ukCol.Name)
                             .SequenceEqual(parentColumns.Select(pc => pc.Name)));
                 }
+
+                if (parentConstraint == null)
+                    continue;
 
                 // don't need to check for the parent schema as cross-schema references are not supported
                 var parsedConstraint = parsedTable.ParentKeys
