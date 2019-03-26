@@ -43,7 +43,7 @@
                                 foreach (var column in Model.TableColumns)
                                 {
                                     <tr>
-                                        <td><a href="@column.TableFolder/@(column.TableUrl).html">@column.Name</a></td>
+                                        <td><a href="@(column.TableUrl)">@column.Name</a></td>
                                         <td>@column.TableType</td>
                                         <td @Raw(column.ColumnClass.ToHtmlString())>@Raw(column.ColumnIcon.ToHtmlString())@column.ColumnName</td>
                                         <td>@column.Ordinal</td>
