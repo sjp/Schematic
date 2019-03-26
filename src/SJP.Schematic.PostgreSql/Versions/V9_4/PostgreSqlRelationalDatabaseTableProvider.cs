@@ -395,36 +395,37 @@ where tc.table_schema = @SchemaName and tc.table_name = @TableName
                 var childTableNameOption = tableNameCache.ContainsKey(candidateChildTableName)
                     ? OptionAsync<Identifier>.Some(tableNameCache[candidateChildTableName])
                     : GetResolvedTableName(candidateChildTableName, cancellationToken);
-                var childTableNameOptionIsNone = await childTableNameOption.IsNone.ConfigureAwait(false);
-                if (childTableNameOptionIsNone)
-                    continue;
 
-                var childTableName = await childTableNameOption.UnwrapSomeAsync().ConfigureAwait(false);
-                tableNameCache[candidateChildTableName] = childTableName;
-                var childKeyName = Identifier.CreateQualifiedIdentifier(groupedChildKey.Key.ChildKeyName);
+                await childTableNameOption
+                    .BindAsync(async childTableName =>
+                    {
+                        tableNameCache[candidateChildTableName] = childTableName;
 
-                if (!columnLookupsCache.TryGetValue(childTableName, out var childKeyColumnLookup))
-                {
-                    var childKeyColumns = await LoadColumnsAsync(childTableName, cancellationToken).ConfigureAwait(false);
-                    childKeyColumnLookup = GetColumnLookup(childKeyColumns);
-                    columnLookupsCache[tableName] = childKeyColumnLookup;
-                }
+                        if (!columnLookupsCache.TryGetValue(childTableName, out var childKeyColumnLookup))
+                        {
+                            var childKeyColumns = await LoadColumnsAsync(childTableName, cancellationToken).ConfigureAwait(false);
+                            childKeyColumnLookup = GetColumnLookup(childKeyColumns);
+                            columnLookupsCache[tableName] = childKeyColumnLookup;
+                        }
 
-                if (!foreignKeyLookupCache.TryGetValue(childTableName, out var parentKeyLookup))
-                {
-                    var parentKeys = await LoadParentKeysAsync(childTableName, childKeyColumnLookup, cancellationToken).ConfigureAwait(false);
-                    parentKeyLookup = GetDatabaseKeyLookup(parentKeys.Select(fk => fk.ChildKey).ToList());
-                    foreignKeyLookupCache[tableName] = parentKeyLookup;
-                }
+                        if (!foreignKeyLookupCache.TryGetValue(childTableName, out var parentKeyLookup))
+                        {
+                            var parentKeys = await LoadParentKeysAsync(childTableName, childKeyColumnLookup, cancellationToken).ConfigureAwait(false);
+                            parentKeyLookup = GetDatabaseKeyLookup(parentKeys.Select(fk => fk.ChildKey).ToList());
+                            foreignKeyLookupCache[tableName] = parentKeyLookup;
+                        }
 
-                if (!parentKeyLookup.TryGetValue(childKeyName, out var childKey))
-                    continue;
+                        var childKeyName = Identifier.CreateQualifiedIdentifier(groupedChildKey.Key.ChildKeyName);
+                        if (!parentKeyLookup.TryGetValue(childKeyName, out var childKey))
+                            return OptionAsync<IDatabaseRelationalKey>.None;
 
-                var deleteRule = RelationalRuleMapping[groupedChildKey.Key.DeleteRule];
-                var updateRule = RelationalRuleMapping[groupedChildKey.Key.UpdateRule];
-                var relationalKey = new DatabaseRelationalKey(childTableName, childKey, tableName, parentKey, deleteRule, updateRule);
-
-                result.Add(relationalKey);
+                        var deleteRule = RelationalRuleMapping[groupedChildKey.Key.DeleteRule];
+                        var updateRule = RelationalRuleMapping[groupedChildKey.Key.UpdateRule];
+                        var relationalKey = new DatabaseRelationalKey(childTableName, childKey, tableName, parentKey, deleteRule, updateRule);
+                        return OptionAsync<IDatabaseRelationalKey>.Some(relationalKey);
+                    })
+                    .IfSome(relationalKey => result.Add(relationalKey))
+                    .ConfigureAwait(false);
             }
 
             return result;
@@ -547,76 +548,69 @@ where
                 var parentTableNameOption = tableNameCache.ContainsKey(candidateParentTableName)
                     ? OptionAsync<Identifier>.Some(tableNameCache[candidateParentTableName])
                     : GetResolvedTableName(candidateParentTableName, cancellationToken);
-                var parentOptionIsNone = await parentTableNameOption.IsNone.ConfigureAwait(false);
-                if (parentOptionIsNone)
-                    continue;
 
-                var parentTableName = await parentTableNameOption.UnwrapSomeAsync().ConfigureAwait(false);
-                tableNameCache[candidateParentTableName] = parentTableName;
-                var parentKeyName = Identifier.CreateQualifiedIdentifier(fkey.Key.ParentKeyName);
+                await parentTableNameOption
+                    .BindAsync(async parentTableName =>
+                    {
+                        tableNameCache[candidateParentTableName] = parentTableName;
 
-                IDatabaseKey parentKey = null;
-                if (fkey.Key.KeyType == Constants.PrimaryKeyType)
-                {
-                    if (primaryKeyCache.TryGetValue(parentTableName, out var pk))
-                    {
-                        pk.IfSome(k => parentKey = k);
-                    }
-                    else
-                    {
-                        if (!columnLookupsCache.TryGetValue(parentTableName, out var parentColumnLookup))
+                        if (fkey.Key.KeyType == Constants.PrimaryKeyType)
                         {
-                            var parentColumns = await LoadColumnsAsync(parentTableName, cancellationToken).ConfigureAwait(false);
-                            parentColumnLookup = GetColumnLookup(parentColumns);
-                            columnLookupsCache[parentTableName] = parentColumnLookup;
-                        }
+                            if (primaryKeyCache.TryGetValue(parentTableName, out var pk))
+                                return pk.ToAsync();
 
-                        var parentKeyOption = await LoadPrimaryKeyAsync(parentTableName, parentColumnLookup, cancellationToken).ConfigureAwait(false);
-                        primaryKeyCache[parentTableName] = parentKeyOption;
-                        parentKeyOption.IfSome(k => parentKey = k);
-                    }
-                }
-                else
-                {
-                    if (uniqueKeyLookupCache.TryGetValue(parentTableName, out var uks) && uks.ContainsKey(parentKeyName.LocalName))
-                    {
-                        parentKey = uks[parentKeyName.LocalName];
-                    }
-                    else
-                    {
-                        if (!columnLookupsCache.TryGetValue(parentTableName, out var parentColumnLookup))
+                            if (!columnLookupsCache.TryGetValue(parentTableName, out var parentColumnLookup))
+                            {
+                                var parentColumns = await LoadColumnsAsync(parentTableName, cancellationToken).ConfigureAwait(false);
+                                parentColumnLookup = GetColumnLookup(parentColumns);
+                                columnLookupsCache[parentTableName] = parentColumnLookup;
+                            }
+
+                            var parentKeyOption = await LoadPrimaryKeyAsync(parentTableName, parentColumnLookup, cancellationToken).ConfigureAwait(false);
+                            primaryKeyCache[parentTableName] = parentKeyOption;
+                            return parentKeyOption.ToAsync();
+                        }
+                        else
                         {
-                            var parentColumns = await LoadColumnsAsync(parentTableName, cancellationToken).ConfigureAwait(false);
-                            parentColumnLookup = GetColumnLookup(parentColumns);
-                            columnLookupsCache[parentTableName] = parentColumnLookup;
+                            var parentKeyName = Identifier.CreateQualifiedIdentifier(fkey.Key.ParentKeyName);
+                            if (uniqueKeyLookupCache.TryGetValue(parentTableName, out var uks) && uks.ContainsKey(parentKeyName.LocalName))
+                                return OptionAsync<IDatabaseKey>.Some(uks[parentKeyName.LocalName]);
+
+                            if (!columnLookupsCache.TryGetValue(parentTableName, out var parentColumnLookup))
+                            {
+                                var parentColumns = await LoadColumnsAsync(parentTableName, cancellationToken).ConfigureAwait(false);
+                                parentColumnLookup = GetColumnLookup(parentColumns);
+                                columnLookupsCache[parentTableName] = parentColumnLookup;
+                            }
+
+                            var parentUniqueKeys = await LoadUniqueKeysAsync(parentTableName, parentColumnLookup, cancellationToken).ConfigureAwait(false);
+                            var parentUniqueKeyLookup = GetDatabaseKeyLookup(parentUniqueKeys);
+                            uniqueKeyLookupCache[parentTableName] = parentUniqueKeyLookup;
+
+                            return parentUniqueKeyLookup.ContainsKey(parentKeyName.LocalName)
+                                ? OptionAsync<IDatabaseKey>.Some(parentUniqueKeyLookup[parentKeyName.LocalName])
+                                : OptionAsync<IDatabaseKey>.None;
                         }
+                    })
+                    .Map(parentKey =>
+                    {
+                        var parentTableName = tableNameCache[candidateParentTableName];
 
-                        var parentUniqueKeys = await LoadUniqueKeysAsync(parentTableName, parentColumnLookup, cancellationToken).ConfigureAwait(false);
-                        var parentUniqueKeyLookup = GetDatabaseKeyLookup(parentUniqueKeys);
-                        uniqueKeyLookupCache[parentTableName] = parentUniqueKeyLookup;
-                        if (!parentUniqueKeyLookup.ContainsKey(parentKeyName.LocalName))
-                            continue;
+                        var childKeyName = Identifier.CreateQualifiedIdentifier(fkey.Key.ChildKeyName);
+                        var childKeyColumns = fkey
+                            .OrderBy(row => row.ConstraintColumnId)
+                            .Select(row => columns[row.ColumnName])
+                            .ToList();
 
-                        parentKey = parentUniqueKeyLookup[parentKeyName.LocalName];
-                    }
-                }
+                        var childKey = new PostgreSqlDatabaseKey(childKeyName, DatabaseKeyType.Foreign, childKeyColumns);
 
-                if (parentKey == null)
-                    continue;
+                        var deleteRule = RelationalRuleMapping[fkey.Key.DeleteRule];
+                        var updateRule = RelationalRuleMapping[fkey.Key.UpdateRule];
 
-                var childKeyName = Identifier.CreateQualifiedIdentifier(fkey.Key.ChildKeyName);
-                var childKeyColumns = fkey
-                    .OrderBy(row => row.ConstraintColumnId)
-                    .Select(row => columns[row.ColumnName])
-                    .ToList();
-
-                var childKey = new PostgreSqlDatabaseKey(childKeyName, DatabaseKeyType.Foreign, childKeyColumns);
-
-                var deleteRule = RelationalRuleMapping[fkey.Key.DeleteRule];
-                var updateRule = RelationalRuleMapping[fkey.Key.UpdateRule];
-
-                var relationalKey = new DatabaseRelationalKey(tableName, childKey, parentTableName, parentKey, deleteRule, updateRule);
-                result.Add(relationalKey);
+                        return new DatabaseRelationalKey(tableName, childKey, parentTableName, parentKey, deleteRule, updateRule);
+                    })
+                    .IfSome(relationalKey => result.Add(relationalKey))
+                    .ConfigureAwait(false);
             }
 
             return result;

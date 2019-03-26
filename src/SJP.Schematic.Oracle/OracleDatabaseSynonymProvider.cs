@@ -146,26 +146,19 @@ where o.OWNER = SYS_CONTEXT('USERENV', 'CURRENT_USER') and s.SYNONYM_NAME = :Syn
                 throw new ArgumentNullException(nameof(synonymName));
 
             var candidateSynonymName = QualifySynonymName(synonymName);
-            return LoadSynonymAsyncCore(candidateSynonymName, cancellationToken).ToAsync();
+            return GetResolvedSynonymName(candidateSynonymName)
+                .Bind(name => LoadSynonymAsyncCore(name, cancellationToken));
         }
 
-        private async Task<Option<IDatabaseSynonym>> LoadSynonymAsyncCore(Identifier synonymName, CancellationToken cancellationToken)
+        private OptionAsync<IDatabaseSynonym> LoadSynonymAsyncCore(Identifier synonymName, CancellationToken cancellationToken)
         {
-            var resolvedSynonymNameOption = GetResolvedSynonymName(synonymName);
-            var resolvedSynonymNameOptionIsNone = await resolvedSynonymNameOption.IsNone.ConfigureAwait(false);
-            if (resolvedSynonymNameOptionIsNone)
-                return Option<IDatabaseSynonym>.None;
-
-            var resolvedSynonymName = await resolvedSynonymNameOption.UnwrapSomeAsync().ConfigureAwait(false);
-
             // SYS.ALL_SYNONYMS is much slower than SYS.USER_SYNONYMS so prefer the latter where possible
-            var isUserSynonym = resolvedSynonymName.Database == IdentifierDefaults.Database && resolvedSynonymName.Schema == IdentifierDefaults.Schema;
+            var isUserSynonym = synonymName.Database == IdentifierDefaults.Database && synonymName.Schema == IdentifierDefaults.Schema;
             var synonymData = isUserSynonym
-                ? LoadUserSynonymData(resolvedSynonymName.LocalName, cancellationToken)
-                : LoadSynonymData(resolvedSynonymName, cancellationToken);
+                ? LoadUserSynonymData(synonymName.LocalName, cancellationToken)
+                : LoadSynonymData(synonymName, cancellationToken);
 
-            var result = synonymData.Map(synData => BuildSynonymFromDto(resolvedSynonymName, synData));
-            return await result.ToOption().ConfigureAwait(false);
+            return synonymData.Map(synData => BuildSynonymFromDto(synonymName, synData));
         }
 
         protected virtual string LoadSynonymQuery => LoadSynonymQuerySql;

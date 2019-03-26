@@ -130,25 +130,18 @@ where
                 throw new ArgumentNullException(nameof(tableName));
 
             var candidateTableName = QualifyTableName(tableName);
-            return LoadTableCommentsAsyncCore(candidateTableName, cancellationToken).ToAsync();
+            return GetResolvedTableName(candidateTableName, cancellationToken)
+                .MapAsync(name => LoadTableCommentsAsyncCore(name, cancellationToken));
         }
 
-        private async Task<Option<IRelationalDatabaseTableComments>> LoadTableCommentsAsyncCore(Identifier tableName, CancellationToken cancellationToken)
+        private async Task<IRelationalDatabaseTableComments> LoadTableCommentsAsyncCore(Identifier tableName, CancellationToken cancellationToken)
         {
-            var candidateTableName = QualifyTableName(tableName);
-            var resolvedTableNameOption = GetResolvedTableName(candidateTableName, cancellationToken);
-            var resolvedTableNameOptionIsNone = await resolvedTableNameOption.IsNone.ConfigureAwait(false);
-            if (resolvedTableNameOptionIsNone)
-                return Option<IRelationalDatabaseTableComments>.None;
-
-            var resolvedTableName = await resolvedTableNameOption.UnwrapSomeAsync().ConfigureAwait(false);
-
             IEnumerable<TableCommentsData> commentsData;
-            if (resolvedTableName.Schema == IdentifierDefaults.Schema) // fast path
+            if (tableName.Schema == IdentifierDefaults.Schema) // fast path
             {
                 commentsData = await Connection.QueryAsync<TableCommentsData>(
                     UserTableCommentsQuery,
-                    new { TableName = resolvedTableName.LocalName },
+                    new { TableName = tableName.LocalName },
                     cancellationToken
                 ).ConfigureAwait(false);
             }
@@ -156,7 +149,7 @@ where
             {
                 commentsData = await Connection.QueryAsync<TableCommentsData>(
                     TableCommentsQuery,
-                    new { SchemaName = resolvedTableName.Schema, TableName = resolvedTableName.LocalName },
+                    new { SchemaName = tableName.Schema, TableName = tableName.LocalName },
                     cancellationToken
                 ).ConfigureAwait(false);
             }
@@ -171,8 +164,8 @@ where
             var indexComments = new Dictionary<Identifier, Option<string>>();
             var triggerComments = new Dictionary<Identifier, Option<string>>();
 
-            var comments = new RelationalDatabaseTableComments(
-                resolvedTableName,
+            return new RelationalDatabaseTableComments(
+                tableName,
                 tableComment,
                 primaryKeyComment,
                 columnComments,
@@ -182,8 +175,6 @@ where
                 indexComments,
                 triggerComments
             );
-
-            return Option<IRelationalDatabaseTableComments>.Some(comments);
         }
 
         protected virtual string AllTableCommentsQuery => AllTableCommentsQuerySql;

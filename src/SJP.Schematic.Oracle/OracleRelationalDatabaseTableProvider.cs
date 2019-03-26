@@ -123,31 +123,24 @@ where
                 throw new ArgumentNullException(nameof(tableName));
 
             var candidateTableName = QualifyTableName(tableName);
-            return LoadTableAsyncCore(candidateTableName, cancellationToken).ToAsync();
+            return GetResolvedTableName(candidateTableName)
+                .MapAsync(name => LoadTableAsyncCore(name, cancellationToken));
         }
 
-        private async Task<Option<IRelationalDatabaseTable>> LoadTableAsyncCore(Identifier tableName, CancellationToken cancellationToken)
+        private async Task<IRelationalDatabaseTable> LoadTableAsyncCore(Identifier tableName, CancellationToken cancellationToken)
         {
-            var candidateTableName = QualifyTableName(tableName);
-            var resolvedTableNameOption = GetResolvedTableName(candidateTableName);
-            var resolvedTableNameOptionIsNone = await resolvedTableNameOption.IsNone.ConfigureAwait(false);
-            if (resolvedTableNameOptionIsNone)
-                return Option<IRelationalDatabaseTable>.None;
-
-            var resolvedTableName = await resolvedTableNameOption.UnwrapSomeAsync().ConfigureAwait(false);
-
-            var columnsTask = LoadColumnsAsync(resolvedTableName, cancellationToken);
-            var triggersTask = LoadTriggersAsync(resolvedTableName, cancellationToken);
+            var columnsTask = LoadColumnsAsync(tableName, cancellationToken);
+            var triggersTask = LoadTriggersAsync(tableName, cancellationToken);
             await Task.WhenAll(columnsTask, triggersTask).ConfigureAwait(false);
 
             var columns = columnsTask.Result;
             var columnLookup = GetColumnLookup(columns);
             var triggers = triggersTask.Result;
 
-            var primaryKeyTask = LoadPrimaryKeyAsync(resolvedTableName, columnLookup, cancellationToken);
-            var uniqueKeysTask = LoadUniqueKeysAsync(resolvedTableName, columnLookup, cancellationToken);
-            var indexesTask = LoadIndexesAsync(resolvedTableName, columnLookup, cancellationToken);
-            var checksTask = LoadChecksAsync(resolvedTableName, columnLookup, cancellationToken);
+            var primaryKeyTask = LoadPrimaryKeyAsync(tableName, columnLookup, cancellationToken);
+            var uniqueKeysTask = LoadUniqueKeysAsync(tableName, columnLookup, cancellationToken);
+            var indexesTask = LoadIndexesAsync(tableName, columnLookup, cancellationToken);
+            var checksTask = LoadChecksAsync(tableName, columnLookup, cancellationToken);
             await Task.WhenAll(primaryKeyTask, checksTask, uniqueKeysTask, indexesTask).ConfigureAwait(false);
 
             var primaryKey = primaryKeyTask.Result;
@@ -157,15 +150,15 @@ where
 
             var uniqueKeyLookup = GetDatabaseKeyLookup(uniqueKeys);
 
-            var childKeysTask = LoadChildKeysAsync(resolvedTableName, columnLookup, primaryKey, uniqueKeyLookup, cancellationToken);
-            var parentKeysTask = LoadParentKeysAsync(resolvedTableName, columnLookup, cancellationToken);
+            var childKeysTask = LoadChildKeysAsync(tableName, columnLookup, primaryKey, uniqueKeyLookup, cancellationToken);
+            var parentKeysTask = LoadParentKeysAsync(tableName, columnLookup, cancellationToken);
             await Task.WhenAll(childKeysTask, parentKeysTask).ConfigureAwait(false);
 
             var childKeys = childKeysTask.Result;
             var parentKeys = parentKeysTask.Result;
 
-            var table = new RelationalDatabaseTable(
-                resolvedTableName,
+            return new RelationalDatabaseTable(
+                tableName,
                 columns,
                 primaryKey,
                 uniqueKeys,
@@ -175,8 +168,6 @@ where
                 checks,
                 triggers
             );
-
-            return Option<IRelationalDatabaseTable>.Some(table);
         }
 
         protected virtual Task<Option<IDatabaseKey>> LoadPrimaryKeyAsync(Identifier tableName, IReadOnlyDictionary<Identifier, IDatabaseColumn> columns, CancellationToken cancellationToken)
@@ -397,35 +388,36 @@ where ac.OWNER = :SchemaName and ac.TABLE_NAME = :TableName and ac.CONSTRAINT_TY
                 var childTableNameOption = tableNameCache.ContainsKey(candidateChildTableName)
                     ? OptionAsync<Identifier>.Some(tableNameCache[candidateChildTableName])
                     : GetResolvedTableName(candidateChildTableName);
-                var childTableNameOptionIsNone = await childTableNameOption.IsNone.ConfigureAwait(false);
-                if (childTableNameOptionIsNone)
-                    continue;
 
-                var childTableName = await childTableNameOption.UnwrapSomeAsync().ConfigureAwait(false);
-                tableNameCache[candidateChildTableName] = childTableName;
-                var childKeyName = Identifier.CreateQualifiedIdentifier(childKeyRow.ChildKeyName);
+                await childTableNameOption
+                    .BindAsync(async childTableName =>
+                    {
+                        tableNameCache[candidateChildTableName] = childTableName;
+                        if (!columnLookupsCache.TryGetValue(childTableName, out var childKeyColumnLookup))
+                        {
+                            var childKeyColumns = await LoadColumnsAsync(childTableName, cancellationToken).ConfigureAwait(false);
+                            childKeyColumnLookup = GetColumnLookup(childKeyColumns);
+                            columnLookupsCache[childTableName] = childKeyColumnLookup;
+                        }
 
-                if (!columnLookupsCache.TryGetValue(childTableName, out var childKeyColumnLookup))
-                {
-                    var childKeyColumns = await LoadColumnsAsync(childTableName, cancellationToken).ConfigureAwait(false);
-                    childKeyColumnLookup = GetColumnLookup(childKeyColumns);
-                    columnLookupsCache[childTableName] = childKeyColumnLookup;
-                }
+                        if (!foreignKeyLookupCache.TryGetValue(childTableName, out var parentKeyLookup))
+                        {
+                            var parentKeys = await LoadParentKeysAsync(childTableName, childKeyColumnLookup, cancellationToken).ConfigureAwait(false);
+                            parentKeyLookup = GetDatabaseKeyLookup(parentKeys.Select(fk => fk.ChildKey).ToList());
+                            foreignKeyLookupCache[childTableName] = parentKeyLookup;
+                        }
 
-                if (!foreignKeyLookupCache.TryGetValue(childTableName, out var parentKeyLookup))
-                {
-                    var parentKeys = await LoadParentKeysAsync(childTableName, childKeyColumnLookup, cancellationToken).ConfigureAwait(false);
-                    parentKeyLookup = GetDatabaseKeyLookup(parentKeys.Select(fk => fk.ChildKey).ToList());
-                    foreignKeyLookupCache[childTableName] = parentKeyLookup;
-                }
+                        var childKeyName = Identifier.CreateQualifiedIdentifier(childKeyRow.ChildKeyName);
+                        if (!parentKeyLookup.TryGetValue(childKeyName, out var childKey))
+                            return OptionAsync<IDatabaseRelationalKey>.None;
 
-                if (!parentKeyLookup.TryGetValue(childKeyName, out var childKey))
-                    continue;
+                        var deleteRule = RelationalRuleMapping[childKeyRow.DeleteRule];
 
-                var deleteRule = RelationalRuleMapping[childKeyRow.DeleteRule];
-
-                var relationalKey = new OracleRelationalKey(childTableName, childKey, tableName, parentKey, deleteRule);
-                result.Add(relationalKey);
+                        var relationalKey = new OracleRelationalKey(childTableName, childKey, tableName, parentKey, deleteRule);
+                        return OptionAsync<IDatabaseRelationalKey>.Some(relationalKey);
+                    })
+                    .IfSome(relationalKey => result.Add(relationalKey))
+                    .ConfigureAwait(false);
             }
 
             return result;
@@ -546,75 +538,67 @@ where OWNER = :SchemaName and TABLE_NAME = :TableName and CONSTRAINT_TYPE = 'C'"
                 var parentTableNameOption = tableNameCache.ContainsKey(candidateParentTableName)
                     ? OptionAsync<Identifier>.Some(tableNameCache[candidateParentTableName])
                     : GetResolvedTableName(candidateParentTableName);
-                var parentTableNameOptionIsNone = await parentTableNameOption.IsNone.ConfigureAwait(false);
-                if (parentTableNameOptionIsNone)
-                    continue;
 
-                var parentTableName = await parentTableNameOption.UnwrapSomeAsync().ConfigureAwait(false);
-                tableNameCache[candidateParentTableName] = parentTableName;
-                var parentKeyName = Identifier.CreateQualifiedIdentifier(fkey.Key.ParentConstraintName);
+                await parentTableNameOption
+                    .BindAsync(async parentTableName =>
+                    {
+                        tableNameCache[candidateParentTableName] = parentTableName;
 
-                IDatabaseKey parentKey = null;
-                if (fkey.Key.KeyType == Constants.PrimaryKeyType)
-                {
-                    if (primaryKeyCache.TryGetValue(parentTableName, out var pk))
-                    {
-                        pk.IfSome(k => parentKey = k);
-                    }
-                    else
-                    {
-                        if (!columnLookupsCache.TryGetValue(parentTableName, out var parentColumnLookup))
+                        if (fkey.Key.KeyType == Constants.PrimaryKeyType)
                         {
-                            var parentColumns = await LoadColumnsAsync(parentTableName, cancellationToken).ConfigureAwait(false);
-                            parentColumnLookup = GetColumnLookup(parentColumns);
-                            columnLookupsCache[parentTableName] = parentColumnLookup;
-                        }
+                            if (primaryKeyCache.TryGetValue(parentTableName, out var pk))
+                                return pk.ToAsync();
 
-                        var parentKeyOption = await LoadPrimaryKeyAsync(parentTableName, parentColumnLookup, cancellationToken).ConfigureAwait(false);
-                        primaryKeyCache[parentTableName] = parentKeyOption;
-                        parentKeyOption.IfSome(k => parentKey = k);
-                    }
-                }
-                else
-                {
-                    if (uniqueKeyLookupCache.TryGetValue(parentTableName, out var uks) && uks.ContainsKey(parentKeyName.LocalName))
-                    {
-                        parentKey = uks[parentKeyName.LocalName];
-                    }
-                    else
-                    {
-                        if (!columnLookupsCache.TryGetValue(parentTableName, out var parentColumnLookup))
+                            if (!columnLookupsCache.TryGetValue(parentTableName, out var parentColumnLookup))
+                            {
+                                var parentColumns = await LoadColumnsAsync(parentTableName, cancellationToken).ConfigureAwait(false);
+                                parentColumnLookup = GetColumnLookup(parentColumns);
+                                columnLookupsCache[parentTableName] = parentColumnLookup;
+                            }
+
+                            var parentKeyOption = await LoadPrimaryKeyAsync(parentTableName, parentColumnLookup, cancellationToken).ConfigureAwait(false);
+                            primaryKeyCache[parentTableName] = parentKeyOption;
+                            return parentKeyOption.ToAsync();
+                        }
+                        else
                         {
-                            var parentColumns = await LoadColumnsAsync(parentTableName, cancellationToken).ConfigureAwait(false);
-                            parentColumnLookup = GetColumnLookup(parentColumns);
-                            columnLookupsCache[parentTableName] = parentColumnLookup;
+                            var parentKeyName = Identifier.CreateQualifiedIdentifier(fkey.Key.ParentConstraintName);
+                            if (uniqueKeyLookupCache.TryGetValue(parentTableName, out var uks) && uks.ContainsKey(parentKeyName.LocalName))
+                                return OptionAsync<IDatabaseKey>.Some(uks[parentKeyName.LocalName]);
+
+                            if (!columnLookupsCache.TryGetValue(parentTableName, out var parentColumnLookup))
+                            {
+                                var parentColumns = await LoadColumnsAsync(parentTableName, cancellationToken).ConfigureAwait(false);
+                                parentColumnLookup = GetColumnLookup(parentColumns);
+                                columnLookupsCache[parentTableName] = parentColumnLookup;
+                            }
+
+                            var parentUniqueKeys = await LoadUniqueKeysAsync(parentTableName, parentColumnLookup, cancellationToken).ConfigureAwait(false);
+                            var parentUniqueKeyLookup = GetDatabaseKeyLookup(parentUniqueKeys);
+                            uniqueKeyLookupCache[parentTableName] = parentUniqueKeyLookup;
+
+                            return parentUniqueKeyLookup.ContainsKey(parentKeyName.LocalName)
+                                ? OptionAsync<IDatabaseKey>.Some(parentUniqueKeyLookup[parentKeyName.LocalName])
+                                : OptionAsync<IDatabaseKey>.None;
                         }
+                    })
+                    .Map(parentKey =>
+                    {
+                        var parentTableName = tableNameCache[candidateParentTableName];
+                        var childKeyName = Identifier.CreateQualifiedIdentifier(fkey.Key.ConstraintName);
+                        var childKeyColumns = fkey
+                            .OrderBy(row => row.ColumnPosition)
+                            .Select(row => columns[row.ColumnName])
+                            .ToList();
 
-                        var parentUniqueKeys = await LoadUniqueKeysAsync(parentTableName, parentColumnLookup, cancellationToken).ConfigureAwait(false);
-                        var parentUniqueKeyLookup = GetDatabaseKeyLookup(parentUniqueKeys);
-                        uniqueKeyLookupCache[parentTableName] = parentUniqueKeyLookup;
-                        if (!parentUniqueKeyLookup.ContainsKey(parentKeyName.LocalName))
-                            continue;
+                        var isEnabled = fkey.Key.EnabledStatus == Constants.Enabled;
+                        var childKey = new OracleDatabaseKey(childKeyName, DatabaseKeyType.Foreign, childKeyColumns, isEnabled);
 
-                        parentKey = parentUniqueKeyLookup[parentKeyName.LocalName];
-                    }
-                }
-
-                if (parentKey == null)
-                    continue;
-
-                var childKeyName = Identifier.CreateQualifiedIdentifier(fkey.Key.ConstraintName);
-                var childKeyColumns = fkey
-                    .OrderBy(row => row.ColumnPosition)
-                    .Select(row => columns[row.ColumnName])
-                    .ToList();
-
-                var isEnabled = fkey.Key.EnabledStatus == Constants.Enabled;
-                var childKey = new OracleDatabaseKey(childKeyName, DatabaseKeyType.Foreign, childKeyColumns, isEnabled);
-
-                var deleteRule = RelationalRuleMapping[fkey.Key.DeleteRule];
-                var relationalKey = new OracleRelationalKey(tableName, childKey, parentTableName, parentKey, deleteRule);
-                result.Add(relationalKey);
+                        var deleteRule = RelationalRuleMapping[fkey.Key.DeleteRule];
+                        return new OracleRelationalKey(tableName, childKey, parentTableName, parentKey, deleteRule);
+                    })
+                    .IfSome(relationalKey => result.Add(relationalKey))
+                    .ConfigureAwait(false);
             }
 
             return result;

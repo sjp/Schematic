@@ -107,25 +107,18 @@ where mv.OWNER = :SchemaName and mv.MVIEW_NAME = :ViewName
                 throw new ArgumentNullException(nameof(viewName));
 
             var candidateViewName = QualifyViewName(viewName);
-            return LoadViewCommentsAsyncCore(candidateViewName, cancellationToken).ToAsync();
+            return GetResolvedViewName(candidateViewName, cancellationToken)
+                .MapAsync(name => LoadViewCommentsAsyncCore(name, cancellationToken));
         }
 
-        private async Task<Option<IDatabaseViewComments>> LoadViewCommentsAsyncCore(Identifier viewName, CancellationToken cancellationToken)
+        private async Task<IDatabaseViewComments> LoadViewCommentsAsyncCore(Identifier viewName, CancellationToken cancellationToken)
         {
-            var candidateViewName = QualifyViewName(viewName);
-            var resolvedViewNameOption = GetResolvedViewName(candidateViewName, cancellationToken);
-            var resolvedViewNameOptionIsNone = await resolvedViewNameOption.IsNone.ConfigureAwait(false);
-            if (resolvedViewNameOptionIsNone)
-                return Option<IDatabaseViewComments>.None;
-
-            var resolvedViewName = await resolvedViewNameOption.UnwrapSomeAsync().ConfigureAwait(false);
-
             IEnumerable<TableCommentsData> commentsData;
-            if (resolvedViewName.Schema == IdentifierDefaults.Schema) // fast path
+            if (viewName.Schema == IdentifierDefaults.Schema) // fast path
             {
                 commentsData = await Connection.QueryAsync<TableCommentsData>(
                     UserViewCommentsQuery,
-                    new { ViewName = resolvedViewName.LocalName },
+                    new { ViewName = viewName.LocalName },
                     cancellationToken
                 ).ConfigureAwait(false);
             }
@@ -133,7 +126,7 @@ where mv.OWNER = :SchemaName and mv.MVIEW_NAME = :ViewName
             {
                 commentsData = await Connection.QueryAsync<TableCommentsData>(
                     ViewCommentsQuery,
-                    new { SchemaName = resolvedViewName.Schema, ViewName = resolvedViewName.LocalName },
+                    new { SchemaName = viewName.Schema, ViewName = viewName.LocalName },
                     cancellationToken
                 ).ConfigureAwait(false);
             }
@@ -141,8 +134,7 @@ where mv.OWNER = :SchemaName and mv.MVIEW_NAME = :ViewName
             var viewComment = GetViewComment(commentsData);
             var columnComments = GetColumnComments(commentsData);
 
-            var comments = new DatabaseViewComments(resolvedViewName, viewComment, columnComments);
-            return Option<IDatabaseViewComments>.Some(comments);
+            return new DatabaseViewComments(viewName, viewComment, columnComments);
         }
 
         protected virtual string AllViewCommentsQuery => AllViewCommentsQuerySql;

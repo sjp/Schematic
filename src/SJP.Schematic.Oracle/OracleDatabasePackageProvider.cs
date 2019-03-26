@@ -134,25 +134,18 @@ where OWNER = :SchemaName and OBJECT_NAME = :PackageName
                 throw new ArgumentNullException(nameof(packageName));
 
             var candidatePackageName = QualifyPackageName(packageName);
-            return LoadPackageAsyncCore(candidatePackageName, cancellationToken).ToAsync();
+            return GetResolvedPackageName(candidatePackageName, cancellationToken)
+                .MapAsync(name => LoadPackageAsyncCore(name, cancellationToken));
         }
 
-        private async Task<Option<IOracleDatabasePackage>> LoadPackageAsyncCore(Identifier packageName, CancellationToken cancellationToken)
+        private async Task<IOracleDatabasePackage> LoadPackageAsyncCore(Identifier packageName, CancellationToken cancellationToken)
         {
-            var candidatePackageName = QualifyPackageName(packageName);
-            var resolvedPackageNameOption = GetResolvedPackageName(candidatePackageName, cancellationToken);
-            var resolvedPackageNameOptionIsNone = await resolvedPackageNameOption.IsNone.ConfigureAwait(false);
-            if (resolvedPackageNameOptionIsNone)
-                return Option<IOracleDatabasePackage>.None;
-
-            var resolvedPackageName = await resolvedPackageNameOption.UnwrapSomeAsync().ConfigureAwait(false);
-
             // fast path
-            if (resolvedPackageName.Schema == IdentifierDefaults.Schema)
+            if (packageName.Schema == IdentifierDefaults.Schema)
             {
                 var lines = await Connection.QueryAsync<PackageData>(
                     UserPackageDefinitionQuery,
-                    new { PackageName = resolvedPackageName.LocalName },
+                    new { PackageName = packageName.LocalName },
                     cancellationToken
                 ).ConfigureAwait(false);
 
@@ -173,14 +166,13 @@ where OWNER = :SchemaName and OBJECT_NAME = :PackageName
                 var specification = OracleUnwrapper.Unwrap(spec);
                 var packageBody = body.Map(OracleUnwrapper.Unwrap);
 
-                var package = new OracleDatabasePackage(resolvedPackageName, specification, packageBody);
-                return Option<IOracleDatabasePackage>.Some(package);
+                return new OracleDatabasePackage(packageName, specification, packageBody);
             }
             else
             {
                 var lines = await Connection.QueryAsync<PackageData>(
                     PackageDefinitionQuery,
-                    new { SchemaName = resolvedPackageName.Schema, PackageName = resolvedPackageName.LocalName },
+                    new { SchemaName = packageName.Schema, PackageName = packageName.LocalName },
                     cancellationToken
                 ).ConfigureAwait(false);
 
@@ -201,8 +193,7 @@ where OWNER = :SchemaName and OBJECT_NAME = :PackageName
                 var specification = OracleUnwrapper.Unwrap(spec);
                 var packageBody = body.Map(OracleUnwrapper.Unwrap);
 
-                var package = new OracleDatabasePackage(resolvedPackageName, specification, packageBody);
-                return Option<IOracleDatabasePackage>.Some(package);
+                return new OracleDatabasePackage(packageName, specification, packageBody);
             }
         }
 

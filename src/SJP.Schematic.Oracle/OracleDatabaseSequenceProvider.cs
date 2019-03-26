@@ -121,21 +121,9 @@ where SEQUENCE_OWNER = :SchemaName and SEQUENCE_NAME = :SequenceName";
                 throw new ArgumentNullException(nameof(sequenceName));
 
             var candidateSequenceName = QualifySequenceName(sequenceName);
-            return LoadSequenceAsyncCore(candidateSequenceName, cancellationToken).ToAsync();
-        }
-
-        private async Task<Option<IDatabaseSequence>> LoadSequenceAsyncCore(Identifier sequenceName, CancellationToken cancellationToken)
-        {
-            var resolvedSequenceNameOption = GetResolvedSequenceName(sequenceName);
-            var resolvedSequenceNameOptionIsNone = await resolvedSequenceNameOption.IsNone.ConfigureAwait(false);
-            if (resolvedSequenceNameOptionIsNone)
-                return Option<IDatabaseSequence>.None;
-
-            var resolvedSequenceName = await resolvedSequenceNameOption.UnwrapSomeAsync().ConfigureAwait(false);
-            var sequence = LoadSequenceData(resolvedSequenceName, cancellationToken)
-                .Map(seqData => BuildSequenceFromDto(resolvedSequenceName, seqData));
-
-            return await sequence.ToOption().ConfigureAwait(false);
+            return GetResolvedSequenceName(candidateSequenceName)
+                .Bind(name => LoadSequenceData(name, cancellationToken)
+                    .Map(seq => BuildSequenceFromDto(name, seq)));
         }
 
         private OptionAsync<SequenceData> LoadSequenceData(Identifier sequenceName, CancellationToken cancellationToken)
