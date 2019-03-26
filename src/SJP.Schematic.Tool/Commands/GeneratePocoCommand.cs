@@ -1,6 +1,5 @@
 ﻿using System.IO;
 using McMaster.Extensions.CommandLineUtils;
-using SJP.Schematic.Core.Caching;
 using SJP.Schematic.DataAccess.Poco;
 using System.IO.Abstractions;
 using System;
@@ -43,8 +42,7 @@ namespace SJP.Schematic.Tool
 
             try
             {
-                var cachedConnection = status.Connection.AsCachedConnection();
-                var dialect = DatabaseParent.GetDatabaseDialect(cachedConnection);
+                var dialect = DatabaseParent.GetDatabaseDialect(status.Connection);
                 var database = dialect.GetRelationalDatabaseAsync().GetAwaiter().GetResult();
                 var commentProvider = dialect.GetRelationalDatabaseCommentProviderAsync().GetAwaiter().GetResult();
 

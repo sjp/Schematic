@@ -1,6 +1,5 @@
 ﻿using System;
 using McMaster.Extensions.CommandLineUtils;
-using SJP.Schematic.Core.Caching;
 using SJP.Schematic.Reporting.Html;
 
 namespace SJP.Schematic.Tool
@@ -32,11 +31,10 @@ namespace SJP.Schematic.Tool
             {
                 try
                 {
-                    var cachedConnection = status.Connection.AsCachedConnection();
-                    var dialect = Parent.GetDatabaseDialect(cachedConnection);
+                    var dialect = Parent.GetDatabaseDialect(status.Connection);
                     var database = dialect.GetRelationalDatabaseAsync().GetAwaiter().GetResult();
 
-                    var reportExporter = new ReportExporter(cachedConnection, database, ReportDirectory);
+                    var reportExporter = new ReportExporter(status.Connection, database, ReportDirectory);
                     reportExporter.ExportAsync().GetAwaiter().GetResult();
 
                     application.Out.WriteLine("The database report has been exported to: " + ReportDirectory);
