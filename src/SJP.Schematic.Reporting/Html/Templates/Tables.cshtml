@@ -41,7 +41,7 @@
                                 foreach (var table in Model.AllTables)
                                 {
                                     <tr>
-                                        <td><a href="tables/@(table.TableUrl).html">@table.Name</a></td>
+                                        <td><a href="@(table.TableUrl)">@table.Name</a></td>
                                         <td>@table.ParentsCount</td>
                                         <td>@table.ChildrenCount</td>
                                         <td>@table.ColumnCount</td>

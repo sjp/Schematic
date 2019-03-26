@@ -21,7 +21,8 @@ namespace SJP.Schematic.Reporting.Html.Lint.Rules
                 () => string.Empty
             );
 
-            var tableLink = $"<a href=\"tables/{ tableName.ToSafeKey() }.html\">{ HttpUtility.HtmlEncode(tableName.ToVisibleName()) }</a>";
+            var tableUrl = UrlRouter.GetTableUrl(tableName);
+            var tableLink = $"<a href=\"{ tableUrl }\">{ HttpUtility.HtmlEncode(tableName.ToVisibleName()) }</a>";
             var messageText = $"The table '{ tableLink }' contains a disabled foreign key{ messageKeyName }. Consider enabling or removing the foreign key.";
             return new RuleMessage(RuleTitle, Level, messageText);
         }
@@ -33,7 +34,8 @@ namespace SJP.Schematic.Reporting.Html.Lint.Rules
                    () => string.Empty
                );
 
-            var tableLink = $"<a href=\"tables/{ tableName.ToSafeKey() }.html\">{ HttpUtility.HtmlEncode(tableName.ToVisibleName()) }</a>";
+            var tableUrl = UrlRouter.GetTableUrl(tableName);
+            var tableLink = $"<a href=\"{ tableUrl }\">{ HttpUtility.HtmlEncode(tableName.ToVisibleName()) }</a>";
             var messageText = $"The table '{ tableLink }' contains a disabled primary key{ messageKeyName }. Consider enabling or removing the primary key.";
             return new RuleMessage(RuleTitle, Level, messageText);
         }
@@ -45,7 +47,8 @@ namespace SJP.Schematic.Reporting.Html.Lint.Rules
                 () => string.Empty
             );
 
-            var tableLink = $"<a href=\"tables/{ tableName.ToSafeKey() }.html\">{ HttpUtility.HtmlEncode(tableName.ToVisibleName()) }</a>";
+            var tableUrl = UrlRouter.GetTableUrl(tableName);
+            var tableLink = $"<a href=\"{ tableUrl }\">{ HttpUtility.HtmlEncode(tableName.ToVisibleName()) }</a>";
             var messageText = $"The table '{ tableLink }' contains a disabled unique key{ messageKeyName }. Consider enabling or removing the unique key.";
             return new RuleMessage(RuleTitle, Level, messageText);
         }
@@ -60,7 +63,8 @@ namespace SJP.Schematic.Reporting.Html.Lint.Rules
                 () => string.Empty
             );
 
-            var tableLink = $"<a href=\"tables/{ tableName.ToSafeKey() }.html\">{ HttpUtility.HtmlEncode(tableName.ToVisibleName()) }</a>";
+            var tableUrl = UrlRouter.GetTableUrl(tableName);
+            var tableLink = $"<a href=\"{ tableUrl }\">{ HttpUtility.HtmlEncode(tableName.ToVisibleName()) }</a>";
             var messageText = $"The table '{ tableLink }' contains a disabled check constraint{ messageCheckName }. Consider enabling or removing the check constraint.";
             return new RuleMessage(RuleTitle, Level, messageText);
         }
@@ -74,7 +78,8 @@ namespace SJP.Schematic.Reporting.Html.Lint.Rules
                 ? " <code>" + HttpUtility.HtmlEncode(indexName) + "</code>"
                 : string.Empty;
 
-            var tableLink = $"<a href=\"tables/{ tableName.ToSafeKey() }.html\">{ HttpUtility.HtmlEncode(tableName.ToVisibleName()) }</a>";
+            var tableUrl = UrlRouter.GetTableUrl(tableName);
+            var tableLink = $"<a href=\"{ tableUrl }\">{ HttpUtility.HtmlEncode(tableName.ToVisibleName()) }</a>";
             var messageText = $"The table '{ tableLink }' contains a disabled index{ messageIndexName }. Consider enabling or removing the index.";
             return new RuleMessage(RuleTitle, Level, messageText);
         }
@@ -88,7 +93,8 @@ namespace SJP.Schematic.Reporting.Html.Lint.Rules
                 ? " <code>" + HttpUtility.HtmlEncode(triggerName) + "</code>"
                 : string.Empty;
 
-            var tableLink = $"<a href=\"tables/{ tableName.ToSafeKey() }.html\">{ HttpUtility.HtmlEncode(tableName.ToVisibleName()) }</a>";
+            var tableUrl = UrlRouter.GetTableUrl(tableName);
+            var tableLink = $"<a href=\"{ tableUrl }\">{ HttpUtility.HtmlEncode(tableName.ToVisibleName()) }</a>";
             var messageText = $"The table '{ tableLink }' contains a disabled trigger{ messageTriggerName }. Consider enabling or removing the trigger.";
             return new RuleMessage(RuleTitle, Level, messageText);
         }

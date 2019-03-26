@@ -25,8 +25,10 @@ namespace SJP.Schematic.Reporting.Html.Lint.Rules
 
             var builder = StringBuilderCache.Acquire();
 
-            var tableLink = $"<a href=\"tables/{ tableName.ToSafeKey() }.html\">{ HttpUtility.HtmlEncode(tableName.ToVisibleName()) }</a>";
-            var targetTableLink = $"<a href=\"tables/{ targetTableName.ToSafeKey() }.html\">{ HttpUtility.HtmlEncode(targetTableName.ToVisibleName()) }</a>";
+            var tableUrl = UrlRouter.GetTableUrl(tableName);
+            var tableLink = $"<a href=\"{ tableUrl }\">{ HttpUtility.HtmlEncode(tableName.ToVisibleName()) }</a>";
+            var targetTableUrl = UrlRouter.GetTableUrl(targetTableName);
+            var targetTableLink = $"<a href=\"{ targetTableUrl }\">{ HttpUtility.HtmlEncode(targetTableName.ToVisibleName()) }</a>";
 
             builder.Append("The table ")
                 .Append(tableLink)

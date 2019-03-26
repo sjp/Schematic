@@ -47,7 +47,7 @@
                                     <tr>
                                         <td>@primaryKey.ConstraintName</td>
                                         <td>
-                                            <a href="tables/@(primaryKey.TableUrl).html">@primaryKey.TableName</a>
+                                            <a href="@(primaryKey.TableUrl)">@primaryKey.TableName</a>
                                         </td>
                                         <td>@primaryKey.ColumnNames</td>
                                     </tr>
@@ -141,7 +141,7 @@
                                         <td>@foreignKey.ChildColumnNames</td>
                                         <td>@foreignKey.ParentConstraintName</td>
                                         <td>
-                                            <a href="tables/@(foreignKey.ParentTableUrl).html">@foreignKey.ParentTableName</a>
+                                            <a href="@(foreignKey.ParentTableUrl)">@foreignKey.ParentTableName</a>
                                         </td>
                                         <td>@foreignKey.ParentColumnNames</td>
                                         <td>

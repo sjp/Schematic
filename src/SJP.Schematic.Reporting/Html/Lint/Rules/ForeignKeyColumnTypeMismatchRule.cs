@@ -31,8 +31,10 @@ namespace SJP.Schematic.Reporting.Html.Lint.Rules
                     .Append("</code>");
             });
 
-            var childTableLink = $"<a href=\"tables/{ childTableName.ToSafeKey() }.html\">{ HttpUtility.HtmlEncode(childTableName.ToVisibleName()) }</a>";
-            var parentTableLink = $"<a href=\"tables/{ parentTableName.ToSafeKey() }.html\">{ HttpUtility.HtmlEncode(parentTableName.ToVisibleName()) }</a>";
+            var childTableUrl = UrlRouter.GetTableUrl(childTableName);
+            var childTableLink = $"<a href=\"{ childTableUrl }\">{ HttpUtility.HtmlEncode(childTableName.ToVisibleName()) }</a>";
+            var parentTableUrl = UrlRouter.GetTableUrl(parentTableName);
+            var parentTableLink = $"<a href=\"{ parentTableUrl }\">{ HttpUtility.HtmlEncode(parentTableName.ToVisibleName()) }</a>";
 
             builder.Append(" from ")
                 .Append(childTableLink)

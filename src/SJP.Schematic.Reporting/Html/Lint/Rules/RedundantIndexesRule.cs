@@ -29,7 +29,8 @@ namespace SJP.Schematic.Reporting.Html.Lint.Rules
             if (otherIndexColumnNames == null || otherIndexColumnNames.Empty())
                 throw new ArgumentNullException(nameof(otherIndexColumnNames));
 
-            var tableLink = $"<a href=\"tables/{ tableName.ToSafeKey() }.html\">{ HttpUtility.HtmlEncode(tableName.ToVisibleName()) }</a>";
+            var tableUrl = UrlRouter.GetTableUrl(tableName);
+            var tableLink = $"<a href=\"{ tableUrl }\">{ HttpUtility.HtmlEncode(tableName.ToVisibleName()) }</a>";
 
             var columnNames = redundantIndexColumnNames
                 .Select(columnName => "<code>" + HttpUtility.HtmlEncode(columnName) + "</code>")

@@ -43,7 +43,7 @@
                                 foreach (var sequence in Model.AllSequences)
                                 {
                                     <tr>
-                                        <td><a href="sequences/@(sequence.SequenceUrl).html">@sequence.Name</a></td>
+                                        <td><a href="@(sequence.SequenceUrl)">@sequence.Name</a></td>
                                         <td>@sequence.Start</td>
                                         <td>@sequence.Increment</td>
                                         <td>@sequence.MinValueText</td>

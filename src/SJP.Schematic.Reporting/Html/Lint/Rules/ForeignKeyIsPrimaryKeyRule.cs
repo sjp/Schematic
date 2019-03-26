@@ -29,7 +29,8 @@ namespace SJP.Schematic.Reporting.Html.Lint.Rules
                     .Append("</code>");
             });
 
-            var childTableLink = $"<a href=\"tables/{ childTableName.ToSafeKey() }.html\">{ HttpUtility.HtmlEncode(childTableName.ToVisibleName()) }</a>";
+            var childTableUrl = UrlRouter.GetTableUrl(childTableName);
+            var childTableLink = $"<a href=\"{ childTableUrl }\">{ HttpUtility.HtmlEncode(childTableName.ToVisibleName()) }</a>";
             builder.Append(" on ")
                 .Append(childTableLink)
                 .Append(" contains the same column set as the target key.");

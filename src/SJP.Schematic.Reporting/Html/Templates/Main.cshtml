@@ -162,7 +162,7 @@
                                 {
                                     <tr>
                                         <td>
-                                            <a href="tables/@(table.TableUrl).html">@table.Name</a>
+                                            <a href="@(table.TableUrl)">@table.Name</a>
                                         </td>
                                         <td>@table.ParentsCount</td>
                                         <td>@table.ChildrenCount</td>
@@ -206,7 +206,7 @@
                                 {
                                     <tr>
                                         <td>
-                                            <a href="views/@(view.ViewUrl).html">@view.Name</a>
+                                            <a href="@(view.ViewUrl)">@view.Name</a>
                                         </td>
                                         <td>@view.ColumnCount</td>
                                         <td>@view.RowCount</td>
@@ -251,7 +251,7 @@
                                 foreach (var sequence in Model.Sequences)
                                 {
                                     <tr>
-                                        <td><a href="sequences/@(sequence.SequenceUrl).html">@sequence.Name</a></td>
+                                        <td><a href="@(sequence.SequenceUrl)">@sequence.Name</a></td>
                                         <td>@sequence.Start</td>
                                         <td>@sequence.Increment</td>
                                         <td>@sequence.MinValueText</td>
@@ -293,7 +293,7 @@
                                 foreach (var synonym in Model.Synonyms)
                                 {
                                     <tr>
-                                        <td><a href="synonyms/@(synonym.SynonymUrl).html">@synonym.Name</a></td>
+                                        <td><a href="@(synonym.SynonymUrl)">@synonym.Name</a></td>
                                         <td>@Raw(synonym.TargetText.ToHtmlString())</td>
                                     </tr>
                                 }
@@ -330,7 +330,7 @@
                                 {
                                     <tr>
                                         <td>
-                                            <a href="routines/@(routine.RoutineUrl).html">@routine.Name</a>
+                                            <a href="@(routine.RoutineUrl)">@routine.Name</a>
                                         </td>
                                     </tr>
                                 }

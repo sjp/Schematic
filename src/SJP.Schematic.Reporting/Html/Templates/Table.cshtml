@@ -63,7 +63,7 @@
                                                     {
                                                         <tr>
                                                             <td class="table-cell-no-border" title="@childKey.ConstraintDescription">
-                                                                <a href="@(Model.RootPath)tables/@(childKey.ChildTableUrl).html">@childKey.ChildTableName</a>.@childKey.ChildColumnName
+                                                                <a href="@(Model.RootPath)@(childKey.ChildTableUrl)">@childKey.ChildTableName</a>.@childKey.ChildColumnName
                                                             </td>
                                                         </tr>
                                                     }
@@ -80,7 +80,7 @@
                                                     {
                                                         <tr>
                                                             <td class="table-cell-no-border" title="@parentKey.ConstraintDescription">
-                                                                <a href="@(Model.RootPath)tables/@(parentKey.ParentTableUrl).html">@parentKey.ParentTableName</a>.@parentKey.ParentColumnName
+                                                                <a href="@(Model.RootPath)@(parentKey.ParentTableUrl)">@parentKey.ParentTableName</a>.@parentKey.ParentColumnName
                                                             </td>
                                                         </tr>
                                                     }
@@ -221,7 +221,7 @@
                                         <td>@foreignKey.ChildColumnNames</td>
                                         <td>@foreignKey.ParentConstraintName</td>
                                         <td>
-                                            <a href="tables/@(foreignKey.ParentTableUrl).html">@foreignKey.ParentTableName</a>
+                                            <a href="@(foreignKey.ParentTableUrl)">@foreignKey.ParentTableName</a>
                                         </td>
                                         <td>@foreignKey.ParentColumnNames</td>
                                         <td>

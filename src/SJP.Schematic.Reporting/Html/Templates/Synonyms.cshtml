@@ -38,7 +38,7 @@
                                 foreach (var synonym in Model.AllSynonyms)
                                 {
                                     <tr>
-                                        <td><a href="synonyms/@(synonym.SynonymUrl).html">@synonym.Name</a></td>
+                                        <td><a href="@(synonym.SynonymUrl)">@synonym.Name</a></td>
                                         <td>@Raw(synonym.TargetText.ToHtmlString())</td>
                                     </tr>
                                 }

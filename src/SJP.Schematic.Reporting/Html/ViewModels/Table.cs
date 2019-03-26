@@ -295,7 +295,7 @@ namespace SJP.Schematic.Reporting.Html.ViewModels
                 ChildColumnNames = columnNames.Join(", ");
                 ParentConstraintName = parentConstraintName;
                 ParentTableName = parentTableName.ToVisibleName();
-                ParentTableUrl = parentTableName.ToSafeKey();
+                ParentTableUrl = UrlRouter.GetTableUrl(parentTableName);
                 ParentColumnNames = parentColumnNames.Join(", ");
 
                 DeleteRuleDescription = _ruleDescription[deleteRule];
@@ -396,7 +396,7 @@ namespace SJP.Schematic.Reporting.Html.ViewModels
                     throw new ArgumentOutOfRangeException(nameof(qualifiedChildColumnName));
 
                 ParentTableName = parentTableName.ToVisibleName();
-                ParentTableUrl = parentTableName.ToSafeKey();
+                ParentTableUrl = UrlRouter.GetTableUrl(parentTableName);
                 ParentColumnName = parentColumnName;
 
                 var qualifiedParentColumnName = ParentTableName + "." + parentColumnName;
@@ -430,7 +430,7 @@ namespace SJP.Schematic.Reporting.Html.ViewModels
                     throw new ArgumentNullException(nameof(qualifiedParentColumnName));
 
                 ChildTableName = childTableName.ToVisibleName();
-                ChildTableUrl = childTableName.ToSafeKey();
+                ChildTableUrl = UrlRouter.GetTableUrl(childTableName);
                 ChildColumnName = childColumnName;
 
                 var qualifiedChildColumnName = ChildTableName + "." + ChildColumnName;

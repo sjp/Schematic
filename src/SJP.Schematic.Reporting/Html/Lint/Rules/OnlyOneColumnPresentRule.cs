@@ -17,7 +17,8 @@ namespace SJP.Schematic.Reporting.Html.Lint.Rules
             if (tableName == null)
                 throw new ArgumentNullException(nameof(tableName));
 
-            var tableLink = $"<a href=\"tables/{ tableName.ToSafeKey() }.html\">{ HttpUtility.HtmlEncode(tableName.ToVisibleName()) }</a>";
+            var tableUrl = UrlRouter.GetTableUrl(tableName);
+            var tableLink = $"<a href=\"{ tableUrl }\">{ HttpUtility.HtmlEncode(tableName.ToVisibleName()) }</a>";
 
             var messageText = columnCount == 0
                 ? $"The table { tableLink } has too few columns. It has no columns, consider adding more."

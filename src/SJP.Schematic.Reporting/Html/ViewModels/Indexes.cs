@@ -51,7 +51,7 @@ namespace SJP.Schematic.Reporting.Html.ViewModels
 
                 Name = indexName ?? string.Empty;
                 TableName = tableName.ToVisibleName();
-                TableUrl = tableName.ToSafeKey();
+                TableUrl = UrlRouter.GetTableUrl(tableName);
 
                 UniqueText = isUnique ? "✓" : "✗";
 

@@ -18,7 +18,8 @@ namespace SJP.Schematic.Reporting.Html.Lint.Rules
             if (viewName == null)
                 throw new ArgumentNullException(nameof(viewName));
 
-            var viewLink = $"<a href=\"views/{ viewName.ToSafeKey() }.html\">{ HttpUtility.HtmlEncode(viewName.ToVisibleName()) }</a>";
+            var viewUrl = UrlRouter.GetViewUrl(viewName);
+            var viewLink = $"<a href=\"{ viewUrl }\">{ HttpUtility.HtmlEncode(viewName.ToVisibleName()) }</a>";
             var messageText = $"The view { viewLink } was unable to be queried. This may indicate an incorrect view definition.";
             return new RuleMessage(RuleTitle, Level, messageText);
         }

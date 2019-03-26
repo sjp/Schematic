@@ -18,7 +18,8 @@ namespace SJP.Schematic.Reporting.Html.Lint.Rules
             if (tableName == null)
                 throw new ArgumentNullException(nameof(tableName));
 
-            var tableLink = $"<a href=\"tables/{ tableName.ToSafeKey() }.html\">{ HttpUtility.HtmlEncode(tableName.ToVisibleName()) }</a>";
+            var tableUrl = UrlRouter.GetTableUrl(tableName);
+            var tableLink = $"<a href=\"{ tableUrl }\">{ HttpUtility.HtmlEncode(tableName.ToVisibleName()) }</a>";
             var messageText = $"The table { tableLink } contains whitespace and requires quoting to be used. Consider renaming to remove any whitespace.";
             return new RuleMessage(RuleTitle, Level, messageText);
         }
@@ -30,7 +31,8 @@ namespace SJP.Schematic.Reporting.Html.Lint.Rules
             if (columnName.IsNullOrWhiteSpace())
                 throw new ArgumentNullException(nameof(columnName));
 
-            var tableLink = $"<a href=\"tables/{ tableName.ToSafeKey() }.html\">{ HttpUtility.HtmlEncode(tableName.ToVisibleName()) }</a>";
+            var tableUrl = UrlRouter.GetTableUrl(tableName);
+            var tableLink = $"<a href=\"{ tableUrl }\">{ HttpUtility.HtmlEncode(tableName.ToVisibleName()) }</a>";
             var messageText = $"The table { tableLink } contains a column <code>{ HttpUtility.HtmlEncode(columnName) }</code> which contains whitespace and requires quoting to be used. Consider renaming to remove any whitespace.";
             return new RuleMessage(RuleTitle, Level, messageText);
         }
@@ -40,7 +42,8 @@ namespace SJP.Schematic.Reporting.Html.Lint.Rules
             if (viewName == null)
                 throw new ArgumentNullException(nameof(viewName));
 
-            var viewLink = $"<a href=\"views/{ viewName.ToSafeKey() }.html\">{ HttpUtility.HtmlEncode(viewName.ToVisibleName()) }</a>";
+            var viewUrl = UrlRouter.GetViewUrl(viewName);
+            var viewLink = $"<a href=\"{ viewUrl }\">{ HttpUtility.HtmlEncode(viewName.ToVisibleName()) }</a>";
             var messageText = $"The view { viewLink } contains whitespace and requires quoting to be used. Consider renaming to remove any whitespace.";
             return new RuleMessage(RuleTitle, Level, messageText);
         }
@@ -52,7 +55,8 @@ namespace SJP.Schematic.Reporting.Html.Lint.Rules
             if (columnName.IsNullOrWhiteSpace())
                 throw new ArgumentNullException(nameof(columnName));
 
-            var viewLink = $"<a href=\"views/{ viewName.ToSafeKey() }.html\">{ HttpUtility.HtmlEncode(viewName.ToVisibleName()) }</a>";
+            var viewUrl = UrlRouter.GetViewUrl(viewName);
+            var viewLink = $"<a href=\"{ viewUrl }\">{ HttpUtility.HtmlEncode(viewName.ToVisibleName()) }</a>";
             var messageText = $"The view { viewLink } contains a column <code>{ HttpUtility.HtmlEncode(columnName) }</code> which contains whitespace and requires quoting to be used. Consider renaming to remove any whitespace.";
             return new RuleMessage(RuleTitle, Level, messageText);
         }
@@ -62,7 +66,8 @@ namespace SJP.Schematic.Reporting.Html.Lint.Rules
             if (sequenceName == null)
                 throw new ArgumentNullException(nameof(sequenceName));
 
-            var sequenceLink = $"<a href=\"sequences/{ sequenceName.ToSafeKey() }.html\">{ HttpUtility.HtmlEncode(sequenceName.ToVisibleName()) }</a>";
+            var sequenceUrl = UrlRouter.GetSequenceUrl(sequenceName);
+            var sequenceLink = $"<a href=\"{ sequenceUrl }\">{ HttpUtility.HtmlEncode(sequenceName.ToVisibleName()) }</a>";
             var messageText = $"The sequence { sequenceLink } contains whitespace and requires quoting to be used. Consider renaming to remove any whitespace.";
             return new RuleMessage(RuleTitle, Level, messageText);
         }
@@ -72,7 +77,8 @@ namespace SJP.Schematic.Reporting.Html.Lint.Rules
             if (synonymName == null)
                 throw new ArgumentNullException(nameof(synonymName));
 
-            var synonymLink = $"<a href=\"synonyms/{ synonymName.ToSafeKey() }.html\">{ HttpUtility.HtmlEncode(synonymName.ToVisibleName()) }</a>";
+            var synonymUrl = UrlRouter.GetSynonymUrl(synonymName);
+            var synonymLink = $"<a href=\"{ synonymUrl }\">{ HttpUtility.HtmlEncode(synonymName.ToVisibleName()) }</a>";
             var messageText = $"The synonym { synonymLink } contains whitespace and requires quoting to be used. Consider renaming to remove any whitespace.";
             return new RuleMessage(RuleTitle, Level, messageText);
         }
@@ -82,7 +88,8 @@ namespace SJP.Schematic.Reporting.Html.Lint.Rules
             if (routineName == null)
                 throw new ArgumentNullException(nameof(routineName));
 
-            var routineLink = $"<a href=\"routines/{ routineName.ToSafeKey() }.html\">{ HttpUtility.HtmlEncode(routineName.ToVisibleName()) }</a>";
+            var routineUrl = UrlRouter.GetRoutineUrl(routineName);
+            var routineLink = $"<a href=\"{ routineUrl }\">{ HttpUtility.HtmlEncode(routineName.ToVisibleName()) }</a>";
             var messageText = $"The routine { routineLink } contains whitespace and requires quoting to be used. Consider renaming to remove any whitespace.";
             return new RuleMessage(RuleTitle, Level, messageText);
         }

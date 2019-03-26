@@ -37,14 +37,11 @@ namespace SJP.Schematic.Reporting.Html.ViewModels
                 Option<string> defaultValue
             )
             {
-                if (tableName == null)
-                    throw new ArgumentNullException(nameof(tableName));
                 if (columnName.IsNullOrWhiteSpace())
                     throw new ArgumentNullException(nameof(columnName));
 
                 ColumnName = columnName;
                 Name = tableName.ToVisibleName();
-                TableUrl = tableName.ToSafeKey();
                 Ordinal = ordinalPosition;
                 TitleNullable = isNullable ? "Nullable" : string.Empty;
                 NullableText = isNullable ? "✓" : "✗";
@@ -54,11 +51,9 @@ namespace SJP.Schematic.Reporting.Html.ViewModels
 
             public string Name { get; }
 
-            public string TableUrl { get; }
+            public abstract string TableUrl { get; }
 
             public string TableType => ParentType.ToString();
-
-            public abstract string TableFolder { get; }
 
             public int Ordinal { get; }
 
@@ -112,6 +107,8 @@ namespace SJP.Schematic.Reporting.Html.ViewModels
                 defaultValue
             )
             {
+                TableUrl = UrlRouter.GetTableUrl(tableName);
+
                 var isKey = isPrimaryKeyColumn || isUniqueKeyColumn || isForeignKeyColumn;
                 ColumnClass = isKey ? @"class=""is-key-column""" : string.Empty;
 
@@ -119,7 +116,7 @@ namespace SJP.Schematic.Reporting.Html.ViewModels
                 ColumnTitle = BuildColumnTitle(isPrimaryKeyColumn, isUniqueKeyColumn, isForeignKeyColumn);
             }
 
-            public override string TableFolder { get; } = "tables";
+            public override string TableUrl { get; }
 
             public override ParentObjectType ParentType { get; } = ParentObjectType.Table;
 
@@ -149,19 +146,19 @@ namespace SJP.Schematic.Reporting.Html.ViewModels
 
                 if (isPrimaryKeyColumn)
                 {
-                    const string iconText = @"<i title=""Primary Key"" class=""fa fa-key primaryKeyIcon"" style=""padding-left: 5px; padding-right: 5px;"" aria-hidden=""true""></i>";
+                    const string iconText = @"<i title=""Primary Key"" class=""fa fa-key icon-primary-key"" style=""padding-left: 5px; padding-right: 5px;"" aria-hidden=""true""></i>";
                     iconPieces.Add(iconText);
                 }
 
                 if (isUniqueKeyColumn)
                 {
-                    const string iconText = @"<i title=""Unique Key"" class=""fa fa-key uniqueKeyIcon"" style=""padding-left: 5px; padding-right: 5px;"" aria-hidden=""true""></i>";
+                    const string iconText = @"<i title=""Unique Key"" class=""fa fa-key icon-unique-key"" style=""padding-left: 5px; padding-right: 5px;"" aria-hidden=""true""></i>";
                     iconPieces.Add(iconText);
                 }
 
                 if (isForeignKeyColumn)
                 {
-                    const string iconText = @"<i title=""Foreign Key"" class=""fa fa-key foreignKeyIcon"" style=""padding-left: 5px; padding-right: 5px;"" aria-hidden=""true""></i>";
+                    const string iconText = @"<i title=""Foreign Key"" class=""fa fa-key icon-foreign-key"" style=""padding-left: 5px; padding-right: 5px;"" aria-hidden=""true""></i>";
                     iconPieces.Add(iconText);
                 }
 
@@ -189,9 +186,10 @@ namespace SJP.Schematic.Reporting.Html.ViewModels
                 string.Empty
             )
             {
+                TableUrl = UrlRouter.GetViewUrl(viewName);
             }
 
-            public override string TableFolder { get; } = "views";
+            public override string TableUrl { get; }
 
             public override ParentObjectType ParentType { get; } = ParentObjectType.View;
         }

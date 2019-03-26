@@ -121,7 +121,7 @@ namespace SJP.Schematic.Reporting.Html.ViewModels
                     throw new ArgumentNullException(nameof(tableName));
 
                 Name = tableName.ToVisibleName();
-                TableUrl = tableName.ToSafeKey();
+                TableUrl = UrlRouter.GetTableUrl(tableName);
 
                 ParentsCount = parentsCount;
                 ChildrenCount = childrenCount;
@@ -153,7 +153,7 @@ namespace SJP.Schematic.Reporting.Html.ViewModels
                     throw new ArgumentNullException(nameof(viewName));
 
                 Name = viewName.ToVisibleName();
-                ViewUrl = viewName.ToSafeKey();
+                ViewUrl = UrlRouter.GetViewUrl(viewName);
                 ColumnCount = columnCount;
                 RowCount = rowCount;
                 MaterializedText = isMaterialized ? "✓" : "✗";
@@ -189,7 +189,7 @@ namespace SJP.Schematic.Reporting.Html.ViewModels
                     throw new ArgumentNullException(nameof(sequenceName));
 
                 Name = sequenceName.ToVisibleName();
-                SequenceUrl = sequenceName.ToSafeKey();
+                SequenceUrl = UrlRouter.GetSequenceUrl(sequenceName);
 
                 Start = start;
                 Increment = increment;
@@ -229,7 +229,7 @@ namespace SJP.Schematic.Reporting.Html.ViewModels
                     throw new ArgumentNullException(nameof(target));
 
                 Name = synonymName.ToVisibleName();
-                SynonymUrl = synonymName.ToSafeKey();
+                SynonymUrl = UrlRouter.GetSynonymUrl(synonymName);
 
                 var targetName = target.ToVisibleName();
                 TargetText = targetUrl.Match(
@@ -256,7 +256,7 @@ namespace SJP.Schematic.Reporting.Html.ViewModels
                     throw new ArgumentNullException(nameof(routineName));
 
                 Name = routineName.ToVisibleName();
-                RoutineUrl = routineName.ToSafeKey();
+                RoutineUrl = UrlRouter.GetRoutineUrl(routineName);
             }
 
             public string Name { get; }

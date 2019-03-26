@@ -67,7 +67,7 @@ namespace SJP.Schematic.Reporting.Dot
                 if (!rowCounts.TryGetValue(table.Name, out var rowCount))
                     rowCount = 0;
 
-                var tableUri = new Uri(options.RootPath + "tables/" + table.Name.ToSafeKey() + ".html", UriKind.Relative);
+                var tableUri = new Uri(options.RootPath + UrlRouter.GetTableUrl(table.Name), UriKind.Relative);
                 var tableNodeAttrs = new[]
                 {
                     NodeAttribute.URL(tableUri),

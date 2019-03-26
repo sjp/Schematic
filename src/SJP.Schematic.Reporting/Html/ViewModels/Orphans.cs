@@ -35,7 +35,7 @@ namespace SJP.Schematic.Reporting.Html.ViewModels
                     throw new ArgumentNullException(nameof(tableName));
 
                 Name = tableName.ToVisibleName();
-                TableUrl = tableName.ToSafeKey();
+                TableUrl = UrlRouter.GetTableUrl(tableName);
                 ColumnCount = columnCount;
                 RowCount = rowCount;
             }

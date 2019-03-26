@@ -20,7 +20,8 @@ namespace SJP.Schematic.Reporting.Html.Lint.Rules
             if (columnName.IsNullOrWhiteSpace())
                 throw new ArgumentNullException(nameof(columnName));
 
-            var tableLink = $"<a href=\"tables/{ tableName.ToSafeKey() }.html\">{ HttpUtility.HtmlEncode(tableName.ToVisibleName()) }</a>";
+            var tableUrl = UrlRouter.GetTableUrl(tableName);
+            var tableLink = $"<a href=\"{ tableUrl }\">{ HttpUtility.HtmlEncode(tableName.ToVisibleName()) }</a>";
             var messageText = $"The table { tableLink } has a column <code>{ HttpUtility.HtmlEncode(columnName) }</code> with a numeric suffix, indicating denormalization.";
 
             return new RuleMessage(RuleTitle, Level, messageText);

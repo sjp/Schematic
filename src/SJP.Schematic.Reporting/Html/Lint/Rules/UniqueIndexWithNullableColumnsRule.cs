@@ -23,7 +23,8 @@ namespace SJP.Schematic.Reporting.Html.Lint.Rules
             if (columnNames == null || columnNames.Empty())
                 throw new ArgumentNullException(nameof(columnNames));
 
-            var tableLink = $"<a href=\"tables/{ tableName.ToSafeKey() }.html\">{ HttpUtility.HtmlEncode(tableName.ToVisibleName()) }</a>";
+            var tableUrl = UrlRouter.GetTableUrl(tableName);
+            var tableLink = $"<a href=\"{ tableUrl }\">{ HttpUtility.HtmlEncode(tableName.ToVisibleName()) }</a>";
 
             var builder = StringBuilderCache.Acquire();
             builder.Append("The table ")

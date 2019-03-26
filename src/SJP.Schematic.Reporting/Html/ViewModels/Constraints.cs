@@ -74,7 +74,7 @@ namespace SJP.Schematic.Reporting.Html.ViewModels
                     throw new ArgumentNullException(nameof(tableName));
 
                 TableName = tableName.ToVisibleName();
-                TableUrl = tableName.ToSafeKey();
+                TableUrl = UrlRouter.GetTableUrl(tableName);
                 ConstraintName = constraintName ?? string.Empty;
             }
 
@@ -148,7 +148,7 @@ namespace SJP.Schematic.Reporting.Html.ViewModels
                     throw new ArgumentException($"The { nameof(Rule) } provided must be a valid enum.", nameof(updateRule));
 
                 ParentTableName = parentTableName.ToVisibleName();
-                ParentTableUrl = parentTableName.ToSafeKey();
+                ParentTableUrl = UrlRouter.GetTableUrl(parentTableName);
                 ParentConstraintName = parentConstraintName ?? string.Empty;
 
                 ChildColumnNames = childColumnNames.Join(", ");

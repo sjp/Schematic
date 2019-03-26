@@ -40,7 +40,7 @@
                                 foreach (var view in Model.AllViews)
                                 {
                                     <tr>
-                                        <td><a href="views/@(view.ViewUrl).html">@view.Name</a></td>
+                                        <td><a href="@(view.ViewUrl)">@view.Name</a></td>
                                         <td>@view.ColumnCount</td>
                                         <td>@view.RowCount</td>
                                         <td>@view.MaterializedText</td>
