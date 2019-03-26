@@ -7,7 +7,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using LanguageExt;
 using SJP.Schematic.Core;
-using SJP.Schematic.Core.Exceptions;
 using SJP.Schematic.Core.Extensions;
 using SJP.Schematic.Core.Utilities;
 using SJP.Schematic.Sqlite.Parsing;
