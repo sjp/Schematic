@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Data;
 using System.Threading;
@@ -10,6 +11,34 @@ namespace SJP.Schematic.Core.Extensions
 {
     public static class ConnectionExtensions
     {
+        public static void SetSchematicCommandTimeout(this IDbConnection connection, int? commandTimeout)
+        {
+            if (connection == null)
+                throw new ArgumentNullException(nameof(connection));
+
+            _ = CommandTimeoutLookup.AddOrUpdate(connection, commandTimeout, (_, __) => commandTimeout);
+        }
+
+        public static void ClearSchematicCommandTimeout(this IDbConnection connection)
+        {
+            if (connection == null)
+                throw new ArgumentNullException(nameof(connection));
+
+            _ = CommandTimeoutLookup.TryRemove(connection, out _);
+        }
+
+        private static int? GetCommandTimeout(IDbConnection connection)
+        {
+            if (connection == null)
+                throw new ArgumentNullException(nameof(connection));
+
+            return CommandTimeoutLookup.TryGetValue(connection, out var commandTimeout)
+                ? commandTimeout
+                : null;
+        }
+
+        private static readonly ConcurrentDictionary<IDbConnection, int?> CommandTimeoutLookup = new ConcurrentDictionary<IDbConnection, int?>();
+
         public static Task<IEnumerable<T>> QueryAsync<T>(this IDbConnection connection, string sql, CancellationToken cancellationToken)
             where T : class
         {
@@ -18,7 +47,7 @@ namespace SJP.Schematic.Core.Extensions
             if (sql.IsNullOrWhiteSpace())
                 throw new ArgumentNullException(nameof(sql));
 
-            var command = new CommandDefinition(sql, cancellationToken: cancellationToken);
+            var command = new CommandDefinition(sql, commandTimeout: GetCommandTimeout(connection), cancellationToken: cancellationToken);
             return connection.QueryAsync<T>(command);
         }
 
@@ -32,7 +61,7 @@ namespace SJP.Schematic.Core.Extensions
             if (parameters == null)
                 throw new ArgumentNullException(nameof(parameters));
 
-            var command = new CommandDefinition(sql, parameters, cancellationToken: cancellationToken);
+            var command = new CommandDefinition(sql, parameters, commandTimeout: GetCommandTimeout(connection), cancellationToken: cancellationToken);
             return connection.QueryAsync<T>(command);
         }
 
@@ -56,7 +85,7 @@ namespace SJP.Schematic.Core.Extensions
             if (parameters == null)
                 throw new ArgumentNullException(nameof(parameters));
 
-            var command = new CommandDefinition(sql, parameters);
+            var command = new CommandDefinition(sql, parameters, commandTimeout: GetCommandTimeout(connection));
             return connection.ExecuteScalar<T>(command);
         }
 
@@ -67,7 +96,7 @@ namespace SJP.Schematic.Core.Extensions
             if (sql.IsNullOrWhiteSpace())
                 throw new ArgumentNullException(nameof(sql));
 
-            var command = new CommandDefinition(sql, cancellationToken: cancellationToken);
+            var command = new CommandDefinition(sql, commandTimeout: GetCommandTimeout(connection), cancellationToken: cancellationToken);
             return connection.ExecuteScalarAsync<T>(command);
         }
 
@@ -80,7 +109,7 @@ namespace SJP.Schematic.Core.Extensions
             if (parameters == null)
                 throw new ArgumentNullException(nameof(parameters));
 
-            var command = new CommandDefinition(sql, parameters, cancellationToken: cancellationToken);
+            var command = new CommandDefinition(sql, parameters, commandTimeout: GetCommandTimeout(connection), cancellationToken: cancellationToken);
             return connection.ExecuteScalarAsync<T>(command);
         }
 
@@ -91,7 +120,7 @@ namespace SJP.Schematic.Core.Extensions
             if (sql.IsNullOrWhiteSpace())
                 throw new ArgumentNullException(nameof(sql));
 
-            var command = new CommandDefinition(sql, cancellationToken: cancellationToken);
+            var command = new CommandDefinition(sql, commandTimeout: GetCommandTimeout(connection), cancellationToken: cancellationToken);
             return connection.ExecuteAsync(command);
         }
 
@@ -104,7 +133,7 @@ namespace SJP.Schematic.Core.Extensions
             if (parameters == null)
                 throw new ArgumentNullException(nameof(parameters));
 
-            var command = new CommandDefinition(sql, parameters, cancellationToken: cancellationToken);
+            var command = new CommandDefinition(sql, parameters, commandTimeout: GetCommandTimeout(connection), cancellationToken: cancellationToken);
             return connection.ExecuteAsync(command);
         }
 
@@ -122,7 +151,7 @@ namespace SJP.Schematic.Core.Extensions
         private static async Task<Option<T>> QueryFirstOrNoneAsyncCore<T>(IDbConnection connection, string sql, CancellationToken cancellationToken)
             where T : class
         {
-            var command = new CommandDefinition(sql, cancellationToken: cancellationToken);
+            var command = new CommandDefinition(sql, commandTimeout: GetCommandTimeout(connection), cancellationToken: cancellationToken);
             var result = await connection.QueryFirstOrDefaultAsync<T>(command).ConfigureAwait(false);
             return result != null
                 ? Option<T>.Some(result)
@@ -145,7 +174,7 @@ namespace SJP.Schematic.Core.Extensions
         private static async Task<Option<T>> QueryFirstOrNoneAsyncCore<T>(IDbConnection connection, string sql, object parameters, CancellationToken cancellationToken)
             where T : class
         {
-            var command = new CommandDefinition(sql, parameters, cancellationToken: cancellationToken);
+            var command = new CommandDefinition(sql, parameters, commandTimeout: GetCommandTimeout(connection), cancellationToken: cancellationToken);
             var result = await connection.QueryFirstOrDefaultAsync<T>(command).ConfigureAwait(false);
             return result != null
                 ? Option<T>.Some(result)
@@ -160,7 +189,7 @@ namespace SJP.Schematic.Core.Extensions
             if (sql.IsNullOrWhiteSpace())
                 throw new ArgumentNullException(nameof(sql));
 
-            var command = new CommandDefinition(sql, cancellationToken: cancellationToken);
+            var command = new CommandDefinition(sql, commandTimeout: GetCommandTimeout(connection), cancellationToken: cancellationToken);
             return connection.QuerySingleAsync<T>(command);
         }
 
@@ -174,7 +203,7 @@ namespace SJP.Schematic.Core.Extensions
             if (parameters == null)
                 throw new ArgumentNullException(nameof(parameters));
 
-            var command = new CommandDefinition(sql, parameters, cancellationToken: cancellationToken);
+            var command = new CommandDefinition(sql, parameters, commandTimeout: GetCommandTimeout(connection), cancellationToken: cancellationToken);
             return connection.QuerySingleAsync<T>(command);
         }
 
@@ -194,7 +223,7 @@ namespace SJP.Schematic.Core.Extensions
         {
             try
             {
-                var command = new CommandDefinition(sql, cancellationToken: cancellationToken);
+                var command = new CommandDefinition(sql, commandTimeout: GetCommandTimeout(connection), cancellationToken: cancellationToken);
                 var result = await connection.QuerySingleOrDefaultAsync<T>(command).ConfigureAwait(false);
                 return result != null
                     ? Option<T>.Some(result)
@@ -224,7 +253,7 @@ namespace SJP.Schematic.Core.Extensions
         {
             try
             {
-                var command = new CommandDefinition(sql, parameters, cancellationToken: cancellationToken);
+                var command = new CommandDefinition(sql, parameters, commandTimeout: GetCommandTimeout(connection), cancellationToken: cancellationToken);
                 var result = await connection.QuerySingleOrDefaultAsync<T>(command).ConfigureAwait(false);
                 return result != null
                     ? Option<T>.Some(result)
