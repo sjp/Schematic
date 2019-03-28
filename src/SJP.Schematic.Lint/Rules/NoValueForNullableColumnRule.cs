@@ -4,7 +4,6 @@ using System.Data;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Dapper;
 using SJP.Schematic.Core;
 using SJP.Schematic.Core.Extensions;
 using SJP.Schematic.Core.Utilities;
@@ -157,7 +156,7 @@ namespace SJP.Schematic.Lint.Rules
                 throw new ArgumentNullException(nameof(table));
 
             var sql = GetTableHasRowsQuery(table.Name);
-            return Connection.ExecuteScalar<bool>(sql);
+            return Connection.ExecuteFirstScalar<bool>(sql);
         }
 
         protected bool NullableColumnHasValue(IRelationalDatabaseTable table, IDatabaseColumn column)
@@ -168,7 +167,7 @@ namespace SJP.Schematic.Lint.Rules
                 throw new ArgumentNullException(nameof(column));
 
             var sql = GetNullableColumnHasValueQuery(table.Name, column.Name);
-            return Connection.ExecuteScalar<bool>(sql);
+            return Connection.ExecuteFirstScalar<bool>(sql);
         }
 
         protected virtual IRuleMessage BuildMessage(Identifier tableName, string columnName)
@@ -262,7 +261,7 @@ namespace SJP.Schematic.Lint.Rules
         {
             try
             {
-                _ = Connection.ExecuteScalar<bool>(TestQueryNoTable);
+                _ = Connection.ExecuteFirstScalar<bool>(TestQueryNoTable);
                 return string.Empty;
             }
             catch
@@ -272,7 +271,7 @@ namespace SJP.Schematic.Lint.Rules
 
             try
             {
-                _ = Connection.ExecuteScalar<bool>(TestQueryFromSysDual);
+                _ = Connection.ExecuteFirstScalar<bool>(TestQueryFromSysDual);
                 return "SYS.DUAL";
             }
             catch
@@ -280,7 +279,7 @@ namespace SJP.Schematic.Lint.Rules
                 // Deliberately ignoring because we are testing functionality
             }
 
-            _ = Connection.ExecuteScalar<bool>(TestQueryFromDual);
+            _ = Connection.ExecuteFirstScalar<bool>(TestQueryFromDual);
             return "DUAL";
         }
 
@@ -288,7 +287,7 @@ namespace SJP.Schematic.Lint.Rules
         {
             try
             {
-                _ = await Connection.ExecuteScalarAsync<bool>(TestQueryNoTable).ConfigureAwait(false);
+                _ = await Connection.ExecuteScalarAsync<bool>(TestQueryNoTable, CancellationToken.None).ConfigureAwait(false);
                 return string.Empty;
             }
             catch
@@ -298,7 +297,7 @@ namespace SJP.Schematic.Lint.Rules
 
             try
             {
-                _ = await Connection.ExecuteScalarAsync<bool>(TestQueryFromSysDual).ConfigureAwait(false);
+                _ = await Connection.ExecuteScalarAsync<bool>(TestQueryFromSysDual, CancellationToken.None).ConfigureAwait(false);
                 return "SYS.DUAL";
             }
             catch
@@ -306,7 +305,7 @@ namespace SJP.Schematic.Lint.Rules
                 // Deliberately ignoring because we are testing functionality
             }
 
-            _ = await Connection.ExecuteScalarAsync<bool>(TestQueryFromDual).ConfigureAwait(false);
+            _ = await Connection.ExecuteScalarAsync<bool>(TestQueryFromDual, CancellationToken.None).ConfigureAwait(false);
             return "DUAL";
         }
 

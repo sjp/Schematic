@@ -4,7 +4,6 @@ using System.Data;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Dapper;
 using SJP.Schematic.Core;
 using SJP.Schematic.Core.Extensions;
 
@@ -88,7 +87,7 @@ namespace SJP.Schematic.Lint.Rules
                 var simpleViewName = Identifier.CreateQualifiedIdentifier(view.Name.Schema, view.Name.LocalName);
                 var quotedViewName = Dialect.QuoteName(simpleViewName);
                 var query = "select 1 as dummy from " + quotedViewName;
-                _ = Connection.ExecuteScalar<long>(query);
+                _ = Connection.ExecuteFirstScalar<long>(query);
 
                 return Array.Empty<IRuleMessage>();
             }

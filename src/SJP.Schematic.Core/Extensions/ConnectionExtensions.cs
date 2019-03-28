@@ -36,6 +36,30 @@ namespace SJP.Schematic.Core.Extensions
             return connection.QueryAsync<T>(command);
         }
 
+        public static T ExecuteFirstScalar<T>(this IDbConnection connection, string sql)
+        {
+            if (connection == null)
+                throw new ArgumentNullException(nameof(connection));
+            if (sql.IsNullOrWhiteSpace())
+                throw new ArgumentNullException(nameof(sql));
+
+            var command = new CommandDefinition(sql);
+            return connection.ExecuteScalar<T>(command);
+        }
+
+        public static T ExecuteFirstScalar<T>(this IDbConnection connection, string sql, object parameters)
+        {
+            if (connection == null)
+                throw new ArgumentNullException(nameof(connection));
+            if (sql.IsNullOrWhiteSpace())
+                throw new ArgumentNullException(nameof(sql));
+            if (parameters == null)
+                throw new ArgumentNullException(nameof(parameters));
+
+            var command = new CommandDefinition(sql, parameters);
+            return connection.ExecuteScalar<T>(command);
+        }
+
         public static Task<T> ExecuteScalarAsync<T>(this IDbConnection connection, string sql, CancellationToken cancellationToken)
         {
             if (connection == null)

@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Data;
 using System.Linq;
-using Dapper;
 using SJP.Schematic.Core;
+using SJP.Schematic.Core.Extensions;
 
 namespace SJP.Schematic.Oracle
 {
@@ -54,7 +54,7 @@ namespace SJP.Schematic.Oracle
 select DATA_LENGTH
 from SYS.ALL_TAB_COLUMNS
 where OWNER = 'SYS' and TABLE_NAME = 'ALL_TAB_COLUMNS'";
-            return Connection.ExecuteScalar<uint>(sql);
+            return Connection.ExecuteFirstScalar<uint>(sql);
         }
 
         private readonly Lazy<uint> _maxLength;
