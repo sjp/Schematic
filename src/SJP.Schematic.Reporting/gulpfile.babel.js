@@ -58,6 +58,7 @@ const scriptsDev = () => {
             'node_modules/codemirror/lib/codemirror.js',
             'node_modules/codemirror/mode/sql/sql.js',
             'node_modules/admin-lte/dist/js/adminlte.js',
+            'node_modules/hammerjs/hammer.js',
             'node_modules/svg-pan-zoom/dist/svg-pan-zoom.js',
             'Source/js/reporting.js'
         ])
@@ -98,6 +99,7 @@ const scriptsProd = () => {
             'node_modules/codemirror/lib/codemirror.js',
             'node_modules/codemirror/mode/sql/sql.js',
             'node_modules/admin-lte/dist/js/adminlte.min.js',
+            'node_modules/hammerjs/hammer.min.js',
             'node_modules/svg-pan-zoom/dist/svg-pan-zoom.min.js',
             'Source/js/reporting.js'
         ])
