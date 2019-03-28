@@ -3,7 +3,7 @@ using System;
 
 namespace SJP.Schematic.Reporting.Dot
 {
-    internal sealed class RgbColor : IEquatable<RgbColor>
+    public sealed class RgbColor : IEquatable<RgbColor>
     {
         public RgbColor(string hex)
         {

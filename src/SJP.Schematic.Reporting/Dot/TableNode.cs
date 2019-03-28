@@ -51,16 +51,20 @@ namespace SJP.Schematic.Reporting.Dot
             var borderSize = _options.ShowColumnDataType ? 2 : 0;
             var borderSizeText = borderSize.ToString();
 
+            var tableBgColor = _options.IsHighlighted
+                ? _options.Theme.HighlightedTableBackgroundColor
+                : _options.Theme.TableBackgroundColor;
+
             var table = new XElement(HtmlElement.Table,
                 new XAttribute(HtmlAttribute.Border, borderSizeText),
                 new XAttribute(HtmlAttribute.CellBorder, 1),
                 new XAttribute(HtmlAttribute.CellSpacing, 0),
-                new XAttribute(HtmlAttribute.BackgroundColor, _options.TableBackgroundColor)
+                new XAttribute(HtmlAttribute.BackgroundColor, tableBgColor)
             );
 
             var headerBackgroundColor = _options.IsHighlighted
-                ? _options.HighlightedHeaderBackgroundColor
-                : _options.HeaderBackgroundColor;
+                ? _options.Theme.HighlightedHeaderBackgroundColor
+                : _options.Theme.HeaderBackgroundColor;
             var tableHeaderRow = new XElement(HtmlElement.TableRow,
                 new XElement(HtmlElement.TableCell,
                     new XAttribute(HtmlAttribute.BackgroundColor, headerBackgroundColor),
@@ -100,6 +104,7 @@ namespace SJP.Schematic.Reporting.Dot
                     new XAttribute(HtmlAttribute.Align, "LEFT"));
                 var columnNameCell = new XElement(HtmlElement.TableCell,
                     new XAttribute(HtmlAttribute.Align, "LEFT"),
+                    new XAttribute(HtmlAttribute.BackgroundColor, tableBgColor),
                     c);
 
                 mainColumnRow.Add(columnNameCell);
@@ -112,6 +117,7 @@ namespace SJP.Schematic.Reporting.Dot
                     var columnType = _columnTypes[i];
                     var columnTypeCell = new XElement(HtmlElement.TableCell,
                         new XAttribute(HtmlAttribute.Align, "LEFT"),
+                        new XAttribute(HtmlAttribute.BackgroundColor, tableBgColor),
                         columnType);
 
                     columnRow.Add(columnTypeCell);
@@ -131,6 +137,7 @@ namespace SJP.Schematic.Reporting.Dot
                     new XElement(HtmlElement.TableCell,
                         new XAttribute(HtmlAttribute.ColumnSpan, 3),
                         new XAttribute(HtmlAttribute.Align, "LEFT"),
+                        new XAttribute(HtmlAttribute.BackgroundColor, tableBgColor),
                         "…"));
                 table.Add(endRow);
             }
@@ -141,8 +148,8 @@ namespace SJP.Schematic.Reporting.Dot
             const string emptyText = " ";
 
             var footerBackgroundColor = _options.IsHighlighted
-                ? _options.HighlightedFooterBackgroundColor
-                : _options.FooterBackgroundColor;
+                ? _options.Theme.HighlightedFooterBackgroundColor
+                : _options.Theme.FooterBackgroundColor;
 
             var foreignKeyCellText = _parents > 0 ? _parents.ToString() + " P" : emptyText;
             var foreignKeyCell = new XElement(HtmlElement.TableCell,
@@ -191,7 +198,7 @@ namespace SJP.Schematic.Reporting.Dot
                     new XAttribute(HtmlAttribute.CellBorder, 1),
                     new XAttribute(HtmlAttribute.CellSpacing, 0),
                     new XAttribute(HtmlAttribute.CellPadding, 4),
-                    new XAttribute(HtmlAttribute.BackgroundColor, _options.TableBackgroundColor)
+                    new XAttribute(HtmlAttribute.BackgroundColor, tableBgColor)
                 );
                 constraintWrapperCell.Add(constraintTable);
 

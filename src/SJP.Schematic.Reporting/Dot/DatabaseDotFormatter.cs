@@ -182,9 +182,12 @@ namespace SJP.Schematic.Reporting.Dot
             var graphName = !IdentifierDefaults.Database.IsNullOrWhiteSpace()
                 ? IdentifierDefaults.Database
                 : "unnamed graph";
+            var graphAttrs = _globalGraphAttrs.ToList();
+            graphAttrs.Add(GraphAttribute.BackgroundColor(options.Theme.BackgroundColor));
+
             var graph = new DotGraph(
                 new DotIdentifier(graphName),
-                _globalGraphAttrs,
+                graphAttrs,
                 _globalNodeAttrs,
                 _globalEdgeAttrs,
                 recordNodes,
@@ -196,7 +199,6 @@ namespace SJP.Schematic.Reporting.Dot
 
         private static readonly IEnumerable<GraphAttribute> _globalGraphAttrs = new[]
         {
-            GraphAttribute.BackgroundColor(new RgbColor("#FFFFFF")),
             GraphAttribute.RankDirection(RankDirection.RL),
             GraphAttribute.Ratio(GraphRatio.Compress)
         };

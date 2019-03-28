@@ -1,0 +1,828 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>Schematic Reporting Theme Builder</title>
+    <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
+    <link rel="stylesheet" href="bootstrap.min.css">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-sm-3 sidebar">
+                <h1>Variables</h1>
+                <div class="form-group">
+                    <label for="image-bg-col">Background Color</label>
+                    <input id="image-bg-col" type="text" class="form-control" value="#FFFFFF">
+                </div>
+                <div class="form-group">
+                    <label for="edge-col">Edge Color</label>
+                    <input id="edge-col" type="text" class="form-control" value="#000000">
+                </div>
+                <div class="form-group">
+                    <label for="table-fg-col">Table Foreground Color</label>
+                    <input id="table-fg-col" type="text" class="form-control" value="#000000">
+                </div>
+                <div class="form-group">
+                    <label for="header-fg-col">Header Foreground Color</label>
+                    <input id="header-fg-col" type="text" class="form-control" value="#000000">
+                </div>
+                <div class="form-group">
+                    <label for="footer-fg-col">Footer Foreground Color</label>
+                    <input id="footer-fg-col" type="text" class="form-control" value="#000000">
+                </div>
+                <div class="form-group">
+                    <label for="primary-key-header-fg-col">Primary Key Header Foreground Color</label>
+                    <input id="primary-key-header-fg-col" type="text" class="form-control" value="#000000">
+                </div>
+                <div class="form-group">
+                    <label for="unique-key-header-fg-col">Unique Key Header Foreground Color</label>
+                    <input id="unique-key-header-fg-col" type="text" class="form-control" value="#000000">
+                </div>
+                <div class="form-group">
+                    <label for="foreign-key-header-fg-col">Foreign Key Header Foreground Color</label>
+                    <input id="foreign-key-header-fg-col" type="text" class="form-control" value="#000000">
+                </div>
+                <div class="form-group">
+                    <label for="hl-table-fg-col">Highlighted Table Foreground Color</label>
+                    <input id="hl-table-fg-col" type="text" class="form-control" value="#000000">
+                </div>
+                <div class="form-group">
+                    <label for="hl-header-fg-col">Highlighted Header Foreground Color</label>
+                    <input id="hl-header-fg-col" type="text" class="form-control" value="#000000">
+                </div>
+                <div class="form-group">
+                    <label for="hl-footer-fg-col">Highlighted Footer Foreground Color</label>
+                    <input id="hl-footer-fg-col" type="text" class="form-control" value="#000000">
+                </div>
+                <div class="form-group">
+                    <label for="hl-primary-key-header-fg-col">Highlighted Primary Key Header Foreground Color</label>
+                    <input id="hl-primary-key-header-fg-col" type="text" class="form-control" value="#000000">
+                </div>
+                <div class="form-group">
+                    <label for="hl-unique-key-header-fg-col">Highlighted Unique Key Header Foreground Color</label>
+                    <input id="hl-unique-key-header-fg-col" type="text" class="form-control" value="#000000">
+                </div>
+                <div class="form-group">
+                    <label for="hl-foreign-key-header-fg-col">Highlighted Foreign Key Header Foreground Color</label>
+                    <input id="hl-foreign-key-header-fg-col" type="text" class="form-control" value="#000000">
+                </div>
+                <div class="form-group">
+                    <label for="table-bg-col">Table Background Color</label>
+                    <input id="table-bg-col" type="text" class="form-control" value="#FFFFFF">
+                </div>
+                <div class="form-group">
+                    <label for="header-bg-col">Header Background Color</label>
+                    <input id="header-bg-col" type="text" class="form-control" value="#BFE3C6">
+                </div>
+                <div class="form-group">
+                    <label for="footer-bg-col">Footer Background Color</label>
+                    <input id="footer-bg-col" type="text" class="form-control" value="#BFE3C6">
+                </div>
+                <div class="form-group">
+                    <label for="primary-key-header-bg-col">Primary Key Header Background Color</label>
+                    <input id="primary-key-header-bg-col" type="text" class="form-control" value="#EFEBA8">
+                </div>
+                <div class="form-group">
+                    <label for="unique-key-header-bg-col">Unique Key Header Background Color</label>
+                    <input id="unique-key-header-bg-col" type="text" class="form-control" value="#B8D0DD">
+                </div>
+                <div class="form-group">
+                    <label for="foreign-key-header-bg-col">Foreign Key Header Background Color</label>
+                    <input id="foreign-key-header-bg-col" type="text" class="form-control" value="#E5E5E5">
+                </div>
+                <div class="form-group">
+                    <label for="hl-table-bg-col">Highlighted Table Background Color</label>
+                    <input id="hl-table-bg-col" type="text" class="form-control" value="#FFFFFF">
+                </div>
+                <div class="form-group">
+                    <label for="hl-header-bg-col">Highlighted Header Background Color</label>
+                    <input id="hl-header-bg-col" type="text" class="form-control" value="#7DDE90">
+                </div>
+                <div class="form-group">
+                    <label for="hl-footer-bg-col">Highlighted Footer Background Color</label>
+                    <input id="hl-footer-bg-col" type="text" class="form-control" value="#7DDE90">
+                </div>
+                <div class="form-group">
+                    <label for="hl-primary-key-header-bg-col">Highlighted Primary Key Header Background Color</label>
+                    <input id="hl-primary-key-header-bg-col" type="text" class="form-control" value="#D7CD28">
+                </div>
+                <div class="form-group">
+                    <label for="hl-unique-key-header-bg-col">Highlighted Unique Key Header Background Color</label>
+                    <input id="hl-unique-key-header-bg-col" type="text" class="form-control" value="#8FB3C7">
+                </div>
+                <div class="form-group">
+                    <label for="hl-foreign-key-header-bg-col">Highlighted Foreign Key Header Background Color</label>
+                    <input id="hl-foreign-key-header-bg-col" type="text" class="form-control" value="#B0B0B0">
+                </div>
+                <div class="form-group">
+                    <label for="table-border-col">Table Border Color</label>
+                    <input id="table-border-col" type="text" class="form-control" value="#000000">
+                </div>
+                <div class="form-group">
+                    <label for="header-border-col">Header Border Color</label>
+                    <input id="header-border-col" type="text" class="form-control" value="#000000">
+                </div>
+                <div class="form-group">
+                    <label for="footer-border-col">Footer Border Color</label>
+                    <input id="footer-border-col" type="text" class="form-control" value="#000000">
+                </div>
+                <div class="form-group">
+                    <label for="primary-key-header-border-col">Primary Key Header Border Color</label>
+                    <input id="primary-key-header-border-col" type="text" class="form-control" value="#000000">
+                </div>
+                <div class="form-group">
+                    <label for="unique-key-header-border-col">Unique Key Header Border Color</label>
+                    <input id="unique-key-header-border-col" type="text" class="form-control" value="#000000">
+                </div>
+                <div class="form-group">
+                    <label for="foreign-key-header-border-col">Foreign Key Header Border Color</label>
+                    <input id="foreign-key-header-border-col" type="text" class="form-control" value="#000000">
+                </div>
+                <div class="form-group">
+                    <label for="hl-table-border-col">Highlighted Table Border Color</label>
+                    <input id="hl-table-border-col" type="text" class="form-control" value="#000000">
+                </div>
+                <div class="form-group">
+                    <label for="hl-header-border-col">Highlighted Header Border Color</label>
+                    <input id="hl-header-border-col" type="text" class="form-control" value="#000000">
+                </div>
+                <div class="form-group">
+                    <label for="hl-footer-border-col">Highlighted Footer Border Color</label>
+                    <input id="hl-footer-border-col" type="text" class="form-control" value="#000000">
+                </div>
+                <div class="form-group">
+                    <label for="hl-primary-key-header-border-col">Highlighted Primary Key Header Border Color</label>
+                    <input id="hl-primary-key-header-border-col" type="text" class="form-control" value="#000000">
+                </div>
+                <div class="form-group">
+                    <label for="hl-unique-key-header-border-col">Highlighted Unique Key Header Border Color</label>
+                    <input id="hl-unique-key-header-border-col" type="text" class="form-control" value="#000000">
+                </div>
+                <div class="form-group">
+                    <label for="hl-foreign-key-header-border-col">Highlighted Foreign Key Header Border Color</label>
+                    <input id="hl-foreign-key-header-border-col" type="text" class="form-control" value="#000000">
+                </div>
+            </div>
+            <div class="col-sm-9 diagram">
+                <svg width="100%" viewBox="0.00 0.00 1011.00 820.00" xmlns="http://www.w3.org/2000/svg"
+                     xmlns:xlink="http://www.w3.org/1999/xlink">
+                    <g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 816)">
+                        <title>unnamed graph</title>
+                        <polygon class="dot-image-bg-col" fill="#ffffff" stroke="none" points="-4,4 -4,-816 1007,-816 1007,4 -4,4" />
+                        <!-- address&#45;22d5bd2b -->
+                        <g id="node1" class="node">
+                            <title>address-22d5bd2b</title>
+                            <g id="a_node1">
+                                <g>
+                                    <polygon class="dot-table-bg-col" fill="#ffffff" stroke="none"
+                                             points="8,-57.5 8,-470.5 151,-470.5 151,-57.5 8,-57.5" />
+                                    <polygon class="dot-header-bg-col" fill="#bfe3c6" stroke="none"
+                                             points="8.5,-449 8.5,-470 151.5,-470 151.5,-449 8.5,-449" />
+                                    <polygon class="dot-header-border-col" fill="none" stroke="black"
+                                             points="8.5,-449 8.5,-470 151.5,-470 151.5,-449 8.5,-449" />
+                                    <text class="dot-header-fg-col" text-anchor="start" x="60" y="-456.8" font-family="Helvetica,sans-Serif"
+                                          font-weight="bold" font-size="14.00">Table</text>
+                                    <polygon class="dot-header-bg-col" fill="#bfe3c6" stroke="none"
+                                             points="8.5,-428 8.5,-449 151.5,-449 151.5,-428 8.5,-428" />
+                                    <polygon class="dot-header-border-col" fill="none" stroke="black"
+                                             points="8.5,-428 8.5,-449 151.5,-449 151.5,-428 8.5,-428" />
+                                    <text class="dot-header-fg-col" text-anchor="start" x="30" y="-435.8" font-family="Courier,monospace"
+                                          font-weight="bold" font-size="14.00">main.address</text>
+                                    <polygon class="dot-table-border-col" fill="none" stroke="black"
+                                             points="8.5,-403 8.5,-428 151.5,-428 151.5,-403 8.5,-403" />
+                                    <text class="dot-table-fg-col" text-anchor="start" x="13.5" y="-411.8" font-family="Courier,monospace"
+                                          font-size="14.00">address_id</text>
+                                    <polygon class="dot-table-border-col" fill="none" stroke="black"
+                                             points="8.5,-378 8.5,-403 151.5,-403 151.5,-378 8.5,-378" />
+                                    <text class="dot-table-fg-col" text-anchor="start" x="13.5" y="-386.8" font-family="Courier,monospace"
+                                          font-size="14.00">address</text>
+                                    <polygon class="dot-table-border-col" fill="none" stroke="black"
+                                             points="8.5,-353 8.5,-378 151.5,-378 151.5,-353 8.5,-353" />
+                                    <text class="dot-table-fg-col" text-anchor="start" x="13.5" y="-361.8" font-family="Courier,monospace"
+                                          font-size="14.00">address2</text>
+                                    <polygon class="dot-table-border-col" fill="none" stroke="black"
+                                             points="8.5,-328 8.5,-353 151.5,-353 151.5,-328 8.5,-328" />
+                                    <text class="dot-table-fg-col" text-anchor="start" x="13.5" y="-336.8" font-family="Courier,monospace"
+                                          font-size="14.00">district</text>
+                                    <polygon class="dot-table-border-col" fill="none" stroke="black"
+                                             points="8.5,-303 8.5,-328 151.5,-328 151.5,-303 8.5,-303" />
+                                    <text class="dot-table-fg-col" text-anchor="start" x="13.5" y="-311.8" font-family="Courier,monospace"
+                                          font-size="14.00">city_id</text>
+                                    <polygon class="dot-table-border-col" fill="none" stroke="black"
+                                             points="8.5,-278 8.5,-303 151.5,-303 151.5,-278 8.5,-278" />
+                                    <text class="dot-table-fg-col" text-anchor="start" x="13.5" y="-286.8" font-family="Courier,monospace"
+                                          font-size="14.00">postal_code</text>
+                                    <polygon class="dot-table-border-col" fill="none" stroke="black"
+                                             points="8.5,-253 8.5,-278 151.5,-278 151.5,-253 8.5,-253" />
+                                    <text class="dot-table-fg-col" text-anchor="start" x="13.5" y="-261.8" font-family="Courier,monospace"
+                                          font-size="14.00">phone</text>
+                                    <polygon class="dot-table-border-col" fill="none" stroke="black"
+                                             points="8.5,-228 8.5,-253 151.5,-253 151.5,-228 8.5,-228" />
+                                    <text class="dot-table-fg-col" text-anchor="start" x="13.5" y="-236.8" font-family="Courier,monospace"
+                                          font-size="14.00">last_update</text>
+                                    <polygon class="dot-footer-bg-col" fill="#bfe3c6" stroke="none"
+                                             points="8.5,-207 8.5,-228 46.5,-228 46.5,-207 8.5,-207" />
+                                    <polygon class="dot-footer-border-col" fill="none" stroke="black"
+                                             points="8.5,-207 8.5,-228 46.5,-228 46.5,-207 8.5,-207" />
+                                    <text class="dot-footer-fg-col" text-anchor="start" x="11.5" y="-213.8" font-family="Helvetica,sans-Serif"
+                                          font-size="14.00">1 P</text>
+                                    <polygon class="dot-footer-bg-col" fill="#bfe3c6" stroke="none"
+                                             points="46.5,-207 46.5,-228 116.5,-228 116.5,-207 46.5,-207" />
+                                    <polygon class="dot-footer-border-col" fill="none" stroke="black"
+                                             points="46.5,-207 46.5,-228 116.5,-228 116.5,-207 46.5,-207" />
+                                    <text class="dot-footer-fg-col" text-anchor="start" x="54.5" y="-213.8" font-family="Helvetica,sans-Serif"
+                                          font-size="14.00">603 rows</text>
+                                    <polygon class="dot-footer-bg-col" fill="#bfe3c6" stroke="none"
+                                             points="116.5,-207 116.5,-228 151.5,-228 151.5,-207 116.5,-207" />
+                                    <polygon class="dot-footer-border-col" fill="none" stroke="black"
+                                             points="116.5,-207 116.5,-228 151.5,-228 151.5,-207 116.5,-207" />
+                                    <text class="dot-footer-fg-col" text-anchor="start" x="125.5" y="-213.8" font-family="Helvetica,sans-Serif"
+                                          font-size="14.00">3 C</text>
+                                    <polygon class="dot-table-bg-col" fill="#ffffff" stroke="none"
+                                             points="8.5,-157 8.5,-207 151.5,-207 151.5,-157 8.5,-157" />
+                                    <polygon class="dot-primary-key-header-bg-col" fill="#efeba8" stroke="none"
+                                             points="8.5,-182 8.5,-207 151.5,-207 151.5,-182 8.5,-182" />
+                                    <polygon class="dot-primary-key-header-border-col" fill="none" stroke="black"
+                                             points="8.5,-182 8.5,-207 151.5,-207 151.5,-182 8.5,-182" />
+                                    <text class="dot-primary-key-header-fg-col" text-anchor="start" x="37" y="-191.8" font-family="Helvetica,sans-Serif"
+                                          font-weight="bold" font-size="14.00">Primary Key</text>
+                                    <polygon class="dot-table-border-col" fill="none" stroke="black"
+                                             points="8.5,-157 8.5,-182 151.5,-182 151.5,-157 8.5,-157" />
+                                    <text class="dot-table-fg-col" text-anchor="start" x="13.5" y="-165.8" font-family="Courier,monospace"
+                                          font-size="14.00">address_id</text>
+                                    <polygon class="dot-table-bg-col" fill="#ffffff" stroke="none"
+                                             points="8.5,-57 8.5,-157 151.5,-157 151.5,-57 8.5,-57" />
+                                    <polygon class="dot-unique-key-header-bg-col" fill="#b8d0dd" stroke="none"
+                                             points="8.5,-132 8.5,-157 151.5,-157 151.5,-132 8.5,-132" />
+                                    <polygon class="dot-unique-key-header-border-col" fill="none" stroke="black"
+                                             points="8.5,-132 8.5,-157 151.5,-157 151.5,-132 8.5,-132" />
+                                    <text class="dot-unique-key-header-fg-col" text-anchor="start" x="40" y="-141.8" font-family="Helvetica,sans-Serif"
+                                          font-weight="bold" font-size="14.00">Unique Key</text>
+                                    <polygon class="dot-unique-key-header-bg-col" fill="#b8d0dd" stroke="none"
+                                             points="8.5,-107 8.5,-132 151.5,-132 151.5,-107 8.5,-107" />
+                                    <polygon class="dot-unique-key-header-border-col" fill="none" stroke="black"
+                                             points="8.5,-107 8.5,-132 151.5,-132 151.5,-107 8.5,-107" />
+                                    <text class="dot-unique-key-header-fg-col" text-anchor="start" x="13.5" y="-116.8" font-family="Courier,monospace"
+                                          font-weight="bold" font-size="14.00">uk_address_email</text>
+                                    <polygon class="dot-table-border-col" fill="none" stroke="black"
+                                             points="8.5,-82 8.5,-107 151.5,-107 151.5,-82 8.5,-82" />
+                                    <text class="dot-table-fg-col" text-anchor="start" x="13.5" y="-90.8" font-family="Courier,monospace"
+                                          font-size="14.00">address</text>
+                                    <polygon class="dot-table-border-col" fill="none" stroke="black"
+                                             points="8.5,-57 8.5,-82 151.5,-82 151.5,-57 8.5,-57" />
+                                    <text class="dot-table-fg-col" text-anchor="start" x="13.5" y="-65.8" font-family="Courier,monospace"
+                                          font-size="14.00">address2</text>
+                                </g>
+                            </g>
+                        </g>
+                        <!-- customer&#45;e516addb -->
+                        <g id="node2" class="node">
+                            <title>customer-e516addb</title>
+                            <g id="a_node2">
+                                <g>
+                                    <polygon class="dot-hl-table-bg-col" fill="#ffffff" stroke="none"
+                                             points="398,-139 398,-727 565,-727 565,-139 398,-139" />
+                                    <polygon class="dot-hl-header-bg-col" fill="#7dde90" stroke="none"
+                                             points="398.5,-706 398.5,-727 565.5,-727 565.5,-706 398.5,-706" />
+                                    <polygon class="dot-hl-header-border-col" fill="none" stroke="black"
+                                             points="398.5,-706 398.5,-727 565.5,-727 565.5,-706 398.5,-706" />
+                                    <text class="dot-hl-header-fg-col" text-anchor="start" x="462" y="-713.8" font-family="Helvetica,sans-Serif"
+                                          font-weight="bold" font-size="14.00">Table</text>
+                                    <polygon class="dot-hl-header-bg-col" fill="#7dde90" stroke="none"
+                                             points="398.5,-685 398.5,-706 565.5,-706 565.5,-685 398.5,-685" />
+                                    <polygon class="dot-hl-header-border-col" fill="none" stroke="black"
+                                             points="398.5,-685 398.5,-706 565.5,-706 565.5,-685 398.5,-685" />
+                                    <text class="dot-hl-header-fg-col" text-anchor="start" x="428" y="-692.8" font-family="Courier,monospace"
+                                          font-weight="bold" font-size="14.00">main.customer</text>
+                                    <polygon class="dot-hl-table-border-col" fill="none" stroke="black"
+                                             points="398.5,-660 398.5,-685 565.5,-685 565.5,-660 398.5,-660" />
+                                    <text class="dot-hl-table-fg-col" text-anchor="start" x="403.5" y="-668.8" font-family="Courier,monospace"
+                                          font-size="14.00">customer_id</text>
+                                    <polygon class="dot-hl-table-border-col" fill="none" stroke="black"
+                                             points="398.5,-635 398.5,-660 565.5,-660 565.5,-635 398.5,-635" />
+                                    <text class="dot-hl-table-fg-col" text-anchor="start" x="403.5" y="-643.8" font-family="Courier,monospace"
+                                          font-size="14.00">store_id</text>
+                                    <polygon class="dot-hl-table-border-col" fill="none" stroke="black"
+                                             points="398.5,-610 398.5,-635 565.5,-635 565.5,-610 398.5,-610" />
+                                    <text class="dot-hl-table-fg-col" text-anchor="start" x="403.5" y="-618.8" font-family="Courier,monospace"
+                                          font-size="14.00">first_name</text>
+                                    <polygon class="dot-hl-table-border-col" fill="none" stroke="black"
+                                             points="398.5,-585 398.5,-610 565.5,-610 565.5,-585 398.5,-585" />
+                                    <text class="dot-hl-table-fg-col" text-anchor="start" x="403.5" y="-593.8" font-family="Courier,monospace"
+                                          font-size="14.00">last_name</text>
+                                    <polygon class="dot-hl-table-border-col" fill="none" stroke="black"
+                                             points="398.5,-560 398.5,-585 565.5,-585 565.5,-560 398.5,-560" />
+                                    <text class="dot-hl-table-fg-col" text-anchor="start" x="403.5" y="-568.8" font-family="Courier,monospace"
+                                          font-size="14.00">email</text>
+                                    <polygon class="dot-hl-table-border-col" fill="none" stroke="black"
+                                             points="398.5,-535 398.5,-560 565.5,-560 565.5,-535 398.5,-535" />
+                                    <text class="dot-hl-table-fg-col" text-anchor="start" x="403.5" y="-543.8" font-family="Courier,monospace"
+                                          font-size="14.00">address_id</text>
+                                    <polygon class="dot-hl-table-border-col" fill="none" stroke="black"
+                                             points="398.5,-510 398.5,-535 565.5,-535 565.5,-510 398.5,-510" />
+                                    <text class="dot-hl-table-fg-col" text-anchor="start" x="403.5" y="-518.8" font-family="Courier,monospace"
+                                          font-size="14.00">active</text>
+                                    <polygon class="dot-hl-table-border-col" fill="none" stroke="black"
+                                             points="398.5,-485 398.5,-510 565.5,-510 565.5,-485 398.5,-485" />
+                                    <text class="dot-hl-table-fg-col" text-anchor="start" x="403.5" y="-493.8" font-family="Courier,monospace"
+                                          font-size="14.00">create_date</text>
+                                    <polygon class="dot-hl-table-border-col" fill="none" stroke="black"
+                                             points="398.5,-460 398.5,-485 565.5,-485 565.5,-460 398.5,-460" />
+                                    <text class="dot-hl-table-fg-col" text-anchor="start" x="403.5" y="-468.8" font-family="Courier,monospace"
+                                          font-size="14.00">last_update</text>
+                                    <polygon class="dot-hl-footer-bg-col" fill="#7dde90" stroke="none"
+                                             points="398.5,-439 398.5,-460 448.5,-460 448.5,-439 398.5,-439" />
+                                    <polygon class="dot-hl-footer-border-col" fill="none" stroke="black"
+                                             points="398.5,-439 398.5,-460 448.5,-460 448.5,-439 398.5,-439" />
+                                    <text class="dot-hl-footer-fg-col" text-anchor="start" x="401.5" y="-445.8" font-family="Helvetica,sans-Serif"
+                                          font-size="14.00">2 P</text>
+                                    <polygon class="dot-hl-footer-bg-col" fill="#7dde90" stroke="none"
+                                             points="448.5,-439 448.5,-460 524.5,-460 524.5,-439 448.5,-439" />
+                                    <polygon class="dot-hl-footer-border-col" fill="none" stroke="black"
+                                             points="448.5,-439 448.5,-460 524.5,-460 524.5,-439 448.5,-439" />
+                                    <text class="dot-hl-footer-fg-col" text-anchor="start" x="462.5" y="-445.8" font-family="Helvetica,sans-Serif"
+                                          font-size="14.00">599 rows</text>
+                                    <polygon class="dot-hl-footer-bg-col" fill="#7dde90" stroke="none"
+                                             points="524.5,-439 524.5,-460 565.5,-460 565.5,-439 524.5,-439" />
+                                    <polygon class="dot-hl-footer-border-col" fill="none" stroke="black"
+                                             points="524.5,-439 524.5,-460 565.5,-460 565.5,-439 524.5,-439" />
+                                    <text class="dot-hl-footer-fg-col" text-anchor="start" x="539.5" y="-445.8" font-family="Helvetica,sans-Serif"
+                                          font-size="14.00">2 C</text>
+                                    <polygon class="dot-hl-table-bg-col" fill="#ffffff" stroke="none"
+                                             points="398.5,-389 398.5,-439 565.5,-439 565.5,-389 398.5,-389" />
+                                    <polygon class="dot-hl-primary-key-header-bg-col" fill="#d7cd28" stroke="none"
+                                             points="398.5,-414 398.5,-439 565.5,-439 565.5,-414 398.5,-414" />
+                                    <polygon class="dot-hl-primary-key-header-border-col" fill="none" stroke="black"
+                                             points="398.5,-414 398.5,-439 565.5,-439 565.5,-414 398.5,-414" />
+                                    <text class="dot-hl-primary-key-header-fg-col" text-anchor="start" x="439" y="-423.8" font-family="Helvetica,sans-Serif"
+                                          font-weight="bold" font-size="14.00">Primary Key</text>
+                                    <polygon class="dot-hl-table-border-col" fill="none" stroke="black"
+                                             points="398.5,-389 398.5,-414 565.5,-414 565.5,-389 398.5,-389" />
+                                    <text class="dot-hl-table-fg-col" text-anchor="start" x="403.5" y="-397.8" font-family="Courier,monospace"
+                                          font-size="14.00">customer_id</text>
+                                    <polygon class="dot-hl-table-bg-col" fill="#ffffff" stroke="none"
+                                             points="398.5,-289 398.5,-389 565.5,-389 565.5,-289 398.5,-289" />
+                                    <polygon class="dot-hl-unique-key-header-bg-col" fill="#8fb3c7" stroke="none"
+                                             points="398.5,-364 398.5,-389 565.5,-389 565.5,-364 398.5,-364" />
+                                    <polygon class="dot-hl-unique-key-header-border-col" fill="none" stroke="black"
+                                             points="398.5,-364 398.5,-389 565.5,-389 565.5,-364 398.5,-364" />
+                                    <text class="dot-hl-unique-key-header-fg-col" text-anchor="start" x="442" y="-373.8" font-family="Helvetica,sans-Serif"
+                                          font-weight="bold" font-size="14.00">Unique Key</text>
+                                    <polygon class="dot-hl-unique-key-header-bg-col" fill="#8fb3c7" stroke="none"
+                                             points="398.5,-339 398.5,-364 565.5,-364 565.5,-339 398.5,-339" />
+                                    <polygon class="dot-hl-unique-key-header-border-col" fill="none" stroke="black"
+                                             points="398.5,-339 398.5,-364 565.5,-364 565.5,-339 398.5,-339" />
+                                    <text class="dot-hl-unique-key-header-fg-col" text-anchor="start" x="415.5" y="-348.8" font-family="Courier,monospace"
+                                          font-weight="bold" font-size="14.00">uk_customer_name</text>
+                                    <polygon class="dot-hl-table-border-col" fill="none" stroke="black"
+                                             points="398.5,-314 398.5,-339 565.5,-339 565.5,-314 398.5,-314" />
+                                    <text class="dot-hl-table-fg-col" text-anchor="start" x="403.5" y="-322.8" font-family="Courier,monospace"
+                                          font-size="14.00">first_name</text>
+                                    <polygon class="dot-hl-table-border-col" fill="none" stroke="black"
+                                             points="398.5,-289 398.5,-314 565.5,-314 565.5,-289 398.5,-289" />
+                                    <text class="dot-hl-table-fg-col" text-anchor="start" x="403.5" y="-297.8" font-family="Courier,monospace"
+                                          font-size="14.00">last_name</text>
+                                    <polygon class="dot-hl-table-bg-col" fill="#ffffff" stroke="none"
+                                             points="398.5,-214 398.5,-289 565.5,-289 565.5,-214 398.5,-214" />
+                                    <polygon class="dot-hl-foreign-key-header-bg-col" fill="#b0b0b0" stroke="none"
+                                             points="398.5,-264 398.5,-289 565.5,-289 565.5,-264 398.5,-264" />
+                                    <polygon class="dot-hl-foreign-key-header-border-col" fill="none" stroke="black"
+                                             points="398.5,-264 398.5,-289 565.5,-289 565.5,-264 398.5,-264" />
+                                    <text class="dot-hl-foreign-key-header-fg-col" text-anchor="start" x="439.5" y="-273.8" font-family="Helvetica,sans-Serif"
+                                          font-weight="bold" font-size="14.00">Foreign Key</text>
+                                    <polygon class="dot-hl-foreign-key-header-bg-col" fill="#b0b0b0" stroke="none"
+                                             points="398.5,-239 398.5,-264 565.5,-264 565.5,-239 398.5,-239" />
+                                    <polygon class="dot-hl-foreign-key-header-border-col" fill="none" stroke="black"
+                                             points="398.5,-239 398.5,-264 565.5,-264 565.5,-239 398.5,-239" />
+                                    <text class="dot-hl-foreign-key-header-fg-col" text-anchor="start" x="403.5" y="-248.8" font-family="Courier,monospace"
+                                          font-weight="bold" font-size="14.00">fk_customer_address</text>
+                                    <polygon class="dot-hl-table-border-col" fill="none" stroke="black"
+                                             points="398.5,-214 398.5,-239 565.5,-239 565.5,-214 398.5,-214" />
+                                    <text class="dot-hl-table-fg-col" text-anchor="start" x="403.5" y="-222.8" font-family="Courier,monospace"
+                                          font-size="14.00">address_id</text>
+                                    <polygon class="dot-hl-table-bg-col" fill="#ffffff" stroke="none"
+                                             points="398.5,-139 398.5,-214 565.5,-214 565.5,-139 398.5,-139" />
+                                    <polygon class="dot-hl-foreign-key-header-bg-col" fill="#b0b0b0" stroke="none"
+                                             points="398.5,-189 398.5,-214 565.5,-214 565.5,-189 398.5,-189" />
+                                    <polygon class="dot-hl-foreign-key-header-border-col" fill="none" stroke="black"
+                                             points="398.5,-189 398.5,-214 565.5,-214 565.5,-189 398.5,-189" />
+                                    <text class="dot-hl-foreign-key-header-fg-col" text-anchor="start" x="439.5" y="-198.8" font-family="Helvetica,sans-Serif"
+                                          font-weight="bold" font-size="14.00">Foreign Key</text>
+                                    <polygon class="dot-hl-foreign-key-header-bg-col" fill="#b0b0b0" stroke="none"
+                                             points="398.5,-164 398.5,-189 565.5,-189 565.5,-164 398.5,-164" />
+                                    <polygon class="dot-hl-foreign-key-header-border-col" fill="none" stroke="black"
+                                             points="398.5,-164 398.5,-189 565.5,-189 565.5,-164 398.5,-164" />
+                                    <text class="dot-hl-foreign-key-header-fg-col" text-anchor="start" x="411.5" y="-173.8" font-family="Courier,monospace"
+                                          font-weight="bold" font-size="14.00">fk_customer_store</text>
+                                    <polygon class="dot-hl-table-border-col" fill="none" stroke="black"
+                                             points="398.5,-139 398.5,-164 565.5,-164 565.5,-139 398.5,-139" />
+                                    <text class="dot-hl-table-fg-col" text-anchor="start" x="403.5" y="-147.8" font-family="Courier,monospace"
+                                          font-size="14.00">store_id</text>
+                                </g>
+                            </g>
+                        </g>
+                        <!-- customer&#45;e516addb&#45;&gt;address&#45;22d5bd2b -->
+                        <g id="edge1" class="edge">
+                            <title>customer-e516addb:fk_customer_address-&gt;address-22d5bd2b:-395735507</title>
+                            <path class="dot-edge-col" fill="none" stroke="black"
+                                  d="M397.5,-251C366.682,-251 381.799,-291.697 354,-305 290.256,-335.504 252.553,-346.005 195,-305 151.023,-273.667 202.528,-193.632 162.498,-183.141" />
+                            <polygon class="dot-edge-col" fill="black" stroke="black"
+                                     points="152.5,-182 162.946,-178.663 157.468,-182.567 162.436,-183.134 162.436,-183.134 162.436,-183.134 157.468,-182.567 161.925,-187.605 152.5,-182 152.5,-182" />
+                        </g>
+                        <!-- store&#45;dd14df1f -->
+                        <g id="node5" class="node">
+                            <title>store-dd14df1f</title>
+                            <g id="a_node5">
+                                <g>
+                                    <polygon class="dot-table-bg-col" fill="#ffffff" stroke="none"
+                                             points="203,-4 203,-292 346,-292 346,-4 203,-4" />
+                                    <polygon class="dot-header-bg-col" fill="#bfe3c6" stroke="none"
+                                             points="203.5,-271 203.5,-292 346.5,-292 346.5,-271 203.5,-271" />
+                                    <polygon class="dot-header-border-col" fill="none" stroke="black"
+                                             points="203.5,-271 203.5,-292 346.5,-292 346.5,-271 203.5,-271" />
+                                    <text class="dot-header-fg-col" text-anchor="start" x="255" y="-278.8" font-family="Helvetica,sans-Serif"
+                                          font-weight="bold" font-size="14.00">Table</text>
+                                    <polygon class="dot-header-bg-col" fill="#bfe3c6" stroke="none"
+                                             points="203.5,-250 203.5,-271 346.5,-271 346.5,-250 203.5,-250" />
+                                    <polygon class="dot-header-border-col" fill="none" stroke="black"
+                                             points="203.5,-250 203.5,-271 346.5,-271 346.5,-250 203.5,-250" />
+                                    <text class="dot-header-fg-col" text-anchor="start" x="233.5" y="-257.8" font-family="Courier,monospace"
+                                          font-weight="bold" font-size="14.00">main.store</text>
+                                    <polygon class="dot-table-border-col" fill="none" stroke="black"
+                                             points="203.5,-225 203.5,-250 346.5,-250 346.5,-225 203.5,-225" />
+                                    <text class="dot-table-fg-col" text-anchor="start" x="208.5" y="-233.8" font-family="Courier,monospace"
+                                          font-size="14.00">store_id</text>
+                                    <polygon class="dot-table-border-col" fill="none" stroke="black"
+                                             points="203.5,-200 203.5,-225 346.5,-225 346.5,-200 203.5,-200" />
+                                    <text class="dot-table-fg-col" text-anchor="start" x="208.5" y="-208.8" font-family="Courier,monospace"
+                                          font-size="14.00">manager_staff_id</text>
+                                    <polygon class="dot-table-border-col" fill="none" stroke="black"
+                                             points="203.5,-175 203.5,-200 346.5,-200 346.5,-175 203.5,-175" />
+                                    <text class="dot-table-fg-col" text-anchor="start" x="208.5" y="-183.8" font-family="Courier,monospace"
+                                          font-size="14.00">address_id</text>
+                                    <polygon class="dot-table-border-col" fill="none" stroke="black"
+                                             points="203.5,-150 203.5,-175 346.5,-175 346.5,-150 203.5,-150" />
+                                    <text class="dot-table-fg-col" text-anchor="start" x="208.5" y="-158.8" font-family="Courier,monospace"
+                                          font-size="14.00">last_update</text>
+                                    <polygon class="dot-footer-bg-col" fill="#bfe3c6" stroke="none"
+                                             points="203.5,-129 203.5,-150 249.5,-150 249.5,-129 203.5,-129" />
+                                    <polygon class="dot-footer-border-col" fill="none" stroke="black"
+                                             points="203.5,-129 203.5,-150 249.5,-150 249.5,-129 203.5,-129" />
+                                    <text class="dot-footer-fg-col" text-anchor="start" x="206.5" y="-135.8" font-family="Helvetica,sans-Serif"
+                                          font-size="14.00">2 P</text>
+                                    <polygon class="dot-footer-bg-col" fill="#bfe3c6" stroke="none"
+                                             points="249.5,-129 249.5,-150 307.5,-150 307.5,-129 249.5,-129" />
+                                    <polygon class="dot-footer-border-col" fill="none" stroke="black"
+                                             points="249.5,-129 249.5,-150 307.5,-150 307.5,-129 249.5,-129" />
+                                    <text class="dot-footer-fg-col" text-anchor="start" x="261.5" y="-135.8" font-family="Helvetica,sans-Serif"
+                                          font-size="14.00">2 rows</text>
+                                    <polygon class="dot-footer-bg-col" fill="#bfe3c6" stroke="none"
+                                             points="307.5,-129 307.5,-150 346.5,-150 346.5,-129 307.5,-129" />
+                                    <polygon class="dot-footer-border-col" fill="none" stroke="black"
+                                             points="307.5,-129 307.5,-150 346.5,-150 346.5,-129 307.5,-129" />
+                                    <text class="dot-footer-fg-col" text-anchor="start" x="320.5" y="-135.8" font-family="Helvetica,sans-Serif"
+                                          font-size="14.00">4 C</text>
+                                    <polygon class="dot-table-bg-col" fill="#ffffff" stroke="none"
+                                             points="203.5,-79 203.5,-129 346.5,-129 346.5,-79 203.5,-79" />
+                                    <polygon class="dot-primary-key-header-bg-col" fill="#efeba8" stroke="none"
+                                             points="203.5,-104 203.5,-129 346.5,-129 346.5,-104 203.5,-104" />
+                                    <polygon class="dot-primary-key-header-border-col" fill="none" stroke="black"
+                                             points="203.5,-104 203.5,-129 346.5,-129 346.5,-104 203.5,-104" />
+                                    <text class="dot-primary-key-header-fg-col" text-anchor="start" x="232" y="-113.8" font-family="Helvetica,sans-Serif"
+                                          font-weight="bold" font-size="14.00">Primary Key</text>
+                                    <polygon class="dot-table-border-col" fill="none" stroke="black"
+                                             points="203.5,-79 203.5,-104 346.5,-104 346.5,-79 203.5,-79" />
+                                    <text class="dot-table-fg-col" text-anchor="start" x="208.5" y="-87.8" font-family="Courier,monospace"
+                                          font-size="14.00">store_id</text>
+                                    <polygon class="dot-table-bg-col" fill="#ffffff" stroke="none"
+                                             points="203.5,-4 203.5,-79 346.5,-79 346.5,-4 203.5,-4" />
+                                    <polygon class="dot-foreign-key-header-bg-col" fill="#e5e5e5" stroke="none"
+                                             points="203.5,-54 203.5,-79 346.5,-79 346.5,-54 203.5,-54" />
+                                    <polygon class="dot-foreign-key-header-border-col" fill="none" stroke="black"
+                                             points="203.5,-54 203.5,-79 346.5,-79 346.5,-54 203.5,-54" />
+                                    <text class="dot-foreign-key-header-fg-col" text-anchor="start" x="232.5" y="-63.8" font-family="Helvetica,sans-Serif"
+                                          font-weight="bold" font-size="14.00">Foreign Key</text>
+                                    <polygon class="dot-foreign-key-header-bg-col" fill="#e5e5e5" stroke="none"
+                                             points="203.5,-29 203.5,-54 346.5,-54 346.5,-29 203.5,-29" />
+                                    <polygon class="dot-foreign-key-header-border-col" fill="none" stroke="black"
+                                             points="203.5,-29 203.5,-54 346.5,-54 346.5,-29 203.5,-29" />
+                                    <text class="dot-foreign-key-header-fg-col" text-anchor="start" x="208.5" y="-38.8" font-family="Courier,monospace"
+                                          font-weight="bold" font-size="14.00">fk_store_address</text>
+                                    <polygon class="dot-table-border-col" fill="none" stroke="black"
+                                             points="203.5,-4 203.5,-29 346.5,-29 346.5,-4 203.5,-4" />
+                                    <text class="dot-table-fg-col" text-anchor="start" x="208.5" y="-12.8" font-family="Courier,monospace"
+                                          font-size="14.00">address_id</text>
+                                </g>
+                            </g>
+                        </g>
+                        <!-- customer&#45;e516addb&#45;&gt;store&#45;dd14df1f -->
+                        <g id="edge2" class="edge">
+                            <title>customer-e516addb:fk_customer_store-&gt;store-dd14df1f:1640095243</title>
+                            <path class="dot-edge-col" fill="none" stroke="black"
+                                  d="M397.5,-176C362.498,-176 381.478,-117.882 357.441,-106.077" />
+                            <polygon class="dot-edge-col" fill="black" stroke="black"
+                                     points="347.5,-104 358.209,-101.641 352.394,-105.023 357.289,-106.045 357.289,-106.045 357.289,-106.045 352.394,-105.023 356.368,-110.45 347.5,-104 347.5,-104" />
+                        </g>
+                        <!-- payment&#45;a3e20d8f -->
+                        <g id="node3" class="node">
+                            <title>payment-a3e20d8f</title>
+                            <g id="a_node3">
+                                <g>
+                                    <polygon class="dot-table-bg-col" fill="#ffffff" stroke="none"
+                                             points="828,-370 828,-808 995,-808 995,-370 828,-370" />
+                                    <polygon class="dot-header-bg-col" fill="#bfe3c6" stroke="none"
+                                             points="828.5,-787 828.5,-808 995.5,-808 995.5,-787 828.5,-787" />
+                                    <polygon class="dot-header-border-col" fill="none" stroke="black"
+                                             points="828.5,-787 828.5,-808 995.5,-808 995.5,-787 828.5,-787" />
+                                    <text class="dot-header-fg-col" text-anchor="start" x="892" y="-794.8" font-family="Helvetica,sans-Serif"
+                                          font-weight="bold" font-size="14.00">Table</text>
+                                    <polygon class="dot-header-bg-col" fill="#bfe3c6" stroke="none"
+                                             points="828.5,-766 828.5,-787 995.5,-787 995.5,-766 828.5,-766" />
+                                    <polygon class="dot-header-border-col" fill="none" stroke="black"
+                                             points="828.5,-766 828.5,-787 995.5,-787 995.5,-766 828.5,-766" />
+                                    <text class="dot-header-fg-col" text-anchor="start" x="862" y="-773.8" font-family="Courier,monospace"
+                                          font-weight="bold" font-size="14.00">main.payment</text>
+                                    <polygon class="dot-table-border-col" fill="none" stroke="black"
+                                             points="828.5,-741 828.5,-766 995.5,-766 995.5,-741 828.5,-741" />
+                                    <text class="dot-table-fg-col" text-anchor="start" x="833.5" y="-749.8" font-family="Courier,monospace"
+                                          font-size="14.00">payment_id</text>
+                                    <polygon class="dot-table-border-col" fill="none" stroke="black"
+                                             points="828.5,-716 828.5,-741 995.5,-741 995.5,-716 828.5,-716" />
+                                    <text class="dot-table-fg-col" text-anchor="start" x="833.5" y="-724.8" font-family="Courier,monospace"
+                                          font-size="14.00">customer_id</text>
+                                    <polygon class="dot-table-border-col" fill="none" stroke="black"
+                                             points="828.5,-691 828.5,-716 995.5,-716 995.5,-691 828.5,-691" />
+                                    <text class="dot-table-fg-col" text-anchor="start" x="833.5" y="-699.8" font-family="Courier,monospace"
+                                          font-size="14.00">staff_id</text>
+                                    <polygon class="dot-table-border-col" fill="none" stroke="black"
+                                             points="828.5,-666 828.5,-691 995.5,-691 995.5,-666 828.5,-666" />
+                                    <text class="dot-table-fg-col" text-anchor="start" x="833.5" y="-674.8" font-family="Courier,monospace"
+                                          font-size="14.00">rental_id</text>
+                                    <polygon class="dot-table-border-col" fill="none" stroke="black"
+                                             points="828.5,-641 828.5,-666 995.5,-666 995.5,-641 828.5,-641" />
+                                    <text class="dot-table-fg-col" text-anchor="start" x="833.5" y="-649.8" font-family="Courier,monospace"
+                                          font-size="14.00">amount</text>
+                                    <polygon class="dot-table-border-col" fill="none" stroke="black"
+                                             points="828.5,-616 828.5,-641 995.5,-641 995.5,-616 828.5,-616" />
+                                    <text class="dot-table-fg-col" text-anchor="start" x="833.5" y="-624.8" font-family="Courier,monospace"
+                                          font-size="14.00">payment_date</text>
+                                    <polygon class="dot-table-border-col" fill="none" stroke="black"
+                                             points="828.5,-591 828.5,-616 995.5,-616 995.5,-591 828.5,-591" />
+                                    <text class="dot-table-fg-col" text-anchor="start" x="833.5" y="-599.8" font-family="Courier,monospace"
+                                          font-size="14.00">last_update</text>
+                                    <polygon class="dot-footer-bg-col" fill="#bfe3c6" stroke="none"
+                                             points="828.5,-570 828.5,-591 879.5,-591 879.5,-570 828.5,-570" />
+                                    <polygon class="dot-footer-border-col" fill="none" stroke="black"
+                                             points="828.5,-570 828.5,-591 879.5,-591 879.5,-570 828.5,-570" />
+                                    <text class="dot-footer-fg-col" text-anchor="start" x="831.5" y="-576.8" font-family="Helvetica,sans-Serif"
+                                          font-size="14.00">3 P</text>
+                                    <polygon class="dot-footer-bg-col" fill="#bfe3c6" stroke="none"
+                                             points="879.5,-570 879.5,-591 973.5,-591 973.5,-570 879.5,-570" />
+                                    <polygon class="dot-footer-border-col" fill="none" stroke="black"
+                                             points="879.5,-570 879.5,-591 973.5,-591 973.5,-570 879.5,-570" />
+                                    <text class="dot-footer-fg-col" text-anchor="start" x="894.5" y="-576.8" font-family="Helvetica,sans-Serif"
+                                          font-size="14.00">16049 rows</text>
+                                    <polygon class="dot-footer-bg-col" fill="#bfe3c6" stroke="none"
+                                             points="973.5,-570 973.5,-591 995.5,-591 995.5,-570 973.5,-570" />
+                                    <polygon class="dot-footer-border-col" fill="none" stroke="black"
+                                             points="973.5,-570 973.5,-591 995.5,-591 995.5,-570 973.5,-570" />
+                                    <text class="dot-footer-fg-col" text-anchor="start" x="988.5" y="-576.8" font-family="Helvetica,sans-Serif"
+                                          font-size="14.00"></text>
+                                    <polygon class="dot-table-bg-col" fill="#ffffff" stroke="none"
+                                             points="828.5,-520 828.5,-570 995.5,-570 995.5,-520 828.5,-520" />
+                                    <polygon class="dot-primary-key-header-bg-col" fill="#efeba8" stroke="none"
+                                             points="828.5,-545 828.5,-570 995.5,-570 995.5,-545 828.5,-545" />
+                                    <polygon class="dot-primary-key-header-border-col" fill="none" stroke="black"
+                                             points="828.5,-545 828.5,-570 995.5,-570 995.5,-545 828.5,-545" />
+                                    <text class="dot-primary-key-header-fg-col" text-anchor="start" x="869" y="-554.8" font-family="Helvetica,sans-Serif"
+                                          font-weight="bold" font-size="14.00">Primary Key</text>
+                                    <polygon class="dot-table-border-col" fill="none" stroke="black"
+                                             points="828.5,-520 828.5,-545 995.5,-545 995.5,-520 828.5,-520" />
+                                    <text class="dot-table-fg-col" text-anchor="start" x="833.5" y="-528.8" font-family="Courier,monospace"
+                                          font-size="14.00">payment_id</text>
+                                    <polygon class="dot-table-bg-col" fill="#ffffff" stroke="none"
+                                             points="828.5,-445 828.5,-520 995.5,-520 995.5,-445 828.5,-445" />
+                                    <polygon class="dot-foreign-key-header-bg-col" fill="#e5e5e5" stroke="none"
+                                             points="828.5,-495 828.5,-520 995.5,-520 995.5,-495 828.5,-495" />
+                                    <polygon class="dot-foreign-key-header-border-col" fill="none" stroke="black"
+                                             points="828.5,-495 828.5,-520 995.5,-520 995.5,-495 828.5,-495" />
+                                    <text class="dot-foreign-key-header-fg-col" text-anchor="start" x="869.5" y="-504.8" font-family="Helvetica,sans-Serif"
+                                          font-weight="bold" font-size="14.00">Foreign Key</text>
+                                    <polygon class="dot-foreign-key-header-bg-col" fill="#e5e5e5" stroke="none"
+                                             points="828.5,-470 828.5,-495 995.5,-495 995.5,-470 828.5,-470" />
+                                    <polygon class="dot-foreign-key-header-border-col" fill="none" stroke="black"
+                                             points="828.5,-470 828.5,-495 995.5,-495 995.5,-470 828.5,-470" />
+                                    <text class="dot-foreign-key-header-fg-col" text-anchor="start" x="833.5" y="-479.8" font-family="Courier,monospace"
+                                          font-weight="bold" font-size="14.00">fk_payment_customer</text>
+                                    <polygon class="dot-table-border-col" fill="none" stroke="black"
+                                             points="828.5,-445 828.5,-470 995.5,-470 995.5,-445 828.5,-445" />
+                                    <text class="dot-table-fg-col" text-anchor="start" x="833.5" y="-453.8" font-family="Courier,monospace"
+                                          font-size="14.00">customer_id</text>
+                                    <polygon class="dot-table-bg-col" fill="#ffffff" stroke="none"
+                                             points="828.5,-370 828.5,-445 995.5,-445 995.5,-370 828.5,-370" />
+                                    <polygon class="dot-foreign-key-header-bg-col" fill="#e5e5e5" stroke="none"
+                                             points="828.5,-420 828.5,-445 995.5,-445 995.5,-420 828.5,-420" />
+                                    <polygon class="dot-foreign-key-header-border-col" fill="none" stroke="black"
+                                             points="828.5,-420 828.5,-445 995.5,-445 995.5,-420 828.5,-420" />
+                                    <text class="dot-foreign-key-header-fg-col" text-anchor="start" x="869.5" y="-429.8" font-family="Helvetica,sans-Serif"
+                                          font-weight="bold" font-size="14.00">Foreign Key</text>
+                                    <polygon class="dot-foreign-key-header-bg-col" fill="#e5e5e5" stroke="none"
+                                             points="828.5,-395 828.5,-420 995.5,-420 995.5,-395 828.5,-395" />
+                                    <polygon class="dot-foreign-key-header-border-col" fill="none" stroke="black"
+                                             points="828.5,-395 828.5,-420 995.5,-420 995.5,-395 828.5,-395" />
+                                    <text class="dot-foreign-key-header-fg-col" text-anchor="start" x="841.5" y="-404.8" font-family="Courier,monospace"
+                                          font-weight="bold" font-size="14.00">fk_payment_rental</text>
+                                    <polygon class="dot-table-border-col" fill="none" stroke="black"
+                                             points="828.5,-370 828.5,-395 995.5,-395 995.5,-370 828.5,-370" />
+                                    <text class="dot-table-fg-col" text-anchor="start" x="833.5" y="-378.8" font-family="Courier,monospace"
+                                          font-size="14.00">rental_id</text>
+                                </g>
+                            </g>
+                        </g>
+                        <!-- payment&#45;a3e20d8f&#45;&gt;customer&#45;e516addb -->
+                        <g id="edge3" class="edge">
+                            <title>payment-a3e20d8f:fk_payment_customer-&gt;customer-e516addb:208609144</title>
+                            <path class="dot-edge-col" fill="none" stroke="black"
+                                  d="M827.5,-482C782.271,-482 822.211,-549.8 784,-574 718.292,-615.615 670.654,-621.415 609,-574 553.638,-531.424 631.378,-425.513 576.489,-414.867" />
+                            <polygon class="dot-edge-col" fill="black" stroke="black"
+                                     points="566.5,-414 576.852,-410.381 571.481,-414.432 576.463,-414.864 576.463,-414.864 576.463,-414.864 571.481,-414.432 576.074,-419.347 566.5,-414 566.5,-414" />
+                        </g>
+                        <!-- rental&#45;6c2d3ea5 -->
+                        <g id="node4" class="node">
+                            <title>rental-6c2d3ea5</title>
+                            <g id="a_node4">
+                                <g>
+                                    <polygon class="dot-table-bg-col" fill="#ffffff" stroke="none"
+                                             points="617,-197.5 617,-560.5 776,-560.5 776,-197.5 617,-197.5" />
+                                    <polygon class="dot-header-bg-col" fill="#bfe3c6" stroke="none"
+                                             points="617.5,-539 617.5,-560 776.5,-560 776.5,-539 617.5,-539" />
+                                    <polygon class="dot-header-border-col" fill="none" stroke="black"
+                                             points="617.5,-539 617.5,-560 776.5,-560 776.5,-539 617.5,-539" />
+                                    <text class="dot-header-fg-col" text-anchor="start" x="677" y="-546.8" font-family="Helvetica,sans-Serif"
+                                          font-weight="bold" font-size="14.00">Table</text>
+                                    <polygon class="dot-header-bg-col" fill="#bfe3c6" stroke="none"
+                                             points="617.5,-518 617.5,-539 776.5,-539 776.5,-518 617.5,-518" />
+                                    <polygon class="dot-header-border-col" fill="none" stroke="black"
+                                             points="617.5,-518 617.5,-539 776.5,-539 776.5,-518 617.5,-518" />
+                                    <text class="dot-header-fg-col" text-anchor="start" x="651.5" y="-525.8" font-family="Courier,monospace"
+                                          font-weight="bold" font-size="14.00">main.rental</text>
+                                    <polygon class="dot-table-border-col" fill="none" stroke="black"
+                                             points="617.5,-493 617.5,-518 776.5,-518 776.5,-493 617.5,-493" />
+                                    <text class="dot-table-fg-col" text-anchor="start" x="622.5" y="-501.8" font-family="Courier,monospace"
+                                          font-size="14.00">rental_id</text>
+                                    <polygon class="dot-table-border-col" fill="none" stroke="black"
+                                             points="617.5,-468 617.5,-493 776.5,-493 776.5,-468 617.5,-468" />
+                                    <text class="dot-table-fg-col" text-anchor="start" x="622.5" y="-476.8" font-family="Courier,monospace"
+                                          font-size="14.00">rental_date</text>
+                                    <polygon class="dot-table-border-col" fill="none" stroke="black"
+                                             points="617.5,-443 617.5,-468 776.5,-468 776.5,-443 617.5,-443" />
+                                    <text class="dot-table-fg-col" text-anchor="start" x="622.5" y="-451.8" font-family="Courier,monospace"
+                                          font-size="14.00">inventory_id</text>
+                                    <polygon class="dot-table-border-col" fill="none" stroke="black"
+                                             points="617.5,-418 617.5,-443 776.5,-443 776.5,-418 617.5,-418" />
+                                    <text class="dot-table-fg-col" text-anchor="start" x="622.5" y="-426.8" font-family="Courier,monospace"
+                                          font-size="14.00">customer_id</text>
+                                    <polygon class="dot-table-border-col" fill="none" stroke="black"
+                                             points="617.5,-393 617.5,-418 776.5,-418 776.5,-393 617.5,-393" />
+                                    <text class="dot-table-fg-col" text-anchor="start" x="622.5" y="-401.8" font-family="Courier,monospace"
+                                          font-size="14.00">return_date</text>
+                                    <polygon class="dot-table-border-col" fill="none" stroke="black"
+                                             points="617.5,-368 617.5,-393 776.5,-393 776.5,-368 617.5,-368" />
+                                    <text class="dot-table-fg-col" text-anchor="start" x="622.5" y="-376.8" font-family="Courier,monospace"
+                                          font-size="14.00">staff_id</text>
+                                    <polygon class="dot-table-border-col" fill="none" stroke="black"
+                                             points="617.5,-343 617.5,-368 776.5,-368 776.5,-343 617.5,-343" />
+                                    <text class="dot-table-fg-col" text-anchor="start" x="622.5" y="-351.8" font-family="Courier,monospace"
+                                          font-size="14.00">last_update</text>
+                                    <polygon class="dot-footer-bg-col" fill="#bfe3c6" stroke="none"
+                                             points="617.5,-322 617.5,-343 655.5,-343 655.5,-322 617.5,-322" />
+                                    <polygon class="dot-footer-border-col" fill="none" stroke="black"
+                                             points="617.5,-322 617.5,-343 655.5,-343 655.5,-322 617.5,-322" />
+                                    <text class="dot-footer-fg-col" text-anchor="start" x="620.5" y="-328.8" font-family="Helvetica,sans-Serif"
+                                          font-size="14.00">3 P</text>
+                                    <polygon class="dot-footer-bg-col" fill="#bfe3c6" stroke="none"
+                                             points="655.5,-322 655.5,-343 742.5,-343 742.5,-322 655.5,-322" />
+                                    <polygon class="dot-footer-border-col" fill="none" stroke="black"
+                                             points="655.5,-322 655.5,-343 742.5,-343 742.5,-322 655.5,-322" />
+                                    <text class="dot-footer-fg-col" text-anchor="start" x="663.5" y="-328.8" font-family="Helvetica,sans-Serif"
+                                          font-size="14.00">16044 rows</text>
+                                    <polygon class="dot-footer-bg-col" fill="#bfe3c6" stroke="none"
+                                             points="742.5,-322 742.5,-343 776.5,-343 776.5,-322 742.5,-322" />
+                                    <polygon class="dot-footer-border-col" fill="none" stroke="black"
+                                             points="742.5,-322 742.5,-343 776.5,-343 776.5,-322 742.5,-322" />
+                                    <text class="dot-footer-fg-col" text-anchor="start" x="750.5" y="-328.8" font-family="Helvetica,sans-Serif"
+                                          font-size="14.00">2 C</text>
+                                    <polygon class="dot-table-bg-col" fill="#ffffff" stroke="none"
+                                             points="617.5,-272 617.5,-322 776.5,-322 776.5,-272 617.5,-272" />
+                                    <polygon class="dot-primary-key-header-bg-col" fill="#efeba8" stroke="none"
+                                             points="617.5,-297 617.5,-322 776.5,-322 776.5,-297 617.5,-297" />
+                                    <polygon class="dot-primary-key-header-border-col" fill="none" stroke="black"
+                                             points="617.5,-297 617.5,-322 776.5,-322 776.5,-297 617.5,-297" />
+                                    <text class="dot-primary-key-header-fg-col" text-anchor="start" x="654" y="-306.8" font-family="Helvetica,sans-Serif"
+                                          font-weight="bold" font-size="14.00">Primary Key</text>
+                                    <polygon class="dot-table-border-col" fill="none" stroke="black"
+                                             points="617.5,-272 617.5,-297 776.5,-297 776.5,-272 617.5,-272" />
+                                    <text class="dot-table-fg-col" text-anchor="start" x="622.5" y="-280.8" font-family="Courier,monospace"
+                                          font-size="14.00">rental_id</text>
+                                    <polygon class="dot-table-bg-col" fill="#ffffff" stroke="none"
+                                             points="617.5,-197 617.5,-272 776.5,-272 776.5,-197 617.5,-197" />
+                                    <polygon class="dot-foreign-key-header-bg-col" fill="#e5e5e5" stroke="none"
+                                             points="617.5,-247 617.5,-272 776.5,-272 776.5,-247 617.5,-247" />
+                                    <polygon class="dot-foreign-key-header-border-col" fill="none" stroke="black"
+                                             points="617.5,-247 617.5,-272 776.5,-272 776.5,-247 617.5,-247" />
+                                    <text class="dot-foreign-key-header-fg-col" text-anchor="start" x="654.5" y="-256.8" font-family="Helvetica,sans-Serif"
+                                          font-weight="bold" font-size="14.00">Foreign Key</text>
+                                    <polygon class="dot-foreign-key-header-bg-col" fill="#e5e5e5" stroke="none"
+                                             points="617.5,-222 617.5,-247 776.5,-247 776.5,-222 617.5,-222" />
+                                    <polygon class="dot-foreign-key-header-border-col" fill="none" stroke="black"
+                                             points="617.5,-222 617.5,-247 776.5,-247 776.5,-222 617.5,-222" />
+                                    <text class="dot-foreign-key-header-fg-col" text-anchor="start" x="622.5" y="-231.8" font-family="Courier,monospace"
+                                          font-weight="bold" font-size="14.00">fk_rental_customer</text>
+                                    <polygon class="dot-table-border-col" fill="none" stroke="black"
+                                             points="617.5,-197 617.5,-222 776.5,-222 776.5,-197 617.5,-197" />
+                                    <text class="dot-table-fg-col" text-anchor="start" x="622.5" y="-205.8" font-family="Courier,monospace"
+                                          font-size="14.00">customer_id</text>
+                                </g>
+                            </g>
+                        </g>
+                        <!-- payment&#45;a3e20d8f&#45;&gt;rental&#45;6c2d3ea5 -->
+                        <g id="edge4" class="edge">
+                            <title>payment-a3e20d8f:fk_payment_rental-&gt;rental-6c2d3ea5:-1376173787</title>
+                            <path class="dot-edge-col" fill="none" stroke="black"
+                                  d="M827.5,-407C777.783,-407 823.293,-312.722 787.712,-298.728" />
+                            <polygon class="dot-edge-col" fill="black" stroke="black"
+                                     points="777.5,-297 788.111,-294.231 782.43,-297.834 787.36,-298.668 787.36,-298.668 787.36,-298.668 782.43,-297.834 786.609,-303.105 777.5,-297 777.5,-297" />
+                        </g>
+                        <!-- rental&#45;6c2d3ea5&#45;&gt;customer&#45;e516addb -->
+                        <g id="edge5" class="edge">
+                            <title>rental-6c2d3ea5:fk_rental_customer-&gt;customer-e516addb:208609144</title>
+                            <path class="dot-edge-col" fill="none" stroke="black"
+                                  d="M616.5,-234C537.201,-234 639.504,-398.191 576.52,-412.943" />
+                            <polygon class="dot-edge-col" fill="black" stroke="black"
+                                     points="566.5,-414 575.973,-408.476 571.472,-413.475 576.445,-412.951 576.445,-412.951 576.445,-412.951 571.472,-413.475 576.917,-417.426 566.5,-414 566.5,-414" />
+                        </g>
+                        <!-- store&#45;dd14df1f&#45;&gt;address&#45;22d5bd2b -->
+                        <g id="edge6" class="edge">
+                            <title>store-dd14df1f:fk_store_address-&gt;address-22d5bd2b:-395735507</title>
+                            <path class="dot-edge-col" fill="none" stroke="black"
+                                  d="M202.5,-41C139.906,-41 209.779,-165.961 162.708,-180.604" />
+                            <polygon class="dot-edge-col" fill="black" stroke="black"
+                                     points="152.5,-182 161.798,-176.187 157.454,-181.323 162.408,-180.645 162.408,-180.645 162.408,-180.645 157.454,-181.323 163.017,-185.104 152.5,-182 152.5,-182" />
+                        </g>
+                    </g>
+                </svg>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-sm-12">
+                <h2>Generated Theme</h2>
+                <pre><code id="generated-output">{
+    "ImageBackgroundColor": "#FFFFFF",
+    "EdgeColor": "#000000",
+    "TableForegroundColor": "#000000",
+    "HeaderForegroundColor": "#000000",
+    "FooterForegroundColor": "#000000",
+    "PrimaryKeyHeaderForegroundColor": "#000000",
+    "UniqueKeyHeaderForegroundColor": "#000000",
+    "ForeignKeyHeaderForegroundColor": "#000000",
+    "HighlightedTableForegroundColor": "#000000",
+    "HighlightedHeaderForegroundColor": "#000000",
+    "HighlightedFooterForegroundColor": "#000000",
+    "HighlightedPrimaryKeyHeaderForegroundColor": "#000000",
+    "HighlightedUniqueKeyHeaderForegroundColor": "#000000",
+    "HighlightedForeignKeyHeaderForegroundColor": "#000000",
+    "TableBackgroundColor": "#FFFFFF",
+    "HeaderBackgroundColor": "#BFE3C6",
+    "FooterBackgroundColor": "#BFE3C6",
+    "PrimaryKeyHeaderBackgroundColor": "#EFEBA8",
+    "UniqueKeyHeaderBackgroundColor": "#B8D0DD",
+    "ForeignKeyHeaderBackgroundColor": "#E5E5E5",
+    "HighlightedTableBackgroundColor": "#FFFFFF",
+    "HighlightedHeaderBackgroundColor": "#7DDE90",
+    "HighlightedFooterBackgroundColor": "#7DDE90",
+    "HighlightedPrimaryKeyHeaderBackgroundColor": "#D7CD28",
+    "HighlightedUniqueKeyHeaderBackgroundColor": "#8FB3C7",
+    "HighlightedForeignKeyHeaderBackgroundColor": "#B0B0B0",
+    "TableBorderColor": "#000000",
+    "HeaderBorderColor": "#000000",
+    "FooterBorderColor": "#000000",
+    "PrimaryKeyHeaderBorderColor": "#000000",
+    "UniqueKeyHeaderBorderColor": "#000000",
+    "ForeignKeyHeaderBorderColor": "#000000",
+    "HighlightedTableBorderColor": "#000000",
+    "HighlightedHeaderBorderColor": "#000000",
+    "HighlightedFooterBorderColor": "#000000",
+    "HighlightedPrimaryKeyHeaderBorderColor": "#000000",
+    "HighlightedUniqueKeyHeaderBorderColor": "#000000",
+    "HighlightedForeignKeyHeaderBorderColor": "#000000"
+}</code></pre>
+            </div>
+        </div>
+    </div>
+    <script src="jquery.slim.min.js"></script>
+    <script src="builder.js"></script>
+</body>
+</html>
