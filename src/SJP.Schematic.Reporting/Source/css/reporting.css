@@ -31,3 +31,7 @@
     width: 100%;
     overflow: scroll;
 }
+
+.callout-primary {
+    border-left-color: #007bff;
+}
