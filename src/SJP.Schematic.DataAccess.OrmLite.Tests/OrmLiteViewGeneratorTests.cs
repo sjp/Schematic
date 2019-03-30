@@ -1,5 +1,6 @@
 using System;
 using System.IO;
+using System.IO.Abstractions;
 using LanguageExt;
 using NUnit.Framework;
 using SJP.Schematic.Core;
@@ -50,7 +51,7 @@ namespace SJP.Schematic.DataAccess.OrmLite.Tests
             var nameTranslator = new VerbatimNameTranslator();
             const string testNs = "SJP.Schematic.Test";
             var generator = new OrmLiteViewGenerator(nameTranslator, testNs);
-            var baseDir = new DirectoryInfo(Environment.CurrentDirectory);
+            var baseDir = new DirectoryInfoWrapper(new FileSystem(), new DirectoryInfo(Environment.CurrentDirectory));
 
             Assert.Throws<ArgumentNullException>(() => generator.GetFilePath(baseDir, null));
         }
@@ -61,7 +62,7 @@ namespace SJP.Schematic.DataAccess.OrmLite.Tests
             var nameTranslator = new VerbatimNameTranslator();
             const string testNs = "SJP.Schematic.Test";
             var generator = new OrmLiteViewGenerator(nameTranslator, testNs);
-            var baseDir = new DirectoryInfo(Environment.CurrentDirectory);
+            var baseDir = new DirectoryInfoWrapper(new FileSystem(), new DirectoryInfo(Environment.CurrentDirectory));
             const string testViewName = "view_name";
             var expectedPath = Path.Combine(Environment.CurrentDirectory, "Views", testViewName + ".cs");
 
@@ -76,7 +77,7 @@ namespace SJP.Schematic.DataAccess.OrmLite.Tests
             var nameTranslator = new VerbatimNameTranslator();
             const string testNs = "SJP.Schematic.Test";
             var generator = new OrmLiteViewGenerator(nameTranslator, testNs);
-            var baseDir = new DirectoryInfo(Environment.CurrentDirectory);
+            var baseDir = new DirectoryInfoWrapper(new FileSystem(), new DirectoryInfo(Environment.CurrentDirectory));
             const string testViewSchema = "view_schema";
             const string testViewName = "view_name";
             var expectedPath = Path.Combine(Environment.CurrentDirectory, "Views", testViewSchema, testViewName + ".cs");

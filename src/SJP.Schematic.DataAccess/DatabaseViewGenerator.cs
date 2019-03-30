@@ -22,7 +22,7 @@ namespace SJP.Schematic.DataAccess
 
         public abstract string Generate(IDatabaseView view, Option<IDatabaseViewComments> comment);
 
-        public virtual FileInfoBase GetFilePath(DirectoryInfoBase baseDirectory, Identifier objectName)
+        public virtual FileInfoBase GetFilePath(IDirectoryInfo baseDirectory, Identifier objectName)
         {
             if (baseDirectory == null)
                 throw new ArgumentNullException(nameof(baseDirectory));

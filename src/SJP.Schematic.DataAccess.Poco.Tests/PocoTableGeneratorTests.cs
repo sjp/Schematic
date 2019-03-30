@@ -1,5 +1,6 @@
 using System;
 using System.IO;
+using System.IO.Abstractions;
 using LanguageExt;
 using NUnit.Framework;
 using SJP.Schematic.Core;
@@ -60,7 +61,7 @@ namespace SJP.Schematic.DataAccess.Poco.Tests
             var nameTranslator = new VerbatimNameTranslator();
             const string testNs = "SJP.Schematic.Test";
             var generator = new PocoTableGenerator(nameTranslator, testNs);
-            var baseDir = new DirectoryInfo(Environment.CurrentDirectory);
+            var baseDir = new DirectoryInfoWrapper(new FileSystem(), new DirectoryInfo(Environment.CurrentDirectory));
 
             Assert.Throws<ArgumentNullException>(() => generator.GetFilePath(baseDir, null));
         }
@@ -71,7 +72,7 @@ namespace SJP.Schematic.DataAccess.Poco.Tests
             var nameTranslator = new VerbatimNameTranslator();
             const string testNs = "SJP.Schematic.Test";
             var generator = new PocoTableGenerator(nameTranslator, testNs);
-            var baseDir = new DirectoryInfo(Environment.CurrentDirectory);
+            var baseDir = new DirectoryInfoWrapper(new FileSystem(), new DirectoryInfo(Environment.CurrentDirectory));
             const string testTableName = "table_name";
             var expectedPath = Path.Combine(Environment.CurrentDirectory, "Tables", testTableName + ".cs");
 
@@ -86,7 +87,7 @@ namespace SJP.Schematic.DataAccess.Poco.Tests
             var nameTranslator = new VerbatimNameTranslator();
             const string testNs = "SJP.Schematic.Test";
             var generator = new PocoTableGenerator(nameTranslator, testNs);
-            var baseDir = new DirectoryInfo(Environment.CurrentDirectory);
+            var baseDir = new DirectoryInfoWrapper(new FileSystem(), new DirectoryInfo(Environment.CurrentDirectory));
             const string testTableSchema = "table_schema";
             const string testTableName = "table_name";
             var expectedPath = Path.Combine(Environment.CurrentDirectory, "Tables", testTableSchema, testTableName + ".cs");

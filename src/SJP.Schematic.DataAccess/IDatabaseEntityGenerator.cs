@@ -5,6 +5,6 @@ namespace SJP.Schematic.DataAccess
 {
     public interface IDatabaseEntityGenerator
     {
-        FileInfoBase GetFilePath(DirectoryInfoBase baseDirectory, Identifier objectName);
+        FileInfoBase GetFilePath(IDirectoryInfo baseDirectory, Identifier objectName);
     }
 }
