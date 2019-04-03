@@ -105,15 +105,12 @@ namespace SJP.Schematic.Modelled.Reflection.Model
                         break;
                     case ExpressionToken.Variable:
                         var variableValue = Parameters[UnwrapTokenValue(token)];
-                        var columnObject = variableValue as IModelledColumn;
-
-                        var stringVal = variableValue as string;
-                        if (columnObject != null)
+                        if (variableValue is IModelledColumn columnObject)
                         {
                             var columnName = dialect.GetAliasOrDefault(columnObject.Property);
                             yield return dialect.QuoteName(columnName);
                         }
-                        else if (stringVal != null)
+                        else if (variableValue is string stringVal)
                         {
                             stringVal = "'" + stringVal.Replace("'", "''") + "'";
                             yield return stringVal;

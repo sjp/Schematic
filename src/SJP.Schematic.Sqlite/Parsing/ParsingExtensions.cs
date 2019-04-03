@@ -11,7 +11,7 @@ namespace SJP.Schematic.Sqlite.Parsing
     {
         public static IEnumerable<T> ToEnumerable<T>(this T input)
         {
-            if (ReferenceEquals(input, null))
+            if (input == null)
                 throw new ArgumentNullException(nameof(input));
 
             return new[] { input };

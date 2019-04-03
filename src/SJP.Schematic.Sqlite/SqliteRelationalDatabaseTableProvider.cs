@@ -483,7 +483,6 @@ namespace SJP.Schematic.Sqlite
             var result = new List<IDatabaseRelationalKey>(foreignKeys.Count);
             foreach (var fkey in foreignKeys)
             {
-
                 var candidateParentTableName = Identifier.CreateQualifiedIdentifier(tableName.Schema, fkey.Key.ParentTableName);
                 Identifier parentTableName = null;
                 await GetResolvedTableName(candidateParentTableName, cancellationToken)

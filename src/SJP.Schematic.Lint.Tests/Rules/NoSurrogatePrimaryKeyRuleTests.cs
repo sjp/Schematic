@@ -242,8 +242,6 @@ namespace SJP.Schematic.Lint.Tests.Rules
             Assert.NotZero(messages.Count());
         }
 
-
-
         [Test]
         public static async Task AnalyseTablesAsync_GivenTableWithMultiColumnPrimaryKeyContainingAllForeignKeyColumns_ProducesNoMessages()
         {

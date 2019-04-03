@@ -38,7 +38,7 @@ namespace SJP.Schematic.Core.Utilities
     public sealed class AsyncLazy<T>
     {
         /// <summary>
-        /// Initializes a new instance of the <see cref="AsyncLazy&lt;T&gt;"/> class.
+        /// Initializes a new instance of the <see cref="AsyncLazy{T}"/> class.
         /// </summary>
         /// <param name="factory">The asynchronous delegate that is invoked to produce the value when it is needed. May not be <c>null</c>.</param>
         /// <param name="flags">Flags to influence async lazy semantics.</param>
@@ -60,7 +60,7 @@ namespace SJP.Schematic.Core.Utilities
         /// </summary>
         public void Start()
         {
-            var unused = Task;
+            _ = Task;
         }
 
         /// <summary>
@@ -88,7 +88,7 @@ namespace SJP.Schematic.Core.Utilities
         }
 
         /// <summary>
-        /// Asynchronous infrastructure support. This method permits instances of <see cref="AsyncLazy&lt;T&gt;"/> to be awaited.
+        /// Asynchronous infrastructure support. This method permits instances of <see cref="AsyncLazy{T}"/> to be awaited.
         /// </summary>
         [EditorBrowsable(EditorBrowsableState.Never)]
         public TaskAwaiter<T> GetAwaiter()
@@ -97,7 +97,7 @@ namespace SJP.Schematic.Core.Utilities
         }
 
         /// <summary>
-        /// Asynchronous infrastructure support. This method permits instances of <see cref="AsyncLazy&lt;T&gt;"/> to be awaited.
+        /// Asynchronous infrastructure support. This method permits instances of <see cref="AsyncLazy{T}"/> to be awaited.
         /// </summary>
         /// <param name="continueOnCapturedContext"><c>true</c> to attempt to marshal the continuation back to the original context captured; otherwise, <c>false</c>.</param>
         [EditorBrowsable(EditorBrowsableState.Never)]

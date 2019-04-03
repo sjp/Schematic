@@ -11,6 +11,7 @@ namespace SJP.Schematic.Reporting.Dot.Themes
             get => _backgroundColor = _backgroundColor ?? Default.BackgroundColor;
             set => _backgroundColor = value ?? Default.BackgroundColor;
         }
+
         public RgbColor EdgeColor
         {
             get => _edgeColor = _edgeColor ?? Default.EdgeColor;

@@ -138,8 +138,7 @@ namespace SJP.Schematic.Core.Tests.Extensions
         {
             var tableName = new Identifier("A");
             var fakeDb = GetFakeDatabase();
-
-            var (exists, table) = await fakeDb.TryGetTableAsync(tableName, CancellationToken.None).ConfigureAwait(false);
+            var (exists, _) = await fakeDb.TryGetTableAsync(tableName, CancellationToken.None).ConfigureAwait(false);
             Assert.IsFalse(exists);
         }
 
@@ -148,8 +147,7 @@ namespace SJP.Schematic.Core.Tests.Extensions
         {
             var tableName = new Identifier("A");
             var fakeDb = GetFakeDatabase();
-
-            var (exists, table) = await fakeDb.TryGetTableAsync(tableName, CancellationToken.None).ConfigureAwait(false);
+            var (_, table) = await fakeDb.TryGetTableAsync(tableName, CancellationToken.None).ConfigureAwait(false);
             Assert.IsNull(table);
         }
     }

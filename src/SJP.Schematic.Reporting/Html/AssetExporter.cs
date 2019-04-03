@@ -55,7 +55,6 @@ namespace SJP.Schematic.Reporting.Html
                 if (!targetFile.Directory.Exists)
                     targetFile.Directory.Create();
 
-
                 using (var stream = targetFile.OpenWrite())
                 using (var resourceStream = resourceFile.CreateReadStream())
                 {

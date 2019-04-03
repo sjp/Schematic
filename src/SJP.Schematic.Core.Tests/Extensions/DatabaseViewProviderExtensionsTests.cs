@@ -138,8 +138,7 @@ namespace SJP.Schematic.Core.Tests.Extensions
         {
             var fakeDb = GetFakeDatabase();
             var viewName = new Identifier("A");
-
-            var (exists, view) = await fakeDb.TryGetViewAsync(viewName, CancellationToken.None).ConfigureAwait(false);
+            var (exists, _) = await fakeDb.TryGetViewAsync(viewName, CancellationToken.None).ConfigureAwait(false);
             Assert.IsFalse(exists);
         }
 
@@ -148,8 +147,7 @@ namespace SJP.Schematic.Core.Tests.Extensions
         {
             var fakeDb = GetFakeDatabase();
             var viewName = new Identifier("A");
-
-            var (exists, view) = await fakeDb.TryGetViewAsync(viewName, CancellationToken.None).ConfigureAwait(false);
+            var (_, view) = await fakeDb.TryGetViewAsync(viewName, CancellationToken.None).ConfigureAwait(false);
             Assert.IsNull(view);
         }
     }

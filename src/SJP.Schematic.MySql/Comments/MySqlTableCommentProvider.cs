@@ -34,7 +34,7 @@ namespace SJP.Schematic.MySql.Comments
                 cancellationToken
             ).ConfigureAwait(false);
 
-            var groupedByName = allCommentsData.GroupBy(row => new { row.SchemaName, TableName = row.TableName }).ToList();
+            var groupedByName = allCommentsData.GroupBy(row => new { row.SchemaName, row.TableName }).ToList();
             foreach (var groupedComment in groupedByName)
             {
                 var tmpIdentifier = Identifier.CreateQualifiedIdentifier(groupedComment.Key.SchemaName, groupedComment.Key.TableName);
