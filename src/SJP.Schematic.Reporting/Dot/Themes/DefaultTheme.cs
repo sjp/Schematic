@@ -1,8 +1,4 @@
-﻿using System;
-using EnumsNET;
-using SJP.Schematic.Core;
-
-namespace SJP.Schematic.Reporting.Dot.Themes
+﻿namespace SJP.Schematic.Reporting.Dot.Themes
 {
     internal sealed class DefaultTheme : IGraphTheme
     {
