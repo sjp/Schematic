@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 15
-VisualStudioVersion = 15.0.27130.2026
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.28803.202
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SJP.Schematic.Core", "SJP.Schematic.Core\SJP.Schematic.Core.csproj", "{A46BFB1C-82E2-443A-8163-9BFFE052DE3D}"
 EndProject
@@ -68,6 +68,10 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SJP.Schematic.Graphviz", "SJP.Schematic.Graphviz\SJP.Schematic.Graphviz.csproj", "{F5BE53E9-755E-4412-8CCC-7EDB8BCB125F}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SJP.Schematic.Graphviz.Test", "SJP.Schematic.Graphviz.Test\SJP.Schematic.Graphviz.Test.csproj", "{EA19DA86-5666-46EA-8DA5-514A7C9A77F1}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SJP.Schematic.Serialization", "SJP.Schematic.Serialization\SJP.Schematic.Serialization.csproj", "{E810EF17-F5DC-405C-8B41-127FD2CFF1C9}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SJP.Schematic.Serialization.Tests", "SJP.Schematic.Serialization.Tests\SJP.Schematic.Serialization.Tests.csproj", "{08C72898-4C23-4EC6-99A5-0235B99AA793}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -207,6 +211,14 @@ Global
 		{EA19DA86-5666-46EA-8DA5-514A7C9A77F1}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{EA19DA86-5666-46EA-8DA5-514A7C9A77F1}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{EA19DA86-5666-46EA-8DA5-514A7C9A77F1}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E810EF17-F5DC-405C-8B41-127FD2CFF1C9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E810EF17-F5DC-405C-8B41-127FD2CFF1C9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E810EF17-F5DC-405C-8B41-127FD2CFF1C9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E810EF17-F5DC-405C-8B41-127FD2CFF1C9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{08C72898-4C23-4EC6-99A5-0235B99AA793}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{08C72898-4C23-4EC6-99A5-0235B99AA793}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{08C72898-4C23-4EC6-99A5-0235B99AA793}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{08C72898-4C23-4EC6-99A5-0235B99AA793}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
