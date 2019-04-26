@@ -25,6 +25,8 @@ namespace SJP.Schematic.Reporting.Html.ViewModels.Mappers
 
         private RelationshipFinder RelationshipFinder { get; }
 
+        private const string RootPath = "../";
+
         public Table Map(IRelationalDatabaseTable table)
         {
             if (table == null)
@@ -68,7 +70,8 @@ namespace SJP.Schematic.Reporting.Html.ViewModels.Mappers
                             childKeyName,
                             parentKey.ParentTable,
                             colName,
-                            qualifiedColumnName
+                            qualifiedColumnName,
+                            RootPath
                         )).ToList();
 
                     columnParentKeys.AddRange(columnFks);
@@ -94,7 +97,8 @@ namespace SJP.Schematic.Reporting.Html.ViewModels.Mappers
                             childKeyName,
                             childKey.ChildTable,
                             colName,
-                            qualifiedColumnName
+                            qualifiedColumnName,
+                            RootPath
                         )).ToList();
 
                     columnChildKeys.AddRange(columnFks);
@@ -145,7 +149,8 @@ namespace SJP.Schematic.Reporting.Html.ViewModels.Mappers
                     pk.ParentKey.Name.Match(name => name.LocalName, () => string.Empty),
                     pk.ParentKey.Columns.Select(c => c.Name.LocalName).ToList(),
                     pk.DeleteRule,
-                    pk.UpdateRule
+                    pk.UpdateRule,
+                    RootPath
                 )).ToList();
 
             var renderChecks = checks.Select(c =>
@@ -180,7 +185,7 @@ namespace SJP.Schematic.Reporting.Html.ViewModels.Mappers
                 renderChecks,
                 mappedIndexes,
                 diagrams,
-                "../",
+                RootPath,
                 rowCount
             );
         }

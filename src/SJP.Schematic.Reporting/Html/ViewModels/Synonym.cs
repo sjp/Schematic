@@ -1,5 +1,4 @@
-﻿
-using System;
+﻿using System;
 using System.Web;
 using LanguageExt;
 using SJP.Schematic.Core;
@@ -23,13 +22,14 @@ namespace SJP.Schematic.Reporting.Html.ViewModels
             if (targetName == null)
                 throw new ArgumentNullException(nameof(targetName));
 
+            RootPath = rootPath ?? throw new ArgumentNullException(nameof(rootPath));
+
             Name = synonymName.ToVisibleName();
             var targetNameText = targetName.ToVisibleName();
             TargetText = targetUrl.Match(
-                uri => $"<a href=\"{ uri }\">{ HttpUtility.HtmlEncode(targetNameText) }</a>",
+                uri => $"<a href=\"{ new Uri(rootPath + uri.ToString(), UriKind.Relative) }\">{ HttpUtility.HtmlEncode(targetNameText) }</a>",
                 () => HttpUtility.HtmlEncode(targetNameText)
             );
-            RootPath = rootPath ?? throw new ArgumentNullException(nameof(rootPath));
         }
 
         public ReportTemplate Template { get; } = ReportTemplate.Synonym;

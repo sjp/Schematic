@@ -278,7 +278,8 @@ namespace SJP.Schematic.Reporting.Html.ViewModels
                 string parentConstraintName,
                 IEnumerable<string> parentColumnNames,
                 Rule deleteRule,
-                Rule updateRule
+                Rule updateRule,
+                string rootPath
             ) : base(constraintName)
             {
                 if (columnNames == null || columnNames.Empty())
@@ -291,11 +292,13 @@ namespace SJP.Schematic.Reporting.Html.ViewModels
                     throw new ArgumentException($"The { nameof(Rule) } provided must be a valid enum.", nameof(deleteRule));
                 if (!updateRule.IsValid())
                     throw new ArgumentException($"The { nameof(Rule) } provided must be a valid enum.", nameof(updateRule));
+                if (rootPath == null)
+                    throw new ArgumentNullException(nameof(rootPath));
 
                 ChildColumnNames = columnNames.Join(", ");
                 ParentConstraintName = parentConstraintName;
                 ParentTableName = parentTableName.ToVisibleName();
-                ParentTableUrl = UrlRouter.GetTableUrl(parentTableName);
+                ParentTableUrl = rootPath + UrlRouter.GetTableUrl(parentTableName);
                 ParentColumnNames = parentColumnNames.Join(", ");
 
                 DeleteRuleDescription = _ruleDescription[deleteRule];
@@ -386,7 +389,7 @@ namespace SJP.Schematic.Reporting.Html.ViewModels
         /// </summary>
         public sealed class ParentKey
         {
-            public ParentKey(string constraintName, Identifier parentTableName, string parentColumnName, string qualifiedChildColumnName)
+            public ParentKey(string constraintName, Identifier parentTableName, string parentColumnName, string qualifiedChildColumnName, string rootPath)
             {
                 if (parentTableName == null)
                     throw new ArgumentNullException(nameof(parentTableName));
@@ -394,9 +397,11 @@ namespace SJP.Schematic.Reporting.Html.ViewModels
                     throw new ArgumentNullException(nameof(parentColumnName));
                 if (qualifiedChildColumnName.IsNullOrWhiteSpace())
                     throw new ArgumentOutOfRangeException(nameof(qualifiedChildColumnName));
+                if (rootPath == null)
+                    throw new ArgumentNullException(nameof(rootPath));
 
                 ParentTableName = parentTableName.ToVisibleName();
-                ParentTableUrl = UrlRouter.GetTableUrl(parentTableName);
+                ParentTableUrl = rootPath + UrlRouter.GetTableUrl(parentTableName);
                 ParentColumnName = parentColumnName;
 
                 var qualifiedParentColumnName = ParentTableName + "." + parentColumnName;
@@ -420,7 +425,7 @@ namespace SJP.Schematic.Reporting.Html.ViewModels
         /// </summary>
         public sealed class ChildKey
         {
-            public ChildKey(string constraintName, Identifier childTableName, string childColumnName, string qualifiedParentColumnName)
+            public ChildKey(string constraintName, Identifier childTableName, string childColumnName, string qualifiedParentColumnName, string rootPath)
             {
                 if (childTableName == null)
                     throw new ArgumentNullException(nameof(childTableName));
@@ -428,9 +433,11 @@ namespace SJP.Schematic.Reporting.Html.ViewModels
                     throw new ArgumentNullException(nameof(childColumnName));
                 if (qualifiedParentColumnName.IsNullOrWhiteSpace())
                     throw new ArgumentNullException(nameof(qualifiedParentColumnName));
+                if (rootPath == null)
+                    throw new ArgumentNullException(nameof(rootPath));
 
                 ChildTableName = childTableName.ToVisibleName();
-                ChildTableUrl = UrlRouter.GetTableUrl(childTableName);
+                ChildTableUrl = rootPath + UrlRouter.GetTableUrl(childTableName);
                 ChildColumnName = childColumnName;
 
                 var qualifiedChildColumnName = ChildTableName + "." + ChildColumnName;

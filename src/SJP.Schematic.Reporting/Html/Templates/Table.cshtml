@@ -63,7 +63,7 @@
                                                     {
                                                         <tr>
                                                             <td class="table-cell-no-border" title="@childKey.ConstraintDescription">
-                                                                <a href="@(Model.RootPath)@(childKey.ChildTableUrl)">@childKey.ChildTableName</a>.@childKey.ChildColumnName
+                                                                <a href="@(childKey.ChildTableUrl)">@childKey.ChildTableName</a>.@childKey.ChildColumnName
                                                             </td>
                                                         </tr>
                                                     }
@@ -80,7 +80,7 @@
                                                     {
                                                         <tr>
                                                             <td class="table-cell-no-border" title="@parentKey.ConstraintDescription">
-                                                                <a href="@(Model.RootPath)@(parentKey.ParentTableUrl)">@parentKey.ParentTableName</a>.@parentKey.ParentColumnName
+                                                                <a href="@(parentKey.ParentTableUrl)">@parentKey.ParentTableName</a>.@parentKey.ParentColumnName
                                                             </td>
                                                         </tr>
                                                     }
