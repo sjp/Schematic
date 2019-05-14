@@ -24,7 +24,7 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="MySqlConnector" Version="0.53.0" />
+    <PackageReference Include="MySqlConnector" Version="0.54.0" />
   </ItemGroup>
 
   <ItemGroup>

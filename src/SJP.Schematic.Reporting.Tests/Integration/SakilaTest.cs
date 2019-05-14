@@ -3,7 +3,6 @@ using System.IO;
 using System.IO.Compression;
 using System.Linq;
 using System.Reflection;
-using NUnit.Framework;
 using SJP.Schematic.Core;
 using SJP.Schematic.Sqlite;
 using SJP.Schematic.Sqlite.Pragma;
@@ -44,7 +43,6 @@ namespace SJP.Schematic.Reporting.Tests.Integration
         private static string CurrentDirectory => Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
     }
 
-    [TestFixture]
     [DatabaseTestFixture(typeof(Config), nameof(Config.Connection), "No Reporting DB available")]
     internal abstract class SakilaTest
     {
