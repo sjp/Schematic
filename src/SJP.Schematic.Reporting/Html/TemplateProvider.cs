@@ -2,7 +2,6 @@
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Text;
 using EnumsNET;
 using Microsoft.Extensions.FileProviders;
 
@@ -37,12 +36,9 @@ namespace SJP.Schematic.Reporting.Html
             if (fileInfo == null)
                 throw new ArgumentNullException(nameof(fileInfo));
 
-            using (var stream = new MemoryStream())
-            using (var reader = fileInfo.CreateReadStream())
-            {
-                reader.CopyTo(stream);
-                return Encoding.UTF8.GetString(stream.GetBuffer(), 0, (int)stream.Length);
-            }
+            using (var stream = fileInfo.CreateReadStream())
+            using (var reader = new StreamReader(stream))
+                return reader.ReadToEnd();
         }
 
         private static readonly IFileProvider _fileProvider = new EmbeddedFileProvider(Assembly.GetExecutingAssembly(), Assembly.GetExecutingAssembly().GetName().Name + ".Html.Templates");
