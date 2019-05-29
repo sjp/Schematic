@@ -24,7 +24,7 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="Oracle.ManagedDataAccess.Core" Version="2.18.6" />
+    <PackageReference Include="Oracle.ManagedDataAccess.Core" Version="2.19.3" />
     <PackageReference Include="Superpower" Version="2.2.0" />
   </ItemGroup>
 
