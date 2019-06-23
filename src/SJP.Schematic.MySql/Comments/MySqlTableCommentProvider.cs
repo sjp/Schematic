@@ -8,6 +8,7 @@ using LanguageExt;
 using SJP.Schematic.Core;
 using SJP.Schematic.Core.Comments;
 using SJP.Schematic.Core.Extensions;
+using SJP.Schematic.Core.Utilities;
 using SJP.Schematic.MySql.Query;
 
 namespace SJP.Schematic.MySql.Comments
@@ -46,11 +47,11 @@ namespace SJP.Schematic.MySql.Comments
                 var primaryKeyComment = Option<string>.None;
 
                 var columnComments = GetCommentLookupByType(commentsData, Constants.Column);
-                var checkComments = new Dictionary<Identifier, Option<string>>();
-                var foreignKeyComments = new Dictionary<Identifier, Option<string>>();
-                var uniqueKeyComments = new Dictionary<Identifier, Option<string>>();
+                var checkComments = Empty.CommentLookup;
+                var foreignKeyComments = Empty.CommentLookup;
+                var uniqueKeyComments = Empty.CommentLookup;
                 var indexComments = GetCommentLookupByType(commentsData, Constants.Index);
-                var triggerComments = new Dictionary<Identifier, Option<string>>();
+                var triggerComments = Empty.CommentLookup;
 
                 var comments = new RelationalDatabaseTableComments(
                     qualifiedName,
@@ -127,11 +128,11 @@ limit 1";
             var primaryKeyComment = Option<string>.None;
 
             var columnComments = GetCommentLookupByType(commentsData, Constants.Column);
-            var checkComments = new Dictionary<Identifier, Option<string>>();
-            var foreignKeyComments = new Dictionary<Identifier, Option<string>>();
-            var uniqueKeyComments = new Dictionary<Identifier, Option<string>>();
+            var checkComments = Empty.CommentLookup;
+            var foreignKeyComments = Empty.CommentLookup;
+            var uniqueKeyComments = Empty.CommentLookup;
             var indexComments = GetCommentLookupByType(commentsData, Constants.Index);
-            var triggerComments = new Dictionary<Identifier, Option<string>>();
+            var triggerComments = Empty.CommentLookup;
 
             return new RelationalDatabaseTableComments(
                 tableName,

@@ -5,6 +5,7 @@ using LanguageExt;
 using NUnit.Framework;
 using SJP.Schematic.Core.Comments;
 using SJP.Schematic.Core.Extensions;
+using SJP.Schematic.Core.Utilities;
 
 namespace SJP.Schematic.Core.Tests.Comments
 {
@@ -18,12 +19,12 @@ namespace SJP.Schematic.Core.Tests.Comments
                 null,
                 Option<string>.None,
                 Option<string>.None,
-                new Dictionary<Identifier, Option<string>>(),
-                new Dictionary<Identifier, Option<string>>(),
-                new Dictionary<Identifier, Option<string>>(),
-                new Dictionary<Identifier, Option<string>>(),
-                new Dictionary<Identifier, Option<string>>(),
-                new Dictionary<Identifier, Option<string>>()
+                Empty.CommentLookup,
+                Empty.CommentLookup,
+                Empty.CommentLookup,
+                Empty.CommentLookup,
+                Empty.CommentLookup,
+                Empty.CommentLookup
             ));
         }
 
@@ -35,11 +36,11 @@ namespace SJP.Schematic.Core.Tests.Comments
                 Option<string>.None,
                 Option<string>.None,
                 null,
-                new Dictionary<Identifier, Option<string>>(),
-                new Dictionary<Identifier, Option<string>>(),
-                new Dictionary<Identifier, Option<string>>(),
-                new Dictionary<Identifier, Option<string>>(),
-                new Dictionary<Identifier, Option<string>>()
+                Empty.CommentLookup,
+                Empty.CommentLookup,
+                Empty.CommentLookup,
+                Empty.CommentLookup,
+                Empty.CommentLookup
             ));
         }
 
@@ -50,12 +51,12 @@ namespace SJP.Schematic.Core.Tests.Comments
                 "test_table",
                 Option<string>.None,
                 Option<string>.None,
-                new Dictionary<Identifier, Option<string>>(),
+                Empty.CommentLookup,
                 null,
-                new Dictionary<Identifier, Option<string>>(),
-                new Dictionary<Identifier, Option<string>>(),
-                new Dictionary<Identifier, Option<string>>(),
-                new Dictionary<Identifier, Option<string>>()
+                Empty.CommentLookup,
+                Empty.CommentLookup,
+                Empty.CommentLookup,
+                Empty.CommentLookup
             ));
         }
 
@@ -66,12 +67,12 @@ namespace SJP.Schematic.Core.Tests.Comments
                 "test_table",
                 Option<string>.None,
                 Option<string>.None,
-                new Dictionary<Identifier, Option<string>>(),
-                new Dictionary<Identifier, Option<string>>(),
+                Empty.CommentLookup,
+                Empty.CommentLookup,
                 null,
-                new Dictionary<Identifier, Option<string>>(),
-                new Dictionary<Identifier, Option<string>>(),
-                new Dictionary<Identifier, Option<string>>()
+                Empty.CommentLookup,
+                Empty.CommentLookup,
+                Empty.CommentLookup
             ));
         }
 
@@ -82,12 +83,12 @@ namespace SJP.Schematic.Core.Tests.Comments
                 "test_table",
                 Option<string>.None,
                 Option<string>.None,
-                new Dictionary<Identifier, Option<string>>(),
-                new Dictionary<Identifier, Option<string>>(),
-                new Dictionary<Identifier, Option<string>>(),
+                Empty.CommentLookup,
+                Empty.CommentLookup,
+                Empty.CommentLookup,
                 null,
-                new Dictionary<Identifier, Option<string>>(),
-                new Dictionary<Identifier, Option<string>>()
+                Empty.CommentLookup,
+                Empty.CommentLookup
             ));
         }
 
@@ -98,12 +99,12 @@ namespace SJP.Schematic.Core.Tests.Comments
                 "test_table",
                 Option<string>.None,
                 Option<string>.None,
-                new Dictionary<Identifier, Option<string>>(),
-                new Dictionary<Identifier, Option<string>>(),
-                new Dictionary<Identifier, Option<string>>(),
-                new Dictionary<Identifier, Option<string>>(),
+                Empty.CommentLookup,
+                Empty.CommentLookup,
+                Empty.CommentLookup,
+                Empty.CommentLookup,
                 null,
-                new Dictionary<Identifier, Option<string>>()
+                Empty.CommentLookup
             ));
         }
 
@@ -114,11 +115,11 @@ namespace SJP.Schematic.Core.Tests.Comments
                 "test_table",
                 Option<string>.None,
                 Option<string>.None,
-                new Dictionary<Identifier, Option<string>>(),
-                new Dictionary<Identifier, Option<string>>(),
-                new Dictionary<Identifier, Option<string>>(),
-                new Dictionary<Identifier, Option<string>>(),
-                new Dictionary<Identifier, Option<string>>(),
+                Empty.CommentLookup,
+                Empty.CommentLookup,
+                Empty.CommentLookup,
+                Empty.CommentLookup,
+                Empty.CommentLookup,
                 null
             ));
         }
@@ -130,12 +131,12 @@ namespace SJP.Schematic.Core.Tests.Comments
                 "test_table",
                 Option<string>.None,
                 Option<string>.None,
-                new Dictionary<Identifier, Option<string>>(),
-                new Dictionary<Identifier, Option<string>>(),
-                new Dictionary<Identifier, Option<string>>(),
-                new Dictionary<Identifier, Option<string>>(),
-                new Dictionary<Identifier, Option<string>>(),
-                new Dictionary<Identifier, Option<string>>()
+                Empty.CommentLookup,
+                Empty.CommentLookup,
+                Empty.CommentLookup,
+                Empty.CommentLookup,
+                Empty.CommentLookup,
+                Empty.CommentLookup
             );
             Assert.Pass();
         }
@@ -148,12 +149,12 @@ namespace SJP.Schematic.Core.Tests.Comments
                 tableName,
                 Option<string>.None,
                 Option<string>.None,
-                new Dictionary<Identifier, Option<string>>(),
-                new Dictionary<Identifier, Option<string>>(),
-                new Dictionary<Identifier, Option<string>>(),
-                new Dictionary<Identifier, Option<string>>(),
-                new Dictionary<Identifier, Option<string>>(),
-                new Dictionary<Identifier, Option<string>>()
+                Empty.CommentLookup,
+                Empty.CommentLookup,
+                Empty.CommentLookup,
+                Empty.CommentLookup,
+                Empty.CommentLookup,
+                Empty.CommentLookup
             );
 
             Assert.AreEqual(tableName, comments.TableName);
@@ -166,12 +167,12 @@ namespace SJP.Schematic.Core.Tests.Comments
                 "test_table",
                 Option<string>.None,
                 Option<string>.None,
-                new Dictionary<Identifier, Option<string>>(),
-                new Dictionary<Identifier, Option<string>>(),
-                new Dictionary<Identifier, Option<string>>(),
-                new Dictionary<Identifier, Option<string>>(),
-                new Dictionary<Identifier, Option<string>>(),
-                new Dictionary<Identifier, Option<string>>()
+                Empty.CommentLookup,
+                Empty.CommentLookup,
+                Empty.CommentLookup,
+                Empty.CommentLookup,
+                Empty.CommentLookup,
+                Empty.CommentLookup
             );
 
             Assert.IsTrue(comments.Comment.IsNone);
@@ -186,12 +187,12 @@ namespace SJP.Schematic.Core.Tests.Comments
                 "test_table",
                 commentArg,
                 Option<string>.None,
-                new Dictionary<Identifier, Option<string>>(),
-                new Dictionary<Identifier, Option<string>>(),
-                new Dictionary<Identifier, Option<string>>(),
-                new Dictionary<Identifier, Option<string>>(),
-                new Dictionary<Identifier, Option<string>>(),
-                new Dictionary<Identifier, Option<string>>()
+                Empty.CommentLookup,
+                Empty.CommentLookup,
+                Empty.CommentLookup,
+                Empty.CommentLookup,
+                Empty.CommentLookup,
+                Empty.CommentLookup
             );
 
             Assert.AreEqual(commentText, comments.Comment.UnwrapSome());
@@ -204,12 +205,12 @@ namespace SJP.Schematic.Core.Tests.Comments
                 "test_table_valid_name",
                 Option<string>.None,
                 Option<string>.None,
-                new Dictionary<Identifier, Option<string>>(),
-                new Dictionary<Identifier, Option<string>>(),
-                new Dictionary<Identifier, Option<string>>(),
-                new Dictionary<Identifier, Option<string>>(),
-                new Dictionary<Identifier, Option<string>>(),
-                new Dictionary<Identifier, Option<string>>()
+                Empty.CommentLookup,
+                Empty.CommentLookup,
+                Empty.CommentLookup,
+                Empty.CommentLookup,
+                Empty.CommentLookup,
+                Empty.CommentLookup
             );
 
             Assert.IsTrue(comments.Comment.IsNone);
@@ -224,12 +225,12 @@ namespace SJP.Schematic.Core.Tests.Comments
                 "test_table",
                 Option<string>.None,
                 commentArg,
-                new Dictionary<Identifier, Option<string>>(),
-                new Dictionary<Identifier, Option<string>>(),
-                new Dictionary<Identifier, Option<string>>(),
-                new Dictionary<Identifier, Option<string>>(),
-                new Dictionary<Identifier, Option<string>>(),
-                new Dictionary<Identifier, Option<string>>()
+                Empty.CommentLookup,
+                Empty.CommentLookup,
+                Empty.CommentLookup,
+                Empty.CommentLookup,
+                Empty.CommentLookup,
+                Empty.CommentLookup
             );
 
             Assert.AreEqual(commentText, comments.PrimaryKeyComment.UnwrapSome());
@@ -242,12 +243,12 @@ namespace SJP.Schematic.Core.Tests.Comments
                 "test_table_for_columns",
                 Option<string>.None,
                 Option<string>.None,
-                new Dictionary<Identifier, Option<string>>(),
-                new Dictionary<Identifier, Option<string>>(),
-                new Dictionary<Identifier, Option<string>>(),
-                new Dictionary<Identifier, Option<string>>(),
-                new Dictionary<Identifier, Option<string>>(),
-                new Dictionary<Identifier, Option<string>>()
+                Empty.CommentLookup,
+                Empty.CommentLookup,
+                Empty.CommentLookup,
+                Empty.CommentLookup,
+                Empty.CommentLookup,
+                Empty.CommentLookup
             );
 
             var count = comments.ColumnComments.Count;
@@ -276,11 +277,11 @@ namespace SJP.Schematic.Core.Tests.Comments
                 Option<string>.None,
                 Option<string>.None,
                 columnComments,
-                new Dictionary<Identifier, Option<string>>(),
-                new Dictionary<Identifier, Option<string>>(),
-                new Dictionary<Identifier, Option<string>>(),
-                new Dictionary<Identifier, Option<string>>(),
-                new Dictionary<Identifier, Option<string>>()
+                Empty.CommentLookup,
+                Empty.CommentLookup,
+                Empty.CommentLookup,
+                Empty.CommentLookup,
+                Empty.CommentLookup
             );
 
             var propColumnComments = comments.ColumnComments;
@@ -315,11 +316,11 @@ namespace SJP.Schematic.Core.Tests.Comments
                 Option<string>.None,
                 Option<string>.None,
                 columnComments,
-                new Dictionary<Identifier, Option<string>>(),
-                new Dictionary<Identifier, Option<string>>(),
-                new Dictionary<Identifier, Option<string>>(),
-                new Dictionary<Identifier, Option<string>>(),
-                new Dictionary<Identifier, Option<string>>()
+                Empty.CommentLookup,
+                Empty.CommentLookup,
+                Empty.CommentLookup,
+                Empty.CommentLookup,
+                Empty.CommentLookup
             );
 
             var propColumnComments = comments.ColumnComments;
@@ -344,12 +345,12 @@ namespace SJP.Schematic.Core.Tests.Comments
                 "test_table_for_checks",
                 Option<string>.None,
                 Option<string>.None,
-                new Dictionary<Identifier, Option<string>>(),
-                new Dictionary<Identifier, Option<string>>(),
-                new Dictionary<Identifier, Option<string>>(),
-                new Dictionary<Identifier, Option<string>>(),
-                new Dictionary<Identifier, Option<string>>(),
-                new Dictionary<Identifier, Option<string>>()
+                Empty.CommentLookup,
+                Empty.CommentLookup,
+                Empty.CommentLookup,
+                Empty.CommentLookup,
+                Empty.CommentLookup,
+                Empty.CommentLookup
             );
 
             var count = comments.CheckComments.Count;
@@ -377,12 +378,12 @@ namespace SJP.Schematic.Core.Tests.Comments
                 "test_table",
                 Option<string>.None,
                 Option<string>.None,
-                new Dictionary<Identifier, Option<string>>(),
+                Empty.CommentLookup,
                 checkComments,
-                new Dictionary<Identifier, Option<string>>(),
-                new Dictionary<Identifier, Option<string>>(),
-                new Dictionary<Identifier, Option<string>>(),
-                new Dictionary<Identifier, Option<string>>()
+                Empty.CommentLookup,
+                Empty.CommentLookup,
+                Empty.CommentLookup,
+                Empty.CommentLookup
             );
 
             var propCheckComments = comments.CheckComments;
@@ -416,12 +417,12 @@ namespace SJP.Schematic.Core.Tests.Comments
                 "test_table",
                 Option<string>.None,
                 Option<string>.None,
-                new Dictionary<Identifier, Option<string>>(),
+                Empty.CommentLookup,
                 checkComments,
-                new Dictionary<Identifier, Option<string>>(),
-                new Dictionary<Identifier, Option<string>>(),
-                new Dictionary<Identifier, Option<string>>(),
-                new Dictionary<Identifier, Option<string>>()
+                Empty.CommentLookup,
+                Empty.CommentLookup,
+                Empty.CommentLookup,
+                Empty.CommentLookup
             );
 
             var propCheckComments = comments.CheckComments;
@@ -446,12 +447,12 @@ namespace SJP.Schematic.Core.Tests.Comments
                 "test_table_for_unique_keys",
                 Option<string>.None,
                 Option<string>.None,
-                new Dictionary<Identifier, Option<string>>(),
-                new Dictionary<Identifier, Option<string>>(),
-                new Dictionary<Identifier, Option<string>>(),
-                new Dictionary<Identifier, Option<string>>(),
-                new Dictionary<Identifier, Option<string>>(),
-                new Dictionary<Identifier, Option<string>>()
+                Empty.CommentLookup,
+                Empty.CommentLookup,
+                Empty.CommentLookup,
+                Empty.CommentLookup,
+                Empty.CommentLookup,
+                Empty.CommentLookup
             );
 
             var count = comments.UniqueKeyComments.Count;
@@ -479,12 +480,12 @@ namespace SJP.Schematic.Core.Tests.Comments
                 "test_table",
                 Option<string>.None,
                 Option<string>.None,
-                new Dictionary<Identifier, Option<string>>(),
-                new Dictionary<Identifier, Option<string>>(),
+                Empty.CommentLookup,
+                Empty.CommentLookup,
                 uniqueKeyComments,
-                new Dictionary<Identifier, Option<string>>(),
-                new Dictionary<Identifier, Option<string>>(),
-                new Dictionary<Identifier, Option<string>>()
+                Empty.CommentLookup,
+                Empty.CommentLookup,
+                Empty.CommentLookup
             );
 
             var propUniqueKeyComments = comments.UniqueKeyComments;
@@ -518,12 +519,12 @@ namespace SJP.Schematic.Core.Tests.Comments
                 "test_table",
                 Option<string>.None,
                 Option<string>.None,
-                new Dictionary<Identifier, Option<string>>(),
-                new Dictionary<Identifier, Option<string>>(),
+                Empty.CommentLookup,
+                Empty.CommentLookup,
                 uniqueKeyComments,
-                new Dictionary<Identifier, Option<string>>(),
-                new Dictionary<Identifier, Option<string>>(),
-                new Dictionary<Identifier, Option<string>>()
+                Empty.CommentLookup,
+                Empty.CommentLookup,
+                Empty.CommentLookup
             );
 
             var propUniqueKeyComments = comments.UniqueKeyComments;
@@ -548,12 +549,12 @@ namespace SJP.Schematic.Core.Tests.Comments
                 "test_table_for_foreign_keys",
                 Option<string>.None,
                 Option<string>.None,
-                new Dictionary<Identifier, Option<string>>(),
-                new Dictionary<Identifier, Option<string>>(),
-                new Dictionary<Identifier, Option<string>>(),
-                new Dictionary<Identifier, Option<string>>(),
-                new Dictionary<Identifier, Option<string>>(),
-                new Dictionary<Identifier, Option<string>>()
+                Empty.CommentLookup,
+                Empty.CommentLookup,
+                Empty.CommentLookup,
+                Empty.CommentLookup,
+                Empty.CommentLookup,
+                Empty.CommentLookup
             );
 
             var count = comments.ForeignKeyComments.Count;
@@ -581,12 +582,12 @@ namespace SJP.Schematic.Core.Tests.Comments
                 "test_table",
                 Option<string>.None,
                 Option<string>.None,
-                new Dictionary<Identifier, Option<string>>(),
-                new Dictionary<Identifier, Option<string>>(),
-                new Dictionary<Identifier, Option<string>>(),
+                Empty.CommentLookup,
+                Empty.CommentLookup,
+                Empty.CommentLookup,
                 foreignKeyComments,
-                new Dictionary<Identifier, Option<string>>(),
-                new Dictionary<Identifier, Option<string>>()
+                Empty.CommentLookup,
+                Empty.CommentLookup
             );
 
             var propForeignKeyComments = comments.ForeignKeyComments;
@@ -620,12 +621,12 @@ namespace SJP.Schematic.Core.Tests.Comments
                 "test_table",
                 Option<string>.None,
                 Option<string>.None,
-                new Dictionary<Identifier, Option<string>>(),
-                new Dictionary<Identifier, Option<string>>(),
-                new Dictionary<Identifier, Option<string>>(),
+                Empty.CommentLookup,
+                Empty.CommentLookup,
+                Empty.CommentLookup,
                 foreignKeyComments,
-                new Dictionary<Identifier, Option<string>>(),
-                new Dictionary<Identifier, Option<string>>()
+                Empty.CommentLookup,
+                Empty.CommentLookup
             );
 
             var propForeignKeyComments = comments.ForeignKeyComments;
@@ -650,12 +651,12 @@ namespace SJP.Schematic.Core.Tests.Comments
                 "test_table_for_indexes",
                 Option<string>.None,
                 Option<string>.None,
-                new Dictionary<Identifier, Option<string>>(),
-                new Dictionary<Identifier, Option<string>>(),
-                new Dictionary<Identifier, Option<string>>(),
-                new Dictionary<Identifier, Option<string>>(),
-                new Dictionary<Identifier, Option<string>>(),
-                new Dictionary<Identifier, Option<string>>()
+                Empty.CommentLookup,
+                Empty.CommentLookup,
+                Empty.CommentLookup,
+                Empty.CommentLookup,
+                Empty.CommentLookup,
+                Empty.CommentLookup
             );
 
             var count = comments.IndexComments.Count;
@@ -683,12 +684,12 @@ namespace SJP.Schematic.Core.Tests.Comments
                 "test_table",
                 Option<string>.None,
                 Option<string>.None,
-                new Dictionary<Identifier, Option<string>>(),
-                new Dictionary<Identifier, Option<string>>(),
-                new Dictionary<Identifier, Option<string>>(),
-                new Dictionary<Identifier, Option<string>>(),
+                Empty.CommentLookup,
+                Empty.CommentLookup,
+                Empty.CommentLookup,
+                Empty.CommentLookup,
                 indexComments,
-                new Dictionary<Identifier, Option<string>>()
+                Empty.CommentLookup
             );
 
             var propIndexComments = comments.IndexComments;
@@ -722,12 +723,12 @@ namespace SJP.Schematic.Core.Tests.Comments
                 "test_table",
                 Option<string>.None,
                 Option<string>.None,
-                new Dictionary<Identifier, Option<string>>(),
-                new Dictionary<Identifier, Option<string>>(),
-                new Dictionary<Identifier, Option<string>>(),
-                new Dictionary<Identifier, Option<string>>(),
+                Empty.CommentLookup,
+                Empty.CommentLookup,
+                Empty.CommentLookup,
+                Empty.CommentLookup,
                 indexComments,
-                new Dictionary<Identifier, Option<string>>()
+                Empty.CommentLookup
             );
 
             var propIndexComments = comments.IndexComments;
@@ -752,12 +753,12 @@ namespace SJP.Schematic.Core.Tests.Comments
                 "test_table_for_triggers",
                 Option<string>.None,
                 Option<string>.None,
-                new Dictionary<Identifier, Option<string>>(),
-                new Dictionary<Identifier, Option<string>>(),
-                new Dictionary<Identifier, Option<string>>(),
-                new Dictionary<Identifier, Option<string>>(),
-                new Dictionary<Identifier, Option<string>>(),
-                new Dictionary<Identifier, Option<string>>()
+                Empty.CommentLookup,
+                Empty.CommentLookup,
+                Empty.CommentLookup,
+                Empty.CommentLookup,
+                Empty.CommentLookup,
+                Empty.CommentLookup
             );
 
             var count = comments.TriggerComments.Count;
@@ -785,11 +786,11 @@ namespace SJP.Schematic.Core.Tests.Comments
                 "test_table",
                 Option<string>.None,
                 Option<string>.None,
-                new Dictionary<Identifier, Option<string>>(),
-                new Dictionary<Identifier, Option<string>>(),
-                new Dictionary<Identifier, Option<string>>(),
-                new Dictionary<Identifier, Option<string>>(),
-                new Dictionary<Identifier, Option<string>>(),
+                Empty.CommentLookup,
+                Empty.CommentLookup,
+                Empty.CommentLookup,
+                Empty.CommentLookup,
+                Empty.CommentLookup,
                 triggerComments
             );
 
@@ -824,11 +825,11 @@ namespace SJP.Schematic.Core.Tests.Comments
                 "test_table",
                 Option<string>.None,
                 Option<string>.None,
-                new Dictionary<Identifier, Option<string>>(),
-                new Dictionary<Identifier, Option<string>>(),
-                new Dictionary<Identifier, Option<string>>(),
-                new Dictionary<Identifier, Option<string>>(),
-                new Dictionary<Identifier, Option<string>>(),
+                Empty.CommentLookup,
+                Empty.CommentLookup,
+                Empty.CommentLookup,
+                Empty.CommentLookup,
+                Empty.CommentLookup,
                 triggerComments
             );
 

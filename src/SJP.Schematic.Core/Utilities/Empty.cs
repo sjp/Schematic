@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using LanguageExt;
 using SJP.Schematic.Core.Comments;
 
 namespace SJP.Schematic.Core.Utilities
@@ -28,5 +29,7 @@ namespace SJP.Schematic.Core.Utilities
         public static Task<IReadOnlyCollection<IDatabaseSynonymComments>> SynonymComments { get; } = Task.FromResult<IReadOnlyCollection<IDatabaseSynonymComments>>(Array.Empty<IDatabaseSynonymComments>());
 
         public static Task<IReadOnlyCollection<IDatabaseRoutineComments>> RoutineComments { get; } = Task.FromResult<IReadOnlyCollection<IDatabaseRoutineComments>>(Array.Empty<IDatabaseRoutineComments>());
+
+        public static IReadOnlyDictionary<Identifier, Option<string>> CommentLookup { get; } = new Dictionary<Identifier, Option<string>>();
     }
 }
