@@ -30,19 +30,15 @@ namespace SJP.Schematic.SqlServer
 
         protected IDatabaseDialect Dialect { get; }
 
-        public async Task<IReadOnlyCollection<IRelationalDatabaseTable>> GetAllTables(CancellationToken cancellationToken = default(CancellationToken))
+        public virtual async Task<IReadOnlyCollection<IRelationalDatabaseTable>> GetAllTables(CancellationToken cancellationToken = default(CancellationToken))
         {
             var queryResults = await Connection.QueryAsync<QualifiedName>(TablesQuery, cancellationToken).ConfigureAwait(false);
-            var tableNames = queryResults
+            var tableTasks = queryResults
                 .Select(dto => Identifier.CreateQualifiedIdentifier(dto.SchemaName, dto.ObjectName))
+                .Select(QualifyTableName)
+                .Select(name => LoadTableAsyncCore(name, cancellationToken))
                 .ToList();
-
-            var tables = await tableNames
-                .Select(name => LoadTable(name, cancellationToken))
-                .Somes()
-                .ConfigureAwait(false);
-
-            return tables.ToList();
+            return await Task.WhenAll(tableTasks).ConfigureAwait(false);
         }
 
         protected virtual string TablesQuery => TablesQuerySql;

@@ -29,19 +29,20 @@ namespace SJP.Schematic.PostgreSql
 
         protected IDbTypeProvider TypeProvider { get; }
 
-        public async Task<IReadOnlyCollection<IDatabaseView>> GetAllViews(CancellationToken cancellationToken = default(CancellationToken))
+        public virtual async Task<IReadOnlyCollection<IDatabaseView>> GetAllViews(CancellationToken cancellationToken = default(CancellationToken))
         {
             var queryResult = await Connection.QueryAsync<QualifiedName>(ViewsQuery, cancellationToken).ConfigureAwait(false);
             var viewNames = queryResult
                 .Select(dto => Identifier.CreateQualifiedIdentifier(dto.SchemaName, dto.ObjectName))
+                .Select(QualifyViewName)
                 .ToList();
 
             var views = new List<IDatabaseView>();
 
             foreach (var viewName in viewNames)
             {
-                var view = LoadView(viewName, cancellationToken);
-                await view.IfSome(v => views.Add(v)).ConfigureAwait(false);
+                var view = await LoadViewAsyncCore(viewName, cancellationToken).ConfigureAwait(false);
+                views.Add(view);
             }
 
             return views;
