@@ -33,7 +33,7 @@ namespace SJP.Schematic.Sqlite
 
         protected IIdentifierDefaults IdentifierDefaults { get; }
 
-        public async Task<IReadOnlyCollection<IRelationalDatabaseTable>> GetAllTables(CancellationToken cancellationToken = default(CancellationToken))
+        public virtual async Task<IReadOnlyCollection<IRelationalDatabaseTable>> GetAllTables(CancellationToken cancellationToken = default(CancellationToken))
         {
             var dbNamesQuery = await ConnectionPragma.DatabaseListAsync().ConfigureAwait(false);
             var dbNames = dbNamesQuery.OrderBy(d => d.seq).Select(l => l.name).ToList();
@@ -51,12 +51,10 @@ namespace SJP.Schematic.Sqlite
                 qualifiedTableNames.AddRange(tableNames);
             }
 
-            var tables = await qualifiedTableNames
-                .Select(name => LoadTable(name, cancellationToken))
-                .Somes()
-                .ConfigureAwait(false);
-
-            return tables.ToList();
+            var tableTasks = qualifiedTableNames
+                .Select(name => LoadTableAsyncCore(name, cancellationToken))
+                .ToArray();
+            return await Task.WhenAll(tableTasks).ConfigureAwait(false);
         }
 
         protected virtual string TablesQuery(string schemaName)
@@ -176,7 +174,7 @@ namespace SJP.Schematic.Sqlite
 
         private async Task<IRelationalDatabaseTable> LoadTableAsyncCore(Identifier tableName, CancellationToken cancellationToken)
         {
-            var pragma = new DatabasePragma(Dialect, Connection, tableName.Schema);
+            var pragma = GetDatabasePragma(tableName.Schema);
             var parsedTable = await GetParsedTableDefinitionAsync(tableName, cancellationToken).ConfigureAwait(false);
 
             var columnsTask = LoadColumnsAsync(pragma, parsedTable, tableName, cancellationToken);
@@ -397,7 +395,7 @@ namespace SJP.Schematic.Sqlite
             {
                 if (!dbPragmaLookup.TryGetValue(childTableName.Schema, out var dbPragma))
                 {
-                    dbPragma = new DatabasePragma(Dialect, Connection, childTableName.Schema);
+                    dbPragma = GetDatabasePragma(childTableName.Schema);
                     dbPragmaLookup[childTableName.Schema] = dbPragma;
                 }
 
@@ -701,6 +699,15 @@ namespace SJP.Schematic.Sqlite
             return $"select sql from { Dialect.QuoteIdentifier(schema) }.sqlite_master where type = 'table' and tbl_name = @TableName";
         }
 
+        protected virtual ISqliteDatabasePragma GetDatabasePragma(string schema)
+        {
+            if (schema.IsNullOrWhiteSpace())
+                throw new ArgumentNullException(nameof(schema));
+
+            var loader = _dbPragmaCache.GetOrAdd(schema, new Lazy<ISqliteDatabasePragma>(() => new DatabasePragma(Dialect, Connection, schema)));
+            return loader.Value;
+        }
+
         protected static bool IsReservedTableName(Identifier tableName)
         {
             if (tableName == null)
@@ -730,6 +737,7 @@ namespace SJP.Schematic.Sqlite
 
         private readonly ConcurrentDictionary<string, Lazy<ParsedTableData>> _tableParserCache = new ConcurrentDictionary<string, Lazy<ParsedTableData>>();
         private readonly ConcurrentDictionary<string, Lazy<ParsedTriggerData>> _triggerParserCache = new ConcurrentDictionary<string, Lazy<ParsedTriggerData>>();
+        private readonly ConcurrentDictionary<string, Lazy<ISqliteDatabasePragma>> _dbPragmaCache = new ConcurrentDictionary<string, Lazy<ISqliteDatabasePragma>>();
 
         private static readonly IReadOnlyDictionary<string, Rule> RelationalUpdateMapping = new Dictionary<string, Rule>(StringComparer.OrdinalIgnoreCase)
         {

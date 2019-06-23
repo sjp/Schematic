@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
@@ -30,7 +31,7 @@ namespace SJP.Schematic.Sqlite
 
         protected IIdentifierDefaults IdentifierDefaults { get; }
 
-        public async Task<IReadOnlyCollection<IDatabaseView>> GetAllViews(CancellationToken cancellationToken = default(CancellationToken))
+        public virtual async Task<IReadOnlyCollection<IDatabaseView>> GetAllViews(CancellationToken cancellationToken = default(CancellationToken))
         {
             var dbNamesQuery = await ConnectionPragma.DatabaseListAsync().ConfigureAwait(false);
             var dbNames = dbNamesQuery.OrderBy(d => d.seq).Select(l => l.name).ToList();
@@ -48,12 +49,10 @@ namespace SJP.Schematic.Sqlite
                 qualifiedViewNames.AddRange(viewNames);
             }
 
-            var views = await qualifiedViewNames
-                .Select(name => LoadView(name, cancellationToken))
-                .Somes()
-                .ConfigureAwait(false);
-
-            return views.ToList();
+            var viewTasks = qualifiedViewNames
+                .Select(name => LoadViewAsyncCore(name, cancellationToken))
+                .ToArray();
+            return await Task.WhenAll(viewTasks).ConfigureAwait(false);
         }
 
         protected virtual string ViewsQuery(string schemaName)
@@ -167,7 +166,7 @@ namespace SJP.Schematic.Sqlite
 
         private async Task<IDatabaseView> LoadViewAsyncCore(Identifier viewName, CancellationToken cancellationToken)
         {
-            var databasePragma = new DatabasePragma(Dialect, Connection, viewName.Schema);
+            var databasePragma = GetDatabasePragma(viewName.Schema);
 
             var columnsTask = LoadColumnsAsync(databasePragma, viewName, cancellationToken);
             var definitionTask = LoadDefinitionAsync(viewName, cancellationToken);
@@ -278,6 +277,15 @@ namespace SJP.Schematic.Sqlite
             return Identifier.CreateQualifiedIdentifier(schema, viewName.LocalName);
         }
 
+        protected virtual ISqliteDatabasePragma GetDatabasePragma(string schema)
+        {
+            if (schema.IsNullOrWhiteSpace())
+                throw new ArgumentNullException(nameof(schema));
+
+            var loader = _dbPragmaCache.GetOrAdd(schema, new Lazy<ISqliteDatabasePragma>(() => new DatabasePragma(Dialect, Connection, schema)));
+            return loader.Value;
+        }
+
         protected static bool IsReservedTableName(Identifier tableName)
         {
             if (tableName == null)
@@ -286,6 +294,7 @@ namespace SJP.Schematic.Sqlite
             return tableName.LocalName.StartsWith("sqlite_", StringComparison.OrdinalIgnoreCase);
         }
 
+        private readonly ConcurrentDictionary<string, Lazy<ISqliteDatabasePragma>> _dbPragmaCache = new ConcurrentDictionary<string, Lazy<ISqliteDatabasePragma>>();
         private static readonly SqliteTypeAffinityParser AffinityParser = new SqliteTypeAffinityParser();
 
         private const int SqliteError = 1;

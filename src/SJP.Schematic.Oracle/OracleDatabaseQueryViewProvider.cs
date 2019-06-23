@@ -30,19 +30,18 @@ namespace SJP.Schematic.Oracle
 
         protected IDbTypeProvider TypeProvider { get; }
 
-        public async Task<IReadOnlyCollection<IDatabaseView>> GetAllViews(CancellationToken cancellationToken = default(CancellationToken))
+        public virtual async Task<IReadOnlyCollection<IDatabaseView>> GetAllViews(CancellationToken cancellationToken = default(CancellationToken))
         {
             var queryResult = await Connection.QueryAsync<QualifiedName>(ViewsQuery, cancellationToken).ConfigureAwait(false);
             var viewNames = queryResult
                 .Select(dto => Identifier.CreateQualifiedIdentifier(dto.SchemaName, dto.ObjectName))
+                .Select(QualifyViewName)
                 .ToList();
 
-            var views = await viewNames
-                .Select(name => LoadView(name, cancellationToken))
-                .Somes()
-                .ConfigureAwait(false);
-
-            return views.ToList();
+            var viewTasks = viewNames
+                .Select(name => LoadViewAsyncCore(name, cancellationToken))
+                .ToArray();
+            return await Task.WhenAll(viewTasks).ConfigureAwait(false);
         }
 
         protected virtual string ViewsQuery => ViewsQuerySql;

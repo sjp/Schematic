@@ -35,19 +35,20 @@ namespace SJP.Schematic.MySql
 
         protected Task<bool> HasCheckSupport => _supportsChecks.Task;
 
-        public async Task<IReadOnlyCollection<IRelationalDatabaseTable>> GetAllTables(CancellationToken cancellationToken = default(CancellationToken))
+        public virtual async Task<IReadOnlyCollection<IRelationalDatabaseTable>> GetAllTables(CancellationToken cancellationToken = default(CancellationToken))
         {
             var queryResults = await Connection.QueryAsync<QualifiedName>(TablesQuery, new { SchemaName = IdentifierDefaults.Schema }, cancellationToken).ConfigureAwait(false);
             var tableNames = queryResults
                 .Select(dto => Identifier.CreateQualifiedIdentifier(dto.SchemaName, dto.ObjectName))
+                .Select(QualifyTableName)
                 .ToList();
 
             var tables = new List<IRelationalDatabaseTable>();
 
             foreach (var tableName in tableNames)
             {
-                var table = LoadTable(tableName, cancellationToken);
-                await table.IfSome(t => tables.Add(t)).ConfigureAwait(false);
+                var table = await LoadTableAsyncCore(tableName, cancellationToken).ConfigureAwait(false);
+                tables.Add(table);
             }
 
             return tables;
