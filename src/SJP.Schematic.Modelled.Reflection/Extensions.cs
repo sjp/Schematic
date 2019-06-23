@@ -1,11 +1,12 @@
 ﻿using System;
 using System.Linq;
 using System.Reflection;
-using SJP.Schematic.Core;
-using SJP.Schematic.Modelled.Reflection.Model;
+using System.Runtime.CompilerServices;
 using EnumsNET;
 using LanguageExt;
+using SJP.Schematic.Core;
 using SJP.Schematic.Core.Extensions;
+using SJP.Schematic.Modelled.Reflection.Model;
 
 namespace SJP.Schematic.Modelled.Reflection
 {
@@ -19,7 +20,7 @@ namespace SJP.Schematic.Modelled.Reflection
         /// </summary>
         /// <param name="property">An auto-implemented property.</param>
         /// <param name="bindingFlags">Flags filtering the visibility of the property.</param>
-        /// <returns></returns>
+        /// <returns>The field for an auto-implemented property if it exists.</returns>
         /// <exception cref="ArgumentNullException"><paramref name="property"/> is <c>null</c>.</exception>
         /// <exception cref="ArgumentException"><paramref name="bindingFlags"/> is not a valid enumeration.</exception>
         public static FieldInfo GetAutoBackingField(this PropertyInfo property, BindingFlags bindingFlags = BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.FlattenHierarchy)
@@ -30,7 +31,10 @@ namespace SJP.Schematic.Modelled.Reflection
                 throw new ArgumentException($"The { nameof(BindingFlags) } provided must be a valid enum.", nameof(bindingFlags));
 
             var backingFieldName = $"<{ property.Name }>k__BackingField";
-            return property.DeclaringType.GetField(backingFieldName, bindingFlags);
+            var field = property.DeclaringType.GetField(backingFieldName, bindingFlags);
+
+            var compilerAttr = field?.GetCustomAttribute<CompilerGeneratedAttribute>(true);
+            return compilerAttr != null ? field : null;
         }
 
         /// <summary>
