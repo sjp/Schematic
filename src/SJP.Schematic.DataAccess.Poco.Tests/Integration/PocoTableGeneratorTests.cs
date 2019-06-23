@@ -6,6 +6,7 @@ using NUnit.Framework;
 using SJP.Schematic.Core;
 using SJP.Schematic.Core.Comments;
 using SJP.Schematic.Core.Extensions;
+using SJP.Schematic.Core.Utilities;
 using SJP.Schematic.Sqlite;
 
 namespace SJP.Schematic.DataAccess.Poco.Tests.Integration
@@ -63,11 +64,11 @@ namespace SJP.Schematic.DataAccess.Poco.Tests.Integration
                 Option<string>.Some(tableComment),
                 Option<string>.None,
                 new Dictionary<Identifier, Option<string>> { ["test_column_1"] = Option<string>.Some(columnComment) },
-                new Dictionary<Identifier, Option<string>>(),
-                new Dictionary<Identifier, Option<string>>(),
-                new Dictionary<Identifier, Option<string>>(),
-                new Dictionary<Identifier, Option<string>>(),
-                new Dictionary<Identifier, Option<string>>()
+                Empty.CommentLookup,
+                Empty.CommentLookup,
+                Empty.CommentLookup,
+                Empty.CommentLookup,
+                Empty.CommentLookup
             );
             var result = generator.Generate(table, comment);
 
@@ -92,11 +93,11 @@ This is a second line for it.";
                 Option<string>.Some(tableComment),
                 Option<string>.None,
                 new Dictionary<Identifier, Option<string>> { ["test_column_1"] = Option<string>.Some(columnComment) },
-                new Dictionary<Identifier, Option<string>>(),
-                new Dictionary<Identifier, Option<string>>(),
-                new Dictionary<Identifier, Option<string>>(),
-                new Dictionary<Identifier, Option<string>>(),
-                new Dictionary<Identifier, Option<string>>()
+                Empty.CommentLookup,
+                Empty.CommentLookup,
+                Empty.CommentLookup,
+                Empty.CommentLookup,
+                Empty.CommentLookup
             );
             var result = generator.Generate(table, comment);
 

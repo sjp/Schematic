@@ -5,6 +5,7 @@ using LanguageExt;
 using NUnit.Framework;
 using SJP.Schematic.Core.Comments;
 using SJP.Schematic.Core.Extensions;
+using SJP.Schematic.Core.Utilities;
 
 namespace SJP.Schematic.Core.Tests.Comments
 {
@@ -14,7 +15,7 @@ namespace SJP.Schematic.Core.Tests.Comments
         [Test]
         public static void Ctor_GivenNullName_ThrowsArgumentNullException()
         {
-            Assert.Throws<ArgumentNullException>(() => new DatabaseViewComments(null, Option<string>.None, new Dictionary<Identifier, Option<string>>()));
+            Assert.Throws<ArgumentNullException>(() => new DatabaseViewComments(null, Option<string>.None, Empty.CommentLookup));
         }
 
         [Test]
@@ -26,7 +27,7 @@ namespace SJP.Schematic.Core.Tests.Comments
         [Test]
         public static void Ctor_GivenValidNameAndComments_DoesNotThrow()
         {
-            _ = new DatabaseViewComments("test_view", Option<string>.None, new Dictionary<Identifier, Option<string>>());
+            _ = new DatabaseViewComments("test_view", Option<string>.None, Empty.CommentLookup);
             Assert.Pass();
         }
 
@@ -34,7 +35,7 @@ namespace SJP.Schematic.Core.Tests.Comments
         public static void ViewName_PropertyGet_EqualsCtorArg()
         {
             Identifier viewName = "test_view";
-            var comments = new DatabaseViewComments(viewName, Option<string>.None, new Dictionary<Identifier, Option<string>>());
+            var comments = new DatabaseViewComments(viewName, Option<string>.None, Empty.CommentLookup);
 
             Assert.AreEqual(viewName, comments.ViewName);
         }
@@ -42,7 +43,7 @@ namespace SJP.Schematic.Core.Tests.Comments
         [Test]
         public static void Comment_PropertyGetWhenCtorGivenNone_IsNone()
         {
-            var comments = new DatabaseViewComments("test_view", Option<string>.None, new Dictionary<Identifier, Option<string>>());
+            var comments = new DatabaseViewComments("test_view", Option<string>.None, Empty.CommentLookup);
 
             Assert.IsTrue(comments.Comment.IsNone);
         }
@@ -52,7 +53,7 @@ namespace SJP.Schematic.Core.Tests.Comments
         {
             const string commentText = "this is a test comment";
             var commentArg = Option<string>.Some(commentText);
-            var comments = new DatabaseViewComments("test_view", commentArg, new Dictionary<Identifier, Option<string>>());
+            var comments = new DatabaseViewComments("test_view", commentArg, Empty.CommentLookup);
 
             Assert.AreEqual(commentText, comments.Comment.UnwrapSome());
         }
@@ -60,7 +61,7 @@ namespace SJP.Schematic.Core.Tests.Comments
         [Test]
         public static void ColumnComments_PropertyGetWhenCtorGivenEmptyDictionary_IsEmpty()
         {
-            var comments = new DatabaseViewComments("test_view", Option<string>.None, new Dictionary<Identifier, Option<string>>());
+            var comments = new DatabaseViewComments("test_view", Option<string>.None, Empty.CommentLookup);
 
             var count = comments.ColumnComments.Count;
 

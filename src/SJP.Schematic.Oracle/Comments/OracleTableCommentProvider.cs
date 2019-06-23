@@ -8,6 +8,7 @@ using LanguageExt;
 using SJP.Schematic.Core;
 using SJP.Schematic.Core.Comments;
 using SJP.Schematic.Core.Extensions;
+using SJP.Schematic.Core.Utilities;
 using SJP.Schematic.Oracle.Query;
 
 namespace SJP.Schematic.Oracle.Comments
@@ -45,11 +46,11 @@ namespace SJP.Schematic.Oracle.Comments
                 var primaryKeyComment = Option<string>.None;
 
                 var columnComments = GetColumnComments(commentsData);
-                var checkComments = new Dictionary<Identifier, Option<string>>();
-                var foreignKeyComments = new Dictionary<Identifier, Option<string>>();
-                var uniqueKeyComments = new Dictionary<Identifier, Option<string>>();
-                var indexComments = new Dictionary<Identifier, Option<string>>();
-                var triggerComments = new Dictionary<Identifier, Option<string>>();
+                var checkComments = Empty.CommentLookup;
+                var foreignKeyComments = Empty.CommentLookup;
+                var uniqueKeyComments = Empty.CommentLookup;
+                var indexComments = Empty.CommentLookup;
+                var triggerComments = Empty.CommentLookup;
 
                 var comments = new RelationalDatabaseTableComments(
                     qualifiedName,
@@ -158,11 +159,11 @@ where
             var primaryKeyComment = Option<string>.None;
 
             var columnComments = GetColumnComments(commentsData);
-            var checkComments = new Dictionary<Identifier, Option<string>>();
-            var foreignKeyComments = new Dictionary<Identifier, Option<string>>();
-            var uniqueKeyComments = new Dictionary<Identifier, Option<string>>();
-            var indexComments = new Dictionary<Identifier, Option<string>>();
-            var triggerComments = new Dictionary<Identifier, Option<string>>();
+            var checkComments = Empty.CommentLookup;
+            var foreignKeyComments = Empty.CommentLookup;
+            var uniqueKeyComments = Empty.CommentLookup;
+            var indexComments = Empty.CommentLookup;
+            var triggerComments = Empty.CommentLookup;
 
             return new RelationalDatabaseTableComments(
                 tableName,
