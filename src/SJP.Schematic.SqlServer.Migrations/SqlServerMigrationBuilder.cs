@@ -390,12 +390,9 @@ namespace SJP.Schematic.SqlServer.Migrations
             if (command == null)
                 throw new ArgumentNullException(nameof(command));
 
-            return new SqlOperation(command);
+            var sql = new SqlOperation(command);
+            _operations.Add(sql);
         }
-
-        private const string SequencesNotSupported = "SQLite does not support sequences.";
-        private const string SynonymsNotSupported = "SQLite does not support synonyms.";
-        private const string RoutinesNotSupported = "SQLite does not support routines.";
 
         private readonly List<IMigrationOperation> _operations = new List<IMigrationOperation>();
     }
