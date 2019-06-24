@@ -390,7 +390,8 @@ namespace SJP.Schematic.Sqlite.Migrations
             if (command == null)
                 throw new ArgumentNullException(nameof(command));
 
-            return new SqlOperation(command);
+            var sql = new SqlOperation(command);
+            _operations.Add(sql);
         }
 
         private const string SequencesNotSupported = "SQLite does not support sequences.";
