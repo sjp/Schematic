@@ -1,0 +1,35 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <TreatWarningsAsErrors>True</TreatWarningsAsErrors>
+    <TreatSpecificWarningsAsErrors />
+    <Description>SQL Server database metadata and migration provider for SJP.Schematic</Description>
+    <Authors>Simon Potter</Authors>
+    <Company />
+    <Product />
+    <Copyright>Copyright © Simon Potter 2019</Copyright>
+    <PackageLicenseUrl>https://raw.github.com/sjp/Schematic/master/LICENSE</PackageLicenseUrl>
+    <PackageProjectUrl>https://github.com/sjp/Schematic</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/sjp/Schematic</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageIconUrl>https://raw.github.com/sjp/Schematic/master/database.svg</PackageIconUrl>
+    <CheckForOverflowUnderflow>true</CheckForOverflowUnderflow>
+    <IncludeSymbols>true</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0-beta2-19270-01">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
+    </PackageReference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\SJP.Schematic.Core\SJP.Schematic.Core.csproj" />
+    <ProjectReference Include="..\SJP.Schematic.Migrations\SJP.Schematic.Migrations.csproj" />
+    <ProjectReference Include="..\SJP.Schematic.SqlServer\SJP.Schematic.SqlServer.csproj" />
+  </ItemGroup>
+
+</Project>
