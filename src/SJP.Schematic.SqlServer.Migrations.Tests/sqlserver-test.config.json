@@ -1,0 +1,5 @@
+﻿{
+  "ConnectionStrings": {
+    "TestDb": "Server=(local)\\SQL2017; Database=master; User ID=sa; Password=Password12!; MultipleActiveResultSets=true; Connection Timeout=2"
+  }
+}
