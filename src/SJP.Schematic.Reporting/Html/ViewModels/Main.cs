@@ -147,7 +147,7 @@ namespace SJP.Schematic.Reporting.Html.ViewModels
         /// </summary>
         public sealed class View
         {
-            public View(Identifier viewName, uint columnCount, ulong rowCount, bool isMaterialized)
+            public View(Identifier viewName, uint columnCount, bool isMaterialized)
             {
                 if (viewName == null)
                     throw new ArgumentNullException(nameof(viewName));
@@ -155,7 +155,6 @@ namespace SJP.Schematic.Reporting.Html.ViewModels
                 Name = viewName.ToVisibleName();
                 ViewUrl = UrlRouter.GetViewUrl(viewName);
                 ColumnCount = columnCount;
-                RowCount = rowCount;
                 MaterializedText = isMaterialized ? "✓" : "✗";
             }
 
@@ -164,8 +163,6 @@ namespace SJP.Schematic.Reporting.Html.ViewModels
             public string ViewUrl { get; }
 
             public uint ColumnCount { get; }
-
-            public ulong RowCount { get; }
 
             public string MaterializedText { get; }
         }

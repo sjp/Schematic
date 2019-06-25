@@ -101,17 +101,8 @@ namespace SJP.Schematic.Reporting.Html.Renderers
                 tableViewModels.Add(renderTable);
             }
 
-            var viewViewModels = new List<Main.View>();
-            foreach (var view in Views)
-            {
-                if (!RowCounts.TryGetValue(view.Name, out var rowCount))
-                    rowCount = 0;
-
-                var renderView = mapper.Map(view, rowCount);
-                columns += renderView.ColumnCount;
-
-                viewViewModels.Add(renderView);
-            }
+            var viewViewModels = Views.Select(mapper.Map).ToList();
+            columns += (uint)viewViewModels.Sum(v => v.ColumnCount);
 
             var sequenceViewModels = Sequences.Select(mapper.Map).ToList();
 

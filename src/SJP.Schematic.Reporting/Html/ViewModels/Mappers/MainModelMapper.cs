@@ -24,13 +24,13 @@ namespace SJP.Schematic.Reporting.Html.ViewModels.Mappers
             );
         }
 
-        public Main.View Map(IDatabaseView view, ulong rowCount)
+        public Main.View Map(IDatabaseView view)
         {
             if (view == null)
                 throw new ArgumentNullException(nameof(view));
 
             var columnCount = view.Columns.UCount();
-            return new Main.View(view.Name, columnCount, rowCount, view.IsMaterialized);
+            return new Main.View(view.Name, columnCount, view.IsMaterialized);
         }
 
         public Main.Sequence Map(IDatabaseSequence sequence)
