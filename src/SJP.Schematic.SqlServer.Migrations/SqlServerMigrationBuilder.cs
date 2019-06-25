@@ -391,8 +391,7 @@ namespace SJP.Schematic.SqlServer.Migrations
             if (command == null)
                 throw new ArgumentNullException(nameof(command));
 
-            var sql = new SqlOperation(command);
-            _operations.Add(sql);
+            throw new NotImplementedException();
         }
 
         private readonly List<IMigrationOperation> _operations = new List<IMigrationOperation>();
