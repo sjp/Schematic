@@ -6,7 +6,7 @@ namespace SJP.Schematic.Reporting.Html.ViewModels.Mappers
 {
     internal sealed class ViewModelMapper
     {
-        public View Map(IDatabaseView view, ulong rowCount)
+        public View Map(IDatabaseView view)
         {
             if (view == null)
                 throw new ArgumentNullException(nameof(view));
@@ -25,7 +25,6 @@ namespace SJP.Schematic.Reporting.Html.ViewModels.Mappers
             return new View(
                 view.Name,
                 "../",
-                rowCount,
                 view.Definition,
                 columns
             );

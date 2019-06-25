@@ -17,7 +17,6 @@ namespace SJP.Schematic.Reporting.Html.Renderers
             IIdentifierDefaults identifierDefaults,
             IHtmlFormatter formatter,
             IReadOnlyCollection<IDatabaseView> views,
-            IReadOnlyDictionary<Identifier, ulong> rowCounts,
             DirectoryInfo exportDirectory
         )
         {
@@ -28,7 +27,6 @@ namespace SJP.Schematic.Reporting.Html.Renderers
 
             IdentifierDefaults = identifierDefaults ?? throw new ArgumentNullException(nameof(identifierDefaults));
             Formatter = formatter ?? throw new ArgumentNullException(nameof(formatter));
-            RowCounts = rowCounts ?? throw new ArgumentNullException(nameof(rowCounts));
 
             if (exportDirectory == null)
                 throw new ArgumentNullException(nameof(exportDirectory));
@@ -42,8 +40,6 @@ namespace SJP.Schematic.Reporting.Html.Renderers
 
         private IReadOnlyCollection<IDatabaseView> Views { get; }
 
-        private IReadOnlyDictionary<Identifier, ulong> RowCounts { get; }
-
         private DirectoryInfo ExportDirectory { get; }
 
         public Task RenderAsync(CancellationToken cancellationToken = default(CancellationToken))
@@ -52,10 +48,7 @@ namespace SJP.Schematic.Reporting.Html.Renderers
 
             var viewTasks = Views.Select(async view =>
             {
-                if (!RowCounts.TryGetValue(view.Name, out var rowCount))
-                    rowCount = 0;
-
-                var viewModel = mapper.Map(view, rowCount);
+                var viewModel = mapper.Map(view);
                 var renderedView = Formatter.RenderTemplate(viewModel);
 
                 var databaseName = !IdentifierDefaults.Database.IsNullOrWhiteSpace()

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using SJP.Schematic.Core;
@@ -16,7 +17,6 @@ namespace SJP.Schematic.Reporting.Html.Renderers
             IIdentifierDefaults identifierDefaults,
             IHtmlFormatter formatter,
             IReadOnlyCollection<IDatabaseView> views,
-            IReadOnlyDictionary<Identifier, ulong> rowCounts,
             DirectoryInfo exportDirectory)
         {
             if (views == null || views.AnyNull())
@@ -26,7 +26,6 @@ namespace SJP.Schematic.Reporting.Html.Renderers
 
             IdentifierDefaults = identifierDefaults ?? throw new ArgumentNullException(nameof(identifierDefaults));
             Formatter = formatter ?? throw new ArgumentNullException(nameof(formatter));
-            RowCounts = rowCounts ?? throw new ArgumentNullException(nameof(rowCounts));
             ExportDirectory = exportDirectory ?? throw new ArgumentNullException(nameof(exportDirectory));
         }
 
@@ -36,23 +35,13 @@ namespace SJP.Schematic.Reporting.Html.Renderers
 
         private IReadOnlyCollection<IDatabaseView> Views { get; }
 
-        private IReadOnlyDictionary<Identifier, ulong> RowCounts { get; }
-
         private DirectoryInfo ExportDirectory { get; }
 
         public async Task RenderAsync(CancellationToken cancellationToken = default(CancellationToken))
         {
             var mapper = new MainModelMapper();
 
-            var viewViewModels = new List<Main.View>();
-            foreach (var view in Views)
-            {
-                if (!RowCounts.TryGetValue(view.Name, out var rowCount))
-                    rowCount = 0;
-
-                var renderView = mapper.Map(view, rowCount);
-                viewViewModels.Add(renderView);
-            }
+            var viewViewModels = Views.Select(mapper.Map).ToList();
 
             var viewsVm = new Views(viewViewModels);
             var renderedMain = Formatter.RenderTemplate(viewsVm);

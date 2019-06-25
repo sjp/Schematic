@@ -13,7 +13,6 @@ namespace SJP.Schematic.Reporting.Html.ViewModels
         public View(
             Identifier viewName,
             string rootPath,
-            ulong rowCount,
             string definition,
             IEnumerable<Column> columns
         )
@@ -24,7 +23,6 @@ namespace SJP.Schematic.Reporting.Html.ViewModels
             Name = viewName.ToVisibleName();
             ViewUrl = viewName.ToSafeKey();
             RootPath = rootPath ?? throw new ArgumentNullException(nameof(rootPath));
-            RowCount = rowCount;
             Definition = definition ?? throw new ArgumentNullException(nameof(definition));
 
             Columns = columns ?? throw new ArgumentNullException(nameof(columns));
@@ -39,8 +37,6 @@ namespace SJP.Schematic.Reporting.Html.ViewModels
         public string Name { get; }
 
         public string ViewUrl { get; }
-
-        public ulong RowCount { get; }
 
         public string Definition { get; }
 

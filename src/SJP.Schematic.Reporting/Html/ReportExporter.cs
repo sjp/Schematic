@@ -49,12 +49,6 @@ namespace SJP.Schematic.Reporting.Html
                 rowCounts[table.Name] = count;
             }
 
-            foreach (var view in views)
-            {
-                var count = await Connection.GetRowCountAsync(Database.Dialect, view.Name, cancellationToken).ConfigureAwait(false);
-                rowCounts[view.Name] = count;
-            }
-
             var renderers = GetRenderers(tables, views, sequences, synonyms, routines, rowCounts);
             var renderTasks = renderers.Select(r => r.RenderAsync(cancellationToken)).ToArray();
             await Task.WhenAll(renderTasks).ConfigureAwait(false);
@@ -97,12 +91,12 @@ namespace SJP.Schematic.Reporting.Html
                 new OrphansRenderer(Database.IdentifierDefaults, TemplateFormatter, tables, rowCounts, ExportDirectory),
                 new RelationshipsRenderer(Database.IdentifierDefaults, TemplateFormatter, tables, rowCounts, ExportDirectory),
                 new TableRenderer(Database.IdentifierDefaults, TemplateFormatter, tables, rowCounts, ExportDirectory),
-                new ViewRenderer(Database.IdentifierDefaults, TemplateFormatter, views, rowCounts, ExportDirectory),
+                new ViewRenderer(Database.IdentifierDefaults, TemplateFormatter, views, ExportDirectory),
                 new SequenceRenderer(Database.IdentifierDefaults, TemplateFormatter, sequences, ExportDirectory),
                 new SynonymRenderer(Database.IdentifierDefaults, TemplateFormatter, tables, views, sequences, synonyms, routines, ExportDirectory),
                 new RoutineRenderer(Database.IdentifierDefaults, TemplateFormatter, routines, ExportDirectory),
                 new TablesRenderer(Database.IdentifierDefaults, TemplateFormatter, tables, rowCounts, ExportDirectory),
-                new ViewsRenderer(Database.IdentifierDefaults, TemplateFormatter, views, rowCounts, ExportDirectory),
+                new ViewsRenderer(Database.IdentifierDefaults, TemplateFormatter, views, ExportDirectory),
                 new SequencesRenderer(Database.IdentifierDefaults, TemplateFormatter, sequences, ExportDirectory),
                 new SynonymsRenderer(Database.IdentifierDefaults, TemplateFormatter, tables, views, sequences, synonyms, routines, ExportDirectory),
                 new RoutinesRenderer(Database.IdentifierDefaults, TemplateFormatter, routines, ExportDirectory)
