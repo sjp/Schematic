@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Threading.Tasks;
 using SJP.Schematic.Core;
 using SJP.Schematic.Migrations;
 
@@ -21,12 +22,12 @@ namespace SJP.Schematic.SqlServer.Migrations
 
         protected IRelationalDatabase Database { get; }
 
-        public IReadOnlyList<ISqlCommand> GenerateSql(IEnumerable<IMigrationOperation> operations)
+        public Task<IReadOnlyList<ISqlCommand>> GenerateSql(IEnumerable<IMigrationOperation> operations)
         {
             if (operations == null)
                 throw new ArgumentNullException(nameof(operations));
 
-            return Array.Empty<ISqlCommand>();
+            return Task.FromResult<IReadOnlyList<ISqlCommand>>(Array.Empty<ISqlCommand>());
         }
     }
 }
