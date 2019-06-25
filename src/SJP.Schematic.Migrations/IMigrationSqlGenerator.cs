@@ -1,9 +1,10 @@
 ﻿using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace SJP.Schematic.Migrations
 {
     public interface IMigrationsSqlGenerator
     {
-        IReadOnlyList<ISqlCommand> GenerateSql(IEnumerable<IMigrationOperation> operations);
+        Task<IReadOnlyList<ISqlCommand>> GenerateSql(IEnumerable<IMigrationOperation> operations);
     }
 }

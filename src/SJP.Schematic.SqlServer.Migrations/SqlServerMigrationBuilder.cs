@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Threading.Tasks;
 using SJP.Schematic.Core;
 using SJP.Schematic.Migrations;
 using SJP.Schematic.Migrations.Operations;
@@ -29,7 +30,7 @@ namespace SJP.Schematic.SqlServer.Migrations
             return _operations;
         }
 
-        public void AddCheck(IRelationalDatabaseTable table, IDatabaseCheckConstraint check)
+        public Task AddCheck(IRelationalDatabaseTable table, IDatabaseCheckConstraint check)
         {
             if (table == null)
                 throw new ArgumentNullException(nameof(table));
@@ -39,7 +40,7 @@ namespace SJP.Schematic.SqlServer.Migrations
             throw new NotImplementedException();
         }
 
-        public void AddColumn(IRelationalDatabaseTable table, IDatabaseColumn column)
+        public Task AddColumn(IRelationalDatabaseTable table, IDatabaseColumn column)
         {
             if (table == null)
                 throw new ArgumentNullException(nameof(table));
@@ -49,7 +50,7 @@ namespace SJP.Schematic.SqlServer.Migrations
             throw new NotImplementedException();
         }
 
-        public void AddForeignKey(IRelationalDatabaseTable table, IDatabaseRelationalKey foreignKey)
+        public Task AddForeignKey(IRelationalDatabaseTable table, IDatabaseRelationalKey foreignKey)
         {
             if (table == null)
                 throw new ArgumentNullException(nameof(table));
@@ -59,7 +60,7 @@ namespace SJP.Schematic.SqlServer.Migrations
             throw new NotImplementedException();
         }
 
-        public void AddPrimaryKey(IRelationalDatabaseTable table, IDatabaseKey primaryKey)
+        public Task AddPrimaryKey(IRelationalDatabaseTable table, IDatabaseKey primaryKey)
         {
             if (table == null)
                 throw new ArgumentNullException(nameof(table));
@@ -69,7 +70,7 @@ namespace SJP.Schematic.SqlServer.Migrations
             throw new NotImplementedException();
         }
 
-        public void AddUniqueKey(IRelationalDatabaseTable table, IDatabaseKey uniqueKey)
+        public Task AddUniqueKey(IRelationalDatabaseTable table, IDatabaseKey uniqueKey)
         {
             if (table == null)
                 throw new ArgumentNullException(nameof(table));
@@ -79,7 +80,7 @@ namespace SJP.Schematic.SqlServer.Migrations
             throw new NotImplementedException();
         }
 
-        public void AlterColumn(IRelationalDatabaseTable table, IDatabaseColumn existingColumn, IDatabaseColumn targetColumn)
+        public Task AlterColumn(IRelationalDatabaseTable table, IDatabaseColumn existingColumn, IDatabaseColumn targetColumn)
         {
             if (table == null)
                 throw new ArgumentNullException(nameof(table));
@@ -91,7 +92,7 @@ namespace SJP.Schematic.SqlServer.Migrations
             throw new NotImplementedException();
         }
 
-        public void AlterSequence(IDatabaseSequence existingSequence, IDatabaseSequence targetSequence)
+        public Task AlterSequence(IDatabaseSequence existingSequence, IDatabaseSequence targetSequence)
         {
             if (existingSequence == null)
                 throw new ArgumentNullException(nameof(existingSequence));
@@ -101,7 +102,7 @@ namespace SJP.Schematic.SqlServer.Migrations
             throw new NotImplementedException();
         }
 
-        public void AlterTable(IRelationalDatabaseTable existingTable, IRelationalDatabaseTable targetTable)
+        public Task AlterTable(IRelationalDatabaseTable existingTable, IRelationalDatabaseTable targetTable)
         {
             if (existingTable == null)
                 throw new ArgumentNullException(nameof(existingTable));
@@ -111,7 +112,7 @@ namespace SJP.Schematic.SqlServer.Migrations
             throw new NotImplementedException();
         }
 
-        public void CreateIndex(IRelationalDatabaseTable table, IDatabaseIndex index)
+        public Task CreateIndex(IRelationalDatabaseTable table, IDatabaseIndex index)
         {
             if (table == null)
                 throw new ArgumentNullException(nameof(table));
@@ -121,7 +122,7 @@ namespace SJP.Schematic.SqlServer.Migrations
             throw new NotImplementedException();
         }
 
-        public void CreateRoutine(IDatabaseRoutine routine)
+        public Task CreateRoutine(IDatabaseRoutine routine)
         {
             if (routine == null)
                 throw new ArgumentNullException(nameof(routine));
@@ -129,7 +130,7 @@ namespace SJP.Schematic.SqlServer.Migrations
             throw new NotImplementedException();
         }
 
-        public void CreateSequence(IDatabaseSequence sequence)
+        public Task CreateSequence(IDatabaseSequence sequence)
         {
             if (sequence == null)
                 throw new ArgumentNullException(nameof(sequence));
@@ -137,7 +138,7 @@ namespace SJP.Schematic.SqlServer.Migrations
             throw new NotImplementedException();
         }
 
-        public void CreateSynonym(IDatabaseSynonym synonym)
+        public Task CreateSynonym(IDatabaseSynonym synonym)
         {
             if (synonym == null)
                 throw new ArgumentNullException(nameof(synonym));
@@ -145,7 +146,7 @@ namespace SJP.Schematic.SqlServer.Migrations
             throw new NotImplementedException();
         }
 
-        public void CreateTable(IRelationalDatabaseTable table)
+        public Task CreateTable(IRelationalDatabaseTable table)
         {
             if (table == null)
                 throw new ArgumentNullException(nameof(table));
@@ -153,7 +154,7 @@ namespace SJP.Schematic.SqlServer.Migrations
             throw new NotImplementedException();
         }
 
-        public void CreateView(IDatabaseView view)
+        public Task CreateView(IDatabaseView view)
         {
             if (view == null)
                 throw new ArgumentNullException(nameof(view));
@@ -161,7 +162,7 @@ namespace SJP.Schematic.SqlServer.Migrations
             throw new NotImplementedException();
         }
 
-        public void DropCheck(IRelationalDatabaseTable table, IDatabaseCheckConstraint check)
+        public Task DropCheck(IRelationalDatabaseTable table, IDatabaseCheckConstraint check)
         {
             if (table == null)
                 throw new ArgumentNullException(nameof(table));
@@ -171,7 +172,7 @@ namespace SJP.Schematic.SqlServer.Migrations
             throw new NotImplementedException();
         }
 
-        public void DropColumn(IRelationalDatabaseTable table, IDatabaseColumn column)
+        public Task DropColumn(IRelationalDatabaseTable table, IDatabaseColumn column)
         {
             if (table == null)
                 throw new ArgumentNullException(nameof(table));
@@ -181,7 +182,7 @@ namespace SJP.Schematic.SqlServer.Migrations
             throw new NotImplementedException();
         }
 
-        public void DropForeignKey(IRelationalDatabaseTable table, IDatabaseRelationalKey foreignKey)
+        public Task DropForeignKey(IRelationalDatabaseTable table, IDatabaseRelationalKey foreignKey)
         {
             if (table == null)
                 throw new ArgumentNullException(nameof(table));
@@ -191,7 +192,7 @@ namespace SJP.Schematic.SqlServer.Migrations
             throw new NotImplementedException();
         }
 
-        public void DropIndex(IRelationalDatabaseTable table, IDatabaseIndex index)
+        public Task DropIndex(IRelationalDatabaseTable table, IDatabaseIndex index)
         {
             if (table == null)
                 throw new ArgumentNullException(nameof(table));
@@ -201,7 +202,7 @@ namespace SJP.Schematic.SqlServer.Migrations
             throw new NotImplementedException();
         }
 
-        public void DropPrimaryKey(IRelationalDatabaseTable table, IDatabaseKey primaryKey)
+        public Task DropPrimaryKey(IRelationalDatabaseTable table, IDatabaseKey primaryKey)
         {
             if (table == null)
                 throw new ArgumentNullException(nameof(table));
@@ -211,7 +212,7 @@ namespace SJP.Schematic.SqlServer.Migrations
             throw new NotImplementedException();
         }
 
-        public void DropRoutine(IDatabaseRoutine routine)
+        public Task DropRoutine(IDatabaseRoutine routine)
         {
             if (routine == null)
                 throw new ArgumentNullException(nameof(routine));
@@ -219,7 +220,7 @@ namespace SJP.Schematic.SqlServer.Migrations
             throw new NotImplementedException();
         }
 
-        public void DropSequence(IDatabaseSequence sequence)
+        public Task DropSequence(IDatabaseSequence sequence)
         {
             if (sequence == null)
                 throw new ArgumentNullException(nameof(sequence));
@@ -227,7 +228,7 @@ namespace SJP.Schematic.SqlServer.Migrations
             throw new NotImplementedException();
         }
 
-        public void DropSynonym(IDatabaseSynonym synonym)
+        public Task DropSynonym(IDatabaseSynonym synonym)
         {
             if (synonym == null)
                 throw new ArgumentNullException(nameof(synonym));
@@ -235,7 +236,7 @@ namespace SJP.Schematic.SqlServer.Migrations
             throw new NotImplementedException();
         }
 
-        public void DropTable(IRelationalDatabaseTable table)
+        public Task DropTable(IRelationalDatabaseTable table)
         {
             if (table == null)
                 throw new ArgumentNullException(nameof(table));
@@ -243,7 +244,7 @@ namespace SJP.Schematic.SqlServer.Migrations
             throw new NotImplementedException();
         }
 
-        public void DropUniqueKey(IRelationalDatabaseTable table, IDatabaseKey uniqueKey)
+        public Task DropUniqueKey(IRelationalDatabaseTable table, IDatabaseKey uniqueKey)
         {
             if (table == null)
                 throw new ArgumentNullException(nameof(table));
@@ -253,7 +254,7 @@ namespace SJP.Schematic.SqlServer.Migrations
             throw new NotImplementedException();
         }
 
-        public void DropView(IDatabaseView view)
+        public Task DropView(IDatabaseView view)
         {
             if (view == null)
                 throw new ArgumentNullException(nameof(view));
@@ -261,7 +262,7 @@ namespace SJP.Schematic.SqlServer.Migrations
             throw new NotImplementedException();
         }
 
-        public void RenameCheck(IRelationalDatabaseTable table, IDatabaseCheckConstraint check, Identifier targetName)
+        public Task RenameCheck(IRelationalDatabaseTable table, IDatabaseCheckConstraint check, Identifier targetName)
         {
             if (table == null)
                 throw new ArgumentNullException(nameof(table));
@@ -273,7 +274,7 @@ namespace SJP.Schematic.SqlServer.Migrations
             throw new NotImplementedException();
         }
 
-        public void RenameColumn(IRelationalDatabaseTable table, IDatabaseColumn column, Identifier targetName)
+        public Task RenameColumn(IRelationalDatabaseTable table, IDatabaseColumn column, Identifier targetName)
         {
             if (table == null)
                 throw new ArgumentNullException(nameof(table));
@@ -285,7 +286,7 @@ namespace SJP.Schematic.SqlServer.Migrations
             throw new NotImplementedException();
         }
 
-        public void RenameForeignKey(IRelationalDatabaseTable childTable, IRelationalDatabaseTable parentTable, IDatabaseRelationalKey foreignKey, Identifier targetName)
+        public Task RenameForeignKey(IRelationalDatabaseTable childTable, IRelationalDatabaseTable parentTable, IDatabaseRelationalKey foreignKey, Identifier targetName)
         {
             if (childTable == null)
                 throw new ArgumentNullException(nameof(childTable));
@@ -299,7 +300,7 @@ namespace SJP.Schematic.SqlServer.Migrations
             throw new NotImplementedException();
         }
 
-        public void RenameIndex(IRelationalDatabaseTable table, IDatabaseIndex index, Identifier targetName)
+        public Task RenameIndex(IRelationalDatabaseTable table, IDatabaseIndex index, Identifier targetName)
         {
             if (table == null)
                 throw new ArgumentNullException(nameof(table));
@@ -311,7 +312,7 @@ namespace SJP.Schematic.SqlServer.Migrations
             throw new NotImplementedException();
         }
 
-        public void RenamePrimaryKey(IRelationalDatabaseTable table, IDatabaseKey primaryKey, Identifier targetName)
+        public Task RenamePrimaryKey(IRelationalDatabaseTable table, IDatabaseKey primaryKey, Identifier targetName)
         {
             if (table == null)
                 throw new ArgumentNullException(nameof(table));
@@ -323,7 +324,7 @@ namespace SJP.Schematic.SqlServer.Migrations
             throw new NotImplementedException();
         }
 
-        public void RenameRoutine(IDatabaseRoutine routine, Identifier targetName)
+        public Task RenameRoutine(IDatabaseRoutine routine, Identifier targetName)
         {
             if (routine == null)
                 throw new ArgumentNullException(nameof(routine));
@@ -333,7 +334,7 @@ namespace SJP.Schematic.SqlServer.Migrations
             throw new NotImplementedException();
         }
 
-        public void RenameSequence(IDatabaseSequence sequence, Identifier targetName)
+        public Task RenameSequence(IDatabaseSequence sequence, Identifier targetName)
         {
             if (sequence == null)
                 throw new ArgumentNullException(nameof(sequence));
@@ -343,7 +344,7 @@ namespace SJP.Schematic.SqlServer.Migrations
             throw new NotImplementedException();
         }
 
-        public void RenameSynonym(IDatabaseSynonym synonym, Identifier targetName)
+        public Task RenameSynonym(IDatabaseSynonym synonym, Identifier targetName)
         {
             if (synonym == null)
                 throw new ArgumentNullException(nameof(synonym));
@@ -353,7 +354,7 @@ namespace SJP.Schematic.SqlServer.Migrations
             throw new NotImplementedException();
         }
 
-        public void RenameTable(IRelationalDatabaseTable table, Identifier targetName)
+        public Task RenameTable(IRelationalDatabaseTable table, Identifier targetName)
         {
             if (table == null)
                 throw new ArgumentNullException(nameof(table));
@@ -363,7 +364,7 @@ namespace SJP.Schematic.SqlServer.Migrations
             throw new NotImplementedException();
         }
 
-        public void RenameUniqueKey(IRelationalDatabaseTable table, IDatabaseKey uniqueKey, Identifier targetName)
+        public Task RenameUniqueKey(IRelationalDatabaseTable table, IDatabaseKey uniqueKey, Identifier targetName)
         {
             if (table == null)
                 throw new ArgumentNullException(nameof(table));
@@ -375,7 +376,7 @@ namespace SJP.Schematic.SqlServer.Migrations
             throw new NotImplementedException();
         }
 
-        public void RenameView(IDatabaseView view, Identifier targetName)
+        public Task RenameView(IDatabaseView view, Identifier targetName)
         {
             if (view == null)
                 throw new ArgumentNullException(nameof(view));
@@ -385,7 +386,7 @@ namespace SJP.Schematic.SqlServer.Migrations
             throw new NotImplementedException();
         }
 
-        public void Sql(ISqlCommand command)
+        public Task Sql(ISqlCommand command)
         {
             if (command == null)
                 throw new ArgumentNullException(nameof(command));
