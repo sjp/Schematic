@@ -1,85 +1,92 @@
 ﻿using System.Collections.Generic;
-using System.Threading.Tasks;
+using System.Threading;
+using LanguageExt;
 using SJP.Schematic.Core;
 
 namespace SJP.Schematic.Migrations
 {
     public interface IMigrationBuilder
     {
-        IReadOnlyCollection<IMigrationOperation> GetMigrations();
+        EitherAsync<IReadOnlyCollection<IMigrationError>, IReadOnlyCollection<IMigrationOperation>> BuildMigrations(CancellationToken cancellationToken = default(CancellationToken));
 
-        Task AddCheck(IRelationalDatabaseTable table, IDatabaseCheckConstraint check);
+        void AddCheck(IRelationalDatabaseTable table, IDatabaseCheckConstraint check);
 
-        Task AddColumn(IRelationalDatabaseTable table, IDatabaseColumn column);
+        void AddColumn(IRelationalDatabaseTable table, IDatabaseColumn column);
 
-        Task AddForeignKey(IRelationalDatabaseTable table, IDatabaseRelationalKey foreignKey);
+        void AddForeignKey(IRelationalDatabaseTable table, IDatabaseRelationalKey foreignKey);
 
-        Task AddPrimaryKey(IRelationalDatabaseTable table, IDatabaseKey primaryKey);
+        void AddPrimaryKey(IRelationalDatabaseTable table, IDatabaseKey primaryKey);
 
-        Task AddUniqueKey(IRelationalDatabaseTable table, IDatabaseKey uniqueKey);
+        void AddTrigger(IRelationalDatabaseTable table, IDatabaseTrigger trigger);
 
-        Task AlterColumn(IRelationalDatabaseTable table, IDatabaseColumn existingColumn, IDatabaseColumn targetColumn);
+        void AddUniqueKey(IRelationalDatabaseTable table, IDatabaseKey uniqueKey);
 
-        Task AlterSequence(IDatabaseSequence existingSequence, IDatabaseSequence targetSequence);
+        void AlterColumn(IRelationalDatabaseTable table, IDatabaseColumn existingColumn, IDatabaseColumn targetColumn);
 
-        Task AlterTable(IRelationalDatabaseTable existingTable, IRelationalDatabaseTable targetTable);
+        void AlterSequence(IDatabaseSequence existingSequence, IDatabaseSequence targetSequence);
 
-        Task CreateIndex(IRelationalDatabaseTable table, IDatabaseIndex index);
+        void AlterTable(IRelationalDatabaseTable existingTable, IRelationalDatabaseTable targetTable);
 
-        Task CreateRoutine(IDatabaseRoutine routine);
+        void CreateIndex(IRelationalDatabaseTable table, IDatabaseIndex index);
 
-        Task CreateSequence(IDatabaseSequence sequence);
+        void CreateRoutine(IDatabaseRoutine routine);
 
-        Task CreateSynonym(IDatabaseSynonym synonym);
+        void CreateSequence(IDatabaseSequence sequence);
 
-        Task CreateTable(IRelationalDatabaseTable table);
+        void CreateSynonym(IDatabaseSynonym synonym);
 
-        Task CreateView(IDatabaseView view);
+        void CreateTable(IRelationalDatabaseTable table);
 
-        Task DropCheck(IRelationalDatabaseTable table, IDatabaseCheckConstraint check);
+        void CreateView(IDatabaseView view);
 
-        Task DropColumn(IRelationalDatabaseTable table, IDatabaseColumn column);
+        void DropCheck(IRelationalDatabaseTable table, IDatabaseCheckConstraint check);
 
-        Task DropForeignKey(IRelationalDatabaseTable table, IDatabaseRelationalKey foreignKey);
+        void DropColumn(IRelationalDatabaseTable table, IDatabaseColumn column);
 
-        Task DropIndex(IRelationalDatabaseTable table, IDatabaseIndex index);
+        void DropForeignKey(IRelationalDatabaseTable table, IDatabaseRelationalKey foreignKey);
 
-        Task DropPrimaryKey(IRelationalDatabaseTable table, IDatabaseKey primaryKey);
+        void DropIndex(IRelationalDatabaseTable table, IDatabaseIndex index);
 
-        Task DropRoutine(IDatabaseRoutine routine);
+        void DropPrimaryKey(IRelationalDatabaseTable table, IDatabaseKey primaryKey);
 
-        Task DropSequence(IDatabaseSequence sequence);
+        void DropRoutine(IDatabaseRoutine routine);
 
-        Task DropSynonym(IDatabaseSynonym synonym);
+        void DropSequence(IDatabaseSequence sequence);
 
-        Task DropTable(IRelationalDatabaseTable table);
+        void DropSynonym(IDatabaseSynonym synonym);
 
-        Task DropUniqueKey(IRelationalDatabaseTable table, IDatabaseKey uniqueKey);
+        void DropTable(IRelationalDatabaseTable table);
 
-        Task DropView(IDatabaseView view);
+        void DropTrigger(IRelationalDatabaseTable table, IDatabaseTrigger trigger);
 
-        Task RenameCheck(IRelationalDatabaseTable table, IDatabaseCheckConstraint check, Identifier targetName);
+        void DropUniqueKey(IRelationalDatabaseTable table, IDatabaseKey uniqueKey);
 
-        Task RenameColumn(IRelationalDatabaseTable table, IDatabaseColumn column, Identifier targetName);
+        void DropView(IDatabaseView view);
 
-        Task RenameForeignKey(IRelationalDatabaseTable childTable, IRelationalDatabaseTable parentTable, IDatabaseRelationalKey foreignKey, Identifier targetName);
+        void RenameCheck(IRelationalDatabaseTable table, IDatabaseCheckConstraint check, Identifier targetName);
 
-        Task RenameIndex(IRelationalDatabaseTable table, IDatabaseIndex index, Identifier targetName);
+        void RenameColumn(IRelationalDatabaseTable table, IDatabaseColumn column, Identifier targetName);
 
-        Task RenamePrimaryKey(IRelationalDatabaseTable table, IDatabaseKey primaryKey, Identifier targetName);
+        void RenameForeignKey(IRelationalDatabaseTable childTable, IRelationalDatabaseTable parentTable, IDatabaseRelationalKey foreignKey, Identifier targetName);
 
-        Task RenameRoutine(IDatabaseRoutine routine, Identifier targetName);
+        void RenameIndex(IRelationalDatabaseTable table, IDatabaseIndex index, Identifier targetName);
 
-        Task RenameSequence(IDatabaseSequence sequence, Identifier targetName);
+        void RenamePrimaryKey(IRelationalDatabaseTable table, IDatabaseKey primaryKey, Identifier targetName);
 
-        Task RenameSynonym(IDatabaseSynonym synonym, Identifier targetName);
+        void RenameRoutine(IDatabaseRoutine routine, Identifier targetName);
 
-        Task RenameTable(IRelationalDatabaseTable table, Identifier targetName);
+        void RenameSequence(IDatabaseSequence sequence, Identifier targetName);
 
-        Task RenameUniqueKey(IRelationalDatabaseTable table, IDatabaseKey uniqueKey, Identifier targetName);
+        void RenameSynonym(IDatabaseSynonym synonym, Identifier targetName);
 
-        Task RenameView(IDatabaseView view, Identifier targetName);
+        void RenameTable(IRelationalDatabaseTable table, Identifier targetName);
 
-        Task Sql(ISqlCommand command);
+        void RenameTrigger(IRelationalDatabaseTable table, IDatabaseTrigger trigger, Identifier targetName);
+
+        void RenameUniqueKey(IRelationalDatabaseTable table, IDatabaseKey uniqueKey, Identifier targetName);
+
+        void RenameView(IDatabaseView view, Identifier targetName);
+
+        void Sql(ISqlCommand command);
     }
 }
