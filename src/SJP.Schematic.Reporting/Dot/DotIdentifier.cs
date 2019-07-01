@@ -1,4 +1,5 @@
 ﻿using System;
+using System.ComponentModel;
 using SJP.Schematic.Core.Extensions;
 
 namespace SJP.Schematic.Reporting.Dot
@@ -16,8 +17,10 @@ namespace SJP.Schematic.Reporting.Dot
 
         public override string ToString() => _identifier;
 
+        [EditorBrowsable(EditorBrowsableState.Never)]
         public override int GetHashCode() => _hash;
 
+        [EditorBrowsable(EditorBrowsableState.Never)]
         public override bool Equals(object obj)
         {
             if (obj == null)

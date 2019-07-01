@@ -1,4 +1,5 @@
 ﻿using System;
+using System.ComponentModel;
 using System.Security;
 using EnumsNET;
 using SJP.Schematic.Core.Extensions;
@@ -20,8 +21,10 @@ namespace SJP.Schematic.Reporting.Dot
 
         public override string ToString() => _attr;
 
+        [EditorBrowsable(EditorBrowsableState.Never)]
         public override int GetHashCode() => _hashCode;
 
+        [EditorBrowsable(EditorBrowsableState.Never)]
         public override bool Equals(object obj)
         {
             if (obj == null)

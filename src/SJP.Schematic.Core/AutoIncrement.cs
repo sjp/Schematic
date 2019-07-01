@@ -1,4 +1,5 @@
 ﻿using System;
+using System.ComponentModel;
 
 namespace SJP.Schematic.Core
 {
@@ -42,6 +43,7 @@ namespace SJP.Schematic.Core
                 && Increment == other.Increment;
         }
 
+        [EditorBrowsable(EditorBrowsableState.Never)]
         public override bool Equals(object obj)
         {
             if (obj is IAutoIncrement ai)
@@ -50,6 +52,7 @@ namespace SJP.Schematic.Core
             return false;
         }
 
+        [EditorBrowsable(EditorBrowsableState.Never)]
         public override int GetHashCode()
         {
             unchecked

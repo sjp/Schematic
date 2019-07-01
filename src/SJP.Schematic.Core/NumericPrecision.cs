@@ -1,4 +1,5 @@
 ﻿using System;
+using System.ComponentModel;
 
 namespace SJP.Schematic.Core
 {
@@ -19,6 +20,7 @@ namespace SJP.Schematic.Core
 
         public int Scale { get; }
 
+        [EditorBrowsable(EditorBrowsableState.Never)]
         public override bool Equals(object obj)
         {
             if (obj is NumericPrecision np)
@@ -36,6 +38,7 @@ namespace SJP.Schematic.Core
                 && Scale == other.Scale;
         }
 
+        [EditorBrowsable(EditorBrowsableState.Never)]
         public override int GetHashCode()
         {
             unchecked
