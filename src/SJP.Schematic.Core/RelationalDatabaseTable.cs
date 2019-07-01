@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.Linq;
 using LanguageExt;
@@ -94,6 +95,7 @@ namespace SJP.Schematic.Core
 
         public IReadOnlyCollection<IDatabaseTrigger> Triggers { get; }
 
+        [EditorBrowsable(EditorBrowsableState.Never)]
         public override string ToString() => DebuggerDisplay;
 
         private string DebuggerDisplay

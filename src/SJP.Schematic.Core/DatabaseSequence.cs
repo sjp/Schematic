@@ -1,4 +1,5 @@
 ﻿using System;
+using System.ComponentModel;
 using System.Diagnostics;
 using LanguageExt;
 using SJP.Schematic.Core.Extensions;
@@ -73,6 +74,7 @@ namespace SJP.Schematic.Core
 
         public static int UnknownCacheSize { get; } = -1;
 
+        [EditorBrowsable(EditorBrowsableState.Never)]
         public override string ToString() => DebuggerDisplay;
 
         private string DebuggerDisplay

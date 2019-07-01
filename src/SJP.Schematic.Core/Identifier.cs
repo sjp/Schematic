@@ -1,4 +1,5 @@
 ﻿using System;
+using System.ComponentModel;
 using System.Diagnostics;
 using Microsoft.Extensions.Caching.Memory;
 using SJP.Schematic.Core.Extensions;
@@ -215,6 +216,7 @@ namespace SJP.Schematic.Core
         /// Provides a string representation of the <see cref="Identifier"/>. Not intended to be used directly.
         /// </summary>
         /// <returns>A string representation of the <see cref="Identifier"/>.</returns>
+        [EditorBrowsable(EditorBrowsableState.Never)]
         public override string ToString()
         {
             // not intended to be used for anything except debugging
@@ -297,6 +299,7 @@ namespace SJP.Schematic.Core
         /// </summary>
         /// <param name="obj">The object to compare with the current identifier.</param>
         /// <returns><c>true</c> if the specified object is equal to the current object; otherwise, <c>false</c>.</returns>
+        [EditorBrowsable(EditorBrowsableState.Never)]
         public override bool Equals(object obj)
         {
             if (ReferenceEquals(this, obj))

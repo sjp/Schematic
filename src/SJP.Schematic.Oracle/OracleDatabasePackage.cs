@@ -1,4 +1,5 @@
 ﻿using System;
+using System.ComponentModel;
 using System.Diagnostics;
 using LanguageExt;
 using SJP.Schematic.Core;
@@ -35,6 +36,7 @@ namespace SJP.Schematic.Oracle
             }
         }
 
+        [EditorBrowsable(EditorBrowsableState.Never)]
         public override string ToString() => DebuggerDisplay;
 
         private string DebuggerDisplay

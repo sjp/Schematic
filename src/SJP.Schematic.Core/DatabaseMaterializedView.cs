@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.ComponentModel;
 using System.Diagnostics;
 using SJP.Schematic.Core.Extensions;
 using SJP.Schematic.Core.Utilities;
@@ -18,6 +19,7 @@ namespace SJP.Schematic.Core
 
         public override bool IsMaterialized { get; } = true;
 
+        [EditorBrowsable(EditorBrowsableState.Never)]
         public override string ToString() => DebuggerDisplay;
 
         private string DebuggerDisplay

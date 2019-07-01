@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using NUnit.Framework;
 using SJP.Schematic.Core.Utilities;
@@ -15,6 +16,7 @@ namespace SJP.Schematic.Core.Tests.Utilities
         {
             public int Id { get; set; }
 
+            [EditorBrowsable(EditorBrowsableState.Never)]
             public override string ToString() => Id.ToString();
         }
 
@@ -22,6 +24,7 @@ namespace SJP.Schematic.Core.Tests.Utilities
         {
             public int Id { get; set; }
 
+            [EditorBrowsable(EditorBrowsableState.Never)]
             public override string ToString() => Id.ToString();
         }
 
