@@ -4,6 +4,9 @@ using System.Runtime.CompilerServices;
 
 namespace SJP.Schematic.Core.Utilities
 {
+    /// <summary>
+    /// Combines the hash code for multiple values into a single hash code. A placeholder using ported code from corefx until it's available more widely.
+    /// </summary>
     public struct HashCodeBuilder
     {
         private static readonly uint s_seed = GenerateGlobalSeed();
