@@ -1,5 +1,6 @@
 ﻿using System;
 using System.ComponentModel;
+using SJP.Schematic.Core.Utilities;
 
 namespace SJP.Schematic.Core
 {
@@ -39,15 +40,7 @@ namespace SJP.Schematic.Core
         }
 
         [EditorBrowsable(EditorBrowsableState.Never)]
-        public override int GetHashCode()
-        {
-            unchecked
-            {
-                var hash = 17;
-                hash = (hash * 23) + Precision.GetHashCode();
-                return (hash * 23) + Scale.GetHashCode();
-            }
-        }
+        public override int GetHashCode() => HashCodeBuilder.Combine(Precision, Scale);
 
         public static bool operator ==(NumericPrecision left, NumericPrecision right)
         {
