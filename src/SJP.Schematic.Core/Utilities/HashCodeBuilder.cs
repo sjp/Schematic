@@ -28,6 +28,12 @@ namespace SJP.Schematic.Core.Utilities
             return (uint)result;
         }
 
+        /// <summary>
+        /// Diffuses the hash code returned by the specified value.
+        /// </summary>
+        /// <typeparam name="T1">The type of the first value to combine into the hash code.</typeparam>
+        /// <param name="value1">The first value to combine into the hash code.</param>
+        /// <returns>The hash code that represents the single value.</returns>
         public static int Combine<T1>(T1 value1)
         {
             // Provide a way of diffusing bits from something with a limited
@@ -51,6 +57,14 @@ namespace SJP.Schematic.Core.Utilities
             }
         }
 
+        /// <summary>
+        /// Combines two values into a hash code.
+        /// </summary>
+        /// <typeparam name="T1">The type of the first value to combine into the hash code.</typeparam>
+        /// <typeparam name="T2">The type of the second value to combine into the hash code.</typeparam>
+        /// <param name="value1">The first value to combine into the hash code.</param>
+        /// <param name="value2">The second value to combine into the hash code.</param>
+        /// <returns>The hash code that represents the two values.</returns>
         public static int Combine<T1, T2>(T1 value1, T2 value2)
         {
             unchecked
@@ -69,6 +83,16 @@ namespace SJP.Schematic.Core.Utilities
             }
         }
 
+        /// <summary>
+        /// Combines three values into a hash code.
+        /// </summary>
+        /// <typeparam name="T1">The type of the first value to combine into the hash code.</typeparam>
+        /// <typeparam name="T2">The type of the second value to combine into the hash code.</typeparam>
+        /// <typeparam name="T3">The type of the third value to combine into the hash code.</typeparam>
+        /// <param name="value1">The first value to combine into the hash code.</param>
+        /// <param name="value2">The second value to combine into the hash code.</param>
+        /// <param name="value3">The third value to combine into the hash code.</param>
+        /// <returns>The hash code that represents the three values.</returns>
         public static int Combine<T1, T2, T3>(T1 value1, T2 value2, T3 value3)
         {
             unchecked
@@ -89,6 +113,18 @@ namespace SJP.Schematic.Core.Utilities
             }
         }
 
+        /// <summary>
+        /// Combines four values into a hash code.
+        /// </summary>
+        /// <typeparam name="T1">The type of the first value to combine into the hash code.</typeparam>
+        /// <typeparam name="T2">The type of the second value to combine into the hash code.</typeparam>
+        /// <typeparam name="T3">The type of the third value to combine into the hash code.</typeparam>
+        /// <typeparam name="T4">The type of the fourth value to combine into the hash code.</typeparam>
+        /// <param name="value1">The first value to combine into the hash code.</param>
+        /// <param name="value2">The second value to combine into the hash code.</param>
+        /// <param name="value3">The third value to combine into the hash code.</param>
+        /// <param name="value4">The fourth value to combine into the hash code.</param>
+        /// <returns>The hash code that represents the four values.</returns>
         public static int Combine<T1, T2, T3, T4>(T1 value1, T2 value2, T3 value3, T4 value4)
         {
             unchecked
@@ -113,6 +149,20 @@ namespace SJP.Schematic.Core.Utilities
             }
         }
 
+        /// <summary>
+        /// Combines five values into a hash code.
+        /// </summary>
+        /// <typeparam name="T1">The type of the first value to combine into the hash code.</typeparam>
+        /// <typeparam name="T2">The type of the second value to combine into the hash code.</typeparam>
+        /// <typeparam name="T3">The type of the third value to combine into the hash code.</typeparam>
+        /// <typeparam name="T4">The type of the fourth value to combine into the hash code.</typeparam>
+        /// <typeparam name="T5">The type of the fifth value to combine into the hash code.</typeparam>
+        /// <param name="value1">The first value to combine into the hash code.</param>
+        /// <param name="value2">The second value to combine into the hash code.</param>
+        /// <param name="value3">The third value to combine into the hash code.</param>
+        /// <param name="value4">The fourth value to combine into the hash code.</param>
+        /// <param name="value5">The fifth value to combine into the hash code.</param>
+        /// <returns>The hash code that represents the five values.</returns>
         public static int Combine<T1, T2, T3, T4, T5>(T1 value1, T2 value2, T3 value3, T4 value4, T5 value5)
         {
             unchecked
@@ -140,6 +190,22 @@ namespace SJP.Schematic.Core.Utilities
             }
         }
 
+        /// <summary>
+        /// Combines six values into a hash code.
+        /// </summary>
+        /// <typeparam name="T1">The type of the first value to combine into the hash code.</typeparam>
+        /// <typeparam name="T2">The type of the second value to combine into the hash code.</typeparam>
+        /// <typeparam name="T3">The type of the third value to combine into the hash code.</typeparam>
+        /// <typeparam name="T4">The type of the fourth value to combine into the hash code.</typeparam>
+        /// <typeparam name="T5">The type of the fifth value to combine into the hash code.</typeparam>
+        /// <typeparam name="T6">The type of the sixth value to combine into the hash code.</typeparam>
+        /// <param name="value1">The first value to combine into the hash code.</param>
+        /// <param name="value2">The second value to combine into the hash code.</param>
+        /// <param name="value3">The third value to combine into the hash code.</param>
+        /// <param name="value4">The fourth value to combine into the hash code.</param>
+        /// <param name="value5">The fifth value to combine into the hash code.</param>
+        /// <param name="value6">The sixth value to combine into the hash code.</param>
+        /// <returns>The hash code that represents the six values.</returns>
         public static int Combine<T1, T2, T3, T4, T5, T6>(T1 value1, T2 value2, T3 value3, T4 value4, T5 value5, T6 value6)
         {
             unchecked
@@ -169,6 +235,24 @@ namespace SJP.Schematic.Core.Utilities
             }
         }
 
+        /// <summary>
+        /// Combines seven values into a hash code.
+        /// </summary>
+        /// <typeparam name="T1">The type of the first value to combine into the hash code.</typeparam>
+        /// <typeparam name="T2">The type of the second value to combine into the hash code.</typeparam>
+        /// <typeparam name="T3">The type of the third value to combine into the hash code.</typeparam>
+        /// <typeparam name="T4">The type of the fourth value to combine into the hash code.</typeparam>
+        /// <typeparam name="T5">The type of the fifth value to combine into the hash code.</typeparam>
+        /// <typeparam name="T6">The type of the sixth value to combine into the hash code.</typeparam>
+        /// <typeparam name="T7">The type of the seventh value to combine into the hash code.</typeparam>
+        /// <param name="value1">The first value to combine into the hash code.</param>
+        /// <param name="value2">The second value to combine into the hash code.</param>
+        /// <param name="value3">The third value to combine into the hash code.</param>
+        /// <param name="value4">The fourth value to combine into the hash code.</param>
+        /// <param name="value5">The fifth value to combine into the hash code.</param>
+        /// <param name="value6">The sixth value to combine into the hash code.</param>
+        /// <param name="value7">The seventh value to combine into the hash code.</param>
+        /// <returns>The hash code that represents the seven values.</returns>
         public static int Combine<T1, T2, T3, T4, T5, T6, T7>(T1 value1, T2 value2, T3 value3, T4 value4, T5 value5, T6 value6, T7 value7)
         {
             unchecked
@@ -200,6 +284,26 @@ namespace SJP.Schematic.Core.Utilities
             }
         }
 
+        /// <summary>
+        /// Combines eight values into a hash code.
+        /// </summary>
+        /// <typeparam name="T1">The type of the first value to combine into the hash code.</typeparam>
+        /// <typeparam name="T2">The type of the second value to combine into the hash code.</typeparam>
+        /// <typeparam name="T3">The type of the third value to combine into the hash code.</typeparam>
+        /// <typeparam name="T4">The type of the fourth value to combine into the hash code.</typeparam>
+        /// <typeparam name="T5">The type of the fifth value to combine into the hash code.</typeparam>
+        /// <typeparam name="T6">The type of the sixth value to combine into the hash code.</typeparam>
+        /// <typeparam name="T7">The type of the seventh value to combine into the hash code.</typeparam>
+        /// <typeparam name="T8">The type of the eight value to combine into the hash code.</typeparam>
+        /// <param name="value1">The first value to combine into the hash code.</param>
+        /// <param name="value2">The second value to combine into the hash code.</param>
+        /// <param name="value3">The third value to combine into the hash code.</param>
+        /// <param name="value4">The fourth value to combine into the hash code.</param>
+        /// <param name="value5">The fifth value to combine into the hash code.</param>
+        /// <param name="value6">The sixth value to combine into the hash code.</param>
+        /// <param name="value7">The seventh value to combine into the hash code.</param>
+        /// <param name="value8">The eight value to combine into the hash code.</param>
+        /// <returns>The hash code that represents the eight values.</returns>
         public static int Combine<T1, T2, T3, T4, T5, T6, T7, T8>(T1 value1, T2 value2, T3 value3, T4 value4, T5 value5, T6 value6, T7 value7, T8 value8)
         {
             unchecked
@@ -307,6 +411,11 @@ namespace SJP.Schematic.Core.Utilities
             }
         }
 
+        /// <summary>
+        /// Adds a single value to the hash code.
+        /// </summary>
+        /// <typeparam name="T">The type of the value to add to the hash code.</typeparam>
+        /// <param name="value">The value to add to the hash code.</param>
         public void Add<T>(T value)
         {
             unchecked
@@ -315,6 +424,12 @@ namespace SJP.Schematic.Core.Utilities
             }
         }
 
+        /// <summary>
+        /// Adds a single value to the hash code, specifying the type that provides the hash code function.
+        /// </summary>
+        /// <typeparam name="T">The type of the value to add to the hash code.</typeparam>
+        /// <param name="value">The value to add to the hash code.</param>
+        /// <param name="comparer">The <see cref="IEqualityComparer{T}"/> to use to calculate the hash code. This value can be a null reference (Nothing in Visual Basic), which will use the default equality comparer for <typeparamref name="T"/>.</param>
         public void Add<T>(T value, IEqualityComparer<T> comparer)
         {
             unchecked
@@ -382,6 +497,10 @@ namespace SJP.Schematic.Core.Utilities
             }
         }
 
+        /// <summary>
+        /// Calculates the final hash code after consecutive <see cref="Add{T}(T)"/> invocations.
+        /// </summary>
+        /// <returns>The calculated hash code.</returns>
         public int ToHashCode()
         {
             unchecked
