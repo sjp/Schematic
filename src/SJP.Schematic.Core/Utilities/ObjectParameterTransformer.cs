@@ -1,11 +1,27 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Reflection;
+using Dapper;
 
 namespace SJP.Schematic.Core.Utilities
 {
     public static class ObjectParameterTransformer
     {
+        public static DynamicParameters ToParameters(IReadOnlyDictionary<string, object> paramLookup)
+        {
+            if (paramLookup == null)
+                throw new ArgumentNullException(nameof(paramLookup));
+
+            var result = new DynamicParameters();
+            if (paramLookup.Count == 0)
+                return result;
+
+            foreach (var kv in paramLookup)
+                result.Add(kv.Key, kv.Value);
+
+            return result;
+        }
+
         public static IReadOnlyDictionary<string, object> ToDictionary(object param)
         {
             if (param == null)
@@ -22,6 +38,6 @@ namespace SJP.Schematic.Core.Utilities
             return result;
         }
 
-        private const BindingFlags PropFlags = BindingFlags.FlattenHierarchy | System.Reflection.BindingFlags.GetProperty | System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.Public;
+        private const BindingFlags PropFlags = BindingFlags.FlattenHierarchy | BindingFlags.GetProperty | BindingFlags.Instance | BindingFlags.Public;
     }
 }
