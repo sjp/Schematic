@@ -60,6 +60,8 @@ namespace SJP.Schematic.Reporting.Html.Renderers
 
                     // ensure links open in new window with right attrs
                     var doc = XDocument.Parse(svg, LoadOptions.PreserveWhitespace);
+                    doc.ReplaceTitlesWithTableNames();
+
                     var linkNodes = doc.Descendants(svgNs + "a");
                     foreach (var linkNode in linkNodes)
                     {
