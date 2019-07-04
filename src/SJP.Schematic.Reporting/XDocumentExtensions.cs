@@ -11,22 +11,22 @@ namespace SJP.Schematic.Reporting
             if (document == null)
                 throw new ArgumentNullException(nameof(document));
 
-            var tableNodes = document.Descendants(SvgNamespace + "g")
-                .Where(g => g.Attribute("class") != null && g.Attribute("class").Value == "node")
+            var tableNodes = document.Descendants(GroupElement)
+                .Where(g => g.Attribute(ClassAttribute)?.Value == NodeClass)
                 .ToList();
 
             foreach (var tableNode in tableNodes)
             {
-                var titleNode = tableNode.Descendants(SvgNamespace + "title").FirstOrDefault();
+                var titleNode = tableNode.Descendants(TitleElement).FirstOrDefault();
                 if (titleNode == null)
                     continue;
 
                 var foundTableTextNode = false;
-                var textNodes = tableNode.Descendants(SvgNamespace + "text");
+                var textNodes = tableNode.Descendants(TextElement);
                 foreach (var textNode in textNodes)
                 {
                     var value = textNode.Value;
-                    if (!foundTableTextNode && value == "Table")
+                    if (!foundTableTextNode && value == TableTitle)
                     {
                         foundTableTextNode = true;
                         continue;
@@ -38,6 +38,12 @@ namespace SJP.Schematic.Reporting
             }
         }
 
+        private const string NodeClass = "node";
+        private const string TableTitle = "Table";
         private static readonly XNamespace SvgNamespace = "http://www.w3.org/2000/svg";
+        private static readonly XName ClassAttribute = "class";
+        private static readonly XName GroupElement = SvgNamespace + "g";
+        private static readonly XName TitleElement = SvgNamespace + "title";
+        private static readonly XName TextElement = SvgNamespace + "text";
     }
 }
