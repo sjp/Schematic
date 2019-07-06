@@ -1,13 +1,13 @@
 ﻿using System.Collections.Generic;
 using System.Threading;
-using LanguageExt;
+using System.Threading.Tasks;
 using SJP.Schematic.Core;
 
 namespace SJP.Schematic.Migrations
 {
     public interface IMigrationBuilder
     {
-        EitherAsync<IReadOnlyCollection<IMigrationError>, IReadOnlyCollection<IMigrationOperation>> BuildMigrations(CancellationToken cancellationToken = default(CancellationToken));
+        Task<IReadOnlyCollection<IMigrationOperation>> BuildMigrations(CancellationToken cancellationToken = default(CancellationToken));
 
         void AddCheck(IRelationalDatabaseTable table, IDatabaseCheckConstraint check);
 

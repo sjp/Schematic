@@ -6,23 +6,23 @@ namespace SJP.Schematic.Migrations
 {
     public class SqlCommand : ISqlCommand
     {
-        public SqlCommand(string sql)
+        public SqlCommand(string query)
         {
-            if (sql.IsNullOrWhiteSpace())
-                throw new ArgumentNullException(nameof(sql));
+            if (query.IsNullOrWhiteSpace())
+                throw new ArgumentNullException(nameof(query));
 
             Parameters = EmptyParameters;
         }
 
-        public SqlCommand(string sql, IReadOnlyDictionary<string, object> parameters)
+        public SqlCommand(string query, IReadOnlyDictionary<string, object> parameters)
         {
-            if (sql.IsNullOrWhiteSpace())
-                throw new ArgumentNullException(nameof(sql));
+            if (query.IsNullOrWhiteSpace())
+                throw new ArgumentNullException(nameof(query));
 
             Parameters = parameters ?? throw new ArgumentNullException(nameof(parameters));
         }
 
-        public string Sql { get; }
+        public string Query { get; }
 
         public IReadOnlyDictionary<string, object> Parameters { get; }
 

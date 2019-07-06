@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Threading;
-using LanguageExt;
+using System.Threading.Tasks;
 using SJP.Schematic.Core;
 using SJP.Schematic.Migrations;
 using SJP.Schematic.Migrations.Operations;
@@ -28,9 +28,9 @@ namespace SJP.Schematic.Sqlite.Migrations
 
         protected IList<IMigrationError> Errors { get; } = new List<IMigrationError>();
 
-        public EitherAsync<IReadOnlyCollection<IMigrationError>, IReadOnlyCollection<IMigrationOperation>> BuildMigrations(CancellationToken cancellationToken = default(CancellationToken))
+        public Task<IReadOnlyCollection<IMigrationOperation>> BuildMigrations(CancellationToken cancellationToken = default(CancellationToken))
         {
-            return EitherAsync<IReadOnlyCollection<IMigrationError>, IReadOnlyCollection<IMigrationOperation>>.Right(Array.Empty<IMigrationOperation>());
+            return Task.FromResult<IReadOnlyCollection<IMigrationOperation>>(Array.Empty<IMigrationOperation>());
         }
 
         public void AddCheck(IRelationalDatabaseTable table, IDatabaseCheckConstraint check)
