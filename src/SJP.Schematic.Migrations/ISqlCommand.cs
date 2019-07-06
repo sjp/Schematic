@@ -4,7 +4,7 @@ namespace SJP.Schematic.Migrations
 {
     public interface ISqlCommand
     {
-        string Sql { get; }
+        string Query { get; }
 
         IReadOnlyDictionary<string, object> Parameters { get; }
     }

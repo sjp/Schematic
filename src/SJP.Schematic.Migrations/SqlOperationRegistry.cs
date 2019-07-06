@@ -10,13 +10,13 @@ namespace SJP.Schematic.Migrations
             _sqlGenerators[typeof(TOperation)] = generator ?? throw new ArgumentNullException(nameof(generator));
         }
 
-        public IMigrationOperationAnalyzer<TOperation> GetGenerator<TOperation>() where TOperation : IMigrationOperation
+        public ISqlGenerator<TOperation> GetGenerator<TOperation>() where TOperation : IMigrationOperation
         {
             var opType = typeof(TOperation);
-            if (!_sqlGenerators.TryGetValue(opType, out var analyzer))
+            if (!_sqlGenerators.TryGetValue(opType, out var generator))
                 throw new KeyNotFoundException("No handler found for the given operation: " + opType.FullName);
 
-            return (IMigrationOperationAnalyzer<TOperation>)analyzer;
+            return (ISqlGenerator<TOperation>)generator;
         }
 
         private readonly IDictionary<Type, object> _sqlGenerators = new Dictionary<Type, object>();
