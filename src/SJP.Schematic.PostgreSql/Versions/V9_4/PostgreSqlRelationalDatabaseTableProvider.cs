@@ -681,8 +681,8 @@ where t.relname = @TableName and ns.nspname = @SchemaName";
                         ? row.character_maximum_length
                         : CreatePrecisionFromBase(row.numeric_precision, row.numeric_precision_radix),
                     NumericPrecision = row.numeric_precision_radix > 0
-                        ? CreatePrecisionWithScaleFromBase(row.numeric_precision, row.numeric_scale, row.numeric_precision_radix)
-                        : new NumericPrecision()
+                        ? Option<INumericPrecision>.Some(CreatePrecisionWithScaleFromBase(row.numeric_precision, row.numeric_scale, row.numeric_precision_radix))
+                        : Option<INumericPrecision>.None
                 };
 
                 var columnType = TypeProvider.CreateColumnType(typeMetadata);
@@ -857,7 +857,7 @@ where t.relkind = 'r'
             return newPrecisionStr.Length;
         }
 
-        protected static NumericPrecision CreatePrecisionWithScaleFromBase(int precision, int scale, int radix)
+        protected static INumericPrecision CreatePrecisionWithScaleFromBase(int precision, int scale, int radix)
         {
             if (precision < 0)
                 throw new ArgumentOutOfRangeException(nameof(precision));
