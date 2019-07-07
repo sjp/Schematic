@@ -19,7 +19,7 @@ namespace SJP.Schematic.Core.Extensions
             return tableOption.exists;
         }
 
-        public static Task<(bool exists, IRelationalDatabaseTable table)> TryGetTableAsync(this IRelationalDatabaseTableProvider tableProvider, Identifier tableName, CancellationToken cancellationToken = default(CancellationToken))
+        public static Task<(bool exists, IRelationalDatabaseTable table)> TryGetTableAsync(this IRelationalDatabaseTableProvider tableProvider, Identifier tableName, CancellationToken cancellationToken = default)
         {
             if (tableProvider == null)
                 throw new ArgumentNullException(nameof(tableProvider));

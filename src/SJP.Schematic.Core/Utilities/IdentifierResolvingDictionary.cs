@@ -54,7 +54,7 @@ namespace SJP.Schematic.Core.Utilities
                     return true;
             }
 
-            value = default(TValue);
+            value = default;
             return false;
         }
 

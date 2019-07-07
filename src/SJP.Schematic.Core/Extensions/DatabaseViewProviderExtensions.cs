@@ -19,7 +19,7 @@ namespace SJP.Schematic.Core.Extensions
             return viewOption.exists;
         }
 
-        public static Task<(bool exists, IDatabaseView view)> TryGetViewAsync(this IDatabaseViewProvider viewProvider, Identifier viewName, CancellationToken cancellationToken = default(CancellationToken))
+        public static Task<(bool exists, IDatabaseView view)> TryGetViewAsync(this IDatabaseViewProvider viewProvider, Identifier viewName, CancellationToken cancellationToken = default)
         {
             if (viewProvider == null)
                 throw new ArgumentNullException(nameof(viewProvider));

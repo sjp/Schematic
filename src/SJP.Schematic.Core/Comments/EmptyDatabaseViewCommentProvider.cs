@@ -9,7 +9,7 @@ namespace SJP.Schematic.Core.Comments
 {
     public sealed class EmptyDatabaseViewCommentProvider : IDatabaseViewCommentProvider
     {
-        public OptionAsync<IDatabaseViewComments> GetViewComments(Identifier viewName, CancellationToken cancellationToken = default(CancellationToken))
+        public OptionAsync<IDatabaseViewComments> GetViewComments(Identifier viewName, CancellationToken cancellationToken = default)
         {
             if (viewName == null)
                 throw new ArgumentNullException(nameof(viewName));
@@ -17,7 +17,7 @@ namespace SJP.Schematic.Core.Comments
             return OptionAsync<IDatabaseViewComments>.None;
         }
 
-        public Task<IReadOnlyCollection<IDatabaseViewComments>> GetAllViewComments(CancellationToken cancellationToken = default(CancellationToken))
+        public Task<IReadOnlyCollection<IDatabaseViewComments>> GetAllViewComments(CancellationToken cancellationToken = default)
         {
             return Empty.ViewComments;
         }
