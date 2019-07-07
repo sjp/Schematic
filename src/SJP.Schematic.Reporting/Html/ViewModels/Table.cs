@@ -320,7 +320,7 @@ namespace SJP.Schematic.Reporting.Html.ViewModels
 
             private static readonly IReadOnlyDictionary<ReferentialAction, string> _actionDescription = new Dictionary<ReferentialAction, string>
             {
-                [ReferentialAction.NoAction] = "NONE",
+                [ReferentialAction.NoAction] = "NO ACTION",
                 [ReferentialAction.Restrict] = "RESTRICT",
                 [ReferentialAction.Cascade] = "CASCADE",
                 [ReferentialAction.SetDefault] = "SET DEFAULT",
