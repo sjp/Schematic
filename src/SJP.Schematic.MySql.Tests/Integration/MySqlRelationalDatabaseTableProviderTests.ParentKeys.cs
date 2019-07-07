@@ -79,13 +79,13 @@ namespace SJP.Schematic.MySql.Tests.Integration
         }
 
         [Test]
-        public async Task ParentKeys_WhenGivenTableWithForeignKeyToPrimaryKeyWithDefaultUpdateAction_ReturnsUpdateActionAsNoAction()
+        public async Task ParentKeys_WhenGivenTableWithForeignKeyToPrimaryKeyWithDefaultUpdateAction_ReturnsUpdateActionAsRestrict()
         {
             var table = await GetTableAsync("table_test_table_16").ConfigureAwait(false);
             var parentKeys = table.ParentKeys;
             var foreignKey = parentKeys.Single();
 
-            Assert.AreEqual(ReferentialAction.NoAction, foreignKey.UpdateAction);
+            Assert.AreEqual(ReferentialAction.Restrict, foreignKey.UpdateAction);
         }
 
         [Test]
@@ -109,13 +109,13 @@ namespace SJP.Schematic.MySql.Tests.Integration
         }
 
         [Test]
-        public async Task ParentKeys_WhenGivenTableWithForeignKeyToPrimaryKeyWithDefaultDeleteAction_ReturnsDeleteActionAsNoAction()
+        public async Task ParentKeys_WhenGivenTableWithForeignKeyToPrimaryKeyWithDefaultDeleteAction_ReturnsDeleteActionAsRestrict()
         {
             var table = await GetTableAsync("table_test_table_16").ConfigureAwait(false);
             var parentKeys = table.ParentKeys;
             var foreignKey = parentKeys.Single();
 
-            Assert.AreEqual(ReferentialAction.NoAction, foreignKey.DeleteAction);
+            Assert.AreEqual(ReferentialAction.Restrict, foreignKey.DeleteAction);
         }
 
         [Test]
@@ -210,13 +210,13 @@ namespace SJP.Schematic.MySql.Tests.Integration
         }
 
         [Test]
-        public async Task ParentKeys_WhenGivenTableWithForeignKeyToUniqueKeyWithDefaultUpdateAction_ReturnsUpdateActionAsNoAction()
+        public async Task ParentKeys_WhenGivenTableWithForeignKeyToUniqueKeyWithDefaultUpdateAction_ReturnsUpdateActionAsRestrict()
         {
             var table = await GetTableAsync("table_test_table_17").ConfigureAwait(false);
             var parentKeys = table.ParentKeys;
             var foreignKey = parentKeys.Single();
 
-            Assert.AreEqual(ReferentialAction.NoAction, foreignKey.UpdateAction);
+            Assert.AreEqual(ReferentialAction.Restrict, foreignKey.UpdateAction);
         }
 
         [Test]
@@ -240,13 +240,13 @@ namespace SJP.Schematic.MySql.Tests.Integration
         }
 
         [Test]
-        public async Task ParentKeys_WhenGivenTableWithForeignKeyToUniqueKeyWithDefaultDeleteAction_ReturnsDeleteActionAsNoAction()
+        public async Task ParentKeys_WhenGivenTableWithForeignKeyToUniqueKeyWithDefaultDeleteAction_ReturnsDeleteActionAsRestrict()
         {
             var table = await GetTableAsync("table_test_table_17").ConfigureAwait(false);
             var parentKeys = table.ParentKeys;
             var foreignKey = parentKeys.Single();
 
-            Assert.AreEqual(ReferentialAction.NoAction, foreignKey.DeleteAction);
+            Assert.AreEqual(ReferentialAction.Restrict, foreignKey.DeleteAction);
         }
 
         [Test]

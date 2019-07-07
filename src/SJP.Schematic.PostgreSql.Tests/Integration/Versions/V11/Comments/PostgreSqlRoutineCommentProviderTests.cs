@@ -55,10 +55,10 @@ END $$").ConfigureAwait(false);
         [OneTimeTearDown]
         public async Task CleanUp()
         {
-            await Connection.ExecuteAsync("drop function v11_comment_test_routine_1").ConfigureAwait(false);
-            await Connection.ExecuteAsync("drop procedure v11_comment_test_routine_2").ConfigureAwait(false);
-            await Connection.ExecuteAsync("drop function v11_comment_test_routine_3").ConfigureAwait(false);
-            await Connection.ExecuteAsync("drop procedure v11_comment_test_routine_4").ConfigureAwait(false);
+            await Connection.ExecuteAsync("drop function v11_comment_test_routine_1(integer)").ConfigureAwait(false);
+            await Connection.ExecuteAsync("drop procedure v11_comment_test_routine_2()").ConfigureAwait(false);
+            await Connection.ExecuteAsync("drop function v11_comment_test_routine_3(integer)").ConfigureAwait(false);
+            await Connection.ExecuteAsync("drop procedure v11_comment_test_routine_4()").ConfigureAwait(false);
         }
 
         private Task<IDatabaseRoutineComments> GetRoutineCommentsAsync(Identifier routineName)

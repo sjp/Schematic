@@ -79,13 +79,13 @@ namespace SJP.Schematic.MySql.Tests.Integration
         }
 
         [Test]
-        public async Task ChildKeys_WhenGivenChildTableWithForeignKeyToPrimaryKeyWithDefaultUpdateAction_ReturnsUpdateActionAsNoAction()
+        public async Task ChildKeys_WhenGivenChildTableWithForeignKeyToPrimaryKeyWithDefaultUpdateAction_ReturnsUpdateActionAsRestrict()
         {
             var table = await GetTableAsync("table_test_table_15").ConfigureAwait(false);
             var childKeys = table.ChildKeys;
             var foreignKey = childKeys.Single(k => k.ChildTable.LocalName == "table_test_table_16");
 
-            Assert.AreEqual(ReferentialAction.NoAction, foreignKey.UpdateAction);
+            Assert.AreEqual(ReferentialAction.Restrict, foreignKey.UpdateAction);
         }
 
         [Test]
@@ -109,13 +109,13 @@ namespace SJP.Schematic.MySql.Tests.Integration
         }
 
         [Test]
-        public async Task ChildKeys_WhenGivenChildTableWithForeignKeyToPrimaryKeyWithDefaultDeleteAction_ReturnsDeleteActionAsNoAction()
+        public async Task ChildKeys_WhenGivenChildTableWithForeignKeyToPrimaryKeyWithDefaultDeleteAction_ReturnsDeleteActionAsRestrict()
         {
             var table = await GetTableAsync("table_test_table_15").ConfigureAwait(false);
             var childKeys = table.ChildKeys;
             var foreignKey = childKeys.Single(k => k.ChildTable.LocalName == "table_test_table_16");
 
-            Assert.AreEqual(ReferentialAction.NoAction, foreignKey.DeleteAction);
+            Assert.AreEqual(ReferentialAction.Restrict, foreignKey.DeleteAction);
         }
 
         [Test]
@@ -210,13 +210,13 @@ namespace SJP.Schematic.MySql.Tests.Integration
         }
 
         [Test]
-        public async Task ChildKeys_WhenGivenChildTableWithForeignKeyToUniqueKeyWithDefaultUpdateAction_ReturnsUpdateActionAsNoAction()
+        public async Task ChildKeys_WhenGivenChildTableWithForeignKeyToUniqueKeyWithDefaultUpdateAction_ReturnsUpdateActionAsRestrict()
         {
             var table = await GetTableAsync("table_test_table_15").ConfigureAwait(false);
             var childKeys = table.ChildKeys;
             var foreignKey = childKeys.Single(k => k.ChildTable.LocalName == "table_test_table_17");
 
-            Assert.AreEqual(ReferentialAction.NoAction, foreignKey.UpdateAction);
+            Assert.AreEqual(ReferentialAction.Restrict, foreignKey.UpdateAction);
         }
 
         [Test]
@@ -240,13 +240,13 @@ namespace SJP.Schematic.MySql.Tests.Integration
         }
 
         [Test]
-        public async Task ChildKeys_WhenGivenChildTableWithForeignKeyToUniqueKeyWithDefaultDeleteAction_ReturnsDeleteActionAsNoAction()
+        public async Task ChildKeys_WhenGivenChildTableWithForeignKeyToUniqueKeyWithDefaultDeleteAction_ReturnsDeleteActionAsRestrict()
         {
             var table = await GetTableAsync("table_test_table_15").ConfigureAwait(false);
             var childKeys = table.ChildKeys;
             var foreignKey = childKeys.Single(k => k.ChildTable.LocalName == "table_test_table_17");
 
-            Assert.AreEqual(ReferentialAction.NoAction, foreignKey.DeleteAction);
+            Assert.AreEqual(ReferentialAction.Restrict, foreignKey.DeleteAction);
         }
 
         [Test]

@@ -74,7 +74,7 @@ execute procedure table_comment_table_3_trigger_fn_1()").ConfigureAwait(false);
             await Connection.ExecuteAsync("drop table table_comment_table_1").ConfigureAwait(false);
             await Connection.ExecuteAsync("drop table table_comment_table_2").ConfigureAwait(false);
             await Connection.ExecuteAsync("drop table table_comment_table_3").ConfigureAwait(false);
-            await Connection.ExecuteAsync("drop function table_comment_table_3_trigger_fn_1").ConfigureAwait(false);
+            await Connection.ExecuteAsync("drop function table_comment_table_3_trigger_fn_1()").ConfigureAwait(false);
         }
 
         private Task<IRelationalDatabaseTableComments> GetTableCommentsAsync(Identifier tableName)
