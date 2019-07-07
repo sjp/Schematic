@@ -7,7 +7,7 @@ namespace SJP.Schematic.Core
     /// <summary>
     /// A description of an auto-incrementing sequence.
     /// </summary>
-    public struct AutoIncrement : IAutoIncrement, IEquatable<IAutoIncrement>
+    public readonly struct AutoIncrement : IAutoIncrement, IEquatable<IAutoIncrement>
     {
         /// <summary>
         /// Creates a description of an auto-incrementing sequence.
@@ -56,17 +56,17 @@ namespace SJP.Schematic.Core
         [EditorBrowsable(EditorBrowsableState.Never)]
         public override int GetHashCode() => HashCodeBuilder.Combine(InitialValue, Increment);
 
-        public static bool operator ==(AutoIncrement left, AutoIncrement right)
+        public static bool operator ==(in AutoIncrement left, in AutoIncrement right)
         {
             return left.Equals(right);
         }
 
-        public static bool operator !=(AutoIncrement left, AutoIncrement right)
+        public static bool operator !=(in AutoIncrement left, in AutoIncrement right)
         {
             return !(left == right);
         }
 
-        public static bool operator ==(IAutoIncrement left, AutoIncrement right)
+        public static bool operator ==(IAutoIncrement left, in AutoIncrement right)
         {
             if (left == null)
                 return false;
@@ -74,7 +74,7 @@ namespace SJP.Schematic.Core
             return right.Equals(left);
         }
 
-        public static bool operator !=(IAutoIncrement left, AutoIncrement right)
+        public static bool operator !=(IAutoIncrement left, in AutoIncrement right)
         {
             if (left == null)
                 return true;
@@ -82,7 +82,7 @@ namespace SJP.Schematic.Core
             return !(left == right);
         }
 
-        public static bool operator ==(AutoIncrement left, IAutoIncrement right)
+        public static bool operator ==(in AutoIncrement left, IAutoIncrement right)
         {
             if (right == null)
                 return false;
@@ -90,7 +90,7 @@ namespace SJP.Schematic.Core
             return left.Equals(right);
         }
 
-        public static bool operator !=(AutoIncrement left, IAutoIncrement right)
+        public static bool operator !=(in AutoIncrement left, IAutoIncrement right)
         {
             if (right == null)
                 return true;

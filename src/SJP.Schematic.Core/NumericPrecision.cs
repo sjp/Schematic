@@ -4,7 +4,7 @@ using SJP.Schematic.Core.Utilities;
 
 namespace SJP.Schematic.Core
 {
-    public struct NumericPrecision : INumericPrecision, IEquatable<INumericPrecision>
+    public readonly struct NumericPrecision : INumericPrecision, IEquatable<INumericPrecision>
     {
         public NumericPrecision(int precision, int scale)
         {
@@ -42,17 +42,17 @@ namespace SJP.Schematic.Core
         [EditorBrowsable(EditorBrowsableState.Never)]
         public override int GetHashCode() => HashCodeBuilder.Combine(Precision, Scale);
 
-        public static bool operator ==(NumericPrecision left, NumericPrecision right)
+        public static bool operator ==(in NumericPrecision left, in NumericPrecision right)
         {
             return left.Equals(right);
         }
 
-        public static bool operator !=(NumericPrecision left, NumericPrecision right)
+        public static bool operator !=(in NumericPrecision left, in NumericPrecision right)
         {
             return !(left == right);
         }
 
-        public static bool operator ==(INumericPrecision left, NumericPrecision right)
+        public static bool operator ==(INumericPrecision left, in NumericPrecision right)
         {
             if (left == null)
                 return false;
@@ -60,7 +60,7 @@ namespace SJP.Schematic.Core
             return right.Equals(left);
         }
 
-        public static bool operator !=(INumericPrecision left, NumericPrecision right)
+        public static bool operator !=(INumericPrecision left, in NumericPrecision right)
         {
             if (left == null)
                 return true;
@@ -68,7 +68,7 @@ namespace SJP.Schematic.Core
             return !(left == right);
         }
 
-        public static bool operator ==(NumericPrecision left, INumericPrecision right)
+        public static bool operator ==(in NumericPrecision left, INumericPrecision right)
         {
             if (right == null)
                 return false;
@@ -76,7 +76,7 @@ namespace SJP.Schematic.Core
             return left.Equals(right);
         }
 
-        public static bool operator !=(NumericPrecision left, INumericPrecision right)
+        public static bool operator !=(in NumericPrecision left, INumericPrecision right)
         {
             if (right == null)
                 return true;
