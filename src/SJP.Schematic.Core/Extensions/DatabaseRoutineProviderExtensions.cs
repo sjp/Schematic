@@ -19,7 +19,7 @@ namespace SJP.Schematic.Core.Extensions
             return routineOption.exists;
         }
 
-        public static Task<(bool exists, IDatabaseRoutine routine)> TryGetRoutineAsync(this IDatabaseRoutineProvider routineProvider, Identifier routineName, CancellationToken cancellationToken = default(CancellationToken))
+        public static Task<(bool exists, IDatabaseRoutine routine)> TryGetRoutineAsync(this IDatabaseRoutineProvider routineProvider, Identifier routineName, CancellationToken cancellationToken = default)
         {
             if (routineProvider == null)
                 throw new ArgumentNullException(nameof(routineProvider));

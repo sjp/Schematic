@@ -9,12 +9,12 @@ namespace SJP.Schematic.Core.Comments
 {
     public sealed class EmptyDatabaseSynonymCommentProvider : IDatabaseSynonymCommentProvider
     {
-        public Task<IReadOnlyCollection<IDatabaseSynonymComments>> GetAllSynonymComments(CancellationToken cancellationToken = default(CancellationToken))
+        public Task<IReadOnlyCollection<IDatabaseSynonymComments>> GetAllSynonymComments(CancellationToken cancellationToken = default)
         {
             return Empty.SynonymComments;
         }
 
-        public OptionAsync<IDatabaseSynonymComments> GetSynonymComments(Identifier synonymName, CancellationToken cancellationToken = default(CancellationToken))
+        public OptionAsync<IDatabaseSynonymComments> GetSynonymComments(Identifier synonymName, CancellationToken cancellationToken = default)
         {
             if (synonymName == null)
                 throw new ArgumentNullException(nameof(synonymName));

@@ -48,14 +48,14 @@ namespace SJP.Schematic.Core
 
         public abstract IDbTypeProvider TypeProvider { get; }
 
-        public abstract Task<IIdentifierDefaults> GetIdentifierDefaultsAsync(CancellationToken cancellationToken = default(CancellationToken));
+        public abstract Task<IIdentifierDefaults> GetIdentifierDefaultsAsync(CancellationToken cancellationToken = default);
 
-        public abstract Task<Version> GetDatabaseVersionAsync(CancellationToken cancellationToken = default(CancellationToken));
+        public abstract Task<Version> GetDatabaseVersionAsync(CancellationToken cancellationToken = default);
 
-        public abstract Task<string> GetDatabaseDisplayVersionAsync(CancellationToken cancellationToken = default(CancellationToken));
+        public abstract Task<string> GetDatabaseDisplayVersionAsync(CancellationToken cancellationToken = default);
 
-        public abstract Task<IRelationalDatabase> GetRelationalDatabaseAsync(CancellationToken cancellationToken = default(CancellationToken));
+        public abstract Task<IRelationalDatabase> GetRelationalDatabaseAsync(CancellationToken cancellationToken = default);
 
-        public abstract Task<IRelationalDatabaseCommentProvider> GetRelationalDatabaseCommentProviderAsync(CancellationToken cancellationToken = default(CancellationToken));
+        public abstract Task<IRelationalDatabaseCommentProvider> GetRelationalDatabaseCommentProviderAsync(CancellationToken cancellationToken = default);
     }
 }

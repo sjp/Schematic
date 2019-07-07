@@ -19,7 +19,7 @@ namespace SJP.Schematic.Core.Extensions
             return synonymOption.exists;
         }
 
-        public static Task<(bool exists, IDatabaseSynonym synonym)> TryGetSynonymAsync(this IDatabaseSynonymProvider synonymProvider, Identifier synonymName, CancellationToken cancellationToken = default(CancellationToken))
+        public static Task<(bool exists, IDatabaseSynonym synonym)> TryGetSynonymAsync(this IDatabaseSynonymProvider synonymProvider, Identifier synonymName, CancellationToken cancellationToken = default)
         {
             if (synonymProvider == null)
                 throw new ArgumentNullException(nameof(synonymProvider));

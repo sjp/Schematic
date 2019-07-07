@@ -15,14 +15,14 @@ namespace SJP.Schematic.Core
 
         IDbTypeProvider TypeProvider { get; }
 
-        Task<IIdentifierDefaults> GetIdentifierDefaultsAsync(CancellationToken cancellationToken = default(CancellationToken));
+        Task<IIdentifierDefaults> GetIdentifierDefaultsAsync(CancellationToken cancellationToken = default);
 
-        Task<Version> GetDatabaseVersionAsync(CancellationToken cancellationToken = default(CancellationToken));
+        Task<Version> GetDatabaseVersionAsync(CancellationToken cancellationToken = default);
 
-        Task<string> GetDatabaseDisplayVersionAsync(CancellationToken cancellationToken = default(CancellationToken));
+        Task<string> GetDatabaseDisplayVersionAsync(CancellationToken cancellationToken = default);
 
-        Task<IRelationalDatabase> GetRelationalDatabaseAsync(CancellationToken cancellationToken = default(CancellationToken));
+        Task<IRelationalDatabase> GetRelationalDatabaseAsync(CancellationToken cancellationToken = default);
 
-        Task<IRelationalDatabaseCommentProvider> GetRelationalDatabaseCommentProviderAsync(CancellationToken cancellationToken = default(CancellationToken));
+        Task<IRelationalDatabaseCommentProvider> GetRelationalDatabaseCommentProviderAsync(CancellationToken cancellationToken = default);
     }
 }

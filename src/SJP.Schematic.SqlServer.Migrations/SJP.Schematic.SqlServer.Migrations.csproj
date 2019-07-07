@@ -2,19 +2,7 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
-    <TreatWarningsAsErrors>True</TreatWarningsAsErrors>
-    <TreatSpecificWarningsAsErrors />
     <Description>SQL Server database metadata and migration provider for SJP.Schematic</Description>
-    <Authors>Simon Potter</Authors>
-    <Company />
-    <Product />
-    <Copyright>Copyright © Simon Potter 2019</Copyright>
-    <PackageLicenseUrl>https://raw.github.com/sjp/Schematic/master/LICENSE</PackageLicenseUrl>
-    <PackageProjectUrl>https://github.com/sjp/Schematic</PackageProjectUrl>
-    <RepositoryUrl>https://github.com/sjp/Schematic</RepositoryUrl>
-    <RepositoryType>git</RepositoryType>
-    <PackageIconUrl>https://raw.github.com/sjp/Schematic/master/database.svg</PackageIconUrl>
-    <CheckForOverflowUnderflow>true</CheckForOverflowUnderflow>
     <IncludeSymbols>true</IncludeSymbols>
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
   </PropertyGroup>

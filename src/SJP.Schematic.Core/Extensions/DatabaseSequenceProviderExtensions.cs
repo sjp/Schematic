@@ -19,7 +19,7 @@ namespace SJP.Schematic.Core.Extensions
             return sequenceOption.exists;
         }
 
-        public static Task<(bool exists, IDatabaseSequence sequence)> TryGetSequenceAsync(this IDatabaseSequenceProvider sequenceProvider, Identifier sequenceName, CancellationToken cancellationToken = default(CancellationToken))
+        public static Task<(bool exists, IDatabaseSequence sequence)> TryGetSequenceAsync(this IDatabaseSequenceProvider sequenceProvider, Identifier sequenceName, CancellationToken cancellationToken = default)
         {
             if (sequenceProvider == null)
                 throw new ArgumentNullException(nameof(sequenceProvider));

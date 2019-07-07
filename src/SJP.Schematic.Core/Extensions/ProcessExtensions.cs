@@ -14,7 +14,7 @@ namespace SJP.Schematic.Core.Extensions
         /// <param name="process">The process to wait for exit.</param>
         /// <param name="cancellationToken">A token whose cancellation will cause the returned Task to complete before the process exits in a faulted state with an <see cref="OperationCanceledException"/>. This token has no effect on the <paramref name="process"/> itself.</param>
         /// <returns>A task whose result is the <see cref="Process.ExitCode"/> of the <paramref name="process"/>.</returns>
-        public static Task<int> WaitForExitAsync(this Process process, CancellationToken cancellationToken = default(CancellationToken))
+        public static Task<int> WaitForExitAsync(this Process process, CancellationToken cancellationToken = default)
         {
             if (process == null)
                 throw new ArgumentNullException(nameof(process));

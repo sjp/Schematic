@@ -1,7 +1,6 @@
 ﻿using System;
 using NUnit.Framework;
 using SJP.Schematic.Sqlite.Parsing;
-using Superpower.Model;
 
 namespace SJP.Schematic.Sqlite.Tests.Parsing
 {
