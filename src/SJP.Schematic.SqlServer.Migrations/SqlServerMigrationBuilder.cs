@@ -38,11 +38,10 @@ namespace SJP.Schematic.SqlServer.Migrations
             var registry = new MigrationOperationResolverRegistry();
             registry.AddResolver(new AddCheckResolver());
 
-
             return registry;
         }
 
-        public Task<IReadOnlyCollection<IMigrationOperation>> BuildMigrations(CancellationToken cancellationToken = default(CancellationToken))
+        public Task<IReadOnlyCollection<IMigrationOperation>> BuildMigrations(CancellationToken cancellationToken = default)
         {
             // defensive copy in case someone wants to build twice
             var operationCopy = Operations.ToList();

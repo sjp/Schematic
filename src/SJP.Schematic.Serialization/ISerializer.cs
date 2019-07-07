@@ -7,10 +7,10 @@ namespace SJP.Schematic.Serialization
     {
         TOut Serialize(T obj);
 
-        Task<TOut> SerializeAsync(T obj, CancellationToken cancellationToken = default(CancellationToken));
+        Task<TOut> SerializeAsync(T obj, CancellationToken cancellationToken = default);
 
         T Deserialize(TOut input);
 
-        Task<T> DeserializeAsync(TOut input, CancellationToken cancellationToken = default(CancellationToken));
+        Task<T> DeserializeAsync(TOut input, CancellationToken cancellationToken = default);
     }
 }

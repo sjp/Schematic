@@ -23,7 +23,7 @@ namespace SJP.Schematic.SqlServer
 
         protected IIdentifierDefaults IdentifierDefaults { get; }
 
-        public async Task<IReadOnlyCollection<IDatabaseRoutine>> GetAllRoutines(CancellationToken cancellationToken = default(CancellationToken))
+        public async Task<IReadOnlyCollection<IDatabaseRoutine>> GetAllRoutines(CancellationToken cancellationToken = default)
         {
             var queryResult = await Connection.QueryAsync<RoutineData>(RoutinesQuery, cancellationToken).ConfigureAwait(false);
             if (queryResult.Empty())
@@ -47,7 +47,7 @@ inner join sys.objects o on o.object_id = m.object_id
 where o.is_ms_shipped = 0 and o.type in ('P', 'FN', 'IF', 'TF')
 order by schema_name(o.schema_id), o.name";
 
-        public OptionAsync<IDatabaseRoutine> GetRoutine(Identifier routineName, CancellationToken cancellationToken = default(CancellationToken))
+        public OptionAsync<IDatabaseRoutine> GetRoutine(Identifier routineName, CancellationToken cancellationToken = default)
         {
             if (routineName == null)
                 throw new ArgumentNullException(nameof(routineName));

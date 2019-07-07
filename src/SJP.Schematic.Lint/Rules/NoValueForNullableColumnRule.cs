@@ -34,7 +34,7 @@ namespace SJP.Schematic.Lint.Rules
             return tables.SelectMany(AnalyseTable).ToList();
         }
 
-        public Task<IEnumerable<IRuleMessage>> AnalyseTablesAsync(IEnumerable<IRelationalDatabaseTable> tables, CancellationToken cancellationToken = default(CancellationToken))
+        public Task<IEnumerable<IRuleMessage>> AnalyseTablesAsync(IEnumerable<IRelationalDatabaseTable> tables, CancellationToken cancellationToken = default)
         {
             if (tables == null)
                 throw new ArgumentNullException(nameof(tables));
@@ -42,7 +42,7 @@ namespace SJP.Schematic.Lint.Rules
             return AnalyseTablesAsyncCore(tables, cancellationToken);
         }
 
-        private async Task<IEnumerable<IRuleMessage>> AnalyseTablesAsyncCore(IEnumerable<IRelationalDatabaseTable> tables, CancellationToken cancellationToken = default(CancellationToken))
+        private async Task<IEnumerable<IRuleMessage>> AnalyseTablesAsyncCore(IEnumerable<IRelationalDatabaseTable> tables, CancellationToken cancellationToken = default)
         {
             if (tables.Empty())
                 return Array.Empty<IRuleMessage>();

@@ -28,7 +28,7 @@ namespace SJP.Schematic.Sqlite.Migrations
 
         protected IList<IMigrationError> Errors { get; } = new List<IMigrationError>();
 
-        public Task<IReadOnlyCollection<IMigrationOperation>> BuildMigrations(CancellationToken cancellationToken = default(CancellationToken))
+        public Task<IReadOnlyCollection<IMigrationOperation>> BuildMigrations(CancellationToken cancellationToken = default)
         {
             return Task.FromResult<IReadOnlyCollection<IMigrationOperation>>(Array.Empty<IMigrationOperation>());
         }

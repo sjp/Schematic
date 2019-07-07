@@ -18,7 +18,7 @@ namespace SJP.Schematic.Sqlite
         {
         }
 
-        public static Task<IDbConnection> CreateConnectionAsync(string connectionString, CancellationToken cancellationToken = default(CancellationToken))
+        public static Task<IDbConnection> CreateConnectionAsync(string connectionString, CancellationToken cancellationToken = default)
         {
             if (connectionString.IsNullOrWhiteSpace())
                 throw new ArgumentNullException(nameof(connectionString));
@@ -33,7 +33,7 @@ namespace SJP.Schematic.Sqlite
             return connection;
         }
 
-        public override Task<IIdentifierDefaults> GetIdentifierDefaultsAsync(CancellationToken cancellationToken = default(CancellationToken))
+        public override Task<IIdentifierDefaults> GetIdentifierDefaultsAsync(CancellationToken cancellationToken = default)
         {
             var identifierDefaults = new IdentifierDefaultsBuilder()
                 .WithSchema(DefaultSchema)
@@ -43,13 +43,13 @@ namespace SJP.Schematic.Sqlite
 
         private const string DefaultSchema = "main";
 
-        public override async Task<string> GetDatabaseDisplayVersionAsync(CancellationToken cancellationToken = default(CancellationToken))
+        public override async Task<string> GetDatabaseDisplayVersionAsync(CancellationToken cancellationToken = default)
         {
             var versionStr = await Connection.ExecuteScalarAsync<string>(DatabaseDisplayVersionQuerySql, cancellationToken).ConfigureAwait(false);
             return "SQLite " + versionStr;
         }
 
-        public override async Task<Version> GetDatabaseVersionAsync(CancellationToken cancellationToken = default(CancellationToken))
+        public override async Task<Version> GetDatabaseVersionAsync(CancellationToken cancellationToken = default)
         {
             var versionStr = await Connection.ExecuteScalarAsync<string>(DatabaseDisplayVersionQuerySql, cancellationToken).ConfigureAwait(false);
             return Version.Parse(versionStr);
@@ -57,13 +57,13 @@ namespace SJP.Schematic.Sqlite
 
         private const string DatabaseDisplayVersionQuerySql = "select sqlite_version()";
 
-        public override async Task<IRelationalDatabase> GetRelationalDatabaseAsync(CancellationToken cancellationToken = default(CancellationToken))
+        public override async Task<IRelationalDatabase> GetRelationalDatabaseAsync(CancellationToken cancellationToken = default)
         {
             var identifierDefaults = await GetIdentifierDefaultsAsync(cancellationToken).ConfigureAwait(false);
             return new SqliteRelationalDatabase(this, Connection, identifierDefaults);
         }
 
-        public override Task<IRelationalDatabaseCommentProvider> GetRelationalDatabaseCommentProviderAsync(CancellationToken cancellationToken = default(CancellationToken))
+        public override Task<IRelationalDatabaseCommentProvider> GetRelationalDatabaseCommentProviderAsync(CancellationToken cancellationToken = default)
             => Task.FromResult<IRelationalDatabaseCommentProvider>(new EmptyRelationalDatabaseCommentProvider());
 
         public override bool IsReservedKeyword(string text)

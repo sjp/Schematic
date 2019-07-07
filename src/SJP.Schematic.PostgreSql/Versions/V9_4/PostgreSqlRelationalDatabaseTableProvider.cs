@@ -34,7 +34,7 @@ namespace SJP.Schematic.PostgreSql.Versions.V9_4
 
         protected IDatabaseDialect Dialect { get; }
 
-        public virtual async Task<IReadOnlyCollection<IRelationalDatabaseTable>> GetAllTables(CancellationToken cancellationToken = default(CancellationToken))
+        public virtual async Task<IReadOnlyCollection<IRelationalDatabaseTable>> GetAllTables(CancellationToken cancellationToken = default)
         {
             var queryResults = await Connection.QueryAsync<QualifiedName>(TablesQuery, cancellationToken).ConfigureAwait(false);
             var tableNames = queryResults
@@ -62,7 +62,7 @@ select
 from pg_catalog.pg_tables
 where schemaname not in ('pg_catalog', 'information_schema')";
 
-        public OptionAsync<IRelationalDatabaseTable> GetTable(Identifier tableName, CancellationToken cancellationToken = default(CancellationToken))
+        public OptionAsync<IRelationalDatabaseTable> GetTable(Identifier tableName, CancellationToken cancellationToken = default)
         {
             if (tableName == null)
                 throw new ArgumentNullException(nameof(tableName));
@@ -71,7 +71,7 @@ where schemaname not in ('pg_catalog', 'information_schema')";
             return LoadTable(candidateTableName, cancellationToken);
         }
 
-        protected OptionAsync<Identifier> GetResolvedTableName(Identifier tableName, CancellationToken cancellationToken = default(CancellationToken))
+        protected OptionAsync<Identifier> GetResolvedTableName(Identifier tableName, CancellationToken cancellationToken = default)
         {
             if (tableName == null)
                 throw new ArgumentNullException(nameof(tableName));

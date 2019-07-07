@@ -23,7 +23,7 @@ namespace SJP.Schematic.SqlServer
 
         protected IIdentifierDefaults IdentifierDefaults { get; }
 
-        public async Task<IReadOnlyCollection<IDatabaseSequence>> GetAllSequences(CancellationToken cancellationToken = default(CancellationToken))
+        public async Task<IReadOnlyCollection<IDatabaseSequence>> GetAllSequences(CancellationToken cancellationToken = default)
         {
             var queryResult = await Connection.QueryAsync<SequenceData>(SequencesQuery, cancellationToken).ConfigureAwait(false);
             if (queryResult.Empty())
@@ -55,7 +55,7 @@ from sys.sequences
 where is_ms_shipped = 0
 order by schema_name(schema_id), name";
 
-        public OptionAsync<IDatabaseSequence> GetSequence(Identifier sequenceName, CancellationToken cancellationToken = default(CancellationToken))
+        public OptionAsync<IDatabaseSequence> GetSequence(Identifier sequenceName, CancellationToken cancellationToken = default)
         {
             if (sequenceName == null)
                 throw new ArgumentNullException(nameof(sequenceName));

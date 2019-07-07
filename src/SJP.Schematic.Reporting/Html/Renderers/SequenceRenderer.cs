@@ -42,7 +42,7 @@ namespace SJP.Schematic.Reporting.Html.Renderers
 
         private DirectoryInfo ExportDirectory { get; }
 
-        public Task RenderAsync(CancellationToken cancellationToken = default(CancellationToken))
+        public Task RenderAsync(CancellationToken cancellationToken = default)
         {
             var mapper = new SequenceModelMapper();
 

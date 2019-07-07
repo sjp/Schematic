@@ -29,7 +29,7 @@ namespace SJP.Schematic.PostgreSql
 
         protected IDbTypeProvider TypeProvider { get; }
 
-        public virtual async Task<IReadOnlyCollection<IDatabaseView>> GetAllViews(CancellationToken cancellationToken = default(CancellationToken))
+        public virtual async Task<IReadOnlyCollection<IDatabaseView>> GetAllViews(CancellationToken cancellationToken = default)
         {
             var queryResult = await Connection.QueryAsync<QualifiedName>(ViewsQuery, cancellationToken).ConfigureAwait(false);
             var viewNames = queryResult
@@ -55,7 +55,7 @@ select schemaname as SchemaName, viewname as ObjectName
 from pg_catalog.pg_views
 where schemaname not in ('pg_catalog', 'information_schema')";
 
-        public OptionAsync<IDatabaseView> GetView(Identifier viewName, CancellationToken cancellationToken = default(CancellationToken))
+        public OptionAsync<IDatabaseView> GetView(Identifier viewName, CancellationToken cancellationToken = default)
         {
             if (viewName == null)
                 throw new ArgumentNullException(nameof(viewName));

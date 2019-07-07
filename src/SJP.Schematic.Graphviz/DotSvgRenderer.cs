@@ -63,7 +63,7 @@ namespace SJP.Schematic.Graphviz
             }
         }
 
-        public Task<string> RenderToSvgAsync(string dot, CancellationToken cancellationToken = default(CancellationToken))
+        public Task<string> RenderToSvgAsync(string dot, CancellationToken cancellationToken = default)
         {
             if (string.IsNullOrWhiteSpace(dot))
                 throw new ArgumentNullException(nameof(dot));

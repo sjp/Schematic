@@ -30,7 +30,7 @@ namespace SJP.Schematic.Oracle
         // the main reason is to avoid queries where possible, especially when
         // the SYS.ALL_SYNONYMS data dictionary view is very slow
 
-        public async Task<IReadOnlyCollection<IDatabaseSynonym>> GetAllSynonyms(CancellationToken cancellationToken = default(CancellationToken))
+        public async Task<IReadOnlyCollection<IDatabaseSynonym>> GetAllSynonyms(CancellationToken cancellationToken = default)
         {
             var queryResult = await Connection.QueryAsync<SynonymData>(SynonymsQuery, cancellationToken).ConfigureAwait(false);
             var synonymQueryRows = queryResult.ToList();
@@ -72,7 +72,7 @@ inner join SYS.ALL_OBJECTS o on s.OWNER = o.OWNER and s.SYNONYM_NAME = o.OBJECT_
 where o.ORACLE_MAINTAINED <> 'Y'
 order by s.DB_LINK, s.OWNER, s.SYNONYM_NAME";
 
-        public OptionAsync<IDatabaseSynonym> GetSynonym(Identifier synonymName, CancellationToken cancellationToken = default(CancellationToken))
+        public OptionAsync<IDatabaseSynonym> GetSynonym(Identifier synonymName, CancellationToken cancellationToken = default)
         {
             if (synonymName == null)
                 throw new ArgumentNullException(nameof(synonymName));
@@ -81,7 +81,7 @@ order by s.DB_LINK, s.OWNER, s.SYNONYM_NAME";
             return LoadSynonym(candidateSynonymName, cancellationToken);
         }
 
-        public OptionAsync<Identifier> GetResolvedSynonymName(Identifier synonymName, CancellationToken cancellationToken = default(CancellationToken))
+        public OptionAsync<Identifier> GetResolvedSynonymName(Identifier synonymName, CancellationToken cancellationToken = default)
         {
             if (synonymName == null)
                 throw new ArgumentNullException(nameof(synonymName));

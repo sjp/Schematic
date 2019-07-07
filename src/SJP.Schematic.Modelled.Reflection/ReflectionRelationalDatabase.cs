@@ -47,7 +47,7 @@ namespace SJP.Schematic.Modelled.Reflection
 
         protected ReflectionTypeProvider TypeProvider { get; }
 
-        public OptionAsync<IRelationalDatabaseTable> GetTable(Identifier tableName, CancellationToken cancellationToken = default(CancellationToken))
+        public OptionAsync<IRelationalDatabaseTable> GetTable(Identifier tableName, CancellationToken cancellationToken = default)
         {
             if (tableName == null)
                 throw new ArgumentNullException(nameof(tableName));
@@ -61,7 +61,7 @@ namespace SJP.Schematic.Modelled.Reflection
 
         public IReadOnlyCollection<IRelationalDatabaseTable> Tables => new ReadOnlyCollectionSlim<IRelationalDatabaseTable>(Table.Count, Table.Values);
 
-        public Task<IReadOnlyCollection<IRelationalDatabaseTable>> GetAllTables(CancellationToken cancellationToken = default(CancellationToken)) => Task.FromResult(Tables);
+        public Task<IReadOnlyCollection<IRelationalDatabaseTable>> GetAllTables(CancellationToken cancellationToken = default) => Task.FromResult(Tables);
 
         protected IReadOnlyDictionary<Identifier, IRelationalDatabaseTable> Table => _tableLookup.Value;
 
@@ -101,7 +101,7 @@ namespace SJP.Schematic.Modelled.Reflection
             return lookup;
         }
 
-        public OptionAsync<IDatabaseView> GetView(Identifier viewName, CancellationToken cancellationToken = default(CancellationToken))
+        public OptionAsync<IDatabaseView> GetView(Identifier viewName, CancellationToken cancellationToken = default)
         {
             if (viewName == null)
                 throw new ArgumentNullException(nameof(viewName));
@@ -115,7 +115,7 @@ namespace SJP.Schematic.Modelled.Reflection
 
         public IReadOnlyCollection<IDatabaseView> Views => new ReadOnlyCollectionSlim<IDatabaseView>(View.Count, View.Values);
 
-        public Task<IReadOnlyCollection<IDatabaseView>> GetAllViews(CancellationToken cancellationToken = default(CancellationToken)) => Task.FromResult(Views);
+        public Task<IReadOnlyCollection<IDatabaseView>> GetAllViews(CancellationToken cancellationToken = default) => Task.FromResult(Views);
 
         protected IReadOnlyDictionary<Identifier, IDatabaseView> View => _viewLookup.Value;
 
@@ -155,7 +155,7 @@ namespace SJP.Schematic.Modelled.Reflection
             return lookup;
         }
 
-        public OptionAsync<IDatabaseSequence> GetSequence(Identifier sequenceName, CancellationToken cancellationToken = default(CancellationToken))
+        public OptionAsync<IDatabaseSequence> GetSequence(Identifier sequenceName, CancellationToken cancellationToken = default)
         {
             if (sequenceName == null)
                 throw new ArgumentNullException(nameof(sequenceName));
@@ -169,7 +169,7 @@ namespace SJP.Schematic.Modelled.Reflection
 
         public IReadOnlyCollection<IDatabaseSequence> Sequences => new ReadOnlyCollectionSlim<IDatabaseSequence>(Sequence.Count, Sequence.Values);
 
-        public Task<IReadOnlyCollection<IDatabaseSequence>> GetAllSequences(CancellationToken cancellationToken = default(CancellationToken)) => Task.FromResult(Sequences);
+        public Task<IReadOnlyCollection<IDatabaseSequence>> GetAllSequences(CancellationToken cancellationToken = default) => Task.FromResult(Sequences);
 
         protected IReadOnlyDictionary<Identifier, IDatabaseSequence> Sequence => _sequenceLookup.Value;
 
@@ -209,7 +209,7 @@ namespace SJP.Schematic.Modelled.Reflection
             return lookup;
         }
 
-        public OptionAsync<IDatabaseSynonym> GetSynonym(Identifier synonymName, CancellationToken cancellationToken = default(CancellationToken))
+        public OptionAsync<IDatabaseSynonym> GetSynonym(Identifier synonymName, CancellationToken cancellationToken = default)
         {
             if (synonymName == null)
                 throw new ArgumentNullException(nameof(synonymName));
@@ -223,7 +223,7 @@ namespace SJP.Schematic.Modelled.Reflection
 
         public IReadOnlyCollection<IDatabaseSynonym> Synonyms => new ReadOnlyCollectionSlim<IDatabaseSynonym>(Synonym.Count, Synonym.Values);
 
-        public Task<IReadOnlyCollection<IDatabaseSynonym>> GetAllSynonyms(CancellationToken cancellationToken = default(CancellationToken)) => Task.FromResult(Synonyms);
+        public Task<IReadOnlyCollection<IDatabaseSynonym>> GetAllSynonyms(CancellationToken cancellationToken = default) => Task.FromResult(Synonyms);
 
         protected IReadOnlyDictionary<Identifier, IDatabaseSynonym> Synonym => _synonymLookup.Value;
 
@@ -263,7 +263,7 @@ namespace SJP.Schematic.Modelled.Reflection
             return lookup;
         }
 
-        public OptionAsync<IDatabaseRoutine> GetRoutine(Identifier routineName, CancellationToken cancellationToken = default(CancellationToken))
+        public OptionAsync<IDatabaseRoutine> GetRoutine(Identifier routineName, CancellationToken cancellationToken = default)
         {
             if (routineName == null)
                 throw new ArgumentNullException(nameof(routineName));
@@ -277,7 +277,7 @@ namespace SJP.Schematic.Modelled.Reflection
 
         public IReadOnlyCollection<IDatabaseRoutine> Routines => new ReadOnlyCollectionSlim<IDatabaseRoutine>(Routine.Count, Routine.Values);
 
-        public Task<IReadOnlyCollection<IDatabaseRoutine>> GetAllRoutines(CancellationToken cancellationToken = default(CancellationToken)) => Task.FromResult(Routines);
+        public Task<IReadOnlyCollection<IDatabaseRoutine>> GetAllRoutines(CancellationToken cancellationToken = default) => Task.FromResult(Routines);
 
         protected IReadOnlyDictionary<Identifier, IDatabaseRoutine> Routine => _routineLookup.Value;
 

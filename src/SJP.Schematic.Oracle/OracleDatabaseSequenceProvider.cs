@@ -26,7 +26,7 @@ namespace SJP.Schematic.Oracle
 
         protected IIdentifierResolutionStrategy IdentifierResolver { get; }
 
-        public async Task<IReadOnlyCollection<IDatabaseSequence>> GetAllSequences(CancellationToken cancellationToken = default(CancellationToken))
+        public async Task<IReadOnlyCollection<IDatabaseSequence>> GetAllSequences(CancellationToken cancellationToken = default)
         {
             var queryResult = await Connection.QueryAsync<SequenceData>(SequencesQuery, cancellationToken).ConfigureAwait(false);
             if (queryResult.Empty())
@@ -57,7 +57,7 @@ inner join SYS.ALL_OBJECTS o on s.SEQUENCE_OWNER = o.OWNER and s.SEQUENCE_NAME =
 where o.ORACLE_MAINTAINED <> 'Y'
 order by s.SEQUENCE_OWNER, s.SEQUENCE_NAME";
 
-        public OptionAsync<IDatabaseSequence> GetSequence(Identifier sequenceName, CancellationToken cancellationToken = default(CancellationToken))
+        public OptionAsync<IDatabaseSequence> GetSequence(Identifier sequenceName, CancellationToken cancellationToken = default)
         {
             if (sequenceName == null)
                 throw new ArgumentNullException(nameof(sequenceName));
@@ -66,7 +66,7 @@ order by s.SEQUENCE_OWNER, s.SEQUENCE_NAME";
             return LoadSequence(candidateSequenceName, cancellationToken);
         }
 
-        protected OptionAsync<Identifier> GetResolvedSequenceName(Identifier sequenceName, CancellationToken cancellationToken = default(CancellationToken))
+        protected OptionAsync<Identifier> GetResolvedSequenceName(Identifier sequenceName, CancellationToken cancellationToken = default)
         {
             if (sequenceName == null)
                 throw new ArgumentNullException(nameof(sequenceName));

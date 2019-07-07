@@ -25,7 +25,7 @@ namespace SJP.Schematic.MySql.Comments
 
         protected IIdentifierDefaults IdentifierDefaults { get; }
 
-        public async Task<IReadOnlyCollection<IRelationalDatabaseTableComments>> GetAllTableComments(CancellationToken cancellationToken = default(CancellationToken))
+        public async Task<IReadOnlyCollection<IRelationalDatabaseTableComments>> GetAllTableComments(CancellationToken cancellationToken = default)
         {
             var result = new List<IRelationalDatabaseTableComments>();
 
@@ -97,7 +97,7 @@ from information_schema.tables
 where table_schema = @SchemaName and table_name = @TableName
 limit 1";
 
-        public OptionAsync<IRelationalDatabaseTableComments> GetTableComments(Identifier tableName, CancellationToken cancellationToken = default(CancellationToken))
+        public OptionAsync<IRelationalDatabaseTableComments> GetTableComments(Identifier tableName, CancellationToken cancellationToken = default)
         {
             if (tableName == null)
                 throw new ArgumentNullException(nameof(tableName));

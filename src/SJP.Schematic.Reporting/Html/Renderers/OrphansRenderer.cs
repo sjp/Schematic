@@ -41,7 +41,7 @@ namespace SJP.Schematic.Reporting.Html.Renderers
 
         private DirectoryInfo ExportDirectory { get; }
 
-        public async Task RenderAsync(CancellationToken cancellationToken = default(CancellationToken))
+        public async Task RenderAsync(CancellationToken cancellationToken = default)
         {
             var orphanedTables = Tables
                 .Where(t => t.ParentKeys.Empty() && t.ChildKeys.Empty())

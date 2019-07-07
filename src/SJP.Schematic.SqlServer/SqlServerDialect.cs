@@ -20,7 +20,7 @@ namespace SJP.Schematic.SqlServer
         {
         }
 
-        public static Task<IDbConnection> CreateConnectionAsync(string connectionString, CancellationToken cancellationToken = default(CancellationToken))
+        public static Task<IDbConnection> CreateConnectionAsync(string connectionString, CancellationToken cancellationToken = default)
         {
             if (connectionString.IsNullOrWhiteSpace())
                 throw new ArgumentNullException(nameof(connectionString));
@@ -38,7 +38,7 @@ namespace SJP.Schematic.SqlServer
             return connection;
         }
 
-        public override async Task<IIdentifierDefaults> GetIdentifierDefaultsAsync(CancellationToken cancellationToken = default(CancellationToken))
+        public override async Task<IIdentifierDefaults> GetIdentifierDefaultsAsync(CancellationToken cancellationToken = default)
         {
             return await Connection.QuerySingleAsync<IdentifierDefaults>(IdentifierDefaultsQuerySql, cancellationToken).ConfigureAwait(false);
         }
@@ -49,14 +49,14 @@ select
     db_name() as [Database],
     schema_name() as [Schema]";
 
-        public override Task<string> GetDatabaseDisplayVersionAsync(CancellationToken cancellationToken = default(CancellationToken))
+        public override Task<string> GetDatabaseDisplayVersionAsync(CancellationToken cancellationToken = default)
         {
             return Connection.ExecuteScalarAsync<string>(DatabaseDisplayVersionQuerySql, cancellationToken);
         }
 
         private const string DatabaseDisplayVersionQuerySql = "select @@version as DatabaseVersion";
 
-        public override async Task<Version> GetDatabaseVersionAsync(CancellationToken cancellationToken = default(CancellationToken))
+        public override async Task<Version> GetDatabaseVersionAsync(CancellationToken cancellationToken = default)
         {
             var versionStr = await Connection.ExecuteScalarAsync<string>(DatabaseVersionQuerySql, cancellationToken).ConfigureAwait(false);
             return Version.Parse(versionStr);
@@ -64,19 +64,19 @@ select
 
         private const string DatabaseVersionQuerySql = "select SERVERPROPERTY('ProductVersion') as DatabaseVersion";
 
-        public override async Task<IRelationalDatabase> GetRelationalDatabaseAsync(CancellationToken cancellationToken = default(CancellationToken))
+        public override async Task<IRelationalDatabase> GetRelationalDatabaseAsync(CancellationToken cancellationToken = default)
         {
             var identifierDefaults = await GetIdentifierDefaultsAsync(cancellationToken).ConfigureAwait(false);
             return new SqlServerRelationalDatabase(this, Connection, identifierDefaults);
         }
 
-        public override async Task<IRelationalDatabaseCommentProvider> GetRelationalDatabaseCommentProviderAsync(CancellationToken cancellationToken = default(CancellationToken))
+        public override async Task<IRelationalDatabaseCommentProvider> GetRelationalDatabaseCommentProviderAsync(CancellationToken cancellationToken = default)
         {
             var identifierDefaults = await GetIdentifierDefaultsAsync(cancellationToken).ConfigureAwait(false);
             return new SqlServerDatabaseCommentProvider(Connection, identifierDefaults);
         }
 
-        public Task<IServerProperties2008> GetServerProperties2008(CancellationToken cancellationToken = default(CancellationToken))
+        public Task<IServerProperties2008> GetServerProperties2008(CancellationToken cancellationToken = default)
         {
             var query = BuildServerPropertiesQuery<Query.ServerProperties2008>();
             return Connection.QueryFirstOrNone<Query.ServerProperties2008>(query, cancellationToken)
@@ -84,7 +84,7 @@ select
                 .IfNoneUnsafe(() => null);
         }
 
-        public Task<IServerProperties2012> GetServerProperties2012(CancellationToken cancellationToken = default(CancellationToken))
+        public Task<IServerProperties2012> GetServerProperties2012(CancellationToken cancellationToken = default)
         {
             var query = BuildServerPropertiesQuery<Query.ServerProperties2012>();
             return Connection.QueryFirstOrNone<Query.ServerProperties2012>(query, cancellationToken)
@@ -92,7 +92,7 @@ select
                 .IfNoneUnsafe(() => null);
         }
 
-        public Task<IServerProperties2014> GetServerProperties2014(CancellationToken cancellationToken = default(CancellationToken))
+        public Task<IServerProperties2014> GetServerProperties2014(CancellationToken cancellationToken = default)
         {
             var query = BuildServerPropertiesQuery<Query.ServerProperties2014>();
             return Connection.QueryFirstOrNone<Query.ServerProperties2014>(query, cancellationToken)
@@ -100,7 +100,7 @@ select
                 .IfNoneUnsafe(() => null);
         }
 
-        public Task<IServerProperties2017> GetServerProperties2017(CancellationToken cancellationToken = default(CancellationToken))
+        public Task<IServerProperties2017> GetServerProperties2017(CancellationToken cancellationToken = default)
         {
             var query = BuildServerPropertiesQuery<Query.ServerProperties2017>();
             return Connection.QueryFirstOrNone<Query.ServerProperties2017>(query, cancellationToken)

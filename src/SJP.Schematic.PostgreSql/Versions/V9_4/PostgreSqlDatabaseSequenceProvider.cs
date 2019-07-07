@@ -26,7 +26,7 @@ namespace SJP.Schematic.PostgreSql.Versions.V9_4
 
         protected IIdentifierResolutionStrategy IdentifierResolver { get; }
 
-        public async Task<IReadOnlyCollection<IDatabaseSequence>> GetAllSequences(CancellationToken cancellationToken = default(CancellationToken))
+        public async Task<IReadOnlyCollection<IDatabaseSequence>> GetAllSequences(CancellationToken cancellationToken = default)
         {
             var queryResult = await Connection.QueryAsync<SequenceData>(SequencesQuery, cancellationToken).ConfigureAwait(false);
             if (queryResult.Empty())
@@ -57,7 +57,7 @@ from pg_catalog.pg_namespace nc, pg_catalog.pg_class c, lateral pg_catalog.pg_se
 where c.relnamespace = nc.oid and c.relkind = 'S'
 order by nc.nspname, c.relname";
 
-        public OptionAsync<IDatabaseSequence> GetSequence(Identifier sequenceName, CancellationToken cancellationToken = default(CancellationToken))
+        public OptionAsync<IDatabaseSequence> GetSequence(Identifier sequenceName, CancellationToken cancellationToken = default)
         {
             if (sequenceName == null)
                 throw new ArgumentNullException(nameof(sequenceName));
@@ -66,7 +66,7 @@ order by nc.nspname, c.relname";
             return LoadSequence(candidateSequenceName, cancellationToken);
         }
 
-        protected OptionAsync<Identifier> GetResolvedSequenceName(Identifier sequenceName, CancellationToken cancellationToken = default(CancellationToken))
+        protected OptionAsync<Identifier> GetResolvedSequenceName(Identifier sequenceName, CancellationToken cancellationToken = default)
         {
             if (sequenceName == null)
                 throw new ArgumentNullException(nameof(sequenceName));

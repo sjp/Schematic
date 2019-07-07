@@ -29,7 +29,7 @@ namespace SJP.Schematic.PostgreSql.Comments
 
         protected IDatabaseViewCommentProvider MaterializedViewCommentProvider { get; }
 
-        public async Task<IReadOnlyCollection<IDatabaseViewComments>> GetAllViewComments(CancellationToken cancellationToken = default(CancellationToken))
+        public async Task<IReadOnlyCollection<IDatabaseViewComments>> GetAllViewComments(CancellationToken cancellationToken = default)
         {
             var queryViews = await QueryViewCommentProvider.GetAllViewComments(cancellationToken).ConfigureAwait(false);
             var materializedViews = await MaterializedViewCommentProvider.GetAllViewComments(cancellationToken).ConfigureAwait(false);
@@ -41,7 +41,7 @@ namespace SJP.Schematic.PostgreSql.Comments
                 .ToList();
         }
 
-        public OptionAsync<IDatabaseViewComments> GetViewComments(Identifier viewName, CancellationToken cancellationToken = default(CancellationToken))
+        public OptionAsync<IDatabaseViewComments> GetViewComments(Identifier viewName, CancellationToken cancellationToken = default)
         {
             if (viewName == null)
                 throw new ArgumentNullException(nameof(viewName));

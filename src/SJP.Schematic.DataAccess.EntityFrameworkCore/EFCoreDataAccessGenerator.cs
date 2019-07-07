@@ -91,7 +91,7 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore
             FileSystem.File.WriteAllText(dbContextPath, dbContextText);
         }
 
-        public Task GenerateAsync(string projectPath, string baseNamespace, CancellationToken cancellationToken = default(CancellationToken))
+        public Task GenerateAsync(string projectPath, string baseNamespace, CancellationToken cancellationToken = default)
         {
             if (projectPath.IsNullOrWhiteSpace())
                 throw new ArgumentNullException(nameof(projectPath));

@@ -27,7 +27,7 @@ namespace SJP.Schematic.PostgreSql.Comments
 
         protected IIdentifierResolutionStrategy IdentifierResolver { get; }
 
-        public async Task<IReadOnlyCollection<IDatabaseViewComments>> GetAllViewComments(CancellationToken cancellationToken = default(CancellationToken))
+        public async Task<IReadOnlyCollection<IDatabaseViewComments>> GetAllViewComments(CancellationToken cancellationToken = default)
         {
             var result = new List<IDatabaseViewComments>();
 
@@ -89,7 +89,7 @@ where schemaname = @SchemaName and matviewname = @ViewName
     and schemaname not in ('pg_catalog', 'information_schema')
 limit 1";
 
-        public OptionAsync<IDatabaseViewComments> GetViewComments(Identifier viewName, CancellationToken cancellationToken = default(CancellationToken))
+        public OptionAsync<IDatabaseViewComments> GetViewComments(Identifier viewName, CancellationToken cancellationToken = default)
         {
             if (viewName == null)
                 throw new ArgumentNullException(nameof(viewName));

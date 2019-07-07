@@ -9,7 +9,7 @@ namespace SJP.Schematic.Sqlite.Parsing
     {
         public ParsedTriggerData ParseTokens(TokenList<SqliteToken> tokens)
         {
-            if (tokens == default(TokenList<SqliteToken>) || tokens.Empty())
+            if (tokens == default || tokens.Empty())
                 throw new ArgumentNullException(nameof(tokens));
 
             var timing = TriggerQueryTiming.After;

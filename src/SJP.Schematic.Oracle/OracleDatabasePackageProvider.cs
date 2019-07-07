@@ -26,7 +26,7 @@ namespace SJP.Schematic.Oracle
 
         protected IIdentifierResolutionStrategy IdentifierResolver { get; }
 
-        public async Task<IReadOnlyCollection<IOracleDatabasePackage>> GetAllPackages(CancellationToken cancellationToken = default(CancellationToken))
+        public async Task<IReadOnlyCollection<IOracleDatabasePackage>> GetAllPackages(CancellationToken cancellationToken = default)
         {
             var queryResult = await Connection.QueryAsync<RoutineData>(
                 AllSourcesQuery,
@@ -80,7 +80,7 @@ FROM SYS.ALL_SOURCE
     WHERE TYPE in ('PACKAGE', 'PACKAGE BODY')
 ORDER BY OWNER, NAME, LINE";
 
-        public OptionAsync<IOracleDatabasePackage> GetPackage(Identifier packageName, CancellationToken cancellationToken = default(CancellationToken))
+        public OptionAsync<IOracleDatabasePackage> GetPackage(Identifier packageName, CancellationToken cancellationToken = default)
         {
             if (packageName == null)
                 throw new ArgumentNullException(nameof(packageName));
@@ -89,7 +89,7 @@ ORDER BY OWNER, NAME, LINE";
             return LoadPackage(candidatePackageName, cancellationToken);
         }
 
-        protected OptionAsync<Identifier> GetResolvedPackageName(Identifier packageName, CancellationToken cancellationToken = default(CancellationToken))
+        protected OptionAsync<Identifier> GetResolvedPackageName(Identifier packageName, CancellationToken cancellationToken = default)
         {
             if (packageName == null)
                 throw new ArgumentNullException(nameof(packageName));

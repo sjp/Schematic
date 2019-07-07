@@ -30,12 +30,12 @@ namespace SJP.Schematic.Sqlite
             _viewProvider = new SqliteDatabaseViewProvider(connection, pragma, dialect, identifierDefaults);
         }
 
-        public Task<IReadOnlyCollection<IRelationalDatabaseTable>> GetAllTables(CancellationToken cancellationToken = default(CancellationToken))
+        public Task<IReadOnlyCollection<IRelationalDatabaseTable>> GetAllTables(CancellationToken cancellationToken = default)
         {
             return _tableProvider.GetAllTables(cancellationToken);
         }
 
-        public OptionAsync<IRelationalDatabaseTable> GetTable(Identifier tableName, CancellationToken cancellationToken = default(CancellationToken))
+        public OptionAsync<IRelationalDatabaseTable> GetTable(Identifier tableName, CancellationToken cancellationToken = default)
         {
             if (tableName == null)
                 throw new ArgumentNullException(nameof(tableName));
@@ -43,12 +43,12 @@ namespace SJP.Schematic.Sqlite
             return _tableProvider.GetTable(tableName, cancellationToken);
         }
 
-        public Task<IReadOnlyCollection<IDatabaseView>> GetAllViews(CancellationToken cancellationToken = default(CancellationToken))
+        public Task<IReadOnlyCollection<IDatabaseView>> GetAllViews(CancellationToken cancellationToken = default)
         {
             return _viewProvider.GetAllViews(cancellationToken);
         }
 
-        public OptionAsync<IDatabaseView> GetView(Identifier viewName, CancellationToken cancellationToken = default(CancellationToken))
+        public OptionAsync<IDatabaseView> GetView(Identifier viewName, CancellationToken cancellationToken = default)
         {
             if (viewName == null)
                 throw new ArgumentNullException(nameof(viewName));
@@ -56,12 +56,12 @@ namespace SJP.Schematic.Sqlite
             return _viewProvider.GetView(viewName, cancellationToken);
         }
 
-        public Task<IReadOnlyCollection<IDatabaseSequence>> GetAllSequences(CancellationToken cancellationToken = default(CancellationToken))
+        public Task<IReadOnlyCollection<IDatabaseSequence>> GetAllSequences(CancellationToken cancellationToken = default)
         {
             return SequenceProvider.GetAllSequences(cancellationToken);
         }
 
-        public OptionAsync<IDatabaseSequence> GetSequence(Identifier sequenceName, CancellationToken cancellationToken = default(CancellationToken))
+        public OptionAsync<IDatabaseSequence> GetSequence(Identifier sequenceName, CancellationToken cancellationToken = default)
         {
             if (sequenceName == null)
                 throw new ArgumentNullException(nameof(sequenceName));
@@ -69,12 +69,12 @@ namespace SJP.Schematic.Sqlite
             return SequenceProvider.GetSequence(sequenceName, cancellationToken);
         }
 
-        public Task<IReadOnlyCollection<IDatabaseSynonym>> GetAllSynonyms(CancellationToken cancellationToken = default(CancellationToken))
+        public Task<IReadOnlyCollection<IDatabaseSynonym>> GetAllSynonyms(CancellationToken cancellationToken = default)
         {
             return SynonymProvider.GetAllSynonyms(cancellationToken);
         }
 
-        public OptionAsync<IDatabaseSynonym> GetSynonym(Identifier synonymName, CancellationToken cancellationToken = default(CancellationToken))
+        public OptionAsync<IDatabaseSynonym> GetSynonym(Identifier synonymName, CancellationToken cancellationToken = default)
         {
             if (synonymName == null)
                 throw new ArgumentNullException(nameof(synonymName));
@@ -82,12 +82,12 @@ namespace SJP.Schematic.Sqlite
             return SynonymProvider.GetSynonym(synonymName, cancellationToken);
         }
 
-        public Task<IReadOnlyCollection<IDatabaseRoutine>> GetAllRoutines(CancellationToken cancellationToken = default(CancellationToken))
+        public Task<IReadOnlyCollection<IDatabaseRoutine>> GetAllRoutines(CancellationToken cancellationToken = default)
         {
             return RoutineProvider.GetAllRoutines(cancellationToken);
         }
 
-        public OptionAsync<IDatabaseRoutine> GetRoutine(Identifier routineName, CancellationToken cancellationToken = default(CancellationToken))
+        public OptionAsync<IDatabaseRoutine> GetRoutine(Identifier routineName, CancellationToken cancellationToken = default)
         {
             if (routineName == null)
                 throw new ArgumentNullException(nameof(routineName));
@@ -104,7 +104,7 @@ namespace SJP.Schematic.Sqlite
         /// <exception cref="ArgumentNullException">Thrown when either <paramref name="fileName"/> or <paramref name="schemaName"/> is null, empty or whitespace.</exception>
         /// <exception cref="ArgumentException">Thrown when <paramref name="schemaName"/> is <code>main</code>.</exception>
         /// <returns>A task that represents the asynchronous operation.</returns>
-        public Task AttachDatabaseAsync(string schemaName, string fileName, CancellationToken cancellationToken = default(CancellationToken))
+        public Task AttachDatabaseAsync(string schemaName, string fileName, CancellationToken cancellationToken = default)
         {
             if (schemaName.IsNullOrWhiteSpace())
                 throw new ArgumentNullException(nameof(schemaName));
@@ -148,7 +148,7 @@ namespace SJP.Schematic.Sqlite
         /// <exception cref="ArgumentNullException">Thrown when <paramref name="schemaName"/> is null, empty or whitespace.</exception>
         /// <exception cref="ArgumentException">Thrown when <paramref name="schemaName"/> is <code>main</code>.</exception>
         /// <returns>A task that represents the asynchronous operation.</returns>
-        public Task DetachDatabaseAsync(string schemaName, CancellationToken cancellationToken = default(CancellationToken))
+        public Task DetachDatabaseAsync(string schemaName, CancellationToken cancellationToken = default)
         {
             if (schemaName.IsNullOrWhiteSpace())
                 throw new ArgumentNullException(nameof(schemaName));
@@ -181,7 +181,7 @@ namespace SJP.Schematic.Sqlite
         /// </summary>
         /// <remarks>This will be run only on the main database.</remarks>
         /// <returns>A task that represents the asynchronous operation.</returns>
-        public Task VacuumAsync(CancellationToken cancellationToken = default(CancellationToken))
+        public Task VacuumAsync(CancellationToken cancellationToken = default)
         {
             const string sql = "VACUUM";
             return Connection.ExecuteAsync(sql, cancellationToken);
@@ -194,7 +194,7 @@ namespace SJP.Schematic.Sqlite
         /// <param name="cancellationToken">A <see cref="CancellationToken"/> to observe while waiting for the task to complete.</param>
         /// <exception cref="ArgumentNullException">Thrown when or <paramref name="schemaName"/> is null, empty or whitespace.</exception>
         /// <returns>A task that represents the asynchronous operation.</returns>
-        public Task VacuumAsync(string schemaName, CancellationToken cancellationToken = default(CancellationToken))
+        public Task VacuumAsync(string schemaName, CancellationToken cancellationToken = default)
         {
             if (schemaName.IsNullOrWhiteSpace())
                 throw new ArgumentNullException(nameof(schemaName));

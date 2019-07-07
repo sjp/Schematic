@@ -109,7 +109,7 @@ namespace SJP.Schematic.DataAccess.Poco
             }
         }
 
-        public Task GenerateAsync(string projectPath, string baseNamespace, CancellationToken cancellationToken = default(CancellationToken))
+        public Task GenerateAsync(string projectPath, string baseNamespace, CancellationToken cancellationToken = default)
         {
             if (projectPath.IsNullOrWhiteSpace())
                 throw new ArgumentNullException(nameof(projectPath));

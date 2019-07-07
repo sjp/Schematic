@@ -26,7 +26,7 @@ namespace SJP.Schematic.SqlServer.Comments
 
         protected virtual string CommentProperty { get; } = "MS_Description";
 
-        public async Task<IReadOnlyCollection<IRelationalDatabaseTableComments>> GetAllTableComments(CancellationToken cancellationToken = default(CancellationToken))
+        public async Task<IReadOnlyCollection<IRelationalDatabaseTableComments>> GetAllTableComments(CancellationToken cancellationToken = default)
         {
             var result = new List<IRelationalDatabaseTableComments>();
 
@@ -98,7 +98,7 @@ from sys.tables
 where schema_id = schema_id(@SchemaName) and name = @TableName
     and is_ms_shipped = 0";
 
-        public OptionAsync<IRelationalDatabaseTableComments> GetTableComments(Identifier tableName, CancellationToken cancellationToken = default(CancellationToken))
+        public OptionAsync<IRelationalDatabaseTableComments> GetTableComments(Identifier tableName, CancellationToken cancellationToken = default)
         {
             if (tableName == null)
                 throw new ArgumentNullException(nameof(tableName));

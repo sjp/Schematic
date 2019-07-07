@@ -34,7 +34,7 @@ namespace SJP.Schematic.Reporting.Html
 
         protected static IHtmlFormatter TemplateFormatter { get; } = new HtmlFormatter(new TemplateProvider());
 
-        public async Task ExportAsync(CancellationToken cancellationToken = default(CancellationToken))
+        public async Task ExportAsync(CancellationToken cancellationToken = default)
         {
             var tables = await Database.GetAllTables(cancellationToken).ConfigureAwait(false);
             var views = await Database.GetAllViews(cancellationToken).ConfigureAwait(false);

@@ -8,8 +8,8 @@ namespace SJP.Schematic.Oracle
 {
     public interface IOracleDatabasePackageProvider
     {
-        Task<IReadOnlyCollection<IOracleDatabasePackage>> GetAllPackages(CancellationToken cancellationToken = default(CancellationToken));
+        Task<IReadOnlyCollection<IOracleDatabasePackage>> GetAllPackages(CancellationToken cancellationToken = default);
 
-        OptionAsync<IOracleDatabasePackage> GetPackage(Identifier packageName, CancellationToken cancellationToken = default(CancellationToken));
+        OptionAsync<IOracleDatabasePackage> GetPackage(Identifier packageName, CancellationToken cancellationToken = default);
     }
 }

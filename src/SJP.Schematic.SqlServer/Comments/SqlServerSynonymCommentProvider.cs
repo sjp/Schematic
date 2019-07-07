@@ -26,7 +26,7 @@ namespace SJP.Schematic.SqlServer.Comments
 
         protected virtual string CommentProperty { get; } = "MS_Description";
 
-        public async Task<IReadOnlyCollection<IDatabaseSynonymComments>> GetAllSynonymComments(CancellationToken cancellationToken = default(CancellationToken))
+        public async Task<IReadOnlyCollection<IDatabaseSynonymComments>> GetAllSynonymComments(CancellationToken cancellationToken = default)
         {
             var result = new List<IDatabaseSynonymComments>();
 
@@ -78,7 +78,7 @@ select top 1 schema_name(schema_id) as SchemaName, name as ObjectName
 from sys.synonyms
 where schema_id = schema_id(@SchemaName) and name = @SynonymName and is_ms_shipped = 0";
 
-        public OptionAsync<IDatabaseSynonymComments> GetSynonymComments(Identifier synonymName, CancellationToken cancellationToken = default(CancellationToken))
+        public OptionAsync<IDatabaseSynonymComments> GetSynonymComments(Identifier synonymName, CancellationToken cancellationToken = default)
         {
             if (synonymName == null)
                 throw new ArgumentNullException(nameof(synonymName));

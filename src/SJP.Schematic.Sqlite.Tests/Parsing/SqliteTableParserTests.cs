@@ -40,7 +40,7 @@ namespace SJP.Schematic.Sqlite.Tests.Parsing
         {
             var parser = new SqliteTableParser();
 
-            Assert.Throws<ArgumentNullException>(() => parser.ParseTokens("TEST", default(TokenList<SqliteToken>)));
+            Assert.Throws<ArgumentNullException>(() => parser.ParseTokens("TEST", default));
         }
     }
 }

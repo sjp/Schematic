@@ -23,7 +23,7 @@ namespace SJP.Schematic.MySql
 
         protected IIdentifierDefaults IdentifierDefaults { get; }
 
-        public async Task<IReadOnlyCollection<IDatabaseRoutine>> GetAllRoutines(CancellationToken cancellationToken = default(CancellationToken))
+        public async Task<IReadOnlyCollection<IDatabaseRoutine>> GetAllRoutines(CancellationToken cancellationToken = default)
         {
             var queryResult = await Connection.QueryAsync<RoutineData>(
                 RoutinesQuery,
@@ -53,7 +53,7 @@ from information_schema.routines
 where ROUTINE_SCHEMA = @SchemaName
 order by ROUTINE_SCHEMA, ROUTINE_NAME";
 
-        public OptionAsync<IDatabaseRoutine> GetRoutine(Identifier routineName, CancellationToken cancellationToken = default(CancellationToken))
+        public OptionAsync<IDatabaseRoutine> GetRoutine(Identifier routineName, CancellationToken cancellationToken = default)
         {
             if (routineName == null)
                 throw new ArgumentNullException(nameof(routineName));

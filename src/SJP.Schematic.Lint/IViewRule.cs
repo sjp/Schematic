@@ -9,6 +9,6 @@ namespace SJP.Schematic.Lint
     {
         IEnumerable<IRuleMessage> AnalyseViews(IEnumerable<IDatabaseView> views);
 
-        Task<IEnumerable<IRuleMessage>> AnalyseViewsAsync(IEnumerable<IDatabaseView> views, CancellationToken cancellationToken = default(CancellationToken));
+        Task<IEnumerable<IRuleMessage>> AnalyseViewsAsync(IEnumerable<IDatabaseView> views, CancellationToken cancellationToken = default);
     }
 }

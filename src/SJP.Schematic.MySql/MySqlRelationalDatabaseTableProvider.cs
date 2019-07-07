@@ -35,7 +35,7 @@ namespace SJP.Schematic.MySql
 
         protected Task<bool> HasCheckSupport => _supportsChecks.Task;
 
-        public virtual async Task<IReadOnlyCollection<IRelationalDatabaseTable>> GetAllTables(CancellationToken cancellationToken = default(CancellationToken))
+        public virtual async Task<IReadOnlyCollection<IRelationalDatabaseTable>> GetAllTables(CancellationToken cancellationToken = default)
         {
             var queryResults = await Connection.QueryAsync<QualifiedName>(TablesQuery, new { SchemaName = IdentifierDefaults.Schema }, cancellationToken).ConfigureAwait(false);
             var tableNames = queryResults
@@ -63,7 +63,7 @@ select
 from information_schema.tables
 where TABLE_SCHEMA = @SchemaName order by TABLE_NAME";
 
-        public OptionAsync<IRelationalDatabaseTable> GetTable(Identifier tableName, CancellationToken cancellationToken = default(CancellationToken))
+        public OptionAsync<IRelationalDatabaseTable> GetTable(Identifier tableName, CancellationToken cancellationToken = default)
         {
             if (tableName == null)
                 throw new ArgumentNullException(nameof(tableName));

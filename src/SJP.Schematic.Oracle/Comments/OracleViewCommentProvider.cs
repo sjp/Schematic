@@ -29,7 +29,7 @@ namespace SJP.Schematic.Oracle.Comments
 
         protected IDatabaseViewCommentProvider MaterializedViewCommentProvider { get; }
 
-        public async Task<IReadOnlyCollection<IDatabaseViewComments>> GetAllViewComments(CancellationToken cancellationToken = default(CancellationToken))
+        public async Task<IReadOnlyCollection<IDatabaseViewComments>> GetAllViewComments(CancellationToken cancellationToken = default)
         {
             var queryViewCommentsTask = QueryViewCommentProvider.GetAllViewComments(cancellationToken);
             var materializedViewCommentsTask = MaterializedViewCommentProvider.GetAllViewComments(cancellationToken);
@@ -45,7 +45,7 @@ namespace SJP.Schematic.Oracle.Comments
                 .ToList();
         }
 
-        public OptionAsync<IDatabaseViewComments> GetViewComments(Identifier viewName, CancellationToken cancellationToken = default(CancellationToken))
+        public OptionAsync<IDatabaseViewComments> GetViewComments(Identifier viewName, CancellationToken cancellationToken = default)
         {
             if (viewName == null)
                 throw new ArgumentNullException(nameof(viewName));

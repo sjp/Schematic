@@ -26,7 +26,7 @@ namespace SJP.Schematic.Lint.Rules
             return tables.SelectMany(t => AnalyseTable(t, tableNames)).ToList();
         }
 
-        public Task<IEnumerable<IRuleMessage>> AnalyseTablesAsync(IEnumerable<IRelationalDatabaseTable> tables, CancellationToken cancellationToken = default(CancellationToken))
+        public Task<IEnumerable<IRuleMessage>> AnalyseTablesAsync(IEnumerable<IRelationalDatabaseTable> tables, CancellationToken cancellationToken = default)
         {
             if (tables == null)
                 throw new ArgumentNullException(nameof(tables));

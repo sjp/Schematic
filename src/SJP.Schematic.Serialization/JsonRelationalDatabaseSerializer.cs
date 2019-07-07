@@ -19,7 +19,7 @@ namespace SJP.Schematic.Serialization
             return dto.FromDto();
         }
 
-        public Task<IRelationalDatabase> DeserializeAsync(string input, CancellationToken cancellationToken = default(CancellationToken))
+        public Task<IRelationalDatabase> DeserializeAsync(string input, CancellationToken cancellationToken = default)
         {
             if (input == null)
                 throw new ArgumentNullException(nameof(input));
@@ -37,7 +37,7 @@ namespace SJP.Schematic.Serialization
             return JsonConvert.SerializeObject(dto, _settings.Value);
         }
 
-        public Task<string> SerializeAsync(IRelationalDatabase obj, CancellationToken cancellationToken = default(CancellationToken))
+        public Task<string> SerializeAsync(IRelationalDatabase obj, CancellationToken cancellationToken = default)
         {
             if (obj == null)
                 throw new ArgumentNullException(nameof(obj));

@@ -23,7 +23,7 @@ namespace SJP.Schematic.MySql.Comments
 
         protected IIdentifierDefaults IdentifierDefaults { get; }
 
-        public async Task<IReadOnlyCollection<IDatabaseRoutineComments>> GetAllRoutineComments(CancellationToken cancellationToken = default(CancellationToken))
+        public async Task<IReadOnlyCollection<IDatabaseRoutineComments>> GetAllRoutineComments(CancellationToken cancellationToken = default)
         {
             var result = new List<IDatabaseRoutineComments>();
 
@@ -74,7 +74,7 @@ from information_schema.routines
 where ROUTINE_SCHEMA = @SchemaName and ROUTINE_NAME = @RoutineName
 limit 1";
 
-        public OptionAsync<IDatabaseRoutineComments> GetRoutineComments(Identifier routineName, CancellationToken cancellationToken = default(CancellationToken))
+        public OptionAsync<IDatabaseRoutineComments> GetRoutineComments(Identifier routineName, CancellationToken cancellationToken = default)
         {
             if (routineName == null)
                 throw new ArgumentNullException(nameof(routineName));

@@ -30,7 +30,7 @@ namespace SJP.Schematic.PostgreSql
 
         protected IDatabaseViewProvider MaterializedViewProvider { get; }
 
-        public async Task<IReadOnlyCollection<IDatabaseView>> GetAllViews(CancellationToken cancellationToken = default(CancellationToken))
+        public async Task<IReadOnlyCollection<IDatabaseView>> GetAllViews(CancellationToken cancellationToken = default)
         {
             var queryViews = await QueryViewProvider.GetAllViews(cancellationToken).ConfigureAwait(false);
             var materializedViews = await MaterializedViewProvider.GetAllViews(cancellationToken).ConfigureAwait(false);
@@ -42,7 +42,7 @@ namespace SJP.Schematic.PostgreSql
                 .ToList();
         }
 
-        public OptionAsync<IDatabaseView> GetView(Identifier viewName, CancellationToken cancellationToken = default(CancellationToken))
+        public OptionAsync<IDatabaseView> GetView(Identifier viewName, CancellationToken cancellationToken = default)
         {
             if (viewName == null)
                 throw new ArgumentNullException(nameof(viewName));
