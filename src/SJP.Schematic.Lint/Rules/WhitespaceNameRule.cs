@@ -23,7 +23,7 @@ namespace SJP.Schematic.Lint.Rules
             return tables.SelectMany(AnalyseTable).ToList();
         }
 
-        public Task<IEnumerable<IRuleMessage>> AnalyseTablesAsync(IEnumerable<IRelationalDatabaseTable> tables, CancellationToken cancellationToken = default(CancellationToken))
+        public Task<IEnumerable<IRuleMessage>> AnalyseTablesAsync(IEnumerable<IRelationalDatabaseTable> tables, CancellationToken cancellationToken = default)
         {
             if (tables == null)
                 throw new ArgumentNullException(nameof(tables));
@@ -40,7 +40,7 @@ namespace SJP.Schematic.Lint.Rules
             return views.SelectMany(AnalyseView).ToList();
         }
 
-        public Task<IEnumerable<IRuleMessage>> AnalyseViewsAsync(IEnumerable<IDatabaseView> views, CancellationToken cancellationToken = default(CancellationToken))
+        public Task<IEnumerable<IRuleMessage>> AnalyseViewsAsync(IEnumerable<IDatabaseView> views, CancellationToken cancellationToken = default)
         {
             if (views == null)
                 throw new ArgumentNullException(nameof(views));
@@ -57,7 +57,7 @@ namespace SJP.Schematic.Lint.Rules
             return sequences.SelectMany(AnalyseSequence).ToList();
         }
 
-        public Task<IEnumerable<IRuleMessage>> AnalyseSequencesAsync(IEnumerable<IDatabaseSequence> sequences, CancellationToken cancellationToken = default(CancellationToken))
+        public Task<IEnumerable<IRuleMessage>> AnalyseSequencesAsync(IEnumerable<IDatabaseSequence> sequences, CancellationToken cancellationToken = default)
         {
             if (sequences == null)
                 throw new ArgumentNullException(nameof(sequences));
@@ -74,7 +74,7 @@ namespace SJP.Schematic.Lint.Rules
             return synonyms.SelectMany(AnalyseSynonym).ToList();
         }
 
-        public Task<IEnumerable<IRuleMessage>> AnalyseSynonymsAsync(IEnumerable<IDatabaseSynonym> synonyms, CancellationToken cancellationToken = default(CancellationToken))
+        public Task<IEnumerable<IRuleMessage>> AnalyseSynonymsAsync(IEnumerable<IDatabaseSynonym> synonyms, CancellationToken cancellationToken = default)
         {
             if (synonyms == null)
                 throw new ArgumentNullException(nameof(synonyms));
@@ -91,7 +91,7 @@ namespace SJP.Schematic.Lint.Rules
             return routines.SelectMany(AnalyseRoutine).ToList();
         }
 
-        public Task<IEnumerable<IRuleMessage>> AnalyseRoutinesAsync(IEnumerable<IDatabaseRoutine> routines, CancellationToken cancellationToken = default(CancellationToken))
+        public Task<IEnumerable<IRuleMessage>> AnalyseRoutinesAsync(IEnumerable<IDatabaseRoutine> routines, CancellationToken cancellationToken = default)
         {
             if (routines == null)
                 throw new ArgumentNullException(nameof(routines));

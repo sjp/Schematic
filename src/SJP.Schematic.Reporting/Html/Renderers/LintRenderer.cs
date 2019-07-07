@@ -66,7 +66,7 @@ namespace SJP.Schematic.Reporting.Html.Renderers
 
         private DirectoryInfo ExportDirectory { get; }
 
-        public async Task RenderAsync(CancellationToken cancellationToken = default(CancellationToken))
+        public async Task RenderAsync(CancellationToken cancellationToken = default)
         {
             var tableMessages = await Linter.AnalyseTablesAsync(Tables, cancellationToken).ConfigureAwait(false);
             var viewMessages = await Linter.AnalyseViewsAsync(Views, cancellationToken).ConfigureAwait(false);

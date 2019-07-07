@@ -7,7 +7,7 @@ namespace SJP.Schematic.Migrations
 {
     public interface IMigrationBuilder
     {
-        Task<IReadOnlyCollection<IMigrationOperation>> BuildMigrations(CancellationToken cancellationToken = default(CancellationToken));
+        Task<IReadOnlyCollection<IMigrationOperation>> BuildMigrations(CancellationToken cancellationToken = default);
 
         void AddCheck(IRelationalDatabaseTable table, IDatabaseCheckConstraint check);
 

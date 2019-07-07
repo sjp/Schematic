@@ -28,7 +28,7 @@ namespace SJP.Schematic.Oracle
 
         protected IOracleDatabasePackageProvider PackageProvider { get; }
 
-        public async Task<IReadOnlyCollection<IDatabaseRoutine>> GetAllRoutines(CancellationToken cancellationToken = default(CancellationToken))
+        public async Task<IReadOnlyCollection<IDatabaseRoutine>> GetAllRoutines(CancellationToken cancellationToken = default)
         {
             var simpleRoutinesTask = SimpleRoutineProvider.GetAllRoutines(cancellationToken);
             var packagesTask = PackageProvider.GetAllPackages(cancellationToken);
@@ -44,7 +44,7 @@ namespace SJP.Schematic.Oracle
                 .ToList();
         }
 
-        public OptionAsync<IDatabaseRoutine> GetRoutine(Identifier routineName, CancellationToken cancellationToken = default(CancellationToken))
+        public OptionAsync<IDatabaseRoutine> GetRoutine(Identifier routineName, CancellationToken cancellationToken = default)
         {
             if (routineName == null)
                 throw new ArgumentNullException(nameof(routineName));

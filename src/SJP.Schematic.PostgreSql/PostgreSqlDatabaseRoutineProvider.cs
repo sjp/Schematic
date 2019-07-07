@@ -26,7 +26,7 @@ namespace SJP.Schematic.PostgreSql
 
         protected IIdentifierResolutionStrategy IdentifierResolver { get; }
 
-        public async Task<IReadOnlyCollection<IDatabaseRoutine>> GetAllRoutines(CancellationToken cancellationToken = default(CancellationToken))
+        public async Task<IReadOnlyCollection<IDatabaseRoutine>> GetAllRoutines(CancellationToken cancellationToken = default)
         {
             var queryResult = await Connection.QueryAsync<RoutineData>(
                 RoutinesQuery,
@@ -55,7 +55,7 @@ from information_schema.routines
 where ROUTINE_SCHEMA not in ('pg_catalog', 'information_schema')
 order by ROUTINE_SCHEMA, ROUTINE_NAME";
 
-        public OptionAsync<IDatabaseRoutine> GetRoutine(Identifier routineName, CancellationToken cancellationToken = default(CancellationToken))
+        public OptionAsync<IDatabaseRoutine> GetRoutine(Identifier routineName, CancellationToken cancellationToken = default)
         {
             if (routineName == null)
                 throw new ArgumentNullException(nameof(routineName));
@@ -64,7 +64,7 @@ order by ROUTINE_SCHEMA, ROUTINE_NAME";
             return LoadRoutine(candidateRoutineName, cancellationToken);
         }
 
-        protected OptionAsync<Identifier> GetResolvedRoutineName(Identifier routineName, CancellationToken cancellationToken = default(CancellationToken))
+        protected OptionAsync<Identifier> GetResolvedRoutineName(Identifier routineName, CancellationToken cancellationToken = default)
         {
             if (routineName == null)
                 throw new ArgumentNullException(nameof(routineName));

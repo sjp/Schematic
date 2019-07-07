@@ -9,6 +9,6 @@ namespace SJP.Schematic.Lint
     {
         IEnumerable<IRuleMessage> AnalyseSequences(IEnumerable<IDatabaseSequence> sequences);
 
-        Task<IEnumerable<IRuleMessage>> AnalyseSequencesAsync(IEnumerable<IDatabaseSequence> sequences, CancellationToken cancellationToken = default(CancellationToken));
+        Task<IEnumerable<IRuleMessage>> AnalyseSequencesAsync(IEnumerable<IDatabaseSequence> sequences, CancellationToken cancellationToken = default);
     }
 }

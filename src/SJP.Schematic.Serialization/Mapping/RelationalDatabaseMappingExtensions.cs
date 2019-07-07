@@ -9,7 +9,7 @@ namespace SJP.Schematic.Serialization.Mapping
 {
     internal static class RelationalDatabaseMappingExtensions
     {
-        public static Task<Dto.RelationalDatabase> ToDto(this IRelationalDatabase database, CancellationToken cancellationToken = default(CancellationToken))
+        public static Task<Dto.RelationalDatabase> ToDto(this IRelationalDatabase database, CancellationToken cancellationToken = default)
         {
             if (database == null)
                 throw new ArgumentNullException(nameof(database));
@@ -17,7 +17,7 @@ namespace SJP.Schematic.Serialization.Mapping
             return ToDtoCore(database, cancellationToken);
         }
 
-        private static async Task<Dto.RelationalDatabase> ToDtoCore(this IRelationalDatabase database, CancellationToken cancellationToken = default(CancellationToken))
+        private static async Task<Dto.RelationalDatabase> ToDtoCore(this IRelationalDatabase database, CancellationToken cancellationToken = default)
         {
             var sequences = await database.GetAllSequences(cancellationToken).ConfigureAwait(false);
             var synonyms = await database.GetAllSynonyms(cancellationToken).ConfigureAwait(false);

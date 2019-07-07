@@ -30,7 +30,7 @@ namespace SJP.Schematic.Oracle
 
         protected IDatabaseViewProvider MaterializedViewProvider { get; }
 
-        public async Task<IReadOnlyCollection<IDatabaseView>> GetAllViews(CancellationToken cancellationToken = default(CancellationToken))
+        public async Task<IReadOnlyCollection<IDatabaseView>> GetAllViews(CancellationToken cancellationToken = default)
         {
             var queryViewsTask = QueryViewProvider.GetAllViews(cancellationToken);
             var materializedViewsTask = MaterializedViewProvider.GetAllViews(cancellationToken);
@@ -46,7 +46,7 @@ namespace SJP.Schematic.Oracle
                 .ToList();
         }
 
-        public OptionAsync<IDatabaseView> GetView(Identifier viewName, CancellationToken cancellationToken = default(CancellationToken))
+        public OptionAsync<IDatabaseView> GetView(Identifier viewName, CancellationToken cancellationToken = default)
         {
             if (viewName == null)
                 throw new ArgumentNullException(nameof(viewName));

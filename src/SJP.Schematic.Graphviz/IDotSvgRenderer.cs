@@ -7,6 +7,6 @@ namespace SJP.Schematic.Graphviz
     {
         string RenderToSvg(string dot);
 
-        Task<string> RenderToSvgAsync(string dot, CancellationToken cancellationToken = default(CancellationToken));
+        Task<string> RenderToSvgAsync(string dot, CancellationToken cancellationToken = default);
     }
 }

@@ -30,7 +30,7 @@ namespace SJP.Schematic.Lint.Rules
             return views.SelectMany(AnalyseView).ToList();
         }
 
-        public Task<IEnumerable<IRuleMessage>> AnalyseViewsAsync(IEnumerable<IDatabaseView> views, CancellationToken cancellationToken = default(CancellationToken))
+        public Task<IEnumerable<IRuleMessage>> AnalyseViewsAsync(IEnumerable<IDatabaseView> views, CancellationToken cancellationToken = default)
         {
             if (views == null)
                 throw new ArgumentNullException(nameof(views));

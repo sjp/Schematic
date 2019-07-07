@@ -13,7 +13,7 @@ namespace SJP.Schematic.Sqlite.Tests.Parsing
         {
             var parser = new SqliteTriggerParser();
 
-            Assert.Throws<ArgumentNullException>(() => parser.ParseTokens(default(TokenList<SqliteToken>)));
+            Assert.Throws<ArgumentNullException>(() => parser.ParseTokens(default));
         }
     }
 }

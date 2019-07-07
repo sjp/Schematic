@@ -5,6 +5,6 @@ namespace SJP.Schematic.Reporting.Html
 {
     public interface ITemplateRenderer
     {
-        Task RenderAsync(CancellationToken cancellationToken = default(CancellationToken));
+        Task RenderAsync(CancellationToken cancellationToken = default);
     }
 }

@@ -37,7 +37,7 @@ namespace SJP.Schematic.Reporting.Html.Renderers
 
         private DirectoryInfo ExportDirectory { get; }
 
-        public async Task RenderAsync(CancellationToken cancellationToken = default(CancellationToken))
+        public async Task RenderAsync(CancellationToken cancellationToken = default)
         {
             var mapper = new IndexesModelMapper();
             var allIndexes = new List<Indexes.Index>();

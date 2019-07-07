@@ -15,7 +15,7 @@ namespace SJP.Schematic.Serialization
             throw new NotImplementedException();
         }
 
-        public Task<IRelationalDatabase> DeserializeAsync(string input, CancellationToken cancellationToken = default(CancellationToken))
+        public Task<IRelationalDatabase> DeserializeAsync(string input, CancellationToken cancellationToken = default)
         {
             if (input == null)
                 throw new ArgumentNullException(nameof(input));
@@ -31,7 +31,7 @@ namespace SJP.Schematic.Serialization
             throw new NotImplementedException();
         }
 
-        public Task<string> SerializeAsync(IRelationalDatabase obj, CancellationToken cancellationToken = default(CancellationToken))
+        public Task<string> SerializeAsync(IRelationalDatabase obj, CancellationToken cancellationToken = default)
         {
             if (obj == null)
                 throw new ArgumentNullException(nameof(obj));

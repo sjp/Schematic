@@ -37,7 +37,7 @@ namespace SJP.Schematic.Reporting.Html.Renderers
 
         private DirectoryInfo ExportDirectory { get; }
 
-        public async Task RenderAsync(CancellationToken cancellationToken = default(CancellationToken))
+        public async Task RenderAsync(CancellationToken cancellationToken = default)
         {
             var primaryKeys = Tables.SelectMany(t => t.PrimaryKey.Select(pk => new { TableName = t.Name, PrimaryKey = pk })).ToList();
             var uniqueKeys = Tables.SelectMany(t => t.UniqueKeys.Select(uk => new { TableName = t.Name, UniqueKey = uk })).ToList();

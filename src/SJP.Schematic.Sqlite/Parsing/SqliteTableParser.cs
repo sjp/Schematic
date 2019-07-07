@@ -13,7 +13,7 @@ namespace SJP.Schematic.Sqlite.Parsing
         {
             if (definition.IsNullOrWhiteSpace())
                 throw new ArgumentNullException(nameof(definition));
-            if (tokens == default(TokenList<SqliteToken>) || tokens.Empty())
+            if (tokens == default || tokens.Empty())
                 throw new ArgumentNullException(nameof(tokens));
 
             var next = tokens.ConsumeToken();

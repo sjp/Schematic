@@ -7,6 +7,6 @@ namespace SJP.Schematic.DataAccess
     {
         void Generate(string projectPath, string baseNamespace);
 
-        Task GenerateAsync(string projectPath, string baseNamespace, CancellationToken cancellationToken = default(CancellationToken));
+        Task GenerateAsync(string projectPath, string baseNamespace, CancellationToken cancellationToken = default);
     }
 }
