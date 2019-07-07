@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Data;
 using System.Linq;
 using System.Threading;
 using LanguageExt;
@@ -94,13 +93,13 @@ namespace SJP.Schematic.Modelled.Reflection
                 var childKeyName = Dialect.GetAliasOrDefault(declaredParentKey.Property);
                 var childKey = new ReflectionForeignKey(childKeyName, parentKey, fkColumns);
 
-                var deleteAttr = Dialect.GetDialectAttribute<OnDeleteRuleAttribute>(declaredParentKey.Property);
-                var deleteRule = deleteAttr?.Rule ?? Rule.None;
+                var deleteAttr = Dialect.GetDialectAttribute<OnDeleteActionAttribute>(declaredParentKey.Property);
+                var deleteAction = deleteAttr?.Action ?? ReferentialAction.NoAction;
 
-                var updateAttr = Dialect.GetDialectAttribute<OnUpdateRuleAttribute>(declaredParentKey.Property);
-                var updateRule = updateAttr?.Rule ?? Rule.None;
+                var updateAttr = Dialect.GetDialectAttribute<OnUpdateActionAttribute>(declaredParentKey.Property);
+                var updateAction = updateAttr?.Action ?? ReferentialAction.NoAction;
 
-                childKey.Name.IfSome(name => result[name.LocalName] = new ReflectionRelationalKey(Name, childKey, parent.Name, parentKey, deleteRule, updateRule));
+                childKey.Name.IfSome(name => result[name.LocalName] = new ReflectionRelationalKey(Name, childKey, parent.Name, parentKey, deleteAction, updateAction));
             }
 
             return result;

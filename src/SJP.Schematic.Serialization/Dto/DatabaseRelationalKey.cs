@@ -1,4 +1,4 @@
-﻿using System.Data;
+﻿using SJP.Schematic.Core;
 
 namespace SJP.Schematic.Serialization.Dto
 {
@@ -12,8 +12,8 @@ namespace SJP.Schematic.Serialization.Dto
 
         public DatabaseKey ParentKey { get; set; }
 
-        public Rule DeleteRule { get; set; }
+        public ReferentialAction DeleteAction { get; set; }
 
-        public Rule UpdateRule { get; set; }
+        public ReferentialAction UpdateAction { get; set; }
     }
 }

@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Data;
 using System.Globalization;
 using System.Linq;
 using System.Security;
@@ -249,18 +248,18 @@ namespace SJP.Schematic.DataAccess.OrmLite
                         .Append(fkNameLiteral);
                 });
 
-                if (relationalKey.DeleteRule != Rule.None)
+                if (relationalKey.DeleteAction != ReferentialAction.NoAction)
                 {
-                    var ruleLiteral = ForeignKeyRule[relationalKey.DeleteRule].ToStringLiteral();
+                    var actionLiteral = ForeignKeyAction[relationalKey.DeleteAction].ToStringLiteral();
                     builder.Append(", OnDelete = ")
-                       .Append(ruleLiteral);
+                       .Append(actionLiteral);
                 }
 
-                if (relationalKey.UpdateRule != Rule.None)
+                if (relationalKey.UpdateAction != ReferentialAction.NoAction)
                 {
-                    var ruleLiteral = ForeignKeyRule[relationalKey.UpdateRule].ToStringLiteral();
+                    var actionLiteral = ForeignKeyAction[relationalKey.UpdateAction].ToStringLiteral();
                     builder.Append(", OnUpdate = ")
-                       .Append(ruleLiteral);
+                       .Append(actionLiteral);
                 }
 
                 builder.AppendLine(")]");
@@ -493,12 +492,13 @@ namespace SJP.Schematic.DataAccess.OrmLite
             ["String"] = "string"
         };
 
-        private static readonly IReadOnlyDictionary<Rule, string> ForeignKeyRule = new Dictionary<Rule, string>
+        private static readonly IReadOnlyDictionary<ReferentialAction, string> ForeignKeyAction = new Dictionary<ReferentialAction, string>
         {
-            [Rule.None] = "NO ACTION",
-            [Rule.Cascade] = "CASCADE",
-            [Rule.SetDefault] = "SET DEFAULT",
-            [Rule.SetNull] = "SET NULL"
+            [ReferentialAction.NoAction] = "NO ACTION",
+            [ReferentialAction.Restrict] = "RESTRICT",
+            [ReferentialAction.Cascade] = "CASCADE",
+            [ReferentialAction.SetDefault] = "SET DEFAULT",
+            [ReferentialAction.SetNull] = "SET NULL"
         };
     }
 }

@@ -1,7 +1,6 @@
 ﻿using System;
 using NUnit.Framework;
 using Moq;
-using System.Data;
 using SJP.Schematic.Core.Extensions;
 
 namespace SJP.Schematic.Core.Tests
@@ -15,10 +14,10 @@ namespace SJP.Schematic.Core.Tests
             var childKey = Mock.Of<IDatabaseKey>();
             const string parentTableName = "parent_table";
             var parentKey = Mock.Of<IDatabaseKey>();
-            const Rule deleteRule = Rule.None;
-            const Rule updateRule = Rule.None;
+            const ReferentialAction deleteAction = ReferentialAction.NoAction;
+            const ReferentialAction updateAction = ReferentialAction.NoAction;
 
-            Assert.Throws<ArgumentNullException>(() => new DatabaseRelationalKey(null, childKey, parentTableName, parentKey, deleteRule, updateRule));
+            Assert.Throws<ArgumentNullException>(() => new DatabaseRelationalKey(null, childKey, parentTableName, parentKey, deleteAction, updateAction));
         }
 
         [Test]
@@ -27,10 +26,10 @@ namespace SJP.Schematic.Core.Tests
             const string childTableName = "child_table";
             const string parentTableName = "parent_table";
             var parentKey = Mock.Of<IDatabaseKey>();
-            const Rule deleteRule = Rule.None;
-            const Rule updateRule = Rule.None;
+            const ReferentialAction deleteAction = ReferentialAction.NoAction;
+            const ReferentialAction updateAction = ReferentialAction.NoAction;
 
-            Assert.Throws<ArgumentNullException>(() => new DatabaseRelationalKey(childTableName, null, parentTableName, parentKey, deleteRule, updateRule));
+            Assert.Throws<ArgumentNullException>(() => new DatabaseRelationalKey(childTableName, null, parentTableName, parentKey, deleteAction, updateAction));
         }
 
         [Test]
@@ -39,10 +38,10 @@ namespace SJP.Schematic.Core.Tests
             const string childTableName = "child_table";
             var childKey = Mock.Of<IDatabaseKey>();
             var parentKey = Mock.Of<IDatabaseKey>();
-            const Rule deleteRule = Rule.None;
-            const Rule updateRule = Rule.None;
+            const ReferentialAction deleteAction = ReferentialAction.NoAction;
+            const ReferentialAction updateAction = ReferentialAction.NoAction;
 
-            Assert.Throws<ArgumentNullException>(() => new DatabaseRelationalKey(childTableName, childKey, null, parentKey, deleteRule, updateRule));
+            Assert.Throws<ArgumentNullException>(() => new DatabaseRelationalKey(childTableName, childKey, null, parentKey, deleteAction, updateAction));
         }
 
         [Test]
@@ -51,36 +50,36 @@ namespace SJP.Schematic.Core.Tests
             const string childTableName = "child_table";
             var childKey = Mock.Of<IDatabaseKey>();
             const string parentTableName = "parent_table";
-            const Rule deleteRule = Rule.None;
-            const Rule updateRule = Rule.None;
+            const ReferentialAction deleteAction = ReferentialAction.NoAction;
+            const ReferentialAction updateAction = ReferentialAction.NoAction;
 
-            Assert.Throws<ArgumentNullException>(() => new DatabaseRelationalKey(childTableName, childKey, parentTableName, null, deleteRule, updateRule));
+            Assert.Throws<ArgumentNullException>(() => new DatabaseRelationalKey(childTableName, childKey, parentTableName, null, deleteAction, updateAction));
         }
 
         [Test]
-        public static void Ctor_GivenInvalidDeleteRule_ThrowsArgumentException()
+        public static void Ctor_GivenInvalidDeleteAction_ThrowsArgumentException()
         {
             const string childTableName = "child_table";
             var childKey = Mock.Of<IDatabaseKey>();
             const string parentTableName = "parent_table";
             var parentKey = Mock.Of<IDatabaseKey>();
-            const Rule deleteRule = (Rule)55;
-            const Rule updateRule = Rule.None;
+            const ReferentialAction deleteAction = (ReferentialAction)55;
+            const ReferentialAction updateAction = ReferentialAction.NoAction;
 
-            Assert.Throws<ArgumentException>(() => new DatabaseRelationalKey(childTableName, childKey, parentTableName, parentKey, deleteRule, updateRule));
+            Assert.Throws<ArgumentException>(() => new DatabaseRelationalKey(childTableName, childKey, parentTableName, parentKey, deleteAction, updateAction));
         }
 
         [Test]
-        public static void Ctor_GivenInvalidUpdateRule_ThrowsArgumentException()
+        public static void Ctor_GivenInvalidUpdateAction_ThrowsArgumentException()
         {
             const string childTableName = "child_table";
             var childKey = Mock.Of<IDatabaseKey>();
             const string parentTableName = "parent_table";
             var parentKey = Mock.Of<IDatabaseKey>();
-            const Rule deleteRule = Rule.None;
-            const Rule updateRule = (Rule)55;
+            const ReferentialAction deleteAction = ReferentialAction.NoAction;
+            const ReferentialAction updateAction = (ReferentialAction)55;
 
-            Assert.Throws<ArgumentException>(() => new DatabaseRelationalKey(childTableName, childKey, parentTableName, parentKey, deleteRule, updateRule));
+            Assert.Throws<ArgumentException>(() => new DatabaseRelationalKey(childTableName, childKey, parentTableName, parentKey, deleteAction, updateAction));
         }
 
         [Test]
@@ -88,8 +87,8 @@ namespace SJP.Schematic.Core.Tests
         {
             const string childTableName = "child_table";
             const string parentTableName = "parent_table";
-            const Rule deleteRule = Rule.None;
-            const Rule updateRule = Rule.None;
+            const ReferentialAction deleteAction = ReferentialAction.NoAction;
+            const ReferentialAction updateAction = ReferentialAction.NoAction;
 
             var childKeyMock = new Mock<IDatabaseKey>();
             childKeyMock.Setup(k => k.KeyType).Returns(DatabaseKeyType.Foreign);
@@ -99,7 +98,7 @@ namespace SJP.Schematic.Core.Tests
             parentKeyMock.Setup(k => k.KeyType).Returns(DatabaseKeyType.Primary);
             var parentKey = parentKeyMock.Object;
 
-            var relationalKey = new DatabaseRelationalKey(childTableName, childKey, parentTableName, parentKey, deleteRule, updateRule);
+            var relationalKey = new DatabaseRelationalKey(childTableName, childKey, parentTableName, parentKey, deleteAction, updateAction);
 
             Assert.AreEqual(new Identifier(childTableName), relationalKey.ChildTable);
         }
@@ -109,8 +108,8 @@ namespace SJP.Schematic.Core.Tests
         {
             const string childTableName = "child_table";
             const string parentTableName = "parent_table";
-            const Rule deleteRule = Rule.Cascade;
-            const Rule updateRule = Rule.SetDefault;
+            const ReferentialAction deleteAction = ReferentialAction.Cascade;
+            const ReferentialAction updateAction = ReferentialAction.SetDefault;
             Identifier keyName = "test_child_key";
 
             var childKeyMock = new Mock<IDatabaseKey>();
@@ -122,7 +121,7 @@ namespace SJP.Schematic.Core.Tests
             parentKeyMock.Setup(k => k.KeyType).Returns(DatabaseKeyType.Primary);
             var parentKey = parentKeyMock.Object;
 
-            var relationalKey = new DatabaseRelationalKey(childTableName, childKey, parentTableName, parentKey, deleteRule, updateRule);
+            var relationalKey = new DatabaseRelationalKey(childTableName, childKey, parentTableName, parentKey, deleteAction, updateAction);
 
             Assert.Multiple(() =>
             {
@@ -136,8 +135,8 @@ namespace SJP.Schematic.Core.Tests
         {
             const string childTableName = "child_table";
             const string parentTableName = "parent_table";
-            const Rule deleteRule = Rule.None;
-            const Rule updateRule = Rule.None;
+            const ReferentialAction deleteAction = ReferentialAction.NoAction;
+            const ReferentialAction updateAction = ReferentialAction.NoAction;
 
             var childKeyMock = new Mock<IDatabaseKey>();
             childKeyMock.Setup(k => k.KeyType).Returns(DatabaseKeyType.Foreign);
@@ -147,7 +146,7 @@ namespace SJP.Schematic.Core.Tests
             parentKeyMock.Setup(k => k.KeyType).Returns(DatabaseKeyType.Primary);
             var parentKey = parentKeyMock.Object;
 
-            var relationalKey = new DatabaseRelationalKey(childTableName, childKey, parentTableName, parentKey, deleteRule, updateRule);
+            var relationalKey = new DatabaseRelationalKey(childTableName, childKey, parentTableName, parentKey, deleteAction, updateAction);
 
             Assert.AreEqual(new Identifier(parentTableName), relationalKey.ParentTable);
         }
@@ -157,8 +156,8 @@ namespace SJP.Schematic.Core.Tests
         {
             const string childTableName = "child_table";
             const string parentTableName = "parent_table";
-            const Rule deleteRule = Rule.Cascade;
-            const Rule updateRule = Rule.SetDefault;
+            const ReferentialAction deleteAction = ReferentialAction.Cascade;
+            const ReferentialAction updateAction = ReferentialAction.SetDefault;
             Identifier keyName = "test_parent_key";
 
             var childKeyMock = new Mock<IDatabaseKey>();
@@ -170,7 +169,7 @@ namespace SJP.Schematic.Core.Tests
             parentKey.Setup(t => t.Name).Returns(keyName);
             var parentKeyArg = parentKey.Object;
 
-            var relationalKey = new DatabaseRelationalKey(childTableName, childKey, parentTableName, parentKeyArg, deleteRule, updateRule);
+            var relationalKey = new DatabaseRelationalKey(childTableName, childKey, parentTableName, parentKeyArg, deleteAction, updateAction);
 
             Assert.Multiple(() =>
             {
@@ -180,12 +179,12 @@ namespace SJP.Schematic.Core.Tests
         }
 
         [Test]
-        public static void DeleteRule_PropertyGet_EqualsCtorArg()
+        public static void DeleteAction_PropertyGet_EqualsCtorArg()
         {
             const string childTableName = "child_table";
             const string parentTableName = "parent_table";
-            const Rule deleteRule = Rule.Cascade;
-            const Rule updateRule = Rule.SetDefault;
+            const ReferentialAction deleteAction = ReferentialAction.Cascade;
+            const ReferentialAction updateAction = ReferentialAction.SetDefault;
 
             var childKeyMock = new Mock<IDatabaseKey>();
             childKeyMock.Setup(k => k.KeyType).Returns(DatabaseKeyType.Foreign);
@@ -195,18 +194,18 @@ namespace SJP.Schematic.Core.Tests
             parentKeyMock.Setup(k => k.KeyType).Returns(DatabaseKeyType.Primary);
             var parentKey = parentKeyMock.Object;
 
-            var relationalKey = new DatabaseRelationalKey(childTableName, childKey, parentTableName, parentKey, deleteRule, updateRule);
+            var relationalKey = new DatabaseRelationalKey(childTableName, childKey, parentTableName, parentKey, deleteAction, updateAction);
 
-            Assert.AreEqual(deleteRule, relationalKey.DeleteRule);
+            Assert.AreEqual(deleteAction, relationalKey.DeleteAction);
         }
 
         [Test]
-        public static void UpdateRule_PropertyGet_EqualsCtorArg()
+        public static void UpdateAction_PropertyGet_EqualsCtorArg()
         {
             const string childTableName = "child_table";
             const string parentTableName = "parent_table";
-            const Rule deleteRule = Rule.Cascade;
-            const Rule updateRule = Rule.SetDefault;
+            const ReferentialAction deleteAction = ReferentialAction.Cascade;
+            const ReferentialAction updateAction = ReferentialAction.SetDefault;
 
             var childKeyMock = new Mock<IDatabaseKey>();
             childKeyMock.Setup(k => k.KeyType).Returns(DatabaseKeyType.Foreign);
@@ -216,9 +215,9 @@ namespace SJP.Schematic.Core.Tests
             parentKeyMock.Setup(k => k.KeyType).Returns(DatabaseKeyType.Primary);
             var parentKey = parentKeyMock.Object;
 
-            var relationalKey = new DatabaseRelationalKey(childTableName, childKey, parentTableName, parentKey, deleteRule, updateRule);
+            var relationalKey = new DatabaseRelationalKey(childTableName, childKey, parentTableName, parentKey, deleteAction, updateAction);
 
-            Assert.AreEqual(updateRule, relationalKey.UpdateRule);
+            Assert.AreEqual(updateAction, relationalKey.UpdateAction);
         }
 
         [Test]
@@ -231,10 +230,10 @@ namespace SJP.Schematic.Core.Tests
             childKeyMock.Setup(k => k.KeyType).Returns(DatabaseKeyType.Primary);
             var parentKeyMock = new Mock<IDatabaseKey>();
             parentKeyMock.Setup(k => k.KeyType).Returns(DatabaseKeyType.Primary);
-            const Rule deleteRule = Rule.None;
-            const Rule updateRule = Rule.None;
+            const ReferentialAction deleteAction = ReferentialAction.NoAction;
+            const ReferentialAction updateAction = ReferentialAction.NoAction;
 
-            Assert.Throws<ArgumentException>(() => new DatabaseRelationalKey(childTableName, childKeyMock.Object, parentTableName, parentKeyMock.Object, deleteRule, updateRule));
+            Assert.Throws<ArgumentException>(() => new DatabaseRelationalKey(childTableName, childKeyMock.Object, parentTableName, parentKeyMock.Object, deleteAction, updateAction));
         }
 
         [Test]
@@ -247,10 +246,10 @@ namespace SJP.Schematic.Core.Tests
             childKeyMock.Setup(k => k.KeyType).Returns(DatabaseKeyType.Foreign);
             var parentKeyMock = new Mock<IDatabaseKey>();
             parentKeyMock.Setup(k => k.KeyType).Returns(DatabaseKeyType.Foreign);
-            const Rule deleteRule = Rule.None;
-            const Rule updateRule = Rule.None;
+            const ReferentialAction deleteAction = ReferentialAction.NoAction;
+            const ReferentialAction updateAction = ReferentialAction.NoAction;
 
-            Assert.Throws<ArgumentException>(() => new DatabaseRelationalKey(childTableName, childKeyMock.Object, parentTableName, parentKeyMock.Object, deleteRule, updateRule));
+            Assert.Throws<ArgumentException>(() => new DatabaseRelationalKey(childTableName, childKeyMock.Object, parentTableName, parentKeyMock.Object, deleteAction, updateAction));
         }
     }
 }

@@ -543,10 +543,10 @@ namespace SJP.Schematic.Sqlite
 
                         var childKey = new SqliteDatabaseKey(childKeyName, DatabaseKeyType.Foreign, childKeyColumns);
 
-                        var deleteRule = GetRelationalUpdateRule(fkey.Key.OnDelete);
-                        var updateRule = GetRelationalUpdateRule(fkey.Key.OnUpdate);
+                        var deleteAction = GetReferentialAction(fkey.Key.OnDelete);
+                        var updateAction = GetReferentialAction(fkey.Key.OnUpdate);
 
-                        return new DatabaseRelationalKey(tableName, childKey, parentTableName, key, deleteRule, updateRule);
+                        return new DatabaseRelationalKey(tableName, childKey, parentTableName, key, deleteAction, updateAction);
                     })
                     .IfSome(key => result.Add(key))
                     .ConfigureAwait(false);
@@ -725,27 +725,27 @@ namespace SJP.Schematic.Sqlite
             return Identifier.CreateQualifiedIdentifier(schema, tableName.LocalName);
         }
 
-        protected static Rule GetRelationalUpdateRule(string pragmaUpdateRule)
+        protected static ReferentialAction GetReferentialAction(string pragmaUpdateAction)
         {
-            if (pragmaUpdateRule.IsNullOrWhiteSpace())
-                throw new ArgumentNullException(nameof(pragmaUpdateRule));
+            if (pragmaUpdateAction.IsNullOrWhiteSpace())
+                throw new ArgumentNullException(nameof(pragmaUpdateAction));
 
-            return RelationalUpdateMapping.ContainsKey(pragmaUpdateRule)
-                ? RelationalUpdateMapping[pragmaUpdateRule]
-                : Rule.None;
+            return RelationalUpdateMapping.ContainsKey(pragmaUpdateAction)
+                ? RelationalUpdateMapping[pragmaUpdateAction]
+                : ReferentialAction.NoAction;
         }
 
         private readonly ConcurrentDictionary<string, Lazy<ParsedTableData>> _tableParserCache = new ConcurrentDictionary<string, Lazy<ParsedTableData>>();
         private readonly ConcurrentDictionary<string, Lazy<ParsedTriggerData>> _triggerParserCache = new ConcurrentDictionary<string, Lazy<ParsedTriggerData>>();
         private readonly ConcurrentDictionary<string, Lazy<ISqliteDatabasePragma>> _dbPragmaCache = new ConcurrentDictionary<string, Lazy<ISqliteDatabasePragma>>();
 
-        private static readonly IReadOnlyDictionary<string, Rule> RelationalUpdateMapping = new Dictionary<string, Rule>(StringComparer.OrdinalIgnoreCase)
+        private static readonly IReadOnlyDictionary<string, ReferentialAction> RelationalUpdateMapping = new Dictionary<string, ReferentialAction>(StringComparer.OrdinalIgnoreCase)
         {
-            ["NO ACTION"] = Rule.None,
-            ["RESTRICT"] = Rule.None,
-            ["SET NULL"] = Rule.SetNull,
-            ["SET DEFAULT"] = Rule.SetDefault,
-            ["CASCADE"] = Rule.Cascade
+            ["NO ACTION"] = ReferentialAction.NoAction,
+            ["RESTRICT"] = ReferentialAction.Restrict,
+            ["SET NULL"] = ReferentialAction.SetNull,
+            ["SET DEFAULT"] = ReferentialAction.SetDefault,
+            ["CASCADE"] = ReferentialAction.Cascade
         };
 
         private static readonly SqliteTypeAffinityParser AffinityParser = new SqliteTypeAffinityParser();

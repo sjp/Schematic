@@ -207,8 +207,8 @@
                                 <th scope="col">Parent Constraint Name</th>
                                 <th scope="col">Parent Table</th>
                                 <th scope="col">Parent Columns</th>
-                                <th scope="col">Delete Rule</th>
-                                <th scope="col">Update Rule</th>
+                                <th scope="col">Delete Action</th>
+                                <th scope="col">Update Action</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -225,10 +225,10 @@
                                         </td>
                                         <td>@foreignKey.ParentColumnNames</td>
                                         <td>
-                                            <code>@foreignKey.DeleteRuleDescription</code>
+                                            <code>@foreignKey.DeleteActionDescription</code>
                                         </td>
                                         <td>
-                                            <code>@foreignKey.UpdateRuleDescription</code>
+                                            <code>@foreignKey.UpdateActionDescription</code>
                                         </td>
                                     </tr>
                                 }

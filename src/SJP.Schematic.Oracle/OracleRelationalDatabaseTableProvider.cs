@@ -410,9 +410,9 @@ where ac.OWNER = :SchemaName and ac.TABLE_NAME = :TableName and ac.CONSTRAINT_TY
                         if (!parentKeyLookup.TryGetValue(childKeyName, out var childKey))
                             return OptionAsync<IDatabaseRelationalKey>.None;
 
-                        var deleteRule = RelationalRuleMapping[childKeyRow.DeleteRule];
+                        var deleteAction = ReferentialActionMapping[childKeyRow.DeleteAction];
 
-                        var relationalKey = new OracleRelationalKey(childTableName, childKey, tableName, parentKey, deleteRule);
+                        var relationalKey = new OracleRelationalKey(childTableName, childKey, tableName, parentKey, deleteAction);
                         return OptionAsync<IDatabaseRelationalKey>.Some(relationalKey);
                     })
                     .IfSome(relationalKey => result.Add(relationalKey))
@@ -430,7 +430,7 @@ select
     ac.TABLE_NAME as ChildTableName,
     ac.CONSTRAINT_NAME as ChildKeyName,
     ac.STATUS as EnabledStatus,
-    ac.DELETE_RULE as DeleteRule,
+    ac.DELETE_RULE as DeleteAction,
     pac.CONSTRAINT_NAME as ParentKeyName,
     pac.CONSTRAINT_TYPE as ParentKeyType
 from SYS.ALL_CONSTRAINTS ac
@@ -516,7 +516,7 @@ where OWNER = :SchemaName and TABLE_NAME = :TableName and CONSTRAINT_TYPE = 'C'"
             {
                 row.ConstraintName,
                 row.EnabledStatus,
-                row.DeleteRule,
+                row.DeleteAction,
                 row.ParentTableSchema,
                 row.ParentTableName,
                 row.ParentConstraintName,
@@ -581,7 +581,7 @@ where OWNER = :SchemaName and TABLE_NAME = :TableName and CONSTRAINT_TYPE = 'C'"
                                 : OptionAsync<IDatabaseKey>.None;
                         }
                     })
-                    .Map(parentKey =>
+                    .Map((Func<IDatabaseKey, OracleRelationalKey>)(parentKey =>
                     {
                         var parentTableName = tableNameCache[candidateParentTableName];
                         var childKeyName = Identifier.CreateQualifiedIdentifier(fkey.Key.ConstraintName);
@@ -593,9 +593,9 @@ where OWNER = :SchemaName and TABLE_NAME = :TableName and CONSTRAINT_TYPE = 'C'"
                         var isEnabled = fkey.Key.EnabledStatus == Constants.Enabled;
                         var childKey = new OracleDatabaseKey(childKeyName, DatabaseKeyType.Foreign, childKeyColumns, isEnabled);
 
-                        var deleteRule = RelationalRuleMapping[fkey.Key.DeleteRule];
-                        return new OracleRelationalKey(tableName, childKey, parentTableName, parentKey, deleteRule);
-                    })
+                        var deleteAction = ReferentialActionMapping[fkey.Key.DeleteAction];
+                        return new OracleRelationalKey(tableName, childKey, parentTableName, parentKey, deleteAction);
+                    }))
                     .IfSome(relationalKey => result.Add(relationalKey))
                     .ConfigureAwait(false);
             }
@@ -609,7 +609,7 @@ where OWNER = :SchemaName and TABLE_NAME = :TableName and CONSTRAINT_TYPE = 'C'"
 select
     ac.CONSTRAINT_NAME as ConstraintName,
     ac.STATUS as EnabledStatus,
-    ac.DELETE_RULE as DeleteRule,
+    ac.DELETE_RULE as DeleteAction,
     pac.OWNER as ParentTableSchema,
     pac.TABLE_NAME as ParentTableName,
     pac.CONSTRAINT_NAME as ParentConstraintName,
@@ -799,12 +799,13 @@ where TABLE_OWNER = :SchemaName and TABLE_NAME = :TableName and BASE_OBJECT_TYPE
             return _notNullDefinitions.GetOrAdd(columnName, colName => "\"" + colName + "\" IS NOT NULL");
         }
 
-        protected IReadOnlyDictionary<string, Rule> RelationalRuleMapping { get; } = new Dictionary<string, Rule>(StringComparer.OrdinalIgnoreCase)
+        protected IReadOnlyDictionary<string, ReferentialAction> ReferentialActionMapping { get; } = new Dictionary<string, ReferentialAction>(StringComparer.OrdinalIgnoreCase)
         {
-            ["NO ACTION"] = Rule.None,
-            ["CASCADE"] = Rule.Cascade,
-            ["SET NULL"] = Rule.SetNull,
-            ["SET DEFAULT"] = Rule.SetDefault
+            ["NO ACTION"] = ReferentialAction.NoAction,
+            ["RESTRICT"] = ReferentialAction.Restrict,
+            ["CASCADE"] = ReferentialAction.Cascade,
+            ["SET NULL"] = ReferentialAction.SetNull,
+            ["SET DEFAULT"] = ReferentialAction.SetDefault
         };
 
         protected IReadOnlyDictionary<string, TriggerQueryTiming> TimingMapping { get; } = new Dictionary<string, TriggerQueryTiming>(StringComparer.OrdinalIgnoreCase)

@@ -333,8 +333,8 @@ order by kc.ordinal_position";
                 row.ChildKeyName,
                 row.ParentKeyName,
                 row.ParentKeyType,
-                row.DeleteRule,
-                row.UpdateRule
+                row.DeleteAction,
+                row.UpdateAction
             }).ToList();
             if (groupedChildKeys.Empty())
                 return Array.Empty<IDatabaseRelationalKey>();
@@ -384,9 +384,9 @@ order by kc.ordinal_position";
                         if (!parentKeyLookup.TryGetValue(childKeyName, out var childKey))
                             return OptionAsync<IDatabaseRelationalKey>.None;
 
-                        var deleteRule = RelationalRuleMapping[groupedChildKey.Key.DeleteRule];
-                        var updateRule = RelationalRuleMapping[groupedChildKey.Key.UpdateRule];
-                        var relationalKey = new MySqlRelationalKey(name, childKey, tableName, parentKey, deleteRule, updateRule);
+                        var deleteAction = ReferentialActionMapping[groupedChildKey.Key.DeleteAction];
+                        var updateAction = ReferentialActionMapping[groupedChildKey.Key.UpdateAction];
+                        var relationalKey = new MySqlRelationalKey(name, childKey, tableName, parentKey, deleteAction, updateAction);
 
                         return OptionAsync<IDatabaseRelationalKey>.Some(relationalKey);
                     })
@@ -408,8 +408,8 @@ select
     rc.constraint_name as ChildKeyName,
     rc.unique_constraint_name as ParentKeyName,
     ptc.constraint_type as ParentKeyType,
-    rc.delete_rule as DeleteRule,
-    rc.update_rule as UpdateRule
+    rc.delete_rule as DeleteAction,
+    rc.update_rule as UpdateAction
 from information_schema.tables t
 inner join information_schema.referential_constraints rc on t.table_schema = rc.constraint_schema and t.table_name = rc.table_name
 inner join information_schema.key_column_usage kc on t.table_schema = kc.table_schema and t.table_name = kc.table_name
@@ -491,8 +491,8 @@ where tc.table_schema = @SchemaName and tc.table_name = @TableName and tc.constr
                 row.ParentTableName,
                 row.ParentKeyName,
                 KeyType = row.ParentKeyType,
-                row.DeleteRule,
-                row.UpdateRule,
+                row.DeleteAction,
+                row.UpdateAction,
             }).ToList();
             if (foreignKeys.Empty())
                 return Array.Empty<IDatabaseRelationalKey>();
@@ -572,10 +572,10 @@ where tc.table_schema = @SchemaName and tc.table_name = @TableName and tc.constr
 
                         var childKey = new MySqlDatabaseKey(childKeyName, DatabaseKeyType.Foreign, childKeyColumns);
 
-                        var deleteRule = RelationalRuleMapping[fkey.Key.DeleteRule];
-                        var updateRule = RelationalRuleMapping[fkey.Key.UpdateRule];
+                        var deleteAction = ReferentialActionMapping[fkey.Key.DeleteAction];
+                        var updateAction = ReferentialActionMapping[fkey.Key.UpdateAction];
 
-                        var relationalKey = new DatabaseRelationalKey(tableName, childKey, parentTableName, key, deleteRule, updateRule);
+                        var relationalKey = new DatabaseRelationalKey(tableName, childKey, parentTableName, key, deleteAction, updateAction);
                         result.Add(relationalKey);
                     })
                     .ConfigureAwait(false);
@@ -595,8 +595,8 @@ select
     kc.column_name as ColumnName,
     kc.ordinal_position as ConstraintColumnId,
     ptc.constraint_type as ParentKeyType,
-    rc.delete_rule as DeleteRule,
-    rc.update_rule as UpdateRule
+    rc.delete_rule as DeleteAction,
+    rc.update_rule as UpdateAction
 from information_schema.tables t
 inner join information_schema.referential_constraints rc on t.table_schema = rc.constraint_schema and t.table_name = rc.table_name
 inner join information_schema.key_column_usage kc on t.table_schema = kc.table_schema and t.table_name = kc.table_name
@@ -751,13 +751,13 @@ where tr.event_object_schema = @SchemaName and tr.event_object_table = @TableNam
             return Identifier.CreateQualifiedIdentifier(IdentifierDefaults.Server, IdentifierDefaults.Database, schema, tableName.LocalName);
         }
 
-        protected IReadOnlyDictionary<string, Rule> RelationalRuleMapping { get; } = new Dictionary<string, Rule>(StringComparer.OrdinalIgnoreCase)
+        protected IReadOnlyDictionary<string, ReferentialAction> ReferentialActionMapping { get; } = new Dictionary<string, ReferentialAction>(StringComparer.OrdinalIgnoreCase)
         {
-            ["NO ACTION"] = Rule.None,
-            ["RESTRICT"] = Rule.None,
-            ["CASCADE"] = Rule.Cascade,
-            ["SET NULL"] = Rule.SetNull,
-            ["SET DEFAULT"] = Rule.SetDefault
+            ["NO ACTION"] = ReferentialAction.NoAction,
+            ["RESTRICT"] = ReferentialAction.Restrict,
+            ["CASCADE"] = ReferentialAction.Cascade,
+            ["SET NULL"] = ReferentialAction.SetNull,
+            ["SET DEFAULT"] = ReferentialAction.SetDefault
         };
 
         private static IReadOnlyDictionary<Identifier, IDatabaseColumn> GetColumnLookup(IReadOnlyCollection<IDatabaseColumn> columns)

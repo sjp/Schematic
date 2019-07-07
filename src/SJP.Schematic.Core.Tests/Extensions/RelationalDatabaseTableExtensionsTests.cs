@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Data;
 using System.Linq;
 using LanguageExt;
 using Moq;
@@ -54,8 +53,8 @@ namespace SJP.Schematic.Core.Tests.Extensions
             };
             var parentKeys = new[]
             {
-                new DatabaseRelationalKey("child_table", childKeys[0], "parent_table", uniqueKeys[0], Rule.Cascade, Rule.Cascade),
-                new DatabaseRelationalKey("child_table", childKeys[1], "parent_table", uniqueKeys[1], Rule.Cascade, Rule.Cascade)
+                new DatabaseRelationalKey("child_table", childKeys[0], "parent_table", uniqueKeys[0], ReferentialAction.Cascade, ReferentialAction.Cascade),
+                new DatabaseRelationalKey("child_table", childKeys[1], "parent_table", uniqueKeys[1], ReferentialAction.Cascade, ReferentialAction.Cascade)
             };
             var triggers = new[]
             {

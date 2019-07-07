@@ -358,8 +358,8 @@ order by ic.key_ordinal";
                 row.ChildKeyName,
                 row.ParentKeyName,
                 row.ParentKeyType,
-                row.DeleteRule,
-                row.UpdateRule
+                row.DeleteAction,
+                row.UpdateAction
             }).ToList();
             if (groupedChildKeys.Empty())
                 return Array.Empty<IDatabaseRelationalKey>();
@@ -408,9 +408,9 @@ order by ic.key_ordinal";
                         if (!parentKeyLookup.TryGetValue(childKeyName, out var childKey))
                             return OptionAsync<IDatabaseRelationalKey>.None;
 
-                        var deleteRule = RelationalRuleMapping[groupedChildKey.Key.DeleteRule];
-                        var updateRule = RelationalRuleMapping[groupedChildKey.Key.UpdateRule];
-                        var relationalKey = new DatabaseRelationalKey(childTableName, childKey, tableName, parentKey, deleteRule, updateRule);
+                        var deleteAction = ReferentialActionMapping[groupedChildKey.Key.DeleteAction];
+                        var updateAction = ReferentialActionMapping[groupedChildKey.Key.UpdateAction];
+                        var relationalKey = new DatabaseRelationalKey(childTableName, childKey, tableName, parentKey, deleteAction, updateAction);
                         return OptionAsync<IDatabaseRelationalKey>.Some(relationalKey);
                     })
                     .IfSome(relationalKey => result.Add(relationalKey))
@@ -429,8 +429,8 @@ select
     fk.name as ChildKeyName,
     kc.name as ParentKeyName,
     kc.type as ParentKeyType,
-    fk.delete_referential_action as DeleteRule,
-    fk.update_referential_action as UpdateRule
+    fk.delete_referential_action as DeleteAction,
+    fk.update_referential_action as UpdateAction
 from sys.tables parent_t
 inner join sys.foreign_keys fk on parent_t.object_id = fk.referenced_object_id
 inner join sys.tables child_t on fk.parent_object_id = child_t.object_id
@@ -505,8 +505,8 @@ where schema_name(t.schema_id) = @SchemaName and t.name = @TableName and t.is_ms
                 row.ParentTableName,
                 row.ParentKeyName,
                 KeyType = row.ParentKeyType,
-                row.DeleteRule,
-                row.UpdateRule,
+                row.DeleteAction,
+                row.UpdateAction,
                 row.IsDisabled
             }).ToList();
             if (foreignKeys.Empty())
@@ -574,7 +574,7 @@ where schema_name(t.schema_id) = @SchemaName and t.name = @TableName and t.is_ms
                                 : OptionAsync<IDatabaseKey>.None;
                         }
                     })
-                    .Map(parentKey =>
+                    .Map((Func<IDatabaseKey, DatabaseRelationalKey>)(parentKey =>
                     {
                         var parentTableName = tableNameCache[candidateParentTableName];
                         var childKeyName = Identifier.CreateQualifiedIdentifier(fkey.Key.ChildKeyName);
@@ -586,11 +586,11 @@ where schema_name(t.schema_id) = @SchemaName and t.name = @TableName and t.is_ms
                         var isEnabled = !fkey.Key.IsDisabled;
                         var childKey = new SqlServerDatabaseKey(childKeyName, DatabaseKeyType.Foreign, childKeyColumns, isEnabled);
 
-                        var deleteRule = RelationalRuleMapping[fkey.Key.DeleteRule];
-                        var updateRule = RelationalRuleMapping[fkey.Key.UpdateRule];
+                        var deleteAction = ReferentialActionMapping[fkey.Key.DeleteAction];
+                        var updateAction = ReferentialActionMapping[fkey.Key.UpdateAction];
 
-                        return new DatabaseRelationalKey(tableName, childKey, parentTableName, parentKey, deleteRule, updateRule);
-                    })
+                        return new DatabaseRelationalKey(tableName, childKey, parentTableName, parentKey, deleteAction, updateAction);
+                    }))
                     .IfSome(relationalKey => result.Add(relationalKey))
                     .ConfigureAwait(false);
             }
@@ -609,8 +609,8 @@ select
     fkc.constraint_column_id as ConstraintColumnId,
     kc.name as ParentKeyName,
     kc.type as ParentKeyType,
-    fk.delete_referential_action as DeleteRule,
-    fk.update_referential_action as UpdateRule,
+    fk.delete_referential_action as DeleteAction,
+    fk.update_referential_action as UpdateAction,
     fk.is_disabled as IsDisabled
 from sys.tables parent_t
 inner join sys.foreign_keys fk on parent_t.object_id = fk.referenced_object_id
@@ -780,12 +780,12 @@ where schema_name(t.schema_id) = @SchemaName and t.name = @TableName and t.is_ms
             return Identifier.CreateQualifiedIdentifier(IdentifierDefaults.Server, IdentifierDefaults.Database, schema, tableName.LocalName);
         }
 
-        protected IReadOnlyDictionary<int, Rule> RelationalRuleMapping { get; } = new Dictionary<int, Rule>
+        protected IReadOnlyDictionary<int, ReferentialAction> ReferentialActionMapping { get; } = new Dictionary<int, ReferentialAction>
         {
-            [0] = Rule.None,
-            [1] = Rule.Cascade,
-            [2] = Rule.SetNull,
-            [3] = Rule.SetDefault
+            [0] = ReferentialAction.NoAction,
+            [1] = ReferentialAction.Cascade,
+            [2] = ReferentialAction.SetNull,
+            [3] = ReferentialAction.SetDefault
         };
 
         private static IReadOnlyDictionary<Identifier, IDatabaseColumn> GetColumnLookup(IReadOnlyCollection<IDatabaseColumn> columns)

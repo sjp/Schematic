@@ -1,6 +1,4 @@
-﻿using System.Data;
-
-namespace SJP.Schematic.Core
+﻿namespace SJP.Schematic.Core
 {
     public interface IDatabaseRelationalKey
     {
@@ -12,8 +10,8 @@ namespace SJP.Schematic.Core
 
         IDatabaseKey ChildKey { get; }
 
-        Rule UpdateRule { get; }
+        ReferentialAction UpdateAction { get; }
 
-        Rule DeleteRule { get; }
+        ReferentialAction DeleteAction { get; }
     }
 }

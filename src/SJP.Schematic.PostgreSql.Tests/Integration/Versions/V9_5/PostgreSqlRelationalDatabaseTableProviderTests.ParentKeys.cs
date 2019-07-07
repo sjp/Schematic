@@ -1,5 +1,4 @@
-﻿using System.Data;
-using System.Linq;
+﻿using System.Linq;
 using System.Threading.Tasks;
 using NUnit.Framework;
 using SJP.Schematic.Core;
@@ -80,83 +79,83 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration.Versions.V9_5
         }
 
         [Test]
-        public async Task ParentKeys_WhenGivenTableWithForeignKeyToPrimaryKeyWithDefaultUpdateRule_ReturnsUpdateRuleAsNoAction()
+        public async Task ParentKeys_WhenGivenTableWithForeignKeyToPrimaryKeyWithDefaultUpdateAction_ReturnsUpdateActionAsNoAction()
         {
             var table = await GetTableAsync("v95_table_test_table_16").ConfigureAwait(false);
             var parentKeys = table.ParentKeys;
             var foreignKey = parentKeys.Single();
 
-            Assert.AreEqual(Rule.None, foreignKey.UpdateRule);
+            Assert.AreEqual(ReferentialAction.NoAction, foreignKey.UpdateAction);
         }
 
         [Test]
-        public async Task ParentKeys_WhenGivenTableWithForeignKeyToPrimaryKeyWithCascadeUpdateRule_ReturnsUpdateRuleAsCascade()
+        public async Task ParentKeys_WhenGivenTableWithForeignKeyToPrimaryKeyWithCascadeUpdateAction_ReturnsUpdateActionAsCascade()
         {
             var table = await GetTableAsync("v95_table_test_table_18").ConfigureAwait(false);
             var parentKeys = table.ParentKeys;
             var foreignKey = parentKeys.Single();
 
-            Assert.AreEqual(Rule.Cascade, foreignKey.UpdateRule);
+            Assert.AreEqual(ReferentialAction.Cascade, foreignKey.UpdateAction);
         }
 
         [Test]
-        public async Task ParentKeys_WhenGivenTableWithForeignKeyToPrimaryKeyWithSetNullUpdateRule_ReturnsUpdateRuleAsSetNull()
+        public async Task ParentKeys_WhenGivenTableWithForeignKeyToPrimaryKeyWithSetNullUpdateAction_ReturnsUpdateActionAsSetNull()
         {
             var table = await GetTableAsync("v95_table_test_table_19").ConfigureAwait(false);
             var parentKeys = table.ParentKeys;
             var foreignKey = parentKeys.Single();
 
-            Assert.AreEqual(Rule.SetNull, foreignKey.UpdateRule);
+            Assert.AreEqual(ReferentialAction.SetNull, foreignKey.UpdateAction);
         }
 
         [Test]
-        public async Task ParentKeys_WhenGivenTableWithForeignKeyToPrimaryKeyWithSetDefaultUpdateRule_ReturnsUpdateRuleAsSetDefault()
+        public async Task ParentKeys_WhenGivenTableWithForeignKeyToPrimaryKeyWithSetDefaultUpdateAction_ReturnsUpdateActionAsSetDefault()
         {
             var table = await GetTableAsync("v95_table_test_table_20").ConfigureAwait(false);
             var parentKeys = table.ParentKeys;
             var foreignKey = parentKeys.Single();
 
-            Assert.AreEqual(Rule.SetDefault, foreignKey.UpdateRule);
+            Assert.AreEqual(ReferentialAction.SetDefault, foreignKey.UpdateAction);
         }
 
         [Test]
-        public async Task ParentKeys_WhenGivenTableWithForeignKeyToPrimaryKeyWithDefaultDeleteRule_ReturnsDeleteRuleAsNoAction()
+        public async Task ParentKeys_WhenGivenTableWithForeignKeyToPrimaryKeyWithDefaultDeleteAction_ReturnsDeleteActionAsNoAction()
         {
             var table = await GetTableAsync("v95_table_test_table_16").ConfigureAwait(false);
             var parentKeys = table.ParentKeys;
             var foreignKey = parentKeys.Single();
 
-            Assert.AreEqual(Rule.None, foreignKey.DeleteRule);
+            Assert.AreEqual(ReferentialAction.NoAction, foreignKey.DeleteAction);
         }
 
         [Test]
-        public async Task ParentKeys_WhenGivenTableWithForeignKeyToPrimaryKeyWithCascadeDeleteRule_ReturnsDeleteRuleAsCascade()
+        public async Task ParentKeys_WhenGivenTableWithForeignKeyToPrimaryKeyWithCascadeDeleteAction_ReturnsDeleteActionAsCascade()
         {
             var table = await GetTableAsync("v95_table_test_table_24").ConfigureAwait(false);
             var parentKeys = table.ParentKeys;
             var foreignKey = parentKeys.Single();
 
-            Assert.AreEqual(Rule.Cascade, foreignKey.DeleteRule);
+            Assert.AreEqual(ReferentialAction.Cascade, foreignKey.DeleteAction);
         }
 
         [Test]
-        public async Task ParentKeys_WhenGivenTableWithForeignKeyToPrimaryKeyWithSetNullDeleteRule_ReturnsDeleteRuleAsSetNull()
+        public async Task ParentKeys_WhenGivenTableWithForeignKeyToPrimaryKeyWithSetNullDeleteAction_ReturnsDeleteActionAsSetNull()
         {
             var table = await GetTableAsync("v95_table_test_table_25").ConfigureAwait(false);
             var parentKeys = table.ParentKeys;
             var foreignKey = parentKeys.Single();
 
-            Assert.AreEqual(Rule.SetNull, foreignKey.DeleteRule);
+            Assert.AreEqual(ReferentialAction.SetNull, foreignKey.DeleteAction);
         }
 
         [Test]
-        public async Task ParentKeys_WhenGivenTableWithForeignKeyToPrimaryKeyWithSetDefaultDeleteRule_ReturnsDeleteRuleAsSetDefault()
+        public async Task ParentKeys_WhenGivenTableWithForeignKeyToPrimaryKeyWithSetDefaultDeleteAction_ReturnsDeleteActionAsSetDefault()
         {
             var table = await GetTableAsync("v95_table_test_table_26").ConfigureAwait(false);
             var parentKeys = table.ParentKeys;
             var foreignKey = parentKeys.Single();
 
-            Assert.AreEqual(Rule.SetDefault, foreignKey.DeleteRule);
+            Assert.AreEqual(ReferentialAction.SetDefault, foreignKey.DeleteAction);
         }
 
         [Test]
@@ -231,83 +230,83 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration.Versions.V9_5
         }
 
         [Test]
-        public async Task ParentKeys_WhenGivenTableWithForeignKeyToUniqueKeyWithDefaultUpdateRule_ReturnsUpdateRuleAsNoAction()
+        public async Task ParentKeys_WhenGivenTableWithForeignKeyToUniqueKeyWithDefaultUpdateAction_ReturnsUpdateActionAsNoAction()
         {
             var table = await GetTableAsync("v95_table_test_table_17").ConfigureAwait(false);
             var parentKeys = table.ParentKeys;
             var foreignKey = parentKeys.Single();
 
-            Assert.AreEqual(Rule.None, foreignKey.UpdateRule);
+            Assert.AreEqual(ReferentialAction.NoAction, foreignKey.UpdateAction);
         }
 
         [Test]
-        public async Task ParentKeys_WhenGivenTableWithForeignKeyToUniqueKeyWithCascadeUpdateRule_ReturnsUpdateRuleAsCascade()
+        public async Task ParentKeys_WhenGivenTableWithForeignKeyToUniqueKeyWithCascadeUpdateAction_ReturnsUpdateActionAsCascade()
         {
             var table = await GetTableAsync("v95_table_test_table_21").ConfigureAwait(false);
             var parentKeys = table.ParentKeys;
             var foreignKey = parentKeys.Single();
 
-            Assert.AreEqual(Rule.Cascade, foreignKey.UpdateRule);
+            Assert.AreEqual(ReferentialAction.Cascade, foreignKey.UpdateAction);
         }
 
         [Test]
-        public async Task ParentKeys_WhenGivenTableWithForeignKeyToUniqueKeyWithSetNullUpdateRule_ReturnsUpdateRuleAsSetNull()
+        public async Task ParentKeys_WhenGivenTableWithForeignKeyToUniqueKeyWithSetNullUpdateAction_ReturnsUpdateActionAsSetNull()
         {
             var table = await GetTableAsync("v95_table_test_table_22").ConfigureAwait(false);
             var parentKeys = table.ParentKeys;
             var foreignKey = parentKeys.Single();
 
-            Assert.AreEqual(Rule.SetNull, foreignKey.UpdateRule);
+            Assert.AreEqual(ReferentialAction.SetNull, foreignKey.UpdateAction);
         }
 
         [Test]
-        public async Task ParentKeys_WhenGivenTableWithForeignKeyToUniqueKeyWithSetDefaultUpdateRule_ReturnsUpdateRuleAsSetDefault()
+        public async Task ParentKeys_WhenGivenTableWithForeignKeyToUniqueKeyWithSetDefaultUpdateAction_ReturnsUpdateActionAsSetDefault()
         {
             var table = await GetTableAsync("v95_table_test_table_23").ConfigureAwait(false);
             var parentKeys = table.ParentKeys;
             var foreignKey = parentKeys.Single();
 
-            Assert.AreEqual(Rule.SetDefault, foreignKey.UpdateRule);
+            Assert.AreEqual(ReferentialAction.SetDefault, foreignKey.UpdateAction);
         }
 
         [Test]
-        public async Task ParentKeys_WhenGivenTableWithForeignKeyToUniqueKeyWithDefaultDeleteRule_ReturnsDeleteRuleAsNoAction()
+        public async Task ParentKeys_WhenGivenTableWithForeignKeyToUniqueKeyWithDefaultDeleteAction_ReturnsDeleteActionAsNoAction()
         {
             var table = await GetTableAsync("v95_table_test_table_17").ConfigureAwait(false);
             var parentKeys = table.ParentKeys;
             var foreignKey = parentKeys.Single();
 
-            Assert.AreEqual(Rule.None, foreignKey.DeleteRule);
+            Assert.AreEqual(ReferentialAction.NoAction, foreignKey.DeleteAction);
         }
 
         [Test]
-        public async Task ParentKeys_WhenGivenTableWithForeignKeyToUniqueKeyWithCascadeDeleteRule_ReturnsDeleteRuleAsCascade()
+        public async Task ParentKeys_WhenGivenTableWithForeignKeyToUniqueKeyWithCascadeDeleteAction_ReturnsDeleteActionAsCascade()
         {
             var table = await GetTableAsync("v95_table_test_table_27").ConfigureAwait(false);
             var parentKeys = table.ParentKeys;
             var foreignKey = parentKeys.Single();
 
-            Assert.AreEqual(Rule.Cascade, foreignKey.DeleteRule);
+            Assert.AreEqual(ReferentialAction.Cascade, foreignKey.DeleteAction);
         }
 
         [Test]
-        public async Task ParentKeys_WhenGivenTableWithForeignKeyToUniqueKeyWithSetNullDeleteRule_ReturnsDeleteRuleAsSetNull()
+        public async Task ParentKeys_WhenGivenTableWithForeignKeyToUniqueKeyWithSetNullDeleteAction_ReturnsDeleteActionAsSetNull()
         {
             var table = await GetTableAsync("v95_table_test_table_28").ConfigureAwait(false);
             var parentKeys = table.ParentKeys;
             var foreignKey = parentKeys.Single();
 
-            Assert.AreEqual(Rule.SetNull, foreignKey.DeleteRule);
+            Assert.AreEqual(ReferentialAction.SetNull, foreignKey.DeleteAction);
         }
 
         [Test]
-        public async Task ParentKeys_WhenGivenTableWithForeignKeyToUniqueKeyWithSetDefaultDeleteRule_ReturnsDeleteRuleAsSetDefault()
+        public async Task ParentKeys_WhenGivenTableWithForeignKeyToUniqueKeyWithSetDefaultDeleteAction_ReturnsDeleteActionAsSetDefault()
         {
             var table = await GetTableAsync("v95_table_test_table_29").ConfigureAwait(false);
             var parentKeys = table.ParentKeys;
             var foreignKey = parentKeys.Single();
 
-            Assert.AreEqual(Rule.SetDefault, foreignKey.DeleteRule);
+            Assert.AreEqual(ReferentialAction.SetDefault, foreignKey.DeleteAction);
         }
 
         [Test]

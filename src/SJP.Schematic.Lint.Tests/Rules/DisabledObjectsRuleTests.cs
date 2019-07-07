@@ -183,8 +183,8 @@ namespace SJP.Schematic.Lint.Tests.Rules
                 testForeignKey,
                 "parent_table",
                 testPrimaryKey,
-                System.Data.Rule.Cascade,
-                System.Data.Rule.Cascade
+                ReferentialAction.Cascade,
+                ReferentialAction.Cascade
             );
 
             var table = new RelationalDatabaseTable(
@@ -234,8 +234,8 @@ namespace SJP.Schematic.Lint.Tests.Rules
                 testForeignKey,
                 "parent_table",
                 testPrimaryKey,
-                System.Data.Rule.Cascade,
-                System.Data.Rule.Cascade
+                ReferentialAction.Cascade,
+                ReferentialAction.Cascade
             );
 
             var table = new RelationalDatabaseTable(

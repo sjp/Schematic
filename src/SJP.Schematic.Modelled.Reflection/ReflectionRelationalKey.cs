@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Data;
 using System.Linq;
 using EnumsNET;
 using SJP.Schematic.Core;
@@ -8,7 +7,7 @@ namespace SJP.Schematic.Modelled.Reflection
 {
     public class ReflectionRelationalKey : IDatabaseRelationalKey
     {
-        public ReflectionRelationalKey(Identifier childTableName, IDatabaseKey childKey, Identifier parentTableName, IDatabaseKey parentKey, Rule deleteRule, Rule updateRule)
+        public ReflectionRelationalKey(Identifier childTableName, IDatabaseKey childKey, Identifier parentTableName, IDatabaseKey parentKey, ReferentialAction deleteAction, ReferentialAction updateAction)
         {
             if (childTableName == null)
                 throw new ArgumentNullException(nameof(childTableName));
@@ -18,20 +17,20 @@ namespace SJP.Schematic.Modelled.Reflection
                 throw new ArgumentNullException(nameof(parentTableName));
             if (parentKey == null)
                 throw new ArgumentNullException(nameof(parentKey));
-            if (!deleteRule.IsValid())
-                throw new ArgumentException($"The { nameof(Rule) } provided must be a valid enum.", nameof(deleteRule));
-            if (!updateRule.IsValid())
-                throw new ArgumentException($"The { nameof(Rule) } provided must be a valid enum.", nameof(updateRule));
+            if (!deleteAction.IsValid())
+                throw new ArgumentException($"The { nameof(ReferentialAction) } provided must be a valid enum.", nameof(deleteAction));
+            if (!updateAction.IsValid())
+                throw new ArgumentException($"The { nameof(ReferentialAction) } provided must be a valid enum.", nameof(updateAction));
 
             // perform validation
-            var relationalKey = new DatabaseRelationalKey(childTableName, childKey, parentTableName, parentKey, deleteRule, updateRule);
+            var relationalKey = new DatabaseRelationalKey(childTableName, childKey, parentTableName, parentKey, deleteAction, updateAction);
 
             ChildTable = relationalKey.ChildTable;
             ChildKey = relationalKey.ChildKey;
             ParentTable = relationalKey.ParentTable;
             ParentKey = relationalKey.ParentKey;
-            DeleteRule = relationalKey.DeleteRule;
-            UpdateRule = relationalKey.UpdateRule;
+            DeleteAction = relationalKey.DeleteAction;
+            UpdateAction = relationalKey.UpdateAction;
 
             ValidateColumnSetsCompatible(ChildTable, ChildKey, ParentTable, ParentKey);
         }
@@ -44,9 +43,9 @@ namespace SJP.Schematic.Modelled.Reflection
 
         public IDatabaseKey ParentKey { get; }
 
-        public Rule DeleteRule { get; }
+        public ReferentialAction DeleteAction { get; }
 
-        public Rule UpdateRule { get; }
+        public ReferentialAction UpdateAction { get; }
 
         private static void ValidateColumnSetsCompatible(Identifier childTableName, IDatabaseKey childKey, Identifier parentTableName, IDatabaseKey parentKey)
         {

@@ -1,8 +1,4 @@
-using System.IO;
-using System.Threading.Tasks;
 using NUnit.Framework;
-using SJP.Schematic.Core;
-using SJP.Schematic.Sqlite;
 
 namespace SJP.Schematic.Serialization.Tests
 {
