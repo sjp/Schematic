@@ -38,8 +38,8 @@ LANGUAGE PLPGSQL").ConfigureAwait(false);
         [OneTimeTearDown]
         public async Task CleanUp()
         {
-            await Connection.ExecuteAsync("drop function v95_comment_test_routine_1").ConfigureAwait(false);
-            await Connection.ExecuteAsync("drop function v95_comment_test_routine_2").ConfigureAwait(false);
+            await Connection.ExecuteAsync("drop function v95_comment_test_routine_1(integer)").ConfigureAwait(false);
+            await Connection.ExecuteAsync("drop function v95_comment_test_routine_2(integer)").ConfigureAwait(false);
         }
 
         private Task<IDatabaseRoutineComments> GetRoutineCommentsAsync(Identifier routineName)
