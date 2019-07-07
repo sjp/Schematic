@@ -370,8 +370,8 @@ where tc.table_schema = @SchemaName and tc.table_name = @TableName
                 row.ChildKeyName,
                 row.ParentKeyName,
                 row.ParentKeyType,
-                row.DeleteRule,
-                row.UpdateRule
+                row.DeleteAction,
+                row.UpdateAction
             }).ToList();
             if (groupedChildKeys.Empty())
                 return Array.Empty<IDatabaseRelationalKey>();
@@ -398,7 +398,7 @@ where tc.table_schema = @SchemaName and tc.table_name = @TableName
                     : GetResolvedTableName(candidateChildTableName, cancellationToken);
 
                 await childTableNameOption
-                    .BindAsync(async childTableName =>
+                    .BindAsync((Func<Identifier, Task<OptionAsync<IDatabaseRelationalKey>>>)(async childTableName =>
                     {
                         tableNameCache[candidateChildTableName] = childTableName;
 
@@ -420,11 +420,11 @@ where tc.table_schema = @SchemaName and tc.table_name = @TableName
                         if (!parentKeyLookup.TryGetValue(childKeyName, out var childKey))
                             return OptionAsync<IDatabaseRelationalKey>.None;
 
-                        var deleteRule = RelationalRuleMapping[groupedChildKey.Key.DeleteRule];
-                        var updateRule = RelationalRuleMapping[groupedChildKey.Key.UpdateRule];
-                        var relationalKey = new DatabaseRelationalKey(childTableName, childKey, tableName, parentKey, deleteRule, updateRule);
+                        var deleteAction = ReferentialActionMapping[groupedChildKey.Key.DeleteAction];
+                        var updateAction = ReferentialActionMapping[groupedChildKey.Key.UpdateAction];
+                        var relationalKey = new DatabaseRelationalKey(childTableName, childKey, tableName, parentKey, deleteAction, updateAction);
                         return OptionAsync<IDatabaseRelationalKey>.Some(relationalKey);
-                    })
+                    }))
                     .IfSome(relationalKey => result.Add(relationalKey))
                     .ConfigureAwait(false);
             }
@@ -441,8 +441,8 @@ select
     c.conname as ChildKeyName,
     pkc.contype as ParentKeyType,
     pkc.conname as ParentKeyName,
-    c.confupdtype as UpdateRule,
-    c.confdeltype as DeleteRule
+    c.confupdtype as UpdateAction,
+    c.confdeltype as DeleteAction
 from pg_catalog.pg_namespace ns
 inner join pg_catalog.pg_class t on ns.oid = t.relnamespace
 inner join pg_catalog.pg_constraint c on c.conrelid = t.oid and c.contype = 'f'
@@ -531,8 +531,8 @@ where
                 row.ParentTableName,
                 row.ParentKeyName,
                 KeyType = row.ParentKeyType,
-                row.DeleteRule,
-                row.UpdateRule
+                row.DeleteAction,
+                row.UpdateAction
             }).ToList();
             if (foreignKeys.Empty())
                 return Array.Empty<IDatabaseRelationalKey>();
@@ -593,7 +593,7 @@ where
                                 : OptionAsync<IDatabaseKey>.None;
                         }
                     })
-                    .Map(parentKey =>
+                    .Map((Func<IDatabaseKey, DatabaseRelationalKey>)(parentKey =>
                     {
                         var parentTableName = tableNameCache[candidateParentTableName];
 
@@ -605,11 +605,11 @@ where
 
                         var childKey = new PostgreSqlDatabaseKey(childKeyName, DatabaseKeyType.Foreign, childKeyColumns);
 
-                        var deleteRule = RelationalRuleMapping[fkey.Key.DeleteRule];
-                        var updateRule = RelationalRuleMapping[fkey.Key.UpdateRule];
+                        var deleteAction = ReferentialActionMapping[fkey.Key.DeleteAction];
+                        var updateAction = ReferentialActionMapping[fkey.Key.UpdateAction];
 
-                        return new DatabaseRelationalKey(tableName, childKey, parentTableName, parentKey, deleteRule, updateRule);
-                    })
+                        return new DatabaseRelationalKey(tableName, childKey, parentTableName, parentKey, deleteAction, updateAction);
+                    }))
                     .IfSome(relationalKey => result.Add(relationalKey))
                     .ConfigureAwait(false);
             }
@@ -628,8 +628,8 @@ select
     pt.relname as ParentTableName,
     pkc.contype as ParentKeyType,
     pkc.conname as ParentKeyName,
-    c.confupdtype as UpdateRule,
-    c.confdeltype as DeleteRule
+    c.confupdtype as UpdateAction,
+    c.confdeltype as DeleteAction
 from pg_catalog.pg_namespace ns
 inner join pg_catalog.pg_class t on ns.oid = t.relnamespace
 inner join pg_catalog.pg_constraint c on c.conrelid = t.oid and c.contype = 'f'
@@ -875,13 +875,13 @@ where t.relkind = 'r'
             return new NumericPrecision(newPrecisionStr.Length, newScaleStr.Length);
         }
 
-        protected IReadOnlyDictionary<string, Rule> RelationalRuleMapping { get; } = new Dictionary<string, Rule>
+        protected IReadOnlyDictionary<string, ReferentialAction> ReferentialActionMapping { get; } = new Dictionary<string, ReferentialAction>
         {
-            ["a"] = Rule.None,
-            ["c"] = Rule.Cascade,
-            ["n"] = Rule.SetNull,
-            ["d"] = Rule.SetDefault,
-            ["r"] = Rule.None // could be changed to restrict
+            ["a"] = ReferentialAction.NoAction,
+            ["r"] = ReferentialAction.Restrict,
+            ["c"] = ReferentialAction.Cascade,
+            ["n"] = ReferentialAction.SetNull,
+            ["d"] = ReferentialAction.SetDefault
         };
 
         protected Identifier QualifyTableName(Identifier tableName)

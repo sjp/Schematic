@@ -57,8 +57,8 @@ namespace SJP.Schematic.Reporting.Html.ViewModels.Mappers
                 foreignKey.ParentTable,
                 parentKeyName,
                 parentColumnNames,
-                foreignKey.DeleteRule,
-                foreignKey.UpdateRule
+                foreignKey.DeleteAction,
+                foreignKey.UpdateAction
             );
         }
 

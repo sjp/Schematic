@@ -21,8 +21,8 @@ namespace SJP.Schematic.Serialization.Mapping
                 ChildKey = childKey,
                 ParentTable = parentTable,
                 ParentKey = parentKey,
-                DeleteRule = relationalKey.DeleteRule,
-                UpdateRule = relationalKey.UpdateRule
+                DeleteAction = relationalKey.DeleteAction,
+                UpdateAction = relationalKey.UpdateAction
             };
         }
 
@@ -41,8 +41,8 @@ namespace SJP.Schematic.Serialization.Mapping
                 childKey,
                 (Identifier)parentTable,
                 parentKey,
-                relationalKey.DeleteRule,
-                relationalKey.UpdateRule
+                relationalKey.DeleteAction,
+                relationalKey.UpdateAction
             );
         }
     }

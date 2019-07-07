@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Data;
 using NUnit.Framework;
 using Moq;
 using SJP.Schematic.Core;
@@ -16,10 +15,10 @@ namespace SJP.Schematic.MySql.Tests
             var childKey = Mock.Of<IDatabaseKey>();
             const string parentTableName = "parent_table";
             var parentKey = Mock.Of<IDatabaseKey>();
-            const Rule deleteRule = Rule.None;
-            const Rule updateRule = Rule.None;
+            const ReferentialAction deleteAction = ReferentialAction.NoAction;
+            const ReferentialAction updateAction = ReferentialAction.NoAction;
 
-            Assert.Throws<ArgumentNullException>(() => new MySqlRelationalKey(null, childKey, parentTableName, parentKey, deleteRule, updateRule));
+            Assert.Throws<ArgumentNullException>(() => new MySqlRelationalKey(null, childKey, parentTableName, parentKey, deleteAction, updateAction));
         }
 
         [Test]
@@ -28,10 +27,10 @@ namespace SJP.Schematic.MySql.Tests
             const string childTableName = "child_table";
             const string parentTableName = "parent_table";
             var parentKey = Mock.Of<IDatabaseKey>();
-            const Rule deleteRule = Rule.None;
-            const Rule updateRule = Rule.None;
+            const ReferentialAction deleteAction = ReferentialAction.NoAction;
+            const ReferentialAction updateAction = ReferentialAction.NoAction;
 
-            Assert.Throws<ArgumentNullException>(() => new MySqlRelationalKey(childTableName, null, parentTableName, parentKey, deleteRule, updateRule));
+            Assert.Throws<ArgumentNullException>(() => new MySqlRelationalKey(childTableName, null, parentTableName, parentKey, deleteAction, updateAction));
         }
 
         [Test]
@@ -40,10 +39,10 @@ namespace SJP.Schematic.MySql.Tests
             const string childTableName = "child_table";
             var childKey = Mock.Of<IDatabaseKey>();
             var parentKey = Mock.Of<IDatabaseKey>();
-            const Rule deleteRule = Rule.None;
-            const Rule updateRule = Rule.None;
+            const ReferentialAction deleteAction = ReferentialAction.NoAction;
+            const ReferentialAction updateAction = ReferentialAction.NoAction;
 
-            Assert.Throws<ArgumentNullException>(() => new MySqlRelationalKey(childTableName, childKey, null, parentKey, deleteRule, updateRule));
+            Assert.Throws<ArgumentNullException>(() => new MySqlRelationalKey(childTableName, childKey, null, parentKey, deleteAction, updateAction));
         }
 
         [Test]
@@ -52,36 +51,36 @@ namespace SJP.Schematic.MySql.Tests
             const string childTableName = "child_table";
             var childKey = Mock.Of<IDatabaseKey>();
             const string parentTableName = "parent_table";
-            const Rule deleteRule = Rule.None;
-            const Rule updateRule = Rule.None;
+            const ReferentialAction deleteAction = ReferentialAction.NoAction;
+            const ReferentialAction updateAction = ReferentialAction.NoAction;
 
-            Assert.Throws<ArgumentNullException>(() => new MySqlRelationalKey(childTableName, childKey, parentTableName,  null, deleteRule, updateRule));
+            Assert.Throws<ArgumentNullException>(() => new MySqlRelationalKey(childTableName, childKey, parentTableName,  null, deleteAction, updateAction));
         }
 
         [Test]
-        public static void Ctor_GivenInvalidDeleteRule_ThrowsArgumentException()
+        public static void Ctor_GivenInvalidDeleteAction_ThrowsArgumentException()
         {
             const string childTableName = "child_table";
             var childKey = Mock.Of<IDatabaseKey>();
             const string parentTableName = "parent_table";
             var parentKey = Mock.Of<IDatabaseKey>();
-            const Rule deleteRule = (Rule)55;
-            const Rule updateRule = Rule.None;
+            const ReferentialAction deleteAction = (ReferentialAction)55;
+            const ReferentialAction updateAction = ReferentialAction.NoAction;
 
-            Assert.Throws<ArgumentException>(() => new MySqlRelationalKey(childTableName, childKey, parentTableName, parentKey, deleteRule, updateRule));
+            Assert.Throws<ArgumentException>(() => new MySqlRelationalKey(childTableName, childKey, parentTableName, parentKey, deleteAction, updateAction));
         }
 
         [Test]
-        public static void Ctor_GivenInvalidUpdateRule_ThrowsArgumentException()
+        public static void Ctor_GivenInvalidUpdateAction_ThrowsArgumentException()
         {
             const string childTableName = "child_table";
             var childKey = Mock.Of<IDatabaseKey>();
             const string parentTableName = "parent_table";
             var parentKey = Mock.Of<IDatabaseKey>();
-            const Rule deleteRule = Rule.None;
-            const Rule updateRule = (Rule)55;
+            const ReferentialAction deleteAction = ReferentialAction.NoAction;
+            const ReferentialAction updateAction = (ReferentialAction)55;
 
-            Assert.Throws<ArgumentException>(() => new MySqlRelationalKey(childTableName, childKey, parentTableName, parentKey, deleteRule, updateRule));
+            Assert.Throws<ArgumentException>(() => new MySqlRelationalKey(childTableName, childKey, parentTableName, parentKey, deleteAction, updateAction));
         }
 
         [Test]
@@ -89,8 +88,8 @@ namespace SJP.Schematic.MySql.Tests
         {
             const string childTableName = "child_table";
             const string parentTableName = "parent_table";
-            const Rule deleteRule = Rule.None;
-            const Rule updateRule = Rule.None;
+            const ReferentialAction deleteAction = ReferentialAction.NoAction;
+            const ReferentialAction updateAction = ReferentialAction.NoAction;
 
             var childKeyMock = new Mock<IDatabaseKey>();
             childKeyMock.Setup(k => k.KeyType).Returns(DatabaseKeyType.Foreign);
@@ -100,7 +99,7 @@ namespace SJP.Schematic.MySql.Tests
             parentKeyMock.Setup(k => k.KeyType).Returns(DatabaseKeyType.Primary);
             var parentKey = parentKeyMock.Object;
 
-            var relationalKey = new MySqlRelationalKey(childTableName, childKey, parentTableName, parentKey, deleteRule, updateRule);
+            var relationalKey = new MySqlRelationalKey(childTableName, childKey, parentTableName, parentKey, deleteAction, updateAction);
 
             Assert.AreEqual(new Identifier(childTableName), relationalKey.ChildTable);
         }
@@ -110,8 +109,8 @@ namespace SJP.Schematic.MySql.Tests
         {
             const string childTableName = "child_table";
             const string parentTableName = "parent_table";
-            const Rule deleteRule = Rule.Cascade;
-            const Rule updateRule = Rule.SetNull;
+            const ReferentialAction deleteAction = ReferentialAction.Cascade;
+            const ReferentialAction updateAction = ReferentialAction.SetNull;
             Identifier keyName = "test_child_key";
 
             var childKeyMock = new Mock<IDatabaseKey>();
@@ -123,7 +122,7 @@ namespace SJP.Schematic.MySql.Tests
             parentKeyMock.Setup(k => k.KeyType).Returns(DatabaseKeyType.Primary);
             var parentKey = parentKeyMock.Object;
 
-            var relationalKey = new MySqlRelationalKey(childTableName, childKey, parentTableName, parentKey, deleteRule, updateRule);
+            var relationalKey = new MySqlRelationalKey(childTableName, childKey, parentTableName, parentKey, deleteAction, updateAction);
 
             Assert.Multiple(() =>
             {
@@ -137,8 +136,8 @@ namespace SJP.Schematic.MySql.Tests
         {
             const string childTableName = "child_table";
             const string parentTableName = "parent_table";
-            const Rule deleteRule = Rule.None;
-            const Rule updateRule = Rule.None;
+            const ReferentialAction deleteAction = ReferentialAction.NoAction;
+            const ReferentialAction updateAction = ReferentialAction.NoAction;
 
             var childKeyMock = new Mock<IDatabaseKey>();
             childKeyMock.Setup(k => k.KeyType).Returns(DatabaseKeyType.Foreign);
@@ -148,7 +147,7 @@ namespace SJP.Schematic.MySql.Tests
             parentKeyMock.Setup(k => k.KeyType).Returns(DatabaseKeyType.Primary);
             var parentKey = parentKeyMock.Object;
 
-            var relationalKey = new MySqlRelationalKey(childTableName, childKey, parentTableName, parentKey, deleteRule, updateRule);
+            var relationalKey = new MySqlRelationalKey(childTableName, childKey, parentTableName, parentKey, deleteAction, updateAction);
 
             Assert.AreEqual(new Identifier(parentTableName), relationalKey.ParentTable);
         }
@@ -158,8 +157,8 @@ namespace SJP.Schematic.MySql.Tests
         {
             const string childTableName = "child_table";
             const string parentTableName = "parent_table";
-            const Rule deleteRule = Rule.Cascade;
-            const Rule updateRule = Rule.SetNull;
+            const ReferentialAction deleteAction = ReferentialAction.Cascade;
+            const ReferentialAction updateAction = ReferentialAction.SetNull;
             Identifier keyName = "test_parent_key";
 
             var childKeyMock = new Mock<IDatabaseKey>();
@@ -171,7 +170,7 @@ namespace SJP.Schematic.MySql.Tests
             parentKeyMock.Setup(t => t.Name).Returns(keyName);
             var parentKey = parentKeyMock.Object;
 
-            var relationalKey = new MySqlRelationalKey(childTableName, childKey, parentTableName, parentKey, deleteRule, updateRule);
+            var relationalKey = new MySqlRelationalKey(childTableName, childKey, parentTableName, parentKey, deleteAction, updateAction);
 
             Assert.Multiple(() =>
             {
@@ -181,12 +180,12 @@ namespace SJP.Schematic.MySql.Tests
         }
 
         [Test]
-        public static void DeleteRule_PropertyGet_EqualsCtorArg()
+        public static void DeleteAction_PropertyGet_EqualsCtorArg()
         {
             const string childTableName = "child_table";
             const string parentTableName = "parent_table";
-            const Rule deleteRule = Rule.Cascade;
-            const Rule updateRule = Rule.SetNull;
+            const ReferentialAction deleteAction = ReferentialAction.Cascade;
+            const ReferentialAction updateAction = ReferentialAction.SetNull;
 
             var childKeyMock = new Mock<IDatabaseKey>();
             childKeyMock.Setup(k => k.KeyType).Returns(DatabaseKeyType.Foreign);
@@ -196,18 +195,18 @@ namespace SJP.Schematic.MySql.Tests
             parentKeyMock.Setup(k => k.KeyType).Returns(DatabaseKeyType.Primary);
             var parentKey = parentKeyMock.Object;
 
-            var relationalKey = new MySqlRelationalKey(childTableName, childKey, parentTableName, parentKey, deleteRule, updateRule);
+            var relationalKey = new MySqlRelationalKey(childTableName, childKey, parentTableName, parentKey, deleteAction, updateAction);
 
-            Assert.AreEqual(deleteRule, relationalKey.DeleteRule);
+            Assert.AreEqual(deleteAction, relationalKey.DeleteAction);
         }
 
         [Test]
-        public static void UpdateRule_PropertyGet_EqualsCtorArg()
+        public static void UpdateAction_PropertyGet_EqualsCtorArg()
         {
             const string childTableName = "child_table";
             const string parentTableName = "parent_table";
-            const Rule deleteRule = Rule.Cascade;
-            const Rule updateRule = Rule.SetNull;
+            const ReferentialAction deleteAction = ReferentialAction.Cascade;
+            const ReferentialAction updateAction = ReferentialAction.SetNull;
 
             var childKeyMock = new Mock<IDatabaseKey>();
             childKeyMock.Setup(k => k.KeyType).Returns(DatabaseKeyType.Foreign);
@@ -217,9 +216,9 @@ namespace SJP.Schematic.MySql.Tests
             parentKeyMock.Setup(k => k.KeyType).Returns(DatabaseKeyType.Primary);
             var parentKey = parentKeyMock.Object;
 
-            var relationalKey = new MySqlRelationalKey(childTableName, childKey, parentTableName, parentKey, deleteRule, updateRule);
+            var relationalKey = new MySqlRelationalKey(childTableName, childKey, parentTableName, parentKey, deleteAction, updateAction);
 
-            Assert.AreEqual(updateRule, relationalKey.UpdateRule);
+            Assert.AreEqual(updateAction, relationalKey.UpdateAction);
         }
 
         [Test]
@@ -231,10 +230,10 @@ namespace SJP.Schematic.MySql.Tests
             childKeyMock.Setup(k => k.KeyType).Returns(DatabaseKeyType.Primary);
             var parentKeyMock = new Mock<IDatabaseKey>();
             parentKeyMock.Setup(k => k.KeyType).Returns(DatabaseKeyType.Primary);
-            const Rule deleteRule = Rule.None;
-            const Rule updateRule = Rule.None;
+            const ReferentialAction deleteAction = ReferentialAction.NoAction;
+            const ReferentialAction updateAction = ReferentialAction.NoAction;
 
-            Assert.Throws<ArgumentException>(() => new MySqlRelationalKey(childTableName, childKeyMock.Object, parentTableName, parentKeyMock.Object, deleteRule, updateRule));
+            Assert.Throws<ArgumentException>(() => new MySqlRelationalKey(childTableName, childKeyMock.Object, parentTableName, parentKeyMock.Object, deleteAction, updateAction));
         }
 
         [Test]
@@ -246,36 +245,36 @@ namespace SJP.Schematic.MySql.Tests
             childKeyMock.Setup(k => k.KeyType).Returns(DatabaseKeyType.Foreign);
             var parentKeyMock = new Mock<IDatabaseKey>();
             parentKeyMock.Setup(k => k.KeyType).Returns(DatabaseKeyType.Foreign);
-            const Rule deleteRule = Rule.None;
-            const Rule updateRule = Rule.None;
+            const ReferentialAction deleteAction = ReferentialAction.NoAction;
+            const ReferentialAction updateAction = ReferentialAction.NoAction;
 
-            Assert.Throws<ArgumentException>(() => new MySqlRelationalKey(childTableName, childKeyMock.Object, parentTableName, parentKeyMock.Object, deleteRule, updateRule));
+            Assert.Throws<ArgumentException>(() => new MySqlRelationalKey(childTableName, childKeyMock.Object, parentTableName, parentKeyMock.Object, deleteAction, updateAction));
         }
 
         [Test]
-        public static void Ctor_GivenSetDefaultUpdateRule_ThrowsArgumentException()
+        public static void Ctor_GivenSetDefaultUpdateAction_ThrowsArgumentException()
         {
             const string childTableName = "child_table";
             const string parentTableName = "parent_table";
             var childKey = Mock.Of<IDatabaseKey>();
             var parentKey = Mock.Of<IDatabaseKey>();
-            const Rule deleteRule = Rule.None;
-            const Rule updateRule = Rule.SetDefault;
+            const ReferentialAction deleteAction = ReferentialAction.NoAction;
+            const ReferentialAction updateAction = ReferentialAction.SetDefault;
 
-            Assert.Throws<ArgumentException>(() => new MySqlRelationalKey(childTableName, childKey, parentTableName, parentKey, deleteRule, updateRule));
+            Assert.Throws<ArgumentException>(() => new MySqlRelationalKey(childTableName, childKey, parentTableName, parentKey, deleteAction, updateAction));
         }
 
         [Test]
-        public static void Ctor_GivenSetDefaultDeleteRule_ThrowsArgumentException()
+        public static void Ctor_GivenSetDefaultDeleteAction_ThrowsArgumentException()
         {
             const string childTableName = "child_table";
             const string parentTableName = "parent_table";
             var childKey = Mock.Of<IDatabaseKey>();
             var parentKey = Mock.Of<IDatabaseKey>();
-            const Rule deleteRule = Rule.SetDefault;
-            const Rule updateRule = Rule.None;
+            const ReferentialAction deleteAction = ReferentialAction.SetDefault;
+            const ReferentialAction updateAction = ReferentialAction.NoAction;
 
-            Assert.Throws<ArgumentException>(() => new MySqlRelationalKey(childTableName, childKey, parentTableName, parentKey, deleteRule, updateRule));
+            Assert.Throws<ArgumentException>(() => new MySqlRelationalKey(childTableName, childKey, parentTableName, parentKey, deleteAction, updateAction));
         }
     }
 }

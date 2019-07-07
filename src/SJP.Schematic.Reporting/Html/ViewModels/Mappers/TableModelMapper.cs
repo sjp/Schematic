@@ -148,8 +148,8 @@ namespace SJP.Schematic.Reporting.Html.ViewModels.Mappers
                     pk.ParentTable,
                     pk.ParentKey.Name.Match(name => name.LocalName, () => string.Empty),
                     pk.ParentKey.Columns.Select(c => c.Name.LocalName).ToList(),
-                    pk.DeleteRule,
-                    pk.UpdateRule,
+                    pk.DeleteAction,
+                    pk.UpdateAction,
                     RootPath
                 )).ToList();
 

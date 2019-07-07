@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Data;
 using EnumsNET;
 using SJP.Schematic.Core;
 using SJP.Schematic.Core.Extensions;
@@ -131,8 +130,8 @@ namespace SJP.Schematic.Reporting.Html.ViewModels
                 Identifier parentTableName,
                 string parentConstraintName,
                 IEnumerable<string> parentColumnNames,
-                Rule deleteRule,
-                Rule updateRule
+                ReferentialAction deleteAction,
+                ReferentialAction updateAction
             )
                 : base(childTableName, childConstraintName)
             {
@@ -142,10 +141,10 @@ namespace SJP.Schematic.Reporting.Html.ViewModels
                     throw new ArgumentNullException(nameof(childColumnNames));
                 if (parentColumnNames == null || parentColumnNames.Empty())
                     throw new ArgumentNullException(nameof(parentColumnNames));
-                if (!deleteRule.IsValid())
-                    throw new ArgumentException($"The { nameof(Rule) } provided must be a valid enum.", nameof(deleteRule));
-                if (!updateRule.IsValid())
-                    throw new ArgumentException($"The { nameof(Rule) } provided must be a valid enum.", nameof(updateRule));
+                if (!deleteAction.IsValid())
+                    throw new ArgumentException($"The { nameof(ReferentialAction) } provided must be a valid enum.", nameof(deleteAction));
+                if (!updateAction.IsValid())
+                    throw new ArgumentException($"The { nameof(ReferentialAction) } provided must be a valid enum.", nameof(updateAction));
 
                 ParentTableName = parentTableName.ToVisibleName();
                 ParentTableUrl = UrlRouter.GetTableUrl(parentTableName);
@@ -154,8 +153,8 @@ namespace SJP.Schematic.Reporting.Html.ViewModels
                 ChildColumnNames = childColumnNames.Join(", ");
                 ParentColumnNames = parentColumnNames.Join(", ");
 
-                DeleteRuleDescription = _ruleDescription[deleteRule];
-                UpdateRuleDescription = _ruleDescription[updateRule];
+                DeleteActionDescription = _actionDescription[deleteAction];
+                UpdateActionDescription = _actionDescription[updateAction];
             }
 
             public string ParentConstraintName { get; }
@@ -168,16 +167,17 @@ namespace SJP.Schematic.Reporting.Html.ViewModels
 
             public string ParentColumnNames { get; }
 
-            public string DeleteRuleDescription { get; }
+            public string DeleteActionDescription { get; }
 
-            public string UpdateRuleDescription { get; }
+            public string UpdateActionDescription { get; }
 
-            private static readonly IReadOnlyDictionary<Rule, string> _ruleDescription = new Dictionary<Rule, string>
+            private static readonly IReadOnlyDictionary<ReferentialAction, string> _actionDescription = new Dictionary<ReferentialAction, string>
             {
-                [Rule.None] = "NONE",
-                [Rule.Cascade] = "CASCADE",
-                [Rule.SetDefault] = "SET DEFAULT",
-                [Rule.SetNull] = "SET NULL"
+                [ReferentialAction.NoAction] = "NONE",
+                [ReferentialAction.Restrict] = "RESTRICT",
+                [ReferentialAction.Cascade] = "CASCADE",
+                [ReferentialAction.SetDefault] = "SET DEFAULT",
+                [ReferentialAction.SetNull] = "SET NULL"
             };
         }
 

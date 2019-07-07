@@ -54,8 +54,8 @@ namespace SJP.Schematic.Lint.Tests.Rules
                     new[] { Mock.Of<IDatabaseColumn>() },
                     true
                 ),
-                System.Data.Rule.None,
-                System.Data.Rule.None
+                ReferentialAction.NoAction,
+                ReferentialAction.NoAction
             );
             var childTable = new RelationalDatabaseTable(
                 "test",
@@ -95,8 +95,8 @@ namespace SJP.Schematic.Lint.Tests.Rules
                     new[] { Mock.Of<IDatabaseColumn>() },
                     true
                 ),
-                System.Data.Rule.None,
-                System.Data.Rule.None
+                ReferentialAction.NoAction,
+                ReferentialAction.NoAction
             );
             var childTable = new RelationalDatabaseTable(
                 "test",
@@ -136,8 +136,8 @@ namespace SJP.Schematic.Lint.Tests.Rules
                     new[] { Mock.Of<IDatabaseColumn>() },
                     true
                 ),
-                System.Data.Rule.None,
-                System.Data.Rule.None
+                ReferentialAction.NoAction,
+                ReferentialAction.NoAction
             );
             var parentTable = new RelationalDatabaseTable(
                 "test",
@@ -177,8 +177,8 @@ namespace SJP.Schematic.Lint.Tests.Rules
                     new[] { Mock.Of<IDatabaseColumn>() },
                     true
                 ),
-                System.Data.Rule.None,
-                System.Data.Rule.None
+                ReferentialAction.NoAction,
+                ReferentialAction.NoAction
             );
             var parentTable = new RelationalDatabaseTable(
                 "test",

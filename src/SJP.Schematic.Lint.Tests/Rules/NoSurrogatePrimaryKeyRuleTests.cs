@@ -286,16 +286,16 @@ namespace SJP.Schematic.Lint.Tests.Rules
                 testForeignKey1,
                 "test",
                 testPrimaryKey,
-                System.Data.Rule.Cascade,
-                System.Data.Rule.Cascade
+                ReferentialAction.Cascade,
+                ReferentialAction.Cascade
             );
             var relationalKey2 = new DatabaseRelationalKey(
                 "test",
                 testForeignKey2,
                 "test",
                 testPrimaryKey,
-                System.Data.Rule.Cascade,
-                System.Data.Rule.Cascade
+                ReferentialAction.Cascade,
+                ReferentialAction.Cascade
             );
 
             var table = new RelationalDatabaseTable(

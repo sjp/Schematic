@@ -10,7 +10,7 @@
 
         public string EnabledStatus { get; set; }
 
-        public string DeleteRule { get; set; }
+        public string DeleteAction { get; set; }
 
         public string ParentKeyName { get; set; }
 
