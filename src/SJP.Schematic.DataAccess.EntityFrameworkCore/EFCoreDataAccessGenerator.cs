@@ -157,7 +157,7 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include=""Microsoft.EntityFrameworkCore.Relational"" Version=""2.2.4"" />
+        <PackageReference Include=""Microsoft.EntityFrameworkCore.Relational"" Version=""2.2.6"" />
     </ItemGroup>
 </Project>";
     }
