@@ -1,5 +1,6 @@
 ﻿using System;
 using SJP.Schematic.Core;
+using SJP.Schematic.Core.Utilities;
 
 namespace SJP.Schematic.Reporting.Dot
 {
@@ -12,15 +13,14 @@ namespace SJP.Schematic.Reporting.Dot
             if (tableName == null)
                 throw new ArgumentNullException(nameof(tableName));
 
-            unchecked
-            {
-                var hash = 17;
-                hash = (hash * 23) + tableName.GetHashCode();
-                hash = (hash * 23) + key.KeyType.GetHashCode();
-                foreach (var column in key.Columns)
-                    hash = (hash * 23) + (column.Name?.LocalName?.GetHashCode() ?? 0);
-                return hash;
-            }
+            var builder = new HashCodeBuilder();
+            builder.Add(tableName.GetHashCode());
+            builder.Add(key.KeyType.GetHashCode());
+
+            foreach (var column in key.Columns)
+                builder.Add(column.Name?.LocalName?.GetHashCode() ?? 0);
+
+            return builder.ToHashCode();
         }
     }
 }

@@ -357,14 +357,12 @@ namespace SJP.Schematic.Core
 
         private static int GetHashCode(string server, string database, string schema, string localName)
         {
-            unchecked
-            {
-                var hash = 17;
-                hash = (hash * 23) + (server != null ? Comparer.GetHashCode(server) : 0);
-                hash = (hash * 23) + (database != null ? Comparer.GetHashCode(database) : 0);
-                hash = (hash * 23) + (schema != null ? Comparer.GetHashCode(schema) : 0);
-                return (hash * 23) + (localName != null ? Comparer.GetHashCode(localName) : 0);
-            }
+            return HashCodeBuilder.Combine(
+                server != null ? Comparer.GetHashCode(server) : 0,
+                database != null ? Comparer.GetHashCode(database) : 0,
+                schema != null ? Comparer.GetHashCode(schema) : 0,
+                localName != null ? Comparer.GetHashCode(localName) : 0
+            );
         }
 
         private static readonly TimeSpan CacheLength = TimeSpan.FromMinutes(2); // only cache identifiers for two minutes
