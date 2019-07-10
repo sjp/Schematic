@@ -1,4 +1,5 @@
-﻿using System.Threading;
+﻿using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 using SJP.Schematic.Core;
 
@@ -8,6 +9,6 @@ namespace SJP.Schematic.Migrations
     {
         Task<bool> HasDifferences(IRelationalDatabase comparison, CancellationToken cancellationToken = default);
 
-        Task<MigrationAnalysisResult> GetDifferences(IRelationalDatabase comparison, CancellationToken cancellationToken = default);
+        Task<IReadOnlyCollection<IMigrationOperation>> GetDifferences(IRelationalDatabase comparison, CancellationToken cancellationToken = default);
     }
 }
