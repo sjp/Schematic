@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using EnumsNET;
 using SJP.Schematic.Core.Extensions;
+using SJP.Schematic.Core.Utilities;
 
 namespace SJP.Schematic.Core
 {
@@ -58,14 +59,12 @@ namespace SJP.Schematic.Core
             if (obj == null)
                 return 0;
 
-            unchecked
-            {
-                var hash = 17;
-                hash = (hash * 23) + (obj.Server != null ? _comparer.GetHashCode(obj.Server) : _defaultServerHash);
-                hash = (hash * 23) + (obj.Database != null ? _comparer.GetHashCode(obj.Database) : _defaultDatabaseHash);
-                hash = (hash * 23) + (obj.Schema != null ? _comparer.GetHashCode(obj.Schema) : _defaultSchemaHash);
-                return (hash * 23) + (obj.LocalName != null ? _comparer.GetHashCode(obj.LocalName) : 0);
-            }
+            return HashCodeBuilder.Combine(
+                obj.Server != null ? _comparer.GetHashCode(obj.Server) : _defaultServerHash,
+                obj.Database != null ? _comparer.GetHashCode(obj.Database) : _defaultDatabaseHash,
+                obj.Schema != null ? _comparer.GetHashCode(obj.Schema) : _defaultSchemaHash,
+                obj.LocalName != null ? _comparer.GetHashCode(obj.LocalName) : 0
+            );
         }
 
         public int Compare(Identifier x, Identifier y)
