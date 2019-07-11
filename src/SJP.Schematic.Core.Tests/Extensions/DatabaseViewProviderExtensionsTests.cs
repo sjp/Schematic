@@ -73,7 +73,7 @@ namespace SJP.Schematic.Core.Tests.Extensions
             var view = GetMockView(viewName);
             fakeDb.Views = new[] { view };
 
-            Assert.IsTrue(fakeDb.TryGetView(viewName, out var _));
+            Assert.IsTrue(fakeDb.TryGetView(viewName, out _));
         }
 
         [Test]
@@ -95,7 +95,7 @@ namespace SJP.Schematic.Core.Tests.Extensions
             var database = GetFakeDatabase();
             var viewName = new Identifier("A");
 
-            Assert.IsFalse(database.TryGetView(viewName, out var _));
+            Assert.IsFalse(database.TryGetView(viewName, out _));
         }
 
         [Test]

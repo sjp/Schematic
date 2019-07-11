@@ -75,7 +75,7 @@ namespace SJP.Schematic.Core.Tests.Extensions
 
             fakeDb.Synonyms = new[] { synonym };
 
-            Assert.IsTrue(fakeDb.TryGetSynonym(synonymName, out var _));
+            Assert.IsTrue(fakeDb.TryGetSynonym(synonymName, out _));
         }
 
         [Test]
@@ -97,7 +97,7 @@ namespace SJP.Schematic.Core.Tests.Extensions
             var database = GetFakeDatabase();
             var synonymName = new Identifier("A");
 
-            Assert.IsFalse(database.TryGetSynonym(synonymName, out var _));
+            Assert.IsFalse(database.TryGetSynonym(synonymName, out _));
         }
 
         [Test]
