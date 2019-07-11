@@ -47,7 +47,7 @@ namespace SJP.Schematic.Core.Utilities
             {
                 var hc1 = (uint)(value1?.GetHashCode() ?? 0);
 
-                uint hash = MixEmptyState();
+                var hash = MixEmptyState();
                 hash += 4;
 
                 hash = QueueRound(hash, hc1);
@@ -72,7 +72,7 @@ namespace SJP.Schematic.Core.Utilities
                 var hc1 = (uint)(value1?.GetHashCode() ?? 0);
                 var hc2 = (uint)(value2?.GetHashCode() ?? 0);
 
-                uint hash = MixEmptyState();
+                var hash = MixEmptyState();
                 hash += 8;
 
                 hash = QueueRound(hash, hc1);
@@ -101,7 +101,7 @@ namespace SJP.Schematic.Core.Utilities
                 var hc2 = (uint)(value2?.GetHashCode() ?? 0);
                 var hc3 = (uint)(value3?.GetHashCode() ?? 0);
 
-                uint hash = MixEmptyState();
+                var hash = MixEmptyState();
                 hash += 12;
 
                 hash = QueueRound(hash, hc1);
@@ -134,14 +134,14 @@ namespace SJP.Schematic.Core.Utilities
                 var hc3 = (uint)(value3?.GetHashCode() ?? 0);
                 var hc4 = (uint)(value4?.GetHashCode() ?? 0);
 
-                Initialize(out uint v1, out uint v2, out uint v3, out uint v4);
+                Initialize(out var v1, out var v2, out var v3, out var v4);
 
                 v1 = Round(v1, hc1);
                 v2 = Round(v2, hc2);
                 v3 = Round(v3, hc3);
                 v4 = Round(v4, hc4);
 
-                uint hash = MixState(v1, v2, v3, v4);
+                var hash = MixState(v1, v2, v3, v4);
                 hash += 16;
 
                 hash = MixFinal(hash);
@@ -173,14 +173,14 @@ namespace SJP.Schematic.Core.Utilities
                 var hc4 = (uint)(value4?.GetHashCode() ?? 0);
                 var hc5 = (uint)(value5?.GetHashCode() ?? 0);
 
-                Initialize(out uint v1, out uint v2, out uint v3, out uint v4);
+                Initialize(out var v1, out var v2, out var v3, out var v4);
 
                 v1 = Round(v1, hc1);
                 v2 = Round(v2, hc2);
                 v3 = Round(v3, hc3);
                 v4 = Round(v4, hc4);
 
-                uint hash = MixState(v1, v2, v3, v4);
+                var hash = MixState(v1, v2, v3, v4);
                 hash += 20;
 
                 hash = QueueRound(hash, hc5);
@@ -217,14 +217,14 @@ namespace SJP.Schematic.Core.Utilities
                 var hc5 = (uint)(value5?.GetHashCode() ?? 0);
                 var hc6 = (uint)(value6?.GetHashCode() ?? 0);
 
-                Initialize(out uint v1, out uint v2, out uint v3, out uint v4);
+                Initialize(out var v1, out var v2, out var v3, out var v4);
 
                 v1 = Round(v1, hc1);
                 v2 = Round(v2, hc2);
                 v3 = Round(v3, hc3);
                 v4 = Round(v4, hc4);
 
-                uint hash = MixState(v1, v2, v3, v4);
+                var hash = MixState(v1, v2, v3, v4);
                 hash += 24;
 
                 hash = QueueRound(hash, hc5);
@@ -265,14 +265,14 @@ namespace SJP.Schematic.Core.Utilities
                 var hc6 = (uint)(value6?.GetHashCode() ?? 0);
                 var hc7 = (uint)(value7?.GetHashCode() ?? 0);
 
-                Initialize(out uint v1, out uint v2, out uint v3, out uint v4);
+                Initialize(out var v1, out var v2, out var v3, out var v4);
 
                 v1 = Round(v1, hc1);
                 v2 = Round(v2, hc2);
                 v3 = Round(v3, hc3);
                 v4 = Round(v4, hc4);
 
-                uint hash = MixState(v1, v2, v3, v4);
+                var hash = MixState(v1, v2, v3, v4);
                 hash += 28;
 
                 hash = QueueRound(hash, hc5);
@@ -317,7 +317,7 @@ namespace SJP.Schematic.Core.Utilities
                 var hc7 = (uint)(value7?.GetHashCode() ?? 0);
                 var hc8 = (uint)(value8?.GetHashCode() ?? 0);
 
-                Initialize(out uint v1, out uint v2, out uint v3, out uint v4);
+                Initialize(out var v1, out var v2, out var v3, out var v4);
 
                 v1 = Round(v1, hc1);
                 v2 = Round(v2, hc2);
@@ -329,7 +329,7 @@ namespace SJP.Schematic.Core.Utilities
                 v3 = Round(v3, hc7);
                 v4 = Round(v4, hc8);
 
-                uint hash = MixState(v1, v2, v3, v4);
+                var hash = MixState(v1, v2, v3, v4);
                 hash += 32;
 
                 hash = MixFinal(hash);
@@ -467,8 +467,8 @@ namespace SJP.Schematic.Core.Utilities
 
                 // Storing the value of _length locally shaves of quite a few bytes
                 // in the resulting machine code.
-                uint previousLength = _length++;
-                uint position = previousLength % 4;
+                var previousLength = _length++;
+                var position = previousLength % 4;
 
                 // Switch can't be inlined.
 
@@ -507,17 +507,17 @@ namespace SJP.Schematic.Core.Utilities
             {
                 // Storing the value of _length locally shaves of quite a few bytes
                 // in the resulting machine code.
-                uint length = _length;
+                var length = _length;
 
                 // position refers to the *next* queue position in this method, so
                 // position == 1 means that _queue1 is populated; _queue2 would have
                 // been populated on the next call to Add.
-                uint position = length % 4;
+                var position = length % 4;
 
                 // If the length is less than 4, _v1 to _v4 don't contain anything
                 // yet. xxHash32 treats this differently.
 
-                uint hash = length < 4 ? MixEmptyState() : MixState(_v1, _v2, _v3, _v4);
+                var hash = length < 4 ? MixEmptyState() : MixState(_v1, _v2, _v3, _v4);
 
                 // _length is incremented once per Add(Int32) and is therefore 4
                 // times too small (xxHash length is in bytes, not ints).
