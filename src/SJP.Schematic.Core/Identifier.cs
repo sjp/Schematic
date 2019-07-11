@@ -1,7 +1,8 @@
 ﻿using System;
+using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
-using Microsoft.Extensions.Caching.Memory;
 using SJP.Schematic.Core.Extensions;
 using SJP.Schematic.Core.Utilities;
 
@@ -106,48 +107,42 @@ namespace SJP.Schematic.Core
             var localNamePresent = !localName.IsNullOrWhiteSpace();
 
             var identifierKey = GetHashCode(server, database, schema, localName);
-            if (Cache.TryGetValue(identifierKey, out Identifier identifier))
-                return identifier;
+            if (Cache.TryGetValue(identifierKey, out var cachedReference) && cachedReference.TryGetTarget(out var cachedIdentifier))
+                return cachedIdentifier;
 
+            Identifier result = null;
             if (serverPresent && databasePresent && schemaPresent && localNamePresent)
-            {
-                var result = new Identifier(server, database, schema, localName);
-                Cache.Set(identifierKey, result, CacheLength);
-                return result;
-            }
+                result = new Identifier(server, database, schema, localName);
             else if (serverPresent)
-            {
                 throw new ArgumentNullException(nameof(server), "A server name was provided, but other components are missing.");
+
+            if (result == null)
+            {
+                if (databasePresent && schemaPresent && localNamePresent)
+                    result = new Identifier(database, schema, localName);
+                else if (databasePresent)
+                    throw new ArgumentNullException(nameof(database), "A database name was provided, but other components are missing.");
             }
 
-            if (databasePresent && schemaPresent && localNamePresent)
+            if (result == null)
             {
-                var result = new Identifier(database, schema, localName);
-                Cache.Set(identifierKey, result, CacheLength);
-                return result;
-            }
-            else if (databasePresent)
-            {
-                throw new ArgumentNullException(nameof(database), "A database name was provided, but other components are missing.");
-            }
-
-            if (schemaPresent && localNamePresent)
-            {
-                var result = new Identifier(schema, localName);
-                Cache.Set(identifierKey, result, CacheLength);
-                return result;
-            }
-            else if (schemaPresent)
-            {
-                throw new ArgumentNullException(nameof(schema), "A schema name was provided, but other components are missing.");
+                if (schemaPresent && localNamePresent)
+                    result = new Identifier(schema, localName);
+                else if (schemaPresent)
+                    throw new ArgumentNullException(nameof(schema), "A schema name was provided, but other components are missing.");
             }
 
             if (!localNamePresent)
                 throw new ArgumentNullException(nameof(localName), "At least one component of an identifier must be provided.");
+            else if (result == null)
+                result = new Identifier(localName);
 
-            var localIdentifier = new Identifier(localName);
-            Cache.Set(identifierKey, localIdentifier, CacheLength);
-            return localIdentifier;
+            if (Cache.TryGetValue(identifierKey, out var reference) && !reference.TryGetTarget(out _))
+                reference.SetTarget(result);
+            else
+                Cache.TryAdd(identifierKey, new WeakReference<Identifier>(result));
+
+            return result;
         }
 
         /// <summary>
@@ -183,11 +178,15 @@ namespace SJP.Schematic.Core
         public static implicit operator Identifier(string localName)
         {
             var identifierKey = GetHashCode(null, null, null, localName);
-            if (Cache.TryGetValue(identifierKey, out Identifier identifier))
-                return identifier;
 
-            identifier = new Identifier(localName);
-            Cache.Set(identifierKey, identifier);
+            if (!Cache.TryGetValue(identifierKey, out var reference))
+                reference = new WeakReference<Identifier>(new Identifier(localName));
+
+            if (!reference.TryGetTarget(out var identifier))
+            {
+                identifier = new Identifier(localName);
+                reference.SetTarget(identifier);
+            }
 
             return identifier;
         }
@@ -365,8 +364,7 @@ namespace SJP.Schematic.Core
             );
         }
 
-        private static readonly TimeSpan CacheLength = TimeSpan.FromMinutes(2); // only cache identifiers for two minutes
-        private static readonly IMemoryCache Cache = new MemoryCache(new MemoryCacheOptions());
+        private static readonly ConcurrentDictionary<int, WeakReference<Identifier>> Cache = new ConcurrentDictionary<int, WeakReference<Identifier>>();
         private static readonly StringComparer Comparer = StringComparer.Ordinal;
     }
 }
