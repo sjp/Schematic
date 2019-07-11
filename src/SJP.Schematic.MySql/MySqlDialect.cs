@@ -86,7 +86,7 @@ select
 
             var versionPieces = versionStr
                 .Split(new[] { '.', '-' }, StringSplitOptions.RemoveEmptyEntries)
-                .Where(piece => int.TryParse(piece, NumberStyles.Integer, CultureInfo.InvariantCulture, out var _));
+                .Where(piece => int.TryParse(piece, NumberStyles.Integer, CultureInfo.InvariantCulture, out _));
 
             var saferVersionStr = versionPieces.Join(".");
             return Version.Parse(saferVersionStr);

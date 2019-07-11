@@ -75,7 +75,7 @@ namespace SJP.Schematic.Core.Tests.Extensions
 
             fakeDb.Routines = new[] { routine };
 
-            Assert.IsTrue(fakeDb.TryGetRoutine(routineName, out var _));
+            Assert.IsTrue(fakeDb.TryGetRoutine(routineName, out _));
         }
 
         [Test]
@@ -97,7 +97,7 @@ namespace SJP.Schematic.Core.Tests.Extensions
             var database = GetFakeDatabase();
             var routineName = new Identifier("A");
 
-            Assert.IsFalse(database.TryGetRoutine(routineName, out var _));
+            Assert.IsFalse(database.TryGetRoutine(routineName, out _));
         }
 
         [Test]

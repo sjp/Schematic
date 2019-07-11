@@ -146,7 +146,7 @@ namespace SJP.Schematic.Oracle
                 if (numberLine == null)
                     return false;
 
-                if (!int.TryParse(numberLine, NumberStyles.HexNumber, CultureInfo.InvariantCulture, out var _))
+                if (!int.TryParse(numberLine, NumberStyles.HexNumber, CultureInfo.InvariantCulture, out _))
                     return false;
 
                 currentIndex = input.IndexOf(numberLine, currentIndex) + numberLine.Length;
@@ -170,7 +170,7 @@ namespace SJP.Schematic.Oracle
                 if (numberLine == null)
                     return false;
 
-                if (!int.TryParse(numberLine, NumberStyles.HexNumber, CultureInfo.InvariantCulture, out var _))
+                if (!int.TryParse(numberLine, NumberStyles.HexNumber, CultureInfo.InvariantCulture, out _))
                     return false;
 
                 var lengthLine = reader.ReadLine();

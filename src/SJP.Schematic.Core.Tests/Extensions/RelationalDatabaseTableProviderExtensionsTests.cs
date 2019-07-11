@@ -73,7 +73,7 @@ namespace SJP.Schematic.Core.Tests.Extensions
             var table = GetMockTable(tableName);
             fakeDb.Tables = new[] { table };
 
-            Assert.IsTrue(fakeDb.TryGetTable(tableName, out var _));
+            Assert.IsTrue(fakeDb.TryGetTable(tableName, out _));
         }
 
         [Test]
@@ -95,7 +95,7 @@ namespace SJP.Schematic.Core.Tests.Extensions
             var database = GetFakeDatabase();
             var tableName = new Identifier("A");
 
-            Assert.IsFalse(database.TryGetTable(tableName, out var _));
+            Assert.IsFalse(database.TryGetTable(tableName, out _));
         }
 
         [Test]

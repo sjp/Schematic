@@ -74,7 +74,7 @@ namespace SJP.Schematic.Core.Tests.Extensions
             var sequence = GetMockSequence(sequenceName);
             fakeDb.Sequences = new[] { sequence };
 
-            Assert.IsTrue(fakeDb.TryGetSequence(sequenceName, out var _));
+            Assert.IsTrue(fakeDb.TryGetSequence(sequenceName, out _));
         }
 
         [Test]
@@ -96,7 +96,7 @@ namespace SJP.Schematic.Core.Tests.Extensions
             var database = GetFakeDatabase();
             var sequenceName = new Identifier("A");
 
-            Assert.IsFalse(database.TryGetSequence(sequenceName, out var _));
+            Assert.IsFalse(database.TryGetSequence(sequenceName, out _));
         }
 
         [Test]
