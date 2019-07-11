@@ -41,7 +41,7 @@ namespace SJP.Schematic.Core.Utilities
         {
             get
             {
-                T[] items = new T[_collection.Count];
+                var items = new T[_collection.Count];
                 _collection.CopyTo(items, 0);
                 return items;
             }
