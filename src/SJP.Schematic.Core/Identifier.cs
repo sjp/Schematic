@@ -138,9 +138,19 @@ namespace SJP.Schematic.Core
                 result = new Identifier(localName);
 
             if (Cache.TryGetValue(identifierKey, out var reference) && !reference.TryGetTarget(out _))
+            {
                 reference.SetTarget(result);
+            }
             else
-                Cache.TryAdd(identifierKey, new WeakReference<Identifier>(result));
+            {
+                WeakReference<Identifier> addFactory(int _) => new WeakReference<Identifier>(result);
+                WeakReference<Identifier> updateFactory(int _, WeakReference<Identifier> oldValue)
+                {
+                    oldValue.SetTarget(result);
+                    return oldValue;
+                }
+                Cache.AddOrUpdate(identifierKey, addFactory, updateFactory);
+            }
 
             return result;
         }
