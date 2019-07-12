@@ -11,7 +11,7 @@ namespace SJP.Schematic.Core
             if (definition.IsNullOrWhiteSpace())
                 throw new ArgumentNullException(nameof(definition));
 
-            Name = checkName.Map(name => new Identifier(name.LocalName));
+            Name = checkName.Map(name => Identifier.CreateQualifiedIdentifier(name.LocalName));
             Definition = definition;
             IsEnabled = isEnabled;
         }
