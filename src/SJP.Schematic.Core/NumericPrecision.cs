@@ -4,7 +4,7 @@ using SJP.Schematic.Core.Utilities;
 
 namespace SJP.Schematic.Core
 {
-    public readonly struct NumericPrecision : INumericPrecision, IEquatable<INumericPrecision>
+    public readonly struct NumericPrecision : INumericPrecision, IEquatable<NumericPrecision>, IEquatable<INumericPrecision>
     {
         public NumericPrecision(int precision, int scale)
         {
@@ -26,8 +26,16 @@ namespace SJP.Schematic.Core
         {
             if (obj is NumericPrecision np)
                 return Equals(np);
+            if (obj is INumericPrecision inp)
+                return Equals(inp);
 
             return false;
+        }
+
+        public bool Equals(NumericPrecision other)
+        {
+            return Precision == other.Precision
+                && Scale == other.Scale;
         }
 
         public bool Equals(INumericPrecision other)
