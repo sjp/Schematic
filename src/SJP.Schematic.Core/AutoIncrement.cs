@@ -7,7 +7,7 @@ namespace SJP.Schematic.Core
     /// <summary>
     /// A description of an auto-incrementing sequence.
     /// </summary>
-    public readonly struct AutoIncrement : IAutoIncrement, IEquatable<IAutoIncrement>
+    public readonly struct AutoIncrement : IAutoIncrement, IEquatable<AutoIncrement>, IEquatable<IAutoIncrement>
     {
         /// <summary>
         /// Creates a description of an auto-incrementing sequence.
@@ -35,6 +35,12 @@ namespace SJP.Schematic.Core
         /// </summary>
         public decimal Increment { get; }
 
+        public bool Equals(AutoIncrement other)
+        {
+            return InitialValue == other.InitialValue
+                && Increment == other.Increment;
+        }
+
         public bool Equals(IAutoIncrement other)
         {
             if (other == null)
@@ -47,8 +53,10 @@ namespace SJP.Schematic.Core
         [EditorBrowsable(EditorBrowsableState.Never)]
         public override bool Equals(object obj)
         {
-            if (obj is IAutoIncrement ai)
+            if (obj is AutoIncrement ai)
                 return Equals(ai);
+            if (obj is IAutoIncrement iai)
+                return Equals(iai);
 
             return false;
         }
