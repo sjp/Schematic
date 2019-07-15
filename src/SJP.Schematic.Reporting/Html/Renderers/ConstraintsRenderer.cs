@@ -69,14 +69,14 @@ namespace SJP.Schematic.Reporting.Html.Renderers
                 foreignKeyViewModels,
                 checkConstraintViewModels
             );
-            var renderedConstraints = Formatter.RenderTemplate(templateParameter);
+            var renderedConstraints = await Formatter.RenderTemplateAsync(templateParameter).ConfigureAwait(false);
 
             var databaseName = !IdentifierDefaults.Database.IsNullOrWhiteSpace()
                 ? IdentifierDefaults.Database + " Database"
                 : "Database";
             var pageTitle = "Constraints · " + databaseName;
             var constraintsContainer = new Container(renderedConstraints, pageTitle, string.Empty);
-            var renderedPage = Formatter.RenderTemplate(constraintsContainer);
+            var renderedPage = await Formatter.RenderTemplateAsync(constraintsContainer).ConfigureAwait(false);
 
             if (!ExportDirectory.Exists)
                 ExportDirectory.Create();

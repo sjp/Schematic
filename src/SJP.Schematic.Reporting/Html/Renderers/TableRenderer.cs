@@ -108,14 +108,14 @@ namespace SJP.Schematic.Reporting.Html.Renderers
                             doc.Save(writer, SaveOptions.DisableFormatting);
                     }
 
-                    var renderedTable = Formatter.RenderTemplate(tableModel);
+                    var renderedTable = await Formatter.RenderTemplateAsync(tableModel).ConfigureAwait(false);
 
                     var databaseName = !IdentifierDefaults.Database.IsNullOrWhiteSpace()
                         ? IdentifierDefaults.Database + " Database"
                         : "Database";
                     var pageTitle = table.Name.ToVisibleName() + " · Table · " + databaseName;
                     var tableContainer = new Container(renderedTable, pageTitle, "../");
-                    var renderedPage = Formatter.RenderTemplate(tableContainer);
+                    var renderedPage = await Formatter.RenderTemplateAsync(tableContainer).ConfigureAwait(false);
 
                     using (var writer = File.CreateText(outputPath))
                     {

@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Threading;
+using System.Threading.Tasks;
 using EnumsNET;
 using RazorLight;
 
@@ -19,7 +21,7 @@ namespace SJP.Schematic.Reporting.Html
                 .Build();
         }
 
-        public string RenderTemplate<T>(T templateParameter) where T : ITemplateParameter
+        public Task<string> RenderTemplateAsync<T>(T templateParameter, CancellationToken cancellationToken = default) where T : ITemplateParameter
         {
             if (templateParameter == null)
                 throw new ArgumentNullException(nameof(templateParameter));
@@ -28,8 +30,8 @@ namespace SJP.Schematic.Reporting.Html
             if (!template.IsValid())
                 throw new ArgumentException($"The { nameof(ReportTemplate) } provided in the template parameter must be a valid enum.", nameof(templateParameter));
 
-            var path = template.ToString();
-            return _engine.CompileRenderAsync(path, templateParameter).GetAwaiter().GetResult();
+            var templatePath = template.ToString();
+            return _engine.CompileRenderAsync(templatePath, templateParameter);
         }
 
         private readonly RazorLightEngine _engine;

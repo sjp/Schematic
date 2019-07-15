@@ -49,14 +49,14 @@ namespace SJP.Schematic.Reporting.Html.Renderers
             var sequenceTasks = Sequences.Select(async sequence =>
             {
                 var viewModel = mapper.Map(sequence);
-                var renderedSequence = Formatter.RenderTemplate(viewModel);
+                var renderedSequence = await Formatter.RenderTemplateAsync(viewModel).ConfigureAwait(false);
 
                 var databaseName = !IdentifierDefaults.Database.IsNullOrWhiteSpace()
                     ? IdentifierDefaults.Database + " Database"
                     : "Database";
                 var pageTitle = sequence.Name.ToVisibleName() + " · Sequence · " + databaseName;
                 var sequenceContainer = new Container(renderedSequence, pageTitle, "../");
-                var renderedPage = Formatter.RenderTemplate(sequenceContainer);
+                var renderedPage = await Formatter.RenderTemplateAsync(sequenceContainer).ConfigureAwait(false);
 
                 var outputPath = Path.Combine(ExportDirectory.FullName, sequence.Name.ToSafeKey() + ".html");
                 if (!ExportDirectory.Exists)

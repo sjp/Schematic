@@ -44,14 +44,14 @@ namespace SJP.Schematic.Reporting.Html.Renderers
             var viewViewModels = Views.Select(mapper.Map).ToList();
 
             var viewsVm = new Views(viewViewModels);
-            var renderedMain = Formatter.RenderTemplate(viewsVm);
+            var renderedMain = await Formatter.RenderTemplateAsync(viewsVm).ConfigureAwait(false);
 
             var databaseName = !IdentifierDefaults.Database.IsNullOrWhiteSpace()
                 ? IdentifierDefaults.Database + " Database"
                 : "Database";
             var pageTitle = "Views · " + databaseName;
             var mainContainer = new Container(renderedMain, pageTitle, string.Empty);
-            var renderedPage = Formatter.RenderTemplate(mainContainer);
+            var renderedPage = await Formatter.RenderTemplateAsync(mainContainer).ConfigureAwait(false);
 
             if (!ExportDirectory.Exists)
                 ExportDirectory.Create();

@@ -54,14 +54,14 @@ namespace SJP.Schematic.Reporting.Html.Renderers
                 .ToList();
 
             var templateParameter = new Indexes(indexes);
-            var renderedIndexes = Formatter.RenderTemplate(templateParameter);
+            var renderedIndexes = await Formatter.RenderTemplateAsync(templateParameter).ConfigureAwait(false);
 
             var databaseName = !IdentifierDefaults.Database.IsNullOrWhiteSpace()
                 ? IdentifierDefaults.Database + " Database"
                 : "Database";
             var pageTitle = "Indexes · " + databaseName;
             var indexesContainer = new Container(renderedIndexes, pageTitle, string.Empty);
-            var renderedPage = Formatter.RenderTemplate(indexesContainer);
+            var renderedPage = await Formatter.RenderTemplateAsync(indexesContainer).ConfigureAwait(false);
 
             if (!ExportDirectory.Exists)
                 ExportDirectory.Create();
