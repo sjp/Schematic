@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -13,9 +14,14 @@ namespace SJP.Schematic.Reporting.Html
         {
             if (!template.IsValid())
                 throw new ArgumentException($"The { nameof(ReportTemplate) } provided must be a valid enum.", nameof(template));
+            if (Cache.TryGetValue(template, out var cachedTemplate))
+                return cachedTemplate;
 
             var resource = GetResource(template);
-            return GetResourceAsString(resource);
+            var templateStr = GetResourceAsString(resource);
+
+            Cache.TryAdd(template, templateStr);
+            return templateStr;
         }
 
         private static IFileInfo GetResource(ReportTemplate template)
@@ -40,6 +46,8 @@ namespace SJP.Schematic.Reporting.Html
             using (var reader = new StreamReader(stream))
                 return reader.ReadToEnd();
         }
+
+        private static readonly ConcurrentDictionary<ReportTemplate, string> Cache = new ConcurrentDictionary<ReportTemplate, string>();
 
         private static readonly IFileProvider _fileProvider = new EmbeddedFileProvider(Assembly.GetExecutingAssembly(), Assembly.GetExecutingAssembly().GetName().Name + ".Html.Templates");
         private const string TemplateExtension = ".cshtml";

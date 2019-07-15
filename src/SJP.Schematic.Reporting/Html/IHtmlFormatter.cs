@@ -1,7 +1,10 @@
-﻿namespace SJP.Schematic.Reporting.Html
+﻿using System.Threading;
+using System.Threading.Tasks;
+
+namespace SJP.Schematic.Reporting.Html
 {
     public interface IHtmlFormatter
     {
-        string RenderTemplate<T>(T templateParameter) where T : ITemplateParameter;
+        Task<string> RenderTemplateAsync<T>(T templateParameter, CancellationToken cancellationToken = default) where T : ITemplateParameter;
     }
 }

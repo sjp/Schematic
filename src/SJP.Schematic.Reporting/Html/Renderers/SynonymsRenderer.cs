@@ -69,14 +69,14 @@ namespace SJP.Schematic.Reporting.Html.Renderers
             var synonymViewModels = Synonyms.Select(s => mapper.Map(s, synonymTargets)).ToList();
             var synonymsVm = new Synonyms(synonymViewModels);
 
-            var renderedMain = Formatter.RenderTemplate(synonymsVm);
+            var renderedMain = await Formatter.RenderTemplateAsync(synonymsVm).ConfigureAwait(false);
 
             var databaseName = !IdentifierDefaults.Database.IsNullOrWhiteSpace()
                 ? IdentifierDefaults.Database + " Database"
                 : "Database";
             var pageTitle = "Synonyms · " + databaseName;
             var mainContainer = new Container(renderedMain, pageTitle, string.Empty);
-            var renderedPage = Formatter.RenderTemplate(mainContainer);
+            var renderedPage = await Formatter.RenderTemplateAsync(mainContainer).ConfigureAwait(false);
 
             if (!ExportDirectory.Exists)
                 ExportDirectory.Create();

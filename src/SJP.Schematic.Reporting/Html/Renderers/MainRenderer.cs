@@ -137,14 +137,14 @@ namespace SJP.Schematic.Reporting.Html.Renderers
                 routineViewModels
             );
 
-            var renderedMain = Formatter.RenderTemplate(templateParameter);
+            var renderedMain = await Formatter.RenderTemplateAsync(templateParameter).ConfigureAwait(false);
 
             var databaseName = !Database.IdentifierDefaults.Database.IsNullOrWhiteSpace()
                 ? Database.IdentifierDefaults.Database + " Database"
                 : "Database";
             var pageTitle = "Home · " + databaseName;
             var mainContainer = new Container(renderedMain, pageTitle, string.Empty);
-            var renderedPage = Formatter.RenderTemplate(mainContainer);
+            var renderedPage = await Formatter.RenderTemplateAsync(mainContainer).ConfigureAwait(false);
 
             if (!ExportDirectory.Exists)
                 ExportDirectory.Create();
