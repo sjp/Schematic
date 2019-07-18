@@ -205,7 +205,7 @@ where v.MVIEW_NAME = :ViewName
 
             return commentsData
                 .Where(c => c.ObjectType == Constants.View)
-                .Select(c => Option<string>.Some(c.Comment))
+                .Select(c => !c.Comment.IsNullOrWhiteSpace() ? Option<string>.Some(c.Comment) : Option<string>.None)
                 .FirstOrDefault();
         }
 
@@ -218,7 +218,7 @@ where v.MVIEW_NAME = :ViewName
                 .Where(c => c.ObjectType == Constants.Column)
                 .Select(c => new KeyValuePair<Identifier, Option<string>>(
                     Identifier.CreateQualifiedIdentifier(c.ColumnName),
-                    Option<string>.Some(c.Comment)
+                    !c.Comment.IsNullOrWhiteSpace() ? Option<string>.Some(c.Comment) : Option<string>.None
                 ))
                 .ToDictionary(c => c.Key, c => c.Value);
         }

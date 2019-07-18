@@ -160,7 +160,7 @@ where v.schema_id = SCHEMA_ID(@SchemaName) and v.name = @ViewName and v.is_ms_sh
 
             return commentsData
                 .Where(c => c.ObjectType == objectType)
-                .Select(c => Option<string>.Some(c.Comment))
+                .Select(c => !c.Comment.IsNullOrWhiteSpace() ? Option<string>.Some(c.Comment) : Option<string>.None)
                 .FirstOrDefault();
         }
 
@@ -175,9 +175,8 @@ where v.schema_id = SCHEMA_ID(@SchemaName) and v.name = @ViewName and v.is_ms_sh
                 .Where(c => c.ObjectType == objectType)
                 .Select(c => new KeyValuePair<Identifier, Option<string>>(
                     Identifier.CreateQualifiedIdentifier(c.ObjectName),
-                    Option<string>.Some(c.Comment)
-                ))
-                .ToDictionary(c => c.Key, c => c.Value);
+                    !c.Comment.IsNullOrWhiteSpace() ? Option<string>.Some(c.Comment) : Option<string>.None
+                )).ToDictionary(c => c.Key, c => c.Value);
         }
 
         protected Identifier QualifyViewName(Identifier viewName)

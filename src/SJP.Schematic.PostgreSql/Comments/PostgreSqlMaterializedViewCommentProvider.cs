@@ -177,7 +177,7 @@ where n.nspname = @SchemaName and c.relname = @ViewName
 
             return commentsData
                 .Where(c => c.ObjectType == objectType)
-                .Select(c => Option<string>.Some(c.Comment))
+                .Select(c => !c.Comment.IsNullOrWhiteSpace() ? Option<string>.Some(c.Comment) : Option<string>.None)
                 .FirstOrDefault();
         }
 
@@ -192,7 +192,7 @@ where n.nspname = @SchemaName and c.relname = @ViewName
                 .Where(c => c.ObjectType == objectType)
                 .Select(c => new KeyValuePair<Identifier, Option<string>>(
                     Identifier.CreateQualifiedIdentifier(c.ObjectName),
-                    Option<string>.Some(c.Comment)
+                    !c.Comment.IsNullOrWhiteSpace() ? Option<string>.Some(c.Comment) : Option<string>.None
                 ))
                 .ToDictionary(c => c.Key, c => c.Value);
         }

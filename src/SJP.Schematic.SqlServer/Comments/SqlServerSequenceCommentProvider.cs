@@ -137,7 +137,7 @@ where s.schema_id = SCHEMA_ID(@SchemaName) and s.name = @SequenceName and s.is_m
 
             return commentsData
                 .Where(c => c.ObjectType == objectType)
-                .Select(c => Option<string>.Some(c.Comment))
+                .Select(c => !c.Comment.IsNullOrWhiteSpace() ? Option<string>.Some(c.Comment) : Option<string>.None)
                 .FirstOrDefault();
         }
 
