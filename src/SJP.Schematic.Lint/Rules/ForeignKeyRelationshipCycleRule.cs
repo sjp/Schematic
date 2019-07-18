@@ -21,26 +21,10 @@ namespace SJP.Schematic.Lint.Rules
             if (tables == null)
                 throw new ArgumentNullException(nameof(tables));
 
-            var graph = new Multigraph<Identifier, IDatabaseRelationalKey>();
-            graph.AddVertices(tables.Select(t => t.Name));
+            var cycleDetector = new CycleDetector();
+            var cycles = cycleDetector.GetCyclePaths(tables.ToList());
 
-            var foreignKeys = tables
-                .SelectMany(t => t.ParentKeys)
-                .Where(fk => fk.ChildTable != fk.ParentTable)
-                .ToList();
-            foreach (var foreignKey in foreignKeys)
-                graph.AddEdge(foreignKey.ChildTable, foreignKey.ParentTable, foreignKey);
-
-            try
-            {
-                graph.TopologicalSort();
-                return Array.Empty<IRuleMessage>();
-            }
-            catch (Exception ex)
-            {
-                var message = BuildMessage(ex.Message);
-                return new[] { message };
-            }
+            return cycles.Select(BuildMessage).ToList();
         }
 
         public Task<IEnumerable<IRuleMessage>> AnalyseTablesAsync(IEnumerable<IRelationalDatabaseTable> tables, CancellationToken cancellationToken = default)
@@ -52,12 +36,17 @@ namespace SJP.Schematic.Lint.Rules
             return Task.FromResult(messages);
         }
 
-        protected virtual IRuleMessage BuildMessage(string exceptionMessage)
+        protected virtual IRuleMessage BuildMessage(IReadOnlyCollection<Identifier> cyclePath)
         {
-            if (exceptionMessage.IsNullOrWhiteSpace())
-                throw new ArgumentNullException(nameof(exceptionMessage));
+            if (cyclePath == null)
+                throw new ArgumentNullException(nameof(cyclePath));
 
-            return new RuleMessage(RuleTitle, Level, exceptionMessage);
+            var tableNames = cyclePath
+                .Select(name => Identifier.CreateQualifiedIdentifier(name.Schema, name.LocalName).ToString())
+                .Join(" -> ");
+            var message = "Cycle found for the following path: " + tableNames;
+
+            return new RuleMessage(RuleTitle, Level, message);
         }
 
         protected static string RuleTitle { get; } = "Foreign key relationships contain a cycle.";

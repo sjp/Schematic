@@ -1,5 +1,8 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Web;
+using SJP.Schematic.Core;
 using SJP.Schematic.Core.Extensions;
 using SJP.Schematic.Lint;
 
@@ -12,12 +15,22 @@ namespace SJP.Schematic.Reporting.Html.Lint.Rules
         {
         }
 
-        protected override IRuleMessage BuildMessage(string exceptionMessage)
+        protected override IRuleMessage BuildMessage(IReadOnlyCollection<Identifier> cyclePath)
         {
-            if (exceptionMessage.IsNullOrWhiteSpace())
-                throw new ArgumentNullException(nameof(exceptionMessage));
+            if (cyclePath == null)
+                throw new ArgumentNullException(nameof(cyclePath));
 
-            return new RuleMessage(RuleTitle, Level, HttpUtility.HtmlEncode(exceptionMessage));
+            var tableNames = cyclePath
+                .Select(tableName =>
+                {
+                    var tableUrl = UrlRouter.GetTableUrl(tableName);
+                    return $"<a href=\"{ tableUrl }\">{ HttpUtility.HtmlEncode(tableName.ToVisibleName()) }</a>";
+
+                })
+                .Join(" &rarr; ");
+            var message = "Cycle found for the following path: " + tableNames;
+
+            return new RuleMessage(RuleTitle, Level, message);
         }
     }
 }

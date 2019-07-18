@@ -21,18 +21,24 @@ create table cycle_table_1 (
     constraint test_fk_1 foreign key (column_2) references cycle_table_2 (column_1)
 )").ConfigureAwait(false);
             await Connection.ExecuteAsync(@"
-create table cycle_table_2 (
-    column_1 integer not null primary key autoincrement,
-    column_2 integer,
-    constraint test_fk_1 foreign key (column_2) references cycle_table_3 (column_1)
-)").ConfigureAwait(false);
-            await Connection.ExecuteAsync(@"
 create table cycle_table_3 (
     column_1 integer not null primary key autoincrement,
     column_2 integer,
     constraint test_fk_1 foreign key (column_2) references cycle_table_1 (column_1)
 )").ConfigureAwait(false);
-
+            await Connection.ExecuteAsync(@"
+create table cycle_table_4 (
+    column_1 integer not null primary key autoincrement,
+    column_2 integer,
+    constraint test_fk_1 foreign key (column_2) references cycle_table_1 (column_1)
+)").ConfigureAwait(false);
+            await Connection.ExecuteAsync(@"
+create table cycle_table_2 (
+    column_1 integer not null primary key autoincrement,
+    column_2 integer,
+    constraint test_fk_1 foreign key (column_2) references cycle_table_3 (column_1)
+    constraint test_fk_2 foreign key (column_2) references cycle_table_4 (column_1)
+)").ConfigureAwait(false);
             await Connection.ExecuteAsync("create table no_cycle_table_1 ( column_1 integer not null primary key autoincrement )").ConfigureAwait(false);
             await Connection.ExecuteAsync(@"
 create table no_cycle_table_2 (
@@ -47,9 +53,10 @@ create table no_cycle_table_2 (
         [OneTimeTearDown]
         public async Task CleanUp()
         {
-            await Connection.ExecuteAsync("drop table cycle_table_1").ConfigureAwait(false);
-            await Connection.ExecuteAsync("drop table cycle_table_2").ConfigureAwait(false);
+            await Connection.ExecuteAsync("drop table cycle_table_4").ConfigureAwait(false);
             await Connection.ExecuteAsync("drop table cycle_table_3").ConfigureAwait(false);
+            await Connection.ExecuteAsync("drop table cycle_table_2").ConfigureAwait(false);
+            await Connection.ExecuteAsync("drop table cycle_table_1").ConfigureAwait(false);
         }
 
         [Test]
@@ -135,7 +142,8 @@ create table no_cycle_table_2 (
             {
                 await database.GetTable("cycle_table_1").UnwrapSomeAsync().ConfigureAwait(false),
                 await database.GetTable("cycle_table_2").UnwrapSomeAsync().ConfigureAwait(false),
-                await database.GetTable("cycle_table_3").UnwrapSomeAsync().ConfigureAwait(false)
+                await database.GetTable("cycle_table_3").UnwrapSomeAsync().ConfigureAwait(false),
+                await database.GetTable("cycle_table_4").UnwrapSomeAsync().ConfigureAwait(false)
             };
 
             var messages = await rule.AnalyseTablesAsync(tables).ConfigureAwait(false);
