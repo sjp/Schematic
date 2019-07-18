@@ -139,7 +139,7 @@ where r.schema_id = SCHEMA_ID(@SchemaName) and r.name = @RoutineName and r.is_ms
 
             return commentsData
                 .Where(c => c.ObjectType == objectType)
-                .Select(c => Option<string>.Some(c.Comment))
+                .Select(c => !c.Comment.IsNullOrWhiteSpace() ? Option<string>.Some(c.Comment) : Option<string>.None)
                 .FirstOrDefault();
         }
 

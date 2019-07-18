@@ -659,7 +659,7 @@ where ac.OWNER = :SchemaName and ac.TABLE_NAME = :TableName and ac.CONSTRAINT_TY
                 var isNullable = !notNullableColumnNames.Contains(row.ColumnName);
                 var isComputed = row.IsComputed == Constants.Yes;
                 var columnName = Identifier.CreateQualifiedIdentifier(row.ColumnName);
-                var computedColumnDefinition = isComputed
+                var computedColumnDefinition = isComputed && !row.DefaultValue.IsNullOrWhiteSpace()
                     ? Option<string>.Some(row.DefaultValue)
                     : Option<string>.None;
                 var defaultValue = !row.DefaultValue.IsNullOrWhiteSpace()
