@@ -124,7 +124,8 @@ create table no_cycle_table_2 (
             {
                 database.GetTable("cycle_table_1").UnwrapSomeAsync().GetAwaiter().GetResult(),
                 database.GetTable("cycle_table_2").UnwrapSomeAsync().GetAwaiter().GetResult(),
-                database.GetTable("cycle_table_3").UnwrapSomeAsync().GetAwaiter().GetResult()
+                database.GetTable("cycle_table_3").UnwrapSomeAsync().GetAwaiter().GetResult(),
+                database.GetTable("cycle_table_4").UnwrapSomeAsync().GetAwaiter().GetResult()
             };
 
             var messages = rule.AnalyseTables(tables);
