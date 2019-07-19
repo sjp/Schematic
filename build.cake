@@ -98,7 +98,7 @@ Task("Run-Unit-Tests")
                 if (reportCoverage)
                 {
                     var coverageReport = GetFiles(tempDirectory + "/**/coverage.xml").First().FullPath;
-                    Codecov(coverageReport);
+                    //Codecov(coverageReport);
                 }
             }
         }
