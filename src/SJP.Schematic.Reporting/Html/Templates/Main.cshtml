@@ -157,8 +157,12 @@
     <div class="row">
         <div class="col-12">
             <div class="card">
-                <div class="card-header">
+                <div class="card-header d-flex">
                     <h3 class="card-title"><i class="fa fa-table" aria-hidden="true">&nbsp;&nbsp;</i>Tables</h3>
+                    <ul class="nav nav-pills ml-auto p-0">
+                        <li class="nav-item"><a class="nav-link" href="insertion-order.sql">Insertion Order</a></li>
+                        <li class="nav-item"><a class="nav-link" href="deletion-order.sql">Deletion Order</a></li>
+                    </ul>
                 </div>
                 <div class="card-body">
                     <table class="@Raw(Model.TablesTableClass.ToHtmlString()) table table-bordered table-hover" role="grid" style="width:100%">
