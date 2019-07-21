@@ -11,9 +11,6 @@ namespace SJP.Schematic.Core.Utilities
     /// </summary>
     public class CycleDetector
     {
-        private IList<IEdge<Identifier>> _examinedEdges;
-        private List<IReadOnlyCollection<Identifier>> _cycles;
-
         public IReadOnlyCollection<IReadOnlyCollection<Identifier>> GetCyclePaths(IReadOnlyCollection<IRelationalDatabaseTable> tables)
         {
             if (tables == null)
@@ -40,34 +37,35 @@ namespace SJP.Schematic.Core.Utilities
             if (graph == null)
                 throw new ArgumentNullException(nameof(graph));
 
-            _examinedEdges = new List<IEdge<Identifier>>();
-            _cycles = new List<IReadOnlyCollection<Identifier>>();
+            var examinedEdges = new List<IEdge<Identifier>>();
+            var cycles = new List<IReadOnlyCollection<Identifier>>();
             var dfs = new DepthFirstSearchAlgorithm<Identifier, SEquatableEdge<Identifier>>(graph);
+
+            void onExamineEdge(SEquatableEdge<Identifier> e) => examinedEdges.Add(e);
+            void onCyclingEdgeFound(SEquatableEdge<Identifier> e) => OnCyclingEdgeFound(examinedEdges, cycles, e);
 
             try
             {
-                dfs.ExamineEdge += OnExamineEdge;
-                dfs.BackEdge += OnCyclingEdgeFound;
+                dfs.ExamineEdge += onExamineEdge;
+                dfs.BackEdge += onCyclingEdgeFound;
                 dfs.Compute();
-                return _cycles;
+                return cycles;
             }
             finally
             {
-                dfs.ExamineEdge -= OnExamineEdge;
-                dfs.BackEdge -= OnCyclingEdgeFound;
+                dfs.ExamineEdge -= onExamineEdge;
+                dfs.BackEdge -= onCyclingEdgeFound;
             }
         }
 
-        private void OnExamineEdge(SEquatableEdge<Identifier> e) => _examinedEdges.Add(e);
-
-        private void OnCyclingEdgeFound(SEquatableEdge<Identifier> e)
+        private static void OnCyclingEdgeFound(IEnumerable<IEdge<Identifier>> examinedEdges, ICollection<IReadOnlyCollection<Identifier>> cycles, SEquatableEdge<Identifier> e)
         {
             var startingNode = e.Target;
             var nextNode = e.Source;
 
             var knownNodes = new List<Identifier> { startingNode, nextNode };
 
-            var edges = _examinedEdges.Reverse().Skip(1); // skipping first edge because that's the back edge
+            var edges = examinedEdges.Reverse().Skip(1); // skipping first edge because that's the back edge
             foreach (var edge in edges)
             {
                 if (edge.Target != nextNode)
@@ -81,10 +79,34 @@ namespace SJP.Schematic.Core.Utilities
                 else
                 {
                     knownNodes.Reverse();
-                    _cycles.Add(knownNodes);
+                    if (!ContainsCycle(cycles, knownNodes))
+                        cycles.Add(knownNodes);
                     return;
                 }
             }
+        }
+
+        private static bool ContainsCycle(IEnumerable<IReadOnlyCollection<Identifier>> existingCycles, IReadOnlyCollection<Identifier> newCycle)
+        {
+            if (existingCycles == null)
+                throw new ArgumentNullException(nameof(existingCycles));
+            if (newCycle == null)
+                throw new ArgumentNullException(nameof(newCycle));
+
+            return existingCycles.Any(ec => CyclesEqual(ec, newCycle));
+        }
+
+        private static bool CyclesEqual(IReadOnlyCollection<Identifier> existingCycle, IReadOnlyCollection<Identifier> newCycle)
+        {
+            if (existingCycle == null)
+                throw new ArgumentNullException(nameof(existingCycle));
+            if (newCycle == null)
+                throw new ArgumentNullException(nameof(newCycle));
+
+            var orderedExisting = existingCycle.OrderBy(name => name).Distinct().ToList();
+            var orderedNewCycle = newCycle.OrderBy(name => name).Distinct().ToList();
+
+            return orderedExisting.SequenceEqual(orderedNewCycle);
         }
     }
 }
