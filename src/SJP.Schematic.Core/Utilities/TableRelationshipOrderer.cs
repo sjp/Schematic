@@ -9,7 +9,7 @@ namespace SJP.Schematic.Core.Utilities
 {
     public class TableRelationshipOrderer
     {
-        public TableRelationshipOrderer(IReadOnlyCollection<IRelationalDatabaseTable> tables)
+        public IReadOnlyCollection<Identifier> GetDeletionOrder(IReadOnlyCollection<IRelationalDatabaseTable> tables)
         {
             if (tables == null)
                 throw new ArgumentNullException(nameof(tables));
@@ -25,24 +25,19 @@ namespace SJP.Schematic.Core.Utilities
             foreach (var foreignKey in foreignKeys)
                 graph.AddEdge(new SEquatableEdge<Identifier>(foreignKey.ChildTable, foreignKey.ParentTable));
 
-            _deletionOrderer = new Lazy<IReadOnlyCollection<Identifier>>(() => BuildDeletionOrder(graph));
-            _insertionSorter = new Lazy<IReadOnlyCollection<Identifier>>(() => _deletionOrderer.Value.Reverse().ToList());
-        }
-
-        public IReadOnlyCollection<Identifier> DeletionOrder => _deletionOrderer.Value;
-
-        public IReadOnlyCollection<Identifier> InsertionOrder => _insertionSorter.Value;
-
-        private static IReadOnlyCollection<Identifier> BuildDeletionOrder(IVertexListGraph<Identifier, SEquatableEdge<Identifier>> graph)
-        {
             var topologicalSorter = new TopologicalSortingAlgorithm<Identifier, SEquatableEdge<Identifier>>(graph);
             topologicalSorter.Compute();
 
             return topologicalSorter.SortedVertices.Distinct().ToList();
         }
 
-        private readonly Lazy<IReadOnlyCollection<Identifier>> _deletionOrderer;
-        private readonly Lazy<IReadOnlyCollection<Identifier>> _insertionSorter;
+        public IReadOnlyCollection<Identifier> GetInsertionOrder(IReadOnlyCollection<IRelationalDatabaseTable> tables)
+        {
+            if (tables == null)
+                throw new ArgumentNullException(nameof(tables));
+
+            return GetDeletionOrder(tables).Reverse().ToList();
+        }
     }
 
     /// <summary>
