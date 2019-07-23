@@ -37,6 +37,8 @@ namespace SJP.Schematic.Modelled.Reflection.Tests.Fakes
             return pieces.Join(".");
         }
 
+        public IDependencyProvider GetDependencyProvider() => new EmptyDependencyProvider();
+
         public string QuoteIdentifier(string identifier)
         {
             if (identifier.IsNullOrWhiteSpace())

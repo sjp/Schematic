@@ -166,6 +166,8 @@ where PRODUCT like 'Oracle Database%'";
             return Keywords.Contains(text);
         }
 
+        public override IDependencyProvider GetDependencyProvider() => new OracleDependencyProvider();
+
         public override IDbTypeProvider TypeProvider => InnerTypeProvider;
 
         private static readonly IDbTypeProvider InnerTypeProvider = new OracleDbTypeProvider();
