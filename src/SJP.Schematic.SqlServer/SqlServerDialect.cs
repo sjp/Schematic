@@ -117,6 +117,8 @@ select
             return "SELECT " + propNames;
         }
 
+        public override IDependencyProvider GetDependencyProvider() => new SqlServerDependencyProvider();
+
         public override bool IsReservedKeyword(string text)
         {
             if (text.IsNullOrWhiteSpace())

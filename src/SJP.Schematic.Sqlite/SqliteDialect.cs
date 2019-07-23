@@ -66,6 +66,8 @@ namespace SJP.Schematic.Sqlite
         public override Task<IRelationalDatabaseCommentProvider> GetRelationalDatabaseCommentProviderAsync(CancellationToken cancellationToken = default)
             => Task.FromResult<IRelationalDatabaseCommentProvider>(new EmptyRelationalDatabaseCommentProvider());
 
+        public override IDependencyProvider GetDependencyProvider() => new SqliteDependencyProvider();
+
         public override bool IsReservedKeyword(string text)
         {
             if (text.IsNullOrWhiteSpace())

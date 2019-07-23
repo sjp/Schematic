@@ -48,6 +48,9 @@ namespace SJP.Schematic.Core
 
         public abstract IDbTypeProvider TypeProvider { get; }
 
+        public virtual IDependencyProvider GetDependencyProvider() => _emptyDependencyProvider;
+        private static readonly IDependencyProvider _emptyDependencyProvider = new EmptyDependencyProvider();
+
         public abstract Task<IIdentifierDefaults> GetIdentifierDefaultsAsync(CancellationToken cancellationToken = default);
 
         public abstract Task<Version> GetDatabaseVersionAsync(CancellationToken cancellationToken = default);

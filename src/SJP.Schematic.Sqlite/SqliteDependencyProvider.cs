@@ -2,26 +2,19 @@
 using System.Collections.Generic;
 using SJP.Schematic.Core;
 using SJP.Schematic.Core.Extensions;
-using SJP.Schematic.Oracle.Parsing;
+using SJP.Schematic.Sqlite.Parsing;
 
-namespace SJP.Schematic.Oracle
+namespace SJP.Schematic.Sqlite
 {
-    public sealed class OracleDependencyProvider : IDependencyProvider
+    public sealed class SqliteDependencyProvider : IDependencyProvider
     {
-        public OracleDependencyProvider(IEqualityComparer<Identifier> comparer = null)
+        public SqliteDependencyProvider(IEqualityComparer<Identifier> comparer = null)
         {
-            Comparer = comparer ?? IdentifierComparer.Ordinal;
+            Comparer = comparer ?? IdentifierComparer.OrdinalIgnoreCase;
         }
 
         private IEqualityComparer<Identifier> Comparer { get; }
 
-        /// <summary>
-        /// Retrieves all dependencies for an expression.
-        /// </summary>
-        /// <param name="objectName">The name of an object defined by an expression (e.g. a computed column definition).</param>
-        /// <param name="expression">A SQL expression that may contain dependent object names.</param>
-        /// <returns>A collection of identifiers found in the expression.</returns>
-        /// <remarks>This will also return unqualified identifiers, which may cause ambiguity between object names and column names. Additionally it may return other identifiers, such as aliases or type names.</remarks>
         public IReadOnlyCollection<Identifier> GetDependencies(Identifier objectName, string expression)
         {
             if (objectName == null)
@@ -29,7 +22,7 @@ namespace SJP.Schematic.Oracle
             if (expression.IsNullOrWhiteSpace())
                 throw new ArgumentNullException(nameof(expression));
 
-            var tokenizer = new OracleTokenizer();
+            var tokenizer = new SqliteTokenizer();
 
             var tokenizeResult = tokenizer.TryTokenize(expression);
             if (!tokenizeResult.HasValue)
@@ -42,7 +35,7 @@ namespace SJP.Schematic.Oracle
             var next = tokens.ConsumeToken();
             while (next.HasValue)
             {
-                var sqlIdentifier = OracleTokenParsers.QualifiedName(next.Location);
+                var sqlIdentifier = SqliteTokenParsers.QualifiedName(next.Location);
                 if (sqlIdentifier.HasValue)
                 {
                     var dependentIdentifier = sqlIdentifier.Value;
