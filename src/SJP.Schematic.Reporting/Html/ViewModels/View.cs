@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using LanguageExt;
 using SJP.Schematic.Core;
+using SJP.Schematic.Core.Extensions;
 
 namespace SJP.Schematic.Reporting.Html.ViewModels
 {
@@ -14,11 +16,14 @@ namespace SJP.Schematic.Reporting.Html.ViewModels
             Identifier viewName,
             string rootPath,
             string definition,
-            IEnumerable<Column> columns
+            IEnumerable<Column> columns,
+            IEnumerable<HtmlString> referencedObjects
         )
         {
             if (viewName == null)
                 throw new ArgumentNullException(nameof(viewName));
+            if (referencedObjects == null)
+                throw new ArgumentNullException(nameof(referencedObjects));
 
             Name = viewName.ToVisibleName();
             ViewUrl = viewName.ToSafeKey();
@@ -28,6 +33,11 @@ namespace SJP.Schematic.Reporting.Html.ViewModels
             Columns = columns ?? throw new ArgumentNullException(nameof(columns));
             ColumnsCount = columns.UCount();
             ColumnsTableClass = ColumnsCount > 0 ? CssClasses.DataTableClass : string.Empty;
+
+            ReferencedObjects = new HtmlString(
+                referencedObjects.Select(ro => ro.ToHtmlString()).Join(", ")
+            );
+            ReferencedObjectsCount = referencedObjects.UCount();
         }
 
         public ReportTemplate Template { get; } = ReportTemplate.View;
@@ -45,6 +55,10 @@ namespace SJP.Schematic.Reporting.Html.ViewModels
         public uint ColumnsCount { get; }
 
         public HtmlString ColumnsTableClass { get; }
+
+        public uint ReferencedObjectsCount { get; }
+
+        public HtmlString ReferencedObjects { get; }
 
         /// <summary>
         /// Internal. Not intended to be used outside of this assembly. Only required for templating.

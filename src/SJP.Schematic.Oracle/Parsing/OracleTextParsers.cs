@@ -10,24 +10,54 @@ namespace SJP.Schematic.Oracle.Parsing
             Span.EqualTo("0x")
                 .IgnoreThen(Numerics.HexDigits.Select(_ => _.ToStringValue()));
 
+        public static TextParser<string> SquareQuotedString { get; } =
+            Character.EqualToIgnoreCase('q').IgnoreThen(Span.EqualTo("'["))
+                .IgnoreThen(Character.Except(']').Many())
+                .Then(s => Span.EqualTo("]'").Value(new string(s)));
+
+        public static TextParser<string> BraceQuotedString { get; } =
+            Character.EqualToIgnoreCase('q').IgnoreThen(Span.EqualTo("'{"))
+                .IgnoreThen(Character.Except('}').Many())
+                .Then(s => Span.EqualTo("}'").Value(new string(s)));
+
+        public static TextParser<string> ParenQuotedString { get; } =
+            Character.EqualToIgnoreCase('q').IgnoreThen(Span.EqualTo("'("))
+                .IgnoreThen(Character.Except(')').Many())
+                .Then(s => Span.EqualTo(")'").Value(new string(s)));
+
+        public static TextParser<string> AngleQuotedString { get; } =
+            Character.EqualToIgnoreCase('q').IgnoreThen(Span.EqualTo("'<"))
+                .IgnoreThen(Character.Except('>').Many())
+                .Then(s => Span.EqualTo(">'").Value(new string(s)));
+
+        public static TextParser<string> GenericQuotedString { get; } =
+            Character.EqualToIgnoreCase('q').IgnoreThen(Character.EqualTo('\''))
+                .IgnoreThen(Character.AnyChar)
+                .Then(escapeChar => Character.Except(escapeChar).Many())
+                .Then(s => Character.EqualTo('\'').Value(new string(s)));
+
         public static TextParser<char> SqlStringContentChar { get; } =
             Span.EqualTo("''").Value('\'').Try().Or(Character.ExceptIn('\''));
 
         public static TextParser<string> SqlString { get; } =
-            Character.EqualToIgnoreCase('N').IgnoreThen(Character.EqualTo('\''))
-                .Try().Or(Character.EqualTo('\''))
+            Character.EqualTo('\'')
                 .IgnoreThen(SqlStringContentChar.Many())
                 .Then(s => Character.EqualTo('\'').Value(new string(s)));
+
+        public static TextParser<string> OracleString { get; } =
+            SquareQuotedString
+                .Try().Or(BraceQuotedString)
+                .Try().Or(ParenQuotedString)
+                .Try().Or(AngleQuotedString)
+                .Try().Or(GenericQuotedString)
+                .Try().Or(SqlString);
 
         public static TextParser<string> SqlComment { get; } =
             Comment.CStyle.Or(Comment.SqlStyle).Select(_ => _.ToStringValue());
 
-        public static TextParser<TextSpan> Real { get; } =
-            Numerics.Decimal;
+        public static TextParser<TextSpan> Integer { get; } = Numerics.Integer;
 
-        public static TextParser<TextSpan> Money { get; } =
-            Character.EqualTo('$')
-                .IgnoreThen(Numerics.Decimal);
+        public static TextParser<TextSpan> Real { get; } = Numerics.Decimal;
 
         private static readonly TextParser<OracleToken> StringConcat = Span.EqualTo("||").Value(OracleToken.StringConcat);
         private static readonly TextParser<OracleToken> LessOrEqual = Span.EqualTo("<=").Value(OracleToken.LessThanOrEqual);
@@ -44,6 +74,9 @@ namespace SJP.Schematic.Oracle.Parsing
         private static readonly TextParser<OracleToken> BitwiseOrEqual = Span.EqualTo("|=").Value(OracleToken.BitwiseOrEqual);
         private static readonly TextParser<OracleToken> BitwiseXorEqual = Span.EqualTo("^=").Value(OracleToken.BitwiseXorEqual);
         private static readonly TextParser<OracleToken> Scope = Span.EqualTo("::").Value(OracleToken.Scope);
+        private static readonly TextParser<OracleToken> Association = Span.EqualTo("=>").Value(OracleToken.Association);
+        private static readonly TextParser<OracleToken> Assignment = Span.EqualTo(":=").Value(OracleToken.Assignment);
+        private static readonly TextParser<OracleToken> Range = Span.EqualTo("..").Value(OracleToken.Range);
 
         public static TextParser<OracleToken> CompoundOperator { get; } =
             GreaterOrEqual
@@ -60,6 +93,9 @@ namespace SJP.Schematic.Oracle.Parsing
                 .Try().Or(BitwiseAndEqual)
                 .Try().Or(BitwiseOrEqual)
                 .Try().Or(BitwiseXorEqual)
-                .Try().Or(Scope);
+                .Try().Or(Scope)
+                .Try().Or(Association)
+                .Try().Or(Assignment)
+                .Try().Or(Range);
     }
 }

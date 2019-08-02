@@ -84,4 +84,24 @@
             </div>
         </div>
     </div>
+    @if (Model.ReferencedObjectsCount > 0)
+    {
+        <div class="row">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title"><i class="fa fa-code-fork" aria-hidden="true">&nbsp;&nbsp;</i>Possibly Referenced Objects</h3>
+                        <div class="card-tools">
+                            <button type="button" class="btn btn-tool" data-widget="collapse">
+                                <i class="fa fa-minus" aria-hidden="true"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        @Raw(Model.ReferencedObjects.ToHtmlString())
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
 </section>

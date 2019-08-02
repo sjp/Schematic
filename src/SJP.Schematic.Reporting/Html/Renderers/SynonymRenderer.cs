@@ -16,33 +16,18 @@ namespace SJP.Schematic.Reporting.Html.Renderers
         public SynonymRenderer(
             IIdentifierDefaults identifierDefaults,
             IHtmlFormatter formatter,
-            IReadOnlyCollection<IRelationalDatabaseTable> tables,
-            IReadOnlyCollection<IDatabaseView> views,
-            IReadOnlyCollection<IDatabaseSequence> sequences,
             IReadOnlyCollection<IDatabaseSynonym> synonyms,
-            IReadOnlyCollection<IDatabaseRoutine> routines,
+            SynonymTargets synonymTargets,
             DirectoryInfo exportDirectory
         )
         {
-            if (tables == null || tables.AnyNull())
-                throw new ArgumentNullException(nameof(tables));
-            if (views == null || views.AnyNull())
-                throw new ArgumentNullException(nameof(views));
-            if (sequences == null || sequences.AnyNull())
-                throw new ArgumentNullException(nameof(sequences));
             if (synonyms == null || synonyms.AnyNull())
                 throw new ArgumentNullException(nameof(synonyms));
-            if (routines == null || routines.AnyNull())
-                throw new ArgumentNullException(nameof(routines));
-
-            Tables = tables;
-            Views = views;
-            Sequences = sequences;
-            Synonyms = synonyms;
-            Routines = routines;
 
             IdentifierDefaults = identifierDefaults ?? throw new ArgumentNullException(nameof(identifierDefaults));
             Formatter = formatter ?? throw new ArgumentNullException(nameof(formatter));
+            Synonyms = synonyms ?? throw new ArgumentNullException(nameof(synonyms));
+            SynonymTargets = synonymTargets ?? throw new ArgumentNullException(nameof(synonymTargets));
 
             if (exportDirectory == null)
                 throw new ArgumentNullException(nameof(exportDirectory));
@@ -54,15 +39,9 @@ namespace SJP.Schematic.Reporting.Html.Renderers
 
         private IHtmlFormatter Formatter { get; }
 
-        private IReadOnlyCollection<IRelationalDatabaseTable> Tables { get; }
-
-        private IReadOnlyCollection<IDatabaseView> Views { get; }
-
-        private IReadOnlyCollection<IDatabaseSequence> Sequences { get; }
-
         private IReadOnlyCollection<IDatabaseSynonym> Synonyms { get; }
 
-        private IReadOnlyCollection<IDatabaseRoutine> Routines { get; }
+        private SynonymTargets SynonymTargets { get; }
 
         private DirectoryInfo ExportDirectory { get; }
 
@@ -70,16 +49,9 @@ namespace SJP.Schematic.Reporting.Html.Renderers
         {
             var mapper = new SynonymModelMapper();
 
-            var synonymTargets = new SynonymTargets(
-                Tables,
-                Views,
-                Sequences,
-                Synonyms,
-                Routines
-            );
             var synonymTasks = Synonyms.Select(async synonym =>
             {
-                var viewModel = mapper.Map(synonym, synonymTargets);
+                var viewModel = mapper.Map(synonym, SynonymTargets);
                 var renderedSynonym = await Formatter.RenderTemplateAsync(viewModel).ConfigureAwait(false);
 
                 var databaseName = !IdentifierDefaults.Database.IsNullOrWhiteSpace()

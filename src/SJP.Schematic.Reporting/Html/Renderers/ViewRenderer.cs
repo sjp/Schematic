@@ -17,6 +17,7 @@ namespace SJP.Schematic.Reporting.Html.Renderers
             IIdentifierDefaults identifierDefaults,
             IHtmlFormatter formatter,
             IReadOnlyCollection<IDatabaseView> views,
+            ReferencedObjectTargets referencedObjectTargets,
             DirectoryInfo exportDirectory
         )
         {
@@ -27,6 +28,7 @@ namespace SJP.Schematic.Reporting.Html.Renderers
 
             IdentifierDefaults = identifierDefaults ?? throw new ArgumentNullException(nameof(identifierDefaults));
             Formatter = formatter ?? throw new ArgumentNullException(nameof(formatter));
+            ReferencedObjectTargets = referencedObjectTargets ?? throw new ArgumentNullException(nameof(referencedObjectTargets));
 
             if (exportDirectory == null)
                 throw new ArgumentNullException(nameof(exportDirectory));
@@ -40,6 +42,8 @@ namespace SJP.Schematic.Reporting.Html.Renderers
 
         private IReadOnlyCollection<IDatabaseView> Views { get; }
 
+        private ReferencedObjectTargets ReferencedObjectTargets { get; }
+
         private DirectoryInfo ExportDirectory { get; }
 
         public Task RenderAsync(CancellationToken cancellationToken = default)
@@ -48,7 +52,7 @@ namespace SJP.Schematic.Reporting.Html.Renderers
 
             var viewTasks = Views.Select(async view =>
             {
-                var viewModel = mapper.Map(view);
+                var viewModel = mapper.Map(view, ReferencedObjectTargets);
                 var renderedView = await Formatter.RenderTemplateAsync(viewModel).ConfigureAwait(false);
 
                 var databaseName = !IdentifierDefaults.Database.IsNullOrWhiteSpace()

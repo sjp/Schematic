@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using SJP.Schematic.Core.Extensions;
 using Superpower;
 using Superpower.Model;
@@ -50,9 +51,22 @@ namespace SJP.Schematic.Oracle.Parsing
                     {
                         var real = OracleTextParsers.Real(next.Location);
                         if (!real.HasValue)
-                            yield return Result.CastEmpty<TextSpan, OracleToken>(real);
+                        {
+                            // handle case where this could be a for loop
+                            // e.g. 1..10
+                            var integer = OracleTextParsers.Integer(next.Location);
+                            if (!integer.HasValue)
+                                yield return Result.CastEmpty<TextSpan, OracleToken>(integer);
+                            else
+                                yield return Result.Value(OracleToken.Number, integer.Location, integer.Remainder);
+                        }
                         else
+                        {
                             yield return Result.Value(OracleToken.Number, real.Location, real.Remainder);
+                            next = real.Remainder.ConsumeChar();
+                            next = SkipWhiteSpace(next.Location);
+                            continue;
+                        }
 
                         next = real.Remainder.ConsumeChar();
                     }
@@ -62,44 +76,15 @@ namespace SJP.Schematic.Oracle.Parsing
                         yield return Result.Empty<OracleToken>(next.Location, new[] { "digit" });
                     }
                 }
-                else if (next.Value == '$')
-                {
-                    var money = OracleTextParsers.Money(next.Location);
-                    if (!money.HasValue)
-                        yield return Result.CastEmpty<TextSpan, OracleToken>(money);
-                    else
-                        yield return Result.Value(OracleToken.Money, money.Location, money.Remainder);
-
-                    next = money.Remainder.ConsumeChar();
-                }
                 else if (next.Value == '\'')
                 {
-                    var str = OracleTextParsers.SqlString(next.Location);
+                    var str = OracleTextParsers.OracleString(next.Location);
                     if (!str.HasValue)
                         yield return Result.CastEmpty<string, OracleToken>(str);
 
                     next = str.Remainder.ConsumeChar();
 
                     yield return Result.Value(OracleToken.String, str.Location, str.Remainder);
-                }
-                else if (next.Value == '@')
-                {
-                    var beginIdentifier = next.Location;
-                    var startOfName = next.Remainder;
-                    do
-                    {
-                        next = next.Remainder.ConsumeChar();
-                    }
-                    while (next.HasValue && next.Value.IsLetterOrDigit());
-
-                    if (next.Remainder == startOfName)
-                    {
-                        yield return Result.Empty<OracleToken>(startOfName, new[] { "built-in identifier name" });
-                    }
-                    else
-                    {
-                        yield return Result.Value(OracleToken.BuiltInIdentifier, beginIdentifier, next.Location);
-                    }
                 }
                 else if (next.Value == '"')
                 {
@@ -115,16 +100,16 @@ namespace SJP.Schematic.Oracle.Parsing
 
                     yield return Result.Value(OracleToken.Identifier, beginIdentifier, next.Location);
                 }
-                else if (next.Value.IsLetter() || next.Value == '_')
+                else if (next.Value.IsLetter() || AdditionalIdentifierChars.Contains(next.Value))
                 {
                     var beginIdentifier = next.Location;
                     do
                     {
                         next = next.Remainder.ConsumeChar();
                     }
-                    while (next.HasValue && (next.Value.IsLetterOrDigit() || next.Value == '_'));
+                    while (next.HasValue && (next.Value.IsLetterOrDigit() || AdditionalIdentifierChars.Contains(next.Value)));
 
-                    var str = OracleTextParsers.SqlString(beginIdentifier);
+                    var str = OracleTextParsers.OracleString(beginIdentifier);
                     if (str.HasValue)
                     {
                         yield return Result.Value(OracleToken.String, str.Location, str.Remainder);
@@ -202,6 +187,8 @@ namespace SJP.Schematic.Oracle.Parsing
             keyword = OracleToken.None;
             return false;
         }
+
+        private static readonly char[] AdditionalIdentifierChars = new[] { '$', '#', '_' };
 
         private static readonly OracleToken[] SimpleOps = new OracleToken[128];
 
