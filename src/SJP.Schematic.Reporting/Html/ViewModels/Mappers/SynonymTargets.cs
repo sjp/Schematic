@@ -4,7 +4,7 @@ using SJP.Schematic.Core;
 
 namespace SJP.Schematic.Reporting.Html.ViewModels.Mappers
 {
-    public class SynonymTargets
+    internal sealed class SynonymTargets
     {
         public SynonymTargets(
             IReadOnlyCollection<IRelationalDatabaseTable> tables,

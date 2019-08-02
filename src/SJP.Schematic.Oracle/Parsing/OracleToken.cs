@@ -15,9 +15,6 @@ namespace SJP.Schematic.Oracle.Parsing
 
         Number,
 
-        [Token(Description = "money literal")]
-        Money,
-
         [Token(Description = "binary literal")]
         Blob,
 
@@ -131,6 +128,15 @@ namespace SJP.Schematic.Oracle.Parsing
 
         [Token(Category = "operator", Example = "::")]
         Scope,
+
+        [Token(Category = "operator", Example = "=>")]
+        Association,
+
+        [Token(Category = "operator", Example = ":=")]
+        Assignment,
+
+        [Token(Category = "operator", Example = "..")]
+        Range,
 
         [Token(Category = "keyword", Example = "add")]
         Add,
