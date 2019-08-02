@@ -3,9 +3,6 @@
 * Simplify type declarations and descriptions as much as possible. Want it to be
   painless and easy.
 
-* Split into multiple assemblies. This is mostly done but perhaps split further for
-  migrations assemblies.
-
 * Once types and API are settled, minimise API surface by making objects sealed or
   internal as much as possible.
 
