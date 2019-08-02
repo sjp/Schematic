@@ -24,7 +24,7 @@ namespace SJP.Schematic.Oracle
         /// <returns><code>true</code> if unwrapping was successful, <code>false</code> otherwise.</returns>
         public static bool TryUnwrap(string input, out string unwrapped)
         {
-            if (input == null || !IsWrappedDefinition(input))
+            if (input == null || !TryGetPayload(input, out var payload))
             {
                 unwrapped = null;
                 return false;
@@ -32,7 +32,7 @@ namespace SJP.Schematic.Oracle
 
             try
             {
-                unwrapped = UnwrapUnsafe(input);
+                unwrapped = DecodeBase64Package(payload);
                 return true;
             }
             catch (InvalidDataException)
@@ -67,28 +67,10 @@ namespace SJP.Schematic.Oracle
             if (input == null)
                 throw new ArgumentNullException(nameof(input));
 
-            if (!IsWrappedDefinition(input))
+            if (!TryGetPayload(input, out var payload))
                 throw new InvalidDataException("The given input is not a wrapped definition");
 
-            // now that we know we have valid input, just skip to the base64 header and definition
-            using (var reader = new StringReader(input))
-            {
-                string line;
-                while ((line = reader.ReadLine()) != null)
-                {
-                    var match = Base64Header.Match(line);
-                    if (!match.Success)
-                        continue;
-
-                    // note length has already been validated earlier so just get the base64 text
-                    var base64 = reader.ReadToEnd();
-                    var textToDecode = base64.Where(c => !c.IsWhiteSpace()).ToArray();
-                    return DecodeBase64Package(new string(textToDecode));
-                }
-            }
-
-            // note that we should not get here unless the input validation is incorrect
-            throw new InvalidDataException("Unable to decrypt the given input, is it a valid wrapped definition?");
+            return DecodeBase64Package(payload);
         }
 
         // The expected input is:
@@ -114,6 +96,15 @@ namespace SJP.Schematic.Oracle
             if (input == null)
                 throw new ArgumentNullException(nameof(input));
 
+            return TryGetPayload(input, out _);
+        }
+
+        private static bool TryGetPayload(string input, out string payload)
+        {
+            if (input == null)
+                throw new ArgumentNullException(nameof(input));
+
+            payload = null;
             const string wrappedKeyword = "wrapped";
             var lastIndex = input.LastIndexOf(wrappedKeyword, StringComparison.OrdinalIgnoreCase);
             if (lastIndex < 0)
@@ -188,12 +179,13 @@ namespace SJP.Schematic.Oracle
                 if (base64Remainder.IsNullOrWhiteSpace())
                     return false;
 
-                var base64RemainderChars = base64Remainder.Trim().Where(c => c != '\r').ToArray();
-                base64Remainder = new string(base64RemainderChars);
-                if (base64Remainder.Length != length)
-                    return false;
+                var base64RemainderChars = base64Remainder.TrimStart().Where(c => c != '\r').ToArray();
+                base64Remainder = new string(base64RemainderChars, 0, length);
 
-                return IsValidBase64String(base64Remainder);
+                var result = IsValidBase64String(base64Remainder);
+                if (result)
+                    payload = base64Remainder;
+                return result;
             }
         }
 
