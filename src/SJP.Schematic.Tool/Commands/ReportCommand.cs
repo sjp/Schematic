@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Threading.Tasks;
 using McMaster.Extensions.CommandLineUtils;
+using SJP.Schematic.Core.Extensions;
 using SJP.Schematic.Reporting.Html;
 
 namespace SJP.Schematic.Tool
@@ -9,43 +11,48 @@ namespace SJP.Schematic.Tool
     {
         private DatabaseCommand Parent { get; set; }
 
-        [Option(Description = "A directory where a database report will be exported", LongName = "report-dir", ShortName = "rd")]
+        [Option(Description = "A directory where a database report will be exported", LongName = "report-export-dir", ShortName = "rd")]
         [LegalFilePath]
         public string ReportDirectory { get; set; }
 
-        private int OnExecute(CommandLineApplication application)
+        private Task<int> OnExecuteAsync(CommandLineApplication application)
         {
             if (application == null)
                 throw new ArgumentNullException(nameof(application));
 
-            var hasConnectionString = Parent.TryGetConnectionString(out var connectionString);
-            if (!hasConnectionString)
+            return OnExecuteAsyncCore(application);
+        }
+
+        private async Task<int> OnExecuteAsyncCore(CommandLineApplication application)
+        {
+            var connectionString = await Parent.TryGetConnectionStringAsync().ConfigureAwait(false);
+            if (connectionString.IsNullOrWhiteSpace())
             {
-                application.Error.WriteLine();
-                application.Error.WriteLine("Unable to continue without a connection string. Exiting.");
+                await application.Error.WriteLineAsync().ConfigureAwait(false);
+                await application.Error.WriteLineAsync("Unable to continue without a connection string. Exiting.").ConfigureAwait(false);
                 return 1;
             }
 
-            var status = Parent.GetConnectionStatus(connectionString);
+            var status = await Parent.GetConnectionStatusAsync(connectionString).ConfigureAwait(false);
             if (status.IsConnected)
             {
                 try
                 {
                     var dialect = Parent.GetDatabaseDialect(status.Connection);
-                    var database = dialect.GetRelationalDatabaseAsync().GetAwaiter().GetResult();
+                    var database = await dialect.GetRelationalDatabaseAsync().ConfigureAwait(false);
 
                     var reportExporter = new ReportExporter(status.Connection, database, ReportDirectory);
-                    reportExporter.ExportAsync().GetAwaiter().GetResult();
+                    await reportExporter.ExportAsync().ConfigureAwait(false);
 
-                    application.Out.WriteLine("The database report has been exported to: " + ReportDirectory);
+                    await application.Out.WriteLineAsync("The database report has been exported to: " + ReportDirectory).ConfigureAwait(false);
                     return 0;
                 }
                 catch (Exception ex)
                 {
-                    application.Error.WriteLine("An error occurred generating a report.");
-                    application.Error.WriteLine();
-                    application.Error.WriteLine("Error message: " + ex.Message);
-                    application.Error.WriteLine("Stack trace: " + ex.StackTrace);
+                    await application.Error.WriteLineAsync("An error occurred generating a report.").ConfigureAwait(false);
+                    await application.Error.WriteLineAsync().ConfigureAwait(false);
+                    await application.Error.WriteLineAsync("Error message: " + ex.Message).ConfigureAwait(false);
+                    await application.Error.WriteLineAsync("Stack trace: " + ex.StackTrace).ConfigureAwait(false);
 
                     return 1;
                 }
