@@ -29,33 +29,35 @@ namespace SJP.Schematic.Tool
         public string ConnectionString { get; set; }
 
         [Required]
-        [AllowedValues("sqlite", "sqlserver", "postgresql", "mysql", Comparer = StringComparison.OrdinalIgnoreCase)]
-        [Option(Description = "The database dialect", LongName = "database-dialect", ShortName = "dd")]
+        [AllowedValues("sqlite", "sqlserver", "postgresql", "mysql", "oracle", Comparer = StringComparison.OrdinalIgnoreCase)]
+        [Option(Description = "The database dialect", LongName = "dialect", ShortName = "d")]
         public string DatabaseDialect { get; set; }
 
-        [Option(Description = "A JSON configuration file containing a connection", LongName = "connection-config-json", ShortName = "csj")]
+        [Option(Description = "A JSON configuration file containing a connection", LongName = "config", ShortName = "c")]
         [LegalFilePath]
         [FileExists]
         public string ConnectionConfigJson { get; set; }
 
-        [Option(Description = "An XML configuration file containing a connection", LongName = "connection-config-xml", ShortName = "csx")]
-        [LegalFilePath]
-        [FileExists]
-        public string ConnectionConfigXml { get; set; }
-
-        [Option(Description = "The name of the connection string in a configuration file", LongName = "connection-config-name", ShortName = "csname")]
+        [Option(Description = "The name of the connection string in a configuration file", LongName = "config-name", ShortName = "name")]
         public string ConnectionConfigName { get; set; }
 
-        public ConnectionStatus GetConnectionStatus(string connectionString)
+        public Task<ConnectionStatus> GetConnectionStatusAsync(string connectionString)
         {
             if (connectionString.IsNullOrWhiteSpace())
                 throw new ArgumentNullException(nameof(connectionString));
-            if (!_connectionFactories.TryGetValue(DatabaseDialect, out var factory))
+            if (!_connectionFactories.ContainsKey(DatabaseDialect))
                 throw new NotSupportedException("Unsupported dialect: " + DatabaseDialect);
 
+            return GetConnectionStatusAsyncCore(connectionString);
+        }
+
+        private async Task<ConnectionStatus> GetConnectionStatusAsyncCore(string connectionString)
+        {
             try
             {
-                var connection = factory.Invoke(connectionString).GetAwaiter().GetResult();
+                var factory = _connectionFactories[DatabaseDialect];
+                var connection = await factory.Invoke(connectionString).ConfigureAwait(false);
+                connection.Dispose();
                 return ConnectionStatus.Success(connection);
             }
             catch (Exception ex)
@@ -64,13 +66,10 @@ namespace SJP.Schematic.Tool
             }
         }
 
-        public bool TryGetConnectionString(out string connectionString)
+        public async Task<string> TryGetConnectionStringAsync()
         {
             if (!ConnectionString.IsNullOrWhiteSpace())
-            {
-                connectionString = ConnectionString;
-                return true;
-            }
+                return ConnectionString;
 
             if (!ConnectionConfigName.IsNullOrWhiteSpace())
             {
@@ -83,17 +82,10 @@ namespace SJP.Schematic.Tool
                     configuration = builder.Build();
                     configurationFile = ConnectionConfigJson;
                 }
-                else if (!ConnectionConfigXml.IsNullOrWhiteSpace())
-                {
-                    var builder = new ConfigurationBuilder().AddXmlFile(ConnectionConfigXml);
-                    configuration = builder.Build();
-                    configurationFile = ConnectionConfigXml;
-                }
                 else
                 {
-                    Application.Error.WriteLine("A connection configuration name was given but no corresponding configuration file was provided.");
-                    connectionString = null;
-                    return false;
+                    await Application.Error.WriteLineAsync("A connection configuration name was given but no corresponding configuration file was provided.").ConfigureAwait(false);
+                    return null;
                 }
 
                 var connectionStringSection = configuration.GetSection("ConnectionStrings");
@@ -101,19 +93,16 @@ namespace SJP.Schematic.Tool
                 var matchingConnection = connections.FirstOrDefault(c => c.Key == ConnectionConfigName);
                 if (matchingConnection.Key != ConnectionConfigName)
                 {
-                    Application.Error.WriteLine($"Could not find a connection named '{ ConnectionConfigName }' in '{ configurationFile }'.");
-                    connectionString = null;
-                    return false;
+                    await Application.Error.WriteLineAsync($"Could not find a connection named '{ ConnectionConfigName }' in '{ configurationFile }'.").ConfigureAwait(false);
+                    return null;
                 }
 
-                connectionString = matchingConnection.Value;
-                return true;
+                return matchingConnection.Value;
             }
 
-            Application.Error.WriteLine("No valid connection string or connection configuration provided.");
+            await Application.Error.WriteLineAsync("No valid connection string or connection configuration provided.").ConfigureAwait(false);
 
-            connectionString = null;
-            return false;
+            return null;
         }
 
         public IDatabaseDialect GetDatabaseDialect(IDbConnection connection)
@@ -124,7 +113,7 @@ namespace SJP.Schematic.Tool
             return dialect.Invoke(connection);
         }
 
-        private static readonly IReadOnlyDictionary<string, Func<string, Task<IDbConnection>>> _connectionFactories = new Dictionary<string, Func<string, Task<IDbConnection>>>
+        private static readonly IReadOnlyDictionary<string, Func<string, Task<IDbConnection>>> _connectionFactories = new Dictionary<string, Func<string, Task<IDbConnection>>>(StringComparer.OrdinalIgnoreCase)
         {
             ["sqlite"] = cs => SqliteDialect.CreateConnectionAsync(cs),
             ["sqlserver"] = cs => SqlServerDialect.CreateConnectionAsync(cs),
@@ -133,7 +122,7 @@ namespace SJP.Schematic.Tool
             ["postgresql"] = cs => PostgreSqlDialect.CreateConnectionAsync(cs)
         };
 
-        private static readonly IReadOnlyDictionary<string, Func<IDbConnection, IDatabaseDialect>> _dialectFactories = new Dictionary<string, Func<IDbConnection, IDatabaseDialect>>
+        private static readonly IReadOnlyDictionary<string, Func<IDbConnection, IDatabaseDialect>> _dialectFactories = new Dictionary<string, Func<IDbConnection, IDatabaseDialect>>(StringComparer.OrdinalIgnoreCase)
         {
             ["sqlite"] = c => new SqliteDialect(c),
             ["sqlserver"] = c => new SqlServerDialect(c),

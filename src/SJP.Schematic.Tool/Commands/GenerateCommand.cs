@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
+using System.Threading.Tasks;
 using McMaster.Extensions.CommandLineUtils;
 using SJP.Schematic.DataAccess;
 
@@ -34,12 +35,17 @@ namespace SJP.Schematic.Tool
             ["verbatim"] = new VerbatimNameTranslator()
         };
 
-        private int OnExecute(CommandLineApplication application)
+        private Task<int> OnExecuteAsync(CommandLineApplication application)
         {
             if (application == null)
                 throw new ArgumentNullException(nameof(application));
 
-            application.Error.WriteLine("You must specify at a subcommand.");
+            return OnExecuteAsyncCore(application);
+        }
+
+        private async Task<int> OnExecuteAsyncCore(CommandLineApplication application)
+        {
+            await application.Error.WriteLineAsync("You must specify a subcommand.").ConfigureAwait(false);
             application.ShowHelp();
             return 1;
         }

@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Threading.Tasks;
 using McMaster.Extensions.CommandLineUtils;
+using SJP.Schematic.Core.Extensions;
 
 namespace SJP.Schematic.Tool
 {
@@ -8,29 +10,34 @@ namespace SJP.Schematic.Tool
     {
         private DatabaseCommand Parent { get; set; }
 
-        private int OnExecute(CommandLineApplication application)
+        private Task<int> OnExecuteAsync(CommandLineApplication application)
         {
             if (application == null)
                 throw new ArgumentNullException(nameof(application));
 
-            var hasConnectionString = Parent.TryGetConnectionString(out var connectionString);
-            if (!hasConnectionString)
+            return OnExecuteAsyncCore(application);
+        }
+
+        private async Task<int> OnExecuteAsyncCore(CommandLineApplication application)
+        {
+            var connectionString = await Parent.TryGetConnectionStringAsync().ConfigureAwait(false);
+            if (connectionString.IsNullOrWhiteSpace())
             {
-                application.Error.WriteLine();
-                application.Error.WriteLine("Unable to continue without a connection string. Exiting.");
+                await application.Error.WriteLineAsync().ConfigureAwait(false);
+                await application.Error.WriteLineAsync("Unable to continue without a connection string. Exiting.").ConfigureAwait(false);
                 return 1;
             }
 
-            var status = Parent.GetConnectionStatus(connectionString);
+            var status = await Parent.GetConnectionStatusAsync(connectionString).ConfigureAwait(false);
             if (status.IsConnected)
             {
-                application.Out.WriteLine("Successfully connected to the database.");
+                await application.Out.WriteLineAsync("Successfully connected to the database.").ConfigureAwait(false);
                 return 0;
             }
 
-            application.Error.WriteLine("Unable to connect to the database.");
-            application.Error.WriteLine();
-            application.Error.WriteLine("Error message: " + status.Error.Message);
+            await application.Error.WriteLineAsync("Unable to connect to the database.").ConfigureAwait(false);
+            await application.Error.WriteLineAsync().ConfigureAwait(false);
+            await application.Error.WriteLineAsync("Error message: " + status.Error.Message).ConfigureAwait(false);
 
             return 1;
         }

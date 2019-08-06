@@ -1,8 +1,10 @@
 ﻿using System.IO;
-using McMaster.Extensions.CommandLineUtils;
-using SJP.Schematic.DataAccess.Poco;
 using System.IO.Abstractions;
 using System;
+using System.Threading.Tasks;
+using McMaster.Extensions.CommandLineUtils;
+using SJP.Schematic.Core.Extensions;
+using SJP.Schematic.DataAccess.Poco;
 
 namespace SJP.Schematic.Tool
 {
@@ -13,53 +15,58 @@ namespace SJP.Schematic.Tool
 
         private GenerateCommand GenerateParent { get; set; }
 
-        private int OnExecute(CommandLineApplication application)
+        private Task<int> OnExecuteAsync(CommandLineApplication application)
         {
             if (application == null)
                 throw new ArgumentNullException(nameof(application));
 
-            var hasConnectionString = DatabaseParent.TryGetConnectionString(out var connectionString);
-            if (!hasConnectionString)
+            return OnExecuteAsyncCore(application);
+        }
+
+        private async Task<int> OnExecuteAsyncCore(CommandLineApplication application)
+        {
+            var connectionString = await DatabaseParent.TryGetConnectionStringAsync().ConfigureAwait(false);
+            if (connectionString.IsNullOrWhiteSpace())
             {
-                application.Error.WriteLine();
-                application.Error.WriteLine("Unable to continue without a connection string. Exiting.");
+                await application.Error.WriteLineAsync().ConfigureAwait(false);
+                await application.Error.WriteLineAsync("Unable to continue without a connection string. Exiting.").ConfigureAwait(false);
                 return 1;
             }
 
-            var status = DatabaseParent.GetConnectionStatus(connectionString);
+            var status = await DatabaseParent.GetConnectionStatusAsync(connectionString).ConfigureAwait(false);
             if (!status.IsConnected)
             {
-                application.Error.WriteLine("Could not connect to the database.");
+                await application.Error.WriteLineAsync("Could not connect to the database.").ConfigureAwait(false);
                 return 1;
             }
 
             var nameProvider = GenerateParent.GetNameTranslator();
             if (nameProvider == null)
             {
-                application.Error.WriteLine("Unknown or unsupported database name translator: " + GenerateParent.Translator);
+                await application.Error.WriteLineAsync("Unknown or unsupported database name translator: " + GenerateParent.Translator).ConfigureAwait(false);
                 return 1;
             }
 
             try
             {
                 var dialect = DatabaseParent.GetDatabaseDialect(status.Connection);
-                var database = dialect.GetRelationalDatabaseAsync().GetAwaiter().GetResult();
-                var commentProvider = dialect.GetRelationalDatabaseCommentProviderAsync().GetAwaiter().GetResult();
+                var database = await dialect.GetRelationalDatabaseAsync().ConfigureAwait(false);
+                var commentProvider = await dialect.GetRelationalDatabaseCommentProviderAsync().ConfigureAwait(false);
 
                 var fileSystem = new FileSystem();
                 var generator = new PocoDataAccessGenerator(fileSystem, database, commentProvider, nameProvider);
-                generator.Generate(GenerateParent.ProjectPath, GenerateParent.BaseNamespace);
+                await generator.GenerateAsync(GenerateParent.ProjectPath, GenerateParent.BaseNamespace).ConfigureAwait(false);
 
                 var dirName = Path.GetDirectoryName(GenerateParent.ProjectPath);
-                application.Out.WriteLine("The OrmLite project has been exported to: " + dirName);
+                application.Out.WriteLine("The POCO project has been exported to: " + dirName);
                 return 0;
             }
             catch (Exception ex)
             {
-                application.Error.WriteLine("An error occurred generating an OrmLite project.");
-                application.Error.WriteLine();
-                application.Error.WriteLine("Error message: " + ex.Message);
-                application.Error.WriteLine("Stack trace: " + ex.StackTrace);
+                await application.Error.WriteLineAsync("An error occurred generating an OrmLite project.").ConfigureAwait(false);
+                await application.Error.WriteLineAsync().ConfigureAwait(false);
+                await application.Error.WriteLineAsync("Error message: " + ex.Message).ConfigureAwait(false);
+                await application.Error.WriteLineAsync("Stack trace: " + ex.StackTrace).ConfigureAwait(false);
 
                 return 1;
             }
