@@ -189,7 +189,7 @@ namespace SJP.Schematic.DataAccess.OrmLite
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include=""ServiceStack.OrmLite"" Version=""5.5.0"" />
+        <PackageReference Include=""ServiceStack.OrmLite"" Version=""5.6.0"" />
     </ItemGroup>
 </Project>";
     }
