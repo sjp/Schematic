@@ -185,7 +185,7 @@ where schema_name(v.schema_id) = @SchemaName and v.name = @ViewName and v.is_ms_
                 result.Add(column);
             }
 
-            return result.AsReadOnly();
+            return result;
         }
 
         protected virtual string ColumnsQuery => ColumnsQuerySql;

@@ -109,8 +109,7 @@ namespace SJP.Schematic.Modelled.Reflection
         {
             return TypeProvider.Columns
                 .Select(GetColumn)
-                .ToList()
-                .AsReadOnly();
+                .ToList();
         }
 
         private IDatabaseColumn GetColumn(IModelledColumn column)

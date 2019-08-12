@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using SJP.Schematic.Core.Extensions;
+using System.Linq;
 using SJP.Schematic.Sqlite.Parsing;
 using Superpower.Model;
 
@@ -35,8 +35,8 @@ namespace SJP.Schematic.Sqlite
             if (!yParseResult.HasValue)
                 throw new ArgumentException($"Could not parse the '{ nameof(y) }' string as a SQL expression. Given: { y }", nameof(y));
 
-            var xTokens = xParseResult.Value.ToReadOnlyList();
-            var yTokens = yParseResult.Value.ToReadOnlyList();
+            var xTokens = xParseResult.Value.ToList();
+            var yTokens = yParseResult.Value.ToList();
 
             if (xTokens.Count != yTokens.Count)
                 return false;

@@ -654,7 +654,7 @@ where t.table_schema = @SchemaName and t.table_name = @TableName";
                 result.Add(column);
             }
 
-            return result.AsReadOnly();
+            return result;
         }
 
         protected virtual string ColumnsQuery => ColumnsQuerySql;

@@ -15,7 +15,7 @@ namespace SJP.Schematic.MySql
                 throw new ArgumentNullException(nameof(expression));
 
             Expression = expression;
-            DependentColumns = new List<IDatabaseColumn> { column }.AsReadOnly();
+            DependentColumns = new[] { column };
         }
 
         public string Expression { get; }

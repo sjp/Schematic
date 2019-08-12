@@ -188,7 +188,7 @@ where OWNER = :SchemaName and VIEW_NAME = :ViewName";
                 result.Add(column);
             }
 
-            return result.AsReadOnly();
+            return result;
         }
 
         protected virtual string ColumnsQuery => ColumnsQuerySql;

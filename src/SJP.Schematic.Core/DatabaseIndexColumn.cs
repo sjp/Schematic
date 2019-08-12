@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using EnumsNET;
 using SJP.Schematic.Core.Extensions;
 
@@ -22,7 +23,7 @@ namespace SJP.Schematic.Core
                 throw new ArgumentException($"The { nameof(IndexColumnOrder) } provided must be a valid enum.", nameof(order));
 
             Expression = expression;
-            DependentColumns = dependentColumns.ToReadOnlyList();
+            DependentColumns = dependentColumns.ToList();
             Order = order;
         }
 
