@@ -596,7 +596,7 @@ namespace SJP.Schematic.Sqlite
                 result.Add(column);
             }
 
-            return result.AsReadOnly();
+            return result;
         }
 
         protected virtual Task<IReadOnlyCollection<IDatabaseTrigger>> LoadTriggersAsync(Identifier tableName, CancellationToken cancellationToken)

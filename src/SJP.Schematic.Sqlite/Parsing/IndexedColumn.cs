@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using EnumsNET;
 using SJP.Schematic.Core;
 using SJP.Schematic.Core.Extensions;
@@ -30,7 +31,7 @@ namespace SJP.Schematic.Sqlite.Parsing
             if (expression == null)
                 throw new ArgumentNullException(nameof(expression));
 
-            Expression = expression.Tokens.ToReadOnlyList();
+            Expression = expression.Tokens.ToList();
         }
 
         internal IndexedColumn(IReadOnlyCollection<Token<SqliteToken>> expression)

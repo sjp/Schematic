@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using SJP.Schematic.Core.Extensions;
 using SJP.Schematic.Oracle.Parsing;
 using Superpower.Model;
@@ -35,8 +36,8 @@ namespace SJP.Schematic.Oracle
             if (!yParseResult.HasValue)
                 throw new ArgumentException($"Could not parse the '{ nameof(y) }' string as a SQL expression. Given: { y }", nameof(y));
 
-            var xTokens = xParseResult.Value.ToReadOnlyList();
-            var yTokens = yParseResult.Value.ToReadOnlyList();
+            var xTokens = xParseResult.Value.ToList();
+            var yTokens = yParseResult.Value.ToList();
 
             var xCleanedTokens = StripWrappingParens(xTokens);
             var yCleanedTokens = StripWrappingParens(yTokens);
@@ -79,10 +80,10 @@ namespace SJP.Schematic.Oracle
                 throw new ArgumentNullException(nameof(tokens));
 
             // copy to mutable result set
-            var result = new List<Token<OracleToken>>();
             if (tokens.Empty())
-                return result.AsReadOnly();
+                return Array.Empty<Token<OracleToken>>();
 
+            var result = new List<Token<OracleToken>>();
             foreach (var token in tokens)
                 result.Add(token);
 
@@ -116,7 +117,7 @@ namespace SJP.Schematic.Oracle
                 }
             }
 
-            return result.AsReadOnly();
+            return result;
         }
     }
 }

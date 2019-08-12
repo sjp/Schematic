@@ -669,7 +669,7 @@ where schema_name(child_t.schema_id) = @SchemaName and child_t.name = @TableName
                 result.Add(column);
             }
 
-            return result.AsReadOnly();
+            return result;
         }
 
         protected virtual string ColumnsQuery => ColumnsQuerySql;

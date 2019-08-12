@@ -180,7 +180,7 @@ where table_schema = @SchemaName and table_name = @ViewName";
                 result.Add(column);
             }
 
-            return result.AsReadOnly();
+            return result;
         }
 
         protected virtual string ColumnsQuery => ColumnsQuerySql;

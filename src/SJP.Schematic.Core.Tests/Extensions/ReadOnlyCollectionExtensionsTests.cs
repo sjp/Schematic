@@ -28,25 +28,5 @@ namespace SJP.Schematic.Core.Tests.Extensions
             IReadOnlyCollection<string> input = new[] { "A" };
             Assert.IsFalse(input.Empty());
         }
-
-        [Test]
-        public static void ToReadOnlyList_GivenNullCollection_ThrowsArgumentNullException()
-        {
-            IEnumerable<string> input = null;
-            Assert.Throws<ArgumentNullException>(() => input.ToReadOnlyList());
-        }
-
-        [Test]
-        public static void ToReadOnlyList_GivenNonEmptyCollection_ReturnsListWithSameValues()
-        {
-            IEnumerable<string> input = new[] { "A" };
-            var result = input.ToReadOnlyList();
-
-            Assert.Multiple(() =>
-            {
-                Assert.AreEqual(1, result.Count);
-                Assert.AreEqual("A", result[0]);
-            });
-        }
     }
 }

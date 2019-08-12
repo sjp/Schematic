@@ -31,7 +31,7 @@ namespace SJP.Schematic.PostgreSql
                 throw new ArgumentException($"The { nameof(IndexColumnOrder) } provided must be a valid enum.", nameof(order));
 
             Expression = expression;
-            DependentColumns = new List<IDatabaseColumn> { column }.AsReadOnly();
+            DependentColumns = new[] { column };
             Order = order;
         }
 
