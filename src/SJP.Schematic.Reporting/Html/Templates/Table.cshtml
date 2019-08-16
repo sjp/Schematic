@@ -339,6 +339,50 @@
         <div class="col-12">
             <div class="card">
                 <div class="card-header">
+                    <h3 class="card-title"><i class="fa fa-bolt" aria-hidden="true">&nbsp;&nbsp;</i>@Model.TriggersCount Triggers</h3>
+                    <div class="card-tools">
+                        <button type="button" class="btn btn-tool" data-widget="collapse">
+                            <i class="fa fa-minus" aria-hidden="true"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <table class="@Raw(Model.TriggersTableClass.ToHtmlString()) table table-bordered table-hover" role="grid" style="width:100%">
+                        <thead>
+                            <tr>
+                                <th scope="col">Trigger Name</th>
+                                <th scope="col">Timing</th>
+                                <th scope="col">Events</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @if (Model.TriggersCount > 0)
+                            {
+                                foreach (var trigger in Model.Triggers)
+                                {
+                                    <tr>
+                                        <td><a href="@(trigger.TriggerUrl)">@trigger.TriggerName</a></td>
+                                        <td><code>@trigger.QueryTiming</code></td>
+                                        <td><code>@trigger.Events</code></td>
+                                    </tr>
+                                }
+                            }
+                            else
+                            {
+                                <tr>
+                                    <td colspan="3">No triggers present.</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
                     <h3 class="card-title"><i class="fa fa-code-fork" aria-hidden="true">&nbsp;&nbsp;</i>Relationships</h3>
                     <ul class="nav nav-pills ml-auto p-2">
                         @foreach (var diagram in Model.Diagrams)

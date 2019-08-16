@@ -44,5 +44,19 @@ namespace SJP.Schematic.Reporting
 
             return "routines/" + routineName.ToSafeKey() + ".html";
         }
+
+        public static string GetTriggerUrl(Identifier tableName, Identifier triggerName)
+        {
+            if (tableName == null)
+                throw new ArgumentNullException(nameof(tableName));
+            if (triggerName == null)
+                throw new ArgumentNullException(nameof(triggerName));
+
+            return "tables/"
+                + tableName.ToSafeKey()
+                + "/triggers/"
+                + triggerName.ToSafeKey()
+                + ".html";
+        }
     }
 }
