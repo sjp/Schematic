@@ -16,10 +16,12 @@
         Sequence,
         Synonym,
         Routine,
+        Trigger,
         Tables,
         Views,
         Sequences,
         Synonyms,
-        Routines
+        Routines,
+        Triggers
     }
 }

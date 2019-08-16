@@ -21,6 +21,7 @@ namespace SJP.Schematic.Reporting.Html.ViewModels
             IEnumerable<ForeignKey> foreignKeys,
             IEnumerable<CheckConstraint> checks,
             IEnumerable<Index> indexes,
+            IEnumerable<Trigger> triggers,
             IEnumerable<Diagram> diagrams,
             string rootPath,
             ulong rowCount
@@ -56,6 +57,10 @@ namespace SJP.Schematic.Reporting.Html.ViewModels
             Indexes = indexes ?? throw new ArgumentNullException(nameof(checks));
             IndexesCount = indexes.UCount();
             IndexesTableClass = IndexesCount > 0 ? CssClasses.DataTableClass : string.Empty;
+
+            Triggers = triggers ?? throw new ArgumentNullException(nameof(triggers));
+            TriggersCount = triggers.UCount();
+            TriggersTableClass = TriggersCount > 0 ? CssClasses.DataTableClass : string.Empty;
 
             Diagrams = diagrams ?? throw new ArgumentNullException(nameof(diagrams));
 
@@ -107,6 +112,12 @@ namespace SJP.Schematic.Reporting.Html.ViewModels
         public uint IndexesCount { get; }
 
         public HtmlString IndexesTableClass { get; }
+
+        public IEnumerable<Trigger> Triggers { get; }
+
+        public uint TriggersCount { get; }
+
+        public HtmlString TriggersTableClass { get; }
 
         public IEnumerable<Diagram> Diagrams { get; }
 
@@ -382,6 +393,69 @@ namespace SJP.Schematic.Reporting.Html.ViewModels
                     ? "ASC"
                     : "DESC";
             }
+        }
+
+        /// <summary>
+        /// Internal. Not intended to be used outside of this assembly. Only required for templating.
+        /// </summary>
+        public sealed class Trigger
+        {
+            public Trigger(
+                Identifier tableName,
+                Identifier triggerName,
+                string definition,
+                TriggerQueryTiming queryTiming,
+                TriggerEvent triggerEvent
+            )
+            {
+                if (tableName == null)
+                    throw new ArgumentNullException(nameof(tableName));
+                if (triggerName == null)
+                    throw new ArgumentNullException(nameof(triggerName));
+                if (definition.IsNullOrWhiteSpace())
+                    throw new ArgumentNullException(nameof(definition));
+
+                TriggerName = triggerName.LocalName;
+                Definition = definition;
+
+                TriggerUrl = "../" + UrlRouter.GetTriggerUrl(tableName, triggerName);
+
+                var queryFlags = queryTiming.GetFlags()
+                    .Select(qt => TimingDescriptions[qt])
+                    .OrderBy(qt => qt)
+                    .ToList();
+                var eventFlags = triggerEvent.GetFlags()
+                    .Select(te => EventDescriptions[te])
+                    .OrderBy(te => te)
+                    .ToList();
+
+                QueryTiming = queryFlags.Join(", ");
+                Events = eventFlags.Join(", ");
+            }
+
+            public string TriggerName { get; }
+
+            public string TriggerUrl { get; }
+
+            public string Definition { get; }
+
+            public string QueryTiming { get; }
+
+            public string Events { get; }
+
+            private static readonly IReadOnlyDictionary<TriggerQueryTiming, string> TimingDescriptions = new Dictionary<TriggerQueryTiming, string>
+            {
+                [TriggerQueryTiming.After] = "AFTER",
+                [TriggerQueryTiming.Before] = "BEFORE",
+                [TriggerQueryTiming.InsteadOf] = "INSTEAD OF"
+            };
+
+            private static readonly IReadOnlyDictionary<TriggerEvent, string> EventDescriptions = new Dictionary<TriggerEvent, string>
+            {
+                [TriggerEvent.Delete] = "DELETE",
+                [TriggerEvent.Insert] = "INSERT",
+                [TriggerEvent.Update] = "UPDATE"
+            };
         }
 
         /// <summary>

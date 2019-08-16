@@ -1,0 +1,58 @@
+@using RazorLight
+@using SJP.Schematic.Reporting.Html.ViewModels
+@inherits TemplatePage<Triggers>
+
+<section class="content-header">
+    <div class="container-fluid">
+        <div class="row mb-2">
+            <div class="col-sm-6">
+                <h1>Triggers</h1>
+            </div>
+            <div class="col-sm-6">
+                <ol class="breadcrumb float-sm-right">
+                    <li class="breadcrumb-item"><a href="index.html">Home</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">Triggers</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+</section>
+<section class="content">
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title"><i class="fa fa-bolt" aria-hidden="true">&nbsp;&nbsp;</i>Triggers</h3>
+                </div>
+                <div class="card-body">
+                    <table class="@Raw(Model.TriggersTableClass.ToHtmlString()) table table-bordered table-hover" role="grid" style="width:100%">
+                        <thead>
+                            <tr>
+                                <th scope="col">Table</th>
+                                <th scope="col">Trigger</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @if (Model.TriggersCount > 0)
+                            {
+                                foreach (var trigger in Model.AllTriggers)
+                                {
+                                    <tr>
+                                        <td><a href="@(trigger.TableUrl)">@trigger.TableName</a></td>
+                                        <td><a href="@(trigger.TriggerUrl)">@trigger.Name</a></td>
+                                    </tr>
+                                }
+                            }
+                            else
+                            {
+                                <tr>
+                                    <td colspan="2">No triggers present.</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>

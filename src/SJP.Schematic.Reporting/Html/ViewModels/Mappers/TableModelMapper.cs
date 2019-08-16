@@ -38,6 +38,7 @@ namespace SJP.Schematic.Reporting.Html.ViewModels.Mappers
             var parentKeys = table.ParentKeys.ToList();
             var childKeys = table.ChildKeys.ToList();
             var checks = table.Checks.ToList();
+            var triggers = table.Triggers.ToList();
 
             var columns = new List<Table.Column>();
             foreach (var tableColumn in tableColumns)
@@ -120,7 +121,7 @@ namespace SJP.Schematic.Reporting.Html.ViewModels.Mappers
             }
 
             var tableIndexes = table.Indexes.ToList();
-            var mappedIndexes = tableIndexes.Select(index =>
+            var renderIndexes = tableIndexes.Select(index =>
                 new Table.Index(
                     index.Name?.LocalName,
                     index.IsUnique,
@@ -159,6 +160,15 @@ namespace SJP.Schematic.Reporting.Html.ViewModels.Mappers
                     c.Definition
                 )).ToList();
 
+            var renderTriggers = triggers.Select(tr =>
+                new Table.Trigger(
+                    table.Name,
+                    tr.Name.LocalName,
+                    tr.Definition,
+                    tr.QueryTiming,
+                    tr.TriggerEvent
+                )).ToList();
+
             var oneDegreeTables = RelationshipFinder.GetTablesByDegrees(table, 1);
             var twoDegreeTables = RelationshipFinder.GetTablesByDegrees(table, 2);
 
@@ -183,7 +193,8 @@ namespace SJP.Schematic.Reporting.Html.ViewModels.Mappers
                 renderUniqueKeys,
                 renderParentKeys,
                 renderChecks,
-                mappedIndexes,
+                renderIndexes,
+                renderTriggers,
                 diagrams,
                 RootPath,
                 rowCount
