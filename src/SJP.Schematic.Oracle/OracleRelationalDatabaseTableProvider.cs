@@ -581,7 +581,7 @@ where OWNER = :SchemaName and TABLE_NAME = :TableName and CONSTRAINT_TYPE = 'C'"
                                 : OptionAsync<IDatabaseKey>.None;
                         }
                     })
-                    .Map((Func<IDatabaseKey, OracleRelationalKey>)(parentKey =>
+                    .Map(parentKey =>
                     {
                         var parentTableName = tableNameCache[candidateParentTableName];
                         var childKeyName = Identifier.CreateQualifiedIdentifier(fkey.Key.ConstraintName);
@@ -595,7 +595,7 @@ where OWNER = :SchemaName and TABLE_NAME = :TableName and CONSTRAINT_TYPE = 'C'"
 
                         var deleteAction = ReferentialActionMapping[fkey.Key.DeleteAction];
                         return new OracleRelationalKey(tableName, childKey, parentTableName, parentKey, deleteAction);
-                    }))
+                    })
                     .IfSome(relationalKey => result.Add(relationalKey))
                     .ConfigureAwait(false);
             }

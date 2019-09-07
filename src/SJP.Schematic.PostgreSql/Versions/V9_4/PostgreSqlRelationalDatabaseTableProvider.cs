@@ -398,7 +398,7 @@ where tc.table_schema = @SchemaName and tc.table_name = @TableName
                     : GetResolvedTableName(candidateChildTableName, cancellationToken);
 
                 await childTableNameOption
-                    .BindAsync((Func<Identifier, Task<OptionAsync<IDatabaseRelationalKey>>>)(async childTableName =>
+                    .BindAsync(async childTableName =>
                     {
                         tableNameCache[candidateChildTableName] = childTableName;
 
@@ -424,7 +424,7 @@ where tc.table_schema = @SchemaName and tc.table_name = @TableName
                         var updateAction = ReferentialActionMapping[groupedChildKey.Key.UpdateAction];
                         var relationalKey = new DatabaseRelationalKey(childTableName, childKey, tableName, parentKey, deleteAction, updateAction);
                         return OptionAsync<IDatabaseRelationalKey>.Some(relationalKey);
-                    }))
+                    })
                     .IfSome(relationalKey => result.Add(relationalKey))
                     .ConfigureAwait(false);
             }
@@ -593,7 +593,7 @@ where
                                 : OptionAsync<IDatabaseKey>.None;
                         }
                     })
-                    .Map((Func<IDatabaseKey, DatabaseRelationalKey>)(parentKey =>
+                    .Map(parentKey =>
                     {
                         var parentTableName = tableNameCache[candidateParentTableName];
 
@@ -609,7 +609,7 @@ where
                         var updateAction = ReferentialActionMapping[fkey.Key.UpdateAction];
 
                         return new DatabaseRelationalKey(tableName, childKey, parentTableName, parentKey, deleteAction, updateAction);
-                    }))
+                    })
                     .IfSome(relationalKey => result.Add(relationalKey))
                     .ConfigureAwait(false);
             }
