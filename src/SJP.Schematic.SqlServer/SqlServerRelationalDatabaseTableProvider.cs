@@ -574,7 +574,7 @@ where schema_name(t.schema_id) = @SchemaName and t.name = @TableName and t.is_ms
                                 : OptionAsync<IDatabaseKey>.None;
                         }
                     })
-                    .Map((Func<IDatabaseKey, DatabaseRelationalKey>)(parentKey =>
+                    .Map(parentKey =>
                     {
                         var parentTableName = tableNameCache[candidateParentTableName];
                         var childKeyName = Identifier.CreateQualifiedIdentifier(fkey.Key.ChildKeyName);
@@ -590,7 +590,7 @@ where schema_name(t.schema_id) = @SchemaName and t.name = @TableName and t.is_ms
                         var updateAction = ReferentialActionMapping[fkey.Key.UpdateAction];
 
                         return new DatabaseRelationalKey(tableName, childKey, parentTableName, parentKey, deleteAction, updateAction);
-                    }))
+                    })
                     .IfSome(relationalKey => result.Add(relationalKey))
                     .ConfigureAwait(false);
             }
