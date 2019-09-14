@@ -6,6 +6,6 @@ namespace SJP.Schematic.DataAccess
 {
     public interface IDatabaseTableGenerator : IDatabaseEntityGenerator
     {
-        string Generate(IRelationalDatabaseTable table, Option<IRelationalDatabaseTableComments> comment);
+        string Generate(IRelationalDatabase database, IRelationalDatabaseTable table, Option<IRelationalDatabaseTableComments> comment);
     }
 }

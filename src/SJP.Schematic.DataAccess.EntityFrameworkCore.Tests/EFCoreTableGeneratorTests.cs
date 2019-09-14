@@ -2,6 +2,7 @@ using System;
 using System.IO;
 using System.IO.Abstractions;
 using LanguageExt;
+using Moq;
 using NUnit.Framework;
 using SJP.Schematic.Core;
 using SJP.Schematic.Core.Comments;
@@ -98,14 +99,27 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore.Tests
         }
 
         [Test]
-        public static void Generate_GivenNullTable_ThrowsArgumentNullException()
+        public static void Generate_GivenNullDatabase_ThrowsArgumentNullException()
         {
             var nameTranslator = new VerbatimNameTranslator();
+            var table = Mock.Of<IRelationalDatabaseTable>();
             var comment = Option<IRelationalDatabaseTableComments>.None;
             const string testNs = "SJP.Schematic.Test";
             var generator = new EFCoreTableGenerator(nameTranslator, testNs);
 
-            Assert.Throws<ArgumentNullException>(() => generator.Generate(null, comment));
+            Assert.Throws<ArgumentNullException>(() => generator.Generate(null, table, comment));
+        }
+
+        [Test]
+        public static void Generate_GivenNullTable_ThrowsArgumentNullException()
+        {
+            var nameTranslator = new VerbatimNameTranslator();
+            var database = Mock.Of<IRelationalDatabase>();
+            var comment = Option<IRelationalDatabaseTableComments>.None;
+            const string testNs = "SJP.Schematic.Test";
+            var generator = new EFCoreTableGenerator(nameTranslator, testNs);
+
+            Assert.Throws<ArgumentNullException>(() => generator.Generate(database, null, comment));
         }
     }
 }
