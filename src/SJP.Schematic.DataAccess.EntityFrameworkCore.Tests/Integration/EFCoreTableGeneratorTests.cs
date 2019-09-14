@@ -112,7 +112,7 @@ create table test_table_7 (
             var generator = TableGenerator;
 
             var expected = TestTable1Output;
-            var result = generator.Generate(table, Option<IRelationalDatabaseTableComments>.None);
+            var result = generator.Generate(Database, table, Option<IRelationalDatabaseTableComments>.None);
 
             Assert.AreEqual(expected, result);
         }
@@ -124,7 +124,7 @@ create table test_table_7 (
             var generator = TableGenerator;
 
             var expected = TestTable2Output;
-            var result = generator.Generate(table, Option<IRelationalDatabaseTableComments>.None);
+            var result = generator.Generate(Database, table, Option<IRelationalDatabaseTableComments>.None);
 
             Assert.AreEqual(expected, result);
         }
@@ -136,7 +136,7 @@ create table test_table_7 (
             var generator = TableGenerator;
 
             var expected = TestTable3Output;
-            var result = generator.Generate(table, Option<IRelationalDatabaseTableComments>.None);
+            var result = generator.Generate(Database, table, Option<IRelationalDatabaseTableComments>.None);
 
             Assert.AreEqual(expected, result);
         }
@@ -148,7 +148,7 @@ create table test_table_7 (
             var generator = TableGenerator;
 
             var expected = TestTable4Output;
-            var result = generator.Generate(table, Option<IRelationalDatabaseTableComments>.None);
+            var result = generator.Generate(Database, table, Option<IRelationalDatabaseTableComments>.None);
 
             Assert.AreEqual(expected, result);
         }
@@ -172,7 +172,7 @@ create table test_table_7 (
                 Empty.CommentLookup,
                 Empty.CommentLookup
             );
-            var result = generator.Generate(table, comment);
+            var result = generator.Generate(Database, table, comment);
 
             var expected = TestTable5Output;
             Assert.AreEqual(expected, result);
@@ -201,7 +201,7 @@ This is a second line for it.";
                 Empty.CommentLookup,
                 Empty.CommentLookup
             );
-            var result = generator.Generate(table, comment);
+            var result = generator.Generate(Database, table, comment);
 
             var expected = TestTable5MultiLineOutput;
             Assert.AreEqual(expected, result);
@@ -226,7 +226,7 @@ This is a second line for it.";
                 Empty.CommentLookup,
                 Empty.CommentLookup
             );
-            var result = generator.Generate(table, comment);
+            var result = generator.Generate(Database, table, comment);
 
             var expected = TestTable7Output;
             Assert.AreEqual(expected, result);
@@ -255,7 +255,7 @@ This is a second line for it.";
                 Empty.CommentLookup,
                 Empty.CommentLookup
             );
-            var result = generator.Generate(table, comment);
+            var result = generator.Generate(Database, table, comment);
 
             var expected = TestTable7MultiLineOutput;
             Assert.AreEqual(expected, result);

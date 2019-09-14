@@ -2,6 +2,7 @@ using System;
 using System.IO;
 using System.IO.Abstractions;
 using LanguageExt;
+using Moq;
 using NUnit.Framework;
 using SJP.Schematic.Core;
 using SJP.Schematic.Core.Comments;
@@ -98,13 +99,25 @@ namespace SJP.Schematic.DataAccess.Poco.Tests
         }
 
         [Test]
+        public static void Generate_GivenNullDatabase_ThrowsArgumentNullException()
+        {
+            var nameTranslator = new VerbatimNameTranslator();
+            const string testNs = "SJP.Schematic.Test";
+            var generator = new PocoTableGenerator(nameTranslator, testNs);
+            var table = Mock.Of<IRelationalDatabaseTable>();
+
+            Assert.Throws<ArgumentNullException>(() => generator.Generate(null, table, Option<IRelationalDatabaseTableComments>.None));
+        }
+
+        [Test]
         public static void Generate_GivenNullTable_ThrowsArgumentNullException()
         {
             var nameTranslator = new VerbatimNameTranslator();
             const string testNs = "SJP.Schematic.Test";
             var generator = new PocoTableGenerator(nameTranslator, testNs);
+            var database = Mock.Of<IRelationalDatabase>();
 
-            Assert.Throws<ArgumentNullException>(() => generator.Generate(null, Option<IRelationalDatabaseTableComments>.None));
+            Assert.Throws<ArgumentNullException>(() => generator.Generate(database, null, Option<IRelationalDatabaseTableComments>.None));
         }
     }
 }

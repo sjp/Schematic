@@ -12,7 +12,7 @@ namespace SJP.Schematic.DataAccess.Tests
         {
         }
 
-        public override string Generate(IRelationalDatabaseTable table, Option<IRelationalDatabaseTableComments> comment) => string.Empty;
+        public override string Generate(IRelationalDatabase database, IRelationalDatabaseTable table, Option<IRelationalDatabaseTableComments> comment) => string.Empty;
 
         public FileInfoBase InnerGetFilePath(DirectoryInfoBase baseDirectory, Identifier objectName) => GetFilePath(baseDirectory, objectName);
     }

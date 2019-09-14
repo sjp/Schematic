@@ -25,8 +25,10 @@ namespace SJP.Schematic.DataAccess.Poco
 
         protected string Namespace { get; }
 
-        public override string Generate(IRelationalDatabaseTable table, Option<IRelationalDatabaseTableComments> comment)
+        public override string Generate(IRelationalDatabase database, IRelationalDatabaseTable table, Option<IRelationalDatabaseTableComments> comment)
         {
+            if (database == null)
+                throw new ArgumentNullException(nameof(database));
             if (table == null)
                 throw new ArgumentNullException(nameof(table));
 

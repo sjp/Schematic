@@ -46,7 +46,7 @@ namespace SJP.Schematic.DataAccess.Poco.Tests.Integration
             var generator = TableGenerator;
 
             const string expected = TestTable1Output;
-            var result = generator.Generate(table, Option<IRelationalDatabaseTableComments>.None);
+            var result = generator.Generate(Database, table, Option<IRelationalDatabaseTableComments>.None);
 
             Assert.AreEqual(expected, result);
         }
@@ -70,7 +70,7 @@ namespace SJP.Schematic.DataAccess.Poco.Tests.Integration
                 Empty.CommentLookup,
                 Empty.CommentLookup
             );
-            var result = generator.Generate(table, comment);
+            var result = generator.Generate(Database, table, comment);
 
             var expected = TestTable2Output;
             Assert.AreEqual(expected, result);
@@ -99,7 +99,7 @@ This is a second line for it.";
                 Empty.CommentLookup,
                 Empty.CommentLookup
             );
-            var result = generator.Generate(table, comment);
+            var result = generator.Generate(Database, table, comment);
 
             var expected = TestTable2MultiLineOutput;
             Assert.AreEqual(expected, result);
