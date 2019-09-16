@@ -115,9 +115,8 @@ namespace SJP.Schematic.DataAccess.Poco.Tests
             var nameTranslator = new VerbatimNameTranslator();
             const string testNs = "SJP.Schematic.Test";
             var generator = new PocoTableGenerator(nameTranslator, testNs);
-            var database = Mock.Of<IRelationalDatabase>();
 
-            Assert.Throws<ArgumentNullException>(() => generator.Generate(database, null, Option<IRelationalDatabaseTableComments>.None));
+            Assert.Throws<ArgumentNullException>(() => generator.Generate(Array.Empty<IRelationalDatabaseTable>(), null, Option<IRelationalDatabaseTableComments>.None));
         }
     }
 }

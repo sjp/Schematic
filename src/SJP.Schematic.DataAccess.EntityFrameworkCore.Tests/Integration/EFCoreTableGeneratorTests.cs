@@ -93,6 +93,20 @@ create table test_table_7 (
     test_table_6_fk1 integer not null,
     constraint fk_test_table_7_test_table_6_fk1 foreign key (test_table_6_fk1) references test_table_6 (test_pk)
 )").ConfigureAwait(false);
+            await Connection.ExecuteAsync(@"
+create table test_table_8 (
+    test_pk integer not null primary key autoincrement,
+    test_table_8_fk1 integer not null,
+    constraint fk_test_table_8_test_table_6_fk1 foreign key (test_table_8_fk1) references test_table_6 (test_pk)
+    constraint test_table_8_uk1 unique (test_table_8_fk1)
+)").ConfigureAwait(false);
+            await Connection.ExecuteAsync(@"
+create table test_table_9 (
+    test_pk integer not null primary key autoincrement,
+    test_table_9_fk1 integer not null,
+    constraint fk_test_table_9_test_table_6_fk1 foreign key (test_table_9_fk1) references test_table_6 (test_pk)
+)").ConfigureAwait(false);
+            await Connection.ExecuteAsync("create unique index ux_test_table_9_fk1 on test_table_9 (test_table_9_fk1)").ConfigureAwait(false);
         }
 
         [OneTimeTearDown]
@@ -103,16 +117,21 @@ create table test_table_7 (
             await Connection.ExecuteAsync("drop table test_table_4").ConfigureAwait(false);
             await Connection.ExecuteAsync("drop table test_table_3").ConfigureAwait(false);
             await Connection.ExecuteAsync("drop table test_table_5").ConfigureAwait(false);
+            await Connection.ExecuteAsync("drop table test_table_7").ConfigureAwait(false);
+            await Connection.ExecuteAsync("drop table test_table_8").ConfigureAwait(false);
+            await Connection.ExecuteAsync("drop table test_table_9").ConfigureAwait(false);
+            await Connection.ExecuteAsync("drop table test_table_6").ConfigureAwait(false);
         }
 
         [Test]
         public async Task Generate_GivenTableWithVariousColumnTypes_GeneratesExpectedOutput()
         {
+            var tables = await Database.GetAllTables().ConfigureAwait(false);
             var table = await GetTable("test_table_1").ConfigureAwait(false);
             var generator = TableGenerator;
 
             var expected = TestTable1Output;
-            var result = generator.Generate(Database, table, Option<IRelationalDatabaseTableComments>.None);
+            var result = generator.Generate(tables, table, Option<IRelationalDatabaseTableComments>.None);
 
             Assert.AreEqual(expected, result);
         }
@@ -120,11 +139,12 @@ create table test_table_7 (
         [Test]
         public async Task Generate_GivenTableWithVariousIndexesAndConstraints_GeneratesExpectedOutput()
         {
+            var tables = await Database.GetAllTables().ConfigureAwait(false);
             var table = await GetTable("test_table_2").ConfigureAwait(false);
             var generator = TableGenerator;
 
             var expected = TestTable2Output;
-            var result = generator.Generate(Database, table, Option<IRelationalDatabaseTableComments>.None);
+            var result = generator.Generate(tables, table, Option<IRelationalDatabaseTableComments>.None);
 
             Assert.AreEqual(expected, result);
         }
@@ -132,11 +152,12 @@ create table test_table_7 (
         [Test]
         public async Task Generate_GivenTableWithChildKeys_GeneratesExpectedOutput()
         {
+            var tables = await Database.GetAllTables().ConfigureAwait(false);
             var table = await GetTable("test_table_3").ConfigureAwait(false);
             var generator = TableGenerator;
 
             var expected = TestTable3Output;
-            var result = generator.Generate(Database, table, Option<IRelationalDatabaseTableComments>.None);
+            var result = generator.Generate(tables, table, Option<IRelationalDatabaseTableComments>.None);
 
             Assert.AreEqual(expected, result);
         }
@@ -144,11 +165,12 @@ create table test_table_7 (
         [Test]
         public async Task Generate_GivenTableWithForeignKeys_GeneratesExpectedOutput()
         {
+            var tables = await Database.GetAllTables().ConfigureAwait(false);
             var table = await GetTable("test_table_4").ConfigureAwait(false);
             var generator = TableGenerator;
 
             var expected = TestTable4Output;
-            var result = generator.Generate(Database, table, Option<IRelationalDatabaseTableComments>.None);
+            var result = generator.Generate(tables, table, Option<IRelationalDatabaseTableComments>.None);
 
             Assert.AreEqual(expected, result);
         }
@@ -159,6 +181,7 @@ create table test_table_7 (
             const string tableComment = "This is a test table comment for EF Core";
             const string columnComment = "This is a test column comment for EF Core";
 
+            var tables = await Database.GetAllTables().ConfigureAwait(false);
             var table = await GetTable("test_table_5").ConfigureAwait(false);
             var generator = TableGenerator;
 
@@ -172,7 +195,7 @@ create table test_table_7 (
                 Empty.CommentLookup,
                 Empty.CommentLookup
             );
-            var result = generator.Generate(Database, table, comment);
+            var result = generator.Generate(tables, table, comment);
 
             var expected = TestTable5Output;
             Assert.AreEqual(expected, result);
@@ -188,6 +211,7 @@ This is a second line for it.";
 
 This is a second line for it.";
 
+            var tables = await Database.GetAllTables().ConfigureAwait(false);
             var table = await GetTable("test_table_5").ConfigureAwait(false);
             var generator = TableGenerator;
 
@@ -201,7 +225,7 @@ This is a second line for it.";
                 Empty.CommentLookup,
                 Empty.CommentLookup
             );
-            var result = generator.Generate(Database, table, comment);
+            var result = generator.Generate(tables, table, comment);
 
             var expected = TestTable5MultiLineOutput;
             Assert.AreEqual(expected, result);
@@ -213,6 +237,7 @@ This is a second line for it.";
             const string tableComment = "This is a test table comment for EF Core";
             const string foreignKeyComment = "This is a test foreign key comment for EF Core";
 
+            var tables = await Database.GetAllTables().ConfigureAwait(false);
             var table = await GetTable("test_table_7").ConfigureAwait(false);
             var generator = TableGenerator;
 
@@ -226,7 +251,7 @@ This is a second line for it.";
                 Empty.CommentLookup,
                 Empty.CommentLookup
             );
-            var result = generator.Generate(Database, table, comment);
+            var result = generator.Generate(tables, table, comment);
 
             var expected = TestTable7Output;
             Assert.AreEqual(expected, result);
@@ -242,6 +267,7 @@ This is a second line for it.";
 
 This is a second line for it.";
 
+            var tables = await Database.GetAllTables().ConfigureAwait(false);
             var table = await GetTable("test_table_7").ConfigureAwait(false);
             var generator = TableGenerator;
 
@@ -255,9 +281,22 @@ This is a second line for it.";
                 Empty.CommentLookup,
                 Empty.CommentLookup
             );
-            var result = generator.Generate(Database, table, comment);
+            var result = generator.Generate(tables, table, comment);
 
             var expected = TestTable7MultiLineOutput;
+            Assert.AreEqual(expected, result);
+        }
+
+        [Test]
+        public async Task Generate_GivenTableWithUniqueChildKeys_GeneratesExpectedOutput()
+        {
+            var tables = await Database.GetAllTables().ConfigureAwait(false);
+            var table = await GetTable("test_table_6").ConfigureAwait(false);
+            var generator = TableGenerator;
+
+            var expected = TestTable6Output;
+            var result = generator.Generate(tables, table, Option<IRelationalDatabaseTableComments>.None);
+
             Assert.AreEqual(expected, result);
         }
 
@@ -635,6 +674,49 @@ namespace EFCoreTestNamespace.Main
         /// </summary>
         [Column(""test_column_1"", TypeName = ""INTEGER"")]
         public long? TestColumn1 { get; set; }
+    }
+}";
+
+        private readonly string TestTable6Output = @"using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+
+namespace EFCoreTestNamespace.Main
+{
+    /// <summary>
+    /// A mapping class to query the <c>test_table_6</c> table.
+    /// </summary>
+    [Table(""test_table_6"", Schema = ""main"")]
+    public class TestTable6
+    {
+        /// <summary>
+        /// The <c>test_pk</c> column.
+        /// </summary>
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+        [Column(""test_pk"", TypeName = ""INTEGER"")]
+        public long TestPk { get; set; }
+
+        /// <summary>
+        /// The <c>test_int</c> column.
+        /// </summary>
+        [Column(""test_int"", TypeName = ""INTEGER"")]
+        public long TestInt { get; set; }
+
+        /// <summary>
+        /// The <c>fk_test_table_7_test_table_6_fk1</c> child key. Navigates from <c>test_table_6</c> to <c>test_table_7</c> entities.
+        /// </summary>
+        public virtual ICollection<main.TestTable7> TestTable7s { get; set; } = new HashSet<main.TestTable7>();
+
+        /// <summary>
+        /// The <c>fk_test_table_8_test_table_6_fk1</c> child key. Navigates from <c>test_table_6</c> to <c>test_table_8</c> entities.
+        /// </summary>
+        public virtual main.TestTable8 TestTable8s { get; set; }
+
+        /// <summary>
+        /// The <c>fk_test_table_9_test_table_6_fk1</c> child key. Navigates from <c>test_table_6</c> to <c>test_table_9</c> entities.
+        /// </summary>
+        public virtual main.TestTable9 TestTable9s { get; set; }
     }
 }";
 

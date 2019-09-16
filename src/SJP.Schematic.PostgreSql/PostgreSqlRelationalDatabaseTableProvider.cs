@@ -34,7 +34,7 @@ namespace SJP.Schematic.PostgreSql
 
         public async Task<IReadOnlyCollection<IRelationalDatabaseTable>> GetAllTables(CancellationToken cancellationToken = default)
         {
-            var provider = await _tableProvider.Task;
+            var provider = await _tableProvider.Task.ConfigureAwait(false);
             var tablesTask = provider.Match(
                 tp => tp.GetAllTables(cancellationToken),
                 () => Empty.Tables

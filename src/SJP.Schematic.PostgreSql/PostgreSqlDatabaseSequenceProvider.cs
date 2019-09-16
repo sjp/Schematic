@@ -31,7 +31,7 @@ namespace SJP.Schematic.PostgreSql
 
         public async Task<IReadOnlyCollection<IDatabaseSequence>> GetAllSequences(CancellationToken cancellationToken = default)
         {
-            var provider = await _sequenceProvider.Task;
+            var provider = await _sequenceProvider.Task.ConfigureAwait(false);
             var sequencesTask = provider.Match(
                 sp => sp.GetAllSequences(cancellationToken),
                 () => Empty.Sequences
