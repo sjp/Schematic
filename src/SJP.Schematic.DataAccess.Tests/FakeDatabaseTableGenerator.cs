@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.IO.Abstractions;
 using LanguageExt;
 using SJP.Schematic.Core;
@@ -12,7 +13,7 @@ namespace SJP.Schematic.DataAccess.Tests
         {
         }
 
-        public override string Generate(IRelationalDatabase database, IRelationalDatabaseTable table, Option<IRelationalDatabaseTableComments> comment) => string.Empty;
+        public override string Generate(IReadOnlyCollection<IRelationalDatabaseTable> tables, IRelationalDatabaseTable table, Option<IRelationalDatabaseTableComments> comment) => string.Empty;
 
         public FileInfoBase InnerGetFilePath(DirectoryInfoBase baseDirectory, Identifier objectName) => GetFilePath(baseDirectory, objectName);
     }

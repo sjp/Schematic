@@ -42,11 +42,12 @@ namespace SJP.Schematic.DataAccess.Poco.Tests.Integration
         [Test]
         public async Task Generate_GivenTableWithVariousColumnTypes_GeneratesExpectedOutput()
         {
+            var tables = await Database.GetAllTables().ConfigureAwait(false);
             var table = await GetTable("test_table_1").ConfigureAwait(false);
             var generator = TableGenerator;
 
             const string expected = TestTable1Output;
-            var result = generator.Generate(Database, table, Option<IRelationalDatabaseTableComments>.None);
+            var result = generator.Generate(tables, table, Option<IRelationalDatabaseTableComments>.None);
 
             Assert.AreEqual(expected, result);
         }
@@ -57,6 +58,7 @@ namespace SJP.Schematic.DataAccess.Poco.Tests.Integration
             const string tableComment = "This is a test table comment for Poco";
             const string columnComment = "This is a test column comment for Poco";
 
+            var tables = await Database.GetAllTables().ConfigureAwait(false);
             var table = await GetTable("test_table_2").ConfigureAwait(false);
             var generator = TableGenerator;
 
@@ -70,7 +72,7 @@ namespace SJP.Schematic.DataAccess.Poco.Tests.Integration
                 Empty.CommentLookup,
                 Empty.CommentLookup
             );
-            var result = generator.Generate(Database, table, comment);
+            var result = generator.Generate(tables, table, comment);
 
             var expected = TestTable2Output;
             Assert.AreEqual(expected, result);
@@ -86,6 +88,7 @@ This is a second line for it.";
 
 This is a second line for it.";
 
+            var tables = await Database.GetAllTables().ConfigureAwait(false);
             var table = await GetTable("test_table_2").ConfigureAwait(false);
             var generator = TableGenerator;
 
@@ -99,7 +102,7 @@ This is a second line for it.";
                 Empty.CommentLookup,
                 Empty.CommentLookup
             );
-            var result = generator.Generate(Database, table, comment);
+            var result = generator.Generate(tables, table, comment);
 
             var expected = TestTable2MultiLineOutput;
             Assert.AreEqual(expected, result);

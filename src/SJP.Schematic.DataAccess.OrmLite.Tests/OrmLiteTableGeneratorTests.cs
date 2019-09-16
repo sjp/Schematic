@@ -115,9 +115,8 @@ namespace SJP.Schematic.DataAccess.OrmLite.Tests
             var nameTranslator = new VerbatimNameTranslator();
             const string test = "SJP.Schematic.Test";
             var generator = new OrmLiteTableGenerator(nameTranslator, test);
-            var database = Mock.Of<IRelationalDatabase>();
 
-            Assert.Throws<ArgumentNullException>(() => generator.Generate(database, null, Option<IRelationalDatabaseTableComments>.None));
+            Assert.Throws<ArgumentNullException>(() => generator.Generate(Array.Empty<IRelationalDatabaseTable>(), null, Option<IRelationalDatabaseTableComments>.None));
         }
     }
 }

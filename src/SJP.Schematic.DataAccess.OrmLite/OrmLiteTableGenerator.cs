@@ -26,10 +26,10 @@ namespace SJP.Schematic.DataAccess.OrmLite
 
         protected string Namespace { get; }
 
-        public override string Generate(IRelationalDatabase database, IRelationalDatabaseTable table, Option<IRelationalDatabaseTableComments> comment)
+        public override string Generate(IReadOnlyCollection<IRelationalDatabaseTable> tables, IRelationalDatabaseTable table, Option<IRelationalDatabaseTableComments> comment)
         {
-            if (database == null)
-                throw new ArgumentNullException(nameof(database));
+            if (tables == null)
+                throw new ArgumentNullException(nameof(tables));
             if (table == null)
                 throw new ArgumentNullException(nameof(table));
 

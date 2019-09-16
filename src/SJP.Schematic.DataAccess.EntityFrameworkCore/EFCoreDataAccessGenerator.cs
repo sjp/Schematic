@@ -73,7 +73,7 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore
                     ? Option<IRelationalDatabaseTableComments>.Some(commentsLookup[table.Name])
                     : Option<IRelationalDatabaseTableComments>.None;
 
-                var tableClass = tableGenerator.Generate(Database, table, tableComment);
+                var tableClass = tableGenerator.Generate(tables, table, tableComment);
                 var tablePath = tableGenerator.GetFilePath(projectFileInfo.Directory, table.Name);
 
                 if (!tablePath.Directory.Exists)
@@ -133,7 +133,7 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore
                     ? Option<IRelationalDatabaseTableComments>.Some(commentsLookup[table.Name])
                     : Option<IRelationalDatabaseTableComments>.None;
 
-                var tableClass = tableGenerator.Generate(Database, table, tableComment);
+                var tableClass = tableGenerator.Generate(tables, table, tableComment);
                 var tablePath = tableGenerator.GetFilePath(projectFileInfo.Directory, table.Name);
 
                 if (!tablePath.Directory.Exists)

@@ -26,10 +26,10 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore
 
         protected string Namespace { get; }
 
-        public override string Generate(IRelationalDatabase database, IRelationalDatabaseTable table, Option<IRelationalDatabaseTableComments> comment)
+        public override string Generate(IReadOnlyCollection<IRelationalDatabaseTable> tables, IRelationalDatabaseTable table, Option<IRelationalDatabaseTableComments> comment)
         {
-            if (database == null)
-                throw new ArgumentNullException(nameof(database));
+            if (tables == null)
+                throw new ArgumentNullException(nameof(tables));
             if (table == null)
                 throw new ArgumentNullException(nameof(table));
 
@@ -143,10 +143,10 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore
                 if (hasFirstLine)
                     builder.AppendLine();
 
-                var childTable = relationalKey.ChildTable;
+                var childTableName = relationalKey.ChildTable;
 
-                var childSchemaName = childTable.Schema;
-                var childClassName = NameTranslator.TableToClassName(childTable);
+                var childSchemaName = childTableName.Schema;
+                var childClassName = NameTranslator.TableToClassName(childTableName);
                 var qualifiedChildName = !childSchemaName.IsNullOrWhiteSpace()
                     ? childSchemaName + "." + childClassName
                     : childClassName;
@@ -156,14 +156,29 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore
                 var childKeyComment = GenerateChildKeyComment(relationalKey);
                 builder.AppendComment(columnIndent, childKeyComment);
 
-                builder.Append(columnIndent)
-                    .Append("public virtual ICollection<")
-                    .Append(qualifiedChildName)
-                    .Append("> ")
-                    .Append(childSetName)
-                    .Append(" { get; set; } = new HashSet<")
-                    .Append(qualifiedChildName)
-                    .AppendLine(">();");
+                var childTable = tables.FirstOrDefault(t => t.Name == relationalKey.ChildTable);
+                var childKeyIsUnique = childTable != null && IsChildKeyUnique(childTable, relationalKey.ChildKey);
+
+                if (childKeyIsUnique)
+                {
+                    builder.Append(columnIndent)
+                        .Append("public virtual ")
+                        .Append(qualifiedChildName)
+                        .Append(" ")
+                        .Append(childSetName)
+                        .AppendLine(" { get; set; }");
+                }
+                else
+                {
+                    builder.Append(columnIndent)
+                        .Append("public virtual ICollection<")
+                        .Append(qualifiedChildName)
+                        .Append("> ")
+                        .Append(childSetName)
+                        .Append(" { get; set; } = new HashSet<")
+                        .Append(qualifiedChildName)
+                        .AppendLine(">();");
+                }
             }
 
             builder.Append(Indent)
@@ -281,6 +296,43 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore
             var escapedParentTableName = SecurityElement.Escape(relationalKey.ParentTable.LocalName);
 
             return "The " + escapedForeignKeyName + "child key. Navigates from <c>" + escapedParentTableName + "</c> to <c>" + escapedChildTableName + "</c> entities.";
+        }
+
+        private bool IsChildKeyUnique(IRelationalDatabaseTable table, IDatabaseKey key)
+        {
+            if (table == null)
+                throw new ArgumentNullException(nameof(table));
+            if (key == null)
+                throw new ArgumentNullException(nameof(key));
+
+            var keyColumnNames = key.Columns.Select(c => c.Name.LocalName).ToList();
+            var matchesPkColumns = table.PrimaryKey.Match(pk =>
+            {
+                var pkColumnNames = pk.Columns.Select(c => c.Name.LocalName).ToList();
+                return keyColumnNames.SequenceEqual(pkColumnNames);
+            }, () => false);
+            if (matchesPkColumns)
+                return true;
+
+            var matchesUkColumns = table.UniqueKeys.Any(uk =>
+            {
+                var ukColumnNames = uk.Columns.Select(c => c.Name.LocalName).ToList();
+                return keyColumnNames.SequenceEqual(ukColumnNames);
+            });
+            if (matchesUkColumns)
+                return true;
+
+            var uniqueIndexes = table.Indexes.Where(i => i.IsUnique).ToList();
+            if (uniqueIndexes.Count == 0)
+                return false;
+
+            return uniqueIndexes.Any(i =>
+            {
+                var indexColumnExpressions = i.Columns
+                    .Select(ic => ic.DependentColumns.Select(dc => dc.Name.LocalName).FirstOrDefault() ?? ic.Expression)
+                    .ToList();
+                return keyColumnNames.SequenceEqual(indexColumnExpressions);
+            });
         }
 
         private static readonly IReadOnlyDictionary<string, string> TypeNameMap = new Dictionary<string, string>

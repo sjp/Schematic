@@ -25,7 +25,6 @@ namespace SJP.Schematic.Reporting.Html.Lint.Rules
                 {
                     var tableUrl = UrlRouter.GetTableUrl(tableName);
                     return $"<a href=\"{ tableUrl }\">{ HttpUtility.HtmlEncode(tableName.ToVisibleName()) }</a>";
-
                 })
                 .Join(" &rarr; ");
             var message = "Cycle found for the following path: " + tableNames;

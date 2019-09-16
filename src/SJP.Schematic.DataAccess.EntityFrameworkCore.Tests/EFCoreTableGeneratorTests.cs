@@ -114,12 +114,11 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore.Tests
         public static void Generate_GivenNullTable_ThrowsArgumentNullException()
         {
             var nameTranslator = new VerbatimNameTranslator();
-            var database = Mock.Of<IRelationalDatabase>();
             var comment = Option<IRelationalDatabaseTableComments>.None;
             const string testNs = "SJP.Schematic.Test";
             var generator = new EFCoreTableGenerator(nameTranslator, testNs);
 
-            Assert.Throws<ArgumentNullException>(() => generator.Generate(database, null, comment));
+            Assert.Throws<ArgumentNullException>(() => generator.Generate(Array.Empty<IRelationalDatabaseTable>(), null, comment));
         }
     }
 }

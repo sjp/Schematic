@@ -20,7 +20,7 @@ namespace SJP.Schematic.DataAccess
 
         protected string Indent { get; }
 
-        public abstract string Generate(IRelationalDatabase database, IRelationalDatabaseTable table, Option<IRelationalDatabaseTableComments> comment);
+        public abstract string Generate(IReadOnlyCollection<IRelationalDatabaseTable> tables, IRelationalDatabaseTable table, Option<IRelationalDatabaseTableComments> comment);
 
         public virtual FileInfoBase GetFilePath(IDirectoryInfo baseDirectory, Identifier objectName)
         {
