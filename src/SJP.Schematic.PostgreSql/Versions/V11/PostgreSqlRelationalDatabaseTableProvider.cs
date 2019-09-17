@@ -11,7 +11,7 @@ using SJP.Schematic.PostgreSql.Query;
 
 namespace SJP.Schematic.PostgreSql.Versions.V11
 {
-    public class PostgreSqlRelationalDatabaseTableProvider : V9_4.PostgreSqlRelationalDatabaseTableProvider
+    public class PostgreSqlRelationalDatabaseTableProvider : V10.PostgreSqlRelationalDatabaseTableProvider
     {
         public PostgreSqlRelationalDatabaseTableProvider(IDbConnection connection, IIdentifierDefaults identifierDefaults, IIdentifierResolutionStrategy identifierResolver, IDbTypeProvider typeProvider)
             : base(connection, identifierDefaults, identifierResolver, typeProvider)

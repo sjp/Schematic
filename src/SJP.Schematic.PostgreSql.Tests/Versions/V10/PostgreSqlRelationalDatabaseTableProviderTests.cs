@@ -3,9 +3,9 @@ using NUnit.Framework;
 using Moq;
 using SJP.Schematic.Core;
 using System.Data;
-using TableProvider = SJP.Schematic.PostgreSql.Versions.V11.PostgreSqlRelationalDatabaseTableProvider;
+using TableProvider = SJP.Schematic.PostgreSql.Versions.V10.PostgreSqlRelationalDatabaseTableProvider;
 
-namespace SJP.Schematic.PostgreSql.Tests.Versions.V11
+namespace SJP.Schematic.PostgreSql.Tests.Versions.V10
 {
     [TestFixture]
     internal static class PostgreSqlRelationalDatabaseTableProviderTests
