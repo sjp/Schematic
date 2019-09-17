@@ -88,7 +88,7 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration.Versions.V11
         }
 
         [Test]
-        public async Task Columns_WhenGivenTableColumnWithIdentity_ReturnsSomeAutoincrement()
+        public async Task Columns_WhenGivenTableColumnWithSerialIdentity_ReturnsSomeAutoincrement()
         {
             const string tableName = "v11_table_test_table_35";
             var table = await GetTableAsync(tableName).ConfigureAwait(false);
@@ -98,7 +98,7 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration.Versions.V11
         }
 
         [Test]
-        public async Task Columns_WhenGivenTableColumnWithIdentity_ReturnsCorrectInitialValue()
+        public async Task Columns_WhenGivenTableColumnWithSerialIdentity_ReturnsCorrectInitialValue()
         {
             const string tableName = "v11_table_test_table_35";
             var table = await GetTableAsync(tableName).ConfigureAwait(false);
@@ -108,13 +108,43 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration.Versions.V11
         }
 
         [Test]
-        public async Task Columns_WhenGivenTableColumnWithIdentity_ReturnsCorrectIncrement()
+        public async Task Columns_WhenGivenTableColumnWithSerialIdentity_ReturnsCorrectIncrement()
         {
             const string tableName = "v11_table_test_table_35";
             var table = await GetTableAsync(tableName).ConfigureAwait(false);
             var column = table.Columns.Last();
 
             Assert.AreEqual(1, column.AutoIncrement.UnwrapSome().Increment);
+        }
+
+        [Test]
+        public async Task Columns_WhenGivenTableColumnWithIdentity_ReturnsSomeAutoincrement()
+        {
+            const string tableName = "v11_table_test_table_36";
+            var table = await GetTableAsync(tableName).ConfigureAwait(false);
+            var column = table.Columns.Last();
+
+            Assert.IsTrue(column.AutoIncrement.IsSome);
+        }
+
+        [Test]
+        public async Task Columns_WhenGivenTableColumnWithIdentity_ReturnsCorrectInitialValue()
+        {
+            const string tableName = "v11_table_test_table_36";
+            var table = await GetTableAsync(tableName).ConfigureAwait(false);
+            var column = table.Columns.Last();
+
+            Assert.AreEqual(123, column.AutoIncrement.UnwrapSome().InitialValue);
+        }
+
+        [Test]
+        public async Task Columns_WhenGivenTableColumnWithIdentity_ReturnsCorrectIncrement()
+        {
+            const string tableName = "v11_table_test_table_36";
+            var table = await GetTableAsync(tableName).ConfigureAwait(false);
+            var column = table.Columns.Last();
+
+            Assert.AreEqual(456, column.AutoIncrement.UnwrapSome().Increment);
         }
     }
 }

@@ -219,6 +219,7 @@ create table v11_table_test_table_32 (
 )").ConfigureAwait(false);
             await Connection.ExecuteAsync("create table v11_table_test_table_33 ( test_column int not null default 1 )").ConfigureAwait(false);
             await Connection.ExecuteAsync("create table v11_table_test_table_35 ( test_column serial primary key )").ConfigureAwait(false);
+            await Connection.ExecuteAsync("create table v11_table_test_table_36 ( test_column int generated always as identity (start with 123 increment by 456) )").ConfigureAwait(false);
             await Connection.ExecuteAsync("create table v11_trigger_test_table_1 (table_id int primary key not null)").ConfigureAwait(false);
             await Connection.ExecuteAsync("create table v11_trigger_test_table_2 (table_id int primary key not null)").ConfigureAwait(false);
             await Connection.ExecuteAsync(@"create function v11_test_trigger_fn()
@@ -300,6 +301,7 @@ execute procedure v11_test_trigger_fn()").ConfigureAwait(false);
             await Connection.ExecuteAsync("drop table v11_table_test_table_32").ConfigureAwait(false);
             await Connection.ExecuteAsync("drop table v11_table_test_table_33").ConfigureAwait(false);
             await Connection.ExecuteAsync("drop table v11_table_test_table_35").ConfigureAwait(false);
+            await Connection.ExecuteAsync("drop table v11_table_test_table_36").ConfigureAwait(false);
             await Connection.ExecuteAsync("drop table v11_trigger_test_table_1").ConfigureAwait(false);
             await Connection.ExecuteAsync("drop table v11_trigger_test_table_2").ConfigureAwait(false);
             await Connection.ExecuteAsync("drop function v11_test_trigger_fn()").ConfigureAwait(false);

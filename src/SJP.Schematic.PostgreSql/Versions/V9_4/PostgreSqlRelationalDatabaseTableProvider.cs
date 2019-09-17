@@ -893,7 +893,7 @@ where t.relkind = 'r'
             return Identifier.CreateQualifiedIdentifier(IdentifierDefaults.Server, IdentifierDefaults.Database, schema, tableName.LocalName);
         }
 
-        private static class Constants
+        protected static class Constants
         {
             public const string Delete = "DELETE";
 
