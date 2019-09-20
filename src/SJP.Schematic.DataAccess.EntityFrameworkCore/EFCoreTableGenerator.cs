@@ -298,7 +298,7 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore
             return "The " + escapedForeignKeyName + "child key. Navigates from <c>" + escapedParentTableName + "</c> to <c>" + escapedChildTableName + "</c> entities.";
         }
 
-        private bool IsChildKeyUnique(IRelationalDatabaseTable table, IDatabaseKey key)
+        private static bool IsChildKeyUnique(IRelationalDatabaseTable table, IDatabaseKey key)
         {
             if (table == null)
                 throw new ArgumentNullException(nameof(table));

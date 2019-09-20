@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using SJP.Schematic.Core;
-using SJP.Schematic.Reporting.Dot;
+using SJP.Schematic.Dot;
 
 namespace SJP.Schematic.Reporting.Html.ViewModels.Mappers
 {
@@ -172,7 +172,7 @@ namespace SJP.Schematic.Reporting.Html.ViewModels.Mappers
             var oneDegreeTables = RelationshipFinder.GetTablesByDegrees(table, 1);
             var twoDegreeTables = RelationshipFinder.GetTablesByDegrees(table, 2);
 
-            var dotFormatter = new DatabaseDotFormatter(IdentifierDefaults);
+            var dotFormatter = new DotFormatter(IdentifierDefaults);
             var renderOptions = new DotRenderOptions { HighlightedTable = table.Name };
             var oneDegreeDot = dotFormatter.RenderTables(oneDegreeTables, RowCounts, renderOptions);
             var twoDegreeDot = dotFormatter.RenderTables(twoDegreeTables, RowCounts, renderOptions);
