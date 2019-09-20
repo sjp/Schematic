@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using SJP.Schematic.Core;
-using SJP.Schematic.Reporting.Dot;
+using SJP.Schematic.Dot;
 
 namespace SJP.Schematic.Reporting.Html.ViewModels.Mappers
 {
@@ -21,21 +21,12 @@ namespace SJP.Schematic.Reporting.Html.ViewModels.Mappers
             if (rowCounts == null)
                 throw new ArgumentNullException(nameof(rowCounts));
 
-            var dotFormatter = new DatabaseDotFormatter(IdentifierDefaults);
+            var dotFormatter = new DotFormatter(IdentifierDefaults);
 
-            var rootPath = string.Empty;
-            var compactOptions = new DotRenderOptions
-            {
-                IsReducedColumnSet = true,
-                RootPath = rootPath
-            };
+            var compactOptions = new DotRenderOptions { IsReducedColumnSet = true };
             var compactDot = dotFormatter.RenderTables(tables, rowCounts, compactOptions);
 
-            var largeOptions = new DotRenderOptions
-            {
-                IsReducedColumnSet = false,
-                RootPath = rootPath
-            };
+            var largeOptions = new DotRenderOptions { IsReducedColumnSet = false };
             var largeDot = dotFormatter.RenderTables(tables, rowCounts, largeOptions);
 
             var diagrams = new[]

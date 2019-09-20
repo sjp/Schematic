@@ -4,7 +4,7 @@ using NUnit.Framework;
 using SJP.Schematic.Core;
 using SJP.Schematic.Sqlite;
 
-namespace SJP.Schematic.DataAccess.Poco.Tests
+namespace SJP.Schematic.DataAccess.Poco.Tests.Integration
 {
     internal static class Config
     {

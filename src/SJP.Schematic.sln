@@ -85,6 +85,14 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SJP.Schematic.SqlServer.Mig
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SJP.Schematic.SqlServer.Migrations.Tests", "SJP.Schematic.SqlServer.Migrations.Tests\SJP.Schematic.SqlServer.Migrations.Tests.csproj", "{E6F7642B-014A-486E-AA3B-0E332B1BE9DF}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SJP.Schematic.Dot", "SJP.Schematic.Dot\SJP.Schematic.Dot.csproj", "{7E11AF10-4E9A-455B-A35D-AF301A6CEBD7}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SJP.Schematic.Dot.Tests", "SJP.Schematic.Dot.Tests\SJP.Schematic.Dot.Tests.csproj", "{139103BD-C06F-4EB2-BCA5-899430150384}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SJP.Schematic.Dbml", "SJP.Schematic.Dbml\SJP.Schematic.Dbml.csproj", "{34EAF876-8534-412E-95E3-06505AE2167F}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SJP.Schematic.Dbml.Tests", "SJP.Schematic.Dbml.Tests\SJP.Schematic.Dbml.Tests.csproj", "{66685907-7CEF-48BC-A74B-E2A8D0D01583}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -255,6 +263,22 @@ Global
 		{E6F7642B-014A-486E-AA3B-0E332B1BE9DF}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E6F7642B-014A-486E-AA3B-0E332B1BE9DF}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{E6F7642B-014A-486E-AA3B-0E332B1BE9DF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7E11AF10-4E9A-455B-A35D-AF301A6CEBD7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7E11AF10-4E9A-455B-A35D-AF301A6CEBD7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7E11AF10-4E9A-455B-A35D-AF301A6CEBD7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7E11AF10-4E9A-455B-A35D-AF301A6CEBD7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{139103BD-C06F-4EB2-BCA5-899430150384}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{139103BD-C06F-4EB2-BCA5-899430150384}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{139103BD-C06F-4EB2-BCA5-899430150384}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{139103BD-C06F-4EB2-BCA5-899430150384}.Release|Any CPU.Build.0 = Release|Any CPU
+		{34EAF876-8534-412E-95E3-06505AE2167F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{34EAF876-8534-412E-95E3-06505AE2167F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{34EAF876-8534-412E-95E3-06505AE2167F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{34EAF876-8534-412E-95E3-06505AE2167F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{66685907-7CEF-48BC-A74B-E2A8D0D01583}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{66685907-7CEF-48BC-A74B-E2A8D0D01583}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{66685907-7CEF-48BC-A74B-E2A8D0D01583}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{66685907-7CEF-48BC-A74B-E2A8D0D01583}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
