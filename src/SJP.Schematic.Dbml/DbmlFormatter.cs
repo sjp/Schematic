@@ -31,7 +31,6 @@ namespace SJP.Schematic.Dbml
                 hasFirstTable = true;
             }
 
-
             var anyForeignKeys = tables.Any(t => t.ParentKeys.Count > 0);
             if (anyForeignKeys)
             {
@@ -40,7 +39,7 @@ namespace SJP.Schematic.Dbml
                     RenderForeignKeys(builder, table);
             }
 
-            return builder.GetStringAndRelease();
+            return builder.GetStringAndRelease().TrimEnd();
         }
 
         private void RenderTable(StringBuilder builder, IRelationalDatabaseTable table)
@@ -77,7 +76,7 @@ namespace SJP.Schematic.Dbml
             builder.AppendLine("}");
         }
 
-        private string RenderColumnLine(IRelationalDatabaseTable table, IDatabaseColumn column)
+        private static string RenderColumnLine(IRelationalDatabaseTable table, IDatabaseColumn column)
         {
             if (table == null)
                 throw new ArgumentNullException(nameof(table));
@@ -86,9 +85,8 @@ namespace SJP.Schematic.Dbml
 
             var columnName = column.Name.ToVisibleName();
 
-            var options = new List<string>();
+            var options = new List<string> { column.IsNullable ? "null" : "not null" };
 
-            options.Add(column.IsNullable ? "null" : "not null");
             if (column.AutoIncrement.IsSome)
                 options.Add("increment");
 

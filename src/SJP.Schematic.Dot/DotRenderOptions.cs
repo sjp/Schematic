@@ -44,7 +44,6 @@ namespace SJP.Schematic.Dot
         {
             get => _theme;
             set => _theme = value ?? throw new ArgumentNullException(nameof(value));
-
         }
 
         private IGraphTheme _theme = new DefaultTheme();

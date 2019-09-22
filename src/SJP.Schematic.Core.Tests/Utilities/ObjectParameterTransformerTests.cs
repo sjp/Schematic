@@ -38,14 +38,6 @@ namespace SJP.Schematic.Core.Tests.Utilities
             });
         }
 
-
-
-
-
-
-
-
-
         [Test]
         public static void ToParameters_GivenNullLookup_ThrowsArgumentNullException()
         {
