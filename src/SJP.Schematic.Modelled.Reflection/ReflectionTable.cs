@@ -5,7 +5,6 @@ using System.Threading;
 using LanguageExt;
 using SJP.Schematic.Core;
 using SJP.Schematic.Core.Extensions;
-using SJP.Schematic.Core.Utilities;
 using SJP.Schematic.Modelled.Reflection.Model;
 
 namespace SJP.Schematic.Modelled.Reflection
@@ -187,7 +186,7 @@ namespace SJP.Schematic.Modelled.Reflection
             return result;
         }
 
-        public IReadOnlyCollection<IDatabaseCheckConstraint> Checks => new ReadOnlyCollectionSlim<IDatabaseCheckConstraint>(_checkLookup.Value.Count, _checkLookup.Value.Values);
+        public IReadOnlyCollection<IDatabaseCheckConstraint> Checks => _checkLookup.Value.Values.ToList();
 
         public IReadOnlyCollection<IDatabaseRelationalKey> ChildKeys => _childKeys.Value;
 
@@ -195,17 +194,17 @@ namespace SJP.Schematic.Modelled.Reflection
 
         protected IRelationalDatabase Database { get; }
 
-        public IReadOnlyCollection<IDatabaseIndex> Indexes => new ReadOnlyCollectionSlim<IDatabaseIndex>(_indexLookup.Value.Count, _indexLookup.Value.Values);
+        public IReadOnlyCollection<IDatabaseIndex> Indexes => _indexLookup.Value.Values.ToList();
 
         public Identifier Name { get; }
 
-        public IReadOnlyCollection<IDatabaseRelationalKey> ParentKeys => new ReadOnlyCollectionSlim<IDatabaseRelationalKey>(_parentKeyLookup.Value.Count, _parentKeyLookup.Value.Values);
+        public IReadOnlyCollection<IDatabaseRelationalKey> ParentKeys => _parentKeyLookup.Value.Values.ToList();
 
         public Option<IDatabaseKey> PrimaryKey => _primaryKey.Value;
 
         public IReadOnlyCollection<IDatabaseTrigger> Triggers { get; }
 
-        public IReadOnlyCollection<IDatabaseKey> UniqueKeys => new ReadOnlyCollectionSlim<IDatabaseKey>(_uniqueKeyLookup.Value.Count, _uniqueKeyLookup.Value.Values);
+        public IReadOnlyCollection<IDatabaseKey> UniqueKeys => _uniqueKeyLookup.Value.Values.ToList();
 
         private readonly Lazy<IReadOnlyList<IDatabaseColumn>> _columns;
         private readonly Lazy<IReadOnlyDictionary<Identifier, IDatabaseKey>> _uniqueKeyLookup;
