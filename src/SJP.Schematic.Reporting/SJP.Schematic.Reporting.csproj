@@ -9,6 +9,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\SJP.Schematic.Core\SJP.Schematic.Core.csproj" />
+    <ProjectReference Include="..\SJP.Schematic.Dbml\SJP.Schematic.Dbml.csproj" />
     <ProjectReference Include="..\SJP.Schematic.Dot\SJP.Schematic.Dot.csproj" />
     <ProjectReference Include="..\SJP.Schematic.Graphviz\SJP.Schematic.Graphviz.csproj" />
     <ProjectReference Include="..\SJP.Schematic.Lint\SJP.Schematic.Lint.csproj" />

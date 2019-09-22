@@ -107,7 +107,8 @@ namespace SJP.Schematic.Reporting.Html
                 new SequencesRenderer(Database.IdentifierDefaults, TemplateFormatter, sequences, ExportDirectory),
                 new SynonymsRenderer(Database.IdentifierDefaults, TemplateFormatter, synonyms, synonymTargets, ExportDirectory),
                 new RoutinesRenderer(Database.IdentifierDefaults, TemplateFormatter, routines, ExportDirectory),
-                new TableOrderingRenderer(Database.Dialect, tables, ExportDirectory)
+                new TableOrderingRenderer(Database.Dialect, tables, ExportDirectory),
+                new DbmlRenderer(tables, ExportDirectory)
             };
         }
     }
