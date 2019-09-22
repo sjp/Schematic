@@ -35,3 +35,7 @@
 .callout-primary {
     border-left-color: #007bff;
 }
+
+.card-title-clearfix {
+    clear: both;
+}
