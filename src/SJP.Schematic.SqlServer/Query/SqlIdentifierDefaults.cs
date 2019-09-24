@@ -1,8 +1,8 @@
 ﻿using SJP.Schematic.Core;
 
-namespace SJP.Schematic.PostgreSql.Query
+namespace SJP.Schematic.SqlServer.Query
 {
-    internal class IdentifierDefaults : IIdentifierDefaults
+    internal class SqlIdentifierDefaults : IIdentifierDefaults
     {
         public string Server { get; set; }
 

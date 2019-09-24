@@ -1,8 +1,8 @@
 ﻿using SJP.Schematic.Core;
 
-namespace SJP.Schematic.SqlServer.Query
+namespace SJP.Schematic.MySql.Query
 {
-    internal class IdentifierDefaults : IIdentifierDefaults
+    internal class MySqlIdentifierDefaults : IIdentifierDefaults
     {
         public string Server { get; set; }
 

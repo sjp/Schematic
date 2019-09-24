@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using LanguageExt;
 using Moq;
@@ -32,6 +33,41 @@ namespace SJP.Schematic.Core.Tests
             var column = Mock.Of<IDatabaseColumn>();
 
             Assert.Throws<ArgumentNullException>(() => new DatabaseIndexColumn("   ", column, IndexColumnOrder.Ascending));
+        }
+
+        [Test]
+        public static void Ctor_GivenNullColumn_ThrowsArgumentNullException()
+        {
+            const string expression = "lower(test_column)";
+
+            Assert.Throws<ArgumentNullException>(() => new DatabaseIndexColumn(expression, (IDatabaseColumn)null, IndexColumnOrder.Ascending));
+        }
+
+        [Test]
+        public static void Ctor_GivenNullDependentColumns_ThrowsArgumentNullException()
+        {
+            const string expression = "lower(test_column)";
+
+            Assert.Throws<ArgumentNullException>(() => new DatabaseIndexColumn(expression, (IEnumerable<IDatabaseColumn>)null, IndexColumnOrder.Ascending));
+        }
+
+        [Test]
+        public static void Ctor_GivenDependentColumnsWithNullValue_ThrowsArgumentNullException()
+        {
+            const string expression = "lower(test_column)";
+            var columns = new IDatabaseColumn[] { null };
+
+            Assert.Throws<ArgumentNullException>(() => new DatabaseIndexColumn(expression, columns, IndexColumnOrder.Ascending));
+        }
+
+        [Test]
+        public static void Ctor_GivenInvalidIndexColumnOrder_ThrowsArgumentException()
+        {
+            const string expression = "lower(test_column)";
+            var column = Mock.Of<IDatabaseColumn>();
+            const IndexColumnOrder order = (IndexColumnOrder)55;
+
+            Assert.Throws<ArgumentException>(() => new DatabaseIndexColumn(expression, column, order));
         }
 
         [Test]

@@ -37,7 +37,7 @@ namespace SJP.Schematic.PostgreSql
 
         public override async Task<IIdentifierDefaults> GetIdentifierDefaultsAsync(CancellationToken cancellationToken = default)
         {
-            var result = await Connection.QuerySingleAsync<IdentifierDefaults>(IdentifierDefaultsQuerySql, cancellationToken).ConfigureAwait(false);
+            var result = await Connection.QuerySingleAsync<PgIdentifierDefaults>(IdentifierDefaultsQuerySql, cancellationToken).ConfigureAwait(false);
 
             if (result.Server.IsNullOrWhiteSpace())
                 result.Server = "127.0.0.1";
