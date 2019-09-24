@@ -83,7 +83,7 @@ namespace SJP.Schematic.Dbml
             if (column == null)
                 throw new ArgumentNullException(nameof(column));
 
-            var columnName = column.Name.ToVisibleName();
+            var columnName = column.Name.ToVisibleName().RemoveCharacters(QuoteChars);
 
             var options = new List<string> { column.IsNullable ? "null" : "not null" };
 
@@ -101,7 +101,7 @@ namespace SJP.Schematic.Dbml
                 ? " [" + options.Join(", ") + "]"
                 : string.Empty;
 
-            return Indent + columnName + " " + column.Type.Definition + columnOptions;
+            return Indent + columnName + " " + column.Type.Definition.RemoveCharacters(QuoteChars) + columnOptions;
         }
 
         private static string RenderIndexLine(IRelationalDatabaseTable table, IDatabaseIndex index)
@@ -230,6 +230,6 @@ namespace SJP.Schematic.Dbml
 
         private const string Indent = "    ";
 
-        private static readonly IEnumerable<char> QuoteChars = new[] { '\'', '"' };
+        private static readonly IEnumerable<char> QuoteChars = new[] { '\'', '"', '[', ']', '`' };
     }
 }
