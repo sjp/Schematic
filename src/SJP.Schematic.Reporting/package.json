@@ -18,9 +18,9 @@
     "url": "https://github.com/sjp/Schematic/issues"
   },
   "devDependencies": {
-    "@babel/core": "7.6.0",
-    "@babel/preset-env": "^7.6.0",
-    "@babel/register": "^7.6.0",
+    "@babel/core": "7.6.2",
+    "@babel/preset-env": "^7.6.2",
+    "@babel/register": "^7.6.2",
     "admin-lte": "^3.0.0-rc.1",
     "bootstrap": "^4.1.2",
     "codemirror": "^5.49.0",
