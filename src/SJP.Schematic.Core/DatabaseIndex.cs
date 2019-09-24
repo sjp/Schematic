@@ -12,11 +12,8 @@ namespace SJP.Schematic.Core
                 throw new ArgumentNullException(nameof(name));
             if (columns == null || columns.Empty() || columns.AnyNull())
                 throw new ArgumentNullException(nameof(columns));
-            if (includedColumns != null && includedColumns.AnyNull())
+            if (includedColumns == null || includedColumns.AnyNull())
                 throw new ArgumentNullException(nameof(includedColumns));
-
-            if (includedColumns == null)
-                includedColumns = Array.Empty<IDatabaseColumn>();
 
             Name = name.LocalName;
             IsUnique = isUnique;
