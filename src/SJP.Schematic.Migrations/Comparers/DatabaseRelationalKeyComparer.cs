@@ -18,7 +18,7 @@ namespace SJP.Schematic.Migrations.Comparers
         {
             if (x is null && y is null)
                 return true;
-            if (x is null ^ y is null)
+            if (x is null || y is null)
                 return false;
 
             return x.ChildTable == y.ChildTable

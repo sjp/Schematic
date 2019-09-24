@@ -14,7 +14,7 @@ namespace SJP.Schematic.Migrations.Operations.Comparers
             if (x is null && y is null)
                 return true;
 
-            if (x is null ^ y is null)
+            if (x is null || y is null)
                 return false;
 
             var xColumnNames = x.PrimaryKey.Columns.Select(c => c.Name).ToList();

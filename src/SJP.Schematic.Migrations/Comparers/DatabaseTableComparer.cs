@@ -41,7 +41,7 @@ namespace SJP.Schematic.Migrations.Comparers
         {
             if (x is null && y is null)
                 return true;
-            if (x is null ^ y is null)
+            if (x is null || y is null)
                 return false;
 
             var checksEqual = x.Checks.SequenceEqual(y.Checks, CheckComparer);

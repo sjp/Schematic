@@ -44,7 +44,7 @@ namespace SJP.Schematic.Core
         {
             if (x is null && y is null)
                 return true;
-            if (x is null ^ y is null)
+            if (x is null || y is null)
                 return false;
 
             // both must be not null at this point

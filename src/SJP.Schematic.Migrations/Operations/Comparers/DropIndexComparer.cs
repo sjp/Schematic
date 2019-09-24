@@ -13,7 +13,7 @@ namespace SJP.Schematic.Migrations.Operations.Comparers
             if (x is null && y is null)
                 return true;
 
-            if (x is null ^ y is null)
+            if (x is null || y is null)
                 return false;
 
             var xColumnExpressions = x.Index.Columns.Select(c => c.Expression).ToList();
