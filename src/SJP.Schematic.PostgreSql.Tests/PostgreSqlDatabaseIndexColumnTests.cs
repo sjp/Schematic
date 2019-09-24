@@ -27,6 +27,30 @@ namespace SJP.Schematic.PostgreSql.Tests
         }
 
         [Test]
+        public static void Ctor_GivenNullExpressionWithColumn_ThrowsArgumentNullException()
+        {
+            var column = Mock.Of<IDatabaseColumn>();
+
+            Assert.Throws<ArgumentNullException>(() => new PostgreSqlDatabaseIndexColumn(null, column, IndexColumnOrder.Ascending));
+        }
+
+        [Test]
+        public static void Ctor_GivenEmptyExpressionWithColumn_ThrowsArgumentNullException()
+        {
+            var column = Mock.Of<IDatabaseColumn>();
+
+            Assert.Throws<ArgumentNullException>(() => new PostgreSqlDatabaseIndexColumn(string.Empty, column, IndexColumnOrder.Ascending));
+        }
+
+        [Test]
+        public static void Ctor_GivenWhiteSpaceExpressionWithColumn_ThrowsArgumentNullException()
+        {
+            var column = Mock.Of<IDatabaseColumn>();
+
+            Assert.Throws<ArgumentNullException>(() => new PostgreSqlDatabaseIndexColumn("    ", column, IndexColumnOrder.Ascending));
+        }
+
+        [Test]
         public static void Ctor_GivenNullColumn_ThrowsArgumentNullException()
         {
             Assert.Throws<ArgumentNullException>(() => new PostgreSqlDatabaseIndexColumn("test", null, IndexColumnOrder.Ascending));
@@ -40,6 +64,23 @@ namespace SJP.Schematic.PostgreSql.Tests
             const IndexColumnOrder order = (IndexColumnOrder)55;
 
             Assert.Throws<ArgumentException>(() => new PostgreSqlDatabaseIndexColumn(expression, column, order));
+        }
+
+        [Test]
+        public static void Ctor_GivenInvalidColumnOrderWithoutColumn_ThrowsArgumentException()
+        {
+            const string expression = "\"test\"";
+            const IndexColumnOrder order = (IndexColumnOrder)55;
+
+            Assert.Throws<ArgumentException>(() => new PostgreSqlDatabaseIndexColumn(expression, order));
+        }
+
+        [Test]
+        public static void Ctor_WhenGivenValidInputWithoutColumn_DoesNotThrow()
+        {
+            const string expression = "\"test\"";
+
+            Assert.DoesNotThrow(() => new PostgreSqlDatabaseIndexColumn(expression, IndexColumnOrder.Ascending));
         }
 
         [Test]
