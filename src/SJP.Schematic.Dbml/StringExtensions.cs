@@ -6,7 +6,15 @@ namespace SJP.Schematic.Dbml
 {
     internal static class StringExtensions
     {
-        public static string RemoveCharacters(this string input, IEnumerable<char> chars)
+        public static string RemoveQuotingCharacters(this string input)
+        {
+            if (input == null)
+                throw new ArgumentNullException(nameof(input));
+
+            return RemoveCharacters(input, QuoteChars);
+        }
+
+        private static string RemoveCharacters(string input, IEnumerable<char> chars)
         {
             if (input == null)
                 throw new ArgumentNullException(nameof(input));
@@ -21,5 +29,7 @@ namespace SJP.Schematic.Dbml
 
             return builder.GetStringAndRelease();
         }
+
+        private static readonly IEnumerable<char> QuoteChars = new[] { '\'', '"', '[', ']', '`' };
     }
 }

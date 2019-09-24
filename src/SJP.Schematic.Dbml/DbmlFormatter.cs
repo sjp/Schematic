@@ -49,7 +49,7 @@ namespace SJP.Schematic.Dbml
             if (table == null)
                 throw new ArgumentNullException(nameof(table));
 
-            var tableName = table.Name.ToVisibleName().RemoveCharacters(QuoteChars);
+            var tableName = table.Name.ToVisibleName();
             builder.Append("Table ")
                 .Append(tableName)
                 .AppendLine(" {");
@@ -83,7 +83,7 @@ namespace SJP.Schematic.Dbml
             if (column == null)
                 throw new ArgumentNullException(nameof(column));
 
-            var columnName = column.Name.ToVisibleName().RemoveCharacters(QuoteChars);
+            var columnName = column.Name.ToVisibleName();
 
             var options = new List<string> { column.IsNullable ? "null" : "not null" };
 
@@ -101,7 +101,7 @@ namespace SJP.Schematic.Dbml
                 ? " [" + options.Join(", ") + "]"
                 : string.Empty;
 
-            return Indent + columnName + " " + column.Type.Definition.RemoveCharacters(QuoteChars) + columnOptions;
+            return Indent + columnName + " " + column.Type.Definition.RemoveQuotingCharacters() + columnOptions;
         }
 
         private static string RenderIndexLine(IRelationalDatabaseTable table, IDatabaseIndex index)
@@ -112,10 +112,10 @@ namespace SJP.Schematic.Dbml
                 throw new ArgumentNullException(nameof(index));
 
             var columns = index.Columns.Count > 1
-                ? "(" + index.Columns.Select(ic => ic.Expression).Join(", ").RemoveCharacters(QuoteChars) + ")"
-                : index.Columns.Single().Expression.RemoveCharacters(QuoteChars);
+                ? "(" + index.Columns.Select(ic => ic.Expression).Join(", ").RemoveQuotingCharacters() + ")"
+                : index.Columns.Single().Expression.RemoveQuotingCharacters();
 
-            var options = new List<string> { "name: '" + index.Name.ToVisibleName().RemoveCharacters(QuoteChars) + "'" };
+            var options = new List<string> { "name: '" + index.Name.ToVisibleName() + "'" };
             if (index.IsUnique)
                 options.Add("unique");
 
@@ -133,7 +133,7 @@ namespace SJP.Schematic.Dbml
             if (table.ParentKeys.Count == 0)
                 return;
 
-            var childTableName = table.Name.ToVisibleName().RemoveCharacters(QuoteChars);
+            var childTableName = table.Name.ToVisibleName();
 
             foreach (var relationalKey in table.ParentKeys)
             {
@@ -142,13 +142,13 @@ namespace SJP.Schematic.Dbml
                 var isChildKeyUnique = IsChildKeyUnique(table, relationalKey.ChildKey);
                 var relationalOperator = isChildKeyUnique ? "-" : ">";
 
-                var parentTableName = relationalKey.ParentTable.ToVisibleName().RemoveCharacters(QuoteChars);
+                var parentTableName = relationalKey.ParentTable.ToVisibleName();
 
                 var columnPairs = relationalKey.ChildKey.Columns.Zip(relationalKey.ParentKey.Columns);
                 foreach (var columnPair in columnPairs)
                 {
-                    var childColumn = columnPair.Item1.Name.ToVisibleName().RemoveCharacters(QuoteChars);
-                    var parentColumn = columnPair.Item2.Name.ToVisibleName().RemoveCharacters(QuoteChars);
+                    var childColumn = columnPair.Item1.Name.ToVisibleName();
+                    var parentColumn = columnPair.Item2.Name.ToVisibleName();
 
                     var childRef = childTableName + "." + childColumn;
                     var parentRef = parentTableName + "." + parentColumn;
@@ -229,7 +229,5 @@ namespace SJP.Schematic.Dbml
         }
 
         private const string Indent = "    ";
-
-        private static readonly IEnumerable<char> QuoteChars = new[] { '\'', '"', '[', ']', '`' };
     }
 }

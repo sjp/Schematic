@@ -21,7 +21,7 @@ namespace SJP.Schematic.Dbml
 
             builder.Append(identifier.LocalName);
 
-            return builder.GetStringAndRelease();
+            return builder.GetStringAndRelease().RemoveQuotingCharacters();
         }
     }
 }
