@@ -50,22 +50,6 @@ namespace SJP.Schematic.Core
             if (anyNonUniqueKey)
                 throw new ArgumentException("A given unique key did not have a key type of '" + nameof(DatabaseKeyType.Unique) + "'", nameof(uniqueKeys));
 
-            var anyNonForeignParentChildKey = parentKeys.Any(fk => fk.ChildKey.KeyType != DatabaseKeyType.Foreign);
-            if (anyNonForeignParentChildKey)
-                throw new ArgumentException("A given parent key did not have a child key with a key type of '" + nameof(DatabaseKeyType.Foreign) + "'", nameof(uniqueKeys));
-
-            var anyNonCandidateParentParentKey = parentKeys.Any(fk => fk.ParentKey.KeyType != DatabaseKeyType.Primary && fk.ParentKey.KeyType != DatabaseKeyType.Unique);
-            if (anyNonCandidateParentParentKey)
-                throw new ArgumentException("A given parent key did not have a parent key with a key type of '" + nameof(DatabaseKeyType.Primary) + "' or '" + nameof(DatabaseKeyType.Unique) + "'", nameof(uniqueKeys));
-
-            var anyNonForeignChildChildKey = childKeys.Any(ck => ck.ChildKey.KeyType != DatabaseKeyType.Foreign);
-            if (anyNonForeignChildChildKey)
-                throw new ArgumentException("A given child key did not have a child key with a key type of '" + nameof(DatabaseKeyType.Foreign) + "'", nameof(uniqueKeys));
-
-            var anyNonCandidateChildParentKey = childKeys.Any(ck => ck.ParentKey.KeyType != DatabaseKeyType.Primary && ck.ParentKey.KeyType != DatabaseKeyType.Unique);
-            if (anyNonCandidateChildParentKey)
-                throw new ArgumentException("A given child key did not have a parent key with a key type of '" + nameof(DatabaseKeyType.Primary) + "' or '" + nameof(DatabaseKeyType.Unique) + "'", nameof(uniqueKeys));
-
             Name = tableName ?? throw new ArgumentNullException(nameof(tableName));
             Columns = columns;
             PrimaryKey = primaryKey;
