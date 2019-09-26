@@ -18,6 +18,7 @@
     </PackageReference>
     <PackageReference Include="QuickGraphCore" Version="1.0.0" />
     <PackageReference Include="System.Data.Common" Version="4.3.0" />
+    <PackageReference Include="System.Linq.Async" Version="4.0.0" />
   </ItemGroup>
 
 </Project>
