@@ -1,6 +1,5 @@
 ﻿using System;
 using SJP.Schematic.Core;
-using SJP.Schematic.Core.Utilities;
 
 namespace SJP.Schematic.Dot
 {
@@ -13,7 +12,7 @@ namespace SJP.Schematic.Dot
             if (tableName == null)
                 throw new ArgumentNullException(nameof(tableName));
 
-            var builder = new HashCodeBuilder();
+            var builder = new HashCode();
             builder.Add(tableName.GetHashCode());
             builder.Add(key.KeyType.GetHashCode());
 

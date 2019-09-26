@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using EnumsNET;
 using SJP.Schematic.Core.Extensions;
-using SJP.Schematic.Core.Utilities;
 
 namespace SJP.Schematic.Core
 {
@@ -59,7 +58,7 @@ namespace SJP.Schematic.Core
             if (obj == null)
                 return 0;
 
-            return HashCodeBuilder.Combine(
+            return HashCode.Combine(
                 obj.Server != null ? _comparer.GetHashCode(obj.Server) : _defaultServerHash,
                 obj.Database != null ? _comparer.GetHashCode(obj.Database) : _defaultDatabaseHash,
                 obj.Schema != null ? _comparer.GetHashCode(obj.Schema) : _defaultSchemaHash,

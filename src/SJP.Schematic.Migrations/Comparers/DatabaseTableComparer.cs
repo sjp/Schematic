@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using SJP.Schematic.Core;
-using SJP.Schematic.Core.Utilities;
 
 namespace SJP.Schematic.Migrations.Comparers
 {
@@ -70,7 +69,7 @@ namespace SJP.Schematic.Migrations.Comparers
             if (obj == null)
                 throw new ArgumentNullException(nameof(obj));
 
-            var builder = new HashCodeBuilder();
+            var builder = new HashCode();
             builder.Add(obj.Name);
 
             foreach (var check in obj.Checks)

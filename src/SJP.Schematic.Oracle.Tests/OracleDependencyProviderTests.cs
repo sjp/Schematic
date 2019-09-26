@@ -57,7 +57,7 @@ namespace SJP.Schematic.Oracle.Tests
             const string expression = "select * from test";
 
             var dependencies = provider.GetDependencies(objectName, expression);
-            var count = dependencies.Count();
+            var count = dependencies.Count;
 
             Assert.Zero(count);
         }
@@ -70,7 +70,7 @@ namespace SJP.Schematic.Oracle.Tests
             const string expression = "select test(1)";
 
             var dependencies = provider.GetDependencies(objectName, expression);
-            var count = dependencies.Count();
+            var count = dependencies.Count;
 
             Assert.Zero(count);
         }

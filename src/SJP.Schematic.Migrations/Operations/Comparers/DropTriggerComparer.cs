@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using LanguageExt;
 using SJP.Schematic.Core;
-using SJP.Schematic.Core.Utilities;
 
 namespace SJP.Schematic.Migrations.Operations.Comparers
 {
@@ -26,7 +25,7 @@ namespace SJP.Schematic.Migrations.Operations.Comparers
             if (obj == null)
                 throw new ArgumentNullException(nameof(obj));
 
-            return HashCodeBuilder.Combine(
+            return HashCode.Combine(
                 obj.Table.Name,
                 obj.Trigger.Definition,
                 NameComparer.GetHashCode(obj.Trigger.Name)

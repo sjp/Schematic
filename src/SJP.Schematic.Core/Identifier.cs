@@ -365,7 +365,7 @@ namespace SJP.Schematic.Core
 
         private static int GetHashCode(string server, string database, string schema, string localName)
         {
-            return HashCodeBuilder.Combine(
+            return HashCode.Combine(
                 server != null ? Comparer.GetHashCode(server) : 0,
                 database != null ? Comparer.GetHashCode(database) : 0,
                 schema != null ? Comparer.GetHashCode(schema) : 0,

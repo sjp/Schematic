@@ -1,10 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using LanguageExt;
 using Moq;
 using NUnit.Framework;
-using SJP.Schematic.Core.Extensions;
 
 namespace SJP.Schematic.Core.Tests
 {

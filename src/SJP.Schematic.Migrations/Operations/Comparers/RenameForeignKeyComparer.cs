@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using LanguageExt;
 using SJP.Schematic.Core;
-using SJP.Schematic.Core.Utilities;
 
 namespace SJP.Schematic.Migrations.Operations.Comparers
 {
@@ -36,7 +35,7 @@ namespace SJP.Schematic.Migrations.Operations.Comparers
             if (obj == null)
                 throw new ArgumentNullException(nameof(obj));
 
-            var builder = new HashCodeBuilder();
+            var builder = new HashCode();
             builder.Add(obj.TargetName);
             builder.Add(obj.ForeignKey.ChildKey.Name);
             builder.Add(obj.ForeignKey.ParentKey.Name);
