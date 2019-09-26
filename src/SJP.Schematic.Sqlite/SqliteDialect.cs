@@ -35,10 +35,8 @@ namespace SJP.Schematic.Sqlite
 
         public override Task<IIdentifierDefaults> GetIdentifierDefaultsAsync(CancellationToken cancellationToken = default)
         {
-            var identifierDefaults = new IdentifierDefaultsBuilder()
-                .WithSchema(DefaultSchema)
-                .Build();
-            return Task.FromResult(identifierDefaults);
+            var identifierDefaults = new IdentifierDefaults(null, null, DefaultSchema);
+            return Task.FromResult<IIdentifierDefaults>(identifierDefaults);
         }
 
         private const string DefaultSchema = "main";

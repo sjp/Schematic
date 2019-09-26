@@ -17,9 +17,7 @@ namespace SJP.Schematic.Serialization.Tests
         //    const string connectionString = @"Data Source=C:\Users\sjp\Downloads\Northwind_large.sqlite";
         //    var connection = await SqliteDialect.CreateConnectionAsync(connectionString).ConfigureAwait(false);
         //    var dialect = new SqliteDialect(connection);
-        //    var identifierDefaults = new IdentifierDefaultsBuilder()
-        //        .WithSchema("main")
-        //        .Build();
+        //    var identifierDefaults = new IdentifierDefaults(null, null, "main");
 
         //    try
         //    {

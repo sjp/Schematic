@@ -16,17 +16,7 @@ namespace SJP.Schematic.Modelled.Reflection
             Dialect = dialect ?? throw new ArgumentNullException(nameof(dialect));
             DatabaseDefinitionType = databaseDefinitionType ?? throw new ArgumentNullException(nameof(databaseDefinitionType));
 
-            var defaultsBuilder = new IdentifierDefaultsBuilder();
-            if (!serverName.IsNullOrWhiteSpace())
-                defaultsBuilder = defaultsBuilder.WithServer(serverName);
-
-            if (!databaseName.IsNullOrWhiteSpace())
-                defaultsBuilder = defaultsBuilder.WithDatabase(databaseName);
-
-            if (!defaultSchema.IsNullOrWhiteSpace())
-                defaultsBuilder = defaultsBuilder.WithSchema(defaultSchema);
-
-            IdentifierDefaults = defaultsBuilder.Build();
+            IdentifierDefaults = new IdentifierDefaults(serverName, databaseName, defaultSchema);
 
             TypeProvider = new ReflectionTypeProvider(dialect, databaseDefinitionType);
             EnsureUniqueTypes(DatabaseDefinitionType, TypeProvider);

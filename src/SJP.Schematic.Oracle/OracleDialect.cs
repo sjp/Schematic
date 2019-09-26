@@ -79,11 +79,7 @@ namespace SJP.Schematic.Oracle
             var dbName = await hostInfoOption.MatchUnsafe(h => h.DatabaseName, () => null).ConfigureAwait(false);
             var defaultSchema = await hostInfoOption.MatchUnsafe(h => h.DefaultSchema, () => null).ConfigureAwait(false);
 
-            return new IdentifierDefaultsBuilder()
-                .WithServer(qualifiedServerName)
-                .WithDatabase(dbName)
-                .WithSchema(defaultSchema)
-                .Build();
+            return new IdentifierDefaults(qualifiedServerName, dbName, defaultSchema);
         }
 
         private const string IdentifierDefaultsQuerySql = @"

@@ -8,11 +8,7 @@ namespace SJP.Schematic.Dot.Tests
     [TestFixture]
     internal static class DotFormatterTests
     {
-        private static IIdentifierDefaults IdentifierDefaults { get; } = new IdentifierDefaultsBuilder()
-            .WithServer("server")
-            .WithDatabase("database")
-            .WithSchema("schema")
-            .Build();
+        private static IIdentifierDefaults IdentifierDefaults { get; } = new IdentifierDefaults("server", "database", "schema");
 
         private static IDotFormatter Formatter { get; } = new DotFormatter(IdentifierDefaults);
 
