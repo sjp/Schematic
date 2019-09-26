@@ -208,7 +208,7 @@ namespace SJP.Schematic.Modelled.Reflection
 
         protected static Type CheckType { get; } = typeof(Check);
 
-        protected static Type IndexType { get; } = typeof(Index);
+        protected static Type IndexType { get; } = typeof(Model.Index);
 
         private readonly Lazy<IReadOnlyCollection<IModelledColumn>> _columns;
         private readonly Lazy<IReadOnlyCollection<IModelledCheckConstraint>> _checks;
