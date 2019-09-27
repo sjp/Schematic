@@ -28,7 +28,7 @@ namespace SJP.Schematic.Dot
             if (ReferenceEquals(this, obj))
                 return true;
 
-            return Equals(obj as DotIdentifier);
+            return obj is DotIdentifier dot && Equals(dot);
         }
 
         public bool Equals(DotIdentifier other)

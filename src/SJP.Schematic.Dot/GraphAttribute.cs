@@ -31,7 +31,7 @@ namespace SJP.Schematic.Dot
             if (ReferenceEquals(this, obj))
                 return true;
 
-            return Equals(obj as GraphAttribute);
+            return obj is GraphAttribute attr && Equals(attr);
         }
 
         public bool Equals(GraphAttribute other)

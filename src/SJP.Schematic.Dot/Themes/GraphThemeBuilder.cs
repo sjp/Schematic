@@ -230,47 +230,47 @@
             set => _highlightedForeignKeyHeaderBorderColor = value ?? Default.HighlightedForeignKeyHeaderBorderColor;
         }
 
-        private RgbColor _backgroundColor;
-        private RgbColor _edgeColor;
+        private RgbColor _backgroundColor = Default.BackgroundColor;
+        private RgbColor _edgeColor = Default.EdgeColor;
 
-        private RgbColor _tableForegroundColor;
-        private RgbColor _headerForegroundColor;
-        private RgbColor _footerForegroundColor;
-        private RgbColor _primaryKeyHeaderForegroundColor;
-        private RgbColor _uniqueKeyHeaderForegroundColor;
-        private RgbColor _foreignKeyHeaderForegroundColor;
-        private RgbColor _highlightedTableForegroundColor;
-        private RgbColor _highlightedHeaderForegroundColor;
-        private RgbColor _highlightedFooterForegroundColor;
-        private RgbColor _highlightedPrimaryKeyHeaderForegroundColor;
-        private RgbColor _highlightedUniqueKeyHeaderForegroundColor;
-        private RgbColor _highlightedForeignKeyHeaderForegroundColor;
+        private RgbColor _tableForegroundColor = Default.TableForegroundColor;
+        private RgbColor _headerForegroundColor = Default.HeaderForegroundColor;
+        private RgbColor _footerForegroundColor = Default.FooterForegroundColor;
+        private RgbColor _primaryKeyHeaderForegroundColor = Default.PrimaryKeyHeaderBackgroundColor;
+        private RgbColor _uniqueKeyHeaderForegroundColor = Default.UniqueKeyHeaderForegroundColor;
+        private RgbColor _foreignKeyHeaderForegroundColor = Default.ForeignKeyHeaderForegroundColor;
+        private RgbColor _highlightedTableForegroundColor = Default.HighlightedTableForegroundColor;
+        private RgbColor _highlightedHeaderForegroundColor = Default.HighlightedHeaderForegroundColor;
+        private RgbColor _highlightedFooterForegroundColor = Default.HighlightedFooterForegroundColor;
+        private RgbColor _highlightedPrimaryKeyHeaderForegroundColor = Default.HighlightedPrimaryKeyHeaderForegroundColor;
+        private RgbColor _highlightedUniqueKeyHeaderForegroundColor = Default.HighlightedUniqueKeyHeaderForegroundColor;
+        private RgbColor _highlightedForeignKeyHeaderForegroundColor = Default.HighlightedForeignKeyHeaderForegroundColor;
 
-        private RgbColor _tableBackgroundColor;
-        private RgbColor _headerBackgroundColor;
-        private RgbColor _footerBackgroundColor;
-        private RgbColor _primaryKeyHeaderBackgroundColor;
-        private RgbColor _uniqueKeyHeaderBackgroundColor;
-        private RgbColor _foreignKeyHeaderBackgroundColor;
-        private RgbColor _highlightedTableBackgroundColor;
-        private RgbColor _highlightedHeaderBackgroundColor;
-        private RgbColor _highlightedFooterBackgroundColor;
-        private RgbColor _highlightedPrimaryKeyHeaderBackgroundColor;
-        private RgbColor _highlightedUniqueKeyHeaderBackgroundColor;
-        private RgbColor _highlightedForeignKeyHeaderBackgroundColor;
+        private RgbColor _tableBackgroundColor = Default.TableBackgroundColor;
+        private RgbColor _headerBackgroundColor = Default.HeaderBackgroundColor;
+        private RgbColor _footerBackgroundColor = Default.FooterBackgroundColor;
+        private RgbColor _primaryKeyHeaderBackgroundColor = Default.PrimaryKeyHeaderBackgroundColor;
+        private RgbColor _uniqueKeyHeaderBackgroundColor = Default.UniqueKeyHeaderBackgroundColor;
+        private RgbColor _foreignKeyHeaderBackgroundColor = Default.ForeignKeyHeaderBackgroundColor;
+        private RgbColor _highlightedTableBackgroundColor = Default.HighlightedTableBackgroundColor;
+        private RgbColor _highlightedHeaderBackgroundColor = Default.HighlightedHeaderBackgroundColor;
+        private RgbColor _highlightedFooterBackgroundColor = Default.HighlightedFooterBackgroundColor;
+        private RgbColor _highlightedPrimaryKeyHeaderBackgroundColor = Default.HighlightedPrimaryKeyHeaderBackgroundColor;
+        private RgbColor _highlightedUniqueKeyHeaderBackgroundColor = Default.HighlightedUniqueKeyHeaderBackgroundColor;
+        private RgbColor _highlightedForeignKeyHeaderBackgroundColor = Default.HighlightedForeignKeyHeaderBackgroundColor;
 
-        private RgbColor _tableBorderColor;
-        private RgbColor _headerBorderColor;
-        private RgbColor _footerBorderColor;
-        private RgbColor _primaryKeyHeaderBorderColor;
-        private RgbColor _uniqueKeyHeaderBorderColor;
-        private RgbColor _foreignKeyHeaderBorderColor;
-        private RgbColor _highlightedTableBorderColor;
-        private RgbColor _highlightedHeaderBorderColor;
-        private RgbColor _highlightedFooterBorderColor;
-        private RgbColor _highlightedPrimaryKeyHeaderBorderColor;
-        private RgbColor _highlightedUniqueKeyHeaderBorderColor;
-        private RgbColor _highlightedForeignKeyHeaderBorderColor;
+        private RgbColor _tableBorderColor = Default.TableBorderColor;
+        private RgbColor _headerBorderColor = Default.HeaderBorderColor;
+        private RgbColor _footerBorderColor = Default.FooterBorderColor;
+        private RgbColor _primaryKeyHeaderBorderColor = Default.PrimaryKeyHeaderBorderColor;
+        private RgbColor _uniqueKeyHeaderBorderColor = Default.UniqueKeyHeaderBorderColor;
+        private RgbColor _foreignKeyHeaderBorderColor = Default.ForeignKeyHeaderBorderColor;
+        private RgbColor _highlightedTableBorderColor = Default.HighlightedTableBorderColor;
+        private RgbColor _highlightedHeaderBorderColor = Default.HighlightedHeaderBorderColor;
+        private RgbColor _highlightedFooterBorderColor = Default.HighlightedFooterBorderColor;
+        private RgbColor _highlightedPrimaryKeyHeaderBorderColor = Default.HighlightedPrimaryKeyHeaderBorderColor;
+        private RgbColor _highlightedUniqueKeyHeaderBorderColor = Default.HighlightedUniqueKeyHeaderBorderColor;
+        private RgbColor _highlightedForeignKeyHeaderBorderColor = Default.HighlightedForeignKeyHeaderBorderColor;
 
         private static readonly IGraphTheme Default = new DefaultTheme();
     }

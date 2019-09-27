@@ -33,7 +33,7 @@ namespace SJP.Schematic.Dot
         /// <value>
         /// The highlighted table.
         /// </value>
-        public Identifier HighlightedTable { get; set; }
+        public Identifier? HighlightedTable { get; set; }
 
         /// <summary>
         /// Gets or sets the theme.

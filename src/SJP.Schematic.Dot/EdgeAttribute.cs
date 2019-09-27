@@ -31,7 +31,7 @@ namespace SJP.Schematic.Dot
             if (ReferenceEquals(this, obj))
                 return true;
 
-            return Equals(obj as EdgeAttribute);
+            return obj is EdgeAttribute attr && Equals(attr);
         }
 
         public bool Equals(EdgeAttribute other)

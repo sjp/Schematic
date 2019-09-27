@@ -32,7 +32,7 @@ namespace SJP.Schematic.Dot
             if (ReferenceEquals(this, obj))
                 return true;
 
-            return Equals(obj as NodeAttribute);
+            return obj is NodeAttribute attr && Equals(attr);
         }
 
         public bool Equals(NodeAttribute other)

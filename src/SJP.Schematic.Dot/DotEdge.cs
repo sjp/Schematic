@@ -25,11 +25,11 @@ namespace SJP.Schematic.Dot
 
         private DotIdentifier SourceNode { get; }
 
-        private DotIdentifier SourcePort { get; }
+        private DotIdentifier? SourcePort { get; }
 
         private DotIdentifier TargetNode { get; }
 
-        private DotIdentifier TargetPort { get; }
+        private DotIdentifier? TargetPort { get; }
 
         private IEnumerable<EdgeAttribute> EdgeAttributes { get; }
 
