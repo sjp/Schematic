@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -6,7 +7,7 @@ namespace SJP.Schematic.Core.Extensions
 {
     public static class DatabaseViewProviderExtensions
     {
-        public static bool TryGetView(this IDatabaseViewProvider viewProvider, Identifier viewName, out IDatabaseView? view)
+        public static bool TryGetView(this IDatabaseViewProvider viewProvider, Identifier viewName, [NotNullWhen(true)] out IDatabaseView? view)
         {
             if (viewProvider == null)
                 throw new ArgumentNullException(nameof(viewProvider));

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -6,7 +7,7 @@ namespace SJP.Schematic.Core.Extensions
 {
     public static class DatabaseSequenceProviderExtensions
     {
-        public static bool TryGetSequence(this IDatabaseSequenceProvider sequenceProvider, Identifier sequenceName, out IDatabaseSequence? sequence)
+        public static bool TryGetSequence(this IDatabaseSequenceProvider sequenceProvider, Identifier sequenceName, [NotNullWhen(true)] out IDatabaseSequence? sequence)
         {
             if (sequenceProvider == null)
                 throw new ArgumentNullException(nameof(sequenceProvider));

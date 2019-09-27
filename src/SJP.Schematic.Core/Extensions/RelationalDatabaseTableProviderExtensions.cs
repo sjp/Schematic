@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -6,7 +7,7 @@ namespace SJP.Schematic.Core.Extensions
 {
     public static class RelationalDatabaseTableProviderExtensions
     {
-        public static bool TryGetTable(this IRelationalDatabaseTableProvider tableProvider, Identifier tableName, out IRelationalDatabaseTable? table)
+        public static bool TryGetTable(this IRelationalDatabaseTableProvider tableProvider, Identifier tableName, [NotNullWhen(true)] out IRelationalDatabaseTable? table)
         {
             if (tableProvider == null)
                 throw new ArgumentNullException(nameof(tableProvider));

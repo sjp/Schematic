@@ -1,10 +1,11 @@
-﻿using Microsoft.CodeAnalysis.CSharp;
+﻿using System.Diagnostics.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
 
 namespace SJP.Schematic.DataAccess.Extensions
 {
     public static class StringExtensions
     {
-        public static string? ToStringLiteral(this string? input)
+        public static string? ToStringLiteral([NotNullIfNotNull("input")] this string? input)
         {
             if (input == null)
                 return input;

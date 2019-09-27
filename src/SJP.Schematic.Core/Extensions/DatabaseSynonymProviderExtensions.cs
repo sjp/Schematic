@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -6,7 +7,7 @@ namespace SJP.Schematic.Core.Extensions
 {
     public static class DatabaseSynonymProviderExtensions
     {
-        public static bool TryGetSynonym(this IDatabaseSynonymProvider synonymProvider, Identifier synonymName, out IDatabaseSynonym? synonym)
+        public static bool TryGetSynonym(this IDatabaseSynonymProvider synonymProvider, Identifier synonymName, [NotNullWhen(true)] out IDatabaseSynonym? synonym)
         {
             if (synonymProvider == null)
                 throw new ArgumentNullException(nameof(synonymProvider));

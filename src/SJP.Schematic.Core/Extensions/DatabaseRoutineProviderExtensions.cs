@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -6,7 +7,7 @@ namespace SJP.Schematic.Core.Extensions
 {
     public static class DatabaseRoutineProviderExtensions
     {
-        public static bool TryGetRoutine(this IDatabaseRoutineProvider routineProvider, Identifier routineName, out IDatabaseRoutine? routine)
+        public static bool TryGetRoutine(this IDatabaseRoutineProvider routineProvider, Identifier routineName, [NotNullWhen(true)] out IDatabaseRoutine? routine)
         {
             if (routineProvider == null)
                 throw new ArgumentNullException(nameof(routineProvider));
