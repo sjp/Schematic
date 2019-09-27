@@ -154,6 +154,9 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore
         protected const string ProjectDefinition = @"<Project Sdk=""Microsoft.NET.Sdk"">
     <PropertyGroup>
         <TargetFramework>netcoreapp3.0</TargetFramework>
+        <CheckForOverflowUnderflow>true</CheckForOverflowUnderflow>
+        <TreatWarningsAsErrors>True</TreatWarningsAsErrors>
+        <TreatSpecificWarningsAsErrors />
     </PropertyGroup>
 
     <ItemGroup>

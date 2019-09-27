@@ -189,6 +189,9 @@ namespace SJP.Schematic.DataAccess.Poco
         protected const string ProjectDefinition = @"<Project Sdk=""Microsoft.NET.Sdk"">
     <PropertyGroup>
         <TargetFramework>netstandard2.0</TargetFramework>
+        <CheckForOverflowUnderflow>true</CheckForOverflowUnderflow>
+        <TreatWarningsAsErrors>True</TreatWarningsAsErrors>
+        <TreatSpecificWarningsAsErrors />
     </PropertyGroup>
 </Project>";
     }
