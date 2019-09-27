@@ -155,14 +155,17 @@ where table_schema = @SchemaName and table_name = @ViewName";
                 var typeMetadata = new ColumnTypeMetadata
                 {
                     TypeName = Identifier.CreateQualifiedIdentifier(row.DataTypeName),
-                    Collation = row.Collation.IsNullOrWhiteSpace() ? null : Identifier.CreateQualifiedIdentifier(row.Collation),
+                    Collation = !row.Collation.IsNullOrWhiteSpace()
+                        ? Option<Identifier>.Some(Identifier.CreateQualifiedIdentifier(row.Collation))
+                        : Option<Identifier>.None,
                     MaxLength = row.CharacterMaxLength,
                     NumericPrecision = precision
                 };
                 var columnType = TypeProvider.CreateColumnType(typeMetadata);
 
                 var columnName = Identifier.CreateQualifiedIdentifier(row.ColumnName);
-                var isAutoIncrement = row.ExtraInformation.Contains(Constants.AutoIncrement, StringComparison.OrdinalIgnoreCase);
+                var isAutoIncrement = row.ExtraInformation != null
+                    && row.ExtraInformation.Contains(Constants.AutoIncrement, StringComparison.OrdinalIgnoreCase);
                 var autoIncrement = isAutoIncrement
                     ? Option<IAutoIncrement>.Some(new AutoIncrement(1, 1))
                     : Option<IAutoIncrement>.None;

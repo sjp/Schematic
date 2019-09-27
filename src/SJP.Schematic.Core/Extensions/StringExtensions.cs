@@ -1,14 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using EnumsNET;
 
 namespace SJP.Schematic.Core.Extensions
 {
     public static class StringExtensions
     {
-        public static bool IsNullOrEmpty(this string? input) => string.IsNullOrEmpty(input);
+        public static bool IsNullOrEmpty([NotNullWhen(false)] this string? input) => string.IsNullOrEmpty(input);
 
-        public static bool IsNullOrWhiteSpace(this string? input) => string.IsNullOrWhiteSpace(input);
+        public static bool IsNullOrWhiteSpace([NotNullWhen(false)] this string? input) => string.IsNullOrWhiteSpace(input);
 
         public static string Join(this IEnumerable<string> values, string separator)
         {

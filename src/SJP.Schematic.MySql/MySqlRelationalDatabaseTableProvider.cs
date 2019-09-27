@@ -160,7 +160,7 @@ limit 1";
 
             var keyColumns = groupedByName
                 .Where(row => row.Key.ConstraintName == constraintName)
-                .SelectMany(g => g.Select(row => columns[row.ColumnName]))
+                .SelectMany(g => g.Select(row => columns[row.ColumnName!]))
                 .ToList();
 
             var primaryKey = new MySqlDatabasePrimaryKey(keyColumns);
@@ -218,7 +218,7 @@ order by kc.ordinal_position";
 
                 var indexCols = indexInfo
                     .OrderBy(row => row.ColumnOrdinal)
-                    .Select(row => columns[row.ColumnName])
+                    .Select(row => columns[row.ColumnName!])
                     .Select(col =>
                     {
                         var expression = Dialect.QuoteName(col.Name);
@@ -270,7 +270,7 @@ where table_schema = @SchemaName and table_name = @TableName";
                 .Select(g => new
                 {
                     g.Key.ConstraintName,
-                    Columns = g.Select(row => columns[row.ColumnName]).ToList(),
+                    Columns = g.Select(row => columns[row.ColumnName!]).ToList(),
                 })
                 .ToList();
             if (constraintColumns.Empty())
@@ -348,7 +348,7 @@ order by kc.ordinal_position";
             foreach (var groupedChildKey in groupedChildKeys)
             {
                 // ensure we have a key to begin with
-                IDatabaseKey parentKey = null;
+                IDatabaseKey? parentKey = null;
                 if (groupedChildKey.Key.ParentKeyType == Constants.PrimaryKey)
                     primaryKey.IfSome(k => parentKey = k);
                 else if (uniqueKeys.ContainsKey(groupedChildKey.Key.ParentKeyName))
@@ -445,7 +445,7 @@ where pt.table_schema = @SchemaName and pt.table_name = @TableName";
             {
                 var checkName = Identifier.CreateQualifiedIdentifier(row.ConstraintName);
                 var isEnabled = string.Equals("YES", row.Enforced, StringComparison.OrdinalIgnoreCase);
-                var check = new MySqlCheckConstraint(checkName, row.Definition, isEnabled);
+                var check = new MySqlCheckConstraint(checkName, row.Definition!, isEnabled);
                 result.Add(check);
             }
 
@@ -510,7 +510,7 @@ where tc.table_schema = @SchemaName and tc.table_name = @TableName and tc.constr
                     ? OptionAsync<Identifier>.Some(tableNameCache[candidateParentTableName])
                     : GetResolvedTableName(candidateParentTableName, cancellationToken);
 
-                Identifier parentTableName = null;
+                Identifier? parentTableName = null;
 
                 await resolvedName
                     .BindAsync(async name =>
@@ -567,7 +567,7 @@ where tc.table_schema = @SchemaName and tc.table_name = @TableName and tc.constr
                         var childKeyName = Identifier.CreateQualifiedIdentifier(fkey.Key.ChildKeyName);
                         var childKeyColumns = fkey
                             .OrderBy(row => row.ConstraintColumnId)
-                            .Select(row => columns[row.ColumnName])
+                            .Select(row => columns[row.ColumnName!])
                             .ToList();
 
                         var childKey = new MySqlDatabaseKey(childKeyName, DatabaseKeyType.Foreign, childKeyColumns);
@@ -575,7 +575,7 @@ where tc.table_schema = @SchemaName and tc.table_name = @TableName and tc.constr
                         var deleteAction = ReferentialActionMapping[fkey.Key.DeleteAction];
                         var updateAction = ReferentialActionMapping[fkey.Key.UpdateAction];
 
-                        var relationalKey = new DatabaseRelationalKey(tableName, childKey, parentTableName, key, deleteAction, updateAction);
+                        var relationalKey = new DatabaseRelationalKey(tableName, childKey, parentTableName!, key, deleteAction, updateAction);
                         result.Add(relationalKey);
                     })
                     .ConfigureAwait(false);
@@ -627,14 +627,17 @@ where t.table_schema = @SchemaName and t.table_name = @TableName";
                 var typeMetadata = new ColumnTypeMetadata
                 {
                     TypeName = Identifier.CreateQualifiedIdentifier(row.DataTypeName),
-                    Collation = row.Collation.IsNullOrWhiteSpace() ? null : Identifier.CreateQualifiedIdentifier(row.Collation),
+                    Collation = !row.Collation.IsNullOrWhiteSpace()
+                        ? Option<Identifier>.Some(Identifier.CreateQualifiedIdentifier(row.Collation))
+                        : Option<Identifier>.None,
                     MaxLength = row.CharacterMaxLength,
                     NumericPrecision = new NumericPrecision(row.Precision, row.Scale)
                 };
                 var columnType = TypeProvider.CreateColumnType(typeMetadata);
 
                 var columnName = Identifier.CreateQualifiedIdentifier(row.ColumnName);
-                var isAutoIncrement = row.ExtraInformation.Contains(Constants.AutoIncrement, StringComparison.OrdinalIgnoreCase);
+                var isAutoIncrement = row.ExtraInformation != null
+                    && row.ExtraInformation.Contains(Constants.AutoIncrement, StringComparison.OrdinalIgnoreCase);
                 var autoIncrement = isAutoIncrement
                     ? Option<IAutoIncrement>.Some(new AutoIncrement(1, 1))
                     : Option<IAutoIncrement>.None;
@@ -644,7 +647,7 @@ where t.table_schema = @SchemaName and t.table_name = @TableName";
                     ? Option<string>.Some(row.DefaultValue)
                     : Option<string>.None;
                 var computedColumnDefinition = isComputed
-                    ? Option<string>.Some(row.ComputedColumnDefinition)
+                    ? Option<string>.Some(row.ComputedColumnDefinition!)
                     : Option<string>.None;
 
                 var column = isComputed
@@ -721,7 +724,7 @@ order by ordinal_position";
                     else if (trigEvent.TriggerEvent == Constants.Delete)
                         events |= TriggerEvent.Delete;
                     else
-                        throw new UnsupportedTriggerEventException(tableName, trigEvent.TriggerEvent);
+                        throw new UnsupportedTriggerEventException(tableName, trigEvent.TriggerEvent ?? string.Empty);
                 }
 
                 var trigger = new MySqlDatabaseTrigger(triggerName, definition, queryTiming, events);

@@ -34,10 +34,11 @@ namespace SJP.Schematic.MySql
                 return Array.Empty<IDatabaseRoutine>();
 
             return queryResult
+                .Where(row => !row.Definition.IsNullOrWhiteSpace())
                 .Select(row =>
                 {
                     var routineName = QualifyRoutineName(Identifier.CreateQualifiedIdentifier(row.SchemaName, row.ObjectName));
-                    return new DatabaseRoutine(routineName, row.Definition);
+                    return new DatabaseRoutine(routineName, row.Definition!);
                 })
                 .ToList();
         }

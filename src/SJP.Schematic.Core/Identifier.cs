@@ -162,7 +162,7 @@ namespace SJP.Schematic.Core
         /// <param name="localName">An object name.</param>
         /// <exception cref="ArgumentNullException">Thrown when a parent component name is specified, but not one of its children.</exception>
         /// <remarks>This enables easy creation of identifiers when only a subset may be known in advance. For example, if only a schema and local name exists, the server and database name can be omitted (by providing <c>null</c>) arguments.</remarks>
-        public static Identifier CreateQualifiedIdentifier(string database, string schema, string localName) => CreateQualifiedIdentifier(null, database, schema, localName);
+        public static Identifier CreateQualifiedIdentifier(string? database, string? schema, string? localName) => CreateQualifiedIdentifier(null, database, schema, localName);
 
         /// <summary>
         /// Creates an identifier that creates the most qualified name given its input.
@@ -171,14 +171,14 @@ namespace SJP.Schematic.Core
         /// <param name="localName">An object name.</param>
         /// <exception cref="ArgumentNullException">Thrown when a parent component name is specified, but not one of its children.</exception>
         /// <remarks>This enables easy creation of identifiers when only a subset may be known in advance. For example, if only a schema and local name exists, the server and database name can be omitted (by providing <c>null</c>) arguments.</remarks>
-        public static Identifier CreateQualifiedIdentifier(string schema, string localName) => CreateQualifiedIdentifier(null, null, schema, localName);
+        public static Identifier CreateQualifiedIdentifier(string? schema, string? localName) => CreateQualifiedIdentifier(null, null, schema, localName);
 
         /// <summary>
         /// Creates an identifier that creates the most qualified name given its input.
         /// </summary>
         /// <param name="localName">An object name.</param>
         /// <exception cref="ArgumentNullException"><paramref name="localName"/> is <c>null</c>.</exception>
-        public static Identifier CreateQualifiedIdentifier(string localName) => CreateQualifiedIdentifier(null, null, null, localName);
+        public static Identifier CreateQualifiedIdentifier(string? localName) => CreateQualifiedIdentifier(null, null, null, localName);
 
         /// <summary>
         /// A convenience operator that creates an <see cref="Identifier"/> from a string.
