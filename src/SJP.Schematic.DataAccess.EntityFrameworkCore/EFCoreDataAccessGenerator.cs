@@ -153,11 +153,11 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore
 
         protected const string ProjectDefinition = @"<Project Sdk=""Microsoft.NET.Sdk"">
     <PropertyGroup>
-        <TargetFramework>netstandard2.0</TargetFramework>
+        <TargetFramework>netcoreapp3.0</TargetFramework>
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include=""Microsoft.EntityFrameworkCore.Relational"" Version=""2.2.6"" />
+        <PackageReference Include=""Microsoft.EntityFrameworkCore.Relational"" Version=""3.0.0"" />
     </ItemGroup>
 </Project>";
     }
