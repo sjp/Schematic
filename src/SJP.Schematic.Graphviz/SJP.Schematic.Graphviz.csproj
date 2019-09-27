@@ -5,6 +5,7 @@
     <Description>Library for generating SVG images from DOT files using Graphviz</Description>
     <IncludeSymbols>true</IncludeSymbols>
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+    <Nullable>enable</Nullable>
   </PropertyGroup>
 
   <ItemGroup>

@@ -24,7 +24,7 @@ namespace SJP.Schematic.Tests.Utilities
             if (target == null || string.IsNullOrWhiteSpace(propertyName) || string.IsNullOrWhiteSpace(ignoreMessage))
                 return;
 
-            var propCache = TypeCache.GetOrAdd(target, new ConcurrentDictionary<string, MethodInfo>());
+            var propCache = TypeCache.GetOrAdd(target, new ConcurrentDictionary<string, MethodInfo?>());
 
             var getMethod = propCache.GetOrAdd(propertyName, propName =>
             {
@@ -38,7 +38,7 @@ namespace SJP.Schematic.Tests.Utilities
             if (getMethod == null)
                 return;
 
-            var isEnabled = ResultCache.GetOrAdd(getMethod, method => (IDbConnection)method.Invoke(null, Array.Empty<object>()) != null);
+            var isEnabled = ResultCache.GetOrAdd(getMethod, method => method.Invoke(null, Array.Empty<object>()) is IDbConnection);
             if (!isEnabled)
                 Ignore = ignoreMessage;
         }
@@ -46,7 +46,7 @@ namespace SJP.Schematic.Tests.Utilities
         private const BindingFlags SearchFlags = BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic;
 
         private static readonly Type IDbConnectionType = typeof(IDbConnection);
-        private static readonly ConcurrentDictionary<Type, ConcurrentDictionary<string, MethodInfo>> TypeCache = new ConcurrentDictionary<Type, ConcurrentDictionary<string, MethodInfo>>();
+        private static readonly ConcurrentDictionary<Type, ConcurrentDictionary<string, MethodInfo?>> TypeCache = new ConcurrentDictionary<Type, ConcurrentDictionary<string, MethodInfo?>>();
         private static readonly ConcurrentDictionary<MethodInfo, bool> ResultCache = new ConcurrentDictionary<MethodInfo, bool>();
     }
 }
