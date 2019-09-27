@@ -142,7 +142,7 @@ namespace SJP.Schematic.Lint.Rules
             return new RuleMessage(RuleTitle, Level, messageText);
         }
 
-        protected virtual IRuleMessage BuildDisabledIndexMessage(Identifier tableName, string indexName)
+        protected virtual IRuleMessage BuildDisabledIndexMessage(Identifier tableName, string? indexName)
         {
             if (tableName == null)
                 throw new ArgumentNullException(nameof(tableName));
@@ -155,7 +155,7 @@ namespace SJP.Schematic.Lint.Rules
             return new RuleMessage(RuleTitle, Level, messageText);
         }
 
-        protected virtual IRuleMessage BuildDisabledTriggerMessage(Identifier tableName, string triggerName)
+        protected virtual IRuleMessage BuildDisabledTriggerMessage(Identifier tableName, string? triggerName)
         {
             if (tableName == null)
                 throw new ArgumentNullException(nameof(tableName));

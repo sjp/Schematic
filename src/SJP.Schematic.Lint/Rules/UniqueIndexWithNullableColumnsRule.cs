@@ -62,7 +62,7 @@ namespace SJP.Schematic.Lint.Rules
             return result;
         }
 
-        protected virtual IRuleMessage BuildMessage(Identifier tableName, string indexName, IEnumerable<string> columnNames)
+        protected virtual IRuleMessage BuildMessage(Identifier tableName, string? indexName, IEnumerable<string> columnNames)
         {
             if (tableName == null)
                 throw new ArgumentNullException(nameof(tableName));
