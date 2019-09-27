@@ -263,7 +263,7 @@ namespace SJP.Schematic.Dot
             foreach (var nodeAttr in _nodeAttrs)
                 builder.Append(indent).AppendLine(nodeAttr.ToString());
 
-            builder.Append("]");
+            builder.Append(']');
 
             return builder.GetStringAndRelease();
         }

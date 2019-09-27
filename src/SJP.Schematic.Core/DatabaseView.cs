@@ -46,7 +46,7 @@ namespace SJP.Schematic.Core
                 builder.Append("View: ");
 
                 if (!Name.Schema.IsNullOrWhiteSpace())
-                    builder.Append(Name.Schema).Append(".");
+                    builder.Append(Name.Schema).Append('.');
 
                 builder.Append(Name.LocalName);
 

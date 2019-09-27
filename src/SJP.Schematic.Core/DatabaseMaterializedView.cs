@@ -31,7 +31,7 @@ namespace SJP.Schematic.Core
                 builder.Append("Materialized View: ");
 
                 if (!Name.Schema.IsNullOrWhiteSpace())
-                    builder.Append(Name.Schema).Append(".");
+                    builder.Append(Name.Schema).Append('.');
 
                 builder.Append(Name.LocalName);
 

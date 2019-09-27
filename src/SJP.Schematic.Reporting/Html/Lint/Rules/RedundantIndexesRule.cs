@@ -33,11 +33,9 @@ namespace SJP.Schematic.Reporting.Html.Lint.Rules
             var tableLink = $"<a href=\"{ tableUrl }\">{ HttpUtility.HtmlEncode(tableName.ToVisibleName()) }</a>";
 
             var columnNames = redundantIndexColumnNames
-                .Select(columnName => "<code>" + HttpUtility.HtmlEncode(columnName) + "</code>")
-                .Join(", ");
+                .Select(columnName => "<code>" + HttpUtility.HtmlEncode(columnName) + "</code>");
             var otherColumnNames = otherIndexColumnNames
-                .Select(columnName => "<code>" + HttpUtility.HtmlEncode(columnName) + "</code>")
-                .Join(", ");
+                .Select(columnName => "<code>" + HttpUtility.HtmlEncode(columnName) + "</code>");
 
             var builder = StringBuilderCache.Acquire();
             builder.Append("The table ")
@@ -45,11 +43,11 @@ namespace SJP.Schematic.Reporting.Html.Lint.Rules
                 .Append(" has an index <code>")
                 .Append(HttpUtility.HtmlEncode(indexName))
                 .Append("</code> which may be redundant, as its column set (")
-                .Append(columnNames)
+                .AppendJoin(", ", columnNames)
                 .Append(") is the prefix of another index <code>")
                 .Append(HttpUtility.HtmlEncode(otherIndexName))
                 .Append("</code> (")
-                .Append(otherColumnNames)
+                .AppendJoin(", ", otherColumnNames)
                 .Append(").");
 
             var messageText = builder.GetStringAndRelease();

@@ -31,14 +31,14 @@ namespace SJP.Schematic.Core
                 builder.Append("Synonym: ");
 
                 if (!Name.Schema.IsNullOrWhiteSpace())
-                    builder.Append(Name.Schema).Append(".");
+                    builder.Append(Name.Schema).Append('.');
 
                 builder.Append(Name.LocalName);
 
                 builder.Append(" -> ");
 
                 if (!Target.Schema.IsNullOrWhiteSpace())
-                    builder.Append(Target.Schema).Append(".");
+                    builder.Append(Target.Schema).Append('.');
 
                 builder.Append(Target.LocalName);
 

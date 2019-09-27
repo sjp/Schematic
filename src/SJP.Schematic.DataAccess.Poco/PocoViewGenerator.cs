@@ -88,7 +88,7 @@ namespace SJP.Schematic.DataAccess.Poco
 
             builder.Append(Indent)
                 .AppendLine("}")
-                .Append("}");
+                .Append('}');
 
             return builder.GetStringAndRelease();
         }
@@ -117,7 +117,7 @@ namespace SJP.Schematic.DataAccess.Poco
                 .Append("public ")
                 .Append(typeName)
                 .Append(nullableSuffix)
-                .Append(" ")
+                .Append(' ')
                 .Append(propertyName)
                 .AppendLine(" { get; set; }");
         }

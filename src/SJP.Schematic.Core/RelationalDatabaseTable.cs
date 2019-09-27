@@ -91,7 +91,7 @@ namespace SJP.Schematic.Core
                 builder.Append("Table: ");
 
                 if (!Name.Schema.IsNullOrWhiteSpace())
-                    builder.Append(Name.Schema).Append(".");
+                    builder.Append(Name.Schema).Append('.');
 
                 builder.Append(Name.LocalName);
 

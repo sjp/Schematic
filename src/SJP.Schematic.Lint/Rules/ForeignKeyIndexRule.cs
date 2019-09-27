@@ -118,7 +118,7 @@ namespace SJP.Schematic.Lint.Rules
 
             foreignKeyName.IfSome(name =>
             {
-                builder.Append("'")
+                builder.Append('\'')
                     .Append(name.LocalName)
                     .Append("' ");
             });
@@ -127,11 +127,10 @@ namespace SJP.Schematic.Lint.Rules
 
             // plural check
             if (columnNames.Skip(1).Any())
-                builder.Append("s");
+                builder.Append('s');
 
-            var joinedColumnNames = columnNames.Join(", ");
-            builder.Append(" ")
-                .Append(joinedColumnNames);
+            builder.Append(' ')
+                .AppendJoin(", ", columnNames);
 
             var messageText = builder.GetStringAndRelease();
             return new RuleMessage(RuleTitle, Level, messageText);

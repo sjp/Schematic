@@ -58,7 +58,7 @@ namespace SJP.Schematic.Dot
                 foreach (var edgeAttr in EdgeAttributes)
                     builder.Append(indent).AppendLine(edgeAttr.ToString());
 
-                builder.Append("]");
+                builder.Append(']');
             }
 
             return builder.GetStringAndRelease();

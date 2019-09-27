@@ -43,10 +43,9 @@ namespace SJP.Schematic.Reporting.Html.Lint.Rules
                 : " which contains a nullable column: ";
             builder.Append(pluralText);
 
-            var joinedColumnNames = columnNames
-                .Select(columnName => "<code>" + HttpUtility.HtmlEncode(columnName) + "</code>")
-                .Join(", ");
-            builder.Append(joinedColumnNames);
+            var formattedColumnNames = columnNames
+                .Select(columnName => "<code>" + HttpUtility.HtmlEncode(columnName) + "</code>");
+            builder.AppendJoin(", ", formattedColumnNames);
 
             var messageText = builder.GetStringAndRelease();
             return new RuleMessage(RuleTitle, Level, messageText);

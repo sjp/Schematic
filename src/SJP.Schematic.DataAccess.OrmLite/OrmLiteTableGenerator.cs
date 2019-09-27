@@ -93,12 +93,11 @@ namespace SJP.Schematic.DataAccess.OrmLite
                 var columnNames = uniqueKey.Columns
                     .Select(c => NameTranslator.ColumnToPropertyName(className, c.Name.LocalName))
                     .Select(p => "nameof(" + p + ")")
-                    .ToList();
-                var fieldNames = string.Join(", ", columnNames);
+                    .Join(", ");
 
                 builder.Append(Indent)
                     .Append("[UniqueConstraint(")
-                    .Append(fieldNames)
+                    .Append(columnNames)
                     .AppendLine(")]");
             }
 
@@ -113,8 +112,7 @@ namespace SJP.Schematic.DataAccess.OrmLite
                 var columnNames = dependentColumns
                     .Select(c => NameTranslator.ColumnToPropertyName(className, c.Name.LocalName))
                     .Select(p => "nameof(" + p + ")")
-                    .ToList();
-                var fieldNames = string.Join(", ", columnNames);
+                    .Join(", ");
 
                 builder.Append(Indent)
                     .Append("[CompositeIndex(");
@@ -122,7 +120,7 @@ namespace SJP.Schematic.DataAccess.OrmLite
                 if (index.IsUnique)
                     builder.Append("true, ");
 
-                builder.Append(fieldNames)
+                builder.Append(columnNames)
                     .AppendLine(")]");
             }
 
@@ -150,7 +148,7 @@ namespace SJP.Schematic.DataAccess.OrmLite
 
             builder.Append(Indent)
                 .AppendLine("}")
-                .Append("}");
+                .Append('}');
 
             return builder.GetStringAndRelease();
         }
@@ -241,7 +239,7 @@ namespace SJP.Schematic.DataAccess.OrmLite
                 builder.Append(columnIndent)
                     .Append("[ForeignKey(typeof(")
                     .Append(parentClassName)
-                    .Append(")");
+                    .Append(')');
 
                 relationalKey.ChildKey.Name.IfSome(fkName =>
                 {
@@ -299,7 +297,7 @@ namespace SJP.Schematic.DataAccess.OrmLite
                 .Append("public ")
                 .Append(typeName)
                 .Append(nullableSuffix)
-                .Append(" ")
+                .Append(' ')
                 .Append(propertyName)
                 .AppendLine(" { get; set; }");
         }

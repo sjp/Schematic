@@ -133,7 +133,7 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore
                 builder.Append(columnIndent)
                     .Append("public virtual ")
                     .Append(qualifiedParentName)
-                    .Append(" ")
+                    .Append(' ')
                     .Append(parentClassName)
                     .AppendLine(" { get; set; }");
             }
@@ -164,7 +164,7 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore
                     builder.Append(columnIndent)
                         .Append("public virtual ")
                         .Append(qualifiedChildName)
-                        .Append(" ")
+                        .Append(' ')
                         .Append(childSetName)
                         .AppendLine(" { get; set; }");
                 }
@@ -246,7 +246,7 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore
                 .Append("public ")
                 .Append(typeName)
                 .Append(nullableSuffix)
-                .Append(" ")
+                .Append(' ')
                 .Append(propertyName)
                 .AppendLine(" { get; set; }");
         }

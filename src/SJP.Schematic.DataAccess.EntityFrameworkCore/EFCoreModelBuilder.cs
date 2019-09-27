@@ -61,7 +61,7 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore
                     _builder.Append(chainIndent)
                         .Append(".HasDefaultValue(")
                         .Append(defaultLiteral)
-                        .Append(")");
+                        .Append(')');
                 });
 
                 if (column.IsComputed && column is IDatabaseComputedColumn computedColumn)
@@ -72,7 +72,7 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore
                         _builder.Append(chainIndent)
                             .Append(".HasComputedColumnSql(")
                             .Append(computedDefinition)
-                            .Append(")");
+                            .Append(')');
                     });
                 }
 
@@ -91,7 +91,7 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore
                     .Append(chainIndent)
                     .Append(".HasKey(t => ")
                     .Append(keyColumnSet)
-                    .Append(")");
+                    .Append(')');
 
                 pk.Name.IfSome(pkName =>
                 {
@@ -100,7 +100,7 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore
                         .Append(chainIndent)
                         .Append(".HasName(")
                         .Append(pkNameLiteral)
-                        .Append(")");
+                        .Append(')');
                 });
 
                 _builder.AppendLine(";");
@@ -117,7 +117,7 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore
                     .Append(chainIndent)
                     .Append(".HasAlternateKey(t => ")
                     .Append(keyColumnSet)
-                    .Append(")");
+                    .Append(')');
 
                 uniqueKey.Name.IfSome(ukName =>
                 {
@@ -126,7 +126,7 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore
                         .Append(chainIndent)
                         .Append(".HasName(")
                         .Append(ukNameLiteral)
-                        .Append(")");
+                        .Append(')');
                 });
 
                 _builder.AppendLine(";");
@@ -145,7 +145,7 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore
                     .Append(chainIndent)
                     .Append(".HasIndex(t => ")
                     .Append(columnSet)
-                    .Append(")");
+                    .Append(')');
 
                 if (index.IsUnique)
                 {
@@ -160,7 +160,7 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore
                         .Append(chainIndent)
                         .Append(".HasName(")
                         .Append(indexNameLiteral)
-                        .Append(")");
+                        .Append(')');
                 }
 
                 _builder.AppendLine(";");
@@ -193,7 +193,7 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore
                     .Append(chainIndent)
                     .Append(".HasPrincipalKey(t => ")
                     .Append(parentColumnSet)
-                    .Append(")");
+                    .Append(')');
 
                 relationalKey.ChildKey.Name.IfSome(childKeyName =>
                 {
@@ -202,7 +202,7 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore
                         .Append(chainIndent)
                         .Append(".HasConstraintName(")
                         .Append(keyNameLiteral)
-                        .Append(")");
+                        .Append(')');
                 });
 
                 _builder.AppendLine(";");

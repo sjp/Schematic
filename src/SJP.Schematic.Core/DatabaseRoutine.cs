@@ -34,7 +34,7 @@ namespace SJP.Schematic.Core
                 builder.Append("Routine: ");
 
                 if (!Name.Schema.IsNullOrWhiteSpace())
-                    builder.Append(Name.Schema).Append(".");
+                    builder.Append(Name.Schema).Append('.');
 
                 builder.Append(Name.LocalName);
 

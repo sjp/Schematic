@@ -76,7 +76,7 @@ namespace SJP.Schematic.Lint.Rules
             {
                 builder.Append(" '")
                     .Append(name.LocalName)
-                    .Append("'");
+                    .Append('\'');
             });
 
             builder.Append(" on ")

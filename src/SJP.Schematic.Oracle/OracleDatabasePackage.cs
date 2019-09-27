@@ -48,7 +48,7 @@ namespace SJP.Schematic.Oracle
                 builder.Append("Package: ");
 
                 if (!Name.Schema.IsNullOrWhiteSpace())
-                    builder.Append(Name.Schema).Append(".");
+                    builder.Append(Name.Schema).Append('.');
 
                 builder.Append(Name.LocalName);
 

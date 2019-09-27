@@ -116,11 +116,11 @@ namespace SJP.Schematic.Lint.Rules
                 .Append(" has an index '")
                 .Append(indexName)
                 .Append("' which may be redundant, as its column set (")
-                .Append(redundantIndexColumnNames.Join(", "))
+                .AppendJoin(", ", redundantIndexColumnNames)
                 .Append(") is the prefix of another index '")
                 .Append(otherIndexName)
                 .Append("' (")
-                .Append(otherIndexColumnNames.Join(", "))
+                .AppendJoin(", ", otherIndexColumnNames)
                 .Append(").");
 
             var messageText = builder.GetStringAndRelease();

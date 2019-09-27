@@ -23,7 +23,7 @@ namespace SJP.Schematic.Reporting
             if (identifier.Schema != null)
             {
                 builder.Append(identifier.Schema);
-                builder.Append(".");
+                builder.Append('.');
             }
 
             builder.Append(identifier.LocalName);

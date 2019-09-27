@@ -151,22 +151,22 @@ namespace SJP.Schematic.Oracle
             {
                 npWithPrecisionOrScale.IfSome(precision =>
                 {
-                    builder.Append("(");
+                    builder.Append('(');
                     builder.Append(precision.Precision.ToString(CultureInfo.InvariantCulture));
                     if (precision.Scale > 0)
                     {
                         builder.Append(", ");
                         builder.Append(precision.Scale.ToString(CultureInfo.InvariantCulture));
                     }
-                    builder.Append(")");
+                    builder.Append(')');
                 });
             }
             else if (typeMetadata.MaxLength > 0)
             {
-                builder.Append("(");
+                builder.Append('(');
                 var maxLength = typeMetadata.MaxLength;
                 builder.Append(maxLength.ToString(CultureInfo.InvariantCulture));
-                builder.Append(")");
+                builder.Append(')');
             }
 
             return builder.GetStringAndRelease();
@@ -208,11 +208,11 @@ namespace SJP.Schematic.Oracle
             var builder = StringBuilderCache.Acquire();
 
             if (name.Server != null)
-                builder.Append(QuoteIdentifier(name.Server)).Append(".");
+                builder.Append(QuoteIdentifier(name.Server)).Append('.');
             if (name.Database != null)
-                builder.Append(QuoteIdentifier(name.Database)).Append(".");
+                builder.Append(QuoteIdentifier(name.Database)).Append('.');
             if (name.Schema != null)
-                builder.Append(QuoteIdentifier(name.Schema)).Append(".");
+                builder.Append(QuoteIdentifier(name.Schema)).Append('.');
             if (name.LocalName != null)
                 builder.Append(QuoteIdentifier(name.LocalName));
 

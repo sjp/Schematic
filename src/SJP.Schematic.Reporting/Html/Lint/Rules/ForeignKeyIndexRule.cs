@@ -42,13 +42,12 @@ namespace SJP.Schematic.Reporting.Html.Lint.Rules
 
             // plural check
             if (columnNames.Skip(1).Any())
-                builder.Append("s");
+                builder.Append('s');
 
-            var joinedColumnNames = columnNames
-                .Select(columnName => "<code>" + HttpUtility.HtmlEncode(columnName) + "</code>")
-                .Join(", ");
-            builder.Append(" ")
-                .Append(joinedColumnNames);
+            var formattedColumnNames = columnNames
+                .Select(columnName => "<code>" + HttpUtility.HtmlEncode(columnName) + "</code>");
+            builder.Append(' ')
+                .AppendJoin(", ", formattedColumnNames);
 
             var messageText = builder.GetStringAndRelease();
             return new RuleMessage(RuleTitle, Level, messageText);

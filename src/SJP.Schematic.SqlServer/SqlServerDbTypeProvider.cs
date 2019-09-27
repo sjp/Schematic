@@ -128,7 +128,7 @@ namespace SJP.Schematic.SqlServer
             if (TypeNamesWithNoLengthAnnotation.Contains(typeName))
                 return builder.GetStringAndRelease();
 
-            builder.Append("(");
+            builder.Append('(');
 
             var npWithPrecisionOrScale = typeMetadata.NumericPrecision.Filter(np => np.Precision > 0 || np.Scale > 0);
             if (npWithPrecisionOrScale.IsSome)
@@ -156,7 +156,7 @@ namespace SJP.Schematic.SqlServer
                 builder.Append("max");
             }
 
-            builder.Append(")");
+            builder.Append(')');
 
             return builder.GetStringAndRelease();
         }

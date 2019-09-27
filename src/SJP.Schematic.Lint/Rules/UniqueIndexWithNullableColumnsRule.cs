@@ -76,7 +76,7 @@ namespace SJP.Schematic.Lint.Rules
 
             if (!indexName.IsNullOrWhiteSpace())
             {
-                builder.Append("'")
+                builder.Append('\'')
                     .Append(indexName)
                     .Append("' ");
             }
@@ -84,10 +84,8 @@ namespace SJP.Schematic.Lint.Rules
             var pluralText = columnNames.Skip(1).Any()
                 ? "which contains nullable columns: "
                 : "which contains a nullable column: ";
-            builder.Append(pluralText);
-
-            var joinedColumnNames = columnNames.Join(", ");
-            builder.Append(joinedColumnNames);
+            builder.Append(pluralText)
+                .AppendJoin(", ", columnNames);
 
             var messageText = builder.GetStringAndRelease();
             return new RuleMessage(RuleTitle, Level, messageText);

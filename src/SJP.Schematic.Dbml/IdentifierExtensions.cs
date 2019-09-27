@@ -16,7 +16,7 @@ namespace SJP.Schematic.Dbml
             if (identifier.Schema != null)
             {
                 builder.Append(identifier.Schema);
-                builder.Append("_");
+                builder.Append('_');
             }
 
             builder.Append(identifier.LocalName);
