@@ -5,6 +5,7 @@
     <Description>Library for generating ServiceStack OrmLite data access projects</Description>
     <IncludeSymbols>true</IncludeSymbols>
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+    <Nullable>enable</Nullable>
   </PropertyGroup>
 
   <ItemGroup>

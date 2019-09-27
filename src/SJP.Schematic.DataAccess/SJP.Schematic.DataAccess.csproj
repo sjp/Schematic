@@ -5,6 +5,7 @@
     <Description>Core library for generating data access projects in .NET</Description>
     <IncludeSymbols>true</IncludeSymbols>
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+    <Nullable>enable</Nullable>
   </PropertyGroup>
 
   <ItemGroup>

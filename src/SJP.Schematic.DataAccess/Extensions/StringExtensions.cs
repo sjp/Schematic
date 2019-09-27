@@ -4,7 +4,7 @@ namespace SJP.Schematic.DataAccess.Extensions
 {
     public static class StringExtensions
     {
-        public static string ToStringLiteral(this string input)
+        public static string? ToStringLiteral(this string? input)
         {
             if (input == null)
                 return input;

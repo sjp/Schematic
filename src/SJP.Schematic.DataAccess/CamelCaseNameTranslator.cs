@@ -15,7 +15,7 @@ namespace SJP.Schematic.DataAccess
         /// </summary>
         /// <param name="objectName">An optionally qualified object name.</param>
         /// <returns><c>null</c> if <paramref name="objectName"/> does not contain a schema name or should not be used.</returns>
-        public override string SchemaToNamespace(Identifier objectName)
+        public override string? SchemaToNamespace(Identifier objectName)
         {
             if (objectName == null)
                 throw new ArgumentNullException(nameof(objectName));
@@ -37,7 +37,7 @@ namespace SJP.Schematic.DataAccess
                 throw new ArgumentNullException(nameof(tableName));
 
             var tableIdentifier = CreateValidIdentifier(tableName.LocalName);
-            return tableIdentifier.Camelize();
+            return tableIdentifier.Camelize() ?? string.Empty;
         }
 
         /// <summary>

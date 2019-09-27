@@ -12,7 +12,7 @@ namespace SJP.Schematic.DataAccess
         /// </summary>
         /// <param name="objectName">An optionally qualified object name.</param>
         /// <returns><c>null</c> if <paramref name="objectName"/> does not contain a schema name or should not be used.</returns>
-        string SchemaToNamespace(Identifier objectName);
+        string? SchemaToNamespace(Identifier objectName);
 
         /// <summary>
         /// Return a name for a table.

@@ -363,7 +363,7 @@ namespace SJP.Schematic.DataAccess.OrmLite
             return false;
         }
 
-        protected static IDatabaseRelationalKey ColumnRelationalKey(IRelationalDatabaseTable table, IDatabaseColumn column)
+        protected static IDatabaseRelationalKey? ColumnRelationalKey(IRelationalDatabaseTable table, IDatabaseColumn column)
         {
             if (table == null)
                 throw new ArgumentNullException(nameof(table));

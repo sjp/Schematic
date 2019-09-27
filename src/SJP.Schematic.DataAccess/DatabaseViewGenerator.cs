@@ -33,7 +33,8 @@ namespace SJP.Schematic.DataAccess
             if (objectName.Schema != null)
             {
                 var schemaName = NameTranslator.SchemaToNamespace(objectName);
-                paths.Add(schemaName);
+                if (schemaName != null)
+                    paths.Add(schemaName);
             }
 
             var viewName = NameTranslator.ViewToClassName(objectName);
