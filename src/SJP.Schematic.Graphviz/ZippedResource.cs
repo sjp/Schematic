@@ -33,9 +33,9 @@ namespace SJP.Schematic.Graphviz
             var bytes = GetResourceByName(_resourceName);
             var extractPath = Path.GetFullPath(directoryPath);
 
-            using (var sourceStream = new MemoryStream(bytes))
-            using (var archive = new ZipArchive(sourceStream))
-                archive.ExtractToDirectory(extractPath);
+            using var sourceStream = new MemoryStream(bytes);
+            using var archive = new ZipArchive(sourceStream);
+            archive.ExtractToDirectory(extractPath);
         }
 
         private static IEnumerable<string> GetResourceNames()
@@ -53,12 +53,10 @@ namespace SJP.Schematic.Graphviz
             var namePrefix = asm.GetName().Name + ".";
             var qualifiedName = namePrefix + resourceName;
 
-            using (var stream = asm.GetManifestResourceStream(qualifiedName))
-            using (var memStream = new MemoryStream())
-            {
-                stream.CopyTo(memStream);
-                return memStream.ToArray();
-            }
+            using var stream = asm.GetManifestResourceStream(qualifiedName);
+            using var memStream = new MemoryStream();
+            stream.CopyTo(memStream);
+            return memStream.ToArray();
         }
 
         private readonly string _resourceName;

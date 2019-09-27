@@ -69,8 +69,8 @@ namespace SJP.Schematic.Core.Extensions
             var command = new CommandDefinition(sql, cancellationToken: cancellationToken);
             var configuredCommand = ConfigureCommand(connection, command);
 
-            using (var logger = new LoggingAdapter(connection, sql, null))
-                return await connection.QueryAsync<T>(configuredCommand).ConfigureAwait(false);
+            using var logger = new LoggingAdapter(connection, sql, null);
+            return await connection.QueryAsync<T>(configuredCommand).ConfigureAwait(false);
         }
 
         public static Task<IEnumerable<T>> QueryAsync<T>(this IDbConnection connection, string sql, object parameters, CancellationToken cancellationToken)
@@ -91,8 +91,8 @@ namespace SJP.Schematic.Core.Extensions
             var command = new CommandDefinition(sql, parameters, cancellationToken: cancellationToken);
             var configuredCommand = ConfigureCommand(connection, command);
 
-            using (var logger = new LoggingAdapter(connection, sql, parameters))
-                return await connection.QueryAsync<T>(configuredCommand).ConfigureAwait(false);
+            using var logger = new LoggingAdapter(connection, sql, parameters);
+            return await connection.QueryAsync<T>(configuredCommand).ConfigureAwait(false);
         }
 
         public static T ExecuteFirstScalar<T>(this IDbConnection connection, string sql)
@@ -105,8 +105,8 @@ namespace SJP.Schematic.Core.Extensions
             var command = new CommandDefinition(sql);
             var configuredCommand = ConfigureCommand(connection, command);
 
-            using (var logger = new LoggingAdapter(connection, sql, null))
-                return connection.ExecuteScalar<T>(configuredCommand);
+            using var logger = new LoggingAdapter(connection, sql, null);
+            return connection.ExecuteScalar<T>(configuredCommand);
         }
 
         public static T ExecuteFirstScalar<T>(this IDbConnection connection, string sql, object parameters)
@@ -121,8 +121,8 @@ namespace SJP.Schematic.Core.Extensions
             var command = new CommandDefinition(sql, parameters);
             var configuredCommand = ConfigureCommand(connection, command);
 
-            using (var logger = new LoggingAdapter(connection, sql, parameters))
-                return connection.ExecuteScalar<T>(configuredCommand);
+            using var logger = new LoggingAdapter(connection, sql, parameters);
+            return connection.ExecuteScalar<T>(configuredCommand);
         }
 
         public static Task<T> ExecuteScalarAsync<T>(this IDbConnection connection, string sql, CancellationToken cancellationToken)
@@ -140,8 +140,8 @@ namespace SJP.Schematic.Core.Extensions
             var command = new CommandDefinition(sql, cancellationToken: cancellationToken);
             var configuredCommand = ConfigureCommand(connection, command);
 
-            using (var logger = new LoggingAdapter(connection, sql, null))
-                return await connection.ExecuteScalarAsync<T>(configuredCommand).ConfigureAwait(false);
+            using var logger = new LoggingAdapter(connection, sql, null);
+            return await connection.ExecuteScalarAsync<T>(configuredCommand).ConfigureAwait(false);
         }
 
         public static Task<T> ExecuteScalarAsync<T>(this IDbConnection connection, string sql, object parameters, CancellationToken cancellationToken)
@@ -161,8 +161,8 @@ namespace SJP.Schematic.Core.Extensions
             var command = new CommandDefinition(sql, parameters, cancellationToken: cancellationToken);
             var configuredCommand = ConfigureCommand(connection, command);
 
-            using (var logger = new LoggingAdapter(connection, sql, parameters))
-                return await connection.ExecuteScalarAsync<T>(configuredCommand).ConfigureAwait(false);
+            using var logger = new LoggingAdapter(connection, sql, parameters);
+            return await connection.ExecuteScalarAsync<T>(configuredCommand).ConfigureAwait(false);
         }
 
         public static Task<int> ExecuteAsync(this IDbConnection connection, string sql, CancellationToken cancellationToken)
@@ -180,8 +180,8 @@ namespace SJP.Schematic.Core.Extensions
             var command = new CommandDefinition(sql, cancellationToken: cancellationToken);
             var configuredCommand = ConfigureCommand(connection, command);
 
-            using (var logger = new LoggingAdapter(connection, sql, null))
-                return await connection.ExecuteAsync(configuredCommand).ConfigureAwait(false);
+            using var logger = new LoggingAdapter(connection, sql, null);
+            return await connection.ExecuteAsync(configuredCommand).ConfigureAwait(false);
         }
 
         public static Task<int> ExecuteAsync(this IDbConnection connection, string sql, object parameters, CancellationToken cancellationToken)
@@ -201,8 +201,8 @@ namespace SJP.Schematic.Core.Extensions
             var command = new CommandDefinition(sql, parameters, cancellationToken: cancellationToken);
             var configuredCommand = ConfigureCommand(connection, command);
 
-            using (var logger = new LoggingAdapter(connection, sql, parameters))
-                return await connection.ExecuteAsync(configuredCommand).ConfigureAwait(false);
+            using var logger = new LoggingAdapter(connection, sql, parameters);
+            return await connection.ExecuteAsync(configuredCommand).ConfigureAwait(false);
         }
 
         public static OptionAsync<T> QueryFirstOrNone<T>(this IDbConnection connection, string sql, CancellationToken cancellationToken)
@@ -222,13 +222,11 @@ namespace SJP.Schematic.Core.Extensions
             var command = new CommandDefinition(sql, cancellationToken: cancellationToken);
             var configuredCommand = ConfigureCommand(connection, command);
 
-            using (var logger = new LoggingAdapter(connection, sql, null))
-            {
-                var result = await connection.QueryFirstOrDefaultAsync<T>(configuredCommand).ConfigureAwait(false);
-                return result != null
-                    ? Option<T>.Some(result)
-                    : Option<T>.None;
-            }
+            using var logger = new LoggingAdapter(connection, sql, null);
+            var result = await connection.QueryFirstOrDefaultAsync<T>(configuredCommand).ConfigureAwait(false);
+            return result != null
+                ? Option<T>.Some(result)
+                : Option<T>.None;
         }
 
         public static OptionAsync<T> QueryFirstOrNone<T>(this IDbConnection connection, string sql, object parameters, CancellationToken cancellationToken)
@@ -250,13 +248,11 @@ namespace SJP.Schematic.Core.Extensions
             var command = new CommandDefinition(sql, parameters, cancellationToken: cancellationToken);
             var configuredCommand = ConfigureCommand(connection, command);
 
-            using (var logger = new LoggingAdapter(connection, sql, parameters))
-            {
-                var result = await connection.QueryFirstOrDefaultAsync<T>(configuredCommand).ConfigureAwait(false);
-                return result != null
-                    ? Option<T>.Some(result)
-                    : Option<T>.None;
-            }
+            using var logger = new LoggingAdapter(connection, sql, parameters);
+            var result = await connection.QueryFirstOrDefaultAsync<T>(configuredCommand).ConfigureAwait(false);
+            return result != null
+                ? Option<T>.Some(result)
+                : Option<T>.None;
         }
 
         public static Task<T> QuerySingleAsync<T>(this IDbConnection connection, string sql, CancellationToken cancellationToken)
@@ -276,8 +272,8 @@ namespace SJP.Schematic.Core.Extensions
             var command = new CommandDefinition(sql, cancellationToken: cancellationToken);
             var configuredCommand = ConfigureCommand(connection, command);
 
-            using (var logger = new LoggingAdapter(connection, sql, null))
-                return await connection.QuerySingleAsync<T>(configuredCommand).ConfigureAwait(false);
+            using var logger = new LoggingAdapter(connection, sql, null);
+            return await connection.QuerySingleAsync<T>(configuredCommand).ConfigureAwait(false);
         }
 
         public static Task<T> QuerySingleAsync<T>(this IDbConnection connection, string sql, object parameters, CancellationToken cancellationToken)
@@ -299,8 +295,8 @@ namespace SJP.Schematic.Core.Extensions
             var command = new CommandDefinition(sql, parameters, cancellationToken: cancellationToken);
             var configuredCommand = ConfigureCommand(connection, command);
 
-            using (var logger = new LoggingAdapter(connection, sql, parameters))
-                return await connection.QuerySingleAsync<T>(configuredCommand).ConfigureAwait(false);
+            using var logger = new LoggingAdapter(connection, sql, parameters);
+            return await connection.QuerySingleAsync<T>(configuredCommand).ConfigureAwait(false);
         }
 
         public static OptionAsync<T> QuerySingleOrNone<T>(this IDbConnection connection, string sql, CancellationToken cancellationToken)
@@ -322,13 +318,11 @@ namespace SJP.Schematic.Core.Extensions
                 var command = new CommandDefinition(sql, cancellationToken: cancellationToken);
                 var configuredCommand = ConfigureCommand(connection, command);
 
-                using (var logger = new LoggingAdapter(connection, sql, null))
-                {
-                    var result = await connection.QuerySingleOrDefaultAsync<T>(configuredCommand).ConfigureAwait(false);
-                    return result != null
-                        ? Option<T>.Some(result)
-                        : Option<T>.None;
-                }
+                using var logger = new LoggingAdapter(connection, sql, null);
+                var result = await connection.QuerySingleOrDefaultAsync<T>(configuredCommand).ConfigureAwait(false);
+                return result != null
+                    ? Option<T>.Some(result)
+                    : Option<T>.None;
             }
             catch (InvalidOperationException) // for > 1 case
             {
@@ -357,13 +351,11 @@ namespace SJP.Schematic.Core.Extensions
                 var command = new CommandDefinition(sql, parameters, cancellationToken: cancellationToken);
                 var configuredCommand = ConfigureCommand(connection, command);
 
-                using (var logger = new LoggingAdapter(connection, sql, parameters))
-                {
-                    var result = await connection.QuerySingleOrDefaultAsync<T>(configuredCommand).ConfigureAwait(false);
-                    return result != null
-                        ? Option<T>.Some(result)
-                        : Option<T>.None;
-                }
+                using var logger = new LoggingAdapter(connection, sql, parameters);
+                var result = await connection.QuerySingleOrDefaultAsync<T>(configuredCommand).ConfigureAwait(false);
+                return result != null
+                    ? Option<T>.Some(result)
+                    : Option<T>.None;
             }
             catch (InvalidOperationException) // for > 1 case
             {

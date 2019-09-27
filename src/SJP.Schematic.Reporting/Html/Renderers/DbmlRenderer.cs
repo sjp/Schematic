@@ -35,11 +35,9 @@ namespace SJP.Schematic.Reporting.Html.Renderers
             var formatter = new DbmlFormatter();
             var dbmlDocument = formatter.RenderTables(Tables);
             var dbmlOutputPath = Path.Combine(ExportDirectory.FullName, "relationships.dbml");
-            using (var writer = File.CreateText(dbmlOutputPath))
-            {
-                await writer.WriteAsync(dbmlDocument).ConfigureAwait(false);
-                await writer.FlushAsync().ConfigureAwait(false);
-            }
+            using var writer = File.CreateText(dbmlOutputPath);
+            await writer.WriteAsync(dbmlDocument).ConfigureAwait(false);
+            await writer.FlushAsync().ConfigureAwait(false);
         }
     }
 }

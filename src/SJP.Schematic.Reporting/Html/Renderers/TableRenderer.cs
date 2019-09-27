@@ -53,79 +53,77 @@ namespace SJP.Schematic.Reporting.Html.Renderers
             var relationshipFinder = new RelationshipFinder(Tables);
             var mapper = new TableModelMapper(IdentifierDefaults, RowCounts, relationshipFinder);
 
-            using (var dot = new GraphvizTemporaryExecutable())
-            {
-                var tableTasks = Tables.Select(async table =>
-                {
-                    var tableModel = mapper.Map(table);
-                    var outputPath = Path.Combine(ExportDirectory.FullName, table.Name.ToSafeKey() + ".html");
-                    if (!ExportDirectory.Exists)
-                        ExportDirectory.Create();
+            using var dot = new GraphvizTemporaryExecutable();
+            var tableTasks = Tables.Select(async table =>
+{
+var tableModel = mapper.Map(table);
+var outputPath = Path.Combine(ExportDirectory.FullName, table.Name.ToSafeKey() + ".html");
+if (!ExportDirectory.Exists)
+ExportDirectory.Create();
 
-                    XNamespace svgNs = "http://www.w3.org/2000/svg";
-                    XNamespace xlinkNs = "http://www.w3.org/1999/xlink";
+XNamespace svgNs = "http://www.w3.org/2000/svg";
+XNamespace xlinkNs = "http://www.w3.org/1999/xlink";
 
-                    var dotRenderer = new DotSvgRenderer(dot.DotExecutablePath);
-                    foreach (var diagram in tableModel.Diagrams)
-                    {
-                        var svgFilePath = Path.Combine(ExportDirectory.FullName, diagram.ContainerId + ".svg");
-                        var svg = await dotRenderer.RenderToSvgAsync(diagram.Dot, cancellationToken).ConfigureAwait(false);
+var dotRenderer = new DotSvgRenderer(dot.DotExecutablePath);
+foreach (var diagram in tableModel.Diagrams)
+{
+var svgFilePath = Path.Combine(ExportDirectory.FullName, diagram.ContainerId + ".svg");
+var svg = await dotRenderer.RenderToSvgAsync(diagram.Dot, cancellationToken).ConfigureAwait(false);
 
                         // ensure links open in new window with right attrs
                         var doc = XDocument.Parse(svg, LoadOptions.PreserveWhitespace);
-                        doc.ReplaceTitlesWithTableNames();
+doc.ReplaceTitlesWithTableNames();
 
-                        var linkNodes = doc.Descendants(svgNs + "a");
-                        foreach (var linkNode in linkNodes)
-                        {
-                            linkNode.SetAttributeValue("target", "_blank");
-                            linkNode.SetAttributeValue("rel", "noopener noreferrer");
-                            linkNode.SetAttributeValue(xlinkNs + "show", "new");
-                        }
+var linkNodes = doc.Descendants(svgNs + "a");
+foreach (var linkNode in linkNodes)
+{
+linkNode.SetAttributeValue("target", "_blank");
+linkNode.SetAttributeValue("rel", "noopener noreferrer");
+linkNode.SetAttributeValue(xlinkNs + "show", "new");
+}
 
-                        using (var writer = new StringWriter())
-                        {
-                            var svgRoot = doc.Root;
-                            svgRoot.Attribute("width")?.Remove();
-                            svgRoot.Attribute("height")?.Remove();
+using (var writer = new StringWriter())
+{
+var svgRoot = doc.Root;
+svgRoot.Attribute("width")?.Remove();
+svgRoot.Attribute("height")?.Remove();
 
-                            svgRoot.Save(writer, SaveOptions.DisableFormatting);
-                            var svgText = writer.ToString();
-                            if (svgText.StartsWith(XmlDeclaration))
-                                svgText = svgText.Substring(XmlDeclaration.Length);
-                            diagram.Svg = svgText;
-                        }
+svgRoot.Save(writer, SaveOptions.DisableFormatting);
+var svgText = writer.ToString();
+if (svgText.StartsWith(XmlDeclaration))
+svgText = svgText.Substring(XmlDeclaration.Length);
+diagram.Svg = svgText;
+}
 
                         // disable links, replace them with a <g>, i.e. a dummy element
                         linkNodes = doc.Descendants(svgNs + "a");
-                        foreach (var linkNode in linkNodes)
-                        {
-                            linkNode.RemoveAttributes();
-                            linkNode.Name = svgNs + "g";
-                        }
+foreach (var linkNode in linkNodes)
+{
+linkNode.RemoveAttributes();
+linkNode.Name = svgNs + "g";
+}
 
-                        using (var writer = File.CreateText(svgFilePath))
-                            doc.Save(writer, SaveOptions.DisableFormatting);
-                    }
+using (var writer = File.CreateText(svgFilePath))
+doc.Save(writer, SaveOptions.DisableFormatting);
+}
 
-                    var renderedTable = await Formatter.RenderTemplateAsync(tableModel).ConfigureAwait(false);
+var renderedTable = await Formatter.RenderTemplateAsync(tableModel).ConfigureAwait(false);
 
-                    var databaseName = !IdentifierDefaults.Database.IsNullOrWhiteSpace()
-                        ? IdentifierDefaults.Database + " Database"
-                        : "Database";
-                    var pageTitle = table.Name.ToVisibleName() + " · Table · " + databaseName;
-                    var tableContainer = new Container(renderedTable, pageTitle, "../");
-                    var renderedPage = await Formatter.RenderTemplateAsync(tableContainer).ConfigureAwait(false);
+var databaseName = !IdentifierDefaults.Database.IsNullOrWhiteSpace()
+? IdentifierDefaults.Database + " Database"
+: "Database";
+var pageTitle = table.Name.ToVisibleName() + " · Table · " + databaseName;
+var tableContainer = new Container(renderedTable, pageTitle, "../");
+var renderedPage = await Formatter.RenderTemplateAsync(tableContainer).ConfigureAwait(false);
 
-                    using (var writer = File.CreateText(outputPath))
-                    {
-                        await writer.WriteAsync(renderedPage).ConfigureAwait(false);
-                        await writer.FlushAsync().ConfigureAwait(false);
-                    }
-                });
+using (var writer = File.CreateText(outputPath))
+{
+await writer.WriteAsync(renderedPage).ConfigureAwait(false);
+await writer.FlushAsync().ConfigureAwait(false);
+}
+});
 
-                await Task.WhenAll(tableTasks).ConfigureAwait(false);
-            }
+            await Task.WhenAll(tableTasks).ConfigureAwait(false);
         }
 
         private const string XmlDeclaration = @"<?xml version=""1.0"" encoding=""utf-16""?>";

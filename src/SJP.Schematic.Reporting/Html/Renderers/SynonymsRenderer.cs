@@ -60,11 +60,9 @@ namespace SJP.Schematic.Reporting.Html.Renderers
                 ExportDirectory.Create();
             var outputPath = Path.Combine(ExportDirectory.FullName, "synonyms.html");
 
-            using (var writer = File.CreateText(outputPath))
-            {
-                await writer.WriteAsync(renderedPage).ConfigureAwait(false);
-                await writer.FlushAsync().ConfigureAwait(false);
-            }
+            using var writer = File.CreateText(outputPath);
+            await writer.WriteAsync(renderedPage).ConfigureAwait(false);
+            await writer.FlushAsync().ConfigureAwait(false);
         }
     }
 }

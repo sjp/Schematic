@@ -212,16 +212,14 @@ namespace SJP.Schematic.Oracle
             // need to skip zlib header bytes and trim trailing zlib checksum bytes to enable decompression
             var trimmedBytes = ZlibToDeflate(dataBytes);
 
-            using (var reader = new MemoryStream(trimmedBytes))
-            using (var unzipper = new DeflateStream(reader, CompressionMode.Decompress))
-            using (var writer = new MemoryStream())
-            {
-                unzipper.CopyTo(writer);
+            using var reader = new MemoryStream(trimmedBytes);
+            using var unzipper = new DeflateStream(reader, CompressionMode.Decompress);
+            using var writer = new MemoryStream();
+            unzipper.CopyTo(writer);
 
-                var decompressed = writer.ToArray();
-                var textResult = Encoding.UTF8.GetString(decompressed);
-                return textResult.TrimEnd('\0'); // remove a trailing NUL char
-            }
+            var decompressed = writer.ToArray();
+            var textResult = Encoding.UTF8.GetString(decompressed);
+            return textResult.TrimEnd('\0'); // remove a trailing NUL char
         }
 
         private static bool IsValidBase64String(string input)

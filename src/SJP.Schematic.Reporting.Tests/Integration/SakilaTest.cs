@@ -28,12 +28,10 @@ namespace SJP.Schematic.Reporting.Tests.Integration
             if (File.Exists(SakilaDbPath))
                 return;
 
-            using (var zipFile = File.OpenRead(SakilaZipPath))
-            using (var archive = new ZipArchive(zipFile))
-            {
-                var dbEntry = archive.Entries.Single();
-                dbEntry.ExtractToFile(SakilaDbPath);
-            }
+            using var zipFile = File.OpenRead(SakilaZipPath);
+            using var archive = new ZipArchive(zipFile);
+            var dbEntry = archive.Entries.Single();
+            dbEntry.ExtractToFile(SakilaDbPath);
         }
 
         public static string SakilaDbPath => Path.Combine(CurrentDirectory, "sakila.sqlite");

@@ -128,14 +128,14 @@ namespace SJP.Schematic.Dot
                 throw new ArgumentNullException(nameof(input));
 
             var bytes = Encoding.Unicode.GetBytes(input);
-            using (var hasher = new SHA512Managed())
-            {
-                var hash = hasher.ComputeHash(bytes);
-                var builder = StringBuilderCache.Acquire(hash.Length);
-                foreach (var hashByte in hash)
-                    builder.Append(hashByte.ToString("X2"));
-                return builder.GetStringAndRelease();
-            }
+
+            using var hasher = new SHA512Managed();
+            var hash = hasher.ComputeHash(bytes);
+
+            var builder = StringBuilderCache.Acquire(hash.Length);
+            foreach (var hashByte in hash)
+                builder.Append(hashByte.ToString("X2"));
+            return builder.GetStringAndRelease();
         }
 
         private const int HashKeyLength = 8;

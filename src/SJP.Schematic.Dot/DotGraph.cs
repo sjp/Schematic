@@ -94,12 +94,11 @@ namespace SJP.Schematic.Dot
                 foreach (var node in orderedNodes)
                 {
                     var nodeStr = node.ToString();
-                    using (var reader = new StringReader(nodeStr))
-                    {
-                        string line;
-                        while ((line = reader.ReadLine()) != null)
-                            builder.Append(nodeIndent).AppendLine(line);
-                    }
+
+                    using var reader = new StringReader(nodeStr);
+                    string line;
+                    while ((line = reader.ReadLine()) != null)
+                        builder.Append(nodeIndent).AppendLine(line);
                 }
             }
 
@@ -109,12 +108,11 @@ namespace SJP.Schematic.Dot
                 foreach (var edge in Edges)
                 {
                     var edgeStr = edge.ToString();
-                    using (var reader = new StringReader(edgeStr))
-                    {
-                        string line;
-                        while ((line = reader.ReadLine()) != null)
-                            builder.Append(edgeIndent).AppendLine(line);
-                    }
+
+                    using var reader = new StringReader(edgeStr);
+                    string line;
+                    while ((line = reader.ReadLine()) != null)
+                        builder.Append(edgeIndent).AppendLine(line);
                 }
             }
 

@@ -68,11 +68,9 @@ namespace SJP.Schematic.Reporting.Html.Renderers
                     var container = new Container(renderedTable, pageTitle, "../../../");
                     var renderedPage = await Formatter.RenderTemplateAsync(container).ConfigureAwait(false);
 
-                    using (var writer = File.CreateText(outputPath))
-                    {
-                        await writer.WriteAsync(renderedPage).ConfigureAwait(false);
-                        await writer.FlushAsync().ConfigureAwait(false);
-                    }
+                    using var writer = File.CreateText(outputPath);
+                    await writer.WriteAsync(renderedPage).ConfigureAwait(false);
+                    await writer.FlushAsync().ConfigureAwait(false);
                 });
             });
 

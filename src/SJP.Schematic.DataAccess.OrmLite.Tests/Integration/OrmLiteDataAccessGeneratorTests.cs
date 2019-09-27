@@ -276,13 +276,12 @@ select
                 WindowStyle = ProcessWindowStyle.Hidden,
                 WorkingDirectory = projectDir
             };
-            using (var process = new Process { StartInfo = startInfo })
-            {
-                process.Start();
-                process.WaitForExit();
 
-                return process.ExitCode == ExitSuccess;
-            }
+            using var process = new Process { StartInfo = startInfo };
+            process.Start();
+            process.WaitForExit();
+
+            return process.ExitCode == ExitSuccess;
         }
 
         private static Task<bool> ProjectBuildsSuccessfullyAsync(string projectPath)
@@ -308,13 +307,12 @@ select
                 WindowStyle = ProcessWindowStyle.Hidden,
                 WorkingDirectory = projectDir
             };
-            using (var process = new Process { StartInfo = startInfo })
-            {
-                process.Start();
-                var exitCode = await process.WaitForExitAsync().ConfigureAwait(false);
 
-                return exitCode == ExitSuccess;
-            }
+            using var process = new Process { StartInfo = startInfo };
+            process.Start();
+            var exitCode = await process.WaitForExitAsync().ConfigureAwait(false);
+
+            return exitCode == ExitSuccess;
         }
 
         private const string TestNamespace = "OrmLiteTestNamespace";

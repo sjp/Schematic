@@ -29,8 +29,8 @@ namespace SJP.Schematic.Modelled.Reflection
             var docLocation = Path.ChangeExtension(assembly.Location, "xml");
             if (File.Exists(docLocation))
             {
-                using (var reader = File.OpenRead(docLocation))
-                    Document = XDocument.Load(reader);
+                using var reader = File.OpenRead(docLocation);
+                Document = XDocument.Load(reader);
             }
             else
             {
