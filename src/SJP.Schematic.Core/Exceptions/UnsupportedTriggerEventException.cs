@@ -33,10 +33,10 @@ namespace SJP.Schematic.Core.Exceptions
                 + triggerEvent;
         }
 
-        public string TableName { get; }
+        public string TableName { get; } = string.Empty;
 
-        public string TriggerEvent { get; }
+        public string TriggerEvent { get; } = string.Empty;
 
-        public override string Message { get; }
+        public override string Message { get; } = string.Empty;
     }
 }

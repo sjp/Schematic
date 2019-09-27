@@ -6,7 +6,7 @@ namespace SJP.Schematic.Core.Extensions
 {
     public static class RelationalDatabaseTableProviderExtensions
     {
-        public static bool TryGetTable(this IRelationalDatabaseTableProvider tableProvider, Identifier tableName, out IRelationalDatabaseTable table)
+        public static bool TryGetTable(this IRelationalDatabaseTableProvider tableProvider, Identifier tableName, out IRelationalDatabaseTable? table)
         {
             if (tableProvider == null)
                 throw new ArgumentNullException(nameof(tableProvider));
@@ -19,7 +19,7 @@ namespace SJP.Schematic.Core.Extensions
             return tableOption.exists;
         }
 
-        public static Task<(bool exists, IRelationalDatabaseTable table)> TryGetTableAsync(this IRelationalDatabaseTableProvider tableProvider, Identifier tableName, CancellationToken cancellationToken = default)
+        public static Task<(bool exists, IRelationalDatabaseTable? table)> TryGetTableAsync(this IRelationalDatabaseTableProvider tableProvider, Identifier tableName, CancellationToken cancellationToken = default)
         {
             if (tableProvider == null)
                 throw new ArgumentNullException(nameof(tableProvider));
@@ -29,11 +29,11 @@ namespace SJP.Schematic.Core.Extensions
             return TryGetTableAsyncCore(tableProvider, tableName, cancellationToken);
         }
 
-        private static async Task<(bool exists, IRelationalDatabaseTable table)> TryGetTableAsyncCore(IRelationalDatabaseTableProvider tableProvider, Identifier tableName, CancellationToken cancellationToken)
+        private static async Task<(bool exists, IRelationalDatabaseTable? table)> TryGetTableAsyncCore(IRelationalDatabaseTableProvider tableProvider, Identifier tableName, CancellationToken cancellationToken)
         {
             var tableOption = tableProvider.GetTable(tableName, cancellationToken);
             var exists = await tableOption.IsSome.ConfigureAwait(false);
-            var table = await tableOption.IfNoneUnsafe(default(IRelationalDatabaseTable)).ConfigureAwait(false);
+            var table = await tableOption.IfNoneUnsafe(default(IRelationalDatabaseTable)!).ConfigureAwait(false);
 
             return (exists, table);
         }

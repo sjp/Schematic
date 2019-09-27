@@ -12,7 +12,7 @@ namespace SJP.Schematic.Core.Utilities
         private const int DefaultCapacity = 16;
 
         [ThreadStatic]
-        private static StringBuilder _cachedInstance;
+        private static StringBuilder? _cachedInstance;
 
         public static StringBuilder Acquire(int capacity = DefaultCapacity)
         {

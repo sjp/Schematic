@@ -5,16 +5,16 @@
         /// <summary>
         /// A server name.
         /// </summary>
-        string Server { get; }
+        string? Server { get; }
 
         /// <summary>
         /// A database name.
         /// </summary>
-        string Database { get; }
+        string? Database { get; }
 
         /// <summary>
         /// A schema name.
         /// </summary>
-        string Schema { get; }
+        string? Schema { get; }
     }
 }

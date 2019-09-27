@@ -14,7 +14,7 @@ namespace SJP.Schematic.Core.Extensions
             if (input.IsNone)
                 throw new ArgumentException("The given optional object does not have a value.", nameof(input));
 
-            return input.IfNoneUnsafe(default(T));
+            return input.IfNoneUnsafe(default(T)!);
         }
 
         public static async Task<T> UnwrapSomeAsync<T>(this OptionAsync<T> input)
@@ -23,7 +23,7 @@ namespace SJP.Schematic.Core.Extensions
             if (isNone)
                 throw new ArgumentException("The given optional object does not have a value.", nameof(input));
 
-            return await input.IfNoneUnsafe(default(T)).ConfigureAwait(false);
+            return await input.IfNoneUnsafe(default(T)!).ConfigureAwait(false);
         }
 
         public static Option<T> FirstSome<T>(this IEnumerable<Option<T>> input)

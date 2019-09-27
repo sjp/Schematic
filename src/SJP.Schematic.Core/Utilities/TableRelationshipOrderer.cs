@@ -62,7 +62,7 @@ namespace SJP.Schematic.Core.Utilities
 
         protected override void InternalCompute()
         {
-            DepthFirstSearchAlgorithm<TVertex, TEdge> dfs = null;
+            DepthFirstSearchAlgorithm<TVertex, TEdge>? dfs = null;
             try
             {
                 dfs = new DepthFirstSearchAlgorithm<TVertex, TEdge>(

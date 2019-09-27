@@ -6,7 +6,7 @@ namespace SJP.Schematic.Core.Extensions
 {
     public static class DatabaseSynonymProviderExtensions
     {
-        public static bool TryGetSynonym(this IDatabaseSynonymProvider synonymProvider, Identifier synonymName, out IDatabaseSynonym synonym)
+        public static bool TryGetSynonym(this IDatabaseSynonymProvider synonymProvider, Identifier synonymName, out IDatabaseSynonym? synonym)
         {
             if (synonymProvider == null)
                 throw new ArgumentNullException(nameof(synonymProvider));
@@ -19,7 +19,7 @@ namespace SJP.Schematic.Core.Extensions
             return synonymOption.exists;
         }
 
-        public static Task<(bool exists, IDatabaseSynonym synonym)> TryGetSynonymAsync(this IDatabaseSynonymProvider synonymProvider, Identifier synonymName, CancellationToken cancellationToken = default)
+        public static Task<(bool exists, IDatabaseSynonym? synonym)> TryGetSynonymAsync(this IDatabaseSynonymProvider synonymProvider, Identifier synonymName, CancellationToken cancellationToken = default)
         {
             if (synonymProvider == null)
                 throw new ArgumentNullException(nameof(synonymProvider));
@@ -29,11 +29,11 @@ namespace SJP.Schematic.Core.Extensions
             return TryGetSynonymAsyncCore(synonymProvider, synonymName, cancellationToken);
         }
 
-        private static async Task<(bool exists, IDatabaseSynonym synonym)> TryGetSynonymAsyncCore(IDatabaseSynonymProvider synonymProvider, Identifier synonymName, CancellationToken cancellationToken)
+        private static async Task<(bool exists, IDatabaseSynonym? synonym)> TryGetSynonymAsyncCore(IDatabaseSynonymProvider synonymProvider, Identifier synonymName, CancellationToken cancellationToken)
         {
             var synonymOption = synonymProvider.GetSynonym(synonymName, cancellationToken);
             var exists = await synonymOption.IsSome.ConfigureAwait(false);
-            var synonym = await synonymOption.IfNoneUnsafe(default(IDatabaseSynonym)).ConfigureAwait(false);
+            var synonym = await synonymOption.IfNoneUnsafe(default(IDatabaseSynonym)!).ConfigureAwait(false);
 
             return (exists, synonym);
         }

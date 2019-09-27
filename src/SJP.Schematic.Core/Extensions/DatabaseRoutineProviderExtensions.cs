@@ -6,7 +6,7 @@ namespace SJP.Schematic.Core.Extensions
 {
     public static class DatabaseRoutineProviderExtensions
     {
-        public static bool TryGetRoutine(this IDatabaseRoutineProvider routineProvider, Identifier routineName, out IDatabaseRoutine routine)
+        public static bool TryGetRoutine(this IDatabaseRoutineProvider routineProvider, Identifier routineName, out IDatabaseRoutine? routine)
         {
             if (routineProvider == null)
                 throw new ArgumentNullException(nameof(routineProvider));
@@ -19,7 +19,7 @@ namespace SJP.Schematic.Core.Extensions
             return routineOption.exists;
         }
 
-        public static Task<(bool exists, IDatabaseRoutine routine)> TryGetRoutineAsync(this IDatabaseRoutineProvider routineProvider, Identifier routineName, CancellationToken cancellationToken = default)
+        public static Task<(bool exists, IDatabaseRoutine? routine)> TryGetRoutineAsync(this IDatabaseRoutineProvider routineProvider, Identifier routineName, CancellationToken cancellationToken = default)
         {
             if (routineProvider == null)
                 throw new ArgumentNullException(nameof(routineProvider));
@@ -29,11 +29,11 @@ namespace SJP.Schematic.Core.Extensions
             return TryGetRoutineAsyncCore(routineProvider, routineName, cancellationToken);
         }
 
-        private static async Task<(bool exists, IDatabaseRoutine routine)> TryGetRoutineAsyncCore(IDatabaseRoutineProvider routineProvider, Identifier routineName, CancellationToken cancellationToken)
+        private static async Task<(bool exists, IDatabaseRoutine? routine)> TryGetRoutineAsyncCore(IDatabaseRoutineProvider routineProvider, Identifier routineName, CancellationToken cancellationToken)
         {
             var routineOption = routineProvider.GetRoutine(routineName, cancellationToken);
             var exists = await routineOption.IsSome.ConfigureAwait(false);
-            var routine = await routineOption.IfNoneUnsafe(default(IDatabaseRoutine)).ConfigureAwait(false);
+            var routine = await routineOption.IfNoneUnsafe(default(IDatabaseRoutine)!).ConfigureAwait(false);
 
             return (exists, routine);
         }

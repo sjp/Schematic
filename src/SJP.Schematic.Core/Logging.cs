@@ -68,7 +68,7 @@ namespace SJP.Schematic.Core
             return CommandExecutedLookup.ContainsKey(connection);
         }
 
-        internal static void SchematicLogCommandExecuting(IDbConnection connection, Guid commandId, string sql, object param)
+        internal static void SchematicLogCommandExecuting(IDbConnection connection, Guid commandId, string sql, object? param)
         {
             if (connection == null)
                 throw new ArgumentNullException(nameof(connection));
@@ -81,7 +81,7 @@ namespace SJP.Schematic.Core
             handler.Invoke(commandId, sql, lookup);
         }
 
-        internal static void SchematicLogCommandExecuted(IDbConnection connection, Guid commandId, string sql, object param, TimeSpan duration)
+        internal static void SchematicLogCommandExecuted(IDbConnection connection, Guid commandId, string sql, object? param, TimeSpan duration)
         {
             if (connection == null)
                 throw new ArgumentNullException(nameof(connection));
@@ -94,7 +94,7 @@ namespace SJP.Schematic.Core
             handler.Invoke(commandId, sql, lookup, duration);
         }
 
-        private static IReadOnlyDictionary<string, object> ToDictionary(object param)
+        private static IReadOnlyDictionary<string, object> ToDictionary(object? param)
         {
             if (param == null)
                 return EmptyParams;

@@ -5,7 +5,7 @@ namespace SJP.Schematic.Core
 {
     public class ColumnTypeMetadata
     {
-        public Identifier TypeName { get; set; }
+        public Identifier? TypeName { get; set; }
 
         public DataType DataType { get; set; }
 
@@ -13,7 +13,7 @@ namespace SJP.Schematic.Core
 
         public int MaxLength { get; set; }
 
-        public Type ClrType { get; set; }
+        public Type? ClrType { get; set; }
 
         public Option<Identifier> Collation { get; set; }
 

@@ -6,7 +6,7 @@ namespace SJP.Schematic.Core.Extensions
 {
     public static class DatabaseViewProviderExtensions
     {
-        public static bool TryGetView(this IDatabaseViewProvider viewProvider, Identifier viewName, out IDatabaseView view)
+        public static bool TryGetView(this IDatabaseViewProvider viewProvider, Identifier viewName, out IDatabaseView? view)
         {
             if (viewProvider == null)
                 throw new ArgumentNullException(nameof(viewProvider));
@@ -19,7 +19,7 @@ namespace SJP.Schematic.Core.Extensions
             return viewOption.exists;
         }
 
-        public static Task<(bool exists, IDatabaseView view)> TryGetViewAsync(this IDatabaseViewProvider viewProvider, Identifier viewName, CancellationToken cancellationToken = default)
+        public static Task<(bool exists, IDatabaseView? view)> TryGetViewAsync(this IDatabaseViewProvider viewProvider, Identifier viewName, CancellationToken cancellationToken = default)
         {
             if (viewProvider == null)
                 throw new ArgumentNullException(nameof(viewProvider));
@@ -29,11 +29,11 @@ namespace SJP.Schematic.Core.Extensions
             return TryGetViewAsyncCore(viewProvider, viewName, cancellationToken);
         }
 
-        private static async Task<(bool exists, IDatabaseView view)> TryGetViewAsyncCore(IDatabaseViewProvider viewProvider, Identifier viewName, CancellationToken cancellationToken)
+        private static async Task<(bool exists, IDatabaseView? view)> TryGetViewAsyncCore(IDatabaseViewProvider viewProvider, Identifier viewName, CancellationToken cancellationToken)
         {
             var viewOption = viewProvider.GetView(viewName, cancellationToken);
             var exists = await viewOption.IsSome.ConfigureAwait(false);
-            var view = await viewOption.IfNoneUnsafe(default(IDatabaseView)).ConfigureAwait(false);
+            var view = await viewOption.IfNoneUnsafe(default(IDatabaseView)!).ConfigureAwait(false);
 
             return (exists, view);
         }

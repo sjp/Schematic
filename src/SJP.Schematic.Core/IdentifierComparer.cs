@@ -10,7 +10,7 @@ namespace SJP.Schematic.Core
     /// </summary>
     public sealed class IdentifierComparer : IEqualityComparer<Identifier>, IComparer<Identifier>
     {
-        public IdentifierComparer(StringComparison comparison = StringComparison.OrdinalIgnoreCase, string defaultServer = null, string defaultDatabase = null, string defaultSchema = null)
+        public IdentifierComparer(StringComparison comparison = StringComparison.OrdinalIgnoreCase, string? defaultServer = null, string? defaultDatabase = null, string? defaultSchema = null)
         {
             if (!comparison.IsValid())
                 throw new ArgumentException($"The { nameof(StringComparison) } provided must be a valid enum.", nameof(comparison));
@@ -26,7 +26,7 @@ namespace SJP.Schematic.Core
             _defaultSchemaHash = _defaultSchema != null ? _comparer.GetHashCode(_defaultSchema) : 0;
         }
 
-        public IdentifierComparer(StringComparer comparer, string defaultServer = null, string defaultDatabase = null, string defaultSchema = null) // can't use IComparer or IEqualityComparer because we need both
+        public IdentifierComparer(StringComparer comparer, string? defaultServer = null, string? defaultDatabase = null, string? defaultSchema = null) // can't use IComparer or IEqualityComparer because we need both
         {
             _comparer = comparer ?? throw new ArgumentNullException(nameof(comparer));
 
@@ -102,9 +102,9 @@ namespace SJP.Schematic.Core
 
         public static IdentifierComparer InvariantCultureIgnoreCase { get; } = new IdentifierComparer(StringComparer.InvariantCultureIgnoreCase);
 
-        private readonly string _defaultSchema;
-        private readonly string _defaultDatabase;
-        private readonly string _defaultServer;
+        private readonly string? _defaultSchema;
+        private readonly string? _defaultDatabase;
+        private readonly string? _defaultServer;
         private readonly int _defaultSchemaHash;
         private readonly int _defaultDatabaseHash;
         private readonly int _defaultServerHash;

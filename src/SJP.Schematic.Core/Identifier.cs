@@ -98,7 +98,7 @@ namespace SJP.Schematic.Core
         /// <param name="localName">An object name.</param>
         /// <exception cref="ArgumentNullException">Thrown when a parent component name is specified, but not one of its children.</exception>
         /// <remarks>This enables easy creation of identifiers when only a subset may be known in advance. For example, if only a schema and local name exists, the server and database name can be omitted (by providing <c>null</c>) arguments.</remarks>
-        public static Identifier CreateQualifiedIdentifier(string server, string database, string schema, string localName)
+        public static Identifier CreateQualifiedIdentifier(string? server, string? database, string? schema, string? localName)
         {
             var serverPresent = !server.IsNullOrWhiteSpace();
             var databasePresent = !database.IsNullOrWhiteSpace();
@@ -109,16 +109,16 @@ namespace SJP.Schematic.Core
             if (Cache.TryGetValue(identifierKey, out var cachedReference) && cachedReference.TryGetTarget(out var cachedIdentifier))
                 return cachedIdentifier;
 
-            Identifier result = null;
+            Identifier? result = null;
             if (serverPresent && databasePresent && schemaPresent && localNamePresent)
-                result = new Identifier(server, database, schema, localName);
+                result = new Identifier(server!, database!, schema!, localName!);
             else if (serverPresent)
                 throw new ArgumentNullException(nameof(server), "A server name was provided, but other components are missing.");
 
             if (result == null)
             {
                 if (databasePresent && schemaPresent && localNamePresent)
-                    result = new Identifier(database, schema, localName);
+                    result = new Identifier(database!, schema!, localName!);
                 else if (databasePresent)
                     throw new ArgumentNullException(nameof(database), "A database name was provided, but other components are missing.");
             }
@@ -126,7 +126,7 @@ namespace SJP.Schematic.Core
             if (result == null)
             {
                 if (schemaPresent && localNamePresent)
-                    result = new Identifier(schema, localName);
+                    result = new Identifier(schema!, localName!);
                 else if (schemaPresent)
                     throw new ArgumentNullException(nameof(schema), "A schema name was provided, but other components are missing.");
             }
@@ -134,7 +134,7 @@ namespace SJP.Schematic.Core
             if (!localNamePresent)
                 throw new ArgumentNullException(nameof(localName), "At least one component of an identifier must be provided.");
             else if (result == null)
-                result = new Identifier(localName);
+                result = new Identifier(localName!);
 
             if (Cache.TryGetValue(identifierKey, out var reference) && !reference.TryGetTarget(out _))
             {
@@ -203,17 +203,17 @@ namespace SJP.Schematic.Core
         /// <summary>
         /// A server name.
         /// </summary>
-        public string Server { get; }
+        public string? Server { get; }
 
         /// <summary>
         /// A database name.
         /// </summary>
-        public string Database { get; }
+        public string? Database { get; }
 
         /// <summary>
         /// A schema name.
         /// </summary>
-        public string Schema { get; }
+        public string? Schema { get; }
 
         /// <summary>
         /// An object name.
@@ -237,7 +237,7 @@ namespace SJP.Schematic.Core
         /// <param name="a">A database identifier.</param>
         /// <param name="b">Another database identifier.</param>
         /// <returns><c>true</c> if all components of an identifier are equal; otherwise <c>false</c>.</returns>
-        public static bool operator ==(Identifier a, Identifier b)
+        public static bool operator ==(Identifier? a, Identifier? b)
         {
             if (a is null && b is null)
                 return true;
@@ -253,7 +253,7 @@ namespace SJP.Schematic.Core
         /// <param name="a">A database identifier.</param>
         /// <param name="b">Another database identifier.</param>
         /// <returns><c>false</c> if all components of an identifier are equal; otherwise <c>true</c>.</returns>
-        public static bool operator !=(Identifier a, Identifier b)
+        public static bool operator !=(Identifier? a, Identifier? b)
         {
             if (a is null && b is null)
                 return false;
@@ -363,7 +363,7 @@ namespace SJP.Schematic.Core
             }
         }
 
-        private static int GetHashCode(string server, string database, string schema, string localName)
+        private static int GetHashCode(string? server, string? database, string? schema, string? localName)
         {
             return HashCode.Combine(
                 server != null ? Comparer.GetHashCode(server) : 0,
