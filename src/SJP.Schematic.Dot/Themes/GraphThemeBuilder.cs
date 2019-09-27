@@ -4,229 +4,229 @@
     {
         public RgbColor BackgroundColor
         {
-            get => _backgroundColor = _backgroundColor ?? Default.BackgroundColor;
+            get => _backgroundColor ??= Default.BackgroundColor;
             set => _backgroundColor = value ?? Default.BackgroundColor;
         }
 
         public RgbColor EdgeColor
         {
-            get => _edgeColor = _edgeColor ?? Default.EdgeColor;
+            get => _edgeColor ??= Default.EdgeColor;
             set => _edgeColor = value ?? Default.EdgeColor;
         }
 
         public RgbColor TableForegroundColor
         {
-            get => _tableForegroundColor = _tableForegroundColor ?? Default.TableForegroundColor;
+            get => _tableForegroundColor ??= Default.TableForegroundColor;
             set => _tableForegroundColor = value ?? Default.TableForegroundColor;
         }
 
         public RgbColor HeaderForegroundColor
         {
-            get => _headerForegroundColor = _headerForegroundColor ?? Default.HeaderForegroundColor;
+            get => _headerForegroundColor ??= Default.HeaderForegroundColor;
             set => _headerForegroundColor = value ?? Default.HeaderForegroundColor;
         }
 
         public RgbColor FooterForegroundColor
         {
-            get => _footerForegroundColor = _footerForegroundColor ?? Default.FooterForegroundColor;
+            get => _footerForegroundColor ??= Default.FooterForegroundColor;
             set => _footerForegroundColor = value ?? Default.FooterForegroundColor;
         }
 
         public RgbColor PrimaryKeyHeaderForegroundColor
         {
-            get => _primaryKeyHeaderForegroundColor = _primaryKeyHeaderForegroundColor ?? Default.PrimaryKeyHeaderForegroundColor;
+            get => _primaryKeyHeaderForegroundColor ??= Default.PrimaryKeyHeaderForegroundColor;
             set => _primaryKeyHeaderForegroundColor = value ?? Default.PrimaryKeyHeaderForegroundColor;
         }
 
         public RgbColor UniqueKeyHeaderForegroundColor
         {
-            get => _uniqueKeyHeaderForegroundColor = _uniqueKeyHeaderForegroundColor ?? Default.UniqueKeyHeaderForegroundColor;
+            get => _uniqueKeyHeaderForegroundColor ??= Default.UniqueKeyHeaderForegroundColor;
             set => _uniqueKeyHeaderForegroundColor = value ?? Default.UniqueKeyHeaderForegroundColor;
         }
 
         public RgbColor ForeignKeyHeaderForegroundColor
         {
-            get => _foreignKeyHeaderForegroundColor = _foreignKeyHeaderForegroundColor ?? Default.ForeignKeyHeaderForegroundColor;
+            get => _foreignKeyHeaderForegroundColor ??= Default.ForeignKeyHeaderForegroundColor;
             set => _foreignKeyHeaderForegroundColor = value ?? Default.ForeignKeyHeaderForegroundColor;
         }
 
         public RgbColor HighlightedTableForegroundColor
         {
-            get => _highlightedTableForegroundColor = _highlightedTableForegroundColor ?? Default.HighlightedTableForegroundColor;
+            get => _highlightedTableForegroundColor ??= Default.HighlightedTableForegroundColor;
             set => _highlightedTableForegroundColor = value ?? Default.HighlightedTableForegroundColor;
         }
 
         public RgbColor HighlightedHeaderForegroundColor
         {
-            get => _highlightedHeaderForegroundColor = _highlightedHeaderForegroundColor ?? Default.HighlightedHeaderForegroundColor;
+            get => _highlightedHeaderForegroundColor ??= Default.HighlightedHeaderForegroundColor;
             set => _highlightedHeaderForegroundColor = value ?? Default.HighlightedHeaderForegroundColor;
         }
 
         public RgbColor HighlightedFooterForegroundColor
         {
-            get => _highlightedFooterForegroundColor = _highlightedFooterForegroundColor ?? Default.HighlightedFooterForegroundColor;
+            get => _highlightedFooterForegroundColor ??= Default.HighlightedFooterForegroundColor;
             set => _highlightedFooterForegroundColor = value ?? Default.HighlightedFooterForegroundColor;
         }
 
         public RgbColor HighlightedPrimaryKeyHeaderForegroundColor
         {
-            get => _highlightedPrimaryKeyHeaderForegroundColor = _highlightedPrimaryKeyHeaderForegroundColor ?? Default.HighlightedPrimaryKeyHeaderForegroundColor;
+            get => _highlightedPrimaryKeyHeaderForegroundColor ??= Default.HighlightedPrimaryKeyHeaderForegroundColor;
             set => _highlightedPrimaryKeyHeaderForegroundColor = value ?? Default.HighlightedPrimaryKeyHeaderForegroundColor;
         }
 
         public RgbColor HighlightedUniqueKeyHeaderForegroundColor
         {
-            get => _highlightedUniqueKeyHeaderForegroundColor = _highlightedUniqueKeyHeaderForegroundColor ?? Default.HighlightedUniqueKeyHeaderForegroundColor;
+            get => _highlightedUniqueKeyHeaderForegroundColor ??= Default.HighlightedUniqueKeyHeaderForegroundColor;
             set => _highlightedUniqueKeyHeaderForegroundColor = value ?? Default.HighlightedUniqueKeyHeaderForegroundColor;
         }
 
         public RgbColor HighlightedForeignKeyHeaderForegroundColor
         {
-            get => _highlightedForeignKeyHeaderForegroundColor = _highlightedForeignKeyHeaderForegroundColor ?? Default.HighlightedForeignKeyHeaderForegroundColor;
+            get => _highlightedForeignKeyHeaderForegroundColor ??= Default.HighlightedForeignKeyHeaderForegroundColor;
             set => _highlightedForeignKeyHeaderForegroundColor = value ?? Default.HighlightedForeignKeyHeaderForegroundColor;
         }
 
         public RgbColor TableBackgroundColor
         {
-            get => _tableBackgroundColor = _tableBackgroundColor ?? Default.TableBackgroundColor;
+            get => _tableBackgroundColor ??= Default.TableBackgroundColor;
             set => _tableBackgroundColor = value ?? Default.TableBackgroundColor;
         }
 
         public RgbColor HeaderBackgroundColor
         {
-            get => _headerBackgroundColor = _headerBackgroundColor ?? Default.HeaderBackgroundColor;
+            get => _headerBackgroundColor ??= Default.HeaderBackgroundColor;
             set => _headerBackgroundColor = value ?? Default.HeaderBackgroundColor;
         }
 
         public RgbColor FooterBackgroundColor
         {
-            get => _footerBackgroundColor = _footerBackgroundColor ?? Default.FooterBackgroundColor;
+            get => _footerBackgroundColor ??= Default.FooterBackgroundColor;
             set => _footerBackgroundColor = value ?? Default.FooterBackgroundColor;
         }
 
         public RgbColor PrimaryKeyHeaderBackgroundColor
         {
-            get => _primaryKeyHeaderBackgroundColor = _primaryKeyHeaderBackgroundColor ?? Default.PrimaryKeyHeaderBackgroundColor;
+            get => _primaryKeyHeaderBackgroundColor ??= Default.PrimaryKeyHeaderBackgroundColor;
             set => _primaryKeyHeaderBackgroundColor = value ?? Default.PrimaryKeyHeaderBackgroundColor;
         }
 
         public RgbColor UniqueKeyHeaderBackgroundColor
         {
-            get => _uniqueKeyHeaderBackgroundColor = _uniqueKeyHeaderBackgroundColor ?? Default.UniqueKeyHeaderBackgroundColor;
+            get => _uniqueKeyHeaderBackgroundColor ??= Default.UniqueKeyHeaderBackgroundColor;
             set => _uniqueKeyHeaderBackgroundColor = value ?? Default.UniqueKeyHeaderBackgroundColor;
         }
 
         public RgbColor ForeignKeyHeaderBackgroundColor
         {
-            get => _foreignKeyHeaderBackgroundColor = _foreignKeyHeaderBackgroundColor ?? Default.ForeignKeyHeaderBackgroundColor;
+            get => _foreignKeyHeaderBackgroundColor ??= Default.ForeignKeyHeaderBackgroundColor;
             set => _foreignKeyHeaderBackgroundColor = value ?? Default.ForeignKeyHeaderBackgroundColor;
         }
 
         public RgbColor HighlightedTableBackgroundColor
         {
-            get => _highlightedTableBackgroundColor = _highlightedTableBackgroundColor ?? Default.HighlightedTableBackgroundColor;
+            get => _highlightedTableBackgroundColor ??= Default.HighlightedTableBackgroundColor;
             set => _highlightedTableBackgroundColor = value ?? Default.HighlightedTableBackgroundColor;
         }
 
         public RgbColor HighlightedHeaderBackgroundColor
         {
-            get => _highlightedHeaderBackgroundColor = _highlightedHeaderBackgroundColor ?? Default.HighlightedFooterBackgroundColor;
+            get => _highlightedHeaderBackgroundColor ??= Default.HighlightedFooterBackgroundColor;
             set => _highlightedHeaderBackgroundColor = value ?? Default.HighlightedHeaderBackgroundColor;
         }
 
         public RgbColor HighlightedFooterBackgroundColor
         {
-            get => _highlightedFooterBackgroundColor = _highlightedFooterBackgroundColor ?? Default.HighlightedFooterBackgroundColor;
+            get => _highlightedFooterBackgroundColor ??= Default.HighlightedFooterBackgroundColor;
             set => _highlightedFooterBackgroundColor = value ?? Default.HighlightedFooterBackgroundColor;
         }
 
         public RgbColor HighlightedPrimaryKeyHeaderBackgroundColor
         {
-            get => _highlightedPrimaryKeyHeaderBackgroundColor = _highlightedPrimaryKeyHeaderBackgroundColor ?? Default.HighlightedPrimaryKeyHeaderBackgroundColor;
+            get => _highlightedPrimaryKeyHeaderBackgroundColor ??= Default.HighlightedPrimaryKeyHeaderBackgroundColor;
             set => _highlightedPrimaryKeyHeaderBackgroundColor = value ?? Default.HighlightedPrimaryKeyHeaderBackgroundColor;
         }
 
         public RgbColor HighlightedUniqueKeyHeaderBackgroundColor
         {
-            get => _highlightedUniqueKeyHeaderBackgroundColor = _highlightedUniqueKeyHeaderBackgroundColor ?? Default.HighlightedUniqueKeyHeaderBackgroundColor;
+            get => _highlightedUniqueKeyHeaderBackgroundColor ??= Default.HighlightedUniqueKeyHeaderBackgroundColor;
             set => _highlightedUniqueKeyHeaderBackgroundColor = value ?? Default.HighlightedUniqueKeyHeaderBackgroundColor;
         }
 
         public RgbColor HighlightedForeignKeyHeaderBackgroundColor
         {
-            get => _highlightedForeignKeyHeaderBackgroundColor = _highlightedForeignKeyHeaderBackgroundColor ?? Default.HighlightedForeignKeyHeaderBackgroundColor;
+            get => _highlightedForeignKeyHeaderBackgroundColor ??= Default.HighlightedForeignKeyHeaderBackgroundColor;
             set => _highlightedForeignKeyHeaderBackgroundColor = value ?? Default.HighlightedForeignKeyHeaderBackgroundColor;
         }
 
         public RgbColor TableBorderColor
         {
-            get => _tableBorderColor = _tableBorderColor ?? Default.TableBorderColor;
+            get => _tableBorderColor ??= Default.TableBorderColor;
             set => _tableBorderColor = value ?? Default.TableBorderColor;
         }
 
         public RgbColor HeaderBorderColor
         {
-            get => _headerBorderColor = _headerBorderColor ?? Default.HeaderBorderColor;
+            get => _headerBorderColor ??= Default.HeaderBorderColor;
             set => _headerBorderColor = value ?? Default.HeaderBorderColor;
         }
 
         public RgbColor FooterBorderColor
         {
-            get => _footerBorderColor = _footerBorderColor ?? Default.FooterBorderColor;
+            get => _footerBorderColor ??= Default.FooterBorderColor;
             set => _footerBorderColor = value ?? Default.FooterBorderColor;
         }
 
         public RgbColor PrimaryKeyHeaderBorderColor
         {
-            get => _primaryKeyHeaderBorderColor = _primaryKeyHeaderBorderColor ?? Default.PrimaryKeyHeaderBorderColor;
+            get => _primaryKeyHeaderBorderColor ??= Default.PrimaryKeyHeaderBorderColor;
             set => _primaryKeyHeaderBorderColor = value ?? Default.PrimaryKeyHeaderBorderColor;
         }
 
         public RgbColor UniqueKeyHeaderBorderColor
         {
-            get => _uniqueKeyHeaderBorderColor = _uniqueKeyHeaderBorderColor ?? Default.UniqueKeyHeaderBorderColor;
+            get => _uniqueKeyHeaderBorderColor ??= Default.UniqueKeyHeaderBorderColor;
             set => _uniqueKeyHeaderBorderColor = value ?? Default.UniqueKeyHeaderBorderColor;
         }
 
         public RgbColor ForeignKeyHeaderBorderColor
         {
-            get => _foreignKeyHeaderBorderColor = _foreignKeyHeaderBorderColor ?? Default.ForeignKeyHeaderBorderColor;
+            get => _foreignKeyHeaderBorderColor ??= Default.ForeignKeyHeaderBorderColor;
             set => _foreignKeyHeaderBorderColor = value ?? Default.ForeignKeyHeaderBorderColor;
         }
 
         public RgbColor HighlightedTableBorderColor
         {
-            get => _highlightedTableBorderColor = _highlightedTableBorderColor ?? Default.HighlightedTableBorderColor;
+            get => _highlightedTableBorderColor ??= Default.HighlightedTableBorderColor;
             set => _highlightedTableBorderColor = value ?? Default.HighlightedTableBorderColor;
         }
 
         public RgbColor HighlightedHeaderBorderColor
         {
-            get => _highlightedHeaderBorderColor = _highlightedHeaderBorderColor ?? Default.HighlightedHeaderBorderColor;
+            get => _highlightedHeaderBorderColor ??= Default.HighlightedHeaderBorderColor;
             set => _highlightedHeaderBorderColor = value ?? Default.HighlightedHeaderBorderColor;
         }
 
         public RgbColor HighlightedFooterBorderColor
         {
-            get => _highlightedFooterBorderColor = _highlightedFooterBorderColor ?? Default.HighlightedFooterBorderColor;
+            get => _highlightedFooterBorderColor ??= Default.HighlightedFooterBorderColor;
             set => _highlightedFooterBorderColor = value ?? Default.HighlightedFooterBorderColor;
         }
 
         public RgbColor HighlightedPrimaryKeyHeaderBorderColor
         {
-            get => _highlightedPrimaryKeyHeaderBorderColor = _highlightedPrimaryKeyHeaderBorderColor ?? Default.HighlightedPrimaryKeyHeaderBorderColor;
+            get => _highlightedPrimaryKeyHeaderBorderColor ??= Default.HighlightedPrimaryKeyHeaderBorderColor;
             set => _highlightedPrimaryKeyHeaderBorderColor = value ?? Default.HighlightedPrimaryKeyHeaderBorderColor;
         }
 
         public RgbColor HighlightedUniqueKeyHeaderBorderColor
         {
-            get => _highlightedUniqueKeyHeaderBorderColor = _highlightedUniqueKeyHeaderBorderColor ?? Default.HighlightedUniqueKeyHeaderBorderColor;
+            get => _highlightedUniqueKeyHeaderBorderColor ??= Default.HighlightedUniqueKeyHeaderBorderColor;
             set => _highlightedUniqueKeyHeaderBorderColor = value ?? Default.HighlightedUniqueKeyHeaderBorderColor;
         }
 
         public RgbColor HighlightedForeignKeyHeaderBorderColor
         {
-            get => _highlightedForeignKeyHeaderBorderColor = _highlightedForeignKeyHeaderBorderColor ?? Default.HighlightedForeignKeyHeaderBorderColor;
+            get => _highlightedForeignKeyHeaderBorderColor ??= Default.HighlightedForeignKeyHeaderBorderColor;
             set => _highlightedForeignKeyHeaderBorderColor = value ?? Default.HighlightedForeignKeyHeaderBorderColor;
         }
 

@@ -50,7 +50,7 @@ namespace SJP.Schematic.Core.Extensions
             if (keySelector == null)
                 throw new ArgumentNullException(nameof(keySelector));
 
-            comparer = comparer ?? EqualityComparer<TKey>.Default;
+            comparer ??= EqualityComparer<TKey>.Default;
 
             return _(); IEnumerable<TSource> _()
             {
