@@ -27,10 +27,12 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore
 
         protected string Indent { get; }
 
-        public string Generate(IEnumerable<IRelationalDatabaseTable> tables, IEnumerable<IDatabaseSequence> sequences)
+        public string Generate(IEnumerable<IRelationalDatabaseTable> tables, IEnumerable<IDatabaseView> views, IEnumerable<IDatabaseSequence> sequences)
         {
             if (tables == null)
                 throw new ArgumentNullException(nameof(tables));
+            if (views == null)
+                throw new ArgumentNullException(nameof(views));
             if (sequences == null)
                 throw new ArgumentNullException(nameof(sequences));
 
@@ -83,8 +85,42 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore
                 modelBuilder.AddTable(table);
             }
 
+            foreach (var view in views)
+            {
+                if (!missingFirstLine)
+                    builder.AppendLine();
+                missingFirstLine = false;
+
+                var schemaNamespace = NameTranslator.SchemaToNamespace(view.Name);
+                var className = NameTranslator.ViewToClassName(view.Name);
+                var qualifiedClassName = !schemaNamespace.IsNullOrWhiteSpace()
+                    ? schemaNamespace + "." + className
+                    : className;
+
+                var setName = className.Pluralize();
+
+                var escapedViewName = !schemaNamespace.IsNullOrWhiteSpace()
+                    ? SecurityElement.Escape(view.Name.Schema + "." + view.Name.LocalName)
+                    : SecurityElement.Escape(view.Name.LocalName);
+                var dbSetComment = "Accesses the <c>" + escapedViewName + "</c> view.";
+                builder.AppendComment(tableIndent, dbSetComment);
+
+                builder.Append(tableIndent)
+                    .Append("public DbSet<")
+                    .Append(qualifiedClassName)
+                    .Append("> ")
+                    .Append(setName)
+                    .AppendLine(" { get; set; }");
+
+                modelBuilder.AddView(view);
+            }
+
             foreach (var sequence in sequences)
             {
+                if (!missingFirstLine)
+                    builder.AppendLine();
+                missingFirstLine = false;
+
                 modelBuilder.AddSequence(sequence);
             }
 

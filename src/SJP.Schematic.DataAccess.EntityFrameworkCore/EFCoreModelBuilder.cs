@@ -211,6 +211,77 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore
             return this;
         }
 
+        public EFCoreModelBuilder AddView(IDatabaseView view)
+        {
+            if (view == null)
+                throw new ArgumentNullException(nameof(view));
+
+            var schemaNamespace = NameTranslator.SchemaToNamespace(view.Name);
+            var className = NameTranslator.ViewToClassName(view.Name);
+            var qualifiedClassName = !schemaNamespace.IsNullOrWhiteSpace()
+                ? schemaNamespace + "." + className
+                : className;
+
+            var chainIndent = LineIndent + IndentLevel;
+
+            foreach (var column in view.Columns)
+            {
+                var requiresBuilder = column.DefaultValue.IsSome || column.IsComputed;
+                if (!requiresBuilder)
+                    continue;
+
+                _builder.Append(LineIndent)
+                    .Append("modelBuilder.Entity<")
+                    .Append(qualifiedClassName)
+                    .AppendLine(">()");
+
+                _builder.Append(chainIndent)
+                    .AppendLine(".HasNoKey()")
+                    .Append(chainIndent)
+                    .Append(".ToView(");
+
+                if (!view.Name.Schema.IsNullOrWhiteSpace())
+                {
+                    _builder.Append(view.Name.Schema.ToStringLiteral())
+                        .Append(", ");
+                }
+
+                _builder.Append(view.Name.LocalName.ToStringLiteral())
+                    .AppendLine(")");
+
+                var columnName = NameTranslator.ColumnToPropertyName(className, column.Name.LocalName);
+                _builder.Append(chainIndent)
+                    .Append(".Property(t => t.")
+                    .Append(columnName)
+                    .AppendLine(")");
+
+                column.DefaultValue.IfSome(def =>
+                {
+                    var defaultLiteral = def.ToStringLiteral();
+                    _builder.Append(chainIndent)
+                        .Append(".HasDefaultValue(")
+                        .Append(defaultLiteral)
+                        .Append(')');
+                });
+
+                if (column.IsComputed && column is IDatabaseComputedColumn computedColumn)
+                {
+                    computedColumn.Definition.IfSome(def =>
+                    {
+                        var computedDefinition = def.ToStringLiteral();
+                        _builder.Append(chainIndent)
+                            .Append(".HasComputedColumnSql(")
+                            .Append(computedDefinition)
+                            .Append(')');
+                    });
+                }
+
+                _builder.AppendLine(";");
+            }
+
+            return this;
+        }
+
         public EFCoreModelBuilder AddSequence(IDatabaseSequence sequence)
         {
             if (sequence == null)

@@ -46,9 +46,21 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore.Tests
         {
             var nameTranslator = new VerbatimNameTranslator();
             var dbContextBuilder = new EFCoreDbContextBuilder(nameTranslator, "test");
+            var views = Array.Empty<IDatabaseView>();
             var sequences = Array.Empty<IDatabaseSequence>();
 
-            Assert.Throws<ArgumentNullException>(() => dbContextBuilder.Generate(null, sequences));
+            Assert.Throws<ArgumentNullException>(() => dbContextBuilder.Generate(null, views, sequences));
+        }
+
+        [Test]
+        public static void Generate_GivenNullViews_ThrowsArgumentNullException()
+        {
+            var nameTranslator = new VerbatimNameTranslator();
+            var dbContextBuilder = new EFCoreDbContextBuilder(nameTranslator, "test");
+            var tables = Array.Empty<IRelationalDatabaseTable>();
+            var sequences = Array.Empty<IDatabaseSequence>();
+
+            Assert.Throws<ArgumentNullException>(() => dbContextBuilder.Generate(tables, null, sequences));
         }
 
         [Test]
@@ -57,8 +69,9 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore.Tests
             var nameTranslator = new VerbatimNameTranslator();
             var dbContextBuilder = new EFCoreDbContextBuilder(nameTranslator, "test");
             var tables = Array.Empty<IRelationalDatabaseTable>();
+            var views = Array.Empty<IDatabaseView>();
 
-            Assert.Throws<ArgumentNullException>(() => dbContextBuilder.Generate(tables, null));
+            Assert.Throws<ArgumentNullException>(() => dbContextBuilder.Generate(tables, views, null));
         }
     }
 }

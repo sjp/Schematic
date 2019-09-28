@@ -90,10 +90,11 @@ create table test_table_4 (
         {
             var builder = Builder;
             var tables = await Database.GetAllTables().ConfigureAwait(false);
+            var views = await Database.GetAllViews().ConfigureAwait(false);
             var sequences = await Database.GetAllSequences().ConfigureAwait(false);
 
             var expected = TestAppContextOutput;
-            var result = builder.Generate(tables, sequences);
+            var result = builder.Generate(tables, views, sequences);
 
             Assert.AreEqual(expected, result);
         }

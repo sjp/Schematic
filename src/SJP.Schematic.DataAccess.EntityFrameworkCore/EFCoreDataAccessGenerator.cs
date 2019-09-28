@@ -49,8 +49,10 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore
                 throw new ArgumentException("The given path to a project must be a csproj file.", nameof(projectPath));
 
             var tables = Database.GetAllTables(CancellationToken.None).GetAwaiter().GetResult();
+            var tableComments = CommentProvider.GetAllTableComments(CancellationToken.None).GetAwaiter().GetResult();
+            var views = Database.GetAllViews(CancellationToken.None).GetAwaiter().GetResult();
+            var viewComments = CommentProvider.GetAllViewComments(CancellationToken.None).GetAwaiter().GetResult();
             var sequences = Database.GetAllSequences(CancellationToken.None).GetAwaiter().GetResult();
-            var comments = CommentProvider.GetAllTableComments(CancellationToken.None).GetAwaiter().GetResult();
 
             if (projectFileInfo.Exists)
                 projectFileInfo.Delete();
@@ -62,15 +64,20 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore
 
             var dbContextGenerator = new EFCoreDbContextBuilder(NameTranslator, baseNamespace);
             var tableGenerator = new EFCoreTableGenerator(NameTranslator, baseNamespace, Indent);
+            var viewGenerator = new EFCoreViewGenerator(NameTranslator, baseNamespace, Indent);
 
-            var commentsLookup = new Dictionary<Identifier, IRelationalDatabaseTableComments>();
-            foreach (var comment in comments)
-                commentsLookup[comment.TableName] = comment;
+            var tableCommentsLookup = new Dictionary<Identifier, IRelationalDatabaseTableComments>();
+            foreach (var comment in tableComments)
+                tableCommentsLookup[comment.TableName] = comment;
+
+            var viewCommentsLookup = new Dictionary<Identifier, IDatabaseViewComments>();
+            foreach (var comment in viewComments)
+                viewCommentsLookup[comment.ViewName] = comment;
 
             foreach (var table in tables)
             {
-                var tableComment = commentsLookup.ContainsKey(table.Name)
-                    ? Option<IRelationalDatabaseTableComments>.Some(commentsLookup[table.Name])
+                var tableComment = tableCommentsLookup.ContainsKey(table.Name)
+                    ? Option<IRelationalDatabaseTableComments>.Some(tableCommentsLookup[table.Name])
                     : Option<IRelationalDatabaseTableComments>.None;
 
                 var tableClass = tableGenerator.Generate(tables, table, tableComment);
@@ -85,7 +92,25 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore
                 FileSystem.File.WriteAllText(tablePath.FullName, tableClass);
             }
 
-            var dbContextText = dbContextGenerator.Generate(tables, sequences);
+            foreach (var view in views)
+            {
+                var viewComment = viewCommentsLookup.ContainsKey(view.Name)
+                    ? Option<IDatabaseViewComments>.Some(viewCommentsLookup[view.Name])
+                    : Option<IDatabaseViewComments>.None;
+
+                var viewClass = viewGenerator.Generate(view, viewComment);
+                var viewPath = viewGenerator.GetFilePath(projectFileInfo.Directory, view.Name);
+
+                if (!viewPath.Directory.Exists)
+                    viewPath.Directory.Create();
+
+                if (viewPath.Exists)
+                    viewPath.Delete();
+
+                FileSystem.File.WriteAllText(viewPath.FullName, viewClass);
+            }
+
+            var dbContextText = dbContextGenerator.Generate(tables, views, sequences);
             var dbContextPath = Path.Combine(projectFileInfo.Directory.FullName, "AppContext.cs");
 
             FileSystem.File.WriteAllText(dbContextPath, dbContextText);
@@ -118,19 +143,26 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore
 
             var dbContextGenerator = new EFCoreDbContextBuilder(NameTranslator, baseNamespace);
             var tableGenerator = new EFCoreTableGenerator(NameTranslator, baseNamespace, Indent);
+            var viewGenerator = new EFCoreViewGenerator(NameTranslator, baseNamespace, Indent);
 
             var tables = await Database.GetAllTables(cancellationToken).ConfigureAwait(false);
+            var tableComments = await CommentProvider.GetAllTableComments(cancellationToken).ConfigureAwait(false);
+            var views = await Database.GetAllViews(cancellationToken).ConfigureAwait(false);
+            var viewComments = await CommentProvider.GetAllViewComments(cancellationToken).ConfigureAwait(false);
             var sequences = await Database.GetAllSequences(cancellationToken).ConfigureAwait(false);
-            var comments = await CommentProvider.GetAllTableComments(cancellationToken).ConfigureAwait(false);
 
-            var commentsLookup = new Dictionary<Identifier, IRelationalDatabaseTableComments>();
-            foreach (var comment in comments)
-                commentsLookup[comment.TableName] = comment;
+            var tableCommentsLookup = new Dictionary<Identifier, IRelationalDatabaseTableComments>();
+            foreach (var comment in tableComments)
+                tableCommentsLookup[comment.TableName] = comment;
+
+            var viewCommentsLookup = new Dictionary<Identifier, IDatabaseViewComments>();
+            foreach (var comment in viewComments)
+                viewCommentsLookup[comment.ViewName] = comment;
 
             foreach (var table in tables)
             {
-                var tableComment = commentsLookup.ContainsKey(table.Name)
-                    ? Option<IRelationalDatabaseTableComments>.Some(commentsLookup[table.Name])
+                var tableComment = tableCommentsLookup.ContainsKey(table.Name)
+                    ? Option<IRelationalDatabaseTableComments>.Some(tableCommentsLookup[table.Name])
                     : Option<IRelationalDatabaseTableComments>.None;
 
                 var tableClass = tableGenerator.Generate(tables, table, tableComment);
@@ -145,7 +177,25 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore
                 FileSystem.File.WriteAllText(tablePath.FullName, tableClass);
             }
 
-            var dbContextText = dbContextGenerator.Generate(tables, sequences);
+            foreach (var view in views)
+            {
+                var viewComment = viewCommentsLookup.ContainsKey(view.Name)
+                    ? Option<IDatabaseViewComments>.Some(viewCommentsLookup[view.Name])
+                    : Option<IDatabaseViewComments>.None;
+
+                var viewClass = viewGenerator.Generate(view, viewComment);
+                var viewPath = viewGenerator.GetFilePath(projectFileInfo.Directory, view.Name);
+
+                if (!viewPath.Directory.Exists)
+                    viewPath.Directory.Create();
+
+                if (viewPath.Exists)
+                    viewPath.Delete();
+
+                FileSystem.File.WriteAllText(viewPath.FullName, viewClass);
+            }
+
+            var dbContextText = dbContextGenerator.Generate(tables, views, sequences);
             var dbContextPath = Path.Combine(projectFileInfo.Directory.FullName, "AppContext.cs");
 
             FileSystem.File.WriteAllText(dbContextPath, dbContextText);
