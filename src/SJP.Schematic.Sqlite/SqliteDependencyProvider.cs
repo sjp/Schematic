@@ -8,7 +8,7 @@ namespace SJP.Schematic.Sqlite
 {
     public sealed class SqliteDependencyProvider : IDependencyProvider
     {
-        public SqliteDependencyProvider(IEqualityComparer<Identifier> comparer = null)
+        public SqliteDependencyProvider(IEqualityComparer<Identifier>? comparer = null)
         {
             Comparer = comparer ?? IdentifierComparer.OrdinalIgnoreCase;
         }

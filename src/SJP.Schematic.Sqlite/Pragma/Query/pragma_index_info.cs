@@ -19,7 +19,7 @@ namespace SJP.Schematic.Sqlite.Pragma.Query
         /// <summary>
         /// The name of the column being indexed.
         /// </summary>
-        public string name { get; set; }
+        public string? name { get; set; }
     }
 }
 #pragma warning restore IDE1006, S101 // Naming Styles

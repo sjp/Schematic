@@ -14,7 +14,7 @@ namespace SJP.Schematic.Sqlite.Pragma.Query
         /// <summary>
         /// The name of the index.
         /// </summary>
-        public string name { get; set; }
+        public string? name { get; set; }
 
         /// <summary>
         /// Whether the index is unique.
@@ -24,7 +24,7 @@ namespace SJP.Schematic.Sqlite.Pragma.Query
         /// <summary>
         /// How the index was created. <c>c</c> if the index was created by a create index statement, <c>u</c> if the index was created by a unique constraint, or <c>pk</c> if the index was created by a primary key constraint.
         /// </summary>
-        public string origin { get; set; }
+        public string? origin { get; set; }
 
         /// <summary>
         /// Whether the index is a partial index.

@@ -6,7 +6,7 @@ namespace SJP.Schematic.Sqlite
     public class SqliteTypeAffinityParser
     {
         // https://sqlite.org/datatype3.html#determination_of_column_affinity
-        public SqliteTypeAffinity ParseTypeName(string typeName)
+        public SqliteTypeAffinity ParseTypeName(string? typeName)
         {
             if (typeName.IsNullOrWhiteSpace())
                 return SqliteTypeAffinity.Numeric;

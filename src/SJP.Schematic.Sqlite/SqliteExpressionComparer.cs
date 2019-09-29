@@ -8,7 +8,7 @@ namespace SJP.Schematic.Sqlite
 {
     public sealed class SqliteExpressionComparer : IEqualityComparer<string>
     {
-        public SqliteExpressionComparer(IEqualityComparer<string> comparer = null, IEqualityComparer<string> sqlStringComparer = null)
+        public SqliteExpressionComparer(IEqualityComparer<string>? comparer = null, IEqualityComparer<string>? sqlStringComparer = null)
         {
             Comparer = comparer ?? StringComparer.Ordinal;
             SqlStringComparer = sqlStringComparer ?? StringComparer.Ordinal;

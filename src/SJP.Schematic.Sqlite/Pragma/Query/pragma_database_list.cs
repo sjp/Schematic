@@ -14,12 +14,12 @@ namespace SJP.Schematic.Sqlite.Pragma.Query
         /// <summary>
         /// The name of the database.
         /// </summary>
-        public string name { get; set; }
+        public string? name { get; set; }
 
         /// <summary>
         /// The file path that the database is located at. This can be <c>null</c> for an in-memory database.
         /// </summary>
-        public string file { get; set; }
+        public string? file { get; set; }
     }
 }
 #pragma warning restore IDE1006, S101 // Naming Styles

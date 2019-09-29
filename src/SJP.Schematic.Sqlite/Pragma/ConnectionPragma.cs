@@ -31,7 +31,8 @@ namespace SJP.Schematic.Sqlite.Pragma
             var databases = await DatabaseListAsync(cancellationToken).ConfigureAwait(false);
             return databases
                 .OrderBy(d => d.seq)
-                .Select(d => new DatabasePragma(Dialect, Connection, d.name))
+                .Where(d => d.name != null)
+                .Select(d => new DatabasePragma(Dialect, Connection, d.name!))
                 .ToList();
         }
 

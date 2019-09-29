@@ -16,6 +16,7 @@ namespace SJP.Schematic.Sqlite.Parsing
                 throw new ArgumentNullException(nameof(identifier));
 
             Name = identifier.Value.LocalName;
+            Expression = Array.Empty<Token<SqliteToken>>();
         }
 
         internal IndexedColumn(string identifier)
@@ -24,6 +25,7 @@ namespace SJP.Schematic.Sqlite.Parsing
                 throw new ArgumentNullException(nameof(identifier));
 
             Name = identifier;
+            Expression = Array.Empty<Token<SqliteToken>>();
         }
 
         internal IndexedColumn(SqlExpression expression)
@@ -42,7 +44,7 @@ namespace SJP.Schematic.Sqlite.Parsing
             Expression = expression;
         }
 
-        public string Name { get; protected set; }
+        public string? Name { get; protected set; }
 
         public IReadOnlyCollection<Token<SqliteToken>> Expression { get; protected set; }
 
@@ -56,8 +58,9 @@ namespace SJP.Schematic.Sqlite.Parsing
                 throw new ArgumentNullException(nameof(constraint));
             if (constraint.ConstraintType != ColumnConstraint.ColumnConstraintType.Collation)
                 throw new ArgumentException("The given column constraint is not collation constraint. Instead given: " + constraint.ConstraintType.ToString(), nameof(constraint));
+            if (!(constraint is ColumnConstraint.Collation collationConstraint))
+                throw new ArgumentException("The given constraint does not match the given constraint type.", nameof(constraint));
 
-            var collationConstraint = constraint as ColumnConstraint.Collation;
             var collation = collationConstraint.CollationType;
 
             var newColumn = Name != null

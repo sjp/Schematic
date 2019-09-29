@@ -31,8 +31,8 @@ namespace SJP.Schematic.Sqlite.Parsing
             var autoIncrement = false;
             var collation = SqliteCollation.None;
             var defaultValue = new List<Token<SqliteToken>>();
-            PrimaryKey primaryKey = null;
-            UniqueKey uniqueKey = null;
+            PrimaryKey? primaryKey = null;
+            UniqueKey? uniqueKey = null;
             var foreignKeys = new List<ForeignKey>();
             var checks = new List<Check>();
 
@@ -42,33 +42,35 @@ namespace SJP.Schematic.Sqlite.Parsing
                 switch (constraint.ConstraintType)
                 {
                     case ColumnConstraint.ColumnConstraintType.Check:
-                        var ck = constraint as ColumnConstraint.Check;
-                        checks.Add(new Check(ck.Name, ck.Definition));
+                        if (constraint is ColumnConstraint.Check ck)
+                            checks.Add(new Check(ck.Name, ck.Definition));
                         break;
                     case ColumnConstraint.ColumnConstraintType.Collation:
-                        var col = constraint as ColumnConstraint.Collation;
-                        collation = col.CollationType;
+                        if (constraint is ColumnConstraint.Collation col)
+                            collation = col.CollationType;
                         break;
                     case ColumnConstraint.ColumnConstraintType.Default:
-                        var def = constraint as ColumnConstraint.DefaultConstraint;
-                        defaultValue.AddRange(def.DefaultValue);
+                        if (constraint is ColumnConstraint.DefaultConstraint def)
+                            defaultValue.AddRange(def.DefaultValue);
                         break;
                     case ColumnConstraint.ColumnConstraintType.ForeignKey:
-                        var fk = constraint as ColumnConstraint.ForeignKey;
-                        foreignKeys.Add(new ForeignKey(fk.Name, Name, fk.ParentTable, fk.ParentColumnNames));
+                        if (constraint is ColumnConstraint.ForeignKey fk)
+                            foreignKeys.Add(new ForeignKey(fk.Name, Name, fk.ParentTable, fk.ParentColumnNames));
                         break;
                     case ColumnConstraint.ColumnConstraintType.Nullable:
-                        var nullableCons = constraint as ColumnConstraint.Nullable;
-                        nullable = nullableCons.IsNullable;
+                        if (constraint is ColumnConstraint.Nullable nullableCons)
+                            nullable = nullableCons.IsNullable;
                         break;
                     case ColumnConstraint.ColumnConstraintType.PrimaryKey:
-                        var pk = constraint as ColumnConstraint.PrimaryKey;
-                        autoIncrement = pk.AutoIncrement;
-                        primaryKey = new PrimaryKey(pk.Name, new IndexedColumn(Name).WithColumnOrder(pk.ColumnOrder).ToEnumerable());
+                        if (constraint is ColumnConstraint.PrimaryKey pk)
+                        {
+                            autoIncrement = pk.AutoIncrement;
+                            primaryKey = new PrimaryKey(pk.Name, new IndexedColumn(Name).WithColumnOrder(pk.ColumnOrder).ToEnumerable());
+                        }
                         break;
                     case ColumnConstraint.ColumnConstraintType.UniqueKey:
-                        var uk = constraint as ColumnConstraint.UniqueKey;
-                        uniqueKey = new UniqueKey(uk.Name, Name);
+                        if (constraint is ColumnConstraint.UniqueKey uk)
+                            uniqueKey = new UniqueKey(uk.Name, Name);
                         break;
                 }
             }
@@ -80,8 +82,8 @@ namespace SJP.Schematic.Sqlite.Parsing
             IsAutoIncrement = autoIncrement;
             Collation = collation;
             DefaultValue = defaultValue;
-            PrimaryKey = primaryKey;
-            UniqueKey = uniqueKey;
+            PrimaryKey = primaryKey != null ? Option<PrimaryKey>.Some(primaryKey) : Option<PrimaryKey>.None;
+            UniqueKey = uniqueKey != null ? Option<UniqueKey>.Some(uniqueKey) : Option<UniqueKey>.None;
             ForeignKeys = foreignKeys;
             Checks = checks;
         }

@@ -34,7 +34,11 @@ namespace SJP.Schematic.Sqlite
         public virtual async Task<IReadOnlyCollection<IDatabaseView>> GetAllViews(CancellationToken cancellationToken = default)
         {
             var dbNamesQuery = await ConnectionPragma.DatabaseListAsync().ConfigureAwait(false);
-            var dbNames = dbNamesQuery.OrderBy(d => d.seq).Select(l => l.name).ToList();
+            var dbNames = dbNamesQuery
+                .OrderBy(d => d.seq)
+                .Where(d => d.name != null)
+                .Select(d => d.name!)
+                .ToList();
 
             var qualifiedViewNames = new List<Identifier>();
 
@@ -129,7 +133,11 @@ namespace SJP.Schematic.Sqlite
             }
 
             var dbNamesResult = await ConnectionPragma.DatabaseListAsync().ConfigureAwait(false);
-            var dbNames = dbNamesResult.OrderBy(l => l.seq).Select(l => l.name).ToList();
+            var dbNames = dbNamesResult
+                .OrderBy(l => l.seq)
+                .Where(l => l.name != null)
+                .Select(l => l.name!)
+                .ToList();
             foreach (var dbName in dbNames)
             {
                 var sql = ViewNameQuery(dbName);
@@ -166,7 +174,7 @@ namespace SJP.Schematic.Sqlite
 
         private async Task<IDatabaseView> LoadViewAsyncCore(Identifier viewName, CancellationToken cancellationToken)
         {
-            var databasePragma = GetDatabasePragma(viewName.Schema);
+            var databasePragma = GetDatabasePragma(viewName.Schema!);
 
             var columnsTask = LoadColumnsAsync(databasePragma, viewName, cancellationToken);
             var definitionTask = LoadDefinitionAsync(viewName, cancellationToken);
@@ -183,7 +191,7 @@ namespace SJP.Schematic.Sqlite
             if (viewName == null)
                 throw new ArgumentNullException(nameof(viewName));
 
-            var sql = DefinitionQuery(viewName.Schema);
+            var sql = DefinitionQuery(viewName.Schema!);
             return Connection.ExecuteScalarAsync<string>(
                 sql,
                 new { SchemaName = viewName.Schema, ViewName = viewName.LocalName },
@@ -230,9 +238,14 @@ namespace SJP.Schematic.Sqlite
             var result = new List<IDatabaseColumn>();
             foreach (var tableInfo in tableInfos)
             {
+                if (tableInfo.name == null)
+                    continue;
+
+                var columnName = tableInfo.name;
+
                 var columnTypeName = tableInfo.type;
                 if (columnTypeName.IsNullOrWhiteSpace())
-                    columnTypeName = await GetTypeofColumnAsync(viewName, tableInfo.name, cancellationToken).ConfigureAwait(false);
+                    columnTypeName = await GetTypeofColumnAsync(viewName, columnName, cancellationToken).ConfigureAwait(false);
 
                 var affinity = AffinityParser.ParseTypeName(columnTypeName);
                 var columnType = new SqliteColumnType(affinity);
@@ -240,7 +253,7 @@ namespace SJP.Schematic.Sqlite
                     ? Option<string>.Some(tableInfo.dflt_value)
                     : Option<string>.None;
 
-                var column = new DatabaseColumn(tableInfo.name, columnType, !tableInfo.notnull, defaultValue, Option<IAutoIncrement>.None);
+                var column = new DatabaseColumn(columnName, columnType, !tableInfo.notnull, defaultValue, Option<IAutoIncrement>.None);
                 result.Add(column);
             }
 

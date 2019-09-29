@@ -19,7 +19,7 @@ namespace SJP.Schematic.Sqlite.Pragma.Query
         /// <summary>
         /// The name of the column being indexed, or <c>NULL</c> if the index-column is the rowid of the table being indexed.
         /// </summary>
-        public string name { get; set; }
+        public string? name { get; set; }
 
         /// <summary>
         /// Whether the index-column is sorted in reverse (descending) order
@@ -29,7 +29,7 @@ namespace SJP.Schematic.Sqlite.Pragma.Query
         /// <summary>
         /// The name for the collating sequence used to compare values in the index-column.
         /// </summary>
-        public string coll { get; set; }
+        public string? coll { get; set; }
 
         /// <summary>
         /// Whether the index-column is a key column. If not, it is an auxiliary/included column.

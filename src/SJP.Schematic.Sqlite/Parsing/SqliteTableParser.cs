@@ -81,20 +81,20 @@ namespace SJP.Schematic.Sqlite.Parsing
                 switch (parsedConstraint.ConstraintType)
                 {
                     case TableConstraint.TableConstraintType.PrimaryKey:
-                        var pk = parsedConstraint as TableConstraint.PrimaryKey;
-                        primaryKey = new PrimaryKey(pk.Name, pk.Columns);
+                        if (parsedConstraint is TableConstraint.PrimaryKey pk)
+                            primaryKey = new PrimaryKey(pk.Name, pk.Columns);
                         break;
                     case TableConstraint.TableConstraintType.UniqueKey:
-                        var uk = parsedConstraint as TableConstraint.UniqueKey;
-                        uniqueKeys.Add(new UniqueKey(uk.Name, uk.Columns));
+                        if (parsedConstraint is TableConstraint.UniqueKey uk)
+                            uniqueKeys.Add(new UniqueKey(uk.Name, uk.Columns));
                         break;
                     case TableConstraint.TableConstraintType.ForeignKey:
-                        var fk = parsedConstraint as TableConstraint.ForeignKey;
-                        foreignKeys.Add(new ForeignKey(fk.Name, fk.Columns, fk.ParentTable, fk.ParentColumnNames));
+                        if (parsedConstraint is TableConstraint.ForeignKey fk)
+                            foreignKeys.Add(new ForeignKey(fk.Name, fk.Columns, fk.ParentTable, fk.ParentColumnNames));
                         break;
                     case TableConstraint.TableConstraintType.Check:
-                        var ck = parsedConstraint as TableConstraint.Check;
-                        checks.Add(new Check(ck.Name, ck.Definition));
+                        if (parsedConstraint is TableConstraint.Check ck)
+                            checks.Add(new Check(ck.Name, ck.Definition));
                         break;
                 }
             }

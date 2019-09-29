@@ -35,12 +35,12 @@ namespace SJP.Schematic.Sqlite
             ParsingErrorMessage = errorMessage;
         }
 
-        public Identifier TableName { get; }
+        public Identifier? TableName { get; }
 
-        public string Sql { get; }
+        public string? Sql { get; }
 
-        public string ParsingErrorMessage { get; }
+        public string? ParsingErrorMessage { get; }
 
-        public override string Message { get; }
+        public override string Message { get; } = string.Empty;
     }
 }
