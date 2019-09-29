@@ -441,7 +441,7 @@ namespace SJP.Schematic.Sqlite
                 var lastToken = ck.Definition.Last();
                 var endIndex = lastToken.Position.Absolute + lastToken.ToStringValue().Length;
 
-                var definition = parsedTable.Definition.Substring(startIndex, endIndex - startIndex);
+                var definition = parsedTable.Definition[startIndex..endIndex];
                 var checkName = ck.Name.Map(Identifier.CreateQualifiedIdentifier);
                 var check = new SqliteCheckConstraint(checkName, definition);
                 result.Add(check);

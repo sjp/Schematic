@@ -83,6 +83,6 @@ namespace SJP.Schematic.Oracle.Parsing
             }
         }
 
-        private static string TrimWrappingChars(string input) => input.Substring(1, input.Length - 2);
+        private static string TrimWrappingChars(string input) => input[1..^1];
     }
 }

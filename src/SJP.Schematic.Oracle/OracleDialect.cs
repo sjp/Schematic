@@ -111,7 +111,7 @@ from DUAL";
                 .Bind(dbv => TryParseLongVersionString(dbv.VersionNumber).ToAsync())
                 .MatchUnsafeAsync(
                     v => v,
-                    () => Task.FromResult(new Version("0"))
+                    () => Task.FromResult(new Version(0, 0))
                 );
         }
 

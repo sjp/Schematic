@@ -79,7 +79,7 @@ namespace SJP.Schematic.Modelled.Reflection.Model
                 if (prevEnd < info.Start)
                 {
                     prevEnd = Math.Max(0, prevEnd);
-                    var text = ExpressionText.Substring(prevEnd, info.Start - prevEnd);
+                    var text = ExpressionText[prevEnd..info.Start];
                     builder.Append(text);
                 }
 

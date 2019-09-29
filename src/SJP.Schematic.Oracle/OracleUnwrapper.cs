@@ -271,7 +271,6 @@ namespace SJP.Schematic.Oracle
             0x8D, 0x92, 0x4A, 0x11, 0x89, 0x74, 0x6B, 0x91, 0xFB, 0xFE, 0xC9, 0x01, 0xEA, 0x1B, 0xF7, 0xCE
         };
 
-        private static readonly Regex Base64Header = new Regex("^[0-9a-f]+ ([0-9a-f]+)$", RegexOptions.Compiled);
         private static readonly char[] SpaceChar = new[] { ' ' };
         private static readonly char[] NewlineChars = new[] { '\r', '\n' };
         private static readonly Regex Base64Matcher = new Regex("^[a-zA-Z0-9\\+/]*={0,3}$", RegexOptions.None);
