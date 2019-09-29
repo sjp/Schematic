@@ -49,7 +49,7 @@ namespace SJP.Schematic.Reporting.Html.ViewModels
             public string Dot { get; }
 
             // a bit hacky, needed to render image directly instead of via file
-            public string Svg { get; set; }
+            public string Svg { get; set; } = string.Empty;
         }
     }
 }

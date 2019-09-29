@@ -12,7 +12,7 @@ namespace SJP.Schematic.Reporting.Html.ViewModels
     public sealed class Main : ITemplateParameter
     {
         public Main(
-            string databaseName,
+            string? databaseName,
             string databaseVersion,
             uint columnsCount,
             uint constraintsCount,

@@ -38,7 +38,7 @@ namespace SJP.Schematic.Reporting.Html.ViewModels
             ColumnsCount = columns.UCount();
             ColumnsTableClass = ColumnsCount > 0 ? CssClasses.DataTableClass : string.Empty;
 
-            PrimaryKey = primaryKey.MatchUnsafe(pk => pk, () => null);
+            PrimaryKey = primaryKey.MatchUnsafe(pk => pk, () => (PrimaryKeyConstraint?)null);
             PrimaryKeyExists = primaryKey.IsSome;
             PrimaryKeyTableClass = primaryKey.Match(_ => CssClasses.DataTableClass, () => string.Empty);
 
@@ -83,7 +83,7 @@ namespace SJP.Schematic.Reporting.Html.ViewModels
 
         public HtmlString ColumnsTableClass { get; }
 
-        public PrimaryKeyConstraint PrimaryKey { get; }
+        public PrimaryKeyConstraint? PrimaryKey { get; }
 
         public bool PrimaryKeyExists { get; }
 
@@ -362,7 +362,7 @@ namespace SJP.Schematic.Reporting.Html.ViewModels
         public sealed class Index
         {
             public Index(
-                string indexName,
+                string? indexName,
                 bool isUnique,
                 IEnumerable<string> columnNames,
                 IEnumerable<IndexColumnOrder> columnSorts,
@@ -564,7 +564,7 @@ namespace SJP.Schematic.Reporting.Html.ViewModels
             public string Dot { get; }
 
             // a bit hacky, needed to render image directly instead of via file
-            public string Svg { get; set; }
+            public string Svg { get; set; } = string.Empty;
         }
     }
 }

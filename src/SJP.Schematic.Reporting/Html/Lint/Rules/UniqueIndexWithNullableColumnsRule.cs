@@ -16,7 +16,7 @@ namespace SJP.Schematic.Reporting.Html.Lint.Rules
         {
         }
 
-        protected override IRuleMessage BuildMessage(Identifier tableName, string indexName, IEnumerable<string> columnNames)
+        protected override IRuleMessage BuildMessage(Identifier tableName, string? indexName, IEnumerable<string> columnNames)
         {
             if (tableName == null)
                 throw new ArgumentNullException(nameof(tableName));

@@ -69,7 +69,7 @@ namespace SJP.Schematic.Reporting.Html.Lint.Rules
             return new RuleMessage(RuleTitle, Level, messageText);
         }
 
-        protected override IRuleMessage BuildDisabledIndexMessage(Identifier tableName, string indexName)
+        protected override IRuleMessage BuildDisabledIndexMessage(Identifier tableName, string? indexName)
         {
             if (tableName == null)
                 throw new ArgumentNullException(nameof(tableName));
@@ -84,7 +84,7 @@ namespace SJP.Schematic.Reporting.Html.Lint.Rules
             return new RuleMessage(RuleTitle, Level, messageText);
         }
 
-        protected override IRuleMessage BuildDisabledTriggerMessage(Identifier tableName, string triggerName)
+        protected override IRuleMessage BuildDisabledTriggerMessage(Identifier tableName, string? triggerName)
         {
             if (tableName == null)
                 throw new ArgumentNullException(nameof(tableName));

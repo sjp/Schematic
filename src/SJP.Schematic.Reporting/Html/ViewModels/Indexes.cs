@@ -32,7 +32,7 @@ namespace SJP.Schematic.Reporting.Html.ViewModels
         public sealed class Index
         {
             public Index(
-                string indexName,
+                string? indexName,
                 Identifier tableName,
                 bool isUnique,
                 IEnumerable<string> columnNames,

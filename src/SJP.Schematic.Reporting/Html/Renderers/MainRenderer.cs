@@ -119,6 +119,8 @@ namespace SJP.Schematic.Reporting.Html.Renderers
                 .Select(n => n.Schema)
                 .Where(n => n != null)
                 .Distinct()
+                .Where(s => s != null)
+                .Select(s => s!)
                 .OrderBy(n => n)
                 .ToList();
 
