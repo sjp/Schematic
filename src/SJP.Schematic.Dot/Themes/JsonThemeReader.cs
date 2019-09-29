@@ -1,6 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using Newtonsoft.Json;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 using SJP.Schematic.Core.Extensions;
 
 namespace SJP.Schematic.Dot.Themes
@@ -38,7 +38,7 @@ namespace SJP.Schematic.Dot.Themes
                 throw new ArgumentNullException(nameof(json));
 
             var defaultTheme = new DefaultTheme();
-            var dto = JsonConvert.DeserializeObject<GraphThemeDto>(json, Settings);
+            var dto = JsonSerializer.Deserialize<GraphThemeDto>(json, GetSerializerSettings());
             return new GraphThemeBuilder
             {
                 BackgroundColor = dto.BackgroundColor ?? defaultTheme.BackgroundColor,
@@ -85,24 +85,30 @@ namespace SJP.Schematic.Dot.Themes
             };
         }
 
-        private static readonly JsonSerializerSettings Settings = new JsonSerializerSettings
+        private static JsonSerializerOptions GetSerializerSettings()
         {
-            NullValueHandling = NullValueHandling.Ignore,
-            Converters = new List<JsonConverter> { new RgbColorConverter() }
-        };
+            var settings = new JsonSerializerOptions
+            {
+                WriteIndented = true,
+                IgnoreNullValues = true,
+            };
+            settings.Converters.Add(new JsonStringEnumConverter());
+            settings.Converters.Add(new RgbColorConverter());
+
+            return settings;
+        }
 
         private class RgbColorConverter : JsonConverter<RgbColor>
         {
-            public override void WriteJson(JsonWriter writer, RgbColor value, JsonSerializer serializer)
+            public override RgbColor Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
             {
-                writer.WriteValue(value.ToString());
+                var text = reader.GetString();
+                return new RgbColor(text);
             }
 
-            public override RgbColor ReadJson(JsonReader reader, Type objectType, RgbColor existingValue, bool hasExistingValue,
-                JsonSerializer serializer)
+            public override void Write(Utf8JsonWriter writer, RgbColor value, JsonSerializerOptions options)
             {
-                var text = (string)reader.Value;
-                return new RgbColor(text);
+                writer.WriteStringValue(value.ToString());
             }
         }
     }

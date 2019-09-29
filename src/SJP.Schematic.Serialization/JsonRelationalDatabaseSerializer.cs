@@ -1,8 +1,8 @@
 ﻿using System;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 using System.Threading;
 using System.Threading.Tasks;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Converters;
 using SJP.Schematic.Core;
 using SJP.Schematic.Serialization.Mapping;
 
@@ -15,7 +15,7 @@ namespace SJP.Schematic.Serialization
             if (input == null)
                 throw new ArgumentNullException(nameof(input));
 
-            var dto = JsonConvert.DeserializeObject<Dto.RelationalDatabase>(input, _settings.Value);
+            var dto = JsonSerializer.Deserialize<Dto.RelationalDatabase>(input, _settings.Value);
             return dto.FromDto();
         }
 
@@ -34,7 +34,7 @@ namespace SJP.Schematic.Serialization
 
             var dto = obj.ToDto().GetAwaiter().GetResult();
 
-            return JsonConvert.SerializeObject(dto, _settings.Value);
+            return JsonSerializer.Serialize(dto, _settings.Value);
         }
 
         public Task<string> SerializeAsync(IRelationalDatabase obj, CancellationToken cancellationToken = default)
@@ -48,20 +48,19 @@ namespace SJP.Schematic.Serialization
         private static async Task<string> SerializeAsyncCore(IRelationalDatabase obj, CancellationToken cancellationToken)
         {
             var dto = await obj.ToDto(cancellationToken).ConfigureAwait(false);
-            return JsonConvert.SerializeObject(dto, _settings.Value);
+            return JsonSerializer.Serialize(dto, _settings.Value);
         }
 
-        private readonly static Lazy<JsonSerializerSettings> _settings = new Lazy<JsonSerializerSettings>(LoadSettings);
+        private readonly static Lazy<JsonSerializerOptions> _settings = new Lazy<JsonSerializerOptions>(LoadSettings);
 
-        private static JsonSerializerSettings LoadSettings()
+        private static JsonSerializerOptions LoadSettings()
         {
-            var settings = new JsonSerializerSettings
+            var settings = new JsonSerializerOptions
             {
-                NullValueHandling = NullValueHandling.Ignore,
-                Formatting = Formatting.Indented,
-                DefaultValueHandling = DefaultValueHandling.Ignore,
+                WriteIndented = true,
+                IgnoreNullValues = true,
             };
-            settings.Converters.Add(new StringEnumConverter());
+            settings.Converters.Add(new JsonStringEnumConverter());
 
             return settings;
         }

@@ -22,7 +22,6 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="Newtonsoft.Json" Version="12.0.2" />
     <PackageReference Include="RazorLight.Unofficial" Version="2.0.0-beta1.3" />
     <PackageReference Include="System.Text.Encodings.Web" Version="4.6.0" />
   </ItemGroup>
