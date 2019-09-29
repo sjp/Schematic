@@ -2,7 +2,7 @@
 {
     internal class IndexColumns
     {
-        public string IndexName { get; set; }
+        public string? IndexName { get; set; }
 
         public bool IsUnique { get; set; }
 
@@ -14,7 +14,7 @@
 
         public bool IsDescending { get; set; }
 
-        public string ColumnName { get; set; }
+        public string? ColumnName { get; set; }
 
         public bool IsDisabled { get; set; }
     }

@@ -8,13 +8,13 @@ namespace SJP.Schematic.SqlServer.Query
         /// <para>Version of the Microsoft .NET Framework common language runtime (CLR) that was used while building the instance of SQL Server.</para>
         /// <para><code>NULL</code> means input is not valid, an error, or not applicable</para>
         /// </summary>
-        public string BuildClrVersion { get; set; }
+        public string? BuildClrVersion { get; set; }
 
         /// <summary>
         /// <para>Name of the default collation for the server.</para>
         /// <para><code>NULL</code> means input is not valid, or an error.</para>
         /// </summary>
-        public string Collation { get; set; }
+        public string? Collation { get; set; }
 
         /// <summary>
         /// ID of the SQL Server collation.
@@ -33,7 +33,7 @@ namespace SJP.Schematic.SqlServer.Query
         /// <para>Note: If the instance of SQL Server is in a failover cluster and you want to obtain the name of the failover clustered instance, use the MachineName property.</para>
         /// <para><code>NULL</code> means input is not valid, an error, or not applicable</para>
         /// </summary>
-        public string ComputerNamePhysicalNetBIOS { get; set; }
+        public string? ComputerNamePhysicalNetBIOS { get; set; }
 
         /// <summary>
         /// <para>Installed product edition of the instance of SQL Server. Use the value of this property to determine the features and the limits, such as Compute Capacity Limits by Edition of SQL Server. 64-bit versions of the Database Engine append (64-bit) to the version.</para>
@@ -50,7 +50,7 @@ namespace SJP.Schematic.SqlServer.Query
         /// <item>'SQL Azure' indicates SQL Database or SQL Data Warehouse</item>
         /// </list>
         /// </summary>
-        public string Edition { get; set; }
+        public string? Edition { get; set; }
 
         /// <summary>
         /// <para>Installed product edition of the instance of SQL Server. Use the value of this property to determine the features and the limits, such as Compute Capacity Limits by Edition of SQL Server. 64-bit versions of the Database Engine append (64-bit) to the version.</para>
@@ -97,18 +97,18 @@ namespace SJP.Schematic.SqlServer.Query
         /// <summary>
         /// Name of the default path to the instance data files.
         /// </summary>
-        public string InstanceDefaultDataPath { get; set; }
+        public string? InstanceDefaultDataPath { get; set; }
 
         /// <summary>
         /// Name of the default path to the instance log files.
         /// </summary>
-        public string InstanceDefaultLogPath { get; set; }
+        public string? InstanceDefaultLogPath { get; set; }
 
         /// <summary>
         /// <para>Name of the instance to which the user is connected.</para>
         /// <para>Returns <code>NULL</code> if the instance name is the default instance, if the input is not valid, or error.</para>
         /// </summary>
-        public string InstanceName { get; set; }
+        public string? InstanceName { get; set; }
 
         /// <summary>
         /// Returns <code>true</code> if the Advanced Analytics feature was installed during setup; <code>false</code> if Advanced Analytics was not installed.
@@ -174,14 +174,14 @@ namespace SJP.Schematic.SqlServer.Query
         /// <summary>
         /// Unused. License information is not preserved or maintained by the SQL Server product. Always returns DISABLED.
         /// </summary>
-        public string LicenseType { get; set; }
+        public string? LicenseType { get; set; }
 
         /// <summary>
         /// <para>Windows computer name on which the server instance is running.</para>
         /// <para>For a clustered instance, an instance of SQL Server running on a virtual server on Microsoft Cluster Service, it returns the name of the virtual server.</para>
         /// <para>Returns <code>NULL</code> if the input is not valid, an error, or not applicable.</para>
         /// </summary>
-        public string MachineName { get; set; }
+        public string? MachineName { get; set; }
 
         /// <summary>
         /// Unused. License information is not preserved or maintained by the SQL Server product. Always returns NULL.
@@ -207,7 +207,7 @@ namespace SJP.Schematic.SqlServer.Query
         /// <item>NULL = Not applicable.</item>
         /// </list>
         /// </summary>
-        public string ProductBuildType { get; set; }
+        public string? ProductBuildType { get; set; }
 
         /// <summary>
         /// <para>Level of the version of the instance of SQL Server.</para>
@@ -217,7 +217,7 @@ namespace SJP.Schematic.SqlServer.Query
         /// <item>'CTPn' = Community Technology Preview version</item>
         /// </list>
         /// </summary>
-        public string ProductLevel { get; set; }
+        public string? ProductLevel { get; set; }
 
         /// <summary>
         /// The major version.
@@ -236,17 +236,17 @@ namespace SJP.Schematic.SqlServer.Query
         /// <item>NULL = Not applicable.</item>
         /// </list>
         /// </summary>
-        public string ProductUpdateLevel { get; set; }
+        public string? ProductUpdateLevel { get; set; }
 
         /// <summary>
         /// KB article for that release.
         /// </summary>
-        public string ProductUpdateReference { get; set; }
+        public string? ProductUpdateReference { get; set; }
 
         /// <summary>
         /// Version of the instance of SQL Server, in the form of 'major.minor.build.revision'.
         /// </summary>
-        public string ProductVersion { get; set; }
+        public string? ProductVersion { get; set; }
 
         /// <summary>
         /// Returns the date and time that the Resource database was last updated.
@@ -256,13 +256,13 @@ namespace SJP.Schematic.SqlServer.Query
         /// <summary>
         /// Returns the version Resource database.
         /// </summary>
-        public string ResourceVersion { get; set; }
+        public string? ResourceVersion { get; set; }
 
         /// <summary>
         /// <para>Both the Windows server and instance information associated with a specified instance of SQL Server.</para>
         /// <para>Returns <code>NULL</code> if the input is not valid, or an error.</para>
         /// </summary>
-        public string ServerName { get; set; }
+        public string? ServerName { get; set; }
 
         /// <summary>
         /// The SQL character set ID from the collation ID.
@@ -272,7 +272,7 @@ namespace SJP.Schematic.SqlServer.Query
         /// <summary>
         /// The SQL character set name from the collation.
         /// </summary>
-        public string SqlCharSetName { get; set; }
+        public string? SqlCharSetName { get; set; }
 
         /// <summary>
         /// The SQL sort order ID from the collation.
@@ -282,13 +282,13 @@ namespace SJP.Schematic.SqlServer.Query
         /// <summary>
         /// The SQL sort order name from the collation.
         /// </summary>
-        public string SqlSortOrderName { get; set; }
+        public string? SqlSortOrderName { get; set; }
 
         /// <summary>
         /// <para>The name of the share used by FILESTREAM.</para>
         /// <para>Returns <code>NULL</code> if the input is not valid, an error, or not applicable.</para>
         /// </summary>
-        public string FilestreamShareName { get; set; }
+        public string? FilestreamShareName { get; set; }
 
         /// <summary>
         /// The configured level of FILESTREAM access.

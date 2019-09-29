@@ -9,7 +9,7 @@ namespace SJP.Schematic.SqlServer
 {
     public sealed class SqlServerExpressionComparer : IEqualityComparer<string>
     {
-        public SqlServerExpressionComparer(IEqualityComparer<string> comparer = null, IEqualityComparer<string> sqlStringComparer = null)
+        public SqlServerExpressionComparer(IEqualityComparer<string>? comparer = null, IEqualityComparer<string>? sqlStringComparer = null)
         {
             Comparer = comparer ?? StringComparer.Ordinal;
             SqlStringComparer = sqlStringComparer ?? StringComparer.Ordinal;

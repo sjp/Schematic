@@ -30,10 +30,11 @@ namespace SJP.Schematic.SqlServer
                 return Array.Empty<IDatabaseRoutine>();
 
             return queryResult
+                .Where(row => row.SchemaName != null && row.ObjectName != null && row.Definition != null)
                 .Select(row =>
                 {
                     var routineName = QualifyRoutineName(Identifier.CreateQualifiedIdentifier(row.SchemaName, row.ObjectName));
-                    return new DatabaseRoutine(routineName, row.Definition);
+                    return new DatabaseRoutine(routineName, row.Definition!);
                 })
                 .ToList();
         }

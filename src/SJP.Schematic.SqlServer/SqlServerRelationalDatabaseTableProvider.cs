@@ -157,11 +157,16 @@ where schema_id = schema_id(@SchemaName) and name = @TableName and is_ms_shipped
             var groupedByName = primaryKeyColumns.GroupBy(row => new { row.ConstraintName, row.IsDisabled });
             var firstRow = groupedByName.First();
             var constraintName = firstRow.Key.ConstraintName;
+            if (constraintName == null)
+                return Option<IDatabaseKey>.None;
+
             var isEnabled = !firstRow.Key.IsDisabled;
 
             var keyColumns = groupedByName
                 .Where(row => row.Key.ConstraintName == constraintName)
-                .SelectMany(g => g.Select(row => columns[row.ColumnName]))
+                .SelectMany(g => g
+                    .Where(row => row.ColumnName != null && columns.ContainsKey(row.ColumnName))
+                    .Select(row => columns[row.ColumnName!]))
                 .ToList();
 
             var primaryKey = new SqlServerDatabaseKey(constraintName, DatabaseKeyType.Primary, keyColumns, isEnabled);
@@ -218,10 +223,10 @@ order by ic.key_ordinal";
                 var isEnabled = !indexInfo.Key.IsDisabled;
 
                 var indexCols = indexInfo
-                    .Where(row => !row.IsIncludedColumn)
+                    .Where(row => !row.IsIncludedColumn && row.ColumnName != null && columns.ContainsKey(row.ColumnName))
                     .OrderBy(row => row.KeyOrdinal)
                     .ThenBy(row => row.IndexColumnId)
-                    .Select(row => new { row.IsDescending, Column = columns[row.ColumnName] })
+                    .Select(row => new { row.IsDescending, Column = columns[row.ColumnName!] })
                     .Select(row =>
                     {
                         var order = row.IsDescending ? IndexColumnOrder.Descending : IndexColumnOrder.Ascending;
@@ -232,10 +237,10 @@ order by ic.key_ordinal";
                     .ToList();
 
                 var includedCols = indexInfo
-                    .Where(row => row.IsIncludedColumn)
+                    .Where(row => row.IsIncludedColumn && row.ColumnName != null && columns.ContainsKey(row.ColumnName))
                     .OrderBy(row => row.KeyOrdinal)
                     .ThenBy(row => row.ColumnName) // matches SSMS behaviour
-                    .Select(row => columns[row.ColumnName])
+                    .Select(row => columns[row.ColumnName!])
                     .ToList();
 
                 var index = new DatabaseIndex(indexName, isUnique, indexCols, includedCols, isEnabled);
@@ -292,7 +297,10 @@ order by ic.index_id, ic.key_ordinal, ic.index_column_id";
                 .Select(g => new
                 {
                     g.Key.ConstraintName,
-                    Columns = g.Select(row => columns[row.ColumnName]).ToList(),
+                    Columns = g
+                        .Where(row => row.ColumnName != null && columns.ContainsKey(row.ColumnName))
+                        .Select(row => columns[row.ColumnName!])
+                        .ToList(),
                     IsEnabled = !g.Key.IsDisabled
                 })
                 .ToList();
@@ -372,7 +380,7 @@ order by ic.key_ordinal";
             foreach (var groupedChildKey in groupedChildKeys)
             {
                 // ensure we have a key to begin with
-                IDatabaseKey parentKey = null;
+                IDatabaseKey? parentKey = null;
                 if (groupedChildKey.Key.ParentKeyType == Constants.PrimaryKeyType)
                     primaryKey.IfSome(k => parentKey = k);
                 else if (uniqueKeys.ContainsKey(groupedChildKey.Key.ParentKeyName))
@@ -455,6 +463,9 @@ where schema_name(parent_t.schema_id) = @SchemaName and parent_t.name = @TableNa
 
             foreach (var checkRow in checks)
             {
+                if (checkRow.ConstraintName == null || checkRow.Definition == null)
+                    continue;
+
                 var constraintName = Identifier.CreateQualifiedIdentifier(checkRow.ConstraintName);
                 var definition = checkRow.Definition;
                 var isEnabled = !checkRow.IsDisabled;
@@ -579,8 +590,9 @@ where schema_name(t.schema_id) = @SchemaName and t.name = @TableName and t.is_ms
                         var parentTableName = tableNameCache[candidateParentTableName];
                         var childKeyName = Identifier.CreateQualifiedIdentifier(fkey.Key.ChildKeyName);
                         var childKeyColumns = fkey
+                            .Where(row => row.ColumnName != null && columns.ContainsKey(row.ColumnName))
                             .OrderBy(row => row.ConstraintColumnId)
-                            .Select(row => columns[row.ColumnName])
+                            .Select(row => columns[row.ColumnName!])
                             .ToList();
 
                         var isEnabled = !fkey.Key.IsDisabled;
@@ -644,18 +656,19 @@ where schema_name(child_t.schema_id) = @SchemaName and child_t.name = @TableName
                 var typeMetadata = new ColumnTypeMetadata
                 {
                     TypeName = Identifier.CreateQualifiedIdentifier(row.ColumnTypeSchema, row.ColumnTypeName),
-                    Collation = row.Collation.IsNullOrWhiteSpace() ? null : Identifier.CreateQualifiedIdentifier(row.Collation),
+                    Collation = !row.Collation.IsNullOrWhiteSpace()
+                        ? Option<Identifier>.Some(Identifier.CreateQualifiedIdentifier(row.Collation))
+                        : Option<Identifier>.None,
                     MaxLength = row.MaxLength,
                     NumericPrecision = new NumericPrecision(row.Precision, row.Scale)
                 };
                 var columnType = TypeProvider.CreateColumnType(typeMetadata);
 
                 var columnName = Identifier.CreateQualifiedIdentifier(row.ColumnName);
-                var isAutoIncrement = row.IdentitySeed.HasValue && row.IdentityIncrement.HasValue;
-                var autoIncrement = isAutoIncrement
+                var autoIncrement = row.IdentitySeed.HasValue && row.IdentityIncrement.HasValue
                     ? Option<IAutoIncrement>.Some(new AutoIncrement(row.IdentitySeed.Value, row.IdentityIncrement.Value))
                     : Option<IAutoIncrement>.None;
-                var defaultValue = row.HasDefaultValue
+                var defaultValue = row.HasDefaultValue && row.DefaultValue != null
                     ? Option<string>.Some(row.DefaultValue)
                     : Option<string>.None;
                 var computedColumnDefinition = !row.ComputedColumnDefinition.IsNullOrWhiteSpace()
@@ -746,7 +759,7 @@ order by c.column_id";
                     else if (trigEvent.TriggerEvent == Constants.Delete)
                         events |= TriggerEvent.Delete;
                     else
-                        throw new UnsupportedTriggerEventException(tableName, trigEvent.TriggerEvent);
+                        throw new UnsupportedTriggerEventException(tableName, trigEvent.TriggerEvent ?? string.Empty);
                 }
 
                 var trigger = new DatabaseTrigger(triggerName, definition, queryTiming, events, isEnabled);

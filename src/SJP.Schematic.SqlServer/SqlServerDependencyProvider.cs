@@ -8,7 +8,7 @@ namespace SJP.Schematic.SqlServer
 {
     public sealed class SqlServerDependencyProvider : IDependencyProvider
     {
-        public SqlServerDependencyProvider(IEqualityComparer<Identifier> comparer = null)
+        public SqlServerDependencyProvider(IEqualityComparer<Identifier>? comparer = null)
         {
             Comparer = comparer ?? IdentifierComparer.Ordinal;
         }

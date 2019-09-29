@@ -2,9 +2,9 @@
 {
     internal class SequenceData
     {
-        public string SchemaName { get; set; }
+        public string? SchemaName { get; set; }
 
-        public string ObjectName { get; set; }
+        public string? ObjectName { get; set; }
 
         public bool IsCached { get; set; }
 

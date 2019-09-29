@@ -165,18 +165,19 @@ where schema_name(v.schema_id) = @SchemaName and v.name = @ViewName and v.is_ms_
                 var typeMetadata = new ColumnTypeMetadata
                 {
                     TypeName = Identifier.CreateQualifiedIdentifier(row.ColumnTypeSchema, row.ColumnTypeName),
-                    Collation = row.Collation.IsNullOrWhiteSpace() ? null : Identifier.CreateQualifiedIdentifier(row.Collation),
+                    Collation = !row.Collation.IsNullOrWhiteSpace()
+                        ? Option<Identifier>.Some(Identifier.CreateQualifiedIdentifier(row.Collation))
+                        : Option<Identifier>.None,
                     MaxLength = row.MaxLength,
                     NumericPrecision = new NumericPrecision(row.Precision, row.Scale)
                 };
                 var columnType = TypeProvider.CreateColumnType(typeMetadata);
 
                 var columnName = Identifier.CreateQualifiedIdentifier(row.ColumnName);
-                var isAutoIncrement = row.IdentitySeed.HasValue && row.IdentityIncrement.HasValue;
-                var autoIncrement = isAutoIncrement
+                var autoIncrement = row.IdentitySeed.HasValue && row.IdentityIncrement.HasValue
                     ? Option<IAutoIncrement>.Some(new AutoIncrement(row.IdentitySeed.Value, row.IdentityIncrement.Value))
                     : Option<IAutoIncrement>.None;
-                var defaultValue = row.HasDefaultValue
+                var defaultValue = row.HasDefaultValue && row.DefaultValue != null
                     ? Option<string>.Some(row.DefaultValue)
                     : Option<string>.None;
 

@@ -76,35 +76,35 @@ select
             return new SqlServerDatabaseCommentProvider(Connection, identifierDefaults);
         }
 
-        public Task<IServerProperties2008> GetServerProperties2008(CancellationToken cancellationToken = default)
+        public Task<IServerProperties2008?> GetServerProperties2008(CancellationToken cancellationToken = default)
         {
             var query = BuildServerPropertiesQuery<Query.ServerProperties2008>();
             return Connection.QueryFirstOrNone<Query.ServerProperties2008>(query, cancellationToken)
-                .Map<IServerProperties2008>(row => new ServerProperties2008(row))
+                .Map<IServerProperties2008?>(row => new ServerProperties2008(row))
                 .IfNoneUnsafe(() => null);
         }
 
-        public Task<IServerProperties2012> GetServerProperties2012(CancellationToken cancellationToken = default)
+        public Task<IServerProperties2012?> GetServerProperties2012(CancellationToken cancellationToken = default)
         {
             var query = BuildServerPropertiesQuery<Query.ServerProperties2012>();
             return Connection.QueryFirstOrNone<Query.ServerProperties2012>(query, cancellationToken)
-                .Map<IServerProperties2012>(row => new ServerProperties2012(row))
+                .Map<IServerProperties2012?>(row => new ServerProperties2012(row))
                 .IfNoneUnsafe(() => null);
         }
 
-        public Task<IServerProperties2014> GetServerProperties2014(CancellationToken cancellationToken = default)
+        public Task<IServerProperties2014?> GetServerProperties2014(CancellationToken cancellationToken = default)
         {
             var query = BuildServerPropertiesQuery<Query.ServerProperties2014>();
             return Connection.QueryFirstOrNone<Query.ServerProperties2014>(query, cancellationToken)
-                .Map<IServerProperties2014>(row => new ServerProperties2014(row))
+                .Map<IServerProperties2014?>(row => new ServerProperties2014(row))
                 .IfNoneUnsafe(() => null);
         }
 
-        public Task<IServerProperties2017> GetServerProperties2017(CancellationToken cancellationToken = default)
+        public Task<IServerProperties2017?> GetServerProperties2017(CancellationToken cancellationToken = default)
         {
             var query = BuildServerPropertiesQuery<Query.ServerProperties2017>();
             return Connection.QueryFirstOrNone<Query.ServerProperties2017>(query, cancellationToken)
-                .Map<IServerProperties2017>(row => new ServerProperties2017(row))
+                .Map<IServerProperties2017?>(row => new ServerProperties2017(row))
                 .IfNoneUnsafe(() => null);
         }
 

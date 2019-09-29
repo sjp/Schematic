@@ -2,11 +2,11 @@
 {
     internal class ColumnData
     {
-        public string ColumnName { get; set; }
+        public string? ColumnName { get; set; }
 
-        public string ColumnTypeSchema { get; set; }
+        public string? ColumnTypeSchema { get; set; }
 
-        public string ColumnTypeName { get; set; }
+        public string? ColumnTypeName { get; set; }
 
         public int MaxLength { get; set; }
 
@@ -14,7 +14,7 @@
 
         public int Scale { get; set; }
 
-        public string Collation { get; set; }
+        public string? Collation { get; set; }
 
         public bool IsComputed { get; set; }
 
@@ -22,9 +22,9 @@
 
         public bool HasDefaultValue { get; set; }
 
-        public string DefaultValue { get; set; }
+        public string? DefaultValue { get; set; }
 
-        public string ComputedColumnDefinition { get; set; }
+        public string? ComputedColumnDefinition { get; set; }
 
         public long? IdentitySeed { get; set; }
 
