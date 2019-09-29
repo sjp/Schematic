@@ -18,7 +18,7 @@ namespace SJP.Schematic.Migrations
 
         public bool Success { get; }
 
-        public IEnumerable<IMigrationError> Errors { get; }
+        public IEnumerable<IMigrationError> Errors { get; } = Array.Empty<IMigrationError>();
 
         public IEnumerable<IMigrationOperation> Operations
         {
@@ -49,6 +49,6 @@ namespace SJP.Schematic.Migrations
             return new MigrationAnalysisResult(operations);
         }
 
-        private readonly IEnumerable<IMigrationOperation> _operations;
+        private readonly IEnumerable<IMigrationOperation> _operations = Array.Empty<IMigrationOperation>();
     }
 }

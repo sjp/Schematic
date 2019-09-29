@@ -341,13 +341,14 @@ namespace SJP.Schematic.Migrations
             if (primaryKey.IsNone || comparisonPrimaryKey.IsNone)
                 return;
 
-            var existingKey = primaryKey.IfNoneUnsafe(() => null);
-            var comparisonKey = comparisonPrimaryKey.IfNoneUnsafe(() => null);
-            if (!keyComparer.Equals(existingKey, comparisonKey))
+            primaryKey.IfSome(existingKey => comparisonPrimaryKey.IfSome(comparisonKey =>
             {
-                MigrationBuilder.DropPrimaryKey(table, existingKey);
-                MigrationBuilder.AddPrimaryKey(table, comparisonKey);
-            }
+                if (!keyComparer.Equals(existingKey, comparisonKey))
+                {
+                    MigrationBuilder.DropPrimaryKey(table, existingKey);
+                    MigrationBuilder.AddPrimaryKey(table, comparisonKey);
+                }
+            }));
         }
 
         protected virtual void CompareUniqueKeys(IRelationalDatabaseTable table, IReadOnlyCollection<IDatabaseKey> uniqueKeys, IReadOnlyCollection<IDatabaseKey> comparisonUniqueKeys)

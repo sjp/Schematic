@@ -11,6 +11,7 @@ namespace SJP.Schematic.Migrations
             if (query.IsNullOrWhiteSpace())
                 throw new ArgumentNullException(nameof(query));
 
+            Query = query;
             Parameters = EmptyParameters;
         }
 
@@ -19,6 +20,7 @@ namespace SJP.Schematic.Migrations
             if (query.IsNullOrWhiteSpace())
                 throw new ArgumentNullException(nameof(query));
 
+            Query = query;
             Parameters = parameters ?? throw new ArgumentNullException(nameof(parameters));
         }
 
