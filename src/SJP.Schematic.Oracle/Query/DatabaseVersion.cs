@@ -2,8 +2,8 @@
 {
     internal class DatabaseVersion
     {
-        public string ProductName { get; set; }
+        public string? ProductName { get; set; }
 
-        public string VersionNumber { get; set; }
+        public string? VersionNumber { get; set; }
     }
 }

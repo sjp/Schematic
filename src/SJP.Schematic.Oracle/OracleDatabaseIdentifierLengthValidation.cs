@@ -29,7 +29,7 @@ namespace SJP.Schematic.Oracle
 
         // basically, are all of the characters ascii (equivalent to a byte for oracle's purposes)
         // and are all of the ascii characters no longer than the database's max identifier length
-        private bool IsIdentifierComponentValid(string component)
+        private bool IsIdentifierComponentValid(string? component)
         {
             // let's assume null is equivalent to a null literal and always valid
             if (component == null)

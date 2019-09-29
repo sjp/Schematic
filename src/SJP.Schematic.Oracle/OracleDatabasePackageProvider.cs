@@ -46,11 +46,13 @@ namespace SJP.Schematic.Oracle
                 var specLines = namedPackage
                     .Where(p => p.RoutineType == PackageObjectType)
                     .OrderBy(p => p.LineNumber)
-                    .Select(p => p.Text);
+                    .Where(p => p.Text != null)
+                    .Select(p => p.Text!);
                 var bodyLines = namedPackage
                     .Where(p => p.RoutineType == PackageBodyObjectType)
                     .OrderBy(p => p.LineNumber)
-                    .Select(p => p.Text);
+                    .Where(p => p.Text != null)
+                    .Select(p => p.Text!);
 
                 var spec = specLines.Join(string.Empty);
                 var body = bodyLines.Any()
@@ -152,12 +154,14 @@ where OWNER = :SchemaName and OBJECT_NAME = :PackageName
                 var spec = lines
                     .Where(p => p.SourceType == PackageObjectType)
                     .OrderBy(p => p.LineNumber)
-                    .Select(p => p.Text)
+                    .Where(p => p.Text != null)
+                    .Select(p => p.Text!)
                     .Join(string.Empty);
                 var bodyLines = lines
                     .Where(p => p.SourceType == PackageBodyObjectType)
                     .OrderBy(p => p.LineNumber)
-                    .Select(p => p.Text);
+                    .Where(p => p.Text != null)
+                    .Select(p => p.Text!);
 
                 var body = bodyLines.Any()
                     ? Option<string>.Some(bodyLines.Join(string.Empty))
@@ -179,12 +183,14 @@ where OWNER = :SchemaName and OBJECT_NAME = :PackageName
                 var spec = lines
                     .Where(p => p.SourceType == PackageObjectType)
                     .OrderBy(p => p.LineNumber)
-                    .Select(p => p.Text)
+                    .Where(p => p.Text != null)
+                    .Select(p => p.Text!)
                     .Join(string.Empty);
                 var bodyLines = lines
                     .Where(p => p.SourceType == PackageBodyObjectType)
                     .OrderBy(p => p.LineNumber)
-                    .Select(p => p.Text);
+                    .Where(p => p.Text != null)
+                    .Select(p => p.Text!);
 
                 var body = bodyLines.Any()
                     ? Option<string>.Some(bodyLines.Join(string.Empty))

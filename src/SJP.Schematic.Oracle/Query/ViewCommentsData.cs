@@ -2,6 +2,6 @@
 {
     internal class ViewCommentsData : CommentsData
     {
-        public string ColumnName { get; set; }
+        public string? ColumnName { get; set; }
     }
 }

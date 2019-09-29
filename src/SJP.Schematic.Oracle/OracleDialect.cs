@@ -72,10 +72,15 @@ namespace SJP.Schematic.Oracle
         public override async Task<IIdentifierDefaults> GetIdentifierDefaultsAsync(CancellationToken cancellationToken = default)
         {
             var hostInfoOption = Connection.QueryFirstOrNone<DatabaseHost>(IdentifierDefaultsQuerySql, cancellationToken);
-            var qualifiedServerName = await hostInfoOption.MatchUnsafe(
-                dbHost => dbHost.ServerHost + "/" + dbHost.ServerSid,
-                () => null
-            ).ConfigureAwait(false);
+            var qualifiedServerName = await hostInfoOption
+                .Bind(dbHost => dbHost.ServerHost != null && dbHost.ServerSid != null
+                    ? OptionAsync<DatabaseHost>.Some(dbHost)
+                    : OptionAsync<DatabaseHost>.None
+                )
+                .MatchUnsafe(
+                    dbHost => dbHost.ServerHost + "/" + dbHost.ServerSid,
+                    () => (string?)null
+                ).ConfigureAwait(false);
             var dbName = await hostInfoOption.MatchUnsafe(h => h.DatabaseName, () => null).ConfigureAwait(false);
             var defaultSchema = await hostInfoOption.MatchUnsafe(h => h.DefaultSchema, () => null).ConfigureAwait(false);
 
@@ -106,11 +111,11 @@ from DUAL";
                 .Bind(dbv => TryParseLongVersionString(dbv.VersionNumber).ToAsync())
                 .MatchUnsafeAsync(
                     v => v,
-                    () => Task.FromResult<Version>(null)
+                    () => Task.FromResult(new Version("0"))
                 );
         }
 
-        private static Option<Version> TryParseLongVersionString(string version)
+        private static Option<Version> TryParseLongVersionString(string? version)
         {
             if (version.IsNullOrWhiteSpace())
                 return Option<Version>.None;

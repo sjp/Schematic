@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.IO;
 using System.IO.Compression;
@@ -22,7 +23,7 @@ namespace SJP.Schematic.Oracle
         /// <param name="input">A potentially wrapped routine definition.</param>
         /// <param name="unwrapped">If successful, the unwrapped routine definition.</param>
         /// <returns><code>true</code> if unwrapping was successful, <code>false</code> otherwise.</returns>
-        public static bool TryUnwrap(string input, out string unwrapped)
+        public static bool TryUnwrap(string input, [NotNullWhen(true)] out string? unwrapped)
         {
             if (input == null || !TryGetPayload(input, out var payload))
             {
@@ -99,7 +100,7 @@ namespace SJP.Schematic.Oracle
             return TryGetPayload(input, out _);
         }
 
-        private static bool TryGetPayload(string input, out string payload)
+        private static bool TryGetPayload(string input, [NotNullWhen(true)] out string? payload)
         {
             if (input == null)
                 throw new ArgumentNullException(nameof(input));

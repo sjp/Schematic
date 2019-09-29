@@ -20,8 +20,9 @@ namespace SJP.Schematic.Oracle
 
             var schemaNames = GetResolutionOrder(identifier.Schema);
 
-            var hasLowerDatabase = identifier.Database != null && identifier.Database.Any(char.IsLower);
-            var database = hasLowerDatabase ? identifier.Database.ToUpperInvariant() : identifier.Database;
+            var database = identifier.Database != null && identifier.Database.Any(char.IsLower)
+                ? identifier.Database.ToUpperInvariant()
+                : identifier.Database;
 
             var server = identifier.Server;
 

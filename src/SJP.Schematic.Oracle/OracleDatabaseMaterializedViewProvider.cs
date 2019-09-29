@@ -159,7 +159,10 @@ where OWNER = :SchemaName and MVIEW_NAME = :ViewName";
                 cancellationToken
             ).ConfigureAwait(false);
 
-            var columnNames = query.Select(row => row.ColumnName).ToList();
+            var columnNames = query
+                .Where(row => row.ColumnName != null)
+                .Select(row => row.ColumnName!)
+                .ToList();
             var notNullableColumnNames = await GetNotNullConstrainedColumnsAsync(viewName, columnNames, cancellationToken).ConfigureAwait(false);
             var result = new List<IDatabaseColumn>();
 
@@ -237,8 +240,8 @@ order by atc.COLUMN_ID";
                 .ToDictionary();
 
             return checks
-                .Where(c => columnNotNullConstraints.ContainsKey(c.Definition) && c.EnabledStatus == EnabledValue)
-                .Select(c => columnNotNullConstraints[c.Definition])
+                .Where(c => c.Definition != null && columnNotNullConstraints.ContainsKey(c.Definition) && c.EnabledStatus == EnabledValue)
+                .Select(c => columnNotNullConstraints[c.Definition!])
                 .ToList();
         }
 

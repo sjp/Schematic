@@ -43,7 +43,10 @@ namespace SJP.Schematic.Oracle
             {
                 var name = Identifier.CreateQualifiedIdentifier(IdentifierDefaults.Server, IdentifierDefaults.Database, namedRoutine.Key.SchemaName, namedRoutine.Key.RoutineName);
 
-                var lines = namedRoutine.OrderBy(r => r.LineNumber).Select(r => r.Text);
+                var lines = namedRoutine
+                    .OrderBy(r => r.LineNumber)
+                    .Where(r => r.Text != null)
+                    .Select(r => r.Text!);
                 var definition = lines.Join(string.Empty);
                 var unwrappedDefinition = OracleUnwrapper.Unwrap(definition);
 
@@ -151,7 +154,7 @@ where OWNER = :SchemaName and OBJECT_NAME = :RoutineName
                 ).ConfigureAwait(false);
 
                 if (userLines.Empty())
-                    return null;
+                    return string.Empty;
 
                 var userDefinition = userLines.Join(string.Empty);
                 return OracleUnwrapper.Unwrap(userDefinition);
@@ -164,7 +167,7 @@ where OWNER = :SchemaName and OBJECT_NAME = :RoutineName
             ).ConfigureAwait(false);
 
             if (lines.Empty())
-                return null;
+                return string.Empty;
 
             var definition = lines.Join(string.Empty);
             return OracleUnwrapper.Unwrap(definition);

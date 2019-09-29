@@ -8,7 +8,7 @@ namespace SJP.Schematic.Oracle
 {
     public sealed class OracleDependencyProvider : IDependencyProvider
     {
-        public OracleDependencyProvider(IEqualityComparer<Identifier> comparer = null)
+        public OracleDependencyProvider(IEqualityComparer<Identifier>? comparer = null)
         {
             Comparer = comparer ?? IdentifierComparer.Ordinal;
         }

@@ -9,7 +9,7 @@ namespace SJP.Schematic.Oracle
 {
     public sealed class OracleExpressionComparer : IEqualityComparer<string>
     {
-        public OracleExpressionComparer(IEqualityComparer<string> comparer = null, IEqualityComparer<string> sqlStringComparer = null)
+        public OracleExpressionComparer(IEqualityComparer<string>? comparer = null, IEqualityComparer<string>? sqlStringComparer = null)
         {
             Comparer = comparer ?? StringComparer.Ordinal;
             SqlStringComparer = sqlStringComparer ?? StringComparer.Ordinal;
