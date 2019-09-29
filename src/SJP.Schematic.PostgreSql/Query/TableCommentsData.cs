@@ -2,8 +2,8 @@
 {
     internal class TableCommentsData : CommentsData
     {
-        public string TableName { get; set; }
+        public string? TableName { get; set; }
 
-        public string ObjectType { get; set; }
+        public string? ObjectType { get; set; }
     }
 }

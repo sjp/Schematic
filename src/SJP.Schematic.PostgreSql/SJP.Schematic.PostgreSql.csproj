@@ -5,6 +5,7 @@
     <Description>PostgreSQL database metadata and migration provider for SJP.Schematic</Description>
     <IncludeSymbols>true</IncludeSymbols>
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+    <Nullable>enable</Nullable>
   </PropertyGroup>
 
   <ItemGroup>

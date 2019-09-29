@@ -20,8 +20,9 @@ namespace SJP.Schematic.PostgreSql
 
             var schemaNames = GetResolutionOrder(identifier.Schema);
 
-            var hasUpperDatabase = identifier.Database != null && identifier.Database.Any(char.IsUpper);
-            var database = hasUpperDatabase ? identifier.Database.ToLowerInvariant() : identifier.Database;
+            var database = identifier.Database != null && identifier.Database.Any(char.IsUpper)
+                ? identifier.Database.ToLowerInvariant()
+                : identifier.Database;
 
             var server = identifier.Server;
 

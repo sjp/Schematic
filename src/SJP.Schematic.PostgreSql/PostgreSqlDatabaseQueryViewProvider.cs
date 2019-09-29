@@ -162,7 +162,9 @@ where table_schema = @SchemaName and table_name = @ViewName";
                 var typeMetadata = new ColumnTypeMetadata
                 {
                     TypeName = Identifier.CreateQualifiedIdentifier(row.data_type),
-                    Collation = row.collation_name.IsNullOrWhiteSpace() ? null : Identifier.CreateQualifiedIdentifier(row.collation_catalog, row.collation_schema, row.collation_name),
+                    Collation = !row.collation_name.IsNullOrWhiteSpace()
+                        ? Option<Identifier>.Some(Identifier.CreateQualifiedIdentifier(row.collation_catalog, row.collation_schema, row.collation_name))
+                        : Option<Identifier>.None,
                     //TODO -- need to fix max length as it's different for char-like objects and numeric
                     //MaxLength = row.,
                     // TODO: numeric_precision has a base, can be either binary or decimal, need to use the correct one

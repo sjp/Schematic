@@ -51,18 +51,21 @@ namespace SJP.Schematic.PostgreSql.Versions.V11
 
                 var indexCols = indexInfo
                     .OrderBy(row => row.IndexColumnId)
+                    .Where(row => row.IndexColumnExpression != null)
                     .Select(row => new
                     {
                         row.IsDescending,
                         Expression = row.IndexColumnExpression,
-                        Column = columns.ContainsKey(row.IndexColumnExpression) ? columns[row.IndexColumnExpression] : null
+                        Column = row.IndexColumnExpression != null && columns.ContainsKey(row.IndexColumnExpression)
+                            ? columns[row.IndexColumnExpression]
+                            : null
                     })
                     .Select(row =>
                     {
                         var order = row.IsDescending ? IndexColumnOrder.Descending : IndexColumnOrder.Ascending;
                         var expression = row.Column != null
                             ? Dialect.QuoteName(row.Column.Name)
-                            : row.Expression;
+                            : row.Expression!;
                         return row.Column != null
                             ? new PostgreSqlDatabaseIndexColumn(expression, row.Column, order)
                             : new PostgreSqlDatabaseIndexColumn(expression, order);
@@ -72,7 +75,8 @@ namespace SJP.Schematic.PostgreSql.Versions.V11
                 var includedCols = indexInfo
                     .OrderBy(row => row.IndexColumnId)
                     .Skip(indexInfo.Key.KeyColumnCount)
-                    .Select(row => columns[row.IndexColumnExpression])
+                    .Where(row => row.IndexColumnExpression != null && columns.ContainsKey(row.IndexColumnExpression))
+                    .Select(row => columns[row.IndexColumnExpression!])
                     .ToList();
 
                 var index = new PostgreSqlDatabaseIndex(indexName, isUnique, indexCols, includedCols);

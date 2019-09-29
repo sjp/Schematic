@@ -2,9 +2,9 @@
 {
     internal class SequenceData
     {
-        public string SchemaName { get; set; }
+        public string? SchemaName { get; set; }
 
-        public string SequenceName { get; set; }
+        public string? SequenceName { get; set; }
 
         public int CacheSize { get; set; }
 

@@ -40,7 +40,9 @@ namespace SJP.Schematic.PostgreSql.Versions.V10
                 var typeMetadata = new ColumnTypeMetadata
                 {
                     TypeName = Identifier.CreateQualifiedIdentifier(Constants.PgCatalog, row.data_type),
-                    Collation = row.collation_name.IsNullOrWhiteSpace() ? null : Identifier.CreateQualifiedIdentifier(row.collation_catalog, row.collation_schema, row.collation_name),
+                    Collation = !row.collation_name.IsNullOrWhiteSpace()
+                        ? Option<Identifier>.Some(Identifier.CreateQualifiedIdentifier(row.collation_catalog, row.collation_schema, row.collation_name))
+                        : Option<Identifier>.None,
                     MaxLength = row.character_maximum_length > 0
                         ? row.character_maximum_length
                         : CreatePrecisionFromBase(row.numeric_precision, row.numeric_precision_radix),

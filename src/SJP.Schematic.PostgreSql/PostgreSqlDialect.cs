@@ -61,12 +61,12 @@ select
         public override async Task<Version> GetDatabaseVersionAsync(CancellationToken cancellationToken = default)
         {
             var versionStr = await Connection.ExecuteScalarAsync<string>(DatabaseVersionQuerySql, cancellationToken).ConfigureAwait(false);
-            return ParsePostgresVersionString(versionStr);
+            return ParsePostgresVersionString(versionStr) ?? new Version(0, 0);
         }
 
         private const string DatabaseVersionQuerySql = "select current_setting('server_version_num') as DatabaseVersion";
 
-        private static Version ParsePostgresVersionString(string versionStr)
+        private static Version? ParsePostgresVersionString(string versionStr)
         {
             if (versionStr.IsNullOrWhiteSpace())
                 throw new ArgumentNullException(nameof(versionStr));
@@ -77,7 +77,7 @@ select
         }
 
         // for v10 or newer
-        private static Version ParseNewPostgresVersionString(string versionStr)
+        private static Version? ParseNewPostgresVersionString(string versionStr)
         {
             if (versionStr.IsNullOrWhiteSpace())
                 throw new ArgumentNullException(nameof(versionStr));
@@ -95,7 +95,7 @@ select
         }
 
         // for v9 or older
-        private static Version ParseOldPostgresVersionString(string versionStr)
+        private static Version? ParseOldPostgresVersionString(string versionStr)
         {
             if (versionStr.IsNullOrWhiteSpace())
                 throw new ArgumentNullException(nameof(versionStr));

@@ -172,10 +172,14 @@ limit 1";
             var groupedByName = primaryKeyColumns.GroupBy(row => new { row.ConstraintName });
             var firstRow = groupedByName.First();
             var constraintName = firstRow.Key.ConstraintName;
+            if (constraintName == null)
+                return Option<IDatabaseKey>.None;
 
             var keyColumns = groupedByName
                 .Where(row => row.Key.ConstraintName == constraintName)
-                .SelectMany(g => g.OrderBy(row => row.OrdinalPosition).Select(row => columns[row.ColumnName]))
+                .SelectMany(g => g.OrderBy(row => row.OrdinalPosition)
+                    .Where(row => row.ColumnName != null && columns.ContainsKey(row.ColumnName))
+                    .Select(row => columns[row.ColumnName!]))
                 .ToList();
 
             var primaryKey = new PostgreSqlDatabaseKey(constraintName, DatabaseKeyType.Primary, keyColumns);
@@ -230,11 +234,14 @@ where tc.table_schema = @SchemaName and tc.table_name = @TableName
 
                 var indexCols = indexInfo
                     .OrderBy(row => row.IndexColumnId)
+                    .Where(row => row.IndexColumnExpression != null)
                     .Select(row => new
                     {
                         row.IsDescending,
                         Expression = row.IndexColumnExpression,
-                        Column = columns.ContainsKey(row.IndexColumnExpression) ? columns[row.IndexColumnExpression] : null
+                        Column = row.IndexColumnExpression != null && columns.ContainsKey(row.IndexColumnExpression)
+                            ? columns[row.IndexColumnExpression]
+                            : null
                     })
                     .Select(row =>
                     {
@@ -243,8 +250,8 @@ where tc.table_schema = @SchemaName and tc.table_name = @TableName
                             ? Dialect.QuoteName(row.Column.Name)
                             : row.Expression;
                         return row.Column != null
-                            ? new PostgreSqlDatabaseIndexColumn(expression, row.Column, order)
-                            : new PostgreSqlDatabaseIndexColumn(expression, order);
+                            ? new PostgreSqlDatabaseIndexColumn(expression!, row.Column, order)
+                            : new PostgreSqlDatabaseIndexColumn(expression!, order);
                     })
                     .ToList();
 
@@ -309,7 +316,11 @@ where
                 .Select(g => new
                 {
                     g.Key.ConstraintName,
-                    Columns = g.OrderBy(row => row.OrdinalPosition).Select(row => columns[row.ColumnName]).ToList(),
+                    Columns = g
+                        .OrderBy(row => row.OrdinalPosition)
+                        .Where(row => row.ColumnName != null && columns.ContainsKey(row.ColumnName))
+                        .Select(row => columns[row.ColumnName!])
+                        .ToList(),
                 })
                 .ToList();
             if (constraintColumns.Empty())
@@ -384,7 +395,7 @@ where tc.table_schema = @SchemaName and tc.table_name = @TableName
             foreach (var groupedChildKey in groupedChildKeys)
             {
                 // ensure we have a key to begin with
-                IDatabaseKey parentKey = null;
+                IDatabaseKey? parentKey = null;
                 if (groupedChildKey.Key.ParentKeyType == Constants.PrimaryKeyType)
                     primaryKey.IfSome(k => parentKey = k);
                 else if (uniqueKeys.ContainsKey(groupedChildKey.Key.ParentKeyName))
@@ -479,8 +490,11 @@ where pt.relname = @TableName and pns.nspname = @SchemaName";
 
             foreach (var checkRow in checks)
             {
-                var constraintName = Identifier.CreateQualifiedIdentifier(checkRow.ConstraintName);
                 var definition = checkRow.Definition;
+                if (definition.IsNullOrWhiteSpace())
+                    continue;
+
+                var constraintName = Identifier.CreateQualifiedIdentifier(checkRow.ConstraintName);
 
                 var check = new PostgreSqlCheckConstraint(constraintName, definition);
                 result.Add(check);
@@ -600,7 +614,8 @@ where
                         var childKeyName = Identifier.CreateQualifiedIdentifier(fkey.Key.ChildKeyName);
                         var childKeyColumns = fkey
                             .OrderBy(row => row.ConstraintColumnId)
-                            .Select(row => columns[row.ColumnName])
+                            .Where(row => row.ColumnName != null && columns.ContainsKey(row.ColumnName))
+                            .Select(row => columns[row.ColumnName!])
                             .ToList();
 
                         var childKey = new PostgreSqlDatabaseKey(childKeyName, DatabaseKeyType.Foreign, childKeyColumns);
@@ -676,7 +691,9 @@ where t.relname = @TableName and ns.nspname = @SchemaName";
                 var typeMetadata = new ColumnTypeMetadata
                 {
                     TypeName = Identifier.CreateQualifiedIdentifier(Constants.PgCatalog, row.data_type),
-                    Collation = row.collation_name.IsNullOrWhiteSpace() ? null : Identifier.CreateQualifiedIdentifier(row.collation_catalog, row.collation_schema, row.collation_name),
+                    Collation = !row.collation_name.IsNullOrWhiteSpace()
+                        ? Option<Identifier>.Some(Identifier.CreateQualifiedIdentifier(row.collation_catalog, row.collation_schema, row.collation_name))
+                        : Option<Identifier>.None,
                     MaxLength = row.character_maximum_length > 0
                         ? row.character_maximum_length
                         : CreatePrecisionFromBase(row.numeric_precision, row.numeric_precision_radix),
@@ -785,7 +802,7 @@ order by ordinal_position";
                     else if (trigEvent.TriggerEvent == Constants.Delete)
                         events |= TriggerEvent.Delete;
                     else
-                        throw new UnsupportedTriggerEventException(tableName, trigEvent.TriggerEvent);
+                        throw new UnsupportedTriggerEventException(tableName, trigEvent.TriggerEvent ?? string.Empty);
                 }
 
                 var isEnabled = trig.Key.EnabledFlag != Constants.DisabledFlag;
