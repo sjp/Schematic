@@ -14,6 +14,8 @@ namespace SJP.Schematic.Modelled.Reflection.Tests
     [TestFixture]
     internal static class ReflectionTableTests
     {
+        private static IIdentifierDefaults IdentifierDefaults { get; } = new IdentifierDefaults("server", "database", "schema");
+
         [Test]
         public static void Ctor_GivenNullDatabase_ThrowsArgumentNullException()
         {
@@ -50,7 +52,7 @@ namespace SJP.Schematic.Modelled.Reflection.Tests
         [Test]
         public static void Name_PropertyGetOnSimpleClass_ReturnsSameNameAsClass()
         {
-            var database = new ReflectionRelationalDatabase<TestDatabase1>(new FakeDialect());
+            var database = new ReflectionRelationalDatabase<TestDatabase1>(new FakeDialect(), IdentifierDefaults);
             var table = new ReflectionTable(database, typeof(TestTable1));
             Identifier expectedName = nameof(TestTable1);
 
@@ -60,7 +62,7 @@ namespace SJP.Schematic.Modelled.Reflection.Tests
         [Test]
         public static void Columns_GivenTableWithNoColumns_ReturnsEmptyResult()
         {
-            var database = new ReflectionRelationalDatabase<TestDatabase2>(new FakeDialect());
+            var database = new ReflectionRelationalDatabase<TestDatabase2>(new FakeDialect(), IdentifierDefaults);
             var table = new ReflectionTable(database, typeof(TestTable2));
             var columns = table.Columns;
             var count = columns.Count;
@@ -71,7 +73,7 @@ namespace SJP.Schematic.Modelled.Reflection.Tests
         [Test]
         public static void Columns_GivenTableWithOneColumn_ReturnsOneResult()
         {
-            var database = new ReflectionRelationalDatabase<TestDatabase1>(new FakeDialect());
+            var database = new ReflectionRelationalDatabase<TestDatabase1>(new FakeDialect(), IdentifierDefaults);
             var table = new ReflectionTable(database, typeof(TestTable1));
             var columns = table.Columns;
             var count = columns.Count;
@@ -82,7 +84,7 @@ namespace SJP.Schematic.Modelled.Reflection.Tests
         [Test]
         public static void Columns_GivenTableWithOneColumn_ReturnsColumnWithCorrectName()
         {
-            var database = new ReflectionRelationalDatabase<TestDatabase1>(new FakeDialect());
+            var database = new ReflectionRelationalDatabase<TestDatabase1>(new FakeDialect(), IdentifierDefaults);
             var table = new ReflectionTable(database, typeof(TestTable1));
             var columns = table.Columns;
             var column = columns.Single();
