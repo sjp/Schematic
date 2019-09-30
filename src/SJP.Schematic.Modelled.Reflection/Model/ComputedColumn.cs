@@ -16,7 +16,7 @@ namespace SJP.Schematic.Modelled.Reflection.Model
             Expression = new ModelledSqlExpression(expression, param);
         }
 
-        public virtual Type DeclaredDbType { get; }
+        public virtual Type DeclaredDbType { get; } = typeof(object);
 
         public IModelledSqlExpression Expression { get; }
 
@@ -24,6 +24,6 @@ namespace SJP.Schematic.Modelled.Reflection.Model
 
         public virtual bool IsNullable { get; } = true;
 
-        public PropertyInfo Property { get; set; }
+        public PropertyInfo? Property { get; set; }
     }
 }

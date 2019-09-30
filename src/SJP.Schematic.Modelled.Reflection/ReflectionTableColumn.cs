@@ -25,9 +25,8 @@ namespace SJP.Schematic.Modelled.Reflection
             var columnType = new ReflectionColumnDataType(dialect, declaredColumnType, clrType);
             var autoIncrAttr = dialect.GetDialectAttribute<AutoIncrementAttribute>(declaredColumnType)
                 ?? dialect.GetDialectAttribute<AutoIncrementAttribute>(prop);
-            var isDeclaredAutoIncrement = autoIncrAttr != null;
 
-            if (isDeclaredAutoIncrement)
+            if (autoIncrAttr != null)
             {
                 if (!ValidAutoIncrementTypes.Contains(columnType.DataType))
                     throw new ArgumentNullException($"The column { prop.ReflectedType.FullName }.{ prop.Name } is declared as being auto incrementing, which is not supported on a '{ columnType.DataType.ToString() }' data type.", nameof(declaredColumnType));
@@ -42,8 +41,6 @@ namespace SJP.Schematic.Modelled.Reflection
         public bool IsNullable { get; }
 
         public Identifier Name { get; }
-
-        public IRelationalDatabaseTable Table { get; }
 
         public IDbType Type { get; }
 
@@ -66,7 +63,7 @@ namespace SJP.Schematic.Modelled.Reflection
             var dbTypeInterface = columnTypeInfo.ImplementedInterfaces
                 .SingleOrDefault(iface => iface.IsGenericType && iface.GetGenericTypeDefinition() == ModelledTypeInterface);
 
-            return dbTypeInterface?.GetTypeInfo()?.GetGenericArguments()?.Single();
+            return dbTypeInterface?.GetTypeInfo()?.GetGenericArguments()?.Single() ?? typeof(object);
         }
 
         protected static Type ModelledTypeInterface { get; } = typeof(IDbType<>);

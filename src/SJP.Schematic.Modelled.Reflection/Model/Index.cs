@@ -56,7 +56,7 @@ namespace SJP.Schematic.Modelled.Reflection.Model
             return new Index(this, includedColumns);
         }
 
-        public PropertyInfo Property { get; set; }
+        public PropertyInfo? Property { get; set; }
 
         public IEnumerable<IModelledIndexColumn> Columns { get; }
 

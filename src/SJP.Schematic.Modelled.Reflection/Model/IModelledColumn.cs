@@ -11,6 +11,6 @@ namespace SJP.Schematic.Modelled.Reflection.Model
 
         bool IsNullable { get; }
 
-        PropertyInfo Property { get; set; }
+        PropertyInfo? Property { get; set; }
     }
 }

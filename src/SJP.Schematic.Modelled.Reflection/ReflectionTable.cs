@@ -65,7 +65,7 @@ namespace SJP.Schematic.Modelled.Reflection
                 var parentTypeProvider = new ReflectionTableTypeProvider(Dialect, declaredParentKey.TargetType);
                 var parentInstance = parentTypeProvider.TableInstance;
                 var keyObject = declaredParentKey.KeySelector(parentInstance);
-                var parentKeyName = Dialect.GetAliasOrDefault(keyObject.Property);
+                var parentKeyName = Dialect.GetAliasOrDefault(keyObject.Property!);
 
                 IDatabaseKey parentKey;
                 if (keyObject.KeyType == DatabaseKeyType.Primary)
@@ -89,13 +89,13 @@ namespace SJP.Schematic.Modelled.Reflection
                 // check that columns match up with parent key -- otherwise will fail
                 // TODO: don't assume that the FK is to a table -- could be to a synonym
                 //       maybe change interface of Synonym<T> to be something like Synonym<Table<T>> or Synonym<Synonym<T>> -- could unwrap at runtime?
-                var childKeyName = Dialect.GetAliasOrDefault(declaredParentKey.Property);
+                var childKeyName = Dialect.GetAliasOrDefault(declaredParentKey.Property!);
                 var childKey = new ReflectionForeignKey(childKeyName, parentKey, fkColumns);
 
-                var deleteAttr = Dialect.GetDialectAttribute<OnDeleteActionAttribute>(declaredParentKey.Property);
+                var deleteAttr = Dialect.GetDialectAttribute<OnDeleteActionAttribute>(declaredParentKey.Property!);
                 var deleteAction = deleteAttr?.Action ?? ReferentialAction.NoAction;
 
-                var updateAttr = Dialect.GetDialectAttribute<OnUpdateActionAttribute>(declaredParentKey.Property);
+                var updateAttr = Dialect.GetDialectAttribute<OnUpdateActionAttribute>(declaredParentKey.Property!);
                 var updateAction = updateAttr?.Action ?? ReferentialAction.NoAction;
 
                 childKey.Name.IfSome(name => result[name.LocalName] = new ReflectionRelationalKey(Name, childKey, parent.Name, parentKey, deleteAction, updateAction));
@@ -115,13 +115,13 @@ namespace SJP.Schematic.Modelled.Reflection
         {
             if (column.IsComputed && column is IModelledComputedColumn computedColumn)
             {
-                var computedName = Dialect.GetAliasOrDefault(computedColumn.Property);
+                var computedName = Dialect.GetAliasOrDefault(computedColumn.Property!);
                 var definition = computedColumn.Expression.ToSql(Dialect);
                 return new ReflectionTableComputedColumn(Dialect, this, computedName, definition);
             }
             else
             {
-                return new ReflectionTableColumn(Dialect, column.Property, column.DeclaredDbType, column.IsNullable);
+                return new ReflectionTableColumn(Dialect, column.Property!, column.DeclaredDbType, column.IsNullable);
             }
         }
 
@@ -130,10 +130,13 @@ namespace SJP.Schematic.Modelled.Reflection
         private Option<IDatabaseKey> LoadPrimaryKey()
         {
             var primaryKey = TypeProvider.PrimaryKey;
+            if (primaryKey == null)
+                return Option<IDatabaseKey>.None;
+
             var dialect = Database.Dialect;
             var pkColumns = primaryKey.Columns.Select(GetColumn).ToList();
 
-            var keyName = dialect.GetAliasOrDefault(primaryKey.Property);
+            var keyName = dialect.GetAliasOrDefault(primaryKey.Property!);
             var dbKey = new ReflectionKey(keyName, primaryKey.KeyType, pkColumns);
             return Option<IDatabaseKey>.Some(dbKey);
         }
@@ -162,7 +165,7 @@ namespace SJP.Schematic.Modelled.Reflection
             foreach (var uniqueKey in uniqueKeys)
             {
                 var ukColumns = uniqueKey.Columns.Select(GetColumn).ToList();
-                var keyName = Dialect.GetAliasOrDefault(uniqueKey.Property);
+                var keyName = Dialect.GetAliasOrDefault(uniqueKey.Property!);
                 var uk = new ReflectionKey(keyName, uniqueKey.KeyType, ukColumns);
                 uk.Name.IfSome(name => result[name.LocalName] = uk);
             }
@@ -178,7 +181,7 @@ namespace SJP.Schematic.Modelled.Reflection
             foreach (var modelledCheck in TypeProvider.Checks)
             {
                 var definition = modelledCheck.Expression.ToSql(dialect);
-                var checkName = dialect.GetAliasOrDefault(modelledCheck.Property);
+                var checkName = dialect.GetAliasOrDefault(modelledCheck.Property!);
                 var check = new ReflectionCheckConstraint(checkName, definition);
                 check.Name.IfSome(name => result[name.LocalName] = check);
             }
@@ -202,7 +205,7 @@ namespace SJP.Schematic.Modelled.Reflection
 
         public Option<IDatabaseKey> PrimaryKey => _primaryKey.Value;
 
-        public IReadOnlyCollection<IDatabaseTrigger> Triggers { get; }
+        public IReadOnlyCollection<IDatabaseTrigger> Triggers { get; } = Array.Empty<IDatabaseTrigger>();
 
         public IReadOnlyCollection<IDatabaseKey> UniqueKeys => _uniqueKeyLookup.Value.Values.ToList();
 

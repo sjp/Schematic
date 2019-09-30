@@ -21,9 +21,9 @@ namespace SJP.Schematic.Modelled.Reflection
 
             IsUnique = index.IsUnique;
 
-            Name = dialect.GetAliasOrDefault(index.Property);
+            Name = dialect.GetAliasOrDefault(index.Property!);
 
-            var tableType = index.Property.ReflectedType;
+            var tableType = index.Property!.ReflectedType;
             var propertyLookup = tableType.GetProperties()
                 .Select(p => new KeyValuePair<string, PropertyInfo>(p.Name, p))
                 .ToDictionary();
@@ -51,7 +51,7 @@ namespace SJP.Schematic.Modelled.Reflection
                     var tableColumns = indexColumn.Expression.DependentNames
                         .Select(name => propertyLookup.ContainsKey(name.LocalName) ? propertyLookup[name.LocalName] : null)
                         .Where(prop => prop != null)
-                        .Select(prop => dialect.GetAliasOrDefault(prop))
+                        .Select(prop => dialect.GetAliasOrDefault(prop!))
                         .Select(name => tableColumnLookup[name])
                         .ToList();
 
@@ -63,7 +63,7 @@ namespace SJP.Schematic.Modelled.Reflection
 
             foreach (var includedColumn in index.IncludedColumns)
             {
-                var includedColumnName = dialect.GetAliasOrDefault(includedColumn.Property);
+                var includedColumnName = dialect.GetAliasOrDefault(includedColumn.Property!);
                 var column = tableColumnLookup[includedColumnName];
                 includedColumns.Add(column);
             }

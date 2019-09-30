@@ -21,7 +21,7 @@ namespace SJP.Schematic.Modelled.Reflection.Model
             {
                 var nullableColumns = columns
                     .Where(c => c.IsNullable)
-                    .Select(c => c.Property.Name)
+                    .Select(c => c.Property!.Name)
                     .ToList();
 
                 if (nullableColumns.Count > 0)

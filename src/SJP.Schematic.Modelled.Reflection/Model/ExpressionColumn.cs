@@ -12,7 +12,7 @@ namespace SJP.Schematic.Modelled.Reflection.Model
 
         public static implicit operator ExpressionColumn(ModelledColumn input)
         {
-            return new ExpressionColumn(Sql.Identity(input.Property.Name));
+            return new ExpressionColumn(Sql.Identity(input.Property!.Name));
         }
 
         public static implicit operator ExpressionColumn(ModelledSqlExpression expression)

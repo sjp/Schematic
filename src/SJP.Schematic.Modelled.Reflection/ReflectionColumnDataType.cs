@@ -28,7 +28,9 @@ namespace SJP.Schematic.Modelled.Reflection
             var typeMetadata = new ColumnTypeMetadata
             {
                 ClrType = clrType,
-                Collation = collationAttr?.CollationName,
+                Collation = collationAttr?.CollationName != null
+                    ? Option<Identifier>.Some(collationAttr.CollationName)
+                    : Option<Identifier>.None,
                 DataType = attr.DataType,
                 IsFixedLength = attr.IsFixedLength,
                 MaxLength = attr.Length,

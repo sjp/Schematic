@@ -26,18 +26,18 @@ namespace SJP.Schematic.Modelled.Reflection
             var dialect = database.Dialect;
             var sequenceName = dialect.GetQualifiedNameOrDefault(database, sequenceType);
 
-            var minValue = instance.MinValue.ToOption();
-            var maxValue = instance.MaxValue.ToOption();
+            var minValue = instance!.MinValue.ToOption();
+            var maxValue = instance!.MaxValue.ToOption();
 
             // create an inner sequence, which will perform validation
             var sequence = new DatabaseSequence(
                 sequenceName,
-                instance.Start,
-                instance.Increment,
+                instance!.Start,
+                instance!.Increment,
                 minValue,
                 maxValue,
-                instance.Cycle,
-                instance.Cache
+                instance!.Cycle,
+                instance!.Cache
             );
 
             Cache = sequence.Cache;

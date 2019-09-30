@@ -5,7 +5,7 @@ namespace SJP.Schematic.Modelled.Reflection.Model
 {
     public interface IModelledIndex
     {
-        PropertyInfo Property { get; set; }
+        PropertyInfo? Property { get; set; }
 
         bool IsUnique { get; }
 

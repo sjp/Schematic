@@ -24,6 +24,6 @@ namespace SJP.Schematic.Modelled.Reflection.Model
 
         public DatabaseKeyType KeyType { get; }
 
-        public PropertyInfo Property { get; set; }
+        public PropertyInfo? Property { get; set; }
     }
 }

@@ -42,11 +42,11 @@ namespace SJP.Schematic.Modelled.Reflection
         // represents an unknown datatype
         protected sealed class ReflectionComputedColumnDataType : IDbType
         {
-            public Identifier TypeName { get; }
+            public Identifier TypeName { get; } = new Identifier("unknown");
 
             public DataType DataType { get; }
 
-            public string Definition { get; }
+            public string Definition { get; } = string.Empty;
 
             public Option<INumericPrecision> NumericPrecision { get; } = Option<INumericPrecision>.None;
 

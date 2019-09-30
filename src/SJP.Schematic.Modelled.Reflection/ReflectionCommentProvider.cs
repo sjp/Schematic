@@ -59,7 +59,7 @@ namespace SJP.Schematic.Modelled.Reflection
         /// <param name="constructorInfo">A constructor.</param>
         /// <returns>A comment for <paramref name="constructorInfo"/> if available, otherwise <c>null</c>.</returns>
         /// <exception cref="ArgumentNullException"><paramref name="type"/> is <c>null</c>.</exception>
-        public string GetComment(ConstructorInfo constructorInfo)
+        public string? GetComment(ConstructorInfo constructorInfo)
         {
             if (constructorInfo == null)
                 throw new ArgumentNullException(nameof(constructorInfo));
@@ -74,7 +74,7 @@ namespace SJP.Schematic.Modelled.Reflection
         /// <param name="eventInfo">An event.</param>
         /// <returns>A comment for <paramref name="eventInfo"/> if available, otherwise <c>null</c>.</returns>
         /// <exception cref="ArgumentNullException"><paramref name="eventInfo"/> is <c>null</c>.</exception>
-        public string GetComment(EventInfo eventInfo)
+        public string? GetComment(EventInfo eventInfo)
         {
             if (eventInfo == null)
                 throw new ArgumentNullException(nameof(eventInfo));
@@ -89,7 +89,7 @@ namespace SJP.Schematic.Modelled.Reflection
         /// <param name="fieldInfo">A field.</param>
         /// <returns>A comment for <paramref name="fieldInfo"/> if available, otherwise <c>null</c>.</returns>
         /// <exception cref="ArgumentNullException"><paramref name="fieldInfo"/> is <c>null</c>.</exception>
-        public string GetComment(FieldInfo fieldInfo)
+        public string? GetComment(FieldInfo fieldInfo)
         {
             if (fieldInfo == null)
                 throw new ArgumentNullException(nameof(fieldInfo));
@@ -104,7 +104,7 @@ namespace SJP.Schematic.Modelled.Reflection
         /// <param name="methodInfo">A method.</param>
         /// <returns>A comment for <paramref name="methodInfo"/> if available, otherwise <c>null</c>.</returns>
         /// <exception cref="ArgumentNullException"><paramref name="methodInfo"/> is <c>null</c>.</exception>
-        public string GetComment(MethodInfo methodInfo)
+        public string? GetComment(MethodInfo methodInfo)
         {
             if (methodInfo == null)
                 throw new ArgumentNullException(nameof(methodInfo));
@@ -119,7 +119,7 @@ namespace SJP.Schematic.Modelled.Reflection
         /// <param name="propertyInfo">A property.</param>
         /// <returns>A comment for <paramref name="propertyInfo"/> if available, otherwise <c>null</c>.</returns>
         /// <exception cref="ArgumentNullException"><paramref name="propertyInfo"/> is <c>null</c>.</exception>
-        public string GetComment(PropertyInfo propertyInfo)
+        public string? GetComment(PropertyInfo propertyInfo)
         {
             if (propertyInfo == null)
                 throw new ArgumentNullException(nameof(propertyInfo));
@@ -134,7 +134,7 @@ namespace SJP.Schematic.Modelled.Reflection
         /// <param name="type">A type.</param>
         /// <returns>A comment for <paramref name="type"/> if available, otherwise <c>null</c>.</returns>
         /// <exception cref="ArgumentNullException"><paramref name="type"/> is <c>null</c>.</exception>
-        public string GetComment(Type type)
+        public string? GetComment(Type type)
         {
             if (type == null)
                 throw new ArgumentNullException(nameof(type));
@@ -149,7 +149,7 @@ namespace SJP.Schematic.Modelled.Reflection
         /// <param name="identifier">A reflected metadata object identifier</param>
         /// <returns>A comment if available, otherwise <c>null</c>.</returns>
         /// <exception cref="ArgumentNullException"><paramref name="identifier"/> is <c>null</c>, empty or whitespace.</exception>
-        protected string GetCommentByIdentifier(string identifier)
+        protected string? GetCommentByIdentifier(string identifier)
         {
             if (identifier.IsNullOrWhiteSpace())
                 throw new ArgumentNullException(nameof(identifier));

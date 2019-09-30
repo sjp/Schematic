@@ -33,7 +33,7 @@ namespace SJP.Schematic.Modelled.Reflection.Model
                     var targetProp = GetTargetProperty();
                     return obj =>
                     {
-                        var result = _keySelector(obj as T);
+                        var result = _keySelector((T)obj);
                         result.Property = targetProp;
                         return result;
                     };
@@ -45,6 +45,9 @@ namespace SJP.Schematic.Modelled.Reflection.Model
             // a PropertyInfo object on the resulting key before we use it later via reflection.
             private PropertyInfo GetTargetProperty()
             {
+                if (Property == null)
+                    throw new ArgumentException("The property that the foreign key belongs to is not available.", nameof(Property));
+
                 var sourceType = Property.ReflectedType;
                 var sourceAsm = sourceType.Assembly;
                 var sourceAsmName = sourceAsm.GetName();

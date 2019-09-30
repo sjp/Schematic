@@ -93,7 +93,7 @@ namespace SJP.Schematic.Modelled.Reflection.Model
 
         public virtual bool IsFixedLength { get; set; }
 
-        public virtual string TypeName { get; set; }
+        public virtual string TypeName { get; set; } = string.Empty;
 
         protected static readonly int UnknownLength = -1;
     }

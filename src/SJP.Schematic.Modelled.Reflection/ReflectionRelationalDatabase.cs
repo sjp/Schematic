@@ -11,12 +11,11 @@ namespace SJP.Schematic.Modelled.Reflection
 {
     public class ReflectionRelationalDatabase : IRelationalDatabase
     {
-        public ReflectionRelationalDatabase(IDatabaseDialect dialect, Type databaseDefinitionType, string serverName = null, string databaseName = null, string defaultSchema = null)
+        public ReflectionRelationalDatabase(IDatabaseDialect dialect, Type databaseDefinitionType, IIdentifierDefaults identifierDefaults)
         {
             Dialect = dialect ?? throw new ArgumentNullException(nameof(dialect));
             DatabaseDefinitionType = databaseDefinitionType ?? throw new ArgumentNullException(nameof(databaseDefinitionType));
-
-            IdentifierDefaults = new IdentifierDefaults(serverName, databaseName, defaultSchema);
+            IdentifierDefaults = identifierDefaults ?? throw new ArgumentNullException(nameof(identifierDefaults));
 
             TypeProvider = new ReflectionTypeProvider(dialect, databaseDefinitionType);
             EnsureUniqueTypes(DatabaseDefinitionType, TypeProvider);

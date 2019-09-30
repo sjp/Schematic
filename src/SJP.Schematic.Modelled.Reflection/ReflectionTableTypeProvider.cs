@@ -19,7 +19,7 @@ namespace SJP.Schematic.Modelled.Reflection
 
             _columns = new Lazy<IReadOnlyCollection<IModelledColumn>>(LoadColumns);
             _checks = new Lazy<IReadOnlyCollection<IModelledCheckConstraint>>(LoadChecks);
-            _primaryKey = new Lazy<IModelledKey>(LoadPrimaryKey);
+            _primaryKey = new Lazy<IModelledKey?>(LoadPrimaryKey);
             _uniqueKeys = new Lazy<IReadOnlyCollection<IModelledKey>>(LoadUniqueKeys);
             _parentKeys = new Lazy<IReadOnlyCollection<IModelledRelationalKey>>(LoadParentKeys);
             _indexes = new Lazy<IReadOnlyCollection<IModelledIndex>>(LoadIndexes);
@@ -40,7 +40,7 @@ namespace SJP.Schematic.Modelled.Reflection
 
         public IReadOnlyCollection<IModelledCheckConstraint> Checks => _checks.Value;
 
-        public IModelledKey PrimaryKey => _primaryKey.Value;
+        public IModelledKey? PrimaryKey => _primaryKey.Value;
 
         public IReadOnlyCollection<IModelledKey> UniqueKeys => _uniqueKeys.Value;
 
@@ -85,11 +85,11 @@ namespace SJP.Schematic.Modelled.Reflection
         protected virtual IReadOnlyCollection<IModelledColumn> LoadColumns()
         {
             return TableProperties
-                .Where(p => IsColumnProperty(p) || IsComputedColumnProperty(p))
-                .Select(p =>
+                .Where(p => (IsColumnProperty(p) || IsComputedColumnProperty(p)) && p.GetValue(TableInstance) is IModelledColumn)
+                .Select(c =>
                 {
-                    var column = p.GetValue(TableInstance) as IModelledColumn;
-                    column.Property = p;
+                    var column = c.GetValue(TableInstance) as IModelledColumn;
+                    column!.Property = c;
                     return column;
                 })
                 .ToList();
@@ -99,10 +99,11 @@ namespace SJP.Schematic.Modelled.Reflection
         {
             return TableProperties
                 .Where(IsCheckProperty)
+                .Where(p => p.GetValue(TableInstance) is IModelledCheckConstraint)
                 .Select(p =>
                 {
                     var check = p.GetValue(TableInstance) as IModelledCheckConstraint;
-                    check.Property = p;
+                    check!.Property = p;
                     return check;
                 })
                 .ToList();
@@ -112,16 +113,17 @@ namespace SJP.Schematic.Modelled.Reflection
         {
             return TableProperties
                 .Where(IsIndexProperty)
+                .Where(p => p.GetValue(TableInstance) is IModelledIndex)
                 .Select(p =>
                 {
                     var index = p.GetValue(TableInstance) as IModelledIndex;
-                    index.Property = p;
+                    index!.Property = p;
                     return index;
                 })
                 .ToList();
         }
 
-        protected virtual IModelledKey LoadPrimaryKey()
+        protected virtual IModelledKey? LoadPrimaryKey()
         {
             var keyProperties = TableProperties.Where(IsKeyProperty).ToList();
             var primaryKeys = new List<IModelledKey>();
@@ -212,7 +214,7 @@ namespace SJP.Schematic.Modelled.Reflection
 
         private readonly Lazy<IReadOnlyCollection<IModelledColumn>> _columns;
         private readonly Lazy<IReadOnlyCollection<IModelledCheckConstraint>> _checks;
-        private readonly Lazy<IModelledKey> _primaryKey;
+        private readonly Lazy<IModelledKey?> _primaryKey;
         private readonly Lazy<IReadOnlyCollection<IModelledKey>> _uniqueKeys;
         private readonly Lazy<IReadOnlyCollection<IModelledRelationalKey>> _parentKeys;
         private readonly Lazy<IReadOnlyCollection<IModelledIndex>> _indexes;

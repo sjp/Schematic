@@ -18,6 +18,6 @@ namespace SJP.Schematic.Modelled.Reflection.Model
 
         public IModelledSqlExpression Expression { get; }
 
-        public PropertyInfo Property { get; set; }
+        public PropertyInfo? Property { get; set; }
     }
 }

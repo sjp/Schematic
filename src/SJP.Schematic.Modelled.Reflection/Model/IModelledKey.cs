@@ -6,7 +6,7 @@ namespace SJP.Schematic.Modelled.Reflection.Model
 {
     public interface IModelledKey
     {
-        PropertyInfo Property { get; set; }
+        PropertyInfo? Property { get; set; }
 
         DatabaseKeyType KeyType { get; }
 

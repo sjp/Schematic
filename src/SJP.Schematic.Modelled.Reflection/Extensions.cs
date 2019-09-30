@@ -23,7 +23,7 @@ namespace SJP.Schematic.Modelled.Reflection
         /// <returns>The field for an auto-implemented property if it exists.</returns>
         /// <exception cref="ArgumentNullException"><paramref name="property"/> is <c>null</c>.</exception>
         /// <exception cref="ArgumentException"><paramref name="bindingFlags"/> is not a valid enumeration.</exception>
-        public static FieldInfo GetAutoBackingField(this PropertyInfo property, BindingFlags bindingFlags = BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.FlattenHierarchy)
+        public static FieldInfo? GetAutoBackingField(this PropertyInfo property, BindingFlags bindingFlags = BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.FlattenHierarchy)
         {
             if (property == null)
                 throw new ArgumentNullException(nameof(property));
@@ -148,7 +148,7 @@ namespace SJP.Schematic.Modelled.Reflection
         /// <param name="type">The type of object that a schema override attribute may be applied to.</param>
         /// <returns>A schema override for a type if available, otherwise <c>null</c>.</returns>
         /// <exception cref="ArgumentNullException"><paramref name="dialect"/> or <paramref name="type"/> is <c>null</c></exception>
-        public static string GetSchemaOverride(this IDatabaseDialect dialect, Type type)
+        public static string? GetSchemaOverride(this IDatabaseDialect dialect, Type type)
         {
             if (dialect == null)
                 throw new ArgumentNullException(nameof(dialect));

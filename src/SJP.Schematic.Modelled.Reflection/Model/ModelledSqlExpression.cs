@@ -107,7 +107,7 @@ namespace SJP.Schematic.Modelled.Reflection.Model
                         var variableValue = Parameters[UnwrapTokenValue(token)];
                         if (variableValue is IModelledColumn columnObject)
                         {
-                            var columnName = dialect.GetAliasOrDefault(columnObject.Property);
+                            var columnName = dialect.GetAliasOrDefault(columnObject.Property!);
                             yield return dialect.QuoteName(columnName);
                         }
                         else if (variableValue is string stringVal)

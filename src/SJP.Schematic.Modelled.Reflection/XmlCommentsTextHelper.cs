@@ -21,8 +21,7 @@ namespace SJP.Schematic.Modelled.Reflection
         {
             var lines = text.Split('\n');
             var padding = GetCommonLeadingWhitespace(lines);
-
-            var padLen = padding?.Length ?? 0;
+            var padLen = padding.Length;
 
             // remove leading padding from each line
             for (int i = 0, l = lines.Length; i < l; ++i)
@@ -46,14 +45,14 @@ namespace SJP.Schematic.Modelled.Reflection
                 throw new ArgumentException(nameof(lines));
 
             if (lines.Length == 0)
-                return null;
+                return string.Empty;
 
             var nonEmptyLines = lines
                 .Where(x => !string.IsNullOrWhiteSpace(x))
                 .ToArray();
 
             if (nonEmptyLines.Length < 1)
-                return null;
+                return string.Empty;
 
             var padLen = 0;
 
@@ -73,7 +72,7 @@ namespace SJP.Schematic.Modelled.Reflection
             if (padLen > 0)
                 return seed.Substring(0, padLen);
 
-            return null;
+            return string.Empty;
         }
 
         private static string HumanizeRefTags(this string text)
