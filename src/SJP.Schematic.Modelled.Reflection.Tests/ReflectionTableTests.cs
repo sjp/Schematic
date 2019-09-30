@@ -54,9 +54,9 @@ namespace SJP.Schematic.Modelled.Reflection.Tests
         {
             var database = new ReflectionRelationalDatabase<TestDatabase1>(new FakeDialect(), IdentifierDefaults);
             var table = new ReflectionTable(database, typeof(TestTable1));
-            Identifier expectedName = nameof(TestTable1);
+            var expectedName = nameof(TestTable1);
 
-            Assert.AreEqual(expectedName, table.Name);
+            Assert.AreEqual(expectedName, table.Name.LocalName);
         }
 
         [Test]

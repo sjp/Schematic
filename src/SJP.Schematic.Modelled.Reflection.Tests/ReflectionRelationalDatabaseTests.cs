@@ -12,7 +12,7 @@ namespace SJP.Schematic.Modelled.Reflection.Tests
     [TestFixture]
     internal static class ReflectionRelationalDatabaseTests
     {
-        private static IIdentifierDefaults IdentifierDefaults { get; } = new IdentifierDefaults("server", "database", "schema");
+        private static IIdentifierDefaults IdentifierDefaults { get; } = new IdentifierDefaults(null, null, "schema");
 
         [Test]
         public static void CtorT_GivenNullDialect_ThrowsArgumentNullException()
@@ -51,7 +51,8 @@ namespace SJP.Schematic.Modelled.Reflection.Tests
         public static async Task GetTable_WhenTablePresent_ReturnsTable()
         {
             var db = new ReflectionRelationalDatabase<SampleDatabase>(new FakeDialect(), IdentifierDefaults);
-            var tableIsSome = await db.GetTable(nameof(SampleDatabase.TestTable1)).IsSome.ConfigureAwait(false);
+            var lookupName = Identifier.CreateQualifiedIdentifier(IdentifierDefaults.Schema, nameof(SampleDatabase.TestTable1));
+            var tableIsSome = await db.GetTable(lookupName).IsSome.ConfigureAwait(false);
 
             Assert.IsTrue(tableIsSome);
         }
