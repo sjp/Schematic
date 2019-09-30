@@ -1,4 +1,5 @@
 ﻿using System;
+using LanguageExt;
 using SJP.Schematic.Core;
 
 namespace SJP.Schematic.Serialization.Mapping
@@ -13,7 +14,7 @@ namespace SJP.Schematic.Serialization.Mapping
             var columnName = column.Name.ToDto();
             var columnType = column.Type.ToDto();
             var autoIncr = column.AutoIncrement.ToDto();
-            var defaultValue = column.DefaultValue.IfNoneUnsafe((string)null);
+            var defaultValue = (string?)column.DefaultValue;
 
             return new Dto.DatabaseColumn
             {
@@ -34,12 +35,15 @@ namespace SJP.Schematic.Serialization.Mapping
             var name = dto.Name.FromDto();
             var dbType = dto.Type.FromDto();
             var autoIncr = dto.AutoIncrement.FromDto();
+            var def = dto.DefaultValue != null
+                ? Option<string>.Some(dto.DefaultValue)
+                : Option<string>.None;
 
             return new DatabaseColumn(
                 (Identifier)name,
                 dbType,
                 dto.IsNullable,
-                dto.DefaultValue,
+                def,
                 autoIncr
             );
         }

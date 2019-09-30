@@ -5,7 +5,7 @@ namespace SJP.Schematic.Serialization.Mapping
 {
     internal static class AutoIncrementMappingExtensions
     {
-        public static Dto.AutoIncrement ToDto(this Option<IAutoIncrement> autoIncrement)
+        public static Dto.AutoIncrement? ToDto(this Option<IAutoIncrement> autoIncrement)
         {
             return autoIncrement.MatchUnsafe(
                 incr => new Dto.AutoIncrement
@@ -13,11 +13,11 @@ namespace SJP.Schematic.Serialization.Mapping
                     Increment = incr.Increment,
                     InitialValue = incr.InitialValue
                 },
-                () => null
+                () => (Dto.AutoIncrement?)null
             );
         }
 
-        public static Option<IAutoIncrement> FromDto(this Dto.AutoIncrement dto)
+        public static Option<IAutoIncrement> FromDto(this Dto.AutoIncrement? dto)
         {
             return dto == null
                 ? Option<IAutoIncrement>.None

@@ -13,7 +13,7 @@ namespace SJP.Schematic.Serialization.Mapping
                 throw new ArgumentNullException(nameof(key));
 
             var keyColumns = key.Columns.Select(c => c.ToDto()).ToList();
-            var keyName = key.Name.MatchUnsafe(name => name.ToDto(), () => null);
+            var keyName = key.Name.MatchUnsafe(name => name.ToDto(), () => (Dto.Identifier?)null);
 
             return new Dto.DatabaseKey
             {

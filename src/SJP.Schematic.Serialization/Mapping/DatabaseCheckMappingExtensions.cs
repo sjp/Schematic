@@ -10,7 +10,7 @@ namespace SJP.Schematic.Serialization.Mapping
             if (check == null)
                 throw new ArgumentNullException(nameof(check));
 
-            var checkName = check.Name.MatchUnsafe(name => name.ToDto(), () => null);
+            var checkName = check.Name.MatchUnsafe(name => name.ToDto(), () => (Dto.Identifier?)null);
 
             return new Dto.DatabaseCheckConstraint
             {
@@ -24,6 +24,8 @@ namespace SJP.Schematic.Serialization.Mapping
         {
             if (check == null)
                 throw new ArgumentNullException(nameof(check));
+            if (check.Definition == null)
+                throw new ArgumentException("The given check definition is null.", nameof(check));
 
             var checkName = check.Name.FromDto();
             return new DatabaseCheckConstraint(

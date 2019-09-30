@@ -1,14 +1,15 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace SJP.Schematic.Serialization.Dto
 {
     public class DatabaseIndex
     {
-        public Identifier Name { get; set; }
+        public Identifier? Name { get; set; }
 
-        public IEnumerable<DatabaseIndexColumn> Columns { get; set; }
+        public IEnumerable<DatabaseIndexColumn> Columns { get; set; } = Array.Empty<DatabaseIndexColumn>();
 
-        public IEnumerable<DatabaseColumn> IncludedColumns { get; set; }
+        public IEnumerable<DatabaseColumn> IncludedColumns { get; set; } = Array.Empty<DatabaseColumn>();
 
         public bool IsUnique { get; set; }
 

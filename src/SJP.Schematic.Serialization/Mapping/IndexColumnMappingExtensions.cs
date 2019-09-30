@@ -25,6 +25,8 @@ namespace SJP.Schematic.Serialization.Mapping
         {
             if (dto == null)
                 throw new ArgumentNullException(nameof(dto));
+            if (dto.Expression == null)
+                throw new ArgumentException("The given index column expression is null.", nameof(dto));
 
             var columns = dto.DependentColumns.Select(c => c.FromDto()).ToList();
 

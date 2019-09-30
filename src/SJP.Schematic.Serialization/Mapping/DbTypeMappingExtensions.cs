@@ -23,7 +23,7 @@ namespace SJP.Schematic.Serialization.Mapping
             };
         }
 
-        public static IDbType FromDto(this Dto.DbType dto)
+        public static IDbType FromDto(this Dto.DbType? dto)
         {
             if (dto == null)
                 throw new ArgumentNullException(nameof(dto));
@@ -36,7 +36,7 @@ namespace SJP.Schematic.Serialization.Mapping
             return new ColumnDataType(
                 (Identifier)typeName,
                 dto.DataType,
-                dto.Definition,
+                dto.Definition!,
                 clrType,
                 dto.IsFixedLength,
                 dto.MaxLength,

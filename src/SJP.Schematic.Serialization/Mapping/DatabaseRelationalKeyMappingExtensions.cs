@@ -26,15 +26,15 @@ namespace SJP.Schematic.Serialization.Mapping
             };
         }
 
-        public static IDatabaseRelationalKey FromDto(this Dto.DatabaseRelationalKey relationalKey)
+        public static IDatabaseRelationalKey FromDto(this Dto.DatabaseRelationalKey? relationalKey)
         {
             if (relationalKey == null)
                 throw new ArgumentNullException(nameof(relationalKey));
 
             var childTable = relationalKey.ChildTable.FromDto();
-            var childKey = relationalKey.ChildKey.FromDto();
+            var childKey = relationalKey.ChildKey!.FromDto();
             var parentTable = relationalKey.ParentTable.FromDto();
-            var parentKey = relationalKey.ParentKey.FromDto();
+            var parentKey = relationalKey.ParentKey!.FromDto();
 
             return new DatabaseRelationalKey(
                 (Identifier)childTable,

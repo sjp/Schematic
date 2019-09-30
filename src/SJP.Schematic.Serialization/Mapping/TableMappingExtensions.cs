@@ -14,7 +14,7 @@ namespace SJP.Schematic.Serialization.Mapping
 
             var tableName = table.Name.ToDto();
             var columns = table.Columns.Select(c => c.ToDto()).ToList();
-            var primaryKey = table.PrimaryKey.MatchUnsafe(pk => pk.ToDto(), () => null);
+            var primaryKey = table.PrimaryKey.MatchUnsafe(pk => pk.ToDto(), () => (Dto.DatabaseKey?)null);
             var uniqueKeys = table.UniqueKeys.Select(uk => uk.ToDto()).ToList();
             var parentKeys = table.ParentKeys.Select(fk => fk.ToDto()).ToList();
             var childKeys = table.ChildKeys.Select(ck => ck.ToDto()).ToList();

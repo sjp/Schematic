@@ -27,7 +27,7 @@ namespace SJP.Schematic.Serialization.Mapping
             var routineName = routine.Name.FromDto();
             return new DatabaseRoutine(
                 (Identifier)routineName,
-                routine.Definition
+                routine.Definition!
             );
         }
     }

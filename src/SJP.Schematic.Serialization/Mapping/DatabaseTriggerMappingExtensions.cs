@@ -30,7 +30,7 @@ namespace SJP.Schematic.Serialization.Mapping
             var triggerName = trigger.Name.FromDto();
             return new DatabaseTrigger(
                 (Identifier)triggerName,
-                trigger.Definition,
+                trigger.Definition!,
                 trigger.QueryTiming,
                 trigger.TriggerEvent,
                 trigger.IsEnabled

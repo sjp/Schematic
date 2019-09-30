@@ -28,6 +28,8 @@ namespace SJP.Schematic.Serialization.Mapping
         {
             if (dto == null)
                 throw new ArgumentNullException(nameof(dto));
+            if (dto.Definition == null)
+                throw new ArgumentException("The given view definition is null.", nameof(dto));
 
             var viewName = dto.Name.FromDto();
             var columns = dto.Columns.Select(c => c.FromDto()).ToList();

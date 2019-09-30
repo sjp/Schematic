@@ -10,9 +10,11 @@ namespace SJP.Schematic.Serialization
 {
     internal class RelationalDatabase : IRelationalDatabase
     {
+#pragma warning disable CS8618 // Non-nullable field is uninitialized. Consider declaring as nullable.
         public IDatabaseDialect Dialect { get; set; }
 
         public IIdentifierDefaults IdentifierDefaults { get; set; }
+#pragma warning restore CS8618 // Non-nullable field is uninitialized. Consider declaring as nullable.
 
         public IReadOnlyCollection<IRelationalDatabaseTable> Tables
         {

@@ -2,8 +2,8 @@
 {
     public class DatabaseRoutine
     {
-        public Identifier Name { get; set; }
+        public Identifier? Name { get; set; }
 
-        public string Definition { get; set; }
+        public string? Definition { get; set; }
     }
 }
