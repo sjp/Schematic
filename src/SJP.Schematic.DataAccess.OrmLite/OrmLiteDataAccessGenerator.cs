@@ -185,14 +185,14 @@ namespace SJP.Schematic.DataAccess.OrmLite
 
         protected const string ProjectDefinition = @"<Project Sdk=""Microsoft.NET.Sdk"">
     <PropertyGroup>
-        <TargetFramework>netstandard2.0</TargetFramework>
+        <TargetFramework>netstandard2.1</TargetFramework>
         <CheckForOverflowUnderflow>true</CheckForOverflowUnderflow>
         <TreatWarningsAsErrors>True</TreatWarningsAsErrors>
         <TreatSpecificWarningsAsErrors />
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include=""ServiceStack.OrmLite"" Version=""5.6.0"" />
+        <PackageReference Include=""ServiceStack.OrmLite"" Version=""5.7.0"" />
     </ItemGroup>
 </Project>";
     }
