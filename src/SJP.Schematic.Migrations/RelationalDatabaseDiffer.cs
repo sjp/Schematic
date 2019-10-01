@@ -42,8 +42,8 @@ namespace SJP.Schematic.Migrations
             var comparisonSequences = await Database.GetAllSequences(cancellationToken).ConfigureAwait(false);
             CompareSequences(sequences, comparisonSequences);
 
-            var synonyms = await Database.GetAllSynonyms(cancellationToken).ConfigureAwait(false);
-            var comparisonSynonyms = await Database.GetAllSynonyms(cancellationToken).ConfigureAwait(false);
+            var synonyms = await Database.GetAllSynonyms(cancellationToken).ToListAsync(cancellationToken).ConfigureAwait(false);
+            var comparisonSynonyms = await Database.GetAllSynonyms(cancellationToken).ToListAsync(cancellationToken).ConfigureAwait(false);
             CompareSynonyms(synonyms, comparisonSynonyms);
 
             var routines = await Database.GetAllRoutines(cancellationToken).ConfigureAwait(false);

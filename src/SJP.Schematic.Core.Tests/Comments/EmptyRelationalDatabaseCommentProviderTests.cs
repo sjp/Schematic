@@ -99,22 +99,12 @@ namespace SJP.Schematic.Core.Tests.Comments
         }
 
         [Test]
-        public static async Task GetAllSynonymComments_WhenInvoked_HasZeroCount()
-        {
-            var provider = new EmptyRelationalDatabaseCommentProvider();
-            var comments = await provider.GetAllSynonymComments().ConfigureAwait(false);
-
-            Assert.Zero(comments.Count);
-        }
-
-        [Test]
         public static async Task GetAllSynonymComments_WhenInvoked_DoesNotEnumerateAnyValues()
         {
             var provider = new EmptyRelationalDatabaseCommentProvider();
-            var comments = await provider.GetAllSynonymComments().ConfigureAwait(false);
-            var count = comments.ToList().Count;
+            var comments = await provider.GetAllSynonymComments().ToListAsync().ConfigureAwait(false);
 
-            Assert.Zero(count);
+            Assert.Zero(comments.Count);
         }
 
         [Test]

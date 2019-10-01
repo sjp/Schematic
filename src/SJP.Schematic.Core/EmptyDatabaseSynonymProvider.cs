@@ -1,15 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
-using System.Threading.Tasks;
 using LanguageExt;
-using SJP.Schematic.Core.Utilities;
 
 namespace SJP.Schematic.Core
 {
     public sealed class EmptyDatabaseSynonymProvider : IDatabaseSynonymProvider
     {
-        public Task<IReadOnlyCollection<IDatabaseSynonym>> GetAllSynonyms(CancellationToken cancellationToken = default) => Empty.Synonyms;
+        public IAsyncEnumerable<IDatabaseSynonym> GetAllSynonyms(CancellationToken cancellationToken = default) => AsyncEnumerable.Empty<IDatabaseSynonym>();
 
         public OptionAsync<IDatabaseSynonym> GetSynonym(Identifier synonymName, CancellationToken cancellationToken = default)
         {

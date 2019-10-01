@@ -147,16 +147,19 @@ namespace SJP.Schematic.SqlServer.Tests.Integration
         [Test]
         public async Task GetAllSynonyms_WhenEnumerated_ContainsSynonyms()
         {
-            var synonyms = await SynonymProvider.GetAllSynonyms().ConfigureAwait(false);
+            var hasSynonyms = await SynonymProvider.GetAllSynonyms()
+                .AnyAsync()
+                .ConfigureAwait(false);
 
-            Assert.NotZero(synonyms.Count);
+            Assert.IsTrue(hasSynonyms);
         }
 
         [Test]
         public async Task GetAllSynonyms_WhenEnumerated_ContainsTestSynonym()
         {
-            var synonyms = await SynonymProvider.GetAllSynonyms().ConfigureAwait(false);
-            var containsTestSynonym = synonyms.Any(s => s.Name.LocalName == "db_test_synonym_1");
+            var containsTestSynonym = await SynonymProvider.GetAllSynonyms()
+                .AnyAsync(s => s.Name.LocalName == "db_test_synonym_1")
+                .ConfigureAwait(false);
 
             Assert.IsTrue(containsTestSynonym);
         }

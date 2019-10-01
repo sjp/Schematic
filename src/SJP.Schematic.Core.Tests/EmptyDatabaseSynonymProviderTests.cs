@@ -26,22 +26,12 @@ namespace SJP.Schematic.Core.Tests
         }
 
         [Test]
-        public static async Task GetAllSynonyms_PropertyGet_HasCountOfZero()
-        {
-            var provider = new EmptyDatabaseSynonymProvider();
-            var synonyms = await provider.GetAllSynonyms().ConfigureAwait(false);
-
-            Assert.Zero(synonyms.Count);
-        }
-
-        [Test]
         public static async Task GetAllSynonyms_WhenEnumerated_ContainsNoValues()
         {
             var provider = new EmptyDatabaseSynonymProvider();
-            var synonyms = await provider.GetAllSynonyms().ConfigureAwait(false);
-            var synonymsList = synonyms.ToList();
+            var synonyms = await provider.GetAllSynonyms().ToListAsync().ConfigureAwait(false);
 
-            Assert.Zero(synonymsList.Count);
+            Assert.Zero(synonyms.Count);
         }
     }
 }

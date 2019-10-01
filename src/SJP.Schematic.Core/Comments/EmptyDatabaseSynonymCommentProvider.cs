@@ -1,17 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
-using System.Threading.Tasks;
 using LanguageExt;
-using SJP.Schematic.Core.Utilities;
 
 namespace SJP.Schematic.Core.Comments
 {
     public sealed class EmptyDatabaseSynonymCommentProvider : IDatabaseSynonymCommentProvider
     {
-        public Task<IReadOnlyCollection<IDatabaseSynonymComments>> GetAllSynonymComments(CancellationToken cancellationToken = default)
+        public IAsyncEnumerable<IDatabaseSynonymComments> GetAllSynonymComments(CancellationToken cancellationToken = default)
         {
-            return Empty.SynonymComments;
+            return AsyncEnumerable.Empty<IDatabaseSynonymComments>();
         }
 
         public OptionAsync<IDatabaseSynonymComments> GetSynonymComments(Identifier synonymName, CancellationToken cancellationToken = default)

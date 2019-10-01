@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using System.Threading;
-using System.Threading.Tasks;
 using LanguageExt;
 
 namespace SJP.Schematic.Core
@@ -9,6 +8,6 @@ namespace SJP.Schematic.Core
     {
         OptionAsync<IDatabaseSynonym> GetSynonym(Identifier synonymName, CancellationToken cancellationToken = default);
 
-        Task<IReadOnlyCollection<IDatabaseSynonym>> GetAllSynonyms(CancellationToken cancellationToken = default);
+        IAsyncEnumerable<IDatabaseSynonym> GetAllSynonyms(CancellationToken cancellationToken = default);
     }
 }

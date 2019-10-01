@@ -2,7 +2,6 @@ using System;
 using System.IO;
 using System.IO.Abstractions;
 using LanguageExt;
-using Moq;
 using NUnit.Framework;
 using SJP.Schematic.Core;
 using SJP.Schematic.Core.Comments;

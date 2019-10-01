@@ -2,8 +2,8 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Threading;
-using System.Threading.Tasks;
 using LanguageExt;
 using SJP.Schematic.Core;
 using SJP.Schematic.Core.Extensions;
@@ -30,12 +30,11 @@ namespace SJP.Schematic.Oracle
         // the main reason is to avoid queries where possible, especially when
         // the SYS.ALL_SYNONYMS data dictionary view is very slow
 
-        public async Task<IReadOnlyCollection<IDatabaseSynonym>> GetAllSynonyms(CancellationToken cancellationToken = default)
+        public async IAsyncEnumerable<IDatabaseSynonym> GetAllSynonyms([EnumeratorCancellation] CancellationToken cancellationToken = default)
         {
             var queryResult = await Connection.QueryAsync<SynonymData>(SynonymsQuery, cancellationToken).ConfigureAwait(false);
             var synonymQueryRows = queryResult.ToList();
 
-            var result = new List<IDatabaseSynonym>(synonymQueryRows.Count);
             foreach (var synonymRow in synonymQueryRows)
             {
                 var synonymSchema = !synonymRow.SchemaName.IsNullOrWhiteSpace() ? synonymRow.SchemaName : null;
@@ -51,11 +50,8 @@ namespace SJP.Schematic.Oracle
                 var qualifiedSynonymName = QualifySynonymName(fullSynonymName);
                 var qualifiedTargetName = QualifySynonymTargetName(targetName);
 
-                var synonym = new DatabaseSynonym(qualifiedSynonymName, qualifiedTargetName);
-                result.Add(synonym);
+                yield return new DatabaseSynonym(qualifiedSynonymName, qualifiedTargetName);
             }
-
-            return result;
         }
 
         protected virtual string SynonymsQuery => SynonymsQuerySql;

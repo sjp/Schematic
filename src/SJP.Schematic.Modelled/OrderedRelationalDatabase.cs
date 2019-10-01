@@ -4,6 +4,7 @@ using SJP.Schematic.Core.Extensions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -150,15 +151,14 @@ namespace SJP.Schematic.Modelled
             return LoadSynonym(synonymName, cancellationToken);
         }
 
-        public async Task<IReadOnlyCollection<IDatabaseSynonym>> GetAllSynonyms(CancellationToken cancellationToken = default)
+        public async IAsyncEnumerable<IDatabaseSynonym> GetAllSynonyms([EnumeratorCancellation] CancellationToken cancellationToken = default)
         {
-            var synonymsTasks = Databases.Select(d => d.GetAllSynonyms(cancellationToken));
+            var synonymsTasks = Databases.Select(d => d.GetAllSynonyms(cancellationToken).ToListAsync(cancellationToken).AsTask());
             var synonymCollections = await Task.WhenAll(synonymsTasks).ConfigureAwait(false);
             var allSynonyms = synonymCollections.SelectMany(s => s);
 
-            return allSynonyms
-                .DistinctBy(s => s.Name)
-                .ToList();
+            foreach (var synonym in allSynonyms.DistinctBy(s => s.Name))
+                yield return synonym;
         }
 
         protected virtual OptionAsync<IDatabaseSynonym> LoadSynonym(Identifier synonymName, CancellationToken cancellationToken)

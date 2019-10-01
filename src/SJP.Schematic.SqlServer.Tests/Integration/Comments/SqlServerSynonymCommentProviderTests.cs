@@ -9,6 +9,7 @@ using SJP.Schematic.Core.Comments;
 using SJP.Schematic.Core.Extensions;
 using SJP.Schematic.Core.Utilities;
 using SJP.Schematic.SqlServer.Comments;
+using System.Text;
 
 namespace SJP.Schematic.SqlServer.Tests.Integration.Comments
 {
@@ -178,16 +179,19 @@ EXEC sys.sp_addextendedproperty @name = N'MS_Description',
         [Test]
         public async Task GetAllSynonymComments_WhenEnumerated_ContainsSynonymComments()
         {
-            var synonymComments = await SynonymCommentProvider.GetAllSynonymComments().ConfigureAwait(false);
+            var hasSynonymComments = await SynonymCommentProvider.GetAllSynonymComments()
+                .AnyAsync()
+                .ConfigureAwait(false);
 
-            Assert.NotZero(synonymComments.Count);
+            Assert.IsTrue(hasSynonymComments);
         }
 
         [Test]
         public async Task GetAllSynonymComments_WhenEnumerated_ContainsTestSynonymComment()
         {
-            var synonymComments = await SynonymCommentProvider.GetAllSynonymComments().ConfigureAwait(false);
-            var containsTestSynonym = synonymComments.Any(t => t.SynonymName.LocalName == "synonym_comment_synonym_1");
+            var containsTestSynonym = await SynonymCommentProvider.GetAllSynonymComments()
+                .AnyAsync(t => t.SynonymName.LocalName == "synonym_comment_synonym_1")
+                .ConfigureAwait(false);
 
             Assert.IsTrue(containsTestSynonym);
         }

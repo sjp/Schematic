@@ -72,7 +72,7 @@ namespace SJP.Schematic.SqlServer.Comments
             return _synonymCommentProvider.GetSynonymComments(synonymName, cancellationToken);
         }
 
-        public Task<IReadOnlyCollection<IDatabaseSynonymComments>> GetAllSynonymComments(CancellationToken cancellationToken = default)
+        public IAsyncEnumerable<IDatabaseSynonymComments> GetAllSynonymComments(CancellationToken cancellationToken = default)
         {
             return _synonymCommentProvider.GetAllSynonymComments(cancellationToken);
         }

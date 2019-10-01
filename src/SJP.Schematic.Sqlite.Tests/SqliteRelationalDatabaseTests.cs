@@ -144,20 +144,13 @@ namespace SJP.Schematic.Sqlite.Tests
             }
 
             [Test]
-            public static async Task GetAllSynonyms_PropertyGet_ReturnsCountOfZero()
-            {
-                var synonyms = await Database.GetAllSynonyms().ConfigureAwait(false);
-
-                Assert.Zero(synonyms.Count);
-            }
-
-            [Test]
             public static async Task GetAllSynonyms_WhenEnumerated_ContainsNoValues()
             {
-                var synonyms = await Database.GetAllSynonyms().ConfigureAwait(false);
-                var count = synonyms.ToList().Count;
+                var hasSynonyms = await Database.GetAllSynonyms()
+                    .AnyAsync()
+                    .ConfigureAwait(false);
 
-                Assert.Zero(count);
+                Assert.IsFalse(hasSynonyms);
             }
         }
 

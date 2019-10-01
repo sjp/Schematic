@@ -127,17 +127,20 @@ namespace SJP.Schematic.Oracle.Tests.Integration
         [Test]
         public async Task GetAllSynonyms_WhenEnumerated_ContainsSynonyms()
         {
-            var synonyms = await SynonymProvider.GetAllSynonyms().ConfigureAwait(false);
+            var hasSynonyms = await SynonymProvider.GetAllSynonyms()
+                .AnyAsync()
+                .ConfigureAwait(false);
 
-            Assert.NotZero(synonyms.Count);
+            Assert.IsTrue(hasSynonyms);
         }
 
         [Test]
         public async Task GetAllSynonyms_WhenEnumerated_ContainsTestSynonym()
         {
             const string expectedSynonymName = "DB_TEST_SYNONYM_1";
-            var synonyms = await SynonymProvider.GetAllSynonyms().ConfigureAwait(false);
-            var containsTestSynonym = synonyms.Any(s => s.Name.LocalName == expectedSynonymName);
+            var containsTestSynonym = await SynonymProvider.GetAllSynonyms()
+                .AnyAsync(s => s.Name.LocalName == expectedSynonymName)
+                .ConfigureAwait(false);
 
             Assert.IsTrue(containsTestSynonym);
         }

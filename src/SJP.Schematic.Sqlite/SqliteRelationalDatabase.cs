@@ -69,7 +69,7 @@ namespace SJP.Schematic.Sqlite
             return SequenceProvider.GetSequence(sequenceName, cancellationToken);
         }
 
-        public Task<IReadOnlyCollection<IDatabaseSynonym>> GetAllSynonyms(CancellationToken cancellationToken = default)
+        public IAsyncEnumerable<IDatabaseSynonym> GetAllSynonyms(CancellationToken cancellationToken = default)
         {
             return SynonymProvider.GetAllSynonyms(cancellationToken);
         }

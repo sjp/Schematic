@@ -121,10 +121,7 @@ namespace SJP.Schematic.Serialization
             return Task.FromResult(Sequences);
         }
 
-        public Task<IReadOnlyCollection<IDatabaseSynonym>> GetAllSynonyms(CancellationToken cancellationToken = default)
-        {
-            return Task.FromResult(Synonyms);
-        }
+        public IAsyncEnumerable<IDatabaseSynonym> GetAllSynonyms(CancellationToken cancellationToken = default) => Synonyms.ToAsyncEnumerable();
 
         public Task<IReadOnlyCollection<IRelationalDatabaseTable>> GetAllTables(CancellationToken cancellationToken = default)
         {

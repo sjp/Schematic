@@ -59,7 +59,7 @@ namespace SJP.Schematic.Oracle
             return _sequenceProvider.GetSequence(sequenceName, cancellationToken);
         }
 
-        public Task<IReadOnlyCollection<IDatabaseSynonym>> GetAllSynonyms(CancellationToken cancellationToken = default)
+        public IAsyncEnumerable<IDatabaseSynonym> GetAllSynonyms(CancellationToken cancellationToken = default)
         {
             return _synonymProvider.GetAllSynonyms(cancellationToken);
         }

@@ -18,7 +18,7 @@ namespace SJP.Schematic.Core.Comments
             return _sequenceCommentProvider.GetAllSequenceComments(cancellationToken);
         }
 
-        public Task<IReadOnlyCollection<IDatabaseSynonymComments>> GetAllSynonymComments(CancellationToken cancellationToken = default)
+        public IAsyncEnumerable<IDatabaseSynonymComments> GetAllSynonymComments(CancellationToken cancellationToken = default)
         {
             return _synonymCommentProvider.GetAllSynonymComments(cancellationToken);
         }

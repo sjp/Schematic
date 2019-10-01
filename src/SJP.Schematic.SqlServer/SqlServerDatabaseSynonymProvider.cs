@@ -1,9 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data;
-using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Threading;
-using System.Threading.Tasks;
 using LanguageExt;
 using SJP.Schematic.Core;
 using SJP.Schematic.Core.Extensions;
@@ -23,28 +22,26 @@ namespace SJP.Schematic.SqlServer
 
         protected IIdentifierDefaults IdentifierDefaults { get; }
 
-        public async Task<IReadOnlyCollection<IDatabaseSynonym>> GetAllSynonyms(CancellationToken cancellationToken = default)
+        public async IAsyncEnumerable<IDatabaseSynonym> GetAllSynonyms([EnumeratorCancellation] CancellationToken cancellationToken = default)
         {
             var queryResult = await Connection.QueryAsync<SynonymData>(SynonymsQuery, cancellationToken).ConfigureAwait(false);
             if (queryResult.Empty())
-                return Array.Empty<IDatabaseSynonym>();
+                yield break;
 
-            return queryResult
-                .Select(row =>
-                {
-                    var synonymName = QualifySynonymName(Identifier.CreateQualifiedIdentifier(row.SchemaName, row.ObjectName));
+            foreach (var row in queryResult)
+            {
+                var synonymName = QualifySynonymName(Identifier.CreateQualifiedIdentifier(row.SchemaName, row.ObjectName));
 
-                    var serverName = !row.TargetServerName.IsNullOrWhiteSpace() ? row.TargetServerName : null;
-                    var databaseName = !row.TargetDatabaseName.IsNullOrWhiteSpace() ? row.TargetDatabaseName : null;
-                    var schemaName = !row.TargetSchemaName.IsNullOrWhiteSpace() ? row.TargetSchemaName : null;
-                    var localName = !row.TargetObjectName.IsNullOrWhiteSpace() ? row.TargetObjectName : null;
+                var serverName = !row.TargetServerName.IsNullOrWhiteSpace() ? row.TargetServerName : null;
+                var databaseName = !row.TargetDatabaseName.IsNullOrWhiteSpace() ? row.TargetDatabaseName : null;
+                var schemaName = !row.TargetSchemaName.IsNullOrWhiteSpace() ? row.TargetSchemaName : null;
+                var localName = !row.TargetObjectName.IsNullOrWhiteSpace() ? row.TargetObjectName : null;
 
-                    var targetName = Identifier.CreateQualifiedIdentifier(serverName, databaseName, schemaName, localName);
-                    var qualifiedTargetName = QualifySynonymTargetName(targetName);
+                var targetName = Identifier.CreateQualifiedIdentifier(serverName, databaseName, schemaName, localName);
+                var qualifiedTargetName = QualifySynonymTargetName(targetName);
 
-                    return new DatabaseSynonym(synonymName, qualifiedTargetName);
-                })
-                .ToList();
+                yield return new DatabaseSynonym(synonymName, qualifiedTargetName);
+            }
         }
 
         protected virtual string SynonymsQuery => SynonymsQuerySql;

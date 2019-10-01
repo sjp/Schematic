@@ -203,7 +203,7 @@ namespace SJP.Schematic.Modelled.Reflection
                 : OptionAsync<IDatabaseSynonym>.None;
         }
 
-        public Task<IReadOnlyCollection<IDatabaseSynonym>> GetAllSynonyms(CancellationToken cancellationToken = default) => Task.FromResult<IReadOnlyCollection<IDatabaseSynonym>>(Synonym.Values.ToList());
+        public IAsyncEnumerable<IDatabaseSynonym> GetAllSynonyms(CancellationToken cancellationToken = default) => Synonym.Values.ToAsyncEnumerable();
 
         protected IReadOnlyDictionary<Identifier, IDatabaseSynonym> Synonym => _synonymLookup.Value;
 
