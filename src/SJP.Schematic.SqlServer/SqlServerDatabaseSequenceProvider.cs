@@ -2,8 +2,8 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Threading;
-using System.Threading.Tasks;
 using LanguageExt;
 using SJP.Schematic.Core;
 using SJP.Schematic.Core.Extensions;
@@ -23,19 +23,18 @@ namespace SJP.Schematic.SqlServer
 
         protected IIdentifierDefaults IdentifierDefaults { get; }
 
-        public async Task<IReadOnlyCollection<IDatabaseSequence>> GetAllSequences(CancellationToken cancellationToken = default)
+        public async IAsyncEnumerable<IDatabaseSequence> GetAllSequences([EnumeratorCancellation] CancellationToken cancellationToken = default)
         {
             var queryResult = await Connection.QueryAsync<SequenceData>(SequencesQuery, cancellationToken).ConfigureAwait(false);
-            if (queryResult.Empty())
-                return Array.Empty<IDatabaseSequence>();
-
-            return queryResult
+            var sequences = queryResult
                 .Select(row =>
                 {
                     var sequenceName = QualifySequenceName(Identifier.CreateQualifiedIdentifier(row.SchemaName, row.ObjectName));
                     return BuildSequenceFromDto(sequenceName, row);
-                })
-                .ToList();
+                });
+
+            foreach (var sequence in sequences)
+                yield return sequence;
         }
 
         protected virtual string SequencesQuery => SequencesQuerySql;

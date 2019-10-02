@@ -9,7 +9,6 @@ using SJP.Schematic.Core.Comments;
 using SJP.Schematic.Core.Extensions;
 using SJP.Schematic.Core.Utilities;
 using SJP.Schematic.SqlServer.Comments;
-using System.Text;
 
 namespace SJP.Schematic.SqlServer.Tests.Integration.Comments
 {

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 using LanguageExt;
@@ -26,34 +27,31 @@ namespace SJP.Schematic.SqlServer.Comments
 
         protected virtual string CommentProperty { get; } = "MS_Description";
 
-        public async Task<IReadOnlyCollection<IDatabaseSequenceComments>> GetAllSequenceComments(CancellationToken cancellationToken = default)
+        public async IAsyncEnumerable<IDatabaseSequenceComments> GetAllSequenceComments([EnumeratorCancellation] CancellationToken cancellationToken = default)
         {
-            var result = new List<IDatabaseSequenceComments>();
-
             var allCommentsData = await Connection.QueryAsync<CommentsData>(
                 AllSequenceCommentsQuery,
                 new { CommentProperty },
                 cancellationToken
             ).ConfigureAwait(false);
 
-            var groupedByName = allCommentsData.GroupBy(row => new { row.SchemaName, row.TableName }).ToList();
-            foreach (var groupedComment in groupedByName)
-            {
-                var tmpIdentifier = Identifier.CreateQualifiedIdentifier(groupedComment.Key.SchemaName, groupedComment.Key.TableName);
-                var qualifiedName = QualifySequenceName(tmpIdentifier);
-
-                var commentsData = groupedComment.ToList();
-
-                var sequenceComment = GetFirstCommentByType(commentsData, Constants.Sequence);
-
-                var comments = new DatabaseSequenceComments(qualifiedName, sequenceComment);
-                result.Add(comments);
-            }
-
-            return result
+            var sequenceComments = allCommentsData
+                .GroupBy(row => new { row.SchemaName, row.TableName })
+                .Select(g => new
+                {
+                    Name = QualifySequenceName(Identifier.CreateQualifiedIdentifier(g.Key.SchemaName, g.Key.TableName)),
+                    Comments = g.ToList()
+                })
+                .Select(g =>
+                {
+                    var sequenceComment = GetFirstCommentByType(g.Comments, Constants.Sequence);
+                    return new DatabaseSequenceComments(g.Name, sequenceComment);
+                })
                 .OrderBy(c => c.SequenceName.Schema)
-                .ThenBy(c => c.SequenceName.LocalName)
-                .ToList();
+                .ThenBy(c => c.SequenceName.LocalName);
+
+            foreach (var sequenceComment in sequenceComments)
+                yield return sequenceComment;
         }
 
         protected OptionAsync<Identifier> GetResolvedSequenceName(Identifier sequenceName, CancellationToken cancellationToken)

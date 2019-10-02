@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System.Linq;
+using System.Threading.Tasks;
 using Dapper;
 using NUnit.Framework;
 using SJP.Schematic.Core;
@@ -91,7 +92,7 @@ create table test_table_4 (
             var builder = Builder;
             var tables = await Database.GetAllTables().ConfigureAwait(false);
             var views = await Database.GetAllViews().ConfigureAwait(false);
-            var sequences = await Database.GetAllSequences().ConfigureAwait(false);
+            var sequences = await Database.GetAllSequences().ToListAsync().ConfigureAwait(false);
 
             var expected = TestAppContextOutput;
             var result = builder.Generate(tables, views, sequences);

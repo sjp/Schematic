@@ -19,7 +19,7 @@ namespace SJP.Schematic.Serialization.Mapping
 
         private static async Task<Dto.RelationalDatabase> ToDtoCore(this IRelationalDatabase database, CancellationToken cancellationToken = default)
         {
-            var sequences = await database.GetAllSequences(cancellationToken).ConfigureAwait(false);
+            var sequences = await database.GetAllSequences(cancellationToken).ToListAsync(cancellationToken).ConfigureAwait(false);
             var synonyms = await database.GetAllSynonyms(cancellationToken).ToListAsync(cancellationToken).ConfigureAwait(false);
             var tables = await database.GetAllTables(cancellationToken).ConfigureAwait(false);
             var views = await database.GetAllViews(cancellationToken).ConfigureAwait(false);

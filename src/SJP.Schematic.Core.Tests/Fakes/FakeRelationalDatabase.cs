@@ -49,7 +49,7 @@ namespace SJP.Schematic.Core.Tests.Fakes
             return Routines.Find(r => r.Name == routineName).ToAsync();
         }
 
-        public virtual Task<IReadOnlyCollection<IDatabaseSequence>> GetAllSequences(CancellationToken cancellationToken = default) => Task.FromResult(Sequences);
+        public virtual IAsyncEnumerable<IDatabaseSequence> GetAllSequences(CancellationToken cancellationToken = default) => Sequences.ToAsyncEnumerable();
 
         public virtual IAsyncEnumerable<IDatabaseSynonym> GetAllSynonyms(CancellationToken cancellationToken = default) => Synonyms.ToAsyncEnumerable();
 

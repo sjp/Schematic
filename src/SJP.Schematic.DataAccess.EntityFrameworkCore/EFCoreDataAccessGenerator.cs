@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.IO.Abstractions;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using LanguageExt;
@@ -52,7 +53,7 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore
             var tableComments = CommentProvider.GetAllTableComments(CancellationToken.None).GetAwaiter().GetResult();
             var views = Database.GetAllViews(CancellationToken.None).GetAwaiter().GetResult();
             var viewComments = CommentProvider.GetAllViewComments(CancellationToken.None).GetAwaiter().GetResult();
-            var sequences = Database.GetAllSequences(CancellationToken.None).GetAwaiter().GetResult();
+            var sequences = Database.GetAllSequences(CancellationToken.None).ToListAsync(CancellationToken.None).GetAwaiter().GetResult();
 
             if (projectFileInfo.Exists)
                 projectFileInfo.Delete();
@@ -149,7 +150,7 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore
             var tableComments = await CommentProvider.GetAllTableComments(cancellationToken).ConfigureAwait(false);
             var views = await Database.GetAllViews(cancellationToken).ConfigureAwait(false);
             var viewComments = await CommentProvider.GetAllViewComments(cancellationToken).ConfigureAwait(false);
-            var sequences = await Database.GetAllSequences(cancellationToken).ConfigureAwait(false);
+            var sequences = await Database.GetAllSequences(cancellationToken).ToListAsync(cancellationToken).ConfigureAwait(false);
 
             var tableCommentsLookup = new Dictionary<Identifier, IRelationalDatabaseTableComments>();
             foreach (var comment in tableComments)

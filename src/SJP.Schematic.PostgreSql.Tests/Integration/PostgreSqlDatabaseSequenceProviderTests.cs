@@ -114,16 +114,19 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration
         [Test]
         public async Task GetAllSequences_WhenEnumerated_ContainsSequences()
         {
-            var sequences = await SequenceProvider.GetAllSequences().ConfigureAwait(false);
+            var hasSequences = await SequenceProvider.GetAllSequences()
+                .AnyAsync()
+                .ConfigureAwait(false);
 
-            Assert.NotZero(sequences.Count);
+            Assert.IsTrue(hasSequences);
         }
 
         [Test]
         public async Task GetAllSequences_WhenEnumerated_ContainsTestSequence()
         {
-            var sequences = await SequenceProvider.GetAllSequences().ConfigureAwait(false);
-            var containsTestSequence = sequences.Any(s => s.Name.LocalName == "db_test_sequence_1");
+            var containsTestSequence = await SequenceProvider.GetAllSequences()
+                .AnyAsync(s => s.Name.LocalName == "db_test_sequence_1")
+                .ConfigureAwait(false);
 
             Assert.IsTrue(containsTestSequence);
         }

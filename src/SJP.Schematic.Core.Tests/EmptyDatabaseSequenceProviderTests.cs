@@ -26,22 +26,14 @@ namespace SJP.Schematic.Core.Tests
         }
 
         [Test]
-        public static async Task GetAllSequences_PropertyGet_HasCountOfZero()
-        {
-            var provider = new EmptyDatabaseSequenceProvider();
-            var sequences = await provider.GetAllSequences().ConfigureAwait(false);
-
-            Assert.Zero(sequences.Count);
-        }
-
-        [Test]
         public static async Task GetAllSequences_WhenEnumerated_ContainsNoValues()
         {
             var provider = new EmptyDatabaseSequenceProvider();
-            var sequences = await provider.GetAllSequences().ConfigureAwait(false);
-            var sequenceList = sequences.ToList();
+            var hasSequences = await provider.GetAllSequences()
+                .AnyAsync()
+                .ConfigureAwait(false);
 
-            Assert.Zero(sequenceList.Count);
+            Assert.IsFalse(hasSequences);
         }
     }
 }

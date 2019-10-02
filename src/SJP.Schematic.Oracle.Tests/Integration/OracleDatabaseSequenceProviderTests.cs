@@ -163,9 +163,11 @@ namespace SJP.Schematic.Oracle.Tests.Integration
         [Test]
         public async Task GetAllSequences_WhenEnumerated_ContainsSequences()
         {
-            var sequences = await SequenceProvider.GetAllSequences().ConfigureAwait(false);
+            var hasSequences = await SequenceProvider.GetAllSequences()
+                .AnyAsync()
+                .ConfigureAwait(false);
 
-            Assert.NotZero(sequences.Count);
+            Assert.IsTrue(hasSequences);
         }
 
         [Test]
@@ -173,8 +175,9 @@ namespace SJP.Schematic.Oracle.Tests.Integration
         {
             const string expectedSequenceName = "DB_TEST_SEQUENCE_1";
 
-            var sequences = await SequenceProvider.GetAllSequences().ConfigureAwait(false);
-            var containsTestSequence = sequences.Any(s => s.Name.LocalName == expectedSequenceName);
+            var containsTestSequence = await SequenceProvider.GetAllSequences()
+                .AnyAsync(s => s.Name.LocalName == expectedSequenceName)
+                .ConfigureAwait(false);
 
             Assert.IsTrue(containsTestSequence);
         }

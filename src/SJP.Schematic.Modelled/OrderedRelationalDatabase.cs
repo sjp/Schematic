@@ -114,15 +114,14 @@ namespace SJP.Schematic.Modelled
             return LoadSequence(sequenceName, cancellationToken);
         }
 
-        public async Task<IReadOnlyCollection<IDatabaseSequence>> GetAllSequences(CancellationToken cancellationToken = default)
+        public async IAsyncEnumerable<IDatabaseSequence> GetAllSequences([EnumeratorCancellation] CancellationToken cancellationToken = default)
         {
-            var sequencesTasks = Databases.Select(d => d.GetAllSequences(cancellationToken));
+            var sequencesTasks = Databases.Select(d => d.GetAllSequences(cancellationToken).ToListAsync(cancellationToken).AsTask());
             var sequenceCollections = await Task.WhenAll(sequencesTasks).ConfigureAwait(false);
-            var allSequences = sequenceCollections.SelectMany(s => s);
+            var sequences = sequenceCollections.SelectMany(s => s).DistinctBy(v => v.Name);
 
-            return allSequences
-                .DistinctBy(v => v.Name)
-                .ToList();
+            foreach (var sequence in sequences)
+                yield return sequence;
         }
 
         protected virtual OptionAsync<IDatabaseSequence> LoadSequence(Identifier sequenceName, CancellationToken cancellationToken)

@@ -59,7 +59,7 @@ namespace SJP.Schematic.SqlServer.Comments
             return _sequenceCommentProvider.GetSequenceComments(sequenceName, cancellationToken);
         }
 
-        public Task<IReadOnlyCollection<IDatabaseSequenceComments>> GetAllSequenceComments(CancellationToken cancellationToken = default)
+        public IAsyncEnumerable<IDatabaseSequenceComments> GetAllSequenceComments(CancellationToken cancellationToken = default)
         {
             return _sequenceCommentProvider.GetAllSequenceComments(cancellationToken);
         }

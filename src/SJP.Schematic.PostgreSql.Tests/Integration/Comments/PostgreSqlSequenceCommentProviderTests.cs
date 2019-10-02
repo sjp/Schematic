@@ -154,16 +154,19 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration.Comments
         [Test]
         public async Task GetAllSequenceComments_WhenEnumerated_ContainsSequenceComments()
         {
-            var sequenceComments = await SequenceCommentProvider.GetAllSequenceComments().ConfigureAwait(false);
+            var hasSequenceComments = await SequenceCommentProvider.GetAllSequenceComments()
+                .AnyAsync()
+                .ConfigureAwait(false);
 
-            Assert.NotZero(sequenceComments.Count);
+            Assert.IsTrue(hasSequenceComments);
         }
 
         [Test]
         public async Task GetAllSequenceComments_WhenEnumerated_ContainsTestSequenceComment()
         {
-            var sequenceComments = await SequenceCommentProvider.GetAllSequenceComments().ConfigureAwait(false);
-            var containsTestSequence = sequenceComments.Any(t => t.SequenceName.LocalName == "comment_test_sequence_1");
+            var containsTestSequence = await SequenceCommentProvider.GetAllSequenceComments()
+                .AnyAsync(t => t.SequenceName.LocalName == "comment_test_sequence_1")
+                .ConfigureAwait(false);
 
             Assert.IsTrue(containsTestSequence);
         }

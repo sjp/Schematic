@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 using LanguageExt;
@@ -29,15 +31,16 @@ namespace SJP.Schematic.PostgreSql
 
         protected IIdentifierResolutionStrategy IdentifierResolver { get; }
 
-        public async Task<IReadOnlyCollection<IDatabaseSequence>> GetAllSequences(CancellationToken cancellationToken = default)
+        public async IAsyncEnumerable<IDatabaseSequence> GetAllSequences([EnumeratorCancellation] CancellationToken cancellationToken = default)
         {
             var provider = await _sequenceProvider.Task.ConfigureAwait(false);
-            var sequencesTask = provider.Match(
+            var sequences = provider.Match(
                 sp => sp.GetAllSequences(cancellationToken),
-                () => Empty.Sequences
+                AsyncEnumerable.Empty<IDatabaseSequence>
             );
 
-            return await sequencesTask.ConfigureAwait(false);
+            await foreach (var sequence in sequences.ConfigureAwait(false))
+                yield return sequence;
         }
 
         public OptionAsync<IDatabaseSequence> GetSequence(Identifier sequenceName, CancellationToken cancellationToken = default)

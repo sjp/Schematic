@@ -44,7 +44,7 @@ namespace SJP.Schematic.MySql
             return _viewProvider.GetView(viewName, cancellationToken);
         }
 
-        public Task<IReadOnlyCollection<IDatabaseSequence>> GetAllSequences(CancellationToken cancellationToken = default)
+        public IAsyncEnumerable<IDatabaseSequence> GetAllSequences(CancellationToken cancellationToken = default)
         {
             return SequenceProvider.GetAllSequences(cancellationToken);
         }

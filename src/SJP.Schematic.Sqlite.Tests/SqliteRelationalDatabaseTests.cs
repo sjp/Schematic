@@ -95,20 +95,13 @@ namespace SJP.Schematic.Sqlite.Tests
             }
 
             [Test]
-            public static async Task GetAllSequences_PropertyGet_ReturnsCountOfZero()
-            {
-                var sequences = await Database.GetAllSequences().ConfigureAwait(false);
-
-                Assert.Zero(sequences.Count);
-            }
-
-            [Test]
             public static async Task GetAllSequences_WhenEnumerated_ContainsNoValues()
             {
-                var sequences = await Database.GetAllSequences().ConfigureAwait(false);
-                var count = sequences.ToList().Count;
+                var hasSequences = await Database.GetAllSequences()
+                    .AnyAsync()
+                    .ConfigureAwait(false);
 
-                Assert.Zero(count);
+                Assert.IsFalse(hasSequences);
             }
         }
 

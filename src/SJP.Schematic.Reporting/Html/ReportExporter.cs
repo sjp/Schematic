@@ -39,7 +39,7 @@ namespace SJP.Schematic.Reporting.Html
         {
             var tables = await Database.GetAllTables(cancellationToken).ConfigureAwait(false);
             var views = await Database.GetAllViews(cancellationToken).ConfigureAwait(false);
-            var sequences = await Database.GetAllSequences(cancellationToken).ConfigureAwait(false);
+            var sequences = await Database.GetAllSequences(cancellationToken).ToListAsync(cancellationToken).ConfigureAwait(false);
             var synonyms = await Database.GetAllSynonyms(cancellationToken).ToListAsync(cancellationToken).ConfigureAwait(false);
             var routines = await Database.GetAllRoutines(cancellationToken).ConfigureAwait(false);
 

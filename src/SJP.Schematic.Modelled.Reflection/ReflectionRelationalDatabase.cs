@@ -151,7 +151,7 @@ namespace SJP.Schematic.Modelled.Reflection
                 : OptionAsync<IDatabaseSequence>.None;
         }
 
-        public Task<IReadOnlyCollection<IDatabaseSequence>> GetAllSequences(CancellationToken cancellationToken = default) => Task.FromResult<IReadOnlyCollection<IDatabaseSequence>>(Sequence.Values.ToList());
+        public IAsyncEnumerable<IDatabaseSequence> GetAllSequences(CancellationToken cancellationToken = default) => Sequence.Values.ToAsyncEnumerable();
 
         protected IReadOnlyDictionary<Identifier, IDatabaseSequence> Sequence => _sequenceLookup.Value;
 

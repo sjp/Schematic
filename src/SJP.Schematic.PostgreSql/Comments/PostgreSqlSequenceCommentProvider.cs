@@ -2,8 +2,8 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Threading;
-using System.Threading.Tasks;
 using LanguageExt;
 using SJP.Schematic.Core;
 using SJP.Schematic.Core.Comments;
@@ -27,11 +27,9 @@ namespace SJP.Schematic.PostgreSql.Comments
 
         protected IIdentifierResolutionStrategy IdentifierResolver { get; }
 
-        public async Task<IReadOnlyCollection<IDatabaseSequenceComments>> GetAllSequenceComments(CancellationToken cancellationToken = default)
+        public async IAsyncEnumerable<IDatabaseSequenceComments> GetAllSequenceComments([EnumeratorCancellation] CancellationToken cancellationToken = default)
         {
             var allCommentsData = await Connection.QueryAsync<CommentsData>(AllSequenceCommentsQuery, cancellationToken).ConfigureAwait(false);
-
-            var result = new List<IDatabaseSequenceComments>();
 
             foreach (var commentData in allCommentsData)
             {
@@ -42,11 +40,8 @@ namespace SJP.Schematic.PostgreSql.Comments
                     ? Option<string>.Some(commentData.Comment)
                     : Option<string>.None;
 
-                var comments = new DatabaseSequenceComments(qualifiedName, sequenceComment);
-                result.Add(comments);
+                yield return new DatabaseSequenceComments(qualifiedName, sequenceComment);
             }
-
-            return result;
         }
 
         protected OptionAsync<Identifier> GetResolvedSequenceName(Identifier sequenceName, CancellationToken cancellationToken = default)
