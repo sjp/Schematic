@@ -30,7 +30,7 @@ namespace SJP.Schematic.Sqlite
             _viewProvider = new SqliteDatabaseViewProvider(connection, pragma, dialect, identifierDefaults);
         }
 
-        public Task<IReadOnlyCollection<IRelationalDatabaseTable>> GetAllTables(CancellationToken cancellationToken = default)
+        public IAsyncEnumerable<IRelationalDatabaseTable> GetAllTables(CancellationToken cancellationToken = default)
         {
             return _tableProvider.GetAllTables(cancellationToken);
         }

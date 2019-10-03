@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using LanguageExt;
@@ -9,7 +10,7 @@ namespace SJP.Schematic.Core
 {
     public sealed class EmptyRelationalDatabaseTableProvider : IRelationalDatabaseTableProvider
     {
-        public Task<IReadOnlyCollection<IRelationalDatabaseTable>> GetAllTables(CancellationToken cancellationToken = default) => Empty.Tables;
+        public IAsyncEnumerable<IRelationalDatabaseTable> GetAllTables(CancellationToken cancellationToken = default) => AsyncEnumerable.Empty<IRelationalDatabaseTable>();
 
         public OptionAsync<IRelationalDatabaseTable> GetTable(Identifier tableName, CancellationToken cancellationToken = default)
         {

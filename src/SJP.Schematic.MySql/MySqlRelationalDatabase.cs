@@ -18,7 +18,7 @@ namespace SJP.Schematic.MySql
             _routineProvider = new MySqlDatabaseRoutineProvider(connection, identifierDefaults);
         }
 
-        public Task<IReadOnlyCollection<IRelationalDatabaseTable>> GetAllTables(CancellationToken cancellationToken = default)
+        public IAsyncEnumerable<IRelationalDatabaseTable> GetAllTables(CancellationToken cancellationToken = default)
         {
             return _tableProvider.GetAllTables(cancellationToken);
         }

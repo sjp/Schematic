@@ -3,6 +3,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 using LanguageExt;
@@ -34,18 +35,17 @@ namespace SJP.Schematic.Oracle
 
         protected IDatabaseDialect Dialect { get; }
 
-        public virtual async Task<IReadOnlyCollection<IRelationalDatabaseTable>> GetAllTables(CancellationToken cancellationToken = default)
+        public virtual async IAsyncEnumerable<IRelationalDatabaseTable> GetAllTables([EnumeratorCancellation] CancellationToken cancellationToken = default)
         {
             var queryResults = await Connection.QueryAsync<QualifiedName>(TablesQuery, cancellationToken).ConfigureAwait(false);
             var tableNames = queryResults
                 .Select(dto => Identifier.CreateQualifiedIdentifier(dto.SchemaName, dto.ObjectName))
                 .Select(QualifyTableName)
-                .ToList();
+                .OrderBy(name => name.Schema)
+                .ThenBy(name => name.LocalName);
 
-            var tableTasks = tableNames
-                .Select(name => LoadTableAsyncCore(name, cancellationToken))
-                .ToArray();
-            return await Task.WhenAll(tableTasks).ConfigureAwait(false);
+            foreach (var tableName in tableNames)
+                yield return await LoadTableAsyncCore(tableName, cancellationToken).ConfigureAwait(false);
         }
 
         protected virtual string TablesQuery => TablesQuerySql;

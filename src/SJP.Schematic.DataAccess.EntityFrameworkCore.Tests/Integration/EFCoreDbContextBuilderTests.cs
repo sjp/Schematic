@@ -90,7 +90,7 @@ create table test_table_4 (
         public async Task ToString_GivenVariousTablesWithAnnotationsRequired_GeneratesExpectedOutput()
         {
             var builder = Builder;
-            var tables = await Database.GetAllTables().ConfigureAwait(false);
+            var tables = await Database.GetAllTables().ToListAsync().ConfigureAwait(false);
             var views = await Database.GetAllViews().ConfigureAwait(false);
             var sequences = await Database.GetAllSequences().ToListAsync().ConfigureAwait(false);
 

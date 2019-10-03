@@ -26,22 +26,12 @@ namespace SJP.Schematic.Core.Tests
         }
 
         [Test]
-        public static async Task GetAllTables_PropertyGet_HasCountOfZero()
-        {
-            var provider = new EmptyRelationalDatabaseTableProvider();
-            var tables = await provider.GetAllTables().ConfigureAwait(false);
-
-            Assert.Zero(tables.Count);
-        }
-
-        [Test]
         public static async Task GetAllTables_WhenEnumerated_ContainsNoValues()
         {
             var provider = new EmptyRelationalDatabaseTableProvider();
-            var tables = await provider.GetAllTables().ConfigureAwait(false);
-            var tablesList = tables.ToList();
+            var hasTables = await provider.GetAllTables().AnyAsync().ConfigureAwait(false);
 
-            Assert.Zero(tablesList.Count);
+            Assert.IsFalse(hasTables);
         }
     }
 }

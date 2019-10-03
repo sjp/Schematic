@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 using LanguageExt;
@@ -30,15 +31,17 @@ namespace SJP.Schematic.SqlServer
 
         protected IDatabaseDialect Dialect { get; }
 
-        public virtual async Task<IReadOnlyCollection<IRelationalDatabaseTable>> GetAllTables(CancellationToken cancellationToken = default)
+        public virtual async IAsyncEnumerable<IRelationalDatabaseTable> GetAllTables([EnumeratorCancellation] CancellationToken cancellationToken = default)
         {
             var queryResults = await Connection.QueryAsync<QualifiedName>(TablesQuery, cancellationToken).ConfigureAwait(false);
-            var tableTasks = queryResults
+            var tableNames = queryResults
                 .Select(dto => Identifier.CreateQualifiedIdentifier(dto.SchemaName, dto.ObjectName))
                 .Select(QualifyTableName)
-                .Select(name => LoadTableAsyncCore(name, cancellationToken))
-                .ToList();
-            return await Task.WhenAll(tableTasks).ConfigureAwait(false);
+                .OrderBy(name => name.Schema)
+                .ThenBy(name => name.LocalName);
+
+            foreach (var tableName in tableNames)
+                yield return await LoadTableAsyncCore(tableName, cancellationToken);
         }
 
         protected virtual string TablesQuery => TablesQuerySql;

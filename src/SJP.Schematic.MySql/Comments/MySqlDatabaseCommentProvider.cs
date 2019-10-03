@@ -30,7 +30,7 @@ namespace SJP.Schematic.MySql.Comments
             return _tableCommentProvider.GetTableComments(tableName, cancellationToken);
         }
 
-        public Task<IReadOnlyCollection<IRelationalDatabaseTableComments>> GetAllTableComments(CancellationToken cancellationToken = default)
+        public IAsyncEnumerable<IRelationalDatabaseTableComments> GetAllTableComments(CancellationToken cancellationToken = default)
         {
             return _tableCommentProvider.GetAllTableComments(cancellationToken);
         }

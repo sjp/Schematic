@@ -40,15 +40,14 @@ namespace SJP.Schematic.Modelled
             return LoadTable(tableName, cancellationToken);
         }
 
-        public async Task<IReadOnlyCollection<IRelationalDatabaseTable>> GetAllTables(CancellationToken cancellationToken = default)
+        public async IAsyncEnumerable<IRelationalDatabaseTable> GetAllTables([EnumeratorCancellation] CancellationToken cancellationToken = default)
         {
-            var tablesTasks = Databases.Select(d => d.GetAllTables(cancellationToken));
+            var tablesTasks = Databases.Select(d => d.GetAllTables(cancellationToken).ToListAsync(cancellationToken).AsTask());
             var tableCollections = await Task.WhenAll(tablesTasks).ConfigureAwait(false);
-            var allTables = tableCollections.SelectMany(t => t);
+            var tables = tableCollections.SelectMany(t => t).DistinctBy(t => t.Name);
 
-            return allTables
-                .DistinctBy(t => t.Name)
-                .ToList();
+            foreach (var table in tables)
+                yield return table;
         }
 
         protected virtual OptionAsync<IRelationalDatabaseTable> LoadTable(Identifier tableName, CancellationToken cancellationToken)

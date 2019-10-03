@@ -90,7 +90,7 @@ create table test_table_4 (
         public async Task AddTable_GivenTable_ReturnsNotNullBuilder()
         {
             var database = Database;
-            var tables = await database.GetAllTables().ConfigureAwait(false);
+            var tables = await database.GetAllTables().ToListAsync().ConfigureAwait(false);
             var table = tables.First();
 
             var builder = Builder;
@@ -111,7 +111,7 @@ create table test_table_4 (
         public async Task HasRecords_AddTableGivenTableRequiringAnnotation_ReturnsTrue()
         {
             var database = Database;
-            var tables = await database.GetAllTables().ConfigureAwait(false);
+            var tables = await database.GetAllTables().ToListAsync().ConfigureAwait(false);
             var table = tables.First();
 
             var builder = Builder;
@@ -126,7 +126,7 @@ create table test_table_4 (
             var database = Database;
 
             var builder = Builder;
-            var tables = await database.GetAllTables().ConfigureAwait(false);
+            var tables = await database.GetAllTables().ToListAsync().ConfigureAwait(false);
             foreach (var table in tables)
                 builder.AddTable(table);
 

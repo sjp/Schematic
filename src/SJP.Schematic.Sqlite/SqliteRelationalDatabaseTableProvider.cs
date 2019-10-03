@@ -3,6 +3,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 using LanguageExt;
@@ -33,7 +34,7 @@ namespace SJP.Schematic.Sqlite
 
         protected IIdentifierDefaults IdentifierDefaults { get; }
 
-        public virtual async Task<IReadOnlyCollection<IRelationalDatabaseTable>> GetAllTables(CancellationToken cancellationToken = default)
+        public virtual async IAsyncEnumerable<IRelationalDatabaseTable> GetAllTables([EnumeratorCancellation] CancellationToken cancellationToken = default)
         {
             var dbNamesQuery = await ConnectionPragma.DatabaseListAsync().ConfigureAwait(false);
             var dbNames = dbNamesQuery
@@ -48,17 +49,19 @@ namespace SJP.Schematic.Sqlite
             {
                 var sql = TablesQuery(dbName);
                 var queryResult = await Connection.QueryAsync<string>(sql, cancellationToken).ConfigureAwait(false);
-                var tableNames = queryResult
+                var names = queryResult
                     .Where(name => !IsReservedTableName(name))
                     .Select(name => Identifier.CreateQualifiedIdentifier(dbName, name));
 
-                qualifiedTableNames.AddRange(tableNames);
+                qualifiedTableNames.AddRange(names);
             }
 
-            var tableTasks = qualifiedTableNames
-                .Select(name => LoadTableAsyncCore(name, cancellationToken))
-                .ToArray();
-            return await Task.WhenAll(tableTasks).ConfigureAwait(false);
+            var tableNames = qualifiedTableNames
+                .OrderBy(name => name.Schema)
+                .ThenBy(name => name.LocalName);
+
+            foreach (var tableName in tableNames)
+                yield return await LoadTableAsyncCore(tableName, cancellationToken).ConfigureAwait(false);
         }
 
         protected virtual string TablesQuery(string schemaName)

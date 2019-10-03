@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO.Abstractions;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using LanguageExt;
@@ -58,8 +59,8 @@ namespace SJP.Schematic.DataAccess.OrmLite
             var tableGenerator = new OrmLiteTableGenerator(NameTranslator, baseNamespace, Indent);
             var viewGenerator = new OrmLiteViewGenerator(NameTranslator, baseNamespace, Indent);
 
-            var tables = Database.GetAllTables(CancellationToken.None).GetAwaiter().GetResult();
-            var tableComments = CommentProvider.GetAllTableComments(CancellationToken.None).GetAwaiter().GetResult();
+            var tables = Database.GetAllTables(CancellationToken.None).ToListAsync(CancellationToken.None).GetAwaiter().GetResult();
+            var tableComments = CommentProvider.GetAllTableComments(CancellationToken.None).ToListAsync(CancellationToken.None).GetAwaiter().GetResult();
             var tableCommentsLookup = new Dictionary<Identifier, IRelationalDatabaseTableComments>();
             foreach (var comment in tableComments)
                 tableCommentsLookup[comment.TableName] = comment;
@@ -133,8 +134,8 @@ namespace SJP.Schematic.DataAccess.OrmLite
             FileSystem.File.WriteAllText(projectPath, ProjectDefinition);
 
             var tableGenerator = new OrmLiteTableGenerator(NameTranslator, baseNamespace, Indent);
-            var tables = await Database.GetAllTables(cancellationToken).ConfigureAwait(false);
-            var tableComments = await CommentProvider.GetAllTableComments(cancellationToken).ConfigureAwait(false);
+            var tables = await Database.GetAllTables(cancellationToken).ToListAsync(cancellationToken).ConfigureAwait(false);
+            var tableComments = await CommentProvider.GetAllTableComments(cancellationToken).ToListAsync(cancellationToken).ConfigureAwait(false);
             var tableCommentsLookup = new Dictionary<Identifier, IRelationalDatabaseTableComments>();
             foreach (var comment in tableComments)
                 tableCommentsLookup[comment.TableName] = comment;

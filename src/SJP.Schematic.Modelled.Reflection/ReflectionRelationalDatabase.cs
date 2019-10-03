@@ -47,7 +47,7 @@ namespace SJP.Schematic.Modelled.Reflection
                 : OptionAsync<IRelationalDatabaseTable>.None;
         }
 
-        public Task<IReadOnlyCollection<IRelationalDatabaseTable>> GetAllTables(CancellationToken cancellationToken = default) => Task.FromResult<IReadOnlyCollection<IRelationalDatabaseTable>>(Table.Values.ToList());
+        public IAsyncEnumerable<IRelationalDatabaseTable> GetAllTables(CancellationToken cancellationToken = default) => Table.Values.ToAsyncEnumerable();
 
         protected IReadOnlyDictionary<Identifier, IRelationalDatabaseTable> Table => _tableLookup.Value;
 

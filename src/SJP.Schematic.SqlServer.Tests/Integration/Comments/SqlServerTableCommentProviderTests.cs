@@ -243,16 +243,19 @@ EXEC sys.sp_addextendedproperty @name = N'MS_Description',
         [Test]
         public async Task GetAllTableComments_WhenEnumerated_ContainsTableComments()
         {
-            var tableComments = await TableCommentProvider.GetAllTableComments().ConfigureAwait(false);
+            var hasTableComments = await TableCommentProvider.GetAllTableComments()
+                .AnyAsync()
+                .ConfigureAwait(false);
 
-            Assert.NotZero(tableComments.Count);
+            Assert.IsTrue(hasTableComments);
         }
 
         [Test]
         public async Task GetAllTableComments_WhenEnumerated_ContainsTestTableComment()
         {
-            var tableComments = await TableCommentProvider.GetAllTableComments().ConfigureAwait(false);
-            var containsTestTable = tableComments.Any(t => t.TableName.LocalName == "table_comment_table_1");
+            var containsTestTable = await TableCommentProvider.GetAllTableComments()
+                .AnyAsync(t => t.TableName.LocalName == "table_comment_table_1")
+                .ConfigureAwait(false);
 
             Assert.IsTrue(containsTestTable);
         }

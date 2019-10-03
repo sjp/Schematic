@@ -20,7 +20,7 @@ namespace SJP.Schematic.SqlServer
             _routineProvider = new SqlServerDatabaseRoutineProvider(connection, identifierDefaults);
         }
 
-        public Task<IReadOnlyCollection<IRelationalDatabaseTable>> GetAllTables(CancellationToken cancellationToken = default)
+        public IAsyncEnumerable<IRelationalDatabaseTable> GetAllTables(CancellationToken cancellationToken = default)
         {
             return _tableProvider.GetAllTables(cancellationToken);
         }

@@ -21,7 +21,7 @@ namespace SJP.Schematic.Serialization.Mapping
         {
             var sequences = await database.GetAllSequences(cancellationToken).ToListAsync(cancellationToken).ConfigureAwait(false);
             var synonyms = await database.GetAllSynonyms(cancellationToken).ToListAsync(cancellationToken).ConfigureAwait(false);
-            var tables = await database.GetAllTables(cancellationToken).ConfigureAwait(false);
+            var tables = await database.GetAllTables(cancellationToken).ToListAsync(cancellationToken).ConfigureAwait(false);
             var views = await database.GetAllViews(cancellationToken).ConfigureAwait(false);
             var routines = await database.GetAllRoutines(cancellationToken).ConfigureAwait(false);
 

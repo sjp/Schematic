@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Dapper;
 using LanguageExt;
@@ -126,7 +127,7 @@ create table test_table_9 (
         [Test]
         public async Task Generate_GivenTableWithVariousColumnTypes_GeneratesExpectedOutput()
         {
-            var tables = await Database.GetAllTables().ConfigureAwait(false);
+            var tables = await Database.GetAllTables().ToListAsync().ConfigureAwait(false);
             var table = await GetTable("test_table_1").ConfigureAwait(false);
             var generator = TableGenerator;
 
@@ -139,7 +140,7 @@ create table test_table_9 (
         [Test]
         public async Task Generate_GivenTableWithVariousIndexesAndConstraints_GeneratesExpectedOutput()
         {
-            var tables = await Database.GetAllTables().ConfigureAwait(false);
+            var tables = await Database.GetAllTables().ToListAsync().ConfigureAwait(false);
             var table = await GetTable("test_table_2").ConfigureAwait(false);
             var generator = TableGenerator;
 
@@ -152,7 +153,7 @@ create table test_table_9 (
         [Test]
         public async Task Generate_GivenTableWithChildKeys_GeneratesExpectedOutput()
         {
-            var tables = await Database.GetAllTables().ConfigureAwait(false);
+            var tables = await Database.GetAllTables().ToListAsync().ConfigureAwait(false);
             var table = await GetTable("test_table_3").ConfigureAwait(false);
             var generator = TableGenerator;
 
@@ -165,7 +166,7 @@ create table test_table_9 (
         [Test]
         public async Task Generate_GivenTableWithForeignKeys_GeneratesExpectedOutput()
         {
-            var tables = await Database.GetAllTables().ConfigureAwait(false);
+            var tables = await Database.GetAllTables().ToListAsync().ConfigureAwait(false);
             var table = await GetTable("test_table_4").ConfigureAwait(false);
             var generator = TableGenerator;
 
@@ -181,7 +182,7 @@ create table test_table_9 (
             const string tableComment = "This is a test table comment for EF Core";
             const string columnComment = "This is a test column comment for EF Core";
 
-            var tables = await Database.GetAllTables().ConfigureAwait(false);
+            var tables = await Database.GetAllTables().ToListAsync().ConfigureAwait(false);
             var table = await GetTable("test_table_5").ConfigureAwait(false);
             var generator = TableGenerator;
 
@@ -211,7 +212,7 @@ This is a second line for it.";
 
 This is a second line for it.";
 
-            var tables = await Database.GetAllTables().ConfigureAwait(false);
+            var tables = await Database.GetAllTables().ToListAsync().ConfigureAwait(false);
             var table = await GetTable("test_table_5").ConfigureAwait(false);
             var generator = TableGenerator;
 
@@ -237,7 +238,7 @@ This is a second line for it.";
             const string tableComment = "This is a test table comment for EF Core";
             const string foreignKeyComment = "This is a test foreign key comment for EF Core";
 
-            var tables = await Database.GetAllTables().ConfigureAwait(false);
+            var tables = await Database.GetAllTables().ToListAsync().ConfigureAwait(false);
             var table = await GetTable("test_table_7").ConfigureAwait(false);
             var generator = TableGenerator;
 
@@ -267,7 +268,7 @@ This is a second line for it.";
 
 This is a second line for it.";
 
-            var tables = await Database.GetAllTables().ConfigureAwait(false);
+            var tables = await Database.GetAllTables().ToListAsync().ConfigureAwait(false);
             var table = await GetTable("test_table_7").ConfigureAwait(false);
             var generator = TableGenerator;
 
@@ -290,7 +291,7 @@ This is a second line for it.";
         [Test]
         public async Task Generate_GivenTableWithUniqueChildKeys_GeneratesExpectedOutput()
         {
-            var tables = await Database.GetAllTables().ConfigureAwait(false);
+            var tables = await Database.GetAllTables().ToListAsync().ConfigureAwait(false);
             var table = await GetTable("test_table_6").ConfigureAwait(false);
             var generator = TableGenerator;
 

@@ -34,7 +34,11 @@ namespace SJP.Schematic.Modelled.Reflection
 
         private IReadOnlyCollection<IDatabaseRelationalKey> LoadChildKeys()
         {
-            var tables = Database.GetAllTables(CancellationToken.None).ConfigureAwait(false).GetAwaiter().GetResult();
+            var tables = Database.GetAllTables(CancellationToken.None)
+                .ToListAsync(CancellationToken.None)
+                .ConfigureAwait(false)
+                .GetAwaiter()
+                .GetResult();
             return tables
                 .SelectMany(t => t.ParentKeys)
                 .Where(fk => fk.ParentTable == Name)

@@ -37,7 +37,7 @@ namespace SJP.Schematic.Reporting.Html
 
         public async Task ExportAsync(CancellationToken cancellationToken = default)
         {
-            var tables = await Database.GetAllTables(cancellationToken).ConfigureAwait(false);
+            var tables = await Database.GetAllTables(cancellationToken).ToListAsync(cancellationToken).ConfigureAwait(false);
             var views = await Database.GetAllViews(cancellationToken).ConfigureAwait(false);
             var sequences = await Database.GetAllSequences(cancellationToken).ToListAsync(cancellationToken).ConfigureAwait(false);
             var synonyms = await Database.GetAllSynonyms(cancellationToken).ToListAsync(cancellationToken).ConfigureAwait(false);

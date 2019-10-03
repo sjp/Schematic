@@ -13,13 +13,13 @@ namespace SJP.Schematic.Oracle.Tests.Integration
     internal partial class OracleRelationalDatabaseTableProviderTests : OracleTest
     {
         private IRelationalDatabaseTableProvider TableProvider => new OracleRelationalDatabaseTableProvider(Connection, IdentifierDefaults, IdentifierResolver, Dialect.TypeProvider);
-        private AsyncLazy<IReadOnlyCollection<IRelationalDatabaseTable>> _tables;
-        private Task<IReadOnlyCollection<IRelationalDatabaseTable>> GetAllTables() => _tables.Task;
+        private AsyncLazy<List<IRelationalDatabaseTable>> _tables;
+        private Task<List<IRelationalDatabaseTable>> GetAllTables() => _tables.Task;
 
         [OneTimeSetUp]
         public async Task Init()
         {
-            _tables = new AsyncLazy<IReadOnlyCollection<IRelationalDatabaseTable>>(() => TableProvider.GetAllTables());
+            _tables = new AsyncLazy<List<IRelationalDatabaseTable>>(() => TableProvider.GetAllTables().ToListAsync().AsTask());
 
             await Connection.ExecuteAsync("create table db_test_table_1 ( title varchar2(200) )").ConfigureAwait(false);
 

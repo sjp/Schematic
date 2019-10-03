@@ -417,16 +417,19 @@ execute procedure v10_test_trigger_fn()").ConfigureAwait(false);
         [Test]
         public async Task GetAllTables_WhenEnumerated_ContainsTables()
         {
-            var tables = await TableProvider.GetAllTables().ConfigureAwait(false);
+            var hasTables = await TableProvider.GetAllTables()
+                .AnyAsync()
+                .ConfigureAwait(false);
 
-            Assert.NotZero(tables.Count);
+            Assert.IsTrue(hasTables);
         }
 
         [Test]
         public async Task GetAllTables_WhenEnumerated_ContainsTestTable()
         {
-            var tables = await TableProvider.GetAllTables().ConfigureAwait(false);
-            var containsTestTable = tables.Any(t => t.Name.LocalName == "v10_db_test_table_1");
+            var containsTestTable = await TableProvider.GetAllTables()
+                .AnyAsync(t => t.Name.LocalName == "v10_db_test_table_1")
+                .ConfigureAwait(false);
 
             Assert.IsTrue(containsTestTable);
         }

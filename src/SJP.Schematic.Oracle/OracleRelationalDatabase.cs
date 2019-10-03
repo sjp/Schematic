@@ -20,7 +20,7 @@ namespace SJP.Schematic.Oracle
             _routineProvider = new OracleDatabaseRoutineProvider(connection, identifierDefaults, identifierResolver);
         }
 
-        public Task<IReadOnlyCollection<IRelationalDatabaseTable>> GetAllTables(CancellationToken cancellationToken = default)
+        public IAsyncEnumerable<IRelationalDatabaseTable> GetAllTables(CancellationToken cancellationToken = default)
         {
             return _tableProvider.GetAllTables(cancellationToken);
         }

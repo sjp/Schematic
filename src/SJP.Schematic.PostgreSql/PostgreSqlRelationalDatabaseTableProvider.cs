@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 using LanguageExt;
@@ -32,15 +34,16 @@ namespace SJP.Schematic.PostgreSql
 
         protected IDatabaseDialect Dialect { get; }
 
-        public async Task<IReadOnlyCollection<IRelationalDatabaseTable>> GetAllTables(CancellationToken cancellationToken = default)
+        public async IAsyncEnumerable<IRelationalDatabaseTable> GetAllTables([EnumeratorCancellation] CancellationToken cancellationToken = default)
         {
             var provider = await _tableProvider.Task.ConfigureAwait(false);
-            var tablesTask = provider.Match(
+            var tables = provider.Match(
                 tp => tp.GetAllTables(cancellationToken),
-                () => Empty.Tables
+                AsyncEnumerable.Empty<IRelationalDatabaseTable>
             );
 
-            return await tablesTask.ConfigureAwait(false);
+            await foreach (var table in tables.WithCancellation(cancellationToken).ConfigureAwait(false))
+                yield return table;
         }
 
         public OptionAsync<IRelationalDatabaseTable> GetTable(Identifier tableName, CancellationToken cancellationToken = default)

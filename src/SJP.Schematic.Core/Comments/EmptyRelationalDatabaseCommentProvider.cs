@@ -23,7 +23,7 @@ namespace SJP.Schematic.Core.Comments
             return _synonymCommentProvider.GetAllSynonymComments(cancellationToken);
         }
 
-        public Task<IReadOnlyCollection<IRelationalDatabaseTableComments>> GetAllTableComments(CancellationToken cancellationToken = default)
+        public IAsyncEnumerable<IRelationalDatabaseTableComments> GetAllTableComments(CancellationToken cancellationToken = default)
         {
             return _tableCommentProvider.GetAllTableComments(cancellationToken);
         }

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 using LanguageExt;
@@ -28,49 +29,45 @@ namespace SJP.Schematic.Oracle.Comments
 
         protected IIdentifierResolutionStrategy IdentifierResolver { get; }
 
-        public async Task<IReadOnlyCollection<IRelationalDatabaseTableComments>> GetAllTableComments(CancellationToken cancellationToken = default)
+        public async IAsyncEnumerable<IRelationalDatabaseTableComments> GetAllTableComments([EnumeratorCancellation] CancellationToken cancellationToken = default)
         {
             var allCommentsData = await Connection.QueryAsync<TableCommentsData>(AllTableCommentsQuery, cancellationToken).ConfigureAwait(false);
 
-            var result = new List<IRelationalDatabaseTableComments>();
+            var comments = allCommentsData
+                .GroupBy(row => new { row.SchemaName, row.ObjectName })
+                .Select(g => new
+                {
+                    Name = QualifyTableName(Identifier.CreateQualifiedIdentifier(g.Key.SchemaName, g.Key.ObjectName)),
+                    Comments = g.ToList()
+                })
+                .OrderBy(g => g.Name.Schema)
+                .ThenBy(g => g.Name.LocalName)
+                .Select(table =>
+                {
+                    var tableComment = GetTableComment(table.Comments);
+                    var primaryKeyComment = Option<string>.None;
+                    var columnComments = GetColumnComments(table.Comments);
+                    var checkComments = Empty.CommentLookup;
+                    var foreignKeyComments = Empty.CommentLookup;
+                    var uniqueKeyComments = Empty.CommentLookup;
+                    var indexComments = Empty.CommentLookup;
+                    var triggerComments = Empty.CommentLookup;
 
-            var groupedByName = allCommentsData.GroupBy(row => new { row.SchemaName, row.ObjectName }).ToList();
-            foreach (var groupedComment in groupedByName)
-            {
-                var tmpIdentifier = Identifier.CreateQualifiedIdentifier(groupedComment.Key.SchemaName, groupedComment.Key.ObjectName);
-                var qualifiedName = QualifyTableName(tmpIdentifier);
+                    return new RelationalDatabaseTableComments(
+                        table.Name,
+                        tableComment,
+                        primaryKeyComment,
+                        columnComments,
+                        checkComments,
+                        uniqueKeyComments,
+                        foreignKeyComments,
+                        indexComments,
+                        triggerComments
+                    );
+                });
 
-                var commentsData = groupedComment.ToList();
-
-                var tableComment = GetTableComment(commentsData);
-                var primaryKeyComment = Option<string>.None;
-
-                var columnComments = GetColumnComments(commentsData);
-                var checkComments = Empty.CommentLookup;
-                var foreignKeyComments = Empty.CommentLookup;
-                var uniqueKeyComments = Empty.CommentLookup;
-                var indexComments = Empty.CommentLookup;
-                var triggerComments = Empty.CommentLookup;
-
-                var comments = new RelationalDatabaseTableComments(
-                    qualifiedName,
-                    tableComment,
-                    primaryKeyComment,
-                    columnComments,
-                    checkComments,
-                    uniqueKeyComments,
-                    foreignKeyComments,
-                    indexComments,
-                    triggerComments
-                );
-
-                result.Add(comments);
-            }
-
-            return result
-                .OrderBy(c => c.TableName.Schema)
-                .ThenBy(c => c.TableName.LocalName)
-                .ToList();
+            foreach (var comment in comments)
+                yield return comment;
         }
 
         protected OptionAsync<Identifier> GetResolvedTableName(Identifier tableName, CancellationToken cancellationToken = default)

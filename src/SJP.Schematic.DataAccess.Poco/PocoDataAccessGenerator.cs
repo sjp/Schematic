@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO.Abstractions;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using LanguageExt;
@@ -58,8 +59,8 @@ namespace SJP.Schematic.DataAccess.Poco
             var tableGenerator = new PocoTableGenerator(NameTranslator, baseNamespace, Indent);
             var viewGenerator = new PocoViewGenerator(NameTranslator, baseNamespace, Indent);
 
-            var tables = Database.GetAllTables(CancellationToken.None).GetAwaiter().GetResult();
-            var comments = CommentProvider.GetAllTableComments(CancellationToken.None).GetAwaiter().GetResult();
+            var tables = Database.GetAllTables(CancellationToken.None).ToListAsync(CancellationToken.None).GetAwaiter().GetResult();
+            var comments = CommentProvider.GetAllTableComments(CancellationToken.None).ToListAsync(CancellationToken.None).GetAwaiter().GetResult();
 
             var tableCommentsLookup = new Dictionary<Identifier, IRelationalDatabaseTableComments>();
             foreach (var comment in comments)
@@ -137,8 +138,8 @@ namespace SJP.Schematic.DataAccess.Poco
             var tableGenerator = new PocoTableGenerator(NameTranslator, baseNamespace, Indent);
             var viewGenerator = new PocoViewGenerator(NameTranslator, baseNamespace, Indent);
 
-            var tables = await Database.GetAllTables(cancellationToken).ConfigureAwait(false);
-            var comments = await CommentProvider.GetAllTableComments(cancellationToken).ConfigureAwait(false);
+            var tables = await Database.GetAllTables(cancellationToken).ToListAsync(cancellationToken).ConfigureAwait(false);
+            var comments = await CommentProvider.GetAllTableComments(cancellationToken).ToListAsync(cancellationToken).ConfigureAwait(false);
             var tableCommentsLookup = new Dictionary<Identifier, IRelationalDatabaseTableComments>();
             foreach (var comment in comments)
                 tableCommentsLookup[comment.TableName] = comment;

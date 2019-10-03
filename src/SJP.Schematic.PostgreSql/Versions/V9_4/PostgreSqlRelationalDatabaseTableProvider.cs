@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Globalization;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 using LanguageExt;
@@ -34,23 +35,17 @@ namespace SJP.Schematic.PostgreSql.Versions.V9_4
 
         protected IDatabaseDialect Dialect { get; }
 
-        public virtual async Task<IReadOnlyCollection<IRelationalDatabaseTable>> GetAllTables(CancellationToken cancellationToken = default)
+        public virtual async IAsyncEnumerable<IRelationalDatabaseTable> GetAllTables([EnumeratorCancellation] CancellationToken cancellationToken = default)
         {
             var queryResults = await Connection.QueryAsync<QualifiedName>(TablesQuery, cancellationToken).ConfigureAwait(false);
             var tableNames = queryResults
                 .Select(dto => Identifier.CreateQualifiedIdentifier(dto.SchemaName, dto.ObjectName))
                 .Select(QualifyTableName)
-                .ToList();
-
-            var tables = new List<IRelationalDatabaseTable>();
+                .OrderBy(name => name.Schema)
+                .ThenBy(name => name.LocalName);
 
             foreach (var tableName in tableNames)
-            {
-                var table = await LoadTableAsyncCore(tableName, cancellationToken).ConfigureAwait(false);
-                tables.Add(table);
-            }
-
-            return tables;
+                yield return await LoadTableAsyncCore(tableName, cancellationToken).ConfigureAwait(false);
         }
 
         protected virtual string TablesQuery => TablesQuerySql;

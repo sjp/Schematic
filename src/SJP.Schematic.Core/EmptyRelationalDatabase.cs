@@ -18,7 +18,7 @@ namespace SJP.Schematic.Core
 
         public IIdentifierDefaults IdentifierDefaults { get; }
 
-        public Task<IReadOnlyCollection<IRelationalDatabaseTable>> GetAllTables(CancellationToken cancellationToken = default)
+        public IAsyncEnumerable<IRelationalDatabaseTable> GetAllTables(CancellationToken cancellationToken = default)
         {
             return TableProvider.GetAllTables(cancellationToken);
         }

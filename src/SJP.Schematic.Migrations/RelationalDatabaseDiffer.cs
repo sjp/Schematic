@@ -30,8 +30,8 @@ namespace SJP.Schematic.Migrations
 
         private async Task<IReadOnlyCollection<IMigrationOperation>> GetDifferencesCore(IRelationalDatabase comparison, CancellationToken cancellationToken = default)
         {
-            var tables = await Database.GetAllTables(cancellationToken).ConfigureAwait(false);
-            var comparisonTables = await comparison.GetAllTables(cancellationToken).ConfigureAwait(false);
+            var tables = await Database.GetAllTables(cancellationToken).ToListAsync(cancellationToken).ConfigureAwait(false);
+            var comparisonTables = await comparison.GetAllTables(cancellationToken).ToListAsync(cancellationToken).ConfigureAwait(false);
             CompareTables(tables, comparisonTables);
 
             var views = await Database.GetAllViews(cancellationToken).ConfigureAwait(false);

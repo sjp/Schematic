@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 using LanguageExt;
@@ -26,53 +27,47 @@ namespace SJP.Schematic.SqlServer.Comments
 
         protected virtual string CommentProperty { get; } = "MS_Description";
 
-        public async Task<IReadOnlyCollection<IRelationalDatabaseTableComments>> GetAllTableComments(CancellationToken cancellationToken = default)
+        public async IAsyncEnumerable<IRelationalDatabaseTableComments> GetAllTableComments([EnumeratorCancellation] CancellationToken cancellationToken = default)
         {
-            var result = new List<IRelationalDatabaseTableComments>();
-
-            var allCommentsData = await Connection.QueryAsync<CommentsData>(
+            var commentsData = await Connection.QueryAsync<CommentsData>(
                 AllTableCommentsQuery,
                 new { CommentProperty },
                 cancellationToken
             ).ConfigureAwait(false);
 
-            var groupedByName = allCommentsData.GroupBy(row => new { row.SchemaName, row.TableName }).ToList();
-            foreach (var groupedComment in groupedByName)
-            {
-                var tmpIdentifier = Identifier.CreateQualifiedIdentifier(groupedComment.Key.SchemaName, groupedComment.Key.TableName);
-                var qualifiedName = QualifyTableName(tmpIdentifier);
+            var comments = commentsData
+                .GroupBy(row => new { row.SchemaName, row.TableName })
+                .Select(g => new
+                {
+                    Name = QualifyTableName(Identifier.CreateQualifiedIdentifier(g.Key.SchemaName, g.Key.TableName)),
+                    Comments = g.ToList()
+                })
+                .Select(comment =>
+                {
+                    var tableComment = GetFirstCommentByType(comment.Comments, Constants.Table);
+                    var primaryKeyComment = GetFirstCommentByType(comment.Comments, Constants.Primary);
+                    var columnComments = GetCommentLookupByType(comment.Comments, Constants.Column);
+                    var checkComments = GetCommentLookupByType(comment.Comments, Constants.Check);
+                    var foreignKeyComments = GetCommentLookupByType(comment.Comments, Constants.ForeignKey);
+                    var uniqueKeyComments = GetCommentLookupByType(comment.Comments, Constants.Unique);
+                    var indexComments = GetCommentLookupByType(comment.Comments, Constants.Index);
+                    var triggerComments = GetCommentLookupByType(comment.Comments, Constants.Trigger);
 
-                var commentsData = groupedComment.ToList();
+                    return new RelationalDatabaseTableComments(
+                        comment.Name,
+                        tableComment,
+                        primaryKeyComment,
+                        columnComments,
+                        checkComments,
+                        uniqueKeyComments,
+                        foreignKeyComments,
+                        indexComments,
+                        triggerComments
+                    );
+                });
 
-                var tableComment = GetFirstCommentByType(commentsData, Constants.Table);
-                var primaryKeyComment = GetFirstCommentByType(commentsData, Constants.Primary);
-
-                var columnComments = GetCommentLookupByType(commentsData, Constants.Column);
-                var checkComments = GetCommentLookupByType(commentsData, Constants.Check);
-                var foreignKeyComments = GetCommentLookupByType(commentsData, Constants.ForeignKey);
-                var uniqueKeyComments = GetCommentLookupByType(commentsData, Constants.Unique);
-                var indexComments = GetCommentLookupByType(commentsData, Constants.Index);
-                var triggerComments = GetCommentLookupByType(commentsData, Constants.Trigger);
-
-                var comments = new RelationalDatabaseTableComments(
-                    qualifiedName,
-                    tableComment,
-                    primaryKeyComment,
-                    columnComments,
-                    checkComments,
-                    uniqueKeyComments,
-                    foreignKeyComments,
-                    indexComments,
-                    triggerComments
-                );
-
-                result.Add(comments);
-            }
-
-            return result
-                .OrderBy(c => c.TableName.Schema)
-                .ThenBy(c => c.TableName.LocalName)
-                .ToList();
+            foreach (var comment in comments)
+                yield return comment;
         }
 
         protected OptionAsync<Identifier> GetResolvedTableName(Identifier tableName, CancellationToken cancellationToken)

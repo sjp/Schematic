@@ -49,8 +49,8 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore
             if (!string.Equals(projectFileInfo.Extension, ".csproj", StringComparison.OrdinalIgnoreCase))
                 throw new ArgumentException("The given path to a project must be a csproj file.", nameof(projectPath));
 
-            var tables = Database.GetAllTables(CancellationToken.None).GetAwaiter().GetResult();
-            var tableComments = CommentProvider.GetAllTableComments(CancellationToken.None).GetAwaiter().GetResult();
+            var tables = Database.GetAllTables(CancellationToken.None).ToListAsync(CancellationToken.None).GetAwaiter().GetResult();
+            var tableComments = CommentProvider.GetAllTableComments(CancellationToken.None).ToListAsync(CancellationToken.None).GetAwaiter().GetResult();
             var views = Database.GetAllViews(CancellationToken.None).GetAwaiter().GetResult();
             var viewComments = CommentProvider.GetAllViewComments(CancellationToken.None).GetAwaiter().GetResult();
             var sequences = Database.GetAllSequences(CancellationToken.None).ToListAsync(CancellationToken.None).GetAwaiter().GetResult();
@@ -146,8 +146,8 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore
             var tableGenerator = new EFCoreTableGenerator(NameTranslator, baseNamespace, Indent);
             var viewGenerator = new EFCoreViewGenerator(NameTranslator, baseNamespace, Indent);
 
-            var tables = await Database.GetAllTables(cancellationToken).ConfigureAwait(false);
-            var tableComments = await CommentProvider.GetAllTableComments(cancellationToken).ConfigureAwait(false);
+            var tables = await Database.GetAllTables(cancellationToken).ToListAsync(cancellationToken).ConfigureAwait(false);
+            var tableComments = await CommentProvider.GetAllTableComments(cancellationToken).ToListAsync(cancellationToken).ConfigureAwait(false);
             var views = await Database.GetAllViews(cancellationToken).ConfigureAwait(false);
             var viewComments = await CommentProvider.GetAllViewComments(cancellationToken).ConfigureAwait(false);
             var sequences = await Database.GetAllSequences(cancellationToken).ToListAsync(cancellationToken).ConfigureAwait(false);
