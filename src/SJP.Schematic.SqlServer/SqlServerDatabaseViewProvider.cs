@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 using LanguageExt;
@@ -26,15 +27,17 @@ namespace SJP.Schematic.SqlServer
 
         protected IDbTypeProvider TypeProvider { get; }
 
-        public virtual async Task<IReadOnlyCollection<IDatabaseView>> GetAllViews(CancellationToken cancellationToken = default)
+        public virtual async IAsyncEnumerable<IDatabaseView> GetAllViews([EnumeratorCancellation] CancellationToken cancellationToken = default)
         {
             var queryResult = await Connection.QueryAsync<QualifiedName>(ViewsQuery, cancellationToken).ConfigureAwait(false);
-            var viewTasks = queryResult
+            var viewNames = queryResult
                 .Select(dto => Identifier.CreateQualifiedIdentifier(dto.SchemaName, dto.ObjectName))
                 .Select(QualifyViewName)
-                .Select(name => LoadViewAsyncCore(name, cancellationToken))
-                .ToList();
-            return await Task.WhenAll(viewTasks).ConfigureAwait(false);
+                .OrderBy(v => v.Schema)
+                .ThenBy(v => v.LocalName);
+
+            foreach (var viewName in viewNames)
+                yield return await LoadViewAsyncCore(viewName, cancellationToken).ConfigureAwait(false);
         }
 
         protected virtual string ViewsQuery => ViewsQuerySql;

@@ -1,9 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
-using System.Threading.Tasks;
 using LanguageExt;
-using SJP.Schematic.Core.Utilities;
 
 namespace SJP.Schematic.Core.Comments
 {
@@ -17,9 +16,6 @@ namespace SJP.Schematic.Core.Comments
             return OptionAsync<IDatabaseViewComments>.None;
         }
 
-        public Task<IReadOnlyCollection<IDatabaseViewComments>> GetAllViewComments(CancellationToken cancellationToken = default)
-        {
-            return Empty.ViewComments;
-        }
+        public IAsyncEnumerable<IDatabaseViewComments> GetAllViewComments(CancellationToken cancellationToken = default) => AsyncEnumerable.Empty<IDatabaseViewComments>();
     }
 }

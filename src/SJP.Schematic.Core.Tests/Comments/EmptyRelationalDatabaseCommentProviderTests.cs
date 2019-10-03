@@ -53,22 +53,14 @@ namespace SJP.Schematic.Core.Tests.Comments
         }
 
         [Test]
-        public static async Task GetAllViewComments_WhenInvoked_HasZeroCount()
-        {
-            var provider = new EmptyRelationalDatabaseCommentProvider();
-            var comments = await provider.GetAllViewComments().ConfigureAwait(false);
-
-            Assert.Zero(comments.Count);
-        }
-
-        [Test]
         public static async Task GetAllViewComments_WhenInvoked_DoesNotEnumerateAnyValues()
         {
             var provider = new EmptyRelationalDatabaseCommentProvider();
-            var comments = await provider.GetAllViewComments().ConfigureAwait(false);
-            var count = comments.ToList().Count;
+            var hasComments = await provider.GetAllViewComments()
+                .AnyAsync()
+                .ConfigureAwait(false);
 
-            Assert.Zero(count);
+            Assert.IsFalse(hasComments);
         }
 
         [Test]
@@ -143,22 +135,14 @@ namespace SJP.Schematic.Core.Tests.Comments
         }
 
         [Test]
-        public static async Task GetAllRoutineComments_WhenInvoked_HasZeroCount()
-        {
-            var provider = new EmptyRelationalDatabaseCommentProvider();
-            var comments = await provider.GetAllRoutineComments().ConfigureAwait(false);
-
-            Assert.Zero(comments.Count);
-        }
-
-        [Test]
         public static async Task GetAllRoutineComments_WhenInvoked_DoesNotEnumerateAnyValues()
         {
             var provider = new EmptyRelationalDatabaseCommentProvider();
-            var comments = await provider.GetAllRoutineComments().ConfigureAwait(false);
-            var count = comments.ToList().Count;
+            var hasComments = await provider.GetAllRoutineComments()
+                .AnyAsync()
+                .ConfigureAwait(false);
 
-            Assert.Zero(count);
+            Assert.IsFalse(hasComments);
         }
     }
 }

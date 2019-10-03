@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using System.Threading;
-using System.Threading.Tasks;
 using LanguageExt;
 
 namespace SJP.Schematic.Core
@@ -9,6 +8,6 @@ namespace SJP.Schematic.Core
     {
         OptionAsync<IDatabaseView> GetView(Identifier viewName, CancellationToken cancellationToken = default);
 
-        Task<IReadOnlyCollection<IDatabaseView>> GetAllViews(CancellationToken cancellationToken = default);
+        IAsyncEnumerable<IDatabaseView> GetAllViews(CancellationToken cancellationToken = default);
     }
 }

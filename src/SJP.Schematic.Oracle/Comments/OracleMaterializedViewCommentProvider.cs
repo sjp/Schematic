@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 using LanguageExt;
@@ -27,31 +28,29 @@ namespace SJP.Schematic.Oracle.Comments
 
         protected IIdentifierResolutionStrategy IdentifierResolver { get; }
 
-        public async Task<IReadOnlyCollection<IDatabaseViewComments>> GetAllViewComments(CancellationToken cancellationToken = default)
+        public async IAsyncEnumerable<IDatabaseViewComments> GetAllViewComments([EnumeratorCancellation] CancellationToken cancellationToken = default)
         {
             var allCommentsData = await Connection.QueryAsync<TableCommentsData>(AllViewCommentsQuery, cancellationToken).ConfigureAwait(false);
 
-            var result = new List<IDatabaseViewComments>();
+            var comments = allCommentsData
+                .GroupBy(row => new { row.SchemaName, row.ObjectName })
+                .Select(g => new
+                {
+                    Name = QualifyViewName(Identifier.CreateQualifiedIdentifier(g.Key.SchemaName, g.Key.ObjectName)),
+                    Comments = g.ToList()
+                })
+                .OrderBy(g => g.Name.Schema)
+                .ThenBy(g => g.Name.LocalName)
+                .Select(g =>
+                {
+                    var viewComment = GetViewComment(g.Comments);
+                    var columnComments = GetColumnComments(g.Comments);
 
-            var groupedByName = allCommentsData.GroupBy(row => new { row.SchemaName, row.ObjectName }).ToList();
-            foreach (var groupedComment in groupedByName)
-            {
-                var tmpIdentifier = Identifier.CreateQualifiedIdentifier(groupedComment.Key.SchemaName, groupedComment.Key.ObjectName);
-                var qualifiedName = QualifyViewName(tmpIdentifier);
+                    return new DatabaseViewComments(g.Name, viewComment, columnComments);
+                });
 
-                var commentsData = groupedComment.ToList();
-
-                var viewComment = GetViewComment(commentsData);
-                var columnComments = GetColumnComments(commentsData);
-
-                var comments = new DatabaseViewComments(qualifiedName, viewComment, columnComments);
-                result.Add(comments);
-            }
-
-            return result
-                .OrderBy(c => c.ViewName.Schema)
-                .ThenBy(c => c.ViewName.LocalName)
-                .ToList();
+            foreach (var comment in comments)
+                yield return comment;
         }
 
         protected OptionAsync<Identifier> GetResolvedViewName(Identifier viewName, CancellationToken cancellationToken)

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 using LanguageExt;
@@ -29,16 +30,18 @@ namespace SJP.Schematic.PostgreSql.Comments
 
         protected IDatabaseViewCommentProvider MaterializedViewCommentProvider { get; }
 
-        public async Task<IReadOnlyCollection<IDatabaseViewComments>> GetAllViewComments(CancellationToken cancellationToken = default)
+        public async IAsyncEnumerable<IDatabaseViewComments> GetAllViewComments([EnumeratorCancellation] CancellationToken cancellationToken = default)
         {
-            var queryViews = await QueryViewCommentProvider.GetAllViewComments(cancellationToken).ConfigureAwait(false);
-            var materializedViews = await MaterializedViewCommentProvider.GetAllViewComments(cancellationToken).ConfigureAwait(false);
+            var queryViews = await QueryViewCommentProvider.GetAllViewComments(cancellationToken).ToListAsync(cancellationToken).ConfigureAwait(false);
+            var materializedViews = await MaterializedViewCommentProvider.GetAllViewComments(cancellationToken).ToListAsync().ConfigureAwait(false);
 
-            return queryViews
+            var viewComments = queryViews
                 .Concat(materializedViews)
                 .OrderBy(v => v.ViewName.Schema)
-                .ThenBy(v => v.ViewName.LocalName)
-                .ToList();
+                .ThenBy(v => v.ViewName.LocalName);
+
+            foreach (var comment in viewComments)
+                yield return comment;
         }
 
         public OptionAsync<IDatabaseViewComments> GetViewComments(Identifier viewName, CancellationToken cancellationToken = default)

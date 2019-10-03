@@ -26,22 +26,14 @@ namespace SJP.Schematic.Core.Tests
         }
 
         [Test]
-        public static async Task GetAllViews_PropertyGet_HasCountOfZero()
-        {
-            var provider = new EmptyDatabaseViewProvider();
-            var views = await provider.GetAllViews().ConfigureAwait(false);
-
-            Assert.Zero(views.Count);
-        }
-
-        [Test]
         public static async Task GetAllViews_WhenEnumerated_ContainsNoValues()
         {
             var provider = new EmptyDatabaseViewProvider();
-            var views = await provider.GetAllViews().ConfigureAwait(false);
-            var viewsList = views.ToList();
+            var hasViews = await provider.GetAllViews()
+                .AnyAsync()
+                .ConfigureAwait(false);
 
-            Assert.Zero(viewsList.Count);
+            Assert.IsFalse(hasViews);
         }
     }
 }

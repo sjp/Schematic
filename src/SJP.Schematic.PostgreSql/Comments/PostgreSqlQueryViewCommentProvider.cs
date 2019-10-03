@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 using LanguageExt;
@@ -27,28 +28,27 @@ namespace SJP.Schematic.PostgreSql.Comments
 
         protected IIdentifierResolutionStrategy IdentifierResolver { get; }
 
-        public async Task<IReadOnlyCollection<IDatabaseViewComments>> GetAllViewComments(CancellationToken cancellationToken = default)
+        public async IAsyncEnumerable<IDatabaseViewComments> GetAllViewComments([EnumeratorCancellation] CancellationToken cancellationToken = default)
         {
-            var result = new List<IDatabaseViewComments>();
-
             var allCommentsData = await Connection.QueryAsync<ViewCommentsData>(AllViewCommentsQuery, cancellationToken).ConfigureAwait(false);
 
-            var groupedByName = allCommentsData.GroupBy(row => new { row.SchemaName, row.ViewName }).ToList();
-            foreach (var groupedComment in groupedByName)
-            {
-                var tmpIdentifier = Identifier.CreateQualifiedIdentifier(groupedComment.Key.SchemaName, groupedComment.Key.ViewName);
-                var qualifiedName = QualifyViewName(tmpIdentifier);
+            var comments = allCommentsData
+                .GroupBy(row => new { row.SchemaName, row.ViewName })
+                .OrderBy(g => g.Key.SchemaName)
+                .ThenBy(g => g.Key.ViewName)
+                .Select(g =>
+                {
+                    var qualifiedName = QualifyViewName(Identifier.CreateQualifiedIdentifier(g.Key.SchemaName, g.Key.ViewName));
 
-                var commentsData = groupedComment.ToList();
+                    var commentsData = g.ToList();
+                    var viewComment = GetFirstCommentByType(commentsData, Constants.View);
+                    var columnComments = GetCommentLookupByType(commentsData, Constants.Column);
 
-                var viewComment = GetFirstCommentByType(commentsData, Constants.View);
-                var columnComments = GetCommentLookupByType(commentsData, Constants.Column);
+                    return new DatabaseViewComments(qualifiedName, viewComment, columnComments);
+                });
 
-                var comments = new DatabaseViewComments(qualifiedName, viewComment, columnComments);
-                result.Add(comments);
-            }
-
-            return result;
+            foreach (var comment in comments)
+                yield return comment;
         }
 
         protected OptionAsync<Identifier> GetResolvedViewName(Identifier viewName, CancellationToken cancellationToken)

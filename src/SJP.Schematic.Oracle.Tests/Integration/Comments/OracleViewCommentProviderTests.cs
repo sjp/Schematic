@@ -156,16 +156,19 @@ namespace SJP.Schematic.Oracle.Tests.Integration.Comments
         [Test]
         public async Task GetAllViewComments_WhenEnumerated_ContainsViewComments()
         {
-            var viewComments = await ViewCommentProvider.GetAllViewComments().ConfigureAwait(false);
+            var hasViewComments = await ViewCommentProvider.GetAllViewComments()
+                .AnyAsync()
+                .ConfigureAwait(false);
 
-            Assert.NotZero(viewComments.Count);
+            Assert.IsTrue(hasViewComments);
         }
 
         [Test]
         public async Task GetAllViewComments_WhenEnumerated_ContainsTestViewComment()
         {
-            var viewComments = await ViewCommentProvider.GetAllViewComments().ConfigureAwait(false);
-            var containsTestView = viewComments.Any(t => t.ViewName.LocalName == "WRAPPER_VIEW_COMMENT_VIEW_1");
+            var containsTestView = await ViewCommentProvider.GetAllViewComments()
+                .AnyAsync(v => v.ViewName.LocalName == "WRAPPER_VIEW_COMMENT_VIEW_1")
+                .ConfigureAwait(false);
 
             Assert.IsTrue(containsTestView);
         }
@@ -354,8 +357,9 @@ namespace SJP.Schematic.Oracle.Tests.Integration.Comments
         [Test]
         public async Task GetAllViewComments_WhenEnumerated_ContainsTestMatViewComment()
         {
-            var viewComments = await ViewCommentProvider.GetAllViewComments().ConfigureAwait(false);
-            var containsTestView = viewComments.Any(t => t.ViewName.LocalName == "WRAPPER_VIEW_COMMENT_MVIEW_1");
+            var containsTestView = await ViewCommentProvider.GetAllViewComments()
+                .AnyAsync(v => v.ViewName.LocalName == "WRAPPER_VIEW_COMMENT_MVIEW_1")
+                .ConfigureAwait(false);
 
             Assert.IsTrue(containsTestView);
         }

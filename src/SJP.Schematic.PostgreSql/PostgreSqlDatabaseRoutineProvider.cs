@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 using LanguageExt;
@@ -26,23 +27,25 @@ namespace SJP.Schematic.PostgreSql
 
         protected IIdentifierResolutionStrategy IdentifierResolver { get; }
 
-        public async Task<IReadOnlyCollection<IDatabaseRoutine>> GetAllRoutines(CancellationToken cancellationToken = default)
+        public async IAsyncEnumerable<IDatabaseRoutine> GetAllRoutines([EnumeratorCancellation] CancellationToken cancellationToken = default)
         {
             var queryResult = await Connection.QueryAsync<RoutineData>(
                 RoutinesQuery,
                 cancellationToken
             ).ConfigureAwait(false);
-            if (queryResult.Empty())
-                return Array.Empty<IDatabaseRoutine>();
 
-            return queryResult
+            var routines = queryResult
                 .Where(row => row.Definition != null)
+                .OrderBy(row => row.SchemaName)
+                .ThenBy(row => row.RoutineName)
                 .Select(row =>
                 {
                     var routineName = QualifyRoutineName(Identifier.CreateQualifiedIdentifier(row.SchemaName, row.RoutineName));
                     return new DatabaseRoutine(routineName, row.Definition!);
-                })
-                .ToList();
+                });
+
+            foreach (var routine in routines)
+                yield return routine;
         }
 
         protected virtual string RoutinesQuery => RoutinesQuerySql;

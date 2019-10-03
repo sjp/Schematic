@@ -41,7 +41,7 @@ namespace SJP.Schematic.SqlServer
                 .ThenBy(name => name.LocalName);
 
             foreach (var tableName in tableNames)
-                yield return await LoadTableAsyncCore(tableName, cancellationToken);
+                yield return await LoadTableAsyncCore(tableName, cancellationToken).ConfigureAwait(false);
         }
 
         protected virtual string TablesQuery => TablesQuerySql;

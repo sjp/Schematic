@@ -2,7 +2,6 @@
 using System.Data;
 using System.Linq;
 using System.Threading;
-using System.Threading.Tasks;
 using LanguageExt;
 
 namespace SJP.Schematic.Core.Tests.Fakes
@@ -55,8 +54,8 @@ namespace SJP.Schematic.Core.Tests.Fakes
 
         public virtual IAsyncEnumerable<IRelationalDatabaseTable> GetAllTables(CancellationToken cancellationToken = default) => Tables.ToAsyncEnumerable();
 
-        public virtual Task<IReadOnlyCollection<IDatabaseView>> GetAllViews(CancellationToken cancellationToken = default) => Task.FromResult(Views);
+        public virtual IAsyncEnumerable<IDatabaseView> GetAllViews(CancellationToken cancellationToken = default) => Views.ToAsyncEnumerable();
 
-        public virtual Task<IReadOnlyCollection<IDatabaseRoutine>> GetAllRoutines(CancellationToken cancellationToken = default) => Task.FromResult(Routines);
+        public virtual IAsyncEnumerable<IDatabaseRoutine> GetAllRoutines(CancellationToken cancellationToken = default) => Routines.ToAsyncEnumerable();
     }
 }

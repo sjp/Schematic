@@ -2,8 +2,8 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Threading;
-using System.Threading.Tasks;
 using LanguageExt;
 using SJP.Schematic.Core;
 using SJP.Schematic.Core.Comments;
@@ -27,25 +27,25 @@ namespace SJP.Schematic.PostgreSql.Comments
 
         protected IIdentifierResolutionStrategy IdentifierResolver { get; }
 
-        public async Task<IReadOnlyCollection<IDatabaseRoutineComments>> GetAllRoutineComments(CancellationToken cancellationToken = default)
+        public async IAsyncEnumerable<IDatabaseRoutineComments> GetAllRoutineComments([EnumeratorCancellation] CancellationToken cancellationToken = default)
         {
             var allCommentsData = await Connection.QueryAsync<CommentsData>(AllRoutineCommentsQuery, cancellationToken).ConfigureAwait(false);
 
-            var result = new List<IDatabaseRoutineComments>();
+            var comments = allCommentsData
+                .OrderBy(c => c.SchemaName)
+                .ThenBy(c => c.ObjectName)
+                .Select(c =>
+                {
+                    var qualifiedName = QualifyRoutineName(Identifier.CreateQualifiedIdentifier(c.SchemaName, c.ObjectName));
 
-            foreach (var commentData in allCommentsData)
-            {
-                var tmpIdentifier = Identifier.CreateQualifiedIdentifier(commentData.SchemaName, commentData.ObjectName);
-                var qualifiedName = QualifyRoutineName(tmpIdentifier);
+                    var routineComment = !c.Comment.IsNullOrWhiteSpace()
+                        ? Option<string>.Some(c.Comment)
+                        : Option<string>.None;
+                    return new DatabaseRoutineComments(qualifiedName, routineComment);
+                });
 
-                var routineComment = !commentData.Comment.IsNullOrWhiteSpace()
-                    ? Option<string>.Some(commentData.Comment)
-                    : Option<string>.None;
-                var comments = new DatabaseRoutineComments(qualifiedName, routineComment);
-                result.Add(comments);
-            }
-
-            return result;
+            foreach (var comment in comments)
+                yield return comment;
         }
 
         protected OptionAsync<Identifier> GetResolvedRoutineName(Identifier routineName, CancellationToken cancellationToken = default)

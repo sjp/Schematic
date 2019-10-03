@@ -146,17 +146,20 @@ namespace SJP.Schematic.Oracle.Tests.Integration
         [Test]
         public async Task GetAllViews_WhenEnumerated_ContainsViews()
         {
-            var views = await ViewProvider.GetAllViews().ConfigureAwait(false);
+            var hasViews = await ViewProvider.GetAllViews()
+                .AnyAsync()
+                .ConfigureAwait(false);
 
-            Assert.NotZero(views.Count);
+            Assert.IsTrue(hasViews);
         }
 
         [Test]
         public async Task GetAllViews_WhenEnumerated_ContainsTestView()
         {
             const string viewName = "DB_TEST_VIEW_1";
-            var views = await ViewProvider.GetAllViews().ConfigureAwait(false);
-            var containsTestView = views.Any(v => v.Name.LocalName == viewName);
+            var containsTestView = await ViewProvider.GetAllViews()
+                .AnyAsync(v => v.Name.LocalName == viewName)
+                .ConfigureAwait(false);
 
             Assert.IsTrue(containsTestView);
         }
@@ -203,8 +206,9 @@ namespace SJP.Schematic.Oracle.Tests.Integration
         public async Task GetAllViews_WhenEnumerated_ContainsTestMaterializedView()
         {
             const string viewName = "VIEW_TEST_VIEW_2";
-            var views = await ViewProvider.GetAllViews().ConfigureAwait(false);
-            var containsTestView = views.Any(v => v.Name.LocalName == viewName);
+            var containsTestView = await ViewProvider.GetAllViews()
+                .AnyAsync(v => v.Name.LocalName == viewName)
+                .ConfigureAwait(false);
 
             Assert.IsTrue(containsTestView);
         }

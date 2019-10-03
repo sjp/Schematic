@@ -38,10 +38,10 @@ namespace SJP.Schematic.Reporting.Html
         public async Task ExportAsync(CancellationToken cancellationToken = default)
         {
             var tables = await Database.GetAllTables(cancellationToken).ToListAsync(cancellationToken).ConfigureAwait(false);
-            var views = await Database.GetAllViews(cancellationToken).ConfigureAwait(false);
+            var views = await Database.GetAllViews(cancellationToken).ToListAsync(cancellationToken).ConfigureAwait(false);
             var sequences = await Database.GetAllSequences(cancellationToken).ToListAsync(cancellationToken).ConfigureAwait(false);
             var synonyms = await Database.GetAllSynonyms(cancellationToken).ToListAsync(cancellationToken).ConfigureAwait(false);
-            var routines = await Database.GetAllRoutines(cancellationToken).ConfigureAwait(false);
+            var routines = await Database.GetAllRoutines(cancellationToken).ToListAsync(cancellationToken).ConfigureAwait(false);
 
             var rowCounts = new Dictionary<Identifier, ulong>();
             foreach (var table in tables)

@@ -1,14 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading;
-using System.Threading.Tasks;
 using LanguageExt;
 
 namespace SJP.Schematic.Core.Comments
 {
     public sealed class EmptyRelationalDatabaseCommentProvider : IRelationalDatabaseCommentProvider
     {
-        public Task<IReadOnlyCollection<IDatabaseRoutineComments>> GetAllRoutineComments(CancellationToken cancellationToken = default)
+        public IAsyncEnumerable<IDatabaseRoutineComments> GetAllRoutineComments(CancellationToken cancellationToken = default)
         {
             return _routineCommentProvider.GetAllRoutineComments(cancellationToken);
         }
@@ -28,7 +27,7 @@ namespace SJP.Schematic.Core.Comments
             return _tableCommentProvider.GetAllTableComments(cancellationToken);
         }
 
-        public Task<IReadOnlyCollection<IDatabaseViewComments>> GetAllViewComments(CancellationToken cancellationToken = default)
+        public IAsyncEnumerable<IDatabaseViewComments> GetAllViewComments(CancellationToken cancellationToken = default)
         {
             return _viewCommentProvider.GetAllViewComments(cancellationToken);
         }

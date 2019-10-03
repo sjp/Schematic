@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 using LanguageExt;
@@ -30,20 +31,22 @@ namespace SJP.Schematic.Oracle
 
         protected IDatabaseViewProvider MaterializedViewProvider { get; }
 
-        public async Task<IReadOnlyCollection<IDatabaseView>> GetAllViews(CancellationToken cancellationToken = default)
+        public async IAsyncEnumerable<IDatabaseView> GetAllViews([EnumeratorCancellation] CancellationToken cancellationToken = default)
         {
-            var queryViewsTask = QueryViewProvider.GetAllViews(cancellationToken);
-            var materializedViewsTask = MaterializedViewProvider.GetAllViews(cancellationToken);
+            var queryViewsTask = QueryViewProvider.GetAllViews(cancellationToken).ToListAsync(cancellationToken).AsTask();
+            var materializedViewsTask = MaterializedViewProvider.GetAllViews(cancellationToken).ToListAsync(cancellationToken).AsTask();
             await Task.WhenAll(queryViewsTask, materializedViewsTask).ConfigureAwait(false);
 
             var queryViews = queryViewsTask.Result;
             var materializedViews = materializedViewsTask.Result;
 
-            return queryViews
+            var views = queryViews
                 .Concat(materializedViews)
                 .OrderBy(v => v.Name.Schema)
-                .ThenBy(v => v.Name.LocalName)
-                .ToList();
+                .ThenBy(v => v.Name.LocalName);
+
+            foreach (var view in views)
+                yield return view;
         }
 
         public OptionAsync<IDatabaseView> GetView(Identifier viewName, CancellationToken cancellationToken = default)

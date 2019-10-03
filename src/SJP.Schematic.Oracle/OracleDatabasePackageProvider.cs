@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 using LanguageExt;
@@ -26,47 +27,45 @@ namespace SJP.Schematic.Oracle
 
         protected IIdentifierResolutionStrategy IdentifierResolver { get; }
 
-        public async Task<IReadOnlyCollection<IOracleDatabasePackage>> GetAllPackages(CancellationToken cancellationToken = default)
+        public async IAsyncEnumerable<IOracleDatabasePackage> GetAllPackages([EnumeratorCancellation] CancellationToken cancellationToken = default)
         {
             var queryResult = await Connection.QueryAsync<RoutineData>(
                 AllSourcesQuery,
                 cancellationToken
             ).ConfigureAwait(false);
 
-            if (queryResult.Empty())
-                return Array.Empty<IOracleDatabasePackage>();
+            var packages = queryResult
+                .GroupBy(r => new { r.SchemaName, r.RoutineName })
+                .OrderBy(r => r.Key.SchemaName)
+                .ThenBy(r => r.Key.RoutineName)
+                .Select(r =>
+                {
+                    var name = Identifier.CreateQualifiedIdentifier(IdentifierDefaults.Server, IdentifierDefaults.Database, r.Key.SchemaName, r.Key.RoutineName);
 
-            var packages = new List<IOracleDatabasePackage>();
+                    var specLines = r
+                        .Where(p => p.RoutineType == PackageObjectType)
+                        .OrderBy(p => p.LineNumber)
+                        .Where(p => p.Text != null)
+                        .Select(p => p.Text!);
+                    var bodyLines = r
+                        .Where(p => p.RoutineType == PackageBodyObjectType)
+                        .OrderBy(p => p.LineNumber)
+                        .Where(p => p.Text != null)
+                        .Select(p => p.Text!);
 
-            var namedPackages = queryResult.GroupBy(r => new { r.SchemaName, r.RoutineName });
-            foreach (var namedPackage in namedPackages)
-            {
-                var name = Identifier.CreateQualifiedIdentifier(IdentifierDefaults.Server, IdentifierDefaults.Database, namedPackage.Key.SchemaName, namedPackage.Key.RoutineName);
+                    var spec = specLines.Join(string.Empty);
+                    var body = bodyLines.Any()
+                        ? Option<string>.Some(bodyLines.Join(string.Empty))
+                        : Option<string>.None;
 
-                var specLines = namedPackage
-                    .Where(p => p.RoutineType == PackageObjectType)
-                    .OrderBy(p => p.LineNumber)
-                    .Where(p => p.Text != null)
-                    .Select(p => p.Text!);
-                var bodyLines = namedPackage
-                    .Where(p => p.RoutineType == PackageBodyObjectType)
-                    .OrderBy(p => p.LineNumber)
-                    .Where(p => p.Text != null)
-                    .Select(p => p.Text!);
+                    var specification = OracleUnwrapper.Unwrap(spec);
+                    var packageBody = body.Map(OracleUnwrapper.Unwrap);
 
-                var spec = specLines.Join(string.Empty);
-                var body = bodyLines.Any()
-                    ? Option<string>.Some(bodyLines.Join(string.Empty))
-                    : Option<string>.None;
+                    return new OracleDatabasePackage(name, specification, packageBody);
+                });
 
-                var specification = OracleUnwrapper.Unwrap(spec);
-                var packageBody = body.Map(OracleUnwrapper.Unwrap);
-
-                var package = new OracleDatabasePackage(name, specification, packageBody);
-                packages.Add(package);
-            }
-
-            return packages;
+            foreach (var package in packages)
+                yield return package;
         }
 
         protected virtual string AllSourcesQuery => AllSourcesQuerySql;

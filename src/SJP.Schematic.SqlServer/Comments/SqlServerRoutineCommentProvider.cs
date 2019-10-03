@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 using LanguageExt;
@@ -26,34 +27,29 @@ namespace SJP.Schematic.SqlServer.Comments
 
         protected virtual string CommentProperty { get; } = "MS_Description";
 
-        public async Task<IReadOnlyCollection<IDatabaseRoutineComments>> GetAllRoutineComments(CancellationToken cancellationToken = default)
+        public async IAsyncEnumerable<IDatabaseRoutineComments> GetAllRoutineComments([EnumeratorCancellation] CancellationToken cancellationToken = default)
         {
-            var result = new List<IDatabaseRoutineComments>();
-
             var allCommentsData = await Connection.QueryAsync<CommentsData>(
                 AllRoutineCommentsQuery,
                 new { CommentProperty },
                 cancellationToken
             ).ConfigureAwait(false);
 
-            var groupedByName = allCommentsData.GroupBy(row => new { row.SchemaName, row.TableName }).ToList();
-            foreach (var groupedComment in groupedByName)
-            {
-                var tmpIdentifier = Identifier.CreateQualifiedIdentifier(groupedComment.Key.SchemaName, groupedComment.Key.TableName);
-                var qualifiedName = QualifyRoutineName(tmpIdentifier);
+            var comments = allCommentsData
+                .GroupBy(row => new { row.SchemaName, row.TableName })
+                .OrderBy(g => g.Key.SchemaName)
+                .ThenBy(g => g.Key.TableName)
+                .Select(g =>
+                {
+                    var qualifiedName = QualifyRoutineName(Identifier.CreateQualifiedIdentifier(g.Key.SchemaName, g.Key.TableName));
+                    var commentsData = g.ToList();
+                    var routineComment = GetFirstCommentByType(commentsData, Constants.Routine);
 
-                var commentsData = groupedComment.ToList();
+                    return new DatabaseRoutineComments(qualifiedName, routineComment);
+                });
 
-                var routineComment = GetFirstCommentByType(commentsData, Constants.Routine);
-
-                var comments = new DatabaseRoutineComments(qualifiedName, routineComment);
-                result.Add(comments);
-            }
-
-            return result
-                .OrderBy(c => c.RoutineName.Schema)
-                .ThenBy(c => c.RoutineName.LocalName)
-                .ToList();
+            foreach (var comment in comments)
+                yield return comment;
         }
 
         protected OptionAsync<Identifier> GetResolvedRoutineName(Identifier routineName, CancellationToken cancellationToken)

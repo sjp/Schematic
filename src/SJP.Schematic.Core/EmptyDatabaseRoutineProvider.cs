@@ -1,15 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
-using System.Threading.Tasks;
 using LanguageExt;
-using SJP.Schematic.Core.Utilities;
 
 namespace SJP.Schematic.Core
 {
     public sealed class EmptyDatabaseRoutineProvider : IDatabaseRoutineProvider
     {
-        public Task<IReadOnlyCollection<IDatabaseRoutine>> GetAllRoutines(CancellationToken cancellationToken = default) => Empty.Routines;
+        public IAsyncEnumerable<IDatabaseRoutine> GetAllRoutines(CancellationToken cancellationToken = default) => AsyncEnumerable.Empty<IDatabaseRoutine>();
 
         public OptionAsync<IDatabaseRoutine> GetRoutine(Identifier routineName, CancellationToken cancellationToken = default)
         {

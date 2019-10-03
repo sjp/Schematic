@@ -170,16 +170,19 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration.Comments
         [Test]
         public async Task GetAllViewComments_WhenEnumerated_ContainsViewComments()
         {
-            var viewComments = await ViewCommentProvider.GetAllViewComments().ConfigureAwait(false);
+            var hasViewComments = await ViewCommentProvider.GetAllViewComments()
+                .AnyAsync()
+                .ConfigureAwait(false);
 
-            Assert.NotZero(viewComments.Count);
+            Assert.IsTrue(hasViewComments);
         }
 
         [Test]
         public async Task GetAllViewComments_WhenEnumerated_ContainsTestViewComment()
         {
-            var viewComments = await ViewCommentProvider.GetAllViewComments().ConfigureAwait(false);
-            var containsTestView = viewComments.Any(t => t.ViewName.LocalName == "wrapper_view_comment_view_1");
+            var containsTestView = await ViewCommentProvider.GetAllViewComments()
+                .AnyAsync(v => v.ViewName.LocalName == "wrapper_view_comment_view_1")
+                .ConfigureAwait(false);
 
             Assert.IsTrue(containsTestView);
         }
@@ -379,8 +382,9 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration.Comments
         [Test]
         public async Task GetAllViewComments_WhenEnumerated_ContainsTestMatView()
         {
-            var viewComments = await ViewCommentProvider.GetAllViewComments().ConfigureAwait(false);
-            var containsTestView = viewComments.Any(t => t.ViewName.LocalName == "wrapper_view_comment_matview_1");
+            var containsTestView = await ViewCommentProvider.GetAllViewComments()
+                .AnyAsync(v => v.ViewName.LocalName == "wrapper_view_comment_matview_1")
+                .ConfigureAwait(false);
 
             Assert.IsTrue(containsTestView);
         }

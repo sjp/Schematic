@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 using LanguageExt;
@@ -30,16 +31,18 @@ namespace SJP.Schematic.PostgreSql
 
         protected IDatabaseViewProvider MaterializedViewProvider { get; }
 
-        public async Task<IReadOnlyCollection<IDatabaseView>> GetAllViews(CancellationToken cancellationToken = default)
+        public async IAsyncEnumerable<IDatabaseView> GetAllViews([EnumeratorCancellation] CancellationToken cancellationToken = default)
         {
-            var queryViews = await QueryViewProvider.GetAllViews(cancellationToken).ConfigureAwait(false);
-            var materializedViews = await MaterializedViewProvider.GetAllViews(cancellationToken).ConfigureAwait(false);
+            var queryViews = await QueryViewProvider.GetAllViews(cancellationToken).ToListAsync(cancellationToken).ConfigureAwait(false);
+            var materializedViews = await MaterializedViewProvider.GetAllViews(cancellationToken).ToListAsync(cancellationToken).ConfigureAwait(false);
 
-            return queryViews
+            var views = queryViews
                 .Concat(materializedViews)
                 .OrderBy(v => v.Name.Schema)
-                .ThenBy(v => v.Name.LocalName)
-                .ToList();
+                .ThenBy(v => v.Name.LocalName);
+
+            foreach (var view in views)
+                yield return view;
         }
 
         public OptionAsync<IDatabaseView> GetView(Identifier viewName, CancellationToken cancellationToken = default)

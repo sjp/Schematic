@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Threading;
-using System.Threading.Tasks;
 using LanguageExt;
 using SJP.Schematic.Core;
 using SJP.Schematic.Core.Comments;
@@ -43,7 +42,7 @@ namespace SJP.Schematic.MySql.Comments
             return ViewCommentProvider.GetViewComments(viewName, cancellationToken);
         }
 
-        public Task<IReadOnlyCollection<IDatabaseViewComments>> GetAllViewComments(CancellationToken cancellationToken = default)
+        public IAsyncEnumerable<IDatabaseViewComments> GetAllViewComments(CancellationToken cancellationToken = default)
         {
             return ViewCommentProvider.GetAllViewComments(cancellationToken);
         }
@@ -82,7 +81,7 @@ namespace SJP.Schematic.MySql.Comments
             return _routineCommentProvider.GetRoutineComments(routineName, cancellationToken);
         }
 
-        public Task<IReadOnlyCollection<IDatabaseRoutineComments>> GetAllRoutineComments(CancellationToken cancellationToken = default)
+        public IAsyncEnumerable<IDatabaseRoutineComments> GetAllRoutineComments(CancellationToken cancellationToken = default)
         {
             return _routineCommentProvider.GetAllRoutineComments(cancellationToken);
         }

@@ -150,17 +150,20 @@ END").ConfigureAwait(false);
         [Test]
         public async Task GetAllRoutines_WhenEnumerated_ContainsRoutines()
         {
-            var routines = await RoutineProvider.GetAllRoutines().ConfigureAwait(false);
+            var hasRoutines = await RoutineProvider.GetAllRoutines()
+                .AnyAsync()
+                .ConfigureAwait(false);
 
-            Assert.NotZero(routines.Count);
+            Assert.IsTrue(hasRoutines);
         }
 
         [Test]
         public async Task GetAllRoutines_WhenEnumerated_ContainsTestRoutine()
         {
             const string routineName = "db_test_routine_1";
-            var routines = await RoutineProvider.GetAllRoutines().ConfigureAwait(false);
-            var containsTestRoutine = routines.Any(r => r.Name.LocalName == routineName);
+            var containsTestRoutine = await RoutineProvider.GetAllRoutines()
+                .AnyAsync(r => r.Name.LocalName == routineName)
+                .ConfigureAwait(false);
 
             Assert.IsTrue(containsTestRoutine);
         }

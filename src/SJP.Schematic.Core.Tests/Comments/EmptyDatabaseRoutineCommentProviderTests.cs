@@ -27,22 +27,14 @@ namespace SJP.Schematic.Core.Tests.Comments
         }
 
         [Test]
-        public static async Task GetAllRoutineComments_WhenInvoked_HasZeroCount()
-        {
-            var provider = new EmptyDatabaseRoutineCommentProvider();
-            var comments = await provider.GetAllRoutineComments().ConfigureAwait(false);
-
-            Assert.Zero(comments.Count);
-        }
-
-        [Test]
         public static async Task GetAllRoutineComments_WhenInvoked_DoesNotEnumerateAnyValues()
         {
             var provider = new EmptyDatabaseRoutineCommentProvider();
-            var comments = await provider.GetAllRoutineComments().ConfigureAwait(false);
-            var count = comments.ToList().Count;
+            var hasComments = await provider.GetAllRoutineComments()
+                .AnyAsync()
+                .ConfigureAwait(false);
 
-            Assert.Zero(count);
+            Assert.IsFalse(hasComments);
         }
     }
 }

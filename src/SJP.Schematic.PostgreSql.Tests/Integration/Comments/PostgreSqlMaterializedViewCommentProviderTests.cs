@@ -158,16 +158,19 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration.Comments
         [Test]
         public async Task GetAllViewComments_WhenEnumerated_ContainsViewComments()
         {
-            var viewComments = await ViewCommentProvider.GetAllViewComments().ConfigureAwait(false);
+            var hasViewComments = await ViewCommentProvider.GetAllViewComments()
+                .AnyAsync()
+                .ConfigureAwait(false);
 
-            Assert.NotZero(viewComments.Count);
+            Assert.IsTrue(hasViewComments);
         }
 
         [Test]
         public async Task GetAllViewComments_WhenEnumerated_ContainsTestViewComment()
         {
-            var viewComments = await ViewCommentProvider.GetAllViewComments().ConfigureAwait(false);
-            var containsTestView = viewComments.Any(t => t.ViewName.LocalName == "matview_comment_matview_1");
+            var containsTestView = await ViewCommentProvider.GetAllViewComments()
+                .AnyAsync(t => t.ViewName.LocalName == "matview_comment_matview_1")
+                .ConfigureAwait(false);
 
             Assert.IsTrue(containsTestView);
         }

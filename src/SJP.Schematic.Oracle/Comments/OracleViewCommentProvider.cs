@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 using LanguageExt;
@@ -29,20 +30,22 @@ namespace SJP.Schematic.Oracle.Comments
 
         protected IDatabaseViewCommentProvider MaterializedViewCommentProvider { get; }
 
-        public async Task<IReadOnlyCollection<IDatabaseViewComments>> GetAllViewComments(CancellationToken cancellationToken = default)
+        public async IAsyncEnumerable<IDatabaseViewComments> GetAllViewComments([EnumeratorCancellation] CancellationToken cancellationToken = default)
         {
-            var queryViewCommentsTask = QueryViewCommentProvider.GetAllViewComments(cancellationToken);
-            var materializedViewCommentsTask = MaterializedViewCommentProvider.GetAllViewComments(cancellationToken);
+            var queryViewCommentsTask = QueryViewCommentProvider.GetAllViewComments(cancellationToken).ToListAsync(cancellationToken).AsTask();
+            var materializedViewCommentsTask = MaterializedViewCommentProvider.GetAllViewComments(cancellationToken).ToListAsync(cancellationToken).AsTask();
             await Task.WhenAll(queryViewCommentsTask, materializedViewCommentsTask).ConfigureAwait(false);
 
             var queryViewComments = queryViewCommentsTask.Result;
             var materializedViewComments = materializedViewCommentsTask.Result;
 
-            return queryViewComments
+            var comments = queryViewComments
                 .Concat(materializedViewComments)
                 .OrderBy(v => v.ViewName.Schema)
-                .ThenBy(v => v.ViewName.LocalName)
-                .ToList();
+                .ThenBy(v => v.ViewName.LocalName);
+
+            foreach (var comment in comments)
+                yield return comment;
         }
 
         public OptionAsync<IDatabaseViewComments> GetViewComments(Identifier viewName, CancellationToken cancellationToken = default)

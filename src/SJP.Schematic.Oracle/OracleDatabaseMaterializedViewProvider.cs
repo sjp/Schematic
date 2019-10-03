@@ -3,6 +3,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 using LanguageExt;
@@ -30,18 +31,18 @@ namespace SJP.Schematic.Oracle
 
         protected IDbTypeProvider TypeProvider { get; }
 
-        public virtual async Task<IReadOnlyCollection<IDatabaseView>> GetAllViews(CancellationToken cancellationToken = default)
+        public virtual async IAsyncEnumerable<IDatabaseView> GetAllViews([EnumeratorCancellation] CancellationToken cancellationToken = default)
         {
             var queryResult = await Connection.QueryAsync<QualifiedName>(ViewsQuery, cancellationToken).ConfigureAwait(false);
             var viewNames = queryResult
                 .Select(dto => Identifier.CreateQualifiedIdentifier(dto.SchemaName, dto.ObjectName))
                 .Select(QualifyViewName)
+                .OrderBy(name => name.Schema)
+                .ThenBy(name => name.LocalName)
                 .ToList();
 
-            var viewTasks = viewNames
-                .Select(name => LoadViewAsyncCore(name, cancellationToken))
-                .ToArray();
-            return await Task.WhenAll(viewTasks).ConfigureAwait(false);
+            foreach (var name in viewNames)
+                yield return await LoadViewAsyncCore(name, cancellationToken).ConfigureAwait(false);
         }
 
         protected virtual string ViewsQuery => ViewsQuerySql;

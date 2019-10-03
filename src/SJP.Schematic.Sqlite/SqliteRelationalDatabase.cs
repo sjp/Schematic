@@ -43,7 +43,7 @@ namespace SJP.Schematic.Sqlite
             return _tableProvider.GetTable(tableName, cancellationToken);
         }
 
-        public Task<IReadOnlyCollection<IDatabaseView>> GetAllViews(CancellationToken cancellationToken = default)
+        public IAsyncEnumerable<IDatabaseView> GetAllViews(CancellationToken cancellationToken = default)
         {
             return _viewProvider.GetAllViews(cancellationToken);
         }
@@ -82,7 +82,7 @@ namespace SJP.Schematic.Sqlite
             return SynonymProvider.GetSynonym(synonymName, cancellationToken);
         }
 
-        public Task<IReadOnlyCollection<IDatabaseRoutine>> GetAllRoutines(CancellationToken cancellationToken = default)
+        public IAsyncEnumerable<IDatabaseRoutine> GetAllRoutines(CancellationToken cancellationToken = default)
         {
             return RoutineProvider.GetAllRoutines(cancellationToken);
         }

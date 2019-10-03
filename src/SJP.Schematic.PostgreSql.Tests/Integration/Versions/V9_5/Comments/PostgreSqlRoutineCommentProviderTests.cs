@@ -164,16 +164,19 @@ LANGUAGE PLPGSQL").ConfigureAwait(false);
         [Test]
         public async Task GetAllRoutineComments_WhenEnumerated_ContainsRoutineComments()
         {
-            var routineComments = await RoutineCommentProvider.GetAllRoutineComments().ConfigureAwait(false);
+            var hasRoutineComments = await RoutineCommentProvider.GetAllRoutineComments()
+                .AnyAsync()
+                .ConfigureAwait(false);
 
-            Assert.NotZero(routineComments.Count);
+            Assert.IsTrue(hasRoutineComments);
         }
 
         [Test]
         public async Task GetAllRoutineComments_WhenEnumerated_ContainsTestRoutineComment()
         {
-            var routineComments = await RoutineCommentProvider.GetAllRoutineComments().ConfigureAwait(false);
-            var containsTestRoutine = routineComments.Any(t => t.RoutineName.LocalName == "v95_comment_test_routine_1");
+            var containsTestRoutine = await RoutineCommentProvider.GetAllRoutineComments()
+                .AnyAsync(r => r.RoutineName.LocalName == "v95_comment_test_routine_1")
+                .ConfigureAwait(false);
 
             Assert.IsTrue(containsTestRoutine);
         }

@@ -194,16 +194,19 @@ SELECT DB_NAME() AS ThisDB").ConfigureAwait(false);
         [Test]
         public async Task GetAllRoutines_WhenEnumerated_ContainsRoutines()
         {
-            var routines = await RoutineProvider.GetAllRoutines().ConfigureAwait(false);
+            var hasRoutines = await RoutineProvider.GetAllRoutines()
+                .AnyAsync()
+                .ConfigureAwait(false);
 
-            Assert.NotZero(routines.Count);
+            Assert.IsTrue(hasRoutines);
         }
 
         [Test]
         public async Task GetAllRoutines_WhenEnumerated_ContainsTestRoutine()
         {
-            var routines = await RoutineProvider.GetAllRoutines().ConfigureAwait(false);
-            var containsTestRoutine = routines.Any(r => r.Name.LocalName == "db_test_routine_1");
+            var containsTestRoutine = await RoutineProvider.GetAllRoutines()
+                .AnyAsync(r => r.Name.LocalName == "db_test_routine_1")
+                .ConfigureAwait(false);
 
             Assert.IsTrue(containsTestRoutine);
         }

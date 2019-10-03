@@ -51,8 +51,8 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore
 
             var tables = Database.GetAllTables(CancellationToken.None).ToListAsync(CancellationToken.None).GetAwaiter().GetResult();
             var tableComments = CommentProvider.GetAllTableComments(CancellationToken.None).ToListAsync(CancellationToken.None).GetAwaiter().GetResult();
-            var views = Database.GetAllViews(CancellationToken.None).GetAwaiter().GetResult();
-            var viewComments = CommentProvider.GetAllViewComments(CancellationToken.None).GetAwaiter().GetResult();
+            var views = Database.GetAllViews(CancellationToken.None).ToListAsync(CancellationToken.None).GetAwaiter().GetResult();
+            var viewComments = CommentProvider.GetAllViewComments(CancellationToken.None).ToListAsync(CancellationToken.None).GetAwaiter().GetResult();
             var sequences = Database.GetAllSequences(CancellationToken.None).ToListAsync(CancellationToken.None).GetAwaiter().GetResult();
 
             if (projectFileInfo.Exists)
@@ -148,8 +148,8 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore
 
             var tables = await Database.GetAllTables(cancellationToken).ToListAsync(cancellationToken).ConfigureAwait(false);
             var tableComments = await CommentProvider.GetAllTableComments(cancellationToken).ToListAsync(cancellationToken).ConfigureAwait(false);
-            var views = await Database.GetAllViews(cancellationToken).ConfigureAwait(false);
-            var viewComments = await CommentProvider.GetAllViewComments(cancellationToken).ConfigureAwait(false);
+            var views = await Database.GetAllViews(cancellationToken).ToListAsync(cancellationToken).ConfigureAwait(false);
+            var viewComments = await CommentProvider.GetAllViewComments(cancellationToken).ToListAsync(cancellationToken).ConfigureAwait(false);
             var sequences = await Database.GetAllSequences(cancellationToken).ToListAsync(cancellationToken).ConfigureAwait(false);
 
             var tableCommentsLookup = new Dictionary<Identifier, IRelationalDatabaseTableComments>();

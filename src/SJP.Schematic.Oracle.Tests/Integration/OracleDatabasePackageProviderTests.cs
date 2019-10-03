@@ -13,13 +13,13 @@ namespace SJP.Schematic.Oracle.Tests.Integration
     internal sealed class OracleDatabasePackageProviderTests : OracleTest
     {
         private IOracleDatabasePackageProvider PackageProvider => new OracleDatabasePackageProvider(Connection, IdentifierDefaults, IdentifierResolver);
-        private AsyncLazy<IReadOnlyCollection<IOracleDatabasePackage>> _packages;
-        private Task<IReadOnlyCollection<IOracleDatabasePackage>> GetAllPackages() => _packages.Task;
+        private AsyncLazy<List<IOracleDatabasePackage>> _packages;
+        private Task<List<IOracleDatabasePackage>> GetAllPackages() => _packages.Task;
 
         [OneTimeSetUp]
         public async Task Init()
         {
-            _packages = new AsyncLazy<IReadOnlyCollection<IOracleDatabasePackage>>(() => PackageProvider.GetAllPackages());
+            _packages = new AsyncLazy<List<IOracleDatabasePackage>>(() => PackageProvider.GetAllPackages().ToListAsync().AsTask());
 
             await Connection.ExecuteAsync(@"CREATE PACKAGE db_test_package_1 AS
     PROCEDURE test_proc();

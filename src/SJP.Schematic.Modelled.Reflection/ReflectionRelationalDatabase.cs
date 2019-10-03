@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
-using System.Threading.Tasks;
 using LanguageExt;
 using SJP.Schematic.Core;
 using SJP.Schematic.Core.Extensions;
@@ -99,7 +98,7 @@ namespace SJP.Schematic.Modelled.Reflection
                 : OptionAsync<IDatabaseView>.None;
         }
 
-        public Task<IReadOnlyCollection<IDatabaseView>> GetAllViews(CancellationToken cancellationToken = default) => Task.FromResult<IReadOnlyCollection<IDatabaseView>>(View.Values.ToList());
+        public IAsyncEnumerable<IDatabaseView> GetAllViews(CancellationToken cancellationToken = default) => View.Values.ToAsyncEnumerable();
 
         protected IReadOnlyDictionary<Identifier, IDatabaseView> View => _viewLookup.Value;
 
@@ -255,7 +254,7 @@ namespace SJP.Schematic.Modelled.Reflection
                 : OptionAsync<IDatabaseRoutine>.None;
         }
 
-        public Task<IReadOnlyCollection<IDatabaseRoutine>> GetAllRoutines(CancellationToken cancellationToken = default) => Task.FromResult<IReadOnlyCollection<IDatabaseRoutine>>(Routine.Values.ToList());
+        public IAsyncEnumerable<IDatabaseRoutine> GetAllRoutines(CancellationToken cancellationToken = default) => Routine.Values.ToAsyncEnumerable();
 
         protected IReadOnlyDictionary<Identifier, IDatabaseRoutine> Routine => _routineLookup.Value;
 

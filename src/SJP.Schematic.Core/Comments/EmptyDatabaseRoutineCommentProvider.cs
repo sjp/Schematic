@@ -1,18 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
-using System.Threading.Tasks;
 using LanguageExt;
-using SJP.Schematic.Core.Utilities;
 
 namespace SJP.Schematic.Core.Comments
 {
     public sealed class EmptyDatabaseRoutineCommentProvider : IDatabaseRoutineCommentProvider
     {
-        public Task<IReadOnlyCollection<IDatabaseRoutineComments>> GetAllRoutineComments(CancellationToken cancellationToken = default)
-        {
-            return Empty.RoutineComments;
-        }
+        public IAsyncEnumerable<IDatabaseRoutineComments> GetAllRoutineComments(CancellationToken cancellationToken = default) => AsyncEnumerable.Empty<IDatabaseRoutineComments>();
 
         public OptionAsync<IDatabaseRoutineComments> GetRoutineComments(Identifier routineName, CancellationToken cancellationToken = default)
         {

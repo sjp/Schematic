@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 using LanguageExt;
@@ -26,35 +27,33 @@ namespace SJP.Schematic.Oracle
 
         protected IIdentifierResolutionStrategy IdentifierResolver { get; }
 
-        public async Task<IReadOnlyCollection<IDatabaseRoutine>> GetAllRoutines(CancellationToken cancellationToken = default)
+        public async IAsyncEnumerable<IDatabaseRoutine> GetAllRoutines([EnumeratorCancellation] CancellationToken cancellationToken = default)
         {
             var queryResult = await Connection.QueryAsync<RoutineData>(
                 AllSourcesQuery,
                 cancellationToken
             ).ConfigureAwait(false);
 
-            if (queryResult.Empty())
-                return Array.Empty<IDatabaseRoutine>();
+            var routines = queryResult
+                .GroupBy(r => new { r.SchemaName, r.RoutineName })
+                .OrderBy(r => r.Key.SchemaName)
+                .ThenBy(r => r.Key.RoutineName)
+                .Select(r =>
+                {
+                    var name = Identifier.CreateQualifiedIdentifier(IdentifierDefaults.Server, IdentifierDefaults.Database, r.Key.SchemaName, r.Key.RoutineName);
 
-            var result = new List<IDatabaseRoutine>();
+                    var lines = r
+                        .OrderBy(r => r.LineNumber)
+                        .Where(r => r.Text != null)
+                        .Select(r => r.Text!);
+                    var definition = lines.Join(string.Empty);
+                    var unwrappedDefinition = OracleUnwrapper.Unwrap(definition);
 
-            var namedRoutines = queryResult.GroupBy(r => new { r.SchemaName, r.RoutineName });
-            foreach (var namedRoutine in namedRoutines)
-            {
-                var name = Identifier.CreateQualifiedIdentifier(IdentifierDefaults.Server, IdentifierDefaults.Database, namedRoutine.Key.SchemaName, namedRoutine.Key.RoutineName);
+                    return new DatabaseRoutine(name, unwrappedDefinition);
+                });
 
-                var lines = namedRoutine
-                    .OrderBy(r => r.LineNumber)
-                    .Where(r => r.Text != null)
-                    .Select(r => r.Text!);
-                var definition = lines.Join(string.Empty);
-                var unwrappedDefinition = OracleUnwrapper.Unwrap(definition);
-
-                var routine = new DatabaseRoutine(name, unwrappedDefinition);
-                result.Add(routine);
-            }
-
-            return result;
+            foreach (var routine in routines)
+                yield return routine;
         }
 
         protected virtual string AllSourcesQuery => AllSourcesQuerySql;

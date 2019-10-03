@@ -76,15 +76,14 @@ namespace SJP.Schematic.Modelled
             return LoadView(viewName, cancellationToken);
         }
 
-        public async Task<IReadOnlyCollection<IDatabaseView>> GetAllViews(CancellationToken cancellationToken = default)
+        public async IAsyncEnumerable<IDatabaseView> GetAllViews([EnumeratorCancellation] CancellationToken cancellationToken = default)
         {
-            var viewsTasks = Databases.Select(d => d.GetAllViews(cancellationToken));
+            var viewsTasks = Databases.Select(d => d.GetAllViews(cancellationToken).ToListAsync(cancellationToken).AsTask());
             var viewCollections = await Task.WhenAll(viewsTasks).ConfigureAwait(false);
-            var allViews = viewCollections.SelectMany(v => v);
+            var views = viewCollections.SelectMany(v => v).DistinctBy(v => v.Name);
 
-            return allViews
-                .DistinctBy(v => v.Name)
-                .ToList();
+            foreach (var view in views)
+                yield return view;
         }
 
         protected virtual OptionAsync<IDatabaseView> LoadView(Identifier viewName, CancellationToken cancellationToken)
@@ -185,15 +184,14 @@ namespace SJP.Schematic.Modelled
             return LoadRoutine(routineName, cancellationToken);
         }
 
-        public async Task<IReadOnlyCollection<IDatabaseRoutine>> GetAllRoutines(CancellationToken cancellationToken = default)
+        public async IAsyncEnumerable<IDatabaseRoutine> GetAllRoutines([EnumeratorCancellation] CancellationToken cancellationToken = default)
         {
-            var routinesTasks = Databases.Select(d => d.GetAllRoutines(cancellationToken));
+            var routinesTasks = Databases.Select(d => d.GetAllRoutines(cancellationToken).ToListAsync(cancellationToken).AsTask());
             var routineCollections = await Task.WhenAll(routinesTasks).ConfigureAwait(false);
-            var allRoutines = routineCollections.SelectMany(s => s);
+            var routines = routineCollections.SelectMany(s => s).DistinctBy(r => r.Name);
 
-            return allRoutines
-                .DistinctBy(r => r.Name)
-                .ToList();
+            foreach (var routine in routines)
+                yield return routine;
         }
 
         protected virtual OptionAsync<IDatabaseRoutine> LoadRoutine(Identifier routineName, CancellationToken cancellationToken)

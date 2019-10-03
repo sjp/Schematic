@@ -34,8 +34,8 @@ namespace SJP.Schematic.Migrations
             var comparisonTables = await comparison.GetAllTables(cancellationToken).ToListAsync(cancellationToken).ConfigureAwait(false);
             CompareTables(tables, comparisonTables);
 
-            var views = await Database.GetAllViews(cancellationToken).ConfigureAwait(false);
-            var comparisonViews = await comparison.GetAllViews(cancellationToken).ConfigureAwait(false);
+            var views = await Database.GetAllViews(cancellationToken).ToListAsync(cancellationToken).ConfigureAwait(false);
+            var comparisonViews = await comparison.GetAllViews(cancellationToken).ToListAsync(cancellationToken).ConfigureAwait(false);
             CompareViews(views, comparisonViews);
 
             var sequences = await Database.GetAllSequences(cancellationToken).ToListAsync(cancellationToken).ConfigureAwait(false);
@@ -46,8 +46,8 @@ namespace SJP.Schematic.Migrations
             var comparisonSynonyms = await Database.GetAllSynonyms(cancellationToken).ToListAsync(cancellationToken).ConfigureAwait(false);
             CompareSynonyms(synonyms, comparisonSynonyms);
 
-            var routines = await Database.GetAllRoutines(cancellationToken).ConfigureAwait(false);
-            var comparisonRoutines = await Database.GetAllRoutines(cancellationToken).ConfigureAwait(false);
+            var routines = await Database.GetAllRoutines(cancellationToken).ToListAsync(cancellationToken).ConfigureAwait(false);
+            var comparisonRoutines = await Database.GetAllRoutines(cancellationToken).ToListAsync(cancellationToken).ConfigureAwait(false);
             CompareRoutines(routines, comparisonRoutines);
 
             return await MigrationBuilder.BuildMigrations(cancellationToken).ConfigureAwait(false);

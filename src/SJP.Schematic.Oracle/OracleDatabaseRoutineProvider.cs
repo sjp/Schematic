@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 using LanguageExt;
@@ -28,20 +29,22 @@ namespace SJP.Schematic.Oracle
 
         protected IOracleDatabasePackageProvider PackageProvider { get; }
 
-        public async Task<IReadOnlyCollection<IDatabaseRoutine>> GetAllRoutines(CancellationToken cancellationToken = default)
+        public async IAsyncEnumerable<IDatabaseRoutine> GetAllRoutines([EnumeratorCancellation] CancellationToken cancellationToken = default)
         {
-            var simpleRoutinesTask = SimpleRoutineProvider.GetAllRoutines(cancellationToken);
-            var packagesTask = PackageProvider.GetAllPackages(cancellationToken);
+            var simpleRoutinesTask = SimpleRoutineProvider.GetAllRoutines(cancellationToken).ToListAsync(cancellationToken).AsTask();
+            var packagesTask = PackageProvider.GetAllPackages(cancellationToken).ToListAsync(cancellationToken).AsTask();
             await Task.WhenAll(simpleRoutinesTask, packagesTask).ConfigureAwait(false);
 
             var simpleRoutines = simpleRoutinesTask.Result;
             var packages = packagesTask.Result;
 
-            return simpleRoutines
+            var routines = simpleRoutines
                 .Concat(packages)
                 .OrderBy(r => r.Name.Schema)
-                .ThenBy(r => r.Name.LocalName)
-                .ToList();
+                .ThenBy(r => r.Name.LocalName);
+
+            foreach (var routine in routines)
+                yield return routine;
         }
 
         public OptionAsync<IDatabaseRoutine> GetRoutine(Identifier routineName, CancellationToken cancellationToken = default)

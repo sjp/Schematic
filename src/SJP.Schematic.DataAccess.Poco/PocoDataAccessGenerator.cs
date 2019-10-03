@@ -84,8 +84,8 @@ namespace SJP.Schematic.DataAccess.Poco
                 FileSystem.File.WriteAllText(tablePath.FullName, tableClass);
             }
 
-            var views = Database.GetAllViews(CancellationToken.None).GetAwaiter().GetResult();
-            var viewComments = CommentProvider.GetAllViewComments(CancellationToken.None).GetAwaiter().GetResult();
+            var views = Database.GetAllViews(CancellationToken.None).ToListAsync(CancellationToken.None).GetAwaiter().GetResult();
+            var viewComments = CommentProvider.GetAllViewComments(CancellationToken.None).ToListAsync(CancellationToken.None).GetAwaiter().GetResult();
 
             var viewCommentsLookup = new Dictionary<Identifier, IDatabaseViewComments>();
             foreach (var comment in viewComments)
@@ -144,8 +144,8 @@ namespace SJP.Schematic.DataAccess.Poco
             foreach (var comment in comments)
                 tableCommentsLookup[comment.TableName] = comment;
 
-            var views = await Database.GetAllViews(cancellationToken).ConfigureAwait(false);
-            var viewComments = await CommentProvider.GetAllViewComments(cancellationToken).ConfigureAwait(false);
+            var views = await Database.GetAllViews(cancellationToken).ToListAsync(cancellationToken).ConfigureAwait(false);
+            var viewComments = await CommentProvider.GetAllViewComments(cancellationToken).ToListAsync(cancellationToken).ConfigureAwait(false);
             var viewCommentsLookup = new Dictionary<Identifier, IDatabaseViewComments>();
             foreach (var comment in viewComments)
                 viewCommentsLookup[comment.ViewName] = comment;

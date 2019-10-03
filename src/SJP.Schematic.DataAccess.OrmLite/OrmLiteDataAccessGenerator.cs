@@ -65,8 +65,8 @@ namespace SJP.Schematic.DataAccess.OrmLite
             foreach (var comment in tableComments)
                 tableCommentsLookup[comment.TableName] = comment;
 
-            var views = Database.GetAllViews(CancellationToken.None).GetAwaiter().GetResult();
-            var viewComments = CommentProvider.GetAllViewComments(CancellationToken.None).GetAwaiter().GetResult();
+            var views = Database.GetAllViews(CancellationToken.None).ToListAsync(CancellationToken.None).GetAwaiter().GetResult();
+            var viewComments = CommentProvider.GetAllViewComments(CancellationToken.None).ToListAsync(CancellationToken.None).GetAwaiter().GetResult();
             var viewCommentsLookup = new Dictionary<Identifier, IDatabaseViewComments>();
             foreach (var comment in viewComments)
                 viewCommentsLookup[comment.ViewName] = comment;
@@ -141,8 +141,8 @@ namespace SJP.Schematic.DataAccess.OrmLite
                 tableCommentsLookup[comment.TableName] = comment;
 
             var viewGenerator = new OrmLiteViewGenerator(NameTranslator, baseNamespace, Indent);
-            var views = await Database.GetAllViews(cancellationToken).ConfigureAwait(false);
-            var viewComments = await CommentProvider.GetAllViewComments(cancellationToken).ConfigureAwait(false);
+            var views = await Database.GetAllViews(cancellationToken).ToListAsync(cancellationToken).ConfigureAwait(false);
+            var viewComments = await CommentProvider.GetAllViewComments(cancellationToken).ToListAsync(cancellationToken).ConfigureAwait(false);
             var viewCommentsLookup = new Dictionary<Identifier, IDatabaseViewComments>();
             foreach (var comment in viewComments)
                 viewCommentsLookup[comment.ViewName] = comment;

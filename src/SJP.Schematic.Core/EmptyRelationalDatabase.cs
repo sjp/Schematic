@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading;
-using System.Threading.Tasks;
 using LanguageExt;
 
 namespace SJP.Schematic.Core
@@ -31,7 +30,7 @@ namespace SJP.Schematic.Core
             return TableProvider.GetTable(tableName, cancellationToken);
         }
 
-        public Task<IReadOnlyCollection<IDatabaseView>> GetAllViews(CancellationToken cancellationToken = default)
+        public IAsyncEnumerable<IDatabaseView> GetAllViews(CancellationToken cancellationToken = default)
         {
             return ViewProvider.GetAllViews(cancellationToken);
         }
@@ -70,7 +69,7 @@ namespace SJP.Schematic.Core
             return SynonymProvider.GetSynonym(synonymName, cancellationToken);
         }
 
-        public Task<IReadOnlyCollection<IDatabaseRoutine>> GetAllRoutines(CancellationToken cancellationToken = default)
+        public IAsyncEnumerable<IDatabaseRoutine> GetAllRoutines(CancellationToken cancellationToken = default)
         {
             return RoutineProvider.GetAllRoutines(cancellationToken);
         }

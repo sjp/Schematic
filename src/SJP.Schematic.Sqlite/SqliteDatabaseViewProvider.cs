@@ -3,6 +3,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 using LanguageExt;
@@ -31,7 +32,7 @@ namespace SJP.Schematic.Sqlite
 
         protected IIdentifierDefaults IdentifierDefaults { get; }
 
-        public virtual async Task<IReadOnlyCollection<IDatabaseView>> GetAllViews(CancellationToken cancellationToken = default)
+        public virtual async IAsyncEnumerable<IDatabaseView> GetAllViews([EnumeratorCancellation] CancellationToken cancellationToken = default)
         {
             var dbNamesQuery = await ConnectionPragma.DatabaseListAsync().ConfigureAwait(false);
             var dbNames = dbNamesQuery
@@ -53,10 +54,12 @@ namespace SJP.Schematic.Sqlite
                 qualifiedViewNames.AddRange(viewNames);
             }
 
-            var viewTasks = qualifiedViewNames
-                .Select(name => LoadViewAsyncCore(name, cancellationToken))
-                .ToArray();
-            return await Task.WhenAll(viewTasks).ConfigureAwait(false);
+            var orderedViewNames = qualifiedViewNames
+                .OrderBy(v => v.Schema)
+                .ThenBy(v => v.LocalName);
+
+            foreach (var viewName in orderedViewNames)
+                yield return await LoadViewAsyncCore(viewName, cancellationToken).ConfigureAwait(false);
         }
 
         protected virtual string ViewsQuery(string schemaName)
