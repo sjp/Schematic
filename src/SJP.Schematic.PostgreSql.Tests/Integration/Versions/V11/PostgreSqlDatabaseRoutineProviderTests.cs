@@ -1,12 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using Dapper;
+using Microsoft.VisualStudio.Threading;
 using NUnit.Framework;
 using SJP.Schematic.Core;
 using SJP.Schematic.Core.Extensions;
-using SJP.Schematic.Core.Utilities;
 
 namespace SJP.Schematic.PostgreSql.Tests.Integration.Versions.V11
 {
@@ -53,7 +54,7 @@ END $$").ConfigureAwait(false);
                     _routinesCache[routineName] = lazyRoutine;
                 }
 
-                return lazyRoutine.Task;
+                return lazyRoutine.GetValueAsync(CancellationToken.None);
             }
         }
 

@@ -1,12 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using Dapper;
+using Microsoft.VisualStudio.Threading;
 using NUnit.Framework;
 using SJP.Schematic.Core;
 using SJP.Schematic.Core.Extensions;
-using SJP.Schematic.Core.Utilities;
 using PgSequenceProvider = SJP.Schematic.PostgreSql.Versions.V10.PostgreSqlDatabaseSequenceProvider;
 
 namespace SJP.Schematic.PostgreSql.Tests.Integration.Versions.V10
@@ -60,7 +61,7 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration.Versions.V10
                     _sequencesCache[sequenceName] = lazySequence;
                 }
 
-                return lazySequence.Task;
+                return lazySequence.GetValueAsync(CancellationToken.None);
             }
         }
 

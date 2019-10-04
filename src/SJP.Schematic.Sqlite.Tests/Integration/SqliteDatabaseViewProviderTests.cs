@@ -1,12 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using Dapper;
+using Microsoft.VisualStudio.Threading;
 using NUnit.Framework;
 using SJP.Schematic.Core;
 using SJP.Schematic.Core.Extensions;
-using SJP.Schematic.Core.Utilities;
 
 namespace SJP.Schematic.Sqlite.Tests.Integration
 {
@@ -51,7 +52,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
                     _viewsCache[viewName] = lazyView;
                 }
 
-                return lazyView.Task;
+                return lazyView.GetValueAsync(CancellationToken.None);
             }
         }
 

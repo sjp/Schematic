@@ -1,11 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 using Dapper;
+using Microsoft.VisualStudio.Threading;
 using NUnit.Framework;
 using SJP.Schematic.Core;
 using SJP.Schematic.Core.Extensions;
-using SJP.Schematic.Core.Utilities;
 
 namespace SJP.Schematic.Sqlite.Tests.Integration
 {
@@ -289,7 +290,7 @@ end").ConfigureAwait(false);
                     _tablesCache[tableName] = lazyTable;
                 }
 
-                return lazyTable.Task;
+                return lazyTable.GetValueAsync(CancellationToken.None);
             }
         }
 

@@ -6,10 +6,10 @@ using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 using LanguageExt;
+using Microsoft.VisualStudio.Threading;
 using SJP.Schematic.Core;
 using SJP.Schematic.Core.Exceptions;
 using SJP.Schematic.Core.Extensions;
-using SJP.Schematic.Core.Utilities;
 using SJP.Schematic.MySql.Query;
 
 namespace SJP.Schematic.MySql
@@ -34,7 +34,7 @@ namespace SJP.Schematic.MySql
 
         protected IDatabaseDialect Dialect { get; }
 
-        protected Task<bool> HasCheckSupport => _supportsChecks.Task;
+        protected Task<bool> HasCheckSupport(CancellationToken cancellationToken) => _supportsChecks.GetValueAsync(cancellationToken);
 
         public virtual async IAsyncEnumerable<IRelationalDatabaseTable> GetAllTables([EnumeratorCancellation] CancellationToken cancellationToken = default)
         {
@@ -422,7 +422,7 @@ where pt.table_schema = @SchemaName and pt.table_name = @TableName";
 
         private async Task<IReadOnlyCollection<IDatabaseCheckConstraint>> LoadChecksAsyncCore(Identifier tableName, CancellationToken cancellationToken)
         {
-            var hasCheckSupport = await HasCheckSupport.ConfigureAwait(false);
+            var hasCheckSupport = await HasCheckSupport(cancellationToken).ConfigureAwait(false);
             if (!hasCheckSupport)
                 return Array.Empty<IDatabaseCheckConstraint>();
 

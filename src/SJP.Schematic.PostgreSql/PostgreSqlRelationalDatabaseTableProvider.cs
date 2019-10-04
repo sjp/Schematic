@@ -6,6 +6,7 @@ using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 using LanguageExt;
+using Microsoft.VisualStudio.Threading;
 using SJP.Schematic.Core;
 using SJP.Schematic.Core.Utilities;
 
@@ -36,7 +37,7 @@ namespace SJP.Schematic.PostgreSql
 
         public async IAsyncEnumerable<IRelationalDatabaseTable> GetAllTables([EnumeratorCancellation] CancellationToken cancellationToken = default)
         {
-            var provider = await _tableProvider.Task.ConfigureAwait(false);
+            var provider = await _tableProvider.GetValueAsync(cancellationToken).ConfigureAwait(false);
             var tables = provider.Match(
                 tp => tp.GetAllTables(cancellationToken),
                 AsyncEnumerable.Empty<IRelationalDatabaseTable>
@@ -51,7 +52,7 @@ namespace SJP.Schematic.PostgreSql
             if (tableName == null)
                 throw new ArgumentNullException(nameof(tableName));
 
-            return _tableProvider.Task
+            return _tableProvider.GetValueAsync(cancellationToken)
                 .ToAsync()
                 .Bind(tp => tp.GetTable(tableName, cancellationToken));
         }

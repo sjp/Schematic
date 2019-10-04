@@ -1,12 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using Dapper;
+using Microsoft.VisualStudio.Threading;
 using NUnit.Framework;
 using SJP.Schematic.Core;
 using SJP.Schematic.Core.Extensions;
-using SJP.Schematic.Core.Utilities;
 
 namespace SJP.Schematic.Oracle.Tests.Integration
 {
@@ -14,7 +15,7 @@ namespace SJP.Schematic.Oracle.Tests.Integration
     {
         private IOracleDatabasePackageProvider PackageProvider => new OracleDatabasePackageProvider(Connection, IdentifierDefaults, IdentifierResolver);
         private AsyncLazy<List<IOracleDatabasePackage>> _packages;
-        private Task<List<IOracleDatabasePackage>> GetAllPackages() => _packages.Task;
+        private Task<List<IOracleDatabasePackage>> GetAllPackages() => _packages.GetValueAsync(CancellationToken.None);
 
         [OneTimeSetUp]
         public async Task Init()
@@ -55,7 +56,7 @@ END db_test_package_2").ConfigureAwait(false);
                     _packagesCache[packageName] = lazyPackage;
                 }
 
-                return lazyPackage.Task;
+                return lazyPackage.GetValueAsync(CancellationToken.None);
             }
         }
 

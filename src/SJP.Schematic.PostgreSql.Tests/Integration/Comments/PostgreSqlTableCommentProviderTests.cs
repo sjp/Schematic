@@ -1,13 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using Dapper;
+using Microsoft.VisualStudio.Threading;
 using NUnit.Framework;
 using SJP.Schematic.Core;
 using SJP.Schematic.Core.Comments;
 using SJP.Schematic.Core.Extensions;
-using SJP.Schematic.Core.Utilities;
 using SJP.Schematic.PostgreSql.Comments;
 
 namespace SJP.Schematic.PostgreSql.Tests.Integration.Comments
@@ -90,7 +91,7 @@ execute procedure table_comment_table_3_trigger_fn_1()").ConfigureAwait(false);
                     _commentsCache[tableName] = lazyComment;
                 }
 
-                return lazyComment.Task;
+                return lazyComment.GetValueAsync(CancellationToken.None);
             }
         }
 
