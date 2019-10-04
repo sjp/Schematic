@@ -131,7 +131,7 @@ where table_schema = @SchemaName and table_name = @ViewName";
             return LoadColumnsAsyncCore(viewName, cancellationToken);
         }
 
-        protected virtual async Task<IReadOnlyList<IDatabaseColumn>> LoadColumnsAsyncCore(Identifier viewName, CancellationToken cancellationToken)
+        private async Task<IReadOnlyList<IDatabaseColumn>> LoadColumnsAsyncCore(Identifier viewName, CancellationToken cancellationToken)
         {
             var query = await Connection.QueryAsync<ColumnData>(
                 ColumnsQuery,

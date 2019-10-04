@@ -9,7 +9,6 @@ using System.Threading.Tasks;
 using LanguageExt;
 using SJP.Schematic.Core;
 using SJP.Schematic.Core.Extensions;
-using SJP.Schematic.Core.Utilities;
 using SJP.Schematic.Sqlite.Parsing;
 using SJP.Schematic.Sqlite.Pragma;
 using SJP.Schematic.Sqlite.Query;
@@ -475,7 +474,7 @@ namespace SJP.Schematic.Sqlite
 
             var checks = parsedTable.Checks.ToList();
             if (checks.Empty())
-                return Empty.Checks;
+                return Task.FromResult<IReadOnlyCollection<IDatabaseCheckConstraint>>(Array.Empty<IDatabaseCheckConstraint>());
 
             var result = new List<IDatabaseCheckConstraint>(checks.Count);
 

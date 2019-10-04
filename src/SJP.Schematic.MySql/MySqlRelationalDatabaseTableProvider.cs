@@ -417,10 +417,10 @@ where pt.table_schema = @SchemaName and pt.table_name = @TableName";
             if (tableName == null)
                 throw new ArgumentNullException(nameof(tableName));
 
-            return Empty.Checks;
+            return LoadChecksAsyncCore(tableName, cancellationToken);
         }
 
-        protected async Task<IReadOnlyCollection<IDatabaseCheckConstraint>> LoadChecksAsyncCore(Identifier tableName, CancellationToken cancellationToken)
+        private async Task<IReadOnlyCollection<IDatabaseCheckConstraint>> LoadChecksAsyncCore(Identifier tableName, CancellationToken cancellationToken)
         {
             var hasCheckSupport = await HasCheckSupport.ConfigureAwait(false);
             if (!hasCheckSupport)
