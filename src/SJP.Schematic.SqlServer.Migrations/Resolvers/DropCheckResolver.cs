@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using LanguageExt;
 using SJP.Schematic.Migrations;
@@ -10,7 +11,7 @@ namespace SJP.Schematic.SqlServer.Migrations.Resolvers
 {
     public class DropCheckResolver : IMigrationOperationResolver<DropCheckOperation>
     {
-        public Task<IReadOnlyCollection<IMigrationOperation>> ResolveRequiredOperations(DropCheckOperation operation)
+        public IAsyncEnumerable<IMigrationOperation> ResolveRequiredOperations(DropCheckOperation operation, CancellationToken cancellationToken = default)
         {
             if (operation == null)
                 throw new ArgumentNullException(nameof(operation));
@@ -18,7 +19,7 @@ namespace SJP.Schematic.SqlServer.Migrations.Resolvers
             return ResolveRequiredOperationsCore(operation);
         }
 
-        public Task<IReadOnlyCollection<IMigrationOperation>> ResolveRequiredOperationsCore(DropCheckOperation operation)
+        private IAsyncEnumerable<IMigrationOperation> ResolveRequiredOperationsCore(DropCheckOperation operation)
         {
             var tableChecks = operation.Table.Checks;
             var hasExistingDefinition = tableChecks.Any(c => c.Definition == operation.Check.Definition);
@@ -34,7 +35,7 @@ namespace SJP.Schematic.SqlServer.Migrations.Resolvers
                 ? Array.Empty<IMigrationOperation>()
                 : new[] { operation } as IReadOnlyCollection<IMigrationOperation>;
 
-            return Task.FromResult(result);
+            return result.ToAsyncEnumerable();
         }
     }
 }

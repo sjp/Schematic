@@ -41,7 +41,7 @@ namespace SJP.Schematic.SqlServer.Migrations
             return registry;
         }
 
-        public Task<IReadOnlyCollection<IMigrationOperation>> BuildMigrations(CancellationToken cancellationToken = default)
+        public IAsyncEnumerable<IMigrationOperation> BuildMigrations(CancellationToken cancellationToken = default)
         {
             // defensive copy in case someone wants to build twice
             var operationCopy = Operations.ToList();
@@ -61,8 +61,7 @@ namespace SJP.Schematic.SqlServer.Migrations
 
             // now that we have done all of the required operations, lets just order by dependencies
             var sorter = new SqlServerMigrationOperationSorter();
-            var sorted = sorter.Sort(queue).ToList();
-            return Task.FromResult<IReadOnlyCollection<IMigrationOperation>>(sorted);
+            return sorter.Sort(queue).ToAsyncEnumerable();
         }
 
         public void AddCheck(IRelationalDatabaseTable table, IDatabaseCheckConstraint check)

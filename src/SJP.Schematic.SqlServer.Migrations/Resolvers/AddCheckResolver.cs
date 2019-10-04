@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using LanguageExt;
 using SJP.Schematic.Migrations;
@@ -10,7 +11,7 @@ namespace SJP.Schematic.SqlServer.Migrations.Resolvers
 {
     public class AddCheckResolver : IMigrationOperationResolver<AddCheckOperation>
     {
-        public Task<IReadOnlyCollection<IMigrationOperation>> ResolveRequiredOperations(AddCheckOperation operation)
+        public IAsyncEnumerable<IMigrationOperation> ResolveRequiredOperations(AddCheckOperation operation, CancellationToken cancellationToken = default)
         {
             if (operation == null)
                 throw new ArgumentNullException(nameof(operation));
@@ -18,7 +19,7 @@ namespace SJP.Schematic.SqlServer.Migrations.Resolvers
             return ResolveRequiredOperationsCore(operation);
         }
 
-        public Task<IReadOnlyCollection<IMigrationOperation>> ResolveRequiredOperationsCore(AddCheckOperation operation)
+        private IAsyncEnumerable<IMigrationOperation> ResolveRequiredOperationsCore(AddCheckOperation operation)
         {
             var tableChecks = operation.Table.Checks;
             var hasExistingDefinition = tableChecks.Any(c => c.Definition == operation.Check.Definition);
@@ -32,9 +33,9 @@ namespace SJP.Schematic.SqlServer.Migrations.Resolvers
             // TODO throw if hasCheckByName is true
             var result = hasExistingDefinition || hasCheckByName
                 ? Array.Empty<IMigrationOperation>()
-                : new[] { operation } as IReadOnlyCollection<IMigrationOperation>;
+                : new[] { operation };
 
-            return Task.FromResult(result);
+            return result.ToAsyncEnumerable();
         }
     }
 }

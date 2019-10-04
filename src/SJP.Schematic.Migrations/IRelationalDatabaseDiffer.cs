@@ -7,8 +7,6 @@ namespace SJP.Schematic.Migrations
 {
     public interface IRelationalDatabaseDiffer
     {
-        Task<bool> HasDifferences(IRelationalDatabase comparison, CancellationToken cancellationToken = default);
-
-        Task<IReadOnlyCollection<IMigrationOperation>> GetDifferences(IRelationalDatabase comparison, CancellationToken cancellationToken = default);
+        IAsyncEnumerable<IMigrationOperation> GetDifferences(IRelationalDatabase comparison, CancellationToken cancellationToken = default);
     }
 }

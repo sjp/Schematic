@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using LanguageExt;
 using SJP.Schematic.Migrations;
@@ -10,7 +11,7 @@ namespace SJP.Schematic.SqlServer.Migrations.Resolvers
 {
     public class DropForeignKeyResolver : IMigrationOperationResolver<DropForeignKeyOperation>
     {
-        public Task<IReadOnlyCollection<IMigrationOperation>> ResolveRequiredOperations(DropForeignKeyOperation operation)
+        public IAsyncEnumerable<IMigrationOperation> ResolveRequiredOperations(DropForeignKeyOperation operation, CancellationToken cancellationToken = default)
         {
             if (operation == null)
                 throw new ArgumentNullException(nameof(operation));
@@ -18,7 +19,7 @@ namespace SJP.Schematic.SqlServer.Migrations.Resolvers
             return ResolveRequiredOperationsCore(operation);
         }
 
-        public Task<IReadOnlyCollection<IMigrationOperation>> ResolveRequiredOperationsCore(DropForeignKeyOperation operation)
+        private IAsyncEnumerable<IMigrationOperation> ResolveRequiredOperationsCore(DropForeignKeyOperation operation)
         {
             var tableParentKeys = operation.Table.ParentKeys;
 
@@ -32,7 +33,7 @@ namespace SJP.Schematic.SqlServer.Migrations.Resolvers
             );
 
             if (!hasExistingKey)
-                return Task.FromResult<IReadOnlyCollection<IMigrationOperation>>(Array.Empty<IMigrationOperation>());
+                return AsyncEnumerable.Empty<IMigrationOperation>();
 
             var fkColumnNames = operation.ForeignKey.ChildKey.Columns.Select(c => c.Name).ToList();
             var indexesToDrop = operation.Table.Indexes
@@ -44,7 +45,7 @@ namespace SJP.Schematic.SqlServer.Migrations.Resolvers
             var result = new List<IMigrationOperation> { operation };
             result.AddRange(indexDropOperations);
 
-            return Task.FromResult<IReadOnlyCollection<IMigrationOperation>>(result);
+            return result.ToAsyncEnumerable();
         }
     }
 }

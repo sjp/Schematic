@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 using LanguageExt;
@@ -20,7 +21,7 @@ namespace SJP.Schematic.Migrations
 
         protected IMigrationBuilder MigrationBuilder { get; }
 
-        public Task<IReadOnlyCollection<IMigrationOperation>> GetDifferences(IRelationalDatabase comparison, CancellationToken cancellationToken = default)
+        public IAsyncEnumerable<IMigrationOperation> GetDifferences(IRelationalDatabase comparison, CancellationToken cancellationToken = default)
         {
             if (comparison == null)
                 throw new ArgumentNullException(nameof(comparison));
@@ -28,7 +29,7 @@ namespace SJP.Schematic.Migrations
             return GetDifferencesCore(comparison, cancellationToken);
         }
 
-        private async Task<IReadOnlyCollection<IMigrationOperation>> GetDifferencesCore(IRelationalDatabase comparison, CancellationToken cancellationToken = default)
+        private async IAsyncEnumerable<IMigrationOperation> GetDifferencesCore(IRelationalDatabase comparison, [EnumeratorCancellation] CancellationToken cancellationToken = default)
         {
             var tables = await Database.GetAllTables(cancellationToken).ToListAsync(cancellationToken).ConfigureAwait(false);
             var comparisonTables = await comparison.GetAllTables(cancellationToken).ToListAsync(cancellationToken).ConfigureAwait(false);
@@ -50,23 +51,8 @@ namespace SJP.Schematic.Migrations
             var comparisonRoutines = await Database.GetAllRoutines(cancellationToken).ToListAsync(cancellationToken).ConfigureAwait(false);
             CompareRoutines(routines, comparisonRoutines);
 
-            return await MigrationBuilder.BuildMigrations(cancellationToken).ConfigureAwait(false);
-        }
-
-        public Task<bool> HasDifferences(IRelationalDatabase comparison, CancellationToken cancellationToken = default)
-        {
-            if (comparison == null)
-                throw new ArgumentNullException(nameof(comparison));
-
-            return HasDifferencesCore(comparison, cancellationToken);
-        }
-
-        private Task<bool> HasDifferencesCore(IRelationalDatabase comparison, CancellationToken cancellationToken = default)
-        {
-            if (comparison == null)
-                throw new ArgumentNullException(nameof(comparison));
-
-            return Task.FromResult(false);
+            await foreach (var migration in MigrationBuilder.BuildMigrations(cancellationToken).ConfigureAwait(false))
+                yield return migration;
         }
 
         protected virtual void CompareTables(IReadOnlyCollection<IRelationalDatabaseTable> tables, IReadOnlyCollection<IRelationalDatabaseTable> comparisonTables)
