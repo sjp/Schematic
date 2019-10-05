@@ -34,8 +34,6 @@ namespace SJP.Schematic.MySql.Comments
             ).ConfigureAwait(false);
 
             var comments = commentsData
-                .OrderBy(row => row.SchemaName)
-                .ThenBy(row => row.ObjectName)
                 .Select(comment =>
                 {
                     var tmpIdentifier = Identifier.CreateQualifiedIdentifier(comment.SchemaName, comment.ObjectName);

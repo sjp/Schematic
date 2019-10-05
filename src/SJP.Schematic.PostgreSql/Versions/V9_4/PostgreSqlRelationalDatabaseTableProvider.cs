@@ -40,9 +40,7 @@ namespace SJP.Schematic.PostgreSql.Versions.V9_4
             var queryResults = await Connection.QueryAsync<QualifiedName>(TablesQuery, cancellationToken).ConfigureAwait(false);
             var tableNames = queryResults
                 .Select(dto => Identifier.CreateQualifiedIdentifier(dto.SchemaName, dto.ObjectName))
-                .Select(QualifyTableName)
-                .OrderBy(name => name.Schema)
-                .ThenBy(name => name.LocalName);
+                .Select(QualifyTableName);
 
             foreach (var tableName in tableNames)
                 yield return await LoadTableAsyncCore(tableName, cancellationToken).ConfigureAwait(false);
@@ -55,7 +53,8 @@ select
     schemaname as SchemaName,
     tablename as ObjectName
 from pg_catalog.pg_tables
-where schemaname not in ('pg_catalog', 'information_schema')";
+where schemaname not in ('pg_catalog', 'information_schema')
+order by schemaname, tablename";
 
         public OptionAsync<IRelationalDatabaseTable> GetTable(Identifier tableName, CancellationToken cancellationToken = default)
         {

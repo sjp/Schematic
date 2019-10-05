@@ -33,9 +33,8 @@ namespace SJP.Schematic.Oracle
         public async IAsyncEnumerable<IDatabaseSynonym> GetAllSynonyms([EnumeratorCancellation] CancellationToken cancellationToken = default)
         {
             var queryResult = await Connection.QueryAsync<SynonymData>(SynonymsQuery, cancellationToken).ConfigureAwait(false);
-            var synonymQueryRows = queryResult.ToList();
 
-            foreach (var synonymRow in synonymQueryRows)
+            foreach (var synonymRow in queryResult)
             {
                 var synonymSchema = !synonymRow.SchemaName.IsNullOrWhiteSpace() ? synonymRow.SchemaName : null;
                 var synonymName = !synonymRow.SynonymName.IsNullOrWhiteSpace() ? synonymRow.SynonymName : null;

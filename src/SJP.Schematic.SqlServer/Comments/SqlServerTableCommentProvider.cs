@@ -37,24 +37,22 @@ namespace SJP.Schematic.SqlServer.Comments
 
             var comments = commentsData
                 .GroupBy(row => new { row.SchemaName, row.TableName })
-                .Select(g => new
+                .Select(g =>
                 {
-                    Name = QualifyTableName(Identifier.CreateQualifiedIdentifier(g.Key.SchemaName, g.Key.TableName)),
-                    Comments = g.ToList()
-                })
-                .Select(comment =>
-                {
-                    var tableComment = GetFirstCommentByType(comment.Comments, Constants.Table);
-                    var primaryKeyComment = GetFirstCommentByType(comment.Comments, Constants.Primary);
-                    var columnComments = GetCommentLookupByType(comment.Comments, Constants.Column);
-                    var checkComments = GetCommentLookupByType(comment.Comments, Constants.Check);
-                    var foreignKeyComments = GetCommentLookupByType(comment.Comments, Constants.ForeignKey);
-                    var uniqueKeyComments = GetCommentLookupByType(comment.Comments, Constants.Unique);
-                    var indexComments = GetCommentLookupByType(comment.Comments, Constants.Index);
-                    var triggerComments = GetCommentLookupByType(comment.Comments, Constants.Trigger);
+                    var tableName = QualifyTableName(Identifier.CreateQualifiedIdentifier(g.Key.SchemaName, g.Key.TableName));
+                    var comments = g.ToList();
+
+                    var tableComment = GetFirstCommentByType(comments, Constants.Table);
+                    var primaryKeyComment = GetFirstCommentByType(comments, Constants.Primary);
+                    var columnComments = GetCommentLookupByType(comments, Constants.Column);
+                    var checkComments = GetCommentLookupByType(comments, Constants.Check);
+                    var foreignKeyComments = GetCommentLookupByType(comments, Constants.ForeignKey);
+                    var uniqueKeyComments = GetCommentLookupByType(comments, Constants.Unique);
+                    var indexComments = GetCommentLookupByType(comments, Constants.Index);
+                    var triggerComments = GetCommentLookupByType(comments, Constants.Trigger);
 
                     return new RelationalDatabaseTableComments(
-                        comment.Name,
+                        tableName,
                         tableComment,
                         primaryKeyComment,
                         columnComments,
@@ -146,6 +144,7 @@ where schema_id = schema_id(@SchemaName) and name = @TableName
         protected virtual string AllTableCommentsQuery => AllTableCommentsQuerySql;
 
         private const string AllTableCommentsQuerySql = @"
+select wrapped.* from (
 -- table
 select SCHEMA_NAME(t.schema_id) as SchemaName, t.name as TableName, 'TABLE' as ObjectType, t.name as ObjectName, ep.value as Comment
 from sys.tables t
@@ -215,7 +214,7 @@ from sys.tables t
 inner join sys.triggers tr on t.object_id = tr.parent_id
 left join sys.extended_properties ep on tr.object_id = ep.major_id and ep.name = @CommentProperty
 where t.is_ms_shipped = 0
-";
+) wrapped order by wrapped.SchemaName, wrapped.TableName";
 
         protected virtual string TableCommentsQuery => TableCommentsQuerySql;
 

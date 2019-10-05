@@ -32,8 +32,6 @@ namespace SJP.Schematic.PostgreSql.Comments
             var allCommentsData = await Connection.QueryAsync<CommentsData>(AllRoutineCommentsQuery, cancellationToken).ConfigureAwait(false);
 
             var comments = allCommentsData
-                .OrderBy(c => c.SchemaName)
-                .ThenBy(c => c.ObjectName)
                 .Select(c =>
                 {
                     var qualifiedName = QualifyRoutineName(Identifier.CreateQualifiedIdentifier(c.SchemaName, c.ObjectName));

@@ -46,7 +46,10 @@ namespace SJP.Schematic.Modelled.Reflection
                 : OptionAsync<IRelationalDatabaseTable>.None;
         }
 
-        public IAsyncEnumerable<IRelationalDatabaseTable> GetAllTables(CancellationToken cancellationToken = default) => Table.Values.ToAsyncEnumerable();
+        public IAsyncEnumerable<IRelationalDatabaseTable> GetAllTables(CancellationToken cancellationToken = default) => Table.Values
+            .OrderBy(t => t.Name.Schema)
+            .ThenBy(t => t.Name.LocalName)
+            .ToAsyncEnumerable();
 
         protected IReadOnlyDictionary<Identifier, IRelationalDatabaseTable> Table => _tableLookup.Value;
 
@@ -98,7 +101,10 @@ namespace SJP.Schematic.Modelled.Reflection
                 : OptionAsync<IDatabaseView>.None;
         }
 
-        public IAsyncEnumerable<IDatabaseView> GetAllViews(CancellationToken cancellationToken = default) => View.Values.ToAsyncEnumerable();
+        public IAsyncEnumerable<IDatabaseView> GetAllViews(CancellationToken cancellationToken = default) => View.Values
+            .OrderBy(v => v.Name.Schema)
+            .ThenBy(v => v.Name.LocalName)
+            .ToAsyncEnumerable();
 
         protected IReadOnlyDictionary<Identifier, IDatabaseView> View => _viewLookup.Value;
 
@@ -150,7 +156,10 @@ namespace SJP.Schematic.Modelled.Reflection
                 : OptionAsync<IDatabaseSequence>.None;
         }
 
-        public IAsyncEnumerable<IDatabaseSequence> GetAllSequences(CancellationToken cancellationToken = default) => Sequence.Values.ToAsyncEnumerable();
+        public IAsyncEnumerable<IDatabaseSequence> GetAllSequences(CancellationToken cancellationToken = default) => Sequence.Values
+            .OrderBy(s => s.Name.Schema)
+            .ThenBy(s => s.Name.LocalName)
+            .ToAsyncEnumerable();
 
         protected IReadOnlyDictionary<Identifier, IDatabaseSequence> Sequence => _sequenceLookup.Value;
 
@@ -202,7 +211,10 @@ namespace SJP.Schematic.Modelled.Reflection
                 : OptionAsync<IDatabaseSynonym>.None;
         }
 
-        public IAsyncEnumerable<IDatabaseSynonym> GetAllSynonyms(CancellationToken cancellationToken = default) => Synonym.Values.ToAsyncEnumerable();
+        public IAsyncEnumerable<IDatabaseSynonym> GetAllSynonyms(CancellationToken cancellationToken = default) => Synonym.Values
+            .OrderBy(s => s.Name.Schema)
+            .ThenBy(s => s.Name.LocalName)
+            .ToAsyncEnumerable();
 
         protected IReadOnlyDictionary<Identifier, IDatabaseSynonym> Synonym => _synonymLookup.Value;
 
@@ -254,7 +266,10 @@ namespace SJP.Schematic.Modelled.Reflection
                 : OptionAsync<IDatabaseRoutine>.None;
         }
 
-        public IAsyncEnumerable<IDatabaseRoutine> GetAllRoutines(CancellationToken cancellationToken = default) => Routine.Values.ToAsyncEnumerable();
+        public IAsyncEnumerable<IDatabaseRoutine> GetAllRoutines(CancellationToken cancellationToken = default) => Routine.Values
+            .OrderBy(r => r.Name.Schema)
+            .ThenBy(r => r.Name.LocalName)
+            .ToAsyncEnumerable();
 
         protected IReadOnlyDictionary<Identifier, IDatabaseRoutine> Routine => _routineLookup.Value;
 

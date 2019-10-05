@@ -35,18 +35,14 @@ namespace SJP.Schematic.Oracle.Comments
 
             var comments = allCommentsData
                 .GroupBy(row => new { row.SchemaName, row.ObjectName })
-                .Select(g => new
+                .Select(g =>
                 {
-                    Name = QualifyTableName(Identifier.CreateQualifiedIdentifier(g.Key.SchemaName, g.Key.ObjectName)),
-                    Comments = g.ToList()
-                })
-                .OrderBy(g => g.Name.Schema)
-                .ThenBy(g => g.Name.LocalName)
-                .Select(table =>
-                {
-                    var tableComment = GetTableComment(table.Comments);
+                    var tableName = QualifyTableName(Identifier.CreateQualifiedIdentifier(g.Key.SchemaName, g.Key.ObjectName));
+                    var comments = g.ToList();
+
+                    var tableComment = GetTableComment(comments);
                     var primaryKeyComment = Option<string>.None;
-                    var columnComments = GetColumnComments(table.Comments);
+                    var columnComments = GetColumnComments(comments);
                     var checkComments = Empty.CommentLookup;
                     var foreignKeyComments = Empty.CommentLookup;
                     var uniqueKeyComments = Empty.CommentLookup;
@@ -54,7 +50,7 @@ namespace SJP.Schematic.Oracle.Comments
                     var triggerComments = Empty.CommentLookup;
 
                     return new RelationalDatabaseTableComments(
-                        table.Name,
+                        tableName,
                         tableComment,
                         primaryKeyComment,
                         columnComments,
@@ -178,6 +174,7 @@ where
         protected virtual string AllTableCommentsQuery => AllTableCommentsQuerySql;
 
         private const string AllTableCommentsQuerySql = @"
+select wrapped.* from (
 -- table
 select t.OWNER as SchemaName, t.TABLE_NAME as ObjectName, 'TABLE' as ObjectType, NULL as ColumnName, c.COMMENTS as ""Comment""
 from SYS.ALL_TABLES t
@@ -202,7 +199,7 @@ where o.ORACLE_MAINTAINED <> 'Y'
     and o.GENERATED <> 'Y'
     and o.SECONDARY <> 'Y'
     and mv.MVIEW_NAME is null
-";
+) wrapped order by wrapped.SchemaName, wrapped.ObjectName";
 
         protected virtual string TableCommentsQuery => TableCommentsQuerySql;
 

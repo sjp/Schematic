@@ -37,18 +37,14 @@ namespace SJP.Schematic.SqlServer.Comments
 
             var sequenceComments = allCommentsData
                 .GroupBy(row => new { row.SchemaName, row.TableName })
-                .Select(g => new
-                {
-                    Name = QualifySequenceName(Identifier.CreateQualifiedIdentifier(g.Key.SchemaName, g.Key.TableName)),
-                    Comments = g.ToList()
-                })
                 .Select(g =>
                 {
-                    var sequenceComment = GetFirstCommentByType(g.Comments, Constants.Sequence);
-                    return new DatabaseSequenceComments(g.Name, sequenceComment);
-                })
-                .OrderBy(c => c.SequenceName.Schema)
-                .ThenBy(c => c.SequenceName.LocalName);
+                    var sequenceName = QualifySequenceName(Identifier.CreateQualifiedIdentifier(g.Key.SchemaName, g.Key.TableName));
+                    var comments = g.ToList();
+
+                    var sequenceComment = GetFirstCommentByType(comments, Constants.Sequence);
+                    return new DatabaseSequenceComments(sequenceName, sequenceComment);
+                });
 
             foreach (var sequenceComment in sequenceComments)
                 yield return sequenceComment;
@@ -115,6 +111,7 @@ select SCHEMA_NAME(s.schema_id) as SchemaName, s.name as TableName, 'SEQUENCE' a
 from sys.sequences s
 left join sys.extended_properties ep on s.object_id = ep.major_id and ep.name = @CommentProperty and ep.minor_id = 0
 where s.is_ms_shipped = 0
+order by SCHEMA_NAME(s.schema_id), s.name
 ";
 
         protected virtual string SequenceCommentsQuery => SequenceCommentsQuerySql;

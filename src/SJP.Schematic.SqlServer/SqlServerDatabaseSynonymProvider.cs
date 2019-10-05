@@ -25,8 +25,6 @@ namespace SJP.Schematic.SqlServer
         public async IAsyncEnumerable<IDatabaseSynonym> GetAllSynonyms([EnumeratorCancellation] CancellationToken cancellationToken = default)
         {
             var queryResult = await Connection.QueryAsync<SynonymData>(SynonymsQuery, cancellationToken).ConfigureAwait(false);
-            if (queryResult.Empty())
-                yield break;
 
             foreach (var row in queryResult)
             {

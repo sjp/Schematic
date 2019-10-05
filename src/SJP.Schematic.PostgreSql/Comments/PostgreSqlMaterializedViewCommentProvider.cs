@@ -34,8 +34,6 @@ namespace SJP.Schematic.PostgreSql.Comments
 
             var comments = allCommentsData
                 .GroupBy(row => new { row.SchemaName, row.ViewName })
-                .OrderBy(g => g.Key.SchemaName)
-                .ThenBy(g => g.Key.ViewName)
                 .Select(g =>
                 {
                     var qualifiedName = QualifyViewName(Identifier.CreateQualifiedIdentifier(g.Key.SchemaName, g.Key.ViewName));
@@ -125,6 +123,7 @@ limit 1";
         protected virtual string AllViewCommentsQuery => AllViewCommentsQuerySql;
 
         private const string AllViewCommentsQuerySql = @"
+select wrapped.* from (
 -- view
 select n.nspname as SchemaName, c.relname as ViewName, 'VIEW' as ObjectType, c.relname as ObjectName, d.description as Comment
 from pg_catalog.pg_class c
@@ -142,6 +141,7 @@ inner join pg_catalog.pg_attribute a on a.attrelid = c.oid
 left join pg_description d on c.oid = d.objoid and a.attnum = d.objsubid
 where c.relkind = 'm' and n.nspname not in ('pg_catalog', 'information_schema')
     and a.attnum > 0 and not a.attisdropped
+) wrapped order by wrapped.SchemaName, wrapped.ViewName
 ";
 
         protected virtual string ViewCommentsQuery => ViewCommentsQuerySql;

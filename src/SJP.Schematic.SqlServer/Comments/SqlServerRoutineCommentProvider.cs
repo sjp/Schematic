@@ -37,8 +37,6 @@ namespace SJP.Schematic.SqlServer.Comments
 
             var comments = allCommentsData
                 .GroupBy(row => new { row.SchemaName, row.TableName })
-                .OrderBy(g => g.Key.SchemaName)
-                .ThenBy(g => g.Key.TableName)
                 .Select(g =>
                 {
                     var qualifiedName = QualifyRoutineName(Identifier.CreateQualifiedIdentifier(g.Key.SchemaName, g.Key.TableName));
@@ -114,6 +112,7 @@ select SCHEMA_NAME(r.schema_id) as SchemaName, r.name as TableName, 'ROUTINE' as
 from sys.objects r
 left join sys.extended_properties ep on r.object_id = ep.major_id and ep.name = @CommentProperty and ep.minor_id = 0
 where r.is_ms_shipped = 0 and r.type in ('P', 'FN', 'IF', 'TF')
+order by SCHEMA_NAME(r.schema_id), r.name
 ";
 
         protected virtual string RoutineCommentsQuery => RoutineCommentsQuerySql;

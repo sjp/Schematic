@@ -36,8 +36,6 @@ namespace SJP.Schematic.Oracle
 
             var routines = queryResult
                 .GroupBy(r => new { r.SchemaName, r.RoutineName })
-                .OrderBy(r => r.Key.SchemaName)
-                .ThenBy(r => r.Key.RoutineName)
                 .Select(r =>
                 {
                     var name = Identifier.CreateQualifiedIdentifier(IdentifierDefaults.Server, IdentifierDefaults.Database, r.Key.SchemaName, r.Key.RoutineName);

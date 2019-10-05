@@ -36,8 +36,6 @@ namespace SJP.Schematic.PostgreSql
 
             var routines = queryResult
                 .Where(row => row.Definition != null)
-                .OrderBy(row => row.SchemaName)
-                .ThenBy(row => row.RoutineName)
                 .Select(row =>
                 {
                     var routineName = QualifyRoutineName(Identifier.CreateQualifiedIdentifier(row.SchemaName, row.RoutineName));

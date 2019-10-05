@@ -35,10 +35,7 @@ namespace SJP.Schematic.PostgreSql
             var queryResult = await Connection.QueryAsync<QualifiedName>(ViewsQuery, cancellationToken).ConfigureAwait(false);
             var viewNames = queryResult
                 .Select(dto => Identifier.CreateQualifiedIdentifier(dto.SchemaName, dto.ObjectName))
-                .Select(QualifyViewName)
-                .OrderBy(name => name.Schema)
-                .ThenBy(name => name.LocalName)
-                .ToList();
+                .Select(QualifyViewName);
 
             foreach (var viewName in viewNames)
                 yield return await LoadViewAsyncCore(viewName, cancellationToken).ConfigureAwait(false);
@@ -49,7 +46,9 @@ namespace SJP.Schematic.PostgreSql
         private const string ViewsQuerySql = @"
 select schemaname as SchemaName, matviewname as ObjectName
 from pg_catalog.pg_matviews
-where schemaname not in ('pg_catalog', 'information_schema')";
+where schemaname not in ('pg_catalog', 'information_schema')
+order by schemaname, matviewname
+";
 
         public OptionAsync<IDatabaseView> GetView(Identifier viewName, CancellationToken cancellationToken = default)
         {

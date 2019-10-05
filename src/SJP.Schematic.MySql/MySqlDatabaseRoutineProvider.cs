@@ -34,8 +34,6 @@ namespace SJP.Schematic.MySql
 
             var routines = queryResult
                 .Where(row => !row.Definition.IsNullOrWhiteSpace())
-                .OrderBy(row => row.SchemaName)
-                .ThenBy(row => row.ObjectName)
                 .Select(row =>
                 {
                     var routineName = QualifyRoutineName(Identifier.CreateQualifiedIdentifier(row.SchemaName, row.ObjectName));

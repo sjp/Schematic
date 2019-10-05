@@ -34,27 +34,23 @@ namespace SJP.Schematic.PostgreSql.Comments
 
             var comments = allCommentsData
                 .GroupBy(row => new { row.SchemaName, row.TableName })
-                .Select(g => new
+                .Select(g =>
                 {
-                    Name = QualifyTableName(Identifier.CreateQualifiedIdentifier(g.Key.SchemaName, g.Key.TableName)),
-                    Comments = g.ToList()
-                })
-                .OrderBy(g => g.Name.Schema)
-                .ThenBy(g => g.Name.LocalName)
-                .Select(table =>
-                {
-                    var tableComment = GetFirstCommentByType(table.Comments, Constants.Table);
-                    var primaryKeyComment = GetFirstCommentByType(table.Comments, Constants.Primary);
+                    var tableName = QualifyTableName(Identifier.CreateQualifiedIdentifier(g.Key.SchemaName, g.Key.TableName));
+                    var comments = g.ToList();
 
-                    var columnComments = GetCommentLookupByType(table.Comments, Constants.Column);
-                    var checkComments = GetCommentLookupByType(table.Comments, Constants.Check);
-                    var foreignKeyComments = GetCommentLookupByType(table.Comments, Constants.ForeignKey);
-                    var uniqueKeyComments = GetCommentLookupByType(table.Comments, Constants.Unique);
-                    var indexComments = GetCommentLookupByType(table.Comments, Constants.Index);
-                    var triggerComments = GetCommentLookupByType(table.Comments, Constants.Trigger);
+                    var tableComment = GetFirstCommentByType(comments, Constants.Table);
+                    var primaryKeyComment = GetFirstCommentByType(comments, Constants.Primary);
+
+                    var columnComments = GetCommentLookupByType(comments, Constants.Column);
+                    var checkComments = GetCommentLookupByType(comments, Constants.Check);
+                    var foreignKeyComments = GetCommentLookupByType(comments, Constants.ForeignKey);
+                    var uniqueKeyComments = GetCommentLookupByType(comments, Constants.Unique);
+                    var indexComments = GetCommentLookupByType(comments, Constants.Index);
+                    var triggerComments = GetCommentLookupByType(comments, Constants.Trigger);
 
                     return new RelationalDatabaseTableComments(
-                        table.Name,
+                        tableName,
                         tableComment,
                         primaryKeyComment,
                         columnComments,
@@ -161,6 +157,7 @@ limit 1";
         protected virtual string AllTableCommentsQuery => AllTableCommentsQuerySql;
 
         private const string AllTableCommentsQuerySql = @"
+select wrapped.* from (
 -- table
 select ns.nspname as SchemaName, t.relname as TableName, 'TABLE' as ObjectType, t.relname as ObjectName, d.description as Comment
 from pg_catalog.pg_class t
@@ -243,6 +240,7 @@ inner join pg_catalog.pg_namespace ns on t.relnamespace = ns.oid
 inner join pg_catalog.pg_trigger tr on tr.tgrelid = t.oid
 left join pg_catalog.pg_description d on d.objoid = tr.oid
 where t.relkind = 'r' and ns.nspname not in ('pg_catalog', 'information_schema')
+) wrapped order by wrapped.SchemaName, wrapped.TableName
 ";
 
         protected virtual string TableCommentsQuery => TableCommentsQuerySql;

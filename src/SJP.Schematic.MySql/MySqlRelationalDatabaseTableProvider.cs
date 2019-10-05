@@ -38,12 +38,14 @@ namespace SJP.Schematic.MySql
 
         public virtual async IAsyncEnumerable<IRelationalDatabaseTable> GetAllTables([EnumeratorCancellation] CancellationToken cancellationToken = default)
         {
-            var queryResults = await Connection.QueryAsync<QualifiedName>(TablesQuery, new { SchemaName = IdentifierDefaults.Schema }, cancellationToken).ConfigureAwait(false);
+            var queryResults = await Connection.QueryAsync<QualifiedName>(
+                TablesQuery,
+                new { SchemaName = IdentifierDefaults.Schema },
+                cancellationToken
+            ).ConfigureAwait(false);
             var tableNames = queryResults
                 .Select(dto => Identifier.CreateQualifiedIdentifier(dto.SchemaName, dto.ObjectName))
-                .Select(QualifyTableName)
-                .OrderBy(name => name.Schema)
-                .ThenBy(name => name.LocalName);
+                .Select(QualifyTableName);
 
             foreach (var tableName in tableNames)
                 yield return await LoadTableAsyncCore(tableName, cancellationToken).ConfigureAwait(false);

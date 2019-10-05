@@ -33,7 +33,7 @@ namespace SJP.Schematic.PostgreSql.Comments
         public async IAsyncEnumerable<IDatabaseViewComments> GetAllViewComments([EnumeratorCancellation] CancellationToken cancellationToken = default)
         {
             var queryViews = await QueryViewCommentProvider.GetAllViewComments(cancellationToken).ToListAsync(cancellationToken).ConfigureAwait(false);
-            var materializedViews = await MaterializedViewCommentProvider.GetAllViewComments(cancellationToken).ToListAsync().ConfigureAwait(false);
+            var materializedViews = await MaterializedViewCommentProvider.GetAllViewComments(cancellationToken).ToListAsync(cancellationToken).ConfigureAwait(false);
 
             var viewComments = queryViews
                 .Concat(materializedViews)

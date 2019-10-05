@@ -34,19 +34,15 @@ namespace SJP.Schematic.Oracle.Comments
 
             var comments = allCommentsData
                 .GroupBy(row => new { row.SchemaName, row.ObjectName })
-                .Select(g => new
-                {
-                    Name = QualifyViewName(Identifier.CreateQualifiedIdentifier(g.Key.SchemaName, g.Key.ObjectName)),
-                    Comments = g.ToList()
-                })
-                .OrderBy(g => g.Name.Schema)
-                .ThenBy(g => g.Name.LocalName)
                 .Select(g =>
                 {
-                    var viewComment = GetViewComment(g.Comments);
-                    var columnComments = GetColumnComments(g.Comments);
+                    var viewName = QualifyViewName(Identifier.CreateQualifiedIdentifier(g.Key.SchemaName, g.Key.ObjectName));
+                    var comments = g.ToList();
 
-                    return new DatabaseViewComments(g.Name, viewComment, columnComments);
+                    var viewComment = GetViewComment(comments);
+                    var columnComments = GetColumnComments(comments);
+
+                    return new DatabaseViewComments(viewName, viewComment, columnComments);
                 });
 
             foreach (var comment in comments)
@@ -139,6 +135,7 @@ where mv.OWNER = :SchemaName and mv.MVIEW_NAME = :ViewName
         protected virtual string AllViewCommentsQuery => AllViewCommentsQuerySql;
 
         private const string AllViewCommentsQuerySql = @"
+select wrapped.* from (
 -- view
 select v.OWNER as SchemaName, v.MVIEW_NAME as ObjectName, 'VIEW' as ObjectType, NULL as ColumnName, c.COMMENTS as ""Comment""
 from SYS.ALL_MVIEWS v
@@ -155,6 +152,7 @@ inner join SYS.ALL_OBJECTS o on v.OWNER = o.OWNER and v.MVIEW_NAME = o.OBJECT_NA
 inner join SYS.ALL_TAB_COLS vc on vc.OWNER = v.OWNER and vc.TABLE_NAME = v.MVIEW_NAME
 left join SYS.ALL_COL_COMMENTS c on c.OWNER = vc.OWNER and c.TABLE_NAME = vc.TABLE_NAME and c.COLUMN_NAME = vc.COLUMN_NAME
 where o.ORACLE_MAINTAINED <> 'Y'
+) wrapped order by wrapped.SchemaName, wrapped.ObjectName
 ";
 
         protected virtual string ViewCommentsQuery => ViewCommentsQuerySql;

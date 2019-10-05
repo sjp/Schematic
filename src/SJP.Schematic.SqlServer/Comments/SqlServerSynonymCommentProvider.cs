@@ -35,21 +35,19 @@ namespace SJP.Schematic.SqlServer.Comments
                 cancellationToken
             ).ConfigureAwait(false);
 
-            var groupedByName = allCommentsData
+            var comments = allCommentsData
                 .GroupBy(row => new { row.SchemaName, row.TableName })
-                .Select(g => new
+                .Select(g =>
                 {
-                    SynonymName = QualifySynonymName(Identifier.CreateQualifiedIdentifier(g.Key.SchemaName, g.Key.TableName)),
-                    Comments = g.ToList()
-                })
-                .OrderBy(c => c.SynonymName.Schema)
-                .ThenBy(c => c.SynonymName.LocalName);
+                    var synonymName = QualifySynonymName(Identifier.CreateQualifiedIdentifier(g.Key.SchemaName, g.Key.TableName));
+                    var comments = g.ToList();
 
-            foreach (var comment in groupedByName)
-            {
-                var synonymComment = GetFirstCommentByType(comment.Comments, Constants.Synonym);
-                yield return new DatabaseSynonymComments(comment.SynonymName, synonymComment);
-            }
+                    var synonymComment = GetFirstCommentByType(comments, Constants.Synonym);
+                    return new DatabaseSynonymComments(synonymName, synonymComment);
+                });
+
+            foreach (var comment in comments)
+                yield return comment;
         }
 
         protected OptionAsync<Identifier> GetResolvedSynonymName(Identifier synonymName, CancellationToken cancellationToken)
@@ -113,6 +111,7 @@ select SCHEMA_NAME(s.schema_id) as SchemaName, s.name as TableName, 'SYNONYM' as
 from sys.synonyms s
 left join sys.extended_properties ep on s.object_id = ep.major_id and ep.name = @CommentProperty and ep.minor_id = 0
 where s.is_ms_shipped = 0
+order by SCHEMA_NAME(s.schema_id), s.name
 ";
 
         protected virtual string SynonymCommentsQuery => SynonymCommentsQuerySql;

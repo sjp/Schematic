@@ -36,9 +36,7 @@ namespace SJP.Schematic.SqlServer
             var queryResults = await Connection.QueryAsync<QualifiedName>(TablesQuery, cancellationToken).ConfigureAwait(false);
             var tableNames = queryResults
                 .Select(dto => Identifier.CreateQualifiedIdentifier(dto.SchemaName, dto.ObjectName))
-                .Select(QualifyTableName)
-                .OrderBy(name => name.Schema)
-                .ThenBy(name => name.LocalName);
+                .Select(QualifyTableName);
 
             foreach (var tableName in tableNames)
                 yield return await LoadTableAsyncCore(tableName, cancellationToken).ConfigureAwait(false);

@@ -36,26 +36,22 @@ namespace SJP.Schematic.MySql.Comments
 
             var comments = allCommentsData
                 .GroupBy(row => new { row.SchemaName, row.TableName })
-                .Select(g => new
+                .Select(g =>
                 {
-                    Name = QualifyTableName(Identifier.CreateQualifiedIdentifier(g.Key.SchemaName, g.Key.TableName)),
-                    Comments = g.ToList()
-                })
-                .OrderBy(g => g.Name.Schema)
-                .ThenBy(g => g.Name.LocalName)
-                .Select(table =>
-                {
-                    var tableComment = GetFirstCommentByType(table.Comments, Constants.Table);
+                    var tableName = QualifyTableName(Identifier.CreateQualifiedIdentifier(g.Key.SchemaName, g.Key.TableName));
+                    var comments = g.ToList();
+
+                    var tableComment = GetFirstCommentByType(comments, Constants.Table);
                     var primaryKeyComment = Option<string>.None;
-                    var columnComments = GetCommentLookupByType(table.Comments, Constants.Column);
+                    var columnComments = GetCommentLookupByType(comments, Constants.Column);
                     var checkComments = Empty.CommentLookup;
                     var foreignKeyComments = Empty.CommentLookup;
                     var uniqueKeyComments = Empty.CommentLookup;
-                    var indexComments = GetCommentLookupByType(table.Comments, Constants.Index);
+                    var indexComments = GetCommentLookupByType(comments, Constants.Index);
                     var triggerComments = Empty.CommentLookup;
 
                     return new RelationalDatabaseTableComments(
-                        table.Name,
+                        tableName,
                         tableComment,
                         primaryKeyComment,
                         columnComments,
@@ -147,6 +143,7 @@ limit 1";
         protected virtual string AllTableCommentsQuery => AllTableCommentsQuerySql;
 
         private const string AllTableCommentsQuerySql = @"
+select wrapped.* from (
 -- table
 select TABLE_SCHEMA as SchemaName, TABLE_NAME as TableName, 'TABLE' as ObjectType, TABLE_NAME as ObjectName, TABLE_COMMENT as Comment
 from INFORMATION_SCHEMA.TABLES
@@ -167,6 +164,7 @@ select s.TABLE_SCHEMA as SchemaName, s.TABLE_NAME as ObjectName, 'INDEX' as Obje
 from INFORMATION_SCHEMA.STATISTICS s
 inner join INFORMATION_SCHEMA.TABLES t on s.TABLE_SCHEMA = t.TABLE_SCHEMA and s.TABLE_NAME = t.TABLE_NAME
 where s.TABLE_SCHEMA = @SchemaName
+) wrapped order by wrapped.SchemaName, wrapped.ObjectName
 ";
 
         protected virtual string TableCommentsQuery => TableCommentsQuerySql;

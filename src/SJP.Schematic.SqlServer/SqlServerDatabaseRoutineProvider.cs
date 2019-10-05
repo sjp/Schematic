@@ -29,8 +29,6 @@ namespace SJP.Schematic.SqlServer
             var queryResult = await Connection.QueryAsync<RoutineData>(RoutinesQuery, cancellationToken).ConfigureAwait(false);
             var routines = queryResult
                 .Where(row => row.SchemaName != null && row.ObjectName != null && row.Definition != null)
-                .OrderBy(row => row.SchemaName)
-                .ThenBy(row => row.SchemaName)
                 .Select(row =>
                 {
                     var routineName = QualifyRoutineName(Identifier.CreateQualifiedIdentifier(row.SchemaName, row.ObjectName));

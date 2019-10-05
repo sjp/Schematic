@@ -37,19 +37,15 @@ namespace SJP.Schematic.SqlServer.Comments
 
             var comments = allCommentsData
                 .GroupBy(row => new { row.SchemaName, row.TableName })
-                .Select(g => new
+                .Select(g =>
                 {
-                    Name = QualifyViewName(Identifier.CreateQualifiedIdentifier(g.Key.SchemaName, g.Key.TableName)),
-                    Comments = g.ToList()
-                })
-                .OrderBy(c => c.Name.Schema)
-                .ThenBy(c => c.Name.LocalName)
-                .Select(c =>
-                {
-                    var viewComment = GetFirstCommentByType(c.Comments, Constants.View);
-                    var columnComments = GetCommentLookupByType(c.Comments, Constants.Column);
+                    var viewName = QualifyViewName(Identifier.CreateQualifiedIdentifier(g.Key.SchemaName, g.Key.TableName));
+                    var comments = g.ToList();
 
-                    return new DatabaseViewComments(c.Name, viewComment, columnComments);
+                    var viewComment = GetFirstCommentByType(comments, Constants.View);
+                    var columnComments = GetCommentLookupByType(comments, Constants.Column);
+
+                    return new DatabaseViewComments(viewName, viewComment, columnComments);
                 });
 
             foreach (var comment in comments)
@@ -115,6 +111,7 @@ where schema_id = schema_id(@SchemaName) and name = @ViewName
         protected virtual string AllViewCommentsQuery => AllViewCommentsQuerySql;
 
         private const string AllViewCommentsQuerySql = @"
+select wrapped.* from (
 -- view
 select SCHEMA_NAME(v.schema_id) as SchemaName, v.name as TableName, 'VIEW' as ObjectType, v.name as ObjectName, ep.value as Comment
 from sys.views v
@@ -129,6 +126,7 @@ from sys.views v
 inner join sys.columns c on v.object_id = c.object_id
 left join sys.extended_properties ep on v.object_id = ep.major_id and c.column_id = ep.minor_id and ep.name = @CommentProperty
 where v.is_ms_shipped = 0
+) wrapped order by wrapped.SchemaName, wrapped.TableName
 ";
 
         protected virtual string ViewCommentsQuery => ViewCommentsQuerySql;

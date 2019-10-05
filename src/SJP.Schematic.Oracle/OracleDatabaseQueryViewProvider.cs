@@ -36,9 +36,7 @@ namespace SJP.Schematic.Oracle
             var queryResult = await Connection.QueryAsync<QualifiedName>(ViewsQuery, cancellationToken).ConfigureAwait(false);
             var viewNames = queryResult
                 .Select(dto => Identifier.CreateQualifiedIdentifier(dto.SchemaName, dto.ObjectName))
-                .Select(QualifyViewName)
-                .OrderBy(v => v.Schema)
-                .ThenBy(v => v.LocalName);
+                .Select(QualifyViewName);
 
             foreach (var viewName in viewNames)
                 yield return await LoadViewAsyncCore(viewName, cancellationToken).ConfigureAwait(false);
