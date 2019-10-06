@@ -84,7 +84,7 @@ namespace SJP.Schematic.Reporting.Html
 
             var dirNamePieces = pieces.Take(pieces.Length - 2).ToArray();
             var dirName = Path.Combine(dirNamePieces);
-            var fileNameWithExtension = pieces[pieces.Length - 2] + "." + pieces[pieces.Length - 1];
+            var fileNameWithExtension = pieces[^2] + "." + pieces[^1];
 
             // assuming no more than 2 extensions -- refactor if more are needed
             if (!_nonStandardExtensions.Contains("." + fileNameWithExtension))
@@ -92,7 +92,7 @@ namespace SJP.Schematic.Reporting.Html
 
             dirNamePieces = pieces.Take(pieces.Length - 3).ToArray();
             dirName = Path.Combine(dirNamePieces);
-            fileNameWithExtension = pieces[pieces.Length - 3] + "." + pieces[pieces.Length - 2] + "." + pieces[pieces.Length - 1];
+            fileNameWithExtension = pieces[^3] + "." + pieces[^2] + "." + pieces[^1];
 
             return Path.Combine(dirName, fileNameWithExtension);
         }

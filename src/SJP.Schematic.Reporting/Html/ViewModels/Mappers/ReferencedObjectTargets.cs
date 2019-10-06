@@ -91,7 +91,6 @@ namespace SJP.Schematic.Reporting.Html.ViewModels.Mappers
             if (referenceName == null)
                 throw new ArgumentNullException(nameof(referenceName));
 
-
             var qualifiedReference = QualifyReferenceName(objectName, referenceName);
             var isSelfReference = string.Equals(objectName.Schema, qualifiedReference.Schema, StringComparison.OrdinalIgnoreCase)
                 && string.Equals(objectName.LocalName, qualifiedReference.LocalName, StringComparison.OrdinalIgnoreCase);

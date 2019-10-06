@@ -1,7 +1,5 @@
 ﻿using System;
 using NUnit.Framework;
-using System.Data;
-using Moq;
 using SJP.Schematic.Core;
 
 namespace SJP.Schematic.Oracle.Tests

@@ -46,7 +46,7 @@ namespace SJP.Schematic.Modelled.Reflection.Model
             private PropertyInfo GetTargetProperty()
             {
                 if (Property == null)
-                    throw new ArgumentException("The property that the foreign key belongs to is not available.", nameof(Property));
+                    throw new InvalidOperationException("The property that the foreign key belongs to is not available.");
 
                 var sourceType = Property.ReflectedType;
                 var sourceAsm = sourceType.Assembly;

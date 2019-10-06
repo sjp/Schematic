@@ -91,7 +91,7 @@ create table test_table_4 (
         {
             var database = Database;
             var tables = await database.GetAllTables().ToListAsync().ConfigureAwait(false);
-            var table = tables.First();
+            var table = tables[0];
 
             var builder = Builder;
             var result = builder.AddTable(table);
@@ -112,7 +112,7 @@ create table test_table_4 (
         {
             var database = Database;
             var tables = await database.GetAllTables().ToListAsync().ConfigureAwait(false);
-            var table = tables.First();
+            var table = tables[0];
 
             var builder = Builder;
             builder.AddTable(table);

@@ -14,7 +14,6 @@ namespace SJP.Schematic.Reporting.Html.Renderers
     internal sealed class TriggerRenderer : ITemplateRenderer
     {
         public TriggerRenderer(
-            IIdentifierDefaults identifierDefaults,
             IHtmlFormatter formatter,
             IReadOnlyCollection<IRelationalDatabaseTable> tables,
             DirectoryInfo exportDirectory
@@ -24,8 +23,6 @@ namespace SJP.Schematic.Reporting.Html.Renderers
                 throw new ArgumentNullException(nameof(tables));
 
             Tables = tables;
-
-            IdentifierDefaults = identifierDefaults ?? throw new ArgumentNullException(nameof(identifierDefaults));
             Formatter = formatter ?? throw new ArgumentNullException(nameof(formatter));
 
             if (exportDirectory == null)
@@ -33,8 +30,6 @@ namespace SJP.Schematic.Reporting.Html.Renderers
 
             ExportDirectory = new DirectoryInfo(Path.Combine(exportDirectory.FullName, "tables"));
         }
-
-        private IIdentifierDefaults IdentifierDefaults { get; }
 
         private IHtmlFormatter Formatter { get; }
 

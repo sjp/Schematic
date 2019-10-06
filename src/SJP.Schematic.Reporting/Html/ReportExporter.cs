@@ -96,7 +96,7 @@ namespace SJP.Schematic.Reporting.Html
                 new OrphansRenderer(Database.IdentifierDefaults, TemplateFormatter, tables, rowCounts, ExportDirectory),
                 new RelationshipsRenderer(Database.IdentifierDefaults, TemplateFormatter, tables, rowCounts, ExportDirectory),
                 new TableRenderer(Database.IdentifierDefaults, TemplateFormatter, tables, rowCounts, ExportDirectory),
-                new TriggerRenderer(Database.IdentifierDefaults, TemplateFormatter, tables, ExportDirectory),
+                new TriggerRenderer(TemplateFormatter, tables, ExportDirectory),
                 new ViewRenderer(Database.IdentifierDefaults, TemplateFormatter, views, referencedObjectTargets, ExportDirectory),
                 new SequenceRenderer(Database.IdentifierDefaults, TemplateFormatter, sequences, ExportDirectory),
                 new SynonymRenderer(Database.IdentifierDefaults, TemplateFormatter, synonyms, synonymTargets, ExportDirectory),
