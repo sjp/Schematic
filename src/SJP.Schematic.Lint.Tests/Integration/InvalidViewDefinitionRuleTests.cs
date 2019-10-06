@@ -62,30 +62,7 @@ namespace SJP.Schematic.Lint.Tests.Integration
         }
 
         [Test]
-        public void AnalyseViewsAsync_GivenNullViews_ThrowsArgumentNullException()
-        {
-            var rule = new InvalidViewDefinitionRule(Connection, Dialect, RuleLevel.Error);
-            Assert.Throws<ArgumentNullException>(() => rule.AnalyseViewsAsync(null));
-        }
-
-        [Test]
-        public void AnalyseViews_GivenDatabaseWithOnlyValidViews_ProducesNoMessages()
-        {
-            var rule = new InvalidViewDefinitionRule(Connection, Dialect, RuleLevel.Error);
-            var database = GetSqliteDatabase();
-
-            var views = new[]
-            {
-                database.GetView("valid_view_1").UnwrapSomeAsync().GetAwaiter().GetResult()
-            };
-
-            var messages = rule.AnalyseViews(views);
-
-            Assert.Zero(messages.Count());
-        }
-
-        [Test]
-        public async Task AnalyseViewsAsync_GivenDatabaseWithOnlyValidViews_ProducesNoMessages()
+        public async Task AnalyseViews_GivenDatabaseWithOnlyValidViews_ProducesNoMessages()
         {
             var rule = new InvalidViewDefinitionRule(Connection, Dialect, RuleLevel.Error);
             var database = GetSqliteDatabase();
@@ -95,29 +72,13 @@ namespace SJP.Schematic.Lint.Tests.Integration
                 await database.GetView("valid_view_1").UnwrapSomeAsync().ConfigureAwait(false)
             };
 
-            var messages = await rule.AnalyseViewsAsync(views).ConfigureAwait(false);
+            var hasMessages = await rule.AnalyseViews(views).AnyAsync().ConfigureAwait(false);
 
-            Assert.Zero(messages.Count());
+            Assert.IsFalse(hasMessages);
         }
 
         [Test]
-        public void AnalyseViews_GivenViewsWithOnlyInvalidViews_ProducesMessages()
-        {
-            var rule = new InvalidViewDefinitionRule(Connection, Dialect, RuleLevel.Error);
-            var database = GetSqliteDatabase();
-
-            var views = new[]
-            {
-                database.GetView("invalid_view_1").UnwrapSomeAsync().GetAwaiter().GetResult()
-            };
-
-            var messages = rule.AnalyseViews(views);
-
-            Assert.NotZero(messages.Count());
-        }
-
-        [Test]
-        public async Task AnalyseViewsAsync_GivenViewsWithOnlyInvalidViews_ProducesMessages()
+        public async Task AnalyseViews_GivenViewsWithOnlyInvalidViews_ProducesMessages()
         {
             var rule = new InvalidViewDefinitionRule(Connection, Dialect, RuleLevel.Error);
             var database = GetSqliteDatabase();
@@ -127,30 +88,13 @@ namespace SJP.Schematic.Lint.Tests.Integration
                 await database.GetView("invalid_view_1").UnwrapSomeAsync().ConfigureAwait(false)
             };
 
-            var messages = await rule.AnalyseViewsAsync(views).ConfigureAwait(false);
+            var messages = await rule.AnalyseViews(views).AnyAsync().ConfigureAwait(false);
 
-            Assert.NotZero(messages.Count());
+            Assert.IsTrue(messages);
         }
 
         [Test]
-        public void AnalyseViews_GivenViewsWithValidAndInvalidViews_ProducesMessages()
-        {
-            var rule = new InvalidViewDefinitionRule(Connection, Dialect, RuleLevel.Error);
-            var database = GetSqliteDatabase();
-
-            var views = new[]
-            {
-                database.GetView("valid_view_1").UnwrapSomeAsync().GetAwaiter().GetResult(),
-                database.GetView("invalid_view_1").UnwrapSomeAsync().GetAwaiter().GetResult()
-            };
-
-            var messages = rule.AnalyseViews(views);
-
-            Assert.NotZero(messages.Count());
-        }
-
-        [Test]
-        public async Task AnalyseViewsAsync_GivenViewsWithValidAndInvalidViews_ProducesMessages()
+        public async Task AnalyseViews_GivenViewsWithValidAndInvalidViews_ProducesMessages()
         {
             var rule = new InvalidViewDefinitionRule(Connection, Dialect, RuleLevel.Error);
             var database = GetSqliteDatabase();
@@ -161,9 +105,9 @@ namespace SJP.Schematic.Lint.Tests.Integration
                 await database.GetView("invalid_view_1").UnwrapSomeAsync().ConfigureAwait(false)
             };
 
-            var messages = await rule.AnalyseViewsAsync(views).ConfigureAwait(false);
+            var hasMessages = await rule.AnalyseViews(views).AnyAsync().ConfigureAwait(false);
 
-            Assert.NotZero(messages.Count());
+            Assert.IsTrue(hasMessages);
         }
     }
 }

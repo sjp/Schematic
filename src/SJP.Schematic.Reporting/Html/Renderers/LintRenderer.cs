@@ -68,11 +68,11 @@ namespace SJP.Schematic.Reporting.Html.Renderers
 
         public async Task RenderAsync(CancellationToken cancellationToken = default)
         {
-            var tableMessages = await Linter.AnalyseTablesAsync(Tables, cancellationToken).ConfigureAwait(false);
-            var viewMessages = await Linter.AnalyseViewsAsync(Views, cancellationToken).ConfigureAwait(false);
-            var sequenceMessages = await Linter.AnalyseSequencesAsync(Sequences, cancellationToken).ConfigureAwait(false);
-            var synonymMessages = await Linter.AnalyseSynonymsAsync(Synonyms, cancellationToken).ConfigureAwait(false);
-            var routineMessages = await Linter.AnalyseRoutinesAsync(Routines, cancellationToken).ConfigureAwait(false);
+            var tableMessages = await Linter.AnalyseTables(Tables, cancellationToken).ToListAsync(cancellationToken).ConfigureAwait(false);
+            var viewMessages = await Linter.AnalyseViews(Views, cancellationToken).ToListAsync(cancellationToken).ConfigureAwait(false);
+            var sequenceMessages = await Linter.AnalyseSequences(Sequences, cancellationToken).ToListAsync(cancellationToken).ConfigureAwait(false);
+            var synonymMessages = await Linter.AnalyseSynonyms(Synonyms, cancellationToken).ToListAsync(cancellationToken).ConfigureAwait(false);
+            var routineMessages = await Linter.AnalyseRoutines(Routines, cancellationToken).ToListAsync(cancellationToken).ConfigureAwait(false);
 
             var messages = tableMessages
                 .Concat(viewMessages)

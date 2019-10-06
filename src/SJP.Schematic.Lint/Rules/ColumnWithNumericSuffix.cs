@@ -16,21 +16,12 @@ namespace SJP.Schematic.Lint.Rules
         {
         }
 
-        public IEnumerable<IRuleMessage> AnalyseTables(IEnumerable<IRelationalDatabaseTable> tables)
+        public IAsyncEnumerable<IRuleMessage> AnalyseTables(IEnumerable<IRelationalDatabaseTable> tables, CancellationToken cancellationToken = default)
         {
             if (tables == null)
                 throw new ArgumentNullException(nameof(tables));
 
-            return tables.SelectMany(AnalyseTable).ToList();
-        }
-
-        public Task<IEnumerable<IRuleMessage>> AnalyseTablesAsync(IEnumerable<IRelationalDatabaseTable> tables, CancellationToken cancellationToken = default)
-        {
-            if (tables == null)
-                throw new ArgumentNullException(nameof(tables));
-
-            var messages = AnalyseTables(tables);
-            return Task.FromResult(messages);
+            return tables.SelectMany(AnalyseTable).ToAsyncEnumerable();
         }
 
         protected IEnumerable<IRuleMessage> AnalyseTable(IRelationalDatabaseTable table)
@@ -38,10 +29,9 @@ namespace SJP.Schematic.Lint.Rules
             if (table == null)
                 throw new ArgumentNullException(nameof(table));
 
-            var regex = new Regex(".*[0-9]$");
             var columnsWithNumericSuffix = table.Columns
                 .Select(c => c.Name.LocalName)
-                .Where(c => regex.IsMatch(c))
+                .Where(c => NumericSuffixRegex.IsMatch(c))
                 .ToList();
             if (columnsWithNumericSuffix.Empty())
                 return Array.Empty<IRuleMessage>();
@@ -63,5 +53,7 @@ namespace SJP.Schematic.Lint.Rules
         }
 
         protected static string RuleTitle { get; } = "Column with a numeric suffix.";
+
+        private static readonly Regex NumericSuffixRegex = new Regex(".*[0-9]$");
     }
 }

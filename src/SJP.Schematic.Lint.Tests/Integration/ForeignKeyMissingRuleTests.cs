@@ -65,14 +65,7 @@ create table NoForeignKeyChildWithoutKey (
         }
 
         [Test]
-        public static void AnalyseTablesAsync_GivenNullTables_ThrowsArgumentNullException()
-        {
-            var rule = new ForeignKeyMissingRule(RuleLevel.Error);
-            Assert.Throws<ArgumentNullException>(() => rule.AnalyseTablesAsync(null));
-        }
-
-        [Test]
-        public void AnalyseTables_GivenSnakeCaseTablesContainingTableWithValidForeignKey_ProducesNoMessages()
+        public async Task AnalyseTables_GivenSnakeCaseTablesContainingTableWithValidForeignKey_ProducesNoMessages()
         {
             var rule = new ForeignKeyMissingRule(RuleLevel.Error);
             var database = GetSqliteDatabase();
@@ -83,30 +76,13 @@ create table NoForeignKeyChildWithoutKey (
                 database.GetTable("no_foreign_key_child_with_key").UnwrapSomeAsync().GetAwaiter().GetResult()
             };
 
-            var messages = rule.AnalyseTables(tables);
+            var hasMessages = await rule.AnalyseTables(tables).AnyAsync().ConfigureAwait(false);
 
-            Assert.Zero(messages.Count());
+            Assert.IsFalse(hasMessages);
         }
 
         [Test]
-        public async Task AnalyseTablesAsync_GivenSnakeCaseTablesContainingTableWithValidForeignKey_ProducesNoMessages()
-        {
-            var rule = new ForeignKeyMissingRule(RuleLevel.Error);
-            var database = GetSqliteDatabase();
-
-            var tables = new[]
-            {
-                database.GetTable("no_foreign_key_parent_1").UnwrapSomeAsync().GetAwaiter().GetResult(),
-                database.GetTable("no_foreign_key_child_with_key").UnwrapSomeAsync().GetAwaiter().GetResult()
-            };
-
-            var messages = await rule.AnalyseTablesAsync(tables).ConfigureAwait(false);
-
-            Assert.Zero(messages.Count());
-        }
-
-        [Test]
-        public void AnalyseTables_GivenCamelCaseTablesContainingTableWithValidForeignKey_ProducesNoMessages()
+        public async Task AnalyseTables_GivenCamelCaseTablesContainingTableWithValidForeignKey_ProducesNoMessages()
         {
             var rule = new ForeignKeyMissingRule(RuleLevel.Error);
             var database = GetSqliteDatabase();
@@ -117,30 +93,13 @@ create table NoForeignKeyChildWithoutKey (
                 database.GetTable("NoForeignKeyParent1").UnwrapSomeAsync().GetAwaiter().GetResult()
             };
 
-            var messages = rule.AnalyseTables(tables);
+            var hasMessages = await rule.AnalyseTables(tables).AnyAsync().ConfigureAwait(false);
 
-            Assert.Zero(messages.Count());
+            Assert.IsFalse(hasMessages);
         }
 
         [Test]
-        public async Task AnalyseTablesAsync_GivenCamelCaseTablesContainingTableWithValidForeignKey_ProducesNoMessages()
-        {
-            var rule = new ForeignKeyMissingRule(RuleLevel.Error);
-            var database = GetSqliteDatabase();
-
-            var tables = new[]
-            {
-                database.GetTable("NoForeignKeyChildWithKey").UnwrapSomeAsync().GetAwaiter().GetResult(),
-                database.GetTable("NoForeignKeyParent1").UnwrapSomeAsync().GetAwaiter().GetResult()
-            };
-
-            var messages = await rule.AnalyseTablesAsync(tables).ConfigureAwait(false);
-
-            Assert.Zero(messages.Count());
-        }
-
-        [Test]
-        public void AnalyseTables_GivenSnakeCaseTablesContainingTableWithValidForeignKey_ProducesMessages()
+        public async Task AnalyseTables_GivenSnakeCaseTablesContainingTableWithValidForeignKey_ProducesMessages()
         {
             var rule = new ForeignKeyMissingRule(RuleLevel.Error);
             var database = GetSqliteDatabase();
@@ -151,30 +110,13 @@ create table NoForeignKeyChildWithoutKey (
                 database.GetTable("no_foreign_key_child_without_key").UnwrapSomeAsync().GetAwaiter().GetResult()
             };
 
-            var messages = rule.AnalyseTables(tables);
+            var hasMessages = await rule.AnalyseTables(tables).AnyAsync().ConfigureAwait(false);
 
-            Assert.NotZero(messages.Count());
+            Assert.IsTrue(hasMessages);
         }
 
         [Test]
-        public async Task AnalyseTablesAsync_GivenSnakeCaseTablesContainingTableWithValidForeignKey_ProducesMessages()
-        {
-            var rule = new ForeignKeyMissingRule(RuleLevel.Error);
-            var database = GetSqliteDatabase();
-
-            var tables = new[]
-            {
-                database.GetTable("no_foreign_key_parent_1").UnwrapSomeAsync().GetAwaiter().GetResult(),
-                database.GetTable("no_foreign_key_child_without_key").UnwrapSomeAsync().GetAwaiter().GetResult()
-            };
-
-            var messages = await rule.AnalyseTablesAsync(tables).ConfigureAwait(false);
-
-            Assert.NotZero(messages.Count());
-        }
-
-        [Test]
-        public void AnalyseTables_GivenCamelCaseTablesContainingTableWithValidForeignKey_ProducesMessages()
+        public async Task AnalyseTables_GivenCamelCaseTablesContainingTableWithValidForeignKey_ProducesMessages()
         {
             var rule = new ForeignKeyMissingRule(RuleLevel.Error);
             var database = GetSqliteDatabase();
@@ -185,26 +127,9 @@ create table NoForeignKeyChildWithoutKey (
                 database.GetTable("NoForeignKeyParent1").UnwrapSomeAsync().GetAwaiter().GetResult()
             };
 
-            var messages = rule.AnalyseTables(tables);
+            var hasMessages = await rule.AnalyseTables(tables).AnyAsync().ConfigureAwait(false);
 
-            Assert.NotZero(messages.Count());
-        }
-
-        [Test]
-        public async Task AnalyseTablesAsync_GivenCamelCaseTablesContainingTableWithValidForeignKey_ProducesMessages()
-        {
-            var rule = new ForeignKeyMissingRule(RuleLevel.Error);
-            var database = GetSqliteDatabase();
-
-            var tables = new[]
-            {
-                database.GetTable("NoForeignKeyChildWithoutKey").UnwrapSomeAsync().GetAwaiter().GetResult(),
-                database.GetTable("NoForeignKeyParent1").UnwrapSomeAsync().GetAwaiter().GetResult()
-            };
-
-            var messages = await rule.AnalyseTablesAsync(tables).ConfigureAwait(false);
-
-            Assert.NotZero(messages.Count());
+            Assert.IsTrue(hasMessages);
         }
     }
 }

@@ -15,89 +15,44 @@ namespace SJP.Schematic.Lint.Rules
         {
         }
 
-        public IEnumerable<IRuleMessage> AnalyseTables(IEnumerable<IRelationalDatabaseTable> tables)
+        public IAsyncEnumerable<IRuleMessage> AnalyseTables(IEnumerable<IRelationalDatabaseTable> tables, CancellationToken cancellationToken = default)
         {
             if (tables == null)
                 throw new ArgumentNullException(nameof(tables));
 
-            return tables.SelectMany(AnalyseTable).ToList();
+            return tables.SelectMany(AnalyseTable).ToAsyncEnumerable();
         }
 
-        public Task<IEnumerable<IRuleMessage>> AnalyseTablesAsync(IEnumerable<IRelationalDatabaseTable> tables, CancellationToken cancellationToken = default)
-        {
-            if (tables == null)
-                throw new ArgumentNullException(nameof(tables));
-
-            var messages = AnalyseTables(tables);
-            return Task.FromResult(messages);
-        }
-
-        public IEnumerable<IRuleMessage> AnalyseViews(IEnumerable<IDatabaseView> views)
+        public IAsyncEnumerable<IRuleMessage> AnalyseViews(IEnumerable<IDatabaseView> views, CancellationToken cancellationToken = default)
         {
             if (views == null)
                 throw new ArgumentNullException(nameof(views));
 
-            return views.SelectMany(AnalyseView).ToList();
+            return views.SelectMany(AnalyseView).ToAsyncEnumerable();
         }
 
-        public Task<IEnumerable<IRuleMessage>> AnalyseViewsAsync(IEnumerable<IDatabaseView> views, CancellationToken cancellationToken = default)
-        {
-            if (views == null)
-                throw new ArgumentNullException(nameof(views));
-
-            var messages = AnalyseViews(views);
-            return Task.FromResult(messages);
-        }
-
-        public IEnumerable<IRuleMessage> AnalyseSequences(IEnumerable<IDatabaseSequence> sequences)
+        public IAsyncEnumerable<IRuleMessage> AnalyseSequences(IEnumerable<IDatabaseSequence> sequences, CancellationToken cancellationToken = default)
         {
             if (sequences == null)
                 throw new ArgumentNullException(nameof(sequences));
 
-            return sequences.SelectMany(AnalyseSequence).ToList();
+            return sequences.SelectMany(AnalyseSequence).ToAsyncEnumerable();
         }
 
-        public Task<IEnumerable<IRuleMessage>> AnalyseSequencesAsync(IEnumerable<IDatabaseSequence> sequences, CancellationToken cancellationToken = default)
-        {
-            if (sequences == null)
-                throw new ArgumentNullException(nameof(sequences));
-
-            var messages = AnalyseSequences(sequences);
-            return Task.FromResult(messages);
-        }
-
-        public IEnumerable<IRuleMessage> AnalyseSynonyms(IEnumerable<IDatabaseSynonym> synonyms)
+        public IAsyncEnumerable<IRuleMessage> AnalyseSynonyms(IEnumerable<IDatabaseSynonym> synonyms, CancellationToken cancellationToken = default)
         {
             if (synonyms == null)
                 throw new ArgumentNullException(nameof(synonyms));
 
-            return synonyms.SelectMany(AnalyseSynonym).ToList();
+            return synonyms.SelectMany(AnalyseSynonym).ToAsyncEnumerable();
         }
 
-        public Task<IEnumerable<IRuleMessage>> AnalyseSynonymsAsync(IEnumerable<IDatabaseSynonym> synonyms, CancellationToken cancellationToken = default)
-        {
-            if (synonyms == null)
-                throw new ArgumentNullException(nameof(synonyms));
-
-            var messages = AnalyseSynonyms(synonyms);
-            return Task.FromResult(messages);
-        }
-
-        public IEnumerable<IRuleMessage> AnalyseRoutines(IEnumerable<IDatabaseRoutine> routines)
+        public IAsyncEnumerable<IRuleMessage> AnalyseRoutines(IEnumerable<IDatabaseRoutine> routines, CancellationToken cancellationToken = default)
         {
             if (routines == null)
                 throw new ArgumentNullException(nameof(routines));
 
-            return routines.SelectMany(AnalyseRoutine).ToList();
-        }
-
-        public Task<IEnumerable<IRuleMessage>> AnalyseRoutinesAsync(IEnumerable<IDatabaseRoutine> routines, CancellationToken cancellationToken = default)
-        {
-            if (routines == null)
-                throw new ArgumentNullException(nameof(routines));
-
-            var messages = AnalyseRoutines(routines);
-            return Task.FromResult(messages);
+            return routines.SelectMany(AnalyseRoutine).ToAsyncEnumerable();
         }
 
         protected IEnumerable<IRuleMessage> AnalyseTable(IRelationalDatabaseTable table)

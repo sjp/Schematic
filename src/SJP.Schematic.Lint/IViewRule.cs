@@ -7,8 +7,6 @@ namespace SJP.Schematic.Lint
 {
     public interface IViewRule : IRule
     {
-        IEnumerable<IRuleMessage> AnalyseViews(IEnumerable<IDatabaseView> views);
-
-        Task<IEnumerable<IRuleMessage>> AnalyseViewsAsync(IEnumerable<IDatabaseView> views, CancellationToken cancellationToken = default);
+        IAsyncEnumerable<IRuleMessage> AnalyseViews(IEnumerable<IDatabaseView> views, CancellationToken cancellationToken = default);
     }
 }

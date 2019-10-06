@@ -28,14 +28,7 @@ namespace SJP.Schematic.Lint.Tests.Rules
         }
 
         [Test]
-        public static void AnalyseTablesAsync_GivenNullTables_ThrowsArgumentNullException()
-        {
-            var rule = new NoIndexesPresentOnTableRule(RuleLevel.Error);
-            Assert.Throws<ArgumentNullException>(() => rule.AnalyseTablesAsync(null));
-        }
-
-        [Test]
-        public static void AnalyseTables_GivenTableWithoutAnyIndexesOrCandidateKeys_ProducesMessages()
+        public static async Task AnalyseTables_GivenTableWithoutAnyIndexesOrCandidateKeys_ProducesMessages()
         {
             var rule = new NoIndexesPresentOnTableRule(RuleLevel.Error);
 
@@ -52,36 +45,13 @@ namespace SJP.Schematic.Lint.Tests.Rules
             );
             var tables = new[] { table };
 
-            var messages = rule.AnalyseTables(tables);
+            var hasMessages = await rule.AnalyseTables(tables).AnyAsync().ConfigureAwait(false);
 
-            Assert.NotZero(messages.Count());
+            Assert.IsTrue(hasMessages);
         }
 
         [Test]
-        public static async Task AnalyseTablesAsync_GivenTableWithoutAnyIndexesOrCandidateKeys_ProducesMessages()
-        {
-            var rule = new NoIndexesPresentOnTableRule(RuleLevel.Error);
-
-            var table = new RelationalDatabaseTable(
-                "test",
-                new List<IDatabaseColumn>(),
-                null,
-                Array.Empty<IDatabaseKey>(),
-                Array.Empty<IDatabaseRelationalKey>(),
-                Array.Empty<IDatabaseRelationalKey>(),
-                Array.Empty<IDatabaseIndex>(),
-                Array.Empty<IDatabaseCheckConstraint>(),
-                Array.Empty<IDatabaseTrigger>()
-            );
-            var tables = new[] { table };
-
-            var messages = await rule.AnalyseTablesAsync(tables).ConfigureAwait(false);
-
-            Assert.NotZero(messages.Count());
-        }
-
-        [Test]
-        public static void AnalyseTables_GivenTableWithOnlyPrimaryKey_ProducesNoMessages()
+        public static async Task AnalyseTables_GivenTableWithOnlyPrimaryKey_ProducesNoMessages()
         {
             var rule = new NoIndexesPresentOnTableRule(RuleLevel.Error);
 
@@ -98,73 +68,13 @@ namespace SJP.Schematic.Lint.Tests.Rules
             );
             var tables = new[] { table };
 
-            var messages = rule.AnalyseTables(tables);
+            var hasMessages = await rule.AnalyseTables(tables).AnyAsync().ConfigureAwait(false);
 
-            Assert.Zero(messages.Count());
+            Assert.IsFalse(hasMessages);
         }
 
         [Test]
-        public static async Task AnalyseTablesAsync_GivenTableWithOnlyPrimaryKey_ProducesNoMessages()
-        {
-            var rule = new NoIndexesPresentOnTableRule(RuleLevel.Error);
-
-            var table = new RelationalDatabaseTable(
-                "test",
-                new List<IDatabaseColumn>(),
-                Option<IDatabaseKey>.Some(Mock.Of<IDatabaseKey>()),
-                Array.Empty<IDatabaseKey>(),
-                Array.Empty<IDatabaseRelationalKey>(),
-                Array.Empty<IDatabaseRelationalKey>(),
-                Array.Empty<IDatabaseIndex>(),
-                Array.Empty<IDatabaseCheckConstraint>(),
-                Array.Empty<IDatabaseTrigger>()
-            );
-            var tables = new[] { table };
-
-            var messages = await rule.AnalyseTablesAsync(tables).ConfigureAwait(false);
-
-            Assert.Zero(messages.Count());
-        }
-
-        [Test]
-        public static void AnalyseTables_GivenTableWithOnlyUniqueKey_ProducesNoMessages()
-        {
-            var rule = new NoIndexesPresentOnTableRule(RuleLevel.Error);
-
-            var testColumn = new DatabaseColumn(
-                "test_column",
-                Mock.Of<IDbType>(),
-                false,
-                null,
-                null
-            );
-            var testUniqueKey = new DatabaseKey(
-                Option<Identifier>.Some("test_unique_key"),
-                DatabaseKeyType.Unique,
-                new[] { testColumn },
-                true
-            );
-
-            var table = new RelationalDatabaseTable(
-                "test",
-                new List<IDatabaseColumn>(),
-                Option<IDatabaseKey>.None,
-                new [] { testUniqueKey },
-                Array.Empty<IDatabaseRelationalKey>(),
-                Array.Empty<IDatabaseRelationalKey>(),
-                Array.Empty<IDatabaseIndex>(),
-                Array.Empty<IDatabaseCheckConstraint>(),
-                Array.Empty<IDatabaseTrigger>()
-            );
-            var tables = new[] { table };
-
-            var messages = rule.AnalyseTables(tables);
-
-            Assert.Zero(messages.Count());
-        }
-
-        [Test]
-        public static async Task AnalyseTablesAsync_GivenTableWithOnlyUniqueKey_ProducesNoMessages()
+        public static async Task AnalyseTables_GivenTableWithOnlyUniqueKey_ProducesNoMessages()
         {
             var rule = new NoIndexesPresentOnTableRule(RuleLevel.Error);
 
@@ -195,36 +105,13 @@ namespace SJP.Schematic.Lint.Tests.Rules
             );
             var tables = new[] { table };
 
-            var messages = await rule.AnalyseTablesAsync(tables).ConfigureAwait(false);
+            var hasMessages = await rule.AnalyseTables(tables).AnyAsync().ConfigureAwait(false);
 
-            Assert.Zero(messages.Count());
+            Assert.IsFalse(hasMessages);
         }
 
         [Test]
-        public static void AnalyseTables_GivenTableWithOnlyIndex_ProducesNoMessages()
-        {
-            var rule = new NoIndexesPresentOnTableRule(RuleLevel.Error);
-
-            var table = new RelationalDatabaseTable(
-                "test",
-                new List<IDatabaseColumn>(),
-                Option<IDatabaseKey>.None,
-                Array.Empty<IDatabaseKey>(),
-                Array.Empty<IDatabaseRelationalKey>(),
-                Array.Empty<IDatabaseRelationalKey>(),
-                new [] { Mock.Of<IDatabaseIndex>() },
-                Array.Empty<IDatabaseCheckConstraint>(),
-                Array.Empty<IDatabaseTrigger>()
-            );
-            var tables = new[] { table };
-
-            var messages = rule.AnalyseTables(tables);
-
-            Assert.Zero(messages.Count());
-        }
-
-        [Test]
-        public static async Task AnalyseTablesAsync_GivenTableWithOnlyIndex_ProducesNoMessages()
+        public static async Task AnalyseTables_GivenTableWithOnlyIndex_ProducesNoMessages()
         {
             var rule = new NoIndexesPresentOnTableRule(RuleLevel.Error);
 
@@ -241,9 +128,9 @@ namespace SJP.Schematic.Lint.Tests.Rules
             );
             var tables = new[] { table };
 
-            var messages = await rule.AnalyseTablesAsync(tables).ConfigureAwait(false);
+            var hasMessages = await rule.AnalyseTables(tables).AnyAsync().ConfigureAwait(false);
 
-            Assert.Zero(messages.Count());
+            Assert.IsFalse(hasMessages);
         }
     }
 }

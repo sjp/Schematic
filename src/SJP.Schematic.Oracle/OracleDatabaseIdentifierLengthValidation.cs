@@ -8,15 +8,15 @@ namespace SJP.Schematic.Oracle
 {
     public class OracleDatabaseIdentifierLengthValidation : IOracleDatabaseIdentifierValidation
     {
-        public OracleDatabaseIdentifierLengthValidation(IDbConnection connection)
+        public OracleDatabaseIdentifierLengthValidation(uint maxLength)
         {
-            Connection = connection ?? throw new ArgumentNullException(nameof(connection));
-            _maxLength = new Lazy<uint>(LoadMaxIdentifierLength);
+            if (maxLength == 0)
+                throw new ArgumentException("The maximum identifier length must be at least 1.", nameof(maxLength));
+
+            MaxIdentifierLength = maxLength;
         }
 
-        protected IDbConnection Connection { get; }
-
-        protected virtual uint MaxIdentifierLength => _maxLength.Value;
+        protected virtual uint MaxIdentifierLength { get; }
 
         public bool IsValidIdentifier(Identifier identifier)
         {
@@ -47,16 +47,5 @@ namespace SJP.Schematic.Oracle
 
             return component.Count(c => c < 128);
         }
-
-        private uint LoadMaxIdentifierLength()
-        {
-            const string sql = @"
-select DATA_LENGTH
-from SYS.ALL_TAB_COLUMNS
-where OWNER = 'SYS' and TABLE_NAME = 'ALL_TAB_COLUMNS'";
-            return Connection.ExecuteFirstScalar<uint>(sql);
-        }
-
-        private readonly Lazy<uint> _maxLength;
     }
 }

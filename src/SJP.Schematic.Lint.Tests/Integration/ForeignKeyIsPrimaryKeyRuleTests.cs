@@ -48,30 +48,7 @@ create table parent_table_with_pk_column_to_pk_column_1 (
         }
 
         [Test]
-        public static void AnalyseTablesAsync_GivenNullTables_ThrowsArgumentNullException()
-        {
-            var rule = new ForeignKeyIsPrimaryKeyRule(RuleLevel.Error);
-            Assert.Throws<ArgumentNullException>(() => rule.AnalyseTablesAsync(null));
-        }
-
-        [Test]
-        public void AnalyseTables_GivenTablesWithDifferentColumnToPrimaryKey_ProducesNoMessages()
-        {
-            var rule = new ForeignKeyIsPrimaryKeyRule(RuleLevel.Error);
-            var database = GetSqliteDatabase();
-
-            var tables = new[]
-            {
-                database.GetTable("parent_table_with_different_column_to_pk_column_1").UnwrapSomeAsync().GetAwaiter().GetResult()
-            };
-
-            var messages = rule.AnalyseTables(tables);
-
-            Assert.Zero(messages.Count());
-        }
-
-        [Test]
-        public async Task AnalyseTablesAsync_GivenTablesWithDifferentColumnToPrimaryKey_ProducesNoMessages()
+        public async Task AnalyseTables_GivenTablesWithDifferentColumnToPrimaryKey_ProducesNoMessages()
         {
             var rule = new ForeignKeyIsPrimaryKeyRule(RuleLevel.Error);
             var database = GetSqliteDatabase();
@@ -81,29 +58,13 @@ create table parent_table_with_pk_column_to_pk_column_1 (
                 await database.GetTable("parent_table_with_different_column_to_pk_column_1").UnwrapSomeAsync().ConfigureAwait(false)
             };
 
-            var messages = await rule.AnalyseTablesAsync(tables).ConfigureAwait(false);
+            var hasMessages = await rule.AnalyseTables(tables).AnyAsync().ConfigureAwait(false);
 
-            Assert.Zero(messages.Count());
+            Assert.IsFalse(hasMessages);
         }
 
         [Test]
-        public void AnalyseTables_GivenTablesWithSameColumnToPrimaryKey_ProducesNoMessages()
-        {
-            var rule = new ForeignKeyIsPrimaryKeyRule(RuleLevel.Error);
-            var database = GetSqliteDatabase();
-
-            var tables = new[]
-            {
-                database.GetTable("parent_table_with_pk_column_to_pk_column_1").UnwrapSomeAsync().GetAwaiter().GetResult()
-            };
-
-            var messages = rule.AnalyseTables(tables);
-
-            Assert.NotZero(messages.Count());
-        }
-
-        [Test]
-        public async Task AnalyseTablesAsync_GivenTablesWithSameColumnToPrimaryKey_ProducesNoMessages()
+        public async Task AnalyseTables_GivenTablesWithSameColumnToPrimaryKey_ProducesNoMessages()
         {
             var rule = new ForeignKeyIsPrimaryKeyRule(RuleLevel.Error);
             var database = GetSqliteDatabase();
@@ -113,9 +74,9 @@ create table parent_table_with_pk_column_to_pk_column_1 (
                 await database.GetTable("parent_table_with_pk_column_to_pk_column_1").UnwrapSomeAsync().ConfigureAwait(false)
             };
 
-            var messages = await rule.AnalyseTablesAsync(tables).ConfigureAwait(false);
+            var hasMessages = await rule.AnalyseTables(tables).AnyAsync().ConfigureAwait(false);
 
-            Assert.NotZero(messages.Count());
+            Assert.IsTrue(hasMessages);
         }
     }
 }

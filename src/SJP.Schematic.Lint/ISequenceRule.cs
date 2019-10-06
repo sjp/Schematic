@@ -7,8 +7,6 @@ namespace SJP.Schematic.Lint
 {
     public interface ISequenceRule : IRule
     {
-        IEnumerable<IRuleMessage> AnalyseSequences(IEnumerable<IDatabaseSequence> sequences);
-
-        Task<IEnumerable<IRuleMessage>> AnalyseSequencesAsync(IEnumerable<IDatabaseSequence> sequences, CancellationToken cancellationToken = default);
+        IAsyncEnumerable<IRuleMessage> AnalyseSequences(IEnumerable<IDatabaseSequence> sequences, CancellationToken cancellationToken = default);
     }
 }

@@ -7,8 +7,6 @@ namespace SJP.Schematic.Lint
 {
     public interface IRoutineRule : IRule
     {
-        IEnumerable<IRuleMessage> AnalyseRoutines(IEnumerable<IDatabaseRoutine> routines);
-
-        Task<IEnumerable<IRuleMessage>> AnalyseRoutinesAsync(IEnumerable<IDatabaseRoutine> routines, CancellationToken cancellationToken = default);
+        IAsyncEnumerable<IRuleMessage> AnalyseRoutines(IEnumerable<IDatabaseRoutine> routines, CancellationToken cancellationToken = default);
     }
 }

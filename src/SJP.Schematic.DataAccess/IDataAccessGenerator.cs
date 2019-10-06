@@ -5,8 +5,6 @@ namespace SJP.Schematic.DataAccess
 {
     public interface IDataAccessGenerator
     {
-        void Generate(string projectPath, string baseNamespace);
-
-        Task GenerateAsync(string projectPath, string baseNamespace, CancellationToken cancellationToken = default);
+        Task Generate(string projectPath, string baseNamespace, CancellationToken cancellationToken = default);
     }
 }

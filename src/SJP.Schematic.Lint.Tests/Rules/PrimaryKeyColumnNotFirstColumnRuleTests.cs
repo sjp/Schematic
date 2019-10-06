@@ -28,14 +28,7 @@ namespace SJP.Schematic.Lint.Tests.Rules
         }
 
         [Test]
-        public static void AnalyseTablesAsync_GivenNullTables_ThrowsArgumentNullException()
-        {
-            var rule = new PrimaryKeyColumnNotFirstColumnRule(RuleLevel.Error);
-            Assert.Throws<ArgumentNullException>(() => rule.AnalyseTablesAsync(null));
-        }
-
-        [Test]
-        public static void AnalyseTables_GivenTableWithMissingPrimaryKey_ProducesNoMessages()
+        public static async Task AnalyseTables_GivenTableWithMissingPrimaryKey_ProducesNoMessages()
         {
             var rule = new PrimaryKeyColumnNotFirstColumnRule(RuleLevel.Error);
 
@@ -52,36 +45,13 @@ namespace SJP.Schematic.Lint.Tests.Rules
             );
             var tables = new[] { table };
 
-            var messages = rule.AnalyseTables(tables);
+            var hasMessages = await rule.AnalyseTables(tables).AnyAsync().ConfigureAwait(false);
 
-            Assert.Zero(messages.Count());
+            Assert.IsFalse(hasMessages);
         }
 
         [Test]
-        public static async Task AnalyseTablesAsync_GivenTableWithMissingPrimaryKey_ProducesNoMessages()
-        {
-            var rule = new PrimaryKeyColumnNotFirstColumnRule(RuleLevel.Error);
-
-            var table = new RelationalDatabaseTable(
-                "test",
-                new List<IDatabaseColumn>(),
-                null,
-                Array.Empty<IDatabaseKey>(),
-                Array.Empty<IDatabaseRelationalKey>(),
-                Array.Empty<IDatabaseRelationalKey>(),
-                Array.Empty<IDatabaseIndex>(),
-                Array.Empty<IDatabaseCheckConstraint>(),
-                Array.Empty<IDatabaseTrigger>()
-            );
-            var tables = new[] { table };
-
-            var messages = await rule.AnalyseTablesAsync(tables).ConfigureAwait(false);
-
-            Assert.Zero(messages.Count());
-        }
-
-        [Test]
-        public static void AnalyseTables_GivenTableWithPrimaryKeyWithMultipleColumns_ProducesNoMessages()
+        public static async Task AnalyseTables_GivenTableWithPrimaryKeyWithMultipleColumns_ProducesNoMessages()
         {
             var rule = new PrimaryKeyColumnNotFirstColumnRule(RuleLevel.Error);
 
@@ -119,57 +89,13 @@ namespace SJP.Schematic.Lint.Tests.Rules
             );
             var tables = new[] { table };
 
-            var messages = rule.AnalyseTables(tables);
+            var hasMessages = await rule.AnalyseTables(tables).AnyAsync().ConfigureAwait(false);
 
-            Assert.Zero(messages.Count());
+            Assert.IsFalse(hasMessages);
         }
 
         [Test]
-        public static async Task AnalyseTablesAsync_GivenTableWithPrimaryKeyWithMultipleColumns_ProducesNoMessages()
-        {
-            var rule = new PrimaryKeyColumnNotFirstColumnRule(RuleLevel.Error);
-
-            var testColumn1 = new DatabaseColumn(
-                "test_column_1",
-                Mock.Of<IDbType>(),
-                false,
-                null,
-                null
-            );
-            var testColumn2 = new DatabaseColumn(
-                "test_column_2",
-                Mock.Of<IDbType>(),
-                false,
-                null,
-                null
-            );
-            var testPrimaryKey = new DatabaseKey(
-                Option<Identifier>.Some("test_primary_key"),
-                DatabaseKeyType.Primary,
-                new[] { testColumn1, testColumn2 },
-                true
-            );
-
-            var table = new RelationalDatabaseTable(
-                "test",
-                new List<IDatabaseColumn> { testColumn1, testColumn2 },
-                testPrimaryKey,
-                Array.Empty<IDatabaseKey>(),
-                Array.Empty<IDatabaseRelationalKey>(),
-                Array.Empty<IDatabaseRelationalKey>(),
-                Array.Empty<IDatabaseIndex>(),
-                Array.Empty<IDatabaseCheckConstraint>(),
-                Array.Empty<IDatabaseTrigger>()
-            );
-            var tables = new[] { table };
-
-            var messages = await rule.AnalyseTablesAsync(tables).ConfigureAwait(false);
-
-            Assert.Zero(messages.Count());
-        }
-
-        [Test]
-        public static void AnalyseTables_GivenTableWithPrimaryKeyWithSingleColumnAsFirstColumn_ProducesNoMessages()
+        public static async Task AnalyseTables_GivenTableWithPrimaryKeyWithSingleColumnAsFirstColumn_ProducesNoMessages()
         {
             var rule = new PrimaryKeyColumnNotFirstColumnRule(RuleLevel.Error);
 
@@ -207,57 +133,13 @@ namespace SJP.Schematic.Lint.Tests.Rules
             );
             var tables = new[] { table };
 
-            var messages = rule.AnalyseTables(tables);
+            var hasMessages = await rule.AnalyseTables(tables).AnyAsync().ConfigureAwait(false);
 
-            Assert.Zero(messages.Count());
+            Assert.IsFalse(hasMessages);
         }
 
         [Test]
-        public static async Task AnalyseTablesAsync_GivenTableWithPrimaryKeyWithSingleColumnAsFirstColumn_ProducesNoMessages()
-        {
-            var rule = new PrimaryKeyColumnNotFirstColumnRule(RuleLevel.Error);
-
-            var testColumn1 = new DatabaseColumn(
-                "test_column_1",
-                Mock.Of<IDbType>(),
-                false,
-                null,
-                null
-            );
-            var testColumn2 = new DatabaseColumn(
-                "test_column_2",
-                Mock.Of<IDbType>(),
-                false,
-                null,
-                null
-            );
-            var testPrimaryKey = new DatabaseKey(
-                Option<Identifier>.Some("test_primary_key"),
-                DatabaseKeyType.Primary,
-                new[] { testColumn1 },
-                true
-            );
-
-            var table = new RelationalDatabaseTable(
-                "test",
-                new List<IDatabaseColumn> { testColumn1, testColumn2 },
-                testPrimaryKey,
-                Array.Empty<IDatabaseKey>(),
-                Array.Empty<IDatabaseRelationalKey>(),
-                Array.Empty<IDatabaseRelationalKey>(),
-                Array.Empty<IDatabaseIndex>(),
-                Array.Empty<IDatabaseCheckConstraint>(),
-                Array.Empty<IDatabaseTrigger>()
-            );
-            var tables = new[] { table };
-
-            var messages = await rule.AnalyseTablesAsync(tables).ConfigureAwait(false);
-
-            Assert.Zero(messages.Count());
-        }
-
-        [Test]
-        public static void AnalyseTables_GivenTableWithPrimaryKeyWithSingleColumnNotFirstColumn_ProducesMessages()
+        public static async Task AnalyseTables_GivenTableWithPrimaryKeyWithSingleColumnNotFirstColumn_ProducesMessages()
         {
             var rule = new PrimaryKeyColumnNotFirstColumnRule(RuleLevel.Error);
 
@@ -295,53 +177,9 @@ namespace SJP.Schematic.Lint.Tests.Rules
             );
             var tables = new[] { table };
 
-            var messages = rule.AnalyseTables(tables);
+            var hasMessages = await rule.AnalyseTables(tables).AnyAsync().ConfigureAwait(false);
 
-            Assert.NotZero(messages.Count());
-        }
-
-        [Test]
-        public static async Task AnalyseTablesAsync_GivenTableWithPrimaryKeyWithSingleColumnNotFirstColumn_ProducesMessages()
-        {
-            var rule = new PrimaryKeyColumnNotFirstColumnRule(RuleLevel.Error);
-
-            var testColumn1 = new DatabaseColumn(
-                "test_column_1",
-                Mock.Of<IDbType>(),
-                false,
-                null,
-                null
-            );
-            var testColumn2 = new DatabaseColumn(
-                "test_column_2",
-                Mock.Of<IDbType>(),
-                false,
-                null,
-                null
-            );
-            var testPrimaryKey = new DatabaseKey(
-                Option<Identifier>.Some("test_primary_key"),
-                DatabaseKeyType.Primary,
-                new[] { testColumn2 },
-                true
-            );
-
-            var table = new RelationalDatabaseTable(
-                "test",
-                new List<IDatabaseColumn> { testColumn1, testColumn2 },
-                testPrimaryKey,
-                Array.Empty<IDatabaseKey>(),
-                Array.Empty<IDatabaseRelationalKey>(),
-                Array.Empty<IDatabaseRelationalKey>(),
-                Array.Empty<IDatabaseIndex>(),
-                Array.Empty<IDatabaseCheckConstraint>(),
-                Array.Empty<IDatabaseTrigger>()
-            );
-            var tables = new[] { table };
-
-            var messages = await rule.AnalyseTablesAsync(tables).ConfigureAwait(false);
-
-            Assert.NotZero(messages.Count());
+            Assert.IsTrue(hasMessages);
         }
     }
 }

@@ -10,31 +10,13 @@ namespace SJP.Schematic.Serialization
 {
     public class JsonRelationalDatabaseSerializer : IRelationalDatabaseSerializer
     {
-        public IRelationalDatabase Deserialize(string input)
-        {
-            if (input == null)
-                throw new ArgumentNullException(nameof(input));
-
-            var dto = JsonSerializer.Deserialize<Dto.RelationalDatabase>(input, _settings.Value);
-            return dto.FromDto();
-        }
-
         public Task<IRelationalDatabase> DeserializeAsync(string input, CancellationToken cancellationToken = default)
         {
             if (input == null)
                 throw new ArgumentNullException(nameof(input));
 
-            return Task.FromResult(Deserialize(input));
-        }
-
-        public string Serialize(IRelationalDatabase obj)
-        {
-            if (obj == null)
-                throw new ArgumentNullException(nameof(obj));
-
-            var dto = obj.ToDto().GetAwaiter().GetResult();
-
-            return JsonSerializer.Serialize(dto, _settings.Value);
+            var dto = JsonSerializer.Deserialize<Dto.RelationalDatabase>(input, _settings.Value);
+            return Task.FromResult(dto.FromDto());
         }
 
         public Task<string> SerializeAsync(IRelationalDatabase obj, CancellationToken cancellationToken = default)

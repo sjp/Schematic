@@ -14,21 +14,12 @@ namespace SJP.Schematic.Lint.Rules
         {
         }
 
-        public IEnumerable<IRuleMessage> AnalyseTables(IEnumerable<IRelationalDatabaseTable> tables)
+        public IAsyncEnumerable<IRuleMessage> AnalyseTables(IEnumerable<IRelationalDatabaseTable> tables, CancellationToken cancellationToken = default)
         {
             if (tables == null)
                 throw new ArgumentNullException(nameof(tables));
 
-            return tables.SelectMany(AnalyseTable).ToList();
-        }
-
-        public Task<IEnumerable<IRuleMessage>> AnalyseTablesAsync(IEnumerable<IRelationalDatabaseTable> tables, CancellationToken cancellationToken = default)
-        {
-            if (tables == null)
-                throw new ArgumentNullException(nameof(tables));
-
-            var messages = AnalyseTables(tables);
-            return Task.FromResult(messages);
+            return tables.SelectMany(AnalyseTable).ToAsyncEnumerable();
         }
 
         protected IEnumerable<IRuleMessage> AnalyseTable(IRelationalDatabaseTable table)

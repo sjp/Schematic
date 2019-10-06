@@ -74,31 +74,7 @@ create table no_cycle_table_2 (
         }
 
         [Test]
-        public static void AnalyseTablesAsync_GivenNullTables_ThrowsArgumentNullException()
-        {
-            var rule = new ForeignKeyRelationshipCycleRule(RuleLevel.Error);
-            Assert.Throws<ArgumentNullException>(() => rule.AnalyseTablesAsync(null));
-        }
-
-        [Test]
-        public void AnalyseTables_GivenTablesWithNoRelationshipCycle_ProducesNoMessages()
-        {
-            var rule = new ForeignKeyRelationshipCycleRule(RuleLevel.Error);
-            var database = GetSqliteDatabase();
-
-            var tables = new[]
-            {
-                database.GetTable("no_cycle_table_1").UnwrapSomeAsync().GetAwaiter().GetResult(),
-                database.GetTable("no_cycle_table_2").UnwrapSomeAsync().GetAwaiter().GetResult()
-            };
-
-            var messages = rule.AnalyseTables(tables);
-
-            Assert.Zero(messages.Count());
-        }
-
-        [Test]
-        public async Task AnalyseTablesAsync_GivenTablesWithNoRelationshipCycle_ProducesNoMessages()
+        public async Task AnalyseTables_GivenTablesWithNoRelationshipCycle_ProducesNoMessages()
         {
             var rule = new ForeignKeyRelationshipCycleRule(RuleLevel.Error);
             var database = GetSqliteDatabase();
@@ -109,32 +85,13 @@ create table no_cycle_table_2 (
                 await database.GetTable("no_cycle_table_2").UnwrapSomeAsync().ConfigureAwait(false)
             };
 
-            var messages = await rule.AnalyseTablesAsync(tables).ConfigureAwait(false);
+            var hasMessages = await rule.AnalyseTables(tables).AnyAsync().ConfigureAwait(false);
 
-            Assert.Zero(messages.Count());
+            Assert.IsFalse(hasMessages);
         }
 
         [Test]
-        public void AnalyseTables_GivenTablesWithRelationshipCycle_ProducesMessages()
-        {
-            var rule = new ForeignKeyRelationshipCycleRule(RuleLevel.Error);
-            var database = GetSqliteDatabase();
-
-            var tables = new[]
-            {
-                database.GetTable("cycle_table_1").UnwrapSomeAsync().GetAwaiter().GetResult(),
-                database.GetTable("cycle_table_2").UnwrapSomeAsync().GetAwaiter().GetResult(),
-                database.GetTable("cycle_table_3").UnwrapSomeAsync().GetAwaiter().GetResult(),
-                database.GetTable("cycle_table_4").UnwrapSomeAsync().GetAwaiter().GetResult()
-            };
-
-            var messages = rule.AnalyseTables(tables);
-
-            Assert.NotZero(messages.Count());
-        }
-
-        [Test]
-        public async Task AnalyseTablesAsync_GivenTablesWithRelationshipCycle_ProducesMessages()
+        public async Task AnalyseTables_GivenTablesWithRelationshipCycle_ProducesMessages()
         {
             var rule = new ForeignKeyRelationshipCycleRule(RuleLevel.Error);
             var database = GetSqliteDatabase();
@@ -147,9 +104,9 @@ create table no_cycle_table_2 (
                 await database.GetTable("cycle_table_4").UnwrapSomeAsync().ConfigureAwait(false)
             };
 
-            var messages = await rule.AnalyseTablesAsync(tables).ConfigureAwait(false);
+            var hasMessages = await rule.AnalyseTables(tables).AnyAsync().ConfigureAwait(false);
 
-            Assert.NotZero(messages.Count());
+            Assert.IsTrue(hasMessages);
         }
     }
 }

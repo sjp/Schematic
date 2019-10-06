@@ -60,31 +60,7 @@ create table not_indexed_child_table_1 (
         }
 
         [Test]
-        public static void AnalyseTablesAsync_GivenNullTables_ThrowsArgumentNullException()
-        {
-            var rule = new ForeignKeyIndexRule(RuleLevel.Error);
-            Assert.Throws<ArgumentNullException>(() => rule.AnalyseTablesAsync(null));
-        }
-
-        [Test]
-        public void AnalyseTables_GivenTablesWithTableWithIndexOnForeignKey_ProducesNoMessages()
-        {
-            var rule = new ForeignKeyIndexRule(RuleLevel.Error);
-            var database = GetSqliteDatabase();
-
-            var tables = new[]
-            {
-                database.GetTable("no_index_parent_table_1").UnwrapSomeAsync().GetAwaiter().GetResult(),
-                database.GetTable("indexed_child_table_1").UnwrapSomeAsync().GetAwaiter().GetResult()
-            };
-
-            var messages = rule.AnalyseTables(tables);
-
-            Assert.Zero(messages.Count());
-        }
-
-        [Test]
-        public async Task AnalyseTablesAsync_GivenTablesWithTableWithIndexOnForeignKey_ProducesNoMessages()
+        public async Task AnalyseTables_GivenTablesWithTableWithIndexOnForeignKey_ProducesNoMessages()
         {
             var rule = new ForeignKeyIndexRule(RuleLevel.Error);
             var database = GetSqliteDatabase();
@@ -95,30 +71,13 @@ create table not_indexed_child_table_1 (
                 await database.GetTable("indexed_child_table_1").UnwrapSomeAsync().ConfigureAwait(false)
             };
 
-            var messages = await rule.AnalyseTablesAsync(tables).ConfigureAwait(false);
+            var hasMessages = await rule.AnalyseTables(tables).AnyAsync().ConfigureAwait(false);
 
-            Assert.Zero(messages.Count());
+            Assert.IsFalse(hasMessages);
         }
 
         [Test]
-        public void AnalyseTables_GivenTablesWithTableWithoutIndexOnForeignKey_ProducesMessages()
-        {
-            var rule = new ForeignKeyIndexRule(RuleLevel.Error);
-            var database = GetSqliteDatabase();
-
-            var tables = new[]
-            {
-                database.GetTable("no_index_parent_table_1").UnwrapSomeAsync().GetAwaiter().GetResult(),
-                database.GetTable("not_indexed_child_table_1").UnwrapSomeAsync().GetAwaiter().GetResult()
-            };
-
-            var messages = rule.AnalyseTables(tables);
-
-            Assert.NotZero(messages.Count());
-        }
-
-        [Test]
-        public async Task AnalyseTablesAsync_GivenTablesWithTableWithoutIndexOnForeignKey_ProducesMessages()
+        public async Task AnalyseTables_GivenTablesWithTableWithoutIndexOnForeignKey_ProducesMessages()
         {
             var rule = new ForeignKeyIndexRule(RuleLevel.Error);
             var database = GetSqliteDatabase();
@@ -129,9 +88,9 @@ create table not_indexed_child_table_1 (
                 await database.GetTable("not_indexed_child_table_1").UnwrapSomeAsync().ConfigureAwait(false)
             };
 
-            var messages = await rule.AnalyseTablesAsync(tables).ConfigureAwait(false);
+            var hasMessages = await rule.AnalyseTables(tables).AnyAsync().ConfigureAwait(false);
 
-            Assert.NotZero(messages.Count());
+            Assert.IsTrue(hasMessages);
         }
     }
 }

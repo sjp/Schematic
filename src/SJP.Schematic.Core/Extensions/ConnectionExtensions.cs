@@ -95,36 +95,6 @@ namespace SJP.Schematic.Core.Extensions
             return await connection.QueryAsync<T>(configuredCommand).ConfigureAwait(false);
         }
 
-        public static T ExecuteFirstScalar<T>(this IDbConnection connection, string sql)
-        {
-            if (connection == null)
-                throw new ArgumentNullException(nameof(connection));
-            if (sql.IsNullOrWhiteSpace())
-                throw new ArgumentNullException(nameof(sql));
-
-            var command = new CommandDefinition(sql);
-            var configuredCommand = ConfigureCommand(connection, command);
-
-            using var logger = new LoggingAdapter(connection, sql, null);
-            return connection.ExecuteScalar<T>(configuredCommand);
-        }
-
-        public static T ExecuteFirstScalar<T>(this IDbConnection connection, string sql, object parameters)
-        {
-            if (connection == null)
-                throw new ArgumentNullException(nameof(connection));
-            if (sql.IsNullOrWhiteSpace())
-                throw new ArgumentNullException(nameof(sql));
-            if (parameters == null)
-                throw new ArgumentNullException(nameof(parameters));
-
-            var command = new CommandDefinition(sql, parameters);
-            var configuredCommand = ConfigureCommand(connection, command);
-
-            using var logger = new LoggingAdapter(connection, sql, parameters);
-            return connection.ExecuteScalar<T>(configuredCommand);
-        }
-
         public static Task<T> ExecuteScalarAsync<T>(this IDbConnection connection, string sql, CancellationToken cancellationToken)
         {
             if (connection == null)

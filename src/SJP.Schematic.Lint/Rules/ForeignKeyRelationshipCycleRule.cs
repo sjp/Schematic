@@ -16,7 +16,7 @@ namespace SJP.Schematic.Lint.Rules
         {
         }
 
-        public IEnumerable<IRuleMessage> AnalyseTables(IEnumerable<IRelationalDatabaseTable> tables)
+        public IAsyncEnumerable<IRuleMessage> AnalyseTables(IEnumerable<IRelationalDatabaseTable> tables, CancellationToken cancellationToken = default)
         {
             if (tables == null)
                 throw new ArgumentNullException(nameof(tables));
@@ -24,16 +24,7 @@ namespace SJP.Schematic.Lint.Rules
             var cycleDetector = new CycleDetector();
             var cycles = cycleDetector.GetCyclePaths(tables.ToList());
 
-            return cycles.Select(BuildMessage).ToList();
-        }
-
-        public Task<IEnumerable<IRuleMessage>> AnalyseTablesAsync(IEnumerable<IRelationalDatabaseTable> tables, CancellationToken cancellationToken = default)
-        {
-            if (tables == null)
-                throw new ArgumentNullException(nameof(tables));
-
-            var messages = AnalyseTables(tables);
-            return Task.FromResult(messages);
+            return cycles.Select(BuildMessage).ToAsyncEnumerable();
         }
 
         protected virtual IRuleMessage BuildMessage(IReadOnlyCollection<Identifier> cyclePath)

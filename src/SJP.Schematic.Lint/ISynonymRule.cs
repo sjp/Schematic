@@ -7,8 +7,6 @@ namespace SJP.Schematic.Lint
 {
     public interface ISynonymRule : IRule
     {
-        IEnumerable<IRuleMessage> AnalyseSynonyms(IEnumerable<IDatabaseSynonym> synonyms);
-
-        Task<IEnumerable<IRuleMessage>> AnalyseSynonymsAsync(IEnumerable<IDatabaseSynonym> synonyms, CancellationToken cancellationToken = default);
+        IAsyncEnumerable<IRuleMessage> AnalyseSynonyms(IEnumerable<IDatabaseSynonym> synonyms, CancellationToken cancellationToken = default);
     }
 }

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 using SJP.Schematic.Core;
@@ -22,36 +23,22 @@ namespace SJP.Schematic.Lint.Rules
 
         protected IDatabaseDialect Dialect { get; }
 
-        public IEnumerable<IRuleMessage> AnalyseViews(IEnumerable<IDatabaseView> views)
+        public IAsyncEnumerable<IRuleMessage> AnalyseViews(IEnumerable<IDatabaseView> views, CancellationToken cancellationToken = default)
         {
             if (views == null)
                 throw new ArgumentNullException(nameof(views));
 
-            return views.SelectMany(AnalyseView).ToList();
+            return AnalyseViewsCore(views, cancellationToken);
         }
 
-        public Task<IEnumerable<IRuleMessage>> AnalyseViewsAsync(IEnumerable<IDatabaseView> views, CancellationToken cancellationToken = default)
+        private async IAsyncEnumerable<IRuleMessage> AnalyseViewsCore(IEnumerable<IDatabaseView> views, [EnumeratorCancellation] CancellationToken cancellationToken)
         {
-            if (views == null)
-                throw new ArgumentNullException(nameof(views));
-
-            return AnalyseViewsAsyncCore(views, cancellationToken);
-        }
-
-        private async Task<IEnumerable<IRuleMessage>> AnalyseViewsAsyncCore(IEnumerable<IDatabaseView> views, CancellationToken cancellationToken)
-        {
-            if (views.Empty())
-                return Array.Empty<IRuleMessage>();
-
-            var result = new List<IRuleMessage>();
-
             foreach (var view in views)
             {
                 var messages = await AnalyseViewAsync(view, cancellationToken).ConfigureAwait(false);
-                result.AddRange(messages);
+                foreach (var message in messages)
+                    yield return message;
             }
-
-            return result;
         }
 
         protected Task<IEnumerable<IRuleMessage>> AnalyseViewAsync(IDatabaseView view, CancellationToken cancellationToken)
@@ -70,24 +57,6 @@ namespace SJP.Schematic.Lint.Rules
                 var quotedViewName = Dialect.QuoteName(simpleViewName);
                 var query = "select 1 as dummy from " + quotedViewName;
                 await Connection.ExecuteScalarAsync<long>(query, cancellationToken).ConfigureAwait(false);
-
-                return Array.Empty<IRuleMessage>();
-            }
-            catch
-            {
-                var message = BuildMessage(view.Name);
-                return new[] { message };
-            }
-        }
-
-        private IEnumerable<IRuleMessage> AnalyseView(IDatabaseView view)
-        {
-            try
-            {
-                var simpleViewName = Identifier.CreateQualifiedIdentifier(view.Name.Schema, view.Name.LocalName);
-                var quotedViewName = Dialect.QuoteName(simpleViewName);
-                var query = "select 1 as dummy from " + quotedViewName;
-                _ = Connection.ExecuteFirstScalar<long>(query);
 
                 return Array.Empty<IRuleMessage>();
             }

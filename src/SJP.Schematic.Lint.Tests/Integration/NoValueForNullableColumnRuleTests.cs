@@ -67,32 +67,7 @@ namespace SJP.Schematic.Lint.Tests.Integration
         }
 
         [Test]
-        public static void AnalyseTablesAsync_GivenNullTables_ThrowsArgumentNullException()
-        {
-            var connection = Mock.Of<IDbConnection>();
-            var dialect = Mock.Of<IDatabaseDialect>();
-            var rule = new NoValueForNullableColumnRule(connection, dialect, RuleLevel.Error);
-            Assert.Throws<ArgumentNullException>(() => rule.AnalyseTablesAsync(null));
-        }
-
-        [Test]
-        public void AnalyseTables_GivenTablesWithOnlyTablesWithoutNullableColumns_ProducesNoMessages()
-        {
-            var rule = new NoValueForNullableColumnRule(Connection, Dialect, RuleLevel.Error);
-            var database = GetSqliteDatabase();
-
-            var tables = new[]
-            {
-                database.GetTable("table_without_nullable_columns_1").UnwrapSomeAsync().GetAwaiter().GetResult()
-            };
-
-            var messages = rule.AnalyseTables(tables);
-
-            Assert.Zero(messages.Count());
-        }
-
-        [Test]
-        public async Task AnalyseTablesAsync_GivenTablesWithOnlyTablesWithoutNullableColumns_ProducesNoMessages()
+        public async Task AnalyseTables_GivenTablesWithOnlyTablesWithoutNullableColumns_ProducesNoMessages()
         {
             var rule = new NoValueForNullableColumnRule(Connection, Dialect, RuleLevel.Error);
             var database = GetSqliteDatabase();
@@ -102,29 +77,13 @@ namespace SJP.Schematic.Lint.Tests.Integration
                 await database.GetTable("table_without_nullable_columns_1").UnwrapSomeAsync().ConfigureAwait(false)
             };
 
-            var messages = await rule.AnalyseTablesAsync(tables).ConfigureAwait(false);
+            var hasMessages = await rule.AnalyseTables(tables).AnyAsync().ConfigureAwait(false);
 
-            Assert.Zero(messages.Count());
+            Assert.IsFalse(hasMessages);
         }
 
         [Test]
-        public void AnalyseTables_GivenTablesWithOnlyTablesWithNullableColumnsButNoRows_ProducesNoMessages()
-        {
-            var rule = new NoValueForNullableColumnRule(Connection, Dialect, RuleLevel.Error);
-            var database = GetSqliteDatabase();
-
-            var tables = new[]
-            {
-                database.GetTable("table_for_nullable_columns_1").UnwrapSomeAsync().GetAwaiter().GetResult()
-            };
-
-            var messages = rule.AnalyseTables(tables);
-
-            Assert.Zero(messages.Count());
-        }
-
-        [Test]
-        public async Task AnalyseTablesAsync_GivenTablesWithOnlyTablesWithNullableColumnsButNoRows_ProducesNoMessages()
+        public async Task AnalyseTables_GivenTablesWithOnlyTablesWithNullableColumnsButNoRows_ProducesNoMessages()
         {
             var rule = new NoValueForNullableColumnRule(Connection, Dialect, RuleLevel.Error);
             var database = GetSqliteDatabase();
@@ -134,29 +93,13 @@ namespace SJP.Schematic.Lint.Tests.Integration
                 await database.GetTable("table_for_nullable_columns_1").UnwrapSomeAsync().ConfigureAwait(false)
             };
 
-            var messages = await rule.AnalyseTablesAsync(tables).ConfigureAwait(false);
+            var hasMessages = await rule.AnalyseTables(tables).AnyAsync().ConfigureAwait(false);
 
-            Assert.Zero(messages.Count());
+            Assert.IsFalse(hasMessages);
         }
 
         [Test]
-        public void AnalyseTables_GivenTablesWithOnlyTablesWithNullableColumnsWithNoData_ProducesMessages()
-        {
-            var rule = new NoValueForNullableColumnRule(Connection, Dialect, RuleLevel.Error);
-            var database = GetSqliteDatabase();
-
-            var tables = new[]
-            {
-                database.GetTable("table_for_nullable_columns_2").UnwrapSomeAsync().GetAwaiter().GetResult()
-            };
-
-            var messages = rule.AnalyseTables(tables);
-
-            Assert.NotZero(messages.Count());
-        }
-
-        [Test]
-        public async Task AnalyseTablesAsync_GivenTablesWithOnlyTablesWithNullableColumnsWithNoData_ProducesMessages()
+        public async Task AnalyseTables_GivenTablesWithOnlyTablesWithNullableColumnsWithNoData_ProducesMessages()
         {
             var rule = new NoValueForNullableColumnRule(Connection, Dialect, RuleLevel.Error);
             var database = GetSqliteDatabase();
@@ -166,9 +109,9 @@ namespace SJP.Schematic.Lint.Tests.Integration
                 await database.GetTable("table_for_nullable_columns_2").UnwrapSomeAsync().ConfigureAwait(false)
             };
 
-            var messages = await rule.AnalyseTablesAsync(tables).ConfigureAwait(false);
+            var hasMessages = await rule.AnalyseTables(tables).AnyAsync().ConfigureAwait(false);
 
-            Assert.NotZero(messages.Count());
+            Assert.IsTrue(hasMessages);
         }
     }
 }

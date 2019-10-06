@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 using EnumsNET;
@@ -29,109 +30,89 @@ namespace SJP.Schematic.Reporting.Html.Lint
 
         private RuleLevel Level { get; }
 
-        public Task<IEnumerable<IRuleMessage>> AnalyseTablesAsync(IEnumerable<IRelationalDatabaseTable> tables, CancellationToken cancellationToken)
+        public IAsyncEnumerable<IRuleMessage> AnalyseTables(IEnumerable<IRelationalDatabaseTable> tables, CancellationToken cancellationToken)
         {
             if (tables == null)
                 throw new ArgumentNullException(nameof(tables));
 
-            return AnalyseTablesAsyncCore(tables, cancellationToken);
+            return AnalyseTablesCore(tables, cancellationToken);
         }
 
-        private async Task<IEnumerable<IRuleMessage>> AnalyseTablesAsyncCore(IEnumerable<IRelationalDatabaseTable> tables, CancellationToken cancellationToken)
+        private async IAsyncEnumerable<IRuleMessage> AnalyseTablesCore(IEnumerable<IRelationalDatabaseTable> tables, [EnumeratorCancellation] CancellationToken cancellationToken)
         {
-            var result = new List<IRuleMessage>();
-
             foreach (var tableRule in TableRules)
             {
-                var messages = await tableRule.AnalyseTablesAsync(tables, cancellationToken).ConfigureAwait(false);
-                result.AddRange(messages);
+                await foreach (var message in tableRule.AnalyseTables(tables, cancellationToken).ConfigureAwait(false))
+                    yield return message;
             }
-
-            return result;
         }
 
-        public Task<IEnumerable<IRuleMessage>> AnalyseViewsAsync(IEnumerable<IDatabaseView> views, CancellationToken cancellationToken)
+        public IAsyncEnumerable<IRuleMessage> AnalyseViews(IEnumerable<IDatabaseView> views, CancellationToken cancellationToken)
         {
             if (views == null)
                 throw new ArgumentNullException(nameof(views));
 
-            return AnalyseViewsAsyncCore(views, cancellationToken);
+            return AnalyseViewsCore(views, cancellationToken);
         }
 
-        private async Task<IEnumerable<IRuleMessage>> AnalyseViewsAsyncCore(IEnumerable<IDatabaseView> views, CancellationToken cancellationToken)
+        private async IAsyncEnumerable<IRuleMessage> AnalyseViewsCore(IEnumerable<IDatabaseView> views, [EnumeratorCancellation] CancellationToken cancellationToken)
         {
-            var result = new List<IRuleMessage>();
-
             foreach (var viewRule in ViewRules)
             {
-                var messages = await viewRule.AnalyseViewsAsync(views, cancellationToken).ConfigureAwait(false);
-                result.AddRange(messages);
+                await foreach (var message in viewRule.AnalyseViews(views, cancellationToken).ConfigureAwait(false))
+                    yield return message;
             }
-
-            return result;
         }
 
-        public Task<IEnumerable<IRuleMessage>> AnalyseSequencesAsync(IEnumerable<IDatabaseSequence> sequences, CancellationToken cancellationToken)
+        public IAsyncEnumerable<IRuleMessage> AnalyseSequences(IEnumerable<IDatabaseSequence> sequences, CancellationToken cancellationToken)
         {
             if (sequences == null)
                 throw new ArgumentNullException(nameof(sequences));
 
-            return AnalyseSequencesAsyncCore(sequences, cancellationToken);
+            return AnalyseSequencesCore(sequences, cancellationToken);
         }
 
-        private async Task<IEnumerable<IRuleMessage>> AnalyseSequencesAsyncCore(IEnumerable<IDatabaseSequence> sequences, CancellationToken cancellationToken)
+        private async IAsyncEnumerable<IRuleMessage> AnalyseSequencesCore(IEnumerable<IDatabaseSequence> sequences, [EnumeratorCancellation] CancellationToken cancellationToken)
         {
-            var result = new List<IRuleMessage>();
-
             foreach (var sequenceRule in SequenceRules)
             {
-                var messages = await sequenceRule.AnalyseSequencesAsync(sequences, cancellationToken).ConfigureAwait(false);
-                result.AddRange(messages);
+                await foreach (var message in sequenceRule.AnalyseSequences(sequences, cancellationToken).ConfigureAwait(false))
+                    yield return message;
             }
-
-            return result;
         }
 
-        public Task<IEnumerable<IRuleMessage>> AnalyseSynonymsAsync(IEnumerable<IDatabaseSynonym> synonyms, CancellationToken cancellationToken)
+        public IAsyncEnumerable<IRuleMessage> AnalyseSynonyms(IEnumerable<IDatabaseSynonym> synonyms, CancellationToken cancellationToken)
         {
             if (synonyms == null)
                 throw new ArgumentNullException(nameof(synonyms));
 
-            return AnalyseSynonymsAsyncCore(synonyms, cancellationToken);
+            return AnalyseSynonymsCore(synonyms, cancellationToken);
         }
 
-        private async Task<IEnumerable<IRuleMessage>> AnalyseSynonymsAsyncCore(IEnumerable<IDatabaseSynonym> synonyms, CancellationToken cancellationToken)
+        private async IAsyncEnumerable<IRuleMessage> AnalyseSynonymsCore(IEnumerable<IDatabaseSynonym> synonyms, [EnumeratorCancellation] CancellationToken cancellationToken)
         {
-            var result = new List<IRuleMessage>();
-
             foreach (var synonymRule in SynonymRules)
             {
-                var messages = await synonymRule.AnalyseSynonymsAsync(synonyms, cancellationToken).ConfigureAwait(false);
-                result.AddRange(messages);
+                await foreach (var message in synonymRule.AnalyseSynonyms(synonyms, cancellationToken).ConfigureAwait(false))
+                    yield return message;
             }
-
-            return result;
         }
 
-        public Task<IEnumerable<IRuleMessage>> AnalyseRoutinesAsync(IEnumerable<IDatabaseRoutine> routines, CancellationToken cancellationToken)
+        public IAsyncEnumerable<IRuleMessage> AnalyseRoutines(IEnumerable<IDatabaseRoutine> routines, CancellationToken cancellationToken)
         {
             if (routines == null)
                 throw new ArgumentNullException(nameof(routines));
 
-            return AnalyseRoutinesAsyncCore(routines, cancellationToken);
+            return AnalyseRoutinesCore(routines, cancellationToken);
         }
 
-        private async Task<IEnumerable<IRuleMessage>> AnalyseRoutinesAsyncCore(IEnumerable<IDatabaseRoutine> routines, CancellationToken cancellationToken)
+        private async IAsyncEnumerable<IRuleMessage> AnalyseRoutinesCore(IEnumerable<IDatabaseRoutine> routines, [EnumeratorCancellation] CancellationToken cancellationToken)
         {
-            var result = new List<IRuleMessage>();
-
             foreach (var routineRule in RoutineRules)
             {
-                var messages = await routineRule.AnalyseRoutinesAsync(routines, cancellationToken).ConfigureAwait(false);
-                result.AddRange(messages);
+                await foreach (var message in routineRule.AnalyseRoutines(routines, cancellationToken).ConfigureAwait(false))
+                    yield return message;
             }
-
-            return result;
         }
 
         private IEnumerable<IRule> Rules => new IRule[]

@@ -28,14 +28,7 @@ namespace SJP.Schematic.Lint.Tests.Rules
         }
 
         [Test]
-        public static void AnalyseTablesAsync_GivenNullTables_ThrowsArgumentNullException()
-        {
-            var rule = new CandidateKeyMissingRule(RuleLevel.Error);
-            Assert.Throws<ArgumentNullException>(() => rule.AnalyseTablesAsync(null));
-        }
-
-        [Test]
-        public static void AnalyseTables_GivenTableWithMissingPrimaryKeyAndNoUniqueKeys_ProducesMessages()
+        public static async Task AnalyseTables_GivenTableWithMissingPrimaryKeyAndNoUniqueKeys_ProducesMessages()
         {
             var rule = new CandidateKeyMissingRule(RuleLevel.Error);
 
@@ -52,36 +45,13 @@ namespace SJP.Schematic.Lint.Tests.Rules
             );
             var tables = new[] { table };
 
-            var messages = rule.AnalyseTables(tables);
+            var hasMessages = await rule.AnalyseTables(tables).AnyAsync().ConfigureAwait(false);
 
-            Assert.NotZero(messages.Count());
+            Assert.IsTrue(hasMessages);
         }
 
         [Test]
-        public static async Task AnalyseTablesAsync_GivenTableWithMissingPrimaryKeyAndNoUniqueKeys_ProducesMessages()
-        {
-            var rule = new CandidateKeyMissingRule(RuleLevel.Error);
-
-            var table = new RelationalDatabaseTable(
-                "test",
-                new List<IDatabaseColumn>(),
-                null,
-                Array.Empty<IDatabaseKey>(),
-                Array.Empty<IDatabaseRelationalKey>(),
-                Array.Empty<IDatabaseRelationalKey>(),
-                Array.Empty<IDatabaseIndex>(),
-                Array.Empty<IDatabaseCheckConstraint>(),
-                Array.Empty<IDatabaseTrigger>()
-            );
-            var tables = new[] { table };
-
-            var messages = await rule.AnalyseTablesAsync(tables).ConfigureAwait(false);
-
-            Assert.NotZero(messages.Count());
-        }
-
-        [Test]
-        public static void AnalyseTables_GivenTableWithPrimaryKey_ProducesNoMessages()
+        public static async Task AnalyseTables_GivenTableWithPrimaryKey_ProducesNoMessages()
         {
             var rule = new CandidateKeyMissingRule(RuleLevel.Error);
 
@@ -112,50 +82,13 @@ namespace SJP.Schematic.Lint.Tests.Rules
             );
             var tables = new[] { table };
 
-            var messages = rule.AnalyseTables(tables);
+            var hasMessages = await rule.AnalyseTables(tables).AnyAsync().ConfigureAwait(false);
 
-            Assert.Zero(messages.Count());
+            Assert.IsFalse(hasMessages);
         }
 
         [Test]
-        public static async Task AnalyseTablesAsync_GivenTableWithPrimaryKey_ProducesNoMessages()
-        {
-            var rule = new CandidateKeyMissingRule(RuleLevel.Error);
-
-            var testColumn = new DatabaseColumn(
-                "test_column",
-                Mock.Of<IDbType>(),
-                false,
-                null,
-                null
-            );
-            var testPrimaryKey = new DatabaseKey(
-                Option<Identifier>.Some("test_primary_key"),
-                DatabaseKeyType.Primary,
-                new[] { testColumn },
-                true
-            );
-
-            var table = new RelationalDatabaseTable(
-                "test",
-                new List<IDatabaseColumn>(),
-                testPrimaryKey,
-                Array.Empty<IDatabaseKey>(),
-                Array.Empty<IDatabaseRelationalKey>(),
-                Array.Empty<IDatabaseRelationalKey>(),
-                Array.Empty<IDatabaseIndex>(),
-                Array.Empty<IDatabaseCheckConstraint>(),
-                Array.Empty<IDatabaseTrigger>()
-            );
-            var tables = new[] { table };
-
-            var messages = await rule.AnalyseTablesAsync(tables).ConfigureAwait(false);
-
-            Assert.Zero(messages.Count());
-        }
-
-        [Test]
-        public static void AnalyseTables_GivenTableWithMultiColumnPrimaryKey_ProducesMessages()
+        public static async Task AnalyseTables_GivenTableWithUniqueKey_ProducesNoMessages()
         {
             var rule = new CandidateKeyMissingRule(RuleLevel.Error);
 
@@ -186,46 +119,9 @@ namespace SJP.Schematic.Lint.Tests.Rules
             );
             var tables = new[] { table };
 
-            var messages = rule.AnalyseTables(tables);
+            var hasMessages = await rule.AnalyseTables(tables).AnyAsync().ConfigureAwait(false);
 
-            Assert.Zero(messages.Count());
-        }
-
-        [Test]
-        public static async Task AnalyseTablesAsync_GivenTableWithMultiColumnPrimaryKey_ProducesMessages()
-        {
-            var rule = new CandidateKeyMissingRule(RuleLevel.Error);
-
-            var testColumn = new DatabaseColumn(
-                "test_column",
-                Mock.Of<IDbType>(),
-                false,
-                null,
-                null
-            );
-            var testUniqueKey = new DatabaseKey(
-                Option<Identifier>.Some("test_unique_key"),
-                DatabaseKeyType.Unique,
-                new[] { testColumn },
-                true
-            );
-
-            var table = new RelationalDatabaseTable(
-                "test",
-                new List<IDatabaseColumn>(),
-                null,
-                new List<IDatabaseKey>() { testUniqueKey },
-                Array.Empty<IDatabaseRelationalKey>(),
-                Array.Empty<IDatabaseRelationalKey>(),
-                Array.Empty<IDatabaseIndex>(),
-                Array.Empty<IDatabaseCheckConstraint>(),
-                Array.Empty<IDatabaseTrigger>()
-            );
-            var tables = new[] { table };
-
-            var messages = await rule.AnalyseTablesAsync(tables).ConfigureAwait(false);
-
-            Assert.Zero(messages.Count());
+            Assert.IsFalse(hasMessages);
         }
     }
 }

@@ -55,7 +55,7 @@ namespace SJP.Schematic.Tool
 
                 var fileSystem = new FileSystem();
                 var generator = new PocoDataAccessGenerator(fileSystem, database, commentProvider, nameProvider);
-                await generator.GenerateAsync(GenerateParent.ProjectPath, GenerateParent.BaseNamespace).ConfigureAwait(false);
+                await generator.Generate(GenerateParent.ProjectPath, GenerateParent.BaseNamespace).ConfigureAwait(false);
 
                 var dirName = Path.GetDirectoryName(GenerateParent.ProjectPath);
                 application.Out.WriteLine("The POCO project has been exported to: " + dirName);
