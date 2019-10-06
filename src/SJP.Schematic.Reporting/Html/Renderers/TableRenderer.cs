@@ -70,8 +70,8 @@ namespace SJP.Schematic.Reporting.Html.Renderers
                     var svgFilePath = Path.Combine(ExportDirectory.FullName, diagram.ContainerId + ".svg");
                     var svg = await dotRenderer.RenderToSvgAsync(diagram.Dot, cancellationToken).ConfigureAwait(false);
 
-                                            // ensure links open in new window with right attrs
-                                            var doc = XDocument.Parse(svg, LoadOptions.PreserveWhitespace);
+                    // ensure links open in new window with right attrs
+                    var doc = XDocument.Parse(svg, LoadOptions.PreserveWhitespace);
                     doc.ReplaceTitlesWithTableNames();
 
                     var linkNodes = doc.Descendants(svgNs + "a");
