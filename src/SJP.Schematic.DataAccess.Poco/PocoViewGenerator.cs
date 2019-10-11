@@ -121,7 +121,8 @@ namespace SJP.Schematic.DataAccess.Poco
                 .Append(propertyName)
                 .Append(" { get; set; }");
 
-            if (!column.IsNullable)
+            var isNotNullRefType = !column.IsNullable && !column.Type.ClrType.IsValueType;
+            if (isNotNullRefType)
                 builder.Append(" = default!;");
 
             builder.AppendLine();

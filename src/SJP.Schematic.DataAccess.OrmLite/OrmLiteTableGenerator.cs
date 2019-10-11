@@ -301,7 +301,8 @@ namespace SJP.Schematic.DataAccess.OrmLite
                 .Append(propertyName)
                 .Append(" { get; set; }");
 
-            if (!column.IsNullable)
+            var isNotNullRefType = !column.IsNullable && !column.Type.ClrType.IsValueType;
+            if (isNotNullRefType)
                 builder.Append(" = default!;");
 
             builder.AppendLine();

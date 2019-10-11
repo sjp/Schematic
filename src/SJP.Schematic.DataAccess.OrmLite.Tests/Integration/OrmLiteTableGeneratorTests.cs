@@ -211,13 +211,13 @@ namespace OrmLiteTestNamespace.Main
         [PrimaryKey]
         [AutoIncrement]
         [Alias(""test_pk"")]
-        public long TestPk { get; set; } = default!;
+        public long TestPk { get; set; }
 
         /// <summary>
         /// The <c>test_int</c> column.
         /// </summary>
         [Alias(""test_int"")]
-        public long TestInt { get; set; } = default!;
+        public long TestInt { get; set; }
 
         /// <summary>
         /// The <c>test_nullable_int</c> column.
@@ -229,7 +229,7 @@ namespace OrmLiteTestNamespace.Main
         /// The <c>test_numeric</c> column.
         /// </summary>
         [Alias(""test_numeric"")]
-        public decimal TestNumeric { get; set; } = default!;
+        public decimal TestNumeric { get; set; }
 
         /// <summary>
         /// The <c>test_nullable_numeric</c> column.
@@ -285,13 +285,13 @@ namespace OrmLiteTestNamespace.Main
         /// The <c>test_pk_1</c> column.
         /// </summary>
         [Alias(""test_pk_1"")]
-        public long TestPk1 { get; set; } = default!;
+        public long TestPk1 { get; set; }
 
         /// <summary>
         /// The <c>test_pk_2</c> column.
         /// </summary>
         [Alias(""test_pk_2"")]
-        public long TestPk2 { get; set; } = default!;
+        public long TestPk2 { get; set; }
 
         /// <summary>
         /// The <c>first_name</c> column.
@@ -343,13 +343,13 @@ namespace OrmLiteTestNamespace.Main
         [PrimaryKey]
         [AutoIncrement]
         [Alias(""test_pk"")]
-        public long TestPk { get; set; } = default!;
+        public long TestPk { get; set; }
 
         /// <summary>
         /// The <c>test_int</c> column.
         /// </summary>
         [Alias(""test_int"")]
-        public long TestInt { get; set; } = default!;
+        public long TestInt { get; set; }
 
         /// <summary>
         /// The <c>test_nullable_int</c> column.
@@ -361,7 +361,7 @@ namespace OrmLiteTestNamespace.Main
         /// The <c>test_numeric</c> column.
         /// </summary>
         [Alias(""test_numeric"")]
-        public decimal TestNumeric { get; set; } = default!;
+        public decimal TestNumeric { get; set; }
 
         /// <summary>
         /// The <c>test_nullable_numeric</c> column.

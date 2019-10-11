@@ -123,7 +123,7 @@ namespace PocoTestNamespace.Main
         /// <summary>
         /// The <c>testint</c> column.
         /// </summary>
-        public long Testint { get; set; } = default!;
+        public long Testint { get; set; }
 
         /// <summary>
         /// The <c>testdecimal</c> column.
