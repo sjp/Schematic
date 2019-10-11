@@ -146,7 +146,7 @@ namespace EFCoreTestNamespace.Main
         /// The <c>test_blob</c> column.
         /// </summary>
         [Column(""test_blob"", TypeName = ""BLOB"")]
-        public byte[] TestBlob { get; set; }
+        public byte[]? TestBlob { get; set; }
 
         /// <summary>
         /// The <c>test_datetime</c> column.
@@ -158,7 +158,7 @@ namespace EFCoreTestNamespace.Main
         /// The <c>test_string</c> column.
         /// </summary>
         [Column(""test_string"", TypeName = ""TEXT"")]
-        public string TestString { get; set; }
+        public string? TestString { get; set; }
 
         /// <summary>
         /// The <c>test_string_with_default</c> column.
@@ -213,7 +213,7 @@ namespace EFCoreTestNamespace.Main
         /// The <c>test_blob</c> column.
         /// </summary>
         [Column(""test_blob"", TypeName = ""BLOB"")]
-        public byte[] TestBlob { get; set; }
+        public byte[]? TestBlob { get; set; }
 
         /// <summary>
         /// The <c>test_datetime</c> column.
@@ -225,7 +225,7 @@ namespace EFCoreTestNamespace.Main
         /// The <c>test_string</c> column.
         /// </summary>
         [Column(""test_string"", TypeName = ""TEXT"")]
-        public string TestString { get; set; }
+        public string? TestString { get; set; }
 
         /// <summary>
         /// The <c>test_string_with_default</c> column.
@@ -282,7 +282,7 @@ namespace EFCoreTestNamespace.Main
         /// The <c>test_blob</c> column.
         /// </summary>
         [Column(""test_blob"", TypeName = ""BLOB"")]
-        public byte[] TestBlob { get; set; }
+        public byte[]? TestBlob { get; set; }
 
         /// <summary>
         /// The <c>test_datetime</c> column.
@@ -294,7 +294,7 @@ namespace EFCoreTestNamespace.Main
         /// The <c>test_string</c> column.
         /// </summary>
         [Column(""test_string"", TypeName = ""TEXT"")]
-        public string TestString { get; set; }
+        public string? TestString { get; set; }
 
         /// <summary>
         /// The <c>test_string_with_default</c> column.

@@ -321,13 +321,13 @@ namespace EFCoreTestNamespace.Main
         /// </summary>
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         [Column(""test_pk"", TypeName = ""INTEGER"")]
-        public long TestPk { get; set; }
+        public long TestPk { get; set; } = default!;
 
         /// <summary>
         /// The <c>test_int</c> column.
         /// </summary>
         [Column(""test_int"", TypeName = ""INTEGER"")]
-        public long TestInt { get; set; }
+        public long TestInt { get; set; } = default!;
 
         /// <summary>
         /// The <c>test_nullable_int</c> column.
@@ -339,7 +339,7 @@ namespace EFCoreTestNamespace.Main
         /// The <c>test_numeric</c> column.
         /// </summary>
         [Column(""test_numeric"", TypeName = ""NUMERIC"")]
-        public decimal TestNumeric { get; set; }
+        public decimal TestNumeric { get; set; } = default!;
 
         /// <summary>
         /// The <c>test_nullable_numeric</c> column.
@@ -352,7 +352,7 @@ namespace EFCoreTestNamespace.Main
         /// </summary>
         [Required]
         [Column(""test_blob"", TypeName = ""BLOB"")]
-        public byte[] TestBlob { get; set; }
+        public byte[] TestBlob { get; set; } = default!;
 
         /// <summary>
         /// The <c>test_datetime</c> column.
@@ -364,7 +364,7 @@ namespace EFCoreTestNamespace.Main
         /// The <c>test_string</c> column.
         /// </summary>
         [Column(""test_string"", TypeName = ""TEXT"")]
-        public string TestString { get; set; }
+        public string? TestString { get; set; }
 
         /// <summary>
         /// The <c>test_string_with_default</c> column.
@@ -391,40 +391,40 @@ namespace EFCoreTestNamespace.Main
         /// The <c>test_pk_1</c> column.
         /// </summary>
         [Column(""test_pk_1"", TypeName = ""INTEGER"")]
-        public long TestPk1 { get; set; }
+        public long TestPk1 { get; set; } = default!;
 
         /// <summary>
         /// The <c>test_pk_2</c> column.
         /// </summary>
         [Column(""test_pk_2"", TypeName = ""INTEGER"")]
-        public long TestPk2 { get; set; }
+        public long TestPk2 { get; set; } = default!;
 
         /// <summary>
         /// The <c>first_name</c> column.
         /// </summary>
         [Required]
         [Column(""first_name"", TypeName = ""TEXT"")]
-        public string FirstName { get; set; }
+        public string FirstName { get; set; } = default!;
 
         /// <summary>
         /// The <c>middle_name</c> column.
         /// </summary>
         [Required]
         [Column(""middle_name"", TypeName = ""TEXT"")]
-        public string MiddleName { get; set; }
+        public string MiddleName { get; set; } = default!;
 
         /// <summary>
         /// The <c>last_name</c> column.
         /// </summary>
         [Required]
         [Column(""last_name"", TypeName = ""TEXT"")]
-        public string LastName { get; set; }
+        public string LastName { get; set; } = default!;
 
         /// <summary>
         /// The <c>comment</c> column.
         /// </summary>
         [Column(""comment"", TypeName = ""TEXT"")]
-        public string Comment { get; set; }
+        public string? Comment { get; set; }
     }
 }";
 
@@ -446,13 +446,13 @@ namespace EFCoreTestNamespace.Main
         /// </summary>
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         [Column(""test_pk"", TypeName = ""INTEGER"")]
-        public long TestPk { get; set; }
+        public long TestPk { get; set; } = default!;
 
         /// <summary>
         /// The <c>test_int</c> column.
         /// </summary>
         [Column(""test_int"", TypeName = ""INTEGER"")]
-        public long TestInt { get; set; }
+        public long TestInt { get; set; } = default!;
 
         /// <summary>
         /// The <c>test_nullable_int</c> column.
@@ -464,7 +464,7 @@ namespace EFCoreTestNamespace.Main
         /// The <c>test_numeric</c> column.
         /// </summary>
         [Column(""test_numeric"", TypeName = ""NUMERIC"")]
-        public decimal TestNumeric { get; set; }
+        public decimal TestNumeric { get; set; } = default!;
 
         /// <summary>
         /// The <c>test_nullable_numeric</c> column.
@@ -477,7 +477,7 @@ namespace EFCoreTestNamespace.Main
         /// </summary>
         [Required]
         [Column(""test_blob"", TypeName = ""BLOB"")]
-        public byte[] TestBlob { get; set; }
+        public byte[] TestBlob { get; set; } = default!;
 
         /// <summary>
         /// The <c>test_datetime</c> column.
@@ -489,7 +489,7 @@ namespace EFCoreTestNamespace.Main
         /// The <c>test_string</c> column.
         /// </summary>
         [Column(""test_string"", TypeName = ""TEXT"")]
-        public string TestString { get; set; }
+        public string? TestString { get; set; }
 
         /// <summary>
         /// The <c>test_string_with_default</c> column.
@@ -537,13 +537,13 @@ namespace EFCoreTestNamespace.Main
         /// </summary>
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         [Column(""test_pk"", TypeName = ""INTEGER"")]
-        public long TestPk { get; set; }
+        public long TestPk { get; set; } = default!;
 
         /// <summary>
         /// The <c>test_int</c> column.
         /// </summary>
         [Column(""test_int"", TypeName = ""INTEGER"")]
-        public long TestInt { get; set; }
+        public long TestInt { get; set; } = default!;
 
         /// <summary>
         /// The <c>test_nullable_int</c> column.
@@ -555,7 +555,7 @@ namespace EFCoreTestNamespace.Main
         /// The <c>test_numeric</c> column.
         /// </summary>
         [Column(""test_numeric"", TypeName = ""NUMERIC"")]
-        public decimal TestNumeric { get; set; }
+        public decimal TestNumeric { get; set; } = default!;
 
         /// <summary>
         /// The <c>test_nullable_numeric</c> column.
@@ -568,7 +568,7 @@ namespace EFCoreTestNamespace.Main
         /// </summary>
         [Required]
         [Column(""test_blob"", TypeName = ""BLOB"")]
-        public byte[] TestBlob { get; set; }
+        public byte[] TestBlob { get; set; } = default!;
 
         /// <summary>
         /// The <c>test_datetime</c> column.
@@ -580,7 +580,7 @@ namespace EFCoreTestNamespace.Main
         /// The <c>test_string</c> column.
         /// </summary>
         [Column(""test_string"", TypeName = ""TEXT"")]
-        public string TestString { get; set; }
+        public string? TestString { get; set; }
 
         /// <summary>
         /// The <c>test_string_with_default</c> column.
@@ -615,22 +615,22 @@ namespace EFCoreTestNamespace.Main
         /// <summary>
         /// The <c>fk_test_table_4_test_table_3_fk1</c> foreign key. Navigates from <c>test_table_4</c> to <c>test_table_3</c>.
         /// </summary>
-        public virtual main.TestTable3 TestTable3 { get; set; }
+        public virtual main.TestTable3? TestTable3 { get; set; }
 
         /// <summary>
         /// The <c>fk_test_table_4_test_table_3_fk1</c> foreign key. Navigates from <c>test_table_4</c> to <c>test_table_3</c>.
         /// </summary>
-        public virtual main.TestTable3 TestTable3 { get; set; }
+        public virtual main.TestTable3? TestTable3 { get; set; }
 
         /// <summary>
         /// The <c>fk_test_table_4_test_table_3_fk1</c> foreign key. Navigates from <c>test_table_4</c> to <c>test_table_3</c>.
         /// </summary>
-        public virtual main.TestTable3 TestTable3 { get; set; }
+        public virtual main.TestTable3? TestTable3 { get; set; }
 
         /// <summary>
         /// The <c>fk_test_table_4_test_table_3_fk1</c> foreign key. Navigates from <c>test_table_4</c> to <c>test_table_3</c>.
         /// </summary>
-        public virtual main.TestTable3 TestTable3 { get; set; }
+        public virtual main.TestTable3? TestTable3 { get; set; }
     }
 }";
 
@@ -696,13 +696,13 @@ namespace EFCoreTestNamespace.Main
         /// </summary>
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         [Column(""test_pk"", TypeName = ""INTEGER"")]
-        public long TestPk { get; set; }
+        public long TestPk { get; set; } = default!;
 
         /// <summary>
         /// The <c>test_int</c> column.
         /// </summary>
         [Column(""test_int"", TypeName = ""INTEGER"")]
-        public long TestInt { get; set; }
+        public long TestInt { get; set; } = default!;
 
         /// <summary>
         /// The <c>fk_test_table_7_test_table_6_fk1</c> child key. Navigates from <c>test_table_6</c> to <c>test_table_7</c> entities.
@@ -712,12 +712,12 @@ namespace EFCoreTestNamespace.Main
         /// <summary>
         /// The <c>fk_test_table_8_test_table_6_fk1</c> child key. Navigates from <c>test_table_6</c> to <c>test_table_8</c> entities.
         /// </summary>
-        public virtual main.TestTable8 TestTable8s { get; set; }
+        public virtual main.TestTable8? TestTable8s { get; set; }
 
         /// <summary>
         /// The <c>fk_test_table_9_test_table_6_fk1</c> child key. Navigates from <c>test_table_6</c> to <c>test_table_9</c> entities.
         /// </summary>
-        public virtual main.TestTable9 TestTable9s { get; set; }
+        public virtual main.TestTable9? TestTable9s { get; set; }
     }
 }";
 
@@ -739,18 +739,18 @@ namespace EFCoreTestNamespace.Main
         /// </summary>
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         [Column(""test_pk"", TypeName = ""INTEGER"")]
-        public long TestPk { get; set; }
+        public long TestPk { get; set; } = default!;
 
         /// <summary>
         /// The <c>test_table_6_fk1</c> column.
         /// </summary>
         [Column(""test_table_6_fk1"", TypeName = ""INTEGER"")]
-        public long TestTable6Fk1 { get; set; }
+        public long TestTable6Fk1 { get; set; } = default!;
 
         /// <summary>
         /// This is a test foreign key comment for EF Core
         /// </summary>
-        public virtual main.TestTable6 TestTable6 { get; set; }
+        public virtual main.TestTable6 TestTable6 { get; set; } = default!;
     }
 }";
 
@@ -773,19 +773,19 @@ namespace EFCoreTestNamespace.Main
         /// </summary>
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         [Column(""test_pk"", TypeName = ""INTEGER"")]
-        public long TestPk { get; set; }
+        public long TestPk { get; set; } = default!;
 
         /// <summary>
         /// The <c>test_table_6_fk1</c> column.
         /// </summary>
         [Column(""test_table_6_fk1"", TypeName = ""INTEGER"")]
-        public long TestTable6Fk1 { get; set; }
+        public long TestTable6Fk1 { get; set; } = default!;
 
         /// <summary>
         /// <para>This is a test foreign key comment for EF Core.</para>
         /// <para>This is a second line for it.</para>
         /// </summary>
-        public virtual main.TestTable6 TestTable6 { get; set; }
+        public virtual main.TestTable6 TestTable6 { get; set; } = default!;
     }
 }";
     }

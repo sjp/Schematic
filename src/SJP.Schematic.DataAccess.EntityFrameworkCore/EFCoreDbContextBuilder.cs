@@ -80,7 +80,7 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore
                     .Append(qualifiedClassName)
                     .Append("> ")
                     .Append(setName)
-                    .AppendLine(" { get; set; }");
+                    .AppendLine(" { get; set; } = default!;");
 
                 modelBuilder.AddTable(table);
             }
@@ -110,7 +110,7 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore
                     .Append(qualifiedClassName)
                     .Append("> ")
                     .Append(setName)
-                    .AppendLine(" { get; set; }");
+                    .AppendLine(" { get; set; } = default!;");
 
                 modelBuilder.AddView(view);
             }

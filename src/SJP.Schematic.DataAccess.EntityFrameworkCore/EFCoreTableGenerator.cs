@@ -130,12 +130,23 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore
                     .IfNone(GenerateForeignKeyComment(relationalKey));
                 builder.AppendComment(columnIndent, foreignKeyComment);
 
+                var foreignKeyIsNotNull = relationalKey.ChildKey.Columns.All(c => !c.IsNullable);
+
                 builder.Append(columnIndent)
                     .Append("public virtual ")
-                    .Append(qualifiedParentName)
-                    .Append(' ')
+                    .Append(qualifiedParentName);
+
+                if (!foreignKeyIsNotNull)
+                    builder.Append('?');
+
+                builder.Append(' ')
                     .Append(parentClassName)
-                    .AppendLine(" { get; set; }");
+                    .Append(" { get; set; }");
+
+                if (foreignKeyIsNotNull)
+                    builder.Append(" = default!;");
+
+                builder.AppendLine();
             }
 
             foreach (var relationalKey in table.ChildKeys)
@@ -164,7 +175,7 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore
                     builder.Append(columnIndent)
                         .Append("public virtual ")
                         .Append(qualifiedChildName)
-                        .Append(' ')
+                        .Append("? ")
                         .Append(childSetName)
                         .AppendLine(" { get; set; }");
                 }
@@ -200,7 +211,7 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore
                 throw new ArgumentNullException(nameof(column));
 
             var clrType = column.Type.ClrType;
-            var nullableSuffix = clrType.IsValueType && column.IsNullable ? "?" : string.Empty;
+            var nullableSuffix = column.IsNullable ? "?" : string.Empty;
 
             var isConstrainedType = clrType == typeof(string) || clrType == typeof(byte[]);
             if (isConstrainedType && column.Type.MaxLength > 0)
@@ -248,7 +259,12 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore
                 .Append(nullableSuffix)
                 .Append(' ')
                 .Append(propertyName)
-                .AppendLine(" { get; set; }");
+                .Append(" { get; set; }");
+
+            if (!column.IsNullable)
+                builder.Append(" = default!;");
+
+            builder.AppendLine();
         }
 
         protected virtual string GenerateTableComment(string tableName)

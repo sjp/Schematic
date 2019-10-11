@@ -125,10 +125,11 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore
 
         protected const string ProjectDefinition = @"<Project Sdk=""Microsoft.NET.Sdk"">
     <PropertyGroup>
-        <TargetFramework>netcoreapp3.0</TargetFramework>
+        <TargetFramework>netstandard2.1</TargetFramework>
         <CheckForOverflowUnderflow>true</CheckForOverflowUnderflow>
         <TreatWarningsAsErrors>True</TreatWarningsAsErrors>
         <TreatSpecificWarningsAsErrors />
+        <Nullable>enable</Nullable>
     </PropertyGroup>
 
     <ItemGroup>

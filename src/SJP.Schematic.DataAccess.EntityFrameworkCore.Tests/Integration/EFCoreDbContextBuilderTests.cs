@@ -110,22 +110,22 @@ namespace EFCoreTestNamespace
         /// <summary>
         /// Accesses the <c>main.test_table_1</c> table.
         /// </summary>
-        public DbSet<Main.TestTable1> TestTable1s { get; set; }
+        public DbSet<Main.TestTable1> TestTable1s { get; set; } = default!;
 
         /// <summary>
         /// Accesses the <c>main.test_table_2</c> table.
         /// </summary>
-        public DbSet<Main.TestTable2> TestTable2s { get; set; }
+        public DbSet<Main.TestTable2> TestTable2s { get; set; } = default!;
 
         /// <summary>
         /// Accesses the <c>main.test_table_3</c> table.
         /// </summary>
-        public DbSet<Main.TestTable3> TestTable3s { get; set; }
+        public DbSet<Main.TestTable3> TestTable3s { get; set; } = default!;
 
         /// <summary>
         /// Accesses the <c>main.test_table_4</c> table.
         /// </summary>
-        public DbSet<Main.TestTable4> TestTable4s { get; set; }
+        public DbSet<Main.TestTable4> TestTable4s { get; set; } = default!;
 
         /// <summary>
         /// Configure the model that was discovered by convention from the defined entity types.
