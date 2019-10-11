@@ -107,7 +107,7 @@ namespace SJP.Schematic.DataAccess.Poco
                 throw new ArgumentNullException(nameof(column));
 
             var clrType = column.Type.ClrType;
-            var nullableSuffix = clrType.IsValueType && column.IsNullable ? "?" : string.Empty;
+            var nullableSuffix = column.IsNullable ? "?" : string.Empty;
 
             var typeName = clrType.Name;
             if (clrType.Namespace == "System" && TypeNameMap.ContainsKey(typeName))
@@ -120,7 +120,12 @@ namespace SJP.Schematic.DataAccess.Poco
                 .Append(nullableSuffix)
                 .Append(' ')
                 .Append(propertyName)
-                .AppendLine(" { get; set; }");
+                .Append(" { get; set; }");
+
+            if (!column.IsNullable)
+                builder.Append(" = default!;");
+
+            builder.AppendLine();
         }
 
         protected virtual string GenerateTableComment(string tableName)

@@ -123,7 +123,7 @@ namespace PocoTestNamespace.Main
         /// <summary>
         /// The <c>testint</c> column.
         /// </summary>
-        public long Testint { get; set; }
+        public long Testint { get; set; } = default!;
 
         /// <summary>
         /// The <c>testdecimal</c> column.
@@ -133,7 +133,7 @@ namespace PocoTestNamespace.Main
         /// <summary>
         /// The <c>testblob</c> column.
         /// </summary>
-        public byte[] Testblob { get; set; }
+        public byte[]? Testblob { get; set; }
 
         /// <summary>
         /// The <c>testdatetime</c> column.
@@ -143,7 +143,7 @@ namespace PocoTestNamespace.Main
         /// <summary>
         /// The <c>teststring</c> column.
         /// </summary>
-        public string Teststring { get; set; }
+        public string? Teststring { get; set; }
     }
 }";
 

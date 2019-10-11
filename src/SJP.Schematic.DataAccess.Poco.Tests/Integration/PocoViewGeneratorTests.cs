@@ -140,17 +140,17 @@ namespace PocoTestNamespace.Main
         /// <summary>
         /// The <c>testblob</c> column.
         /// </summary>
-        public byte[] Testblob { get; set; }
+        public byte[]? Testblob { get; set; }
 
         /// <summary>
         /// The <c>testdatetime</c> column.
         /// </summary>
-        public string Testdatetime { get; set; }
+        public string? Testdatetime { get; set; }
 
         /// <summary>
         /// The <c>teststring</c> column.
         /// </summary>
-        public string Teststring { get; set; }
+        public string? Teststring { get; set; }
     }
 }";
 
@@ -176,7 +176,7 @@ namespace PocoTestNamespace.Main
         /// <summary>
         /// The <c>testblob</c> column.
         /// </summary>
-        public byte[] Testblob { get; set; }
+        public byte[]? Testblob { get; set; }
 
         /// <summary>
         /// The <c>testdatetime</c> column.
@@ -186,7 +186,7 @@ namespace PocoTestNamespace.Main
         /// <summary>
         /// The <c>teststring</c> column.
         /// </summary>
-        public string Teststring { get; set; }
+        public string? Teststring { get; set; }
     }
 }";
 
