@@ -167,7 +167,7 @@ namespace SJP.Schematic.DataAccess.OrmLite
                 throw new ArgumentNullException(nameof(column));
 
             var clrType = column.Type.ClrType;
-            var nullableSuffix = clrType.IsValueType && column.IsNullable ? "?" : string.Empty;
+            var nullableSuffix = column.IsNullable ? "?" : string.Empty;
 
             if (clrType == typeof(string) && column.Type.MaxLength > 0)
             {
@@ -299,7 +299,12 @@ namespace SJP.Schematic.DataAccess.OrmLite
                 .Append(nullableSuffix)
                 .Append(' ')
                 .Append(propertyName)
-                .AppendLine(" { get; set; }");
+                .Append(" { get; set; }");
+
+            if (!column.IsNullable)
+                builder.Append(" = default!;");
+
+            builder.AppendLine();
         }
 
         protected virtual string GenerateTableComment(string tableName)

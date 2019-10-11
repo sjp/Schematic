@@ -211,13 +211,13 @@ namespace OrmLiteTestNamespace.Main
         [PrimaryKey]
         [AutoIncrement]
         [Alias(""test_pk"")]
-        public long TestPk { get; set; }
+        public long TestPk { get; set; } = default!;
 
         /// <summary>
         /// The <c>test_int</c> column.
         /// </summary>
         [Alias(""test_int"")]
-        public long TestInt { get; set; }
+        public long TestInt { get; set; } = default!;
 
         /// <summary>
         /// The <c>test_nullable_int</c> column.
@@ -229,7 +229,7 @@ namespace OrmLiteTestNamespace.Main
         /// The <c>test_numeric</c> column.
         /// </summary>
         [Alias(""test_numeric"")]
-        public decimal TestNumeric { get; set; }
+        public decimal TestNumeric { get; set; } = default!;
 
         /// <summary>
         /// The <c>test_nullable_numeric</c> column.
@@ -242,7 +242,7 @@ namespace OrmLiteTestNamespace.Main
         /// </summary>
         [Required]
         [Alias(""test_blob"")]
-        public byte[] TestBlob { get; set; }
+        public byte[] TestBlob { get; set; } = default!;
 
         /// <summary>
         /// The <c>test_datetime</c> column.
@@ -255,7 +255,7 @@ namespace OrmLiteTestNamespace.Main
         /// The <c>test_string</c> column.
         /// </summary>
         [Alias(""test_string"")]
-        public string TestString { get; set; }
+        public string? TestString { get; set; }
 
         /// <summary>
         /// The <c>test_string_with_default</c> column.
@@ -285,20 +285,20 @@ namespace OrmLiteTestNamespace.Main
         /// The <c>test_pk_1</c> column.
         /// </summary>
         [Alias(""test_pk_1"")]
-        public long TestPk1 { get; set; }
+        public long TestPk1 { get; set; } = default!;
 
         /// <summary>
         /// The <c>test_pk_2</c> column.
         /// </summary>
         [Alias(""test_pk_2"")]
-        public long TestPk2 { get; set; }
+        public long TestPk2 { get; set; } = default!;
 
         /// <summary>
         /// The <c>first_name</c> column.
         /// </summary>
         [Required]
         [Alias(""first_name"")]
-        public string FirstName { get; set; }
+        public string FirstName { get; set; } = default!;
 
         /// <summary>
         /// The <c>middle_name</c> column.
@@ -306,7 +306,7 @@ namespace OrmLiteTestNamespace.Main
         [Required]
         [Unique]
         [Alias(""middle_name"")]
-        public string MiddleName { get; set; }
+        public string MiddleName { get; set; } = default!;
 
         /// <summary>
         /// The <c>last_name</c> column.
@@ -314,14 +314,14 @@ namespace OrmLiteTestNamespace.Main
         [Required]
         [Index(true)]
         [Alias(""last_name"")]
-        public string LastName { get; set; }
+        public string LastName { get; set; } = default!;
 
         /// <summary>
         /// The <c>comment</c> column.
         /// </summary>
         [Index]
         [Alias(""comment"")]
-        public string Comment { get; set; }
+        public string? Comment { get; set; }
     }
 }";
 
@@ -343,13 +343,13 @@ namespace OrmLiteTestNamespace.Main
         [PrimaryKey]
         [AutoIncrement]
         [Alias(""test_pk"")]
-        public long TestPk { get; set; }
+        public long TestPk { get; set; } = default!;
 
         /// <summary>
         /// The <c>test_int</c> column.
         /// </summary>
         [Alias(""test_int"")]
-        public long TestInt { get; set; }
+        public long TestInt { get; set; } = default!;
 
         /// <summary>
         /// The <c>test_nullable_int</c> column.
@@ -361,7 +361,7 @@ namespace OrmLiteTestNamespace.Main
         /// The <c>test_numeric</c> column.
         /// </summary>
         [Alias(""test_numeric"")]
-        public decimal TestNumeric { get; set; }
+        public decimal TestNumeric { get; set; } = default!;
 
         /// <summary>
         /// The <c>test_nullable_numeric</c> column.
@@ -374,7 +374,7 @@ namespace OrmLiteTestNamespace.Main
         /// </summary>
         [Required]
         [Alias(""test_blob"")]
-        public byte[] TestBlob { get; set; }
+        public byte[] TestBlob { get; set; } = default!;
 
         /// <summary>
         /// The <c>test_datetime</c> column.
@@ -387,7 +387,7 @@ namespace OrmLiteTestNamespace.Main
         /// The <c>test_string</c> column.
         /// </summary>
         [Alias(""test_string"")]
-        public string TestString { get; set; }
+        public string? TestString { get; set; }
 
         /// <summary>
         /// The <c>test_string_with_default</c> column.

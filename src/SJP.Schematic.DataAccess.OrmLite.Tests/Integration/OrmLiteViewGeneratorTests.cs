@@ -146,19 +146,19 @@ namespace OrmLiteTestNamespace.Main
         /// The <c>testblob</c> column.
         /// </summary>
         [Alias(""testblob"")]
-        public byte[] Testblob { get; set; }
+        public byte[]? Testblob { get; set; }
 
         /// <summary>
         /// The <c>testdatetime</c> column.
         /// </summary>
         [Alias(""testdatetime"")]
-        public string Testdatetime { get; set; }
+        public string? Testdatetime { get; set; }
 
         /// <summary>
         /// The <c>teststring</c> column.
         /// </summary>
         [Alias(""teststring"")]
-        public string Teststring { get; set; }
+        public string? Teststring { get; set; }
     }
 }";
 
@@ -190,7 +190,7 @@ namespace OrmLiteTestNamespace.Main
         /// The <c>testblob</c> column.
         /// </summary>
         [Alias(""testblob"")]
-        public byte[] Testblob { get; set; }
+        public byte[]? Testblob { get; set; }
 
         /// <summary>
         /// The <c>testdatetime</c> column.
@@ -202,7 +202,7 @@ namespace OrmLiteTestNamespace.Main
         /// The <c>teststring</c> column.
         /// </summary>
         [Alias(""teststring"")]
-        public string Teststring { get; set; }
+        public string? Teststring { get; set; }
     }
 }";
 

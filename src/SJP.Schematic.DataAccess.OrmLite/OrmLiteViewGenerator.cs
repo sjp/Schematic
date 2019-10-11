@@ -144,7 +144,7 @@ namespace SJP.Schematic.DataAccess.OrmLite
                 throw new ArgumentNullException(nameof(comment));
 
             var clrType = column.Type.ClrType;
-            var nullableSuffix = clrType.IsValueType && column.IsNullable ? "?" : string.Empty;
+            var nullableSuffix = column.IsNullable ? "?" : string.Empty;
 
             var typeName = clrType.Name;
             if (clrType.Namespace == "System" && TypeNameMap.ContainsKey(typeName))
@@ -168,7 +168,12 @@ namespace SJP.Schematic.DataAccess.OrmLite
                 .Append(nullableSuffix)
                 .Append(' ')
                 .Append(propertyName)
-                .AppendLine(" { get; set; }");
+                .Append(" { get; set; }");
+
+            if (!column.IsNullable)
+                builder.Append(" = default!;");
+
+            builder.AppendLine();
         }
 
         private static readonly IReadOnlyDictionary<string, string> TypeNameMap = new Dictionary<string, string>

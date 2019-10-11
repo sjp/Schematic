@@ -119,6 +119,7 @@ namespace SJP.Schematic.DataAccess.OrmLite
         <CheckForOverflowUnderflow>true</CheckForOverflowUnderflow>
         <TreatWarningsAsErrors>True</TreatWarningsAsErrors>
         <TreatSpecificWarningsAsErrors />
+        <Nullable>enable</Nullable>
     </PropertyGroup>
 
     <ItemGroup>
