@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Diagnostics.CodeAnalysis;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -7,19 +6,6 @@ namespace SJP.Schematic.Core.Extensions
 {
     public static class DatabaseRoutineProviderExtensions
     {
-        public static bool TryGetRoutine(this IDatabaseRoutineProvider routineProvider, Identifier routineName, [NotNullWhen(true)] out IDatabaseRoutine? routine)
-        {
-            if (routineProvider == null)
-                throw new ArgumentNullException(nameof(routineProvider));
-            if (routineName == null)
-                throw new ArgumentNullException(nameof(routineName));
-
-            var routineOption = TryGetRoutineAsyncCore(routineProvider, routineName, CancellationToken.None).GetAwaiter().GetResult();
-            routine = routineOption.routine;
-
-            return routineOption.exists;
-        }
-
         public static Task<(bool exists, IDatabaseRoutine? routine)> TryGetRoutineAsync(this IDatabaseRoutineProvider routineProvider, Identifier routineName, CancellationToken cancellationToken = default)
         {
             if (routineProvider == null)

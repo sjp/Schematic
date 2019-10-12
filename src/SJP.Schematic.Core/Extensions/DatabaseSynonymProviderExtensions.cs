@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Diagnostics.CodeAnalysis;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -7,19 +6,6 @@ namespace SJP.Schematic.Core.Extensions
 {
     public static class DatabaseSynonymProviderExtensions
     {
-        public static bool TryGetSynonym(this IDatabaseSynonymProvider synonymProvider, Identifier synonymName, [NotNullWhen(true)] out IDatabaseSynonym? synonym)
-        {
-            if (synonymProvider == null)
-                throw new ArgumentNullException(nameof(synonymProvider));
-            if (synonymName == null)
-                throw new ArgumentNullException(nameof(synonymName));
-
-            var synonymOption = TryGetSynonymAsyncCore(synonymProvider, synonymName, CancellationToken.None).GetAwaiter().GetResult();
-            synonym = synonymOption.synonym;
-
-            return synonymOption.exists;
-        }
-
         public static Task<(bool exists, IDatabaseSynonym? synonym)> TryGetSynonymAsync(this IDatabaseSynonymProvider synonymProvider, Identifier synonymName, CancellationToken cancellationToken = default)
         {
             if (synonymProvider == null)

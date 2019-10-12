@@ -31,24 +31,6 @@ namespace SJP.Schematic.Core.Tests.Extensions
         }
 
         [Test]
-        public static void TryGetSequence_GivenNullDatabase_ThrowsArgumentNullException()
-        {
-            IRelationalDatabase database = null;
-            var sequenceName = new Identifier("A");
-
-            Assert.Throws<ArgumentNullException>(() => database.TryGetSequence(sequenceName, out var sequence));
-        }
-
-        [Test]
-        public static void TryGetSequence_GivenNullSequenceName_ThrowsArgumentNullException()
-        {
-            var database = GetFakeDatabase();
-            Identifier sequenceName = null;
-
-            Assert.Throws<ArgumentNullException>(() => database.TryGetSequence(sequenceName, out var sequence));
-        }
-
-        [Test]
         public static void TryGetSequenceAsync_GivenNullDatabase_ThrowsArgumentNullException()
         {
             IRelationalDatabase database = null;
@@ -64,50 +46,6 @@ namespace SJP.Schematic.Core.Tests.Extensions
             Identifier sequenceName = null;
 
             Assert.Throws<ArgumentNullException>(() => database.TryGetSequenceAsync(sequenceName));
-        }
-
-        [Test]
-        public static void TryGetSequence_GivenPresentSequenceName_ReturnsTrue()
-        {
-            var fakeDb = GetFakeDatabase();
-            var sequenceName = new Identifier("A");
-            var sequence = GetMockSequence(sequenceName);
-            fakeDb.Sequences = new[] { sequence };
-
-            Assert.IsTrue(fakeDb.TryGetSequence(sequenceName, out _));
-        }
-
-        [Test]
-        public static void TryGetSequence_GivenPresentSequenceName_ReturnsCorrectSequence()
-        {
-            var fakeDb = GetFakeDatabase();
-            var sequenceName = new Identifier("A");
-            var sequence = GetMockSequence(sequenceName);
-            fakeDb.Sequences = new[] { sequence };
-
-            fakeDb.TryGetSequence(sequenceName, out var sequenceResult);
-
-            Assert.AreEqual(sequence, sequenceResult);
-        }
-
-        [Test]
-        public static void TryGetSequence_GivenMissingSequenceName_ReturnsFalse()
-        {
-            var database = GetFakeDatabase();
-            var sequenceName = new Identifier("A");
-
-            Assert.IsFalse(database.TryGetSequence(sequenceName, out _));
-        }
-
-        [Test]
-        public static void TryGetSequence_GivenMissingSequenceName_ReturnsNullSequence()
-        {
-            var database = GetFakeDatabase();
-            var sequenceName = new Identifier("A");
-
-            database.TryGetSequence(sequenceName, out var sequence);
-
-            Assert.IsNull(sequence);
         }
 
         [Test]

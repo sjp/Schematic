@@ -31,24 +31,6 @@ namespace SJP.Schematic.Core.Tests.Extensions
         }
 
         [Test]
-        public static void TryGetRoutine_GivenNullDatabase_ThrowsArgumentNullException()
-        {
-            IRelationalDatabase database = null;
-            var routineName = new Identifier("A");
-
-            Assert.Throws<ArgumentNullException>(() => database.TryGetRoutine(routineName, out var routine));
-        }
-
-        [Test]
-        public static void TryGetRoutine_GivenNullRoutineName_ThrowsArgumentNullException()
-        {
-            var database = GetFakeDatabase();
-            Identifier routineName = null;
-
-            Assert.Throws<ArgumentNullException>(() => database.TryGetRoutine(routineName, out var routine));
-        }
-
-        [Test]
         public static void TryGetRoutineAsync_GivenNullDatabase_ThrowsArgumentNullException()
         {
             IRelationalDatabase database = null;
@@ -64,51 +46,6 @@ namespace SJP.Schematic.Core.Tests.Extensions
             Identifier routineName = null;
 
             Assert.Throws<ArgumentNullException>(() => database.TryGetRoutineAsync(routineName));
-        }
-
-        [Test]
-        public static void TryGetRoutine_GivenPresentRoutineName_ReturnsTrue()
-        {
-            var fakeDb = GetFakeDatabase();
-            var routineName = new Identifier("A");
-            var routine = GetMockRoutine(routineName);
-
-            fakeDb.Routines = new[] { routine };
-
-            Assert.IsTrue(fakeDb.TryGetRoutine(routineName, out _));
-        }
-
-        [Test]
-        public static void TryGetRoutine_GivenPresentRoutineName_ReturnsCorrectRoutine()
-        {
-            var fakeDb = GetFakeDatabase();
-            var routineName = new Identifier("A");
-            var routine = GetMockRoutine(routineName);
-            fakeDb.Routines = new[] { routine };
-
-            fakeDb.TryGetRoutine(routineName, out var routineResult);
-
-            Assert.AreEqual(routine, routineResult);
-        }
-
-        [Test]
-        public static void TryGetRoutine_GivenMissingRoutineName_ReturnsFalse()
-        {
-            var database = GetFakeDatabase();
-            var routineName = new Identifier("A");
-
-            Assert.IsFalse(database.TryGetRoutine(routineName, out _));
-        }
-
-        [Test]
-        public static void TryGetRoutine_GivenMissingRoutineName_ReturnsNullRoutine()
-        {
-            var database = GetFakeDatabase();
-            var routineName = new Identifier("A");
-
-            database.TryGetRoutine(routineName, out var routine);
-
-            Assert.IsNull(routine);
         }
 
         [Test]

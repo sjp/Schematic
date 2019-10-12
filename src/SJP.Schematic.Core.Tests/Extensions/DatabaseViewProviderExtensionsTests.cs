@@ -30,24 +30,6 @@ namespace SJP.Schematic.Core.Tests.Extensions
         }
 
         [Test]
-        public static void TryGetView_GivenNullDatabase_ThrowsArgumentNullException()
-        {
-            IRelationalDatabase database = null;
-            var viewName = new Identifier("A");
-
-            Assert.Throws<ArgumentNullException>(() => database.TryGetView(viewName, out var view));
-        }
-
-        [Test]
-        public static void TryGetView_GivenNullViewName_ThrowsArgumentNullException()
-        {
-            var database = GetFakeDatabase();
-            Identifier viewName = null;
-
-            Assert.Throws<ArgumentNullException>(() => database.TryGetView(viewName, out var view));
-        }
-
-        [Test]
         public static void TryGetViewAsync_GivenNullDatabase_ThrowsArgumentNullException()
         {
             IRelationalDatabase database = null;
@@ -63,50 +45,6 @@ namespace SJP.Schematic.Core.Tests.Extensions
             Identifier viewName = null;
 
             Assert.Throws<ArgumentNullException>(() => database.TryGetViewAsync(viewName));
-        }
-
-        [Test]
-        public static void TryGetView_GivenPresentViewName_ReturnsTrue()
-        {
-            var fakeDb = GetFakeDatabase();
-            var viewName = new Identifier("A");
-            var view = GetMockView(viewName);
-            fakeDb.Views = new[] { view };
-
-            Assert.IsTrue(fakeDb.TryGetView(viewName, out _));
-        }
-
-        [Test]
-        public static void TryGetView_GivenPresentViewName_ReturnsCorrectView()
-        {
-            var fakeDb = GetFakeDatabase();
-            var viewName = new Identifier("A");
-            var view = GetMockView(viewName);
-            fakeDb.Views = new[] { view };
-
-            fakeDb.TryGetView(viewName, out var viewResult);
-
-            Assert.AreEqual(view, viewResult);
-        }
-
-        [Test]
-        public static void TryGetView_GivenMissingViewName_ReturnsFalse()
-        {
-            var database = GetFakeDatabase();
-            var viewName = new Identifier("A");
-
-            Assert.IsFalse(database.TryGetView(viewName, out _));
-        }
-
-        [Test]
-        public static void TryGetView_GivenMissingViewName_ReturnsNullView()
-        {
-            var viewName = new Identifier("A");
-            var fakeDb = GetFakeDatabase();
-
-            fakeDb.TryGetView(viewName, out var view);
-
-            Assert.IsNull(view);
         }
 
         [Test]

@@ -31,24 +31,6 @@ namespace SJP.Schematic.Core.Tests.Extensions
         }
 
         [Test]
-        public static void TryGetSynonym_GivenNullDatabase_ThrowsArgumentNullException()
-        {
-            IRelationalDatabase database = null;
-            var synonymName = new Identifier("A");
-
-            Assert.Throws<ArgumentNullException>(() => database.TryGetSynonym(synonymName, out var synonym));
-        }
-
-        [Test]
-        public static void TryGetSynonym_GivenNullSynonymName_ThrowsArgumentNullException()
-        {
-            var database = GetFakeDatabase();
-            Identifier synonymName = null;
-
-            Assert.Throws<ArgumentNullException>(() => database.TryGetSynonym(synonymName, out var synonym));
-        }
-
-        [Test]
         public static void TryGetSynonymAsync_GivenNullDatabase_ThrowsArgumentNullException()
         {
             IRelationalDatabase database = null;
@@ -64,51 +46,6 @@ namespace SJP.Schematic.Core.Tests.Extensions
             Identifier synonymName = null;
 
             Assert.Throws<ArgumentNullException>(() => database.TryGetSynonymAsync(synonymName));
-        }
-
-        [Test]
-        public static void TryGetSynonym_GivenPresentSynonymName_ReturnsTrue()
-        {
-            var fakeDb = GetFakeDatabase();
-            var synonymName = new Identifier("A");
-            var synonym = GetMockSynonym(synonymName);
-
-            fakeDb.Synonyms = new[] { synonym };
-
-            Assert.IsTrue(fakeDb.TryGetSynonym(synonymName, out _));
-        }
-
-        [Test]
-        public static void TryGetSynonym_GivenPresentSynonymName_ReturnsCorrectSynonym()
-        {
-            var fakeDb = GetFakeDatabase();
-            var synonymName = new Identifier("A");
-            var synonym = GetMockSynonym(synonymName);
-            fakeDb.Synonyms = new[] { synonym };
-
-            fakeDb.TryGetSynonym(synonymName, out var synonymResult);
-
-            Assert.AreEqual(synonym, synonymResult);
-        }
-
-        [Test]
-        public static void TryGetSynonym_GivenMissingSynonymName_ReturnsFalse()
-        {
-            var database = GetFakeDatabase();
-            var synonymName = new Identifier("A");
-
-            Assert.IsFalse(database.TryGetSynonym(synonymName, out _));
-        }
-
-        [Test]
-        public static void TryGetSynonym_GivenMissingSynonymName_ReturnsNullSynonym()
-        {
-            var database = GetFakeDatabase();
-            var synonymName = new Identifier("A");
-
-            database.TryGetSynonym(synonymName, out var synonym);
-
-            Assert.IsNull(synonym);
         }
 
         [Test]

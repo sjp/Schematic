@@ -30,24 +30,6 @@ namespace SJP.Schematic.Core.Tests.Extensions
         }
 
         [Test]
-        public static void TryGetTable_GivenNullDatabase_ThrowsArgumentNullException()
-        {
-            IRelationalDatabase database = null;
-            var tableName = new Identifier("A");
-
-            Assert.Throws<ArgumentNullException>(() => database.TryGetTable(tableName, out var table));
-        }
-
-        [Test]
-        public static void TryGetTable_GivenNullTableName_ThrowsArgumentNullException()
-        {
-            var database = GetFakeDatabase();
-            Identifier tableName = null;
-
-            Assert.Throws<ArgumentNullException>(() => database.TryGetTable(tableName, out var table));
-        }
-
-        [Test]
         public static void TryGetTableAsync_GivenNullDatabase_ThrowsArgumentNullException()
         {
             IRelationalDatabase database = null;
@@ -63,50 +45,6 @@ namespace SJP.Schematic.Core.Tests.Extensions
             Identifier tableName = null;
 
             Assert.Throws<ArgumentNullException>(() => database.TryGetTableAsync(tableName));
-        }
-
-        [Test]
-        public static void TryGetTable_GivenPresentTableName_ReturnsTrue()
-        {
-            var fakeDb = GetFakeDatabase();
-            var tableName = new Identifier("A");
-            var table = GetMockTable(tableName);
-            fakeDb.Tables = new[] { table };
-
-            Assert.IsTrue(fakeDb.TryGetTable(tableName, out _));
-        }
-
-        [Test]
-        public static void TryGetTable_GivenPresentTableName_ReturnsCorrectTable()
-        {
-            var fakeDb = GetFakeDatabase();
-            var tableName = new Identifier("A");
-            var table = GetMockTable(tableName);
-            fakeDb.Tables = new[] { table };
-
-            fakeDb.TryGetTable(tableName, out var tableResult);
-
-            Assert.AreEqual(table, tableResult);
-        }
-
-        [Test]
-        public static void TryGetTable_GivenMissingTableName_ReturnsFalse()
-        {
-            var database = GetFakeDatabase();
-            var tableName = new Identifier("A");
-
-            Assert.IsFalse(database.TryGetTable(tableName, out _));
-        }
-
-        [Test]
-        public static void TryGetTable_GivenMissingTableName_ReturnsNullTable()
-        {
-            var database = GetFakeDatabase();
-            var tableName = new Identifier("A");
-
-            database.TryGetTable(tableName, out var table);
-
-            Assert.IsNull(table);
         }
 
         [Test]
