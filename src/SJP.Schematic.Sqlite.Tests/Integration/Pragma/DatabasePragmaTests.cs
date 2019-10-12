@@ -250,7 +250,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
             {
                 Assert.IsNotNull(indexInfo);
                 Assert.AreEqual("val", indexInfo.name); // first column
-                });
+            });
         }
 
         [Test]
@@ -307,7 +307,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
             {
                 Assert.IsNotNull(indexXInfo);
                 Assert.AreEqual("val", indexXInfo.name); // first column
-                });
+            });
         }
 
         [Test]

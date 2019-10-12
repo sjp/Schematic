@@ -17,7 +17,7 @@ namespace SJP.Schematic.Sqlite.Pragma.Query
         public int cid { get; set; }
 
         /// <summary>
-        /// The name of the column being indexed, or <c>NULL</c> if the index-column is the rowid of the table being indexed.
+        /// The name of the column being indexed, or <c>NULL</c> if the index-column is the rowid of the table being indexed or an expression.
         /// </summary>
         public string? name { get; set; }
 
@@ -29,7 +29,7 @@ namespace SJP.Schematic.Sqlite.Pragma.Query
         /// <summary>
         /// The name for the collating sequence used to compare values in the index-column.
         /// </summary>
-        public string? coll { get; set; }
+        public string coll { get; set; } = default!;
 
         /// <summary>
         /// Whether the index-column is a key column. If not, it is an auxiliary/included column.

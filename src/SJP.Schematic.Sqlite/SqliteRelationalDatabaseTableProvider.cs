@@ -38,8 +38,7 @@ namespace SJP.Schematic.Sqlite
             var dbNamesQuery = await ConnectionPragma.DatabaseListAsync().ConfigureAwait(false);
             var dbNames = dbNamesQuery
                 .OrderBy(d => d.seq)
-                .Where(d => d.name != null)
-                .Select(d => d.name!)
+                .Select(d => d.name)
                 .ToList();
 
             var qualifiedTableNames = new List<Identifier>();
@@ -145,8 +144,7 @@ namespace SJP.Schematic.Sqlite
             var dbNamesResult = await ConnectionPragma.DatabaseListAsync().ConfigureAwait(false);
             var dbNames = dbNamesResult
                 .OrderBy(l => l.seq)
-                .Where(l => l.name != null)
-                .Select(l => l.name!)
+                .Select(l => l.name)
                 .ToList();
             foreach (var dbName in dbNames)
             {
@@ -263,8 +261,8 @@ namespace SJP.Schematic.Sqlite
                 return Option<IDatabaseKey>.None;
 
             var keyColumns = pkColumns
-                .Where(c => c.name != null && columns.ContainsKey(c.name))
-                .Select(c => columns[c.name!])
+                .Where(c => columns.ContainsKey(c.name))
+                .Select(c => columns[c.name])
                 .ToList();
 
             var primaryKeyName = parsedTable.PrimaryKey.Bind(c => c.Name.Map(Identifier.CreateQualifiedIdentifier));
@@ -360,7 +358,7 @@ namespace SJP.Schematic.Sqlite
 
             foreach (var ukIndexList in ukIndexLists)
             {
-                var indexXInfos = await pragma.IndexXInfoAsync(ukIndexList.name!, cancellationToken).ConfigureAwait(false);
+                var indexXInfos = await pragma.IndexXInfoAsync(ukIndexList.name, cancellationToken).ConfigureAwait(false);
                 var orderedColumns = indexXInfos
                     .Where(i => i.key && i.cid >= 0 && i.name != null)
                     .OrderBy(i => i.seqno)
@@ -412,8 +410,7 @@ namespace SJP.Schematic.Sqlite
             var dbNames = dbList
                 .Where(d => string.Equals(tableName.Schema, d.name, StringComparison.OrdinalIgnoreCase)) // schema name must match, no cross-schema FKs allowed
                 .OrderBy(d => d.seq)
-                .Where(d => d.name != null)
-                .Select(d => d.name!)
+                .Select(d => d.name)
                 .ToList();
 
             var qualifiedChildTableNames = new List<Identifier>();
@@ -550,8 +547,8 @@ namespace SJP.Schematic.Sqlite
 
                         var rows = fkey.OrderBy(row => row.seq).ToList();
                         var parentColumns = rows
-                            .Where(row => row.to != null && parentTableColumnLookup.ContainsKey(row.to))
-                            .Select(row => parentTableColumnLookup[row.to!])
+                            .Where(row => parentTableColumnLookup.ContainsKey(row.to))
+                            .Select(row => parentTableColumnLookup[row.to])
                             .ToList();
 
                         if (!primaryKeyCache.TryGetValue(name, out var parentPrimaryKey))
@@ -595,8 +592,8 @@ namespace SJP.Schematic.Sqlite
 
                         var childKeyName = parsedConstraintOption.Bind(fk => fk.Name.Map(Identifier.CreateQualifiedIdentifier));
                         var childKeyColumns = rows
-                            .Where(row => row.from != null && columns.ContainsKey(row.from))
-                            .Select(row => columns[row.from!])
+                            .Where(row => columns.ContainsKey(row.from))
+                            .Select(row => columns[row.from])
                             .ToList();
 
                         var childKey = new SqliteDatabaseKey(childKeyName, DatabaseKeyType.Foreign, childKeyColumns);
@@ -690,9 +687,6 @@ namespace SJP.Schematic.Sqlite
 
             foreach (var triggerInfo in triggerInfos)
             {
-                if (triggerInfo.name == null || triggerInfo.sql == null)
-                    continue;
-
                 var triggerSql = triggerInfo.sql;
                 var parsedTrigger = _triggerParserCache.GetOrAdd(triggerSql, sql => new Lazy<ParsedTriggerData>(() =>
                 {

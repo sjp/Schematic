@@ -19,32 +19,32 @@ namespace SJP.Schematic.Sqlite.Pragma.Query
         /// <summary>
         /// The name of the table referenced by the foreign key constraint.
         /// </summary>
-        public string? table { get; set; }
+        public string table { get; set; } = default!;
 
         /// <summary>
         /// The name of the column that is present within a foreign key constraint.
         /// </summary>
-        public string? from { get; set; }
+        public string from { get; set; } = default!;
 
         /// <summary>
         /// The name of the column that is referenced by <see cref="from"/> in the parent key constraint in <see cref="table"/>.
         /// </summary>
-        public string? to { get; set; }
+        public string to { get; set; } = default!;
 
         /// <summary>
         /// The action to take when a referenced foreign key entity is updated.
         /// </summary>
-        public string? on_update { get; set; }
+        public string on_update { get; set; } = default!;
 
         /// <summary>
         /// The action to take when a referenced foreign key entity is deleted.
         /// </summary>
-        public string? on_delete { get; set; }
+        public string on_delete { get; set; } = default!;
 
         /// <summary>
         /// The action to take on a <c>MATCH</c> clause.
         /// </summary>
-        public string? match { get; set; }
+        public string match { get; set; } = default!;
     }
 }
 #pragma warning restore IDE1006, S101 // Naming Styles

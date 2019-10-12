@@ -7,7 +7,7 @@ namespace SJP.Schematic.Sqlite.Pragma.Query
     public class pragma_wal_checkpoint
     {
         /// <summary>
-        /// Stores whether the checkpoin operation was successful. Returns <c>0</c> if successful, <c>1</c> if a <c>RESTART</c> or <c>FULL</c> or <c>TRUNCATE</c> checkpoint was blocked from completing.
+        /// Stores whether the checkpoint operation was successful. Returns <c>0</c> if successful, <c>1</c> if a <c>RESTART</c> or <c>FULL</c> or <c>TRUNCATE</c> checkpoint was blocked from completing.
         /// </summary>
         public int busy { get; set; }
 

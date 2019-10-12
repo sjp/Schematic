@@ -37,8 +37,7 @@ namespace SJP.Schematic.Sqlite
             var dbNamesQuery = await ConnectionPragma.DatabaseListAsync().ConfigureAwait(false);
             var dbNames = dbNamesQuery
                 .OrderBy(d => d.seq)
-                .Where(d => d.name != null)
-                .Select(d => d.name!)
+                .Select(d => d.name)
                 .ToList();
 
             var qualifiedViewNames = new List<Identifier>();
@@ -138,8 +137,7 @@ namespace SJP.Schematic.Sqlite
             var dbNamesResult = await ConnectionPragma.DatabaseListAsync().ConfigureAwait(false);
             var dbNames = dbNamesResult
                 .OrderBy(l => l.seq)
-                .Where(l => l.name != null)
-                .Select(l => l.name!)
+                .Select(l => l.name)
                 .ToList();
             foreach (var dbName in dbNames)
             {

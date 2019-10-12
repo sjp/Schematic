@@ -14,12 +14,12 @@ namespace SJP.Schematic.Sqlite.Pragma.Query
         /// <summary>
         /// The name of the column.
         /// </summary>
-        public string? name { get; set; }
+        public string name { get; set; } = default!;
 
         /// <summary>
         /// The data type associated with the column.
         /// </summary>
-        public string? type { get; set; }
+        public string type { get; set; } = default!;
 
         /// <summary>
         /// Whether the column has a not-null constraint present.

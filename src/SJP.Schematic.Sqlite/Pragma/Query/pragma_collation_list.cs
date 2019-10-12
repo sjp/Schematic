@@ -14,7 +14,7 @@ namespace SJP.Schematic.Sqlite.Pragma.Query
         /// <summary>
         /// The name of the collating function. Built-in collating functions are <c>BINARY</c>, <c>NOCASE</c>, and <c>RTRIM</c>.
         /// </summary>
-        public string? name { get; set; }
+        public string name { get; set; } = default!;
     }
 }
 #pragma warning restore IDE1006, S101 // Naming Styles

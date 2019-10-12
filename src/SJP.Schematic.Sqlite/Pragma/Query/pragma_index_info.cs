@@ -17,7 +17,7 @@ namespace SJP.Schematic.Sqlite.Pragma.Query
         public int cid { get; set; }
 
         /// <summary>
-        /// The name of the column being indexed.
+        /// The name of the column being indexed. This column is <c>null</c> if the column is the rowid or an expression.
         /// </summary>
         public string? name { get; set; }
     }
