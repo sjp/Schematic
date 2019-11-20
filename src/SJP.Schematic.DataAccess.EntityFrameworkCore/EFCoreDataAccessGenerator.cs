@@ -133,7 +133,7 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include=""Microsoft.EntityFrameworkCore.Relational"" Version=""3.0.0"" />
+        <PackageReference Include=""Microsoft.EntityFrameworkCore.Relational"" Version=""3.0.1"" />
     </ItemGroup>
 </Project>";
     }
