@@ -148,15 +148,12 @@ namespace SJP.Schematic.Modelled.Reflection.Model
 
         protected static string UnwrapTokenValue(Token<ExpressionToken> token)
         {
-            switch (token.Kind)
+            return token.Kind switch
             {
-                case ExpressionToken.Variable:
-                    return token.ToStringValue().TrimStart('@');
-                case ExpressionToken.Literal:
-                    return token.ToStringValue().TrimStart('{', '=').TrimEnd('}');
-                default:
-                    throw new ArgumentException("Unsupported token type: " + token.Kind.ToString(), nameof(token));
-            }
+                ExpressionToken.Variable => token.ToStringValue().TrimStart('@'),
+                ExpressionToken.Literal => token.ToStringValue().TrimStart('{', '=').TrimEnd('}'),
+                _ => throw new ArgumentException("Unsupported token type: " + token.Kind.ToString(), nameof(token)),
+            };
         }
 
         protected enum ExpressionToken

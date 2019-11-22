@@ -8,17 +8,19 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
     internal sealed class SqliteRelationalDatabaseTests : SqliteTest
     {
         [Test]
-        public Task VacuumAsync_WhenInvoked_RunsWithoutError()
+        public async Task VacuumAsync_WhenInvoked_RunsWithoutError()
         {
             var sqliteDb = new SqliteRelationalDatabase(Dialect, Connection, IdentifierDefaults);
-            return sqliteDb.VacuumAsync();
+            await sqliteDb.VacuumAsync();
+            Assert.Pass();
         }
 
         [Test]
-        public Task VacuumAsync_WhenGivenValidSchemaName_RunsWithoutError()
+        public async Task VacuumAsync_WhenGivenValidSchemaName_RunsWithoutError()
         {
             var sqliteDb = new SqliteRelationalDatabase(Dialect, Connection, IdentifierDefaults);
-            return sqliteDb.VacuumAsync("main");
+            await sqliteDb.VacuumAsync("main");
+            Assert.Pass();
         }
 
         [Test]
@@ -29,10 +31,11 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
         }
 
         [Test]
-        public Task AttachDatabaseAsync_WhenGivenValidSchemaAndFileNames_RunsWithoutError()
+        public async Task AttachDatabaseAsync_WhenGivenValidSchemaAndFileNames_RunsWithoutError()
         {
             var sqliteDb = new SqliteRelationalDatabase(Dialect, Config.Connection, IdentifierDefaults);
-            return sqliteDb.AttachDatabaseAsync("test", ":memory:");
+            await sqliteDb.AttachDatabaseAsync("test", ":memory:");
+            Assert.Pass();
         }
 
         [Test]
@@ -41,6 +44,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
             var sqliteDb = new SqliteRelationalDatabase(Dialect, Config.Connection, IdentifierDefaults);
             await sqliteDb.AttachDatabaseAsync("test", ":memory:").ConfigureAwait(false);
             await sqliteDb.DetachDatabaseAsync("test").ConfigureAwait(false);
+            Assert.Pass();
         }
 
         [Test]

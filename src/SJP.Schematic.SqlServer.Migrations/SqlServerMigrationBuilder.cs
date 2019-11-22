@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Threading;
-using LanguageExt;
 using SJP.Schematic.Core;
 using SJP.Schematic.Migrations;
 using SJP.Schematic.Migrations.Operations;

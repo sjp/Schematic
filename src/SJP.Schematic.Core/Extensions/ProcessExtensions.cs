@@ -24,7 +24,7 @@ namespace SJP.Schematic.Core.Extensions
 
         private static async Task<int> WaitForExitAsyncCore(Process process, CancellationToken cancellationToken)
         {
-            var tcs = new TaskCompletionSource<int>();
+            var tcs = new TaskCompletionSource<int>(TaskCreationOptions.RunContinuationsAsynchronously);
 
             void ExitHandler(object s, EventArgs e) => tcs.TrySetResult(process.ExitCode);
 

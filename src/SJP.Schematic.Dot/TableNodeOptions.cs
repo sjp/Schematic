@@ -30,17 +30,13 @@ namespace SJP.Schematic.Dot
             if (!keyType.IsValid())
                 throw new ArgumentException($"The { nameof(DatabaseKeyType) } provided must be a valid enum.", nameof(keyType));
 
-            switch (keyType)
+            return keyType switch
             {
-                case DatabaseKeyType.Primary:
-                    return Theme.PrimaryKeyHeaderBackgroundColor;
-                case DatabaseKeyType.Unique:
-                    return Theme.UniqueKeyHeaderBackgroundColor;
-                case DatabaseKeyType.Foreign:
-                    return Theme.ForeignKeyHeaderBackgroundColor;
-                default:
-                    throw new ArgumentOutOfRangeException(nameof(keyType), "Unknown or unsupported key type: " + keyType.GetName());
-            }
+                DatabaseKeyType.Primary => Theme.PrimaryKeyHeaderBackgroundColor,
+                DatabaseKeyType.Unique => Theme.UniqueKeyHeaderBackgroundColor,
+                DatabaseKeyType.Foreign => Theme.ForeignKeyHeaderBackgroundColor,
+                _ => throw new ArgumentOutOfRangeException(nameof(keyType), "Unknown or unsupported key type: " + keyType.GetName()),
+            };
         }
 
         public RgbColor GetHighlightedKeyHeaderBackgroundColor(DatabaseKeyType keyType)
@@ -48,17 +44,13 @@ namespace SJP.Schematic.Dot
             if (!keyType.IsValid())
                 throw new ArgumentException($"The { nameof(DatabaseKeyType) } provided must be a valid enum.", nameof(keyType));
 
-            switch (keyType)
+            return keyType switch
             {
-                case DatabaseKeyType.Primary:
-                    return Theme.HighlightedPrimaryKeyHeaderBackgroundColor;
-                case DatabaseKeyType.Unique:
-                    return Theme.HighlightedUniqueKeyHeaderBackgroundColor;
-                case DatabaseKeyType.Foreign:
-                    return Theme.HighlightedForeignKeyHeaderBackgroundColor;
-                default:
-                    throw new ArgumentOutOfRangeException(nameof(keyType), "Unknown or unsupported key type: " + keyType.GetName());
-            }
+                DatabaseKeyType.Primary => Theme.HighlightedPrimaryKeyHeaderBackgroundColor,
+                DatabaseKeyType.Unique => Theme.HighlightedUniqueKeyHeaderBackgroundColor,
+                DatabaseKeyType.Foreign => Theme.HighlightedForeignKeyHeaderBackgroundColor,
+                _ => throw new ArgumentOutOfRangeException(nameof(keyType), "Unknown or unsupported key type: " + keyType.GetName()),
+            };
         }
     }
 }
