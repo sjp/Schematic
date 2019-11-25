@@ -62,6 +62,7 @@ namespace SJP.Schematic.Reporting.Html.ViewModels.Mappers
             if (referencedNames.Count == 0)
                 return Array.Empty<HtmlString>();
 
+            var referencedUris = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
             var result = new List<HtmlString>();
 
             var orderedNames = referencedNames
@@ -73,6 +74,7 @@ namespace SJP.Schematic.Reporting.Html.ViewModels.Mappers
                 var qualifiedName = QualifyReferenceName(objectName, name);
                 var targetLinks = GetReferenceTargetLinks(rootPath, objectName, qualifiedName);
                 var linkTexts = targetLinks
+                    .Where(link => referencedUris.Add(link.TargetUri.ToString()))
                     .Select(link => new HtmlString($"<a href=\"{ link.TargetUri }\">{ HttpUtility.HtmlEncode(link.ObjectName.ToVisibleName()) }</a>"))
                     .ToList();
                 result.AddRange(linkTexts);
