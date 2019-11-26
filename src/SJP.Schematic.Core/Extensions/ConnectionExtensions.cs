@@ -1,7 +1,7 @@
 ﻿using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Data;
+using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 using Dapper;
@@ -20,7 +20,8 @@ namespace SJP.Schematic.Core.Extensions
 
             CommandDefinition wrapper(CommandDefinition _) => configure.Invoke();
 
-            _ = CommandConfigurationLookup.AddOrUpdate(connection, wrapper, (_, __) => wrapper);
+            lock (_lock)
+                CommandConfigurationLookup.AddOrUpdate(connection, wrapper);
         }
 
         public static void ConfigureSchematicCommand(this IDbConnection connection, Func<CommandDefinition, CommandDefinition> configure)
@@ -30,7 +31,8 @@ namespace SJP.Schematic.Core.Extensions
             if (configure == null)
                 throw new ArgumentNullException(nameof(configure));
 
-            _ = CommandConfigurationLookup.AddOrUpdate(connection, configure, (_, __) => configure);
+            lock (_lock)
+                CommandConfigurationLookup.AddOrUpdate(connection, configure);
         }
 
         public static void ClearSchematicCommandConfiguration(this IDbConnection connection)
@@ -38,7 +40,8 @@ namespace SJP.Schematic.Core.Extensions
             if (connection == null)
                 throw new ArgumentNullException(nameof(connection));
 
-            _ = CommandConfigurationLookup.TryRemove(connection, out _);
+            lock (_lock)
+                CommandConfigurationLookup.Remove(connection);
         }
 
         private static CommandDefinition ConfigureCommand(IDbConnection connection, CommandDefinition command)
@@ -46,12 +49,16 @@ namespace SJP.Schematic.Core.Extensions
             if (connection == null)
                 throw new ArgumentNullException(nameof(connection));
 
-            return CommandConfigurationLookup.TryGetValue(connection, out var configure) && configure != null
-                ? configure.Invoke(command)
-                : command;
+            lock (_lock)
+            {
+                return CommandConfigurationLookup.TryGetValue(connection, out var configure)
+                   ? configure.Invoke(command)
+                   : command;
+            }
         }
 
-        private static readonly ConcurrentDictionary<IDbConnection, Func<CommandDefinition, CommandDefinition>> CommandConfigurationLookup = new ConcurrentDictionary<IDbConnection, Func<CommandDefinition, CommandDefinition>>();
+        private static readonly object _lock = new object();
+        private static readonly ConditionalWeakTable<IDbConnection, Func<CommandDefinition, CommandDefinition>> CommandConfigurationLookup = new ConditionalWeakTable<IDbConnection, Func<CommandDefinition, CommandDefinition>>();
 
         public static Task<IEnumerable<T>> QueryAsync<T>(this IDbConnection connection, string sql, CancellationToken cancellationToken)
             where T : class
