@@ -1,21 +1,23 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Security;
-using System.Text;
 using LanguageExt;
+using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
+using Microsoft.CodeAnalysis.Formatting;
 using SJP.Schematic.Core;
 using SJP.Schematic.Core.Comments;
 using SJP.Schematic.Core.Extensions;
-using SJP.Schematic.Core.Utilities;
 using SJP.Schematic.DataAccess.Extensions;
+using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 
 namespace SJP.Schematic.DataAccess.EntityFrameworkCore
 {
     public class EFCoreViewGenerator : DatabaseViewGenerator
     {
-        public EFCoreViewGenerator(INameTranslator nameTranslator, string baseNamespace, string indent = "    ")
-            : base(nameTranslator, indent)
+        public EFCoreViewGenerator(INameTranslator nameTranslator, string baseNamespace)
+            : base(nameTranslator)
         {
             if (baseNamespace.IsNullOrWhiteSpace())
                 throw new ArgumentNullException(nameof(baseNamespace));
@@ -48,141 +50,205 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore
                 .OrderBy(n => n)
                 .ToList();
 
-            var builder = StringBuilderCache.Acquire();
-            foreach (var ns in namespaces)
-            {
-                builder.Append("using ")
-                    .Append(ns)
-                    .AppendLine(";");
-            }
+            var usingStatements = namespaces
+                .Select(ns => ParseName(ns))
+                .Select(UsingDirective)
+                .ToList();
+            var namespaceDeclaration = BuildNamespace(view);
+            var classDeclaration = BuildClass(view, comment);
 
-            if (namespaces.Count > 0)
-                builder.AppendLine();
+            var document = CompilationUnit()
+                .WithUsings(new SyntaxList<UsingDirectiveSyntax>(usingStatements))
+                .WithMembers(
+                    new SyntaxList<MemberDeclarationSyntax>(
+                        namespaceDeclaration.WithMembers(
+                            new SyntaxList<MemberDeclarationSyntax>(classDeclaration)
+                        )
+                    )
+                );
 
-            builder.Append("namespace ")
-                .AppendLine(viewNamespace)
-                .AppendLine("{");
+            using var workspace = new AdhocWorkspace();
+            return Formatter.Format(document, workspace).ToFullString();
+        }
 
-            var viewComment = comment
-                .Bind(c => c.Comment)
-                .IfNone(GenerateViewComment(view.Name.LocalName));
-            builder.AppendComment(Indent, viewComment);
+        private NamespaceDeclarationSyntax BuildNamespace(IDatabaseView view)
+        {
+            if (view == null)
+                throw new ArgumentNullException(nameof(view));
+
+            var schemaNamespace = NameTranslator.SchemaToNamespace(view.Name);
+            var viewNamespace = !schemaNamespace.IsNullOrWhiteSpace()
+                ? Namespace + "." + schemaNamespace
+                : Namespace;
+
+            var namespaces = new[]
+                {
+                    "System.ComponentModel.DataAnnotations",
+                    "System.ComponentModel.DataAnnotations.Schema"
+                }
+                .Union(
+                    view.Columns
+                        .Select(c => c.Type.ClrType.Namespace)
+                        .Where(ns => ns != viewNamespace)
+                )
+                .OrderBy(n => n)
+                .ToList();
+
+            var namespaceNodes = namespaces
+                .Select(ns => ParseName(ns))
+                .ToList();
+
+            return NamespaceDeclaration(ParseName(viewNamespace));
+        }
+
+        private ClassDeclarationSyntax BuildClass(IDatabaseView view, Option<IDatabaseViewComments> comment)
+        {
+            if (view == null)
+                throw new ArgumentNullException(nameof(view));
 
             var className = NameTranslator.ViewToClassName(view.Name);
+            var properties = view.Columns
+                .Select(vc => BuildColumn(vc, comment, className))
+                .ToList();
 
-            builder.Append(Indent)
-                .Append("public class ")
-                .AppendLine(className)
-                .Append(Indent)
-                .AppendLine("{");
-
-            var columnIndent = Indent + Indent;
-            var hasFirstLine = false;
-            foreach (var column in view.Columns)
-            {
-                if (hasFirstLine)
-                    builder.AppendLine();
-
-                var columnComment = comment
-                    .Bind(c => c.ColumnComments.TryGetValue(column.Name, out var cc) ? cc : Option<string>.None)
-                    .IfNone(GenerateColumnComment(column.Name.LocalName));
-                builder.AppendComment(columnIndent, columnComment);
-
-                AppendColumn(builder, columnIndent, className, column);
-                hasFirstLine = true;
-            }
-
-            builder.Append(Indent)
-                .AppendLine("}")
-                .Append('}');
-
-            return builder.GetStringAndRelease();
+            return ClassDeclaration(className)
+                .AddModifiers(Token(SyntaxKind.PublicKeyword))
+                .WithLeadingTrivia(BuildViewComment(view.Name, comment))
+                .WithMembers(new SyntaxList<MemberDeclarationSyntax>(properties));
         }
 
-        private void AppendColumn(StringBuilder builder, string columnIndent, string className, IDatabaseColumn column)
+        private PropertyDeclarationSyntax BuildColumn(IDatabaseColumn column, Option<IDatabaseViewComments> comment, string className)
         {
-            if (builder == null)
-                throw new ArgumentNullException(nameof(builder));
-            if (columnIndent == null)
-                throw new ArgumentNullException(nameof(columnIndent));
-            if (className.IsNullOrWhiteSpace())
-                throw new ArgumentNullException(nameof(className));
             if (column == null)
                 throw new ArgumentNullException(nameof(column));
+            if (className.IsNullOrWhiteSpace())
+                throw new ArgumentNullException(nameof(className));
 
             var clrType = column.Type.ClrType;
-            var nullableSuffix = column.IsNullable ? "?" : string.Empty;
-
-            var typeName = clrType.Name;
-            if (clrType.Namespace == "System" && TypeNameMap.ContainsKey(typeName))
-                typeName = TypeNameMap[typeName];
-
             var propertyName = NameTranslator.ColumnToPropertyName(className, column.Name.LocalName);
-            builder.Append(columnIndent)
-                .Append("[Column(");
 
-            if (propertyName != column.Name.LocalName)
-            {
-                var aliasName = column.Name.LocalName.ToStringLiteral();
-                builder.Append(aliasName)
-                    .Append(", ");
-            }
+            var columnTypeSyntax = column.IsNullable
+                ? NullableType(ParseTypeName(clrType.FullName))
+                : ParseTypeName(clrType.FullName);
+            if (clrType.Namespace == "System" && TypeSyntaxMap.ContainsKey(clrType.Name))
+                columnTypeSyntax = column.IsNullable
+                    ? NullableType(TypeSyntaxMap[clrType.Name])
+                    : TypeSyntaxMap[clrType.Name];
 
-            builder.Append("TypeName = ")
-                .Append(column.Type.TypeName.LocalName.ToStringLiteral())
-                .AppendLine(")]");
+            var baseProperty = PropertyDeclaration(
+                columnTypeSyntax,
+                Identifier(propertyName)
+            );
 
-            builder.Append(columnIndent)
-                .Append("public ")
-                .Append(typeName)
-                .Append(nullableSuffix)
-                .Append(' ')
-                .Append(propertyName)
-                .Append(" { get; set; }");
+            var attributes = new SyntaxList<AttributeListSyntax>(BuildColumnAttributes(column, propertyName));
+
+            var columnSyntax = baseProperty
+                .WithAttributeLists(attributes)
+                .WithModifiers(SyntaxTokenList.Create(Token(SyntaxKind.PublicKeyword)))
+                .WithAccessorList(SyntaxUtilities.PropertyGetSetDeclaration)
+                .WithLeadingTrivia(BuildColumnComment(column.Name, comment));
 
             var isNotNullRefType = !column.IsNullable && !column.Type.ClrType.IsValueType;
-            if (isNotNullRefType)
-                builder.Append(" = default!;");
+            if (!isNotNullRefType)
+                return columnSyntax;
 
-            builder.AppendLine();
+            return columnSyntax
+                .WithInitializer(SyntaxUtilities.NotNullDefault)
+                .WithSemicolonToken(Token(SyntaxKind.SemicolonToken));
         }
 
-        protected virtual string GenerateViewComment(string viewName)
+        private static SyntaxTriviaList BuildViewComment(Identifier viewName, Option<IDatabaseViewComments> comment)
         {
-            if (viewName.IsNullOrWhiteSpace())
+            if (viewName == null)
                 throw new ArgumentNullException(nameof(viewName));
 
-            var escapedViewName = SecurityElement.Escape(viewName);
-            return "A mapping class to query the <c>" + escapedViewName + "</c> view.";
+            return comment
+                .Bind(c => c.Comment)
+                .Match(
+                    SyntaxUtilities.BuildCommentTrivia,
+                    () => SyntaxUtilities.BuildCommentTrivia(new XmlNodeSyntax[]
+                    {
+                        XmlText("A mapping class to query the "),
+                        XmlElement("c", SingletonList<XmlNodeSyntax>(XmlText(viewName.LocalName))),
+                        XmlText(" view.")
+                    })
+                );
         }
 
-        protected virtual string GenerateColumnComment(string columnName)
+        private static SyntaxTriviaList BuildColumnComment(Identifier columnName, Option<IDatabaseViewComments> comment)
         {
-            if (columnName.IsNullOrWhiteSpace())
+            if (columnName == null)
                 throw new ArgumentNullException(nameof(columnName));
 
-            var escapedColumnName = SecurityElement.Escape(columnName);
-            return "The <c>" + escapedColumnName + "</c> column.";
+            return comment
+                .Bind(c => c.ColumnComments.TryGetValue(columnName, out var cc) ? cc : Option<string>.None)
+                .Match(
+                    SyntaxUtilities.BuildCommentTrivia,
+                    () => SyntaxUtilities.BuildCommentTrivia(new XmlNodeSyntax[]
+                    {
+                        XmlText("The "),
+                        XmlElement("c", SingletonList<XmlNodeSyntax>(XmlText(columnName.LocalName))),
+                        XmlText(" column.")
+                    })
+                );
         }
 
-        private static readonly IReadOnlyDictionary<string, string> TypeNameMap = new Dictionary<string, string>
+        private static AttributeListSyntax BuildColumnAttributes(IDatabaseColumn column, string propertyName)
         {
-            ["Boolean"] = "bool",
-            ["Byte"] = "byte",
-            ["Byte[]"] = "byte[]",
-            ["SByte"] = "sbyte",
-            ["Char"] = "char",
-            ["Decimal"] = "decimal",
-            ["Double"] = "double",
-            ["Single"] = "float",
-            ["Int32"] = "int",
-            ["UInt32"] = "uint",
-            ["Int64"] = "long",
-            ["UInt64"] = "ulong",
-            ["Object"] = "object",
-            ["Int16"] = "short",
-            ["UInt16"] = "ushort",
-            ["String"] = "string"
+            if (column == null)
+                throw new ArgumentNullException(nameof(column));
+            if (propertyName.IsNullOrWhiteSpace())
+                throw new ArgumentNullException(nameof(propertyName));
+
+            var columnAttributeArgs = new List<AttributeArgumentSyntax>();
+            if (propertyName != column.Name.LocalName)
+            {
+                var quotedColumnName = LiteralExpression(SyntaxKind.StringLiteralExpression, Literal(column.Name.LocalName));
+                columnAttributeArgs.Add(AttributeArgument(quotedColumnName));
+            }
+            columnAttributeArgs.Add(AttributeArgument(
+                AssignmentExpression(
+                    SyntaxKind.SimpleAssignmentExpression,
+                    IdentifierName(nameof(System.ComponentModel.DataAnnotations.Schema.ColumnAttribute.TypeName)),
+                    Token(SyntaxKind.EqualsToken),
+                    LiteralExpression(SyntaxKind.StringLiteralExpression, Literal(column.Type.TypeName.LocalName))
+                )
+            ));
+
+            return AttributeList(
+                SeparatedList(new[]
+                {
+                    Attribute(
+                        SyntaxUtilities.AttributeName(nameof(System.ComponentModel.DataAnnotations.Schema.ColumnAttribute)),
+                        AttributeArgumentList(SeparatedList(columnAttributeArgs))
+                    )
+                })
+            );
+        }
+
+        private static readonly IReadOnlyDictionary<string, TypeSyntax> TypeSyntaxMap = new Dictionary<string, TypeSyntax>
+        {
+            ["Boolean"] = PredefinedType(Token(SyntaxKind.BoolKeyword)),
+            ["Byte"] = PredefinedType(Token(SyntaxKind.ByteKeyword)),
+            ["Byte[]"] = ArrayType(
+                PredefinedType(
+                    Token(SyntaxKind.ByteKeyword)
+                ),
+                SingletonList(ArrayRankSpecifier())
+            ),
+            ["SByte"] = PredefinedType(Token(SyntaxKind.SByteKeyword)),
+            ["Char"] = PredefinedType(Token(SyntaxKind.CharKeyword)),
+            ["Decimal"] = PredefinedType(Token(SyntaxKind.DecimalKeyword)),
+            ["Double"] = PredefinedType(Token(SyntaxKind.DoubleKeyword)),
+            ["Single"] = PredefinedType(Token(SyntaxKind.FloatKeyword)),
+            ["Int32"] = PredefinedType(Token(SyntaxKind.IntKeyword)),
+            ["UInt32"] = PredefinedType(Token(SyntaxKind.UIntKeyword)),
+            ["Int64"] = PredefinedType(Token(SyntaxKind.LongKeyword)),
+            ["UInt64"] = PredefinedType(Token(SyntaxKind.ULongKeyword)),
+            ["Object"] = PredefinedType(Token(SyntaxKind.ObjectKeyword)),
+            ["Int16"] = PredefinedType(Token(SyntaxKind.ShortKeyword)),
+            ["UInt16"] = PredefinedType(Token(SyntaxKind.UShortKeyword)),
+            ["String"] = PredefinedType(Token(SyntaxKind.StringKeyword))
         };
     }
 }
