@@ -1,21 +1,23 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Security;
-using System.Text;
 using LanguageExt;
+using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
+using Microsoft.CodeAnalysis.Formatting;
 using SJP.Schematic.Core;
 using SJP.Schematic.Core.Comments;
 using SJP.Schematic.Core.Extensions;
-using SJP.Schematic.Core.Utilities;
 using SJP.Schematic.DataAccess.Extensions;
+using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 
 namespace SJP.Schematic.DataAccess.Poco
 {
     public class PocoTableGenerator : DatabaseTableGenerator
     {
-        public PocoTableGenerator(INameTranslator nameTranslator, string baseNamespace, string indent = "    ")
-            : base(nameTranslator, indent)
+        public PocoTableGenerator(INameTranslator nameTranslator, string baseNamespace)
+            : base(nameTranslator)
         {
             if (baseNamespace.IsNullOrWhiteSpace())
                 throw new ArgumentNullException(nameof(baseNamespace));
@@ -33,7 +35,7 @@ namespace SJP.Schematic.DataAccess.Poco
                 throw new ArgumentNullException(nameof(table));
 
             var schemaNamespace = NameTranslator.SchemaToNamespace(table.Name);
-            var tableNamespace = schemaNamespace != null
+            var tableNamespace = !schemaNamespace.IsNullOrWhiteSpace()
                 ? Namespace + "." + schemaNamespace
                 : Namespace;
 
@@ -44,127 +46,139 @@ namespace SJP.Schematic.DataAccess.Poco
                 .OrderBy(n => n)
                 .ToList();
 
-            var builder = StringBuilderCache.Acquire();
-            foreach (var ns in namespaces)
-            {
-                builder.Append("using ")
-                    .Append(ns)
-                    .AppendLine(";");
-            }
+            var usingStatements = namespaces
+                .Select(ns => ParseName(ns))
+                .Select(UsingDirective)
+                .ToList();
+            var namespaceDeclaration = NamespaceDeclaration(ParseName(tableNamespace));
+            var classDeclaration = BuildClass(table, comment);
 
-            if (namespaces.Count > 0)
-                builder.AppendLine();
+            var document = CompilationUnit()
+                .WithUsings(new SyntaxList<UsingDirectiveSyntax>(usingStatements))
+                .WithMembers(
+                    new SyntaxList<MemberDeclarationSyntax>(
+                        namespaceDeclaration.WithMembers(
+                            new SyntaxList<MemberDeclarationSyntax>(classDeclaration)
+                        )
+                    )
+                );
 
-            builder.Append("namespace ")
-                .AppendLine(tableNamespace)
-                .AppendLine("{");
+            using var workspace = new AdhocWorkspace();
+            return Formatter.Format(document, workspace).ToFullString();
+        }
 
-            var tableComment = comment
-                .Bind(c => c.Comment)
-                .IfNone(GenerateTableComment(table.Name.LocalName));
-            builder.AppendComment(Indent, tableComment);
+        private ClassDeclarationSyntax BuildClass(IRelationalDatabaseTable table, Option<IRelationalDatabaseTableComments> comment)
+        {
+            if (table == null)
+                throw new ArgumentNullException(nameof(table));
 
             var className = NameTranslator.TableToClassName(table.Name);
-            builder.Append(Indent)
-                .Append("public class ")
-                .AppendLine(className)
-                .Append(Indent)
-                .AppendLine("{");
+            var properties = table.Columns
+                .Select(vc => BuildColumn(vc, comment, className))
+                .ToList();
 
-            var columnIndent = Indent + Indent;
-            var hasFirstLine = false;
-            foreach (var column in table.Columns)
-            {
-                if (hasFirstLine)
-                    builder.AppendLine();
-
-                var columnComment = comment
-                    .Bind(c => c.ColumnComments.TryGetValue(column.Name, out var cc) ? cc : Option<string>.None)
-                    .IfNone(GenerateColumnComment(column.Name.LocalName));
-                builder.AppendComment(columnIndent, columnComment);
-
-                builder.Append(columnIndent);
-                AppendColumn(builder, columnIndent, className, column);
-                hasFirstLine = true;
-            }
-
-            builder.Append(Indent)
-                .AppendLine("}")
-                .Append('}');
-
-            return builder.GetStringAndRelease();
+            return ClassDeclaration(className)
+                .AddModifiers(Token(SyntaxKind.PublicKeyword))
+                .WithLeadingTrivia(BuildTableComment(table.Name, comment))
+                .WithMembers(new SyntaxList<MemberDeclarationSyntax>(properties));
         }
 
-        private void AppendColumn(StringBuilder builder, string columnIndent, string className, IDatabaseColumn column)
+        private PropertyDeclarationSyntax BuildColumn(IDatabaseColumn column, Option<IRelationalDatabaseTableComments> comment, string className)
         {
-            if (builder == null)
-                throw new ArgumentNullException(nameof(builder));
-            if (columnIndent == null)
-                throw new ArgumentNullException(nameof(columnIndent));
-            if (className.IsNullOrWhiteSpace())
-                throw new ArgumentNullException(nameof(className));
             if (column == null)
                 throw new ArgumentNullException(nameof(column));
+            if (className.IsNullOrWhiteSpace())
+                throw new ArgumentNullException(nameof(className));
 
             var clrType = column.Type.ClrType;
-            var nullableSuffix = column.IsNullable ? "?" : string.Empty;
-
-            var typeName = clrType.Name;
-            if (clrType.Namespace == "System" && TypeNameMap.ContainsKey(typeName))
-                typeName = TypeNameMap[typeName];
-
             var propertyName = NameTranslator.ColumnToPropertyName(className, column.Name.LocalName);
 
-            builder.Append("public ")
-                .Append(typeName)
-                .Append(nullableSuffix)
-                .Append(' ')
-                .Append(propertyName)
-                .Append(" { get; set; }");
+            var columnTypeSyntax = column.IsNullable
+                ? NullableType(ParseTypeName(clrType.FullName))
+                : ParseTypeName(clrType.FullName);
+            if (clrType.Namespace == "System" && TypeSyntaxMap.ContainsKey(clrType.Name))
+                columnTypeSyntax = column.IsNullable
+                    ? NullableType(TypeSyntaxMap[clrType.Name])
+                    : TypeSyntaxMap[clrType.Name];
+
+            var baseProperty = PropertyDeclaration(
+                columnTypeSyntax,
+                Identifier(propertyName)
+            );
+
+            var columnSyntax = baseProperty
+                .WithModifiers(SyntaxTokenList.Create(Token(SyntaxKind.PublicKeyword)))
+                .WithAccessorList(SyntaxUtilities.PropertyGetSetDeclaration)
+                .WithLeadingTrivia(BuildColumnComment(column.Name, comment));
 
             var isNotNullRefType = !column.IsNullable && !column.Type.ClrType.IsValueType;
-            if (isNotNullRefType)
-                builder.Append(" = default!;");
+            if (!isNotNullRefType)
+                return columnSyntax;
 
-            builder.AppendLine();
+            return columnSyntax
+                .WithInitializer(SyntaxUtilities.NotNullDefault)
+                .WithSemicolonToken(Token(SyntaxKind.SemicolonToken));
         }
 
-        protected virtual string GenerateTableComment(string tableName)
+        private static SyntaxTriviaList BuildTableComment(Identifier tableName, Option<IRelationalDatabaseTableComments> comment)
         {
-            if (tableName.IsNullOrWhiteSpace())
+            if (tableName == null)
                 throw new ArgumentNullException(nameof(tableName));
 
-            var escapedTableName = SecurityElement.Escape(tableName);
-            return "A mapping class to query the <c>" + escapedTableName + "</c> table.";
+            return comment
+                .Bind(c => c.Comment)
+                .Match(
+                    SyntaxUtilities.BuildCommentTrivia,
+                    () => SyntaxUtilities.BuildCommentTrivia(new XmlNodeSyntax[]
+                    {
+                        XmlText("A mapping class to query the "),
+                        XmlElement("c", SingletonList<XmlNodeSyntax>(XmlText(tableName.LocalName))),
+                        XmlText(" table.")
+                    })
+                );
         }
 
-        protected virtual string GenerateColumnComment(string columnName)
+        private static SyntaxTriviaList BuildColumnComment(Identifier columnName, Option<IRelationalDatabaseTableComments> comment)
         {
-            if (columnName.IsNullOrWhiteSpace())
+            if (columnName == null)
                 throw new ArgumentNullException(nameof(columnName));
 
-            var escapedColumnName = SecurityElement.Escape(columnName);
-            return "The <c>" + escapedColumnName + "</c> column.";
+            return comment
+                .Bind(c => c.ColumnComments.TryGetValue(columnName, out var cc) ? cc : Option<string>.None)
+                .Match(
+                    SyntaxUtilities.BuildCommentTrivia,
+                    () => SyntaxUtilities.BuildCommentTrivia(new XmlNodeSyntax[]
+                    {
+                        XmlText("The "),
+                        XmlElement("c", SingletonList<XmlNodeSyntax>(XmlText(columnName.LocalName))),
+                        XmlText(" column.")
+                    })
+                );
         }
 
-        private static readonly IReadOnlyDictionary<string, string> TypeNameMap = new Dictionary<string, string>
+        private static readonly IReadOnlyDictionary<string, TypeSyntax> TypeSyntaxMap = new Dictionary<string, TypeSyntax>
         {
-            ["Boolean"] = "bool",
-            ["Byte"] = "byte",
-            ["Byte[]"] = "byte[]",
-            ["SByte"] = "sbyte",
-            ["Char"] = "char",
-            ["Decimal"] = "decimal",
-            ["Double"] = "double",
-            ["Single"] = "float",
-            ["Int32"] = "int",
-            ["UInt32"] = "uint",
-            ["Int64"] = "long",
-            ["UInt64"] = "ulong",
-            ["Object"] = "object",
-            ["Int16"] = "short",
-            ["UInt16"] = "ushort",
-            ["String"] = "string"
+            ["Boolean"] = PredefinedType(Token(SyntaxKind.BoolKeyword)),
+            ["Byte"] = PredefinedType(Token(SyntaxKind.ByteKeyword)),
+            ["Byte[]"] = ArrayType(
+                PredefinedType(
+                    Token(SyntaxKind.ByteKeyword)
+                ),
+                SingletonList(ArrayRankSpecifier())
+            ),
+            ["SByte"] = PredefinedType(Token(SyntaxKind.SByteKeyword)),
+            ["Char"] = PredefinedType(Token(SyntaxKind.CharKeyword)),
+            ["Decimal"] = PredefinedType(Token(SyntaxKind.DecimalKeyword)),
+            ["Double"] = PredefinedType(Token(SyntaxKind.DoubleKeyword)),
+            ["Single"] = PredefinedType(Token(SyntaxKind.FloatKeyword)),
+            ["Int32"] = PredefinedType(Token(SyntaxKind.IntKeyword)),
+            ["UInt32"] = PredefinedType(Token(SyntaxKind.UIntKeyword)),
+            ["Int64"] = PredefinedType(Token(SyntaxKind.LongKeyword)),
+            ["UInt64"] = PredefinedType(Token(SyntaxKind.ULongKeyword)),
+            ["Object"] = PredefinedType(Token(SyntaxKind.ObjectKeyword)),
+            ["Int16"] = PredefinedType(Token(SyntaxKind.ShortKeyword)),
+            ["UInt16"] = PredefinedType(Token(SyntaxKind.UShortKeyword)),
+            ["String"] = PredefinedType(Token(SyntaxKind.StringKeyword))
         };
     }
 }

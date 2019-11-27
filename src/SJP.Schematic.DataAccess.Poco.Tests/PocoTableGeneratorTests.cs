@@ -33,13 +33,6 @@ namespace SJP.Schematic.DataAccess.Poco.Tests
         }
 
         [Test]
-        public static void Ctor_GivenNullIndent_ThrowsArgumentNullException()
-        {
-            var nameTranslator = new VerbatimNameTranslator();
-            Assert.Throws<ArgumentNullException>(() => new PocoTableGenerator(nameTranslator, "test", null));
-        }
-
-        [Test]
         public static void Ctor_GivenWhiteSpaceNamespace_ThrowsArgumentNullException()
         {
             var nameTranslator = new VerbatimNameTranslator();

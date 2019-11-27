@@ -62,7 +62,7 @@ namespace SJP.Schematic.DataAccess.Poco
 
             FileSystem.File.WriteAllText(projectPath, ProjectDefinition);
 
-            var tableGenerator = new PocoTableGenerator(NameTranslator, baseNamespace, Indent);
+            var tableGenerator = new PocoTableGenerator(NameTranslator, baseNamespace);
             var viewGenerator = new PocoViewGenerator(NameTranslator, baseNamespace);
 
             var tables = await Database.GetAllTables(cancellationToken).ToListAsync(cancellationToken).ConfigureAwait(false);
