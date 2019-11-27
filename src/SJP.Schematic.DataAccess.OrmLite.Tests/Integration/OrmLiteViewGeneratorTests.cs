@@ -118,8 +118,8 @@ This is a second line for it.";
 
         private const string TestNamespace = "OrmLiteTestNamespace";
 
-        private readonly string TestView1Output = @"using System;
-using ServiceStack.DataAnnotations;
+        private readonly string TestView1Output = @"using ServiceStack.DataAnnotations;
+using System;
 
 namespace OrmLiteTestNamespace.Main
 {
@@ -162,8 +162,8 @@ namespace OrmLiteTestNamespace.Main
     }
 }";
 
-        private readonly string TestView2Output = @"using System;
-using ServiceStack.DataAnnotations;
+        private readonly string TestView2Output = @"using ServiceStack.DataAnnotations;
+using System;
 
 namespace OrmLiteTestNamespace.Main
 {
@@ -206,8 +206,8 @@ namespace OrmLiteTestNamespace.Main
     }
 }";
 
-        private readonly string TestView3Output = @"using System;
-using ServiceStack.DataAnnotations;
+        private readonly string TestView3Output = @"using ServiceStack.DataAnnotations;
+using System;
 
 namespace OrmLiteTestNamespace.Main
 {
@@ -226,8 +226,8 @@ namespace OrmLiteTestNamespace.Main
     }
 }";
 
-        private readonly string TestView3MultiLineOutput = @"using System;
-using ServiceStack.DataAnnotations;
+        private readonly string TestView3MultiLineOutput = @"using ServiceStack.DataAnnotations;
+using System;
 
 namespace OrmLiteTestNamespace.Main
 {

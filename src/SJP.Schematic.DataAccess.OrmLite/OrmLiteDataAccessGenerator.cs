@@ -69,7 +69,7 @@ namespace SJP.Schematic.DataAccess.OrmLite
             foreach (var comment in tableComments)
                 tableCommentsLookup[comment.TableName] = comment;
 
-            var viewGenerator = new OrmLiteViewGenerator(NameTranslator, baseNamespace, Indent);
+            var viewGenerator = new OrmLiteViewGenerator(NameTranslator, baseNamespace);
             var views = await Database.GetAllViews(cancellationToken).ToListAsync(cancellationToken).ConfigureAwait(false);
             var viewComments = await CommentProvider.GetAllViewComments(cancellationToken).ToListAsync(cancellationToken).ConfigureAwait(false);
             var viewCommentsLookup = new Dictionary<Identifier, IDatabaseViewComments>();

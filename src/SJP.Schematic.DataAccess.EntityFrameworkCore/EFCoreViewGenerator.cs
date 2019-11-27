@@ -111,10 +111,8 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore
                 Identifier(propertyName)
             );
 
-            var attributes = new SyntaxList<AttributeListSyntax>(BuildColumnAttributes(column, propertyName));
-
             var columnSyntax = baseProperty
-                .WithAttributeLists(attributes)
+                .AddAttributeLists(BuildColumnAttributes(column, propertyName).ToArray())
                 .WithModifiers(SyntaxTokenList.Create(Token(SyntaxKind.PublicKeyword)))
                 .WithAccessorList(SyntaxUtilities.PropertyGetSetDeclaration)
                 .WithLeadingTrivia(BuildColumnComment(column.Name, comment));
@@ -164,7 +162,7 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore
                 );
         }
 
-        private static AttributeListSyntax BuildColumnAttributes(IDatabaseColumn column, string propertyName)
+        private static IEnumerable<AttributeListSyntax> BuildColumnAttributes(IDatabaseColumn column, string propertyName)
         {
             if (column == null)
                 throw new ArgumentNullException(nameof(column));
@@ -186,15 +184,18 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore
                 )
             ));
 
-            return AttributeList(
-                SeparatedList(new[]
-                {
-                    Attribute(
-                        SyntaxUtilities.AttributeName(nameof(System.ComponentModel.DataAnnotations.Schema.ColumnAttribute)),
-                        AttributeArgumentList(SeparatedList(columnAttributeArgs))
-                    )
-                })
-            );
+            return new[]
+            {
+                AttributeList(
+                    SeparatedList(new[]
+                    {
+                        Attribute(
+                            SyntaxUtilities.AttributeName(nameof(System.ComponentModel.DataAnnotations.Schema.ColumnAttribute)),
+                            AttributeArgumentList(SeparatedList(columnAttributeArgs))
+                        )
+                    })
+                )
+            };
         }
 
         private static readonly IReadOnlyDictionary<string, TypeSyntax> TypeSyntaxMap = new Dictionary<string, TypeSyntax>
