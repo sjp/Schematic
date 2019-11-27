@@ -141,10 +141,10 @@ namespace SJP.Schematic.DataAccess.OrmLite
             var columnTypeSyntax = column.IsNullable
                 ? NullableType(ParseTypeName(clrType.FullName))
                 : ParseTypeName(clrType.FullName);
-            if (clrType.Namespace == "System" && TypeSyntaxMap.ContainsKey(clrType.Name))
+            if (clrType.Namespace == "System" && SyntaxUtilities.TypeSyntaxMap.ContainsKey(clrType.Name))
                 columnTypeSyntax = column.IsNullable
-                    ? NullableType(TypeSyntaxMap[clrType.Name])
-                    : TypeSyntaxMap[clrType.Name];
+                    ? NullableType(SyntaxUtilities.TypeSyntaxMap[clrType.Name])
+                    : SyntaxUtilities.TypeSyntaxMap[clrType.Name];
 
             var baseProperty = PropertyDeclaration(
                 columnTypeSyntax,
@@ -230,30 +230,5 @@ namespace SJP.Schematic.DataAccess.OrmLite
                 )
             };
         }
-
-        private static readonly IReadOnlyDictionary<string, TypeSyntax> TypeSyntaxMap = new Dictionary<string, TypeSyntax>
-        {
-            ["Boolean"] = PredefinedType(Token(SyntaxKind.BoolKeyword)),
-            ["Byte"] = PredefinedType(Token(SyntaxKind.ByteKeyword)),
-            ["Byte[]"] = ArrayType(
-                PredefinedType(
-                    Token(SyntaxKind.ByteKeyword)
-                ),
-                SingletonList(ArrayRankSpecifier())
-            ),
-            ["SByte"] = PredefinedType(Token(SyntaxKind.SByteKeyword)),
-            ["Char"] = PredefinedType(Token(SyntaxKind.CharKeyword)),
-            ["Decimal"] = PredefinedType(Token(SyntaxKind.DecimalKeyword)),
-            ["Double"] = PredefinedType(Token(SyntaxKind.DoubleKeyword)),
-            ["Single"] = PredefinedType(Token(SyntaxKind.FloatKeyword)),
-            ["Int32"] = PredefinedType(Token(SyntaxKind.IntKeyword)),
-            ["UInt32"] = PredefinedType(Token(SyntaxKind.UIntKeyword)),
-            ["Int64"] = PredefinedType(Token(SyntaxKind.LongKeyword)),
-            ["UInt64"] = PredefinedType(Token(SyntaxKind.ULongKeyword)),
-            ["Object"] = PredefinedType(Token(SyntaxKind.ObjectKeyword)),
-            ["Int16"] = PredefinedType(Token(SyntaxKind.ShortKeyword)),
-            ["UInt16"] = PredefinedType(Token(SyntaxKind.UShortKeyword)),
-            ["String"] = PredefinedType(Token(SyntaxKind.StringKeyword))
-        };
     }
 }

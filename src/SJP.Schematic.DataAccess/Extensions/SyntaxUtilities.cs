@@ -4,6 +4,7 @@ using System.Linq;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
+using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 
 namespace SJP.Schematic.DataAccess.Extensions
 {
@@ -74,6 +75,31 @@ namespace SJP.Schematic.DataAccess.Extensions
                 SyntaxFactory.ElasticCarriageReturnLineFeed
             );
         }
+
+        public static readonly IReadOnlyDictionary<string, TypeSyntax> TypeSyntaxMap = new Dictionary<string, TypeSyntax>
+        {
+            ["Boolean"] = PredefinedType(Token(SyntaxKind.BoolKeyword)),
+            ["Byte"] = PredefinedType(Token(SyntaxKind.ByteKeyword)),
+            ["Byte[]"] = ArrayType(
+                PredefinedType(
+                    Token(SyntaxKind.ByteKeyword)
+                ),
+                SingletonList(ArrayRankSpecifier())
+            ),
+            ["SByte"] = PredefinedType(Token(SyntaxKind.SByteKeyword)),
+            ["Char"] = PredefinedType(Token(SyntaxKind.CharKeyword)),
+            ["Decimal"] = PredefinedType(Token(SyntaxKind.DecimalKeyword)),
+            ["Double"] = PredefinedType(Token(SyntaxKind.DoubleKeyword)),
+            ["Single"] = PredefinedType(Token(SyntaxKind.FloatKeyword)),
+            ["Int32"] = PredefinedType(Token(SyntaxKind.IntKeyword)),
+            ["UInt32"] = PredefinedType(Token(SyntaxKind.UIntKeyword)),
+            ["Int64"] = PredefinedType(Token(SyntaxKind.LongKeyword)),
+            ["UInt64"] = PredefinedType(Token(SyntaxKind.ULongKeyword)),
+            ["Object"] = PredefinedType(Token(SyntaxKind.ObjectKeyword)),
+            ["Int16"] = PredefinedType(Token(SyntaxKind.ShortKeyword)),
+            ["UInt16"] = PredefinedType(Token(SyntaxKind.UShortKeyword)),
+            ["String"] = PredefinedType(Token(SyntaxKind.StringKeyword))
+        };
 
         private static IReadOnlyCollection<string> GetLines(string comment)
         {
