@@ -47,6 +47,7 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore
                         .Select(c => c.Type.ClrType.Namespace)
                         .Where(ns => ns != viewNamespace)
                 )
+                .Distinct()
                 .OrderBy(n => n)
                 .ToList();
 
@@ -54,7 +55,7 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore
                 .Select(ns => ParseName(ns))
                 .Select(UsingDirective)
                 .ToList();
-            var namespaceDeclaration = BuildNamespace(view);
+            var namespaceDeclaration = NamespaceDeclaration(ParseName(viewNamespace));
             var classDeclaration = BuildClass(view, comment);
 
             var document = CompilationUnit()
@@ -69,36 +70,6 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore
 
             using var workspace = new AdhocWorkspace();
             return Formatter.Format(document, workspace).ToFullString();
-        }
-
-        private NamespaceDeclarationSyntax BuildNamespace(IDatabaseView view)
-        {
-            if (view == null)
-                throw new ArgumentNullException(nameof(view));
-
-            var schemaNamespace = NameTranslator.SchemaToNamespace(view.Name);
-            var viewNamespace = !schemaNamespace.IsNullOrWhiteSpace()
-                ? Namespace + "." + schemaNamespace
-                : Namespace;
-
-            var namespaces = new[]
-                {
-                    "System.ComponentModel.DataAnnotations",
-                    "System.ComponentModel.DataAnnotations.Schema"
-                }
-                .Union(
-                    view.Columns
-                        .Select(c => c.Type.ClrType.Namespace)
-                        .Where(ns => ns != viewNamespace)
-                )
-                .OrderBy(n => n)
-                .ToList();
-
-            var namespaceNodes = namespaces
-                .Select(ns => ParseName(ns))
-                .ToList();
-
-            return NamespaceDeclaration(ParseName(viewNamespace));
         }
 
         private ClassDeclarationSyntax BuildClass(IDatabaseView view, Option<IDatabaseViewComments> comment)
