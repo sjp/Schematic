@@ -93,7 +93,7 @@ namespace SJP.Schematic.DataAccess.Poco
             var columnTypeSyntax = column.IsNullable
                 ? NullableType(ParseTypeName(clrType.FullName))
                 : ParseTypeName(clrType.FullName);
-            if (clrType.Namespace == "System" && SyntaxUtilities.TypeSyntaxMap.ContainsKey(clrType.Name))
+            if (clrType.Namespace == nameof(System) && SyntaxUtilities.TypeSyntaxMap.ContainsKey(clrType.Name))
                 columnTypeSyntax = column.IsNullable
                     ? NullableType(SyntaxUtilities.TypeSyntaxMap[clrType.Name])
                     : SyntaxUtilities.TypeSyntaxMap[clrType.Name];

@@ -498,22 +498,22 @@ namespace EFCoreTestNamespace.Main
         public decimal? TestStringWithDefault { get; set; }
 
         /// <summary>
-        /// The <c>fk_test_table_4_test_table_3_fk1</c> child key. Navigates from <c>test_table_3</c> to <c>test_table_4</c> entities.
+        /// The <c>fk_test_table_4_test_table_3_fk1</c> child key. Navigates from <c>test_table_3</c> to <c>test_table_4</c>.
         /// </summary>
         public virtual ICollection<main.TestTable4> TestTable4s { get; set; } = new HashSet<main.TestTable4>();
 
         /// <summary>
-        /// The <c>fk_test_table_4_test_table_3_fk1</c> child key. Navigates from <c>test_table_3</c> to <c>test_table_4</c> entities.
+        /// The <c>fk_test_table_4_test_table_3_fk1</c> child key. Navigates from <c>test_table_3</c> to <c>test_table_4</c>.
         /// </summary>
         public virtual ICollection<main.TestTable4> TestTable4s { get; set; } = new HashSet<main.TestTable4>();
 
         /// <summary>
-        /// The <c>fk_test_table_4_test_table_3_fk1</c> child key. Navigates from <c>test_table_3</c> to <c>test_table_4</c> entities.
+        /// The <c>fk_test_table_4_test_table_3_fk1</c> child key. Navigates from <c>test_table_3</c> to <c>test_table_4</c>.
         /// </summary>
         public virtual ICollection<main.TestTable4> TestTable4s { get; set; } = new HashSet<main.TestTable4>();
 
         /// <summary>
-        /// The <c>fk_test_table_4_test_table_3_fk1</c> child key. Navigates from <c>test_table_3</c> to <c>test_table_4</c> entities.
+        /// The <c>fk_test_table_4_test_table_3_fk1</c> child key. Navigates from <c>test_table_3</c> to <c>test_table_4</c>.
         /// </summary>
         public virtual ICollection<main.TestTable4> TestTable4s { get; set; } = new HashSet<main.TestTable4>();
     }
@@ -705,17 +705,17 @@ namespace EFCoreTestNamespace.Main
         public long TestInt { get; set; }
 
         /// <summary>
-        /// The <c>fk_test_table_7_test_table_6_fk1</c> child key. Navigates from <c>test_table_6</c> to <c>test_table_7</c> entities.
+        /// The <c>fk_test_table_7_test_table_6_fk1</c> child key. Navigates from <c>test_table_6</c> to <c>test_table_7</c>.
         /// </summary>
         public virtual ICollection<main.TestTable7> TestTable7s { get; set; } = new HashSet<main.TestTable7>();
 
         /// <summary>
-        /// The <c>fk_test_table_8_test_table_6_fk1</c> child key. Navigates from <c>test_table_6</c> to <c>test_table_8</c> entities.
+        /// The <c>fk_test_table_8_test_table_6_fk1</c> child key. Navigates from <c>test_table_6</c> to <c>test_table_8</c>.
         /// </summary>
         public virtual main.TestTable8? TestTable8s { get; set; }
 
         /// <summary>
-        /// The <c>fk_test_table_9_test_table_6_fk1</c> child key. Navigates from <c>test_table_6</c> to <c>test_table_9</c> entities.
+        /// The <c>fk_test_table_9_test_table_6_fk1</c> child key. Navigates from <c>test_table_6</c> to <c>test_table_9</c>.
         /// </summary>
         public virtual main.TestTable9? TestTable9s { get; set; }
     }
