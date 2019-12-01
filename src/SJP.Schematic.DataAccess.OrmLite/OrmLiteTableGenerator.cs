@@ -1,15 +1,17 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Globalization;
 using System.Linq;
-using System.Security;
-using System.Text;
 using LanguageExt;
+using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
+using Microsoft.CodeAnalysis.Formatting;
+using ServiceStack.DataAnnotations;
 using SJP.Schematic.Core;
 using SJP.Schematic.Core.Comments;
 using SJP.Schematic.Core.Extensions;
-using SJP.Schematic.Core.Utilities;
 using SJP.Schematic.DataAccess.Extensions;
+using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 
 namespace SJP.Schematic.DataAccess.OrmLite
 {
@@ -34,57 +36,184 @@ namespace SJP.Schematic.DataAccess.OrmLite
                 throw new ArgumentNullException(nameof(table));
 
             var schemaNamespace = NameTranslator.SchemaToNamespace(table.Name);
-            var tableNamespace = schemaNamespace != null
+            var tableNamespace = !schemaNamespace.IsNullOrWhiteSpace()
                 ? Namespace + "." + schemaNamespace
                 : Namespace;
 
             var namespaces = table.Columns
                 .Select(c => c.Type.ClrType.Namespace)
                 .Where(ns => ns != tableNamespace)
+                .Union(new[] { "ServiceStack.DataAnnotations" })
                 .Distinct()
                 .OrderBy(n => n)
                 .ToList();
 
-            namespaces.Add("ServiceStack.DataAnnotations");
+            var usingStatements = namespaces
+                .Select(ns => ParseName(ns))
+                .Select(UsingDirective)
+                .ToList();
+            var namespaceDeclaration = NamespaceDeclaration(ParseName(tableNamespace));
+            var classDeclaration = BuildClass(tables, table, comment);
 
-            var builder = StringBuilderCache.Acquire();
-            foreach (var ns in namespaces)
+            var document = CompilationUnit()
+                .WithUsings(new SyntaxList<UsingDirectiveSyntax>(usingStatements))
+                .WithMembers(
+                    new SyntaxList<MemberDeclarationSyntax>(
+                        namespaceDeclaration.WithMembers(
+                            new SyntaxList<MemberDeclarationSyntax>(classDeclaration)
+                        )
+                    )
+                );
+
+            using var workspace = new AdhocWorkspace();
+            return Formatter.Format(document, workspace).ToFullString();
+        }
+
+        private ClassDeclarationSyntax BuildClass(IEnumerable<IRelationalDatabaseTable> tables, IRelationalDatabaseTable table, Option<IRelationalDatabaseTableComments> comment)
+        {
+            if (tables == null)
+                throw new ArgumentNullException(nameof(tables));
+            if (table == null)
+                throw new ArgumentNullException(nameof(table));
+
+            var className = NameTranslator.TableToClassName(table.Name);
+            var columnProperties = table.Columns
+                .Select(c => BuildColumn(table, c, comment, className))
+                .ToList();
+
+            return ClassDeclaration(className)
+                .AddModifiers(Token(SyntaxKind.PublicKeyword))
+                .AddAttributeLists(BuildClassAttributes(table, className).ToArray())
+                .WithLeadingTrivia(BuildTableComment(table.Name, comment))
+                .WithMembers(new SyntaxList<MemberDeclarationSyntax>(columnProperties));
+        }
+
+        private PropertyDeclarationSyntax BuildColumn(IRelationalDatabaseTable table, IDatabaseColumn column, Option<IRelationalDatabaseTableComments> comment, string className)
+        {
+            if (table == null)
+                throw new ArgumentNullException(nameof(table));
+            if (column == null)
+                throw new ArgumentNullException(nameof(column));
+            if (className.IsNullOrWhiteSpace())
+                throw new ArgumentNullException(nameof(className));
+
+            var clrType = column.Type.ClrType;
+            var propertyName = NameTranslator.ColumnToPropertyName(className, column.Name.LocalName);
+
+            var columnTypeSyntax = column.IsNullable
+                ? NullableType(ParseTypeName(clrType.FullName))
+                : ParseTypeName(clrType.FullName);
+            if (clrType.Namespace == nameof(System) && SyntaxUtilities.TypeSyntaxMap.ContainsKey(clrType.Name))
             {
-                builder.Append("using ")
-                    .Append(ns)
-                    .AppendLine(";");
+                columnTypeSyntax = column.IsNullable
+                    ? NullableType(SyntaxUtilities.TypeSyntaxMap[clrType.Name])
+                    : SyntaxUtilities.TypeSyntaxMap[clrType.Name];
             }
 
-            if (namespaces.Count > 0)
-                builder.AppendLine();
+            var baseProperty = PropertyDeclaration(
+                columnTypeSyntax,
+                Identifier(propertyName)
+            );
 
-            builder.Append("namespace ")
-                .AppendLine(tableNamespace)
-                .AppendLine("{");
+            var columnSyntax = baseProperty
+                .AddAttributeLists(BuildColumnAttributes(table, column, propertyName).ToArray())
+                .WithModifiers(SyntaxTokenList.Create(Token(SyntaxKind.PublicKeyword)))
+                .WithAccessorList(SyntaxUtilities.PropertyGetSetDeclaration)
+                .WithLeadingTrivia(BuildColumnComment(column.Name, comment));
 
-            var tableComment = comment
+            var isNotNullRefType = !column.IsNullable && !column.Type.ClrType.IsValueType;
+            if (!isNotNullRefType)
+                return columnSyntax;
+
+            return columnSyntax
+                .WithInitializer(SyntaxUtilities.NotNullDefault)
+                .WithSemicolonToken(Token(SyntaxKind.SemicolonToken));
+        }
+
+        private static SyntaxTriviaList BuildTableComment(Identifier tableName, Option<IRelationalDatabaseTableComments> comment)
+        {
+            if (tableName == null)
+                throw new ArgumentNullException(nameof(tableName));
+
+            return comment
                 .Bind(c => c.Comment)
-                .IfNone(GenerateTableComment(table.Name.LocalName));
-            builder.AppendComment(Indent, tableComment);
+                .Match(
+                    SyntaxUtilities.BuildCommentTrivia,
+                    () => SyntaxUtilities.BuildCommentTrivia(new XmlNodeSyntax[]
+                    {
+                        XmlText("A mapping class to query the "),
+                        XmlElement("c", SingletonList<XmlNodeSyntax>(XmlText(tableName.LocalName))),
+                        XmlText(" table.")
+                    })
+                );
+        }
+
+        private static SyntaxTriviaList BuildColumnComment(Identifier columnName, Option<IRelationalDatabaseTableComments> comment)
+        {
+            if (columnName == null)
+                throw new ArgumentNullException(nameof(columnName));
+
+            return comment
+                .Bind(c => c.ColumnComments.TryGetValue(columnName, out var cc) ? cc : Option<string>.None)
+                .Match(
+                    SyntaxUtilities.BuildCommentTrivia,
+                    () => SyntaxUtilities.BuildCommentTrivia(new XmlNodeSyntax[]
+                    {
+                        XmlText("The "),
+                        XmlElement("c", SingletonList<XmlNodeSyntax>(XmlText(columnName.LocalName))),
+                        XmlText(" column.")
+                    })
+                );
+        }
+
+        private IEnumerable<AttributeListSyntax> BuildClassAttributes(IRelationalDatabaseTable table, string className)
+        {
+            if (table == null)
+                throw new ArgumentNullException(nameof(table));
+            if (className.IsNullOrWhiteSpace())
+                throw new ArgumentNullException(nameof(className));
+
+            var attributes = new List<AttributeListSyntax>();
 
             var schemaName = table.Name.Schema;
             if (!schemaName.IsNullOrWhiteSpace())
             {
-                var schemaNameLiteral = schemaName.ToStringLiteral();
-                builder.Append(Indent)
-                    .Append("[Schema(")
-                    .Append(schemaNameLiteral)
-                    .AppendLine(")]");
+                var schemaAttribute = AttributeList(
+                    SeparatedList(new[]
+                    {
+                        Attribute(
+                            SyntaxUtilities.AttributeName(nameof(SchemaAttribute)),
+                            AttributeArgumentList(
+                                SeparatedList(new[]
+                                {
+                                    AttributeArgument(
+                                        LiteralExpression(SyntaxKind.StringLiteralExpression, Literal(schemaName)))
+                                })
+                            )
+                        )
+                    })
+                );
+                attributes.Add(schemaAttribute);
             }
 
-            var className = NameTranslator.TableToClassName(table.Name);
             if (className != table.Name.LocalName)
             {
-                var aliasName = table.Name.LocalName.ToStringLiteral();
-                builder.Append(Indent)
-                    .Append("[Alias(")
-                    .Append(aliasName)
-                    .AppendLine(")]");
+                var aliasAttribute = AttributeList(
+                    SeparatedList(new[]
+                    {
+                        Attribute(
+                            SyntaxUtilities.AttributeName(nameof(AliasAttribute)),
+                            AttributeArgumentList(
+                                SeparatedList(new[]
+                                {
+                                    AttributeArgument(
+                                        LiteralExpression(SyntaxKind.StringLiteralExpression, Literal(table.Name.LocalName)))
+                                })
+                            )
+                        )
+                    })
+                );
+                attributes.Add(aliasAttribute);
             }
 
             var multiColumnUniqueKeys = table.UniqueKeys.Where(uk => uk.Columns.Skip(1).Any()).ToList();
@@ -92,13 +221,34 @@ namespace SJP.Schematic.DataAccess.OrmLite
             {
                 var columnNames = uniqueKey.Columns
                     .Select(c => NameTranslator.ColumnToPropertyName(className, c.Name.LocalName))
-                    .Select(p => "nameof(" + p + ")")
-                    .Join(", ");
+                    .Select(p => AttributeArgument(
+                        InvocationExpression(
+                            IdentifierName(
+                                Identifier(
+                                    TriviaList(),
+                                    SyntaxKind.NameOfKeyword,
+                                    "nameof",
+                                    "nameof",
+                                    TriviaList())),
+                            ArgumentList(
+                                SingletonSeparatedList(
+                                    Argument(
+                                        IdentifierName(p))))
+                        )
+                    ));
 
-                builder.Append(Indent)
-                    .Append("[UniqueConstraint(")
-                    .Append(columnNames)
-                    .AppendLine(")]");
+                var uniqueConstraintAttribute = AttributeList(
+                    SeparatedList(new[]
+                    {
+                        Attribute(
+                            SyntaxUtilities.AttributeName(nameof(UniqueConstraintAttribute)),
+                            AttributeArgumentList(
+                                SeparatedList(columnNames)
+                            )
+                        )
+                    })
+                );
+                attributes.Add(uniqueConstraintAttribute);
             }
 
             var multiColumnIndexes = table.Indexes.Where(ix => ix.Columns.Skip(1).Any()).ToList();
@@ -109,119 +259,181 @@ namespace SJP.Schematic.DataAccess.OrmLite
                 if (dependentColumns.Count > indexColumns.Count)
                     continue;
 
-                var columnNames = dependentColumns
+                var attrParams = dependentColumns
                     .Select(c => NameTranslator.ColumnToPropertyName(className, c.Name.LocalName))
-                    .Select(p => "nameof(" + p + ")")
-                    .Join(", ");
-
-                builder.Append(Indent)
-                    .Append("[CompositeIndex(");
+                    .Select(p => AttributeArgument(
+                        InvocationExpression(
+                            IdentifierName(
+                                Identifier(
+                                    TriviaList(),
+                                    SyntaxKind.NameOfKeyword,
+                                    "nameof",
+                                    "nameof",
+                                    TriviaList())),
+                            ArgumentList(
+                                SingletonSeparatedList(
+                                    Argument(
+                                        IdentifierName(p))))
+                        )
+                    ))
+                    .ToList();
 
                 if (index.IsUnique)
-                    builder.Append("true, ");
+                {
+                    var uniqueTrueArgument = AttributeArgument(
+                        LiteralExpression(SyntaxKind.TrueLiteralExpression)
+                    );
+                    attrParams = new[] { uniqueTrueArgument }.Concat(attrParams).ToList();
+                }
 
-                builder.Append(columnNames)
-                    .AppendLine(")]");
+                var compositeIndexAttribute = AttributeList(
+                    SeparatedList(new[]
+                    {
+                        Attribute(
+                            SyntaxUtilities.AttributeName(nameof(CompositeIndexAttribute)),
+                            AttributeArgumentList(
+                                SeparatedList(attrParams)
+                            )
+                        )
+                    })
+                );
+                attributes.Add(compositeIndexAttribute);
             }
 
-            builder.Append(Indent)
-                .Append("public class ")
-                .AppendLine(className)
-                .Append(Indent)
-                .AppendLine("{");
-
-            var columnIndent = Indent + Indent;
-            var hasFirstLine = false;
-            foreach (var column in table.Columns)
-            {
-                if (hasFirstLine)
-                    builder.AppendLine();
-
-                var columnComment = comment
-                    .Bind(c => c.ColumnComments.TryGetValue(column.Name, out var cc) ? cc : Option<string>.None)
-                    .IfNone(GenerateColumnComment(column.Name.LocalName));
-                builder.AppendComment(columnIndent, columnComment);
-
-                AppendColumn(builder, columnIndent, className, table, column);
-                hasFirstLine = true;
-            }
-
-            builder.Append(Indent)
-                .AppendLine("}")
-                .Append('}');
-
-            return builder.GetStringAndRelease();
+            return attributes;
         }
 
-        private void AppendColumn(StringBuilder builder, string columnIndent, string className, IRelationalDatabaseTable table, IDatabaseColumn column)
+        private IEnumerable<AttributeListSyntax> BuildColumnAttributes(IRelationalDatabaseTable table, IDatabaseColumn column, string propertyName)
         {
-            if (builder == null)
-                throw new ArgumentNullException(nameof(builder));
-            if (columnIndent == null)
-                throw new ArgumentNullException(nameof(columnIndent));
-            if (className.IsNullOrWhiteSpace())
-                throw new ArgumentNullException(nameof(className));
-            if (table == null)
-                throw new ArgumentNullException(nameof(table));
             if (column == null)
                 throw new ArgumentNullException(nameof(column));
+            if (propertyName.IsNullOrWhiteSpace())
+                throw new ArgumentNullException(nameof(propertyName));
 
+            var attributes = new List<AttributeListSyntax>();
             var clrType = column.Type.ClrType;
-            var nullableSuffix = column.IsNullable ? "?" : string.Empty;
 
             if (clrType == typeof(string) && column.Type.MaxLength > 0)
             {
-                builder.Append(columnIndent)
-                    .Append("[StringLength(")
-                   .Append(column.Type.MaxLength.ToString(CultureInfo.InvariantCulture))
-                   .AppendLine(")]");
+                var maxLengthAttribute = AttributeList(
+                    SeparatedList(new[]
+                    {
+                        Attribute(
+                            SyntaxUtilities.AttributeName(nameof(StringLengthAttribute)),
+                            AttributeArgumentList(
+                                SeparatedList(new[]
+                                {
+                                    AttributeArgument(
+                                        LiteralExpression(SyntaxKind.NumericLiteralExpression, Literal(column.Type.MaxLength)))
+                                }))
+                        )
+                    })
+                );
+                attributes.Add(maxLengthAttribute);
             }
 
             if (!clrType.IsValueType && !column.IsNullable)
             {
-                builder.Append(columnIndent)
-                    .AppendLine("[Required]");
+                var requiredAttribute = AttributeList(
+                    SeparatedList(new[]
+                    {
+                        Attribute(
+                            SyntaxUtilities.AttributeName(nameof(RequiredAttribute))
+                        )
+                    })
+                );
+                attributes.Add(requiredAttribute);
             }
-
-            var typeName = clrType.Name;
-            if (clrType.Namespace == "System" && TypeNameMap.ContainsKey(typeName))
-                typeName = TypeNameMap[typeName];
 
             var isPrimaryKey = ColumnIsPrimaryKey(table, column);
             if (isPrimaryKey)
             {
-                builder.Append(columnIndent)
-                    .AppendLine("[PrimaryKey]");
+                var primaryKeyAttribute = AttributeList(
+                    SeparatedList(new[]
+                    {
+                        Attribute(
+                            SyntaxUtilities.AttributeName(nameof(PrimaryKeyAttribute))
+                        )
+                    })
+                );
+                attributes.Add(primaryKeyAttribute);
+            }
+
+            if (column.AutoIncrement.IsSome)
+            {
+                var autoIncrementAttribute = AttributeList(
+                    SeparatedList(new[]
+                    {
+                        Attribute(
+                            SyntaxUtilities.AttributeName(nameof(AutoIncrementAttribute))
+                        )
+                    })
+                );
+                attributes.Add(autoIncrementAttribute);
             }
 
             var isNonUniqueIndex = ColumnIsNonUniqueIndex(table, column);
-            if (isNonUniqueIndex)
-            {
-                builder.Append(columnIndent)
-                    .AppendLine("[Index]");
-            }
-
             var isUniqueIndex = ColumnIsUniqueIndex(table, column);
-            if (isUniqueIndex)
+            var isIndex = isNonUniqueIndex || isUniqueIndex;
+            if (isIndex)
             {
-                builder.Append(columnIndent)
-                    .AppendLine("[Index(true)]");
+                var indexAttribute = Attribute(
+                    SyntaxUtilities.AttributeName(nameof(IndexAttribute))
+                );
+                var indexAttributeList = AttributeList(
+                    SeparatedList(new[] { indexAttribute })
+                );
+
+                if (isNonUniqueIndex)
+                {
+                    attributes.Add(indexAttributeList);
+                }
+                else
+                {
+                    var uniqueIndexAttribute = indexAttribute
+                        .WithArgumentList(
+                            AttributeArgumentList(
+                                SeparatedList(new[]
+                                {
+                                    AttributeArgument(LiteralExpression(SyntaxKind.TrueLiteralExpression))
+                                })));
+
+                    var uniqueIndexAttributeList = AttributeList(
+                        SeparatedList(new[] { uniqueIndexAttribute })
+                    );
+                    attributes.Add(uniqueIndexAttributeList);
+                }
             }
 
             var isUniqueKey = ColumnIsUniqueKey(table, column);
             if (isUniqueKey)
             {
-                builder.Append(columnIndent)
-                    .AppendLine("[Unique]");
+                var uniqueKeyAttribute = AttributeList(
+                    SeparatedList(new[]
+                    {
+                        Attribute(
+                            SyntaxUtilities.AttributeName(nameof(UniqueAttribute))
+                        )
+                    })
+                );
+                attributes.Add(uniqueKeyAttribute);
             }
 
             column.DefaultValue.IfSome(def =>
             {
-                var literal = def.ToStringLiteral();
-                builder.Append(columnIndent)
-                    .Append("[Default(")
-                    .Append(literal)
-                    .AppendLine(")]");
+                var defaultAttribute = AttributeList(
+                    SeparatedList(new[]
+                    {
+                        Attribute(
+                            SyntaxUtilities.AttributeName(nameof(DefaultAttribute)),
+                            AttributeArgumentList(
+                                SeparatedList(new[]
+                                {
+                                    AttributeArgument(LiteralExpression(SyntaxKind.StringLiteralExpression, Literal(def)))
+                                })))
+                    })
+                );
+                attributes.Add(defaultAttribute);
             });
 
             var isForeignKey = ColumnIsForeignKey(table, column);
@@ -236,94 +448,85 @@ namespace SJP.Schematic.DataAccess.OrmLite
                 // TODO check that this is not implicit -- i.e. there is a naming convention applied
                 //      so explicitly declaring via [References(...)] may not be necessary
 
-                builder.Append(columnIndent)
-                    .Append("[ForeignKey(typeof(")
-                    .Append(parentClassName)
-                    .Append(')');
+                var fkAttributeArgs = new List<AttributeArgumentSyntax>
+                {
+                    AttributeArgument(TypeOfExpression(ParseTypeName(parentClassName)))
+                };
 
                 relationalKey.ChildKey.Name.IfSome(fkName =>
                 {
-                    var fkNameLiteral = fkName.LocalName.ToStringLiteral();
-                    builder.Append("), ForeignKeyName = ")
-                        .Append(fkNameLiteral);
+                    var foreignKeyNameArg = AttributeArgument(
+                        AssignmentExpression(
+                            SyntaxKind.SimpleAssignmentExpression,
+                            IdentifierName(nameof(ForeignKeyAttribute.ForeignKeyName)),
+                            Token(SyntaxKind.EqualsToken),
+                            LiteralExpression(SyntaxKind.StringLiteralExpression, Literal(fkName.LocalName))
+                        )
+                    );
+                    fkAttributeArgs.Add(foreignKeyNameArg);
                 });
 
                 if (relationalKey.DeleteAction != ReferentialAction.NoAction)
                 {
-                    var actionLiteral = ForeignKeyAction[relationalKey.DeleteAction].ToStringLiteral();
-                    builder.Append(", OnDelete = ")
-                       .Append(actionLiteral);
+                    var deleteAction = ForeignKeyAction[relationalKey.DeleteAction];
+                    var foreignKeyOnDeleteArg = AttributeArgument(
+                        AssignmentExpression(
+                            SyntaxKind.SimpleAssignmentExpression,
+                            IdentifierName(nameof(ForeignKeyAttribute.OnDelete)),
+                            Token(SyntaxKind.EqualsToken),
+                            LiteralExpression(SyntaxKind.StringLiteralExpression, Literal(deleteAction))
+                        )
+                    );
+                    fkAttributeArgs.Add(foreignKeyOnDeleteArg);
                 }
 
                 if (relationalKey.UpdateAction != ReferentialAction.NoAction)
                 {
-                    var actionLiteral = ForeignKeyAction[relationalKey.UpdateAction].ToStringLiteral();
-                    builder.Append(", OnUpdate = ")
-                       .Append(actionLiteral);
+                    var updateAction = ForeignKeyAction[relationalKey.UpdateAction];
+                    var foreignKeyOnUpdateArg = AttributeArgument(
+                        AssignmentExpression(
+                            SyntaxKind.SimpleAssignmentExpression,
+                            IdentifierName(nameof(ForeignKeyAttribute.OnUpdate)),
+                            Token(SyntaxKind.EqualsToken),
+                            LiteralExpression(SyntaxKind.StringLiteralExpression, Literal(updateAction))
+                        )
+                    );
+                    fkAttributeArgs.Add(foreignKeyOnUpdateArg);
                 }
 
-                builder.AppendLine(")]");
+                var foreignKeyAttribute = AttributeList(
+                    SeparatedList(new[]
+                    {
+                        Attribute(
+                            SyntaxUtilities.AttributeName(nameof(ForeignKeyAttribute)),
+                            AttributeArgumentList(SeparatedList(fkAttributeArgs))
+                        )
+                    })
+                );
+                attributes.Add(foreignKeyAttribute);
             }
 
-            column.AutoIncrement.IfSome(_ =>
-            {
-                builder.Append(columnIndent)
-                    .AppendLine("[AutoIncrement]");
-            });
-
-            if (column.IsComputed && column is IDatabaseComputedColumn computedColumn)
-            {
-                computedColumn.Definition.IfSome(def =>
-                {
-                    var expression = def.ToStringLiteral();
-                    builder.Append(columnIndent)
-                        .Append("[Compute(")
-                        .Append(expression)
-                        .AppendLine(")]");
-                });
-            }
-
-            var propertyName = NameTranslator.ColumnToPropertyName(className, column.Name.LocalName);
             if (propertyName != column.Name.LocalName)
             {
-                var aliasName = column.Name.LocalName.ToStringLiteral();
-                builder.Append(columnIndent)
-                    .Append("[Alias(")
-                    .Append(aliasName)
-                    .AppendLine(")]");
+                var aliasAttribute = AttributeList(
+                    SeparatedList(new[]
+                    {
+                        Attribute(
+                            SyntaxUtilities.AttributeName(nameof(AliasAttribute)),
+                            AttributeArgumentList(
+                                SeparatedList(new[]
+                                {
+                                    AttributeArgument(
+                                        LiteralExpression(SyntaxKind.StringLiteralExpression, Literal(column.Name.LocalName)))
+                                })
+                            )
+                        )
+                    })
+                );
+                attributes.Add(aliasAttribute);
             }
 
-            builder.Append(columnIndent)
-                .Append("public ")
-                .Append(typeName)
-                .Append(nullableSuffix)
-                .Append(' ')
-                .Append(propertyName)
-                .Append(" { get; set; }");
-
-            var isNotNullRefType = !column.IsNullable && !column.Type.ClrType.IsValueType;
-            if (isNotNullRefType)
-                builder.Append(" = default!;");
-
-            builder.AppendLine();
-        }
-
-        protected virtual string GenerateTableComment(string tableName)
-        {
-            if (tableName.IsNullOrWhiteSpace())
-                throw new ArgumentNullException(nameof(tableName));
-
-            var escapedTableName = SecurityElement.Escape(tableName);
-            return "A mapping class to query the <c>" + escapedTableName + "</c> table.";
-        }
-
-        protected virtual string GenerateColumnComment(string columnName)
-        {
-            if (columnName.IsNullOrWhiteSpace())
-                throw new ArgumentNullException(nameof(columnName));
-
-            var escapedColumnName = SecurityElement.Escape(columnName);
-            return "The <c>" + escapedColumnName + "</c> column.";
+            return attributes;
         }
 
         protected static bool ColumnIsPrimaryKey(IRelationalDatabaseTable table, IDatabaseColumn column)

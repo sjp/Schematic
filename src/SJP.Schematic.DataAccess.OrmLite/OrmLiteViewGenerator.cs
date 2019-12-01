@@ -142,9 +142,11 @@ namespace SJP.Schematic.DataAccess.OrmLite
                 ? NullableType(ParseTypeName(clrType.FullName))
                 : ParseTypeName(clrType.FullName);
             if (clrType.Namespace == nameof(System) && SyntaxUtilities.TypeSyntaxMap.ContainsKey(clrType.Name))
+            {
                 columnTypeSyntax = column.IsNullable
                     ? NullableType(SyntaxUtilities.TypeSyntaxMap[clrType.Name])
                     : SyntaxUtilities.TypeSyntaxMap[clrType.Name];
+            }
 
             var baseProperty = PropertyDeclaration(
                 columnTypeSyntax,

@@ -193,8 +193,8 @@ This is a second line for it.";
 
         private const string TestNamespace = "OrmLiteTestNamespace";
 
-        private readonly string TestTable1Output = @"using System;
-using ServiceStack.DataAnnotations;
+        private readonly string TestTable1Output = @"using ServiceStack.DataAnnotations;
+using System;
 
 namespace OrmLiteTestNamespace.Main
 {
@@ -266,8 +266,8 @@ namespace OrmLiteTestNamespace.Main
     }
 }";
 
-        private readonly string TestTable2Output = @"using System;
-using ServiceStack.DataAnnotations;
+        private readonly string TestTable2Output = @"using ServiceStack.DataAnnotations;
+using System;
 
 namespace OrmLiteTestNamespace.Main
 {
@@ -325,8 +325,8 @@ namespace OrmLiteTestNamespace.Main
     }
 }";
 
-        private readonly string TestTable4Output = @"using System;
-using ServiceStack.DataAnnotations;
+        private readonly string TestTable4Output = @"using ServiceStack.DataAnnotations;
+using System;
 
 namespace OrmLiteTestNamespace.Main
 {
@@ -399,35 +399,35 @@ namespace OrmLiteTestNamespace.Main
         /// <summary>
         /// The <c>test_table_3_fk1</c> column.
         /// </summary>
-        [ForeignKey(typeof(TestTable3)), ForeignKeyName = ""fk_test_table_4_test_table_3_fk1"")]
+        [ForeignKey(typeof(TestTable3), ForeignKeyName = ""fk_test_table_4_test_table_3_fk1"")]
         [Alias(""test_table_3_fk1"")]
         public long? TestTable3Fk1 { get; set; }
 
         /// <summary>
         /// The <c>test_table_3_fk2</c> column.
         /// </summary>
-        [ForeignKey(typeof(TestTable3)), ForeignKeyName = ""fk_test_table_4_test_table_3_fk1"", OnUpdate = ""CASCADE"")]
+        [ForeignKey(typeof(TestTable3), ForeignKeyName = ""fk_test_table_4_test_table_3_fk1"", OnUpdate = ""CASCADE"")]
         [Alias(""test_table_3_fk2"")]
         public long? TestTable3Fk2 { get; set; }
 
         /// <summary>
         /// The <c>test_table_3_fk3</c> column.
         /// </summary>
-        [ForeignKey(typeof(TestTable3)), ForeignKeyName = ""fk_test_table_4_test_table_3_fk1"", OnDelete = ""SET NULL"")]
+        [ForeignKey(typeof(TestTable3), ForeignKeyName = ""fk_test_table_4_test_table_3_fk1"", OnDelete = ""SET NULL"")]
         [Alias(""test_table_3_fk3"")]
         public long? TestTable3Fk3 { get; set; }
 
         /// <summary>
         /// The <c>test_table_3_fk4</c> column.
         /// </summary>
-        [ForeignKey(typeof(TestTable3)), ForeignKeyName = ""fk_test_table_4_test_table_3_fk1"", OnDelete = ""CASCADE"", OnUpdate = ""SET NULL"")]
+        [ForeignKey(typeof(TestTable3), ForeignKeyName = ""fk_test_table_4_test_table_3_fk1"", OnDelete = ""CASCADE"", OnUpdate = ""SET NULL"")]
         [Alias(""test_table_3_fk4"")]
         public long? TestTable3Fk4 { get; set; }
     }
 }";
 
-        private readonly string TestTable5Output = @"using System;
-using ServiceStack.DataAnnotations;
+        private readonly string TestTable5Output = @"using ServiceStack.DataAnnotations;
+using System;
 
 namespace OrmLiteTestNamespace.Main
 {
@@ -446,8 +446,8 @@ namespace OrmLiteTestNamespace.Main
     }
 }";
 
-        private readonly string TestTable5MultiLineOutput = @"using System;
-using ServiceStack.DataAnnotations;
+        private readonly string TestTable5MultiLineOutput = @"using ServiceStack.DataAnnotations;
+using System;
 
 namespace OrmLiteTestNamespace.Main
 {
