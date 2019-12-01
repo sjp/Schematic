@@ -4,6 +4,7 @@ using System.IO.Abstractions;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Xml.Linq;
 using LanguageExt;
 using SJP.Schematic.Core;
 using SJP.Schematic.Core.Comments;
@@ -113,18 +114,25 @@ namespace SJP.Schematic.DataAccess.OrmLite
             }
         }
 
-        protected const string ProjectDefinition = @"<Project Sdk=""Microsoft.NET.Sdk"">
-    <PropertyGroup>
-        <TargetFramework>netstandard2.1</TargetFramework>
-        <CheckForOverflowUnderflow>true</CheckForOverflowUnderflow>
-        <TreatWarningsAsErrors>True</TreatWarningsAsErrors>
-        <TreatSpecificWarningsAsErrors />
-        <Nullable>enable</Nullable>
-    </PropertyGroup>
-
-    <ItemGroup>
-        <PackageReference Include=""ServiceStack.OrmLite"" Version=""5.7.0"" />
-    </ItemGroup>
-</Project>";
+        private static string ProjectDefinition { get; } =
+            new XElement(
+                "Project",
+                new XAttribute("Sdk", "Microsoft.NET.Sdk"),
+                new XElement(
+                    "PropertyGroup",
+                    new XElement("TargetFramework", "netstandard2.1"),
+                    new XElement("CheckForOverflowUnderflow", true),
+                    new XElement("TreatWarningsAsErrors", true),
+                    new XElement("Nullable", "enable")
+                ),
+                new XElement(
+                    "ItemGroup",
+                    new XElement(
+                        "PackageReference",
+                        new XAttribute("Include", "ServiceStack.OrmLite"),
+                        new XAttribute("Version", "5.7.0")
+                    )
+                )
+            ).ToString(SaveOptions.None);
     }
 }

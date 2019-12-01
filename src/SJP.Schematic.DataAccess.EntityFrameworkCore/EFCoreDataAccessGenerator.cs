@@ -5,6 +5,7 @@ using System.IO.Abstractions;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Xml.Linq;
 using LanguageExt;
 using SJP.Schematic.Core;
 using SJP.Schematic.Core.Comments;
@@ -123,18 +124,25 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore
             FileSystem.File.WriteAllText(dbContextPath, dbContextText);
         }
 
-        protected const string ProjectDefinition = @"<Project Sdk=""Microsoft.NET.Sdk"">
-    <PropertyGroup>
-        <TargetFramework>netstandard2.1</TargetFramework>
-        <CheckForOverflowUnderflow>true</CheckForOverflowUnderflow>
-        <TreatWarningsAsErrors>True</TreatWarningsAsErrors>
-        <TreatSpecificWarningsAsErrors />
-        <Nullable>enable</Nullable>
-    </PropertyGroup>
-
-    <ItemGroup>
-        <PackageReference Include=""Microsoft.EntityFrameworkCore.Relational"" Version=""3.0.1"" />
-    </ItemGroup>
-</Project>";
+        private static string ProjectDefinition { get; } =
+            new XElement(
+                "Project",
+                new XAttribute("Sdk", "Microsoft.NET.Sdk"),
+                new XElement(
+                    "PropertyGroup",
+                    new XElement("TargetFramework", "netstandard2.1"),
+                    new XElement("CheckForOverflowUnderflow", true),
+                    new XElement("TreatWarningsAsErrors", true),
+                    new XElement("Nullable", "enable")
+                ),
+                new XElement(
+                    "ItemGroup",
+                    new XElement(
+                        "PackageReference",
+                        new XAttribute("Include", "Microsoft.EntityFrameworkCore.Relational"),
+                        new XAttribute("Version", "3.0.1")
+                    )
+                )
+            ).ToString(SaveOptions.None);
     }
 }
