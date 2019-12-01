@@ -83,7 +83,7 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore
 
             var className = NameTranslator.TableToClassName(table.Name);
             var columnProperties = table.Columns
-                .Select(vc => BuildColumn(vc, comment, className))
+                .Select(c => BuildColumn(c, comment, className))
                 .ToList();
             var parentKeyProperties = table.ParentKeys.Select(fk => BuildParentKey(tables, fk, comment, className));
             var childKeyProperties = table.ChildKeys.Select(ck => BuildChildKey(tables, ck, className));

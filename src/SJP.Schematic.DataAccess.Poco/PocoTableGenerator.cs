@@ -74,7 +74,7 @@ namespace SJP.Schematic.DataAccess.Poco
 
             var className = NameTranslator.TableToClassName(table.Name);
             var properties = table.Columns
-                .Select(vc => BuildColumn(vc, comment, className))
+                .Select(c => BuildColumn(c, comment, className))
                 .ToList();
 
             return ClassDeclaration(className)
