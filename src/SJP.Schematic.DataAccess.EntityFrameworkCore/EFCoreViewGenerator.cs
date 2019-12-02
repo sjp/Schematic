@@ -48,7 +48,7 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore
                         .Where(ns => ns != viewNamespace)
                 )
                 .Distinct()
-                .OrderBy(n => n)
+                .OrderNamespaces()
                 .ToList();
 
             var usingStatements = namespaces

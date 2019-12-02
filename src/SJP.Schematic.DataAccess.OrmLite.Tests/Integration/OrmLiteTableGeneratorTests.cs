@@ -193,8 +193,8 @@ This is a second line for it.";
 
         private const string TestNamespace = "OrmLiteTestNamespace";
 
-        private readonly string TestTable1Output = @"using ServiceStack.DataAnnotations;
-using System;
+        private readonly string TestTable1Output = @"using System;
+using ServiceStack.DataAnnotations;
 
 namespace OrmLiteTestNamespace.Main
 {
@@ -266,8 +266,8 @@ namespace OrmLiteTestNamespace.Main
     }
 }";
 
-        private readonly string TestTable2Output = @"using ServiceStack.DataAnnotations;
-using System;
+        private readonly string TestTable2Output = @"using System;
+using ServiceStack.DataAnnotations;
 
 namespace OrmLiteTestNamespace.Main
 {
@@ -325,8 +325,8 @@ namespace OrmLiteTestNamespace.Main
     }
 }";
 
-        private readonly string TestTable4Output = @"using ServiceStack.DataAnnotations;
-using System;
+        private readonly string TestTable4Output = @"using System;
+using ServiceStack.DataAnnotations;
 
 namespace OrmLiteTestNamespace.Main
 {
@@ -426,8 +426,8 @@ namespace OrmLiteTestNamespace.Main
     }
 }";
 
-        private readonly string TestTable5Output = @"using ServiceStack.DataAnnotations;
-using System;
+        private readonly string TestTable5Output = @"using System;
+using ServiceStack.DataAnnotations;
 
 namespace OrmLiteTestNamespace.Main
 {
@@ -446,8 +446,8 @@ namespace OrmLiteTestNamespace.Main
     }
 }";
 
-        private readonly string TestTable5MultiLineOutput = @"using ServiceStack.DataAnnotations;
-using System;
+        private readonly string TestTable5MultiLineOutput = @"using System;
+using ServiceStack.DataAnnotations;
 
 namespace OrmLiteTestNamespace.Main
 {

@@ -50,7 +50,7 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore
                     "System.ComponentModel.DataAnnotations.Schema"
                 })
                 .Distinct()
-                .OrderBy(n => n)
+                .OrderNamespaces()
                 .ToList();
 
             var usingStatements = namespaces

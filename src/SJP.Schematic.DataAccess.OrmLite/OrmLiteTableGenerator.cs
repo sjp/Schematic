@@ -45,7 +45,7 @@ namespace SJP.Schematic.DataAccess.OrmLite
                 .Where(ns => ns != tableNamespace)
                 .Union(new[] { "ServiceStack.DataAnnotations" })
                 .Distinct()
-                .OrderBy(n => n)
+                .OrderNamespaces()
                 .ToList();
 
             var usingStatements = namespaces

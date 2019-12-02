@@ -44,7 +44,7 @@ namespace SJP.Schematic.DataAccess.OrmLite
                         .Where(ns => ns != viewNamespace)
                 )
                 .Distinct()
-                .OrderBy(n => n)
+                .OrderNamespaces()
                 .ToList();
 
             var usingStatements = namespaces

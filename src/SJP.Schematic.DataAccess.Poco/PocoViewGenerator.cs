@@ -40,7 +40,7 @@ namespace SJP.Schematic.DataAccess.Poco
                 .Select(c => c.Type.ClrType.Namespace)
                 .Where(ns => ns != viewNamespace)
                 .Distinct()
-                .OrderBy(n => n)
+                .OrderNamespaces()
                 .ToList();
 
             var usingStatements = namespaces

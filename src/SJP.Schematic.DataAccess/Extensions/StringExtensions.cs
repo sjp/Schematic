@@ -1,4 +1,7 @@
-﻿using System.Diagnostics.CodeAnalysis;
+﻿using System;
+using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
+using System.Linq;
 using Microsoft.CodeAnalysis.CSharp;
 
 namespace SJP.Schematic.DataAccess.Extensions
@@ -16,6 +19,27 @@ namespace SJP.Schematic.DataAccess.Extensions
             );
 
             return literal.ToFullString();
+        }
+
+        public static IEnumerable<string> OrderNamespaces(this IEnumerable<string> namespaces)
+        {
+            if (namespaces == null)
+                throw new ArgumentNullException(nameof(namespaces));
+
+            var system = new List<string>();
+            var nonSystem = new List<string>();
+
+            foreach (var ns in namespaces)
+            {
+                var group = ns == "System" || ns.StartsWith("System.")
+                    ? system
+                    : nonSystem;
+                group.Add(ns);
+            }
+
+            return system.OrderBy(n => n)
+                .Concat(nonSystem.OrderBy(n => n))
+                .ToList();
         }
     }
 }
