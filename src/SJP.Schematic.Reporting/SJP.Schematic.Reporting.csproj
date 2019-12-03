@@ -23,7 +23,7 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
     </PackageReference>
     <PackageReference Include="RazorLight.Unofficial" Version="2.0.0-beta1.3" />
-    <PackageReference Include="System.Text.Encodings.Web" Version="4.6.0" />
+    <PackageReference Include="System.Text.Encodings.Web" Version="4.7.0" />
   </ItemGroup>
 
   <ItemGroup>
