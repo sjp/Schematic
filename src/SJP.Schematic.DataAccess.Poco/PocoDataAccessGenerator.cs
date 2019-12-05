@@ -18,14 +18,12 @@ namespace SJP.Schematic.DataAccess.Poco
             IFileSystem fileSystem,
             IRelationalDatabase database,
             IRelationalDatabaseCommentProvider commentProvider,
-            INameTranslator nameTranslator,
-            string indent = "    ")
+            INameTranslator nameTranslator)
         {
             FileSystem = fileSystem ?? throw new ArgumentNullException(nameof(fileSystem));
             Database = database ?? throw new ArgumentNullException(nameof(database));
             CommentProvider = commentProvider ?? throw new ArgumentNullException(nameof(commentProvider));
             NameTranslator = nameTranslator ?? throw new ArgumentNullException(nameof(nameTranslator));
-            Indent = indent ?? throw new ArgumentNullException(nameof(indent));
         }
 
         protected IFileSystem FileSystem { get; }
@@ -35,8 +33,6 @@ namespace SJP.Schematic.DataAccess.Poco
         protected IRelationalDatabaseCommentProvider CommentProvider { get; }
 
         protected INameTranslator NameTranslator { get; }
-
-        protected string Indent { get; }
 
         public Task Generate(string projectPath, string baseNamespace, CancellationToken cancellationToken = default)
         {

@@ -10,20 +10,20 @@ namespace SJP.Schematic.DataAccess.Extensions
 {
     public static class SyntaxUtilities
     {
-        public static EqualsValueClauseSyntax NotNullDefault { get; } = SyntaxFactory.EqualsValueClause(
-            SyntaxFactory.PostfixUnaryExpression(
+        public static EqualsValueClauseSyntax NotNullDefault { get; } = EqualsValueClause(
+            PostfixUnaryExpression(
                 SyntaxKind.SuppressNullableWarningExpression,
-                SyntaxFactory.LiteralExpression(
+                LiteralExpression(
                     SyntaxKind.DefaultLiteralExpression,
-                    SyntaxFactory.Token(SyntaxKind.DefaultKeyword))));
+                    Token(SyntaxKind.DefaultKeyword))));
 
-        public static AccessorListSyntax PropertyGetSetDeclaration { get; } = SyntaxFactory.AccessorList(
+        public static AccessorListSyntax PropertyGetSetDeclaration { get; } = AccessorList(
             new SyntaxList<AccessorDeclarationSyntax>(new[]
             {
-                SyntaxFactory.AccessorDeclaration(SyntaxKind.GetAccessorDeclaration)
-                    .WithSemicolonToken(SyntaxFactory.Token(SyntaxKind.SemicolonToken)),
-                SyntaxFactory.AccessorDeclaration(SyntaxKind.SetAccessorDeclaration)
-                    .WithSemicolonToken(SyntaxFactory.Token(SyntaxKind.SemicolonToken))
+                AccessorDeclaration(SyntaxKind.GetAccessorDeclaration)
+                    .WithSemicolonToken(Token(SyntaxKind.SemicolonToken)),
+                AccessorDeclaration(SyntaxKind.SetAccessorDeclaration)
+                    .WithSemicolonToken(Token(SyntaxKind.SemicolonToken))
             })
         );
 
@@ -33,7 +33,7 @@ namespace SJP.Schematic.DataAccess.Extensions
                 ? attributeName
                 : attributeName.Substring(0, attributeName.Length - AttributeSuffix.Length);
 
-            return SyntaxFactory.IdentifierName(trimmedName);
+            return IdentifierName(trimmedName);
         }
 
         private const string AttributeSuffix = "Attribute";
@@ -45,16 +45,16 @@ namespace SJP.Schematic.DataAccess.Extensions
 
             var commentLines = GetLines(comment);
             var commentNodes = commentLines.Count > 1
-                ? commentLines.SelectMany(l => new XmlNodeSyntax[] { SyntaxFactory.XmlParaElement(SyntaxFactory.XmlText(l)), SyntaxFactory.XmlText(XmlNewline) }).ToArray()
-                : new XmlNodeSyntax[] { SyntaxFactory.XmlText(SyntaxFactory.XmlTextLiteral(comment), XmlNewline) };
+                ? commentLines.SelectMany(l => new XmlNodeSyntax[] { XmlParaElement(XmlText(l)), XmlText(XmlNewline) }).ToArray()
+                : new XmlNodeSyntax[] { XmlText(XmlTextLiteral(comment), XmlNewline) };
             // add a newline after the summary element
-            var formattedCommentNodes = new XmlNodeSyntax[] { SyntaxFactory.XmlText(XmlNewline) }.Concat(commentNodes).ToArray();
+            var formattedCommentNodes = new XmlNodeSyntax[] { XmlText(XmlNewline) }.Concat(commentNodes).ToArray();
 
             return new SyntaxTriviaList(
-                SyntaxFactory.Trivia(
-                    SyntaxFactory.DocumentationComment(
-                        SyntaxFactory.XmlSummaryElement(formattedCommentNodes))),
-                SyntaxFactory.ElasticCarriageReturnLineFeed
+                Trivia(
+                    DocumentationComment(
+                        XmlSummaryElement(formattedCommentNodes))),
+                ElasticCarriageReturnLineFeed
             );
         }
 
@@ -63,16 +63,54 @@ namespace SJP.Schematic.DataAccess.Extensions
             if (commentNodes == null)
                 throw new ArgumentNullException(nameof(commentNodes));
 
-            var commentsWithNewlines = new XmlNodeSyntax[] { SyntaxFactory.XmlText(XmlNewline) }
+            var commentsWithNewlines = new XmlNodeSyntax[] { XmlText(XmlNewline) }
                 .Concat(commentNodes)
-                .Concat(new XmlNodeSyntax[] { SyntaxFactory.XmlText(XmlNewline) })
+                .Concat(new XmlNodeSyntax[] { XmlText(XmlNewline) })
                 .ToArray();
 
             return new SyntaxTriviaList(
-                SyntaxFactory.Trivia(
-                    SyntaxFactory.DocumentationComment(
-                        SyntaxFactory.XmlSummaryElement(commentsWithNewlines))),
-                SyntaxFactory.ElasticCarriageReturnLineFeed
+                Trivia(
+                    DocumentationComment(
+                        XmlSummaryElement(commentsWithNewlines))),
+                ElasticCarriageReturnLineFeed
+            );
+        }
+
+        public static SyntaxTriviaList BuildCommentTriviaWithParams(IEnumerable<XmlNodeSyntax> commentNodes, IReadOnlyDictionary<string, IEnumerable<XmlNodeSyntax>> paramNodes)
+        {
+            if (commentNodes == null)
+                throw new ArgumentNullException(nameof(commentNodes));
+            if (paramNodes == null)
+                throw new ArgumentNullException(nameof(paramNodes));
+
+            var commentsWithNewlines = new XmlNodeSyntax[] { XmlText(XmlNewline) }
+                .Concat(commentNodes)
+                .Concat(new XmlNodeSyntax[] { XmlText(XmlNewline) })
+                .ToArray();
+
+            var summarySyntaxNode = XmlSummaryElement(commentsWithNewlines);
+
+            var lastParamIndex = paramNodes.Count -1;
+            var paramSyntaxNodes = paramNodes
+                .SelectMany((kv, i) =>
+                {
+                    var nodes = new List<XmlNodeSyntax>
+                    {
+                        XmlText(XmlNewline),
+                        XmlParamElement(kv.Key, kv.Value.ToArray())
+                    };
+                    if (i != lastParamIndex)
+                        nodes.Add(XmlText(XmlNewline));
+
+                    return nodes;
+                })
+                .ToList();
+            var combinedSyntaxNodes = new[] { summarySyntaxNode }.Concat(paramSyntaxNodes).ToArray();
+
+            return new SyntaxTriviaList(
+                Trivia(
+                    DocumentationComment(combinedSyntaxNodes)),
+                ElasticCarriageReturnLineFeed
             );
         }
 
@@ -109,6 +147,6 @@ namespace SJP.Schematic.DataAccess.Extensions
             return comment.Split(new[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries);
         }
 
-        private static readonly SyntaxToken XmlNewline = SyntaxFactory.XmlTextNewLine(Environment.NewLine);
+        private static readonly SyntaxToken XmlNewline = XmlTextNewLine(Environment.NewLine);
     }
 }

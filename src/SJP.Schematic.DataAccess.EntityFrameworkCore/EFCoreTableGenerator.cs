@@ -17,8 +17,8 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore
 {
     public class EFCoreTableGenerator : DatabaseTableGenerator
     {
-        public EFCoreTableGenerator(INameTranslator nameTranslator, string baseNamespace, string indent = "    ")
-            : base(nameTranslator, indent)
+        public EFCoreTableGenerator(INameTranslator nameTranslator, string baseNamespace)
+            : base(nameTranslator)
         {
             if (baseNamespace.IsNullOrWhiteSpace())
                 throw new ArgumentNullException(nameof(baseNamespace));
@@ -176,7 +176,6 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore
                 .WithInitializer(SyntaxUtilities.NotNullDefault)
                 .WithSemicolonToken(Token(SyntaxKind.SemicolonToken));
         }
-
 
         private PropertyDeclarationSyntax BuildChildKey(IEnumerable<IRelationalDatabaseTable> tables, IDatabaseRelationalKey relationalKey, string className)
         {
@@ -385,13 +384,12 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore
             return attributes;
         }
 
-
         private static IEnumerable<AttributeListSyntax> BuildColumnAttributes(IDatabaseColumn column, string propertyName)
-            {
-                if (column == null)
-                    throw new ArgumentNullException(nameof(column));
-                if (propertyName.IsNullOrWhiteSpace())
-                    throw new ArgumentNullException(nameof(propertyName));
+        {
+            if (column == null)
+                throw new ArgumentNullException(nameof(column));
+            if (propertyName.IsNullOrWhiteSpace())
+                throw new ArgumentNullException(nameof(propertyName));
 
             var attributes = new List<AttributeListSyntax>();
             var clrType = column.Type.ClrType;

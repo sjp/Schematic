@@ -19,14 +19,12 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore
             IFileSystem fileSystem,
             IRelationalDatabase database,
             IRelationalDatabaseCommentProvider commentProvider,
-            INameTranslator nameTranslator,
-            string indent = "    ")
+            INameTranslator nameTranslator)
         {
             FileSystem = fileSystem ?? throw new ArgumentNullException(nameof(fileSystem));
             Database = database ?? throw new ArgumentNullException(nameof(database));
             CommentProvider = commentProvider ?? throw new ArgumentNullException(nameof(commentProvider));
             NameTranslator = nameTranslator ?? throw new ArgumentNullException(nameof(nameTranslator));
-            Indent = indent ?? throw new ArgumentNullException(nameof(indent));
         }
 
         protected IFileSystem FileSystem { get; }
@@ -36,8 +34,6 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore
         protected IRelationalDatabaseCommentProvider CommentProvider { get; }
 
         protected INameTranslator NameTranslator { get; }
-
-        protected string Indent { get; }
 
         public Task Generate(string projectPath, string baseNamespace, CancellationToken cancellationToken = default)
         {
@@ -65,7 +61,7 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore
             FileSystem.File.WriteAllText(projectPath, ProjectDefinition);
 
             var dbContextGenerator = new EFCoreDbContextBuilder(NameTranslator, baseNamespace);
-            var tableGenerator = new EFCoreTableGenerator(NameTranslator, baseNamespace, Indent);
+            var tableGenerator = new EFCoreTableGenerator(NameTranslator, baseNamespace);
             var viewGenerator = new EFCoreViewGenerator(NameTranslator, baseNamespace);
 
             var tables = await Database.GetAllTables(cancellationToken).ToListAsync(cancellationToken).ConfigureAwait(false);

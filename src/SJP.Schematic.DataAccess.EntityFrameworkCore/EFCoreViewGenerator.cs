@@ -177,26 +177,21 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore
                 var quotedColumnName = LiteralExpression(SyntaxKind.StringLiteralExpression, Literal(column.Name.LocalName));
                 columnAttributeArgs.Add(AttributeArgument(quotedColumnName));
             }
-            columnAttributeArgs.Add(AttributeArgument(
-                AssignmentExpression(
-                    SyntaxKind.SimpleAssignmentExpression,
-                    IdentifierName(nameof(System.ComponentModel.DataAnnotations.Schema.ColumnAttribute.TypeName)),
-                    Token(SyntaxKind.EqualsToken),
-                    LiteralExpression(SyntaxKind.StringLiteralExpression, Literal(column.Type.TypeName.LocalName))
-                )
-            ));
+            columnAttributeArgs.Add(
+                AttributeArgument(
+                    AssignmentExpression(
+                        SyntaxKind.SimpleAssignmentExpression,
+                        IdentifierName(nameof(System.ComponentModel.DataAnnotations.Schema.ColumnAttribute.TypeName)),
+                        Token(SyntaxKind.EqualsToken),
+                        LiteralExpression(SyntaxKind.StringLiteralExpression, Literal(column.Type.TypeName.LocalName)))));
 
             return new[]
             {
                 AttributeList(
-                    SeparatedList(new[]
-                    {
+                    SingletonSeparatedList(
                         Attribute(
                             SyntaxUtilities.AttributeName(nameof(System.ComponentModel.DataAnnotations.Schema.ColumnAttribute)),
-                            AttributeArgumentList(SeparatedList(columnAttributeArgs))
-                        )
-                    })
-                )
+                            AttributeArgumentList(SeparatedList(columnAttributeArgs)))))
             };
         }
     }

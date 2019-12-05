@@ -10,15 +10,12 @@ namespace SJP.Schematic.DataAccess
 {
     public abstract class DatabaseViewGenerator : IDatabaseViewGenerator
     {
-        protected DatabaseViewGenerator(INameTranslator nameTranslator, string indent = "    ")
+        protected DatabaseViewGenerator(INameTranslator nameTranslator)
         {
             NameTranslator = nameTranslator ?? throw new ArgumentNullException(nameof(nameTranslator));
-            Indent = indent ?? throw new ArgumentNullException(nameof(indent));
         }
 
         protected INameTranslator NameTranslator { get; }
-
-        protected string Indent { get; }
 
         public abstract string Generate(IDatabaseView view, Option<IDatabaseViewComments> comment);
 

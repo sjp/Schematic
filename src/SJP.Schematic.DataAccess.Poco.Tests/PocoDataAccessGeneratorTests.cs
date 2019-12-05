@@ -48,17 +48,6 @@ namespace SJP.Schematic.DataAccess.Poco.Tests
         }
 
         [Test]
-        public static void Ctor_GivenNullIndent_ThrowsArgumentNullException()
-        {
-            var mockFs = new MockFileSystem();
-            var database = Mock.Of<IRelationalDatabase>();
-            var commentProvider = new EmptyRelationalDatabaseCommentProvider();
-            var nameTranslator = new VerbatimNameTranslator();
-
-            Assert.Throws<ArgumentNullException>(() => new PocoDataAccessGenerator(mockFs, database, commentProvider, nameTranslator, null));
-        }
-
-        [Test]
         public static void Generate_GivenNullProjectPath_ThrowsArgumentNullException()
         {
             var mockFs = new MockFileSystem();

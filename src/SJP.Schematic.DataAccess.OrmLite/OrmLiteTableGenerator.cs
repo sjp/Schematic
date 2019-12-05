@@ -17,8 +17,8 @@ namespace SJP.Schematic.DataAccess.OrmLite
 {
     public class OrmLiteTableGenerator : DatabaseTableGenerator
     {
-        public OrmLiteTableGenerator(INameTranslator nameTranslator, string baseNamespace, string indent = "    ")
-            : base(nameTranslator, indent)
+        public OrmLiteTableGenerator(INameTranslator nameTranslator, string baseNamespace)
+            : base(nameTranslator)
         {
             if (baseNamespace.IsNullOrWhiteSpace())
                 throw new ArgumentNullException(nameof(baseNamespace));

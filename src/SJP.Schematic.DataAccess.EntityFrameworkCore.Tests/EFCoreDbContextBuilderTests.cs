@@ -21,13 +21,6 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore.Tests
         }
 
         [Test]
-        public static void Ctor_GivenNullIndent_ThrowsArgumentNullException()
-        {
-            var nameTranslator = new VerbatimNameTranslator();
-            Assert.Throws<ArgumentNullException>(() => new EFCoreDbContextBuilder(nameTranslator, "test", null));
-        }
-
-        [Test]
         public static void Ctor_GivenEmptyNamespace_ThrowsArgumentNullException()
         {
             var nameTranslator = new VerbatimNameTranslator();
