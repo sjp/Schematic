@@ -142,10 +142,10 @@ namespace SJP.Schematic.Core
             }
             else
             {
-                WeakReference<Identifier> addFactory(int _) => new WeakReference<Identifier>(result);
+                WeakReference<Identifier> addFactory(int _) => new WeakReference<Identifier>(result!);
                 WeakReference<Identifier> updateFactory(int _, WeakReference<Identifier> oldValue)
                 {
-                    oldValue.SetTarget(result);
+                    oldValue.SetTarget(result!);
                     return oldValue;
                 }
                 Cache.AddOrUpdate(identifierKey, addFactory, updateFactory);
