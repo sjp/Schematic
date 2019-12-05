@@ -6,7 +6,7 @@ using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 
-namespace SJP.Schematic.DataAccess.Extensions
+namespace SJP.Schematic.DataAccess.CodeGeneration
 {
     public static class SyntaxUtilities
     {

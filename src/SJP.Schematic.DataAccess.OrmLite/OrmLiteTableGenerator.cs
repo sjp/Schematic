@@ -10,6 +10,7 @@ using ServiceStack.DataAnnotations;
 using SJP.Schematic.Core;
 using SJP.Schematic.Core.Comments;
 using SJP.Schematic.Core.Extensions;
+using SJP.Schematic.DataAccess.CodeGeneration;
 using SJP.Schematic.DataAccess.Extensions;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 
