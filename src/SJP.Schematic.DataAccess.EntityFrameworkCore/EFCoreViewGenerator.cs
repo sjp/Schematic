@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using LanguageExt;
 using Microsoft.CodeAnalysis;
@@ -60,14 +61,12 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore
             var classDeclaration = BuildClass(view, comment);
 
             var document = CompilationUnit()
-                .WithUsings(new SyntaxList<UsingDirectiveSyntax>(usingStatements))
+                .WithUsings(List<UsingDirectiveSyntax>(usingStatements))
                 .WithMembers(
-                    new SyntaxList<MemberDeclarationSyntax>(
-                        namespaceDeclaration.WithMembers(
-                            new SyntaxList<MemberDeclarationSyntax>(classDeclaration)
-                        )
-                    )
-                );
+                    SingletonList<MemberDeclarationSyntax>(
+                        namespaceDeclaration
+                            .WithMembers(
+                                SingletonList<MemberDeclarationSyntax>(classDeclaration))));
 
             using var workspace = new AdhocWorkspace();
             return Formatter.Format(document, workspace).ToFullString();
@@ -86,7 +85,7 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore
             return ClassDeclaration(className)
                 .AddModifiers(Token(SyntaxKind.PublicKeyword))
                 .WithLeadingTrivia(BuildViewComment(view.Name, comment))
-                .WithMembers(new SyntaxList<MemberDeclarationSyntax>(properties));
+                .WithMembers(List<MemberDeclarationSyntax>(properties));
         }
 
         private PropertyDeclarationSyntax BuildColumn(IDatabaseColumn column, Option<IDatabaseViewComments> comment, string className)
@@ -175,24 +174,29 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore
             var columnAttributeArgs = new List<AttributeArgumentSyntax>();
             if (propertyName != column.Name.LocalName)
             {
-                var quotedColumnName = LiteralExpression(SyntaxKind.StringLiteralExpression, Literal(column.Name.LocalName));
+                var quotedColumnName = LiteralExpression(
+                    SyntaxKind.StringLiteralExpression,
+                    Literal(column.Name.LocalName));
                 columnAttributeArgs.Add(AttributeArgument(quotedColumnName));
             }
             columnAttributeArgs.Add(
                 AttributeArgument(
                     AssignmentExpression(
                         SyntaxKind.SimpleAssignmentExpression,
-                        IdentifierName(nameof(System.ComponentModel.DataAnnotations.Schema.ColumnAttribute.TypeName)),
+                        IdentifierName(nameof(ColumnAttribute.TypeName)),
                         Token(SyntaxKind.EqualsToken),
-                        LiteralExpression(SyntaxKind.StringLiteralExpression, Literal(column.Type.TypeName.LocalName)))));
+                        LiteralExpression(
+                            SyntaxKind.StringLiteralExpression,
+                            Literal(column.Type.TypeName.LocalName)))));
 
             return new[]
             {
                 AttributeList(
                     SingletonSeparatedList(
                         Attribute(
-                            SyntaxUtilities.AttributeName(nameof(System.ComponentModel.DataAnnotations.Schema.ColumnAttribute)),
-                            AttributeArgumentList(SeparatedList(columnAttributeArgs)))))
+                            SyntaxUtilities.AttributeName(nameof(ColumnAttribute)),
+                            AttributeArgumentList(
+                                SeparatedList(columnAttributeArgs)))))
             };
         }
     }

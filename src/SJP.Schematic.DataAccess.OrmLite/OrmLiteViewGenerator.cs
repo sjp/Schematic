@@ -6,6 +6,7 @@ using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Formatting;
+using ServiceStack.DataAnnotations;
 using SJP.Schematic.Core;
 using SJP.Schematic.Core.Comments;
 using SJP.Schematic.Core.Extensions;
@@ -56,14 +57,12 @@ namespace SJP.Schematic.DataAccess.OrmLite
             var classDeclaration = BuildClass(view, comment);
 
             var document = CompilationUnit()
-                .WithUsings(new SyntaxList<UsingDirectiveSyntax>(usingStatements))
+                .WithUsings(List<UsingDirectiveSyntax>(usingStatements))
                 .WithMembers(
-                    new SyntaxList<MemberDeclarationSyntax>(
-                        namespaceDeclaration.WithMembers(
-                            new SyntaxList<MemberDeclarationSyntax>(classDeclaration)
-                        )
-                    )
-                );
+                    SingletonList<MemberDeclarationSyntax>(
+                        namespaceDeclaration
+                            .WithMembers(
+                                SingletonList<MemberDeclarationSyntax>(classDeclaration))));
 
             using var workspace = new AdhocWorkspace();
             return Formatter.Format(document, workspace).ToFullString();
@@ -83,7 +82,7 @@ namespace SJP.Schematic.DataAccess.OrmLite
                 .AddAttributeLists(BuildClassAttributes(view, className).ToArray())
                 .AddModifiers(Token(SyntaxKind.PublicKeyword))
                 .WithLeadingTrivia(BuildViewComment(view.Name, comment))
-                .WithMembers(new SyntaxList<MemberDeclarationSyntax>(properties));
+                .WithMembers(List<MemberDeclarationSyntax>(properties));
         }
 
         private static IEnumerable<AttributeListSyntax> BuildClassAttributes(IDatabaseView view, string className)
@@ -99,30 +98,30 @@ namespace SJP.Schematic.DataAccess.OrmLite
             if (!schemaName.IsNullOrWhiteSpace())
             {
                 var schemaAttribute = AttributeList(
-                    new SeparatedSyntaxList<AttributeSyntax>().Add(
+                    SingletonSeparatedList(
                         Attribute(
-                            SyntaxUtilities.AttributeName(nameof(ServiceStack.DataAnnotations.SchemaAttribute)),
+                            SyntaxUtilities.AttributeName(nameof(SchemaAttribute)),
                             AttributeArgumentList(
-                                SeparatedList(new[]
-                                {
+                                SingletonSeparatedList(
                                     AttributeArgument(
-                                        LiteralExpression(SyntaxKind.StringLiteralExpression, Literal(schemaName)))
-                                })))));
+                                        LiteralExpression(
+                                            SyntaxKind.StringLiteralExpression,
+                                            Literal(schemaName))))))));
                 attributes.Add(schemaAttribute);
             }
 
             if (className != view.Name.LocalName)
             {
                 var aliasAttribute = AttributeList(
-                    new SeparatedSyntaxList<AttributeSyntax>().Add(
+                    SingletonSeparatedList(
                         Attribute(
-                            SyntaxUtilities.AttributeName(nameof(ServiceStack.DataAnnotations.AliasAttribute)),
+                            SyntaxUtilities.AttributeName(nameof(AliasAttribute)),
                             AttributeArgumentList(
-                                SeparatedList(new[]
-                                {
+                                SingletonSeparatedList(
                                     AttributeArgument(
-                                        LiteralExpression(SyntaxKind.StringLiteralExpression, Literal(view.Name.LocalName)))
-                                })))));
+                                        LiteralExpression(
+                                            SyntaxKind.StringLiteralExpression,
+                                            Literal(view.Name.LocalName))))))));
                 attributes.Add(aliasAttribute);
             }
 
@@ -218,18 +217,15 @@ namespace SJP.Schematic.DataAccess.OrmLite
             return new[]
             {
                 AttributeList(
-                    SeparatedList(new[]
-                    {
+                    SingletonSeparatedList(
                         Attribute(
-                            SyntaxUtilities.AttributeName(nameof(ServiceStack.DataAnnotations.AliasAttribute)),
+                            SyntaxUtilities.AttributeName(nameof(AliasAttribute)),
                             AttributeArgumentList(
-                                SeparatedList(new[]
-                                {
+                                SingletonSeparatedList(
                                     AttributeArgument(
-                                        LiteralExpression(SyntaxKind.StringLiteralExpression, Literal(column.Name.LocalName)))
-                                }))
-                        )
-                    })
+                                        LiteralExpression(
+                                            SyntaxKind.StringLiteralExpression,
+                                            Literal(column.Name.LocalName)))))))
                 )
             };
         }

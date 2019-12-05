@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using Humanizer;
 using LanguageExt;
@@ -62,14 +64,12 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore
             var classDeclaration = BuildClass(tables, table, comment);
 
             var document = CompilationUnit()
-                .WithUsings(new SyntaxList<UsingDirectiveSyntax>(usingStatements))
+                .WithUsings(List<UsingDirectiveSyntax>(usingStatements))
                 .WithMembers(
-                    new SyntaxList<MemberDeclarationSyntax>(
-                        namespaceDeclaration.WithMembers(
-                            new SyntaxList<MemberDeclarationSyntax>(classDeclaration)
-                        )
-                    )
-                );
+                    SingletonList<MemberDeclarationSyntax>(
+                        namespaceDeclaration
+                            .WithMembers(
+                                SingletonList<MemberDeclarationSyntax>(classDeclaration))));
 
             using var workspace = new AdhocWorkspace();
             return Formatter.Format(document, workspace).ToFullString();
@@ -94,7 +94,7 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore
                 .AddModifiers(Token(SyntaxKind.PublicKeyword))
                 .AddAttributeLists(BuildClassAttributes(table, className).ToArray())
                 .WithLeadingTrivia(BuildTableComment(table.Name, comment))
-                .WithMembers(new SyntaxList<MemberDeclarationSyntax>(properties));
+                .WithMembers(List<MemberDeclarationSyntax>(properties));
         }
 
         private PropertyDeclarationSyntax BuildColumn(IDatabaseColumn column, Option<IRelationalDatabaseTableComments> comment, string className)
@@ -166,7 +166,7 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore
             );
 
             var foreignKey = property
-                .WithModifiers(new SyntaxTokenList(Token(SyntaxKind.PublicKeyword), Token(SyntaxKind.VirtualKeyword)))
+                .WithModifiers(TokenList(Token(SyntaxKind.PublicKeyword), Token(SyntaxKind.VirtualKeyword)))
                 .WithAccessorList(SyntaxUtilities.PropertyGetSetDeclaration)
                 .WithLeadingTrivia(BuildForeignKeyComment(relationalKey, comment));
 
@@ -208,7 +208,7 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore
                 );
 
                 return property
-                    .WithModifiers(new SyntaxTokenList(Token(SyntaxKind.PublicKeyword), Token(SyntaxKind.VirtualKeyword)))
+                    .WithModifiers(TokenList(Token(SyntaxKind.PublicKeyword), Token(SyntaxKind.VirtualKeyword)))
                     .WithAccessorList(SyntaxUtilities.PropertyGetSetDeclaration)
                     .WithLeadingTrivia(BuildChildKeyComment(relationalKey));
             }
@@ -218,8 +218,7 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore
                     Identifier(nameof(ICollection<object>)),
                     TypeArgumentList(
                         SingletonSeparatedList(
-                            ParseTypeName(qualifiedChildName)))
-                );
+                            ParseTypeName(qualifiedChildName))));
 
                 var property = PropertyDeclaration(
                     columnTypeSyntax,
@@ -231,13 +230,12 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore
                         GenericName(
                             Identifier(nameof(System.Collections.Generic.HashSet<object>)),
                             TypeArgumentList(
-                                SingletonSeparatedList(ParseTypeName(qualifiedChildName)))
-                            ))
+                                SingletonSeparatedList(ParseTypeName(qualifiedChildName)))))
                     .WithArgumentList(ArgumentList())
                 );
 
                 return property
-                    .WithModifiers(new SyntaxTokenList(Token(SyntaxKind.PublicKeyword), Token(SyntaxKind.VirtualKeyword)))
+                    .WithModifiers(TokenList(Token(SyntaxKind.PublicKeyword), Token(SyntaxKind.VirtualKeyword)))
                     .WithAccessorList(SyntaxUtilities.PropertyGetSetDeclaration)
                     .WithInitializer(hashsetInstance)
                     .WithSemicolonToken(Token(SyntaxKind.SemicolonToken))
@@ -353,7 +351,9 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore
                 var attributeArguments = new List<AttributeArgumentSyntax>
                 {
                     AttributeArgument(
-                        LiteralExpression(SyntaxKind.StringLiteralExpression, Literal(table.Name.LocalName)))
+                        LiteralExpression(
+                            SyntaxKind.StringLiteralExpression,
+                            Literal(table.Name.LocalName)))
                 };
 
                 var schemaName = table.Name.Schema;
@@ -362,23 +362,20 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore
                     var schemaArgument = AttributeArgument(
                         AssignmentExpression(
                             SyntaxKind.SimpleAssignmentExpression,
-                            IdentifierName(nameof(System.ComponentModel.DataAnnotations.Schema.TableAttribute.Schema)),
+                            IdentifierName(nameof(TableAttribute.Schema)),
                             Token(SyntaxKind.EqualsToken),
-                            LiteralExpression(SyntaxKind.StringLiteralExpression, Literal(schemaName))
-                        )
-                    );
+                            LiteralExpression(
+                                SyntaxKind.StringLiteralExpression,
+                                Literal(schemaName))));
                     attributeArguments.Add(schemaArgument);
                 }
 
                 var tableAttribute = AttributeList(
-                    SeparatedList(new[]
-                    {
+                    SingletonSeparatedList(
                         Attribute(
-                            SyntaxUtilities.AttributeName(nameof(System.ComponentModel.DataAnnotations.Schema.TableAttribute)),
-                            AttributeArgumentList(SeparatedList(attributeArguments))
-                        )
-                    })
-                );
+                            SyntaxUtilities.AttributeName(nameof(TableAttribute)),
+                            AttributeArgumentList(
+                                SeparatedList(attributeArguments)))));
                 attributes.Add(tableAttribute);
             }
 
@@ -399,31 +396,26 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore
             if (isConstrainedType && column.Type.MaxLength > 0)
             {
                 var maxLengthAttribute = AttributeList(
-                    SeparatedList(new[]
-                    {
+                    SingletonSeparatedList(
                         Attribute(
-                            SyntaxUtilities.AttributeName(nameof(System.ComponentModel.DataAnnotations.MaxLengthAttribute)),
+                            SyntaxUtilities.AttributeName(nameof(MaxLengthAttribute)),
                             AttributeArgumentList(
-                                SeparatedList(new[]
-                                {
+                                SingletonSeparatedList(
                                     AttributeArgument(
-                                        LiteralExpression(SyntaxKind.NumericLiteralExpression, Literal(column.Type.MaxLength)))
-                                }))
-                        )
-                    })
-                );
+                                        LiteralExpression(
+                                            SyntaxKind.NumericLiteralExpression,
+                                            Literal(column.Type.MaxLength))))))));
                 attributes.Add(maxLengthAttribute);
             }
 
             if (!clrType.IsValueType && !column.IsNullable)
             {
                 var requiredAttribute = AttributeList(
-                    SeparatedList(new[]
-                    {
+                    SingletonSeparatedList(
                         Attribute(
-                            SyntaxUtilities.AttributeName(nameof(System.ComponentModel.DataAnnotations.RequiredAttribute))
+                            SyntaxUtilities.AttributeName(nameof(RequiredAttribute))
                         )
-                    })
+                    )
                 );
                 attributes.Add(requiredAttribute);
             }
@@ -431,23 +423,16 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore
             column.AutoIncrement.IfSome(_ =>
             {
                 var databaseGeneratedAttribute = AttributeList(
-                    SeparatedList(new[]
-                    {
+                    SingletonSeparatedList(
                         Attribute(
-                            SyntaxUtilities.AttributeName(nameof(System.ComponentModel.DataAnnotations.Schema.DatabaseGeneratedAttribute)),
+                            SyntaxUtilities.AttributeName(nameof(DatabaseGeneratedAttribute)),
                             AttributeArgumentList(
-                                SeparatedList(new[]
-                                {
+                                SingletonSeparatedList(
                                     AttributeArgument(
                                         MemberAccessExpression(
                                             SyntaxKind.SimpleMemberAccessExpression,
-                                            IdentifierName(nameof(System.ComponentModel.DataAnnotations.Schema.DatabaseGeneratedOption)),
-                                            IdentifierName(nameof(System.ComponentModel.DataAnnotations.Schema.DatabaseGeneratedOption.Identity))))
-                                })
-                            )
-                        )
-                    })
-                );
+                                            IdentifierName(nameof(DatabaseGeneratedOption)),
+                                            IdentifierName(nameof(DatabaseGeneratedOption.Identity)))))))));
                 attributes.Add(databaseGeneratedAttribute);
             });
 
@@ -457,24 +442,23 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore
                 var quotedColumnName = LiteralExpression(SyntaxKind.StringLiteralExpression, Literal(column.Name.LocalName));
                 columnAttributeArgs.Add(AttributeArgument(quotedColumnName));
             }
-            columnAttributeArgs.Add(AttributeArgument(
-                AssignmentExpression(
-                    SyntaxKind.SimpleAssignmentExpression,
-                    IdentifierName(nameof(System.ComponentModel.DataAnnotations.Schema.ColumnAttribute.TypeName)),
-                    Token(SyntaxKind.EqualsToken),
-                    LiteralExpression(SyntaxKind.StringLiteralExpression, Literal(column.Type.TypeName.LocalName))
-                )
-            ));
+            columnAttributeArgs.Add(
+                AttributeArgument(
+                    AssignmentExpression(
+                        SyntaxKind.SimpleAssignmentExpression,
+                        IdentifierName(nameof(ColumnAttribute.TypeName)),
+                        Token(SyntaxKind.EqualsToken),
+                        LiteralExpression(
+                            SyntaxKind.StringLiteralExpression,
+                            Literal(column.Type.TypeName.LocalName))))
+            );
 
             var columnAttribute = AttributeList(
-                SeparatedList(new[]
-                {
+                SingletonSeparatedList(
                     Attribute(
-                        SyntaxUtilities.AttributeName(nameof(System.ComponentModel.DataAnnotations.Schema.ColumnAttribute)),
-                        AttributeArgumentList(SeparatedList(columnAttributeArgs))
-                    )
-                })
-            );
+                        SyntaxUtilities.AttributeName(nameof(ColumnAttribute)),
+                        AttributeArgumentList(
+                            SeparatedList(columnAttributeArgs)))));
             attributes.Add(columnAttribute);
 
             return attributes;

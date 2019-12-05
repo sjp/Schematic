@@ -57,14 +57,12 @@ namespace SJP.Schematic.DataAccess.OrmLite
             var classDeclaration = BuildClass(tables, table, comment);
 
             var document = CompilationUnit()
-                .WithUsings(new SyntaxList<UsingDirectiveSyntax>(usingStatements))
+                .WithUsings(List<UsingDirectiveSyntax>(usingStatements))
                 .WithMembers(
-                    new SyntaxList<MemberDeclarationSyntax>(
-                        namespaceDeclaration.WithMembers(
-                            new SyntaxList<MemberDeclarationSyntax>(classDeclaration)
-                        )
-                    )
-                );
+                    SingletonList<MemberDeclarationSyntax>(
+                        namespaceDeclaration
+                            .WithMembers(
+                                SingletonList<MemberDeclarationSyntax>(classDeclaration))));
 
             using var workspace = new AdhocWorkspace();
             return Formatter.Format(document, workspace).ToFullString();
@@ -86,7 +84,7 @@ namespace SJP.Schematic.DataAccess.OrmLite
                 .AddModifiers(Token(SyntaxKind.PublicKeyword))
                 .AddAttributeLists(BuildClassAttributes(table, className).ToArray())
                 .WithLeadingTrivia(BuildTableComment(table.Name, comment))
-                .WithMembers(new SyntaxList<MemberDeclarationSyntax>(columnProperties));
+                .WithMembers(List<MemberDeclarationSyntax>(columnProperties));
         }
 
         private PropertyDeclarationSyntax BuildColumn(IRelationalDatabaseTable table, IDatabaseColumn column, Option<IRelationalDatabaseTableComments> comment, string className)
@@ -180,40 +178,30 @@ namespace SJP.Schematic.DataAccess.OrmLite
             if (!schemaName.IsNullOrWhiteSpace())
             {
                 var schemaAttribute = AttributeList(
-                    SeparatedList(new[]
-                    {
+                    SingletonSeparatedList(
                         Attribute(
                             SyntaxUtilities.AttributeName(nameof(SchemaAttribute)),
                             AttributeArgumentList(
-                                SeparatedList(new[]
-                                {
+                                SingletonSeparatedList(
                                     AttributeArgument(
-                                        LiteralExpression(SyntaxKind.StringLiteralExpression, Literal(schemaName)))
-                                })
-                            )
-                        )
-                    })
-                );
+                                        LiteralExpression(
+                                            SyntaxKind.StringLiteralExpression,
+                                            Literal(schemaName))))))));
                 attributes.Add(schemaAttribute);
             }
 
             if (className != table.Name.LocalName)
             {
                 var aliasAttribute = AttributeList(
-                    SeparatedList(new[]
-                    {
+                    SingletonSeparatedList(
                         Attribute(
                             SyntaxUtilities.AttributeName(nameof(AliasAttribute)),
                             AttributeArgumentList(
-                                SeparatedList(new[]
-                                {
+                                SingletonSeparatedList(
                                     AttributeArgument(
-                                        LiteralExpression(SyntaxKind.StringLiteralExpression, Literal(table.Name.LocalName)))
-                                })
-                            )
-                        )
-                    })
-                );
+                                        LiteralExpression(
+                                            SyntaxKind.StringLiteralExpression,
+                                            Literal(table.Name.LocalName))))))));
                 attributes.Add(aliasAttribute);
             }
 
@@ -234,21 +222,14 @@ namespace SJP.Schematic.DataAccess.OrmLite
                             ArgumentList(
                                 SingletonSeparatedList(
                                     Argument(
-                                        IdentifierName(p))))
-                        )
-                    ));
+                                        IdentifierName(p)))))));
 
                 var uniqueConstraintAttribute = AttributeList(
-                    SeparatedList(new[]
-                    {
+                    SingletonSeparatedList(
                         Attribute(
                             SyntaxUtilities.AttributeName(nameof(UniqueConstraintAttribute)),
                             AttributeArgumentList(
-                                SeparatedList(columnNames)
-                            )
-                        )
-                    })
-                );
+                                SeparatedList(columnNames)))));
                 attributes.Add(uniqueConstraintAttribute);
             }
 
@@ -288,16 +269,11 @@ namespace SJP.Schematic.DataAccess.OrmLite
                 }
 
                 var compositeIndexAttribute = AttributeList(
-                    SeparatedList(new[]
-                    {
+                    SingletonSeparatedList(
                         Attribute(
                             SyntaxUtilities.AttributeName(nameof(CompositeIndexAttribute)),
                             AttributeArgumentList(
-                                SeparatedList(attrParams)
-                            )
-                        )
-                    })
-                );
+                                SeparatedList(attrParams)))));
                 attributes.Add(compositeIndexAttribute);
             }
 
@@ -317,32 +293,24 @@ namespace SJP.Schematic.DataAccess.OrmLite
             if (clrType == typeof(string) && column.Type.MaxLength > 0)
             {
                 var maxLengthAttribute = AttributeList(
-                    SeparatedList(new[]
-                    {
+                    SingletonSeparatedList(
                         Attribute(
                             SyntaxUtilities.AttributeName(nameof(StringLengthAttribute)),
                             AttributeArgumentList(
-                                SeparatedList(new[]
-                                {
+                                SingletonSeparatedList(
                                     AttributeArgument(
-                                        LiteralExpression(SyntaxKind.NumericLiteralExpression, Literal(column.Type.MaxLength)))
-                                }))
-                        )
-                    })
-                );
+                                        LiteralExpression(
+                                            SyntaxKind.NumericLiteralExpression,
+                                            Literal(column.Type.MaxLength))))))));
                 attributes.Add(maxLengthAttribute);
             }
 
             if (!clrType.IsValueType && !column.IsNullable)
             {
                 var requiredAttribute = AttributeList(
-                    SeparatedList(new[]
-                    {
+                    SingletonSeparatedList(
                         Attribute(
-                            SyntaxUtilities.AttributeName(nameof(RequiredAttribute))
-                        )
-                    })
-                );
+                            SyntaxUtilities.AttributeName(nameof(RequiredAttribute)))));
                 attributes.Add(requiredAttribute);
             }
 
@@ -350,26 +318,18 @@ namespace SJP.Schematic.DataAccess.OrmLite
             if (isPrimaryKey)
             {
                 var primaryKeyAttribute = AttributeList(
-                    SeparatedList(new[]
-                    {
+                    SingletonSeparatedList(
                         Attribute(
-                            SyntaxUtilities.AttributeName(nameof(PrimaryKeyAttribute))
-                        )
-                    })
-                );
+                            SyntaxUtilities.AttributeName(nameof(PrimaryKeyAttribute)))));
                 attributes.Add(primaryKeyAttribute);
             }
 
             if (column.AutoIncrement.IsSome)
             {
                 var autoIncrementAttribute = AttributeList(
-                    SeparatedList(new[]
-                    {
+                    SingletonSeparatedList(
                         Attribute(
-                            SyntaxUtilities.AttributeName(nameof(AutoIncrementAttribute))
-                        )
-                    })
-                );
+                            SyntaxUtilities.AttributeName(nameof(AutoIncrementAttribute)))));
                 attributes.Add(autoIncrementAttribute);
             }
 
@@ -381,9 +341,7 @@ namespace SJP.Schematic.DataAccess.OrmLite
                 var indexAttribute = Attribute(
                     SyntaxUtilities.AttributeName(nameof(IndexAttribute))
                 );
-                var indexAttributeList = AttributeList(
-                    SeparatedList(new[] { indexAttribute })
-                );
+                var indexAttributeList = AttributeList(SingletonSeparatedList(indexAttribute));
 
                 if (isNonUniqueIndex)
                 {
@@ -394,14 +352,11 @@ namespace SJP.Schematic.DataAccess.OrmLite
                     var uniqueIndexAttribute = indexAttribute
                         .WithArgumentList(
                             AttributeArgumentList(
-                                SeparatedList(new[]
-                                {
-                                    AttributeArgument(LiteralExpression(SyntaxKind.TrueLiteralExpression))
-                                })));
+                                SingletonSeparatedList(
+                                    AttributeArgument(
+                                        LiteralExpression(SyntaxKind.TrueLiteralExpression)))));
 
-                    var uniqueIndexAttributeList = AttributeList(
-                        SeparatedList(new[] { uniqueIndexAttribute })
-                    );
+                    var uniqueIndexAttributeList = AttributeList(SingletonSeparatedList(uniqueIndexAttribute));
                     attributes.Add(uniqueIndexAttributeList);
                 }
             }
@@ -410,30 +365,24 @@ namespace SJP.Schematic.DataAccess.OrmLite
             if (isUniqueKey)
             {
                 var uniqueKeyAttribute = AttributeList(
-                    SeparatedList(new[]
-                    {
+                    SingletonSeparatedList(
                         Attribute(
-                            SyntaxUtilities.AttributeName(nameof(UniqueAttribute))
-                        )
-                    })
-                );
+                            SyntaxUtilities.AttributeName(nameof(UniqueAttribute)))));
                 attributes.Add(uniqueKeyAttribute);
             }
 
             column.DefaultValue.IfSome(def =>
             {
                 var defaultAttribute = AttributeList(
-                    SeparatedList(new[]
-                    {
+                    SingletonSeparatedList(
                         Attribute(
                             SyntaxUtilities.AttributeName(nameof(DefaultAttribute)),
                             AttributeArgumentList(
-                                SeparatedList(new[]
-                                {
-                                    AttributeArgument(LiteralExpression(SyntaxKind.StringLiteralExpression, Literal(def)))
-                                })))
-                    })
-                );
+                                SingletonSeparatedList(
+                                    AttributeArgument(
+                                        LiteralExpression(
+                                            SyntaxKind.StringLiteralExpression,
+                                            Literal(def))))))));
                 attributes.Add(defaultAttribute);
             });
 
@@ -461,9 +410,9 @@ namespace SJP.Schematic.DataAccess.OrmLite
                             SyntaxKind.SimpleAssignmentExpression,
                             IdentifierName(nameof(ForeignKeyAttribute.ForeignKeyName)),
                             Token(SyntaxKind.EqualsToken),
-                            LiteralExpression(SyntaxKind.StringLiteralExpression, Literal(fkName.LocalName))
-                        )
-                    );
+                            LiteralExpression(
+                                SyntaxKind.StringLiteralExpression,
+                                Literal(fkName.LocalName))));
                     fkAttributeArgs.Add(foreignKeyNameArg);
                 });
 
@@ -475,9 +424,9 @@ namespace SJP.Schematic.DataAccess.OrmLite
                             SyntaxKind.SimpleAssignmentExpression,
                             IdentifierName(nameof(ForeignKeyAttribute.OnDelete)),
                             Token(SyntaxKind.EqualsToken),
-                            LiteralExpression(SyntaxKind.StringLiteralExpression, Literal(deleteAction))
-                        )
-                    );
+                            LiteralExpression(
+                                SyntaxKind.StringLiteralExpression,
+                                Literal(deleteAction))));
                     fkAttributeArgs.Add(foreignKeyOnDeleteArg);
                 }
 
@@ -489,41 +438,32 @@ namespace SJP.Schematic.DataAccess.OrmLite
                             SyntaxKind.SimpleAssignmentExpression,
                             IdentifierName(nameof(ForeignKeyAttribute.OnUpdate)),
                             Token(SyntaxKind.EqualsToken),
-                            LiteralExpression(SyntaxKind.StringLiteralExpression, Literal(updateAction))
-                        )
-                    );
+                            LiteralExpression(
+                                SyntaxKind.StringLiteralExpression,
+                                Literal(updateAction))));
                     fkAttributeArgs.Add(foreignKeyOnUpdateArg);
                 }
 
                 var foreignKeyAttribute = AttributeList(
-                    SeparatedList(new[]
-                    {
+                    SingletonSeparatedList(
                         Attribute(
                             SyntaxUtilities.AttributeName(nameof(ForeignKeyAttribute)),
-                            AttributeArgumentList(SeparatedList(fkAttributeArgs))
-                        )
-                    })
-                );
+                            AttributeArgumentList(SeparatedList(fkAttributeArgs)))));
                 attributes.Add(foreignKeyAttribute);
             }
 
             if (propertyName != column.Name.LocalName)
             {
                 var aliasAttribute = AttributeList(
-                    SeparatedList(new[]
-                    {
+                    SingletonSeparatedList(
                         Attribute(
                             SyntaxUtilities.AttributeName(nameof(AliasAttribute)),
                             AttributeArgumentList(
-                                SeparatedList(new[]
-                                {
+                                SingletonSeparatedList(
                                     AttributeArgument(
-                                        LiteralExpression(SyntaxKind.StringLiteralExpression, Literal(column.Name.LocalName)))
-                                })
-                            )
-                        )
-                    })
-                );
+                                        LiteralExpression(
+                                            SyntaxKind.StringLiteralExpression,
+                                            Literal(column.Name.LocalName))))))));
                 attributes.Add(aliasAttribute);
             }
 
@@ -681,26 +621,6 @@ namespace SJP.Schematic.DataAccess.OrmLite
 
             return false;
         }
-
-        private static readonly IReadOnlyDictionary<string, string> TypeNameMap = new Dictionary<string, string>
-        {
-            ["Boolean"] = "bool",
-            ["Byte"] = "byte",
-            ["Byte[]"] = "byte[]",
-            ["SByte"] = "sbyte",
-            ["Char"] = "char",
-            ["Decimal"] = "decimal",
-            ["Double"] = "double",
-            ["Single"] = "float",
-            ["Int32"] = "int",
-            ["UInt32"] = "uint",
-            ["Int64"] = "long",
-            ["UInt64"] = "ulong",
-            ["Object"] = "object",
-            ["Int16"] = "short",
-            ["UInt16"] = "ushort",
-            ["String"] = "string"
-        };
 
         private static readonly IReadOnlyDictionary<ReferentialAction, string> ForeignKeyAction = new Dictionary<ReferentialAction, string>
         {

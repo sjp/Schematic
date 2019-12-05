@@ -55,14 +55,12 @@ namespace SJP.Schematic.DataAccess.Poco
             var classDeclaration = BuildClass(table, comment);
 
             var document = CompilationUnit()
-                .WithUsings(new SyntaxList<UsingDirectiveSyntax>(usingStatements))
+                .WithUsings(List<UsingDirectiveSyntax>(usingStatements))
                 .WithMembers(
-                    new SyntaxList<MemberDeclarationSyntax>(
-                        namespaceDeclaration.WithMembers(
-                            new SyntaxList<MemberDeclarationSyntax>(classDeclaration)
-                        )
-                    )
-                );
+                    SingletonList<MemberDeclarationSyntax>(
+                        namespaceDeclaration
+                            .WithMembers(
+                                SingletonList<MemberDeclarationSyntax>(classDeclaration))));
 
             using var workspace = new AdhocWorkspace();
             return Formatter.Format(document, workspace).ToFullString();
@@ -81,7 +79,7 @@ namespace SJP.Schematic.DataAccess.Poco
             return ClassDeclaration(className)
                 .AddModifiers(Token(SyntaxKind.PublicKeyword))
                 .WithLeadingTrivia(BuildTableComment(table.Name, comment))
-                .WithMembers(new SyntaxList<MemberDeclarationSyntax>(properties));
+                .WithMembers(List<MemberDeclarationSyntax>(properties));
         }
 
         private PropertyDeclarationSyntax BuildColumn(IDatabaseColumn column, Option<IRelationalDatabaseTableComments> comment, string className)

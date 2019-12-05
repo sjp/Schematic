@@ -11,6 +11,8 @@ using SJP.Schematic.Core;
 using SJP.Schematic.Core.Extensions;
 using SJP.Schematic.DataAccess.CodeGeneration;
 using SJP.Schematic.DataAccess.Extensions;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 
 namespace SJP.Schematic.DataAccess.EntityFrameworkCore
@@ -55,14 +57,12 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore
             var classDeclaration = BuildDbContext(tables, views, sequences);
 
             var document = CompilationUnit()
-                .WithUsings(new SyntaxList<UsingDirectiveSyntax>(usingStatements))
+                .WithUsings(List<UsingDirectiveSyntax>(usingStatements))
                 .WithMembers(
-                    new SyntaxList<MemberDeclarationSyntax>(
-                        namespaceDeclaration.WithMembers(
-                            new SyntaxList<MemberDeclarationSyntax>(classDeclaration)
-                        )
-                    )
-                );
+                    SingletonList<MemberDeclarationSyntax>(
+                        namespaceDeclaration
+                            .WithMembers(
+                                SingletonList<MemberDeclarationSyntax>(classDeclaration))));
 
             using var workspace = new AdhocWorkspace();
             return Formatter.Format(document, workspace).ToFullString();
@@ -95,7 +95,7 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore
             var baseClass = BaseList(
                 SingletonSeparatedList<BaseTypeSyntax>(
                     SimpleBaseType(
-                        IdentifierName(nameof(Microsoft.EntityFrameworkCore.DbContext)))));
+                        IdentifierName(nameof(DbContext)))));
 
             var tableDbSets = tables.Select(BuildTableDbSet).ToList();
             var viewDbSets = views.Select(BuildViewDbSet).ToList();
@@ -159,13 +159,13 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore
                 throw new ArgumentNullException(nameof(objectType));
 
             var dbSetType = GenericName(
-                Identifier(nameof(Microsoft.EntityFrameworkCore.DbSet<object>)),
+                Identifier(nameof(DbSet<object>)),
                 TypeArgumentList(
                     SingletonSeparatedList(
                         ParseTypeName(typeArgument))));
 
             return PropertyDeclaration(dbSetType, Identifier(propertyName))
-                .WithModifiers(new SyntaxTokenList(Token(SyntaxKind.PublicKeyword)))
+                .WithModifiers(TokenList(Token(SyntaxKind.PublicKeyword)))
                 .WithAccessorList(SyntaxUtilities.PropertyGetSetDeclaration)
                 .WithLeadingTrivia(BuildDbSetComment(qualifiedTargetName, objectType))
                 .WithInitializer(SyntaxUtilities.NotNullDefault)
@@ -208,13 +208,13 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore
             return MethodDeclaration(
                 PredefinedType(Token(SyntaxKind.VoidKeyword)),
                 Identifier("OnModelCreating"))
-                .WithModifiers(TokenList(new[] { Token(SyntaxKind.ProtectedKeyword), Token(SyntaxKind.OverrideKeyword) }))
+                .WithModifiers(TokenList(Token(SyntaxKind.ProtectedKeyword), Token(SyntaxKind.OverrideKeyword)))
                 .WithParameterList(
                     ParameterList(
                         SingletonSeparatedList(
                             Parameter(Identifier("modelBuilder"))
                                 .WithType(
-                                    IdentifierName(nameof(Microsoft.EntityFrameworkCore.ModelBuilder))))))
+                                    IdentifierName(nameof(ModelBuilder))))))
                 .WithBody(Block(expressions))
                 .WithLeadingTrivia(BuildOnModelCreateComment());
         }
@@ -260,7 +260,7 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore
                     SyntaxKind.SimpleMemberAccessExpression,
                     IdentifierName("modelBuilder"),
                     GenericName(
-                        Identifier(nameof(Microsoft.EntityFrameworkCore.ModelBuilder.Entity)))
+                        Identifier(nameof(ModelBuilder.Entity)))
                         .WithTypeArgumentList(
                             TypeArgumentList(
                                 SingletonSeparatedList(
@@ -270,7 +270,7 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore
                 MemberAccessExpression(
                     SyntaxKind.SimpleMemberAccessExpression,
                     entity,
-                    IdentifierName(nameof(Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder.HasNoKey))));
+                    IdentifierName(nameof(EntityTypeBuilder.HasNoKey))));
 
             var toViewArgs = new List<ArgumentSyntax>
             {
@@ -292,7 +292,7 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore
                 MemberAccessExpression(
                     SyntaxKind.SimpleMemberAccessExpression,
                     hasNoKey,
-                    IdentifierName(nameof(Microsoft.EntityFrameworkCore.RelationalEntityTypeBuilderExtensions.ToView))))
+                    IdentifierName(nameof(RelationalEntityTypeBuilderExtensions.ToView))))
                 .WithArgumentList(
                     ArgumentList(
                         SeparatedList(toViewArgs)));
@@ -316,7 +316,7 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore
                     SyntaxKind.SimpleMemberAccessExpression,
                     IdentifierName("modelBuilder"),
                     GenericName(
-                        Identifier(nameof(Microsoft.EntityFrameworkCore.ModelBuilder.Entity)))
+                        Identifier(nameof(ModelBuilder.Entity)))
                         .WithTypeArgumentList(
                             TypeArgumentList(
                                 SingletonSeparatedList(
@@ -327,7 +327,7 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore
                 MemberAccessExpression(
                     SyntaxKind.SimpleMemberAccessExpression,
                     entity,
-                    IdentifierName(nameof(Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder.Property))))
+                    IdentifierName(nameof(EntityTypeBuilder.Property))))
                 .WithArgumentList(
                     ArgumentList(
                         SingletonSeparatedList(
@@ -346,7 +346,7 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore
                     MemberAccessExpression(
                         SyntaxKind.SimpleMemberAccessExpression,
                         property,
-                        IdentifierName(nameof(Microsoft.EntityFrameworkCore.RelationalPropertyBuilderExtensions.HasDefaultValue))))
+                        IdentifierName(nameof(RelationalPropertyBuilderExtensions.HasDefaultValue))))
                     .WithArgumentList(
                         ArgumentList(
                             SingletonSeparatedList(
@@ -364,7 +364,7 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore
                         MemberAccessExpression(
                             SyntaxKind.SimpleMemberAccessExpression,
                             property,
-                            IdentifierName(nameof(Microsoft.EntityFrameworkCore.RelationalPropertyBuilderExtensions.HasComputedColumnSql))))
+                            IdentifierName(nameof(RelationalPropertyBuilderExtensions.HasComputedColumnSql))))
                         .WithArgumentList(
                             ArgumentList(
                                 SingletonSeparatedList(
@@ -396,7 +396,7 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore
                     SyntaxKind.SimpleMemberAccessExpression,
                     IdentifierName("modelBuilder"),
                     GenericName(
-                        Identifier(nameof(Microsoft.EntityFrameworkCore.ModelBuilder.Entity)))
+                        Identifier(nameof(ModelBuilder.Entity)))
                         .WithTypeArgumentList(
                             TypeArgumentList(
                                 SingletonSeparatedList(
@@ -406,7 +406,7 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore
                 MemberAccessExpression(
                     SyntaxKind.SimpleMemberAccessExpression,
                     entity,
-                    IdentifierName(nameof(Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder.HasKey))))
+                    IdentifierName(nameof(EntityTypeBuilder.HasKey))))
                 .WithArgumentList(
                     ArgumentList(
                         SingletonSeparatedList(
@@ -419,7 +419,7 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore
                     MemberAccessExpression(
                         SyntaxKind.SimpleMemberAccessExpression,
                         pkBuilder,
-                        IdentifierName(nameof(Microsoft.EntityFrameworkCore.RelationalKeyBuilderExtensions.HasName))))
+                        IdentifierName(nameof(RelationalKeyBuilderExtensions.HasName))))
                     .WithArgumentList(
                         ArgumentList(
                             SingletonSeparatedList(
@@ -488,7 +488,7 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore
                     SyntaxKind.SimpleMemberAccessExpression,
                     IdentifierName("modelBuilder"),
                     GenericName(
-                        Identifier(nameof(Microsoft.EntityFrameworkCore.ModelBuilder.Entity)))
+                        Identifier(nameof(ModelBuilder.Entity)))
                         .WithTypeArgumentList(
                             TypeArgumentList(
                                 SingletonSeparatedList(
@@ -498,7 +498,7 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore
                 MemberAccessExpression(
                     SyntaxKind.SimpleMemberAccessExpression,
                     entity,
-                    IdentifierName(nameof(Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder.HasIndex))))
+                    IdentifierName(nameof(EntityTypeBuilder.HasIndex))))
                 .WithArgumentList(
                     ArgumentList(
                         SingletonSeparatedList(
@@ -511,7 +511,7 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore
                     MemberAccessExpression(
                         SyntaxKind.SimpleMemberAccessExpression,
                         indexBuilder,
-                        IdentifierName(nameof(Microsoft.EntityFrameworkCore.Metadata.Builders.IndexBuilder.IsUnique))));
+                        IdentifierName(nameof(IndexBuilder.IsUnique))));
             }
 
             if (index.Name != null)
@@ -520,7 +520,7 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore
                     MemberAccessExpression(
                         SyntaxKind.SimpleMemberAccessExpression,
                         indexBuilder,
-                        IdentifierName(nameof(Microsoft.EntityFrameworkCore.RelationalIndexBuilderExtensions.HasName))))
+                        IdentifierName(nameof(RelationalIndexBuilderExtensions.HasName))))
                     .WithArgumentList(
                         ArgumentList(
                             SingletonSeparatedList(
@@ -551,7 +551,7 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore
                     SyntaxKind.SimpleMemberAccessExpression,
                     IdentifierName("modelBuilder"),
                     GenericName(
-                        Identifier(nameof(Microsoft.EntityFrameworkCore.ModelBuilder.Entity)))
+                        Identifier(nameof(ModelBuilder.Entity)))
                         .WithTypeArgumentList(
                             TypeArgumentList(
                                 SingletonSeparatedList(
@@ -561,7 +561,7 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore
                 MemberAccessExpression(
                     SyntaxKind.SimpleMemberAccessExpression,
                     entity,
-                    IdentifierName(nameof(Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder.HasAlternateKey))))
+                    IdentifierName(nameof(EntityTypeBuilder.HasAlternateKey))))
                 .WithArgumentList(
                     ArgumentList(
                         SingletonSeparatedList(
@@ -574,7 +574,7 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore
                     MemberAccessExpression(
                         SyntaxKind.SimpleMemberAccessExpression,
                         ukBuilder,
-                        IdentifierName(nameof(Microsoft.EntityFrameworkCore.RelationalKeyBuilderExtensions.HasName))))
+                        IdentifierName(nameof(RelationalKeyBuilderExtensions.HasName))))
                     .WithArgumentList(
                         ArgumentList(
                             SingletonSeparatedList(
@@ -609,7 +609,7 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore
                     SyntaxKind.SimpleMemberAccessExpression,
                     IdentifierName("modelBuilder"),
                     GenericName(
-                        Identifier(nameof(Microsoft.EntityFrameworkCore.ModelBuilder.Entity)))
+                        Identifier(nameof(ModelBuilder.Entity)))
                         .WithTypeArgumentList(
                             TypeArgumentList(
                                 SingletonSeparatedList(
@@ -619,7 +619,7 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore
                 MemberAccessExpression(
                     SyntaxKind.SimpleMemberAccessExpression,
                     entity,
-                    IdentifierName(nameof(Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder.HasOne))))
+                    IdentifierName(nameof(EntityTypeBuilder.HasOne))))
                 .WithArgumentList(
                     ArgumentList(
                         SingletonSeparatedList(
@@ -636,7 +636,7 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore
                 MemberAccessExpression(
                     SyntaxKind.SimpleMemberAccessExpression,
                     parentKeyBuilder,
-                    IdentifierName(nameof(Microsoft.EntityFrameworkCore.Metadata.Builders.ReferenceNavigationBuilder.WithMany))))
+                    IdentifierName(nameof(ReferenceNavigationBuilder.WithMany))))
                 .WithArgumentList(
                     ArgumentList(
                         SingletonSeparatedList(
@@ -653,7 +653,7 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore
                 MemberAccessExpression(
                     SyntaxKind.SimpleMemberAccessExpression,
                     parentKeyBuilder,
-                    IdentifierName(nameof(Microsoft.EntityFrameworkCore.Metadata.Builders.ReferenceCollectionBuilder.HasForeignKey))))
+                    IdentifierName(nameof(ReferenceCollectionBuilder.HasForeignKey))))
                 .WithArgumentList(
                     ArgumentList(
                         SingletonSeparatedList(
@@ -664,7 +664,7 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore
                 MemberAccessExpression(
                     SyntaxKind.SimpleMemberAccessExpression,
                     parentKeyBuilder,
-                    IdentifierName(nameof(Microsoft.EntityFrameworkCore.Metadata.Builders.ReferenceCollectionBuilder.HasPrincipalKey))))
+                    IdentifierName(nameof(ReferenceCollectionBuilder.HasPrincipalKey))))
                 .WithArgumentList(
                     ArgumentList(
                         SingletonSeparatedList(
@@ -677,7 +677,7 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore
                     MemberAccessExpression(
                         SyntaxKind.SimpleMemberAccessExpression,
                         parentKeyBuilder,
-                        IdentifierName(nameof(Microsoft.EntityFrameworkCore.RelationalForeignKeyBuilderExtensions.HasConstraintName))))
+                        IdentifierName(nameof(RelationalForeignKeyBuilderExtensions.HasConstraintName))))
                     .WithArgumentList(
                         ArgumentList(
                             SingletonSeparatedList(
@@ -719,7 +719,7 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore
                     SyntaxKind.SimpleMemberAccessExpression,
                     IdentifierName("modelBuilder"),
                     GenericName(
-                        Identifier(nameof(Microsoft.EntityFrameworkCore.RelationalModelBuilderExtensions.HasSequence)))
+                        Identifier(nameof(RelationalModelBuilderExtensions.HasSequence)))
                         .WithTypeArgumentList(
                             TypeArgumentList(
                                 SingletonSeparatedList<TypeSyntax>(
@@ -738,7 +738,7 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore
                 MemberAccessExpression(
                     SyntaxKind.SimpleMemberAccessExpression,
                     hasSequence,
-                    IdentifierName(nameof(Microsoft.EntityFrameworkCore.Metadata.Builders.SequenceBuilder.StartsAt))))
+                    IdentifierName(nameof(SequenceBuilder.StartsAt))))
                 .WithArgumentList(startsAtArgs);
 
             var incrementsByArgs = ArgumentList(
@@ -752,7 +752,7 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore
                 MemberAccessExpression(
                     SyntaxKind.SimpleMemberAccessExpression,
                     startsAt,
-                    IdentifierName(nameof(Microsoft.EntityFrameworkCore.Metadata.Builders.SequenceBuilder.IncrementsBy))))
+                    IdentifierName(nameof(SequenceBuilder.IncrementsBy))))
                 .WithArgumentList(incrementsByArgs);
         }
     }
