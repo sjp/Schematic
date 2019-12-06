@@ -471,7 +471,7 @@ namespace SJP.Schematic.Core.Tests
             Assert.IsTrue(areEqual);
         }
 
-        private class FakeNumericPrecision : INumericPrecision
+        private sealed class FakeNumericPrecision : INumericPrecision
         {
             public FakeNumericPrecision(int precision, int scale)
             {

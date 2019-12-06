@@ -16,9 +16,8 @@ namespace SJP.Schematic.DataAccess.Extensions
 
             foreach (var ns in namespaces)
             {
-                var group = ns == "System" || ns.StartsWith("System.")
-                    ? system
-                    : nonSystem;
+                var isSystem = ns == SystemNamespace || ns.StartsWith(SystemNamespacePrefix, StringComparison.Ordinal);
+                var group = isSystem ? system : nonSystem;
                 group.Add(ns);
             }
 
@@ -26,5 +25,8 @@ namespace SJP.Schematic.DataAccess.Extensions
                 .Concat(nonSystem.OrderBy(n => n))
                 .ToList();
         }
+
+        private const string SystemNamespace = nameof(System);
+        private const string SystemNamespacePrefix = nameof(System) + ".";
     }
 }

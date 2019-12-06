@@ -18,7 +18,7 @@ namespace SJP.Schematic.DataAccess.Tests
         public static void OrderNamespaces_GivenEmptyCollection_ReturnsEmptyCollection()
         {
             var input = Array.Empty<string>();
-            var result = EnumerableStringExtensions.OrderNamespaces(input);
+            var result = input.OrderNamespaces();
 
             Assert.IsFalse(result.Any());
         }
@@ -41,7 +41,7 @@ namespace SJP.Schematic.DataAccess.Tests
                 "System.Linq"
             };
 
-            var result = EnumerableStringExtensions.OrderNamespaces(input);
+            var result = input.OrderNamespaces();
 
             var seqEqual = expected.SequenceEqual(result);
             Assert.IsTrue(seqEqual);
@@ -65,7 +65,7 @@ namespace SJP.Schematic.DataAccess.Tests
                 "Test.Linq"
             };
 
-            var result = EnumerableStringExtensions.OrderNamespaces(input);
+            var result = input.OrderNamespaces();
 
             var seqEqual = expected.SequenceEqual(result);
             Assert.IsTrue(seqEqual);
@@ -89,7 +89,7 @@ namespace SJP.Schematic.DataAccess.Tests
                 "Test.Linq"
             };
 
-            var result = EnumerableStringExtensions.OrderNamespaces(input);
+            var result = input.OrderNamespaces();
 
             var seqEqual = expected.SequenceEqual(result);
             Assert.IsTrue(seqEqual);
@@ -106,7 +106,7 @@ namespace SJP.Schematic.DataAccess.Tests
                 "System.Linq"
             };
 
-            var result = EnumerableStringExtensions.OrderNamespaces(input);
+            var result = input.OrderNamespaces();
 
             var seqEqual = input.SequenceEqual(result);
             Assert.IsTrue(seqEqual);

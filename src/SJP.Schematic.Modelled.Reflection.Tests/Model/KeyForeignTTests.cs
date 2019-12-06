@@ -118,7 +118,8 @@ namespace SJP.Schematic.Modelled.Reflection.Model.Tests
         public static void KeySelector_WhenCtorNotGivenSimpleSelector_ThrowsInvalidOperationException()
         {
             var testColumn = Mock.Of<IModelledColumn>();
-            Key selector(TestTable1 t)
+
+            static Key selector(TestTable1 t)
             {
                 const string testString = "test";
                 var strLength = testString.Length;

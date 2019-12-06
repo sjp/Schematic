@@ -18,7 +18,7 @@ namespace SJP.Schematic.DataAccess.CodeGeneration
                     Token(SyntaxKind.DefaultKeyword))));
 
         public static AccessorListSyntax PropertyGetSetDeclaration { get; } = AccessorList(
-            new SyntaxList<AccessorDeclarationSyntax>(new[]
+            List(new[]
             {
                 AccessorDeclaration(SyntaxKind.GetAccessorDeclaration)
                     .WithSemicolonToken(Token(SyntaxKind.SemicolonToken)),
@@ -50,7 +50,7 @@ namespace SJP.Schematic.DataAccess.CodeGeneration
             // add a newline after the summary element
             var formattedCommentNodes = new XmlNodeSyntax[] { XmlText(XmlNewline) }.Concat(commentNodes).ToArray();
 
-            return new SyntaxTriviaList(
+            return TriviaList(
                 Trivia(
                     DocumentationComment(
                         XmlSummaryElement(formattedCommentNodes))),
@@ -68,7 +68,7 @@ namespace SJP.Schematic.DataAccess.CodeGeneration
                 .Concat(new XmlNodeSyntax[] { XmlText(XmlNewline) })
                 .ToArray();
 
-            return new SyntaxTriviaList(
+            return TriviaList(
                 Trivia(
                     DocumentationComment(
                         XmlSummaryElement(commentsWithNewlines))),
@@ -107,7 +107,7 @@ namespace SJP.Schematic.DataAccess.CodeGeneration
                 .ToList();
             var combinedSyntaxNodes = new[] { summarySyntaxNode }.Concat(paramSyntaxNodes).ToArray();
 
-            return new SyntaxTriviaList(
+            return TriviaList(
                 Trivia(
                     DocumentationComment(combinedSyntaxNodes)),
                 ElasticCarriageReturnLineFeed
@@ -116,27 +116,24 @@ namespace SJP.Schematic.DataAccess.CodeGeneration
 
         public static readonly IReadOnlyDictionary<string, TypeSyntax> TypeSyntaxMap = new Dictionary<string, TypeSyntax>
         {
-            ["Boolean"] = PredefinedType(Token(SyntaxKind.BoolKeyword)),
-            ["Byte"] = PredefinedType(Token(SyntaxKind.ByteKeyword)),
+            [nameof(Boolean)] = PredefinedType(Token(SyntaxKind.BoolKeyword)),
+            [nameof(Byte)] = PredefinedType(Token(SyntaxKind.ByteKeyword)),
             ["Byte[]"] = ArrayType(
-                PredefinedType(
-                    Token(SyntaxKind.ByteKeyword)
-                ),
-                SingletonList(ArrayRankSpecifier())
-            ),
-            ["SByte"] = PredefinedType(Token(SyntaxKind.SByteKeyword)),
-            ["Char"] = PredefinedType(Token(SyntaxKind.CharKeyword)),
-            ["Decimal"] = PredefinedType(Token(SyntaxKind.DecimalKeyword)),
-            ["Double"] = PredefinedType(Token(SyntaxKind.DoubleKeyword)),
-            ["Single"] = PredefinedType(Token(SyntaxKind.FloatKeyword)),
-            ["Int32"] = PredefinedType(Token(SyntaxKind.IntKeyword)),
-            ["UInt32"] = PredefinedType(Token(SyntaxKind.UIntKeyword)),
-            ["Int64"] = PredefinedType(Token(SyntaxKind.LongKeyword)),
-            ["UInt64"] = PredefinedType(Token(SyntaxKind.ULongKeyword)),
-            ["Object"] = PredefinedType(Token(SyntaxKind.ObjectKeyword)),
-            ["Int16"] = PredefinedType(Token(SyntaxKind.ShortKeyword)),
-            ["UInt16"] = PredefinedType(Token(SyntaxKind.UShortKeyword)),
-            ["String"] = PredefinedType(Token(SyntaxKind.StringKeyword))
+                PredefinedType(Token(SyntaxKind.ByteKeyword)),
+                SingletonList(ArrayRankSpecifier())),
+            [nameof(SByte)] = PredefinedType(Token(SyntaxKind.SByteKeyword)),
+            [nameof(Char)] = PredefinedType(Token(SyntaxKind.CharKeyword)),
+            [nameof(Decimal)] = PredefinedType(Token(SyntaxKind.DecimalKeyword)),
+            [nameof(Double)] = PredefinedType(Token(SyntaxKind.DoubleKeyword)),
+            [nameof(Single)] = PredefinedType(Token(SyntaxKind.FloatKeyword)),
+            [nameof(Int32)] = PredefinedType(Token(SyntaxKind.IntKeyword)),
+            [nameof(UInt32)] = PredefinedType(Token(SyntaxKind.UIntKeyword)),
+            [nameof(Int64)] = PredefinedType(Token(SyntaxKind.LongKeyword)),
+            [nameof(UInt64)] = PredefinedType(Token(SyntaxKind.ULongKeyword)),
+            [nameof(Object)] = PredefinedType(Token(SyntaxKind.ObjectKeyword)),
+            [nameof(Int16)] = PredefinedType(Token(SyntaxKind.ShortKeyword)),
+            [nameof(UInt16)] = PredefinedType(Token(SyntaxKind.UShortKeyword)),
+            [nameof(String)] = PredefinedType(Token(SyntaxKind.StringKeyword))
         };
 
         private static IReadOnlyCollection<string> GetLines(string comment)

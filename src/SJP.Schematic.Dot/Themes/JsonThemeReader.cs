@@ -98,7 +98,7 @@ namespace SJP.Schematic.Dot.Themes
             return settings;
         }
 
-        private class RgbColorConverter : JsonConverter<RgbColor>
+        private sealed class RgbColorConverter : JsonConverter<RgbColor>
         {
             public override RgbColor Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
             {

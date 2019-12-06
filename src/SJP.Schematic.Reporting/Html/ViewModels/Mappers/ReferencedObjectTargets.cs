@@ -147,7 +147,7 @@ namespace SJP.Schematic.Reporting.Html.ViewModels.Mappers
             );
         }
 
-        private class Link
+        private sealed class Link
         {
             public Link(Identifier objectName, Uri targetUri)
             {

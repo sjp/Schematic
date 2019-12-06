@@ -462,7 +462,7 @@ namespace SJP.Schematic.Core.Tests
             Assert.IsTrue(areEqual);
         }
 
-        private class FakeAutoIncrement : IAutoIncrement
+        private sealed class FakeAutoIncrement : IAutoIncrement
         {
             public FakeAutoIncrement(decimal initialValue, decimal increment)
             {

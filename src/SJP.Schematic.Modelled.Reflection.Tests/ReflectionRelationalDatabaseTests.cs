@@ -66,7 +66,7 @@ namespace SJP.Schematic.Modelled.Reflection.Tests
             Assert.IsTrue(tableIsNone);
         }
 
-        private class SampleDatabase
+        private sealed class SampleDatabase
         {
             public Table<TestTable1> FirstTestTable { get; }
 
