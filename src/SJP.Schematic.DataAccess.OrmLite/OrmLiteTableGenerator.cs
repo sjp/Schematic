@@ -57,7 +57,7 @@ namespace SJP.Schematic.DataAccess.OrmLite
             var classDeclaration = BuildClass(tables, table, comment);
 
             var document = CompilationUnit()
-                .WithUsings(List<UsingDirectiveSyntax>(usingStatements))
+                .WithUsings(List(usingStatements))
                 .WithMembers(
                     SingletonList<MemberDeclarationSyntax>(
                         namespaceDeclaration

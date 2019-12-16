@@ -64,7 +64,7 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore
             var classDeclaration = BuildClass(tables, table, comment);
 
             var document = CompilationUnit()
-                .WithUsings(List<UsingDirectiveSyntax>(usingStatements))
+                .WithUsings(List(usingStatements))
                 .WithMembers(
                     SingletonList<MemberDeclarationSyntax>(
                         namespaceDeclaration
@@ -413,10 +413,7 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore
                 var requiredAttribute = AttributeList(
                     SingletonSeparatedList(
                         Attribute(
-                            SyntaxUtilities.AttributeName(nameof(RequiredAttribute))
-                        )
-                    )
-                );
+                            SyntaxUtilities.AttributeName(nameof(RequiredAttribute)))));
                 attributes.Add(requiredAttribute);
             }
 

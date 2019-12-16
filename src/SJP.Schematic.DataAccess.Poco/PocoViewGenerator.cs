@@ -52,7 +52,7 @@ namespace SJP.Schematic.DataAccess.Poco
             var classDeclaration = BuildClass(view, comment);
 
             var document = CompilationUnit()
-                .WithUsings(List<UsingDirectiveSyntax>(usingStatements))
+                .WithUsings(List(usingStatements))
                 .WithMembers(
                     SingletonList<MemberDeclarationSyntax>(
                         namespaceDeclaration

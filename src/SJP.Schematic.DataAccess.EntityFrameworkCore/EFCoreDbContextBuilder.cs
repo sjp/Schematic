@@ -41,23 +41,11 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore
             if (sequences == null)
                 throw new ArgumentNullException(nameof(sequences));
 
-            var namespaces = new[]
-                {
-                    "System",
-                    "Microsoft.EntityFrameworkCore"
-                }
-                .OrderNamespaces()
-                .ToList();
-
-            var usingStatements = namespaces
-                .Select(ns => ParseName(ns))
-                .Select(UsingDirective)
-                .ToList();
             var namespaceDeclaration = NamespaceDeclaration(ParseName(Namespace));
             var classDeclaration = BuildDbContext(tables, views, sequences);
 
             var document = CompilationUnit()
-                .WithUsings(List<UsingDirectiveSyntax>(usingStatements))
+                .WithUsings(List(UsingStatements))
                 .WithMembers(
                     SingletonList<MemberDeclarationSyntax>(
                         namespaceDeclaration
@@ -68,19 +56,30 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore
             return Formatter.Format(document, workspace).ToFullString();
         }
 
+        private const string SystemNamespace = nameof(System);
+        private const string EfCoreNamespace = "Microsoft.EntityFrameworkCore";
+        private const string EntityLambdaParameterName = "t";
+        private const string ModelBuilderParameterName = "modelBuilder";
         private const string ModelBuilderMethodSummaryComment = "Configure the model that was discovered by convention from the defined entity types.";
         private const string ModelBuilderMethodParamComment = "The builder being used to construct the model for this context.";
 
-        private static SyntaxTriviaList BuildOnModelCreateComment()
-        {
-            var summary = new[] { XmlText(ModelBuilderMethodSummaryComment) };
-            var param = new Dictionary<string, IEnumerable<XmlNodeSyntax>>
+        private static readonly IEnumerable<string> Namespaces = new[]
             {
-                ["modelBuilder"] = new[] { XmlText(ModelBuilderMethodParamComment) }
-            };
+                SystemNamespace,
+                EfCoreNamespace
+            }
+            .OrderNamespaces()
+            .ToList();
 
-            return SyntaxUtilities.BuildCommentTriviaWithParams(summary, param);
-        }
+        private static readonly IEnumerable<UsingDirectiveSyntax> UsingStatements = Namespaces
+            .Select(ns => ParseName(ns))
+            .Select(UsingDirective)
+            .ToList();
+
+        private SyntaxTriviaList OnModelCreateComment { get; } = SyntaxUtilities.BuildCommentTriviaWithParams(
+            new[] { XmlText(ModelBuilderMethodSummaryComment) },
+            new Dictionary<string, IEnumerable<XmlNodeSyntax>> { [ModelBuilderParameterName] = new[] { XmlText(ModelBuilderMethodParamComment) } }
+        );
 
         private ClassDeclarationSyntax BuildDbContext(IEnumerable<IRelationalDatabaseTable> tables, IEnumerable<IDatabaseView> views, IEnumerable<IDatabaseSequence> sequences)
         {
@@ -212,11 +211,11 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore
                 .WithParameterList(
                     ParameterList(
                         SingletonSeparatedList(
-                            Parameter(Identifier("modelBuilder"))
+                            Parameter(Identifier(ModelBuilderParameterName))
                                 .WithType(
                                     IdentifierName(nameof(ModelBuilder))))))
                 .WithBody(Block(expressions))
-                .WithLeadingTrivia(BuildOnModelCreateComment());
+                .WithLeadingTrivia(OnModelCreateComment);
         }
 
         private IEnumerable<InvocationExpressionSyntax> BuildTableConfiguration(IRelationalDatabaseTable table)
@@ -244,60 +243,6 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore
                 .ToList();
         }
 
-        private InvocationExpressionSyntax BuildViewConfiguration(IDatabaseView view)
-        {
-            if (view == null)
-                throw new ArgumentNullException(nameof(view));
-
-            var schemaNamespace = NameTranslator.SchemaToNamespace(view.Name);
-            var className = NameTranslator.ViewToClassName(view.Name);
-            var qualifiedClassName = !schemaNamespace.IsNullOrWhiteSpace()
-                ? schemaNamespace + "." + className
-                : className;
-
-            var entity = InvocationExpression(
-                MemberAccessExpression(
-                    SyntaxKind.SimpleMemberAccessExpression,
-                    IdentifierName("modelBuilder"),
-                    GenericName(
-                        Identifier(nameof(ModelBuilder.Entity)))
-                        .WithTypeArgumentList(
-                            TypeArgumentList(
-                                SingletonSeparatedList(
-                                    ParseTypeName(qualifiedClassName))))));
-
-            var hasNoKey = InvocationExpression(
-                MemberAccessExpression(
-                    SyntaxKind.SimpleMemberAccessExpression,
-                    entity,
-                    IdentifierName(nameof(EntityTypeBuilder.HasNoKey))));
-
-            var toViewArgs = new List<ArgumentSyntax>
-            {
-                Argument(
-                    LiteralExpression(
-                        SyntaxKind.StringLiteralExpression,
-                        Literal(view.Name.LocalName)))
-            };
-            if (!view.Name.Schema.IsNullOrWhiteSpace())
-            {
-                var schemaArg = Argument(
-                    LiteralExpression(
-                        SyntaxKind.StringLiteralExpression,
-                        Literal(view.Name.Schema)));
-                toViewArgs.Add(schemaArg);
-            }
-
-            return InvocationExpression(
-                MemberAccessExpression(
-                    SyntaxKind.SimpleMemberAccessExpression,
-                    hasNoKey,
-                    IdentifierName(nameof(RelationalEntityTypeBuilderExtensions.ToView))))
-                .WithArgumentList(
-                    ArgumentList(
-                        SeparatedList(toViewArgs)));
-        }
-
         private InvocationExpressionSyntax BuildTableColumnPropertyForBuilder(IRelationalDatabaseTable table, IDatabaseColumn column)
         {
             if (table == null)
@@ -311,17 +256,7 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore
                 ? schemaNamespace + "." + className
                 : className;
 
-            var entity = InvocationExpression(
-                MemberAccessExpression(
-                    SyntaxKind.SimpleMemberAccessExpression,
-                    IdentifierName("modelBuilder"),
-                    GenericName(
-                        Identifier(nameof(ModelBuilder.Entity)))
-                        .WithTypeArgumentList(
-                            TypeArgumentList(
-                                SingletonSeparatedList(
-                                    ParseTypeName(qualifiedClassName))))));
-
+            var entity = GetEntityBuilder(qualifiedClassName);
             var propertyName = NameTranslator.ColumnToPropertyName(className, column.Name.LocalName);
             var property = InvocationExpression(
                 MemberAccessExpression(
@@ -334,10 +269,10 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore
                             Argument(
                                 SimpleLambdaExpression(
                                     Parameter(
-                                        Identifier("t")),
+                                        Identifier(EntityLambdaParameterName)),
                                     MemberAccessExpression(
                                         SyntaxKind.SimpleMemberAccessExpression,
-                                        IdentifierName("t"),
+                                        IdentifierName(EntityLambdaParameterName),
                                         IdentifierName(propertyName)))))));
 
             column.DefaultValue.IfSome(def =>
@@ -391,17 +326,7 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore
                 ? schemaNamespace + "." + className
                 : className;
 
-            var entity = InvocationExpression(
-                MemberAccessExpression(
-                    SyntaxKind.SimpleMemberAccessExpression,
-                    IdentifierName("modelBuilder"),
-                    GenericName(
-                        Identifier(nameof(ModelBuilder.Entity)))
-                        .WithTypeArgumentList(
-                            TypeArgumentList(
-                                SingletonSeparatedList(
-                                    ParseTypeName(qualifiedClassName))))));
-
+            var entity = GetEntityBuilder(qualifiedClassName);
             var pkBuilder = InvocationExpression(
                 MemberAccessExpression(
                     SyntaxKind.SimpleMemberAccessExpression,
@@ -432,43 +357,6 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore
             return pkBuilder;
         }
 
-        private SimpleLambdaExpressionSyntax GenerateColumnSet(string className, IEnumerable<IDatabaseColumn> columns)
-        {
-            if (columns == null)
-                throw new ArgumentNullException(nameof(columns));
-
-            var columnsList = columns.ToList();
-            if (columnsList.Count == 1)
-            {
-                var column = columnsList[0];
-                var propertyName = NameTranslator.ColumnToPropertyName(className, column.Name.LocalName);
-
-                return SimpleLambdaExpression(
-                    Parameter(
-                        Identifier("t")),
-                        MemberAccessExpression(
-                            SyntaxKind.SimpleMemberAccessExpression,
-                            IdentifierName("t"),
-                            IdentifierName(propertyName)));
-            }
-
-            var columnsSet = columns.Select(c =>
-            {
-                var propertyName = NameTranslator.ColumnToPropertyName(className, c.Name.LocalName);
-                return AnonymousObjectMemberDeclarator(
-                        MemberAccessExpression(
-                            SyntaxKind.SimpleMemberAccessExpression,
-                            IdentifierName("t"),
-                            IdentifierName(propertyName)));
-            }).ToList();
-
-            return SimpleLambdaExpression(
-                Parameter(
-                    Identifier("t")),
-                    AnonymousObjectCreationExpression(
-                        SeparatedList(columnsSet)));
-        }
-
         private InvocationExpressionSyntax BuildTableIndexForBuilder(IRelationalDatabaseTable table, IDatabaseIndex index)
         {
             if (table == null)
@@ -483,17 +371,7 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore
                 ? schemaNamespace + "." + className
                 : className;
 
-            var entity = InvocationExpression(
-                MemberAccessExpression(
-                    SyntaxKind.SimpleMemberAccessExpression,
-                    IdentifierName("modelBuilder"),
-                    GenericName(
-                        Identifier(nameof(ModelBuilder.Entity)))
-                        .WithTypeArgumentList(
-                            TypeArgumentList(
-                                SingletonSeparatedList(
-                                    ParseTypeName(qualifiedClassName))))));
-
+            var entity = GetEntityBuilder(qualifiedClassName);
             var indexBuilder = InvocationExpression(
                 MemberAccessExpression(
                     SyntaxKind.SimpleMemberAccessExpression,
@@ -546,17 +424,7 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore
                 ? schemaNamespace + "." + className
                 : className;
 
-            var entity = InvocationExpression(
-                MemberAccessExpression(
-                    SyntaxKind.SimpleMemberAccessExpression,
-                    IdentifierName("modelBuilder"),
-                    GenericName(
-                        Identifier(nameof(ModelBuilder.Entity)))
-                        .WithTypeArgumentList(
-                            TypeArgumentList(
-                                SingletonSeparatedList(
-                                    ParseTypeName(qualifiedClassName))))));
-
+            var entity = GetEntityBuilder(qualifiedClassName);
             var ukBuilder = InvocationExpression(
                 MemberAccessExpression(
                     SyntaxKind.SimpleMemberAccessExpression,
@@ -604,17 +472,7 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore
             var childKey = relationalKey.ChildKey;
             var parentPropertyName = NameTranslator.TableToClassName(relationalKey.ParentTable);
 
-            var entity = InvocationExpression(
-                MemberAccessExpression(
-                    SyntaxKind.SimpleMemberAccessExpression,
-                    IdentifierName("modelBuilder"),
-                    GenericName(
-                        Identifier(nameof(ModelBuilder.Entity)))
-                        .WithTypeArgumentList(
-                            TypeArgumentList(
-                                SingletonSeparatedList(
-                                    ParseTypeName(qualifiedClassName))))));
-
+            var entity = GetEntityBuilder(qualifiedClassName);
             var parentKeyBuilder = InvocationExpression(
                 MemberAccessExpression(
                     SyntaxKind.SimpleMemberAccessExpression,
@@ -626,10 +484,10 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore
                             Argument(
                                 SimpleLambdaExpression(
                                     Parameter(
-                                        Identifier("t")),
+                                        Identifier(EntityLambdaParameterName)),
                                     MemberAccessExpression(
                                         SyntaxKind.SimpleMemberAccessExpression,
-                                        IdentifierName("t"),
+                                        IdentifierName(EntityLambdaParameterName),
                                         IdentifierName(parentPropertyName)))))));
 
             parentKeyBuilder = InvocationExpression(
@@ -643,10 +501,10 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore
                             Argument(
                                 SimpleLambdaExpression(
                                     Parameter(
-                                        Identifier("t")),
+                                        Identifier(EntityLambdaParameterName)),
                                     MemberAccessExpression(
                                         SyntaxKind.SimpleMemberAccessExpression,
-                                        IdentifierName("t"),
+                                        IdentifierName(EntityLambdaParameterName),
                                         IdentifierName(childSetName)))))));
 
             parentKeyBuilder = InvocationExpression(
@@ -690,6 +548,111 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore
             return parentKeyBuilder;
         }
 
+        private SimpleLambdaExpressionSyntax GenerateColumnSet(string className, IEnumerable<IDatabaseColumn> columns)
+        {
+            if (columns == null)
+                throw new ArgumentNullException(nameof(columns));
+
+            var columnsList = columns.ToList();
+            if (columnsList.Count == 1)
+            {
+                var column = columnsList[0];
+                var propertyName = NameTranslator.ColumnToPropertyName(className, column.Name.LocalName);
+
+                return SimpleLambdaExpression(
+                    Parameter(
+                        Identifier(EntityLambdaParameterName)),
+                    MemberAccessExpression(
+                        SyntaxKind.SimpleMemberAccessExpression,
+                        IdentifierName(EntityLambdaParameterName),
+                        IdentifierName(propertyName)));
+            }
+
+            var columnsSet = columns
+                .Select(c =>
+                    AnonymousObjectMemberDeclarator(
+                        MemberAccessExpression(
+                            SyntaxKind.SimpleMemberAccessExpression,
+                            IdentifierName(EntityLambdaParameterName),
+                            IdentifierName(NameTranslator.ColumnToPropertyName(className, c.Name.LocalName)))))
+                .ToList();
+
+            return SimpleLambdaExpression(
+                Parameter(
+                    Identifier(EntityLambdaParameterName)),
+                AnonymousObjectCreationExpression(
+                    SeparatedList(columnsSet)));
+        }
+
+        private static InvocationExpressionSyntax GetEntityBuilder(string qualifiedClassName)
+        {
+            if (string.IsNullOrWhiteSpace(qualifiedClassName))
+                throw new ArgumentNullException(nameof(qualifiedClassName));
+
+            return InvocationExpression(
+                MemberAccessExpression(
+                    SyntaxKind.SimpleMemberAccessExpression,
+                    IdentifierName(ModelBuilderParameterName),
+                    GenericName(
+                        Identifier(nameof(ModelBuilder.Entity)))
+                        .WithTypeArgumentList(
+                            TypeArgumentList(
+                                SingletonSeparatedList(
+                                    ParseTypeName(qualifiedClassName))))));
+        }
+
+        private string GetQualifiedClassName(Identifier objectName)
+        {
+            if (objectName == null)
+                throw new ArgumentNullException(nameof(objectName));
+
+            var schemaNamespace = NameTranslator.SchemaToNamespace(objectName);
+            var className = NameTranslator.ViewToClassName(objectName);
+            return !schemaNamespace.IsNullOrWhiteSpace()
+                ? schemaNamespace + "." + className
+                : className;
+        }
+
+        private InvocationExpressionSyntax BuildViewConfiguration(IDatabaseView view)
+        {
+            if (view == null)
+                throw new ArgumentNullException(nameof(view));
+
+            var qualifiedClassName = GetQualifiedClassName(view.Name);
+            var entity = GetEntityBuilder(qualifiedClassName);
+
+            var hasNoKey = InvocationExpression(
+                MemberAccessExpression(
+                    SyntaxKind.SimpleMemberAccessExpression,
+                    entity,
+                    IdentifierName(nameof(EntityTypeBuilder.HasNoKey))));
+
+            var toViewArgs = new List<ArgumentSyntax>
+            {
+                Argument(
+                    LiteralExpression(
+                        SyntaxKind.StringLiteralExpression,
+                        Literal(view.Name.LocalName)))
+            };
+            if (!view.Name.Schema.IsNullOrWhiteSpace())
+            {
+                var schemaArg = Argument(
+                    LiteralExpression(
+                        SyntaxKind.StringLiteralExpression,
+                        Literal(view.Name.Schema)));
+                toViewArgs.Add(schemaArg);
+            }
+
+            return InvocationExpression(
+                MemberAccessExpression(
+                    SyntaxKind.SimpleMemberAccessExpression,
+                    hasNoKey,
+                    IdentifierName(nameof(RelationalEntityTypeBuilderExtensions.ToView))))
+                .WithArgumentList(
+                    ArgumentList(
+                        SeparatedList(toViewArgs)));
+        }
+
         private static InvocationExpressionSyntax BuildSequenceConfiguration(IDatabaseSequence sequence)
         {
             if (sequence == null)
@@ -717,7 +680,7 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore
             var hasSequence = InvocationExpression(
                 MemberAccessExpression(
                     SyntaxKind.SimpleMemberAccessExpression,
-                    IdentifierName("modelBuilder"),
+                    IdentifierName(ModelBuilderParameterName),
                     GenericName(
                         Identifier(nameof(RelationalModelBuilderExtensions.HasSequence)))
                         .WithTypeArgumentList(
