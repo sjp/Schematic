@@ -5,12 +5,15 @@ using Moq;
 using NUnit.Framework;
 using SJP.Schematic.Core;
 using SJP.Schematic.Core.Comments;
+using SJP.Schematic.Tests.Utilities;
 
 namespace SJP.Schematic.DataAccess.OrmLite.Tests
 {
     [TestFixture]
     internal static class OrmLiteDataAccessGeneratorTests
     {
+        private const string TestCsprojFileName = "DataAccessGeneratorTest.csproj";
+
         [Test]
         public static void Ctor_GivenNullFileSystem_ThrowsArgumentNullException()
         {
@@ -95,7 +98,8 @@ namespace SJP.Schematic.DataAccess.OrmLite.Tests
             var commentProvider = new EmptyRelationalDatabaseCommentProvider();
             var nameTranslator = new VerbatimNameTranslator();
             var generator = new OrmLiteDataAccessGenerator(mockFs, database, commentProvider, nameTranslator);
-            var projectPath = Path.Combine(Environment.CurrentDirectory, "DataAccessGeneratorTest.csproj");
+            using var tempDir = new TemporaryDirectory();
+            var projectPath = Path.Combine(tempDir.DirectoryPath, TestCsprojFileName);
 
             Assert.Throws<ArgumentNullException>(() => generator.Generate(projectPath, null));
         }
@@ -108,7 +112,8 @@ namespace SJP.Schematic.DataAccess.OrmLite.Tests
             var commentProvider = new EmptyRelationalDatabaseCommentProvider();
             var nameTranslator = new VerbatimNameTranslator();
             var generator = new OrmLiteDataAccessGenerator(mockFs, database, commentProvider, nameTranslator);
-            var projectPath = Path.Combine(Environment.CurrentDirectory, "DataAccessGeneratorTest.csproj");
+            using var tempDir = new TemporaryDirectory();
+            var projectPath = Path.Combine(tempDir.DirectoryPath, TestCsprojFileName);
 
             Assert.Throws<ArgumentNullException>(() => generator.Generate(projectPath, string.Empty));
         }
@@ -121,7 +126,8 @@ namespace SJP.Schematic.DataAccess.OrmLite.Tests
             var commentProvider = new EmptyRelationalDatabaseCommentProvider();
             var nameTranslator = new VerbatimNameTranslator();
             var generator = new OrmLiteDataAccessGenerator(mockFs, database, commentProvider, nameTranslator);
-            var projectPath = Path.Combine(Environment.CurrentDirectory, "DataAccessGeneratorTest.csproj");
+            using var tempDir = new TemporaryDirectory();
+            var projectPath = Path.Combine(tempDir.DirectoryPath, TestCsprojFileName);
 
             Assert.Throws<ArgumentNullException>(() => generator.Generate(projectPath, "    "));
         }
@@ -134,7 +140,8 @@ namespace SJP.Schematic.DataAccess.OrmLite.Tests
             var commentProvider = new EmptyRelationalDatabaseCommentProvider();
             var nameTranslator = new VerbatimNameTranslator();
             var generator = new OrmLiteDataAccessGenerator(mockFs, database, commentProvider, nameTranslator);
-            var projectPath = Path.Combine(Environment.CurrentDirectory, "DataAccessGeneratorTest.vbproj");
+            using var tempDir = new TemporaryDirectory();
+            var projectPath = Path.Combine(tempDir.DirectoryPath, "DataAccessGeneratorTest.vbproj");
 
             Assert.Throws<ArgumentException>(() => generator.Generate(projectPath, "test"));
         }

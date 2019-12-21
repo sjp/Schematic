@@ -22,6 +22,7 @@
     <ProjectReference Include="..\SJP.Schematic.DataAccess\SJP.Schematic.DataAccess.csproj" />
     <ProjectReference Include="..\SJP.Schematic.DataAccess.EntityFrameworkCore\SJP.Schematic.DataAccess.EntityFrameworkCore.csproj" />
     <ProjectReference Include="..\SJP.Schematic.Sqlite\SJP.Schematic.Sqlite.csproj" />
+    <ProjectReference Include="..\SJP.Schematic.Tests.Utilities\SJP.Schematic.Tests.Utilities.csproj" />
   </ItemGroup>
 
   <ItemGroup>

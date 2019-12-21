@@ -11,6 +11,7 @@ using SJP.Schematic.Core;
 using SJP.Schematic.Core.Comments;
 using SJP.Schematic.Core.Extensions;
 using SJP.Schematic.Sqlite;
+using SJP.Schematic.Tests.Utilities;
 
 namespace SJP.Schematic.DataAccess.EntityFrameworkCore.Tests.Integration
 {
@@ -39,101 +40,65 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore.Tests.Integration
         [Test]
         public async Task Generate_GivenDatabaseWithTables_GeneratesFilesInExpectedLocations()
         {
-            var testProjectDir = Path.Combine(Environment.CurrentDirectory, "EFCoreMockTestAsync");
+            using var tempDir = new TemporaryDirectory();
+            var projectPath = Path.Combine(tempDir.DirectoryPath, TestCsprojFilename);
+            var tablesDir = Path.Combine(tempDir.DirectoryPath, "Tables");
 
-            try
+            var expectedAppContextPath = Path.Combine(tempDir.DirectoryPath, "AppContext.cs");
+            var expectedTable1Path = Path.Combine(tablesDir, "Main", "DalTestTable1.cs");
+
+            var mockFs = new MockFileSystem(new Dictionary<string, MockFileData>
             {
-                if (Directory.Exists(testProjectDir))
-                    Directory.Delete(testProjectDir, true);
+                [tempDir.DirectoryPath + Path.PathSeparator] = new MockDirectoryData(),
+                [expectedAppContextPath] = MockFileData.NullObject,
+                [expectedTable1Path] = MockFileData.NullObject
+            });
 
-                var projectPath = Path.Combine(testProjectDir, "DataAccessGeneratorTest.csproj");
-                var tablesDir = Path.Combine(testProjectDir, "Tables");
+            var nameTranslator = new PascalCaseNameTranslator();
+            var generator = new EFCoreDataAccessGenerator(mockFs, Database, new EmptyRelationalDatabaseCommentProvider(), nameTranslator);
+            await generator.Generate(projectPath, TestNamespace).ConfigureAwait(false);
 
-                var expectedAppContextPath = Path.Combine(testProjectDir, "AppContext.cs");
-                var expectedTable1Path = Path.Combine(tablesDir, "Main", "DalTestTable1.cs");
-
-                var mockFs = new MockFileSystem(new Dictionary<string, MockFileData>
-                {
-                    [testProjectDir + "\\"] = new MockDirectoryData(),
-                    [expectedAppContextPath] = MockFileData.NullObject,
-                    [expectedTable1Path] = MockFileData.NullObject
-                });
-
-                var nameTranslator = new PascalCaseNameTranslator();
-                var generator = new EFCoreDataAccessGenerator(mockFs, Database, new EmptyRelationalDatabaseCommentProvider(), nameTranslator);
-                await generator.Generate(projectPath, TestNamespace).ConfigureAwait(false);
-
-                Assert.Multiple(() =>
-                {
-                    Assert.IsTrue(mockFs.FileExists(projectPath));
-                    Assert.IsTrue(mockFs.FileExists(expectedAppContextPath));
-                    Assert.IsTrue(mockFs.Directory.Exists(tablesDir));
-                    Assert.IsTrue(mockFs.FileExists(expectedTable1Path));
-                });
-            }
-            finally
+            Assert.Multiple(() =>
             {
-                if (Directory.Exists(testProjectDir))
-                    Directory.Delete(testProjectDir, true);
-            }
+                Assert.IsTrue(mockFs.FileExists(projectPath));
+                Assert.IsTrue(mockFs.FileExists(expectedAppContextPath));
+                Assert.IsTrue(mockFs.Directory.Exists(tablesDir));
+                Assert.IsTrue(mockFs.FileExists(expectedTable1Path));
+            });
         }
 
         [Test]
         public async Task Generate_GivenDatabaseWithoutTables_BuildsProjectSuccessfully()
         {
-            var testProjectDir = Path.Combine(Environment.CurrentDirectory, "EFCoreTestEmptyAsync");
+            using var tempDir = new TemporaryDirectory();
+            var projectPath = Path.Combine(tempDir.DirectoryPath, TestCsprojFilename);
 
-            try
-            {
-                if (Directory.Exists(testProjectDir))
-                    Directory.Delete(testProjectDir, true);
+            var database = new EmptyRelationalDatabase(Database.Dialect, Database.IdentifierDefaults);
 
-                var projectPath = Path.Combine(testProjectDir, "DataAccessGeneratorTest.csproj");
+            var fileSystem = new FileSystem();
+            var commentProvider = new EmptyRelationalDatabaseCommentProvider();
+            var nameTranslator = new PascalCaseNameTranslator();
+            var generator = new EFCoreDataAccessGenerator(fileSystem, database, commentProvider, nameTranslator);
+            await generator.Generate(projectPath, TestNamespace).ConfigureAwait(false);
 
-                var database = new EmptyRelationalDatabase(Database.Dialect, Database.IdentifierDefaults);
-
-                var fileSystem = new FileSystem();
-                var commentProvider = new EmptyRelationalDatabaseCommentProvider();
-                var nameTranslator = new PascalCaseNameTranslator();
-                var generator = new EFCoreDataAccessGenerator(fileSystem, database, commentProvider, nameTranslator);
-                await generator.Generate(projectPath, TestNamespace).ConfigureAwait(false);
-
-                var buildsSuccessfully = await ProjectBuildsSuccessfullyAsync(projectPath).ConfigureAwait(false);
-                Assert.IsTrue(buildsSuccessfully);
-            }
-            finally
-            {
-                if (Directory.Exists(testProjectDir))
-                    Directory.Delete(testProjectDir, true);
-            }
+            var buildsSuccessfully = await ProjectBuildsSuccessfullyAsync(projectPath).ConfigureAwait(false);
+            Assert.IsTrue(buildsSuccessfully);
         }
 
         [Test]
         public async Task Generate_GivenDatabaseWithTables_BuildsProjectSuccessfully()
         {
-            var testProjectDir = Path.Combine(Environment.CurrentDirectory, "EFCoreTestAsync");
+            using var tempDir = new TemporaryDirectory();
+            var projectPath = Path.Combine(tempDir.DirectoryPath, TestCsprojFilename);
 
-            try
-            {
-                if (Directory.Exists(testProjectDir))
-                    Directory.Delete(testProjectDir, true);
+            var fileSystem = new FileSystem();
+            var commentProvider = new EmptyRelationalDatabaseCommentProvider();
+            var nameTranslator = new PascalCaseNameTranslator();
+            var generator = new EFCoreDataAccessGenerator(fileSystem, Database, commentProvider, nameTranslator);
+            await generator.Generate(projectPath, TestNamespace).ConfigureAwait(false);
 
-                var projectPath = Path.Combine(testProjectDir, "DataAccessGeneratorTest.csproj");
-
-                var fileSystem = new FileSystem();
-                var commentProvider = new EmptyRelationalDatabaseCommentProvider();
-                var nameTranslator = new PascalCaseNameTranslator();
-                var generator = new EFCoreDataAccessGenerator(fileSystem, Database, commentProvider, nameTranslator);
-                await generator.Generate(projectPath, TestNamespace).ConfigureAwait(false);
-
-                var buildsSuccessfully = await ProjectBuildsSuccessfullyAsync(projectPath).ConfigureAwait(false);
-                Assert.IsTrue(buildsSuccessfully);
-            }
-            finally
-            {
-                if (Directory.Exists(testProjectDir))
-                    Directory.Delete(testProjectDir, true);
-            }
+            var buildsSuccessfully = await ProjectBuildsSuccessfullyAsync(projectPath).ConfigureAwait(false);
+            Assert.IsTrue(buildsSuccessfully);
         }
 
         private static Task<bool> ProjectBuildsSuccessfullyAsync(string projectPath)
@@ -168,6 +133,7 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore.Tests.Integration
         }
 
         private const string TestNamespace = "EFCoreTestNamespace";
+        private const string TestCsprojFilename = "DataAccessGeneratorTest.csproj";
         private const int ExitSuccess = 0;
     }
 }

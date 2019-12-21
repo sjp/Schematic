@@ -21,6 +21,7 @@
   <ItemGroup>
     <ProjectReference Include="..\SJP.Schematic.DataAccess.Poco\SJP.Schematic.DataAccess.Poco.csproj" />
     <ProjectReference Include="..\SJP.Schematic.Sqlite\SJP.Schematic.Sqlite.csproj" />
+    <ProjectReference Include="..\SJP.Schematic.Tests.Utilities\SJP.Schematic.Tests.Utilities.csproj" />
   </ItemGroup>
 
   <ItemGroup>
