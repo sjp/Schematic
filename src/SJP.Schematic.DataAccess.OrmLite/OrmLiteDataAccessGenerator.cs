@@ -126,7 +126,7 @@ namespace SJP.Schematic.DataAccess.OrmLite
                     new XElement(
                         "PackageReference",
                         new XAttribute("Include", "ServiceStack.OrmLite"),
-                        new XAttribute("Version", "5.7.0")
+                        new XAttribute("Version", "5.8.0")
                     )
                 )
             ).ToString(SaveOptions.None);
