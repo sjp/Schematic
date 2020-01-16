@@ -136,7 +136,7 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore
                     new XElement(
                         "PackageReference",
                         new XAttribute("Include", "Microsoft.EntityFrameworkCore.Relational"),
-                        new XAttribute("Version", "3.0.1")
+                        new XAttribute("Version", "3.1.1")
                     )
                 )
             ).ToString(SaveOptions.None);
