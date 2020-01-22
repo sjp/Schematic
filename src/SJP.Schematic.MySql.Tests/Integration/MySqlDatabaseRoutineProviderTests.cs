@@ -1,10 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
 using Dapper;
-using Microsoft.VisualStudio.Threading;
+using Nito.AsyncEx;
 using NUnit.Framework;
 using SJP.Schematic.Core;
 using SJP.Schematic.Core.Extensions;
@@ -52,7 +51,7 @@ END").ConfigureAwait(false);
                     _routinesCache[routineName] = lazyRoutine;
                 }
 
-                return lazyRoutine.GetValueAsync(CancellationToken.None);
+                return lazyRoutine.Task;
             }
         }
 

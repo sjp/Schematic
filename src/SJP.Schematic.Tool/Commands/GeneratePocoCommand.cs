@@ -58,7 +58,7 @@ namespace SJP.Schematic.Tool
                 await generator.Generate(GenerateParent.ProjectPath, GenerateParent.BaseNamespace).ConfigureAwait(false);
 
                 var dirName = Path.GetDirectoryName(GenerateParent.ProjectPath);
-                application.Out.WriteLine("The POCO project has been exported to: " + dirName);
+                await application.Out.WriteLineAsync("The POCO project has been exported to: " + dirName).ConfigureAwait(false);
                 return 0;
             }
             catch (Exception ex)

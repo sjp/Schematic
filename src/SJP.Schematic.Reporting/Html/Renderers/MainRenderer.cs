@@ -90,7 +90,7 @@ namespace SJP.Schematic.Reporting.Html.Renderers
                 var indexCount = indexesLookup.UCount();
                 indexesCount += indexCount;
 
-                table.PrimaryKey.IfSome(_ => constraints++);
+                await table.PrimaryKey.IfSomeAsync(_ => constraints++).ConfigureAwait(false);
 
                 constraints += uniqueKeyCount;
                 constraints += renderTable.ParentsCount;

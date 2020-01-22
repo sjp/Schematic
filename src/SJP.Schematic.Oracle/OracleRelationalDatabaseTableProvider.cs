@@ -382,7 +382,7 @@ where ac.OWNER = :SchemaName and ac.TABLE_NAME = :TableName and ac.CONSTRAINT_TY
                 // ensure we have a key to begin with
                 IDatabaseKey? parentKey = null;
                 if (childKeyRow.ParentKeyType == Constants.PrimaryKeyType)
-                    primaryKey.IfSome(k => parentKey = k);
+                    await primaryKey.IfSomeAsync(k => parentKey = k).ConfigureAwait(false);
                 else if (childKeyRow.ParentKeyName != null && uniqueKeys.ContainsKey(childKeyRow.ParentKeyName))
                     parentKey = uniqueKeys[childKeyRow.ParentKeyName];
                 if (parentKey == null)

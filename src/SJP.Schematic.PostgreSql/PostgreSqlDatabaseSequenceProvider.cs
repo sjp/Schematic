@@ -6,7 +6,7 @@ using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 using LanguageExt;
-using Microsoft.VisualStudio.Threading;
+using Nito.AsyncEx;
 using SJP.Schematic.Core;
 using SJP.Schematic.Core.Utilities;
 
@@ -34,7 +34,7 @@ namespace SJP.Schematic.PostgreSql
 
         public async IAsyncEnumerable<IDatabaseSequence> GetAllSequences([EnumeratorCancellation] CancellationToken cancellationToken = default)
         {
-            var provider = await _sequenceProvider.GetValueAsync(cancellationToken).ConfigureAwait(false);
+            var provider = await _sequenceProvider.ConfigureAwait(false);
             var sequences = provider.Match(
                 sp => sp.GetAllSequences(cancellationToken),
                 AsyncEnumerable.Empty<IDatabaseSequence>
@@ -49,7 +49,7 @@ namespace SJP.Schematic.PostgreSql
             if (sequenceName == null)
                 throw new ArgumentNullException(nameof(sequenceName));
 
-            return _sequenceProvider.GetValueAsync(cancellationToken)
+            return _sequenceProvider.Task
                 .ToAsync()
                 .Bind(sp => sp.GetSequence(sequenceName, cancellationToken));
         }

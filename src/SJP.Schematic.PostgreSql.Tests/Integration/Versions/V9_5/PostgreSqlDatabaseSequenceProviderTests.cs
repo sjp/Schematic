@@ -1,10 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
 using Dapper;
-using Microsoft.VisualStudio.Threading;
+using Nito.AsyncEx;
 using NUnit.Framework;
 using SJP.Schematic.Core;
 using SJP.Schematic.Core.Extensions;
@@ -60,7 +59,7 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration.Versions.V9_5
                     _sequencesCache[sequenceName] = lazySequence;
                 }
 
-                return lazySequence.GetValueAsync(CancellationToken.None);
+                return lazySequence.Task;
             }
         }
 

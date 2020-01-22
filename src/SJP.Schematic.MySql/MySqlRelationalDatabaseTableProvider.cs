@@ -6,7 +6,7 @@ using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 using LanguageExt;
-using Microsoft.VisualStudio.Threading;
+using Nito.AsyncEx;
 using SJP.Schematic.Core;
 using SJP.Schematic.Core.Exceptions;
 using SJP.Schematic.Core.Extensions;
@@ -33,8 +33,6 @@ namespace SJP.Schematic.MySql
         protected IDbTypeProvider TypeProvider { get; }
 
         protected IDatabaseDialect Dialect { get; }
-
-        protected Task<bool> HasCheckSupport(CancellationToken cancellationToken) => _supportsChecks.GetValueAsync(cancellationToken);
 
         public virtual async IAsyncEnumerable<IRelationalDatabaseTable> GetAllTables([EnumeratorCancellation] CancellationToken cancellationToken = default)
         {
@@ -347,7 +345,7 @@ order by kc.ordinal_position";
                 // ensure we have a key to begin with
                 IDatabaseKey? parentKey = null;
                 if (groupedChildKey.Key.ParentKeyType == Constants.PrimaryKey)
-                    primaryKey.IfSome(k => parentKey = k);
+                    await primaryKey.IfSomeAsync(k => parentKey = k).ConfigureAwait(false);
                 else if (uniqueKeys.ContainsKey(groupedChildKey.Key.ParentKeyName))
                     parentKey = uniqueKeys[groupedChildKey.Key.ParentKeyName];
                 if (parentKey == null)
@@ -424,7 +422,7 @@ where pt.table_schema = @SchemaName and pt.table_name = @TableName";
 
         private async Task<IReadOnlyCollection<IDatabaseCheckConstraint>> LoadChecksAsyncCore(Identifier tableName, CancellationToken cancellationToken)
         {
-            var hasCheckSupport = await HasCheckSupport(cancellationToken).ConfigureAwait(false);
+            var hasCheckSupport = await _supportsChecks.ConfigureAwait(false);
             if (!hasCheckSupport)
                 return Array.Empty<IDatabaseCheckConstraint>();
 

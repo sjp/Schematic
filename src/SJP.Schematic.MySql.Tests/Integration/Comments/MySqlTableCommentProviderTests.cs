@@ -1,10 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
 using Dapper;
-using Microsoft.VisualStudio.Threading;
+using Nito.AsyncEx;
 using NUnit.Framework;
 using SJP.Schematic.Core;
 using SJP.Schematic.Core.Comments;
@@ -52,7 +51,7 @@ CREATE TABLE table_comment_table_2
                     _commentsCache[tableName] = lazyComment;
                 }
 
-                return lazyComment.GetValueAsync(CancellationToken.None);
+                return lazyComment.Task;
             }
         }
 

@@ -1,10 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
 using Dapper;
-using Microsoft.VisualStudio.Threading;
+using Nito.AsyncEx;
 using NUnit.Framework;
 using SJP.Schematic.Core;
 using SJP.Schematic.Core.Extensions;
@@ -50,7 +49,7 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration
                     _viewsCache[viewName] = lazyView;
                 }
 
-                return lazyView.GetValueAsync(CancellationToken.None);
+                return lazyView.Task;
             }
         }
 

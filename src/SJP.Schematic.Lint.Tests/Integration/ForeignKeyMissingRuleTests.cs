@@ -72,8 +72,8 @@ create table NoForeignKeyChildWithoutKey (
 
             var tables = new[]
             {
-                database.GetTable("no_foreign_key_parent_1").UnwrapSomeAsync().GetAwaiter().GetResult(),
-                database.GetTable("no_foreign_key_child_with_key").UnwrapSomeAsync().GetAwaiter().GetResult()
+                await database.GetTable("no_foreign_key_parent_1").UnwrapSomeAsync().ConfigureAwait(false),
+                await database.GetTable("no_foreign_key_child_with_key").UnwrapSomeAsync().ConfigureAwait(false)
             };
 
             var hasMessages = await rule.AnalyseTables(tables).AnyAsync().ConfigureAwait(false);
@@ -89,8 +89,8 @@ create table NoForeignKeyChildWithoutKey (
 
             var tables = new[]
             {
-                database.GetTable("NoForeignKeyChildWithKey").UnwrapSomeAsync().GetAwaiter().GetResult(),
-                database.GetTable("NoForeignKeyParent1").UnwrapSomeAsync().GetAwaiter().GetResult()
+                await database.GetTable("NoForeignKeyChildWithKey").UnwrapSomeAsync().ConfigureAwait(false),
+                await database.GetTable("NoForeignKeyParent1").UnwrapSomeAsync().ConfigureAwait(false)
             };
 
             var hasMessages = await rule.AnalyseTables(tables).AnyAsync().ConfigureAwait(false);
@@ -106,8 +106,8 @@ create table NoForeignKeyChildWithoutKey (
 
             var tables = new[]
             {
-                database.GetTable("no_foreign_key_parent_1").UnwrapSomeAsync().GetAwaiter().GetResult(),
-                database.GetTable("no_foreign_key_child_without_key").UnwrapSomeAsync().GetAwaiter().GetResult()
+                await database.GetTable("no_foreign_key_parent_1").UnwrapSomeAsync().ConfigureAwait(false),
+                await database.GetTable("no_foreign_key_child_without_key").UnwrapSomeAsync().ConfigureAwait(false)
             };
 
             var hasMessages = await rule.AnalyseTables(tables).AnyAsync().ConfigureAwait(false);
@@ -123,8 +123,8 @@ create table NoForeignKeyChildWithoutKey (
 
             var tables = new[]
             {
-                database.GetTable("NoForeignKeyChildWithoutKey").UnwrapSomeAsync().GetAwaiter().GetResult(),
-                database.GetTable("NoForeignKeyParent1").UnwrapSomeAsync().GetAwaiter().GetResult()
+                await database.GetTable("NoForeignKeyChildWithoutKey").UnwrapSomeAsync().ConfigureAwait(false),
+                await database.GetTable("NoForeignKeyParent1").UnwrapSomeAsync().ConfigureAwait(false)
             };
 
             var hasMessages = await rule.AnalyseTables(tables).AnyAsync().ConfigureAwait(false);

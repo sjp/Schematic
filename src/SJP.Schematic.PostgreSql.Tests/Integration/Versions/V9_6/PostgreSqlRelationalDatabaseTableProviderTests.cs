@@ -1,10 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
 using Dapper;
-using Microsoft.VisualStudio.Threading;
+using Nito.AsyncEx;
 using NUnit.Framework;
 using SJP.Schematic.Core;
 using SJP.Schematic.Core.Extensions;
@@ -317,7 +316,7 @@ execute procedure v96_test_trigger_fn()").ConfigureAwait(false);
                     _tablesCache[tableName] = lazyTable;
                 }
 
-                return lazyTable.GetValueAsync(CancellationToken.None);
+                return lazyTable.Task;
             }
         }
 

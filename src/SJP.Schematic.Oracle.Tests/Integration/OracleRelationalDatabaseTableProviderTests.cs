@@ -1,10 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
 using Dapper;
-using Microsoft.VisualStudio.Threading;
+using Nito.AsyncEx;
 using NUnit.Framework;
 using SJP.Schematic.Core;
 using SJP.Schematic.Core.Extensions;
@@ -15,7 +14,7 @@ namespace SJP.Schematic.Oracle.Tests.Integration
     {
         private IRelationalDatabaseTableProvider TableProvider => new OracleRelationalDatabaseTableProvider(Connection, IdentifierDefaults, IdentifierResolver, Dialect.TypeProvider);
         private AsyncLazy<List<IRelationalDatabaseTable>> _tables;
-        private Task<List<IRelationalDatabaseTable>> GetAllTables() => _tables.GetValueAsync(CancellationToken.None);
+        private Task<List<IRelationalDatabaseTable>> GetAllTables() => _tables.Task;
 
         [OneTimeSetUp]
         public async Task Init()
@@ -257,7 +256,7 @@ end;
                     _tablesCache[tableName] = lazyTable;
                 }
 
-                return lazyTable.GetValueAsync(CancellationToken.None);
+                return lazyTable.Task;
             }
         }
 

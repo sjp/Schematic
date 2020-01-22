@@ -383,7 +383,7 @@ order by ic.key_ordinal";
                 // ensure we have a key to begin with
                 IDatabaseKey? parentKey = null;
                 if (groupedChildKey.Key.ParentKeyType == Constants.PrimaryKeyType)
-                    primaryKey.IfSome(k => parentKey = k);
+                    await primaryKey.IfSomeAsync(k => parentKey = k).ConfigureAwait(false);
                 else if (uniqueKeys.ContainsKey(groupedChildKey.Key.ParentKeyName))
                     parentKey = uniqueKeys[groupedChildKey.Key.ParentKeyName];
                 if (parentKey == null)

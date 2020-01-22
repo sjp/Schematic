@@ -1,10 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
 using Dapper;
-using Microsoft.VisualStudio.Threading;
+using Nito.AsyncEx;
 using NUnit.Framework;
 using SJP.Schematic.Core;
 using SJP.Schematic.Core.Comments;
@@ -99,7 +98,7 @@ EXEC sys.sp_addextendedproperty @name = N'MS_Description',
                     _commentsCache[routineName] = lazyComment;
                 }
 
-                return lazyComment.GetValueAsync(CancellationToken.None);
+                return lazyComment.Task;
             }
         }
 

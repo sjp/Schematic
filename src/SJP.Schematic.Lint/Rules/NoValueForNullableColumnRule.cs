@@ -5,7 +5,7 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.VisualStudio.Threading;
+using Nito.AsyncEx;
 using SJP.Schematic.Core;
 using SJP.Schematic.Core.Extensions;
 
@@ -134,7 +134,7 @@ namespace SJP.Schematic.Lint.Rules
             var filterSql = "select 1 as dummy_col from " + quotedTableName;
             var sql = $"select case when exists ({ filterSql }) then 1 else 0 end as dummy";
 
-            var suffix = await _fromQuerySuffixAsync.GetValueAsync(CancellationToken.None).ConfigureAwait(false);
+            var suffix = await _fromQuerySuffixAsync.ConfigureAwait(false);
             return suffix.IsNullOrWhiteSpace()
                 ? sql
                 : sql + " from " + suffix;
@@ -157,7 +157,7 @@ namespace SJP.Schematic.Lint.Rules
             var filterSql = $"select * from { quotedTableName } where { quotedColumnName } is not null";
             var sql = $"select case when exists ({ filterSql }) then 1 else 0 end as dummy";
 
-            var suffix = await _fromQuerySuffixAsync.GetValueAsync(CancellationToken.None).ConfigureAwait(false);
+            var suffix = await _fromQuerySuffixAsync.ConfigureAwait(false);
             return suffix.IsNullOrWhiteSpace()
                 ? sql
                 : sql + " from " + suffix;
