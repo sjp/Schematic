@@ -115,8 +115,8 @@ where v.OWNER = :SchemaName and v.VIEW_NAME = :ViewName and o.ORACLE_MAINTAINED 
             var definitionTask = LoadDefinitionAsync(viewName, cancellationToken);
             await Task.WhenAll(columnsTask, definitionTask).ConfigureAwait(false);
 
-            var columns = columnsTask.Result;
-            var definition = definitionTask.Result;
+            var columns = await columnsTask.ConfigureAwait(false);
+            var definition = await definitionTask.ConfigureAwait(false);
 
             return new DatabaseView(viewName, definition, columns);
         }

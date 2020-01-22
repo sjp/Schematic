@@ -130,9 +130,9 @@ where
             var triggersTask = LoadTriggersAsync(tableName, cancellationToken);
             await Task.WhenAll(columnsTask, triggersTask).ConfigureAwait(false);
 
-            var columns = columnsTask.Result;
+            var columns = await columnsTask.ConfigureAwait(false);
             var columnLookup = GetColumnLookup(columns);
-            var triggers = triggersTask.Result;
+            var triggers = await triggersTask.ConfigureAwait(false);
 
             var primaryKeyTask = LoadPrimaryKeyAsync(tableName, columnLookup, cancellationToken);
             var uniqueKeysTask = LoadUniqueKeysAsync(tableName, columnLookup, cancellationToken);
@@ -140,10 +140,10 @@ where
             var checksTask = LoadChecksAsync(tableName, columnLookup, cancellationToken);
             await Task.WhenAll(primaryKeyTask, checksTask, uniqueKeysTask, indexesTask).ConfigureAwait(false);
 
-            var primaryKey = primaryKeyTask.Result;
-            var uniqueKeys = uniqueKeysTask.Result;
-            var indexes = indexesTask.Result;
-            var checks = checksTask.Result;
+            var primaryKey = await primaryKeyTask.ConfigureAwait(false);
+            var uniqueKeys = await uniqueKeysTask.ConfigureAwait(false);
+            var indexes = await indexesTask.ConfigureAwait(false);
+            var checks = await checksTask.ConfigureAwait(false);
 
             var uniqueKeyLookup = GetDatabaseKeyLookup(uniqueKeys);
 
@@ -151,8 +151,8 @@ where
             var parentKeysTask = LoadParentKeysAsync(tableName, columnLookup, cancellationToken);
             await Task.WhenAll(childKeysTask, parentKeysTask).ConfigureAwait(false);
 
-            var childKeys = childKeysTask.Result;
-            var parentKeys = parentKeysTask.Result;
+            var childKeys = await childKeysTask.ConfigureAwait(false);
+            var parentKeys = await parentKeysTask.ConfigureAwait(false);
 
             return new RelationalDatabaseTable(
                 tableName,

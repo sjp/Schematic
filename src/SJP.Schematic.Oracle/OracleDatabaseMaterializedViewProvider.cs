@@ -116,8 +116,8 @@ where mv.OWNER = :SchemaName and mv.MVIEW_NAME = :ViewName
             var definitionTask = LoadDefinitionAsync(viewName, cancellationToken);
             await Task.WhenAll(columnsTask, definitionTask).ConfigureAwait(false);
 
-            var columns = columnsTask.Result;
-            var definition = definitionTask.Result;
+            var columns = await columnsTask.ConfigureAwait(false);
+            var definition = await definitionTask.ConfigureAwait(false);
 
             return new DatabaseMaterializedView(viewName, definition, columns);
         }

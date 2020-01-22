@@ -37,8 +37,8 @@ namespace SJP.Schematic.Oracle
             var materializedViewsTask = MaterializedViewProvider.GetAllViews(cancellationToken).ToListAsync(cancellationToken).AsTask();
             await Task.WhenAll(queryViewsTask, materializedViewsTask).ConfigureAwait(false);
 
-            var queryViews = queryViewsTask.Result;
-            var materializedViews = materializedViewsTask.Result;
+            var queryViews = await queryViewsTask.ConfigureAwait(false);
+            var materializedViews = await materializedViewsTask.ConfigureAwait(false);
 
             var views = queryViews
                 .Concat(materializedViews)

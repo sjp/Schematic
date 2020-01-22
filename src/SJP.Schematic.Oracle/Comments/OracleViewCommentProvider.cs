@@ -36,8 +36,8 @@ namespace SJP.Schematic.Oracle.Comments
             var materializedViewCommentsTask = MaterializedViewCommentProvider.GetAllViewComments(cancellationToken).ToListAsync(cancellationToken).AsTask();
             await Task.WhenAll(queryViewCommentsTask, materializedViewCommentsTask).ConfigureAwait(false);
 
-            var queryViewComments = queryViewCommentsTask.Result;
-            var materializedViewComments = materializedViewCommentsTask.Result;
+            var queryViewComments = await queryViewCommentsTask.ConfigureAwait(false);
+            var materializedViewComments = await materializedViewCommentsTask.ConfigureAwait(false);
 
             var comments = queryViewComments
                 .Concat(materializedViewComments)

@@ -35,8 +35,8 @@ namespace SJP.Schematic.Oracle
             var packagesTask = PackageProvider.GetAllPackages(cancellationToken).ToListAsync(cancellationToken).AsTask();
             await Task.WhenAll(simpleRoutinesTask, packagesTask).ConfigureAwait(false);
 
-            var simpleRoutines = simpleRoutinesTask.Result;
-            var packages = packagesTask.Result;
+            var simpleRoutines = await simpleRoutinesTask.ConfigureAwait(false);
+            var packages = await packagesTask.ConfigureAwait(false);
 
             var routines = simpleRoutines
                 .Concat(packages)

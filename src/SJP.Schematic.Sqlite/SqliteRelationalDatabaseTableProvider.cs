@@ -190,26 +190,26 @@ namespace SJP.Schematic.Sqlite
             var triggersTask = LoadTriggersAsync(tableName, cancellationToken);
             await Task.WhenAll(columnsTask, checksTask, triggersTask).ConfigureAwait(false);
 
-            var columns = columnsTask.Result;
+            var columns = await columnsTask.ConfigureAwait(false);
             var columnLookup = GetColumnLookup(columns);
-            var checks = checksTask.Result;
-            var triggers = triggersTask.Result;
+            var checks = await checksTask.ConfigureAwait(false);
+            var triggers = await triggersTask.ConfigureAwait(false);
 
             var primaryKeyTask = LoadPrimaryKeyAsync(pragma, parsedTable, tableName, columnLookup, cancellationToken);
             var uniqueKeysTask = LoadUniqueKeysAsync(pragma, parsedTable, tableName, columnLookup, cancellationToken);
             var indexesTask = LoadIndexesAsync(pragma, tableName, columnLookup, cancellationToken);
             await Task.WhenAll(primaryKeyTask, uniqueKeysTask, indexesTask).ConfigureAwait(false);
 
-            var primaryKey = primaryKeyTask.Result;
-            var uniqueKeys = uniqueKeysTask.Result;
-            var indexes = indexesTask.Result;
+            var primaryKey = await primaryKeyTask.ConfigureAwait(false);
+            var uniqueKeys = await uniqueKeysTask.ConfigureAwait(false);
+            var indexes = await indexesTask.ConfigureAwait(false);
 
             var childKeysTask = LoadChildKeysAsync(tableName, columnLookup, cancellationToken);
             var parentKeysTask = LoadParentKeysAsync(pragma, parsedTable, tableName, columnLookup, cancellationToken);
             await Task.WhenAll(childKeysTask, parentKeysTask).ConfigureAwait(false);
 
-            var childKeys = childKeysTask.Result;
-            var parentKeys = parentKeysTask.Result;
+            var childKeys = await childKeysTask.ConfigureAwait(false);
+            var parentKeys = await parentKeysTask.ConfigureAwait(false);
 
             return new RelationalDatabaseTable(
                 tableName,
