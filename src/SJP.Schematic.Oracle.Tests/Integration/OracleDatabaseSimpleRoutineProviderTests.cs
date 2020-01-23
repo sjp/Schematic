@@ -46,7 +46,12 @@ END;").ConfigureAwait(false);
             if (routineName == null)
                 throw new ArgumentNullException(nameof(routineName));
 
-            lock (_lock)
+            return GetRoutineAsyncCore(routineName);
+        }
+
+        private async Task<IDatabaseRoutine> GetRoutineAsyncCore(Identifier routineName)
+        {
+            using (await _lock.LockAsync().ConfigureAwait(false))
             {
                 if (!_routinesCache.TryGetValue(routineName, out var lazyRoutine))
                 {
@@ -54,11 +59,11 @@ END;").ConfigureAwait(false);
                     _routinesCache[routineName] = lazyRoutine;
                 }
 
-                return lazyRoutine.Task;
+                return await lazyRoutine;
             }
         }
 
-        private readonly object _lock = new object();
+        private readonly AsyncLock _lock = new AsyncLock();
         private readonly Dictionary<Identifier, AsyncLazy<IDatabaseRoutine>> _routinesCache = new Dictionary<Identifier, AsyncLazy<IDatabaseRoutine>>();
 
         [Test]

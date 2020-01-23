@@ -52,7 +52,12 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration.Versions.V9_4
             if (sequenceName == null)
                 throw new ArgumentNullException(nameof(sequenceName));
 
-            lock (_lock)
+            return GetSequenceAsyncCore(sequenceName);
+        }
+
+        private async Task<IDatabaseSequence> GetSequenceAsyncCore(Identifier sequenceName)
+        {
+            using (await _lock.LockAsync().ConfigureAwait(false))
             {
                 if (!_sequencesCache.TryGetValue(sequenceName, out var lazySequence))
                 {
@@ -60,11 +65,11 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration.Versions.V9_4
                     _sequencesCache[sequenceName] = lazySequence;
                 }
 
-                return lazySequence.Task;
+                return await lazySequence;
             }
         }
 
-        private readonly object _lock = new object();
+        private readonly AsyncLock _lock = new AsyncLock();
         private readonly Dictionary<Identifier, AsyncLazy<IDatabaseSequence>> _sequencesCache = new Dictionary<Identifier, AsyncLazy<IDatabaseSequence>>();
 
         [Test]

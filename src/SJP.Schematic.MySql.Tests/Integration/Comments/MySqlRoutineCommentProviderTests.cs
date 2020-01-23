@@ -63,7 +63,12 @@ END
             if (routineName == null)
                 throw new ArgumentNullException(nameof(routineName));
 
-            lock (_lock)
+            return GetRoutineCommentsAsyncCore(routineName);
+        }
+
+        private async Task<IDatabaseRoutineComments> GetRoutineCommentsAsyncCore(Identifier routineName)
+        {
+            using (await _lock.LockAsync().ConfigureAwait(false))
             {
                 if (!_commentsCache.TryGetValue(routineName, out var lazyComment))
                 {
@@ -71,11 +76,11 @@ END
                     _commentsCache[routineName] = lazyComment;
                 }
 
-                return lazyComment.Task;
+                return await lazyComment;
             }
         }
 
-        private readonly object _lock = new object();
+        private readonly AsyncLock _lock = new AsyncLock();
         private readonly Dictionary<Identifier, AsyncLazy<IDatabaseRoutineComments>> _commentsCache = new Dictionary<Identifier, AsyncLazy<IDatabaseRoutineComments>>();
 
         [Test]

@@ -50,7 +50,12 @@ namespace SJP.Schematic.Oracle.Tests.Integration.Comments
             if (viewName == null)
                 throw new ArgumentNullException(nameof(viewName));
 
-            lock (_lock)
+            return GetViewCommentsAsyncCore(viewName);
+        }
+
+        private async Task<IDatabaseViewComments> GetViewCommentsAsyncCore(Identifier viewName)
+        {
+            using (await _lock.LockAsync().ConfigureAwait(false))
             {
                 if (!_commentsCache.TryGetValue(viewName, out var lazyComment))
                 {
@@ -58,11 +63,11 @@ namespace SJP.Schematic.Oracle.Tests.Integration.Comments
                     _commentsCache[viewName] = lazyComment;
                 }
 
-                return lazyComment.Task;
+                return await lazyComment;
             }
         }
 
-        private readonly object _lock = new object();
+        private readonly AsyncLock _lock = new AsyncLock();
         private readonly Dictionary<Identifier, AsyncLazy<IDatabaseViewComments>> _commentsCache = new Dictionary<Identifier, AsyncLazy<IDatabaseViewComments>>();
 
         [Test]

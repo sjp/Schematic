@@ -49,7 +49,12 @@ EXEC sys.sp_addextendedproperty @name = N'MS_Description',
             if (sequenceName == null)
                 throw new ArgumentNullException(nameof(sequenceName));
 
-            lock (_lock)
+            return GetSequenceCommentsAsyncCore(sequenceName);
+        }
+
+        private async Task<IDatabaseSequenceComments> GetSequenceCommentsAsyncCore(Identifier sequenceName)
+        {
+            using (await _lock.LockAsync().ConfigureAwait(false))
             {
                 if (!_commentsCache.TryGetValue(sequenceName, out var lazyComment))
                 {
@@ -57,11 +62,11 @@ EXEC sys.sp_addextendedproperty @name = N'MS_Description',
                     _commentsCache[sequenceName] = lazyComment;
                 }
 
-                return lazyComment.Task;
+                return await lazyComment;
             }
         }
 
-        private readonly object _lock = new object();
+        private readonly AsyncLock _lock = new AsyncLock();
         private readonly Dictionary<Identifier, AsyncLazy<IDatabaseSequenceComments>> _commentsCache = new Dictionary<Identifier, AsyncLazy<IDatabaseSequenceComments>>();
 
         [Test]

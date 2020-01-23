@@ -47,7 +47,12 @@ END db_test_package_2").ConfigureAwait(false);
             if (packageName == null)
                 throw new ArgumentNullException(nameof(packageName));
 
-            lock (_lock)
+            return GetPackageAsyncCore(packageName);
+        }
+
+        private async Task<IOracleDatabasePackage> GetPackageAsyncCore(Identifier packageName)
+        {
+            using (await _lock.LockAsync().ConfigureAwait(false))
             {
                 if (!_packagesCache.TryGetValue(packageName, out var lazyPackage))
                 {
@@ -55,11 +60,11 @@ END db_test_package_2").ConfigureAwait(false);
                     _packagesCache[packageName] = lazyPackage;
                 }
 
-                return lazyPackage.Task;
+                return await lazyPackage;
             }
         }
 
-        private readonly object _lock = new object();
+        private readonly AsyncLock _lock = new AsyncLock();
         private readonly Dictionary<Identifier, AsyncLazy<IOracleDatabasePackage>> _packagesCache = new Dictionary<Identifier, AsyncLazy<IOracleDatabasePackage>>();
 
         [Test]

@@ -43,7 +43,12 @@ CREATE TABLE table_comment_table_2
             if (tableName == null)
                 throw new ArgumentNullException(nameof(tableName));
 
-            lock (_lock)
+            return GetTableCommentsAsyncCore(tableName);
+        }
+
+        private async Task<IRelationalDatabaseTableComments> GetTableCommentsAsyncCore(Identifier tableName)
+        {
+            using (await _lock.LockAsync().ConfigureAwait(false))
             {
                 if (!_commentsCache.TryGetValue(tableName, out var lazyComment))
                 {
@@ -51,11 +56,11 @@ CREATE TABLE table_comment_table_2
                     _commentsCache[tableName] = lazyComment;
                 }
 
-                return lazyComment.Task;
+                return await lazyComment;
             }
         }
 
-        private readonly object _lock = new object();
+        private readonly AsyncLock _lock = new AsyncLock();
         private readonly Dictionary<Identifier, AsyncLazy<IRelationalDatabaseTableComments>> _commentsCache = new Dictionary<Identifier, AsyncLazy<IRelationalDatabaseTableComments>>();
 
         [Test]

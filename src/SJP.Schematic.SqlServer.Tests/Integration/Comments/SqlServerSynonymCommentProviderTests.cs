@@ -51,7 +51,12 @@ EXEC sys.sp_addextendedproperty @name = N'MS_Description',
             if (synonymName == null)
                 throw new ArgumentNullException(nameof(synonymName));
 
-            lock (_lock)
+            return GetSynonymCommentsAsyncCore(synonymName);
+        }
+
+        private async Task<IDatabaseSynonymComments> GetSynonymCommentsAsyncCore(Identifier synonymName)
+        {
+            using (await _lock.LockAsync().ConfigureAwait(false))
             {
                 if (!_commentsCache.TryGetValue(synonymName, out var lazyComment))
                 {
@@ -59,11 +64,11 @@ EXEC sys.sp_addextendedproperty @name = N'MS_Description',
                     _commentsCache[synonymName] = lazyComment;
                 }
 
-                return lazyComment.Task;
+                return await lazyComment;
             }
         }
 
-        private readonly object _lock = new object();
+        private readonly AsyncLock _lock = new AsyncLock();
         private readonly Dictionary<Identifier, AsyncLazy<IDatabaseSynonymComments>> _commentsCache = new Dictionary<Identifier, AsyncLazy<IDatabaseSynonymComments>>();
 
         [Test]

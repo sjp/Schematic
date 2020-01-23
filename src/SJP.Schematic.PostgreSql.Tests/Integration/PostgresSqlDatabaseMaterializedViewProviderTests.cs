@@ -53,7 +53,7 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration
             }
         }
 
-        private readonly object _lock = new object();
+        private readonly AsyncLock _lock = new AsyncLock();
         private readonly Dictionary<Identifier, AsyncLazy<IDatabaseView>> _viewsCache = new Dictionary<Identifier, AsyncLazy<IDatabaseView>>();
 
         [Test]

@@ -41,7 +41,12 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration
             if (viewName == null)
                 throw new ArgumentNullException(nameof(viewName));
 
-            lock (_lock)
+            return GetViewAsyncCore(viewName);
+        }
+
+        private async Task<IDatabaseView> GetViewAsyncCore(Identifier viewName)
+        {
+            using (await _lock.LockAsync().ConfigureAwait(false))
             {
                 if (!_viewsCache.TryGetValue(viewName, out var lazyView))
                 {
@@ -49,11 +54,11 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration
                     _viewsCache[viewName] = lazyView;
                 }
 
-                return lazyView.Task;
+                return await lazyView;
             }
         }
 
-        private readonly object _lock = new object();
+        private readonly AsyncLock _lock = new AsyncLock();
         private readonly Dictionary<Identifier, AsyncLazy<IDatabaseView>> _viewsCache = new Dictionary<Identifier, AsyncLazy<IDatabaseView>>();
 
         [Test]

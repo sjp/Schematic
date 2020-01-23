@@ -248,7 +248,12 @@ end;
             if (tableName == null)
                 throw new ArgumentNullException(nameof(tableName));
 
-            lock (_lock)
+            return GetTableAsyncCore(tableName);
+        }
+
+        private async Task<IRelationalDatabaseTable> GetTableAsyncCore(Identifier tableName)
+        {
+            using (await _lock.LockAsync().ConfigureAwait(false))
             {
                 if (!_tablesCache.TryGetValue(tableName, out var lazyTable))
                 {
@@ -256,11 +261,11 @@ end;
                     _tablesCache[tableName] = lazyTable;
                 }
 
-                return lazyTable.Task;
+                return await lazyTable;
             }
         }
 
-        private readonly object _lock = new object();
+        private readonly AsyncLock _lock = new AsyncLock();
         private readonly Dictionary<Identifier, AsyncLazy<IRelationalDatabaseTable>> _tablesCache = new Dictionary<Identifier, AsyncLazy<IRelationalDatabaseTable>>();
 
         [Test]
