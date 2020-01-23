@@ -2,6 +2,7 @@ using System;
 using System.IO;
 using NUnit.Framework;
 using SJP.Schematic.Core;
+using SJP.Schematic.Tests.Utilities;
 
 namespace SJP.Schematic.DataAccess.Tests
 {
@@ -28,7 +29,8 @@ namespace SJP.Schematic.DataAccess.Tests
         {
             var nameTranslator = new VerbatimNameTranslator();
             var generator = new FakeDatabaseTableGenerator(nameTranslator);
-            var baseDir = new DirectoryInfo(Environment.CurrentDirectory);
+            using var tempDir = new TemporaryDirectory();
+            var baseDir = new DirectoryInfo(tempDir.DirectoryPath);
 
             Assert.Throws<ArgumentNullException>(() => generator.InnerGetFilePath(baseDir, null));
         }
@@ -38,9 +40,10 @@ namespace SJP.Schematic.DataAccess.Tests
         {
             var nameTranslator = new VerbatimNameTranslator();
             var generator = new FakeDatabaseTableGenerator(nameTranslator);
-            var baseDir = new DirectoryInfo(Environment.CurrentDirectory);
+            using var tempDir = new TemporaryDirectory();
+            var baseDir = new DirectoryInfo(tempDir.DirectoryPath);
             const string testTableName = "table_name";
-            var expectedPath = Path.Combine(Environment.CurrentDirectory, "Tables", testTableName + ".cs");
+            var expectedPath = Path.Combine(tempDir.DirectoryPath, "Tables", testTableName + ".cs");
 
             var filePath = generator.InnerGetFilePath(baseDir, testTableName);
 
@@ -52,10 +55,11 @@ namespace SJP.Schematic.DataAccess.Tests
         {
             var nameTranslator = new VerbatimNameTranslator();
             var generator = new FakeDatabaseTableGenerator(nameTranslator);
-            var baseDir = new DirectoryInfo(Environment.CurrentDirectory);
+            using var tempDir = new TemporaryDirectory();
+            var baseDir = new DirectoryInfo(tempDir.DirectoryPath);
             const string testTableSchema = "table_schema";
             const string testTableName = "table_name";
-            var expectedPath = Path.Combine(Environment.CurrentDirectory, "Tables", testTableSchema, testTableName + ".cs");
+            var expectedPath = Path.Combine(tempDir.DirectoryPath, "Tables", testTableSchema, testTableName + ".cs");
 
             var filePath = generator.InnerGetFilePath(baseDir, new Identifier(testTableSchema, testTableName));
 

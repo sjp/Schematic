@@ -2,6 +2,7 @@ using System;
 using System.IO;
 using NUnit.Framework;
 using SJP.Schematic.Core;
+using SJP.Schematic.Tests.Utilities;
 
 namespace SJP.Schematic.DataAccess.Tests
 {
@@ -28,7 +29,8 @@ namespace SJP.Schematic.DataAccess.Tests
         {
             var nameTranslator = new VerbatimNameTranslator();
             var generator = new FakeDatabaseViewGenerator(nameTranslator);
-            var baseDir = new DirectoryInfo(Environment.CurrentDirectory);
+            using var tempDir = new TemporaryDirectory();
+            var baseDir = new DirectoryInfo(tempDir.DirectoryPath);
 
             Assert.Throws<ArgumentNullException>(() => generator.InnerGetFilePath(baseDir, null));
         }
@@ -38,9 +40,10 @@ namespace SJP.Schematic.DataAccess.Tests
         {
             var nameTranslator = new VerbatimNameTranslator();
             var generator = new FakeDatabaseViewGenerator(nameTranslator);
-            var baseDir = new DirectoryInfo(Environment.CurrentDirectory);
+            using var tempDir = new TemporaryDirectory();
+            var baseDir = new DirectoryInfo(tempDir.DirectoryPath);
             const string testViewName = "view_name";
-            var expectedPath = Path.Combine(Environment.CurrentDirectory, "Views", testViewName + ".cs");
+            var expectedPath = Path.Combine(tempDir.DirectoryPath, "Views", testViewName + ".cs");
 
             var filePath = generator.InnerGetFilePath(baseDir, testViewName);
 
@@ -52,10 +55,11 @@ namespace SJP.Schematic.DataAccess.Tests
         {
             var nameTranslator = new VerbatimNameTranslator();
             var generator = new FakeDatabaseViewGenerator(nameTranslator);
-            var baseDir = new DirectoryInfo(Environment.CurrentDirectory);
+            using var tempDir = new TemporaryDirectory();
+            var baseDir = new DirectoryInfo(tempDir.DirectoryPath);
             const string testViewSchema = "view_schema";
             const string testViewName = "view_name";
-            var expectedPath = Path.Combine(Environment.CurrentDirectory, "Views", testViewSchema, testViewName + ".cs");
+            var expectedPath = Path.Combine(tempDir.DirectoryPath, "Views", testViewSchema, testViewName + ".cs");
 
             var filePath = generator.InnerGetFilePath(baseDir, new Identifier(testViewSchema, testViewName));
 

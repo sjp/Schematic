@@ -6,6 +6,7 @@ using Moq;
 using NUnit.Framework;
 using SJP.Schematic.Core;
 using SJP.Schematic.Core.Comments;
+using SJP.Schematic.Tests.Utilities;
 
 namespace SJP.Schematic.DataAccess.OrmLite.Tests
 {
@@ -55,7 +56,8 @@ namespace SJP.Schematic.DataAccess.OrmLite.Tests
             var nameTranslator = new VerbatimNameTranslator();
             const string test = "SJP.Schematic.Test";
             var generator = new OrmLiteTableGenerator(nameTranslator, test);
-            var baseDir = new DirectoryInfoWrapper(new FileSystem(), new DirectoryInfo(Environment.CurrentDirectory));
+            using var tempDir = new TemporaryDirectory();
+            var baseDir = new DirectoryInfoWrapper(new FileSystem(), new DirectoryInfo(tempDir.DirectoryPath));
 
             Assert.Throws<ArgumentNullException>(() => generator.GetFilePath(baseDir, null));
         }
@@ -66,9 +68,10 @@ namespace SJP.Schematic.DataAccess.OrmLite.Tests
             var nameTranslator = new VerbatimNameTranslator();
             const string test = "SJP.Schematic.Test";
             var generator = new OrmLiteTableGenerator(nameTranslator, test);
-            var baseDir = new DirectoryInfoWrapper(new FileSystem(), new DirectoryInfo(Environment.CurrentDirectory));
+            using var tempDir = new TemporaryDirectory();
+            var baseDir = new DirectoryInfoWrapper(new FileSystem(), new DirectoryInfo(tempDir.DirectoryPath));
             const string testTableName = "table_name";
-            var expectedPath = Path.Combine(Environment.CurrentDirectory, "Tables", testTableName + ".cs");
+            var expectedPath = Path.Combine(tempDir.DirectoryPath, "Tables", testTableName + ".cs");
 
             var filePath = generator.GetFilePath(baseDir, testTableName);
 
@@ -81,10 +84,11 @@ namespace SJP.Schematic.DataAccess.OrmLite.Tests
             var nameTranslator = new VerbatimNameTranslator();
             const string test = "SJP.Schematic.Test";
             var generator = new OrmLiteTableGenerator(nameTranslator, test);
-            var baseDir = new DirectoryInfoWrapper(new FileSystem(), new DirectoryInfo(Environment.CurrentDirectory));
+            using var tempDir = new TemporaryDirectory();
+            var baseDir = new DirectoryInfoWrapper(new FileSystem(), new DirectoryInfo(tempDir.DirectoryPath));
             const string testTableSchema = "table_schema";
             const string testTableName = "table_name";
-            var expectedPath = Path.Combine(Environment.CurrentDirectory, "Tables", testTableSchema, testTableName + ".cs");
+            var expectedPath = Path.Combine(tempDir.DirectoryPath, "Tables", testTableSchema, testTableName + ".cs");
 
             var filePath = generator.GetFilePath(baseDir, new Identifier(testTableSchema, testTableName));
 

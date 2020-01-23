@@ -5,6 +5,7 @@ using LanguageExt;
 using NUnit.Framework;
 using SJP.Schematic.Core;
 using SJP.Schematic.Core.Comments;
+using SJP.Schematic.Tests.Utilities;
 
 namespace SJP.Schematic.DataAccess.EntityFrameworkCore.Tests
 {
@@ -54,7 +55,8 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore.Tests
             var nameTranslator = new VerbatimNameTranslator();
             const string testNs = "SJP.Schematic.Test";
             var generator = new EFCoreViewGenerator(nameTranslator, testNs);
-            var baseDir = new DirectoryInfoWrapper(new FileSystem(), new DirectoryInfo(Environment.CurrentDirectory));
+            using var tempDir = new TemporaryDirectory();
+            var baseDir = new DirectoryInfoWrapper(new FileSystem(), new DirectoryInfo(tempDir.DirectoryPath));
 
             Assert.Throws<ArgumentNullException>(() => generator.GetFilePath(baseDir, null));
         }
@@ -65,9 +67,10 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore.Tests
             var nameTranslator = new VerbatimNameTranslator();
             const string testNs = "SJP.Schematic.Test";
             var generator = new EFCoreViewGenerator(nameTranslator, testNs);
-            var baseDir = new DirectoryInfoWrapper(new FileSystem(), new DirectoryInfo(Environment.CurrentDirectory));
+            using var tempDir = new TemporaryDirectory();
+            var baseDir = new DirectoryInfoWrapper(new FileSystem(), new DirectoryInfo(tempDir.DirectoryPath));
             const string testViewName = "view_name";
-            var expectedPath = Path.Combine(Environment.CurrentDirectory, "Views", testViewName + ".cs");
+            var expectedPath = Path.Combine(tempDir.DirectoryPath, "Views", testViewName + ".cs");
 
             var filePath = generator.GetFilePath(baseDir, testViewName);
 
@@ -80,10 +83,11 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore.Tests
             var nameTranslator = new VerbatimNameTranslator();
             const string testNs = "SJP.Schematic.Test";
             var generator = new EFCoreViewGenerator(nameTranslator, testNs);
-            var baseDir = new DirectoryInfoWrapper(new FileSystem(), new DirectoryInfo(Environment.CurrentDirectory));
+            using var tempDir = new TemporaryDirectory();
+            var baseDir = new DirectoryInfoWrapper(new FileSystem(), new DirectoryInfo(tempDir.DirectoryPath));
             const string testViewSchema = "view_schema";
             const string testViewName = "view_name";
-            var expectedPath = Path.Combine(Environment.CurrentDirectory, "Views", testViewSchema, testViewName + ".cs");
+            var expectedPath = Path.Combine(tempDir.DirectoryPath, "Views", testViewSchema, testViewName + ".cs");
 
             var filePath = generator.GetFilePath(baseDir, new Identifier(testViewSchema, testViewName));
 

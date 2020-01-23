@@ -1,7 +1,7 @@
-﻿using System;
-using System.IO;
+﻿using System.IO;
 using System.Threading.Tasks;
 using NUnit.Framework;
+using SJP.Schematic.Tests.Utilities;
 
 namespace SJP.Schematic.Reporting.Tests.Integration
 {
@@ -14,21 +14,11 @@ namespace SJP.Schematic.Reporting.Tests.Integration
 
             var database = GetDatabase();
 
-            var outDir = string.Empty;
-            try
-            {
-                outDir = Path.Combine(Environment.CurrentDirectory, "SakilaExport");
-                if (Directory.Exists(outDir))
-                    Directory.Delete(outDir, true);
+            using var tempDir = new TemporaryDirectory();
+            var outDir = Path.Combine(tempDir.DirectoryPath, "SakilaExport");
 
-                var exporter = new Html.ReportExporter(Connection, database, outDir);
-                await exporter.ExportAsync().ConfigureAwait(false);
-            }
-            finally
-            {
-                if (Directory.Exists(outDir))
-                    Directory.Delete(outDir, true);
-            }
+            var exporter = new Html.ReportExporter(Connection, database, outDir);
+            await exporter.ExportAsync().ConfigureAwait(false);
         }
     }
 }

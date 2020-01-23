@@ -18,6 +18,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\SJP.Schematic.DataAccess\SJP.Schematic.DataAccess.csproj" />
+    <ProjectReference Include="..\SJP.Schematic.Tests.Utilities\SJP.Schematic.Tests.Utilities.csproj" />
   </ItemGroup>
 
 </Project>
