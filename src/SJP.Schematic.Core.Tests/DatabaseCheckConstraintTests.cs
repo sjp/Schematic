@@ -11,19 +11,19 @@ namespace SJP.Schematic.Core.Tests
         [Test]
         public static void Ctor_GivenNullDefinition_ThrowsArgumentNullException()
         {
-            Assert.Throws<ArgumentNullException>(() => new DatabaseCheckConstraint(Option<Identifier>.Some("test_check"), null, true));
+            Assert.That(() => new DatabaseCheckConstraint(Option<Identifier>.Some("test_check"), null, true), Throws.ArgumentNullException);
         }
 
         [Test]
         public static void Ctor_GivenEmptyDefinition_ThrowsArgumentNullException()
         {
-            Assert.Throws<ArgumentNullException>(() => new DatabaseCheckConstraint(Option<Identifier>.Some("test_check"), string.Empty, true));
+            Assert.That(() => new DatabaseCheckConstraint(Option<Identifier>.Some("test_check"), string.Empty, true), Throws.ArgumentNullException);
         }
 
         [Test]
         public static void Ctor_GivenWhiteSpaceDefinition_ThrowsArgumentNullException()
         {
-            Assert.Throws<ArgumentNullException>(() => new DatabaseCheckConstraint(Option<Identifier>.Some("test_check"), "      ", true));
+            Assert.That(() => new DatabaseCheckConstraint(Option<Identifier>.Some("test_check"), "      ", true), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -32,7 +32,7 @@ namespace SJP.Schematic.Core.Tests
             Identifier checkName = "test_check";
             var check = new DatabaseCheckConstraint(checkName, "test_check", true);
 
-            Assert.AreEqual(checkName, check.Name.UnwrapSome());
+            Assert.That(check.Name.UnwrapSome(), Is.EqualTo(checkName));
         }
 
         [Test]
@@ -41,7 +41,7 @@ namespace SJP.Schematic.Core.Tests
             const string checkDefinition = "test_check_definition";
             var check = new DatabaseCheckConstraint(Option<Identifier>.Some("test_check"), checkDefinition, true);
 
-            Assert.AreEqual(checkDefinition, check.Definition);
+            Assert.That(check.Definition, Is.EqualTo(checkDefinition));
         }
 
         [Test]
@@ -49,7 +49,7 @@ namespace SJP.Schematic.Core.Tests
         {
             var check = new DatabaseCheckConstraint(Option<Identifier>.Some("test_check"), "test_check_definition", true);
 
-            Assert.IsTrue(check.IsEnabled);
+            Assert.That(check.IsEnabled, Is.True);
         }
 
         [Test]
@@ -57,7 +57,7 @@ namespace SJP.Schematic.Core.Tests
         {
             var check = new DatabaseCheckConstraint(Option<Identifier>.Some("test_check"), "test_check_definition", false);
 
-            Assert.IsFalse(check.IsEnabled);
+            Assert.That(check.IsEnabled, Is.False);
         }
     }
 }

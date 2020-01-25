@@ -14,7 +14,7 @@ namespace SJP.Schematic.Core.Tests
         {
             var column = Mock.Of<IDatabaseColumn>();
 
-            Assert.Throws<ArgumentNullException>(() => new DatabaseIndexColumn(null, column, IndexColumnOrder.Ascending));
+            Assert.That(() => new DatabaseIndexColumn(null, column, IndexColumnOrder.Ascending), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -22,7 +22,7 @@ namespace SJP.Schematic.Core.Tests
         {
             var column = Mock.Of<IDatabaseColumn>();
 
-            Assert.Throws<ArgumentNullException>(() => new DatabaseIndexColumn(string.Empty, column, IndexColumnOrder.Ascending));
+            Assert.That(() => new DatabaseIndexColumn(string.Empty, column, IndexColumnOrder.Ascending), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -30,7 +30,7 @@ namespace SJP.Schematic.Core.Tests
         {
             var column = Mock.Of<IDatabaseColumn>();
 
-            Assert.Throws<ArgumentNullException>(() => new DatabaseIndexColumn("   ", column, IndexColumnOrder.Ascending));
+            Assert.That(() => new DatabaseIndexColumn("   ", column, IndexColumnOrder.Ascending), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -38,7 +38,7 @@ namespace SJP.Schematic.Core.Tests
         {
             const string expression = "lower(test_column)";
 
-            Assert.Throws<ArgumentNullException>(() => new DatabaseIndexColumn(expression, (IDatabaseColumn)null, IndexColumnOrder.Ascending));
+            Assert.That(() => new DatabaseIndexColumn(expression, (IDatabaseColumn)null, IndexColumnOrder.Ascending), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -46,7 +46,7 @@ namespace SJP.Schematic.Core.Tests
         {
             const string expression = "lower(test_column)";
 
-            Assert.Throws<ArgumentNullException>(() => new DatabaseIndexColumn(expression, (IEnumerable<IDatabaseColumn>)null, IndexColumnOrder.Ascending));
+            Assert.That(() => new DatabaseIndexColumn(expression, (IEnumerable<IDatabaseColumn>)null, IndexColumnOrder.Ascending), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -55,7 +55,7 @@ namespace SJP.Schematic.Core.Tests
             const string expression = "lower(test_column)";
             var columns = new IDatabaseColumn[] { null };
 
-            Assert.Throws<ArgumentNullException>(() => new DatabaseIndexColumn(expression, columns, IndexColumnOrder.Ascending));
+            Assert.That(() => new DatabaseIndexColumn(expression, columns, IndexColumnOrder.Ascending), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -65,7 +65,7 @@ namespace SJP.Schematic.Core.Tests
             var column = Mock.Of<IDatabaseColumn>();
             const IndexColumnOrder order = (IndexColumnOrder)55;
 
-            Assert.Throws<ArgumentException>(() => new DatabaseIndexColumn(expression, column, order));
+            Assert.That(() => new DatabaseIndexColumn(expression, column, order), Throws.ArgumentException);
         }
 
         [Test]
@@ -76,7 +76,7 @@ namespace SJP.Schematic.Core.Tests
 
             var indexColumn = new DatabaseIndexColumn(expression, column, IndexColumnOrder.Ascending);
 
-            Assert.AreEqual(expression, indexColumn.Expression);
+            Assert.That(indexColumn.Expression, Is.EqualTo(expression));
         }
 
         [Test]
@@ -88,7 +88,7 @@ namespace SJP.Schematic.Core.Tests
             var indexColumn = new DatabaseIndexColumn(expression, column, IndexColumnOrder.Ascending);
             var indexDependentColumn = indexColumn.DependentColumns.Single();
 
-            Assert.AreEqual(column, indexDependentColumn);
+            Assert.That(indexDependentColumn, Is.EqualTo(column));
         }
 
         [Test]
@@ -100,7 +100,7 @@ namespace SJP.Schematic.Core.Tests
 
             var indexColumn = new DatabaseIndexColumn(expression, column, order);
 
-            Assert.AreEqual(order, indexColumn.Order);
+            Assert.That(indexColumn.Order, Is.EqualTo(order));
         }
 
         [Test]
@@ -112,7 +112,7 @@ namespace SJP.Schematic.Core.Tests
 
             var indexColumn = new DatabaseIndexColumn(expression, column, order);
 
-            Assert.AreEqual(order, indexColumn.Order);
+            Assert.That(indexColumn.Order, Is.EqualTo(order));
         }
     }
 }

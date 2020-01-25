@@ -27,49 +27,50 @@ namespace SJP.Schematic.Graphviz.Tests
         [Test]
         public void DotRenderer_GivenNullExecutablePath_ThrowsArgumentNullException()
         {
-            Assert.Throws<ArgumentNullException>(() => new DotSvgRenderer(null));
+            Assert.That(() => new DotSvgRenderer(null), Throws.ArgumentNullException);
         }
 
         [Test]
         public void DotRenderer_GivenEmptyExecutablePath_ThrowsArgumentNullException()
         {
-            Assert.Throws<ArgumentNullException>(() => new DotSvgRenderer(string.Empty));
+            Assert.That(() => new DotSvgRenderer(string.Empty), Throws.ArgumentNullException);
         }
 
         [Test]
         public void DotRenderer_GivenWhiteSpaceExecutablePath_ThrowsArgumentNullException()
         {
-            Assert.Throws<ArgumentNullException>(() => new DotSvgRenderer("   "));
+            Assert.That(() => new DotSvgRenderer("   "), Throws.ArgumentNullException);
         }
 
         [Test]
         public void DotRenderer_GivenMissingExecutablePath_ThrowsFileNotFoundException()
         {
-            Assert.Throws<FileNotFoundException>(() => new DotSvgRenderer("path_not_existing"));
+            Assert.That(() => new DotSvgRenderer("path_not_existing"), Throws.TypeOf<FileNotFoundException>());
         }
 
         [Test]
         public void RenderToSvg_GivenNullDotDiagram_ThrowsArgumentNullException()
         {
-            Assert.Throws<ArgumentNullException>(() => Renderer.RenderToSvg(null));
+            Assert.That(() => Renderer.RenderToSvg(null), Throws.ArgumentNullException);
+
         }
 
         [Test]
         public void RenderToSvg_GivenEmptyDotDiagram_ThrowsArgumentNullException()
         {
-            Assert.Throws<ArgumentNullException>(() => Renderer.RenderToSvg(string.Empty));
+            Assert.That(() => Renderer.RenderToSvg(string.Empty), Throws.ArgumentNullException);
         }
 
         [Test]
         public void RenderToSvg_GivenWhiteSpaceDotDiagram_ThrowsArgumentNullException()
         {
-            Assert.Throws<ArgumentNullException>(() => Renderer.RenderToSvg("   "));
+            Assert.That(() => Renderer.RenderToSvg("   "), Throws.ArgumentNullException);
         }
 
         [Test]
         public void RenderToSvg_GivenInvalidDot_ThrowsGraphvizException()
         {
-            Assert.Throws<GraphvizException>(() => Renderer.RenderToSvg("this is not dot"));
+            Assert.That(() => Renderer.RenderToSvg("this is not dot"), Throws.TypeOf<GraphvizException>());
         }
 
         [Test]
@@ -77,7 +78,7 @@ namespace SJP.Schematic.Graphviz.Tests
         {
             var svg = Renderer.RenderToSvg("digraph g { a -> b }");
 
-            Assert.DoesNotThrow(() => _ = XDocument.Parse(svg, LoadOptions.PreserveWhitespace));
+            Assert.That(() => _ = XDocument.Parse(svg, LoadOptions.PreserveWhitespace), Throws.Nothing);
         }
 
         // Note, this is fragile only because it contains date/version comments.
@@ -87,7 +88,7 @@ namespace SJP.Schematic.Graphviz.Tests
         {
             var svg = Renderer.RenderToSvg("digraph g { a -> b }");
 
-            Assert.AreEqual(SimpleGraphExpectedSvg, svg);
+            Assert.That(svg, Is.EqualTo(SimpleGraphExpectedSvg));
         }
 
         [Test]
@@ -95,31 +96,31 @@ namespace SJP.Schematic.Graphviz.Tests
         {
             var svg = Renderer.RenderToSvg(VizJsExample);
 
-            Assert.DoesNotThrow(() => _ = XDocument.Parse(svg, LoadOptions.PreserveWhitespace));
+            Assert.That(() => _ = XDocument.Parse(svg, LoadOptions.PreserveWhitespace), Throws.Nothing);
         }
 
         [Test]
         public void RenderToSvgAsync_GivenNullDotDiagram_ThrowsArgumentNullException()
         {
-            Assert.Throws<ArgumentNullException>(() => Renderer.RenderToSvgAsync(null));
+            Assert.That(() => Renderer.RenderToSvgAsync(null), Throws.ArgumentNullException);
         }
 
         [Test]
         public void RenderToSvgAsync_GivenEmptyDotDiagram_ThrowsArgumentNullException()
         {
-            Assert.Throws<ArgumentNullException>(() => Renderer.RenderToSvgAsync(string.Empty));
+            Assert.That(() => Renderer.RenderToSvgAsync(string.Empty), Throws.ArgumentNullException);
         }
 
         [Test]
         public void RenderToSvgAsync_GivenWhiteSpaceDotDiagram_ThrowsArgumentNullException()
         {
-            Assert.Throws<ArgumentNullException>(() => Renderer.RenderToSvgAsync("   "));
+            Assert.That(() => Renderer.RenderToSvgAsync("   "), Throws.ArgumentNullException);
         }
 
         [Test]
         public void RenderToSvgAsync_GivenInvalidDot_ThrowsGraphvizException()
         {
-            Assert.ThrowsAsync<GraphvizException>(async () => await Renderer.RenderToSvgAsync("this is not dot").ConfigureAwait(false));
+            Assert.That(async () => await Renderer.RenderToSvgAsync("this is not dot").ConfigureAwait(false), Throws.TypeOf<GraphvizException>());
         }
 
         [Test]
@@ -127,7 +128,7 @@ namespace SJP.Schematic.Graphviz.Tests
         {
             var svg = await Renderer.RenderToSvgAsync("digraph g { a -> b }").ConfigureAwait(false);
 
-            Assert.DoesNotThrow(() => _ = XDocument.Parse(svg, LoadOptions.PreserveWhitespace));
+            Assert.That(() => _ = XDocument.Parse(svg, LoadOptions.PreserveWhitespace), Throws.Nothing);
         }
 
         // Note, this is fragile only because it contains date/version comments.
@@ -137,7 +138,7 @@ namespace SJP.Schematic.Graphviz.Tests
         {
             var svg = await Renderer.RenderToSvgAsync("digraph g { a -> b }").ConfigureAwait(false);
 
-            Assert.AreEqual(SimpleGraphExpectedSvg, svg);
+            Assert.That(svg, Is.EqualTo(SimpleGraphExpectedSvg));
         }
 
         [Test]
@@ -145,7 +146,7 @@ namespace SJP.Schematic.Graphviz.Tests
         {
             var svg = await Renderer.RenderToSvgAsync(VizJsExample).ConfigureAwait(false);
 
-            Assert.DoesNotThrow(() => _ = XDocument.Parse(svg, LoadOptions.PreserveWhitespace));
+            Assert.That(() => _ = XDocument.Parse(svg, LoadOptions.PreserveWhitespace), Throws.Nothing);
         }
 
         private const string VizJsExample = @"digraph G {

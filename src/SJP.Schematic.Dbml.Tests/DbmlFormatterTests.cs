@@ -9,7 +9,7 @@ namespace SJP.Schematic.Dbml.Tests
         [Test]
         public static void RenderTables_GivenNullTables_ThrowsArgumentNullException()
         {
-            Assert.Throws<ArgumentNullException>(() => new DbmlFormatter().RenderTables(null));
+            Assert.That(() => new DbmlFormatter().RenderTables(null), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -20,7 +20,7 @@ namespace SJP.Schematic.Dbml.Tests
 
             var result = formatter.RenderTables(tables);
 
-            Assert.AreEqual(string.Empty, result);
+            Assert.That(result, Is.Empty);
         }
     }
 }

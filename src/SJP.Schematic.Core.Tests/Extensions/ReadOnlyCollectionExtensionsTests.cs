@@ -12,21 +12,21 @@ namespace SJP.Schematic.Core.Tests.Extensions
         public static void Empty_GivenNullCollection_ThrowsArgumentNullException()
         {
             IReadOnlyCollection<string> input = null;
-            Assert.Throws<ArgumentNullException>(() => input.Empty());
+            Assert.That(() => input.Empty(), Throws.ArgumentNullException);
         }
 
         [Test]
         public static void Empty_GivenEmptyCollection_ReturnsTrue()
         {
             IReadOnlyCollection<string> input = Array.Empty<string>();
-            Assert.IsTrue(input.Empty());
+            Assert.That(input.Empty(), Is.True);
         }
 
         [Test]
         public static void Empty_GivenNonEmptyCollection_ReturnsFalse()
         {
             IReadOnlyCollection<string> input = new[] { "A" };
-            Assert.IsFalse(input.Empty());
+            Assert.That(input.Empty(), Is.False);
         }
     }
 }

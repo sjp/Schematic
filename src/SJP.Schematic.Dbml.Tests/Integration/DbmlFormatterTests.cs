@@ -127,7 +127,7 @@ create table test_table_9 (
 
             var result = Formatter.RenderTables(tables);
 
-            Assert.AreEqual(TestTable5Dbml, result);
+            Assert.That(result, Is.EqualTo(TestTable5Dbml));
         }
 
         [Test]
@@ -138,7 +138,7 @@ create table test_table_9 (
 
             var result = Formatter.RenderTables(tables);
 
-            Assert.AreEqual(TestTable1Dbml, result);
+            Assert.That(result, Is.EqualTo(TestTable1Dbml));
         }
 
         [Test]
@@ -149,7 +149,7 @@ create table test_table_9 (
 
             var result = Formatter.RenderTables(tables);
 
-            Assert.AreEqual(TestTable2Dbml, result);
+            Assert.That(result, Is.EqualTo(TestTable2Dbml));
         }
 
         [Test]
@@ -165,7 +165,7 @@ create table test_table_9 (
 
             var result = Formatter.RenderTables(tables);
 
-            Assert.AreEqual(MultipleRelationshipsDbml, result);
+            Assert.That(result, Is.EqualTo(MultipleRelationshipsDbml));
         }
 
         private const string TestTable1Dbml = @"Table main_test_table_1 {

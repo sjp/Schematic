@@ -12,7 +12,7 @@ namespace SJP.Schematic.Core.Tests
             const int initialValue = 12345;
             const int increment = 0;
 
-            Assert.Throws<ArgumentException>(() => new AutoIncrement(initialValue, increment));
+            Assert.That(() => new AutoIncrement(initialValue, increment), Throws.ArgumentException);
         }
 
         [Test]
@@ -22,7 +22,7 @@ namespace SJP.Schematic.Core.Tests
             const int increment = 9876;
             var autoIncrement = new AutoIncrement(initialValue, increment);
 
-            Assert.AreEqual(initialValue, autoIncrement.InitialValue);
+            Assert.That(autoIncrement.InitialValue, Is.EqualTo(initialValue));
         }
 
         [Test]
@@ -32,7 +32,7 @@ namespace SJP.Schematic.Core.Tests
             const int increment = 9876;
             var autoIncrement = new AutoIncrement(initialValue, increment);
 
-            Assert.AreEqual(increment, autoIncrement.Increment);
+            Assert.That(autoIncrement.Increment, Is.EqualTo(increment));
         }
 
         [Test]
@@ -43,9 +43,7 @@ namespace SJP.Schematic.Core.Tests
             var a = new AutoIncrement(initialValue, increment);
             var b = new AutoIncrement(initialValue, increment);
 
-            var areEqual = a.Equals(b);
-
-            Assert.IsTrue(areEqual);
+            Assert.That(a.Equals(b), Is.True);
         }
 
         [Test]
@@ -56,9 +54,7 @@ namespace SJP.Schematic.Core.Tests
             var a = new AutoIncrement(initialValue, increment);
             var b = new AutoIncrement(54321, increment);
 
-            var areEqual = a.Equals(b);
-
-            Assert.IsFalse(areEqual);
+            Assert.That(a.Equals(b), Is.False);
         }
 
         [Test]
@@ -69,9 +65,7 @@ namespace SJP.Schematic.Core.Tests
             var a = new AutoIncrement(initialValue, increment);
             var b = new AutoIncrement(initialValue, 6789);
 
-            var areEqual = a.Equals(b);
-
-            Assert.IsFalse(areEqual);
+            Assert.That(a.Equals(b), Is.False);
         }
 
         [Test]
@@ -81,9 +75,7 @@ namespace SJP.Schematic.Core.Tests
             const int increment = 9876;
             var a = new AutoIncrement(initialValue, increment);
 
-            var areEqual = a.Equals(null);
-
-            Assert.IsFalse(areEqual);
+            Assert.That(a.Equals(null), Is.False);
         }
 
         [Test]
@@ -94,9 +86,7 @@ namespace SJP.Schematic.Core.Tests
             var a = new AutoIncrement(initialValue, increment);
             object b = new AutoIncrement(initialValue, increment);
 
-            var areEqual = a.Equals(b);
-
-            Assert.IsTrue(areEqual);
+            Assert.That(a.Equals(b), Is.True);
         }
 
         [Test]
@@ -107,9 +97,7 @@ namespace SJP.Schematic.Core.Tests
             var a = new AutoIncrement(initialValue, increment);
             object b = new AutoIncrement(54321, increment);
 
-            var areEqual = a.Equals(b);
-
-            Assert.IsFalse(areEqual);
+            Assert.That(a.Equals(b), Is.False);
         }
 
         [Test]
@@ -120,9 +108,7 @@ namespace SJP.Schematic.Core.Tests
             var a = new AutoIncrement(initialValue, increment);
             object b = new AutoIncrement(initialValue, 6789);
 
-            var areEqual = a.Equals(b);
-
-            Assert.IsFalse(areEqual);
+            Assert.That(a.Equals(b), Is.False);
         }
 
         [Test]
@@ -133,9 +119,7 @@ namespace SJP.Schematic.Core.Tests
             var a = new AutoIncrement(initialValue, increment);
             var b = new object();
 
-            var areEqual = a.Equals(b);
-
-            Assert.IsFalse(areEqual);
+            Assert.That(a.Equals(b), Is.False);
         }
 
         [Test]
@@ -146,10 +130,7 @@ namespace SJP.Schematic.Core.Tests
             var a = new AutoIncrement(initialValue, increment);
             var b = new AutoIncrement(initialValue, increment);
 
-            var aHash = a.GetHashCode();
-            var bHash = b.GetHashCode();
-
-            Assert.AreEqual(aHash, bHash);
+            Assert.That(a.GetHashCode(), Is.EqualTo(b.GetHashCode()));
         }
 
         [Test]
@@ -160,10 +141,7 @@ namespace SJP.Schematic.Core.Tests
             var a = new AutoIncrement(initialValue, increment);
             var b = new AutoIncrement(54321, increment);
 
-            var aHash = a.GetHashCode();
-            var bHash = b.GetHashCode();
-
-            Assert.AreNotEqual(aHash, bHash);
+            Assert.That(a.GetHashCode(), Is.Not.EqualTo(b.GetHashCode()));
         }
 
         [Test]
@@ -174,10 +152,7 @@ namespace SJP.Schematic.Core.Tests
             var a = new AutoIncrement(initialValue, increment);
             var b = new AutoIncrement(initialValue, 6789);
 
-            var aHash = a.GetHashCode();
-            var bHash = b.GetHashCode();
-
-            Assert.AreNotEqual(aHash, bHash);
+            Assert.That(a.GetHashCode(), Is.Not.EqualTo(b.GetHashCode()));
         }
 
         [Test]
@@ -188,9 +163,7 @@ namespace SJP.Schematic.Core.Tests
             var a = new AutoIncrement(initialValue, increment);
             var b = new AutoIncrement(initialValue, increment);
 
-            var areEqual = a == b;
-
-            Assert.IsTrue(areEqual);
+            Assert.That(a == b, Is.True);
         }
 
         [Test]
@@ -201,9 +174,7 @@ namespace SJP.Schematic.Core.Tests
             var a = new AutoIncrement(initialValue, increment);
             var b = new AutoIncrement(54321, increment);
 
-            var areEqual = a == b;
-
-            Assert.IsFalse(areEqual);
+            Assert.That(a == b, Is.False);
         }
 
         [Test]
@@ -214,9 +185,7 @@ namespace SJP.Schematic.Core.Tests
             var a = new AutoIncrement(initialValue, increment);
             var b = new AutoIncrement(initialValue, 6789);
 
-            var areEqual = a == b;
-
-            Assert.IsFalse(areEqual);
+            Assert.That(a == b, Is.False);
         }
 
         [Test]
@@ -227,9 +196,7 @@ namespace SJP.Schematic.Core.Tests
             var a = new AutoIncrement(initialValue, increment);
             var b = new FakeAutoIncrement(initialValue, increment);
 
-            var areEqual = a == b;
-
-            Assert.IsTrue(areEqual);
+            Assert.That(a == b, Is.True);
         }
 
         [Test]
@@ -240,9 +207,7 @@ namespace SJP.Schematic.Core.Tests
             var a = new AutoIncrement(initialValue, increment);
             var b = new FakeAutoIncrement(54321, increment);
 
-            var areEqual = a == b;
-
-            Assert.IsFalse(areEqual);
+            Assert.That(a == b, Is.False);
         }
 
         [Test]
@@ -253,9 +218,7 @@ namespace SJP.Schematic.Core.Tests
             var a = new AutoIncrement(initialValue, increment);
             var b = new FakeAutoIncrement(initialValue, 6789);
 
-            var areEqual = a == b;
-
-            Assert.IsFalse(areEqual);
+            Assert.That(a == b, Is.False);
         }
 
         [Test]
@@ -265,9 +228,7 @@ namespace SJP.Schematic.Core.Tests
             const int increment = 9876;
             var a = new AutoIncrement(initialValue, increment);
 
-            var areEqual = a == (FakeAutoIncrement)null;
-
-            Assert.IsFalse(areEqual);
+            Assert.That(a == (FakeAutoIncrement)null, Is.False);
         }
 
         [Test]
@@ -278,9 +239,7 @@ namespace SJP.Schematic.Core.Tests
             var a = new FakeAutoIncrement(initialValue, increment);
             var b = new AutoIncrement(initialValue, increment);
 
-            var areEqual = a == b;
-
-            Assert.IsTrue(areEqual);
+            Assert.That(a == b, Is.True);
         }
 
         [Test]
@@ -291,9 +250,7 @@ namespace SJP.Schematic.Core.Tests
             var a = new FakeAutoIncrement(initialValue, increment);
             var b = new AutoIncrement(54321, increment);
 
-            var areEqual = a == b;
-
-            Assert.IsFalse(areEqual);
+            Assert.That(a == b, Is.False);
         }
 
         [Test]
@@ -304,9 +261,7 @@ namespace SJP.Schematic.Core.Tests
             var a = new FakeAutoIncrement(initialValue, increment);
             var b = new AutoIncrement(initialValue, 6789);
 
-            var areEqual = a == b;
-
-            Assert.IsFalse(areEqual);
+            Assert.That(a == b, Is.False);
         }
 
         [Test]
@@ -316,9 +271,7 @@ namespace SJP.Schematic.Core.Tests
             const int increment = 9876;
             var a = new AutoIncrement(initialValue, increment);
 
-            var areEqual = (FakeAutoIncrement)null == a;
-
-            Assert.IsFalse(areEqual);
+            Assert.That((FakeAutoIncrement)null == a, Is.False);
         }
 
         [Test]
@@ -329,9 +282,7 @@ namespace SJP.Schematic.Core.Tests
             var a = new AutoIncrement(initialValue, increment);
             var b = new AutoIncrement(initialValue, increment);
 
-            var areEqual = a != b;
-
-            Assert.IsFalse(areEqual);
+            Assert.That(a != b, Is.False);
         }
 
         [Test]
@@ -342,9 +293,7 @@ namespace SJP.Schematic.Core.Tests
             var a = new AutoIncrement(initialValue, increment);
             var b = new AutoIncrement(54321, increment);
 
-            var areEqual = a != b;
-
-            Assert.IsTrue(areEqual);
+            Assert.That(a != b, Is.True);
         }
 
         [Test]
@@ -355,9 +304,7 @@ namespace SJP.Schematic.Core.Tests
             var a = new AutoIncrement(initialValue, increment);
             var b = new AutoIncrement(initialValue, 6789);
 
-            var areEqual = a != b;
-
-            Assert.IsTrue(areEqual);
+            Assert.That(a != b, Is.True);
         }
 
         [Test]
@@ -368,9 +315,7 @@ namespace SJP.Schematic.Core.Tests
             var a = new AutoIncrement(initialValue, increment);
             var b = new FakeAutoIncrement(initialValue, increment);
 
-            var areEqual = a != b;
-
-            Assert.IsFalse(areEqual);
+            Assert.That(a != b, Is.False);
         }
 
         [Test]
@@ -381,9 +326,7 @@ namespace SJP.Schematic.Core.Tests
             var a = new AutoIncrement(initialValue, increment);
             var b = new FakeAutoIncrement(54321, increment);
 
-            var areEqual = a != b;
-
-            Assert.IsTrue(areEqual);
+            Assert.That(a != b, Is.True);
         }
 
         [Test]
@@ -394,9 +337,7 @@ namespace SJP.Schematic.Core.Tests
             var a = new AutoIncrement(initialValue, increment);
             var b = new FakeAutoIncrement(initialValue, 6789);
 
-            var areEqual = a != b;
-
-            Assert.IsTrue(areEqual);
+            Assert.That(a != b, Is.True);
         }
 
         [Test]
@@ -406,9 +347,7 @@ namespace SJP.Schematic.Core.Tests
             const int increment = 9876;
             var a = new AutoIncrement(initialValue, increment);
 
-            var areEqual = a != (FakeAutoIncrement)null;
-
-            Assert.IsTrue(areEqual);
+            Assert.That(a != (FakeAutoIncrement)null, Is.True);
         }
 
         [Test]
@@ -419,9 +358,7 @@ namespace SJP.Schematic.Core.Tests
             var a = new FakeAutoIncrement(initialValue, increment);
             var b = new AutoIncrement(initialValue, increment);
 
-            var areEqual = a != b;
-
-            Assert.IsFalse(areEqual);
+            Assert.That(a != b, Is.False);
         }
 
         [Test]
@@ -432,9 +369,7 @@ namespace SJP.Schematic.Core.Tests
             var a = new FakeAutoIncrement(initialValue, increment);
             var b = new AutoIncrement(54321, increment);
 
-            var areEqual = a != b;
-
-            Assert.IsTrue(areEqual);
+            Assert.That(a != b, Is.True);
         }
 
         [Test]
@@ -445,9 +380,7 @@ namespace SJP.Schematic.Core.Tests
             var a = new FakeAutoIncrement(initialValue, increment);
             var b = new AutoIncrement(initialValue, 6789);
 
-            var areEqual = a != b;
-
-            Assert.IsTrue(areEqual);
+            Assert.That(a != b, Is.True);
         }
 
         [Test]
@@ -457,9 +390,7 @@ namespace SJP.Schematic.Core.Tests
             const int increment = 9876;
             var a = new AutoIncrement(initialValue, increment);
 
-            var areEqual = (FakeAutoIncrement)null != a;
-
-            Assert.IsTrue(areEqual);
+            Assert.That((FakeAutoIncrement)null != a, Is.True);
         }
 
         private sealed class FakeAutoIncrement : IAutoIncrement

@@ -13,8 +13,8 @@ namespace SJP.Schematic.Modelled.Tests
         {
             Assert.Multiple(() =>
             {
-                Assert.Throws<ArgumentNullException>(() => new RelationalDatabaseBuilder((IRelationalDatabase)null));
-                Assert.Throws<ArgumentNullException>(() => new RelationalDatabaseBuilder((Func<IRelationalDatabase>)null));
+                Assert.That(() => new RelationalDatabaseBuilder((IRelationalDatabase)null), Throws.ArgumentNullException);
+                Assert.That(() => new RelationalDatabaseBuilder((Func<IRelationalDatabase>)null), Throws.ArgumentNullException);
             });
         }
     }

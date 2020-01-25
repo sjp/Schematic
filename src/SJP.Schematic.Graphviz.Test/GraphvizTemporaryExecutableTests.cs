@@ -23,13 +23,13 @@ namespace SJP.Schematic.Graphviz.Tests
         {
             var nonWhiteSpace = !string.IsNullOrWhiteSpace(GraphvizExe.DotExecutablePath);
 
-            Assert.IsTrue(nonWhiteSpace);
+            Assert.That(nonWhiteSpace, Is.True);
         }
 
         [Test]
         public void DotExecutablePath_PropertyGet_FileExists()
         {
-            FileAssert.Exists(GraphvizExe.DotExecutablePath);
+            Assert.That(GraphvizExe.DotExecutablePath, Does.Exist);
         }
     }
 }

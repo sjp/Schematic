@@ -132,7 +132,7 @@ create table test_table_9 (
 
             var result = Formatter.RenderTables(tables);
 
-            Assert.AreEqual(TestTable5Dot, result);
+            Assert.That(result, Is.EqualTo(TestTable5Dot));
         }
 
         [Test]
@@ -143,7 +143,7 @@ create table test_table_9 (
 
             var result = Formatter.RenderTables(tables);
 
-            Assert.AreEqual(TestTable1Dot, result);
+            Assert.That(result, Is.EqualTo(TestTable1Dot));
         }
 
         [Test]
@@ -154,7 +154,7 @@ create table test_table_9 (
 
             var result = Formatter.RenderTables(tables);
 
-            Assert.AreEqual(TestTable2Dot, result);
+            Assert.That(result, Is.EqualTo(TestTable2Dot));
         }
 
         [Test]
@@ -170,7 +170,7 @@ create table test_table_9 (
 
             var result = Formatter.RenderTables(tables);
 
-            Assert.AreEqual(MultipleRelationshipsDot, result);
+            Assert.That(result, Is.EqualTo(MultipleRelationshipsDot));
         }
 
         private const string TestTable1Dot = @"// Schematic version 1.0.0.0

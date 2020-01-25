@@ -7,19 +7,19 @@ namespace SJP.Schematic.Graphviz.Tests
         [Test]
         public void ExitCode_PropertyGet_MatchesCtorArg()
         {
-            const int expected = 123;
-            var ex = new GraphvizException(expected, "Test");
+            const int exitCode = 123;
+            var ex = new GraphvizException(exitCode, "Test");
 
-            Assert.AreEqual(expected, ex.ExitCode);
+            Assert.That(ex.ExitCode, Is.EqualTo(exitCode));
         }
 
         [Test]
         public void Message_PropertyGet_MatchesCtorArg()
         {
-            const string expected = "Test error message";
-            var ex = new GraphvizException(123, expected);
+            const string message = "Test error message";
+            var ex = new GraphvizException(123, message);
 
-            Assert.AreEqual(expected, ex.Message);
+            Assert.That(ex.Message, Is.EqualTo(message));
         }
     }
 }

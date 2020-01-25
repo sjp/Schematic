@@ -12,58 +12,58 @@ namespace SJP.Schematic.Core.Tests.Extensions
         public static void IsNullOrEmpty_GivenNullInput_ReturnsTrue()
         {
             const string input = null;
-            Assert.IsTrue(input.IsNullOrEmpty());
+            Assert.That(input.IsNullOrEmpty(), Is.True);
         }
 
         [Test]
         public static void IsNullOrEmpty_GivenEmptyInput_ReturnsTrue()
         {
-            Assert.IsTrue(string.Empty.IsNullOrEmpty());
+            Assert.That(string.Empty.IsNullOrEmpty(), Is.True);
         }
 
         [Test]
         public static void IsNullOrEmpty_GivenNonEmptyInput_ReturnsFalse()
         {
-            Assert.IsFalse("a".IsNullOrEmpty());
+            Assert.That("a".IsNullOrEmpty(), Is.False);
         }
 
         [Test]
         public static void IsNullOrWhiteSpace_GivenNullInput_ReturnsTrue()
         {
             const string input = null;
-            Assert.IsTrue(input.IsNullOrWhiteSpace());
+            Assert.That(input.IsNullOrWhiteSpace(), Is.True);
         }
 
         [Test]
         public static void IsNullOrWhiteSpace_GivenEmptyInput_ReturnsTrue()
         {
-            Assert.IsTrue(string.Empty.IsNullOrWhiteSpace());
+            Assert.That(string.Empty.IsNullOrWhiteSpace(), Is.True);
         }
 
         [Test]
         public static void IsNullOrWhiteSpace_GivenWhiteSpaceInput_ReturnsTrue()
         {
-            Assert.IsTrue("   ".IsNullOrWhiteSpace());
+            Assert.That("   ".IsNullOrWhiteSpace(), Is.True);
         }
 
         [Test]
         public static void IsNullOrWhiteSpace_GivenInputContainingNonWhiteSpace_ReturnsFalse()
         {
-            Assert.IsFalse("  a ".IsNullOrWhiteSpace());
+            Assert.That("  a ".IsNullOrWhiteSpace(), Is.False);
         }
 
         [Test]
         public static void Join_GivenNullStringCollection_ThrowsArgumentNullException()
         {
             IEnumerable<string> values = null;
-            Assert.Throws<ArgumentNullException>(() => values.Join(","));
+            Assert.That(() => values.Join(","), Throws.ArgumentNullException);
         }
 
         [Test]
         public static void Join_GivenNullSeparator_ThrowsArgumentNullException()
         {
             var values = Array.Empty<string>();
-            Assert.Throws<ArgumentNullException>(() => values.Join(null));
+            Assert.That(() => values.Join(null), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -72,7 +72,7 @@ namespace SJP.Schematic.Core.Tests.Extensions
             var values = new[] { "test" };
             var result = values.Join(",");
 
-            Assert.AreEqual(values[0], result);
+            Assert.That(result, Is.EqualTo(values[0]));
         }
 
         [Test]
@@ -82,7 +82,7 @@ namespace SJP.Schematic.Core.Tests.Extensions
             var values = new[] { "test1", "test2", "test3" };
             var result = values.Join(",");
 
-            Assert.AreEqual(expectedResult, result);
+            Assert.That(expectedResult, Is.EqualTo(result));
         }
 
         [Test]
@@ -92,21 +92,21 @@ namespace SJP.Schematic.Core.Tests.Extensions
             var values = new[] { "test1", "test2", "test3" };
             var result = values.Join(string.Empty);
 
-            Assert.AreEqual(expectedResult, result);
+            Assert.That(expectedResult, Is.EqualTo(result));
         }
 
         [Test]
         public static void Contains_WhenInvokedOnNullString_ThrowsArgumentNullException()
         {
             const string input = null;
-            Assert.Throws<ArgumentNullException>(() => StringExtensions.Contains(input, string.Empty, StringComparison.OrdinalIgnoreCase));
+            Assert.That(() => StringExtensions.Contains(input, string.Empty, StringComparison.OrdinalIgnoreCase), Throws.ArgumentNullException);
         }
 
         [Test]
         public static void Contains_GivenNullValue_ThrowsArgumentNullException()
         {
             var input = string.Empty;
-            Assert.Throws<ArgumentNullException>(() => StringExtensions.Contains(input, null, StringComparison.OrdinalIgnoreCase));
+            Assert.That(() => StringExtensions.Contains(input, null, StringComparison.OrdinalIgnoreCase), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -114,42 +114,42 @@ namespace SJP.Schematic.Core.Tests.Extensions
         {
             var input = string.Empty;
             const StringComparison comparison = (StringComparison)55;
-            Assert.Throws<ArgumentException>(() => StringExtensions.Contains(input, string.Empty, comparison));
+            Assert.That(() => StringExtensions.Contains(input, string.Empty, comparison), Throws.ArgumentException);
         }
 
         [Test]
         public static void Contains_GivenEmptyStringWithNonEmptyValue_ReturnsFalse()
         {
             var input = string.Empty;
-            Assert.IsFalse(StringExtensions.Contains(input, "A", StringComparison.Ordinal));
+            Assert.That(StringExtensions.Contains(input, "A", StringComparison.Ordinal), Is.False);
         }
 
         [Test]
         public static void Contains_GivenNonEmptyStringWithEmptyValue_ReturnsTrue()
         {
             const string input = "A";
-            Assert.IsTrue(StringExtensions.Contains(input, string.Empty, StringComparison.Ordinal));
+            Assert.That(StringExtensions.Contains(input, string.Empty, StringComparison.Ordinal), Is.True);
         }
 
         [Test]
         public static void Contains_GivenStringWithNonMatchingSubstring_ReturnsFalse()
         {
             const string input = "A";
-            Assert.IsFalse(StringExtensions.Contains(input, "B", StringComparison.Ordinal));
+            Assert.That(StringExtensions.Contains(input, "B", StringComparison.Ordinal), Is.False);
         }
 
         [Test]
         public static void Contains_GivenStringWithMatchingSubstring_ReturnsTrue()
         {
             const string input = "test input test";
-            Assert.IsTrue(StringExtensions.Contains(input, "input", StringComparison.Ordinal));
+            Assert.That(StringExtensions.Contains(input, "input", StringComparison.Ordinal), Is.True);
         }
 
         [Test]
         public static void Contains_GivenStringWithMatchingSubstringButIgnoringCase_ReturnsTrue()
         {
             const string input = "test input test";
-            Assert.IsTrue(StringExtensions.Contains(input, "INPUT", StringComparison.OrdinalIgnoreCase));
+            Assert.That(StringExtensions.Contains(input, "INPUT", StringComparison.OrdinalIgnoreCase), Is.True);
         }
     }
 }

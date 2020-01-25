@@ -15,49 +15,49 @@ namespace SJP.Schematic.Dot.Tests
         [Test]
         public static void Ctor_GivenNullDefaults_ThrowsArgumentNullException()
         {
-            Assert.Throws<ArgumentNullException>(() => new DotFormatter(null));
+            Assert.That(() => new DotFormatter(null), Throws.ArgumentNullException);
         }
 
         [Test]
         public static void RenderTables_GivenNullTables_ThrowsArgumentNullException()
         {
-            Assert.Throws<ArgumentNullException>(() => Formatter.RenderTables(null));
+            Assert.That(() => Formatter.RenderTables(null), Throws.ArgumentNullException);
         }
 
         [Test]
         public static void Ctor_GivenNullTablesWithValidOptions_ThrowsArgumentNullException()
         {
-            Assert.Throws<ArgumentNullException>(() => Formatter.RenderTables(null, new DotRenderOptions()));
+            Assert.That(() => Formatter.RenderTables(null, new DotRenderOptions()), Throws.ArgumentNullException);
         }
 
         [Test]
         public static void Ctor_GivenNullOptionsWithValidTables_ThrowsArgumentNullException()
         {
-            Assert.Throws<ArgumentNullException>(() => Formatter.RenderTables(Array.Empty<IRelationalDatabaseTable>(), (DotRenderOptions)null));
+            Assert.That(() => Formatter.RenderTables(Array.Empty<IRelationalDatabaseTable>(), (DotRenderOptions)null), Throws.ArgumentNullException);
         }
 
         [Test]
         public static void Ctor_GivenNullTablesWithValidRowCounts_ThrowsArgumentNullException()
         {
-            Assert.Throws<ArgumentNullException>(() => Formatter.RenderTables(null, new Dictionary<Identifier, ulong>()));
+            Assert.That(() => Formatter.RenderTables(null, new Dictionary<Identifier, ulong>()), Throws.ArgumentNullException);
         }
 
         [Test]
         public static void Ctor_GivenNullTablesWithValidRowCountsAndOptions_ThrowsArgumentNullException()
         {
-            Assert.Throws<ArgumentNullException>(() => Formatter.RenderTables(null, new Dictionary<Identifier, ulong>(), new DotRenderOptions()));
+            Assert.That(() => Formatter.RenderTables(null, new Dictionary<Identifier, ulong>(), new DotRenderOptions()), Throws.ArgumentNullException);
         }
 
         [Test]
         public static void Ctor_GivenNullRowCountsWithValidTablesAndOptions_ThrowsArgumentNullException()
         {
-            Assert.Throws<ArgumentNullException>(() => Formatter.RenderTables(Array.Empty<IRelationalDatabaseTable>(), null, new DotRenderOptions()));
+            Assert.That(() => Formatter.RenderTables(Array.Empty<IRelationalDatabaseTable>(), null, new DotRenderOptions()), Throws.ArgumentNullException);
         }
 
         [Test]
         public static void Ctor_GivenNullOptionsWithTablesAndValidRowCounts_ThrowsArgumentNullException()
         {
-            Assert.Throws<ArgumentNullException>(() => Formatter.RenderTables(Array.Empty<IRelationalDatabaseTable>(), new Dictionary<Identifier, ulong>(), null));
+            Assert.That(() => Formatter.RenderTables(Array.Empty<IRelationalDatabaseTable>(), new Dictionary<Identifier, ulong>(), null), Throws.ArgumentNullException);
         }
     }
 }
