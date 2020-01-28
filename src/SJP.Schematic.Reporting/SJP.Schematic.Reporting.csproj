@@ -40,11 +40,11 @@
   <PropertyGroup>
     <!-- File with mtime of last successful npm install -->
     <NpmInstallStampFile>node_modules/.install-stamp</NpmInstallStampFile>
+    <GulpBuildStampFile>node_modules/.gulp-build-stamp</GulpBuildStampFile>
   </PropertyGroup>
 
   <ItemGroup>
     <GulpSourceFiles Include="package.json;gulpfile.babel.js;Source/**/*.*" />
-    <GulpOutputFiles Include="assets/**/*.gz" />
   </ItemGroup>
 
   <Target Name="NpmClean" BeforeTargets="BeforeClean">
@@ -57,8 +57,9 @@
     <Touch Files="$(NpmInstallStampFile)" AlwaysCreate="true" />
   </Target>
 
-  <Target Name="GulpBuild" BeforeTargets="BeforeBuild" Inputs="@(GulpSourceFiles)" Outputs="@(GulpOutputFiles)">
+  <Target Name="GulpBuild" BeforeTargets="BeforeBuild" Inputs="@(GulpSourceFiles)" Outputs="$(GulpBuildStampFile)">
     <Exec Command="npm run build" WorkingDirectory="$(MSBuildThisFileDirectory)" />
+    <Touch Files="$(GulpBuildStampFile)" AlwaysCreate="true" />
   </Target>
 
 </Project>
