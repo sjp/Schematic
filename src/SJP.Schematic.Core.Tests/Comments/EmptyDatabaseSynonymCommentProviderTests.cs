@@ -13,7 +13,7 @@ namespace SJP.Schematic.Core.Tests.Comments
         public static void GetSynonymComments_GivenNullName_ThrowsArgumentNullException()
         {
             var provider = new EmptyDatabaseSynonymCommentProvider();
-            Assert.Throws<ArgumentNullException>(() => provider.GetSynonymComments(null));
+            Assert.That(() => provider.GetSynonymComments(null), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -23,16 +23,18 @@ namespace SJP.Schematic.Core.Tests.Comments
             var comment = provider.GetSynonymComments("test_synonym");
             var isNone = await comment.IsNone.ConfigureAwait(false);
 
-            Assert.IsTrue(isNone);
+            Assert.That(isNone, Is.True);
         }
 
         [Test]
         public static async Task GetAllSynonymComments_WhenInvoked_DoesNotEnumerateAnyValues()
         {
             var provider = new EmptyDatabaseSynonymCommentProvider();
-            var comments = await provider.GetAllSynonymComments().ToListAsync().ConfigureAwait(false);
+            var hasComments = await provider.GetAllSynonymComments()
+                .AnyAsync()
+                .ConfigureAwait(false);
 
-            Assert.Zero(comments.Count);
+            Assert.That(hasComments, Is.False);
         }
     }
 }

@@ -13,7 +13,7 @@ namespace SJP.Schematic.Core.Tests.Comments
         public static void GetTableComments_GivenNullName_ThrowsArgumentNullException()
         {
             var provider = new EmptyRelationalDatabaseCommentProvider();
-            Assert.Throws<ArgumentNullException>(() => provider.GetTableComments(null));
+            Assert.That(() => provider.GetTableComments(null), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -23,7 +23,7 @@ namespace SJP.Schematic.Core.Tests.Comments
             var comment = provider.GetTableComments("test_table");
             var isNone = await comment.IsNone.ConfigureAwait(false);
 
-            Assert.IsTrue(isNone);
+            Assert.That(isNone, Is.True);
         }
 
         [Test]
@@ -32,14 +32,14 @@ namespace SJP.Schematic.Core.Tests.Comments
             var provider = new EmptyRelationalDatabaseCommentProvider();
             var hasComments = await provider.GetAllTableComments().AnyAsync().ConfigureAwait(false);
 
-            Assert.IsFalse(hasComments);
+            Assert.That(hasComments, Is.False);
         }
 
         [Test]
         public static void GetViewComments_GivenNullName_ThrowsArgumentNullException()
         {
             var provider = new EmptyRelationalDatabaseCommentProvider();
-            Assert.Throws<ArgumentNullException>(() => provider.GetViewComments(null));
+            Assert.That(() => provider.GetViewComments(null), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -49,7 +49,7 @@ namespace SJP.Schematic.Core.Tests.Comments
             var comment = provider.GetViewComments("test_view");
             var isNone = await comment.IsNone.ConfigureAwait(false);
 
-            Assert.IsTrue(isNone);
+            Assert.That(isNone, Is.True);
         }
 
         [Test]
@@ -60,7 +60,7 @@ namespace SJP.Schematic.Core.Tests.Comments
                 .AnyAsync()
                 .ConfigureAwait(false);
 
-            Assert.IsFalse(hasComments);
+            Assert.That(hasComments, Is.False);
         }
 
         [Test]
@@ -77,23 +77,25 @@ namespace SJP.Schematic.Core.Tests.Comments
             var comment = provider.GetSynonymComments("test_synonym");
             var isNone = await comment.IsNone.ConfigureAwait(false);
 
-            Assert.IsTrue(isNone);
+            Assert.That(isNone, Is.True);
         }
 
         [Test]
         public static async Task GetAllSynonymComments_WhenInvoked_DoesNotEnumerateAnyValues()
         {
             var provider = new EmptyRelationalDatabaseCommentProvider();
-            var comments = await provider.GetAllSynonymComments().ToListAsync().ConfigureAwait(false);
+            var hasComments = await provider.GetAllSynonymComments()
+                .AnyAsync()
+                .ConfigureAwait(false);
 
-            Assert.Zero(comments.Count);
+            Assert.That(hasComments, Is.False);
         }
 
         [Test]
         public static void GetSequenceComments_GivenNullName_ThrowsArgumentNullException()
         {
             var provider = new EmptyRelationalDatabaseCommentProvider();
-            Assert.Throws<ArgumentNullException>(() => provider.GetSequenceComments(null));
+            Assert.That(() => provider.GetSequenceComments(null), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -103,7 +105,7 @@ namespace SJP.Schematic.Core.Tests.Comments
             var comment = provider.GetSequenceComments("test_sequence");
             var isNone = await comment.IsNone.ConfigureAwait(false);
 
-            Assert.IsTrue(isNone);
+            Assert.That(isNone, Is.True);
         }
 
         [Test]
@@ -114,14 +116,14 @@ namespace SJP.Schematic.Core.Tests.Comments
                 .AnyAsync()
                 .ConfigureAwait(false);
 
-            Assert.IsFalse(hasComments);
+            Assert.That(hasComments, Is.False);
         }
 
         [Test]
         public static void GetRoutineComments_GivenNullName_ThrowsArgumentNullException()
         {
             var provider = new EmptyRelationalDatabaseCommentProvider();
-            Assert.Throws<ArgumentNullException>(() => provider.GetRoutineComments(null));
+            Assert.That(() => provider.GetRoutineComments(null), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -131,7 +133,7 @@ namespace SJP.Schematic.Core.Tests.Comments
             var comment = provider.GetRoutineComments("test_routine");
             var isNone = await comment.IsNone.ConfigureAwait(false);
 
-            Assert.IsTrue(isNone);
+            Assert.That(isNone, Is.True);
         }
 
         [Test]
@@ -142,7 +144,7 @@ namespace SJP.Schematic.Core.Tests.Comments
                 .AnyAsync()
                 .ConfigureAwait(false);
 
-            Assert.IsFalse(hasComments);
+            Assert.That(hasComments, Is.False);
         }
     }
 }

@@ -13,7 +13,7 @@ namespace SJP.Schematic.Core.Tests.Comments
         public static void GetTableComments_GivenNullName_ThrowsArgumentNullException()
         {
             var provider = new EmptyRelationalDatabaseTableCommentProvider();
-            Assert.Throws<ArgumentNullException>(() => provider.GetTableComments(null));
+            Assert.That(() => provider.GetTableComments(null), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -23,7 +23,7 @@ namespace SJP.Schematic.Core.Tests.Comments
             var comment = provider.GetTableComments("test_table");
             var isNone = await comment.IsNone.ConfigureAwait(false);
 
-            Assert.IsTrue(isNone);
+            Assert.That(isNone, Is.True);
         }
 
         [Test]
@@ -32,7 +32,7 @@ namespace SJP.Schematic.Core.Tests.Comments
             var provider = new EmptyRelationalDatabaseTableCommentProvider();
             var hasComments = await provider.GetAllTableComments().AnyAsync().ConfigureAwait(false);
 
-            Assert.IsFalse(hasComments);
+            Assert.That(hasComments, Is.False);
         }
     }
 }

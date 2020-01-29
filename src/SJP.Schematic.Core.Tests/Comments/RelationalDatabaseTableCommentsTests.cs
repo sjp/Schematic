@@ -6,6 +6,7 @@ using NUnit.Framework;
 using SJP.Schematic.Core.Comments;
 using SJP.Schematic.Core.Extensions;
 using SJP.Schematic.Core.Utilities;
+using SJP.Schematic.Tests.Utilities;
 
 namespace SJP.Schematic.Core.Tests.Comments
 {
@@ -15,7 +16,7 @@ namespace SJP.Schematic.Core.Tests.Comments
         [Test]
         public static void Ctor_GivenNullName_ThrowsArgumentNullException()
         {
-            Assert.Throws<ArgumentNullException>(() => new RelationalDatabaseTableComments(
+            Assert.That(() => new RelationalDatabaseTableComments(
                 null,
                 Option<string>.None,
                 Option<string>.None,
@@ -25,13 +26,13 @@ namespace SJP.Schematic.Core.Tests.Comments
                 Empty.CommentLookup,
                 Empty.CommentLookup,
                 Empty.CommentLookup
-            ));
+            ), Throws.ArgumentNullException);
         }
 
         [Test]
         public static void Ctor_GivenNullColumnComments_ThrowsArgumentNullException()
         {
-            Assert.Throws<ArgumentNullException>(() => new RelationalDatabaseTableComments(
+            Assert.That(() => new RelationalDatabaseTableComments(
                 "test_table",
                 Option<string>.None,
                 Option<string>.None,
@@ -41,13 +42,13 @@ namespace SJP.Schematic.Core.Tests.Comments
                 Empty.CommentLookup,
                 Empty.CommentLookup,
                 Empty.CommentLookup
-            ));
+            ), Throws.ArgumentNullException);
         }
 
         [Test]
         public static void Ctor_GivenNullCheckComments_ThrowsArgumentNullException()
         {
-            Assert.Throws<ArgumentNullException>(() => new RelationalDatabaseTableComments(
+            Assert.That(() => new RelationalDatabaseTableComments(
                 "test_table",
                 Option<string>.None,
                 Option<string>.None,
@@ -57,13 +58,13 @@ namespace SJP.Schematic.Core.Tests.Comments
                 Empty.CommentLookup,
                 Empty.CommentLookup,
                 Empty.CommentLookup
-            ));
+            ), Throws.ArgumentNullException);
         }
 
         [Test]
         public static void Ctor_GivenNullUniqueKeyComments_ThrowsArgumentNullException()
         {
-            Assert.Throws<ArgumentNullException>(() => new RelationalDatabaseTableComments(
+            Assert.That(() => new RelationalDatabaseTableComments(
                 "test_table",
                 Option<string>.None,
                 Option<string>.None,
@@ -73,13 +74,13 @@ namespace SJP.Schematic.Core.Tests.Comments
                 Empty.CommentLookup,
                 Empty.CommentLookup,
                 Empty.CommentLookup
-            ));
+            ), Throws.ArgumentNullException);
         }
 
         [Test]
         public static void Ctor_GivenNullForeignKeyComments_ThrowsArgumentNullException()
         {
-            Assert.Throws<ArgumentNullException>(() => new RelationalDatabaseTableComments(
+            Assert.That(() => new RelationalDatabaseTableComments(
                 "test_table",
                 Option<string>.None,
                 Option<string>.None,
@@ -89,13 +90,13 @@ namespace SJP.Schematic.Core.Tests.Comments
                 null,
                 Empty.CommentLookup,
                 Empty.CommentLookup
-            ));
+            ), Throws.ArgumentNullException);
         }
 
         [Test]
         public static void Ctor_GivenNullIndexComments_ThrowsArgumentNullException()
         {
-            Assert.Throws<ArgumentNullException>(() => new RelationalDatabaseTableComments(
+            Assert.That(() => new RelationalDatabaseTableComments(
                 "test_table",
                 Option<string>.None,
                 Option<string>.None,
@@ -105,13 +106,13 @@ namespace SJP.Schematic.Core.Tests.Comments
                 Empty.CommentLookup,
                 null,
                 Empty.CommentLookup
-            ));
+            ), Throws.ArgumentNullException);
         }
 
         [Test]
         public static void Ctor_GivenNullTriggerComments_ThrowsArgumentNullException()
         {
-            Assert.Throws<ArgumentNullException>(() => new RelationalDatabaseTableComments(
+            Assert.That(() => new RelationalDatabaseTableComments(
                 "test_table",
                 Option<string>.None,
                 Option<string>.None,
@@ -121,13 +122,13 @@ namespace SJP.Schematic.Core.Tests.Comments
                 Empty.CommentLookup,
                 Empty.CommentLookup,
                 null
-            ));
+            ), Throws.ArgumentNullException);
         }
 
         [Test]
         public static void Ctor_GivenNoNullArguments_DoesNotThrow()
         {
-            _ = new RelationalDatabaseTableComments(
+            Assert.That(() => new RelationalDatabaseTableComments(
                 "test_table",
                 Option<string>.None,
                 Option<string>.None,
@@ -137,8 +138,7 @@ namespace SJP.Schematic.Core.Tests.Comments
                 Empty.CommentLookup,
                 Empty.CommentLookup,
                 Empty.CommentLookup
-            );
-            Assert.Pass();
+            ), Throws.Nothing);
         }
 
         [Test]
@@ -157,7 +157,7 @@ namespace SJP.Schematic.Core.Tests.Comments
                 Empty.CommentLookup
             );
 
-            Assert.AreEqual(tableName, comments.TableName);
+            Assert.That(comments.TableName, Is.EqualTo(tableName));
         }
 
         [Test]
@@ -175,7 +175,7 @@ namespace SJP.Schematic.Core.Tests.Comments
                 Empty.CommentLookup
             );
 
-            Assert.IsTrue(comments.Comment.IsNone);
+            Assert.That(comments.Comment, OptionIs.None);
         }
 
         [Test]
@@ -195,7 +195,7 @@ namespace SJP.Schematic.Core.Tests.Comments
                 Empty.CommentLookup
             );
 
-            Assert.AreEqual(commentText, comments.Comment.UnwrapSome());
+            Assert.That(comments.Comment.UnwrapSome(), Is.EqualTo(commentText));
         }
 
         [Test]
@@ -213,7 +213,7 @@ namespace SJP.Schematic.Core.Tests.Comments
                 Empty.CommentLookup
             );
 
-            Assert.IsTrue(comments.Comment.IsNone);
+            Assert.That(comments.Comment, OptionIs.None);
         }
 
         [Test]
@@ -233,7 +233,7 @@ namespace SJP.Schematic.Core.Tests.Comments
                 Empty.CommentLookup
             );
 
-            Assert.AreEqual(commentText, comments.PrimaryKeyComment.UnwrapSome());
+            Assert.That(comments.PrimaryKeyComment.UnwrapSome(), Is.EqualTo(commentText));
         }
 
         [Test]
@@ -251,9 +251,7 @@ namespace SJP.Schematic.Core.Tests.Comments
                 Empty.CommentLookup
             );
 
-            var count = comments.ColumnComments.Count;
-
-            Assert.Zero(count);
+            Assert.That(comments.ColumnComments, Is.Empty);
         }
 
         [Test]
@@ -286,13 +284,7 @@ namespace SJP.Schematic.Core.Tests.Comments
 
             var propColumnComments = comments.ColumnComments;
 
-            Assert.Multiple(() =>
-            {
-                Assert.AreEqual(columnComments.Count, propColumnComments.Count);
-
-                var seqEqual = columnComments.Keys.SequenceEqual(propColumnComments.Keys);
-                Assert.IsTrue(seqEqual);
-            });
+            Assert.That(propColumnComments.Keys, Is.EqualTo(columnComments.Keys));
         }
 
         [Test]
@@ -327,14 +319,14 @@ namespace SJP.Schematic.Core.Tests.Comments
 
             Assert.Multiple(() =>
             {
-                Assert.AreEqual(columnComments.Count, propColumnComments.Count);
+                Assert.That(columnComments.Keys, Is.EqualTo(propColumnComments.Keys));
 
-                Assert.AreEqual(columnComments["test_column_1"].IsNone, propColumnComments["test_column_1"].IsNone);
-                Assert.AreEqual(columnComments["test_column_2"].IsNone, propColumnComments["test_column_2"].IsNone);
-                Assert.AreEqual(columnComments["test_column_3"].IsNone, propColumnComments["test_column_3"].IsNone);
+                Assert.That(columnComments["test_column_1"].IsNone, Is.EqualTo(propColumnComments["test_column_1"].IsNone));
+                Assert.That(columnComments["test_column_2"].IsNone, Is.EqualTo(propColumnComments["test_column_2"].IsNone));
+                Assert.That(columnComments["test_column_3"].IsNone, Is.EqualTo(propColumnComments["test_column_3"].IsNone));
 
-                Assert.AreEqual(columnComments["test_column_2"].UnwrapSome(), propColumnComments["test_column_2"].UnwrapSome());
-                Assert.AreEqual(columnComments["test_column_3"].UnwrapSome(), propColumnComments["test_column_3"].UnwrapSome());
+                Assert.That(columnComments["test_column_2"].UnwrapSome(), Is.EqualTo(propColumnComments["test_column_2"].UnwrapSome()));
+                Assert.That(columnComments["test_column_3"].UnwrapSome(), Is.EqualTo(propColumnComments["test_column_3"].UnwrapSome()));
             });
         }
 
@@ -353,9 +345,7 @@ namespace SJP.Schematic.Core.Tests.Comments
                 Empty.CommentLookup
             );
 
-            var count = comments.CheckComments.Count;
-
-            Assert.Zero(count);
+            Assert.That(comments.CheckComments, Is.Empty);
         }
 
         [Test]
@@ -388,13 +378,7 @@ namespace SJP.Schematic.Core.Tests.Comments
 
             var propCheckComments = comments.CheckComments;
 
-            Assert.Multiple(() =>
-            {
-                Assert.AreEqual(checkComments.Count, propCheckComments.Count);
-
-                var seqEqual = checkComments.Keys.SequenceEqual(propCheckComments.Keys);
-                Assert.IsTrue(seqEqual);
-            });
+            Assert.That(propCheckComments.Keys, Is.EqualTo(checkComments.Keys));
         }
 
         [Test]
@@ -429,14 +413,14 @@ namespace SJP.Schematic.Core.Tests.Comments
 
             Assert.Multiple(() =>
             {
-                Assert.AreEqual(checkComments.Count, propCheckComments.Count);
+                Assert.That(checkComments.Keys, Is.EqualTo(propCheckComments.Keys));
 
-                Assert.AreEqual(checkComments["test_check_1"].IsNone, propCheckComments["test_check_1"].IsNone);
-                Assert.AreEqual(checkComments["test_check_2"].IsNone, propCheckComments["test_check_2"].IsNone);
-                Assert.AreEqual(checkComments["test_check_3"].IsNone, propCheckComments["test_check_3"].IsNone);
+                Assert.That(checkComments["test_check_1"].IsNone, Is.EqualTo(propCheckComments["test_check_1"].IsNone));
+                Assert.That(checkComments["test_check_2"].IsNone, Is.EqualTo(propCheckComments["test_check_2"].IsNone));
+                Assert.That(checkComments["test_check_3"].IsNone, Is.EqualTo(propCheckComments["test_check_3"].IsNone));
 
-                Assert.AreEqual(checkComments["test_check_2"].UnwrapSome(), propCheckComments["test_check_2"].UnwrapSome());
-                Assert.AreEqual(checkComments["test_check_3"].UnwrapSome(), propCheckComments["test_check_3"].UnwrapSome());
+                Assert.That(checkComments["test_check_2"].UnwrapSome(), Is.EqualTo(propCheckComments["test_check_2"].UnwrapSome()));
+                Assert.That(checkComments["test_check_3"].UnwrapSome(), Is.EqualTo(propCheckComments["test_check_3"].UnwrapSome()));
             });
         }
 
@@ -455,9 +439,7 @@ namespace SJP.Schematic.Core.Tests.Comments
                 Empty.CommentLookup
             );
 
-            var count = comments.UniqueKeyComments.Count;
-
-            Assert.Zero(count);
+            Assert.That(comments.UniqueKeyComments, Is.Empty);
         }
 
         [Test]
@@ -490,13 +472,7 @@ namespace SJP.Schematic.Core.Tests.Comments
 
             var propUniqueKeyComments = comments.UniqueKeyComments;
 
-            Assert.Multiple(() =>
-            {
-                Assert.AreEqual(uniqueKeyComments.Count, propUniqueKeyComments.Count);
-
-                var seqEqual = uniqueKeyComments.Keys.SequenceEqual(propUniqueKeyComments.Keys);
-                Assert.IsTrue(seqEqual);
-            });
+            Assert.That(uniqueKeyComments.Keys, Is.EqualTo(propUniqueKeyComments.Keys));
         }
 
         [Test]
@@ -531,14 +507,14 @@ namespace SJP.Schematic.Core.Tests.Comments
 
             Assert.Multiple(() =>
             {
-                Assert.AreEqual(uniqueKeyComments.Count, propUniqueKeyComments.Count);
+                Assert.That(uniqueKeyComments.Keys, Is.EqualTo(propUniqueKeyComments.Keys));
 
-                Assert.AreEqual(uniqueKeyComments["test_uk_1"].IsNone, propUniqueKeyComments["test_uk_1"].IsNone);
-                Assert.AreEqual(uniqueKeyComments["test_uk_2"].IsNone, propUniqueKeyComments["test_uk_2"].IsNone);
-                Assert.AreEqual(uniqueKeyComments["test_uk_3"].IsNone, propUniqueKeyComments["test_uk_3"].IsNone);
+                Assert.That(uniqueKeyComments["test_uk_1"].IsNone, Is.EqualTo(propUniqueKeyComments["test_uk_1"].IsNone));
+                Assert.That(uniqueKeyComments["test_uk_2"].IsNone, Is.EqualTo(propUniqueKeyComments["test_uk_2"].IsNone));
+                Assert.That(uniqueKeyComments["test_uk_3"].IsNone, Is.EqualTo(propUniqueKeyComments["test_uk_3"].IsNone));
 
-                Assert.AreEqual(uniqueKeyComments["test_uk_2"].UnwrapSome(), propUniqueKeyComments["test_uk_2"].UnwrapSome());
-                Assert.AreEqual(uniqueKeyComments["test_uk_3"].UnwrapSome(), propUniqueKeyComments["test_uk_3"].UnwrapSome());
+                Assert.That(uniqueKeyComments["test_uk_2"].UnwrapSome(), Is.EqualTo(propUniqueKeyComments["test_uk_2"].UnwrapSome()));
+                Assert.That(uniqueKeyComments["test_uk_3"].UnwrapSome(), Is.EqualTo(propUniqueKeyComments["test_uk_3"].UnwrapSome()));
             });
         }
 
@@ -557,9 +533,7 @@ namespace SJP.Schematic.Core.Tests.Comments
                 Empty.CommentLookup
             );
 
-            var count = comments.ForeignKeyComments.Count;
-
-            Assert.Zero(count);
+            Assert.That(comments.ForeignKeyComments, Is.Empty);
         }
 
         [Test]
@@ -592,13 +566,7 @@ namespace SJP.Schematic.Core.Tests.Comments
 
             var propForeignKeyComments = comments.ForeignKeyComments;
 
-            Assert.Multiple(() =>
-            {
-                Assert.AreEqual(foreignKeyComments.Count, propForeignKeyComments.Count);
-
-                var seqEqual = foreignKeyComments.Keys.SequenceEqual(propForeignKeyComments.Keys);
-                Assert.IsTrue(seqEqual);
-            });
+            Assert.That(foreignKeyComments.Keys, Is.EqualTo(propForeignKeyComments.Keys));
         }
 
         [Test]
@@ -633,14 +601,14 @@ namespace SJP.Schematic.Core.Tests.Comments
 
             Assert.Multiple(() =>
             {
-                Assert.AreEqual(foreignKeyComments.Count, propForeignKeyComments.Count);
+                Assert.That(foreignKeyComments.Keys, Is.EqualTo(propForeignKeyComments.Keys));
 
-                Assert.AreEqual(foreignKeyComments["test_fk_1"].IsNone, propForeignKeyComments["test_fk_1"].IsNone);
-                Assert.AreEqual(foreignKeyComments["test_fk_2"].IsNone, propForeignKeyComments["test_fk_2"].IsNone);
-                Assert.AreEqual(foreignKeyComments["test_fk_3"].IsNone, propForeignKeyComments["test_fk_3"].IsNone);
+                Assert.That(foreignKeyComments["test_fk_1"].IsNone, Is.EqualTo(propForeignKeyComments["test_fk_1"].IsNone));
+                Assert.That(foreignKeyComments["test_fk_2"].IsNone, Is.EqualTo(propForeignKeyComments["test_fk_2"].IsNone));
+                Assert.That(foreignKeyComments["test_fk_3"].IsNone, Is.EqualTo(propForeignKeyComments["test_fk_3"].IsNone));
 
-                Assert.AreEqual(foreignKeyComments["test_fk_2"].UnwrapSome(), propForeignKeyComments["test_fk_2"].UnwrapSome());
-                Assert.AreEqual(foreignKeyComments["test_fk_3"].UnwrapSome(), propForeignKeyComments["test_fk_3"].UnwrapSome());
+                Assert.That(foreignKeyComments["test_fk_2"].UnwrapSome(), Is.EqualTo(propForeignKeyComments["test_fk_2"].UnwrapSome()));
+                Assert.That(foreignKeyComments["test_fk_3"].UnwrapSome(), Is.EqualTo(propForeignKeyComments["test_fk_3"].UnwrapSome()));
             });
         }
 
@@ -659,9 +627,7 @@ namespace SJP.Schematic.Core.Tests.Comments
                 Empty.CommentLookup
             );
 
-            var count = comments.IndexComments.Count;
-
-            Assert.Zero(count);
+            Assert.That(comments.IndexComments, Is.Empty);
         }
 
         [Test]
@@ -694,13 +660,7 @@ namespace SJP.Schematic.Core.Tests.Comments
 
             var propIndexComments = comments.IndexComments;
 
-            Assert.Multiple(() =>
-            {
-                Assert.AreEqual(indexComments.Count, propIndexComments.Count);
-
-                var seqEqual = indexComments.Keys.SequenceEqual(propIndexComments.Keys);
-                Assert.IsTrue(seqEqual);
-            });
+            Assert.That(propIndexComments.Keys, Is.EqualTo(indexComments.Keys));
         }
 
         [Test]
@@ -735,14 +695,14 @@ namespace SJP.Schematic.Core.Tests.Comments
 
             Assert.Multiple(() =>
             {
-                Assert.AreEqual(indexComments.Count, propIndexComments.Count);
+                Assert.That(indexComments.Keys, Is.EqualTo(propIndexComments.Keys));
 
-                Assert.AreEqual(indexComments["test_ix_1"].IsNone, propIndexComments["test_ix_1"].IsNone);
-                Assert.AreEqual(indexComments["test_ix_2"].IsNone, propIndexComments["test_ix_2"].IsNone);
-                Assert.AreEqual(indexComments["test_ix_3"].IsNone, propIndexComments["test_ix_3"].IsNone);
+                Assert.That(indexComments["test_ix_1"].IsNone, Is.EqualTo(propIndexComments["test_ix_1"].IsNone));
+                Assert.That(indexComments["test_ix_2"].IsNone, Is.EqualTo(propIndexComments["test_ix_2"].IsNone));
+                Assert.That(indexComments["test_ix_3"].IsNone, Is.EqualTo(propIndexComments["test_ix_3"].IsNone));
 
-                Assert.AreEqual(indexComments["test_ix_2"].UnwrapSome(), propIndexComments["test_ix_2"].UnwrapSome());
-                Assert.AreEqual(indexComments["test_ix_3"].UnwrapSome(), propIndexComments["test_ix_3"].UnwrapSome());
+                Assert.That(indexComments["test_ix_2"].UnwrapSome(), Is.EqualTo(propIndexComments["test_ix_2"].UnwrapSome()));
+                Assert.That(indexComments["test_ix_3"].UnwrapSome(), Is.EqualTo(propIndexComments["test_ix_3"].UnwrapSome()));
             });
         }
 
@@ -761,9 +721,7 @@ namespace SJP.Schematic.Core.Tests.Comments
                 Empty.CommentLookup
             );
 
-            var count = comments.TriggerComments.Count;
-
-            Assert.Zero(count);
+            Assert.That(comments.TriggerComments, Is.Empty);
         }
 
         [Test]
@@ -796,13 +754,7 @@ namespace SJP.Schematic.Core.Tests.Comments
 
             var propTriggerComments = comments.TriggerComments;
 
-            Assert.Multiple(() =>
-            {
-                Assert.AreEqual(triggerComments.Count, propTriggerComments.Count);
-
-                var seqEqual = triggerComments.Keys.SequenceEqual(propTriggerComments.Keys);
-                Assert.IsTrue(seqEqual);
-            });
+            Assert.That(triggerComments.Keys, Is.EqualTo(propTriggerComments.Keys));
         }
 
         [Test]
@@ -837,14 +789,14 @@ namespace SJP.Schematic.Core.Tests.Comments
 
             Assert.Multiple(() =>
             {
-                Assert.AreEqual(triggerComments.Count, propTriggerComments.Count);
+                Assert.That(triggerComments.Keys, Is.EqualTo(propTriggerComments.Keys));
 
-                Assert.AreEqual(triggerComments["test_trigger_1"].IsNone, propTriggerComments["test_trigger_1"].IsNone);
-                Assert.AreEqual(triggerComments["test_trigger_2"].IsNone, propTriggerComments["test_trigger_2"].IsNone);
-                Assert.AreEqual(triggerComments["test_trigger_3"].IsNone, propTriggerComments["test_trigger_3"].IsNone);
+                Assert.That(triggerComments["test_trigger_1"].IsNone, Is.EqualTo(propTriggerComments["test_trigger_1"].IsNone));
+                Assert.That(triggerComments["test_trigger_2"].IsNone, Is.EqualTo(propTriggerComments["test_trigger_2"].IsNone));
+                Assert.That(triggerComments["test_trigger_3"].IsNone, Is.EqualTo(propTriggerComments["test_trigger_3"].IsNone));
 
-                Assert.AreEqual(triggerComments["test_trigger_2"].UnwrapSome(), propTriggerComments["test_trigger_2"].UnwrapSome());
-                Assert.AreEqual(triggerComments["test_trigger_3"].UnwrapSome(), propTriggerComments["test_trigger_3"].UnwrapSome());
+                Assert.That(triggerComments["test_trigger_2"].UnwrapSome(), Is.EqualTo(propTriggerComments["test_trigger_2"].UnwrapSome()));
+                Assert.That(triggerComments["test_trigger_3"].UnwrapSome(), Is.EqualTo(propTriggerComments["test_trigger_3"].UnwrapSome()));
             });
         }
     }

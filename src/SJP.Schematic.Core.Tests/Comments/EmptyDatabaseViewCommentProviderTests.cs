@@ -13,7 +13,7 @@ namespace SJP.Schematic.Core.Tests.Comments
         public static void GetViewComments_GivenNullName_ThrowsArgumentNullException()
         {
             var provider = new EmptyDatabaseViewCommentProvider();
-            Assert.Throws<ArgumentNullException>(() => provider.GetViewComments(null));
+            Assert.That(() => provider.GetViewComments(null), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -23,7 +23,7 @@ namespace SJP.Schematic.Core.Tests.Comments
             var comment = provider.GetViewComments("test_view");
             var isNone = await comment.IsNone.ConfigureAwait(false);
 
-            Assert.IsTrue(isNone);
+            Assert.That(isNone, Is.True);
         }
 
         [Test]
@@ -34,7 +34,7 @@ namespace SJP.Schematic.Core.Tests.Comments
                 .AnyAsync()
                 .ConfigureAwait(false);
 
-            Assert.IsFalse(hasComments);
+            Assert.That(hasComments, Is.False);
         }
     }
 }
