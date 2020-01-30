@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using NUnit.Framework;
 using SJP.Schematic.Core.Extensions;
 
@@ -12,7 +11,7 @@ namespace SJP.Schematic.Core.Tests.Extensions
         public static void ToDictionary_GivenNullCollection_ThrowsArgumentNullException()
         {
             IEnumerable<KeyValuePair<string, string>> input = null;
-            Assert.Throws<ArgumentNullException>(() => input.ToDictionary());
+            Assert.That(() => input.ToDictionary(), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -21,7 +20,7 @@ namespace SJP.Schematic.Core.Tests.Extensions
             var input = new Dictionary<string, string>();
             var result = input.ToDictionary();
 
-            Assert.Zero(result.Count);
+            Assert.That(result, Is.Empty);
         }
 
         [Test]
@@ -36,10 +35,10 @@ namespace SJP.Schematic.Core.Tests.Extensions
 
             Assert.Multiple(() =>
             {
-                Assert.IsTrue(result.ContainsKey("a"));
-                Assert.IsTrue(result.ContainsKey("b"));
-                Assert.AreEqual("A", result["a"]);
-                Assert.AreEqual("B", result["b"]);
+                Assert.That(result.ContainsKey("a"), Is.True);
+                Assert.That(result.ContainsKey("b"), Is.True);
+                Assert.That(result["a"], Is.EqualTo("A"));
+                Assert.That(result["b"], Is.EqualTo("B"));
             });
         }
     }

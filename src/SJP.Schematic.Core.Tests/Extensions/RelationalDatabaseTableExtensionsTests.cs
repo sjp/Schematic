@@ -77,7 +77,7 @@ namespace SJP.Schematic.Core.Tests.Extensions
         [Test]
         public static void GetCheckLookup_GivenNullTable_ThrowsArgumentNullException()
         {
-            Assert.Throws<ArgumentNullException>(() => RelationalDatabaseTableExtensions.GetCheckLookup(null));
+            Assert.That(() => RelationalDatabaseTableExtensions.GetCheckLookup(null), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -85,7 +85,7 @@ namespace SJP.Schematic.Core.Tests.Extensions
         {
             var resolver = new VerbatimIdentifierResolutionStrategy();
 
-            Assert.Throws<ArgumentNullException>(() => RelationalDatabaseTableExtensions.GetCheckLookup(null, resolver));
+            Assert.That(() => RelationalDatabaseTableExtensions.GetCheckLookup(null, resolver), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -93,7 +93,7 @@ namespace SJP.Schematic.Core.Tests.Extensions
         {
             var table = GetMockTable("test");
 
-            Assert.Throws<ArgumentNullException>(() => table.GetCheckLookup(null));
+            Assert.That(() => table.GetCheckLookup(null), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -105,9 +105,7 @@ namespace SJP.Schematic.Core.Tests.Extensions
             var checkLookup = table.GetCheckLookup();
             var lookupKeys = checkLookup.Keys.Select(c => c.LocalName);
 
-            var equalKeys = expectedKeys.SequenceEqual(lookupKeys);
-
-            Assert.IsTrue(equalKeys);
+            Assert.That(lookupKeys, Is.EqualTo(expectedKeys));
         }
 
         [Test]
@@ -119,15 +117,13 @@ namespace SJP.Schematic.Core.Tests.Extensions
             var checkLookup = table.GetCheckLookup(new VerbatimIdentifierResolutionStrategy());
             var lookupKeys = checkLookup.Keys.Select(c => c.LocalName);
 
-            var equalKeys = expectedKeys.SequenceEqual(lookupKeys);
-
-            Assert.IsTrue(equalKeys);
+            Assert.That(lookupKeys, Is.EqualTo(expectedKeys));
         }
 
         [Test]
         public static void GetColumnLookup_GivenNullTable_ThrowsArgumentNullException()
         {
-            Assert.Throws<ArgumentNullException>(() => RelationalDatabaseTableExtensions.GetColumnLookup(null));
+            Assert.That(() => RelationalDatabaseTableExtensions.GetColumnLookup(null), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -135,7 +131,7 @@ namespace SJP.Schematic.Core.Tests.Extensions
         {
             var resolver = new VerbatimIdentifierResolutionStrategy();
 
-            Assert.Throws<ArgumentNullException>(() => RelationalDatabaseTableExtensions.GetColumnLookup(null, resolver));
+            Assert.That(() => RelationalDatabaseTableExtensions.GetColumnLookup(null, resolver), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -143,7 +139,7 @@ namespace SJP.Schematic.Core.Tests.Extensions
         {
             var table = GetMockTable("test");
 
-            Assert.Throws<ArgumentNullException>(() => table.GetColumnLookup(null));
+            Assert.That(() => table.GetColumnLookup(null), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -155,9 +151,7 @@ namespace SJP.Schematic.Core.Tests.Extensions
             var columnLookup = table.GetColumnLookup();
             var lookupKeys = columnLookup.Keys.Select(c => c.LocalName);
 
-            var equalKeys = expectedKeys.SequenceEqual(lookupKeys);
-
-            Assert.IsTrue(equalKeys);
+            Assert.That(lookupKeys, Is.EqualTo(expectedKeys));
         }
 
         [Test]
@@ -169,15 +163,13 @@ namespace SJP.Schematic.Core.Tests.Extensions
             var columnLookup = table.GetColumnLookup(new VerbatimIdentifierResolutionStrategy());
             var lookupKeys = columnLookup.Keys.Select(c => c.LocalName);
 
-            var equalKeys = expectedKeys.SequenceEqual(lookupKeys);
-
-            Assert.IsTrue(equalKeys);
+            Assert.That(lookupKeys, Is.EqualTo(expectedKeys));
         }
 
         [Test]
         public static void GetIndexLookup_GivenNullTable_ThrowsArgumentNullException()
         {
-            Assert.Throws<ArgumentNullException>(() => RelationalDatabaseTableExtensions.GetIndexLookup(null));
+            Assert.That(() => RelationalDatabaseTableExtensions.GetIndexLookup(null), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -185,7 +177,7 @@ namespace SJP.Schematic.Core.Tests.Extensions
         {
             var resolver = new VerbatimIdentifierResolutionStrategy();
 
-            Assert.Throws<ArgumentNullException>(() => RelationalDatabaseTableExtensions.GetIndexLookup(null, resolver));
+            Assert.That(() => RelationalDatabaseTableExtensions.GetIndexLookup(null, resolver), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -193,7 +185,7 @@ namespace SJP.Schematic.Core.Tests.Extensions
         {
             var table = GetMockTable("test");
 
-            Assert.Throws<ArgumentNullException>(() => table.GetIndexLookup(null));
+            Assert.That(() => table.GetIndexLookup(null), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -205,9 +197,7 @@ namespace SJP.Schematic.Core.Tests.Extensions
             var indexLookup = table.GetIndexLookup();
             var lookupKeys = indexLookup.Keys.Select(c => c.LocalName);
 
-            var equalKeys = expectedKeys.SequenceEqual(lookupKeys);
-
-            Assert.IsTrue(equalKeys);
+            Assert.That(lookupKeys, Is.EqualTo(expectedKeys));
         }
 
         [Test]
@@ -219,15 +209,13 @@ namespace SJP.Schematic.Core.Tests.Extensions
             var indexLookup = table.GetIndexLookup(new VerbatimIdentifierResolutionStrategy());
             var lookupKeys = indexLookup.Keys.Select(c => c.LocalName);
 
-            var equalKeys = expectedKeys.SequenceEqual(lookupKeys);
-
-            Assert.IsTrue(equalKeys);
+            Assert.That(lookupKeys, Is.EqualTo(expectedKeys));
         }
 
         [Test]
         public static void GetParentKeyLookup_GivenNullTable_ThrowsArgumentNullException()
         {
-            Assert.Throws<ArgumentNullException>(() => RelationalDatabaseTableExtensions.GetParentKeyLookup(null));
+            Assert.That(() => RelationalDatabaseTableExtensions.GetParentKeyLookup(null), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -235,7 +223,7 @@ namespace SJP.Schematic.Core.Tests.Extensions
         {
             var resolver = new VerbatimIdentifierResolutionStrategy();
 
-            Assert.Throws<ArgumentNullException>(() => RelationalDatabaseTableExtensions.GetParentKeyLookup(null, resolver));
+            Assert.That(() => RelationalDatabaseTableExtensions.GetParentKeyLookup(null, resolver), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -243,7 +231,7 @@ namespace SJP.Schematic.Core.Tests.Extensions
         {
             var table = GetMockTable("test");
 
-            Assert.Throws<ArgumentNullException>(() => table.GetParentKeyLookup(null));
+            Assert.That(() => table.GetParentKeyLookup(null), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -255,9 +243,7 @@ namespace SJP.Schematic.Core.Tests.Extensions
             var parentKeyLookup = table.GetParentKeyLookup();
             var lookupKeys = parentKeyLookup.Keys.Select(c => c.LocalName);
 
-            var equalKeys = expectedKeys.SequenceEqual(lookupKeys);
-
-            Assert.IsTrue(equalKeys);
+            Assert.That(lookupKeys, Is.EqualTo(expectedKeys));
         }
 
         [Test]
@@ -269,15 +255,13 @@ namespace SJP.Schematic.Core.Tests.Extensions
             var parentKeyLookup = table.GetParentKeyLookup(new VerbatimIdentifierResolutionStrategy());
             var lookupKeys = parentKeyLookup.Keys.Select(c => c.LocalName);
 
-            var equalKeys = expectedKeys.SequenceEqual(lookupKeys);
-
-            Assert.IsTrue(equalKeys);
+            Assert.That(lookupKeys, Is.EqualTo(expectedKeys));
         }
 
         [Test]
         public static void GetTriggerLookup_GivenNullTable_ThrowsArgumentNullException()
         {
-            Assert.Throws<ArgumentNullException>(() => RelationalDatabaseTableExtensions.GetTriggerLookup(null));
+            Assert.That(() => RelationalDatabaseTableExtensions.GetTriggerLookup(null), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -285,7 +269,7 @@ namespace SJP.Schematic.Core.Tests.Extensions
         {
             var resolver = new VerbatimIdentifierResolutionStrategy();
 
-            Assert.Throws<ArgumentNullException>(() => RelationalDatabaseTableExtensions.GetTriggerLookup(null, resolver));
+            Assert.That(() => RelationalDatabaseTableExtensions.GetTriggerLookup(null, resolver), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -293,7 +277,7 @@ namespace SJP.Schematic.Core.Tests.Extensions
         {
             var table = GetMockTable("test");
 
-            Assert.Throws<ArgumentNullException>(() => table.GetTriggerLookup(null));
+            Assert.That(() => table.GetTriggerLookup(null), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -305,9 +289,7 @@ namespace SJP.Schematic.Core.Tests.Extensions
             var triggerLookup = table.GetTriggerLookup();
             var lookupKeys = triggerLookup.Keys.Select(c => c.LocalName);
 
-            var equalKeys = expectedKeys.SequenceEqual(lookupKeys);
-
-            Assert.IsTrue(equalKeys);
+            Assert.That(lookupKeys, Is.EqualTo(expectedKeys));
         }
 
         [Test]
@@ -319,15 +301,13 @@ namespace SJP.Schematic.Core.Tests.Extensions
             var triggerLookup = table.GetTriggerLookup(new VerbatimIdentifierResolutionStrategy());
             var lookupKeys = triggerLookup.Keys.Select(c => c.LocalName);
 
-            var equalKeys = expectedKeys.SequenceEqual(lookupKeys);
-
-            Assert.IsTrue(equalKeys);
+            Assert.That(lookupKeys, Is.EqualTo(expectedKeys));
         }
 
         [Test]
         public static void GetUniqueKeyLookup_GivenNullTable_ThrowsArgumentNullException()
         {
-            Assert.Throws<ArgumentNullException>(() => RelationalDatabaseTableExtensions.GetUniqueKeyLookup(null));
+            Assert.That(() => RelationalDatabaseTableExtensions.GetUniqueKeyLookup(null), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -335,7 +315,7 @@ namespace SJP.Schematic.Core.Tests.Extensions
         {
             var resolver = new VerbatimIdentifierResolutionStrategy();
 
-            Assert.Throws<ArgumentNullException>(() => RelationalDatabaseTableExtensions.GetUniqueKeyLookup(null, resolver));
+            Assert.That(() => RelationalDatabaseTableExtensions.GetUniqueKeyLookup(null, resolver), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -343,7 +323,7 @@ namespace SJP.Schematic.Core.Tests.Extensions
         {
             var table = GetMockTable("test");
 
-            Assert.Throws<ArgumentNullException>(() => table.GetUniqueKeyLookup(null));
+            Assert.That(() => table.GetUniqueKeyLookup(null), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -355,9 +335,7 @@ namespace SJP.Schematic.Core.Tests.Extensions
             var uniqueKeyLookup = table.GetUniqueKeyLookup();
             var lookupKeys = uniqueKeyLookup.Keys.Select(c => c.LocalName);
 
-            var equalKeys = expectedKeys.SequenceEqual(lookupKeys);
-
-            Assert.IsTrue(equalKeys);
+            Assert.That(lookupKeys, Is.EqualTo(expectedKeys));
         }
 
         [Test]
@@ -369,9 +347,7 @@ namespace SJP.Schematic.Core.Tests.Extensions
             var uniqueKeyLookup = table.GetUniqueKeyLookup(new VerbatimIdentifierResolutionStrategy());
             var lookupKeys = uniqueKeyLookup.Keys.Select(c => c.LocalName);
 
-            var equalKeys = expectedKeys.SequenceEqual(lookupKeys);
-
-            Assert.IsTrue(equalKeys);
+            Assert.That(lookupKeys, Is.EqualTo(expectedKeys));
         }
     }
 }

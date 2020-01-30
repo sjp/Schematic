@@ -1,6 +1,4 @@
-﻿using System;
-using LanguageExt;
-using NUnit.Framework.Constraints;
+﻿using NUnit.Framework.Constraints;
 
 namespace SJP.Schematic.Tests.Utilities
 {

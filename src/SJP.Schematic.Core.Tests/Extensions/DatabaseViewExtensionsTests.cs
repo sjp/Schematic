@@ -1,5 +1,4 @@
-﻿using System;
-using System.Linq;
+﻿using System.Linq;
 using LanguageExt;
 using Moq;
 using NUnit.Framework;
@@ -38,7 +37,7 @@ namespace SJP.Schematic.Core.Tests.Extensions
         [Test]
         public static void GetColumnLookup_GivenNullView_ThrowsArgumentNullException()
         {
-            Assert.Throws<ArgumentNullException>(() => DatabaseViewExtensions.GetColumnLookup(null));
+            Assert.That(() => DatabaseViewExtensions.GetColumnLookup(null), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -46,7 +45,7 @@ namespace SJP.Schematic.Core.Tests.Extensions
         {
             var resolver = new VerbatimIdentifierResolutionStrategy();
 
-            Assert.Throws<ArgumentNullException>(() => DatabaseViewExtensions.GetColumnLookup(null, resolver));
+            Assert.That(() => DatabaseViewExtensions.GetColumnLookup(null, resolver), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -54,7 +53,7 @@ namespace SJP.Schematic.Core.Tests.Extensions
         {
             var view = GetMockView("test");
 
-            Assert.Throws<ArgumentNullException>(() => view.GetColumnLookup(null));
+            Assert.That(() => view.GetColumnLookup(null), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -66,9 +65,7 @@ namespace SJP.Schematic.Core.Tests.Extensions
             var columnLookup = view.GetColumnLookup();
             var lookupKeys = columnLookup.Keys.Select(c => c.LocalName);
 
-            var equalKeys = expectedKeys.SequenceEqual(lookupKeys);
-
-            Assert.IsTrue(equalKeys);
+            Assert.That(lookupKeys, Is.EqualTo(expectedKeys));
         }
 
         [Test]
@@ -80,9 +77,7 @@ namespace SJP.Schematic.Core.Tests.Extensions
             var columnLookup = view.GetColumnLookup(new VerbatimIdentifierResolutionStrategy());
             var lookupKeys = columnLookup.Keys.Select(c => c.LocalName);
 
-            var equalKeys = expectedKeys.SequenceEqual(lookupKeys);
-
-            Assert.IsTrue(equalKeys);
+            Assert.That(lookupKeys, Is.EqualTo(expectedKeys));
         }
     }
 }

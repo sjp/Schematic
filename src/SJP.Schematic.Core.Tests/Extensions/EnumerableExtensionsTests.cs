@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using NUnit.Framework;
 using SJP.Schematic.Core.Extensions;
 
@@ -13,21 +12,21 @@ namespace SJP.Schematic.Core.Tests.Extensions
         public static void Empty_GivenNullCollection_ThrowsArgumentNullException()
         {
             IEnumerable<string> input = null;
-            Assert.Throws<ArgumentNullException>(() => input.Empty());
+            Assert.That(() => input.Empty(), Throws.ArgumentNullException);
         }
 
         [Test]
         public static void Empty_GivenEmptyCollection_ReturnsTrue()
         {
             IEnumerable<string> input = Array.Empty<string>();
-            Assert.IsTrue(input.Empty());
+            Assert.That(input.Empty(), Is.True);
         }
 
         [Test]
         public static void Empty_GivenNonEmptyCollection_ReturnsFalse()
         {
             IEnumerable<string> input = new[] { "A" };
-            Assert.IsFalse(input.Empty());
+            Assert.That(input.Empty(), Is.False);
         }
 
         [Test]
@@ -36,62 +35,62 @@ namespace SJP.Schematic.Core.Tests.Extensions
             IEnumerable<string> input = Array.Empty<string>();
             Func<string, bool> predicate = null;
 
-            Assert.Throws<ArgumentNullException>(() => input.Empty(predicate));
+            Assert.That(() => input.Empty(predicate), Throws.ArgumentNullException);
         }
 
         [Test]
         public static void Empty_GivenEmptyCollectionWithPredicate_ReturnsTrue()
         {
             IEnumerable<string> input = Array.Empty<string>();
-            Assert.IsTrue(input.Empty(x => x == "A"));
+            Assert.That(input.Empty(x => x == "A"), Is.True);
         }
 
         [Test]
         public static void Empty_GivenNonEmptyCollectionWithNonMatchingPredicate_ReturnsTrue()
         {
             IEnumerable<string> input = new[] { "B" };
-            Assert.IsTrue(input.Empty(x => x == "A"));
+            Assert.That(input.Empty(x => x == "A"), Is.True);
         }
 
         [Test]
         public static void Empty_GivenNonEmptyCollectionWithMatchingPredicate_ReturnsFalse()
         {
             IEnumerable<string> input = new[] { "A" };
-            Assert.IsFalse(input.Empty(x => x == "A"));
+            Assert.That(input.Empty(x => x == "A"), Is.False);
         }
 
         [Test]
         public static void AnyNull_GivenNullCollection_ThrowsArgumentNullException()
         {
             IEnumerable<string> input = null;
-            Assert.Throws<ArgumentNullException>(() => input.AnyNull());
+            Assert.That(() => input.AnyNull(), Throws.ArgumentNullException);
         }
 
         [Test]
         public static void AnyNull_GivenEmptyCollection_ReturnsFalse()
         {
             IEnumerable<string> input = Array.Empty<string>();
-            Assert.IsFalse(input.AnyNull());
+            Assert.That(input.AnyNull(), Is.False);
         }
 
         [Test]
         public static void AnyNull_GivenNonEmptyCollectionWithNoNullValues_ReturnsFalse()
         {
             IEnumerable<string> input = new[] { "A" };
-            Assert.IsFalse(input.AnyNull());
+            Assert.That(input.AnyNull(), Is.False);
         }
 
         [Test]
         public static void AnyNull_GivenNonEmptyCollectionWithNullValues_ReturnsTrue()
         {
             IEnumerable<string> input = new[] { "A", null, "C" };
-            Assert.IsTrue(input.AnyNull());
+            Assert.That(input.AnyNull(), Is.True);
         }
 
         [Test]
         public static void DistinctBy_GivenNullCollection_ThrowsArgumentNullException()
         {
-            Assert.Throws<ArgumentNullException>(() => EnumerableExtensions.DistinctBy<string, string>(null, x => x));
+            Assert.That(() => EnumerableExtensions.DistinctBy<string, string>(null, x => x), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -99,13 +98,13 @@ namespace SJP.Schematic.Core.Tests.Extensions
         {
             var source = new[] { "first", "second", "third", "fourth", "fifth" };
 
-            Assert.Throws<ArgumentNullException>(() => source.DistinctBy<string, string>(null));
+            Assert.That(() => source.DistinctBy<string, string>(null), Throws.ArgumentNullException);
         }
 
         [Test]
         public static void DistinctBy_ForComparerOverloadGivenNullCollection_ThrowsArgumentNullException()
         {
-            Assert.Throws<ArgumentNullException>(() => EnumerableExtensions.DistinctBy<string, string>(null, x => x, EqualityComparer<string>.Default));
+            Assert.That(() => EnumerableExtensions.DistinctBy<string, string>(null, x => x, EqualityComparer<string>.Default), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -113,7 +112,7 @@ namespace SJP.Schematic.Core.Tests.Extensions
         {
             var source = new[] { "first", "second", "third", "fourth", "fifth" };
 
-            Assert.Throws<ArgumentNullException>(() => source.DistinctBy(null, EqualityComparer<string>.Default));
+            Assert.That(() => source.DistinctBy(null, EqualityComparer<string>.Default), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -124,9 +123,7 @@ namespace SJP.Schematic.Core.Tests.Extensions
 
             var distinct = source.DistinctBy(word => word.Length);
 
-            var areEqual = expected.SequenceEqual(distinct);
-
-            Assert.IsTrue(areEqual);
+            Assert.That(distinct, Is.EqualTo(expected));
         }
 
         [Test]
@@ -137,9 +134,7 @@ namespace SJP.Schematic.Core.Tests.Extensions
 
             var distinct = source.DistinctBy(word => word, StringComparer.OrdinalIgnoreCase);
 
-            var areEqual = expected.SequenceEqual(distinct);
-
-            Assert.IsTrue(areEqual);
+            Assert.That(distinct, Is.EqualTo(expected));
         }
 
         [Test]
@@ -150,9 +145,7 @@ namespace SJP.Schematic.Core.Tests.Extensions
 
             var distinct = source.DistinctBy(word => word.Length, null);
 
-            var areEqual = expected.SequenceEqual(distinct);
-
-            Assert.IsTrue(areEqual);
+            Assert.That(distinct, Is.EqualTo(expected));
         }
     }
 }

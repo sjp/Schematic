@@ -1,9 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Threading.Tasks;
 using LanguageExt;
 using NUnit.Framework;
 using SJP.Schematic.Core.Extensions;
+using SJP.Schematic.Tests.Utilities;
 
 namespace SJP.Schematic.Core.Tests.Extensions
 {
@@ -13,7 +13,7 @@ namespace SJP.Schematic.Core.Tests.Extensions
         [Test]
         public static void UnwrapSome_GivenNoneInput_ThrowsArgumentException()
         {
-            Assert.Throws<ArgumentException>(() => Option<string>.None.UnwrapSome());
+            Assert.That(() => Option<string>.None.UnwrapSome(), Throws.ArgumentException);
         }
 
         [Test]
@@ -23,13 +23,13 @@ namespace SJP.Schematic.Core.Tests.Extensions
             var option = Option<string>.Some(expected);
             var unwrapped = option.UnwrapSome();
 
-            Assert.AreEqual(expected, unwrapped);
+            Assert.That(unwrapped, Is.EqualTo(expected));
         }
 
         [Test]
         public static void UnwrapSomeAsync_GivenNoneInput_ThrowsArgumentException()
         {
-            Assert.ThrowsAsync<ArgumentException>(() => OptionAsync<string>.None.UnwrapSomeAsync());
+            Assert.That(async () => await OptionAsync<string>.None.UnwrapSomeAsync().ConfigureAwait(false), Throws.ArgumentException);
         }
 
         [Test]
@@ -39,13 +39,13 @@ namespace SJP.Schematic.Core.Tests.Extensions
             var option = OptionAsync<string>.Some(expected);
             var unwrapped = await option.UnwrapSomeAsync().ConfigureAwait(false);
 
-            Assert.AreEqual(expected, unwrapped);
+            Assert.That(unwrapped, Is.EqualTo(expected));
         }
 
         [Test]
         public static void FirstSome_GivenNoneInput_ThrowsArgumentNullException()
         {
-            Assert.Throws<ArgumentNullException>(() => ((IEnumerable<Option<string>>)null).FirstSome());
+            Assert.That(() => ((IEnumerable<Option<string>>)null).FirstSome(), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -60,7 +60,7 @@ namespace SJP.Schematic.Core.Tests.Extensions
             };
             var result = input.FirstSome();
 
-            Assert.IsTrue(result.IsNone);
+            Assert.That(result, OptionIs.None);
         }
 
         [Test]
@@ -77,13 +77,13 @@ namespace SJP.Schematic.Core.Tests.Extensions
             var result = input.FirstSome();
             var unwrapped = result.UnwrapSome();
 
-            Assert.AreEqual(expected, unwrapped);
+            Assert.That(unwrapped, Is.EqualTo(expected));
         }
 
         [Test]
         public static void FirstSome_GivenNoneAsyncInput_ThrowsArgumentNullException()
         {
-            Assert.Throws<ArgumentNullException>(() => ((IEnumerable<OptionAsync<string>>)null).FirstSome());
+            Assert.That(() => ((IEnumerable<OptionAsync<string>>)null).FirstSome(), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -99,7 +99,7 @@ namespace SJP.Schematic.Core.Tests.Extensions
             var result = input.FirstSome();
             var resultIsNone = await result.IsNone.ConfigureAwait(false);
 
-            Assert.IsTrue(resultIsNone);
+            Assert.That(resultIsNone, Is.True);
         }
 
         [Test]
@@ -116,7 +116,7 @@ namespace SJP.Schematic.Core.Tests.Extensions
             var result = input.FirstSome();
             var unwrapped = await result.UnwrapSomeAsync().ConfigureAwait(false);
 
-            Assert.AreEqual(expected, unwrapped);
+            Assert.That(unwrapped, Is.EqualTo(expected));
         }
     }
 }

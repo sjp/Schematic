@@ -1,5 +1,4 @@
-﻿using System;
-using System.Data;
+﻿using System.Data;
 using System.Threading;
 using Moq;
 using NUnit.Framework;
@@ -13,7 +12,7 @@ namespace SJP.Schematic.Core.Tests.Extensions
         [Test]
         public static void QueryAsync_WithoutParamsGivenNullConnection_ThrowsArgumentNullException()
         {
-            Assert.Throws<ArgumentNullException>(() => ConnectionExtensions.QueryAsync<string>(null, "test", CancellationToken.None));
+            Assert.That(() => ConnectionExtensions.QueryAsync<string>(null, "test", CancellationToken.None), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -21,7 +20,7 @@ namespace SJP.Schematic.Core.Tests.Extensions
         {
             var connection = Mock.Of<IDbConnection>();
 
-            Assert.Throws<ArgumentNullException>(() => connection.QueryAsync<string>(null, CancellationToken.None));
+            Assert.That(() => connection.QueryAsync<string>(null, CancellationToken.None), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -29,7 +28,7 @@ namespace SJP.Schematic.Core.Tests.Extensions
         {
             var connection = Mock.Of<IDbConnection>();
 
-            Assert.Throws<ArgumentNullException>(() => connection.QueryAsync<string>(string.Empty, CancellationToken.None));
+            Assert.That(() => connection.QueryAsync<string>(string.Empty, CancellationToken.None), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -37,7 +36,7 @@ namespace SJP.Schematic.Core.Tests.Extensions
         {
             var connection = Mock.Of<IDbConnection>();
 
-            Assert.Throws<ArgumentNullException>(() => connection.QueryAsync<string>("   ", CancellationToken.None));
+            Assert.That(() => connection.QueryAsync<string>("   ", CancellationToken.None), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -45,7 +44,7 @@ namespace SJP.Schematic.Core.Tests.Extensions
         {
             var param = new { Test = "test" };
 
-            Assert.Throws<ArgumentNullException>(() => ConnectionExtensions.QueryAsync<string>(null, "test", param, CancellationToken.None));
+            Assert.That(() => ConnectionExtensions.QueryAsync<string>(null, "test", param, CancellationToken.None), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -54,7 +53,7 @@ namespace SJP.Schematic.Core.Tests.Extensions
             var connection = Mock.Of<IDbConnection>();
             var param = new { Test = "test" };
 
-            Assert.Throws<ArgumentNullException>(() => connection.QueryAsync<string>(null, param, CancellationToken.None));
+            Assert.That(() => connection.QueryAsync<string>(null, param, CancellationToken.None), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -63,7 +62,7 @@ namespace SJP.Schematic.Core.Tests.Extensions
             var connection = Mock.Of<IDbConnection>();
             var param = new { Test = "test" };
 
-            Assert.Throws<ArgumentNullException>(() => connection.QueryAsync<string>(string.Empty, param, CancellationToken.None));
+            Assert.That(() => connection.QueryAsync<string>(string.Empty, param, CancellationToken.None), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -72,7 +71,7 @@ namespace SJP.Schematic.Core.Tests.Extensions
             var connection = Mock.Of<IDbConnection>();
             var param = new { Test = "test" };
 
-            Assert.Throws<ArgumentNullException>(() => connection.QueryAsync<string>("   ", param, CancellationToken.None));
+            Assert.That(() => connection.QueryAsync<string>("   ", param, CancellationToken.None), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -80,13 +79,13 @@ namespace SJP.Schematic.Core.Tests.Extensions
         {
             var connection = Mock.Of<IDbConnection>();
 
-            Assert.Throws<ArgumentNullException>(() => connection.QueryAsync<string>("test", null, CancellationToken.None));
+            Assert.That(() => connection.QueryAsync<string>("test", null, CancellationToken.None), Throws.ArgumentNullException);
         }
 
         [Test]
         public static void ExecuteScalarAsync_WithoutParamsGivenNullConnection_ThrowsArgumentNullException()
         {
-            Assert.Throws<ArgumentNullException>(() => ConnectionExtensions.ExecuteScalarAsync<string>(null, "test", CancellationToken.None));
+            Assert.That(() => ConnectionExtensions.ExecuteScalarAsync<string>(null, "test", CancellationToken.None), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -94,7 +93,7 @@ namespace SJP.Schematic.Core.Tests.Extensions
         {
             var connection = Mock.Of<IDbConnection>();
 
-            Assert.Throws<ArgumentNullException>(() => connection.ExecuteScalarAsync<string>(null, CancellationToken.None));
+            Assert.That(() => connection.ExecuteScalarAsync<string>(null, CancellationToken.None), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -102,7 +101,7 @@ namespace SJP.Schematic.Core.Tests.Extensions
         {
             var connection = Mock.Of<IDbConnection>();
 
-            Assert.Throws<ArgumentNullException>(() => connection.ExecuteScalarAsync<string>(string.Empty, CancellationToken.None));
+            Assert.That(() => connection.ExecuteScalarAsync<string>(string.Empty, CancellationToken.None), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -110,7 +109,7 @@ namespace SJP.Schematic.Core.Tests.Extensions
         {
             var connection = Mock.Of<IDbConnection>();
 
-            Assert.Throws<ArgumentNullException>(() => connection.ExecuteScalarAsync<string>("   ", CancellationToken.None));
+            Assert.That(() => connection.ExecuteScalarAsync<string>("   ", CancellationToken.None), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -118,7 +117,7 @@ namespace SJP.Schematic.Core.Tests.Extensions
         {
             var param = new { Test = "test" };
 
-            Assert.Throws<ArgumentNullException>(() => ConnectionExtensions.ExecuteScalarAsync<string>(null, "test", param, CancellationToken.None));
+            Assert.That(() => ConnectionExtensions.ExecuteScalarAsync<string>(null, "test", param, CancellationToken.None), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -127,7 +126,7 @@ namespace SJP.Schematic.Core.Tests.Extensions
             var connection = Mock.Of<IDbConnection>();
             var param = new { Test = "test" };
 
-            Assert.Throws<ArgumentNullException>(() => connection.ExecuteScalarAsync<string>(null, param, CancellationToken.None));
+            Assert.That(() => connection.ExecuteScalarAsync<string>(null, param, CancellationToken.None), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -136,7 +135,7 @@ namespace SJP.Schematic.Core.Tests.Extensions
             var connection = Mock.Of<IDbConnection>();
             var param = new { Test = "test" };
 
-            Assert.Throws<ArgumentNullException>(() => connection.ExecuteScalarAsync<string>(string.Empty, param, CancellationToken.None));
+            Assert.That(() => connection.ExecuteScalarAsync<string>(string.Empty, param, CancellationToken.None), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -145,7 +144,7 @@ namespace SJP.Schematic.Core.Tests.Extensions
             var connection = Mock.Of<IDbConnection>();
             var param = new { Test = "test" };
 
-            Assert.Throws<ArgumentNullException>(() => connection.ExecuteScalarAsync<string>("   ", param, CancellationToken.None));
+            Assert.That(() => connection.ExecuteScalarAsync<string>("   ", param, CancellationToken.None), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -153,13 +152,13 @@ namespace SJP.Schematic.Core.Tests.Extensions
         {
             var connection = Mock.Of<IDbConnection>();
 
-            Assert.Throws<ArgumentNullException>(() => connection.ExecuteScalarAsync<string>("test", null, CancellationToken.None));
+            Assert.That(() => connection.ExecuteScalarAsync<string>("test", null, CancellationToken.None), Throws.ArgumentNullException);
         }
 
         [Test]
         public static void ExecuteAsync_WithoutParamsGivenNullConnection_ThrowsArgumentNullException()
         {
-            Assert.Throws<ArgumentNullException>(() => ConnectionExtensions.ExecuteAsync(null, "test", CancellationToken.None));
+            Assert.That(() => ConnectionExtensions.ExecuteAsync(null, "test", CancellationToken.None), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -167,7 +166,7 @@ namespace SJP.Schematic.Core.Tests.Extensions
         {
             var connection = Mock.Of<IDbConnection>();
 
-            Assert.Throws<ArgumentNullException>(() => connection.ExecuteAsync(null, CancellationToken.None));
+            Assert.That(() => connection.ExecuteAsync(null, CancellationToken.None), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -175,7 +174,7 @@ namespace SJP.Schematic.Core.Tests.Extensions
         {
             var connection = Mock.Of<IDbConnection>();
 
-            Assert.Throws<ArgumentNullException>(() => connection.ExecuteAsync(string.Empty, CancellationToken.None));
+            Assert.That(() => connection.ExecuteAsync(string.Empty, CancellationToken.None), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -183,7 +182,7 @@ namespace SJP.Schematic.Core.Tests.Extensions
         {
             var connection = Mock.Of<IDbConnection>();
 
-            Assert.Throws<ArgumentNullException>(() => connection.ExecuteAsync("   ", CancellationToken.None));
+            Assert.That(() => connection.ExecuteAsync("   ", CancellationToken.None), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -191,7 +190,7 @@ namespace SJP.Schematic.Core.Tests.Extensions
         {
             var param = new { Test = "test" };
 
-            Assert.Throws<ArgumentNullException>(() => ConnectionExtensions.ExecuteAsync(null, "test", param, CancellationToken.None));
+            Assert.That(() => ConnectionExtensions.ExecuteAsync(null, "test", param, CancellationToken.None), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -200,7 +199,7 @@ namespace SJP.Schematic.Core.Tests.Extensions
             var connection = Mock.Of<IDbConnection>();
             var param = new { Test = "test" };
 
-            Assert.Throws<ArgumentNullException>(() => connection.ExecuteAsync(null, param, CancellationToken.None));
+            Assert.That(() => connection.ExecuteAsync(null, param, CancellationToken.None), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -209,7 +208,7 @@ namespace SJP.Schematic.Core.Tests.Extensions
             var connection = Mock.Of<IDbConnection>();
             var param = new { Test = "test" };
 
-            Assert.Throws<ArgumentNullException>(() => connection.ExecuteAsync(string.Empty, param, CancellationToken.None));
+            Assert.That(() => connection.ExecuteAsync(string.Empty, param, CancellationToken.None), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -218,7 +217,7 @@ namespace SJP.Schematic.Core.Tests.Extensions
             var connection = Mock.Of<IDbConnection>();
             var param = new { Test = "test" };
 
-            Assert.Throws<ArgumentNullException>(() => connection.ExecuteAsync("   ", param, CancellationToken.None));
+            Assert.That(() => connection.ExecuteAsync("   ", param, CancellationToken.None), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -226,13 +225,13 @@ namespace SJP.Schematic.Core.Tests.Extensions
         {
             var connection = Mock.Of<IDbConnection>();
 
-            Assert.Throws<ArgumentNullException>(() => connection.ExecuteAsync("test", null, CancellationToken.None));
+            Assert.That(() => connection.ExecuteAsync("test", null, CancellationToken.None), Throws.ArgumentNullException);
         }
 
         [Test]
         public static void QueryFirstOrNone_WithoutParamsGivenNullConnection_ThrowsArgumentNullException()
         {
-            Assert.Throws<ArgumentNullException>(() => ConnectionExtensions.QueryFirstOrNone<string>(null, "test", CancellationToken.None));
+            Assert.That(() => ConnectionExtensions.QueryFirstOrNone<string>(null, "test", CancellationToken.None), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -240,7 +239,7 @@ namespace SJP.Schematic.Core.Tests.Extensions
         {
             var connection = Mock.Of<IDbConnection>();
 
-            Assert.Throws<ArgumentNullException>(() => connection.QueryFirstOrNone<string>(null, CancellationToken.None));
+            Assert.That(() => connection.QueryFirstOrNone<string>(null, CancellationToken.None), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -248,7 +247,7 @@ namespace SJP.Schematic.Core.Tests.Extensions
         {
             var connection = Mock.Of<IDbConnection>();
 
-            Assert.Throws<ArgumentNullException>(() => connection.QueryFirstOrNone<string>(string.Empty, CancellationToken.None));
+            Assert.That(() => connection.QueryFirstOrNone<string>(string.Empty, CancellationToken.None), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -256,7 +255,7 @@ namespace SJP.Schematic.Core.Tests.Extensions
         {
             var connection = Mock.Of<IDbConnection>();
 
-            Assert.Throws<ArgumentNullException>(() => connection.QueryFirstOrNone<string>("   ", CancellationToken.None));
+            Assert.That(() => connection.QueryFirstOrNone<string>("   ", CancellationToken.None), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -264,7 +263,7 @@ namespace SJP.Schematic.Core.Tests.Extensions
         {
             var param = new { Test = "test" };
 
-            Assert.Throws<ArgumentNullException>(() => ConnectionExtensions.QueryFirstOrNone<string>(null, "test", param, CancellationToken.None));
+            Assert.That(() => ConnectionExtensions.QueryFirstOrNone<string>(null, "test", param, CancellationToken.None), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -273,7 +272,7 @@ namespace SJP.Schematic.Core.Tests.Extensions
             var connection = Mock.Of<IDbConnection>();
             var param = new { Test = "test" };
 
-            Assert.Throws<ArgumentNullException>(() => connection.QueryFirstOrNone<string>(null, param, CancellationToken.None));
+            Assert.That(() => connection.QueryFirstOrNone<string>(null, param, CancellationToken.None), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -282,7 +281,7 @@ namespace SJP.Schematic.Core.Tests.Extensions
             var connection = Mock.Of<IDbConnection>();
             var param = new { Test = "test" };
 
-            Assert.Throws<ArgumentNullException>(() => connection.QueryFirstOrNone<string>(string.Empty, param, CancellationToken.None));
+            Assert.That(() => connection.QueryFirstOrNone<string>(string.Empty, param, CancellationToken.None), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -291,7 +290,7 @@ namespace SJP.Schematic.Core.Tests.Extensions
             var connection = Mock.Of<IDbConnection>();
             var param = new { Test = "test" };
 
-            Assert.Throws<ArgumentNullException>(() => connection.QueryFirstOrNone<string>("   ", param, CancellationToken.None));
+            Assert.That(() => connection.QueryFirstOrNone<string>("   ", param, CancellationToken.None), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -299,13 +298,13 @@ namespace SJP.Schematic.Core.Tests.Extensions
         {
             var connection = Mock.Of<IDbConnection>();
 
-            Assert.Throws<ArgumentNullException>(() => connection.QueryFirstOrNone<string>("test", null, CancellationToken.None));
+            Assert.That(() => connection.QueryFirstOrNone<string>("test", null, CancellationToken.None), Throws.ArgumentNullException);
         }
 
         [Test]
         public static void QuerySingleAsync_WithoutParamsGivenNullConnection_ThrowsArgumentNullException()
         {
-            Assert.Throws<ArgumentNullException>(() => ConnectionExtensions.QuerySingleAsync<string>(null, "test", CancellationToken.None));
+            Assert.That(() => ConnectionExtensions.QuerySingleAsync<string>(null, "test", CancellationToken.None), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -313,7 +312,7 @@ namespace SJP.Schematic.Core.Tests.Extensions
         {
             var connection = Mock.Of<IDbConnection>();
 
-            Assert.Throws<ArgumentNullException>(() => connection.QuerySingleAsync<string>(null, CancellationToken.None));
+            Assert.That(() => connection.QuerySingleAsync<string>(null, CancellationToken.None), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -321,7 +320,7 @@ namespace SJP.Schematic.Core.Tests.Extensions
         {
             var connection = Mock.Of<IDbConnection>();
 
-            Assert.Throws<ArgumentNullException>(() => connection.QuerySingleAsync<string>(string.Empty, CancellationToken.None));
+            Assert.That(() => connection.QuerySingleAsync<string>(string.Empty, CancellationToken.None), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -329,7 +328,7 @@ namespace SJP.Schematic.Core.Tests.Extensions
         {
             var connection = Mock.Of<IDbConnection>();
 
-            Assert.Throws<ArgumentNullException>(() => connection.QuerySingleAsync<string>("   ", CancellationToken.None));
+            Assert.That(() => connection.QuerySingleAsync<string>("   ", CancellationToken.None), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -337,7 +336,7 @@ namespace SJP.Schematic.Core.Tests.Extensions
         {
             var param = new { Test = "test" };
 
-            Assert.Throws<ArgumentNullException>(() => ConnectionExtensions.QuerySingleAsync<string>(null, "test", param, CancellationToken.None));
+            Assert.That(() => ConnectionExtensions.QuerySingleAsync<string>(null, "test", param, CancellationToken.None), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -346,7 +345,7 @@ namespace SJP.Schematic.Core.Tests.Extensions
             var connection = Mock.Of<IDbConnection>();
             var param = new { Test = "test" };
 
-            Assert.Throws<ArgumentNullException>(() => connection.QuerySingleAsync<string>(null, param, CancellationToken.None));
+            Assert.That(() => connection.QuerySingleAsync<string>(null, param, CancellationToken.None), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -355,7 +354,7 @@ namespace SJP.Schematic.Core.Tests.Extensions
             var connection = Mock.Of<IDbConnection>();
             var param = new { Test = "test" };
 
-            Assert.Throws<ArgumentNullException>(() => connection.QuerySingleAsync<string>(string.Empty, param, CancellationToken.None));
+            Assert.That(() => connection.QuerySingleAsync<string>(string.Empty, param, CancellationToken.None), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -364,7 +363,7 @@ namespace SJP.Schematic.Core.Tests.Extensions
             var connection = Mock.Of<IDbConnection>();
             var param = new { Test = "test" };
 
-            Assert.Throws<ArgumentNullException>(() => connection.QuerySingleAsync<string>("   ", param, CancellationToken.None));
+            Assert.That(() => connection.QuerySingleAsync<string>("   ", param, CancellationToken.None), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -372,13 +371,13 @@ namespace SJP.Schematic.Core.Tests.Extensions
         {
             var connection = Mock.Of<IDbConnection>();
 
-            Assert.Throws<ArgumentNullException>(() => connection.QuerySingleAsync<string>("test", null, CancellationToken.None));
+            Assert.That(() => connection.QuerySingleAsync<string>("test", null, CancellationToken.None), Throws.ArgumentNullException);
         }
 
         [Test]
         public static void QuerySingleOrNone_WithoutParamsGivenNullConnection_ThrowsArgumentNullException()
         {
-            Assert.Throws<ArgumentNullException>(() => ConnectionExtensions.QuerySingleOrNone<string>(null, "test", CancellationToken.None));
+            Assert.That(() => ConnectionExtensions.QuerySingleOrNone<string>(null, "test", CancellationToken.None), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -386,7 +385,7 @@ namespace SJP.Schematic.Core.Tests.Extensions
         {
             var connection = Mock.Of<IDbConnection>();
 
-            Assert.Throws<ArgumentNullException>(() => connection.QuerySingleOrNone<string>(null, CancellationToken.None));
+            Assert.That(() => connection.QuerySingleOrNone<string>(null, CancellationToken.None), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -394,7 +393,7 @@ namespace SJP.Schematic.Core.Tests.Extensions
         {
             var connection = Mock.Of<IDbConnection>();
 
-            Assert.Throws<ArgumentNullException>(() => connection.QuerySingleOrNone<string>(string.Empty, CancellationToken.None));
+            Assert.That(() => connection.QuerySingleOrNone<string>(string.Empty, CancellationToken.None), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -402,7 +401,7 @@ namespace SJP.Schematic.Core.Tests.Extensions
         {
             var connection = Mock.Of<IDbConnection>();
 
-            Assert.Throws<ArgumentNullException>(() => connection.QuerySingleOrNone<string>("   ", CancellationToken.None));
+            Assert.That(() => connection.QuerySingleOrNone<string>("   ", CancellationToken.None), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -410,7 +409,7 @@ namespace SJP.Schematic.Core.Tests.Extensions
         {
             var param = new { Test = "test" };
 
-            Assert.Throws<ArgumentNullException>(() => ConnectionExtensions.QuerySingleOrNone<string>(null, "test", param, CancellationToken.None));
+            Assert.That(() => ConnectionExtensions.QuerySingleOrNone<string>(null, "test", param, CancellationToken.None), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -419,7 +418,7 @@ namespace SJP.Schematic.Core.Tests.Extensions
             var connection = Mock.Of<IDbConnection>();
             var param = new { Test = "test" };
 
-            Assert.Throws<ArgumentNullException>(() => connection.QuerySingleOrNone<string>(null, param, CancellationToken.None));
+            Assert.That(() => connection.QuerySingleOrNone<string>(null, param, CancellationToken.None), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -428,7 +427,7 @@ namespace SJP.Schematic.Core.Tests.Extensions
             var connection = Mock.Of<IDbConnection>();
             var param = new { Test = "test" };
 
-            Assert.Throws<ArgumentNullException>(() => connection.QuerySingleOrNone<string>(string.Empty, param, CancellationToken.None));
+            Assert.That(() => connection.QuerySingleOrNone<string>(string.Empty, param, CancellationToken.None), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -437,7 +436,7 @@ namespace SJP.Schematic.Core.Tests.Extensions
             var connection = Mock.Of<IDbConnection>();
             var param = new { Test = "test" };
 
-            Assert.Throws<ArgumentNullException>(() => connection.QuerySingleOrNone<string>("   ", param, CancellationToken.None));
+            Assert.That(() => connection.QuerySingleOrNone<string>("   ", param, CancellationToken.None), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -445,7 +444,7 @@ namespace SJP.Schematic.Core.Tests.Extensions
         {
             var connection = Mock.Of<IDbConnection>();
 
-            Assert.Throws<ArgumentNullException>(() => connection.QuerySingleOrNone<string>("test", null, CancellationToken.None));
+            Assert.That(() => connection.QuerySingleOrNone<string>("test", null, CancellationToken.None), Throws.ArgumentNullException);
         }
     }
 }
