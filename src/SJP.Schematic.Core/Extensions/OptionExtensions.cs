@@ -49,9 +49,9 @@ namespace SJP.Schematic.Core.Extensions
                 if (cancellationToken.IsCancellationRequested)
                     throw new OperationCanceledException(cancellationToken);
 
-                var optionIsSome = await option.IsSome.ConfigureAwait(false);
-                if (optionIsSome)
-                    return await option.UnwrapSomeAsync().ConfigureAwait(false);
+                var resolvedOption = await option.ToOption().ConfigureAwait(false);
+                if (resolvedOption.IsSome)
+                    return resolvedOption;
             }
 
             return Option<T>.None;
