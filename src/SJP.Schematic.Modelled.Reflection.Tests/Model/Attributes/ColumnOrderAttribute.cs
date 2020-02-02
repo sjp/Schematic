@@ -9,7 +9,7 @@ namespace SJP.Schematic.Modelled.Reflection.Model.Attributes.Tests
         [Test]
         public static void Ctor_GivenNegativeColumnOrder_ThrowsArgumentOutOfRangeException()
         {
-            Assert.Throws<ArgumentOutOfRangeException>(() => new ColumnOrderAttribute(-1));
+            Assert.That(() => new ColumnOrderAttribute(-1), Throws.TypeOf<ArgumentOutOfRangeException>());
         }
 
         [Test]
@@ -18,7 +18,7 @@ namespace SJP.Schematic.Modelled.Reflection.Model.Attributes.Tests
             const int columnNumber = 10;
             var columnOrderAttr = new ColumnOrderAttribute(columnNumber);
 
-            Assert.AreEqual(columnNumber, columnOrderAttr.ColumnNumber);
+            Assert.That(columnOrderAttr.ColumnNumber, Is.EqualTo(columnNumber));
         }
     }
 }

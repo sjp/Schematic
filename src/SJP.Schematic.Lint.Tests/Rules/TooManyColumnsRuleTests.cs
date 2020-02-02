@@ -16,20 +16,20 @@ namespace SJP.Schematic.Lint.Tests.Rules
         public static void Ctor_GivenInvalidLevel_ThrowsArgumentException()
         {
             const RuleLevel level = (RuleLevel)999;
-            Assert.Throws<ArgumentException>(() => new TooManyColumnsRule(level));
+            Assert.That(() => new TooManyColumnsRule(level), Throws.ArgumentException);
         }
 
         [Test]
         public static void Ctor_GivenZeroColumnLimit_ThrowsArgumentOutOfRangeException()
         {
-            Assert.Throws<ArgumentOutOfRangeException>(() => new TooManyColumnsRule(RuleLevel.Error, 0));
+            Assert.That(() => new TooManyColumnsRule(RuleLevel.Error, 0), Throws.TypeOf<ArgumentOutOfRangeException>());
         }
 
         [Test]
         public static void AnalyseTables_GivenNullTables_ThrowsArgumentNullException()
         {
             var rule = new TooManyColumnsRule(RuleLevel.Error);
-            Assert.Throws<ArgumentNullException>(() => rule.AnalyseTables(null));
+            Assert.That(() => rule.AnalyseTables(null), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -60,7 +60,7 @@ namespace SJP.Schematic.Lint.Tests.Rules
 
             var hasMessages = await rule.AnalyseTables(tables).AnyAsync().ConfigureAwait(false);
 
-            Assert.IsFalse(hasMessages);
+            Assert.That(hasMessages, Is.False);
         }
 
         [Test]
@@ -107,7 +107,7 @@ namespace SJP.Schematic.Lint.Tests.Rules
 
             var hasMessages = await rule.AnalyseTables(tables).AnyAsync().ConfigureAwait(false);
 
-            Assert.IsTrue(hasMessages);
+            Assert.That(hasMessages, Is.True);
         }
     }
 }

@@ -17,14 +17,14 @@ namespace SJP.Schematic.Lint.Tests.Rules
         public static void Ctor_GivenInvalidLevel_ThrowsArgumentException()
         {
             const RuleLevel level = (RuleLevel)999;
-            Assert.Throws<ArgumentException>(() => new PrimaryKeyColumnNotFirstColumnRule(level));
+            Assert.That(() => new PrimaryKeyColumnNotFirstColumnRule(level), Throws.ArgumentException);
         }
 
         [Test]
         public static void AnalyseTables_GivenNullTables_ThrowsArgumentNullException()
         {
             var rule = new PrimaryKeyColumnNotFirstColumnRule(RuleLevel.Error);
-            Assert.Throws<ArgumentNullException>(() => rule.AnalyseTables(null));
+            Assert.That(() => rule.AnalyseTables(null), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -47,7 +47,7 @@ namespace SJP.Schematic.Lint.Tests.Rules
 
             var hasMessages = await rule.AnalyseTables(tables).AnyAsync().ConfigureAwait(false);
 
-            Assert.IsFalse(hasMessages);
+            Assert.That(hasMessages, Is.False);
         }
 
         [Test]
@@ -91,7 +91,7 @@ namespace SJP.Schematic.Lint.Tests.Rules
 
             var hasMessages = await rule.AnalyseTables(tables).AnyAsync().ConfigureAwait(false);
 
-            Assert.IsFalse(hasMessages);
+            Assert.That(hasMessages, Is.False);
         }
 
         [Test]
@@ -135,7 +135,7 @@ namespace SJP.Schematic.Lint.Tests.Rules
 
             var hasMessages = await rule.AnalyseTables(tables).AnyAsync().ConfigureAwait(false);
 
-            Assert.IsFalse(hasMessages);
+            Assert.That(hasMessages, Is.False);
         }
 
         [Test]
@@ -179,7 +179,7 @@ namespace SJP.Schematic.Lint.Tests.Rules
 
             var hasMessages = await rule.AnalyseTables(tables).AnyAsync().ConfigureAwait(false);
 
-            Assert.IsTrue(hasMessages);
+            Assert.That(hasMessages, Is.True);
         }
     }
 }

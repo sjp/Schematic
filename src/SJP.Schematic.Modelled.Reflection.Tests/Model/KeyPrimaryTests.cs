@@ -10,19 +10,19 @@ namespace SJP.Schematic.Modelled.Reflection.Model.Tests
         [Test]
         public static void Ctor_GivenNullColumns_ThrowsArgumentNullException()
         {
-            Assert.Throws<ArgumentNullException>(() => new Key.Primary((IModelledColumn[])null));
+            Assert.That(() => new Key.Primary((IModelledColumn[])null), Throws.ArgumentNullException);
         }
 
         [Test]
         public static void Ctor_GivenEmptyColumns_ThrowsArgumentNullException()
         {
-            Assert.Throws<ArgumentNullException>(() => new Key.Primary(Array.Empty<IModelledColumn>()));
+            Assert.That(() => new Key.Primary(Array.Empty<IModelledColumn>()), Throws.ArgumentNullException);
         }
 
         [Test]
         public static void Ctor_GivenCollectionWithNullColumn_ThrowsArgumentNullException()
         {
-            Assert.Throws<ArgumentNullException>(() => new Key.Primary(new List<IModelledColumn> { null }));
+            Assert.That(() => new Key.Primary(new List<IModelledColumn> { null }), Throws.ArgumentNullException);
         }
     }
 }

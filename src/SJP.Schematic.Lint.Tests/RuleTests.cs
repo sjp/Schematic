@@ -1,5 +1,4 @@
-﻿using System;
-using NUnit.Framework;
+﻿using NUnit.Framework;
 
 namespace SJP.Schematic.Lint.Tests
 {
@@ -10,21 +9,21 @@ namespace SJP.Schematic.Lint.Tests
         public static void Ctor_GivenNullTitle_ThrowsArgumentNullException()
         {
             const RuleLevel level = RuleLevel.Error;
-            Assert.Throws<ArgumentNullException>(() => new FakeRule(null, level));
+            Assert.That(() => new FakeRule(null, level), Throws.ArgumentNullException);
         }
 
         [Test]
         public static void Ctor_GivenEmptyTitle_ThrowsArgumentNullException()
         {
             const RuleLevel level = RuleLevel.Error;
-            Assert.Throws<ArgumentNullException>(() => new FakeRule(string.Empty, level));
+            Assert.That(() => new FakeRule(string.Empty, level), Throws.ArgumentNullException);
         }
 
         [Test]
         public static void Ctor_GivenWhiteSpaceTitle_ThrowsArgumentNullException()
         {
             const RuleLevel level = RuleLevel.Error;
-            Assert.Throws<ArgumentNullException>(() => new FakeRule("   ", level));
+            Assert.That(() => new FakeRule("   ", level), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -32,7 +31,7 @@ namespace SJP.Schematic.Lint.Tests
         {
             const string title = "test";
             const RuleLevel level = (RuleLevel)999;
-            Assert.Throws<ArgumentException>(() => new FakeRule(title, level));
+            Assert.That(() => new FakeRule(title, level), Throws.ArgumentException);
         }
 
         [Test]
@@ -42,7 +41,7 @@ namespace SJP.Schematic.Lint.Tests
             const RuleLevel level = RuleLevel.Error;
             var rule = new FakeRule(title, level);
 
-            Assert.AreEqual(title, rule.Title);
+            Assert.That(rule.Title, Is.EqualTo(title));
         }
 
         [Test]
@@ -52,7 +51,7 @@ namespace SJP.Schematic.Lint.Tests
             const RuleLevel level = RuleLevel.Error;
             var rule = new FakeRule(title, level);
 
-            Assert.AreEqual(level, rule.Level);
+            Assert.That(rule.Level, Is.EqualTo(level));
         }
 
         private sealed class FakeRule : Rule

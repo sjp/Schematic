@@ -1,5 +1,4 @@
-﻿using System;
-using System.Linq;
+﻿using System.Linq;
 using Moq;
 using NUnit.Framework;
 using SJP.Schematic.Core;
@@ -19,14 +18,14 @@ namespace SJP.Schematic.Modelled.Reflection.Tests
         [Test]
         public static void Ctor_GivenNullDatabase_ThrowsArgumentNullException()
         {
-            Assert.Throws<ArgumentNullException>(() => new ReflectionTable(null, typeof(object)));
+            Assert.That(() => new ReflectionTable(null, typeof(object)), Throws.ArgumentNullException);
         }
 
         [Test]
         public static void Ctor_GivenNullTableType_ThrowsArgumentNullException()
         {
             var database = Mock.Of<IRelationalDatabase>();
-            Assert.Throws<ArgumentNullException>(() => new ReflectionTable(database, null));
+            Assert.That(() => new ReflectionTable(database, null), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -36,7 +35,7 @@ namespace SJP.Schematic.Modelled.Reflection.Tests
             databaseMock.Setup(db => db.Dialect).Returns(new FakeDialect());
             databaseMock.Setup(db => db.IdentifierDefaults).Returns(new IdentifierDefaultsBuilder().Build());
 
-            Assert.Throws<ArgumentException>(() => new ReflectionTable(databaseMock.Object, typeof(TableTypeWithBadCtor)));
+            Assert.That(() => new ReflectionTable(databaseMock.Object, typeof(TableTypeWithBadCtor)), Throws.ArgumentException);
         }
 
         [Test]
@@ -46,7 +45,7 @@ namespace SJP.Schematic.Modelled.Reflection.Tests
             databaseMock.Setup(db => db.Dialect).Returns(new FakeDialect());
             databaseMock.Setup(db => db.IdentifierDefaults).Returns(new IdentifierDefaultsBuilder().Build());
 
-            Assert.Throws<ArgumentException>(() => new ReflectionTable(databaseMock.Object, typeof(TableTypeWithBadColumns)));
+            Assert.That(() => new ReflectionTable(databaseMock.Object, typeof(TableTypeWithBadColumns)), Throws.ArgumentException);
         }
 
         [Test]
@@ -56,7 +55,7 @@ namespace SJP.Schematic.Modelled.Reflection.Tests
             var table = new ReflectionTable(database, typeof(TestTable1));
             const string expectedName = nameof(TestTable1);
 
-            Assert.AreEqual(expectedName, table.Name.LocalName);
+            Assert.That(table.Name.LocalName, Is.EqualTo(expectedName));
         }
 
         [Test]
@@ -65,9 +64,8 @@ namespace SJP.Schematic.Modelled.Reflection.Tests
             var database = new ReflectionRelationalDatabase<TestDatabase2>(new FakeDialect(), IdentifierDefaults);
             var table = new ReflectionTable(database, typeof(TestTable2));
             var columns = table.Columns;
-            var count = columns.Count;
 
-            Assert.Zero(count);
+            Assert.That(columns, Is.Empty);
         }
 
         [Test]
@@ -76,9 +74,8 @@ namespace SJP.Schematic.Modelled.Reflection.Tests
             var database = new ReflectionRelationalDatabase<TestDatabase1>(new FakeDialect(), IdentifierDefaults);
             var table = new ReflectionTable(database, typeof(TestTable1));
             var columns = table.Columns;
-            var count = columns.Count;
 
-            Assert.AreEqual(1, count);
+            Assert.That(columns, Has.Exactly(1).Items);
         }
 
         [Test]
@@ -90,7 +87,7 @@ namespace SJP.Schematic.Modelled.Reflection.Tests
             var column = columns.Single();
             Identifier expectedName = "TEST_COLUMN_1";
 
-            Assert.AreEqual(expectedName, column.Name);
+            Assert.That(column.Name, Is.EqualTo(expectedName));
         }
 
         private sealed class TableTypeWithBadCtor

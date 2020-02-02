@@ -1,5 +1,4 @@
-﻿using System;
-using System.Linq;
+﻿using System.Linq;
 using System.Threading.Tasks;
 using Dapper;
 using NUnit.Framework;
@@ -54,14 +53,14 @@ create table NoForeignKeyChildWithoutKey (
         public static void Ctor_GivenInvalidLevel_ThrowsArgumentException()
         {
             const RuleLevel level = (RuleLevel)999;
-            Assert.Throws<ArgumentException>(() => new ForeignKeyMissingRule(level));
+            Assert.That(() => new ForeignKeyMissingRule(level), Throws.ArgumentException);
         }
 
         [Test]
         public static void AnalyseTables_GivenNullTables_ThrowsArgumentNullException()
         {
             var rule = new ForeignKeyMissingRule(RuleLevel.Error);
-            Assert.Throws<ArgumentNullException>(() => rule.AnalyseTables(null));
+            Assert.That(() => rule.AnalyseTables(null), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -78,7 +77,7 @@ create table NoForeignKeyChildWithoutKey (
 
             var hasMessages = await rule.AnalyseTables(tables).AnyAsync().ConfigureAwait(false);
 
-            Assert.IsFalse(hasMessages);
+            Assert.That(hasMessages, Is.False);
         }
 
         [Test]
@@ -95,7 +94,7 @@ create table NoForeignKeyChildWithoutKey (
 
             var hasMessages = await rule.AnalyseTables(tables).AnyAsync().ConfigureAwait(false);
 
-            Assert.IsFalse(hasMessages);
+            Assert.That(hasMessages, Is.False);
         }
 
         [Test]
@@ -112,7 +111,7 @@ create table NoForeignKeyChildWithoutKey (
 
             var hasMessages = await rule.AnalyseTables(tables).AnyAsync().ConfigureAwait(false);
 
-            Assert.IsTrue(hasMessages);
+            Assert.That(hasMessages, Is.True);
         }
 
         [Test]
@@ -129,7 +128,7 @@ create table NoForeignKeyChildWithoutKey (
 
             var hasMessages = await rule.AnalyseTables(tables).AnyAsync().ConfigureAwait(false);
 
-            Assert.IsTrue(hasMessages);
+            Assert.That(hasMessages, Is.True);
         }
     }
 }

@@ -1,5 +1,4 @@
-﻿using System;
-using NUnit.Framework;
+﻿using NUnit.Framework;
 
 namespace SJP.Schematic.Modelled.Reflection.Model.Attributes.Tests
 {
@@ -9,19 +8,19 @@ namespace SJP.Schematic.Modelled.Reflection.Model.Attributes.Tests
         [Test]
         public static void Ctor_GivenNullAlias_ThrowsArgumentNullException()
         {
-            Assert.Throws<ArgumentNullException>(() => new AliasAttribute(null));
+            Assert.That(() => new AliasAttribute(null), Throws.ArgumentNullException);
         }
 
         [Test]
         public static void Ctor_GivenEmptyAlias_ThrowsArgumentNullException()
         {
-            Assert.Throws<ArgumentNullException>(() => new AliasAttribute(string.Empty));
+            Assert.That(() => new AliasAttribute(string.Empty), Throws.ArgumentNullException);
         }
 
         [Test]
         public static void Ctor_GivenWhiteSpaceAlias_ThrowsArgumentNullException()
         {
-            Assert.Throws<ArgumentNullException>(() => new AliasAttribute("   "));
+            Assert.That(() => new AliasAttribute("   "), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -30,7 +29,7 @@ namespace SJP.Schematic.Modelled.Reflection.Model.Attributes.Tests
             const string aliasValue = "test";
             var aliasAttr = new AliasAttribute(aliasValue);
 
-            Assert.AreEqual(aliasValue, aliasAttr.Alias);
+            Assert.That(aliasAttr.Alias, Is.EqualTo(aliasValue));
         }
     }
 }

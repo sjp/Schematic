@@ -10,7 +10,7 @@ namespace SJP.Schematic.Modelled.Reflection.Model.Attributes.Tests
         {
             var aliasAttr = new AutoIncrementAttribute();
 
-            Assert.AreEqual(1, aliasAttr.InitialValue);
+            Assert.That(aliasAttr.InitialValue, Is.EqualTo(1));
         }
 
         [Test]
@@ -18,7 +18,7 @@ namespace SJP.Schematic.Modelled.Reflection.Model.Attributes.Tests
         {
             var aliasAttr = new AutoIncrementAttribute();
 
-            Assert.AreEqual(1, aliasAttr.Increment);
+            Assert.That(aliasAttr.Increment, Is.EqualTo(1));
         }
 
         [Test]
@@ -28,7 +28,7 @@ namespace SJP.Schematic.Modelled.Reflection.Model.Attributes.Tests
             const int increment = 20;
             var aliasAttr = new AutoIncrementAttribute(initialValue, increment);
 
-            Assert.AreEqual(initialValue, aliasAttr.InitialValue);
+            Assert.That(aliasAttr.InitialValue, Is.EqualTo(initialValue));
         }
 
         [Test]
@@ -38,7 +38,7 @@ namespace SJP.Schematic.Modelled.Reflection.Model.Attributes.Tests
             const int increment = 20;
             var aliasAttr = new AutoIncrementAttribute(initialValue, increment);
 
-            Assert.AreEqual(increment, aliasAttr.Increment);
+            Assert.That(aliasAttr.Increment, Is.EqualTo(increment));
         }
     }
 }

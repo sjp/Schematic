@@ -1,5 +1,4 @@
-﻿using System;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using LanguageExt;
 using NUnit.Framework;
 using SJP.Schematic.Core;
@@ -17,13 +16,13 @@ namespace SJP.Schematic.Modelled.Reflection.Tests
         [Test]
         public static void CtorT_GivenNullDialect_ThrowsArgumentNullException()
         {
-            Assert.Throws<ArgumentNullException>(() => new ReflectionRelationalDatabase<SampleDatabase>(null, IdentifierDefaults));
+            Assert.That(() => new ReflectionRelationalDatabase<SampleDatabase>(null, IdentifierDefaults), Throws.ArgumentNullException);
         }
 
         [Test]
         public static void CtorT_GivenNullDefaults_ThrowsArgumentNullException()
         {
-            Assert.Throws<ArgumentNullException>(() => new ReflectionRelationalDatabase<SampleDatabase>(new FakeDialect(), null));
+            Assert.That(() => new ReflectionRelationalDatabase<SampleDatabase>(new FakeDialect(), null), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -34,9 +33,9 @@ namespace SJP.Schematic.Modelled.Reflection.Tests
 
             Assert.Multiple(() =>
             {
-                Assert.Throws<ArgumentNullException>(() => new ReflectionRelationalDatabase(null, dbType, IdentifierDefaults));
-                Assert.Throws<ArgumentNullException>(() => new ReflectionRelationalDatabase(dialect, null, IdentifierDefaults));
-                Assert.Throws<ArgumentNullException>(() => new ReflectionRelationalDatabase(dialect, dbType, null));
+                Assert.That(() => new ReflectionRelationalDatabase(null, dbType, IdentifierDefaults), Throws.ArgumentNullException);
+                Assert.That(() => new ReflectionRelationalDatabase(dialect, null, IdentifierDefaults), Throws.ArgumentNullException);
+                Assert.That(() => new ReflectionRelationalDatabase(dialect, dbType, null), Throws.ArgumentNullException);
             });
         }
 
@@ -44,7 +43,7 @@ namespace SJP.Schematic.Modelled.Reflection.Tests
         public static void GetTable_GivenNullName_ThrowsArgumentNullException()
         {
             var db = new ReflectionRelationalDatabase<SampleDatabase>(new FakeDialect(), IdentifierDefaults);
-            Assert.Throws<ArgumentNullException>(() => db.GetTable(null));
+            Assert.That(() => db.GetTable(null), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -54,7 +53,7 @@ namespace SJP.Schematic.Modelled.Reflection.Tests
             var lookupName = Identifier.CreateQualifiedIdentifier(IdentifierDefaults.Schema, nameof(SampleDatabase.TestTable1));
             var tableIsSome = await db.GetTable(lookupName).IsSome.ConfigureAwait(false);
 
-            Assert.IsTrue(tableIsSome);
+            Assert.That(tableIsSome, Is.True);
         }
 
         [Test]
@@ -63,7 +62,7 @@ namespace SJP.Schematic.Modelled.Reflection.Tests
             var db = new ReflectionRelationalDatabase<SampleDatabase>(new FakeDialect(), IdentifierDefaults);
             var tableIsNone =  await db.GetTable("table_that_doesnt_exist").IsNone.ConfigureAwait(false);
 
-            Assert.IsTrue(tableIsNone);
+            Assert.That(tableIsNone, Is.True);
         }
 
         private sealed class SampleDatabase

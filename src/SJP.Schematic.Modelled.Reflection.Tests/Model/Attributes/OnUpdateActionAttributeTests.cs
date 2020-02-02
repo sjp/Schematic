@@ -1,5 +1,4 @@
-﻿using System;
-using NUnit.Framework;
+﻿using NUnit.Framework;
 using SJP.Schematic.Core;
 
 namespace SJP.Schematic.Modelled.Reflection.Model.Attributes.Tests
@@ -11,7 +10,7 @@ namespace SJP.Schematic.Modelled.Reflection.Model.Attributes.Tests
         public static void Ctor_GivenInvalidAction_ThrowsArgumentException()
         {
             const ReferentialAction action = (ReferentialAction)55;
-            Assert.Throws<ArgumentException>(() => new OnUpdateActionAttribute(action));
+            Assert.That(() => new OnUpdateActionAttribute(action), Throws.ArgumentException);
         }
 
         [Test]
@@ -20,7 +19,7 @@ namespace SJP.Schematic.Modelled.Reflection.Model.Attributes.Tests
             const ReferentialAction action = ReferentialAction.SetDefault;
             var onUpdateActionAttr = new OnUpdateActionAttribute(action);
 
-            Assert.AreEqual(action, onUpdateActionAttr.Action);
+            Assert.That(onUpdateActionAttr.Action, Is.EqualTo(action));
         }
     }
 }

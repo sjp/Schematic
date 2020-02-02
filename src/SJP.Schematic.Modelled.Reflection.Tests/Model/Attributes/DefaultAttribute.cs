@@ -1,5 +1,4 @@
-﻿using System;
-using System.Globalization;
+﻿using System.Globalization;
 using NUnit.Framework;
 
 namespace SJP.Schematic.Modelled.Reflection.Model.Attributes.Tests
@@ -10,7 +9,7 @@ namespace SJP.Schematic.Modelled.Reflection.Model.Attributes.Tests
         [Test]
         public static void Ctor_GivenNullStringValue_ThrowsArgumentNullException()
         {
-            Assert.Throws<ArgumentNullException>(() => new DefaultAttribute(null));
+            Assert.That(() => new DefaultAttribute(null), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -19,7 +18,7 @@ namespace SJP.Schematic.Modelled.Reflection.Model.Attributes.Tests
             const string defaultValue = "test";
             var defaultAttr = new DefaultAttribute(defaultValue);
 
-            Assert.AreEqual(defaultValue, defaultAttr.DefaultValue);
+            Assert.That(defaultAttr.DefaultValue, Is.EqualTo(defaultValue));
         }
 
         [Test]
@@ -28,7 +27,7 @@ namespace SJP.Schematic.Modelled.Reflection.Model.Attributes.Tests
             const double defaultValue = 3.1415926;
             var defaultAttr = new DefaultAttribute(defaultValue);
 
-            Assert.AreEqual(defaultValue.ToString(CultureInfo.InvariantCulture), defaultAttr.DefaultValue);
+            Assert.That(defaultAttr.DefaultValue, Is.EqualTo(defaultValue.ToString(CultureInfo.InvariantCulture)));
         }
 
         [Test]
@@ -37,7 +36,7 @@ namespace SJP.Schematic.Modelled.Reflection.Model.Attributes.Tests
             const int defaultValue = 100;
             var defaultAttr = new DefaultAttribute(defaultValue);
 
-            Assert.AreEqual(defaultValue.ToString(CultureInfo.InvariantCulture), defaultAttr.DefaultValue);
+            Assert.That(defaultAttr.DefaultValue, Is.EqualTo(defaultValue.ToString(CultureInfo.InvariantCulture)));
         }
     }
 }

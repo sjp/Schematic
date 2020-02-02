@@ -1,5 +1,4 @@
-﻿using System;
-using NUnit.Framework;
+﻿using NUnit.Framework;
 
 namespace SJP.Schematic.Lint.Tests
 {
@@ -11,7 +10,7 @@ namespace SJP.Schematic.Lint.Tests
         {
             const RuleLevel level = RuleLevel.Error;
             const string message = "message";
-            Assert.Throws<ArgumentNullException>(() => new RuleMessage(null, level, message));
+            Assert.That(() => new RuleMessage(null, level, message), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -19,7 +18,7 @@ namespace SJP.Schematic.Lint.Tests
         {
             const RuleLevel level = RuleLevel.Error;
             const string message = "message";
-            Assert.Throws<ArgumentNullException>(() => new RuleMessage(string.Empty, level, message));
+            Assert.That(() => new RuleMessage(string.Empty, level, message), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -27,7 +26,7 @@ namespace SJP.Schematic.Lint.Tests
         {
             const RuleLevel level = RuleLevel.Error;
             const string message = "message";
-            Assert.Throws<ArgumentNullException>(() => new RuleMessage("   ", level, message));
+            Assert.That(() => new RuleMessage("   ", level, message), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -36,7 +35,7 @@ namespace SJP.Schematic.Lint.Tests
             const string title = "title";
             const RuleLevel level = (RuleLevel)999;
             const string message = "message";
-            Assert.Throws<ArgumentException>(() => new RuleMessage(title, level, message));
+            Assert.That(() => new RuleMessage(title, level, message), Throws.ArgumentException);
         }
 
         [Test]
@@ -44,7 +43,7 @@ namespace SJP.Schematic.Lint.Tests
         {
             const string title = "title";
             const RuleLevel level = RuleLevel.Error;
-            Assert.Throws<ArgumentNullException>(() => new RuleMessage(title, level, null));
+            Assert.That(() => new RuleMessage(title, level, null), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -52,7 +51,7 @@ namespace SJP.Schematic.Lint.Tests
         {
             const string title = "title";
             const RuleLevel level = RuleLevel.Error;
-            Assert.Throws<ArgumentNullException>(() => new RuleMessage(title, level, string.Empty));
+            Assert.That(() => new RuleMessage(title, level, string.Empty), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -60,7 +59,7 @@ namespace SJP.Schematic.Lint.Tests
         {
             const string title = "title";
             const RuleLevel level = RuleLevel.Error;
-            Assert.Throws<ArgumentNullException>(() => new RuleMessage(title, level, "   "));
+            Assert.That(() => new RuleMessage(title, level, "   "), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -72,7 +71,7 @@ namespace SJP.Schematic.Lint.Tests
 
             var ruleMessage = new RuleMessage(title, level, message);
 
-            Assert.AreEqual(title, ruleMessage.Title);
+            Assert.That(ruleMessage.Title, Is.EqualTo(title));
         }
 
         [Test]
@@ -84,7 +83,7 @@ namespace SJP.Schematic.Lint.Tests
 
             var ruleMessage = new RuleMessage(title, level, message);
 
-            Assert.AreEqual(level, ruleMessage.Level);
+            Assert.That(ruleMessage.Level, Is.EqualTo(level));
         }
 
         [Test]
@@ -96,7 +95,7 @@ namespace SJP.Schematic.Lint.Tests
 
             var ruleMessage = new RuleMessage(title, level, message);
 
-            Assert.AreEqual(message, ruleMessage.Message);
+            Assert.That(ruleMessage.Message, Is.EqualTo(message));
         }
     }
 }

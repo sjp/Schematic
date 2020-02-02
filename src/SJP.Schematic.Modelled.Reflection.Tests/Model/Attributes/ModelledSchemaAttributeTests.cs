@@ -14,27 +14,27 @@ namespace SJP.Schematic.Modelled.Reflection.Model.Attributes.Tests
         [Test]
         public static void Ctor_GivenNullDialects_ThrowsArgumentNullException()
         {
-            Assert.Throws<ArgumentNullException>(() => new FakeModelledSchemaAttribute(null));
+            Assert.That(() => new FakeModelledSchemaAttribute(null), Throws.ArgumentNullException);
         }
 
         [Test]
         public static void Ctor_GivenEmptyDialects_ThrowsArgumentNullException()
         {
-            Assert.Throws<ArgumentNullException>(() => new FakeModelledSchemaAttribute(Array.Empty<Type>()));
+            Assert.That(() => new FakeModelledSchemaAttribute(Array.Empty<Type>()), Throws.ArgumentNullException);
         }
 
         [Test]
         public static void Ctor_GivenDialectsWithEmptyValue_ThrowsArgumentNullException()
         {
             var dialects = new List<Type> { null };
-            Assert.Throws<ArgumentNullException>(() => new FakeModelledSchemaAttribute(dialects));
+            Assert.That(() => new FakeModelledSchemaAttribute(dialects), Throws.ArgumentNullException);
         }
 
         [Test]
         public static void Ctor_GivenNonDialectType_ThrowsArgumentNullException()
         {
             var dialects = new[] { typeof(object) };
-            Assert.Throws<ArgumentException>(() => new FakeModelledSchemaAttribute(dialects));
+            Assert.That(() => new FakeModelledSchemaAttribute(dialects), Throws.ArgumentException);
         }
 
         [Test]
@@ -45,7 +45,7 @@ namespace SJP.Schematic.Modelled.Reflection.Model.Attributes.Tests
             var attr = new FakeModelledSchemaAttribute(dialects);
             var attrDialect = attr.Dialects.Single();
 
-            Assert.AreEqual(expectedDialect, attrDialect);
+            Assert.That(attrDialect, Is.EqualTo(expectedDialect));
         }
 
         [Test]
@@ -55,7 +55,7 @@ namespace SJP.Schematic.Modelled.Reflection.Model.Attributes.Tests
             var attr = new FakeModelledSchemaAttribute(dialects);
             var attrDialects = attr.Dialects.ToList();
 
-            Assert.Zero(attrDialects.Count);
+            Assert.That(attrDialects, Is.Empty);
         }
 
         [Test]
@@ -64,7 +64,7 @@ namespace SJP.Schematic.Modelled.Reflection.Model.Attributes.Tests
             var dialects = new[] { typeof(FakeDialect) };
             var attr = new FakeModelledSchemaAttribute(dialects);
 
-            Assert.Throws<ArgumentNullException>(() => attr.SupportsDialect(null));
+            Assert.That(() => attr.SupportsDialect(null), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -73,7 +73,7 @@ namespace SJP.Schematic.Modelled.Reflection.Model.Attributes.Tests
             var dialects = new[] { typeof(FakeDialect) };
             var attr = new FakeModelledSchemaAttribute(dialects);
 
-            Assert.Throws<ArgumentException>(() => attr.SupportsDialect(typeof(object)));
+            Assert.That(() => attr.SupportsDialect(typeof(object)), Throws.ArgumentException);
         }
 
         [Test]
@@ -84,7 +84,7 @@ namespace SJP.Schematic.Modelled.Reflection.Model.Attributes.Tests
 
             var supportsDialect = attr.SupportsDialect(typeof(FakeDialect));
 
-            Assert.IsTrue(supportsDialect);
+            Assert.That(supportsDialect, Is.True);
         }
 
         [Test]
@@ -95,7 +95,7 @@ namespace SJP.Schematic.Modelled.Reflection.Model.Attributes.Tests
 
             var supportsDialect = attr.SupportsDialect(typeof(FakeDialect));
 
-            Assert.IsTrue(supportsDialect);
+            Assert.That(supportsDialect, Is.True);
         }
 
         [Test]
@@ -108,7 +108,7 @@ namespace SJP.Schematic.Modelled.Reflection.Model.Attributes.Tests
 
             var supportsDialect = attr.SupportsDialect(typeof(FakeDialect));
 
-            Assert.IsFalse(supportsDialect);
+            Assert.That(supportsDialect, Is.False);
         }
 
         [AttributeUsage(AttributeTargets.All, AllowMultiple = false)]

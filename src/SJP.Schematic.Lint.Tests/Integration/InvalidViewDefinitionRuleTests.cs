@@ -1,5 +1,4 @@
-﻿using System;
-using System.Data;
+﻿using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
 using Dapper;
@@ -33,7 +32,7 @@ namespace SJP.Schematic.Lint.Tests.Integration
             IDbConnection connection = null;
             var dialect = Mock.Of<IDatabaseDialect>();
             const RuleLevel level = RuleLevel.Error;
-            Assert.Throws<ArgumentNullException>(() => new InvalidViewDefinitionRule(connection, dialect, level));
+            Assert.That(() => new InvalidViewDefinitionRule(connection, dialect, level), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -42,7 +41,7 @@ namespace SJP.Schematic.Lint.Tests.Integration
             var connection = Mock.Of<IDbConnection>();
             IDatabaseDialect dialect = null;
             const RuleLevel level = RuleLevel.Error;
-            Assert.Throws<ArgumentNullException>(() => new InvalidViewDefinitionRule(connection, dialect, level));
+            Assert.That(() => new InvalidViewDefinitionRule(connection, dialect, level), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -51,14 +50,14 @@ namespace SJP.Schematic.Lint.Tests.Integration
             var connection = Mock.Of<IDbConnection>();
             var dialect = Mock.Of<IDatabaseDialect>();
             const RuleLevel level = (RuleLevel)999;
-            Assert.Throws<ArgumentException>(() => new InvalidViewDefinitionRule(connection, dialect, level));
+            Assert.That(() => new InvalidViewDefinitionRule(connection, dialect, level), Throws.ArgumentException);
         }
 
         [Test]
         public void AnalyseViews_GivenNullViews_ThrowsArgumentNullException()
         {
             var rule = new InvalidViewDefinitionRule(Connection, Dialect, RuleLevel.Error);
-            Assert.Throws<ArgumentNullException>(() => rule.AnalyseViews(null));
+            Assert.That(() => rule.AnalyseViews(null), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -74,7 +73,7 @@ namespace SJP.Schematic.Lint.Tests.Integration
 
             var hasMessages = await rule.AnalyseViews(views).AnyAsync().ConfigureAwait(false);
 
-            Assert.IsFalse(hasMessages);
+            Assert.That(hasMessages, Is.False);
         }
 
         [Test]
@@ -88,9 +87,9 @@ namespace SJP.Schematic.Lint.Tests.Integration
                 await database.GetView("invalid_view_1").UnwrapSomeAsync().ConfigureAwait(false)
             };
 
-            var messages = await rule.AnalyseViews(views).AnyAsync().ConfigureAwait(false);
+            var hasMessages = await rule.AnalyseViews(views).AnyAsync().ConfigureAwait(false);
 
-            Assert.IsTrue(messages);
+            Assert.That(hasMessages, Is.True);
         }
 
         [Test]
@@ -107,7 +106,7 @@ namespace SJP.Schematic.Lint.Tests.Integration
 
             var hasMessages = await rule.AnalyseViews(views).AnyAsync().ConfigureAwait(false);
 
-            Assert.IsTrue(hasMessages);
+            Assert.That(hasMessages, Is.True);
         }
     }
 }

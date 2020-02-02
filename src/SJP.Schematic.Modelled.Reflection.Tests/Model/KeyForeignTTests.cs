@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using Moq;
@@ -15,28 +14,28 @@ namespace SJP.Schematic.Modelled.Reflection.Model.Tests
         public static void Ctor_GivenNullSelector_ThrowsArgumentNullException()
         {
             var testColumn = Mock.Of<IModelledColumn>();
-            Assert.Throws<ArgumentNullException>(() => new Key.Foreign<TestTable1>(null, testColumn));
+            Assert.That(() => new Key.Foreign<TestTable1>(null, testColumn), Throws.ArgumentNullException);
         }
 
         [Test]
         public static void Ctor_GivenNullColumn_ThrowsArgumentNullException()
         {
             IModelledColumn testColumn = null;
-            Assert.Throws<ArgumentNullException>(() => new Key.Foreign<TestTable1>(t => t.PK_TARGET, testColumn));
+            Assert.That(() => new Key.Foreign<TestTable1>(t => t.PK_TARGET, testColumn), Throws.ArgumentNullException);
         }
 
         [Test]
         public static void Ctor_GivenNullColumns_ThrowsArgumentNullException()
         {
             IEnumerable<IModelledColumn> testColumns = null;
-            Assert.Throws<ArgumentNullException>(() => new Key.Foreign<TestTable1>(t => t.PK_TARGET, testColumns));
+            Assert.That(() => new Key.Foreign<TestTable1>(t => t.PK_TARGET, testColumns), Throws.ArgumentNullException);
         }
 
         [Test]
-        public static void Ctor_GivenCollectoonWithNullColumns_ThrowsArgumentNullException()
+        public static void Ctor_GivenCollectionWithNullColumns_ThrowsArgumentNullException()
         {
             var testColumns = new IModelledColumn[] { null };
-            Assert.Throws<ArgumentNullException>(() => new Key.Foreign<TestTable1>(t => t.PK_TARGET, testColumns));
+            Assert.That(() => new Key.Foreign<TestTable1>(t => t.PK_TARGET, testColumns), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -45,7 +44,7 @@ namespace SJP.Schematic.Modelled.Reflection.Model.Tests
             var testColumn = Mock.Of<IModelledColumn>();
             var foreignKey = new Key.Foreign<TestTable1>(t => t.PK_TARGET, testColumn);
 
-            Assert.AreEqual(typeof(TestTable1), foreignKey.TargetType);
+            Assert.That(foreignKey.TargetType, Is.EqualTo(typeof(TestTable1)));
         }
 
         [Test]
@@ -55,7 +54,7 @@ namespace SJP.Schematic.Modelled.Reflection.Model.Tests
             var foreignKey = new Key.Foreign<TestTable1>(t => t.PK_TARGET, testColumn);
 
             var instance = new TestTable1();
-            Assert.Throws<InvalidOperationException>(() => foreignKey.KeySelector.Invoke(instance));
+            Assert.That(() => foreignKey.KeySelector.Invoke(instance), Throws.InvalidOperationException);
         }
 
         [Test]
@@ -65,7 +64,7 @@ namespace SJP.Schematic.Modelled.Reflection.Model.Tests
             var foreignKey = new Key.Foreign<TestTable1>(t => t.UK_TARGET, testColumn);
 
             var instance = new TestTable1();
-            Assert.Throws<InvalidOperationException>(() => foreignKey.KeySelector.Invoke(instance));
+            Assert.That(() => foreignKey.KeySelector.Invoke(instance), Throws.InvalidOperationException);
         }
 
         [Test]
@@ -83,7 +82,7 @@ namespace SJP.Schematic.Modelled.Reflection.Model.Tests
             var instance = new TestTable1();
             var targetKey = foreignKey.KeySelector.Invoke(instance);
 
-            Assert.AreEqual(DatabaseKeyType.Primary, targetKey.KeyType);
+            Assert.That(targetKey.KeyType, Is.EqualTo(DatabaseKeyType.Primary));
         }
 
         [Test]
@@ -101,7 +100,7 @@ namespace SJP.Schematic.Modelled.Reflection.Model.Tests
             var instance = new TestTable1();
             var targetKey = foreignKey.KeySelector.Invoke(instance);
 
-            Assert.AreEqual(DatabaseKeyType.Unique, targetKey.KeyType);
+            Assert.That(targetKey.KeyType, Is.EqualTo(DatabaseKeyType.Unique));
         }
 
         [Test]
@@ -111,7 +110,7 @@ namespace SJP.Schematic.Modelled.Reflection.Model.Tests
             var foreignKey = new Key.Foreign<TestTable1>(t => t.PK_TARGET, testColumn);
 
             var instance = new object();
-            Assert.Throws<InvalidOperationException>(() => foreignKey.KeySelector.Invoke(instance));
+            Assert.That(() => foreignKey.KeySelector.Invoke(instance), Throws.InvalidOperationException);
         }
 
         [Test]
@@ -129,7 +128,7 @@ namespace SJP.Schematic.Modelled.Reflection.Model.Tests
             var foreignKey = new Key.Foreign<TestTable1>(selector, testColumn);
 
             var instance = new TestTable1();
-            Assert.Throws<InvalidOperationException>(() => foreignKey.KeySelector.Invoke(instance));
+            Assert.That(() => foreignKey.KeySelector.Invoke(instance), Throws.InvalidOperationException);
         }
 
         public class TestTable1

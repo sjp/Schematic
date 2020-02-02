@@ -12,26 +12,26 @@ namespace SJP.Schematic.Modelled.Reflection.Model.Tests
         [Test]
         public static void Ctor_GivenNullColumns_ThrowsArgumentNullException()
         {
-            Assert.Throws<ArgumentNullException>(() => new FakeKey(null, DatabaseKeyType.Primary));
+            Assert.That(() => new FakeKey(null, DatabaseKeyType.Primary), Throws.ArgumentNullException);
         }
 
         [Test]
         public static void Ctor_GivenEmptyColumns_ThrowsArgumentNullException()
         {
-            Assert.Throws<ArgumentNullException>(() => new FakeKey(Array.Empty<IModelledColumn>(), DatabaseKeyType.Primary));
+            Assert.That(() => new FakeKey(Array.Empty<IModelledColumn>(), DatabaseKeyType.Primary), Throws.ArgumentNullException);
         }
 
         [Test]
         public static void Ctor_GivenCollectionWithNullColumn_ThrowsArgumentNullException()
         {
-            Assert.Throws<ArgumentNullException>(() => new FakeKey(new List<IModelledColumn> { null }, DatabaseKeyType.Primary));
+            Assert.That(() => new FakeKey(new List<IModelledColumn> { null }, DatabaseKeyType.Primary), Throws.ArgumentNullException);
         }
 
         [Test]
         public static void Ctor_GivenInvalidKeyType_ThrowsArgumentException()
         {
             const DatabaseKeyType badKeyType = (DatabaseKeyType)55;
-            Assert.Throws<ArgumentException>(() => new FakeKey(new List<IModelledColumn> { Mock.Of<IModelledColumn>() }, badKeyType));
+            Assert.That(() => new FakeKey(new List<IModelledColumn> { Mock.Of<IModelledColumn>() }, badKeyType), Throws.ArgumentException);
         }
 
         private sealed class FakeKey : Key

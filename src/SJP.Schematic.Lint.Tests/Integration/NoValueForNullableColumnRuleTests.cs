@@ -1,5 +1,4 @@
-﻿using System;
-using System.Data;
+﻿using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
 using Dapper;
@@ -36,7 +35,7 @@ namespace SJP.Schematic.Lint.Tests.Integration
             IDbConnection connection = null;
             var dialect = Mock.Of<IDatabaseDialect>();
             const RuleLevel level = RuleLevel.Error;
-            Assert.Throws<ArgumentNullException>(() => new NoValueForNullableColumnRule(connection, dialect, level));
+            Assert.That(() => new NoValueForNullableColumnRule(connection, dialect, level), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -45,7 +44,7 @@ namespace SJP.Schematic.Lint.Tests.Integration
             var connection = Mock.Of<IDbConnection>();
             IDatabaseDialect dialect = null;
             const RuleLevel level = RuleLevel.Error;
-            Assert.Throws<ArgumentNullException>(() => new NoValueForNullableColumnRule(connection, dialect, level));
+            Assert.That(() => new NoValueForNullableColumnRule(connection, dialect, level), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -54,7 +53,7 @@ namespace SJP.Schematic.Lint.Tests.Integration
             var connection = Mock.Of<IDbConnection>();
             var dialect = Mock.Of<IDatabaseDialect>();
             const RuleLevel level = (RuleLevel)999;
-            Assert.Throws<ArgumentException>(() => new NoValueForNullableColumnRule(connection, dialect, level));
+            Assert.That(() => new NoValueForNullableColumnRule(connection, dialect, level), Throws.ArgumentException);
         }
 
         [Test]
@@ -63,7 +62,7 @@ namespace SJP.Schematic.Lint.Tests.Integration
             var connection = Mock.Of<IDbConnection>();
             var dialect = Mock.Of<IDatabaseDialect>();
             var rule = new NoValueForNullableColumnRule(connection, dialect, RuleLevel.Error);
-            Assert.Throws<ArgumentNullException>(() => rule.AnalyseTables(null));
+            Assert.That(() => rule.AnalyseTables(null), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -79,7 +78,7 @@ namespace SJP.Schematic.Lint.Tests.Integration
 
             var hasMessages = await rule.AnalyseTables(tables).AnyAsync().ConfigureAwait(false);
 
-            Assert.IsFalse(hasMessages);
+            Assert.That(hasMessages, Is.False);
         }
 
         [Test]
@@ -95,7 +94,7 @@ namespace SJP.Schematic.Lint.Tests.Integration
 
             var hasMessages = await rule.AnalyseTables(tables).AnyAsync().ConfigureAwait(false);
 
-            Assert.IsFalse(hasMessages);
+            Assert.That(hasMessages, Is.False);
         }
 
         [Test]
@@ -111,7 +110,7 @@ namespace SJP.Schematic.Lint.Tests.Integration
 
             var hasMessages = await rule.AnalyseTables(tables).AnyAsync().ConfigureAwait(false);
 
-            Assert.IsTrue(hasMessages);
+            Assert.That(hasMessages, Is.True);
         }
     }
 }

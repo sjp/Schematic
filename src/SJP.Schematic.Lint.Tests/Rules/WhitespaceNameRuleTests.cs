@@ -16,42 +16,42 @@ namespace SJP.Schematic.Lint.Tests.Rules
         public static void Ctor_GivenInvalidLevel_ThrowsArgumentException()
         {
             const RuleLevel level = (RuleLevel)999;
-            Assert.Throws<ArgumentException>(() => new WhitespaceNameRule(level));
+            Assert.That(() => new WhitespaceNameRule(level), Throws.ArgumentException);
         }
 
         [Test]
         public static void AnalyseTables_GivenNullTables_ThrowsArgumentNullException()
         {
             var rule = new WhitespaceNameRule(RuleLevel.Error);
-            Assert.Throws<ArgumentNullException>(() => rule.AnalyseTables(null));
+            Assert.That(() => rule.AnalyseTables(null), Throws.ArgumentNullException);
         }
 
         [Test]
         public static void AnalyseViews_GivenNullViews_ThrowsArgumentNullException()
         {
             var rule = new WhitespaceNameRule(RuleLevel.Error);
-            Assert.Throws<ArgumentNullException>(() => rule.AnalyseViews(null));
+            Assert.That(() => rule.AnalyseViews(null), Throws.ArgumentNullException);
         }
 
         [Test]
         public static void AnalyseSequences_GivenNullSequences_ThrowsArgumentNullException()
         {
             var rule = new WhitespaceNameRule(RuleLevel.Error);
-            Assert.Throws<ArgumentNullException>(() => rule.AnalyseSequences(null));
+            Assert.That(() => rule.AnalyseSequences(null), Throws.ArgumentNullException);
         }
 
         [Test]
         public static void AnalyseSynonyms_GivenNullSynonyms_ThrowsArgumentNullException()
         {
             var rule = new WhitespaceNameRule(RuleLevel.Error);
-            Assert.Throws<ArgumentNullException>(() => rule.AnalyseSynonyms(null));
+            Assert.That(() => rule.AnalyseSynonyms(null), Throws.ArgumentNullException);
         }
 
         [Test]
         public static void AnalyseRoutines_GivenNullRoutines_ThrowsArgumentNullException()
         {
             var rule = new WhitespaceNameRule(RuleLevel.Error);
-            Assert.Throws<ArgumentNullException>(() => rule.AnalyseRoutines(null));
+            Assert.That(() => rule.AnalyseRoutines(null), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -75,7 +75,7 @@ namespace SJP.Schematic.Lint.Tests.Rules
 
             var hasMessages = await rule.AnalyseTables(tables).AnyAsync().ConfigureAwait(false);
 
-            Assert.IsFalse(hasMessages);
+            Assert.That(hasMessages, Is.False);
         }
 
         [Test]
@@ -99,7 +99,7 @@ namespace SJP.Schematic.Lint.Tests.Rules
 
             var hasMessages = await rule.AnalyseTables(tables).AnyAsync().ConfigureAwait(false);
 
-            Assert.IsTrue(hasMessages);
+            Assert.That(hasMessages, Is.True);
         }
 
         [Test]
@@ -130,7 +130,7 @@ namespace SJP.Schematic.Lint.Tests.Rules
 
             var hasMessages = await rule.AnalyseTables(tables).AnyAsync().ConfigureAwait(false);
 
-            Assert.IsFalse(hasMessages);
+            Assert.That(hasMessages, Is.False);
         }
 
         [Test]
@@ -161,7 +161,7 @@ namespace SJP.Schematic.Lint.Tests.Rules
 
             var hasMessages = await rule.AnalyseTables(tables).AnyAsync().ConfigureAwait(false);
 
-            Assert.IsTrue(hasMessages);
+            Assert.That(hasMessages, Is.True);
         }
 
         [Test]
@@ -179,7 +179,7 @@ namespace SJP.Schematic.Lint.Tests.Rules
 
             var hasMessages = await rule.AnalyseViews(views).AnyAsync().ConfigureAwait(false);
 
-            Assert.IsFalse(hasMessages);
+            Assert.That(hasMessages, Is.False);
         }
 
         [Test]
@@ -197,7 +197,7 @@ namespace SJP.Schematic.Lint.Tests.Rules
 
             var hasMessages = await rule.AnalyseViews(views).AnyAsync().ConfigureAwait(false);
 
-            Assert.IsTrue(hasMessages);
+            Assert.That(hasMessages, Is.True);
         }
 
         [Test]
@@ -223,7 +223,7 @@ namespace SJP.Schematic.Lint.Tests.Rules
 
             var hasMessages = await rule.AnalyseViews(views).AnyAsync().ConfigureAwait(false);
 
-            Assert.IsFalse(hasMessages);
+            Assert.That(hasMessages, Is.False);
         }
 
         [Test]
@@ -249,7 +249,7 @@ namespace SJP.Schematic.Lint.Tests.Rules
 
             var hasMessages = await rule.AnalyseViews(views).AnyAsync().ConfigureAwait(false);
 
-            Assert.IsTrue(hasMessages);
+            Assert.That(hasMessages, Is.True);
         }
 
         [Test]
@@ -271,7 +271,7 @@ namespace SJP.Schematic.Lint.Tests.Rules
 
             var hasMessages = await rule.AnalyseSequences(sequences).AnyAsync().ConfigureAwait(false);
 
-            Assert.IsFalse(hasMessages);
+            Assert.That(hasMessages, Is.False);
         }
 
         [Test]
@@ -293,7 +293,7 @@ namespace SJP.Schematic.Lint.Tests.Rules
 
             var hasMessages = await rule.AnalyseSequences(sequences).AnyAsync().ConfigureAwait(false);
 
-            Assert.IsTrue(hasMessages);
+            Assert.That(hasMessages, Is.True);
         }
 
         [Test]
@@ -307,7 +307,7 @@ namespace SJP.Schematic.Lint.Tests.Rules
 
             var hasMessages = await rule.AnalyseSynonyms(synonyms).AnyAsync().ConfigureAwait(false);
 
-            Assert.IsFalse(hasMessages);
+            Assert.That(hasMessages, Is.False);
         }
 
         [Test]
@@ -321,7 +321,7 @@ namespace SJP.Schematic.Lint.Tests.Rules
 
             var hasMessages = await rule.AnalyseSynonyms(synonyms).AnyAsync().ConfigureAwait(false);
 
-            Assert.IsTrue(hasMessages);
+            Assert.That(hasMessages, Is.True);
         }
 
         [Test]
@@ -335,7 +335,7 @@ namespace SJP.Schematic.Lint.Tests.Rules
 
             var hasMessages = await rule.AnalyseRoutines(routines).AnyAsync().ConfigureAwait(false);
 
-            Assert.IsFalse(hasMessages);
+            Assert.That(hasMessages, Is.False);
         }
 
         [Test]
@@ -349,7 +349,7 @@ namespace SJP.Schematic.Lint.Tests.Rules
 
             var hasMessages = await rule.AnalyseRoutines(routines).AnyAsync().ConfigureAwait(false);
 
-            Assert.IsTrue(hasMessages);
+            Assert.That(hasMessages, Is.True);
         }
     }
 }

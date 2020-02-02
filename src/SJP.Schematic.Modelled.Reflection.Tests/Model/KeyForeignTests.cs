@@ -10,19 +10,19 @@ namespace SJP.Schematic.Modelled.Reflection.Model.Tests
         [Test]
         public static void Ctor_GivenNullColumns_ThrowsArgumentNullException()
         {
-            Assert.Throws<ArgumentNullException>(() => new FakeForeignKey(null));
+            Assert.That(() => new FakeForeignKey(null), Throws.ArgumentNullException);
         }
 
         [Test]
         public static void Ctor_GivenEmptyColumns_ThrowsArgumentNullException()
         {
-            Assert.Throws<ArgumentNullException>(() => new FakeForeignKey(Array.Empty<IModelledColumn>()));
+            Assert.That(() => new FakeForeignKey(Array.Empty<IModelledColumn>()), Throws.ArgumentNullException);
         }
 
         [Test]
         public static void Ctor_GivenCollectionWithNullColumn_ThrowsArgumentNullException()
         {
-            Assert.Throws<ArgumentNullException>(() => new FakeForeignKey(new List<IModelledColumn> { null }));
+            Assert.That(() => new FakeForeignKey(new List<IModelledColumn> { null }), Throws.ArgumentNullException);
         }
 
         private sealed class FakeForeignKey : Key.ForeignKey

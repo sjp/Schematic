@@ -16,49 +16,49 @@ namespace SJP.Schematic.Modelled.Reflection.Tests
         [Test]
         public static void Ctor_GivenNullAssembly_ThrowsArgumentNullException()
         {
-            Assert.Throws<ArgumentNullException>(() => new ReflectionCommentProvider((Assembly)null));
+            Assert.That(() => new ReflectionCommentProvider((Assembly)null), Throws.ArgumentNullException);
         }
 
         [Test]
         public static void Ctor_GivenNullDocument_ThrowsArgumentNullException()
         {
-            Assert.Throws<ArgumentNullException>(() => new ReflectionCommentProvider((XDocument)null));
+            Assert.That(() => new ReflectionCommentProvider((XDocument)null), Throws.ArgumentNullException);
         }
 
         [Test]
         public static void GetComment_GivenNullType_ThrowsArgumentNullException()
         {
-            Assert.Throws<ArgumentNullException>(() => FakeProvider.GetIdentifier((Type)null));
+            Assert.That(() => FakeProvider.GetIdentifier((Type)null), Throws.ArgumentNullException);
         }
 
         [Test]
         public static void GetComment_GivenNullConstructorInfo_ThrowsArgumentNullException()
         {
-            Assert.Throws<ArgumentNullException>(() => FakeProvider.GetIdentifier((ConstructorInfo)null));
+            Assert.That(() => FakeProvider.GetIdentifier((ConstructorInfo)null), Throws.ArgumentNullException);
         }
 
         [Test]
         public static void GetComment_GivenNullEventInfo_ThrowsArgumentNullException()
         {
-            Assert.Throws<ArgumentNullException>(() => FakeProvider.GetIdentifier((EventInfo)null));
+            Assert.That(() => FakeProvider.GetIdentifier((EventInfo)null), Throws.ArgumentNullException);
         }
 
         [Test]
         public static void GetComment_GivenNullFieldInfo_ThrowsArgumentNullException()
         {
-            Assert.Throws<ArgumentNullException>(() => FakeProvider.GetIdentifier((FieldInfo)null));
+            Assert.That(() => FakeProvider.GetIdentifier((FieldInfo)null), Throws.ArgumentNullException);
         }
 
         [Test]
         public static void GetComment_GivenNullMethodInfo_ThrowsArgumentNullException()
         {
-            Assert.Throws<ArgumentNullException>(() => FakeProvider.GetIdentifier((MethodInfo)null));
+            Assert.That(() => FakeProvider.GetIdentifier((MethodInfo)null), Throws.ArgumentNullException);
         }
 
         [Test]
         public static void GetComment_GivenNullPropertyInfo_ThrowsArgumentNullException()
         {
-            Assert.Throws<ArgumentNullException>(() => FakeProvider.GetIdentifier((PropertyInfo)null));
+            Assert.That(() => FakeProvider.GetIdentifier((PropertyInfo)null), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -69,7 +69,7 @@ namespace SJP.Schematic.Modelled.Reflection.Tests
             var provider = new ReflectionCommentProvider(doc);
             var comment = provider.GetComment(type);
 
-            Assert.IsNull(comment);
+            Assert.That(comment, Is.Null);
         }
 
         [Test]
@@ -80,7 +80,7 @@ namespace SJP.Schematic.Modelled.Reflection.Tests
             var provider = new ReflectionCommentProvider(doc);
             var comment = provider.GetComment(type);
 
-            Assert.IsNull(comment);
+            Assert.That(comment, Is.Null);
         }
 
         [Test]
@@ -93,7 +93,7 @@ namespace SJP.Schematic.Modelled.Reflection.Tests
             var provider = new ReflectionCommentProvider(doc);
             var comment = provider.GetComment(type);
 
-            Assert.IsNull(comment);
+            Assert.That(comment, Is.Null);
         }
 
         [Test]
@@ -104,7 +104,7 @@ namespace SJP.Schematic.Modelled.Reflection.Tests
             var provider = new ReflectionCommentProvider(doc);
             var comment = provider.GetComment(type);
 
-            Assert.IsNull(comment);
+            Assert.That(comment, Is.Null);
         }
 
         [Test]
@@ -118,7 +118,7 @@ namespace SJP.Schematic.Modelled.Reflection.Tests
             var provider = new ReflectionCommentProvider(doc);
             var comment = provider.GetComment(type);
 
-            Assert.AreEqual(testSummary, comment);
+            Assert.That(comment, Is.EqualTo(testSummary));
         }
 
         [Test]
@@ -133,7 +133,7 @@ namespace SJP.Schematic.Modelled.Reflection.Tests
             var provider = new ReflectionCommentProvider(doc);
             var comment = provider.GetComment(type);
 
-            Assert.AreEqual(expecteResultSummary, comment);
+            Assert.That(comment, Is.EqualTo(expecteResultSummary));
         }
 
         [Test]
@@ -143,7 +143,7 @@ namespace SJP.Schematic.Modelled.Reflection.Tests
             const string expected = "T:SJP.Schematic.Modelled.Reflection.Tests.ReflectionCommentProviderTests.TestClass";
             var identifier = FakeProvider.GetIdentifier(type);
 
-            Assert.AreEqual(expected, identifier);
+            Assert.That(identifier, Is.EqualTo(expected));
         }
 
         [Test]
@@ -153,7 +153,7 @@ namespace SJP.Schematic.Modelled.Reflection.Tests
             const string expected = "T:SJP.Schematic.Modelled.Reflection.Tests.ReflectionCommentProviderTests.TestGenericClass`1";
             var identifier = FakeProvider.GetIdentifier(type);
 
-            Assert.AreEqual(expected, identifier);
+            Assert.That(identifier, Is.EqualTo(expected));
         }
 
         [Test]
@@ -163,7 +163,7 @@ namespace SJP.Schematic.Modelled.Reflection.Tests
             const string expected = "T:SJP.Schematic.Modelled.Reflection.Tests.ReflectionCommentProviderTests.TestGenericClass`1";
             var identifier = FakeProvider.GetIdentifier(type);
 
-            Assert.AreEqual(expected, identifier);
+            Assert.That(identifier, Is.EqualTo(expected));
         }
 
         [Test]
@@ -173,7 +173,7 @@ namespace SJP.Schematic.Modelled.Reflection.Tests
             const string expected = "T:SJP.Schematic.Modelled.Reflection.Tests.ReflectionCommentProviderTests.TestClass.Nested";
             var identifier = FakeProvider.GetIdentifier(type);
 
-            Assert.AreEqual(expected, identifier);
+            Assert.That(identifier, Is.EqualTo(expected));
         }
 
         [Test]
@@ -184,7 +184,7 @@ namespace SJP.Schematic.Modelled.Reflection.Tests
             const string expected = "M:SJP.Schematic.Modelled.Reflection.Tests.ReflectionCommentProviderTests.TestClass.#ctor";
             var identifier = FakeProvider.GetIdentifier(ctor);
 
-            Assert.AreEqual(expected, identifier);
+            Assert.That(identifier, Is.EqualTo(expected));
         }
 
         [Test]
@@ -195,7 +195,7 @@ namespace SJP.Schematic.Modelled.Reflection.Tests
             const string expected = "M:SJP.Schematic.Modelled.Reflection.Tests.ReflectionCommentProviderTests.TestClass.#ctor(System.Int32)";
             var identifier = FakeProvider.GetIdentifier(ctor);
 
-            Assert.AreEqual(expected, identifier);
+            Assert.That(identifier, Is.EqualTo(expected));
         }
 
         [Test]
@@ -205,7 +205,7 @@ namespace SJP.Schematic.Modelled.Reflection.Tests
             const string expected = "M:SJP.Schematic.Modelled.Reflection.Tests.ReflectionCommentProviderTests.TestClass.#cctor";
             var identifier = FakeProvider.GetIdentifier(type.TypeInitializer);
 
-            Assert.AreEqual(expected, identifier);
+            Assert.That(identifier, Is.EqualTo(expected));
         }
 
         [Test]
@@ -216,7 +216,7 @@ namespace SJP.Schematic.Modelled.Reflection.Tests
             const string expected = "F:SJP.Schematic.Modelled.Reflection.Tests.ReflectionCommentProviderTests.TestClass.Q";
             var identifier = FakeProvider.GetIdentifier(field);
 
-            Assert.AreEqual(expected, identifier);
+            Assert.That(identifier, Is.EqualTo(expected));
         }
 
         [Test]
@@ -227,7 +227,7 @@ namespace SJP.Schematic.Modelled.Reflection.Tests
             const string expected = "F:SJP.Schematic.Modelled.Reflection.Tests.ReflectionCommentProviderTests.TestClass.PI";
             var identifier = FakeProvider.GetIdentifier(field);
 
-            Assert.AreEqual(expected, identifier);
+            Assert.That(identifier, Is.EqualTo(expected));
         }
 
         [Test]
@@ -238,7 +238,7 @@ namespace SJP.Schematic.Modelled.Reflection.Tests
             const string expected = "M:SJP.Schematic.Modelled.Reflection.Tests.ReflectionCommentProviderTests.TestClass.F";
             var identifier = FakeProvider.GetIdentifier(method);
 
-            Assert.AreEqual(expected, identifier);
+            Assert.That(identifier, Is.EqualTo(expected));
         }
 
         [Test]
@@ -249,7 +249,7 @@ namespace SJP.Schematic.Modelled.Reflection.Tests
             const string expected = "M:SJP.Schematic.Modelled.Reflection.Tests.ReflectionCommentProviderTests.TestClass.Farg(System.Int32)";
             var identifier = FakeProvider.GetIdentifier(method);
 
-            Assert.AreEqual(expected, identifier);
+            Assert.That(identifier, Is.EqualTo(expected));
         }
 
         [Test]
@@ -260,7 +260,7 @@ namespace SJP.Schematic.Modelled.Reflection.Tests
             const string expected = "M:SJP.Schematic.Modelled.Reflection.Tests.ReflectionCommentProviderTests.TestClass.Gg(System.Int16[],System.Int32[][0:,0:,0:,0:][][0:,0:])";
             var identifier = FakeProvider.GetIdentifier(method);
 
-            Assert.AreEqual(expected, identifier);
+            Assert.That(identifier, Is.EqualTo(expected));
         }
 
         [Test]
@@ -271,7 +271,7 @@ namespace SJP.Schematic.Modelled.Reflection.Tests
             const string expected = "M:SJP.Schematic.Modelled.Reflection.Tests.ReflectionCommentProviderTests.TestClass.Cc(System.String,System.Int32@,System.String@)";
             var identifier = FakeProvider.GetIdentifier(method);
 
-            Assert.AreEqual(expected, identifier);
+            Assert.That(identifier, Is.EqualTo(expected));
         }
 
         [Test]
@@ -282,7 +282,7 @@ namespace SJP.Schematic.Modelled.Reflection.Tests
             const string expected = "M:SJP.Schematic.Modelled.Reflection.Tests.ReflectionCommentProviderTests.TestClass.op_Implicit(SJP.Schematic.Modelled.Reflection.Tests.ReflectionCommentProviderTests.TestClass)";
             var identifier = FakeProvider.GetIdentifier(method);
 
-            Assert.AreEqual(expected, identifier);
+            Assert.That(identifier, Is.EqualTo(expected));
         }
 
         [Test]
@@ -293,7 +293,7 @@ namespace SJP.Schematic.Modelled.Reflection.Tests
             const string expected = "M:SJP.Schematic.Modelled.Reflection.Tests.ReflectionCommentProviderTests.TestClass.Identity``2(``0,``1,System.Int32,``0)";
             var identifier = FakeProvider.GetIdentifier(method);
 
-            Assert.AreEqual(expected, identifier);
+            Assert.That(identifier, Is.EqualTo(expected));
         }
 
         [Test]
@@ -304,7 +304,7 @@ namespace SJP.Schematic.Modelled.Reflection.Tests
             const string expected = "M:SJP.Schematic.Modelled.Reflection.Tests.ReflectionCommentProviderTests.TestGenericClass`1.IdentityTest(`0)";
             var identifier = FakeProvider.GetIdentifier(method);
 
-            Assert.AreEqual(expected, identifier);
+            Assert.That(identifier, Is.EqualTo(expected));
         }
 
         [Test]
@@ -315,7 +315,7 @@ namespace SJP.Schematic.Modelled.Reflection.Tests
             const string expected = "M:SJP.Schematic.Modelled.Reflection.Tests.ReflectionCommentProviderTests.TestClass.op_Addition(SJP.Schematic.Modelled.Reflection.Tests.ReflectionCommentProviderTests.TestClass,SJP.Schematic.Modelled.Reflection.Tests.ReflectionCommentProviderTests.TestClass)";
             var identifier = FakeProvider.GetIdentifier(method);
 
-            Assert.AreEqual(expected, identifier);
+            Assert.That(identifier, Is.EqualTo(expected));
         }
 
         [Test]
@@ -326,7 +326,7 @@ namespace SJP.Schematic.Modelled.Reflection.Tests
             const string expected = "M:SJP.Schematic.Modelled.Reflection.Tests.ReflectionCommentProviderTests.TestClass.op_Explicit(SJP.Schematic.Modelled.Reflection.Tests.ReflectionCommentProviderTests.TestClass)~System.Collections.Generic.List{System.String[0:,0:]}";
             var identifier = FakeProvider.GetIdentifier(method);
 
-            Assert.AreEqual(expected, identifier);
+            Assert.That(identifier, Is.EqualTo(expected));
         }
 
         [Test]
@@ -337,7 +337,7 @@ namespace SJP.Schematic.Modelled.Reflection.Tests
             const string expected = "M:SJP.Schematic.Modelled.Reflection.Tests.ReflectionCommentProviderTests.TestClass.op_Implicit(System.String)~SJP.Schematic.Modelled.Reflection.Tests.ReflectionCommentProviderTests.TestClass";
             var identifier = FakeProvider.GetIdentifier(method);
 
-            Assert.AreEqual(expected, identifier);
+            Assert.That(identifier, Is.EqualTo(expected));
         }
 
         [Test]
@@ -347,7 +347,7 @@ namespace SJP.Schematic.Modelled.Reflection.Tests
             const string expected = "T:SJP.Schematic.Modelled.Reflection.Tests.ReflectionCommentProviderTests.TestClass.D";
             var identifier = FakeProvider.GetIdentifier(type);
 
-            Assert.AreEqual(expected, identifier);
+            Assert.That(identifier, Is.EqualTo(expected));
         }
 
         [Test]
@@ -358,7 +358,7 @@ namespace SJP.Schematic.Modelled.Reflection.Tests
             const string expected = "P:SJP.Schematic.Modelled.Reflection.Tests.ReflectionCommentProviderTests.TestClass.Prop";
             var identifier = FakeProvider.GetIdentifier(property);
 
-            Assert.AreEqual(expected, identifier);
+            Assert.That(identifier, Is.EqualTo(expected));
         }
 
         [Test]
@@ -369,7 +369,7 @@ namespace SJP.Schematic.Modelled.Reflection.Tests
             const string expected = "P:SJP.Schematic.Modelled.Reflection.Tests.ReflectionCommentProviderTests.TestClass.Item(System.String)";
             var identifier = FakeProvider.GetIdentifier(property);
 
-            Assert.AreEqual(expected, identifier);
+            Assert.That(identifier, Is.EqualTo(expected));
         }
 
         [Test]
@@ -380,7 +380,7 @@ namespace SJP.Schematic.Modelled.Reflection.Tests
             const string expected = "E:SJP.Schematic.Modelled.Reflection.Tests.ReflectionCommentProviderTests.TestClass.EventD";
             var identifier = FakeProvider.GetIdentifier(property);
 
-            Assert.AreEqual(expected, identifier);
+            Assert.That(identifier, Is.EqualTo(expected));
         }
 
         // Note that the following demo class is largely taken from here:

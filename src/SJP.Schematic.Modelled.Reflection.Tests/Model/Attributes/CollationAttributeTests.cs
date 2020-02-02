@@ -11,33 +11,33 @@ namespace SJP.Schematic.Modelled.Reflection.Model.Attributes.Tests
         [Test]
         public static void Ctor_GivenNullCollationName_ThrowsArgumentNullException()
         {
-            Assert.Throws<ArgumentNullException>(() => new CollationAttribute(null));
+            Assert.That(() => new CollationAttribute(null), Throws.ArgumentNullException);
         }
 
         [Test]
         public static void Ctor_GivenEmptyCollationName_ThrowsArgumentNullException()
         {
-            Assert.Throws<ArgumentNullException>(() => new CollationAttribute(string.Empty));
+            Assert.That(() => new CollationAttribute(string.Empty), Throws.ArgumentNullException);
         }
 
         [Test]
         public static void Ctor_GivenWhiteSpaceCollationName_ThrowsArgumentNullException()
         {
-            Assert.Throws<ArgumentNullException>(() => new CollationAttribute("   "));
+            Assert.That(() => new CollationAttribute("   "), Throws.ArgumentNullException);
         }
 
         [Test]
         public static void Ctor_GivenNullDialects_ThrowsArgumentNullException()
         {
             const string collationValue = "test";
-            Assert.Throws<ArgumentNullException>(() => new CollationAttribute(collationValue, (Type[])null));
+            Assert.That(() => new CollationAttribute(collationValue, (Type[])null), Throws.ArgumentNullException);
         }
 
         [Test]
         public static void Ctor_GivenEmptyDialects_ThrowsArgumentNullException()
         {
             const string collationValue = "test";
-            Assert.Throws<ArgumentNullException>(() => new CollationAttribute(collationValue, Array.Empty<Type>()));
+            Assert.That(() => new CollationAttribute(collationValue, Array.Empty<Type>()), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -46,7 +46,7 @@ namespace SJP.Schematic.Modelled.Reflection.Model.Attributes.Tests
             const string collationValue = "test";
             var dialects = new Type[] { null };
 
-            Assert.Throws<ArgumentNullException>(() => new CollationAttribute(collationValue, dialects));
+            Assert.That(() => new CollationAttribute(collationValue, dialects), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -56,7 +56,7 @@ namespace SJP.Schematic.Modelled.Reflection.Model.Attributes.Tests
             var collectionAttr = new CollationAttribute(collationValue, typeof(FakeDialect));
             var expected = new Identifier(collationValue);
 
-            Assert.AreEqual(expected, collectionAttr.CollationName);
+            Assert.That(collectionAttr.CollationName, Is.EqualTo(expected));
         }
     }
 }

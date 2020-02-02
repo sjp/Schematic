@@ -1,5 +1,4 @@
-﻿using System;
-using NUnit.Framework;
+﻿using NUnit.Framework;
 
 namespace SJP.Schematic.Modelled.Reflection.Model.Attributes.Tests
 {
@@ -9,19 +8,19 @@ namespace SJP.Schematic.Modelled.Reflection.Model.Attributes.Tests
         [Test]
         public static void Ctor_GivenNullSchema_ThrowsArgumentNullException()
         {
-            Assert.Throws<ArgumentNullException>(() => new SchemaAttribute(null));
+            Assert.That(() => new SchemaAttribute(null), Throws.ArgumentNullException);
         }
 
         [Test]
         public static void Ctor_GivenEmptySchema_ThrowsArgumentNullException()
         {
-            Assert.Throws<ArgumentNullException>(() => new SchemaAttribute(string.Empty));
+            Assert.That(() => new SchemaAttribute(string.Empty), Throws.ArgumentNullException);
         }
 
         [Test]
         public static void Ctor_GivenWhiteSpaceSchema_ThrowsArgumentNullException()
         {
-            Assert.Throws<ArgumentNullException>(() => new SchemaAttribute("   "));
+            Assert.That(() => new SchemaAttribute("   "), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -30,7 +29,7 @@ namespace SJP.Schematic.Modelled.Reflection.Model.Attributes.Tests
             const string schemaValue = "test";
             var schemaAttr = new SchemaAttribute(schemaValue);
 
-            Assert.AreEqual(schemaValue, schemaAttr.Schema);
+            Assert.That(schemaAttr.Schema, Is.EqualTo(schemaValue));
         }
     }
 }

@@ -1,5 +1,4 @@
-﻿using System;
-using System.Linq;
+﻿using System.Linq;
 using System.Threading.Tasks;
 using Dapper;
 using NUnit.Framework;
@@ -37,14 +36,14 @@ create table parent_table_with_pk_column_to_pk_column_1 (
         public static void Ctor_GivenInvalidLevel_ThrowsArgumentException()
         {
             const RuleLevel level = (RuleLevel)999;
-            Assert.Throws<ArgumentException>(() => new ForeignKeyIsPrimaryKeyRule(level));
+            Assert.That(() => new ForeignKeyIsPrimaryKeyRule(level), Throws.ArgumentException);
         }
 
         [Test]
         public static void AnalyseTables_GivenNullTables_ThrowsArgumentNullException()
         {
             var rule = new ForeignKeyIsPrimaryKeyRule(RuleLevel.Error);
-            Assert.Throws<ArgumentNullException>(() => rule.AnalyseTables(null));
+            Assert.That(() => rule.AnalyseTables(null), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -60,7 +59,7 @@ create table parent_table_with_pk_column_to_pk_column_1 (
 
             var hasMessages = await rule.AnalyseTables(tables).AnyAsync().ConfigureAwait(false);
 
-            Assert.IsFalse(hasMessages);
+            Assert.That(hasMessages, Is.False);
         }
 
         [Test]
@@ -76,7 +75,7 @@ create table parent_table_with_pk_column_to_pk_column_1 (
 
             var hasMessages = await rule.AnalyseTables(tables).AnyAsync().ConfigureAwait(false);
 
-            Assert.IsTrue(hasMessages);
+            Assert.That(hasMessages, Is.True);
         }
     }
 }

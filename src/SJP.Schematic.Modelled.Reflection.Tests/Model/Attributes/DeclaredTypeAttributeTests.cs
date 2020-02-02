@@ -11,7 +11,7 @@ namespace SJP.Schematic.Modelled.Reflection.Model.Attributes.Tests
         public static void Ctor_GivenInvalidDataType_ThrowsArgumentException()
         {
             const DataType dataType = (DataType)55;
-            Assert.Throws<ArgumentException>(() => new FakeDeclaredTypeAttribute(dataType));
+            Assert.That(() => new FakeDeclaredTypeAttribute(dataType), Throws.ArgumentException);
         }
 
         [Test]
@@ -20,21 +20,21 @@ namespace SJP.Schematic.Modelled.Reflection.Model.Attributes.Tests
             const DataType dataType = DataType.Interval;
             var attr = new FakeDeclaredTypeAttribute(dataType);
 
-            Assert.AreEqual(dataType, attr.DataType);
+            Assert.That(attr.DataType, Is.EqualTo(dataType));
         }
 
         [Test]
         public static void Ctor_GivenInvalidDataTypeAndValidLength_ThrowsArgumentException()
         {
             const DataType dataType = (DataType)55;
-            Assert.Throws<ArgumentException>(() => new FakeDeclaredTypeAttribute(dataType, 10, false));
+            Assert.That(() => new FakeDeclaredTypeAttribute(dataType, 10, false), Throws.ArgumentException);
         }
 
         [Test]
         public static void Ctor_GivenValidDataTypeAndInvalidLength_ThrowsArgumentOutOfRangeException()
         {
             const DataType dataType = DataType.Integer;
-            Assert.Throws<ArgumentOutOfRangeException>(() => new FakeDeclaredTypeAttribute(dataType, -10, false));
+            Assert.That(() => new FakeDeclaredTypeAttribute(dataType, -10, false), Throws.TypeOf<ArgumentOutOfRangeException>());
         }
 
         [Test]
@@ -44,7 +44,7 @@ namespace SJP.Schematic.Modelled.Reflection.Model.Attributes.Tests
             const int length = 10;
             var attr = new FakeDeclaredTypeAttribute(dataType, length, true);
 
-            Assert.AreEqual(dataType, attr.DataType);
+            Assert.That(attr.DataType, Is.EqualTo(dataType));
         }
 
         [Test]
@@ -54,7 +54,7 @@ namespace SJP.Schematic.Modelled.Reflection.Model.Attributes.Tests
             const int length = 10;
             var attr = new FakeDeclaredTypeAttribute(dataType, length, true);
 
-            Assert.AreEqual(length, attr.Length);
+            Assert.That(attr.Length, Is.EqualTo(length));
         }
 
         [Test]
@@ -65,7 +65,7 @@ namespace SJP.Schematic.Modelled.Reflection.Model.Attributes.Tests
             const bool isFixedLength = true;
             var attr = new FakeDeclaredTypeAttribute(dataType, length, isFixedLength);
 
-            Assert.AreEqual(isFixedLength, attr.IsFixedLength);
+            Assert.That(attr.IsFixedLength, Is.EqualTo(isFixedLength));
         }
 
         [Test]
@@ -75,7 +75,7 @@ namespace SJP.Schematic.Modelled.Reflection.Model.Attributes.Tests
             const int precision = 10;
             const int scale = 5;
 
-            Assert.Throws<ArgumentException>(() => new FakeDeclaredTypeAttribute(dataType, precision, scale));
+            Assert.That(() => new FakeDeclaredTypeAttribute(dataType, precision, scale), Throws.ArgumentException);
         }
 
         [Test]
@@ -85,17 +85,17 @@ namespace SJP.Schematic.Modelled.Reflection.Model.Attributes.Tests
             const int precision = -10;
             const int scale = 5;
 
-            Assert.Throws<ArgumentOutOfRangeException>(() => new FakeDeclaredTypeAttribute(dataType, precision, scale));
+            Assert.That(() => new FakeDeclaredTypeAttribute(dataType, precision, scale), Throws.TypeOf<ArgumentOutOfRangeException>());
         }
 
         [Test]
-        public static void DataType_GivenValidDataTypeAndValidPrecisionAndInvalidScale_MatchesCtorArg()
+        public static void DataType_GivenValidDataTypeAndValidPrecisionAndInvalidScale_ThrowsArgumentOutOfRangeException()
         {
             const DataType dataType = DataType.Integer;
             const int precision = 10;
             const int scale = -5;
 
-            Assert.Throws<ArgumentOutOfRangeException>(() => new FakeDeclaredTypeAttribute(dataType, precision, scale));
+            Assert.That(() => new FakeDeclaredTypeAttribute(dataType, precision, scale), Throws.TypeOf<ArgumentOutOfRangeException>());
         }
 
         [Test]
@@ -106,7 +106,7 @@ namespace SJP.Schematic.Modelled.Reflection.Model.Attributes.Tests
             const int scale = 5;
             var attr = new FakeDeclaredTypeAttribute(dataType, precision, scale);
 
-            Assert.AreEqual(dataType, attr.DataType);
+            Assert.That(attr.DataType, Is.EqualTo(dataType));
         }
 
         [Test]
@@ -117,7 +117,7 @@ namespace SJP.Schematic.Modelled.Reflection.Model.Attributes.Tests
             const int scale = 5;
             var attr = new FakeDeclaredTypeAttribute(dataType, precision, scale);
 
-            Assert.AreEqual(precision, attr.Length);
+            Assert.That(attr.Length, Is.EqualTo(precision));
         }
 
         [Test]
@@ -128,7 +128,7 @@ namespace SJP.Schematic.Modelled.Reflection.Model.Attributes.Tests
             const int scale = 5;
             var attr = new FakeDeclaredTypeAttribute(dataType, precision, scale);
 
-            Assert.AreEqual(precision, attr.Precision);
+            Assert.That(attr.Precision, Is.EqualTo(precision));
         }
 
         [Test]
@@ -139,7 +139,7 @@ namespace SJP.Schematic.Modelled.Reflection.Model.Attributes.Tests
             const int scale = 5;
             var attr = new FakeDeclaredTypeAttribute(dataType, precision, scale);
 
-            Assert.AreEqual(scale, attr.Scale);
+            Assert.That(attr.Scale, Is.EqualTo(scale));
         }
 
         [AttributeUsage(AttributeTargets.All, AllowMultiple = false)]
