@@ -67,7 +67,7 @@ namespace SJP.Schematic.Core.Tests.Comments
         public static void GetSynonymComments_GivenNullName_ThrowsArgumentNullException()
         {
             var provider = new EmptyRelationalDatabaseCommentProvider();
-            Assert.Throws<ArgumentNullException>(() => provider.GetSynonymComments(null));
+            Assert.That(() => provider.GetSynonymComments(null), Throws.ArgumentNullException);
         }
 
         [Test]

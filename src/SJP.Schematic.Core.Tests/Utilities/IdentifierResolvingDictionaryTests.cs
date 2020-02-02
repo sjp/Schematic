@@ -14,14 +14,15 @@ namespace SJP.Schematic.Core.Tests.Utilities
         public static void Ctor_GivenNullDictionary_ThrowsArgumentNullException()
         {
             var resolver = Mock.Of<IIdentifierResolutionStrategy>();
-            Assert.Throws<ArgumentNullException>(() => new IdentifierResolvingDictionary<string>(null, resolver));
+
+            Assert.That(() => new IdentifierResolvingDictionary<string>(null, resolver), Throws.ArgumentNullException);
         }
 
         [Test]
         public static void Ctor_GivenNullResolver_ThrowsArgumentNullException()
         {
             var dictionary = new Dictionary<Identifier, string>();
-            Assert.Throws<ArgumentNullException>(() => new IdentifierResolvingDictionary<string>(dictionary, null));
+            Assert.That(() => new IdentifierResolvingDictionary<string>(dictionary, null), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -35,8 +36,7 @@ namespace SJP.Schematic.Core.Tests.Utilities
             var resolver = new FakeIdentifierResolver();
             var resolvingDictionary = new IdentifierResolvingDictionary<string>(dictionary, resolver);
 
-            var keysEqual = dictionary.Keys.SequenceEqual(resolvingDictionary.Keys);
-            Assert.IsTrue(keysEqual);
+            Assert.That(dictionary.Keys, Is.EqualTo(resolvingDictionary.Keys));
         }
 
         [Test]
@@ -50,8 +50,7 @@ namespace SJP.Schematic.Core.Tests.Utilities
             var resolver = new FakeIdentifierResolver();
             var resolvingDictionary = new IdentifierResolvingDictionary<string>(dictionary, resolver);
 
-            var valuesEqual = dictionary.Values.SequenceEqual(resolvingDictionary.Values);
-            Assert.IsTrue(valuesEqual);
+            Assert.That(dictionary.Values, Is.EqualTo(resolvingDictionary.Values));
         }
 
         [Test]
@@ -65,7 +64,7 @@ namespace SJP.Schematic.Core.Tests.Utilities
             var resolver = new FakeIdentifierResolver();
             var resolvingDictionary = new IdentifierResolvingDictionary<string>(dictionary, resolver);
 
-            Assert.AreEqual(dictionary.Count, resolvingDictionary.Count);
+            Assert.That(dictionary.Count, Is.EqualTo(resolvingDictionary.Count));
         }
 
         [Test]
@@ -79,8 +78,7 @@ namespace SJP.Schematic.Core.Tests.Utilities
             var resolver = new FakeIdentifierResolver();
             var resolvingDictionary = new IdentifierResolvingDictionary<string>(dictionary, resolver);
 
-            var equalEnumeration = dictionary.SequenceEqual(resolvingDictionary);
-            Assert.IsTrue(equalEnumeration);
+            Assert.That(resolvingDictionary, Is.EqualTo(dictionary));
         }
 
         [Test]
@@ -90,7 +88,7 @@ namespace SJP.Schematic.Core.Tests.Utilities
             var resolver = new FakeIdentifierResolver();
             var resolvingDictionary = new IdentifierResolvingDictionary<string>(dictionary, resolver);
 
-            Assert.Throws<ArgumentNullException>(() => resolvingDictionary.ContainsKey(null));
+            Assert.That(() => resolvingDictionary.ContainsKey(null), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -105,7 +103,7 @@ namespace SJP.Schematic.Core.Tests.Utilities
             var resolvingDictionary = new IdentifierResolvingDictionary<string>(dictionary, resolver);
 
             var keyPresent = resolvingDictionary.ContainsKey("Z");
-            Assert.IsTrue(keyPresent);
+            Assert.That(keyPresent, Is.True);
         }
 
         [Test]
@@ -120,7 +118,7 @@ namespace SJP.Schematic.Core.Tests.Utilities
             var resolvingDictionary = new IdentifierResolvingDictionary<string>(dictionary, resolver);
 
             var keyPresent = resolvingDictionary.ContainsKey("B");
-            Assert.IsTrue(keyPresent);
+            Assert.That(keyPresent, Is.True);
         }
 
         [Test]
@@ -136,7 +134,7 @@ namespace SJP.Schematic.Core.Tests.Utilities
             var resolvingDictionary = new IdentifierResolvingDictionary<string>(dictionary, resolver);
 
             var keyPresent = resolvingDictionary.ContainsKey("B");
-            Assert.IsFalse(keyPresent);
+            Assert.That(keyPresent, Is.False);
         }
 
         [Test]
@@ -146,7 +144,7 @@ namespace SJP.Schematic.Core.Tests.Utilities
             var resolver = new FakeIdentifierResolver();
             var resolvingDictionary = new IdentifierResolvingDictionary<string>(dictionary, resolver);
 
-            Assert.Throws<ArgumentNullException>(() => resolvingDictionary.TryGetValue(null, out var value));
+            Assert.That(() => resolvingDictionary.TryGetValue(null, out var value), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -164,8 +162,8 @@ namespace SJP.Schematic.Core.Tests.Utilities
 
             Assert.Multiple(() =>
             {
-                Assert.IsTrue(keyPresent);
-                Assert.AreEqual("b", value);
+                Assert.That(keyPresent, Is.True);
+                Assert.That(value, Is.EqualTo("b"));
             });
         }
 
@@ -184,8 +182,8 @@ namespace SJP.Schematic.Core.Tests.Utilities
 
             Assert.Multiple(() =>
             {
-                Assert.IsTrue(keyPresent);
-                Assert.AreEqual("b", value);
+                Assert.That(keyPresent, Is.True);
+                Assert.That(value, Is.EqualTo("b"));
             });
         }
 
@@ -205,8 +203,8 @@ namespace SJP.Schematic.Core.Tests.Utilities
 
             Assert.Multiple(() =>
             {
-                Assert.IsFalse(keyPresent);
-                Assert.IsNull(value);
+                Assert.That(keyPresent, Is.False);
+                Assert.That(value, Is.Null);
             });
         }
 
@@ -217,7 +215,7 @@ namespace SJP.Schematic.Core.Tests.Utilities
             var resolver = new FakeIdentifierResolver();
             var resolvingDictionary = new IdentifierResolvingDictionary<string>(dictionary, resolver);
 
-            Assert.Throws<ArgumentNullException>(() => _ = resolvingDictionary[null]);
+            Assert.That(() => _ = resolvingDictionary[null], Throws.ArgumentNullException);
         }
 
         [Test]
@@ -232,7 +230,7 @@ namespace SJP.Schematic.Core.Tests.Utilities
             var resolvingDictionary = new IdentifierResolvingDictionary<string>(dictionary, resolver);
 
             var result = resolvingDictionary["Z"];
-            Assert.AreEqual("b", result);
+            Assert.That(result, Is.EqualTo("b"));
         }
 
         [Test]
@@ -247,7 +245,7 @@ namespace SJP.Schematic.Core.Tests.Utilities
             var resolvingDictionary = new IdentifierResolvingDictionary<string>(dictionary, resolver);
 
             var result = resolvingDictionary["B"];
-            Assert.AreEqual("b", result);
+            Assert.That(result, Is.EqualTo("b"));
         }
 
         [Test]
@@ -262,7 +260,7 @@ namespace SJP.Schematic.Core.Tests.Utilities
             var resolver = new FakeIdentifierResolver();
             var resolvingDictionary = new IdentifierResolvingDictionary<string>(dictionary, resolver);
 
-            Assert.Throws<KeyNotFoundException>(() => _ = resolvingDictionary["B"]);
+            Assert.That(() => _ = resolvingDictionary["B"], Throws.TypeOf<KeyNotFoundException>());
         }
 
         private sealed class FakeIdentifierResolver : IIdentifierResolutionStrategy

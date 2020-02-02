@@ -9,13 +9,13 @@ namespace SJP.Schematic.Core.Tests
         [Test]
         public static void Ctor_GivenNullName_ThrowsArgNullException()
         {
-            Assert.Throws<ArgumentNullException>(() => new DatabaseSynonym(null, "test"));
+            Assert.That(() => new DatabaseSynonym(null, "test"), Throws.ArgumentNullException);
         }
 
         [Test]
         public static void Ctor_GivenNullTarget_ThrowsArgNullException()
         {
-            Assert.Throws<ArgumentNullException>(() => new DatabaseSynonym("test", null));
+            Assert.That(() => new DatabaseSynonym("test", null), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -24,7 +24,7 @@ namespace SJP.Schematic.Core.Tests
             const string synonymName = "synonym_test_synonym_1";
             var synonym = new DatabaseSynonym(synonymName, synonymName);
 
-            Assert.AreEqual(synonymName, synonym.Name.LocalName);
+            Assert.That(synonym.Name.LocalName, Is.EqualTo(synonymName));
         }
 
         [Test]
@@ -33,7 +33,7 @@ namespace SJP.Schematic.Core.Tests
             const string synonymName = "synonym_test_synonym_1";
             var synonym = new DatabaseSynonym(synonymName, synonymName);
 
-            Assert.AreEqual(synonymName, synonym.Target.LocalName);
+            Assert.That(synonym.Target.LocalName, Is.EqualTo(synonymName));
         }
     }
 }

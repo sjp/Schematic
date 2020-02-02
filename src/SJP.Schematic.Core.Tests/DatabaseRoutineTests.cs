@@ -11,7 +11,7 @@ namespace SJP.Schematic.Core.Tests
         {
             const string definition = "create function test_function...";
 
-            Assert.Throws<ArgumentNullException>(() => new DatabaseRoutine(null, definition));
+            Assert.That(() => new DatabaseRoutine(null, definition), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -19,7 +19,7 @@ namespace SJP.Schematic.Core.Tests
         {
             Identifier routineName = "test_routine";
 
-            Assert.Throws<ArgumentNullException>(() => new DatabaseRoutine(routineName, null));
+            Assert.That(() => new DatabaseRoutine(routineName, null), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -27,7 +27,7 @@ namespace SJP.Schematic.Core.Tests
         {
             Identifier routineName = "test_routine";
 
-            Assert.Throws<ArgumentNullException>(() => new DatabaseRoutine(routineName, string.Empty));
+            Assert.That(() => new DatabaseRoutine(routineName, string.Empty), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -35,7 +35,7 @@ namespace SJP.Schematic.Core.Tests
         {
             Identifier routineName = "test_routine";
 
-            Assert.Throws<ArgumentNullException>(() => new DatabaseRoutine(routineName, "    "));
+            Assert.That(() => new DatabaseRoutine(routineName, "    "), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -46,7 +46,7 @@ namespace SJP.Schematic.Core.Tests
 
             var routine = new DatabaseRoutine(routineName, definition);
 
-            Assert.AreEqual(routineName, routine.Name);
+            Assert.That(routine.Name, Is.EqualTo(routineName));
         }
 
         [Test]
@@ -57,7 +57,7 @@ namespace SJP.Schematic.Core.Tests
 
             var routine = new DatabaseRoutine(routineName, definition);
 
-            Assert.AreEqual(definition, routine.Definition);
+            Assert.That(routine.Definition, Is.EqualTo(definition));
         }
     }
 }

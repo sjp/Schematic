@@ -15,7 +15,7 @@ namespace SJP.Schematic.Core.Tests
             var column = Mock.Of<IDatabaseColumn>();
             var columns = new[] { column };
 
-            Assert.DoesNotThrow(() => new DatabaseKey(null, keyType, columns, true));
+            Assert.That(() => new DatabaseKey(null, keyType, columns, true), Throws.Nothing);
         }
 
         [Test]
@@ -26,7 +26,7 @@ namespace SJP.Schematic.Core.Tests
             var column = Mock.Of<IDatabaseColumn>();
             var columns = new[] { column };
 
-            Assert.Throws<ArgumentException>(() => new DatabaseKey(keyName, keyType, columns, true));
+            Assert.That(() => new DatabaseKey(keyName, keyType, columns, true), Throws.ArgumentException);
         }
 
         [Test]
@@ -35,7 +35,7 @@ namespace SJP.Schematic.Core.Tests
             Identifier keyName = "test_key";
             const DatabaseKeyType keyType = DatabaseKeyType.Primary;
 
-            Assert.Throws<ArgumentNullException>(() => new DatabaseKey(keyName, keyType, null, true));
+            Assert.That(() => new DatabaseKey(keyName, keyType, null, true), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -45,7 +45,7 @@ namespace SJP.Schematic.Core.Tests
             const DatabaseKeyType keyType = DatabaseKeyType.Primary;
             var columns = Array.Empty<IDatabaseColumn>();
 
-            Assert.Throws<ArgumentNullException>(() => new DatabaseKey(keyName, keyType, columns, true));
+            Assert.That(() => new DatabaseKey(keyName, keyType, columns, true), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -55,7 +55,7 @@ namespace SJP.Schematic.Core.Tests
             const DatabaseKeyType keyType = DatabaseKeyType.Primary;
             var columns = new IDatabaseColumn[] { null };
 
-            Assert.Throws<ArgumentNullException>(() => new DatabaseKey(keyName, keyType, columns, true));
+            Assert.That(() => new DatabaseKey(keyName, keyType, columns, true), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -68,7 +68,7 @@ namespace SJP.Schematic.Core.Tests
 
             var key = new DatabaseKey(keyName, keyType, columns, true);
 
-            Assert.AreEqual(keyName, key.Name.UnwrapSome());
+            Assert.That(key.Name.UnwrapSome(), Is.EqualTo(keyName));
         }
 
         [Test]
@@ -81,7 +81,7 @@ namespace SJP.Schematic.Core.Tests
 
             var key = new DatabaseKey(keyName, keyType, columns, true);
 
-            Assert.AreEqual(keyType, key.KeyType);
+            Assert.That(key.KeyType, Is.EqualTo(keyType));
         }
 
         [Test]
@@ -94,7 +94,7 @@ namespace SJP.Schematic.Core.Tests
 
             var key = new DatabaseKey(keyName, keyType, columns, true);
 
-            Assert.AreEqual(columns, key.Columns);
+            Assert.That(key.Columns, Is.EqualTo(columns));
         }
 
         [Test]
@@ -108,7 +108,7 @@ namespace SJP.Schematic.Core.Tests
 
             var key = new DatabaseKey(keyName, keyType, columns, enabled);
 
-            Assert.AreEqual(enabled, key.IsEnabled);
+            Assert.That(key.IsEnabled, Is.EqualTo(enabled));
         }
 
         [Test]
@@ -122,7 +122,7 @@ namespace SJP.Schematic.Core.Tests
 
             var key = new DatabaseKey(keyName, keyType, columns, enabled);
 
-            Assert.AreEqual(enabled, key.IsEnabled);
+            Assert.That(key.IsEnabled, Is.EqualTo(enabled));
         }
     }
 }

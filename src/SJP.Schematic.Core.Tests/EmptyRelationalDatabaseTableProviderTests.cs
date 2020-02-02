@@ -12,7 +12,7 @@ namespace SJP.Schematic.Core.Tests
         public static void GetTable_GivenNullName_ThrowsArgumentNullException()
         {
             var provider = new EmptyRelationalDatabaseTableProvider();
-            Assert.Throws<ArgumentNullException>(() => provider.GetTable(null));
+            Assert.That(() => provider.GetTable(null), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -22,7 +22,7 @@ namespace SJP.Schematic.Core.Tests
             var table = provider.GetTable("table_name");
             var tableIsNone = await table.IsNone.ConfigureAwait(false);
 
-            Assert.IsTrue(tableIsNone);
+            Assert.That(tableIsNone, Is.True);
         }
 
         [Test]
@@ -31,7 +31,7 @@ namespace SJP.Schematic.Core.Tests
             var provider = new EmptyRelationalDatabaseTableProvider();
             var hasTables = await provider.GetAllTables().AnyAsync().ConfigureAwait(false);
 
-            Assert.IsFalse(hasTables);
+            Assert.That(hasTables, Is.False);
         }
     }
 }

@@ -11,14 +11,14 @@ namespace SJP.Schematic.Core.Tests.Utilities
         [Test]
         public static void Ctor_GivenNullDictionary_ThrowsArgumentNullException()
         {
-            Assert.Throws<ArgumentNullException>(() => new VersionResolvingDictionary<int>(null));
+            Assert.That(() => new VersionResolvingDictionary<int>(null), Throws.ArgumentNullException);
         }
 
         [Test]
         public static void Ctor_GivenEmptyDictionary_ThrowsArgumentException()
         {
             var dictionary = new Dictionary<Version, int>();
-            Assert.Throws<ArgumentException>(() => new VersionResolvingDictionary<int>(dictionary));
+            Assert.That(() => new VersionResolvingDictionary<int>(dictionary), Throws.ArgumentException);
         }
 
         [Test]
@@ -31,7 +31,7 @@ namespace SJP.Schematic.Core.Tests.Utilities
             };
             var versionDictionary = new VersionResolvingDictionary<int>(dictionary);
 
-            Assert.Throws<ArgumentNullException>(() => versionDictionary.GetValue(null));
+            Assert.That(() => versionDictionary.GetValue(null), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -46,7 +46,7 @@ namespace SJP.Schematic.Core.Tests.Utilities
 
             var value = versionDictionary.GetValue(new Version(0, 1));
 
-            Assert.AreEqual(1, value);
+            Assert.That(value, Is.EqualTo(1));
         }
 
         [Test]
@@ -61,7 +61,7 @@ namespace SJP.Schematic.Core.Tests.Utilities
 
             var value = versionDictionary.GetValue(new Version(2, 0));
 
-            Assert.AreEqual(2, value);
+            Assert.That(value, Is.EqualTo(2));
         }
 
         [Test]
@@ -77,7 +77,7 @@ namespace SJP.Schematic.Core.Tests.Utilities
 
             var value = versionDictionary.GetValue(new Version(1, 1));
 
-            Assert.AreEqual(2, value);
+            Assert.That(value, Is.EqualTo(2));
         }
 
         [Test]
@@ -93,7 +93,7 @@ namespace SJP.Schematic.Core.Tests.Utilities
 
             var value = versionDictionary.GetValue(new Version(1, 5));
 
-            Assert.AreEqual(2, value);
+            Assert.That(value, Is.EqualTo(2));
         }
     }
 }

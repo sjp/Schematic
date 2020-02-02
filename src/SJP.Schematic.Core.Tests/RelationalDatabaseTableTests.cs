@@ -20,7 +20,7 @@ namespace SJP.Schematic.Core.Tests
             var checks = Array.Empty<IDatabaseCheckConstraint>();
             var triggers = Array.Empty<IDatabaseTrigger>();
 
-            Assert.Throws<ArgumentNullException>(() => new RelationalDatabaseTable(null, columns, primaryKey, uniqueKeys, parentKeys, childKeys, indexes, checks, triggers));
+            Assert.That(() => new RelationalDatabaseTable(null, columns, primaryKey, uniqueKeys, parentKeys, childKeys, indexes, checks, triggers), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -35,7 +35,7 @@ namespace SJP.Schematic.Core.Tests
             var checks = Array.Empty<IDatabaseCheckConstraint>();
             var triggers = Array.Empty<IDatabaseTrigger>();
 
-            Assert.Throws<ArgumentNullException>(() => new RelationalDatabaseTable(tableName, null, primaryKey, uniqueKeys, parentKeys, childKeys, indexes, checks, triggers));
+            Assert.That(() => new RelationalDatabaseTable(tableName, null, primaryKey, uniqueKeys, parentKeys, childKeys, indexes, checks, triggers), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -51,7 +51,7 @@ namespace SJP.Schematic.Core.Tests
             var checks = Array.Empty<IDatabaseCheckConstraint>();
             var triggers = Array.Empty<IDatabaseTrigger>();
 
-            Assert.Throws<ArgumentNullException>(() => new RelationalDatabaseTable(tableName, columns, primaryKey, uniqueKeys, parentKeys, childKeys, indexes, checks, triggers));
+            Assert.That(() => new RelationalDatabaseTable(tableName, columns, primaryKey, uniqueKeys, parentKeys, childKeys, indexes, checks, triggers), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -66,7 +66,7 @@ namespace SJP.Schematic.Core.Tests
             var checks = Array.Empty<IDatabaseCheckConstraint>();
             var triggers = Array.Empty<IDatabaseTrigger>();
 
-            Assert.Throws<ArgumentNullException>(() => new RelationalDatabaseTable(tableName, columns, primaryKey, null, parentKeys, childKeys, indexes, checks, triggers));
+            Assert.That(() => new RelationalDatabaseTable(tableName, columns, primaryKey, null, parentKeys, childKeys, indexes, checks, triggers), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -82,7 +82,7 @@ namespace SJP.Schematic.Core.Tests
             var checks = Array.Empty<IDatabaseCheckConstraint>();
             var triggers = Array.Empty<IDatabaseTrigger>();
 
-            Assert.Throws<ArgumentNullException>(() => new RelationalDatabaseTable(tableName, columns, primaryKey, uniqueKeys, parentKeys, childKeys, indexes, checks, triggers));
+            Assert.That(() => new RelationalDatabaseTable(tableName, columns, primaryKey, uniqueKeys, parentKeys, childKeys, indexes, checks, triggers), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -97,7 +97,7 @@ namespace SJP.Schematic.Core.Tests
             var checks = Array.Empty<IDatabaseCheckConstraint>();
             var triggers = Array.Empty<IDatabaseTrigger>();
 
-            Assert.Throws<ArgumentNullException>(() => new RelationalDatabaseTable(tableName, columns, primaryKey, uniqueKeys, null, childKeys, indexes, checks, triggers));
+            Assert.That(() => new RelationalDatabaseTable(tableName, columns, primaryKey, uniqueKeys, null, childKeys, indexes, checks, triggers), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -113,7 +113,7 @@ namespace SJP.Schematic.Core.Tests
             var checks = Array.Empty<IDatabaseCheckConstraint>();
             var triggers = Array.Empty<IDatabaseTrigger>();
 
-            Assert.Throws<ArgumentNullException>(() => new RelationalDatabaseTable(tableName, columns, primaryKey, uniqueKeys, parentKeys, childKeys, indexes, checks, triggers));
+            Assert.That(() => new RelationalDatabaseTable(tableName, columns, primaryKey, uniqueKeys, parentKeys, childKeys, indexes, checks, triggers), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -128,7 +128,7 @@ namespace SJP.Schematic.Core.Tests
             var checks = Array.Empty<IDatabaseCheckConstraint>();
             var triggers = Array.Empty<IDatabaseTrigger>();
 
-            Assert.Throws<ArgumentNullException>(() => new RelationalDatabaseTable(tableName, columns, primaryKey, uniqueKeys, parentKeys, null, indexes, checks, triggers));
+            Assert.That(() => new RelationalDatabaseTable(tableName, columns, primaryKey, uniqueKeys, parentKeys, null, indexes, checks, triggers), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -144,7 +144,7 @@ namespace SJP.Schematic.Core.Tests
             var checks = Array.Empty<IDatabaseCheckConstraint>();
             var triggers = Array.Empty<IDatabaseTrigger>();
 
-            Assert.Throws<ArgumentNullException>(() => new RelationalDatabaseTable(tableName, columns, primaryKey, uniqueKeys, parentKeys, childKeys, indexes, checks, triggers));
+            Assert.That(() => new RelationalDatabaseTable(tableName, columns, primaryKey, uniqueKeys, parentKeys, childKeys, indexes, checks, triggers), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -159,7 +159,7 @@ namespace SJP.Schematic.Core.Tests
             var checks = Array.Empty<IDatabaseCheckConstraint>();
             var triggers = Array.Empty<IDatabaseTrigger>();
 
-            Assert.Throws<ArgumentNullException>(() => new RelationalDatabaseTable(tableName, columns, primaryKey, uniqueKeys, parentKeys, childKeys, null, checks, triggers));
+            Assert.That(() => new RelationalDatabaseTable(tableName, columns, primaryKey, uniqueKeys, parentKeys, childKeys, null, checks, triggers), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -175,7 +175,7 @@ namespace SJP.Schematic.Core.Tests
             var checks = Array.Empty<IDatabaseCheckConstraint>();
             var triggers = Array.Empty<IDatabaseTrigger>();
 
-            Assert.Throws<ArgumentNullException>(() => new RelationalDatabaseTable(tableName, columns, primaryKey, uniqueKeys, parentKeys, childKeys, indexes, checks, triggers));
+            Assert.That(() => new RelationalDatabaseTable(tableName, columns, primaryKey, uniqueKeys, parentKeys, childKeys, indexes, checks, triggers), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -190,7 +190,7 @@ namespace SJP.Schematic.Core.Tests
             var indexes = Array.Empty<IDatabaseIndex>();
             var triggers = Array.Empty<IDatabaseTrigger>();
 
-            Assert.Throws<ArgumentNullException>(() => new RelationalDatabaseTable(tableName, columns, primaryKey, uniqueKeys, parentKeys, childKeys, indexes, null, triggers));
+            Assert.That(() => new RelationalDatabaseTable(tableName, columns, primaryKey, uniqueKeys, parentKeys, childKeys, indexes, null, triggers), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -206,7 +206,7 @@ namespace SJP.Schematic.Core.Tests
             var checks = new IDatabaseCheckConstraint[] { null };
             var triggers = Array.Empty<IDatabaseTrigger>();
 
-            Assert.Throws<ArgumentNullException>(() => new RelationalDatabaseTable(tableName, columns, primaryKey, uniqueKeys, parentKeys, childKeys, indexes, checks, triggers));
+            Assert.That(() => new RelationalDatabaseTable(tableName, columns, primaryKey, uniqueKeys, parentKeys, childKeys, indexes, checks, triggers), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -221,7 +221,7 @@ namespace SJP.Schematic.Core.Tests
             var indexes = Array.Empty<IDatabaseIndex>();
             var checks = Array.Empty<IDatabaseCheckConstraint>();
 
-            Assert.Throws<ArgumentNullException>(() => new RelationalDatabaseTable(tableName, columns, primaryKey, uniqueKeys, parentKeys, childKeys, indexes, checks, null));
+            Assert.That(() => new RelationalDatabaseTable(tableName, columns, primaryKey, uniqueKeys, parentKeys, childKeys, indexes, checks, null), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -237,7 +237,7 @@ namespace SJP.Schematic.Core.Tests
             var checks = Array.Empty<IDatabaseCheckConstraint>();
             var triggers = new IDatabaseTrigger[] { null };
 
-            Assert.Throws<ArgumentNullException>(() => new RelationalDatabaseTable(tableName, columns, primaryKey, uniqueKeys, parentKeys, childKeys, indexes, checks, triggers));
+            Assert.That(() => new RelationalDatabaseTable(tableName, columns, primaryKey, uniqueKeys, parentKeys, childKeys, indexes, checks, triggers), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -254,7 +254,7 @@ namespace SJP.Schematic.Core.Tests
             var checks = Array.Empty<IDatabaseCheckConstraint>();
             var triggers = Array.Empty<IDatabaseTrigger>();
 
-            Assert.Throws<ArgumentException>(() => new RelationalDatabaseTable(tableName, columns, primaryKey, uniqueKeys, parentKeys, childKeys, indexes, checks, triggers));
+            Assert.That(() => new RelationalDatabaseTable(tableName, columns, primaryKey, uniqueKeys, parentKeys, childKeys, indexes, checks, triggers), Throws.ArgumentException);
         }
 
         [Test]
@@ -271,7 +271,7 @@ namespace SJP.Schematic.Core.Tests
             var checks = Array.Empty<IDatabaseCheckConstraint>();
             var triggers = Array.Empty<IDatabaseTrigger>();
 
-            Assert.Throws<ArgumentException>(() => new RelationalDatabaseTable(tableName, columns, primaryKey, uniqueKeys, parentKeys, childKeys, indexes, checks, triggers));
+            Assert.That(() => new RelationalDatabaseTable(tableName, columns, primaryKey, uniqueKeys, parentKeys, childKeys, indexes, checks, triggers), Throws.ArgumentException);
         }
     }
 }

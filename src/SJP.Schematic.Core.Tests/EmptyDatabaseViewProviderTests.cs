@@ -12,7 +12,7 @@ namespace SJP.Schematic.Core.Tests
         public static void GetView_GivenNullName_ThrowsArgumentNullException()
         {
             var provider = new EmptyDatabaseViewProvider();
-            Assert.Throws<ArgumentNullException>(() => provider.GetView(null));
+            Assert.That(() => provider.GetView(null), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -22,7 +22,7 @@ namespace SJP.Schematic.Core.Tests
             var view = provider.GetView("view_name");
             var viewIsNone = await view.IsNone.ConfigureAwait(false);
 
-            Assert.IsTrue(viewIsNone);
+            Assert.That(viewIsNone, Is.True);
         }
 
         [Test]
@@ -33,7 +33,7 @@ namespace SJP.Schematic.Core.Tests
                 .AnyAsync()
                 .ConfigureAwait(false);
 
-            Assert.IsFalse(hasViews);
+            Assert.That(hasViews, Is.False);
         }
     }
 }

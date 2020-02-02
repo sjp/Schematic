@@ -13,7 +13,7 @@ namespace SJP.Schematic.Core.Tests
             var column = Mock.Of<IDatabaseIndexColumn>();
             var columns = new[] { column };
 
-            Assert.Throws<ArgumentNullException>(() => new DatabaseIndex(null, false, columns, Array.Empty<IDatabaseColumn>(), true));
+            Assert.That(() => new DatabaseIndex(null, false, columns, Array.Empty<IDatabaseColumn>(), true), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -21,7 +21,7 @@ namespace SJP.Schematic.Core.Tests
         {
             Identifier indexName = "test_index";
 
-            Assert.Throws<ArgumentNullException>(() => new DatabaseIndex(indexName, false, null, Array.Empty<IDatabaseColumn>(), true));
+            Assert.That(() => new DatabaseIndex(indexName, false, null, Array.Empty<IDatabaseColumn>(), true), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -30,7 +30,7 @@ namespace SJP.Schematic.Core.Tests
             Identifier indexName = "test_index";
             var columns = Array.Empty<IDatabaseIndexColumn>();
 
-            Assert.Throws<ArgumentNullException>(() => new DatabaseIndex(indexName, false, columns, Array.Empty<IDatabaseColumn>(), true));
+            Assert.That(() => new DatabaseIndex(indexName, false, columns, Array.Empty<IDatabaseColumn>(), true), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -39,7 +39,7 @@ namespace SJP.Schematic.Core.Tests
             Identifier indexName = "test_index";
             var columns = new IDatabaseIndexColumn[] { null };
 
-            Assert.Throws<ArgumentNullException>(() => new DatabaseIndex(indexName, false, columns, Array.Empty<IDatabaseColumn>(), true));
+            Assert.That(() => new DatabaseIndex(indexName, false, columns, Array.Empty<IDatabaseColumn>(), true), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -48,7 +48,7 @@ namespace SJP.Schematic.Core.Tests
             Identifier indexName = "test_index";
             var columns = new[] { Mock.Of<IDatabaseIndexColumn>() };
 
-            Assert.Throws<ArgumentNullException>(() => new DatabaseIndex(indexName, false, columns, null, true));
+            Assert.That(() => new DatabaseIndex(indexName, false, columns, null, true), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -58,7 +58,7 @@ namespace SJP.Schematic.Core.Tests
             var columns = new[] { Mock.Of<IDatabaseIndexColumn>() };
             var includedColumns = Array.Empty<IDatabaseColumn>();
 
-            Assert.DoesNotThrow(() => new DatabaseIndex(indexName, false, columns, includedColumns, true));
+            Assert.That(() => new DatabaseIndex(indexName, false, columns, includedColumns, true), Throws.Nothing);
         }
 
         [Test]
@@ -68,7 +68,7 @@ namespace SJP.Schematic.Core.Tests
             var columns = new[] { Mock.Of<IDatabaseIndexColumn>() };
             var includedColumns = new[] { (IDatabaseColumn)null };
 
-            Assert.Throws<ArgumentNullException>(() => new DatabaseIndex(indexName, false, columns, includedColumns, true));
+            Assert.That(() => new DatabaseIndex(indexName, false, columns, includedColumns, true), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -80,7 +80,7 @@ namespace SJP.Schematic.Core.Tests
 
             var index = new DatabaseIndex(indexName, false, columns, includedColumns, true);
 
-            Assert.AreEqual(indexName, index.Name);
+            Assert.That(index.Name, Is.EqualTo(indexName));
         }
 
         [Test]
@@ -93,7 +93,7 @@ namespace SJP.Schematic.Core.Tests
 
             var index = new DatabaseIndex(indexName, isUnique, columns, includedColumns, true);
 
-            Assert.AreEqual(isUnique, index.IsUnique);
+            Assert.That(index.IsUnique, Is.EqualTo(isUnique));
         }
 
         [Test]
@@ -106,7 +106,7 @@ namespace SJP.Schematic.Core.Tests
 
             var index = new DatabaseIndex(indexName, isUnique, columns, includedColumns, true);
 
-            Assert.AreEqual(isUnique, index.IsUnique);
+            Assert.That(index.IsUnique, Is.EqualTo(isUnique));
         }
 
         [Test]
@@ -119,7 +119,7 @@ namespace SJP.Schematic.Core.Tests
 
             var index = new DatabaseIndex(indexName, false, columns, includedColumns, isEnabled);
 
-            Assert.AreEqual(isEnabled, index.IsEnabled);
+            Assert.That(index.IsEnabled, Is.EqualTo(isEnabled));
         }
 
         [Test]
@@ -132,7 +132,7 @@ namespace SJP.Schematic.Core.Tests
 
             var index = new DatabaseIndex(indexName, false, columns, includedColumns, isEnabled);
 
-            Assert.AreEqual(isEnabled, index.IsEnabled);
+            Assert.That(index.IsEnabled, Is.EqualTo(isEnabled));
         }
 
         [Test]
@@ -144,7 +144,7 @@ namespace SJP.Schematic.Core.Tests
 
             var index = new DatabaseIndex(indexName, false, columns, includedColumns, true);
 
-            Assert.AreEqual(columns, index.Columns);
+            Assert.That(index.Columns, Is.EqualTo(columns));
         }
 
         [Test]
@@ -156,7 +156,7 @@ namespace SJP.Schematic.Core.Tests
 
             var index = new DatabaseIndex(indexName, false, columns, includedColumns, true);
 
-            Assert.AreEqual(includedColumns, index.IncludedColumns);
+            Assert.That(index.IncludedColumns, Is.EqualTo(includedColumns));
         }
     }
 }

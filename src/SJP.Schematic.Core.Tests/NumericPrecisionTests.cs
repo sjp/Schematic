@@ -12,7 +12,7 @@ namespace SJP.Schematic.Core.Tests
             const int precision = -1;
             const int scale = 123;
 
-            Assert.Throws<ArgumentException>(() => new NumericPrecision(precision, scale));
+            Assert.That(() => new NumericPrecision(precision, scale), Throws.ArgumentException);
         }
 
         [Test]
@@ -21,7 +21,7 @@ namespace SJP.Schematic.Core.Tests
             const int precision = 12345;
             const int scale = -1;
 
-            Assert.Throws<ArgumentException>(() => new NumericPrecision(precision, scale));
+            Assert.That(() => new NumericPrecision(precision, scale), Throws.ArgumentException);
         }
 
         [Test]
@@ -31,7 +31,7 @@ namespace SJP.Schematic.Core.Tests
             const int scale = 9876;
             var autoScale = new NumericPrecision(precision, scale);
 
-            Assert.AreEqual(precision, autoScale.Precision);
+            Assert.That(autoScale.Precision, Is.EqualTo(precision));
         }
 
         [Test]
@@ -41,7 +41,7 @@ namespace SJP.Schematic.Core.Tests
             const int scale = 9876;
             var autoScale = new NumericPrecision(precision, scale);
 
-            Assert.AreEqual(scale, autoScale.Scale);
+            Assert.That(autoScale.Scale, Is.EqualTo(scale));
         }
 
         [Test]
@@ -54,7 +54,7 @@ namespace SJP.Schematic.Core.Tests
 
             var areEqual = a.Equals(b);
 
-            Assert.IsTrue(areEqual);
+            Assert.That(areEqual, Is.True);
         }
 
         [Test]
@@ -67,7 +67,7 @@ namespace SJP.Schematic.Core.Tests
 
             var areEqual = a.Equals(b);
 
-            Assert.IsFalse(areEqual);
+            Assert.That(areEqual, Is.False);
         }
 
         [Test]
@@ -80,7 +80,7 @@ namespace SJP.Schematic.Core.Tests
 
             var areEqual = a.Equals(b);
 
-            Assert.IsFalse(areEqual);
+            Assert.That(areEqual, Is.False);
         }
 
         [Test]
@@ -92,7 +92,7 @@ namespace SJP.Schematic.Core.Tests
 
             var areEqual = a.Equals(null);
 
-            Assert.IsFalse(areEqual);
+            Assert.That(areEqual, Is.False);
         }
 
         [Test]
@@ -105,7 +105,7 @@ namespace SJP.Schematic.Core.Tests
 
             var areEqual = a.Equals(b);
 
-            Assert.IsTrue(areEqual);
+            Assert.That(areEqual, Is.True);
         }
 
         [Test]
@@ -118,7 +118,7 @@ namespace SJP.Schematic.Core.Tests
 
             var areEqual = a.Equals(b);
 
-            Assert.IsFalse(areEqual);
+            Assert.That(areEqual, Is.False);
         }
 
         [Test]
@@ -131,7 +131,7 @@ namespace SJP.Schematic.Core.Tests
 
             var areEqual = a.Equals(b);
 
-            Assert.IsFalse(areEqual);
+            Assert.That(areEqual, Is.False);
         }
 
         [Test]
@@ -144,7 +144,7 @@ namespace SJP.Schematic.Core.Tests
 
             var areEqual = a.Equals(b);
 
-            Assert.IsFalse(areEqual);
+            Assert.That(areEqual, Is.False);
         }
 
         [Test]
@@ -158,7 +158,7 @@ namespace SJP.Schematic.Core.Tests
             var aHash = a.GetHashCode();
             var bHash = b.GetHashCode();
 
-            Assert.AreEqual(aHash, bHash);
+            Assert.That(aHash, Is.EqualTo(bHash));
         }
 
         [Test]
@@ -172,7 +172,7 @@ namespace SJP.Schematic.Core.Tests
             var aHash = a.GetHashCode();
             var bHash = b.GetHashCode();
 
-            Assert.AreNotEqual(aHash, bHash);
+            Assert.That(aHash, Is.Not.EqualTo(bHash));
         }
 
         [Test]
@@ -186,7 +186,7 @@ namespace SJP.Schematic.Core.Tests
             var aHash = a.GetHashCode();
             var bHash = b.GetHashCode();
 
-            Assert.AreNotEqual(aHash, bHash);
+            Assert.That(aHash, Is.Not.EqualTo(bHash));
         }
 
         [Test]
@@ -199,7 +199,7 @@ namespace SJP.Schematic.Core.Tests
 
             var areEqual = a == b;
 
-            Assert.IsTrue(areEqual);
+            Assert.That(areEqual, Is.True);
         }
 
         [Test]
@@ -212,7 +212,7 @@ namespace SJP.Schematic.Core.Tests
 
             var areEqual = a == b;
 
-            Assert.IsFalse(areEqual);
+            Assert.That(areEqual, Is.False);
         }
 
         [Test]
@@ -225,7 +225,7 @@ namespace SJP.Schematic.Core.Tests
 
             var areEqual = a == b;
 
-            Assert.IsFalse(areEqual);
+            Assert.That(areEqual, Is.False);
         }
 
         [Test]
@@ -238,7 +238,7 @@ namespace SJP.Schematic.Core.Tests
 
             var areEqual = a == b;
 
-            Assert.IsTrue(areEqual);
+            Assert.That(areEqual, Is.True);
         }
 
         [Test]
@@ -251,7 +251,7 @@ namespace SJP.Schematic.Core.Tests
 
             var areEqual = a == b;
 
-            Assert.IsFalse(areEqual);
+            Assert.That(areEqual, Is.False);
         }
 
         [Test]
@@ -264,7 +264,7 @@ namespace SJP.Schematic.Core.Tests
 
             var areEqual = a == b;
 
-            Assert.IsFalse(areEqual);
+            Assert.That(areEqual, Is.False);
         }
 
         [Test]
@@ -276,7 +276,7 @@ namespace SJP.Schematic.Core.Tests
 
             var areEqual = a == (FakeNumericPrecision)null;
 
-            Assert.IsFalse(areEqual);
+            Assert.That(areEqual, Is.False);
         }
 
         [Test]
@@ -289,7 +289,7 @@ namespace SJP.Schematic.Core.Tests
 
             var areEqual = a == b;
 
-            Assert.IsTrue(areEqual);
+            Assert.That(areEqual, Is.True);
         }
 
         [Test]
@@ -302,7 +302,7 @@ namespace SJP.Schematic.Core.Tests
 
             var areEqual = a == b;
 
-            Assert.IsFalse(areEqual);
+            Assert.That(areEqual, Is.False);
         }
 
         [Test]
@@ -315,7 +315,7 @@ namespace SJP.Schematic.Core.Tests
 
             var areEqual = a == b;
 
-            Assert.IsFalse(areEqual);
+            Assert.That(areEqual, Is.False);
         }
 
         [Test]
@@ -327,7 +327,7 @@ namespace SJP.Schematic.Core.Tests
 
             var areEqual = (FakeNumericPrecision)null == a;
 
-            Assert.IsFalse(areEqual);
+            Assert.That(areEqual, Is.False);
         }
 
         [Test]
@@ -340,7 +340,7 @@ namespace SJP.Schematic.Core.Tests
 
             var areEqual = a != b;
 
-            Assert.IsFalse(areEqual);
+            Assert.That(areEqual, Is.False);
         }
 
         [Test]
@@ -353,7 +353,7 @@ namespace SJP.Schematic.Core.Tests
 
             var areEqual = a != b;
 
-            Assert.IsTrue(areEqual);
+            Assert.That(areEqual, Is.True);
         }
 
         [Test]
@@ -366,7 +366,7 @@ namespace SJP.Schematic.Core.Tests
 
             var areEqual = a != b;
 
-            Assert.IsTrue(areEqual);
+            Assert.That(areEqual, Is.True);
         }
 
         [Test]
@@ -379,7 +379,7 @@ namespace SJP.Schematic.Core.Tests
 
             var areEqual = a != b;
 
-            Assert.IsFalse(areEqual);
+            Assert.That(areEqual, Is.False);
         }
 
         [Test]
@@ -392,7 +392,7 @@ namespace SJP.Schematic.Core.Tests
 
             var areEqual = a != b;
 
-            Assert.IsTrue(areEqual);
+            Assert.That(areEqual, Is.True);
         }
 
         [Test]
@@ -405,7 +405,7 @@ namespace SJP.Schematic.Core.Tests
 
             var areEqual = a != b;
 
-            Assert.IsTrue(areEqual);
+            Assert.That(areEqual, Is.True);
         }
 
         [Test]
@@ -417,7 +417,7 @@ namespace SJP.Schematic.Core.Tests
 
             var areEqual = a != (FakeNumericPrecision)null;
 
-            Assert.IsTrue(areEqual);
+            Assert.That(areEqual, Is.True);
         }
 
         [Test]
@@ -430,7 +430,7 @@ namespace SJP.Schematic.Core.Tests
 
             var areEqual = a != b;
 
-            Assert.IsFalse(areEqual);
+            Assert.That(areEqual, Is.False);
         }
 
         [Test]
@@ -443,7 +443,7 @@ namespace SJP.Schematic.Core.Tests
 
             var areEqual = a != b;
 
-            Assert.IsTrue(areEqual);
+            Assert.That(areEqual, Is.True);
         }
 
         [Test]
@@ -456,7 +456,7 @@ namespace SJP.Schematic.Core.Tests
 
             var areEqual = a != b;
 
-            Assert.IsTrue(areEqual);
+            Assert.That(areEqual, Is.True);
         }
 
         [Test]
@@ -468,7 +468,7 @@ namespace SJP.Schematic.Core.Tests
 
             var areEqual = (FakeNumericPrecision)null != a;
 
-            Assert.IsTrue(areEqual);
+            Assert.That(areEqual, Is.True);
         }
 
         private sealed class FakeNumericPrecision : INumericPrecision

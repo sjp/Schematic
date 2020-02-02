@@ -16,7 +16,7 @@ namespace SJP.Schematic.Core.Tests
         {
             var identifierDefaults = Mock.Of<IIdentifierDefaults>();
 
-            Assert.Throws<ArgumentNullException>(() => new EmptyRelationalDatabase(null, identifierDefaults));
+            Assert.That(() => new EmptyRelationalDatabase(null, identifierDefaults), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -24,25 +24,25 @@ namespace SJP.Schematic.Core.Tests
         {
             var dialect = Mock.Of<IDatabaseDialect>();
 
-            Assert.Throws<ArgumentNullException>(() => new EmptyRelationalDatabase(dialect, null));
+            Assert.That(() => new EmptyRelationalDatabase(dialect, null), Throws.ArgumentNullException);
         }
 
         [Test]
         public static void GetTable_GivenNullIdentifier_ThrowsArgumentNullException()
         {
-            Assert.Throws<ArgumentNullException>(() => Database.GetTable(null));
+            Assert.That(() => Database.GetTable(null), Throws.ArgumentNullException);
         }
 
         [Test]
         public static void GetView_GivenNullIdentifier_ThrowsArgumentNullException()
         {
-            Assert.Throws<ArgumentNullException>(() => Database.GetView(null));
+            Assert.That(() => Database.GetView(null), Throws.ArgumentNullException);
         }
 
         [Test]
         public static void GetSequence_GivenNullSequenceName_ThrowsArgumentNullException()
         {
-            Assert.Throws<ArgumentNullException>(() => Database.GetSequence(null));
+            Assert.That(() => Database.GetSequence(null), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -51,7 +51,7 @@ namespace SJP.Schematic.Core.Tests
             var sequenceName = new Identifier("test");
             var sequenceIsNone = await Database.GetSequence(sequenceName).IsNone.ConfigureAwait(false);
 
-            Assert.IsTrue(sequenceIsNone);
+            Assert.That(sequenceIsNone, Is.True);
         }
 
         [Test]
@@ -61,13 +61,13 @@ namespace SJP.Schematic.Core.Tests
                 .AnyAsync()
                 .ConfigureAwait(false);
 
-            Assert.IsFalse(hasSequences);
+            Assert.That(hasSequences, Is.False);
         }
 
         [Test]
         public static void GetSynonym_GivenNullSynonymName_ThrowsArgumentNullException()
         {
-            Assert.Throws<ArgumentNullException>(() => Database.GetSynonym(null));
+            Assert.That(() => Database.GetSynonym(null), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -76,7 +76,7 @@ namespace SJP.Schematic.Core.Tests
             var synonymName = new Identifier("test");
             var synonymIsNone = await Database.GetSynonym(synonymName).IsNone.ConfigureAwait(false);
 
-            Assert.IsTrue(synonymIsNone);
+            Assert.That(synonymIsNone, Is.True);
         }
 
         [Test]
@@ -84,13 +84,13 @@ namespace SJP.Schematic.Core.Tests
         {
             var synonyms = await Database.GetAllSynonyms().ToListAsync().ConfigureAwait(false);
 
-            Assert.Zero(synonyms.Count);
+            Assert.That(synonyms, Is.Empty);
         }
 
         [Test]
         public static void GetRoutine_GivenNullRoutineName_ThrowsArgumentNullException()
         {
-            Assert.Throws<ArgumentNullException>(() => Database.GetRoutine(null));
+            Assert.That(() => Database.GetRoutine(null), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -99,7 +99,7 @@ namespace SJP.Schematic.Core.Tests
             var routineName = new Identifier("test");
             var routineIsNone = await Database.GetRoutine(routineName).IsNone.ConfigureAwait(false);
 
-            Assert.IsTrue(routineIsNone);
+            Assert.That(routineIsNone, Is.True);
         }
 
         [Test]
@@ -109,7 +109,7 @@ namespace SJP.Schematic.Core.Tests
                 .AnyAsync()
                 .ConfigureAwait(false);
 
-            Assert.IsFalse(hasRoutines);
+            Assert.That(hasRoutines, Is.False);
         }
     }
 }

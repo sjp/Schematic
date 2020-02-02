@@ -12,7 +12,7 @@ namespace SJP.Schematic.Core.Tests
         public static void GetSynonym_GivenNullName_ThrowsArgumentNullException()
         {
             var provider = new EmptyDatabaseSynonymProvider();
-            Assert.Throws<ArgumentNullException>(() => provider.GetSynonym(null));
+            Assert.That(() => provider.GetSynonym(null), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -22,16 +22,16 @@ namespace SJP.Schematic.Core.Tests
             var synonym = provider.GetSynonym("synonym_name");
             var synonymIsNone = await synonym.IsNone.ConfigureAwait(false);
 
-            Assert.IsTrue(synonymIsNone);
+            Assert.That(synonymIsNone, Is.True);
         }
 
         [Test]
         public static async Task GetAllSynonyms_WhenEnumerated_ContainsNoValues()
         {
             var provider = new EmptyDatabaseSynonymProvider();
-            var synonyms = await provider.GetAllSynonyms().ToListAsync().ConfigureAwait(false);
+            var hasSynonyms = await provider.GetAllSynonyms().AnyAsync().ConfigureAwait(false);
 
-            Assert.Zero(synonyms.Count);
+            Assert.That(hasSynonyms, Is.False);
         }
     }
 }

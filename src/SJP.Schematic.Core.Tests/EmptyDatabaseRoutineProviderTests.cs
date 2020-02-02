@@ -12,7 +12,7 @@ namespace SJP.Schematic.Core.Tests
         public static void GetRoutine_GivenNullName_ThrowsArgumentNullException()
         {
             var provider = new EmptyDatabaseRoutineProvider();
-            Assert.Throws<ArgumentNullException>(() => provider.GetRoutine(null));
+            Assert.That(() => provider.GetRoutine(null), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -22,7 +22,7 @@ namespace SJP.Schematic.Core.Tests
             var routine = provider.GetRoutine("routine_name");
             var routineIsNone = await routine.IsNone.ConfigureAwait(false);
 
-            Assert.IsTrue(routineIsNone);
+            Assert.That(routineIsNone, Is.True);
         }
 
         [Test]
@@ -33,7 +33,7 @@ namespace SJP.Schematic.Core.Tests
                 .AnyAsync()
                 .ConfigureAwait(false);
 
-            Assert.IsFalse(hasRoutines);
+            Assert.That(hasRoutines, Is.False);
         }
     }
 }

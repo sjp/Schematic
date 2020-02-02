@@ -12,7 +12,7 @@ namespace SJP.Schematic.Core.Tests.Utilities
         [Test]
         public static void ToDictionary_GivenNullObject_ThrowsArgumentNullException()
         {
-            Assert.Throws<ArgumentNullException>(() => ObjectParameterTransformer.ToDictionary(null));
+            Assert.That(() => ObjectParameterTransformer.ToDictionary(null), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -20,7 +20,7 @@ namespace SJP.Schematic.Core.Tests.Utilities
         {
             var lookup = ObjectParameterTransformer.ToDictionary(new { });
 
-            Assert.Zero(lookup.Count);
+            Assert.That(lookup, Is.Empty);
         }
 
         [Test]
@@ -32,25 +32,24 @@ namespace SJP.Schematic.Core.Tests.Utilities
 
             Assert.Multiple(() =>
             {
-                Assert.AreEqual(2, lookup.Count);
-                Assert.AreEqual(first, lookup["FirstKey"]);
-                Assert.AreEqual(second, lookup["SecondKey"]);
+                Assert.That(lookup.Count, Is.EqualTo(2));
+                Assert.That(lookup["FirstKey"], Is.EqualTo(first));
+                Assert.That(lookup["SecondKey"], Is.EqualTo(second));
             });
         }
 
         [Test]
         public static void ToParameters_GivenNullLookup_ThrowsArgumentNullException()
         {
-            Assert.Throws<ArgumentNullException>(() => ObjectParameterTransformer.ToParameters(null));
+            Assert.That(() => ObjectParameterTransformer.ToParameters(null), Throws.ArgumentNullException);
         }
 
         [Test]
         public static void ToParameters_GivenEmptyLookup_ReturnsEmptyDictionary()
         {
             var parameters = ObjectParameterTransformer.ToParameters(new Dictionary<string, object>());
-            var paramCount = parameters.ParameterNames.Count();
 
-            Assert.Zero(paramCount);
+            Assert.That(parameters.ParameterNames, Is.Empty);
         }
 
         [Test]
@@ -69,9 +68,9 @@ namespace SJP.Schematic.Core.Tests.Utilities
 
             Assert.Multiple(() =>
             {
-                Assert.AreEqual(2, paramCount);
-                Assert.AreEqual(first, parameters.Get<int>("FirstKey"));
-                Assert.AreEqual(second, parameters.Get<string>("SecondKey"));
+                Assert.That(paramCount, Is.EqualTo(2));
+                Assert.That(parameters.Get<int>("FirstKey"), Is.EqualTo(first));
+                Assert.That(parameters.Get<string>("SecondKey"), Is.EqualTo(second));
             });
         }
     }

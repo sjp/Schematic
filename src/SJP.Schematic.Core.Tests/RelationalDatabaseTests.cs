@@ -15,7 +15,7 @@ namespace SJP.Schematic.Core.Tests
             var connection = Mock.Of<IDbConnection>();
             var identifierDefaults = Mock.Of<IIdentifierDefaults>();
 
-            Assert.Throws<ArgumentNullException>(() => new FakeRelationalDatabase(dialect, connection, identifierDefaults));
+            Assert.That(() => new FakeRelationalDatabase(dialect, connection, identifierDefaults), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -25,7 +25,7 @@ namespace SJP.Schematic.Core.Tests
             IDbConnection connection = null;
             var identifierDefaults = Mock.Of<IIdentifierDefaults>();
 
-            Assert.Throws<ArgumentNullException>(() => new FakeRelationalDatabase(dialect, connection, identifierDefaults));
+            Assert.That(() => new FakeRelationalDatabase(dialect, connection, identifierDefaults), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -35,7 +35,7 @@ namespace SJP.Schematic.Core.Tests
             var connection = Mock.Of<IDbConnection>();
             IIdentifierDefaults identifierDefaults = null;
 
-            Assert.Throws<ArgumentNullException>(() => new FakeRelationalDatabase(dialect, connection, identifierDefaults));
+            Assert.That(() => new FakeRelationalDatabase(dialect, connection, identifierDefaults), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -45,7 +45,7 @@ namespace SJP.Schematic.Core.Tests
             var connection = Mock.Of<IDbConnection>();
             var identifierDefaults = Mock.Of<IIdentifierDefaults>();
 
-            Assert.DoesNotThrow(() => new FakeRelationalDatabase(dialect, connection, identifierDefaults));
+            Assert.That(() => new FakeRelationalDatabase(dialect, connection, identifierDefaults), Throws.Nothing);
         }
 
         private sealed class FakeRelationalDatabase : RelationalDatabase

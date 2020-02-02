@@ -11,37 +11,37 @@ namespace SJP.Schematic.Core.Tests
         [Test]
         public static void Ctor_GivenNullName_ThrowsArgNullException()
         {
-            Assert.Throws<ArgumentNullException>(() => new DatabaseSequence(null, 1, 1, Option<decimal>.None, Option<decimal>.None, true, 0));
+            Assert.That(() => new DatabaseSequence(null, 1, 1, Option<decimal>.None, Option<decimal>.None, true, 0), Throws.ArgumentNullException);
         }
 
         [Test]
         public static void Ctor_GivenZeroIncrement_ThrowsArgException()
         {
-            Assert.Throws<ArgumentException>(() => new DatabaseSequence("test", 1, 0, Option<decimal>.None, Option<decimal>.None, true, 0));
+            Assert.That(() => new DatabaseSequence("test", 1, 0, Option<decimal>.None, Option<decimal>.None, true, 0), Throws.ArgumentException);
         }
 
         [Test]
         public static void Ctor_GivenPositiveIncrementAndMinValueLargerThanStart_ThrowsArgumentException()
         {
-            Assert.Throws<ArgumentException>(() => new DatabaseSequence("test", 1, 1, Option<decimal>.Some(2), Option<decimal>.None, true, 0));
+            Assert.That(() => new DatabaseSequence("test", 1, 1, Option<decimal>.Some(2), Option<decimal>.None, true, 0), Throws.ArgumentException);
         }
 
         [Test]
         public static void Ctor_GivenPositiveIncrementAndMaxValueLessThanStart_ThrowsArgumentException()
         {
-            Assert.Throws<ArgumentException>(() => new DatabaseSequence("test", 1, 1, Option<decimal>.None, Option<decimal>.Some(-1), true, 0));
+            Assert.That(() => new DatabaseSequence("test", 1, 1, Option<decimal>.None, Option<decimal>.Some(-1), true, 0), Throws.ArgumentException);
         }
 
         [Test]
         public static void Ctor_GivenNegativeIncrementAndMinValueLessThanStart_ThrowsArgumentException()
         {
-            Assert.Throws<ArgumentException>(() => new DatabaseSequence("test", 1, -1, Option<decimal>.Some(0), Option<decimal>.None, true, 0));
+            Assert.That(() => new DatabaseSequence("test", 1, -1, Option<decimal>.Some(0), Option<decimal>.None, true, 0), Throws.ArgumentException);
         }
 
         [Test]
         public static void Ctor_GivenNegativeIncrementAndMaxValueGreaterThanStart_ThrowsArgumentException()
         {
-            Assert.Throws<ArgumentException>(() => new DatabaseSequence("test", 1, -1, Option<decimal>.None, Option<decimal>.Some(2), true, 0));
+            Assert.That(() => new DatabaseSequence("test", 1, -1, Option<decimal>.None, Option<decimal>.Some(2), true, 0), Throws.ArgumentException);
         }
 
         [Test]
@@ -49,7 +49,7 @@ namespace SJP.Schematic.Core.Tests
         {
             var sequence =  new DatabaseSequence("test", 1, -1, Option<decimal>.None, Option<decimal>.None, true, -3);
 
-            Assert.AreEqual(DatabaseSequence.UnknownCacheSize, sequence.Cache);
+            Assert.That(sequence.Cache, Is.EqualTo(DatabaseSequence.UnknownCacheSize));
         }
 
         [Test]
@@ -58,7 +58,7 @@ namespace SJP.Schematic.Core.Tests
             var sequenceName = new Identifier("test");
             var sequence = new DatabaseSequence(sequenceName, 1, 1, Option<decimal>.None, Option<decimal>.None, true, 0);
 
-            Assert.AreEqual(sequenceName, sequence.Name);
+            Assert.That(sequence.Name, Is.EqualTo(sequenceName));
         }
 
         [Test]
@@ -67,7 +67,7 @@ namespace SJP.Schematic.Core.Tests
             const int cacheSize = 20;
             var sequence = new DatabaseSequence("test", 1, 1, Option<decimal>.None, Option<decimal>.None, true, cacheSize);
 
-            Assert.AreEqual(cacheSize, sequence.Cache);
+            Assert.That(sequence.Cache, Is.EqualTo(cacheSize));
         }
 
         [Test]
@@ -75,7 +75,7 @@ namespace SJP.Schematic.Core.Tests
         {
             var sequence = new DatabaseSequence("test", 1, 1, Option<decimal>.None, Option<decimal>.None, true, 1);
 
-            Assert.IsTrue(sequence.Cycle);
+            Assert.That(sequence.Cycle, Is.True);
         }
 
         [Test]
@@ -84,7 +84,7 @@ namespace SJP.Schematic.Core.Tests
             const int increment = 100;
             var sequence = new DatabaseSequence("test", 1, increment, Option<decimal>.None, Option<decimal>.None, true, 1);
 
-            Assert.AreEqual(increment, sequence.Increment);
+            Assert.That(sequence.Increment, Is.EqualTo(increment));
         }
 
         [Test]
@@ -93,7 +93,7 @@ namespace SJP.Schematic.Core.Tests
             const int maxValue = 100;
             var sequence = new DatabaseSequence("test", 1, 1, Option<decimal>.None, Option<decimal>.Some(maxValue), true, 1);
 
-            Assert.AreEqual(maxValue, sequence.MaxValue.UnwrapSome());
+            Assert.That(sequence.MaxValue.UnwrapSome(), Is.EqualTo(maxValue));
         }
 
         [Test]
@@ -102,7 +102,7 @@ namespace SJP.Schematic.Core.Tests
             const int minValue = 100;
             var sequence = new DatabaseSequence("test", minValue, 1, Option<decimal>.Some(minValue), Option<decimal>.None, true, 1);
 
-            Assert.AreEqual(minValue, sequence.MinValue.UnwrapSome());
+            Assert.That(sequence.MinValue.UnwrapSome(), Is.EqualTo(minValue));
         }
 
         [Test]
@@ -111,7 +111,7 @@ namespace SJP.Schematic.Core.Tests
             const int start = 100;
             var sequence = new DatabaseSequence("test", start, 1, Option<decimal>.None, Option<decimal>.None, true, 1);
 
-            Assert.AreEqual(start, sequence.Start);
+            Assert.That(sequence.Start, Is.EqualTo(start));
         }
     }
 }

@@ -13,7 +13,7 @@ namespace SJP.Schematic.Core.Tests
             const string definition = "select * from test";
             var columns = new[] { Mock.Of<IDatabaseColumn>() };
 
-            Assert.Throws<ArgumentNullException>(() => new DatabaseMaterializedView(null, definition, columns));
+            Assert.That(() => new DatabaseMaterializedView(null, definition, columns), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -22,7 +22,7 @@ namespace SJP.Schematic.Core.Tests
             Identifier viewName = "test_mat_view";
             var columns = new[] { Mock.Of<IDatabaseColumn>() };
 
-            Assert.Throws<ArgumentNullException>(() => new DatabaseMaterializedView(viewName, null, columns));
+            Assert.That(() => new DatabaseMaterializedView(viewName, null, columns), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -31,7 +31,7 @@ namespace SJP.Schematic.Core.Tests
             Identifier viewName = "test_mat_view";
             var columns = new[] { Mock.Of<IDatabaseColumn>() };
 
-            Assert.Throws<ArgumentNullException>(() => new DatabaseMaterializedView(viewName, string.Empty, columns));
+            Assert.That(() => new DatabaseMaterializedView(viewName, string.Empty, columns), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -40,7 +40,7 @@ namespace SJP.Schematic.Core.Tests
             Identifier viewName = "test_mat_view";
             var columns = new[] { Mock.Of<IDatabaseColumn>() };
 
-            Assert.Throws<ArgumentNullException>(() => new DatabaseMaterializedView(viewName, "    ", columns));
+            Assert.That(() => new DatabaseMaterializedView(viewName, "    ", columns), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -49,7 +49,7 @@ namespace SJP.Schematic.Core.Tests
             Identifier viewName = "test_mat_view";
             const string definition = "select * from test";
 
-            Assert.Throws<ArgumentNullException>(() => new DatabaseMaterializedView(viewName, definition, null));
+            Assert.That(() => new DatabaseMaterializedView(viewName, definition, null), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -61,7 +61,7 @@ namespace SJP.Schematic.Core.Tests
 
             var view = new DatabaseMaterializedView(viewName, definition, columns);
 
-            Assert.AreEqual(viewName, view.Name);
+            Assert.That(view.Name, Is.EqualTo(viewName));
         }
 
         [Test]
@@ -73,7 +73,7 @@ namespace SJP.Schematic.Core.Tests
 
             var view = new DatabaseMaterializedView(viewName, definition, columns);
 
-            Assert.AreEqual(definition, view.Definition);
+            Assert.That(view.Definition, Is.EqualTo(definition));
         }
 
         [Test]
@@ -90,7 +90,7 @@ namespace SJP.Schematic.Core.Tests
             var view = new DatabaseMaterializedView(viewName, definition, columns);
             var viewColumnName = view.Columns[0].Name;
 
-            Assert.AreEqual(columnName, viewColumnName);
+            Assert.That(viewColumnName, Is.EqualTo(columnName));
         }
 
         [Test]
@@ -102,7 +102,7 @@ namespace SJP.Schematic.Core.Tests
 
             var view = new DatabaseMaterializedView(viewName, definition, columns);
 
-            Assert.IsTrue(view.IsMaterialized);
+            Assert.That(view.IsMaterialized, Is.True);
         }
     }
 }

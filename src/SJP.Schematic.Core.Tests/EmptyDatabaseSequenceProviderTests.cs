@@ -12,7 +12,7 @@ namespace SJP.Schematic.Core.Tests
         public static void GetSequence_GivenNullName_ThrowsArgumentNullException()
         {
             var provider = new EmptyDatabaseSequenceProvider();
-            Assert.Throws<ArgumentNullException>(() => provider.GetSequence(null));
+            Assert.That(() => provider.GetSequence(null), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -22,7 +22,7 @@ namespace SJP.Schematic.Core.Tests
             var sequence = provider.GetSequence("sequence_name");
             var sequenceIsNone = await sequence.IsNone.ConfigureAwait(false);
 
-            Assert.IsTrue(sequenceIsNone);
+            Assert.That(sequenceIsNone, Is.True);
         }
 
         [Test]
@@ -33,7 +33,7 @@ namespace SJP.Schematic.Core.Tests
                 .AnyAsync()
                 .ConfigureAwait(false);
 
-            Assert.IsFalse(hasSequences);
+            Assert.That(hasSequences, Is.False);
         }
     }
 }

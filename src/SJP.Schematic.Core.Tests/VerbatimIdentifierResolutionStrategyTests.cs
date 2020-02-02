@@ -11,7 +11,7 @@ namespace SJP.Schematic.Core.Tests
         public static void GetResolutionOrder_GivenNullIdentifier_ThrowsArgumentNullException()
         {
             var resolver = new VerbatimIdentifierResolutionStrategy();
-            Assert.Throws<ArgumentNullException>(() => resolver.GetResolutionOrder(null));
+            Assert.That(() => resolver.GetResolutionOrder(null), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -24,8 +24,8 @@ namespace SJP.Schematic.Core.Tests
 
             Assert.Multiple(() =>
             {
-                Assert.AreEqual(1, results.Count);
-                Assert.AreEqual(input, results[0]);
+                Assert.That(results.Count, Is.EqualTo(1));
+                Assert.That(results[0], Is.EqualTo(input));
             });
         }
     }

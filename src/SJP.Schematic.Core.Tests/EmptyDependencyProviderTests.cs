@@ -10,7 +10,7 @@ namespace SJP.Schematic.Core.Tests
         public static void GetDependencies_GivenNullName_ThrowsArgumentNullException()
         {
             var provider = new EmptyDependencyProvider();
-            Assert.Throws<ArgumentNullException>(() => provider.GetDependencies(null, "select * from test"));
+            Assert.That(() => provider.GetDependencies(null, "select * from test"), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -19,7 +19,7 @@ namespace SJP.Schematic.Core.Tests
             var provider = new EmptyDependencyProvider();
             var dependencies = provider.GetDependencies("test_table", "select * from test_table");
 
-            Assert.Zero(dependencies.Count);
+            Assert.That(dependencies, Is.Empty);
         }
     }
 }

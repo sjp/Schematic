@@ -13,7 +13,7 @@ namespace SJP.Schematic.Core.Tests
             const TriggerQueryTiming timing = TriggerQueryTiming.Before;
             const TriggerEvent events = TriggerEvent.Update;
 
-            Assert.Throws<ArgumentNullException>(() => new DatabaseTrigger(null, definition, timing, events, true));
+            Assert.That(() => new DatabaseTrigger(null, definition, timing, events, true), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -23,7 +23,7 @@ namespace SJP.Schematic.Core.Tests
             const TriggerQueryTiming timing = TriggerQueryTiming.Before;
             const TriggerEvent events = TriggerEvent.Update;
 
-            Assert.Throws<ArgumentNullException>(() => new DatabaseTrigger(triggerName, null, timing, events, true));
+            Assert.That(() => new DatabaseTrigger(triggerName, null, timing, events, true), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -34,7 +34,7 @@ namespace SJP.Schematic.Core.Tests
             const TriggerQueryTiming timing = TriggerQueryTiming.Before;
             const TriggerEvent events = TriggerEvent.Update;
 
-            Assert.Throws<ArgumentNullException>(() => new DatabaseTrigger(triggerName, definition, timing, events, true));
+            Assert.That(() => new DatabaseTrigger(triggerName, definition, timing, events, true), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -45,7 +45,7 @@ namespace SJP.Schematic.Core.Tests
             const TriggerQueryTiming timing = TriggerQueryTiming.Before;
             const TriggerEvent events = TriggerEvent.Update;
 
-            Assert.Throws<ArgumentNullException>(() => new DatabaseTrigger(triggerName, definition, timing, events, true));
+            Assert.That(() => new DatabaseTrigger(triggerName, definition, timing, events, true), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -56,7 +56,7 @@ namespace SJP.Schematic.Core.Tests
             const TriggerQueryTiming timing = (TriggerQueryTiming)55;
             const TriggerEvent events = TriggerEvent.Update;
 
-            Assert.Throws<ArgumentException>(() => new DatabaseTrigger(triggerName, definition, timing, events, true));
+            Assert.That(() => new DatabaseTrigger(triggerName, definition, timing, events, true), Throws.ArgumentException);
         }
 
         [Test]
@@ -67,7 +67,7 @@ namespace SJP.Schematic.Core.Tests
             const TriggerQueryTiming timing = TriggerQueryTiming.Before;
             const TriggerEvent events = (TriggerEvent)55;
 
-            Assert.Throws<ArgumentException>(() => new DatabaseTrigger(triggerName, definition, timing, events, true));
+            Assert.That(() => new DatabaseTrigger(triggerName, definition, timing, events, true), Throws.ArgumentException);
         }
 
         [Test]
@@ -78,7 +78,7 @@ namespace SJP.Schematic.Core.Tests
             const TriggerQueryTiming timing = TriggerQueryTiming.Before;
             const TriggerEvent events = TriggerEvent.None;
 
-            Assert.Throws<ArgumentException>(() => new DatabaseTrigger(triggerName, definition, timing, events, true));
+            Assert.That(() => new DatabaseTrigger(triggerName, definition, timing, events, true), Throws.ArgumentException);
         }
 
         [Test]
@@ -91,7 +91,7 @@ namespace SJP.Schematic.Core.Tests
 
             var trigger = new DatabaseTrigger(triggerName, definition, timing, events, true);
 
-            Assert.AreEqual(triggerName, trigger.Name);
+            Assert.That(trigger.Name, Is.EqualTo(triggerName));
         }
 
         [Test]
@@ -104,7 +104,7 @@ namespace SJP.Schematic.Core.Tests
 
             var trigger = new DatabaseTrigger(triggerName, definition, timing, events, true);
 
-            Assert.AreEqual(definition, trigger.Definition);
+            Assert.That(trigger.Definition, Is.EqualTo(definition));
         }
 
         [Test]
@@ -117,7 +117,7 @@ namespace SJP.Schematic.Core.Tests
 
             var trigger = new DatabaseTrigger(triggerName, definition, timing, events, true);
 
-            Assert.AreEqual(timing, trigger.QueryTiming);
+            Assert.That(trigger.QueryTiming, Is.EqualTo(timing));
         }
 
         [Test]
@@ -130,7 +130,7 @@ namespace SJP.Schematic.Core.Tests
 
             var trigger = new DatabaseTrigger(triggerName, definition, timing, events, true);
 
-            Assert.AreEqual(events, trigger.TriggerEvent);
+            Assert.That(trigger.TriggerEvent, Is.EqualTo(events));
         }
 
         [Test]
@@ -143,7 +143,7 @@ namespace SJP.Schematic.Core.Tests
 
             var trigger = new DatabaseTrigger(triggerName, definition, timing, events, true);
 
-            Assert.IsTrue(trigger.IsEnabled);
+            Assert.That(trigger.IsEnabled, Is.True);
         }
 
         [Test]
@@ -156,7 +156,7 @@ namespace SJP.Schematic.Core.Tests
 
             var trigger = new DatabaseTrigger(triggerName, definition, timing, events, false);
 
-            Assert.IsFalse(trigger.IsEnabled);
+            Assert.That(trigger.IsEnabled, Is.False);
         }
     }
 }

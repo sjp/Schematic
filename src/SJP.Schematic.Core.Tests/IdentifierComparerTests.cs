@@ -10,13 +10,13 @@ namespace SJP.Schematic.Core.Tests
         public static void Ctor_GivenInvalidStringComparison_ThrowsArgumentException()
         {
             const StringComparison badStringComparison = (StringComparison)55;
-            Assert.Throws<ArgumentException>(() => new IdentifierComparer(badStringComparison));
+            Assert.That(() => new IdentifierComparer(badStringComparison), Throws.ArgumentException);
         }
 
         [Test]
         public static void Ctor_GivenNullComparer_ThrowsArgumentNullException()
         {
-            Assert.Throws<ArgumentNullException>(() => new IdentifierComparer(null));
+            Assert.That(() => new IdentifierComparer(null), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -30,8 +30,8 @@ namespace SJP.Schematic.Core.Tests
 
             Assert.Multiple(() =>
             {
-                Assert.IsTrue(comparer.Equals(null, null));
-                Assert.IsTrue(comparer.Equals(identifier, otherIdentifier));
+                Assert.That(comparer.Equals(null, null), Is.True);
+                Assert.That(comparer.Equals(identifier, otherIdentifier), Is.True);
             });
         }
 
@@ -47,9 +47,9 @@ namespace SJP.Schematic.Core.Tests
 
             Assert.Multiple(() =>
             {
-                Assert.IsFalse(comparer.Equals(identifier, null));
-                Assert.IsFalse(comparer.Equals(null, identifier));
-                Assert.IsFalse(comparer.Equals(identifier, otherIdentifier));
+                Assert.That(comparer.Equals(identifier, null), Is.False);
+                Assert.That(comparer.Equals(null, identifier), Is.False);
+                Assert.That(comparer.Equals(identifier, otherIdentifier), Is.False);
             });
         }
 
@@ -57,14 +57,14 @@ namespace SJP.Schematic.Core.Tests
         public static void GetHashCode_GivenNullArgument_ReturnsZero()
         {
             var comparer = new IdentifierComparer();
-            Assert.Zero(comparer.GetHashCode(null));
+            Assert.That(comparer.GetHashCode(null), Is.Zero);
         }
 
         [Test]
         public static void GetHashCode_GivenNonNullArgument_ReturnsNonZeroValue()
         {
             var comparer = new IdentifierComparer();
-            Assert.NotZero(comparer.GetHashCode("test"));
+            Assert.That(comparer.GetHashCode("test"), Is.Not.Zero);
         }
 
         [Test]
@@ -75,7 +75,7 @@ namespace SJP.Schematic.Core.Tests
             var otherIdentifier = new Identifier("TEST");
             var comparer = IdentifierComparer.CurrentCulture;
 
-            Assert.IsFalse(comparer.Equals(identifier, otherIdentifier));
+            Assert.That(comparer.Equals(identifier, otherIdentifier), Is.False);
         }
 
         [Test]
@@ -86,7 +86,7 @@ namespace SJP.Schematic.Core.Tests
             var otherIdentifier = new Identifier("TEST");
             var comparer = IdentifierComparer.CurrentCultureIgnoreCase;
 
-            Assert.IsTrue(comparer.Equals(identifier, otherIdentifier));
+            Assert.That(comparer.Equals(identifier, otherIdentifier), Is.True);
         }
 
         [Test]
@@ -96,7 +96,7 @@ namespace SJP.Schematic.Core.Tests
             var otherIdentifier = new Identifier("TEST");
             var comparer = IdentifierComparer.Ordinal;
 
-            Assert.IsFalse(comparer.Equals(identifier, otherIdentifier));
+            Assert.That(comparer.Equals(identifier, otherIdentifier), Is.False);
         }
 
         [Test]
@@ -106,7 +106,7 @@ namespace SJP.Schematic.Core.Tests
             var otherIdentifier = new Identifier("TEST");
             var comparer = IdentifierComparer.OrdinalIgnoreCase;
 
-            Assert.IsTrue(comparer.Equals(identifier, otherIdentifier));
+            Assert.That(comparer.Equals(identifier, otherIdentifier), Is.True);
         }
 
         [Test]
@@ -116,7 +116,7 @@ namespace SJP.Schematic.Core.Tests
             var otherIdentifier = new Identifier("name", "test");
             var comparer = new IdentifierComparer(StringComparison.CurrentCulture, defaultSchema: "name");
 
-            Assert.IsTrue(comparer.Equals(identifier, otherIdentifier));
+            Assert.That(comparer.Equals(identifier, otherIdentifier), Is.True);
         }
 
         [Test]
@@ -126,7 +126,7 @@ namespace SJP.Schematic.Core.Tests
             var otherIdentifier = new Identifier("other", "test");
             var comparer = new IdentifierComparer(StringComparison.CurrentCulture, defaultSchema: "name");
 
-            Assert.IsFalse(comparer.Equals(identifier, otherIdentifier));
+            Assert.That(comparer.Equals(identifier, otherIdentifier), Is.False);
         }
 
         [Test]
@@ -136,7 +136,7 @@ namespace SJP.Schematic.Core.Tests
             var otherIdentifier = new Identifier("name", "test");
             var comparer = new IdentifierComparer(StringComparison.CurrentCulture, defaultSchema: "name");
 
-            Assert.IsFalse(comparer.Equals(identifier, otherIdentifier));
+            Assert.That(comparer.Equals(identifier, otherIdentifier), Is.False);
         }
 
         [Test]
@@ -146,7 +146,7 @@ namespace SJP.Schematic.Core.Tests
             var otherIdentifier = new Identifier("name", "test");
             var comparer = new IdentifierComparer(StringComparison.CurrentCulture);
 
-            Assert.IsFalse(comparer.Equals(identifier, otherIdentifier));
+            Assert.That(comparer.Equals(identifier, otherIdentifier), Is.False);
         }
 
         [Test]
@@ -156,7 +156,7 @@ namespace SJP.Schematic.Core.Tests
             var otherIdentifier = new Identifier("name", "test");
             var comparer = new IdentifierComparer(StringComparison.CurrentCulture);
 
-            Assert.IsTrue(comparer.Equals(identifier, otherIdentifier));
+            Assert.That(comparer.Equals(identifier, otherIdentifier), Is.True);
         }
 
         [Test]
@@ -166,7 +166,7 @@ namespace SJP.Schematic.Core.Tests
             var otherIdentifier = new Identifier("name", "name", "test");
             var comparer = new IdentifierComparer(StringComparison.CurrentCulture, defaultDatabase: "name");
 
-            Assert.IsTrue(comparer.Equals(identifier, otherIdentifier));
+            Assert.That(comparer.Equals(identifier, otherIdentifier), Is.True);
         }
 
         [Test]
@@ -176,7 +176,7 @@ namespace SJP.Schematic.Core.Tests
             var otherIdentifier = new Identifier("other", "name", "test");
             var comparer = new IdentifierComparer(StringComparison.CurrentCulture, defaultDatabase: "name");
 
-            Assert.IsFalse(comparer.Equals(identifier, otherIdentifier));
+            Assert.That(comparer.Equals(identifier, otherIdentifier), Is.False);
         }
 
         [Test]
@@ -186,7 +186,7 @@ namespace SJP.Schematic.Core.Tests
             var otherIdentifier = new Identifier("name", "name", "test");
             var comparer = new IdentifierComparer(StringComparison.CurrentCulture, defaultDatabase: "name");
 
-            Assert.IsFalse(comparer.Equals(identifier, otherIdentifier));
+            Assert.That(comparer.Equals(identifier, otherIdentifier), Is.False);
         }
 
         [Test]
@@ -196,7 +196,7 @@ namespace SJP.Schematic.Core.Tests
             var otherIdentifier = new Identifier("name", "name", "test");
             var comparer = new IdentifierComparer(StringComparison.CurrentCulture);
 
-            Assert.IsFalse(comparer.Equals(identifier, otherIdentifier));
+            Assert.That(comparer.Equals(identifier, otherIdentifier), Is.False);
         }
 
         [Test]
@@ -206,7 +206,7 @@ namespace SJP.Schematic.Core.Tests
             var otherIdentifier = new Identifier("name", "name", "test");
             var comparer = new IdentifierComparer(StringComparison.CurrentCulture);
 
-            Assert.IsTrue(comparer.Equals(identifier, otherIdentifier));
+            Assert.That(comparer.Equals(identifier, otherIdentifier), Is.True);
         }
 
         [Test]
@@ -216,7 +216,7 @@ namespace SJP.Schematic.Core.Tests
             var otherIdentifier = new Identifier("name", "name", "name", "test");
             var comparer = new IdentifierComparer(StringComparison.CurrentCulture, defaultServer: "name", defaultDatabase: "name", defaultSchema: "name");
 
-            Assert.IsTrue(comparer.Equals(identifier, otherIdentifier));
+            Assert.That(comparer.Equals(identifier, otherIdentifier), Is.True);
         }
 
         [Test]
@@ -226,7 +226,7 @@ namespace SJP.Schematic.Core.Tests
             var otherIdentifier = new Identifier("other", "name", "name", "test");
             var comparer = new IdentifierComparer(StringComparison.CurrentCulture, defaultServer: "name", defaultDatabase: "name", defaultSchema: "name");
 
-            Assert.IsFalse(comparer.Equals(identifier, otherIdentifier));
+            Assert.That(comparer.Equals(identifier, otherIdentifier), Is.False);
         }
 
         [Test]
@@ -236,7 +236,7 @@ namespace SJP.Schematic.Core.Tests
             var otherIdentifier = new Identifier("name", "name", "name", "test");
             var comparer = new IdentifierComparer(StringComparison.CurrentCulture, defaultServer: "name", defaultDatabase: "name", defaultSchema: "name");
 
-            Assert.IsFalse(comparer.Equals(identifier, otherIdentifier));
+            Assert.That(comparer.Equals(identifier, otherIdentifier), Is.False);
         }
 
         [Test]
@@ -246,7 +246,7 @@ namespace SJP.Schematic.Core.Tests
             var otherIdentifier = new Identifier("name", "name", "name", "test");
             var comparer = new IdentifierComparer(StringComparison.CurrentCulture);
 
-            Assert.IsFalse(comparer.Equals(identifier, otherIdentifier));
+            Assert.That(comparer.Equals(identifier, otherIdentifier), Is.False);
         }
 
         [Test]
@@ -256,7 +256,7 @@ namespace SJP.Schematic.Core.Tests
             var otherIdentifier = new Identifier("name", "name", "name", "test");
             var comparer = new IdentifierComparer(StringComparison.CurrentCulture);
 
-            Assert.IsTrue(comparer.Equals(identifier, otherIdentifier));
+            Assert.That(comparer.Equals(identifier, otherIdentifier), Is.True);
         }
 
         [Test]
@@ -267,7 +267,7 @@ namespace SJP.Schematic.Core.Tests
 
             var compareResult = comparer.Compare(identifier, identifier);
 
-            Assert.Zero(compareResult);
+            Assert.That(compareResult, Is.Zero);
         }
 
         [Test]
@@ -277,7 +277,7 @@ namespace SJP.Schematic.Core.Tests
 
             var compareResult = comparer.Compare(null, null);
 
-            Assert.Zero(compareResult);
+            Assert.That(compareResult, Is.Zero);
         }
 
         [Test]
@@ -288,7 +288,7 @@ namespace SJP.Schematic.Core.Tests
 
             var compareResult = comparer.Compare(null, identifier);
 
-            Assert.NotZero(compareResult);
+            Assert.That(compareResult, Is.Not.Zero);
         }
 
         [Test]
@@ -299,7 +299,7 @@ namespace SJP.Schematic.Core.Tests
 
             var compareResult = comparer.Compare(identifier, null);
 
-            Assert.NotZero(compareResult);
+            Assert.That(compareResult, Is.Not.Zero);
         }
 
         [Test]
@@ -311,7 +311,7 @@ namespace SJP.Schematic.Core.Tests
 
             var compareResult = comparer.Compare(identifier, otherIdentifier);
 
-            Assert.NotZero(compareResult);
+            Assert.That(compareResult, Is.Not.Zero);
         }
 
         [Test]
@@ -323,7 +323,7 @@ namespace SJP.Schematic.Core.Tests
 
             var compareResult = comparer.Compare(identifier, otherIdentifier);
 
-            Assert.NotZero(compareResult);
+            Assert.That(compareResult, Is.Not.Zero);
         }
 
         [Test]
@@ -335,7 +335,7 @@ namespace SJP.Schematic.Core.Tests
 
             var compareResult = comparer.Compare(identifier, otherIdentifier);
 
-            Assert.NotZero(compareResult);
+            Assert.That(compareResult, Is.Not.Zero);
         }
 
         [Test]
@@ -347,7 +347,7 @@ namespace SJP.Schematic.Core.Tests
 
             var compareResult = comparer.Compare(identifier, otherIdentifier);
 
-            Assert.NotZero(compareResult);
+            Assert.That(compareResult, Is.Not.Zero);
         }
     }
 }

@@ -11,9 +11,9 @@ namespace SJP.Schematic.Core.Tests
         {
             Assert.Multiple(() =>
             {
-                Assert.Throws<ArgumentNullException>(() => new Identifier(null));
-                Assert.Throws<ArgumentNullException>(() => new Identifier(string.Empty));
-                Assert.Throws<ArgumentNullException>(() => new Identifier("   "));
+                Assert.That(() => new Identifier(null), Throws.ArgumentNullException);
+                Assert.That(() => new Identifier(string.Empty), Throws.ArgumentNullException);
+                Assert.That(() => new Identifier("   "), Throws.ArgumentNullException);
             });
         }
 
@@ -22,7 +22,7 @@ namespace SJP.Schematic.Core.Tests
         {
             const string name = "test";
             var identifier = new Identifier(name);
-            Assert.AreEqual(identifier.LocalName, name);
+            Assert.That(identifier.LocalName, Is.EqualTo(name));
         }
 
         [Test]
@@ -30,13 +30,13 @@ namespace SJP.Schematic.Core.Tests
         {
             Assert.Multiple(() =>
             {
-                Assert.Throws<ArgumentNullException>(() => new Identifier("a", null));
-                Assert.Throws<ArgumentNullException>(() => new Identifier("a", string.Empty));
-                Assert.Throws<ArgumentNullException>(() => new Identifier("a", "   "));
+                Assert.That(() => new Identifier("a", null), Throws.ArgumentNullException);
+                Assert.That(() => new Identifier("a", string.Empty), Throws.ArgumentNullException);
+                Assert.That(() => new Identifier("a", "   "), Throws.ArgumentNullException);
 
-                Assert.Throws<ArgumentNullException>(() => new Identifier(null, "a"));
-                Assert.Throws<ArgumentNullException>(() => new Identifier(string.Empty, "a"));
-                Assert.Throws<ArgumentNullException>(() => new Identifier("   ", "a"));
+                Assert.That(() => new Identifier(null, "a"), Throws.ArgumentNullException);
+                Assert.That(() => new Identifier(string.Empty, "a"), Throws.ArgumentNullException);
+                Assert.That(() => new Identifier("   ", "a"), Throws.ArgumentNullException);
             });
         }
 
@@ -49,8 +49,8 @@ namespace SJP.Schematic.Core.Tests
 
             Assert.Multiple(() =>
             {
-                Assert.AreEqual(identifier.LocalName, localName);
-                Assert.AreEqual(identifier.Schema, schema);
+                Assert.That(identifier.LocalName, Is.EqualTo(localName));
+                Assert.That(identifier.Schema, Is.EqualTo(schema));
             });
         }
 
@@ -59,17 +59,17 @@ namespace SJP.Schematic.Core.Tests
         {
             Assert.Multiple(() =>
             {
-                Assert.Throws<ArgumentNullException>(() => new Identifier("a", "a", null));
-                Assert.Throws<ArgumentNullException>(() => new Identifier("a", "a", string.Empty));
-                Assert.Throws<ArgumentNullException>(() => new Identifier("a", "a", "   "));
+                Assert.That(() => new Identifier("a", "a", null), Throws.ArgumentNullException);
+                Assert.That(() => new Identifier("a", "a", string.Empty), Throws.ArgumentNullException);
+                Assert.That(() => new Identifier("a", "a", "   "), Throws.ArgumentNullException);
 
-                Assert.Throws<ArgumentNullException>(() => new Identifier("a", null, "a"));
-                Assert.Throws<ArgumentNullException>(() => new Identifier("a", string.Empty, "a"));
-                Assert.Throws<ArgumentNullException>(() => new Identifier("a", "   ", "a"));
+                Assert.That(() => new Identifier("a", null, "a"), Throws.ArgumentNullException);
+                Assert.That(() => new Identifier("a", string.Empty, "a"), Throws.ArgumentNullException);
+                Assert.That(() => new Identifier("a", "   ", "a"), Throws.ArgumentNullException);
 
-                Assert.Throws<ArgumentNullException>(() => new Identifier(null, "a", "a"));
-                Assert.Throws<ArgumentNullException>(() => new Identifier(string.Empty, "a", "a"));
-                Assert.Throws<ArgumentNullException>(() => new Identifier("   ", "a", "a"));
+                Assert.That(() => new Identifier(null, "a", "a"), Throws.ArgumentNullException);
+                Assert.That(() => new Identifier(string.Empty, "a", "a"), Throws.ArgumentNullException);
+                Assert.That(() => new Identifier("   ", "a", "a"), Throws.ArgumentNullException);
             });
         }
 
@@ -83,9 +83,9 @@ namespace SJP.Schematic.Core.Tests
 
             Assert.Multiple(() =>
             {
-                Assert.AreEqual(identifier.LocalName, localName);
-                Assert.AreEqual(identifier.Schema, schema);
-                Assert.AreEqual(identifier.Database, database);
+                Assert.That(identifier.LocalName, Is.EqualTo(localName));
+                Assert.That(identifier.Schema, Is.EqualTo(schema));
+                Assert.That(identifier.Database, Is.EqualTo(database));
             });
         }
 
@@ -94,21 +94,21 @@ namespace SJP.Schematic.Core.Tests
         {
             Assert.Multiple(() =>
             {
-                Assert.Throws<ArgumentNullException>(() => new Identifier("a", "a", "a", null));
-                Assert.Throws<ArgumentNullException>(() => new Identifier("a", "a", "a", string.Empty));
-                Assert.Throws<ArgumentNullException>(() => new Identifier("a", "a", "a", "   "));
+                Assert.That(() => new Identifier("a", "a", "a", null), Throws.ArgumentNullException);
+                Assert.That(() => new Identifier("a", "a", "a", string.Empty), Throws.ArgumentNullException);
+                Assert.That(() => new Identifier("a", "a", "a", "   "), Throws.ArgumentNullException);
 
-                Assert.Throws<ArgumentNullException>(() => new Identifier("a", "a", null, "a"));
-                Assert.Throws<ArgumentNullException>(() => new Identifier("a", "a", string.Empty, "a"));
-                Assert.Throws<ArgumentNullException>(() => new Identifier("a", "a", "   ", "a"));
+                Assert.That(() => new Identifier("a", "a", null, "a"), Throws.ArgumentNullException);
+                Assert.That(() => new Identifier("a", "a", string.Empty, "a"), Throws.ArgumentNullException);
+                Assert.That(() => new Identifier("a", "a", "   ", "a"), Throws.ArgumentNullException);
 
-                Assert.Throws<ArgumentNullException>(() => new Identifier("a", null, "a", "a"));
-                Assert.Throws<ArgumentNullException>(() => new Identifier("a", string.Empty, "a", "a"));
-                Assert.Throws<ArgumentNullException>(() => new Identifier("a", "   ", "a", "a"));
+                Assert.That(() => new Identifier("a", null, "a", "a"), Throws.ArgumentNullException);
+                Assert.That(() => new Identifier("a", string.Empty, "a", "a"), Throws.ArgumentNullException);
+                Assert.That(() => new Identifier("a", "   ", "a", "a"), Throws.ArgumentNullException);
 
-                Assert.Throws<ArgumentNullException>(() => new Identifier(null, "a", "a", "a"));
-                Assert.Throws<ArgumentNullException>(() => new Identifier(string.Empty, "a", "a", "a"));
-                Assert.Throws<ArgumentNullException>(() => new Identifier("   ", "a", "a", "a"));
+                Assert.That(() => new Identifier(null, "a", "a", "a"), Throws.ArgumentNullException);
+                Assert.That(() => new Identifier(string.Empty, "a", "a", "a"), Throws.ArgumentNullException);
+                Assert.That(() => new Identifier("   ", "a", "a", "a"), Throws.ArgumentNullException);
             });
         }
 
@@ -123,10 +123,10 @@ namespace SJP.Schematic.Core.Tests
 
             Assert.Multiple(() =>
             {
-                Assert.AreEqual(identifier.LocalName, localName);
-                Assert.AreEqual(identifier.Schema, schema);
-                Assert.AreEqual(identifier.Database, database);
-                Assert.AreEqual(identifier.Server, server);
+                Assert.That(identifier.LocalName, Is.EqualTo(localName));
+                Assert.That(identifier.Schema, Is.EqualTo(schema));
+                Assert.That(identifier.Database, Is.EqualTo(database));
+                Assert.That(identifier.Server, Is.EqualTo(server));
             });
         }
 
@@ -135,9 +135,9 @@ namespace SJP.Schematic.Core.Tests
         {
             Assert.Multiple(() =>
             {
-                Assert.Throws<ArgumentNullException>(() => new Identifier(null));
-                Assert.Throws<ArgumentNullException>(() => new Identifier(string.Empty));
-                Assert.Throws<ArgumentNullException>(() => new Identifier("   "));
+                Assert.That(() => new Identifier(null), Throws.ArgumentNullException);
+                Assert.That(() => new Identifier(string.Empty), Throws.ArgumentNullException);
+                Assert.That(() => new Identifier("   "), Throws.ArgumentNullException);
             });
         }
 
@@ -147,7 +147,7 @@ namespace SJP.Schematic.Core.Tests
             const string name = "test";
             var identifier = new Identifier(name, name);
             var otherIdentifier = new Identifier(name, name);
-            Assert.AreEqual(identifier, otherIdentifier);
+            Assert.That(identifier, Is.EqualTo(otherIdentifier));
         }
 
         [Test]
@@ -157,7 +157,7 @@ namespace SJP.Schematic.Core.Tests
             const string otherName = "another";
             var identifier = new Identifier(name, name);
             var otherIdentifier = new Identifier(otherName, name);
-            Assert.AreNotEqual(identifier, otherIdentifier);
+            Assert.That(identifier, Is.Not.EqualTo(otherIdentifier));
         }
 
         [Test]
@@ -168,7 +168,7 @@ namespace SJP.Schematic.Core.Tests
             var identifier = new Identifier(name, name);
             object otherIdentifier = new Identifier(otherName, name);
 
-            Assert.AreNotEqual(identifier, otherIdentifier);
+            Assert.That(identifier, Is.Not.EqualTo(otherIdentifier));
         }
 
         [Test]
@@ -180,7 +180,7 @@ namespace SJP.Schematic.Core.Tests
 
             var areEqual = identifier.Equals(otherIdentifier);
 
-            Assert.IsTrue(areEqual);
+            Assert.That(areEqual, Is.True);
         }
 
         [Test]
@@ -190,7 +190,7 @@ namespace SJP.Schematic.Core.Tests
             var identifier = new Identifier(name, name);
             var otherIdentifier = new Identifier(name, name);
             var isEqual = identifier == otherIdentifier;
-            Assert.IsTrue(isEqual);
+            Assert.That(isEqual, Is.True);
         }
 
         [Test]
@@ -200,8 +200,8 @@ namespace SJP.Schematic.Core.Tests
             const string otherName = "alternative";
             var identifier = new Identifier(name, name);
             var otherIdentifier = new Identifier(otherName, name);
-            var isNotEqual = identifier != otherIdentifier;
-            Assert.IsTrue(isNotEqual);
+            var isEqual = identifier == otherIdentifier;
+            Assert.That(isEqual, Is.False);
         }
 
         [Test]
@@ -213,8 +213,8 @@ namespace SJP.Schematic.Core.Tests
 
             Assert.Multiple(() =>
             {
-                Assert.AreEqual(identifier, identifier);
-                Assert.AreEqual(identifier, otherIdentifier);
+                Assert.That(identifier, Is.EqualTo(identifier));
+                Assert.That(identifier, Is.EqualTo(otherIdentifier));
             });
         }
 
@@ -228,10 +228,10 @@ namespace SJP.Schematic.Core.Tests
 
             Assert.Multiple(() =>
             {
-                Assert.AreNotEqual(identifier, null);
-                Assert.AreNotEqual(null, identifier);
-                Assert.AreNotEqual(identifier, 1);
-                Assert.AreNotEqual(identifier, otherIdentifier);
+                Assert.That(identifier, Is.Not.EqualTo(null));
+                Assert.That(null, Is.Not.EqualTo(identifier));
+                Assert.That(identifier, Is.Not.EqualTo(1));
+                Assert.That(identifier, Is.Not.EqualTo(otherIdentifier));
             });
         }
 
@@ -242,10 +242,10 @@ namespace SJP.Schematic.Core.Tests
 
             Assert.Multiple(() =>
             {
-                Assert.IsNull(identifier.Server);
-                Assert.IsNull(identifier.Database);
-                Assert.IsNull(identifier.Schema);
-                Assert.IsNotNull(identifier.LocalName);
+                Assert.That(identifier.Server, Is.Null);
+                Assert.That(identifier.Database, Is.Null);
+                Assert.That(identifier.Schema, Is.Null);
+                Assert.That(identifier.LocalName, Is.Not.Null);
             });
         }
 
@@ -256,10 +256,10 @@ namespace SJP.Schematic.Core.Tests
 
             Assert.Multiple(() =>
             {
-                Assert.AreEqual("a", identifier.Server);
-                Assert.AreEqual("b", identifier.Database);
-                Assert.AreEqual("c", identifier.Schema);
-                Assert.AreEqual("d", identifier.LocalName);
+                Assert.That(identifier.Server, Is.EqualTo("a"));
+                Assert.That(identifier.Database, Is.EqualTo("b"));
+                Assert.That(identifier.Schema, Is.EqualTo("c"));
+                Assert.That(identifier.LocalName, Is.EqualTo("d"));
             });
         }
 
@@ -270,10 +270,10 @@ namespace SJP.Schematic.Core.Tests
 
             Assert.Multiple(() =>
             {
-                Assert.IsNull(identifier.Server);
-                Assert.AreEqual("b", identifier.Database);
-                Assert.AreEqual("c", identifier.Schema);
-                Assert.AreEqual("d", identifier.LocalName);
+                Assert.That(identifier.Server, Is.Null);
+                Assert.That(identifier.Database, Is.EqualTo("b"));
+                Assert.That(identifier.Schema, Is.EqualTo("c"));
+                Assert.That(identifier.LocalName, Is.EqualTo("d"));
             });
         }
 
@@ -284,10 +284,10 @@ namespace SJP.Schematic.Core.Tests
 
             Assert.Multiple(() =>
             {
-                Assert.IsNull(identifier.Server);
-                Assert.IsNull(identifier.Database);
-                Assert.AreEqual("c", identifier.Schema);
-                Assert.AreEqual("d", identifier.LocalName);
+                Assert.That(identifier.Server, Is.Null);
+                Assert.That(identifier.Database, Is.Null);
+                Assert.That(identifier.Schema, Is.EqualTo("c"));
+                Assert.That(identifier.LocalName, Is.EqualTo("d"));
             });
         }
 
@@ -298,10 +298,10 @@ namespace SJP.Schematic.Core.Tests
 
             Assert.Multiple(() =>
             {
-                Assert.IsNull(identifier.Server);
-                Assert.IsNull(identifier.Database);
-                Assert.IsNull(identifier.Schema);
-                Assert.AreEqual("d", identifier.LocalName);
+                Assert.That(identifier.Server, Is.Null);
+                Assert.That(identifier.Database, Is.Null);
+                Assert.That(identifier.Schema, Is.Null);
+                Assert.That(identifier.LocalName, Is.EqualTo("d"));
             });
         }
 
@@ -312,10 +312,10 @@ namespace SJP.Schematic.Core.Tests
 
             Assert.Multiple(() =>
             {
-                Assert.IsNull(identifier.Server);
-                Assert.AreEqual("b", identifier.Database);
-                Assert.AreEqual("c", identifier.Schema);
-                Assert.AreEqual("d", identifier.LocalName);
+                Assert.That(identifier.Server, Is.Null);
+                Assert.That(identifier.Database, Is.EqualTo("b"));
+                Assert.That(identifier.Schema, Is.EqualTo("c"));
+                Assert.That(identifier.LocalName, Is.EqualTo("d"));
             });
         }
 
@@ -326,10 +326,10 @@ namespace SJP.Schematic.Core.Tests
 
             Assert.Multiple(() =>
             {
-                Assert.IsNull(identifier.Server);
-                Assert.IsNull(identifier.Database);
-                Assert.AreEqual("c", identifier.Schema);
-                Assert.AreEqual("d", identifier.LocalName);
+                Assert.That(identifier.Server, Is.Null);
+                Assert.That(identifier.Database, Is.Null);
+                Assert.That(identifier.Schema, Is.EqualTo("c"));
+                Assert.That(identifier.LocalName, Is.EqualTo("d"));
             });
         }
 
@@ -340,10 +340,10 @@ namespace SJP.Schematic.Core.Tests
 
             Assert.Multiple(() =>
             {
-                Assert.IsNull(identifier.Server);
-                Assert.IsNull(identifier.Database);
-                Assert.IsNull(identifier.Schema);
-                Assert.AreEqual("d", identifier.LocalName);
+                Assert.That(identifier.Server, Is.Null);
+                Assert.That(identifier.Database, Is.Null);
+                Assert.That(identifier.Schema, Is.Null);
+                Assert.That(identifier.LocalName, Is.EqualTo("d"));
             });
         }
 
@@ -354,10 +354,10 @@ namespace SJP.Schematic.Core.Tests
 
             Assert.Multiple(() =>
             {
-                Assert.IsNull(identifier.Server);
-                Assert.IsNull(identifier.Database);
-                Assert.AreEqual("c", identifier.Schema);
-                Assert.AreEqual("d", identifier.LocalName);
+                Assert.That(identifier.Server, Is.Null);
+                Assert.That(identifier.Database, Is.Null);
+                Assert.That(identifier.Schema, Is.EqualTo("c"));
+                Assert.That(identifier.LocalName, Is.EqualTo("d"));
             });
         }
 
@@ -368,10 +368,10 @@ namespace SJP.Schematic.Core.Tests
 
             Assert.Multiple(() =>
             {
-                Assert.IsNull(identifier.Server);
-                Assert.IsNull(identifier.Database);
-                Assert.IsNull(identifier.Schema);
-                Assert.AreEqual("d", identifier.LocalName);
+                Assert.That(identifier.Server, Is.Null);
+                Assert.That(identifier.Database, Is.Null);
+                Assert.That(identifier.Schema, Is.Null);
+                Assert.That(identifier.LocalName, Is.EqualTo("d"));
             });
         }
 
@@ -382,53 +382,53 @@ namespace SJP.Schematic.Core.Tests
 
             Assert.Multiple(() =>
             {
-                Assert.IsNull(identifier.Server);
-                Assert.IsNull(identifier.Database);
-                Assert.IsNull(identifier.Schema);
-                Assert.AreEqual("d", identifier.LocalName);
+                Assert.That(identifier.Server, Is.Null);
+                Assert.That(identifier.Database, Is.Null);
+                Assert.That(identifier.Schema, Is.Null);
+                Assert.That(identifier.LocalName, Is.EqualTo("d"));
             });
         }
 
         [Test]
         public static void CreateQualifiedIdentifier_GivenArgumentsWithoutServerAndDatabaseAndSchema_ThrowsArgumentNullException()
         {
-            Assert.Throws<ArgumentNullException>(() => Identifier.CreateQualifiedIdentifier(null, null, null, null));
+            Assert.That(() => Identifier.CreateQualifiedIdentifier(null, null, null, null), Throws.ArgumentNullException);
         }
 
         [Test]
         public static void CreateQualifiedIdentifier_GivenAllArgumentsExceptDatabase_ThrowsArgumentNullException()
         {
-            Assert.Throws<ArgumentNullException>(() => Identifier.CreateQualifiedIdentifier("a", null, "c", "d"));
+            Assert.That(() => Identifier.CreateQualifiedIdentifier("a", null, "c", "d"), Throws.ArgumentNullException);
         }
 
         [Test]
         public static void CreateQualifiedIdentifier_GivenAllArgumentsExceptSchema_ThrowsArgumentNullException()
         {
-            Assert.Throws<ArgumentNullException>(() => Identifier.CreateQualifiedIdentifier("a", "b", null, "d"));
+            Assert.That(() => Identifier.CreateQualifiedIdentifier("a", "b", null, "d"), Throws.ArgumentNullException);
         }
 
         [Test]
         public static void CreateQualifiedIdentifier_GivenAllArgumentsExceptLocalName_ThrowsArgumentNullException()
         {
-            Assert.Throws<ArgumentNullException>(() => Identifier.CreateQualifiedIdentifier("a", "b", "c", null));
+            Assert.That(() => Identifier.CreateQualifiedIdentifier("a", "b", "c", null), Throws.ArgumentNullException);
         }
 
         [Test]
         public static void CreateQualifiedIdentifier_GivenAllArgumentsExceptServerAndSchema_ThrowsArgumentNullException()
         {
-            Assert.Throws<ArgumentNullException>(() => Identifier.CreateQualifiedIdentifier(null, "b", null, "d"));
+            Assert.That(() => Identifier.CreateQualifiedIdentifier(null, "b", null, "d"), Throws.ArgumentNullException);
         }
 
         [Test]
         public static void CreateQualifiedIdentifier_GivenOnlyDatabase_ThrowsArgumentNullException()
         {
-            Assert.Throws<ArgumentNullException>(() => Identifier.CreateQualifiedIdentifier(null, "b", null, null));
+            Assert.That(() => Identifier.CreateQualifiedIdentifier(null, "b", null, null), Throws.ArgumentNullException);
         }
 
         [Test]
         public static void CreateQualifiedIdentifier_GivenOnlySchema_ThrowsArgumentNullException()
         {
-            Assert.Throws<ArgumentNullException>(() => Identifier.CreateQualifiedIdentifier(null, null, "c", null));
+            Assert.That(() => Identifier.CreateQualifiedIdentifier(null, null, "c", null), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -438,7 +438,7 @@ namespace SJP.Schematic.Core.Tests
 
             var compareResult = identifier.CompareTo(identifier);
 
-            Assert.Zero(compareResult);
+            Assert.That(compareResult, Is.Zero);
         }
 
         [Test]
@@ -448,7 +448,7 @@ namespace SJP.Schematic.Core.Tests
 
             var compareResult = identifier.CompareTo(null);
 
-            Assert.NotZero(compareResult);
+            Assert.That(compareResult, Is.Not.Zero);
         }
 
         [Test]
@@ -459,7 +459,7 @@ namespace SJP.Schematic.Core.Tests
 
             var compareResult = identifier.CompareTo(otherIdentifier);
 
-            Assert.Zero(compareResult);
+            Assert.That(compareResult, Is.Zero);
         }
 
         [Test]
@@ -470,7 +470,7 @@ namespace SJP.Schematic.Core.Tests
 
             var compareResult = identifier.CompareTo(otherIdentifier);
 
-            Assert.NotZero(compareResult);
+            Assert.That(compareResult, Is.Not.Zero);
         }
 
         [Test]
@@ -481,7 +481,7 @@ namespace SJP.Schematic.Core.Tests
 
             var isGt = identifier > otherIdentifier;
 
-            Assert.IsTrue(isGt);
+            Assert.That(isGt, Is.True);
         }
 
         [Test]
@@ -492,7 +492,7 @@ namespace SJP.Schematic.Core.Tests
 
             var isGt = identifier > otherIdentifier;
 
-            Assert.IsFalse(isGt);
+            Assert.That(isGt, Is.False);
         }
 
         [Test]
@@ -503,7 +503,7 @@ namespace SJP.Schematic.Core.Tests
 
             var isGte = identifier >= otherIdentifier;
 
-            Assert.IsTrue(isGte);
+            Assert.That(isGte, Is.True);
         }
 
         [Test]
@@ -514,7 +514,7 @@ namespace SJP.Schematic.Core.Tests
 
             var isGte = identifier >= otherIdentifier;
 
-            Assert.IsFalse(isGte);
+            Assert.That(isGte, Is.False);
         }
 
         [Test]
@@ -525,7 +525,7 @@ namespace SJP.Schematic.Core.Tests
 
             var isGte = identifier >= otherIdentifier;
 
-            Assert.IsTrue(isGte);
+            Assert.That(isGte, Is.True);
         }
 
         [Test]
@@ -536,7 +536,7 @@ namespace SJP.Schematic.Core.Tests
 
             var isLt = identifier < otherIdentifier;
 
-            Assert.IsFalse(isLt);
+            Assert.That(isLt, Is.False);
         }
 
         [Test]
@@ -547,7 +547,7 @@ namespace SJP.Schematic.Core.Tests
 
             var isLt = identifier < otherIdentifier;
 
-            Assert.IsTrue(isLt);
+            Assert.That(isLt, Is.True);
         }
 
         [Test]
@@ -558,7 +558,7 @@ namespace SJP.Schematic.Core.Tests
 
             var isLte = identifier <= otherIdentifier;
 
-            Assert.IsFalse(isLte);
+            Assert.That(isLte, Is.False);
         }
 
         [Test]
@@ -569,7 +569,7 @@ namespace SJP.Schematic.Core.Tests
 
             var isLte = identifier <= otherIdentifier;
 
-            Assert.IsTrue(isLte);
+            Assert.That(isLte, Is.True);
         }
 
         [Test]
@@ -580,7 +580,7 @@ namespace SJP.Schematic.Core.Tests
 
             var isLte = identifier <= otherIdentifier;
 
-            Assert.IsTrue(isLte);
+            Assert.That(isLte, Is.True);
         }
     }
 }
