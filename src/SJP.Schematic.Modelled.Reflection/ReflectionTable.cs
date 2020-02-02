@@ -64,7 +64,8 @@ namespace SJP.Schematic.Modelled.Reflection
                 if (parentOption.IsNone.ConfigureAwait(false).GetAwaiter().GetResult())
                     throw new Exception("Could not find parent table with name: " + parentName.ToString());
 
-                var parent = parentOption.UnwrapSomeAsync().ConfigureAwait(false).GetAwaiter().GetResult();
+                var tmpOption = parentOption.ToOption().ConfigureAwait(false).GetAwaiter().GetResult();
+                var parent = tmpOption.MatchUnsafe(t => t, () => null!);
 
                 var parentTypeProvider = new ReflectionTableTypeProvider(Dialect, declaredParentKey.TargetType);
                 var parentInstance = parentTypeProvider.TableInstance;
