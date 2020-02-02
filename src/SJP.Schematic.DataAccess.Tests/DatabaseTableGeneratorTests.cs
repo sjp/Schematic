@@ -1,4 +1,3 @@
-using System;
 using System.IO;
 using NUnit.Framework;
 using SJP.Schematic.Core;
@@ -12,7 +11,7 @@ namespace SJP.Schematic.DataAccess.Tests
         [Test]
         public static void Ctor_GivenNullNameTranslator_ThrowsArgumentNullException()
         {
-            Assert.Throws<ArgumentNullException>(() => new FakeDatabaseTableGenerator(null));
+            Assert.That(() => new FakeDatabaseTableGenerator(null), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -21,7 +20,7 @@ namespace SJP.Schematic.DataAccess.Tests
             var nameTranslator = new VerbatimNameTranslator();
             var generator = new FakeDatabaseTableGenerator(nameTranslator);
 
-            Assert.Throws<ArgumentNullException>(() => generator.InnerGetFilePath(null, "test"));
+            Assert.That(() => generator.InnerGetFilePath(null, "test"), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -32,7 +31,7 @@ namespace SJP.Schematic.DataAccess.Tests
             using var tempDir = new TemporaryDirectory();
             var baseDir = new DirectoryInfo(tempDir.DirectoryPath);
 
-            Assert.Throws<ArgumentNullException>(() => generator.InnerGetFilePath(baseDir, null));
+            Assert.That(() => generator.InnerGetFilePath(baseDir, null), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -47,7 +46,7 @@ namespace SJP.Schematic.DataAccess.Tests
 
             var filePath = generator.InnerGetFilePath(baseDir, testTableName);
 
-            Assert.AreEqual(expectedPath, filePath.FullName);
+            Assert.That(filePath.FullName, Is.EqualTo(expectedPath));
         }
 
         [Test]
@@ -63,7 +62,7 @@ namespace SJP.Schematic.DataAccess.Tests
 
             var filePath = generator.InnerGetFilePath(baseDir, new Identifier(testTableSchema, testTableName));
 
-            Assert.AreEqual(expectedPath, filePath.FullName);
+            Assert.That(filePath.FullName, Is.EqualTo(expectedPath));
         }
     }
 }

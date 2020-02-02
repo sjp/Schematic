@@ -1,4 +1,3 @@
-using System;
 using System.IO;
 using System.IO.Abstractions.TestingHelpers;
 using Moq;
@@ -20,7 +19,7 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore.Tests
             var database = Mock.Of<IRelationalDatabase>();
             var commentProvider = new EmptyRelationalDatabaseCommentProvider();
             var nameTranslator = new VerbatimNameTranslator();
-            Assert.Throws<ArgumentNullException>(() => new EFCoreDataAccessGenerator(null, database, commentProvider, nameTranslator));
+            Assert.That(() => new EFCoreDataAccessGenerator(null, database, commentProvider, nameTranslator), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -29,7 +28,7 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore.Tests
             var mockFs = new MockFileSystem();
             var commentProvider = new EmptyRelationalDatabaseCommentProvider();
             var nameTranslator = new VerbatimNameTranslator();
-            Assert.Throws<ArgumentNullException>(() => new EFCoreDataAccessGenerator(mockFs, null, commentProvider, nameTranslator));
+            Assert.That(() => new EFCoreDataAccessGenerator(mockFs, null, commentProvider, nameTranslator), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -38,7 +37,7 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore.Tests
             var mockFs = new MockFileSystem();
             var database = Mock.Of<IRelationalDatabase>();
             var nameTranslator = new VerbatimNameTranslator();
-            Assert.Throws<ArgumentNullException>(() => new EFCoreDataAccessGenerator(mockFs, database, null, nameTranslator));
+            Assert.That(() => new EFCoreDataAccessGenerator(mockFs, database, null, nameTranslator), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -47,7 +46,7 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore.Tests
             var mockFs = new MockFileSystem();
             var database = Mock.Of<IRelationalDatabase>();
             var commentProvider = new EmptyRelationalDatabaseCommentProvider();
-            Assert.Throws<ArgumentNullException>(() => new EFCoreDataAccessGenerator(mockFs, database, commentProvider, null));
+            Assert.That(() => new EFCoreDataAccessGenerator(mockFs, database, commentProvider, null), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -59,7 +58,7 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore.Tests
             var nameTranslator = new VerbatimNameTranslator();
             var generator = new EFCoreDataAccessGenerator(mockFs, database, commentProvider, nameTranslator);
 
-            Assert.Throws<ArgumentNullException>(() => generator.Generate(null, "test"));
+            Assert.That(() => generator.Generate(null, "test"), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -71,7 +70,7 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore.Tests
             var nameTranslator = new VerbatimNameTranslator();
             var generator = new EFCoreDataAccessGenerator(mockFs, database, commentProvider, nameTranslator);
 
-            Assert.Throws<ArgumentNullException>(() => generator.Generate(string.Empty, "test"));
+            Assert.That(() => generator.Generate(string.Empty, "test"), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -83,7 +82,7 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore.Tests
             var nameTranslator = new VerbatimNameTranslator();
             var generator = new EFCoreDataAccessGenerator(mockFs, database, commentProvider, nameTranslator);
 
-            Assert.Throws<ArgumentNullException>(() => generator.Generate("    ", "test"));
+            Assert.That(() => generator.Generate("    ", "test"), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -97,7 +96,7 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore.Tests
             using var tempDir = new TemporaryDirectory();
             var projectPath = Path.Combine(tempDir.DirectoryPath, TestCsprojFileName);
 
-            Assert.Throws<ArgumentNullException>(() => generator.Generate(projectPath, null));
+            Assert.That(() => generator.Generate(projectPath, null), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -111,7 +110,7 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore.Tests
             using var tempDir = new TemporaryDirectory();
             var projectPath = Path.Combine(tempDir.DirectoryPath, TestCsprojFileName);
 
-            Assert.Throws<ArgumentNullException>(() => generator.Generate(projectPath, string.Empty));
+            Assert.That(() => generator.Generate(projectPath, string.Empty), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -125,7 +124,7 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore.Tests
             using var tempDir = new TemporaryDirectory();
             var projectPath = Path.Combine(tempDir.DirectoryPath, TestCsprojFileName);
 
-            Assert.Throws<ArgumentNullException>(() => generator.Generate(projectPath, "    "));
+            Assert.That(() => generator.Generate(projectPath, "    "), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -139,7 +138,7 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore.Tests
             using var tempDir = new TemporaryDirectory();
             var projectPath = Path.Combine(tempDir.DirectoryPath, "DataAccessGeneratorTest.vbproj");
 
-            Assert.Throws<ArgumentException>(() => generator.Generate(projectPath, "test"));
+            Assert.That(() => generator.Generate(projectPath, "test"), Throws.ArgumentException);
         }
     }
 }

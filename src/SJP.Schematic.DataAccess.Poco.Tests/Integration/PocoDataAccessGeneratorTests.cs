@@ -76,12 +76,12 @@ select
 
             Assert.Multiple(() =>
             {
-                Assert.IsTrue(mockFs.FileExists(projectPath));
-                Assert.IsTrue(mockFs.Directory.Exists(tablesDir));
-                Assert.IsTrue(mockFs.Directory.Exists(viewsDir));
-                Assert.IsTrue(mockFs.FileExists(expectedTable1Path));
-                Assert.IsTrue(mockFs.FileExists(expectedView1Path));
-                Assert.IsTrue(mockFs.FileExists(expectedView2Path));
+                Assert.That(mockFs.FileExists(projectPath), Is.True);
+                Assert.That(mockFs.Directory.Exists(tablesDir), Is.True);
+                Assert.That(mockFs.Directory.Exists(viewsDir), Is.True);
+                Assert.That(mockFs.FileExists(expectedTable1Path), Is.True);
+                Assert.That(mockFs.FileExists(expectedView1Path), Is.True);
+                Assert.That(mockFs.FileExists(expectedView2Path), Is.True);
             });
         }
 
@@ -100,7 +100,7 @@ select
             await generator.Generate(projectPath, TestNamespace).ConfigureAwait(false);
 
             var buildsSuccessfully = await ProjectBuildsSuccessfullyAsync(projectPath).ConfigureAwait(false);
-            Assert.IsTrue(buildsSuccessfully);
+            Assert.That(buildsSuccessfully, Is.True);
         }
 
         [Test]
@@ -116,7 +116,7 @@ select
             await generator.Generate(projectPath, TestNamespace).ConfigureAwait(false);
 
             var buildsSuccessfully = await ProjectBuildsSuccessfullyAsync(projectPath).ConfigureAwait(false);
-            Assert.IsTrue(buildsSuccessfully);
+            Assert.That(buildsSuccessfully, Is.True);
         }
 
         private static Task<bool> ProjectBuildsSuccessfullyAsync(string projectPath)

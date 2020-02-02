@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using NUnit.Framework;
 using SJP.Schematic.Core.Utilities;
@@ -32,7 +31,7 @@ namespace SJP.Schematic.Core.Tests.Utilities
 
             Assert.Multiple(() =>
             {
-                Assert.That(lookup.Count, Is.EqualTo(2));
+                Assert.That(lookup, Has.Exactly(2).Items);
                 Assert.That(lookup["FirstKey"], Is.EqualTo(first));
                 Assert.That(lookup["SecondKey"], Is.EqualTo(second));
             });

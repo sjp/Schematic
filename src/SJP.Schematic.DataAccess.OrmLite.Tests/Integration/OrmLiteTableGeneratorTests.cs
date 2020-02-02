@@ -106,7 +106,7 @@ create table test_table_4 (
             var expected = TestTable1Output;
             var result = generator.Generate(tables, table, Option<IRelationalDatabaseTableComments>.None);
 
-            Assert.AreEqual(expected, result);
+            Assert.That(result, Is.EqualTo(expected));
         }
 
         [Test]
@@ -119,7 +119,7 @@ create table test_table_4 (
             var expected = TestTable2Output;
             var result = generator.Generate(tables, table, Option<IRelationalDatabaseTableComments>.None);
 
-            Assert.AreEqual(expected, result);
+            Assert.That(result, Is.EqualTo(expected));
         }
 
         [Test]
@@ -132,7 +132,7 @@ create table test_table_4 (
             var expected = TestTable4Output;
             var result = generator.Generate(tables, table, Option<IRelationalDatabaseTableComments>.None);
 
-            Assert.AreEqual(expected, result);
+            Assert.That(result, Is.EqualTo(expected));
         }
 
         [Test]
@@ -158,7 +158,7 @@ create table test_table_4 (
             var result = generator.Generate(tables, table, comment);
 
             var expected = TestTable5Output;
-            Assert.AreEqual(expected, result);
+            Assert.That(result, Is.EqualTo(expected));
         }
 
         [Test]
@@ -188,7 +188,7 @@ This is a second line for it.";
             var result = generator.Generate(tables, table, comment);
 
             var expected = TestTable5MultiLineOutput;
-            Assert.AreEqual(expected, result);
+            Assert.That(result, Is.EqualTo(expected));
         }
 
         private const string TestNamespace = "OrmLiteTestNamespace";

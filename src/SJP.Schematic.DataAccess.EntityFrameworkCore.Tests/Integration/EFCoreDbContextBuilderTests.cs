@@ -97,7 +97,7 @@ create table test_table_4 (
             var expected = TestAppContextOutput;
             var result = builder.Generate(tables, views, sequences);
 
-            Assert.AreEqual(expected, result);
+            Assert.That(result, Is.EqualTo(expected));
         }
 
         private readonly string TestAppContextOutput = @"using System;

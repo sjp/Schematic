@@ -50,7 +50,7 @@ namespace SJP.Schematic.DataAccess.Poco.Tests.Integration
             const string expected = TestTable1Output;
             var result = generator.Generate(tables, table, Option<IRelationalDatabaseTableComments>.None);
 
-            Assert.AreEqual(expected, result);
+            Assert.That(result, Is.EqualTo(expected));
         }
 
         [Test]
@@ -76,7 +76,7 @@ namespace SJP.Schematic.DataAccess.Poco.Tests.Integration
             var result = generator.Generate(tables, table, comment);
 
             var expected = TestTable2Output;
-            Assert.AreEqual(expected, result);
+            Assert.That(result, Is.EqualTo(expected));
         }
 
         [Test]
@@ -106,7 +106,7 @@ This is a second line for it.";
             var result = generator.Generate(tables, table, comment);
 
             var expected = TestTable2MultiLineOutput;
-            Assert.AreEqual(expected, result);
+            Assert.That(result, Is.EqualTo(expected));
         }
 
         private const string TestNamespace = "PocoTestNamespace";

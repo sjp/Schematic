@@ -1,5 +1,4 @@
-﻿using System;
-using System.Linq;
+﻿using System.Linq;
 using NUnit.Framework;
 
 namespace SJP.Schematic.Core.Tests
@@ -24,7 +23,7 @@ namespace SJP.Schematic.Core.Tests
 
             Assert.Multiple(() =>
             {
-                Assert.That(results.Count, Is.EqualTo(1));
+                Assert.That(results, Has.Exactly(1).Items);
                 Assert.That(results[0], Is.EqualTo(input));
             });
         }

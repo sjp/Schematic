@@ -16,28 +16,28 @@ namespace SJP.Schematic.DataAccess.OrmLite.Tests
         [Test]
         public static void Ctor_GivenNullNameTranslator_ThrowsArgumentNullException()
         {
-            Assert.Throws<ArgumentNullException>(() => new OrmLiteTableGenerator(null, "test"));
+            Assert.That(() => new OrmLiteTableGenerator(null, "test"), Throws.ArgumentNullException);
         }
 
         [Test]
         public static void Ctor_GivenNullNamespace_ThrowsArgumentNullException()
         {
             var nameTranslator = new VerbatimNameTranslator();
-            Assert.Throws<ArgumentNullException>(() => new OrmLiteTableGenerator(nameTranslator, null));
+            Assert.That(() => new OrmLiteTableGenerator(nameTranslator, null), Throws.ArgumentNullException);
         }
 
         [Test]
         public static void Ctor_GivenEmptyNamespace_ThrowsArgumentNullException()
         {
             var nameTranslator = new VerbatimNameTranslator();
-            Assert.Throws<ArgumentNullException>(() => new OrmLiteTableGenerator(nameTranslator, string.Empty));
+            Assert.That(() => new OrmLiteTableGenerator(nameTranslator, string.Empty), Throws.ArgumentNullException);
         }
 
         [Test]
         public static void Ctor_GivenWhiteSpaceNamespace_ThrowsArgumentNullException()
         {
             var nameTranslator = new VerbatimNameTranslator();
-            Assert.Throws<ArgumentNullException>(() => new OrmLiteTableGenerator(nameTranslator, "   "));
+            Assert.That(() => new OrmLiteTableGenerator(nameTranslator, "   "), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -47,7 +47,7 @@ namespace SJP.Schematic.DataAccess.OrmLite.Tests
             const string test = "SJP.Schematic.Test";
             var generator = new OrmLiteTableGenerator(nameTranslator, test);
 
-            Assert.Throws<ArgumentNullException>(() => generator.GetFilePath(null, "test"));
+            Assert.That(() => generator.GetFilePath(null, "test"), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -59,7 +59,7 @@ namespace SJP.Schematic.DataAccess.OrmLite.Tests
             using var tempDir = new TemporaryDirectory();
             var baseDir = new DirectoryInfoWrapper(new FileSystem(), new DirectoryInfo(tempDir.DirectoryPath));
 
-            Assert.Throws<ArgumentNullException>(() => generator.GetFilePath(baseDir, null));
+            Assert.That(() => generator.GetFilePath(baseDir, null), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -75,7 +75,7 @@ namespace SJP.Schematic.DataAccess.OrmLite.Tests
 
             var filePath = generator.GetFilePath(baseDir, testTableName);
 
-            Assert.AreEqual(expectedPath, filePath.FullName);
+            Assert.That(filePath.FullName, Is.EqualTo(expectedPath));
         }
 
         [Test]
@@ -92,7 +92,7 @@ namespace SJP.Schematic.DataAccess.OrmLite.Tests
 
             var filePath = generator.GetFilePath(baseDir, new Identifier(testTableSchema, testTableName));
 
-            Assert.AreEqual(expectedPath, filePath.FullName);
+            Assert.That(filePath.FullName, Is.EqualTo(expectedPath));
         }
 
         [Test]
@@ -103,7 +103,7 @@ namespace SJP.Schematic.DataAccess.OrmLite.Tests
             var generator = new OrmLiteTableGenerator(nameTranslator, test);
             var table = Mock.Of<IRelationalDatabaseTable>();
 
-            Assert.Throws<ArgumentNullException>(() => generator.Generate(null, table, Option<IRelationalDatabaseTableComments>.None));
+            Assert.That(() => generator.Generate(null, table, Option<IRelationalDatabaseTableComments>.None), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -113,7 +113,7 @@ namespace SJP.Schematic.DataAccess.OrmLite.Tests
             const string test = "SJP.Schematic.Test";
             var generator = new OrmLiteTableGenerator(nameTranslator, test);
 
-            Assert.Throws<ArgumentNullException>(() => generator.Generate(Array.Empty<IRelationalDatabaseTable>(), null, Option<IRelationalDatabaseTableComments>.None));
+            Assert.That(() => generator.Generate(Array.Empty<IRelationalDatabaseTable>(), null, Option<IRelationalDatabaseTableComments>.None), Throws.ArgumentNullException);
         }
     }
 }

@@ -1,4 +1,3 @@
-using System;
 using NUnit.Framework;
 using SJP.Schematic.Core;
 
@@ -11,7 +10,7 @@ namespace SJP.Schematic.DataAccess.Tests
         public static void SchemaToNamespace_GivenNullName_ThrowsArgumentNullException()
         {
             var nameTranslator = new VerbatimNameTranslator();
-            Assert.Throws<ArgumentNullException>(() => nameTranslator.SchemaToNamespace(null));
+            Assert.That(() => nameTranslator.SchemaToNamespace(null), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -21,7 +20,7 @@ namespace SJP.Schematic.DataAccess.Tests
             var testName = new Identifier("test");
 
             var result = nameTranslator.SchemaToNamespace(testName);
-            Assert.IsNull(result);
+            Assert.That(result, Is.Null);
         }
 
         [Test]
@@ -32,7 +31,7 @@ namespace SJP.Schematic.DataAccess.Tests
             const string expected = "firstsecond";
 
             var result = nameTranslator.SchemaToNamespace(testName);
-            Assert.AreEqual(expected, result);
+            Assert.That(result, Is.EqualTo(expected));
         }
 
         [Test]
@@ -43,7 +42,7 @@ namespace SJP.Schematic.DataAccess.Tests
             const string expected = "first_second";
 
             var result = nameTranslator.SchemaToNamespace(testName);
-            Assert.AreEqual(expected, result);
+            Assert.That(result, Is.EqualTo(expected));
         }
 
         [Test]
@@ -54,14 +53,14 @@ namespace SJP.Schematic.DataAccess.Tests
             const string expected = "firstSecond";
 
             var result = nameTranslator.SchemaToNamespace(testName);
-            Assert.AreEqual(expected, result);
+            Assert.That(result, Is.EqualTo(expected));
         }
 
         [Test]
         public static void TableToClassName_GivenNullName_ThrowsArgumentNullException()
         {
             var nameTranslator = new VerbatimNameTranslator();
-            Assert.Throws<ArgumentNullException>(() => nameTranslator.TableToClassName(null));
+            Assert.That(() => nameTranslator.TableToClassName(null), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -72,7 +71,7 @@ namespace SJP.Schematic.DataAccess.Tests
             const string expected = "firstsecond";
 
             var result = nameTranslator.TableToClassName(testName);
-            Assert.AreEqual(expected, result);
+            Assert.That(result, Is.EqualTo(expected));
         }
 
         [Test]
@@ -83,7 +82,7 @@ namespace SJP.Schematic.DataAccess.Tests
             const string expected = "first_second";
 
             var result = nameTranslator.TableToClassName(testName);
-            Assert.AreEqual(expected, result);
+            Assert.That(result, Is.EqualTo(expected));
         }
 
         [Test]
@@ -94,14 +93,14 @@ namespace SJP.Schematic.DataAccess.Tests
             const string expected = "FirstSecond";
 
             var result = nameTranslator.TableToClassName(testName);
-            Assert.AreEqual(expected, result);
+            Assert.That(result, Is.EqualTo(expected));
         }
 
         [Test]
         public static void ViewToClassName_GivenNullName_ThrowsArgumentNullException()
         {
             var nameTranslator = new VerbatimNameTranslator();
-            Assert.Throws<ArgumentNullException>(() => nameTranslator.ViewToClassName(null));
+            Assert.That(() => nameTranslator.ViewToClassName(null), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -112,7 +111,7 @@ namespace SJP.Schematic.DataAccess.Tests
             const string expected = "firstsecond";
 
             var result = nameTranslator.ViewToClassName(testName);
-            Assert.AreEqual(expected, result);
+            Assert.That(result, Is.EqualTo(expected));
         }
 
         [Test]
@@ -123,7 +122,7 @@ namespace SJP.Schematic.DataAccess.Tests
             const string expected = "first_second";
 
             var result = nameTranslator.ViewToClassName(testName);
-            Assert.AreEqual(expected, result);
+            Assert.That(result, Is.EqualTo(expected));
         }
 
         [Test]
@@ -134,7 +133,7 @@ namespace SJP.Schematic.DataAccess.Tests
             const string expected = "firstSecond";
 
             var result = nameTranslator.ViewToClassName(testName);
-            Assert.AreEqual(expected, result);
+            Assert.That(result, Is.EqualTo(expected));
         }
 
         [Test]
@@ -142,7 +141,7 @@ namespace SJP.Schematic.DataAccess.Tests
         {
             const string columnName = "test";
             var nameTranslator = new VerbatimNameTranslator();
-            Assert.Throws<ArgumentNullException>(() => nameTranslator.ColumnToPropertyName(null, columnName));
+            Assert.That(() => nameTranslator.ColumnToPropertyName(null, columnName), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -150,7 +149,7 @@ namespace SJP.Schematic.DataAccess.Tests
         {
             const string columnName = "test";
             var nameTranslator = new VerbatimNameTranslator();
-            Assert.Throws<ArgumentNullException>(() => nameTranslator.ColumnToPropertyName(string.Empty, columnName));
+            Assert.That(() => nameTranslator.ColumnToPropertyName(string.Empty, columnName), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -158,7 +157,7 @@ namespace SJP.Schematic.DataAccess.Tests
         {
             const string columnName = "test";
             var nameTranslator = new VerbatimNameTranslator();
-            Assert.Throws<ArgumentNullException>(() => nameTranslator.ColumnToPropertyName("    ", columnName));
+            Assert.That(() => nameTranslator.ColumnToPropertyName("    ", columnName), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -166,7 +165,7 @@ namespace SJP.Schematic.DataAccess.Tests
         {
             const string className = "test";
             var nameTranslator = new VerbatimNameTranslator();
-            Assert.Throws<ArgumentNullException>(() => nameTranslator.ColumnToPropertyName(className, null));
+            Assert.That(() => nameTranslator.ColumnToPropertyName(className, null), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -174,7 +173,7 @@ namespace SJP.Schematic.DataAccess.Tests
         {
             const string className = "test";
             var nameTranslator = new VerbatimNameTranslator();
-            Assert.Throws<ArgumentNullException>(() => nameTranslator.ColumnToPropertyName(className, string.Empty));
+            Assert.That(() => nameTranslator.ColumnToPropertyName(className, string.Empty), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -182,7 +181,7 @@ namespace SJP.Schematic.DataAccess.Tests
         {
             const string className = "test";
             var nameTranslator = new VerbatimNameTranslator();
-            Assert.Throws<ArgumentNullException>(() => nameTranslator.ColumnToPropertyName(className, "    "));
+            Assert.That(() => nameTranslator.ColumnToPropertyName(className, "    "), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -195,7 +194,7 @@ namespace SJP.Schematic.DataAccess.Tests
             const string expected = "firstsecond";
 
             var result = nameTranslator.ColumnToPropertyName(className, testName);
-            Assert.AreEqual(expected, result);
+            Assert.That(result, Is.EqualTo(expected));
         }
 
         [Test]
@@ -208,7 +207,7 @@ namespace SJP.Schematic.DataAccess.Tests
             const string expected = "first_second";
 
             var result = nameTranslator.ColumnToPropertyName(className, testName);
-            Assert.AreEqual(expected, result);
+            Assert.That(result, Is.EqualTo(expected));
         }
 
         [Test]
@@ -221,7 +220,7 @@ namespace SJP.Schematic.DataAccess.Tests
             const string expected = "FirstSecond";
 
             var result = nameTranslator.ColumnToPropertyName(className, testName);
-            Assert.AreEqual(expected, result);
+            Assert.That(result, Is.EqualTo(expected));
         }
 
         [Test]
@@ -234,7 +233,7 @@ namespace SJP.Schematic.DataAccess.Tests
             const string expected = "FirstSecond_";
 
             var result = nameTranslator.ColumnToPropertyName(className, testName);
-            Assert.AreEqual(expected, result);
+            Assert.That(result, Is.EqualTo(expected));
         }
     }
 }

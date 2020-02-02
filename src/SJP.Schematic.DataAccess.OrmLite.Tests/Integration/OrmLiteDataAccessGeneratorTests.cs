@@ -62,7 +62,7 @@ select
             await generator.Generate(projectPath, TestNamespace).ConfigureAwait(false);
 
             var buildsSuccessfully = await ProjectBuildsSuccessfullyAsync(projectPath).ConfigureAwait(false);
-            Assert.IsTrue(buildsSuccessfully);
+            Assert.That(buildsSuccessfully, Is.True);
         }
 
         [Test]
@@ -78,7 +78,7 @@ select
             await generator.Generate(projectPath, TestNamespace).ConfigureAwait(false);
 
             var buildsSuccessfully = await ProjectBuildsSuccessfullyAsync(projectPath).ConfigureAwait(false);
-            Assert.IsTrue(buildsSuccessfully);
+            Assert.That(buildsSuccessfully, Is.True);
         }
 
         private static Task<bool> ProjectBuildsSuccessfullyAsync(string projectPath)

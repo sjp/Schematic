@@ -1,5 +1,4 @@
 using System;
-using System.Linq;
 using NUnit.Framework;
 using SJP.Schematic.DataAccess.Extensions;
 
@@ -11,7 +10,7 @@ namespace SJP.Schematic.DataAccess.Tests
         [Test]
         public static void OrderNamespaces_GivenNullCollection_ThrowsArgumentNullException()
         {
-            Assert.Throws<ArgumentNullException>(() => EnumerableStringExtensions.OrderNamespaces(null));
+            Assert.That(() => EnumerableStringExtensions.OrderNamespaces(null), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -20,7 +19,7 @@ namespace SJP.Schematic.DataAccess.Tests
             var input = Array.Empty<string>();
             var result = input.OrderNamespaces();
 
-            Assert.IsFalse(result.Any());
+            Assert.That(result, Is.Empty);
         }
 
         [Test]
@@ -43,8 +42,7 @@ namespace SJP.Schematic.DataAccess.Tests
 
             var result = input.OrderNamespaces();
 
-            var seqEqual = expected.SequenceEqual(result);
-            Assert.IsTrue(seqEqual);
+            Assert.That(result, Is.EqualTo(expected));
         }
 
         [Test]
@@ -67,8 +65,7 @@ namespace SJP.Schematic.DataAccess.Tests
 
             var result = input.OrderNamespaces();
 
-            var seqEqual = expected.SequenceEqual(result);
-            Assert.IsTrue(seqEqual);
+            Assert.That(result, Is.EqualTo(expected));
         }
 
         [Test]
@@ -91,8 +88,7 @@ namespace SJP.Schematic.DataAccess.Tests
 
             var result = input.OrderNamespaces();
 
-            var seqEqual = expected.SequenceEqual(result);
-            Assert.IsTrue(seqEqual);
+            Assert.That(result, Is.EqualTo(expected));
         }
 
         [Test]
@@ -108,8 +104,7 @@ namespace SJP.Schematic.DataAccess.Tests
 
             var result = input.OrderNamespaces();
 
-            var seqEqual = input.SequenceEqual(result);
-            Assert.IsTrue(seqEqual);
+            Assert.That(result, Is.EqualTo(input));
         }
     }
 }

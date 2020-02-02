@@ -10,28 +10,28 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore.Tests
         [Test]
         public static void Ctor_GivenNullNameTranslator_ThrowsArgumentNullException()
         {
-            Assert.Throws<ArgumentNullException>(() => new EFCoreDbContextBuilder(null, "test"));
+            Assert.That(() => new EFCoreDbContextBuilder(null, "test"), Throws.ArgumentNullException);
         }
 
         [Test]
         public static void Ctor_GivenNullNamespace_ThrowsArgumentNullException()
         {
             var nameTranslator = new VerbatimNameTranslator();
-            Assert.Throws<ArgumentNullException>(() => new EFCoreDbContextBuilder(nameTranslator, null));
+            Assert.That(() => new EFCoreDbContextBuilder(nameTranslator, null), Throws.ArgumentNullException);
         }
 
         [Test]
         public static void Ctor_GivenEmptyNamespace_ThrowsArgumentNullException()
         {
             var nameTranslator = new VerbatimNameTranslator();
-            Assert.Throws<ArgumentNullException>(() => new EFCoreDbContextBuilder(nameTranslator, string.Empty));
+            Assert.That(() => new EFCoreDbContextBuilder(nameTranslator, string.Empty), Throws.ArgumentNullException);
         }
 
         [Test]
         public static void Ctor_GivenWhiteSpaceNamespace_ThrowsArgumentNullException()
         {
             var nameTranslator = new VerbatimNameTranslator();
-            Assert.Throws<ArgumentNullException>(() => new EFCoreDbContextBuilder(nameTranslator, "   "));
+            Assert.That(() => new EFCoreDbContextBuilder(nameTranslator, "   "), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -42,7 +42,7 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore.Tests
             var views = Array.Empty<IDatabaseView>();
             var sequences = Array.Empty<IDatabaseSequence>();
 
-            Assert.Throws<ArgumentNullException>(() => dbContextBuilder.Generate(null, views, sequences));
+            Assert.That(() => dbContextBuilder.Generate(null, views, sequences), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -53,7 +53,7 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore.Tests
             var tables = Array.Empty<IRelationalDatabaseTable>();
             var sequences = Array.Empty<IDatabaseSequence>();
 
-            Assert.Throws<ArgumentNullException>(() => dbContextBuilder.Generate(tables, null, sequences));
+            Assert.That(() => dbContextBuilder.Generate(tables, null, sequences), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -64,7 +64,7 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore.Tests
             var tables = Array.Empty<IRelationalDatabaseTable>();
             var views = Array.Empty<IDatabaseView>();
 
-            Assert.Throws<ArgumentNullException>(() => dbContextBuilder.Generate(tables, views, null));
+            Assert.That(() => dbContextBuilder.Generate(tables, views, null), Throws.ArgumentNullException);
         }
     }
 }

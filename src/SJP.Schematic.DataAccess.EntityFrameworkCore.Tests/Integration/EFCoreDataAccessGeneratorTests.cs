@@ -60,10 +60,10 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore.Tests.Integration
 
             Assert.Multiple(() =>
             {
-                Assert.IsTrue(mockFs.FileExists(projectPath));
-                Assert.IsTrue(mockFs.FileExists(expectedAppContextPath));
-                Assert.IsTrue(mockFs.Directory.Exists(tablesDir));
-                Assert.IsTrue(mockFs.FileExists(expectedTable1Path));
+                Assert.That(mockFs.FileExists(projectPath), Is.True);
+                Assert.That(mockFs.FileExists(expectedAppContextPath), Is.True);
+                Assert.That(mockFs.Directory.Exists(tablesDir), Is.True);
+                Assert.That(mockFs.FileExists(expectedTable1Path), Is.True);
             });
         }
 
@@ -82,7 +82,7 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore.Tests.Integration
             await generator.Generate(projectPath, TestNamespace).ConfigureAwait(false);
 
             var buildsSuccessfully = await ProjectBuildsSuccessfullyAsync(projectPath).ConfigureAwait(false);
-            Assert.IsTrue(buildsSuccessfully);
+            Assert.That(buildsSuccessfully, Is.True);
         }
 
         [Test]
@@ -98,7 +98,7 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore.Tests.Integration
             await generator.Generate(projectPath, TestNamespace).ConfigureAwait(false);
 
             var buildsSuccessfully = await ProjectBuildsSuccessfullyAsync(projectPath).ConfigureAwait(false);
-            Assert.IsTrue(buildsSuccessfully);
+            Assert.That(buildsSuccessfully, Is.True);
         }
 
         private static Task<bool> ProjectBuildsSuccessfullyAsync(string projectPath)

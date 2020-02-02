@@ -134,7 +134,7 @@ create table test_table_9 (
             var expected = TestTable1Output;
             var result = generator.Generate(tables, table, Option<IRelationalDatabaseTableComments>.None);
 
-            Assert.AreEqual(expected, result);
+            Assert.That(result, Is.EqualTo(expected));
         }
 
         [Test]
@@ -147,7 +147,7 @@ create table test_table_9 (
             var expected = TestTable2Output;
             var result = generator.Generate(tables, table, Option<IRelationalDatabaseTableComments>.None);
 
-            Assert.AreEqual(expected, result);
+            Assert.That(result, Is.EqualTo(expected));
         }
 
         [Test]
@@ -160,7 +160,7 @@ create table test_table_9 (
             var expected = TestTable3Output;
             var result = generator.Generate(tables, table, Option<IRelationalDatabaseTableComments>.None);
 
-            Assert.AreEqual(expected, result);
+            Assert.That(result, Is.EqualTo(expected));
         }
 
         [Test]
@@ -173,7 +173,7 @@ create table test_table_9 (
             var expected = TestTable4Output;
             var result = generator.Generate(tables, table, Option<IRelationalDatabaseTableComments>.None);
 
-            Assert.AreEqual(expected, result);
+            Assert.That(result, Is.EqualTo(expected));
         }
 
         [Test]
@@ -199,7 +199,7 @@ create table test_table_9 (
             var result = generator.Generate(tables, table, comment);
 
             var expected = TestTable5Output;
-            Assert.AreEqual(expected, result);
+            Assert.That(result, Is.EqualTo(expected));
         }
 
         [Test]
@@ -229,7 +229,7 @@ This is a second line for it.";
             var result = generator.Generate(tables, table, comment);
 
             var expected = TestTable5MultiLineOutput;
-            Assert.AreEqual(expected, result);
+            Assert.That(result, Is.EqualTo(expected));
         }
 
         [Test]
@@ -255,7 +255,7 @@ This is a second line for it.";
             var result = generator.Generate(tables, table, comment);
 
             var expected = TestTable7Output;
-            Assert.AreEqual(expected, result);
+            Assert.That(result, Is.EqualTo(expected));
         }
 
         [Test]
@@ -285,7 +285,7 @@ This is a second line for it.";
             var result = generator.Generate(tables, table, comment);
 
             var expected = TestTable7MultiLineOutput;
-            Assert.AreEqual(expected, result);
+            Assert.That(result, Is.EqualTo(expected));
         }
 
         [Test]
@@ -298,7 +298,7 @@ This is a second line for it.";
             var expected = TestTable6Output;
             var result = generator.Generate(tables, table, Option<IRelationalDatabaseTableComments>.None);
 
-            Assert.AreEqual(expected, result);
+            Assert.That(result, Is.EqualTo(expected));
         }
 
         private const string TestNamespace = "EFCoreTestNamespace";

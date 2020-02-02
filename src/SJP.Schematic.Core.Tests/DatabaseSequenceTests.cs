@@ -1,5 +1,4 @@
-﻿using System;
-using LanguageExt;
+﻿using LanguageExt;
 using NUnit.Framework;
 using SJP.Schematic.Core.Extensions;
 
